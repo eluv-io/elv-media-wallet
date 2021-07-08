@@ -1,0 +1,15 @@
+.idea/
+
+**.DS_STORE
+
+node_modules/
+
+/configuration.js
+
+deploy.sh
+
+dist/
+test/dist/
+
+scratch/
+!.keep

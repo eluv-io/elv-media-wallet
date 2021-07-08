@@ -1,0 +1,56 @@
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.expandable-section {
+  //-webkit-tap-highlight-color: rgba(0,0,0,0);
+  //-webkit-tap-highlight-color: transparent;
+  font-size: 14px;
+  margin: 10px 0;
+
+  &__header,
+  &__content {
+    padding: 17px 24px;
+  }
+
+  &__header {
+    border-bottom: 1px solid $lightergray;
+    cursor: pointer;
+    user-select: none;
+  }
+}
+
+.copyable-field {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+  max-width: 100%;
+
+  &__content {
+    color: $blue;
+    font-size: 12px;
+    max-width: calc(100% - 50px);
+    padding-right: 10px;
+  }
+
+  &__button {
+    background-color: $blue;
+    border: 0;
+    border-radius: 17.5px;
+    cursor: pointer;
+    height: 25px;
+    padding: 5px;
+    width: 45px;
+
+    svg {
+      height: 100%;
+
+      * {
+        stroke: $white;
+      }
+    }
+  }
+}
