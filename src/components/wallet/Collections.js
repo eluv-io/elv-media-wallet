@@ -15,7 +15,7 @@ const NFTCard = observer((nft) => {
       className="card nft-card"
       key={`nft-card-${nft.nftInfo.TokenIdStr}`}
     >
-      <NFTImage nft={nft} className="card__image" height={200} />
+      <NFTImage nft={nft} className="card__image" width={800} />
       <div className="card__overlay">
         { (nft.metadata.nft || {}).name || "" }
       </div>

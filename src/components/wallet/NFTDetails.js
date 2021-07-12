@@ -34,7 +34,7 @@ const NFTDetails = observer(() => {
         <h2 className="nft-details__content__header">
           { (nft.metadata.nft || {}).name || "" }
         </h2>
-        <NFTImage nft={nft} width={10} />
+        <NFTImage nft={nft} />
         <div className="nft-details__content__id ellipsis">
           { match.params.tokenId }
         </div>

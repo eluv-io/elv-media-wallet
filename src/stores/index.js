@@ -9,6 +9,11 @@ configure({
 });
 
 class RootStore {
+  loginStatus = "Loading Account";
+  loggedIn = false;
+
+  oauthUser = undefined;
+
   initialized = false;
   client = undefined;
 
@@ -50,6 +55,15 @@ class RootStore {
     return this.nfts.find(nft => nft.nftInfo.TokenIdStr === tokenId);
   }
 
+  FundAccount = async (recipient) => {
+    const client = await ElvClient.FromConfigurationUrl({configUrl: EluvioConfiguration["config-url"]});
+    const wallet = client.GenerateWallet();
+    const signer = wallet.AddAccount({privateKey: EluvioConfiguration.FUNDED_PRIVATE_KEY});
+    await client.SetSigner({signer});
+
+    await client.SendFunds({recipient, ether: 0.5});
+  };
+
   LoadCollections = flow(function * () {
     if(!this.profileData || !this.profileData.NFTs || this.nfts.length > 0) { return; }
 
@@ -79,7 +93,7 @@ class RootStore {
     );
   });
 
-  InitializeClient = flow(function * () {
+  InitializeClient = flow(function * ({user, privateKey}) {
     try {
       const client = yield ElvClient.FromConfigurationUrl({
         configUrl: EluvioConfiguration["config-url"]
@@ -87,22 +101,47 @@ class RootStore {
 
       this.staticToken = client.staticToken;
 
-      const wallet = client.GenerateWallet();
-      const signer = wallet.AddAccount({
-        privateKey: "snip"
-      });
-
-      client.SetSigner({signer});
+      const ethUrl = "https://host-216-66-40-19.contentfabric.io/eth";
+      const asUrl = "https://host-66-220-3-86.contentfabric.io";
 
       client.SetNodes({
         ethereumURIs: [
-          "https://host-216-66-40-19.contentfabric.io/eth"
+          ethUrl
+        ],
+        authServiceURIs: [
+          asUrl
         ]
       });
 
-      this.walletAddress = yield client.userProfileClient.WalletAddress();
+      this.client = client;
+
+
+      this.loginStatus = "Loading Account";
+
+      if(privateKey) {
+        const wallet = client.GenerateWallet();
+        const signer = wallet.AddAccount({privateKey});
+        client.SetSigner({signer});
+      } else if(user) {
+        this.oauthUser = user;
+
+        yield client.SetRemoteSigner({token: user.id_token});
+
+        if(parseFloat(yield client.GetBalance({address: client.signer.address})) < 0.25) {
+          yield this.FundAccount(client.signer.address);
+        }
+      } else {
+        throw Error("Neither user nor private key specified in InitializeClient");
+      }
+
+      this.walletAddress = yield client.userProfileClient.WalletAddress(false);
+
+      if(!this.walletAddress) {
+        this.loginStatus = "Initializing Account";
+        this.walletAddress = yield client.userProfileClient.WalletAddress(true);
+      }
+
       this.walletId = `iusr${client.utils.AddressToHash(client.CurrentAccountAddress())}`;
-      this.walletHash = yield client.LatestVersionHash({objectId: client.utils.AddressToObjectId(this.walletAddress)});
 
       this.basePublicUrl = yield client.FabricUrl({
         queryParams: {
@@ -114,7 +153,25 @@ class RootStore {
       // Parallelize load tasks
       let tasks = [];
       tasks.push((async () => {
-        const profileMetadata = (await client.userProfileClient.UserMetadata()) || {};
+        let profileMetadata = (await client.userProfileClient.UserMetadata()) || {};
+
+        if(user && !(profileMetadata.public && profileMetadata.public.name)) {
+
+          await client.userProfileClient.ReplaceUserMetadata({
+            metadata: {
+              public: {
+                name: user ? user.name : "user"
+              }
+            }
+          });
+
+          if(user && user.imageUrl) {
+            const image = await (await fetch(user.imageUrl)).blob();
+            await client.userProfileClient.SetUserProfileImage({image});
+          }
+
+          profileMetadata = (await client.userProfileClient.UserMetadata()) || {};
+        }
 
         runInAction(() => {
           this.profileMetadata = profileMetadata;
@@ -144,13 +201,28 @@ class RootStore {
 
       yield Promise.all(tasks);
 
+      this.walletHash = yield client.LatestVersionHash({objectId: client.utils.AddressToObjectId(this.walletAddress)});
+
       this.client = client;
 
       this.initialized = true;
+      this.loggedIn = true;
     } catch(error) {
+      if(user) {
+        yield user.SignOut();
+      }
       console.log("ERROR", error);
       throw error;
     }
+  });
+
+  SignOut = flow(function * () {
+    if(this.oauthUser) {
+      yield this.oauthUser.SignOut();
+      this.oauthUser = undefined;
+    }
+
+    window.location.href = window.location.origin + window.location.pathname;
   });
 }
 

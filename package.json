@@ -24,7 +24,7 @@
     ]
   },
   "dependencies": {
-    "@eluvio/elv-client-js": "^3.1.55",
+    "@eluvio/elv-client-js": "^3.1.56",
     "mobx": "^6.3.2",
     "mobx-react": "^6.3.1",
     "pre-commit": "^1.2.2",

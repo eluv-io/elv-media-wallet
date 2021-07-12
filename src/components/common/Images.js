@@ -19,10 +19,10 @@ export const ProfileImage = observer(({height=100, className=""}) => {
   );
 });
 
-export const NFTImage = observer(({nft, height, className=""}) => {
+export const NFTImage = observer(({nft, width, className=""}) => {
   let queryParams = {};
-  if(height) {
-    queryParams = { height };
+  if(width) {
+    queryParams = { width };
   }
 
   const name = (nft.metadata.nft || {}).name;

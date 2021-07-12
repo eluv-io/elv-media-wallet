@@ -119,6 +119,14 @@ input[type='checkbox'] {
   width: 19px;
 }
 
+button {
+  background-color: transparent;
+  border: 1px solid $mediumgray;
+  border-radius: 3px;
+  color: $black;
+  height: 40px;
+}
+
 .error-section {
   align-items: center;
   display: flex;
@@ -137,7 +145,6 @@ input[type='checkbox'] {
   display: grid;
   flex: 1 1 auto;
   height: max-content;
-  //margin-bottom: 60px;
   padding: 25px 20px 80px 10px;
   width: 100vw;
 }
@@ -150,6 +157,14 @@ input[type='checkbox'] {
 
     .navigation {
       width: 800px;
+    }
+
+    .header {
+      max-width: 800px;
+    }
+
+    .content {
+      width: auto;
     }
   }
 }

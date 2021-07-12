@@ -1,0 +1,106 @@
+.login-page {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  padding: 0 30px;
+
+  h1 {
+    font-size: 20px;
+    font-weight: 400;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  &__login-box {
+    align-items: center;
+    border: 1px solid $mediumgray;
+    border-radius: 3px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0 auto 20vh;
+    max-width: 500px;
+    min-height: 300px;
+    padding: 30px;
+    width: 100%;
+  }
+
+  &__login-box__login-status {
+    font-weight: 400;
+  }
+
+  &__private-key-form {
+    max-width: 500px;
+    width: 100%;
+
+    input {
+      font-size: 12px;
+    }
+
+    &__actions {
+      display: flex;
+      justify-content: center;
+    }
+
+    button {
+      background-color: $blue;
+      border: 1px solid $blue;
+      border-radius: 3px;
+      color: $white;
+      flex: 1 1 auto;
+      height: 40px;
+      padding: 5px;
+      width: 150px;
+
+      &:not(:last-child) {
+        margin-right: 10px;
+      }
+
+      &.login-page__private-key-form__button-cancel {
+        background-color: transparent;
+        border: 1px solid $mediumgray;
+        color: $black;
+      }
+    }
+  }
+
+  .labelled-field {
+    display: flex;
+    flex-direction: column;
+    margin: 10px 0;
+
+    label {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+
+    input {
+      height: 40px;
+      padding: 5px 10px;
+    }
+  }
+
+  &__login-button {
+    background-color: transparent;
+    border: 0;
+    cursor: pointer;
+    font-size: 12px;
+    height: 46px;
+    margin: 5px 0;
+    outline: 0;
+    width: 191px;
+  }
+
+  &__login-button-image {
+    padding: 0;
+
+    img {
+      height: 100%;
+      object-fit: contain;
+      width: 100%;
+    }
+  }
+}
+
+

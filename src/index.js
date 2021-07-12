@@ -1,7 +1,5 @@
 import "Assets/stylesheets/app.scss";
 
-import AsyncComponent from "Components/common/AsyncComponent";
-
 import React from "react";
 import {render} from "react-dom";
 import { observer} from "mobx-react";
@@ -17,6 +15,8 @@ import {
   Redirect
 } from "react-router-dom";
 import Wallet from "Components/wallet";
+import Login from "Components/login";
+import Profile from "Components/profile";
 
 const Placeholder = ({text}) => <div>{ text }</div>;
 
@@ -30,7 +30,7 @@ const Routes = () => {
         <Wallet />
       </Route>
       <Route path="/profile">
-        <Placeholder text={"Profile"} />
+        <Profile />
       </Route>
       <Route path="/">
         <Redirect to="/wallet" />
@@ -40,14 +40,15 @@ const Routes = () => {
 };
 
 const App = observer(() => {
+  if(!rootStore.loggedIn) {
+    return <Login />;
+  }
+
   return (
     <HashRouter>
       <div className={`app-container ${rootStore.initialized ? "app-container-initialized" : "app-container-not-initialized"}`}>
         <Header />
-        <AsyncComponent
-          Load={() => rootStore.InitializeClient()}
-          render={Routes}
-        />
+        <Routes />
         <Navigation />
       </div>
     </HashRouter>
@@ -55,4 +56,4 @@ const App = observer(() => {
 });
 
 
-render(<App />, document.getElementById("app"));
+render(<React.StrictMode><App /></React.StrictMode>, document.getElementById("app"));
