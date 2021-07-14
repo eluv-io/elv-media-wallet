@@ -14,7 +14,6 @@ const NFTCard = observer((nft) => {
       <Link
         to={`${match.url}/${nft.nftInfo.TokenIdStr}`}
         className="card nft-card"
-        key={`nft-card-${nft.nftInfo.TokenIdStr}`}
       >
         <NFTImage nft={nft} className="card__image" width={800} />
         <div className="card__overlay">
@@ -28,7 +27,7 @@ const NFTCard = observer((nft) => {
 const Collections = observer(() => {
   return (
     <div className="card-list collections">
-      { rootStore.nfts.map(nft => <NFTCard {...nft} />) }
+      { rootStore.nfts.map(nft => <NFTCard {...nft} key={`nft-card-${nft.nftInfo.TokenIdStr}`} />) }
     </div>
   );
 });

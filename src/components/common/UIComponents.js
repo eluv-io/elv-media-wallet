@@ -7,7 +7,7 @@ export const ExpandableSection = ({header, children, className=""}) => {
   const [ show, setShow ] = useState(false);
 
   return (
-    <div className={`expandable-section card-shadow ${className}`}>
+    <div className={`expandable-section card-shadow ${show ? "expandable-section-shown" : "expandable-section-hidden"} ${className}`}>
       <div className="expandable-section__header ellipsis" onClick={() => setShow(!show)}>
         { header }
       </div>

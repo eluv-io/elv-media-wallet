@@ -10,6 +10,10 @@
   font-size: 14px;
   margin: 10px auto;
 
+  &.expandable-section-hidden {
+    box-shadow: none;
+  }
+
   &__header,
   &__content {
     padding: 17px 24px;

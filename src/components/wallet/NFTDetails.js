@@ -47,61 +47,63 @@ const NFTDetails = observer(() => {
         </div>
       </div>
 
-      <ExpandableSection header="Description">
-        { nftData.description }
-      </ExpandableSection>
+      <div className="nft-details__info">
+        <ExpandableSection header="Description">
+          { nftData.description }
+        </ExpandableSection>
 
-      <ExpandableSection header="Contract">
-        <CopyableField value={nft.nftInfo.ContractAddr}>
-          Contract Address: { nft.nftInfo.ContractAddr }
-        </CopyableField>
-        <CopyableField value={nft.nftInfo.versionHash}>
-          Hash: { nft.nftInfo.versionHash }
-        </CopyableField>
-        <CopyableField value={Property("digital_media_signature")}>
-          Signature: { Property("digital_media_signature") }
-        </CopyableField>
-        <div>
-          <a
-            className="lookout-url"
-            target="_blank"
-            href={`https://lookout.qluv.io/address/${nft.nftInfo.ContractAddr}/transactions`} rel="noopener"
-          >
-            See More Info on Eluvio Lookout
-          </a>
-        </div>
-      </ExpandableSection>
+        <ExpandableSection header="Contract">
+          <CopyableField value={nft.nftInfo.ContractAddr}>
+            Contract Address: { nft.nftInfo.ContractAddr }
+          </CopyableField>
+          <CopyableField value={nft.nftInfo.versionHash}>
+            Hash: { nft.nftInfo.versionHash }
+          </CopyableField>
+          <CopyableField value={Property("digital_media_signature")}>
+            Signature: { Property("digital_media_signature") }
+          </CopyableField>
+          <div>
+            <a
+              className="lookout-url"
+              target="_blank"
+              href={`https://lookout.qluv.io/address/${nft.nftInfo.ContractAddr}/transactions`} rel="noopener"
+            >
+              See More Info on Eluvio Lookout
+            </a>
+          </div>
+        </ExpandableSection>
 
-      <ExpandableSection header="Details">
-        {
-          embedUrl ?
-            <CopyableField value={embedUrl}>
-              Media URL: { embedUrl }
-            </CopyableField>
-            : null
-        }
-        {
-          Property("creator") ?
-            <div>
-              Creator: { Property("creator") }
-            </div>
-            : null
-        }
-        {
-          Property("total_supply") ?
-            <div>
-              Total Supply: { Property("total_supply") }
-            </div>
-            : null
-        }
-        <br />
-        <div>
-          { copyright }
-        </div>
-        <div>
-          { mintDate ? `Minted on the Eluvio Content Fabric: ${mintDate}` : "" }
-        </div>
-      </ExpandableSection>
+        <ExpandableSection header="Details">
+          {
+            embedUrl ?
+              <CopyableField value={embedUrl}>
+                Media URL: { embedUrl }
+              </CopyableField>
+              : null
+          }
+          {
+            Property("creator") ?
+              <div>
+                Creator: { Property("creator") }
+              </div>
+              : null
+          }
+          {
+            Property("total_supply") ?
+              <div>
+                Total Supply: { Property("total_supply") }
+              </div>
+              : null
+          }
+          <br />
+          <div>
+            { copyright }
+          </div>
+          <div>
+            { mintDate ? `Minted on the Eluvio Content Fabric: ${mintDate}` : "" }
+          </div>
+        </ExpandableSection>
+      </div>
     </div>
   );
 });

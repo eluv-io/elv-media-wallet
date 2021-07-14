@@ -149,21 +149,22 @@ button {
   width: 100vw;
 }
 
-@media screen and (min-width: 800px) {
+@media screen and (min-width: $breakpoint) {
   .app-container {
     margin: auto;
-    max-width: 800px;
-    width: 800px;
+    max-width: $breakpoint;
+    width: $breakpoint;
 
     .navigation {
-      width: 800px;
+      width: $breakpoint;
     }
 
     .header {
-      max-width: 800px;
+      max-width: $breakpoint;
     }
 
     .content {
+      padding: 25px 30px 80px;
       width: auto;
     }
   }
