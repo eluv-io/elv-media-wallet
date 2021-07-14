@@ -19,10 +19,23 @@ export const ProfileImage = observer(({height=100, className=""}) => {
   );
 });
 
-export const NFTImage = observer(({nft, width, className=""}) => {
+export const NFTImage = observer(({nft, width, video=false, className=""}) => {
   let queryParams = {};
   if(width) {
     queryParams = { width };
+  }
+
+  const embedUrl = rootStore.MediaEmbedUrl(nft);
+  if(video && embedUrl) {
+    return (
+      <div className="nft-image nft-image-video-embed">
+        <iframe
+          className="nft-image-video-embed__frame"
+          src={embedUrl}
+          allowFullScreen
+        />
+      </div>
+    );
   }
 
   const name = (nft.metadata.nft || {}).name;

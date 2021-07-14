@@ -22,19 +22,26 @@ const NFTDetails = observer(() => {
   }
 
   let mintDate = Property("created_at");
-  mintDate = "2020-10-05";
   if(mintDate) {
-    mintDate = new Date(mintDate);
-    mintDate = `${mintDate.getFullYear()}/${mintDate.getMonth() + 1}/${mintDate.getDate()}`;
+    try {
+      const parsedMintDate = new Date(mintDate);
+      if(!(d instanceof Date && !isNaN(d))) {
+        mintDate = `${parsedMintDate.getFullYear()}/${parsedMintDate.getMonth() + 1}/${parsedMintDate.getDate()}`;
+      }
+    } catch(error) {
+      mintDate = "";
+      console.error("Invalid date:", mintDate);
+    }
   }
 
+  const embedUrl = rootStore.MediaEmbedUrl(nft);
   return (
     <div className="nft-details">
       <div className="nft-details__content card-shadow">
         <h2 className="nft-details__content__header">
           { (nft.metadata.nft || {}).name || "" }
         </h2>
-        <NFTImage nft={nft} />
+        <NFTImage nft={nft} video />
         <div className="nft-details__content__id ellipsis">
           { match.params.tokenId }
         </div>
@@ -57,6 +64,28 @@ const NFTDetails = observer(() => {
       </ExpandableSection>
 
       <ExpandableSection header="Details">
+        {
+          embedUrl ?
+            <CopyableField value={embedUrl}>
+              Media URL: { embedUrl }
+            </CopyableField>
+            : null
+        }
+        {
+          Property("creator") ?
+            <div>
+              Creator: { Property("creator") }
+            </div>
+            : null
+        }
+        {
+          Property("total_supply") ?
+            <div>
+              Total Supply: { Property("total_supply") }
+            </div>
+            : null
+        }
+        <br />
         <div>
           { copyright }
         </div>

@@ -17,6 +17,7 @@ import {
 import Wallet from "Components/wallet";
 import Login from "Components/login";
 import Profile from "Components/profile";
+import ScrollToTop from "Components/common/ScrollToTop";
 
 const Placeholder = ({text}) => <div>{ text }</div>;
 
@@ -48,7 +49,9 @@ const App = observer(() => {
     <HashRouter>
       <div className={`app-container ${rootStore.initialized ? "app-container-initialized" : "app-container-not-initialized"}`}>
         <Header />
-        <Routes />
+        <ScrollToTop>
+          <Routes />
+        </ScrollToTop>
         <Navigation />
       </div>
     </HashRouter>

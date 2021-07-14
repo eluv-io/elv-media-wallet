@@ -6,19 +6,24 @@
 
 .card-list {
   display: grid;
-  grid-gap: 12px;
-  grid-template-columns: 1fr;
+  grid-gap: 10px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.card-container {
+  display: inline-block;
+  width: 100%;
 }
 
 .card {
   border-radius: 10px;
-  display: block;
+  display: inline-block;
   max-width: 100%;
   object-fit: cover;
   object-position: center;
 
   overflow: hidden;
-  padding-top: 56.25%;
+  padding-top: 100%;
   position: relative;
   width: 100%;
 
@@ -51,7 +56,7 @@
       background-color: rgba($black, 0.25);
       color: $white;
       display: flex;
-      z-index: 100;
+      z-index: 5;
     }
   }
 }
@@ -62,7 +67,13 @@
   width: 100%;
 
   &__content {
-    padding: 10px;
+    margin: auto;
+    max-width: 600px;
+    padding: 15px;
+  }
+
+  .nft-image {
+    margin: 5px 0;
   }
 
   &__content__header {
@@ -71,5 +82,24 @@
 
   &__content__id {
     font-style: italic;
+  }
+}
+
+.nft-image-video-embed {
+  border: 0;
+  max-width: 100%;
+  outline: 0;
+  padding-top: 100%;
+  position: relative;
+  width: 100%;
+
+  &__frame {
+    border: 0;
+    height: 100%;
+    left: 0;
+    outline: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
   }
 }

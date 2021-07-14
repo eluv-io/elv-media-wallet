@@ -55,6 +55,16 @@ class RootStore {
     return this.nfts.find(nft => nft.nftInfo.TokenIdStr === tokenId);
   }
 
+  MediaEmbedUrl(nft) {
+    if((nft.metadata.nft || {}).embed_url) {
+      return (nft.metadata.nft || {}).embed_url;
+    } else if((nft.metadata.asset_metadata || {}).sources) {
+      const versionHash = nft.nftInfo.versionhash;
+      const net = EluvioConfiguration["config-url"].includes("demov3") ? "demo" : "main";
+      return `https://embed.v3.contentfabric.io?p&net=${net}&ct=h&vid=${versionHash}`;
+    }
+  }
+
   FundAccount = async (recipient) => {
     const client = await ElvClient.FromConfigurationUrl({configUrl: EluvioConfiguration["config-url"]});
     const wallet = client.GenerateWallet();

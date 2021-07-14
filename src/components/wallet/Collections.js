@@ -10,16 +10,18 @@ const NFTCard = observer((nft) => {
   const match = useRouteMatch();
 
   return (
-    <Link
-      to={`${match.url}/${nft.nftInfo.TokenIdStr}`}
-      className="card nft-card"
-      key={`nft-card-${nft.nftInfo.TokenIdStr}`}
-    >
-      <NFTImage nft={nft} className="card__image" width={800} />
-      <div className="card__overlay">
-        { (nft.metadata.nft || {}).name || "" }
-      </div>
-    </Link>
+    <div className="card-container">
+      <Link
+        to={`${match.url}/${nft.nftInfo.TokenIdStr}`}
+        className="card nft-card"
+        key={`nft-card-${nft.nftInfo.TokenIdStr}`}
+      >
+        <NFTImage nft={nft} className="card__image" width={800} />
+        <div className="card__overlay">
+          { (nft.metadata.nft || {}).name || "" }
+        </div>
+      </Link>
+    </div>
   );
 });
 
