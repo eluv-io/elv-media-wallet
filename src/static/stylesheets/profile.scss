@@ -1,6 +1,58 @@
 .profile-page {
+  padding: 0 30px;
+
   &__sign-out-button {
     margin: 20px auto 0;
     width: 150px;
+  }
+
+  &__section {
+    border: 1px solid $lightgray;
+    border-radius: 3px;
+    margin: 10px auto;
+    padding: 10px 10px 20px;
+    width: 100%;
+
+    h2 {
+      font-size: 18px;
+      font-weight: 400;
+      letter-spacing: 0.03em;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+  }
+
+  .address {
+    font-size: 10px;
+    letter-spacing: 0.01em;
+  }
+
+  .labelled-field {
+    align-items: flex-end;
+    display: flex;
+    font-size: 12px;
+    justify-content: space-between;
+
+    label {
+      font-weight: 500;
+
+      &::after {
+        content: ":";
+      }
+    }
+  }
+
+  @media screen and (min-width: 800px) {
+    &__section {
+      padding: 10px 20px 20px;
+    }
+
+    .labelled-field {
+      font-size: 14px;
+    }
+
+    .address {
+      font-size: 14px;
+    }
   }
 }

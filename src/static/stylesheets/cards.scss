@@ -1,3 +1,6 @@
+
+
+
 .card-shadow {
   background-color: $white;
   border-radius: 6px;
@@ -68,8 +71,12 @@
 
   &__content {
     margin: auto;
-    max-width: 600px;
     padding: 15px;
+  }
+
+  &__content,
+  .expandable-section {
+    max-width: 600px;
   }
 
   .nft-image {
@@ -83,6 +90,26 @@
   &__content__id {
     font-style: italic;
   }
+
+  .lookout-url {
+    background-color: $blue;
+    border-radius: 17.5px;
+    color: $white;
+    display: block;
+    margin: 20px auto 0;
+    max-width: 300px;
+    padding: 10px 30px;
+    text-align: center;
+  }
+}
+
+.nft-image {
+  @include background-gradient-loader;
+
+  border-radius: 5px;
+  color: rgba($black, 0.25);
+  line-height: 100px;
+  text-align: center;
 }
 
 .nft-image-video-embed {
@@ -103,3 +130,4 @@
     width: 100%;
   }
 }
+

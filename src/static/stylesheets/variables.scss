@@ -9,3 +9,23 @@ $darkgray: #555;
 $content-background: #fafafa;
 
 $blue: #0885fb;
+
+@keyframes BackgroundGradient {
+  0% {
+    background-position: 0 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+@mixin background-gradient-loader {
+  animation: BackgroundGradient 15s ease-in-out infinite;
+  background: linear-gradient(-75deg, $lightgray, $white, $lightgray, $white, $lightgray);
+  background-size: 400% 400%;
+}

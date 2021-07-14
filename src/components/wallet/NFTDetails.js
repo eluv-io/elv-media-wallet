@@ -61,6 +61,15 @@ const NFTDetails = observer(() => {
         <CopyableField value={Property("digital_media_signature")}>
           Signature: { Property("digital_media_signature") }
         </CopyableField>
+        <div>
+          <a
+            className="lookout-url"
+            target="_blank"
+            href={`https://lookout.qluv.io/address/${nft.nftInfo.ContractAddr}/transactions`} rel="noopener"
+          >
+            See More Info on Eluvio Lookout
+          </a>
+        </div>
       </ExpandableSection>
 
       <ExpandableSection header="Details">
