@@ -1,7 +1,7 @@
 import "Assets/stylesheets/app.scss";
 
-import React from "react";
-import {render} from "react-dom";
+import React, { useEffect } from "react";
+import { render } from "react-dom";
 import { observer} from "mobx-react";
 
 import { rootStore } from "Stores/index.js";
@@ -9,6 +9,7 @@ import Header from "Components/Header";
 import Navigation from "Components/Navigation";
 
 import {
+  useHistory,
   HashRouter,
   Switch,
   Route,
@@ -18,10 +19,23 @@ import Wallet from "Components/wallet";
 import Login from "Components/login";
 import Profile from "Components/profile";
 import ScrollToTop from "Components/common/ScrollToTop";
+import InitializeListener from "Components/interface/Listener";
 
 const Placeholder = ({text}) => <div>{ text }</div>;
 
 const Routes = () => {
+  const history = useHistory();
+
+  useEffect(() => InitializeListener(history));
+
+  if(!rootStore.loggedIn) {
+    return (
+      <Switch>
+        <Login />
+      </Switch>
+    );
+  }
+
   return (
     <Switch>
       <Route path="/discover">
@@ -41,10 +55,6 @@ const Routes = () => {
 };
 
 const App = observer(() => {
-  if(!rootStore.loggedIn) {
-    return <Login />;
-  }
-
   return (
     <HashRouter>
       <div className={`app-container ${rootStore.initialized ? "app-container-initialized" : "app-container-not-initialized"}`}>

@@ -20,30 +20,30 @@ export const ProfileImage = observer(({height=100, className=""}) => {
 });
 
 export const NFTImage = observer(({nft, width, video=false, className=""}) => {
-  let queryParams = {};
+  let url = nft.metadata.image;
+
   if(width) {
-    queryParams = { width };
+    url = new URL(url);
+    url.searchParams.set("width", width);
+    url = url.toString();
   }
 
-  const embedUrl = rootStore.MediaEmbedUrl(nft);
-  if(video && embedUrl) {
+  if(video && nft.metadata.embed_url) {
     return (
       <div className="nft-image nft-image-video-embed">
         <iframe
           className="nft-image-video-embed__frame"
-          src={embedUrl}
+          src={nft.metadata.embed_url}
           allowFullScreen
         />
       </div>
     );
   }
-
-  const name = (nft.metadata.nft || {}).name;
-  return nft.metadata.display_image ?
+  return nft.metadata.image ?
     <img
-      src={rootStore.PublicLink({versionHash: nft.nftInfo.versionHash, path: "public/display_image", queryParams})}
+      src={url}
       className={`nft-image nft-image-image ${className}`}
-      alt={name}
+      alt={nft.metadata.display_name}
     /> :
-    <SVG src={NFTPlaceholderIcon} className={`nft-image nft-image-placeholder ${className}`} alt={name} />;
+    <SVG src={NFTPlaceholderIcon} className={`nft-image nft-image-placeholder ${className}`} alt={nft.metadata.display_name} />;
 });

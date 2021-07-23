@@ -132,6 +132,14 @@
   text-align: center;
 }
 
+.nft-image-placeholder {
+  padding: 40%;
+
+  * {
+    stroke: $black;
+  }
+}
+
 .nft-image-video-embed {
   border: 0;
   max-width: 100%;

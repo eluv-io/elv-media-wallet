@@ -9,37 +9,26 @@ import {ExpandableSection, CopyableField} from "Components/common/UIComponents";
 const NFTDetails = observer(() => {
   const match = useRouteMatch();
   const nft = rootStore.NFT(match.params.tokenId);
-  const nftData = (nft.metadata.nft || {});
-  const nftProperties = nftData.properties || {};
 
-  const Property = (key) => {
-    return (nftProperties[key] || {})[key] || (nftProperties[key] || {}).description;
-  };
-
-  let copyright = Property("copyright");
-  if(!copyright.includes("©")) {
-    copyright = `© ${copyright}`;
-  }
-
-  let mintDate = Property("created_at");
+  let mintDate = nft.metadata.created_at;
   if(mintDate) {
     try {
       const parsedMintDate = new Date(mintDate);
-      if(!(d instanceof Date && !isNaN(d))) {
+      if(!(parsedMintDate instanceof Date && !isNaN(parsedMintDate))) {
+        rootStore.Log(`Invalid date: ${mintDate}`, true);
+      } else {
         mintDate = `${parsedMintDate.getFullYear()}/${parsedMintDate.getMonth() + 1}/${parsedMintDate.getDate()}`;
       }
     } catch(error) {
       mintDate = "";
-      console.error("Invalid date:", mintDate);
     }
   }
 
-  const embedUrl = rootStore.MediaEmbedUrl(nft);
   return (
     <div className="nft-details">
       <div className="nft-details__content card-shadow">
         <h2 className="nft-details__content__header">
-          { (nft.metadata.nft || {}).name || "" }
+          { nft.metadata.display_name }
         </h2>
         <NFTImage nft={nft} video />
         <div className="nft-details__content__id ellipsis">
@@ -49,24 +38,21 @@ const NFTDetails = observer(() => {
 
       <div className="nft-details__info">
         <ExpandableSection header="Description">
-          { nftData.description }
+          { nft.metadata.description }
         </ExpandableSection>
 
         <ExpandableSection header="Contract">
-          <CopyableField value={nft.nftInfo.ContractAddr}>
-            Contract Address: { nft.nftInfo.ContractAddr }
+          <CopyableField value={nft.details.ContractAddr}>
+            Contract Address: { nft.details.ContractAddr }
           </CopyableField>
-          <CopyableField value={nft.nftInfo.versionHash}>
-            Hash: { nft.nftInfo.versionHash }
-          </CopyableField>
-          <CopyableField value={Property("digital_media_signature")}>
-            Signature: { Property("digital_media_signature") }
+          <CopyableField value={nft.details.versionHash}>
+            Hash: { nft.details.versionHash }
           </CopyableField>
           <div>
             <a
               className="lookout-url"
               target="_blank"
-              href={`https://lookout.qluv.io/address/${nft.nftInfo.ContractAddr}/transactions`} rel="noopener"
+              href={`https://lookout.qluv.io/address/${nft.details.ContractAddr}/transactions`} rel="noopener"
             >
               See More Info on Eluvio Lookout
             </a>
@@ -75,32 +61,32 @@ const NFTDetails = observer(() => {
 
         <ExpandableSection header="Details">
           {
-            embedUrl ?
-              <CopyableField value={embedUrl}>
-                Media URL: { embedUrl }
+            nft.metadata.embed_url ?
+              <CopyableField value={nft.metadata.embed_url}>
+                Media URL: { nft.metadata.embed_url }
               </CopyableField>
               : null
           }
           {
-            Property("creator") ?
+            nft.metadata.creator ?
               <div>
-                Creator: { Property("creator") }
+                Creator: { nft.metadata.creator }
               </div>
               : null
           }
           {
-            Property("total_supply") ?
+            nft.metadata.total_supply ?
               <div>
-                Total Supply: { Property("total_supply") }
+                Total Supply: { nft.metadata.total_supply }
               </div>
               : null
           }
           <br />
           <div>
-            { copyright }
+            { nft.metadata.copyright }
           </div>
           <div>
-            { mintDate ? `Minted on the Eluvio Content Fabric: ${mintDate}` : "" }
+            { mintDate ? `Minted on the Eluvio Content Fabric on ${mintDate}` : "" }
           </div>
         </ExpandableSection>
       </div>

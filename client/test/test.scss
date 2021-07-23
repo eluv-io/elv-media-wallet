@@ -1,0 +1,83 @@
+html,
+body,
+.-elv-media-wallet-frame,
+.app,
+.wallet-target,
+.page-container {
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
+  margin: 0;
+  min-height: 100%;
+  padding: 0;
+  width: 100%;
+}
+
+body {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+h1 {
+  font-weight: 500;
+  text-align: center;
+}
+
+.wallet-target {
+  display: block;
+  height: 75%;
+  margin: auto;
+  width: 75%;
+}
+
+.-elv-media-wallet-frame {
+  border: 1px solid #6495ed;
+  min-height: 75vh;
+  outline: 0;
+}
+
+.button-row {
+  align-items: center;
+  display: flex;
+  justify-content: space-evenly;
+  margin: auto;
+  margin-bottom: 10px;
+  width: 75%;
+
+  p {
+    margin-right: 10px;
+  }
+
+  button {
+    background-color: #ffffff;
+    border: 1px solid #d3d3d3;
+    border-radius: 0;
+    cursor: pointer;
+    flex: 1 1 auto;
+    outline: 0;
+    padding: 3px 10px;
+
+    &:hover {
+      background-color: #6495ed;
+      color: #ffffff;
+    }
+
+    &:not(:last-child) {
+      margin-right: 5px;
+    }
+  }
+}
+
+.client-results {
+  background-color: #fff;
+  border: 1px solid #d3d3d3;
+  display: block;
+  margin: 10px auto;
+  padding: 10px;
+  white-space: pre-wrap;
+  width: 75%;
+  word-wrap: break-word;
+
+  &:empty {
+    display: none;
+  }
+}

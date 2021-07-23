@@ -4,6 +4,9 @@
 
 node_modules/
 
+client/node_modules/
+client/test/node_modules/
+
 /configuration.js
 
 deploy.sh

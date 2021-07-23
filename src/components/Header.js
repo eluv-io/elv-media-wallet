@@ -8,6 +8,8 @@ import {ProfileImage} from "Components/common/Images";
 import {Link} from "react-router-dom";
 
 const Header = observer(() => {
+  if(!rootStore.loggedIn) { return null; }
+
   return (
     <header className="header">
       <div className="header__search">

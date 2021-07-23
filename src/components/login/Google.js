@@ -9,24 +9,24 @@ const GoogleLogin = ({setLoading}) => {
 
       const SetUser = async (user) => {
         try {
+          window.user = user;
           setLoading(true);
 
           const profile = user.getBasicProfile();
           const {id_token, access_token} = user.getAuthResponse(true);
+
           const userData = {
             id: profile.getId(),
             id_token,
             access_token,
             name: profile.getName(),
             email: profile.getEmail(),
-            imageUrl: profile.getImageUrl(),
-            SignOut: async () => {
-              await user.disconnect();
-              await gapi.auth2.getAuthInstance().signOut();
-            }
+            imageUrl: profile.getImageUrl()
           };
 
-          await rootStore.InitializeClient({user: userData});
+          await rootStore.InitializeClient({user: userData, authService: "google"});
+
+          rootStore.SetIdToken("google", id_token);
         } finally {
           setLoading(false);
         }
@@ -43,9 +43,18 @@ const GoogleLogin = ({setLoading}) => {
       className="login-page__login-button login-page__login-button-image login-page__login-button-google"
       onClick={async () => {
         try {
-          await gapi.auth2.getAuthInstance().signIn({});
+          if(rootStore.IdToken("google")) {
+            try {
+              setLoading(true);
+              await rootStore.InitializeClient({idToken: rootStore.IdToken("google"), authService: "google"});
+            } finally {
+              setLoading(false);
+            }
+          } else {
+            await gapi.auth2.getAuthInstance().signIn({});
+          }
         } catch(error) {
-          console.error(error);
+          rootStore.Log(error, true);
         }
       }}
     >

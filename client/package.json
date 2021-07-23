@@ -1,0 +1,10 @@
+{
+  "name": "@eluvio/elv-media-wallet-client",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+
+  },
+  "license": "MIT"
+}
