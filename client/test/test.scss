@@ -48,7 +48,7 @@ h1 {
   }
 
   button {
-    background-color: #ffffff;
+    background-color: #fff;
     border: 1px solid #d3d3d3;
     border-radius: 0;
     cursor: pointer;
@@ -58,7 +58,7 @@ h1 {
 
     &:hover {
       background-color: #6495ed;
-      color: #ffffff;
+      color: #fff;
     }
 
     &:not(:last-child) {

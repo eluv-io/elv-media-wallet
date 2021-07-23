@@ -14,10 +14,7 @@ const pages = {
 const FormatNFT = (nft) => {
   if(!nft || !nft.metadata) { return; }
 
-  return {
-    metadata: toJS(nft.metadata.nft),
-    details: toJS(nft.details)
-  };
+  return toJS(nft);
 };
 
 const InitializeListener = (history) => {
