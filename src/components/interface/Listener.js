@@ -4,7 +4,7 @@ import {toJS} from "mobx";
 const pages = {
   "discover": "/discover",
   "wallet": "/wallet",
-  "collections": "/wallet/collections",
+  "items": "/wallet/collections",
   "item": "/wallet/collections/:tokenId",
   "tickets": "/wallet/tickets",
   "tokens": "/wallet/tokens",
@@ -91,6 +91,11 @@ const InitializeListener = (history) => {
 
   window.addEventListener("message", Listener);
   window.onbeforeunload = () => window.removeEventListener("message", Listener);
+
+  target.postMessage({
+    type: "ElvMediaWalletResponse",
+    requestId: "init"
+  }, "*");
 };
 
 export default InitializeListener;

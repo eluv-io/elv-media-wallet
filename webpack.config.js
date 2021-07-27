@@ -7,6 +7,32 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const HtmlWebpackInlineSourcePlugin = require("html-webpack-inline-source-plugin");
 
+let plugins = [
+  new HtmlWebpackPlugin({
+    title: "Eluvio Media Wallet",
+    template: Path.join(__dirname, "src", "index.html"),
+    cache: false,
+    filename: "index.html",
+    favicon: "./src/static/icons/favicon.png"
+  }),
+  new CopyWebpackPlugin([{
+    from: Path.join(__dirname, "configuration.js"),
+    to: Path.join(__dirname, "dist", "configuration.js")
+  }]),
+];
+
+if(process.env.CLIENT) {
+  plugins = [
+    new webpack.optimize.LimitChunkCountPlugin({
+      maxChunks: 1,
+    })
+  ];
+}
+
+if(process.env.ANALYZE_BUNDLE) {
+  plugins.push(new BundleAnalyzerPlugin());
+}
+
 module.exports = {
   entry: "./src/index.js",
   target: "web",
@@ -43,24 +69,14 @@ module.exports = {
   },
   mode: "development",
   devtool: "eval-source-map",
-  plugins: [
-    new HtmlWebpackPlugin({
-      title: "Eluvio Media Wallet",
-      template: Path.join(__dirname, "src", "index.html"),
-      cache: false,
-      filename: "index.html",
-      favicon: "./src/static/icons/favicon.png"
-    }),
-    new CopyWebpackPlugin([{
-      from: Path.join(__dirname, "configuration.js"),
-      to: Path.join(__dirname, "dist", "configuration.js")
-    }]),
-  ],
+  plugins,
   resolve: {
     alias: {
       Assets: Path.resolve(__dirname, "src/static"),
       Components: Path.resolve(__dirname, "src/components"),
-      Stores: Path.resolve(__dirname, "src/stores")
+      Stores: Path.resolve(__dirname, "src/stores"),
+      // Force webpack to use *one* copy of bn.js instead of 8
+      "bn.js": Path.resolve(Path.join(__dirname, "node_modules", "bn.js"))
     },
     extensions: [".js", ".jsx", ".scss", ".png", ".svg"]
   },
@@ -90,7 +106,11 @@ module.exports = {
         exclude: /node_modules\/(?!elv-components-js)/,
         loader: "babel-loader",
         options: {
-          presets: ["@babel/preset-env", "@babel/preset-react", "babel-preset-mobx"],
+          presets: [
+            "@babel/preset-env",
+            "@babel/preset-react",
+            "babel-preset-mobx"
+          ],
           plugins: [
             require("@babel/plugin-proposal-object-rest-spread"),
             require("@babel/plugin-transform-regenerator"),

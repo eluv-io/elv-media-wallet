@@ -1,5 +1,3 @@
-import Utils from "@eluvio/elv-client-js/src/Utils";
-
 // https://stackoverflow.com/questions/4068373/center-a-popup-window-on-screen
 const Popup = ({url, title, w, h}) => {
   // Fixes dual-screen position
@@ -52,7 +50,11 @@ const SandboxPermissions = () => {
   ].join(" ");
 };
 
-class MediaWalletClient {
+/**
+ * Eluvio Media Wallet client
+ *
+ */
+export class ElvWalletClient {
   Throw(error) {
     throw new Error(`Eluvio Media Wallet Client | ${error}`);
   }
@@ -68,6 +70,10 @@ class MediaWalletClient {
     }
   }
 
+  /**
+   * This constructor should not be used. Please use <a href="#.InitializePopup">InitializeFrame</a> or <a href="#.InitializePopup">InitializePopup</a> instead.
+   * @constructor
+   */
   constructor({
     walletAppUrl="http://media-wallet.v3.contentfabric.io",
     target,
@@ -86,10 +92,14 @@ class MediaWalletClient {
     this.target = target;
     this.Close = Close;
     this.timeout = timeout;
-
-    this.utils = Utils;
   }
 
+  /**
+   * Return info about all items in the user's wallet
+   *
+   * @methodGroup Items
+   * @return Promise<Array<Object>> - Information about the items in the user's wallet.
+   */
   async Items() {
     return await this.SendMessage({
       action: "items",
@@ -97,6 +107,15 @@ class MediaWalletClient {
     });
   }
 
+  /**
+   * Return info about a specific item in the user's wallet
+   *
+   * @methodGroup Items
+   * @namedParams
+   * @param {string} tokenId - The ID of the item
+   *
+   * @return Promise<Object | undefined> - Information about the requested item. Returns undefined if the item was not found.
+   */
   async Item({tokenId}) {
     return await this.SendMessage({
       action: "items",
@@ -106,6 +125,22 @@ class MediaWalletClient {
     });
   }
 
+  /**
+   * Request the wallet app navigate to the specified page.
+   *
+   * Currently supported pages:
+
+      - 'items' - List of items in the user's wallet
+      - 'item' - A specific item in the user's wallet
+        -- Required param: `tokenId`
+      - 'profile' - The user's profile
+
+   * @methodGroup Navigation
+   * @namedParams
+   * @param {string=} page - A named app path
+   * @param {Object=} params - URL parameters for the specified path, e.g. { tokenId: <token-id> } for an 'item' page.
+   * @param {string=} path - An absolute app path
+   */
   async Navigate({page, path, params}) {
     return this.SendMessage({
       action: "navigate",
@@ -116,6 +151,76 @@ class MediaWalletClient {
       }
     });
   }
+
+  /**
+   * Initialize the media wallet in a new window.
+   *
+   * @methodGroup Constructor
+   *
+   * @namedParams
+   * @param {string=} walletAppUrl=http://media-wallet.v3.contentfabric.io - The URL of the Eluvio Media Wallet app
+   *
+   * @return {Promise<ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new window.
+   */
+  static async InitializePopup({walletAppUrl="http://media-wallet.v3.contentfabric.io"}) {
+    const target = Popup({url: walletAppUrl, title: "Eluvio Media Wallet", w: 400, h: 700});
+
+    const client = new ElvWalletClient({walletAppUrl, target, Close: () => target.close()});
+
+    // Ensure app is initialized
+    await client.AwaitMessage("init");
+
+    return client;
+  }
+
+  /**
+   * Initialize the media wallet in a new iframe. The target can be an existing iframe or an element in which to create the iframe,
+   * and the target can be passed in either as an element directly, or by element ID.
+   *
+   * @methodGroup Constructor
+   *
+   * @namedParams
+   * @param {string=} walletAppUrl=http://media-wallet.v3.contentfabric.io - The URL of the Eluvio Media Wallet app
+   * @param {Object | string} target - An HTML element or the ID of an element
+   *
+   * @return {Promise<ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new iframe.
+   */
+  static async InitializeFrame({walletAppUrl="http://media-wallet.v3.contentfabric.io", target}) {
+    if(typeof target === "string") {
+      const targetElement = document.getElementById(target);
+
+      if(!targetElement) {
+        throw Error(`Eluvio Media Wallet Client: Unable to find element with target ID ${target}`);
+      }
+
+      target = targetElement;
+    }
+
+    if((target.tagName || target.nodeName).toLowerCase() !== "iframe") {
+      let parent = target;
+      parent.innerHTML = "";
+
+      target = document.createElement("iframe");
+      parent.appendChild(target);
+    }
+
+    target.classList.add("-elv-media-wallet-frame");
+    target.sandbox = SandboxPermissions();
+    target.allowfullscreen = true;
+    target.allow = "encrypted-media *";
+
+    const client = new ElvWalletClient({
+      walletAppUrl,
+      target: target.contentWindow,
+      Close: () => target.parentNode.removeChild(target)
+    });
+
+    // Ensure app is initialized
+    target.src = walletAppUrl;
+    await client.AwaitMessage("init");
+
+    return client;
+  };
 
   async SendMessage({action, params}) {
     const requestId = `action-${Id.next()}`;
@@ -185,45 +290,6 @@ class MediaWalletClient {
       window.addEventListener("message", methodListener);
     });
   }
-
 }
 
-export const InitializePopup = async ({walletAppUrl="http://media-wallet.v3.contentfabric.io"}) => {
-  const target = Popup({url: walletAppUrl, title: "Eluvio Media Wallet", w: 400, h: 700});
-
-  return new MediaWalletClient({walletAppUrl, target, Close: () => target.close()});
-};
-
-export const InitializeFrame = async ({
-  walletAppUrl="http://media-wallet.v3.contentfabric.io",
-  target,
-  targetId
-}) => {
-  if(targetId) {
-    target = document.getElementById(targetId);
-
-    if(!target) {
-      throw Error(`Eluvio Media Wallet Client: Unable to find element with target ID ${targetId}`);
-    }
-  }
-
-  if((target.tagName || target.nodeName).toLowerCase() !== "iframe") {
-    let parent = target;
-    parent.innerHTML = "";
-
-    target = document.createElement("iframe");
-    parent.appendChild(target);
-  }
-
-  target.src = walletAppUrl;
-  target.classList.add("-elv-media-wallet-frame");
-  target.sandbox = SandboxPermissions();
-  target.allowfullscreen = true;
-  target.allow = "encrypted-media *";
-
-  return new MediaWalletClient({
-    walletAppUrl,
-    target: target.contentWindow,
-    Close: () => target.parentNode.removeChild(target)
-  });
-};
+export default ElvWalletClient;

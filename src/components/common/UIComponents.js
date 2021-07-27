@@ -11,7 +11,7 @@ export const ExpandableSection = ({header, children, className=""}) => {
       <div className="expandable-section__header ellipsis" onClick={() => setShow(!show)}>
         { header }
       </div>
-      { show ? <div className="expandable-section__content ellipsis">{ children }</div> : null }
+      { show ? <div className="expandable-section__content">{ children }</div> : null }
     </div>
   );
 };

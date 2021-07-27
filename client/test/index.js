@@ -4,7 +4,7 @@ import "./test.scss";
 import React, { useState } from "react";
 import {render} from "react-dom";
 
-import { InitializeFrame, InitializePopup } from "../index";
+import ElvWalletClient from "../src";
 
 window.client = undefined;
 
@@ -38,7 +38,7 @@ const App = () => {
           onClick={async () => {
             Destroy();
 
-            setClient(window.client = await InitializePopup({walletAppUrl: appUrl}))
+            setClient(window.client = await ElvWalletClient.InitializePopup({walletAppUrl: appUrl}))
           }}
         >
           Popup
@@ -48,7 +48,7 @@ const App = () => {
           onClick={async () => {
             Destroy();
 
-            setClient(window.client = await InitializeFrame({walletAppUrl: appUrl, targetId}))
+            setClient(window.client = await ElvWalletClient.InitializeFrame({walletAppUrl: appUrl, target: targetId}))
           }}
         >
           Frame
@@ -63,7 +63,7 @@ const App = () => {
               <p>Navigation</p>
               <button onClick={() => client.Navigate({page: "discover"})}>Discover</button>
               <button onClick={() => client.Navigate({page: "wallet"})}>Wallet</button>
-              <button onClick={() => client.Navigate({page: "collections"})}>Collections</button>
+              <button onClick={() => client.Navigate({page: "items"})}>Items</button>
               <button
                 onClick={async () => {
                   const items = await client.Items();

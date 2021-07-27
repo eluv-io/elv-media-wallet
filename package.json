@@ -8,8 +8,13 @@
   "scripts": {
     "serve": "webpack-dev-server --hot --port 8090 --host=0.0.0.0 --disable-host-check --useLocalIp",
     "serve-client-test": "webpack-dev-server --hot --entry ./client/test/index.js --port 8091 --host=0.0.0.0 --disable-host-check --useLocalIp",
-    "build": "rm -rf dist/* && NODE_ENV=production node ./node_modules/webpack-cli/bin/cli.js -p --progress --colors --devtool none",
-    "build-client-test": "rm -rf ./client/test/dist/* && NODE_ENV=production node ./node_modules/webpack-cli/bin/cli.js --entry ./client/test/index.js --output-path ./client/test/dist -p --progress --colors --devtool none",
+    "build": "npm run build-app && npm run build-client && npm run build-client-test && npm run build-docs",
+    "build-app": "rm -rf dist/* && NODE_ENV=production node ./node_modules/webpack-cli/bin/cli.js -p --devtool none",
+    "build-client-test": "rm -rf ./client/test/dist/* && NODE_ENV=production node ./node_modules/webpack-cli/bin/cli.js --entry ./client/test/index.js --output-path ./client/test/dist --devtool none",
+    "build-client": "npm run build-client-min && npm run build-client-dist",
+    "build-client-min": "rm -rf ./client/dist/ElvMediaWalletClient-min.js && CLIENT=true webpack --mode production --target web --entry ./client/src/index.js --output-path ./client/dist --output-filename ElvMediaWalletClient.min.js  --devtool none",
+    "build-client-dist": "rm -rf ./client/dist/src && node ./node_modules/@babel/cli/bin/babel.js --source-type=unambiguous --presets=@babel/preset-env --plugins @babel/plugin-transform-runtime client/src/index.js --out-dir client/dist/src",
+    "build-docs": "rm -rf ./client/docs/* && ./node_modules/.bin/jsdoc --configure ./.jsdoc.json --readme README.md",
     "add-build": "COMMIT=`git rev-parse HEAD` ; echo $COMMIT > dist/version.txt ; git add dist",
     "lint": "npm run fix-scss ; npm run lint-scss ; npm run fix-js",
     "lint-show": "npm run lint-scss ; npm run lint-js",
@@ -26,7 +31,9 @@
     ]
   },
   "dependencies": {
+    "@babel/cli": "^7.14.8",
     "@eluvio/elv-client-js": "^3.1.56",
+    "jsdoc": "^3.6.7",
     "mobx": "^6.3.2",
     "mobx-react": "^6.3.1",
     "pre-commit": "^1.2.2",
@@ -34,7 +41,7 @@
     "react-dom": "^16.14.0",
     "react-inlinesvg": "^2.3.0",
     "react-router-dom": "^5.2.0",
-    "urijs": "^1.19.6",
+    "urijs": "^1.19.7",
     "url-join": "^4.0.1"
   },
   "devDependencies": {
@@ -83,30 +90,15 @@
     "webpack-dev-server": "^3.11.2"
   },
   "babel": {
-    "comments": true,
     "presets": [
       "@babel/preset-env",
       "@babel/preset-react",
-      "mobx"
+      "babel-preset-mobx"
     ],
     "plugins": [
-      "syntax-async-functions",
-      "@babel/plugin-syntax-dynamic-import",
-      "@babel/plugin-syntax-jsx",
-      "@babel/plugin-syntax-object-rest-spread",
       "@babel/plugin-proposal-object-rest-spread",
-      "@babel/plugin-transform-react-jsx",
       "@babel/plugin-transform-regenerator",
-      [
-        "@babel/plugin-proposal-class-properties",
-        {
-          "loose": false
-        }
-      ]
-    ],
-    "assumptions": {
-      "setPublicClassFields": true,
-      "privateFieldsAsProperties": true
-    }
+      "@babel/plugin-transform-runtime"
+    ]
   }
 }

@@ -22,7 +22,7 @@ export const ProfileImage = observer(({height=100, className=""}) => {
 export const NFTImage = observer(({nft, width, video=false, className=""}) => {
   let url = nft.metadata.image;
 
-  if(width) {
+  if(url && width) {
     url = new URL(url);
     url.searchParams.set("width", width);
     url = url.toString();
