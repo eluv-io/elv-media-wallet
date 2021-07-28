@@ -4,6 +4,9 @@ import UrlJoin from "url-join";
 import {ElvClient} from "@eluvio/elv-client-js";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 
+import {SendEvent} from "Components/interface/Listener";
+import EVENTS from "../../client/src/Events";
+
 // Force strict mode so mutations are only allowed within actions.
 configure({
   enforceActions: "always"
@@ -31,6 +34,8 @@ class RootStore {
 
   nfts = [];
 
+  EVENTS = EVENTS;
+
   Log(message, error=false) {
     message = `Eluvio Media Wallet | ${message}`;
     error ? console.error(message) : console.log(message);
@@ -38,6 +43,10 @@ class RootStore {
 
   constructor() {
     makeAutoObservable(this);
+  }
+
+  SendEvent({event, data}) {
+    SendEvent({event, data});
   }
 
   PublicLink({versionHash, path, queryParams={}}) {
@@ -216,6 +225,8 @@ class RootStore {
 
       this.initialized = true;
       this.loggedIn = true;
+
+      this.SendEvent({event: EVENTS.LOG_IN, data: { address: client.signer.address }});
     } catch(error) {
       this.Log("Failed to initialize client", true);
       this.Log(error, true);
@@ -228,6 +239,8 @@ class RootStore {
     if(this.authService) {
       localStorage.removeItem(`_${this.authService}-token`);
     }
+
+    this.SendEvent({event: EVENTS.LOG_OUT, data: { address: this.client.signer.address }});
 
     window.location.href = window.location.origin + window.location.pathname;
   }

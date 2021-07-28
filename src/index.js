@@ -19,7 +19,7 @@ import Wallet from "Components/wallet";
 import Login from "Components/login";
 import Profile from "Components/profile";
 import ScrollToTop from "Components/common/ScrollToTop";
-import InitializeListener from "Components/interface/Listener";
+import { InitializeListener } from "Components/interface/Listener";
 
 const Placeholder = ({text}) => <div>{ text }</div>;
 

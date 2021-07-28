@@ -20,12 +20,50 @@ const SetResults = results => {
   });
 };
 
+const EventListener = event => {
+  let currentEvents = document.getElementById("client-events").innerHTML;
+
+  if(!currentEvents) {
+    currentEvents = "Events:";
+  }
+
+  document.getElementById("client-events").innerHTML =
+    currentEvents + "\n\n" + JSON.stringify(event, null, 2);
+};
+
 const App = () => {
   const [client, setClient] = useState(undefined);
+  const [listeners, setEventListeners] = useState({
+    [ElvWalletClient.EVENTS.LOG_IN]: undefined,
+    [ElvWalletClient.EVENTS.LOG_OUT]: undefined,
+    [ElvWalletClient.EVENTS.CLOSE]: undefined,
+    [ElvWalletClient.EVENTS.ALL]: undefined,
+  });
+
+  const ToggleEventListener = event => {
+    if(listeners[event]) {
+      client.RemoveEventListener(event, EventListener);
+    } else {
+      client.AddEventListener(event, EventListener);
+    }
+
+    setEventListeners({
+      ...listeners,
+      [event]: listeners[event] ? undefined : EventListener
+    });
+  };
 
   const Destroy = () => {
     if(client) { client.Destroy(); }
+
     SetResults();
+
+    setEventListeners({
+      [ElvWalletClient.EVENTS.LOG_IN]: undefined,
+      [ElvWalletClient.EVENTS.LOG_OUT]: undefined,
+      [ElvWalletClient.EVENTS.CLOSE]: undefined,
+      [ElvWalletClient.EVENTS.ALL]: undefined,
+    });
 
     setClient(undefined);
   };
@@ -38,7 +76,13 @@ const App = () => {
           onClick={async () => {
             Destroy();
 
-            setClient(window.client = await ElvWalletClient.InitializePopup({walletAppUrl: appUrl}))
+            document.getElementById("client-events").innerHTML = "";
+
+            const client = await ElvWalletClient.InitializePopup({walletAppUrl: appUrl});
+            window.client = client;
+            setClient(client);
+
+            client.AddEventListener(client.EVENTS.CLOSE, Destroy);
           }}
         >
           Popup
@@ -48,7 +92,13 @@ const App = () => {
           onClick={async () => {
             Destroy();
 
-            setClient(window.client = await ElvWalletClient.InitializeFrame({walletAppUrl: appUrl, target: targetId}))
+            document.getElementById("client-events").innerHTML = "";
+
+            const client = await ElvWalletClient.InitializeFrame({walletAppUrl: appUrl, target: targetId});
+            window.client = client;
+            setClient(client);
+
+            client.AddEventListener(client.EVENTS.CLOSE, Destroy);
           }}
         >
           Frame
@@ -96,6 +146,33 @@ const App = () => {
                 First Item
               </button>
             </div>
+            <div className="button-row">
+              <p>Events</p>
+              <button
+                className={listeners[ElvWalletClient.EVENTS.LOG_IN] ? "active" : ""}
+                onClick={() => ToggleEventListener(ElvWalletClient.EVENTS.LOG_IN)}
+              >
+                Log In
+              </button>
+              <button
+                className={listeners[ElvWalletClient.EVENTS.LOG_OUT] ? "active" : ""}
+                onClick={() => ToggleEventListener(ElvWalletClient.EVENTS.LOG_OUT)}
+              >
+                Log Out
+              </button>
+              <button
+                className={listeners[ElvWalletClient.EVENTS.CLOSE] ? "active" : ""}
+                onClick={() => ToggleEventListener(ElvWalletClient.EVENTS.CLOSE)}
+              >
+                Close
+              </button>
+              <button
+                className={listeners[ElvWalletClient.EVENTS.ALL] ? "active" : ""}
+                onClick={() => ToggleEventListener(ElvWalletClient.EVENTS.ALL)}
+              >
+                All
+              </button>
+            </div>
           </>
       }
 
@@ -103,6 +180,9 @@ const App = () => {
       </div>
 
       <pre className="client-results" id="client-results">
+      </pre>
+
+      <pre className="client-events" id="client-events">
       </pre>
     </div>
   );

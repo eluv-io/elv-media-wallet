@@ -1,5 +1,7 @@
 import {rootStore} from "Stores/index";
 import {toJS} from "mobx";
+import Utils from "@eluvio/elv-client-js/src/Utils";
+import EVENTS from "../../../client/src/Events";
 
 const pages = {
   "discover": "/discover",
@@ -17,17 +19,20 @@ const FormatNFT = (nft) => {
   return toJS(nft);
 };
 
-const InitializeListener = (history) => {
-  let target;
+const Target = () => {
   if(window.self !== window.top) {
     // In iframe
-    target = window.top;
+    return window.top;
   } else if(window.opener) {
     // Popup
-    target = window.opener;
-  } else {
-    return;
+    return window.opener;
   }
+};
+
+export const InitializeListener = (history) => {
+  const target = Target();
+
+  if(!target) { return; }
 
   const Listener = async event => {
     if(!event || !event.data || event.data.type !== "ElvMediaWalletClientRequest") { return; }
@@ -39,8 +44,8 @@ const InitializeListener = (history) => {
       target.postMessage({
         type: "ElvMediaWalletResponse",
         requestId: data.requestId,
-        response,
-        error
+        response: Utils.MakeClonable(response),
+        error: Utils.MakeClonable(error)
       }, "*");
     };
 
@@ -90,7 +95,10 @@ const InitializeListener = (history) => {
   };
 
   window.addEventListener("message", Listener);
-  window.onbeforeunload = () => window.removeEventListener("message", Listener);
+  window.onbeforeunload = () => {
+    SendEvent({event: EVENTS.CLOSE});
+    window.removeEventListener("message", Listener);
+  };
 
   target.postMessage({
     type: "ElvMediaWalletResponse",
@@ -98,4 +106,14 @@ const InitializeListener = (history) => {
   }, "*");
 };
 
-export default InitializeListener;
+export const SendEvent = ({event, data}) => {
+  const target = Target();
+
+  if(!target) { return; }
+
+  target.postMessage({
+    type: "ElvMediaWalletEvent",
+    event,
+    data: Utils.MakeClonable(data)
+  }, "*");
+};

@@ -1,3 +1,5 @@
+import EVENTS from "./Events";
+
 // https://stackoverflow.com/questions/4068373/center-a-popup-window-on-screen
 const Popup = ({url, title, w, h}) => {
   // Fixes dual-screen position
@@ -51,20 +53,53 @@ const SandboxPermissions = () => {
 };
 
 /**
- * Eluvio Media Wallet client
+ * Eluvio Media Wallet Client
  *
  */
 export class ElvWalletClient {
+  LOG_LEVEL = {
+    DEBUG: 0,
+    WARN: 1,
+    ERROR: 2
+  };
+
+  /**
+   * `client.EVENTS` contains event keys for the AddEventListener and RemoveEventListener methods
+   *
+   * - `client.EVENTS.LOG_IN` - User has logged in. Event data contains user address.
+   * - `client.EVENTS.LOG_OUT` - User has logged out. Event data contains user address.
+   * - `client.EVENTS.CLOSE` - Target window or frame has closed or otherwise unloaded the wallet app.
+   * - `client.EVENTS.ALL` - Any of the above events have occurred.
+   */
+  static EVENTS = EVENTS;
+
   Throw(error) {
     throw new Error(`Eluvio Media Wallet Client | ${error}`);
   }
 
-  Log(message, error=false) {
-    message = `Eluvio Media Wallet Client | ${message}`;
-    error ? console.error(message) : console.log(message);
+  Log({message, level=this.LOG_LEVEL.WARN}) {
+    if(level < this.logLevel) { return; }
+
+    if(typeof message === "string") {
+      message = `Eluvio Media Wallet Client | ${message}`;
+    }
+
+    switch(level) {
+      case this.LOG_LEVEL.DEBUG:
+        console.log(message);
+        return;
+      case this.LOG_LEVEL.WARN:
+        console.warn(message);
+        return;
+      case this.LOG_LEVEL.ERROR:
+        console.error(message);
+        return;
+    }
   }
 
   Destroy() {
+    window.removeEventListener("message", this.EventHandler);
+
     if(this.Close) {
       this.Close();
     }
@@ -92,6 +127,71 @@ export class ElvWalletClient {
     this.target = target;
     this.Close = Close;
     this.timeout = timeout;
+    this.logLevel = this.LOG_LEVEL.WARN;
+    this.EVENTS = EVENTS;
+
+    this.eventListeners = {};
+    Object.keys(EVENTS).forEach(key => this.eventListeners[key] = []);
+
+    this.EventHandler = this.EventHandler.bind(this);
+
+    window.addEventListener("message", this.EventHandler);
+
+    // Ensure client is destroyed when target window closes
+    this.AddEventListener(this.EVENTS.CLOSE, () => this.Destroy());
+  }
+
+  EventHandler(event) {
+    const message = event.data;
+
+    if(message.type !== "ElvMediaWalletEvent" || !EVENTS[message.event]) { return; }
+
+    const listeners = message.event === EVENTS.ALL ?
+      this.eventListeners[EVENTS.ALL] :
+      [...this.eventListeners[message.event], ...this.eventListeners[EVENTS.ALL]];
+
+    listeners.forEach(async Listener => {
+      try {
+        await Listener(message);
+      } catch(error) {
+        this.Log({
+          message: `${message.event} listener error:`,
+          level: this.LOG_LEVEL.WARN
+        });
+        this.Log({
+          message: error,
+          level: this.LOG_LEVEL.WARN
+        });
+      }
+    });
+  }
+
+  /**
+   * Add an event listener for the specified event
+   *
+   * @methodGroup Events
+   * @param {string} event - An event key from <a href="#EVENTS">EVENTS</a>
+   * @param {function} Listener - An event listener
+   */
+  AddEventListener(event, Listener) {
+    if(!EVENTS[event]) { this.Throw(`AddEventListener: Invalid event ${event}`); }
+    if(typeof Listener !== "function") { this.Throw("AddEventListener: Listener is not a function"); }
+
+    this.eventListeners[event].push(Listener);
+  }
+
+  /**
+   * Remove the specified event listener
+   *
+   * @methodGroup Events
+   * @param {string} event - An event key from <a href="#EVENTS">EVENTS</a>
+   * @param {function} Listener - The listener to remove
+   */
+  RemoveEventListener(event, Listener) {
+    if(!EVENTS[event]) { this.Throw(`RemoveEventListener: Invalid event ${event}`); }
+    if(typeof Listener !== "function") { this.Throw("RemoveEventListener: Listener is not a function"); }
+
+    this.eventListeners[event] = this.eventListeners[event].filter(f => f !== Listener);
   }
 
   /**
@@ -212,7 +312,7 @@ export class ElvWalletClient {
     const client = new ElvWalletClient({
       walletAppUrl,
       target: target.contentWindow,
-      Close: () => target.parentNode.removeChild(target)
+      Close: () => target && target.parentNode && target.parentNode.removeChild(target)
     });
 
     // Ensure app is initialized
