@@ -1,5 +1,6 @@
 import React, {useState} from "react";
 import GoogleLogin from "Components/login/Google";
+import AppleLogin from "Components/login/Apple";
 import {Loader} from "Components/common/Loaders";
 import {rootStore} from "Stores/index";
 import {observer} from "mobx-react";
@@ -68,6 +69,7 @@ const Login = observer(() => {
       <div className="login-page__login-box" key={`login-box-${rootStore.accountLoading}`}>
         <h1>Sign In</h1>
         <GoogleLogin setLoading={setLoading}/>
+        <AppleLogin setLoading={setLoading}/>
         <button className="login-page__login-button" onClick={() => setShowPrivateKeyForm(true)}>
           Sign In With Private Key
         </button>
