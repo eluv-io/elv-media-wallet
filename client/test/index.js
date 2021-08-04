@@ -4,7 +4,7 @@ import "./test.scss";
 import React, { useState } from "react";
 import {render} from "react-dom";
 
-import ElvWalletClient from "../src";
+import ElvWalletClient from "../src/index";
 
 window.client = undefined;
 

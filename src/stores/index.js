@@ -36,9 +36,14 @@ class RootStore {
 
   EVENTS = EVENTS;
 
-  Log(message, error=false) {
-    message = `Eluvio Media Wallet | ${message}`;
-    error ? console.error(message) : console.log(message);
+  Log(message="", error=false) {
+    if(typeof message === "string") {
+      message = `Eluvio Media Wallet | ${message}`;
+      error ? console.error(message) : console.log(message);
+    } else {
+      error ? console.error("Eluvio Media Wallet") : console.log("Eluvio Media Wallet");
+      error ? console.error(message) : console.log(message);
+    }
   }
 
   constructor() {

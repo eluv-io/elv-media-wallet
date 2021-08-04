@@ -52,32 +52,22 @@ const SandboxPermissions = () => {
   ].join(" ");
 };
 
+const LOG_LEVELS ={
+  DEBUG: 0,
+  WARN: 1,
+  ERROR: 2
+};
+
 /**
  * Eluvio Media Wallet Client
  *
  */
 export class ElvWalletClient {
-  LOG_LEVEL = {
-    DEBUG: 0,
-    WARN: 1,
-    ERROR: 2
-  };
-
-  /**
-   * `client.EVENTS` contains event keys for the AddEventListener and RemoveEventListener methods
-   *
-   * - `client.EVENTS.LOG_IN` - User has logged in. Event data contains user address.
-   * - `client.EVENTS.LOG_OUT` - User has logged out. Event data contains user address.
-   * - `client.EVENTS.CLOSE` - Target window or frame has closed or otherwise unloaded the wallet app.
-   * - `client.EVENTS.ALL` - Any of the above events have occurred.
-   */
-  static EVENTS = EVENTS;
-
   Throw(error) {
     throw new Error(`Eluvio Media Wallet Client | ${error}`);
   }
 
-  Log({message, level=this.LOG_LEVEL.WARN}) {
+  Log({message, level=this.LOG_LEVELS.WARN}) {
     if(level < this.logLevel) { return; }
 
     if(typeof message === "string") {
@@ -85,13 +75,13 @@ export class ElvWalletClient {
     }
 
     switch(level) {
-      case this.LOG_LEVEL.DEBUG:
+      case this.LOG_LEVELS.DEBUG:
         console.log(message);
         return;
-      case this.LOG_LEVEL.WARN:
+      case this.LOG_LEVELS.WARN:
         console.warn(message);
         return;
-      case this.LOG_LEVEL.ERROR:
+      case this.LOG_LEVELS.ERROR:
         console.error(message);
         return;
     }
@@ -127,8 +117,9 @@ export class ElvWalletClient {
     this.target = target;
     this.Close = Close;
     this.timeout = timeout;
-    this.logLevel = this.LOG_LEVEL.WARN;
     this.EVENTS = EVENTS;
+    this.LOG_LEVELS = LOG_LEVELS;
+    this.logLevel = this.LOG_LEVELS.WARN;
 
     this.eventListeners = {};
     Object.keys(EVENTS).forEach(key => this.eventListeners[key] = []);
@@ -156,11 +147,11 @@ export class ElvWalletClient {
       } catch(error) {
         this.Log({
           message: `${message.event} listener error:`,
-          level: this.LOG_LEVEL.WARN
+          level: this.LOG_LEVELS.WARN
         });
         this.Log({
           message: error,
-          level: this.LOG_LEVEL.WARN
+          level: this.LOG_LEVELS.WARN
         });
       }
     });
@@ -391,5 +382,16 @@ export class ElvWalletClient {
     });
   }
 }
+
+/**
+ * `client.EVENTS` contains event keys for the AddEventListener and RemoveEventListener methods
+ *
+ * - `client.EVENTS.LOG_IN` - User has logged in. Event data contains user address.
+ * - `client.EVENTS.LOG_OUT` - User has logged out. Event data contains user address.
+ * - `client.EVENTS.CLOSE` - Target window or frame has been closed or has otherwise unloaded the wallet app.
+ * - `client.EVENTS.ALL` - Any of the above events has occurred.
+ */
+ElvWalletClient.EVENTS = EVENTS;
+ElvWalletClient.LOG_LEVELS = LOG_LEVELS;
 
 export default ElvWalletClient;

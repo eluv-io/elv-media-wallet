@@ -1,24 +1,13 @@
 const webpack = require("webpack");
 const Path = require("path");
 const autoprefixer = require("autoprefixer");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
-const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
-const HtmlWebpackInlineSourcePlugin = require("html-webpack-inline-source-plugin");
 
-let plugins = [
-  new HtmlWebpackPlugin({
-    title: "Eluvio Media Wallet",
-    template: Path.join(__dirname, "src", "index.html"),
-    cache: false,
-    filename: "index.html",
-    favicon: "./src/static/icons/favicon.png"
-  }),
-  new CopyWebpackPlugin([{
-    from: Path.join(__dirname, "configuration.js"),
-    to: Path.join(__dirname, "dist", "configuration.js")
-  }]),
+const plugins = [
+  new webpack.optimize.LimitChunkCountPlugin({
+    maxChunks: 1,
+  })
 ];
 
 if(process.env.ANALYZE_BUNDLE) {
