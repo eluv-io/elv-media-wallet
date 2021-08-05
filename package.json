@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@babel/cli": "^7.14.8",
+    "@auth0/auth0-react": "^1.6.0",
     "@eluvio/elv-client-js": "^3.1.56",
     "jsdoc": "^3.6.7",
     "mobx": "^6.3.2",

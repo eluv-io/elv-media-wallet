@@ -1,21 +1,20 @@
-import React, {useState} from "react";
-import GoogleLogin from "Components/login/Google";
-import AppleLogin from "Components/login/Apple";
-import {Loader} from "Components/common/Loaders";
-import {rootStore} from "Stores/index";
-import {observer} from "mobx-react";
+import React, { useState } from "react";
+import Auth0Login from "./Auth0";
+import { Loader } from "Components/common/Loaders";
+import { rootStore } from "Stores/index";
+import { observer } from "mobx-react";
 
 const Login = observer(() => {
-  const [ loading, setLoading ] = useState(false);
-  const [ showPrivateKeyForm, setShowPrivateKeyForm ] = useState(false);
-  const [ privateKey, setPrivateKey ] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showPrivateKeyForm, setShowPrivateKeyForm] = useState(false);
+  const [privateKey, setPrivateKey] = useState("");
 
   if(loading) {
     return (
       <div className="page-container login-page">
         <div className="login-page__login-box" key={`login-box-${rootStore.accountLoading}`}>
           <h2 className="login-page__login-box__login-status">
-            { rootStore.loginStatus }
+            {rootStore.loginStatus}
           </h2>
           <Loader />
         </div>
@@ -36,7 +35,7 @@ const Login = observer(() => {
               try {
                 setLoading(true);
 
-                await rootStore.InitializeClient({privateKey});
+                await rootStore.InitializeClient({ privateKey });
               } finally {
                 setLoading(false);
               }
@@ -63,13 +62,16 @@ const Login = observer(() => {
       </div>
     );
   }
+  // useEffect(() => {
+  //   id_token = getIDToken().then((token) => {return token;});
+  //   return;
+  // }, [isAuthenticated]);
 
   return (
     <div className="page-container login-page">
       <div className="login-page__login-box" key={`login-box-${rootStore.accountLoading}`}>
         <h1>Sign In</h1>
-        <GoogleLogin setLoading={setLoading}/>
-        <AppleLogin setLoading={setLoading}/>
+        <Auth0Login setLoading={setLoading}/>
         <button className="login-page__login-button" onClick={() => setShowPrivateKeyForm(true)}>
           Sign In With Private Key
         </button>

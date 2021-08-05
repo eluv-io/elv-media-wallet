@@ -20,8 +20,9 @@ import Login from "Components/login";
 import Profile from "Components/profile";
 import ScrollToTop from "Components/common/ScrollToTop";
 import { InitializeListener } from "Components/interface/Listener";
+import { Auth0Provider } from "@auth0/auth0-react";
 
-const Placeholder = ({text}) => <div>{ text }</div>;
+const Placeholder = ({ text }) => <div>{text}</div>;
 
 const Routes = () => {
   const history = useHistory();
@@ -69,4 +70,15 @@ const App = observer(() => {
 });
 
 
-render(<React.StrictMode><App /></React.StrictMode>, document.getElementById("app"));
+render(
+  <Auth0Provider
+    domain="dev--cqlxzdw.us.auth0.com"
+    clientId="3Iuqgj19yy02AwR5GCpw2eYqJ5baOWg1"
+    redirectUri={window.location.origin}
+  >
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  </Auth0Provider>,
+  document.getElementById("app")
+);
