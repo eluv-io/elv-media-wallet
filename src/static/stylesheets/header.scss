@@ -23,6 +23,7 @@
   &__search {
     align-items: center;
     display: flex;
+    flex: 1 1 auto;
     height: 100%;
     max-height: 100%;
   }
@@ -42,6 +43,7 @@
 
     &:focus,
     &:active {
+      // sass-lint:disable-block no-important
       box-shadow: none !important;
       outline: none !important;
     }

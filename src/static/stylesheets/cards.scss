@@ -1,11 +1,12 @@
-
+$card-shadow: rgba(0, 0, 0, 0.1);
+$overlay-background: rgba($black, 0.25);
 
 
 .card-shadow {
   background-color: $white;
   border: 1px solid $lightgray;
   border-radius: 6px;
-  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 4px $card-shadow;
 }
 
 .card-list {
@@ -57,7 +58,7 @@
 
   &:hover {
     .card__overlay {
-      background-color: rgba($black, 0.25);
+      background-color: $overlay-background;
       color: $white;
       display: flex;
       z-index: 5;
@@ -127,7 +128,7 @@
   @include background-gradient-loader;
 
   border-radius: 5px;
-  color: rgba($black, 0.25);
+  color: $overlay-background;
   line-height: 100px;
   text-align: center;
 }

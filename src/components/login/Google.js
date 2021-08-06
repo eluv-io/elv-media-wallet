@@ -16,6 +16,7 @@ const GoogleLogin = ({setLoading}) => {
           const {id_token, access_token} = user.getAuthResponse(true);
 
           const userData = {
+            // id: user.getAuthResponse().id_token,
             id: profile.getId(),
             id_token,
             access_token,
@@ -23,6 +24,9 @@ const GoogleLogin = ({setLoading}) => {
             email: profile.getEmail(),
             imageUrl: profile.getImageUrl()
           };
+          console.log(userData.id);
+          console.log(id_token);
+          console.log(user.getAuthResponse().id_token);
 
           await rootStore.InitializeClient({user: userData, authService: "google"});
 
