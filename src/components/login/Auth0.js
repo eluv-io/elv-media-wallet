@@ -6,19 +6,12 @@ import { useAuth0 } from "@auth0/auth0-react";
 const Auth0Login = ({ setLoading }) => {
   const { loginWithRedirect, user, getIdTokenClaims, logout } = useAuth0();
 
-  const getIDToken = async () => {
-    const claims = await getIdTokenClaims();
-    // if you need the raw id_token, you can access it
-    // using the __raw property
-    return claims.__raw;
-  };
-
   const SignIn = async () => {
     await loginWithRedirect();
     try {
       setLoading(true);
-      let id_token = await getIDToken();
-      // let jwtObject = parseJWT(id_token);
+
+      let id_token = (await getIdTokenClaims()).__raw;
       const userData = {
         id_token,
         name: user.name,
@@ -28,7 +21,9 @@ const Auth0Login = ({ setLoading }) => {
         }
       };
 
-      await rootStore.InitializeClient({ user: userData });
+      await rootStore.InitializeClient({
+        user: userData
+      });
     } finally {
       console.log("failed");
       setLoading(false);
