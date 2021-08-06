@@ -16,8 +16,8 @@ import NFTDetails from "Components/wallet/NFTDetails";
 const WalletNavigation = observer(() => {
   return (
     <nav className="sub-navigation wallet-navigation">
+      <NavLink className="sub-navigation__link" to="/wallet/collections">My Collections</NavLink>
       <NavLink className="sub-navigation__link" to="/wallet/tickets">Tickets</NavLink>
-      <NavLink className="sub-navigation__link" to="/wallet/collections">Collections</NavLink>
       <NavLink className="sub-navigation__link" to="/wallet/tokens">Tokens</NavLink>
     </nav>
   );

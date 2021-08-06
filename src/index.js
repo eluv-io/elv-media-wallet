@@ -8,6 +8,14 @@ import { rootStore } from "Stores/index.js";
 import Header from "Components/Header";
 import Navigation from "Components/Navigation";
 
+if(
+  sessionStorage.getItem("darkMode") ||
+  new URLSearchParams(window.location.search).has("d")
+) {
+  sessionStorage.setItem("darkMode", "1");
+  document.getElementById("app").classList.add("dark");
+}
+
 import {
   useHistory,
   HashRouter,

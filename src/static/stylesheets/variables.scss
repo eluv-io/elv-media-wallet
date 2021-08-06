@@ -5,6 +5,8 @@ $lightgray: #eee;
 $mediumgray: #ccc;
 $gray: #888;
 $darkgray: #555;
+$darkergray: #333;
+$darkestgray: #151515;
 
 $content-background: #fafafa;
 
@@ -12,6 +14,7 @@ $blue: #0885fb;
 
 
 $breakpoint: 1000px;
+$mobile-breakpoint: 600px;
 
 
 @keyframes BackgroundGradient {

@@ -7,9 +7,8 @@ const Navigation = observer(() => {
 
   return (
     <nav className="navigation">
-      <NavLink className="navigation__link" to="/discover">Discover</NavLink>
       <NavLink className="navigation__link" to="/wallet">Wallet</NavLink>
-      <NavLink className="navigation__link" to="/profile">Profile</NavLink>
+      <NavLink className="navigation__link" to="/discover">Discover</NavLink>
     </nav>
   );
 });

@@ -26,37 +26,22 @@ const NFTDetails = observer(() => {
 
   return (
     <div className="nft-details">
-      <div className="nft-details__content card-shadow">
-        <h2 className="nft-details__content__header">
-          { nft.metadata.display_name }
-        </h2>
-        <NFTImage nft={nft} video />
-        <div className="nft-details__content__id ellipsis">
-          { match.params.tokenId }
+      <div className="nft-details__content-container card-container">
+        <div className="nft-details__content card card-shadow">
+          <NFTImage nft={nft} video />
+          <div className="card__subtitle">
+            { match.params.tokenId }
+          </div>
+
+          <h2 className="card__title">
+            { nft.metadata.display_name }
+          </h2>
         </div>
       </div>
 
       <div className="nft-details__info">
         <ExpandableSection header="Description">
           { nft.metadata.description }
-        </ExpandableSection>
-
-        <ExpandableSection header="Contract">
-          <CopyableField value={nft.details.ContractAddr}>
-            Contract Address: { nft.details.ContractAddr }
-          </CopyableField>
-          <CopyableField value={nft.details.versionHash}>
-            Hash: { nft.details.versionHash }
-          </CopyableField>
-          <div>
-            <a
-              className="lookout-url"
-              target="_blank"
-              href={`https://lookout.qluv.io/address/${nft.details.ContractAddr}/transactions`} rel="noopener"
-            >
-              See More Info on Eluvio Lookout
-            </a>
-          </div>
         </ExpandableSection>
 
         <ExpandableSection header="Details">
@@ -87,6 +72,24 @@ const NFTDetails = observer(() => {
           </div>
           <div>
             { mintDate ? `Minted on the Eluvio Content Fabric on ${mintDate}` : "" }
+          </div>
+        </ExpandableSection>
+
+        <ExpandableSection header="Contract">
+          <CopyableField value={nft.details.ContractAddr}>
+            Contract Address: { nft.details.ContractAddr }
+          </CopyableField>
+          <CopyableField value={nft.details.versionHash}>
+            Hash: { nft.details.versionHash }
+          </CopyableField>
+          <div>
+            <a
+              className="lookout-url"
+              target="_blank"
+              href={`https://lookout.qluv.io/address/${nft.details.ContractAddr}/transactions`} rel="noopener"
+            >
+              See More Info on Eluvio Lookout
+            </a>
           </div>
         </ExpandableSection>
       </div>

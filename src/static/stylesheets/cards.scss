@@ -1,9 +1,7 @@
 $card-shadow: rgba(0, 0, 0, 0.1);
 $overlay-background: rgba($black, 0.25);
 
-
 .card-shadow {
-  background-color: $white;
   border: 1px solid $lightgray;
   border-radius: 6px;
   box-shadow: 0 4px 4px $card-shadow;
@@ -13,56 +11,57 @@ $overlay-background: rgba($black, 0.25);
   display: grid;
   grid-gap: 10px;
   grid-template-columns: 1fr 1fr;
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .card-container {
+  border-radius: 10px;
   display: inline-block;
+  padding-top: 100%;
+  position: relative;
   width: 100%;
 }
 
 .card {
   border-radius: 10px;
-  display: inline-block;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
+  left: 0;
   max-width: 100%;
   object-fit: cover;
   object-position: center;
-
   overflow: hidden;
-  padding-top: 100%;
-  position: relative;
+  padding: 25px 50px;
+  position: absolute;
+  top: 0;
   width: 100%;
 
-  &__overlay {
-    align-items: center;
-    background-color: transparent;
-    color: transparent;
-    display: flex;
-    height: 100%;
-    justify-content: center;
-    left: 0;
-    position: absolute;
-    top: 0;
-    transition: background-color 0.25s ease-in-out, color 0.25s ease-in-out;
-    width: 100%;
-  }
-
   &__image {
+    flex: 1 1 auto;
     height: 100%;
-    left: 0;
-    object-fit: cover;
+    max-height: calc(100% - 60px);
+    object-fit: contain;
     object-position: center;
-    position: absolute;
-    top: 0;
     width: 100%;
   }
 
-  &:hover {
-    .card__overlay {
-      background-color: $overlay-background;
-      color: $white;
-      display: flex;
-      z-index: 5;
-    }
+  &__text {
+    margin-top: 10px;
+  }
+
+  &__title {
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  &__subtitle {
+    font-size: 14px;
+    font-weight: 300;
   }
 }
 
@@ -71,20 +70,9 @@ $overlay-background: rgba($black, 0.25);
   overflow-x: hidden;
   width: 100%;
 
-  &__content {
-    height: max-content;
+  &__content-container {
+    display: block;
     margin: 0 auto;
-    padding: 15px;
-    width: 100%;
-  }
-
-  &__content,
-  .expandable-section {
-    max-width: 600px;
-  }
-
-  .nft-image {
-    margin: 5px 0;
   }
 
   &__content__header {
@@ -103,7 +91,7 @@ $overlay-background: rgba($black, 0.25);
     border-radius: 17.5px;
     color: $white;
     display: block;
-    margin: 20px auto 0;
+    margin: 30px auto 0;
     max-width: 300px;
     padding: 10px 30px;
     text-align: center;
@@ -124,13 +112,20 @@ $overlay-background: rgba($black, 0.25);
   }
 }
 
-.nft-image {
-  @include background-gradient-loader;
+.nft-image-container {
+  display: block;
+}
 
+.nft-image {
   border-radius: 5px;
   color: $overlay-background;
   line-height: 100px;
+  object-fit: contain;
   text-align: center;
+}
+
+.nft-image-loading {
+  @include background-gradient-loader;
 }
 
 .nft-image-placeholder {
@@ -160,3 +155,29 @@ $overlay-background: rgba($black, 0.25);
   }
 }
 
+.dark {
+  .card-shadow {
+    border: 1px solid $gray;
+    box-shadow: none;
+  }
+
+  .card {
+    &__image {
+      background: $black;
+    }
+
+    &__title {
+      font-weight: 700;
+    }
+
+    &__subtitle {
+      color: $mediumgray;
+    }
+  }
+
+  .nft-details {
+    &__content__id {
+      color: $gray;
+    }
+  }
+}

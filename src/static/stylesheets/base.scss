@@ -57,6 +57,7 @@ body {
   box-sizing: border-box;
   color: #000;
   font-family: "Helvetica Neue", Helvetica, sans-serif;
+  overflow-y: scroll;
   position: absolute;
 }
 
@@ -77,9 +78,8 @@ body,
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
-  height: 100%;
   max-width: 100vw;
-  min-height: stretch;
+  min-height: 100%;
   overscroll-behavior-y: none; // sass-lint:disable-line no-misspelled-properties
   width: 100%;
 }
@@ -133,7 +133,6 @@ button {
 }
 
 .content {
-  background-color: $content-background;
   display: grid;
   flex: 1 1 auto;
   height: max-content;
@@ -159,6 +158,21 @@ button {
     .content {
       padding: 25px 30px 80px;
       width: auto;
+    }
+  }
+}
+
+.dark {
+  &.app,
+  .app-container,
+  .site-app,
+  .main-app,
+  .page-container {
+    // sass-lint:disable-line no-important
+    background-color: $black !important;
+
+    * {
+      color: $white;
     }
   }
 }

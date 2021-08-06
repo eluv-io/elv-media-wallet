@@ -107,3 +107,14 @@
     stroke: $gray;
   }
 }
+
+.dark {
+  .header {
+    background-color: $black;
+    border-bottom: 1px solid $darkgray;
+
+    &__search__input {
+      background-color: $black;
+    }
+  }
+}

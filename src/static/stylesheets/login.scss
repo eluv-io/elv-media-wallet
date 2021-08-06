@@ -13,7 +13,7 @@
 
   &__login-box {
     align-items: center;
-    border: 1px solid $mediumgray;
+    //border: 1px solid $mediumgray;
     border-radius: 3px;
     display: flex;
     flex-direction: column;
@@ -111,4 +111,14 @@
   }
 }
 
+.dark {
+  .login-page {
+    &__logo {
+      * {
+        fill: $white;
+        stroke: $white;
+      }
+    }
+  }
+}
 

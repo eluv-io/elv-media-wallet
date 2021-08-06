@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 
 import {observer} from "mobx-react";
 import {rootStore} from "Stores/index";
@@ -20,6 +20,8 @@ export const ProfileImage = observer(({height=100, className=""}) => {
 });
 
 export const NFTImage = observer(({nft, width, video=false, className=""}) => {
+  const [loaded, setLoaded] = useState(video && nft.metadata.embed_url || nft.metadata.image);
+
   let url = nft.metadata.image;
 
   if(url && width) {
@@ -30,7 +32,7 @@ export const NFTImage = observer(({nft, width, video=false, className=""}) => {
 
   if(video && nft.metadata.embed_url) {
     return (
-      <div className="nft-image nft-image-video-embed">
+      <div className={`nft-image nft-image-video-embed ${className}`}>
         <iframe
           className="nft-image-video-embed__frame"
           src={nft.metadata.embed_url}
@@ -39,11 +41,18 @@ export const NFTImage = observer(({nft, width, video=false, className=""}) => {
       </div>
     );
   }
-  return nft.metadata.image ?
-    <img
-      src={url}
-      className={`nft-image nft-image-image ${className}`}
-      alt={nft.metadata.display_name}
-    /> :
-    <SVG src={NFTPlaceholderIcon} className={`nft-image nft-image-placeholder ${className}`} alt={nft.metadata.display_name} />;
+  return (
+    nft.metadata.image ?
+      <img
+        onLoad={() => setLoaded(true)}
+        src={url}
+        className={`nft-image nft-image-image ${loaded ? "" : "nft-image-loading"} ${className}`}
+        alt={nft.metadata.display_name}
+      /> :
+      <SVG
+        src={NFTPlaceholderIcon}
+        className={`nft-image nft-image-placeholder ${className}`}
+        alt={nft.metadata.display_name}
+      />
+  );
 });
