@@ -8,6 +8,7 @@
   "scripts": {
     "bump-version": "npm --git-tag-version --no-commit-hooks version patch",
     "serve": "webpack-dev-server --hot --port 8090 --host=0.0.0.0 --disable-host-check --useLocalIp",
+    "serve-https": "webpack-dev-server --https --cert https/private.pem --key https/private.key --hot --port 8090 --host=0.0.0.0 --disable-host-check --useLocalIp",
     "serve-client-test": "webpack-dev-server --hot --entry ./client/test/index.js --port 8091 --host=0.0.0.0 --disable-host-check --useLocalIp",
     "build": "npm run build-app && npm run build-client-test && npm run build-docs",
     "build-app": "rm -rf dist/* && NODE_ENV=production node ./node_modules/webpack-cli/bin/cli.js -p --devtool none",
@@ -19,7 +20,7 @@
     "lint-js": "./node_modules/.bin/eslint \"src/**/*.js\"",
     "lint-scss": "./node_modules/sass-lint/bin/sass-lint.js -c .scss-lint.yml -v -q",
     "fix-js": "npm run lint-js -- --fix",
-    "fix-scss": "./node_modules/sass-lint-auto-fix/dist/index.js"
+    "fix-scss": "./node_modules/sass-lint-auto-fix/dist/index.js -c .scss-lint.yml"
   },
   "pre-commit": {
     "run": [

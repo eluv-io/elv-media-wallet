@@ -13,7 +13,6 @@ configure({
 });
 
 class RootStore {
-  loginStatus = "Loading Account";
   loggedIn = false;
 
   authService = undefined;
@@ -76,15 +75,6 @@ class RootStore {
     return this.nfts.find(nft => nft.details.TokenIdStr === tokenId);
   }
 
-  FundAccount = async (recipient) => {
-    const client = await ElvClient.FromConfigurationUrl({configUrl: EluvioConfiguration["config-url"]});
-    const wallet = client.GenerateWallet();
-    const signer = wallet.AddAccount({privateKey: EluvioConfiguration.FUNDED_PRIVATE_KEY});
-    await client.SetSigner({signer});
-
-    await client.SendFunds({recipient, ether: 0.5});
-  };
-
   LoadCollections = flow(function * () {
     if(!this.profileData || !this.profileData.NFTs || this.nfts.length > 0) { return; }
 
@@ -138,7 +128,6 @@ class RootStore {
       this.client = client;
 
 
-      this.loginStatus = "Loading Account";
       this.authService = authService;
 
       if(privateKey) {
@@ -149,10 +138,6 @@ class RootStore {
         this.oauthUser = user;
 
         yield client.SetRemoteSigner({token: idToken || user.id_token});
-
-        if(parseFloat(yield client.GetBalance({address: client.signer.address})) < 0.25) {
-          yield this.FundAccount(client.signer.address);
-        }
       } else {
         throw Error("Neither user nor private key specified in InitializeClient");
       }
@@ -160,7 +145,6 @@ class RootStore {
       this.walletAddress = yield client.userProfileClient.WalletAddress(false);
 
       if(!this.walletAddress) {
-        this.loginStatus = "Initializing Account";
         this.walletAddress = yield client.userProfileClient.WalletAddress(true);
       }
 
@@ -243,6 +227,10 @@ class RootStore {
   SignOut() {
     if(this.authService) {
       localStorage.removeItem(`_${this.authService}-token`);
+    }
+
+    if(this.oauthUser && this.oauthUser.SignOut) {
+      this.oauthUser.SignOut();
     }
 
     this.SendEvent({event: EVENTS.LOG_OUT, data: { address: this.client.signer.address }});

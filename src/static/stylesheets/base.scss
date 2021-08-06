@@ -1,10 +1,10 @@
+// sass-lint:disable no-vendor-prefixes, no-color-literals, force-pseudo-nesting
+
 @import "variables";
 
 * {
   -webkit-overflow-scrolling: touch;
-}
 
-* {
   ::-webkit-scrollbar {
     opacity: 1;
     width: 8px;
@@ -53,16 +53,11 @@ pre {
 
 body {
   -webkit-overflow-scrolling: touch;
-  background-color: $white !important;
+  background-color: $black;
   box-sizing: border-box;
   color: #000;
   font-family: "Helvetica Neue", Helvetica, sans-serif;
-
-  &.hide-zd {
-    #launcher {
-      display: none;
-    }
-  }
+  position: absolute;
 }
 
 
@@ -85,13 +80,8 @@ body,
   height: 100%;
   max-width: 100vw;
   min-height: stretch;
-  overscroll-behavior-y: none;
+  overscroll-behavior-y: none; // sass-lint:disable-line no-misspelled-properties
   width: 100%;
-}
-
-body {
-  background-color: $black;
-  position: absolute;
 }
 
 select {
@@ -112,11 +102,13 @@ select {
   white-space: nowrap;
 }
 
-input[type='checkbox'] {
-  border: 1px solid #6a6a6a;
-  border-radius: 2px;
-  height: 19px;
-  width: 19px;
+input {
+  &[type="checkbox"] {
+    border: 1px solid #6a6a6a;
+    border-radius: 2px;
+    height: 19px;
+    width: 19px;
+  }
 }
 
 button {
