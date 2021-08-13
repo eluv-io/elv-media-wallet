@@ -49,8 +49,7 @@
 
 <a class="button" href="index.html">Back</a>
 <div class="source-container">
-  <pre class="prettyprint source linenums"><code>//import EVENTS from "./Events";
-const EVENTS = require("./Events");
+  <pre class="prettyprint source linenums"><code>import EVENTS from "./Events";
 
 // https://stackoverflow.com/questions/4068373/center-a-popup-window-on-screen
 const Popup = ({url, title, w, h}) => {
@@ -114,7 +113,7 @@ const LOG_LEVELS ={
  * Eluvio Media Wallet Client
  *
  */
-class ElvWalletClient {
+export class ElvWalletClient {
   Throw(error) {
     throw new Error(`Eluvio Media Wallet Client | ${error}`);
   }
@@ -446,8 +445,7 @@ class ElvWalletClient {
 ElvWalletClient.EVENTS = EVENTS;
 ElvWalletClient.LOG_LEVELS = LOG_LEVELS;
 
-exports.ElvWalletClient = ElvWalletClient;
-//export default ElvWalletClient;
+export default ElvWalletClient;
 </code></pre>
 </div>
 

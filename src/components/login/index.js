@@ -1,3 +1,5 @@
+// Note: Auth0 must not be activated if in an iframe
+
 import React, { useState, useEffect } from "react";
 import { Loader } from "Components/common/Loaders";
 import { rootStore } from "Stores/index";
@@ -7,60 +9,111 @@ import ImageIcon from "Components/common/ImageIcon";
 
 import Logo from "../../static/images/logo.svg";
 
-const Login = observer(() => {
-  const auth0 = useAuth0();
+let newWindowLogin =
+  new URLSearchParams(window.location.search).has("l") ||
+  window.self === window.top && sessionStorage.getItem("new-window-login");
 
+const callbackUrl = (window.location.origin + window.location.pathname).replace(/\/$/, "");
+const Login = observer(() => {
   const [loading, setLoading] = useState(false);
   const [showPrivateKeyForm, setShowPrivateKeyForm] = useState(false);
   const [privateKey, setPrivateKey] = useState("");
 
+  let auth0;
   const SignIn = async () => {
     if(loading) { return; }
-    console.log("SIGN IN");
 
     try {
-      let idToken = rootStore.IdToken("auth0");
-      let userData = {
-        SignOut: async () => {
-          auth0.logout({
-            federated: true,
-            returnTo: window.location.origin + window.location.pathname
-          });
-        }
-      };
+      const authInfo = rootStore.AuthInfo();
 
-      if(!idToken && auth0.isAuthenticated) {
+      if(authInfo) {
+        setLoading(true);
+        await rootStore.InitializeClient({
+          authToken: authInfo.token,
+          address: authInfo.address
+        });
+
+        return;
+      }
+
+      if(typeof auth0 === "undefined") {
+        return;
+      }
+
+      let idToken;
+
+      let userData;
+      if(auth0.isAuthenticated) {
         idToken = (await auth0.getIdTokenClaims()).__raw;
 
         userData = {
           name: auth0.user.name,
           email: auth0.user.email,
           SignOut: async () => {
-            auth0.logout({returnTo: window.location.origin + window.location.pathname});
+            auth0.logout({returnTo: window.location.origin + window.location.pathname + rootStore.darkMode ? "?d" : ""});
           }
         };
       }
 
-      if(!idToken) { return; }
+      if(!idToken) {
+        return;
+      }
 
       setLoading(true);
       await rootStore.InitializeClient({
-        authService: "auth0",
         idToken,
         user: userData
       });
 
-      rootStore.SetIdToken("auth0", idToken);
+      if(idToken && newWindowLogin) {
+        window.opener.postMessage({
+          type: "ElvMediaWalletClientRequest",
+          action: "login",
+          params: rootStore.AuthInfo()
+        });
+
+        window.close();
+      }
+    } catch(error) {
+      console.error(error);
+      newWindowLogin = false;
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    SignIn();
-  }, [auth0.isAuthenticated]);
+  if(window.self === window.top) {
+    auth0 = useAuth0();
+  }
 
-  if(auth0.isLoading || loading) {
+  useEffect(() => {
+    const authInfo = rootStore.AuthInfo();
+
+    if(!loading && authInfo) {
+      setLoading(true);
+      rootStore.InitializeClient({
+        authToken: authInfo.token,
+        address: authInfo.address
+      });
+
+      return;
+    }
+
+    if(window.self === window.top) {
+      if(auth0.isAuthenticated) {
+        SignIn();
+      } else {
+        if(!rootStore.loggedIn && newWindowLogin && !sessionStorage.getItem("new-window-login")) {
+          sessionStorage.setItem("new-window-login", "true");
+          auth0.loginWithRedirect({
+            redirectUri: callbackUrl
+          });
+        }
+      }
+    }
+  }, [auth0 && auth0.isAuthenticated]);
+
+  if(newWindowLogin || loading || rootStore.loggingIn) {
     return (
       <div className="page-container login-page">
         <div className="login-page__login-box" key={`login-box-${rootStore.accountLoading}`}>
@@ -119,7 +172,15 @@ const Login = observer(() => {
         <ImageIcon icon={Logo} className="login-page__logo" title="Eluvio" />
         <button
           className="login-page__login-button login-page__login-button-auth0"
-          onClick={() => auth0.loginWithRedirect({})}
+          onClick={() => {
+            if(window.self === window.top) {
+              auth0.loginWithRedirect({
+                redirectUri: callbackUrl
+              });
+            } else {
+              window.open(`${window.location.origin}${window.location.pathname}?l${rootStore.darkMode ? "&d" : ""}`);
+            }
+          }}
         >
           Sign In
         </button>

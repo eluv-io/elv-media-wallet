@@ -13,7 +13,6 @@
 
   &__login-box {
     align-items: center;
-    //border: 1px solid $mediumgray;
     border-radius: 3px;
     display: flex;
     flex-direction: column;
@@ -117,6 +116,12 @@
       * {
         fill: $white;
         stroke: $white;
+      }
+    }
+
+    &__private-key-form {
+      button {
+        color: $white;
       }
     }
   }

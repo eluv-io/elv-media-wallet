@@ -50,6 +50,13 @@ export const InitializeListener = (history) => {
     };
 
     switch(data.action) {
+      case "login":
+        await rootStore.InitializeClient({
+          authToken: data.params.token,
+          address: data.params.address,
+          user: data.params.user
+        });
+        break;
       case "items":
         if(rootStore.nfts.length === 0) {
           await rootStore.LoadCollections();
@@ -96,7 +103,9 @@ export const InitializeListener = (history) => {
 
   window.addEventListener("message", Listener);
   window.onbeforeunload = () => {
-    SendEvent({event: EVENTS.CLOSE});
+    if(!rootStore.disableCloseEvent) {
+      SendEvent({event: EVENTS.CLOSE});
+    }
     window.removeEventListener("message", Listener);
   };
 

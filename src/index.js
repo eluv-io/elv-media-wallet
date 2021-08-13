@@ -9,11 +9,10 @@ import Header from "Components/Header";
 import Navigation from "Components/Navigation";
 
 if(
-  sessionStorage.getItem("darkMode") ||
-  new URLSearchParams(window.location.search).has("d")
+  new URLSearchParams(window.location.search).has("d") ||
+  window.self === window.top && sessionStorage.getItem("dark-mode")
 ) {
-  sessionStorage.setItem("darkMode", "1");
-  document.getElementById("app").classList.add("dark");
+  rootStore.ToggleDarkMode(true);
 }
 
 import {
@@ -77,16 +76,24 @@ const App = observer(() => {
   );
 });
 
-
-render(
-  <Auth0Provider
-    domain="dev--cqlxzdw.us.auth0.com"
-    clientId="3Iuqgj19yy02AwR5GCpw2eYqJ5baOWg1"
-    redirectUri={window.location.origin}
-  >
+if(window.self === window.top) {
+  render(
+    <Auth0Provider
+      domain={EluvioConfiguration["auth0-domain"]}
+      clientId={EluvioConfiguration["auth0-configuration-id"]}
+      redirectUri={window.location.origin}
+    >
+      <React.StrictMode>
+        <App/>
+      </React.StrictMode>
+    </Auth0Provider>,
+    document.getElementById("app")
+  );
+} else {
+  render(
     <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  </Auth0Provider>,
-  document.getElementById("app")
-);
+      <App/>
+    </React.StrictMode>,
+    document.getElementById("app")
+  );
+}

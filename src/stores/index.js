@@ -13,21 +13,20 @@ configure({
 });
 
 class RootStore {
+  loggingIn = false;
   loggedIn = false;
+  disableCloseEvent = false;
+  darkMode = window.self === window.top && sessionStorage.getItem("dark-mode");
 
-  authService = undefined;
   oauthUser = undefined;
 
   initialized = false;
   client = undefined;
+  accountId = undefined;
 
   staticToken = undefined;
-  baseWalletUrl = undefined;
   basePublicUrl = undefined;
 
-  walletAddress = undefined;
-  walletId = undefined;
-  walletHash = undefined;
   profileMetadata = { public: {} };
   profileData = undefined;
 
@@ -62,15 +61,6 @@ class RootStore {
     return url.toString();
   }
 
-  ProfileLink({path, queryParams={}}) {
-    const url = new URL(this.baseWalletUrl);
-    url.pathname = UrlJoin("q", this.walletHash, "meta", path);
-
-    Object.keys(queryParams).map(key => url.searchParams.append(key, queryParams[key]));
-
-    return url.toString();
-  }
-
   NFT(tokenId) {
     return this.nfts.find(nft => nft.details.TokenIdStr === tokenId);
   }
@@ -89,7 +79,6 @@ class RootStore {
       };
     }).filter(n => n);
 
-    // TODO: use public/asset_metadata/nft
     this.nfts = yield this.client.utils.LimitedMap(
       10,
       nfts,
@@ -105,8 +94,12 @@ class RootStore {
     );
   });
 
-  InitializeClient = flow(function * ({user, idToken, authService, privateKey}) {
+  InitializeClient = flow(function * ({user, idToken, authToken, address, privateKey}) {
     try {
+      this.loggingIn = true;
+      this.loggedIn = false;
+      this.initialized = false;
+
       const client = yield ElvClient.FromConfigurationUrl({
         configUrl: EluvioConfiguration["config-url"]
       });
@@ -127,28 +120,21 @@ class RootStore {
 
       this.client = client;
 
-
-      this.authService = authService;
-
       if(privateKey) {
         const wallet = client.GenerateWallet();
         const signer = wallet.AddAccount({privateKey});
         client.SetSigner({signer});
+      } else if(authToken) {
+        yield client.SetRemoteSigner({authToken: authToken, address});
       } else if(user || idToken) {
         this.oauthUser = user;
 
-        yield client.SetRemoteSigner({token: idToken || user.id_token});
+        yield client.SetRemoteSigner({idToken: idToken || user.id_token});
       } else {
         throw Error("Neither user nor private key specified in InitializeClient");
       }
 
-      this.walletAddress = yield client.userProfileClient.WalletAddress(false);
-
-      if(!this.walletAddress) {
-        this.walletAddress = yield client.userProfileClient.WalletAddress(true);
-      }
-
-      this.walletId = `iusr${client.utils.AddressToHash(client.CurrentAccountAddress())}`;
+      this.accountId = `iusr${client.utils.AddressToHash(client.CurrentAccountAddress())}`;
 
       this.basePublicUrl = yield client.FabricUrl({
         queryParams: {
@@ -160,46 +146,11 @@ class RootStore {
       // Parallelize load tasks
       let tasks = [];
       tasks.push((async () => {
-        let profileMetadata = (await client.userProfileClient.UserMetadata()) || {};
-
-        if(user && !(profileMetadata.public && profileMetadata.public.name)) {
-
-          await client.userProfileClient.ReplaceUserMetadata({
-            metadata: {
-              public: {
-                name: user ? user.name : "user"
-              }
-            }
-          });
-
-          if(user && user.imageUrl) {
-            const image = await (await fetch(user.imageUrl)).blob();
-            await client.userProfileClient.SetUserProfileImage({image});
-          }
-
-          profileMetadata = (await client.userProfileClient.UserMetadata()) || {};
-        }
-
-        runInAction(() => {
-          this.profileMetadata = profileMetadata;
-          this.profileMetadata.public = this.profileMetadata.public || {};
-        });
-      })());
-
-      tasks.push((async () => {
-        const baseWalletUrl = await client.FabricUrl({
-          versionHash: this.walletHash
-        });
-
-        runInAction(() => this.baseWalletUrl = baseWalletUrl);
-      })());
-
-      tasks.push((async () => {
         const profileData = await client.ethClient.MakeProviderCall({
           methodName: "send",
           args: [
             "elv_getAccountProfile",
-            [client.contentSpaceId, this.walletId]
+            [client.contentSpaceId, this.accountId]
           ]
         });
 
@@ -208,12 +159,24 @@ class RootStore {
 
       yield Promise.all(tasks);
 
-      this.walletHash = yield client.LatestVersionHash({objectId: client.utils.AddressToObjectId(this.walletAddress)});
-
       this.client = client;
 
       this.initialized = true;
       this.loggedIn = true;
+
+      rootStore.SetAuthInfo({
+        token: client.signer.authToken,
+        address: client.signer.address,
+        user: {
+          name: (user || {}).name,
+          email: (user || {}).email
+        }
+      });
+
+      this.profileMetadata.public = {
+        name: (user || {}).name || client.signer.address,
+        email: (user || {}).email
+      };
 
       this.SendEvent({event: EVENTS.LOG_IN, data: { address: client.signer.address }});
     } catch(error) {
@@ -221,13 +184,13 @@ class RootStore {
       this.Log(error, true);
 
       throw error;
+    } finally {
+      this.loggingIn = false;
     }
   });
 
   SignOut() {
-    if(this.authService) {
-      localStorage.removeItem(`_${this.authService}-token`);
-    }
+    this.ClearAuthInfo();
 
     if(this.oauthUser && this.oauthUser.SignOut) {
       this.oauthUser.SignOut();
@@ -235,31 +198,51 @@ class RootStore {
 
     this.SendEvent({event: EVENTS.LOG_OUT, data: { address: this.client.signer.address }});
 
-    window.location.href = window.location.origin + window.location.pathname;
+    this.disableCloseEvent = true;
+    window.location.href = window.location.origin + window.location.pathname + this.darkMode ? "?d" : "";
   }
 
-  SetIdToken(service, token) {
+  ClearAuthInfo() {
+    localStorage.removeItem("auth");
+  }
+
+  SetAuthInfo({token, address, user}) {
     localStorage.setItem(
-      `_${service}-token`,
-      Utils.B64(JSON.stringify({token, expiresAt: Date.now() + 23 * 60 * 60 * 1000}))
+      "auth",
+      Utils.B64(JSON.stringify({token, address, user}))
     );
   }
 
-  IdToken(service) {
+  AuthInfo() {
     try {
-      const tokenInfo = localStorage.getItem(`_${service}-token`);
+      const tokenInfo = localStorage.getItem("auth");
 
       if(tokenInfo) {
-        const { token, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
-        if(Date.now() > expiresAt) {
-          localStorage.removeItem(`_${service}-token`);
+        const { token, address, user } = JSON.parse(Utils.FromB64(tokenInfo));
+        const expiration = JSON.parse(atob(token)).exp;
+        if(expiration - Date.now() < 4 * 3600 * 1000) {
+          localStorage.removeItem("auth");
         } else {
-          return token;
+          return { token, address, user };
         }
       }
     } catch(error) {
-      this.Log(`Failed to retrieve ${service} ID token`, true);
+      this.Log("Failed to retrieve auth info", true);
       this.Log(error, true);
+    }
+  }
+
+  ToggleDarkMode(enabled) {
+    if(enabled) {
+      document.getElementById("app").classList.add("dark");
+    } else {
+      document.getElementById("app").classList.remove("dark");
+    }
+
+    this.darkMode = enabled;
+
+    if(window.self === window.top) {
+      sessionStorage.setItem("dark-mode", enabled ? "true" : "");
     }
   }
 }
