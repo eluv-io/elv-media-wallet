@@ -130,10 +130,32 @@ button {
 
 .page-container {
   margin-top: 60px;
+
+  .page-loader {
+    min-height: 60vh;
+    width: 100%;
+  }
+
+  .page-header,
+  .page-subheader {
+    margin: 0;
+  }
+
+  .page-header {
+    font-size: 32px;
+    font-weight: 300;
+    letter-spacing: 0.03em;
+  }
+
+  .page-subheader {
+    color: $darkgray;
+    font-size: 18px;
+    font-weight: 300;
+  }
 }
 
 .content {
-  display: grid;
+  //display: grid;
   flex: 1 1 auto;
   height: max-content;
   max-width: 100%;

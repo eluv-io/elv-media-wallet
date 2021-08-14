@@ -2,6 +2,7 @@
   background-color: $lightgray;
   border-radius: 10px;
   bottom: 20px;
+  box-shadow: $mediumgray 3px 3px 3px;
   display: flex;
   height: 40px;
   left: 0;
@@ -62,6 +63,17 @@
       &.active {
         border: 0;
         color: $white;
+      }
+    }
+  }
+
+  .navigation {
+    border: 0.5px solid $darkergray;
+    box-shadow: none;
+
+    &__link {
+      &:not(:last-child) {
+        border-right: 0.5px solid $darkergray;
       }
     }
   }

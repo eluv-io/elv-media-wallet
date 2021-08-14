@@ -55,7 +55,7 @@ class AsyncComponent extends React.Component {
     }
 
     if(this.state.loading) {
-      return <Loader />;
+      return <Loader className={this.props.loadingClassName} />;
     }
 
     return this.props.render ? this.props.render() : this.props.children;

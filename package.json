@@ -30,9 +30,10 @@
     ]
   },
   "dependencies": {
-    "@babel/cli": "^7.14.8",
     "@auth0/auth0-react": "^1.6.0",
+    "@babel/cli": "^7.14.8",
     "@eluvio/elv-client-js": "^3.1.56",
+    "@paypal/react-paypal-js": "^7.2.1",
     "jsdoc": "^3.6.7",
     "mobx": "^6.3.2",
     "mobx-react": "^6.3.1",

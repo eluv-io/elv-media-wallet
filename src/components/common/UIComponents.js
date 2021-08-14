@@ -41,3 +41,28 @@ export const CopyableField = ({value, children, className=""}) => {
     </div>
   );
 };
+
+export const ItemPrice = (item, currency) => {
+  currency = Object.keys(item.price || {}).find(c => c.toLowerCase() === currency.toLowerCase());
+
+  if(!currency) {
+    return "";
+  }
+
+  return parseFloat(item.price[currency]);
+};
+
+export const FormatPriceString = (priceList, options={currency: "USD", trimZeros: false}) => {
+  const price = ItemPrice({price: priceList}, options.currency);
+
+  if(!price || isNaN(price)) { return; }
+
+  const currentLocale = (navigator.languages && navigator.languages.length) ? navigator.languages[0] : navigator.language;
+  let formattedPrice = new Intl.NumberFormat(currentLocale || "en-US", { style: "currency", currency: options.currency }).format(price);
+
+  if(options.trimZeros && formattedPrice.endsWith(".00")) {
+    formattedPrice = formattedPrice.slice(0, -3);
+  }
+
+  return formattedPrice;
+};

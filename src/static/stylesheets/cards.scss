@@ -1,50 +1,66 @@
 $card-shadow: rgba(0, 0, 0, 0.1);
 $overlay-background: rgba($black, 0.25);
 
+.card-list {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  margin-top: 20px;
+}
+
 .card-shadow {
   border: 1px solid $lightgray;
   border-radius: 6px;
   box-shadow: 0 4px 4px $card-shadow;
 }
 
-.card-list {
-  display: grid;
-  grid-gap: 10px;
-  grid-template-columns: 1fr 1fr;
-
-  @media screen and (max-width: $mobile-breakpoint) {
-    grid-template-columns: 1fr;
-  }
-}
-
 .card-container {
-  border-radius: 10px;
-  display: inline-block;
-  padding-top: 100%;
+  box-sizing: border-box;
+  display: block;
+  height: min-content;
   position: relative;
-  width: 100%;
+
+  &::before {
+    content: "";
+    display: block;
+    padding-top: 100%;
+  }
+
+  .card {
+    display: block;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+
+    &__image {
+      object-fit: contain;
+      padding-bottom: 10px;
+      width: 100%;
+    }
+  }
 }
 
 .card {
   border-radius: 10px;
-  display: flex;
+  display: block;
   flex-direction: column;
   height: 100%;
   justify-content: space-between;
   left: 0;
-  max-width: 100%;
   object-fit: cover;
   object-position: center;
   overflow: hidden;
-  padding: 25px 50px;
+  padding: 25px;
   position: absolute;
   top: 0;
   width: 100%;
 
   &__image {
     flex: 1 1 auto;
-    height: 100%;
-    max-height: calc(100% - 60px);
+    height: calc(100% - 40px);
+    max-height: calc(100% - 50px);
     object-fit: contain;
     object-position: center;
     width: 100%;
@@ -55,17 +71,25 @@ $overlay-background: rgba($black, 0.25);
   }
 
   &__title {
-    font-size: 18px;
+    align-items: center;
+    display: flex;
+    font-size: 14px;
     font-weight: 500;
+    justify-content: space-between;
+  }
+
+  &__title__price {
+    font-size: 14px;
+    font-weight: 400;
   }
 
   &__subtitle {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 300;
   }
 }
 
-.nft-details {
+.details-page {
   max-width: 100%;
   overflow-x: hidden;
   width: 100%;
@@ -73,10 +97,16 @@ $overlay-background: rgba($black, 0.25);
   &__content-container {
     display: block;
     margin: 0 auto;
+    width: 100%;
   }
 
   &__content__header {
     font-weight: 500;
+  }
+
+  &__content__image {
+    margin-bottom: 10px;
+    max-height: calc(100% - 40px);
   }
 
   &__content__id {
@@ -97,12 +127,12 @@ $overlay-background: rgba($black, 0.25);
     text-align: center;
   }
 
-  @media screen and (min-width: $breakpoint) {
+  @media screen and (min-width: $tablet-breakpoint) {
     align-content: start;
     display: grid;
     grid-gap: 20px;
     grid-template-columns: 5fr minmax(0, 4fr);
-    padding: 0 0 20px;
+    //padding: 20px 30px 20px;
 
     .expandable-section {
       &:first-child {
@@ -138,19 +168,15 @@ $overlay-background: rgba($black, 0.25);
 
 .nft-image-video-embed {
   border: 0;
+  height: 100%;
   max-width: 100%;
   outline: 0;
-  padding-top: 100%;
-  position: relative;
   width: 100%;
 
   &__frame {
     border: 0;
     height: 100%;
-    left: 0;
     outline: 0;
-    position: absolute;
-    top: 0;
     width: 100%;
   }
 }
@@ -175,7 +201,7 @@ $overlay-background: rgba($black, 0.25);
     }
   }
 
-  .nft-details {
+  .details-page {
     &__content__id {
       color: $gray;
     }

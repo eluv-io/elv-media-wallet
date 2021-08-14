@@ -24,9 +24,9 @@ export const PageLoader = () => {
 };
 
 
-export const Loader = () => {
+export const Loader = ({className=""}) => {
   return (
-    <div className="loader">
+    <div className={`loader ${className}`}>
       <div className="circle-loader">
         <div className="lds-default">
           <div></div>

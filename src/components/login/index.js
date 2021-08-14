@@ -50,7 +50,7 @@ const Login = observer(() => {
           name: auth0.user.name,
           email: auth0.user.email,
           SignOut: async () => {
-            auth0.logout({returnTo: window.location.origin + window.location.pathname + rootStore.darkMode ? "?d" : ""});
+            auth0.logout({returnTo: window.location.origin + window.location.pathname + (rootStore.darkMode ? "?d" : "")});
           }
         };
       }

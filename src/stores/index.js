@@ -7,12 +7,26 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 import {SendEvent} from "Components/interface/Listener";
 import EVENTS from "../../client/src/Events";
 
+const PUBLIC_KEYS = {
+  stripe: {
+    test: "pk_test_51HpRJ7E0yLQ1pYr6m8Di1EfiigEZUSIt3ruOmtXukoEe0goAs7ZMfNoYQO3ormdETjY6FqlkziErPYWVWGnKL5e800UYf7aGp6",
+    production: "pk_live_51HpRJ7E0yLQ1pYr6v0HIvWK21VRXiP7sLrEqGJB35wg6Z0kJDorQxl45kc4QBCwkfEAP3A6JJhAg9lHDTOY3hdRx00kYwfA3Ff"
+  },
+  paypal: {
+    test: "AUDYCcmusO8HyBciuqBssSc3TX855stVQo-WqJUaTW9ZFM7MPIVbdxoYta5hHclUQ9fFDe1iedwwXlgy",
+    production: "Af_BaCJU4_qQj-dbaSJ6UqslKSpfZgkFCJoMi4_zqEKZEXkT1JhPkCTTKYhJ0WGktzFm4c7_BBSN65S4"
+  }
+};
+
 // Force strict mode so mutations are only allowed within actions.
 configure({
   enforceActions: "always"
 });
 
 class RootStore {
+  mode = "test";
+  currency = "USD";
+
   loggingIn = false;
   loggedIn = false;
   disableCloseEvent = false;
@@ -31,6 +45,9 @@ class RootStore {
   profileData = undefined;
 
   nfts = [];
+
+  marketplaceIds = ["iq__3xN8U1i3Acuqx74suCGhbxrR2x9y"];
+  marketplaces = {};
 
   EVENTS = EVENTS;
 
@@ -68,16 +85,18 @@ class RootStore {
   LoadCollections = flow(function * () {
     if(!this.profileData || !this.profileData.NFTs || this.nfts.length > 0) { return; }
 
-    const nfts = this.profileData.NFTs.map(details => {
-      const versionHash = (details.TokenUri || "").split("/").find(s => s.startsWith("hq__"));
+    const nfts = Object.keys(this.profileData.NFTs).map(tenantId =>
+      this.profileData.NFTs[tenantId].map(details => {
+        const versionHash = (details.TokenUri || "").split("/").find(s => s.startsWith("hq__"));
 
-      if(!versionHash) { return; }
+        if(!versionHash) { return; }
 
-      return {
-        ...details,
-        versionHash
-      };
-    }).filter(n => n);
+        return {
+          ...details,
+          versionHash
+        };
+      }).filter(n => n)
+    ).flat();
 
     this.nfts = yield this.client.utils.LimitedMap(
       10,
@@ -92,6 +111,19 @@ class RootStore {
         };
       }
     );
+  });
+
+  LoadMarketplace = flow(function * (marketplaceId) {
+    if(this.marketplaces[marketplaceId]) { return; }
+
+    this.marketplaces[marketplaceId] = yield this.client.ContentObjectMetadata({
+      libraryId: yield this.client.ContentObjectLibraryId({objectId: marketplaceId}),
+      objectId: marketplaceId,
+      metadataSubtree: "public/asset_metadata/info",
+      resolveLinks: true
+    });
+
+    this.marketplaces[marketplaceId].versionHash = yield this.client.LatestVersionHash({objectId: marketplaceId});
   });
 
   InitializeClient = flow(function * ({user, idToken, authToken, address, privateKey}) {
@@ -157,6 +189,14 @@ class RootStore {
         runInAction(() => this.profileData = profileData);
       })());
 
+      tasks.push((async () => {
+        await Promise.all(
+          this.marketplaceIds.map(async marketplaceId => {
+            await this.LoadMarketplace(marketplaceId);
+          })
+        );
+      })());
+
       yield Promise.all(tasks);
 
       this.client = client;
@@ -199,7 +239,7 @@ class RootStore {
     this.SendEvent({event: EVENTS.LOG_OUT, data: { address: this.client.signer.address }});
 
     this.disableCloseEvent = true;
-    window.location.href = window.location.origin + window.location.pathname + this.darkMode ? "?d" : "";
+    window.location.href = window.location.origin + window.location.pathname + (this.darkMode ? "?d" : "");
   }
 
   ClearAuthInfo() {
@@ -244,6 +284,10 @@ class RootStore {
     if(window.self === window.top) {
       sessionStorage.setItem("dark-mode", enabled ? "true" : "");
     }
+  }
+
+  PaymentServicePublicKey(service) {
+    return PUBLIC_KEYS[service][this.mode];
   }
 }
 

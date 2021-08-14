@@ -16,14 +16,12 @@ const NFTCard = observer(({nft}) => {
         className="card nft-card"
       >
         <NFTImage nft={nft} className="card__image" width={800} />
-        <div className="card__text">
-          <h2 className="card__title">
-            { nft.metadata.display_name || "" }
-          </h2>
-          <h2 className="card__subtitle">
-            { nft.metadata.display_name || "" }
-          </h2>
-        </div>
+        <h2 className="card__title">
+          { nft.metadata.display_name || "" }
+        </h2>
+        <h2 className="card__subtitle">
+          { nft.metadata.display_name || "" }
+        </h2>
       </Link>
     </div>
   );

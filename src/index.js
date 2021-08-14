@@ -12,6 +12,7 @@ if(
   new URLSearchParams(window.location.search).has("d") ||
   window.self === window.top && sessionStorage.getItem("dark-mode")
 ) {
+  console.log("dark");
   rootStore.ToggleDarkMode(true);
 }
 
@@ -28,6 +29,7 @@ import Profile from "Components/profile";
 import ScrollToTop from "Components/common/ScrollToTop";
 import { InitializeListener } from "Components/interface/Listener";
 import { Auth0Provider } from "@auth0/auth0-react";
+import MarketplaceRoutes from "Components/marketplace";
 
 const Placeholder = ({ text }) => <div>{text}</div>;
 
@@ -54,6 +56,9 @@ const Routes = () => {
       </Route>
       <Route path="/profile">
         <Profile />
+      </Route>
+      <Route path="/marketplaces">
+        <MarketplaceRoutes />
       </Route>
       <Route path="/">
         <Redirect to="/wallet" />
