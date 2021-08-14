@@ -39,6 +39,7 @@ const Wallet = observer(() => {
 
           <Route path={`${match.path}/collections/:tokenId`}>
             <AsyncComponent
+              loadingClassName="page-loader"
               loadKey="NFTs"
               Load={async () => await rootStore.LoadCollections()}
               render={() => <NFTDetails />}
@@ -47,6 +48,7 @@ const Wallet = observer(() => {
 
           <Route path={`${match.path}/collections`}>
             <AsyncComponent
+              loadingClassName="page-loader"
               loadKey="NFTs"
               Load={async () => await rootStore.LoadCollections()}
               render={() => <Collections />}

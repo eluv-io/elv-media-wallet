@@ -22,7 +22,7 @@ const MarketplaceItemImage = ({marketplaceHash, item, index, className=""}) => {
     url = rootStore.PublicLink({
       versionHash: marketplaceHash,
       path: UrlJoin("public", "asset_metadata", "info", "items", index.toString(), "image"),
-      queryParams: { width: 100 }
+      queryParams: { width: 800 }
     });
   } else if(item.nft_template) {
     url = (item.nft_template.nft || {}).image;
@@ -275,7 +275,7 @@ const MarketplaceBrowser = observer(() => {
           const imageUrl = rootStore.PublicLink({
             versionHash: marketplace.versionHash,
             path: UrlJoin("public", "asset_metadata", "info", "images", "image"),
-            queryParams: { width: 100 }
+            queryParams: { width: 800 }
           });
 
           return (
