@@ -57,3 +57,11 @@
     }
   }
 }
+
+.dark {
+  .profile-page {
+    &__section {
+      border: 1px solid $darkgray;
+    }
+  }
+}

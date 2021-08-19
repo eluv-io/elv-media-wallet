@@ -12,7 +12,6 @@ if(
   new URLSearchParams(window.location.search).has("d") ||
   window.self === window.top && sessionStorage.getItem("dark-mode")
 ) {
-  console.log("dark");
   rootStore.ToggleDarkMode(true);
 }
 
@@ -30,6 +29,7 @@ import ScrollToTop from "Components/common/ScrollToTop";
 import { InitializeListener } from "Components/interface/Listener";
 import { Auth0Provider } from "@auth0/auth0-react";
 import MarketplaceRoutes from "Components/marketplace";
+import {ErrorBoundary} from "Components/common/ErrorBoundary";
 
 const Placeholder = ({ text }) => <div>{text}</div>;
 
@@ -73,7 +73,9 @@ const App = observer(() => {
       <div className={`app-container ${rootStore.initialized ? "app-container-initialized" : "app-container-not-initialized"}`}>
         <Header />
         <ScrollToTop>
-          <Routes />
+          <ErrorBoundary className="page-container">
+            <Routes />
+          </ErrorBoundary>
         </ScrollToTop>
         <Navigation />
       </div>

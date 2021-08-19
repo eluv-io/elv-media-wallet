@@ -14,6 +14,19 @@ let newWindowLogin =
   window.self === window.top && sessionStorage.getItem("new-window-login");
 
 const callbackUrl = (window.location.origin + window.location.pathname).replace(/\/$/, "");
+
+const SignalOpener = () => {
+  if(!window.opener || !newWindowLogin || !rootStore.AuthInfo()) { return; }
+
+  window.opener.postMessage({
+    type: "ElvMediaWalletClientRequest",
+    action: "login",
+    params: rootStore.AuthInfo()
+  });
+
+  window.close();
+};
+
 const Login = observer(() => {
   const [loading, setLoading] = useState(false);
   const [showPrivateKeyForm, setShowPrivateKeyForm] = useState(false);
@@ -32,6 +45,8 @@ const Login = observer(() => {
           authToken: authInfo.token,
           address: authInfo.address
         });
+
+        SignalOpener();
 
         return;
       }
@@ -65,15 +80,7 @@ const Login = observer(() => {
         user: userData
       });
 
-      if(idToken && newWindowLogin) {
-        window.opener.postMessage({
-          type: "ElvMediaWalletClientRequest",
-          action: "login",
-          params: rootStore.AuthInfo()
-        });
-
-        window.close();
-      }
+      SignalOpener();
     } catch(error) {
       console.error(error);
       newWindowLogin = false;
@@ -87,6 +94,8 @@ const Login = observer(() => {
   }
 
   useEffect(() => {
+    SignalOpener();
+
     const authInfo = rootStore.AuthInfo();
 
     if(!loading && authInfo) {
@@ -156,7 +165,7 @@ const Login = observer(() => {
               >
                 Cancel
               </button>
-              <button type="submit" className="login-page__private-key-form__button">
+              <button type="submit" className="login-page__private-key-form__button login-page__private-key-form__button-submit">
                 Submit
               </button>
             </div>

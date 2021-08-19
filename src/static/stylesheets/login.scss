@@ -38,10 +38,6 @@
     }
 
     button {
-      background-color: $blue;
-      border: 1px solid $blue;
-      border-radius: 3px;
-      color: $white;
       flex: 1 1 auto;
       height: 40px;
       padding: 5px;
@@ -51,10 +47,10 @@
         margin-right: 10px;
       }
 
-      &.login-page__private-key-form__button-cancel {
-        background-color: transparent;
-        border: 1px solid $mediumgray;
-        color: $black;
+      &.login-page__private-key-form__button-submit {
+        background-color: $blue;
+        border: 1px solid $blue;
+        color: $white;
       }
     }
   }
@@ -123,6 +119,10 @@
       button {
         color: $white;
       }
+    }
+
+    &__login-button {
+      border: 0;
     }
   }
 }

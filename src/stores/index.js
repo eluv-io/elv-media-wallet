@@ -46,7 +46,7 @@ class RootStore {
 
   nfts = [];
 
-  marketplaceIds = ["iq__3xN8U1i3Acuqx74suCGhbxrR2x9y"];
+  marketplaceIds = ["iq__2FrA2S1XBy4zdRGQn1knakpbrBV4"];
   marketplaces = {};
 
   EVENTS = EVENTS;
@@ -120,7 +120,9 @@ class RootStore {
       libraryId: yield this.client.ContentObjectLibraryId({objectId: marketplaceId}),
       objectId: marketplaceId,
       metadataSubtree: "public/asset_metadata/info",
-      resolveLinks: true
+      linkDepthLimit: 2,
+      resolveLinks: true,
+      resolveIgnoreErrors: true
     });
 
     this.marketplaces[marketplaceId].versionHash = yield this.client.LatestVersionHash({objectId: marketplaceId});

@@ -123,7 +123,7 @@ const MarketplaceItemDetails = observer(() => {
 
   if(!marketplace) { return null; }
 
-  const itemIndex = marketplace.items.findIndex(item => item.uuid === match.params.itemUUID);
+  const itemIndex = marketplace.items.findIndex(item => item.sku === match.params.sku);
 
   if(itemIndex < 0) { return null; }
 
@@ -205,10 +205,14 @@ const MarketplaceItemDetails = observer(() => {
 const MarketplaceItemCard = ({marketplaceHash, item, index}) => {
   const match = useRouteMatch();
 
+  if(!item.for_sale || (item.type === "nft" && (!item.nft_template || item.nft_template["/"]))) {
+    return null;
+  }
+
   return (
     <div className="card-container card-shadow">
       <Link
-        to={`${match.url}/${item.uuid}`}
+        to={`${match.url}/${item.sku}`}
         className="card nft-card"
       >
         <MarketplaceItemImage marketplaceHash={marketplaceHash} item={item} index={index} />
@@ -313,7 +317,7 @@ const MarketplaceRoutes = () => {
   return (
     <div className="page-container marketplace-page">
       <Switch>
-        <Route path={`${path}/:marketplaceId/:itemUUID`}>
+        <Route path={`${path}/:marketplaceId/:sku`}>
           <MarketplaceItemDetails />
         </Route>
 
