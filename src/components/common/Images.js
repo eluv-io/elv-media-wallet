@@ -7,13 +7,13 @@ import UserIcon from "Assets/icons/user.svg";
 import NFTPlaceholderIcon from "Assets/icons/nft";
 import ImageIcon from "Components/common/ImageIcon";
 
-export const ProfileImage = observer(({height=100, className=""}) => {
-  const hasImage = rootStore.initialized && rootStore.profileMetadata.public.profile_image;
+export const ProfileImage = observer(({className=""}) => {
+  const hasImage = rootStore.initialized && rootStore.userProfile.profileImage;
   return (
     <div className={`profile-image ${hasImage ? "profile-image-image" : "profile-image-placeholder"} ${className}`}>
       {
         hasImage ?
-          <img className="profile-image__image" src={rootStore.ProfileLink({path: "public/profile_image", queryParams: {height}})} alt="Profile Image" /> :
+          <img className="profile-image__image" src={rootStore.userProfile.profileImage} alt="Profile Image" /> :
           <SVG src={UserIcon} className="profile-image__placeholder" alt="Profile Image" />
       }
     </div>

@@ -43,7 +43,8 @@ const Login = observer(() => {
         setLoading(true);
         await rootStore.InitializeClient({
           authToken: authInfo.token,
-          address: authInfo.address
+          address: authInfo.address,
+          user: authInfo.user
         });
 
         SignalOpener();
@@ -103,7 +104,8 @@ const Login = observer(() => {
       setLoading(true);
       rootStore.InitializeClient({
         authToken: authInfo.token,
-        address: authInfo.address
+        address: authInfo.address,
+        user: authInfo.user
       });
 
       return;

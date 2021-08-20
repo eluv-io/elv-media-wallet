@@ -7,7 +7,7 @@ import {
 import UrlJoin from "url-join";
 import {MarketplaceImage} from "Components/common/Images";
 
-const DropCard = ({marketplace, label, sku, selected=false, Select}) => {
+const DropCard = ({drop, marketplace, label, sku, index, image, selected=false, Select}) => {
   const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
 
   if(itemIndex < 0) { return null; }
@@ -19,8 +19,12 @@ const DropCard = ({marketplace, label, sku, selected=false, Select}) => {
       <div className="card">
         <MarketplaceImage
           marketplaceHash={marketplace.versionHash}
-          item={item}
-          path={UrlJoin("public", "asset_metadata", "info", "items", itemIndex.toString(), "image")}
+          item={!image && item}
+          path={
+            image ?
+              UrlJoin("public", "asset_metadata", "info", "events", drop.eventIndex.toString(), "event", "info", "drops", drop.dropIndex.toString(), "nfts", index.toString(), "image") :
+              UrlJoin("public", "asset_metadata", "info", "items", itemIndex.toString(), "image")
+          }
         />
         <div className="card__text">
           <h2 className="card__title">
@@ -62,12 +66,15 @@ const Drop = () => {
             { drop.drop_subheader ? <h2 className="page-subheader">{ drop.drop_subheader }</h2> : null }
             <div className="card-list">
               {
-                drop.nfts.map(({label, sku}, index) =>
+                drop.nfts.map(({label, image, sku}, index) =>
                   <DropCard
                     key={`drop-card-${index}`}
+                    drop={drop}
                     marketplace={marketplace}
                     label={label}
                     sku={sku}
+                    image={image}
+                    index={index}
                     selected={selection === sku}
                     Select={() => setSelection(sku)}
                   />

@@ -17,7 +17,7 @@
     "add-build": "COMMIT=`git rev-parse HEAD` ; echo $COMMIT > dist/version.txt ; git add dist",
     "lint": "npm run fix-scss ; npm run lint-scss ; npm run fix-js",
     "lint-show": "npm run lint-scss ; npm run lint-js",
-    "lint-js": "./node_modules/.bin/eslint \"src/**/*.js\"",
+    "lint-js": "./node_modules/.bin/eslint \"src/**/*.js\" \"client/src/**/*.js\"",
     "lint-scss": "./node_modules/sass-lint/bin/sass-lint.js -c .scss-lint.yml -v -q",
     "fix-js": "npm run lint-js -- --fix",
     "fix-scss": "./node_modules/sass-lint-auto-fix/dist/index.js -c .scss-lint.yml"

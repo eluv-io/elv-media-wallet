@@ -76,12 +76,15 @@ export class ElvWalletClient {
 
     switch(level) {
       case this.LOG_LEVELS.DEBUG:
+        // eslint-disable-next-line no-console
         console.log(message);
         return;
       case this.LOG_LEVELS.WARN:
+        // eslint-disable-next-line no-console
         console.warn(message);
         return;
       case this.LOG_LEVELS.ERROR:
+        // eslint-disable-next-line no-console
         console.error(message);
         return;
     }
@@ -186,6 +189,18 @@ export class ElvWalletClient {
   }
 
   /**
+   * Return the current user's profile, including name, email and blockchain address.
+   *
+   * @return Promise<Object> - If a user is currently logged in, the user's profile is returned.
+   */
+  async UserProfile() {
+    return await this.SendMessage({
+      action: "profile",
+      params: {}
+    });
+  }
+
+  /**
    * Return info about all items in the user's wallet
    *
    * @methodGroup Items
@@ -205,7 +220,7 @@ export class ElvWalletClient {
    * @namedParams
    * @param {string} tokenId - The ID of the item
    *
-   * @return Promise<Object | undefined> - Information about the requested item. Returns undefined if the item was not found.
+   * @return Promise<Object> - Information about the requested item. Returns undefined if the item was not found.
    */
   async Item({tokenId}) {
     return await this.SendMessage({
@@ -219,9 +234,9 @@ export class ElvWalletClient {
   /**
    * Request the navigation header and footer to be shown or hidden in the wallet
    *
-   * @methodGroupd Navigation
+   * @methodGroup Navigation
    * @namedParams
-   * @param {boolean=true} enabled - True to show navigation, false to hide it
+   * @param {boolean=} enabled=true - True to show navigation, false to hide it
    */
   async ToggleNavigation(enabled=true) {
     return this.SendMessage({
@@ -334,7 +349,7 @@ export class ElvWalletClient {
     await client.AwaitMessage("init");
 
     return client;
-  };
+  }
 
   async SendMessage({action, params}) {
     const requestId = `action-${Id.next()}`;

@@ -23,6 +23,41 @@ configure({
   enforceActions: "always"
 });
 
+const colors = [
+  "#621B00",
+  "#2F1000",
+  "#108280",
+  "#40798C",
+  "#2a6514",
+  "#626864",
+  "#379164",
+  "#2F2235",
+  "#60495A",
+  "#A37871",
+  "#4B0642",
+  "#1C6E8C"
+];
+
+const ProfileImage = (text, backgroundColor) => {
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+
+  canvas.width = 200;
+  canvas.height = 200;
+
+  context.fillStyle = backgroundColor;
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  context.font = "100px Helvetica";
+  context.fillStyle = "white";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText(text, canvas.width / 2, canvas.height / 2 + 10);
+
+  return canvas.toDataURL("image/png");
+};
+
+
 class RootStore {
   mode = "test";
   currency = "USD";
@@ -43,7 +78,8 @@ class RootStore {
   staticToken = undefined;
   basePublicUrl = undefined;
 
-  profileMetadata = { public: {} };
+  userProfile = {};
+
   profileData = undefined;
 
   nfts = [];
@@ -136,6 +172,7 @@ class RootStore {
       (event.info.drops || []).map((drop, dropIndex) => ({
         ...drop,
         eventId: this.client.utils.DecodeVersionHash(event["."].source).objectId,
+        eventHash: event["."].source,
         eventIndex,
         dropIndex
       }))
@@ -231,9 +268,15 @@ class RootStore {
         }
       });
 
-      this.profileMetadata.public = {
+      const initials = ((user || {}).name || "").split(" ").map(s => s.substr(0, 1));
+      this.userProfile = {
+        address: client.signer.address,
         name: (user || {}).name || client.signer.address,
-        email: (user || {}).email
+        email: (user || {}).email,
+        profileImage: ProfileImage(
+          initials.length <= 1 ? initials.join("") : `${initials[0]}${initials[initials.length - 1]}`,
+          colors[((user || {}).email || "").length % colors.length]
+        )
       };
 
       this.SendEvent({event: EVENTS.LOG_IN, data: { address: client.signer.address }});

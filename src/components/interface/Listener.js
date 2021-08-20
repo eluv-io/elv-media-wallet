@@ -65,6 +65,14 @@ export const InitializeListener = (history) => {
           user: data.params.user
         });
         break;
+      case "profile":
+        if(!rootStore.loggedIn) {
+          Respond({response: null});
+        }
+
+        Respond({response: toJS(rootStore.userProfile)});
+
+        break;
       case "items":
         if(rootStore.nfts.length === 0) {
           await rootStore.LoadCollections();

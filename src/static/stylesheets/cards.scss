@@ -27,7 +27,7 @@ $overlay-background: rgba($black, 0.25);
   display: block;
   height: min-content;
   position: relative;
-  transition: border 0.25s ease-in, margin 0.15s ease-in-out;
+  transition: border 0.15s ease-in, margin 0.15s ease-in-out;
 
   &::before {
     content: "";
@@ -106,6 +106,16 @@ $overlay-background: rgba($black, 0.25);
   &__subtitle {
     font-size: 12px;
     font-weight: 300;
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    &__title {
+      font-size: 12px;
+    }
+
+    &__subtitle {
+      font-size: 10px;
+    }
   }
 }
 

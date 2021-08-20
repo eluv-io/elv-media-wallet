@@ -12,7 +12,7 @@ const Header = observer(() => {
     <header className="header">
       <Link to="/profile" className="header__profile">
         <div className="header__profile__name">
-          { rootStore.profileMetadata.public.name }
+          { rootStore.userProfile.name }
         </div>
         <ProfileImage className="header__profile__image" />
       </Link>
