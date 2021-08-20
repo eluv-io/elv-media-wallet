@@ -82,6 +82,7 @@ const Login = observer(() => {
 
       SignalOpener();
     } catch(error) {
+      // eslint-disable-next-line no-console
       console.error(error);
       newWindowLogin = false;
     } finally {

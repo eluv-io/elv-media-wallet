@@ -70,7 +70,7 @@ const Routes = () => {
 const App = observer(() => {
   return (
     <HashRouter>
-      <div className={`app-container ${rootStore.initialized ? "app-container-initialized" : "app-container-not-initialized"}`}>
+      <div className={`app-container ${rootStore.initialized ? "app-container-initialized" : "app-container-not-initialized"} ${rootStore.hideNavigation ? "navigation-hidden" : ""}`}>
         <Header />
         <ScrollToTop>
           <ErrorBoundary className="page-container">

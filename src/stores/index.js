@@ -38,6 +38,8 @@ class RootStore {
   client = undefined;
   accountId = undefined;
 
+  hideNavigation = false;
+
   staticToken = undefined;
   basePublicUrl = undefined;
 
@@ -54,9 +56,12 @@ class RootStore {
   Log(message="", error=false) {
     if(typeof message === "string") {
       message = `Eluvio Media Wallet | ${message}`;
+      // eslint-disable-next-line no-console
       error ? console.error(message) : console.log(message);
     } else {
+      // eslint-disable-next-line no-console
       error ? console.error("Eluvio Media Wallet") : console.log("Eluvio Media Wallet");
+      // eslint-disable-next-line no-console
       error ? console.error(message) : console.log(message);
     }
   }
@@ -116,16 +121,27 @@ class RootStore {
   LoadMarketplace = flow(function * (marketplaceId) {
     if(this.marketplaces[marketplaceId]) { return; }
 
-    this.marketplaces[marketplaceId] = yield this.client.ContentObjectMetadata({
+    let marketplace = yield this.client.ContentObjectMetadata({
       libraryId: yield this.client.ContentObjectLibraryId({objectId: marketplaceId}),
       objectId: marketplaceId,
       metadataSubtree: "public/asset_metadata/info",
-      linkDepthLimit: 2,
+      linkDepthLimit: 1,
       resolveLinks: true,
-      resolveIgnoreErrors: true
+      resolveIgnoreErrors: true,
+      resolveIncludeSource: true
     });
 
-    this.marketplaces[marketplaceId].versionHash = yield this.client.LatestVersionHash({objectId: marketplaceId});
+    marketplace.versionHash = yield this.client.LatestVersionHash({objectId: marketplaceId});
+    marketplace.drops = (marketplace.events || []).map(({event}, eventIndex) =>
+      (event.info.drops || []).map((drop, dropIndex) => ({
+        ...drop,
+        eventId: this.client.utils.DecodeVersionHash(event["."].source).objectId,
+        eventIndex,
+        dropIndex
+      }))
+    ).flat();
+
+    this.marketplaces[marketplaceId] = marketplace;
   });
 
   InitializeClient = flow(function * ({user, idToken, authToken, address, privateKey}) {
@@ -286,6 +302,10 @@ class RootStore {
     if(window.self === window.top) {
       sessionStorage.setItem("dark-mode", enabled ? "true" : "");
     }
+  }
+
+  ToggleNavigation(enabled) {
+    this.hideNavigation = !enabled;
   }
 
   PaymentServicePublicKey(service) {

@@ -4,13 +4,21 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 import EVENTS from "../../../client/src/Events";
 
 const pages = {
-  "discover": "/discover",
+  // Wallet
   "wallet": "/wallet",
   "items": "/wallet/collections",
   "item": "/wallet/collections/:tokenId",
   "tickets": "/wallet/tickets",
   "tokens": "/wallet/tokens",
-  "profile": "/profile"
+
+  // Profile
+  "profile": "/profile",
+
+  // Marketplace
+  "marketplaces": "/marketplaces",
+  "marketplace": "/marketplaces/:marketplaceId",
+  "marketplaceItem": "/marketplaces/:marketplaceId/:sku",
+  "drop": "/marketplaces/:marketplaceId/events/:dropId"
 };
 
 const FormatNFT = (nft) => {
@@ -67,6 +75,10 @@ export const InitializeListener = (history) => {
         } else {
           Respond({response: rootStore.nfts.map(FormatNFT)});
         }
+
+        break;
+      case "toggleNavigation":
+        rootStore.ToggleNavigation(data.params.enabled);
 
         break;
       case "navigate":

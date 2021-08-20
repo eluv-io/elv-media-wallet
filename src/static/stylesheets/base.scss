@@ -60,7 +60,6 @@ body {
   position: absolute;
 }
 
-
 main {
   height: 100%;
   width: 100%;
@@ -153,6 +152,12 @@ button {
   }
 }
 
+.navigation-hidden {
+  .page-container {
+    margin-top: 0;
+  }
+}
+
 .content {
   //display: grid;
   flex: 1 1 auto;
@@ -201,11 +206,12 @@ button {
 @media screen and (max-width: $mobile-breakpoint) {
   .page-container {
     .page-header {
-      font-size: 20px;
+      font-size: 18px;
     }
 
     .page-subheader {
-      font-size: 14px;
+      font-size: 12px;
+      margin-top: 3px;
     }
   }
 }
@@ -226,5 +232,11 @@ button {
 
   button {
     border: 1px solid $darkgray;
+  }
+
+  .page-container {
+    .page-subheader {
+      color: $mediumgray;
+    }
   }
 }

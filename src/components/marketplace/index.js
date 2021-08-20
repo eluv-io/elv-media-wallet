@@ -9,44 +9,18 @@ import {
 import {FUNDING, PayPalButtons, PayPalScriptProvider} from "@paypal/react-paypal-js";
 import UrlJoin from "url-join";
 import AsyncComponent from "Components/common/AsyncComponent";
-import SVG from "react-inlinesvg";
 import NFTPlaceholderIcon from "Assets/icons/nft";
 import StripeLogo from "Assets/images/logo-stripe.png";
 import ImageIcon from "Components/common/ImageIcon";
 import {CopyableField, ExpandableSection, FormatPriceString, ItemPrice} from "Components/common/UIComponents";
 import {observer} from "mobx-react";
-
-const MarketplaceItemImage = ({marketplaceHash, item, index, className=""}) => {
-  let url;
-  if(item.image) {
-    url = rootStore.PublicLink({
-      versionHash: marketplaceHash,
-      path: UrlJoin("public", "asset_metadata", "info", "items", index.toString(), "image"),
-      queryParams: { width: 800 }
-    });
-  } else if(item.nft_template) {
-    url = (item.nft_template.nft || {}).image;
-  } else {
-    return <SVG src={NFTPlaceholderIcon} className="nft-image nft-image-placeholder" alt={item.name} />;
-  }
-
-  return (
-    <ImageIcon
-      title={item.name}
-      icon={url || NFTPlaceholderIcon}
-      alternateIcon={NFTPlaceholderIcon}
-      className={`nft-image card__image ${className}`}
-    />
-  );
-};
+import Drop from "Components/event/Drop";
+import {MarketplaceImage} from "Components/common/Images";
 
 const Checkout = observer(({item}) => {
-  console.log(item.price);
   const subtotal = ItemPrice(item, rootStore.currency);
   const platformFee = parseFloat((subtotal * 0.1).toFixed(2));
   const total = subtotal + platformFee;
-
-  console.log(subtotal, platformFee, total);
 
   return (
     <div className="checkout">
@@ -134,7 +108,12 @@ const MarketplaceItemDetails = observer(() => {
     <div className="content details-page">
       <div className="details-page__content-container card-container">
         <div className="details-page__content card card-shadow">
-          <MarketplaceItemImage marketplaceHash={marketplace.versionHash} item={item} index={itemIndex} className="details-page__content__image" />
+          <MarketplaceImage
+            marketplaceHash={marketplace.versionHash}
+            item={item}
+            path={UrlJoin("public", "asset_metadata", "info", "items", itemIndex.toString(), "image")}
+            className="details-page__content__image"
+          />
           <div className="card__subtitle">
             { item.name }
           </div>
@@ -215,7 +194,11 @@ const MarketplaceItemCard = ({marketplaceHash, item, index}) => {
         to={`${match.url}/${item.sku}`}
         className="card nft-card"
       >
-        <MarketplaceItemImage marketplaceHash={marketplaceHash} item={item} index={index} />
+        <MarketplaceImage
+          marketplaceHash={marketplaceHash}
+          item={item}
+          path={UrlJoin("public", "asset_metadata", "info", "items", index.toString(), "image")}
+        />
         <div className="card__text">
           <h2 className="card__title">
             <div className="card__title__title">
@@ -248,15 +231,49 @@ const Marketplace = observer(() => {
 
         return (
           <div className="marketplace content">
-            <h1 className="page-header">{ marketplace.name }</h1>
-            <h2 className="page-subheader">{ marketplace.description }</h2>
-            <div className="card-list">
-              {
-                marketplace.items.map((item, index) =>
-                  <MarketplaceItemCard marketplaceHash={marketplace.versionHash} item={item} index={index} key={`marketplace-item-${index}`} />
-                )
-              }
+            <div className="marketplace__section">
+              <h1 className="page-header">{ marketplace.name }</h1>
+              <h2 className="page-subheader">{ marketplace.description }</h2>
+              <div className="card-list">
+                {
+                  marketplace.items.map((item, index) =>
+                    <MarketplaceItemCard marketplaceHash={marketplace.versionHash} item={item} index={index} key={`marketplace-item-${index}`} />
+                  )
+                }
+              </div>
             </div>
+
+            {
+              marketplace.events.length === 0 ? null :
+                <div className="marketplace__section">
+                  <h1 className="page-header">Events</h1>
+                  <div className="card-list">
+                    {
+                      marketplace.drops.map((drop, index) => (
+                        <div className="card-container card-shadow" key={`drop-card-${index}`}>
+                          <Link
+                            to={`${match.url}/events/${drop.uuid}`}
+                            className="card nft-card"
+                          >
+                            <MarketplaceImage
+                              marketplaceHash={marketplace.versionHash}
+                              title={drop.event_header}
+                              path={UrlJoin("public", "asset_metadata", "info", "events", drop.eventIndex.toString(), "event", "info", "drops", drop.dropIndex.toString(), "event_image")}
+                            />
+                            <div className="card__text">
+                              <h2 className="card__title">
+                                <div className="card__title__title">
+                                  { drop.event_header }
+                                </div>
+                              </h2>
+                            </div>
+                          </Link>
+                        </div>
+                      ))
+                    }
+                  </div>
+                </div>
+            }
           </div>
         );
       }}
@@ -271,7 +288,7 @@ const MarketplaceBrowser = observer(() => {
     <div className="marketplace-browser content">
       <h1 className="page-header">Collectible Marketplace</h1>
       <div className="card-list">
-        { Object.keys(rootStore.marketplaces).map(marketplaceId => {
+        { Object.keys(rootStore.marketplaces).map((marketplaceId, index) => {
           const marketplace = rootStore.marketplaces[marketplaceId];
 
           if(!marketplace) { return null; }
@@ -283,7 +300,7 @@ const MarketplaceBrowser = observer(() => {
           });
 
           return (
-            <div className="card-container card-shadow">
+            <div className="card-container card-shadow" key={`marketplace-${index}`}>
               <Link
                 to={`${match.url}/${marketplaceId}`}
                 className="card nft-card"
@@ -317,6 +334,10 @@ const MarketplaceRoutes = () => {
   return (
     <div className="page-container marketplace-page">
       <Switch>
+        <Route path={`${path}/:marketplaceId/events/:dropId`}>
+          <Drop />
+        </Route>
+
         <Route path={`${path}/:marketplaceId/:sku`}>
           <MarketplaceItemDetails />
         </Route>

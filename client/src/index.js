@@ -217,6 +217,22 @@ export class ElvWalletClient {
   }
 
   /**
+   * Request the navigation header and footer to be shown or hidden in the wallet
+   *
+   * @methodGroupd Navigation
+   * @namedParams
+   * @param {boolean=true} enabled - True to show navigation, false to hide it
+   */
+  async ToggleNavigation(enabled=true) {
+    return this.SendMessage({
+      action: "toggleNavigation",
+      params: {
+        enabled
+      }
+    });
+  }
+
+  /**
    * Request the wallet app navigate to the specified page.
    *
    * Currently supported pages:
@@ -225,6 +241,13 @@ export class ElvWalletClient {
       - 'item' - A specific item in the user's wallet
         -- Required param: `tokenId`
       - 'profile' - The user's profile
+      - 'marketplaces'
+      - 'marketplace':
+        -- Required param: `marketplaceId`
+      - 'marketplaceItem`
+        -- Required params: `marketplaceId`, `sku`
+      - `drop`
+        -- Optional params: `marketplaceId`, `dropId`
 
    * @methodGroup Navigation
    * @namedParams
