@@ -127,12 +127,15 @@ export class ElvWalletClient {
 
     switch(level) {
       case this.LOG_LEVELS.DEBUG:
+        // eslint-disable-next-line no-console
         console.log(message);
         return;
       case this.LOG_LEVELS.WARN:
+        // eslint-disable-next-line no-console
         console.warn(message);
         return;
       case this.LOG_LEVELS.ERROR:
+        // eslint-disable-next-line no-console
         console.error(message);
         return;
     }
@@ -397,7 +400,7 @@ export class ElvWalletClient {
     await client.AwaitMessage("init");
 
     return client;
-  };
+  }
 
   async SendMessage({action, params}) {
     const requestId = `action-${Id.next()}`;
