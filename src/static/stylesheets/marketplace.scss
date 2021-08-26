@@ -5,8 +5,32 @@
 }
 
 .marketplace {
+  &__empty {
+    font-size: 16px;
+    font-weight: 300;
+    margin-top: 100px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .details-page {
+    padding: 15px 0;
+  }
+
+  .sub-navigation {
+    padding: 0;
+  }
+
   &__section {
-    margin-bottom: 30px;
+    margin: 30px 0;
+
+    .page-header {
+      font-size: 16px;
+    }
+
+    .page-subheader {
+      font-size: 12px;
+    }
   }
 }
 

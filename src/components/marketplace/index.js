@@ -4,9 +4,10 @@ import {
   Switch,
   Route,
   Link,
-  useRouteMatch
+  useRouteMatch,
+  NavLink,
 } from "react-router-dom";
-import {FUNDING, PayPalButtons, PayPalScriptProvider} from "@paypal/react-paypal-js";
+import Path from "path";
 import UrlJoin from "url-join";
 import AsyncComponent from "Components/common/AsyncComponent";
 import NFTPlaceholderIcon from "Assets/icons/nft";
@@ -15,7 +16,20 @@ import ImageIcon from "Components/common/ImageIcon";
 import {CopyableField, ExpandableSection, FormatPriceString, ItemPrice} from "Components/common/UIComponents";
 import {observer} from "mobx-react";
 import Drop from "Components/event/Drop";
-import {MarketplaceImage} from "Components/common/Images";
+import {MarketplaceImage, NFTImage} from "Components/common/Images";
+import NFTDetails from "Components/wallet/NFTDetails";
+
+const MarketplaceNavigation = observer(() => {
+  let match = useRouteMatch();
+
+  return (
+    <nav className="sub-navigation marketplace-navigation">
+      <NavLink exact className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/store`}>Store</NavLink>
+      <NavLink className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/collections`}>Collections</NavLink>
+      <NavLink className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/owned`}>My Collection</NavLink>
+    </nav>
+  );
+});
 
 const Checkout = observer(({item}) => {
   const subtotal = ItemPrice(item, rootStore.currency);
@@ -54,34 +68,6 @@ const Checkout = observer(({item}) => {
           Pay with Card
           <img className="stripe-checkout-logo" src={StripeLogo} alt="Stripe Logo"/>
         </button>
-        <div className="paypal-button">
-          <PayPalScriptProvider
-            key={`paypal-button-${rootStore.currency}`}
-            options={{
-              "client-id": rootStore.PaymentServicePublicKey("paypal"),
-              currency: rootStore.currency
-            }}
-          >
-            <PayPalButtons
-              createOrder={rootStore.PaypalSubmit}
-              onApprove={async (data, actions) => {
-                await retryRequest(actions.order.capture);
-
-                this.setState({redirect: true});
-              }}
-              onError={error => rootStore.PaymentSubmitError(error)}
-              style={{
-                color:  "gold",
-                shape:  "rect",
-                label:  "paypal",
-                layout: "horizontal",
-                tagline: false,
-                height: 50
-              }}
-              fundingSource={FUNDING.PAYPAL}
-            />
-          </PayPalScriptProvider>
-        </div>
         <button className="checkout-button coinbase-button" onClick={rootStore.CoinbaseSubmit}>
           Pay with Crypto
         </button>
@@ -105,7 +91,7 @@ const MarketplaceItemDetails = observer(() => {
   const itemTemplate = item.nft_template ? item.nft_template.nft : {};
 
   return (
-    <div className="content details-page">
+    <div className="details-page">
       <div className="details-page__content-container card-container">
         <div className="details-page__content card card-shadow">
           <MarketplaceImage
@@ -217,67 +203,158 @@ const MarketplaceItemCard = ({marketplaceHash, item, index}) => {
   );
 };
 
-const Marketplace = observer(() => {
+
+const MarketplaceOwned = observer(() => {
   const match = useRouteMatch();
 
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+
+  if(!marketplace) { return null; }
+
+  const ownedItems = rootStore.nfts.filter(nft =>
+    marketplace.items.find(item =>
+      item.nft_template && !item.nft_template["/"] && rootStore.client.utils.EqualAddress(item.nft_template.address, nft.details.ContractAddr) || true
+    )
+  );
+
   return (
-    <AsyncComponent
-      Load={async () => rootStore.LoadMarketplace(match.params.marketplaceId)}
-      loadingClassName="page-loader"
-      render={() => {
-        const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+    ownedItems.length === 0 ?
+      <h2 className="marketplace__empty">You don't own any items from this marketplace yet!</h2> :
+      <div className="card-list">
+        {
+          ownedItems.map(ownedItem =>
+            <div className="card-container card-shadow" key={`marketplace-owned-item-${ownedItem.details.TokenIdStr}`}>
+              <Link
+                to={`${match.url}/${ownedItem.details.TokenIdStr}`}
+                className="card nft-card"
+              >
+                <NFTImage nft={ownedItem} className="card__image" width={800} />
+                <h2 className="card__title">
+                  { ownedItem.metadata.display_name || "" }
+                </h2>
+                <h2 className="card__subtitle">
+                  { ownedItem.metadata.display_name || "" }
+                </h2>
+              </Link>
+            </div>
+          )
+        }
+      </div>
+  );
+});
 
-        if(!marketplace) { return null; }
+const Marketplace = observer(() => {
+  const match = useRouteMatch();
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
 
-        return (
-          <div className="marketplace content">
-            <div className="marketplace__section">
-              <h1 className="page-header">{ marketplace.name }</h1>
-              <h2 className="page-subheader">{ marketplace.description }</h2>
+  if(!marketplace) { return null; }
+
+  return (
+    <>
+      {
+        marketplace.storefront.sections.map((section, i) => {
+          const items = section.items.map((sku, index) => {
+            const item = marketplace.items.find(item => item.sku === sku);
+
+            if(!item || !item.for_sale || (item.type === "nft" && (!item.nft_template || item.nft_template["/"]))) {
+              return;
+            }
+
+            return { item, index };
+          }).filter(item => item);
+
+          if(items.length === 0) { return null; }
+
+          return (
+            <div className="marketplace__section" key={`marketplace-section-${i}`}>
+              <h1 className="page-header">{section.section_header}</h1>
+              <h2 className="page-subheader">{section.section_subheader}</h2>
               <div className="card-list">
                 {
-                  marketplace.items.map((item, index) =>
-                    <MarketplaceItemCard marketplaceHash={marketplace.versionHash} item={item} index={index} key={`marketplace-item-${index}`} />
+                  items.map(({item, index}) =>
+                    <MarketplaceItemCard
+                      marketplaceHash={marketplace.versionHash}
+                      item={item}
+                      index={index}
+                      key={`marketplace-item-${index}`}
+                    />
                   )
                 }
               </div>
             </div>
+          );
+        })
+      }
 
-            {
-              marketplace.events.length === 0 ? null :
-                <div className="marketplace__section">
-                  <h1 className="page-header">Events</h1>
-                  <div className="card-list">
-                    {
-                      marketplace.drops.map((drop, index) => (
-                        <div className="card-container card-shadow" key={`drop-card-${index}`}>
-                          <Link
-                            to={`${match.url}/events/${drop.uuid}`}
-                            className="card nft-card"
-                          >
-                            <MarketplaceImage
-                              marketplaceHash={marketplace.versionHash}
-                              title={drop.event_header}
-                              path={UrlJoin("public", "asset_metadata", "info", "events", drop.eventIndex.toString(), "event", "info", "drops", drop.dropIndex.toString(), "event_image")}
-                            />
-                            <div className="card__text">
-                              <h2 className="card__title">
-                                <div className="card__title__title">
-                                  { drop.event_header }
-                                </div>
-                              </h2>
-                            </div>
-                          </Link>
-                        </div>
-                      ))
-                    }
+      {
+        marketplace.events.length === 0 ? null :
+          <div className="marketplace__section">
+            <h1 className="page-header">Events</h1>
+            <div className="card-list">
+              {
+                marketplace.drops.map((drop, index) => (
+                  <div className="card-container card-shadow" key={`drop-card-${index}`}>
+                    <Link
+                      to={`${Path.dirname(match.url)}/events/${drop.uuid}`}
+                      className="card nft-card"
+                    >
+                      <MarketplaceImage
+                        marketplaceHash={marketplace.versionHash}
+                        title={drop.event_header}
+                        path={UrlJoin("public", "asset_metadata", "info", "events", drop.eventIndex.toString(), "event", "info", "drops", drop.dropIndex.toString(), "event_image")}
+                      />
+                      <div className="card__text">
+                        <h2 className="card__title">
+                          <div className="card__title__title">
+                            { drop.event_header }
+                          </div>
+                        </h2>
+                      </div>
+                    </Link>
                   </div>
-                </div>
-            }
+                ))
+              }
+            </div>
           </div>
-        );
+      }
+    </>
+  );
+});
+
+const MarketplacePage = observer(({children}) => {
+  const match = useRouteMatch();
+
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+
+  if(!marketplace) { return null; }
+
+  return (
+    <div className="marketplace content">
+      <div className="marketplace__header">
+        <h1 className="page-header">{ marketplace.storefront.header }</h1>
+        <h2 className="page-subheader">{ marketplace.storefront.subheader }</h2>
+      </div>
+      <MarketplaceNavigation />
+      { children }
+    </div>
+  );
+});
+
+const MarketplaceWrapper = observer(({children}) => {
+  const match = useRouteMatch();
+
+  return (
+    <AsyncComponent
+      Load={async () => {
+        await rootStore.LoadMarketplace(match.params.marketplaceId);
+        await rootStore.LoadCollections();
       }}
-    />
+      loadingClassName="page-loader"
+    >
+      <MarketplacePage>
+        { children }
+      </MarketplacePage>
+    </AsyncComponent>
   );
 });
 
@@ -286,7 +363,7 @@ const MarketplaceBrowser = observer(() => {
 
   return (
     <div className="marketplace-browser content">
-      <h1 className="page-header">Collectible Marketplace</h1>
+      <h1 className="page-header">Marketplace</h1>
       <div className="card-list">
         { Object.keys(rootStore.marketplaces).map((marketplaceId, index) => {
           const marketplace = rootStore.marketplaces[marketplaceId];
@@ -300,9 +377,9 @@ const MarketplaceBrowser = observer(() => {
           });
 
           return (
-            <div className="card-container card-shadow" key={`marketplace-${index}`}>
+            <div className="card-container card-container-marketplace card-shadow" key={`marketplace-${index}`}>
               <Link
-                to={`${match.url}/${marketplaceId}`}
+                to={`${match.url}/${marketplaceId}/store`}
                 className="card nft-card"
               >
                 <ImageIcon
@@ -334,19 +411,43 @@ const MarketplaceRoutes = () => {
   return (
     <div className="page-container marketplace-page">
       <Switch>
-        <Route path={`${path}/:marketplaceId/events/:dropId`}>
-          <Drop />
+        <Route exact path={`${path}/:marketplaceId/events/:dropId`}>
+          <MarketplaceWrapper>
+            <Drop />
+          </MarketplaceWrapper>
         </Route>
 
-        <Route path={`${path}/:marketplaceId/:sku`}>
-          <MarketplaceItemDetails />
+        <Route exact path={`${path}/:marketplaceId/collections`}>
+          <MarketplaceWrapper>
+            <Marketplace />
+          </MarketplaceWrapper>
         </Route>
 
-        <Route path={`${path}/:marketplaceId`}>
-          <Marketplace />
+        <Route exact path={`${path}/:marketplaceId/owned`}>
+          <MarketplaceWrapper>
+            <MarketplaceOwned />
+          </MarketplaceWrapper>
         </Route>
 
-        <Route path={path}>
+        <Route exact path={`${path}/:marketplaceId/owned/:tokenId`}>
+          <MarketplaceWrapper>
+            <NFTDetails/>
+          </MarketplaceWrapper>
+        </Route>
+
+        <Route exact path={`${path}/:marketplaceId/store`}>
+          <MarketplaceWrapper>
+            <Marketplace />
+          </MarketplaceWrapper>
+        </Route>
+
+        <Route exact path={`${path}/:marketplaceId/store/:sku`}>
+          <MarketplaceWrapper>
+            <MarketplaceItemDetails />
+          </MarketplaceWrapper>
+        </Route>
+
+        <Route exact path={path}>
           <MarketplaceBrowser />
         </Route>
       </Switch>

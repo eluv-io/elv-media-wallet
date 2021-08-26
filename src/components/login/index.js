@@ -196,7 +196,21 @@ const Login = observer(() => {
         >
           Sign In
         </button>
-        <button className="login-page__login-button" onClick={() => setShowPrivateKeyForm(true)}>
+        <button
+          className="login-page__login-button login-page__login-button-create login-page__login-button-auth0"
+          onClick={() => {
+            if(window.self === window.top) {
+              auth0.loginWithRedirect({
+                redirectUri: callbackUrl
+              });
+            } else {
+              window.open(`${window.location.origin}${window.location.pathname}?l${rootStore.darkMode ? "&d" : ""}`);
+            }
+          }}
+        >
+          Create Account
+        </button>
+        <button className="login-page__login-button login-page__login-button-pk" onClick={() => setShowPrivateKeyForm(true)}>
           Or Sign In With Private Key
         </button>
       </div>

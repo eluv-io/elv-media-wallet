@@ -8,7 +8,7 @@ import {ExpandableSection, CopyableField} from "Components/common/UIComponents";
 
 const NFTDetails = observer(() => {
   const match = useRouteMatch();
-  const nft = rootStore.NFT(match.params.tokenId);
+  const nft = rootStore.NFT({tokenId: match.params.tokenId});
 
   let mintDate = nft.metadata.created_at;
   if(mintDate) {

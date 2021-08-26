@@ -17,8 +17,8 @@ $overlay-background: rgba($black, 0.25);
 }
 
 .card-shadow {
-  border: 1px solid $lightgray;
-  border-radius: 6px;
+  border: 1px solid $mediumgray;
+  border-radius: 4px;
   box-shadow: 0 4px 4px $card-shadow;
 }
 
@@ -44,6 +44,17 @@ $overlay-background: rgba($black, 0.25);
     border: 1px solid $blue;
     box-shadow: $blue 0 0 8px;
     margin: 0;
+  }
+
+  &-marketplace {
+    border: 0;
+
+    .card {
+      &__title {
+        font-size: 20px;
+        justify-content: center;
+      }
+    }
   }
 
   .card {
@@ -221,6 +232,10 @@ $overlay-background: rgba($black, 0.25);
     &-selected {
       border: 1px solid $gold;
       box-shadow: $gold 0 0 8px;
+    }
+
+    &-marketplace {
+      border: 0;
     }
   }
 

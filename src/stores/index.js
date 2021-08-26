@@ -7,6 +7,8 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 import {SendEvent} from "Components/interface/Listener";
 import EVENTS from "../../client/src/Events";
 
+const tenantId = "itenYQbgk66W1BFEqWr95xPmHZEjmdF";
+
 const PUBLIC_KEYS = {
   stripe: {
     test: "pk_test_51HpRJ7E0yLQ1pYr6m8Di1EfiigEZUSIt3ruOmtXukoEe0goAs7ZMfNoYQO3ormdETjY6FqlkziErPYWVWGnKL5e800UYf7aGp6",
@@ -119,8 +121,11 @@ class RootStore {
     return url.toString();
   }
 
-  NFT(tokenId) {
-    return this.nfts.find(nft => nft.details.TokenIdStr === tokenId);
+  NFT({tokenId, contractAddress}) {
+    return this.nfts.find(nft =>
+      tokenId && nft.details.TokenIdStr === tokenId ||
+      contractAddress && this.client.utils.EqualAddress(contractAddress, nft.details.ContractAddr)
+    );
   }
 
   LoadCollections = flow(function * () {
@@ -155,7 +160,7 @@ class RootStore {
   });
 
   LoadMarketplace = flow(function * (marketplaceId) {
-    if(this.marketplaces[marketplaceId]) { return; }
+    if(this.marketplaces[marketplaceId]) { return this.marketplaces[marketplaceId]; }
 
     let marketplace = yield this.client.ContentObjectMetadata({
       libraryId: yield this.client.ContentObjectLibraryId({objectId: marketplaceId}),
@@ -179,6 +184,42 @@ class RootStore {
     ).flat();
 
     this.marketplaces[marketplaceId] = marketplace;
+
+    return marketplace;
+  });
+
+  RetrieveDropVote = flow(function * ({eventId, dropId}) {
+    try {
+      const response = yield this.client.utils.ResponseToJson(
+        this.client.authClient.MakeAuthServiceRequest({
+          path: UrlJoin("as", "wlt", "act", tenantId, eventId, dropId),
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${this.client.signer.authToken}`
+          }
+        })
+      );
+
+      return response.sort((a, b) => a.ts > b.ts ? 1 : -1)[0].itm;
+    } catch(error) {
+      return "";
+    }
+  });
+
+  SubmitDropVote = flow(function * ({eventId, dropId, sku}) {
+    yield this.client.authClient.MakeAuthServiceRequest({
+      path: UrlJoin("as", "wlt", "act", tenantId),
+      method: "POST",
+      body: {
+        op: "vote-drop",
+        evt: eventId,
+        id: dropId,
+        itm: sku
+      },
+      headers: {
+        Authorization: `Bearer ${this.client.signer.authToken}`
+      }
+    });
   });
 
   InitializeClient = flow(function * ({user, idToken, authToken, address, privateKey}) {

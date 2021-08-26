@@ -49,9 +49,15 @@ const Drop = () => {
   return (
     <AsyncComponent
       Load={async () => {
-        await Promise.all([
-          rootStore.LoadMarketplace(match.params.marketplaceId),
-        ]);
+        const marketplace = await rootStore.LoadMarketplace(match.params.marketplaceId);
+        const drop = marketplace.drops.find(drop => drop.uuid === match.params.dropId);
+
+        try {
+          setSelection(await rootStore.RetrieveDropVote({eventId: drop.eventId, dropId: drop.uuid}));
+        } catch(error) {
+          rootStore.Log("Failed to retrieve drop vote", true);
+          rootStore.Log(error, true);
+        }
       }}
       loadingClassName="page-loader"
       render={() => {
@@ -76,7 +82,11 @@ const Drop = () => {
                     image={image}
                     index={index}
                     selected={selection === sku}
-                    Select={() => setSelection(sku)}
+                    Select={() => {
+                      setSelection(sku);
+
+                      rootStore.SubmitDropVote({eventId: drop.eventId, dropId: drop.uuid, sku});
+                    }}
                   />
                 )
               }

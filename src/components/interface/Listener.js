@@ -79,7 +79,7 @@ export const InitializeListener = (history) => {
         }
 
         if(data.params.tokenId) {
-          Respond({response: FormatNFT(rootStore.NFT(data.params.tokenId))});
+          Respond({response: FormatNFT(rootStore.NFT({tokenId: data.params.tokenId}))});
         } else {
           Respond({response: rootStore.nfts.map(FormatNFT)});
         }

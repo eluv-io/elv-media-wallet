@@ -95,6 +95,17 @@
     font-size: 18px;
   }
 
+  &__login-button-create {
+    background-color: $white;
+    border: 0.5px solid $black;
+    color: $black;
+  }
+
+  &__login-button-pk {
+    font-size: 10px;
+    height: 23px;
+  }
+
   &__login-button-image {
     padding: 0;
 
@@ -123,6 +134,12 @@
 
     &__login-button {
       border: 0;
+    }
+
+    &__login-button-create {
+      background-color: $black;
+      border: 0.5px solid $gray;
+      color: $white;
     }
   }
 }
