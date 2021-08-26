@@ -29,7 +29,10 @@
     width: 100%;
 
     input {
+      border: 1px solid $lightgray;
+      border-radius: 0;
       font-size: 12px;
+      margin: 0;
     }
 
     &__actions {
@@ -97,7 +100,7 @@
 
   &__login-button-create {
     background-color: $white;
-    border: 0.5px solid $black;
+    border: 0.75px solid $gray;
     color: $black;
   }
 
@@ -138,7 +141,7 @@
 
     &__login-button-create {
       background-color: $black;
-      border: 0.5px solid $gray;
+      border: 0.75px solid $gray;
       color: $white;
     }
   }

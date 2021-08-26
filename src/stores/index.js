@@ -50,7 +50,7 @@ const ProfileImage = (text, backgroundColor) => {
   context.fillStyle = backgroundColor;
   context.fillRect(0, 0, canvas.width, canvas.height);
 
-  context.font = "100px Helvetica";
+  context.font = "80px Helvetica";
   context.fillStyle = "white";
   context.textAlign = "center";
   context.textBaseline = "middle";
@@ -128,7 +128,7 @@ class RootStore {
     );
   }
 
-  LoadCollections = flow(function * () {
+  LoadWalletCollection = flow(function * () {
     if(!this.profileData || !this.profileData.NFTs || this.nfts.length > 0) { return; }
 
     const nfts = Object.keys(this.profileData.NFTs).map(tenantId =>
@@ -166,7 +166,7 @@ class RootStore {
       libraryId: yield this.client.ContentObjectLibraryId({objectId: marketplaceId}),
       objectId: marketplaceId,
       metadataSubtree: "public/asset_metadata/info",
-      linkDepthLimit: 1,
+      linkDepthLimit: 2,
       resolveLinks: true,
       resolveIgnoreErrors: true,
       resolveIncludeSource: true

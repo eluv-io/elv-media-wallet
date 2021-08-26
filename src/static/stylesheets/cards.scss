@@ -57,6 +57,10 @@ $overlay-background: rgba($black, 0.25);
     }
   }
 
+  &.collection-card-unowned {
+    opacity: 0.5;
+  }
+
   .card {
     display: block;
     height: 100%;
@@ -95,6 +99,12 @@ $overlay-background: rgba($black, 0.25);
     object-fit: contain;
     object-position: center;
     width: 100%;
+  }
+
+  &__image-placeholder {
+    background: linear-gradient(60deg, $lightgray, $white);
+    height: calc(100% - 50px);
+    margin-bottom: 10px;
   }
 
   &__text {
@@ -242,6 +252,10 @@ $overlay-background: rgba($black, 0.25);
   .card {
     &__image {
       background: $black;
+    }
+
+    &__image-placeholder {
+      background: linear-gradient(60deg, $darkergray, $black 70%);
     }
 
     &__title {

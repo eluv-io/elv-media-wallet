@@ -101,6 +101,8 @@ select {
 }
 
 input {
+  -webkit-appearance: none;
+  
   &[type="checkbox"] {
     border: 1px solid #6a6a6a;
     border-radius: 2px;
@@ -139,6 +141,8 @@ button {
 
   .page-header,
   .page-subheader {
+    display: flex;
+    justify-content: space-between;
     margin: 0;
   }
 
@@ -155,6 +159,12 @@ button {
 
     &:empty {
       display: none;
+    }
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    .page-header {
+      font-weight: 400;
     }
   }
 }

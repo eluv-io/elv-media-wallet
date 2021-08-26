@@ -75,7 +75,7 @@ export const InitializeListener = (history) => {
         break;
       case "items":
         if(rootStore.nfts.length === 0) {
-          await rootStore.LoadCollections();
+          await rootStore.LoadWalletCollection();
         }
 
         if(data.params.tokenId) {
