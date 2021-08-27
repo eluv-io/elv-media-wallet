@@ -7,7 +7,6 @@ import {
   useRouteMatch,
   NavLink,
 } from "react-router-dom";
-import Path from "path";
 import UrlJoin from "url-join";
 import AsyncComponent from "Components/common/AsyncComponent";
 import NFTPlaceholderIcon from "Assets/icons/nft";
@@ -103,6 +102,7 @@ const MarketplaceItemDetails = observer(() => {
       <div className="details-page__content-container card-container">
         <div className="details-page__content card card-shadow">
           <MarketplaceImage
+            templateImage
             marketplaceHash={marketplace.versionHash}
             item={item}
             path={UrlJoin("public", "asset_metadata", "info", "items", itemIndex.toString(), "image")}
@@ -360,31 +360,37 @@ const Marketplace = observer(() => {
   return (
     <>
       {
-        marketplace.storefront.sections.map((section, i) => {
-          const items = section.items.map((sku, index) => {
-            const item = marketplace.items.find(item => item.sku === sku);
+        marketplace.storefront.sections.map((section, sectionIndex) => {
+          const items = section.items.map((sku) => {
+            const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
+            const item = itemIndex >= 0 && marketplace.items[itemIndex];
 
             if(!item || !item.for_sale || (item.type === "nft" && (!item.nft_template || item.nft_template["/"]))) {
               return;
             }
 
-            return { item, index };
+            // If filters are specified, item must have all tags
+            if(rootStore.marketplaceFilters.length > 0 && rootStore.marketplaceFilters.find(filter => !(item.tags || []).includes(filter))) {
+              return;
+            }
+
+            return { item, itemIndex };
           }).filter(item => item);
 
           if(items.length === 0) { return null; }
 
           return (
-            <div className="marketplace__section" key={`marketplace-section-${i}`}>
+            <div className="marketplace__section" key={`marketplace-section-${sectionIndex}`}>
               <h1 className="page-header">{section.section_header}</h1>
               <h2 className="page-subheader">{section.section_subheader}</h2>
               <div className="card-list">
                 {
-                  items.map(({item, index}) =>
+                  items.map(({item, itemIndex}) =>
                     <MarketplaceItemCard
                       marketplaceHash={marketplace.versionHash}
                       item={item}
-                      index={index}
-                      key={`marketplace-item-${index}`}
+                      index={itemIndex}
+                      key={`marketplace-item-${itemIndex}`}
                     />
                   )
                 }
@@ -395,6 +401,7 @@ const Marketplace = observer(() => {
       }
 
       {
+        /*
         marketplace.events.length === 0 ? null :
           <div className="marketplace__section">
             <h1 className="page-header">Events</h1>
@@ -424,6 +431,7 @@ const Marketplace = observer(() => {
               }
             </div>
           </div>
+         */
       }
     </>
   );

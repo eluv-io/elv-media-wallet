@@ -100,7 +100,14 @@ const Drop = () => {
                 )
               }
             </div>
-            <Countdown time={END_DATE} showSeconds OnEnded={() => setEnded(true)} />
+            <Countdown
+              time={END_DATE}
+              showSeconds
+              OnEnded={() => {
+                setEnded(true);
+                rootStore.SetMarketplaceFilters(drop.store_filters || []);
+              }}
+            />
           </div>
         );
       }}

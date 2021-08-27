@@ -80,6 +80,7 @@ class RootStore {
   hideNavigation = false;
 
   staticToken = undefined;
+  authedToken = undefined;
   basePublicUrl = undefined;
 
   userProfile = {};
@@ -90,6 +91,8 @@ class RootStore {
 
   marketplaceIds = ["iq__2FrA2S1XBy4zdRGQn1knakpbrBV4"];
   marketplaces = {};
+
+  marketplaceFilters = [];
 
   EVENTS = EVENTS;
 
@@ -203,6 +206,10 @@ class RootStore {
   });
 
   // Actions
+  SetMarketplaceFilters(filters) {
+    this.marketplaceFilters = filters || [];
+  }
+
   BurnNFT = flow(function * ({nft}) {
     yield this.client.CallContractMethodAndWait({
       contractAddress: nft.details.ContractAddr,
@@ -288,6 +295,7 @@ class RootStore {
 
       this.accountId = `iusr${client.utils.AddressToHash(client.CurrentAccountAddress())}`;
 
+      this.authedToken = yield client.authClient.GenerateAuthorizationToken({noAuth: true});
       this.basePublicUrl = yield client.FabricUrl({
         queryParams: {
           authorization: this.staticToken

@@ -3,17 +3,13 @@ import {observer} from "mobx-react";
 import {Loader} from "Components/common/Loaders";
 import {Redirect, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
-import {rootStore} from "Stores/index";
 
 const MintingStatus = observer(() => {
   const [finished, setFinished] = useState(false);
 
   useEffect(() => {
-    rootStore.ToggleNavigation(false);
-
     setTimeout(() => {
       setFinished(true);
-      rootStore.ToggleNavigation(true);
     }, 30000);
   }, []);
 

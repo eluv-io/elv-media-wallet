@@ -23,12 +23,11 @@ export const ProfileImage = observer(({className=""}) => {
 export const NFTImage = observer(({nft, width, video=false, className=""}) => {
   const [loaded, setLoaded] = useState(video && nft.metadata.embed_url || nft.metadata.image);
 
-  let url = nft.metadata.image;
+  let url = new URL(nft.metadata.image);
+  url.searchParams.set("authorization", rootStore.authedToken);
 
   if(url && width) {
-    url = new URL(url);
     url.searchParams.set("width", width);
-    url = url.toString();
   }
 
   if(video && nft.metadata.embed_url) {
@@ -46,7 +45,7 @@ export const NFTImage = observer(({nft, width, video=false, className=""}) => {
     nft.metadata.image ?
       <img
         onLoad={() => setLoaded(true)}
-        src={url}
+        src={url.toString()}
         className={`nft-image nft-image-image ${loaded ? "" : "nft-image-loading"} ${className}`}
         alt={nft.metadata.display_name}
       /> :
@@ -58,16 +57,21 @@ export const NFTImage = observer(({nft, width, video=false, className=""}) => {
   );
 });
 
-export const MarketplaceImage = ({marketplaceHash, item, title, path, className=""}) => {
+export const MarketplaceImage = ({marketplaceHash, item, title, path, templateImage=false, className=""}) => {
   let url;
-  if(!item || item.image) {
+  if(!item || item.image && (!templateImage || !item.nft_template || !item.nft_template.nft || !item.nft_template.nft.image)) {
     url = rootStore.PublicLink({
       versionHash: marketplaceHash,
       path,
-      queryParams: { width: 800 }
+      queryParams: {
+        width: 800
+      }
     });
   } else if(item.nft_template) {
     url = (item.nft_template.nft || {}).image;
+    url = new URL(url);
+    url.searchParams.set("authorization", rootStore.authedToken);
+    url = url.toString();
   } else {
     return <SVG src={NFTPlaceholderIcon} className="nft-image nft-image-placeholder" alt={item.name} />;
   }
