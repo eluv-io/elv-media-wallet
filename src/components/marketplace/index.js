@@ -18,6 +18,7 @@ import {observer} from "mobx-react";
 import Drop from "Components/event/Drop";
 import {MarketplaceImage, NFTImage} from "Components/common/Images";
 import NFTDetails from "Components/wallet/NFTDetails";
+import MintingStatus from "Components/marketplace/MintingStatus";
 
 const MarketplaceNavigation = observer(() => {
   let match = useRouteMatch();
@@ -530,6 +531,10 @@ const MarketplaceRoutes = () => {
           <MarketplaceWrapper>
             <Drop />
           </MarketplaceWrapper>
+        </Route>
+
+        <Route exact path={`${path}/:marketplaceId/events/:dropId/status`}>
+          <MintingStatus />
         </Route>
 
         <Route exact path={`${path}/:marketplaceId/collections`}>

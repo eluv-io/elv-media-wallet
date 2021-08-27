@@ -1,0 +1,17 @@
+.minting-status {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 100px;
+
+  &__text {
+    .page-header,
+    .page-subheader {
+      justify-content: center;
+    }
+  }
+
+  .loader {
+    margin-top: 50px;
+  }
+}

@@ -2,10 +2,14 @@ import React, {useState} from "react";
 import {rootStore} from "Stores/index";
 import AsyncComponent from "Components/common/AsyncComponent";
 import {
+  Redirect,
   useRouteMatch
 } from "react-router-dom";
 import UrlJoin from "url-join";
 import {MarketplaceImage} from "Components/common/Images";
+import Countdown from "Components/common/Countdown";
+
+const END_DATE = Date.now() + 35000;
 
 const DropCard = ({drop, marketplace, label, sku, index, image, selected=false, Select}) => {
   const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
@@ -45,6 +49,11 @@ const Drop = () => {
   const match = useRouteMatch();
 
   const [selection, setSelection] = useState(undefined);
+  const [ended, setEnded] = useState(false);
+
+  if(ended) {
+    return <Redirect to={UrlJoin(match.url, "status")} />;
+  }
 
   return (
     <AsyncComponent
@@ -91,6 +100,7 @@ const Drop = () => {
                 )
               }
             </div>
+            <Countdown time={END_DATE} showSeconds OnEnded={() => setEnded(true)} />
           </div>
         );
       }}
