@@ -1,4 +1,4 @@
-import {makeAutoObservable, configure, flow, runInAction} from "mobx";
+import {makeAutoObservable, configure, flow} from "mobx";
 import UrlJoin from "url-join";
 
 import {ElvClient} from "@eluvio/elv-client-js";
@@ -6,6 +6,8 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 
 import {SendEvent} from "Components/interface/Listener";
 import EVENTS from "../../client/src/Events";
+
+import NFTContractABI from "../static/abi/NFTContract";
 
 const tenantId = "itenYQbgk66W1BFEqWr95xPmHZEjmdF";
 
@@ -128,8 +130,20 @@ class RootStore {
     );
   }
 
-  LoadWalletCollection = flow(function * () {
-    if(!this.profileData || !this.profileData.NFTs || this.nfts.length > 0) { return; }
+  LoadProfileData = flow(function * () {
+    this.profileData = yield this.client.ethClient.MakeProviderCall({
+      methodName: "send",
+      args: [
+        "elv_getAccountProfile",
+        [this.client.contentSpaceId, this.accountId]
+      ]
+    });
+  });
+
+  LoadWalletCollection = flow(function * (forceReload=false) {
+    if(!this.profileData || !this.profileData.NFTs || (!forceReload && this.nfts.length > 0)) { return; }
+
+    this.nfts = [];
 
     const nfts = Object.keys(this.profileData.NFTs).map(tenantId =>
       this.profileData.NFTs[tenantId].map(details => {
@@ -186,6 +200,16 @@ class RootStore {
     this.marketplaces[marketplaceId] = marketplace;
 
     return marketplace;
+  });
+
+  // Actions
+  BurnNFT = flow(function * ({nft}) {
+    yield this.client.CallContractMethodAndWait({
+      contractAddress: nft.details.ContractAddr,
+      abi: NFTContractABI,
+      methodName: "burn",
+      methodArgs: [nft.details.TokenId]
+    });
   });
 
   RetrieveDropVote = flow(function * ({eventId, dropId}) {
@@ -273,17 +297,7 @@ class RootStore {
 
       // Parallelize load tasks
       let tasks = [];
-      tasks.push((async () => {
-        const profileData = await client.ethClient.MakeProviderCall({
-          methodName: "send",
-          args: [
-            "elv_getAccountProfile",
-            [client.contentSpaceId, this.accountId]
-          ]
-        });
-
-        runInAction(() => this.profileData = profileData);
-      })());
+      tasks.push((async () => this.LoadProfileData())());
 
       tasks.push((async () => {
         await Promise.all(

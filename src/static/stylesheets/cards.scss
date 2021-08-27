@@ -167,6 +167,7 @@ $overlay-background: rgba($black, 0.25);
     text-align: center;
   }
 
+  &__delete-button,
   .lookout-url {
     background-color: $blue;
     border-radius: 17.5px;
@@ -176,6 +177,11 @@ $overlay-background: rgba($black, 0.25);
     max-width: 300px;
     padding: 10px 30px;
     text-align: center;
+  }
+
+  &__delete-button {
+    background: $darkgray;
+    border: 0;
   }
 
   @media screen and (min-width: $tablet-breakpoint) {

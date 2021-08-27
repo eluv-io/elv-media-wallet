@@ -94,6 +94,7 @@ const MarketplaceItemDetails = observer(() => {
   if(itemIndex < 0) { return null; }
 
   const item = marketplace.items[itemIndex];
+
   const itemTemplate = item.nft_template ? item.nft_template.nft : {};
 
   return (
@@ -109,7 +110,6 @@ const MarketplaceItemDetails = observer(() => {
           <div className="card__subtitle">
             { item.name }
           </div>
-
           <h2 className="card__title">
             { item.description }
           </h2>

@@ -1,13 +1,20 @@
-import React from "react";
+import React, {useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores/index";
+import Path from "path";
 
-import {useRouteMatch} from "react-router-dom";
+import {Redirect, useRouteMatch} from "react-router-dom";
 import {NFTImage} from "Components/common/Images";
 import {ExpandableSection, CopyableField} from "Components/common/UIComponents";
 
 const NFTDetails = observer(() => {
+  const [deleted, setDeleted] = useState(false);
   const match = useRouteMatch();
+
+  if(deleted) {
+    return <Redirect to={Path.dirname(match.url)}/>;
+  }
+
   const nft = rootStore.NFT({tokenId: match.params.tokenId});
 
   let mintDate = nft.metadata.created_at;
@@ -91,6 +98,21 @@ const NFTDetails = observer(() => {
               See More Info on Eluvio Lookout
             </a>
           </div>
+          <button
+            className="details-page__delete-button"
+            onClick={async () => {
+              if(confirm("Are you sure you want to delete this NFT from your collection?")) {
+                await rootStore.BurnNFT({nft});
+
+                setDeleted(true);
+
+                await rootStore.LoadProfileData();
+                await rootStore.LoadWalletCollection(true);
+              }
+            }}
+          >
+            Delete this NFT
+          </button>
         </ExpandableSection>
       </div>
     </div>
