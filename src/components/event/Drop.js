@@ -9,8 +9,6 @@ import UrlJoin from "url-join";
 import {MarketplaceImage} from "Components/common/Images";
 import Countdown from "Components/common/Countdown";
 
-const END_DATE = Date.now() + 35000;
-
 const DropCard = ({drop, marketplace, label, sku, index, image, selected=false, Select}) => {
   const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
 
@@ -101,7 +99,7 @@ const Drop = () => {
               }
             </div>
             <Countdown
-              time={END_DATE}
+              time={drop.end_date}
               showSeconds
               OnEnded={() => {
                 setEnded(true);
