@@ -6,18 +6,11 @@ import {Redirect, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 
 let statusInterval;
-const MintingStatus = observer(() => {
+const MintingStatus = observer(({Status, redirect}) => {
   const [finished, setFinished] = useState(false);
 
-  const match = useRouteMatch();
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  const drop = marketplace.drops.find(drop => drop.uuid === match.params.dropId);
-
   const CheckStatus = async () => {
-    const { status } = await rootStore.DropStatus({
-      eventId: drop.eventId,
-      dropId: drop.uuid
-    });
+    const status = await Status();
 
     if(status === "complete") {
       setFinished(true);
@@ -32,12 +25,9 @@ const MintingStatus = observer(() => {
   }, []);
 
   if(finished) {
-    if(match.params.marketplaceId) {
-      return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, "store")} />;
-    }
-
-    return <Redirect to="/wallet/collections" />;
+    return <Redirect to={redirect} />;
   }
+
 
   return (
     <div className="page-container minting-status">
@@ -54,4 +44,25 @@ const MintingStatus = observer(() => {
   );
 });
 
-export default MintingStatus;
+export const DropMintingStatus = observer(() => {
+  const match = useRouteMatch();
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+  const drop = marketplace.drops.find(drop => drop.uuid === match.params.dropId);
+
+  const Status = async () => (await rootStore.DropStatus({
+    eventId: drop.eventId,
+    dropId: drop.uuid
+  })).status;
+
+  return <MintingStatus Status={Status} redirect={UrlJoin("/marketplaces", match.params.marketplaceId, "store")} />;
+});
+
+export const PurchaseMintingStatus = observer(() => {
+  const match = useRouteMatch();
+
+  const Status = async () => (await rootStore.PurchaseStatus({
+    confirmationId: match.params.confirmationId
+  })).status;
+
+  return <MintingStatus Status={Status} redirect={UrlJoin("/marketplaces", match.params.marketplaceId, "store")} />;
+});

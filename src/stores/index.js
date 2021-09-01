@@ -52,6 +52,8 @@ const ProfileImage = (text, backgroundColor) => {
 
 
 class RootStore {
+  embedded = window.self !== window.top;
+
   mode = "test";
 
   loggingIn = false;
@@ -168,6 +170,8 @@ class RootStore {
   });
 
   LoadMarketplace = flow(function * (marketplaceId) {
+    this.checkoutStore.MarketplaceStock();
+
     if(this.marketplaces[marketplaceId]) { return this.marketplaces[marketplaceId]; }
 
     let marketplace = yield this.client.ContentObjectMetadata({
@@ -229,6 +233,30 @@ class RootStore {
     }
   });
 
+  PurchaseStatus = flow(function * ({confirmationId}) {
+    try {
+      /*
+      const response = yield Utils.ResponseToJson(
+        this.client.authClient.MakeAuthServiceRequest({
+          path: UrlJoin("as", "wlt", "act", tenantId, eventId, dropId),
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${this.client.signer.authToken}`
+          }
+        })
+      );
+
+      return response.sort((a, b) => a.ts > b.ts ? 1 : -1)[0];
+
+       */
+
+      return Math.random() > 0.7 ? { status: "complete" } : { status: "minting" };
+    } catch(error) {
+      this.Log(error, true);
+      return "";
+    }
+  });
+
   SubmitDropVote = flow(function * ({eventId, dropId, sku}) {
     yield this.client.authClient.MakeAuthServiceRequest({
       path: UrlJoin("as", "wlt", "act", tenantId),
@@ -243,18 +271,6 @@ class RootStore {
         Authorization: `Bearer ${this.client.signer.authToken}`
       }
     });
-  });
-
-  MarketplaceStock = flow(function * () {
-    yield Utils.ResponseToJson(
-      this.client.authClient.MakeAuthServiceRequest({
-        path: UrlJoin("as", "wlt", "nft", "info", tenantId),
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${this.client.signer.authToken}`
-        }
-      })
-    );
   });
 
   InitializeClient = flow(function * ({user, idToken, authToken, address, privateKey}) {
@@ -367,7 +383,7 @@ class RootStore {
     this.SendEvent({event: EVENTS.LOG_OUT, data: { address: this.client.signer.address }});
 
     this.disableCloseEvent = true;
-    window.location.href = window.location.origin + window.location.pathname + (this.darkMode ? "?d" : "");
+    window.location.href = UrlJoin(window.location.origin, window.location.pathname) + (this.darkMode ? "?d" : "");
   }
 
   ClearAuthInfo() {
@@ -409,7 +425,7 @@ class RootStore {
 
     this.darkMode = enabled;
 
-    if(window.self === window.top) {
+    if(!this.embedded) {
       sessionStorage.setItem("dark-mode", enabled ? "true" : "");
     }
   }

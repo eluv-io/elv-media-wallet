@@ -5,15 +5,16 @@ import { Loader } from "Components/common/Loaders";
 import { rootStore } from "Stores/index";
 import { observer } from "mobx-react";
 import { useAuth0 } from "@auth0/auth0-react";
+import UrlJoin from "url-join";
 import ImageIcon from "Components/common/ImageIcon";
 
 import Logo from "../../static/images/logo.svg";
 
 let newWindowLogin =
   new URLSearchParams(window.location.search).has("l") ||
-  window.self === window.top && sessionStorage.getItem("new-window-login");
+  !rootStore.embedded && sessionStorage.getItem("new-window-login");
 
-const callbackUrl = (window.location.origin + window.location.pathname).replace(/\/$/, "");
+const callbackUrl = UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, "");
 
 const SignalOpener = () => {
   if(!window.opener || !newWindowLogin || !rootStore.AuthInfo()) { return; }
@@ -66,7 +67,7 @@ const Login = observer(() => {
           name: auth0.user.name,
           email: auth0.user.email,
           SignOut: async () => {
-            auth0.logout({returnTo: window.location.origin + window.location.pathname + (rootStore.darkMode ? "?d" : "")});
+            auth0.logout({returnTo: UrlJoin(window.location.origin, window.location.pathname) + (rootStore.darkMode ? "?d" : "")});
           }
         };
       }
@@ -91,7 +92,7 @@ const Login = observer(() => {
     }
   };
 
-  if(window.self === window.top) {
+  if(!rootStore.embedded) {
     auth0 = useAuth0();
   }
 
@@ -111,7 +112,7 @@ const Login = observer(() => {
       return;
     }
 
-    if(window.self === window.top) {
+    if(!rootStore.embedded) {
       if(auth0.isAuthenticated) {
         SignIn();
       } else {
@@ -185,12 +186,12 @@ const Login = observer(() => {
         <button
           className="login-page__login-button login-page__login-button-auth0"
           onClick={() => {
-            if(window.self === window.top) {
+            if(!rootStore.embedded) {
               auth0.loginWithRedirect({
                 redirectUri: callbackUrl
               });
             } else {
-              window.open(`${window.location.origin}${window.location.pathname}?l${rootStore.darkMode ? "&d" : ""}`);
+              window.open(`${window.location.origin}${window.location.pathname}?l${rootStore.darkMode ? "&d=" : ""}`);
             }
           }}
         >
@@ -199,12 +200,12 @@ const Login = observer(() => {
         <button
           className="login-page__login-button login-page__login-button-create login-page__login-button-auth0"
           onClick={() => {
-            if(window.self === window.top) {
+            if(!rootStore.embedded) {
               auth0.loginWithRedirect({
                 redirectUri: callbackUrl
               });
             } else {
-              window.open(`${window.location.origin}${window.location.pathname}?l${rootStore.darkMode ? "&d" : ""}`);
+              window.open(`${window.location.origin}${window.location.pathname}?l${rootStore.darkMode ? "&d=" : ""}`);
             }
           }}
         >

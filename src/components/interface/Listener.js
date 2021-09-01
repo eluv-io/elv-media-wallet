@@ -1,4 +1,4 @@
-import {rootStore} from "Stores/index";
+import {checkoutStore, rootStore} from "Stores/index";
 import {toJS} from "mobx";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import EVENTS from "../../../client/src/Events";
@@ -28,7 +28,7 @@ const FormatNFT = (nft) => {
 };
 
 const Target = () => {
-  if(window.self !== window.top) {
+  if(rootStore.embedded) {
     // In iframe
     return window.top;
   } else if(window.opener) {
@@ -64,6 +64,14 @@ export const InitializeListener = (history) => {
           address: data.params.address,
           user: data.params.user
         });
+
+        break;
+      case "purchase":
+        checkoutStore.PurchaseComplete({
+          confirmationId: data.params.confirmationId,
+          success: data.params.success
+        });
+
         break;
       case "profile":
         if(!rootStore.loggedIn) {

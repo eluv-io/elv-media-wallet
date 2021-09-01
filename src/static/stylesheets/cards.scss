@@ -87,7 +87,7 @@ $overlay-background: rgba($black, 0.25);
   object-fit: cover;
   object-position: center;
   overflow: hidden;
-  padding: 25px;
+  padding: 15px;
   position: absolute;
   top: 0;
   width: 100%;
@@ -111,22 +111,33 @@ $overlay-background: rgba($black, 0.25);
     margin-top: 10px;
   }
 
-  &__title {
+  &__title,
+  &__subtitle {
     align-items: center;
     display: flex;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     justify-content: space-between;
   }
 
-  &__title__price {
-    font-size: 14px;
+  &__title__title,
+  &__subtitle__title {
+    padding-right: 10px;
+  }
+
+  &__title__price,
+  &__subtitle__stock {
+    font-size: 12px;
     font-weight: 400;
   }
 
   &__subtitle {
     font-size: 12px;
     font-weight: 300;
+  }
+
+  &__subtitle__stock {
+    color: $gray;
   }
 
   @media screen and (max-width: $mobile-breakpoint) {

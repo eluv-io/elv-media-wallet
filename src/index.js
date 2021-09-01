@@ -1,6 +1,7 @@
 import "Assets/stylesheets/app.scss";
 
 import React, { useEffect } from "react";
+import UrlJoin from "url-join";
 import { render } from "react-dom";
 import { observer} from "mobx-react";
 
@@ -10,9 +11,13 @@ import Navigation from "Components/Navigation";
 
 if(
   new URLSearchParams(window.location.search).has("d") ||
-  window.self === window.top && sessionStorage.getItem("dark-mode")
+  !rootStore.embedded && sessionStorage.getItem("dark-mode")
 ) {
   rootStore.ToggleDarkMode(true);
+}
+
+if(new URLSearchParams(window.location.search).has("n")) {
+  rootStore.ToggleNavigation(false);
 }
 
 import {
@@ -83,12 +88,12 @@ const App = observer(() => {
   );
 });
 
-if(window.self === window.top) {
+if(!rootStore.embedded) {
   render(
     <Auth0Provider
       domain={EluvioConfiguration["auth0-domain"]}
       clientId={EluvioConfiguration["auth0-configuration-id"]}
-      redirectUri={window.location.origin}
+      redirectUri={UrlJoin(window.location.origin, window.location.pathname)}
     >
       <React.StrictMode>
         <App/>

@@ -1,13 +1,14 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import {rootStore, checkoutStore} from "Stores/index";
 import {
   Switch,
   Route,
   Link,
   useRouteMatch,
-  NavLink,
+  NavLink, Redirect,
 } from "react-router-dom";
 import UrlJoin from "url-join";
+import Path from "path";
 import AsyncComponent from "Components/common/AsyncComponent";
 import NFTPlaceholderIcon from "Assets/icons/nft";
 import StripeLogo from "Assets/images/logo-stripe.png";
@@ -17,8 +18,8 @@ import {observer} from "mobx-react";
 import Drop from "Components/event/Drop";
 import {MarketplaceImage, NFTImage} from "Components/common/Images";
 import NFTDetails from "Components/wallet/NFTDetails";
-import MintingStatus from "Components/marketplace/MintingStatus";
-import {Loader} from "Components/common/Loaders";
+import {DropMintingStatus, PurchaseMintingStatus} from "Components/marketplace/MintingStatus";
+import {Loader, PageLoader} from "Components/common/Loaders";
 
 const MarketplaceNavigation = observer(() => {
   let match = useRouteMatch();
@@ -42,6 +43,12 @@ const Checkout = observer(({marketplaceId, item}) => {
   const subtotal = ItemPrice(item, checkoutStore.currency);
   const platformFee = parseFloat((subtotal * 0.1).toFixed(2));
   const total = subtotal + platformFee;
+
+  const [confirmationId, setConfirmationId] = useState(undefined);
+
+  if(confirmationId && checkoutStore.completedPurchases[confirmationId]) {
+    return <Redirect to={UrlJoin("/marketplaces", marketplaceId, "store", item.sku, "purchase", confirmationId, "success")} />;
+  }
 
   return (
     <div className="checkout">
@@ -68,12 +75,14 @@ const Checkout = observer(({marketplaceId, item}) => {
 
       <div className="checkout__payment-actions">
         {
-          checkoutStore.submittingOrder ?
+          checkoutStore.submittingOrder || (confirmationId && checkoutStore.pendingPurchases[confirmationId]) ?
             <Loader/> :
             <button
               className="checkout-button"
               role="link"
-              onClick={() => checkoutStore.StripeSubmit({marketplaceId, sku: item.sku})}
+              onClick={async () => {
+                setConfirmationId(await checkoutStore.StripeSubmit({marketplaceId, sku: item.sku}));
+              }}
             >
               Buy Now
               <img className="stripe-checkout-logo" src={StripeLogo} alt="Stripe Logo"/>
@@ -82,6 +91,50 @@ const Checkout = observer(({marketplaceId, item}) => {
       </div>
     </div>
   );
+});
+
+const MarketplacePurchase = observer(() => {
+  const match = useRouteMatch();
+
+  const fromEmbed = new URLSearchParams(window.location.search).has("embed");
+  const success = match.path.endsWith("/success");
+  const cancel = match.path.endsWith("/cancel");
+
+  if(fromEmbed && (success || cancel)) {
+    useEffect(() => {
+      window.opener.postMessage({
+        type: "ElvMediaWalletClientRequest",
+        action: "purchase",
+        params: {
+          confirmationId: match.params.confirmationId,
+          success
+        }
+      });
+
+      window.close();
+    }, []);
+  }
+
+  if(fromEmbed) {
+    return <PageLoader />;
+  } else if(success) {
+    return <PurchaseMintingStatus />;
+  } else if(cancel) {
+    return <Redirect to={Path.dirname(Path.dirname(match.path.url))}/>;
+  } else {
+    // Opened from iframe - Initiate stripe purchase
+    useEffect(() => {
+      rootStore.ToggleNavigation(false);
+
+      checkoutStore.StripeSubmit({
+        marketplaceId: match.params.marketplaceId,
+        sku: match.params.sku,
+        confirmationId: match.params.confirmationId
+      });
+    }, []);
+
+    return <PageLoader/>;
+  }
 });
 
 const MarketplaceItemDetails = observer(() => {
@@ -183,6 +236,7 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
     return null;
   }
 
+  const stock = checkoutStore.stock[item.sku];
   return (
     <div className={`card-container card-shadow ${className}`}>
       <Link
@@ -204,7 +258,15 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
             </div>
           </h2>
           <h2 className="card__subtitle">
-            { item.description }
+            <div className="card__subtitle__title">
+              { item.description }
+            </div>
+            {
+              stock ?
+                <div className="card__subtitle__stock">
+                  { stock.Max - stock.Current } / { stock.Max }
+                </div> : null
+            }
           </h2>
         </div>
       </Link>
@@ -544,7 +606,7 @@ const MarketplaceRoutes = () => {
         </Route>
 
         <Route exact path={`${path}/:marketplaceId/events/:dropId/status`}>
-          <MintingStatus />
+          <DropMintingStatus />
         </Route>
 
         <Route exact path={`${path}/:marketplaceId/collections`}>
@@ -587,6 +649,18 @@ const MarketplaceRoutes = () => {
           <MarketplaceWrapper>
             <MarketplaceItemDetails />
           </MarketplaceWrapper>
+        </Route>
+
+        <Route exact path={`${path}/:marketplaceId/store/:sku/purchase/:confirmationId`}>
+          <MarketplacePurchase />
+        </Route>
+
+        <Route exact path={`${path}/:marketplaceId/store/:sku/purchase/:confirmationId/success`}>
+          <MarketplacePurchase />
+        </Route>
+
+        <Route exact path={`${path}/:marketplaceId/store/:sku/purchase/:confirmationId/cancel`}>
+          <MarketplacePurchase />
         </Route>
 
         <Route exact path={path}>

@@ -1,8 +1,10 @@
 import UrlJoin from "url-join";
 import {parse as UUIDParse, v4 as UUID} from "uuid";
-import {makeAutoObservable, flow} from "mobx";
+import {makeAutoObservable, flow, runInAction} from "mobx";
 import {loadStripe} from "@stripe/stripe-js";
 import Utils from "@eluvio/elv-client-js/src/Utils";
+
+const tenantId = "itenYQbgk66W1BFEqWr95xPmHZEjmdF";
 
 const PUBLIC_KEYS = {
   stripe: {
@@ -16,6 +18,11 @@ class CheckoutStore {
 
   submittingOrder = false;
 
+  stock = {};
+
+  pendingPurchases = {};
+  completedPurchases = {};
+
   constructor(rootStore) {
     this.rootStore = rootStore;
     makeAutoObservable(this);
@@ -25,17 +32,77 @@ class CheckoutStore {
     return Utils.B58(UUIDParse(UUID()));
   }
 
-  StripeSubmit = flow(function * ({marketplaceId, sku}) {
+  MarketplaceStock = flow(function * () {
+    this.stock = yield Utils.ResponseToJson(
+      this.rootStore.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "nft", "info", tenantId),
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${this.rootStore.client.signer.authToken}`
+        }
+      })
+    );
+  });
+
+  PurchaseComplete({confirmationId, success}) {
+    this.submittingOrder = false;
+
+    if(success) {
+      this.completedPurchases[confirmationId] = {
+        ...(this.pendingPurchases[confirmationId] || {})
+      };
+    }
+
+    delete this.pendingPurchases[confirmationId];
+  }
+
+  StripeSubmit = flow(function * ({marketplaceId, sku, confirmationId}) {
     if(this.submittingOrder) { return; }
 
     try {
       this.submittingOrder = true;
 
+      // If confirmation ID is already set before calling, this method was called as a result of an iframe opening a new window
+      const fromEmbed = !!confirmationId;
+
+      confirmationId = confirmationId || this.ConfirmationId();
+
+      if(this.rootStore.embedded) {
+        this.pendingPurchases[confirmationId] = {
+          marketplaceId,
+          sku,
+          confirmationId
+        };
+
+        // Stripe doesn't work in iframe, open new window to initiate purchase
+        const openedWindow = window.open(`${window.location.origin}${window.location.pathname}?n${rootStore.darkMode ? "&d=" : ""}#/marketplaces/${marketplaceId}/store/${sku}/purchase/${confirmationId}`);
+
+        const closeCheck = setInterval(() => {
+          if(!this.pendingPurchases[confirmationId]) {
+            clearInterval(closeCheck);
+
+            return;
+          }
+
+          if(!openedWindow || openedWindow.closed) {
+            clearInterval(closeCheck);
+
+            // Ensure pending is cleaned up when popup is closed without finishing
+            runInAction(() => delete this.pendingPurchases[confirmationId]);
+          }
+        }, 1000);
+
+        return confirmationId;
+      }
+
       const mode = EluvioConfiguration["test-mode"] ? "test" : "production";
-      const confirmationId = this.ConfirmationId();
       const checkoutId = `${marketplaceId}:${confirmationId}`;
 
-      const baseUrl = UrlJoin(window.location.origin, "#", "marketplaces", marketplaceId);
+      const baseUrl = new URL(UrlJoin(window.location.origin, window.location.pathname, "#", "marketplaces", marketplaceId, "store", sku, "purchase", confirmationId));
+
+      if(fromEmbed) {
+        baseUrl.searchParams.set("embed", "true");
+      }
 
       const requestParams = {
         mode,
@@ -44,8 +111,8 @@ class CheckoutStore {
         client_reference_id: checkoutId,
         elv_addr: this.rootStore.client.signer.address,
         items: [{sku, quantity: 1}],
-        success_url: UrlJoin(baseUrl, "success", confirmationId),
-        cancel_url: baseUrl
+        success_url: UrlJoin(baseUrl.toString(), "success"),
+        cancel_url: UrlJoin(baseUrl.toString(), "cancel")
       };
 
       const sessionId = (yield this.rootStore.client.utils.ResponseToJson(
