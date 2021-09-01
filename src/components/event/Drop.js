@@ -60,7 +60,8 @@ const Drop = () => {
         const drop = marketplace.drops.find(drop => drop.uuid === match.params.dropId);
 
         try {
-          setSelection(await rootStore.RetrieveDropVote({eventId: drop.eventId, dropId: drop.uuid}));
+          const dropStatus = await rootStore.DropStatus({eventId: drop.eventId, dropId: drop.uuid});
+          setSelection(dropStatus.itm);
         } catch(error) {
           rootStore.Log("Failed to retrieve drop vote", true);
           rootStore.Log(error, true);

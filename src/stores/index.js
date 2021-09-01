@@ -1,6 +1,5 @@
 import {makeAutoObservable, configure, flow} from "mobx";
 import UrlJoin from "url-join";
-
 import {ElvClient} from "@eluvio/elv-client-js";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 
@@ -8,19 +7,9 @@ import {SendEvent} from "Components/interface/Listener";
 import EVENTS from "../../client/src/Events";
 
 import NFTContractABI from "../static/abi/NFTContract";
+import CheckoutStore from "Stores/Checkout";
 
 const tenantId = "itenYQbgk66W1BFEqWr95xPmHZEjmdF";
-
-const PUBLIC_KEYS = {
-  stripe: {
-    test: "pk_test_51HpRJ7E0yLQ1pYr6m8Di1EfiigEZUSIt3ruOmtXukoEe0goAs7ZMfNoYQO3ormdETjY6FqlkziErPYWVWGnKL5e800UYf7aGp6",
-    production: "pk_live_51HpRJ7E0yLQ1pYr6v0HIvWK21VRXiP7sLrEqGJB35wg6Z0kJDorQxl45kc4QBCwkfEAP3A6JJhAg9lHDTOY3hdRx00kYwfA3Ff"
-  },
-  paypal: {
-    test: "AUDYCcmusO8HyBciuqBssSc3TX855stVQo-WqJUaTW9ZFM7MPIVbdxoYta5hHclUQ9fFDe1iedwwXlgy",
-    production: "Af_BaCJU4_qQj-dbaSJ6UqslKSpfZgkFCJoMi4_zqEKZEXkT1JhPkCTTKYhJ0WGktzFm4c7_BBSN65S4"
-  }
-};
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
@@ -64,7 +53,6 @@ const ProfileImage = (text, backgroundColor) => {
 
 class RootStore {
   mode = "test";
-  currency = "USD";
 
   loggingIn = false;
   loggedIn = false;
@@ -111,7 +99,10 @@ class RootStore {
 
   constructor() {
     makeAutoObservable(this);
+
+    this.checkoutStore = new CheckoutStore(this);
   }
+
 
   SendEvent({event, data}) {
     SendEvent({event, data});
@@ -129,7 +120,7 @@ class RootStore {
   NFT({tokenId, contractAddress}) {
     return this.nfts.find(nft =>
       tokenId && nft.details.TokenIdStr === tokenId ||
-      contractAddress && this.client.utils.EqualAddress(contractAddress, nft.details.ContractAddr)
+      contractAddress && Utils.EqualAddress(contractAddress, nft.details.ContractAddr)
     );
   }
 
@@ -161,7 +152,7 @@ class RootStore {
       }).filter(n => n)
     ).flat();
 
-    this.nfts = yield this.client.utils.LimitedMap(
+    this.nfts = yield Utils.LimitedMap(
       10,
       nfts,
       async details => {
@@ -193,7 +184,7 @@ class RootStore {
     marketplace.drops = (marketplace.events || []).map(({event}, eventIndex) =>
       (event.info.drops || []).map((drop, dropIndex) => ({
         ...drop,
-        eventId: this.client.utils.DecodeVersionHash(event["."].source).objectId,
+        eventId: Utils.DecodeVersionHash(event["."].source).objectId,
         eventHash: event["."].source,
         eventIndex,
         dropIndex
@@ -219,9 +210,9 @@ class RootStore {
     });
   });
 
-  RetrieveDropVote = flow(function * ({eventId, dropId}) {
+  DropStatus = flow(function * ({eventId, dropId}) {
     try {
-      const response = yield this.client.utils.ResponseToJson(
+      const response = yield Utils.ResponseToJson(
         this.client.authClient.MakeAuthServiceRequest({
           path: UrlJoin("as", "wlt", "act", tenantId, eventId, dropId),
           method: "GET",
@@ -231,8 +222,9 @@ class RootStore {
         })
       );
 
-      return response.sort((a, b) => a.ts > b.ts ? 1 : -1)[0].itm;
+      return response.sort((a, b) => a.ts > b.ts ? 1 : -1)[0];
     } catch(error) {
+      this.Log(error, true);
       return "";
     }
   });
@@ -251,6 +243,18 @@ class RootStore {
         Authorization: `Bearer ${this.client.signer.authToken}`
       }
     });
+  });
+
+  MarketplaceStock = flow(function * () {
+    yield Utils.ResponseToJson(
+      this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "nft", "info", tenantId),
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${this.client.signer.authToken}`
+        }
+      })
+    );
   });
 
   InitializeClient = flow(function * ({user, idToken, authToken, address, privateKey}) {
@@ -293,7 +297,7 @@ class RootStore {
         throw Error("Neither user nor private key specified in InitializeClient");
       }
 
-      this.accountId = `iusr${client.utils.AddressToHash(client.CurrentAccountAddress())}`;
+      this.accountId = `iusr${Utils.AddressToHash(client.CurrentAccountAddress())}`;
 
       this.authedToken = yield client.authClient.GenerateAuthorizationToken({noAuth: true});
       this.basePublicUrl = yield client.FabricUrl({
@@ -322,7 +326,7 @@ class RootStore {
       this.initialized = true;
       this.loggedIn = true;
 
-      rootStore.SetAuthInfo({
+      this.SetAuthInfo({
         token: client.signer.authToken,
         address: client.signer.address,
         user: {
@@ -413,13 +417,10 @@ class RootStore {
   ToggleNavigation(enabled) {
     this.hideNavigation = !enabled;
   }
-
-  PaymentServicePublicKey(service) {
-    return PUBLIC_KEYS[service][this.mode];
-  }
 }
 
 export const rootStore = new RootStore();
+export const checkoutStore = rootStore.checkoutStore;
 
 window.rootStore = rootStore;
 

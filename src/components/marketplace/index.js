@@ -1,5 +1,5 @@
 import React from "react";
-import {rootStore} from "Stores/index";
+import {rootStore, checkoutStore} from "Stores/index";
 import {
   Switch,
   Route,
@@ -18,6 +18,7 @@ import Drop from "Components/event/Drop";
 import {MarketplaceImage, NFTImage} from "Components/common/Images";
 import NFTDetails from "Components/wallet/NFTDetails";
 import MintingStatus from "Components/marketplace/MintingStatus";
+import {Loader} from "Components/common/Loaders";
 
 const MarketplaceNavigation = observer(() => {
   let match = useRouteMatch();
@@ -37,8 +38,8 @@ const MarketplaceNavigation = observer(() => {
   );
 });
 
-const Checkout = observer(({item}) => {
-  const subtotal = ItemPrice(item, rootStore.currency);
+const Checkout = observer(({marketplaceId, item}) => {
+  const subtotal = ItemPrice(item, checkoutStore.currency);
   const platformFee = parseFloat((subtotal * 0.1).toFixed(2));
   const total = subtotal + platformFee;
 
@@ -48,35 +49,36 @@ const Checkout = observer(({item}) => {
         <div className="checkout__totals__row">
           <label className="checkout__totals__row__label">Subtotal</label>
           <div className="checkout__totals__row__price">
-            { FormatPriceString({[rootStore.currency]: subtotal}) }
+            { FormatPriceString({[checkoutStore.currency]: subtotal}) }
           </div>
         </div>
         <div className="checkout__totals__row">
           <label className="checkout__totals__row__label">Platform Fee</label>
           <div className="checkout__totals__row__price">
-            { FormatPriceString({[rootStore.currency]: platformFee}) }
+            { FormatPriceString({[checkoutStore.currency]: platformFee}) }
           </div>
         </div>
         <div className="checkout__totals__row">
           <label className="checkout__totals__row__label">Subtotal</label>
           <div className="checkout__totals__row__price">
-            { FormatPriceString({[rootStore.currency]: total}) }
+            { FormatPriceString({[checkoutStore.currency]: total}) }
           </div>
         </div>
       </div>
 
       <div className="checkout__payment-actions">
-        <button
-          className="checkout-button"
-          role="link"
-          onClick={rootStore.StripeSubmit}
-        >
-          Pay with Card
-          <img className="stripe-checkout-logo" src={StripeLogo} alt="Stripe Logo"/>
-        </button>
-        <button className="checkout-button coinbase-button" onClick={rootStore.CoinbaseSubmit}>
-          Pay with Crypto
-        </button>
+        {
+          checkoutStore.submittingOrder ?
+            <Loader/> :
+            <button
+              className="checkout-button"
+              role="link"
+              onClick={() => checkoutStore.StripeSubmit({marketplaceId, sku: item.sku})}
+            >
+              Buy Now
+              <img className="stripe-checkout-logo" src={StripeLogo} alt="Stripe Logo"/>
+            </button>
+        }
       </div>
     </div>
   );
@@ -168,7 +170,7 @@ const MarketplaceItemDetails = observer(() => {
             </ExpandableSection> : null
         }
 
-        <Checkout item={item} />
+        <Checkout marketplaceId={match.params.marketplaceId} item={item} />
       </div>
     </div>
   );
