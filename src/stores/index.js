@@ -222,17 +222,18 @@ class RootStore {
   }
 
   OpenNFT = flow(function * ({nft}) {
-    yield new Promise(resolve => setTimeout(resolve, 1000));
-
-    /*
-    yield this.client.CallContractMethodAndWait({
-      contractAddress: nft.details.ContractAddr,
-      abi: NFTContractABI,
-      methodName: "burn",
-      methodArgs: [nft.details.TokenId]
+    yield this.client.authClient.MakeAuthServiceRequest({
+      path: UrlJoin("as", "wlt", "act", tenantId),
+      method: "POST",
+      body: {
+        op: "nft-open",
+        tok_addr: nft.details.ContractAddr,
+        tok_id: nft.details.TokenIdStr
+      },
+      headers: {
+        Authorization: `Bearer ${this.client.signer.authToken}`
+      }
     });
-
-     */
   });
 
   BurnNFT = flow(function * ({nft}) {

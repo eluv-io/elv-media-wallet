@@ -33,7 +33,7 @@
     "@auth0/auth0-react": "^1.6.0",
     "@babel/cli": "^7.14.8",
     "@eluvio/elv-client-js": "^3.1.64",
-    "@eluvio/elv-player-js": "^1.0.55",
+    "@eluvio/elv-player-js": "^1.0.56",
     "@paypal/react-paypal-js": "^7.2.1",
     "@stripe/stripe-js": "^1.17.1",
     "jsdoc": "^3.6.7",
