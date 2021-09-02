@@ -4,12 +4,10 @@ $overlay-background: rgba($black, 0.25);
 .card-list {
   display: grid;
   grid-gap: 10px;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));
   margin-top: 20px;
 
   @media screen and (max-width: $mobile-breakpoint) {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-
     .card {
       padding: 10px 20px;
     }
@@ -23,8 +21,6 @@ $overlay-background: rgba($black, 0.25);
 }
 
 .card-container {
-  box-sizing: border-box;
-  display: block;
   height: min-content;
   position: relative;
   transition: border 0.15s ease-in, margin 0.15s ease-in-out;
@@ -62,7 +58,8 @@ $overlay-background: rgba($black, 0.25);
   }
 
   .card {
-    display: block;
+    display: flex;
+    flex-direction: column;
     height: 100%;
     left: 0;
     position: absolute;
@@ -141,6 +138,9 @@ $overlay-background: rgba($black, 0.25);
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
+    padding: 15px 15px 25px;
+
+
     &__title {
       font-size: 12px;
     }
@@ -178,21 +178,33 @@ $overlay-background: rgba($black, 0.25);
     text-align: center;
   }
 
-  &__delete-button,
+  .card__title {
+    font-size: 18px;
+  }
+
+  &__open-button .button,
+  &__delete-button .button,
   .lookout-url {
     background-color: $blue;
-    border-radius: 17.5px;
+    border: 0;
+    border-radius: 8px;
     color: $white;
     display: block;
     margin: 30px auto 0;
     max-width: 300px;
-    padding: 10px 30px;
+    padding: 0 30px;
     text-align: center;
   }
 
+  .lookout-url {
+    padding: 10px 30px;
+  }
+
   &__delete-button {
-    background: $darkgray;
-    border: 0;
+    .button {
+      background: $darkgray;
+      border: 0;
+    }
   }
 
   @media screen and (min-width: $tablet-breakpoint) {

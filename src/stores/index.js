@@ -11,6 +11,8 @@ import CheckoutStore from "Stores/Checkout";
 
 const tenantId = "itenYQbgk66W1BFEqWr95xPmHZEjmdF";
 
+let status = {};
+
 // Force strict mode so mutations are only allowed within actions.
 configure({
   enforceActions: "always"
@@ -75,6 +77,7 @@ class RootStore {
 
   userProfile = {};
 
+  lastProfileQuery = 0;
   profileData = undefined;
 
   nfts = [];
@@ -119,9 +122,12 @@ class RootStore {
     return url.toString();
   }
 
-  NFT({tokenId, contractAddress}) {
+  NFT({tokenId, contractAddress, contractId}) {
+    if(contractId) {
+      contractAddress = Utils.HashToAddress(`ictr${contractId}`);
+    }
     return this.nfts.find(nft =>
-      tokenId && nft.details.TokenIdStr === tokenId ||
+      tokenId && nft.details.TokenIdStr === tokenId &&
       contractAddress && Utils.EqualAddress(contractAddress, nft.details.ContractAddr)
     );
   }
@@ -137,9 +143,12 @@ class RootStore {
   });
 
   LoadWalletCollection = flow(function * (forceReload=false) {
-    if(!this.profileData || !this.profileData.NFTs || (!forceReload && this.nfts.length > 0)) { return; }
+    if(forceReload || Date.now() - this.lastProfileQuery > 30000) {
+      this.lastProfileQuery = Date.now();
+      yield this.LoadProfileData();
+    }
 
-    this.nfts = [];
+    if(!this.profileData || !this.profileData.NFTs) { return; }
 
     const nfts = Object.keys(this.profileData.NFTs).map(tenantId =>
       this.profileData.NFTs[tenantId].map(details => {
@@ -149,15 +158,22 @@ class RootStore {
 
         return {
           ...details,
+          ContractId: Utils.AddressToHash(details.ContractAddr),
           versionHash
         };
       }).filter(n => n)
     ).flat();
 
     this.nfts = yield Utils.LimitedMap(
-      10,
+      15,
       nfts,
       async details => {
+        const existing = this.NFT({contractAddress: details.ContractAddr, tokenId: details.TokenIdStr});
+
+        if(existing) {
+          return existing;
+        }
+
         return {
           details,
           metadata: (await this.client.ContentObjectMetadata({
@@ -205,6 +221,20 @@ class RootStore {
     this.marketplaceFilters = filters || [];
   }
 
+  OpenNFT = flow(function * ({nft}) {
+    yield new Promise(resolve => setTimeout(resolve, 1000));
+
+    /*
+    yield this.client.CallContractMethodAndWait({
+      contractAddress: nft.details.ContractAddr,
+      abi: NFTContractABI,
+      methodName: "burn",
+      methodArgs: [nft.details.TokenId]
+    });
+
+     */
+  });
+
   BurnNFT = flow(function * ({nft}) {
     yield this.client.CallContractMethodAndWait({
       contractAddress: nft.details.ContractAddr,
@@ -250,7 +280,45 @@ class RootStore {
 
        */
 
-      return Math.random() > 0.7 ? { status: "complete" } : { status: "minting" };
+      if(!status[confirmationId]) {
+        status[confirmationId] = Date.now();
+      } else if(Date.now() - status[confirmationId] > 30000) {
+        delete status[confirmationId];
+        return { status: "complete" };
+      }
+
+      return { status: "minting" };
+    } catch(error) {
+      this.Log(error, true);
+      return "";
+    }
+  });
+
+  PackOpenStatus = flow(function * ({contractId, tokenId}) {
+    try {
+      /*
+      const response = yield Utils.ResponseToJson(
+        this.client.authClient.MakeAuthServiceRequest({
+          path: UrlJoin("as", "wlt", "act", tenantId, eventId, dropId),
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${this.client.signer.authToken}`
+          }
+        })
+      );
+
+      return response.sort((a, b) => a.ts > b.ts ? 1 : -1)[0];
+
+       */
+
+      if(!status[tokenId]) {
+        status[tokenId] = Date.now();
+      } else if(Date.now() - status[tokenId] > 300000) {
+        delete status[tokenId];
+        return { status: "complete" };
+      }
+
+      return { status: "minting" };
     } catch(error) {
       this.Log(error, true);
       return "";
@@ -325,7 +393,7 @@ class RootStore {
 
       // Parallelize load tasks
       let tasks = [];
-      tasks.push((async () => this.LoadProfileData())());
+      tasks.push((async () => this.LoadWalletCollection())());
 
       tasks.push((async () => {
         await Promise.all(

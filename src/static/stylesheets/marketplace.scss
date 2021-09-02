@@ -1,6 +1,9 @@
 .marketplace-browser {
-  .card-list {
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  .card {
+    &__title {
+      font-weight: 300;
+      text-align: center;
+    }
   }
 }
 
@@ -35,6 +38,10 @@
     .page-subheader {
       font-size: 12px;
     }
+  }
+
+  .card-list {
+    grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
   }
 }
 

@@ -2,12 +2,14 @@ import React, {useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores/index";
 import Path from "path";
+import UrlJoin from "url-join";
 
 import {Redirect, useRouteMatch} from "react-router-dom";
 import {NFTImage} from "Components/common/Images";
-import {ExpandableSection, CopyableField} from "Components/common/UIComponents";
+import {ExpandableSection, CopyableField, ButtonWithLoader} from "Components/common/UIComponents";
 
 const NFTDetails = observer(() => {
+  const [opened, setOpened] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const match = useRouteMatch();
 
@@ -15,7 +17,7 @@ const NFTDetails = observer(() => {
     return <Redirect to={Path.dirname(match.url)}/>;
   }
 
-  const nft = rootStore.NFT({tokenId: match.params.tokenId});
+  const nft = rootStore.NFT({contractId: match.params.contractId, tokenId: match.params.tokenId});
 
   let mintDate = nft.metadata.created_at;
   if(mintDate) {
@@ -29,6 +31,10 @@ const NFTDetails = observer(() => {
     } catch(error) {
       mintDate = "";
     }
+  }
+
+  if(opened) {
+    return <Redirect to={UrlJoin(match.url, "open")} />;
   }
 
   return (
@@ -98,7 +104,7 @@ const NFTDetails = observer(() => {
               See More Info on Eluvio Lookout
             </a>
           </div>
-          <button
+          <ButtonWithLoader
             className="details-page__delete-button"
             onClick={async () => {
               if(confirm("Are you sure you want to delete this NFT from your collection?")) {
@@ -106,14 +112,26 @@ const NFTDetails = observer(() => {
 
                 setDeleted(true);
 
-                await rootStore.LoadProfileData();
                 await rootStore.LoadWalletCollection(true);
               }
             }}
           >
             Delete this NFT
-          </button>
+          </ButtonWithLoader>
         </ExpandableSection>
+
+        {
+          nft && nft.metadata && nft.metadata.pack_options && nft.metadata.pack_options.is_openable ?
+            <ButtonWithLoader
+              className="details-page__open-button"
+              onClick={async () => {
+                await rootStore.OpenNFT({nft});
+                setOpened(true);
+              }}
+            >
+              Open Pack
+            </ButtonWithLoader> : null
+        }
       </div>
     </div>
   );

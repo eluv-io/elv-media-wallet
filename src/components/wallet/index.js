@@ -12,8 +12,11 @@ import {rootStore} from "Stores/index";
 import Collections from "Components/wallet/Collections";
 import AsyncComponent from "Components/common/AsyncComponent";
 import NFTDetails from "Components/wallet/NFTDetails";
+import {PackOpenStatus} from "Components/marketplace/MintingStatus";
 
 const WalletNavigation = observer(() => {
+  return null;
+
   return (
     <nav className="sub-navigation wallet-navigation">
       <NavLink className="sub-navigation__link" to="/wallet/collections">My Collections</NavLink>
@@ -37,8 +40,9 @@ const Wallet = observer(() => {
             <Placeholder text={"Tickets"} />
           </Route>
 
-          <Route path={`${match.path}/collections/:tokenId`}>
+          <Route exact path={`${match.path}/collections/:contractId/:tokenId`}>
             <AsyncComponent
+              key="async-component-collections-item"
               loadingClassName="page-loader"
               loadKey="NFTs"
               Load={async () => await rootStore.LoadWalletCollection()}
@@ -46,8 +50,13 @@ const Wallet = observer(() => {
             />
           </Route>
 
+          <Route exact path={`${match.path}/collections/:contractId/:tokenId/open`}>
+            <PackOpenStatus />
+          </Route>
+
           <Route path={`${match.path}/collections`}>
             <AsyncComponent
+              key="async-component-collections"
               loadingClassName="page-loader"
               loadKey="NFTs"
               Load={async () => await rootStore.LoadWalletCollection()}

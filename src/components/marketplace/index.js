@@ -18,7 +18,7 @@ import {observer} from "mobx-react";
 import Drop from "Components/event/Drop";
 import {MarketplaceImage, NFTImage} from "Components/common/Images";
 import NFTDetails from "Components/wallet/NFTDetails";
-import {DropMintingStatus, PurchaseMintingStatus} from "Components/marketplace/MintingStatus";
+import {DropMintingStatus, PackOpenStatus, PurchaseMintingStatus} from "Components/marketplace/MintingStatus";
 import {Loader, PageLoader} from "Components/common/Loaders";
 
 const MarketplaceNavigation = observer(() => {
@@ -28,7 +28,7 @@ const MarketplaceNavigation = observer(() => {
 
   return (
     <nav className="sub-navigation marketplace-navigation">
-      <NavLink exact className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/store`}>Store</NavLink>
+      <NavLink className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/store`}>Store</NavLink>
       {
         marketplace && marketplace.collections && marketplace.collections.length > 0 ?
           <NavLink className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/collections`}>Collections</NavLink> :
@@ -149,8 +149,20 @@ const MarketplaceItemDetails = observer(() => {
   if(itemIndex < 0) { return null; }
 
   const item = marketplace.items[itemIndex];
-
   const itemTemplate = item.nft_template ? item.nft_template.nft : {};
+
+  const stock = checkoutStore.stock[item.sku];
+
+  useEffect(() => {
+    if(!stock) { return; }
+
+    checkoutStore.MarketplaceStock();
+
+    // If item has stock, periodically update
+    const stockCheck = setInterval(() => checkoutStore.MarketplaceStock(), 7500);
+
+    return () => clearInterval(stockCheck);
+  }, []);
 
   return (
     <div className="details-page">
@@ -163,12 +175,20 @@ const MarketplaceItemDetails = observer(() => {
             path={UrlJoin("public", "asset_metadata", "info", "items", itemIndex.toString(), "image")}
             className="details-page__content__image"
           />
-          <div className="card__subtitle">
-            { item.name }
-          </div>
           <h2 className="card__title">
-            { item.description }
+            { item.name }
           </h2>
+          <div className="card__subtitle">
+            <div className="card__subtitle__title">
+              { item.description }
+            </div>
+            {
+              stock ?
+                <div className="card__subtitle__stock">
+                  { stock.Max - stock.Current } Left!
+                </div> : null
+            }
+          </div>
         </div>
       </div>
 
@@ -264,7 +284,7 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
             {
               stock ?
                 <div className="card__subtitle__stock">
-                  { stock.Max - stock.Current } / { stock.Max }
+                  { stock.Max - stock.Current } Left!
                 </div> : null
             }
           </h2>
@@ -296,7 +316,7 @@ const MarketplaceOwned = observer(() => {
           ownedItems.map(ownedItem =>
             <div className="card-container card-shadow" key={`marketplace-owned-item-${ownedItem.details.TokenIdStr}`}>
               <Link
-                to={`${match.url}/${ownedItem.details.TokenIdStr}`}
+                to={UrlJoin(match.url, ownedItem.details.ContractId, ownedItem.details.TokenIdStr)}
                 className="card nft-card"
               >
                 <NFTImage nft={ownedItem} className="card__image" width={800} />
@@ -350,10 +370,11 @@ const MarketplaceCollections = observer(() => {
 
       if(ownedIds[templateId]) {
         owned += 1;
+
         return (
           <div className="card-container card-shadow" key={key}>
             <Link
-              to={`${match.url}/${collectionIndex}/owned/${ownedIds[templateId].details.TokenIdStr}`}
+              to={UrlJoin(match.url, collectionIndex.toString(), "owned", ownedIds[templateId].details.ContractId, ownedIds[templateId].details.TokenIdStr)}
               className="card nft-card"
             >
               <NFTImage nft={ownedIds[templateId]} className="card__image" width={800} />
@@ -615,10 +636,14 @@ const MarketplaceRoutes = () => {
           </MarketplaceWrapper>
         </Route>
 
-        <Route exact path={`${path}/:marketplaceId/collections/:collectionIndex/owned/:tokenId`}>
+        <Route exact path={`${path}/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId`}>
           <MarketplaceWrapper>
             <NFTDetails/>
           </MarketplaceWrapper>
+        </Route>
+
+        <Route exact path={`${path}/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId/open`}>
+          <PackOpenStatus />
         </Route>
 
         <Route exact path={`${path}/:marketplaceId/collections/:collectionIndex/store/:sku`}>
@@ -633,10 +658,14 @@ const MarketplaceRoutes = () => {
           </MarketplaceWrapper>
         </Route>
 
-        <Route exact path={`${path}/:marketplaceId/owned/:tokenId`}>
+        <Route exact path={`${path}/:marketplaceId/owned/:contractId/:tokenId`}>
           <MarketplaceWrapper>
             <NFTDetails/>
           </MarketplaceWrapper>
+        </Route>
+
+        <Route exact path={`${path}/:marketplaceId/owned/:contractId/:tokenId/open`}>
+          <PackOpenStatus />
         </Route>
 
         <Route exact path={`${path}/:marketplaceId/store`}>

@@ -7,7 +7,7 @@ const pages = {
   // Wallet
   "wallet": "/wallet",
   "items": "/wallet/collections",
-  "item": "/wallet/collections/:tokenId",
+  "item": "/wallet/collections/:contractId/:tokenId",
   "tickets": "/wallet/tickets",
   "tokens": "/wallet/tokens",
 
@@ -86,8 +86,8 @@ export const InitializeListener = (history) => {
           await rootStore.LoadWalletCollection();
         }
 
-        if(data.params.tokenId) {
-          Respond({response: FormatNFT(rootStore.NFT({tokenId: data.params.tokenId}))});
+        if(data.params.contractId && data.params.tokenId) {
+          Respond({response: FormatNFT(rootStore.NFT({contractId: data.params.contractId, tokenId: data.params.tokenId}))});
         } else {
           Respond({response: rootStore.nfts.map(FormatNFT)});
         }

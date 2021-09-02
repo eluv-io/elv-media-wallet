@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import SVG from "react-inlinesvg";
 
 import CopyIcon from "Assets/icons/copy.svg";
+import {Loader} from "Components/common/Loaders";
 
 export const ExpandableSection = ({header, children, className=""}) => {
   const [ show, setShow ] = useState(false);
@@ -65,4 +66,30 @@ export const FormatPriceString = (priceList, options={currency: "USD", trimZeros
   }
 
   return formattedPrice;
+};
+
+export const ButtonWithLoader = ({children, className="", onClick}) => {
+  const [loading, setLoading] = useState(false);
+
+  return (
+    <div className={`button-container loader-button ${className}`}>
+      {
+        loading ?
+          <Loader className="loader-button__loader"/> :
+          <button
+            className="button loader-button__button"
+            onClick={async () => {
+              try {
+                setLoading(true);
+                await onClick();
+              } finally {
+                setLoading(false);
+              }
+            }}
+          >
+            { children }
+          </button>
+      }
+    </div>
+  );
 };
