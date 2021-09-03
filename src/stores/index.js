@@ -164,25 +164,30 @@ class RootStore {
       }).filter(n => n)
     ).flat();
 
-    this.nfts = yield Utils.LimitedMap(
+    this.nfts = (yield Utils.LimitedMap(
       15,
       nfts,
       async details => {
-        const existing = this.NFT({contractAddress: details.ContractAddr, tokenId: details.TokenIdStr});
+        try {
+          const existing = this.NFT({contractAddress: details.ContractAddr, tokenId: details.TokenIdStr});
 
-        if(existing) {
-          return existing;
+          if(existing) {
+            return existing;
+          }
+
+          return {
+            details,
+            metadata: (await this.client.ContentObjectMetadata({
+              versionHash: details.versionHash,
+              metadataSubtree: "public/asset_metadata/nft"
+            })) || {}
+          };
+        } catch(error) {
+          this.Log("Failed to load owned NFT", true);
+          this.Log(error, true);
         }
-
-        return {
-          details,
-          metadata: (await this.client.ContentObjectMetadata({
-            versionHash: details.versionHash,
-            metadataSubtree: "public/asset_metadata/nft"
-          })) || {}
-        };
       }
-    );
+    )).filter(nft => nft);
   });
 
   LoadMarketplace = flow(function * (marketplaceId) {
