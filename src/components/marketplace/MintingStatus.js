@@ -8,7 +8,7 @@ import UrlJoin from "url-join";
 import Path from "path";
 
 let statusInterval;
-const MintingStatus = observer(({header, subheader, Status, redirect, videoHash}) => {
+const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, videoHash}) => {
   const [finished, setFinished] = useState(false);
   const [videoInitialized, setVideoInitialized] = useState(false);
 
@@ -16,6 +16,15 @@ const MintingStatus = observer(({header, subheader, Status, redirect, videoHash}
     const status = await Status();
 
     if(status === "complete") {
+      if(OnFinish) {
+        try {
+          await OnFinish();
+        } catch(error) {
+          rootStore.Log("OnFinish failed", true);
+          rootStore.Log(error, true);
+        }
+      }
+
       setFinished(true);
       clearInterval(statusInterval);
     }
@@ -97,7 +106,13 @@ export const DropMintingStatus = observer(() => {
     dropId: drop.uuid
   })).status;
 
-  return <MintingStatus Status={Status} redirect={UrlJoin("/marketplaces", match.params.marketplaceId, "store")} />;
+  return (
+    <MintingStatus
+      Status={Status}
+      redirect={UrlJoin("/marketplaces", match.params.marketplaceId, "store")}
+      OnFinish={async () => rootStore.LoadMarketplace(match.params.marketplaceId, true)}
+    />
+  );
 });
 
 export const PurchaseMintingStatus = observer(() => {
@@ -107,7 +122,13 @@ export const PurchaseMintingStatus = observer(() => {
     confirmationId: match.params.confirmationId
   })).status;
 
-  return <MintingStatus Status={Status} redirect={UrlJoin("/marketplaces", match.params.marketplaceId, "store")} />;
+  return (
+    <MintingStatus
+      Status={Status}
+      redirect={UrlJoin("/marketplaces", match.params.marketplaceId, "store")}
+      OnFinish={async () => rootStore.LoadMarketplace(match.params.marketplaceId, true)}
+    />
+  );
 });
 
 export const PackOpenStatus = observer(() => {

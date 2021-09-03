@@ -1,5 +1,6 @@
 $card-shadow: rgba(0, 0, 0, 0.1);
 $overlay-background: rgba($black, 0.25);
+$pending-color: rgba($blue, 0.5);
 
 .card-list {
   display: grid;
@@ -39,6 +40,12 @@ $overlay-background: rgba($black, 0.25);
   &-selected {
     border: 1px solid $blue;
     box-shadow: $blue 0 0 8px;
+    margin: 0;
+  }
+
+  &-pending-selection {
+    border: 1px solid $pending-color;
+    box-shadow: $pending-color 0 0 8px;
     margin: 0;
   }
 
@@ -273,6 +280,12 @@ $overlay-background: rgba($black, 0.25);
       box-shadow: $gold 0 0 8px;
     }
 
+    &-pending-selection {
+      border: 1px $pending-color;
+      box-shadow: $pending-color 0 0 8px;
+      margin: 0;
+    }
+
     &-marketplace {
       border: 0;
     }
@@ -285,6 +298,11 @@ $overlay-background: rgba($black, 0.25);
 
     &__image-placeholder {
       background: linear-gradient(60deg, $darkergray, $black 70%);
+
+      * {
+        stroke: $white;
+        fill: $white;
+      }
     }
 
     &__title {

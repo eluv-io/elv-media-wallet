@@ -9,7 +9,7 @@ import UrlJoin from "url-join";
 import {MarketplaceImage} from "Components/common/Images";
 import Countdown from "Components/common/Countdown";
 
-const DropCard = ({drop, marketplace, label, sku, index, image, selected=false, Select}) => {
+const DropCard = ({drop, marketplace, label, sku, index, image, selected=false, pendingSelection=false, Select}) => {
   const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
 
   if(itemIndex < 0) { return null; }
@@ -17,7 +17,7 @@ const DropCard = ({drop, marketplace, label, sku, index, image, selected=false, 
   const item = marketplace.items[itemIndex];
 
   return (
-    <div className={`card-container card-shadow card-container-selectable ${selected ? "card-container-selected" : ""}`} onClick={Select}>
+    <div className={`card-container card-shadow card-container-selectable ${pendingSelection ? "card-container-pending-selection" : ""} ${selected ? "card-container-selected" : ""}`} onClick={Select}>
       <div className="card">
         <MarketplaceImage
           marketplaceHash={marketplace.versionHash}
@@ -47,6 +47,7 @@ const Drop = () => {
   const match = useRouteMatch();
 
   const [selection, setSelection] = useState(undefined);
+  const [pendingSelection, setPendingSelection] = useState(undefined);
   const [ended, setEnded] = useState(false);
 
   if(ended) {
@@ -90,10 +91,17 @@ const Drop = () => {
                     image={image}
                     index={index}
                     selected={selection === sku}
-                    Select={() => {
-                      setSelection(sku);
+                    pendingSelection={pendingSelection === sku}
+                    Select={async () => {
+                      if(selection === sku) { return; }
 
-                      rootStore.SubmitDropVote({eventId: drop.eventId, dropId: drop.uuid, sku});
+                      try {
+                        setPendingSelection(sku);
+                        await rootStore.SubmitDropVote({eventId: drop.eventId, dropId: drop.uuid, sku});
+                        setSelection(sku);
+                      } finally {
+                        setPendingSelection(undefined);
+                      }
                     }}
                   />
                 )

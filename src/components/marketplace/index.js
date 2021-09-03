@@ -314,7 +314,7 @@ const MarketplaceOwned = observer(() => {
       <div className="card-list">
         {
           ownedItems.map(ownedItem =>
-            <div className="card-container card-shadow" key={`marketplace-owned-item-${ownedItem.details.TokenIdStr}`}>
+            <div className="card-container card-shadow" key={`marketplace-owned-item-${ownedItem.details.ContractAddr}-${ownedItem.details.TokenIdStr}`}>
               <Link
                 to={UrlJoin(match.url, ownedItem.details.ContractId, ownedItem.details.TokenIdStr)}
                 className="card nft-card"
