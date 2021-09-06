@@ -11,7 +11,7 @@ import CheckoutStore from "Stores/Checkout";
 
 const tenantId = "itenYQbgk66W1BFEqWr95xPmHZEjmdF";
 
-let status = {};
+let statusTimers = {};
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
@@ -190,10 +190,12 @@ class RootStore {
     )).filter(nft => nft);
   });
 
-  LoadMarketplace = flow(function * (marketplaceId) {
+  LoadMarketplace = flow(function * (marketplaceId, forceReload=false) {
     this.checkoutStore.MarketplaceStock();
 
-    if(this.marketplaces[marketplaceId]) { return this.marketplaces[marketplaceId]; }
+    if(!forceReload && (this.marketplaces[marketplaceId] && Date.now() - this.marketplaces[marketplaceId].retrievedAt < 60000)) {
+      return this.marketplaces[marketplaceId];
+    }
 
     let marketplace = yield this.client.ContentObjectMetadata({
       libraryId: yield this.client.ContentObjectLibraryId({objectId: marketplaceId}),
@@ -205,6 +207,7 @@ class RootStore {
       resolveIncludeSource: true
     });
 
+    marketplace.retrievedAt = Date.now();
     marketplace.versionHash = yield this.client.LatestVersionHash({objectId: marketplaceId});
     marketplace.drops = (marketplace.events || []).map(({event}, eventIndex) =>
       (event.info.drops || []).map((drop, dropIndex) => ({
@@ -250,6 +253,44 @@ class RootStore {
     });
   });
 
+  MintingStatus = flow(function * () {
+    let statuses = {};
+    const response = yield Utils.ResponseToJson(
+      this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "status", "act", tenantId),
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${this.client.signer.authToken}`
+        }
+      })
+    );
+
+    response.map(status => {
+      let [op, address, tokenId] = status.op.split(":");
+      address = Utils.FormatAddress(address);
+      tokenId = tokenId.toString();
+
+      if(!statuses[address]) {
+        statuses[address] = {};
+      }
+
+      if(!statuses[address][tokenId]) {
+        statuses[address][tokenId] = [];
+      }
+
+      statuses[address][tokenId].push({
+        ...status,
+        op,
+        address,
+        tokenId,
+      });
+
+      statuses[address][tokenId] = statuses[address][tokenId].sort((a, b) => a.ts < b.ts ? 1 : -1);
+    });
+
+    return statuses;
+  });
+
   DropStatus = flow(function * ({eventId, dropId}) {
     try {
       const response = yield Utils.ResponseToJson(
@@ -286,10 +327,10 @@ class RootStore {
 
        */
 
-      if(!status[confirmationId]) {
-        status[confirmationId] = Date.now();
+      if(!statusTimers[confirmationId]) {
+        statusTimers[confirmationId] = Date.now();
       } else if(Date.now() - status[confirmationId] > 30000) {
-        delete status[confirmationId];
+        delete statusTimers[confirmationId];
         return { status: "complete" };
       }
 
@@ -302,25 +343,23 @@ class RootStore {
 
   PackOpenStatus = flow(function * ({contractId, tokenId}) {
     try {
-      /*
-      const response = yield Utils.ResponseToJson(
-        this.client.authClient.MakeAuthServiceRequest({
-          path: UrlJoin("as", "wlt", "act", tenantId, eventId, dropId),
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${this.client.signer.authToken}`
-          }
-        })
-      );
+      const address = Utils.HashToAddress(`ictr${contractId}`);
+      let status = yield this.MintingStatus();
 
-      return response.sort((a, b) => a.ts > b.ts ? 1 : -1)[0];
+      if(!status[address] || !status[address][tokenId]) {
+        return { status: "pending" };
+      }
 
-       */
+      status = status[address][tokenId].find(status => status.op === "nft-open");
 
-      if(!status[tokenId]) {
-        status[tokenId] = Date.now();
-      } else if(Date.now() - status[tokenId] > 300000) {
-        delete status[tokenId];
+      if(!status) {
+        return { status: "pending" };
+      }
+
+      if(!statusTimers[tokenId]) {
+        statusTimers[tokenId] = Date.now();
+      } else if(Date.now() - statusTimers[tokenId] > 30000) {
+        delete statusTimers[tokenId];
         return { status: "complete" };
       }
 

@@ -4,6 +4,12 @@
   }
 
   .card-list {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr))!important;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+
+    .card {
+      &__image {
+        padding-bottom: 0;
+      }
+    }
   }
 }

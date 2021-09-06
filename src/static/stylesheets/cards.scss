@@ -189,6 +189,7 @@ $pending-color: rgba($blue, 0.5);
     font-size: 18px;
   }
 
+  // sass-lint:disable force-element-nesting
   &__open-button .button,
   &__delete-button .button,
   .lookout-url {
@@ -202,6 +203,7 @@ $pending-color: rgba($blue, 0.5);
     padding: 0 30px;
     text-align: center;
   }
+  // sass-lint:enable force-element-nesting
 
   .lookout-url {
     padding: 10px 30px;
@@ -300,8 +302,8 @@ $pending-color: rgba($blue, 0.5);
       background: linear-gradient(60deg, $darkergray, $black 70%);
 
       * {
-        stroke: $white;
         fill: $white;
+        stroke: $white;
       }
     }
 

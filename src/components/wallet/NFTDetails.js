@@ -109,9 +109,7 @@ const NFTDetails = observer(() => {
             onClick={async () => {
               if(confirm("Are you sure you want to delete this NFT from your collection?")) {
                 await rootStore.BurnNFT({nft});
-
                 setDeleted(true);
-
                 await rootStore.LoadWalletCollection(true);
               }
             }}

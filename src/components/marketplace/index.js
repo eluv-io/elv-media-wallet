@@ -345,28 +345,28 @@ const MarketplaceCollections = observer(() => {
 
   let purchaseableIds = {};
   marketplace.items.forEach((item, index) => {
-    if(!item || !item.nft_template || !item.nft_template["."] || !item.nft_template["."].source) { return; }
+    if(!item || !item.for_sale || !item.nft_template || !item.nft_template["."] || !item.nft_template["."].source) { return; }
 
     purchaseableIds[rootStore.client.utils.DecodeVersionHash(item.nft_template["."].source).objectId] = { item, index };
   });
 
   return marketplace.collections.map((collection, collectionIndex) => {
-    collection = collection.collection.info;
     let owned = 0;
-    const items = collection.nfts.map((entry, nftIndex) => {
-      const key = `collection-card-${collectionIndex}-${nftIndex}`;
+    const collectionItems = collection.items.map((sku, entryIndex) => {
+      const key = `collection-card-${collectionIndex}-${entryIndex}`;
+      const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
+      const item = marketplace.items[itemIndex];
 
-      const placeholder = entry.placeholder || {};
+      if(!item) { return; }
 
       let versionHash;
-      if(entry.nft_template["/"]) {
-        versionHash = entry.nft_template["/"].split("/").find(component => component.startsWith("hq__"));
-      } else if(entry.nft_template["."] && entry.nft_template["."].source) {
-        versionHash = entry.nft_template["."].source;
+      if(item.nft_template["/"]) {
+        versionHash = item.nft_template["/"].split("/").find(component => component.startsWith("hq__"));
+      } else if(item.nft_template["."] && item.nft_template["."].source) {
+        versionHash = item.nft_template["."].source;
       }
 
       const templateId = versionHash ? rootStore.client.utils.DecodeVersionHash(versionHash).objectId : undefined;
-
 
       if(ownedIds[templateId]) {
         owned += 1;
@@ -404,19 +404,19 @@ const MarketplaceCollections = observer(() => {
           <div className="card-container card-shadow collection-card collection-card-inaccessible collection-card-unowned" key={key}>
             <div className="card nft-card">
               {
-                placeholder.image ?
+                item.image ?
                   <MarketplaceImage
                     marketplaceHash={marketplace.versionHash}
-                    title={placeholder.name}
-                    path={UrlJoin("public", "asset_metadata", "info", "collections", collectionIndex.toString(), "collection", "info", "nfts", nftIndex.toString(), "placeholder", "image")}
+                    title={item.name}
+                    path={UrlJoin("public", "asset_metadata", "info", "items", itemIndex.toString(), "image")}
                   /> :
                   <div className="nft-image card__image card__image-placeholder"/>
               }
               <h2 className="card__title">
-                { placeholder.name }
+                { item.name }
               </h2>
               <h2 className="card__subtitle">
-                { placeholder.description }
+                { item.description }
               </h2>
             </div>
           </div>
@@ -426,10 +426,10 @@ const MarketplaceCollections = observer(() => {
 
     return (
       <div className="marketplace__section" key={`marketplace-section-${collectionIndex}`}>
-        <h1 className="page-header">{collection.name} <div className="page-header__right">{ owned } / { collection.nfts.length }</div></h1>
-        <h2 className="page-subheader">{collection.description}</h2>
-        <div className="card-list">
-          { items }
+        <h1 className="page-header">{collection.collection_header} <div className="page-header__right">{ owned } / { collection.items.length }</div></h1>
+        <h2 className="page-subheader">{collection.collection_subheader}</h2>
+        <div className="card-list card-list-collections">
+          { collectionItems }
         </div>
       </div>
     );
