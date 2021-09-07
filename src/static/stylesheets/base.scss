@@ -150,6 +150,10 @@ button {
     font-size: 32px;
     font-weight: 300;
     letter-spacing: 0.03em;
+
+    &__subtitle {
+      color: $darkgray;
+    }
   }
 
   .page-subheader {
@@ -253,6 +257,12 @@ button {
   .page-container {
     .page-subheader {
       color: $mediumgray;
+    }
+  }
+
+  .page-header {
+    &__subtitle {
+      color: $gray;
     }
   }
 }

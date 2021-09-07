@@ -426,7 +426,10 @@ const MarketplaceCollections = observer(() => {
 
     return (
       <div className="marketplace__section" key={`marketplace-section-${collectionIndex}`}>
-        <h1 className="page-header">{collection.collection_header} <div className="page-header__right">{ owned } / { collection.items.length }</div></h1>
+        <h1 className="page-header">
+          <div className="page-header__title">{collection.collection_header}</div>
+          <div className="page-header__subtitle">{ owned } / { collection.items.length }</div>
+        </h1>
         <h2 className="page-subheader">{collection.collection_subheader}</h2>
         <div className="card-list card-list-collections">
           { collectionItems }

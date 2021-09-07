@@ -94,6 +94,8 @@ if(!rootStore.embedded) {
       domain={EluvioConfiguration["auth0-domain"]}
       clientId={EluvioConfiguration["auth0-configuration-id"]}
       redirectUri={UrlJoin(window.location.origin, window.location.pathname)}
+      useRefreshTokens
+      darkMode={rootStore.darkMode}
     >
       <React.StrictMode>
         <App/>

@@ -30,7 +30,7 @@ export const NFTImage = observer(({nft, width, video=false, className=""}) => {
     url.searchParams.set("width", width);
   }
 
-  if(video && nft.metadata.embed_url) {
+  if(video && (typeof nft.metadata.playable === "undefined" || nft.metadata.playable) && nft.metadata.embed_url) {
     return (
       <div className={`nft-image nft-image-video-embed ${className}`}>
         <iframe
