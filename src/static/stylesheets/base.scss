@@ -109,6 +109,29 @@ input {
     height: 19px;
     width: 19px;
   }
+
+  &[type="text"] {
+    border: 1px solid $gray;
+    color: $black;
+    font-size: 20px;
+    height: 50px;
+    padding: 0 10px;
+    width: 100%;
+
+    &:focus {
+      border: 0.5px solid $gray;
+      outline: 0;
+
+      &::placeholder {
+        opacity: 0;
+      }
+    }
+
+    &::placeholder {
+      font-size: 16px;
+      letter-spacing: 0.08em;
+    }
+  }
 }
 
 .button,
@@ -181,7 +204,9 @@ button {
 }
 
 .content {
+  display: flex;
   flex: 1 1 auto;
+  flex-direction: column;
   height: max-content;
   max-width: 100%;
   padding: 15px 25px 80px 15px;
@@ -253,6 +278,23 @@ button {
 
   button {
     border: 1px solid $darkgray;
+  }
+
+  input {
+    &[type="text"] {
+      background-color: $darkestgray;
+      border: 1px solid $darkestgray;
+      color: $white;
+    }
+
+    &:focus {
+      border: 0.5px solid $gray;
+      outline: 0;
+    }
+
+    &::placeholder {
+      color: $mediumgray;
+    }
   }
 
   .page-container {

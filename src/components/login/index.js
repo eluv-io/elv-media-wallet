@@ -122,6 +122,8 @@ const Login = observer(() => {
       auth0.loginWithRedirect({
         redirectUri: callbackUrl
       });
+    } else if(sessionStorage.getItem("pk")) {
+      rootStore.InitializeClient({privateKey: sessionStorage.getItem("pk")});
     } else if(!auth0.isLoading) {
       setAuth0Loading(false);
     }
@@ -160,7 +162,7 @@ const Login = observer(() => {
           >
             <div className="labelled-field">
               <label htmlFor="privateKey">Private Key</label>
-              <input name="privateKey" value={privateKey} onChange={event => setPrivateKey(event.target.value)}/>
+              <input name="privateKey" type="text" value={privateKey} onChange={event => setPrivateKey(event.target.value)}/>
             </div>
 
             <div className="login-page__private-key-form__actions">

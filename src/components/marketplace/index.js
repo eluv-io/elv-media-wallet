@@ -39,11 +39,18 @@ const MarketplaceNavigation = observer(() => {
   );
 });
 
+const ValidEmail = email => {
+  return /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    .test(email);
+};
+
 const Checkout = observer(({marketplaceId, item}) => {
   const subtotal = ItemPrice(item, checkoutStore.currency);
   const platformFee = parseFloat((subtotal * 0.1).toFixed(2));
   const total = subtotal + platformFee;
 
+  const [email, setEmail] = useState("");
+  const [validEmail, setValidEmail] = useState(false);
   const [confirmationId, setConfirmationId] = useState(undefined);
 
   if(confirmationId && checkoutStore.completedPurchases[confirmationId]) {
@@ -75,13 +82,28 @@ const Checkout = observer(({marketplaceId, item}) => {
 
       <div className="checkout__payment-actions">
         {
+          !rootStore.localAccount ? null :
+            <input
+              type="text"
+              className="checkout__email"
+              value={email}
+              placeholder="Email Address"
+              onChange={event => {
+                const email = event.target.value.trim();
+                setEmail(email);
+                setValidEmail(ValidEmail(email));
+              }}
+            />
+        }
+        {
           checkoutStore.submittingOrder || (confirmationId && checkoutStore.pendingPurchases[confirmationId]) ?
             <Loader/> :
             <button
+              disabled={rootStore.localAccount && !validEmail}
               className="checkout-button"
               role="link"
               onClick={async () => {
-                setConfirmationId(await checkoutStore.StripeSubmit({marketplaceId, sku: item.sku}));
+                setConfirmationId(await checkoutStore.StripeSubmit({marketplaceId, sku: item.sku, email}));
               }}
             >
               Buy Now

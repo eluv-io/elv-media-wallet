@@ -62,6 +62,7 @@ class RootStore {
   darkMode = window.self === window.top && sessionStorage.getItem("dark-mode");
 
   oauthUser = undefined;
+  localAccount = false;
 
   initialized = false;
   client = undefined;
@@ -403,6 +404,11 @@ class RootStore {
         const wallet = client.GenerateWallet();
         const signer = wallet.AddAccount({privateKey});
         client.SetSigner({signer});
+        this.localAccount = true;
+
+        if(!this.embedded) {
+          sessionStorage.setItem("pk", privateKey);
+        }
       } else if(authToken) {
         yield client.SetRemoteSigner({authToken: authToken, address});
       } else if(user || idToken) {
@@ -476,8 +482,8 @@ class RootStore {
   SignOut(auth0) {
     this.ClearAuthInfo();
 
-    if(this.oauthUser && this.oauthUser.SignOut) {
-      this.oauthUser.SignOut();
+    if(!this.embedded) {
+      sessionStorage.removeItem("pk");
     }
 
     if(auth0) {

@@ -28,16 +28,13 @@
     max-width: 500px;
     width: 100%;
 
-    input {
-      border: 1px solid $lightgray;
-      border-radius: 0;
-      font-size: 12px;
-      margin: 0;
-    }
-
     &__actions {
       display: flex;
       justify-content: center;
+    }
+
+    input {
+      font-size: 12px;
     }
 
     button {
@@ -66,7 +63,8 @@
     label {
       font-size: 14px;
       font-weight: 500;
-      margin-bottom: 5px;
+      letter-spacing: 0.03em;
+      margin-bottom: 8px;
     }
 
     input {

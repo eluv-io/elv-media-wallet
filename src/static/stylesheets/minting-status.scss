@@ -1,7 +1,7 @@
 .minting-status {
   align-items: center;
   display: flex;
-  flex: 1 1 100%;
+  flex: 1 0 100%;
   flex-direction: column;
   height: 100%;
   justify-content: center;
@@ -23,8 +23,9 @@
     align-items: center;
     display: flex;
     justify-content: center;
+    margin-bottom: 20px;
     max-height: 50vh;
-    max-width: 50vw;
+    max-width: 90vw;
     min-height: 30vh;
     position: relative;
 
@@ -41,13 +42,13 @@
   &__video {
     background: transparent;
     flex: 1 1 0;
-    margin-bottom: 20px;
+    max-height: 50vh;
+    max-width: 90vw;
 
     video {
       background: transparent;
       max-height: 50vh;
-      max-width: 50vw;
-      min-height: 30vh;
+      max-width: 90vw;
     }
   }
 }

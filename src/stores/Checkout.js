@@ -56,7 +56,7 @@ class CheckoutStore {
     delete this.pendingPurchases[confirmationId];
   }
 
-  StripeSubmit = flow(function * ({marketplaceId, sku, confirmationId}) {
+  StripeSubmit = flow(function * ({marketplaceId, sku, confirmationId, email}) {
     if(this.submittingOrder) { return; }
 
     try {
@@ -107,7 +107,7 @@ class CheckoutStore {
       const requestParams = {
         mode,
         currency: this.currency,
-        email: this.rootStore.userProfile.email,
+        email: rootStore.localAccount ? email : this.rootStore.userProfile.email,
         client_reference_id: checkoutId,
         elv_addr: this.rootStore.client.signer.address,
         items: [{sku, quantity: 1}],
