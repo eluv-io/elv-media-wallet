@@ -64,7 +64,7 @@ export const MarketplaceImage = ({marketplaceHash, item, title, path, templateIm
       versionHash: marketplaceHash,
       path,
       queryParams: {
-        width: 800
+        width: 400
       }
     });
   } else if(item.nft_template && item.nft_template.nft && item.nft_template.nft.image) {

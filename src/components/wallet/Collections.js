@@ -7,7 +7,7 @@ import UrlJoin from "url-join";
 import {Link, useRouteMatch} from "react-router-dom";
 import {NFTImage} from "Components/common/Images";
 
-const NFTCard = observer(({nft}) => {
+export const NFTCard = observer(({nft}) => {
   const match = useRouteMatch();
 
   return (
@@ -16,7 +16,7 @@ const NFTCard = observer(({nft}) => {
         to={UrlJoin(match.url, nft.details.ContractId, nft.details.TokenIdStr)}
         className="card nft-card"
       >
-        <NFTImage nft={nft} className="card__image" width={800} />
+        <NFTImage nft={nft} className="card__image" width={400} />
         <h2 className="card__title">
           { nft.metadata.display_name || "" }
         </h2>

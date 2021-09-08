@@ -18,7 +18,7 @@ $pending-color: rgba($blue, 0.5);
 .card-shadow {
   border: 1px solid $mediumgray;
   border-radius: 4px;
-  box-shadow: 0 4px 4px $card-shadow;
+  box-shadow: 2px 2px 4px $card-shadow;
 }
 
 .card-container {
@@ -161,6 +161,7 @@ $pending-color: rgba($blue, 0.5);
 .details-page {
   max-width: 100%;
   overflow-x: hidden;
+  padding-bottom: 10px;
   width: 100%;
 
   &__content-container {

@@ -3,22 +3,24 @@ import EluvioPlayer, {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores/index";
 import {Loader} from "Components/common/Loaders";
-import {Redirect, useRouteMatch} from "react-router-dom";
+import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
-import Path from "path";
+import AsyncComponent from "Components/common/AsyncComponent";
+import {NFTImage} from "Components/common/Images";
 
 let statusInterval;
 const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, videoHash}) => {
+  const [status, setStatus] = useState(undefined);
   const [finished, setFinished] = useState(false);
   const [videoInitialized, setVideoInitialized] = useState(false);
 
   const CheckStatus = async () => {
     const status = await Status();
 
-    if(status === "complete") {
+    if(status.status === "complete") {
       if(OnFinish) {
         try {
-          await OnFinish();
+          await OnFinish({status});
         } catch(error) {
           rootStore.Log("OnFinish failed", true);
           rootStore.Log(error, true);
@@ -28,6 +30,8 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
       setFinished(true);
       clearInterval(statusInterval);
     }
+
+    setStatus(status);
   };
 
   useEffect(() => {
@@ -36,8 +40,16 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
     statusInterval = setInterval(CheckStatus, 10000);
   }, []);
 
-  if(finished) {
-    return <Redirect to={redirect} />;
+  if(finished && redirect) {
+    return <Redirect to={redirect}/>;
+  }
+
+  if(!status) {
+    return (
+      <div className={`minting-status ${videoHash ? "minting-status-video" : ""}`}>
+        <Loader />
+      </div>
+    );
   }
 
   return (
@@ -101,10 +113,10 @@ export const DropMintingStatus = observer(() => {
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const drop = marketplace.drops.find(drop => drop.uuid === match.params.dropId);
 
-  const Status = async () => (await rootStore.DropStatus({
+  const Status = async () => await rootStore.DropStatus({
     eventId: drop.eventId,
     dropId: drop.uuid
-  })).status;
+  });
 
   return (
     <MintingStatus
@@ -112,26 +124,89 @@ export const DropMintingStatus = observer(() => {
       redirect={UrlJoin("/marketplaces", match.params.marketplaceId, "store")}
       OnFinish={async () => rootStore.LoadMarketplace(match.params.marketplaceId, true)}
     />
+  );
+});
+
+const MintResults = observer(({header, subheader, basePath, nftBasePath, items, backText}) => {
+  return (
+    <AsyncComponent
+      loadingClassName="page-loader"
+      Load={async () => rootStore.LoadWalletCollection(true)}
+    >
+      <div className="minting-status-results pack-results">
+        <h1 className="page-header">{ header }</h1>
+        <h2 className="page-subheader">{ subheader }</h2>
+        <div className="card-list">
+          {
+            items.map(({token_addr, token_id}) => {
+              const nft = rootStore.NFT({contractAddress: token_addr, tokenId: token_id});
+
+              if(!nft) { return null; }
+
+              return (
+                <div className="card-container card-shadow" key={`mint-result-${token_addr}-${token_id}`}>
+                  <Link
+                    to={UrlJoin(nftBasePath || basePath, nft.details.ContractId, nft.details.TokenIdStr)}
+                    className="card nft-card"
+                  >
+                    <NFTImage nft={nft} className="card__image" width={400} />
+                    <h2 className="card__title">
+                      { nft.metadata.display_name || "" }
+                    </h2>
+                    <h2 className="card__subtitle">
+                      { nft.metadata.display_name || "" }
+                    </h2>
+                  </Link>
+                </div>
+              );
+            })
+          }
+        </div>
+
+        <div className="minting-status-results__actions">
+          <Link to={basePath} className="button minting-status-results__back-button">
+            { backText }
+          </Link>
+        </div>
+      </div>
+    </AsyncComponent>
   );
 });
 
 export const PurchaseMintingStatus = observer(() => {
   const match = useRouteMatch();
+  const [status, setStatus] = useState(undefined);
 
-  const Status = async () => (await rootStore.PurchaseStatus({
+  const Status = async () => await rootStore.PurchaseStatus({
     confirmationId: match.params.confirmationId
-  })).status;
+  });
+
+  if(!status) {
+    return (
+      <MintingStatus
+        Status={Status}
+        OnFinish={({status}) => setStatus(status)}
+      />
+    );
+  }
+
+  const items = status.extra.filter(item => item.token_addr && item.token_id);
 
   return (
-    <MintingStatus
-      Status={Status}
-      redirect={UrlJoin("/marketplaces", match.params.marketplaceId, "store")}
-      OnFinish={async () => rootStore.LoadMarketplace(match.params.marketplaceId, true)}
+    <MintResults
+      header="Congratulations!"
+      subheader={`Thank you for your purchase! You've received the following ${items.length === 1 ? "item" : "items"}:`}
+      items={items}
+      basePath={UrlJoin("/marketplaces", match.params.marketplaceId, "store")}
+      nftBasePath={UrlJoin("/marketplaces", match.params.marketplaceId, "owned")}
+      backText="Back to the Marketplace"
     />
   );
 });
 
 export const PackOpenStatus = observer(() => {
+  const [status, setStatus] = useState(undefined);
+
   const match = useRouteMatch();
 
   // Set NFT in state so it doesn't change
@@ -139,17 +214,35 @@ export const PackOpenStatus = observer(() => {
   const videoHash = nft && nft.metadata && nft.metadata.pack_options && nft.metadata.pack_options.is_openable && nft.metadata.pack_options.open_animation
     && ((nft.metadata.pack_options.open_animation["/"] && nft.metadata.pack_options.open_animation["/"].split("/").find(component => component.startsWith("hq__")) || nft.metadata.pack_options.open_anmiation["."].source));
 
-  const Status = async () => (await rootStore.PackOpenStatus({
+  const Status = async () => await rootStore.PackOpenStatus({
     contractId: match.params.contractId,
     tokenId: match.params.tokenId
-  })).status;
+  });
+
+  if(!status) {
+    return (
+      <MintingStatus
+        header="Your pack is opening"
+        Status={Status}
+        OnFinish={({status}) => setStatus(status)}
+        videoHash={videoHash}
+      />
+    );
+  }
+
+  const basePath = match.url.startsWith("/marketplace") ?
+    UrlJoin("/marketplaces", match.params.marketplaceId, "owned") :
+    UrlJoin("/wallet", "collection");
+
+  const items = status.extra.filter(item => item.token_addr && item.token_id);
 
   return (
-    <MintingStatus
-      header="Your pack is opening"
-      Status={Status}
-      redirect={Path.dirname(Path.dirname(Path.dirname(match.url)))}
-      videoHash={videoHash}
+    <MintResults
+      header="Congratulations!"
+      subheader={`You've received the following ${items.length === 1 ? "item" : "items"}:`}
+      items={items}
+      basePath={basePath}
+      backText="Back to My Collection"
     />
   );
 });

@@ -30,6 +30,7 @@ const SignalOpener = () => {
 
 const Login = observer(() => {
   const [loading, setLoading] = useState(false);
+  const [auth0Loading, setAuth0Loading] = useState(true);
   const [showPrivateKeyForm, setShowPrivateKeyForm] = useState(false);
   const [privateKey, setPrivateKey] = useState("");
 
@@ -112,21 +113,21 @@ const Login = observer(() => {
       return;
     }
 
-    if(!rootStore.embedded) {
-      if(auth0.isAuthenticated) {
-        SignIn();
-      } else {
-        if(!rootStore.loggedIn && newWindowLogin && !sessionStorage.getItem("new-window-login")) {
-          sessionStorage.setItem("new-window-login", "true");
-          auth0.loginWithRedirect({
-            redirectUri: callbackUrl
-          });
-        }
-      }
+    if(rootStore.embedded) {
+      setAuth0Loading(false);
+    } else if(auth0.isAuthenticated) {
+      SignIn();
+    } else if(!rootStore.loggedIn && newWindowLogin && !sessionStorage.getItem("new-window-login")) {
+      sessionStorage.setItem("new-window-login", "true");
+      auth0.loginWithRedirect({
+        redirectUri: callbackUrl
+      });
+    } else if(!auth0.isLoading) {
+      setAuth0Loading(false);
     }
-  }, [auth0 && auth0.isAuthenticated]);
+  }, [auth0 && auth0.isAuthenticated, auth0 && auth0.isLoading]);
 
-  if(newWindowLogin || loading || rootStore.loggingIn) {
+  if(newWindowLogin || loading || auth0Loading || rootStore.loggingIn) {
     return (
       <div className="page-container login-page">
         <div className="login-page__login-box" key={`login-box-${rootStore.accountLoading}`}>

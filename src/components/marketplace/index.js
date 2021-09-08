@@ -319,7 +319,7 @@ const MarketplaceOwned = observer(() => {
                 to={UrlJoin(match.url, ownedItem.details.ContractId, ownedItem.details.TokenIdStr)}
                 className="card nft-card"
               >
-                <NFTImage nft={ownedItem} className="card__image" width={800} />
+                <NFTImage nft={ownedItem} className="card__image" width={400} />
                 <h2 className="card__title">
                   { ownedItem.metadata.display_name || "" }
                 </h2>
@@ -377,7 +377,7 @@ const MarketplaceCollections = observer(() => {
               to={UrlJoin(match.url, collectionIndex.toString(), "owned", ownedIds[templateId].details.ContractId, ownedIds[templateId].details.TokenIdStr)}
               className="card nft-card"
             >
-              <NFTImage nft={ownedIds[templateId]} className="card__image" width={800} />
+              <NFTImage nft={ownedIds[templateId]} className="card__image" width={400} />
               <h2 className="card__title">
                 { ownedIds[templateId].metadata.display_name || "" }
               </h2>
@@ -453,7 +453,11 @@ const Marketplace = observer(() => {
             const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
             const item = itemIndex >= 0 && marketplace.items[itemIndex];
 
-            if(!item || !item.for_sale || (item.type === "nft" && (!item.nft_template || item.nft_template["/"]))) {
+            if(
+              !item ||
+              !item.for_sale ||
+              (item.requires_permissions && !item.authorized) ||
+              (item.type === "nft" && (!item.nft_template || item.nft_template["/"]))) {
               return;
             }
 
@@ -585,11 +589,11 @@ const MarketplaceBrowser = observer(() => {
           const imageUrl = rootStore.PublicLink({
             versionHash: marketplace.versionHash,
             path: UrlJoin("public", "asset_metadata", "info", "images", "image"),
-            queryParams: { width: 800 }
+            queryParams: { width: 400 }
           });
 
           return (
-            <div className="card-container card-container-marketplace card-shadow" key={`marketplace-${index}`}>
+            <div className="card-container card-container-marketplace" key={`marketplace-${index}`}>
               <Link
                 to={`${match.url}/${marketplaceId}/store`}
                 className="card nft-card"
@@ -646,7 +650,9 @@ const MarketplaceRoutes = () => {
         </Route>
 
         <Route exact path={`${path}/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId/open`}>
-          <PackOpenStatus />
+          <div className="content">
+            <PackOpenStatus />
+          </div>
         </Route>
 
         <Route exact path={`${path}/:marketplaceId/collections/:collectionIndex/store/:sku`}>
@@ -668,7 +674,9 @@ const MarketplaceRoutes = () => {
         </Route>
 
         <Route exact path={`${path}/:marketplaceId/owned/:contractId/:tokenId/open`}>
-          <PackOpenStatus />
+          <div className="content">
+            <PackOpenStatus />
+          </div>
         </Route>
 
         <Route exact path={`${path}/:marketplaceId/store`}>
@@ -684,15 +692,21 @@ const MarketplaceRoutes = () => {
         </Route>
 
         <Route exact path={`${path}/:marketplaceId/store/:sku/purchase/:confirmationId`}>
-          <MarketplacePurchase />
+          <div className="content">
+            <MarketplacePurchase />
+          </div>
         </Route>
 
         <Route exact path={`${path}/:marketplaceId/store/:sku/purchase/:confirmationId/success`}>
-          <MarketplacePurchase />
+          <div className="content">
+            <MarketplacePurchase />
+          </div>
         </Route>
 
         <Route exact path={`${path}/:marketplaceId/store/:sku/purchase/:confirmationId/cancel`}>
-          <MarketplacePurchase />
+          <div className="content">
+            <MarketplacePurchase />
+          </div>
         </Route>
 
         <Route exact path={path}>

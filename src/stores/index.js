@@ -11,8 +11,6 @@ import CheckoutStore from "Stores/Checkout";
 
 const tenantId = "itenYQbgk66W1BFEqWr95xPmHZEjmdF";
 
-let statusTimers = {};
-
 // Force strict mode so mutations are only allowed within actions.
 configure({
   enforceActions: "always"
@@ -124,8 +122,9 @@ class RootStore {
 
   NFT({tokenId, contractAddress, contractId}) {
     if(contractId) {
-      contractAddress = Utils.HashToAddress(`ictr${contractId}`);
+      contractAddress = Utils.HashToAddress(contractId);
     }
+
     return this.nfts.find(nft =>
       tokenId && nft.details.TokenIdStr === tokenId &&
       contractAddress && Utils.EqualAddress(contractAddress, nft.details.ContractAddr)
@@ -158,7 +157,8 @@ class RootStore {
 
         return {
           ...details,
-          ContractId: Utils.AddressToHash(details.ContractAddr),
+          ContractAddr: Utils.FormatAddress(details.ContractAddr),
+          ContractId: `ictr${Utils.AddressToHash(details.ContractAddr)}`,
           versionHash
         };
       }).filter(n => n)
@@ -207,6 +207,32 @@ class RootStore {
       resolveIncludeSource: true
     });
 
+    marketplace.items = yield Promise.all(
+      marketplace.items.map(async item => {
+        if(item.requires_permissions) {
+          try {
+            let versionHash;
+            if(item.nft_template["/"]) {
+              versionHash = item.nft_template["/"].split("/").find(component => component.startsWith("hq__"));
+            } else if(item.nft_template["."] && item.nft_template["."].source) {
+              versionHash = item.nft_template["."].source;
+            }
+
+            await this.client.ContentObjectMetadata({
+              versionHash,
+              metadataSubtree: "permissioned"
+            });
+
+            item.authorized = true;
+          } catch(error) {
+            item.authorized = false;
+          }
+        }
+
+        return item;
+      })
+    );
+
     marketplace.retrievedAt = Date.now();
     marketplace.versionHash = yield this.client.LatestVersionHash({objectId: marketplaceId});
     marketplace.drops = (marketplace.events || []).map(({event}, eventIndex) =>
@@ -254,41 +280,39 @@ class RootStore {
   });
 
   MintingStatus = flow(function * () {
-    let statuses = {};
-    const response = yield Utils.ResponseToJson(
-      this.client.authClient.MakeAuthServiceRequest({
-        path: UrlJoin("as", "wlt", "status", "act", tenantId),
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${this.client.signer.authToken}`
-        }
-      })
-    );
+    try {
+      const response = yield Utils.ResponseToJson(
+        this.client.authClient.MakeAuthServiceRequest({
+          path: UrlJoin("as", "wlt", "status", "act", tenantId),
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${this.client.signer.authToken}`
+          }
+        })
+      );
 
-    response.map(status => {
-      let [op, address, tokenId] = status.op.split(":");
-      address = Utils.FormatAddress(address);
-      tokenId = tokenId.toString();
+      return response
+        .map(status => {
+          let [op, address, tokenId] = status.op.split(":");
+          address = address.startsWith("0x") ? Utils.FormatAddress(address) : address;
+          tokenId = tokenId.toString();
 
-      if(!statuses[address]) {
-        statuses[address] = {};
-      }
+          return {
+            ...status,
+            state: status.state && typeof status.state === "object" ? Object.values(status.state) : status.state,
+            extra: status.extra && typeof status.extra === "object" ? Object.values(status.extra) : status.extra,
+            op,
+            address,
+            tokenId
+          };
+        })
+        .sort((a, b) => a.ts < b.ts ? 1 : -1);
+    } catch(error) {
+      this.Log("Failed to retrieve minting status", true);
+      this.Log(error);
 
-      if(!statuses[address][tokenId]) {
-        statuses[address][tokenId] = [];
-      }
-
-      statuses[address][tokenId].push({
-        ...status,
-        op,
-        address,
-        tokenId,
-      });
-
-      statuses[address][tokenId] = statuses[address][tokenId].sort((a, b) => a.ts < b.ts ? 1 : -1);
-    });
-
-    return statuses;
+      return [];
+    }
   });
 
   DropStatus = flow(function * ({eventId, dropId}) {
@@ -312,61 +336,24 @@ class RootStore {
 
   PurchaseStatus = flow(function * ({confirmationId}) {
     try {
-      /*
-      const response = yield Utils.ResponseToJson(
-        this.client.authClient.MakeAuthServiceRequest({
-          path: UrlJoin("as", "wlt", "act", tenantId, eventId, dropId),
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${this.client.signer.authToken}`
-          }
-        })
-      );
+      const statuses = yield this.MintingStatus();
 
-      return response.sort((a, b) => a.ts > b.ts ? 1 : -1)[0];
-
-       */
-
-      if(!statusTimers[confirmationId]) {
-        statusTimers[confirmationId] = Date.now();
-      } else if(Date.now() - status[confirmationId] > 30000) {
-        delete statusTimers[confirmationId];
-        return { status: "complete" };
-      }
-
-      return { status: "minting" };
+      return statuses.find(status => status.op === "nft-buy" && status.tokenId === confirmationId) || { status: "pending" };
     } catch(error) {
       this.Log(error, true);
-      return "";
+      return { status: "unknown" };
     }
   });
 
   PackOpenStatus = flow(function * ({contractId, tokenId}) {
     try {
-      const address = Utils.HashToAddress(`ictr${contractId}`);
-      let status = yield this.MintingStatus();
+      const contractAddress = Utils.HashToAddress(contractId);
+      const statuses = yield this.MintingStatus();
 
-      if(!status[address] || !status[address][tokenId]) {
-        return { status: "pending" };
-      }
-
-      status = status[address][tokenId].find(status => status.op === "nft-open");
-
-      if(!status) {
-        return { status: "pending" };
-      }
-
-      if(!statusTimers[tokenId]) {
-        statusTimers[tokenId] = Date.now();
-      } else if(Date.now() - statusTimers[tokenId] > 30000) {
-        delete statusTimers[tokenId];
-        return { status: "complete" };
-      }
-
-      return { status: "minting" };
+      return statuses.find(status => status.op === "nft-open" && Utils.EqualAddress(contractAddress, status.address) && status.tokenId === tokenId) || { status: "pending" };
     } catch(error) {
       this.Log(error, true);
-      return "";
+      return { status: "unknown" };
     }
   });
 
@@ -486,11 +473,24 @@ class RootStore {
     }
   });
 
-  SignOut() {
+  SignOut(auth0) {
     this.ClearAuthInfo();
 
     if(this.oauthUser && this.oauthUser.SignOut) {
       this.oauthUser.SignOut();
+    }
+
+    if(auth0) {
+      try {
+        auth0.logout({
+          returnTo: UrlJoin(window.location.origin, window.location.pathname)
+        });
+
+        return;
+      } catch(error) {
+        this.Log("Failed to log out of Auth0:");
+        this.Log(error, true);
+      }
     }
 
     this.SendEvent({event: EVENTS.LOG_OUT, data: { address: this.client.signer.address }});

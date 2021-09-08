@@ -6,8 +6,8 @@ import EVENTS from "../../../client/src/Events";
 const pages = {
   // Wallet
   "wallet": "/wallet",
-  "items": "/wallet/collections",
-  "item": "/wallet/collections/:contractId/:tokenId",
+  "items": "/wallet/collection",
+  "item": "/wallet/collection/:contractId/:tokenId",
   "tickets": "/wallet/tickets",
   "tokens": "/wallet/tokens",
 
@@ -86,8 +86,8 @@ export const InitializeListener = (history) => {
           await rootStore.LoadWalletCollection();
         }
 
-        if(data.params.contractId && data.params.tokenId) {
-          Respond({response: FormatNFT(rootStore.NFT({contractId: data.params.contractId, tokenId: data.params.tokenId}))});
+        if((data.params.contractAddress || data.params.contractId) && data.params.tokenId) {
+          Respond({response: FormatNFT(rootStore.NFT({contractAddress: data.params.contractAddress, contractId: data.params.contractId, tokenId: data.params.tokenId}))});
         } else {
           Respond({response: rootStore.nfts.map(FormatNFT)});
         }

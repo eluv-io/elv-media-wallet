@@ -59,6 +59,13 @@ const NFTDetails = observer(() => {
 
         <ExpandableSection header="Details">
           {
+            nft.metadata.token_uri ?
+              <CopyableField value={nft.metadata.token_uri}>
+                Token URI: { nft.metadata.token_uri }
+              </CopyableField>
+              : null
+          }
+          {
             nft.metadata.embed_url ?
               <CopyableField value={nft.metadata.embed_url}>
                 Media URL: { nft.metadata.embed_url }
