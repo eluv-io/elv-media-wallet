@@ -304,7 +304,7 @@ const MarketplaceOwned = observer(() => {
 
   const ownedItems = rootStore.nfts.filter(nft =>
     marketplace.items.find(item =>
-      item.nft_template && !item.nft_template["/"] && rootStore.client.utils.EqualAddress(item.nft_template.address, nft.details.ContractAddr) || true
+      item.nft_template && !item.nft_template["/"] && item.nft_template.nft && item.nft_template.nft.template_id && item.nft_template.nft.template_id === nft.metadata.template_id
     )
   );
 
@@ -343,12 +343,20 @@ const MarketplaceCollections = observer(() => {
   let ownedIds = {};
   rootStore.nfts.forEach(nft => ownedIds[rootStore.client.utils.DecodeVersionHash(nft.details.versionHash).objectId] = nft);
 
-  let purchaseableIds = {};
-  marketplace.items.forEach((item, index) => {
-    if(!item || !item.for_sale || !item.nft_template || !item.nft_template["."] || !item.nft_template["."].source) { return; }
+  let purchaseableItems = {};
+  marketplace.storefront.sections.forEach(section =>
+    section.items.forEach(sku => {
+      const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
+      const item = marketplace.items[itemIndex];
 
-    purchaseableIds[rootStore.client.utils.DecodeVersionHash(item.nft_template["."].source).objectId] = { item, index };
-  });
+      if(!item || !item.for_sale || (item.requires_permissions && !item.authorized)) { return; }
+
+      purchaseableItems[sku] = {
+        item,
+        index: itemIndex
+      };
+    })
+  );
 
   return marketplace.collections.map((collection, collectionIndex) => {
     let owned = 0;
@@ -387,14 +395,14 @@ const MarketplaceCollections = observer(() => {
             </Link>
           </div>
         );
-      } else if(purchaseableIds[templateId]) {
+      } else if(purchaseableItems[sku]) {
         return (
           <MarketplaceItemCard
-            to={`${match.url}/${collectionIndex}/store/${purchaseableIds[templateId].item.sku}`}
+            to={`${match.url}/${collectionIndex}/store/${purchaseableItems[sku].item.sku}`}
             className="collection-card collection-card-purchasable collection-card-unowned"
             marketplaceHash={marketplace.versionHash}
-            item={purchaseableIds[templateId].item}
-            index={purchaseableIds[templateId].index}
+            item={purchaseableItems[sku].item}
+            index={purchaseableItems[sku].index}
             key={key}
           />
         );
