@@ -9,7 +9,7 @@ const Countdown = ({time, showSeconds=false, Render, OnEnded}) => {
 
     let lastDiff, ended;
     setLoop(setInterval(() => {
-      const diffSeconds = Math.ceil((new Date(time) - new Date()) / 1000);
+      let diffSeconds = Math.ceil((new Date(time) - new Date()) / 1000);
 
       if(!ended && diffSeconds <= 0 && OnEnded) {
         ended = true;
@@ -18,6 +18,11 @@ const Countdown = ({time, showSeconds=false, Render, OnEnded}) => {
 
       if(diffSeconds === lastDiff) { return; }
       lastDiff = diffSeconds;
+
+      if(!showSeconds && diffSeconds > 59) {
+        // If not showing seconds for full countdown, bump time by a minute so e.g. '1 minute, 50 seconds' shows up as '2 minutes'
+        diffSeconds += 60;
+      }
 
       let days = Math.floor(Math.max(0, diffSeconds) / 60 / 60 / 24);
       let hours = Math.floor(Math.max(0, diffSeconds) / 60 / 60) % 24;
