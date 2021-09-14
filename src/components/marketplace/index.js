@@ -82,7 +82,7 @@ const Checkout = observer(({marketplaceId, item}) => {
 
       <div className="checkout__payment-actions">
         {
-          !rootStore.localAccount ? null :
+          !rootStore.userProfile.email ? null :
             <input
               type="text"
               className="checkout__email"
@@ -99,7 +99,7 @@ const Checkout = observer(({marketplaceId, item}) => {
           checkoutStore.submittingOrder || (confirmationId && checkoutStore.pendingPurchases[confirmationId]) ?
             <Loader/> :
             <button
-              disabled={rootStore.localAccount && !validEmail}
+              disabled={!rootStore.userProfile.email && !validEmail}
               className="checkout-button"
               role="link"
               onClick={async () => {

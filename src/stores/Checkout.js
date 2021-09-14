@@ -107,7 +107,7 @@ class CheckoutStore {
       const requestParams = {
         mode,
         currency: this.currency,
-        email: rootStore.localAccount ? email : this.rootStore.userProfile.email,
+        email: this.rootStore.userProfile.email ? email : this.rootStore.userProfile.email,
         client_reference_id: checkoutId,
         elv_addr: this.rootStore.client.signer.address,
         items: [{sku, quantity: 1}],
