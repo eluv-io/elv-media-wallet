@@ -33,15 +33,20 @@ class CheckoutStore {
   }
 
   MarketplaceStock = flow(function * () {
-    this.stock = yield Utils.ResponseToJson(
-      this.rootStore.client.authClient.MakeAuthServiceRequest({
-        path: UrlJoin("as", "wlt", "nft", "info", tenantId),
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${this.rootStore.client.signer.authToken}`
-        }
-      })
-    );
+    try {
+      this.stock = yield Utils.ResponseToJson(
+        this.rootStore.client.authClient.MakeAuthServiceRequest({
+          path: UrlJoin("as", "wlt", "nft", "info", tenantId),
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${this.rootStore.client.signer.authToken}`
+          }
+        })
+      );
+    } catch(error) {
+      this.rootStore.Log("Failed to retrieve marketplace stock", true);
+      this.rootStore.Log(error, true);
+    }
   });
 
   PurchaseComplete({confirmationId, success}) {
@@ -75,7 +80,18 @@ class CheckoutStore {
         };
 
         // Stripe doesn't work in iframe, open new window to initiate purchase
-        const openedWindow = window.open(`${window.location.origin}${window.location.pathname}?n${rootStore.darkMode ? "&d=" : ""}#/marketplaces/${marketplaceId}/store/${sku}/purchase/${confirmationId}`);
+        const url = new URL(window.location.origin);
+        url.pathname = window.location.pathname;
+        url.hash = `/marketplaces/${marketplaceId}/store/${sku}/purchase/${confirmationId}`;
+        if(rootStore.darkMode) {
+          url.searchParams.set("d", "");
+        }
+
+        if(email) {
+          url.searchParams.set("e", Utils.B64(email));
+        }
+
+        const openedWindow = window.open(url.toString());
 
         const closeCheck = setInterval(() => {
           if(!this.pendingPurchases[confirmationId]) {
@@ -107,7 +123,7 @@ class CheckoutStore {
       const requestParams = {
         mode,
         currency: this.currency,
-        email: this.rootStore.userProfile.email ? email : this.rootStore.userProfile.email,
+        email: email || this.rootStore.userProfile.email,
         client_reference_id: checkoutId,
         elv_addr: this.rootStore.client.signer.address,
         items: [{sku, quantity: 1}],

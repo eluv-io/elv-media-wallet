@@ -38,6 +38,8 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
     CheckStatus();
 
     statusInterval = setInterval(CheckStatus, 10000);
+
+    return () => clearInterval(statusInterval);
   }, []);
 
   if(finished && redirect) {

@@ -82,7 +82,7 @@ const Checkout = observer(({marketplaceId, item}) => {
 
       <div className="checkout__payment-actions">
         {
-          !rootStore.userProfile.email ? null :
+          !rootStore.userProfile.email ?
             <input
               type="text"
               className="checkout__email"
@@ -93,7 +93,7 @@ const Checkout = observer(({marketplaceId, item}) => {
                 setEmail(email);
                 setValidEmail(ValidEmail(email));
               }}
-            />
+            /> : null
         }
         {
           checkoutStore.submittingOrder || (confirmationId && checkoutStore.pendingPurchases[confirmationId]) ?
@@ -148,10 +148,14 @@ const MarketplacePurchase = observer(() => {
     useEffect(() => {
       rootStore.ToggleNavigation(false);
 
+      const args = new URLSearchParams(window.location.search);
+      const email = args.has("e") ? rootStore.client.utils.FromB64(args.get("e")) : "";
+
       checkoutStore.StripeSubmit({
         marketplaceId: match.params.marketplaceId,
         sku: match.params.sku,
-        confirmationId: match.params.confirmationId
+        confirmationId: match.params.confirmationId,
+        email
       });
     }, []);
 

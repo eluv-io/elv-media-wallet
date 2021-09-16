@@ -48,9 +48,10 @@ const Drop = () => {
 
   const [selection, setSelection] = useState(undefined);
   const [pendingSelection, setPendingSelection] = useState(undefined);
-  const [ended, setEnded] = useState(false);
+  const [votingEnded, setVotingEnded] = useState(false);
+  const [mintingStarted, setMintingStarted] = useState(false);
 
-  if(ended) {
+  if(mintingStarted) {
     return <Redirect to={UrlJoin(match.url, "status")} />;
   }
 
@@ -75,6 +76,10 @@ const Drop = () => {
 
         if(!marketplace || !drop) { return null; }
 
+
+        const postVoteState = drop.event_state_post_vote || {};
+        const mintStartState = drop.event_state_mint_start || {};
+
         return (
           <div className="drop content">
             <h1 className="page-header">{ drop.drop_header }</h1>
@@ -82,36 +87,45 @@ const Drop = () => {
             <div className="card-list">
               {
                 drop.nfts.map(({label, image, sku}, index) =>
-                  <DropCard
-                    key={`drop-card-${index}`}
-                    drop={drop}
-                    marketplace={marketplace}
-                    label={label}
-                    sku={sku}
-                    image={image}
-                    index={index}
-                    selected={selection === sku}
-                    pendingSelection={pendingSelection === sku}
-                    Select={async () => {
-                      if(selection === sku) { return; }
+                  votingEnded && (selection !== sku) ?
+                    null :
+                    <DropCard
+                      key={`drop-card-${index}`}
+                      drop={drop}
+                      marketplace={marketplace}
+                      label={label}
+                      sku={sku}
+                      image={image}
+                      index={index}
+                      selected={selection === sku}
+                      pendingSelection={pendingSelection === sku}
+                      Select={async () => {
+                        if(selection === sku) { return; }
 
-                      try {
-                        setPendingSelection(sku);
-                        await rootStore.SubmitDropVote({eventId: drop.eventId, dropId: drop.uuid, sku});
-                        setSelection(sku);
-                      } finally {
-                        setPendingSelection(undefined);
-                      }
-                    }}
-                  />
+                        try {
+                          setPendingSelection(sku);
+                          await rootStore.SubmitDropVote({eventId: drop.eventId, dropId: drop.uuid, sku});
+                          setSelection(sku);
+                        } finally {
+                          setPendingSelection(undefined);
+                        }
+                      }}
+                    />
                 )
               }
             </div>
             <Countdown
-              time={drop.end_date}
+              time={postVoteState.start_date}
               showSeconds
               OnEnded={() => {
-                setEnded(true);
+                setVotingEnded(true);
+              }}
+            />
+            <Countdown
+              time={mintStartState.start_date}
+              showSeconds
+              OnEnded={() => {
+                setMintingStarted(true);
                 rootStore.SetMarketplaceFilters(drop.store_filters || []);
               }}
             />
