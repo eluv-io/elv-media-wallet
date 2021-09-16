@@ -187,20 +187,6 @@ const Login = observer(() => {
       <div className="login-page__login-box" key={`login-box-${rootStore.accountLoading}`}>
         <ImageIcon icon={Logo} className="login-page__logo" title="Eluvio" />
         <button
-          className="login-page__login-button login-page__login-button-auth0"
-          onClick={() => {
-            if(!rootStore.embedded) {
-              auth0.loginWithRedirect({
-                redirectUri: callbackUrl
-              });
-            } else {
-              window.open(`${window.location.origin}${window.location.pathname}?l${rootStore.darkMode ? "&d=" : ""}`);
-            }
-          }}
-        >
-          Sign In
-        </button>
-        <button
           className="login-page__login-button login-page__login-button-create login-page__login-button-auth0"
           onClick={() => {
             if(!rootStore.embedded) {
@@ -213,6 +199,20 @@ const Login = observer(() => {
           }}
         >
           Create Account
+        </button>
+        <button
+          className="login-page__login-button login-page__login-button-auth0"
+          onClick={() => {
+            if(!rootStore.embedded) {
+              auth0.loginWithRedirect({
+                redirectUri: callbackUrl
+              });
+            } else {
+              window.open(`${window.location.origin}${window.location.pathname}?l${rootStore.darkMode ? "&d=" : ""}`);
+            }
+          }}
+        >
+          Sign In
         </button>
         <button className="login-page__login-button login-page__login-button-pk" onClick={() => setShowPrivateKeyForm(true)}>
           Or Sign In With Private Key
