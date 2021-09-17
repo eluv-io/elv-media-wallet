@@ -123,6 +123,10 @@ export const InitializeListener = (history) => {
         }
 
         break;
+      case "logIn":
+        rootStore.SetNavigateToLogIn(data.params.initialScreen);
+
+        break;
       default:
         rootStore.Log(`Unknown action: ${data.action}`);
         Respond({error: `Unknown action: ${data.action}`});

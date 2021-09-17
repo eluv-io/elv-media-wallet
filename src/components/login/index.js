@@ -34,6 +34,18 @@ const Login = observer(() => {
   const [showPrivateKeyForm, setShowPrivateKeyForm] = useState(false);
   const [privateKey, setPrivateKey] = useState("");
 
+  const url = new URL(window.location.origin);
+  url.pathname = window.location.pathname;
+  url.searchParams.set("l", "");
+
+  if(rootStore.darkMode) {
+    url.searchParams.set("d", "");
+  }
+
+  const signInUrl = url.toString();
+  url.searchParams.set("create", "");
+  const createUrl = url.toString();
+
   let auth0;
   const SignIn = async () => {
     if(loading) { return; }
@@ -120,7 +132,8 @@ const Login = observer(() => {
     } else if(!rootStore.loggedIn && newWindowLogin && !sessionStorage.getItem("new-window-login")) {
       sessionStorage.setItem("new-window-login", "true");
       auth0.loginWithRedirect({
-        redirectUri: callbackUrl
+        redirectUri: callbackUrl,
+        initialScreen: new URLSearchParams(window.location.search).has("create") ? "signUp" : "login"
       });
     } else if(sessionStorage.getItem("pk")) {
       rootStore.InitializeClient({privateKey: sessionStorage.getItem("pk")});
@@ -128,6 +141,22 @@ const Login = observer(() => {
       setAuth0Loading(false);
     }
   }, [auth0 && auth0.isAuthenticated, auth0 && auth0.isLoading]);
+
+  useEffect(() => {
+    if(!rootStore.navigateToLogIn) { return; }
+
+    if(auth0) {
+      auth0.loginWithRedirect({
+        redirectUri: callbackUrl,
+        initialScreen: rootStore.navigateToLogIn
+      });
+    } else {
+      window.open(rootStore.navigateToLogIn === "signUp" ? window.open(createUrl) : window.open(signInUrl));
+    }
+
+    rootStore.SetNavigateToLogIn("");
+
+  }, [rootStore.navigateToLogIn]);
 
   if(newWindowLogin || loading || auth0Loading || rootStore.loggingIn) {
     return (
@@ -191,10 +220,11 @@ const Login = observer(() => {
           onClick={() => {
             if(!rootStore.embedded) {
               auth0.loginWithRedirect({
-                redirectUri: callbackUrl
+                redirectUri: callbackUrl,
+                initialScreen: "signUp"
               });
             } else {
-              window.open(`${window.location.origin}${window.location.pathname}?l${rootStore.darkMode ? "&d=" : ""}`);
+              window.open(createUrl);
             }
           }}
         >
@@ -208,7 +238,7 @@ const Login = observer(() => {
                 redirectUri: callbackUrl
               });
             } else {
-              window.open(`${window.location.origin}${window.location.pathname}?l${rootStore.darkMode ? "&d=" : ""}`);
+              window.open(signInUrl);
             }
           }}
         >

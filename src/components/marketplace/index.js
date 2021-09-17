@@ -320,7 +320,6 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
   );
 };
 
-
 const MarketplaceOwned = observer(() => {
   const match = useRouteMatch();
 
@@ -328,11 +327,8 @@ const MarketplaceOwned = observer(() => {
 
   if(!marketplace) { return null; }
 
-  const ownedItems = rootStore.nfts.filter(nft =>
-    marketplace.items.find(item =>
-      item.nft_template && !item.nft_template["/"] && item.nft_template.nft && item.nft_template.nft.template_id && item.nft_template.nft.template_id === nft.metadata.template_id
-    )
-  );
+  const marketplaceItems = rootStore.MarketplaceOwnedItems(marketplace);
+  const ownedItems = Object.values(marketplaceItems).flat();
 
   return (
     ownedItems.length === 0 ?
@@ -366,8 +362,7 @@ const MarketplaceCollections = observer(() => {
 
   if(!marketplace) { return null; }
 
-  let ownedIds = {};
-  rootStore.nfts.forEach(nft => ownedIds[rootStore.client.utils.DecodeVersionHash(nft.details.versionHash).objectId] = nft);
+  const marketplaceItems = rootStore.MarketplaceOwnedItems(marketplace);
 
   let purchaseableItems = {};
   marketplace.storefront.sections.forEach(section =>
@@ -375,7 +370,13 @@ const MarketplaceCollections = observer(() => {
       const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
       const item = marketplace.items[itemIndex];
 
+      // For sale / authorization
       if(!item || !item.for_sale || (item.requires_permissions && !item.authorized)) { return; }
+
+      if(item.max_per_user && marketplaceItems[item.sku] && marketplaceItems[item.sku].length >= item.max_per_user) {
+        // Purchase limit
+        return;
+      }
 
       purchaseableItems[sku] = {
         item,
@@ -393,30 +394,23 @@ const MarketplaceCollections = observer(() => {
 
       if(!item) { return; }
 
-      let versionHash;
-      if(item.nft_template["/"]) {
-        versionHash = item.nft_template["/"].split("/").find(component => component.startsWith("hq__"));
-      } else if(item.nft_template["."] && item.nft_template["."].source) {
-        versionHash = item.nft_template["."].source;
-      }
-
-      const templateId = versionHash ? rootStore.client.utils.DecodeVersionHash(versionHash).objectId : undefined;
-
-      if(ownedIds[templateId]) {
+      if(marketplaceItems[sku] && marketplaceItems[sku].length > 0) {
         owned += 1;
+
+        const nft = marketplaceItems[sku][0];
 
         return (
           <div className="card-container card-shadow" key={key}>
             <Link
-              to={UrlJoin(match.url, collectionIndex.toString(), "owned", ownedIds[templateId].details.ContractId, ownedIds[templateId].details.TokenIdStr)}
+              to={UrlJoin(match.url, collectionIndex.toString(), "owned", nft.details.ContractId, nft.details.TokenIdStr)}
               className="card nft-card"
             >
-              <NFTImage nft={ownedIds[templateId]} className="card__image" width={400} />
+              <NFTImage nft={nft} className="card__image" width={400} />
               <h2 className="card__title">
-                { ownedIds[templateId].metadata.display_name || "" }
+                { nft.metadata.display_name || "" }
               </h2>
               <h2 className="card__subtitle">
-                { ownedIds[templateId].metadata.display_name || "" }
+                { nft.metadata.display_name || "" }
               </h2>
             </Link>
           </div>
@@ -479,6 +473,8 @@ const Marketplace = observer(() => {
 
   if(!marketplace) { return null; }
 
+  const marketplaceItems = rootStore.MarketplaceOwnedItems(marketplace);
+
   return (
     <>
       {
@@ -487,11 +483,13 @@ const Marketplace = observer(() => {
             const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
             const item = itemIndex >= 0 && marketplace.items[itemIndex];
 
-            if(
-              !item ||
-              !item.for_sale ||
-              (item.requires_permissions && !item.authorized) ||
-              (item.type === "nft" && (!item.nft_template || item.nft_template["/"]))) {
+            // Authorization
+            if(!item || !item.for_sale || (item.requires_permissions && !item.authorized) || (item.type === "nft" && (!item.nft_template || item.nft_template["/"]))) {
+              return;
+            }
+
+            if(item.max_per_user && marketplaceItems[item.sku] && marketplaceItems[item.sku].length >= item.max_per_user) {
+              // Purchase limit
               return;
             }
 

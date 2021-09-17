@@ -52,7 +52,7 @@ const SandboxPermissions = () => {
   ].join(" ");
 };
 
-const LOG_LEVELS ={
+const LOG_LEVELS = {
   DEBUG: 0,
   WARN: 1,
   ERROR: 2
@@ -277,6 +277,22 @@ export class ElvWalletClient {
         page,
         path,
         params
+      }
+    });
+  }
+
+  /**
+   * Redirect the wallet to the Auth0 log in page if the user has not yet logged in
+   *
+   * @methodGroup Navigation
+   * @namedParams
+   * @param {string=} initialScreen="login" - Specify the initial screen to show, either 'login' or 'signUp'
+   */
+  async NavigateToLogin(initialScreen="login") {
+    return this.SendMessage({
+      action: "logIn",
+      params: {
+        initialScreen
       }
     });
   }

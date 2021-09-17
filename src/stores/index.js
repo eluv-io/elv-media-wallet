@@ -56,6 +56,7 @@ class RootStore {
 
   mode = "test";
 
+  navigateToLogIn = undefined;
   loggingIn = false;
   loggedIn = false;
   disableCloseEvent = false;
@@ -250,6 +251,24 @@ class RootStore {
 
     return marketplace;
   });
+
+  MarketplaceOwnedItems(marketplace) {
+    if(!marketplace) { return {}; }
+
+    let items = {};
+
+    marketplace.items.forEach(item => {
+      const owned = rootStore.nfts.filter(nft =>
+        item.nft_template && !item.nft_template["/"] && item.nft_template.nft && item.nft_template.nft.template_id && item.nft_template.nft.template_id === nft.metadata.template_id
+      );
+
+      if(owned.length === 0) { return; }
+
+      items[item.sku] = owned;
+    });
+
+    return items;
+  }
 
   // Actions
   SetMarketplaceFilters(filters) {
@@ -551,6 +570,10 @@ class RootStore {
 
   ToggleNavigation(enabled) {
     this.hideNavigation = !enabled;
+  }
+
+  SetNavigateToLogIn(initialScreen) {
+    this.navigateToLogIn = initialScreen;
   }
 }
 
