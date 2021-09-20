@@ -15,23 +15,28 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
   const [videoInitialized, setVideoInitialized] = useState(false);
 
   const CheckStatus = async () => {
-    const status = await Status();
+    try {
+      const status = await Status();
 
-    if(status.status === "complete") {
-      if(OnFinish) {
-        try {
-          await OnFinish({status});
-        } catch(error) {
-          rootStore.Log("OnFinish failed", true);
-          rootStore.Log(error, true);
+      if(status.status === "complete") {
+        if(OnFinish) {
+          try {
+            await OnFinish({status});
+          } catch(error) {
+            rootStore.Log("OnFinish failed", true);
+            rootStore.Log(error, true);
+          }
         }
+
+        setFinished(true);
+        clearInterval(statusInterval);
       }
 
-      setFinished(true);
-      clearInterval(statusInterval);
+      setStatus(status);
+    } catch(error) {
+      rootStore.Log("Failed to check status:", true);
+      rootStore.Log(error);
     }
-
-    setStatus(status);
   };
 
   useEffect(() => {
@@ -116,6 +121,7 @@ export const DropMintingStatus = observer(() => {
   const drop = marketplace.drops.find(drop => drop.uuid === match.params.dropId);
 
   const Status = async () => await rootStore.DropStatus({
+    marketplace,
     eventId: drop.eventId,
     dropId: drop.uuid
   });
@@ -179,7 +185,10 @@ export const PurchaseMintingStatus = observer(() => {
   const match = useRouteMatch();
   const [status, setStatus] = useState(undefined);
 
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+
   const Status = async () => await rootStore.PurchaseStatus({
+    marketplace,
     confirmationId: match.params.confirmationId
   });
 
@@ -217,6 +226,7 @@ export const PackOpenStatus = observer(() => {
     && ((nft.metadata.pack_options.open_animation["/"] && nft.metadata.pack_options.open_animation["/"].split("/").find(component => component.startsWith("hq__")) || nft.metadata.pack_options.open_anmiation["."].source));
 
   const Status = async () => await rootStore.PackOpenStatus({
+    tenantId: nft.details.TenantId,
     contractId: match.params.contractId,
     tokenId: match.params.tokenId
   });

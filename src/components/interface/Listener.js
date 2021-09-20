@@ -16,8 +16,8 @@ const pages = {
 
   // Marketplace
   "marketplaces": "/marketplaces",
-  "marketplace": "/marketplaces/:marketplaceId",
-  "marketplaceItem": "/marketplaces/:marketplaceId/:sku",
+  "marketplace": "/marketplaces/:marketplaceId/store",
+  "marketplaceItem": "/marketplaces/:marketplaceId/store/:sku",
   "drop": "/marketplaces/:marketplaceId/events/:dropId"
 };
 

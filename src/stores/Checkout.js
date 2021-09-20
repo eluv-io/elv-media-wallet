@@ -4,8 +4,6 @@ import {makeAutoObservable, flow, runInAction} from "mobx";
 import {loadStripe} from "@stripe/stripe-js";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 
-const tenantId = "itenYQbgk66W1BFEqWr95xPmHZEjmdF";
-
 const PUBLIC_KEYS = {
   stripe: {
     test: "pk_test_51HpRJ7E0yLQ1pYr6m8Di1EfiigEZUSIt3ruOmtXukoEe0goAs7ZMfNoYQO3ormdETjY6FqlkziErPYWVWGnKL5e800UYf7aGp6",
@@ -32,11 +30,11 @@ class CheckoutStore {
     return Utils.B58(UUIDParse(UUID()));
   }
 
-  MarketplaceStock = flow(function * () {
+  MarketplaceStock = flow(function * (marketplace) {
     try {
       this.stock = yield Utils.ResponseToJson(
         this.rootStore.client.authClient.MakeAuthServiceRequest({
-          path: UrlJoin("as", "wlt", "nft", "info", tenantId),
+          path: UrlJoin("as", "wlt", "nft", "info", marketplace.tenant_id),
           method: "GET",
           headers: {
             Authorization: `Bearer ${this.rootStore.client.signer.authToken}`

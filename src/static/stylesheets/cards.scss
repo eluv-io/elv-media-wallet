@@ -107,7 +107,7 @@ $pending-color: rgba($blue, 0.5);
 
   &__image-placeholder {
     background: linear-gradient(60deg, $lightgray, $white);
-    height: calc(100% - 50px);
+    height: calc(100% - 500px);
     margin-bottom: 10px;
   }
 
@@ -249,7 +249,7 @@ $pending-color: rgba($blue, 0.5);
 }
 
 .nft-image-placeholder {
-  padding: 40%;
+  margin: 25%;
 
   * {
     stroke: $black;

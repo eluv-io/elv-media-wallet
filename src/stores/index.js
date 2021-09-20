@@ -9,8 +9,6 @@ import EVENTS from "../../client/src/Events";
 import NFTContractABI from "../static/abi/NFTContract";
 import CheckoutStore from "Stores/Checkout";
 
-const tenantId = "itenYQbgk66W1BFEqWr95xPmHZEjmdF";
-
 // Force strict mode so mutations are only allowed within actions.
 configure({
   enforceActions: "always"
@@ -82,7 +80,7 @@ class RootStore {
 
   nfts = [];
 
-  marketplaceIds = ["iq__2FrA2S1XBy4zdRGQn1knakpbrBV4"];
+  marketplaceIds = ["iq__2FrA2S1XBy4zdRGQn1knakpbrBV4", "iq__42qvvcLZfzp6PnPL3Vb4bcrHHewm"];
   marketplaces = {};
 
   marketplaceFilters = [];
@@ -193,9 +191,8 @@ class RootStore {
   });
 
   LoadMarketplace = flow(function * (marketplaceId, forceReload=false) {
-    this.checkoutStore.MarketplaceStock();
-
     if(!forceReload && (this.marketplaces[marketplaceId] && Date.now() - this.marketplaces[marketplaceId].retrievedAt < 60000)) {
+      this.checkoutStore.MarketplaceStock(this.marketplaces[marketplaceId]);
       return this.marketplaces[marketplaceId];
     }
 
@@ -208,6 +205,8 @@ class RootStore {
       resolveIgnoreErrors: true,
       resolveIncludeSource: true
     });
+
+    this.checkoutStore.MarketplaceStock(marketplace);
 
     marketplace.items = yield Promise.all(
       marketplace.items.map(async item => {
@@ -277,7 +276,7 @@ class RootStore {
 
   OpenNFT = flow(function * ({nft}) {
     yield this.client.authClient.MakeAuthServiceRequest({
-      path: UrlJoin("as", "wlt", "act", tenantId),
+      path: UrlJoin("as", "wlt", "act", nft.details.TenantId),
       method: "POST",
       body: {
         op: "nft-open",
@@ -299,7 +298,7 @@ class RootStore {
     });
   });
 
-  MintingStatus = flow(function * () {
+  MintingStatus = flow(function * ({tenantId}) {
     try {
       const response = yield Utils.ResponseToJson(
         this.client.authClient.MakeAuthServiceRequest({
@@ -335,11 +334,11 @@ class RootStore {
     }
   });
 
-  DropStatus = flow(function * ({eventId, dropId}) {
+  DropStatus = flow(function * ({marketplace, eventId, dropId}) {
     try {
       const response = yield Utils.ResponseToJson(
         this.client.authClient.MakeAuthServiceRequest({
-          path: UrlJoin("as", "wlt", "act", tenantId, eventId, dropId),
+          path: UrlJoin("as", "wlt", "act", marketplace.tenant_id, eventId, dropId),
           method: "GET",
           headers: {
             Authorization: `Bearer ${this.client.signer.authToken}`
@@ -354,9 +353,9 @@ class RootStore {
     }
   });
 
-  PurchaseStatus = flow(function * ({confirmationId}) {
+  PurchaseStatus = flow(function * ({marketplace, confirmationId}) {
     try {
-      const statuses = yield this.MintingStatus();
+      const statuses = yield this.MintingStatus({tenantId: marketplace.tenant_id});
 
       return statuses.find(status => status.op === "nft-buy" && status.tokenId === confirmationId) || { status: "pending" };
     } catch(error) {
@@ -365,10 +364,10 @@ class RootStore {
     }
   });
 
-  PackOpenStatus = flow(function * ({contractId, tokenId}) {
+  PackOpenStatus = flow(function * ({tenantId, contractId, tokenId}) {
     try {
       const contractAddress = Utils.HashToAddress(contractId);
-      const statuses = yield this.MintingStatus();
+      const statuses = yield this.MintingStatus({tenantId});
 
       return statuses.find(status => status.op === "nft-open" && Utils.EqualAddress(contractAddress, status.address) && status.tokenId === tokenId) || { status: "pending" };
     } catch(error) {
@@ -377,9 +376,9 @@ class RootStore {
     }
   });
 
-  SubmitDropVote = flow(function * ({eventId, dropId, sku}) {
+  SubmitDropVote = flow(function * ({marketplace, eventId, dropId, sku}) {
     yield this.client.authClient.MakeAuthServiceRequest({
-      path: UrlJoin("as", "wlt", "act", tenantId),
+      path: UrlJoin("as", "wlt", "act", marketplace.tenant_id),
       method: "POST",
       body: {
         op: "vote-drop",

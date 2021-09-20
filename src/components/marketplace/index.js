@@ -182,10 +182,10 @@ const MarketplaceItemDetails = observer(() => {
   useEffect(() => {
     if(!stock) { return; }
 
-    checkoutStore.MarketplaceStock();
+    checkoutStore.MarketplaceStock(marketplace);
 
     // If item has stock, periodically update
-    const stockCheck = setInterval(() => checkoutStore.MarketplaceStock(), 7500);
+    const stockCheck = setInterval(() => checkoutStore.MarketplaceStock(marketplace), 7500);
 
     return () => clearInterval(stockCheck);
   }, []);
