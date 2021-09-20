@@ -119,6 +119,8 @@ export const InitializeListener = (history) => {
 
           history.push(route);
 
+          rootStore.SetMarketplaceFilters([]);
+
           Respond({});
         }
 

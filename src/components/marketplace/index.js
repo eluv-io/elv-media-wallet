@@ -601,6 +601,8 @@ const MarketplacePage = observer(({children}) => {
 const MarketplaceBrowser = observer(() => {
   let match = useRouteMatch();
 
+  useEffect(() => rootStore.SetMarketplaceFilters([]), []);
+
   return (
     <div className="marketplace-browser content">
       <h1 className="page-header">Marketplace</h1>
