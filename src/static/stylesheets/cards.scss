@@ -74,8 +74,8 @@ $pending-color: rgba($blue, 0.5);
     width: 100%;
 
     &__image {
+      margin-bottom: 10px;
       object-fit: contain;
-      padding-bottom: 10px;
       width: 100%;
     }
   }
@@ -106,8 +106,6 @@ $pending-color: rgba($blue, 0.5);
   }
 
   &__image-placeholder {
-    background: linear-gradient(60deg, $lightgray, $white);
-    height: calc(100% - 500px);
     margin-bottom: 10px;
   }
 
@@ -249,7 +247,7 @@ $pending-color: rgba($blue, 0.5);
 }
 
 .nft-image-placeholder {
-  margin: 25%;
+  padding: 25%;
 
   * {
     stroke: $black;
@@ -300,8 +298,6 @@ $pending-color: rgba($blue, 0.5);
     }
 
     &__image-placeholder {
-      background: linear-gradient(60deg, $darkergray, $black 70%);
-
       * {
         fill: $white;
         stroke: $white;

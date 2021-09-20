@@ -76,7 +76,6 @@ const Drop = () => {
 
         if(!marketplace || !drop) { return null; }
 
-
         const postVoteState = drop.event_state_post_vote || {};
         const mintStartState = drop.event_state_mint_start || {};
 
@@ -104,8 +103,11 @@ const Drop = () => {
 
                         try {
                           setPendingSelection(sku);
-                          await rootStore.SubmitDropVote({eventId: drop.eventId, dropId: drop.uuid, sku});
+                          await rootStore.SubmitDropVote({marketplace, eventId: drop.eventId, dropId: drop.uuid, sku});
                           setSelection(sku);
+                        } catch(error) {
+                          rootStore.Log("Failed to submit vote:", true);
+                          rootStore.Log(error, true);
                         } finally {
                           setPendingSelection(undefined);
                         }

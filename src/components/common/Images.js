@@ -73,7 +73,7 @@ export const MarketplaceImage = ({marketplaceHash, item, title, path, templateIm
     url.searchParams.set("authorization", rootStore.authedToken);
     url = url.toString();
   } else {
-    return <SVG src={NFTPlaceholderIcon} className="nft-image nft-image-placeholder" alt={item.name} />;
+    return <SVG src={NFTPlaceholderIcon} className="nft-image nft-image-placeholder card__image card__image-placeholder" alt={item.name} />;
   }
 
   return (
