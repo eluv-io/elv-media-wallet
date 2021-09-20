@@ -178,6 +178,7 @@ const MarketplaceItemDetails = observer(() => {
   const itemTemplate = item.nft_template ? item.nft_template.nft : {};
 
   const stock = checkoutStore.stock[item.sku];
+  const outOfStock = stock && stock.minted >= stock.max;
 
   useEffect(() => {
     if(!stock) { return; }
@@ -211,7 +212,7 @@ const MarketplaceItemDetails = observer(() => {
             {
               stock ?
                 <div className="card__subtitle__stock">
-                  { stock.Max - stock.Current } Left!
+                  { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Left!` }
                 </div> : null
             }
           </div>
@@ -269,7 +270,11 @@ const MarketplaceItemDetails = observer(() => {
             </ExpandableSection> : null
         }
 
-        <Checkout marketplaceId={match.params.marketplaceId} item={item} />
+        {
+          outOfStock ?
+            null :
+            <Checkout marketplaceId={match.params.marketplaceId} item={item} />
+        }
       </div>
     </div>
   );
@@ -283,11 +288,13 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
   }
 
   const stock = checkoutStore.stock[item.sku];
+  const outOfStock = stock && stock.minted >= stock.max;
+
   return (
     <div className={`card-container card-shadow ${className}`}>
       <Link
         to={to || `${match.url}/${item.sku}`}
-        className="card nft-card"
+        className={`card nft-card ${outOfStock ? "card-disabled" : ""}`}
       >
         <MarketplaceImage
           marketplaceHash={marketplaceHash}
@@ -310,7 +317,7 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
             {
               stock ?
                 <div className="card__subtitle__stock">
-                  { stock.Max - stock.Current } Left!
+                  { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Left!` }
                 </div> : null
             }
           </h2>
