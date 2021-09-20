@@ -102,10 +102,10 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
       }
 
       <div className="minting-status__text">
-        <h1 className="page-header">
+        <h1 className="content-header">
           { header || "Your item(s) are being minted" }
         </h1>
-        <h2 className="page-subheader">
+        <h2 className="content-subheader">
           { subheader || "This may take several minutes" }
         </h2>
       </div>
@@ -142,8 +142,8 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
       Load={async () => rootStore.LoadWalletCollection(true)}
     >
       <div className="minting-status-results pack-results">
-        <h1 className="page-header">{ header }</h1>
-        <h2 className="page-subheader">{ subheader }</h2>
+        <h1 className="content-header">{ header }</h1>
+        <h2 className="content-subheader">{ subheader }</h2>
         <div className="card-list">
           {
             items.map(({token_addr, token_id}) => {

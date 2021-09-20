@@ -1,10 +1,10 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {observer} from "mobx-react";
 import {
   Switch,
   Route,
   Redirect,
-  useRouteMatch, NavLink
+  useRouteMatch
 } from "react-router-dom";
 
 import {rootStore} from "Stores/index";
@@ -25,11 +25,47 @@ const WalletNavigation = observer(() => {
       <NavLink className="sub-navigation__link" to="/wallet/tokens">Tokens</NavLink>
     </nav>
   );
-  
+
    */
 });
 
-const Placeholder = ({text}) => <div>{ text }</div>;
+const WalletWrapper = observer(({children}) => {
+  const match = useRouteMatch();
+
+  useEffect(() => {
+    const routes = Routes(match)
+      .filter(route => !route.noBreadcrumb && match.path.includes(route.path))
+      .sort((a, b) => a.path.length < b.path.length ? -1 : 1)
+      .map(route => {
+        let path = route.path;
+        Object.keys(match.params).map(key => path = path.replace(`:${key}`, match.params[key]));
+
+        return {
+          name: route.name,
+          path
+        };
+      });
+
+    rootStore.SetNavigationBreadcrumbs(routes);
+  }, [match.url]);
+
+  return (
+    <AsyncComponent Load={async () => await rootStore.LoadWalletCollection()} loadingClassName="page-loader">
+      { children }
+    </AsyncComponent>
+  );
+});
+
+const Routes = (match) => {
+  const nft = rootStore.NFT({contractId: match.params.contractId, tokenId: match.params.tokenId}) || { metadata: {} };
+
+  return [
+    { name: "Open Pack", path: "/wallet/collection/:contractId/:tokenId/open", Component: PackOpenStatus },
+    { name: nft.metadata.display_name, path: "/wallet/collection/:contractId/:tokenId", Component: NFTDetails },
+    { name: "Wallet", path: "/wallet/collection", Component: Collections },
+    { path: "/wallet", Component: () => <Redirect to={`${match.path}/collection`} />, noBreadcrumb: true}
+  ];
+};
 
 const Wallet = observer(() => {
   const match = useRouteMatch();
@@ -38,41 +74,15 @@ const Wallet = observer(() => {
     <div className="page-container wallet-page content">
       <WalletNavigation/>
       <Switch>
-        <Route path={`${match.path}/tickets`}>
-          <Placeholder text={"Tickets"} />
-        </Route>
-
-        <Route exact path={`${match.path}/collection/:contractId/:tokenId`}>
-          <AsyncComponent
-            key="async-component-collections-item"
-            loadingClassName="page-loader"
-            loadKey="NFTs"
-            Load={async () => await rootStore.LoadWalletCollection()}
-            render={() => <NFTDetails />}
-          />
-        </Route>
-
-        <Route exact path={`${match.path}/collection/:contractId/:tokenId/open`}>
-          <PackOpenStatus />
-        </Route>
-
-        <Route path={`${match.path}/collection`}>
-          <AsyncComponent
-            key="async-component-collections"
-            loadingClassName="page-loader"
-            loadKey="NFTs"
-            Load={async () => await rootStore.LoadWalletCollection()}
-            render={() => <Collections />}
-          />
-        </Route>
-
-        <Route path={`${match.path}/tokens`}>
-          <Placeholder text={"Tokens"} />
-        </Route>
-
-        <Route path={match.path}>
-          <Redirect to={`${match.path}/collection`} />
-        </Route>
+        {
+          Routes(match).map(({path, Component}) =>
+            <Route exact path={path}>
+              <WalletWrapper>
+                <Component/>
+              </WalletWrapper>
+            </Route>
+          )
+        }
       </Switch>
     </div>
   );

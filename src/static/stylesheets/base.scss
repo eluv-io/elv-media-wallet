@@ -164,13 +164,16 @@ button {
   }
 
   .page-header,
-  .page-subheader {
+  .page-subheader,
+  .content-header,
+  .content-subheader {
     display: flex;
     justify-content: space-between;
     margin: 0;
   }
 
-  .page-header {
+  .page-header,
+  .content-header {
     font-size: 32px;
     font-weight: 300;
     letter-spacing: 0.03em;
@@ -180,7 +183,12 @@ button {
     }
   }
 
-  .page-subheader {
+  .content-header {
+    font-size: 24px;
+  }
+
+  .page-subheader,
+  .content-subheader {
     color: $darkgray;
     font-size: 18px;
     font-weight: 300;
@@ -190,7 +198,12 @@ button {
     }
   }
 
+  .content-subheader {
+    font-size: 16px;
+  }
+
   @media screen and (max-width: $mobile-breakpoint) {
+    .content-header,
     .page-header {
       font-weight: 400;
     }
@@ -242,8 +255,16 @@ button {
       font-size: 24px;
     }
 
+    .content-header {
+      font-size: 20px;
+    }
+
     .page-subheader {
       font-size: 16px;
+    }
+
+    .content-subheader {
+      font-size: 14px;
     }
   }
 }
@@ -255,9 +276,17 @@ button {
       font-size: 18px;
     }
 
+    .content-header {
+      font-size: 16px;
+    }
+
     .page-subheader {
       font-size: 12px;
       margin-top: 3px;
+    }
+
+    .content-subheader {
+      font-size: 12px;
     }
   }
 }
@@ -303,6 +332,7 @@ button {
     }
   }
 
+  .content-header,
   .page-header {
     &__subtitle {
       color: $gray;

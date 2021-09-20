@@ -1,12 +1,21 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {rootStore} from "Stores/index";
 import {useAuth0} from "@auth0/auth0-react";
+import {
+  useRouteMatch
+} from "react-router-dom";
 
 const Profile = () => {
+  const match = useRouteMatch();
+
   let auth0;
   if(!rootStore.embedded) {
     auth0 = useAuth0();
   }
+
+  useEffect(() => {
+    rootStore.SetNavigationBreadcrumbs([{name: "Profile", path: "/profile" }]);
+  }, [match.url]);
 
   return (
     <div className="page-container profile-page">

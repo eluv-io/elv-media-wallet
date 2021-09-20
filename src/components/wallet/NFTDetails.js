@@ -14,7 +14,9 @@ const NFTDetails = observer(() => {
   const match = useRouteMatch();
 
   if(deleted) {
-    return <Redirect to={Path.dirname(match.url)}/>;
+    return match.params.marketplaceId ?
+      <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, "owned")}/> :
+      <Redirect to={Path.dirname(Path.dirname(match.url))}/>;
   }
 
   const nft = rootStore.NFT({contractId: match.params.contractId, tokenId: match.params.tokenId});

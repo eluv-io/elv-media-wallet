@@ -91,6 +91,8 @@ class RootStore {
 
   EVENTS = EVENTS;
 
+  navigationBreadcrumbs = [];
+
   Log(message="", error=false) {
     if(typeof message === "string") {
       message = `Eluvio Media Wallet | ${message}`;
@@ -593,6 +595,10 @@ class RootStore {
       this.Log("Failed to retrieve auth info", true);
       this.Log(error, true);
     }
+  }
+
+  SetNavigationBreadcrumbs(breadcrumbs=[]) {
+    this.navigationBreadcrumbs = breadcrumbs;
   }
 
   ToggleDarkMode(enabled) {

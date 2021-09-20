@@ -1,3 +1,10 @@
+.minting-status,
+.minting-status-results {
+  .page-header {
+    font-size: 20px;
+  }
+}
+
 .minting-status {
   align-items: center;
   display: flex;
@@ -54,6 +61,8 @@
 }
 
 .minting-status-results {
+  padding-top: 20px;
+
   &__actions {
     align-items: center;
     display: flex;

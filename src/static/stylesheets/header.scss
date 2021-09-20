@@ -20,6 +20,26 @@
   width: 100%;
   z-index: 100;
 
+  &__breadcrumbs {
+    align-items: center;
+    display: flex;
+    height: 100%;
+
+    &__link {
+      font-size: 12px;
+      font-weight: 300;
+      letter-spacing: 0.03em;
+
+      &.active {
+        font-weight: bold;
+      }
+    }
+
+    &__separator {
+      margin: 0 5px;
+    }
+  }
+
   &__profile {
     align-items: center;
     display: flex;

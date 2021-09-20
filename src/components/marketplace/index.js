@@ -5,10 +5,10 @@ import {
   Route,
   Link,
   useRouteMatch,
-  NavLink, Redirect,
+  NavLink,
+  Redirect
 } from "react-router-dom";
 import UrlJoin from "url-join";
-import Path from "path";
 import AsyncComponent from "Components/common/AsyncComponent";
 import NFTPlaceholderIcon from "Assets/icons/nft";
 import StripeLogo from "Assets/images/logo-stripe.png";
@@ -122,6 +122,7 @@ const MarketplacePurchase = observer(() => {
   const success = match.path.endsWith("/success");
   const cancel = match.path.endsWith("/cancel");
 
+  /*
   if(fromEmbed && (success || cancel)) {
     useEffect(() => {
       window.opener.postMessage({
@@ -136,13 +137,14 @@ const MarketplacePurchase = observer(() => {
       window.close();
     }, []);
   }
+  */
 
   if(fromEmbed) {
     return <PageLoader />;
   } else if(success) {
     return <PurchaseMintingStatus />;
   } else if(cancel) {
-    return <Redirect to={Path.dirname(Path.dirname(match.path.url))}/>;
+    return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, "store", match.params.sku)} />;
   } else {
     // Opened from iframe - Initiate stripe purchase
     useEffect(() => {
@@ -476,6 +478,7 @@ const MarketplaceCollections = observer(() => {
 
 const Marketplace = observer(() => {
   const match = useRouteMatch();
+
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
 
   if(!marketplace) { return null; }
@@ -595,24 +598,6 @@ const MarketplacePage = observer(({children}) => {
   );
 });
 
-const MarketplaceWrapper = observer(({children}) => {
-  const match = useRouteMatch();
-
-  return (
-    <AsyncComponent
-      Load={async () => {
-        await rootStore.LoadMarketplace(match.params.marketplaceId);
-        await rootStore.LoadWalletCollection();
-      }}
-      loadingClassName="page-loader"
-    >
-      <MarketplacePage>
-        { children }
-      </MarketplacePage>
-    </AsyncComponent>
-  );
-});
-
 const MarketplaceBrowser = observer(() => {
   let match = useRouteMatch();
 
@@ -660,97 +645,91 @@ const MarketplaceBrowser = observer(() => {
   );
 });
 
+const MarketplaceWrapper = observer(({children}) => {
+  const match = useRouteMatch();
+
+  useEffect(() => {
+    const routes = Routes(match)
+      .filter(route => !route.noBreadcrumb && match.path.includes(route.path))
+      .sort((a, b) => a.path.length < b.path.length ? -1 : 1)
+      .map(route => {
+        let path = route.path;
+        Object.keys(match.params).map(key => path = path.replace(`:${key}`, match.params[key]));
+
+        return {
+          name: route.name,
+          path
+        };
+      });
+
+    rootStore.SetNavigationBreadcrumbs(routes);
+  }, [match.url]);
+
+  if(!match.params.marketplaceId) {
+    return children;
+  }
+
+
+  return (
+    <AsyncComponent
+      Load={async () => {
+        await rootStore.LoadMarketplace(match.params.marketplaceId);
+        await rootStore.LoadWalletCollection();
+      }}
+      loadingClassName="page-loader"
+    >
+      <MarketplacePage>
+        { children }
+      </MarketplacePage>
+    </AsyncComponent>
+  );
+});
+
+const Routes = (match) => {
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId] || {};
+  const event = rootStore.eventMetadata || {};
+  const item = (marketplace.items || []).find(item => item.sku === match.params.sku) || {};
+  const nft = rootStore.NFT({contractId: match.params.contractId, tokenId: match.params.tokenId}) || { metadata: {} };
+
+  return [
+    { name: (event.event_info || {}).event_title, path: "/marketplaces/:marketplaceId/events/:dropId", Component: Drop },
+    { name: "Status", path: "/marketplaces/:marketplaceId/events/:dropId/status", Component: DropMintingStatus },
+
+    { name: marketplace.name, path: "/marketplaces/:marketplaceId/collections", Component: MarketplaceCollections },
+
+    { name: "Open Pack", path: "/marketplaces/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId/open", Component: PackOpenStatus },
+    { name: nft.metadata.display_name, path: "/marketplaces/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId", Component: NFTDetails },
+    { name: item.name, path: "/marketplaces/:marketplaceId/collections/:collectionIndex/store/:sku", Component: MarketplaceItemDetails },
+
+    { name: marketplace.name, path: "/marketplaces/:marketplaceId/owned", Component: MarketplaceOwned },
+    { name: "Open Pack", path: "/marketplaces/:marketplaceId/owned/:contractId/:tokenId/open", Component: PackOpenStatus },
+    { name: nft.metadata.display_name, path: "/marketplaces/:marketplaceId/owned/:contractId/:tokenId", Component: NFTDetails },
+
+    { name: "Purchase", path: "/marketplaces/:marketplaceId/store/:sku/purchase/:confirmationId/success", Component: MarketplacePurchase },
+    { name: "Purchase", path: "/marketplaces/:marketplaceId/store/:sku/purchase/:confirmationId/cancel", Component: MarketplacePurchase },
+    { name: "Purchase", path: "/marketplaces/:marketplaceId/store/:sku/purchase/:confirmationId", Component: MarketplacePurchase, noBreadcrumb: true },
+    { name: item.name, path: "/marketplaces/:marketplaceId/store/:sku", Component: MarketplaceItemDetails },
+    { name: marketplace.name, path: "/marketplaces/:marketplaceId/store", Component: Marketplace },
+
+    { name: "Marketplaces", path: "/marketplaces", Component: MarketplaceBrowser }
+  ];
+};
+
 const MarketplaceRoutes = () => {
-  let { path } = useRouteMatch();
+  const match = useRouteMatch();
 
   return (
     <div className="page-container marketplace-page">
       <Switch>
-        <Route exact path={`${path}/:marketplaceId/events/:dropId`}>
-          <MarketplaceWrapper>
-            <Drop />
-          </MarketplaceWrapper>
-        </Route>
-
-        <Route exact path={`${path}/:marketplaceId/events/:dropId/status`}>
-          <DropMintingStatus />
-        </Route>
-
-        <Route exact path={`${path}/:marketplaceId/collections`}>
-          <MarketplaceWrapper>
-            <MarketplaceCollections />
-          </MarketplaceWrapper>
-        </Route>
-
-        <Route exact path={`${path}/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId`}>
-          <MarketplaceWrapper>
-            <NFTDetails/>
-          </MarketplaceWrapper>
-        </Route>
-
-        <Route exact path={`${path}/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId/open`}>
-          <div className="content">
-            <PackOpenStatus />
-          </div>
-        </Route>
-
-        <Route exact path={`${path}/:marketplaceId/collections/:collectionIndex/store/:sku`}>
-          <MarketplaceWrapper>
-            <MarketplaceItemDetails />
-          </MarketplaceWrapper>
-        </Route>
-
-        <Route exact path={`${path}/:marketplaceId/owned`}>
-          <MarketplaceWrapper>
-            <MarketplaceOwned />
-          </MarketplaceWrapper>
-        </Route>
-
-        <Route exact path={`${path}/:marketplaceId/owned/:contractId/:tokenId`}>
-          <MarketplaceWrapper>
-            <NFTDetails/>
-          </MarketplaceWrapper>
-        </Route>
-
-        <Route exact path={`${path}/:marketplaceId/owned/:contractId/:tokenId/open`}>
-          <div className="content">
-            <PackOpenStatus />
-          </div>
-        </Route>
-
-        <Route exact path={`${path}/:marketplaceId/store`}>
-          <MarketplaceWrapper>
-            <Marketplace />
-          </MarketplaceWrapper>
-        </Route>
-
-        <Route exact path={`${path}/:marketplaceId/store/:sku`}>
-          <MarketplaceWrapper>
-            <MarketplaceItemDetails />
-          </MarketplaceWrapper>
-        </Route>
-
-        <Route exact path={`${path}/:marketplaceId/store/:sku/purchase/:confirmationId`}>
-          <div className="content">
-            <MarketplacePurchase />
-          </div>
-        </Route>
-
-        <Route exact path={`${path}/:marketplaceId/store/:sku/purchase/:confirmationId/success`}>
-          <div className="content">
-            <MarketplacePurchase />
-          </div>
-        </Route>
-
-        <Route exact path={`${path}/:marketplaceId/store/:sku/purchase/:confirmationId/cancel`}>
-          <div className="content">
-            <MarketplacePurchase />
-          </div>
-        </Route>
-
-        <Route exact path={path}>
-          <MarketplaceBrowser />
-        </Route>
+        {
+          Routes(match).map(({path, Component}) =>
+            <Route exact path={path}>
+              <MarketplaceWrapper>
+                <Component/>
+              </MarketplaceWrapper>
+            </Route>
+          )
+        }
       </Switch>
     </div>
   );
