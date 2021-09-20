@@ -30,6 +30,7 @@ const SignalOpener = () => {
 
 const Login = observer(() => {
   const [loading, setLoading] = useState(false);
+  const [eventInfoLoading, setEventInfoLoading] = useState(!!rootStore.eventId);
   const [auth0Loading, setAuth0Loading] = useState(true);
   const [showPrivateKeyForm, setShowPrivateKeyForm] = useState(false);
   const [privateKey, setPrivateKey] = useState("");
@@ -37,6 +38,10 @@ const Login = observer(() => {
   const url = new URL(window.location.origin);
   url.pathname = window.location.pathname;
   url.searchParams.set("l", "");
+
+  if(rootStore.eventId) {
+    url.searchParams.set("eid", rootStore.eventId);
+  }
 
   if(rootStore.darkMode) {
     url.searchParams.set("d", "");
@@ -110,6 +115,12 @@ const Login = observer(() => {
   }
 
   useEffect(() => {
+    rootStore.LoadEventMetadata().then(() =>
+      setEventInfoLoading(false)
+    );
+  }, []);
+
+  useEffect(() => {
     SignalOpener();
 
     const authInfo = rootStore.AuthInfo();
@@ -158,11 +169,14 @@ const Login = observer(() => {
 
   }, [rootStore.navigateToLogIn]);
 
-  if(newWindowLogin || loading || auth0Loading || rootStore.loggingIn) {
+  const logo = rootStore.eventMetadata && rootStore.eventMetadata.event_images && rootStore.eventMetadata.event_images.logo ?
+    rootStore.PublicLink({versionHash: rootStore.eventHash, path: UrlJoin("public", "asset_metadata", "info", "event_images", "logo")}): Logo;
+
+  if(newWindowLogin || loading || eventInfoLoading || auth0Loading || rootStore.loggingIn) {
     return (
       <div className="page-container login-page">
         <div className="login-page__login-box" key={`login-box-${rootStore.accountLoading}`}>
-          <ImageIcon icon={Logo} className="login-page__logo" title="Eluvio" />
+          <ImageIcon icon={logo} className="login-page__logo" title="Eluvio" />
           <Loader />
         </div>
       </div>
@@ -173,7 +187,7 @@ const Login = observer(() => {
     return (
       <div className="page-container login-page">
         <div className="login-page__login-box">
-          <ImageIcon icon={Logo} className="login-page__logo" title="Eluvio" />
+          <ImageIcon icon={logo} className="login-page__logo" title="Eluvio" />
           <h1>Enter your Private Key</h1>
 
           <form
@@ -214,7 +228,7 @@ const Login = observer(() => {
   return (
     <div className="page-container login-page">
       <div className="login-page__login-box" key={`login-box-${rootStore.accountLoading}`}>
-        <ImageIcon icon={Logo} className="login-page__logo" title="Eluvio" />
+        <ImageIcon icon={logo} className="login-page__logo" title="Eluvio" />
         <button
           className="login-page__login-button login-page__login-button-create login-page__login-button-auth0"
           onClick={() => {

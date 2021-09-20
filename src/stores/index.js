@@ -60,6 +60,10 @@ class RootStore {
   disableCloseEvent = false;
   darkMode = window.self === window.top && sessionStorage.getItem("dark-mode");
 
+  eventId = new URLSearchParams(window.location.search).get("eid") || (window.self === window.top && sessionStorage.getItem("event-id"));
+  eventHash = undefined;
+  eventMetadata = undefined;
+
   oauthUser = undefined;
   localAccount = false;
 
@@ -139,6 +143,41 @@ class RootStore {
         [this.client.contentSpaceId, this.accountId]
       ]
     });
+  });
+
+  LoadEventMetadata = flow(function * () {
+    if(!this.eventId || this.eventMetadata) { return; }
+
+    if(!this.embedded) {
+      sessionStorage.setItem("event-id", this.eventId);
+    }
+
+    let client = this.client;
+    if(!client) {
+      client = yield ElvClient.FromConfigurationUrl({
+        configUrl: EluvioConfiguration["config-url"]
+      });
+
+      this.basePublicUrl = yield client.FabricUrl({
+        queryParams: {
+          authorization: this.staticToken
+        },
+        noAuth: true
+      });
+    }
+
+    this.eventHash = yield client.LatestVersionHash({objectId: this.eventId});
+    this.eventMetadata = yield client.ContentObjectMetadata({
+      versionHash: this.eventHash,
+      metadataSubtree: "public/asset_metadata/info"
+    });
+
+    try {
+      // Limit available marketplaces to just the event marketplace
+      this.marketplaceIds = [client.utils.DecodeVersionHash(this.eventMetadata.marketplace).objectId];
+    } catch(error) {
+      this.Log(error, true);
+    }
   });
 
   LoadWalletCollection = flow(function * (forceReload=false) {
@@ -418,6 +457,9 @@ class RootStore {
 
       this.client = client;
 
+      yield this.LoadEventMetadata();
+      const tenantId = this.eventMetadata ? this.eventMetadata.tenant_id : undefined;
+
       if(privateKey) {
         const wallet = client.GenerateWallet();
         const signer = wallet.AddAccount({privateKey});
@@ -428,11 +470,11 @@ class RootStore {
           sessionStorage.setItem("pk", privateKey);
         }
       } else if(authToken) {
-        yield client.SetRemoteSigner({authToken: authToken, address});
+        yield client.SetRemoteSigner({authToken: authToken, address, tenantId});
       } else if(user || idToken) {
         this.oauthUser = user;
 
-        yield client.SetRemoteSigner({idToken: idToken || user.id_token});
+        yield client.SetRemoteSigner({idToken: idToken || user.id_token, tenantId});
       } else {
         throw Error("Neither user nor private key specified in InitializeClient");
       }

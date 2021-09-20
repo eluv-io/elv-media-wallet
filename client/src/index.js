@@ -304,13 +304,25 @@ export class ElvWalletClient {
    *
    * @namedParams
    * @param {string=} walletAppUrl=http://media-wallet.v3.contentfabric.io - The URL of the Eluvio Media Wallet app
+   * @param {string=} eventId - Specify a drop event to display in the wallet
+   * @param {boolean=} darkMode=false - Specify whether the app should be in dark mode
    *
    * @return {Promise<ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new window.
    */
-  static async InitializePopup({walletAppUrl="http://media-wallet.v3.contentfabric.io"}) {
-    const target = Popup({url: walletAppUrl, title: "Eluvio Media Wallet", w: 400, h: 700});
+  static async InitializePopup({walletAppUrl="http://media-wallet.v3.contentfabric.io", eventId, darkMode=false}) {
+    walletAppUrl = new URL(walletAppUrl);
 
-    const client = new ElvWalletClient({walletAppUrl, target, Close: () => target.close()});
+    if(eventId) {
+      walletAppUrl.searchParams.set("eid", eventId);
+    }
+
+    if(darkMode) {
+      walletAppUrl.searchParams.set("d", "");
+    }
+
+    const target = Popup({url: walletAppUrl.toString(), title: "Eluvio Media Wallet", w: 400, h: 700});
+
+    const client = new ElvWalletClient({walletAppUrl: walletAppUrl.toString(), target, Close: () => target.close()});
 
     // Ensure app is initialized
     await client.AwaitMessage("init");
@@ -327,10 +339,12 @@ export class ElvWalletClient {
    * @namedParams
    * @param {string=} walletAppUrl=http://media-wallet.v3.contentfabric.io - The URL of the Eluvio Media Wallet app
    * @param {Object | string} target - An HTML element or the ID of an element
+   * @param {string=} eventId - Specify a drop event to display in the wallet
+   * @param {boolean=} darkMode=false - Specify whether the app should be in dark mode
    *
    * @return {Promise<ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new iframe.
    */
-  static async InitializeFrame({walletAppUrl="http://media-wallet.v3.contentfabric.io", target}) {
+  static async InitializeFrame({walletAppUrl="http://media-wallet.v3.contentfabric.io", target, eventId, darkMode=false}) {
     if(typeof target === "string") {
       const targetElement = document.getElementById(target);
 
@@ -354,14 +368,24 @@ export class ElvWalletClient {
     target.allowfullscreen = true;
     target.allow = "encrypted-media *";
 
+    walletAppUrl = new URL(walletAppUrl);
+
+    if(eventId) {
+      walletAppUrl.searchParams.set("eid", eventId);
+    }
+
+    if(darkMode) {
+      walletAppUrl.searchParams.set("d", "");
+    }
+
     const client = new ElvWalletClient({
-      walletAppUrl,
+      walletAppUrl: walletAppUrl.toString(),
       target: target.contentWindow,
       Close: () => target && target.parentNode && target.parentNode.removeChild(target)
     });
 
     // Ensure app is initialized
-    target.src = walletAppUrl;
+    target.src = walletAppUrl.toString();
     await client.AwaitMessage("init");
 
     return client;
