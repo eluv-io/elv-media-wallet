@@ -1,23 +1,13 @@
-$key-form-background: rgba(255, 255, 255, 0.8);
-$key-form-background-dark: rgba(0, 0, 0, 0.8);
-
 .login-page {
   align-items: center;
   display: flex;
   justify-content: center;
+  margin: 0;
   padding: 0 30px;
 
-  &.login-page-custom-background {
-    h1,
-    .login-page__login-button-pk {
-      filter: drop-shadow(2px 2px 2px $black);
-    }
-
-    .login-page__logo-container {
-      .login-page__tagline {
-        filter: drop-shadow(4px 4px 4px $black);
-      }
-    }
+  .loader {
+    height: auto;
+    margin-top: 10px;
   }
 
   * {
@@ -45,19 +35,18 @@ $key-form-background-dark: rgba(0, 0, 0, 0.8);
 
   &__login-box {
     align-items: center;
-    border-radius: 3px;
+    background: $white;
+    border-radius: 5px;
     display: flex;
     flex-direction: column;
+    height: 500px;
     justify-content: center;
-    margin: 0 auto 20vh;
-    max-width: 500px;
-    min-height: 300px;
+    max-width: 400px;
     padding: 30px;
     width: 100%;
   }
 
   &__private-key-form {
-    background: $key-form-background;
     border-radius: 10px;
     max-width: 500px;
     padding: 5px 20px 20px;
@@ -122,6 +111,7 @@ $key-form-background-dark: rgba(0, 0, 0, 0.8);
 
     .login-page__logo {
       margin-bottom: 0;
+      padding: 0 5px 15px;
     }
 
     .login-page__tagline {
@@ -188,6 +178,10 @@ $key-form-background-dark: rgba(0, 0, 0, 0.8);
 
 .dark {
   .login-page {
+    &__login-box {
+      background: $black;
+    }
+
     &__logo {
       * {
         fill: $white;
@@ -209,8 +203,6 @@ $key-form-background-dark: rgba(0, 0, 0, 0.8);
     }
 
     &__private-key-form {
-      background: $key-form-background-dark;
-
       button {
         color: $white;
       }
