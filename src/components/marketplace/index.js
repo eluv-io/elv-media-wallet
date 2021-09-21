@@ -725,7 +725,7 @@ const MarketplaceRoutes = () => {
       <Switch>
         {
           Routes(match).map(({path, Component}) =>
-            <Route exact path={path}>
+            <Route exact path={path} key={`marketplace-route-${path}`}>
               <MarketplaceWrapper>
                 <Component/>
               </MarketplaceWrapper>

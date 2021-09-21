@@ -1,4 +1,4 @@
-import {makeAutoObservable, configure, flow} from "mobx";
+import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";
 import {ElvClient} from "@eluvio/elv-client-js";
 import Utils from "@eluvio/elv-client-js/src/Utils";
@@ -48,11 +48,12 @@ const ProfileImage = (text, backgroundColor) => {
   return canvas.toDataURL("image/png");
 };
 
-
 class RootStore {
   embedded = window.self !== window.top;
 
   mode = "test";
+
+  pageWidth = window.innerWidth;
 
   navigateToLogIn = undefined;
   loggingIn = false;
@@ -110,8 +111,9 @@ class RootStore {
     makeAutoObservable(this);
 
     this.checkoutStore = new CheckoutStore(this);
-  }
 
+    window.addEventListener("resize", () => this.HandleResize());
+  }
 
   SendEvent({event, data}) {
     SendEvent({event, data});
@@ -564,7 +566,18 @@ class RootStore {
     this.SendEvent({event: EVENTS.LOG_OUT, data: { address: this.client.signer.address }});
 
     this.disableCloseEvent = true;
-    window.location.href = UrlJoin(window.location.origin, window.location.pathname) + (this.darkMode ? "?d" : "");
+
+    const url = new URL(UrlJoin(window.location.origin, window.location.pathname));
+
+    if(this.eventId) {
+      url.searchParams.set("eid", this.eventId);
+    }
+
+    if(this.darkMode) {
+      url.searchParams.set("d", "");
+    }
+
+    window.location.href = url.toString();
   }
 
   ClearAuthInfo() {
@@ -621,6 +634,16 @@ class RootStore {
 
   SetNavigateToLogIn(initialScreen) {
     this.navigateToLogIn = initialScreen;
+  }
+
+  HandleResize() {
+    clearTimeout(this.resizeTimeout);
+
+    this.resizeTimeout = setTimeout(() => {
+      if(this.pageWidth !== window.innerWidth) {
+        runInAction(() => this.pageWidth = window.innerWidth);
+      }
+    }, 50);
   }
 }
 
