@@ -28,6 +28,23 @@ const SignalOpener = () => {
   window.close();
 };
 
+const LoginBackground = observer(() => {
+  const customizationOptions = (rootStore.eventMetadata || {}).login_customization || {};
+
+  if(customizationOptions.background || customizationOptions.background_mobile) {
+    let backgroundUrl = customizationOptions.background ? rootStore.PublicLink({versionHash: rootStore.eventHash, path: UrlJoin("public", "asset_metadata", "info", "login_customization", "background")}) : "";
+    let mobileBackgroundUrl = customizationOptions.background_mobile ? rootStore.PublicLink({versionHash: rootStore.eventHash, path: UrlJoin("public", "asset_metadata", "info", "login_customization", "background_mobile")}) : "";
+
+    if(rootStore.pageWidth > 900) {
+      return <div className="login-page__background" style={{ backgroundImage: `url("${backgroundUrl || mobileBackgroundUrl}")` }} />;
+    } else {
+      return <div className="login-page__background" style={{ backgroundImage: `url("${mobileBackgroundUrl || backgroundUrl}")` }} />;
+    }
+  }
+
+  return null;
+});
+
 const Login = observer(() => {
   const [loading, setLoading] = useState(false);
   const [eventInfoLoading, setEventInfoLoading] = useState(!!rootStore.eventId);
@@ -169,16 +186,13 @@ const Login = observer(() => {
 
   }, [rootStore.navigateToLogIn]);
 
+  const customizationOptions = (rootStore.eventMetadata || {}).login_customization || {};
   let logo;
-  let customizationOptions = {};
-  let background;
   let buttonStyle = {};
   if(!rootStore.eventId) {
     logo = <ImageIcon icon={Logo} className="login-page__logo" title="Eluv.io" />;
   } else if(rootStore.eventMetadata) {
     // Don't show logo if event meta has not yet loaded
-
-    customizationOptions = (rootStore.eventMetadata || {}).login_customization || {};
 
     if(customizationOptions.logo) {
       logo = (
@@ -198,17 +212,6 @@ const Login = observer(() => {
       logo = <ImageIcon icon={Logo} className="login-page__logo" title="Eluv.io" />;
     }
 
-    if(customizationOptions.background || customizationOptions.background_mobile) {
-      let backgroundUrl = customizationOptions.background ? rootStore.PublicLink({versionHash: rootStore.eventHash, path: UrlJoin("public", "asset_metadata", "info", "login_customization", "background")}) : "";
-      let mobileBackgroundUrl = customizationOptions.background_mobile ? rootStore.PublicLink({versionHash: rootStore.eventHash, path: UrlJoin("public", "asset_metadata", "info", "login_customization", "background_mobile")}) : "";
-
-      if(rootStore.pageWidth > 900) {
-        background = <div className="login-page__background" style={{ backgroundImage: `url("${backgroundUrl || mobileBackgroundUrl}")` }} />;
-      } else {
-        background = <div className="login-page__background" style={{ backgroundImage: `url("${mobileBackgroundUrl || backgroundUrl}")` }} />;
-      }
-    }
-
     if(customizationOptions.sign_in_button) {
       buttonStyle = {
         color: customizationOptions.sign_in_button.text_color.color,
@@ -218,10 +221,12 @@ const Login = observer(() => {
     }
   }
 
+  const customBackground = customizationOptions.background || customizationOptions.background_mobile;
+
   if(newWindowLogin || loading || eventInfoLoading || auth0Loading || rootStore.loggingIn) {
     return (
-      <div className={`page-container login-page ${background ? "login-page-custom-background" : ""}`}>
-        { background }
+      <div className={`page-container login-page ${customBackground ? "login-page-custom-background" : ""}`}>
+        <LoginBackground />
         <div className="login-page__login-box" key={`login-box-${rootStore.accountLoading}`}>
           { logo }
           <Loader />
@@ -232,8 +237,8 @@ const Login = observer(() => {
 
   if(showPrivateKeyForm) {
     return (
-      <div className={`page-container login-page ${background ? "login-page-custom-background" : ""}`}>
-        { background }
+      <div className={`page-container login-page ${customBackground ? "login-page-custom-background" : ""}`}>
+        <LoginBackground />
         <div className="login-page__login-box">
           { logo }
           <h1>Enter your Private Key</h1>
@@ -274,8 +279,8 @@ const Login = observer(() => {
   }
 
   return (
-    <div className={`page-container login-page ${background ? "login-page-custom-background" : ""}`}>
-      { background }
+    <div className={`page-container login-page ${customBackground ? "login-page-custom-background" : ""}`}>
+      <LoginBackground />
       <div className="login-page__login-box" key={`login-box-${rootStore.accountLoading}`}>
         { logo }
         <button
