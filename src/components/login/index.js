@@ -174,16 +174,28 @@ const Login = observer(() => {
   let background;
   let buttonStyle = {};
   if(!rootStore.eventId) {
-    logo = Logo;
+    logo = <ImageIcon icon={Logo} className="login-page__logo" title="Eluv.io" />;
   } else if(rootStore.eventMetadata) {
     // Don't show logo if event meta has not yet loaded
 
     customizationOptions = (rootStore.eventMetadata || {}).login_customization || {};
 
     if(customizationOptions.logo) {
-      logo = rootStore.PublicLink({versionHash: rootStore.eventHash, path: UrlJoin("public", "asset_metadata", "info", "login_customization", "logo")});
+      logo = (
+        <div className="login-page__logo-container">
+          <ImageIcon
+            icon={rootStore.PublicLink({versionHash: rootStore.eventHash, path: UrlJoin("public", "asset_metadata", "info", "login_customization", "logo")})}
+            alternateIcon={Logo}
+            className="login-page__logo"
+            title="Logo"
+          />
+          <h2 className="login-page__tagline">
+            Powered by <ImageIcon icon={Logo} className="login-page__tagline__image" title="Eluv.io" />
+          </h2>
+        </div>
+      );
     } else {
-      logo = Logo;
+      logo = <ImageIcon icon={Logo} className="login-page__logo" title="Eluv.io" />;
     }
 
     if(customizationOptions.background || customizationOptions.background_mobile) {
@@ -208,10 +220,10 @@ const Login = observer(() => {
 
   if(newWindowLogin || loading || eventInfoLoading || auth0Loading || rootStore.loggingIn) {
     return (
-      <div className="page-container login-page">
+      <div className={`page-container login-page ${background ? "login-page-custom-background" : ""}`}>
         { background }
         <div className="login-page__login-box" key={`login-box-${rootStore.accountLoading}`}>
-          { logo ? <ImageIcon icon={logo} className="login-page__logo" title="Eluvio" /> : null }
+          { logo }
           <Loader />
         </div>
       </div>
@@ -220,10 +232,10 @@ const Login = observer(() => {
 
   if(showPrivateKeyForm) {
     return (
-      <div className="page-container login-page">
+      <div className={`page-container login-page ${background ? "login-page-custom-background" : ""}`}>
         { background }
         <div className="login-page__login-box">
-          <ImageIcon icon={logo} className="login-page__logo" title="Eluvio" />
+          { logo }
           <h1>Enter your Private Key</h1>
 
           <form
@@ -262,10 +274,10 @@ const Login = observer(() => {
   }
 
   return (
-    <div className="page-container login-page">
+    <div className={`page-container login-page ${background ? "login-page-custom-background" : ""}`}>
       { background }
       <div className="login-page__login-box" key={`login-box-${rootStore.accountLoading}`}>
-        <ImageIcon icon={logo} className="login-page__logo" title="Eluvio" />
+        { logo }
         <button
           className="login-page__login-button login-page__login-button-create login-page__login-button-auth0"
           onClick={() => {

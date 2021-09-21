@@ -7,6 +7,19 @@ $key-form-background-dark: rgba(0, 0, 0, 0.8);
   justify-content: center;
   padding: 0 30px;
 
+  &.login-page-custom-background {
+    h1,
+    .login-page__login-button-pk {
+      filter: drop-shadow(2px 2px 2px $black);
+    }
+
+    .login-page__logo-container {
+      .login-page__tagline {
+        filter: drop-shadow(4px 4px 4px $black);
+      }
+    }
+  }
+
   * {
     z-index: 1;
   }
@@ -24,7 +37,6 @@ $key-form-background-dark: rgba(0, 0, 0, 0.8);
   }
 
   h1 {
-    filter: drop-shadow(2px 2px 2px $black);
     font-size: 20px;
     font-weight: 400;
     margin-bottom: 10px;
@@ -101,6 +113,39 @@ $key-form-background-dark: rgba(0, 0, 0, 0.8);
     width: 160px;
   }
 
+  &__logo-container {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: 20px;
+
+    .login-page__logo {
+      margin-bottom: 0;
+    }
+
+    .login-page__tagline {
+      align-items: baseline;
+      color: $black;
+      display: flex;
+      font-size: 12px;
+      font-weight: 300;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      user-select: none;
+
+      &__image {
+        height: 14px;
+        margin-left: 7px;
+
+        * {
+          fill: $black;
+          stroke: $black;
+        }
+      }
+    }
+  }
+
   &__login-button {
     background-color: transparent;
     border: 0;
@@ -126,7 +171,6 @@ $key-form-background-dark: rgba(0, 0, 0, 0.8);
   }
 
   &__login-button-pk {
-    filter: drop-shadow(2px 2px 2px $black);
     font-size: 10px;
     height: 23px;
   }
@@ -148,6 +192,19 @@ $key-form-background-dark: rgba(0, 0, 0, 0.8);
       * {
         fill: $white;
         stroke: $white;
+      }
+    }
+
+    &__logo-container {
+      .login-page__tagline {
+        color: $lightgray;
+
+        &__image {
+          * {
+            fill: $white;
+            stroke: $white;
+          }
+        }
       }
     }
 
