@@ -663,12 +663,17 @@ const MarketplaceWrapper = observer(({children}) => {
       });
 
     rootStore.SetNavigationBreadcrumbs(routes);
+
+    const currentRoute = Routes(match).find(route => match.path === route.path);
+    if(currentRoute.hideNavigation) {
+      rootStore.ToggleNavigation(false);
+      return () => rootStore.ToggleNavigation(true);
+    }
   }, [match.url]);
 
   if(!match.params.marketplaceId) {
     return children;
   }
-
 
   return (
     <AsyncComponent
@@ -692,20 +697,20 @@ const Routes = (match) => {
   const nft = rootStore.NFT({contractId: match.params.contractId, tokenId: match.params.tokenId}) || { metadata: {} };
 
   return [
-    { name: (event.event_info || {}).event_title, path: "/marketplaces/:marketplaceId/events/:dropId", Component: Drop },
-    { name: "Status", path: "/marketplaces/:marketplaceId/events/:dropId/status", Component: DropMintingStatus },
+    { name: (event.event_info || {}).event_title, path: "/marketplaces/:marketplaceId/events/:dropId", Component: Drop, hideNavigation: true },
+    { name: "Status", path: "/marketplaces/:marketplaceId/events/:dropId/status", Component: DropMintingStatus, hideNavigation: true },
 
     { name: marketplace.name, path: "/marketplaces/:marketplaceId/collections", Component: MarketplaceCollections },
 
-    { name: "Open Pack", path: "/marketplaces/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId/open", Component: PackOpenStatus },
+    { name: "Open Pack", path: "/marketplaces/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId/open", Component: PackOpenStatus, hideNavigation: true },
     { name: nft.metadata.display_name, path: "/marketplaces/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId", Component: NFTDetails },
     { name: item.name, path: "/marketplaces/:marketplaceId/collections/:collectionIndex/store/:sku", Component: MarketplaceItemDetails },
 
     { name: marketplace.name, path: "/marketplaces/:marketplaceId/owned", Component: MarketplaceOwned },
-    { name: "Open Pack", path: "/marketplaces/:marketplaceId/owned/:contractId/:tokenId/open", Component: PackOpenStatus },
+    { name: "Open Pack", path: "/marketplaces/:marketplaceId/owned/:contractId/:tokenId/open", Component: PackOpenStatus, hideNavigation: true },
     { name: nft.metadata.display_name, path: "/marketplaces/:marketplaceId/owned/:contractId/:tokenId", Component: NFTDetails },
 
-    { name: "Purchase", path: "/marketplaces/:marketplaceId/store/:sku/purchase/:confirmationId/success", Component: MarketplacePurchase },
+    { name: "Purchase", path: "/marketplaces/:marketplaceId/store/:sku/purchase/:confirmationId/success", Component: MarketplacePurchase, hideNavigation: true },
     { name: "Purchase", path: "/marketplaces/:marketplaceId/store/:sku/purchase/:confirmationId/cancel", Component: MarketplacePurchase },
     { name: "Purchase", path: "/marketplaces/:marketplaceId/store/:sku/purchase/:confirmationId", Component: MarketplacePurchase, noBreadcrumb: true },
     { name: item.name, path: "/marketplaces/:marketplaceId/store/:sku", Component: MarketplaceItemDetails },

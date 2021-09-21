@@ -47,6 +47,12 @@ const WalletWrapper = observer(({children}) => {
       });
 
     rootStore.SetNavigationBreadcrumbs(routes);
+
+    const currentRoute = Routes(match).find(route => match.path === route.path);
+    if(currentRoute.hideNavigation) {
+      rootStore.ToggleNavigation(false);
+      return () => rootStore.ToggleNavigation(true);
+    }
   }, [match.url]);
 
   return (
@@ -60,7 +66,7 @@ const Routes = (match) => {
   const nft = rootStore.NFT({contractId: match.params.contractId, tokenId: match.params.tokenId}) || { metadata: {} };
 
   return [
-    { name: "Open Pack", path: "/wallet/collection/:contractId/:tokenId/open", Component: PackOpenStatus },
+    { name: "Open Pack", path: "/wallet/collection/:contractId/:tokenId/open", Component: PackOpenStatus, hideNavigation: true },
     { name: nft.metadata.display_name, path: "/wallet/collection/:contractId/:tokenId", Component: NFTDetails },
     { name: "Wallet", path: "/wallet/collection", Component: Collections },
     { path: "/wallet", Component: () => <Redirect to={`${match.path}/collection`} />, noBreadcrumb: true}
