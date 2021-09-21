@@ -122,7 +122,6 @@ const MarketplacePurchase = observer(() => {
   const success = match.path.endsWith("/success");
   const cancel = match.path.endsWith("/cancel");
 
-  /*
   if(fromEmbed && (success || cancel)) {
     useEffect(() => {
       window.opener.postMessage({
@@ -137,7 +136,6 @@ const MarketplacePurchase = observer(() => {
       window.close();
     }, []);
   }
-  */
 
   if(fromEmbed) {
     return <PageLoader />;
