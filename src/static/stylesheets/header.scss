@@ -70,6 +70,24 @@
     height: 30px;
     width: 30px;
   }
+
+  @media screen and (max-width: 700px) {
+    &__profile__name {
+      display: none;
+    }
+
+    &__breadcrumbs__separator,
+    &__breadcrumbs__link {
+      display: none;
+      font-size: 9px;
+
+      &:nth-last-child(1),
+      &:nth-last-child(2),
+      &:nth-last-child(3) {
+        display: block;
+      }
+    }
+  }
 }
 
 .profile-image {
