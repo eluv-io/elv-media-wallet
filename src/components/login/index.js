@@ -296,7 +296,7 @@ const Login = observer(() => {
             }
           }}
         >
-          Create Account
+          Sign Up
         </button>
         <button
           style={buttonStyle}
@@ -311,7 +311,7 @@ const Login = observer(() => {
             }
           }}
         >
-          Sign In
+          Log In
         </button>
         {
           rootStore.customizationMetadata && rootStore.customizationMetadata.disable_private_key ?
