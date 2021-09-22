@@ -209,6 +209,12 @@ $pending-color: rgba($blue, 0.5);
   }
   // sass-lint:enable force-element-nesting
 
+  &__open-button {
+    .button {
+      margin: 10px auto 30px;
+    }
+  }
+
   .lookout-url {
     padding: 10px 30px;
   }

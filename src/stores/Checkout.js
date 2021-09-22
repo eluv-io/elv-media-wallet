@@ -80,7 +80,7 @@ class CheckoutStore {
         // Stripe doesn't work in iframe, open new window to initiate purchase
         const url = new URL(window.location.origin);
         url.pathname = window.location.pathname;
-        url.hash = `/marketplaces/${marketplaceId}/store/${sku}/purchase/${confirmationId}`;
+        url.hash = `/marketplaces/${marketplaceId}/${sku}/purchase/${confirmationId}`;
         if(rootStore.darkMode) {
           url.searchParams.set("d", "");
         }
@@ -112,7 +112,7 @@ class CheckoutStore {
       const mode = EluvioConfiguration["test-mode"] ? "test" : "production";
       const checkoutId = `${marketplaceId}:${confirmationId}`;
 
-      const baseUrl = new URL(UrlJoin(window.location.origin, window.location.pathname, "#", "marketplaces", marketplaceId, "store", sku, "purchase", confirmationId));
+      const baseUrl = new URL(UrlJoin(window.location.origin, window.location.pathname, "#", "marketplaces", marketplaceId, sku, "purchase", confirmationId));
 
       if(fromEmbed) {
         baseUrl.searchParams.set("embed", "true");

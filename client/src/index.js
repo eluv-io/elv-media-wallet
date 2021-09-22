@@ -248,6 +248,22 @@ export class ElvWalletClient {
   }
 
   /**
+   * Request the wallet enter/exit 'side panel' mode, where certain elements are hidden
+   *
+   * @methodGroup Navigation
+   * @namedParams
+   * @param {boolean=} enabled=true - Whether side panel mode should be enabled
+   */
+  async ToggleSidePanelMode(enabled=true) {
+    return this.SendMessage({
+      action: "toggleSidePanelMode",
+      params: {
+        enabled
+      }
+    });
+  }
+
+  /**
    * Request the wallet app navigate to the specified page.
    *
    * Currently supported pages:

@@ -129,7 +129,7 @@ export const DropMintingStatus = observer(() => {
   return (
     <MintingStatus
       Status={Status}
-      redirect={UrlJoin("/marketplaces", match.params.marketplaceId, "store")}
+      redirect={UrlJoin("/marketplaces", match.params.marketplaceId)}
       OnFinish={async () => rootStore.LoadMarketplace(match.params.marketplaceId, true)}
     />
   );
@@ -208,7 +208,7 @@ export const PurchaseMintingStatus = observer(() => {
       header="Congratulations!"
       subheader={`Thank you for your purchase! You've received the following ${items.length === 1 ? "item" : "items"}:`}
       items={items}
-      basePath={UrlJoin("/marketplaces", match.params.marketplaceId, "store")}
+      basePath={UrlJoin("/marketplaces", match.params.marketplaceId)}
       nftBasePath={UrlJoin("/marketplaces", match.params.marketplaceId, "owned")}
       backText="Back to the Marketplace"
     />

@@ -55,6 +55,19 @@ const NFTDetails = observer(() => {
       </div>
 
       <div className="details-page__info">
+        {
+          nft && nft.metadata && nft.metadata.pack_options && nft.metadata.pack_options.is_openable ?
+            <ButtonWithLoader
+              className="details-page__open-button"
+              onClick={async () => {
+                await rootStore.OpenNFT({nft});
+                setOpened(true);
+              }}
+            >
+              Open Pack
+            </ButtonWithLoader> : null
+        }
+
         <ExpandableSection header="Description">
           { nft.metadata.description }
         </ExpandableSection>
@@ -126,19 +139,6 @@ const NFTDetails = observer(() => {
             Delete this NFT
           </ButtonWithLoader>
         </ExpandableSection>
-
-        {
-          nft && nft.metadata && nft.metadata.pack_options && nft.metadata.pack_options.is_openable ?
-            <ButtonWithLoader
-              className="details-page__open-button"
-              onClick={async () => {
-                await rootStore.OpenNFT({nft});
-                setOpened(true);
-              }}
-            >
-              Open Pack
-            </ButtonWithLoader> : null
-        }
       </div>
     </div>
   );

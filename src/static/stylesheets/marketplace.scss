@@ -25,7 +25,11 @@
   }
 
   &__section {
-    margin: 30px 0;
+    margin-bottom: 30px;
+
+    & + .marketplace__section {
+      margin: 30px 0;
+    }
 
     &:first-child {
       margin-top: 0;
@@ -152,5 +156,12 @@
     .checkout-button {
       border: 1px solid $gray;
     }
+  }
+}
+
+.side-panel {
+  .marketplace__header,
+  .marketplace-navigation {
+    display: none;
   }
 }

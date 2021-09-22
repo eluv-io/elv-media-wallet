@@ -16,8 +16,8 @@ const pages = {
 
   // Marketplace
   "marketplaces": "/marketplaces",
-  "marketplace": "/marketplaces/:marketplaceId/store",
-  "marketplaceItem": "/marketplaces/:marketplaceId/store/:sku",
+  "marketplace": "/marketplaces/:marketplaceId",
+  "marketplaceItem": "/marketplaces/:marketplaceId/:sku",
   "drop": "/marketplaces/:marketplaceId/events/:dropId"
 };
 
@@ -95,6 +95,10 @@ export const InitializeListener = (history) => {
         break;
       case "toggleNavigation":
         rootStore.ToggleNavigation(data.params.enabled);
+
+        break;
+      case "toggleSidePanelMode":
+        rootStore.ToggleSidePanelMode(data.params.enabled);
 
         break;
       case "navigate":

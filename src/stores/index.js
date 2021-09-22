@@ -73,6 +73,7 @@ class RootStore {
   accountId = undefined;
 
   hideNavigation = false;
+  sidePanelMode = false;
 
   staticToken = undefined;
   authedToken = undefined;
@@ -398,7 +399,7 @@ class RootStore {
         })
       );
 
-      return response.sort((a, b) => a.ts > b.ts ? 1 : -1)[0];
+      return response.sort((a, b) => a.ts > b.ts ? 1 : -1)[0] || { status: "pending" };
     } catch(error) {
       this.Log(error, true);
       return "";
@@ -639,6 +640,10 @@ class RootStore {
 
   ToggleNavigation(enabled) {
     this.hideNavigation = !enabled;
+  }
+
+  ToggleSidePanelMode(enabled) {
+    this.sidePanelMode = enabled;
   }
 
   SetNavigateToLogIn(initialScreen) {

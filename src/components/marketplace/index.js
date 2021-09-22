@@ -28,7 +28,16 @@ const MarketplaceNavigation = observer(() => {
 
   return (
     <nav className="sub-navigation marketplace-navigation">
-      <NavLink className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/store`}>Store</NavLink>
+      <NavLink
+        className="sub-navigation__link"
+        to={`/marketplaces/${match.params.marketplaceId}`}
+        isActive={() =>
+          !match.path.includes("/marketplaces/:marketplaceId/collections") &&
+          !match.path.includes("/marketplaces/:marketplaceId/owned")
+        }
+      >
+        Store
+      </NavLink>
       {
         marketplace && marketplace.collections && marketplace.collections.length > 0 ?
           <NavLink className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/collections`}>Collections</NavLink> :
@@ -54,7 +63,7 @@ const Checkout = observer(({marketplaceId, item}) => {
   const [confirmationId, setConfirmationId] = useState(undefined);
 
   if(confirmationId && checkoutStore.completedPurchases[confirmationId]) {
-    return <Redirect to={UrlJoin("/marketplaces", marketplaceId, "store", item.sku, "purchase", confirmationId, "success")} />;
+    return <Redirect to={UrlJoin("/marketplaces", marketplaceId, item.sku, "purchase", confirmationId, "success")} />;
   }
 
   return (
@@ -142,7 +151,7 @@ const MarketplacePurchase = observer(() => {
   } else if(success) {
     return <PurchaseMintingStatus />;
   } else if(cancel) {
-    return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, "store", match.params.sku)} />;
+    return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, match.params.sku)} />;
   } else {
     // Opened from iframe - Initiate stripe purchase
     useEffect(() => {
@@ -178,7 +187,7 @@ const MarketplaceItemDetails = observer(() => {
   const itemTemplate = item.nft_template ? item.nft_template.nft : {};
 
   const stock = checkoutStore.stock[item.sku];
-  const outOfStock = stock && stock.minted >= stock.max;
+  const outOfStock = stock && stock.max && stock.minted >= stock.max;
 
   useEffect(() => {
     if(!stock) { return; }
@@ -262,7 +271,12 @@ const MarketplaceItemDetails = observer(() => {
                 <a
                   className="lookout-url"
                   target="_blank"
-                  href={`https://lookout.qluv.io/address/${itemTemplate.address}/transactions`} rel="noopener"
+                  href={
+                    EluvioConfiguration["config-url"].includes("main.net955305") ?
+                      `https://explorer.contentfabric.io/address/${itemTemplate.address}/transactions` :
+                      `https://lookout.qluv.io/address/${itemTemplate.address}/transactions`
+                  }
+                  rel="noopener"
                 >
                   See More Info on Eluvio Lookout
                 </a>
@@ -288,7 +302,7 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
   }
 
   const stock = checkoutStore.stock[item.sku];
-  const outOfStock = stock && stock.minted >= stock.max;
+  const outOfStock = stock && stock.max && stock.minted >= stock.max;
 
   return (
     <div className={`card-container card-shadow ${className}`}>
@@ -315,7 +329,7 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
               { item.description }
             </div>
             {
-              stock ?
+              stock && stock.max ?
                 <div className="card__subtitle__stock">
                   { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Left!` }
                 </div> : null
@@ -619,7 +633,7 @@ const MarketplaceBrowser = observer(() => {
           return (
             <div className="card-container card-container-marketplace" key={`marketplace-${index}`}>
               <Link
-                to={`${match.url}/${marketplaceId}/store`}
+                to={`${match.url}/${marketplaceId}`}
                 className="card nft-card"
               >
                 <ImageIcon
@@ -700,21 +714,21 @@ const Routes = (match) => {
     { name: (event.event_info || {}).event_title, path: "/marketplaces/:marketplaceId/events/:dropId", Component: Drop, hideNavigation: true },
     { name: "Status", path: "/marketplaces/:marketplaceId/events/:dropId/status", Component: DropMintingStatus, hideNavigation: true },
 
-    { name: marketplace.name, path: "/marketplaces/:marketplaceId/collections", Component: MarketplaceCollections },
+    { name: "Collections", path: "/marketplaces/:marketplaceId/collections", Component: MarketplaceCollections },
 
     { name: "Open Pack", path: "/marketplaces/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId/open", Component: PackOpenStatus, hideNavigation: true },
     { name: nft.metadata.display_name, path: "/marketplaces/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId", Component: NFTDetails },
     { name: item.name, path: "/marketplaces/:marketplaceId/collections/:collectionIndex/store/:sku", Component: MarketplaceItemDetails },
 
-    { name: marketplace.name, path: "/marketplaces/:marketplaceId/owned", Component: MarketplaceOwned },
+    { name: "My Collection", path: "/marketplaces/:marketplaceId/owned", Component: MarketplaceOwned },
     { name: "Open Pack", path: "/marketplaces/:marketplaceId/owned/:contractId/:tokenId/open", Component: PackOpenStatus, hideNavigation: true },
     { name: nft.metadata.display_name, path: "/marketplaces/:marketplaceId/owned/:contractId/:tokenId", Component: NFTDetails },
 
-    { name: "Purchase", path: "/marketplaces/:marketplaceId/store/:sku/purchase/:confirmationId/success", Component: MarketplacePurchase, hideNavigation: true },
-    { name: "Purchase", path: "/marketplaces/:marketplaceId/store/:sku/purchase/:confirmationId/cancel", Component: MarketplacePurchase },
-    { name: "Purchase", path: "/marketplaces/:marketplaceId/store/:sku/purchase/:confirmationId", Component: MarketplacePurchase, noBreadcrumb: true },
-    { name: item.name, path: "/marketplaces/:marketplaceId/store/:sku", Component: MarketplaceItemDetails },
-    { name: marketplace.name, path: "/marketplaces/:marketplaceId/store", Component: Marketplace },
+    { name: "Purchase", path: "/marketplaces/:marketplaceId/:sku/purchase/:confirmationId/success", Component: MarketplacePurchase, hideNavigation: true },
+    { name: "Purchase", path: "/marketplaces/:marketplaceId/:sku/purchase/:confirmationId/cancel", Component: MarketplacePurchase },
+    { name: "Purchase", path: "/marketplaces/:marketplaceId/:sku/purchase/:confirmationId", Component: MarketplacePurchase, noBreadcrumb: true },
+    { name: item.name, path: "/marketplaces/:marketplaceId/:sku", Component: MarketplaceItemDetails },
+    { name: marketplace.name, path: "/marketplaces/:marketplaceId", Component: Marketplace },
 
     { name: "Marketplaces", path: "/marketplaces", Component: MarketplaceBrowser }
   ];
