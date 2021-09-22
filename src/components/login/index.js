@@ -29,11 +29,11 @@ const SignalOpener = () => {
 };
 
 const LoginBackground = observer(() => {
-  const customizationOptions = (rootStore.eventMetadata || {}).login_customization || {};
+  const customizationOptions = rootStore.customizationMetadata || {};
 
   if(customizationOptions.background || customizationOptions.background_mobile) {
-    let backgroundUrl = customizationOptions.background ? rootStore.PublicLink({versionHash: rootStore.eventHash, path: UrlJoin("public", "asset_metadata", "info", "login_customization", "background")}) : "";
-    let mobileBackgroundUrl = customizationOptions.background_mobile ? rootStore.PublicLink({versionHash: rootStore.eventHash, path: UrlJoin("public", "asset_metadata", "info", "login_customization", "background_mobile")}) : "";
+    let backgroundUrl = customizationOptions.background ? rootStore.PublicLink({versionHash: rootStore.marketplaceHash, path: UrlJoin("public", "asset_metadata", "info", "login_customization", "background")}) : "";
+    let mobileBackgroundUrl = customizationOptions.background_mobile ? rootStore.PublicLink({versionHash: rootStore.marketplaceHash, path: UrlJoin("public", "asset_metadata", "info", "login_customization", "background_mobile")}) : "";
 
     if(rootStore.pageWidth > 900) {
       return <div className="login-page__background" style={{ backgroundImage: `url("${backgroundUrl || mobileBackgroundUrl}")` }} />;
@@ -47,7 +47,7 @@ const LoginBackground = observer(() => {
 
 const Login = observer(() => {
   const [loading, setLoading] = useState(false);
-  const [eventInfoLoading, setEventInfoLoading] = useState(!!rootStore.eventId);
+  const [customizationInfoLoading, setCustomizationInfoLoading] = useState(!!rootStore.marketplaceId);
   const [auth0Loading, setAuth0Loading] = useState(true);
   const [showPrivateKeyForm, setShowPrivateKeyForm] = useState(false);
   const [privateKey, setPrivateKey] = useState("");
@@ -56,8 +56,8 @@ const Login = observer(() => {
   url.pathname = window.location.pathname;
   url.searchParams.set("l", "");
 
-  if(rootStore.eventId) {
-    url.searchParams.set("eid", rootStore.eventId);
+  if(rootStore.marketplaceId) {
+    url.searchParams.set("mid", rootStore.marketplaceId);
   }
 
   if(rootStore.darkMode) {
@@ -132,8 +132,8 @@ const Login = observer(() => {
   }
 
   useEffect(() => {
-    rootStore.LoadEventMetadata().then(() =>
-      setEventInfoLoading(false)
+    rootStore.LoadCustomizationMetadata().then(() =>
+      setCustomizationInfoLoading(false)
     );
   }, []);
 
@@ -186,19 +186,19 @@ const Login = observer(() => {
 
   }, [rootStore.navigateToLogIn]);
 
-  const customizationOptions = (rootStore.eventMetadata || {}).login_customization || {};
+  const customizationOptions = rootStore.customizationMetadata || {};
   let logo;
   let buttonStyle = {};
-  if(!rootStore.eventId) {
+  if(!rootStore.marketplaceId) {
     logo = <ImageIcon icon={Logo} className="login-page__logo" title="Eluv.io" />;
-  } else if(rootStore.eventMetadata) {
-    // Don't show logo if event meta has not yet loaded
+  } else if(rootStore.customizationMetadata) {
+    // Don't show logo if customization meta has not yet loaded
 
     if(customizationOptions.logo) {
       logo = (
         <div className="login-page__logo-container">
           <ImageIcon
-            icon={rootStore.PublicLink({versionHash: rootStore.eventHash, path: UrlJoin("public", "asset_metadata", "info", "login_customization", "logo")})}
+            icon={rootStore.PublicLink({versionHash: rootStore.marketplaceHash, path: UrlJoin("public", "asset_metadata", "info", "login_customization", "logo")})}
             alternateIcon={Logo}
             className="login-page__logo"
             title="Logo"
@@ -223,7 +223,7 @@ const Login = observer(() => {
 
   const customBackground = customizationOptions.background || customizationOptions.background_mobile;
 
-  if(newWindowLogin || loading || eventInfoLoading || auth0Loading || rootStore.loggingIn) {
+  if(newWindowLogin || loading || customizationInfoLoading || auth0Loading || rootStore.loggingIn) {
     return (
       <div className={`page-container login-page ${customBackground ? "login-page-custom-background" : ""}`}>
         <LoginBackground />
@@ -313,9 +313,16 @@ const Login = observer(() => {
         >
           Sign In
         </button>
-        <button className="login-page__login-button login-page__login-button-pk" onClick={() => setShowPrivateKeyForm(true)}>
-          Or Sign In With Private Key
-        </button>
+        {
+          rootStore.customizationMetadata && rootStore.customizationMetadata.disable_private_key ?
+            null :
+            <button
+              className="login-page__login-button login-page__login-button-pk"
+              onClick={() => setShowPrivateKeyForm(true)}
+            >
+              Or Sign In With Private Key
+            </button>
+        }
       </div>
     </div>
   );

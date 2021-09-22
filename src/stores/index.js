@@ -61,9 +61,9 @@ class RootStore {
   disableCloseEvent = false;
   darkMode = window.self === window.top && sessionStorage.getItem("dark-mode");
 
-  eventId = new URLSearchParams(window.location.search).get("eid") || (window.self === window.top && sessionStorage.getItem("event-id"));
-  eventHash = undefined;
-  eventMetadata = undefined;
+  marketplaceId = new URLSearchParams(window.location.search).get("mid") || (window.self === window.top && sessionStorage.getItem("markertplace-id"));
+  marketplaceHash = undefined;
+  customizationMetadata = undefined;
 
   oauthUser = undefined;
   localAccount = false;
@@ -149,11 +149,11 @@ class RootStore {
     });
   });
 
-  LoadEventMetadata = flow(function * () {
-    if(!this.eventId || this.eventMetadata) { return; }
+  LoadCustomizationMetadata = flow(function * () {
+    if(!this.marketplaceId || this.customizationMetadata) { return; }
 
     if(!this.embedded) {
-      sessionStorage.setItem("event-id", this.eventId);
+      sessionStorage.setItem("marketplace-id", this.marketplaceId);
     }
 
     let client = this.client;
@@ -170,15 +170,24 @@ class RootStore {
       });
     }
 
-    this.eventHash = yield client.LatestVersionHash({objectId: this.eventId});
-    this.eventMetadata = yield client.ContentObjectMetadata({
-      versionHash: this.eventHash,
-      metadataSubtree: "public/asset_metadata/info"
+    this.marketplaceHash = yield client.LatestVersionHash({objectId: this.marketplaceId});
+    const customizationMetadata = yield client.ContentObjectMetadata({
+      versionHash: this.marketplaceHash,
+      metadataSubtree: "public/asset_metadata/info",
+      select: [
+        "tenant_id",
+        "login_customization"
+      ]
     });
 
+    this.customizationMetadata = {
+      tenant_id: (customizationMetadata.tenant_id || {}),
+      ...((customizationMetadata || {}).login_customization || {})
+    };
+
     try {
-      // Limit available marketplaces to just the event marketplace
-      this.marketplaceIds = [client.utils.DecodeVersionHash(this.eventMetadata.marketplace).objectId];
+      // Limit available marketplaces to just the specified marketplace
+      this.marketplaceIds = [ this.marketplaceId ];
     } catch(error) {
       this.Log(error, true);
     }
@@ -461,8 +470,8 @@ class RootStore {
 
       this.client = client;
 
-      yield this.LoadEventMetadata();
-      const tenantId = this.eventMetadata ? this.eventMetadata.tenant_id : undefined;
+      yield this.LoadCustomizationMetadata();
+      const tenantId = this.customizationMetadata ? this.customizationMetadata.tenant_id : undefined;
 
       if(privateKey) {
         const wallet = client.GenerateWallet();
@@ -569,8 +578,8 @@ class RootStore {
 
     const url = new URL(UrlJoin(window.location.origin, window.location.pathname));
 
-    if(this.eventId) {
-      url.searchParams.set("eid", this.eventId);
+    if(this.marketplaceId) {
+      url.searchParams.set("mid", this.marketplaceId);
     }
 
     if(this.darkMode) {

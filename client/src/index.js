@@ -304,16 +304,16 @@ export class ElvWalletClient {
    *
    * @namedParams
    * @param {string=} walletAppUrl=http://media-wallet.v3.contentfabric.io - The URL of the Eluvio Media Wallet app
-   * @param {string=} eventId - Specify a drop event to display in the wallet
+   * @param {string=} marketplaceId - Specify a specific marketplace for the wallet to use
    * @param {boolean=} darkMode=false - Specify whether the app should be in dark mode
    *
    * @return {Promise<ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new window.
    */
-  static async InitializePopup({walletAppUrl="http://media-wallet.v3.contentfabric.io", eventId, darkMode=false}) {
+  static async InitializePopup({walletAppUrl="http://media-wallet.v3.contentfabric.io", marketplaceId, darkMode=false}) {
     walletAppUrl = new URL(walletAppUrl);
 
-    if(eventId) {
-      walletAppUrl.searchParams.set("eid", eventId);
+    if(marketplaceId) {
+      walletAppUrl.searchParams.set("mid", marketplaceId);
     }
 
     if(darkMode) {
@@ -339,12 +339,13 @@ export class ElvWalletClient {
    * @namedParams
    * @param {string=} walletAppUrl=http://media-wallet.v3.contentfabric.io - The URL of the Eluvio Media Wallet app
    * @param {Object | string} target - An HTML element or the ID of an element
-   * @param {string=} eventId - Specify a drop event to display in the wallet
+
+   * @param {string=} marketplaceId - Specify a specific marketplace for the wallet to use
    * @param {boolean=} darkMode=false - Specify whether the app should be in dark mode
    *
    * @return {Promise<ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new iframe.
    */
-  static async InitializeFrame({walletAppUrl="http://media-wallet.v3.contentfabric.io", target, eventId, darkMode=false}) {
+  static async InitializeFrame({walletAppUrl="http://media-wallet.v3.contentfabric.io", target, marketplaceId, darkMode=false}) {
     if(typeof target === "string") {
       const targetElement = document.getElementById(target);
 
@@ -370,8 +371,8 @@ export class ElvWalletClient {
 
     walletAppUrl = new URL(walletAppUrl);
 
-    if(eventId) {
-      walletAppUrl.searchParams.set("eid", eventId);
+    if(marketplaceId) {
+      walletAppUrl.searchParams.set("mid", marketplaceId);
     }
 
     if(darkMode) {
