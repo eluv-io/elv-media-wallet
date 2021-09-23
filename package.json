@@ -43,7 +43,9 @@
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-inlinesvg": "^2.3.0",
+    "react-markdown": "^5.0.3",
     "react-router-dom": "^5.2.0",
+    "sanitize-html": "^2.5.1",
     "urijs": "^1.19.7",
     "url-join": "^4.0.1"
   },

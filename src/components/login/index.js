@@ -1,6 +1,7 @@
 // Note: Auth0 must not be activated if in an iframe
 
 import React, { useState, useEffect } from "react";
+import {render} from "react-dom";
 import { Loader } from "Components/common/Loaders";
 import { rootStore } from "Stores/index";
 import { observer } from "mobx-react";
@@ -10,6 +11,9 @@ import ImageIcon from "Components/common/ImageIcon";
 
 import Logo from "../../static/images/logo.svg";
 import EVENTS from "../../../client/src/Events";
+import Modal from "Components/common/Modal";
+import ReactMarkdown from "react-markdown";
+import SanitizeHTML from "sanitize-html";
 
 let newWindowLogin =
   new URLSearchParams(window.location.search).has("l") ||
@@ -29,6 +33,34 @@ const SignalOpener = () => {
   window.close();
 };
 
+const TermsModal = observer(({Toggle}) => {
+  return (
+    <Modal className={`login-page__terms-modal ${rootStore.customizationMetadata.terms_html ? "login-page__terms-modal-frame" : ""}`} Toggle={Toggle}>
+      {
+        rootStore.customizationMetadata.terms_html ?
+          <iframe
+            className="login-page__terms-modal__terms"
+            src={rootStore.PublicLink({versionHash: rootStore.marketplaceHash, path: UrlJoin("public", "asset_metadata", "info", "terms_html")})}
+          />:
+          <div
+            className="login-page__terms-modal__terms"
+            ref={element => {
+              if(!element) { return; }
+
+              render(
+                <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
+                  { SanitizeHTML(rootStore.customizationMetadata.terms) }
+                </ReactMarkdown>,
+                element
+              );
+            }}
+          />
+
+      }
+    </Modal>
+  );
+});
+
 const LoginBackground = observer(() => {
   const customizationOptions = rootStore.customizationMetadata || {};
 
@@ -47,6 +79,7 @@ const LoginBackground = observer(() => {
 });
 
 const Login = observer(() => {
+  const [showTermsModal, setShowTermsModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [customizationInfoLoading, setCustomizationInfoLoading] = useState(!!rootStore.marketplaceId);
   const [auth0Loading, setAuth0Loading] = useState(true);
@@ -233,7 +266,6 @@ const Login = observer(() => {
   }
 
   const customBackground = customizationOptions.background || customizationOptions.background_mobile;
-
   if(newWindowLogin || loading || customizationInfoLoading || auth0Loading || rootStore.loggingIn) {
     return (
       <div className={`page-container login-page ${customBackground ? "login-page-custom-background" : ""}`}>
@@ -289,10 +321,12 @@ const Login = observer(() => {
     );
   }
 
+  const loginButtonActive = localStorage.getItem("hasLoggedIn");
   const signUpButton = (
     <button
-      className="login-page__login-button login-page__login-button-create login-page__login-button-auth0"
+      className={`login-page__login-button login-page__login-button-create login-page__login-button-auth0 ${loginButtonActive ? "" : "active"}`}
       style={signUpButtonStyle}
+      autoFocus={!loginButtonActive}
       onClick={() => {
         if(!rootStore.embedded) {
           auth0.loginWithRedirect({
@@ -311,7 +345,8 @@ const Login = observer(() => {
   const logInButton = (
     <button
       style={logInButtonStyle}
-      className="login-page__login-button login-page__login-button-auth0"
+      autoFocus={loginButtonActive}
+      className={`login-page__login-button login-page__login-button-auth0 ${loginButtonActive ? "" : "active"}`}
       onClick={() => {
         if(!rootStore.embedded) {
           auth0.loginWithRedirect({
@@ -328,6 +363,8 @@ const Login = observer(() => {
 
   return (
     <div className={`page-container login-page ${customBackground ? "login-page-custom-background" : ""}`}>
+      { showTermsModal ? <TermsModal Toggle={show => setShowTermsModal(show)} /> : null }
+
       <LoginBackground />
       <div className="login-page__login-box" key={`login-box-${rootStore.accountLoading}`}>
         { logo }
@@ -351,6 +388,15 @@ const Login = observer(() => {
             >
               Or Sign In With Private Key
             </button>
+        }
+        {
+          rootStore.customizationMetadata && (rootStore.customizationMetadata.terms || rootStore.customizationMetadata.terms_html) ?
+            <button
+              onClick={() => setShowTermsModal(true)}
+              className="login-page__terms-button"
+            >
+              Terms of Service
+            </button> : null
         }
       </div>
     </div>

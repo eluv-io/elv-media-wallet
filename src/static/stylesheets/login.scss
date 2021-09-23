@@ -10,10 +10,6 @@
     margin-top: 10px;
   }
 
-  * {
-    z-index: 1;
-  }
-
   &__background {
     background-position: center;
     background-repeat: no-repeat;
@@ -23,7 +19,6 @@
     position: fixed;
     top: 0;
     width: 100%;
-    z-index: 0;
   }
 
   h1 {
@@ -43,6 +38,7 @@
     justify-content: center;
     max-width: 400px;
     padding: 30px;
+    position: relative;
     width: 100%;
   }
 
@@ -146,6 +142,10 @@
     margin: 5px 0;
     outline: 0;
     width: 191px;
+
+    &:focus {
+      filter: drop-shadow(0 0 3px $blue);
+    }
   }
 
   &__login-button-auth0 {
@@ -176,9 +176,54 @@
     }
   }
 
+  &__terms-button {
+    bottom: 20px;
+    font-size: 8px;
+    height: 20px;
+    letter-spacing: 0.05em;
+    position: absolute;
+
+    &.login-page__terms-button {
+      border: 0;
+    }
+  }
+
+  &__terms-modal {
+    .modal__content {
+      background: $white;
+      max-width: 650px;
+      padding: 50px;
+
+      * {
+        color: $black;
+      }
+    }
+
+    &-frame {
+      .modal__content {
+        height: 100%;
+        overflow: hidden;
+        padding: 0;
+      }
+
+      .login-page__terms-modal__terms {
+        height: 100%;
+        width: 100%;
+      }
+    }
+  }
+
   @media screen and (max-width: 700px) {
     &__login-box {
       max-height: 450px;
+    }
+
+    &__terms-modal {
+      .modal__content {
+        bottom: 0;
+        top: 0;
+        width: 100%;
+      }
     }
   }
 }
@@ -229,6 +274,16 @@
       background-color: $black;
       border: 0.75px solid $gray;
       color: $white;
+    }
+
+    &__terms-modal {
+      .modal__content {
+        background: $black;
+
+        * {
+          color: $white;
+        }
+      }
     }
   }
 }

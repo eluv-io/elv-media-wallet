@@ -32,6 +32,24 @@ $mobile-breakpoint: 600px;
   }
 }
 
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeout {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@mixin page-fade-in($duration: 0.5s) {
+  animation: $duration fadein ease-in;
+}
+
+@mixin page-fade-out {
+  animation: 0.5s fadeout ease-in;
+}
+
 @mixin background-gradient-loader {
   animation: BackgroundGradient 15s ease-in-out infinite;
   background: linear-gradient(-75deg, $lightgray, $white, $lightgray, $white, $lightgray);

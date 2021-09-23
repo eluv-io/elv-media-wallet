@@ -1,0 +1,80 @@
+$modal-background: rgba($black, 0.8);
+
+.modal {
+  @include page-fade-in;
+  align-items: center;
+  background-color: $modal-background;
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  left: 0;
+  margin: auto;
+  overflow-y: scroll;
+
+  position: fixed;
+  top: 0;
+  width: 100vw;
+  z-index: 100;
+
+  * {
+    z-index: 100;
+  }
+}
+
+.modal__content {
+  max-height: 90vh;
+  max-width: 85vw;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  position: absolute;
+  width: 1200px;
+  z-index: 10001;
+}
+
+.modal__close-button {
+  background-color: $white;
+  border-radius: 100%;
+  cursor: pointer;
+  font-weight: 400;
+  height: 35px;
+  padding: 8px;
+  position: absolute;
+  right: 35px;
+  stroke: $black;
+  top: 35px;
+  width: 35px;
+  z-index: 10002;
+
+  &:hover {
+    background-color: $black;
+    stroke: $white;
+  }
+}
+
+
+@media only screen and (max-width: 700px) {
+  .modal {
+    // sass-lint:disable no-vendor-prefixes
+    -webkit-overflow-scrolling: touch;
+    // sass-lint:enable no-vendor-prefixes
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: scroll;
+  }
+
+  .modal__content {
+    height: auto;
+    max-height: max-content;
+    max-width: 100vw;
+    min-height: 100vh;
+    overflow: visible;
+    top: 0;
+  }
+
+  .modal__close-button {
+    border: 1px solid $black;
+    position: fixed;
+    right: 15px;
+    top: 15px;
+  }
+}

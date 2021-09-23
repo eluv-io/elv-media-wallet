@@ -177,12 +177,16 @@ class RootStore {
       metadataSubtree: "public/asset_metadata/info",
       select: [
         "tenant_id",
+        "terms",
+        "terms_html",
         "login_customization"
       ]
     });
 
     this.customizationMetadata = {
       tenant_id: (customizationMetadata.tenant_id || {}),
+      terms: customizationMetadata.terms,
+      terms_html: customizationMetadata.terms_html,
       ...((customizationMetadata || {}).login_customization || {})
     };
 
