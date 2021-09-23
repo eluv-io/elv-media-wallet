@@ -191,8 +191,7 @@ const Login = observer(() => {
   }, [rootStore.navigateToLogIn]);
 
   const customizationOptions = rootStore.customizationMetadata || {};
-  let logo;
-  let buttonStyle = {};
+  let logo, logInButtonStyle, signUpButtonStyle;
   if(!rootStore.marketplaceId) {
     logo = <ImageIcon icon={Logo} className="login-page__logo" title="Eluv.io" />;
   } else if(rootStore.customizationMetadata) {
@@ -216,11 +215,19 @@ const Login = observer(() => {
       logo = <ImageIcon icon={Logo} className="login-page__logo" title="Eluv.io" />;
     }
 
-    if(customizationOptions.sign_in_button) {
-      buttonStyle = {
-        color: customizationOptions.sign_in_button.text_color.color,
-        backgroundColor: customizationOptions.sign_in_button.background_color.color,
-        border: `0.75px solid ${customizationOptions.sign_in_button.background_color.color}`
+    if(customizationOptions.log_in_button) {
+      logInButtonStyle = {
+        color: customizationOptions.log_in_button.text_color.color,
+        backgroundColor: customizationOptions.log_in_button.background_color.color,
+        border: `0.75px solid ${customizationOptions.log_in_button.border_color.color}`
+      };
+    }
+
+    if(customizationOptions.sign_up_button) {
+      signUpButtonStyle = {
+        color: customizationOptions.sign_up_button.text_color.color,
+        backgroundColor: customizationOptions.sign_up_button.background_color.color,
+        border: `0.75px solid ${customizationOptions.sign_up_button.border_color.color}`
       };
     }
   }
@@ -285,6 +292,7 @@ const Login = observer(() => {
   const signUpButton = (
     <button
       className="login-page__login-button login-page__login-button-create login-page__login-button-auth0"
+      style={signUpButtonStyle}
       onClick={() => {
         if(!rootStore.embedded) {
           auth0.loginWithRedirect({
@@ -302,7 +310,7 @@ const Login = observer(() => {
 
   const logInButton = (
     <button
-      style={buttonStyle}
+      style={logInButtonStyle}
       className="login-page__login-button login-page__login-button-auth0"
       onClick={() => {
         if(!rootStore.embedded) {
