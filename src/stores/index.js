@@ -581,26 +581,26 @@ class RootStore {
   }
 
   ClearAuthInfo() {
-    localStorage.removeItem("auth");
+    this.RemoveLocalStorage("auth");
   }
 
   SetAuthInfo({token, address, user}) {
-    localStorage.setItem(
+    this.SetLocalStorage(
       "auth",
       Utils.B64(JSON.stringify({token, address, user}))
     );
-    localStorage.setItem("hasLoggedIn", "true");
+    this.SetLocalStorage("hasLoggedIn", "true");
   }
 
   AuthInfo() {
     try {
-      const tokenInfo = localStorage.getItem("auth");
+      const tokenInfo = this.GetLocalStorage("auth");
 
       if(tokenInfo) {
         const { token, address, user } = JSON.parse(Utils.FromB64(tokenInfo));
         const expiration = JSON.parse(atob(token)).exp;
         if(expiration - Date.now() < 4 * 3600 * 1000) {
-          localStorage.removeItem("auth");
+          this.RemoveLocalStorage("auth");
         } else {
           return { token, address, user };
         }
@@ -639,6 +639,41 @@ class RootStore {
 
   SetNavigateToLogIn(initialScreen) {
     this.navigateToLogIn = initialScreen;
+  }
+
+  // Embedding application signalled that the wallet has become active
+  WalletActivated() {
+    if(this.activeLoginButton) {
+      this.activeLoginButton.focus();
+    }
+  }
+
+  SetActiveLoginButton(element) {
+    this.activeLoginButton = element;
+  }
+
+  GetLocalStorage(key) {
+    try {
+      return localStorage.getItem(key);
+    } catch(error) {
+      return undefined;
+    }
+  }
+
+  SetLocalStorage(key, value) {
+    try {
+      return localStorage.setItem(key, value);
+    } catch(error) {
+      return undefined;
+    }
+  }
+
+  RemoveLocalStorage(key) {
+    try {
+      return localStorage.removeItem(key);
+    } catch(error) {
+      return undefined;
+    }
   }
 
   HandleResize() {

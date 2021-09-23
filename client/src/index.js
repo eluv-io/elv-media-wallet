@@ -243,7 +243,8 @@ export class ElvWalletClient {
       action: "toggleNavigation",
       params: {
         enabled
-      }
+      },
+      noResponse: true
     });
   }
 
@@ -259,8 +260,16 @@ export class ElvWalletClient {
       action: "toggleSidePanelMode",
       params: {
         enabled
-      }
+      },
+      noResponse: true
     });
+  }
+
+  /**
+   * Indicate that the wallet has become active in order to activate certain UI behaviors
+   */
+  async SetActive() {
+    return this.SendMessage({action: "setActive", noResponse: true});
   }
 
   /**
@@ -293,22 +302,6 @@ export class ElvWalletClient {
         page,
         path,
         params
-      }
-    });
-  }
-
-  /**
-   * Redirect the wallet to the Auth0 log in page if the user has not yet logged in
-   *
-   * @methodGroup Navigation
-   * @namedParams
-   * @param {string=} initialScreen="login" - Specify the initial screen to show, either 'login' or 'signUp'
-   */
-  async NavigateToLogin(initialScreen="login") {
-    return this.SendMessage({
-      action: "logIn",
-      params: {
-        initialScreen
       }
     });
   }
@@ -408,7 +401,7 @@ export class ElvWalletClient {
     return client;
   }
 
-  async SendMessage({action, params}) {
+  async SendMessage({action, params, noResponse=false}) {
     const requestId = `action-${Id.next()}`;
 
     this.target.postMessage({
@@ -417,6 +410,8 @@ export class ElvWalletClient {
       action,
       params
     }, this.walletAppUrl);
+
+    if(noResponse) { return; }
 
     return (await this.AwaitMessage(requestId));
   }

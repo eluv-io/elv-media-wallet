@@ -321,12 +321,17 @@ const Login = observer(() => {
     );
   }
 
-  const loginButtonActive = localStorage.getItem("hasLoggedIn");
+  const loginButtonActive = !!rootStore.GetLocalStorage("hasLoggedIn");
   const signUpButton = (
     <button
-      className={`login-page__login-button login-page__login-button-create login-page__login-button-auth0 ${loginButtonActive ? "" : "active"}`}
+      className="login-page__login-button login-page__login-button-create login-page__login-button-auth0"
       style={signUpButtonStyle}
       autoFocus={!loginButtonActive}
+      ref={element => {
+        if(!element || loginButtonActive) { return; }
+
+        rootStore.SetActiveLoginButton(element);
+      }}
       onClick={() => {
         if(!rootStore.embedded) {
           auth0.loginWithRedirect({
@@ -346,7 +351,12 @@ const Login = observer(() => {
     <button
       style={logInButtonStyle}
       autoFocus={loginButtonActive}
-      className={`login-page__login-button login-page__login-button-auth0 ${loginButtonActive ? "" : "active"}`}
+      ref={element => {
+        if(!element || !loginButtonActive) { return; }
+
+        rootStore.SetActiveLoginButton(element);
+      }}
+      className="login-page__login-button login-page__login-button-auth0"
       onClick={() => {
         if(!rootStore.embedded) {
           auth0.loginWithRedirect({
@@ -369,7 +379,7 @@ const Login = observer(() => {
       <div className="login-page__login-box" key={`login-box-${rootStore.accountLoading}`}>
         { logo }
         {
-          localStorage.getItem("hasLoggedIn") ?
+          rootStore.GetLocalStorage("hasLoggedIn") ?
             <>
               { logInButton }
               { signUpButton }

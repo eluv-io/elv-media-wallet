@@ -101,6 +101,11 @@ export const InitializeListener = (history) => {
         rootStore.ToggleSidePanelMode(data.params.enabled);
 
         break;
+
+      case "setActive":
+        rootStore.WalletActivated();
+
+        break;
       case "navigate":
         if(data.params.path) {
           // Direct path
