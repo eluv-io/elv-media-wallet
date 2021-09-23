@@ -156,6 +156,7 @@ const Login = observer(() => {
 
     if(rootStore.embedded) {
       setAuth0Loading(false);
+      rootStore.SendEvent({event: EVENTS.LOADED});
     } else if(auth0.isAuthenticated) {
       SignIn();
     } else if(!rootStore.loggedIn && newWindowLogin && !sessionStorage.getItem("new-window-login")) {
@@ -281,41 +282,58 @@ const Login = observer(() => {
     );
   }
 
+  const signUpButton = (
+    <button
+      className="login-page__login-button login-page__login-button-create login-page__login-button-auth0"
+      onClick={() => {
+        if(!rootStore.embedded) {
+          auth0.loginWithRedirect({
+            redirectUri: callbackUrl,
+            initialScreen: "signUp"
+          });
+        } else {
+          window.open(createUrl);
+        }
+      }}
+    >
+      Sign Up
+    </button>
+  );
+
+  const logInButton = (
+    <button
+      style={buttonStyle}
+      className="login-page__login-button login-page__login-button-auth0"
+      onClick={() => {
+        if(!rootStore.embedded) {
+          auth0.loginWithRedirect({
+            redirectUri: callbackUrl
+          });
+        } else {
+          window.open(signInUrl);
+        }
+      }}
+    >
+      Log In
+    </button>
+  );
+
   return (
     <div className={`page-container login-page ${customBackground ? "login-page-custom-background" : ""}`}>
       <LoginBackground />
       <div className="login-page__login-box" key={`login-box-${rootStore.accountLoading}`}>
         { logo }
-        <button
-          className="login-page__login-button login-page__login-button-create login-page__login-button-auth0"
-          onClick={() => {
-            if(!rootStore.embedded) {
-              auth0.loginWithRedirect({
-                redirectUri: callbackUrl,
-                initialScreen: "signUp"
-              });
-            } else {
-              window.open(createUrl);
-            }
-          }}
-        >
-          Sign Up
-        </button>
-        <button
-          style={buttonStyle}
-          className="login-page__login-button login-page__login-button-auth0"
-          onClick={() => {
-            if(!rootStore.embedded) {
-              auth0.loginWithRedirect({
-                redirectUri: callbackUrl
-              });
-            } else {
-              window.open(signInUrl);
-            }
-          }}
-        >
-          Log In
-        </button>
+        {
+          localStorage.getItem("hasLoggedIn") ?
+            <>
+              { logInButton }
+              { signUpButton }
+            </> :
+            <>
+              { signUpButton }
+              { logInButton }
+            </>
+        }
         {
           rootStore.customizationMetadata && rootStore.customizationMetadata.disable_private_key ?
             null :

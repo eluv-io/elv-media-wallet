@@ -585,6 +585,7 @@ class RootStore {
       "auth",
       Utils.B64(JSON.stringify({token, address, user}))
     );
+    localStorage.setItem("hasLoggedIn", "true");
   }
 
   AuthInfo() {

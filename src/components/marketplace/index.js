@@ -394,7 +394,7 @@ const MarketplaceCollections = observer(() => {
       // For sale / authorization
       if(!item || !item.for_sale || (item.requires_permissions && !item.authorized)) { return; }
 
-      if(item.max_per_user && marketplaceItems[item.sku] && marketplaceItems[item.sku].length >= item.max_per_user) {
+      if(item.max_per_user && checkoutStore.stock[item.sku] && checkoutStore.stock[item.sku].current_user >= item.max_per_user) {
         // Purchase limit
         return;
       }
