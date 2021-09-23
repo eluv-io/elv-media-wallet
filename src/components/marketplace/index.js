@@ -229,6 +229,12 @@ const MarketplaceItemDetails = observer(() => {
       </div>
 
       <div className="details-page__info">
+        {
+          outOfStock ?
+            null :
+            <Checkout marketplaceId={match.params.marketplaceId} item={item} />
+        }
+
         <ExpandableSection header="Description">
           { itemTemplate.description || item.description }
         </ExpandableSection>
@@ -282,12 +288,6 @@ const MarketplaceItemDetails = observer(() => {
                 </a>
               </div>
             </ExpandableSection> : null
-        }
-
-        {
-          outOfStock ?
-            null :
-            <Checkout marketplaceId={match.params.marketplaceId} item={item} />
         }
       </div>
     </div>
@@ -685,21 +685,34 @@ const MarketplaceWrapper = observer(({children}) => {
     }
   }, [match.url]);
 
-  if(!match.params.marketplaceId) {
-    return children;
+  if(match.params.marketplaceId) {
+    return (
+      <AsyncComponent
+        Load={async () => {
+          await rootStore.LoadMarketplace(match.params.marketplaceId);
+          await rootStore.LoadWalletCollection();
+        }}
+        loadingClassName="page-loader"
+      >
+        <MarketplacePage>
+          { children }
+        </MarketplacePage>
+      </AsyncComponent>
+    );
   }
 
   return (
     <AsyncComponent
       Load={async () => {
-        await rootStore.LoadMarketplace(match.params.marketplaceId);
-        await rootStore.LoadWalletCollection();
+        await Promise.all(
+          rootStore.marketplaceIds.map(async marketplaceId => {
+            await rootStore.LoadMarketplace(marketplaceId);
+          })
+        );
       }}
       loadingClassName="page-loader"
     >
-      <MarketplacePage>
-        { children }
-      </MarketplacePage>
+      { children }
     </AsyncComponent>
   );
 });

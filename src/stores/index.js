@@ -471,7 +471,6 @@ class RootStore {
 
       this.client = client;
 
-      yield this.LoadCustomizationMetadata();
       const tenantId = this.customizationMetadata ? this.customizationMetadata.tenant_id : undefined;
 
       if(privateKey) {
@@ -503,20 +502,6 @@ class RootStore {
         noAuth: true
       });
 
-      // Parallelize load tasks
-      let tasks = [];
-      tasks.push((async () => this.LoadWalletCollection())());
-
-      tasks.push((async () => {
-        await Promise.all(
-          this.marketplaceIds.map(async marketplaceId => {
-            await this.LoadMarketplace(marketplaceId);
-          })
-        );
-      })());
-
-      yield Promise.all(tasks);
-
       this.client = client;
 
       this.initialized = true;
@@ -543,6 +528,7 @@ class RootStore {
       };
 
       this.SendEvent({event: EVENTS.LOG_IN, data: { address: client.signer.address }});
+      this.SendEvent({event: EVENTS.LOADED});
     } catch(error) {
       this.Log("Failed to initialize client", true);
       this.Log(error, true);

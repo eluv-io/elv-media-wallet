@@ -9,6 +9,7 @@ import UrlJoin from "url-join";
 import ImageIcon from "Components/common/ImageIcon";
 
 import Logo from "../../static/images/logo.svg";
+import EVENTS from "../../../client/src/Events";
 
 let newWindowLogin =
   new URLSearchParams(window.location.search).has("l") ||
@@ -167,6 +168,8 @@ const Login = observer(() => {
       rootStore.InitializeClient({privateKey: sessionStorage.getItem("pk")});
     } else if(!auth0.isLoading) {
       setAuth0Loading(false);
+
+      rootStore.SendEvent({event: EVENTS.LOADED});
     }
   }, [auth0 && auth0.isAuthenticated, auth0 && auth0.isLoading]);
 
