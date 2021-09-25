@@ -8,7 +8,6 @@ client/node_modules/
 client/test/node_modules/
 
 /configuration.js
-/https
 
 deploy.sh
 

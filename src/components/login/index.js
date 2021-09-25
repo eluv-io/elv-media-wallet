@@ -311,7 +311,7 @@ const Login = observer(() => {
               >
                 Cancel
               </button>
-              <button type="submit" className="login-page__private-key-form__button login-page__private-key-form__button-submit" style={buttonStyle}>
+              <button type="submit" className="login-page__private-key-form__button login-page__private-key-form__button-submit" style={logInButtonStyle}>
                 Submit
               </button>
             </div>

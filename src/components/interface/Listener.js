@@ -60,10 +60,14 @@ export const InitializeListener = (history) => {
     switch(data.action) {
       case "login":
         await rootStore.InitializeClient({
-          authToken: data.params.token,
+          authToken: data.params.authToken,
+          privateKey: data.params.privateKey,
           address: data.params.address,
-          user: data.params.user
+          user: data.params.user,
+          tenantId: data.params.tenantId
         });
+
+        Respond({});
 
         break;
       case "purchase":

@@ -184,7 +184,7 @@ class RootStore {
     });
 
     this.customizationMetadata = {
-      tenant_id: (customizationMetadata.tenant_id || {}),
+      tenant_id: (customizationMetadata.tenant_id),
       terms: customizationMetadata.terms,
       terms_html: customizationMetadata.terms_html,
       ...((customizationMetadata || {}).login_customization || {})
@@ -512,7 +512,7 @@ class RootStore {
       this.loggedIn = true;
 
       this.SetAuthInfo({
-        token: client.signer.authToken,
+        authtoken: client.signer.authToken,
         address: client.signer.address,
         user: {
           name: (user || {}).name,
@@ -584,10 +584,10 @@ class RootStore {
     this.RemoveLocalStorage("auth");
   }
 
-  SetAuthInfo({token, address, user}) {
+  SetAuthInfo({authToken, address, user}) {
     this.SetLocalStorage(
       "auth",
-      Utils.B64(JSON.stringify({token, address, user}))
+      Utils.B64(JSON.stringify({authToken, address, user}))
     );
     this.SetLocalStorage("hasLoggedIn", "true");
   }
@@ -597,12 +597,12 @@ class RootStore {
       const tokenInfo = this.GetLocalStorage("auth");
 
       if(tokenInfo) {
-        const { token, address, user } = JSON.parse(Utils.FromB64(tokenInfo));
-        const expiration = JSON.parse(atob(token)).exp;
+        const { authToken, address, user } = JSON.parse(Utils.FromB64(tokenInfo));
+        const expiration = JSON.parse(atob(authToken)).exp;
         if(expiration - Date.now() < 4 * 3600 * 1000) {
           this.RemoveLocalStorage("auth");
         } else {
-          return { token, address, user };
+          return { authToken, address, user };
         }
       }
     } catch(error) {

@@ -272,6 +272,18 @@ export class ElvWalletClient {
     return this.SendMessage({action: "setActive", noResponse: true});
   }
 
+  async SetAuthInfo({authToken, address, privateKey, user}) {
+    return this.SendMessage({
+      action: "login",
+      params: {
+        authToken,
+        privateKey,
+        address,
+        user
+      }
+    });
+  }
+
   /**
    * Request the wallet app navigate to the specified page.
    *

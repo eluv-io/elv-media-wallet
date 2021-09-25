@@ -82,7 +82,7 @@ const Wallet = observer(() => {
       <Switch>
         {
           Routes(match).map(({path, Component}) =>
-            <Route exact path={path}>
+            <Route exact path={path} key={`wallet-route-${path}`}>
               <WalletWrapper>
                 <Component/>
               </WalletWrapper>
