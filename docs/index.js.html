@@ -31,7 +31,7 @@
       </div>
       <div class="nav-content">
         <h3>Classes</h3><ul><li id="ElvWalletClient-nav">
-          <div data-name="ElvWalletClient" class="class-link-container"><a class="class-link">ElvWalletClient</a></div><ul class='methods'><h4 class="methodGroupHeader">Constructor</h4><li data-type="method" id="ElvWalletClient-ElvWalletClient-nav"><a href="ElvWalletClient.html" class="method-link">ElvWalletClient</a></li><li data-type="method" id="ElvWalletClient-InitializeFrame-nav"><a href="ElvWalletClient.html#.InitializeFrame" class="method-link">InitializeFrame</a></li><li data-type="method" id="ElvWalletClient-InitializePopup-nav"><a href="ElvWalletClient.html#.InitializePopup" class="method-link">InitializePopup</a></li><h4 class="methodGroupHeader">Events</h4><li data-type="method" id="ElvWalletClient-AddEventListener-nav"><a href="ElvWalletClient.html#AddEventListener" class="method-link">AddEventListener</a></li><li data-type="method" id="ElvWalletClient-RemoveEventListener-nav"><a href="ElvWalletClient.html#RemoveEventListener" class="method-link">RemoveEventListener</a></li><h4 class="methodGroupHeader">Items</h4><li data-type="method" id="ElvWalletClient-Item-nav"><a href="ElvWalletClient.html#Item" class="method-link">Item</a></li><li data-type="method" id="ElvWalletClient-Items-nav"><a href="ElvWalletClient.html#Items" class="method-link">Items</a></li><h4 class="methodGroupHeader">Navigation</h4><li data-type="method" id="ElvWalletClient-Navigate-nav"><a href="ElvWalletClient.html#Navigate" class="method-link">Navigate</a></li><li data-type="method" id="ElvWalletClient-NavigateToLogin-nav"><a href="ElvWalletClient.html#NavigateToLogin" class="method-link">NavigateToLogin</a></li><li data-type="method" id="ElvWalletClient-ToggleNavigation-nav"><a href="ElvWalletClient.html#ToggleNavigation" class="method-link">ToggleNavigation</a></li><li data-type="method" id="ElvWalletClient-ToggleSidePanelMode-nav"><a href="ElvWalletClient.html#ToggleSidePanelMode" class="method-link">ToggleSidePanelMode</a></li><h4 class="methodGroupHeader">Methods</h4><li data-type="method" id="ElvWalletClient-UserProfile-nav"><a href="ElvWalletClient.html#UserProfile" class="method-link">UserProfile</a></li></ul></li></ul>
+          <div data-name="ElvWalletClient" class="class-link-container"><a class="class-link">ElvWalletClient</a></div><ul class='methods'><h4 class="methodGroupHeader">Constructor</h4><li data-type="method" id="ElvWalletClient-ElvWalletClient-nav"><a href="ElvWalletClient.html" class="method-link">ElvWalletClient</a></li><li data-type="method" id="ElvWalletClient-InitializeFrame-nav"><a href="ElvWalletClient.html#.InitializeFrame" class="method-link">InitializeFrame</a></li><li data-type="method" id="ElvWalletClient-InitializePopup-nav"><a href="ElvWalletClient.html#.InitializePopup" class="method-link">InitializePopup</a></li><h4 class="methodGroupHeader">Events</h4><li data-type="method" id="ElvWalletClient-AddEventListener-nav"><a href="ElvWalletClient.html#AddEventListener" class="method-link">AddEventListener</a></li><li data-type="method" id="ElvWalletClient-RemoveEventListener-nav"><a href="ElvWalletClient.html#RemoveEventListener" class="method-link">RemoveEventListener</a></li><h4 class="methodGroupHeader">Items</h4><li data-type="method" id="ElvWalletClient-Item-nav"><a href="ElvWalletClient.html#Item" class="method-link">Item</a></li><li data-type="method" id="ElvWalletClient-Items-nav"><a href="ElvWalletClient.html#Items" class="method-link">Items</a></li><h4 class="methodGroupHeader">Navigation</h4><li data-type="method" id="ElvWalletClient-Navigate-nav"><a href="ElvWalletClient.html#Navigate" class="method-link">Navigate</a></li><li data-type="method" id="ElvWalletClient-ToggleNavigation-nav"><a href="ElvWalletClient.html#ToggleNavigation" class="method-link">ToggleNavigation</a></li><li data-type="method" id="ElvWalletClient-ToggleSidePanelMode-nav"><a href="ElvWalletClient.html#ToggleSidePanelMode" class="method-link">ToggleSidePanelMode</a></li><h4 class="methodGroupHeader">Methods</h4><li data-type="method" id="ElvWalletClient-SetActive-nav"><a href="ElvWalletClient.html#SetActive" class="method-link">SetActive</a></li><li data-type="method" id="ElvWalletClient-UserProfile-nav"><a href="ElvWalletClient.html#UserProfile" class="method-link">UserProfile</a></li></ul></li></ul>
       </div>
     </nav>
 
@@ -294,7 +294,8 @@ export class ElvWalletClient {
       action: "toggleNavigation",
       params: {
         enabled
-      }
+      },
+      noResponse: true
     });
   }
 
@@ -310,6 +311,26 @@ export class ElvWalletClient {
       action: "toggleSidePanelMode",
       params: {
         enabled
+      },
+      noResponse: true
+    });
+  }
+
+  /**
+   * Indicate that the wallet has become active in order to activate certain UI behaviors
+   */
+  async SetActive() {
+    return this.SendMessage({action: "setActive", noResponse: true});
+  }
+
+  async SetAuthInfo({authToken, address, privateKey, user}) {
+    return this.SendMessage({
+      action: "login",
+      params: {
+        authToken,
+        privateKey,
+        address,
+        user
       }
     });
   }
@@ -344,22 +365,6 @@ export class ElvWalletClient {
         page,
         path,
         params
-      }
-    });
-  }
-
-  /**
-   * Redirect the wallet to the Auth0 log in page if the user has not yet logged in
-   *
-   * @methodGroup Navigation
-   * @namedParams
-   * @param {string=} initialScreen="login" - Specify the initial screen to show, either 'login' or 'signUp'
-   */
-  async NavigateToLogin(initialScreen="login") {
-    return this.SendMessage({
-      action: "logIn",
-      params: {
-        initialScreen
       }
     });
   }
@@ -459,7 +464,7 @@ export class ElvWalletClient {
     return client;
   }
 
-  async SendMessage({action, params}) {
+  async SendMessage({action, params, noResponse=false}) {
     const requestId = `action-${Id.next()}`;
 
     this.target.postMessage({
@@ -468,6 +473,8 @@ export class ElvWalletClient {
       action,
       params
     }, this.walletAppUrl);
+
+    if(noResponse) { return; }
 
     return (await this.AwaitMessage(requestId));
   }
