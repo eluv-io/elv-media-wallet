@@ -5,6 +5,9 @@ import {rootStore} from "Stores/index";
 import {ProfileImage} from "Components/common/Images";
 import {Link, NavLink} from "react-router-dom";
 
+import BackIcon from "Assets/icons/arrow-left-circle.svg";
+import ImageIcon from "Components/common/ImageIcon";
+
 const Header = observer(() => {
   if(!rootStore.loggedIn || rootStore.hideNavigation) { return null; }
 
@@ -12,14 +15,25 @@ const Header = observer(() => {
     <header className="header">
       <div className="header__breadcrumbs">
         {
+          rootStore.navigationBreadcrumbs.length > 1 ?
+            <NavLink
+              className="header__breadcrumbs__back-button"
+              to={rootStore.navigationBreadcrumbs[rootStore.navigationBreadcrumbs.length - 2].path}
+            >
+              <ImageIcon icon={BackIcon} title="Back" />
+            </NavLink> : null
+        }
+        {
           rootStore.navigationBreadcrumbs.map(({name, path}, index) => {
             const last = index === rootStore.navigationBreadcrumbs.length - 1;
 
+            if(!name) { return null; }
+
             return (
-              <>
-                <NavLink to={path} isActive={() => last} className="header__breadcrumbs__link">{name}</NavLink>
-                { last ? null : <div className="header__breadcrumbs__separator">/</div> }
-              </>
+              <div className="header__breadcrumb" key={`header-breadcrumb-${path}`}>
+                <NavLink to={path} isActive={() => last} className="header__breadcrumb__link">{name}</NavLink>
+                { last ? null : <div className="header__breadcrumb__separator">/</div> }
+              </div>
             );
           })
         }

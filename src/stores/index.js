@@ -635,6 +635,8 @@ class RootStore {
 
   ToggleSidePanelMode(enabled) {
     this.sidePanelMode = enabled;
+
+    this.ToggleNavigation(!enabled);
   }
 
   SetNavigateToLogIn(initialScreen) {

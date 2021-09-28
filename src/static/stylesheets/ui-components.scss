@@ -23,9 +23,33 @@
     padding: 17px 24px;
   }
 
+  &.no-padding {
+    .expandable-section__content {
+      padding: 0 0 17px;
+    }
+  }
+
   &__header {
+    align-items: center;
     cursor: pointer;
+    display: flex;
     user-select: none;
+  }
+
+  &__header__icon {
+    filter: invert(100%);
+    height: auto;
+    margin-right: 12px;
+    width: 15px;
+  }
+
+  &__content-row {
+    border-bottom: 1px solid $lightgray;
+    padding: 7px 24px;
+
+    * {
+      color: $blue;
+    }
   }
 }
 
@@ -64,9 +88,21 @@
 
 .dark {
   .expandable-section {
+    &__content-row {
+      border-bottom: 1px solid $darkgray;
+
+      * {
+        color: $blue;
+      }
+    }
+
+    .expandable-section__header__icon {
+      filter: none;
+    }
+
     &.expandable-section-shown {
       .expandable-section__header {
-        border-bottom: 1px solid $gray;
+        border-bottom: 1px solid $darkgray;
       }
     }
   }

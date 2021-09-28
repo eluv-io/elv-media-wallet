@@ -210,7 +210,8 @@ button {
   }
 }
 
-.navigation-hidden {
+.navigation-hidden,
+.side-panel {
   .page-container {
     margin-top: 0;
   }
@@ -311,7 +312,7 @@ button {
 
   input {
     &[type="text"] {
-      background-color: $darkestgray;
+      background-color: $darkgray;
       border: 1px solid $darkestgray;
       color: $white;
     }
@@ -322,7 +323,7 @@ button {
     }
 
     &::placeholder {
-      color: $mediumgray;
+      color: $white;
     }
   }
 

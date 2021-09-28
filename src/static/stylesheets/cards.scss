@@ -144,7 +144,23 @@ $pending-color: rgba($blue, 0.5);
   }
 
   &__subtitle__stock {
+    align-items: center;
     color: $gray;
+    display: flex;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  &__subtitle__stock__indicator {
+    background: $red;
+    border-radius: 100%;
+    height: 7px;
+    margin-right: 7px;
+    width: 7px;
+
+    &-unavailable {
+      background: $darkgray;
+    }
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
@@ -167,7 +183,15 @@ $pending-color: rgba($blue, 0.5);
   padding-bottom: 10px;
   width: 100%;
 
-  &__content-container {
+  &__card-padding-container {
+    background: $lightergray;
+    border-radius: 10px;
+    padding: 15px;
+  }
+
+  &__card-container {
+    background: $white;
+    border-radius: 10px;
     display: block;
     margin: 0 auto;
     width: 100%;
@@ -211,7 +235,7 @@ $pending-color: rgba($blue, 0.5);
 
   &__open-button {
     .button {
-      margin: 10px auto 30px;
+      margin: 25px auto;
     }
   }
 
@@ -231,12 +255,21 @@ $pending-color: rgba($blue, 0.5);
     display: grid;
     grid-gap: 20px;
     grid-template-columns: 5fr minmax(0, 4fr);
-    //padding: 20px 30px 20px;
+
+    &__card-padding-container {
+      padding: 20px;
+    }
 
     .expandable-section {
       &:first-child {
         margin-top: 0;
       }
+    }
+  }
+
+  @media screen and (max-width: $tablet-breakpoint) {
+    &__info {
+      margin-top: 20px;
     }
   }
 }
@@ -282,11 +315,14 @@ $pending-color: rgba($blue, 0.5);
 
 .dark {
   .card-shadow {
-    border: 1px solid $gray;
+    border: 1px solid $darkgray;
     box-shadow: none;
   }
 
+
   .card-container {
+    background: $black;
+
     &-selected {
       border: 1px solid $gold;
       box-shadow: $gold 0 0 8px;
@@ -327,6 +363,10 @@ $pending-color: rgba($blue, 0.5);
   .details-page {
     &__content__id {
       color: $gray;
+    }
+
+    &__card-padding-container {
+      background: $darkestgray;
     }
   }
 }

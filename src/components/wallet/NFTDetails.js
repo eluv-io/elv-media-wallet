@@ -8,6 +8,10 @@ import {Redirect, useRouteMatch} from "react-router-dom";
 import {NFTImage} from "Components/common/Images";
 import {ExpandableSection, CopyableField, ButtonWithLoader} from "Components/common/UIComponents";
 
+import DescriptionIcon from "Assets/icons/Description icon.svg";
+import DetailsIcon from "Assets/icons/Details icon.svg";
+import ContractIcon from "Assets/icons/Contract icon.svg";
+
 const NFTDetails = observer(() => {
   const [opened, setOpened] = useState(false);
   const [deleted, setDeleted] = useState(false);
@@ -41,20 +45,21 @@ const NFTDetails = observer(() => {
 
   return (
     <div className="details-page">
-      <div className="details-page__content-container card-container">
-        <div className="details-page__content card card-shadow">
-          <NFTImage nft={nft} video className="details-page__content__image" />
-          <div className="card__subtitle">
-            { match.params.tokenId }
+      <div className="details-page__content-container">
+        <div className="details-page__card-padding-container">
+          <div className="details-page__card-container card-container">
+            <div className="details-page__content card card-shadow">
+              <NFTImage nft={nft} video className="details-page__content__image" />
+              <div className="card__subtitle">
+                { match.params.tokenId }
+              </div>
+
+              <h2 className="card__title">
+                { nft.metadata.display_name }
+              </h2>
+            </div>
           </div>
-
-          <h2 className="card__title">
-            { nft.metadata.display_name }
-          </h2>
         </div>
-      </div>
-
-      <div className="details-page__info">
         {
           nft && nft.metadata && nft.metadata.pack_options && nft.metadata.pack_options.is_openable ?
             <ButtonWithLoader
@@ -67,12 +72,14 @@ const NFTDetails = observer(() => {
               Open Pack
             </ButtonWithLoader> : null
         }
+      </div>
 
-        <ExpandableSection header="Description">
+      <div className="details-page__info">
+        <ExpandableSection header="Description" icon={DescriptionIcon}>
           { nft.metadata.description }
         </ExpandableSection>
 
-        <ExpandableSection header="Details">
+        <ExpandableSection header="Details" icon={DetailsIcon}>
           {
             nft.metadata.token_uri ?
               <CopyableField value={nft.metadata.token_uri}>
@@ -110,13 +117,17 @@ const NFTDetails = observer(() => {
           </div>
         </ExpandableSection>
 
-        <ExpandableSection header="Contract">
-          <CopyableField value={nft.details.ContractAddr}>
-            Contract Address: { nft.details.ContractAddr }
-          </CopyableField>
-          <CopyableField value={nft.details.versionHash}>
-            Hash: { nft.details.versionHash }
-          </CopyableField>
+        <ExpandableSection header="Contract" icon={ContractIcon} className="no-padding">
+          <div className="expandable-section__content-row">
+            <CopyableField value={nft.details.ContractAddr}>
+              Contract Address: { nft.details.ContractAddr }
+            </CopyableField>
+          </div>
+          <div className="expandable-section__content-row">
+            <CopyableField value={nft.details.versionHash}>
+              Hash: { nft.details.versionHash }
+            </CopyableField>
+          </div>
           <div>
             <a
               className="lookout-url"

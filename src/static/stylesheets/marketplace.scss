@@ -25,11 +25,7 @@
   }
 
   &__section {
-    margin-bottom: 30px;
-
-    & + .marketplace__section {
-      margin: 30px 0;
-    }
+    margin: 30px 0;
 
     &:first-child {
       margin-top: 0;
@@ -50,111 +46,60 @@
 }
 
 .checkout {
-  margin: 0 auto 40px;
-  max-width: 600px;
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: 18px;
+  width: 100%;
 
-  &__totals {
-    background-color: $lightergray;
-    padding: 18px;
-
-    &__row {
-      align-items: center;
-      display: flex;
-      font-size: 16px;
-      justify-content: space-between;
-      padding: 5px 0;
-    }
-
-    &__row__label {
-      font-weight: normal;
-    }
-
-    &__row__price {
-      font-weight: 600;
-    }
+  &:not(:first-child) {
+    margin: 10px auto;
   }
 
-  &__email {
-    margin-bottom: 5px;
+  input {
+    text-align: center;
   }
 
-  &__payment-actions {
-    margin-top: 20px;
+  &__price__header {
+    font-size: 16px;
+    font-weight: 300;
+  }
 
-    .checkout-button {
-      align-items: center;
-      background-color: $black;
-      border: 0;
-      border-radius: 3px;
-      color: $white;
-      cursor: pointer;
-      display: flex;
-      height: 50px;
-      justify-content: center;
-      letter-spacing: 0.14em;
-      position: relative;
-      text-transform: uppercase;
+  &__price__price {
+    font-size: 24px;
+    font-weight: 500;
+  }
 
-      &:disabled {
-        cursor: auto;
-        opacity: 0.5;
-      }
-    }
-
-    .coinbase-button {
-      background: $blue;
-      color: $white;
-    }
-
-    .stripe-checkout-logo {
-      height: 28px;
-      position: absolute;
-      right: 10px;
-      width: auto;
-    }
-
-    &.disabled {
-      opacity: 0.2;
-      pointer-events: none;
-    }
-
-    & > * {
-      margin-top: 10px;
-    }
-
-    .checkout-error-message {
-      color: $black;
-    }
-
-    .checkout-button,
-    .paypal-button {
-      width: 100%;
-    }
-
-    .paypal-button {
-      margin-bottom: 10px;
-
-      & > div {
-        height: 50px;
-      }
-    }
+  &__actions {
+    display: flex;
+    flex: 1 1 auto;
+    justify-content: center;
+    padding-left: 20px;
 
     .loader {
-      height: 170px;
-      max-width: 611px;
+      height: 40px;
+    }
+  }
+
+  &__button {
+    background: $blue;
+    border: 1px solid $blue;
+    color: $white;
+    height: 40px;
+    max-width: 300px;
+    width: 100%;
+
+    &:disabled {
+      cursor: auto;
+      opacity: 0.5;
     }
   }
 }
 
 .dark {
   .checkout {
-    &__totals {
-      background-color: $darkergray;
-      color: $white;
-    }
-
-    .checkout-button {
-      border: 1px solid $gray;
+    &__button {
+      border: 1px solid $blue;
     }
   }
 }

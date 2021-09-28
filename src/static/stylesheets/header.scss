@@ -24,6 +24,28 @@
     align-items: center;
     display: flex;
     height: 100%;
+  }
+
+  &__breadcrumbs__back-button {
+    align-items: center;
+    color: $white;
+    display: flex;
+    height: 20px;
+    justify-content: center;
+    margin-right: 12px;
+    text-align: center;
+    width: 20px;
+
+    * {
+      stroke: $black;
+      stroke-width: 1px;
+    }
+  }
+
+  &__breadcrumb {
+    align-items: center;
+    display: flex;
+    height: 100%;
 
     &__link {
       font-size: 12px;
@@ -116,6 +138,12 @@
   .header {
     background-color: $black;
     border-bottom: 1px solid $darkergray;
+
+    &__breadcrumbs__back-button {
+      * {
+        stroke: $white;
+      }
+    }
 
     &__search__input {
       background-color: $black;

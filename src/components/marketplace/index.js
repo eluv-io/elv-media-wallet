@@ -11,7 +11,6 @@ import {
 import UrlJoin from "url-join";
 import AsyncComponent from "Components/common/AsyncComponent";
 import NFTPlaceholderIcon from "Assets/icons/nft";
-import StripeLogo from "Assets/images/logo-stripe.png";
 import ImageIcon from "Components/common/ImageIcon";
 import {CopyableField, ExpandableSection, FormatPriceString, ItemPrice} from "Components/common/UIComponents";
 import {observer} from "mobx-react";
@@ -20,6 +19,10 @@ import {MarketplaceImage, NFTImage} from "Components/common/Images";
 import NFTDetails from "Components/wallet/NFTDetails";
 import {DropMintingStatus, PackOpenStatus, PurchaseMintingStatus} from "Components/marketplace/MintingStatus";
 import {Loader, PageLoader} from "Components/common/Loaders";
+
+import DescriptionIcon from "Assets/icons/Description icon.svg";
+import DetailsIcon from "Assets/icons/Details icon.svg";
+import ContractIcon from "Assets/icons/Contract icon.svg";
 
 const MarketplaceNavigation = observer(() => {
   let match = useRouteMatch();
@@ -54,9 +57,7 @@ const ValidEmail = email => {
 };
 
 const Checkout = observer(({marketplaceId, item}) => {
-  const subtotal = ItemPrice(item, checkoutStore.currency);
-  const platformFee = parseFloat((subtotal * 0.1).toFixed(2));
-  const total = subtotal + platformFee;
+  const total = ItemPrice(item, checkoutStore.currency);
 
   const [email, setEmail] = useState("");
   const [validEmail, setValidEmail] = useState(false);
@@ -66,32 +67,12 @@ const Checkout = observer(({marketplaceId, item}) => {
     return <Redirect to={UrlJoin("/marketplaces", marketplaceId, item.sku, "purchase", confirmationId, "success")} />;
   }
 
+  const purchaseDisabled = !rootStore.userProfile.email && !validEmail;
   return (
-    <div className="checkout">
-      <div className="checkout__totals card-shadow">
-        <div className="checkout__totals__row">
-          <label className="checkout__totals__row__label">Subtotal</label>
-          <div className="checkout__totals__row__price">
-            { FormatPriceString({[checkoutStore.currency]: subtotal}) }
-          </div>
-        </div>
-        <div className="checkout__totals__row">
-          <label className="checkout__totals__row__label">Platform Fee</label>
-          <div className="checkout__totals__row__price">
-            { FormatPriceString({[checkoutStore.currency]: platformFee}) }
-          </div>
-        </div>
-        <div className="checkout__totals__row">
-          <label className="checkout__totals__row__label">Subtotal</label>
-          <div className="checkout__totals__row__price">
-            { FormatPriceString({[checkoutStore.currency]: total}) }
-          </div>
-        </div>
-      </div>
-
-      <div className="checkout__payment-actions">
-        {
-          !rootStore.userProfile.email ?
+    <>
+      {
+        !rootStore.userProfile.email ?
+          <div className="checkout card-shadow checkout__email-input">
             <input
               type="text"
               className="checkout__email"
@@ -102,25 +83,37 @@ const Checkout = observer(({marketplaceId, item}) => {
                 setEmail(email);
                 setValidEmail(ValidEmail(email));
               }}
-            /> : null
-        }
-        {
-          checkoutStore.submittingOrder || (confirmationId && checkoutStore.pendingPurchases[confirmationId]) ?
-            <Loader/> :
-            <button
-              disabled={!rootStore.userProfile.email && !validEmail}
-              className="checkout-button"
-              role="link"
-              onClick={async () => {
-                setConfirmationId(await checkoutStore.StripeSubmit({marketplaceId, sku: item.sku, email}));
-              }}
-            >
-              Buy Now
-              <img className="stripe-checkout-logo" src={StripeLogo} alt="Stripe Logo"/>
-            </button>
-        }
+            />
+          </div> : null
+      }
+      <div className="checkout card-shadow">
+        <div className="checkout__price">
+          <div className="checkout__price__header">
+            Current Price
+          </div>
+          <div className="checkout__price__price">
+            { FormatPriceString({[checkoutStore.currency]: total}) }
+          </div>
+        </div>
+        <div className="checkout__actions">
+          {
+            checkoutStore.submittingOrder || (confirmationId && checkoutStore.pendingPurchases[confirmationId]) ?
+              <Loader/> :
+              <button
+                title={purchaseDisabled ? "Please enter your email address" : ""}
+                disabled={purchaseDisabled}
+                className="checkout__button"
+                role="link"
+                onClick={async () => {
+                  setConfirmationId(await checkoutStore.StripeSubmit({marketplaceId, sku: item.sku, email}));
+                }}
+              >
+                Buy Now
+              </button>
+          }
+        </div>
       </div>
-    </div>
+    </>
   );
 });
 
@@ -202,28 +195,33 @@ const MarketplaceItemDetails = observer(() => {
 
   return (
     <div className="details-page">
-      <div className="details-page__content-container card-container">
-        <div className="details-page__content card card-shadow">
-          <MarketplaceImage
-            templateImage
-            marketplaceHash={marketplace.versionHash}
-            item={item}
-            path={UrlJoin("public", "asset_metadata", "info", "items", itemIndex.toString(), "image")}
-            className="details-page__content__image"
-          />
-          <h2 className="card__title">
-            { item.name }
-          </h2>
-          <div className="card__subtitle">
-            <div className="card__subtitle__title">
-              { item.description }
+      <div className="details-page__content-container">
+        <div className="details-page__card-padding-container">
+          <div className="details-page__card-container card-container">
+            <div className="details-page__content card card-shadow">
+              <MarketplaceImage
+                templateImage
+                marketplaceHash={marketplace.versionHash}
+                item={item}
+                path={UrlJoin("public", "asset_metadata", "info", "items", itemIndex.toString(), "image")}
+                className="details-page__content__image"
+              />
+              <h2 className="card__title">
+                { item.name }
+              </h2>
+              <div className="card__subtitle">
+                <div className="card__subtitle__title">
+                  { item.description }
+                </div>
+                {
+                  stock && stock.max - stock.minted < 100 ?
+                    <div className="card__subtitle__stock">
+                      <div className={`card__subtitle__stock__indicator ${outOfStock ? "card__subtitle__stock__indicator-unavailable" : ""}`} />
+                      { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available` }
+                    </div> : null
+                }
+              </div>
             </div>
-            {
-              stock ?
-                <div className="card__subtitle__stock">
-                  { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Left!` }
-                </div> : null
-            }
           </div>
         </div>
       </div>
@@ -235,11 +233,11 @@ const MarketplaceItemDetails = observer(() => {
             <Checkout marketplaceId={match.params.marketplaceId} item={item} />
         }
 
-        <ExpandableSection header="Description">
+        <ExpandableSection header="Description" icon={DescriptionIcon}>
           { itemTemplate.description || item.description }
         </ExpandableSection>
 
-        <ExpandableSection header="Details">
+        <ExpandableSection header="Details" icon={DetailsIcon}>
           {
             itemTemplate.embed_url ?
               <CopyableField value={itemTemplate.embed_url}>
@@ -269,10 +267,12 @@ const MarketplaceItemDetails = observer(() => {
 
         {
           itemTemplate.address ?
-            <ExpandableSection header="Contract">
-              <CopyableField value={itemTemplate.address}>
-                Contract Address: {itemTemplate.address}
-              </CopyableField>
+            <ExpandableSection header="Contract" icon={ContractIcon} className="no-padding">
+              <div className="expandable-section__content-row">
+                <CopyableField value={itemTemplate.address}>
+                  Contract Address: {itemTemplate.address}
+                </CopyableField>
+              </div>
               <div>
                 <a
                   className="lookout-url"
@@ -329,9 +329,10 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
               { item.description }
             </div>
             {
-              stock && stock.max ?
+              stock && stock.max - stock.minted < 100 ?
                 <div className="card__subtitle__stock">
-                  { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Left!` }
+                  <div className={`card__subtitle__stock__indicator ${outOfStock ? "card__subtitle__stock__indicator-unavailable" : ""}`} />
+                  { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available` }
                 </div> : null
             }
           </h2>
@@ -544,40 +545,6 @@ const Marketplace = observer(() => {
             </div>
           );
         })
-      }
-
-      {
-        /*
-        marketplace.events.length === 0 ? null :
-          <div className="marketplace__section">
-            <h1 className="page-header">Events</h1>
-            <div className="card-list">
-              {
-                marketplace.drops.map((drop, index) => (
-                  <div className="card-container card-shadow" key={`drop-card-${index}`}>
-                    <Link
-                      to={`${Path.dirname(match.url)}/events/${drop.uuid}`}
-                      className="card nft-card"
-                    >
-                      <MarketplaceImage
-                        marketplaceHash={marketplace.versionHash}
-                        title={drop.event_header}
-                        path={UrlJoin("public", "asset_metadata", "info", "events", drop.eventIndex.toString(), "event", "info", "drops", drop.dropIndex.toString(), "event_image")}
-                      />
-                      <div className="card__text">
-                        <h2 className="card__title">
-                          <div className="card__title__title">
-                            { drop.event_header }
-                          </div>
-                        </h2>
-                      </div>
-                    </Link>
-                  </div>
-                ))
-              }
-            </div>
-          </div>
-         */
       }
     </>
   );

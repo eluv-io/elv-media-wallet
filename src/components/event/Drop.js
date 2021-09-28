@@ -81,7 +81,7 @@ const Drop = () => {
 
         return (
           <div className="drop content">
-            <h1 className="page-header">{ drop.drop_header }</h1>
+            { drop.drop_header ? <h1 className="page-header">{ drop.drop_header }</h1> : null }
             { drop.drop_subheader ? <h2 className="page-subheader">{ drop.drop_subheader }</h2> : null }
             <div className="card-list">
               {

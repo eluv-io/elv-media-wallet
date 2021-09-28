@@ -3,13 +3,15 @@ import SVG from "react-inlinesvg";
 
 import CopyIcon from "Assets/icons/copy.svg";
 import {Loader} from "Components/common/Loaders";
+import ImageIcon from "Components/common/ImageIcon";
 
-export const ExpandableSection = ({header, children, className=""}) => {
+export const ExpandableSection = ({header, icon, children, className=""}) => {
   const [ show, setShow ] = useState(false);
 
   return (
     <div className={`expandable-section card-shadow ${show ? "expandable-section-shown" : "expandable-section-hidden"} ${className}`}>
       <div className="expandable-section__header ellipsis" onClick={() => setShow(!show)}>
+        { icon ? <ImageIcon className="expandable-section__header__icon" icon={icon} title={header} /> : null}
         { header }
       </div>
       { show ? <div className="expandable-section__content">{ children }</div> : null }
