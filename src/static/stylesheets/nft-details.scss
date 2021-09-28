@@ -1,0 +1,137 @@
+.details-page {
+  max-width: 100%;
+  overflow-x: hidden;
+  padding-bottom: 10px;
+  width: 100%;
+
+  &__card-padding-container {
+    background: $lightergray;
+    border-radius: 10px;
+    padding: 0;
+  }
+
+  &__card-container {
+    background: $white;
+    border-radius: 10px;
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  &__content__header {
+    font-weight: 500;
+  }
+
+  &__content__id {
+    color: $darkgray;
+    font-style: italic;
+    letter-spacing: 0.05em;
+    text-align: center;
+  }
+
+  .card {
+    &__title,
+    &__subtitle,
+    &__stock {
+      height: 30px;
+    }
+
+    &__title {
+      font-size: 20px;
+    }
+
+    &__subtitle,
+    &__stock {
+      font-size: 18px;
+    }
+  }
+
+  // sass-lint:disable force-element-nesting
+  &__open-button .button,
+  &__delete-button .button,
+  .lookout-url {
+    background-color: $blue;
+    border: 0;
+    border-radius: 8px;
+    color: $white;
+    display: block;
+    margin: 30px auto 0;
+    max-width: 300px;
+    padding: 0 30px;
+    text-align: center;
+  }
+  // sass-lint:enable force-element-nesting
+
+  &__open-button {
+    .button {
+      margin: 25px auto;
+    }
+  }
+
+  .lookout-url {
+    padding: 10px 30px;
+  }
+
+  &__delete-button {
+    .button {
+      background: $darkgray;
+      border: 0;
+    }
+  }
+
+  @media screen and (min-width: $tablet-breakpoint) {
+    align-content: start;
+    display: grid;
+    grid-gap: 20px;
+    grid-template-columns: 5fr minmax(0, 4fr);
+
+    &__card-padding-container {
+      padding: 20px;
+    }
+
+    .expandable-section {
+      &:first-child {
+        margin-top: 0;
+      }
+    }
+  }
+
+  @media screen and (max-width: $tablet-breakpoint) {
+    &__info {
+      margin-top: 20px;
+    }
+
+    .card {
+      &__title,
+      &__subtitle,
+      &__stock {
+        height: 20px;
+      }
+
+      &__title {
+        font-size: 13px;
+
+        &__price {
+          font-size: 12px;
+        }
+      }
+
+      &__subtitle,
+      &__stock {
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+.dark {
+  .details-page {
+    &__content__id {
+      color: $gray;
+    }
+
+    &__card-padding-container {
+      background: $darkestgray;
+    }
+  }
+}

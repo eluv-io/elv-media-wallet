@@ -50,13 +50,17 @@ const NFTDetails = observer(() => {
           <div className="details-page__card-container card-container">
             <div className="details-page__content card card-shadow">
               <NFTImage nft={nft} video className="details-page__content__image" />
-              <div className="card__subtitle">
-                { match.params.tokenId }
-              </div>
+              <div className="details-page__content__info card__text">
+                <div className="card__titles">
+                  <div className="card__subtitle">
+                    { match.params.tokenId }
+                  </div>
 
-              <h2 className="card__title">
-                { nft.metadata.display_name }
-              </h2>
+                  <h2 className="card__title">
+                    { nft.metadata.display_name }
+                  </h2>
+                </div>
+              </div>
             </div>
           </div>
         </div>

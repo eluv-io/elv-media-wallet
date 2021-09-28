@@ -157,13 +157,17 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
                     to={UrlJoin(nftBasePath || basePath, nft.details.ContractId, nft.details.TokenIdStr)}
                     className="card nft-card"
                   >
-                    <NFTImage nft={nft} className="card__image" width={400} />
-                    <h2 className="card__title">
-                      { nft.metadata.display_name || "" }
-                    </h2>
-                    <h2 className="card__subtitle">
-                      { nft.metadata.display_name || "" }
-                    </h2>
+                    <NFTImage nft={nft} width={400} />
+                    <div className="card__text">
+                      <div className="card__titles">
+                        <h2 className="card__title">
+                          { nft.metadata.display_name || "" }
+                        </h2>
+                        <h2 className="card__subtitle">
+                          { nft.metadata.display_name || "" }
+                        </h2>
+                      </div>
+                    </div>
                   </Link>
                 </div>
               );

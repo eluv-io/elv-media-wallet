@@ -41,7 +41,7 @@
   }
 
   .card-list {
-    grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   }
 }
 
@@ -86,7 +86,7 @@
     border: 1px solid $blue;
     color: $white;
     height: 40px;
-    max-width: 300px;
+    max-width: 250px;
     width: 100%;
 
     &:disabled {

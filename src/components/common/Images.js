@@ -32,56 +32,66 @@ export const NFTImage = observer(({nft, width, video=false, className=""}) => {
 
   if(video && (typeof nft.metadata.playable === "undefined" || nft.metadata.playable) && nft.metadata.embed_url) {
     return (
-      <div className={`nft-image nft-image-video-embed ${className}`}>
-        <iframe
-          className="nft-image-video-embed__frame"
-          src={nft.metadata.embed_url}
-          allowFullScreen
-        />
+      <div className="card__image-container">
+        <div className={`card__image card__image-video-embed ${className}`}>
+          <iframe
+            className="card__image-video-embed__frame"
+            src={nft.metadata.embed_url}
+            allowFullScreen
+          />
+        </div>
       </div>
     );
   }
   return (
-    nft.metadata.image ?
-      <img
-        onLoad={() => setLoaded(true)}
-        src={url.toString()}
-        className={`nft-image nft-image-image ${loaded ? "" : "nft-image-loading"} ${className}`}
-        alt={nft.metadata.display_name}
-      /> :
-      <SVG
-        src={NFTPlaceholderIcon}
-        className={`nft-image nft-image-placeholder ${className}`}
-        alt={nft.metadata.display_name}
-      />
+    <div className="card__image-container">
+      {
+        nft.metadata.image ?
+          <img
+            onLoad={() => setLoaded(true)}
+            src={url.toString()}
+            className={`card__image ${loaded ? "" : "card__image-loading"} ${className}`}
+            alt={nft.metadata.display_name}
+          /> :
+          <SVG
+            src={NFTPlaceholderIcon}
+            className={`card__image ${className}`}
+            alt={nft.metadata.display_name}
+          />
+      }
+    </div>
   );
 });
 
-export const MarketplaceImage = ({marketplaceHash, item, title, path, templateImage=false, className=""}) => {
-  let url;
-  if(!item || item.image && (!templateImage || !item.nft_template || !item.nft_template.nft || !item.nft_template.nft.image)) {
-    url = rootStore.PublicLink({
-      versionHash: marketplaceHash,
-      path,
-      queryParams: {
-        width: 400
-      }
-    });
-  } else if(item.nft_template && item.nft_template.nft && item.nft_template.nft.image) {
-    url = (item.nft_template.nft || {}).image;
-    url = new URL(url);
-    url.searchParams.set("authorization", rootStore.authedToken);
-    url = url.toString();
-  } else {
-    return <SVG src={NFTPlaceholderIcon} className="nft-image nft-image-placeholder card__image card__image-placeholder" alt={item.name} />;
+export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon, templateImage=false, className=""}) => {
+  if(!(url || icon)) {
+    if(!item || item.image && (!templateImage || !item.nft_template || !item.nft_template.nft || !item.nft_template.nft.image)) {
+      url = rootStore.PublicLink({
+        versionHash: marketplaceHash,
+        path,
+        queryParams: {
+          width: 400
+        }
+      });
+    } else if(item.nft_template && item.nft_template.nft && item.nft_template.nft.image) {
+      url = (item.nft_template.nft || {}).image;
+      url = new URL(url);
+      url.searchParams.set("authorization", rootStore.authedToken);
+      url = url.toString();
+    } else {
+      icon = NFTPlaceholderIcon;
+      className = `card__image-placeholder ${className}`;
+    }
   }
 
   return (
-    <ImageIcon
-      title={title || item && item.name || ""}
-      icon={url || NFTPlaceholderIcon}
-      alternateIcon={NFTPlaceholderIcon}
-      className={`nft-image card__image ${className}`}
-    />
+    <div className="card__image-container">
+      <ImageIcon
+        title={title || item && item.name || ""}
+        icon={url || icon || NFTPlaceholderIcon}
+        alternateIcon={NFTPlaceholderIcon}
+        className={`card__image ${className}`}
+      />
+    </div>
   );
 };

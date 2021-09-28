@@ -51,6 +51,9 @@
       font-size: 12px;
       font-weight: 300;
       letter-spacing: 0.03em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
 
       &.active {
         font-weight: bold;
@@ -98,8 +101,12 @@
       display: none;
     }
 
-    &__breadcrumbs__separator,
-    &__breadcrumbs__link {
+    &__breadcrumb {
+      max-width: 120px;
+    }
+
+    &__breadcrumb__separator,
+    &__breadcrumb__link {
       display: none;
       font-size: 9px;
 

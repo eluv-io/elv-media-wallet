@@ -3,12 +3,19 @@
     display: none;
   }
 
+  .card-container {
+    &::before {
+      padding-top: calc(100% + 35px);
+    }
+  }
+
   .card-list {
     grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
 
     .card {
-      &__image {
-        padding-bottom: 0;
+      &__title {
+        font-size: 14px;
+        justify-content: center;
       }
     }
   }

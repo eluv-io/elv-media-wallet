@@ -29,14 +29,14 @@ const DropCard = ({drop, marketplace, label, sku, index, image, selected=false, 
           }
         />
         <div className="card__text">
-          <h2 className="card__title">
-            <div className="card__title__title">
+          <div className="card__titles">
+            <h2 className="card__title">
               { label || item.name }
-            </div>
-          </h2>
-          <h2 className="card__subtitle">
-            { item.description }
-          </h2>
+            </h2>
+            <h2 className="card__subtitle">
+              { item.description }
+            </h2>
+          </div>
         </div>
       </div>
     </div>
@@ -66,6 +66,19 @@ const Drop = () => {
           setSelection(dropStatus.itm);
         } catch(error) {
           rootStore.Log("Failed to retrieve drop vote", true);
+          rootStore.Log(error, true);
+        }
+
+        const postVoteState = drop.event_state_post_vote || {};
+        const mintStartState = drop.event_state_mint_start || {};
+
+        rootStore.SetMarketplaceFilters(drop.store_filters || []);
+
+        try {
+          setVotingEnded(new Date(postVoteState.start_date).getTime() < Date.now());
+          setMintingStarted(new Date(mintStartState.start_date).getTime() < Date.now());
+        } catch(error) {
+          rootStore.Log("Failed to parse drop state date", true);
           rootStore.Log(error, true);
         }
       }}
@@ -128,7 +141,6 @@ const Drop = () => {
               showSeconds
               OnEnded={() => {
                 setMintingStarted(true);
-                rootStore.SetMarketplaceFilters(drop.store_filters || []);
               }}
             />
           </div>

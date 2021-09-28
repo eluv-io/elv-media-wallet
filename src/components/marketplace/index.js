@@ -11,7 +11,6 @@ import {
 import UrlJoin from "url-join";
 import AsyncComponent from "Components/common/AsyncComponent";
 import NFTPlaceholderIcon from "Assets/icons/nft";
-import ImageIcon from "Components/common/ImageIcon";
 import {CopyableField, ExpandableSection, FormatPriceString, ItemPrice} from "Components/common/UIComponents";
 import {observer} from "mobx-react";
 import Drop from "Components/event/Drop";
@@ -210,17 +209,26 @@ const MarketplaceItemDetails = observer(() => {
                 path={UrlJoin("public", "asset_metadata", "info", "items", itemIndex.toString(), "image")}
                 className="details-page__content__image"
               />
-              <h2 className="card__title">
-                { item.name }
-              </h2>
-              <div className="card__subtitle">
-                <div className="card__subtitle__title">
-                  { item.description }
+              <div className="details-page__content__info card__text">
+                <div className="card__titles">
+                  <h2 className="card__title">
+                    <div className="card__title__title">
+                      { item.name }
+                    </div>
+                    <div className="card__title__price">
+                      { FormatPriceString(item.price) }
+                    </div>
+                  </h2>
+                  <h2 className="card__subtitle">
+                    <div className="card__subtitle__title">
+                      { item.description }
+                    </div>
+                  </h2>
                 </div>
                 {
-                  stock && stock.max - stock.minted < 100 ?
-                    <div className="card__subtitle__stock">
-                      <div className={`card__subtitle__stock__indicator ${outOfStock ? "card__subtitle__stock__indicator-unavailable" : ""}`} />
+                  stock && stock.max && stock.max - stock.minted < 100 ?
+                    <div className="card__stock">
+                      <div className={`card__stock__indicator ${outOfStock ? "card__stock__indicator-unavailable" : ""}`} />
                       { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available` }
                     </div> : null
                 }
@@ -320,26 +328,28 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
           path={UrlJoin("public", "asset_metadata", "info", "items", index.toString(), "image")}
         />
         <div className="card__text">
-          <h2 className="card__title">
-            <div className="card__title__title">
-              { item.name }
-            </div>
-            <div className="card__title__price">
-              { FormatPriceString(item.price) }
-            </div>
-          </h2>
-          <h2 className="card__subtitle">
-            <div className="card__subtitle__title">
-              { item.description }
-            </div>
-            {
-              stock && stock.max - stock.minted < 100 ?
-                <div className="card__subtitle__stock">
-                  <div className={`card__subtitle__stock__indicator ${outOfStock ? "card__subtitle__stock__indicator-unavailable" : ""}`} />
-                  { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available` }
-                </div> : null
-            }
-          </h2>
+          <div className="card__titles">
+            <h2 className="card__title">
+              <div className="card__title__title">
+                { item.name }
+              </div>
+              <div className="card__title__price">
+                { FormatPriceString(item.price) }
+              </div>
+            </h2>
+            <h2 className="card__subtitle">
+              <div className="card__subtitle__title">
+                { item.description }
+              </div>
+            </h2>
+          </div>
+          {
+            stock && stock.max && stock.max - stock.minted < 100 ?
+              <div className="card__stock">
+                <div className={`card__stock__indicator ${outOfStock ? "card__stock__indicator-unavailable" : ""}`} />
+                { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available` }
+              </div> : null
+          }
         </div>
       </Link>
     </div>
@@ -367,13 +377,17 @@ const MarketplaceOwned = observer(() => {
                 to={UrlJoin(match.url, ownedItem.details.ContractId, ownedItem.details.TokenIdStr)}
                 className="card nft-card"
               >
-                <NFTImage nft={ownedItem} className="card__image" width={400} />
-                <h2 className="card__title">
-                  { ownedItem.metadata.display_name || "" }
-                </h2>
-                <h2 className="card__subtitle">
-                  { ownedItem.metadata.display_name || "" }
-                </h2>
+                <NFTImage nft={ownedItem} width={400} />
+                <div className="card__text">
+                  <div className="card__titles">
+                    <h2 className="card__title">
+                      { ownedItem.metadata.display_name || "" }
+                    </h2>
+                    <h2 className="card__subtitle">
+                      { ownedItem.metadata.display_name || "" }
+                    </h2>
+                  </div>
+                </div>
               </Link>
             </div>
           )
@@ -431,13 +445,17 @@ const MarketplaceCollections = observer(() => {
               to={UrlJoin(match.url, collectionIndex.toString(), "owned", nft.details.ContractId, nft.details.TokenIdStr)}
               className="card nft-card"
             >
-              <NFTImage nft={nft} className="card__image" width={400} />
-              <h2 className="card__title">
-                { nft.metadata.display_name || "" }
-              </h2>
-              <h2 className="card__subtitle">
-                { nft.metadata.display_name || "" }
-              </h2>
+              <NFTImage nft={nft} width={400} />
+              <div className="card__text">
+                <div className="card__titles">
+                  <h2 className="card__title">
+                    { nft.metadata.display_name || "" }
+                  </h2>
+                  <h2 className="card__subtitle">
+                    { nft.metadata.display_name || "" }
+                  </h2>
+                </div>
+              </div>
             </Link>
           </div>
         );
@@ -464,14 +482,18 @@ const MarketplaceCollections = observer(() => {
                     title={item.name}
                     path={UrlJoin("public", "asset_metadata", "info", "items", itemIndex.toString(), "image")}
                   /> :
-                  <div className="nft-image card__image card__image-placeholder"/>
+                  <MarketplaceImage title={item.name} icon={NFTPlaceholderIcon} />
               }
-              <h2 className="card__title">
-                { item.name }
-              </h2>
-              <h2 className="card__subtitle">
-                { item.description }
-              </h2>
+              <div className="card__text">
+                <div className="card__titles">
+                  <h2 className="card__title">
+                    { item.name }
+                  </h2>
+                  <h2 className="card__subtitle">
+                    { item.description }
+                  </h2>
+                </div>
+              </div>
             </div>
           </div>
         );
@@ -607,19 +629,16 @@ const MarketplaceBrowser = observer(() => {
                 to={`${match.url}/${marketplaceId}`}
                 className="card nft-card"
               >
-                <ImageIcon
-                  title={marketplace.name}
-                  icon={imageUrl || NFTPlaceholderIcon}
-                  alternateIcon={NFTPlaceholderIcon}
-                  className="nft-image card__image"
-                />
+                <MarketplaceImage title={marketplace.name} url={imageUrl} />
                 <div className="card__text">
-                  <h2 className="card__title">
-                    { marketplace.name }
-                  </h2>
-                  <h2 className="card__subtitle">
-                    { marketplace.description }
-                  </h2>
+                  <div className="card__titles">
+                    <h2 className="card__title">
+                      { marketplace.name }
+                    </h2>
+                    <h2 className="card__subtitle">
+                      { marketplace.description }
+                    </h2>
+                  </div>
                 </div>
               </Link>
             </div>
@@ -666,8 +685,15 @@ const MarketplaceWrapper = observer(({children}) => {
         Load={async () => {
           if(currentRoute.skipLoading) { return; }
 
-          await rootStore.LoadMarketplace(match.params.marketplaceId);
-          await rootStore.LoadWalletCollection();
+          await Promise.all([
+            rootStore.LoadMarketplace(match.params.marketplaceId),
+            rootStore.LoadWalletCollection()
+          ]);
+
+          const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+          if(marketplace) {
+            await checkoutStore.MarketplaceStock(marketplace);
+          }
         }}
         loadingClassName="page-loader"
       >

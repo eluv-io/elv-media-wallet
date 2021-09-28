@@ -7,12 +7,6 @@ $pending-color: rgba($blue, 0.5);
   grid-gap: 10px;
   grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));
   margin-top: 20px;
-
-  @media screen and (max-width: $mobile-breakpoint) {
-    .card {
-      padding: 10px 20px;
-    }
-  }
 }
 
 .card-shadow {
@@ -29,7 +23,7 @@ $pending-color: rgba($blue, 0.5);
   &::before {
     content: "";
     display: block;
-    padding-top: 100%;
+    padding-top: 125%;
   }
 
   &-selectable {
@@ -63,27 +57,11 @@ $pending-color: rgba($blue, 0.5);
   &.collection-card-unowned {
     opacity: 0.5;
   }
-
-  .card {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    left: 0;
-    position: absolute;
-    top: 0;
-    width: 100%;
-
-    &__image {
-      margin-bottom: 10px;
-      object-fit: contain;
-      width: 100%;
-    }
-  }
 }
 
 .card {
   border-radius: 10px;
-  display: block;
+  display: flex;
   flex-direction: column;
   height: 100%;
   justify-content: space-between;
@@ -101,28 +79,68 @@ $pending-color: rgba($blue, 0.5);
     pointer-events: none;
   }
 
-  &__image {
-    flex: 1 1 auto;
-    height: calc(100% - 40px);
-    max-height: calc(100% - 50px);
-    object-fit: contain;
-    object-position: center;
+  &__image-container {
+    padding-top: 100%;
+    position: relative;
     width: 100%;
   }
 
+  &__image {
+    height: 100%;
+    left: 0;
+    object-fit: contain;
+    object-position: center;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+
+  &__image-loading {
+    @include background-gradient-loader;
+  }
+
   &__image-placeholder {
-    margin-bottom: 10px;
+    padding: 25%;
+
+    * {
+      stroke: $black;
+    }
+  }
+
+  &__image-video-embed {
+    border: 0;
+    height: 100%;
+    max-width: 100%;
+    outline: 0;
+    width: 100%;
+
+    &__frame {
+      border: 0;
+      height: 100%;
+      outline: 0;
+      width: 100%;
+    }
   }
 
   &__text {
-    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+    margin-top: 15px;
+  }
+
+  &__title,
+  &__subtitle,
+  &__stock {
+    height: 22px;
   }
 
   &__title,
   &__subtitle {
     align-items: center;
     display: flex;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
     justify-content: space-between;
   }
@@ -132,26 +150,27 @@ $pending-color: rgba($blue, 0.5);
     padding-right: 10px;
   }
 
-  &__title__price,
-  &__subtitle__stock {
-    font-size: 12px;
-    font-weight: 400;
+  &__title__price {
+    font-size: 14px;
+    font-weight: 500;
   }
 
   &__subtitle {
-    font-size: 12px;
+    color: $gray;
+    font-size: 14px;
     font-weight: 300;
   }
 
-  &__subtitle__stock {
+  &__stock {
     align-items: center;
     color: $gray;
     display: flex;
     font-size: 14px;
     font-weight: 600;
+    justify-content: flex-end;
   }
 
-  &__subtitle__stock__indicator {
+  &__stock__indicator {
     background: $red;
     border-radius: 100%;
     height: 7px;
@@ -166,7 +185,6 @@ $pending-color: rgba($blue, 0.5);
   @media screen and (max-width: $mobile-breakpoint) {
     padding: 15px 15px 25px;
 
-
     &__title {
       font-size: 12px;
     }
@@ -177,148 +195,11 @@ $pending-color: rgba($blue, 0.5);
   }
 }
 
-.details-page {
-  max-width: 100%;
-  overflow-x: hidden;
-  padding-bottom: 10px;
-  width: 100%;
-
-  &__card-padding-container {
-    background: $lightergray;
-    border-radius: 10px;
-    padding: 0;
-  }
-
-  &__card-container {
-    background: $white;
-    border-radius: 10px;
-    display: block;
-    margin: 0 auto;
-    width: 100%;
-  }
-
-  &__content__header {
-    font-weight: 500;
-  }
-
-  &__content__image {
-    margin-bottom: 10px;
-    max-height: calc(100% - 50px);
-  }
-
-  &__content__id {
-    color: $darkgray;
-    font-style: italic;
-    letter-spacing: 0.05em;
-    text-align: center;
-  }
-
-  .card__title {
-    font-size: 18px;
-  }
-
-  // sass-lint:disable force-element-nesting
-  &__open-button .button,
-  &__delete-button .button,
-  .lookout-url {
-    background-color: $blue;
-    border: 0;
-    border-radius: 8px;
-    color: $white;
-    display: block;
-    margin: 30px auto 0;
-    max-width: 300px;
-    padding: 0 30px;
-    text-align: center;
-  }
-  // sass-lint:enable force-element-nesting
-
-  &__open-button {
-    .button {
-      margin: 25px auto;
-    }
-  }
-
-  .lookout-url {
-    padding: 10px 30px;
-  }
-
-  &__delete-button {
-    .button {
-      background: $darkgray;
-      border: 0;
-    }
-  }
-
-  @media screen and (min-width: $tablet-breakpoint) {
-    align-content: start;
-    display: grid;
-    grid-gap: 20px;
-    grid-template-columns: 5fr minmax(0, 4fr);
-
-    &__card-padding-container {
-      padding: 20px;
-    }
-
-    .expandable-section {
-      &:first-child {
-        margin-top: 0;
-      }
-    }
-  }
-
-  @media screen and (max-width: $tablet-breakpoint) {
-    &__info {
-      margin-top: 20px;
-    }
-  }
-}
-
-.nft-image-container {
-  display: block;
-}
-
-.nft-image {
-  border-radius: 5px;
-  color: $overlay-background;
-  line-height: 100px;
-  object-fit: contain;
-  text-align: center;
-}
-
-.nft-image-loading {
-  @include background-gradient-loader;
-}
-
-.nft-image-placeholder {
-  padding: 25%;
-
-  * {
-    stroke: $black;
-  }
-}
-
-.nft-image-video-embed {
-  border: 0;
-  height: 100%;
-  max-width: 100%;
-  outline: 0;
-  width: 100%;
-
-  &__frame {
-    border: 0;
-    height: 100%;
-    outline: 0;
-    width: 100%;
-  }
-}
-
 .dark {
   .card-shadow {
     border: 1px solid $darkgray;
     box-shadow: none;
   }
-
 
   .card-container {
     background: $black;
@@ -357,16 +238,6 @@ $pending-color: rgba($blue, 0.5);
 
     &__subtitle {
       color: $mediumgray;
-    }
-  }
-
-  .details-page {
-    &__content__id {
-      color: $gray;
-    }
-
-    &__card-padding-container {
-      background: $darkestgray;
     }
   }
 }

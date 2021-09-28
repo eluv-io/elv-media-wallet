@@ -52,6 +52,12 @@
       border-bottom: 3px solid $blue;
     }
   }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    &__link {
+      font-size: 12px;
+    }
+  }
 }
 
 .dark {

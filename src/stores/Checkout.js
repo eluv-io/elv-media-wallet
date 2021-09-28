@@ -41,6 +41,8 @@ class CheckoutStore {
           }
         })
       );
+
+      return this.stock;
     } catch(error) {
       this.rootStore.Log("Failed to retrieve marketplace stock", true);
       this.rootStore.Log(error, true);
