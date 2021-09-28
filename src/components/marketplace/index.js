@@ -152,9 +152,17 @@ const MarketplacePurchase = observer(() => {
     return <PageLoader/>;
   } else if(success) {
     return (
-      <MarketplaceWrapper>
-        <PurchaseMintingStatus />
-      </MarketplaceWrapper>
+      <AsyncComponent
+        Load={async () => {
+          await rootStore.LoadMarketplace(match.params.marketplaceId);
+          await rootStore.LoadWalletCollection();
+        }}
+        loadingClassName="page-loader"
+      >
+        <MarketplacePage>
+          <PurchaseMintingStatus />
+        </MarketplacePage>
+      </AsyncComponent>
     );
   } else if(cancel) {
     return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, match.params.sku)} />;

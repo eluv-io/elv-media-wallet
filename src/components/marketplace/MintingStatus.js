@@ -170,12 +170,15 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
             })
           }
         </div>
+        {
+          rootStore.hideNavigation ? null :
 
-        <div className="minting-status-results__actions">
-          <Link to={basePath} className="button minting-status-results__back-button">
-            { backText }
-          </Link>
-        </div>
+            <div className="minting-status-results__actions">
+              <Link to={basePath} className="button minting-status-results__back-button">
+                {backText}
+              </Link>
+            </div>
+        }
       </div>
     </AsyncComponent>
   );

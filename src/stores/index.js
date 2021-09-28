@@ -565,7 +565,7 @@ class RootStore {
     if(auth0) {
       try {
         auth0.logout({
-          returnTo: UrlJoin(window.location.origin, window.location.pathname)
+          returnTo: UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, "")
         });
 
         return;
