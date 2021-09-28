@@ -81,13 +81,15 @@ class CheckoutStore {
         const url = new URL(window.location.origin);
         url.pathname = window.location.pathname;
         url.hash = `/marketplaces/${marketplaceId}/${sku}/purchase/${confirmationId}`;
+        url.searchParams.set("embed", "");
+
         if(rootStore.darkMode) {
           url.searchParams.set("d", "");
         }
 
-        if(email) {
-          url.searchParams.set("e", Utils.B64(email));
-        }
+        const authInfo = this.rootStore.AuthInfo();
+        authInfo.user.email = authInfo.user.email || email;
+        url.searchParams.set("auth", Utils.B64(JSON.stringify(authInfo)));
 
         const openedWindow = window.open(url.toString());
 

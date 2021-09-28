@@ -112,7 +112,7 @@ const Login = observer(() => {
       if(authInfo) {
         setLoading(true);
         await rootStore.InitializeClient({
-          authToken: authInfo.token,
+          authToken: authInfo.authToken,
           address: authInfo.address,
           user: authInfo.user
         });
@@ -179,7 +179,7 @@ const Login = observer(() => {
     if(!loading && authInfo) {
       setLoading(true);
       rootStore.InitializeClient({
-        authToken: authInfo.token,
+        authToken: authInfo.authToken,
         address: authInfo.address,
         user: authInfo.user
       });

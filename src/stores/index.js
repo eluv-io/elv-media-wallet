@@ -114,6 +114,16 @@ class RootStore {
     this.checkoutStore = new CheckoutStore(this);
 
     window.addEventListener("resize", () => this.HandleResize());
+
+    try {
+      const auth = new URLSearchParams(window.location.search).get("auth");
+      if(auth) {
+        this.SetAuthInfo(JSON.parse(Utils.FromB64(auth)));
+      }
+    } catch(error) {
+      this.Log("Failed to load auth from parameter", true);
+      this.Log(error, true);
+    }
   }
 
   SendEvent({event, data}) {
@@ -487,8 +497,8 @@ class RootStore {
           sessionStorage.setItem("pk", privateKey);
         }
       } else if(authToken) {
-        yield client.SetRemoteSigner({authToken: authToken, address, tenantId});
-      } else if(user || idToken) {
+        yield client.SetRemoteSigner({authToken, address, tenantId});
+      } else if(idToken || (user && user.id_token)) {
         this.oauthUser = user;
 
         yield client.SetRemoteSigner({idToken: idToken || user.id_token, tenantId});
@@ -512,7 +522,7 @@ class RootStore {
       this.loggedIn = true;
 
       this.SetAuthInfo({
-        authtoken: client.signer.authToken,
+        authToken: client.signer.authToken,
         address: client.signer.address,
         user: {
           name: (user || {}).name,
@@ -536,6 +546,8 @@ class RootStore {
     } catch(error) {
       this.Log("Failed to initialize client", true);
       this.Log(error, true);
+
+      //this.ClearAuthInfo();
 
       throw error;
     } finally {
@@ -608,6 +620,7 @@ class RootStore {
     } catch(error) {
       this.Log("Failed to retrieve auth info", true);
       this.Log(error, true);
+      this.RemoveLocalStorage("auth");
     }
   }
 

@@ -218,14 +218,18 @@ export class ElvWalletClient {
    *
    * @methodGroup Items
    * @namedParams
+   * @param {string=} contractAddress - The address of the contract. Either contractAddress or contractId is required.
+   * @param {string=} contractId - The ID of the contract. Either contractAddress or contractId is required.
    * @param {string} tokenId - The ID of the item
    *
    * @return Promise<Object> - Information about the requested item. Returns undefined if the item was not found.
    */
-  async Item({tokenId}) {
+  async Item({contractAddress, contractId, tokenId}) {
     return await this.SendMessage({
       action: "items",
       params: {
+        contractAddress,
+        contractId,
         tokenId
       }
     });
@@ -291,6 +295,7 @@ export class ElvWalletClient {
 
       - 'items' - List of items in the user's wallet
       - 'item' - A specific item in the user's wallet
+        -- Required param: `contractAddress` or `contractId`
         -- Required param: `tokenId`
       - 'profile' - The user's profile
       - 'marketplaces'

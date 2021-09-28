@@ -137,31 +137,27 @@ const MarketplacePurchase = observer(() => {
 
       window.close();
     }, []);
-  }
-
-  if(fromEmbed) {
-    return <PageLoader />;
-  } else if(success) {
-    return <PurchaseMintingStatus />;
-  } else if(cancel) {
-    return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, match.params.sku)} />;
-  } else {
+  } else if(fromEmbed) {
     // Opened from iframe - Initiate stripe purchase
     useEffect(() => {
       rootStore.ToggleNavigation(false);
 
-      const args = new URLSearchParams(window.location.search);
-      const email = args.has("e") ? rootStore.client.utils.FromB64(args.get("e")) : "";
-
       checkoutStore.StripeSubmit({
         marketplaceId: match.params.marketplaceId,
         sku: match.params.sku,
-        confirmationId: match.params.confirmationId,
-        email
+        confirmationId: match.params.confirmationId
       });
     }, []);
 
     return <PageLoader/>;
+  } else if(success) {
+    return (
+      <MarketplaceWrapper>
+        <PurchaseMintingStatus />
+      </MarketplaceWrapper>
+    );
+  } else if(cancel) {
+    return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, match.params.sku)} />;
   }
 });
 
@@ -628,6 +624,7 @@ const MarketplaceBrowser = observer(() => {
 
 const MarketplaceWrapper = observer(({children}) => {
   const match = useRouteMatch();
+  const currentRoute = Routes(match).find(route => match.path === route.path);
 
   useEffect(() => {
     const routes = Routes(match)
@@ -645,17 +642,22 @@ const MarketplaceWrapper = observer(({children}) => {
 
     rootStore.SetNavigationBreadcrumbs(routes);
 
-    const currentRoute = Routes(match).find(route => match.path === route.path);
     if(currentRoute.hideNavigation) {
       rootStore.ToggleNavigation(false);
       return () => rootStore.ToggleNavigation(true);
     }
   }, [match.url]);
 
+  if(currentRoute.skipLoading) {
+    return children;
+  }
+
   if(match.params.marketplaceId) {
     return (
       <AsyncComponent
         Load={async () => {
+          if(currentRoute.skipLoading) { return; }
+
           await rootStore.LoadMarketplace(match.params.marketplaceId);
           await rootStore.LoadWalletCollection();
         }}
@@ -704,9 +706,9 @@ const Routes = (match) => {
     { name: "Open Pack", path: "/marketplaces/:marketplaceId/owned/:contractId/:tokenId/open", Component: PackOpenStatus, hideNavigation: true },
     { name: nft.metadata.display_name, path: "/marketplaces/:marketplaceId/owned/:contractId/:tokenId", Component: NFTDetails },
 
-    { name: "Purchase", path: "/marketplaces/:marketplaceId/:sku/purchase/:confirmationId/success", Component: MarketplacePurchase, hideNavigation: true },
-    { name: "Purchase", path: "/marketplaces/:marketplaceId/:sku/purchase/:confirmationId/cancel", Component: MarketplacePurchase },
-    { name: "Purchase", path: "/marketplaces/:marketplaceId/:sku/purchase/:confirmationId", Component: MarketplacePurchase, noBreadcrumb: true },
+    { name: "Purchase", path: "/marketplaces/:marketplaceId/:sku/purchase/:confirmationId/success", Component: MarketplacePurchase, hideNavigation: true, skipLoading: true },
+    { name: "Purchase", path: "/marketplaces/:marketplaceId/:sku/purchase/:confirmationId/cancel", Component: MarketplacePurchase, skipLoading: true },
+    { name: "Purchase", path: "/marketplaces/:marketplaceId/:sku/purchase/:confirmationId", Component: MarketplacePurchase, noBreadcrumb: true, skipLoading: true },
     { name: item.name, path: "/marketplaces/:marketplaceId/:sku", Component: MarketplaceItemDetails },
     { name: marketplace.name, path: "/marketplaces/:marketplaceId", Component: Marketplace },
 

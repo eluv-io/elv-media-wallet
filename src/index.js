@@ -93,7 +93,7 @@ if(!rootStore.embedded) {
     <Auth0Provider
       domain={EluvioConfiguration["auth0-domain"]}
       clientId={EluvioConfiguration["auth0-configuration-id"]}
-      redirectUri={UrlJoin(window.location.origin, window.location.pathname)}
+      redirectUri={UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, "")}
       useRefreshTokens
       darkMode={rootStore.darkMode}
     >
