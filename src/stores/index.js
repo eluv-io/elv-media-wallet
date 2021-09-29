@@ -215,11 +215,11 @@ class RootStore {
 
     switch(this.customizationMetadata.font) {
       case "Inter":
-        import("Assets/fonts/Inter");
+        import("Assets/fonts/Inter/font.css");
 
         break;
       case "Selawik":
-        import("Assets/fonts/Selawik");
+        import("Assets/fonts/Selawik/font.css");
 
         break;
       default:
