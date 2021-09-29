@@ -61,7 +61,7 @@ class RootStore {
   disableCloseEvent = false;
   darkMode = window.self === window.top && sessionStorage.getItem("dark-mode");
 
-  marketplaceId = new URLSearchParams(window.location.search).get("mid") || (window.self === window.top && sessionStorage.getItem("markertplace-id"));
+  marketplaceId = new URLSearchParams(window.location.search).get("mid") || (window.self === window.top && sessionStorage.getItem("marketplace-id"));
   marketplaceHash = undefined;
   customizationMetadata = undefined;
 
@@ -205,6 +205,19 @@ class RootStore {
       this.marketplaceIds = [ this.marketplaceId ];
     } catch(error) {
       this.Log(error, true);
+    }
+
+    switch(this.customizationMetadata.font) {
+      case "Inter":
+        import("Assets/fonts/Inter");
+
+        break;
+      case "Selawik":
+        import("Assets/fonts/Selawik");
+
+        break;
+      default:
+        break;
     }
   });
 

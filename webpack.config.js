@@ -115,7 +115,7 @@ module.exports = {
         loader: "svg-inline-loader"
       },
       {
-        test: /\.(gif|png|jpe?g)$/i,
+        test: /\.(gif|png|jpe?g|woff2?|ttf)$/i,
         use: [
           "file-loader",
           {
