@@ -150,6 +150,12 @@ class RootStore {
     );
   }
 
+  SetMarketplaceId({marketplaceId}) {
+    this.marketplaceId = marketplaceId;
+
+    this.LoadCustomizationMetadata();
+  }
+
   LoadProfileData = flow(function * () {
     this.profileData = yield this.client.ethClient.MakeProviderCall({
       methodName: "send",

@@ -105,7 +105,12 @@ export const InitializeListener = (history) => {
         rootStore.ToggleSidePanelMode(data.params.enabled);
 
         break;
+      case "setMarketplace":
+        await rootStore.SetMarketplaceId({marketplaceId: data.params.marketplaceId});
 
+        Respond({});
+
+        break;
       case "setActive":
         rootStore.WalletActivated();
 

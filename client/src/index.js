@@ -270,6 +270,17 @@ export class ElvWalletClient {
   }
 
   /**
+   * Set the marketplace for the wallet
+   *
+   * @methodGroup Navigation
+   * @namedParams
+   * @param {string} marketplaceId - The ID of the marketplace
+   */
+  async SetMarketplace({marketplaceId}) {
+    return this.SendMessage({action: "setMarketplace", params: { marketplaceId }});
+  }
+
+  /**
    * Indicate that the wallet has become active in order to activate certain UI behaviors
    */
   async SetActive() {
