@@ -7,9 +7,9 @@
   font-named-instance: "Regular";
 }
 
-:root { font-family: 'Inter', sans-serif; }
+:root { font-family: 'Selawik', sans-serif; }
 @supports (font-variation-settings: normal) {
-  :root { font-family: 'Inter var', sans-serif; }
+  :root { font-family: 'Selawik var', sans-serif; }
 }
 
 body {
