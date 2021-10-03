@@ -94,9 +94,17 @@ const Login = observer(() => {
     url.searchParams.set("mid", rootStore.marketplaceId);
   }
 
+  const extraLoginParams = {};
+
   if(rootStore.darkMode) {
     url.searchParams.set("d", "");
+    extraLoginParams.darkMode = true;
   }
+
+  if(rootStore.customizationMetadata && rootStore.customizationMetadata.disable_third_party) {
+    extraLoginParams.disableThirdParty = true;
+  }
+
 
   const signInUrl = url.toString();
   url.searchParams.set("create", "");
@@ -196,7 +204,8 @@ const Login = observer(() => {
       sessionStorage.setItem("new-window-login", "true");
       auth0.loginWithRedirect({
         redirectUri: callbackUrl,
-        initialScreen: new URLSearchParams(window.location.search).has("create") ? "signUp" : "login"
+        initialScreen: new URLSearchParams(window.location.search).has("create") ? "signUp" : "login",
+        ...extraLoginParams
       });
     } else if(sessionStorage.getItem("pk")) {
       rootStore.InitializeClient({privateKey: sessionStorage.getItem("pk")});
@@ -213,7 +222,8 @@ const Login = observer(() => {
     if(auth0) {
       auth0.loginWithRedirect({
         redirectUri: callbackUrl,
-        initialScreen: rootStore.navigateToLogIn
+        initialScreen: rootStore.navigateToLogIn,
+        ...extraLoginParams
       });
     } else {
       window.open(rootStore.navigateToLogIn === "signUp" ? window.open(createUrl) : window.open(signInUrl));
@@ -336,7 +346,8 @@ const Login = observer(() => {
         if(!rootStore.embedded) {
           auth0.loginWithRedirect({
             redirectUri: callbackUrl,
-            initialScreen: "signUp"
+            initialScreen: "signUp",
+            ...extraLoginParams
           });
         } else {
           window.open(createUrl);
@@ -360,7 +371,8 @@ const Login = observer(() => {
       onClick={() => {
         if(!rootStore.embedded) {
           auth0.loginWithRedirect({
-            redirectUri: callbackUrl
+            redirectUri: callbackUrl,
+            ...extraLoginParams
           });
         } else {
           window.open(signInUrl);
