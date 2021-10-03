@@ -490,18 +490,6 @@ class RootStore {
 
       this.staticToken = client.staticToken;
 
-      const ethUrl = "https://host-216-66-40-19.contentfabric.io/eth";
-      const asUrl = "https://host-66-220-3-86.contentfabric.io";
-
-      client.SetNodes({
-        ethereumURIs: [
-          ethUrl
-        ],
-        authServiceURIs: [
-          asUrl
-        ]
-      });
-
       this.client = client;
 
       const tenantId = this.customizationMetadata ? this.customizationMetadata.tenant_id : undefined;
