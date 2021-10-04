@@ -48,8 +48,7 @@ $pending-color: rgba($blue, 0.5);
 
     .card {
       &__title {
-        font-size: 20px;
-        justify-content: center;
+        font-size: 18px;
       }
     }
   }
@@ -130,6 +129,10 @@ $pending-color: rgba($blue, 0.5);
     margin-top: 8px;
   }
 
+  &__titles {
+    height: 100%;
+  }
+
   &__title,
   &__subtitle,
   &__stock {
@@ -143,7 +146,7 @@ $pending-color: rgba($blue, 0.5);
     font-size: 14px;
     font-weight: 500;
     justify-content: space-between;
-    line-height: 1.2em;
+    line-height: 1.1em;
   }
 
   &__title__title,

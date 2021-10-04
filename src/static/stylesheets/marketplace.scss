@@ -2,7 +2,10 @@
   .card {
     &__title {
       font-weight: 300;
-      text-align: center;
+    }
+
+    &__subtitle {
+      font-size: 12px;
     }
   }
 }
