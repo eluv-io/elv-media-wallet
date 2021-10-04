@@ -74,7 +74,10 @@
     display: flex;
     flex: 1 1 auto;
     justify-content: center;
-    padding-left: 20px;
+
+    &:not(:first-child) {
+      padding-left: 20px;
+    }
 
     .loader {
       height: 40px;

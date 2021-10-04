@@ -73,6 +73,7 @@ const Checkout = observer(({marketplaceId, item}) => {
     return <Redirect to={UrlJoin("/marketplaces", marketplaceId, item.sku, "purchase", confirmationId, "success")} />;
   }
 
+  const free = !total || item.free;
   const purchaseDisabled = !rootStore.userProfile.email && !validEmail;
   return (
     <>
@@ -93,14 +94,18 @@ const Checkout = observer(({marketplaceId, item}) => {
           </div> : null
       }
       <div className="checkout card-shadow">
-        <div className="checkout__price">
-          <div className="checkout__price__header">
-            Current Price
-          </div>
-          <div className="checkout__price__price">
-            { FormatPriceString({[checkoutStore.currency]: total}) }
-          </div>
-        </div>
+        {
+          free ?
+            null :
+            <div className="checkout__price">
+              <div className="checkout__price__header">
+                Current Price
+              </div>
+              <div className="checkout__price__price">
+                {FormatPriceString({[checkoutStore.currency]: total})}
+              </div>
+            </div>
+        }
         <div className="checkout__actions">
           {
             checkoutStore.submittingOrder || (confirmationId && checkoutStore.pendingPurchases[confirmationId]) ?
@@ -114,7 +119,7 @@ const Checkout = observer(({marketplaceId, item}) => {
                   setConfirmationId(await checkoutStore.StripeSubmit({marketplaceId, sku: item.sku, email}));
                 }}
               >
-                Buy Now
+                { free ? "Claim Now" : "Buy Now" }
               </button>
           }
         </div>
