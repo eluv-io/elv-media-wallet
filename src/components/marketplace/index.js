@@ -16,7 +16,12 @@ import {observer} from "mobx-react";
 import Drop from "Components/event/Drop";
 import {MarketplaceImage, NFTImage} from "Components/common/Images";
 import NFTDetails from "Components/wallet/NFTDetails";
-import {DropMintingStatus, PackOpenStatus, PurchaseMintingStatus} from "Components/marketplace/MintingStatus";
+import {
+  ClaimMintingStatus,
+  DropMintingStatus,
+  PackOpenStatus,
+  PurchaseMintingStatus
+} from "Components/marketplace/MintingStatus";
 import {Loader, PageLoader} from "Components/common/Loaders";
 
 import DescriptionIcon from "Assets/icons/Description icon.svg";
@@ -68,9 +73,14 @@ const Checkout = observer(({marketplaceId, item}) => {
   const [email, setEmail] = useState("");
   const [validEmail, setValidEmail] = useState(false);
   const [confirmationId, setConfirmationId] = useState(undefined);
+  const [claimed, setClaimed] = useState(false);
 
   if(confirmationId && checkoutStore.completedPurchases[confirmationId]) {
     return <Redirect to={UrlJoin("/marketplaces", marketplaceId, item.sku, "purchase", confirmationId, "success")} />;
+  }
+
+  if(claimed) {
+    return <Redirect to={UrlJoin("/marketplaces", marketplaceId, item.sku, "claim")} />;
   }
 
   const free = !total || item.free;
@@ -116,7 +126,13 @@ const Checkout = observer(({marketplaceId, item}) => {
                 className="checkout__button"
                 role="link"
                 onClick={async () => {
-                  setConfirmationId(await checkoutStore.StripeSubmit({marketplaceId, sku: item.sku, email}));
+                  if(free) {
+                    if(await checkoutStore.ClaimSubmit({marketplaceId, sku: item.sku})) {
+                      setClaimed(true);
+                    }
+                  } else {
+                    setConfirmationId(await checkoutStore.StripeSubmit({marketplaceId, sku: item.sku, email}));
+                  }
                 }}
               >
                 { free ? "Claim Now" : "Buy Now" }
@@ -772,6 +788,7 @@ const Routes = (match) => {
     { name: "Open Pack", path: "/marketplaces/:marketplaceId/owned/:contractId/:tokenId/open", Component: PackOpenStatus, hideNavigation: true },
     { name: nft.metadata.display_name, path: "/marketplaces/:marketplaceId/owned/:contractId/:tokenId", Component: NFTDetails },
 
+    { name: "Claim", path: "/marketplaces/:marketplaceId/:sku/claim", Component: ClaimMintingStatus, hideNavigation: true },
     { name: "Purchase", path: "/marketplaces/:marketplaceId/:sku/purchase/:confirmationId/success", Component: MarketplacePurchase, hideNavigation: true, skipLoading: true },
     { name: "Purchase", path: "/marketplaces/:marketplaceId/:sku/purchase/:confirmationId/cancel", Component: MarketplacePurchase, skipLoading: true },
     { name: "Purchase", path: "/marketplaces/:marketplaceId/:sku/purchase/:confirmationId", Component: MarketplacePurchase, noBreadcrumb: true, skipLoading: true },

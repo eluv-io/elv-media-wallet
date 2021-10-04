@@ -155,7 +155,12 @@ const NFTDetails = observer(() => {
             <a
               className="lookout-url"
               target="_blank"
-              href={`https://lookout.qluv.io/address/${nft.details.ContractAddr}/transactions`} rel="noopener"
+              href={
+                EluvioConfiguration["config-url"].includes("main.net955305") ?
+                  `https://explorer.contentfabric.io/address/${nft.details.ContractAddr}/transactions` :
+                  `https://lookout.qluv.io/address/${nft.details.ContractAddr}/transactions`
+              }
+              rel="noopener"
             >
               See More Info on Eluvio Lookout
             </a>

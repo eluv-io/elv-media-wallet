@@ -222,6 +222,40 @@ export const PurchaseMintingStatus = observer(() => {
   );
 });
 
+export const ClaimMintingStatus = observer(() => {
+  const match = useRouteMatch();
+  const [status, setStatus] = useState(undefined);
+
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+
+  const Status = async () => await rootStore.ClaimStatus({
+    marketplace,
+    sku: match.params.sku
+  });
+
+  if(!status) {
+    return (
+      <MintingStatus
+        Status={Status}
+        OnFinish={({status}) => setStatus(status)}
+      />
+    );
+  }
+
+  const items = status.extra.filter(item => item.token_addr && item.token_id);
+
+  return (
+    <MintResults
+      header="Congratulations!"
+      subheader={`You've received the following ${items.length === 1 ? "item" : "items"}:`}
+      items={items}
+      basePath={UrlJoin("/marketplaces", match.params.marketplaceId)}
+      nftBasePath={UrlJoin("/marketplaces", match.params.marketplaceId, "owned")}
+      backText="Back to the Marketplace"
+    />
+  );
+});
+
 export const PackOpenStatus = observer(() => {
   const [status, setStatus] = useState(undefined);
 

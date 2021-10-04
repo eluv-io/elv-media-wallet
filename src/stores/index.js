@@ -86,7 +86,10 @@ class RootStore {
 
   nfts = [];
 
-  marketplaceIds = ["iq__2FrA2S1XBy4zdRGQn1knakpbrBV4", "iq__42qvvcLZfzp6PnPL3Vb4bcrHHewm"];
+  marketplaceIds =
+    EluvioConfiguration["config-url"].includes("main.net955305") ?
+      ["iq__2BfoDJwVPjbAo1d8KoxNqbtz335"] :
+      ["iq__2FrA2S1XBy4zdRGQn1knakpbrBV4", "iq__42qvvcLZfzp6PnPL3Vb4bcrHHewm"];
   marketplaces = {};
 
   marketplaceFilters = [];
@@ -321,6 +324,7 @@ class RootStore {
     );
 
     marketplace.retrievedAt = Date.now();
+    marketplace.marketplaceId = marketplaceId;
     marketplace.versionHash = yield this.client.LatestVersionHash({objectId: marketplaceId});
     marketplace.drops = (marketplace.events || []).map(({event}, eventIndex) =>
       (event.info.drops || []).map((drop, dropIndex) => ({
@@ -444,6 +448,17 @@ class RootStore {
       const statuses = yield this.MintingStatus({tenantId: marketplace.tenant_id});
 
       return statuses.find(status => status.op === "nft-buy" && status.tokenId === confirmationId) || { status: "pending" };
+    } catch(error) {
+      this.Log(error, true);
+      return { status: "unknown" };
+    }
+  });
+
+  ClaimStatus = flow(function * ({marketplace, sku}) {
+    try {
+      const statuses = yield this.MintingStatus({tenantId: marketplace.tenant_id});
+
+      return statuses.find(status => status.op === "nft-claim" && status.address === marketplace.marketplaceId && status.tokenId === sku) || { status: "pending" };
     } catch(error) {
       this.Log(error, true);
       return { status: "unknown" };

@@ -61,6 +61,35 @@ class CheckoutStore {
     delete this.pendingPurchases[confirmationId];
   }
 
+  ClaimSubmit = flow(function * ({marketplaceId, sku}) {
+    try {
+      this.submittingOrder = true;
+
+      const tenantId = rootStore.marketplaces[marketplaceId].tenant_id;
+
+      yield this.rootStore.client.authClient.MakeAuthServiceRequest({
+        method: "POST",
+        path: UrlJoin("as", "wlt", "act", tenantId),
+        body: {
+          op: "nft-claim",
+          sid: marketplaceId,
+          sku
+        },
+        headers: {
+          Authorization: `Bearer ${this.rootStore.client.signer.authToken}`
+        }
+      });
+
+      return true;
+    } catch(error) {
+      this.rootStore.Log(error, true);
+
+      return false;
+    } finally {
+      this.submittingOrder = false;
+    }
+  });
+
   StripeSubmit = flow(function * ({marketplaceId, sku, confirmationId, email}) {
     if(this.submittingOrder) { return; }
 
