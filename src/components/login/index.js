@@ -95,7 +95,6 @@ const Login = observer(() => {
   }
 
   const extraLoginParams = {};
-
   if(rootStore.darkMode) {
     url.searchParams.set("d", "");
     extraLoginParams.darkMode = true;
@@ -104,7 +103,6 @@ const Login = observer(() => {
   if(rootStore.customizationMetadata && rootStore.customizationMetadata.disable_third_party) {
     extraLoginParams.disableThirdParty = true;
   }
-
 
   const signInUrl = url.toString();
   url.searchParams.set("create", "");

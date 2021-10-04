@@ -253,6 +253,23 @@ export class ElvWalletClient {
   }
 
   /**
+   * Set whether the wallet should be displayed in dark mode
+   *
+   * @methodGroup Navigation
+   * @namedParams
+   * @param {boolean=} enabled=true - True to enable dark mode, false to disable
+   */
+  async ToggleDarkMode(enabled=true) {
+    return this.SendMessage({
+      action: "toggleDarkMode",
+      params: {
+        enabled
+      },
+      noResponse: true
+    });
+  }
+
+  /**
    * Request the wallet enter/exit 'side panel' mode, where certain elements are hidden
    *
    * @methodGroup Navigation

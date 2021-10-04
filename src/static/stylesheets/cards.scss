@@ -28,7 +28,7 @@ $pending-color: rgba($blue, 0.5);
 
   &-selectable {
     cursor: pointer;
-    margin: 5px;
+    margin: 3px;
   }
 
   &-selected {
@@ -227,7 +227,6 @@ $pending-color: rgba($blue, 0.5);
 
     &__image-placeholder {
       * {
-        fill: $white;
         stroke: $white;
       }
     }

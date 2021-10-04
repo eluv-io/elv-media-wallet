@@ -33,9 +33,6 @@ const DropCard = ({drop, marketplace, label, sku, index, image, selected=false, 
             <h2 className="card__title">
               { label || item.name }
             </h2>
-            <h2 className="card__subtitle">
-              { item.description }
-            </h2>
           </div>
         </div>
       </div>
@@ -89,11 +86,15 @@ const Drop = () => {
 
         if(!marketplace || !drop) { return null; }
 
+        if(!drop.votable) {
+          return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId)} />;
+        }
+
         const postVoteState = drop.event_state_post_vote || {};
         const mintStartState = drop.event_state_mint_start || {};
 
         return (
-          <div className="drop content">
+          <div className="drop">
             { drop.drop_header ? <h1 className="page-header">{ drop.drop_header }</h1> : null }
             <div className="card-list">
               {

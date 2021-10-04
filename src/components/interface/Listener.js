@@ -105,6 +105,11 @@ export const InitializeListener = (history) => {
         rootStore.ToggleSidePanelMode(data.params.enabled);
 
         break;
+
+      case "toggleDarkMode":
+        rootStore.ToggleDarkMode(data.params.enabled);
+
+        break;
       case "setMarketplace":
         await rootStore.SetMarketplaceId({marketplaceId: data.params.marketplaceId});
 
