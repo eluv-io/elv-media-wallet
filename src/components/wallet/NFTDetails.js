@@ -11,6 +11,9 @@ import {ExpandableSection, CopyableField, ButtonWithLoader} from "Components/com
 import DescriptionIcon from "Assets/icons/Description icon.svg";
 import DetailsIcon from "Assets/icons/Details icon.svg";
 import ContractIcon from "Assets/icons/Contract icon.svg";
+import {render} from "react-dom";
+import ReactMarkdown from "react-markdown";
+import SanitizeHTML from "sanitize-html";
 
 const NFTDetails = observer(() => {
   const [opened, setOpened] = useState(false);
@@ -80,7 +83,23 @@ const NFTDetails = observer(() => {
 
       <div className="details-page__info">
         <ExpandableSection header="Description" icon={DescriptionIcon}>
-          { nft.metadata.description }
+          {
+            nft.metadata.rich_text ?
+              <div
+                className="details-page__rich-text rich-text"
+                ref={element => {
+                  if(!element) { return; }
+
+                  render(
+                    <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
+                      { SanitizeHTML(nft.metadata.rich_text) }
+                    </ReactMarkdown>,
+                    element
+                  );
+                }}
+              /> :
+              nft.metadata.description
+          }
         </ExpandableSection>
 
         <ExpandableSection header="Details" icon={DetailsIcon}>

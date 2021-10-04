@@ -9,7 +9,23 @@ import BackIcon from "Assets/icons/arrow-left-circle.svg";
 import ImageIcon from "Components/common/ImageIcon";
 
 const Header = observer(() => {
-  if(!rootStore.loggedIn || rootStore.hideNavigation) { return null; }
+  if(!rootStore.loggedIn) { return null; }
+
+  if(rootStore.hideNavigation || rootStore.sidePanelMode) {
+    if(rootStore.navigationBreadcrumbs.length <= 2) { return null; }
+    return (
+      <header className="header">
+        <div className="header__breadcrumbs">
+          <NavLink
+            className="header__breadcrumbs__back-button"
+            to={rootStore.navigationBreadcrumbs[rootStore.navigationBreadcrumbs.length - 2].path}
+          >
+            <ImageIcon icon={BackIcon} title="Back" />
+          </NavLink>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className="header">

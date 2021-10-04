@@ -73,9 +73,11 @@ const Routes = () => {
 };
 
 const App = observer(() => {
+  const hasHeader = (!rootStore.hideNavigation && !rootStore.sidePanelMode) || ((rootStore.hideNavigation || rootStore.sidePanelMode) && rootStore.navigationBreadcrumbs.length > 2);
+
   return (
     <HashRouter>
-      <div className={`app-container ${rootStore.initialized ? "app-container-initialized" : "app-container-not-initialized"} ${rootStore.hideNavigation ? "navigation-hidden" : ""} ${rootStore.sidePanelMode ? "side-panel" : ""}`}>
+      <div className={`app-container ${rootStore.initialized ? "app-container-initialized" : "app-container-not-initialized"} ${rootStore.hideNavigation ? "navigation-hidden" : ""} ${rootStore.sidePanelMode ? "side-panel" : ""} ${hasHeader ? "" : "no-header"}`}>
         <Header />
         <ScrollToTop>
           <ErrorBoundary className="page-container">

@@ -22,9 +22,16 @@ import {Loader, PageLoader} from "Components/common/Loaders";
 import DescriptionIcon from "Assets/icons/Description icon.svg";
 import DetailsIcon from "Assets/icons/Details icon.svg";
 import ContractIcon from "Assets/icons/Contract icon.svg";
+import {render} from "react-dom";
+import ReactMarkdown from "react-markdown";
+import SanitizeHTML from "sanitize-html";
 
 const MarketplaceNavigation = observer(() => {
   let match = useRouteMatch();
+
+  if(rootStore.hideNavigation || rootStore.sidePanelMode) {
+    return null;
+  }
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
 
@@ -246,7 +253,24 @@ const MarketplaceItemDetails = observer(() => {
         }
 
         <ExpandableSection header="Description" icon={DescriptionIcon}>
-          { itemTemplate.description || item.description }
+          {
+            itemTemplate.rich_text ?
+              <div
+                className="details-page__rich-text rich-text"
+                ref={element => {
+                  if(!element) { return; }
+
+                  render(
+                    <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
+                      { SanitizeHTML(itemTemplate.rich_text) }
+                    </ReactMarkdown>,
+                    element
+                  );
+                }}
+              /> :
+              itemTemplate.description || item.description
+          }
+
         </ExpandableSection>
 
         <ExpandableSection header="Details" icon={DetailsIcon}>
@@ -593,10 +617,13 @@ const MarketplacePage = observer(({children}) => {
 
   return (
     <div className="marketplace content">
-      <div className="marketplace__header">
-        <h1 className="page-header">{ marketplace.storefront.header }</h1>
-        <h2 className="page-subheader">{ marketplace.storefront.subheader }</h2>
-      </div>
+      {
+        rootStore.hideNavigation || rootStore.sidePanelMode ? null :
+          <div className="marketplace__header">
+            <h1 className="page-header">{marketplace.storefront.header}</h1>
+            <h2 className="page-subheader">{marketplace.storefront.subheader}</h2>
+          </div>
+      }
       <MarketplaceNavigation />
       { children }
     </div>

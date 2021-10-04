@@ -79,6 +79,18 @@
     }
   }
 
+  &__rich-text {
+    p,
+    a {
+      font-size: 12px;
+      margin: 10px 0;
+    }
+
+    a {
+      color: $blue;
+    }
+  }
+
   @media screen and (min-width: $tablet-breakpoint) {
     align-content: start;
     display: grid;
@@ -132,6 +144,12 @@
 
     &__card-padding-container {
       background: $darkestgray;
+    }
+
+    &__rich-text {
+      a {
+        color: $blue;
+      }
     }
   }
 }
