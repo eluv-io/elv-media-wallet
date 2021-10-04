@@ -127,7 +127,7 @@ $pending-color: rgba($blue, 0.5);
     flex-direction: column;
     height: 100%;
     justify-content: space-between;
-    margin-top: 15px;
+    margin-top: 8px;
   }
 
   &__title,
@@ -143,6 +143,7 @@ $pending-color: rgba($blue, 0.5);
     font-size: 14px;
     font-weight: 500;
     justify-content: space-between;
+    line-height: 1.2em;
   }
 
   &__title__title,
@@ -159,6 +160,7 @@ $pending-color: rgba($blue, 0.5);
     color: $gray;
     font-size: 14px;
     font-weight: 300;
+    margin-top: 5px;
   }
 
   &__stock {
