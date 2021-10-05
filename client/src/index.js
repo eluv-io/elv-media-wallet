@@ -420,7 +420,7 @@ export class ElvWalletClient {
 
     target.classList.add("-elv-media-wallet-frame");
     target.sandbox = SandboxPermissions();
-    target.allowfullscreen = true;
+    target.setAttribute("allowFullScreen", "");
     target.allow = "encrypted-media *";
 
     walletAppUrl = new URL(walletAppUrl);

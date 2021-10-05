@@ -73,7 +73,7 @@ const Routes = () => {
 };
 
 const App = observer(() => {
-  const hasHeader = (!rootStore.hideNavigation && !rootStore.sidePanelMode) || ((rootStore.hideNavigation || rootStore.sidePanelMode) && rootStore.navigationBreadcrumbs.length > 2);
+  const hasHeader = !rootStore.hideNavigation && (!rootStore.sidePanelMode || rootStore.navigationBreadcrumbs.length > 2);
 
   return (
     <HashRouter>

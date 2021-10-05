@@ -131,6 +131,9 @@ $pending-color: rgba($blue, 0.5);
 
   &__titles {
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
   }
 
   &__title,
@@ -190,12 +193,8 @@ $pending-color: rgba($blue, 0.5);
   @media screen and (max-width: $mobile-breakpoint) {
     padding: 15px 15px 25px;
 
-    &__title {
-      font-size: 12px;
-    }
-
     &__subtitle {
-      font-size: 10px;
+      font-size: 13px;
     }
   }
 }

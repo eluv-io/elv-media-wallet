@@ -414,29 +414,32 @@ const MarketplaceOwned = observer(() => {
   return (
     ownedItems.length === 0 ?
       <h2 className="marketplace__empty">You don't own any items from this marketplace yet!</h2> :
-      <div className="card-list">
-        {
-          ownedItems.map(ownedItem =>
-            <div className="card-container card-shadow" key={`marketplace-owned-item-${ownedItem.details.ContractAddr}-${ownedItem.details.TokenIdStr}`}>
-              <Link
-                to={UrlJoin(match.url, ownedItem.details.ContractId, ownedItem.details.TokenIdStr)}
-                className="card nft-card"
-              >
-                <NFTImage nft={ownedItem} width={400} />
-                <div className="card__text">
-                  <div className="card__titles">
-                    <h2 className="card__title">
-                      { ownedItem.metadata.display_name || "" }
-                    </h2>
-                    <h2 className="card__subtitle">
-                      { ownedItem.metadata.display_name || "" }
-                    </h2>
+      <div className="marketplace__section">
+        <div className="page-header">My Collection</div>
+        <div className="card-list">
+          {
+            ownedItems.map(ownedItem =>
+              <div className="card-container card-shadow" key={`marketplace-owned-item-${ownedItem.details.ContractAddr}-${ownedItem.details.TokenIdStr}`}>
+                <Link
+                  to={UrlJoin(match.url, ownedItem.details.ContractId, ownedItem.details.TokenIdStr)}
+                  className="card nft-card"
+                >
+                  <NFTImage nft={ownedItem} width={400} />
+                  <div className="card__text">
+                    <div className="card__titles">
+                      <h2 className="card__title">
+                        { ownedItem.metadata.display_name || "" }
+                      </h2>
+                      <h2 className="card__subtitle">
+                        { ownedItem.metadata.description || "" }
+                      </h2>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            </div>
-          )
-        }
+                </Link>
+              </div>
+            )
+          }
+        </div>
       </div>
   );
 });
@@ -497,7 +500,7 @@ const MarketplaceCollections = observer(() => {
                     { nft.metadata.display_name || "" }
                   </h2>
                   <h2 className="card__subtitle">
-                    { nft.metadata.display_name || "" }
+                    { nft.metadata.description || "" }
                   </h2>
                 </div>
               </div>

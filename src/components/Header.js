@@ -9,9 +9,9 @@ import BackIcon from "Assets/icons/arrow-left-circle.svg";
 import ImageIcon from "Components/common/ImageIcon";
 
 const Header = observer(() => {
-  if(!rootStore.loggedIn) { return null; }
+  if(!rootStore.loggedIn || rootStore.hideNavigation) { return null; }
 
-  if(rootStore.hideNavigation || rootStore.sidePanelMode) {
+  if(rootStore.sidePanelMode) {
     if(rootStore.navigationBreadcrumbs.length <= 2) { return null; }
     return (
       <header className="header">
