@@ -103,7 +103,7 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
 
       <div className="minting-status__text">
         <h1 className="content-header">
-          { header || "Your item(s) are being minted" }
+          { header || "Your items are being minted" }
         </h1>
         <h2 className="content-subheader">
           { subheader || "This may take several minutes" }

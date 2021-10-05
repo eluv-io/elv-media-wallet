@@ -151,7 +151,7 @@ const NFTDetails = observer(() => {
               Hash: { nft.details.versionHash }
             </CopyableField>
           </div>
-          <div>
+          <div className="expandable-section__actions">
             <a
               className="lookout-url"
               target="_blank"
@@ -164,19 +164,22 @@ const NFTDetails = observer(() => {
             >
               See More Info on Eluvio Lookout
             </a>
+            {
+              rootStore.funds ?
+                <ButtonWithLoader
+                  className="details-page__delete-button"
+                  onClick={async () => {
+                    if(confirm("Are you sure you want to delete this NFT from your collection?")) {
+                      await rootStore.BurnNFT({nft});
+                      setDeleted(true);
+                      await rootStore.LoadWalletCollection(true);
+                    }
+                  }}
+                >
+                  Delete this NFT
+                </ButtonWithLoader> : null
+            }
           </div>
-          <ButtonWithLoader
-            className="details-page__delete-button"
-            onClick={async () => {
-              if(confirm("Are you sure you want to delete this NFT from your collection?")) {
-                await rootStore.BurnNFT({nft});
-                setDeleted(true);
-                await rootStore.LoadWalletCollection(true);
-              }
-            }}
-          >
-            Delete this NFT
-          </ButtonWithLoader>
         </ExpandableSection>
       </div>
     </div>

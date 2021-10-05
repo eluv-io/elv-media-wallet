@@ -70,13 +70,14 @@ export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon,
         versionHash: marketplaceHash,
         path,
         queryParams: {
-          width: 400
+          width: 800
         }
       });
     } else if(item.nft_template && item.nft_template.nft && item.nft_template.nft.image) {
       url = (item.nft_template.nft || {}).image;
       url = new URL(url);
       url.searchParams.set("authorization", rootStore.authedToken);
+      url.searchParams.set("width", "800");
       url = url.toString();
     } else {
       icon = NFTPlaceholderIcon;

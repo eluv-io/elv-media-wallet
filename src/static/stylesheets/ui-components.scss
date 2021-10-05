@@ -51,6 +51,14 @@
       color: $blue;
     }
   }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: 10px;
+  }
 }
 
 .copyable-field {

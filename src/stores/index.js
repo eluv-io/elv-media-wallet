@@ -71,6 +71,7 @@ class RootStore {
   initialized = false;
   client = undefined;
   accountId = undefined;
+  funds = undefined;
 
   hideNavigation = false;
   sidePanelMode = false;
@@ -528,6 +529,7 @@ class RootStore {
         throw Error("Neither user nor private key specified in InitializeClient");
       }
 
+      this.funds = parseInt((yield client.GetBalance({address: client.CurrentAccountAddress()}) || 0));
       this.accountId = `iusr${Utils.AddressToHash(client.CurrentAccountAddress())}`;
 
       this.authedToken = yield client.authClient.GenerateAuthorizationToken({noAuth: true});
