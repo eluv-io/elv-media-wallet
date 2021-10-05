@@ -330,7 +330,7 @@ const MarketplaceItemDetails = observer(() => {
                   Contract Address: {itemTemplate.address}
                 </CopyableField>
               </div>
-              <div>
+              <div className="expandable-section__actions">
                 <a
                   className="lookout-url"
                   target="_blank"
