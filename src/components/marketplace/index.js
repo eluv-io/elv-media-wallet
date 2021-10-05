@@ -127,7 +127,13 @@ const Checkout = observer(({marketplaceId, item}) => {
                 role="link"
                 onClick={async () => {
                   if(free) {
-                    if(await checkoutStore.ClaimSubmit({marketplaceId, sku: item.sku})) {
+                    const status = await rootStore.ClaimStatus({marketplace: rootStore.marketplaces[marketplaceId], sku: item.sku});
+
+                    if(status && status.status !== "none") {
+                      // Already claimed, go to status
+                      setClaimed(true);
+                    } else if(await checkoutStore.ClaimSubmit({marketplaceId, sku: item.sku})) {
+                      // Claim successful
                       setClaimed(true);
                     }
                   } else {

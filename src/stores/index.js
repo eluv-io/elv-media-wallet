@@ -437,7 +437,7 @@ class RootStore {
         })
       );
 
-      return response.sort((a, b) => a.ts > b.ts ? 1 : -1)[0] || { status: "pending" };
+      return response.sort((a, b) => a.ts > b.ts ? 1 : -1)[0] || { status: "none" };
     } catch(error) {
       this.Log(error, true);
       return "";
@@ -448,7 +448,7 @@ class RootStore {
     try {
       const statuses = yield this.MintingStatus({tenantId: marketplace.tenant_id});
 
-      return statuses.find(status => status.op === "nft-buy" && status.tokenId === confirmationId) || { status: "pending" };
+      return statuses.find(status => status.op === "nft-buy" && status.tokenId === confirmationId) || { status: "none" };
     } catch(error) {
       this.Log(error, true);
       return { status: "unknown" };
@@ -459,7 +459,7 @@ class RootStore {
     try {
       const statuses = yield this.MintingStatus({tenantId: marketplace.tenant_id});
 
-      return statuses.find(status => status.op === "nft-claim" && status.address === marketplace.marketplaceId && status.tokenId === sku) || { status: "pending" };
+      return statuses.find(status => status.op === "nft-claim" && status.address === marketplace.marketplaceId && status.tokenId === sku) || { status: "none" };
     } catch(error) {
       this.Log(error, true);
       return { status: "unknown" };
@@ -471,7 +471,7 @@ class RootStore {
       const contractAddress = Utils.HashToAddress(contractId);
       const statuses = yield this.MintingStatus({tenantId});
 
-      return statuses.find(status => status.op === "nft-open" && Utils.EqualAddress(contractAddress, status.address) && status.tokenId === tokenId) || { status: "pending" };
+      return statuses.find(status => status.op === "nft-open" && Utils.EqualAddress(contractAddress, status.address) && status.tokenId === tokenId) || { status: "none" };
     } catch(error) {
       this.Log(error, true);
       return { status: "unknown" };
