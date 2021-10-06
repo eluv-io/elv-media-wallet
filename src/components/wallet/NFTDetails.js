@@ -106,14 +106,14 @@ const NFTDetails = observer(() => {
           {
             nft.metadata.token_uri ?
               <CopyableField value={nft.metadata.token_uri}>
-                Token URI: { nft.metadata.token_uri }
+                Token URI: <a href={nft.metadata.token_uri} target="_blank">{ nft.metadata.token_uri }</a>
               </CopyableField>
               : null
           }
           {
             nft.metadata.embed_url ?
               <CopyableField value={nft.metadata.embed_url}>
-                Media URL: { nft.metadata.embed_url }
+                Media URL: <a href={nft.metadata.embed_url} target="_blank">{ nft.metadata.embed_url }</a>
               </CopyableField>
               : null
           }

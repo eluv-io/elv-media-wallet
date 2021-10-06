@@ -304,7 +304,7 @@ const MarketplaceItemDetails = observer(() => {
           {
             itemTemplate.embed_url ?
               <CopyableField value={itemTemplate.embed_url}>
-                Media URL: { itemTemplate.embed_url }
+                Media URL: <a href={itemTemplate.embed_url} target="_blank">{ itemTemplate.embed_url }</a>
               </CopyableField>
               : null
           }

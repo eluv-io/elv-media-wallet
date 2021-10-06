@@ -75,6 +75,14 @@
     padding-right: 10px;
   }
 
+  * {
+    color: $blue;
+
+    &:hover {
+      color: $blue;
+    }
+  }
+
   &__button {
     background-color: $blue;
     border: 0;
