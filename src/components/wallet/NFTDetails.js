@@ -56,7 +56,7 @@ const NFTDetails = observer(() => {
               <div className="details-page__content__info card__text">
                 <div className="card__titles">
                   <div className="card__subtitle">
-                    { match.params.tokenId } { nft.details.Cap ? ` / ${nft.details.Cap}` : ""}
+                    { match.params.tokenId }
                   </div>
 
                   <h2 className="card__title">

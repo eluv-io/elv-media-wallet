@@ -88,9 +88,10 @@ class RootStore {
   nfts = [];
 
   marketplaceIds =
-    EluvioConfiguration["config-url"].includes("main.net955305") ?
-      ["iq__2BfoDJwVPjbAo1d8KoxNqbtz335"] :
-      ["iq__2FrA2S1XBy4zdRGQn1knakpbrBV4", "iq__42qvvcLZfzp6PnPL3Vb4bcrHHewm"];
+    this.marketplaceId ? [this.marketplaceId] :
+      EluvioConfiguration["config-url"].includes("main.net955305") ?
+        [] :
+        ["iq__2FrA2S1XBy4zdRGQn1knakpbrBV4", "iq__42qvvcLZfzp6PnPL3Vb4bcrHHewm"];
   marketplaces = {};
 
   marketplaceFilters = [];

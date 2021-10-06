@@ -7,6 +7,7 @@ import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 import AsyncComponent from "Components/common/AsyncComponent";
 import {NFTImage} from "Components/common/Images";
+import Utils from "@eluvio/elv-client-js/src/Utils";
 
 let statusInterval;
 const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, videoHash}) => {
@@ -233,6 +234,12 @@ export const ClaimMintingStatus = observer(() => {
     sku: match.params.sku
   });
 
+  useEffect(() => {
+    if(status) {
+      rootStore.LoadWalletCollection(true);
+    }
+  }, [status]);
+
   if(!status) {
     return (
       <MintingStatus
@@ -242,7 +249,22 @@ export const ClaimMintingStatus = observer(() => {
     );
   }
 
-  const items = status.extra.filter(item => item.token_addr && item.token_id);
+  let items = status.extra.filter(item => item.token_addr && item.token_id);
+  try {
+    if(!items || items.length === 0) {
+      const marketplaceItem = (marketplace.items.find(item => item.sku === match.params.sku)) || {};
+      const itemAddress = ((marketplaceItem.nft_template || {}).nft || {}).address;
+
+      if(itemAddress) {
+        items = rootStore.nfts
+          .filter(nft => Utils.EqualAddress(itemAddress, nft.details.ContractAddr))
+          .map(nft => ({token_id: nft.details.TokenIdStr, token_addr: nft.details.ContractAddr}));
+      }
+    }
+  } catch(error) {
+    rootStore.Log("Failed to load backup mint result", true);
+    rootStore.Log(error, true);
+  }
 
   return (
     <MintResults
