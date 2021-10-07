@@ -222,10 +222,8 @@ const MarketplaceItemDetails = observer(() => {
   useEffect(() => {
     if(!stock) { return; }
 
-    checkoutStore.MarketplaceStock(marketplace);
-
     // If item has stock, periodically update
-    const stockCheck = setInterval(() => checkoutStore.MarketplaceStock(marketplace), 7500);
+    const stockCheck = setInterval(() => checkoutStore.MarketplaceStock(marketplace), 10000);
 
     return () => clearInterval(stockCheck);
   }, []);
@@ -746,11 +744,6 @@ const MarketplaceWrapper = observer(({children}) => {
             rootStore.LoadMarketplace(match.params.marketplaceId),
             rootStore.LoadWalletCollection()
           ]);
-
-          const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-          if(marketplace) {
-            await checkoutStore.MarketplaceStock(marketplace);
-          }
         }}
         loadingClassName="page-loader"
       >

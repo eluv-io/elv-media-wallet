@@ -52,12 +52,14 @@ const Drop = () => {
     return <Redirect to={UrlJoin(match.url, "status")} />;
   }
 
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+  const drop = marketplace.drops.find(drop => drop.uuid === match.params.dropId);
+
+  if(!marketplace || !drop) { return null; }
+
   return (
     <AsyncComponent
       Load={async () => {
-        const marketplace = await rootStore.LoadMarketplace(match.params.marketplaceId);
-        const drop = marketplace.drops.find(drop => drop.uuid === match.params.dropId);
-
         try {
           const dropStatus = await rootStore.DropStatus({marketplace, eventId: drop.eventId, dropId: drop.uuid});
           setSelection(dropStatus.itm);
@@ -81,11 +83,6 @@ const Drop = () => {
       }}
       loadingClassName="page-loader"
       render={() => {
-        const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-        const drop = marketplace.drops.find(drop => drop.uuid === match.params.dropId);
-
-        if(!marketplace || !drop) { return null; }
-
         if(!drop.votable) {
           return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId)} />;
         }

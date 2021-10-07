@@ -93,6 +93,7 @@ class RootStore {
         [] :
         ["iq__2FrA2S1XBy4zdRGQn1knakpbrBV4", "iq__42qvvcLZfzp6PnPL3Vb4bcrHHewm"];
   marketplaces = {};
+  marketplaceCache = {};
 
   marketplaceFilters = [];
 
@@ -282,65 +283,77 @@ class RootStore {
   });
 
   LoadMarketplace = flow(function * (marketplaceId, forceReload=false) {
-    if(!forceReload && (this.marketplaces[marketplaceId] && Date.now() - this.marketplaces[marketplaceId].retrievedAt < 60000)) {
-      this.checkoutStore.MarketplaceStock(this.marketplaces[marketplaceId]);
+    // Cache marketplace retrieval
+    if(!forceReload && this.marketplaceCache[marketplaceId] && Date.now() - this.marketplaceCache[marketplaceId] < 60000) {
+      // Cache stock retrieval
+      if(Date.now() - this.marketplaceCache[marketplaceId] > 10000) {
+        this.checkoutStore.MarketplaceStock(this.marketplaces[marketplaceId]);
+      }
+
       return this.marketplaces[marketplaceId];
     }
 
-    let marketplace = yield this.client.ContentObjectMetadata({
-      libraryId: yield this.client.ContentObjectLibraryId({objectId: marketplaceId}),
-      objectId: marketplaceId,
-      metadataSubtree: "public/asset_metadata/info",
-      linkDepthLimit: 2,
-      resolveLinks: true,
-      resolveIgnoreErrors: true,
-      resolveIncludeSource: true
-    });
+    try {
+      this.marketplaceCache[marketplaceId] = Date.now();
 
-    this.checkoutStore.MarketplaceStock(marketplace);
+      let marketplace = yield this.client.ContentObjectMetadata({
+        libraryId: yield this.client.ContentObjectLibraryId({objectId: marketplaceId}),
+        objectId: marketplaceId,
+        metadataSubtree: "public/asset_metadata/info",
+        linkDepthLimit: 2,
+        resolveLinks: true,
+        resolveIgnoreErrors: true,
+        resolveIncludeSource: true
+      });
 
-    marketplace.items = yield Promise.all(
-      marketplace.items.map(async item => {
-        if(item.requires_permissions) {
-          try {
-            let versionHash;
-            if(item.nft_template["/"]) {
-              versionHash = item.nft_template["/"].split("/").find(component => component.startsWith("hq__"));
-            } else if(item.nft_template["."] && item.nft_template["."].source) {
-              versionHash = item.nft_template["."].source;
+      this.checkoutStore.MarketplaceStock(marketplace);
+
+      marketplace.items = yield Promise.all(
+        marketplace.items.map(async item => {
+          if(item.requires_permissions) {
+            try {
+              let versionHash;
+              if(item.nft_template["/"]) {
+                versionHash = item.nft_template["/"].split("/").find(component => component.startsWith("hq__"));
+              } else if(item.nft_template["."] && item.nft_template["."].source) {
+                versionHash = item.nft_template["."].source;
+              }
+
+              await this.client.ContentObjectMetadata({
+                versionHash,
+                metadataSubtree: "permissioned"
+              });
+
+              item.authorized = true;
+            } catch(error) {
+              item.authorized = false;
             }
-
-            await this.client.ContentObjectMetadata({
-              versionHash,
-              metadataSubtree: "permissioned"
-            });
-
-            item.authorized = true;
-          } catch(error) {
-            item.authorized = false;
           }
-        }
 
-        return item;
-      })
-    );
+          return item;
+        })
+      );
 
-    marketplace.retrievedAt = Date.now();
-    marketplace.marketplaceId = marketplaceId;
-    marketplace.versionHash = yield this.client.LatestVersionHash({objectId: marketplaceId});
-    marketplace.drops = (marketplace.events || []).map(({event}, eventIndex) =>
-      (event.info.drops || []).map((drop, dropIndex) => ({
-        ...drop,
-        eventId: Utils.DecodeVersionHash(event["."].source).objectId,
-        eventHash: event["."].source,
-        eventIndex,
-        dropIndex
-      }))
-    ).flat();
+      marketplace.retrievedAt = Date.now();
+      marketplace.marketplaceId = marketplaceId;
+      marketplace.versionHash = yield this.client.LatestVersionHash({objectId: marketplaceId});
+      marketplace.drops = (marketplace.events || []).map(({event}, eventIndex) =>
+        (event.info.drops || []).map((drop, dropIndex) => ({
+          ...drop,
+          eventId: Utils.DecodeVersionHash(event["."].source).objectId,
+          eventHash: event["."].source,
+          eventIndex,
+          dropIndex
+        }))
+      ).flat();
 
-    this.marketplaces[marketplaceId] = marketplace;
+      this.marketplaces[marketplaceId] = marketplace;
 
-    return marketplace;
+      return marketplace;
+    } catch(error) {
+      delete this.marketplaceCache[marketplaceId];
+      throw error;
+    }
   });
 
   MarketplaceOwnedItems(marketplace) {
