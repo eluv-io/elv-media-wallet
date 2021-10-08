@@ -297,6 +297,10 @@ export class ElvWalletClient {
     return this.SendMessage({action: "setMarketplace", params: { marketplaceId }});
   }
 
+  async SetMarketplaceFilters({filters=[]}) {
+    return this.SendMessage({action: "setMarketplaceFilters", params: { filters }});
+  }
+
   /**
    * Indicate that the wallet has become active in order to activate certain UI behaviors
    */
@@ -339,14 +343,16 @@ export class ElvWalletClient {
    * @param {string=} page - A named app path
    * @param {Object=} params - URL parameters for the specified path, e.g. { tokenId: <token-id> } for an 'item' page.
    * @param {string=} path - An absolute app path
+   * @param {Array<string>=} marketplaceFilters - A list of filters to limit items shown in the marketplace store page
    */
-  async Navigate({page, path, params}) {
+  async Navigate({page, path, params, marketplaceFilters=[]}) {
     return this.SendMessage({
       action: "navigate",
       params: {
         page,
         path,
-        params
+        params,
+        marketplaceFilters
       }
     });
   }

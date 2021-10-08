@@ -116,11 +116,19 @@ export const InitializeListener = (history) => {
         Respond({});
 
         break;
+      case "setMarketplaceFilters":
+        await rootStore.SetMarketplaceFilters(data.params.filters);
+
+        Respond({});
+
+        break;
       case "setActive":
         rootStore.WalletActivated();
 
         break;
       case "navigate":
+        rootStore.SetMarketplaceFilters(data.params.marketplaceFilters || []);
+
         if(data.params.path) {
           // Direct path
           history.push(data.params.path);
@@ -141,8 +149,6 @@ export const InitializeListener = (history) => {
           }
 
           history.push(route);
-
-          rootStore.SetMarketplaceFilters([]);
 
           Respond({});
         }

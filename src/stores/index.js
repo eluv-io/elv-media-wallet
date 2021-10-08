@@ -284,17 +284,21 @@ class RootStore {
 
   LoadMarketplace = flow(function * (marketplaceId, forceReload=false) {
     // Cache marketplace retrieval
-    if(!forceReload && this.marketplaceCache[marketplaceId] && Date.now() - this.marketplaceCache[marketplaceId] < 60000) {
+    if(!forceReload && this.marketplaceCache[marketplaceId] && Date.now() - this.marketplaceCache[marketplaceId].marketplace < 60000) {
       // Cache stock retrieval
-      if(Date.now() - this.marketplaceCache[marketplaceId] > 10000) {
+      if(Date.now() - this.marketplaceCache[marketplaceId].stock > 10000) {
         this.checkoutStore.MarketplaceStock(this.marketplaces[marketplaceId]);
+        this.marketplaceCache[marketplaceId].stock = Date.now();
       }
 
       return this.marketplaces[marketplaceId];
     }
 
     try {
-      this.marketplaceCache[marketplaceId] = Date.now();
+      this.marketplaceCache[marketplaceId] = {
+        marketplace: Date.now(),
+        stock: Date.now()
+      };
 
       let marketplace = yield this.client.ContentObjectMetadata({
         libraryId: yield this.client.ContentObjectLibraryId({objectId: marketplaceId}),
@@ -361,14 +365,14 @@ class RootStore {
 
     let items = {};
 
-    marketplace.items.forEach(item => {
-      const owned = rootStore.nfts.filter(nft =>
+    rootStore.nfts.filter(nft => {
+      const matchingItem = marketplace.items.find(item =>
         item.nft_template && !item.nft_template["/"] && item.nft_template.nft && item.nft_template.nft.template_id && item.nft_template.nft.template_id === nft.metadata.template_id
       );
 
-      if(owned.length === 0) { return; }
-
-      items[item.sku] = owned;
+      if(matchingItem) {
+        items[matchingItem.sku] = nft;
+      }
     });
 
     return items;
@@ -686,8 +690,6 @@ class RootStore {
 
   ToggleSidePanelMode(enabled) {
     this.sidePanelMode = enabled;
-
-    this.ToggleNavigation(!enabled);
   }
 
   SetNavigateToLogIn(initialScreen) {

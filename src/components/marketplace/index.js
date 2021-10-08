@@ -85,6 +85,9 @@ const Checkout = observer(({marketplaceId, item}) => {
 
   const free = !total || item.free;
   const purchaseDisabled = !rootStore.userProfile.email && !validEmail;
+  const marketplace = rootStore.marketplaces[marketplaceId];
+
+  if(!marketplace) { return null; }
   return (
     <>
       {
@@ -126,18 +129,28 @@ const Checkout = observer(({marketplaceId, item}) => {
                 className="checkout__button"
                 role="link"
                 onClick={async () => {
-                  if(free) {
-                    const status = await rootStore.ClaimStatus({marketplace: rootStore.marketplaces[marketplaceId], sku: item.sku});
+                  try {
+                    if(free) {
+                      const status = await rootStore.ClaimStatus({
+                        marketplace,
+                        sku: item.sku
+                      });
 
-                    if(status && status.status !== "none") {
-                      // Already claimed, go to status
-                      setClaimed(true);
-                    } else if(await checkoutStore.ClaimSubmit({marketplaceId, sku: item.sku})) {
-                      // Claim successful
-                      setClaimed(true);
+                      if(status && status.status !== "none") {
+                        // Already claimed, go to status
+                        setClaimed(true);
+                      } else if(await checkoutStore.ClaimSubmit({marketplaceId, sku: item.sku})) {
+                        // Claim successful
+                        setClaimed(true);
+                      }
+                    } else {
+                      setConfirmationId(await checkoutStore.StripeSubmit({marketplaceId, sku: item.sku, email}));
                     }
-                  } else {
-                    setConfirmationId(await checkoutStore.StripeSubmit({marketplaceId, sku: item.sku, email}));
+                  } catch(error) {
+                    rootStore.Log("Checkout failed", true);
+                    rootStore.Log(error);
+
+                    checkoutStore.MarketplaceStock(marketplace);
                   }
                 }}
               >
@@ -490,7 +503,6 @@ const MarketplaceCollections = observer(() => {
         owned += 1;
 
         const nft = marketplaceItems[sku][0];
-
         return (
           <div className="card-container card-shadow" key={key}>
             <Link
