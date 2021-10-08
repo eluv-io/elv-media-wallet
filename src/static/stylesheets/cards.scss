@@ -19,6 +19,7 @@ $pending-color: rgba($blue, 0.5);
   height: min-content;
   position: relative;
   transition: border 0.15s ease-in, margin 0.15s ease-in-out;
+  max-width: calc(100vw - 50px);
 
   &::before {
     content: "";
