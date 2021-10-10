@@ -223,7 +223,7 @@ button {
   flex-direction: column;
   height: max-content;
   max-width: 100%;
-  padding: 15px 25px 80px 15px;
+  padding: 15px 35px 80px 25px;
   width: 100vw;
 }
 
@@ -273,7 +273,7 @@ button {
 // Small
 @media screen and (max-width: $mobile-breakpoint) {
   .content {
-    padding: 25px 25px 80px;
+    padding: 25px 35px 80px;
   }
 
   .page-container {

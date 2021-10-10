@@ -275,7 +275,7 @@ const MarketplaceItemDetails = observer(() => {
                   </h2>
                 </div>
                 {
-                  stock && stock.max && stock.max - stock.minted <= 100 ?
+                  stock && stock.max ?
                     <div className="card__stock">
                       <div className={`card__stock__indicator ${outOfStock ? "card__stock__indicator-unavailable" : ""}`} />
                       { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available` }
@@ -412,7 +412,7 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
             </h2>
           </div>
           {
-            stock && stock.max && stock.max - stock.minted <= 100 ?
+            stock && stock.max ?
               <div className="card__stock">
                 <div className={`card__stock__indicator ${outOfStock ? "card__stock__indicator-unavailable" : ""}`} />
                 { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available` }

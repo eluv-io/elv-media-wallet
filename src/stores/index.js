@@ -310,7 +310,7 @@ class RootStore {
         resolveIncludeSource: true
       });
 
-      this.checkoutStore.MarketplaceStock(marketplace);
+      const stockPromise = this.checkoutStore.MarketplaceStock(marketplace);
 
       marketplace.items = yield Promise.all(
         marketplace.items.map(async item => {
@@ -352,6 +352,9 @@ class RootStore {
       ).flat();
 
       this.marketplaces[marketplaceId] = marketplace;
+
+      // Ensure stock call has completed
+      yield stockPromise;
 
       return marketplace;
     } catch(error) {

@@ -250,3 +250,11 @@ $pending-color: rgba($blue, 0.5);
     }
   }
 }
+
+.side-panel {
+  .card-list {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 400px;
+  }
+}
