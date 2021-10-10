@@ -273,10 +273,11 @@ const Login = observer(() => {
     }
   }
 
+  const largeLogoMode = customizationOptions.large_logo_mode;
   const customBackground = customizationOptions.background || customizationOptions.background_mobile;
   if(newWindowLogin || loading || customizationInfoLoading || auth0Loading || rootStore.loggingIn) {
     return (
-      <div className={`page-container login-page ${customBackground ? "login-page-custom-background" : ""}`}>
+      <div className={`page-container login-page ${largeLogoMode ? "login-page-large-logo-mode" : ""} ${customBackground ? "login-page-custom-background" : ""}`}>
         <LoginBackground />
         <div className="login-page__login-box" key={`login-box-${rootStore.accountLoading}`}>
           { logo }
@@ -288,7 +289,7 @@ const Login = observer(() => {
 
   if(showPrivateKeyForm) {
     return (
-      <div className={`page-container login-page ${customBackground ? "login-page-custom-background" : ""}`}>
+      <div className={`page-container login-page ${largeLogoMode ? "login-page-large-logo-mode" : ""} ${customBackground ? "login-page-custom-background" : ""}`}>
         <LoginBackground />
         <div className="login-page__login-box">
           { logo }
@@ -382,7 +383,7 @@ const Login = observer(() => {
   );
 
   return (
-    <div className={`page-container login-page ${customBackground ? "login-page-custom-background" : ""}`}>
+    <div className={`page-container login-page ${largeLogoMode ? "login-page-large-logo-mode" : ""} ${customBackground ? "login-page-custom-background" : ""}`}>
       { showTermsModal ? <TermsModal Toggle={show => setShowTermsModal(show)} /> : null }
 
       <LoginBackground />

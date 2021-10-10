@@ -8,6 +8,9 @@ import UrlJoin from "url-join";
 import AsyncComponent from "Components/common/AsyncComponent";
 import {NFTImage} from "Components/common/Images";
 import Utils from "@eluvio/elv-client-js/src/Utils";
+import LinesEllipsis from "react-lines-ellipsis";
+import responsiveHOC from "react-lines-ellipsis/lib/responsiveHOC";
+const ResponsiveEllipsis = responsiveHOC()(LinesEllipsis);
 
 let statusInterval;
 const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, videoHash}) => {
@@ -164,9 +167,12 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
                         <h2 className="card__title">
                           { nft.metadata.display_name || "" }
                         </h2>
-                        <h2 className="card__subtitle">
-                          { nft.metadata.description || "" }
-                        </h2>
+                        <ResponsiveEllipsis
+                          component="h2"
+                          className="card__subtitle"
+                          text={nft.metadata.description || ""}
+                          maxLine="2"
+                        />
                       </div>
                     </div>
                   </Link>
@@ -228,6 +234,8 @@ export const ClaimMintingStatus = observer(() => {
   const [status, setStatus] = useState(undefined);
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+  const videoHash = marketplace.storefront.purchase_animation &&
+    ((marketplace.storefront.purchase_animation["/"] && marketplace.storefront.purchase_animation["/"].split("/").find(component => component.startsWith("hq__")) || marketplace.storefront.purchase_animation["."].source));
 
   const Status = async () => await rootStore.ClaimStatus({
     marketplace,
@@ -243,6 +251,7 @@ export const ClaimMintingStatus = observer(() => {
   if(!status) {
     return (
       <MintingStatus
+        videoHash={videoHash}
         Status={Status}
         OnFinish={({status}) => setStatus(status)}
       />

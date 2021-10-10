@@ -1,9 +1,26 @@
 .login-page {
   align-items: center;
+  border-radius: 5px;
   display: flex;
   justify-content: center;
   margin: 0;
   padding: 0 30px;
+
+  &-large-logo-mode {
+    padding: 0;
+
+    .login-page__login-box {
+      height: 100%;
+      max-height: 800px;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .login-page__logo {
+      max-width: 350px;
+      width: 100%;
+    }
+  }
 
   .loader {
     height: auto;
@@ -112,18 +129,20 @@
     }
 
     .login-page__tagline {
-      align-items: baseline;
+      align-items: center;
       color: $black;
       display: flex;
-      font-size: 12px;
+      flex-direction: column;
+      font-size: 10px;
       font-weight: 300;
+      justify-content: center;
       letter-spacing: 0.07em;
       text-transform: uppercase;
       user-select: none;
 
       &__image {
-        height: 14px;
-        margin-left: 7px;
+        height: 20px;
+        margin-top: 10px;
 
         * {
           fill: $black;
@@ -179,7 +198,7 @@
 
   &__terms-button {
     bottom: 20px;
-    font-size: 8px;
+    font-size: 9px;
     height: 20px;
     letter-spacing: 0.05em;
     position: absolute;

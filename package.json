@@ -20,7 +20,7 @@
     "lint-js": "./node_modules/.bin/eslint \"src/**/*.js\" \"client/src/**/*.js\"",
     "lint-scss": "./node_modules/sass-lint/bin/sass-lint.js -c .scss-lint.yml -v -q",
     "fix-js": "npm run lint-js -- --fix",
-    "fix-scss": "./node_modules/sass-lint-auto-fix/dist/index.js -c .scss-lint.yml"
+    "fix-scss": "sass-lint-auto-fix -c .scss-lint.yml"
   },
   "pre-commit": {
     "run": [
@@ -43,6 +43,7 @@
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-inlinesvg": "^2.3.0",
+    "react-lines-ellipsis": "^0.15.0",
     "react-markdown": "^5.0.3",
     "react-router-dom": "^5.2.0",
     "sanitize-html": "^2.5.1",

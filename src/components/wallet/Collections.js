@@ -3,7 +3,9 @@ import {observer} from "mobx-react";
 
 import {rootStore} from "Stores/index";
 import UrlJoin from "url-join";
-
+import LinesEllipsis from "react-lines-ellipsis";
+import responsiveHOC from "react-lines-ellipsis/lib/responsiveHOC";
+const ResponsiveEllipsis = responsiveHOC()(LinesEllipsis);
 import {Link, useRouteMatch} from "react-router-dom";
 import {NFTImage} from "Components/common/Images";
 
@@ -22,9 +24,12 @@ export const NFTCard = observer(({nft}) => {
             <h2 className="card__title">
               { nft.metadata.display_name || "" }
             </h2>
-            <h2 className="card__subtitle">
-              { nft.metadata.description || "" }
-            </h2>
+            <ResponsiveEllipsis
+              component="h2"
+              className="card__subtitle"
+              text={nft.metadata.description}
+              maxLine="2"
+            />
           </div>
         </div>
       </Link>

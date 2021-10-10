@@ -9,10 +9,17 @@ import {
   Redirect
 } from "react-router-dom";
 import UrlJoin from "url-join";
+import {observer} from "mobx-react";
+import {render} from "react-dom";
+import ReactMarkdown from "react-markdown";
+import SanitizeHTML from "sanitize-html";
+import LinesEllipsis from "react-lines-ellipsis";
+import responsiveHOC from "react-lines-ellipsis/lib/responsiveHOC";
+const ResponsiveEllipsis = responsiveHOC()(LinesEllipsis);
+
 import AsyncComponent from "Components/common/AsyncComponent";
 import NFTPlaceholderIcon from "Assets/icons/nft";
 import {CopyableField, ExpandableSection, FormatPriceString, ItemPrice} from "Components/common/UIComponents";
-import {observer} from "mobx-react";
 import Drop from "Components/event/Drop";
 import {MarketplaceImage, NFTImage} from "Components/common/Images";
 import NFTDetails from "Components/wallet/NFTDetails";
@@ -27,9 +34,6 @@ import {Loader, PageLoader} from "Components/common/Loaders";
 import DescriptionIcon from "Assets/icons/Description icon.svg";
 import DetailsIcon from "Assets/icons/Details icon.svg";
 import ContractIcon from "Assets/icons/Contract icon.svg";
-import {render} from "react-dom";
-import ReactMarkdown from "react-markdown";
-import SanitizeHTML from "sanitize-html";
 
 const MarketplaceNavigation = observer(() => {
   let match = useRouteMatch();
@@ -271,7 +275,7 @@ const MarketplaceItemDetails = observer(() => {
                   </h2>
                 </div>
                 {
-                  stock && stock.max && stock.max - stock.minted < 100 ?
+                  stock && stock.max && stock.max - stock.minted <= 100 ?
                     <div className="card__stock">
                       <div className={`card__stock__indicator ${outOfStock ? "card__stock__indicator-unavailable" : ""}`} />
                       { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available` }
@@ -400,13 +404,15 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
               </div>
             </h2>
             <h2 className="card__subtitle">
-              <div className="card__subtitle__title">
-                { item.description }
-              </div>
+              <ResponsiveEllipsis
+                className="card__subtitle__title"
+                text={item.description}
+                maxLine="2"
+              />
             </h2>
           </div>
           {
-            stock && stock.max && stock.max - stock.minted < 100 ?
+            stock && stock.max && stock.max - stock.minted <= 100 ?
               <div className="card__stock">
                 <div className={`card__stock__indicator ${outOfStock ? "card__stock__indicator-unavailable" : ""}`} />
                 { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available` }
@@ -447,9 +453,12 @@ const MarketplaceOwned = observer(() => {
                       <h2 className="card__title">
                         { ownedItem.metadata.display_name || "" }
                       </h2>
-                      <h2 className="card__subtitle">
-                        { ownedItem.metadata.description || "" }
-                      </h2>
+                      <ResponsiveEllipsis
+                        component="h2"
+                        className="card__subtitle"
+                        text={ownedItem.metadata.description}
+                        maxLine="2"
+                      />
                     </div>
                   </div>
                 </Link>
@@ -515,9 +524,12 @@ const MarketplaceCollections = observer(() => {
                   <h2 className="card__title">
                     { nft.metadata.display_name || "" }
                   </h2>
-                  <h2 className="card__subtitle">
-                    { nft.metadata.description || "" }
-                  </h2>
+                  <ResponsiveEllipsis
+                    component="h2"
+                    className="card__subtitle"
+                    text={item.description}
+                    maxLine="2"
+                  />
                 </div>
               </div>
             </Link>
@@ -553,9 +565,12 @@ const MarketplaceCollections = observer(() => {
                   <h2 className="card__title">
                     { item.name }
                   </h2>
-                  <h2 className="card__subtitle">
-                    { item.description }
-                  </h2>
+                  <ResponsiveEllipsis
+                    component="h2"
+                    className="card__subtitle"
+                    text={item.description}
+                    maxLine="2"
+                  />
                 </div>
               </div>
             </div>
@@ -702,9 +717,12 @@ const MarketplaceBrowser = observer(() => {
                     <h2 className="card__title">
                       { marketplace.name }
                     </h2>
-                    <h2 className="card__subtitle">
-                      { marketplace.description }
-                    </h2>
+                    <ResponsiveEllipsis
+                      className="card__subtitle"
+                      component="h2"
+                      text={marketplace.description}
+                      maxLine="2"
+                    />
                   </div>
                 </div>
               </Link>
