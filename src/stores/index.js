@@ -374,7 +374,7 @@ class RootStore {
       );
 
       if(matchingItem) {
-        items[matchingItem.sku] = nft;
+        items[matchingItem.sku] = items[matchingItem.sku] ? [ ...items[matchingItem.sku], nft ] : [ nft ];
       }
     });
 

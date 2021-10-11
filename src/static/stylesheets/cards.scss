@@ -145,16 +145,24 @@ $pending-color: rgba($blue, 0.5);
 
   &__title,
   &__subtitle {
-    align-items: center;
-    display: flex;
     font-size: 14px;
+    font-weight: 500;
+    line-height: 1.1em;
+  }
+
+  &__title {
+    align-items: center;
+    font-size: 18px;
     font-weight: 500;
     justify-content: space-between;
     line-height: 1.1em;
   }
 
-  &__title {
-    font-size: 18px;
+  &__subtitle {
+    color: $gray;
+    font-size: 14px;
+    font-weight: 300;
+    margin-top: 7px;
   }
 
   &__title__title,
@@ -165,13 +173,6 @@ $pending-color: rgba($blue, 0.5);
   &__title__price {
     font-size: 14px;
     font-weight: 500;
-  }
-
-  &__subtitle {
-    color: $gray;
-    font-size: 14px;
-    font-weight: 300;
-    margin-top: 7px;
   }
 
   &__stock {

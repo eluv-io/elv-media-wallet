@@ -381,6 +381,8 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
 
   const stock = checkoutStore.stock[item.sku];
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
+  const total = ItemPrice(item, checkoutStore.currency);
+  const isFree = !total || item.free;
 
   return (
     <div className={`card-container card-shadow ${className}`}>
@@ -400,16 +402,15 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
                 { item.name }
               </div>
               <div className="card__title__price">
-                { FormatPriceString(item.price) }
+                { isFree ? "Claim Now!" : FormatPriceString(item.price) }
               </div>
             </h2>
-            <h2 className="card__subtitle">
-              <ResponsiveEllipsis
-                className="card__subtitle__title"
-                text={item.description}
-                maxLine="2"
-              />
-            </h2>
+            <ResponsiveEllipsis
+              component="h2"
+              className="card__subtitle"
+              text={item.description}
+              maxLine="2"
+            />
           </div>
           {
             stock && stock.max ?
@@ -603,56 +604,52 @@ const Marketplace = observer(() => {
 
   const marketplaceItems = rootStore.MarketplaceOwnedItems(marketplace);
 
-  return (
-    <>
-      {
-        marketplace.storefront.sections.map((section, sectionIndex) => {
-          const items = section.items.map((sku) => {
-            const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
-            const item = itemIndex >= 0 && marketplace.items[itemIndex];
+  const sections = (marketplace.storefront.sections.map((section, sectionIndex) => {
+    const items = section.items.map((sku) => {
+      const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
+      const item = itemIndex >= 0 && marketplace.items[itemIndex];
 
-            // Authorization
-            if(!item || !item.for_sale || (item.requires_permissions && !item.authorized) || (item.type === "nft" && (!item.nft_template || item.nft_template["/"]))) {
-              return;
-            }
-
-            if(item.max_per_user && marketplaceItems[item.sku] && marketplaceItems[item.sku].length >= item.max_per_user) {
-              // Purchase limit
-              return;
-            }
-
-            // If filters are specified, item must have all tags
-            if(rootStore.marketplaceFilters.length > 0 && rootStore.marketplaceFilters.find(filter => !(item.tags || []).includes(filter))) {
-              return;
-            }
-
-            return { item, itemIndex };
-          }).filter(item => item);
-
-          if(items.length === 0) { return null; }
-
-          return (
-            <div className="marketplace__section" key={`marketplace-section-${sectionIndex}`}>
-              <h1 className="page-header">{section.section_header}</h1>
-              <h2 className="page-subheader">{section.section_subheader}</h2>
-              <div className="card-list">
-                {
-                  items.map(({item, itemIndex}) =>
-                    <MarketplaceItemCard
-                      marketplaceHash={marketplace.versionHash}
-                      item={item}
-                      index={itemIndex}
-                      key={`marketplace-item-${itemIndex}`}
-                    />
-                  )
-                }
-              </div>
-            </div>
-          );
-        })
+      // Authorization
+      if(!item || !item.for_sale || (item.requires_permissions && !item.authorized) || (item.type === "nft" && (!item.nft_template || item.nft_template["/"]))) {
+        return;
       }
-    </>
-  );
+
+      if(item.max_per_user && marketplaceItems[item.sku] && marketplaceItems[item.sku].length >= item.max_per_user) {
+        // Purchase limit
+        return;
+      }
+
+      // If filters are specified, item must have all tags
+      if(rootStore.marketplaceFilters.length > 0 && rootStore.marketplaceFilters.find(filter => !(item.tags || []).includes(filter))) {
+        return;
+      }
+
+      return { item, itemIndex };
+    }).filter(item => item);
+
+    if(items.length === 0) { return null; }
+
+    return (
+      <div className="marketplace__section" key={`marketplace-section-${sectionIndex}`}>
+        <h1 className="page-header">{section.section_header}</h1>
+        <h2 className="page-subheader">{section.section_subheader}</h2>
+        <div className="card-list">
+          {
+            items.map(({item, itemIndex}) =>
+              <MarketplaceItemCard
+                marketplaceHash={marketplace.versionHash}
+                item={item}
+                index={itemIndex}
+                key={`marketplace-item-${itemIndex}`}
+              />
+            )
+          }
+        </div>
+      </div>
+    );
+  })).filter(section => section);
+
+  return sections.length > 0 ? sections : <h2 className="marketplace__empty">No items available</h2>;
 });
 
 const MarketplacePage = observer(({children}) => {
