@@ -251,7 +251,6 @@ const MarketplaceItemDetails = observer(() => {
           <div className="details-page__card-container card-container">
             <div className="details-page__content card card-shadow">
               <MarketplaceImage
-                templateImage
                 marketplaceHash={marketplace.versionHash}
                 item={item}
                 path={UrlJoin("public", "asset_metadata", "info", "items", itemIndex.toString(), "image")}
