@@ -7,12 +7,12 @@ const Navigation = observer(() => {
 
   return (
     <nav className="navigation">
-      <NavLink className="navigation__link" to="/wallet">Wallet</NavLink>
       {
         rootStore.marketplaceId ?
           <NavLink className="navigation__link" to={`/marketplaces/${rootStore.marketplaceId}`}>Marketplace</NavLink> :
           <NavLink className="navigation__link" to="/marketplaces">Discover</NavLink>
       }
+      <NavLink className="navigation__link" to="/wallet">Wallet</NavLink>
     </nav>
   );
 });

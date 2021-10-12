@@ -543,23 +543,26 @@ const MarketplaceCollections = observer(() => {
     const collectionIcon = collection.collection_icon;
     return (
       <div className="marketplace__section" key={`marketplace-section-${collectionIndex}`}>
-        <div className={`page-headers ${collectionIcon ? "page-headers-with-icon" : ""}`}>
-          { collectionIcon ?
-            <MarketplaceImage
-              className="page-headers__icon"
-              marketplaceHash={marketplace.versionHash}
-              title={collection.name}
-              path={
-                UrlJoin("public", "asset_metadata", "info", "collections", collectionIndex.toString(), "collection_icon")
-              }
-            /> : null
-          }
-          <h1 className="page-header">
-            <div className="page-header__title">{collection.collection_header}</div>
-            <div className="page-header__subtitle">{ owned } / { collection.items.length }</div>
-          </h1>
-          <h2 className="page-subheader">{collection.collection_subheader}</h2>
-        </div>
+        <h1 className="page-header section-header">
+          <div className="page-header__title card-shadow">
+            <div className="page-header__title__title">
+              {collection.collection_header}
+            </div>
+            { collectionIcon ?
+              <MarketplaceImage
+                rawImage
+                className="page-header__icon"
+                marketplaceHash={marketplace.versionHash}
+                title={collection.name}
+                path={
+                  UrlJoin("public", "asset_metadata", "info", "collections", collectionIndex.toString(), "collection_icon")
+                }
+              /> : null
+            }
+          </div>
+          <div className="page-header__subtitle">{ owned } / { collection.items.length }</div>
+        </h1>
+        <h2 className="page-subheader">{collection.collection_subheader}</h2>
         <div className="card-list card-list-collections">
           { collectionItems }
         </div>
@@ -618,7 +621,7 @@ const MarketplaceOwned = observer(() => {
 
   return (
     <>
-      { owned }
+      { ownedItems.length === 0 && marketplace.collections.length > 0 ? null : owned }
       <MarketplaceCollections />
     </>
   );
@@ -846,7 +849,7 @@ const Routes = (match) => {
     { name: (event.event_info || {}).event_title, path: "/marketplaces/:marketplaceId/events/:dropId", Component: Drop, hideNavigation: true },
     { name: "Status", path: "/marketplaces/:marketplaceId/events/:dropId/status", Component: DropMintingStatus, hideNavigation: true },
 
-    { name: "My Items", path: "/marketplaces/:marketplaceId/collections", Component: MarketplaceOwned },
+    { name: ((marketplace.storefront || {}).tabs || {}).collection || "My Items", path: "/marketplaces/:marketplaceId/collections", Component: MarketplaceOwned },
 
     { name: nft.metadata.display_name, path: "/marketplaces/:marketplaceId/collections/owned/:contractId/:tokenId", Component: NFTDetails },
     { name: "Open Pack", path: "/marketplaces/:marketplaceId/collections/owned/:contractId/:tokenId/open", Component: PackOpenStatus, hideNavigation: true },

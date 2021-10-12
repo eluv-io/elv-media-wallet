@@ -56,7 +56,7 @@ const NFTDetails = observer(() => {
               <div className="details-page__content__info card__text">
                 <div className="card__titles">
                   <div className="card__subtitle">
-                    { match.params.tokenId }
+                    { nft.details.TokenOrdinal ? `${nft.details.TokenOrdinal} / ${nft.details.Cap}` : match.params.tokenId }
                   </div>
 
                   <h2 className="card__title">
@@ -118,9 +118,23 @@ const NFTDetails = observer(() => {
               : null
           }
           {
+            nft.metadata.image ?
+              <CopyableField value={nft.metadata.image}>
+                Image URL: <a href={nft.metadata.image} target="_blank">{ nft.metadata.image }</a>
+              </CopyableField>
+              : null
+          }
+          {
             nft.metadata.creator ?
               <div>
                 Creator: { nft.metadata.creator }
+              </div>
+              : null
+          }
+          {
+            nft.details.TokenOrdinal ?
+              <div>
+                Token Ordinal: { nft.details.TokenOrdinal }
               </div>
               : null
           }

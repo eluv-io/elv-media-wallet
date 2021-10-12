@@ -42,6 +42,50 @@
       font-size: 12px;
     }
   }
+
+  .section-header {
+    align-items: center;
+    display: flex;
+
+    .page-header {
+      &__title,
+      &__subtitle {
+        align-items: center;
+        display: flex;
+      }
+
+      &__title {
+        border-radius: 10px;
+        padding: 10px 30px;
+      }
+
+      &__subtitle {
+        justify-content: flex-end;
+      }
+
+      &__icon {
+        padding: 0;
+      }
+    }
+
+    .page-header__title__title + .page-header__icon {
+      margin-left: 15px;
+    }
+
+    @media screen and (max-width: 600px) {
+      flex-direction: column;
+
+      .page-header {
+        &__title {
+          padding: 10px 15px;
+        }
+
+        &__subtitle {
+          margin-top: 15px;
+        }
+      }
+    }
+  }
 }
 
 .checkout {

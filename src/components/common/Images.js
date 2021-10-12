@@ -63,7 +63,7 @@ export const NFTImage = observer(({nft, width, video=false, className=""}) => {
   );
 });
 
-export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon, templateImage=false, className=""}) => {
+export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon, templateImage=false, rawImage=false, className=""}) => {
   if(!(url || icon)) {
     if(!item || item.image && (!templateImage || !item.nft_template || !item.nft_template.nft || !item.nft_template.nft.image)) {
       url = rootStore.PublicLink({
@@ -85,14 +85,22 @@ export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon,
     }
   }
 
+  const image = (
+    <ImageIcon
+      title={title || item && item.name || ""}
+      icon={url || icon || NFTPlaceholderIcon}
+      alternateIcon={NFTPlaceholderIcon}
+      className={rawImage ? className : `card__image ${className}`}
+    />
+  );
+
+  if(rawImage) {
+    return image;
+  }
+
   return (
     <div className={`card__image-container ${className}`}>
-      <ImageIcon
-        title={title || item && item.name || ""}
-        icon={url || icon || NFTPlaceholderIcon}
-        alternateIcon={NFTPlaceholderIcon}
-        className={`card__image ${className}`}
-      />
+      { image }
     </div>
   );
 };
