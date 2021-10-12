@@ -223,7 +223,7 @@ export const PurchaseMintingStatus = observer(() => {
       subheader={`Thank you for your purchase! You've received the following ${items.length === 1 ? "item" : "items"}:`}
       items={items}
       basePath={UrlJoin("/marketplaces", match.params.marketplaceId)}
-      nftBasePath={UrlJoin("/marketplaces", match.params.marketplaceId, "owned")}
+      nftBasePath={UrlJoin("/marketplaces", match.params.marketplaceId, "collections", "owned")}
       backText="Back to the Marketplace"
     />
   );
@@ -281,7 +281,7 @@ export const ClaimMintingStatus = observer(() => {
       subheader={`You've received the following ${items.length === 1 ? "item" : "items"}:`}
       items={items}
       basePath={UrlJoin("/marketplaces", match.params.marketplaceId)}
-      nftBasePath={UrlJoin("/marketplaces", match.params.marketplaceId, "owned")}
+      nftBasePath={UrlJoin("/marketplaces", match.params.marketplaceId, "collections", "owned")}
       backText="Back to the Marketplace"
     />
   );
@@ -315,7 +315,7 @@ export const PackOpenStatus = observer(() => {
   }
 
   const basePath = match.url.startsWith("/marketplace") ?
-    UrlJoin("/marketplaces", match.params.marketplaceId, "owned") :
+    UrlJoin("/marketplaces", match.params.marketplaceId, "collections", "owned") :
     UrlJoin("/wallet", "collection");
 
   const items = status.extra.filter(item => item.token_addr && item.token_id);
