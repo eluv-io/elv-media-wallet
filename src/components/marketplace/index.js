@@ -795,7 +795,7 @@ const MarketplaceWrapper = observer(({children}) => {
       rootStore.ToggleNavigation(false);
       return () => rootStore.ToggleNavigation(true);
     }
-  }, [match.url]);
+  }, [match.url, rootStore.marketplaces[match.params.marketplaceId]]);
 
   if(currentRoute.skipLoading) {
     return children;
