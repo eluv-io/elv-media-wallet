@@ -430,6 +430,8 @@ const MarketplaceCollections = observer(() => {
 
   if(!marketplace) { return null; }
 
+  const basePath = UrlJoin("/marketplaces", match.params.marketplaceId, "collections");
+
   const marketplaceItems = rootStore.MarketplaceOwnedItems(marketplace);
 
   let purchaseableItems = {};
@@ -468,7 +470,7 @@ const MarketplaceCollections = observer(() => {
         return (
           <div className="card-container card-shadow" key={key}>
             <Link
-              to={UrlJoin(match.url, collectionIndex.toString(), "owned", nft.details.ContractId, nft.details.TokenIdStr)}
+              to={UrlJoin(basePath, collectionIndex.toString(), "owned", nft.details.ContractId, nft.details.TokenIdStr)}
               className="card nft-card"
             >
               <NFTImage nft={nft} width={400} />
@@ -491,7 +493,7 @@ const MarketplaceCollections = observer(() => {
       } else if(item && purchaseableItems[sku]) {
         return (
           <MarketplaceItemCard
-            to={`${match.url}/${collectionIndex}/store/${purchaseableItems[sku].item.sku}`}
+            to={`${basePath}/${collectionIndex}/store/${purchaseableItems[sku].item.sku}`}
             className="collection-card collection-card-purchasable collection-card-unowned"
             marketplaceHash={marketplace.versionHash}
             item={purchaseableItems[sku].item}
@@ -542,10 +544,10 @@ const MarketplaceCollections = observer(() => {
     const collectionIcon = collection.collection_icon;
     return (
       <div className="marketplace__section" key={`marketplace-section-${collectionIndex}`}>
-        <div className="page-headers-with-icon">
+        <div className={`page-headers ${collectionIcon ? "page-headers-with-icon" : ""}`}>
           { collectionIcon ?
             <MarketplaceImage
-              className="page-headers-with-icon__icon"
+              className="page-headers__icon"
               marketplaceHash={marketplace.versionHash}
               title={collection.name}
               path={
@@ -678,7 +680,16 @@ const Marketplace = observer(() => {
     );
   })).filter(section => section);
 
-  return sections.length > 0 ? sections : <h2 className="marketplace__empty">No items available</h2>;
+  if(sections.length === 0 && marketplace.collections.length === 0) {
+    return <h2 className="marketplace__empty">No items available</h2>;
+  }
+
+  return (
+    <>
+      { sections }
+      <MarketplaceCollections />
+    </>
+  );
 });
 
 const MarketplacePage = observer(({children}) => {
@@ -844,7 +855,6 @@ const Routes = (match) => {
     { name: "Open Pack", path: "/marketplaces/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId/open", Component: PackOpenStatus, hideNavigation: true },
     { name: nft.metadata.display_name, path: "/marketplaces/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId", Component: NFTDetails },
     { name: item.name, path: "/marketplaces/:marketplaceId/collections/:collectionIndex/store/:sku", Component: MarketplaceItemDetails },
-
 
     { name: "Claim", path: "/marketplaces/:marketplaceId/:sku/claim", Component: ClaimMintingStatus, hideNavigation: true },
     { name: "Purchase", path: "/marketplaces/:marketplaceId/:sku/purchase/:confirmationId/success", Component: MarketplacePurchase, hideNavigation: true, skipLoading: true },

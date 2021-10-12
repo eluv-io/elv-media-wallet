@@ -164,9 +164,13 @@ button {
     width: 100%;
   }
 
-  .page-headers-with-icon {
+  .page-headers {
     padding-left: 50px;
     position: relative;
+
+    &-with-icon {
+      padding-left: 50px;
+    }
 
     &__icon {
       bottom: 0;
