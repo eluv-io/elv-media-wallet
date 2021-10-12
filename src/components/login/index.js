@@ -389,35 +389,44 @@ const Login = observer(() => {
       <LoginBackground />
       <div className="login-page__login-box" key={`login-box-${rootStore.accountLoading}`}>
         { logo }
+        <div className="login-page__actions">
+          {
+            rootStore.GetLocalStorage("hasLoggedIn") ?
+              <>
+                { logInButton }
+                { signUpButton }
+              </> :
+              <>
+                { signUpButton }
+                { logInButton }
+              </>
+          }
+          {
+            rootStore.customizationMetadata && rootStore.customizationMetadata.disable_private_key ?
+              null :
+              <button
+                className="login-page__login-button login-page__login-button-pk"
+                onClick={() => setShowPrivateKeyForm(true)}
+              >
+                Or Sign In With Private Key
+              </button>
+          }
+        </div>
         {
-          rootStore.GetLocalStorage("hasLoggedIn") ?
-            <>
-              { logInButton }
-              { signUpButton }
-            </> :
-            <>
-              { signUpButton }
-              { logInButton }
-            </>
-        }
-        {
-          rootStore.customizationMetadata && rootStore.customizationMetadata.disable_private_key ?
-            null :
-            <button
-              className="login-page__login-button login-page__login-button-pk"
-              onClick={() => setShowPrivateKeyForm(true)}
-            >
-              Or Sign In With Private Key
-            </button>
-        }
-        {
-          rootStore.customizationMetadata && (rootStore.customizationMetadata.terms || rootStore.customizationMetadata.terms_html) ?
-            <button
-              onClick={() => setShowTermsModal(true)}
-              className="login-page__terms-button"
-            >
-              Terms of Service
-            </button> : null
+          rootStore.customizationMetadata && rootStore.customizationMetadata.terms ?
+            <div
+              className="login-page__terms"
+              ref={element => {
+                if(!element) { return; }
+
+                render(
+                  <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
+                    { SanitizeHTML(rootStore.customizationMetadata.terms) }
+                  </ReactMarkdown>,
+                  element
+                );
+              }}
+            /> : null
         }
       </div>
     </div>
