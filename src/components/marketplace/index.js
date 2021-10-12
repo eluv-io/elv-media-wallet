@@ -457,6 +457,12 @@ const MarketplaceCollections = observer(() => {
   return marketplace.collections.map((collection, collectionIndex) => {
     let owned = 0;
 
+    // If filters are specified, must match all filters
+    if(rootStore.marketplaceFilters.length > 0 && rootStore.marketplaceFilters.find(filter => !(collection.collection_header || "").includes(filter))) {
+      return null;
+    }
+
+
     const collectionItems = collection.items.map((sku, entryIndex) => {
       const key = `collection-card-${collectionIndex}-${entryIndex}`;
       const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
