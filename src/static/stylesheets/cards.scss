@@ -152,6 +152,7 @@ $pending-color: rgba($blue, 0.5);
 
   &__title {
     align-items: center;
+    display: flex;
     font-size: 18px;
     font-weight: 500;
     justify-content: space-between;

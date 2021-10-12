@@ -44,6 +44,8 @@ const MarketplaceNavigation = observer(() => {
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
 
+  if(!marketplace) { return null; }
+
   return (
     <nav className="sub-navigation marketplace-navigation">
       <NavLink
@@ -54,14 +56,11 @@ const MarketplaceNavigation = observer(() => {
           !match.path.includes("/marketplaces/:marketplaceId/owned")
         }
       >
-        Store
+        { (marketplace.storefront.tabs || {}).store || "Store" }
       </NavLink>
-      {
-        marketplace && marketplace.collections && marketplace.collections.length > 0 ?
-          <NavLink className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/collections`}>Collections</NavLink> :
-          null
-      }
-      <NavLink className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/owned`}>My Collection</NavLink>
+      <NavLink className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/collections`}>
+        { (marketplace.storefront.tabs || {}).collection || "My Items" }
+      </NavLink>
     </nav>
   );
 });
@@ -425,52 +424,6 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
   );
 };
 
-const MarketplaceOwned = observer(() => {
-  const match = useRouteMatch();
-
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-
-  if(!marketplace) { return null; }
-
-  const marketplaceItems = rootStore.MarketplaceOwnedItems(marketplace);
-  const ownedItems = Object.values(marketplaceItems).flat();
-
-  return (
-    ownedItems.length === 0 ?
-      <h2 className="marketplace__empty">You don't own any items from this marketplace yet!</h2> :
-      <div className="marketplace__section">
-        <div className="page-header">My Collection</div>
-        <div className="card-list">
-          {
-            ownedItems.map(ownedItem =>
-              <div className="card-container card-shadow" key={`marketplace-owned-item-${ownedItem.details.ContractAddr}-${ownedItem.details.TokenIdStr}`}>
-                <Link
-                  to={UrlJoin(match.url, ownedItem.details.ContractId, ownedItem.details.TokenIdStr)}
-                  className="card nft-card"
-                >
-                  <NFTImage nft={ownedItem} width={400} />
-                  <div className="card__text">
-                    <div className="card__titles">
-                      <h2 className="card__title">
-                        { ownedItem.metadata.display_name || "" }
-                      </h2>
-                      <ResponsiveEllipsis
-                        component="h2"
-                        className="card__subtitle"
-                        text={ownedItem.metadata.description}
-                        maxLine="2"
-                      />
-                    </div>
-                  </div>
-                </Link>
-              </div>
-            )
-          }
-        </div>
-      </div>
-  );
-});
-
 const MarketplaceCollections = observer(() => {
   const match = useRouteMatch();
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
@@ -502,14 +455,13 @@ const MarketplaceCollections = observer(() => {
 
   return marketplace.collections.map((collection, collectionIndex) => {
     let owned = 0;
+
     const collectionItems = collection.items.map((sku, entryIndex) => {
       const key = `collection-card-${collectionIndex}-${entryIndex}`;
       const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
       const item = marketplace.items[itemIndex];
 
-      if(!item) { return; }
-
-      if(marketplaceItems[sku] && marketplaceItems[sku].length > 0) {
+      if(item && marketplaceItems[sku] && marketplaceItems[sku].length > 0) {
         owned += 1;
 
         const nft = marketplaceItems[sku][0];
@@ -536,7 +488,7 @@ const MarketplaceCollections = observer(() => {
             </Link>
           </div>
         );
-      } else if(purchaseableItems[sku]) {
+      } else if(item && purchaseableItems[sku]) {
         return (
           <MarketplaceItemCard
             to={`${match.url}/${collectionIndex}/store/${purchaseableItems[sku].item.sku}`}
@@ -548,28 +500,35 @@ const MarketplaceCollections = observer(() => {
           />
         );
       } else {
-        // Not accessible, use placeholder
+        // Not accessible or null item use placeholder
+
+        const placeholder = item || collection.placeholder || {};
+
         return (
           <div className="card-container card-shadow collection-card collection-card-inaccessible collection-card-unowned" key={key}>
             <div className="card nft-card">
               {
-                item.image ?
+                placeholder.image ?
                   <MarketplaceImage
                     marketplaceHash={marketplace.versionHash}
-                    title={item.name}
-                    path={UrlJoin("public", "asset_metadata", "info", "items", itemIndex.toString(), "image")}
+                    title={placeholder.name}
+                    path={
+                      item ?
+                        UrlJoin("public", "asset_metadata", "info", "items", itemIndex.toString(), "image") :
+                        UrlJoin("public", "asset_metadata", "info", "collections", collectionIndex.toString(), "placeholder", "image")
+                    }
                   /> :
-                  <MarketplaceImage title={item.name} icon={NFTPlaceholderIcon} />
+                  <MarketplaceImage title={placeholder.name} icon={NFTPlaceholderIcon} />
               }
               <div className="card__text">
                 <div className="card__titles">
                   <h2 className="card__title">
-                    { item.name }
+                    { placeholder.name }
                   </h2>
                   <ResponsiveEllipsis
                     component="h2"
                     className="card__subtitle"
-                    text={item.description}
+                    text={placeholder.description}
                     maxLine="2"
                   />
                 </div>
@@ -580,13 +539,26 @@ const MarketplaceCollections = observer(() => {
       }
     });
 
+    const collectionIcon = collection.collection_icon;
     return (
       <div className="marketplace__section" key={`marketplace-section-${collectionIndex}`}>
-        <h1 className="page-header">
-          <div className="page-header__title">{collection.collection_header}</div>
-          <div className="page-header__subtitle">{ owned } / { collection.items.length }</div>
-        </h1>
-        <h2 className="page-subheader">{collection.collection_subheader}</h2>
+        <div className="page-headers-with-icon">
+          { collectionIcon ?
+            <MarketplaceImage
+              className="page-headers-with-icon__icon"
+              marketplaceHash={marketplace.versionHash}
+              title={collection.name}
+              path={
+                UrlJoin("public", "asset_metadata", "info", "collections", collectionIndex.toString(), "collection_icon")
+              }
+            /> : null
+          }
+          <h1 className="page-header">
+            <div className="page-header__title">{collection.collection_header}</div>
+            <div className="page-header__subtitle">{ owned } / { collection.items.length }</div>
+          </h1>
+          <h2 className="page-subheader">{collection.collection_subheader}</h2>
+        </div>
         <div className="card-list card-list-collections">
           { collectionItems }
         </div>
@@ -594,6 +566,63 @@ const MarketplaceCollections = observer(() => {
     );
   });
 });
+
+const MarketplaceOwned = observer(() => {
+  const match = useRouteMatch();
+
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+
+  if(!marketplace) { return null; }
+
+  const marketplaceItems = rootStore.MarketplaceOwnedItems(marketplace);
+  const ownedItems = Object.values(marketplaceItems).flat();
+
+  const owned = (
+    ownedItems.length === 0 ?
+      <div className="marketplace__section">
+        <div className="page-header">{ (marketplace.storefront.tabs || {}).collection || "My Items" }</div>
+        <h2 className="marketplace__empty">You don't own any items from this marketplace yet!</h2>
+      </div> :
+      <div className="marketplace__section">
+        <div className="page-header">{ (marketplace.storefront.tabs || {}).collection || "My Items" }</div>
+        <div className="card-list">
+          {
+            ownedItems.map(ownedItem =>
+              <div className="card-container card-shadow" key={`marketplace-owned-item-${ownedItem.details.ContractAddr}-${ownedItem.details.TokenIdStr}`}>
+                <Link
+                  to={UrlJoin(match.url, "owned", ownedItem.details.ContractId, ownedItem.details.TokenIdStr)}
+                  className="card nft-card"
+                >
+                  <NFTImage nft={ownedItem} width={400} />
+                  <div className="card__text">
+                    <div className="card__titles">
+                      <h2 className="card__title">
+                        { ownedItem.metadata.display_name || "" }
+                      </h2>
+                      <ResponsiveEllipsis
+                        component="h2"
+                        className="card__subtitle"
+                        text={ownedItem.metadata.description}
+                        maxLine="2"
+                      />
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            )
+          }
+        </div>
+      </div>
+  );
+
+  return (
+    <>
+      { owned }
+      <MarketplaceCollections />
+    </>
+  );
+});
+
 
 const Marketplace = observer(() => {
   const match = useRouteMatch();
@@ -807,15 +836,15 @@ const Routes = (match) => {
     { name: (event.event_info || {}).event_title, path: "/marketplaces/:marketplaceId/events/:dropId", Component: Drop, hideNavigation: true },
     { name: "Status", path: "/marketplaces/:marketplaceId/events/:dropId/status", Component: DropMintingStatus, hideNavigation: true },
 
-    { name: "Collections", path: "/marketplaces/:marketplaceId/collections", Component: MarketplaceCollections },
+    { name: "My Items", path: "/marketplaces/:marketplaceId/collections", Component: MarketplaceOwned },
+
+    { name: nft.metadata.display_name, path: "/marketplaces/:marketplaceId/collections/owned/:contractId/:tokenId", Component: NFTDetails },
+    { name: "Open Pack", path: "/marketplaces/:marketplaceId/collections/owned/:contractId/:tokenId/open", Component: PackOpenStatus, hideNavigation: true },
 
     { name: "Open Pack", path: "/marketplaces/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId/open", Component: PackOpenStatus, hideNavigation: true },
     { name: nft.metadata.display_name, path: "/marketplaces/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId", Component: NFTDetails },
     { name: item.name, path: "/marketplaces/:marketplaceId/collections/:collectionIndex/store/:sku", Component: MarketplaceItemDetails },
 
-    { name: "My Collection", path: "/marketplaces/:marketplaceId/owned", Component: MarketplaceOwned },
-    { name: "Open Pack", path: "/marketplaces/:marketplaceId/owned/:contractId/:tokenId/open", Component: PackOpenStatus, hideNavigation: true },
-    { name: nft.metadata.display_name, path: "/marketplaces/:marketplaceId/owned/:contractId/:tokenId", Component: NFTDetails },
 
     { name: "Claim", path: "/marketplaces/:marketplaceId/:sku/claim", Component: ClaimMintingStatus, hideNavigation: true },
     { name: "Purchase", path: "/marketplaces/:marketplaceId/:sku/purchase/:confirmationId/success", Component: MarketplacePurchase, hideNavigation: true, skipLoading: true },

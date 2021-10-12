@@ -86,7 +86,7 @@ export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon,
   }
 
   return (
-    <div className="card__image-container">
+    <div className={`card__image-container ${className}`}>
       <ImageIcon
         title={title || item && item.name || ""}
         icon={url || icon || NFTPlaceholderIcon}

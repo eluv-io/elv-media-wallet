@@ -22,7 +22,7 @@ const NFTDetails = observer(() => {
 
   if(deleted) {
     return match.params.marketplaceId ?
-      <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, "owned")}/> :
+      <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, "collections")}/> :
       <Redirect to={Path.dirname(Path.dirname(match.url))}/>;
   }
 
