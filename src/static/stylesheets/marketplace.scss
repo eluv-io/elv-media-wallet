@@ -47,6 +47,11 @@
     align-items: center;
     display: flex;
 
+    &__left {
+      align-items: center;
+      display: flex;
+    }
+
     .page-header {
       &__title,
       &__subtitle {
@@ -60,10 +65,12 @@
       }
 
       &__subtitle {
+        flex-grow: 1;
         justify-content: flex-end;
       }
 
       &__icon {
+        object-fit: contain;
         padding: 0;
       }
     }
@@ -83,6 +90,22 @@
         &__subtitle {
           margin-top: 15px;
         }
+      }
+    }
+  }
+
+  .collection-info {
+    &__button {
+      border: 0;
+      height: 45px;
+      margin-left: 20px;
+      opacity: 0.5;
+      width: 45px;
+
+      &__icon {
+        height: 100%;
+        padding: 0;
+        width: 100%;
       }
     }
   }

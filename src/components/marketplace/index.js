@@ -34,6 +34,9 @@ import {Loader, PageLoader} from "Components/common/Loaders";
 import DescriptionIcon from "Assets/icons/Description icon.svg";
 import DetailsIcon from "Assets/icons/Details icon.svg";
 import ContractIcon from "Assets/icons/Contract icon.svg";
+import InfoModal from "Components/common/InfoModal";
+import ImageIcon from "Components/common/ImageIcon";
+import HelpIcon from "Assets/icons/help-circle.svg";
 
 const MarketplaceNavigation = observer(() => {
   let match = useRouteMatch();
@@ -426,6 +429,7 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
 const MarketplaceCollections = observer(() => {
   const match = useRouteMatch();
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+  const [modal, setModal] = useState(null);
 
   if(!marketplace) { return null; }
 
@@ -454,7 +458,7 @@ const MarketplaceCollections = observer(() => {
     })
   );
 
-  return marketplace.collections.map((collection, collectionIndex) => {
+  const collections = marketplace.collections.map((collection, collectionIndex) => {
     let owned = 0;
 
     // If filters are specified, must match all filters
@@ -547,23 +551,48 @@ const MarketplaceCollections = observer(() => {
     });
 
     const collectionIcon = collection.collection_icon;
+
+    const collectionModalInfo = collection.collection_info_modal || {};
     return (
       <div className="marketplace__section" key={`marketplace-section-${collectionIndex}`}>
         <h1 className="page-header section-header">
-          <div className="page-header__title card-shadow">
-            <div className="page-header__title__title">
-              {collection.collection_header}
+          <div className="section-header__left">
+            <div className="page-header__title card-shadow">
+              <div className="page-header__title__title">
+                {collection.collection_header}
+              </div>
+              { collectionIcon ?
+                <MarketplaceImage
+                  rawImage
+                  className="page-header__icon"
+                  marketplaceHash={marketplace.versionHash}
+                  title={collection.name}
+                  path={
+                    UrlJoin("public", "asset_metadata", "info", "collections", collectionIndex.toString(), "collection_icon")
+                  }
+                /> : null
+              }
             </div>
-            { collectionIcon ?
-              <MarketplaceImage
-                rawImage
-                className="page-header__icon"
-                marketplaceHash={marketplace.versionHash}
-                title={collection.name}
-                path={
-                  UrlJoin("public", "asset_metadata", "info", "collections", collectionIndex.toString(), "collection_icon")
-                }
-              /> : null
+            {
+              collectionModalInfo.show ?
+                <button
+                  className="collection-info__button"
+                  onClick={() => setModal(
+                    <InfoModal
+                      info={collectionModalInfo}
+                      marketplaceHash={marketplace.versionHash}
+                      imagePath={UrlJoin("public", "asset_metadata", "info", "collections", collectionIndex.toString(), "collection_info_modal", "image")}
+                      backgroundImagePath={UrlJoin("public", "asset_metadata", "info", "collections", collectionIndex.toString(), "collection_info_modal", "background_image")}
+                      Close={() => setModal(null)}
+                    />
+                  )}
+                >
+                  <ImageIcon
+                    className="collection-info__button__icon"
+                    icon={HelpIcon}
+                    title="Click here for more information about this collection!"
+                  />
+                </button> : null
             }
           </div>
           <div className="page-header__subtitle">{ owned } / { collection.items.length }</div>
@@ -575,6 +604,13 @@ const MarketplaceCollections = observer(() => {
       </div>
     );
   });
+
+  return (
+    <>
+      { modal }
+      { collections }
+    </>
+  );
 });
 
 const MarketplaceOwned = observer(() => {
