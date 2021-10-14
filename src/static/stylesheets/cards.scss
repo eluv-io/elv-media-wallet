@@ -8,17 +8,12 @@ $pending-color: rgba($blue, 0.5);
   grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));
   margin-top: 20px;
 
-  // Force aspect ratio of cards in a card list
   .card-container {
-    &::before {
-      content: "";
-      display: block;
-      padding-top: 130%;
-    }
+    height: 100%;
 
     .card {
+      height: 100%;
       padding-bottom: 15px;
-      position: absolute;
     }
   }
 }
@@ -157,6 +152,12 @@ $pending-color: rgba($blue, 0.5);
     font-weight: 500;
     justify-content: space-between;
     line-height: 1.1em;
+
+    &-edition {
+      font-size: 12px;
+      font-weight: 300;
+      margin: 5px 0;
+    }
   }
 
   &__subtitle {
@@ -183,7 +184,7 @@ $pending-color: rgba($blue, 0.5);
     font-size: 12px;
     font-weight: 600;
     justify-content: flex-end;
-    margin-top: 5px;
+    margin-top: 10px;
   }
 
   &__stock__indicator {
@@ -245,6 +246,10 @@ $pending-color: rgba($blue, 0.5);
 
     &__title {
       font-weight: 600;
+
+      &-edition {
+        font-weight: 300;
+      }
     }
 
     &__subtitle {

@@ -56,7 +56,7 @@ const NFTDetails = observer(() => {
               <div className="details-page__content__info card__text">
                 <div className="card__titles">
                   <div className="card__subtitle">
-                    { nft.details.TokenOrdinal ? `${nft.details.TokenOrdinal} / ${nft.details.Cap}` : match.params.tokenId }
+                    { typeof nft.details.TokenOrdinal !== "undefined" ? `${parseInt(nft.details.TokenOrdinal) + 1} / ${nft.details.Cap}` : match.params.tokenId }
                   </div>
 
                   <h2 className="card__title">
@@ -128,6 +128,13 @@ const NFTDetails = observer(() => {
             nft.metadata.creator ?
               <div>
                 Creator: { nft.metadata.creator }
+              </div>
+              : null
+          }
+          {
+            nft.metadata.edition_name ?
+              <div>
+                Edition: { nft.metadata.edition_name }
               </div>
               : null
           }

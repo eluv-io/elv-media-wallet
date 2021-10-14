@@ -269,6 +269,10 @@ const MarketplaceItemDetails = observer(() => {
                       { FormatPriceString(item.price) }
                     </div>
                   </h2>
+                  {
+                    item.nftTemplateMetadata.edition_name ?
+                      <h2 className="card__title-edition">{ item.nftTemplateMetadata.edition_name }</h2> : null
+                  }
                   <h2 className="card__subtitle">
                     <div className="card__subtitle__title">
                       { item.description }
@@ -325,9 +329,23 @@ const MarketplaceItemDetails = observer(() => {
               : null
           }
           {
+            itemTemplate.image ?
+              <CopyableField value={itemTemplate.image}>
+                Image URL: <a href={itemTemplate.image} target="_blank">{ itemTemplate.image }</a>
+              </CopyableField>
+              : null
+          }
+          {
             itemTemplate.creator ?
               <div>
                 Creator: { itemTemplate.creator }
+              </div>
+              : null
+          }
+          {
+            itemTemplate.edition_name ?
+              <div>
+                Edition: { itemTemplate.edition_name }
               </div>
               : null
           }
@@ -406,6 +424,10 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
                 { isFree ? "Claim Now!" : FormatPriceString(item.price) }
               </div>
             </h2>
+            {
+              item.nftTemplateMetadata.edition_name ?
+                <h2 className="card__title card__title-edition">{ item.nftTemplateMetadata.edition_name }</h2> : null
+            }
             <ResponsiveEllipsis
               component="h2"
               className="card__subtitle"

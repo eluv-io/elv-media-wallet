@@ -334,6 +334,10 @@ class RootStore {
             }
           }
 
+          const nftTemplateMetadata = ((item.nft_template || {}).nft || {});
+
+          item.nftTemplateMetadata = nftTemplateMetadata;
+
           return item;
         })
       );
@@ -647,6 +651,27 @@ class RootStore {
       Utils.B64(JSON.stringify({authToken, address, user}))
     );
     this.SetLocalStorage("hasLoggedIn", "true");
+  }
+
+  async CheckEmailVerification(auth0) {
+    try {
+      const token = await auth0.getAccessTokenSilently();
+
+      const userProfile = await (
+        await fetch(
+          "https://auth.contentfabric.io/userprofile",
+          {
+            Headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        )
+      ).json();
+
+      console.log(userProfile);
+    } catch(error) {
+      this.Log(error, true);
+    }
   }
 
   AuthInfo() {
