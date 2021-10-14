@@ -219,6 +219,14 @@
     }
   }
 
+  &__resend-verification {
+    border: 0;
+    bottom: 20px;
+    font-size: 12px;
+    padding: 10px;
+    position: absolute;
+  }
+
   @media screen and (max-width: 700px) {
     &__login-box {
       max-height: 450px;
@@ -298,6 +306,10 @@
       a {
         color: $blue;
       }
+    }
+
+    &__resend-verification {
+      border: 0;
     }
   }
 }

@@ -78,10 +78,13 @@ const LoginBackground = observer(() => {
   return null;
 });
 
+let verificationCheckInterval;
 const Login = observer(() => {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [customizationInfoLoading, setCustomizationInfoLoading] = useState(!!rootStore.marketplaceId);
+  const [verified, setVerified] = useState(false);
+  const [verificationResent, setVerificationResent] = useState(false);
   const [auth0Loading, setAuth0Loading] = useState(true);
   const [showPrivateKeyForm, setShowPrivateKeyForm] = useState(false);
   const [privateKey, setPrivateKey] = useState("");
@@ -112,10 +115,13 @@ const Login = observer(() => {
   const SignIn = async () => {
     if(loading) { return; }
 
+    clearInterval(verificationCheckInterval);
+
     try {
       const authInfo = rootStore.AuthInfo();
 
       if(authInfo) {
+        setVerified(true);
         setLoading(true);
         await rootStore.InitializeClient({
           authToken: authInfo.authToken,
@@ -145,9 +151,21 @@ const Login = observer(() => {
             auth0.logout({returnTo: UrlJoin(window.location.origin, window.location.pathname) + (rootStore.darkMode ? "?d" : "")});
           }
         };
+
+        if(auth0.user && auth0.user.email_verified) {
+          setVerified(true);
+        }
       }
 
       if(!idToken) {
+        return;
+      }
+
+      if(!verified) {
+        verificationCheckInterval = setInterval(async () => {
+          setVerified(await rootStore.CheckEmailVerification(auth0));
+        }, 7500);
+
         return;
       }
 
@@ -172,16 +190,19 @@ const Login = observer(() => {
   }
 
   useEffect(() => {
-    rootStore.LoadCustomizationMetadata().then(() =>
-      setCustomizationInfoLoading(false)
-    );
+    rootStore.LoadCustomizationMetadata().then(() => {
+      setCustomizationInfoLoading(false);
+
+      if(!(rootStore.customizationMetadata || {}).require_email_verification) {
+        setVerified(true);
+      }
+    });
   }, []);
 
   useEffect(() => {
     SignalOpener();
 
     const authInfo = rootStore.AuthInfo();
-
     if(!loading && authInfo) {
       setLoading(true);
       rootStore.InitializeClient({
@@ -212,7 +233,7 @@ const Login = observer(() => {
 
       rootStore.SendEvent({event: EVENTS.LOADED});
     }
-  }, [auth0 && auth0.isAuthenticated, auth0 && auth0.isLoading]);
+  }, [auth0 && auth0.isAuthenticated, auth0 && auth0.isLoading, verified]);
 
   useEffect(() => {
     if(!rootStore.navigateToLogIn) { return; }
@@ -276,12 +297,27 @@ const Login = observer(() => {
   const largeLogoMode = customizationOptions.large_logo_mode;
   const customBackground = customizationOptions.background || customizationOptions.background_mobile;
   if(newWindowLogin || loading || customizationInfoLoading || auth0Loading || rootStore.loggingIn) {
+    const notVerified = !customizationInfoLoading && (rootStore.customizationMetadata || {}).require_email_verification && auth0 && !auth0.isLoading && auth0.isAuthenticated && auth0.user && typeof auth0.user.email_verified !== "undefined" && !auth0.user.email_verified;
     return (
       <div className={`page-container login-page ${largeLogoMode ? "login-page-large-logo-mode" : ""} ${customBackground ? "login-page-custom-background" : ""}`}>
         <LoginBackground />
         <div className="login-page__login-box" key={`login-box-${rootStore.accountLoading}`}>
           { logo }
+          { notVerified ? <h1>Please verify your email address to proceed</h1> : null }
           <Loader />
+
+          { notVerified && !verificationResent ?
+            <button
+              className="login-page__resend-verification"
+              onClick={async () => {
+                if(await rootStore.RequestVerificationEmail(auth0)) {
+                  setVerificationResent(true);
+                }
+              }}
+            >
+              Resend Verification Email
+            </button> : null
+          }
         </div>
       </div>
     );

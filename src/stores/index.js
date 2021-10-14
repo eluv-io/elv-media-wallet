@@ -67,6 +67,7 @@ class RootStore {
 
   oauthUser = undefined;
   localAccount = false;
+  auth0AccessToken = undefined;
 
   initialized = false;
   client = undefined;
@@ -653,26 +654,36 @@ class RootStore {
     this.SetLocalStorage("hasLoggedIn", "true");
   }
 
-  async CheckEmailVerification(auth0) {
+  CheckEmailVerification = flow(function * (auth0) {
     try {
-      const token = await auth0.getAccessTokenSilently();
+      if(!this.auth0AccessToken) {
+        this.auth0AccessToken = yield auth0.getAccessTokenSilently();
+      }
 
-      const userProfile = await (
-        await fetch(
-          "https://auth.contentfabric.io/userprofile",
-          {
-            Headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
-        )
-      ).json();
+      const userProfile = (
+        yield (
+          yield fetch(
+            "https://auth.contentfabric.io/userinfo",
+            { headers: { Authorization: `Bearer ${this.auth0AccessToken}` } }
+          )
+        ).json()
+      ) || {};
 
-      console.log(userProfile);
+      return userProfile.email_verified;
     } catch(error) {
       this.Log(error, true);
     }
-  }
+
+    return false;
+  });
+
+  RequestVerificationEmail = async () => {
+    try {
+      return true;
+    } catch(error) {
+      this.Log(error, true);
+    }
+  };
 
   AuthInfo() {
     try {

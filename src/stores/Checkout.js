@@ -1,7 +1,6 @@
 import UrlJoin from "url-join";
 import {parse as UUIDParse, v4 as UUID} from "uuid";
 import {makeAutoObservable, flow, runInAction} from "mobx";
-import {loadStripe} from "@stripe/stripe-js";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 
 const PUBLIC_KEYS = {
@@ -171,6 +170,7 @@ class CheckoutStore {
       )).session_id;
 
       // Redirect to stripe
+      const {loadStripe} = yield import("@stripe/stripe-js/pure");
       const stripe = yield loadStripe(PUBLIC_KEYS.stripe[mode]);
       yield stripe.redirectToCheckout({sessionId});
     } catch(error) {
