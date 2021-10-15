@@ -61,9 +61,11 @@ class RootStore {
   disableCloseEvent = false;
   darkMode = window.self === window.top && sessionStorage.getItem("dark-mode");
 
-  marketplaceId = new URLSearchParams(window.location.search).get("mid") || (window.self === window.top && sessionStorage.getItem("marketplace-id"));
+  marketplaceId = undefined;
   marketplaceHash = undefined;
   customizationMetadata = undefined;
+
+  marketplaceHashes = {};
 
   oauthUser = undefined;
   localAccount = false;
@@ -88,11 +90,7 @@ class RootStore {
 
   nfts = [];
 
-  marketplaceIds =
-    this.marketplaceId ? [this.marketplaceId] :
-      EluvioConfiguration["config-url"].includes("main.net955305") ?
-        [] :
-        ["iq__2FrA2S1XBy4zdRGQn1knakpbrBV4", "iq__42qvvcLZfzp6PnPL3Vb4bcrHHewm"];
+  marketplaceIds = [];
   marketplaces = {};
   marketplaceCache = {};
 
@@ -117,6 +115,19 @@ class RootStore {
 
   constructor() {
     makeAutoObservable(this);
+
+    const marketplace = new URLSearchParams(window.location.search).get("mid") || (window.self === window.top && sessionStorage.getItem("marketplace-id"));
+    if(marketplace && marketplace.startsWith("hq__")) {
+      const objectId = Utils.DecodeVersionHash(marketplace).objectId;
+      this.marketplaceHashes[objectId] = marketplace;
+      this.marketplaceId = objectId;
+    } else if(marketplace) {
+      this.marketplaceId = marketplace;
+    }
+
+    if(this.marketplaceId) {
+      this.marketplaceIds = [ this.marketplaceId ];
+    }
 
     this.checkoutStore = new CheckoutStore(this);
 
@@ -157,8 +168,14 @@ class RootStore {
     );
   }
 
-  SetMarketplaceId({marketplaceId}) {
-    this.marketplaceId = marketplaceId;
+  SetMarketplaceId({marketplaceId, marketplaceHash}) {
+    if(marketplaceHash) {
+      this.marketplaceId = Utils.DecodeVersionHash(marketplaceHash).objectId;
+      this.marketplaceHashes[this.marketplaceId] = marketplaceHash;
+    } else {
+      this.marketplaceId = marketplaceId;
+      this.marketplaceHashes[marketplaceId] = marketplaceHash;
+    }
 
     this.LoadCustomizationMetadata();
   }
@@ -177,7 +194,7 @@ class RootStore {
     if(!this.marketplaceId || this.customizationMetadata) { return; }
 
     if(!this.embedded) {
-      sessionStorage.setItem("marketplace-id", this.marketplaceId);
+      sessionStorage.setItem("marketplace-id", this.marketplaceHashes[this.marketplaceId] || this.marketplaceId);
     }
 
     let client = this.client;
@@ -194,9 +211,12 @@ class RootStore {
       });
     }
 
-    this.marketplaceHash = yield client.LatestVersionHash({objectId: this.marketplaceId});
+    if(!this.marketplaceHashes[this.marketplaceId]) {
+      this.marketplaceHashes[this.marketplaceId] = yield client.LatestVersionHash({objectId: this.marketplaceId});
+    }
+
     const customizationMetadata = yield client.ContentObjectMetadata({
-      versionHash: this.marketplaceHash,
+      versionHash: this.marketplaceHashes[this.marketplaceId],
       metadataSubtree: "public/asset_metadata/info",
       select: [
         "tenant_id",
@@ -283,27 +303,38 @@ class RootStore {
     )).filter(nft => nft);
   });
 
+  SetMarketplaceHash({marketplaceId, marketplaceHash}) {
+    this.marketplaceHashes[marketplaceId] = marketplaceHash;
+  }
+
   LoadMarketplace = flow(function * (marketplaceId, forceReload=false) {
+    let marketplaceHash = this.marketplaceHashes[marketplaceId];
+    if(marketplaceId.startsWith("hq__")) {
+      marketplaceHash = marketplaceId;
+      marketplaceId = Utils.DecodeVersionHash(marketplaceId).objectId;
+    } else if(!marketplaceHash) {
+      marketplaceHash = yield this.client.LatestVersionHash({objectId: marketplaceId});
+    }
+
     // Cache marketplace retrieval
-    if(!forceReload && this.marketplaceCache[marketplaceId] && Date.now() - this.marketplaceCache[marketplaceId].marketplace < 60000) {
+    if(!forceReload && this.marketplaceCache[marketplaceHash] && Date.now() - this.marketplaceCache[marketplaceHash].marketplace < 60000) {
       // Cache stock retrieval
-      if(Date.now() - this.marketplaceCache[marketplaceId].stock > 10000) {
+      if(Date.now() - this.marketplaceCache[marketplaceHash].stock > 10000) {
         this.checkoutStore.MarketplaceStock(this.marketplaces[marketplaceId]);
-        this.marketplaceCache[marketplaceId].stock = Date.now();
+        this.marketplaceCache[marketplaceHash].stock = Date.now();
       }
 
-      return this.marketplaces[marketplaceId];
+      return this.marketplaces[marketplaceHash];
     }
 
     try {
-      this.marketplaceCache[marketplaceId] = {
+      this.marketplaceCache[marketplaceHash] = {
         marketplace: Date.now(),
         stock: Date.now()
       };
 
       let marketplace = yield this.client.ContentObjectMetadata({
-        libraryId: yield this.client.ContentObjectLibraryId({objectId: marketplaceId}),
-        objectId: marketplaceId,
+        versionHash: marketplaceHash,
         metadataSubtree: "public/asset_metadata/info",
         linkDepthLimit: 2,
         resolveLinks: true,
@@ -335,9 +366,7 @@ class RootStore {
             }
           }
 
-          const nftTemplateMetadata = ((item.nft_template || {}).nft || {});
-
-          item.nftTemplateMetadata = nftTemplateMetadata;
+          item.nftTemplateMetadata = ((item.nft_template || {}).nft || {});
 
           return item;
         })
@@ -363,7 +392,7 @@ class RootStore {
 
       return marketplace;
     } catch(error) {
-      delete this.marketplaceCache[marketplaceId];
+      delete this.marketplaceCache[marketplaceHash];
       throw error;
     }
   });
@@ -632,7 +661,7 @@ class RootStore {
     const url = new URL(UrlJoin(window.location.origin, window.location.pathname));
 
     if(this.marketplaceId) {
-      url.searchParams.set("mid", this.marketplaceId);
+      url.searchParams.set("mid", this.marketplaceHashes[this.marketplaceId] || this.marketplaceId);
     }
 
     if(this.darkMode) {

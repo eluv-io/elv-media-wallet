@@ -111,7 +111,7 @@ export const InitializeListener = (history) => {
 
         break;
       case "setMarketplace":
-        await rootStore.SetMarketplaceId({marketplaceId: data.params.marketplaceId});
+        await rootStore.SetMarketplaceId({marketplaceId: data.params.marketplaceId, marketplaceHash: data.params.marketplaceHash});
 
         Respond({});
 
@@ -142,7 +142,15 @@ export const InitializeListener = (history) => {
 
           // Replace route variables
           let route = pages[data.params.page];
+
           if(data.params.params) {
+            // Convert hash to ID
+            if(data.params.params.marketplaceHash) {
+              const marketplaceId = Utils.DecodeVersionHash(data.params.params.marketplaceHash).objectId;
+              rootStore.SetMarketplaceHash({marketplaceId, marketplaceHash: data.params.params.marketplaceHash});
+              data.params.params.marketplaceId = marketplaceId;
+            }
+
             Object.keys(data.params.params).forEach(key => {
               route = route.replace(`:${key}`, data.params.params[key]);
             });
