@@ -1,4 +1,4 @@
-import {makeAutoObservable, configure, flow, runInAction} from "mobx";
+import {makeAutoObservable, configure, flow, runInAction, computed} from "mobx";
 import UrlJoin from "url-join";
 import {ElvClient} from "@eluvio/elv-client-js";
 import Utils from "@eluvio/elv-client-js/src/Utils";
@@ -62,7 +62,6 @@ class RootStore {
   darkMode = window.self === window.top && sessionStorage.getItem("dark-mode");
 
   marketplaceId = undefined;
-  marketplaceHash = undefined;
   customizationMetadata = undefined;
 
   marketplaceHashes = {};
@@ -99,6 +98,10 @@ class RootStore {
   EVENTS = EVENTS;
 
   navigationBreadcrumbs = [];
+
+  @computed get marketplaceHash() {
+    return this.marketplaceHashes[this.marketplaceId];
+  }
 
   Log(message="", error=false) {
     if(typeof message === "string") {
@@ -194,7 +197,7 @@ class RootStore {
     if(!this.marketplaceId || this.customizationMetadata) { return; }
 
     if(!this.embedded) {
-      sessionStorage.setItem("marketplace-id", this.marketplaceHashes[this.marketplaceId] || this.marketplaceId);
+      sessionStorage.setItem("marketplace-id", this.marketplaceHash || this.marketplaceId);
     }
 
     let client = this.client;
@@ -216,7 +219,7 @@ class RootStore {
     }
 
     const customizationMetadata = yield client.ContentObjectMetadata({
-      versionHash: this.marketplaceHashes[this.marketplaceId],
+      versionHash: this.marketplaceHash,
       metadataSubtree: "public/asset_metadata/info",
       select: [
         "tenant_id",
@@ -661,7 +664,7 @@ class RootStore {
     const url = new URL(UrlJoin(window.location.origin, window.location.pathname));
 
     if(this.marketplaceId) {
-      url.searchParams.set("mid", this.marketplaceHashes[this.marketplaceId] || this.marketplaceId);
+      url.searchParams.set("mid", this.marketplaceHash || this.marketplaceId);
     }
 
     if(this.darkMode) {
