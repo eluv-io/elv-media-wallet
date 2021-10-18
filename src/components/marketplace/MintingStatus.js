@@ -14,7 +14,6 @@ const ResponsiveEllipsis = responsiveHOC()(LinesEllipsis);
 
 let statusInterval;
 const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, videoHash}) => {
-  const [status, setStatus] = useState(undefined);
   const [finished, setFinished] = useState(false);
   const [videoInitialized, setVideoInitialized] = useState(false);
 
@@ -23,6 +22,20 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
       const status = await Status();
 
       if(status.status === "complete") {
+        // If mint has items, ensure that items are available in the user's wallet
+        const items = (status.extra || []).filter(item => item.token_addr && item.token_id);
+
+        if(items.length > 0) {
+          await rootStore.LoadWalletCollection(true);
+
+          const firstItem = rootStore.NFT({
+            contractAddress: items[0].token_addr,
+            tokenId: items[0].token_id
+          });
+
+          if(!firstItem) { return; }
+        }
+
         if(OnFinish) {
           try {
             await OnFinish({status});
@@ -35,8 +48,6 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
         setFinished(true);
         clearInterval(statusInterval);
       }
-
-      setStatus(status);
     } catch(error) {
       rootStore.Log("Failed to check status:", true);
       rootStore.Log(error);
@@ -53,14 +64,6 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
 
   if(finished && redirect) {
     return <Redirect to={redirect}/>;
-  }
-
-  if(!status) {
-    return (
-      <div className={`minting-status ${videoHash ? "minting-status-video" : ""}`}>
-        <Loader />
-      </div>
-    );
   }
 
   return (
@@ -143,7 +146,7 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
   return (
     <AsyncComponent
       loadingClassName="page-loader"
-      Load={async () => rootStore.LoadWalletCollection(true)}
+      Load={async () => await rootStore.LoadWalletCollection()}
     >
       <div className="minting-status-results pack-results">
         <h1 className="content-header">{ header }</h1>

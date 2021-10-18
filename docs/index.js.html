@@ -342,10 +342,11 @@ export class ElvWalletClient {
    *
    * @methodGroup Navigation
    * @namedParams
-   * @param {string} marketplaceId - The ID of the marketplace
+   * @param {string=} marketplaceId - The ID of the marketplace
+   * @param {string=} marketplaceHash - A version hash of the marketplace
    */
-  async SetMarketplace({marketplaceId}) {
-    return this.SendMessage({action: "setMarketplace", params: { marketplaceId }});
+  async SetMarketplace({marketplaceId, marketplaceHash}) {
+    return this.SendMessage({action: "setMarketplace", params: { marketplaceId, marketplaceHash }});
   }
 
   async SetMarketplaceFilters({filters=[]}) {
@@ -383,11 +384,11 @@ export class ElvWalletClient {
       - 'profile' - The user's profile
       - 'marketplaces'
       - 'marketplace':
-        -- Required param: `marketplaceId`
+        -- Required param: `marketplaceId` or 'marketplaceHash'
       - 'marketplaceItem`
-        -- Required params: `marketplaceId`, `sku`
+        -- Required params: `marketplaceId` or 'marketplaceHash', `sku`
       - `drop`
-        -- Optional params: `marketplaceId`, `dropId`
+        -- Optional params: `marketplaceId` or 'marketplaceHash', `dropId`
 
    * @methodGroup Navigation
    * @namedParams
@@ -416,15 +417,16 @@ export class ElvWalletClient {
    * @namedParams
    * @param {string=} walletAppUrl=http://media-wallet.v3.contentfabric.io - The URL of the Eluvio Media Wallet app
    * @param {string=} marketplaceId - Specify a specific marketplace for the wallet to use
+   * @param {string=} marketplaceHash - Specify a specific version of a specific marketplace for the wallet to use
    * @param {boolean=} darkMode=false - Specify whether the app should be in dark mode
    *
    * @return {Promise&lt;ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new window.
    */
-  static async InitializePopup({walletAppUrl="http://media-wallet.v3.contentfabric.io", marketplaceId, darkMode=false}) {
+  static async InitializePopup({walletAppUrl="http://media-wallet.v3.contentfabric.io", marketplaceId, marketplaceHash, darkMode=false}) {
     walletAppUrl = new URL(walletAppUrl);
 
-    if(marketplaceId) {
-      walletAppUrl.searchParams.set("mid", marketplaceId);
+    if(marketplaceId || marketplaceHash) {
+      walletAppUrl.searchParams.set("mid", marketplaceHash || marketplaceId);
     }
 
     if(darkMode) {
@@ -452,11 +454,12 @@ export class ElvWalletClient {
    * @param {Object | string} target - An HTML element or the ID of an element
 
    * @param {string=} marketplaceId - Specify a specific marketplace for the wallet to use
+   * @param {string=} marketplaceHash - Specify a specific version of a specific marketplace for the wallet to use
    * @param {boolean=} darkMode=false - Specify whether the app should be in dark mode
    *
    * @return {Promise&lt;ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new iframe.
    */
-  static async InitializeFrame({walletAppUrl="http://media-wallet.v3.contentfabric.io", target, marketplaceId, darkMode=false}) {
+  static async InitializeFrame({walletAppUrl="http://media-wallet.v3.contentfabric.io", target, marketplaceId, marketplaceHash, darkMode=false}) {
     if(typeof target === "string") {
       const targetElement = document.getElementById(target);
 
@@ -482,8 +485,8 @@ export class ElvWalletClient {
 
     walletAppUrl = new URL(walletAppUrl);
 
-    if(marketplaceId) {
-      walletAppUrl.searchParams.set("mid", marketplaceId);
+    if(marketplaceId || marketplaceHash) {
+      walletAppUrl.searchParams.set("mid", marketplaceHash || marketplaceId);
     }
 
     if(darkMode) {
