@@ -83,6 +83,7 @@ const NFTDetails = observer(() => {
 
       <div className="details-page__info">
         <ExpandableSection header="Description" icon={DescriptionIcon}>
+          <p className="details-page__description">{ nft.metadata.description }</p>
           {
             nft.metadata.rich_text ?
               <div
@@ -97,8 +98,7 @@ const NFTDetails = observer(() => {
                     element
                   );
                 }}
-              /> :
-              nft.metadata.description
+              /> : null
           }
         </ExpandableSection>
 
