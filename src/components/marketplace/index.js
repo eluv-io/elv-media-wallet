@@ -189,6 +189,8 @@ const MarketplacePurchase = observer(() => {
 
       window.close();
     }, []);
+
+    return <PageLoader />;
   } else if(fromEmbed) {
     // Opened from iframe - Initiate stripe purchase
     useEffect(() => {

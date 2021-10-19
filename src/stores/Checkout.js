@@ -141,7 +141,6 @@ class CheckoutStore {
         return confirmationId;
       }
 
-      const mode = EluvioConfiguration["test-mode"] ? "test" : "production";
       const checkoutId = `${marketplaceId}:${confirmationId}`;
 
       const baseUrl = new URL(UrlJoin(window.location.origin, window.location.pathname, "#", "marketplaces", marketplaceId, sku, "purchase", confirmationId));
@@ -150,8 +149,7 @@ class CheckoutStore {
         baseUrl.searchParams.set("embed", "true");
       }
 
-      const requestParams = {
-        mode,
+      let requestParams = {
         currency: this.currency,
         email: email || this.rootStore.userProfile.email,
         client_reference_id: checkoutId,
@@ -160,6 +158,10 @@ class CheckoutStore {
         success_url: UrlJoin(baseUrl.toString(), "success"),
         cancel_url: UrlJoin(baseUrl.toString(), "cancel")
       };
+
+      if(EluvioConfiguration["mode"]) {
+        requestParams.mode = EluvioConfiguration["mode"];
+      }
 
       const sessionId = (yield this.rootStore.client.utils.ResponseToJson(
         this.rootStore.client.authClient.MakeAuthServiceRequest({
