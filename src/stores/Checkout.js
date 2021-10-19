@@ -171,9 +171,13 @@ class CheckoutStore {
         })
       )).session_id;
 
+      const stripeKey = EluvioConfiguration.mode && EluvioConfiguration.mode !== "production" ?
+        PUBLIC_KEYS.stripe.test :
+        PUBLIC_KEYS.stripe.production;
+
       // Redirect to stripe
       const {loadStripe} = yield import("@stripe/stripe-js/pure");
-      const stripe = yield loadStripe(PUBLIC_KEYS.stripe[mode]);
+      const stripe = yield loadStripe(stripeKey);
       yield stripe.redirectToCheckout({sessionId});
     } catch(error) {
       this.rootStore.Log(error, true);
