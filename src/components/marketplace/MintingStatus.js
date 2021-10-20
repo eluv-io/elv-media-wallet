@@ -225,6 +225,8 @@ export const PurchaseMintingStatus = observer(() => {
   const [status, setStatus] = useState(undefined);
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+  const videoHash = marketplace.storefront.purchase_animation &&
+    ((marketplace.storefront.purchase_animation["/"] && marketplace.storefront.purchase_animation["/"].split("/").find(component => component.startsWith("hq__")) || marketplace.storefront.purchase_animation["."].source));
 
   const Status = async () => await rootStore.PurchaseStatus({
     marketplace,
@@ -249,6 +251,7 @@ export const PurchaseMintingStatus = observer(() => {
       header="Congratulations!"
       subheader={`Thank you for your purchase! You've received the following ${items.length === 1 ? "item" : "items"}:`}
       items={items}
+      videoHash={videoHash}
       basePath={UrlJoin("/marketplaces", match.params.marketplaceId)}
       nftBasePath={UrlJoin("/marketplaces", match.params.marketplaceId, "collections", "owned")}
       backText="Back to the Marketplace"
