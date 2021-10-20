@@ -255,12 +255,16 @@ const MarketplaceItemDetails = observer(() => {
         <div className="details-page__card-padding-container">
           <div className="details-page__card-container card-container">
             <div className="details-page__content card card-shadow">
-              <MarketplaceImage
-                marketplaceHash={marketplace.versionHash}
-                item={item}
-                path={UrlJoin("public", "asset_metadata", "info", "items", itemIndex.toString(), "image")}
-                className="details-page__content__image"
-              />
+              {
+                item.image ?
+                  <MarketplaceImage
+                    marketplaceHash={marketplace.versionHash}
+                    item={item}
+                    path={UrlJoin("public", "asset_metadata", "info", "items", itemIndex.toString(), "image")}
+                    className="details-page__content__image"
+                  /> :
+                  <NFTImage nft={{metadata: item.nftTemplateMetadata}} video className="details-page__content__image"/>
+              }
               <div className="details-page__content__info card__text">
                 <div className="card__titles">
                   <h2 className="card__title">
@@ -302,6 +306,9 @@ const MarketplaceItemDetails = observer(() => {
         }
 
         <ExpandableSection header="Description" icon={DescriptionIcon}>
+          <p className="details-page__description">
+            { item.description || itemTemplate.description }
+          </p>
           {
             itemTemplate.rich_text ?
               <div
@@ -316,8 +323,7 @@ const MarketplaceItemDetails = observer(() => {
                     element
                   );
                 }}
-              /> :
-              item.description || itemTemplate.description
+              /> : null
           }
 
         </ExpandableSection>
