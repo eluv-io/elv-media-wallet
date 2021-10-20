@@ -23,11 +23,14 @@ export const ProfileImage = observer(({className=""}) => {
 export const NFTImage = observer(({nft, width, video=false, className=""}) => {
   const [loaded, setLoaded] = useState(video && nft.metadata.embed_url || nft.metadata.image);
 
-  let url = new URL(nft.metadata.image);
-  url.searchParams.set("authorization", rootStore.authedToken);
+  let url;
+  if(nft.metadata.image) {
+    url = new URL(nft.metadata.image);
+    url.searchParams.set("authorization", rootStore.authedToken);
 
-  if(url && width) {
-    url.searchParams.set("width", width);
+    if(url && width) {
+      url.searchParams.set("width", width);
+    }
   }
 
   if(video && (typeof nft.metadata.playable === "undefined" || nft.metadata.playable) && nft.metadata.embed_url) {
