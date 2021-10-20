@@ -28,7 +28,7 @@ export const NFTCard = observer(({nft}) => {
               component="h2"
               className="card__subtitle"
               text={nft.metadata.description}
-              maxLine="2"
+              maxLine="3"
             />
           </div>
         </div>

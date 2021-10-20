@@ -164,7 +164,7 @@ $pending-color: rgba($blue, 0.5);
     color: $gray;
     font-size: 14px;
     font-weight: 300;
-    margin-top: 7px;
+    margin: 10px 0 5px;
   }
 
   &__title__title,
@@ -184,7 +184,7 @@ $pending-color: rgba($blue, 0.5);
     font-size: 12px;
     font-weight: 600;
     justify-content: flex-end;
-    margin-top: 10px;
+    margin-top: 20px;
   }
 
   &__stock__indicator {

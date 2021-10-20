@@ -434,7 +434,7 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
               component="h2"
               className="card__subtitle"
               text={item.description || item.nftTemplateMetadata.description}
-              maxLine="2"
+              maxLine="3"
             />
           </div>
           {
@@ -516,7 +516,7 @@ const MarketplaceCollections = observer(() => {
                     component="h2"
                     className="card__subtitle"
                     text={item.description || item.nftTemplateMetadata.description}
-                    maxLine="2"
+                    maxLine="3"
                   />
                 </div>
               </div>
@@ -564,7 +564,7 @@ const MarketplaceCollections = observer(() => {
                     component="h2"
                     className="card__subtitle"
                     text={placeholder.description}
-                    maxLine="2"
+                    maxLine="3"
                   />
                 </div>
               </div>
@@ -673,7 +673,7 @@ const MarketplaceOwned = observer(() => {
                         component="h2"
                         className="card__subtitle"
                         text={ownedItem.metadata.description}
-                        maxLine="2"
+                        maxLine="3"
                       />
                     </div>
                   </div>
@@ -826,7 +826,7 @@ const MarketplaceBrowser = observer(() => {
                       className="card__subtitle"
                       component="h2"
                       text={marketplace.description}
-                      maxLine="2"
+                      maxLine="3"
                     />
                   </div>
                 </div>

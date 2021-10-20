@@ -196,7 +196,7 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
                           component="h2"
                           className="card__subtitle"
                           text={nft.metadata.description || ""}
-                          maxLine="2"
+                          maxLine="3"
                         />
                       </div>
                     </div>
