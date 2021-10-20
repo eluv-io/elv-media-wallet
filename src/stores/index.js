@@ -469,6 +469,7 @@ class RootStore {
             ...status,
             state: status.state && typeof status.state === "object" ? Object.values(status.state) : status.state,
             extra: status.extra && typeof status.extra === "object" ? Object.values(status.extra) : status.extra,
+            confirmationId: status.extra && typeof status.extra === "object" ? status.extra.trans_id : undefined,
             op,
             address,
             tokenId
@@ -506,7 +507,7 @@ class RootStore {
     try {
       const statuses = yield this.MintingStatus({tenantId: marketplace.tenant_id});
 
-      return statuses.find(status => status.op === "nft-buy" && status.tokenId === confirmationId) || { status: "none" };
+      return statuses.find(status => status.op === "nft-buy" && status.confirmationId === confirmationId) || { status: "none" };
     } catch(error) {
       this.Log(error, true);
       return { status: "unknown" };
