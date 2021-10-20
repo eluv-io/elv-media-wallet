@@ -277,7 +277,7 @@ const MarketplaceItemDetails = observer(() => {
                   }
                   <h2 className="card__subtitle">
                     <div className="card__subtitle__title">
-                      { item.description }
+                      { item.description || item.nftTemplateMetadata.description }
                     </div>
                   </h2>
                 </div>
@@ -317,7 +317,7 @@ const MarketplaceItemDetails = observer(() => {
                   );
                 }}
               /> :
-              itemTemplate.description || item.description
+              item.description || itemTemplate.description
           }
 
         </ExpandableSection>
@@ -433,7 +433,7 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
             <ResponsiveEllipsis
               component="h2"
               className="card__subtitle"
-              text={item.description}
+              text={item.description || item.nftTemplateMetadata.description}
               maxLine="2"
             />
           </div>
@@ -515,7 +515,7 @@ const MarketplaceCollections = observer(() => {
                   <ResponsiveEllipsis
                     component="h2"
                     className="card__subtitle"
-                    text={item.description}
+                    text={item.description || item.nftTemplateMetadata.description}
                     maxLine="2"
                   />
                 </div>
