@@ -117,8 +117,9 @@ class CheckoutStore {
           url.searchParams.set("d", "");
         }
 
-        const authInfo = this.rootStore.AuthInfo();
-        authInfo.user.email = authInfo.user.email || email;
+        let authInfo = this.rootStore.AuthInfo();
+        if(!authInfo.user) { authInfo.user = {}; }
+        authInfo.user.email = email || (authInfo.user || {}).email || this.rootStore.userProfile.email;
         url.searchParams.set("auth", Utils.B64(JSON.stringify(authInfo)));
 
         const openedWindow = window.open(url.toString());
