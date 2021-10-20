@@ -23,14 +23,14 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
 
       if(status.status === "complete") {
         // If mint has items, ensure that items are available in the user's wallet
-        const items = (status.extra || []).filter(item => item.token_addr && item.token_id);
+        const items = (status.extra || []).filter(item => item.token_addr && (item.token_id || item.token_id_str));
 
         if(items.length > 0) {
           await rootStore.LoadWalletCollection(true);
 
           const firstItem = rootStore.NFT({
             contractAddress: items[0].token_addr,
-            tokenId: items[0].token_id
+            tokenId: items[0].token_id_str || items[0].token_id
           });
 
           if(!firstItem) { return; }
@@ -153,7 +153,8 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
         <h2 className="content-subheader">{ subheader }</h2>
         <div className="card-list">
           {
-            items.map(({token_addr, token_id}) => {
+            items.map(({token_addr, token_id, token_id_str}) => {
+              token_id = token_id_str || token_id;
               const nft = rootStore.NFT({contractAddress: token_addr, tokenId: token_id});
 
               if(!nft) { return null; }
@@ -218,7 +219,7 @@ export const PurchaseMintingStatus = observer(() => {
     );
   }
 
-  const items = status.extra.filter(item => item.token_addr && item.token_id);
+  const items = status.extra.filter(item => item.token_addr && (item.token_id || item.token_id_str));
 
   return (
     <MintResults
@@ -261,7 +262,7 @@ export const ClaimMintingStatus = observer(() => {
     );
   }
 
-  let items = status.extra.filter(item => item.token_addr && item.token_id);
+  let items = status.extra.filter(item => item.token_addr && (item.token_id || item.token_id_str));
   try {
     if(!items || items.length === 0) {
       const marketplaceItem = (marketplace.items.find(item => item.sku === match.params.sku)) || {};
@@ -321,7 +322,7 @@ export const PackOpenStatus = observer(() => {
     UrlJoin("/marketplaces", match.params.marketplaceId, "collections", "owned") :
     UrlJoin("/wallet", "collection");
 
-  const items = status.extra.filter(item => item.token_addr && item.token_id);
+  const items = status.extra.filter(item => item.token_addr && (item.token_id || item.token_id_str));
 
   return (
     <MintResults
