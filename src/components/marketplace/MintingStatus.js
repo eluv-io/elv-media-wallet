@@ -13,13 +13,15 @@ import responsiveHOC from "react-lines-ellipsis/lib/responsiveHOC";
 const ResponsiveEllipsis = responsiveHOC()(LinesEllipsis);
 
 let statusInterval;
-const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, videoHash}) => {
+const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, videoHash, basePath, backText}) => {
+  const [status, setStatus] = useState(false);
   const [finished, setFinished] = useState(false);
   const [videoInitialized, setVideoInitialized] = useState(false);
 
   const CheckStatus = async () => {
     try {
       const status = await Status();
+      setStatus(status);
 
       if(status.status === "complete") {
         // If mint has items, ensure that items are available in the user's wallet
@@ -47,6 +49,8 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
 
         setFinished(true);
         clearInterval(statusInterval);
+      } else if(status.status === "failed") {
+        clearInterval(statusInterval);
       }
     } catch(error) {
       rootStore.Log("Failed to check status:", true);
@@ -64,6 +68,23 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
 
   if(finished && redirect) {
     return <Redirect to={redirect}/>;
+  }
+
+  if(status && status.status === "failed") {
+    return (
+      <div className="minting-status" key="minting-status-failed">
+        <div className="minting-status__text">
+          <h1 className="content-header">
+            Minting Failed
+          </h1>
+          <div className="minting-status-results__actions">
+            <Link to={basePath} className="button minting-status-results__back-button">
+              { backText }
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -215,6 +236,8 @@ export const PurchaseMintingStatus = observer(() => {
       <MintingStatus
         Status={Status}
         OnFinish={({status}) => setStatus(status)}
+        basePath={UrlJoin("/marketplaces", match.params.marketplaceId)}
+        backText="Back to the Marketplace"
       />
     );
   }
@@ -258,6 +281,8 @@ export const ClaimMintingStatus = observer(() => {
         videoHash={videoHash}
         Status={Status}
         OnFinish={({status}) => setStatus(status)}
+        basePath={UrlJoin("/marketplaces", match.params.marketplaceId)}
+        backText="Back to the Marketplace"
       />
     );
   }
@@ -300,6 +325,9 @@ export const PackOpenStatus = observer(() => {
   const [nft] = useState(rootStore.NFT({contractId: match.params.contractId, tokenId: match.params.tokenId}));
   const videoHash = nft && nft.metadata && nft.metadata.pack_options && nft.metadata.pack_options.is_openable && nft.metadata.pack_options.open_animation
     && ((nft.metadata.pack_options.open_animation["/"] && nft.metadata.pack_options.open_animation["/"].split("/").find(component => component.startsWith("hq__")) || nft.metadata.pack_options.open_anmiation["."].source));
+  const basePath = match.url.startsWith("/marketplace") ?
+    UrlJoin("/marketplaces", match.params.marketplaceId, "collections", "owned") :
+    UrlJoin("/wallet", "collection");
 
   const Status = async () => await rootStore.PackOpenStatus({
     tenantId: nft.details.TenantId,
@@ -314,13 +342,11 @@ export const PackOpenStatus = observer(() => {
         Status={Status}
         OnFinish={({status}) => setStatus(status)}
         videoHash={videoHash}
+        basePath={basePath}
+        backText="Back to My Collection"
       />
     );
   }
-
-  const basePath = match.url.startsWith("/marketplace") ?
-    UrlJoin("/marketplaces", match.params.marketplaceId, "collections", "owned") :
-    UrlJoin("/wallet", "collection");
 
   const items = status.extra.filter(item => item.token_addr && (item.token_id || item.token_id_str));
 
