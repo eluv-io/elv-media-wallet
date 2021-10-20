@@ -98,6 +98,7 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
               ref={element => {
                 if(!element || videoInitialized) { return; }
 
+                setVideoInitialized(true);
                 new EluvioPlayer(
                   element,
                   {
@@ -117,10 +118,7 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
                       muted: EluvioPlayerParameters.muted.ON,
                       autoplay: EluvioPlayerParameters.autoplay.WHEN_VISIBLE,
                       controls: EluvioPlayerParameters.controls.OFF,
-                      loop: EluvioPlayerParameters.loop.ON,
-                      playerCallback: () => {
-                        setVideoInitialized(true);
-                      }
+                      loop: EluvioPlayerParameters.loop.ON
                     }
                   }
                 );
@@ -240,6 +238,7 @@ export const PurchaseMintingStatus = observer(() => {
         OnFinish={({status}) => setStatus(status)}
         basePath={UrlJoin("/marketplaces", match.params.marketplaceId)}
         backText="Back to the Marketplace"
+        videoHash={videoHash}
       />
     );
   }
@@ -251,9 +250,8 @@ export const PurchaseMintingStatus = observer(() => {
       header="Congratulations!"
       subheader={`Thank you for your purchase! You've received the following ${items.length === 1 ? "item" : "items"}:`}
       items={items}
-      videoHash={videoHash}
       basePath={UrlJoin("/marketplaces", match.params.marketplaceId)}
-      nftBasePath={UrlJoin("/marketplaces", match.params.marketplaceId, "collections", "owned")}
+      nftBasePath={UrlJoin("/marketplaces", match.params.marketplaceId, "collections")}
       backText="Back to the Marketplace"
     />
   );
@@ -313,7 +311,7 @@ export const ClaimMintingStatus = observer(() => {
       subheader={`You've received the following ${items.length === 1 ? "item" : "items"}:`}
       items={items}
       basePath={UrlJoin("/marketplaces", match.params.marketplaceId)}
-      nftBasePath={UrlJoin("/marketplaces", match.params.marketplaceId, "collections", "owned")}
+      nftBasePath={UrlJoin("/marketplaces", match.params.marketplaceId, "collections")}
       backText="Back to the Marketplace"
     />
   );
@@ -329,8 +327,12 @@ export const PackOpenStatus = observer(() => {
   const videoHash = nft && nft.metadata && nft.metadata.pack_options && nft.metadata.pack_options.is_openable && nft.metadata.pack_options.open_animation
     && ((nft.metadata.pack_options.open_animation["/"] && nft.metadata.pack_options.open_animation["/"].split("/").find(component => component.startsWith("hq__")) || nft.metadata.pack_options.open_anmiation["."].source));
   const basePath = match.url.startsWith("/marketplace") ?
-    UrlJoin("/marketplaces", match.params.marketplaceId, "collections", "owned") :
+    UrlJoin("/marketplaces", match.params.marketplaceId, "collections") :
     UrlJoin("/wallet", "collection");
+
+  if(!nft) {
+    return <Redirect to={basePath} />;
+  }
 
   const Status = async () => await rootStore.PackOpenStatus({
     tenantId: nft.details.TenantId,

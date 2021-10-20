@@ -102,10 +102,9 @@ $pending-color: rgba($blue, 0.5);
   }
 
   &__image-placeholder {
-    padding: 25%;
-
     * {
       stroke: $black;
+      stroke-width: 0.5px;
     }
   }
 

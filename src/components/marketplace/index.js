@@ -235,7 +235,7 @@ const MarketplaceItemDetails = observer(() => {
   if(itemIndex < 0) { return null; }
 
   const item = marketplace.items[itemIndex];
-  const itemTemplate = item.nft_template ? item.nft_template.nft : {};
+  const itemTemplate = item.nft_template ? item.nft_template.nft || {} : {};
 
   const stock = checkoutStore.stock[item.sku];
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
