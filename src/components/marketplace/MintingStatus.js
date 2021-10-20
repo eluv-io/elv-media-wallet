@@ -251,7 +251,7 @@ export const PurchaseMintingStatus = observer(() => {
       subheader={`Thank you for your purchase! You've received the following ${items.length === 1 ? "item" : "items"}:`}
       items={items}
       basePath={UrlJoin("/marketplaces", match.params.marketplaceId)}
-      nftBasePath={UrlJoin("/marketplaces", match.params.marketplaceId, "collections")}
+      nftBasePath={UrlJoin("/marketplaces", match.params.marketplaceId, "collections", "owned")}
       backText="Back to the Marketplace"
     />
   );
@@ -311,7 +311,7 @@ export const ClaimMintingStatus = observer(() => {
       subheader={`You've received the following ${items.length === 1 ? "item" : "items"}:`}
       items={items}
       basePath={UrlJoin("/marketplaces", match.params.marketplaceId)}
-      nftBasePath={UrlJoin("/marketplaces", match.params.marketplaceId, "collections")}
+      nftBasePath={UrlJoin("/marketplaces", match.params.marketplaceId, "collections", "owned")}
       backText="Back to the Marketplace"
     />
   );
