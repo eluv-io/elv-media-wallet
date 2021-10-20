@@ -348,6 +348,7 @@ export const PackOpenStatus = observer(() => {
         OnFinish={({status}) => setStatus(status)}
         videoHash={videoHash}
         basePath={basePath}
+        nftBasePath={UrlJoin("/marketplaces", match.params.marketplaceId, "collections", "owned")}
         backText="Back to My Collection"
       />
     );
