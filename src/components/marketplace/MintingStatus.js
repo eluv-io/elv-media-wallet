@@ -329,6 +329,9 @@ export const PackOpenStatus = observer(() => {
   const basePath = match.url.startsWith("/marketplace") ?
     UrlJoin("/marketplaces", match.params.marketplaceId, "collections") :
     UrlJoin("/wallet", "collection");
+  const nftBasePath = match.url.startsWith("/marketplace") ?
+    UrlJoin("/marketplaces", match.params.marketplaceId, "collections", "owned") :
+    UrlJoin("/wallet", "collection");
 
   if(!nft) {
     return <Redirect to={basePath} />;
@@ -361,7 +364,7 @@ export const PackOpenStatus = observer(() => {
       subheader={`You've received the following ${items.length === 1 ? "item" : "items"}:`}
       items={items}
       basePath={basePath}
-      nftBasePath={UrlJoin("/marketplaces", match.params.marketplaceId, "collections", "owned")}
+      nftBasePath={nftBasePath}
       backText="Back to My Collection"
     />
   );
