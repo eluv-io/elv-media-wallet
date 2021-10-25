@@ -137,8 +137,10 @@
   }
 
   &__actions {
+    align-items: center;
     display: flex;
     flex: 1 1 auto;
+    flex-direction: column;
     justify-content: center;
 
     &:not(:first-child) {
@@ -158,9 +160,18 @@
     max-width: 250px;
     width: 100%;
 
+    &:not(:last-child) {
+      margin-bottom: 10px;
+    }
+
     &:disabled {
       cursor: auto;
       opacity: 0.5;
+    }
+
+    &-coinbase {
+      background: $black;
+      border: 0.5px solid $gray;
     }
   }
 }
@@ -168,7 +179,9 @@
 .dark {
   .checkout {
     &__button {
-      border: 1px solid $blue;
+      &:not(.checkout__button-coinbase) {
+        border: 1px solid $blue;
+      }
     }
   }
 }

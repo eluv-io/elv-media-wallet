@@ -89,7 +89,7 @@ class CheckoutStore {
     }
   });
 
-  StripeSubmit = flow(function * ({marketplaceId, sku, confirmationId, email}) {
+  CheckoutSubmit = flow(function * ({provider="stripe", marketplaceId, sku, confirmationId, email}) {
     if(this.submittingOrder) { return; }
 
     try {
@@ -112,6 +112,7 @@ class CheckoutStore {
         url.pathname = window.location.pathname;
         url.hash = `/marketplaces/${marketplaceId}/${sku}/purchase/${confirmationId}`;
         url.searchParams.set("embed", "");
+        url.searchParams.set("provider", provider);
 
         if(rootStore.darkMode) {
           url.searchParams.set("d", "");
@@ -164,22 +165,35 @@ class CheckoutStore {
         requestParams.mode = EluvioConfiguration["mode"];
       }
 
-      const sessionId = (yield this.rootStore.client.utils.ResponseToJson(
-        this.rootStore.client.authClient.MakeAuthServiceRequest({
-          method: "POST",
-          path: UrlJoin("as", "checkout", "stripe"),
-          body: requestParams
-        })
-      )).session_id;
+      if(provider === "stripe") {
+        const sessionId = (yield this.rootStore.client.utils.ResponseToJson(
+          this.rootStore.client.authClient.MakeAuthServiceRequest({
+            method: "POST",
+            path: UrlJoin("as", "checkout", "stripe"),
+            body: requestParams
+          })
+        )).session_id;
 
-      const stripeKey = EluvioConfiguration.mode && EluvioConfiguration.mode !== "production" ?
-        PUBLIC_KEYS.stripe.test :
-        PUBLIC_KEYS.stripe.production;
+        const stripeKey = EluvioConfiguration.mode && EluvioConfiguration.mode !== "production" ?
+          PUBLIC_KEYS.stripe.test :
+          PUBLIC_KEYS.stripe.production;
 
-      // Redirect to stripe
-      const {loadStripe} = yield import("@stripe/stripe-js/pure");
-      const stripe = yield loadStripe(stripeKey);
-      yield stripe.redirectToCheckout({sessionId});
+        // Redirect to stripe
+        const {loadStripe} = yield import("@stripe/stripe-js/pure");
+        loadStripe.setLoadParameters({advancedFraudSignals: false});
+        const stripe = yield loadStripe(stripeKey);
+        yield stripe.redirectToCheckout({sessionId});
+      } else if(provider === "coinbase") {
+        const chargeCode = (yield this.rootStore.client.utils.ResponseToJson(
+          this.rootStore.client.authClient.MakeAuthServiceRequest({
+            method: "POST",
+            path: UrlJoin("as", "checkout", "coinbase"),
+            body: requestParams
+          })
+        )).charge_code;
+
+        window.location.href = UrlJoin("https://commerce.coinbase.com/charges", chargeCode);
+      }
     } catch(error) {
       this.rootStore.Log(error, true);
     } finally {

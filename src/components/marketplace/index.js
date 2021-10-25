@@ -129,39 +129,62 @@ const Checkout = observer(({marketplaceId, item}) => {
           {
             checkoutStore.submittingOrder || (confirmationId && checkoutStore.pendingPurchases[confirmationId]) ?
               <Loader/> :
-              <button
-                title={purchaseDisabled ? "Please enter your email address" : ""}
-                disabled={purchaseDisabled}
-                className="checkout__button"
-                role="link"
-                onClick={async () => {
-                  try {
-                    if(free) {
-                      const status = await rootStore.ClaimStatus({
-                        marketplace,
-                        sku: item.sku
-                      });
+              <>
+                <button
+                  title={purchaseDisabled ? "Please enter your email address" : ""}
+                  disabled={purchaseDisabled}
+                  className="checkout__button"
+                  role="link"
+                  onClick={async () => {
+                    try {
+                      if(free) {
+                        const status = await rootStore.ClaimStatus({
+                          marketplace,
+                          sku: item.sku
+                        });
 
-                      if(status && status.status !== "none") {
-                        // Already claimed, go to status
-                        setClaimed(true);
-                      } else if(await checkoutStore.ClaimSubmit({marketplaceId, sku: item.sku})) {
-                        // Claim successful
-                        setClaimed(true);
+                        if(status && status.status !== "none") {
+                          // Already claimed, go to status
+                          setClaimed(true);
+                        } else if(await checkoutStore.ClaimSubmit({marketplaceId, sku: item.sku})) {
+                          // Claim successful
+                          setClaimed(true);
+                        }
+                      } else {
+                        setConfirmationId(await checkoutStore.CheckoutSubmit({
+                          provider: "stripe",
+                          marketplaceId,
+                          sku: item.sku,
+                          email
+                        }));
                       }
-                    } else {
-                      setConfirmationId(await checkoutStore.StripeSubmit({marketplaceId, sku: item.sku, email}));
-                    }
-                  } catch(error) {
-                    rootStore.Log("Checkout failed", true);
-                    rootStore.Log(error);
+                    } catch(error) {
+                      rootStore.Log("Checkout failed", true);
+                      rootStore.Log(error);
 
-                    checkoutStore.MarketplaceStock(marketplace);
-                  }
-                }}
-              >
-                { free ? "Claim Now" : "Buy Now" }
-              </button>
+                      checkoutStore.MarketplaceStock(marketplace);
+                    }
+                  }}
+                >
+                  {free ? "Claim Now" : "Buy Now"}
+                </button>
+                {
+                  !free ?
+                    <button
+                      className="checkout__button checkout__button-coinbase"
+                      onClick={async () => {
+                        setConfirmationId(await checkoutStore.CheckoutSubmit({
+                          provider: "coinbase",
+                          marketplaceId,
+                          sku: item.sku,
+                          email
+                        }));
+                      }}
+                    >
+                      Pay with Crypto
+                    </button> : null
+                }
+              </>
           }
         </div>
       </div>
@@ -173,6 +196,7 @@ const MarketplacePurchase = observer(() => {
   const match = useRouteMatch();
 
   const fromEmbed = new URLSearchParams(window.location.search).has("embed");
+  const checkoutProvider = new URLSearchParams(window.location.search).get("provider");
   const success = match.path.endsWith("/success");
   const cancel = match.path.endsWith("/cancel");
 
@@ -196,7 +220,8 @@ const MarketplacePurchase = observer(() => {
     useEffect(() => {
       rootStore.ToggleNavigation(false);
 
-      checkoutStore.StripeSubmit({
+      checkoutStore.CheckoutSubmit({
+        provider: checkoutProvider,
         marketplaceId: match.params.marketplaceId,
         sku: match.params.sku,
         confirmationId: match.params.confirmationId
