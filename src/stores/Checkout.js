@@ -64,7 +64,7 @@ class CheckoutStore {
     try {
       this.submittingOrder = true;
 
-      const tenantId = rootStore.marketplaces[marketplaceId].tenant_id;
+      const tenantId = this.rootStore.marketplaces[marketplaceId].tenant_id;
 
       yield this.rootStore.client.authClient.MakeAuthServiceRequest({
         method: "POST",
@@ -168,6 +168,12 @@ class CheckoutStore {
 
       if(EluvioConfiguration["mode"]) {
         requestParams.mode = EluvioConfiguration["mode"];
+      }
+
+      const stock = (yield this.MarketplaceStock(this.rootStore.marketplaces[marketplaceId]) || {})[sku];
+
+      if(stock && (stock.max - stock.minted) < quantity) {
+        throw Error(`Quantity ${quantity} exceeds stock ${stock.max - stock.minted} for ${sku}`);
       }
 
       if(provider === "stripe") {
