@@ -38,6 +38,21 @@ import {ErrorBoundary} from "Components/common/ErrorBoundary";
 
 const Placeholder = ({ text }) => <div>{text}</div>;
 
+const RedirectHandler = ({storageKey}) => {
+  useEffect(() => {
+    try {
+      if(!rootStore.embedded && sessionStorage.getItem(storageKey)) {
+        window.location.href = sessionStorage.getItem(storageKey);
+      }
+    } catch(error) {
+      rootStore.Log("Failed to redirect", true);
+      rootStore.Log(error, true);
+    }
+  });
+
+  return null;
+};
+
 const Routes = () => {
   const history = useHistory();
 
@@ -53,6 +68,12 @@ const Routes = () => {
 
   return (
     <Switch>
+      <Route exact path="/success">
+        <RedirectHandler storageKey="successUrl" />
+      </Route>
+      <Route exact path="/cancel">
+        <RedirectHandler storageKey="cancelUrl" />
+      </Route>
       <Route path="/discover">
         <Placeholder text={"Discover"} />
       </Route>

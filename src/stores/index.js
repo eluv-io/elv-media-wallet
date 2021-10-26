@@ -123,9 +123,9 @@ class RootStore {
     if(marketplace && marketplace.startsWith("hq__")) {
       const objectId = Utils.DecodeVersionHash(marketplace).objectId;
       this.marketplaceHashes[objectId] = marketplace;
-      this.marketplaceId = objectId;
+      this.marketplaceId = objectId.replace(/\//g, "");
     } else if(marketplace) {
-      this.marketplaceId = marketplace;
+      this.marketplaceId = marketplace.replace(/\//g, "");
     }
 
     if(this.marketplaceId) {

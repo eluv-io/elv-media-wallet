@@ -145,11 +145,15 @@ class CheckoutStore {
 
       const checkoutId = `${marketplaceId}:${confirmationId}`;
 
+      const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
       const baseUrl = new URL(UrlJoin(window.location.origin, window.location.pathname, "#", "marketplaces", marketplaceId, sku, "purchase", confirmationId));
 
       if(fromEmbed) {
         baseUrl.searchParams.set("embed", "true");
       }
+
+      sessionStorage.setItem("successUrl", UrlJoin(baseUrl.toString(), "success"));
+      sessionStorage.setItem("cancelUrl", UrlJoin(baseUrl.toString(), "cancel"));
 
       let requestParams = {
         currency: this.currency,
@@ -157,8 +161,8 @@ class CheckoutStore {
         client_reference_id: checkoutId,
         elv_addr: this.rootStore.client.signer.address,
         items: [{sku, quantity: 1}],
-        success_url: UrlJoin(baseUrl.toString(), "success"),
-        cancel_url: UrlJoin(baseUrl.toString(), "cancel")
+        success_url: UrlJoin(rootUrl.toString(), "/#/", "success"),
+        cancel_url: UrlJoin(rootUrl.toString(), "/#/", "cancel")
       };
 
       if(EluvioConfiguration["mode"]) {
