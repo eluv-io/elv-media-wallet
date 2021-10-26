@@ -73,13 +73,23 @@ const ValidEmail = email => {
     .test(email);
 };
 
-const Checkout = observer(({marketplaceId, item}) => {
+const Checkout = observer(({marketplaceId, item, maxQuantity}) => {
+  if(!maxQuantity) { maxQuantity = 100; }
+
   const total = ItemPrice(item, checkoutStore.currency);
 
+  const [quantity, setQuantity] = useState(1);
   const [email, setEmail] = useState("");
   const [validEmail, setValidEmail] = useState(false);
   const [confirmationId, setConfirmationId] = useState(undefined);
   const [claimed, setClaimed] = useState(false);
+
+  useEffect(() => {
+    if(quantity) {
+      // If maxQuantity has changed, for example due to available stock changing, ensure quantity is clamped at max
+      UpdateQuantity(quantity);
+    }
+  });
 
   if(confirmationId && checkoutStore.completedPurchases[confirmationId]) {
     return <Redirect to={UrlJoin("/marketplaces", marketplaceId, item.sku, "purchase", confirmationId, "success")} />;
@@ -92,6 +102,14 @@ const Checkout = observer(({marketplaceId, item}) => {
   const free = !total || item.free;
   const purchaseDisabled = !rootStore.userProfile.email && !validEmail;
   const marketplace = rootStore.marketplaces[marketplaceId];
+
+  const UpdateQuantity = value => {
+    if(!value) {
+      setQuantity("");
+    } else {
+      setQuantity(Math.min(100, maxQuantity, Math.max(1, parseInt(value || 1))));
+    }
+  };
 
   if(!marketplace) { return null; }
   return (
@@ -127,8 +145,39 @@ const Checkout = observer(({marketplaceId, item}) => {
         }
         <div className="checkout__actions">
           {
+            maxQuantity === 1 ? null :
+              <div className="checkout__quantity-container">
+                <button
+                  disabled={quantity === 1}
+                  className="checkout__quantity-button checkout-quantity-button-minus"
+                  onClick={() => UpdateQuantity(quantity - 1)}
+                >
+                  -
+                </button>
+                <input
+                  title="quantity"
+                  name="quantity"
+                  type="number"
+                  step={1}
+                  min={1}
+                  max={100}
+                  value={quantity}
+                  onChange={event => UpdateQuantity(event.target.value)}
+                  onBlur={() => UpdateQuantity(quantity || 1)}
+                  className="checkout__quantity"
+                />
+                <button
+                  disabled={quantity === maxQuantity}
+                  className="checkout__quantity-button checkout-quantity-button-plus"
+                  onClick={() => UpdateQuantity(quantity + 1)}
+                >
+                  +
+                </button>
+              </div>
+          }
+          {
             checkoutStore.submittingOrder || (confirmationId && checkoutStore.pendingPurchases[confirmationId]) ?
-              <Loader/> :
+              <Loader className="checkout__loader"/> :
               <>
                 <button
                   title={purchaseDisabled ? "Please enter your email address" : ""}
@@ -155,6 +204,7 @@ const Checkout = observer(({marketplaceId, item}) => {
                           provider: "stripe",
                           marketplaceId,
                           sku: item.sku,
+                          quantity,
                           email
                         }));
                       }
@@ -177,6 +227,7 @@ const Checkout = observer(({marketplaceId, item}) => {
                           provider: "coinbase",
                           marketplaceId,
                           sku: item.sku,
+                          quantity,
                           email
                         }));
                       }}
@@ -196,7 +247,6 @@ const MarketplacePurchase = observer(() => {
   const match = useRouteMatch();
 
   const fromEmbed = new URLSearchParams(window.location.search).has("embed");
-  const checkoutProvider = new URLSearchParams(window.location.search).get("provider");
   const success = match.path.endsWith("/success");
   const cancel = match.path.endsWith("/cancel");
 
@@ -220,10 +270,14 @@ const MarketplacePurchase = observer(() => {
     useEffect(() => {
       rootStore.ToggleNavigation(false);
 
+      const checkoutProvider = new URLSearchParams(window.location.search).get("provider");
+      const quantity = parseInt(new URLSearchParams(window.location.search).get("quantity") || 1);
+
       checkoutStore.CheckoutSubmit({
         provider: checkoutProvider,
         marketplaceId: match.params.marketplaceId,
         sku: match.params.sku,
+        quantity,
         confirmationId: match.params.confirmationId
       });
     }, []);
@@ -327,7 +381,11 @@ const MarketplaceItemDetails = observer(() => {
         {
           outOfStock ?
             null :
-            <Checkout marketplaceId={match.params.marketplaceId} item={item} />
+            <Checkout
+              marketplaceId={match.params.marketplaceId}
+              item={item}
+              maxQuantity={stock && (stock.max_per_user || stock.max - stock.minted)}
+            />
         }
 
         <ExpandableSection header="Description" icon={DescriptionIcon}>

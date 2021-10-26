@@ -89,7 +89,7 @@ class CheckoutStore {
     }
   });
 
-  CheckoutSubmit = flow(function * ({provider="stripe", marketplaceId, sku, confirmationId, email}) {
+  CheckoutSubmit = flow(function * ({provider="stripe", marketplaceId, sku, quantity=1, confirmationId, email}) {
     if(this.submittingOrder) { return; }
 
     try {
@@ -113,6 +113,7 @@ class CheckoutStore {
         url.hash = `/marketplaces/${marketplaceId}/${sku}/purchase/${confirmationId}`;
         url.searchParams.set("embed", "");
         url.searchParams.set("provider", provider);
+        url.searchParams.set("quantity", quantity);
 
         if(rootStore.darkMode) {
           url.searchParams.set("d", "");
@@ -160,7 +161,7 @@ class CheckoutStore {
         email: email || this.rootStore.userProfile.email,
         client_reference_id: checkoutId,
         elv_addr: this.rootStore.client.signer.address,
-        items: [{sku, quantity: 1}],
+        items: [{sku, quantity}],
         success_url: UrlJoin(rootUrl.toString(), "/#/", "success"),
         cancel_url: UrlJoin(rootUrl.toString(), "/#/", "cancel")
       };

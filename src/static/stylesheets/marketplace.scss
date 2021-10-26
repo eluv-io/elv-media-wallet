@@ -114,42 +114,73 @@
 .checkout {
   align-items: center;
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
   padding: 18px;
   width: 100%;
-
-  &:not(:first-child) {
-    margin: 10px auto;
-  }
 
   input {
     text-align: center;
   }
 
+  &__price {
+    text-align: center;
+    width: 100%;
+  }
+
   &__price__header {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 300;
   }
 
   &__price__price {
     font-size: 24px;
     font-weight: 500;
+    margin-bottom: 10px;
+  }
+
+  &__quantity-container {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+    max-width: 250px;
+    width: 100%;
+  }
+
+  &__quantity-button {
+    border-radius: 3px;
+    font-size: 24px;
+    font-weight: 200;
+    padding: 0 10px;
+  }
+
+  &__quantity {
+    appearance: textfield;
+    border: 1px solid $mediumgray;
+    font-size: 20px;
+    font-weight: 300;
+    height: 40px;
+    margin: 0 5px;
+    width: 100%;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      appearance: none;
+      margin: 0;
+    }
   }
 
   &__actions {
     align-items: center;
     display: flex;
-    flex: 1 1 auto;
     flex-direction: column;
     justify-content: center;
+    width: 100%;
+  }
 
-    &:not(:first-child) {
-      padding-left: 20px;
-    }
-
-    .loader {
-      height: 40px;
-    }
+  &__loader {
+    height: 90px;
   }
 
   &__button {
@@ -182,6 +213,11 @@
       &:not(.checkout__button-coinbase) {
         border: 1px solid $blue;
       }
+    }
+
+    &__quantity {
+      background-color: $black;
+      border: 1px solid $darkgray;
     }
   }
 }
