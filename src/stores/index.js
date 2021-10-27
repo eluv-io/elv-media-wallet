@@ -323,7 +323,7 @@ class RootStore {
     if(!forceReload && this.marketplaceCache[marketplaceHash] && Date.now() - this.marketplaceCache[marketplaceHash].marketplace < 60000) {
       // Cache stock retrieval
       if(Date.now() - this.marketplaceCache[marketplaceHash].stock > 10000) {
-        this.checkoutStore.MarketplaceStock(this.marketplaces[marketplaceId]);
+        this.checkoutStore.MarketplaceStock({tenantId: this.marketplaces[marketplaceId].tenant_id});
         this.marketplaceCache[marketplaceHash].stock = Date.now();
       }
 
@@ -345,7 +345,7 @@ class RootStore {
         resolveIncludeSource: true
       });
 
-      const stockPromise = this.checkoutStore.MarketplaceStock(marketplace);
+      const stockPromise = this.checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id});
 
       marketplace.items = yield Promise.all(
         marketplace.items.map(async item => {

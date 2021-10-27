@@ -29,11 +29,11 @@ class CheckoutStore {
     return Utils.B58(UUIDParse(UUID()));
   }
 
-  MarketplaceStock = flow(function * (marketplace) {
+  MarketplaceStock = flow(function * ({tenantId}) {
     try {
       this.stock = yield Utils.ResponseToJson(
         this.rootStore.client.authClient.MakeAuthServiceRequest({
-          path: UrlJoin("as", "wlt", "nft", "info", marketplace.tenant_id),
+          path: UrlJoin("as", "wlt", "nft", "info", tenantId),
           method: "GET",
           headers: {
             Authorization: `Bearer ${this.rootStore.client.signer.authToken}`
@@ -89,7 +89,7 @@ class CheckoutStore {
     }
   });
 
-  CheckoutSubmit = flow(function * ({provider="stripe", marketplaceId, sku, quantity=1, confirmationId, email}) {
+  CheckoutSubmit = flow(function * ({provider="stripe", tenantId, marketplaceId, sku, quantity=1, confirmationId, email}) {
     if(this.submittingOrder) { return; }
 
     try {
@@ -113,6 +113,7 @@ class CheckoutStore {
         url.hash = `/marketplaces/${marketplaceId}/${sku}/purchase/${confirmationId}`;
         url.searchParams.set("embed", "");
         url.searchParams.set("provider", provider);
+        url.searchParams.set("tenantId", tenantId);
         url.searchParams.set("quantity", quantity);
 
         if(rootStore.darkMode) {
@@ -170,7 +171,7 @@ class CheckoutStore {
         requestParams.mode = EluvioConfiguration["mode"];
       }
 
-      const stock = (yield this.MarketplaceStock(this.rootStore.marketplaces[marketplaceId]) || {})[sku];
+      const stock = (yield this.MarketplaceStock({tenantId}) || {})[sku];
 
       if(stock && (stock.max - stock.minted) < quantity) {
         throw Error(`Quantity ${quantity} exceeds stock ${stock.max - stock.minted} for ${sku}`);

@@ -202,6 +202,7 @@ const Checkout = observer(({marketplaceId, item, maxQuantity}) => {
                       } else {
                         setConfirmationId(await checkoutStore.CheckoutSubmit({
                           provider: "stripe",
+                          tenantId: marketplace.tenant_id,
                           marketplaceId,
                           sku: item.sku,
                           quantity,
@@ -212,7 +213,7 @@ const Checkout = observer(({marketplaceId, item, maxQuantity}) => {
                       rootStore.Log("Checkout failed", true);
                       rootStore.Log(error);
 
-                      checkoutStore.MarketplaceStock(marketplace);
+                      checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id});
                     }
                   }}
                 >
@@ -225,6 +226,7 @@ const Checkout = observer(({marketplaceId, item, maxQuantity}) => {
                       onClick={async () => {
                         setConfirmationId(await checkoutStore.CheckoutSubmit({
                           provider: "coinbase",
+                          tenantId: marketplace.tenant_id,
                           marketplaceId,
                           sku: item.sku,
                           quantity,
@@ -271,10 +273,12 @@ const MarketplacePurchase = observer(() => {
       rootStore.ToggleNavigation(false);
 
       const checkoutProvider = new URLSearchParams(window.location.search).get("provider");
+      const tenantId = new URLSearchParams(window.location.search).get("tenantId");
       const quantity = parseInt(new URLSearchParams(window.location.search).get("quantity") || 1);
 
       checkoutStore.CheckoutSubmit({
         provider: checkoutProvider,
+        tenantId,
         marketplaceId: match.params.marketplaceId,
         sku: match.params.sku,
         quantity,
@@ -323,7 +327,7 @@ const MarketplaceItemDetails = observer(() => {
     if(!stock) { return; }
 
     // If item has stock, periodically update
-    const stockCheck = setInterval(() => checkoutStore.MarketplaceStock(marketplace), 10000);
+    const stockCheck = setInterval(() => checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id}), 10000);
 
     return () => clearInterval(stockCheck);
   }, []);
