@@ -43,10 +43,16 @@ const DropCard = ({drop, marketplace, label, sku, index, image, selected=false, 
 const Drop = () => {
   const match = useRouteMatch();
 
-  const [selection, setSelection] = useState(undefined);
+  const [selection, setSelection] = useState(rootStore.GetLocalStorage(`drop-vote-${match.params.dropId}`));
   const [pendingSelection, setPendingSelection] = useState(undefined);
   const [votingEnded, setVotingEnded] = useState(false);
   const [mintingStarted, setMintingStarted] = useState(false);
+
+  if(votingEnded && !selection) {
+    // Voting has ended, but user hasn't voted - just redirect to the marketplace
+    rootStore.SetMarketplaceFilters([]);
+    return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId)} />;
+  }
 
   if(mintingStarted) {
     return <Redirect to={UrlJoin(match.url, "status")} />;
@@ -62,7 +68,10 @@ const Drop = () => {
       Load={async () => {
         try {
           const dropStatus = await rootStore.DropStatus({marketplace, eventId: drop.eventId, dropId: drop.uuid});
-          setSelection(dropStatus.itm);
+          if(dropStatus && dropStatus.itm) {
+            rootStore.SetLocalStorage(`drop-vote-${match.params.dropId}`, dropStatus.itm);
+            setSelection(dropStatus.itm);
+          }
         } catch(error) {
           rootStore.Log("Failed to retrieve drop vote", true);
           rootStore.Log(error, true);
@@ -74,8 +83,8 @@ const Drop = () => {
         rootStore.SetMarketplaceFilters(drop.store_filters || []);
 
         try {
-          setVotingEnded(new Date(postVoteState.start_date).getTime() < Date.now());
-          setMintingStarted(new Date(mintStartState.start_date).getTime() < Date.now());
+          setVotingEnded(new Date(postVoteState.start_date).getTime()  < Date.now());
+          setMintingStarted(new Date(mintStartState.start_date).getTime()  < Date.now());
         } catch(error) {
           rootStore.Log("Failed to parse drop state date", true);
           rootStore.Log(error, true);
@@ -114,6 +123,7 @@ const Drop = () => {
                         try {
                           setPendingSelection(sku);
                           await rootStore.SubmitDropVote({marketplace, eventId: drop.eventId, dropId: drop.uuid, sku});
+                          rootStore.SetLocalStorage(`drop-vote-${match.params.dropId}`, sku);
                           setSelection(sku);
                         } catch(error) {
                           rootStore.Log("Failed to submit vote:", true);
