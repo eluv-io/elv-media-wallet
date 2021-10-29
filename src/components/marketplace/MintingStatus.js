@@ -146,6 +146,9 @@ export const DropMintingStatus = observer(() => {
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const drop = marketplace.drops.find(drop => drop.uuid === match.params.dropId);
 
+  const videoHash = drop.minting_animation &&
+    ((drop.minting_animation["/"] && drop.minting_animation["/"].split("/").find(component => component.startsWith("hq__")) || drop.minting_animation["."].source));
+
   const Status = async () => await rootStore.DropStatus({
     marketplace,
     eventId: drop.eventId,
@@ -157,6 +160,7 @@ export const DropMintingStatus = observer(() => {
       Status={Status}
       redirect={UrlJoin("/marketplaces", match.params.marketplaceId)}
       OnFinish={async () => rootStore.LoadMarketplace(match.params.marketplaceId, true)}
+      videoHash={videoHash}
     />
   );
 });

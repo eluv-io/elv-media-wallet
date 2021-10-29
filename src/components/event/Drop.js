@@ -48,20 +48,20 @@ const Drop = () => {
   const [votingEnded, setVotingEnded] = useState(false);
   const [mintingStarted, setMintingStarted] = useState(false);
 
-  if(votingEnded && !selection) {
-    // Voting has ended, but user hasn't voted - just redirect to the marketplace
-    rootStore.SetMarketplaceFilters([]);
-    return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId)} />;
-  }
-
-  if(mintingStarted) {
-    return <Redirect to={UrlJoin(match.url, "status")} />;
-  }
-
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const drop = marketplace.drops.find(drop => drop.uuid === match.params.dropId);
 
   if(!marketplace || !drop) { return null; }
+
+  if(!drop.votable || (votingEnded && !selection)) {
+    // No voting, or voting has ended, but user hasn't voted - just redirect to the marketplace
+    rootStore.SetMarketplaceFilters(drop.store_filters_no_vote || []);
+    return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId)} />;
+  }
+
+  if(drop.votable && mintingStarted) {
+    return <Redirect to={UrlJoin(match.url, "status")} />;
+  }
 
   return (
     <AsyncComponent
@@ -92,10 +92,6 @@ const Drop = () => {
       }}
       loadingClassName="page-loader"
       render={() => {
-        if(!drop.votable) {
-          return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId)} />;
-        }
-
         const postVoteState = drop.event_state_post_vote || {};
         const mintStartState = drop.event_state_mint_start || {};
 
