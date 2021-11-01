@@ -578,8 +578,8 @@ const MarketplaceCollections = observer(() => {
   const collections = marketplace.collections.map((collection, collectionIndex) => {
     let owned = 0;
 
-    // If filters are specified, must match all filters
-    if(rootStore.marketplaceFilters.length > 0 && rootStore.marketplaceFilters.find(filter => !(collection.collection_header || "").includes(filter))) {
+    // If filters are specified, must at least one filter
+    if(rootStore.marketplaceFilters.length > 0 && !rootStore.marketplaceFilters.find(filter => (collection.collection_header || "").toLowerCase().includes(filter.toLowerCase()))) {
       return null;
     }
 
@@ -811,8 +811,8 @@ const Marketplace = observer(() => {
         return;
       }
 
-      // If filters are specified, item must have all tags
-      if(rootStore.marketplaceFilters.length > 0 && rootStore.marketplaceFilters.find(filter => !(item.tags || []).includes(filter))) {
+      // If filters are specified, item must match at least one
+      if(rootStore.marketplaceFilters.length > 0 && !rootStore.marketplaceFilters.find(filter => (item.tags || []).map(tag => (tag || "").toLowerCase()).includes(filter.toLowerCase()))) {
         return;
       }
 
