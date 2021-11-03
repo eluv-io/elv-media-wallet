@@ -49,6 +49,8 @@ const ProfileImage = (text, backgroundColor) => {
 };
 
 class RootStore {
+  network = EluvioConfiguration["config-url"].includes("main.net955305") ? "main" : "demo";
+
   embedded = window.self !== window.top;
 
   mode = "test";
@@ -420,7 +422,7 @@ class RootStore {
 
   // Actions
   SetMarketplaceFilters(filters) {
-    this.marketplaceFilters = filters || [];
+    this.marketplaceFilters = (filters || []).map(filter => filter.trim()).filter(filter => filter);
   }
 
   OpenNFT = flow(function * ({nft}) {
@@ -676,12 +678,12 @@ class RootStore {
   }
 
   ClearAuthInfo() {
-    this.RemoveLocalStorage("auth");
+    this.RemoveLocalStorage(`auth-${this.network}`);
   }
 
   SetAuthInfo({authToken, address, user}) {
     this.SetLocalStorage(
-      "auth",
+      `auth-${this.network}`,
       Utils.B64(JSON.stringify({authToken, address, user}))
     );
     this.SetLocalStorage("hasLoggedIn", "true");
@@ -720,13 +722,13 @@ class RootStore {
 
   AuthInfo() {
     try {
-      const tokenInfo = this.GetLocalStorage("auth");
+      const tokenInfo = this.GetLocalStorage(`auth-${this.network}`);
 
       if(tokenInfo) {
         const { authToken, address, user } = JSON.parse(Utils.FromB64(tokenInfo));
         const expiration = JSON.parse(atob(authToken)).exp;
         if(expiration - Date.now() < 4 * 3600 * 1000) {
-          this.RemoveLocalStorage("auth");
+          this.RemoveLocalStorage(`auth-${this.network}`);
         } else {
           return { authToken, address, user };
         }
@@ -734,7 +736,7 @@ class RootStore {
     } catch(error) {
       this.Log("Failed to retrieve auth info", true);
       this.Log(error, true);
-      this.RemoveLocalStorage("auth");
+      this.RemoveLocalStorage(`auth-${this.network}`);
     }
   }
 

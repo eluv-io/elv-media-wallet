@@ -6,6 +6,7 @@ $pending-color: rgba($blue, 0.5);
   display: grid;
   grid-gap: 10px;
   grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));
+  height: min-content;
   margin-top: 20px;
 
   .card-container {
@@ -23,7 +24,6 @@ $pending-color: rgba($blue, 0.5);
 }
 
 .card-container {
-  height: min-content;
   max-width: calc(100vw - 50px);
   position: relative;
   transition: border 0.15s ease-in, margin 0.15s ease-in-out;
