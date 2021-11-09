@@ -10,8 +10,8 @@ This is implemented in [external tranfer](./ExternalNetTransfer.js) as a button,
 The network should be selected by the user and the NFT should be given by the context of UI. I tried to follow the NFT object format, but I'm not sure if I got it right. 
 
 ### Auth Service Call
-From here, we need the delegated permission to mint the NFT on the target chain (gas of course paid for by the user).
-The general call is in [the root store](../../stores/index.js) on line 401. The parameters are all given by the NFT data and user choice of network. 
+From here, we need the delegated permission to mint the NFT on the target chain from the auth service.
+The general API call is in [the root store](../../stores/index.js) on line 401. The parameters are all given by the NFT data and user choice of network. 
 The bearer token should be `this.client.signer.authToken`.  
 
 ### Contract Interaction
