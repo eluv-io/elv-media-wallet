@@ -101,6 +101,8 @@ class RootStore {
 
   navigationBreadcrumbs = [];
 
+  noItemsAvailable = false;
+
   @computed get marketplaceHash() {
     return this.marketplaceHashes[this.marketplaceId];
   }
@@ -768,6 +770,11 @@ class RootStore {
 
   SetNavigateToLogIn(initialScreen) {
     this.navigateToLogIn = initialScreen;
+  }
+
+  // Used for disabling navigation back to main marketplace page when no items are available
+  SetNoItemsAvailable() {
+    this.noItemsAvailable = true;
   }
 
   // Embedding application signalled that the wallet has become active

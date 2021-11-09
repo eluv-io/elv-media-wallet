@@ -740,6 +740,19 @@ const MarketplaceOwned = observer(() => {
   const marketplaceItems = rootStore.MarketplaceOwnedItems(marketplace);
   const ownedItems = Object.values(marketplaceItems).flat();
 
+  useEffect(() => {
+    if(!rootStore.sidePanelMode || !rootStore.noItemsAvailable) { return null; }
+
+    // If there are no items available for sale and we're in the side panel, we want to avoid navigating back to the marketplace page.
+    const originalHideNavigation = rootStore.hideNavigation;
+
+    rootStore.ToggleNavigation(false);
+
+    return () => {
+      rootStore.ToggleNavigation(originalHideNavigation);
+    };
+  }, []);
+
   const owned = (
     ownedItems.length === 0 ?
       <div className="marketplace__section">
@@ -842,7 +855,12 @@ const Marketplace = observer(() => {
   })).filter(section => section);
 
   if(sections.length === 0 && marketplace.collections.length === 0) {
-    return <h2 className="marketplace__empty">No items available</h2>;
+    if(rootStore.sidePanelMode) {
+      rootStore.SetNoItemsAvailable();
+      return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, "collections")} />;
+    } else {
+      return <h2 className="marketplace__empty">No items available</h2>;
+    }
   }
 
   return (

@@ -13,6 +13,7 @@ const Header = observer(() => {
 
   if(rootStore.sidePanelMode) {
     if(rootStore.navigationBreadcrumbs.length <= 2) { return null; }
+
     return (
       <header className="header">
         <div className="header__breadcrumbs">

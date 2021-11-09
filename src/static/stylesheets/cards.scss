@@ -24,7 +24,6 @@ $pending-color: rgba($blue, 0.5);
 }
 
 .card-container {
-  max-width: calc(100vw - 50px);
   position: relative;
   transition: border 0.15s ease-in, margin 0.15s ease-in-out;
 
