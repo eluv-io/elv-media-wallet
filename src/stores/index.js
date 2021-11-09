@@ -58,6 +58,7 @@ class RootStore {
   pageWidth = window.innerWidth;
 
   navigateToLogIn = undefined;
+  walletConnectSigner = undefined;
   loggingIn = false;
   loggedIn = false;
   disableCloseEvent = false;
@@ -162,6 +163,10 @@ class RootStore {
     Object.keys(queryParams).map(key => url.searchParams.append(key, queryParams[key]));
 
     return url.toString();
+  }
+
+  SetWalletConnectSigner({signer}) {
+    this.walletConnectSigner = signer;
   }
 
   NFT({tokenId, contractAddress, contractId}) {
@@ -563,6 +568,25 @@ class RootStore {
     });
   });
 
+  GetNFTDelegation = flow(function * ({network, nftAddress, tokenId}) {
+    return yield Utils.ResponseToJson(
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "act", tenantId),
+        method: "POST",
+        body: {
+          op: "nft-transfer",
+          tgt: network,
+          adr: nftAddress,
+          tok: tokenId
+        },
+        headers: {
+          /* @todo change back to non-hardcoded format */
+          Authorization: "Bearer eyJ2ZXIiOjEsImtpZCI6ImlrZXkzU0ZOTG51OHBOcmNXR1RVV04xUnRyd1doQ25XIiwia2V5IjoiQWcvVVY2N2wrRGtRL0pGMkppQ2pqYkxPd0FmakNCdVNERjNVWmJwbUFQVEoxSDhvZUMyTzBYOXE2M3hYZjN1dDB3PT0iLCJpZCI6InBhdWwub2xlYXJ5QGVsdXYuaW8iLCJpYXQiOjE2MzYxNTQ2MjA3ODQsImV4cCI6MTYzNjI0MTAyMDc4NH0="
+        }
+      })
+    );
+  });
+
   InitializeClient = flow(function * ({user, idToken, authToken, address, privateKey}) {
     try {
       this.loggingIn = true;
@@ -574,6 +598,20 @@ class RootStore {
       });
 
       this.staticToken = client.staticToken;
+
+
+      // TODO: Remove
+      const ethUrl = "https://host-216-66-40-19.contentfabric.io/eth";
+      const asUrl = "https://host-216-66-89-94.contentfabric.io";
+
+      client.SetNodes({
+        ethereumURIs: [
+          ethUrl
+        ],
+        authServiceURIs: [
+          asUrl
+        ]
+      });
 
       this.client = client;
 

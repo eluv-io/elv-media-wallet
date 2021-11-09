@@ -13,20 +13,10 @@ import Collections from "Components/wallet/Collections";
 import AsyncComponent from "Components/common/AsyncComponent";
 import NFTDetails from "Components/wallet/NFTDetails";
 import {PackOpenStatus} from "Components/marketplace/MintingStatus";
+import {MainNetTransfer} from "Components/wallet/ExternalNetTransfer";
 
 const WalletNavigation = observer(() => {
   return null;
-
-  /*
-  return (
-    <nav className="sub-navigation wallet-navigation">
-      <NavLink className="sub-navigation__link" to="/wallet/collection">My Collection</NavLink>
-      <NavLink className="sub-navigation__link" to="/wallet/tickets">Tickets</NavLink>
-      <NavLink className="sub-navigation__link" to="/wallet/tokens">Tokens</NavLink>
-    </nav>
-  );
-
-   */
 });
 
 const WalletWrapper = observer(({children}) => {
@@ -79,6 +69,7 @@ const Wallet = observer(() => {
   return (
     <div className="page-container wallet-page content">
       <WalletNavigation/>
+      <MainNetTransfer network={"rinkeby"} nft={{details: {ContractAddr: "0x42305fc5dd3ce7d454c9ed23a00927dd478138e8", TokenIdStr: "669"}}}/>
       <Switch>
         {
           Routes(match).map(({path, Component}) =>
