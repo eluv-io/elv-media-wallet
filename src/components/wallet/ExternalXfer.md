@@ -17,7 +17,7 @@ The bearer token should be `this.client.signer.authToken`.
 ### Contract Interaction
 We then assume that the user is connect either via metamask or walletconnect (if not I have it so that it'll prompt them to do that in the code).
 
-We then take the contract address given by the Auth Service Call and instantiate the minting contact and pass in all the relevant parameters given by the call. 
+We then take the contract address given by the Auth Service Call and instantiate the minting contact and pass in all the relevant parameters given by the AS call. 
 
 It's important the user is connected to the correct chain on their external wallet when this happens, because otherwise the contact interaction will fail. 
 
