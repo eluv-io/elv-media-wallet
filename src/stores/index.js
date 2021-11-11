@@ -465,15 +465,21 @@ class RootStore {
 
       return response
         .map(status => {
-          let [op, address, tokenId] = status.op.split(":");
+          let [op, address, id] = status.op.split(":");
           address = address.startsWith("0x") ? Utils.FormatAddress(address) : address;
-          tokenId = tokenId.toString();
+
+          let confirmationId, tokenId;
+          if(op === "nft-buy") {
+            confirmationId = id;
+          } else {
+            tokenId = id;
+          }
 
           return {
             ...status,
             state: status.state && typeof status.state === "object" ? Object.values(status.state) : status.state,
             extra: status.extra && typeof status.extra === "object" ? Object.values(status.extra) : status.extra,
-            confirmationId: status.extra && typeof status.extra === "object" ? status.extra.trans_id : undefined,
+            confirmationId,
             op,
             address,
             tokenId
