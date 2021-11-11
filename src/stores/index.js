@@ -568,7 +568,7 @@ class RootStore {
     });
   });
 
-  GetNFTDelegation = flow(function * ({network, nftAddress, tokenId}) {
+  GetNFTDelegation = flow(function * ({tenantId, network, nft}) {
     return yield Utils.ResponseToJson(
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "act", tenantId),
@@ -576,12 +576,11 @@ class RootStore {
         body: {
           op: "nft-transfer",
           tgt: network,
-          adr: nftAddress,
-          tok: tokenId
+          adr: nft.details.ContractAddr,
+          tok: nft.details.TokenIdStr
         },
         headers: {
-          /* @todo change back to non-hardcoded format */
-          Authorization: "Bearer eyJ2ZXIiOjEsImtpZCI6ImlrZXkzU0ZOTG51OHBOcmNXR1RVV04xUnRyd1doQ25XIiwia2V5IjoiQWcvVVY2N2wrRGtRL0pGMkppQ2pqYkxPd0FmakNCdVNERjNVWmJwbUFQVEoxSDhvZUMyTzBYOXE2M3hYZjN1dDB3PT0iLCJpZCI6InBhdWwub2xlYXJ5QGVsdXYuaW8iLCJpYXQiOjE2MzYxNTQ2MjA3ODQsImV4cCI6MTYzNjI0MTAyMDc4NH0="
+          Authorization: `Bearer ${this.client.signer.authToken}`
         }
       })
     );
@@ -598,7 +597,6 @@ class RootStore {
       });
 
       this.staticToken = client.staticToken;
-
 
       // TODO: Remove
       const ethUrl = "https://host-216-66-40-19.contentfabric.io/eth";

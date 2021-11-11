@@ -14,11 +14,13 @@ import ContractIcon from "Assets/icons/Contract icon.svg";
 import {render} from "react-dom";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
+import {MainNetTransfer} from "Components/wallet/ExternalNetTransfer";
 
 const NFTDetails = observer(() => {
   const [opened, setOpened] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const match = useRouteMatch();
+  const marketplace = match.params.marketplaceId ? rootStore.marketplaces[match.params.marketplaceId] : null;
 
   if(deleted) {
     return match.params.marketplaceId ?
@@ -185,6 +187,10 @@ const NFTDetails = observer(() => {
             >
               See More Info on Eluvio Lookout
             </a>
+            <MainNetTransfer
+              network={"rinkeby"}
+              nft={nft}
+            />
             {
               rootStore.funds ?
                 <ButtonWithLoader
