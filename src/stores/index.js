@@ -8,6 +8,7 @@ import EVENTS from "../../client/src/Events";
 
 import NFTContractABI from "../static/abi/NFTContract";
 import CheckoutStore from "Stores/Checkout";
+import {ethers} from "ethers";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
@@ -58,7 +59,6 @@ class RootStore {
   pageWidth = window.innerWidth;
 
   navigateToLogIn = undefined;
-  walletConnectSigner = undefined;
   loggingIn = false;
   loggedIn = false;
   disableCloseEvent = false;
@@ -104,6 +104,8 @@ class RootStore {
 
   noItemsAvailable = false;
 
+  metamaskChainId = undefined;
+
   @computed get marketplaceHash() {
     return this.marketplaceHashes[this.marketplaceId];
   }
@@ -123,6 +125,8 @@ class RootStore {
 
   constructor() {
     makeAutoObservable(this);
+
+    this.RegisterMetamaskHandlers();
 
     const marketplace = new URLSearchParams(window.location.search).get("mid") || (window.self === window.top && sessionStorage.getItem("marketplace-id"));
     if(marketplace && marketplace.startsWith("hq__")) {
@@ -163,10 +167,6 @@ class RootStore {
     Object.keys(queryParams).map(key => url.searchParams.append(key, queryParams[key]));
 
     return url.toString();
-  }
-
-  SetWalletConnectSigner({signer}) {
-    this.walletConnectSigner = signer;
   }
 
   NFT({tokenId, contractAddress, contractId}) {
@@ -568,23 +568,98 @@ class RootStore {
     });
   });
 
-  GetNFTDelegation = flow(function * ({tenantId, network, nft}) {
-    return yield Utils.ResponseToJson(
-      yield this.client.authClient.MakeAuthServiceRequest({
-        path: UrlJoin("as", "wlt", "act", tenantId),
-        method: "POST",
-        body: {
-          op: "nft-transfer",
-          tgt: network,
-          adr: nft.details.ContractAddr,
-          tok: nft.details.TokenIdStr
-        },
-        headers: {
-          Authorization: `Bearer ${this.client.signer.authToken}`
+  TransferNFT = flow(function * ({network, nft}) {
+    const originalEthUris = this.client.ethereumURIs;
+    const originalASUris = this.client.authServiceURIs;
+
+    try {
+      // TODO: Remove
+      this.client.SetNodes({
+        ethereumURIs: [ "https://host-216-66-40-19.contentfabric.io/eth" ],
+        authServiceURIs: [ "https://host-216-66-89-94.contentfabric.io" ]
+      });
+
+      yield window.ethereum.enable();
+
+      const signer = (new ethers.providers.Web3Provider(window.ethereum)).getSigner();
+      const response = yield Utils.ResponseToJson(
+        yield this.client.authClient.MakeAuthServiceRequest({
+          path: UrlJoin("as", "wlt", "act", nft.details.TenantId),
+          method: "POST",
+          body: {
+            taddr: window.ethereum.selectedAddress,
+            op: "nft-transfer",
+            tgt: network,
+            adr: nft.details.ContractAddr,
+            tok: nft.details.TokenIdStr
+          },
+          headers: {
+            Authorization: `Bearer ${this.client.signer.authToken}`
+          }
+        })
+      );
+
+      const abi = [
+        {
+          "constant": false,
+          "inputs": [
+            {"name": "to", "type": "address"},
+            {"name": "tokenId", "type": "uint256"},
+            {"name": "tokenURI", "type": "string"},
+            {"name": "v", "type": "uint8"},
+            {"name": "r", "type": "bytes32"},
+            {"name": "s", "type": "bytes32"}
+          ],
+          "name": "mintSignedWithTokenURI",
+          "outputs": [{"name": "", "type": "bool"}],
+          "payable": false,
+          "stateMutability": "nonpayable",
+          "type": "function"
         }
-      })
-    );
+      ];
+
+      // Create Contract and call appropriate method:
+      const contract = new ethers.Contract(response.caddr, abi, signer);
+      const minted = yield contract.mintSignedWithTokenURI(
+        response.taddr,
+        nft.details.TokenIdStr,
+        response.turi,
+        response.v,
+        ethers.utils.arrayify("0x" + response.r),
+        ethers.utils.arrayify("0x" + response.s),
+        {gasPrice: ethers.utils.parseUnits("100", "gwei"), gasLimit: 1000000} // TODO: Why is this necessary?
+      );
+
+      return { network: this.ExternalChains().find(info => info.network === network), hash: minted.hash };
+    } finally {
+      this.client.SetNodes({
+        ethereumURIs: originalEthUris,
+        authServiceURIs: originalASUris
+      });
+    }
   });
+
+  UpdateMetamaskChainId() {
+    this.metamaskChainId = window.ethereum.chainId;
+  }
+
+  RegisterMetamaskHandlers() {
+    if(!window.ethereum) { return; }
+
+    this.UpdateMetamaskChainId();
+
+    window.ethereum.on("accountsChanged", () => this.UpdateMetamaskChainId());
+    window.ethereum.on("chainChanged", () => this.UpdateMetamaskChainId());
+  }
+
+  ExternalChains() {
+    return [
+      { name: "Ethereum Mainnet", network: "eth-mainnet", chainId: "0x1"},
+      { name: "Ethereum Testnet (Rinkeby)", network: "eth-rinkeby", chainId: "0x4"},
+      { name: "Polygon Mainnet", network: "poly-mainnet", chainId: "0x89"},
+      { name: "Polygon Testnet (Mumbai)", network: "poly-mumbai", chainId: "0x13881"}
+    ];
+  }
 
   InitializeClient = flow(function * ({user, idToken, authToken, address, privateKey}) {
     try {
@@ -597,19 +672,6 @@ class RootStore {
       });
 
       this.staticToken = client.staticToken;
-
-      // TODO: Remove
-      const ethUrl = "https://host-216-66-40-19.contentfabric.io/eth";
-      const asUrl = "https://host-216-66-89-94.contentfabric.io";
-
-      client.SetNodes({
-        ethereumURIs: [
-          ethUrl
-        ],
-        authServiceURIs: [
-          asUrl
-        ]
-      });
 
       this.client = client;
 

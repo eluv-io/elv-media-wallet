@@ -14,13 +14,90 @@ import ContractIcon from "Assets/icons/Contract icon.svg";
 import {render} from "react-dom";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
-import {MainNetTransfer} from "Components/wallet/ExternalNetTransfer";
+import {Loader} from "Components/common/Loaders";
+
+
+const TransferSection = observer(({nft}) => {
+  const [transferring, setTransferring] = useState(false);
+  const [transferError, setTransferError] = useState(undefined);
+  const [transferInfo, setTransferInfo] = useState(undefined);
+
+  if(transferring) {
+    return (
+      <div className="expandable-section__actions">
+        <Loader />
+      </div>
+    );
+  }
+
+  if(transferInfo) {
+    return (
+      <div className="expandable-section__actions">
+        <h3 className="details-page__transfer-details details-page__transfer-success">
+          Transfer request to { transferInfo.network.name } succeeded
+        </h3>
+
+        <h3 className="details-page__transfer-details details-page__transfer-success">
+          Hash: { transferInfo.hash }
+        </h3>
+      </div>
+    );
+  }
+
+  return (
+    <div className="expandable-section__actions">
+      {
+        transferError ?
+          <h3 className="details-page__transfer-details details-page__transfer-error">
+            { transferError }
+          </h3> : null
+      }
+
+      <h3 className="details-page__transfer-details">
+        { window.ethereum ? "You can transfer your NFT to another network using MetaMask. Select the network you wish to transfer to in MetaMask to enable the transfer option." : "Install MetaMask to transfer your NFT" }
+      </h3>
+
+      {
+        rootStore.ExternalChains()
+          .sort((a, b) => {
+            if(a.chainId === rootStore.metamaskChainId) {
+              return -1;
+            } else if(b.chainId === rootStore.metamaskChainId) {
+              return 1;
+            }
+
+            return a.name < b.name ? -1 : 1;
+          })
+          .map(({name, network, chainId}) => (
+            <button
+              key={`transfer-button-${network}`}
+              disabled={!window.ethereum || rootStore.metamaskChainId !== chainId}
+              className="details-page__transfer-button"
+              onClick={async () => {
+                try {
+                  setTransferring(true);
+                  setTransferInfo(await rootStore.TransferNFT({network, nft}));
+                } catch(error) {
+                  rootStore.Log(error, true);
+                  setTransferError("Failed to transfer NFT");
+                } finally {
+                  setTransferring(false);
+                }
+              }}
+            >
+              Transfer NFT To { name }
+            </button>
+          ))
+      }
+    </div>
+  );
+});
 
 const NFTDetails = observer(() => {
   const [opened, setOpened] = useState(false);
   const [deleted, setDeleted] = useState(false);
+
   const match = useRouteMatch();
-  const marketplace = match.params.marketplaceId ? rootStore.marketplaces[match.params.marketplaceId] : null;
 
   if(deleted) {
     return match.params.marketplaceId ?
@@ -187,10 +264,6 @@ const NFTDetails = observer(() => {
             >
               See More Info on Eluvio Lookout
             </a>
-            <MainNetTransfer
-              network={"rinkeby"}
-              nft={nft}
-            />
             {
               rootStore.funds ?
                 <ButtonWithLoader
@@ -207,6 +280,7 @@ const NFTDetails = observer(() => {
                 </ButtonWithLoader> : null
             }
           </div>
+          <TransferSection nft={nft} />
         </ExpandableSection>
       </div>
     </div>

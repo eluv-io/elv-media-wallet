@@ -50,7 +50,7 @@
   .lookout-url {
     background-color: $blue;
     border: 0;
-    border-radius: 8px;
+    border-radius: 3px;
     color: $white;
     display: block;
     margin: 10px auto;
@@ -63,6 +63,33 @@
   &__open-button {
     .button {
       margin: 25px auto;
+    }
+  }
+
+  &__transfer-details {
+    font-size: 14px;
+    font-weight: 400;
+    margin: 15px 0;
+    text-align: center;
+  }
+
+  &__transfer-success {
+    color: $blue;
+    margin-bottom: 0;
+    word-wrap: anywhere;
+  }
+
+  &__transfer-error {
+    color: $red;
+  }
+
+  &__transfer-button {
+    margin-bottom: 10px;
+    width: 100%;
+
+    &:disabled {
+      cursor: initial;
+      opacity: 0.5;
     }
   }
 

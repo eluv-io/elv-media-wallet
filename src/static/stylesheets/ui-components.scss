@@ -60,6 +60,10 @@
     flex-direction: column;
     justify-content: space-evenly;
     padding: 10px;
+
+    + .expandable-section__actions {
+      border-top: 1px solid $lightgray;
+    }
   }
 }
 
@@ -88,7 +92,7 @@
   &__button {
     background-color: $blue;
     border: 0;
-    border-radius: 17.5px;
+    border-radius: 10px;
     cursor: pointer;
     height: 25px;
     padding: 5px;
