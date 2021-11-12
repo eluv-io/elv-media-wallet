@@ -14,21 +14,11 @@ import ContractIcon from "Assets/icons/Contract icon.svg";
 import {render} from "react-dom";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
-import {Loader} from "Components/common/Loaders";
-
+import Confirm from "Components/common/Confirm";
 
 const TransferSection = observer(({nft}) => {
-  const [transferring, setTransferring] = useState(false);
   const [transferError, setTransferError] = useState(undefined);
-  const [transferInfo, setTransferInfo] = useState(undefined);
-
-  if(transferring) {
-    return (
-      <div className="expandable-section__actions">
-        <Loader />
-      </div>
-    );
-  }
+  const transferInfo = rootStore.transferredNFTs[`${nft.details.ContractAddr}:${nft.details.TokenIdStr}`];
 
   if(transferInfo) {
     return (
@@ -73,17 +63,17 @@ const TransferSection = observer(({nft}) => {
               key={`transfer-button-${network}`}
               disabled={!window.ethereum || rootStore.metamaskChainId !== chainId}
               className="details-page__transfer-button"
-              onClick={async () => {
-                try {
-                  setTransferring(true);
-                  setTransferInfo(await rootStore.TransferNFT({network, nft}));
-                } catch(error) {
-                  rootStore.Log(error, true);
-                  setTransferError("Failed to transfer NFT");
-                } finally {
-                  setTransferring(false);
+              onClick={async () => await Confirm({
+                message: `Are you sure you want to transfer this NFT to ${name}?`,
+                Confirm: async () => {
+                  try {
+                    await rootStore.TransferNFT({network, nft});
+                  } catch(error) {
+                    rootStore.Log(error, true);
+                    setTransferError("Failed to transfer NFT");
+                  }
                 }
-              }}
+              })}
             >
               Transfer NFT To { name }
             </button>
@@ -280,7 +270,7 @@ const NFTDetails = observer(() => {
                 </ButtonWithLoader> : null
             }
           </div>
-          <TransferSection nft={nft} />
+          <TransferSection nft={nft}/>
         </ExpandableSection>
       </div>
     </div>

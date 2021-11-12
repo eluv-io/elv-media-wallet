@@ -105,6 +105,7 @@ class RootStore {
   noItemsAvailable = false;
 
   metamaskChainId = undefined;
+  transferredNFTs = {};
 
   @computed get marketplaceHash() {
     return this.marketplaceHashes[this.marketplaceId];
@@ -630,7 +631,7 @@ class RootStore {
         {gasPrice: ethers.utils.parseUnits("100", "gwei"), gasLimit: 1000000} // TODO: Why is this necessary?
       );
 
-      return { network: this.ExternalChains().find(info => info.network === network), hash: minted.hash };
+      this.transferredNFTs[`${nft.details.ContractAddr}:${nft.details.TokenIdStr}`] = { network: this.ExternalChains().find(info => info.network === network), hash: minted.hash };
     } finally {
       this.client.SetNodes({
         ethereumURIs: originalEthUris,
