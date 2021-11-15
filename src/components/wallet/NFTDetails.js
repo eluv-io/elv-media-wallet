@@ -17,6 +17,41 @@ import SanitizeHTML from "sanitize-html";
 import Confirm from "Components/common/Confirm";
 
 const TransferSection = observer(({nft}) => {
+  if(rootStore.embedded) {
+    if(!window.ethereum) {
+      return (
+        <div className="expandable-section__actions">
+          <h3 className="details-page__transfer-details">
+            You can transfer your NFT to another network using MetaMask. Please Install MetaMask to transfer your NFT
+          </h3>
+        </div>
+      );
+    }
+
+    const url = new URL(window.location.href);
+    if(rootStore.darkMode) {
+      url.searchParams.append("d", "");
+    }
+
+    if(rootStore.marketplaceHash) {
+      url.searchParams.append("mid", rootStore.marketplaceHash);
+    }
+
+    return (
+      <div className="expandable-section__actions">
+        <h3 className="details-page__transfer-details">
+          You can transfer your NFT to another network using MetaMask. Click the link below to open the full wallet experience and transfer your NFT.
+        </h3>
+
+        <div className="details-page__transfer-buttons">
+          <a href={url.toString()} target="_blank" className="button details-page__transfer-button details-page__transfer-link">
+            Open Full Wallet to Transfer
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   const [transferError, setTransferError] = useState(undefined);
   const transferInfo = rootStore.transferredNFTs[`${nft.details.ContractAddr}:${nft.details.TokenIdStr}`];
 
@@ -51,38 +86,40 @@ const TransferSection = observer(({nft}) => {
         { window.ethereum ? "You can transfer your NFT to another network using MetaMask. Select the network you wish to transfer to in MetaMask to enable the transfer option." : "Install MetaMask to transfer your NFT" }
       </h3>
 
-      {
-        rootStore.ExternalChains()
-          .sort((a, b) => {
-            if(a.chainId === rootStore.metamaskChainId) {
-              return -1;
-            } else if(b.chainId === rootStore.metamaskChainId) {
-              return 1;
-            }
+      <div className="details-page__transfer-buttons">
+        {
+          rootStore.ExternalChains()
+            .sort((a, b) => {
+              if(a.chainId === rootStore.metamaskChainId) {
+                return -1;
+              } else if(b.chainId === rootStore.metamaskChainId) {
+                return 1;
+              }
 
-            return a.name < b.name ? -1 : 1;
-          })
-          .map(({name, network, chainId}) => (
-            <button
-              key={`transfer-button-${network}`}
-              disabled={!window.ethereum || rootStore.metamaskChainId !== chainId}
-              className="details-page__transfer-button"
-              onClick={async () => await Confirm({
-                message: `Are you sure you want to transfer this NFT to ${name}?`,
-                Confirm: async () => {
-                  try {
-                    await rootStore.TransferNFT({network, nft});
-                  } catch(error) {
-                    rootStore.Log(error, true);
-                    setTransferError("Failed to transfer NFT");
+              return a.name < b.name ? -1 : 1;
+            })
+            .map(({name, network, chainId}) => (
+              <button
+                key={`transfer-button-${network}`}
+                disabled={!window.ethereum || rootStore.metamaskChainId !== chainId}
+                className="details-page__transfer-button"
+                onClick={async () => await Confirm({
+                  message: `Are you sure you want to transfer this NFT to ${name}?`,
+                  Confirm: async () => {
+                    try {
+                      await rootStore.TransferNFT({network, nft});
+                    } catch(error) {
+                      rootStore.Log(error, true);
+                      setTransferError("Failed to transfer NFT");
+                    }
                   }
-                }
-              })}
-            >
-              Transfer NFT To { name }
-            </button>
-          ))
-      }
+                })}
+              >
+                Transfer NFT To { name }
+              </button>
+            ))
+        }
+      </div>
     </div>
   );
 });
