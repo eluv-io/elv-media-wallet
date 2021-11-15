@@ -616,14 +616,30 @@ class RootStore {
           "payable": false,
           "stateMutability": "nonpayable",
           "type": "function"
-        }
+        },
+        {
+          "constant": true,
+          "inputs": [
+            {"name": "to", "type": "address"},
+            {"name": "tokenId", "type": "uint256"},
+            {"name": "tokenURI", "type": "string"},
+            {"name": "v", "type": "uint8"},
+            {"name": "r", "type": "bytes32"},
+            {"name": "s", "type": "bytes32"}
+          ],
+          "name": "isMinterSigned",
+          "outputs": [{"name": "", "type": "bool"}],
+          "payable": false,
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
       ];
 
       // Create Contract and call appropriate method:
       const contract = new ethers.Contract(response.caddr, abi, signer);
       const minted = yield contract.mintSignedWithTokenURI(
         response.taddr,
-        nft.details.TokenIdStr,
+        response.tok,
         response.turi,
         response.v,
         ethers.utils.arrayify("0x" + response.r),
@@ -631,7 +647,27 @@ class RootStore {
         {gasPrice: ethers.utils.parseUnits("100", "gwei"), gasLimit: 1000000} // TODO: Why is this necessary?
       );
 
-      this.transferredNFTs[`${nft.details.ContractAddr}:${nft.details.TokenIdStr}`] = { network: this.ExternalChains().find(info => info.network === network), hash: minted.hash };
+      let openSeaLink;
+      switch(network) {
+        case "eth-mainnet":
+          openSeaLink = `https://opensea.io/assets/${response.caddr}/${response.tok}`;
+          break;
+        case "eth-rinkeby":
+          openSeaLink = `https://testnets.opensea.io/assets/${response.caddr}/${response.tok}`;
+          break;
+        case "poly-mainnet":
+          openSeaLink = `https://testnets.opensea.io/assets/matic/${response.caddr}/${response.tok}`;
+          break;
+        case "poly-mumbai":
+          openSeaLink = `https://testnets.opensea.io/assets/mumbai/${response.caddr}/${response.tok}`;
+          break;
+      }
+
+      this.transferredNFTs[`${nft.details.ContractAddr}:${nft.details.TokenIdStr}`] = {
+        network: this.ExternalChains().find(info => info.network === network),
+        hash: minted.hash,
+        openSeaLink
+      };
     } finally {
       this.client.SetNodes({
         ethereumURIs: originalEthUris,

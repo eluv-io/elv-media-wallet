@@ -23,13 +23,17 @@ const TransferSection = observer(({nft}) => {
   if(transferInfo) {
     return (
       <div className="expandable-section__actions">
-        <h3 className="details-page__transfer-details details-page__transfer-success">
-          Transfer request to { transferInfo.network.name } succeeded
-        </h3>
+        <div className="details-page__transfer-details details-page__transfer-success">
+          <h3>
+            Transfer request to { transferInfo.network.name } succeeded
+          </h3>
 
-        <h3 className="details-page__transfer-details details-page__transfer-success">
-          Hash: { transferInfo.hash }
-        </h3>
+          <a target="_blank" href={transferInfo.openSeaLink} rel="noopener">Find it on OpenSea</a>
+
+          <h3 className="details-page__transfer-details__hash">
+            Hash: { transferInfo.hash }
+          </h3>
+        </div>
       </div>
     );
   }

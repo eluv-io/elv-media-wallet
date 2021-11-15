@@ -74,8 +74,23 @@
   }
 
   &__transfer-success {
-    color: $blue;
-    margin-bottom: 0;
+    font-size: 14px;
+    margin: 15px 0;
+
+    h3 {
+      font-weight: normal;
+      margin-bottom: 10px;
+    }
+
+    a {
+      color: $blue;
+      font-size: 24px;
+    }
+  }
+
+  &__transfer-details__hash {
+    font-size: 10px;
+    margin: 30px auto 0;
     word-wrap: anywhere;
   }
 
