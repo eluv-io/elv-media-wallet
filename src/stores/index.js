@@ -661,7 +661,7 @@ class RootStore {
 
     // Check if token already exists
     if((yield contract.exists(response.tok))) {
-      throw Error("Token already exists");
+      //throw Error("Token already exists");
     }
 
     // Call transfer method

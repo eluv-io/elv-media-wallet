@@ -68,7 +68,7 @@ const TransferSection = observer(({nft}) => {
             Transfer request to { transferInfo.network.name } succeeded
           </h3>
 
-          <a target="_blank" href={transferInfo.openSeaLink} rel="noopener">Find it on OpenSea</a>
+          <a className="button details-page__transfer-details__opensea-button" target="_blank" href={transferInfo.openSeaLink} rel="noopener">Find it on OpenSea</a>
 
           <h3 className="details-page__transfer-details__hash">
             Hash: { transferInfo.hash }

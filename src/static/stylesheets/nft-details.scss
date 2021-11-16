@@ -47,16 +47,27 @@
   // sass-lint:disable force-element-nesting
   &__open-button .button,
   &__delete-button .button,
+  &__transfer-details__opensea-button,
   .lookout-url {
+    align-items: center;
     background-color: $blue;
     border: 0;
     border-radius: 3px;
     color: $white;
-    display: block;
+    display: flex;
+    justify-content: center;
     margin: 10px auto;
     max-width: 300px;
     padding: 0 30px;
     text-align: center;
+
+    &.button {
+      border: 0;
+    }
+
+    &:hover {
+      color: $white;
+    }
   }
   // sass-lint:enable force-element-nesting
 
@@ -83,8 +94,8 @@
     }
 
     a {
-      color: $blue;
-      font-size: 24px;
+      margin-top: 20px;
+      width: max-content;
     }
   }
 
