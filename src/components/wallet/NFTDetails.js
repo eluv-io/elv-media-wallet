@@ -17,13 +17,17 @@ import SanitizeHTML from "sanitize-html";
 import Confirm from "Components/common/Confirm";
 
 const TransferSection = observer(({nft}) => {
+  const notMetamask = !rootStore.MetamaskAvailable() && window.ethereum;
+  const notMetaMaskMessage = " Other browser extensions like Coinbase may be preventing the wallet from accessing MetaMask. Please disable them and refresh the page.";
+
   if(rootStore.embedded) {
-    if(!window.ethereum) {
+    if(!rootStore.MetamaskAvailable()) {
       return (
         <div className="expandable-section__actions">
           <h3 className="details-page__transfer-details">
-            You can transfer your NFT to another network using MetaMask. Please Install MetaMask to transfer your NFT
+            You can transfer your NFT to another network using MetaMask. Please Install MetaMask to transfer your NFT.
           </h3>
+          { notMetamask ? <h3 className="details-page__transfer-details">{ notMetaMaskMessage }</h3> : "" }
         </div>
       );
     }
@@ -42,6 +46,7 @@ const TransferSection = observer(({nft}) => {
         <h3 className="details-page__transfer-details">
           You can transfer your NFT to another network using MetaMask. Click the link below to open the full wallet experience and transfer your NFT.
         </h3>
+        { notMetamask ? <h3 className="details-page__transfer-details">{ notMetaMaskMessage }</h3> : "" }
 
         <div className="details-page__transfer-buttons">
           <a href={url.toString()} target="_blank" className="button details-page__transfer-button details-page__transfer-link">
@@ -83,8 +88,14 @@ const TransferSection = observer(({nft}) => {
       }
 
       <h3 className="details-page__transfer-details">
-        { window.ethereum ? "You can transfer your NFT to another network using MetaMask. Select the network you wish to transfer to in MetaMask to enable the transfer option." : "Install MetaMask to transfer your NFT" }
+        {
+          rootStore.MetamaskAvailable() ?
+            "You can transfer your NFT to another network using MetaMask. Select the network you wish to transfer to in MetaMask to enable the transfer option." :
+            "Install MetaMask to transfer your NFT"
+        }
       </h3>
+
+      { notMetamask ? <h3 className="details-page__transfer-details">{ notMetaMaskMessage }</h3> : "" }
 
       <div className="details-page__transfer-buttons">
         {
@@ -101,7 +112,7 @@ const TransferSection = observer(({nft}) => {
             .map(({name, network, chainId}) => (
               <button
                 key={`transfer-button-${network}`}
-                disabled={!window.ethereum || rootStore.metamaskChainId !== chainId}
+                disabled={!rootStore.MetamaskAvailable() || rootStore.metamaskChainId !== chainId}
                 className="details-page__transfer-button"
                 onClick={async () => await Confirm({
                   message: `Are you sure you want to transfer this NFT to ${name}?`,

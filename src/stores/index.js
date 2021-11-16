@@ -570,111 +570,137 @@ class RootStore {
   });
 
   TransferNFT = flow(function * ({network, nft}) {
-    const originalEthUris = this.client.ethereumURIs;
-    const originalASUris = this.client.authServiceURIs;
+    yield window.ethereum.enable();
 
-    try {
-      // TODO: Remove
-      this.client.SetNodes({
-        ethereumURIs: [ "https://host-216-66-40-19.contentfabric.io/eth" ],
-        authServiceURIs: [ "https://host-216-66-89-94.contentfabric.io" ]
-      });
+    const signer = (new ethers.providers.Web3Provider(window.ethereum)).getSigner();
+    const response = yield Utils.ResponseToJson(
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "act", nft.details.TenantId),
+        method: "POST",
+        body: {
+          taddr: window.ethereum.selectedAddress,
+          op: "nft-transfer",
+          tgt: network,
+          adr: nft.details.ContractAddr,
+          tok: nft.details.TokenIdStr
+        },
+        headers: {
+          Authorization: `Bearer ${this.client.signer.authToken}`
+        }
+      })
+    );
 
-      yield window.ethereum.enable();
-
-      const signer = (new ethers.providers.Web3Provider(window.ethereum)).getSigner();
-      const response = yield Utils.ResponseToJson(
-        yield this.client.authClient.MakeAuthServiceRequest({
-          path: UrlJoin("as", "wlt", "act", nft.details.TenantId),
-          method: "POST",
-          body: {
-            taddr: window.ethereum.selectedAddress,
-            op: "nft-transfer",
-            tgt: network,
-            adr: nft.details.ContractAddr,
-            tok: nft.details.TokenIdStr
-          },
-          headers: {
-            Authorization: `Bearer ${this.client.signer.authToken}`
+    const abi = [
+      {
+        "constant": false,
+        "inputs": [
+          {"name": "to", "type": "address"},
+          {"name": "tokenId", "type": "uint256"},
+          {"name": "tokenURI", "type": "string"},
+          {"name": "v", "type": "uint8"},
+          {"name": "r", "type": "bytes32"},
+          {"name": "s", "type": "bytes32"}
+        ],
+        "name": "mintSignedWithTokenURI",
+        "outputs": [{"name": "", "type": "bool"}],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "constant": true,
+        "inputs": [
+          {"name": "to", "type": "address"},
+          {"name": "tokenId", "type": "uint256"},
+          {"name": "tokenURI", "type": "string"},
+          {"name": "v", "type": "uint8"},
+          {"name": "r", "type": "bytes32"},
+          {"name": "s", "type": "bytes32"}
+        ],
+        "name": "isMinterSigned",
+        "outputs": [{"name": "", "type": "bool"}],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "constant": true,
+        "inputs": [
+          {
+            "name": "tokenId",
+            "type": "uint256"
           }
-        })
-      );
+        ],
+        "name": "exists",
+        "outputs": [
+          {
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+      }
+    ];
 
-      const abi = [
-        {
-          "constant": false,
-          "inputs": [
-            {"name": "to", "type": "address"},
-            {"name": "tokenId", "type": "uint256"},
-            {"name": "tokenURI", "type": "string"},
-            {"name": "v", "type": "uint8"},
-            {"name": "r", "type": "bytes32"},
-            {"name": "s", "type": "bytes32"}
-          ],
-          "name": "mintSignedWithTokenURI",
-          "outputs": [{"name": "", "type": "bool"}],
-          "payable": false,
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "constant": true,
-          "inputs": [
-            {"name": "to", "type": "address"},
-            {"name": "tokenId", "type": "uint256"},
-            {"name": "tokenURI", "type": "string"},
-            {"name": "v", "type": "uint8"},
-            {"name": "r", "type": "bytes32"},
-            {"name": "s", "type": "bytes32"}
-          ],
-          "name": "isMinterSigned",
-          "outputs": [{"name": "", "type": "bool"}],
-          "payable": false,
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-      ];
-
-      // Create Contract and call appropriate method:
-      const contract = new ethers.Contract(response.caddr, abi, signer);
-      const minted = yield contract.mintSignedWithTokenURI(
+    // Connect contract and validate:
+    const contract = new ethers.Contract(response.caddr, abi, signer);
+    if(!(
+      yield contract.isMinterSigned(
         response.taddr,
         response.tok,
         response.turi,
         response.v,
         ethers.utils.arrayify("0x" + response.r),
-        ethers.utils.arrayify("0x" + response.s),
-        {gasPrice: ethers.utils.parseUnits("100", "gwei"), gasLimit: 1000000} // TODO: Why is this necessary?
-      );
-
-      let openSeaLink;
-      switch(network) {
-        case "eth-mainnet":
-          openSeaLink = `https://opensea.io/assets/${response.caddr}/${response.tok}`;
-          break;
-        case "eth-rinkeby":
-          openSeaLink = `https://testnets.opensea.io/assets/${response.caddr}/${response.tok}`;
-          break;
-        case "poly-mainnet":
-          openSeaLink = `https://testnets.opensea.io/assets/matic/${response.caddr}/${response.tok}`;
-          break;
-        case "poly-mumbai":
-          openSeaLink = `https://testnets.opensea.io/assets/mumbai/${response.caddr}/${response.tok}`;
-          break;
-      }
-
-      this.transferredNFTs[`${nft.details.ContractAddr}:${nft.details.TokenIdStr}`] = {
-        network: this.ExternalChains().find(info => info.network === network),
-        hash: minted.hash,
-        openSeaLink
-      };
-    } finally {
-      this.client.SetNodes({
-        ethereumURIs: originalEthUris,
-        authServiceURIs: originalASUris
-      });
+        ethers.utils.arrayify("0x" + response.s)
+      ))
+    ) {
+      throw Error("Minter not signed");
     }
+
+    // Check if token already exists
+    if((yield contract.exists(response.tok))) {
+      throw Error("Token already exists");
+    }
+
+    // Call transfer method
+    const minted = yield contract.mintSignedWithTokenURI(
+      response.taddr,
+      response.tok,
+      response.turi,
+      response.v,
+      ethers.utils.arrayify("0x" + response.r),
+      ethers.utils.arrayify("0x" + response.s),
+      {gasPrice: ethers.utils.parseUnits("100", "gwei"), gasLimit: 1000000} // TODO: Why is this necessary?
+    );
+
+    let openSeaLink;
+    switch(network) {
+      case "eth-mainnet":
+        openSeaLink = `https://opensea.io/assets/${response.caddr}/${response.tok}`;
+        break;
+      case "eth-rinkeby":
+        openSeaLink = `https://testnets.opensea.io/assets/${response.caddr}/${response.tok}`;
+        break;
+      case "poly-mainnet":
+        openSeaLink = `https://testnets.opensea.io/assets/matic/${response.caddr}/${response.tok}`;
+        break;
+      case "poly-mumbai":
+        openSeaLink = `https://testnets.opensea.io/assets/mumbai/${response.caddr}/${response.tok}`;
+        break;
+    }
+
+    this.transferredNFTs[`${nft.details.ContractAddr}:${nft.details.TokenIdStr}`] = {
+      network: this.ExternalChains().find(info => info.network === network),
+      hash: minted.hash,
+      openSeaLink
+    };
   });
+
+  MetamaskAvailable() {
+    return window.ethereum && window.ethereum.isMetaMask && window.ethereum.chainId;
+  }
 
   UpdateMetamaskChainId() {
     this.metamaskChainId = window.ethereum.chainId;
