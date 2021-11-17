@@ -94,10 +94,26 @@ const Drop = () => {
       render={() => {
         const postVoteState = drop.event_state_post_vote || {};
         const mintStartState = drop.event_state_mint_start || {};
+        let header = drop.drop_header;
+        
+        try {
+          const states = ["event_state_preroll", "event_state_main", "event_state_post_vote", "event_state_mint_start", "event_state_event_end"].map(state =>
+            (state === "event_state_main" || drop[state].use_state) ? {state, ...drop[state]} : null
+          ).filter(state => state);
+
+          const currentState = states.map((state, index) => Date.now() > new Date(state.start_date) ? index : null)
+            .filter(active => active)
+            .slice(-1)[0];
+
+          header = currentState.header || header;
+        } catch(error) {
+          rootStore.Log("Failed to determine drop state", true);
+          rootStore.Log(error, true);
+        }
 
         return (
           <div className="drop">
-            { drop.drop_header ? <h1 className="page-header">{ drop.drop_header }</h1> : null }
+            { header ? <h1 className="page-header">{ drop.drop_header }</h1> : null }
             <div className="card-list">
               {
                 drop.nfts.map(({label, image, sku}, index) =>
