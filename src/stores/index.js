@@ -754,7 +754,7 @@ class RootStore {
         this.localAccount = true;
 
         if(!this.embedded) {
-          sessionStorage.setItem("pk", privateKey);
+          sessionStorage.setItem(`pk-${this.network}`, privateKey);
         }
       } else if(authToken) {
         yield client.SetRemoteSigner({authToken, address, tenantId});
@@ -808,7 +808,7 @@ class RootStore {
       this.Log("Failed to initialize client", true);
       this.Log(error, true);
 
-      //this.ClearAuthInfo();
+      this.ClearAuthInfo();
 
       throw error;
     } finally {
@@ -820,7 +820,7 @@ class RootStore {
     this.ClearAuthInfo();
 
     if(!this.embedded) {
-      sessionStorage.removeItem("pk");
+      sessionStorage.removeItem(`pk-${this.network}`);
     }
 
     if(auth0) {
@@ -851,18 +851,6 @@ class RootStore {
     }
 
     window.location.href = url.toString();
-  }
-
-  ClearAuthInfo() {
-    this.RemoveLocalStorage(`auth-${this.network}`);
-  }
-
-  SetAuthInfo({authToken, address, user}) {
-    this.SetLocalStorage(
-      `auth-${this.network}`,
-      Utils.B64(JSON.stringify({authToken, address, user}))
-    );
-    this.SetLocalStorage("hasLoggedIn", "true");
   }
 
   CheckEmailVerification = flow(function * (auth0) {
@@ -904,7 +892,9 @@ class RootStore {
         const { authToken, address, user } = JSON.parse(Utils.FromB64(tokenInfo));
         const expiration = JSON.parse(atob(authToken)).exp;
         if(expiration - Date.now() < 4 * 3600 * 1000) {
-          this.RemoveLocalStorage(`auth-${this.network}`);
+          this.ClearAuthInfo();
+        } else if(!user) {
+          this.ClearAuthInfo();
         } else {
           return { authToken, address, user };
         }
@@ -914,6 +904,18 @@ class RootStore {
       this.Log(error, true);
       this.RemoveLocalStorage(`auth-${this.network}`);
     }
+  }
+
+  ClearAuthInfo() {
+    this.RemoveLocalStorage(`auth-${this.network}`);
+  }
+
+  SetAuthInfo({authToken, address, user}) {
+    this.SetLocalStorage(
+      `auth-${this.network}`,
+      Utils.B64(JSON.stringify({authToken, address, user: user || {}}))
+    );
+    this.SetLocalStorage("hasLoggedIn", "true");
   }
 
   SetNavigationBreadcrumbs(breadcrumbs=[]) {

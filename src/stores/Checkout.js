@@ -100,6 +100,15 @@ class CheckoutStore {
 
       confirmationId = confirmationId || this.ConfirmationId();
 
+      let authInfo = this.rootStore.AuthInfo();
+      if(!authInfo.user) { authInfo.user = {}; }
+      email = email || (authInfo.user || {}).email || this.rootStore.userProfile.email;
+      authInfo.user.email = email;
+
+      if(!email) {
+        throw Error("Unable to determine email address in checkout submit");
+      }
+
       if(this.rootStore.embedded) {
         this.pendingPurchases[confirmationId] = {
           marketplaceId,
@@ -120,9 +129,6 @@ class CheckoutStore {
           url.searchParams.set("d", "");
         }
 
-        let authInfo = this.rootStore.AuthInfo();
-        if(!authInfo.user) { authInfo.user = {}; }
-        authInfo.user.email = email || (authInfo.user || {}).email || this.rootStore.userProfile.email;
         url.searchParams.set("auth", Utils.B64(JSON.stringify(authInfo)));
 
         const openedWindow = window.open(url.toString());
@@ -159,7 +165,7 @@ class CheckoutStore {
 
       let requestParams = {
         currency: this.currency,
-        email: email || this.rootStore.userProfile.email,
+        email,
         client_reference_id: checkoutId,
         elv_addr: this.rootStore.client.signer.address,
         items: [{sku, quantity}],

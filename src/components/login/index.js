@@ -84,10 +84,10 @@ const Login = observer(() => {
   const [loading, setLoading] = useState(false);
   const [customizationInfoLoading, setCustomizationInfoLoading] = useState(!!rootStore.marketplaceId);
   const [verified, setVerified] = useState(false);
-  const [verificationResent, setVerificationResent] = useState(false);
   const [auth0Loading, setAuth0Loading] = useState(true);
   const [showPrivateKeyForm, setShowPrivateKeyForm] = useState(false);
   const [privateKey, setPrivateKey] = useState("");
+  //const [verificationResent, setVerificationResent] = useState(false);
 
   const url = new URL(window.location.origin);
   url.pathname = window.location.pathname;
@@ -306,7 +306,9 @@ const Login = observer(() => {
           { notVerified ? <h1>Please verify your email address to proceed</h1> : null }
           <Loader />
 
-          { notVerified && !verificationResent ?
+          {
+            /*
+            notVerified && !verificationResent ?
             <button
               className="login-page__resend-verification"
               onClick={async () => {
@@ -317,6 +319,7 @@ const Login = observer(() => {
             >
               Resend Verification Email
             </button> : null
+           */
           }
         </div>
       </div>

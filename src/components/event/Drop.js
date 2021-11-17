@@ -95,7 +95,7 @@ const Drop = () => {
         const postVoteState = drop.event_state_post_vote || {};
         const mintStartState = drop.event_state_mint_start || {};
         let header = drop.drop_header;
-        
+
         try {
           const states = ["event_state_preroll", "event_state_main", "event_state_post_vote", "event_state_mint_start", "event_state_event_end"].map(state =>
             (state === "event_state_main" || drop[state].use_state) ? {state, ...drop[state]} : null
