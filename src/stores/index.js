@@ -684,7 +684,7 @@ class RootStore {
         openSeaLink = `https://testnets.opensea.io/assets/${response.caddr}/${response.tok}`;
         break;
       case "poly-mainnet":
-        openSeaLink = `https://testnets.opensea.io/assets/matic/${response.caddr}/${response.tok}`;
+        openSeaLink = `https://opensea.io/assets/matic/${response.caddr}/${response.tok}`;
         break;
       case "poly-mumbai":
         openSeaLink = `https://testnets.opensea.io/assets/mumbai/${response.caddr}/${response.tok}`;
