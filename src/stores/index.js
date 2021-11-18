@@ -716,11 +716,18 @@ class RootStore {
   }
 
   ExternalChains() {
+    if(EluvioConfiguration["enable-testnet-transfer"]) {
+      return [
+        {name: "Ethereum Mainnet", network: "eth-mainnet", chainId: "0x1"},
+        {name: "Ethereum Testnet (Rinkeby)", network: "eth-rinkeby", chainId: "0x4"},
+        {name: "Polygon Mainnet", network: "poly-mainnet", chainId: "0x89"},
+        {name: "Polygon Testnet (Mumbai)", network: "poly-mumbai", chainId: "0x13881"}
+      ];
+    }
+
     return [
       { name: "Ethereum Mainnet", network: "eth-mainnet", chainId: "0x1"},
-      { name: "Ethereum Testnet (Rinkeby)", network: "eth-rinkeby", chainId: "0x4"},
       { name: "Polygon Mainnet", network: "poly-mainnet", chainId: "0x89"},
-      { name: "Polygon Testnet (Mumbai)", network: "poly-mumbai", chainId: "0x13881"}
     ];
   }
 
