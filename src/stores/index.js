@@ -9,6 +9,7 @@ import EVENTS from "../../client/src/Events";
 import NFTContractABI from "../static/abi/NFTContract";
 import CheckoutStore from "Stores/Checkout";
 import {ethers} from "ethers";
+import TransferStore from "Stores/Transfer";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
@@ -143,6 +144,7 @@ class RootStore {
     }
 
     this.checkoutStore = new CheckoutStore(this);
+    this.transferStore = new TransferStore(this);
 
     window.addEventListener("resize", () => this.HandleResize());
 
@@ -1006,6 +1008,7 @@ class RootStore {
 
 export const rootStore = new RootStore();
 export const checkoutStore = rootStore.checkoutStore;
+export const transferStore = rootStore.transferStore;
 
 window.rootStore = rootStore;
 

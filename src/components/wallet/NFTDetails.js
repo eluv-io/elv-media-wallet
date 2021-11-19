@@ -15,6 +15,7 @@ import {render} from "react-dom";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
 import Confirm from "Components/common/Confirm";
+import TransferHistory from "Components/transfer/TransferHistory";
 
 const TransferSection = observer(({nft}) => {
   const heldDate = nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
@@ -182,6 +183,8 @@ const NFTDetails = observer(() => {
   }
 
   return (
+    <>
+    <TransferHistory contractAddress={nft.details.ContractAddr} tokenId={nft.details.TokenIdStr} />
     <div className="details-page">
       <div className="details-page__content-container">
         <div className="details-page__card-padding-container">
@@ -350,6 +353,7 @@ const NFTDetails = observer(() => {
         </ExpandableSection>
       </div>
     </div>
+    </>
   );
 });
 

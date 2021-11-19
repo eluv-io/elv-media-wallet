@@ -20,6 +20,10 @@ class CheckoutStore {
   pendingPurchases = {};
   completedPurchases = {};
 
+  get client() {
+    return this.rootStore.client;
+  }
+
   constructor(rootStore) {
     this.rootStore = rootStore;
     makeAutoObservable(this);
@@ -32,11 +36,11 @@ class CheckoutStore {
   MarketplaceStock = flow(function * ({tenantId}) {
     try {
       this.stock = yield Utils.ResponseToJson(
-        this.rootStore.client.authClient.MakeAuthServiceRequest({
+        this.client.authClient.MakeAuthServiceRequest({
           path: UrlJoin("as", "wlt", "nft", "info", tenantId),
           method: "GET",
           headers: {
-            Authorization: `Bearer ${this.rootStore.client.signer.authToken}`
+            Authorization: `Bearer ${this.client.signer.authToken}`
           }
         })
       );
@@ -66,7 +70,7 @@ class CheckoutStore {
 
       const tenantId = this.rootStore.marketplaces[marketplaceId].tenant_id;
 
-      yield this.rootStore.client.authClient.MakeAuthServiceRequest({
+      yield this.client.authClient.MakeAuthServiceRequest({
         method: "POST",
         path: UrlJoin("as", "wlt", "act", tenantId),
         body: {
@@ -75,7 +79,7 @@ class CheckoutStore {
           sku
         },
         headers: {
-          Authorization: `Bearer ${this.rootStore.client.signer.authToken}`
+          Authorization: `Bearer ${this.client.signer.authToken}`
         }
       });
 
@@ -167,7 +171,7 @@ class CheckoutStore {
         currency: this.currency,
         email,
         client_reference_id: checkoutId,
-        elv_addr: this.rootStore.client.signer.address,
+        elv_addr: this.client.signer.address,
         items: [{sku, quantity}],
         success_url: UrlJoin(rootUrl.toString(), "/#/", "success"),
         cancel_url: UrlJoin(rootUrl.toString(), "/#/", "cancel")
@@ -184,8 +188,8 @@ class CheckoutStore {
       }
 
       if(provider === "stripe") {
-        const sessionId = (yield this.rootStore.client.utils.ResponseToJson(
-          this.rootStore.client.authClient.MakeAuthServiceRequest({
+        const sessionId = (yield this.client.utils.ResponseToJson(
+          this.client.authClient.MakeAuthServiceRequest({
             method: "POST",
             path: UrlJoin("as", "checkout", "stripe"),
             body: requestParams
@@ -202,8 +206,8 @@ class CheckoutStore {
         const stripe = yield loadStripe(stripeKey);
         yield stripe.redirectToCheckout({sessionId});
       } else if(provider === "coinbase") {
-        const chargeCode = (yield this.rootStore.client.utils.ResponseToJson(
-          this.rootStore.client.authClient.MakeAuthServiceRequest({
+        const chargeCode = (yield this.client.utils.ResponseToJson(
+          this.client.authClient.MakeAuthServiceRequest({
             method: "POST",
             path: UrlJoin("as", "checkout", "coinbase"),
             body: requestParams
