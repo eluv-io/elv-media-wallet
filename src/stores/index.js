@@ -8,6 +8,7 @@ import EVENTS from "../../client/src/Events";
 
 import NFTContractABI from "../static/abi/NFTContract";
 import CheckoutStore from "Stores/Checkout";
+import {ethers} from "ethers";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
@@ -103,6 +104,9 @@ class RootStore {
 
   noItemsAvailable = false;
 
+  metamaskChainId = undefined;
+  transferredNFTs = {};
+
   @computed get marketplaceHash() {
     return this.marketplaceHashes[this.marketplaceId];
   }
@@ -122,6 +126,8 @@ class RootStore {
 
   constructor() {
     makeAutoObservable(this);
+
+    this.RegisterMetamaskHandlers();
 
     const marketplace = new URLSearchParams(window.location.search).get("mid") || (window.self === window.top && sessionStorage.getItem("marketplace-id"));
     if(marketplace && marketplace.startsWith("hq__")) {
@@ -562,6 +568,168 @@ class RootStore {
       }
     });
   });
+
+  TransferNFT = flow(function * ({network, nft}) {
+    yield window.ethereum.enable();
+
+    const signer = (new ethers.providers.Web3Provider(window.ethereum)).getSigner();
+    const response = yield Utils.ResponseToJson(
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "act", nft.details.TenantId),
+        method: "POST",
+        body: {
+          taddr: window.ethereum.selectedAddress,
+          op: "nft-transfer",
+          tgt: network,
+          adr: nft.details.ContractAddr,
+          tok: nft.details.TokenIdStr
+        },
+        headers: {
+          Authorization: `Bearer ${this.client.signer.authToken}`
+        }
+      })
+    );
+
+    const abi = [
+      {
+        "constant": false,
+        "inputs": [
+          {"name": "to", "type": "address"},
+          {"name": "tokenId", "type": "uint256"},
+          {"name": "tokenURI", "type": "string"},
+          {"name": "v", "type": "uint8"},
+          {"name": "r", "type": "bytes32"},
+          {"name": "s", "type": "bytes32"}
+        ],
+        "name": "mintSignedWithTokenURI",
+        "outputs": [{"name": "", "type": "bool"}],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "constant": true,
+        "inputs": [
+          {"name": "to", "type": "address"},
+          {"name": "tokenId", "type": "uint256"},
+          {"name": "tokenURI", "type": "string"},
+          {"name": "v", "type": "uint8"},
+          {"name": "r", "type": "bytes32"},
+          {"name": "s", "type": "bytes32"}
+        ],
+        "name": "isMinterSigned",
+        "outputs": [{"name": "", "type": "bool"}],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "constant": true,
+        "inputs": [
+          {
+            "name": "tokenId",
+            "type": "uint256"
+          }
+        ],
+        "name": "exists",
+        "outputs": [
+          {
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+      }
+    ];
+
+    // Connect contract and validate:
+    const contract = new ethers.Contract(response.caddr, abi, signer);
+    if(!(
+      yield contract.isMinterSigned(
+        response.taddr,
+        response.tok,
+        response.turi,
+        response.v,
+        ethers.utils.arrayify("0x" + response.r),
+        ethers.utils.arrayify("0x" + response.s)
+      ))
+    ) {
+      throw Error("Minter not signed");
+    }
+
+    // Check if token already exists
+    if((yield contract.exists(response.tok))) {
+      //throw Error("Token already exists");
+    }
+
+    // Call transfer method
+    const minted = yield contract.mintSignedWithTokenURI(
+      response.taddr,
+      response.tok,
+      response.turi,
+      response.v,
+      ethers.utils.arrayify("0x" + response.r),
+      ethers.utils.arrayify("0x" + response.s),
+      {gasPrice: ethers.utils.parseUnits("100", "gwei"), gasLimit: 1000000} // TODO: Why is this necessary?
+    );
+
+    let openSeaLink;
+    switch(network) {
+      case "eth-mainnet":
+        openSeaLink = `https://opensea.io/assets/${response.caddr}/${response.tok}`;
+        break;
+      case "eth-rinkeby":
+        openSeaLink = `https://testnets.opensea.io/assets/${response.caddr}/${response.tok}`;
+        break;
+      case "poly-mainnet":
+        openSeaLink = `https://opensea.io/assets/matic/${response.caddr}/${response.tok}`;
+        break;
+      case "poly-mumbai":
+        openSeaLink = `https://testnets.opensea.io/assets/mumbai/${response.caddr}/${response.tok}`;
+        break;
+    }
+
+    this.transferredNFTs[`${nft.details.ContractAddr}:${nft.details.TokenIdStr}`] = {
+      network: this.ExternalChains().find(info => info.network === network),
+      hash: minted.hash,
+      openSeaLink
+    };
+  });
+
+  MetamaskAvailable() {
+    return window.ethereum && window.ethereum.isMetaMask && window.ethereum.chainId;
+  }
+
+  UpdateMetamaskChainId() {
+    this.metamaskChainId = window.ethereum.chainId;
+  }
+
+  RegisterMetamaskHandlers() {
+    if(!window.ethereum) { return; }
+
+    this.UpdateMetamaskChainId();
+
+    window.ethereum.on("accountsChanged", () => this.UpdateMetamaskChainId());
+    window.ethereum.on("chainChanged", () => this.UpdateMetamaskChainId());
+  }
+
+  ExternalChains() {
+    if(EluvioConfiguration["enable-testnet-transfer"]) {
+      return [
+        {name: "Ethereum Mainnet", network: "eth-mainnet", chainId: "0x1"},
+        {name: "Ethereum Testnet (Rinkeby)", network: "eth-rinkeby", chainId: "0x4"},
+        {name: "Polygon Mainnet", network: "poly-mainnet", chainId: "0x89"},
+        {name: "Polygon Testnet (Mumbai)", network: "poly-mumbai", chainId: "0x13881"}
+      ];
+    }
+
+    return [
+      { name: "Ethereum Mainnet", network: "eth-mainnet", chainId: "0x1"},
+      { name: "Polygon Mainnet", network: "poly-mainnet", chainId: "0x89"},
+    ];
+  }
 
   InitializeClient = flow(function * ({user, idToken, authToken, address, privateKey}) {
     try {

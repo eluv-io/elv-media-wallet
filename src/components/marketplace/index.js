@@ -59,10 +59,10 @@ const MarketplaceNavigation = observer(() => {
           !match.path.includes("/marketplaces/:marketplaceId/owned")
         }
       >
-        { (marketplace.storefront.tabs || {}).store || "Store" }
+        { ((marketplace.storefront || {}).tabs || {}).store || "Store" }
       </NavLink>
       <NavLink className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/collections`}>
-        { (marketplace.storefront.tabs || {}).collection || "My Items" }
+        { ((marketplace.storefront || {}).tabs || {}).collection || "My Items" }
       </NavLink>
     </nav>
   );
@@ -84,6 +84,14 @@ const Checkout = observer(({marketplaceId, item, maxQuantity}) => {
   const [confirmationId, setConfirmationId] = useState(undefined);
   const [claimed, setClaimed] = useState(false);
 
+  const UpdateQuantity = value => {
+    if(!value) {
+      setQuantity("");
+    } else {
+      setQuantity(Math.min(100, maxQuantity, Math.max(1, parseInt(value || 1))));
+    }
+  };
+
   useEffect(() => {
     if(quantity) {
       // If maxQuantity has changed, for example due to available stock changing, ensure quantity is clamped at max
@@ -102,14 +110,6 @@ const Checkout = observer(({marketplaceId, item, maxQuantity}) => {
   const free = !total || item.free;
   const purchaseDisabled = !rootStore.userProfile.email && !validEmail;
   const marketplace = rootStore.marketplaces[marketplaceId];
-
-  const UpdateQuantity = value => {
-    if(!value) {
-      setQuantity("");
-    } else {
-      setQuantity(Math.min(100, maxQuantity, Math.max(1, parseInt(value || 1))));
-    }
-  };
 
   if(!marketplace) { return null; }
   return (
@@ -555,7 +555,7 @@ const MarketplaceCollections = observer(() => {
   const marketplaceItems = rootStore.MarketplaceOwnedItems(marketplace);
 
   let purchaseableItems = {};
-  marketplace.storefront.sections.forEach(section =>
+  ((marketplace.storefront || {}).sections || []).forEach(section =>
     section.items.forEach(sku => {
       const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
       const item = marketplace.items[itemIndex];
@@ -756,11 +756,11 @@ const MarketplaceOwned = observer(() => {
   const owned = (
     ownedItems.length === 0 ?
       <div className="marketplace__section">
-        <div className="page-header">{ (marketplace.storefront.tabs || {}).collection || "My Items" }</div>
+        <div className="page-header">{ ((marketplace.storefront || {}).tabs || {}).collection || "My Items" }</div>
         <h2 className="marketplace__empty">You don't own any items from this marketplace yet!</h2>
       </div> :
       <div className="marketplace__section">
-        <div className="page-header">{ (marketplace.storefront.tabs || {}).collection || "My Items" }</div>
+        <div className="page-header">{ ((marketplace.storefront || {}).tabs || {}).collection || "My Items" }</div>
         <div className="card-list">
           {
             ownedItems.map(ownedItem =>
@@ -809,7 +809,7 @@ const Marketplace = observer(() => {
 
   const marketplaceItems = rootStore.MarketplaceOwnedItems(marketplace);
 
-  const sections = (marketplace.storefront.sections.map((section, sectionIndex) => {
+  const sections = (((marketplace.storefront || {}).sections || []).map((section, sectionIndex) => {
     const items = section.items.map((sku) => {
       const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
       const item = itemIndex >= 0 && marketplace.items[itemIndex];
@@ -891,8 +891,8 @@ const MarketplacePage = observer(({children}) => {
       {
         rootStore.hideNavigation || rootStore.sidePanelMode ? null :
           <div className="marketplace__header">
-            <h1 className="page-header">{marketplace.storefront.header}</h1>
-            <h2 className="page-subheader">{marketplace.storefront.subheader}</h2>
+            <h1 className="page-header">{(marketplace.storefront || {}).header}</h1>
+            <h2 className="page-subheader">{(marketplace.storefront || {}).subheader}</h2>
           </div>
       }
       <MarketplaceNavigation />

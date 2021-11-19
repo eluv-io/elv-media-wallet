@@ -47,16 +47,27 @@
   // sass-lint:disable force-element-nesting
   &__open-button .button,
   &__delete-button .button,
+  &__transfer-details__opensea-button,
   .lookout-url {
+    align-items: center;
     background-color: $blue;
     border: 0;
-    border-radius: 8px;
+    border-radius: 3px;
     color: $white;
-    display: block;
+    display: flex;
+    justify-content: center;
     margin: 10px auto;
     max-width: 300px;
     padding: 0 30px;
     text-align: center;
+
+    &.button {
+      border: 0;
+    }
+
+    &:hover {
+      color: $white;
+    }
   }
   // sass-lint:enable force-element-nesting
 
@@ -64,6 +75,63 @@
     .button {
       margin: 25px auto;
     }
+  }
+
+  &__transfer-details {
+    font-size: 14px;
+    font-weight: 400;
+    margin: 15px 0 0;
+    text-align: center;
+  }
+
+  &__transfer-success {
+    font-size: 14px;
+    margin: 15px 0;
+
+    h3 {
+      font-weight: normal;
+      margin-bottom: 10px;
+    }
+
+    a {
+      margin-top: 20px;
+      width: max-content;
+    }
+  }
+
+  &__transfer-details__hash {
+    font-size: 10px;
+    margin: 30px auto 0;
+    word-wrap: anywhere;
+  }
+
+  &__transfer-error {
+    color: $red;
+  }
+
+  &__transfer-buttons {
+    margin-top: 20px;
+    padding: 0 10px;
+    width: 100%;
+  }
+
+  &__transfer-button {
+    width: 100%;
+
+    &:not(:last-child) {
+      margin-bottom: 10px;
+    }
+
+    &:disabled {
+      cursor: initial;
+      opacity: 0.5;
+    }
+  }
+
+  &__transfer-link {
+    align-items: center;
+    display: flex;
+    justify-content: center;
   }
 
   .lookout-url {
@@ -146,6 +214,10 @@
       a {
         color: $blue;
       }
+    }
+
+    &__transfer-error {
+      color: $red;
     }
   }
 }

@@ -16,17 +16,6 @@ import {PackOpenStatus} from "Components/marketplace/MintingStatus";
 
 const WalletNavigation = observer(() => {
   return null;
-
-  /*
-  return (
-    <nav className="sub-navigation wallet-navigation">
-      <NavLink className="sub-navigation__link" to="/wallet/collection">My Collection</NavLink>
-      <NavLink className="sub-navigation__link" to="/wallet/tickets">Tickets</NavLink>
-      <NavLink className="sub-navigation__link" to="/wallet/tokens">Tokens</NavLink>
-    </nav>
-  );
-
-   */
 });
 
 const WalletWrapper = observer(({children}) => {
