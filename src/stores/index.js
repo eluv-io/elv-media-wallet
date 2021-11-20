@@ -573,12 +573,13 @@ class RootStore {
     yield window.ethereum.enable();
 
     const signer = (new ethers.providers.Web3Provider(window.ethereum)).getSigner();
+    const address = (yield window.ethereum.request({method: "eth_requestAccounts"}))[0];
     const response = yield Utils.ResponseToJson(
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "act", nft.details.TenantId),
         method: "POST",
         body: {
-          taddr: window.ethereum.selectedAddress || signer.address,
+          taddr: address,
           op: "nft-transfer",
           tgt: network,
           adr: nft.details.ContractAddr,
@@ -661,7 +662,7 @@ class RootStore {
 
     // Check if token already exists
     if((yield contract.exists(response.tok))) {
-      //throw Error("Token already exists");
+      throw Error("Token already exists");
     }
 
     // Call transfer method
