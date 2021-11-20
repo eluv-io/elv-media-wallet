@@ -578,7 +578,7 @@ class RootStore {
         path: UrlJoin("as", "wlt", "act", nft.details.TenantId),
         method: "POST",
         body: {
-          taddr: window.ethereum.selectedAddress,
+          taddr: window.ethereum.selectedAddress || signer.address,
           op: "nft-transfer",
           tgt: network,
           adr: nft.details.ContractAddr,
