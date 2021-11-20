@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores/index";
 import Path from "path";
@@ -140,6 +140,8 @@ const NFTDetails = observer(() => {
   const [deleted, setDeleted] = useState(false);
 
   const match = useRouteMatch();
+
+  useEffect(() => rootStore.UpdateMetamaskChainId(), []);
 
   if(deleted) {
     return match.params.marketplaceId ?
