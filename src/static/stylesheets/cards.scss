@@ -23,6 +23,16 @@ $pending-color: rgba($blue, 0.5);
   box-shadow: 2px 2px 4px $card-shadow;
 }
 
+.card-padding-container {
+  background: $lightestgray;
+  border-radius: 10px;
+  padding: 0;
+
+  @media screen and (min-width: $tablet-breakpoint) {
+    padding: 20px;
+  }
+}
+
 .card-container {
   position: relative;
   transition: border 0.15s ease-in, margin 0.15s ease-in-out;
@@ -205,6 +215,10 @@ $pending-color: rgba($blue, 0.5);
 }
 
 .dark {
+  .card-padding-container {
+    background: $darkestgray;
+  }
+
   .card-shadow {
     border: 1px solid $darkgray;
     box-shadow: none;

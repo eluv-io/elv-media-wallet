@@ -189,7 +189,7 @@ const NFTDetails = observer(() => {
       { showListingModal ? <NFTListingModal nft={nft} Close={() => setShowListingModal(false)} /> : null }
     <div className="details-page">
       <div className="details-page__content-container">
-        <div className="details-page__card-padding-container">
+        <div className="card-padding-container">
           <div className="details-page__card-container card-container">
             <div className="details-page__content card card-shadow">
               <NFTImage nft={nft} video className="details-page__content__image" />

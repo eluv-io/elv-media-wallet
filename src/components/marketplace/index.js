@@ -335,7 +335,7 @@ const MarketplaceItemDetails = observer(() => {
   return (
     <div className="details-page">
       <div className="details-page__content-container">
-        <div className="details-page__card-padding-container">
+        <div className="card-padding-container">
           <div className="details-page__card-container card-container">
             <div className="details-page__content card card-shadow">
               {

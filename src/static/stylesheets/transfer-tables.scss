@@ -4,6 +4,7 @@
   border-radius: 3px;
   margin: 20px 0;
   overflow-y: scroll;
+  position: relative;
 
   &.active-listings {
     .transfer-table__table__header {
@@ -29,9 +30,27 @@
   }
 
   &__table__header {
+    background-color: $white;
     border-bottom: 1px solid $mediumgray;
     border-top: 1px solid $mediumgray;
+    position: sticky;
     text-transform: uppercase;
+    top: 0;
+    z-index: 1;
+
+    &-sortable {
+      cursor: pointer;
+      user-select: none;
+
+      .transfer-table__table__cell {
+        display: flex;
+        justify-content: space-between;
+      }
+    }
+
+    .transfer-table__table__cell {
+      border-radius: 0;
+    }
   }
 
   &__table__header,
@@ -47,6 +66,12 @@
 
     &:hover {
       background-color: $white;
+    }
+  }
+
+  &__content-rows {
+    * {
+      z-index: 0;
     }
   }
 
@@ -104,6 +129,7 @@
     }
 
     &__table__header {
+      background-color: $darkestgray;
       border-bottom: 1px solid $darkgray;
       border-top: 1px solid $darkgray;
 

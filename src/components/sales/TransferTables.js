@@ -5,13 +5,27 @@ import {Ago, MiddleEllipsis} from "../../utils/Utils";
 import {Loader} from "Components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 
+import UpCaret from "Assets/icons/up-caret.svg";
+import DownCaret from "Assets/icons/down-caret.svg";
+import ImageIcon from "Components/common/ImageIcon";
+
 export const ActiveListings = observer(({contractAddress, contractId}) => {
   const [listings, setListings] = useState([]);
+  const [sortField, setSortField] = useState("price");
+  const [sortDesc, setSortDesc] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const UpdateHistory = async () => {
     setListings(await transferStore.TransferListings({contractAddress, contractId}));
     setLoading(false);
+  };
+
+  const UpdateSort = field => {
+    if(sortField === field) {
+      setSortDesc(!sortDesc);
+    } else {
+      setSortField(field);
+    }
   };
 
   useEffect(() => {
@@ -22,32 +36,51 @@ export const ActiveListings = observer(({contractAddress, contractId}) => {
     return () => clearInterval(interval);
   }, []);
 
+  const sortedListings = (listings || []).sort(
+    (a, b) => (a[sortField] > b[sortField] ? 1 : -1) * (sortDesc ? -1 : 1)
+  );
+
+  const sortIcon = (
+    <ImageIcon
+      icon={sortDesc ? DownCaret : UpCaret}
+      className="transfer-table__sort-icon"
+    />
+  );
+
   return (
     <div className="transfer-table active-listings">
       <div className="transfer-table__table">
-        <div className="transfer-table__table__header">
-          <div className="transfer-table__table__cell">Edition</div>
-          <div className="transfer-table__table__cell">Price</div>
-          <div className="transfer-table__table__cell">Seller</div>
+        <div className="transfer-table__table__header transfer-table__table__header-sortable">
+          <button className="transfer-table__table__cell" onClick={() => UpdateSort("tokenId")}>
+            Edition { sortField === "tokenId" ? sortIcon : null }
+          </button>
+          <button className="transfer-table__table__cell" onClick={() => UpdateSort("price")}>
+            Price { sortField === "price" ? sortIcon : null }
+          </button>
+          <button className="transfer-table__table__cell" onClick={() => UpdateSort("sellerAddress")}>
+            Seller { sortField === "sellerAddress" ? sortIcon : null }
+          </button>
         </div>
-        {
-          loading ? <div className="transfer-table__loader"><Loader /></div> :
-            !listings || listings.length === 0 ?
-              <div className="transfer-table__empty">No Listings</div> :
-              listings.map(transfer =>
-                <div className="transfer-table__table__row" key={`transfer-table-row-${transfer.id}`}>
-                  <div className="transfer-table__table__cell">
-                    { MiddleEllipsis(transfer.tokenId, 20)}
+        <div className="transfer-table__content-rows">
+          {
+            loading ? <div className="transfer-table__loader"><Loader /></div> :
+              !listings || listings.length === 0 ?
+                <div className="transfer-table__empty">No Listings</div> :
+                sortedListings.map(transfer =>
+                  <div className="transfer-table__table__row" key={`transfer-table-row-${transfer.id}`}>
+                    <div className="transfer-table__table__cell">
+                      { MiddleEllipsis(transfer.tokenId, 20)}
+                    </div>
+                    <div className="transfer-table__table__cell">
+                      { `$${(transfer.price + transfer.fee).toFixed(2)}`}
+                    </div>
+                    <div className="transfer-table__table__cell">
+                      { MiddleEllipsis(transfer.sellerAddress, 10) }
+                    </div>
                   </div>
-                  <div className="transfer-table__table__cell">
-                    { `$${(transfer.price + transfer.fee).toFixed(2)}`}
-                  </div>
-                  <div className="transfer-table__table__cell">
-                    { MiddleEllipsis(transfer.sellerAddress, 10) }
-                  </div>
-                </div>
-              )
-        }
+                )
+          }
+        </div>
       </div>
     </div>
   );

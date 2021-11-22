@@ -101,7 +101,9 @@ const NFTListingModal = observer(({nft, Close}) => {
         <h1 className="nft-listing__header">List Your NFT for Sale</h1>
         <div className="nft-listing__content">
           <div className="nft-listing__image-container">
-            <NFTImage nft={nft} className="nft-listing__image" />
+            <div className="card-padding-container">
+              <NFTImage nft={nft} className="nft-listing__image" />
+            </div>
           </div>
           <div className="nft-listing__nft-info">
             <div className="card__titles">
