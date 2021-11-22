@@ -1,7 +1,28 @@
-.transfer-history {
-  background-color: $lightestgray;
-  border-radius: 10px;
+.transfer-table {
+  background-color: $white;
+  border: 1px solid $lightgray;
+  border-radius: 3px;
   margin: 20px 0;
+  overflow-y: scroll;
+
+  &.active-listings {
+    .transfer-table__table__header {
+      border: 0;
+
+      .transfer-table__table__cell {
+        border: 1px solid $mediumgray;
+
+        &:not(:last-child) {
+          border-right: 0;
+        }
+      }
+    }
+
+    .transfer-table__table__header,
+    .transfer-table__table__row {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+  }
 
   &__header {
     padding: 20px;
@@ -10,7 +31,6 @@
   &__table__header {
     border-bottom: 1px solid $mediumgray;
     border-top: 1px solid $mediumgray;
-    margin-bottom: 5px;
     text-transform: uppercase;
   }
 
@@ -18,11 +38,12 @@
   &__table__row {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
-    padding: 10px 20px;
   }
 
   &__table__row {
-    border-radius: 10px;
+    &:nth-child(2n) {
+      background-color: $lightergray;
+    }
 
     &:hover {
       background-color: $white;
@@ -31,6 +52,7 @@
 
   &__table__cell {
     font-size: 12px;
+    padding: 10px 20px;
   }
 
   &__loader {
@@ -62,8 +84,24 @@
 }
 
 .dark {
-  .transfer-history {
+  .transfer-table {
     background-color: $darkestgray;
+    border: 0;
+
+    &.active-listings {
+      .transfer-table__table__header {
+        border: 0;
+
+        .transfer-table__table__cell {
+          background-color: darken($darkestgray, 5%);
+          border: 1px solid $darkestgray;
+
+          &:not(:last-child) {
+            border-right: 0;
+          }
+        }
+      }
+    }
 
     &__table__header {
       border-bottom: 1px solid $darkgray;
@@ -75,6 +113,10 @@
     }
 
     &__table__row {
+      &:nth-child(2n) {
+        background-color: darken($darkestgray, 5%);
+      }
+
       &:hover {
         background-color: $darkergray;
       }

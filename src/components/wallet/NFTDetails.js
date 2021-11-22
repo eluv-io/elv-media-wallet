@@ -15,8 +15,8 @@ import {render} from "react-dom";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
 import Confirm from "Components/common/Confirm";
-import {UserTransferHistory, TransferHistory} from "Components/transfer/TransferHistory";
-import NFTListingModal from "Components/wallet/NFTListingModal";
+import {UserTransferHistory, TransferTables, ActiveListings} from "Components/sales/TransferTables";
+import NFTListingModal from "Components/sales/NFTListingModal";
 
 const TransferSection = observer(({nft}) => {
   const heldDate = nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
@@ -365,9 +365,10 @@ const NFTDetails = observer(() => {
         </ExpandableSection>
       </div>
     </div>
+      <ActiveListings contractAddress={nft.details.ContractAddr} />
       <UserTransferHistory userAddress={rootStore.userAddress} type="purchases" />
       <UserTransferHistory userAddress={rootStore.userAddress} type="sales" />
-      <TransferHistory contractAddress={nft.details.ContractAddr} tokenId={nft.details.TokenIdStr} />
+      <TransferTables contractAddress={nft.details.ContractAddr} tokenId={nft.details.TokenIdStr} />
     </>
   );
 });

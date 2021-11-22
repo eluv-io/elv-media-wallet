@@ -3,6 +3,7 @@ import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
 import {NFTImage} from "Components/common/Images";
 import Confirm from "Components/common/Confirm";
+import {ActiveListings} from "Components/sales/TransferTables";
 
 const NFTListingModal = observer(({nft, Close}) => {
   const [price, setPrice] = useState("");
@@ -34,6 +35,10 @@ const NFTListingModal = observer(({nft, Close}) => {
             <label>Total Payout</label>
             <div>${(parsedPrice + serviceFee).toFixed(2)}</div>
           </div>
+        </div>
+        <div className="nft-listing__active-listings">
+          <h2 className="nft-listing__active-listings__header">Active Listings for this NFT</h2>
+          <ActiveListings contractAddress={nft.details.ContractAddr} />
         </div>
         <div className="nft-listing__actions">
           <button className="nft-listing__action" onClick={Close}>
