@@ -87,6 +87,7 @@ class RootStore {
   basePublicUrl = undefined;
 
   userProfile = {};
+  userAddress;
 
   lastProfileQuery = 0;
   profileData = undefined;
@@ -245,7 +246,10 @@ class RootStore {
       tenant_id: (customizationMetadata.tenant_id),
       terms: customizationMetadata.terms,
       terms_html: customizationMetadata.terms_html,
-      ...((customizationMetadata || {}).login_customization || {})
+      ...((customizationMetadata || {}).login_customization || {}),
+
+      // TODO: Remove
+      require_email_verification: false
     };
 
     try {
@@ -774,6 +778,7 @@ class RootStore {
       }
 
       this.funds = parseInt((yield client.GetBalance({address: client.CurrentAccountAddress()}) || 0));
+      this.userAddress = client.CurrentAccountAddress();
       this.accountId = `iusr${Utils.AddressToHash(client.CurrentAccountAddress())}`;
 
       this.authedToken = yield client.authClient.GenerateAuthorizationToken({noAuth: true});

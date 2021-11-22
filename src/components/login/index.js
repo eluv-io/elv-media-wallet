@@ -305,7 +305,15 @@ const Login = observer(() => {
           { logo }
           { notVerified ? <h1>Please verify your email address to proceed</h1> : null }
           <Loader />
-
+          {
+            notVerified ?
+              <button
+                onClick={() => auth0.logout({returnTo: UrlJoin(window.location.origin, window.location.pathname) + (rootStore.darkMode ? "?d" : "")})}
+                className="login-page__log-out-button"
+              >
+                Sign Out
+              </button> : null
+          }
           {
             /*
             notVerified && !verificationResent ?

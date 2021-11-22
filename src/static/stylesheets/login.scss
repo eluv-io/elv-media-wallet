@@ -63,6 +63,13 @@
     width: 100%;
   }
 
+  &__log-out-button {
+    &.login-page__log-out-button {
+      border: 0;
+      color: $mediumgray;
+    }
+  }
+
   &__private-key-form {
     border-radius: 10px;
     max-width: 500px;
