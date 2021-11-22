@@ -35,7 +35,7 @@ export const UserTransferHistory = observer(({userAddress, type="purchases"}) =>
         <div className="transfer-history__table__header">
           <div className="transfer-history__table__cell">NFT Title</div>
           <div className="transfer-history__table__cell no-mobile">Transaction ID</div>
-          <div className="transfer-history__table__cell">Transaction Type</div>
+          <div className="transfer-history__table__cell no-mobile">Transaction Type</div>
           <div className="transfer-history__table__cell">Time</div>
           <div className="transfer-history__table__cell">Purchase Price</div>
           <div className="transfer-history__table__cell no-mobile">{ type === "purchases" ? "Seller" : "Buyer" }</div>
@@ -52,7 +52,7 @@ export const UserTransferHistory = observer(({userAddress, type="purchases"}) =>
                   <div className="transfer-history__table__cell no-mobile">
                     { MiddleEllipsis(transfer.transactionId, 10)}
                   </div>
-                  <div className="transfer-history__table__cell">
+                  <div className="transfer-history__table__cell no-mobile">
                     { transfer.transactionType }
                   </div>
                   <div className="transfer-history__table__cell">

@@ -1,5 +1,6 @@
 import {flow, makeAutoObservable} from "mobx";
 import Utils from "@eluvio/elv-client-js/src/Utils";
+import UrlJoin from "url-join";
 
 let now = Date.now();
 class TransferStore {
@@ -23,6 +24,53 @@ class TransferStore {
 
     return tokenId ? `${contractAddress}-${tokenId}` : contractAddress;
   }
+
+  CreateListing = flow(function * ({contractAddress, contractId, tokenId, price}) {
+    if(contractId) { contractAddress = Utils.HashToAddress(contractId); }
+    contractAddress = Utils.FormatAddress(contractAddress);
+
+    const response = yield Utils.ResponseToJson(
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "mkt"),
+        method: "POST",
+        body: {
+          contract: contractAddress,
+          token: tokenId,
+          price: parseFloat(price)
+        },
+        headers: {
+          Authorization: `Bearer ${this.client.signer.authToken}`
+        }
+      })
+    );
+
+    console.log(JSON.stringify(response, null, 2));
+  });
+
+  TransferListings = flow(function * ({tenantId, userId, userAddress}={}) {
+    if(userAddress) {
+      userId = `iusr${Utils.AddressToHash(userAddress)}`;
+    }
+
+    let path = "/mkt";
+    if(userId) {
+      path = UrlJoin("mkt", "usr", userId);
+    } else if(tenantId) {
+      path = UrlJoin("mkt", "tnt", tenantId);
+    }
+
+    const response = yield Utils.ResponseToJson(
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", path),
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${this.client.signer.authToken}`
+        }
+      })
+    );
+
+    console.log(JSON.stringify(response, null, 2));
+  });
 
   UserTransferHistory = flow(function * ({userAddress, type="purchases"}) {
     userAddress = Utils.FormatAddress(userAddress);

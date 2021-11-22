@@ -16,6 +16,7 @@ import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
 import Confirm from "Components/common/Confirm";
 import {UserTransferHistory, TransferHistory} from "Components/transfer/TransferHistory";
+import NFTListingModal from "Components/wallet/NFTListingModal";
 
 const TransferSection = observer(({nft}) => {
   const heldDate = nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
@@ -151,6 +152,7 @@ const TransferSection = observer(({nft}) => {
 const NFTDetails = observer(() => {
   const [opened, setOpened] = useState(false);
   const [deleted, setDeleted] = useState(false);
+  const [showListingModal, setShowListingModal] = useState(false);
 
   const match = useRouteMatch();
 
@@ -184,9 +186,7 @@ const NFTDetails = observer(() => {
 
   return (
     <>
-      <UserTransferHistory userAddress={rootStore.userAddress} type="purchases" />
-      <UserTransferHistory userAddress={rootStore.userAddress} type="sales" />
-    <TransferHistory contractAddress={nft.details.ContractAddr} tokenId={nft.details.TokenIdStr} />
+      { showListingModal ? <NFTListingModal nft={nft} Close={() => setShowListingModal(false)} /> : null }
     <div className="details-page">
       <div className="details-page__content-container">
         <div className="details-page__card-padding-container">
@@ -207,21 +207,31 @@ const NFTDetails = observer(() => {
             </div>
           </div>
         </div>
-        {
-          nft && nft.metadata && nft.metadata.pack_options && nft.metadata.pack_options.is_openable ?
-            <ButtonWithLoader
-              className="details-page__open-button"
-              onClick={async () => {
-                await rootStore.OpenNFT({nft});
-                setOpened(true);
-              }}
-            >
-              Open Pack
-            </ButtonWithLoader> : null
-        }
       </div>
-
       <div className="details-page__info">
+        <div className="details-page__actions">
+          <ButtonWithLoader
+            className="details-page__listing-button"
+            onClick={() => setShowListingModal(true)}
+          >
+            List for Sale
+          </ButtonWithLoader>
+          {
+            nft && nft.metadata && nft.metadata.pack_options && nft.metadata.pack_options.is_openable ?
+              <ButtonWithLoader
+                className="details-page__open-button"
+                onClick={async () => Confirm({
+                  message: "Are you sure you want to open this pack?",
+                  Confirm: async () => {
+                    await rootStore.OpenNFT({nft});
+                    setOpened(true);
+                  }
+                })}
+              >
+                Open Pack
+              </ButtonWithLoader> : null
+          }
+        </div>
         <ExpandableSection header="Description" icon={DescriptionIcon}>
           <p className="details-page__description">{ nft.metadata.description }</p>
           {
@@ -355,6 +365,9 @@ const NFTDetails = observer(() => {
         </ExpandableSection>
       </div>
     </div>
+      <UserTransferHistory userAddress={rootStore.userAddress} type="purchases" />
+      <UserTransferHistory userAddress={rootStore.userAddress} type="sales" />
+      <TransferHistory contractAddress={nft.details.ContractAddr} tokenId={nft.details.TokenIdStr} />
     </>
   );
 });

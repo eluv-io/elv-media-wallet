@@ -1,0 +1,160 @@
+.nft-listing-modal {
+  .modal__content {
+    max-width: 520px;
+    padding-right: 12px;
+    width: 100%;
+  }
+}
+
+.nft-listing {
+  background-color: $white;
+  border: 1px solid $mediumgray;
+  border-radius: 3px;
+  overflow-y: hidden;
+
+  &__header {
+    border-bottom: 1px solid $mediumgray;
+    font-weight: 300;
+    padding: 10px 0;
+    text-align: center;
+  }
+
+  &__content {
+    padding: 0 35px 35px;
+  }
+
+  &__image-container {
+    margin: 0 auto;
+    max-height: 300px;
+    max-width: 300px;
+  }
+
+  &__image {
+    padding: 20px;
+  }
+
+  &__form__inputs {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  }
+
+  &__form__price-input {
+    border: 1px solid $mediumgray;
+    border-radius: 3px;
+    font-size: 20px;
+    height: 50px;
+    padding: 0 15px;
+    width: 100%;
+  }
+
+  &__form__price-input-label {
+    font-weight: bold;
+    margin-left: 35px;
+    text-align: center;
+  }
+
+  &__details {
+    margin: 35px 0 20px;
+  }
+
+  &__detail {
+    display: flex;
+    height: 30px;
+    justify-content: space-between;
+  }
+
+  &__detail-separator {
+    border-bottom: 2px solid $mediumgray;
+    margin-bottom: 15px;
+    padding-top: 15px;
+    width: 100%;
+  }
+
+  &__detail-faded {
+    * {
+      color: $gray;
+    }
+  }
+
+  &__actions {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin-top: 35px;
+  }
+
+  &__action {
+    min-width: 150px;
+
+    &:not(:last-child) {
+      margin-right: 10px;
+    }
+
+    &-primary {
+      background-color: $blue;
+      border: 1px solid $blue;
+      color: $white;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
+
+
+}
+
+@media screen and (max-width: $mobile-breakpoint) {
+  .nft-listing-modal {
+    .modal__content {
+      height: 100%;
+      max-width: unset;
+      padding: 0;
+    }
+  }
+
+  .nft-listing {
+    height: 100%;
+
+    &__header {
+      font-size: 24px;
+      padding-left: 35px;
+      padding-top: 20px;
+      text-align: start;
+    }
+  }
+}
+
+.dark {
+  .nft-listing {
+    background-color: $black;
+    border: 1px solid $darkgray;
+
+    &__header {
+      border-bottom: 1px solid $darkgray;
+    }
+
+    &__form__price-input {
+      background-color: $black;
+      border: 1px solid $darkgray;
+    }
+
+    &__detail-faded {
+      * {
+        color: $gray;
+      }
+    }
+
+    &__detail-separator {
+      border-bottom: 2px solid $darkgray;
+    }
+
+    &__action {
+      &-primary {
+        border: 1px solid $blue;
+      }
+    }
+  }
+}
