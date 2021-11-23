@@ -8,7 +8,7 @@
 
   &.active-listings {
     .transfer-table__table__header {
-      border: 0;
+      border-top: 0;
 
       .transfer-table__table__cell {
         border: 1px solid $mediumgray;
@@ -110,12 +110,12 @@
 
 .dark {
   .transfer-table {
-    background-color: $darkestgray;
-    border: 0;
+    background-color: $black;
+    border: 1px solid $darkergray;
 
     &.active-listings {
       .transfer-table__table__header {
-        border: 0;
+        border-top: 0;
 
         .transfer-table__table__cell {
           background-color: darken($darkestgray, 5%);
@@ -130,8 +130,8 @@
 
     &__table__header {
       background-color: $darkestgray;
-      border-bottom: 1px solid $darkgray;
-      border-top: 1px solid $darkgray;
+      border-bottom: 1px solid $darkergray;
+      border-top: 1px solid $darkergray;
 
       * {
         color: $mediumgray;
@@ -139,6 +139,10 @@
     }
 
     &__table__row {
+      &:nth-child(2n + 1) {
+        background-color: $darkestgray;
+      }
+
       &:nth-child(2n) {
         background-color: darken($darkestgray, 5%);
       }

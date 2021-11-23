@@ -1,13 +1,14 @@
-import React, {useState} from "react";
+import React, {useState, useRef} from "react";
 import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
 import {NFTImage} from "Components/common/Images";
 import Confirm from "Components/common/Confirm";
 import {ActiveListings} from "Components/sales/TransferTables";
 
-const NFTListingModal = observer(({nft, Close}) => {
+const ListingModal = observer(({nft, Close}) => {
   const [price, setPrice] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const ref = useRef(null);
 
   const parsedPrice = isNaN(parseFloat(price)) ? 0 : parseFloat(price);
   const serviceFee = parsedPrice * 0.05;
@@ -47,7 +48,11 @@ const NFTListingModal = observer(({nft, Close}) => {
           <button
             disabled={!parsedPrice || isNaN(parsedPrice)}
             className="nft-listing__action nft-listing__action-primary"
-            onClick={() => setShowConfirmation(true)}
+            onClick={() => {
+              setShowConfirmation(true);
+
+              ref && ref.current && ref.current.parentElement.scrollTo(0, 0);
+            }}
           >
             Continue
           </button>
@@ -75,7 +80,14 @@ const NFTListingModal = observer(({nft, Close}) => {
           </div>
         </div>
         <div className="nft-listing__actions">
-          <button className="nft-listing__action" onClick={() => setShowConfirmation(false)}>
+          <button
+            className="nft-listing__action"
+            onClick={() => {
+              setShowConfirmation(false);
+
+              ref && ref.current && ref.current.parentElement.scrollTo(0, 0);
+            }}
+          >
             Back
           </button>
           <button
@@ -97,7 +109,7 @@ const NFTListingModal = observer(({nft, Close}) => {
       className="nft-listing-modal"
       Toggle={Close}
     >
-      <div className="nft-listing">
+      <div className="nft-listing" ref={ref}>
         <h1 className="nft-listing__header">List Your NFT for Sale</h1>
         <div className="nft-listing__content">
           <div className="nft-listing__image-container">
@@ -122,4 +134,4 @@ const NFTListingModal = observer(({nft, Close}) => {
   );
 });
 
-export default NFTListingModal;
+export default ListingModal;

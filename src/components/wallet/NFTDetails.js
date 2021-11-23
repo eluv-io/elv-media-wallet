@@ -16,12 +16,13 @@ import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
 import Confirm from "Components/common/Confirm";
 import {UserTransferHistory, TransferTables, ActiveListings} from "Components/sales/TransferTables";
-import NFTListingModal from "Components/sales/NFTListingModal";
+import ListingModal from "Components/sales/ListingModal";
+import ListingCard from "Components/sales/ListingCard";
 
 const TransferSection = observer(({nft}) => {
   const heldDate = nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
   const notMetamask = !rootStore.MetamaskAvailable() && window.ethereum;
-  const notMetaMaskMessage = " Other browser extensions like Coinbase may be preventing the wallet from accessing MetaMask. Please disable them and refresh the page.";
+  const notMetaMaskMessage = "Other browser extensions like Coinbase may be preventing the wallet from accessing MetaMask. Please disable them and refresh the page.";
 
   const heldMessage = heldDate ?
     <h3 className="details-page__transfer-details details-page__held-message">
@@ -35,7 +36,7 @@ const TransferSection = observer(({nft}) => {
           { heldMessage }
 
           <h3 className="details-page__transfer-details">
-            You can transfer your NFT to another network using MetaMask. Please Install MetaMask to transfer your NFT.
+            You can transfer your NFT to another network using MetaMask. Please install MetaMask to transfer your NFT.
           </h3>
           { notMetamask ? <h3 className="details-page__transfer-details">{ notMetaMaskMessage }</h3> : "" }
         </div>
@@ -186,7 +187,7 @@ const NFTDetails = observer(() => {
 
   return (
     <>
-      { showListingModal ? <NFTListingModal nft={nft} Close={() => setShowListingModal(false)} /> : null }
+      { showListingModal ? <ListingModal nft={nft} Close={() => setShowListingModal(false)} /> : null }
     <div className="details-page">
       <div className="details-page__content-container">
         <div className="card-padding-container">
@@ -365,6 +366,10 @@ const NFTDetails = observer(() => {
         </ExpandableSection>
       </div>
     </div>
+      <div className="listing-card-list">
+        <ListingCard nft={nft} />
+        <ListingCard nft={nft} />
+      </div>
       <ActiveListings contractAddress={nft.details.ContractAddr} />
       <UserTransferHistory userAddress={rootStore.userAddress} type="purchases" />
       <UserTransferHistory userAddress={rootStore.userAddress} type="sales" />
