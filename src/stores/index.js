@@ -704,7 +704,7 @@ class RootStore {
   }
 
   UpdateMetamaskChainId() {
-    this.metamaskChainId = window.ethereum.chainId;
+    this.metamaskChainId = window.ethereum && window.ethereum.chainId;
   }
 
   RegisterMetamaskHandlers() {
