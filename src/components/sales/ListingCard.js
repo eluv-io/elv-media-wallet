@@ -2,8 +2,9 @@ import React, {useState, useRef, useEffect} from "react";
 import {NFTImage} from "Components/common/Images";
 import ListingModal from "Components/sales/ListingModal";
 import Confirm from "Components/common/Confirm";
+import {transferStore} from "Stores";
 
-const ListingCard = ({nft}) => {
+const ListingCard = ({nft, Refresh}) => {
   const [showListingModal, setShowListingModal] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
@@ -30,7 +31,11 @@ const ListingCard = ({nft}) => {
         <button
           onClick={async () => Confirm({
             message: "Are you sure you want to remove this listing?",
-            Confirm: async () => {}
+            Confirm: async () => {
+              await transferStore.RemoveListing({listingId: nft.details.ListingId});
+              await new Promise(resolve => setTimeout(resolve, 500));
+              Refresh && Refresh();
+            }
           })}
           className="listing-card__menu__action"
         >
@@ -42,7 +47,17 @@ const ListingCard = ({nft}) => {
 
   return (
     <>
-      { showListingModal ? <ListingModal nft={nft} Close={() => setShowListingModal(false)} /> : null }
+      {
+        showListingModal ?
+          <ListingModal
+            nft={nft}
+            Close={maybeTokenId => {
+              setShowListingModal(false);
+
+              if(maybeTokenId) { Refresh && Refresh(); }
+            }}
+          /> : null
+      }
       <div className="listing-card" ref={ref}>
         { showMenu ? <Menu /> : null }
         <button
@@ -70,17 +85,20 @@ const ListingCard = ({nft}) => {
                 Date Posted
               </div>
               <div className="listing-card__detail-value">
-                November 22, 2021
+                { new Date(nft.details.UpdatedAt).toLocaleDateString("en-us", {year: "numeric", month: "long", day: "numeric" }) }
               </div>
             </div>
-            <div className="listing-card__detail">
-              <div className="listing-card__detail-label">
-                Date Sold
-              </div>
-              <div className="listing-card__detail-value">
-                November 23, 2021
-              </div>
-            </div>
+            {
+              nft.details.SoldPrice ?
+                <div className="listing-card__detail">
+                  <div className="listing-card__detail-label">
+                    Date Sold
+                  </div>
+                  <div className="listing-card__detail-value">
+                    November 23, 2021
+                  </div>
+                </div> : null
+            }
           </div>
 
           <div className="listing-card__price-container">
@@ -89,7 +107,7 @@ const ListingCard = ({nft}) => {
                 Listing Price
               </div>
               <div className="listing-card__price-value">
-                $5.99
+                ${(nft.details.Total || 0).toFixed(2)}
               </div>
             </div>
 

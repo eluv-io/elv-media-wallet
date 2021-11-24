@@ -10,7 +10,6 @@
 
 .header {
   background-color: $white;
-  border-bottom: 1px solid $lightgray;
   display: flex;
   height: 50px;
   max-width: 100%;
@@ -100,6 +99,14 @@
     width: 30px;
   }
 
+  &__separator {
+    border-bottom: 0.5px solid $mediumgray;
+    bottom: 0;
+    left: -5000px;
+    position: absolute;
+    width: 10000px;
+  }
+
   @media screen and (max-width: 700px) {
     &__profile__name {
       display: none;
@@ -148,7 +155,6 @@
 .dark {
   .header {
     background-color: $black;
-    border-bottom: 1px solid $darkergray;
 
     &__breadcrumbs__back-button {
       * {
@@ -158,6 +164,11 @@
 
     &__search__input {
       background-color: $black;
+    }
+
+
+    &__separator {
+      border-bottom: 0.5px solid $darkergray;
     }
   }
 }

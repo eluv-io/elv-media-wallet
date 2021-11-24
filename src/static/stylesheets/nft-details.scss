@@ -70,6 +70,7 @@
     border: 1px solid $mediumgray;
     border-radius: 3px;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     padding: 20px;
 
@@ -175,6 +176,30 @@
     a {
       color: $blue;
     }
+  }
+
+  &__listing-info {
+    margin-bottom: 20px;
+
+    * {
+      text-align: center;
+    }
+  }
+
+  &__listing-info__header {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 20px;
+  }
+
+  &__listing-price-label {
+    font-size: 14px;
+    font-weight: 300;
+  }
+
+  &__listing-price-value {
+    font-size: 18px;
+    font-weight: bold;
   }
 
   @media screen and (min-width: $tablet-breakpoint) {

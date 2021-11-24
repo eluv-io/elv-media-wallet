@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {rootStore} from "Stores/index";
+import {rootStore, transferStore} from "Stores/index";
 import Path from "path";
 import UrlJoin from "url-join";
 
@@ -18,6 +18,7 @@ import Confirm from "Components/common/Confirm";
 import {UserTransferHistory, TransferTables, ActiveListings} from "Components/sales/TransferTables";
 import ListingModal from "Components/sales/ListingModal";
 import ListingCard from "Components/sales/ListingCard";
+import {Loader} from "Components/common/Loaders";
 
 const TransferSection = observer(({nft}) => {
   const heldDate = nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
@@ -155,17 +156,35 @@ const NFTDetails = observer(() => {
   const [deleted, setDeleted] = useState(false);
   const [showListingModal, setShowListingModal] = useState(false);
 
+  const [loadingListing, setLoadingListing] = useState(true);
+  const [listing, setListing] = useState(undefined);
+
   const match = useRouteMatch();
 
-  useEffect(() => rootStore.UpdateMetamaskChainId(), []);
+  useEffect(() => {
+    LoadListing();
+    rootStore.UpdateMetamaskChainId();
+  }, []);
+
+  const nft = rootStore.NFT({contractId: match.params.contractId, tokenId: match.params.tokenId}) || {};
+
+  const LoadListing = async () => {
+    try {
+      setLoadingListing(true);
+
+      const listings = (await transferStore.TransferListings({contractAddress: nft.details.ContractAddr, tokenId: nft.details.TokenIdStr})) || [];
+
+      if(listings && listings.length > 0) { setListing(listings[0]); }
+    } finally {
+      setLoadingListing(false);
+    }
+  };
 
   if(deleted) {
     return match.params.marketplaceId ?
       <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, "collections")}/> :
       <Redirect to={Path.dirname(Path.dirname(match.url))}/>;
   }
-
-  const nft = rootStore.NFT({contractId: match.params.contractId, tokenId: match.params.tokenId});
 
   let mintDate = nft.metadata.created_at;
   if(mintDate) {
@@ -187,7 +206,22 @@ const NFTDetails = observer(() => {
 
   return (
     <>
-      { showListingModal ? <ListingModal nft={nft} Close={() => setShowListingModal(false)} /> : null }
+      {
+        showListingModal ?
+          <ListingModal
+            nft={nft}
+            Close={maybeListingId => {
+              setShowListingModal(false);
+
+              // TODO: Do something after listing
+              console.log("LISTING ID", maybeListingId);
+
+              if(maybeListingId) {
+                LoadListing();
+              }
+            }}
+          /> : null
+      }
     <div className="details-page">
       <div className="details-page__content-container">
         <div className="card-padding-container">
@@ -211,12 +245,32 @@ const NFTDetails = observer(() => {
       </div>
       <div className="details-page__info">
         <div className="details-page__actions">
-          <ButtonWithLoader
-            className="details-page__listing-button"
-            onClick={() => setShowListingModal(true)}
-          >
-            List for Sale
-          </ButtonWithLoader>
+          {
+            loadingListing ?
+              <Loader /> :
+              <>
+                {
+                  listing ?
+                    <div className="details-page__listing-info">
+                      <h3 className="details-page__listing-info__header">This NFT is listed for sale on the marketplace</h3>
+                      <div className="details-page__listing-price-label">
+                        Listing Price
+                      </div>
+                      <div className="details-page__listing-price-value">
+                        ${listing.details.Total.toFixed(2)}
+                      </div>
+                    </div> : null
+                }
+
+                <ButtonWithLoader
+                  className="details-page__listing-button"
+                  onClick={() => setShowListingModal(true)}
+                >
+                  { listing ? "Edit Listing" : "List for Sale" }
+                </ButtonWithLoader>
+              </>
+          }
+
           {
             nft && nft.metadata && nft.metadata.pack_options && nft.metadata.pack_options.is_openable ?
               <ButtonWithLoader
@@ -329,8 +383,8 @@ const NFTDetails = observer(() => {
             </CopyableField>
           </div>
           <div className="expandable-section__content-row">
-            <CopyableField value={nft.details.versionHash}>
-              Hash: { nft.details.versionHash }
+            <CopyableField value={nft.details.VersionHash}>
+              Hash: { nft.details.VersionHash }
             </CopyableField>
           </div>
           <div className="expandable-section__actions">

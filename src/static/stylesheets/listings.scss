@@ -1,3 +1,13 @@
+.listings-page {
+  &__header {
+    align-items: center;
+    display: flex;
+    font-size: 20px;
+    font-weight: normal;
+    margin: 20px 0;
+  }
+}
+
 .listing-card-list {
   display: grid;
   grid-gap: 10px;

@@ -295,7 +295,7 @@ class RootStore {
           ...details,
           ContractAddr: Utils.FormatAddress(details.ContractAddr),
           ContractId: `ictr${Utils.AddressToHash(details.ContractAddr)}`,
-          versionHash
+          VersionHash: versionHash
         };
       }).filter(n => n)
     ).flat();
@@ -314,7 +314,7 @@ class RootStore {
           return {
             details,
             metadata: (await this.client.ContentObjectMetadata({
-              versionHash: details.versionHash,
+              versionHash: details.VersionHash,
               metadataSubtree: "public/asset_metadata/nft"
             })) || {}
           };

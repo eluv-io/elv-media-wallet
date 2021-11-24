@@ -64,6 +64,7 @@ const MarketplaceNavigation = observer(() => {
       <NavLink className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/collections`}>
         { ((marketplace.storefront || {}).tabs || {}).collection || "My Items" }
       </NavLink>
+      <div className="sub-navigation__separator" />
     </nav>
   );
 });

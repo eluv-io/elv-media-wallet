@@ -1,9 +1,11 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import CloseIcon from "../../static/icons/x.svg";
 import ImageIcon from "Components/common/ImageIcon";
 
 const Modal = observer(({children, Toggle, className=""}) => {
+  const [scrolled, setScrolled] = useState(false);
+
   const Close = (event) => {
     if(event && (event.key || "").toLowerCase() !== "escape") { return; }
 
@@ -32,7 +34,18 @@ const Modal = observer(({children, Toggle, className=""}) => {
         icon={CloseIcon}
         onClick={() => Close()}
       />
-      <div className="modal__content" onClick={event => event.stopPropagation()}>
+      <div
+        className="modal__content"
+        onClick={event => event.stopPropagation()}
+        ref={element => {
+          // Ensure content is scrolled to top on first render
+          if(!element || scrolled) { return; }
+
+          element.scrollTo(0, 0);
+
+          setScrolled(true);
+        }}
+      >
         { children }
       </div>
     </div>

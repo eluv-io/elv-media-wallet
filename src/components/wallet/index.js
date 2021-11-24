@@ -4,7 +4,7 @@ import {
   Switch,
   Route,
   Redirect,
-  useRouteMatch
+  useRouteMatch, NavLink
 } from "react-router-dom";
 
 import {rootStore} from "Stores/index";
@@ -13,9 +13,16 @@ import Collections from "Components/wallet/Collections";
 import AsyncComponent from "Components/common/AsyncComponent";
 import NFTDetails from "Components/wallet/NFTDetails";
 import {PackOpenStatus} from "Components/marketplace/MintingStatus";
+import Listings from "Components/sales/Listings";
 
 const WalletNavigation = observer(() => {
-  return null;
+  return (
+    <nav className="sub-navigation wallet-navigation">
+      <NavLink className="sub-navigation__link" to="/wallet/collection">My Collection</NavLink>
+      <NavLink className="sub-navigation__link" to="/wallet/listings">Listings & Sales</NavLink>
+      <div className="sub-navigation__separator" />
+    </nav>
+  );
 });
 
 const WalletWrapper = observer(({children}) => {
@@ -55,6 +62,7 @@ const Routes = (match) => {
   const nft = rootStore.NFT({contractId: match.params.contractId, tokenId: match.params.tokenId}) || { metadata: {} };
 
   return [
+    { name: "Listings and Sales", path: "/wallet/listings", Component: Listings },
     { name: "Open Pack", path: "/wallet/collection/:contractId/:tokenId/open", Component: PackOpenStatus, hideNavigation: true },
     { name: nft.metadata.display_name, path: "/wallet/collection/:contractId/:tokenId", Component: NFTDetails },
     { name: "Wallet", path: "/wallet/collection", Component: Collections },

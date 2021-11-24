@@ -24,6 +24,7 @@ const Header = observer(() => {
             <ImageIcon icon={BackIcon} title="Back" />
           </NavLink>
         </div>
+        <div className="header__separator" />
       </header>
     );
   }
@@ -61,6 +62,7 @@ const Header = observer(() => {
         </div>
         <ProfileImage className="header__profile__image" />
       </Link>
+      <div className="header__separator" />
     </header>
   );
 });

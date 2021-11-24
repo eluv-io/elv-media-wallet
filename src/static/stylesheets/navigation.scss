@@ -36,7 +36,9 @@
 
 .sub-navigation {
   display: flex;
-  padding: 0 15px;
+  margin: 10px 0 20px;
+  padding-bottom: 20px;
+  position: relative;
   width: 100%;
 
   &__link {
@@ -49,8 +51,16 @@
     }
 
     &.active {
-      border-bottom: 3px solid $blue;
+      font-weight: bold;
     }
+  }
+
+  &__separator {
+    border-bottom: 0.5px solid $mediumgray;
+    bottom: 0;
+    left: -5000px;
+    position: absolute;
+    width: 10000px;
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
@@ -93,6 +103,10 @@
   .sub-navigation {
     &__link {
       font-weight: 700;
+    }
+
+    &__separator {
+      border-bottom: 0.5px solid $darkergray;
     }
   }
 }

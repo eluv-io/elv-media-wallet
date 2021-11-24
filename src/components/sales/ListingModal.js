@@ -4,14 +4,15 @@ import Modal from "Components/common/Modal";
 import {NFTImage} from "Components/common/Images";
 import Confirm from "Components/common/Confirm";
 import {ActiveListings} from "Components/sales/TransferTables";
+import {transferStore} from "Stores";
 
 const ListingModal = observer(({nft, Close}) => {
-  const [price, setPrice] = useState("");
+  const [price, setPrice] = useState(nft.details.Total ? nft.details.Total.toFixed(2) : "");
   const [showConfirmation, setShowConfirmation] = useState(false);
   const ref = useRef(null);
 
   const parsedPrice = isNaN(parseFloat(price)) ? 0 : parseFloat(price);
-  const serviceFee = parsedPrice * 0.05;
+  const serviceFee = 0.99; //parsedPrice * 0.1;
 
   const InputStage = () => {
     return (
@@ -22,6 +23,7 @@ const ListingModal = observer(({nft, Close}) => {
             className="nft-listing__form__price-input"
             value={price}
             onChange={event => setPrice(event.target.value.replace(/[^\d.]/g, ""))}
+            onBlur={() => setPrice(parsedPrice.toFixed(2))}
           />
           <div className="nft-listing__form__price-input-label">
             USD
@@ -34,7 +36,7 @@ const ListingModal = observer(({nft, Close}) => {
           </div>
           <div className="nft-listing__detail">
             <label>Total Payout</label>
-            <div>${(parsedPrice + serviceFee).toFixed(2)}</div>
+            <div>${Math.max(0, (parsedPrice - serviceFee)).toFixed(2)}</div>
           </div>
         </div>
         <div className="nft-listing__active-listings">
@@ -46,7 +48,7 @@ const ListingModal = observer(({nft, Close}) => {
             Cancel
           </button>
           <button
-            disabled={!parsedPrice || isNaN(parsedPrice)}
+            disabled={!parsedPrice || isNaN(parsedPrice) || parsedPrice - serviceFee <= 0}
             className="nft-listing__action nft-listing__action-primary"
             onClick={() => {
               setShowConfirmation(true);
@@ -94,7 +96,18 @@ const ListingModal = observer(({nft, Close}) => {
             className="nft-listing__action nft-listing__action-primary"
             onClick={async () => Confirm({
               message: "Are you sure you want to list this NFT?",
-              Confirm: Close
+              Confirm: async () => {
+                const listingId = await transferStore.CreateListing({
+                  contractAddress: nft.details.ContractAddr,
+                  tokenId: nft.details.TokenIdStr,
+                  price: parsedPrice - serviceFee,
+                  listingId: nft.details.ListingId
+                });
+
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                Close(listingId || nft.details.ListingId);
+              }
             })}
           >
             Place for Sale

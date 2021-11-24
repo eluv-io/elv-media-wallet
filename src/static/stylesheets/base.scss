@@ -235,6 +235,13 @@ button {
   width: 100vw;
 }
 
+.header-dot {
+  border-radius: 10px;
+  height: 8px;
+  margin-right: 10px;
+  width: 8px;
+}
+
 // Large
 @media screen and (min-width: $breakpoint) {
   .app-container {

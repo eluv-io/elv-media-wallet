@@ -11,13 +11,16 @@ import ImageIcon from "Components/common/ImageIcon";
 
 export const ActiveListings = observer(({contractAddress, contractId}) => {
   const [listings, setListings] = useState([]);
-  const [sortField, setSortField] = useState("price");
+  const [sortField, setSortField] = useState("Total");
   const [sortDesc, setSortDesc] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const UpdateHistory = async () => {
-    setListings(await transferStore.TransferListings({contractAddress, contractId}));
-    setLoading(false);
+    try {
+      setListings(await transferStore.TransferListings({contractAddress, contractId}));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const UpdateSort = field => {
@@ -36,8 +39,8 @@ export const ActiveListings = observer(({contractAddress, contractId}) => {
     return () => clearInterval(interval);
   }, []);
 
-  const sortedListings = (listings || []).sort(
-    (a, b) => (a[sortField] > b[sortField] ? 1 : -1) * (sortDesc ? -1 : 1)
+  const sortedListings = (listings || []).slice().sort(
+    (a, b) =>  ((a.details || {})[sortField] > (b.details || {})[sortField] ? 1 : -1) * (sortDesc ? -1 : 1)
   );
 
   const sortIcon = (
@@ -51,31 +54,31 @@ export const ActiveListings = observer(({contractAddress, contractId}) => {
     <div className="transfer-table active-listings">
       <div className="transfer-table__table">
         <div className="transfer-table__table__header transfer-table__table__header-sortable">
-          <button className="transfer-table__table__cell" onClick={() => UpdateSort("tokenId")}>
-            Edition { sortField === "tokenId" ? sortIcon : null }
+          <button className="transfer-table__table__cell" onClick={() => UpdateSort("TokenIdStr")}>
+            Edition { sortField === "TokenIdStr" ? sortIcon : null }
           </button>
-          <button className="transfer-table__table__cell" onClick={() => UpdateSort("price")}>
-            Price { sortField === "price" ? sortIcon : null }
+          <button className="transfer-table__table__cell" onClick={() => UpdateSort("Total")}>
+            Price { sortField === "Total" ? sortIcon : null }
           </button>
-          <button className="transfer-table__table__cell" onClick={() => UpdateSort("sellerAddress")}>
-            Seller { sortField === "sellerAddress" ? sortIcon : null }
+          <button className="transfer-table__table__cell" onClick={() => UpdateSort("SellerAddress")}>
+            Seller { sortField === "SellerAddress" ? sortIcon : null }
           </button>
         </div>
         <div className="transfer-table__content-rows">
           {
             loading ? <div className="transfer-table__loader"><Loader /></div> :
               !listings || listings.length === 0 ?
-                <div className="transfer-table__empty">No Listings</div> :
-                sortedListings.map(transfer =>
-                  <div className="transfer-table__table__row" key={`transfer-table-row-${transfer.id}`}>
+                <div className="transfer-table__empty">No Active Listings</div> :
+                sortedListings.map((nft, index) =>
+                  <div className="transfer-table__table__row" key={`transfer-table-row-${index}`}>
                     <div className="transfer-table__table__cell">
-                      { MiddleEllipsis(transfer.tokenId, 20)}
+                      { MiddleEllipsis(nft.details.TokenIdStr, 20)}
                     </div>
                     <div className="transfer-table__table__cell">
-                      { `$${(transfer.price + transfer.fee).toFixed(2)}`}
+                      { `$${nft.details.Total.toFixed(2)}`}
                     </div>
                     <div className="transfer-table__table__cell">
-                      { MiddleEllipsis(transfer.sellerAddress, 10) }
+                      { MiddleEllipsis(nft.details.SellerAddress, 10) }
                     </div>
                   </div>
                 )

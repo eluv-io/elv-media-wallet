@@ -76,6 +76,9 @@ class TransferStore {
   userSales = {};
   transferHistories = {};
 
+  listings = {};
+
+
   get client() {
     return this.rootStore.client;
   }
@@ -93,58 +96,148 @@ class TransferStore {
     return tokenId ? `${contractAddress}-${tokenId}` : contractAddress;
   }
 
-  CreateListing = flow(function * ({contractAddress, contractId, tokenId, price}) {
+  ListingKey({tenantId, userId, userAddress, contractId, contractAddress, tokenId}={}) {
+    if(userId) { userAddress = Utils.HashToAddress(userId); }
+
     if(contractId) { contractAddress = Utils.HashToAddress(contractId); }
     contractAddress = Utils.FormatAddress(contractAddress);
 
-    const response = yield Utils.ResponseToJson(
-      yield this.client.authClient.MakeAuthServiceRequest({
-        path: UrlJoin("as", "wlt", "mkt"),
-        method: "POST",
-        body: {
-          contract: contractAddress,
-          token: tokenId,
-          price: parseFloat(price)
-        },
-        headers: {
-          Authorization: `Bearer ${this.client.signer.authToken}`
-        }
-      })
-    );
+    let key = "all";
+    if(userAddress) {
+      key = `user-${userAddress}`;
+    } else if(tenantId) {
+      key = `tenant-${tenantId}`;
+    } else if(contractAddress) {
+      if(tokenId) {
+        key = `contract-${contractAddress}-${tokenId}`;
+      } else {
+        key = `contract-${contractAddress}`;
+      }
+    }
 
-    console.log(JSON.stringify(response, null, 2));
+    return key;
+  }
+
+  // Format returned listing format to match account profile format
+  FormatListing(entry) {
+    const metadata = entry.nft || {};
+
+    const details = {
+      TenantId: entry.tenant,
+      ContractAddr: entry.contract,
+      ContractId: `ictr${Utils.AddressToHash(entry.contract)}`,
+      TokenIdStr: entry.token,
+      TokenUri: metadata.token_uri,
+      VersionHash: (metadata.token_uri || "").split("/").find(s => s.startsWith("hq__")),
+
+      // Listing specific fields
+      ListingId: entry.id,
+      ListingOrdinal: entry.ordinal,
+      CreatedAt: entry.created * 1000,
+      UpdatedAt: entry.updated * 1000,
+      SellerAddress: entry.seller,
+      Price: entry.price,
+      Fee: entry.fee,
+      Total: (entry.price + entry.fee)
+    };
+
+    return {
+      metadata,
+      details
+    };
+  }
+
+  CreateListing = flow(function * ({contractAddress, contractId, tokenId, price, listingId}) {
+    if(contractId) { contractAddress = Utils.HashToAddress(contractId); }
+    contractAddress = Utils.FormatAddress(contractAddress);
+
+    if(listingId) {
+      // Update
+      return yield Utils.ResponseToFormat(
+        "text",
+        yield this.client.authClient.MakeAuthServiceRequest({
+          path: UrlJoin("as", "wlt", "mkt"),
+          method: "PUT",
+          body: {
+            id: listingId,
+            price: parseFloat(price)
+          },
+          headers: {
+            Authorization: `Bearer ${this.client.signer.authToken}`
+          }
+        })
+      );
+    } else {
+      // Create
+      return yield Utils.ResponseToFormat(
+        "text",
+        yield this.client.authClient.MakeAuthServiceRequest({
+          path: UrlJoin("as", "wlt", "mkt"),
+          method: "POST",
+          body: {
+            contract: contractAddress,
+            token: tokenId,
+            price: parseFloat(price)
+          },
+          headers: {
+            Authorization: `Bearer ${this.client.signer.authToken}`
+          }
+        })
+      );
+    }
   });
 
-  TransferListings = flow(function * ({tenantId, userId, userAddress, contractId, contractAddress}={}) {
-    if(userAddress) {
-      userId = `iusr${Utils.AddressToHash(userAddress)}`;
-    }
+  RemoveListing = flow(function * ({listingId}) {
+    yield this.client.authClient.MakeAuthServiceRequest({
+      path: UrlJoin("as", "wlt", "mkt", listingId),
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${this.client.signer.authToken}`
+      }
+    });
+  });
+
+  TransferListings = flow(function * ({tenantId, userId, userAddress, contractId, contractAddress, tokenId, forceUpdate}={}) {
+    if(userId) { userAddress = Utils.HashToAddress(userId); }
 
     if(contractId) { contractAddress = Utils.HashToAddress(contractId); }
     contractAddress = Utils.FormatAddress(contractAddress);
 
-    let path = "/mkt";
+    let path = "/mkt/ls";
     if(userId) {
-      path = UrlJoin("mkt", "usr", userId);
+      path = UrlJoin("mkt", "ls", "s", userAddress);
     } else if(tenantId) {
-      path = UrlJoin("mkt", "tnt", tenantId);
+      path = UrlJoin("mkt", "ls", "tnt", tenantId);
     } else if(contractAddress) {
-      path = UrlJoin("mkt", "tnt", contractAddress);
+      if(tokenId) {
+        path = UrlJoin("mkt", "ls", "c", contractAddress, "t", tokenId);
+      } else {
+        path = UrlJoin("mkt", "ls", "c", contractAddress);
+      }
     }
 
-    return _transfers;
+    const listingKey = this.ListingKey({tenantId, userId, userAddress, contractId, contractAddress, tokenId});
 
-    const response = yield Utils.ResponseToJson(
-      yield this.client.authClient.MakeAuthServiceRequest({
-        path: UrlJoin("as", path),
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${this.client.signer.authToken}`
-        }
-      })
-    );
+    // TODO: Also check for search/filter params
+    if(forceUpdate || (!this.listings[listingKey] || Date.now() - this.listings[listingKey].retrievedAt > 30000)) {
+      const listings = yield Utils.ResponseToJson(
+        yield this.client.authClient.MakeAuthServiceRequest({
+          path: UrlJoin("as", path),
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${this.client.signer.authToken}`
+          }
+        })
+      ) || [];
 
-    console.log(JSON.stringify(response, null, 2));
+      this.listings[listingKey] = {
+        retrievedAt: Date.now(),
+        listings: (Array.isArray(listings) ? listings : [listings])
+          .map(listing => this.FormatListing(listing))
+      };
+    }
+
+    return this.listings[listingKey].listings;
   });
 
   UserTransferHistory = flow(function * ({userAddress, type="purchases"}) {
