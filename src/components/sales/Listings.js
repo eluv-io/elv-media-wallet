@@ -8,7 +8,7 @@ import ListingCard from "Components/sales/ListingCard";
 const Listings = observer(() => {
   const match = useRouteMatch();
   const [key, setKey] = useState(0);
-  const listings = transferStore.TransferListings({userAddress: rootStore.userAddress});
+  let listings = transferStore.TransferListings({userAddress: rootStore.userAddress, marketplaceId: match.params.marketplaceId});
 
   return (
     <AsyncComponent
@@ -19,7 +19,7 @@ const Listings = observer(() => {
       <div className="listings-page">
         <h2 className="listings-page__header">
           <div className="header-dot" style={{backgroundColor: listings.length > 0 ? "#08b908" : "#a4a4a4"}} />
-          { listings.length > 0 ? "Active Listings" : "No Active Listings" }
+          { listings.length > 0 ? "My Active Listings" : "No Active Listings" }
         </h2>
         <div className="listing-card-list">
           { listings.map((nft, index) =>

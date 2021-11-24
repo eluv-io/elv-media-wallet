@@ -144,16 +144,26 @@ class TransferStore {
   }
 
   // Retrieve previously fetched listings
-  TransferListings({tenantId, userId, userAddress, contractId, contractAddress, tokenId}={}) {
+  TransferListings({tenantId, userId, userAddress, contractId, contractAddress, tokenId, marketplaceId}={}) {
     if(userId) { userAddress = Utils.HashToAddress(userId); }
 
     if(contractId) { contractAddress = Utils.HashToAddress(contractId); }
     contractAddress = Utils.FormatAddress(contractAddress);
 
     const listingKey = this.ListingKey({tenantId, userId, userAddress, contractId, contractAddress, tokenId});
-    const listingInfo = this.listings[listingKey] || {};
+    let listings = (this.listings[listingKey] || {}).listings || [];
 
-    return listingInfo.listings || [];
+    if(marketplaceId) {
+      const marketplace = this.rootStore.marketplaces[marketplaceId];
+
+      listings = listings.filter(listing =>
+        marketplace.items.find(item =>
+          item.nft_template && !item.nft_template["/"] && item.nft_template.nft && item.nft_template.nft.template_id && item.nft_template.nft.template_id === listing.metadata.template_id
+        )
+      );
+    }
+
+    return listings;
   }
 
   FetchTransferListings = flow(function * ({tenantId, userId, userAddress, contractId, contractAddress, tokenId, forceUpdate}={}) {

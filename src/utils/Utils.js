@@ -30,3 +30,8 @@ export const MiddleEllipsis = (str="", maxLength=8) => {
 
   return `${str.slice(0, perSide)} ... ${str.slice(str.length - perSide, str.length)}`;
 };
+
+export const ValidEmail = email => {
+  return /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    .test(email);
+};
