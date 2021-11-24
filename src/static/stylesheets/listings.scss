@@ -12,10 +12,13 @@
   display: grid;
   grid-gap: 10px;
   grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
-  justify-items: center;
   width: 100%;
 
-  @media screen and (max-width: $mobile-breakpoint) {
+  @media screen and (max-width: $breakpoint) {
+    grid-template-columns: repeat(auto-fill, 320px);
+  }
+
+  @media screen and (max-width: $tablet-breakpoint) {
     align-items: center;
     display: flex;
     flex-direction: column;
@@ -48,6 +51,9 @@
 
   &__content {
     flex: 1 1 100%;
+    height: max-content;
+    overflow: hidden;
+    width: 100%;
   }
 
   &__header-title {
@@ -79,13 +85,14 @@
 
   &__price-container {
     align-items: center;
-    border: 1px solid $mediumgray;
+    border: 1px solid $lightgray;
     border-radius: 6px;
     display: flex;
     justify-content: space-between;
     margin-top: 15px;
     min-width: 275px;
     padding: 7px 15px;
+    width: 100%;
   }
 
   &__price-label {
@@ -94,6 +101,7 @@
   }
 
   &__action {
+    border: 1px solid $darkgray;
     padding: 0 20px;
   }
 
@@ -102,7 +110,7 @@
     height: 24px;
     padding: 0;
     position: absolute;
-    right: 50px;
+    right: 20px;
     top: -5px;
     width: 32px;
     z-index: 1;
@@ -128,16 +136,21 @@
     }
   }
 
-  @media screen and (max-width: $mobile-breakpoint) {
+  @media screen and (max-width: $breakpoint) {
     grid-template-columns: 1fr;
     grid-template-rows: 160px 1fr;
     height: max-content;
     justify-items: center;
-    max-width: 100%;
-    width: max-content;
+    max-width: 400px;
+    min-width: max-content;
+    width: 100%;
 
     * {
       text-align: center;
+    }
+
+    &__content {
+      max-width: 290px;
     }
 
     &__details {
@@ -148,6 +161,12 @@
 
     &__price-container {
       padding: 15px;
+    }
+  }
+
+  @media screen and (max-width: $tablet-breakpoint) {
+    &__content {
+      max-width: 370px;
     }
   }
 }
@@ -163,7 +182,11 @@
 
     &__price-container {
       background-color: $black;
-      border: 1px solid $darkgray;
+      border: 1px solid $darkergray;
+    }
+
+    &__action {
+      border: 1px solid $mediumgray;
     }
 
     &__menu-button {

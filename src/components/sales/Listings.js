@@ -8,14 +8,13 @@ import ListingCard from "Components/sales/ListingCard";
 const Listings = observer(() => {
   const match = useRouteMatch();
   const [key, setKey] = useState(0);
-  const listingKey = transferStore.ListingKey({userAddress: rootStore.userAddress});
-  const listings = (transferStore.listings[listingKey] || {}).listings || [];
+  const listings = transferStore.TransferListings({userAddress: rootStore.userAddress});
 
   return (
     <AsyncComponent
       key={`listing-page-${key}`}
       loadingClassName="page-loader"
-      Load={async () => await transferStore.TransferListings({userAddress: rootStore.userAddress, forceUpdate: key > 0})}
+      Load={async () => await transferStore.FetchTransferListings({userAddress: rootStore.userAddress, forceUpdate: key > 0})}
     >
       <div className="listings-page">
         <h2 className="listings-page__header">

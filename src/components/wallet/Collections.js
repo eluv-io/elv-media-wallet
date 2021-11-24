@@ -1,7 +1,7 @@
 import React from "react";
 import {observer} from "mobx-react";
 
-import {rootStore} from "Stores/index";
+import {rootStore, transferStore} from "Stores/index";
 import UrlJoin from "url-join";
 import LinesEllipsis from "react-lines-ellipsis";
 import responsiveHOC from "react-lines-ellipsis/lib/responsiveHOC";
@@ -11,6 +11,13 @@ import {NFTImage} from "Components/common/Images";
 
 export const NFTCard = observer(({nft}) => {
   const match = useRouteMatch();
+
+  // Determine if this NFT is currently listed for sale
+  const listing = transferStore.TransferListings({userAddress: rootStore.userAddress})
+    .find(listing =>
+      listing.details.ContractAddr === nft.details.ContractAddr &&
+      listing.details.TokenIdStr === nft.details.TokenIdStr
+    );
 
   return (
     <div className="card-container card-shadow">
@@ -22,7 +29,7 @@ export const NFTCard = observer(({nft}) => {
         <div className="card__text">
           <div className="card__titles">
             <h2 className="card__title">
-              { nft.metadata.display_name || "" }
+              { nft.metadata.display_name || "" } { listing ? " (LISTED)" : "" }
             </h2>
             <ResponsiveEllipsis
               component="h2"

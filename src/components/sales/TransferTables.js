@@ -17,7 +17,7 @@ export const ActiveListings = observer(({contractAddress, contractId}) => {
   const [loading, setLoading] = useState(true);
   const UpdateHistory = async () => {
     try {
-      setListings(await transferStore.TransferListings({contractAddress, contractId}));
+      setListings(await transferStore.FetchTransferListings({contractAddress, contractId}));
     } finally {
       setLoading(false);
     }
@@ -60,7 +60,7 @@ export const ActiveListings = observer(({contractAddress, contractId}) => {
           <button className="transfer-table__table__cell" onClick={() => UpdateSort("Total")}>
             Price { sortField === "Total" ? sortIcon : null }
           </button>
-          <button className="transfer-table__table__cell" onClick={() => UpdateSort("SellerAddress")}>
+          <button className="transfer-table__table__cell no-mobile" onClick={() => UpdateSort("SellerAddress")}>
             Seller { sortField === "SellerAddress" ? sortIcon : null }
           </button>
         </div>
@@ -77,7 +77,7 @@ export const ActiveListings = observer(({contractAddress, contractId}) => {
                     <div className="transfer-table__table__cell">
                       { `$${nft.details.Total.toFixed(2)}`}
                     </div>
-                    <div className="transfer-table__table__cell">
+                    <div className="transfer-table__table__cell no-mobile">
                       { MiddleEllipsis(nft.details.SellerAddress, 10) }
                     </div>
                   </div>

@@ -58,9 +58,9 @@
   &__separator {
     border-bottom: 0.5px solid $mediumgray;
     bottom: 0;
-    left: -5000px;
+    left: 0;
     position: absolute;
-    width: 10000px;
+    width: 100%;
   }
 
   @media screen and (max-width: $mobile-breakpoint) {

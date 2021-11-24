@@ -105,6 +105,13 @@
     &__table__cell {
       font-size: 10px;
     }
+
+    &.active-listings {
+      .transfer-table__table__header,
+      .transfer-table__table__row {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
   }
 }
 

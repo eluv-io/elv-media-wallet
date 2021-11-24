@@ -51,10 +51,10 @@ const ListingCard = ({nft, Refresh}) => {
         showListingModal ?
           <ListingModal
             nft={nft}
-            Close={maybeTokenId => {
+            Close={(info={}) => {
               setShowListingModal(false);
 
-              if(maybeTokenId) { Refresh && Refresh(); }
+              if(info.listingId || info.deleted) { Refresh(); }
             }}
           /> : null
       }
@@ -71,7 +71,7 @@ const ListingCard = ({nft, Refresh}) => {
         <NFTImage className="listing-card__image" nft={nft} />
         <div className="listing-card__content">
           <div className="listing-card__header">
-            <h3 className="listing-card__header-title">
+            <h3 className="listing-card__header-title ellipsis">
               { nft.metadata.display_name }
             </h3>
             <h3 className="listing-card__header-id">

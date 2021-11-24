@@ -172,9 +172,9 @@ const NFTDetails = observer(() => {
     try {
       setLoadingListing(true);
 
-      const listings = (await transferStore.TransferListings({contractAddress: nft.details.ContractAddr, tokenId: nft.details.TokenIdStr})) || [];
+      const listings = (await transferStore.FetchTransferListings({contractAddress: nft.details.ContractAddr, tokenId: nft.details.TokenIdStr, forceUpdate: true})) || [];
 
-      if(listings && listings.length > 0) { setListing(listings[0]); }
+      setListing(listings[0]);
     } finally {
       setLoadingListing(false);
     }
@@ -209,14 +209,14 @@ const NFTDetails = observer(() => {
       {
         showListingModal ?
           <ListingModal
-            nft={nft}
-            Close={maybeListingId => {
+            nft={listing || nft}
+            Close={(info={}) => {
               setShowListingModal(false);
 
               // TODO: Do something after listing
-              console.log("LISTING ID", maybeListingId);
+              console.log("LISTING ID", info);
 
-              if(maybeListingId) {
+              if(info.listingId || info.deleted) {
                 LoadListing();
               }
             }}

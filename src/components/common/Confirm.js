@@ -23,6 +23,9 @@ const ConfirmModal = ({message, Confirm, Close}) => {
           {
             confirming ? <Loader/> :
               <>
+                <button className="action action-secondary" onClick={Close} ref={ref} autoFocus>
+                  Cancel
+                </button>
                 <button
                   className="action action-primary"
                   onClick={async () => {
@@ -35,9 +38,6 @@ const ConfirmModal = ({message, Confirm, Close}) => {
                   }}
                 >
                   Confirm
-                </button>
-                <button className="action action-secondary" onClick={Close} ref={ref} >
-                  Cancel
                 </button>
               </>
           }

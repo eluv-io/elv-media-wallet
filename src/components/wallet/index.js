@@ -7,7 +7,7 @@ import {
   useRouteMatch, NavLink
 } from "react-router-dom";
 
-import {rootStore} from "Stores/index";
+import {rootStore, transferStore} from "Stores/index";
 
 import Collections from "Components/wallet/Collections";
 import AsyncComponent from "Components/common/AsyncComponent";
@@ -52,7 +52,15 @@ const WalletWrapper = observer(({children}) => {
   }, [match.url]);
 
   return (
-    <AsyncComponent Load={async () => await rootStore.LoadWalletCollection()} loadingClassName="page-loader">
+    <AsyncComponent
+      Load={async () => {
+        await Promise.all([
+          rootStore.LoadWalletCollection(),
+          transferStore.FetchTransferListings({userAddress: rootStore.userAddress})
+        ]);
+      }}
+      loadingClassName="page-loader"
+    >
       { children }
     </AsyncComponent>
   );
