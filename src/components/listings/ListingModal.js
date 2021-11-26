@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
 import {NFTImage} from "Components/common/Images";
 import Confirm from "Components/common/Confirm";
-import {ActiveListings} from "Components/sales/TransferTables";
+import {ActiveListings} from "Components/listings/TransferTables";
 import {transferStore} from "Stores";
 
 const ListingModal = observer(({nft, Close}) => {

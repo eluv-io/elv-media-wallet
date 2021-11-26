@@ -13,7 +13,7 @@ import Collections from "Components/wallet/Collections";
 import AsyncComponent from "Components/common/AsyncComponent";
 import NFTDetails from "Components/wallet/NFTDetails";
 import {PackOpenStatus} from "Components/marketplace/MintingStatus";
-import Listings from "Components/sales/Listings";
+import Listings from "Components/listings/Listings";
 
 const WalletNavigation = observer(() => {
   return (

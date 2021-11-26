@@ -1,5 +1,5 @@
 import React, {useEffect} from "react";
-import {rootStore, checkoutStore} from "Stores/index";
+import {rootStore, checkoutStore, transferStore} from "Stores/index";
 import {
   Switch,
   Route,
@@ -23,6 +23,7 @@ import MarketplaceItemDetails from "Components/marketplace/MarketplaceItemDetail
 import MarketplaceOwned from "Components/marketplace/MarketplaceOwned";
 import MarketplaceStorefront from "Components/marketplace/MarketplaceStorefront";
 import MarketplaceBrowser from "Components/marketplace/MarketplaceBrowser";
+import MarketplaceListings from "Components/marketplace/MarketplaceListings";
 
 const MarketplaceNavigation = observer(() => {
   let match = useRouteMatch();
@@ -42,7 +43,8 @@ const MarketplaceNavigation = observer(() => {
         to={`/marketplaces/${match.params.marketplaceId}`}
         isActive={() =>
           !match.path.includes("/marketplaces/:marketplaceId/collections") &&
-          !match.path.includes("/marketplaces/:marketplaceId/owned")
+          !match.path.includes("/marketplaces/:marketplaceId/owned") &&
+          !match.path.includes("/marketplaces/:marketplaceId/listings")
         }
       >
         { ((marketplace.storefront || {}).tabs || {}).store || "Store" }
@@ -51,7 +53,7 @@ const MarketplaceNavigation = observer(() => {
         { ((marketplace.storefront || {}).tabs || {}).collection || "My Items" }
       </NavLink>
       <NavLink className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/listings`}>
-        Listings & Sales
+        All Listings
       </NavLink>
       <div className="sub-navigation__separator" />
     </nav>
@@ -221,8 +223,14 @@ const Routes = (match) => {
   const event = rootStore.eventMetadata || {};
   const item = (marketplace.items || []).find(item => item.sku === match.params.sku) || {};
   const nft = rootStore.NFT({contractId: match.params.contractId, tokenId: match.params.tokenId}) || { metadata: {} };
+  const listing = !match.params.listingId ? undefined :
+    transferStore.TransferListings({marketplaceId: match.params.marketplaceId})
+      .find(listing => listing.details.ListingId === match.params.listingId);
 
   return [
+    { name: "All Listings", path: "/marketplaces/:marketplaceId/listings", Component: MarketplaceListings },
+    { name: ((listing || {}).metadata || {}).display_name, path: "/marketplaces/:marketplaceId/listings/:listingId", Component: NFTDetails },
+
     { name: (event.event_info || {}).event_title, path: "/marketplaces/:marketplaceId/events/:dropId", Component: Drop, hideNavigation: true },
     { name: "Status", path: "/marketplaces/:marketplaceId/events/:dropId/status", Component: DropMintingStatus, hideNavigation: true },
 

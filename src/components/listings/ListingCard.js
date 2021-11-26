@@ -1,10 +1,11 @@
 import React, {useState, useRef, useEffect} from "react";
 import {NFTImage} from "Components/common/Images";
-import ListingModal from "Components/sales/ListingModal";
+import ListingModal from "Components/listings/ListingModal";
 import Confirm from "Components/common/Confirm";
 import {transferStore} from "Stores";
+import {Link} from "react-router-dom";
 
-const ListingCard = ({nft, Refresh}) => {
+const ListingCard = ({nft, link, Refresh}) => {
   const [showListingModal, setShowListingModal] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
@@ -68,18 +69,20 @@ const ListingCard = ({nft, Refresh}) => {
         >
           ···
         </button>
-        <NFTImage className="listing-card__image" nft={nft} />
+        <Link to={link}>
+          <NFTImage className="listing-card__image" nft={nft} />
+        </Link>
         <div className="listing-card__content">
-          <div className="listing-card__header">
+          <Link to={link} className="listing-card__header">
             <h3 className="listing-card__header-title ellipsis">
               { nft.metadata.display_name }
             </h3>
             <h3 className="listing-card__header-id">
               { nft.details.TokenIdStr }
             </h3>
-          </div>
+          </Link>
 
-          <div className="listing-card__details">
+          <Link to={link} className="listing-card__details">
             <div className="listing-card__detail">
               <div className="listing-card__detail-label">
                 Date Posted
@@ -99,7 +102,7 @@ const ListingCard = ({nft, Refresh}) => {
                   </div>
                 </div> : null
             }
-          </div>
+          </Link>
 
           <div className="listing-card__price-container">
             <div className="listing-card__price-details">

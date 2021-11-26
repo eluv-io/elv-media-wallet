@@ -4,7 +4,7 @@ import {Link, useRouteMatch} from "react-router-dom";
 import {rootStore} from "Stores";
 import UrlJoin from "url-join";
 import {NFTImage} from "Components/common/Images";
-import Listings from "Components/sales/Listings";
+import Listings from "Components/listings/Listings";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 import MarketplaceCollections from "Components/marketplace/MarketplaceCollections";
 
@@ -19,7 +19,7 @@ const MarketplaceOwned = observer(() => {
   const ownedItems = Object.values(marketplaceItems).flat();
 
   useEffect(() => {
-    if(!rootStore.sidePanelMode || !rootStore.noItemsAvailable) { return null; }
+    if(!rootStore.sidePanelMode || !rootStore.noItemsAvailable) { return; }
 
     // If there are no items available for sale and we're in the side panel, we want to avoid navigating back to the marketplace page.
     const originalHideNavigation = rootStore.hideNavigation;

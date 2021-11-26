@@ -94,6 +94,7 @@ class TransferStore {
   // Format returned listing format to match account profile format
   FormatListing(entry) {
     const metadata = entry.nft || {};
+    console.log(metadata);
 
     const details = {
       TenantId: entry.tenant,
@@ -121,7 +122,7 @@ class TransferStore {
   }
 
   // Determine the right object key for saved listings
-  ListingKey({tenantId, userId, userAddress, contractId, contractAddress, tokenId}={}) {
+  ListingKey({listingId, tenantId, userId, userAddress, contractId, contractAddress, tokenId}={}) {
     if(userId) { userAddress = Utils.HashToAddress(userId); }
 
     if(contractId) { contractAddress = Utils.HashToAddress(contractId); }
@@ -138,19 +139,21 @@ class TransferStore {
       } else {
         key = `contract-${contractAddress}`;
       }
+    } else if(listingId) {
+      key = `listing-${listingId}`;
     }
 
     return key;
   }
 
   // Retrieve previously fetched listings
-  TransferListings({tenantId, userId, userAddress, contractId, contractAddress, tokenId, marketplaceId}={}) {
+  TransferListings({listingId, tenantId, userId, userAddress, contractId, contractAddress, tokenId, marketplaceId}={}) {
     if(userId) { userAddress = Utils.HashToAddress(userId); }
 
     if(contractId) { contractAddress = Utils.HashToAddress(contractId); }
     contractAddress = Utils.FormatAddress(contractAddress);
 
-    const listingKey = this.ListingKey({tenantId, userId, userAddress, contractId, contractAddress, tokenId});
+    const listingKey = this.ListingKey({listingId, tenantId, userId, userAddress, contractId, contractAddress, tokenId});
     let listings = (this.listings[listingKey] || {}).listings || [];
 
     if(marketplaceId) {
@@ -166,7 +169,7 @@ class TransferStore {
     return listings;
   }
 
-  FetchTransferListings = flow(function * ({tenantId, userId, userAddress, contractId, contractAddress, tokenId, forceUpdate}={}) {
+  FetchTransferListings = flow(function * ({listingId, tenantId, userId, userAddress, contractId, contractAddress, tokenId, forceUpdate}={}) {
     if(userId) { userAddress = Utils.HashToAddress(userId); }
 
     if(contractId) { contractAddress = Utils.HashToAddress(contractId); }
@@ -176,8 +179,8 @@ class TransferStore {
 
     try {
       let path = "/mkt/ls";
-      if(userId) {
-        path = UrlJoin("mkt", "ls", "s", userAddress);
+      if(userAddress) {
+        //path = UrlJoin("mkt", "ls", "s", userAddress);
       } else if(tenantId) {
         path = UrlJoin("mkt", "ls", "tnt", tenantId);
       } else if(contractAddress) {
@@ -186,6 +189,8 @@ class TransferStore {
         } else {
           path = UrlJoin("mkt", "ls", "c", contractAddress);
         }
+      } else if(listingId) {
+        path = UrlJoin("mkt", listingId);
       }
 
       // TODO: Also check for search/filter params

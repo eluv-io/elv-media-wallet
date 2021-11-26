@@ -3,7 +3,8 @@ import {observer} from "mobx-react";
 import {useRouteMatch} from "react-router-dom";
 import AsyncComponent from "Components/common/AsyncComponent";
 import {rootStore, transferStore} from "Stores";
-import ListingCard from "Components/sales/ListingCard";
+import ListingCard from "Components/listings/ListingCard";
+import UrlJoin from "url-join";
 
 const Listings = observer(() => {
   const match = useRouteMatch();
@@ -26,6 +27,11 @@ const Listings = observer(() => {
             <ListingCard
               key={`nft-listing-${index}`}
               nft={nft}
+              link={
+                match.params.marketplaceId ?
+                  UrlJoin("/marketplaces", match.params.marketplaceId, "listings", nft.details.ListingId) :
+                  UrlJoin("/wallet", "collection", nft.details.ContractId, nft.details.TokenIdStr)
+              }
               Refresh={() => setKey(key + 1)}
             />
           )}
