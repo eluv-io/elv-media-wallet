@@ -18,6 +18,8 @@ import Confirm from "Components/common/Confirm";
 import {ActiveListings} from "Components/listings/TransferTables";
 import ListingModal from "Components/listings/ListingModal";
 import {Loader, PageLoader} from "Components/common/Loaders";
+import ListingPurchaseModal from "Components/listings/ListingPurchaseModal";
+import Utils from "@eluvio/elv-client-js/src/Utils";
 
 const TransferSection = observer(({nft}) => {
   const heldDate = nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
@@ -154,6 +156,7 @@ const NFTDetails = observer(() => {
   const [opened, setOpened] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const [showListingModal, setShowListingModal] = useState(false);
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
 
   const [loadingListing, setLoadingListing] = useState(true);
   const [listing, setListing] = useState(undefined);
@@ -162,24 +165,24 @@ const NFTDetails = observer(() => {
   const listingId = match.params.listingId;
 
   let nft = rootStore.NFT({contractId: match.params.contractId, tokenId: match.params.tokenId});
-  const isOwned = !!nft;
+  const isOwned = !!nft || (listing && Utils.EqualAddress(listing.details.SellerAddress, rootStore.userAddress));
 
   const LoadListing = async () => {
     try {
       setLoadingListing(true);
 
       let listings;
-      if(nft) {
+      if(match.params.listingId) {
+        listings = await transferStore.FetchTransferListings({listingId: listingId, forceUpdate: true});
+      } else {
         listings = (await transferStore.FetchTransferListings({
           contractAddress: nft.details.ContractAddr,
           tokenId: nft.details.TokenIdStr,
           forceUpdate: true
         })) || [];
-      } else {
-        listings = await transferStore.FetchTransferListings({listingId: listingId, forceUpdate: true});
       }
 
-      setListing(listings[0]);
+      setListing(listings ? listings[0] : undefined);
     } finally {
       setLoadingListing(false);
     }
@@ -235,7 +238,12 @@ const NFTDetails = observer(() => {
 
       return (
         <div className="details-page__actions">
-
+          <ButtonWithLoader
+            className="details-page__listing-button"
+            onClick={() => setShowPurchaseModal(true)}
+          >
+            Buy Now
+          </ButtonWithLoader>
         </div>
       );
     } else {
@@ -299,6 +307,13 @@ const NFTDetails = observer(() => {
               }
             }}
           /> : null
+      }
+      { showPurchaseModal ?
+        <ListingPurchaseModal
+          nft={listing || nft}
+          listingId={listing && listing.listingId}
+          Close={() => setShowPurchaseModal(false)}
+        /> : null
       }
       <div className="details-page">
         <div className="details-page__content-container">
@@ -452,7 +467,7 @@ const NFTDetails = observer(() => {
                   </ButtonWithLoader> : null
               }
             </div>
-            { isOwned ? <TransferSection nft={nft}/> : null }
+            { isOwned && !listing ? <TransferSection nft={nft}/> : null }
           </ExpandableSection>
         </div>
       </div>

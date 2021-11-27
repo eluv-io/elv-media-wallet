@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {observer} from "mobx-react";
 import {Link, useRouteMatch} from "react-router-dom";
-import {checkoutStore, rootStore} from "Stores";
+import {rootStore} from "Stores";
 import UrlJoin from "url-join";
 import {MarketplaceImage, NFTImage} from "Components/common/Images";
 import NFTPlaceholderIcon from "Assets/icons/nft";
@@ -22,26 +22,7 @@ const MarketplaceCollections = observer(() => {
 
   const marketplaceItems = rootStore.MarketplaceOwnedItems(marketplace);
 
-  let purchaseableItems = {};
-  ((marketplace.storefront || {}).sections || []).forEach(section =>
-    section.items.forEach(sku => {
-      const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
-      const item = marketplace.items[itemIndex];
-
-      // For sale / authorization
-      if(!item || !item.for_sale || (item.requires_permissions && !item.authorized)) { return; }
-
-      if(item.max_per_user && checkoutStore.stock[item.sku] && checkoutStore.stock[item.sku].current_user >= item.max_per_user) {
-        // Purchase limit
-        return;
-      }
-
-      purchaseableItems[sku] = {
-        item,
-        index: itemIndex
-      };
-    })
-  );
+  const purchaseableItems = rootStore.MarketplacePurchaseableItems(marketplace);
 
   const collections = marketplace.collections.map((collection, collectionIndex) => {
     let owned = 0;

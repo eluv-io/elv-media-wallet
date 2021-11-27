@@ -1,0 +1,409 @@
+.listing-purchase-modal-container {
+  .modal__content {
+    height: 90vh;
+    max-width: 600px;
+    overflow-y: auto;
+    padding-right: 8px;
+    width: 100%;
+  }
+}
+
+.listing-purchase-modal {
+  background-color: $white;
+  border: 1px solid $lightgray;
+  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+  overflow-y: hidden;
+  position: relative;
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 25px 25px 10px;
+  }
+
+  &__nft-info-container {
+    align-items: center;
+    display: flex;
+    height: 100%;
+  }
+
+  &__nft-info {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+    margin-left: 10px;
+    width: 100%;
+  }
+
+  &__name {
+    font-size: 22px;
+    font-weight: normal;
+  }
+
+  &__token-id {
+    color: $darkestgray;
+    font-size: 12px;
+    font-weight: 300;
+  }
+
+  .card__image-container,
+  &__image {
+    height: 150px;
+    max-height: 150px;
+    max-width: 150px;
+    min-height: 150px;
+    min-width: 150px;
+    padding: 0;
+    width: 150px;
+  }
+
+  &__buy-container {
+    align-items: center;
+    border: 1px solid $mediumgray;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0 0;
+    max-width: 400px;
+    padding: 15px 25px;
+    width: 100%;
+  }
+
+  &__stock {
+    align-items: center;
+    display: flex;
+    font-size: 12px;
+    margin: 5px 0 0 15px;
+    max-width: 400px;
+    width: 100%;
+  }
+
+  &__listing-info {
+    align-items: center;
+    border-top: 1px solid $mediumgray;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    padding: 10px 25px;
+  }
+
+  &__listing-count-label {
+    font-size: 16px;
+    font-weight: 300;
+  }
+
+  &__listing-count {
+    align-items: center;
+    display: flex;
+    font-size: 14px;
+  }
+
+  &__prices-container {
+    background-color: $lightgray;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    min-width: 250px;
+    padding: 10px 15px;
+  }
+
+  &__price-container {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  &__price-label {
+    font-size: 14px;
+    font-weight: 300;
+  }
+
+  &__price {
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .transfer-table {
+    margin: 0;
+    //max-height: 300px;
+  }
+
+  &__footer {
+    align-items: center;
+    display: flex;
+    height: 100px;
+    justify-content: space-between;
+    padding: 25px;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  &__actions {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin-top: 35px;
+  }
+
+  &__action {
+    min-width: 150px;
+
+    &:not(:last-child) {
+      margin-right: 10px;
+    }
+
+    &-primary {
+      background-color: $blue;
+      border: 1px solid $blue;
+      color: $white;
+    }
+
+    &-delete {
+      background-color: $darkergray;
+      color: $white;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
+}
+
+.listing-purchase-confirmation-modal {
+  background-color: $white;
+  border: 1px solid $lightgray;
+  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  &__header {
+    border-bottom: 1px solid $mediumgray;
+    font-size: 24px;
+    font-weight: 300;
+    padding: 15px 0;
+    text-align: center;
+  }
+
+  &__content {
+    padding: 25px 35px 50px;
+  }
+
+  &__nft-details {
+    margin: 0 auto;
+    max-width: 350px;
+  }
+
+  .card {
+    background-color: $white;
+
+    &__image-container {
+      margin-bottom: 20px;
+    }
+
+    &__title {
+      font-size: 16px;
+    }
+
+    &__subtitle,
+    &__stock {
+      font-size: 14px;
+    }
+
+    &__subtitle {
+      margin: 15px 0 5px;
+    }
+
+    &__title-edition {
+      font-size: 12px;
+      margin: 0;
+    }
+  }
+
+  &__payment-options {
+    border: 1px solid $mediumgray;
+    border-radius: 6px;
+    margin-top: 25px;
+    padding: 25px;
+  }
+
+  &__payment-message {
+    margin-bottom: 10px;
+  }
+
+  &__payment-selection-container {
+    align-items: center;
+    display: flex;
+    margin-bottom: 10px;
+  }
+
+  &__payment-selection {
+    flex: 1 1 100%;
+
+    &:not(:last-child) {
+      margin-right: 10px;
+    }
+
+    &-selected {
+      border: 1px solid $blue;
+      box-shadow: 0 0 3px $blue;
+      color: $blue;
+    }
+  }
+
+  &__payment-submit {
+    background-color: $blue;
+    border: 1px solid $blue;
+    color: $white;
+    width: 100%;
+
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
+}
+
+@media screen and (max-width: $tablet-breakpoint) {
+  .listing-purchase-modal {
+    &__nft-info-container {
+      align-items: center;
+      justify-content: center;
+    }
+
+    &__buy-container {
+      max-width: unset;
+    }
+
+    &__listing-info {
+      align-items: unset;
+      flex-direction: column;
+    }
+
+    &__prices-container {
+      margin-top: 10px;
+    }
+  }
+}
+
+@media screen and (max-width: $mobile-breakpoint) {
+  .listing-purchase-modal-container {
+    .modal__content {
+      height: 100%;
+      max-width: unset;
+      padding: 0;
+    }
+  }
+
+  .listing-purchase-modal {
+    min-height: 100%;
+
+    .card__image-container,
+    &__image {
+      height: 100px;
+      max-height: 100px;
+      max-width: 100px;
+      min-height: 100px;
+      min-width: 100px;
+      padding: 0;
+      width: 100px;
+    }
+
+    &__name {
+      font-size: 18px;
+    }
+
+    &__price-label {
+      font-size: 12px;
+    }
+
+    &__listing-count-label {
+      font-size: 14px;
+    }
+  }
+
+  .listing-purchase-confirmation-modal {
+    &__header {
+      font-size: 18px;
+    }
+
+    &__payment-selection-container {
+      flex-direction: column;
+      margin-bottom: 25px;
+    }
+
+    &__payment-selection {
+      flex: unset;
+      width: 100%;
+
+      &:not(:last-child) {
+        margin: 0 0 5px;
+      }
+    }
+  }
+}
+
+.dark {
+  .listing-purchase-modal {
+    background-color: $black;
+    border: 1px solid $darkgray;
+
+    &__token-id {
+      color: $mediumgray;
+    }
+
+    &__buy-container {
+      border: 1px solid $darkgray;
+    }
+
+    &__listing-info {
+      background-color: $darkestgray;
+      border-top: 1px solid $darkergray;
+    }
+
+    &__prices-container {
+      background-color: $black;
+    }
+
+    &__action {
+      &-primary {
+        border: 1px solid $blue;
+      }
+    }
+  }
+
+  .listing-purchase-confirmation-modal {
+    background-color: $black;
+    border: 1px solid $darkgray;
+
+    &__header {
+      border-bottom: 1px solid $darkergray;
+    }
+
+    .card {
+      background-color: $black;
+    }
+
+    &__payment-options {
+      border: 1px solid $darkergray;
+    }
+
+    &__payment-selection {
+      &-selected {
+        border: 1px solid $blue;
+      }
+    }
+
+    &__payment-submit {
+      border: 1px solid $blue;
+    }
+  }
+}

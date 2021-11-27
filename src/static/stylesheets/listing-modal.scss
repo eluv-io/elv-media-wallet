@@ -113,6 +113,7 @@
 
     &-delete {
       background-color: $darkergray;
+      border: 1px solid $darkergray;
       color: $white;
     }
 
@@ -191,6 +192,10 @@
     &__action {
       &-primary {
         border: 1px solid $blue;
+      }
+
+      &-delete {
+        border: 1px solid $darkergray;
       }
     }
   }

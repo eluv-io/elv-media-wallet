@@ -9,10 +9,11 @@ import UpCaret from "Assets/icons/up-caret.svg";
 import DownCaret from "Assets/icons/down-caret.svg";
 import ImageIcon from "Components/common/ImageIcon";
 
-export const ActiveListings = observer(({contractAddress, contractId}) => {
+export const ActiveListings = observer(({contractAddress, contractId, initialSelectedListingId, Select}) => {
   const [listings, setListings] = useState([]);
   const [sortField, setSortField] = useState("Total");
   const [sortDesc, setSortDesc] = useState(false);
+  const [selectedListingId, setSelectedListingId] = useState(initialSelectedListingId);
 
   const [loading, setLoading] = useState(true);
   const UpdateHistory = async () => {
@@ -28,6 +29,7 @@ export const ActiveListings = observer(({contractAddress, contractId}) => {
       setSortDesc(!sortDesc);
     } else {
       setSortField(field);
+      setSortDesc(false);
     }
   };
 
@@ -51,7 +53,7 @@ export const ActiveListings = observer(({contractAddress, contractId}) => {
   );
 
   return (
-    <div className="transfer-table active-listings">
+    <div className={`transfer-table active-listings ${Select ? "transfer-table-selectable" : ""}`}>
       <div className="transfer-table__table">
         <div className="transfer-table__table__header transfer-table__table__header-sortable">
           <button className="transfer-table__table__cell" onClick={() => UpdateSort("TokenIdStr")}>
@@ -70,7 +72,18 @@ export const ActiveListings = observer(({contractAddress, contractId}) => {
               !listings || listings.length === 0 ?
                 <div className="transfer-table__empty">No Active Listings</div> :
                 sortedListings.map((nft, index) =>
-                  <div className="transfer-table__table__row" key={`transfer-table-row-${index}`}>
+                  <div
+                    key={`transfer-table-row-${index}`}
+                    onClick={() => {
+                      if(!Select) { return; }
+
+                      const selected = selectedListingId === nft.details.ListingId ? undefined : nft.details.ListingId;
+
+                      setSelectedListingId(selected);
+                      Select(selected);
+                    }}
+                    className={`transfer-table__table__row ${selectedListingId === nft.details.ListingId ? "transfer-table__table__row-selected" : ""} ${Select ? "transfer-table__table__row-selectable" : ""}`}
+                  >
                     <div className="transfer-table__table__cell">
                       { MiddleEllipsis(nft.details.TokenIdStr, 20)}
                     </div>

@@ -3,7 +3,7 @@
   border: 1px solid $lightgray;
   border-radius: 3px;
   margin: 20px 0;
-  overflow-y: scroll;
+  overflow-y: auto;
   position: relative;
 
   &.active-listings {
@@ -66,6 +66,21 @@
 
     &:hover {
       background-color: $white;
+    }
+
+    &-selectable {
+      cursor: pointer;
+    }
+
+    &-selected {
+      // Specificity to override nth-child color above
+      &:nth-child(n) {
+        background-color: $blue;
+
+        * {
+          color: $white;
+        }
+      }
     }
   }
 
@@ -156,6 +171,17 @@
 
       &:hover {
         background-color: $darkergray;
+      }
+
+      &-selected {
+        // Specificity to override nth-child color above
+        &:nth-child(n) {
+          background-color: $mediumgray;
+
+          * {
+            color: $black;
+          }
+        }
       }
     }
 

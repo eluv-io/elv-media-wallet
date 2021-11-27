@@ -94,7 +94,6 @@ class TransferStore {
   // Format returned listing format to match account profile format
   FormatListing(entry) {
     const metadata = entry.nft || {};
-    console.log(metadata);
 
     const details = {
       TenantId: entry.tenant,

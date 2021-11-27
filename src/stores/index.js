@@ -438,6 +438,42 @@ class RootStore {
     return items;
   }
 
+  MarketplacePurchaseableItems(marketplace) {
+    let purchaseableItems = {};
+    ((marketplace.storefront || {}).sections || []).forEach(section =>
+      section.items.forEach(sku => {
+        const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
+        const item = marketplace.items[itemIndex];
+
+        // For sale / authorization
+        if(!item || !item.for_sale || (item.requires_permissions && !item.authorized)) { return; }
+
+        if(item.max_per_user && checkoutStore.stock[item.sku] && checkoutStore.stock[item.sku].current_user >= item.max_per_user) {
+          // Purchase limit
+          return;
+        }
+
+        purchaseableItems[sku] = {
+          item,
+          index: itemIndex
+        };
+      })
+    );
+
+    return purchaseableItems;
+  }
+
+  MarketplaceItemByTemplateId(marketplace, templateId) {
+    const purchaseableItems = this.MarketplacePurchaseableItems(marketplace);
+    const item = marketplace.items.find(item =>
+      item.nft_template && !item.nft_template["/"] && item.nft_template.nft && item.nft_template.nft.template_id && item.nft_template.nft.template_id === templateId
+    );
+
+    if(item && purchaseableItems[item.sku]) {
+      return purchaseableItems[item.sku].item;
+    }
+  }
+
   // Actions
   SetMarketplaceFilters(filters) {
     this.marketplaceFilters = (filters || []).map(filter => filter.trim()).filter(filter => filter);
