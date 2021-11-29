@@ -84,6 +84,11 @@
     text-align: center;
   }
 
+  &__held-message {
+    color: $blue;
+    font-size: 12px;
+  }
+
   &__transfer-success {
     font-size: 14px;
     margin: 15px 0;
@@ -214,6 +219,10 @@
       a {
         color: $blue;
       }
+    }
+
+    &__held-message {
+      color: $blue;
     }
 
     &__transfer-error {

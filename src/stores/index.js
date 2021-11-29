@@ -281,6 +281,10 @@ class RootStore {
 
         if(!versionHash) { return; }
 
+        if(details.TokenHold) {
+          details.TokenHoldDate = new Date(parseInt(details.TokenHold) * 1000);
+        }
+
         return {
           ...details,
           ContractAddr: Utils.FormatAddress(details.ContractAddr),

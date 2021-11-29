@@ -17,13 +17,21 @@ import SanitizeHTML from "sanitize-html";
 import Confirm from "Components/common/Confirm";
 
 const TransferSection = observer(({nft}) => {
+  const heldDate = nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
   const notMetamask = !rootStore.MetamaskAvailable() && window.ethereum;
   const notMetaMaskMessage = " Other browser extensions like Coinbase may be preventing the wallet from accessing MetaMask. Please disable them and refresh the page.";
+
+  const heldMessage = heldDate ?
+    <h3 className="details-page__transfer-details details-page__held-message">
+      Note: This NFT is held until { heldDate } for payment settlement. You will not be able to transfer it until then.
+    </h3> : null;
 
   if(rootStore.embedded) {
     if(!rootStore.MetamaskAvailable()) {
       return (
         <div className="expandable-section__actions">
+          { heldMessage }
+
           <h3 className="details-page__transfer-details">
             You can transfer your NFT to another network using MetaMask. Please Install MetaMask to transfer your NFT.
           </h3>
@@ -43,6 +51,8 @@ const TransferSection = observer(({nft}) => {
 
     return (
       <div className="expandable-section__actions">
+        { heldMessage }
+
         <h3 className="details-page__transfer-details">
           You can transfer your NFT to another network using MetaMask. Click the link below to open the full wallet experience and transfer your NFT.
         </h3>
@@ -87,6 +97,8 @@ const TransferSection = observer(({nft}) => {
           </h3> : null
       }
 
+      { heldMessage }
+
       <h3 className="details-page__transfer-details">
         {
           rootStore.MetamaskAvailable() ?
@@ -112,7 +124,7 @@ const TransferSection = observer(({nft}) => {
             .map(({name, network, chainId}) => (
               <button
                 key={`transfer-button-${network}`}
-                disabled={!rootStore.MetamaskAvailable() || rootStore.metamaskChainId !== chainId}
+                disabled={heldMessage ||!rootStore.MetamaskAvailable() || rootStore.metamaskChainId !== chainId}
                 className="details-page__transfer-button"
                 onClick={async () => await Confirm({
                   message: `Are you sure you want to transfer this NFT to ${name}?`,
@@ -179,7 +191,7 @@ const NFTDetails = observer(() => {
               <div className="details-page__content__info card__text">
                 <div className="card__titles">
                   <div className="card__subtitle">
-                    { typeof nft.details.TokenOrdinal !== "undefined" ? `${parseInt(nft.details.TokenOrdinal)} / ${nft.details.Cap}` : match.params.tokenId }
+                    { typeof nft.details.TokenOrdinal !== "undefined" ? `${parseInt(nft.details.TokenOrdinal + 1)} / ${nft.details.Cap}` : match.params.tokenId }
                   </div>
 
                   <h2 className="card__title">
@@ -261,6 +273,9 @@ const NFTDetails = observer(() => {
               </div>
               : null
           }
+          <div>
+            Token ID: { nft.details.TokenIdStr }
+          </div>
           {
             nft.details.TokenOrdinal ?
               <div>
@@ -272,6 +287,13 @@ const NFTDetails = observer(() => {
             nft.metadata.total_supply ?
               <div>
                 Total Supply: { nft.metadata.total_supply }
+              </div>
+              : null
+          }
+          {
+            nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) ?
+              <div>
+                Held Until { nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
               </div>
               : null
           }
