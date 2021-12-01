@@ -2,6 +2,26 @@
   height: 100%;
 }
 
+.loader-button {
+  height: 40px;
+
+  &__loader {
+    height: 40px;
+    display: flex;
+    align-items: center;
+
+    .circle-loader {
+      height: 40px;
+      display: flex;
+      align-items: center;
+    }
+
+    .lds-default {
+      transform: scale(0.4)!important;
+    }
+  }
+}
+
 .page-loader,
 .loader {
   align-items: center;

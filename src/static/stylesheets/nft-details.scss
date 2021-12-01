@@ -248,6 +248,29 @@
   }
 }
 
+.prices-container {
+  align-items: center;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+  min-width: 275px;
+  padding: 7px 15px;
+  width: 100%;
+}
+
+.price-container {
+  &__label {
+    font-size: 14px;
+    font-weight: 300;
+  }
+
+  &__price {
+    font-size: 18px;
+    font-weight: 500;
+  }
+}
+
 .dark {
   .details-page {
     &__content__id {

@@ -27,7 +27,7 @@ const MarketplaceStorefront = observer(() => {
 
       if(item.max_per_user && marketplaceItems[item.sku] && marketplaceItems[item.sku].length >= item.max_per_user) {
         // Purchase limit
-        return;
+        // return;
       }
 
       // If filters are specified, item must match at least one

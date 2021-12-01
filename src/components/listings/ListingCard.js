@@ -70,7 +70,7 @@ const ListingCard = ({nft, link, Refresh}) => {
           ···
         </button>
         <Link to={link}>
-          <NFTImage className="listing-card__image" nft={nft} />
+          <NFTImage width={400} className="listing-card__image" nft={nft} />
         </Link>
         <div className="listing-card__content">
           <Link to={link} className="listing-card__header">

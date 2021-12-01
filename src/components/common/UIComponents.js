@@ -55,13 +55,15 @@ export const ItemPrice = (item, currency) => {
   return parseFloat(item.price[currency]);
 };
 
-export const FormatPriceString = (priceList, options={currency: "USD", trimZeros: false}) => {
-  const price = ItemPrice({price: priceList}, options.currency);
+export const FormatPriceString = (priceList, options={currency: "USD", quantity: 1, trimZeros: false}) => {
+  let price = ItemPrice({price: priceList}, options.currency || "USD");
 
   if(!price || isNaN(price)) { return; }
 
+  price = price * (options.quantity || 1);
+
   const currentLocale = (navigator.languages && navigator.languages.length) ? navigator.languages[0] : navigator.language;
-  let formattedPrice = new Intl.NumberFormat(currentLocale || "en-US", { style: "currency", currency: options.currency }).format(price);
+  let formattedPrice = new Intl.NumberFormat(currentLocale || "en-US", { style: "currency", currency: options.currency || "USD"}).format(price);
 
   if(options.trimZeros && formattedPrice.endsWith(".00")) {
     formattedPrice = formattedPrice.slice(0, -3);
@@ -70,16 +72,17 @@ export const FormatPriceString = (priceList, options={currency: "USD", trimZeros
   return formattedPrice;
 };
 
-export const ButtonWithLoader = ({children, className="", onClick}) => {
+export const ButtonWithLoader = ({children, className="", onClick, disabled}) => {
   const [loading, setLoading] = useState(false);
 
   return (
-    <div className={`button-container loader-button ${className}`}>
+    <div className="button-container loader-button">
       {
         loading ?
           <Loader className="loader-button__loader"/> :
           <button
-            className="button loader-button__button"
+            disabled={disabled}
+            className={`button action loader-button__button ${className}`}
             onClick={async () => {
               try {
                 setLoading(true);

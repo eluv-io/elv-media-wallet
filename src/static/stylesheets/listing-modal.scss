@@ -50,7 +50,7 @@
     align-items: center;
     display: flex;
     justify-content: center;
-    margin: 20px 0;
+    margin: 20px auto;
   }
 
   &__form__price-input {
@@ -58,14 +58,20 @@
     border-radius: 3px;
     font-size: 20px;
     height: 50px;
+    max-width: 290px;
     padding: 0 15px;
     width: 100%;
   }
 
   &__form__price-input-label {
     font-weight: bold;
-    margin-left: 35px;
+    margin-left: 25px;
     text-align: center;
+  }
+
+  .listing-modal-card {
+    margin: 20px auto 35px;
+    max-width: 350px;
   }
 
   &__details {
@@ -105,20 +111,41 @@
       margin-right: 10px;
     }
 
-    &-primary {
-      background-color: $blue;
-      border: 1px solid $blue;
-      color: $white;
-    }
-
-    &-delete {
-      background-color: $darkergray;
-      border: 1px solid $darkergray;
-      color: $white;
-    }
-
     &:disabled {
       opacity: 0.5;
+    }
+  }
+}
+
+.listing-modal-card {
+  .card {
+    background-color: $white;
+
+    &__image-container {
+      margin-bottom: 20px;
+    }
+
+    &__image {
+      border: 1px solid $lightgray;
+      border-radius: 6px;
+    }
+
+    &__title {
+      font-size: 16px;
+    }
+
+    &__subtitle,
+    &__stock {
+      font-size: 14px;
+    }
+
+    &__subtitle {
+      margin: 15px 0 5px;
+    }
+
+    &__title-edition {
+      font-size: 12px;
+      margin: 0;
     }
   }
 }
@@ -188,14 +215,14 @@
     &__active-listings {
       border: 1px solid $darkergray;
     }
+  }
 
-    &__action {
-      &-primary {
-        border: 1px solid $blue;
-      }
+  .listing-modal-card {
+    .card {
+      background-color: $black;
 
-      &-delete {
-        border: 1px solid $darkergray;
+      &__image {
+        border: 1px solid $darkestgray;
       }
     }
   }

@@ -130,7 +130,7 @@ const TransferSection = observer(({nft}) => {
               <button
                 key={`transfer-button-${network}`}
                 disabled={heldMessage ||!rootStore.MetamaskAvailable() || rootStore.metamaskChainId !== chainId}
-                className="details-page__transfer-button"
+                className="action details-page__transfer-button"
                 onClick={async () => await Confirm({
                   message: `Are you sure you want to transfer this NFT to ${name}?`,
                   Confirm: async () => {

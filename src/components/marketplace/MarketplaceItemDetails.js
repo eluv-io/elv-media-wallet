@@ -92,11 +92,7 @@ const MarketplaceItemDetails = observer(() => {
         {
           outOfStock ?
             null :
-            <MarketplaceCheckout
-              marketplaceId={match.params.marketplaceId}
-              item={item}
-              maxQuantity={stock && (stock.max_per_user || stock.max - stock.minted)}
-            />
+            <MarketplaceCheckout item={item} />
         }
 
         <ExpandableSection header="Description" icon={DescriptionIcon}>

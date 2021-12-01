@@ -19,10 +19,11 @@
   position: relative;
 
   &__header {
+    align-items: center;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 25px 25px 10px;
+    padding: 15px 25px 10px;
   }
 
   &__nft-info-container {
@@ -63,6 +64,18 @@
     width: 150px;
   }
 
+  &__max-owned-message {
+    font-size: 12px;
+    font-weight: 300;
+    margin: 20px 0 0;
+  }
+
+  &__direct-price {
+    align-items: center;
+    display: flex;
+    width: 100%;
+  }
+
   &__buy-container {
     align-items: center;
     border: 1px solid $mediumgray;
@@ -73,6 +86,19 @@
     max-width: 400px;
     padding: 15px 25px;
     width: 100%;
+  }
+
+  .price-container {
+    width: 100%;
+  }
+
+  &__buy-container-with-quantity {
+    flex-direction: column;
+    padding-top: 5px;
+
+    .listing-purchase-modal__action {
+      margin-top: 10px;
+    }
   }
 
   &__stock {
@@ -160,21 +186,6 @@
     &:not(:last-child) {
       margin-right: 10px;
     }
-
-    &-primary {
-      background-color: $blue;
-      border: 1px solid $blue;
-      color: $white;
-    }
-
-    &-delete {
-      background-color: $darkergray;
-      color: $white;
-    }
-
-    &:disabled {
-      opacity: 0.5;
-    }
   }
 }
 
@@ -198,42 +209,36 @@
     padding: 25px 35px 50px;
   }
 
-  &__nft-details {
-    margin: 0 auto;
+  .listing-modal-card {
+    margin: 0 auto 20px;
     max-width: 350px;
   }
 
-  .card {
-    background-color: $white;
+  &__price-details,
+  &__payment-options {
+    border: 1px solid $mediumgray;
+    border-radius: 6px;
+    padding: 25px;
+  }
 
-    &__image-container {
-      margin-bottom: 20px;
-    }
+  &__price-details {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin: 25px auto;
+    max-width: 350px;
 
-    &__title {
+    .price-container__label {
       font-size: 16px;
     }
 
-    &__subtitle,
-    &__stock {
-      font-size: 14px;
-    }
-
-    &__subtitle {
-      margin: 15px 0 5px;
-    }
-
-    &__title-edition {
-      font-size: 12px;
-      margin: 0;
+    .price-container__price {
+      font-size: 24px;
     }
   }
 
   &__payment-options {
-    border: 1px solid $mediumgray;
-    border-radius: 6px;
     margin-top: 25px;
-    padding: 25px;
   }
 
   &__payment-message {
@@ -261,14 +266,56 @@
   }
 
   &__payment-submit {
-    background-color: $blue;
-    border: 1px solid $blue;
-    color: $white;
     width: 100%;
+  }
+}
 
-    &:disabled {
-      opacity: 0.5;
+.quantity {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  &__label {
+    color: $darkgray;
+    font-size: 12px;
+    margin-left: -7px;
+  }
+
+  &__inputs {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+  }
+
+  &__button {
+    border-radius: 3px;
+    font-size: 24px;
+    font-weight: 200;
+    padding: 0 10px;
+  }
+
+  &__input {
+    appearance: textfield;
+    border: 1px solid $mediumgray;
+    border-radius: 6px;
+    font-size: 20px;
+    font-weight: 300;
+    height: 40px;
+    margin: 0 5px;
+    max-width: 50px;
+    min-width: 50px;
+    text-align: center;
+
+    // sass-lint:disable no-vendor-prefixes
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      appearance: none;
+      margin: 0;
     }
+
+    // sass-lint:enable no-vendor-prefixes
   }
 }
 
@@ -277,10 +324,6 @@
     &__nft-info-container {
       align-items: center;
       justify-content: center;
-    }
-
-    &__buy-container {
-      max-width: unset;
     }
 
     &__listing-info {
@@ -372,12 +415,6 @@
     &__prices-container {
       background-color: $black;
     }
-
-    &__action {
-      &-primary {
-        border: 1px solid $blue;
-      }
-    }
   }
 
   .listing-purchase-confirmation-modal {
@@ -388,10 +425,7 @@
       border-bottom: 1px solid $darkergray;
     }
 
-    .card {
-      background-color: $black;
-    }
-
+    &__price-details,
     &__payment-options {
       border: 1px solid $darkergray;
     }
@@ -401,9 +435,16 @@
         border: 1px solid $blue;
       }
     }
+  }
 
-    &__payment-submit {
-      border: 1px solid $blue;
+  .quantity {
+    &__label {
+      color: $mediumgray;
+    }
+
+    &__input {
+      background-color: $black;
+      border: 1px solid $darkgray;
     }
   }
 }

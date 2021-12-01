@@ -1,13 +1,95 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {FormatPriceString, ItemPrice} from "Components/common/UIComponents";
-import {checkoutStore, rootStore} from "Stores";
+import {checkoutStore, rootStore, transferStore} from "Stores";
 import {Redirect} from "react-router-dom";
 import UrlJoin from "url-join";
 import {Loader} from "Components/common/Loaders";
 import {ValidEmail} from "../../utils/Utils";
+import AsyncComponent from "Components/common/AsyncComponent";
+import ListingPurchaseModal from "Components/listings/ListingPurchaseModal";
 
-const MarketplaceCheckout = observer(({marketplaceId, item, maxQuantity}) => {
+const MarketplaceCheckout = observer(({item}) => {
+  const [showModal, setShowModal] = useState(false);
+
+  const itemTemplate = item.nft_template ? item.nft_template.nft || {} : {};
+  const listings = transferStore.TransferListings({contractAddress: itemTemplate.address});
+  const listingPrices = listings.map(listing => listing.details.Total).sort((a, b) => a < b ? -1 : 1);
+
+  const directPrice = ItemPrice(item, checkoutStore.currency);
+  const free = !directPrice || item.free;
+
+  const stock = checkoutStore.stock[item.sku] || {};
+  const outOfStock = stock && stock.max && stock.minted >= stock.max;
+  const maxOwned = stock && stock.max_per_user && stock.current_user >= stock.max_per_user;
+
+  const itemToNFT = {
+    details: {
+      ContractAddr: itemTemplate.address
+    },
+    metadata: itemTemplate
+  };
+
+  return (
+    <AsyncComponent
+      loadingClassName="marketplace-price marketplace-price__loader"
+      Load={async () => {
+        await transferStore.FetchTransferListings({
+          contractAddress: itemTemplate.address
+        });
+      }}
+    >
+      { showModal ? <ListingPurchaseModal nft={itemToNFT} item={item} Close={() => setShowModal(false)} /> : null }
+      <div className="marketplace-price">
+        <div className="marketplace-price__direct">
+          <div className="marketplace-price__direct__price">
+            { free ?
+              "Free!" :
+              outOfStock ? "Out of Stock" : FormatPriceString({USD: directPrice}) }
+          </div>
+          {
+            maxOwned ?
+              <h3 className="marketplace-price__direct__max-owned-message">
+                You already own the maximum number of this NFT
+              </h3> :
+              <button
+                onClick={() => setShowModal(true)}
+                disabled={outOfStock && listings.length === 0}
+                className="action action-primary"
+              >
+                { free && !outOfStock ? "Claim Now" : "Buy Now" }
+              </button>
+          }
+        </div>
+        <div className={`marketplace-price__listings ${listings.length === 0 ? "hidden" : ""}`}>
+          <h3 className="marketplace-price__listings-count">
+            { listings.length } Offer{ listings.length > 1 ? "s" : "" } from Collectors
+          </h3>
+          <div className="prices-container">
+            <div className="price-container">
+              <label className="price-container__label">
+                Low Price
+              </label>
+              <div className="price-container__price">
+                {FormatPriceString({USD: listingPrices[0]})}
+              </div>
+            </div>
+            <div className="price-container">
+              <label className="price-container__label">
+                High Price
+              </label>
+              <div className="price-container__price">
+                {FormatPriceString({USD: listingPrices.slice(-1)})}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </AsyncComponent>
+  );
+});
+
+const MarketplaceCheckout2 = observer(({marketplaceId, item, maxQuantity}) => {
   if(!maxQuantity) { maxQuantity = 100; }
 
   const total = ItemPrice(item, checkoutStore.currency);

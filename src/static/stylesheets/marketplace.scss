@@ -108,6 +108,62 @@
   }
 }
 
+.marketplace-price {
+  border: 1px solid $mediumgray;
+  border-radius: 6px;
+
+  &__loader {
+    height: auto;
+  }
+
+  &__direct,
+  &__listings {
+    padding: 15px 25px;
+  }
+
+  &__direct {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+
+    &__price {
+      font-size: 24px;
+      font-weight: 500;
+      margin-right: 50px;
+    }
+
+    &__max-owned-message {
+      font-size: 12px;
+      font-weight: 300;
+      text-align: center;
+    }
+
+    .action-primary {
+      min-width: 150px;
+    }
+  }
+
+  &__listings {
+    border-top: 1px solid $mediumgray;
+  }
+
+  &__listings-count {
+    font-size: 16px;
+    font-weight: normal;
+  }
+
+  .prices-container {
+    border-radius: 0;
+    margin: 10px 0 0;
+    max-width: 300px;
+    padding: 0;
+  }
+
+  .price-container__label {
+    color: $darkgray;
+  }
+}
+
 .checkout {
   align-items: center;
   display: flex;
@@ -134,40 +190,6 @@
     font-size: 24px;
     font-weight: 500;
     margin-bottom: 10px;
-  }
-
-  &__quantity-container {
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    margin: 10px 0;
-    max-width: 250px;
-    width: 100%;
-  }
-
-  &__quantity-button {
-    border-radius: 3px;
-    font-size: 24px;
-    font-weight: 200;
-    padding: 0 10px;
-  }
-
-  &__quantity {
-    appearance: textfield;
-    border: 1px solid $mediumgray;
-    font-size: 20px;
-    font-weight: 300;
-    height: 40px;
-    margin: 0 5px;
-    width: 100%;
-
-    // sass-lint:disable no-vendor-prefixes
-    &::-webkit-outer-spin-button,
-    &::-webkit-inner-spin-button {
-      appearance: none;
-      margin: 0;
-    }
-    // sass-lint:enable no-vendor-prefixes
   }
 
   &__actions {
@@ -207,16 +229,23 @@
 }
 
 .dark {
+  .marketplace-price {
+    border: 1px solid $darkgray;
+
+    &__listings {
+      border-top: 1px solid $darkgray;
+    }
+
+    .price-container__label {
+      color: $mediumgray;
+    }
+  }
+
   .checkout {
     &__button {
       &:not(.checkout__button-coinbase) {
         border: 1px solid $blue;
       }
-    }
-
-    &__quantity {
-      background-color: $black;
-      border: 1px solid $darkgray;
     }
   }
 }

@@ -73,15 +73,19 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
                 <div className="transfer-table__empty">No Active Listings</div> :
                 sortedListings.map((nft, index) =>
                   <div
+                    tabIndex={0}
+                    role="button"
+                    aria-roledescription="button"
                     key={`transfer-table-row-${index}`}
-                    onClick={() => {
-                      if(!Select) { return; }
+                    onClick={
+                      !Select ? undefined :
+                        () => {
+                          const selected = selectedListingId === nft.details.ListingId ? undefined : nft.details.ListingId;
 
-                      const selected = selectedListingId === nft.details.ListingId ? undefined : nft.details.ListingId;
-
-                      setSelectedListingId(selected);
-                      Select(selected);
-                    }}
+                          setSelectedListingId(selected);
+                          Select(selected);
+                        }
+                    }
                     className={`transfer-table__table__row ${selectedListingId === nft.details.ListingId ? "transfer-table__table__row-selected" : ""} ${Select ? "transfer-table__table__row-selectable" : ""}`}
                   >
                     <div className="transfer-table__table__cell">
@@ -91,7 +95,7 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
                       { `$${nft.details.Total.toFixed(2)}`}
                     </div>
                     <div className="transfer-table__table__cell no-mobile">
-                      { MiddleEllipsis(nft.details.SellerAddress, 10) }
+                      { MiddleEllipsis(nft.details.SellerAddress, 12) }
                     </div>
                   </div>
                 )

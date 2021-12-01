@@ -1,10 +1,10 @@
 import React, {useState, useRef} from "react";
 import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
-import {NFTImage} from "Components/common/Images";
 import Confirm from "Components/common/Confirm";
 import {ActiveListings} from "Components/listings/TransferTables";
 import {transferStore} from "Stores";
+import ListingModalCard from "Components/listings/ListingModalCard";
 
 const ListingModal = observer(({nft, Close}) => {
   const [price, setPrice] = useState(nft.details.Total ? nft.details.Total.toFixed(2) : "");
@@ -44,13 +44,13 @@ const ListingModal = observer(({nft, Close}) => {
           <ActiveListings contractAddress={nft.details.ContractAddr} />
         </div>
         <div className="listing-modal__actions">
-          <button className="listing-modal__action" onClick={() => Close()}>
+          <button className="action listing-modal__action" onClick={() => Close()}>
             Cancel
           </button>
           {
             nft.details.ListingId ?
               <button
-                className="listing-modal__action listing-modal__action-delete"
+                className="action action-danger listing-modal__action listing-modal__action-delete"
                 onClick={async () => Confirm({
                   message: "Are you sure you want to remove this listing?",
                   Confirm: async () => {
@@ -65,7 +65,7 @@ const ListingModal = observer(({nft, Close}) => {
           }
           <button
             disabled={!parsedPrice || isNaN(parsedPrice) || parsedPrice - serviceFee <= 0}
-            className="listing-modal__action listing-modal__action-primary"
+            className="action action-primary listing-modal__action listing-modal__action-primary"
             onClick={() => {
               setShowConfirmation(true);
 
@@ -99,7 +99,7 @@ const ListingModal = observer(({nft, Close}) => {
         </div>
         <div className="listing-modal__actions">
           <button
-            className="listing-modal__action"
+            className="action listing-modal__action"
             onClick={() => {
               setShowConfirmation(false);
 
@@ -109,7 +109,7 @@ const ListingModal = observer(({nft, Close}) => {
             Back
           </button>
           <button
-            className="listing-modal__action listing-modal__action-primary"
+            className="action action-primary listing-modal__action listing-modal__action-primary"
             onClick={async () => Confirm({
               message: "Are you sure you want to list this NFT?",
               Confirm: async () => {
@@ -141,21 +141,7 @@ const ListingModal = observer(({nft, Close}) => {
       <div className="listing-modal" ref={ref}>
         <h1 className="listing-modal__header">List Your NFT for Sale</h1>
         <div className="listing-modal__content">
-          <div className="listing-modal__image-container">
-            <div className="card-padding-container">
-              <NFTImage nft={nft} className="listing-modal__image" />
-            </div>
-          </div>
-          <div className="listing-modal__nft-info">
-            <div className="card__titles">
-              <div className="card__subtitle">
-                { typeof nft.details.TokenOrdinal !== "undefined" ? `${parseInt(nft.details.TokenOrdinal)} / ${nft.details.Cap}` : nft.details.TokenIdStr }
-              </div>
-              <h2 className="card__title">
-                { nft.metadata.display_name }
-              </h2>
-            </div>
-          </div>
+          <ListingModalCard nft={nft} price={{USD: parsedPrice}} />
           { showConfirmation ? ConfirmationStage() : InputStage() }
         </div>
       </div>

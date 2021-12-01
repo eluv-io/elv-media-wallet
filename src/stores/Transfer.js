@@ -179,7 +179,7 @@ class TransferStore {
     try {
       let path = "/mkt/ls";
       if(userAddress) {
-        //path = UrlJoin("mkt", "ls", "s", userAddress);
+        path = UrlJoin("mkt", "ls", "s", userAddress);
       } else if(tenantId) {
         path = UrlJoin("mkt", "ls", "tnt", tenantId);
       } else if(contractAddress) {
