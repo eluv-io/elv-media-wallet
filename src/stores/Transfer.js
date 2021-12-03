@@ -78,6 +78,14 @@ class TransferStore {
 
   listings = {};
 
+  filters = {
+    sort_by: "created",
+    sort_desc: false,
+    filters: [],
+    collectionIndex: -1,
+    limit: 50,
+    start: 0
+  }
 
   get client() {
     return this.rootStore.client;
@@ -168,7 +176,16 @@ class TransferStore {
     return listings;
   }
 
-  FetchTransferListings = flow(function * ({listingId, tenantId, userId, userAddress, contractId, contractAddress, tokenId, forceUpdate}={}) {
+  FetchTransferListings = flow(function * ({
+    listingId,
+    tenantId,
+    userId,
+    userAddress,
+    contractId,
+    contractAddress,
+    tokenId,
+    forceUpdate
+  }={}) {
     if(userId) { userAddress = Utils.HashToAddress(userId); }
 
     if(contractId) { contractAddress = Utils.HashToAddress(contractId); }
@@ -216,6 +233,80 @@ class TransferStore {
       if(error.status && error.status.toString() === "404") {
         this.listings[listingKey] = [];
 
+        return [];
+      }
+
+      throw error;
+    }
+  });
+
+  FilteredTransferListings = flow(function * ({
+    sortBy="created",
+    sortDesc=false,
+    contractAddress,
+    marketplace,
+    collectionIndex=-1,
+    page=1,
+    perPage=50
+  }={}) {
+    collectionIndex = parseInt(collectionIndex);
+
+    try {
+      let params = {
+        sortBy,
+        sortDesc,
+        start: (page - 1) * perPage,
+        limit: perPage
+      };
+
+      let filters = [];
+      if(marketplace && collectionIndex >= 0) {
+        const collection = marketplace.collections[collectionIndex];
+
+        collection.items.forEach(sku => {
+          if(!sku) { return; }
+
+          const item = marketplace.items.find(item => item.sku === sku);
+
+          if(!item) { return; }
+
+          const address = Utils.SafeTraverse(item, "nft_template", "nft", "address");
+
+          if(address) {
+            filters.push(
+              `contract:eq:${Utils.FormatAddress(address)}`
+            );
+          }
+        });
+
+        // No valid items, so there must not be anything relevant in the collection
+        if(filters.length === 0) {
+          return [];
+        }
+      }
+
+      if(contractAddress) {
+        filters.push(`contract:eq:${Utils.FormatAddress(contractAddress)}`);
+      }
+
+      if(filters.length > 0) {
+        params.filter = filters;
+      }
+
+      const listings = yield Utils.ResponseToJson(
+        yield this.client.authClient.MakeAuthServiceRequest({
+          path: UrlJoin("as", "mkt", "f"),
+          method: "GET",
+          queryParams: params,
+          headers: {
+            Authorization: `Bearer ${this.client.signer.authToken}`
+          }
+        })
+      ) || [];
+
+      return listings.map(listing => this.FormatListing(listing));
+    } catch(error) {
+      if(error.status && error.status.toString() === "404") {
         return [];
       }
 

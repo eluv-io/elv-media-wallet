@@ -239,7 +239,7 @@ const NFTDetails = observer(() => {
       return (
         <div className="details-page__actions">
           <ButtonWithLoader
-            className="details-page__listing-button"
+            className="details-page__listing-button action action-primary"
             onClick={() => setShowPurchaseModal(true)}
           >
             Buy Now
@@ -263,7 +263,7 @@ const NFTDetails = observer(() => {
           }
 
           <ButtonWithLoader
-            className="details-page__listing-button"
+            className="action action-primary details-page__listing-button"
             onClick={() => setShowListingModal(true)}
           >
             { listing ? "Edit Listing" : "List for Sale" }

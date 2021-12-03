@@ -62,7 +62,7 @@ const ListingCard = ({nft, link, Refresh}) => {
       <div className="listing-card" ref={ref}>
         { showMenu ? <Menu /> : null }
         <button
-          className="listing-card__menu-button"
+          className="action listing-card__menu-button"
           onClick={() => {
             setShowMenu(!showMenu);
           }}

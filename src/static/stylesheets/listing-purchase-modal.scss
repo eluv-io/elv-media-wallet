@@ -55,13 +55,13 @@
 
   .card__image-container,
   &__image {
-    height: 150px;
-    max-height: 150px;
-    max-width: 150px;
-    min-height: 150px;
-    min-width: 150px;
+    height: 140px;
+    max-height: 140px;
+    max-width: 140px;
+    min-height: 140px;
+    min-width: 140px;
     padding: 0;
-    width: 150px;
+    width: 140px;
   }
 
   &__max-owned-message {
@@ -96,8 +96,8 @@
     flex-direction: column;
     padding-top: 5px;
 
-    .listing-purchase-modal__action {
-      margin-top: 10px;
+    .listing-purchase-modal__direct-price {
+      margin-bottom: 5px;
     }
   }
 
@@ -166,6 +166,7 @@
     display: flex;
     height: 100px;
     justify-content: space-between;
+    min-height: 100px;
     padding: 25px;
 
     &:empty {
@@ -286,7 +287,7 @@
     align-items: center;
     display: flex;
     justify-content: center;
-    margin: 10px 0;
+    margin: 5px 0;
   }
 
   &__button {

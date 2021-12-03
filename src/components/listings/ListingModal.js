@@ -12,7 +12,8 @@ const ListingModal = observer(({nft, Close}) => {
   const ref = useRef(null);
 
   const parsedPrice = isNaN(parseFloat(price)) ? 0 : parseFloat(price);
-  const serviceFee = 0.99; //parsedPrice * 0.1;
+  const serviceFee = Math.max(0.99, parsedPrice - parsedPrice / 1.025);
+  const payout = parseFloat((parsedPrice - serviceFee).toFixed(2));
 
   const InputStage = () => {
     return (
@@ -36,7 +37,7 @@ const ListingModal = observer(({nft, Close}) => {
           </div>
           <div className="listing-modal__detail">
             <label>Total Payout</label>
-            <div>${Math.max(0, (parsedPrice - serviceFee)).toFixed(2)}</div>
+            <div>${Math.max(0, payout).toFixed(2)}</div>
           </div>
         </div>
         <div className="listing-modal__active-listings">
@@ -64,7 +65,7 @@ const ListingModal = observer(({nft, Close}) => {
               </button> : null
           }
           <button
-            disabled={!parsedPrice || isNaN(parsedPrice) || parsedPrice - serviceFee <= 0}
+            disabled={!parsedPrice || isNaN(parsedPrice) || payout <= 0}
             className="action action-primary listing-modal__action listing-modal__action-primary"
             onClick={() => {
               setShowConfirmation(true);
@@ -94,7 +95,7 @@ const ListingModal = observer(({nft, Close}) => {
           </div>
           <div className="listing-modal__detail">
             <label>Total Payout</label>
-            <div>${(parsedPrice - serviceFee).toFixed(2)}</div>
+            <div>${payout.toFixed(2)}</div>
           </div>
         </div>
         <div className="listing-modal__actions">
@@ -116,7 +117,7 @@ const ListingModal = observer(({nft, Close}) => {
                 const listingId = await transferStore.CreateListing({
                   contractAddress: nft.details.ContractAddr,
                   tokenId: nft.details.TokenIdStr,
-                  price: parsedPrice - serviceFee,
+                  price: payout,
                   listingId: nft.details.ListingId
                 });
 

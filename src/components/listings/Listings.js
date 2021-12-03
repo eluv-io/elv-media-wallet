@@ -5,19 +5,24 @@ import AsyncComponent from "Components/common/AsyncComponent";
 import {rootStore, transferStore} from "Stores";
 import ListingCard from "Components/listings/ListingCard";
 import UrlJoin from "url-join";
+import ListingFilters from "Components/listings/ListingFilters";
 
 const Listings = observer(() => {
   const match = useRouteMatch();
   const [key, setKey] = useState(0);
+
   let listings = transferStore.TransferListings({userAddress: rootStore.userAddress, marketplaceId: match.params.marketplaceId});
 
   return (
     <AsyncComponent
       key={`listing-page-${key}`}
       loadingClassName="page-loader"
-      Load={async () => await transferStore.FetchTransferListings({userAddress: rootStore.userAddress, forceUpdate: key > 0})}
+      Load={async () =>
+        await transferStore.FetchTransferListings({userAddress: rootStore.userAddress, forceUpdate: key > 0})
+      }
     >
       <div className="listings-page">
+        <ListingFilters RetrieveListings={() => {}}/>
         <h2 className="listings-page__header">
           <div className="header-dot" style={{backgroundColor: listings.length > 0 ? "#08b908" : "#a4a4a4"}} />
           { listings.length > 0 ? "My Active Listings" : "No Active Listings" }

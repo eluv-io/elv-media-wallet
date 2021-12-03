@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {observer} from "mobx-react";
 import {Link, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
@@ -7,22 +7,35 @@ import AsyncComponent from "Components/common/AsyncComponent";
 import {NFTImage} from "Components/common/Images";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 import {FormatPriceString} from "Components/common/UIComponents";
+import {PageLoader} from "Components/common/Loaders";
+import ListingFilters from "Components/listings/ListingFilters";
 
 const MarketplaceListings = observer(() => {
   const match = useRouteMatch();
-  const listings = transferStore.TransferListings({marketplaceId: match.params.marketplaceId});
+
+  const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const LoadListings = async (params) => {
+    setLoading(true);
+
+    try {
+      setListings(
+        await transferStore.FilteredTransferListings(params)
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <AsyncComponent
-      loadingClassName="page-loader"
-      Load={async () => {
-        await transferStore.FetchTransferListings({forceUpdate: true});
-      }}
-    >
-      <div className="marketplace-listings marketplace__section">
-        <h1 className="page-header">Available Listings</h1>
-        <div className="card-list">
-          {
+    <div className="marketplace-listings marketplace__section">
+      <ListingFilters RetrieveListings={LoadListings} />
+      <h1 className="page-header">Available Listings</h1>
+      <div className="card-list">
+        {
+          loading ?
+            <PageLoader /> :
             listings.map((listing, index) =>
               <div className="card-container card-shadow" key={`listing-card-${index}`}>
                 <Link
@@ -56,10 +69,9 @@ const MarketplaceListings = observer(() => {
                 </Link>
               </div>
             )
-          }
-        </div>
+        }
       </div>
-    </AsyncComponent>
+    </div>
   );
 });
 

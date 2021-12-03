@@ -32,7 +32,6 @@ const MarketplaceCollections = observer(() => {
       return null;
     }
 
-
     const collectionItems = collection.items.map((sku, entryIndex) => {
       const key = `collection-card-${collectionIndex}-${entryIndex}`;
       const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
