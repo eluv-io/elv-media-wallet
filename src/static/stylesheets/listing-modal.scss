@@ -1,4 +1,4 @@
-.listing-modal-container {
+.listing-modal-container2 {
   .modal__content {
     max-width: 620px;
     overflow-y: auto;
@@ -6,6 +6,20 @@
     width: 100%;
   }
 }
+
+.listing-modal-container {
+  .modal__content {
+    height: max-content;
+    max-height: unset;
+    max-width: 600px;
+    overflow-y: hidden;
+    padding-bottom: 5vh;
+    padding-right: 8px;
+    top: 5vh;
+    width: 100%;
+  }
+}
+
 
 .listing-modal {
   background-color: $white;
@@ -51,6 +65,20 @@
     display: flex;
     justify-content: center;
     margin: 20px auto;
+    max-width: 350px;
+    position: relative;
+
+    .listing-modal__form__error {
+      bottom: -20px;
+      position: absolute;
+      text-align: left;
+      width: 100%;
+    }
+  }
+
+  &__form__error {
+    color: $red;
+    font-size: 10px;
   }
 
   &__form__price-input {
@@ -61,6 +89,10 @@
     max-width: 290px;
     padding: 0 15px;
     width: 100%;
+
+    &-error {
+      filter: drop-shadow(0 0 3px $red);
+    }
   }
 
   &__form__price-input-label {
@@ -200,6 +232,10 @@
     &__form__price-input {
       background-color: $black;
       border: 1px solid $darkgray;
+    }
+
+    &__form__error {
+      color: $mediumgray;
     }
 
     &__detail-faded {

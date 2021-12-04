@@ -246,17 +246,17 @@ class TransferStore {
     contractAddress,
     marketplace,
     collectionIndex=-1,
-    page=1,
-    perPage=50
+    start,
+    limit=50
   }={}) {
     collectionIndex = parseInt(collectionIndex);
 
     try {
       let params = {
-        sortBy,
-        sortDesc,
-        start: (page - 1) * perPage,
-        limit: perPage
+        sort_by: sortBy,
+        sort_descending: sortDesc,
+        start,
+        limit
       };
 
       let filters = [];
@@ -281,7 +281,15 @@ class TransferStore {
 
         // No valid items, so there must not be anything relevant in the collection
         if(filters.length === 0) {
-          return [];
+          return {
+            paging: {
+              start: params.start,
+              limit: params.limit,
+              total: 0,
+              more: false
+            },
+            listings: []
+          };
         }
       }
 
@@ -293,7 +301,7 @@ class TransferStore {
         params.filter = filters;
       }
 
-      const listings = yield Utils.ResponseToJson(
+      const { contents, paging } = yield Utils.ResponseToJson(
         yield this.client.authClient.MakeAuthServiceRequest({
           path: UrlJoin("as", "mkt", "f"),
           method: "GET",
@@ -304,10 +312,26 @@ class TransferStore {
         })
       ) || [];
 
-      return listings.map(listing => this.FormatListing(listing));
+      return {
+        paging: {
+          start: params.start,
+          limit: params.limit,
+          total: paging.total,
+          more: paging.total > start + limit
+        },
+        listings: contents.map(listing => this.FormatListing(listing))
+      };
     } catch(error) {
       if(error.status && error.status.toString() === "404") {
-        return [];
+        return {
+          paging: {
+            start: params.start,
+            limit: params.limit,
+            total: 0,
+            more: false
+          },
+          listings: []
+        };
       }
 
       throw error;

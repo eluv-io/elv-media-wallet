@@ -1,9 +1,12 @@
 .listing-purchase-modal-container {
   .modal__content {
-    height: 90vh;
+    height: max-content;
+    max-height: unset;
     max-width: 600px;
-    overflow-y: auto;
+    overflow-y: hidden;
+    padding-bottom: 5vh;
     padding-right: 8px;
+    top: 5vh;
     width: 100%;
   }
 }
@@ -158,7 +161,7 @@
 
   .transfer-table {
     margin: 0;
-    //max-height: 300px;
+    max-height: 300px;
   }
 
   &__footer {

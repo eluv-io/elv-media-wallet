@@ -18,16 +18,19 @@ CREATE TABLE IF NOT EXISTS listings (
 import React, {useState, useEffect} from "react";
 import {observer} from "mobx-react";
 import {useRouteMatch} from "react-router-dom";
-import {rootStore} from "Stores";
+import {rootStore, transferStore} from "Stores";
 import AutoComplete from "Components/common/AutoComplete";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {ButtonWithLoader} from "Components/common/UIComponents";
+import {v4 as UUID} from "uuid";
 
 const sortOptions = [
   { key: "created", value: "created", label: "Recently Listed", desc: false},
   { key: "ord", value: "ord", label: "Ordinal", desc: false},
   { key: "price", value: "price_asc", label: "Price (Low to High)", desc: false},
-  { key: "price", value: "price_desc", label: "Price (High to Low)", desc: true}
+  { key: "price", value: "price_desc", label: "Price (High to Low)", desc: true},
+  { key: "/nft/display_name", value: "display_name_asc", label: "Name (A-Z)", desc: false},
+  { key: "/nft/display_name", value: "display_name_desc", label: "Name (Z-A)", desc: true}
 ];
 
 const FilterDropdown = observer(({label, value, options, onChange}) => {
@@ -49,10 +52,16 @@ const FilterDropdown = observer(({label, value, options, onChange}) => {
   );
 });
 
-export const ListingFilters = observer(({RetrieveListings}) => {
+export const ListingFilters = observer(({Loading, UpdateListings}) => {
   const match = useRouteMatch();
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const collections = marketplace && marketplace.collections;
+
+  const [loading, setLoading] = useState(false);
+  const [loadKey, setLoadKey] = useState(undefined);
+  const [results, setResults] = useState([]);
+  const [moreResults, setMoreResults] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [sort, setSort] = useState("created");
   const [sortBy, setSortBy] = useState("created");
@@ -61,15 +70,69 @@ export const ListingFilters = observer(({RetrieveListings}) => {
   const [filter, setFilter] = useState("");
   const [filterContractAddr, setFilterContractAddr] = useState("");
 
+  const perPage = 4;
+  let scrollTimeout;
+
+  const Load = async ({page=1, currentResults=[]}) => {
+    setCurrentPage(page);
+    setMoreResults(false);
+
+    try {
+      setLoading(true);
+
+      if(Loading) { Loading(true); }
+
+      const {listings, paging} = await transferStore.FilteredTransferListings({
+        sortBy,
+        sortDesc,
+        contractAddress: filterContractAddr,
+        collectionIndex,
+        marketplace,
+        start: (page - 1) * perPage,
+        limit: perPage
+      });
+
+      const allListings = [...currentResults, ...listings];
+
+      setResults(allListings);
+      setMoreResults(paging.more);
+
+      if(UpdateListings) { UpdateListings(allListings); }
+    } finally {
+      setLoading(false);
+
+      if(Loading) { Loading(false); }
+    }
+  };
+
+  // Update key when scrolled to the bottom of the page
   useEffect(() => {
-    RetrieveListings({
-      sortBy,
-      sortDesc,
-      contractAddress: filterContractAddr,
-      collectionIndex,
-      marketplace
-    });
+    const InfiniteScroll = () => {
+      if(Math.abs((window.innerHeight + window.scrollY) - document.body.offsetHeight) < 10) {
+        clearTimeout(scrollTimeout);
+
+        scrollTimeout = setTimeout(() => {
+          setLoadKey(UUID());
+        }, 300);
+      }
+    };
+
+    window.addEventListener("scroll", InfiniteScroll);
+
+    return () => window.removeEventListener("scroll", InfiniteScroll);
   }, []);
+
+  // Initial page load
+  useEffect(() => {
+    Load({page: 1});
+  }, []);
+
+  // Load triggered by scroll detection updating a key
+  useEffect(() => {
+    if(!loadKey || loading || !moreResults) { return; }
+
+    Load({page: currentPage + 1, currentResults: results});
+  }, [loadKey]);
 
   return (
     <div className="listing-filters">
@@ -119,21 +182,10 @@ export const ListingFilters = observer(({RetrieveListings}) => {
       <div className="listing-filters__actions actions-container">
         <ButtonWithLoader
           className="action action-primary"
-          onClick={async () => {
-            await RetrieveListings({
-              sortBy,
-              sortDesc,
-              contractAddress: filterContractAddr,
-              collectionIndex,
-              marketplace
-            });
-          }}
+          onClick={async () => await Load({page: 1})}
         >
           Filter Results
         </ButtonWithLoader>
-        <button className="action action-secondary">
-          Clear Filters
-        </button>
       </div>
     </div>
   );

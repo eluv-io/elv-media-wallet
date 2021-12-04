@@ -248,7 +248,8 @@ button {
   width: 8px;
 }
 
-.action {
+.action,
+.action-loader {
   border: 1px solid $mediumgray;
   border-radius: 6px;
   min-width: 120px;
@@ -358,7 +359,8 @@ button {
     }
   }
 
-  .action {
+  .action,
+  .action-loader {
     border: 1px solid $darkgray;
 
     &-primary {

@@ -1,4 +1,4 @@
-import React, {useState, useRef} from "react";
+import React, {useState} from "react";
 import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
 import Confirm from "Components/common/Confirm";
@@ -9,10 +9,9 @@ import ListingModalCard from "Components/listings/ListingModalCard";
 const ListingModal = observer(({nft, Close}) => {
   const [price, setPrice] = useState(nft.details.Total ? nft.details.Total.toFixed(2) : "");
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const ref = useRef(null);
 
   const parsedPrice = isNaN(parseFloat(price)) ? 0 : parseFloat(price);
-  const serviceFee = Math.max(0.99, parsedPrice - parsedPrice / 1.025);
+  const serviceFee = Math.max(1, parsedPrice - parsedPrice / 1.025);
   const payout = parseFloat((parsedPrice - serviceFee).toFixed(2));
 
   const InputStage = () => {
@@ -21,7 +20,7 @@ const ListingModal = observer(({nft, Close}) => {
         <div className="listing-modal__form__inputs">
           <input
             placeholder="Price"
-            className="listing-modal__form__price-input"
+            className={`listing-modal__form__price-input ${parsedPrice > 10000 ? "listing-modal__form__price-input-error" : ""}`}
             value={price}
             onChange={event => setPrice(event.target.value.replace(/[^\d.]/g, ""))}
             onBlur={() => setPrice(parsedPrice.toFixed(2))}
@@ -29,6 +28,12 @@ const ListingModal = observer(({nft, Close}) => {
           <div className="listing-modal__form__price-input-label">
             USD
           </div>
+          {
+            parsedPrice > 10000 ?
+              <div className="listing-modal__form__error">
+                Maximum listing price is $10,000
+              </div> : null
+          }
         </div>
         <div className="listing-modal__details">
           <div className="listing-modal__detail listing-modal__detail-faded">
@@ -65,12 +70,13 @@ const ListingModal = observer(({nft, Close}) => {
               </button> : null
           }
           <button
-            disabled={!parsedPrice || isNaN(parsedPrice) || payout <= 0}
+            disabled={!parsedPrice || isNaN(parsedPrice) || payout <= 0 || parsedPrice >= 10000}
             className="action action-primary listing-modal__action listing-modal__action-primary"
             onClick={() => {
               setShowConfirmation(true);
 
-              ref && ref.current && ref.current.parentElement.scrollTo(0, 0);
+              const modal = document.getElementById("listing-modal");
+              modal && modal.scrollTo(0, 0);
             }}
           >
             Continue
@@ -104,7 +110,8 @@ const ListingModal = observer(({nft, Close}) => {
             onClick={() => {
               setShowConfirmation(false);
 
-              ref && ref.current && ref.current.parentElement.scrollTo(0, 0);
+              const modal = document.getElementById("listing-modal");
+              modal && modal.scrollTo(0, 0);
             }}
           >
             Back
@@ -136,10 +143,11 @@ const ListingModal = observer(({nft, Close}) => {
 
   return (
     <Modal
+      id="listing-modal"
       className="listing-modal-container"
       Toggle={() => Close()}
     >
-      <div className="listing-modal" ref={ref}>
+      <div className="listing-modal">
         <h1 className="listing-modal__header">List Your NFT for Sale</h1>
         <div className="listing-modal__content">
           <ListingModalCard nft={nft} price={{USD: parsedPrice}} />

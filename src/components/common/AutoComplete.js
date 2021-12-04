@@ -45,6 +45,9 @@ const AutoComplete = ({
       onChange(inputValue);
     } else if(!inputValue) {
       onChange("");
+      setShowSuggestions(false);
+    } else {
+      setShowSuggestions(true);
     }
   }, [inputValue]);
 
@@ -88,7 +91,9 @@ const AutoComplete = ({
         placeholder={placeholder}
         value={inputValue}
         onFocus={async () => {
-          setShowSuggestions(true);
+          if(inputValue) {
+            setShowSuggestions(true);
+          }
 
           await new Promise(resolve => setTimeout(resolve, 50));
 
@@ -105,10 +110,7 @@ const AutoComplete = ({
         aria-expanded={showSuggestions}
         aria-haspopup={showSuggestions}
         aria-owns={`${id}-options`}
-        onChange={event => {
-          setInputValue(event.target.value);
-          setShowSuggestions(true);
-        }}
+        onChange={event => setInputValue(event.target.value)}
         onKeyDown={event => {
           if(event.key === "Enter" && selectedOption) {
             setInputValue(selectedOption);
@@ -141,7 +143,10 @@ const AutoComplete = ({
                 <li
                   id={`${id}-option-${index}`}
                   role="option"
-                  onClick={() => setInputValue(option)}
+                  onClick={() => {
+                    setInputValue(option);
+                    setShowSuggestions(false);
+                  }}
                   className={`autocomplete__option ellipsis ${option === selectedOption ? "autocomplete__option-selected" : ""}`}
                   key={`autocomplete-option-${index}`}
                 >

@@ -79,7 +79,15 @@ export const ButtonWithLoader = ({children, className="", onClick, disabled}) =>
     <div className="button-container loader-button">
       {
         loading ?
-          <Loader className="loader-button__loader"/> :
+          <Loader
+            className={[
+              "loader-button__loader",
+              className.includes("action") ? "action-loader" : "",
+              className.includes("action-primary") ? "action-loader-primary" : "",
+              className.includes("action-primary") ? "action-loader-primary" : "",
+              className.includes("action-danger") ? "action-loader-danger" : "",
+            ].filter(className => className).join(" ")}
+          /> :
           <button
             disabled={disabled}
             className={`button action loader-button__button ${className}`}

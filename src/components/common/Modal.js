@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import CloseIcon from "../../static/icons/x.svg";
 import ImageIcon from "Components/common/ImageIcon";
 
-const Modal = observer(({children, Toggle, className=""}) => {
+const Modal = observer(({children, Toggle, id="", className=""}) => {
   const [scrolled, setScrolled] = useState(false);
 
   const Close = (event) => {
@@ -26,7 +26,7 @@ const Modal = observer(({children, Toggle, className=""}) => {
   });
 
   return (
-    <div className={`modal ${className || ""}`} onClick={() => Close()}>
+    <div id={id} className={`modal ${className || ""}`} onClick={() => Close()}>
       <ImageIcon
         key={"back-icon-Close Modal"}
         className={"modal__close-button"}

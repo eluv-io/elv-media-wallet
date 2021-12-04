@@ -329,8 +329,13 @@ const ListingPurchaseModal = observer(({nft, item, initialListingId, Close}) => 
   const [selectedListingId, setSelectedListingId] = useState(undefined);
   const [quantity, setQuantity] = useState(1);
 
+  useEffect(() => {
+    const modal = document.getElementById("listing-purchase-modal");
+    modal && modal.scrollTo(0, 0);
+  }, [selectedListingId]);
+
   return (
-    <Modal className="listing-purchase-modal-container" Toggle={() => Close()}>
+    <Modal id="listing-purchase-modal" className="listing-purchase-modal-container" Toggle={() => Close()}>
       <AsyncComponent
         loadingClassName="page-loader"
         Load={async () => {

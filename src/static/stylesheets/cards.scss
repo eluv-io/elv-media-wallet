@@ -15,6 +15,11 @@ $pending-color: rgba($blue, 0.5);
       padding-bottom: 15px;
     }
   }
+
+  &__loader {
+    min-height: 350px;
+    min-width: 250px;
+  }
 }
 
 .card-shadow {
