@@ -93,7 +93,114 @@ class CheckoutStore {
     }
   });
 
-  CheckoutSubmit = flow(function * ({provider="stripe", tenantId, marketplaceId, sku, quantity=1, confirmationId, email}) {
+  ListingCheckoutSubmit = flow(function * ({
+    provider="stripe",
+    marketplaceId,
+    listingId,
+    confirmationId,
+    email
+  }) {
+    if(this.submittingOrder) { return; }
+
+    try {
+      this.submittingOrder = true;
+
+      // If confirmation ID is already set before calling, this method was called as a result of an iframe opening a new window
+      const fromEmbed = !!confirmationId;
+
+      confirmationId = confirmationId || `T-${this.ConfirmationId()}`;
+
+      let authInfo = this.rootStore.AuthInfo();
+      if(!authInfo.user) { authInfo.user = {}; }
+      email = email || (authInfo.user || {}).email || this.rootStore.userProfile.email;
+      authInfo.user.email = email;
+
+      if(!email) {
+        throw Error("Unable to determine email address in checkout submit");
+      }
+
+      if(this.rootStore.embedded) {
+        this.pendingPurchases[confirmationId] = {
+          listingId,
+          confirmationId
+        };
+
+        // Stripe doesn't work in iframe, open new window to initiate purchase
+        const url = new URL(window.location.origin);
+        url.pathname = window.location.pathname;
+        url.hash =
+          marketplaceId ?
+            `/marketplaces/${marketplaceId}/${listingId}/purchase/${confirmationId}` :
+            `/wallet/purchase/${confirmationId}`;
+        url.searchParams.set("embed", "");
+        url.searchParams.set("provider", provider);
+        url.searchParams.set("marketplaceId", marketplaceId);
+        url.searchParams.set("listingId", listingId);
+
+        if(this.rootStore.darkMode) {
+          url.searchParams.set("d", "");
+        }
+
+        url.searchParams.set("auth", Utils.B64(JSON.stringify(authInfo)));
+
+        this.OpenCheckoutWindow({url, confirmationId});
+
+        return confirmationId;
+      }
+
+      const listing = (yield this.rootStore.transferStore.FetchTransferListings({listingId, forceUpdate: true}))[0];
+
+      if(!listing) {
+        throw Error("Item no longer available: " + listingId);
+      }
+
+      const checkoutId = `nft-marketplace:${confirmationId}`;
+
+      const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
+      const baseUrl = new URL(
+        marketplaceId ?
+          UrlJoin(window.location.origin, window.location.pathname, "#", "marketplaces", marketplaceId, listing.details.TenantId, listingId, "purchase", confirmationId) :
+          UrlJoin(window.location.origin, window.location.pathname, "#", "wallet", "listings", listing.details.TenantId, listingId, "purchase", confirmationId)
+      );
+
+      if(fromEmbed) {
+        baseUrl.searchParams.set("embed", "true");
+      }
+
+      sessionStorage.setItem("successUrl", UrlJoin(baseUrl.toString(), "success"));
+      sessionStorage.setItem("cancelUrl", UrlJoin(baseUrl.toString(), "cancel"));
+
+      let requestParams = {
+        currency: this.currency,
+        email,
+        client_reference_id: checkoutId,
+        elv_addr: this.client.signer.address,
+        items: [{sku: listingId, quantity: 1}],
+        success_url: UrlJoin(rootUrl.toString(), "/#/", "success"),
+        cancel_url: UrlJoin(rootUrl.toString(), "/#/", "cancel")
+      };
+
+      if(EluvioConfiguration["mode"]) {
+        requestParams.mode = EluvioConfiguration["mode"];
+      }
+
+      yield this.CheckoutRedirect({provider, requestParams});
+    } catch(error) {
+      this.rootStore.Log(error, true);
+    } finally {
+      this.submittingOrder = false;
+    }
+  });
+
+  CheckoutSubmit = flow(function * ({
+    provider="stripe",
+    tenantId,
+    marketplaceId,
+    sku,
+    quantity=1,
+    confirmationId,
+    email
+  }) {
     if(this.submittingOrder) { return; }
 
     try {
@@ -129,28 +236,13 @@ class CheckoutStore {
         url.searchParams.set("tenantId", tenantId);
         url.searchParams.set("quantity", quantity);
 
-        if(rootStore.darkMode) {
+        if(this.rootStore.darkMode) {
           url.searchParams.set("d", "");
         }
 
         url.searchParams.set("auth", Utils.B64(JSON.stringify(authInfo)));
 
-        const openedWindow = window.open(url.toString());
-
-        const closeCheck = setInterval(() => {
-          if(!this.pendingPurchases[confirmationId]) {
-            clearInterval(closeCheck);
-
-            return;
-          }
-
-          if(!openedWindow || openedWindow.closed) {
-            clearInterval(closeCheck);
-
-            // Ensure pending is cleaned up when popup is closed without finishing
-            runInAction(() => delete this.pendingPurchases[confirmationId]);
-          }
-        }, 1000);
+        this.OpenCheckoutWindow({url, confirmationId});
 
         return confirmationId;
       }
@@ -158,7 +250,7 @@ class CheckoutStore {
       const checkoutId = `${marketplaceId}:${confirmationId}`;
 
       const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
-      const baseUrl = new URL(UrlJoin(window.location.origin, window.location.pathname, "#", "marketplaces", marketplaceId, sku, "purchase", confirmationId));
+      const baseUrl = new URL(UrlJoin(window.location.origin, window.location.pathname, "#", "marketplaces", marketplaceId, tenantId, sku, "purchase", confirmationId));
 
       if(fromEmbed) {
         baseUrl.searchParams.set("embed", "true");
@@ -187,41 +279,63 @@ class CheckoutStore {
         throw Error(`Quantity ${quantity} exceeds stock ${stock.max - stock.minted} for ${sku}`);
       }
 
-      if(provider === "stripe") {
-        const sessionId = (yield this.client.utils.ResponseToJson(
-          this.client.authClient.MakeAuthServiceRequest({
-            method: "POST",
-            path: UrlJoin("as", "checkout", "stripe"),
-            body: requestParams
-          })
-        )).session_id;
-
-        const stripeKey = EluvioConfiguration.mode && EluvioConfiguration.mode !== "production" ?
-          PUBLIC_KEYS.stripe.test :
-          PUBLIC_KEYS.stripe.production;
-
-        // Redirect to stripe
-        const {loadStripe} = yield import("@stripe/stripe-js/pure");
-        loadStripe.setLoadParameters({advancedFraudSignals: false});
-        const stripe = yield loadStripe(stripeKey);
-        yield stripe.redirectToCheckout({sessionId});
-      } else if(provider === "coinbase") {
-        const chargeCode = (yield this.client.utils.ResponseToJson(
-          this.client.authClient.MakeAuthServiceRequest({
-            method: "POST",
-            path: UrlJoin("as", "checkout", "coinbase"),
-            body: requestParams
-          })
-        )).charge_code;
-
-        window.location.href = UrlJoin("https://commerce.coinbase.com/charges", chargeCode);
-      }
+      yield this.CheckoutRedirect({provider, requestParams});
     } catch(error) {
       this.rootStore.Log(error, true);
     } finally {
       this.submittingOrder = false;
     }
   });
+
+  OpenCheckoutWindow({url, confirmationId}) {
+    const openedWindow = window.open(url.toString());
+    const closeCheck = setInterval(() => {
+      if(!this.pendingPurchases[confirmationId]) {
+        clearInterval(closeCheck);
+
+        return;
+      }
+
+      if(!openedWindow || openedWindow.closed) {
+        clearInterval(closeCheck);
+
+        // Ensure pending is cleaned up when popup is closed without finishing
+        runInAction(() => delete this.pendingPurchases[confirmationId]);
+      }
+    }, 1000);
+  }
+
+  async CheckoutRedirect({provider, requestParams}) {
+    if(provider === "stripe") {
+      const sessionId = (await this.client.utils.ResponseToJson(
+        this.client.authClient.MakeAuthServiceRequest({
+          method: "POST",
+          path: UrlJoin("as", "checkout", "stripe"),
+          body: requestParams
+        })
+      )).session_id;
+
+      const stripeKey = EluvioConfiguration.mode && EluvioConfiguration.mode !== "production" ?
+        PUBLIC_KEYS.stripe.test :
+        PUBLIC_KEYS.stripe.production;
+
+      // Redirect to stripe
+      const {loadStripe} = await import("@stripe/stripe-js/pure");
+      loadStripe.setLoadParameters({advancedFraudSignals: false});
+      const stripe = await loadStripe(stripeKey);
+      await stripe.redirectToCheckout({sessionId});
+    } else if(provider === "coinbase") {
+      const chargeCode = (await this.client.utils.ResponseToJson(
+        this.client.authClient.MakeAuthServiceRequest({
+          method: "POST",
+          path: UrlJoin("as", "checkout", "coinbase"),
+          body: requestParams
+        })
+      )).charge_code;
+
+      window.location.href = UrlJoin("https://commerce.coinbase.com/charges", chargeCode);
+    }
+  }
 }
 
 export default CheckoutStore;

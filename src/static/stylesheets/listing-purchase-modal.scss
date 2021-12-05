@@ -25,6 +25,7 @@
     align-items: center;
     display: flex;
     flex-direction: column;
+    font-size: 20px;
     justify-content: space-between;
     padding: 15px 25px 10px;
   }
@@ -203,14 +204,14 @@
 
   &__header {
     border-bottom: 1px solid $mediumgray;
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 300;
     padding: 15px 0;
     text-align: center;
   }
 
   &__content {
-    padding: 25px 35px 50px;
+    padding: 25px 35px;
   }
 
   .listing-modal-card {
@@ -249,6 +250,12 @@
     margin-bottom: 10px;
   }
 
+  &__error-message {
+    color: $red;
+    margin-top: 20px;
+    text-align: center;
+  }
+
   &__payment-selection-container {
     align-items: center;
     display: flex;
@@ -257,6 +264,7 @@
 
   &__payment-selection {
     flex: 1 1 100%;
+    position: relative;
 
     &:not(:last-child) {
       margin-right: 10px;
@@ -267,6 +275,21 @@
       box-shadow: 0 0 3px $blue;
       color: $blue;
     }
+  }
+
+  &__payment-selection-icons {
+    display: flex;
+    height: 100%;
+    left: 0;
+    padding: 10px 15px;
+    position: absolute;
+    top: 0;
+  }
+
+  &__payment-selection-icon {
+    height: 100%;
+    min-width: 20px;
+    width: auto;
   }
 
   &__payment-submit {
@@ -323,81 +346,6 @@
   }
 }
 
-@media screen and (max-width: $tablet-breakpoint) {
-  .listing-purchase-modal {
-    &__nft-info-container {
-      align-items: center;
-      justify-content: center;
-    }
-
-    &__listing-info {
-      align-items: unset;
-      flex-direction: column;
-    }
-
-    &__prices-container {
-      margin-top: 10px;
-    }
-  }
-}
-
-@media screen and (max-width: $mobile-breakpoint) {
-  .listing-purchase-modal-container {
-    .modal__content {
-      height: 100%;
-      max-width: unset;
-      padding: 0;
-    }
-  }
-
-  .listing-purchase-modal {
-    min-height: 100%;
-
-    .card__image-container,
-    &__image {
-      height: 100px;
-      max-height: 100px;
-      max-width: 100px;
-      min-height: 100px;
-      min-width: 100px;
-      padding: 0;
-      width: 100px;
-    }
-
-    &__name {
-      font-size: 18px;
-    }
-
-    &__price-label {
-      font-size: 12px;
-    }
-
-    &__listing-count-label {
-      font-size: 14px;
-    }
-  }
-
-  .listing-purchase-confirmation-modal {
-    &__header {
-      font-size: 18px;
-    }
-
-    &__payment-selection-container {
-      flex-direction: column;
-      margin-bottom: 25px;
-    }
-
-    &__payment-selection {
-      flex: unset;
-      width: 100%;
-
-      &:not(:last-child) {
-        margin: 0 0 5px;
-      }
-    }
-  }
-}
-
 .dark {
   .listing-purchase-modal {
     background-color: $black;
@@ -439,6 +387,10 @@
         border: 1px solid $blue;
       }
     }
+
+    &__error-message {
+      color: $red;
+    }
   }
 
   .quantity {
@@ -449,6 +401,94 @@
     &__input {
       background-color: $black;
       border: 1px solid $darkgray;
+    }
+  }
+}
+
+@media screen and (max-width: $tablet-breakpoint) {
+  .listing-purchase-modal {
+    &__nft-info-container {
+      align-items: center;
+      justify-content: center;
+    }
+
+    &__listing-info {
+      align-items: unset;
+      flex-direction: column;
+    }
+
+    &__prices-container {
+      margin-top: 10px;
+    }
+  }
+}
+
+@media screen and (max-width: $mobile-breakpoint) {
+  .listing-purchase-modal-container {
+    .modal__content {
+      bottom: 0;
+      height: 100%;
+      max-width: unset;
+      padding: 0;
+      top: 0;
+    }
+  }
+
+  .listing-purchase-modal {
+    border: 0;
+    min-height: 100%;
+
+    .card__image-container,
+    &__image {
+      height: 100px;
+      max-height: 100px;
+      max-width: 100px;
+      min-height: 100px;
+      min-width: 100px;
+      padding: 0;
+      width: 100px;
+    }
+
+    &__name {
+      font-size: 18px;
+    }
+
+    &__price-label {
+      font-size: 12px;
+    }
+
+    &__listing-count-label {
+      font-size: 14px;
+    }
+  }
+
+  .listing-purchase-confirmation-modal {
+    border: 0;
+    min-height: 100%;
+
+    &__header {
+      font-size: 18px;
+    }
+
+    &__payment-selection-container {
+      flex-direction: column;
+      margin-bottom: 25px;
+    }
+
+    &__payment-selection {
+      flex: unset;
+      width: 100%;
+
+      &:not(:last-child) {
+        margin: 0 0 5px;
+      }
+    }
+  }
+
+  .dark {
+    .listing-purchase-modal,
+    .listing-purchase-confirmation-modal {
+      border: 0;
     }
   }
 }

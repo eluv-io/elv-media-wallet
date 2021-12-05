@@ -1,5 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import {v4 as UUID} from "uuid";
+import ImageIcon from "Components/common/ImageIcon";
+import ClearIcon from "Assets/icons/x.svg";
 
 const AutoComplete = ({
   value,
@@ -10,6 +12,7 @@ const AutoComplete = ({
 }) => {
   const ref = useRef();
   const [id] = useState(`autocomplete-${UUID()}`);
+  const [blur, setBlur] = useState(undefined);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedOption, setSelectedOption] = useState(options[0]);
   const [inputValue, setInputValue] = useState(value);
@@ -28,9 +31,7 @@ const AutoComplete = ({
       if(!element || !element.contains(event.target)) {
         setShowSuggestions(false);
 
-        if(inputValue && selectedOption && selectedOption !== inputValue && !matchingOptions.includes(inputValue)) {
-          setInputValue(selectedOption);
-        }
+        setBlur(UUID());
       }
     };
 
@@ -38,6 +39,15 @@ const AutoComplete = ({
 
     return () => document.removeEventListener("click", onClickOutside);
   }, []);
+
+  // Click outside and input blur cause blur value to update, so we either select the matching selection or clear invalid value
+  useEffect(() => {
+    if(inputValue && selectedOption && selectedOption !== inputValue && !matchingOptions.includes(inputValue)) {
+      setInputValue(selectedOption);
+    } else if(!options.includes(inputValue)) {
+      setInputValue("");
+    }
+  }, [blur]);
 
   useEffect(() => {
     // Only trigger onChange when a matching value is input
@@ -53,7 +63,9 @@ const AutoComplete = ({
 
   useEffect(() => {
     // Update selected option
-    if(!matchingOptions.includes(selectedOption)) {
+    if(!inputValue) {
+      setSelectedOption(options[0]);
+    } else if(!matchingOptions.includes(selectedOption)) {
       setSelectedOption(matchingOptions[0]);
     } else if(selectedOption === inputValue) {
       setShowSuggestions(false);
@@ -87,9 +99,20 @@ const AutoComplete = ({
       ref={ref}
       className={`autocomplete ${className}`}
     >
+      {
+        inputValue ?
+          <button
+            onClick={() => setInputValue("")}
+            className="autocomplete__clear-button"
+          >
+            <ImageIcon icon={ClearIcon} title="Clear" />
+          </button> : null
+      }
+
       <input
         placeholder={placeholder}
         value={inputValue}
+        onBlur={() => setTimeout(() => setBlur(UUID()), 250)}
         onFocus={async () => {
           if(inputValue) {
             setShowSuggestions(true);

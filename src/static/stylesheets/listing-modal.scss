@@ -28,8 +28,9 @@
 
   &__header {
     border-bottom: 1px solid $mediumgray;
+    font-size: 20px;
     font-weight: 300;
-    padding: 10px 0;
+    padding: 15px 25px;
     text-align: center;
   }
 
@@ -129,6 +130,13 @@
     }
   }
 
+  &__error-message {
+    color: $red;
+    font-size: 14px;
+    margin-top: 20px;
+    text-align: center;
+  }
+
   &__actions {
     align-items: center;
     display: flex;
@@ -136,7 +144,8 @@
     margin-top: 35px;
   }
 
-  &__action {
+  &__action,
+  .loader-button__loader {
     min-width: 150px;
 
     &:not(:last-child) {
@@ -182,44 +191,6 @@
   }
 }
 
-@media screen and (max-width: $mobile-breakpoint) {
-  .listing-modal-container {
-    .modal__content {
-      height: 100%;
-      max-width: unset;
-      padding: 0;
-    }
-  }
-
-  .listing-modal {
-    min-height: 100%;
-
-    &__header {
-      font-size: 24px;
-      padding-left: 35px;
-      padding-top: 20px;
-      text-align: start;
-    }
-
-    &__image-container {
-      max-height: 250px;
-      max-width: 250px;
-    }
-
-    &__actions {
-      flex-direction: column-reverse;
-    }
-
-    &__action {
-      width: 100%;
-
-      &:not(:last-child) {
-        margin: 10px 0 0;
-      }
-    }
-  }
-}
-
 .dark {
   .listing-modal {
     background-color: $black;
@@ -251,6 +222,10 @@
     &__active-listings {
       border: 1px solid $darkergray;
     }
+
+    &__error-message {
+      color: $red;
+    }
   }
 
   .listing-modal-card {
@@ -260,6 +235,53 @@
       &__image {
         border: 1px solid $darkestgray;
       }
+    }
+  }
+}
+
+@media screen and (max-width: $mobile-breakpoint) {
+  .listing-modal-container {
+    .modal__content {
+      bottom: 0;
+      height: 100%;
+      max-width: unset;
+      padding: 0;
+      top: 0;
+    }
+  }
+
+  .listing-modal {
+    border: 0;
+    min-height: 100%;
+
+    &__header {
+      font-size: 24px;
+      padding-left: 35px;
+      padding-top: 20px;
+      text-align: start;
+    }
+
+    &__image-container {
+      max-height: 250px;
+      max-width: 250px;
+    }
+
+    &__actions {
+      flex-direction: column-reverse;
+    }
+
+    &__action {
+      width: 100%;
+
+      &:not(:last-child) {
+        margin: 10px 0 0;
+      }
+    }
+  }
+
+  .dark {
+    .listing-modal {
+      border: 0;
     }
   }
 }

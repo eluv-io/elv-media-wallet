@@ -8,6 +8,9 @@ import responsiveHOC from "react-lines-ellipsis/lib/responsiveHOC";
 const ResponsiveEllipsis = responsiveHOC()(LinesEllipsis);
 import {Link, useRouteMatch} from "react-router-dom";
 import {NFTImage} from "Components/common/Images";
+import ImageIcon from "Components/common/ImageIcon";
+
+import ListingIcon from "Assets/icons/listing.svg";
 
 export const NFTCard = observer(({nft}) => {
   const match = useRouteMatch();
@@ -26,6 +29,12 @@ export const NFTCard = observer(({nft}) => {
         className="card nft-card"
       >
         <NFTImage nft={nft} width={400} />
+        <div className="card__badges">
+          { listing ?
+            <ImageIcon icon={ListingIcon} title="This NFT is listed for sale" alt="Listing Icon" className="card__badge" />
+            : null
+          }
+        </div>
         <div className="card__text">
           <div className="card__titles">
             <h2 className="card__title">

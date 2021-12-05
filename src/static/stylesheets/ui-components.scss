@@ -315,6 +315,17 @@
   position: relative;
   z-index: 2;
 
+  &__clear-button {
+    padding: 10px;
+    position: absolute;
+    right: 0;
+
+    svg {
+      height: 100%;
+      width: auto;
+    }
+  }
+
   &__input {
     border: 1px solid $mediumgray;
     border-radius: 3px;
@@ -328,11 +339,10 @@
   &__options {
     background-color: $white;
     border: 1px solid $mediumgray;
-    border-radius: 6px;
     max-height: 200px;
     overflow-y: auto;
     position: absolute;
-    top: 36px;
+    top: 38px;
     width: 100%;
 
     &:not(.autocomplete__options-visible) {
@@ -343,9 +353,9 @@
   &__option {
     align-items: center;
     cursor: pointer;
-    display: flex;
+    display: block;
     height: 35px;
-    padding: 0 15px;
+    padding: 5px 15px;
 
     &:not(.autocomplete__option-selected) {
       &:hover {

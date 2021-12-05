@@ -23,6 +23,8 @@ import AutoComplete from "Components/common/AutoComplete";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {ButtonWithLoader} from "Components/common/UIComponents";
 import {v4 as UUID} from "uuid";
+import ImageIcon from "Components/common/ImageIcon";
+import FilterIcon from "Assets/icons/search.svg";
 
 const sortOptions = [
   { key: "created", value: "created", label: "Recently Listed", desc: false},
@@ -70,7 +72,7 @@ export const ListingFilters = observer(({Loading, UpdateListings}) => {
   const [filter, setFilter] = useState("");
   const [filterContractAddr, setFilterContractAddr] = useState("");
 
-  const perPage = 4;
+  const perPage = 8;
   let scrollTimeout;
 
   const Load = async ({page=1, currentResults=[]}) => {
@@ -181,10 +183,10 @@ export const ListingFilters = observer(({Loading, UpdateListings}) => {
       }
       <div className="listing-filters__actions actions-container">
         <ButtonWithLoader
-          className="action action-primary"
+          className="action action-primary listing-filters__filter-button"
           onClick={async () => await Load({page: 1})}
         >
-          Filter Results
+          <ImageIcon icon={FilterIcon} title="Filter Results" className="action-icon" />
         </ButtonWithLoader>
       </div>
     </div>

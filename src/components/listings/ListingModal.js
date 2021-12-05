@@ -3,12 +3,14 @@ import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
 import Confirm from "Components/common/Confirm";
 import {ActiveListings} from "Components/listings/TransferTables";
-import {transferStore} from "Stores";
+import {rootStore, transferStore} from "Stores";
 import ListingModalCard from "Components/listings/ListingModalCard";
+import {ButtonWithLoader} from "Components/common/UIComponents";
 
 const ListingModal = observer(({nft, Close}) => {
   const [price, setPrice] = useState(nft.details.Total ? nft.details.Total.toFixed(2) : "");
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(undefined);
 
   const parsedPrice = isNaN(parseFloat(price)) ? 0 : parseFloat(price);
   const serviceFee = Math.max(1, parsedPrice - parsedPrice / 1.025);
@@ -116,11 +118,11 @@ const ListingModal = observer(({nft, Close}) => {
           >
             Back
           </button>
-          <button
+          <ButtonWithLoader
             className="action action-primary listing-modal__action listing-modal__action-primary"
-            onClick={async () => Confirm({
-              message: "Are you sure you want to list this NFT?",
-              Confirm: async () => {
+            onClick={async () => {
+              try {
+                setErrorMessage(undefined);
                 const listingId = await transferStore.CreateListing({
                   contractAddress: nft.details.ContractAddr,
                   tokenId: nft.details.TokenIdStr,
@@ -131,12 +133,24 @@ const ListingModal = observer(({nft, Close}) => {
                 await new Promise(resolve => setTimeout(resolve, 1000));
 
                 Close({listingId: listingId || nft.details.ListingId});
+              } catch(error) {
+                rootStore.Log("Listing failed", true);
+                rootStore.Log(error, true);
+
+                // TODO: Figure out what the error is
+                setErrorMessage("Unable to list this NFT");
               }
-            })}
+            }}
           >
             Place for Sale
-          </button>
+          </ButtonWithLoader>
         </div>
+        {
+          errorMessage ?
+            <div className="listing-modal__error-message">
+              { errorMessage }
+            </div> : null
+        }
       </div>
     );
   };

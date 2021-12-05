@@ -135,6 +135,31 @@ $pending-color: rgba($blue, 0.5);
     }
   }
 
+  &__badges {
+    align-items: center;
+    background-color: $white;
+    border-radius: 6px;
+    display: flex;
+    height: max-content;
+    justify-content: center;
+    padding: 7px;
+    position: absolute;
+    right: 7px;
+    top: 7px;
+    width: max-content;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  &__badge {
+    filter: invert(100%);
+    height: 18px;
+    opacity: 0.75;
+    width: auto;
+  }
+
   &__text {
     display: flex;
     flex-direction: column;
@@ -257,6 +282,14 @@ $pending-color: rgba($blue, 0.5);
       * {
         stroke: $white;
       }
+    }
+
+    &__badges {
+      background-color: $black;
+    }
+
+    &__badge {
+      filter: none;
     }
 
     &__title {

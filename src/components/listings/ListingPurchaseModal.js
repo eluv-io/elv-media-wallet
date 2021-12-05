@@ -10,6 +10,11 @@ import {Redirect, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import ListingModalCard from "Components/listings/ListingModalCard";
+import ImageIcon from "Components/common/ImageIcon";
+
+import CreditCardIcon from "Assets/icons/credit card icon.svg";
+import EthereumIcon from "Assets/icons/ethereum-eth-logo.svg";
+import SolanaIcon from "Assets/icons/solana icon.svg";
 
 const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
   if(maxQuantity <= 1) { return null; }
@@ -61,17 +66,18 @@ const ListingPurchaseConfirmation = observer(({nft, marketplaceItem, listingId, 
   const match = useRouteMatch();
   const [paymentType, setPaymentType] = useState("stripe");
   const [confirmationId, setConfirmationId] = useState(undefined);
+  const [errorMessage, setErrorMessage] = useState(undefined);
 
   const listings = transferStore.TransferListings({contractAddress: nft.details.ContractAddr});
   const selectedListing = listings.find(listing => listing.details.ListingId === listingId);
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  marketplaceItem = marketplaceItem || (listingId === "marketplace" && marketplace && rootStore.MarketplaceItemByTemplateId(marketplace, nft.metadata.template_id));
+  marketplaceItem = marketplaceItem || (!listingId && marketplace && rootStore.MarketplaceItemByTemplateId(marketplace, nft.metadata.template_id));
   const stock = marketplaceItem && checkoutStore.stock[marketplaceItem.sku];
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
   const maxQuantity = stock && (stock.max_per_user || stock.max - stock.minted) || 100;
 
-  const price = listingId === "marketplace" ? marketplaceItem.price : { USD: selectedListing.details.Total };
+  const price = listingId ? { USD: selectedListing.details.Total } : marketplaceItem.price;
 
   useEffect(() => {
     if(!stock) { return; }
@@ -82,8 +88,16 @@ const ListingPurchaseConfirmation = observer(({nft, marketplaceItem, listingId, 
     return () => clearInterval(stockCheck);
   }, []);
 
+  // In iframe - child window confirmed purchase
   if(confirmationId && checkoutStore.completedPurchases[confirmationId]) {
-    return <Redirect to={UrlJoin("/marketplaces", marketplaceId, item.sku, "purchase", confirmationId, "success")} />;
+    const tenantId = selectedListing ? selectedListing.details.TenantId : marketplace.tenant_id;
+    const sku = selectedListing ? selectedListing.details.ListingId : marketplaceItem.sku;
+
+    if(match.params.marketplaceId) {
+      return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, tenantId, sku, "purchase", confirmationId, "success")} />;
+    } else {
+      return <Redirect to={UrlJoin("/wallet", "collection", tenantId, sku, "purchase", confirmationId, "success")} />;
+    }
   }
 
   return (
@@ -94,7 +108,7 @@ const ListingPurchaseConfirmation = observer(({nft, marketplaceItem, listingId, 
       <div className="listing-purchase-confirmation-modal__content">
         <ListingModalCard nft={nft} price={price} stock={stock} />
         {
-          listingId === "marketplace" && maxQuantity > 1 ?
+          !listingId && maxQuantity > 1 ?
             <div className="listing-purchase-confirmation-modal__price-details">
               <div className="price-container">
                 <div className="price-container__label">
@@ -117,42 +131,65 @@ const ListingPurchaseConfirmation = observer(({nft, marketplaceItem, listingId, 
               onClick={() => setPaymentType("stripe")}
               className={`action listing-purchase-confirmation-modal__payment-selection listing-purchase-confirmation-modal__payment-selection-credit-card ${paymentType === "stripe" ? "listing-purchase-confirmation-modal__payment-selection-selected" : ""}`}
             >
+              <div className="listing-purchase-confirmation-modal__payment-selection-icons">
+                <ImageIcon icon={CreditCardIcon} className="listing-purchase-confirmation-modal__payment-selection-icon" title="Pay with Credit Card" />
+              </div>
               Credit Card
             </button>
             <button
               onClick={() => setPaymentType("coinbase")}
               className={`action listing-purchase-confirmation-modal__payment-selection listing-purchase-confirmation-modal__payment-selection-crypto ${paymentType === "coinbase" ? "listing-purchase-confirmation-modal__payment-selection-selected" : ""}`}
             >
+              <div className="listing-purchase-confirmation-modal__payment-selection-icons">
+                <ImageIcon icon={EthereumIcon} className="listing-purchase-confirmation-modal__payment-selection-icon" title="Ethereum" />
+                <ImageIcon icon={SolanaIcon} className="listing-purchase-confirmation-modal__payment-selection-icon" title="Solana" />
+              </div>
               Crypto
-            </button>
-            <button
-              onClick={() => setPaymentType("wallet")}
-              className={`action listing-purchase-confirmation-modal__payment-selection listing-purchase-confirmation-modal__payment-selection-credit-card ${paymentType === "wallet" ? "listing-purchase-confirmation-modal__payment-selection-selected" : ""}`}
-            >
-              Wallet Balance
             </button>
           </div>
           <ButtonWithLoader
-            disabled={outOfStock}
+            disabled={outOfStock || errorMessage}
             className="action action-primary listing-purchase-confirmation-modal__payment-submit"
             onClick={async () => {
               try {
-                setConfirmationId(await checkoutStore.CheckoutSubmit({
-                  provider: paymentType,
-                  tenantId: marketplace.tenant_id,
-                  marketplaceId: match.params.marketplaceId,
-                  sku: marketplaceItem.sku,
-                  quantity,
-                  email: undefined
-                }));
+                setErrorMessage(undefined);
+
+                if(selectedListing) {
+                  // Listing purchase
+                  setConfirmationId(await checkoutStore.ListingCheckoutSubmit({
+                    provider: paymentType,
+                    marketplaceId: match.params.marketplaceId,
+                    listingId,
+                    email: undefined
+                  }));
+                } else {
+                  // Marketplace purchase
+                  setConfirmationId(await checkoutStore.CheckoutSubmit({
+                    provider: paymentType,
+                    tenantId: marketplace.tenant_id,
+                    marketplaceId: match.params.marketplaceId,
+                    sku: marketplaceItem.sku,
+                    quantity,
+                    email: undefined
+                  }));
+                }
               } catch(error) {
                 rootStore.Log("Checkout failed", true);
-                rootStore.Log(error);
+                rootStore.Log(error, true);
+
+                // TODO: Figure out what kind of error it is
+                setErrorMessage("This listing is no longer available");
               }
             }}
           >
             Buy Now for { FormatPriceString(price, {quantity}) }
           </ButtonWithLoader>
+          {
+            errorMessage ?
+              <div className="listing-purchase-confirmation-modal__error-message">
+                { errorMessage }
+              </div> : null
+          }
         </div>
       </div>
     </div>
@@ -258,7 +295,7 @@ const ListingPurchaseSelection = observer(({nft, marketplaceItem, initialListing
       <div className="listing-purchase-modal__listing-info">
         <div className="listing-purchase-modal__listing-count-container">
           <div className="listing-purchase-modal__listing-count-label">
-            Select from the list to buy from a collector
+            Buy from a Collector
           </div>
           <div className="listing-purchase-modal__listing-count">
             <div className="header-dot" style={{backgroundColor: listings.length > 0 ? "#08b908" : "#a4a4a4"}} />
@@ -354,7 +391,7 @@ const ListingPurchaseModal = observer(({nft, item, initialListingId, Close}) => 
             <ListingPurchaseConfirmation
               nft={nft}
               marketplaceItem={item}
-              listingId={selectedListingId}
+              listingId={selectedListingId === "marketplace" ? undefined : selectedListingId}
               quantity={selectedListingId === "marketplace" ? quantity : 1}
               setQuantity={setQuantity}
             /> :

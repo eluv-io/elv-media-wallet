@@ -1,12 +1,13 @@
 import React, {useEffect} from "react";
 import {observer} from "mobx-react";
 import {Link, useRouteMatch} from "react-router-dom";
-import {rootStore} from "Stores";
+import {rootStore, transferStore} from "Stores";
 import UrlJoin from "url-join";
 import {NFTImage} from "Components/common/Images";
-import Listings from "Components/listings/Listings";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 import MarketplaceCollections from "Components/marketplace/MarketplaceCollections";
+import ImageIcon from "Components/common/ImageIcon";
+import ListingIcon from "Assets/icons/listing";
 
 const MarketplaceOwned = observer(() => {
   const match = useRouteMatch();
@@ -18,7 +19,12 @@ const MarketplaceOwned = observer(() => {
   const marketplaceItems = rootStore.MarketplaceOwnedItems(marketplace);
   const ownedItems = Object.values(marketplaceItems).flat();
 
+  // Determine if this NFT is currently listed for sale
+  const listings = transferStore.TransferListings({userAddress: rootStore.userAddress});
+
   useEffect(() => {
+    rootStore.transferStore.FetchTransferListings({userAddress: rootStore. userAddress});
+
     if(!rootStore.sidePanelMode || !rootStore.noItemsAvailable) { return; }
 
     // If there are no items available for sale and we're in the side panel, we want to avoid navigating back to the marketplace page.
@@ -48,6 +54,15 @@ const MarketplaceOwned = observer(() => {
                   className="card nft-card"
                 >
                   <NFTImage nft={ownedItem} width={400} />
+                  <div className="card__badges">
+                    { listings.find(listing =>
+                      listing.details.ContractAddr === ownedItem.details.ContractAddr &&
+                      listing.details.TokenIdStr === ownedItem.details.TokenIdStr
+                    ) ?
+                      <ImageIcon icon={ListingIcon} title="This NFT is listed for sale" alt="Listing Icon" className="card__badge" />
+                      : null
+                    }
+                  </div>
                   <div className="card__text">
                     <div className="card__titles">
                       <h2 className="card__title">
@@ -71,9 +86,6 @@ const MarketplaceOwned = observer(() => {
 
   return (
     <>
-      <div className="marketplace__section">
-        <Listings />
-      </div>
       { ownedItems.length === 0 && marketplace.collections.length > 0 ? null : owned }
       <MarketplaceCollections />
     </>

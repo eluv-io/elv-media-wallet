@@ -565,6 +565,17 @@ class RootStore {
     }
   });
 
+  ListingPurchaseStatus = flow(function * ({tenantId, confirmationId}) {
+    try {
+      const statuses = yield this.MintingStatus({tenantId});
+
+      return statuses.find(status => status.op === "nft-transfer" && status.confirmationId === confirmationId) || { status: "none" };
+    } catch(error) {
+      this.Log(error, true);
+      return { status: "unknown" };
+    }
+  });
+
   PurchaseStatus = flow(function * ({marketplace, confirmationId}) {
     try {
       const statuses = yield this.MintingStatus({tenantId: marketplace.tenant_id});

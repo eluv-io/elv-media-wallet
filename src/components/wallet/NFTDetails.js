@@ -6,7 +6,7 @@ import UrlJoin from "url-join";
 
 import {Redirect, useRouteMatch} from "react-router-dom";
 import {NFTImage} from "Components/common/Images";
-import {ExpandableSection, CopyableField, ButtonWithLoader} from "Components/common/UIComponents";
+import {ExpandableSection, CopyableField, ButtonWithLoader, FormatPriceString} from "Components/common/UIComponents";
 
 import DescriptionIcon from "Assets/icons/Description icon.svg";
 import DetailsIcon from "Assets/icons/Details icon.svg";
@@ -160,6 +160,7 @@ const NFTDetails = observer(() => {
 
   const [loadingListing, setLoadingListing] = useState(true);
   const [listing, setListing] = useState(undefined);
+  const [listingError, setListingError] = useState(false);
 
   const match = useRouteMatch();
   const listingId = match.params.listingId;
@@ -174,6 +175,10 @@ const NFTDetails = observer(() => {
       let listings;
       if(match.params.listingId) {
         listings = await transferStore.FetchTransferListings({listingId: listingId, forceUpdate: true});
+
+        if(!listings[0]) {
+          setListingError(true);
+        }
       } else {
         listings = (await transferStore.FetchTransferListings({
           contractAddress: nft.details.ContractAddr,
@@ -188,11 +193,12 @@ const NFTDetails = observer(() => {
     }
   };
 
-
   useEffect(() => {
     LoadListing();
     rootStore.UpdateMetamaskChainId();
   }, []);
+
+  if(listingError) { throw Error("Unable to load listing"); }
 
   if(!nft && !listing) { return <PageLoader />; }
 
@@ -224,6 +230,7 @@ const NFTDetails = observer(() => {
   if(opened) {
     return <Redirect to={UrlJoin(match.url, "open")} />;
   }
+
   const NFTActions = () => {
     if(loadingListing) {
       return (
@@ -242,7 +249,7 @@ const NFTDetails = observer(() => {
             className="details-page__listing-button action action-primary"
             onClick={() => setShowPurchaseModal(true)}
           >
-            Buy Now
+            Buy Now for { FormatPriceString({USD: listing.details.Total}) }
           </ButtonWithLoader>
         </div>
       );
@@ -302,7 +309,9 @@ const NFTDetails = observer(() => {
               // TODO: Do something after listing
               console.log("LISTING ID", info);
 
-              if(info.listingId || info.deleted) {
+              if(info.deleted) {
+                setDeleted(true);
+              } else if(info.listingId) {
                 LoadListing();
               }
             }}

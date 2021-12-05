@@ -1,29 +1,25 @@
 import React, {useEffect} from "react";
-import {rootStore, checkoutStore, transferStore} from "Stores/index";
+import {rootStore, transferStore} from "Stores/index";
 import {
   Switch,
   Route,
   useRouteMatch,
   NavLink,
-  Redirect
 } from "react-router-dom";
 import UrlJoin from "url-join";
 import {observer} from "mobx-react";
 import AsyncComponent from "Components/common/AsyncComponent";
 import Drop from "Components/event/Drop";
 import NFTDetails from "Components/wallet/NFTDetails";
-import {
-  ClaimMintingStatus,
-  DropMintingStatus,
-  PackOpenStatus,
-  PurchaseMintingStatus
-} from "Components/marketplace/MintingStatus";
-import { PageLoader} from "Components/common/Loaders";
+import {ClaimMintingStatus, DropMintingStatus, PackOpenStatus} from "Components/marketplace/MintingStatus";
 import MarketplaceItemDetails from "Components/marketplace/MarketplaceItemDetails";
 import MarketplaceOwned from "Components/marketplace/MarketplaceOwned";
 import MarketplaceStorefront from "Components/marketplace/MarketplaceStorefront";
 import MarketplaceBrowser from "Components/marketplace/MarketplaceBrowser";
-import MarketplaceListings from "Components/marketplace/MarketplaceListings";
+import Listings from "Components/listings/Listings";
+import {ErrorBoundary} from "Components/common/ErrorBoundary";
+import MyListings from "Components/listings/MyListings";
+import PurchaseHandler from "Components/marketplace/PurchaseHandler";
 
 const MarketplaceNavigation = observer(() => {
   let match = useRouteMatch();
@@ -44,7 +40,8 @@ const MarketplaceNavigation = observer(() => {
         isActive={() =>
           !match.path.includes("/marketplaces/:marketplaceId/collections") &&
           !match.path.includes("/marketplaces/:marketplaceId/owned") &&
-          !match.path.includes("/marketplaces/:marketplaceId/listings")
+          !match.path.includes("/marketplaces/:marketplaceId/listings") &&
+          !match.path.includes("/marketplaces/:marketplaceId/my-listings")
         }
       >
         { ((marketplace.storefront || {}).tabs || {}).store || "Store" }
@@ -55,6 +52,9 @@ const MarketplaceNavigation = observer(() => {
       <NavLink className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/listings`}>
         All Listings
       </NavLink>
+      <NavLink className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/my-listings`}>
+        My Listings
+      </NavLink>
       <div className="sub-navigation__separator" />
     </nav>
   );
@@ -63,64 +63,12 @@ const MarketplaceNavigation = observer(() => {
 const MarketplacePurchase = observer(() => {
   const match = useRouteMatch();
 
-  const fromEmbed = new URLSearchParams(window.location.search).has("embed");
-  const success = match.path.endsWith("/success");
-  const cancel = match.path.endsWith("/cancel");
-
-  if(fromEmbed && (success || cancel)) {
-    useEffect(() => {
-      window.opener.postMessage({
-        type: "ElvMediaWalletClientRequest",
-        action: "purchase",
-        params: {
-          confirmationId: match.params.confirmationId,
-          success
-        }
-      });
-
-      window.close();
-    }, []);
-
-    return <PageLoader />;
-  } else if(fromEmbed) {
-    // Opened from iframe - Initiate stripe purchase
-    useEffect(() => {
-      rootStore.ToggleNavigation(false);
-
-      const checkoutProvider = new URLSearchParams(window.location.search).get("provider");
-      const tenantId = new URLSearchParams(window.location.search).get("tenantId");
-      const quantity = parseInt(new URLSearchParams(window.location.search).get("quantity") || 1);
-
-      checkoutStore.CheckoutSubmit({
-        provider: checkoutProvider,
-        tenantId,
-        marketplaceId: match.params.marketplaceId,
-        sku: match.params.sku,
-        quantity,
-        confirmationId: match.params.confirmationId
-      });
-    }, []);
-
-    return <PageLoader/>;
-  } else if(success) {
-    return (
-      <AsyncComponent
-        Load={async () => {
-          await rootStore.LoadMarketplace(match.params.marketplaceId);
-          await rootStore.LoadWalletCollection();
-        }}
-        loadingClassName="page-loader"
-      >
-        <MarketplacePage>
-          <PurchaseMintingStatus />
-        </MarketplacePage>
-      </AsyncComponent>
-    );
-  } else if(cancel) {
-    return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, match.params.sku)} />;
-  }
+  return (
+    <PurchaseHandler
+      cancelPath={UrlJoin("/marketplaces", match.params.marketplaceId, match.params.sku)}
+    />
+  );
 });
-
 
 const MarketplacePage = observer(({children}) => {
   const match = useRouteMatch();
@@ -185,6 +133,8 @@ const MarketplaceWrapper = observer(({children}) => {
   if(match.params.marketplaceId) {
     return (
       <AsyncComponent
+        loadKey={`marketplace-${match.params.marketplaceId}`}
+        cacheSeconds={30}
         Load={async () => {
           if(currentRoute.skipLoading) { return; }
 
@@ -204,6 +154,8 @@ const MarketplaceWrapper = observer(({children}) => {
 
   return (
     <AsyncComponent
+      loadKey="marketplace-list"
+      cacheSeconds={1000}
       Load={async () => {
         await Promise.all(
           rootStore.marketplaceIds.map(async marketplaceId => {
@@ -223,13 +175,15 @@ const Routes = (match) => {
   const event = rootStore.eventMetadata || {};
   const item = (marketplace.items || []).find(item => item.sku === match.params.sku) || {};
   const nft = rootStore.NFT({contractId: match.params.contractId, tokenId: match.params.tokenId}) || { metadata: {} };
-  const listing = !match.params.listingId ? undefined :
-    transferStore.TransferListings({marketplaceId: match.params.marketplaceId})
-      .find(listing => listing.details.ListingId === match.params.listingId);
+
+  const listingName = transferStore.listingNames[match.params.listingId] || "Listing";
 
   return [
-    { name: "All Listings", path: "/marketplaces/:marketplaceId/listings", Component: MarketplaceListings },
-    { name: ((listing || {}).metadata || {}).display_name, path: "/marketplaces/:marketplaceId/listings/:listingId", Component: NFTDetails },
+    { name: listingName, path: "/marketplaces/:marketplaceId/listings/:listingId", Component: NFTDetails },
+    { name: "All Listings", path: "/marketplaces/:marketplaceId/listings", Component: Listings },
+    { name: nft.metadata.display_name, path: "/marketplaces/:marketplaceId/my-listings/:contractId/:tokenId", Component: NFTDetails },
+    { name: "My Listings", path: "/marketplaces/:marketplaceId/my-listings", Component: MyListings },
+
 
     { name: (event.event_info || {}).event_title, path: "/marketplaces/:marketplaceId/events/:dropId", Component: Drop, hideNavigation: true },
     { name: "Status", path: "/marketplaces/:marketplaceId/events/:dropId/status", Component: DropMintingStatus, hideNavigation: true },
@@ -244,9 +198,9 @@ const Routes = (match) => {
     { name: item.name, path: "/marketplaces/:marketplaceId/collections/:collectionIndex/store/:sku", Component: MarketplaceItemDetails },
 
     { name: "Claim", path: "/marketplaces/:marketplaceId/:sku/claim", Component: ClaimMintingStatus, hideNavigation: true },
-    { name: "Purchase", path: "/marketplaces/:marketplaceId/:sku/purchase/:confirmationId/success", Component: MarketplacePurchase, hideNavigation: true, skipLoading: true },
-    { name: "Purchase", path: "/marketplaces/:marketplaceId/:sku/purchase/:confirmationId/cancel", Component: MarketplacePurchase, skipLoading: true },
-    { name: "Purchase", path: "/marketplaces/:marketplaceId/:sku/purchase/:confirmationId", Component: MarketplacePurchase, noBreadcrumb: true, skipLoading: true },
+    { name: "Purchase", path: "/marketplaces/:marketplaceId/:tenantId/:sku/purchase/:confirmationId/success", Component: MarketplacePurchase, hideNavigation: rootStore.sidePanelMode },
+    { name: "Purchase", path: "/marketplaces/:marketplaceId/:tenantId/:sku/purchase/:confirmationId/cancel", Component: MarketplacePurchase },
+    { name: "Purchase", path: "/marketplaces/:marketplaceId/:tenantId/:sku/purchase/:confirmationId", Component: MarketplacePurchase, noBreadcrumb: true },
     { name: item.name, path: "/marketplaces/:marketplaceId/:sku", Component: MarketplaceItemDetails },
     { name: marketplace.name, path: "/marketplaces/:marketplaceId", Component: MarketplaceStorefront },
 
@@ -254,7 +208,7 @@ const Routes = (match) => {
   ];
 };
 
-const MarketplaceRoutes = () => {
+const MarketplaceRoutes = observer(() => {
   const match = useRouteMatch();
 
   return (
@@ -264,7 +218,9 @@ const MarketplaceRoutes = () => {
           Routes(match).map(({path, Component}) =>
             <Route exact path={path} key={`marketplace-route-${path}`}>
               <MarketplaceWrapper>
-                <Component/>
+                <ErrorBoundary>
+                  <Component/>
+                </ErrorBoundary>
               </MarketplaceWrapper>
             </Route>
           )
@@ -272,6 +228,6 @@ const MarketplaceRoutes = () => {
       </Switch>
     </div>
   );
-};
+});
 
 export default MarketplaceRoutes;

@@ -9,12 +9,16 @@ class AsyncComponent extends React.Component {
   constructor(props) {
     super(props);
 
+    const cache = (props.cacheSeconds || 0) * 1000;
+
     this.state = {
-      loading: this.props.loadKey && loaded[this.props.loadKey] ? false : true
+      loading: !props.loadKey || !loaded[props.loadKey] || (Date.now() - loaded[props.loadKey]) > cache
     };
   }
 
   async componentDidMount() {
+    if(!this.state.loading) { return; }
+
     this.mounted = true;
 
     // Wait a bit to avoid react mount-unmount bounce
@@ -31,7 +35,7 @@ class AsyncComponent extends React.Component {
       await this.props.Load();
 
       if(this.props.loadKey) {
-        loaded[this.props.loadKey] = true;
+        loaded[this.props.loadKey] = Date.now();
       }
 
       if(this.mounted) {

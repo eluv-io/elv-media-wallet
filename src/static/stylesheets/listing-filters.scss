@@ -19,7 +19,7 @@
   &__dropdown {
     flex: 1 1 auto;
 
-    max-width: 300px;
+    max-width: 310px;
     min-width: 150px;
   }
 
@@ -31,6 +31,7 @@
     input {
       border-radius: 6px;
       height: 40px;
+      padding-right: 40px;
       width: 100%;
     }
   }
@@ -46,8 +47,9 @@
   }
 
   &__select {
-    background-color: $lightgray;
+    background-color: $white;
     background-image: none;
+    border: 1px solid $mediumgray;
     border-radius: 6px;
     height: 40px;
     padding: 0 15px;
@@ -59,7 +61,15 @@
     display: flex;
 
     .action,
-    .loader-button {
+    .action-loader {
+      max-width: 80px;
+      min-width: 80px;
+      padding: 3px;
+
+      svg {
+        stroke-width: 1.5px;
+      }
+
       &:not(:last-child) {
         margin-right: 10px;
       }

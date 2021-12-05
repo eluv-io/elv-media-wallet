@@ -77,6 +77,7 @@ class TransferStore {
   transferHistories = {};
 
   listings = {};
+  listingNames = {};
 
   filters = {
     sort_by: "created",
@@ -97,7 +98,7 @@ class TransferStore {
     makeAutoObservable(this);
   }
 
-  /* Listings */
+  /* MyListings */
 
   // Format returned listing format to match account profile format
   FormatListing(entry) {
@@ -121,6 +122,8 @@ class TransferStore {
       Fee: entry.fee,
       Total: (entry.price + entry.fee)
     };
+
+    this.listingNames[entry.id] = this.listingNames[entry.id] || metadata.display_name || "";
 
     return {
       metadata,
@@ -191,7 +194,7 @@ class TransferStore {
     if(contractId) { contractAddress = Utils.HashToAddress(contractId); }
     contractAddress = Utils.FormatAddress(contractAddress);
 
-    const listingKey = this.ListingKey({tenantId, userId, userAddress, contractId, contractAddress, tokenId});
+    const listingKey = this.ListingKey({listingId, tenantId, userId, userAddress, contractId, contractAddress, tokenId});
 
     try {
       let path = "/mkt/ls";
@@ -206,7 +209,7 @@ class TransferStore {
           path = UrlJoin("mkt", "ls", "c", contractAddress);
         }
       } else if(listingId) {
-        path = UrlJoin("mkt", listingId);
+        path = UrlJoin("mkt", "l", listingId);
       }
 
       // TODO: Also check for search/filter params
@@ -235,6 +238,8 @@ class TransferStore {
 
         return [];
       }
+
+      this.rootStore.Log(error, true);
 
       throw error;
     }

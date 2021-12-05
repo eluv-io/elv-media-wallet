@@ -37,7 +37,7 @@
 .sub-navigation {
   display: flex;
   margin: 10px 0 20px;
-  padding-bottom: 20px;
+  padding-bottom: 15px;
   position: relative;
   width: 100%;
 
@@ -65,7 +65,11 @@
 
   @media screen and (max-width: $mobile-breakpoint) {
     &__link {
-      font-size: 12px;
+      font-size: 10px;
+
+      &:not(:last-child) {
+        margin-right: 10px;
+      }
     }
   }
 }

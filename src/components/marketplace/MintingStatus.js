@@ -137,6 +137,15 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
       </div>
 
       { videoHash ? null : <Loader/> }
+
+      {
+        rootStore.hideNavigation ? null :
+          <div className="minting-status__text">
+            <h2 className="minting-status__navigation-message">
+              You can navigate away from this page if you don't want to wait. Your item(s) will be available in your wallet when the process is complete.
+            </h2>
+          </div>
+      }
     </div>
   );
 });
@@ -222,9 +231,69 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
   );
 });
 
+export const ListingPurchaseStatus = observer(() => {
+  const match = useRouteMatch();
+  const [status, setStatus] = useState(undefined);
+
+  const inMarketplace = !!match.params.marketplaceId;
+
+  const Status = async () => await rootStore.ListingPurchaseStatus({
+    tenantId: match.params.tenantId,
+    confirmationId: match.params.confirmationId
+  });
+
+  let basePath = UrlJoin("wallet", "collection");
+  if(inMarketplace) {
+    basePath = UrlJoin("marketplaces", match.params.marketplaceId);
+  }
+
+  if(!status) {
+    return (
+      <MintingStatus
+        header="Your item is being transferred"
+        Status={Status}
+        OnFinish={({status}) => setStatus(status)}
+        basePath={basePath}
+        backText={
+          inMarketplace ?
+            "Back to the Marketplace" :
+            "Back to My Collection"
+        }
+      />
+    );
+  }
+
+  const items = status.extra.filter(item => item.token_addr && (item.token_id || item.token_id_str));
+
+  return (
+    <MintResults
+      header="Congratulations!"
+      subheader={`Thank you for your purchase! You've received the following ${items.length === 1 ? "item" : "items"}:`}
+      items={items}
+      basePath={basePath}
+      nftBasePath={
+        inMarketplace ?
+          UrlJoin("/marketplaces", match.params.marketplaceId, "collections", "owned") :
+          basePath
+      }
+      backText={
+        inMarketplace ?
+          "Back to the Marketplace" :
+          "Back to My Collection"
+      }
+    />
+  );
+});
+
 export const PurchaseMintingStatus = observer(() => {
   const match = useRouteMatch();
   const [status, setStatus] = useState(undefined);
+
+  const confirmationId = match.params.confirmationId;
+
+  if(confirmationId.startsWith("T-")) {
+    return <ListingPurchaseStatus />;
+  }
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const videoHash = marketplace.storefront.purchase_animation &&
