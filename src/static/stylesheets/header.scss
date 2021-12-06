@@ -12,6 +12,7 @@
   background-color: $white;
   display: flex;
   height: 50px;
+  justify-content: space-between;
   max-width: 100%;
   padding: 10px 15px;
   position: fixed;
@@ -71,7 +72,6 @@
   &__profile {
     align-items: center;
     display: flex;
-    flex: 1 1 auto;
     height: 100%;
     justify-content: flex-end;
     user-select: none;

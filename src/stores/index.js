@@ -983,8 +983,10 @@ class RootStore {
 
   ToggleDarkMode(enabled) {
     if(enabled) {
+      document.body.style.backgroundColor = "#000000";
       document.getElementById("app").classList.add("dark");
     } else {
+      document.body.style.backgroundColor = "#FFFFFF";
       document.getElementById("app").classList.remove("dark");
     }
 

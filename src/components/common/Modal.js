@@ -21,7 +21,7 @@ const Modal = observer(({children, Toggle, id="", className=""}) => {
 
     return () => {
       document.removeEventListener("keydown", Close);
-      document.body.style.overflowY = "auto";
+      document.body.style.overflowY = "scroll";
     };
   });
 

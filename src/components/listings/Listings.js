@@ -31,8 +31,8 @@ const Listings = observer(() => {
           <h2 className="marketplace__empty">No matching items</h2> :
           <div className="card-list">
             {
-              listings.map((listing) =>
-                <div className="card-container card-shadow" key={`listing-card-${listing.details.ListingId}`}>
+              listings.map((listing, index) =>
+                <div className="card-container card-shadow" key={`listing-card-${listing.details.ListingId}-${index}`}>
                   <Link
                     to={UrlJoin(match.url, listing.details.ListingId)}
                     className="card nft-card"

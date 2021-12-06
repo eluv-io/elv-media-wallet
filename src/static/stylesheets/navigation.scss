@@ -1,7 +1,7 @@
 .navigation {
   background-color: $lightgray;
   border-radius: 10px;
-  bottom: 20px;
+  bottom: 30px;
   box-shadow: $mediumgray 3px 3px 3px;
   display: flex;
   height: 40px;
@@ -23,6 +23,10 @@
     &.active {
       color: $blue;
     }
+  }
+
+  &:hover {
+    filter: drop-shadow(0 0 5px $blue);
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
