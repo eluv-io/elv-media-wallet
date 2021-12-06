@@ -68,6 +68,15 @@ const MarketplaceOwned = observer(() => {
                       <h2 className="card__title">
                         { ownedItem.metadata.display_name || "" }
                       </h2>
+                      {
+                        ownedItem.metadata.edition_name ?
+                          <h2 className="card__title-edition">
+                            { ownedItem.metadata.edition_name }
+                          </h2> : null
+                      }
+                      <h2 className="card__title card__title-edition">
+                        { typeof ownedItem.details.TokenOrdinal !== "undefined" ? `${parseInt(ownedItem.details.TokenOrdinal)} / ${ownedItem.details.Cap}` : ownedItem.details.TokenIdStr }
+                      </h2>
                       <ResponsiveEllipsis
                         component="h2"
                         className="card__subtitle"

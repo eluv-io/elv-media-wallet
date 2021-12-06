@@ -42,7 +42,14 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
   }, []);
 
   const sortedListings = (listings || []).slice().sort(
-    (a, b) =>  ((a.details || {})[sortField] > (b.details || {})[sortField] ? 1 : -1) * (sortDesc ? -1 : 1)
+    (a, b) => {
+      let sort = sortField;
+      if(sortField === "TokenOrdinal" && typeof (a.details || {}).TokenOrdinal === "undefined") {
+        sort = "TokenIdStr";
+      }
+
+      return ((a.details || {})[sort] > (b.details || {})[sort] ? 1 : -1) * (sortDesc ? -1 : 1);
+    }
   );
 
   const sortIcon = (
@@ -56,8 +63,8 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
     <div className={`transfer-table active-listings ${Select ? "transfer-table-selectable" : ""}`}>
       <div className="transfer-table__table">
         <div className="transfer-table__table__header transfer-table__table__header-sortable">
-          <button className="transfer-table__table__cell" onClick={() => UpdateSort("TokenIdStr")}>
-            Token ID { sortField === "TokenIdStr" ? sortIcon : null }
+          <button className="transfer-table__table__cell" onClick={() => UpdateSort("TokenOrdinal")}>
+            Ordinal / Token ID { sortField === "TokenOrdinal" ? sortIcon : null }
           </button>
           <button className="transfer-table__table__cell" onClick={() => UpdateSort("Total")}>
             Price { sortField === "Total" ? sortIcon : null }
@@ -89,7 +96,11 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
                     className={`transfer-table__table__row ${selectedListingId === nft.details.ListingId ? "transfer-table__table__row-selected" : ""} ${Select ? "transfer-table__table__row-selectable" : ""}`}
                   >
                     <div className="transfer-table__table__cell">
-                      { MiddleEllipsis(nft.details.TokenIdStr, 20)}
+                      {
+                        typeof nft.details.TokenOrdinal !== "undefined" ?
+                          `${parseInt(nft.details.TokenOrdinal)} / ${nft.details.Cap}` :
+                          MiddleEllipsis(nft.details.TokenIdStr, 20)
+                      }
                     </div>
                     <div className="transfer-table__table__cell">
                       { `$${nft.details.Total.toFixed(2)}`}

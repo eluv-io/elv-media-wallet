@@ -69,7 +69,7 @@ const ListingCard = ({nft, link, Refresh}) => {
         >
           ···
         </button>
-        <Link to={link}>
+        <Link to={link} className="listing-card__image-container">
           <NFTImage width={400} className="listing-card__image" nft={nft} />
         </Link>
         <div className="listing-card__content">
@@ -77,8 +77,14 @@ const ListingCard = ({nft, link, Refresh}) => {
             <h3 className="listing-card__header-title ellipsis">
               { nft.metadata.display_name }
             </h3>
+            {
+              nft.metadata.edition_name ?
+                <h2 className="listing-card__header-id">
+                  { nft.metadata.edition_name }
+                </h2> : null
+            }
             <h3 className="listing-card__header-id">
-              { nft.details.TokenIdStr }
+              { typeof nft.details.TokenOrdinal !== "undefined" ? `${parseInt(nft.details.TokenOrdinal)} / ${nft.details.Cap}` : nft.details.TokenIdStr }
             </h3>
           </Link>
 

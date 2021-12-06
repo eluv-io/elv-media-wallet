@@ -20,15 +20,14 @@ import {observer} from "mobx-react";
 import {useRouteMatch} from "react-router-dom";
 import {rootStore, transferStore} from "Stores";
 import AutoComplete from "Components/common/AutoComplete";
-import Utils from "@eluvio/elv-client-js/src/Utils";
 import {ButtonWithLoader} from "Components/common/UIComponents";
 import {v4 as UUID} from "uuid";
 import ImageIcon from "Components/common/ImageIcon";
 import FilterIcon from "Assets/icons/search.svg";
 
 const sortOptions = [
-  { key: "created", value: "created", label: "Recently Listed", desc: false},
-  { key: "ord", value: "ord", label: "Ordinal", desc: false},
+  { key: "created", value: "created", label: "Recently Listed", desc: true},
+  { key: "info/ordinal", value: "ord", label: "Ordinal", desc: false},
   { key: "price", value: "price_asc", label: "Price (Low to High)", desc: false},
   { key: "price", value: "price_desc", label: "Price (High to Low)", desc: true},
   { key: "/nft/display_name", value: "display_name_asc", label: "Name (A-Z)", desc: false},
@@ -68,10 +67,9 @@ export const ListingFilters = observer(({Loading, UpdateListings}) => {
 
   const [sort, setSort] = useState("created");
   const [sortBy, setSortBy] = useState("created");
-  const [sortDesc, setSortDesc] = useState(false);
+  const [sortDesc, setSortDesc] = useState(true);
   const [collectionIndex, setCollectionIndex] = useState(-1);
   const [filter, setFilter] = useState("");
-  const [filterContractAddr, setFilterContractAddr] = useState("");
 
   const [filterOptions, setFilterOptions] = useState([]);
 
@@ -91,7 +89,6 @@ export const ListingFilters = observer(({Loading, UpdateListings}) => {
         sortBy,
         sortDesc,
         filter,
-        contractAddress: filterContractAddr,
         collectionIndex,
         marketplace,
         start: (page - 1) * perPage,
@@ -179,15 +176,7 @@ export const ListingFilters = observer(({Loading, UpdateListings}) => {
         <AutoComplete
           placeholder="Filter..."
           value={filter}
-          onChange={value => {
-            setFilter(value);
-
-            if(marketplace) {
-              const matchingItem = marketplace.items.find(item => item.name === value);
-
-              setFilterContractAddr(Utils.SafeTraverse(matchingItem, "nft_template", "nft", "address"));
-            }
-          }}
+          onChange={value => setFilter(value)}
           onEnterPressed={async () => await Load({page: 1})}
           options={filterOptions}
         />

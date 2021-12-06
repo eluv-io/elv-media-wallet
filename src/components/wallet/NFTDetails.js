@@ -335,10 +335,15 @@ const NFTDetails = observer(() => {
                     <div className="card__subtitle">
                       { typeof nft.details.TokenOrdinal !== "undefined" ? `${parseInt(nft.details.TokenOrdinal)} / ${nft.details.Cap}` : nft.details.TokenIdStr }
                     </div>
-
                     <h2 className="card__title">
                       { nft.metadata.display_name }
                     </h2>
+                    {
+                      nft.metadata.edition_name ?
+                        <h2 className="card__title-edition">
+                          { nft.metadata.edition_name }
+                        </h2> : null
+                    }
                   </div>
                 </div>
               </div>

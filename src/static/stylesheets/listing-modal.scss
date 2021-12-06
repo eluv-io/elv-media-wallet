@@ -1,12 +1,3 @@
-.listing-modal-container2 {
-  .modal__content {
-    max-width: 620px;
-    overflow-y: auto;
-    padding-right: 8px;
-    width: 100%;
-  }
-}
-
 .listing-modal-container {
   .modal__content {
     height: max-content;
@@ -243,8 +234,8 @@
   .listing-modal-container {
     .modal__content {
       bottom: 0;
-      height: 100%;
       max-width: unset;
+      min-height: 100%;
       padding: 0;
       top: 0;
     }
@@ -252,7 +243,7 @@
 
   .listing-modal {
     border: 0;
-    min-height: 100%;
+    min-height: 100vh;
 
     &__header {
       font-size: 24px;
@@ -268,6 +259,10 @@
 
     &__actions {
       flex-direction: column-reverse;
+
+      .loader-button {
+        width: 100%;
+      }
     }
 
     &__action {

@@ -36,23 +36,25 @@
   border-radius: 6px;
   display: grid;
   grid-gap: 20px;
-  grid-template-columns: 170px 1fr;
-  height: 200px;
+  grid-template-columns: 190px 1fr;
+  height: 220px;
   max-width: 600px;
   padding: 15px;
   position: relative;
   width: 100%;
 
   .card__image-container {
-    height: 170px;
+    height: 190px;
     max-height: 100%;
-    max-width: 170px;
-    width: 170px;
+    max-width: 190px;
+    width: 190px;
   }
 
+  &__image-container,
   &__image {
-    height: 170px;
-    width: 170px;
+    height: 190px;
+    margin: auto;
+    width: 190px;
   }
 
   &__content {
@@ -145,7 +147,7 @@
 
   @media screen and (max-width: $breakpoint) {
     grid-template-columns: 1fr;
-    grid-template-rows: 160px 1fr;
+    grid-template-rows: 190px 1fr;
     height: max-content;
     justify-items: center;
     max-width: 400px;

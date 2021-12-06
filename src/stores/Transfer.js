@@ -98,26 +98,32 @@ class TransferStore {
     makeAutoObservable(this);
   }
 
-  /* MyListings */
+  /* Listings */
 
   // Format returned listing format to match account profile format
   FormatListing(entry) {
     const metadata = entry.nft || {};
+    const info = entry.info || {};
 
     const details = {
       TenantId: entry.tenant,
-      ContractAddr: entry.contract,
-      ContractId: `ictr${Utils.AddressToHash(entry.contract)}`,
-      TokenIdStr: entry.token,
-      TokenUri: metadata.token_uri,
+      ContractAddr: info.contract_addr,
+      ContractId: `ictr${Utils.AddressToHash(info.contract_addr)}`,
+      ContractName: info.contract_name,
+      Cap: info.cap,
+      TokenIdStr: info.token_id_str,
+      TokenUri: info.token_uri,
+      TokenOrdinal: info.ordinal,
+      TokenHold: info.hold,
+      TokenHoldDate: info.hold ? new Date(parseInt(info.hold) * 1000) : undefined,
+      TokenOwner: Utils.FormatAddress(info.token_owner),
       VersionHash: (metadata.token_uri || "").split("/").find(s => s.startsWith("hq__")),
 
       // Listing specific fields
       ListingId: entry.id,
-      ListingOrdinal: entry.ordinal,
       CreatedAt: entry.created * 1000,
       UpdatedAt: entry.updated * 1000,
-      SellerAddress: entry.seller,
+      SellerAddress: Utils.FormatAddress(entry.seller),
       Price: entry.price,
       Fee: entry.fee,
       Total: (entry.price + entry.fee)

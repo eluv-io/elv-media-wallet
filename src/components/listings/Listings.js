@@ -54,11 +54,13 @@ const Listings = observer(() => {
                             {FormatPriceString({USD: listing.details.Total})}
                           </div>
                         </h2>
-                        <h2 className="card__title card__title-edition">{listing.details.TokenIdStr}</h2>
                         {
                           listing.metadata.edition_name ?
                             <h2 className="card__title card__title-edition">{listing.metadata.edition_name}</h2> : null
                         }
+                        <h2 className="card__title card__title-edition">
+                          { typeof listing.details.TokenOrdinal !== "undefined" ? `${parseInt(listing.details.TokenOrdinal)} / ${listing.details.Cap}` : listing.details.TokenIdStr }
+                        </h2>
                         <ResponsiveEllipsis
                           component="h2"
                           className="card__subtitle"

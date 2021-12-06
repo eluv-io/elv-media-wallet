@@ -10,7 +10,7 @@ const Modal = observer(({children, Toggle, id="", className=""}) => {
     if(event && (event.key || "").toLowerCase() !== "escape") { return; }
 
     document.removeEventListener("keydown", Close);
-    document.body.style.overflowY = "auto";
+    document.body.style.overflowY = "scroll";
 
     Toggle(false);
   };
