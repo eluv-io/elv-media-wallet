@@ -7,6 +7,7 @@ import {Link, NavLink} from "react-router-dom";
 
 import BackIcon from "Assets/icons/arrow-left-circle.svg";
 import ImageIcon from "Components/common/ImageIcon";
+import USDCIcon from "Assets/icons/usd-coin-usdc-logo.svg";
 
 const Header = observer(() => {
   if(!rootStore.loggedIn || rootStore.hideNavigation) { return null; }
@@ -57,8 +58,17 @@ const Header = observer(() => {
         }
       </div>
       <Link to="/profile" className="header__profile">
-        <div className="header__profile__name">
-          { rootStore.userProfile.name }
+        <div className="header__profile__info">
+          <div className="header__profile__name">
+            { rootStore.userProfile.name }
+          </div>
+          {
+            rootStore.usdcBalance ?
+              <div className="header__profile__balance">
+                <ImageIcon icon={USDCIcon} title="Balance in USDC"/>
+                {rootStore.usdcBalance}
+              </div> : null
+          }
         </div>
         <ProfileImage className="header__profile__image" />
       </Link>

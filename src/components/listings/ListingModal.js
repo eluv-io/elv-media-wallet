@@ -12,9 +12,13 @@ const ListingModal = observer(({nft, Close}) => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [errorMessage, setErrorMessage] = useState(undefined);
 
-  const parsedPrice = isNaN(parseFloat(price)) ? 0 : parseFloat(price);
-  const serviceFee = Math.max(1, parsedPrice - parsedPrice / 1.025);
-  const payout = parseFloat((parsedPrice - serviceFee).toFixed(2));
+  let parsedPrice = isNaN(parseFloat(price)) ? 0 : parseFloat(price);
+  let percentPayout = (parsedPrice / 1.025).toFixed(3);
+  // Must truncate to 2 digits, but rounded down. .toFixed() may round up
+  percentPayout = parseFloat(percentPayout.split(".")[0] + "." + percentPayout.split(".")[1].slice(0, 2));
+
+  const serviceFee = Math.max(1, parsedPrice - percentPayout);
+  const payout = parsedPrice - serviceFee;
 
   const InputStage = () => {
     return (

@@ -248,6 +248,7 @@ class TransferStore {
   FilteredTransferListings = flow(function * ({
     sortBy="created",
     sortDesc=false,
+    filter,
     contractAddress,
     marketplace,
     collectionIndex=-1,
@@ -300,6 +301,8 @@ class TransferStore {
 
       if(contractAddress) {
         filters.push(`contract:eq:${Utils.FormatAddress(contractAddress)}`);
+      } else if(filter) {
+        filters.push(`nft/display_name:eq:${filter}`);
       }
 
       if(filters.length > 0) {
@@ -324,7 +327,7 @@ class TransferStore {
           total: paging.total,
           more: paging.total > start + limit
         },
-        listings: contents.map(listing => this.FormatListing(listing))
+        listings: (contents || []).map(listing => this.FormatListing(listing))
       };
     } catch(error) {
       if(error.status && error.status.toString() === "404") {
@@ -393,6 +396,30 @@ class TransferStore {
     });
   });
 
+  ListingStatus = flow(function * ({listingId}) {
+    return yield Utils.ResponseToJson(
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "mkt", "status", listingId),
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${this.client.signer.authToken}`
+        }
+      })
+    );
+  });
+
+  ListingNames = flow(function * () {
+    return yield Utils.ResponseToJson(
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "mkt", "names"),
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${this.client.signer.authToken}`
+        }
+      })
+    );
+  });
+
   // Transfer History
 
   TransferKey({contractAddress, contractId, tokenId}) {
@@ -415,6 +442,20 @@ class TransferStore {
   });
 
   TransferHistory = flow(function * ({contractAddress, contractId, tokenId}) {
+    if(contractId) { contractAddress = Utils.HashToAddress(contractId); }
+    contractAddress = Utils.FormatAddress(contractAddress);
+
+    return yield Utils.ResponseToJson(
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "mkt", "hst", contractAddress),
+        method: "GET",
+        queryParams: tokenId ? { tid: tokenId } : {},
+        headers: {
+          Authorization: `Bearer ${this.client.signer.authToken}`
+        }
+      })
+    );
+
     if(contractId) { contractAddress = Utils.HashToAddress(contractId); }
     contractAddress = Utils.FormatAddress(contractAddress);
 

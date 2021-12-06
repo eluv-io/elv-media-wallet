@@ -19,7 +19,7 @@ export const ExpandableSection = ({header, icon, children, className=""}) => {
   );
 };
 
-export const CopyableField = ({value, children, className=""}) => {
+export const CopyableField = ({value, children, className="", ellipsis=true}) => {
   const Copy = async () => {
     try {
       await navigator.clipboard.writeText(value);
@@ -35,7 +35,7 @@ export const CopyableField = ({value, children, className=""}) => {
 
   return (
     <div className={`copyable-field ${className}`} onClick={Copy}>
-      <div className="copyable-field__content ellipsis">
+      <div className={`copyable-field__content ${ellipsis ? "ellipsis" : ""}`}>
         { children }
       </div>
       <button className="copyable-field__button" title="Copy to Clipboard">

@@ -35,16 +35,17 @@ const sortOptions = [
   { key: "/nft/display_name", value: "display_name_desc", label: "Name (Z-A)", desc: true}
 ];
 
-const FilterDropdown = observer(({label, value, options, onChange}) => {
+const FilterDropdown = observer(({label, value, options, onChange, placeholder}) => {
   return (
     <div className="listing-filters__dropdown">
       <label className="listing-filters__label">{ label }</label>
       <div className="listing-filters__select-container">
         <select
-          className="listing-filters__select"
+          className={`listing-filters__select ${placeholder && (placeholder[0] || "").toString() === (value || "").toString() ? "listing-filters__select-placeholder" : ""}`}
           value={value}
           onChange={event => onChange(event.target.value)}
         >
+          { placeholder ? <option value={placeholder[0]} key={`sort-option-${placeholder[0]}`}>{ placeholder[1] }</option> : null}
           { options.map(([value, label]) => (
             <option value={value} key={`sort-option-${value}`}>{ label }</option>
           ))}
@@ -72,6 +73,8 @@ export const ListingFilters = observer(({Loading, UpdateListings}) => {
   const [filter, setFilter] = useState("");
   const [filterContractAddr, setFilterContractAddr] = useState("");
 
+  const [filterOptions, setFilterOptions] = useState([]);
+
   const perPage = 8;
   let scrollTimeout;
 
@@ -87,6 +90,7 @@ export const ListingFilters = observer(({Loading, UpdateListings}) => {
       const {listings, paging} = await transferStore.FilteredTransferListings({
         sortBy,
         sortDesc,
+        filter,
         contractAddress: filterContractAddr,
         collectionIndex,
         marketplace,
@@ -127,6 +131,13 @@ export const ListingFilters = observer(({Loading, UpdateListings}) => {
   // Initial page load
   useEffect(() => {
     Load({page: 1});
+
+    if(marketplace) {
+      setFilterOptions(marketplace.items.map(item => item.name || "").sort());
+    } else {
+      transferStore.ListingNames()
+        .then(names => setFilterOptions(names.sort()));
+    }
   }, []);
 
   // Load triggered by scroll detection updating a key
@@ -155,32 +166,32 @@ export const ListingFilters = observer(({Loading, UpdateListings}) => {
             label="Collection"
             value={collectionIndex}
             onChange={value => setCollectionIndex(value)}
-            options={[
-              [-1, "Select a Collection"],
-              ...(collections.map((collection, index) =>
+            placeholder={["-1", "Filter by Collection"]}
+            options={
+              (collections.map((collection, index) =>
                 [index, collection.collection_header]
               ))
-            ]}
+            }
           /> : null
       }
-      {
-        marketplace ?
-          <div className="listing-filters__autocomplete-container">
-            <label className="listing-filters__label">Filter</label>
-            <AutoComplete
-              placeholder="Filter..."
-              value={filter}
-              onChange={value => {
-                setFilter(value);
+      <div className="listing-filters__autocomplete-container">
+        <label className="listing-filters__label">Filter</label>
+        <AutoComplete
+          placeholder="Filter..."
+          value={filter}
+          onChange={value => {
+            setFilter(value);
 
-                const matchingItem = marketplace.items.find(item => item.name === value);
+            if(marketplace) {
+              const matchingItem = marketplace.items.find(item => item.name === value);
 
-                setFilterContractAddr(Utils.SafeTraverse(matchingItem, "nft_template", "nft", "address"));
-              }}
-              options={marketplace.items.map(item => item.name || "").sort()}
-            />
-          </div> : null
-      }
+              setFilterContractAddr(Utils.SafeTraverse(matchingItem, "nft_template", "nft", "address"));
+            }
+          }}
+          onEnterPressed={async () => await Load({page: 1})}
+          options={filterOptions}
+        />
+      </div>
       <div className="listing-filters__actions actions-container">
         <ButtonWithLoader
           className="action action-primary listing-filters__filter-button"

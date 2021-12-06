@@ -7,6 +7,7 @@ const AutoComplete = ({
   value,
   placeholder,
   onChange,
+  onEnterPressed,
   options=[],
   className=""
 }) => {
@@ -135,9 +136,14 @@ const AutoComplete = ({
         aria-owns={`${id}-options`}
         onChange={event => setInputValue(event.target.value)}
         onKeyDown={event => {
-          if(event.key === "Enter" && selectedOption) {
-            setInputValue(selectedOption);
-            setShowSuggestions(false);
+          if(event.key === "Enter") {
+            if(!showSuggestions) {
+              onEnterPressed && onEnterPressed();
+            } else if(selectedOption) {
+              setInputValue(selectedOption);
+              setShowSuggestions(false);
+            }
+
             return;
           }
 

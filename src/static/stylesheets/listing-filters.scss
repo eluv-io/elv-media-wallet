@@ -54,6 +54,10 @@
     height: 40px;
     padding: 0 15px;
     width: 100%;
+
+    &-placeholder {
+      color: $darkgray;
+    }
   }
 
   &__actions {
@@ -95,6 +99,10 @@
     &__select {
       background-color: $black;
       border: 1px solid $darkergray;
+
+      &-placeholder {
+        color: $gray;
+      }
     }
 
     &__select-button {
