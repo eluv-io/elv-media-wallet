@@ -26,10 +26,8 @@ const ListingCard = ({nft, link, Refresh}) => {
   const Menu = () => {
     return (
       <div className="listing-card__menu">
-        <button className="listing-card__menu__action">
-          Share Listing
-        </button>
         <button
+          autoFocus
           onClick={async () => Confirm({
             message: "Are you sure you want to remove this listing?",
             Confirm: async () => {

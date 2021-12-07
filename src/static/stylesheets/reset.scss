@@ -45,6 +45,10 @@ button {
   cursor: pointer;
 }
 
+button {
+  text-align: center;
+}
+
 /* revert for bug in Chromium browsers
    - fix for the content editable attribute will work properly. */
 :where([contenteditable]){

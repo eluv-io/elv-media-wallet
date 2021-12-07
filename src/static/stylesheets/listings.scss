@@ -115,9 +115,9 @@
 
   &__menu-button {
     background-color: $white;
-    height: 24px;
-    min-width: 32px;
-    padding: 0;
+    height: 34px;
+    min-width: 42px;
+    padding: 5px;
     position: absolute;
     right: 20px;
     top: -5px;
@@ -127,7 +127,7 @@
 
   &__menu {
     background-color: $white;
-    border: 1px solid $mediumgray;
+    border: 1px solid $black;
     border-radius: 6px;
     position: absolute;
     right: 50px;
@@ -138,6 +138,10 @@
     button {
       border: 0;
       width: 100%;
+
+      &:focus {
+        box-shadow: 0 0 5px $blue;
+      }
 
       &:not(:last-child) {
         border-bottom: 1px solid $mediumgray;

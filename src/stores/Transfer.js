@@ -2,80 +2,7 @@ import {flow, makeAutoObservable} from "mobx";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import UrlJoin from "url-join";
 
-let now = Date.now();
-const _transfers = [
-  {
-    id: "asd123",
-    name: "Skunk",
-    contractAddress: "0x1234567890987654321",
-    tokenId: "823",
-    transactionId: "asd123qweasd123qwe",
-    transactionType: "Trade",
-    createdAt: now - 10000,
-    price: 1.23,
-    fee: 0.23,
-    buyerAddress: "0x123456789098765431",
-    sellerAddress: "0x54321234567890987"
-  },
-  {
-    id: "qwe123",
-    name: "Bull",
-    contractAddress: "0x1234567890987654321",
-    tokenId: "334",
-    transactionId: "qwe123qweqwe123qwe",
-    transactionType: "Trade",
-    createdAt: now - 200000,
-    price: 2.23,
-    fee: 0.23,
-    buyerAddress: "0x123456789098765431",
-    sellerAddress: "0x54321234567890987"
-  },
-  {
-    id: "fhg123",
-    name: "Gold Pack",
-    contractAddress: "0x1234567890987654321",
-    tokenId: "456",
-    transactionId: "fhg123qweqwe123qwe",
-    transactionType: "Trade",
-    createdAt: now - 500000,
-    price: 4.23,
-    fee: 0.23,
-    buyerAddress: "0x123456789098765431",
-    sellerAddress: "0x54321234567890987"
-  },
-  {
-    id: "cvb123",
-    name: "Beach Ball",
-    contractAddress: "0x1234567890987654321",
-    tokenId: "234",
-    transactionId: "cvb123qweqwe123qwe",
-    transactionType: "Trade",
-    createdAt: now - 1000000,
-    price: 3.23,
-    fee: 0.23,
-    buyerAddress: "0x123456789098765431",
-    sellerAddress: "0x54321234567890987"
-  },
-  {
-    id: "vbn123",
-    name: "Cupcake",
-    contractAddress: "0x1234567890987654321",
-    tokenId: "012",
-    transactionId: "vbn123qweqwe123qwe",
-    transactionType: "Trade",
-    createdAt: now - (60 * 60 * 24 - 10) * 1000,
-    price: 5.23,
-    fee: 0.23,
-    buyerAddress: "0x123456789098765431",
-    sellerAddress: "0x54321234567890987"
-  }
-];
-
 class TransferStore {
-  userPurchases = {};
-  userSales = {};
-  transferHistories = {};
-
   listings = {};
   listingNames = {};
 
@@ -435,16 +362,16 @@ class TransferStore {
     return tokenId ? `${contractAddress}-${tokenId}` : contractAddress;
   }
 
-  UserTransferHistory = flow(function * ({userAddress, type="purchases"}) {
-    userAddress = Utils.FormatAddress(userAddress);
-
-    if(type === "purchases") {
-      this.userPurchases[userAddress] = _transfers;
-    } else {
-      this.userSales[userAddress] = _transfers;
-    }
-
-    return _transfers;
+  UserTransferHistory = flow(function * () {
+    return yield Utils.ResponseToJson(
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "mkt", "hst"),
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${this.client.signer.authToken}`
+        }
+      })
+    );
   });
 
   TransferHistory = flow(function * ({contractAddress, contractId, tokenId}) {
@@ -461,15 +388,6 @@ class TransferStore {
         }
       })
     );
-
-    if(contractId) { contractAddress = Utils.HashToAddress(contractId); }
-    contractAddress = Utils.FormatAddress(contractAddress);
-
-    const key = this.TransferKey({contractAddress, tokenId});
-
-    this.transferHistories[key] = _transfers;
-
-    return this.transferHistories[key];
   });
 }
 

@@ -184,13 +184,19 @@ export const UserTransferHistory = observer(({userAddress, type="purchases"}) =>
   );
 });
 
-export const TransferTables = observer(({contractAddress, contractId, tokenId}) => {
-  const transferKey = transferStore.TransferKey({contractAddress, contractId, tokenId});
-  const transfers = transferStore.transferHistories[transferKey];
-
+export const TransferTable = observer(({header, contractAddress, contractId, tokenId, limit}) => {
   const [loading, setLoading] = useState(true);
+  const [entries, setEntries] = useState([]);
   const UpdateHistory = async () => {
-    await transferStore.TransferHistory({contractAddress, contractId, tokenId});
+    let entries = (await transferStore.TransferHistory({contractAddress, contractId, tokenId}))
+      .filter(entry => entry.action === "SOLD")
+      .sort((a, b) => a.created > b.created ? -1 : 1);
+
+    if(limit) {
+      entries = entries.slice(0, limit);
+    }
+
+    setEntries(entries);
     setLoading(false);
   };
 
@@ -205,12 +211,11 @@ export const TransferTables = observer(({contractAddress, contractId, tokenId}) 
   return (
     <div className="transfer-table">
       <div className="transfer-table__header">
-        Transaction History for this NFT
+        { header }
       </div>
       <div className="transfer-table__table">
         <div className="transfer-table__table__header">
-          <div className="transfer-table__table__cell no-mobile">Transaction ID</div>
-          <div className="transfer-table__table__cell">Transaction Type</div>
+          { tokenId ? null : <div className="transfer-table__table__cell">Token ID</div> }
           <div className="transfer-table__table__cell">Time</div>
           <div className="transfer-table__table__cell">Total Amount</div>
           <div className="transfer-table__table__cell no-mobile">Buyer</div>
@@ -218,27 +223,27 @@ export const TransferTables = observer(({contractAddress, contractId, tokenId}) 
         </div>
         {
           loading ? <div className="transfer-table__loader"><Loader /></div> :
-            !transfers || transfers.length === 0 ?
+            !entries || entries.length === 0 ?
               <div className="transfer-table__empty">No Transfers</div> :
-              transfers.map(transfer =>
+              entries.map(transfer =>
                 <div className="transfer-table__table__row" key={`transfer-table-row-${transfer.id}`}>
-                  <div className="transfer-table__table__cell no-mobile">
-                    { MiddleEllipsis(transfer.transactionId, 10)}
-                  </div>
+                  {
+                    tokenId ? null :
+                      <div className="transfer-table__table__cell">
+                        {transfer.token}
+                      </div>
+                  }
                   <div className="transfer-table__table__cell">
-                    { transfer.transactionType }
-                  </div>
-                  <div className="transfer-table__table__cell">
-                    { Ago(transfer.createdAt) } ago
+                    { Ago(transfer.created * 1000) } ago
                   </div>
                   <div className="transfer-table__table__cell">
                     { `$${(transfer.price + transfer.fee).toFixed(2)}`}
                   </div>
                   <div className="transfer-table__table__cell no-mobile">
-                    { MiddleEllipsis(transfer.buyerAddress, 10) }
+                    { MiddleEllipsis(transfer.buyer, 14) }
                   </div>
                   <div className="transfer-table__table__cell no-mobile">
-                    { MiddleEllipsis(transfer.sellerAddress, 10) }
+                    { MiddleEllipsis(transfer.seller, 14) }
                   </div>
                 </div>
               )

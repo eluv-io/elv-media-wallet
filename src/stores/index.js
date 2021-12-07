@@ -38,7 +38,12 @@ const ProfileImage = (text, backgroundColor) => {
   canvas.width = 200;
   canvas.height = 200;
 
-  context.fillStyle = backgroundColor;
+  const gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
+  gradient.addColorStop(0, "#FFFFFF");
+  gradient.addColorStop(0.6, backgroundColor);
+  gradient.addColorStop(1, backgroundColor);
+
+  context.fillStyle = gradient;
   context.fillRect(0, 0, canvas.width, canvas.height);
 
   context.font = "80px Helvetica";

@@ -15,7 +15,7 @@ import {render} from "react-dom";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
 import Confirm from "Components/common/Confirm";
-import {ActiveListings} from "Components/listings/TransferTables";
+import {TransferTable} from "Components/listings/TransferTables";
 import ListingModal from "Components/listings/ListingModal";
 import {Loader, PageLoader} from "Components/common/Loaders";
 import ListingPurchaseModal from "Components/listings/ListingPurchaseModal";
@@ -485,7 +485,18 @@ const NFTDetails = observer(() => {
           </ExpandableSection>
         </div>
       </div>
-      <ActiveListings contractAddress={nft.details.ContractAddr} />
+      <div className="details-page__transfer-tables">
+        <TransferTable
+          header="Transaction History for this NFT"
+          contractAddress={nft.details.ContractAddr}
+          tokenId={nft.details.TokenIdStr}
+        />
+        <TransferTable
+          header={<div>Recent Transactions for <b>{ nft.metadata.display_name }</b> NFTs</div>}
+          contractAddress={nft.details.ContractAddr}
+          limit={10}
+        />
+      </div>
     </>
   );
 });

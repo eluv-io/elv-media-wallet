@@ -274,6 +274,15 @@ button {
     color: $white;
   }
 
+  &-primary,
+  &-danger {
+    .lds-default {
+      div {
+        background: $white !important;
+      }
+    }
+  }
+
   &:disabled {
     opacity: 0.5;
   }

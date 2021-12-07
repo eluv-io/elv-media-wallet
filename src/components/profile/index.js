@@ -18,6 +18,7 @@ const Profile = () => {
 
   useEffect(() => {
     rootStore.SetNavigationBreadcrumbs([{name: "Profile", path: "/profile" }]);
+    rootStore.GetUSDCBalance();
   }, [match.url]);
 
   return (
