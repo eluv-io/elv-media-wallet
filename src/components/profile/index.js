@@ -4,8 +4,6 @@ import {useAuth0} from "@auth0/auth0-react";
 import {
   useRouteMatch
 } from "react-router-dom";
-import ImageIcon from "Components/common/ImageIcon";
-import USDCIcon from "Assets/icons/usd-coin-usdc-logo";
 import {CopyableField} from "Components/common/UIComponents";
 
 const Profile = () => {
@@ -28,8 +26,7 @@ const Profile = () => {
           Wallet Balance
         </h2>
         <div className="profile-page__balance">
-          <ImageIcon icon={USDCIcon} title="Balance in USDC" />
-          ${ rootStore.usdcBalance || 0 } USDC
+          ${ rootStore.usdcBalance || 0 } USD
         </div>
       </div>
 

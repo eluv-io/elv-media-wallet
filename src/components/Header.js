@@ -7,7 +7,6 @@ import {Link, NavLink} from "react-router-dom";
 
 import BackIcon from "Assets/icons/arrow-left-circle.svg";
 import ImageIcon from "Components/common/ImageIcon";
-import USDCIcon from "Assets/icons/usd-coin-usdc-logo.svg";
 
 const Header = observer(() => {
   if(!rootStore.loggedIn || rootStore.hideNavigation) { return null; }
@@ -63,10 +62,9 @@ const Header = observer(() => {
             { rootStore.userProfile.name }
           </div>
           {
-            rootStore.usdcBalance ?
+            typeof rootStore.usdcBalance !== "undefined" ?
               <div className="header__profile__balance">
-                <ImageIcon icon={USDCIcon} title="Balance in USDC"/>
-                {rootStore.usdcBalance}
+                ${ rootStore.usdcBalance.toFixed(2) }
               </div> : null
           }
         </div>

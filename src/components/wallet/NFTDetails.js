@@ -412,7 +412,7 @@ const NFTDetails = observer(() => {
             <div>Token ID: { nft.details.TokenIdStr }</div>
 
             {
-              nft.details.TokenOrdinal ?
+              typeof nft.details.TokenOrdinal !== "undefined" ?
                 <div>
                   Token Ordinal: { nft.details.TokenOrdinal }
                 </div>
