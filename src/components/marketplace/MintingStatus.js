@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react";
 import EluvioPlayer, {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 import {observer} from "mobx-react";
-import {rootStore} from "Stores/index";
+import {rootStore, transferStore} from "Stores/index";
 import {Loader} from "Components/common/Loaders";
 import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
@@ -237,10 +237,15 @@ export const ListingPurchaseStatus = observer(() => {
 
   const inMarketplace = !!match.params.marketplaceId;
 
-  const Status = async () => await rootStore.ListingPurchaseStatus({
-    tenantId: match.params.tenantId,
-    confirmationId: match.params.confirmationId
-  });
+  const Status = async () => {
+    const listingStatus = await transferStore.ListingStatus({listingId: match.params.sku});
+
+    return await rootStore.ListingPurchaseStatus({
+      tenantId: match.params.tenantId,
+      contractAddress: listingStatus.contract,
+      tokenId: listingStatus.token
+    });
+  };
 
   let basePath = UrlJoin("wallet", "collection");
   if(inMarketplace) {

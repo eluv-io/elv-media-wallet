@@ -571,11 +571,15 @@ class RootStore {
     }
   });
 
-  ListingPurchaseStatus = flow(function * ({tenantId, confirmationId}) {
+  ListingPurchaseStatus = flow(function * ({tenantId, contractAddress, tokenId}) {
     try {
       const statuses = yield this.MintingStatus({tenantId});
 
-      return statuses.find(status => status.op === "nft-transfer" && status.confirmationId === confirmationId) || { status: "none" };
+      return statuses.find(status =>
+        status.op === "nft-transfer" &&
+        Utils.EqualAddress(contractAddress, status.address) &&
+        status.tokenId === tokenId
+      ) || { status: "none" };
     } catch(error) {
       this.Log(error, true);
       return { status: "unknown" };

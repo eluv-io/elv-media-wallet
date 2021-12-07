@@ -28,7 +28,7 @@ const TransferSection = observer(({nft}) => {
 
   const heldMessage = heldDate ?
     <h3 className="details-page__transfer-details details-page__held-message">
-      Note: This NFT is held until { heldDate } for payment settlement. You will not be able to transfer it until then.
+      Note: This NFT in a holding period until { heldDate } for payment settlement. You will not be able to transfer it until then.
     </h3> : null;
 
   if(rootStore.embedded) {
@@ -167,6 +167,7 @@ const NFTDetails = observer(() => {
 
   let nft = rootStore.NFT({contractId: match.params.contractId, tokenId: match.params.tokenId});
   const isOwned = !!nft || (listing && Utils.EqualAddress(listing.details.SellerAddress, rootStore.userAddress));
+  const heldDate = nft && nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
 
   const LoadListing = async () => {
     try {
@@ -270,11 +271,18 @@ const NFTDetails = observer(() => {
           }
 
           <ButtonWithLoader
+            disabled={heldDate}
             className="action action-primary details-page__listing-button"
             onClick={() => setShowListingModal(true)}
           >
             { listing ? "Edit Listing" : "List for Sale" }
           </ButtonWithLoader>
+          {
+            heldDate ?
+              <h3 className="details-page__transfer-details details-page__held-message">
+                This NFT is in a holding period until { heldDate } for payment settlement. You will not be able to transfer it until then.
+              </h3> : null
+          }
 
           {
             !listing && nft && nft.metadata && nft.metadata.pack_options && nft.metadata.pack_options.is_openable ?
