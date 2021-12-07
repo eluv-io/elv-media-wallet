@@ -238,7 +238,9 @@ export const ListingPurchaseStatus = observer(() => {
   const inMarketplace = !!match.params.marketplaceId;
 
   const Status = async () => {
-    const listingStatus = await transferStore.ListingStatus({listingId: match.params.sku});
+    const listingStatus = await transferStore.ListingStatus({
+      listingId: match.params.sku || match.params.listingId
+    });
 
     return await rootStore.ListingPurchaseStatus({
       tenantId: match.params.tenantId,
@@ -247,9 +249,9 @@ export const ListingPurchaseStatus = observer(() => {
     });
   };
 
-  let basePath = UrlJoin("wallet", "collection");
+  let basePath = UrlJoin("/wallet", "collection");
   if(inMarketplace) {
-    basePath = UrlJoin("marketplaces", match.params.marketplaceId);
+    basePath = UrlJoin("/marketplaces", match.params.marketplaceId);
   }
 
   if(!status) {
@@ -268,7 +270,7 @@ export const ListingPurchaseStatus = observer(() => {
     );
   }
 
-  const items = status.extra.filter(item => item.token_addr && (item.token_id || item.token_id_str));
+  const items = [{token_addr: status.address, token_id_str: status.tokenId}];
 
   return (
     <MintResults

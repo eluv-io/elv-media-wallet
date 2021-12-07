@@ -1,11 +1,11 @@
 .listing-modal-container {
   .modal__content {
+    height: max-content;
     max-height: unset;
     max-width: 600px;
     overflow-y: hidden;
     padding-bottom: 5vh;
     padding-right: 8px;
-    height: max-content;
     top: 5vh;
     width: 100%;
   }
