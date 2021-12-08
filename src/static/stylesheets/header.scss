@@ -97,9 +97,10 @@
 
   &__profile__balance {
     align-items: center;
-    color: $mediumgray;
+    color: $darkgray;
     display: flex;
     font-size: 12px;
+    font-weight: 300;
     height: 100%;
 
     svg {

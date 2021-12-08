@@ -103,7 +103,7 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
                       }
                     </div>
                     <div className="transfer-table__table__cell">
-                      { `$${nft.details.Total.toFixed(2)}`}
+                      { `$${nft.details.Price.toFixed(2)}`}
                     </div>
                     <div className="transfer-table__table__cell no-mobile">
                       { MiddleEllipsis(nft.details.SellerAddress, 12) }
@@ -175,6 +175,73 @@ export const UserTransferHistory = observer(({userAddress, type="purchases"}) =>
                   </div>
                   <div className="transfer-table__table__cell no-mobile">
                     { MiddleEllipsis(type === "purchases" ? transfer.sellerAddress : transfer.buyerAddress, 10) }
+                  </div>
+                </div>
+              )
+        }
+      </div>
+    </div>
+  );
+});
+
+export const UserTransferTable = observer(({header, limit, marketplace, type="sell"}) => {
+  const [loading, setLoading] = useState(true);
+  const [entries, setEntries] = useState([]);
+  const UpdateHistory = async () => {
+    let entries = (await transferStore.UserTransferHistory())
+      .filter(entry => entry.action === "SOLD")
+      .filter(entry => Utils.EqualAddress(rootStore.userAddress, type === "sell" ? entry.seller : entry.buyer))
+      .sort((a, b) => a.created > b.created ? -1 : 1);
+
+    if(limit) {
+      entries = entries.slice(0, limit);
+    }
+
+    setEntries(entries);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    UpdateHistory();
+
+    let interval = setInterval(UpdateHistory, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="transfer-table user-transfer-table">
+      <div className="transfer-table__header">
+        { header }
+      </div>
+      <div className="transfer-table__table">
+        <div className="transfer-table__table__header">
+          <div className="transfer-table__table__cell">Name</div>
+          <div className="transfer-table__table__cell">Token ID</div>
+          <div className="transfer-table__table__cell">Time</div>
+          <div className="transfer-table__table__cell">Total Amount</div>
+          <div className="transfer-table__table__cell no-mobile">{ type === "sell" ? "Buyer" : "Seller" }</div>
+        </div>
+        {
+          loading ? <div className="transfer-table__loader"><Loader /></div> :
+            !entries || entries.length === 0 ?
+              <div className="transfer-table__empty">No Transfers</div> :
+              entries.map(transfer =>
+                <div className="transfer-table__table__row" key={`transfer-table-row-${transfer.id}`}>
+                  <div className="transfer-table__table__cell">
+                    { transfer.name }
+                  </div>
+                  <div className="transfer-table__table__cell">
+                    { transfer.token }
+                  </div>
+                  <div className="transfer-table__table__cell">
+                    { Ago(transfer.created * 1000) } ago
+                  </div>
+                  <div className="transfer-table__table__cell">
+                    { `$${(transfer.price + transfer.fee).toFixed(2)}`}
+                  </div>
+                  <div className="transfer-table__table__cell no-mobile">
+                    { MiddleEllipsis(type === "sell" ? transfer.buyer : transfer.seller, 14) }
                   </div>
                 </div>
               )

@@ -6,19 +6,18 @@ import {ActiveListings} from "Components/listings/TransferTables";
 import {rootStore, transferStore} from "Stores";
 import ListingModalCard from "Components/listings/ListingModalCard";
 import {ButtonWithLoader} from "Components/common/UIComponents";
+import { roundToDown } from "round-to/index";
 
 const ListingModal = observer(({nft, Close}) => {
-  const [price, setPrice] = useState(nft.details.Total ? nft.details.Total.toFixed(2) : "");
+  const [price, setPrice] = useState(nft.details.Price ? nft.details.Price.toFixed(2) : "");
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [errorMessage, setErrorMessage] = useState(undefined);
 
-  let parsedPrice = isNaN(parseFloat(price)) ? 0 : parseFloat(price);
-  let percentPayout = (parsedPrice / 1.025).toFixed(3);
-  // Must truncate to 2 digits, but rounded down. .toFixed() may round up
-  percentPayout = parseFloat(percentPayout.split(".")[0] + "." + percentPayout.split(".")[1].slice(0, 2));
+  const parsedPrice = isNaN(parseFloat(price)) ? 0 : parseFloat(price);
+  const percentPayout = roundToDown(parsedPrice / 1.1, 2);
 
-  const serviceFee = Math.max(1, parsedPrice - percentPayout);
-  const payout = parsedPrice - serviceFee;
+  const royaltyFee = Math.max(1, parsedPrice - percentPayout);
+  const payout = parsedPrice - royaltyFee;
 
   const InputStage = () => {
     return (
@@ -43,8 +42,8 @@ const ListingModal = observer(({nft, Close}) => {
         </div>
         <div className="listing-modal__details">
           <div className="listing-modal__detail listing-modal__detail-faded">
-            <label>Marketplace Service Fee</label>
-            <div>${serviceFee.toFixed(2)}</div>
+            <label>Creator Royalty</label>
+            <div>${royaltyFee.toFixed(2)}</div>
           </div>
           <div className="listing-modal__detail">
             <label>Total Payout</label>
@@ -102,8 +101,8 @@ const ListingModal = observer(({nft, Close}) => {
           </div>
           <div className="listing-modal__detail-separator" />
           <div className="listing-modal__detail listing-modal__detail-faded">
-            <label>Marketplace Service Fee</label>
-            <div>${serviceFee.toFixed(2)}</div>
+            <label>Creator Royalty</label>
+            <div>${royaltyFee.toFixed(2)}</div>
           </div>
           <div className="listing-modal__detail">
             <label>Total Payout</label>
@@ -130,7 +129,7 @@ const ListingModal = observer(({nft, Close}) => {
                 const listingId = await transferStore.CreateListing({
                   contractAddress: nft.details.ContractAddr,
                   tokenId: nft.details.TokenIdStr,
-                  price: payout,
+                  price: parsedPrice,
                   listingId: nft.details.ListingId
                 });
 

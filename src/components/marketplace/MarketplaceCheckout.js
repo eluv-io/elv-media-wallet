@@ -26,7 +26,7 @@ const MarketplaceCheckout = observer(({item}) => {
 
   const itemTemplate = item.nft_template ? item.nft_template.nft || {} : {};
   const listings = transferStore.TransferListings({contractAddress: itemTemplate.address});
-  const listingPrices = listings.map(listing => listing.details.Total).sort((a, b) => a < b ? -1 : 1);
+  const listingPrices = listings.map(listing => listing.details.Price).sort((a, b) => a < b ? -1 : 1);
 
   const directPrice = ItemPrice(item, checkoutStore.currency);
   const free = !directPrice || item.free;

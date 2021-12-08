@@ -77,7 +77,7 @@ const ListingPurchaseConfirmation = observer(({nft, marketplaceItem, listingId, 
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
   const maxQuantity = stock && (stock.max_per_user || stock.max - stock.minted) || 100;
 
-  const price = listingId ? { USD: selectedListing.details.Total } : marketplaceItem.price;
+  const price = listingId ? { USD: selectedListing.details.Price } : marketplaceItem.price;
 
   useEffect(() => {
     if(!stock) { return; }
@@ -203,7 +203,7 @@ const ListingPurchaseSelection = observer(({nft, marketplaceItem, initialListing
 
   const listings = transferStore.TransferListings({contractAddress: nft.details.ContractAddr});
   const selectedListing = selectedListingId && listings.find(listing => listing.details.ListingId === selectedListingId);
-  const prices = listings.map(listing => listing.details.Total).sort((a, b) => a < b ? -1 : 1);
+  const prices = listings.map(listing => listing.details.Price).sort((a, b) => a < b ? -1 : 1);
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   marketplaceItem = marketplaceItem || (marketplace && rootStore.MarketplaceItemByTemplateId(marketplace, nft.metadata.template_id));
@@ -338,7 +338,7 @@ const ListingPurchaseSelection = observer(({nft, marketplaceItem, initialListing
                   Selected Price
                 </label>
                 <div className="listing-purchase-modal__price">
-                  {FormatPriceString({USD: selectedListing.details.Total})}
+                  {FormatPriceString({USD: selectedListing.details.Price})}
                 </div>
               </> : null
           }

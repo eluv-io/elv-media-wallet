@@ -5,12 +5,16 @@ import AsyncComponent from "Components/common/AsyncComponent";
 import {rootStore, transferStore} from "Stores";
 import ListingCard from "Components/listings/ListingCard";
 import UrlJoin from "url-join";
+import {UserTransferTable} from "Components/listings/TransferTables";
 
 const MyListings = observer(() => {
   const match = useRouteMatch();
   const [key, setKey] = useState(0);
 
-  let listings = transferStore.TransferListings({userAddress: rootStore.userAddress, marketplaceId: match.params.marketplaceId});
+  let listings = transferStore.TransferListings({
+    userAddress: rootStore.userAddress,
+    marketplaceId: match.params.marketplaceId
+  });
 
   return (
     <AsyncComponent
@@ -42,6 +46,8 @@ const MyListings = observer(() => {
           )}
         </div>
       </div>
+      <UserTransferTable header="Sold NFTs" type="sell" />
+      <UserTransferTable header="Bought NFTs" type="buy" />
     </AsyncComponent>
   );
 });

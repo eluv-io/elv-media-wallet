@@ -114,7 +114,7 @@ const ListingCard = ({nft, link, Refresh}) => {
                 Listing Price
               </div>
               <div className="listing-card__price-value">
-                ${(nft.details.Total || 0).toFixed(2)}
+                ${(nft.details.Price || 0).toFixed(2)}
               </div>
             </div>
 

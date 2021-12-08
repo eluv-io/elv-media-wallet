@@ -242,7 +242,7 @@ export const ListingPurchaseStatus = observer(() => {
       listingId: match.params.sku || match.params.listingId
     });
 
-    return await rootStore.ListingPurchaseStatus({
+    return rootStore.ListingPurchaseStatus({
       tenantId: match.params.tenantId,
       contractAddress: listingStatus.contract,
       tokenId: listingStatus.token

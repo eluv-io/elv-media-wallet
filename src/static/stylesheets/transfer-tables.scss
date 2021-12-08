@@ -13,8 +13,8 @@
       .transfer-table__table__cell {
         border: 1px solid $mediumgray;
 
-        &:not(:last-child) {
-          border-right: 0;
+        &:not(:first-child) {
+          border-left: 0;
         }
       }
     }
@@ -133,8 +133,8 @@
           background-color: darken($darkestgray, 5%);
           border: 1px solid $darkestgray;
 
-          &:not(:last-child) {
-            border-right: 0;
+          &:not(:first-child) {
+            border-left: 0;
           }
         }
       }

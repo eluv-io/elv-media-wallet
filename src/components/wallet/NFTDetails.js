@@ -250,7 +250,7 @@ const NFTDetails = observer(() => {
             className="details-page__listing-button action action-primary"
             onClick={() => setShowPurchaseModal(true)}
           >
-            Buy Now for { FormatPriceString({USD: listing.details.Total}) }
+            Buy Now for { FormatPriceString({USD: listing.details.Price}) }
           </ButtonWithLoader>
         </div>
       );
@@ -265,7 +265,7 @@ const NFTDetails = observer(() => {
                   Listing Price
                 </div>
                 <div className="details-page__listing-price-value">
-                  ${listing.details.Total.toFixed(2)}
+                  ${listing.details.Price.toFixed(2)}
                 </div>
               </div> : null
           }

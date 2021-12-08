@@ -52,8 +52,7 @@ class TransferStore {
       UpdatedAt: entry.updated * 1000,
       SellerAddress: Utils.FormatAddress(entry.seller),
       Price: entry.price,
-      Fee: entry.fee,
-      Total: (entry.price + entry.fee)
+      Fee: entry.fee
     };
 
     this.listingNames[entry.id] = this.listingNames[entry.id] || metadata.display_name || "";

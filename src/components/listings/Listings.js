@@ -51,7 +51,7 @@ const Listings = observer(() => {
                             {listing.metadata.display_name}
                           </div>
                           <div className="card__title__price">
-                            {FormatPriceString({USD: listing.details.Total})}
+                            {FormatPriceString({USD: listing.details.Price})}
                           </div>
                         </h2>
                         {

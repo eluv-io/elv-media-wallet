@@ -535,6 +535,7 @@ class RootStore {
 
           return {
             ...status,
+            timestamp: new Date(status.ts),
             state: status.state && typeof status.state === "object" ? Object.values(status.state) : status.state,
             extra: status.extra && typeof status.extra === "object" ? Object.values(status.extra) : status.extra,
             confirmationId,
@@ -575,11 +576,12 @@ class RootStore {
     try {
       const statuses = yield this.MintingStatus({tenantId});
 
-      return statuses.find(status =>
-        status.op === "nft-transfer" &&
-        Utils.EqualAddress(contractAddress, status.address) &&
-        status.tokenId === tokenId
-      ) || { status: "none" };
+      return statuses
+        .find(status =>
+          status.op === "nft-transfer" &&
+          Utils.EqualAddress(contractAddress, status.address) &&
+          status.tokenId === tokenId
+        ) || { status: "none" };
     } catch(error) {
       this.Log(error, true);
       return { status: "unknown" };
