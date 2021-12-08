@@ -66,8 +66,8 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
           <button className="transfer-table__table__cell" onClick={() => UpdateSort("TokenOrdinal")}>
             Ordinal / Token ID { sortField === "TokenOrdinal" ? sortIcon : null }
           </button>
-          <button className="transfer-table__table__cell" onClick={() => UpdateSort("Total")}>
-            Price { sortField === "Total" ? sortIcon : null }
+          <button className="transfer-table__table__cell" onClick={() => UpdateSort("Price")}>
+            Price { sortField === "Price" ? sortIcon : null }
           </button>
           <button className="transfer-table__table__cell no-mobile" onClick={() => UpdateSort("SellerAddress")}>
             Seller { sortField === "SellerAddress" ? sortIcon : null }
