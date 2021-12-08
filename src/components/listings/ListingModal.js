@@ -6,7 +6,7 @@ import {ActiveListings} from "Components/listings/TransferTables";
 import {rootStore, transferStore} from "Stores";
 import ListingModalCard from "Components/listings/ListingModalCard";
 import {ButtonWithLoader} from "Components/common/UIComponents";
-import { roundToDown } from "round-to/index";
+import { roundToUp } from "round-to/index";
 
 const ListingModal = observer(({nft, Close}) => {
   const [price, setPrice] = useState(nft.details.Price ? nft.details.Price.toFixed(2) : "");
@@ -14,7 +14,7 @@ const ListingModal = observer(({nft, Close}) => {
   const [errorMessage, setErrorMessage] = useState(undefined);
 
   const parsedPrice = isNaN(parseFloat(price)) ? 0 : parseFloat(price);
-  const percentPayout = roundToDown(parsedPrice / 1.1, 2);
+  const percentPayout = roundToUp(parsedPrice * 0.9, 2);
 
   const royaltyFee = Math.max(1, parsedPrice - percentPayout);
   const payout = parsedPrice - royaltyFee;
