@@ -46,8 +46,8 @@ const MyListings = observer(() => {
           )}
         </div>
       </div>
-      <UserTransferTable header="Sold NFTs" type="sell" />
-      <UserTransferTable header="Bought NFTs" type="buy" />
+      <UserTransferTable header="Sold NFTs" type="sell" marketplaceId={match.params.marketplaceId} />
+      <UserTransferTable header="Bought NFTs" type="buy" marketplaceId={match.params.marketplaceId} />
     </AsyncComponent>
   );
 });

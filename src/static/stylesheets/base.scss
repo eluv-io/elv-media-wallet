@@ -35,7 +35,6 @@ a {
 }
 
 a,
-button,
 input,
 select,
 button {
@@ -255,6 +254,7 @@ button {
 .action-loader {
   border: 1px solid $mediumgray;
   border-radius: 6px;
+  display: block;
   min-width: 120px;
   text-align: center;
 

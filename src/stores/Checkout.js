@@ -185,8 +185,6 @@ class CheckoutStore {
       }
 
       yield this.CheckoutRedirect({provider, requestParams});
-    } catch(error) {
-      this.rootStore.Log(error, true);
     } finally {
       this.submittingOrder = false;
     }

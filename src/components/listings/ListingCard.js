@@ -82,7 +82,7 @@ const ListingCard = ({nft, link, Refresh}) => {
                 </h2> : null
             }
             <h3 className="listing-card__header-id">
-              { typeof nft.details.TokenOrdinal !== "undefined" ? `${parseInt(nft.details.TokenOrdinal)} / ${nft.details.Cap}` : nft.details.TokenIdStr }
+              { typeof nft.details.TokenOrdinal !== "undefined" ? `${parseInt(nft.details.TokenOrdinal) + 1} / ${nft.details.Cap}` : nft.details.TokenIdStr }
             </h3>
           </Link>
 

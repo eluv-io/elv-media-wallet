@@ -3,8 +3,10 @@ import {NFTImage} from "Components/common/Images";
 import {FormatPriceString} from "Components/common/UIComponents";
 import {observer} from "mobx-react";
 
-const ListingModalCard = observer(({nft, price, stock}) => {
+const ListingModalCard = observer(({nft, selectedListing, price, stock}) => {
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
+
+  nft = selectedListing || nft;
 
   return (
     <div className="card-padding-container listing-modal-card">
@@ -25,13 +27,16 @@ const ListingModalCard = observer(({nft, price, stock}) => {
                 { nft.metadata.edition_name }
               </h2> : null
           }
-          <h2 className="card__subtitle card__title-edition">
-            {
-              typeof nft.details.TokenOrdinal !== "undefined" ?
-              `${parseInt(nft.details.TokenOrdinal)} / ${nft.details.Cap}` :
-                nft.details.TokenIdStr
-            }
-          </h2>
+          {
+            selectedListing ?
+              <h2 className="card__subtitle card__title-edition">
+                {
+                  typeof nft.details.TokenOrdinal !== "undefined" ?
+                    `${parseInt(nft.details.TokenOrdinal) + 1} / ${nft.details.Cap}` :
+                    nft.details.TokenIdStr
+                }
+              </h2> : null
+          }
           <h2 className="card__subtitle">
             <div className="card__subtitle__title">
               { nft.metadata.description }

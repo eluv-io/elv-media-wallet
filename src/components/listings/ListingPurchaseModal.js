@@ -106,7 +106,12 @@ const ListingPurchaseConfirmation = observer(({nft, marketplaceItem, listingId, 
         Select Payment Method
       </div>
       <div className="listing-purchase-confirmation-modal__content">
-        <ListingModalCard nft={nft} price={price} stock={stock} />
+        <ListingModalCard
+          nft={nft}
+          selectedListing={selectedListing}
+          price={price}
+          stock={stock}
+        />
         {
           !listingId && maxQuantity > 1 ?
             <div className="listing-purchase-confirmation-modal__price-details">
@@ -226,7 +231,7 @@ const ListingPurchaseSelection = observer(({nft, marketplaceItem, initialListing
           <NFTImage width={400} nft={nft} className="listing-purchase-modal__image" />
           <div className="listing-purchase-modal__nft-info">
             <h3 className="listing-purchase-modal__token-id ellipsis">
-              { typeof nft.details.TokenOrdinal !== "undefined" ? `${parseInt(nft.details.TokenOrdinal)} / ${nft.details.Cap}` : nft.details.TokenIdStr }
+              { typeof nft.details.TokenOrdinal !== "undefined" ? `${parseInt(nft.details.TokenOrdinal) + 1} / ${nft.details.Cap}` : nft.details.TokenIdStr }
             </h3>
             <h2 className="listing-purchase-modal__name ellipsis">
               { nft.metadata.display_name }

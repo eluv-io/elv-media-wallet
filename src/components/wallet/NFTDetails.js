@@ -4,7 +4,7 @@ import {rootStore, transferStore} from "Stores/index";
 import Path from "path";
 import UrlJoin from "url-join";
 
-import {Redirect, useRouteMatch} from "react-router-dom";
+import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import {NFTImage} from "Components/common/Images";
 import {ExpandableSection, CopyableField, ButtonWithLoader, FormatPriceString} from "Components/common/UIComponents";
 
@@ -160,7 +160,8 @@ const NFTDetails = observer(() => {
 
   const [loadingListing, setLoadingListing] = useState(true);
   const [listing, setListing] = useState(undefined);
-  const [listingError, setListingError] = useState(false);
+  const [sale, setSale] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const match = useRouteMatch();
   const listingId = match.params.listingId;
@@ -174,21 +175,50 @@ const NFTDetails = observer(() => {
       setLoadingListing(true);
 
       let listings;
-      if(match.params.listingId) {
+      if(listingId) {
+        const listingStatus = await transferStore.ListingStatus({listingId});
+
+        if(!listingStatus) {
+          throw "Listing is not accessible";
+        } else if(listingStatus.action === "SOLD") {
+          setSale(listingStatus);
+          return;
+        }
+
         listings = await transferStore.FetchTransferListings({listingId: listingId, forceUpdate: true});
 
         if(!listings[0]) {
-          setListingError(true);
+          throw "Listing is not accessible";
         }
-      } else {
+      } else if(nft) {
         listings = (await transferStore.FetchTransferListings({
           contractAddress: nft.details.ContractAddr,
           tokenId: nft.details.TokenIdStr,
           forceUpdate: true
         })) || [];
+      } else {
+        // NFT inaccessible and not listed - check if it was sold
+        const history = await transferStore.UserTransferHistory();
+        const sale = history
+          .sort((a, b) => a.created > b.created ? -1 : 1)
+          .find(entry =>
+            entry.token === match.params.tokenId &&
+            entry.action === "SOLD" &&
+            Utils.EqualAddress(Utils.HashToAddress(match.params.contractId), entry.contract) &&
+            Utils.EqualAddress(rootStore.userAddress, entry.seller)
+          );
+
+        if(!sale) {
+          throw "NFT is not accessible";
+        }
+
+        setSale(sale);
       }
 
       setListing(listings ? listings[0] : undefined);
+    } catch(error) {
+      rootStore.Log(error);
+      setErrorMessage(typeof error === "string" ? error : "Unable to load NFT");
     } finally {
       setLoadingListing(false);
     }
@@ -199,9 +229,55 @@ const NFTDetails = observer(() => {
     rootStore.UpdateMetamaskChainId();
   }, []);
 
-  if(listingError) { throw Error("Unable to load listing"); }
+  if(errorMessage) {
+    return (
+      <div className="details-page details-page-message">
+        <div className="details-page__message-container">
+          <h2 className="details-page__message">
+            { errorMessage }
+          </h2>
+        </div>
+      </div>
+    );
+  }
 
-  if(!nft && !listing) { return <PageLoader />; }
+  if(sale) {
+    return (
+      <div className="details-page details-page-message">
+        <div className="details-page__message-container">
+          <h2 className="details-page__message">
+            This NFT was sold for { FormatPriceString({USD: sale.price}) } on { new Date(sale.created * 1000).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
+          </h2>
+          <div className="actions-container">
+            <Link
+              className="button action"
+              to={
+                match.params.marketplaceId ?
+                  UrlJoin("/marketplaces", match.params.marketplaceId, "collections") :
+                  UrlJoin("/wallet", "collection")
+              }
+            >
+              Back to My Collection
+            </Link>
+            <Link
+              className="button action"
+              to={
+                match.params.marketplaceId ?
+                  UrlJoin("/marketplaces", match.params.marketplaceId, "my-listings") :
+                  UrlJoin("/wallet", "my-listings")
+              }
+            >
+              My Listings
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if(!nft && !listing) {
+    return <PageLoader />;
+  }
 
   // If NFT is not owned, use the listing
   if(!nft) {
@@ -314,9 +390,6 @@ const NFTDetails = observer(() => {
             Close={(info={}) => {
               setShowListingModal(false);
 
-              // TODO: Do something after listing
-              console.log("LISTING ID", info);
-
               if(info.deleted) {
                 setDeleted(true);
               } else if(info.listingId) {
@@ -341,7 +414,7 @@ const NFTDetails = observer(() => {
                 <div className="details-page__content__info card__text">
                   <div className="card__titles">
                     <div className="card__subtitle">
-                      { typeof nft.details.TokenOrdinal !== "undefined" ? `${parseInt(nft.details.TokenOrdinal)} / ${nft.details.Cap}` : nft.details.TokenIdStr }
+                      { typeof nft.details.TokenOrdinal !== "undefined" ? `${parseInt(nft.details.TokenOrdinal) + 1} / ${nft.details.Cap}` : nft.details.TokenIdStr }
                     </div>
                     <h2 className="card__title">
                       { nft.metadata.display_name }

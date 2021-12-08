@@ -47,7 +47,7 @@ export const NFTCard = observer(({nft}) => {
                 </h2> : null
             }
             <div className="card__title-edition">
-              { typeof nft.details.TokenOrdinal !== "undefined" ? `${parseInt(nft.details.TokenOrdinal)} / ${nft.details.Cap}` : nft.details.TokenIdStr }
+              { typeof nft.details.TokenOrdinal !== "undefined" ? `${parseInt(nft.details.TokenOrdinal) + 1} / ${nft.details.Cap}` : nft.details.TokenIdStr }
             </div>
             <ResponsiveEllipsis
               component="h2"
