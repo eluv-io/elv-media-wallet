@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+import {rootStore} from "Stores";
 import {observer} from "mobx-react";
 import CloseIcon from "../../static/icons/x.svg";
 import ImageIcon from "Components/common/ImageIcon";
@@ -19,11 +20,15 @@ const Modal = observer(({children, Toggle, id="", className=""}) => {
     document.addEventListener("keydown", Close);
     document.body.style.overflowY = "hidden";
 
+    rootStore.AddActiveModal();
+
     return () => {
       document.removeEventListener("keydown", Close);
       document.body.style.overflowY = "scroll";
+
+      rootStore.RemoveActiveModal();
     };
-  });
+  }, []);
 
   return (
     <div id={id} className={`modal ${className || ""}`} onClick={() => Close()}>

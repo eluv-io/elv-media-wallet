@@ -1,3 +1,15 @@
+@media screen and (max-width: $mobile-breakpoint) {
+  // position: fixed doesn't work right on iOS safari, so we must explicitly
+  // hide header and navigation when a modal is active
+  .modal-active {
+    .header,
+    .navigation,
+    .sub-navigation {
+      display: none;
+    }
+  }
+}
+
 .navigation {
   background-color: $lightgray;
   border-radius: 10px;

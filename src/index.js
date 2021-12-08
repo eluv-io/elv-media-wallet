@@ -98,7 +98,19 @@ const App = observer(() => {
 
   return (
     <HashRouter>
-      <div className={`app-container ${rootStore.initialized ? "app-container-initialized" : "app-container-not-initialized"} ${rootStore.hideNavigation ? "navigation-hidden" : ""} ${rootStore.sidePanelMode ? "side-panel" : ""} ${hasHeader ? "" : "no-header"}`}>
+      <div
+        className={[
+          "app-container",
+          rootStore.initialized ? "app-container-initialized" : "app-container-not-initialized",
+          rootStore.hideNavigation ? "navigation-hidden" : "",
+          rootStore.sidePanelMode ? "side-panel" : "",
+          hasHeader ? "" : "no-header",
+          rootStore.activeModals > 0 ? "modal-active" : ""
+        ]
+          .filter(className => className)
+          .join(" ")
+        }
+      >
         <Header />
         <ScrollToTop>
           <ErrorBoundary className="page-container">
