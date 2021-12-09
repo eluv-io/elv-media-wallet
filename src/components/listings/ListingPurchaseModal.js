@@ -388,15 +388,20 @@ const ListingPurchaseModal = observer(({nft, item, initialListingId, Close}) => 
       <AsyncComponent
         loadingClassName="page-loader page-loader-background"
         Load={async () => {
-          setListings(
-            await transferStore.FetchTransferListings({
-              contractAddress: nft.details.ContractAddr,
-              forceUpdate: true
-            })
-          );
+          try {
+            setListings(
+              await transferStore.FetchTransferListings({
+                contractAddress: nft.details.ContractAddr,
+                forceUpdate: true
+              })
+            );
 
-          if(marketplace) {
-            await checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id});
+            if(marketplace) {
+              await checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id});
+            }
+          } catch(error) {
+            rootStore.Log(`Failed to load listings for ${nft.details.ContractAddr}`, true);
+            rootStore.Log(error, true);
           }
         }}
       >

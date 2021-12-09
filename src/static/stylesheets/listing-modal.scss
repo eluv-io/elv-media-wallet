@@ -121,6 +121,12 @@
     }
   }
 
+  &__message {
+    color: $gray;
+    font-size: 12px;
+    text-align: center;
+  }
+
   &__error-message {
     color: $red;
     font-size: 14px;
@@ -175,6 +181,10 @@
 
     &__detail-separator {
       border-bottom: 2px solid $darkgray;
+    }
+
+    &__message {
+      color: $darkgray;
     }
 
     &__active-listings {
