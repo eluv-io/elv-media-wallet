@@ -10,12 +10,14 @@ import DownCaret from "Assets/icons/down-caret.svg";
 import ImageIcon from "Components/common/ImageIcon";
 import {roundToUp} from "round-to";
 import {FormatPriceString} from "Components/common/UIComponents";
+import {v4 as UUID} from "uuid";
 
 export const ActiveListings = observer(({contractAddress, contractId, initialSelectedListingId, Select}) => {
   const [listings, setListings] = useState([]);
   const [sortField, setSortField] = useState("Price");
   const [sortDesc, setSortDesc] = useState(false);
   const [selectedListingId, setSelectedListingId] = useState(initialSelectedListingId);
+  const [id] = useState(`active-listings-table-${UUID()}`);
 
   const [loading, setLoading] = useState(true);
   const UpdateHistory = async () => {
@@ -36,7 +38,17 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
   };
 
   useEffect(() => {
-    UpdateHistory();
+    UpdateHistory()
+      .then(() => {
+        setTimeout(() => {
+          const table = document.getElementById(id);
+          const selectedItem = table.querySelector(".transfer-table__table__row-selected");
+
+          if(selectedItem) {
+            table.scrollTop = selectedItem.offsetTop;
+          }
+        }, 250);
+      });
 
     let interval = setInterval(UpdateHistory, 60000);
 
@@ -62,7 +74,7 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
   );
 
   return (
-    <div className={`transfer-table active-listings ${Select ? "transfer-table-selectable" : ""}`}>
+    <div id={id} className={`transfer-table active-listings ${Select ? "transfer-table-selectable" : ""}`}>
       <div className="transfer-table__table">
         <div className="transfer-table__table__header transfer-table__table__header-sortable">
           <button className="transfer-table__table__cell" onClick={() => UpdateSort("TokenOrdinal")}>
