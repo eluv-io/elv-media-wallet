@@ -45,7 +45,7 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
           const selectedItem = table.querySelector(".transfer-table__table__row-selected");
 
           if(selectedItem) {
-            table.scrollTop = selectedItem.offsetTop;
+            table.scrollTop = selectedItem.offsetTop - 50;
           }
         }, 250);
       });

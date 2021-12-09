@@ -6,10 +6,6 @@
   overflow-y: auto;
   position: relative;
 
-  &__table {
-    overflow-y: auto;
-  }
-
   &.active-listings {
     .transfer-table__table__header {
       border-top: 0;
