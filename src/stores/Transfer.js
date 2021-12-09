@@ -50,6 +50,7 @@ class TransferStore {
       ListingId: entry.id,
       CreatedAt: entry.created * 1000,
       UpdatedAt: entry.updated * 1000,
+      CheckoutLockedUntil: entry.checkout ? entry.checkout * 1000 : undefined,
       SellerAddress: Utils.FormatAddress(entry.seller),
       Price: entry.price,
       Fee: entry.fee

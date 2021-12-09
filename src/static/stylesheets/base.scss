@@ -48,9 +48,12 @@ button {
   }
 }
 
-div[role="button"] {
-  &:focus-visible {
-    border: 1px solid $blue !important;
+div {
+  &[role="button"] {
+    &:focus-visible {
+      // sass-lint:disable no-important
+      border: 1px solid $blue !important;
+    }
   }
 }
 
@@ -278,6 +281,7 @@ button {
   &-danger {
     .lds-default {
       div {
+        // sass-lint:disable no-important
         background: $white !important;
       }
     }

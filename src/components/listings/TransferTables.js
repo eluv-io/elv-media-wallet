@@ -216,7 +216,7 @@ export const TransferTable = observer(({header, contractAddress, contractId, tok
   useEffect(() => {
     UpdateHistory();
 
-    let interval = setInterval(UpdateHistory, 30000);
+    let interval = setInterval(UpdateHistory, 60000);
 
     return () => clearInterval(interval);
   }, []);

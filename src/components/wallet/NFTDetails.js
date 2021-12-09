@@ -317,17 +317,25 @@ const NFTDetails = observer(() => {
       );
     }
 
+    let isInCheckout = listing && listing.details.CheckoutLockedUntil && listing.details.CheckoutLockedUntil > Date.now();
     if(!isOwned) {
       if(!listing) { return null; }
 
       return (
         <div className="details-page__actions">
           <ButtonWithLoader
+            disabled={isInCheckout}
             className="details-page__listing-button action action-primary"
             onClick={() => setShowPurchaseModal(true)}
           >
             Buy Now for { FormatPriceString({USD: listing.details.Price}) }
           </ButtonWithLoader>
+          {
+            isInCheckout ?
+              <h3 className="details-page__transfer-details details-page__held-message">
+                This NFT is currently in the process of being purchased
+              </h3> : null
+          }
         </div>
       );
     } else {
@@ -347,7 +355,7 @@ const NFTDetails = observer(() => {
           }
 
           <ButtonWithLoader
-            disabled={heldDate}
+            disabled={heldDate || isInCheckout}
             className="action action-primary details-page__listing-button"
             onClick={() => setShowListingModal(true)}
           >
@@ -359,7 +367,12 @@ const NFTDetails = observer(() => {
                 This NFT is in a holding period until { heldDate } for payment settlement. You will not be able to transfer it until then.
               </h3> : null
           }
-
+          {
+            isInCheckout ?
+              <h3 className="details-page__transfer-details details-page__held-message">
+                This NFT is currently in the process of being purchased
+              </h3> : null
+          }
           {
             !listing && nft && nft.metadata && nft.metadata.pack_options && nft.metadata.pack_options.is_openable ?
               <ButtonWithLoader
@@ -379,7 +392,6 @@ const NFTDetails = observer(() => {
       );
     }
   };
-
 
   return (
     <>

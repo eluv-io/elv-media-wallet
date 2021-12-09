@@ -237,17 +237,11 @@ export const ListingPurchaseStatus = observer(() => {
 
   const inMarketplace = !!match.params.marketplaceId;
 
-  const Status = async () => {
-    const listingStatus = await transferStore.ListingStatus({
-      listingId: match.params.sku || match.params.listingId
-    });
-
-    return rootStore.ListingPurchaseStatus({
+  const Status = async () =>
+    rootStore.ListingPurchaseStatus({
       tenantId: match.params.tenantId,
-      contractAddress: listingStatus.contract,
-      tokenId: listingStatus.token
+      confirmationId: match.params.confirmationId
     });
-  };
 
   let basePath = UrlJoin("/wallet", "collection");
   if(inMarketplace) {

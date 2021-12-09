@@ -63,7 +63,6 @@ class RootStore {
   mode = "test";
 
   pageWidth = window.innerWidth;
-  activeModals = 0;
 
   navigateToLogIn = undefined;
   loggingIn = false;
@@ -573,15 +572,14 @@ class RootStore {
     }
   });
 
-  ListingPurchaseStatus = flow(function * ({tenantId, contractAddress, tokenId}) {
+  ListingPurchaseStatus = flow(function * ({tenantId, confirmationId}) {
     try {
       const statuses = yield this.MintingStatus({tenantId});
 
       return statuses
         .find(status =>
           status.op === "nft-transfer" &&
-          Utils.EqualAddress(contractAddress, status.address) &&
-          status.tokenId === tokenId
+          status.extra && status.extra[0] === confirmationId
         ) || { status: "none" };
     } catch(error) {
       this.Log(error, true);
