@@ -4,8 +4,9 @@ import ListingModal from "Components/listings/ListingModal";
 import Confirm from "Components/common/Confirm";
 import {transferStore} from "Stores";
 import {Link} from "react-router-dom";
+import {ButtonWithLoader} from "Components/common/UIComponents";
 
-const ListingCard = ({nft, link, Refresh}) => {
+const ListingCard = ({listing, link, Refresh}) => {
   const [showListingModal, setShowListingModal] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
@@ -31,7 +32,7 @@ const ListingCard = ({nft, link, Refresh}) => {
           onClick={async () => Confirm({
             message: "Are you sure you want to remove this listing?",
             Confirm: async () => {
-              await transferStore.RemoveListing({listingId: nft.details.ListingId});
+              await transferStore.RemoveListing({listingId: listing.details.ListingId});
               await new Promise(resolve => setTimeout(resolve, 500));
               Refresh && Refresh();
             }
@@ -49,7 +50,7 @@ const ListingCard = ({nft, link, Refresh}) => {
       {
         showListingModal ?
           <ListingModal
-            nft={nft}
+            nft={listing}
             Close={(info={}) => {
               setShowListingModal(false);
 
@@ -68,21 +69,21 @@ const ListingCard = ({nft, link, Refresh}) => {
           ···
         </button>
         <Link to={link} className="listing-card__image-container">
-          <NFTImage width={400} className="listing-card__image" nft={nft} />
+          <NFTImage width={400} className="listing-card__image" nft={listing} />
         </Link>
         <div className="listing-card__content">
           <Link to={link} className="listing-card__header">
             <h3 className="listing-card__header-title ellipsis">
-              { nft.metadata.display_name }
+              { listing.metadata.display_name }
             </h3>
             {
-              nft.metadata.edition_name ?
+              listing.metadata.edition_name ?
                 <h2 className="listing-card__header-id">
-                  { nft.metadata.edition_name }
+                  { listing.metadata.edition_name }
                 </h2> : null
             }
             <h3 className="listing-card__header-id">
-              { typeof nft.details.TokenOrdinal !== "undefined" ? `${parseInt(nft.details.TokenOrdinal) + 1} / ${nft.details.Cap}` : nft.details.TokenIdStr }
+              { typeof listing.details.TokenOrdinal !== "undefined" ? `${parseInt(listing.details.TokenOrdinal) + 1} / ${listing.details.Cap}` : listing.details.TokenIdStr }
             </h3>
           </Link>
 
@@ -92,11 +93,11 @@ const ListingCard = ({nft, link, Refresh}) => {
                 Date Posted
               </div>
               <div className="listing-card__detail-value">
-                { new Date(nft.details.UpdatedAt).toLocaleDateString("en-us", {year: "numeric", month: "long", day: "numeric" }) }
+                { new Date(listing.details.UpdatedAt).toLocaleDateString("en-us", {year: "numeric", month: "long", day: "numeric" }) }
               </div>
             </div>
             {
-              nft.details.SoldPrice ?
+              listing.details.SoldPrice ?
                 <div className="listing-card__detail">
                   <div className="listing-card__detail-label">
                     Date Sold
@@ -114,14 +115,21 @@ const ListingCard = ({nft, link, Refresh}) => {
                 Listing Price
               </div>
               <div className="listing-card__price-value">
-                ${(nft.details.Price || 0).toFixed(2)}
+                ${(listing.details.Price || 0).toFixed(2)}
               </div>
             </div>
 
             <div className="listing-card__actions">
-              <button className="listing-card__action" onClick={() => setShowListingModal(true)}>
+              <ButtonWithLoader
+                className="listing-card__action"
+                onClick={async () => {
+
+
+                  setShowListingModal(true);
+                }}
+              >
                 Edit Listing
-              </button>
+              </ButtonWithLoader>
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import {observer} from "mobx-react";
 
 import {rootStore, transferStore} from "Stores/index";
@@ -11,16 +11,10 @@ import {NFTImage} from "Components/common/Images";
 import ImageIcon from "Components/common/ImageIcon";
 
 import ListingIcon from "Assets/icons/listing.svg";
+import Utils from "@eluvio/elv-client-js/src/Utils";
 
-export const NFTCard = observer(({nft}) => {
+export const NFTCard = observer(({nft, listing}) => {
   const match = useRouteMatch();
-
-  // Determine if this NFT is currently listed for sale
-  const listing = transferStore.TransferListings({userAddress: rootStore.userAddress})
-    .find(listing =>
-      listing.details.ContractAddr === nft.details.ContractAddr &&
-      listing.details.TokenIdStr === nft.details.TokenIdStr
-    );
 
   return (
     <div className="card-container card-shadow">
@@ -63,9 +57,25 @@ export const NFTCard = observer(({nft}) => {
 });
 
 const Collections = observer(() => {
+  const [myListings, setMyListings] = useState([]);
+
+  useEffect(() => {
+    transferStore.FetchTransferListings({userAddress: rootStore.userAddress})
+      .then(listings => setMyListings(listings));
+  }, []);
+
   return (
     <div className="card-list collections">
-      { rootStore.nfts.map(nft => <NFTCard nft={nft} key={`nft-card-${nft.details.ContractId}-${nft.details.TokenIdStr}`} />) }
+      { rootStore.nfts.map(nft =>
+        <NFTCard
+          key={`nft-card-${nft.details.ContractId}-${nft.details.TokenIdStr}`}
+          nft={nft}
+          listing={myListings.find(listing =>
+            nft.details.TokenIdStr === listing.details.TokenIdStr &&
+            Utils.EqualAddress(nft.details.ContractAddr, listing.details.ContractAddr)
+          )}
+        />
+      )}
     </div>
   );
 });

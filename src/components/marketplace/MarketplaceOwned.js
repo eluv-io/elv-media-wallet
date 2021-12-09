@@ -1,7 +1,7 @@
-import React, {useEffect} from "react";
+import React, {useState, useEffect} from "react";
 import {observer} from "mobx-react";
 import {Link, useRouteMatch} from "react-router-dom";
-import {rootStore, transferStore} from "Stores";
+import {rootStore} from "Stores";
 import UrlJoin from "url-join";
 import {NFTImage} from "Components/common/Images";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
@@ -11,6 +11,7 @@ import ListingIcon from "Assets/icons/listing";
 
 const MarketplaceOwned = observer(() => {
   const match = useRouteMatch();
+  const [listings, setListings] = useState([]);
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
 
@@ -19,11 +20,9 @@ const MarketplaceOwned = observer(() => {
   const marketplaceItems = rootStore.MarketplaceOwnedItems(marketplace);
   const ownedItems = Object.values(marketplaceItems).flat();
 
-  // Determine if this NFT is currently listed for sale
-  const listings = transferStore.TransferListings({userAddress: rootStore.userAddress});
-
   useEffect(() => {
-    rootStore.transferStore.FetchTransferListings({userAddress: rootStore. userAddress});
+    rootStore.transferStore.FetchTransferListings({userAddress: rootStore. userAddress})
+      .then(listings => setListings(listings));
 
     if(!rootStore.sidePanelMode || !rootStore.noItemsAvailable) { return; }
 

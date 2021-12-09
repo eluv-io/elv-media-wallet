@@ -133,8 +133,6 @@ const ListingModal = observer(({nft, Close}) => {
                   listingId: nft.details.ListingId
                 });
 
-                await new Promise(resolve => setTimeout(resolve, 1000));
-
                 Close({listingId: listingId || nft.details.ListingId});
               } catch(error) {
                 rootStore.Log("Listing failed", true);

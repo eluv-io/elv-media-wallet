@@ -59,7 +59,7 @@ const Listings = observer(() => {
                             <h2 className="card__title card__title-edition">{listing.metadata.edition_name}</h2> : null
                         }
                         <h2 className="card__title card__title-edition">
-                          { typeof listing.details.TokenOrdinal !== "undefined" ? `${parseInt(listing.details.TokenOrdinal)} / ${listing.details.Cap}` : listing.details.TokenIdStr }
+                          { typeof listing.details.TokenOrdinal !== "undefined" ? `${parseInt(listing.details.TokenOrdinal) + 1} / ${listing.details.Cap}` : listing.details.TokenIdStr }
                         </h2>
                         <ResponsiveEllipsis
                           component="h2"

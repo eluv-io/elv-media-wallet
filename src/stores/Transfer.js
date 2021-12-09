@@ -1,6 +1,7 @@
 import {flow, makeAutoObservable} from "mobx";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import UrlJoin from "url-join";
+import {rootStore} from "./index";
 
 class TransferStore {
   listings = {};
@@ -89,29 +90,6 @@ class TransferStore {
     return key;
   }
 
-  // Retrieve previously fetched listings
-  TransferListings({listingId, tenantId, userId, userAddress, contractId, contractAddress, tokenId, marketplaceId}={}) {
-    if(userId) { userAddress = Utils.HashToAddress(userId); }
-
-    if(contractId) { contractAddress = Utils.HashToAddress(contractId); }
-    contractAddress = Utils.FormatAddress(contractAddress);
-
-    const listingKey = this.ListingKey({listingId, tenantId, userId, userAddress, contractId, contractAddress, tokenId});
-    let listings = (this.listings[listingKey] || {}).listings || [];
-
-    if(marketplaceId) {
-      const marketplace = this.rootStore.marketplaces[marketplaceId];
-
-      listings = listings.filter(listing =>
-        marketplace.items.find(item =>
-          item.nft_template && !item.nft_template["/"] && item.nft_template.nft && item.nft_template.nft.template_id && item.nft_template.nft.template_id === listing.metadata.template_id
-        )
-      );
-    }
-
-    return listings;
-  }
-
   FetchTransferListings = flow(function * ({
     listingId,
     tenantId,
@@ -177,6 +155,80 @@ class TransferStore {
       throw error;
     }
   });
+
+  async CurrentNFTStatus({listingId, nft, contractAddress, contractId, tokenId}) {
+    if(contractId) { contractAddress = Utils.HashToAddress(contractId); }
+    contractAddress = Utils.FormatAddress(contractAddress);
+
+    try {
+      // Check first to see if NFT has sold if listing ID is known
+      if(listingId) {
+        try {
+          const listingStatus = await this.ListingStatus({listingId});
+
+          if(listingStatus) {
+            if(listingStatus.action === "SOLD") {
+              return { sale: listingStatus };
+            } else if(listingStatus.action === "UNLISTED") {
+              if(nft) {
+                return { listing: undefined };
+              } else {
+                return { error: "This listing has been removed" };
+              }
+            }
+          }
+        // eslint-disable-next-line no-empty
+        } catch(error) {}
+      }
+
+      // Find existing listing based on listing ID or NFT details
+      let listings = [];
+      if(listingId) {
+        try {
+          listings = await this.FetchTransferListings({listingId, forceUpdate: true});
+        // eslint-disable-next-line no-empty
+        } catch(error) {}
+      } else if(nft) {
+        try {
+          listings = (await this.FetchTransferListings({
+            contractAddress: nft.details.ContractAddr,
+            tokenId: nft.details.TokenIdStr,
+            forceUpdate: true
+          })) || [];
+          // eslint-disable-next-line no-empty
+        } catch(error) {}
+      }
+
+      if(listingId || listings.length > 0) {
+        // Listing is not expected or listing is found
+        return { listing: listings[0] };
+      }
+
+      // Listing is expected, but NFT inaccessible and not listed - check if it was sold by us
+      const history = await this.UserTransferHistory();
+      const lastTransfer = history
+        .sort((a, b) => a.created > b.created ? -1 : 1)
+        .find(entry =>
+          entry.token === tokenId &&
+          entry.action === "SOLD" &&
+          Utils.EqualAddress(contractAddress, entry.contract) &&
+          (
+            Utils.EqualAddress(rootStore.userAddress, entry.seller) ||
+            Utils.EqualAddress(rootStore.userAddress, entry.buyer)
+          )
+        );
+
+      if(lastTransfer && Utils.EqualAddress(rootStore.userAddress, lastTransfer.seller)) {
+        return { sale: lastTransfer };
+      }
+
+      return { listing: undefined };
+    } catch(error) {
+      rootStore.Log(error);
+
+      return { error: typeof error === "string" ? error : "Unable to load NFT" };
+    }
+  }
 
   FilteredTransferListings = flow(function * ({
     sortBy="created",
@@ -301,8 +353,7 @@ class TransferStore {
       );
     } else {
       // Create
-      return yield Utils.ResponseToFormat(
-        "text",
+      return yield Utils.ResponseToJson(
         yield this.client.authClient.MakeAuthServiceRequest({
           path: UrlJoin("as", "wlt", "mkt"),
           method: "POST",
@@ -330,15 +381,21 @@ class TransferStore {
   });
 
   ListingStatus = flow(function * ({listingId}) {
-    return yield Utils.ResponseToJson(
-      yield this.client.authClient.MakeAuthServiceRequest({
-        path: UrlJoin("as", "mkt", "status", listingId),
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${this.client.signer.authToken}`
-        }
-      })
-    );
+    try {
+      return yield Utils.ResponseToJson(
+        yield this.client.authClient.MakeAuthServiceRequest({
+          path: UrlJoin("as", "mkt", "status", listingId),
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${this.client.signer.authToken}`
+          }
+        })
+      );
+    } catch(error) {
+      if(error.status === 404) { return; }
+
+      throw error;
+    }
   });
 
   ListingNames = flow(function * () {

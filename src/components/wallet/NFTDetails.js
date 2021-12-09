@@ -20,6 +20,7 @@ import ListingModal from "Components/listings/ListingModal";
 import {Loader, PageLoader} from "Components/common/Loaders";
 import ListingPurchaseModal from "Components/listings/ListingPurchaseModal";
 import Utils from "@eluvio/elv-client-js/src/Utils";
+import {v4 as UUID} from "uuid";
 
 const TransferSection = observer(({nft}) => {
   const heldDate = nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
@@ -153,6 +154,8 @@ const TransferSection = observer(({nft}) => {
 });
 
 const NFTDetails = observer(() => {
+  const match = useRouteMatch();
+
   const [opened, setOpened] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const [showListingModal, setShowListingModal] = useState(false);
@@ -163,71 +166,64 @@ const NFTDetails = observer(() => {
   const [sale, setSale] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const match = useRouteMatch();
-  const listingId = match.params.listingId;
+  const [statusCheckKey, setStatusCheckKey] = useState("");
+  const [listingId, setListingId] = useState(match.params.listingId);
 
   let nft = rootStore.NFT({contractId: match.params.contractId, tokenId: match.params.tokenId});
   const isOwned = !!nft || (listing && Utils.EqualAddress(listing.details.SellerAddress, rootStore.userAddress));
   const heldDate = nft && nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
 
-  const LoadListing = async () => {
+  const LoadListing = async ({listingId, setLoading=false}) => {
     try {
-      setLoadingListing(true);
+      if(setLoading) { setLoadingListing(true); }
 
-      let listings;
-      if(listingId) {
-        const listingStatus = await transferStore.ListingStatus({listingId});
+      const status = await transferStore.CurrentNFTStatus({
+        listingId,
+        nft,
+        contractId: match.params.contractId,
+        tokenId: match.params.tokenId
+      });
 
-        if(!listingStatus) {
-          throw "Listing is not accessible";
-        } else if(listingStatus.action === "SOLD") {
-          setSale(listingStatus);
-          return;
+      if("sale" in status) {
+        setSale(status.sale);
+      } else if("listing" in status) {
+        setListing(status.listing);
+        setListingId(listing ? listing.details.ListingId : undefined);
+
+        if(!match.params.contractId && !status.listing) {
+          setErrorMessage("This listing has been removed");
         }
-
-        listings = await transferStore.FetchTransferListings({listingId: listingId, forceUpdate: true});
-
-        if(!listings[0]) {
-          throw "Listing is not accessible";
-        }
-      } else if(nft) {
-        listings = (await transferStore.FetchTransferListings({
-          contractAddress: nft.details.ContractAddr,
-          tokenId: nft.details.TokenIdStr,
-          forceUpdate: true
-        })) || [];
-      } else {
-        // NFT inaccessible and not listed - check if it was sold
-        const history = await transferStore.UserTransferHistory();
-        const sale = history
-          .sort((a, b) => a.created > b.created ? -1 : 1)
-          .find(entry =>
-            entry.token === match.params.tokenId &&
-            entry.action === "SOLD" &&
-            Utils.EqualAddress(Utils.HashToAddress(match.params.contractId), entry.contract) &&
-            Utils.EqualAddress(rootStore.userAddress, entry.seller)
-          );
-
-        if(!sale) {
-          throw "NFT is not accessible";
-        }
-
-        setSale(sale);
+      } else if("error" in status) {
+        setErrorMessage(status.error);
       }
 
-      setListing(listings ? listings[0] : undefined);
-    } catch(error) {
-      rootStore.Log(error);
-      setErrorMessage(typeof error === "string" ? error : "Unable to load NFT");
+      return status;
     } finally {
       setLoadingListing(false);
     }
   };
 
   useEffect(() => {
-    LoadListing();
+    let listingStatusInterval;
     rootStore.UpdateMetamaskChainId();
+
+    LoadListing({listingId, setLoading: true});
+
+    listingStatusInterval = setInterval(() => setStatusCheckKey(UUID()), listingId ? 30000 : 60000);
+
+    return () => clearInterval(listingStatusInterval);
   }, []);
+
+
+  useEffect(() => {
+    LoadListing({listingId});
+  }, [statusCheckKey]);
+
+  if(deleted) {
+    return match.params.marketplaceId ?
+      <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, "collections")}/> :
+      <Redirect to={Path.dirname(Path.dirname(match.url))}/>;
+  }
 
   if(errorMessage) {
     return (
@@ -284,12 +280,6 @@ const NFTDetails = observer(() => {
     nft = listing;
   }
 
-  if(deleted) {
-    return match.params.marketplaceId ?
-      <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, "collections")}/> :
-      <Redirect to={Path.dirname(Path.dirname(match.url))}/>;
-  }
-
   let mintDate = nft.metadata.created_at;
   if(mintDate) {
     try {
@@ -326,7 +316,15 @@ const NFTDetails = observer(() => {
           <ButtonWithLoader
             disabled={isInCheckout}
             className="details-page__listing-button action action-primary"
-            onClick={() => setShowPurchaseModal(true)}
+            onClick={async () => {
+              const { listing } = await LoadListing({listingId});
+
+              if(listing && listing.details.CheckoutLockedUntil && listing.details.CheckoutLockedUntil > Date.now()) {
+                // checkout locked
+              } else {
+                setShowPurchaseModal(true);
+              }
+            }}
           >
             Buy Now for { FormatPriceString({USD: listing.details.Price}) }
           </ButtonWithLoader>
@@ -357,7 +355,15 @@ const NFTDetails = observer(() => {
           <ButtonWithLoader
             disabled={heldDate || isInCheckout}
             className="action action-primary details-page__listing-button"
-            onClick={() => setShowListingModal(true)}
+            onClick={async () => {
+              const { listing } = await LoadListing({listingId});
+
+              if(listing && listing.details.CheckoutLockedUntil && listing.details.CheckoutLockedUntil > Date.now()) {
+                // checkout locked
+              } else {
+                setShowListingModal(true);
+              }
+            }}
           >
             { listing ? "Edit Listing" : "List for Sale" }
           </ButtonWithLoader>
@@ -403,9 +409,15 @@ const NFTDetails = observer(() => {
               setShowListingModal(false);
 
               if(info.deleted) {
-                setDeleted(true);
+                setListingId(undefined);
+                setListing(undefined);
+
+                if(!match.params.contractId) {
+                  setDeleted(true);
+                }
               } else if(info.listingId) {
-                LoadListing();
+                setListingId(info.listingId);
+                LoadListing({listingId: info.listingId, setLoading: true});
               }
             }}
           /> : null
@@ -584,11 +596,16 @@ const NFTDetails = observer(() => {
           contractAddress={nft.details.ContractAddr}
           tokenId={nft.details.TokenIdStr}
         />
-        <TransferTable
-          header={<div>Recent Transactions for <b>{ nft.metadata.display_name }</b> NFTs</div>}
-          contractAddress={nft.details.ContractAddr}
-          limit={10}
-        />
+        {
+          /*
+            <TransferTable
+              header={<div>Recent Transactions for <b>{ nft.metadata.display_name }</b> NFTs</div>}
+              contractAddress={nft.details.ContractAddr}
+              limit={10}
+            />
+
+         */
+        }
       </div>
     </>
   );

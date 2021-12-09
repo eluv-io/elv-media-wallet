@@ -6,25 +6,34 @@ import {rootStore, transferStore} from "Stores";
 import ListingCard from "Components/listings/ListingCard";
 import UrlJoin from "url-join";
 import {UserTransferTable} from "Components/listings/TransferTables";
+import Utils from "@eluvio/elv-client-js/src/Utils";
 
 const MyListings = observer(() => {
   const match = useRouteMatch();
   const [key, setKey] = useState(0);
-
-  let listings = transferStore.TransferListings({
-    userAddress: rootStore.userAddress,
-    marketplaceId: match.params.marketplaceId
-  });
+  const [listings, setListings] = useState([]);
 
   return (
     <AsyncComponent
       key={`listing-page-${key}`}
       loadKey={`my-listings-${key}`}
-      cacheSeconds={30}
       loadingClassName="page-loader"
-      Load={async () =>
-        await transferStore.FetchTransferListings({userAddress: rootStore.userAddress, forceUpdate: key > 0})
-      }
+      Load={async () => {
+        let retrievedListings = await transferStore.FetchTransferListings({userAddress: rootStore.userAddress});
+
+        if(match.params.marketplaceId) {
+          const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+          // If marketplace filtered, exclude entries that aren't present in the marketplace
+          retrievedListings = retrievedListings.filter(listing =>
+            marketplace.items.find(item => Utils.EqualAddress(
+              listing.details.ContractAddr,
+              Utils.SafeTraverse(item, "nft_template", "nft", "address"),
+            ))
+          );
+        }
+
+        setListings(retrievedListings);
+      }}
     >
       <div className="listings-page">
         <h2 className="listings-page__header">
@@ -32,14 +41,14 @@ const MyListings = observer(() => {
           { listings.length > 0 ? "My Active Listings" : "No Active Listings" }
         </h2>
         <div className="listing-card-list">
-          { listings.map((nft, index) =>
+          { listings.map((listing, index) =>
             <ListingCard
               key={`nft-listing-${index}`}
-              nft={nft}
+              listing={listing}
               link={
                 match.params.marketplaceId ?
-                  UrlJoin("/marketplaces", match.params.marketplaceId, "my-listings", nft.details.ContractId, nft.details.TokenIdStr) :
-                  UrlJoin("/wallet", "my-listings", nft.details.ContractId, nft.details.TokenIdStr)
+                  UrlJoin("/marketplaces", match.params.marketplaceId, "my-listings", listing.details.ContractId, listing.details.TokenIdStr) :
+                  UrlJoin("/wallet", "my-listings", listing.details.ContractId, listing.details.TokenIdStr)
               }
               Refresh={() => setKey(key + 1)}
             />

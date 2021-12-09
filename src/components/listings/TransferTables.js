@@ -122,6 +122,7 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
 export const UserTransferTable = observer(({header, limit, marketplaceId, type="sell"}) => {
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
+
   const UpdateHistory = async () => {
     let entries = (await transferStore.UserTransferHistory())
       .filter(entry => entry.action === "SOLD")
@@ -200,6 +201,7 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
 export const TransferTable = observer(({header, contractAddress, contractId, tokenId, limit}) => {
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
+
   const UpdateHistory = async () => {
     let entries = (await transferStore.TransferHistory({contractAddress, contractId, tokenId}))
       .filter(entry => entry.action === "SOLD")
@@ -250,7 +252,7 @@ export const TransferTable = observer(({header, contractAddress, contractId, tok
                     { Ago(transfer.created * 1000) } ago
                   </div>
                   <div className="transfer-table__table__cell">
-                    { `$${(transfer.price + transfer.fee).toFixed(2)}`}
+                    { FormatPriceString({USD: transfer.price}) }
                   </div>
                   <div className="transfer-table__table__cell no-mobile">
                     { MiddleEllipsis(transfer.buyer, 14) }

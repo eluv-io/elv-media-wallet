@@ -23,9 +23,9 @@ import ListingPurchaseModal from "Components/listings/ListingPurchaseModal";
 
 const MarketplaceCheckout = observer(({item}) => {
   const [showModal, setShowModal] = useState(false);
+  const [listings, setListings] = useState(false);
 
   const itemTemplate = item.nft_template ? item.nft_template.nft || {} : {};
-  const listings = transferStore.TransferListings({contractAddress: itemTemplate.address});
   const listingPrices = listings.map(listing => listing.details.Price).sort((a, b) => a < b ? -1 : 1);
 
   const directPrice = ItemPrice(item, checkoutStore.currency);
@@ -46,9 +46,11 @@ const MarketplaceCheckout = observer(({item}) => {
     <AsyncComponent
       loadingClassName="marketplace-price marketplace-price__loader"
       Load={async () => {
-        await transferStore.FetchTransferListings({
-          contractAddress: itemTemplate.address
-        });
+        setListings(
+          await transferStore.FetchTransferListings({
+            contractAddress: itemTemplate.address
+          })
+        );
       }}
     >
       { showModal ? <ListingPurchaseModal nft={itemToNFT} item={item} Close={() => setShowModal(false)} /> : null }

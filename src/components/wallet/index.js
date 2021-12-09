@@ -68,10 +68,7 @@ const WalletWrapper = observer(({children}) => {
       loadKey="wallet-collection"
       cacheSeconds={30}
       Load={async () => {
-        await Promise.all([
-          rootStore.LoadWalletCollection(),
-          transferStore.FetchTransferListings({userAddress: rootStore.userAddress})
-        ]);
+        await rootStore.LoadWalletCollection();
       }}
       loadingClassName="page-loader"
     >

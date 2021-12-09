@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react";
 import EluvioPlayer, {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 import {observer} from "mobx-react";
-import {rootStore, transferStore} from "Stores/index";
+import {rootStore} from "Stores/index";
 import {Loader} from "Components/common/Loaders";
 import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
