@@ -4,14 +4,14 @@ import {FormatPriceString} from "Components/common/UIComponents";
 import {observer} from "mobx-react";
 import {Link} from "react-router-dom";
 
-const NFTCard = observer(({nft, selectedListing, price, stock, link, showOrdinal}) => {
+const NFTCard = observer(({nft, selectedListing, price, stock, link, showVideo, showOrdinal}) => {
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
 
   nft = selectedListing || nft;
 
   const card =(
     <div className="card card-shadow">
-      <NFTImage width={400} nft={nft} />
+      <NFTImage width={400} nft={nft} video={showVideo} />
       <div className="card__titles">
         <h2 className="card__title">
           <div className="card__title__title">
