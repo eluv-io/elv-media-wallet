@@ -63,6 +63,7 @@ class RootStore {
   mode = "test";
 
   pageWidth = window.innerWidth;
+  activeModals = 0;
 
   navigateToLogIn = undefined;
   loggingIn = false;
@@ -1077,7 +1078,7 @@ class RootStore {
   }
 
   AddActiveModal() {
-    this.activeModals += 1;
+    this.activeModals = this.activeModals + 1;
   }
 
   RemoveActiveModal() {

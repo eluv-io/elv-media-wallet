@@ -70,6 +70,10 @@
       background-color: $lightergray;
     }
 
+    &-disabled {
+      opacity: 0.4;
+    }
+
     &-selectable {
       cursor: pointer;
     }

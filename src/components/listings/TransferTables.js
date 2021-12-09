@@ -77,41 +77,46 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
         </div>
         <div className="transfer-table__content-rows">
           {
-            loading ? <div className="transfer-table__loader"><Loader /></div> :
+            loading ? <div className="transfer-table__loader"><Loader/></div> :
               !listings || listings.length === 0 ?
                 <div className="transfer-table__empty">No Active Listings</div> :
-                sortedListings.map((nft, index) =>
-                  <div
-                    tabIndex={0}
-                    role="button"
-                    aria-roledescription="button"
-                    key={`transfer-table-row-${index}`}
-                    onClick={
-                      !Select ? undefined :
-                        () => {
-                          const selected = selectedListingId === nft.details.ListingId ? undefined : nft.details.ListingId;
+                sortedListings.map((listing, index) => {
+                  const isCheckoutLocked = listing.details.CheckoutLockedUntil && listing.details.CheckoutLockedUntil > Date.now();
+                  return (
+                    <div
+                      tabIndex={0}
+                      role="button"
+                      aria-roledescription="button"
+                      aria-disabled={isCheckoutLocked}
+                      key={`transfer-table-row-${index}`}
+                      title={isCheckoutLocked ? "This listing is currently in the process of being purchased" : ""}
+                      onClick={
+                        !Select || isCheckoutLocked ? undefined :
+                          () => {
+                            const selected = selectedListingId === listing.details.ListingId ? undefined : listing.details.ListingId;
 
-                          setSelectedListingId(selected);
-                          Select(selected);
-                        }
-                    }
-                    className={`transfer-table__table__row ${selectedListingId === nft.details.ListingId ? "transfer-table__table__row-selected" : ""} ${Select ? "transfer-table__table__row-selectable" : ""}`}
-                  >
-                    <div className="transfer-table__table__cell">
-                      {
-                        typeof nft.details.TokenOrdinal !== "undefined" ?
-                          `${parseInt(nft.details.TokenOrdinal) + 1} / ${nft.details.Cap}` :
-                          MiddleEllipsis(nft.details.TokenIdStr, 20)
+                            setSelectedListingId(selected);
+                            Select(selected);
+                          }
                       }
+                      className={`transfer-table__table__row ${isCheckoutLocked ? "transfer-table__table__row-disabled" : ""} ${selectedListingId === listing.details.ListingId ? "transfer-table__table__row-selected" : ""} ${Select && !isCheckoutLocked ? "transfer-table__table__row-selectable" : ""}`}
+                    >
+                      <div className="transfer-table__table__cell">
+                        {
+                          typeof listing.details.TokenOrdinal !== "undefined" ?
+                            `${parseInt(listing.details.TokenOrdinal) + 1} / ${listing.details.Cap}` :
+                            MiddleEllipsis(listing.details.TokenIdStr, 20)
+                        }
+                      </div>
+                      <div className="transfer-table__table__cell">
+                        {`$${listing.details.Price.toFixed(2)}`}
+                      </div>
+                      <div className="transfer-table__table__cell no-mobile">
+                        {MiddleEllipsis(listing.details.SellerAddress, 12)}
+                      </div>
                     </div>
-                    <div className="transfer-table__table__cell">
-                      { `$${nft.details.Price.toFixed(2)}`}
-                    </div>
-                    <div className="transfer-table__table__cell no-mobile">
-                      { MiddleEllipsis(nft.details.SellerAddress, 12) }
-                    </div>
-                  </div>
-                )
+                  );
+                })
           }
         </div>
       </div>

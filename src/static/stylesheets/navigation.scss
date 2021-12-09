@@ -5,7 +5,8 @@
     .header,
     .navigation,
     .sub-navigation {
-      display: none;
+      // sass-lint:disable no-important
+      display: none !important;
     }
   }
 }
