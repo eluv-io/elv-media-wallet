@@ -1,7 +1,7 @@
 import React from "react";
 
 import {observer} from "mobx-react";
-import {rootStore} from "Stores/index";
+import {rootStore} from "Stores";
 import {ProfileImage} from "Components/common/Images";
 import {Link, NavLink} from "react-router-dom";
 
@@ -57,7 +57,7 @@ const Header = observer(() => {
         }
       </div>
       <Link to="/profile" className="header__profile">
-        <div className="header__profile__info">
+        <div className="header__profile__info ellipsis">
           <div className="header__profile__name">
             { rootStore.userProfile.name }
           </div>
