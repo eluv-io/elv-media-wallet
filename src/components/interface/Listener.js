@@ -73,7 +73,8 @@ export const InitializeListener = (history) => {
       case "purchase":
         checkoutStore.PurchaseComplete({
           confirmationId: data.params.confirmationId,
-          success: data.params.success
+          success: data.params.success,
+          message: data.params.message
         });
 
         break;

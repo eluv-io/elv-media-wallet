@@ -87,6 +87,13 @@ const ListingPurchaseConfirmation = observer(({listings, nft, marketplaceItem, l
     return () => clearInterval(stockCheck);
   }, []);
 
+
+  useEffect(() => {
+    if(checkoutStore.pendingPurchases[confirmationId] && checkoutStore.pendingPurchases[confirmationId].failed) {
+      setErrorMessage("Purchase failed");
+    }
+  }, [checkoutStore.pendingPurchases[confirmationId]]);
+
   // In iframe - child window confirmed purchase
   if(confirmationId && checkoutStore.completedPurchases[confirmationId]) {
     const tenantId = selectedListing ? selectedListing.details.TenantId : marketplace.tenant_id;
@@ -95,7 +102,7 @@ const ListingPurchaseConfirmation = observer(({listings, nft, marketplaceItem, l
     if(match.params.marketplaceId) {
       return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, tenantId, sku, "purchase", confirmationId, "success")} />;
     } else {
-      return <Redirect to={UrlJoin("/wallet", "collection", tenantId, sku, "purchase", confirmationId, "success")} />;
+      return <Redirect to={UrlJoin("/wallet", "listings", tenantId, sku, "purchase", confirmationId, "success")} />;
     }
   }
 

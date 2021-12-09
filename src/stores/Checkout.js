@@ -52,16 +52,22 @@ class CheckoutStore {
     }
   });
 
-  PurchaseComplete({confirmationId, success}) {
+  PurchaseComplete({confirmationId, success, message}) {
     this.submittingOrder = false;
 
     if(success) {
       this.completedPurchases[confirmationId] = {
         ...(this.pendingPurchases[confirmationId] || {})
       };
-    }
 
-    delete this.pendingPurchases[confirmationId];
+      delete this.pendingPurchases[confirmationId];
+    } else {
+      this.pendingPurchases[confirmationId] = {
+        ...(this.pendingPurchases[confirmationId] || {}),
+        failed: true,
+        message
+      };
+    }
   }
 
   ClaimSubmit = flow(function * ({marketplaceId, sku}) {
@@ -111,13 +117,26 @@ class CheckoutStore {
       confirmationId = confirmationId || `T-${this.ConfirmationId()}`;
 
       let authInfo = this.rootStore.AuthInfo();
-      if(!authInfo.user) { authInfo.user = {}; }
+      if(!authInfo.user) {
+        authInfo.user = {};
+      }
       email = email || (authInfo.user || {}).email || this.rootStore.userProfile.email;
       authInfo.user.email = email;
 
       if(!email) {
         throw Error("Unable to determine email address in checkout submit");
       }
+
+      const listing = (yield this.rootStore.transferStore.FetchTransferListings({listingId, forceUpdate: true}))[0];
+
+      if(!listing || (listing && listing.details.CheckoutLockedUntil && listing.details.CheckoutLockedUntil > Date.now())) {
+        throw {status: 409, message: "Listing is no longer available"};
+      }
+
+      const basePath =
+        marketplaceId ?
+          UrlJoin("marketplaces", marketplaceId, listing.details.TenantId, listingId, "purchase", confirmationId) :
+          UrlJoin("wallet", "listings", listing.details.TenantId, listingId, "purchase", confirmationId);
 
       if(this.rootStore.embedded) {
         this.pendingPurchases[confirmationId] = {
@@ -128,13 +147,10 @@ class CheckoutStore {
         // Stripe doesn't work in iframe, open new window to initiate purchase
         const url = new URL(window.location.origin);
         url.pathname = window.location.pathname;
-        url.hash =
-          marketplaceId ?
-            `/marketplaces/${marketplaceId}/${listingId}/purchase/${confirmationId}` :
-            `/wallet/purchase/${confirmationId}`;
+        url.hash = basePath;
         url.searchParams.set("embed", "");
         url.searchParams.set("provider", provider);
-        url.searchParams.set("marketplaceId", marketplaceId);
+        url.searchParams.set("marketplaceId", marketplaceId || "");
         url.searchParams.set("listingId", listingId);
 
         if(this.rootStore.darkMode) {
@@ -148,20 +164,9 @@ class CheckoutStore {
         return confirmationId;
       }
 
-      const listing = (yield this.rootStore.transferStore.FetchTransferListings({listingId, forceUpdate: true}))[0];
-
-      if(!listing) {
-        throw Error("Item no longer available: " + listingId);
-      }
-
       const checkoutId = `nft-marketplace:${confirmationId}`;
-
       const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
-      const baseUrl = new URL(
-        marketplaceId ?
-          UrlJoin(window.location.origin, window.location.pathname, "#", "marketplaces", marketplaceId, listing.details.TenantId, listingId, "purchase", confirmationId) :
-          UrlJoin(window.location.origin, window.location.pathname, "#", "wallet", "listings", listing.details.TenantId, listingId, "purchase", confirmationId)
-      );
+      const baseUrl = new URL(UrlJoin(window.location.origin, window.location.pathname, "#", basePath));
 
       if(fromEmbed) {
         baseUrl.searchParams.set("embed", "true");
@@ -185,6 +190,8 @@ class CheckoutStore {
       }
 
       yield this.CheckoutRedirect({provider, requestParams});
+    } catch(error) {
+      throw error;
     } finally {
       this.submittingOrder = false;
     }
@@ -214,6 +221,8 @@ class CheckoutStore {
       email = email || (authInfo.user || {}).email || this.rootStore.userProfile.email;
       authInfo.user.email = email;
 
+      const basePath = UrlJoin("/marketplaces", marketplaceId, tenantId, sku, "purchase", confirmationId);
+
       if(!email) {
         throw Error("Unable to determine email address in checkout submit");
       }
@@ -228,7 +237,7 @@ class CheckoutStore {
         // Stripe doesn't work in iframe, open new window to initiate purchase
         const url = new URL(window.location.origin);
         url.pathname = window.location.pathname;
-        url.hash = `/marketplaces/${marketplaceId}/${sku}/purchase/${confirmationId}`;
+        url.hash = basePath;
         url.searchParams.set("embed", "");
         url.searchParams.set("provider", provider);
         url.searchParams.set("tenantId", tenantId);
@@ -248,7 +257,7 @@ class CheckoutStore {
       const checkoutId = `${marketplaceId}:${confirmationId}`;
 
       const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
-      const baseUrl = new URL(UrlJoin(window.location.origin, window.location.pathname, "#", "marketplaces", marketplaceId, tenantId, sku, "purchase", confirmationId));
+      const baseUrl = new URL(UrlJoin(window.location.origin, window.location.pathname, "#", basePath));
 
       if(fromEmbed) {
         baseUrl.searchParams.set("embed", "true");
@@ -274,7 +283,10 @@ class CheckoutStore {
       const stock = (yield this.MarketplaceStock({tenantId}) || {})[sku];
 
       if(stock && (stock.max - stock.minted) < quantity) {
-        throw Error(`Quantity ${quantity} exceeds stock ${stock.max - stock.minted} for ${sku}`);
+        throw {
+          status: 409,
+          message: `Quantity ${quantity} exceeds stock ${stock.max - stock.minted} for ${sku}`
+        };
       }
 
       yield this.CheckoutRedirect({provider, requestParams});

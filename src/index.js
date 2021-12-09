@@ -95,6 +95,7 @@ const Routes = () => {
 
 const App = observer(() => {
   const hasHeader = !rootStore.hideNavigation && (!rootStore.sidePanelMode || rootStore.navigationBreadcrumbs.length > 2);
+  const fromEmbed = new URLSearchParams(window.location.search).has("embed");
 
   return (
     <HashRouter>
@@ -105,7 +106,8 @@ const App = observer(() => {
           rootStore.hideNavigation ? "navigation-hidden" : "",
           rootStore.sidePanelMode ? "side-panel" : "",
           hasHeader ? "" : "no-header",
-          rootStore.activeModals > 0 ? "modal-active" : ""
+          rootStore.activeModals > 0 ? "modal-active" : "",
+          fromEmbed ? "popup-from-embedded" : ""
         ]
           .filter(className => className)
           .join(" ")

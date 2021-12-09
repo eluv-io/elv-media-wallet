@@ -136,3 +136,22 @@
     display: none;
   }
 }
+
+// Loading checkout / success confirmation from embedded frame. Hide everything but the loader
+.popup-from-embedded {
+  .header,
+  .navigation,
+  .sub-navigation {
+    // sass-lint:disable no-important
+    display: none !important;
+  }
+
+  .content {
+    & > * {
+      &:not(.page-loader) {
+        // sass-lint:disable no-important
+        display: none !important;
+      }
+    }
+  }
+}

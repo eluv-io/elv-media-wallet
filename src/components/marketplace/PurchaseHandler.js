@@ -34,16 +34,30 @@ const PurchaseHandler = observer(({cancelPath}) => {
       rootStore.ToggleNavigation(false);
 
       const checkoutProvider = new URLSearchParams(window.location.search).get("provider");
-      const tenantId = new URLSearchParams(window.location.search).get("tenantId");
+      const tenantId = new URLSearchParams(window.location.search).get("tenantId") || match.params.tenantId;
       const quantity = parseInt(new URLSearchParams(window.location.search).get("quantity") || 1);
-      const listingId = parseInt(new URLSearchParams(window.location.search).get("listingId") || 1);
+      const listingId = new URLSearchParams(window.location.search).get("listingId") || match.params.listingId;
+
       if(listingId) {
         checkoutStore.ListingCheckoutSubmit({
           provider: checkoutProvider,
           marketplaceId: match.params.marketplaceId,
           listingId,
           confirmationId: match.params.confirmationId
-        });
+        })
+          .catch(error => {
+            window.opener.postMessage({
+              type: "ElvMediaWalletClientRequest",
+              action: "purchase",
+              params: {
+                confirmationId: match.params.confirmationId,
+                success: false,
+                message: error.status === 409 ? "Listing no longer available" : "Purchase failed"
+              }
+            });
+
+            window.close();
+          });
       } else {
         checkoutStore.CheckoutSubmit({
           provider: checkoutProvider,
@@ -52,7 +66,20 @@ const PurchaseHandler = observer(({cancelPath}) => {
           sku: match.params.sku,
           quantity,
           confirmationId: match.params.confirmationId
-        });
+        })
+          .catch(() => {
+            window.opener.postMessage({
+              type: "ElvMediaWalletClientRequest",
+              action: "purchase",
+              params: {
+                confirmationId: match.params.confirmationId,
+                success: false,
+                message: "Purchase failed"
+              }
+            });
+
+            window.close();
+          });
       }
     }, []);
 
