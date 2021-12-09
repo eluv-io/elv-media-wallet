@@ -196,7 +196,8 @@ $pending-color: rgba($blue, 0.5);
     }
   }
 
-  &__subtitle {
+  &__subtitle,
+  &__description {
     color: $gray;
     font-size: 14px;
     font-weight: 300;
@@ -243,6 +244,45 @@ $pending-color: rgba($blue, 0.5);
     }
   }
 }
+
+
+.nft-card {
+  .card {
+    background-color: $white;
+
+    &__image-container {
+      margin-bottom: 20px;
+    }
+
+    &__image {
+      border: 1px solid $lightgray;
+      border-radius: 6px;
+    }
+
+    &__title {
+      font-size: 16px;
+    }
+
+    &__subtitle,
+    &__stock {
+      font-size: 14px;
+    }
+
+    &__subtitle {
+      margin: 15px 0 5px;
+    }
+
+    &__title-edition {
+      font-size: 12px;
+      margin-bottom: 0;
+    }
+
+    &__title-ordinal {
+      margin-top: 0;
+    }
+  }
+}
+
 
 .dark {
   .card-padding-container {
@@ -302,6 +342,16 @@ $pending-color: rgba($blue, 0.5);
 
     &__subtitle {
       color: $mediumgray;
+    }
+  }
+
+  .nft-card {
+    .card {
+      background-color: $black;
+
+      &__image {
+        border: 1px solid $darkestgray;
+      }
     }
   }
 }

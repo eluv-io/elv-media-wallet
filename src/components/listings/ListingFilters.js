@@ -73,7 +73,7 @@ export const ListingFilters = observer(({Loading, UpdateListings}) => {
 
   const [filterOptions, setFilterOptions] = useState([]);
 
-  const perPage = 8;
+  const perPage = 50;
   let scrollTimeout;
 
   const Load = async ({page=1, currentResults=[]}) => {

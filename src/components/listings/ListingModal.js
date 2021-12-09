@@ -4,9 +4,9 @@ import Modal from "Components/common/Modal";
 import Confirm from "Components/common/Confirm";
 import {ActiveListings} from "Components/listings/TransferTables";
 import {rootStore, transferStore} from "Stores";
-import ListingModalCard from "Components/listings/ListingModalCard";
+import NFTCard from "Components/common/NFTCard";
 import {ButtonWithLoader} from "Components/common/UIComponents";
-import { roundToUp } from "round-to/index";
+import { roundToUp } from "round-to";
 
 const ListingModal = observer(({nft, Close}) => {
   const [price, setPrice] = useState(nft.details.Price ? nft.details.Price.toFixed(2) : "");
@@ -165,7 +165,7 @@ const ListingModal = observer(({nft, Close}) => {
       <div className="listing-modal">
         <h1 className="listing-modal__header">List Your NFT for Sale</h1>
         <div className="listing-modal__content">
-          <ListingModalCard nft={nft} price={{USD: parsedPrice}} />
+          <NFTCard nft={nft} price={{USD: parsedPrice}} showOrdinal />
           { showConfirmation ? ConfirmationStage() : InputStage() }
         </div>
       </div>

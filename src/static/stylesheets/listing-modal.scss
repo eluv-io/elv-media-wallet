@@ -93,7 +93,7 @@
     text-align: center;
   }
 
-  .listing-modal-card {
+  .nft-card {
     margin: 20px auto 35px;
     max-width: 350px;
   }
@@ -149,39 +149,6 @@
   }
 }
 
-.listing-modal-card {
-  .card {
-    background-color: $white;
-
-    &__image-container {
-      margin-bottom: 20px;
-    }
-
-    &__image {
-      border: 1px solid $lightgray;
-      border-radius: 6px;
-    }
-
-    &__title {
-      font-size: 16px;
-    }
-
-    &__subtitle,
-    &__stock {
-      font-size: 14px;
-    }
-
-    &__subtitle {
-      margin: 15px 0 5px;
-    }
-
-    &__title-edition {
-      font-size: 12px;
-      margin: 0;
-    }
-  }
-}
-
 .dark {
   .listing-modal {
     background-color: $black;
@@ -218,16 +185,6 @@
       color: $red;
     }
   }
-
-  .listing-modal-card {
-    .card {
-      background-color: $black;
-
-      &__image {
-        border: 1px solid $darkestgray;
-      }
-    }
-  }
 }
 
 @media screen and (max-width: $mobile-breakpoint) {
@@ -249,6 +206,10 @@
       padding-left: 35px;
       padding-top: 20px;
       text-align: start;
+    }
+
+    &__content {
+      padding-bottom: 50px;
     }
 
     &__image-container {

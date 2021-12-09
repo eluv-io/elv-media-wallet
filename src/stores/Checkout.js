@@ -135,8 +135,8 @@ class CheckoutStore {
 
       const basePath =
         marketplaceId ?
-          UrlJoin("marketplaces", marketplaceId, listing.details.TenantId, listingId, "purchase", confirmationId) :
-          UrlJoin("wallet", "listings", listing.details.TenantId, listingId, "purchase", confirmationId);
+          UrlJoin("/marketplaces", marketplaceId, listing.details.TenantId, listingId, "purchase", confirmationId) :
+          UrlJoin("/wallet", "listings", listing.details.TenantId, listingId, "purchase", confirmationId);
 
       if(this.rootStore.embedded) {
         this.pendingPurchases[confirmationId] = {
@@ -172,8 +172,8 @@ class CheckoutStore {
         baseUrl.searchParams.set("embed", "true");
       }
 
-      sessionStorage.setItem("successUrl", UrlJoin(baseUrl.toString(), "success"));
-      sessionStorage.setItem("cancelUrl", UrlJoin(baseUrl.toString(), "cancel"));
+      sessionStorage.setItem("successPath", UrlJoin(basePath, "success"));
+      sessionStorage.setItem("cancelPath", UrlJoin(basePath, "cancel"));
 
       let requestParams = {
         currency: this.currency,
@@ -263,8 +263,8 @@ class CheckoutStore {
         baseUrl.searchParams.set("embed", "true");
       }
 
-      sessionStorage.setItem("successUrl", UrlJoin(baseUrl.toString(), "success"));
-      sessionStorage.setItem("cancelUrl", UrlJoin(baseUrl.toString(), "cancel"));
+      sessionStorage.setItem("successPath", UrlJoin(basePath.toString(), "success"));
+      sessionStorage.setItem("cancelPath", UrlJoin(basePath.toString(), "cancel"));
 
       let requestParams = {
         currency: this.currency,

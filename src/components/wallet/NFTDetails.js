@@ -5,7 +5,6 @@ import Path from "path";
 import UrlJoin from "url-join";
 
 import {Link, Redirect, useRouteMatch} from "react-router-dom";
-import {NFTImage} from "Components/common/Images";
 import {ExpandableSection, CopyableField, ButtonWithLoader, FormatPriceString} from "Components/common/UIComponents";
 
 import DescriptionIcon from "Assets/icons/Description icon.svg";
@@ -21,6 +20,7 @@ import {Loader, PageLoader} from "Components/common/Loaders";
 import ListingPurchaseModal from "Components/listings/ListingPurchaseModal";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {v4 as UUID} from "uuid";
+import NFTCard from "Components/common/NFTCard";
 
 const TransferSection = observer(({nft}) => {
   const heldDate = nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
@@ -431,29 +431,7 @@ const NFTDetails = observer(() => {
       }
       <div className="details-page">
         <div className="details-page__content-container">
-          <div className="card-padding-container">
-            <div className="details-page__card-container card-container">
-              <div className="details-page__content card card-shadow">
-                <NFTImage nft={nft} video className="details-page__content__image" />
-                <div className="details-page__content__info card__text">
-                  <div className="card__titles">
-                    <div className="card__subtitle">
-                      { typeof nft.details.TokenOrdinal !== "undefined" ? `${parseInt(nft.details.TokenOrdinal) + 1} / ${nft.details.Cap}` : nft.details.TokenIdStr }
-                    </div>
-                    <h2 className="card__title">
-                      { nft.metadata.display_name }
-                    </h2>
-                    {
-                      nft.metadata.edition_name ?
-                        <h2 className="card__title-edition">
-                          { nft.metadata.edition_name }
-                        </h2> : null
-                    }
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <NFTCard nft={nft} selectedListing={listing} showOrdinal />
         </div>
         <div className="details-page__info">
           <NFTActions />

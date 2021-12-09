@@ -9,7 +9,7 @@ import {NFTImage} from "Components/common/Images";
 import {Redirect, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-import ListingModalCard from "Components/listings/ListingModalCard";
+import NFTCard from "Components/common/NFTCard";
 import ImageIcon from "Components/common/ImageIcon";
 
 import CreditCardIcon from "Assets/icons/credit card icon.svg";
@@ -23,7 +23,7 @@ const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
     if(!value) {
       setQuantity("");
     } else {
-      setQuantity(Math.min(100, maxQuantity, Math.max(1, parseInt(value || 1))));
+      setQuantity(Math.min(50, maxQuantity, Math.max(1, parseInt(value || 1))));
     }
   };
 
@@ -112,11 +112,12 @@ const ListingPurchaseConfirmation = observer(({listings, nft, marketplaceItem, l
         Select Payment Method
       </div>
       <div className="listing-purchase-confirmation-modal__content">
-        <ListingModalCard
+        <NFTCard
           nft={nft}
           selectedListing={selectedListing}
           price={price}
           stock={stock}
+          showOrdinal={!!selectedListing}
         />
         {
           !listingId && maxQuantity > 1 ?

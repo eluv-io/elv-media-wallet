@@ -2,9 +2,7 @@ import React, {useEffect} from "react";
 import {observer} from "mobx-react";
 import {useRouteMatch} from "react-router-dom";
 import {checkoutStore, rootStore} from "Stores";
-import {MarketplaceImage, NFTImage} from "Components/common/Images";
-import UrlJoin from "url-join";
-import {CopyableField, ExpandableSection, FormatPriceString} from "Components/common/UIComponents";
+import {CopyableField, ExpandableSection} from "Components/common/UIComponents";
 import MarketplaceCheckout from "Components/marketplace/MarketplaceCheckout";
 import DescriptionIcon from "Assets/icons/Description icon";
 import {render} from "react-dom";
@@ -12,6 +10,7 @@ import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
 import DetailsIcon from "Assets/icons/Details icon";
 import ContractIcon from "Assets/icons/Contract icon";
+import NFTCard from "Components/common/NFTCard";
 
 const MarketplaceItemDetails = observer(() => {
   const match = useRouteMatch();
@@ -42,50 +41,7 @@ const MarketplaceItemDetails = observer(() => {
   return (
     <div className="details-page">
       <div className="details-page__content-container">
-        <div className="card-padding-container">
-          <div className="details-page__card-container card-container">
-            <div className="details-page__content card card-shadow">
-              {
-                item.image ?
-                  <MarketplaceImage
-                    marketplaceHash={marketplace.versionHash}
-                    item={item}
-                    path={UrlJoin("public", "asset_metadata", "info", "items", itemIndex.toString(), "image")}
-                    className="details-page__content__image"
-                  /> :
-                  <NFTImage nft={{metadata: item.nftTemplateMetadata}} video className="details-page__content__image"/>
-              }
-              <div className="details-page__content__info card__text">
-                <div className="card__titles">
-                  <h2 className="card__title">
-                    <div className="card__title__title">
-                      { item.name }
-                    </div>
-                    <div className="card__title__price">
-                      { FormatPriceString(item.price) }
-                    </div>
-                  </h2>
-                  {
-                    item.nftTemplateMetadata.edition_name ?
-                      <h2 className="card__title-edition">{ item.nftTemplateMetadata.edition_name }</h2> : null
-                  }
-                  <h2 className="card__subtitle">
-                    <div className="card__subtitle__title">
-                      { item.description || item.nftTemplateMetadata.description }
-                    </div>
-                  </h2>
-                </div>
-                {
-                  stock && stock.max ?
-                    <div className="card__stock">
-                      <div className={`card__stock__indicator ${outOfStock ? "card__stock__indicator-unavailable" : ""}`} />
-                      { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available` }
-                    </div> : null
-                }
-              </div>
-            </div>
-          </div>
-        </div>
+        <NFTCard nft={{metadata: item.nftTemplateMetadata}} price={item.price} stock={stock} />
       </div>
 
       <div className="details-page__info">

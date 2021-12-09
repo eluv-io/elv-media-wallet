@@ -6,11 +6,8 @@ import {Loader} from "Components/common/Loaders";
 import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 import AsyncComponent from "Components/common/AsyncComponent";
-import {NFTImage} from "Components/common/Images";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-import LinesEllipsis from "react-lines-ellipsis";
-import responsiveHOC from "react-lines-ellipsis/lib/responsiveHOC";
-const ResponsiveEllipsis = responsiveHOC()(LinesEllipsis);
+import NFTCard from "Components/common/NFTCard";
 
 let statusInterval;
 const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, videoHash, basePath, backText}) => {
@@ -192,27 +189,12 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
               if(!nft) { return null; }
 
               return (
-                <div className="card-container card-shadow" key={`mint-result-${token_addr}-${token_id}`}>
-                  <Link
-                    to={UrlJoin(nftBasePath || basePath, nft.details.ContractId, nft.details.TokenIdStr)}
-                    className="card nft-card"
-                  >
-                    <NFTImage nft={nft} width={400} />
-                    <div className="card__text">
-                      <div className="card__titles">
-                        <h2 className="card__title">
-                          { nft.metadata.display_name || "" }
-                        </h2>
-                        <ResponsiveEllipsis
-                          component="h2"
-                          className="card__subtitle"
-                          text={nft.metadata.description || ""}
-                          maxLine="3"
-                        />
-                      </div>
-                    </div>
-                  </Link>
-                </div>
+                <NFTCard
+                  key={`mint-result-${token_addr}-${token_id}`}
+                  nft={nft}
+                  showOrdinal
+                  link={UrlJoin(nftBasePath || basePath, nft.details.ContractId, nft.details.TokenIdStr)}
+                />
               );
             })
           }

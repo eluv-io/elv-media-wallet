@@ -13,7 +13,7 @@ import ImageIcon from "Components/common/ImageIcon";
 import ListingIcon from "Assets/icons/listing.svg";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 
-export const NFTCard = observer(({nft, listing}) => {
+const CollectionCard = observer(({nft, listing}) => {
   const match = useRouteMatch();
 
   return (
@@ -67,7 +67,7 @@ const Collections = observer(() => {
   return (
     <div className="card-list collections">
       { rootStore.nfts.map(nft =>
-        <NFTCard
+        <CollectionCard
           key={`nft-card-${nft.details.ContractId}-${nft.details.TokenIdStr}`}
           nft={nft}
           listing={myListings.find(listing =>
