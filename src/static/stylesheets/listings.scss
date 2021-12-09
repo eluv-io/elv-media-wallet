@@ -14,6 +14,12 @@
   }
 }
 
+.my-listings-transfer-history {
+  .transfer-table__table {
+    max-height: 300px;
+  }
+}
+
 .listing-card-list {
   display: grid;
   grid-gap: 10px;
@@ -37,8 +43,8 @@
   display: grid;
   grid-gap: 20px;
   grid-template-columns: 190px 1fr;
-  height: 220px;
   max-width: 600px;
+  min-height: 220px;
   padding: 15px;
   position: relative;
   width: 100%;
@@ -127,7 +133,7 @@
 
   &__menu {
     background-color: $white;
-    border: 1px solid $black;
+    border: 1px solid $darkgray;
     border-radius: 6px;
     position: absolute;
     right: 50px;
@@ -149,10 +155,28 @@
     }
   }
 
+  &__menu__action {
+    &:disabled {
+      color: $gray;
+    }
+  }
+
+  &__message {
+    color: $blue;
+    font-size: 12px;
+    margin-top: 10px;
+  }
+
+  @media screen and (min-width: $breakpoint) {
+    &-with-message {
+      height: 250px;
+    }
+  }
+
   @media screen and (max-width: $breakpoint) {
     grid-template-columns: 1fr;
     grid-template-rows: 190px 1fr;
-    height: max-content;
+
     justify-items: center;
     max-width: 400px;
     min-width: max-content;
@@ -205,6 +229,12 @@
     &__menu-button {
       background-color: $black;
       border: 1px solid $darkergray;
+    }
+
+    &__menu__action {
+      &:disabled {
+        color: $gray;
+      }
     }
 
     &__menu {

@@ -9,6 +9,8 @@ import {ButtonWithLoader} from "Components/common/UIComponents";
 const ListingCard = ({listing, link, Refresh}) => {
   const [showListingModal, setShowListingModal] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [isInCheckout, setIsInCheckout] = useState(listing && listing.details.CheckoutLockedUntil && listing.details.CheckoutLockedUntil > Date.now());
+  const [message, setMessage] = useState(undefined);
 
   const ref = useRef(null);
 
@@ -24,19 +26,45 @@ const ListingCard = ({listing, link, Refresh}) => {
     return () => document.removeEventListener("mousedown", HandleClick);
   });
 
+  useEffect(() => {
+    const checkout = listing && listing.details.CheckoutLockedUntil && listing.details.CheckoutLockedUntil > Date.now();
+    setIsInCheckout(checkout);
+
+    if(checkout) {
+      setMessage("This listing is currently in the process of being purchased");
+    } else {
+      setMessage("");
+    }
+  }, [listing]);
+
   const Menu = () => {
     return (
       <div className="listing-card__menu">
         <button
           autoFocus
-          onClick={async () => Confirm({
-            message: "Are you sure you want to remove this listing?",
-            Confirm: async () => {
-              await transferStore.RemoveListing({listingId: listing.details.ListingId});
-              await new Promise(resolve => setTimeout(resolve, 500));
-              Refresh && Refresh();
+          disabled={isInCheckout}
+          onClick={async event => {
+            event.stopPropagation();
+
+            const listings = await transferStore.FetchTransferListings({listingId: listing.details.ListingId, forceUpdate: true});
+            const currentListing = listings[0];
+
+            let isInCheckout = currentListing && currentListing.details.CheckoutLockedUntil && currentListing.details.CheckoutLockedUntil > Date.now();
+            setIsInCheckout(isInCheckout);
+
+            if(isInCheckout) {
+              setMessage("This listing is currently in the process of being purchased");
+            } else {
+              Confirm({
+                message: "Are you sure you want to remove this listing?",
+                Confirm: async () => {
+                  await transferStore.RemoveListing({listingId: listing.details.ListingId});
+                  await new Promise(resolve => setTimeout(resolve, 500));
+                  Refresh && Refresh();
+                }
+              });
             }
-          })}
+          }}
           className="listing-card__menu__action"
         >
           Remove Listing
@@ -58,7 +86,7 @@ const ListingCard = ({listing, link, Refresh}) => {
             }}
           /> : null
       }
-      <div className="listing-card" ref={ref}>
+      <div className={`listing-card ${message ? "listing-card-with-message" : ""}`} ref={ref}>
         { showMenu ? <Menu /> : null }
         <button
           className="action listing-card__menu-button"
@@ -122,16 +150,32 @@ const ListingCard = ({listing, link, Refresh}) => {
             <div className="listing-card__actions">
               <ButtonWithLoader
                 className="listing-card__action"
-                onClick={async () => {
+                disabled={isInCheckout}
+                onClick={async event => {
+                  event.stopPropagation();
+                  const listings = await transferStore.FetchTransferListings({listingId: listing.details.ListingId, forceUpdate: true});
+                  const currentListing = listings[0];
 
+                  let isInCheckout = currentListing && currentListing.details.CheckoutLockedUntil && currentListing.details.CheckoutLockedUntil > Date.now();
+                  setIsInCheckout(isInCheckout);
 
-                  setShowListingModal(true);
+                  if(isInCheckout) {
+                    setMessage("This listing is currently in the process of being purchased");
+                  } else {
+                    setShowListingModal(true);
+                  }
                 }}
               >
                 Edit Listing
               </ButtonWithLoader>
             </div>
           </div>
+          {
+            message ?
+              <div className="listing-card__message">
+                { message }
+              </div> : null
+          }
         </div>
       </div>
     </>

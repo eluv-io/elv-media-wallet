@@ -91,10 +91,10 @@ export const ButtonWithLoader = ({children, className="", onClick, disabled}) =>
           <button
             disabled={disabled}
             className={`button action loader-button__button ${className}`}
-            onClick={async () => {
+            onClick={async event => {
               try {
                 setLoading(true);
-                await onClick();
+                await onClick(event);
               } finally {
                 setLoading(false);
               }

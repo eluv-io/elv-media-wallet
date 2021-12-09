@@ -119,7 +119,7 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
   );
 });
 
-export const UserTransferTable = observer(({header, limit, marketplaceId, type="sell"}) => {
+export const UserTransferTable = observer(({header, limit, marketplaceId, type="sell", className=""}) => {
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
 
@@ -157,7 +157,7 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
   }, []);
 
   return (
-    <div className="transfer-table user-transfer-table">
+    <div className={`transfer-table user-transfer-table ${className}`}>
       <div className="transfer-table__header">
         { header }
       </div>
@@ -169,30 +169,32 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
           <div className="transfer-table__table__cell">Total Amount { type === "sell" ? " (Payout)" : "" }</div>
           <div className="transfer-table__table__cell no-mobile">{ type === "sell" ? "Buyer" : "Seller" }</div>
         </div>
-        {
-          loading ? <div className="transfer-table__loader"><Loader /></div> :
-            !entries || entries.length === 0 ?
-              <div className="transfer-table__empty">No Transfers</div> :
-              entries.map(transfer =>
-                <div className="transfer-table__table__row" key={`transfer-table-row-${transfer.id}`}>
-                  <div className="transfer-table__table__cell">
-                    { transfer.name }
+        <div className="transfer-table__content-rows">
+          {
+            loading ? <div className="transfer-table__loader"><Loader /></div> :
+              !entries || entries.length === 0 ?
+                <div className="transfer-table__empty">No Transfers</div> :
+                entries.map(transfer =>
+                  <div className="transfer-table__table__row" key={`transfer-table-row-${transfer.id}`}>
+                    <div className="transfer-table__table__cell">
+                      { transfer.name }
+                    </div>
+                    <div className="transfer-table__table__cell no-mobile">
+                      { transfer.token }
+                    </div>
+                    <div className="transfer-table__table__cell">
+                      { Ago(transfer.created * 1000) } ago
+                    </div>
+                    <div className="transfer-table__table__cell">
+                      { FormatPriceString({USD: transfer.price}) } { type === "sell" ? ` (${FormatPriceString({USD: roundToUp(transfer.price * 0.9, 2)})})` : ""}
+                    </div>
+                    <div className="transfer-table__table__cell no-mobile">
+                      { MiddleEllipsis(type === "sell" ? transfer.buyer : transfer.seller, 14) }
+                    </div>
                   </div>
-                  <div className="transfer-table__table__cell no-mobile">
-                    { transfer.token }
-                  </div>
-                  <div className="transfer-table__table__cell">
-                    { Ago(transfer.created * 1000) } ago
-                  </div>
-                  <div className="transfer-table__table__cell">
-                    { FormatPriceString({USD: transfer.price}) } { type === "sell" ? ` (${FormatPriceString({USD: roundToUp(transfer.price * 0.9, 2)})})` : ""}
-                  </div>
-                  <div className="transfer-table__table__cell no-mobile">
-                    { MiddleEllipsis(type === "sell" ? transfer.buyer : transfer.seller, 14) }
-                  </div>
-                </div>
-              )
-        }
+                )
+          }
+        </div>
       </div>
     </div>
   );
@@ -236,33 +238,35 @@ export const TransferTable = observer(({header, contractAddress, contractId, tok
           <div className="transfer-table__table__cell no-mobile">Buyer</div>
           <div className="transfer-table__table__cell no-mobile">Seller</div>
         </div>
-        {
-          loading ? <div className="transfer-table__loader"><Loader /></div> :
-            !entries || entries.length === 0 ?
-              <div className="transfer-table__empty">No Transfers</div> :
-              entries.map(transfer =>
-                <div className="transfer-table__table__row" key={`transfer-table-row-${transfer.id}`}>
-                  {
-                    tokenId ? null :
-                      <div className="transfer-table__table__cell">
-                        {transfer.token}
-                      </div>
-                  }
-                  <div className="transfer-table__table__cell">
-                    { Ago(transfer.created * 1000) } ago
+        <div className="transfer-table__content-rows">
+          {
+            loading ? <div className="transfer-table__loader"><Loader /></div> :
+              !entries || entries.length === 0 ?
+                <div className="transfer-table__empty">No Transfers</div> :
+                entries.map(transfer =>
+                  <div className="transfer-table__table__row" key={`transfer-table-row-${transfer.id}`}>
+                    {
+                      tokenId ? null :
+                        <div className="transfer-table__table__cell">
+                          {transfer.token}
+                        </div>
+                    }
+                    <div className="transfer-table__table__cell">
+                      { Ago(transfer.created * 1000) } ago
+                    </div>
+                    <div className="transfer-table__table__cell">
+                      { FormatPriceString({USD: transfer.price}) }
+                    </div>
+                    <div className="transfer-table__table__cell no-mobile">
+                      { MiddleEllipsis(transfer.buyer, 14) }
+                    </div>
+                    <div className="transfer-table__table__cell no-mobile">
+                      { MiddleEllipsis(transfer.seller, 14) }
+                    </div>
                   </div>
-                  <div className="transfer-table__table__cell">
-                    { FormatPriceString({USD: transfer.price}) }
-                  </div>
-                  <div className="transfer-table__table__cell no-mobile">
-                    { MiddleEllipsis(transfer.buyer, 14) }
-                  </div>
-                  <div className="transfer-table__table__cell no-mobile">
-                    { MiddleEllipsis(transfer.seller, 14) }
-                  </div>
-                </div>
-              )
-        }
+                )
+          }
+        </div>
       </div>
     </div>
   );
