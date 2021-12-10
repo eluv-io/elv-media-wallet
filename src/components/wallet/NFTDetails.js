@@ -209,7 +209,7 @@ const NFTDetails = observer(() => {
 
     LoadListing({listingId, setLoading: true});
 
-    listingStatusInterval = setInterval(() => setStatusCheckKey(UUID()), listingId ? 30000 : 60000);
+    listingStatusInterval = setInterval(() => setStatusCheckKey(UUID()), 60000);
 
     return () => clearInterval(listingStatusInterval);
   }, []);

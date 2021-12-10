@@ -237,7 +237,7 @@ class TransferStore {
     contractAddress,
     marketplace,
     collectionIndex=-1,
-    start,
+    start=0,
     limit=50
   }={}) {
     collectionIndex = parseInt(collectionIndex);

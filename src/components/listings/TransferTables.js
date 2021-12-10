@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {transferStore} from "Stores";
 import {Ago, MiddleEllipsis} from "../../utils/Utils";
@@ -13,16 +13,44 @@ import {FormatPriceString} from "Components/common/UIComponents";
 import {v4 as UUID} from "uuid";
 
 export const ActiveListings = observer(({contractAddress, contractId, initialSelectedListingId, Select}) => {
+  const tableRef = useRef();
   const [listings, setListings] = useState([]);
+  const [paging, setPaging] = useState({});
   const [sortField, setSortField] = useState("Price");
   const [sortDesc, setSortDesc] = useState(false);
+  const [scrollLoadKey, setScrollLoadKey] = useState("");
   const [selectedListingId, setSelectedListingId] = useState(initialSelectedListingId);
   const [id] = useState(`active-listings-table-${UUID()}`);
-
   const [loading, setLoading] = useState(true);
-  const UpdateHistory = async () => {
+  const perPage = 50;
+
+  const UpdateHistory = async (append=false) => {
+    if(!append) {
+      setLoading(true);
+    } else {
+      if(!paging.more) { return; }
+    }
+
     try {
-      setListings(await transferStore.FetchTransferListings({contractAddress, contractId}));
+      const results = await transferStore.FilteredTransferListings({
+        contractAddress,
+        contractId,
+        sortBy: sortField,
+        sortDesc,
+        start: append ? paging.start + perPage : 0,
+        limit: perPage
+      });
+
+      setPaging(results.paging);
+
+      if(append) {
+        setListings([
+          ...listings,
+          ...results.listings
+        ]);
+      } else {
+        setListings(results.listings);
+      }
     } finally {
       setLoading(false);
     }
@@ -38,8 +66,39 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
   };
 
   useEffect(() => {
+    // Update key when scrolled to the bottom of the page
+    let scrollTimeout;
+
+    const table = tableRef.current;
+
+    if(!table) { return; }
+
+    const InfiniteScroll = () => {
+      if(Math.abs(table.scrollHeight - (table.offsetHeight + table.scrollTop)) < 10) {
+        clearTimeout(scrollTimeout);
+
+        scrollTimeout = setTimeout(() => {
+          setScrollLoadKey(UUID());
+        }, 300);
+      }
+    };
+
+    table.addEventListener("scroll", InfiniteScroll);
+
+    return () => table.removeEventListener("scroll", InfiniteScroll);
+  }, [tableRef.current]);
+
+  useEffect(() => {
+    UpdateHistory(true);
+  }, [scrollLoadKey]);
+
+  useEffect(() => {
+    const previouslyLoaded = listings && listings.length > 0;
     UpdateHistory()
       .then(() => {
+        if(previouslyLoaded) { return; }
+
+        // Automatically scroll to the selected listing
         setTimeout(() => {
           const table = document.getElementById(id);
           const selectedItem = table.querySelector(".transfer-table__table__row-selected");
@@ -49,22 +108,7 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
           }
         }, 250);
       });
-
-    let interval = setInterval(UpdateHistory, 60000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const sortedListings = (listings || []).slice().sort(
-    (a, b) => {
-      let sort = sortField;
-      if(sortField === "TokenOrdinal" && typeof (a.details || {}).TokenOrdinal === "undefined") {
-        sort = "TokenIdStr";
-      }
-
-      return ((a.details || {})[sort] > (b.details || {})[sort] ? 1 : -1) * (sortDesc ? -1 : 1);
-    }
-  );
+  }, [sortField, sortDesc]);
 
   const sortIcon = (
     <ImageIcon
@@ -74,17 +118,17 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
   );
 
   return (
-    <div id={id} className={`transfer-table active-listings ${Select ? "transfer-table-selectable" : ""}`}>
+    <div id={id} ref={tableRef} className={`transfer-table active-listings ${Select ? "transfer-table-selectable" : ""}`}>
       <div className="transfer-table__table">
         <div className="transfer-table__table__header transfer-table__table__header-sortable">
-          <button className="transfer-table__table__cell" onClick={() => UpdateSort("TokenOrdinal")}>
-            Ordinal / Token ID { sortField === "TokenOrdinal" ? sortIcon : null }
+          <button className="transfer-table__table__cell" onClick={() => UpdateSort("info/ordinal")}>
+            Token { sortField === "info/ordinal" ? sortIcon : null }
           </button>
-          <button className="transfer-table__table__cell" onClick={() => UpdateSort("Price")}>
-            Price { sortField === "Price" ? sortIcon : null }
+          <button className="transfer-table__table__cell" onClick={() => UpdateSort("price")}>
+            Price { sortField === "price" ? sortIcon : null }
           </button>
-          <button className="transfer-table__table__cell no-mobile" onClick={() => UpdateSort("SellerAddress")}>
-            Seller { sortField === "SellerAddress" ? sortIcon : null }
+          <button className="transfer-table__table__cell no-mobile" onClick={() => UpdateSort("seller")}>
+            Seller { sortField === "seller" ? sortIcon : null }
           </button>
         </div>
         <div className="transfer-table__content-rows">
@@ -92,7 +136,7 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
             loading ? <div className="transfer-table__loader"><Loader/></div> :
               !listings || listings.length === 0 ?
                 <div className="transfer-table__empty">No Active Listings</div> :
-                sortedListings.map((listing, index) => {
+                listings.map((listing, index) => {
                   const isCheckoutLocked = listing.details.CheckoutLockedUntil && listing.details.CheckoutLockedUntil > Date.now();
                   return (
                     <div
