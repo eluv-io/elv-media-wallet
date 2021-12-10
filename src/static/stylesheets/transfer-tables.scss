@@ -134,7 +134,6 @@
         border-top: 0;
 
         .transfer-table__table__cell {
-          background-color: darken($darkestgray, 5%);
           border: 1px solid $darkestgray;
 
           &:not(:first-child) {
@@ -145,7 +144,7 @@
     }
 
     &__table__header {
-      background-color: $darkestgray;
+      background-color: $black;
       border-bottom: 1px solid $darkergray;
       border-top: 1px solid $darkergray;
 
@@ -156,11 +155,11 @@
 
     &__table__row {
       &:nth-child(2n + 1) {
-        background-color: $darkestgray;
+        background-color: darken($darkestgray, 2%);
       }
 
       &:nth-child(2n) {
-        background-color: darken($darkestgray, 5%);
+        background-color: $black;
       }
 
       &:hover {
