@@ -23,10 +23,9 @@ import ListingPurchaseModal from "Components/listings/ListingPurchaseModal";
 
 const MarketplaceCheckout = observer(({item}) => {
   const [showModal, setShowModal] = useState(false);
-  const [listings, setListings] = useState(false);
+  const [listingStats, setListingStats] = useState({total: 0, min: 0, max: 0});
 
   const itemTemplate = item.nft_template ? item.nft_template.nft || {} : {};
-  const listingPrices = (listings || []).map(listing => listing.details.Price).sort((a, b) => a < b ? -1 : 1);
 
   const directPrice = ItemPrice(item, checkoutStore.currency);
   const free = !directPrice || item.free;
@@ -46,11 +45,7 @@ const MarketplaceCheckout = observer(({item}) => {
     <AsyncComponent
       loadingClassName="marketplace-price marketplace-price__loader"
       Load={async () => {
-        setListings(
-          await transferStore.FetchTransferListings({
-            contractAddress: itemTemplate.address
-          })
-        );
+        setListingStats(await transferStore.NFTListingStats({contractAddress: itemTemplate.address}));
       }}
     >
       { showModal ? <ListingPurchaseModal nft={itemToNFT} item={item} Close={() => setShowModal(false)} /> : null }
@@ -68,16 +63,16 @@ const MarketplaceCheckout = observer(({item}) => {
               </h3> :
               <button
                 onClick={() => setShowModal(true)}
-                disabled={outOfStock && listings.length === 0}
+                disabled={outOfStock && listingStats.total === 0}
                 className="action action-primary"
               >
                 { free && !outOfStock ? "Claim Now" : "Buy Now" }
               </button>
           }
         </div>
-        <div className={`marketplace-price__listings ${listings.length === 0 ? "hidden" : ""}`}>
+        <div className={`marketplace-price__listings ${listingStats.total === 0 ? "hidden" : ""}`}>
           <h3 className="marketplace-price__listings-count">
-            { listings.length } Offer{ listings.length > 1 ? "s" : "" } from Collectors
+            { listingStats.total } Offer{ listingStats.total > 1 ? "s" : "" } from Collectors
           </h3>
           <div className="prices-container">
             <div className="price-container">
@@ -85,7 +80,7 @@ const MarketplaceCheckout = observer(({item}) => {
                 Low Price
               </label>
               <div className="price-container__price">
-                {FormatPriceString({USD: listingPrices[0]})}
+                {FormatPriceString({USD: listingStats.min})}
               </div>
             </div>
             <div className="price-container">
@@ -93,7 +88,7 @@ const MarketplaceCheckout = observer(({item}) => {
                 High Price
               </label>
               <div className="price-container__price">
-                {FormatPriceString({USD: listingPrices.slice(-1)})}
+                {FormatPriceString({USD: listingStats.max})}
               </div>
             </div>
           </div>

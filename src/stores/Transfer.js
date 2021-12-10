@@ -1,7 +1,7 @@
 import {flow, makeAutoObservable} from "mobx";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import UrlJoin from "url-join";
-import {rootStore} from "./index";
+import {rootStore, transferStore} from "./index";
 
 class TransferStore {
   listings = {};
@@ -229,6 +229,32 @@ class TransferStore {
       return { error: typeof error === "string" ? error : "Unable to load NFT" };
     }
   }
+
+  NFTListingStats = flow(function * ({contractAddress}) {
+    const minListingResults = yield transferStore.FilteredTransferListings({
+      contractAddress,
+      limit: 1,
+      sortBy: "price",
+      sortDesc: false
+    });
+
+    if(minListingResults.listings.length === 0) {
+      return { min: 0, max: 0, total: 0 };
+    }
+
+    const maxListingResults = yield transferStore.FilteredTransferListings({
+      contractAddress,
+      limit: 1,
+      sortBy: "price",
+      sortDesc: true
+    });
+
+    return {
+      min: minListingResults.listings[0].details.Price,
+      max: maxListingResults.listings[0].details.Price,
+      total: minListingResults.paging.total
+    };
+  });
 
   FilteredTransferListings = flow(function * ({
     sortBy="created",

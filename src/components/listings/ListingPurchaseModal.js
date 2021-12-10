@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
-import AsyncComponent from "Components/common/AsyncComponent";
 import {checkoutStore, rootStore, transferStore} from "Stores";
 import {ActiveListings} from "Components/listings/TransferTables";
 import {ButtonWithLoader, FormatPriceString, ItemPrice} from "Components/common/UIComponents";
@@ -62,13 +61,11 @@ const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
   );
 };
 
-const ListingPurchaseConfirmation = observer(({listings, nft, marketplaceItem, listingId, quantity, setQuantity}) => {
+const ListingPurchaseConfirmation = observer(({nft, marketplaceItem, selectedListing, listingId, quantity, setQuantity, Cancel}) => {
   const match = useRouteMatch();
   const [paymentType, setPaymentType] = useState("stripe");
   const [confirmationId, setConfirmationId] = useState(undefined);
   const [errorMessage, setErrorMessage] = useState(undefined);
-
-  const selectedListing = listings.find(listing => listing.details.ListingId === listingId);
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   marketplaceItem = marketplaceItem || (!listingId && marketplace && rootStore.MarketplaceItemByTemplateId(marketplace, nft.metadata.template_id));
@@ -196,6 +193,9 @@ const ListingPurchaseConfirmation = observer(({listings, nft, marketplaceItem, l
           >
             Buy Now for { FormatPriceString(price, {quantity}) }
           </ButtonWithLoader>
+          <button className="action listing-purchase-confirmation-modal__payment-cancel" onClick={() => Cancel()}>
+            Back
+          </button>
           {
             errorMessage ?
               <div className="listing-purchase-confirmation-modal__error-message">
@@ -208,13 +208,12 @@ const ListingPurchaseConfirmation = observer(({listings, nft, marketplaceItem, l
   );
 });
 
-const ListingPurchaseSelection = observer(({listings, nft, marketplaceItem, initialListingId, quantity, setQuantity, Select}) => {
+const ListingPurchaseSelection = observer(({nft, marketplaceItem, initialListingId, quantity, setQuantity, Select}) => {
   const match = useRouteMatch();
+  const [listingStats, setListingStats] = useState({min: 0, max: 0, total: 0});
+  const [selectedListing, setSelectedListing] = useState(undefined);
   const [selectedListingId, setSelectedListingId] = useState(initialListingId);
   const [claimed, setClaimed] = useState(false);
-
-  const selectedListing = selectedListingId && listings.find(listing => listing.details.ListingId === selectedListingId);
-  const prices = listings.map(listing => listing.details.Price).sort((a, b) => a < b ? -1 : 1);
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   marketplaceItem = marketplaceItem || (marketplace && rootStore.MarketplaceItemByTemplateId(marketplace, nft.metadata.template_id));
@@ -229,6 +228,20 @@ const ListingPurchaseSelection = observer(({listings, nft, marketplaceItem, init
   if(claimed) {
     return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, marketplaceItem.sku, "claim")} />;
   }
+
+  useEffect(() => {
+    transferStore.NFTListingStats({contractAddress: nft.details.ContractAddr})
+      .then(stats => setListingStats(stats));
+
+    if(initialListingId) {
+      transferStore.FetchTransferListings({listingId: initialListingId, forceUpdate: true})
+        .then(listings => setSelectedListing(listings[0]));
+    }
+
+    if(marketplace) {
+      checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id});
+    }
+  }, []);
 
   return (
     <div className="listing-purchase-modal">
@@ -309,19 +322,19 @@ const ListingPurchaseSelection = observer(({listings, nft, marketplaceItem, init
             Buy from a Collector
           </div>
           <div className="listing-purchase-modal__listing-count">
-            <div className="header-dot" style={{backgroundColor: listings.length > 0 ? "#08b908" : "#a4a4a4"}} />
-            { listings.length } Available for Trade
+            <div className="header-dot" style={{backgroundColor: listingStats.total > 0 ? "#08b908" : "#a4a4a4"}} />
+            { listingStats.total } Available for Trade
           </div>
         </div>
         {
-          prices.length > 1 ?
+          listingStats.max ?
             <div className="listing-purchase-modal__prices-container">
               <div className="listing-purchase-modal__price-container">
                 <label className="listing-purchase-modal__price-label">
                   Low Price
                 </label>
                 <div className="listing-purchase-modal__price">
-                  {FormatPriceString({USD: prices[0]})}
+                  {FormatPriceString({USD: listingStats.min})}
                 </div>
               </div>
               <div className="listing-purchase-modal__price-container">
@@ -329,7 +342,7 @@ const ListingPurchaseSelection = observer(({listings, nft, marketplaceItem, init
                   High Price
                 </label>
                 <div className="listing-purchase-modal__price">
-                  {FormatPriceString({USD: prices.slice(-1)})}
+                  {FormatPriceString({USD: listingStats.max})}
                 </div>
               </div>
             </div> : null
@@ -338,7 +351,10 @@ const ListingPurchaseSelection = observer(({listings, nft, marketplaceItem, init
       <ActiveListings
         initialSelectedListingId={selectedListingId}
         contractAddress={nft.details.ContractAddr}
-        Select={listingId => setSelectedListingId(listingId)}
+        Select={(listingId, listing) => {
+          setSelectedListingId(listingId);
+          setSelectedListing(listing);
+        }}
       />
       <div className="listing-purchase-modal__footer">
         <div className="listing-purchase-modal__price-container">
@@ -355,7 +371,7 @@ const ListingPurchaseSelection = observer(({listings, nft, marketplaceItem, init
           }
         </div>
         <button
-          onClick={() => Select(selectedListingId)}
+          onClick={() => Select(selectedListingId, selectedListing)}
           disabled={
             !selectedListing ||
             Utils.EqualAddress(rootStore.userAddress, selectedListing.details.SellerAddress)
@@ -371,10 +387,7 @@ const ListingPurchaseSelection = observer(({listings, nft, marketplaceItem, init
 });
 
 const ListingPurchaseModal = observer(({nft, item, initialListingId, Close}) => {
-  const match = useRouteMatch();
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-
-  const [listings, setListings] = useState([]);
+  const [selectedListing, setSelectedListing] = useState(initialListingId);
   const [selectedListingId, setSelectedListingId] = useState(undefined);
   const [quantity, setQuantity] = useState(1);
 
@@ -385,47 +398,29 @@ const ListingPurchaseModal = observer(({nft, item, initialListingId, Close}) => 
 
   return (
     <Modal id="listing-purchase-modal" className="listing-purchase-modal-container" Toggle={() => Close()}>
-      <AsyncComponent
-        loadingClassName="page-loader page-loader-background"
-        Load={async () => {
-          try {
-            setListings(
-              await transferStore.FetchTransferListings({
-                contractAddress: nft.details.ContractAddr,
-                forceUpdate: true
-              })
-            );
-
-            if(marketplace) {
-              await checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id});
-            }
-          } catch(error) {
-            rootStore.Log(`Failed to load listings for ${nft.details.ContractAddr}`, true);
-            rootStore.Log(error, true);
-          }
-        }}
-      >
-        {
-          selectedListingId ?
-            <ListingPurchaseConfirmation
-              listings={listings}
-              nft={nft}
-              marketplaceItem={item}
-              listingId={selectedListingId === "marketplace" ? undefined : selectedListingId}
-              quantity={selectedListingId === "marketplace" ? quantity : 1}
-              setQuantity={setQuantity}
-            /> :
-            <ListingPurchaseSelection
-              listings={listings}
-              nft={nft}
-              marketplaceItem={item}
-              initialListingId={initialListingId}
-              Select={setSelectedListingId}
-              quantity={quantity}
-              setQuantity={setQuantity}
-            />
-        }
-      </AsyncComponent>
+      {
+        selectedListingId ?
+          <ListingPurchaseConfirmation
+            nft={nft}
+            marketplaceItem={item}
+            selectedListing={selectedListing}
+            listingId={selectedListingId === "marketplace" ? undefined : selectedListingId}
+            quantity={selectedListingId === "marketplace" ? quantity : 1}
+            setQuantity={setQuantity}
+            Cancel={() => setSelectedListingId(undefined)}
+          /> :
+          <ListingPurchaseSelection
+            nft={nft}
+            marketplaceItem={item}
+            initialListingId={selectedListingId || initialListingId}
+            Select={(listingId, listing) => {
+              setSelectedListing(listing);
+              setSelectedListingId(listingId);
+            }}
+            quantity={quantity}
+            setQuantity={setQuantity}
+          />
+      }
     </Modal>
   );
 });

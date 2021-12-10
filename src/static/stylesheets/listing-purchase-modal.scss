@@ -291,8 +291,13 @@
     width: auto;
   }
 
+  &__payment-cancel,
   &__payment-submit {
     width: 100%;
+  }
+
+  &__payment-cancel {
+    margin-top: 10px;
   }
 }
 

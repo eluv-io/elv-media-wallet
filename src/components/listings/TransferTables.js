@@ -152,7 +152,7 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
                             const selected = selectedListingId === listing.details.ListingId ? undefined : listing.details.ListingId;
 
                             setSelectedListingId(selected);
-                            Select(selected);
+                            Select(selected, listing);
                           }
                       }
                       className={`transfer-table__table__row ${isCheckoutLocked ? "transfer-table__table__row-disabled" : ""} ${selectedListingId === listing.details.ListingId ? "transfer-table__table__row-selected" : ""} ${Select && !isCheckoutLocked ? "transfer-table__table__row-selectable" : ""}`}
