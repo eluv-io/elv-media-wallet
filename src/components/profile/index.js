@@ -4,7 +4,7 @@ import {useAuth0} from "@auth0/auth0-react";
 import {
   useRouteMatch
 } from "react-router-dom";
-import {CopyableField} from "Components/common/UIComponents";
+import {CopyableField, FormatPriceString} from "Components/common/UIComponents";
 
 const Profile = () => {
   const match = useRouteMatch();
@@ -16,7 +16,7 @@ const Profile = () => {
 
   useEffect(() => {
     rootStore.SetNavigationBreadcrumbs([{name: "Profile", path: "/profile" }]);
-    rootStore.GetUSDCBalance();
+    rootStore.GetPaymentBalance();
   }, [match.url]);
 
   return (
@@ -37,7 +37,7 @@ const Profile = () => {
           Wallet Balance
         </h2>
         <div className="profile-page__balance">
-          ${ rootStore.usdcBalance || 0 } USD
+          { FormatPriceString({USD: rootStore.paymentBalance}) } USD
         </div>
       </div>
 

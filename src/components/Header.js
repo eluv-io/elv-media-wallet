@@ -62,9 +62,9 @@ const Header = observer(() => {
             { rootStore.userProfile.name }
           </div>
           {
-            typeof rootStore.usdcBalance !== "undefined" ?
+            typeof rootStore.paymentBalance !== "undefined" ?
               <div className="header__profile__balance">
-                ${ rootStore.usdcBalance.toFixed(2) }
+                ${ rootStore.paymentBalance.toFixed(2) }
               </div> : null
           }
         </div>

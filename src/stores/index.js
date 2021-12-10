@@ -84,7 +84,7 @@ class RootStore {
   client = undefined;
   accountId = undefined;
   funds = undefined;
-  usdcBalance = undefined;
+  paymentBalance = undefined;
 
   hideNavigation = false;
   sidePanelMode = false;
@@ -801,7 +801,7 @@ class RootStore {
     ];
   }
 
-  GetUSDCBalance = flow(function * () {
+  GetPaymentBalance = flow(function * () {
     const { balance } = yield Utils.ResponseToJson(
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "mkt", "bal"),
@@ -812,7 +812,7 @@ class RootStore {
       })
     );
 
-    this.usdcBalance = parseFloat(balance);
+    this.paymentBalance = parseFloat(balance);
   });
 
   InitializeClient = flow(function * ({user, idToken, authToken, address, privateKey}) {
@@ -850,7 +850,7 @@ class RootStore {
         throw Error("Neither user nor private key specified in InitializeClient");
       }
 
-      this.GetUSDCBalance();
+      this.GetPaymentBalance();
 
       this.funds = parseInt((yield client.GetBalance({address: client.CurrentAccountAddress()}) || 0));
       this.userAddress = client.CurrentAccountAddress();
