@@ -56,9 +56,14 @@ const ProfileImage = (text, backgroundColor) => {
 };
 
 class RootStore {
+  DEBUG_ERROR_MESSAGE = "";
   network = EluvioConfiguration["config-url"].includes("main.net955305") ? "main" : "demo";
 
   embedded = window.self !== window.top;
+
+  // Opened by embedded window for purchase redirect
+  fromEmbed = new URLSearchParams(window.location.search).has("embed") ||
+    sessionStorage.getItem("fromEmbed");
 
   mode = "test";
 
@@ -281,6 +286,8 @@ class RootStore {
   });
 
   LoadWalletCollection = flow(function * (forceReload=false) {
+    if(this.fromEmbed) { return; }
+
     if(forceReload || Date.now() - this.lastProfileQuery > 30000) {
       this.lastProfileQuery = Date.now();
       yield this.LoadProfileData();
@@ -1093,6 +1100,14 @@ class RootStore {
         runInAction(() => this.pageWidth = window.innerWidth);
       }
     }, 50);
+  }
+
+  SetDebugMessage(message) {
+    if(typeof message === "object") {
+      this.DEBUG_ERROR_MESSAGE = JSON.stringify(message, null, 2);
+    } else {
+      this.DEBUG_ERROR_MESSAGE = message;
+    }
   }
 }
 

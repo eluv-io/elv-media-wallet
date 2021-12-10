@@ -9,11 +9,10 @@ import UrlJoin from "url-join";
 const PurchaseHandler = observer(({cancelPath}) => {
   const match = useRouteMatch();
 
-  const fromEmbed = new URLSearchParams(window.location.search).has("embed");
   const success = match.path.endsWith("/success");
   const cancel = match.path.endsWith("/cancel");
 
-  if(fromEmbed && (success || cancel)) {
+  if(rootStore.fromEmbed && (success || cancel)) {
     useEffect(() => {
       window.opener.postMessage({
         type: "ElvMediaWalletClientRequest",
@@ -28,8 +27,10 @@ const PurchaseHandler = observer(({cancelPath}) => {
     }, []);
 
     return <PageLoader />;
-  } else if(fromEmbed) {
+  } else if(rootStore.fromEmbed) {
     // Opened from iframe - Initiate stripe purchase
+    sessionStorage.setItem("fromEmbed", "true");
+
     useEffect(() => {
       rootStore.ToggleNavigation(false);
 

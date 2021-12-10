@@ -108,11 +108,13 @@ class CheckoutStore {
   }) {
     if(this.submittingOrder) { return; }
 
+    let popup;
     try {
-      this.submittingOrder = true;
+      if(this.rootStore.embedded) {
+        popup = window.open("about:blank");
+      }
 
-      // If confirmation ID is already set before calling, this method was called as a result of an iframe opening a new window
-      const fromEmbed = !!confirmationId;
+      this.submittingOrder = true;
 
       confirmationId = confirmationId || `T-${this.ConfirmationId()}`;
 
@@ -159,18 +161,15 @@ class CheckoutStore {
 
         url.searchParams.set("auth", Utils.B64(JSON.stringify(authInfo)));
 
-        this.OpenCheckoutWindow({url, confirmationId});
+        popup.location.href = url.toString();
 
-        return confirmationId;
+        this.MonitorCheckoutWindow({popup, confirmationId});
+
+        return { confirmationId, url: url.toString() };
       }
 
       const checkoutId = `nft-marketplace:${confirmationId}`;
       const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
-      const baseUrl = new URL(UrlJoin(window.location.origin, window.location.pathname, "#", basePath));
-
-      if(fromEmbed) {
-        baseUrl.searchParams.set("embed", "true");
-      }
 
       sessionStorage.setItem("successPath", UrlJoin(basePath, "success"));
       sessionStorage.setItem("cancelPath", UrlJoin(basePath, "cancel"));
@@ -190,7 +189,11 @@ class CheckoutStore {
       }
 
       yield this.CheckoutRedirect({provider, requestParams});
+
+      return { confirmationId };
     } catch(error) {
+      if(popup) { popup.close(); }
+
       throw error;
     } finally {
       this.submittingOrder = false;
@@ -208,11 +211,13 @@ class CheckoutStore {
   }) {
     if(this.submittingOrder) { return; }
 
+    let popup;
     try {
-      this.submittingOrder = true;
+      if(this.rootStore.embedded) {
+        popup = window.open("about:blank");
+      }
 
-      // If confirmation ID is already set before calling, this method was called as a result of an iframe opening a new window
-      const fromEmbed = !!confirmationId;
+      this.submittingOrder = true;
 
       confirmationId = confirmationId || this.ConfirmationId();
 
@@ -249,19 +254,16 @@ class CheckoutStore {
 
         url.searchParams.set("auth", Utils.B64(JSON.stringify(authInfo)));
 
-        this.OpenCheckoutWindow({url, confirmationId});
+        popup.location.href = url.toString();
 
-        return confirmationId;
+        this.MonitorCheckoutWindow({popup, confirmationId});
+
+        return { confirmationId, url: url.toString() };
       }
 
       const checkoutId = `${marketplaceId}:${confirmationId}`;
 
       const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
-      const baseUrl = new URL(UrlJoin(window.location.origin, window.location.pathname, "#", basePath));
-
-      if(fromEmbed) {
-        baseUrl.searchParams.set("embed", "true");
-      }
 
       sessionStorage.setItem("successPath", UrlJoin(basePath.toString(), "success"));
       sessionStorage.setItem("cancelPath", UrlJoin(basePath.toString(), "cancel"));
@@ -290,15 +292,18 @@ class CheckoutStore {
       }
 
       yield this.CheckoutRedirect({provider, requestParams});
+
+      return { confirmationId };
     } catch(error) {
+      if(popup) { popup.close(); }
+
       this.rootStore.Log(error, true);
     } finally {
       this.submittingOrder = false;
     }
   });
 
-  OpenCheckoutWindow({url, confirmationId}) {
-    const openedWindow = window.open(url.toString());
+  MonitorCheckoutWindow({popup, confirmationId}) {
     const closeCheck = setInterval(() => {
       if(!this.pendingPurchases[confirmationId]) {
         clearInterval(closeCheck);
@@ -306,7 +311,7 @@ class CheckoutStore {
         return;
       }
 
-      if(!openedWindow || openedWindow.closed) {
+      if(!popup || popup.closed) {
         clearInterval(closeCheck);
 
         // Ensure pending is cleaned up when popup is closed without finishing

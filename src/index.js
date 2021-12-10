@@ -88,7 +88,6 @@ const Routes = () => {
 
 const App = observer(() => {
   const hasHeader = !rootStore.hideNavigation && (!rootStore.sidePanelMode || rootStore.navigationBreadcrumbs.length > 2);
-  const fromEmbed = new URLSearchParams(window.location.search).has("embed");
 
   return (
     <HashRouter>
@@ -100,13 +99,14 @@ const App = observer(() => {
           rootStore.sidePanelMode ? "side-panel" : "",
           hasHeader ? "" : "no-header",
           rootStore.activeModals > 0 ? "modal-active" : "",
-          fromEmbed ? "popup-from-embedded" : ""
+          rootStore.fromEmbed ? "popup-from-embedded" : ""
         ]
           .filter(className => className)
           .join(" ")
         }
       >
         <Header />
+        { rootStore.DEBUG_ERROR_MESSAGE ? <pre className="debug-error-message">{ rootStore.DEBUG_ERROR_MESSAGE }</pre> : null }
         <ScrollToTop>
           <ErrorBoundary className="page-container">
             <Routes />

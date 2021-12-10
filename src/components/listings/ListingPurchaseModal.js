@@ -163,24 +163,29 @@ const ListingPurchaseConfirmation = observer(({nft, marketplaceItem, selectedLis
               try {
                 setErrorMessage(undefined);
 
+                let result;
                 if(selectedListing) {
                   // Listing purchase
-                  setConfirmationId(await checkoutStore.ListingCheckoutSubmit({
+                  result = await checkoutStore.ListingCheckoutSubmit({
                     provider: paymentType,
                     marketplaceId: match.params.marketplaceId,
                     listingId,
                     email: undefined
-                  }));
+                  });
                 } else {
                   // Marketplace purchase
-                  setConfirmationId(await checkoutStore.CheckoutSubmit({
+                  result = await checkoutStore.CheckoutSubmit({
                     provider: paymentType,
                     tenantId: marketplace.tenant_id,
                     marketplaceId: match.params.marketplaceId,
                     sku: marketplaceItem.sku,
                     quantity,
                     email: undefined
-                  }));
+                  });
+                }
+
+                if(result) {
+                  setConfirmationId(result.confirmationId);
                 }
               } catch(error) {
                 rootStore.Log("Checkout failed", true);
