@@ -37,7 +37,7 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
         contractId,
         sortBy: sortField,
         sortDesc,
-        start: append ? paging.start + perPage : 0,
+        start: append ? paging.start + perPage + 1 : 0,
         limit: perPage
       });
 
