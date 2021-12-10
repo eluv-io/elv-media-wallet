@@ -1,26 +1,85 @@
 .profile-page {
+  display: flex;
+  flex-direction: column;
   padding: 0 30px;
 
-  &__sign-out-button {
-    margin: 20px auto 0;
-    width: 150px;
-  }
-
   &__section {
-    border: 1px solid $lightgray;
     border-radius: 3px;
-    margin: 10px auto;
+    margin: 0 auto;
     max-width: 600px;
-    padding: 10px 10px 20px;
+    padding: 20px 10px;
     width: 100%;
 
-    h2 {
-      font-size: 18px;
-      font-weight: 400;
-      letter-spacing: 0.03em;
-      margin-bottom: 20px;
-      text-align: center;
+    &-actions,
+    &-message {
+      align-items: flex-end;
+      display: flex;
+      flex: 1 1 100%;
+      justify-content: center;
     }
+
+    &-message {
+      align-items: center;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding-bottom: 100px;
+    }
+  }
+
+  &__section-header {
+    color: $darkgray;
+    font-size: 16px;
+    font-weight: 300;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  &__balance {
+    align-items: center;
+    display: flex;
+    font-size: 24px;
+    font-weight: 500;
+    justify-content: center;
+
+    svg {
+      height: 30px;
+      margin-right: 10px;
+      width: 30px;
+    }
+  }
+
+  &__address {
+    margin: 0 auto;
+    width: max-content;
+  }
+
+  &__address-field {
+    .copyable-field__content {
+      background-color: $lightgray;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 300;
+      margin-right: 10px;
+      max-width: unset;
+      padding: 3px 10px;
+    }
+  }
+
+  &__message {
+    color: $gray;
+    font-size: 12px;
+    margin-top: 10px;
+    text-align: center;
+
+    a {
+      color: $darkgray;
+    }
+  }
+
+  &__actions {
+    align-items: center;
+    display: flex;
+    justify-content: center;
   }
 
   .address {
@@ -28,40 +87,36 @@
     letter-spacing: 0.01em;
   }
 
-  .labelled-field {
-    align-items: flex-end;
-    display: flex;
-    font-size: 12px;
-    justify-content: space-between;
+  @media screen and (max-width: $mobile-breakpoint) {
+    &__address-field {
+      flex-direction: column;
 
-    label {
-      font-weight: 500;
-
-      &::after {
-        content: ":";
+      .copyable-field__content {
+        font-size: 10px;
+        margin: 0 0 10px;
       }
-    }
-  }
-
-  @media screen and (min-width: $breakpoint) {
-    &__section {
-      padding: 10px 20px 20px;
-    }
-
-    .labelled-field {
-      font-size: 14px;
-    }
-
-    .address {
-      font-size: 14px;
     }
   }
 }
 
 .dark {
   .profile-page {
-    &__section {
-      border: 1px solid $darkgray;
+    &__section-header {
+      color: $mediumgray;
+    }
+
+    &__address-field {
+      .copyable-field__content {
+        background-color: $darkergray;
+      }
+    }
+
+    &__message {
+      color: $darkgray;
+
+      a {
+        color: $gray;
+      }
     }
   }
 }

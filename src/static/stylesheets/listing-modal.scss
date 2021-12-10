@@ -1,0 +1,252 @@
+.listing-modal-container {
+  .modal__content {
+    height: max-content;
+    max-height: unset;
+    max-width: 600px;
+    overflow-y: hidden;
+    padding-bottom: 5vh;
+    padding-right: 8px;
+    top: 5vh;
+    width: 100%;
+  }
+}
+
+
+.listing-modal {
+  background-color: $white;
+  border: 1px solid $mediumgray;
+  border-radius: 3px;
+
+  &__header {
+    border-bottom: 1px solid $mediumgray;
+    font-size: 20px;
+    font-weight: 300;
+    padding: 15px 25px;
+    text-align: center;
+  }
+
+  &__content {
+    padding: 0 25px 35px;
+  }
+
+  &__image-container {
+    margin: 0 auto;
+    max-height: 325px;
+    max-width: 325px;
+    padding: 20px;
+  }
+
+  &__active-listings {
+    border: 1px solid $mediumgray;
+    border-radius: 3px;
+    margin: 30px 0;
+    padding: 20px 20px 10px;
+
+    &__header {
+      font-size: 18px;
+      font-weight: 300;
+    }
+
+    .transfer-table {
+      max-height: 200px;
+    }
+  }
+
+  &__form__inputs {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin: 20px auto;
+    max-width: 350px;
+    position: relative;
+
+    .listing-modal__form__error {
+      bottom: -20px;
+      position: absolute;
+      text-align: left;
+      width: 100%;
+    }
+  }
+
+  &__form__error {
+    color: $red;
+    font-size: 10px;
+  }
+
+  &__form__price-input {
+    border: 1px solid $mediumgray;
+    border-radius: 3px;
+    font-size: 20px;
+    height: 50px;
+    max-width: 290px;
+    padding: 0 15px;
+    width: 100%;
+
+    &-error {
+      box-shadow: 0 0 3px $red;
+    }
+  }
+
+  &__form__price-input-label {
+    font-weight: bold;
+    margin-left: 25px;
+    text-align: center;
+  }
+
+  .nft-card {
+    margin: 20px auto 35px;
+    max-width: 350px;
+  }
+
+  &__details {
+    margin: 35px 0 20px;
+  }
+
+  &__detail {
+    display: flex;
+    height: 30px;
+    justify-content: space-between;
+  }
+
+  &__detail-separator {
+    border-bottom: 2px solid $mediumgray;
+    margin-bottom: 15px;
+    padding-top: 15px;
+    width: 100%;
+  }
+
+  &__detail-faded {
+    * {
+      color: $gray;
+    }
+  }
+
+  &__message {
+    color: $gray;
+    font-size: 12px;
+    text-align: center;
+  }
+
+  &__error-message {
+    color: $red;
+    font-size: 14px;
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  &__actions {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin-top: 35px;
+  }
+
+  &__action,
+  .loader-button__loader {
+    min-width: 150px;
+
+    &:not(:last-child) {
+      margin-right: 10px;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
+}
+
+.dark {
+  .listing-modal {
+    background-color: $black;
+    border: 1px solid $darkgray;
+
+    &__header {
+      border-bottom: 1px solid $darkgray;
+    }
+
+    &__form__price-input {
+      background-color: $black;
+      border: 1px solid $darkgray;
+    }
+
+    &__form__error {
+      color: $mediumgray;
+    }
+
+    &__detail-faded {
+      * {
+        color: $gray;
+      }
+    }
+
+    &__detail-separator {
+      border-bottom: 2px solid $darkgray;
+    }
+
+    &__message {
+      color: $darkgray;
+    }
+
+    &__active-listings {
+      border: 1px solid $darkergray;
+    }
+
+    &__error-message {
+      color: $red;
+    }
+  }
+}
+
+@media screen and (max-width: $mobile-breakpoint) {
+  .listing-modal-container {
+    .modal__content {
+      max-width: unset;
+      min-height: 100%;
+      padding: 0;
+      top: 0;
+    }
+  }
+
+  .listing-modal {
+    border: 0;
+    min-height: 100vh;
+
+    &__header {
+      font-size: 24px;
+      padding-left: 35px;
+      padding-top: 20px;
+      text-align: start;
+    }
+
+    &__content {
+      padding-bottom: 50px;
+    }
+
+    &__image-container {
+      max-height: 250px;
+      max-width: 250px;
+    }
+
+    &__actions {
+      flex-direction: column-reverse;
+
+      .loader-button {
+        width: 100%;
+      }
+    }
+
+    &__action {
+      width: 100%;
+
+      &:not(:last-child) {
+        margin: 10px 0 0;
+      }
+    }
+  }
+
+  .dark {
+    .listing-modal {
+      border: 0;
+    }
+  }
+}

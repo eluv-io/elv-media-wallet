@@ -12,13 +12,22 @@
   flex-direction: column;
   height: 100%;
   justify-content: center;
-  margin: 0 0 60px;
+  padding: 0 0 40px;
 
   &__text {
     .content-header,
     .content-subheader {
       justify-content: center;
     }
+  }
+
+  &__navigation-message {
+    color: $darkgray;
+    font-size: 12px;
+    font-weight: 300;
+    max-width: 400px;
+    padding-top: 100px;
+    text-align: center;
   }
 
   .loader {
@@ -93,6 +102,12 @@
 }
 
 .dark {
+  .minting-status {
+    &__navigation-message {
+      color: $gray;
+    }
+  }
+
   .minting-status-results {
     &__back-button {
       background-color: transparent;

@@ -39,16 +39,9 @@ import {ErrorBoundary} from "Components/common/ErrorBoundary";
 const Placeholder = ({ text }) => <div>{text}</div>;
 
 const RedirectHandler = ({storageKey}) => {
-  useEffect(() => {
-    try {
-      if(!rootStore.embedded && sessionStorage.getItem(storageKey)) {
-        window.location.href = sessionStorage.getItem(storageKey);
-      }
-    } catch(error) {
-      rootStore.Log("Failed to redirect", true);
-      rootStore.Log(error, true);
-    }
-  });
+  if(!rootStore.embedded && sessionStorage.getItem(storageKey)) {
+    return <Redirect to={sessionStorage.getItem(storageKey)} />;
+  }
 
   return null;
 };
@@ -69,10 +62,10 @@ const Routes = () => {
   return (
     <Switch>
       <Route exact path="/success">
-        <RedirectHandler storageKey="successUrl" />
+        <RedirectHandler storageKey="successPath" />
       </Route>
       <Route exact path="/cancel">
-        <RedirectHandler storageKey="cancelUrl" />
+        <RedirectHandler storageKey="cancelPath" />
       </Route>
       <Route path="/discover">
         <Placeholder text={"Discover"} />
@@ -95,10 +88,24 @@ const Routes = () => {
 
 const App = observer(() => {
   const hasHeader = !rootStore.hideNavigation && (!rootStore.sidePanelMode || rootStore.navigationBreadcrumbs.length > 2);
+  const fromEmbed = new URLSearchParams(window.location.search).has("embed");
 
   return (
     <HashRouter>
-      <div className={`app-container ${rootStore.initialized ? "app-container-initialized" : "app-container-not-initialized"} ${rootStore.hideNavigation ? "navigation-hidden" : ""} ${rootStore.sidePanelMode ? "side-panel" : ""} ${hasHeader ? "" : "no-header"}`}>
+      <div
+        className={[
+          "app-container",
+          rootStore.initialized ? "app-container-initialized" : "app-container-not-initialized",
+          rootStore.hideNavigation ? "navigation-hidden" : "",
+          rootStore.sidePanelMode ? "side-panel" : "",
+          hasHeader ? "" : "no-header",
+          rootStore.activeModals > 0 ? "modal-active" : "",
+          fromEmbed ? "popup-from-embedded" : ""
+        ]
+          .filter(className => className)
+          .join(" ")
+        }
+      >
         <Header />
         <ScrollToTop>
           <ErrorBoundary className="page-container">

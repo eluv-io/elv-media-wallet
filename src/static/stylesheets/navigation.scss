@@ -1,7 +1,20 @@
+@media screen and (max-width: $mobile-breakpoint) {
+  // position: fixed doesn't work right on iOS safari, so we must explicitly
+  // hide header and navigation when a modal is active
+  .modal-active {
+    .header,
+    .navigation,
+    .sub-navigation {
+      // sass-lint:disable no-important
+      display: none !important;
+    }
+  }
+}
+
 .navigation {
   background-color: $lightgray;
   border-radius: 10px;
-  bottom: 20px;
+  bottom: 30px;
   box-shadow: $mediumgray 3px 3px 3px;
   display: flex;
   height: 40px;
@@ -25,6 +38,10 @@
     }
   }
 
+  &:hover {
+    filter: drop-shadow(0 0 5px $blue);
+  }
+
   @media screen and (max-width: $mobile-breakpoint) {
     border-bottom: 0;
     border-radius: 0;
@@ -36,7 +53,9 @@
 
 .sub-navigation {
   display: flex;
-  padding: 0 15px;
+  margin: 10px 0 20px;
+  padding-bottom: 15px;
+  position: relative;
   width: 100%;
 
   &__link {
@@ -49,13 +68,25 @@
     }
 
     &.active {
-      border-bottom: 3px solid $blue;
+      font-weight: bold;
     }
+  }
+
+  &__separator {
+    border-bottom: 0.5px solid $mediumgray;
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    width: 100%;
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
     &__link {
-      font-size: 12px;
+      font-size: 10px;
+
+      &:not(:last-child) {
+        margin-right: 10px;
+      }
     }
   }
 }
@@ -76,7 +107,7 @@
   }
 
   .navigation {
-    border: 0.5px solid $darkergray;
+    border: 0.5px solid $darkgray;
     box-shadow: none;
 
     &__link {
@@ -94,11 +125,34 @@
     &__link {
       font-weight: 700;
     }
+
+    &__separator {
+      border-bottom: 0.5px solid $darkergray;
+    }
   }
 }
 
 .side-panel {
   .navigation {
     display: none;
+  }
+}
+
+// Loading checkout / success confirmation from embedded frame. Hide everything but the loader
+.popup-from-embedded {
+  .header,
+  .navigation,
+  .sub-navigation {
+    // sass-lint:disable no-important
+    display: none !important;
+  }
+
+  .content {
+    & > * {
+      &:not(.page-loader) {
+        // sass-lint:disable no-important
+        display: none !important;
+      }
+    }
   }
 }

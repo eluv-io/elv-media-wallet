@@ -1,12 +1,13 @@
 import React from "react";
 
 import {observer} from "mobx-react";
-import {rootStore} from "Stores/index";
+import {rootStore} from "Stores";
 import {ProfileImage} from "Components/common/Images";
 import {Link, NavLink} from "react-router-dom";
 
 import BackIcon from "Assets/icons/arrow-left-circle.svg";
 import ImageIcon from "Components/common/ImageIcon";
+import {FormatPriceString} from "Components/common/UIComponents";
 
 const Header = observer(() => {
   if(!rootStore.loggedIn || rootStore.hideNavigation) { return null; }
@@ -24,6 +25,7 @@ const Header = observer(() => {
             <ImageIcon icon={BackIcon} title="Back" />
           </NavLink>
         </div>
+        <div className="header__separator" />
       </header>
     );
   }
@@ -56,11 +58,20 @@ const Header = observer(() => {
         }
       </div>
       <Link to="/profile" className="header__profile">
-        <div className="header__profile__name">
-          { rootStore.userProfile.name }
+        <div className="header__profile__info ellipsis">
+          <div className="header__profile__name">
+            { rootStore.userProfile.name }
+          </div>
+          {
+            typeof rootStore.paymentBalance !== "undefined" ?
+              <div className="header__profile__balance">
+                { FormatPriceString({USD: rootStore.paymentBalance}) }
+              </div> : null
+          }
         </div>
         <ProfileImage className="header__profile__image" />
       </Link>
+      <div className="header__separator" />
     </header>
   );
 });

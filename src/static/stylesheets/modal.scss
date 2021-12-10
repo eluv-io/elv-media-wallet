@@ -14,7 +14,7 @@ $modal-background: rgba($black, 0.8);
   position: fixed;
   top: 0;
   width: 100vw;
-  z-index: 100;
+  z-index: 101;
 
   * {
     z-index: 100;
@@ -38,21 +38,38 @@ $modal-background: rgba($black, 0.8);
   font-weight: 400;
   height: 35px;
   padding: 8px;
-  position: absolute;
-  right: 35px;
+  position: fixed;
+  right: 50px;
   stroke: $black;
   top: 35px;
   width: 35px;
   z-index: 10002;
 
+  &:focus {
+    background-color: $blue;
+
+    svg {
+      stroke: $white;
+    }
+  }
+
   &:hover {
     background-color: $black;
-    stroke: $white;
+    border: 0.5px solid $darkergray;
+
+    svg {
+      stroke: $white;
+    }
+  }
+
+  svg {
+    height: 100%;
+    stroke: $black;
+    width: auto;
   }
 }
 
-
-@media only screen and (max-width: 700px) {
+@media only screen and (max-width: 600px) {
   .modal {
     // sass-lint:disable no-vendor-prefixes
     -webkit-overflow-scrolling: touch;

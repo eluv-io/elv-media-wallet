@@ -1,5 +1,30 @@
 .page-loader {
   height: 100%;
+
+  &-background {
+    background-color: $white;
+    border: 1px solid $mediumgray;
+  }
+}
+
+.loader-button {
+  height: 40px;
+
+  &__loader {
+    height: 40px;
+    display: flex;
+    align-items: center;
+
+    .circle-loader {
+      height: 40px;
+      display: flex;
+      align-items: center;
+    }
+
+    .lds-default {
+      transform: scale(0.4)!important;
+    }
+  }
 }
 
 .page-loader,
@@ -114,6 +139,13 @@
 }
 
 .dark {
+  .page-loader {
+    &-background {
+      background-color: $black;
+      border: 1px solid $darkgray;
+    }
+  }
+
   .lds-default div {
     background: rgba(255, 255, 255, 0.5);
   }

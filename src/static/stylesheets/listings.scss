@@ -1,0 +1,252 @@
+.marketplace-listings {
+  .page-header {
+    margin-bottom: 20px;
+  }
+}
+
+.listings-page {
+  &__header {
+    align-items: center;
+    display: flex;
+    font-size: 20px;
+    font-weight: normal;
+    margin-bottom: 20px;
+  }
+}
+
+.my-listings-transfer-history {
+  .transfer-table__table {
+    max-height: 300px;
+  }
+}
+
+.listing-card-list {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+  width: 100%;
+
+  @media screen and (max-width: $breakpoint) {
+    grid-template-columns: repeat(auto-fill, 320px);
+  }
+
+  @media screen and (max-width: $tablet-breakpoint) {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.listing-card {
+  border: 1px solid $mediumgray;
+  border-radius: 6px;
+  display: grid;
+  grid-gap: 20px;
+  grid-template-columns: 190px 1fr;
+  max-width: 600px;
+  min-height: 220px;
+  padding: 15px;
+  position: relative;
+  width: 100%;
+
+  .card__image-container {
+    height: 190px;
+    max-height: 100%;
+    max-width: 190px;
+    width: 190px;
+  }
+
+  &__image-container,
+  &__image {
+    height: 190px;
+    margin: auto;
+    width: 190px;
+  }
+
+  &__content {
+    flex: 1 1 100%;
+    height: max-content;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  &__header-title {
+    font-size: 22px;
+    font-weight: normal;
+  }
+
+  &__header-id {
+    font-size: 12px;
+    font-weight: 300;
+  }
+
+  &__details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  &__detail-label {
+    font-size: 12px;
+    font-weight: 200;
+  }
+
+  &__detail-value {
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  &__price-container {
+    align-items: center;
+    border: 1px solid $lightgray;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+    min-width: 275px;
+    padding: 7px 15px;
+    width: 100%;
+  }
+
+  &__price-label {
+    font-size: 14px;
+    font-weight: 300;
+  }
+
+  &__action {
+    border: 1px solid $darkgray;
+    padding: 0 20px;
+  }
+
+  &__menu-button {
+    background-color: $white;
+    height: 34px;
+    min-width: 42px;
+    padding: 5px;
+    position: absolute;
+    right: 20px;
+    top: -5px;
+    width: 32px;
+    z-index: 1;
+  }
+
+  &__menu {
+    background-color: $white;
+    border: 1px solid $darkgray;
+    border-radius: 6px;
+    position: absolute;
+    right: 50px;
+    top: 22px;
+    width: 200px;
+    z-index: 2;
+
+    button {
+      border: 0;
+      width: 100%;
+
+      &:focus {
+        box-shadow: 0 0 5px $blue;
+      }
+
+      &:not(:last-child) {
+        border-bottom: 1px solid $mediumgray;
+      }
+    }
+  }
+
+  &__menu__action {
+    &:disabled {
+      color: $gray;
+    }
+  }
+
+  &__message {
+    color: $blue;
+    font-size: 12px;
+    margin-top: 10px;
+  }
+
+  @media screen and (min-width: $breakpoint) {
+    &-with-message {
+      height: 250px;
+    }
+  }
+
+  @media screen and (max-width: $breakpoint) {
+    grid-template-columns: 1fr;
+    grid-template-rows: 190px 1fr;
+
+    justify-items: center;
+    max-width: 400px;
+    min-width: max-content;
+    width: 100%;
+
+    * {
+      text-align: center;
+    }
+
+    &__content {
+      max-width: 290px;
+    }
+
+    &__details {
+      grid-gap: 10px;
+      grid-template-columns: 1fr;
+      grid-template-rows: 1fr 1fr;
+    }
+
+    &__price-container {
+      padding: 15px;
+    }
+  }
+
+  @media screen and (max-width: $tablet-breakpoint) {
+    &__content {
+      max-width: 370px;
+    }
+  }
+}
+
+.dark {
+  .listing-card {
+    background-color: $darkestgray;
+    border: 0;
+
+    &__header-id {
+      color: $mediumgray;
+    }
+
+    &__price-container {
+      background-color: $black;
+      border: 1px solid $darkergray;
+    }
+
+    &__action {
+      border: 1px solid $mediumgray;
+    }
+
+    &__menu-button {
+      background-color: $black;
+      border: 1px solid $darkergray;
+    }
+
+    &__menu__action {
+      &:disabled {
+        color: $gray;
+      }
+    }
+
+    &__menu {
+      background-color: $black;
+
+      border: 1px solid $darkergray;
+
+      button {
+        &:not(:last-child) {
+          border-bottom: 1px solid $darkergray;
+        }
+      }
+    }
+  }
+}

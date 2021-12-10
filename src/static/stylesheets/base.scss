@@ -35,15 +35,25 @@ a {
 }
 
 a,
-button,
-input {
+input,
+select,
+button {
   &:focus {
     outline: 0;
   }
 
   &:focus-visible {
-    box-shadow: 0 0 2px rgba(225, 225, 255, 0.8);
+    box-shadow: 0 0 7px rgba($blue, 0.8);
     outline: 0;
+  }
+}
+
+div {
+  &[role="button"] {
+    &:focus-visible {
+      // sass-lint:disable no-important
+      border: 1px solid $blue !important;
+    }
   }
 }
 
@@ -57,6 +67,7 @@ body {
   box-sizing: border-box;
   color: #000;
   font-family: "Helvetica Neue", Helvetica, sans-serif;
+  overflow-y: scroll;
   position: absolute;
 }
 
@@ -137,7 +148,7 @@ input {
 .button,
 button {
   background-color: transparent;
-  border: 1px solid $mediumgray;
+  border: 0;
   border-radius: 3px;
   color: $black;
   height: 40px;
@@ -235,6 +246,61 @@ button {
   width: 100vw;
 }
 
+.header-dot {
+  border-radius: 10px;
+  height: 8px;
+  margin-right: 10px;
+  width: 8px;
+}
+
+.action,
+.action-loader {
+  border: 1px solid $mediumgray;
+  border-radius: 6px;
+  display: block;
+  min-width: 120px;
+  text-align: center;
+
+  &-primary {
+    background-color: $blue;
+    border: 1px solid $blue;
+    color: $white;
+
+    &:focus-visible {
+      filter: drop-shadow(0 0 5px $black);
+    }
+  }
+
+  &-danger {
+    background-color: $darkergray;
+    border: 1px solid $darkergray;
+    color: $white;
+  }
+
+  &-primary,
+  &-danger {
+    .lds-default {
+      div {
+        // sass-lint:disable no-important
+        background: $white !important;
+      }
+    }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+
+  svg {
+    height: 100%;
+    width: auto;
+  }
+}
+
+.hidden {
+  display: none;
+}
+
 // Large
 @media screen and (min-width: $breakpoint) {
   .app-container {
@@ -318,9 +384,19 @@ button {
     }
   }
 
-  .button,
-  button {
+  .action,
+  .action-loader {
     border: 1px solid $darkgray;
+
+    &-primary {
+      background-color: $blue;
+      border: 1px solid $blue;
+    }
+
+    &:focus-visible {
+      //box-shadow: 0 0 5px $white;
+      filter: drop-shadow(0 0 5px $white);
+    }
   }
 
   input {

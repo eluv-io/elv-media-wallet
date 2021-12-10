@@ -6,11 +6,8 @@ import {Loader} from "Components/common/Loaders";
 import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 import AsyncComponent from "Components/common/AsyncComponent";
-import {NFTImage} from "Components/common/Images";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-import LinesEllipsis from "react-lines-ellipsis";
-import responsiveHOC from "react-lines-ellipsis/lib/responsiveHOC";
-const ResponsiveEllipsis = responsiveHOC()(LinesEllipsis);
+import NFTCard from "Components/common/NFTCard";
 
 let statusInterval;
 const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, videoHash, basePath, backText}) => {
@@ -25,7 +22,10 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
 
       if(status.status === "complete") {
         // If mint has items, ensure that items are available in the user's wallet
-        const items = (status.extra || []).filter(item => item.token_addr && (item.token_id || item.token_id_str));
+        let items = (status.extra || []).filter(item => item.token_addr && (item.token_id || item.token_id_str));
+        if(status.op === "nft-transfer") {
+          items = [{ token_addr: status.address, token_id_str: status.tokenId }];
+        }
 
         if(items.length > 0) {
           await rootStore.LoadWalletCollection(true);
@@ -137,6 +137,15 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
       </div>
 
       { videoHash ? null : <Loader/> }
+
+      {
+        rootStore.hideNavigation ? null :
+          <div className="minting-status__text">
+            <h2 className="minting-status__navigation-message">
+              You can navigate away from this page if you don't want to wait. Your item(s) will be available in your wallet when the process is complete.
+            </h2>
+          </div>
+      }
     </div>
   );
 });
@@ -183,27 +192,12 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
               if(!nft) { return null; }
 
               return (
-                <div className="card-container card-shadow" key={`mint-result-${token_addr}-${token_id}`}>
-                  <Link
-                    to={UrlJoin(nftBasePath || basePath, nft.details.ContractId, nft.details.TokenIdStr)}
-                    className="card nft-card"
-                  >
-                    <NFTImage nft={nft} width={400} />
-                    <div className="card__text">
-                      <div className="card__titles">
-                        <h2 className="card__title">
-                          { nft.metadata.display_name || "" }
-                        </h2>
-                        <ResponsiveEllipsis
-                          component="h2"
-                          className="card__subtitle"
-                          text={nft.metadata.description || ""}
-                          maxLine="3"
-                        />
-                      </div>
-                    </div>
-                  </Link>
-                </div>
+                <NFTCard
+                  key={`mint-result-${token_addr}-${token_id}`}
+                  nft={nft}
+                  showOrdinal
+                  link={UrlJoin(nftBasePath || basePath, nft.details.ContractId, nft.details.TokenIdStr)}
+                />
               );
             })
           }
@@ -222,9 +216,70 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
   );
 });
 
+export const ListingPurchaseStatus = observer(() => {
+  const match = useRouteMatch();
+  const [status, setStatus] = useState(undefined);
+
+  const inMarketplace = !!match.params.marketplaceId;
+
+  const Status = async () =>
+    rootStore.ListingPurchaseStatus({
+      tenantId: match.params.tenantId,
+      confirmationId: match.params.confirmationId
+    });
+
+  let basePath = UrlJoin("/wallet", "collection");
+  if(inMarketplace) {
+    basePath = UrlJoin("/marketplaces", match.params.marketplaceId);
+  }
+
+  if(!status) {
+    return (
+      <MintingStatus
+        header="Your item is being transferred"
+        Status={Status}
+        OnFinish={({status}) => setStatus(status)}
+        basePath={basePath}
+        backText={
+          inMarketplace ?
+            "Back to the Marketplace" :
+            "Back to My Collection"
+        }
+      />
+    );
+  }
+
+  const items = [{token_addr: status.address, token_id_str: status.tokenId}];
+
+  return (
+    <MintResults
+      header="Congratulations!"
+      subheader={`Thank you for your purchase! You've received the following ${items.length === 1 ? "item" : "items"}:`}
+      items={items}
+      basePath={basePath}
+      nftBasePath={
+        inMarketplace ?
+          UrlJoin("/marketplaces", match.params.marketplaceId, "collections", "owned") :
+          basePath
+      }
+      backText={
+        inMarketplace ?
+          "Back to the Marketplace" :
+          "Back to My Collection"
+      }
+    />
+  );
+});
+
 export const PurchaseMintingStatus = observer(() => {
   const match = useRouteMatch();
   const [status, setStatus] = useState(undefined);
+
+  const confirmationId = match.params.confirmationId;
+
+  if(confirmationId.startsWith("T-")) {
+    return <ListingPurchaseStatus />;
+  }
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const videoHash = marketplace.storefront.purchase_animation &&

@@ -1,0 +1,185 @@
+.transfer-table {
+  background-color: $white;
+  border: 1px solid $lightgray;
+  border-radius: 3px;
+  margin: 20px 0;
+  overflow-y: auto;
+  position: relative;
+
+  &.active-listings {
+    .transfer-table__table__header {
+      border-top: 0;
+
+      .transfer-table__table__cell {
+        border: 1px solid $mediumgray;
+
+        &:not(:first-child) {
+          border-left: 0;
+        }
+      }
+    }
+  }
+
+  &__header {
+    font-weight: 300;
+    padding: 20px;
+
+    b {
+      color: $blue;
+      font-weight: bold;
+    }
+
+  }
+
+  &__table__header {
+    background-color: $white;
+    border-bottom: 1px solid $mediumgray;
+    border-top: 1px solid $mediumgray;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+
+    &-sortable {
+      cursor: pointer;
+      user-select: none;
+
+      .transfer-table__table__cell {
+        display: flex;
+        justify-content: space-between;
+      }
+    }
+
+    .transfer-table__table__cell {
+      border-radius: 0;
+    }
+  }
+
+  &__table__header,
+  &__table__row {
+    display: grid;
+    grid-auto-columns: 1fr;
+    grid-auto-flow: column;
+  }
+
+  &__table__row {
+    &:nth-child(2n) {
+      background-color: $lightergray;
+    }
+
+    &-disabled {
+      opacity: 0.4;
+    }
+
+    &-selectable {
+      cursor: pointer;
+    }
+
+    &-selected {
+      // Specificity to override nth-child color above
+      &:nth-child(n) {
+        background-color: $blue;
+
+        * {
+          color: $white;
+        }
+      }
+    }
+  }
+
+  &__content-rows {
+    * {
+      z-index: 0;
+    }
+  }
+
+  &__table__cell {
+    font-size: 12px;
+    padding: 10px 20px;
+  }
+
+  &__sort-icon {
+    height: 100%;
+  }
+
+  &__loader {
+    margin: 20px 0;
+  }
+
+  &__empty {
+    align-items: center;
+    color: $darkgray;
+    display: flex;
+    justify-content: center;
+    padding: 30px 0;
+  }
+
+  @media screen and (max-width: 800px) {
+    .no-mobile {
+      display: none;
+    }
+
+    &__table__cell {
+      font-size: 10px;
+    }
+  }
+}
+
+.dark {
+  .transfer-table {
+    background-color: $black;
+    border: 1px solid $darkergray;
+
+    &.active-listings {
+      .transfer-table__table__header {
+        border-top: 0;
+
+        .transfer-table__table__cell {
+          border: 1px solid $darkestgray;
+
+          &:not(:first-child) {
+            border-left: 0;
+          }
+        }
+      }
+    }
+
+    &__table__header {
+      background-color: $black;
+      border-bottom: 1px solid $darkergray;
+      border-top: 1px solid $darkergray;
+
+      * {
+        color: $mediumgray;
+      }
+    }
+
+    &__table__row {
+      &:nth-child(2n + 1) {
+        background-color: darken($darkestgray, 2%);
+      }
+
+      &:nth-child(2n) {
+        background-color: $black;
+      }
+
+      &:hover {
+        background-color: $darkergray;
+      }
+
+      &-selected {
+        // Specificity to override nth-child color above
+        &:nth-child(n) {
+          background-color: $mediumgray;
+
+          * {
+            color: $black;
+          }
+        }
+      }
+    }
+
+    &__empty {
+      color: $mediumgray;
+    }
+  }
+}

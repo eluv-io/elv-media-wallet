@@ -9,6 +9,7 @@ import EVENTS from "../../client/src/Events";
 import NFTContractABI from "../static/abi/NFTContract";
 import CheckoutStore from "Stores/Checkout";
 import {ethers} from "ethers";
+import TransferStore from "Stores/Transfer";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
@@ -37,7 +38,12 @@ const ProfileImage = (text, backgroundColor) => {
   canvas.width = 200;
   canvas.height = 200;
 
-  context.fillStyle = backgroundColor;
+  const gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
+  gradient.addColorStop(0, "#FFFFFF");
+  gradient.addColorStop(0.6, backgroundColor);
+  gradient.addColorStop(1, backgroundColor);
+
+  context.fillStyle = gradient;
   context.fillRect(0, 0, canvas.width, canvas.height);
 
   context.font = "80px Helvetica";
@@ -57,6 +63,7 @@ class RootStore {
   mode = "test";
 
   pageWidth = window.innerWidth;
+  activeModals = 0;
 
   navigateToLogIn = undefined;
   loggingIn = false;
@@ -77,6 +84,7 @@ class RootStore {
   client = undefined;
   accountId = undefined;
   funds = undefined;
+  paymentBalance = undefined;
 
   hideNavigation = false;
   sidePanelMode = false;
@@ -86,6 +94,7 @@ class RootStore {
   basePublicUrl = undefined;
 
   userProfile = {};
+  userAddress;
 
   lastProfileQuery = 0;
   profileData = undefined;
@@ -143,6 +152,7 @@ class RootStore {
     }
 
     this.checkoutStore = new CheckoutStore(this);
+    this.transferStore = new TransferStore(this);
 
     window.addEventListener("resize", () => this.HandleResize());
 
@@ -243,7 +253,10 @@ class RootStore {
       tenant_id: (customizationMetadata.tenant_id),
       terms: customizationMetadata.terms,
       terms_html: customizationMetadata.terms_html,
-      ...((customizationMetadata || {}).login_customization || {})
+      ...((customizationMetadata || {}).login_customization || {}),
+
+      // TODO: Remove
+      require_email_verification: false
     };
 
     try {
@@ -289,7 +302,7 @@ class RootStore {
           ...details,
           ContractAddr: Utils.FormatAddress(details.ContractAddr),
           ContractId: `ictr${Utils.AddressToHash(details.ContractAddr)}`,
-          versionHash
+          VersionHash: versionHash
         };
       }).filter(n => n)
     ).flat();
@@ -308,7 +321,7 @@ class RootStore {
           return {
             details,
             metadata: (await this.client.ContentObjectMetadata({
-              versionHash: details.versionHash,
+              versionHash: details.VersionHash,
               metadataSubtree: "public/asset_metadata/nft"
             })) || {}
           };
@@ -432,6 +445,42 @@ class RootStore {
     return items;
   }
 
+  MarketplacePurchaseableItems(marketplace) {
+    let purchaseableItems = {};
+    ((marketplace.storefront || {}).sections || []).forEach(section =>
+      section.items.forEach(sku => {
+        const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
+        const item = marketplace.items[itemIndex];
+
+        // For sale / authorization
+        if(!item || !item.for_sale || (item.requires_permissions && !item.authorized)) { return; }
+
+        if(item.max_per_user && checkoutStore.stock[item.sku] && checkoutStore.stock[item.sku].current_user >= item.max_per_user) {
+          // Purchase limit
+          return;
+        }
+
+        purchaseableItems[sku] = {
+          item,
+          index: itemIndex
+        };
+      })
+    );
+
+    return purchaseableItems;
+  }
+
+  MarketplaceItemByTemplateId(marketplace, templateId) {
+    const purchaseableItems = this.MarketplacePurchaseableItems(marketplace);
+    const item = marketplace.items.find(item =>
+      item.nft_template && !item.nft_template["/"] && item.nft_template.nft && item.nft_template.nft.template_id && item.nft_template.nft.template_id === templateId
+    );
+
+    if(item && purchaseableItems[item.sku]) {
+      return purchaseableItems[item.sku].item;
+    }
+  }
+
   // Actions
   SetMarketplaceFilters(filters) {
     this.marketplaceFilters = (filters || []).map(filter => filter.trim()).filter(filter => filter);
@@ -487,6 +536,7 @@ class RootStore {
 
           return {
             ...status,
+            timestamp: new Date(status.ts),
             state: status.state && typeof status.state === "object" ? Object.values(status.state) : status.state,
             extra: status.extra && typeof status.extra === "object" ? Object.values(status.extra) : status.extra,
             confirmationId,
@@ -520,6 +570,21 @@ class RootStore {
     } catch(error) {
       this.Log(error, true);
       return "";
+    }
+  });
+
+  ListingPurchaseStatus = flow(function * ({tenantId, confirmationId}) {
+    try {
+      const statuses = yield this.MintingStatus({tenantId});
+
+      return statuses
+        .find(status =>
+          status.op === "nft-transfer" &&
+          status.extra && status.extra[0] === confirmationId
+        ) || { status: "none" };
+    } catch(error) {
+      this.Log(error, true);
+      return { status: "unknown" };
     }
   });
 
@@ -736,6 +801,20 @@ class RootStore {
     ];
   }
 
+  GetPaymentBalance = flow(function * () {
+    const { balance } = yield Utils.ResponseToJson(
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "mkt", "bal"),
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${this.client.signer.authToken}`
+        }
+      })
+    );
+
+    this.paymentBalance = parseFloat(balance);
+  });
+
   InitializeClient = flow(function * ({user, idToken, authToken, address, privateKey}) {
     try {
       this.loggingIn = true;
@@ -771,7 +850,10 @@ class RootStore {
         throw Error("Neither user nor private key specified in InitializeClient");
       }
 
+      this.GetPaymentBalance();
+
       this.funds = parseInt((yield client.GetBalance({address: client.CurrentAccountAddress()}) || 0));
+      this.userAddress = client.CurrentAccountAddress();
       this.accountId = `iusr${Utils.AddressToHash(client.CurrentAccountAddress())}`;
 
       this.authedToken = yield client.authClient.GenerateAuthorizationToken({noAuth: true});
@@ -929,8 +1011,10 @@ class RootStore {
 
   ToggleDarkMode(enabled) {
     if(enabled) {
+      document.body.style.backgroundColor = "#000000";
       document.getElementById("app").classList.add("dark");
     } else {
+      document.body.style.backgroundColor = "#FFFFFF";
       document.getElementById("app").classList.remove("dark");
     }
 
@@ -993,6 +1077,14 @@ class RootStore {
     }
   }
 
+  AddActiveModal() {
+    this.activeModals = this.activeModals + 1;
+  }
+
+  RemoveActiveModal() {
+    this.activeModals = Math.max(0, this.activeModals - 1);
+  }
+
   HandleResize() {
     clearTimeout(this.resizeTimeout);
 
@@ -1006,6 +1098,7 @@ class RootStore {
 
 export const rootStore = new RootStore();
 export const checkoutStore = rootStore.checkoutStore;
+export const transferStore = rootStore.transferStore;
 
 window.rootStore = rootStore;
 
