@@ -457,9 +457,9 @@ const NFTDetails = observer(() => {
 
           <ExpandableSection header="Details" icon={DetailsIcon}>
             {
-              nft.metadata.token_uri ?
-                <CopyableField value={nft.metadata.token_uri}>
-                  Token URI: <a href={nft.metadata.token_uri} target="_blank">{ nft.metadata.token_uri }</a>
+              nft.details.TokenUri ?
+                <CopyableField value={nft.details.TokenUri}>
+                  Token URI: <a href={nft.details.TokenUri} target="_blank">{ nft.details.TokenUri }</a>
                 </CopyableField>
                 : null
             }
