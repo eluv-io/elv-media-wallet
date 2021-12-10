@@ -22,7 +22,10 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
 
       if(status.status === "complete") {
         // If mint has items, ensure that items are available in the user's wallet
-        const items = (status.extra || []).filter(item => item.token_addr && (item.token_id || item.token_id_str));
+        let items = (status.extra || []).filter(item => item.token_addr && (item.token_id || item.token_id_str));
+        if(status.op === "nft-transfer") {
+          items = [{ token_addr: status.address, token_id_str: status.tokenId }];
+        }
 
         if(items.length > 0) {
           await rootStore.LoadWalletCollection(true);
