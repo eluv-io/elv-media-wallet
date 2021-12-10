@@ -21,9 +21,17 @@ import UrlJoin from "url-join";
 const WalletNavigation = observer(() => {
   return (
     <nav className="sub-navigation wallet-navigation">
-      <NavLink className="sub-navigation__link" to="/wallet/collection">My Collection</NavLink>
-      <NavLink className="sub-navigation__link" to="/wallet/my-listings">My Listings</NavLink>
-      <NavLink className="sub-navigation__link" to="/wallet/listings">All Listings</NavLink>
+      <NavLink className="sub-navigation__link" to="/wallet/collection">
+        My Collection
+      </NavLink>
+      <NavLink className="sub-navigation__link" to="/wallet/my-listings">
+        <div className="sub-navigation__link-text">My Listings</div>
+        <div className="sub-navigation__link-subtext">Beta</div>
+      </NavLink>
+      <NavLink className="sub-navigation__link" to="/wallet/listings">
+        <div className="sub-navigation__link-text">All Listings</div>
+        <div className="sub-navigation__link-subtext">Beta</div>
+      </NavLink>
       <div className="sub-navigation__separator" />
     </nav>
   );

@@ -74,7 +74,7 @@ const MarketplaceOwned = observer(() => {
                           </h2> : null
                       }
                       <h2 className="card__title card__title-edition">
-                        { typeof ownedItem.details.TokenOrdinal !== "undefined" ? `${parseInt(ownedItem.details.TokenOrdinal)} / ${ownedItem.details.Cap}` : ownedItem.details.TokenIdStr }
+                        { typeof ownedItem.details.TokenOrdinal !== "undefined" ? `${parseInt(ownedItem.details.TokenOrdinal) + 1} / ${ownedItem.details.Cap}` : ownedItem.details.TokenIdStr }
                       </h2>
                       <ResponsiveEllipsis
                         component="h2"

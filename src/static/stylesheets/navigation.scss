@@ -72,6 +72,11 @@
     }
   }
 
+  &__link-subtext {
+    color: $gray;
+    font-size: 12px;
+  }
+
   &__separator {
     border-bottom: 0.5px solid $mediumgray;
     bottom: 0;
@@ -88,6 +93,11 @@
         margin-right: 10px;
       }
     }
+
+    &__link-subtext {
+      color: $gray;
+      font-size: 9px;
+    }
   }
 }
 
@@ -102,7 +112,19 @@
       &.active {
         border: 0;
         color: $white;
+
+        .sub-navigation__link-text {
+          color: $white;
+        }
       }
+    }
+
+    &__link-text {
+      color: $gray;
+    }
+
+    &__link-subtext {
+      color: $darkgray;
     }
   }
 
