@@ -7,6 +7,7 @@ import {Link, NavLink} from "react-router-dom";
 
 import BackIcon from "Assets/icons/arrow-left-circle.svg";
 import ImageIcon from "Components/common/ImageIcon";
+import {FormatPriceString} from "Components/common/UIComponents";
 
 const Header = observer(() => {
   if(!rootStore.loggedIn || rootStore.hideNavigation) { return null; }
@@ -64,7 +65,7 @@ const Header = observer(() => {
           {
             typeof rootStore.paymentBalance !== "undefined" ?
               <div className="header__profile__balance">
-                ${ rootStore.paymentBalance.toFixed(2) }
+                { FormatPriceString({USD: rootStore.paymentBalance}) }
               </div> : null
           }
         </div>
