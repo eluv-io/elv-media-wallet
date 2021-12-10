@@ -19,6 +19,9 @@
     }
 
     &-message {
+      align-items: center;
+      flex-direction: column;
+      justify-content: flex-end;
       padding-bottom: 100px;
     }
   }
@@ -65,7 +68,12 @@
   &__message {
     color: $gray;
     font-size: 12px;
+    margin-top: 10px;
     text-align: center;
+
+    a {
+      color: $darkgray;
+    }
   }
 
   &__actions {
@@ -105,6 +113,10 @@
 
     &__message {
       color: $darkgray;
+
+      a {
+        color: $gray;
+      }
     }
   }
 }
