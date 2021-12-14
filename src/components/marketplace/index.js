@@ -199,7 +199,7 @@ const Routes = (match) => {
     { name: nft.metadata.display_name, path: "/marketplaces/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId", Component: NFTDetails },
     { name: item.name, path: "/marketplaces/:marketplaceId/collections/:collectionIndex/store/:sku", Component: MarketplaceItemDetails },
 
-    { name: "Claim", path: "/marketplaces/:marketplaceId/:sku/claim", Component: ClaimMintingStatus, hideNavigation: true },
+    { name: "Claim", path: "/marketplaces/:marketplaceId/:sku/claim", Component: ClaimMintingStatus },
     { name: "Purchase", path: "/marketplaces/:marketplaceId/:tenantId/:sku/purchase/:confirmationId/success", Component: MarketplacePurchase, hideNavigation: rootStore.sidePanelMode },
     { name: "Purchase", path: "/marketplaces/:marketplaceId/:tenantId/:sku/purchase/:confirmationId/cancel", Component: MarketplacePurchase },
     { name: "Purchase", path: "/marketplaces/:marketplaceId/:tenantId/:sku/purchase/:confirmationId", Component: MarketplacePurchase, noBreadcrumb: true },

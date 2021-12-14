@@ -197,6 +197,7 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
                   nft={nft}
                   showOrdinal
                   link={UrlJoin(nftBasePath || basePath, nft.details.ContractId, nft.details.TokenIdStr)}
+                  truncateDescription
                 />
               );
             })

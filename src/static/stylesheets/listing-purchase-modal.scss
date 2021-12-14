@@ -184,7 +184,8 @@
     margin-top: 35px;
   }
 
-  &__action {
+  &__action,
+  .action-loader {
     min-width: 150px;
 
     &:not(:last-child) {

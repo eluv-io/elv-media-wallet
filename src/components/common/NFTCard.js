@@ -3,8 +3,9 @@ import {NFTImage} from "Components/common/Images";
 import {FormatPriceString} from "Components/common/UIComponents";
 import {observer} from "mobx-react";
 import {Link} from "react-router-dom";
+import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 
-const NFTCard = observer(({nft, selectedListing, price, stock, link, showVideo, showOrdinal}) => {
+const NFTCard = observer(({nft, selectedListing, price, stock, link, showVideo, showOrdinal, truncateDescription}) => {
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
 
   nft = selectedListing || nft;
@@ -40,9 +41,12 @@ const NFTCard = observer(({nft, selectedListing, price, stock, link, showVideo, 
               }
             </h2> : null
         }
-        <div className="card__description">
-          { nft.metadata.description }
-        </div>
+        <ResponsiveEllipsis
+          component="div"
+          className="card__description"
+          text={nft.metadata.description}
+          maxLine={truncateDescription ? "2" : "100"}
+        />
       </div>
       {
         stock && stock.max ?

@@ -230,10 +230,6 @@ const ListingPurchaseSelection = observer(({nft, marketplaceItem, initialListing
   const directPrice = marketplaceItem ? ItemPrice(marketplaceItem, checkoutStore.currency) : undefined;
   const free = marketplaceItem && (!directPrice || marketplaceItem.free);
 
-  if(claimed) {
-    return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, marketplaceItem.sku, "claim")} />;
-  }
-
   useEffect(() => {
     transferStore.NFTListingStats({contractAddress: nft.details.ContractAddr})
       .then(stats => setListingStats(stats));
@@ -247,6 +243,10 @@ const ListingPurchaseSelection = observer(({nft, marketplaceItem, initialListing
       checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id});
     }
   }, []);
+
+  if(claimed) {
+    return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, marketplaceItem.sku, "claim")} />;
+  }
 
   return (
     <div className="listing-purchase-modal">
