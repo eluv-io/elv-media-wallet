@@ -63,6 +63,7 @@ export const ListingFilters = observer(({Loading, UpdateListings}) => {
   const [loadKey, setLoadKey] = useState(undefined);
   const [results, setResults] = useState([]);
   const [moreResults, setMoreResults] = useState(false);
+  const [paging, setPaging] = useState(undefined);
   const [currentPage, setCurrentPage] = useState(1);
 
   const [sort, setSort] = useState("created");
@@ -77,6 +78,8 @@ export const ListingFilters = observer(({Loading, UpdateListings}) => {
   let scrollTimeout;
 
   const Load = async ({page=1, currentResults=[]}) => {
+    if(page === 1) { setPaging(undefined); }
+
     setCurrentPage(page);
     setMoreResults(false);
 
@@ -85,20 +88,25 @@ export const ListingFilters = observer(({Loading, UpdateListings}) => {
 
       if(Loading) { Loading(true); }
 
-      const {listings, paging} = await transferStore.FilteredTransferListings({
+      let {listings, paging} = await transferStore.FilteredTransferListings({
         sortBy,
         sortDesc,
         filter,
         collectionIndex,
         marketplace,
-        start: (page - 1) * perPage + 1,
+        start: page === 1 ? 0 : (page - 1) * perPage,
         limit: perPage
       });
+
+      listings = listings.filter(listing =>
+        !currentResults.find(existingListing => existingListing.details.ListingId === listing.details.ListingId)
+      );
 
       const allListings = [...currentResults, ...listings];
 
       setResults(allListings);
       setMoreResults(paging.more);
+      setPaging(paging);
 
       if(UpdateListings) { UpdateListings(allListings); }
     } finally {
@@ -144,52 +152,61 @@ export const ListingFilters = observer(({Loading, UpdateListings}) => {
     Load({page: currentPage + 1, currentResults: results});
   }, [loadKey]);
 
+
   return (
-    <div className="listing-filters">
-      <FilterDropdown
-        label="Sort By"
-        value={sortOptions.find(option => option.value === sort).value}
-        onChange={value => {
-          const selectedSortOption = sortOptions.find(option => option.value === value);
-          setSort(selectedSortOption.value);
-          setSortBy(selectedSortOption.key);
-          setSortDesc(selectedSortOption.desc);
-        }}
-        options={sortOptions.map(({key, value, label}) => [value || key, label])}
-      />
-      {
-        collections && collections.length > 0 ?
-          <FilterDropdown
-            label="Collection"
-            value={collectionIndex}
-            onChange={value => setCollectionIndex(value)}
-            placeholder={["-1", "Filter by Collection"]}
-            options={
-              (collections.map((collection, index) =>
-                [index, collection.collection_header]
-              ))
-            }
-          /> : null
-      }
-      <div className="listing-filters__autocomplete-container">
-        <label className="listing-filters__label">Filter</label>
-        <AutoComplete
-          placeholder="Filter..."
-          value={filter}
-          onChange={value => setFilter(value)}
-          onEnterPressed={async () => await Load({page: 1})}
-          options={filterOptions}
+    <>
+      <div className="listing-filters">
+        <FilterDropdown
+          label="Sort By"
+          value={sortOptions.find(option => option.value === sort).value}
+          onChange={value => {
+            const selectedSortOption = sortOptions.find(option => option.value === value);
+            setSort(selectedSortOption.value);
+            setSortBy(selectedSortOption.key);
+            setSortDesc(selectedSortOption.desc);
+          }}
+          options={sortOptions.map(({key, value, label}) => [value || key, label])}
         />
+        {
+          collections && collections.length > 0 ?
+            <FilterDropdown
+              label="Collection"
+              value={collectionIndex}
+              onChange={value => setCollectionIndex(value)}
+              placeholder={["-1", "Filter by Collection"]}
+              options={
+                (collections.map((collection, index) =>
+                  [index, collection.collection_header]
+                ))
+              }
+            /> : null
+        }
+        <div className="listing-filters__autocomplete-container">
+          <label className="listing-filters__label">Filter</label>
+          <AutoComplete
+            placeholder="Filter..."
+            value={filter}
+            onChange={value => setFilter(value)}
+            onEnterPressed={async () => await Load({page: 1})}
+            options={filterOptions}
+          />
+        </div>
+        <div className="listing-filters__actions actions-container">
+          <ButtonWithLoader
+            className="action action-primary listing-filters__filter-button"
+            onClick={async () => await Load({page: 1})}
+          >
+            <ImageIcon icon={FilterIcon} title="Filter Results" className="action-icon" />
+          </ButtonWithLoader>
+        </div>
       </div>
-      <div className="listing-filters__actions actions-container">
-        <ButtonWithLoader
-          className="action action-primary listing-filters__filter-button"
-          onClick={async () => await Load({page: 1})}
-        >
-          <ImageIcon icon={FilterIcon} title="Filter Results" className="action-icon" />
-        </ButtonWithLoader>
-      </div>
-    </div>
+      {
+        !paging ? null :
+          <div className="listing-pagination">
+            Showing 1 - { currentPage * perPage } of { paging.total } results
+          </div>
+      }
+    </>
   );
 });
 
