@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {memo, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import {Link, useRouteMatch} from "react-router-dom";
@@ -11,6 +11,48 @@ import ListingFilters from "Components/listings/ListingFilters";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import ImageIcon from "Components/common/ImageIcon";
 import ListingIcon from "Assets/icons/listing";
+
+const Listing = memo(({url, listing}) => (
+  <div className="card-container card-shadow" >
+    <Link
+      to={UrlJoin(url, listing.details.ListingId)}
+      className="card nft-card"
+    >
+      <NFTImage nft={listing} width={400}/>
+      <div className="card__badges">
+        {
+          Utils.EqualAddress(rootStore.userAddress, listing.details.SellerAddress) ?
+            <ImageIcon icon={ListingIcon} title="This is your listing" alt="Listing Icon" className="card__badge" /> : null
+        }
+      </div>
+      <div className="card__text">
+        <div className="card__titles">
+          <h2 className="card__title">
+            <div className="card__title__title">
+              {listing.metadata.display_name}
+            </div>
+            <div className="card__title__price">
+              {FormatPriceString({USD: listing.details.Price})}
+            </div>
+          </h2>
+          {
+            listing.metadata.edition_name ?
+              <h2 className="card__title card__title-edition">{listing.metadata.edition_name}</h2> : null
+          }
+          <h2 className="card__title card__title-edition">
+            { typeof listing.details.TokenOrdinal !== "undefined" ? `${parseInt(listing.details.TokenOrdinal) + 1} / ${listing.details.Cap}` : listing.details.TokenIdStr }
+          </h2>
+          <ResponsiveEllipsis
+            component="h2"
+            className="card__subtitle"
+            text={listing.metadata.description}
+            maxLine="3"
+          />
+        </div>
+      </div>
+    </Link>
+  </div>
+));
 
 const Listings = observer(() => {
   const match = useRouteMatch();
@@ -32,45 +74,7 @@ const Listings = observer(() => {
           <div className="card-list">
             {
               listings.map((listing, index) =>
-                <div className="card-container card-shadow" key={`listing-card-${listing.details.ListingId}-${index}`}>
-                  <Link
-                    to={UrlJoin(match.url, listing.details.ListingId)}
-                    className="card nft-card"
-                  >
-                    <NFTImage nft={listing} width={400}/>
-                    <div className="card__badges">
-                      {
-                        Utils.EqualAddress(rootStore.userAddress, listing.details.SellerAddress) ?
-                          <ImageIcon icon={ListingIcon} title="This is your listing" alt="Listing Icon" className="card__badge" /> : null
-                      }
-                    </div>
-                    <div className="card__text">
-                      <div className="card__titles">
-                        <h2 className="card__title">
-                          <div className="card__title__title">
-                            {listing.metadata.display_name}
-                          </div>
-                          <div className="card__title__price">
-                            {FormatPriceString({USD: listing.details.Price})}
-                          </div>
-                        </h2>
-                        {
-                          listing.metadata.edition_name ?
-                            <h2 className="card__title card__title-edition">{listing.metadata.edition_name}</h2> : null
-                        }
-                        <h2 className="card__title card__title-edition">
-                          { typeof listing.details.TokenOrdinal !== "undefined" ? `${parseInt(listing.details.TokenOrdinal) + 1} / ${listing.details.Cap}` : listing.details.TokenIdStr }
-                        </h2>
-                        <ResponsiveEllipsis
-                          component="h2"
-                          className="card__subtitle"
-                          text={listing.metadata.description}
-                          maxLine="3"
-                        />
-                      </div>
-                    </div>
-                  </Link>
-                </div>
+                <Listing url={match.url} listing={listing} key={`listing-card-${listing.details.ListingId}-${index}`} />
               )
             }
             { // Infinite scroll loading indicator
