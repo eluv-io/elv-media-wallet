@@ -11,7 +11,7 @@ import Navigation from "Components/Navigation";
 
 if(
   new URLSearchParams(window.location.search).has("d") ||
-  !rootStore.embedded && sessionStorage.getItem("dark-mode")
+  !rootStore.embedded && rootStore.GetSessionStorage("dark-mode")
 ) {
   rootStore.ToggleDarkMode(true);
 }
@@ -39,8 +39,8 @@ import {ErrorBoundary} from "Components/common/ErrorBoundary";
 const Placeholder = ({ text }) => <div>{text}</div>;
 
 const RedirectHandler = ({storageKey}) => {
-  if(!rootStore.embedded && sessionStorage.getItem(storageKey)) {
-    return <Redirect to={sessionStorage.getItem(storageKey)} />;
+  if(!rootStore.embedded && rootStore.GetSessionStorage(storageKey)) {
+    return <Redirect to={rootStore.GetSessionStorage(storageKey)} />;
   }
 
   return null;

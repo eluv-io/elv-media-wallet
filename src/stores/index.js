@@ -63,7 +63,7 @@ class RootStore {
 
   // Opened by embedded window for purchase redirect
   fromEmbed = new URLSearchParams(window.location.search).has("embed") ||
-    sessionStorage.getItem("fromEmbed");
+    this.GetSessionStorage("fromEmbed");
 
   mode = "test";
 
@@ -74,7 +74,7 @@ class RootStore {
   loggingIn = false;
   loggedIn = false;
   disableCloseEvent = false;
-  darkMode = window.self === window.top && sessionStorage.getItem("dark-mode");
+  darkMode = window.self === window.top && this.GetSessionStorage("dark-mode");
 
   marketplaceId = undefined;
   customizationMetadata = undefined;
@@ -143,7 +143,7 @@ class RootStore {
 
     this.RegisterMetamaskHandlers();
 
-    const marketplace = new URLSearchParams(window.location.search).get("mid") || (window.self === window.top && sessionStorage.getItem("marketplace-id"));
+    const marketplace = new URLSearchParams(window.location.search).get("mid") || (window.self === window.top && this.GetSessionStorage("marketplace-id"));
     if(marketplace && marketplace.startsWith("hq__")) {
       const objectId = Utils.DecodeVersionHash(marketplace).objectId;
       this.marketplaceHashes[objectId] = marketplace;
@@ -222,7 +222,7 @@ class RootStore {
     if(!this.marketplaceId || this.customizationMetadata) { return; }
 
     if(!this.embedded) {
-      sessionStorage.setItem("marketplace-id", this.marketplaceHash || this.marketplaceId);
+      this.SetSessionStorage("marketplace-id", this.marketplaceHash || this.marketplaceId);
     }
 
     let client = this.client;
@@ -845,7 +845,7 @@ class RootStore {
         this.localAccount = true;
 
         if(!this.embedded) {
-          sessionStorage.setItem(`pk-${this.network}`, privateKey);
+          this.SetSessionStorage(`pk-${this.network}`, privateKey);
         }
       } else if(authToken) {
         yield client.SetRemoteSigner({authToken, address, tenantId});
@@ -914,7 +914,7 @@ class RootStore {
     this.ClearAuthInfo();
 
     if(!this.embedded) {
-      sessionStorage.removeItem(`pk-${this.network}`);
+      this.RemoveSessionStorage(`pk-${this.network}`);
     }
 
     if(auth0) {
@@ -1028,7 +1028,7 @@ class RootStore {
     this.darkMode = enabled;
 
     if(!this.embedded) {
-      sessionStorage.setItem("dark-mode", enabled ? "true" : "");
+      this.SetSessionStorage("dark-mode", enabled ? "true" : "");
     }
   }
 
@@ -1079,6 +1079,30 @@ class RootStore {
   RemoveLocalStorage(key) {
     try {
       return localStorage.removeItem(key);
+    } catch(error) {
+      return undefined;
+    }
+  }
+
+  GetSessionStorage(key) {
+    try {
+      return sessionStorage.getItem(key);
+    } catch(error) {
+      return undefined;
+    }
+  }
+
+  SetSessionStorage(key, value) {
+    try {
+      return sessionStorage.setItem(key, value);
+    } catch(error) {
+      return undefined;
+    }
+  }
+
+  RemoveSessionStorage(key) {
+    try {
+      return sessionStorage.removeItem(key);
     } catch(error) {
       return undefined;
     }

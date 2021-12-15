@@ -17,7 +17,7 @@ import SanitizeHTML from "sanitize-html";
 
 let newWindowLogin =
   new URLSearchParams(window.location.search).has("l") ||
-  !rootStore.embedded && sessionStorage.getItem("new-window-login");
+  !rootStore.embedded && rootStore.GetSessionStorage("new-window-login");
 
 const callbackUrl = UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, "");
 
@@ -219,15 +219,15 @@ const Login = observer(() => {
       rootStore.SendEvent({event: EVENTS.LOADED});
     } else if(auth0.isAuthenticated) {
       SignIn();
-    } else if(!rootStore.loggedIn && newWindowLogin && !sessionStorage.getItem("new-window-login")) {
-      sessionStorage.setItem("new-window-login", "true");
+    } else if(!rootStore.loggedIn && newWindowLogin && !rootStore.GetSessionStorage("new-window-login")) {
+      rootStore.SetSessionStorage("new-window-login", "true");
       auth0.loginWithRedirect({
         redirectUri: callbackUrl,
         initialScreen: new URLSearchParams(window.location.search).has("create") ? "signUp" : "login",
         ...extraLoginParams
       });
-    } else if(sessionStorage.getItem("pk")) {
-      rootStore.InitializeClient({privateKey: sessionStorage.getItem("pk")});
+    } else if(rootStore.GetSessionStorage("pk")) {
+      rootStore.InitializeClient({privateKey: rootStore.GetSessionStorage("pk")});
     } else if(!auth0.isLoading) {
       setAuth0Loading(false);
 

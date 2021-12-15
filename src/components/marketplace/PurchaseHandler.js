@@ -29,7 +29,8 @@ const PurchaseHandler = observer(({cancelPath}) => {
     return <PageLoader />;
   } else if(rootStore.fromEmbed) {
     // Opened from iframe - Initiate stripe purchase
-    sessionStorage.setItem("fromEmbed", "true");
+
+    rootStore.SetSessionStorage("fromEmbed", true);
 
     useEffect(() => {
       rootStore.ToggleNavigation(false);

@@ -171,8 +171,8 @@ class CheckoutStore {
       const checkoutId = `nft-marketplace:${confirmationId}`;
       const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
 
-      sessionStorage.setItem("successPath", UrlJoin(basePath, "success"));
-      sessionStorage.setItem("cancelPath", UrlJoin(basePath, "cancel"));
+      this.rootStore.SetSessionStorage("successPath", UrlJoin(basePath, "success"));
+      this.rootStore.SetSessionStorage("cancelPath", UrlJoin(basePath, "cancel"));
 
       let requestParams = {
         currency: this.currency,
@@ -265,8 +265,8 @@ class CheckoutStore {
 
       const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
 
-      sessionStorage.setItem("successPath", UrlJoin(basePath.toString(), "success"));
-      sessionStorage.setItem("cancelPath", UrlJoin(basePath.toString(), "cancel"));
+      this.rootStore.SetSessionStorage("successPath", UrlJoin(basePath.toString(), "success"));
+      this.rootStore.SetSessionStorage("cancelPath", UrlJoin(basePath.toString(), "cancel"));
 
       let requestParams = {
         currency: this.currency,
