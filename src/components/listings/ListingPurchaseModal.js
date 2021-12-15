@@ -76,11 +76,16 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
   const total = price.USD * quantity;
   const fee = Math.max(1, total * 0.05);
 
+  const insufficientBalance = rootStore.walletBalance < total + fee;
+
   useEffect(() => {
     if(!stock) { return; }
 
     // If item has stock, periodically update
-    const stockCheck = setInterval(() => checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id}), 10000);
+    const stockCheck = setInterval(() => {
+      checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id});
+      rootStore.GetWalletBalance();
+    }, 10000);
 
     return () => clearInterval(stockCheck);
   }, []);
@@ -144,7 +149,7 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
               Current Wallet Balance
             </div>
             <div className="listing-purchase-modal__order-price">
-              { FormatPriceString({USD: rootStore.paymentBalance || 0}) }
+              { FormatPriceString({USD: rootStore.walletBalance || 0}) }
             </div>
           </div>
           <div className="listing-purchase-modal__order-line-item">
@@ -161,13 +166,13 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
               Remaining Wallet Balance
             </div>
             <div className="listing-purchase-modal__order-price">
-              { FormatPriceString({USD: rootStore.paymentBalance - (total + fee)}) }
+              { FormatPriceString({USD: rootStore.walletBalance - (total + fee)}) }
             </div>
           </div>
         </div>
         <div className="listing-purchase-modal__actions listing-purchase-wallet-balance-actions">
           <ButtonWithLoader
-            disabled={outOfStock || errorMessage}
+            disabled={outOfStock || insufficientBalance || errorMessage}
             className="action action-primary"
             onClick={async () => {
               try {
@@ -213,9 +218,12 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
           </button>
         </div>
         {
-          errorMessage || outOfStock ?
+          errorMessage || outOfStock || insufficientBalance ?
             <div className="listing-purchase-confirmation-modal__error-message">
-              { errorMessage || "This item is out of stock" }
+              {
+                errorMessage ? errorMessage :
+                  outOfStock ? "This item is out of stock" : "Insufficient wallet balance"
+              }
             </div> : null
         }
       </div>

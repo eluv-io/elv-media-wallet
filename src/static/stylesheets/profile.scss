@@ -4,7 +4,7 @@
   padding: 0 30px;
 
   &__section {
-    border-radius: 3px;
+    border-radius: 6px;
     margin: 0 auto;
     max-width: 600px;
     padding: 20px 10px;
@@ -24,11 +24,16 @@
       justify-content: flex-end;
       padding-bottom: 100px;
     }
+
+    &-box {
+      background-color: $lightergray;
+      margin-bottom: 10px;
+    }
   }
 
   &__section-header {
     color: $darkgray;
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 300;
     margin-bottom: 10px;
     text-align: center;
@@ -80,6 +85,14 @@
     align-items: center;
     display: flex;
     justify-content: center;
+    margin: 20px auto;
+    padding: 0;
+    width: 100%;
+  }
+
+  .action {
+    max-width: 200px;
+    width: 100%;
   }
 
   .address {
@@ -117,6 +130,10 @@
       a {
         color: $gray;
       }
+    }
+
+    &__section-box {
+      background-color: $darkestgray;
     }
   }
 }

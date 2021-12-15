@@ -5,6 +5,7 @@ import {
   useRouteMatch
 } from "react-router-dom";
 import {CopyableField, FormatPriceString} from "Components/common/UIComponents";
+import {UserTransferTable} from "Components/listings/TransferTables";
 
 const Profile = () => {
   const match = useRouteMatch();
@@ -16,7 +17,7 @@ const Profile = () => {
 
   useEffect(() => {
     rootStore.SetNavigationBreadcrumbs([{name: "Profile", path: "/profile" }]);
-    rootStore.GetPaymentBalance();
+    rootStore.GetWalletBalance();
   }, [match.url]);
 
   return (
@@ -32,16 +33,28 @@ const Profile = () => {
         </div>
       </div>
 
-      <div className="profile-page__section profile-page__section-balance">
+      <div className="profile-page__section profile-page__section-balance profile-page__section-box">
         <h2 className="profile-page__section-header">
           Wallet Balance
         </h2>
         <div className="profile-page__balance">
-          { FormatPriceString({USD: rootStore.paymentBalance}) } USD
+          { FormatPriceString({USD: rootStore.walletBalance}) } USD
         </div>
       </div>
 
-      <div className="profile-page__section profile-page__section-actions">
+
+      <div className="profile-page__section profile-page__section-balance profile-page__section-box">
+        <h2 className="profile-page__section-header">
+          Pending Wallet Balance
+        </h2>
+        <div className="profile-page__balance">
+          { FormatPriceString({USD: rootStore.walletBalance}) } USD
+        </div>
+
+        <UserTransferTable header="Pending Transactions" className="profile-page__pending-transactions-table" />
+      </div>
+
+      <div className="profile-page__section profile-page__actions">
         <div className="profile-page__actions">
           <button
             onClick={() => rootStore.SignOut(auth0)}
