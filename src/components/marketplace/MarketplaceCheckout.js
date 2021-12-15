@@ -48,7 +48,15 @@ const MarketplaceCheckout = observer(({item}) => {
         setListingStats(await transferStore.NFTListingStats({contractAddress: itemTemplate.address}));
       }}
     >
-      { showModal ? <ListingPurchaseModal nft={itemToNFT} item={item} Close={() => setShowModal(false)} /> : null }
+      {
+        showModal ?
+          <ListingPurchaseModal
+            skipListings={listingStats.total === 0}
+            nft={itemToNFT}
+            item={item}
+            Close={() => setShowModal(false)}
+          /> : null
+      }
       <div className="marketplace-price">
         <div className="marketplace-price__direct">
           <div className="marketplace-price__direct__price">

@@ -391,9 +391,9 @@ const ListingPurchaseSelection = observer(({nft, marketplaceItem, initialListing
   );
 });
 
-const ListingPurchaseModal = observer(({nft, item, initialListingId, Close}) => {
+const ListingPurchaseModal = observer(({nft, item, initialListingId, skipListings, Close}) => {
   const [selectedListing, setSelectedListing] = useState(initialListingId);
-  const [selectedListingId, setSelectedListingId] = useState(undefined);
+  const [selectedListingId, setSelectedListingId] = useState(skipListings ? initialListingId || "marketplace" : undefined);
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
