@@ -182,6 +182,19 @@
     display: flex;
     justify-content: center;
     margin-top: 35px;
+
+    &.listing-purchase-wallet-balance-actions {
+      flex-direction: column;
+
+      .loader-button,
+      .action {
+        width: 100%;
+      }
+
+      .loader-button {
+        margin-bottom: 10px;
+      }
+    }
   }
 
   &__action,
@@ -191,6 +204,39 @@
     &:not(:last-child) {
       margin-right: 10px;
     }
+  }
+
+
+  &__order-details {
+    border-radius: 6px;
+    padding: 20px;
+
+    &-box {
+      background-color: $lightergray;
+      margin-top: 30px;
+    }
+  }
+
+  &__order-line-item {
+    display: flex;
+    justify-content: space-between;
+    line-height: 1.8em;
+  }
+
+  &__order-label {
+    align-items: center;
+    display: flex;
+    font-weight: bold;
+  }
+
+  &__quantity {
+    font-weight: 300;
+  }
+
+  &__order-separator {
+    border-bottom: 1px solid $mediumgray;
+    margin-bottom: 10px;
+    padding-top: 10px;
   }
 }
 
@@ -264,6 +310,8 @@
 
   &__payment-selection {
     flex: 1 1 100%;
+    font-size: 12px;
+    padding-left: 10px;
     position: relative;
 
     &:not(:last-child) {
@@ -281,9 +329,13 @@
     display: flex;
     height: 100%;
     left: 0;
-    padding: 10px 15px;
+    padding: 12px 8px;
     position: absolute;
     top: 0;
+
+    &-crypto {
+      padding: 9px 7px;
+    }
   }
 
   &__payment-selection-icon {
@@ -371,6 +423,18 @@
 
     &__prices-container {
       background-color: $black;
+    }
+
+    &__order-label {
+      font-weight: 500;
+    }
+
+    &__order-details-box {
+      background-color: $darkestgray;
+    }
+
+    &__order-separator {
+      border-bottom: 1px solid $darkgray;
     }
   }
 
@@ -467,6 +531,10 @@
     &__listing-count-label {
       font-size: 14px;
     }
+
+    &__order-line-item {
+      font-size: 13px;
+    }
   }
 
   .listing-purchase-confirmation-modal {
@@ -489,11 +557,16 @@
 
     &__payment-selection {
       flex: unset;
+      padding: 0;
       width: 100%;
 
       &:not(:last-child) {
         margin: 0 0 5px;
       }
+    }
+
+    &__payment-selection-icons {
+      padding: 10px 15px;
     }
   }
 
