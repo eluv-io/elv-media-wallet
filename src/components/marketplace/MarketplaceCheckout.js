@@ -51,7 +51,7 @@ const MarketplaceCheckout = observer(({item}) => {
       {
         showModal ?
           <ListingPurchaseModal
-            skipListings={listingStats.total === 0}
+            skipListings={!free && listingStats.total === 0}
             nft={itemToNFT}
             item={item}
             Close={() => setShowModal(false)}
