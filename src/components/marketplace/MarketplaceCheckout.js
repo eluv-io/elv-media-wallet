@@ -1,9 +1,11 @@
 import React, {useState} from "react";
 import {observer} from "mobx-react";
-import {FormatPriceString, ItemPrice} from "Components/common/UIComponents";
-import {checkoutStore, transferStore} from "Stores";
+import {ButtonWithLoader, FormatPriceString, ItemPrice} from "Components/common/UIComponents";
+import {checkoutStore, rootStore, transferStore} from "Stores";
 import AsyncComponent from "Components/common/AsyncComponent";
 import ListingPurchaseModal from "Components/listings/ListingPurchaseModal";
+import {Redirect, useRouteMatch} from "react-router-dom";
+import UrlJoin from "url-join";
 
 /*
         <div className="checkout card-shadow checkout__email-input">
@@ -22,11 +24,15 @@ import ListingPurchaseModal from "Components/listings/ListingPurchaseModal";
  */
 
 const MarketplaceCheckout = observer(({item}) => {
+  const match = useRouteMatch();
+
+  const [claimed, setClaimed] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [listingStats, setListingStats] = useState({total: 0, min: 0, max: 0});
 
   const itemTemplate = item.nft_template ? item.nft_template.nft || {} : {};
 
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const directPrice = ItemPrice(item, checkoutStore.currency);
   const free = !directPrice || item.free;
 
@@ -40,6 +46,10 @@ const MarketplaceCheckout = observer(({item}) => {
     },
     metadata: itemTemplate
   };
+
+  if(claimed) {
+    return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, item.sku, "claim")} />;
+  }
 
   return (
     <AsyncComponent
@@ -69,13 +79,36 @@ const MarketplaceCheckout = observer(({item}) => {
               <h3 className="marketplace-price__direct__max-owned-message">
                 You already own the maximum number of this NFT
               </h3> :
-              <button
-                onClick={() => setShowModal(true)}
+              <ButtonWithLoader
+                onClick={async () => {
+                  if(!free) {
+                    setShowModal(true);
+                    return;
+                  }
+
+                  try {
+                    const status = await rootStore.ClaimStatus({
+                      marketplace,
+                      sku: item.sku
+                    });
+
+                    if(status && status.status !== "none") {
+                      // Already claimed, go to status
+                      setClaimed(true);
+                    } else if(await checkoutStore.ClaimSubmit({marketplaceId: match.params.marketplaceId, sku: item.sku})) {
+                      // Claim successful
+                      setClaimed(true);
+                    }
+                  } catch(error){
+                    rootStore.Log("Checkout failed", true);
+                    rootStore.Log(error);
+                  }
+                }}
                 disabled={outOfStock && listingStats.total === 0}
                 className="action action-primary"
               >
                 { free && !outOfStock ? "Claim Now" : "Buy Now" }
-              </button>
+              </ButtonWithLoader>
           }
         </div>
         <div className={`marketplace-price__listings ${listingStats.total === 0 ? "hidden" : ""}`}>
