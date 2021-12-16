@@ -20,6 +20,13 @@
     }
   }
 
+  &.pending-payments-table {
+    .transfer-table__table__header,
+    .transfer-table__table__row {
+      grid-auto-columns: 90px 1fr 120px 100px 100px;
+    }
+  }
+
   &__header {
     font-weight: 300;
     padding: 20px;

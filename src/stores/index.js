@@ -91,6 +91,7 @@ class RootStore {
   funds = undefined;
 
   availableWalletBalance = undefined;
+  pendingWalletBalance = undefined;
   totalWalletBalance = undefined;
 
   hideNavigation = false;
@@ -822,8 +823,9 @@ class RootStore {
       })
     );
 
-    this.availableWalletBalance = parseFloat(balance || 0) - parseFloat(seven_day_hold || 0);
     this.totalWalletBalance = parseFloat(balance || 0);
+    this.availableWalletBalance = this.totalWalletBalance - parseFloat(seven_day_hold || 0);
+    this.pendingWalletBalance = this.totalWalletBalance - this.availableWalletBalance;
   });
 
   InitializeClient = flow(function * ({user, idToken, authToken, address, privateKey}) {

@@ -63,9 +63,15 @@ const Header = observer(() => {
             { rootStore.userProfile.name }
           </div>
           {
-            typeof rootStore.availableWalletBalance !== "undefined" ?
+            typeof rootStore.totalWalletBalance !== "undefined" ?
               <div className="header__profile__balance">
-                { FormatPriceString({USD: rootStore.availableWalletBalance}) }
+                { FormatPriceString({USD: rootStore.totalWalletBalance}) }
+              </div> : null
+          }
+          {
+            rootStore.pendingWalletBalance ?
+              <div className="header__profile__balance header__profile__balance-pending">
+                ({ FormatPriceString({USD: rootStore.pendingWalletBalance}) } pending)
               </div> : null
           }
         </div>

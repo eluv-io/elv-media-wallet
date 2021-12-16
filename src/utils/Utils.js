@@ -1,6 +1,4 @@
-export const Ago = (time) => {
-  let diffSeconds = Math.ceil((new Date() - new Date(time)) / 1000);
-
+export const TimeDiff = (diffSeconds) => {
   let days = Math.floor(Math.max(0, diffSeconds) / 60 / 60 / 24);
   let hours = Math.floor(Math.max(0, diffSeconds) / 60 / 60) % 24;
   let minutes = Math.floor(Math.max(0, diffSeconds) / 60 % 60);
@@ -19,6 +17,12 @@ export const Ago = (time) => {
   }
 
   return `${seconds} ${seconds === 1 ? "second" : "seconds"} `;
+};
+
+export const Ago = (time) => {
+  let diffSeconds = Math.ceil((new Date() - new Date(time)) / 1000);
+
+  return TimeDiff(diffSeconds);
 };
 
 export const MiddleEllipsis = (str="", maxLength=8) => {

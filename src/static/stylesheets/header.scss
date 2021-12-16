@@ -104,10 +104,8 @@
     font-weight: 300;
     height: 100%;
 
-    svg {
-      height: 15px;
-      margin-right: 5px;
-      width: 15px;
+    &-pending {
+      font-size: 9px;
     }
   }
 

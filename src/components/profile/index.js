@@ -36,6 +36,13 @@ const Profile = () => {
 
       <div className="profile-page__section profile-page__section-balance profile-page__section-box">
         <h2 className="profile-page__section-header">
+          Total Wallet Balance
+        </h2>
+        <div className="profile-page__balance">
+          { FormatPriceString({USD: rootStore.totalWalletBalance}) } USD
+        </div>
+        <br />
+        <h2 className="profile-page__section-header">
           Available Wallet Balance
         </h2>
         <div className="profile-page__balance">
@@ -49,7 +56,7 @@ const Profile = () => {
           Pending Wallet Balance
         </h2>
         <div className="profile-page__balance">
-          { FormatPriceString({USD: rootStore.totalWalletBalance}) } USD
+          { FormatPriceString({USD: rootStore.pendingWalletBalance}) } USD
         </div>
 
         <PendingPaymentsTable
