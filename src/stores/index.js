@@ -812,6 +812,8 @@ class RootStore {
   }
 
   GetWalletBalance = flow(function * () {
+    if(!this.loggedIn) { return; }
+
     // eslint-disable-next-line no-unused-vars
     const { balance, seven_day_hold, thirty_day_hold } = yield Utils.ResponseToJson(
       yield this.client.authClient.MakeAuthServiceRequest({
@@ -881,6 +883,8 @@ class RootStore {
 
       this.initialized = true;
       this.loggedIn = true;
+
+      this.GetWalletBalance();
 
       this.SetAuthInfo({
         authToken: client.signer.authToken,

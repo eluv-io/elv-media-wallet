@@ -61,13 +61,13 @@ const MyListings = observer(() => {
       </div>
       <UserTransferTable
         header="Sold NFTs"
-        type="sell"
+        type="sale"
         marketplaceId={match.params.marketplaceId}
         className="my-listings-transfer-history my-listings-sold"
       />
       <UserTransferTable
         header="Bought NFTs"
-        type="buy"
+        type="purchase"
         marketplaceId={match.params.marketplaceId}
         className="my-listings-transfer-history my-listings-bought"
       />

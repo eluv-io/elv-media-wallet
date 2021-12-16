@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
@@ -10,6 +10,13 @@ import ImageIcon from "Components/common/ImageIcon";
 import {FormatPriceString} from "Components/common/UIComponents";
 
 const Header = observer(() => {
+  useEffect(() => {
+    rootStore.GetWalletBalance();
+
+    let interval = setInterval(() => rootStore.GetWalletBalance(), 120000);
+    return () => clearInterval(interval);
+  }, []);
+
   if(!rootStore.loggedIn || rootStore.hideNavigation) { return null; }
 
   if(rootStore.sidePanelMode) {

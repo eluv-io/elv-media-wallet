@@ -16,6 +16,8 @@ class TransferStore {
     start: 0
   }
 
+  loadCache = {};
+
   get client() {
     return this.rootStore.client;
   }
@@ -451,15 +453,22 @@ class TransferStore {
   });
 
   UserPaymentsHistory = flow(function * () {
-    return yield Utils.ResponseToJson(
-      yield this.client.authClient.MakeAuthServiceRequest({
-        path: UrlJoin("as", "wlt", "mkt", "pmts"),
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${this.client.signer.authToken}`
-        }
-      })
-    );
+    if(!this.loadCache.paymentsHistory || Date.now() - this.loadCache.paymentsHistory.retrievedAt > 10000) {
+      this.loadCache.paymentsHistory = {
+        retrievedAt: Date.now(),
+        promise: Utils.ResponseToJson(
+          this.client.authClient.MakeAuthServiceRequest({
+            path: UrlJoin("as", "wlt", "mkt", "pmts"),
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${this.client.signer.authToken}`
+            }
+          })
+        )
+      };
+    }
+
+    return yield this.loadCache.paymentsHistory.promise;
   });
 
   TransferHistory = flow(function * ({contractAddress, contractId, tokenId}) {

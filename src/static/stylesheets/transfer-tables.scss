@@ -27,6 +27,13 @@
     }
   }
 
+  &.user-transfer-table {
+    .transfer-table__table__header,
+    .transfer-table__table__row {
+      grid-auto-columns: 1fr 1fr 1fr 130px 140px;
+    }
+  }
+
   &__header {
     font-weight: 300;
     padding: 20px;
@@ -107,6 +114,11 @@
   &__table__cell {
     font-size: 12px;
     padding: 10px 20px;
+
+    em {
+      color: $gray;
+      margin-left: 5px;
+    }
   }
 
   &__sort-icon {
@@ -132,6 +144,13 @@
 
     &__table__cell {
       font-size: 10px;
+    }
+
+    &.user-transfer-table {
+      .transfer-table__table__header,
+      .transfer-table__table__row {
+        grid-auto-columns: 1fr 1fr 120px;
+      }
     }
   }
 }
@@ -187,6 +206,12 @@
             color: $black;
           }
         }
+      }
+    }
+
+    &__table__cell {
+      em {
+        color: $gray;
       }
     }
 

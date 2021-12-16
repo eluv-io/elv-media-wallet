@@ -8,7 +8,6 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 import UpCaret from "Assets/icons/up-caret.svg";
 import DownCaret from "Assets/icons/down-caret.svg";
 import ImageIcon from "Components/common/ImageIcon";
-import {roundToUp} from "round-to";
 import {FormatPriceString} from "Components/common/UIComponents";
 import {v4 as UUID} from "uuid";
 
@@ -260,14 +259,22 @@ export const PendingPaymentsTable = observer(({header, limit, className=""}) => 
 });
 
 
-export const UserTransferTable = observer(({header, limit, marketplaceId, type="sell", className=""}) => {
+export const UserTransferTable = observer(({header, limit, marketplaceId, type="sale", className=""}) => {
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
 
   const UpdateHistory = async () => {
-    let entries = (await transferStore.UserTransferHistory())
-      .filter(entry => entry.action === "SOLD")
-      .filter(entry => Utils.EqualAddress(rootStore.userAddress, type === "sell" ? entry.seller : entry.buyer))
+    let entries = (await transferStore.UserPaymentsHistory())
+      .map(entry => ({
+        ...entry,
+        type: Utils.EqualAddress(entry.buyer, rootStore.userAddress) ? "purchase" : "sale",
+        processor:
+          (entry.processor || "").startsWith("eluvio") ? "Wallet Balance" :
+            (entry.processor || "").startsWith("stripe") ? "Credit Card" : "Crypto"
+
+      }))
+      .filter(entry => entry.type === type)
+      .filter(entry => Utils.EqualAddress(rootStore.userAddress, type === "sale" ? entry.addr : entry.buyer))
       .sort((a, b) => a.created > b.created ? -1 : 1);
 
     if(marketplaceId) {
@@ -306,9 +313,9 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
         <div className="transfer-table__table__header">
           <div className="transfer-table__table__cell">Name</div>
           <div className="transfer-table__table__cell no-mobile">Token ID</div>
+          <div className="transfer-table__table__cell">Total Amount { type === "sale" ? " (Payout)" : "" }</div>
           <div className="transfer-table__table__cell">Time</div>
-          <div className="transfer-table__table__cell">Total Amount { type === "sell" ? " (Payout)" : "" }</div>
-          <div className="transfer-table__table__cell no-mobile">{ type === "sell" ? "Buyer" : "Seller" }</div>
+          { type === "sale" ? null : <div className="transfer-table__table__cell no-mobile">Purchase Method</div>}
         </div>
         <div className="transfer-table__content-rows">
           {
@@ -317,21 +324,24 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
                 <div className="transfer-table__empty">No Transfers</div> :
                 entries.map(transfer =>
                   <div className="transfer-table__table__row" key={`transfer-table-row-${transfer.id}`}>
-                    <div className="transfer-table__table__cell">
-                      { transfer.name }
+                    <div className="transfer-table__table__cell ellipsis">
+                      { transfer.item }
                     </div>
-                    <div className="transfer-table__table__cell no-mobile">
-                      { transfer.token }
-                    </div>
-                    <div className="transfer-table__table__cell">
-                      { Ago(transfer.created * 1000) } ago
+                    <div className="transfer-table__table__cell no-mobile ellipsis">
+                      { transfer.item }
                     </div>
                     <div className="transfer-table__table__cell">
-                      { FormatPriceString({USD: transfer.price}) } { type === "sell" ? ` (${FormatPriceString({USD: roundToUp(transfer.price * 0.9, 2)})})` : ""}
+                      { FormatPriceString({USD: transfer.amount + transfer.royalty}) } { type === "sale" ? <em>({ FormatPriceString({USD: transfer.amount}) })</em> : null}
                     </div>
-                    <div className="transfer-table__table__cell no-mobile">
-                      { MiddleEllipsis(type === "sell" ? transfer.buyer : transfer.seller, 14) }
+                    <div className="transfer-table__table__cell">
+                      { Ago(transfer.processed_at * 1000) } ago
                     </div>
+                    {
+                      type === "sale" ? null :
+                        <div className="transfer-table__table__cell no-mobile">
+                          { transfer.processor }
+                        </div>
+                    }
                   </div>
                 )
           }
