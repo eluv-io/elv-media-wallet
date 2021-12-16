@@ -2,10 +2,11 @@ import React, {useEffect} from "react";
 import {rootStore} from "Stores";
 import {useAuth0} from "@auth0/auth0-react";
 import {
+  Link,
   useRouteMatch
 } from "react-router-dom";
 import {CopyableField, FormatPriceString} from "Components/common/UIComponents";
-import {UserTransferTable} from "Components/listings/TransferTables";
+import {PendingPaymentsTable} from "Components/listings/TransferTables";
 
 const Profile = () => {
   const match = useRouteMatch();
@@ -35,10 +36,10 @@ const Profile = () => {
 
       <div className="profile-page__section profile-page__section-balance profile-page__section-box">
         <h2 className="profile-page__section-header">
-          Wallet Balance
+          Available Wallet Balance
         </h2>
         <div className="profile-page__balance">
-          { FormatPriceString({USD: rootStore.walletBalance}) } USD
+          { FormatPriceString({USD: rootStore.availableWalletBalance}) } USD
         </div>
       </div>
 
@@ -48,10 +49,20 @@ const Profile = () => {
           Pending Wallet Balance
         </h2>
         <div className="profile-page__balance">
-          { FormatPriceString({USD: rootStore.walletBalance}) } USD
+          { FormatPriceString({USD: rootStore.totalWalletBalance}) } USD
         </div>
 
-        <UserTransferTable header="Pending Transactions" className="profile-page__pending-transactions-table" />
+        <PendingPaymentsTable
+          header="Pending Transactions"
+          className="profile-page__pending-transactions-table"
+        />
+
+        <Link
+          className="profile-page__transactions-link"
+          to={"/wallet/my-listings/transactions"}
+        >
+          See full transaction history
+        </Link>
       </div>
 
       <div className="profile-page__section profile-page__actions">

@@ -63,9 +63,9 @@ const Header = observer(() => {
             { rootStore.userProfile.name }
           </div>
           {
-            typeof rootStore.walletBalance !== "undefined" ?
+            typeof rootStore.availableWalletBalance !== "undefined" ?
               <div className="header__profile__balance">
-                { FormatPriceString({USD: rootStore.walletBalance}) }
+                { FormatPriceString({USD: rootStore.availableWalletBalance}) }
               </div> : null
           }
         </div>

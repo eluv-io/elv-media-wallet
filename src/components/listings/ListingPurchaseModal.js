@@ -4,7 +4,6 @@ import Modal from "Components/common/Modal";
 import {checkoutStore, rootStore, transferStore} from "Stores";
 import {ActiveListings} from "Components/listings/TransferTables";
 import {ButtonWithLoader, FormatPriceString, ItemPrice} from "Components/common/UIComponents";
-import {NFTImage} from "Components/common/Images";
 import {Redirect, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 import Utils from "@eluvio/elv-client-js/src/Utils";
@@ -15,6 +14,7 @@ import CreditCardIcon from "Assets/icons/credit card icon.svg";
 import EthereumIcon from "Assets/icons/ethereum-eth-logo.svg";
 import SolanaIcon from "Assets/icons/solana icon.svg";
 import WalletIcon from "Assets/icons/wallet balance button icon.svg";
+import {roundToDown} from "round-to";
 
 const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
   if(maxQuantity <= 1) { return null; }
@@ -64,8 +64,8 @@ const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
 
 const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedListing, listingId, quantity=1, Cancel}) => {
   const match = useRouteMatch();
-  const [confirmationId, setConfirmationId] = useState(undefined);
   const [errorMessage, setErrorMessage] = useState(undefined);
+  const [redirectPath, setRedirectPath] = useState(undefined);
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   marketplaceItem = marketplaceItem || (!listingId && marketplace && rootStore.MarketplaceItemByTemplateId(marketplace, nft.metadata.template_id));
@@ -74,9 +74,9 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
 
   const price = listingId ? { USD: selectedListing.details.Price } : marketplaceItem.price;
   const total = price.USD * quantity;
-  const fee = Math.max(1, total * 0.05);
+  const fee = Math.max(1, roundToDown(total * 0.05, 2));
 
-  const insufficientBalance = rootStore.walletBalance < total + fee;
+  const insufficientBalance = rootStore.availableWalletBalance < total + fee;
 
   useEffect(() => {
     if(!stock) { return; }
@@ -90,16 +90,9 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
     return () => clearInterval(stockCheck);
   }, []);
 
-  // In iframe - child window confirmed purchase
-  if(confirmationId && checkoutStore.completedPurchases[confirmationId]) {
-    const tenantId = selectedListing ? selectedListing.details.TenantId : marketplace.tenant_id;
-    const sku = selectedListing ? selectedListing.details.ListingId : marketplaceItem.sku;
 
-    if(match.params.marketplaceId) {
-      return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, tenantId, sku, "purchase", confirmationId, "success")} />;
-    } else {
-      return <Redirect to={UrlJoin("/wallet", "listings", tenantId, sku, "purchase", confirmationId, "success")} />;
-    }
+  if(redirectPath) {
+    return <Redirect to={redirectPath} />;
   }
 
   return (
@@ -149,7 +142,7 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
               Current Wallet Balance
             </div>
             <div className="listing-purchase-modal__order-price">
-              { FormatPriceString({USD: rootStore.walletBalance || 0}) }
+              { FormatPriceString({USD: rootStore.availableWalletBalance || 0}) }
             </div>
           </div>
           <div className="listing-purchase-modal__order-line-item">
@@ -166,7 +159,7 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
               Remaining Wallet Balance
             </div>
             <div className="listing-purchase-modal__order-price">
-              { FormatPriceString({USD: rootStore.walletBalance - (total + fee)}) }
+              { FormatPriceString({USD: rootStore.availableWalletBalance - (total + fee)}) }
             </div>
           </div>
         </div>
@@ -200,7 +193,7 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
                 }
 
                 if(result) {
-                  setConfirmationId(result.confirmationId);
+                  setRedirectPath(result.successPath);
                 }
               } catch(error) {
                 rootStore.Log("Checkout failed", true);
@@ -435,18 +428,17 @@ const ListingPurchaseSelection = observer(({nft, marketplaceItem, initialListing
 
   return (
     <div className="listing-purchase-modal">
+      <div className="listing-purchase-confirmation-modal__header">
+        Purchase { nft.metadata.display_name }
+      </div>
       <div className="listing-purchase-modal__header">
-        <div className="listing-purchase-modal__nft-info-container">
-          <NFTImage width={400} nft={nft} className="listing-purchase-modal__image" />
-          <div className="listing-purchase-modal__nft-info">
-            <h3 className="listing-purchase-modal__token-id ellipsis">
-              { typeof nft.details.TokenOrdinal !== "undefined" ? `${parseInt(nft.details.TokenOrdinal) + 1} / ${nft.details.Cap}` : nft.details.TokenIdStr }
-            </h3>
-            <h2 className="listing-purchase-modal__name ellipsis">
-              { nft.metadata.display_name }
-            </h2>
-          </div>
-        </div>
+        <NFTCard
+          nft={nft}
+          selectedListing={selectedListing}
+          price={selectedListingId ? selectedListing && { USD: selectedListing.details.Price } : { USD: directPrice }}
+          showOrdinal={selectedListingId}
+          truncateDescription
+        />
         {
           maxOwned ?
             <h3 className="listing-purchase-modal__max-owned-message">
@@ -585,7 +577,7 @@ const ListingPurchaseModal = observer(({nft, item, initialListingId, skipListing
   useEffect(() => {
     const modal = document.getElementById("listing-purchase-modal");
     modal && modal.scrollTo(0, 0);
-  }, [selectedListingId]);
+  }, [selectedListingId, useWalletBalance]);
 
   let content;
 

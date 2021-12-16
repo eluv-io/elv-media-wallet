@@ -13,7 +13,7 @@ const MyListings = observer(() => {
   const [listings, setListings] = useState(undefined);
 
   const LoadListings = async () => {
-    let retrievedListings = (await transferStore.FetchTransferListings({userAddress: rootStore.userAddress}))
+    let retrievedListings = [...(await transferStore.FetchTransferListings({userAddress: rootStore.userAddress}))]
       .sort((a, b) => a.details.CreatedAt > b.details.CreatedAt ? -1 : 1);
 
     if(match.params.marketplaceId) {
@@ -59,8 +59,18 @@ const MyListings = observer(() => {
           />
         )}
       </div>
-      <UserTransferTable header="Sold NFTs" type="sell" marketplaceId={match.params.marketplaceId} className="my-listings-transfer-history my-listings-sold" />
-      <UserTransferTable header="Bought NFTs" type="buy" marketplaceId={match.params.marketplaceId} className="my-listings-transfer-history my-listings-bought" />
+      <UserTransferTable
+        header="Sold NFTs"
+        type="sell"
+        marketplaceId={match.params.marketplaceId}
+        className="my-listings-transfer-history my-listings-sold"
+      />
+      <UserTransferTable
+        header="Bought NFTs"
+        type="buy"
+        marketplaceId={match.params.marketplaceId}
+        className="my-listings-transfer-history my-listings-bought"
+      />
     </div>
   );
 });

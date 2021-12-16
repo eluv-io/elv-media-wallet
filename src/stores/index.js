@@ -89,7 +89,9 @@ class RootStore {
   client = undefined;
   accountId = undefined;
   funds = undefined;
-  walletBalance = undefined;
+
+  availableWalletBalance = undefined;
+  totalWalletBalance = undefined;
 
   hideNavigation = false;
   sidePanelMode = false;
@@ -809,7 +811,8 @@ class RootStore {
   }
 
   GetWalletBalance = flow(function * () {
-    const { balance } = yield Utils.ResponseToJson(
+    // eslint-disable-next-line no-unused-vars
+    const { balance, seven_day_hold, thirty_day_hold } = yield Utils.ResponseToJson(
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "mkt", "bal"),
         method: "GET",
@@ -819,7 +822,8 @@ class RootStore {
       })
     );
 
-    this.walletBalance = parseFloat(balance);
+    this.availableWalletBalance = parseFloat(balance || 0) - parseFloat(seven_day_hold || 0);
+    this.totalWalletBalance = parseFloat(balance || 0);
   });
 
   InitializeClient = flow(function * ({user, idToken, authToken, address, privateKey}) {

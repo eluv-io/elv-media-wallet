@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
-import {transferStore} from "Stores";
+import {rootStore, transferStore} from "Stores";
 import {Ago, MiddleEllipsis} from "../../utils/Utils";
 import {Loader} from "Components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
@@ -179,6 +179,79 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
     </div>
   );
 });
+
+export const PendingPaymentsTable = observer(({header, limit, className=""}) => {
+  const [loading, setLoading] = useState(true);
+  const [entries, setEntries] = useState([]);
+
+  const UpdateHistory = async () => {
+    let entries = (await transferStore.UserPaymentsHistory())
+      .map(entry => ({
+        ...entry,
+        type: Utils.EqualAddress(entry.buyer, rootStore.userAddress) ? "purchase" : "sale"
+      }))
+      .filter(entry =>
+        entry.type === "sale" ||
+        (entry.processor || "").startsWith("eluvio")
+      )
+      .sort((a, b) => a.processed_at > b.processed_at ? -1 : 1);
+
+    if(limit) {
+      entries = entries.slice(0, limit);
+    }
+
+    setEntries(entries);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    UpdateHistory();
+
+    let interval = setInterval(UpdateHistory, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className={`transfer-table user-transfer-table ${className}`}>
+      <div className="transfer-table__header">
+        { header }
+      </div>
+      <div className="transfer-table__table">
+        <div className="transfer-table__table__header">
+          <div className="transfer-table__table__cell">Type</div>
+          <div className="transfer-table__table__cell">Name</div>
+          <div className="transfer-table__table__cell no-mobile">Time</div>
+          <div className="transfer-table__table__cell">Total</div>
+        </div>
+        <div className="transfer-table__content-rows">
+          {
+            loading ? <div className="transfer-table__loader"><Loader /></div> :
+              !entries || entries.length === 0 ?
+                <div className="transfer-table__empty">No Transfers</div> :
+                entries.map(transfer =>
+                  <div className="transfer-table__table__row" key={`transfer-table-row-${transfer.id}`}>
+                    <div className="transfer-table__table__cell">
+                      { transfer.type === "purchase" ? "Purchase" : "Sale" }
+                    </div>
+                    <div className="transfer-table__table__cell ellipsis">
+                      { transfer.name || transfer.item }
+                    </div>
+                    <div className="transfer-table__table__cell no-mobile">
+                      { Ago(transfer.processed_at * 1000) } ago
+                    </div>
+                    <div className="transfer-table__table__cell">
+                      { FormatPriceString({USD: transfer.amount * (transfer.type === "purchase" ? -1 : 1)}) }
+                    </div>
+                  </div>
+                )
+          }
+        </div>
+      </div>
+    </div>
+  );
+});
+
 
 export const UserTransferTable = observer(({header, limit, marketplaceId, type="sell", className=""}) => {
   const [loading, setLoading] = useState(true);

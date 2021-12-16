@@ -438,17 +438,22 @@ class TransferStore {
 
   // Transfer History
 
-  TransferKey({contractAddress, contractId, tokenId}) {
-    if(contractId) { contractAddress = Utils.HashToAddress(contractId); }
-    contractAddress = Utils.FormatAddress(contractAddress);
-
-    return tokenId ? `${contractAddress}-${tokenId}` : contractAddress;
-  }
-
   UserTransferHistory = flow(function * () {
     return yield Utils.ResponseToJson(
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "mkt", "hst"),
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${this.client.signer.authToken}`
+        }
+      })
+    );
+  });
+
+  UserPaymentsHistory = flow(function * () {
+    return yield Utils.ResponseToJson(
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "mkt", "pmts"),
         method: "GET",
         headers: {
           Authorization: `Bearer ${this.client.signer.authToken}`
