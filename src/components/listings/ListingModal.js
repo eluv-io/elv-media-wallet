@@ -24,7 +24,7 @@ const ListingModal = observer(({nft, Close}) => {
         <div className="listing-modal__form__inputs">
           <input
             placeholder="Price"
-            className={`listing-modal__form__price-input ${parsedPrice >= 10000 ? "listing-modal__form__price-input-error" : ""}`}
+            className={`listing-modal__form__price-input ${parsedPrice > 10000 ? "listing-modal__form__price-input-error" : ""}`}
             value={price}
             onChange={event => setPrice(event.target.value.replace(/[^\d.]/g, ""))}
             onBlur={() => setPrice(parsedPrice.toFixed(2))}
@@ -33,7 +33,7 @@ const ListingModal = observer(({nft, Close}) => {
             USD
           </div>
           {
-            parsedPrice >= 10000 ?
+            parsedPrice > 10000 ?
               <div className="listing-modal__form__error">
                 Maximum listing price is $10,000
               </div> : null
@@ -74,7 +74,7 @@ const ListingModal = observer(({nft, Close}) => {
               </button> : null
           }
           <button
-            disabled={!parsedPrice || isNaN(parsedPrice) || payout <= 0 || parsedPrice >= 10000}
+            disabled={!parsedPrice || isNaN(parsedPrice) || payout <= 0 || parsedPrice > 10000}
             className="action action-primary listing-modal__action listing-modal__action-primary"
             onClick={() => {
               setShowConfirmation(true);
