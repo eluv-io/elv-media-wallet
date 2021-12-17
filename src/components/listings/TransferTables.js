@@ -1,14 +1,13 @@
 import React, {useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
-import {transferStore} from "Stores";
-import {Ago, MiddleEllipsis} from "../../utils/Utils";
+import {rootStore, transferStore} from "Stores";
+import {Ago, MiddleEllipsis, TimeDiff} from "../../utils/Utils";
 import {Loader} from "Components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 
 import UpCaret from "Assets/icons/up-caret.svg";
 import DownCaret from "Assets/icons/down-caret.svg";
 import ImageIcon from "Components/common/ImageIcon";
-import {roundToUp} from "round-to";
 import {FormatPriceString} from "Components/common/UIComponents";
 import {v4 as UUID} from "uuid";
 
@@ -180,16 +179,93 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
   );
 });
 
-export const UserTransferTable = observer(({header, limit, marketplaceId, type="sell", className=""}) => {
+export const PendingPaymentsTable = observer(({header, limit, className=""}) => {
+  const [loading, setLoading] = useState(true);
+  const [entries, setEntries] = useState([]);
+
+  const week = 7 * 24 * 60 * 60 * 1000;
+
+  const UpdateHistory = async () => {
+    let entries = (await transferStore.UserPaymentsHistory())
+      .filter(entry => Utils.EqualAddress(entry.addr, rootStore.userAddress) && Date.now() - entry.created * 1000 < week)
+      .sort((a, b) => a.created > b.created ? -1 : 1);
+
+    if(limit) {
+      entries = entries.slice(0, limit);
+    }
+
+    setEntries(entries);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    UpdateHistory();
+
+    let interval = setInterval(UpdateHistory, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className={`transfer-table pending-payments-table ${className}`}>
+      <div className="transfer-table__header">
+        { header }
+      </div>
+      <div className="transfer-table__table">
+        <div className="transfer-table__table__header">
+          <div className="transfer-table__table__cell">Name</div>
+          <div className="transfer-table__table__cell no-mobile">Time</div>
+          <div className="transfer-table__table__cell no-mobile">Clears in</div>
+          <div className="transfer-table__table__cell">Payout</div>
+        </div>
+        <div className="transfer-table__content-rows">
+          {
+            loading ? <div className="transfer-table__loader"><Loader /></div> :
+              !entries || entries.length === 0 ?
+                <div className="transfer-table__empty">No Transfers</div> :
+                entries.map(transfer =>
+                  <div className="transfer-table__table__row" key={`transfer-table-row-${transfer.id}`}>
+                    <div className="transfer-table__table__cell ellipsis">
+                      { transfer.name }
+                    </div>
+                    <div className="transfer-table__table__cell no-mobile">
+                      { Ago(transfer.created * 1000) } ago
+                    </div>
+                    <div className="transfer-table__table__cell no-mobile">
+                      { TimeDiff((transfer.created * 1000 + week - Date.now()) / 1000) }
+                    </div>
+                    <div className="transfer-table__table__cell">
+                      { FormatPriceString({USD: transfer.amount}) }
+                    </div>
+                  </div>
+                )
+          }
+        </div>
+      </div>
+    </div>
+  );
+});
+
+
+export const UserTransferTable = observer(({header, limit, marketplaceId, type="sale", className=""}) => {
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
 
   const UpdateHistory = async () => {
-    let entries = (await transferStore.UserTransferHistory())
-      .filter(entry => entry.action === "SOLD")
-      .filter(entry => Utils.EqualAddress(rootStore.userAddress, type === "sell" ? entry.seller : entry.buyer))
+    let entries = (await transferStore.UserPaymentsHistory())
+      .map(entry => ({
+        ...entry,
+        type: Utils.EqualAddress(entry.buyer, rootStore.userAddress) ? "purchase" : "sale",
+        processor:
+          (entry.processor || "").startsWith("eluvio") ? "Wallet Balance" :
+            (entry.processor || "").startsWith("stripe") ? "Credit Card" : "Crypto",
+        pending: Date.now() < entry.created * 1000 + 7 * 24 * 60 * 60 * 1000
+      }))
+      .filter(entry => entry.type === type)
+      .filter(entry => Utils.EqualAddress(rootStore.userAddress, type === "sale" ? entry.addr : entry.buyer))
       .sort((a, b) => a.created > b.created ? -1 : 1);
 
+    /*
     if(marketplaceId) {
       const marketplace = rootStore.marketplaces[marketplaceId];
       // If marketplace filtered, exclude entries that aren't present in the marketplace
@@ -200,6 +276,8 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
         ))
       );
     }
+
+     */
 
     if(limit) {
       entries = entries.slice(0, limit);
@@ -225,10 +303,11 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
       <div className="transfer-table__table">
         <div className="transfer-table__table__header">
           <div className="transfer-table__table__cell">Name</div>
-          <div className="transfer-table__table__cell no-mobile">Token ID</div>
+          <div className="transfer-table__table__cell">List Price { type === "sale" ? " (Payout)" : "" }</div>
           <div className="transfer-table__table__cell">Time</div>
-          <div className="transfer-table__table__cell">Total Amount { type === "sell" ? " (Payout)" : "" }</div>
-          <div className="transfer-table__table__cell no-mobile">{ type === "sell" ? "Buyer" : "Seller" }</div>
+          <div className="transfer-table__table__cell no-tablet">{ type === "sale" ? "Buyer" : "Seller" }</div>
+          <div className="transfer-table__table__cell no-mobile">Purchase Method</div>
+          <div className="transfer-table__table__cell no-mobile">Payment Status</div>
         </div>
         <div className="transfer-table__content-rows">
           {
@@ -237,20 +316,25 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
                 <div className="transfer-table__empty">No Transfers</div> :
                 entries.map(transfer =>
                   <div className="transfer-table__table__row" key={`transfer-table-row-${transfer.id}`}>
-                    <div className="transfer-table__table__cell">
+                    <div className="transfer-table__table__cell ellipsis">
                       { transfer.name }
                     </div>
-                    <div className="transfer-table__table__cell no-mobile">
-                      { transfer.token }
+                    <div className="transfer-table__table__cell">
+                      { FormatPriceString({USD: transfer.amount + transfer.royalty}) } { type === "sale" ? <em>({ FormatPriceString({USD: transfer.amount}) })</em> : null}
                     </div>
                     <div className="transfer-table__table__cell">
                       { Ago(transfer.created * 1000) } ago
                     </div>
-                    <div className="transfer-table__table__cell">
-                      { FormatPriceString({USD: transfer.price}) } { type === "sell" ? ` (${FormatPriceString({USD: roundToUp(transfer.price * 0.9, 2)})})` : ""}
+                    <div className="transfer-table__table__cell no-tablet ellipsis" title={ type === "sale" ? transfer.buyer : transfer.addr }>
+                      { type === "sale" ? transfer.buyer : transfer.addr }
                     </div>
                     <div className="transfer-table__table__cell no-mobile">
-                      { MiddleEllipsis(type === "sell" ? transfer.buyer : transfer.seller, 14) }
+                      { transfer.processor }
+                    </div>
+                    <div className="transfer-table__table__cell no-mobile">
+                      <div className={`transfer-table__badge ${transfer.pending ? "transfer-table__badge-pending" : "transfer-table__badge-available"}`}>
+                        { transfer.pending ? "Pending" : "Available" }
+                      </div>
                     </div>
                   </div>
                 )

@@ -74,7 +74,7 @@ const ListingModal = observer(({nft, Close}) => {
               </button> : null
           }
           <button
-            disabled={!parsedPrice || isNaN(parsedPrice) || payout <= 0 || parsedPrice >= 10000}
+            disabled={!parsedPrice || isNaN(parsedPrice) || payout <= 0 || parsedPrice > 10000}
             className="action action-primary listing-modal__action listing-modal__action-primary"
             onClick={() => {
               setShowConfirmation(true);

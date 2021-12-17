@@ -1,9 +1,12 @@
+$badge-available: rgba($blue, 0.8);
+$badge-pending: rgba($darkgray, 0.8);
+
 .transfer-table {
   background-color: $white;
   border: 1px solid $lightgray;
   border-radius: 3px;
   margin: 20px 0;
-  overflow-y: auto;
+  overflow-y: hidden;
   position: relative;
 
   &.active-listings {
@@ -20,6 +23,20 @@
     }
   }
 
+  &.pending-payments-table {
+    .transfer-table__table__header,
+    .transfer-table__table__row {
+      grid-auto-columns: 1fr 120px 100px 100px;
+    }
+  }
+
+  &.user-transfer-table {
+    .transfer-table__table__header,
+    .transfer-table__table__row {
+      grid-auto-columns: 1fr 1fr 150px 1fr 150px 150px;
+    }
+  }
+
   &__header {
     font-weight: 300;
     padding: 20px;
@@ -28,7 +45,12 @@
       color: $blue;
       font-weight: bold;
     }
+  }
 
+  &__table {
+    height: 100%;
+    max-height: 100%;
+    overflow-y: auto;
   }
 
   &__table__header {
@@ -95,6 +117,25 @@
   &__table__cell {
     font-size: 12px;
     padding: 10px 20px;
+
+    em {
+      color: $gray;
+      margin-left: 5px;
+    }
+  }
+
+  &__badge {
+    background-color: $badge-available;
+    border-radius: 6px;
+    color: $white;
+    font-weight: 300;
+    padding: 5px 15px;
+    text-align: center;
+    width: 100px;
+
+    &-pending {
+      background-color: $badge-pending;
+    }
   }
 
   &__sort-icon {
@@ -113,6 +154,19 @@
     padding: 30px 0;
   }
 
+  @media screen and (max-width: $breakpoint) {
+    .no-tablet {
+      display: none;
+    }
+
+    &.user-transfer-table {
+      .transfer-table__table__header,
+      .transfer-table__table__row {
+        grid-auto-columns: 1fr 1fr 150px 150px 150px;
+      }
+    }
+  }
+
   @media screen and (max-width: 800px) {
     .no-mobile {
       display: none;
@@ -120,6 +174,17 @@
 
     &__table__cell {
       font-size: 10px;
+
+      em {
+        margin: 0;
+      }
+    }
+
+    &.user-transfer-table {
+      .transfer-table__table__header,
+      .transfer-table__table__row {
+        grid-auto-columns: 1fr 1fr 120px;
+      }
     }
   }
 }
@@ -175,6 +240,12 @@
             color: $black;
           }
         }
+      }
+    }
+
+    &__table__cell {
+      em {
+        color: $gray;
       }
     }
 

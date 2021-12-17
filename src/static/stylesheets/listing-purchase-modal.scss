@@ -11,6 +11,19 @@
   }
 }
 
+.listing-purchase-modal,
+.listing-purchase-confirmation-modal {
+  .nft-card {
+    margin: 0 auto 20px;
+    max-width: 350px;
+    width: 100%;
+
+    .card__description {
+      font-size: 12px;
+    }
+  }
+}
+
 .listing-purchase-modal {
   background-color: $white;
   border: 1px solid $lightgray;
@@ -26,46 +39,9 @@
     flex-direction: column;
     font-size: 20px;
     justify-content: space-between;
-    padding: 15px 25px 10px;
+    padding: 25px 25px 10px;
   }
 
-  &__nft-info-container {
-    align-items: center;
-    display: flex;
-    height: 100%;
-  }
-
-  &__nft-info {
-    align-items: flex-start;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    justify-content: center;
-    margin-left: 10px;
-    width: 100%;
-  }
-
-  &__name {
-    font-size: 22px;
-    font-weight: normal;
-  }
-
-  &__token-id {
-    color: $darkestgray;
-    font-size: 12px;
-    font-weight: 300;
-  }
-
-  .card__image-container,
-  &__image {
-    height: 140px;
-    max-height: 140px;
-    max-width: 140px;
-    min-height: 140px;
-    min-width: 140px;
-    padding: 0;
-    width: 140px;
-  }
 
   &__max-owned-message {
     font-size: 12px;
@@ -85,7 +61,6 @@
     border-radius: 6px;
     display: flex;
     justify-content: space-between;
-    margin: 20px 0 0;
     max-width: 400px;
     padding: 15px 25px;
     width: 100%;
@@ -161,7 +136,10 @@
 
   .transfer-table {
     margin: 0;
-    max-height: 300px;
+
+    .transfer-table__table {
+      max-height: 300px;
+    }
   }
 
   &__footer {
@@ -182,6 +160,19 @@
     display: flex;
     justify-content: center;
     margin-top: 35px;
+
+    &.listing-purchase-wallet-balance-actions {
+      flex-direction: column;
+
+      .loader-button,
+      .action {
+        width: 100%;
+      }
+
+      .loader-button {
+        margin-bottom: 10px;
+      }
+    }
   }
 
   &__action,
@@ -191,6 +182,39 @@
     &:not(:last-child) {
       margin-right: 10px;
     }
+  }
+
+
+  &__order-details {
+    border-radius: 6px;
+    padding: 20px;
+
+    &-box {
+      background-color: $lightergray;
+      margin-top: 30px;
+    }
+  }
+
+  &__order-line-item {
+    display: flex;
+    justify-content: space-between;
+    line-height: 1.8em;
+  }
+
+  &__order-label {
+    align-items: center;
+    display: flex;
+    font-weight: bold;
+  }
+
+  &__quantity {
+    font-weight: 300;
+  }
+
+  &__order-separator {
+    border-bottom: 1px solid $mediumgray;
+    margin-bottom: 10px;
+    padding-top: 10px;
   }
 }
 
@@ -212,11 +236,6 @@
 
   &__content {
     padding: 25px 35px;
-  }
-
-  .nft-card {
-    margin: 0 auto 20px;
-    max-width: 350px;
   }
 
   &__price-details,
@@ -264,6 +283,8 @@
 
   &__payment-selection {
     flex: 1 1 100%;
+    font-size: 12px;
+    padding-left: 10px;
     position: relative;
 
     &:not(:last-child) {
@@ -281,9 +302,19 @@
     display: flex;
     height: 100%;
     left: 0;
-    padding: 10px 15px;
+    padding: 12px 8px;
     position: absolute;
     top: 0;
+
+    &-crypto {
+      padding: 9px 7px;
+    }
+
+    &:not(&-crypto) {
+      svg {
+        filter: invert(100%);
+      }
+    }
   }
 
   &__payment-selection-icon {
@@ -356,10 +387,6 @@
     background-color: $black;
     border: 1px solid $darkgray;
 
-    &__token-id {
-      color: $mediumgray;
-    }
-
     &__buy-container {
       border: 1px solid $darkgray;
     }
@@ -371,6 +398,18 @@
 
     &__prices-container {
       background-color: $black;
+    }
+
+    &__order-label {
+      font-weight: 500;
+    }
+
+    &__order-details-box {
+      background-color: $darkestgray;
+    }
+
+    &__order-separator {
+      border-bottom: 1px solid $darkgray;
     }
   }
 
@@ -393,6 +432,14 @@
       }
     }
 
+    &__payment-selection-icons {
+      &:not(&-crypto) {
+        svg {
+          filter: none;
+        }
+      }
+    }
+
     &__error-message {
       color: $red;
     }
@@ -412,11 +459,6 @@
 
 @media screen and (max-width: $tablet-breakpoint) {
   .listing-purchase-modal {
-    &__nft-info-container {
-      align-items: center;
-      justify-content: center;
-    }
-
     &__listing-info {
       align-items: unset;
       flex-direction: column;
@@ -445,27 +487,16 @@
     min-height: 100vh;
     padding-bottom: 50px;
 
-    .card__image-container,
-    &__image {
-      height: 100px;
-      max-height: 100px;
-      max-width: 100px;
-      min-height: 100px;
-      min-width: 100px;
-      padding: 0;
-      width: 100px;
-    }
-
-    &__name {
-      font-size: 18px;
-    }
-
     &__price-label {
       font-size: 12px;
     }
 
     &__listing-count-label {
       font-size: 14px;
+    }
+
+    &__order-line-item {
+      font-size: 13px;
     }
   }
 
@@ -489,11 +520,16 @@
 
     &__payment-selection {
       flex: unset;
+      padding: 0;
       width: 100%;
 
       &:not(:last-child) {
         margin: 0 0 5px;
       }
+    }
+
+    &__payment-selection-icons {
+      padding: 10px 15px;
     }
   }
 

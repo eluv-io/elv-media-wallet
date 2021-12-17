@@ -73,6 +73,10 @@
 .minting-status-results {
   padding-top: 20px;
 
+  .card-list {
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  }
+
   &__actions {
     align-items: center;
     display: flex;

@@ -2,9 +2,11 @@ import React, {useEffect} from "react";
 import {rootStore} from "Stores";
 import {useAuth0} from "@auth0/auth0-react";
 import {
+  Link,
   useRouteMatch
 } from "react-router-dom";
 import {CopyableField, FormatPriceString} from "Components/common/UIComponents";
+import {PendingPaymentsTable} from "Components/listings/TransferTables";
 
 const Profile = () => {
   const match = useRouteMatch();
@@ -15,12 +17,14 @@ const Profile = () => {
   }
 
   useEffect(() => {
-    rootStore.SetNavigationBreadcrumbs([{name: "Profile", path: "/profile" }]);
-    rootStore.GetPaymentBalance();
+    rootStore.SetNavigationBreadcrumbs([{name: "Wallet", path: "/wallet/collection" }, {name: "Profile", path: "/profile" }]);
+    rootStore.GetWalletBalance();
   }, [match.url]);
 
+  const balancePresent = typeof rootStore.totalWalletBalance !== "undefined";
+
   return (
-    <div className="page-container profile-page">
+    <div className="page-container profile-page" key={`profile-page-${balancePresent}`}>
       <div className="profile-page__section profile-page__section-account">
         <h2 className="profile-page__section-header">
           Wallet Address
@@ -32,16 +36,45 @@ const Profile = () => {
         </div>
       </div>
 
-      <div className="profile-page__section profile-page__section-balance">
+      <div className="profile-page__section profile-page__section-balance profile-page__section-box">
         <h2 className="profile-page__section-header">
-          Wallet Balance
+          Total Wallet Balance
+        </h2>
+        <div className="profile-page__balance profile-page__balance-highlight">
+          { FormatPriceString({USD: rootStore.totalWalletBalance}) } { balancePresent ? "USD" : "" }
+        </div>
+        <br />
+        <h2 className="profile-page__section-header">
+          Available Wallet Balance
         </h2>
         <div className="profile-page__balance">
-          { FormatPriceString({USD: rootStore.paymentBalance}) } USD
+          { FormatPriceString({USD: rootStore.availableWalletBalance}) } { balancePresent ? "USD" : "" }
         </div>
       </div>
 
-      <div className="profile-page__section profile-page__section-actions">
+
+      <div className="profile-page__section profile-page__section-balance profile-page__section-box">
+        <h2 className="profile-page__section-header">
+          Pending Wallet Balance
+        </h2>
+        <div className="profile-page__balance">
+          { FormatPriceString({USD: rootStore.pendingWalletBalance}) } { balancePresent ? "USD" : "" }
+        </div>
+
+        <PendingPaymentsTable
+          header="Pending Sales"
+          className="profile-page__pending-transactions-table"
+        />
+
+        <Link
+          className="profile-page__transactions-link"
+          to={"/wallet/my-listings/transactions"}
+        >
+          See full transaction history
+        </Link>
+      </div>
+
+      <div className="profile-page__section profile-page__actions">
         <div className="profile-page__actions">
           <button
             onClick={() => rootStore.SignOut(auth0)}

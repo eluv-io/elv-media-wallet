@@ -92,6 +92,7 @@ const Routes = (match) => {
   return [
     { name: nft.metadata.display_name, path: "/wallet/my-listings/:contractId/:tokenId", Component: NFTDetails },
     { name: "My Listings", path: "/wallet/my-listings", Component: MyListings },
+    { name: "My Listings", path: "/wallet/my-listings/transactions", Component: MyListings },
     { name: listingName, path: "/wallet/listings/:listingId", Component: NFTDetails },
     { name: "All Listings", path: "/wallet/listings", Component: Listings },
     { name: "Open Pack", path: "/wallet/collection/:contractId/:tokenId/open", Component: PackOpenStatus, hideNavigation: true },

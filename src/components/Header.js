@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
@@ -10,6 +10,13 @@ import ImageIcon from "Components/common/ImageIcon";
 import {FormatPriceString} from "Components/common/UIComponents";
 
 const Header = observer(() => {
+  useEffect(() => {
+    rootStore.GetWalletBalance();
+
+    let interval = setInterval(() => rootStore.GetWalletBalance(), 120000);
+    return () => clearInterval(interval);
+  }, []);
+
   if(!rootStore.loggedIn || rootStore.hideNavigation) { return null; }
 
   if(rootStore.sidePanelMode) {
@@ -63,9 +70,13 @@ const Header = observer(() => {
             { rootStore.userProfile.name }
           </div>
           {
-            typeof rootStore.paymentBalance !== "undefined" ?
-              <div className="header__profile__balance">
-                { FormatPriceString({USD: rootStore.paymentBalance}) }
+            typeof rootStore.totalWalletBalance !== "undefined" ?
+              <div
+                className="header__profile__balance"
+                title={`Total balance: ${FormatPriceString({USD: rootStore.totalWalletBalance})}\nAvailable balance: ${FormatPriceString({USD: rootStore.availableWalletBalance}) }\nPending balance: ${FormatPriceString({USD: rootStore.pendingWalletBalance}) }`}
+              >
+                { FormatPriceString({USD: rootStore.totalWalletBalance}) }
+                { rootStore.pendingWalletBalance ? <div className="header__profile__pending-indicator">*</div> : null}
               </div> : null
           }
         </div>

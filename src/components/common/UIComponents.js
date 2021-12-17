@@ -58,7 +58,7 @@ export const ItemPrice = (item, currency) => {
 export const FormatPriceString = (priceList, options={currency: "USD", quantity: 1, trimZeros: false}) => {
   let price = ItemPrice({price: priceList}, options.currency || "USD");
 
-  if(!price || isNaN(price)) { return; }
+  if(typeof price !== "number" || isNaN(price)) { return; }
 
   price = price * (options.quantity || 1);
 

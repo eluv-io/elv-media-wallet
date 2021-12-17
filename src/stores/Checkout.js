@@ -108,9 +108,11 @@ class CheckoutStore {
   }) {
     if(this.submittingOrder) { return; }
 
+    const requiresPopup = this.rootStore.embedded && provider !== "wallet-balance";
+
     let popup;
     try {
-      if(this.rootStore.embedded) {
+      if(requiresPopup) {
         popup = window.open("about:blank");
       }
 
@@ -140,7 +142,7 @@ class CheckoutStore {
           UrlJoin("/marketplaces", marketplaceId, listing.details.TenantId, listingId, "purchase", confirmationId) :
           UrlJoin("/wallet", "listings", listing.details.TenantId, listingId, "purchase", confirmationId);
 
-      if(this.rootStore.embedded) {
+      if(requiresPopup) {
         this.pendingPurchases[confirmationId] = {
           listingId,
           confirmationId
@@ -190,7 +192,7 @@ class CheckoutStore {
 
       yield this.CheckoutRedirect({provider, requestParams});
 
-      return { confirmationId };
+      return { confirmationId, successPath: UrlJoin(basePath, "success") };
     } catch(error) {
       if(popup) { popup.close(); }
 
@@ -211,9 +213,11 @@ class CheckoutStore {
   }) {
     if(this.submittingOrder) { return; }
 
+    const requiresPopup = this.rootStore.embedded && provider !== "wallet-balance";
+
     let popup;
     try {
-      if(this.rootStore.embedded) {
+      if(requiresPopup) {
         popup = window.open("about:blank");
       }
 
@@ -232,7 +236,7 @@ class CheckoutStore {
         throw Error("Unable to determine email address in checkout submit");
       }
 
-      if(this.rootStore.embedded) {
+      if(requiresPopup) {
         this.pendingPurchases[confirmationId] = {
           marketplaceId,
           sku,
@@ -349,6 +353,17 @@ class CheckoutStore {
       )).charge_code;
 
       window.location.href = UrlJoin("https://commerce.coinbase.com/charges", chargeCode);
+    } else if(provider === "wallet-balance") {
+      await this.client.authClient.MakeAuthServiceRequest({
+        method: "POST",
+        path: UrlJoin("as", "wlt", "mkt", "bal", "pay"),
+        body: requestParams,
+        headers: {
+          Authorization: `Bearer ${this.client.signer.authToken}`
+        }
+      });
+
+      setTimeout(() => this.rootStore.GetWalletBalance(), 1000);
     }
   }
 }
