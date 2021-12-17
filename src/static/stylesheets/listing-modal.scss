@@ -48,7 +48,9 @@
     }
 
     .transfer-table {
-      max-height: 200px;
+      &__table {
+        max-height: 240px;
+      }
     }
   }
 

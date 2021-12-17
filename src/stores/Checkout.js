@@ -124,6 +124,7 @@ class CheckoutStore {
       if(!authInfo.user) {
         authInfo.user = {};
       }
+
       email = email || (authInfo.user || {}).email || this.rootStore.userProfile.email;
       authInfo.user.email = email;
 
@@ -226,7 +227,10 @@ class CheckoutStore {
       confirmationId = confirmationId || this.ConfirmationId();
 
       let authInfo = this.rootStore.AuthInfo();
-      if(!authInfo.user) { authInfo.user = {}; }
+      if(!authInfo.user) {
+        authInfo.user = {};
+      }
+
       email = email || (authInfo.user || {}).email || this.rootStore.userProfile.email;
       authInfo.user.email = email;
 
