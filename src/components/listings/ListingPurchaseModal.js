@@ -139,7 +139,7 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
         <div className="listing-purchase-modal__order-details listing-purchase-modal__order-details-box">
           <div className="listing-purchase-modal__order-line-item">
             <div className="listing-purchase-modal__order-label">
-              Current Wallet Balance
+              Available Wallet Balance
             </div>
             <div className="listing-purchase-modal__order-price">
               { FormatPriceString({USD: rootStore.availableWalletBalance || 0}) }
