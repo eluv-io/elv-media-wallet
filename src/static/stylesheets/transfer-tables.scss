@@ -30,7 +30,7 @@
   &.user-transfer-table {
     .transfer-table__table__header,
     .transfer-table__table__row {
-      grid-auto-columns: 1fr 1fr 1fr 130px 140px;
+      grid-auto-columns: 1fr 1fr 150px 1fr 150px 150px;
     }
   }
 
@@ -121,6 +121,20 @@
     }
   }
 
+  &__badge {
+    background-color: rgba($blue, 0.8);
+    border-radius: 6px;
+    color: $white;
+    font-weight: 300;
+    padding: 5px 15px;
+    text-align: center;
+    width: 100px;
+
+    &-pending {
+      background-color: rgba($gray, 0.8);
+    }
+  }
+
   &__sort-icon {
     height: 100%;
   }
@@ -137,6 +151,19 @@
     padding: 30px 0;
   }
 
+  @media screen and (max-width: $breakpoint) {
+    .no-tablet {
+      display: none;
+    }
+
+    &.user-transfer-table {
+      .transfer-table__table__header,
+      .transfer-table__table__row {
+        grid-auto-columns: 1fr 1fr 150px 150px 150px;
+      }
+    }
+  }
+
   @media screen and (max-width: 800px) {
     .no-mobile {
       display: none;
@@ -144,6 +171,10 @@
 
     &__table__cell {
       font-size: 10px;
+
+      em {
+        margin: 0;
+      }
     }
 
     &.user-transfer-table {
@@ -212,6 +243,12 @@
     &__table__cell {
       em {
         color: $gray;
+      }
+    }
+
+    &__badge {
+      &-pending {
+        background-color: rgba($darkgray, 0.8);
       }
     }
 

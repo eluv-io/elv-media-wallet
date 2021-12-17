@@ -191,12 +191,12 @@ export const PendingPaymentsTable = observer(({header, limit, className=""}) => 
         ...entry,
         type: Utils.EqualAddress(entry.buyer, rootStore.userAddress) ? "purchase" : "sale"
       }))
-      .filter(entry => Date.now() - entry.processed_at * 1000 < week)
+      .filter(entry => Date.now() - entry.created * 1000 < week)
       .filter(entry =>
         entry.type === "sale" ||
         (entry.processor || "").startsWith("eluvio")
       )
-      .sort((a, b) => a.processed_at > b.processed_at ? -1 : 1);
+      .sort((a, b) => a.created > b.created ? -1 : 1);
 
     if(limit) {
       entries = entries.slice(0, limit);
@@ -238,13 +238,13 @@ export const PendingPaymentsTable = observer(({header, limit, className=""}) => 
                       { transfer.type === "purchase" ? "Purchase" : "Sale" }
                     </div>
                     <div className="transfer-table__table__cell ellipsis">
-                      { transfer.name || transfer.item }
+                      { transfer.name }
                     </div>
                     <div className="transfer-table__table__cell no-mobile">
-                      { Ago(transfer.processed_at * 1000) } ago
+                      { Ago(transfer.created * 1000) } ago
                     </div>
                     <div className="transfer-table__table__cell no-mobile">
-                      { TimeDiff((transfer.processed_at * 1000 + week - Date.now()) / 1000) }
+                      { TimeDiff((transfer.created * 1000 + week - Date.now()) / 1000) }
                     </div>
                     <div className="transfer-table__table__cell">
                       { FormatPriceString({USD: transfer.amount * (transfer.type === "purchase" ? -1 : 1)}) }
@@ -270,8 +270,8 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
         type: Utils.EqualAddress(entry.buyer, rootStore.userAddress) ? "purchase" : "sale",
         processor:
           (entry.processor || "").startsWith("eluvio") ? "Wallet Balance" :
-            (entry.processor || "").startsWith("stripe") ? "Credit Card" : "Crypto"
-
+            (entry.processor || "").startsWith("stripe") ? "Credit Card" : "Crypto",
+        pending: Date.now() < entry.created * 1000 + 7 * 24 * 60 * 60 * 1000
       }))
       .filter(entry => entry.type === type)
       .filter(entry => Utils.EqualAddress(rootStore.userAddress, type === "sale" ? entry.addr : entry.buyer))
@@ -312,10 +312,11 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
       <div className="transfer-table__table">
         <div className="transfer-table__table__header">
           <div className="transfer-table__table__cell">Name</div>
-          <div className="transfer-table__table__cell no-mobile">Token ID</div>
           <div className="transfer-table__table__cell">Total Amount { type === "sale" ? " (Payout)" : "" }</div>
           <div className="transfer-table__table__cell">Time</div>
+          <div className="transfer-table__table__cell no-tablet">{ type === "sale" ? "Buyer" : "Seller" }</div>
           { type === "sale" ? null : <div className="transfer-table__table__cell no-mobile">Purchase Method</div>}
+          <div className="transfer-table__table__cell no-mobile">Payment Status</div>
         </div>
         <div className="transfer-table__content-rows">
           {
@@ -325,16 +326,16 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
                 entries.map(transfer =>
                   <div className="transfer-table__table__row" key={`transfer-table-row-${transfer.id}`}>
                     <div className="transfer-table__table__cell ellipsis">
-                      { transfer.item }
-                    </div>
-                    <div className="transfer-table__table__cell no-mobile ellipsis">
-                      { transfer.item }
+                      { transfer.name }
                     </div>
                     <div className="transfer-table__table__cell">
                       { FormatPriceString({USD: transfer.amount + transfer.royalty}) } { type === "sale" ? <em>({ FormatPriceString({USD: transfer.amount}) })</em> : null}
                     </div>
                     <div className="transfer-table__table__cell">
-                      { Ago(transfer.processed_at * 1000) } ago
+                      { Ago(transfer.created * 1000) } ago
+                    </div>
+                    <div className="transfer-table__table__cell no-tablet ellipsis" title={ type === "sale" ? transfer.buyer : transfer.addr }>
+                      { type === "sale" ? transfer.buyer : transfer.addr }
                     </div>
                     {
                       type === "sale" ? null :
@@ -342,6 +343,11 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
                           { transfer.processor }
                         </div>
                     }
+                    <div className="transfer-table__table__cell no-mobile">
+                      <div className={`transfer-table__badge ${transfer.pending ? "transfer-table__badge-pending" : "transfer-table__badge-available"}`}>
+                        { transfer.pending ? "Pending" : "Available" }
+                      </div>
+                    </div>
                   </div>
                 )
           }
