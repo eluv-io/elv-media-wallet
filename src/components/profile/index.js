@@ -62,7 +62,7 @@ const Profile = () => {
         </div>
 
         <PendingPaymentsTable
-          header="Pending Transactions"
+          header="Pending Sales"
           className="profile-page__pending-transactions-table"
         />
 

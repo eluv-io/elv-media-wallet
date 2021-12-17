@@ -187,15 +187,7 @@ export const PendingPaymentsTable = observer(({header, limit, className=""}) => 
 
   const UpdateHistory = async () => {
     let entries = (await transferStore.UserPaymentsHistory())
-      .map(entry => ({
-        ...entry,
-        type: Utils.EqualAddress(entry.buyer, rootStore.userAddress) ? "purchase" : "sale"
-      }))
-      .filter(entry => Date.now() - entry.created * 1000 < week)
-      .filter(entry =>
-        entry.type === "sale" ||
-        (entry.processor || "").startsWith("eluvio")
-      )
+      .filter(entry => Utils.EqualAddress(entry.addr, rootStore.userAddress) && Date.now() - entry.created * 1000 < week)
       .sort((a, b) => a.created > b.created ? -1 : 1);
 
     if(limit) {
@@ -221,11 +213,10 @@ export const PendingPaymentsTable = observer(({header, limit, className=""}) => 
       </div>
       <div className="transfer-table__table">
         <div className="transfer-table__table__header">
-          <div className="transfer-table__table__cell">Type</div>
           <div className="transfer-table__table__cell">Name</div>
           <div className="transfer-table__table__cell no-mobile">Time</div>
           <div className="transfer-table__table__cell no-mobile">Clears in</div>
-          <div className="transfer-table__table__cell">Total</div>
+          <div className="transfer-table__table__cell">Payout</div>
         </div>
         <div className="transfer-table__content-rows">
           {
@@ -234,9 +225,6 @@ export const PendingPaymentsTable = observer(({header, limit, className=""}) => 
                 <div className="transfer-table__empty">No Transfers</div> :
                 entries.map(transfer =>
                   <div className="transfer-table__table__row" key={`transfer-table-row-${transfer.id}`}>
-                    <div className="transfer-table__table__cell">
-                      { transfer.type === "purchase" ? "Purchase" : "Sale" }
-                    </div>
                     <div className="transfer-table__table__cell ellipsis">
                       { transfer.name }
                     </div>
@@ -247,7 +235,7 @@ export const PendingPaymentsTable = observer(({header, limit, className=""}) => 
                       { TimeDiff((transfer.created * 1000 + week - Date.now()) / 1000) }
                     </div>
                     <div className="transfer-table__table__cell">
-                      { FormatPriceString({USD: transfer.amount * (transfer.type === "purchase" ? -1 : 1)}) }
+                      { FormatPriceString({USD: transfer.amount}) }
                     </div>
                   </div>
                 )
@@ -277,6 +265,7 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
       .filter(entry => Utils.EqualAddress(rootStore.userAddress, type === "sale" ? entry.addr : entry.buyer))
       .sort((a, b) => a.created > b.created ? -1 : 1);
 
+    /*
     if(marketplaceId) {
       const marketplace = rootStore.marketplaces[marketplaceId];
       // If marketplace filtered, exclude entries that aren't present in the marketplace
@@ -287,6 +276,8 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
         ))
       );
     }
+
+     */
 
     if(limit) {
       entries = entries.slice(0, limit);
@@ -312,7 +303,7 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
       <div className="transfer-table__table">
         <div className="transfer-table__table__header">
           <div className="transfer-table__table__cell">Name</div>
-          <div className="transfer-table__table__cell">Total Amount { type === "sale" ? " (Payout)" : "" }</div>
+          <div className="transfer-table__table__cell">List Price { type === "sale" ? " (Payout)" : "" }</div>
           <div className="transfer-table__table__cell">Time</div>
           <div className="transfer-table__table__cell no-tablet">{ type === "sale" ? "Buyer" : "Seller" }</div>
           <div className="transfer-table__table__cell no-mobile">Purchase Method</div>
