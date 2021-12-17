@@ -71,6 +71,12 @@ const MyListings = observer(() => {
         marketplaceId={match.params.marketplaceId}
         className="my-listings-transfer-history my-listings-bought"
       />
+      <div className="listings-page__message">
+        Funds availability notice – A hold period will be imposed on amounts that accrue from the sale of an NFT. Account holders acknowledge that, during this hold period, a seller will be unable to use or withdraw the amounts attributable to such sale(s).  The current hold period for spending the balance is 7 days, and withdrawing the balance is 30 days.
+      </div>
+      <div className="listings-page__message">
+        For questions or concerns, please contact <a href={"mailto:payments@eluv.io"}>payments@eluv.io</a>
+      </div>
     </div>
   );
 });

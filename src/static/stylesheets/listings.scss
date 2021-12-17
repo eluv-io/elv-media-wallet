@@ -12,6 +12,18 @@
     font-weight: normal;
     margin-bottom: 20px;
   }
+
+  &__message {
+    color: $gray;
+    font-size: 10px;
+    margin: 40px auto 20px;
+    max-width: 700px;
+    text-align: center;
+
+    a {
+      color: $darkgray;
+    }
+  }
 }
 
 .my-listings-transfer-history {
@@ -209,6 +221,16 @@
 }
 
 .dark {
+  .listings-page {
+    &__message {
+      color: $darkgray;
+
+      a {
+        color: $gray;
+      }
+    }
+  }
+
   .listing-card {
     background-color: $darkestgray;
     border: 0;
