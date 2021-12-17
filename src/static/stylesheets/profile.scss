@@ -47,10 +47,8 @@
     font-weight: 500;
     justify-content: center;
 
-    svg {
-      height: 30px;
-      margin-right: 10px;
-      width: 30px;
+    &-highlight {
+      color: $blue;
     }
   }
 
@@ -151,6 +149,10 @@
 
     &__section-box {
       background-color: $darkestgray;
+    }
+
+    &__balance-highlight {
+      color: lighten($blue, 10%);
     }
   }
 }

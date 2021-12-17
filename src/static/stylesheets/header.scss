@@ -94,6 +94,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    text-align: right;
   }
 
   &__profile__balance {
@@ -103,16 +104,20 @@
     font-size: 12px;
     font-weight: 300;
     height: 100%;
-
-    &-pending {
-      font-size: 9px;
-    }
+    justify-content: flex-end;
   }
 
   &__profile__image {
     height: 30px;
     min-width: 30px;
     width: 30px;
+  }
+
+  &__profile__pending-indicator {
+    color: lighten($blue, 5%);
+    font-size: 16px;
+    line-height: 1em;
+    margin-left: 3px;
   }
 
   &__separator {
@@ -187,6 +192,10 @@
 
     &__profile__balance {
       color: $mediumgray;
+    }
+
+    &__profile__pending-indicator {
+      color: lighten($blue, 5%);
     }
 
     &__separator {

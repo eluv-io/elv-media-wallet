@@ -315,7 +315,7 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
           <div className="transfer-table__table__cell">Total Amount { type === "sale" ? " (Payout)" : "" }</div>
           <div className="transfer-table__table__cell">Time</div>
           <div className="transfer-table__table__cell no-tablet">{ type === "sale" ? "Buyer" : "Seller" }</div>
-          { type === "sale" ? null : <div className="transfer-table__table__cell no-mobile">Purchase Method</div>}
+          <div className="transfer-table__table__cell no-mobile">Purchase Method</div>
           <div className="transfer-table__table__cell no-mobile">Payment Status</div>
         </div>
         <div className="transfer-table__content-rows">
@@ -337,12 +337,9 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
                     <div className="transfer-table__table__cell no-tablet ellipsis" title={ type === "sale" ? transfer.buyer : transfer.addr }>
                       { type === "sale" ? transfer.buyer : transfer.addr }
                     </div>
-                    {
-                      type === "sale" ? null :
-                        <div className="transfer-table__table__cell no-mobile">
-                          { transfer.processor }
-                        </div>
-                    }
+                    <div className="transfer-table__table__cell no-mobile">
+                      { transfer.processor }
+                    </div>
                     <div className="transfer-table__table__cell no-mobile">
                       <div className={`transfer-table__badge ${transfer.pending ? "transfer-table__badge-pending" : "transfer-table__badge-available"}`}>
                         { transfer.pending ? "Pending" : "Available" }

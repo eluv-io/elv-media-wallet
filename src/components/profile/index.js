@@ -17,12 +17,14 @@ const Profile = () => {
   }
 
   useEffect(() => {
-    rootStore.SetNavigationBreadcrumbs([{name: "Profile", path: "/profile" }]);
+    rootStore.SetNavigationBreadcrumbs([{name: "Wallet", path: "/wallet/collection" }, {name: "Profile", path: "/profile" }]);
     rootStore.GetWalletBalance();
   }, [match.url]);
 
+  const balancePresent = typeof rootStore.totalWalletBalance !== "undefined";
+
   return (
-    <div className="page-container profile-page">
+    <div className="page-container profile-page" key={`profile-page-${balancePresent}`}>
       <div className="profile-page__section profile-page__section-account">
         <h2 className="profile-page__section-header">
           Wallet Address
@@ -38,15 +40,15 @@ const Profile = () => {
         <h2 className="profile-page__section-header">
           Total Wallet Balance
         </h2>
-        <div className="profile-page__balance">
-          { FormatPriceString({USD: rootStore.totalWalletBalance}) } USD
+        <div className="profile-page__balance profile-page__balance-highlight">
+          { FormatPriceString({USD: rootStore.totalWalletBalance}) } { balancePresent ? "USD" : "" }
         </div>
         <br />
         <h2 className="profile-page__section-header">
           Available Wallet Balance
         </h2>
         <div className="profile-page__balance">
-          { FormatPriceString({USD: rootStore.availableWalletBalance}) } USD
+          { FormatPriceString({USD: rootStore.availableWalletBalance}) } { balancePresent ? "USD" : "" }
         </div>
       </div>
 
@@ -56,7 +58,7 @@ const Profile = () => {
           Pending Wallet Balance
         </h2>
         <div className="profile-page__balance">
-          { FormatPriceString({USD: rootStore.pendingWalletBalance}) } USD
+          { FormatPriceString({USD: rootStore.pendingWalletBalance}) } { balancePresent ? "USD" : "" }
         </div>
 
         <PendingPaymentsTable
