@@ -319,15 +319,22 @@ const ListingPurchasePayment = observer(({nft, marketplaceItem, selectedListing,
               </div>
               Crypto
             </button>
-            <button
-              onClick={() => setPaymentType("wallet-balance")}
-              className={`action listing-purchase-confirmation-modal__payment-selection listing-purchase-confirmation-modal__payment-selection-wallet-balance ${paymentType === "wallet-balance" ? "listing-purchase-confirmation-modal__payment-selection-selected" : ""}`}
-            >
-              <div className="listing-purchase-confirmation-modal__payment-selection-icons">
-                <ImageIcon icon={WalletIcon} className="listing-purchase-confirmation-modal__payment-selection-icon" title="Wallet Balance" />
-              </div>
-              Wallet Balance
-            </button>
+            {
+              selectedListing ?
+                <button
+                  onClick={() => setPaymentType("wallet-balance")}
+                  className={`action listing-purchase-confirmation-modal__payment-selection listing-purchase-confirmation-modal__payment-selection-wallet-balance ${paymentType === "wallet-balance" ? "listing-purchase-confirmation-modal__payment-selection-selected" : ""}`}
+                >
+                  <div className="listing-purchase-confirmation-modal__payment-selection-icons">
+                    <ImageIcon
+                      icon={WalletIcon}
+                      className="listing-purchase-confirmation-modal__payment-selection-icon"
+                      title="Wallet Balance"
+                    />
+                  </div>
+                  Wallet Balance
+                </button> : null
+            }
           </div>
           <ButtonWithLoader
             disabled={outOfStock || errorMessage}
