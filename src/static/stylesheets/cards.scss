@@ -255,7 +255,6 @@ $pending-color: rgba($blue, 0.5);
     }
 
     &__image {
-      border: 1px solid $lightgray;
       border-radius: 6px;
     }
 
@@ -348,10 +347,6 @@ $pending-color: rgba($blue, 0.5);
   .nft-card {
     .card {
       background-color: $black;
-
-      &__image {
-        border: 1px solid $darkestgray;
-      }
     }
   }
 }

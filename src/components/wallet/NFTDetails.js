@@ -368,18 +368,6 @@ const NFTDetails = observer(() => {
             { listing ? "Edit Listing" : "List for Sale" }
           </ButtonWithLoader>
           {
-            heldDate ?
-              <h3 className="details-page__transfer-details details-page__held-message">
-                This NFT is in a holding period until { heldDate } for payment settlement. You will not be able to transfer it until then.
-              </h3> : null
-          }
-          {
-            isInCheckout ?
-              <h3 className="details-page__transfer-details details-page__held-message">
-                This NFT is currently in the process of being purchased
-              </h3> : null
-          }
-          {
             !listing && nft && nft.metadata && nft.metadata.pack_options && nft.metadata.pack_options.is_openable ?
               <ButtonWithLoader
                 className="details-page__open-button"
@@ -393,6 +381,18 @@ const NFTDetails = observer(() => {
               >
                 Open Pack
               </ButtonWithLoader> : null
+          }
+          {
+            heldDate ?
+              <h3 className="details-page__transfer-details details-page__held-message">
+                This NFT is in a holding period until { heldDate } for payment settlement. You will not be able to transfer it until then.
+              </h3> : null
+          }
+          {
+            isInCheckout ?
+              <h3 className="details-page__transfer-details details-page__held-message">
+                This NFT is currently in the process of being purchased
+              </h3> : null
           }
         </div>
       );

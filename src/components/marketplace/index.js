@@ -193,9 +193,9 @@ const Routes = (match) => {
     { name: ((marketplace.storefront || {}).tabs || {}).collection || "My Items", path: "/marketplaces/:marketplaceId/collections", Component: MarketplaceOwned },
 
     { name: nft.metadata.display_name, path: "/marketplaces/:marketplaceId/collections/owned/:contractId/:tokenId", Component: NFTDetails },
-    { name: "Open Pack", path: "/marketplaces/:marketplaceId/collections/owned/:contractId/:tokenId/open", Component: PackOpenStatus, hideNavigation: true },
+    { name: "Open Pack", path: "/marketplaces/:marketplaceId/collections/owned/:contractId/:tokenId/open", Component: PackOpenStatus },
 
-    { name: "Open Pack", path: "/marketplaces/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId/open", Component: PackOpenStatus, hideNavigation: true },
+    { name: "Open Pack", path: "/marketplaces/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId/open", Component: PackOpenStatus },
     { name: nft.metadata.display_name, path: "/marketplaces/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId", Component: NFTDetails },
     { name: item.name, path: "/marketplaces/:marketplaceId/collections/:collectionIndex/store/:sku", Component: MarketplaceItemDetails },
 

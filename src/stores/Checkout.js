@@ -301,7 +301,7 @@ class CheckoutStore {
 
       yield this.CheckoutRedirect({provider, requestParams});
 
-      return { confirmationId };
+      return { confirmationId, successPath: UrlJoin(basePath, "success") };
     } catch(error) {
       if(popup) { popup.close(); }
 
