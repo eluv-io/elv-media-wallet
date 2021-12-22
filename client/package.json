@@ -1,6 +1,6 @@
 {
   "name": "@eluvio/elv-wallet-client",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "license": "MIT",
   "description": "Client used for initializing and interacting with the Eluvio media wallet.",
   "author": "Kevin Talmadge",

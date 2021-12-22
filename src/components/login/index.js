@@ -193,10 +193,6 @@ const Login = observer(() => {
   }
 
   useEffect(() => {
-    if(rootStore.GetSessionStorage("intended-path")) {
-      history.replace(rootStore.GetSessionStorage("intended-path"));
-    }
-
     rootStore.LoadCustomizationMetadata().then(() => {
       setCustomizationInfoLoading(false);
 

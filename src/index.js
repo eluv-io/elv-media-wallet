@@ -50,10 +50,21 @@ const Routes = () => {
   const history = useHistory();
   const location = useLocation();
 
-  useEffect(() => InitializeListener(history), []);
+  useEffect(() => {
+    // Automatically redirect to the intended path, unless opened from an embed window or returning from a purchase
+    if(
+      rootStore.GetSessionStorage("intendedPath") &&
+      !rootStore.fromEmbed &&
+      !["/success", "/cancel"].includes(history.location.pathname)
+    ) {
+      history.replace(rootStore.GetSessionStorage("intendedPath"));
+    }
+
+    InitializeListener(history);
+  }, []);
 
   useEffect(() => {
-    rootStore.SetSessionStorage("intended-path", location.pathname);
+    rootStore.SetSessionStorage("intendedPath", location.pathname);
   }, [location.pathname]);
 
   if(!rootStore.loggedIn) {
