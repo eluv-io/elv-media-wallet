@@ -2,6 +2,7 @@ import {checkoutStore, rootStore} from "Stores/index";
 import {toJS} from "mobx";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import EVENTS from "../../../client/src/Events";
+import UrlJoin from "url-join";
 
 const pages = {
   // Wallet
@@ -125,6 +126,13 @@ export const InitializeListener = (history) => {
         break;
       case "setActive":
         rootStore.WalletActivated();
+
+        break;
+
+      case "currentPath":
+        const pathname = UrlJoin("/", window.location.hash.replace("#", ""));
+
+        Respond({response: pathname});
 
         break;
       case "navigate":

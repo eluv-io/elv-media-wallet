@@ -83,8 +83,6 @@ let verificationCheckInterval;
 const Login = observer(() => {
   const history = useHistory();
 
-  const intendedPath = UrlJoin("/", window.location.hash.replace("#", ""));
-
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [customizationInfoLoading, setCustomizationInfoLoading] = useState(!!rootStore.marketplaceId);
@@ -197,7 +195,6 @@ const Login = observer(() => {
   useEffect(() => {
     if(rootStore.GetSessionStorage("intended-path")) {
       history.replace(rootStore.GetSessionStorage("intended-path"));
-      rootStore.RemoveSessionStorage("intended-path");
     }
 
     rootStore.LoadCustomizationMetadata().then(() => {
@@ -231,7 +228,6 @@ const Login = observer(() => {
       SignIn();
     } else if(!rootStore.loggedIn && newWindowLogin && !rootStore.GetSessionStorage("new-window-login")) {
       rootStore.SetSessionStorage("new-window-login", "true");
-      rootStore.SetSessionStorage("intended-path", intendedPath);
       auth0.loginWithRedirect({
         redirectUri: callbackUrl,
         initialScreen: new URLSearchParams(window.location.search).has("create") ? "signUp" : "login",
@@ -250,7 +246,6 @@ const Login = observer(() => {
     if(!rootStore.navigateToLogIn) { return; }
 
     if(auth0) {
-      rootStore.SetSessionStorage("intended-path", intendedPath);
       auth0.loginWithRedirect({
         redirectUri: callbackUrl,
         initialScreen: rootStore.navigateToLogIn,
@@ -402,7 +397,6 @@ const Login = observer(() => {
       }}
       onClick={() => {
         if(!rootStore.embedded) {
-          rootStore.SetSessionStorage("intended-path", intendedPath);
           auth0.loginWithRedirect({
             redirectUri: callbackUrl,
             initialScreen: "signUp",
@@ -429,7 +423,6 @@ const Login = observer(() => {
       className="login-page__login-button login-page__login-button-auth0"
       onClick={() => {
         if(!rootStore.embedded) {
-          rootStore.SetSessionStorage("intended-path", intendedPath);
           auth0.loginWithRedirect({
             redirectUri: callbackUrl,
             ...extraLoginParams

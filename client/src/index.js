@@ -359,6 +359,18 @@ export class ElvWalletClient {
   }
 
   /**
+   * Retrieve the current location path of the wallet app
+   *
+   * @methodGroup Navigation
+   * @returns {string} - The current path of the wallet app
+   */
+  async CurrentPath() {
+    return this.SendMessage({
+      action: "currentPath"
+    });
+  }
+
+  /**
    * Initialize the media wallet in a new window.
    *
    * @methodGroup Constructor

@@ -25,7 +25,7 @@ import {
   HashRouter,
   Switch,
   Route,
-  Redirect
+  Redirect, useLocation
 } from "react-router-dom";
 import Wallet from "Components/wallet";
 import Login from "Components/login";
@@ -48,8 +48,13 @@ const RedirectHandler = ({storageKey}) => {
 
 const Routes = () => {
   const history = useHistory();
+  const location = useLocation();
 
-  useEffect(() => InitializeListener(history));
+  useEffect(() => InitializeListener(history), []);
+
+  useEffect(() => {
+    rootStore.SetSessionStorage("intended-path", location.pathname);
+  }, [location.pathname]);
 
   if(!rootStore.loggedIn) {
     return (
