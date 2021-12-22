@@ -131,6 +131,9 @@ class TransferStore {
           yield this.client.authClient.MakeAuthServiceRequest({
             path: UrlJoin("as", path),
             method: "GET",
+            queryParams: {
+              count: 10000
+            },
             headers: {
               Authorization: `Bearer ${this.client.signer.authToken}`
             }

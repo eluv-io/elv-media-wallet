@@ -14,7 +14,6 @@ import EVENTS from "../../../client/src/Events";
 import Modal from "Components/common/Modal";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
-import {useHistory} from "react-router-dom";
 
 let newWindowLogin =
   new URLSearchParams(window.location.search).has("l") ||
@@ -81,8 +80,6 @@ const LoginBackground = observer(() => {
 
 let verificationCheckInterval;
 const Login = observer(() => {
-  const history = useHistory();
-
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [customizationInfoLoading, setCustomizationInfoLoading] = useState(!!rootStore.marketplaceId);
