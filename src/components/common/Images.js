@@ -6,6 +6,7 @@ import SVG from "react-inlinesvg";
 import UserIcon from "Assets/icons/user.svg";
 import NFTPlaceholderIcon from "Assets/icons/nft";
 import ImageIcon from "Components/common/ImageIcon";
+import {Initialize} from "@eluvio/elv-embed/src/Video";
 
 export const ProfileImage = observer(({className=""}) => {
   const hasImage = rootStore.initialized && rootStore.userProfile.profileImage;
@@ -21,7 +22,7 @@ export const ProfileImage = observer(({className=""}) => {
 });
 
 export const NFTImage = observer(({nft, width, video=false, className=""}) => {
-  const [loaded, setLoaded] = useState(video && nft.metadata.embed_url || nft.metadata.image);
+  const [initialized, setInitialized] = useState(false);
 
   let url;
   if(nft.metadata.image) {
@@ -37,10 +38,22 @@ export const NFTImage = observer(({nft, width, video=false, className=""}) => {
     return (
       <div className="card__image-container">
         <div className={`card__image card__image-video-embed ${className}`}>
-          <iframe
+          <div
+            ref={element => {
+              if(!element || initialized) { return; }
+
+              setInitialized(true);
+
+              Initialize({
+                client: rootStore.client,
+                target: element,
+                url: nft.metadata.embed_url,
+                playerOptions: {
+                  capLevelToPlayerSize: true
+                }
+              });
+            }}
             className="card__image-video-embed__frame"
-            src={nft.metadata.embed_url}
-            allowFullScreen
           />
         </div>
       </div>
@@ -51,9 +64,8 @@ export const NFTImage = observer(({nft, width, video=false, className=""}) => {
       {
         nft.metadata.image ?
           <img
-            onLoad={() => setLoaded(true)}
             src={url.toString()}
-            className={`card__image ${loaded ? "" : "card__image-loading"} ${className}`}
+            className={`card__image ${className}`}
             alt={nft.metadata.display_name}
           /> :
           <SVG

@@ -105,7 +105,6 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
                     clientOptions: {
                       network: EluvioConfiguration["config-url"].includes("main.net955305") ?
                         EluvioPlayerParameters.networks.MAIN : EluvioPlayerParameters.networks.DEMO,
-                      // TODO: Once channel tokens are allowed for remote users, re-enable
                       client: rootStore.client
                     },
                     sourceOptions: {
@@ -118,7 +117,8 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
                       muted: EluvioPlayerParameters.muted.ON,
                       autoplay: EluvioPlayerParameters.autoplay.WHEN_VISIBLE,
                       controls: EluvioPlayerParameters.controls.OFF,
-                      loop: EluvioPlayerParameters.loop.ON
+                      loop: EluvioPlayerParameters.loop.ON,
+                      capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.ON
                     }
                   }
                 );
