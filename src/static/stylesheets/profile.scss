@@ -89,6 +89,7 @@
     width: 100%;
   }
 
+  .loader-button,
   .action {
     max-width: 200px;
     width: 100%;
@@ -127,6 +128,153 @@
   }
 }
 
+// Withdrawal Modal
+
+.withdrawal-modal {
+  overflow-y: hidden;
+
+  .modal__content {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    overflow-y: hidden;
+  }
+}
+
+.withdrawal-confirmation {
+  background-color: $white;
+  max-width: 550px;
+  overflow-y: hidden;
+  width: 100%;
+
+  &__header {
+    border-bottom: 1px solid $mediumgray;
+    font-size: 20px;
+    font-weight: 300;
+    padding: 15px 25px;
+    text-align: center;
+  }
+
+  &__content {
+    padding: 20px 30px 40px;
+  }
+
+  &__message {
+    font-size: 18px;
+    margin-bottom: 25px;
+    text-align: center;
+  }
+
+  &__actions {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+  }
+
+  .button-container,
+  .action {
+    width: 100%;
+    max-width: 200px;
+
+    &:not(:last-child) {
+      margin-right: 10px;
+    }
+  }
+
+  &__input-error {
+    color: $red;
+    font-size: 10px;
+  }
+
+  &__inputs {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin: 20px auto;
+    max-width: 350px;
+    position: relative;
+
+    .withdrawal-confirmation__error {
+      bottom: -20px;
+      position: absolute;
+      text-align: left;
+      width: 100%;
+    }
+  }
+
+  &__price-input {
+    border: 1px solid $mediumgray;
+    border-radius: 3px;
+    font-size: 20px;
+    height: 50px;
+    max-width: 290px;
+    padding: 0 15px;
+    width: 100%;
+
+    &-error {
+      box-shadow: 0 0 3px $red;
+    }
+  }
+
+  &__price-input-label {
+    font-weight: bold;
+    margin-left: 25px;
+    text-align: center;
+  }
+
+  &__details {
+    padding: 10px 0 20px;
+  }
+
+  &__detail {
+    display: flex;
+    height: 30px;
+    justify-content: space-between;
+  }
+
+  &__detail-separator {
+    border-bottom: 2px solid $mediumgray;
+    margin-bottom: 15px;
+    padding-top: 15px;
+    width: 100%;
+  }
+
+  &__detail-faded {
+    * {
+      color: $gray;
+    }
+  }
+
+  &__error {
+    width: 100%;
+    margin: 10px 0 20px;
+    text-align: center;
+    color: $red;
+  }
+
+  .loader {
+    height: 40px;
+  }
+
+  .action-primary {
+    background-color: $blue;
+    border: 1px solid $blue;
+    color: $white;
+  }
+
+  @media screen and (max-width: 600px) {
+    margin: 0 20px;
+
+    &__message {
+      font-size: 16px;
+    }
+
+    .action {
+      min-width: 125px;
+    }
+  }
+}
+
 .dark {
   .profile-page {
     &__section-header {
@@ -153,6 +301,35 @@
 
     &__balance-highlight {
       color: lighten($blue, 10%);
+    }
+  }
+
+  .withdrawal-confirmation {
+    background-color: $black;
+    border: 1px solid $darkergray;
+    color: $white;
+
+    &__header {
+      border-bottom: 1px solid $darkgray;
+    }
+
+    &__price-input {
+      background-color: $black;
+      border: 1px solid $darkgray;
+    }
+
+    &__error {
+      color: $mediumgray;
+    }
+
+    &__detail-faded {
+      * {
+        color: $gray;
+      }
+    }
+
+    &__detail-separator {
+      border-bottom: 2px solid $darkgray;
     }
   }
 }

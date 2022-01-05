@@ -1,15 +1,18 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {rootStore} from "Stores";
 import {useAuth0} from "@auth0/auth0-react";
 import {
   Link,
   useRouteMatch
 } from "react-router-dom";
-import {CopyableField, FormatPriceString} from "Components/common/UIComponents";
+import {ButtonWithLoader, CopyableField, FormatPriceString} from "Components/common/UIComponents";
 import {PendingPaymentsTable} from "Components/listings/TransferTables";
+import {observer} from "mobx-react";
+import WithdrawalModal from "Components/profile/WithdrawalModal";
 
-const Profile = () => {
+const Profile = observer(() => {
   const match = useRouteMatch();
+  const [showWithdrawalModal, setShowWithdrawableModal] = useState(false);
 
   let auth0;
   if(!rootStore.embedded) {
@@ -24,7 +27,8 @@ const Profile = () => {
   const balancePresent = typeof rootStore.totalWalletBalance !== "undefined";
 
   return (
-    <div className="page-container profile-page" key={`profile-page-${balancePresent}`}>
+    <div className="page-container profile-page">
+      { showWithdrawalModal ? <WithdrawalModal Close={() => setShowWithdrawableModal(false)} /> : null }
       <div className="profile-page__section profile-page__section-account">
         <h2 className="profile-page__section-header">
           Wallet Address
@@ -74,6 +78,45 @@ const Profile = () => {
         </Link>
       </div>
 
+      <div className="profile-page__section profile-page__section-balance profile-page__section-box">
+        <h2 className="profile-page__section-header">
+          Withdrawable Wallet Balance
+        </h2>
+        <div className="profile-page__balance profile-page__balance-highlight">
+          { FormatPriceString({USD: rootStore.withdrawableWalletBalance}) } { balancePresent ? "USD" : "" }
+        </div>
+        {
+          rootStore.withdrawableWalletBalance > 0 || true ?
+            <div className="profile-page__actions">
+              <button
+                onClick={() => setShowWithdrawableModal(true)}
+                className="action profile-page__withdraw-button"
+              >
+                Withdraw Funds
+              </button>
+            </div> : null
+        }
+        {
+          rootStore.withdrawableWalletBalance > 0 || true ?
+            <div className="profile-page__actions">
+              <ButtonWithLoader
+                onClick={async () => await rootStore.StripeOnboard()}
+                className="action profile-page__onboard-button"
+              >
+                Set Up Withdrawal
+              </ButtonWithLoader>
+            </div> : null
+        }
+        {
+          true ?
+            <div className="profile-page__actions">
+              <a className="action-link" target="_blank" href="https://connect.stripe.com/app/express#earnings">
+                View Stripe Dashboard
+              </a>
+            </div> : null
+        }
+      </div>
+
       <div className="profile-page__section profile-page__actions">
         <div className="profile-page__actions">
           <button
@@ -95,6 +138,6 @@ const Profile = () => {
       </div>
     </div>
   );
-};
+});
 
 export default Profile;

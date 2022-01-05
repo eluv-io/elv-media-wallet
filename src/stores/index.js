@@ -90,6 +90,7 @@ class RootStore {
   accountId = undefined;
   funds = undefined;
 
+  withdrawableWalletBalance = undefined;
   availableWalletBalance = undefined;
   pendingWalletBalance = undefined;
   totalWalletBalance = undefined;
@@ -828,6 +829,59 @@ class RootStore {
     this.totalWalletBalance = parseFloat(balance || 0);
     this.availableWalletBalance = this.totalWalletBalance - parseFloat(seven_day_hold || 0);
     this.pendingWalletBalance = this.totalWalletBalance - this.availableWalletBalance;
+    this.withdrawableWalletBalance = this.totalWalletBalance - parseFloat(thirty_day_hold || 0);
+    this.withdrawableWalletBalance = 10.99;
+  });
+
+  WithdrawFunds = flow(function * (amount) {
+    if(amount > this.withdrawableWalletBalance) {
+      throw Error("Attempting to withdraw unavailable funds");
+    }
+
+    yield Utils.ResponseToJson(
+      this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "bal", "stripe"),
+        method: "POST",
+        body: {
+          amount,
+          currency: "USD",
+          mode: EluvioConfiguration.mode,
+          refresh_url: window.location.href,
+          return_url: window.location.href
+        },
+        headers: {
+          Authorization: `Bearer ${this.client.signer.authToken}`
+        }
+      })
+    );
+
+    yield new Promise(resolve => setTimeout(resolve, 1000));
+
+    yield this.GetWalletBalance();
+  });
+
+  StripeOnboard = flow(function * () {
+    const response = yield Utils.ResponseToJson(
+      this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "bal", "stripe"),
+        method: "POST",
+        body: {
+          amount: 0,
+          currency: "USD",
+          country: "US",
+          mode: EluvioConfiguration.mode,
+          refresh_url: window.location.href,
+          return_url: window.location.href
+        },
+        headers: {
+          Authorization: `Bearer ${this.client.signer.authToken}`
+        }
+      })
+    );
+
+    if(response.onboard_redirect) {
+      window.location = response.onboard_redirect;
+    }
   });
 
   InitializeClient = flow(function * ({user, idToken, authToken, address, privateKey}) {
