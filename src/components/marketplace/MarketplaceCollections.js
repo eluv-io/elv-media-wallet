@@ -123,19 +123,20 @@ const MarketplaceCollections = observer(() => {
         <h1 className="page-header section-header">
           <div className="section-header__left">
             <div className="page-header__title card-shadow">
-              <div className="page-header__title__title">
-                {collection.collection_header}
-              </div>
-              { collectionIcon ?
-                <MarketplaceImage
-                  rawImage
-                  className="page-header__icon"
-                  marketplaceHash={marketplace.versionHash}
-                  title={collection.name}
-                  path={
-                    UrlJoin("public", "asset_metadata", "info", "collections", collectionIndex.toString(), "collection_icon")
-                  }
-                /> : null
+              {
+                collectionIcon ?
+                  <MarketplaceImage
+                    rawImage
+                    className="page-header__icon"
+                    marketplaceHash={marketplace.versionHash}
+                    title={collection.name}
+                    path={
+                      UrlJoin("public", "asset_metadata", "info", "collections", collectionIndex.toString(), "collection_icon")
+                    }
+                  /> :
+                  <div className="page-header__title__title">
+                    { collection.collection_header }
+                  </div>
               }
             </div>
             {
