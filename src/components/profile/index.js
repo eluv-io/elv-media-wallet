@@ -86,18 +86,16 @@ const Profile = observer(() => {
           { FormatPriceString({USD: rootStore.withdrawableWalletBalance}) } { balancePresent ? "USD" : "" }
         </div>
         {
-          rootStore.withdrawableWalletBalance > 0 || true ?
+          rootStore.userStripeId ?
             <div className="profile-page__actions">
               <button
+                disabled={!rootStore.withdrawableWalletBalance || rootStore.withdrawableWalletBalance <= 0}
                 onClick={() => setShowWithdrawableModal(true)}
                 className="action profile-page__withdraw-button"
               >
                 Withdraw Funds
               </button>
-            </div> : null
-        }
-        {
-          rootStore.withdrawableWalletBalance > 0 || true ?
+            </div> :
             <div className="profile-page__actions">
               <ButtonWithLoader
                 onClick={async () => await rootStore.StripeOnboard()}
@@ -105,12 +103,16 @@ const Profile = observer(() => {
               >
                 Set Up Withdrawal
               </ButtonWithLoader>
-            </div> : null
+            </div>
         }
         {
-          true ?
+          rootStore.userStripeId ?
             <div className="profile-page__actions">
-              <a className="action-link" target="_blank" href="https://connect.stripe.com/app/express#earnings">
+              <a
+                className="action-link"
+                target="_blank"
+                href="https://connect.stripe.com/app/express#earnings"
+              >
                 View Stripe Dashboard
               </a>
             </div> : null

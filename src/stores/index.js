@@ -90,6 +90,7 @@ class RootStore {
   accountId = undefined;
   funds = undefined;
 
+  userStripeId = undefined;
   withdrawableWalletBalance = undefined;
   availableWalletBalance = undefined;
   pendingWalletBalance = undefined;
@@ -816,7 +817,7 @@ class RootStore {
     if(!this.loggedIn) { return; }
 
     // eslint-disable-next-line no-unused-vars
-    const { balance, seven_day_hold, thirty_day_hold } = yield Utils.ResponseToJson(
+    const { balance, seven_day_hold, thirty_day_hold, stripe_id } = yield Utils.ResponseToJson(
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "mkt", "bal"),
         method: "GET",
@@ -826,6 +827,7 @@ class RootStore {
       })
     );
 
+    this.userStripeId = stripe_id;
     this.totalWalletBalance = parseFloat(balance || 0);
     this.availableWalletBalance = this.totalWalletBalance - parseFloat(seven_day_hold || 0);
     this.pendingWalletBalance = this.totalWalletBalance - this.availableWalletBalance;

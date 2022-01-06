@@ -161,6 +161,7 @@
 
   &__message {
     font-size: 18px;
+    font-weight: 300;
     margin-bottom: 25px;
     text-align: center;
   }
@@ -173,8 +174,8 @@
 
   .button-container,
   .action {
-    width: 100%;
     max-width: 200px;
+    width: 100%;
 
     &:not(:last-child) {
       margin-right: 10px;
@@ -246,10 +247,10 @@
   }
 
   &__error {
-    width: 100%;
+    color: $red;
     margin: 10px 0 20px;
     text-align: center;
-    color: $red;
+    width: 100%;
   }
 
   .loader {
