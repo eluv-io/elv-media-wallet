@@ -827,7 +827,7 @@ class RootStore {
       })
     );
 
-    this.userStripeId = stripe_id;
+    //this.userStripeId = stripe_id;
     this.totalWalletBalance = parseFloat(balance || 0);
     this.availableWalletBalance = this.totalWalletBalance - parseFloat(seven_day_hold || 0);
     this.pendingWalletBalance = this.totalWalletBalance - this.availableWalletBalance;
@@ -863,6 +863,11 @@ class RootStore {
   });
 
   StripeOnboard = flow(function * () {
+    const popup = window.open("about:blank");
+
+    const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
+    popup.location.href = UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup");
+
     const response = yield Utils.ResponseToJson(
       this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "bal", "stripe"),
@@ -872,8 +877,8 @@ class RootStore {
           currency: "USD",
           country: "US",
           mode: EluvioConfiguration.mode,
-          refresh_url: window.location.href,
-          return_url: window.location.href
+          refresh_url: UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup-complete"),
+          return_url: UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup-complete")
         },
         headers: {
           Authorization: `Bearer ${this.client.signer.authToken}`
@@ -882,7 +887,19 @@ class RootStore {
     );
 
     if(response.onboard_redirect) {
-      window.location = response.onboard_redirect;
+      popup.location.href = response.onboard_redirect;
+
+      yield new Promise(resolve => {
+        const closeCheck = setInterval(async () => {
+          if(!popup || popup.closed) {
+            clearInterval(closeCheck);
+
+            await this.GetWalletBalance();
+
+            resolve();
+          }
+        }, 1000);
+      });
     }
   });
 

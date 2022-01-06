@@ -116,7 +116,7 @@ const WithdrawalModal = observer(({Close}) => {
                 }
 
                 try {
-                  //await rootStore.WithdrawFunds(parsedAmount);
+                  await rootStore.WithdrawFunds(parsedAmount);
                   setDone(true);
                 } catch(error) {
                   setErrorMessage("Unable to withdraw funds. Please try again later.");

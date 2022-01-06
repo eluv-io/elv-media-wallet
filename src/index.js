@@ -35,6 +35,7 @@ import { InitializeListener } from "Components/interface/Listener";
 import { Auth0Provider } from "@auth0/auth0-react";
 import MarketplaceRoutes from "Components/marketplace";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
+import {PageLoader} from "Components/common/Loaders";
 
 const Placeholder = ({ text }) => <div>{text}</div>;
 
@@ -55,7 +56,7 @@ const Routes = () => {
     if(
       rootStore.GetSessionStorage("intendedPath") &&
       !rootStore.fromEmbed &&
-      !["/success", "/cancel"].includes(history.location.pathname)
+      !["/success", "/cancel", "/withdrawal-setup", "/withdrawal-setup-complete"].includes(history.location.pathname)
     ) {
       history.replace(rootStore.GetSessionStorage("intendedPath"));
     }
@@ -66,6 +67,29 @@ const Routes = () => {
   useEffect(() => {
     rootStore.SetSessionStorage("intendedPath", location.pathname);
   }, [location.pathname]);
+
+  const SetupLoading = () => {
+    return <PageLoader />;
+  };
+
+  const SetupComplete = () => {
+    window.close();
+
+    return null;
+  };
+
+  if(location.pathname.startsWith("/withdrawal")) {
+    return (
+      <Switch>
+        <Route exact path="/withdrawal-setup">
+          <SetupLoading />
+        </Route>
+        <Route exact path="/withdrawal-setup-complete">
+          <SetupComplete />
+        </Route>
+      </Switch>
+    );
+  }
 
   if(!rootStore.loggedIn) {
     return (
