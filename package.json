@@ -37,6 +37,7 @@
     "@eluvio/elv-player-js": "^1.0.65",
     "@paypal/react-paypal-js": "^7.2.1",
     "@stripe/stripe-js": "^1.17.1",
+    "country-codes-list": "^1.6.8",
     "elv-fabric-browser-app-template": "git+https://github.com/eluv-io/elv-embed.git",
     "jsdoc": "^3.6.7",
     "mobx": "^6.3.3",

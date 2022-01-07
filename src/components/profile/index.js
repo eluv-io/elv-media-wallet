@@ -8,10 +8,11 @@ import {
 import {ButtonWithLoader, CopyableField, FormatPriceString} from "Components/common/UIComponents";
 import {PendingPaymentsTable} from "Components/listings/TransferTables";
 import {observer} from "mobx-react";
-import WithdrawalModal from "Components/profile/WithdrawalModal";
+import {WithdrawalModal, WithdrawalSetupModal} from "Components/profile/WithdrawalModal";
 
 const Profile = observer(() => {
   const match = useRouteMatch();
+  const [showWithdrawalSetup, setShowWithdrawalSetup] = useState(false);
   const [showWithdrawalModal, setShowWithdrawableModal] = useState(false);
 
   let auth0;
@@ -28,6 +29,7 @@ const Profile = observer(() => {
 
   return (
     <div className="page-container profile-page">
+      { showWithdrawalSetup ? <WithdrawalSetupModal Close={() => setShowWithdrawalSetup(false)} /> : null }
       { showWithdrawalModal ? <WithdrawalModal Close={() => setShowWithdrawableModal(false)} /> : null }
       <div className="profile-page__section profile-page__section-account">
         <h2 className="profile-page__section-header">
@@ -98,7 +100,7 @@ const Profile = observer(() => {
             </div> :
             <div className="profile-page__actions">
               <ButtonWithLoader
-                onClick={async () => await rootStore.StripeOnboard()}
+                onClick={() => setShowWithdrawalSetup(true)}
                 className="action profile-page__onboard-button"
               >
                 Set Up Withdrawal

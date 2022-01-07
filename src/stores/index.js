@@ -827,7 +827,7 @@ class RootStore {
       })
     );
 
-    //this.userStripeId = stripe_id;
+    this.userStripeId = stripe_id;
     this.totalWalletBalance = parseFloat(balance || 0);
     this.availableWalletBalance = this.totalWalletBalance - parseFloat(seven_day_hold || 0);
     this.pendingWalletBalance = this.totalWalletBalance - this.availableWalletBalance;
@@ -862,7 +862,7 @@ class RootStore {
     yield this.GetWalletBalance();
   });
 
-  StripeOnboard = flow(function * () {
+  StripeOnboard = flow(function * (countryCode="US") {
     const popup = window.open("about:blank");
 
     const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
@@ -875,7 +875,7 @@ class RootStore {
         body: {
           amount: 0,
           currency: "USD",
-          country: "US",
+          country: countryCode,
           mode: EluvioConfiguration.mode,
           refresh_url: UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup-complete"),
           return_url: UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup-complete")

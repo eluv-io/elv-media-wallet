@@ -5,7 +5,64 @@ import Modal from "Components/common/Modal";
 import {ButtonWithLoader, FormatPriceString} from "Components/common/UIComponents";
 import {roundToUp} from "round-to";
 
-const WithdrawalModal = observer(({Close}) => {
+export const WithdrawalSetupModal = observer(({Close}) => {
+  const [errorMessage, setErrorMessage] = useState(undefined);
+  const [countryCode, setCountryCode] = useState("");
+
+  const supportedCountries = [["AU","Australia"],["AT","Austria"],["BE","Belgium"],["BR","Brazil"],["BG","Bulgaria"],["CA","Canada"],["CY","Cyprus"],["CZ", "Czech Republic"],["DK","Denmark"],["EE","Estonia"],["FI","Finland"],["FR","France"],["DE","Germany"],["GR","Greece"],["HK","Hong Kong"],["HU","Hungary"],["IE","Ireland"],["IT","Italy"],["JP","Japan"],["LV","Latvia"],["LT","Lithuania"],["LU","Luxembourg"],["MY","Malaysia"],["MT","Malta"],["MX","Mexico"],["NL","Netherlands"],["NZ","New Zealand"],["NO","Norway"],["PL","Poland"],["PT","Portugal"],["RO","Romania"],["SG","Singapore"],["SK","Slovakia"],["SI","Slovenia"],["ES","Spain"],["SE","Sweden"],["CH","Switzerland"],["AE","United Arab Emirates"],["GB","United Kingdom"],["US","United States of America"]];
+
+  return (
+    <Modal Toggle={Close} className="withdrawal-modal">
+      <div className="withdrawal-confirmation">
+        <div className="withdrawal-confirmation__header">
+          Set up withdrawal with Stripe Connect
+        </div>
+        <div className="withdrawal-confirmation__content">
+          <div className="withdrawal-confirmation__message">
+            Please select your country
+          </div>
+          <select
+            value={countryCode}
+            onChange={event => setCountryCode(event.target.value)}
+            className="withdrawal-confirmation__country-select"
+          >
+            <option value="">Select a Country</option>
+
+            { supportedCountries.map(([code, name]) =>
+              <option value={code} key={`option-${code}`}>{ name }</option>
+            )}
+          </select>
+          {
+            errorMessage ?
+              <div className="withdrawal-confirmation__error">
+                { errorMessage }
+              </div> : null
+          }
+          <div className="withdrawal-confirmation__actions">
+            <button className="action" onClick={() => Close()}>
+              Cancel
+            </button>
+            <ButtonWithLoader
+              onClick={async () => {
+                try {
+                  await rootStore.StripeOnboard(countryCode);
+                  Close();
+                } catch(error) {
+                  setErrorMessage("Unable to set up withdrawal. Please try again later.");
+                }
+              }}
+              className="action action-primary profile-page__onboard-button"
+            >
+              Set Up Withdrawal
+            </ButtonWithLoader>
+          </div>
+        </div>
+      </div>
+    </Modal>
+  );
+});
+
+export const WithdrawalModal = observer(({Close}) => {
   const [done, setDone] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [amount, setAmount] = useState(rootStore.withdrawableWalletBalance);
@@ -131,5 +188,3 @@ const WithdrawalModal = observer(({Close}) => {
     </Modal>
   );
 });
-
-export default WithdrawalModal;
