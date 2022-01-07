@@ -18,8 +18,15 @@ export const WithdrawalSetupModal = observer(({Close}) => {
           Set up withdrawal with Stripe Connect
         </div>
         <div className="withdrawal-confirmation__content">
+          {
+            errorMessage ?
+              <div className="withdrawal-confirmation__error">
+                { errorMessage }
+              </div> : null
+          }
+
           <div className="withdrawal-confirmation__message">
-            Please select your country
+            Please select your country to continue
           </div>
           <select
             value={countryCode}
@@ -32,12 +39,6 @@ export const WithdrawalSetupModal = observer(({Close}) => {
               <option value={code} key={`option-${code}`}>{ name }</option>
             )}
           </select>
-          {
-            errorMessage ?
-              <div className="withdrawal-confirmation__error">
-                { errorMessage }
-              </div> : null
-          }
           <div className="withdrawal-confirmation__actions">
             <button className="action" onClick={() => Close()}>
               Cancel

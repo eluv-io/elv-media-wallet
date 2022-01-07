@@ -865,41 +865,47 @@ class RootStore {
   StripeOnboard = flow(function * (countryCode="US") {
     const popup = window.open("about:blank");
 
-    const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
-    popup.location.href = UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup");
+    try {
+      const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
+      popup.location.href = UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup");
 
-    const response = yield Utils.ResponseToJson(
-      this.client.authClient.MakeAuthServiceRequest({
-        path: UrlJoin("as", "wlt", "bal", "stripe"),
-        method: "POST",
-        body: {
-          amount: 0,
-          currency: "USD",
-          country: countryCode,
-          mode: EluvioConfiguration.mode,
-          refresh_url: UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup-complete"),
-          return_url: UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup-complete")
-        },
-        headers: {
-          Authorization: `Bearer ${this.client.signer.authToken}`
-        }
-      })
-    );
-
-    if(response.onboard_redirect) {
-      popup.location.href = response.onboard_redirect;
-
-      yield new Promise(resolve => {
-        const closeCheck = setInterval(async () => {
-          if(!popup || popup.closed) {
-            clearInterval(closeCheck);
-
-            await this.GetWalletBalance();
-
-            resolve();
+      const response = yield Utils.ResponseToJson(
+        this.client.authClient.MakeAuthServiceRequest({
+          path: UrlJoin("as", "wlt", "bal", "stripe"),
+          method: "POST",
+          body: {
+            amount: 0,
+            currency: "USD",
+            country: countryCode,
+            mode: EluvioConfiguration.mode,
+            refresh_url: UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup-complete"),
+            return_url: UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup-complete")
+          },
+          headers: {
+            Authorization: `Bearer ${this.client.signer.authToken}`
           }
-        }, 1000);
-      });
+        })
+      );
+
+      if(response.onboard_redirect) {
+        popup.location.href = response.onboard_redirect;
+
+        yield new Promise(resolve => {
+          const closeCheck = setInterval(async () => {
+            if(!popup || popup.closed) {
+              clearInterval(closeCheck);
+
+              await this.GetWalletBalance();
+
+              resolve();
+            }
+          }, 1000);
+        });
+      }
+    } catch(error) {
+      popup.close();
+
+      throw error;
     }
   });
 
