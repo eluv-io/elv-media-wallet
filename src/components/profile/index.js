@@ -28,11 +28,11 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSe
       {
         rootStore.userStripeId && !rootStore.userStripeEnabled ?
           <div className="profile-page__withdrawal-setup-message">
-            Your Stripe account has been created, but is not ready to accept payments. Please finish setting up your account on your Stripe dashboard page.
+            Your Stripe account has been created, but is not ready to accept payments. Please finish setting up your account.
           </div> : null
       }
       {
-        rootStore.userStripeId ?
+        rootStore.userStripeId && rootStore.userStripeEnabled ?
           <div className="profile-page__actions">
             <button
               disabled={!rootStore.userStripeEnabled || !rootStore.withdrawableWalletBalance || rootStore.withdrawableWalletBalance <= 0}
@@ -79,7 +79,7 @@ const Profile = observer(() => {
 
   useEffect(() => {
     rootStore.SetNavigationBreadcrumbs([{name: "Wallet", path: "/wallet/collection" }, {name: "Profile", path: "/profile" }]);
-    rootStore.GetWalletBalance();
+    rootStore.GetWalletBalance(true);
   }, [match.url]);
 
   useEffect(() => {
@@ -95,7 +95,7 @@ const Profile = observer(() => {
     // Stripe account is created, but payments are not enabled. Occasionally check to see if this has changed.
     setStatusInterval(
       setInterval(() => {
-        rootStore.GetWalletBalance();
+        rootStore.GetWalletBalance(true);
       }, 30000)
     );
   }, [statusInterval, rootStore.userStripeId, rootStore.userStripeEnabled]);
@@ -154,7 +154,18 @@ const Profile = observer(() => {
         </Link>
       </div>
 
-      { balancePresent ? <WithdrawalDetails setShowWithdrawalModal={setShowWithdrawalModal} setShowWithdrawalSetup={setShowWithdrawalSetup} /> : null }
+      { balancePresent ?
+        <WithdrawalDetails
+          setShowWithdrawalModal={setShowWithdrawalModal}
+          setShowWithdrawalSetup={() => {
+            if(rootStore.userStripeId) {
+              rootStore.StripeOnboard();
+            } else {
+              setShowWithdrawalSetup(true);
+            }
+          }}
+        /> : null
+      }
 
       <div className="profile-page__section profile-page__actions">
         <div className="profile-page__actions">

@@ -814,7 +814,7 @@ class RootStore {
     ];
   }
 
-  GetWalletBalance = flow(function * () {
+  GetWalletBalance = flow(function * (checkOnboard=false) {
     if(!this.loggedIn) { return; }
 
     // eslint-disable-next-line no-unused-vars
@@ -836,6 +836,26 @@ class RootStore {
     this.withdrawableWalletBalance = this.totalWalletBalance - parseFloat(thirty_day_hold || 0) ||
       // TODO: REMOVE
       123.45;
+
+    if(checkOnboard && stripe_id && !stripe_payouts_enabled) {
+      // Refresh stripe enabled flag
+      const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "onb", "stripe"),
+        method: "POST",
+        body: {
+          country: "US",
+          mode: EluvioConfiguration.mode,
+          refresh_url: UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup-complete"),
+          return_url: UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup-complete")
+        },
+        headers: {
+          Authorization: `Bearer ${this.client.signer.authToken}`
+        }
+      });
+
+      yield this.GetWalletBalance(false);
+    }
   });
 
   WithdrawFunds = flow(function * (amount) {
@@ -896,6 +916,8 @@ class RootStore {
         const closeCheck = setInterval(async () => {
           if(!popup || popup.closed) {
             clearInterval(closeCheck);
+
+            await new Promise(resolve => setTimeout(resolve, 5000));
 
             await this.GetWalletBalance();
 

@@ -78,7 +78,7 @@ const Routes = () => {
     return null;
   };
 
-  if(location.pathname.startsWith("/withdrawal")) {
+  if(location.pathname.startsWith("/withdrawal") || location.pathname === "/redirect") {
     return (
       <Switch>
         <Route exact path="/redirect">
