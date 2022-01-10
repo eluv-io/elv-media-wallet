@@ -65,7 +65,7 @@ export const WithdrawalSetupModal = observer(({Close}) => {
 export const WithdrawalModal = observer(({Close}) => {
   const [done, setDone] = useState(false);
   const [confirming, setConfirming] = useState(false);
-  const [amount, setAmount] = useState(rootStore.withdrawableWalletBalance);
+  const [amount, setAmount] = useState(parseFloat((rootStore.withdrawableWalletBalance || 0)).toFixed(2));
   const [errorMessage, setErrorMessage] = useState(undefined);
   const parsedAmount = isNaN(parseFloat(amount)) ? 0 : parseFloat(amount || 0);
   const payout = roundToUp(parsedAmount * 0.99, 2);
