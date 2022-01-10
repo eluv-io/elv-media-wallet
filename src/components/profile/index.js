@@ -6,7 +6,7 @@ import {
   useRouteMatch
 } from "react-router-dom";
 import {ButtonWithLoader, CopyableField, FormatPriceString} from "Components/common/UIComponents";
-import {PendingPaymentsTable} from "Components/listings/TransferTables";
+import {PendingPaymentsTable, UserTransferTable} from "Components/listings/TransferTables";
 import {observer} from "mobx-react";
 import {WithdrawalModal, WithdrawalSetupModal} from "Components/profile/WithdrawalModal";
 
@@ -61,6 +61,13 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSe
               View Stripe Dashboard
             </button>
           </div> : null
+      }
+      {
+        rootStore.userStripeEnabled ?
+          <UserTransferTable
+            header="Withdrawals"
+            type="withdrawal"
+          /> : null
       }
     </div>
   );

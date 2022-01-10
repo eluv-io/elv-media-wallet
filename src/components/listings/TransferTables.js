@@ -246,7 +246,6 @@ export const PendingPaymentsTable = observer(({header, limit, className=""}) => 
   );
 });
 
-
 export const UserTransferTable = observer(({header, limit, marketplaceId, type="sale", className=""}) => {
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
@@ -255,14 +254,16 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
     let entries = (await transferStore.UserPaymentsHistory())
       .map(entry => ({
         ...entry,
-        type: Utils.EqualAddress(entry.buyer, rootStore.userAddress) ? "purchase" : "sale",
+        type:
+          !entry.addr && (entry.processor || "").includes("stripe-payout") ?
+            "withdrawal" : Utils.EqualAddress(entry.buyer, rootStore.userAddress) ? "purchase" : "sale",
         processor:
           (entry.processor || "").startsWith("eluvio") ? "Wallet Balance" :
             (entry.processor || "").startsWith("stripe") ? "Credit Card" : "Crypto",
         pending: Date.now() < entry.created * 1000 + 7 * 24 * 60 * 60 * 1000
       }))
       .filter(entry => entry.type === type)
-      .filter(entry => Utils.EqualAddress(rootStore.userAddress, type === "sale" ? entry.addr : entry.buyer))
+      .filter(entry => entry.type === "withdrawal" || Utils.EqualAddress(rootStore.userAddress, type === "sale" ? entry.addr : entry.buyer))
       .sort((a, b) => a.created > b.created ? -1 : 1);
 
     /*
@@ -294,6 +295,47 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
 
     return () => clearInterval(interval);
   }, []);
+
+  if(type === "withdrawal") {
+    return (
+      <div className={`transfer-table user-transfer-table withdrawal-table ${className}`}>
+        <div className="transfer-table__header">
+          { header }
+        </div>
+        <div className="transfer-table__table">
+          <div className="transfer-table__table__header">
+            <div className="transfer-table__table__cell">Amount</div>
+            <div className="transfer-table__table__cell">Payout</div>
+            <div className="transfer-table__table__cell no-mobile">Fee</div>
+            <div className="transfer-table__table__cell">Time</div>
+          </div>
+          <div className="transfer-table__content-rows">
+            {
+              loading ? <div className="transfer-table__loader"><Loader /></div> :
+                !entries || entries.length === 0 ?
+                  <div className="transfer-table__empty">No Withdrawals</div> :
+                  entries.map(transfer =>
+                    <div className="transfer-table__table__row" key={`transfer-table-row-${transfer.id}`}>
+                      <div className="transfer-table__table__cell">
+                        { FormatPriceString({USD: transfer.amount + transfer.fee}) }
+                      </div>
+                      <div className="transfer-table__table__cell">
+                        { FormatPriceString({USD: transfer.amount}) }
+                      </div>
+                      <div className="transfer-table__table__cell no-mobile">
+                        { FormatPriceString({USD: transfer.fee}) }
+                      </div>
+                      <div className="transfer-table__table__cell">
+                        { Ago(transfer.created * 1000) } ago
+                      </div>
+                    </div>
+                  )
+            }
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`transfer-table user-transfer-table ${className}`}>
