@@ -868,7 +868,7 @@ class RootStore {
 
     try {
       const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
-      popup.location.href = UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup");
+      popup.location.href = UrlJoin(rootUrl.toString(), "/#/", "redirect");
 
       const response = yield Utils.ResponseToJson(
         this.client.authClient.MakeAuthServiceRequest({
@@ -917,7 +917,7 @@ class RootStore {
 
     try {
       const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
-      popup.location.href = UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup");
+      popup.location.href = UrlJoin(rootUrl.toString(), "/#/", "redirect");
 
       const response = yield Utils.ResponseToJson(
         this.client.authClient.MakeAuthServiceRequest({

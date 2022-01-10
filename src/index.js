@@ -56,7 +56,7 @@ const Routes = () => {
     if(
       rootStore.GetSessionStorage("intendedPath") &&
       !rootStore.fromEmbed &&
-      !["/success", "/cancel", "/withdrawal-setup", "/withdrawal-setup-complete"].includes(history.location.pathname)
+      !["/success", "/cancel", "/redirect", "/withdrawal-setup-complete"].includes(history.location.pathname)
     ) {
       history.replace(rootStore.GetSessionStorage("intendedPath"));
     }
@@ -68,7 +68,7 @@ const Routes = () => {
     rootStore.SetSessionStorage("intendedPath", location.pathname);
   }, [location.pathname]);
 
-  const SetupLoading = () => {
+  const RedirectLoading = () => {
     return <PageLoader />;
   };
 
@@ -81,8 +81,8 @@ const Routes = () => {
   if(location.pathname.startsWith("/withdrawal")) {
     return (
       <Switch>
-        <Route exact path="/withdrawal-setup">
-          <SetupLoading />
+        <Route exact path="/redirect">
+          <RedirectLoading />
         </Route>
         <Route exact path="/withdrawal-setup-complete">
           <SetupComplete />
