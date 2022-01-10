@@ -85,12 +85,12 @@ export const WithdrawalModal = observer(({Close}) => {
                 <div>{FormatPriceString({USD: payout})}</div>
               </div>
               <div className="withdrawal-confirmation__detail">
-                <label>Remaining Funds</label>
-                <div>{FormatPriceString({USD: rootStore.withdrawableWalletBalance - parsedAmount})}</div>
+                <label>Remaining Withdrawable Funds</label>
+                <div>{FormatPriceString({USD: rootStore.withdrawableWalletBalance})}</div>
               </div>
             </div>
             <div className="withdrawal-confirmation__actions">
-              <button className="action action-primary" onClick={() => Close()}>
+              <button className="action" onClick={() => Close()}>
                 OK
               </button>
             </div>

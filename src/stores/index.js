@@ -833,9 +833,7 @@ class RootStore {
     this.totalWalletBalance = parseFloat(balance || 0);
     this.availableWalletBalance = this.totalWalletBalance - parseFloat(seven_day_hold || 0);
     this.pendingWalletBalance = this.totalWalletBalance - this.availableWalletBalance;
-    this.withdrawableWalletBalance = this.totalWalletBalance - parseFloat(thirty_day_hold || 0) ||
-      // TODO: REMOVE
-      123.45;
+    this.withdrawableWalletBalance = this.totalWalletBalance - parseFloat(thirty_day_hold || 0);
 
     if(checkOnboard && stripe_id && !stripe_payouts_enabled) {
       // Refresh stripe enabled flag
