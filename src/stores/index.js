@@ -91,6 +91,7 @@ class RootStore {
   funds = undefined;
 
   userStripeId = undefined;
+  userStripeEnabled = false;
   withdrawableWalletBalance = undefined;
   availableWalletBalance = undefined;
   pendingWalletBalance = undefined;
@@ -817,7 +818,7 @@ class RootStore {
     if(!this.loggedIn) { return; }
 
     // eslint-disable-next-line no-unused-vars
-    const { balance, seven_day_hold, thirty_day_hold, stripe_id } = yield Utils.ResponseToJson(
+    const { balance, seven_day_hold, thirty_day_hold, stripe_id, stripe_payouts_enabled } = yield Utils.ResponseToJson(
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "mkt", "bal"),
         method: "GET",
@@ -828,11 +829,13 @@ class RootStore {
     );
 
     this.userStripeId = stripe_id;
+    this.userStripeEnabled = stripe_payouts_enabled;
     this.totalWalletBalance = parseFloat(balance || 0);
     this.availableWalletBalance = this.totalWalletBalance - parseFloat(seven_day_hold || 0);
     this.pendingWalletBalance = this.totalWalletBalance - this.availableWalletBalance;
-    this.withdrawableWalletBalance = this.totalWalletBalance - parseFloat(thirty_day_hold || 0);
-    this.withdrawableWalletBalance = 10.99;
+    this.withdrawableWalletBalance = this.totalWalletBalance - parseFloat(thirty_day_hold || 0) ||
+      // TODO: REMOVE
+      123.45;
   });
 
   WithdrawFunds = flow(function * (amount) {
@@ -848,8 +851,6 @@ class RootStore {
           amount,
           currency: "USD",
           mode: EluvioConfiguration.mode,
-          refresh_url: window.location.href,
-          return_url: window.location.href
         },
         headers: {
           Authorization: `Bearer ${this.client.signer.authToken}`
@@ -871,11 +872,9 @@ class RootStore {
 
       const response = yield Utils.ResponseToJson(
         this.client.authClient.MakeAuthServiceRequest({
-          path: UrlJoin("as", "wlt", "bal", "stripe"),
+          path: UrlJoin("as", "wlt", "onb", "stripe"),
           method: "POST",
           body: {
-            amount: 0,
-            currency: "USD",
             country: countryCode,
             mode: EluvioConfiguration.mode,
             refresh_url: UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup-complete"),
@@ -887,23 +886,73 @@ class RootStore {
         })
       );
 
-      if(response.onboard_redirect) {
-        popup.location.href = response.onboard_redirect;
-
-        yield new Promise(resolve => {
-          const closeCheck = setInterval(async () => {
-            if(!popup || popup.closed) {
-              clearInterval(closeCheck);
-
-              await this.GetWalletBalance();
-
-              resolve();
-            }
-          }, 1000);
-        });
+      if(!response.onboard_redirect) {
+        throw "Response missing login URL";
       }
+
+      popup.location.href = response.onboard_redirect;
+
+      yield new Promise(resolve => {
+        const closeCheck = setInterval(async () => {
+          if(!popup || popup.closed) {
+            clearInterval(closeCheck);
+
+            await this.GetWalletBalance();
+
+            resolve();
+          }
+        }, 1000);
+      });
     } catch(error) {
       popup.close();
+
+      this.Log(error, true);
+
+      throw error;
+    }
+  });
+
+  StripeLogin = flow (function * () {
+    const popup = window.open("about:blank");
+
+    try {
+      const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
+      popup.location.href = UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup");
+
+      const response = yield Utils.ResponseToJson(
+        this.client.authClient.MakeAuthServiceRequest({
+          path: UrlJoin("as", "wlt", "login", "stripe"),
+          method: "POST",
+          body: {
+            mode: EluvioConfiguration.mode,
+          },
+          headers: {
+            Authorization: `Bearer ${this.client.signer.authToken}`
+          }
+        })
+      );
+
+      if(!response.login_url) {
+        throw "Response missing login URL";
+      }
+
+      popup.location.href = response.login_url;
+
+      yield new Promise(resolve => {
+        const closeCheck = setInterval(async () => {
+          if(!popup || popup.closed) {
+            clearInterval(closeCheck);
+
+            await this.GetWalletBalance();
+
+            resolve();
+          }
+        }, 1000);
+      });
+    } catch(error) {
+      popup.close();
+
+      this.Log(error, true);
 
       throw error;
     }

@@ -10,10 +10,67 @@ import {PendingPaymentsTable} from "Components/listings/TransferTables";
 import {observer} from "mobx-react";
 import {WithdrawalModal, WithdrawalSetupModal} from "Components/profile/WithdrawalModal";
 
+const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSetup}) => {
+  return (
+    <div className="profile-page__section profile-page__section-balance profile-page__section-box">
+      <h2 className="profile-page__section-header">
+        Withdrawable Wallet Balance
+      </h2>
+      <div className="profile-page__balance profile-page__balance-highlight">
+        { FormatPriceString({USD: rootStore.withdrawableWalletBalance}) } USD
+      </div>
+      {
+        !rootStore.userStripeId ?
+          <div className="profile-page__withdrawal-setup-message">
+            Set up a Stripe Connect account to withdraw your funds
+          </div> : null
+      }
+      {
+        rootStore.userStripeId && !rootStore.userStripeEnabled ?
+          <div className="profile-page__withdrawal-setup-message">
+            Your Stripe account has been created, but is not ready to accept payments. Please finish setting up your account on your Stripe dashboard page.
+          </div> : null
+      }
+      {
+        rootStore.userStripeId ?
+          <div className="profile-page__actions">
+            <button
+              disabled={!rootStore.userStripeEnabled || !rootStore.withdrawableWalletBalance || rootStore.withdrawableWalletBalance <= 0}
+              onClick={() => setShowWithdrawalModal(true)}
+              className="action profile-page__withdraw-button"
+            >
+              Withdraw Funds
+            </button>
+          </div> :
+          <div className="profile-page__actions">
+            <ButtonWithLoader
+              onClick={() => setShowWithdrawalSetup(true)}
+              className="action profile-page__onboard-button"
+            >
+              Set Up Withdrawal
+            </ButtonWithLoader>
+          </div>
+      }
+      {
+        rootStore.userStripeId ?
+          <div className="profile-page__actions">
+            <button
+              className="action-link"
+              onClick={async () => await rootStore.StripeLogin()}
+            >
+              View Stripe Dashboard
+            </button>
+          </div> : null
+      }
+    </div>
+  );
+});
+
 const Profile = observer(() => {
   const match = useRouteMatch();
+  const [statusInterval, setStatusInterval] = useState(undefined);
   const [showWithdrawalSetup, setShowWithdrawalSetup] = useState(false);
-  const [showWithdrawalModal, setShowWithdrawableModal] = useState(false);
+  const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
 
   let auth0;
   if(!rootStore.embedded) {
@@ -25,12 +82,30 @@ const Profile = observer(() => {
     rootStore.GetWalletBalance();
   }, [match.url]);
 
+  useEffect(() => {
+    if(!rootStore.userStripeId || rootStore.userStripeEnabled) {
+      clearInterval(statusInterval);
+      return;
+    }
+
+    if(statusInterval) {
+      return;
+    }
+
+    // Stripe account is created, but payments are not enabled. Occasionally check to see if this has changed.
+    setStatusInterval(
+      setInterval(() => {
+        rootStore.GetWalletBalance();
+      }, 30000)
+    );
+  }, [statusInterval, rootStore.userStripeId, rootStore.userStripeEnabled]);
+
   const balancePresent = typeof rootStore.totalWalletBalance !== "undefined";
 
   return (
     <div className="page-container profile-page">
       { showWithdrawalSetup ? <WithdrawalSetupModal Close={() => setShowWithdrawalSetup(false)} /> : null }
-      { showWithdrawalModal ? <WithdrawalModal Close={() => setShowWithdrawableModal(false)} /> : null }
+      { showWithdrawalModal ? <WithdrawalModal Close={() => setShowWithdrawalModal(false)} /> : null }
       <div className="profile-page__section profile-page__section-account">
         <h2 className="profile-page__section-header">
           Wallet Address
@@ -58,7 +133,6 @@ const Profile = observer(() => {
         </div>
       </div>
 
-
       <div className="profile-page__section profile-page__section-balance profile-page__section-box">
         <h2 className="profile-page__section-header">
           Pending Wallet Balance
@@ -80,46 +154,7 @@ const Profile = observer(() => {
         </Link>
       </div>
 
-      <div className="profile-page__section profile-page__section-balance profile-page__section-box">
-        <h2 className="profile-page__section-header">
-          Withdrawable Wallet Balance
-        </h2>
-        <div className="profile-page__balance profile-page__balance-highlight">
-          { FormatPriceString({USD: rootStore.withdrawableWalletBalance}) } { balancePresent ? "USD" : "" }
-        </div>
-        {
-          rootStore.userStripeId ?
-            <div className="profile-page__actions">
-              <button
-                disabled={!rootStore.withdrawableWalletBalance || rootStore.withdrawableWalletBalance <= 0}
-                onClick={() => setShowWithdrawableModal(true)}
-                className="action profile-page__withdraw-button"
-              >
-                Withdraw Funds
-              </button>
-            </div> :
-            <div className="profile-page__actions">
-              <ButtonWithLoader
-                onClick={() => setShowWithdrawalSetup(true)}
-                className="action profile-page__onboard-button"
-              >
-                Set Up Withdrawal
-              </ButtonWithLoader>
-            </div>
-        }
-        {
-          rootStore.userStripeId ?
-            <div className="profile-page__actions">
-              <a
-                className="action-link"
-                target="_blank"
-                href="https://connect.stripe.com/app/express#earnings"
-              >
-                View Stripe Dashboard
-              </a>
-            </div> : null
-        }
-      </div>
+      { balancePresent ? <WithdrawalDetails setShowWithdrawalModal={setShowWithdrawalModal} setShowWithdrawalSetup={setShowWithdrawalSetup} /> : null }
 
       <div className="profile-page__section profile-page__actions">
         <div className="profile-page__actions">

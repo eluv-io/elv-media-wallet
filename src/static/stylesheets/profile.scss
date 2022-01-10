@@ -100,6 +100,13 @@
     letter-spacing: 0.01em;
   }
 
+  &__withdrawal-setup-message {
+    font-size: 14px;
+    margin: 30px auto 0;
+    max-width: 500px;
+    text-align: center;
+  }
+
   .profile-page__pending-transactions-table {
     margin: 20px 0;
 
@@ -169,7 +176,7 @@
   &__country-select {
     align-items: center;
     display: flex;
-    margin: 0 auto 40px;
+    margin: 0 auto 30px;
     min-width: 250px;
   }
 
@@ -257,7 +264,8 @@
 
   &__error {
     color: $red;
-    margin: 10px 0 20px;
+    font-size: 12px;
+    margin: 20px 0;
     text-align: center;
     width: 100%;
   }
@@ -329,7 +337,7 @@
     }
 
     &__error {
-      color: $mediumgray;
+      color: $red;
     }
 
     &__detail-faded {

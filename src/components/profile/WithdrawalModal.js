@@ -9,7 +9,7 @@ export const WithdrawalSetupModal = observer(({Close}) => {
   const [errorMessage, setErrorMessage] = useState(undefined);
   const [countryCode, setCountryCode] = useState("");
 
-  const supportedCountries = [["AU","Australia"],["AT","Austria"],["BE","Belgium"],["BR","Brazil"],["BG","Bulgaria"],["CA","Canada"],["CY","Cyprus"],["CZ", "Czech Republic"],["DK","Denmark"],["EE","Estonia"],["FI","Finland"],["FR","France"],["DE","Germany"],["GR","Greece"],["HK","Hong Kong"],["HU","Hungary"],["IE","Ireland"],["IT","Italy"],["JP","Japan"],["LV","Latvia"],["LT","Lithuania"],["LU","Luxembourg"],["MY","Malaysia"],["MT","Malta"],["MX","Mexico"],["NL","Netherlands"],["NZ","New Zealand"],["NO","Norway"],["PL","Poland"],["PT","Portugal"],["RO","Romania"],["SG","Singapore"],["SK","Slovakia"],["SI","Slovenia"],["ES","Spain"],["SE","Sweden"],["CH","Switzerland"],["AE","United Arab Emirates"],["GB","United Kingdom"],["US","United States of America"]];
+  const supportedCountries = [["AU","Australia"],["AT","Austria"],["BE","Belgium"],["BR","Brazil"],["BG","Bulgaria"],["CA","Canada"],["CY","Cyprus"],["CZ", "Czech Republic"],["DK","Denmark"],["EE","Estonia"],["FI","Finland"],["FR","France"],["DE","Germany"],["GR","Greece"],["HK","Hong Kong"],["HU","Hungary"],["IE","Ireland"],["IT","Italy"],["JP","Japan"],["LV","Latvia"],["LT","Lithuania"],["LU","Luxembourg"],["MY","Malaysia"],["MT","Malta"],["MX","Mexico"],["NL","Netherlands"],["NZ","New Zealand"],["NO","Norway"],["PL","Poland"],["PT","Portugal"],["RO","Romania"],["SG","Singapore"],["SK","Slovakia"],["SI","Slovenia"],["ES","Spain"],["SE","Sweden"],["CH","Switzerland"],["US","United States of America"],["AE","United Arab Emirates"],["GB","United Kingdom"]];
 
   return (
     <Modal Toggle={Close} className="withdrawal-modal">
@@ -18,13 +18,6 @@ export const WithdrawalSetupModal = observer(({Close}) => {
           Set up withdrawal with Stripe Connect
         </div>
         <div className="withdrawal-confirmation__content">
-          {
-            errorMessage ?
-              <div className="withdrawal-confirmation__error">
-                { errorMessage }
-              </div> : null
-          }
-
           <div className="withdrawal-confirmation__message">
             Please select your country to continue
           </div>
@@ -39,6 +32,12 @@ export const WithdrawalSetupModal = observer(({Close}) => {
               <option value={code} key={`option-${code}`}>{ name }</option>
             )}
           </select>
+          {
+            errorMessage ?
+              <div className="withdrawal-confirmation__error">
+                { errorMessage }
+              </div> : null
+          }
           <div className="withdrawal-confirmation__actions">
             <button className="action" onClick={() => Close()}>
               Cancel

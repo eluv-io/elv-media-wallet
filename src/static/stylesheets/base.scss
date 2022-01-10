@@ -302,7 +302,10 @@ em {
 }
 
 .action-link {
+  border: 0 !important;
   font-size: 12px;
+  // sass-lint:disable no-important
+  height: 1.8em;
   text-decoration: underline;
 }
 
