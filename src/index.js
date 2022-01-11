@@ -1,6 +1,6 @@
 import "Assets/stylesheets/app.scss";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import UrlJoin from "url-join";
 import { render } from "react-dom";
 import { observer} from "mobx-react";
@@ -69,6 +69,22 @@ const Routes = () => {
   }, [location.pathname]);
 
   const RedirectLoading = () => {
+    // Safari + stripe has a weird bug in the onboarding flow where it redirects back to /redirect instead of /withdrawal-setup-complete
+    // If we've been redirected already in this tab, we must have been sent back here.
+    const [returned, setReturned] = useState(false);
+    useEffect(() => {
+      if(rootStore.GetSessionStorage("redirected")) {
+        rootStore.RemoveSessionStorage("redirected");
+        setReturned(true);
+      } else {
+        rootStore.SetSessionStorage("redirected");
+      }
+    });
+
+    if(returned) {
+      return <SetupComplete />;
+    }
+
     return <PageLoader />;
   };
 
