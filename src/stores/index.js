@@ -915,9 +915,9 @@ class RootStore {
           if(!popup || popup.closed) {
             clearInterval(closeCheck);
 
-            await new Promise(resolve => setTimeout(resolve, 5000));
+            await new Promise(resolve => setTimeout(resolve, 2000));
 
-            await this.GetWalletBalance();
+            await this.GetWalletBalance(true);
 
             resolve();
           }

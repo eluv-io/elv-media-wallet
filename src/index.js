@@ -75,7 +75,13 @@ const Routes = () => {
   const SetupComplete = () => {
     window.close();
 
-    return null;
+    return (
+      <div className="page-container setup-complete">
+        <h1 className="setup-complete__message">
+          Setup complete. You can now close this page.
+        </h1>
+      </div>
+    );
   };
 
   if(location.pathname.startsWith("/withdrawal") || location.pathname === "/redirect") {

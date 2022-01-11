@@ -36,7 +36,7 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSe
           <div className="profile-page__actions">
             <ButtonWithLoader
               disabled={!rootStore.userStripeEnabled || !rootStore.withdrawableWalletBalance || rootStore.withdrawableWalletBalance <= 0}
-              onClick={async () => await setShowWithdrawalModal(true)}
+              onClick={() => setShowWithdrawalModal(true)}
               className="action profile-page__withdraw-button"
             >
               Withdraw Funds
@@ -44,7 +44,7 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSe
           </div> :
           <div className="profile-page__actions">
             <ButtonWithLoader
-              onClick={() => setShowWithdrawalSetup(true)}
+              onClick={async () => await setShowWithdrawalSetup(true)}
               className="action profile-page__onboard-button"
             >
               Set Up Withdrawal
@@ -164,9 +164,9 @@ const Profile = observer(() => {
       { balancePresent ?
         <WithdrawalDetails
           setShowWithdrawalModal={setShowWithdrawalModal}
-          setShowWithdrawalSetup={() => {
+          setShowWithdrawalSetup={async () => {
             if(rootStore.userStripeId) {
-              rootStore.StripeOnboard();
+              await rootStore.StripeOnboard();
             } else {
               setShowWithdrawalSetup(true);
             }
