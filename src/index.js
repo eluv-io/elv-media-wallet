@@ -1,6 +1,6 @@
 import "Assets/stylesheets/app.scss";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import UrlJoin from "url-join";
 import { render } from "react-dom";
 import { observer} from "mobx-react";
@@ -35,6 +35,7 @@ import { InitializeListener } from "Components/interface/Listener";
 import { Auth0Provider } from "@auth0/auth0-react";
 import MarketplaceRoutes from "Components/marketplace";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
+import {PageLoader} from "Components/common/Loaders";
 
 const Placeholder = ({ text }) => <div>{text}</div>;
 
@@ -55,7 +56,7 @@ const Routes = () => {
     if(
       rootStore.GetSessionStorage("intendedPath") &&
       !rootStore.fromEmbed &&
-      !["/success", "/cancel"].includes(history.location.pathname)
+      !["/success", "/cancel", "/redirect", "/withdrawal-setup-complete"].includes(history.location.pathname)
     ) {
       history.replace(rootStore.GetSessionStorage("intendedPath"));
     }
@@ -66,6 +67,51 @@ const Routes = () => {
   useEffect(() => {
     rootStore.SetSessionStorage("intendedPath", location.pathname);
   }, [location.pathname]);
+
+  const RedirectLoading = () => {
+    // Safari + stripe has a weird bug in the onboarding flow where it redirects back to /redirect instead of /withdrawal-setup-complete
+    // If we've been redirected already in this tab, we must have been sent back here.
+    const [returned, setReturned] = useState(false);
+    useEffect(() => {
+      if(rootStore.GetSessionStorage("redirected")) {
+        rootStore.RemoveSessionStorage("redirected");
+        setReturned(true);
+      } else {
+        rootStore.SetSessionStorage("redirected");
+      }
+    });
+
+    if(returned) {
+      return <SetupComplete />;
+    }
+
+    return <PageLoader />;
+  };
+
+  const SetupComplete = () => {
+    window.close();
+
+    return (
+      <div className="page-container setup-complete">
+        <h1 className="setup-complete__message">
+          Setup complete. You can now close this page.
+        </h1>
+      </div>
+    );
+  };
+
+  if(location.pathname.startsWith("/withdrawal") || location.pathname === "/redirect") {
+    return (
+      <Switch>
+        <Route exact path="/redirect">
+          <RedirectLoading />
+        </Route>
+        <Route exact path="/withdrawal-setup-complete">
+          <SetupComplete />
+        </Route>
+      </Switch>
+    );
+  }
 
   if(!rootStore.loggedIn) {
     return (

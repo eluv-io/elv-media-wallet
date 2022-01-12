@@ -90,6 +90,9 @@ class RootStore {
   accountId = undefined;
   funds = undefined;
 
+  userStripeId = undefined;
+  userStripeEnabled = false;
+  withdrawableWalletBalance = undefined;
   availableWalletBalance = undefined;
   pendingWalletBalance = undefined;
   totalWalletBalance = undefined;
@@ -811,11 +814,11 @@ class RootStore {
     ];
   }
 
-  GetWalletBalance = flow(function * () {
+  GetWalletBalance = flow(function * (checkOnboard=false) {
     if(!this.loggedIn) { return; }
 
     // eslint-disable-next-line no-unused-vars
-    const { balance, seven_day_hold, thirty_day_hold } = yield Utils.ResponseToJson(
+    const { balance, seven_day_hold, thirty_day_hold, stripe_id, stripe_payouts_enabled } = yield Utils.ResponseToJson(
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "mkt", "bal"),
         method: "GET",
@@ -825,9 +828,154 @@ class RootStore {
       })
     );
 
+    this.userStripeId = stripe_id;
+    this.userStripeEnabled = stripe_payouts_enabled;
     this.totalWalletBalance = parseFloat(balance || 0);
-    this.availableWalletBalance = this.totalWalletBalance - parseFloat(seven_day_hold || 0);
-    this.pendingWalletBalance = this.totalWalletBalance - this.availableWalletBalance;
+    this.availableWalletBalance = Math.max(0, this.totalWalletBalance - parseFloat(seven_day_hold || 0));
+    this.pendingWalletBalance = Math.max(0, this.totalWalletBalance - this.availableWalletBalance);
+    this.withdrawableWalletBalance = Math.max(0, this.totalWalletBalance - parseFloat(thirty_day_hold || 0));
+
+    if(checkOnboard && stripe_id && !stripe_payouts_enabled) {
+      // Refresh stripe enabled flag
+      const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "onb", "stripe"),
+        method: "POST",
+        body: {
+          country: "US",
+          mode: EluvioConfiguration.mode,
+          refresh_url: UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup-complete"),
+          return_url: UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup-complete")
+        },
+        headers: {
+          Authorization: `Bearer ${this.client.signer.authToken}`
+        }
+      });
+
+      yield this.GetWalletBalance(false);
+    }
+  });
+
+  WithdrawFunds = flow(function * (amount) {
+    if(amount > this.withdrawableWalletBalance) {
+      throw Error("Attempting to withdraw unavailable funds");
+    }
+
+    yield Utils.ResponseToJson(
+      this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "bal", "stripe"),
+        method: "POST",
+        body: {
+          amount,
+          currency: "USD",
+          mode: EluvioConfiguration.mode,
+        },
+        headers: {
+          Authorization: `Bearer ${this.client.signer.authToken}`
+        }
+      })
+    );
+
+    yield new Promise(resolve => setTimeout(resolve, 1000));
+
+    yield this.GetWalletBalance();
+  });
+
+  StripeOnboard = flow(function * (countryCode="US") {
+    const popup = window.open("about:blank");
+
+    try {
+      const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
+      popup.location.href = UrlJoin(rootUrl.toString(), "/#/", "redirect");
+
+      const response = yield Utils.ResponseToJson(
+        this.client.authClient.MakeAuthServiceRequest({
+          path: UrlJoin("as", "wlt", "onb", "stripe"),
+          method: "POST",
+          body: {
+            country: countryCode,
+            mode: EluvioConfiguration.mode,
+            refresh_url: UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup-complete"),
+            return_url: UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup-complete")
+          },
+          headers: {
+            Authorization: `Bearer ${this.client.signer.authToken}`
+          }
+        })
+      );
+
+      if(!response.onboard_redirect) {
+        throw "Response missing login URL";
+      }
+
+      popup.location.href = response.onboard_redirect;
+
+      yield new Promise(resolve => {
+        const closeCheck = setInterval(async () => {
+          if(!popup || popup.closed) {
+            clearInterval(closeCheck);
+
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            await this.GetWalletBalance(true);
+
+            resolve();
+          }
+        }, 1000);
+      });
+    } catch(error) {
+      popup.close();
+
+      this.Log(error, true);
+
+      throw error;
+    }
+  });
+
+  StripeLogin = flow (function * () {
+    const popup = window.open("about:blank");
+
+    try {
+      const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
+      popup.location.href = UrlJoin(rootUrl.toString(), "/#/", "redirect");
+
+      const response = yield Utils.ResponseToJson(
+        this.client.authClient.MakeAuthServiceRequest({
+          path: UrlJoin("as", "wlt", "login", "stripe"),
+          method: "POST",
+          body: {
+            mode: EluvioConfiguration.mode,
+          },
+          headers: {
+            Authorization: `Bearer ${this.client.signer.authToken}`
+          }
+        })
+      );
+
+      if(!response.login_url) {
+        throw "Response missing login URL";
+      }
+
+      popup.location.href = response.login_url;
+
+      yield new Promise(resolve => {
+        const closeCheck = setInterval(async () => {
+          if(!popup || popup.closed) {
+            clearInterval(closeCheck);
+
+            await this.GetWalletBalance();
+
+            resolve();
+          }
+        }, 1000);
+      });
+    } catch(error) {
+      popup.close();
+
+      this.Log(error, true);
+
+      throw error;
+    }
   });
 
   InitializeClient = flow(function * ({user, idToken, authToken, address, privateKey}) {
