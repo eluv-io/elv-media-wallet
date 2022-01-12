@@ -52,22 +52,27 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSe
           </div>
       }
       {
-        rootStore.userStripeId ?
-          <div className="profile-page__actions">
-            <button
-              className="action-link"
-              onClick={async () => await rootStore.StripeLogin()}
-            >
-              View Stripe Dashboard
-            </button>
-          </div> : null
-      }
-      {
         rootStore.userStripeEnabled ?
           <UserTransferTable
             header="Withdrawals"
             type="withdrawal"
           /> : null
+      }
+      {
+        rootStore.userStripeId ?
+          <>
+            <div className="profile-page__actions">
+              <button
+                className="action-link"
+                onClick={async () => await rootStore.StripeLogin()}
+              >
+                View Stripe Dashboard
+              </button>
+            </div>
+            <div className="profile-page__message">
+              Payout is managed by Stripe. See the dashboard for processing status.
+            </div>
+          </> : null
       }
     </div>
   );
@@ -157,7 +162,7 @@ const Profile = observer(() => {
           className="profile-page__transactions-link"
           to={"/wallet/my-listings/transactions"}
         >
-          See full transaction history
+          View Full Transaction History
         </Link>
       </div>
 
