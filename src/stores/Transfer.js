@@ -313,6 +313,9 @@ class TransferStore {
             listings: []
           };
         }
+      } else if(marketplace) {
+        // Show only items in marketplace
+        filters.push(`tenant:eq:${marketplace.tenant_id}`);
       }
 
       if(contractAddress) {
