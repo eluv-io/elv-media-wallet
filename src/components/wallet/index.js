@@ -25,12 +25,10 @@ const WalletNavigation = observer(() => {
         My Collection
       </NavLink>
       <NavLink className="sub-navigation__link" to="/wallet/my-listings">
-        <div className="sub-navigation__link-text">My Listings</div>
-        <div className="sub-navigation__link-subtext">Beta</div>
+        My Listings
       </NavLink>
       <NavLink className="sub-navigation__link" to="/wallet/listings">
-        <div className="sub-navigation__link-text">All Listings</div>
-        <div className="sub-navigation__link-subtext">Beta</div>
+        All Listings
       </NavLink>
       <div className="sub-navigation__separator" />
     </nav>

@@ -47,15 +47,13 @@ const MarketplaceNavigation = observer(() => {
         { ((marketplace.storefront || {}).tabs || {}).store || "Store" }
       </NavLink>
       <NavLink className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/listings`}>
-        <div className="sub-navigation__link-text">All Listings</div>
-        <div className="sub-navigation__link-subtext">Beta</div>
+        All Listings
       </NavLink>
       <NavLink className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/collections`}>
         { ((marketplace.storefront || {}).tabs || {}).collection || "My Items" }
       </NavLink>
       <NavLink className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/my-listings`}>
-        <div className="sub-navigation__link-text">My Listings</div>
-        <div className="sub-navigation__link-subtext">Beta</div>
+        My Listings
       </NavLink>
       <div className="sub-navigation__separator" />
     </nav>
