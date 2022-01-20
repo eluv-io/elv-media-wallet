@@ -17,6 +17,7 @@ import MyListings from "Components/listings/MyListings";
 import Listings from "Components/listings/Listings";
 import PurchaseHandler from "Components/marketplace/PurchaseHandler";
 import UrlJoin from "url-join";
+import Activity from "Components/listings/Activity";
 
 const WalletNavigation = observer(() => {
   return (
@@ -29,6 +30,9 @@ const WalletNavigation = observer(() => {
       </NavLink>
       <NavLink className="sub-navigation__link" to="/wallet/listings">
         All Listings
+      </NavLink>
+      <NavLink className="sub-navigation__link" to="/wallet/my-listings">
+        Activity
       </NavLink>
       <div className="sub-navigation__separator" />
     </nav>
@@ -91,6 +95,9 @@ const Routes = (match) => {
     { name: nft.metadata.display_name, path: "/wallet/my-listings/:contractId/:tokenId", Component: NFTDetails },
     { name: "My Listings", path: "/wallet/my-listings", Component: MyListings },
     { name: "My Listings", path: "/wallet/my-listings/transactions", Component: MyListings },
+
+    { name: "Activity", path: "/wallet/activity", Component: Activity },
+
     { name: listingName, path: "/wallet/listings/:listingId", Component: NFTDetails },
     { name: "All Listings", path: "/wallet/listings", Component: Listings },
     { name: "Open Pack", path: "/wallet/collection/:contractId/:tokenId/open", Component: PackOpenStatus },

@@ -31,7 +31,7 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
     }
 
     try {
-      const results = await transferStore.FilteredTransferListings({
+      const results = await transferStore.FilteredQuery({
         contractAddress,
         contractId,
         sortBy: sortField,

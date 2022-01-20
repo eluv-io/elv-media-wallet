@@ -167,6 +167,12 @@ $badge-pending: rgba($darkgray, 0.8);
     }
   }
 
+  @media screen and (max-width: $intermediate-breakpoint) {
+    .no-tablet {
+      display: none;
+    }
+  }
+
   @media screen and (max-width: 800px) {
     .no-mobile {
       display: none;
@@ -174,6 +180,7 @@ $badge-pending: rgba($darkgray, 0.8);
 
     &__table__cell {
       font-size: 10px;
+      padding: 10px;
 
       em {
         margin: 0;

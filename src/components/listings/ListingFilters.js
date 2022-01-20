@@ -54,7 +54,7 @@ const FilterDropdown = observer(({label, value, options, onChange, placeholder})
   );
 });
 
-export const ListingFilters = observer(({Loading, UpdateListings}) => {
+export const ListingFilters = observer(({Loading, UpdateListings, mode="listings"}) => {
   const match = useRouteMatch();
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const collections = marketplace && marketplace.collections;
@@ -88,7 +88,8 @@ export const ListingFilters = observer(({Loading, UpdateListings}) => {
 
       if(Loading) { Loading(true); }
 
-      let {listings, paging} = await transferStore.FilteredTransferListings({
+      let {listings, paging} = await transferStore.FilteredQuery({
+        mode,
         sortBy,
         sortDesc,
         filter,
@@ -98,9 +99,11 @@ export const ListingFilters = observer(({Loading, UpdateListings}) => {
         limit: perPage
       });
 
-      listings = listings.filter(listing =>
-        !currentResults.find(existingListing => existingListing.details.ListingId === listing.details.ListingId)
-      );
+      if(mode === "listings") {
+        listings = listings.filter(listing =>
+          !currentResults.find(existingListing => existingListing.details.ListingId === listing.details.ListingId)
+        );
+      }
 
       const allListings = [...currentResults, ...listings];
 

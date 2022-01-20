@@ -236,7 +236,7 @@ class TransferStore {
   }
 
   NFTListingStats = flow(function * ({contractAddress}) {
-    const minListingResults = yield transferStore.FilteredTransferListings({
+    const minListingResults = yield transferStore.FilteredQuery({
       contractAddress,
       limit: 1,
       sortBy: "price",
@@ -247,7 +247,7 @@ class TransferStore {
       return { min: 0, max: 0, total: 0 };
     }
 
-    const maxListingResults = yield transferStore.FilteredTransferListings({
+    const maxListingResults = yield transferStore.FilteredQuery({
       contractAddress,
       limit: 1,
       sortBy: "price",
@@ -261,7 +261,8 @@ class TransferStore {
     };
   });
 
-  FilteredTransferListings = flow(function * ({
+  FilteredQuery = flow(function * ({
+    mode="listings",
     sortBy="created",
     sortDesc=false,
     filter,
@@ -328,14 +329,22 @@ class TransferStore {
         params.filter = filters;
       }
 
+      let path;
+      switch(mode) {
+        case "listings":
+          path = UrlJoin("as", "mkt", "f");
+          break;
+
+        case "sales":
+          path = UrlJoin("as", "mkt", "hst", "f", "sold", "99999");
+          break;
+      }
+
       const { contents, paging } = yield Utils.ResponseToJson(
         yield this.client.authClient.MakeAuthServiceRequest({
-          path: UrlJoin("as", "mkt", "f"),
+          path,
           method: "GET",
-          queryParams: params,
-          headers: {
-            Authorization: `Bearer ${this.client.signer.authToken}`
-          }
+          queryParams: params
         })
       ) || [];
 
@@ -346,7 +355,7 @@ class TransferStore {
           total: paging.total,
           more: paging.total > start + limit
         },
-        listings: (contents || []).map(listing => this.FormatListing(listing))
+        listings: (contents || []).map(listing => mode === "listings" ? this.FormatListing(listing) : listing)
       };
     } catch(error) {
       if(error.status && error.status.toString() === "404") {
@@ -491,6 +500,23 @@ class TransferStore {
         }
       })
     );
+  });
+
+  TransferStats = flow(function * ({marketplace}={}) {
+    if(!this.loadCache.transferStats || Date.now() - this.loadCache.transferStats.retrievedAt > 30000) {
+      this.loadCache.transferStats = {
+        retrievedAt: Date.now(),
+        promise: Utils.ResponseToJson(
+          this.client.authClient.MakeAuthServiceRequest({
+            path: UrlJoin("as", "mkt", "stats"),
+            method: "GET",
+            queryParams: marketplace ? {filter: `tenant:eq:${marketplace.tenant_id}`} : {}
+          })
+        )
+      };
+    }
+
+    return yield this.loadCache.transferStats.promise;
   });
 }
 

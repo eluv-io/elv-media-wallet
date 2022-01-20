@@ -11,6 +11,7 @@ import ListingFilters from "Components/listings/ListingFilters";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import ImageIcon from "Components/common/ImageIcon";
 import ListingIcon from "Assets/icons/listing";
+import ListingStats from "Components/listings/ListingStats";
 
 const Listing = memo(({url, listing}) => (
   <div className="card-container card-shadow" >
@@ -62,7 +63,8 @@ const Listings = observer(() => {
 
   return (
     <div className="marketplace-listings marketplace__section">
-      <h1 className="page-header">Available Listings</h1>
+      <h1 className="page-header">All Listings</h1>
+      <ListingStats mode="listings" />
       <ListingFilters Loading={setLoading} UpdateListings={setListings} />
       {
         // Initial Load

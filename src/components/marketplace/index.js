@@ -20,6 +20,7 @@ import Listings from "Components/listings/Listings";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import MyListings from "Components/listings/MyListings";
 import PurchaseHandler from "Components/marketplace/PurchaseHandler";
+import Activity from "Components/listings/Activity";
 
 const MarketplaceNavigation = observer(() => {
   let match = useRouteMatch();
@@ -41,7 +42,8 @@ const MarketplaceNavigation = observer(() => {
           !match.path.includes("/marketplaces/:marketplaceId/collections") &&
           !match.path.includes("/marketplaces/:marketplaceId/owned") &&
           !match.path.includes("/marketplaces/:marketplaceId/listings") &&
-          !match.path.includes("/marketplaces/:marketplaceId/my-listings")
+          !match.path.includes("/marketplaces/:marketplaceId/my-listings") &&
+          !match.path.includes("/marketplaces/:marketplaceId/activity")
         }
       >
         { ((marketplace.storefront || {}).tabs || {}).store || "Store" }
@@ -54,6 +56,9 @@ const MarketplaceNavigation = observer(() => {
       </NavLink>
       <NavLink className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/my-listings`}>
         My Listings
+      </NavLink>
+      <NavLink className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/activity`}>
+        Activity
       </NavLink>
       <div className="sub-navigation__separator" />
     </nav>
@@ -183,6 +188,7 @@ const Routes = (match) => {
     { name: "All Listings", path: "/marketplaces/:marketplaceId/listings", Component: Listings },
     { name: nft.metadata.display_name, path: "/marketplaces/:marketplaceId/my-listings/:contractId/:tokenId", Component: NFTDetails },
     { name: "My Listings", path: "/marketplaces/:marketplaceId/my-listings", Component: MyListings },
+    { name: "Activity", path: "/marketplaces/:marketplaceId/activity", Component: Activity },
 
 
     { name: (event.event_info || {}).event_title, path: "/marketplaces/:marketplaceId/events/:dropId", Component: Drop, hideNavigation: true },
