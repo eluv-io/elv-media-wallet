@@ -322,7 +322,11 @@ class TransferStore {
       if(contractAddress) {
         filters.push(`contract:eq:${Utils.FormatAddress(contractAddress)}`);
       } else if(filter) {
-        filters.push(`nft/display_name:eq:${filter}`);
+        if(mode === "listings") {
+          filters.push(`nft/display_name:eq:${filter}`);
+        } else {
+          filters.push(`name:eq:${filter}`);
+        }
       }
 
       let path;
@@ -504,8 +508,10 @@ class TransferStore {
   });
 
   TransferStats = flow(function * ({marketplace}={}) {
-    if(!this.loadCache.transferStats || Date.now() - this.loadCache.transferStats.retrievedAt > 30000) {
-      this.loadCache.transferStats = {
+    const tenantId = marketplace ? marketplace.tenant_id : "global";
+    const cacheKey = `transfer-stats-${tenantId}`;
+    if(!this.loadCache[cacheKey] || Date.now() - this.loadCache[cacheKey].retrievedAt > 30000) {
+      this.loadCache[cacheKey] = {
         retrievedAt: Date.now(),
         promise: Utils.ResponseToJson(
           this.client.authClient.MakeAuthServiceRequest({
@@ -517,7 +523,7 @@ class TransferStore {
       };
     }
 
-    return yield this.loadCache.transferStats.promise;
+    return yield this.loadCache[cacheKey].promise;
   });
 }
 

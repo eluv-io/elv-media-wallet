@@ -65,18 +65,20 @@ const Collections = observer(() => {
   }, []);
 
   return (
-    <div className="card-list collections">
-      { rootStore.nfts.map(nft =>
-        <CollectionCard
-          key={`nft-card-${nft.details.ContractId}-${nft.details.TokenIdStr}`}
-          nft={nft}
-          listing={myListings.find(listing =>
-            nft.details.TokenIdStr === listing.details.TokenIdStr &&
-            Utils.EqualAddress(nft.details.ContractAddr, listing.details.ContractAddr)
-          )}
-        />
-      )}
-    </div>
+    rootStore.nfts.length === 0 ?
+      <h2 className="marketplace__empty">Your wallet is empty</h2> :
+      <div className="card-list collections">
+        {rootStore.nfts.map(nft =>
+          <CollectionCard
+            key={`nft-card-${nft.details.ContractId}-${nft.details.TokenIdStr}`}
+            nft={nft}
+            listing={myListings.find(listing =>
+              nft.details.TokenIdStr === listing.details.TokenIdStr &&
+              Utils.EqualAddress(nft.details.ContractAddr, listing.details.ContractAddr)
+            )}
+          />
+        )}
+      </div>
   );
 });
 

@@ -201,7 +201,11 @@ export const ListingFilters = observer(({Loading, UpdateListings, mode="listings
       {
         !paging ? null :
           <div className="listing-pagination">
-            Showing 1 - { Math.min(currentPage * perPage, paging.total) } of { paging.total } results
+            {
+              paging.total <= 0 ?
+                "No Results" :
+                `Showing 1 - ${Math.min(currentPage * perPage, paging.total)} of ${paging.total} results`
+            }
           </div>
       }
     </>
