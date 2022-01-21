@@ -29,7 +29,7 @@ const ListingStats = ({mode="listings"}) => {
     <div className="listing-stats">
       <div className="listing-stats__item">
         <label className="listing-stats__label">
-          Total Listings
+          Active Listings
         </label>
         <div className="listing-stats__value">
           { stats.listed.count }

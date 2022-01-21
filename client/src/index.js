@@ -60,7 +60,6 @@ const LOG_LEVELS = {
 
 /**
  * Eluvio Media Wallet Client
- *
  */
 export class ElvWalletClient {
   Throw(error) {
@@ -100,10 +99,26 @@ export class ElvWalletClient {
 
   /**
    * This constructor should not be used. Please use <a href="#.InitializePopup">InitializeFrame</a> or <a href="#.InitializePopup">InitializePopup</a> instead.
+   *
+<pre><code>
+import { ElvWalletClient } from "@eluvio/elv-wallet-client";
+
+// Initialize in iframe at target element
+const walletClient = await ElvWalletClient.InitializeFrame({
+ walletAppUrl: "https://wallet.contentfabric.io",
+ target: document.getElementById("#wallet-target"),
+ marketplaceHash: <version-hash-of-marketplace>
+});
+
+// Or initialize in a popup
+const walletClient = await ElvWalletClient.InitializePopup({
+ walletAppUrl: "https://wallet.contentfabric.io",
+});
+</code></pre>
    * @constructor
    */
   constructor({
-    walletAppUrl="http://media-wallet.v3.contentfabric.io",
+    walletAppUrl="http://wallet.contentfabric.io",
     target,
     Close,
     timeout=10
@@ -120,9 +135,9 @@ export class ElvWalletClient {
     this.target = target;
     this.Close = Close;
     this.timeout = timeout;
-    this.EVENTS = EVENTS;
     this.LOG_LEVELS = LOG_LEVELS;
     this.logLevel = this.LOG_LEVELS.WARN;
+    this.EVENTS = EVENTS;
 
     this.eventListeners = {};
     Object.keys(EVENTS).forEach(key => this.eventListeners[key] = []);
@@ -160,11 +175,29 @@ export class ElvWalletClient {
     });
   }
 
+
+  /**
+   * Event keys that can be registered in AddEventListener.
+   *
+   * Available options: LOADED, LOG_IN, LOG_OUT, CLOSE, ALL
+   *
+   * Also accessible as a property via `walletClient.EVENTS`
+   *
+   * @methodGroup Events
+   */
+  Events() {
+    return this.EVENTS;
+  }
+
   /**
    * Add an event listener for the specified event
    *
+   * Example:
+   *
+   * `walletClient.AddEventListener(walletClient.EVENTS.LOG_IN, HandleLogin);`
+   *
    * @methodGroup Events
-   * @param {string} event - An event key from <a href="#EVENTS">EVENTS</a>
+   * @param {string} event - An event key from <a href="#Events">Events</a>
    * @param {function} Listener - An event listener
    */
   AddEventListener(event, Listener) {
@@ -178,7 +211,7 @@ export class ElvWalletClient {
    * Remove the specified event listener
    *
    * @methodGroup Events
-   * @param {string} event - An event key from <a href="#EVENTS">EVENTS</a>
+   * @param {string} event - An event key from <a href="#Events">Events</a>
    * @param {function} Listener - The listener to remove
    */
   RemoveEventListener(event, Listener) {
@@ -376,14 +409,14 @@ export class ElvWalletClient {
    * @methodGroup Constructor
    *
    * @namedParams
-   * @param {string=} walletAppUrl=http://media-wallet.v3.contentfabric.io - The URL of the Eluvio Media Wallet app
+   * @param {string=} walletAppUrl=http://wallet.contentfabric.io - The URL of the Eluvio Media Wallet app
    * @param {string=} marketplaceId - Specify a specific marketplace for the wallet to use
    * @param {string=} marketplaceHash - Specify a specific version of a specific marketplace for the wallet to use
    * @param {boolean=} darkMode=false - Specify whether the app should be in dark mode
    *
    * @return {Promise<ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new window.
    */
-  static async InitializePopup({walletAppUrl="http://media-wallet.v3.contentfabric.io", marketplaceId, marketplaceHash, darkMode=false}) {
+  static async InitializePopup({walletAppUrl="http://wallet.contentfabric.io", marketplaceId, marketplaceHash, darkMode=false}) {
     walletAppUrl = new URL(walletAppUrl);
 
     if(marketplaceId || marketplaceHash) {
@@ -411,7 +444,7 @@ export class ElvWalletClient {
    * @methodGroup Constructor
    *
    * @namedParams
-   * @param {string=} walletAppUrl=http://media-wallet.v3.contentfabric.io - The URL of the Eluvio Media Wallet app
+   * @param {string=} walletAppUrl=http://wallet.contentfabric.io - The URL of the Eluvio Media Wallet app
    * @param {Object | string} target - An HTML element or the ID of an element
 
    * @param {string=} marketplaceId - Specify a specific marketplace for the wallet to use
@@ -420,7 +453,7 @@ export class ElvWalletClient {
    *
    * @return {Promise<ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new iframe.
    */
-  static async InitializeFrame({walletAppUrl="http://media-wallet.v3.contentfabric.io", target, marketplaceId, marketplaceHash, darkMode=false}) {
+  static async InitializeFrame({walletAppUrl="http://wallet.contentfabric.io", target, marketplaceId, marketplaceHash, darkMode=false}) {
     if(typeof target === "string") {
       const targetElement = document.getElementById(target);
 
