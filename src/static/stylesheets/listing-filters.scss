@@ -99,10 +99,10 @@
     }
 
     &__actions {
-      width: 100%;
       justify-content: center;
       // sass-lint:disable no-important
-      margin: 20px 0!important;
+      margin: 20px 0 !important;
+      width: 100%;
 
       .action {
         max-width: 120px;
@@ -120,16 +120,17 @@
 
 
 .listing-stats {
-  display: grid;
   align-items: center;
+  border: 1px solid $mediumgray;
+  border-radius: 6px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  height: 75px;
   justify-content: center;
+  margin-bottom: 30px;
+  max-height: 75px;
   padding: 10px;
   width: 100%;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  border-radius: 6px;
-  margin-bottom: 30px;
-  height: 75px;
-  max-height: 75px;
 
   &__loader {
     height: 60px;
@@ -139,16 +140,17 @@
     height: 50px;
 
     &:not(:last-child) {
-      border-right: 2px solid rgba($lightblue, 0.35);
+      // sass-lint:disable no-color-literals
+      border-right: 2px solid rgba($mediumgray, 0.35);
     }
   }
 
   &__label,
   &__value {
+    color: $lightblue;
     display: block;
-    width: 100%;
     text-align: center;
-    color: $blue;
+    width: 100%;
   }
 
   &__label {
@@ -162,16 +164,17 @@
   }
 
   @media screen and (max-width: $intermediate-breakpoint) {
+    grid-template-columns: repeat(auto-fit, minmax(33%, 1fr));
     height: auto;
     max-height: unset;
-    grid-template-columns: repeat(auto-fit, minmax(33%, 1fr));
     padding-bottom: 0;
 
     &__item {
       margin-bottom: 10px;
 
       &:not(:last-child) {
-        border: 0;
+        // sass-lint:disable no-important
+        border: 0 !important;
       }
     }
   }
@@ -184,10 +187,18 @@
 .dark {
   .listing-stats {
     background-color: $darkestgray;
+    border: 0;
 
     &__label,
     &__value {
       color: $lightblue;
+    }
+
+    &__item {
+      &:not(:last-child) {
+        // sass-lint:disable no-color-literals
+        border-right: 2px solid rgba($lightblue, 0.35);
+      }
     }
   }
 

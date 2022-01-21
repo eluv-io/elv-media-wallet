@@ -31,7 +31,7 @@ const WalletNavigation = observer(() => {
       <NavLink className="sub-navigation__link" to="/wallet/listings">
         All Listings
       </NavLink>
-      <NavLink className="sub-navigation__link" to="/wallet/my-listings">
+      <NavLink className="sub-navigation__link" to="/wallet/activity">
         Activity
       </NavLink>
       <div className="sub-navigation__separator" />

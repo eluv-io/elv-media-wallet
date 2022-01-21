@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore, transferStore} from "Stores";
 import {Ago, MiddleEllipsis, TimeDiff} from "../../utils/Utils";
@@ -11,26 +11,27 @@ import ImageIcon from "Components/common/ImageIcon";
 import {FormatPriceString} from "Components/common/UIComponents";
 import {v4 as UUID} from "uuid";
 
+import { useInfiniteScroll } from "react-g-infinite-scroll";
+
 export const ActiveListings = observer(({contractAddress, contractId, initialSelectedListingId, Select}) => {
-  const tableRef = useRef();
   const [listings, setListings] = useState([]);
   const [paging, setPaging] = useState({});
   const [sortField, setSortField] = useState("price");
   const [sortDesc, setSortDesc] = useState(false);
-  const [scrollLoadKey, setScrollLoadKey] = useState("");
   const [selectedListingId, setSelectedListingId] = useState(initialSelectedListingId);
   const [id] = useState(`active-listings-table-${UUID()}`);
   const [loading, setLoading] = useState(true);
-  const perPage = 50;
+  const previouslyLoaded = listings && listings.length > 0;
+  const perPage = 10;
 
   const UpdateHistory = async (append=false) => {
-    if(!append) {
-      setLoading(true);
-    } else {
-      if(!paging.more) { return; }
-    }
-
     try {
+      if(append && !paging.more) {
+        return;
+      }
+
+      setLoading(true);
+
       const results = await transferStore.FilteredQuery({
         contractAddress,
         contractId,
@@ -65,34 +66,6 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
   };
 
   useEffect(() => {
-    // Update key when scrolled to the bottom of the page
-    let scrollTimeout;
-
-    const table = tableRef.current;
-
-    if(!table) { return; }
-
-    const InfiniteScroll = () => {
-      if(Math.abs(table.scrollHeight - (table.offsetHeight + table.scrollTop)) < 10) {
-        clearTimeout(scrollTimeout);
-
-        scrollTimeout = setTimeout(() => {
-          setScrollLoadKey(UUID());
-        }, 300);
-      }
-    };
-
-    table.addEventListener("scroll", InfiniteScroll);
-
-    return () => table.removeEventListener("scroll", InfiniteScroll);
-  }, [tableRef.current]);
-
-  useEffect(() => {
-    UpdateHistory(true);
-  }, [scrollLoadKey]);
-
-  useEffect(() => {
-    const previouslyLoaded = listings && listings.length > 0;
     UpdateHistory()
       .then(() => {
         if(previouslyLoaded) { return; }
@@ -116,9 +89,15 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
     />
   );
 
+  const ref = useInfiniteScroll({
+    expectRef: true,
+    fetchMore: async () => await UpdateHistory(true),
+    ignoreScroll: !previouslyLoaded || loading || paging && !paging.more
+  });
+
   return (
-    <div id={id} ref={tableRef} className={`transfer-table active-listings ${Select ? "transfer-table-selectable" : ""}`}>
-      <div className="transfer-table__table">
+    <div id={id} className={`transfer-table active-listings ${Select ? "transfer-table-selectable" : ""}`}>
+      <div className="transfer-table__table" ref={ref}>
         <div className="transfer-table__table__header transfer-table__table__header-sortable">
           <button className="transfer-table__table__cell" onClick={() => UpdateSort("info/ordinal")}>
             Token { sortField === "info/ordinal" ? sortIcon : null }
@@ -132,7 +111,7 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
         </div>
         <div className="transfer-table__content-rows">
           {
-            loading ? <div className="transfer-table__loader"><Loader/></div> :
+            loading && !previouslyLoaded ? <div className="transfer-table__loader"><Loader/></div> :
               !listings || listings.length === 0 ?
                 <div className="transfer-table__empty">No Active Listings</div> :
                 listings.map((listing, index) => {
@@ -173,6 +152,7 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
                   );
                 })
           }
+          { loading && previouslyLoaded ? <div className="transfer-table__loader"><Loader/></div> : null }
         </div>
       </div>
     </div>

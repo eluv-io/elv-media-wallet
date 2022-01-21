@@ -274,14 +274,14 @@ class TransferStore {
   }={}) {
     collectionIndex = parseInt(collectionIndex);
 
-    try {
-      let params = {
-        sort_by: sortBy,
-        sort_descending: sortDesc,
-        start,
-        limit
-      };
+    let params = {
+      sort_by: sortBy,
+      sort_descending: sortDesc,
+      start,
+      limit
+    };
 
+    try {
       let filters = [];
       if(marketplace && collectionIndex >= 0) {
         const collection = marketplace.collections[collectionIndex];
@@ -325,10 +325,6 @@ class TransferStore {
         filters.push(`nft/display_name:eq:${filter}`);
       }
 
-      if(filters.length > 0) {
-        params.filter = filters;
-      }
-
       let path;
       switch(mode) {
         case "listings":
@@ -336,8 +332,13 @@ class TransferStore {
           break;
 
         case "sales":
-          path = UrlJoin("as", "mkt", "hst", "f", "sold", "99999");
+          path = UrlJoin("as", "mkt", "hst", "f");
+          filters.push("action:eq:SOLD");
           break;
+      }
+
+      if(filters.length > 0) {
+        params.filter = filters;
       }
 
       const { contents, paging } = yield Utils.ResponseToJson(

@@ -21,17 +21,24 @@ import {useRouteMatch} from "react-router-dom";
 import {rootStore, transferStore} from "Stores";
 import AutoComplete from "Components/common/AutoComplete";
 import {ButtonWithLoader} from "Components/common/UIComponents";
-import {v4 as UUID} from "uuid";
 import ImageIcon from "Components/common/ImageIcon";
 import FilterIcon from "Assets/icons/search.svg";
 
-const sortOptions = [
+const sortOptionsListings = [
   { key: "created", value: "created", label: "Recently Listed", desc: true},
   { key: "info/ordinal", value: "ord", label: "Ordinal", desc: false},
   { key: "price", value: "price_asc", label: "Price (Low to High)", desc: false},
   { key: "price", value: "price_desc", label: "Price (High to Low)", desc: true},
   { key: "/nft/display_name", value: "display_name_asc", label: "Name (A-Z)", desc: false},
   { key: "/nft/display_name", value: "display_name_desc", label: "Name (Z-A)", desc: true}
+];
+
+const sortOptionsActivity = [
+  { key: "created", value: "created", label: "Recently Listed", desc: true},
+  { key: "price", value: "price_asc", label: "Price (Low to High)", desc: false},
+  { key: "price", value: "price_desc", label: "Price (High to Low)", desc: true},
+  { key: "name", value: "display_name_asc", label: "Name (A-Z)", desc: false},
+  { key: "name", value: "display_name_desc", label: "Name (Z-A)", desc: true}
 ];
 
 const FilterDropdown = observer(({label, value, options, onChange, placeholder}) => {
@@ -54,13 +61,11 @@ const FilterDropdown = observer(({label, value, options, onChange, placeholder})
   );
 });
 
-export const ListingFilters = observer(({Loading, UpdateListings, mode="listings"}) => {
+export const ListingFilters = observer(({Loading, UpdateListings, mode="listings", loadKey, setLoading, setFinished, perPage=50}) => {
   const match = useRouteMatch();
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const collections = marketplace && marketplace.collections;
 
-  const [loading, setLoading] = useState(false);
-  const [loadKey, setLoadKey] = useState(undefined);
   const [results, setResults] = useState([]);
   const [moreResults, setMoreResults] = useState(false);
   const [paging, setPaging] = useState(undefined);
@@ -74,11 +79,12 @@ export const ListingFilters = observer(({Loading, UpdateListings, mode="listings
 
   const [filterOptions, setFilterOptions] = useState([]);
 
-  const perPage = 16;
-  let scrollTimeout;
-
   const Load = async ({page=1, currentResults=[]}) => {
-    if(page === 1) { setPaging(undefined); }
+    if(page === 1) {
+      setPaging(undefined);
+    } else if(!moreResults) {
+      return;
+    }
 
     setCurrentPage(page);
     setMoreResults(false);
@@ -111,6 +117,10 @@ export const ListingFilters = observer(({Loading, UpdateListings, mode="listings
       setMoreResults(paging.more);
       setPaging(paging);
 
+      if(setFinished) {
+        setFinished(!paging.more);
+      }
+
       if(UpdateListings) { UpdateListings(allListings); }
     } finally {
       setLoading(false);
@@ -118,23 +128,6 @@ export const ListingFilters = observer(({Loading, UpdateListings, mode="listings
       if(Loading) { Loading(false); }
     }
   };
-
-  // Update key when scrolled to the bottom of the page
-  useEffect(() => {
-    const InfiniteScroll = () => {
-      if(Math.abs((window.innerHeight + window.scrollY) - document.body.offsetHeight) < 10) {
-        clearTimeout(scrollTimeout);
-
-        scrollTimeout = setTimeout(() => {
-          setLoadKey(UUID());
-        }, 300);
-      }
-    };
-
-    window.addEventListener("scroll", InfiniteScroll);
-
-    return () => window.removeEventListener("scroll", InfiniteScroll);
-  }, []);
 
   // Initial page load
   useEffect(() => {
@@ -148,13 +141,15 @@ export const ListingFilters = observer(({Loading, UpdateListings, mode="listings
     }
   }, []);
 
-  // Load triggered by scroll detection updating a key
   useEffect(() => {
-    if(!loadKey || loading || !moreResults) { return; }
+    if(!moreResults) {
+      return;
+    }
 
     Load({page: currentPage + 1, currentResults: results});
   }, [loadKey]);
 
+  const sortOptions = mode === "listings" ? sortOptionsListings : sortOptionsActivity;
 
   return (
     <>
@@ -206,7 +201,7 @@ export const ListingFilters = observer(({Loading, UpdateListings, mode="listings
       {
         !paging ? null :
           <div className="listing-pagination">
-            Showing 1 - { currentPage * perPage } of { paging.total } results
+            Showing 1 - { Math.min(currentPage * perPage, paging.total) } of { paging.total } results
           </div>
       }
     </>

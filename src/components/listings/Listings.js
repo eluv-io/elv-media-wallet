@@ -12,6 +12,7 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 import ImageIcon from "Components/common/ImageIcon";
 import ListingIcon from "Assets/icons/listing";
 import ListingStats from "Components/listings/ListingStats";
+import {useInfiniteScroll} from "react-g-infinite-scroll";
 
 const Listing = memo(({url, listing}) => (
   <div className="card-container card-shadow" >
@@ -60,12 +61,27 @@ const Listings = observer(() => {
 
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadKey, setLoadKey] = useState(1);
+  const [finished, setFinished] = useState(false);
+
+  useInfiniteScroll({
+    fetchMore: () => setLoadKey(loadKey + 1),
+    ignoreScroll: loading || finished
+  });
 
   return (
     <div className="marketplace-listings marketplace__section">
       <h1 className="page-header">All Listings</h1>
       <ListingStats mode="listings" />
-      <ListingFilters Loading={setLoading} UpdateListings={setListings} />
+      <ListingFilters
+        perPage={16}
+        Loading={setLoading}
+        UpdateListings={setListings}
+        mode="listings"
+        loadKey={loadKey}
+        setLoading={setLoading}
+        setFinished={setFinished}
+      />
       {
         // Initial Load
         loading && listings.length === 0 ? <PageLoader/> : null

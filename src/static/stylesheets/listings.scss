@@ -133,10 +133,10 @@
 
   &__menu-button {
     background-color: $white;
+    font-size: 12px;
     height: 26px;
     min-width: 36px;
     position: absolute;
-    font-size: 12px;
     right: 20px;
     top: -5px;
     width: 32px;
@@ -155,9 +155,9 @@
 
     button {
       border: 0;
-      width: 100%;
       font-size: 14px;
       height: 35px;
+      width: 100%;
 
       &:focus {
         box-shadow: 0 0 5px $blue;

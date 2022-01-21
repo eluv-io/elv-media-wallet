@@ -45,6 +45,7 @@
     "pre-commit": "^1.2.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
+    "react-g-infinite-scroll": "0.0.1",
     "react-inlinesvg": "^2.3.0",
     "react-lines-ellipsis": "^0.15.0",
     "react-markdown": "^5.0.3",
