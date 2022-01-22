@@ -413,7 +413,7 @@ const ListingPurchaseSelection = observer(({nft, marketplaceItem, initialListing
   const free = marketplaceItem && (!directPrice || marketplaceItem.free);
 
   useEffect(() => {
-    transferStore.NFTListingStats({contractAddress: nft.details.ContractAddr})
+    transferStore.FilteredQuery({mode: "listing-stats", contractAddress: nft.details.ContractAddr})
       .then(stats => setListingStats(stats));
 
     if(initialListingId) {

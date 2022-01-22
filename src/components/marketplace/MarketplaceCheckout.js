@@ -55,7 +55,7 @@ const MarketplaceCheckout = observer(({item}) => {
     <AsyncComponent
       loadingClassName="marketplace-price marketplace-price__loader"
       Load={async () => {
-        setListingStats(await transferStore.NFTListingStats({contractAddress: itemTemplate.address}));
+        setListingStats(await transferStore.FilteredQuery({mode: "listing-stats", contractAddress: itemTemplate.address}));
       }}
     >
       {

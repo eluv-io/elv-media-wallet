@@ -61,93 +61,42 @@ const FilterDropdown = observer(({label, value, options, onChange, placeholder})
   );
 });
 
-export const ListingFilters = observer(({Loading, UpdateListings, mode="listings", loadKey, setLoading, setFinished, perPage=50}) => {
+export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
   const match = useRouteMatch();
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const collections = marketplace && marketplace.collections;
 
-  const [results, setResults] = useState([]);
-  const [moreResults, setMoreResults] = useState(false);
-  const [paging, setPaging] = useState(undefined);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [filterOptions, setFilterOptions] = useState([]);
 
   const [sort, setSort] = useState("created");
   const [sortBy, setSortBy] = useState("created");
   const [sortDesc, setSortDesc] = useState(true);
   const [collectionIndex, setCollectionIndex] = useState(-1);
+  const [lastNDays, setLastNDays] = useState(-1);
   const [filter, setFilter] = useState("");
 
-  const [filterOptions, setFilterOptions] = useState([]);
-
-  const Load = async ({page=1, currentResults=[]}) => {
-    if(page === 1) {
-      setPaging(undefined);
-    } else if(!moreResults) {
-      return;
-    }
-
-    setCurrentPage(page);
-    setMoreResults(false);
-
-    try {
-      setLoading(true);
-
-      if(Loading) { Loading(true); }
-
-      let {listings, paging} = await transferStore.FilteredQuery({
-        mode,
-        sortBy,
-        sortDesc,
-        filter,
-        collectionIndex,
-        marketplace,
-        start: page === 1 ? 0 : (page - 1) * perPage,
-        limit: perPage
-      });
-
-      if(mode === "listings") {
-        listings = listings.filter(listing =>
-          !currentResults.find(existingListing => existingListing.details.ListingId === listing.details.ListingId)
-        );
-      }
-
-      const allListings = [...currentResults, ...listings];
-
-      setResults(allListings);
-      setMoreResults(paging.more);
-      setPaging(paging);
-
-      if(setFinished) {
-        setFinished(!paging.more);
-      }
-
-      if(UpdateListings) { UpdateListings(allListings); }
-    } finally {
-      setLoading(false);
-
-      if(Loading) { Loading(false); }
-    }
+  const Update = async () => {
+    UpdateFilters({
+      sortBy,
+      sortDesc,
+      filter,
+      collectionIndex,
+      lastNDays,
+      marketplaceId: match.params.marketplaceId
+    });
   };
 
-  // Initial page load
+  // Initial load + load item names
   useEffect(() => {
-    Load({page: 1});
+    Update();
 
     if(marketplace) {
-      setFilterOptions(marketplace.items.map(item => item.name || "").sort());
+      setFilterOptions(marketplace.items.map(item => (item.nftTemplateMetadata || {}).display_name || "").sort());
     } else {
       transferStore.ListingNames()
         .then(names => setFilterOptions(names.sort()));
     }
   }, []);
-
-  useEffect(() => {
-    if(!moreResults) {
-      return;
-    }
-
-    Load({page: currentPage + 1, currentResults: results});
-  }, [loadKey]);
 
   const sortOptions = mode === "listings" ? sortOptionsListings : sortOptionsActivity;
 
@@ -179,35 +128,32 @@ export const ListingFilters = observer(({Loading, UpdateListings, mode="listings
               }
             /> : null
         }
+        <FilterDropdown
+          label="Time"
+          value={lastNDays}
+          onChange={value => setLastNDays(value)}
+          placeholder={["-1", "All Time"]}
+          options={[["7", "Last 7 Days"], ["30", "Last 30 Days"]]}
+        />
         <div className="listing-filters__autocomplete-container">
           <label className="listing-filters__label">Filter</label>
           <AutoComplete
             placeholder="Filter..."
             value={filter}
             onChange={value => setFilter(value)}
-            onEnterPressed={async () => await Load({page: 1})}
+            onEnterPressed={async () => await Update()}
             options={filterOptions}
           />
         </div>
         <div className="listing-filters__actions actions-container">
           <ButtonWithLoader
             className="action action-primary listing-filters__filter-button"
-            onClick={async () => await Load({page: 1})}
+            onClick={async () => await Update()}
           >
             <ImageIcon icon={FilterIcon} title="Filter Results" className="action-icon" />
           </ButtonWithLoader>
         </div>
       </div>
-      {
-        !paging ? null :
-          <div className="listing-pagination">
-            {
-              paging.total <= 0 ?
-                "No Results" :
-                `Showing 1 - ${Math.min(currentPage * perPage, paging.total)} of ${paging.total} results`
-            }
-          </div>
-      }
     </>
   );
 });

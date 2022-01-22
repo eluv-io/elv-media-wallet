@@ -1,4 +1,4 @@
-import React, {memo, useState} from "react";
+import React, {memo} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import {Link, useRouteMatch} from "react-router-dom";
@@ -6,13 +6,11 @@ import UrlJoin from "url-join";
 import {NFTImage} from "Components/common/Images";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 import {FormatPriceString} from "Components/common/UIComponents";
-import {Loader, PageLoader} from "Components/common/Loaders";
-import ListingFilters from "Components/listings/ListingFilters";
+import {Loader} from "Components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import ImageIcon from "Components/common/ImageIcon";
 import ListingIcon from "Assets/icons/listing";
-import ListingStats from "Components/listings/ListingStats";
-import {useInfiniteScroll} from "react-g-infinite-scroll";
+import FilteredView from "Components/listings/FilteredView";
 
 const Listing = memo(({url, listing}) => (
   <div className="card-container card-shadow" >
@@ -59,48 +57,32 @@ const Listing = memo(({url, listing}) => (
 const Listings = observer(() => {
   const match = useRouteMatch();
 
-  const [listings, setListings] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [loadKey, setLoadKey] = useState(1);
-  const [finished, setFinished] = useState(false);
-
-  useInfiniteScroll({
-    fetchMore: () => setLoadKey(loadKey + 1),
-    ignoreScroll: loading || finished
-  });
-
   return (
-    <div className="marketplace-listings marketplace__section">
-      <h1 className="page-header">All Listings</h1>
-      <ListingStats mode="listings" />
-      <ListingFilters
-        perPage={16}
-        Loading={setLoading}
-        UpdateListings={setListings}
-        mode="listings"
-        loadKey={loadKey}
-        setLoading={setLoading}
-        setFinished={setFinished}
-      />
-      {
-        // Initial Load
-        loading && listings.length === 0 ? <PageLoader/> : null
-      }
-      {
-        !loading && listings.length === 0 ?
-          <h2 className="marketplace__empty">No matching items</h2> :
-          <div className="card-list">
-            {
-              listings.map((listing, index) =>
-                <Listing url={match.url} listing={listing} key={`listing-card-${listing.details.ListingId}-${index}`} />
-              )
-            }
-            { // Infinite scroll loading indicator
-              loading && listings.length > 1 ? <Loader className="card-list__loader"/> : null
-            }
-          </div>
-      }
-    </div>
+    <FilteredView
+      mode="listings"
+      perPage={16}
+      Render={({entries, loading}) => (
+        <>
+          {
+            entries.length === 0 ? null :
+              <div className="card-list">
+                {
+                  entries.map((listing, index) =>
+                    <Listing
+                      url={match.url}
+                      listing={listing}
+                      key={`listing-card-${listing.details.ListingId}-${index}`}
+                    />
+                  )
+                }
+              </div>
+          }
+          { // Infinite scroll loading indicator
+            loading && entries.length > 1 ? <Loader className="card-list__loader"/> : null
+          }
+        </>
+      )}
+    />
   );
 });
 

@@ -21,6 +21,7 @@ import ListingPurchaseModal from "Components/listings/ListingPurchaseModal";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {v4 as UUID} from "uuid";
 import NFTCard from "Components/common/NFTCard";
+import ListingStats from "Components/listings/ListingStats";
 
 const TransferSection = observer(({nft}) => {
   const heldDate = nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
@@ -569,6 +570,7 @@ const NFTDetails = observer(() => {
         </div>
       </div>
       <div className="details-page__transfer-tables">
+        <ListingStats mode="sales" filterParams={{contractAddress: nft.details.ContractAddr}} />
         <TransferTable
           header="Transaction History for this NFT"
           contractAddress={nft.details.ContractAddr}

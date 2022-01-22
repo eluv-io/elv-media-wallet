@@ -1,7 +1,7 @@
 import {flow, makeAutoObservable} from "mobx";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import UrlJoin from "url-join";
-import {rootStore, transferStore} from "./index";
+import {rootStore} from "./index";
 
 class TransferStore {
   listings = {};
@@ -235,32 +235,6 @@ class TransferStore {
     }
   }
 
-  NFTListingStats = flow(function * ({contractAddress}) {
-    const minListingResults = yield transferStore.FilteredQuery({
-      contractAddress,
-      limit: 1,
-      sortBy: "price",
-      sortDesc: false
-    });
-
-    if(minListingResults.listings.length === 0) {
-      return { min: 0, max: 0, total: 0 };
-    }
-
-    const maxListingResults = yield transferStore.FilteredQuery({
-      contractAddress,
-      limit: 1,
-      sortBy: "price",
-      sortDesc: true
-    });
-
-    return {
-      min: minListingResults.listings[0].details.Price,
-      max: maxListingResults.listings[0].details.Price,
-      total: minListingResults.paging.total
-    };
-  });
-
   FilteredQuery = flow(function * ({
     mode="listings",
     sortBy="created",
@@ -268,7 +242,9 @@ class TransferStore {
     filter,
     contractAddress,
     marketplace,
+    marketplaceId,
     collectionIndex=-1,
+    lastNDays=-1,
     start=0,
     limit=50
   }={}) {
@@ -280,6 +256,10 @@ class TransferStore {
       start,
       limit
     };
+
+    if(marketplaceId) {
+      marketplace = this.rootStore.marketplaces[marketplaceId];
+    }
 
     try {
       let filters = [];
@@ -304,15 +284,19 @@ class TransferStore {
 
         // No valid items, so there must not be anything relevant in the collection
         if(filters.length === 0) {
-          return {
-            paging: {
-              start: params.start,
-              limit: params.limit,
-              total: 0,
-              more: false
-            },
-            listings: []
-          };
+          if(mode.includes("stats")) {
+            return {};
+          } else {
+            return {
+              paging: {
+                start: params.start,
+                limit: params.limit,
+                total: 0,
+                more: false
+              },
+              listings: []
+            };
+          }
         }
       } else if(marketplace) {
         // Show only items in marketplace
@@ -322,11 +306,15 @@ class TransferStore {
       if(contractAddress) {
         filters.push(`contract:eq:${Utils.FormatAddress(contractAddress)}`);
       } else if(filter) {
-        if(mode === "listings") {
+        if(mode.includes("listing")) {
           filters.push(`nft/display_name:eq:${filter}`);
         } else {
           filters.push(`name:eq:${filter}`);
         }
+      }
+
+      if(lastNDays && lastNDays > 0) {
+        filters.push(`created:gt:${((Date.now() / 1000) - ( lastNDays * 24 * 60 * 60 )).toFixed(0)}`);
       }
 
       let path;
@@ -339,10 +327,28 @@ class TransferStore {
           path = UrlJoin("as", "mkt", "hst", "f");
           filters.push("action:eq:SOLD");
           break;
+
+        case "listing-stats":
+          path = UrlJoin("as", "mkt", "stats", "listed");
+          break;
+
+        case "sales-stats":
+          path = UrlJoin("as", "mkt", "stats", "sold");
+          break;
       }
 
       if(filters.length > 0) {
         params.filter = filters;
+      }
+
+      if(mode.includes("stats")) {
+        return yield Utils.ResponseToJson(
+          this.client.authClient.MakeAuthServiceRequest({
+            path,
+            method: "GET",
+            queryParams: params
+          })
+        );
       }
 
       const { contents, paging } = yield Utils.ResponseToJson(
@@ -505,25 +511,6 @@ class TransferStore {
         }
       })
     );
-  });
-
-  TransferStats = flow(function * ({marketplace}={}) {
-    const tenantId = marketplace ? marketplace.tenant_id : "global";
-    const cacheKey = `transfer-stats-${tenantId}`;
-    if(!this.loadCache[cacheKey] || Date.now() - this.loadCache[cacheKey].retrievedAt > 30000) {
-      this.loadCache[cacheKey] = {
-        retrievedAt: Date.now(),
-        promise: Utils.ResponseToJson(
-          this.client.authClient.MakeAuthServiceRequest({
-            path: UrlJoin("as", "mkt", "stats"),
-            method: "GET",
-            queryParams: marketplace ? {filter: `tenant:eq:${marketplace.tenant_id}`} : {}
-          })
-        )
-      };
-    }
-
-    return yield this.loadCache[cacheKey].promise;
   });
 }
 
