@@ -72,6 +72,14 @@ export const InitializeListener = (history) => {
         Respond({});
 
         break;
+
+      case "logout":
+        await rootStore.SignOut();
+
+        Respond({});
+
+        break;
+
       case "purchase":
         checkoutStore.PurchaseComplete({
           confirmationId: data.params.confirmationId,
@@ -151,14 +159,14 @@ export const InitializeListener = (history) => {
         break;
 
       case "setMarketplace":
-        await rootStore.SetMarketplace({
+        const marketplaceHash = await rootStore.SetMarketplace({
           tenantSlug: data.params.tenantSlug,
           marketplaceSlug: data.params.marketplaceSlug,
           marketplaceId: data.params.marketplaceId,
           marketplaceHash: data.params.marketplaceHash
         });
 
-        Respond({});
+        Respond({response: marketplaceHash});
 
         break;
       case "setMarketplaceFilters":

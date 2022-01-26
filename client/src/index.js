@@ -345,7 +345,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
   }
 
   /**
-   * Set user authorization for the wallet app. Authorization can be provided in three ways:
+   * Sign the user in to the wallet app. Authorization can be provided in three ways:
    * - ID token from an OAuth flow
    * - Eluvio authorization token previously retrieved from exchanging an ID token
    * - Private key of the user
@@ -358,18 +358,31 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @param {string=} authToken - An Eluvio authorization token
    * @param {string=} privateKey - The private key of the user
    */
-  async SetAuthInfo({name, email, idToken, authToken, privateKey}) {
+  async SignIn({name, email, idToken, authToken, address, privateKey}) {
     return this.SendMessage({
       action: "login",
       params: {
         idToken,
         authToken,
         privateKey,
+        address,
         user: {
           name,
           email
         }
       }
+    });
+  }
+
+  /**
+   * Sign the current user out
+   *
+   * @methodGroup Authorization
+   */
+  async SignOut() {
+    return this.SendMessage({
+      action: "logout",
+      params: {}
     });
   }
 

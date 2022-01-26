@@ -312,6 +312,8 @@ class RootStore {
 
       this.LoadLoginCustomization();
     }
+
+    return marketplaceHash;
   });
 
   LoadProfileData = flow(function * () {
