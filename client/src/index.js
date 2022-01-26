@@ -324,11 +324,13 @@ const walletClient = await ElvWalletClient.InitializePopup({
    *
    * @methodGroup Navigation
    * @namedParams
+   * @param {string=} tenantSlug - Specify the URL slug of your tenant. Required if specifying marketplaceSlug
+   * @param {string=} marketplaceSlug - Specify the URL slug of your marketplace
    * @param {string=} marketplaceId - The ID of the marketplace
    * @param {string=} marketplaceHash - A version hash of the marketplace
    */
-  async SetMarketplace({marketplaceId, marketplaceHash}) {
-    return this.SendMessage({action: "setMarketplace", params: { marketplaceId, marketplaceHash }});
+  async SetMarketplace({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash}) {
+    return this.SendMessage({action: "setMarketplace", params: { tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash }});
   }
 
   async SetMarketplaceFilters({filters=[]}) {
@@ -342,14 +344,31 @@ const walletClient = await ElvWalletClient.InitializePopup({
     return this.SendMessage({action: "setActive", noResponse: true});
   }
 
-  async SetAuthInfo({authToken, address, privateKey, user}) {
+  /**
+   * Set user authorization for the wallet app. Authorization can be provided in three ways:
+   * - ID token from an OAuth flow
+   * - Eluvio authorization token previously retrieved from exchanging an ID token
+   * - Private key of the user
+   *
+   * @methodGroup Authorization
+   * @namedParams
+   * @param {string} name - The name of the user
+   * @param {string} email - The email address of the user
+   * @param {string=} idToken - An OAuth ID token to authenticate with
+   * @param {string=} authToken - An Eluvio authorization token
+   * @param {string=} privateKey - The private key of the user
+   */
+  async SetAuthInfo({name, email, idToken, authToken, privateKey}) {
     return this.SendMessage({
       action: "login",
       params: {
+        idToken,
         authToken,
         privateKey,
-        address,
-        user
+        user: {
+          name,
+          email
+        }
       }
     });
   }
@@ -410,16 +429,19 @@ const walletClient = await ElvWalletClient.InitializePopup({
    *
    * @namedParams
    * @param {string=} walletAppUrl=http://wallet.contentfabric.io - The URL of the Eluvio Media Wallet app
-   * @param {string=} marketplaceId - Specify a specific marketplace for the wallet to use
-   * @param {string=} marketplaceHash - Specify a specific version of a specific marketplace for the wallet to use
+   * @param {string=} tenantSlug - Specify the URL slug of your tenant. Required if specifying marketplaceSlug
+   * @param {string=} marketplaceSlug - Specify the URL slug of your marketplace
+   * @param {string=} marketplaceHash - Specify a specific version of a your marketplace. Not necessary if marketplaceSlug is specified
    * @param {boolean=} darkMode=false - Specify whether the app should be in dark mode
    *
    * @return {Promise<ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new window.
    */
-  static async InitializePopup({walletAppUrl="http://wallet.contentfabric.io", marketplaceId, marketplaceHash, darkMode=false}) {
+  static async InitializePopup({walletAppUrl="http://wallet.contentfabric.io", tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, darkMode=false}) {
     walletAppUrl = new URL(walletAppUrl);
 
-    if(marketplaceId || marketplaceHash) {
+    if(marketplaceSlug) {
+      walletAppUrl.searchParams.set("mid", `${tenantSlug}/${marketplaceSlug}`);
+    } else if(marketplaceId || marketplaceHash) {
       walletAppUrl.searchParams.set("mid", marketplaceHash || marketplaceId);
     }
 
@@ -446,14 +468,14 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @namedParams
    * @param {string=} walletAppUrl=http://wallet.contentfabric.io - The URL of the Eluvio Media Wallet app
    * @param {Object | string} target - An HTML element or the ID of an element
-
-   * @param {string=} marketplaceId - Specify a specific marketplace for the wallet to use
-   * @param {string=} marketplaceHash - Specify a specific version of a specific marketplace for the wallet to use
+   * @param {string=} tenantSlug - Specify the URL slug of your tenant. Required if specifying marketplace slug
+   * @param {string=} marketplaceSlug - Specify the URL slug of your marketplace
+   * @param {string=} marketplaceHash - Specify a specific version of a your marketplace. Not necessary if marketplaceSlug is specified
    * @param {boolean=} darkMode=false - Specify whether the app should be in dark mode
    *
    * @return {Promise<ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new iframe.
    */
-  static async InitializeFrame({walletAppUrl="http://wallet.contentfabric.io", target, marketplaceId, marketplaceHash, darkMode=false}) {
+  static async InitializeFrame({walletAppUrl="http://wallet.contentfabric.io", target, tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, darkMode=false}) {
     if(typeof target === "string") {
       const targetElement = document.getElementById(target);
 
@@ -479,7 +501,9 @@ const walletClient = await ElvWalletClient.InitializePopup({
 
     walletAppUrl = new URL(walletAppUrl);
 
-    if(marketplaceId || marketplaceHash) {
+    if(marketplaceSlug) {
+      walletAppUrl.searchParams.set("mid", `${tenantSlug}/${marketplaceSlug}`);
+    } else if(marketplaceId || marketplaceHash) {
       walletAppUrl.searchParams.set("mid", marketplaceHash || marketplaceId);
     }
 

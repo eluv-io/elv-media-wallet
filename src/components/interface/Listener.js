@@ -61,6 +61,7 @@ export const InitializeListener = (history) => {
     switch(data.action) {
       case "login":
         await rootStore.InitializeClient({
+          idToken: data.params.idToken,
           authToken: data.params.authToken,
           privateKey: data.params.privateKey,
           address: data.params.address,
@@ -150,7 +151,12 @@ export const InitializeListener = (history) => {
         break;
 
       case "setMarketplace":
-        await rootStore.SetMarketplaceId({marketplaceId: data.params.marketplaceId, marketplaceHash: data.params.marketplaceHash});
+        await rootStore.SetMarketplace({
+          tenantSlug: data.params.tenantSlug,
+          marketplaceSlug: data.params.marketplaceSlug,
+          marketplaceId: data.params.marketplaceId,
+          marketplaceHash: data.params.marketplaceHash
+        });
 
         Respond({});
 
@@ -193,7 +199,7 @@ export const InitializeListener = (history) => {
             // Convert hash to ID
             if(data.params.params.marketplaceHash) {
               const marketplaceId = Utils.DecodeVersionHash(data.params.params.marketplaceHash).objectId;
-              rootStore.SetMarketplaceHash({marketplaceId, marketplaceHash: data.params.params.marketplaceHash});
+              rootStore.SetMarketplace({marketplaceId, marketplaceHash: data.params.params.marketplaceHash});
               data.params.params.marketplaceId = marketplaceId;
             }
 

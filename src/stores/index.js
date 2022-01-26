@@ -77,7 +77,10 @@ class RootStore {
   disableCloseEvent = false;
   darkMode = window.self === window.top && this.GetSessionStorage("dark-mode");
 
+  availableMarketplaces = {};
+
   marketplaceId = undefined;
+  loginCustomizationLoaded = false;
   customizationMetadata = undefined;
 
   marketplaceHashes = {};
@@ -86,6 +89,7 @@ class RootStore {
   localAccount = false;
   auth0AccessToken = undefined;
 
+  loaded = false;
   initialized = false;
   client = undefined;
   accountId = undefined;
@@ -155,34 +159,59 @@ class RootStore {
 
     this.RegisterMetamaskHandlers();
 
-    const marketplace = new URLSearchParams(window.location.search).get("mid") || (window.self === window.top && this.GetSessionStorage("marketplace-id"));
-    if(marketplace && marketplace.startsWith("hq__")) {
-      const objectId = Utils.DecodeVersionHash(marketplace).objectId;
-      this.marketplaceHashes[objectId] = marketplace;
-      this.marketplaceId = objectId.replace(/\//g, "");
-    } else if(marketplace) {
-      this.marketplaceId = marketplace.replace(/\//g, "");
-    }
-
-    if(this.marketplaceId) {
-      this.marketplaceIds = [ this.marketplaceId ];
-    }
-
     this.checkoutStore = new CheckoutStore(this);
     this.transferStore = new TransferStore(this);
 
     window.addEventListener("resize", () => this.HandleResize());
 
-    try {
-      const auth = new URLSearchParams(window.location.search).get("auth");
-      if(auth) {
-        this.SetAuthInfo(JSON.parse(Utils.FromB64(auth)));
-      }
-    } catch(error) {
-      this.Log("Failed to load auth from parameter", true);
-      this.Log(error, true);
-    }
+    this.Initialize();
   }
+
+  Initialize = flow(function * () {
+    try {
+      this.client = yield ElvClient.FromConfigurationUrl({
+        configUrl: EluvioConfiguration["config-url"]
+      });
+
+      this.staticToken = this.client.staticToken;
+
+      this.basePublicUrl = yield this.client.FabricUrl({
+        queryParams: {
+          authorization: this.staticToken
+        },
+        noAuth: true
+      });
+
+      const marketplace = new URLSearchParams(window.location.search).get("mid") || (window.self === window.top && this.GetSessionStorage("marketplace")) || "";
+      let tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash;
+      if(marketplace && marketplace.includes("/")) {
+        tenantSlug = marketplace.split("/")[0];
+        marketplaceSlug = marketplace.split("/")[1];
+      } else if(marketplace && marketplace.startsWith("hq__")) {
+        const objectId = Utils.DecodeVersionHash(marketplace).objectId;
+        marketplaceHash = marketplace;
+        marketplaceId = objectId.replace(/\//g, "");
+      } else if(marketplace) {
+        marketplaceId = marketplace.replace(/\//g, "");
+      }
+
+      if(marketplace) {
+        this.SetMarketplace({tenantSlug, marketplaceSlug, marketplaceHash, marketplaceId, primary: true});
+      }
+
+      try {
+        const auth = new URLSearchParams(window.location.search).get("auth");
+        if(auth) {
+          this.SetAuthInfo(JSON.parse(Utils.FromB64(auth)));
+        }
+      } catch(error) {
+        this.Log("Failed to load auth from parameter", true);
+        this.Log(error, true);
+      }
+    } finally {
+      this.loaded = true;
+    }
+  });
 
   SendEvent({event, data}) {
     SendEvent({event, data});
@@ -208,7 +237,67 @@ class RootStore {
     );
   }
 
-  SetMarketplaceId({marketplaceId, marketplaceHash}) {
+  LoadAvailableMarketplaces = flow(function * () {
+    if(Object.keys(this.availableMarketplaces) > 0) { return; }
+
+    const mainSiteId = EluvioConfiguration["main-site-id"];
+    const mainSiteHash = yield this.client.LatestVersionHash({objectId: mainSiteId});
+    const metadata = yield this.client.ContentObjectMetadata({
+      versionHash: mainSiteHash,
+      metadataSubtree: "public/asset_metadata/tenants",
+      resolveLinks: true,
+      linkDepthLimit: 2,
+      resolveIncludeSource: true,
+      select: ["*/.", "*/marketplaces/*/.", "*/marketplaces/*/info/branding"]
+    });
+
+    let availableMarketplaces = {};
+
+    Object.keys(metadata || {}).forEach(tenantSlug => {
+      try {
+        availableMarketplaces[tenantSlug] = {
+          versionHash: metadata[tenantSlug]["."].source
+        };
+
+        Object.keys(metadata[tenantSlug].marketplaces || {}).forEach(marketplaceSlug => {
+          try {
+            const versionHash = metadata[tenantSlug].marketplaces[marketplaceSlug]["."].source;
+            const objectId = Utils.DecodeVersionHash(versionHash).objectId;
+
+            if(!this.marketplaceHashes[objectId]) {
+              this.marketplaceHashes[objectId] = versionHash;
+            }
+
+            availableMarketplaces[tenantSlug][marketplaceSlug] = {
+              ...(metadata[tenantSlug].marketplaces[marketplaceSlug].info.branding || {}),
+              versionHash
+            };
+          } catch(error) {
+            this.Log(`Unable to load info for marketplace ${tenantSlug}/${marketplaceSlug}`, true);
+          }
+        });
+      } catch(error) {
+        this.Log(`Failed to load tenant info ${tenantSlug}`, true);
+        this.Log(error, true);
+      }
+    });
+
+    this.availableMarketplaces = availableMarketplaces;
+  });
+
+  SetMarketplace = flow(function * ({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, primary=false}) {
+    if(marketplaceSlug) {
+      yield this.LoadAvailableMarketplaces();
+
+      const targetMarketplace = this.availableMarketplaces[tenantSlug][marketplaceSlug];
+
+      if(!targetMarketplace) {
+        throw Error(`Invalid marketplace ${tenantSlug}/${marketplaceSlug}`);
+      }
+
+      marketplaceHash = targetMarketplace.versionHash;
+    }
+
     if(marketplaceHash) {
       this.marketplaceId = Utils.DecodeVersionHash(marketplaceHash).objectId;
       this.marketplaceHashes[this.marketplaceId] = marketplaceHash;
@@ -217,8 +306,12 @@ class RootStore {
       this.marketplaceHashes[marketplaceId] = marketplaceHash;
     }
 
-    this.LoadCustomizationMetadata();
-  }
+    if(primary) {
+      this.SetSessionStorage("marketplace", marketplaceSlug ? `${tenantSlug}/${marketplaceSlug}` : marketplaceHash || marketplaceId);
+
+      this.LoadLoginCustomization();
+    }
+  });
 
   LoadProfileData = flow(function * () {
     this.profileData = yield this.client.ethClient.MakeProviderCall({
@@ -230,70 +323,53 @@ class RootStore {
     });
   });
 
-  LoadCustomizationMetadata = flow(function * () {
-    if(!this.marketplaceId || this.customizationMetadata) { return; }
-
-    if(!this.embedded) {
-      this.SetSessionStorage("marketplace-id", this.marketplaceHash || this.marketplaceId);
-    }
-
-    let client = this.client;
-    if(!client) {
-      client = yield ElvClient.FromConfigurationUrl({
-        configUrl: EluvioConfiguration["config-url"]
-      });
-
-      this.basePublicUrl = yield client.FabricUrl({
-        queryParams: {
-          authorization: this.staticToken
-        },
-        noAuth: true
-      });
-    }
-
-    if(!this.marketplaceHashes[this.marketplaceId]) {
-      this.marketplaceHashes[this.marketplaceId] = yield client.LatestVersionHash({objectId: this.marketplaceId});
-    }
-
-    const customizationMetadata = yield client.ContentObjectMetadata({
-      versionHash: this.marketplaceHash,
-      metadataSubtree: "public/asset_metadata/info",
-      select: [
-        "tenant_id",
-        "terms",
-        "terms_html",
-        "login_customization"
-      ]
-    });
-
-    this.customizationMetadata = {
-      tenant_id: (customizationMetadata.tenant_id),
-      terms: customizationMetadata.terms,
-      terms_html: customizationMetadata.terms_html,
-      ...((customizationMetadata || {}).login_customization || {}),
-
-      // TODO: Remove
-      require_email_verification: false
-    };
-
+  // TODO: Load branding metadata
+  LoadLoginCustomization = flow(function * () {
     try {
-      // Limit available marketplaces to just the specified marketplace
-      this.marketplaceIds = [ this.marketplaceId ];
-    } catch(error) {
-      this.Log(error, true);
-    }
+      if(!this.marketplaceId || this.customizationMetadata) {
+        return;
+      }
 
-    switch(this.customizationMetadata.font) {
-      case "Inter":
-        import("Assets/fonts/Inter/font.css");
+      if(!this.marketplaceHashes[this.marketplaceId]) {
+        this.marketplaceHashes[this.marketplaceId] = yield this.client.LatestVersionHash({objectId: this.marketplaceId});
+      }
 
-        break;
-      case "Selawik":
-        import("Assets/fonts/Selawik/font.css");
+      const customizationMetadata = yield this.client.ContentObjectMetadata({
+        versionHash: this.marketplaceHash,
+        metadataSubtree: "public/asset_metadata/info",
+        produceLinkUrls: true,
+        select: [
+          "tenant_id",
+          "terms",
+          "terms_html",
+          "login_customization"
+        ]
+      });
 
-        break;
-      default:
-        break;
+      this.customizationMetadata = {
+        tenant_id: (customizationMetadata.tenant_id),
+        terms: customizationMetadata.terms,
+        terms_html: customizationMetadata.terms_html,
+        ...((customizationMetadata || {}).login_customization || {}),
+
+        // TODO: Remove
+        require_email_verification: false
+      };
+
+      switch(this.customizationMetadata.font) {
+        case "Inter":
+          import("Assets/fonts/Inter/font.css");
+
+          break;
+        case "Selawik":
+          import("Assets/fonts/Selawik/font.css");
+
+          break;
+        default:
+          break;
+      }
+    } finally {
+      this.loginCustomizationLoaded = true;
     }
   });
 
@@ -341,7 +417,8 @@ class RootStore {
             details,
             metadata: (await this.client.ContentObjectMetadata({
               versionHash: details.VersionHash,
-              metadataSubtree: "public/asset_metadata/nft"
+              metadataSubtree: "public/asset_metadata/nft",
+              produceLinkUrls: true
             })) || {}
           };
         } catch(error) {
@@ -351,10 +428,6 @@ class RootStore {
       }
     )).filter(nft => nft);
   });
-
-  SetMarketplaceHash({marketplaceId, marketplaceHash}) {
-    this.marketplaceHashes[marketplaceId] = marketplaceHash;
-  }
 
   LoadMarketplace = flow(function * (marketplaceId, forceReload=false) {
     let marketplaceHash = this.marketplaceHashes[marketplaceId];
@@ -388,7 +461,8 @@ class RootStore {
         linkDepthLimit: 2,
         resolveLinks: true,
         resolveIgnoreErrors: true,
-        resolveIncludeSource: true
+        resolveIncludeSource: true,
+        produceLinkUrls: true
       });
 
       const stockPromise = this.checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id});
@@ -1015,6 +1089,17 @@ class RootStore {
         this.oauthUser = user;
 
         yield client.SetRemoteSigner({idToken: idToken || user.id_token, tenantId});
+
+        try {
+          const parsedToken = JSON.parse(atob(idToken.split(".")[1]));
+
+          user = user || {};
+          user.name = parsedToken.name || user.name;
+          user.email = parsedToken.email || user.email;
+        } catch(error) {
+          this.Log("Failed to parse ID token:", true);
+          this.Log(error, true);
+        }
       } else {
         throw Error("Neither user nor private key specified in InitializeClient");
       }
