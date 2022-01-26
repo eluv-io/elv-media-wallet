@@ -19,7 +19,7 @@ const pages = {
   "marketplaces": "/marketplaces",
   "marketplace": "/marketplaces/:marketplaceId",
   "marketplaceItem": "/marketplaces/:marketplaceId/:sku",
-  "drop": "/marketplaces/:marketplaceId/events/:dropId"
+  "drop": "/marketplaces/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId"
 };
 
 const FormatNFT = (nft) => {
@@ -197,10 +197,15 @@ export const InitializeListener = (history) => {
 
           if(data.params.params) {
             // Convert hash to ID
-            if(data.params.params.marketplaceHash) {
-              const marketplaceId = Utils.DecodeVersionHash(data.params.params.marketplaceHash).objectId;
-              rootStore.SetMarketplace({marketplaceId, marketplaceHash: data.params.params.marketplaceHash});
-              data.params.params.marketplaceId = marketplaceId;
+            if(data.params.params.marketplaceSlug || data.params.params.marketplaceHash || data.params.params.marketplaceId) {
+              await rootStore.SetMarketplace({
+                tenantSlug: data.params.params.tenantSlug,
+                marketplaceSlug: data.params.params.marketplaceSlug,
+                marketplaceId: data.params.params.marketplaceId,
+                marketplaceHash: data.params.params.marketplaceHash
+              });
+
+              data.params.params.marketplaceId = rootStore.marketplaceId;
             }
 
             Object.keys(data.params.params).forEach(key => {

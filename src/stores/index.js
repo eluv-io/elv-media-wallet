@@ -84,6 +84,7 @@ class RootStore {
   customizationMetadata = undefined;
 
   marketplaceHashes = {};
+  drops = {};
 
   oauthUser = undefined;
   localAccount = false;
@@ -498,6 +499,8 @@ class RootStore {
       marketplace.retrievedAt = Date.now();
       marketplace.marketplaceId = marketplaceId;
       marketplace.versionHash = yield this.client.LatestVersionHash({objectId: marketplaceId});
+
+      /*
       marketplace.drops = (marketplace.events || []).map(({event}, eventIndex) =>
         (event.info.drops || []).map((drop, dropIndex) => ({
           ...drop,
@@ -507,6 +510,8 @@ class RootStore {
           dropIndex
         }))
       ).flat();
+
+       */
 
       this.marketplaces[marketplaceId] = marketplace;
 
@@ -645,6 +650,44 @@ class RootStore {
 
       return [];
     }
+  });
+
+  LoadDrop = flow(function * ({tenantSlug, eventSlug, dropId}) {
+    if(!this.drops[tenantSlug]) {
+      this.drops[tenantSlug] = {};
+    }
+
+    if(!this.drops[tenantSlug][eventSlug]) {
+      this.drops[tenantSlug][eventSlug] = {};
+    }
+
+    if(!this.drops[tenantSlug][eventSlug][dropId]) {
+      const mainSiteId = EluvioConfiguration["main-site-id"];
+      const mainSiteHash = yield this.client.LatestVersionHash({objectId: mainSiteId});
+      const event = (yield this.client.ContentObjectMetadata({
+        versionHash: mainSiteHash,
+        metadataSubtree: UrlJoin("public", "asset_metadata", "tenants", tenantSlug, "sites", eventSlug, "info"),
+        resolveLinks: true,
+        linkDepthLimit: 2,
+        resolveIncludeSource: true,
+        produceLinkUrls: true,
+        select: [".", "drops"]
+      })) || [];
+
+      const eventId = Utils.DecodeVersionHash(event["."].source).objectId;
+
+      event.drops.forEach(drop => {
+        drop = {
+          ...drop,
+          eventId
+        };
+
+        this.drops[tenantSlug][eventSlug][drop.uuid] = drop;
+        this.drops[drop.uuid] = drop;
+      });
+    }
+
+    return this.drops[dropId];
   });
 
   DropStatus = flow(function * ({marketplace, eventId, dropId}) {

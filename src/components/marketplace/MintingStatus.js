@@ -153,7 +153,13 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
 export const DropMintingStatus = observer(() => {
   const match = useRouteMatch();
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  const drop = marketplace.drops.find(drop => drop.uuid === match.params.dropId);
+
+  const [drop, setDrop] = useState(undefined);
+
+  useEffect(() => {
+    rootStore.LoadDrop({tenantSlug: match.params.tenantSlug, eventSlug: match.params.eventSlug, dropId: match.params.dropId})
+      .then(drop => setDrop(drop));
+  }, []);
 
   const videoHash = drop.minting_animation &&
     ((drop.minting_animation["/"] && drop.minting_animation["/"].split("/").find(component => component.startsWith("hq__")) || drop.minting_animation["."].source));

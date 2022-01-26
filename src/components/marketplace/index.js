@@ -177,7 +177,6 @@ const MarketplaceWrapper = observer(({children}) => {
 
 const Routes = (match) => {
   const marketplace = rootStore.marketplaces[match.params.marketplaceId] || {};
-  const event = rootStore.eventMetadata || {};
   const item = (marketplace.items || []).find(item => item.sku === match.params.sku) || {};
   const nft = rootStore.NFT({contractId: match.params.contractId, tokenId: match.params.tokenId}) || { metadata: {} };
 
@@ -190,9 +189,8 @@ const Routes = (match) => {
     { name: "My Listings", path: "/marketplaces/:marketplaceId/my-listings", Component: MyListings },
     { name: "Activity", path: "/marketplaces/:marketplaceId/activity", Component: RecentSales },
 
-
-    { name: (event.event_info || {}).event_title, path: "/marketplaces/:marketplaceId/events/:dropId", Component: Drop, hideNavigation: true },
-    { name: "Status", path: "/marketplaces/:marketplaceId/events/:dropId/status", Component: DropMintingStatus, hideNavigation: true },
+    { name: "Drop Event", path: "/marketplaces/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId", Component: Drop, hideNavigation: true },
+    { name: "Status", path: "/marketplaces/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId/status", Component: DropMintingStatus, hideNavigation: true },
 
     { name: ((marketplace.storefront || {}).tabs || {}).collection || "My Items", path: "/marketplaces/:marketplaceId/collections", Component: MarketplaceOwned },
 

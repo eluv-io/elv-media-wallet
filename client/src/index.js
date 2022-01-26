@@ -376,6 +376,11 @@ const walletClient = await ElvWalletClient.InitializePopup({
   /**
    * Request the wallet app navigate to the specified page.
    *
+   * When specifying a marketplace, you must either provide:
+   * - tenantSlug and marketplaceSlug - Slugs for the tenant and marketplace
+   * - marketplaceHash - Version hash of a marketplace
+   * - marketplaceId - Object ID of a marketplace
+   *
    * Currently supported pages:
 
       - 'items' - List of items in the user's wallet
@@ -385,11 +390,11 @@ const walletClient = await ElvWalletClient.InitializePopup({
       - 'profile' - The user's profile
       - 'marketplaces'
       - 'marketplace':
-        -- Required param: `marketplaceId` or 'marketplaceHash'
+        -- Required param: marketplace parameters
       - 'marketplaceItem`
-        -- Required params: `marketplaceId` or 'marketplaceHash', `sku`
+        -- Required params: `sku`, marketplace parameters
       - `drop`
-        -- Optional params: `marketplaceId` or 'marketplaceHash', `dropId`
+        -- Required params: `tenantSlug`, `eventSlug`, `dropId`, marketplace parameters
 
    * @methodGroup Navigation
    * @namedParams
