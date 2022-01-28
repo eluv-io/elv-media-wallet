@@ -48,7 +48,7 @@
   }
 
   &:hover {
-    filter: drop-shadow(0 0 5px $blue);
+    border: 1px solid $mediumgray;
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
@@ -113,8 +113,6 @@
 .dark {
   .navigation,
   .sub-navigation {
-    background-color: $black;
-
     &__link {
       color: $gray;
 
@@ -138,6 +136,7 @@
   }
 
   .navigation {
+    background-color: $black;
     border: 0.5px solid $darkgray;
     box-shadow: none;
 

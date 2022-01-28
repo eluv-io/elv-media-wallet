@@ -69,11 +69,25 @@ body {
   font-family: "Helvetica Neue", Helvetica, sans-serif;
   overflow-y: scroll;
   position: absolute;
+  transition: background-color 1000ms linear;
 }
 
 main {
   height: 100%;
   width: 100%;
+}
+
+body,
+.app,
+.app-container,
+.site-app,
+.main-app,
+.page-container {
+  transition: background-color 0.5s, color 0.5s !important;
+
+  * {
+    transition: background-color 0.5s, color 0.5s, border 0.5s, box-shadow 0.5s !important;
+  }
 }
 
 html,

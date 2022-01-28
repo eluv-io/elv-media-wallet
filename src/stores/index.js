@@ -342,7 +342,79 @@ class RootStore {
     this.availableMarketplaces = availableMarketplaces;
   });
 
-  SetMarketplace = flow(function * ({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, primary=false, forceReload=false}) {
+  SetCustomizationOptions(marketplace) {
+    let options = { font: "Hevetica Neue" };
+    if(marketplace && marketplace !== "default") {
+      options = (marketplace || {}).marketplace || {};
+    }
+
+    const customStyleTag = document.getElementById("_custom-styles");
+
+    let font;
+    switch(options.font) {
+      case "Inter":
+        import("Assets/fonts/Inter/font.css");
+
+        font = "Inter var";
+
+        break;
+      case "Selawik":
+        import("Assets/fonts/Selawik/font.css");
+
+        font = "Selawik var";
+
+        break;
+      default:
+        font = "Helvetica Neue";
+
+        break;
+    }
+
+    customStyleTag.innerHTML = (`
+       body { font-family: "${font}", sans-serif; }
+       body * { font-family: "${font}", sans-serif; }
+    `);
+
+    switch(options.color_scheme) {
+      case "Dark":
+        this.ToggleDarkMode(true);
+        break;
+
+      case "Light":
+        this.ToggleDarkMode(false);
+        break;
+    }
+  }
+
+  ClearMarketplace() {
+    this.tenantSlug = undefined;
+    this.marketplaceSlug = undefined;
+    this.marketplaceId = undefined;
+
+    this.SetCustomizationOptions("default");
+  }
+
+  SetMarketplace({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash}) {
+    const marketplace = this.allMarketplaces.find(marketplace =>
+      (marketplaceId && Utils.EqualHash(marketplaceId, marketplace.marketplaceId)) ||
+      (marketplaceSlug && marketplace.tenantSlug === tenantSlug && marketplace.marketplaceSlug === marketplaceSlug) ||
+      (marketplaceHash && marketplace.marketplaceHash === marketplaceHash)
+    );
+
+    if(marketplace) {
+      this.tenantSlug = marketplace.tenantSlug;
+      this.marketplaceSlug = marketplace.marketplaceSlug;
+      this.marketplaceId = marketplace.marketplaceId;
+
+      this.SetCustomizationOptions(marketplace);
+
+      return marketplace.marketplaceHash;
+    } else {
+      this.SetCustomizationOptions("default");
+    }
+  }
+
+  MarketplaceInfo = flow(function * ({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, primary=false, forceReload=false}) {
     let marketplace = this.allMarketplaces.find(marketplace =>
       (marketplaceId && Utils.EqualHash(marketplaceId, marketplace.marketplaceId)) ||
       (marketplaceSlug && marketplace.tenantSlug === tenantSlug && marketplace.marketplaceSlug === marketplaceSlug) ||
@@ -350,11 +422,7 @@ class RootStore {
     );
 
     if(marketplace && !forceReload) {
-      this.tenantSlug = marketplace.tenantSlug;
-      this.marketplaceSlug = marketplace.marketplaceSlug;
-      this.marketplaceId = marketplace.marketplaceId;
-
-      return this.marketplaceHash;
+      return marketplace;
     } else if(marketplace) {
       tenantSlug = marketplace.tenantSlug;
       marketplaceSlug = marketplace.marketplaceSlug;
@@ -363,31 +431,35 @@ class RootStore {
     if(marketplaceSlug) {
       yield this.LoadAvailableMarketplaces({tenantSlug, marketplaceSlug, forceReload});
 
-      const targetMarketplace = this.availableMarketplaces[tenantSlug][marketplaceSlug];
+      marketplace = this.availableMarketplaces[tenantSlug][marketplaceSlug];
 
-      if(!targetMarketplace) {
+      if(!marketplace) {
         throw Error(`Invalid marketplace ${tenantSlug}/${marketplaceSlug}`);
       }
 
-      this.tenantSlug = tenantSlug;
-      this.marketplaceSlug = marketplaceSlug;
-      this.marketplaceId = targetMarketplace.marketplaceId;
     } else if(marketplaceHash) {
       // Specific hash specified
-      this.marketplaceId = Utils.DecodeVersionHash(marketplaceHash).objectId;
+      marketplaceId = Utils.DecodeVersionHash(marketplaceHash).objectId;
       this.marketplaceHashes[this.marketplaceId] = marketplaceHash;
+
+      marketplace = yield this.client.ContentObjectMetadata({
+        versionHash: marketplaceHash,
+        metadataSubtree: "public/asset_metadata/info/branding",
+        produceLinkUrls: true,
+        noAuth: true
+      });
     } else {
       yield this.LoadAvailableMarketplaces({forceReload});
 
-      const marketplace = this.allMarketplaces.find(marketplace => Utils.EqualHash(marketplaceId, marketplace.marketplaceId));
+      marketplace = this.allMarketplaces.find(marketplace => Utils.EqualHash(marketplaceId, marketplace.marketplaceId));
 
       if(!marketplace) {
         throw Error(`Invalid marketplace ${marketplaceId}`);
       }
 
-      this.tenantSlug = marketplace.tenantSlug;
-      this.marketplaceSlug = marketplace.marketplaceSlug;
-      this.marketplaceId = marketplace.marketplaceId;
+      tenantSlug = marketplace.tenantSlug;
+      marketplaceSlug = marketplace.marketplaceSlug;
+      marketplaceId = marketplace.marketplaceId;
     }
 
     if(primary) {
@@ -396,7 +468,14 @@ class RootStore {
       this.LoadLoginCustomization();
     }
 
-    return this.marketplaceHash;
+    this.SetCustomizationOptions(marketplace);
+
+    return {
+      marketplaceId,
+      marketplaceHash: this.marketplaceHashes[marketplaceId],
+      tenantSlug,
+      marketplaceSlug
+    };
   });
 
   LoadProfileData = flow(function * () {
@@ -438,19 +517,6 @@ class RootStore {
         // TODO: Remove
         require_email_verification: false
       };
-
-      switch(this.customizationMetadata.font) {
-        case "Inter":
-          import("Assets/fonts/Inter/font.css");
-
-          break;
-        case "Selawik":
-          import("Assets/fonts/Selawik/font.css");
-
-          break;
-        default:
-          break;
-      }
     } finally {
       this.loginCustomizationLoaded = true;
     }
@@ -518,14 +584,14 @@ class RootStore {
     let marketplaceHash = (this.marketplaces[marketplaceId] || {}).versionHash;
     let useCache = !forceReload && marketplaceHash && this.marketplaceCache[marketplaceHash] && Date.now() - this.marketplaceCache[marketplaceHash].marketplace < cacheTimeSeconds * 1000;
     if(!useCache) {
-      const newHash = yield this.SetMarketplace({marketplaceId, forceReload});
+      const marketplaceInfo = yield this.MarketplaceInfo({marketplaceId, forceReload});
 
-      if(marketplaceHash === newHash) {
+      if(marketplaceHash && marketplaceHash === marketplaceInfo.marketplaceHash) {
         // Marketplace object has not been updated
         useCache = true;
       }
 
-      marketplaceHash = newHash;
+      marketplaceHash = marketplaceInfo.marketplaceHash;
     }
 
     // Cache marketplace retrieval
@@ -1388,6 +1454,10 @@ class RootStore {
   }
 
   ToggleDarkMode(enabled) {
+    if(this.darkMode === enabled) {
+      return;
+    }
+
     if(enabled) {
       document.body.style.backgroundColor = "#000000";
       document.getElementById("app").classList.add("dark");

@@ -159,6 +159,14 @@ export const InitializeListener = (history) => {
         break;
 
       case "setMarketplace":
+        // Ensure marketplace is loaded
+        await rootStore.MarketplaceInfo({
+          tenantSlug: data.params.tenantSlug,
+          marketplaceSlug: data.params.marketplaceSlug,
+          marketplaceId: data.params.marketplaceId,
+          marketplaceHash: data.params.marketplaceHash
+        });
+
         const marketplaceHash = await rootStore.SetMarketplace({
           tenantSlug: data.params.tenantSlug,
           marketplaceSlug: data.params.marketplaceSlug,

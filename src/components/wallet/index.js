@@ -71,6 +71,8 @@ const WalletWrapper = observer(({children}) => {
       rootStore.ToggleNavigation(false);
       return () => rootStore.ToggleNavigation(true);
     }
+
+    rootStore.ClearMarketplace();
   }, [match.url]);
 
   return (

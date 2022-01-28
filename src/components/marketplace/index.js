@@ -142,6 +142,12 @@ const MarketplaceWrapper = observer(({children}) => {
       rootStore.ToggleNavigation(false);
       return () => rootStore.ToggleNavigation(true);
     }
+
+    if(match.params.marketplaceId) {
+      rootStore.SetMarketplace({marketplaceId: match.params.marketplaceId});
+    } else {
+      rootStore.ClearMarketplace();
+    }
   }, [match.url, rootStore.marketplaces[match.params.marketplaceId]]);
 
   if(currentRoute.skipLoading) {
