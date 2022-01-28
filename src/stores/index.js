@@ -79,11 +79,15 @@ class RootStore {
 
   availableMarketplaces = {};
 
-  marketplaceId = undefined;
+
   loginCustomizationLoaded = false;
   customizationMetadata = undefined;
 
+  marketplaceId = undefined;
   marketplaceHashes = {};
+  tenantSlug = undefined;
+  marketplaceSlug = undefined;
+
   drops = {};
 
   oauthUser = undefined;
@@ -186,7 +190,8 @@ class RootStore {
   Initialize = flow(function * () {
     try {
       this.client = yield ElvClient.FromConfigurationUrl({
-        configUrl: EluvioConfiguration["config-url"]
+        configUrl: EluvioConfiguration["config-url"],
+        assumeV3: true
       });
 
       this.staticToken = this.client.staticToken;
@@ -213,6 +218,8 @@ class RootStore {
 
       if(marketplace) {
         this.SetMarketplace({tenantSlug, marketplaceSlug, marketplaceHash, marketplaceId, primary: true});
+      } else {
+        this.loginCustomizationLoaded = true;
       }
 
       try {
@@ -254,8 +261,8 @@ class RootStore {
   }
 
   // If marketplace slug is specified, load only that marketplace. Otherwise load all
-  LoadAvailableMarketplaces = flow(function * ({tenantSlug, marketplaceSlug}={}) {
-    if(this.availableMarketplaces["_ALL_LOADED"]) {
+  LoadAvailableMarketplaces = flow(function * ({tenantSlug, marketplaceSlug, forceReload}={}) {
+    if(!forceReload && this.availableMarketplaces["_ALL_LOADED"]) {
       return;
     }
 
@@ -266,7 +273,7 @@ class RootStore {
 
     // Loading specific marketplace
     if(marketplaceSlug) {
-      if(this.availableMarketplaces[tenantSlug] && this.availableMarketplaces[tenantSlug][marketplaceSlug]) {
+      if(!forceReload && this.availableMarketplaces[tenantSlug] && this.availableMarketplaces[tenantSlug][marketplaceSlug]) {
         return;
       }
 
@@ -277,6 +284,7 @@ class RootStore {
         linkDepthLimit: 2,
         resolveIncludeSource: true,
         produceLinkUrls: true,
+        noAuth: true,
         select: [
           `${tenantSlug}/.`,
           `${tenantSlug}/marketplaces/${marketplaceSlug}/.`,
@@ -291,6 +299,7 @@ class RootStore {
         linkDepthLimit: 2,
         resolveIncludeSource: true,
         produceLinkUrls: true,
+        noAuth: true,
         select: ["*/.", "*/marketplaces/*/.", "*/marketplaces/*/info/branding"]
       });
     }
@@ -307,9 +316,7 @@ class RootStore {
             const versionHash = metadata[tenantSlug].marketplaces[marketplaceSlug]["."].source;
             const objectId = Utils.DecodeVersionHash(versionHash).objectId;
 
-            if(!this.marketplaceHashes[objectId]) {
-              this.marketplaceHashes[objectId] = versionHash;
-            }
+            this.marketplaceHashes[objectId] = versionHash;
 
             availableMarketplaces[tenantSlug][marketplaceSlug] = {
               ...(metadata[tenantSlug].marketplaces[marketplaceSlug].info.branding || {}),
@@ -335,9 +342,26 @@ class RootStore {
     this.availableMarketplaces = availableMarketplaces;
   });
 
-  SetMarketplace = flow(function * ({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, primary=false}) {
+  SetMarketplace = flow(function * ({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, primary=false, forceReload=false}) {
+    let marketplace = this.allMarketplaces.find(marketplace =>
+      (marketplaceId && Utils.EqualHash(marketplaceId, marketplace.marketplaceId)) ||
+      (marketplaceSlug && marketplace.tenantSlug === tenantSlug && marketplace.marketplaceSlug === marketplaceSlug) ||
+      (marketplaceHash && marketplace.marketplaceHash === marketplaceHash)
+    );
+
+    if(marketplace && !forceReload) {
+      this.tenantSlug = marketplace.tenantSlug;
+      this.marketplaceSlug = marketplace.marketplaceSlug;
+      this.marketplaceId = marketplace.marketplaceId;
+
+      return this.marketplaceHash;
+    } else if(marketplace) {
+      tenantSlug = marketplace.tenantSlug;
+      marketplaceSlug = marketplace.marketplaceSlug;
+    }
+
     if(marketplaceSlug) {
-      yield this.LoadAvailableMarketplaces({tenantSlug, marketplaceSlug});
+      yield this.LoadAvailableMarketplaces({tenantSlug, marketplaceSlug, forceReload});
 
       const targetMarketplace = this.availableMarketplaces[tenantSlug][marketplaceSlug];
 
@@ -345,24 +369,34 @@ class RootStore {
         throw Error(`Invalid marketplace ${tenantSlug}/${marketplaceSlug}`);
       }
 
-      marketplaceHash = targetMarketplace.versionHash;
-    }
-
-    if(marketplaceHash) {
+      this.tenantSlug = tenantSlug;
+      this.marketplaceSlug = marketplaceSlug;
+      this.marketplaceId = targetMarketplace.marketplaceId;
+    } else if(marketplaceHash) {
+      // Specific hash specified
       this.marketplaceId = Utils.DecodeVersionHash(marketplaceHash).objectId;
       this.marketplaceHashes[this.marketplaceId] = marketplaceHash;
     } else {
-      this.marketplaceId = marketplaceId;
-      this.marketplaceHashes[marketplaceId] = marketplaceHash;
+      yield this.LoadAvailableMarketplaces({forceReload});
+
+      const marketplace = this.allMarketplaces.find(marketplace => Utils.EqualHash(marketplaceId, marketplace.marketplaceId));
+
+      if(!marketplace) {
+        throw Error(`Invalid marketplace ${marketplaceId}`);
+      }
+
+      this.tenantSlug = marketplace.tenantSlug;
+      this.marketplaceSlug = marketplace.marketplaceSlug;
+      this.marketplaceId = marketplace.marketplaceId;
     }
 
     if(primary) {
-      this.SetSessionStorage("marketplace", marketplaceSlug ? `${tenantSlug}/${marketplaceSlug}` : marketplaceHash || marketplaceId);
+      this.SetSessionStorage("marketplace", this.marketplaceSlug ? `${this.tenantSlug}/${this.marketplaceSlug}` : this.marketplaceHash || this.marketplaceId);
 
       this.LoadLoginCustomization();
     }
 
-    return marketplaceHash;
+    return this.marketplaceHash;
   });
 
   LoadProfileData = flow(function * () {
@@ -382,14 +416,11 @@ class RootStore {
         return;
       }
 
-      if(!this.marketplaceHashes[this.marketplaceId]) {
-        this.marketplaceHashes[this.marketplaceId] = yield this.client.LatestVersionHash({objectId: this.marketplaceId});
-      }
-
       const customizationMetadata = yield this.client.ContentObjectMetadata({
         versionHash: this.marketplaceHash,
         metadataSubtree: "public/asset_metadata/info",
         produceLinkUrls: true,
+        noAuth: true,
         select: [
           "tenant_id",
           "terms",
@@ -482,17 +513,24 @@ class RootStore {
   });
 
   LoadMarketplace = flow(function * (marketplaceId, forceReload=false) {
-    let marketplaceHash = this.marketplaceHashes[marketplaceId];
-    if(marketplaceId.startsWith("hq__")) {
-      marketplaceHash = marketplaceId;
-      marketplaceId = Utils.DecodeVersionHash(marketplaceId).objectId;
-    } else if(!marketplaceHash) {
-      marketplaceHash = yield this.client.LatestVersionHash({objectId: marketplaceId});
+    const cacheTimeSeconds = 300;
+
+    let marketplaceHash = (this.marketplaces[marketplaceId] || {}).versionHash;
+    let useCache = !forceReload && marketplaceHash && this.marketplaceCache[marketplaceHash] && Date.now() - this.marketplaceCache[marketplaceHash].marketplace < cacheTimeSeconds * 1000;
+    if(!useCache) {
+      const newHash = yield this.SetMarketplace({marketplaceId, forceReload});
+
+      if(marketplaceHash === newHash) {
+        // Marketplace object has not been updated
+        useCache = true;
+      }
+
+      marketplaceHash = newHash;
     }
 
     // Cache marketplace retrieval
-    if(!forceReload && this.marketplaceCache[marketplaceHash] && Date.now() - this.marketplaceCache[marketplaceHash].marketplace < 60000) {
-      // Cache stock retrieval
+    if(useCache) {
+      // Cache stock retrieval separately
       if(Date.now() - this.marketplaceCache[marketplaceHash].stock > 10000) {
         this.checkoutStore.MarketplaceStock({tenantId: this.marketplaces[marketplaceId].tenant_id});
         this.marketplaceCache[marketplaceHash].stock = Date.now();
@@ -514,10 +552,9 @@ class RootStore {
         resolveLinks: true,
         resolveIgnoreErrors: true,
         resolveIncludeSource: true,
-        produceLinkUrls: true
+        produceLinkUrls: true,
+        noAuth: true
       });
-
-      console.log("MARKETPLACE", marketplace)
 
       const stockPromise = this.checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id});
 
@@ -551,20 +588,7 @@ class RootStore {
 
       marketplace.retrievedAt = Date.now();
       marketplace.marketplaceId = marketplaceId;
-      marketplace.versionHash = yield this.client.LatestVersionHash({objectId: marketplaceId});
-
-      /*
-      marketplace.drops = (marketplace.events || []).map(({event}, eventIndex) =>
-        (event.info.drops || []).map((drop, dropIndex) => ({
-          ...drop,
-          eventId: Utils.DecodeVersionHash(event["."].source).objectId,
-          eventHash: event["."].source,
-          eventIndex,
-          dropIndex
-        }))
-      ).flat();
-
-       */
+      marketplace.versionHash = marketplaceHash;
 
       this.marketplaces[marketplaceId] = marketplace;
 
@@ -724,7 +748,8 @@ class RootStore {
         linkDepthLimit: 2,
         resolveIncludeSource: true,
         produceLinkUrls: true,
-        select: [".", "drops"]
+        select: [".", "drops"],
+        noAuth: true
       })) || [];
 
       const eventId = Utils.DecodeVersionHash(event["."].source).objectId;
@@ -1161,7 +1186,8 @@ class RootStore {
       this.initialized = false;
 
       const client = yield ElvClient.FromConfigurationUrl({
-        configUrl: EluvioConfiguration["config-url"]
+        configUrl: EluvioConfiguration["config-url"],
+        assumeV3: true
       });
 
       this.staticToken = client.staticToken;

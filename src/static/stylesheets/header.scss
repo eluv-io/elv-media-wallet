@@ -37,6 +37,7 @@
     overflow: hidden;
   }
 
+  &__breadcrumbs__marketplaces-button,
   &__breadcrumbs__back-button {
     align-items: center;
     color: $white;
@@ -50,7 +51,18 @@
     svg {
       height: 100%;
     }
+  }
 
+  &__breadcrumbs__marketplaces-button {
+    &:hover,
+    &-active {
+      * {
+        fill: $lightblue;
+      }
+    }
+  }
+
+  &__breadcrumbs__back-button {
     * {
       stroke: $black;
       stroke-width: 1px;

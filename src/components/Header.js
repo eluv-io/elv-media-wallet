@@ -4,10 +4,11 @@ import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import {ProfileImage} from "Components/common/Images";
 import {Link, NavLink} from "react-router-dom";
+import {FormatPriceString} from "Components/common/UIComponents";
+import ImageIcon from "Components/common/ImageIcon";
 
 import BackIcon from "Assets/icons/arrow-left-circle.svg";
-import ImageIcon from "Components/common/ImageIcon";
-import {FormatPriceString} from "Components/common/UIComponents";
+import MarketplacesIcon from "Assets/icons/More from Collection icon.svg";
 
 const Header = observer(() => {
   useEffect(() => {
@@ -42,6 +43,15 @@ const Header = observer(() => {
     <header className="header">
       <div className="header__content">
         <div className="header__breadcrumbs">
+          {
+            <NavLink
+              className={`header__breadcrumbs__marketplaces-button ${window.location.hash === "#/marketplaces" ? "header__breadcrumbs__marketplaces-button-active" : ""}`}
+              to="/marketplaces"
+            >
+              <ImageIcon icon={MarketplacesIcon} title="All Marketplaces" />
+            </NavLink>
+          }
+
           {
             rootStore.navigationBreadcrumbs.length > 1 ?
               <NavLink

@@ -11,7 +11,7 @@ const Navigation = observer(() => {
       {
         rootStore.marketplaceId ?
           <NavLink className="navigation__link" to={`/marketplace/${rootStore.marketplaceId}`}>Marketplace</NavLink> :
-          <NavLink className="navigation__link" to={`/marketplaces`}>Marketplaces</NavLink>
+          <NavLink className="navigation__link" to={"/marketplaces"}>Marketplaces</NavLink>
       }
       <NavLink className="navigation__link" to="/wallet">Wallet</NavLink>
     </nav>

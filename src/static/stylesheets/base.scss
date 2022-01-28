@@ -223,7 +223,7 @@ em {
   flex-direction: column;
   height: max-content;
   max-width: 100%;
-  padding: 15px 35px 80px 25px;
+  padding: 15px 35px 100px 25px;
   width: 100vw;
 }
 
@@ -305,7 +305,7 @@ em {
     .content {
       margin: auto;
       max-width: $breakpoint;
-      padding: 25px 30px 80px;
+      padding: 25px 30px 100px;
       width: 1250px;
     }
   }
@@ -335,7 +335,7 @@ em {
 // Small
 @media screen and (max-width: $mobile-breakpoint) {
   .content {
-    padding: 25px 20px 80px;
+    padding: 25px 20px 100px;
   }
 
   .page-container {

@@ -60,9 +60,9 @@
     }
 
     &-active {
+      background-color: $lightblue;
       border: 1px solid $lightblue;
       color: $white;
-      background-color: $lightblue;
     }
   }
 
@@ -188,9 +188,9 @@
     }
 
     &__tag-active {
+      background-color: $black;
       border: 1px solid $lightblue;
       color: $lightblue;
-      background-color: $black;
     }
   }
 
