@@ -17,7 +17,7 @@ import MyListings from "Components/listings/MyListings";
 import Listings from "Components/listings/Listings";
 import PurchaseHandler from "Components/marketplace/PurchaseHandler";
 import UrlJoin from "url-join";
-import Activity from "Components/listings/Activity";
+import {RecentSales} from "Components/listings/Activity";
 
 const WalletNavigation = observer(() => {
   return (
@@ -96,7 +96,7 @@ const Routes = (match) => {
     { name: "My Listings", path: "/wallet/my-listings", Component: MyListings },
     { name: "My Listings", path: "/wallet/my-listings/transactions", Component: MyListings },
 
-    { name: "Activity", path: "/wallet/activity", Component: Activity },
+    { name: "Activity", path: "/wallet/activity", Component: RecentSales },
 
     { name: listingName, path: "/wallet/listings/:listingId", Component: NFTDetails },
     { name: "All Listings", path: "/wallet/listings", Component: Listings },

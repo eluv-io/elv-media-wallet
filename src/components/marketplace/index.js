@@ -20,7 +20,7 @@ import Listings from "Components/listings/Listings";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import MyListings from "Components/listings/MyListings";
 import PurchaseHandler from "Components/marketplace/PurchaseHandler";
-import Activity from "Components/listings/Activity";
+import {RecentSales} from "Components/listings/Activity";
 
 const MarketplaceNavigation = observer(() => {
   let match = useRouteMatch();
@@ -188,7 +188,7 @@ const Routes = (match) => {
     { name: "All Listings", path: "/marketplaces/:marketplaceId/listings", Component: Listings },
     { name: nft.metadata.display_name, path: "/marketplaces/:marketplaceId/my-listings/:contractId/:tokenId", Component: NFTDetails },
     { name: "My Listings", path: "/marketplaces/:marketplaceId/my-listings", Component: MyListings },
-    { name: "Activity", path: "/marketplaces/:marketplaceId/activity", Component: Activity },
+    { name: "Activity", path: "/marketplaces/:marketplaceId/activity", Component: RecentSales },
 
 
     { name: (event.event_info || {}).event_title, path: "/marketplaces/:marketplaceId/events/:dropId", Component: Drop, hideNavigation: true },

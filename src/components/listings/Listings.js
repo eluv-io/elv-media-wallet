@@ -63,8 +63,18 @@ const Listings = observer(() => {
       mode="listings"
       perPage={16}
       loadOffset={600}
-      Render={({entries, loading}) => (
+      Render={({entries, paging, loading}) => (
         <>
+          {
+            !paging ? null :
+              <div className="listing-pagination">
+                {
+                  paging.total <= 0 ?
+                    "No Results" :
+                    `Showing 1 - ${entries.length} of ${paging.total} results`
+                }
+              </div>
+          }
           {
             entries.length === 0 ? null :
               <div className="card-list">

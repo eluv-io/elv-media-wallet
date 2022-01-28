@@ -22,6 +22,7 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 import {v4 as UUID} from "uuid";
 import NFTCard from "Components/common/NFTCard";
 import ListingStats from "Components/listings/ListingStats";
+import Activity from "Components/listings/Activity";
 
 const TransferSection = observer(({nft}) => {
   const heldDate = nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
@@ -570,22 +571,25 @@ const NFTDetails = observer(() => {
         </div>
       </div>
       <div className="details-page__transfer-tables">
-        <ListingStats mode="sales-stats" filterParams={{contractAddress: nft.details.ContractAddr}} />
+        <ListingStats
+          mode="sales-stats"
+          filterParams={{contractAddress: nft.details.ContractAddr}}
+        />
         <TransferTable
-          header="Transaction History for this NFT"
+          header="Transaction history for this token"
           contractAddress={nft.details.ContractAddr}
           tokenId={nft.details.TokenIdStr}
         />
-        {
-          /*
-            <TransferTable
-              header={<div>Recent Transactions for <b>{ nft.metadata.display_name }</b> NFTs</div>}
-              contractAddress={nft.details.ContractAddr}
-              limit={10}
-            />
-
-         */
-        }
+        <Activity
+          hideFilters
+          hideStats
+          tableHeader={`Sales history for all '${nft.metadata.display_name}' tokens`}
+          initialFilters={{
+            sortBy: "created",
+            sortDesc: true,
+            contractAddress: nft.details.ContractAddr
+          }}
+        />
       </div>
     </>
   );

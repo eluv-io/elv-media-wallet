@@ -5,29 +5,44 @@ import FilteredView from "Components/listings/FilteredView";
 import {Link, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 
-const Activity = () => {
+const Activity = ({header, hideFilters, hideStats, tableHeader, initialFilters}) => {
   const match = useRouteMatch();
 
   const linkPath = match.url.startsWith("/marketplace") ?
     UrlJoin("/marketplaces", match.params.marketplaceId, "listings") :
     UrlJoin("/wallet", "listings");
 
-
   return (
     <FilteredView
-      header="Sales History"
       mode="sales"
       perPage={100}
       expectRef
       loadOffset={1500}
-      Render={({entries, scrollRef, loading}) => (
+      hideFilters={hideFilters}
+      hideStats={hideStats}
+      initialFilters={initialFilters}
+      header={header}
+      Render={({entries, paging, scrollRef, loading}) => (
         <div
           className="transfer-table activity-table"
           style={!loading && entries.length === 0 ? { visibility: "hidden" } : {}}
         >
-          <div className="transfer-table__header">
-            Recent Sales
-          </div>
+          {
+            !tableHeader ? null :
+              <div className="transfer-table__header">
+                { tableHeader }
+              </div>
+          }
+          {
+            !paging ? null :
+              <div className="transfer-table__pagination">
+                {
+                  paging.total <= 0 ?
+                    "No Results" :
+                    `Showing 1 - ${entries.length} of ${paging.total} results`
+                }
+              </div>
+          }
           <div className="transfer-table__table" ref={scrollRef}>
             <div className="transfer-table__table__header">
               <div className="transfer-table__table__cell">Name</div>
@@ -75,5 +90,12 @@ const Activity = () => {
     />
   );
 };
+
+export const RecentSales = () => (
+  <Activity
+    header="Sales History"
+    tableHeader="Recent Sales"
+  />
+);
 
 export default Activity;

@@ -47,6 +47,11 @@ $badge-pending: rgba($darkgray, 0.8);
     }
   }
 
+  &__pagination {
+    font-size: 12px;
+    padding: 0 20px 10px;
+  }
+
   &__table {
     height: 100%;
     max-height: 420px;
@@ -200,6 +205,10 @@ $badge-pending: rgba($darkgray, 0.8);
   .transfer-table {
     background-color: $black;
     border: 1px solid $darkergray;
+
+    &__pagination {
+      color: $gray;
+    }
 
     &.active-listings {
       .transfer-table__table__header {
