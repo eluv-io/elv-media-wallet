@@ -18,7 +18,7 @@
 
   &__filters {
     background-color: $white;
-    box-shadow: 0 0 3px $mediumgray;
+    box-shadow: 0 0 4px $mediumgray;
     min-height: 45px;
     width: 100%;
   }
@@ -60,8 +60,9 @@
     }
 
     &-active {
-      border: 1px solid $blue;
-      color: $blue;
+      border: 1px solid $lightblue;
+      color: $white;
+      background-color: $lightblue;
     }
   }
 
@@ -189,6 +190,7 @@
     &__tag-active {
       border: 1px solid $lightblue;
       color: $lightblue;
+      background-color: $black;
     }
   }
 

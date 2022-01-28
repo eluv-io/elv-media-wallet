@@ -517,6 +517,8 @@ class RootStore {
         produceLinkUrls: true
       });
 
+      console.log("MARKETPLACE", marketplace)
+
       const stockPromise = this.checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id});
 
       marketplace.items = yield Promise.all(

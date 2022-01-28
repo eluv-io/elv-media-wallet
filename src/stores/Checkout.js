@@ -140,7 +140,7 @@ class CheckoutStore {
 
       const basePath =
         marketplaceId ?
-          UrlJoin("/marketplaces", marketplaceId, listing.details.TenantId, listingId, "purchase", confirmationId) :
+          UrlJoin("/marketplace", marketplaceId, listing.details.TenantId, listingId, "purchase", confirmationId) :
           UrlJoin("/wallet", "listings", listing.details.TenantId, listingId, "purchase", confirmationId);
 
       if(requiresPopup) {
@@ -234,7 +234,7 @@ class CheckoutStore {
       email = email || (authInfo.user || {}).email || this.rootStore.userProfile.email;
       authInfo.user.email = email;
 
-      const basePath = UrlJoin("/marketplaces", marketplaceId, tenantId, sku, "purchase", confirmationId);
+      const basePath = UrlJoin("/marketplace", marketplaceId, tenantId, sku, "purchase", confirmationId);
 
       if(!email) {
         throw Error("Unable to determine email address in checkout submit");

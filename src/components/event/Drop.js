@@ -61,7 +61,7 @@ const Drop = () => {
         if(!drop.votable || (votingEnded && !selection)) {
           // No voting, or voting has ended, but user hasn't voted - just redirect to the marketplace
           rootStore.SetMarketplaceFilters(drop.store_filters_no_vote || []);
-          return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId)} />;
+          return <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId)} />;
         }
 
         if(drop.votable && mintingStarted) {

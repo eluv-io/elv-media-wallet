@@ -153,6 +153,9 @@ const Routes = () => {
       <Route path="/marketplaces">
         <MarketplaceRoutes />
       </Route>
+      <Route path="/marketplace">
+        <MarketplaceRoutes />
+      </Route>
       <Route path="/">
         <Redirect to="/wallet" />
       </Route>

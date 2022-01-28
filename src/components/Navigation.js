@@ -4,11 +4,15 @@ import {rootStore} from "Stores";
 import {NavLink} from "react-router-dom";
 
 const Navigation = observer(() => {
-  if(!rootStore.loggedIn || rootStore.hideNavigation || !rootStore.marketplaceId) { return null; }
+  if(!rootStore.loggedIn || rootStore.hideNavigation) { return null; }
 
   return (
     <nav className="navigation">
-      <NavLink className="navigation__link" to={`/marketplaces/${rootStore.marketplaceId}`}>Marketplace</NavLink>
+      {
+        rootStore.marketplaceId ?
+          <NavLink className="navigation__link" to={`/marketplace/${rootStore.marketplaceId}`}>Marketplace</NavLink> :
+          <NavLink className="navigation__link" to={`/marketplaces`}>Marketplaces</NavLink>
+      }
       <NavLink className="navigation__link" to="/wallet">Wallet</NavLink>
     </nav>
   );

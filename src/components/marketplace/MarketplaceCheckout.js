@@ -48,7 +48,7 @@ const MarketplaceCheckout = observer(({item}) => {
   };
 
   if(claimed) {
-    return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, item.sku, "claim")} />;
+    return <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, item.sku, "claim")} />;
   }
 
   return (

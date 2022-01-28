@@ -68,7 +68,7 @@ const MarketplaceCard = observer(({marketplace}) => {
   const info = marketplace.discovery || {};
 
   return (
-    <Link to={UrlJoin("/marketplaces", marketplace.marketplaceId)} className="card-shadow marketplace-card">
+    <Link to={UrlJoin("/marketplace", marketplace.marketplaceId)} className="card-shadow marketplace-card">
       {
         info.card_banner ?
           <img

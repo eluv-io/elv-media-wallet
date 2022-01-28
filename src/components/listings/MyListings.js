@@ -52,7 +52,7 @@ const MyListings = observer(() => {
             listing={listing}
             link={
               match.params.marketplaceId ?
-                UrlJoin("/marketplaces", match.params.marketplaceId, "my-listings", listing.details.ContractId, listing.details.TokenIdStr) :
+                UrlJoin("/marketplace", match.params.marketplaceId, "my-listings", listing.details.ContractId, listing.details.TokenIdStr) :
                 UrlJoin("/wallet", "my-listings", listing.details.ContractId, listing.details.TokenIdStr)
             }
             Refresh={() => setKey(key + 1)}
