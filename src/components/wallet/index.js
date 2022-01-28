@@ -115,19 +115,21 @@ const Wallet = observer(() => {
   const match = useRouteMatch();
 
   return (
-    <div className="page-container wallet-page content">
-      <WalletNavigation/>
-      <Switch>
-        {
-          Routes(match).map(({path, Component}) =>
-            <Route exact path={path} key={`wallet-route-${path}`}>
-              <WalletWrapper>
-                <Component/>
-              </WalletWrapper>
-            </Route>
-          )
-        }
-      </Switch>
+    <div className="page-container wallet-page">
+      <div className="content">
+        <WalletNavigation/>
+        <Switch>
+          {
+            Routes(match).map(({path, Component}) =>
+              <Route exact path={path} key={`wallet-route-${path}`}>
+                <WalletWrapper>
+                  <Component/>
+                </WalletWrapper>
+              </Route>
+            )
+          }
+        </Switch>
+      </div>
     </div>
   );
 });

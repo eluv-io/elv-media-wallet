@@ -24,65 +24,67 @@ const Header = observer(() => {
 
     return (
       <header className="header">
-        <div className="header__breadcrumbs">
-          <NavLink
-            className="header__breadcrumbs__back-button"
-            to={rootStore.navigationBreadcrumbs[rootStore.navigationBreadcrumbs.length - 2].path}
-          >
-            <ImageIcon icon={BackIcon} title="Back" />
-          </NavLink>
+        <div className="header__content">
+          <div className="header__breadcrumbs">
+            <NavLink
+              className="header__breadcrumbs__back-button"
+              to={rootStore.navigationBreadcrumbs[rootStore.navigationBreadcrumbs.length - 2].path}
+            >
+              <ImageIcon icon={BackIcon} title="Back" />
+            </NavLink>
+          </div>
         </div>
-        <div className="header__separator" />
       </header>
     );
   }
 
   return (
     <header className="header">
-      <div className="header__breadcrumbs">
-        {
-          rootStore.navigationBreadcrumbs.length > 1 ?
-            <NavLink
-              className="header__breadcrumbs__back-button"
-              to={rootStore.navigationBreadcrumbs[rootStore.navigationBreadcrumbs.length - 2].path}
-            >
-              <ImageIcon icon={BackIcon} title="Back" />
-            </NavLink> : null
-        }
-        {
-          rootStore.navigationBreadcrumbs.map(({name, path}, index) => {
-            const last = index === rootStore.navigationBreadcrumbs.length - 1;
-
-            if(!name) { return null; }
-
-            return (
-              <div className="header__breadcrumb" key={`header-breadcrumb-${path}`}>
-                <NavLink to={path} isActive={() => last} className="header__breadcrumb__link">{name}</NavLink>
-                { last ? null : <div className="header__breadcrumb__separator">/</div> }
-              </div>
-            );
-          })
-        }
-      </div>
-      <Link to="/profile" className="header__profile">
-        <div className="header__profile__info ellipsis">
-          <div className="header__profile__name">
-            { rootStore.userProfile.name }
-          </div>
+      <div className="header__content">
+        <div className="header__breadcrumbs">
           {
-            typeof rootStore.totalWalletBalance !== "undefined" ?
-              <div
-                className="header__profile__balance"
-                title={`Total balance: ${FormatPriceString({USD: rootStore.totalWalletBalance})}\nAvailable balance: ${FormatPriceString({USD: rootStore.availableWalletBalance}) }\nPending balance: ${FormatPriceString({USD: rootStore.pendingWalletBalance}) }`}
+            rootStore.navigationBreadcrumbs.length > 1 ?
+              <NavLink
+                className="header__breadcrumbs__back-button"
+                to={rootStore.navigationBreadcrumbs[rootStore.navigationBreadcrumbs.length - 2].path}
               >
-                { FormatPriceString({USD: rootStore.totalWalletBalance}) }
-                { rootStore.pendingWalletBalance ? <div className="header__profile__pending-indicator">*</div> : null}
-              </div> : null
+                <ImageIcon icon={BackIcon} title="Back" />
+              </NavLink> : null
+          }
+          {
+            rootStore.navigationBreadcrumbs.map(({name, path}, index) => {
+              const last = index === rootStore.navigationBreadcrumbs.length - 1;
+
+              if(!name) { return null; }
+
+              return (
+                <div className="header__breadcrumb" key={`header-breadcrumb-${path}`}>
+                  <NavLink to={path} isActive={() => last} className="header__breadcrumb__link">{name}</NavLink>
+                  { last ? null : <div className="header__breadcrumb__separator">/</div> }
+                </div>
+              );
+            })
           }
         </div>
-        <ProfileImage className="header__profile__image" />
-      </Link>
-      <div className="header__separator" />
+        <Link to="/profile" className="header__profile">
+          <div className="header__profile__info ellipsis">
+            <div className="header__profile__name">
+              { rootStore.userProfile.name }
+            </div>
+            {
+              typeof rootStore.totalWalletBalance !== "undefined" ?
+                <div
+                  className="header__profile__balance"
+                  title={`Total balance: ${FormatPriceString({USD: rootStore.totalWalletBalance})}\nAvailable balance: ${FormatPriceString({USD: rootStore.availableWalletBalance}) }\nPending balance: ${FormatPriceString({USD: rootStore.pendingWalletBalance}) }`}
+                >
+                  { FormatPriceString({USD: rootStore.totalWalletBalance}) }
+                  { rootStore.pendingWalletBalance ? <div className="header__profile__pending-indicator">*</div> : null}
+                </div> : null
+            }
+          </div>
+          <ProfileImage className="header__profile__image" />
+        </Link>
+      </div>
     </header>
   );
 });

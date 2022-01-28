@@ -120,29 +120,6 @@ input {
     height: 19px;
     width: 19px;
   }
-
-  &[type="text"] {
-    border: 1px solid $gray;
-    color: $black;
-    font-size: 20px;
-    height: 50px;
-    padding: 0 10px;
-    width: 100%;
-
-    &:focus {
-      border: 0.5px solid $gray;
-      outline: 0;
-
-      &::placeholder {
-        opacity: 0;
-      }
-    }
-
-    &::placeholder {
-      font-size: 16px;
-      letter-spacing: 0.08em;
-    }
-  }
 }
 
 .button,
@@ -324,20 +301,12 @@ em {
 @media screen and (min-width: $breakpoint) {
   .app-container {
     margin: auto;
-    max-width: $breakpoint;
-    width: $breakpoint;
-
-    .navigation {
-      width: $breakpoint;
-    }
-
-    .header {
-      max-width: $breakpoint;
-    }
 
     .content {
+      margin: auto;
+      max-width: $breakpoint;
       padding: 25px 30px 80px;
-      width: auto;
+      width: 1250px;
     }
   }
 }
@@ -389,6 +358,13 @@ em {
   }
 }
 
+.debug-footer {
+  bottom: 10px;
+  font-size: 10px;
+  left: 10px;
+  position: absolute;
+}
+
 .dark {
   &.app,
   .app-container,
@@ -410,11 +386,6 @@ em {
     &-primary {
       background-color: $blue;
       border: 1px solid $blue;
-    }
-
-    &:focus-visible {
-      //box-shadow: 0 0 5px $white;
-      filter: drop-shadow(0 0 5px $white);
     }
   }
 

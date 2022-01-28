@@ -137,6 +137,21 @@ class RootStore {
     return this.marketplaceHashes[this.marketplaceId];
   }
 
+  @computed get allMarketplaces() {
+    let marketplaces = [];
+    Object.keys((this.availableMarketplaces || {}))
+      .filter(key => typeof this.availableMarketplaces[key] === "object")
+      .forEach(tenantSlug =>
+        Object.keys((this.availableMarketplaces[tenantSlug] || {}))
+          .filter(key => typeof this.availableMarketplaces[tenantSlug][key] === "object")
+          .map(marketplaceSlug =>
+            marketplaces.push(this.availableMarketplaces[tenantSlug][marketplaceSlug])
+          )
+      );
+
+    return marketplaces;
+  }
+
   Log(message="", error=false) {
     if(typeof message === "string") {
       message = `Eluvio Media Wallet | ${message}`;
@@ -238,22 +253,49 @@ class RootStore {
     );
   }
 
-  LoadAvailableMarketplaces = flow(function * () {
-    if(Object.keys(this.availableMarketplaces) > 0) { return; }
+  // If marketplace slug is specified, load only that marketplace. Otherwise load all
+  LoadAvailableMarketplaces = flow(function * ({tenantSlug, marketplaceSlug}={}) {
+    if(this.availableMarketplaces["_ALL_LOADED"]) {
+      return;
+    }
+
+    let metadata;
 
     const mainSiteId = EluvioConfiguration["main-site-id"];
     const mainSiteHash = yield this.client.LatestVersionHash({objectId: mainSiteId});
-    const metadata = yield this.client.ContentObjectMetadata({
-      versionHash: mainSiteHash,
-      metadataSubtree: "public/asset_metadata/tenants",
-      resolveLinks: true,
-      linkDepthLimit: 2,
-      resolveIncludeSource: true,
-      select: ["*/.", "*/marketplaces/*/.", "*/marketplaces/*/info/branding"]
-    });
 
-    let availableMarketplaces = {};
+    // Loading specific marketplace
+    if(marketplaceSlug) {
+      if(this.availableMarketplaces[tenantSlug] && this.availableMarketplaces[tenantSlug][marketplaceSlug]) {
+        return;
+      }
 
+      metadata = yield this.client.ContentObjectMetadata({
+        versionHash: mainSiteHash,
+        metadataSubtree: "public/asset_metadata/tenants",
+        resolveLinks: true,
+        linkDepthLimit: 2,
+        resolveIncludeSource: true,
+        produceLinkUrls: true,
+        select: [
+          `${tenantSlug}/.`,
+          `${tenantSlug}/marketplaces/${marketplaceSlug}/.`,
+          `${tenantSlug}/marketplaces/${marketplaceSlug}/info/branding`
+        ]
+      });
+    } else {
+      metadata = yield this.client.ContentObjectMetadata({
+        versionHash: mainSiteHash,
+        metadataSubtree: "public/asset_metadata/tenants",
+        resolveLinks: true,
+        linkDepthLimit: 2,
+        resolveIncludeSource: true,
+        produceLinkUrls: true,
+        select: ["*/.", "*/marketplaces/*/.", "*/marketplaces/*/info/branding"]
+      });
+    }
+
+    let availableMarketplaces = { ...(this.availableMarketplaces || {}) };
     Object.keys(metadata || {}).forEach(tenantSlug => {
       try {
         availableMarketplaces[tenantSlug] = {
@@ -271,7 +313,10 @@ class RootStore {
 
             availableMarketplaces[tenantSlug][marketplaceSlug] = {
               ...(metadata[tenantSlug].marketplaces[marketplaceSlug].info.branding || {}),
-              versionHash
+              tenantSlug,
+              marketplaceSlug,
+              marketplaceId: objectId,
+              marketplaceHash: versionHash
             };
           } catch(error) {
             this.Log(`Unable to load info for marketplace ${tenantSlug}/${marketplaceSlug}`, true);
@@ -283,12 +328,16 @@ class RootStore {
       }
     });
 
+    if(!marketplaceSlug) {
+      availableMarketplaces["_ALL_LOADED"] = true;
+    }
+
     this.availableMarketplaces = availableMarketplaces;
   });
 
   SetMarketplace = flow(function * ({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, primary=false}) {
     if(marketplaceSlug) {
-      yield this.LoadAvailableMarketplaces();
+      yield this.LoadAvailableMarketplaces({tenantSlug, marketplaceSlug});
 
       const targetMarketplace = this.availableMarketplaces[tenantSlug][marketplaceSlug];
 

@@ -21,6 +21,7 @@ import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import MyListings from "Components/listings/MyListings";
 import PurchaseHandler from "Components/marketplace/PurchaseHandler";
 import {RecentSales} from "Components/listings/Activity";
+import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 
 const MarketplaceNavigation = observer(() => {
   let match = useRouteMatch();
@@ -90,13 +91,25 @@ const MarketplacePage = observer(({children}) => {
     );
   }
 
+  const branding = (marketplace.branding || {}).marketplace || {};
+  const name = branding.name || (marketplace.storefront || {}).header;
+
   return (
     <div className="marketplace content">
       {
         rootStore.hideNavigation || rootStore.sidePanelMode ? null :
           <div className="marketplace__header">
-            <h1 className="page-header">{(marketplace.storefront || {}).header}</h1>
-            <h2 className="page-subheader">{(marketplace.storefront || {}).subheader}</h2>
+            {
+              branding.top_banner_logo ?
+                <img src={branding.top_banner_logo.url} alt={name} className="marketplace__header__image"/> :
+                <h1 className="page-header marketplace__header__text">{ name }</h1>
+            }
+            <ResponsiveEllipsis
+              component="div"
+              className="marketplace__header__description"
+              maxLine="4"
+              text={branding.description || (marketplace.storefront || {}).subheader}
+            />
           </div>
       }
       <MarketplaceNavigation />
@@ -208,7 +221,7 @@ const Routes = (match) => {
     { name: item.name, path: "/marketplaces/:marketplaceId/:sku", Component: MarketplaceItemDetails },
     { name: marketplace.name, path: "/marketplaces/:marketplaceId", Component: MarketplaceStorefront },
 
-    { name: "Marketplaces", path: "/marketplaces", Component: MarketplaceBrowser }
+    { name: "Marketplaces", path: "/all-marketplaces", Component: MarketplaceBrowser }
   ];
 };
 
