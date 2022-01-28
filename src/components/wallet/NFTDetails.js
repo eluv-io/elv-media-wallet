@@ -570,7 +570,7 @@ const NFTDetails = observer(() => {
         </div>
       </div>
       <div className="details-page__transfer-tables">
-        <ListingStats mode="sales" filterParams={{contractAddress: nft.details.ContractAddr}} />
+        <ListingStats mode="sales-stats" filterParams={{contractAddress: nft.details.ContractAddr}} />
         <TransferTable
           header="Transaction History for this NFT"
           contractAddress={nft.details.ContractAddr}

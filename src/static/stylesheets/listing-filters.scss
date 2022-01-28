@@ -115,6 +115,7 @@
 .listing-pagination {
   font-size: 12px;
   font-weight: 300;
+  margin-top: 30px;
   text-align: center;
 }
 
@@ -127,7 +128,7 @@
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   height: 75px;
   justify-content: center;
-  margin-bottom: 30px;
+  margin-bottom: 15px;
   max-height: 75px;
   padding: 10px;
   width: 100%;

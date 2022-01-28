@@ -2,13 +2,24 @@ import React from "react";
 import {FormatPriceString} from "Components/common/UIComponents";
 import {Ago, MiddleEllipsis} from "../../utils/Utils";
 import FilteredView from "Components/listings/FilteredView";
+import {Link, useRouteMatch} from "react-router-dom";
+import UrlJoin from "url-join";
 
 const Activity = () => {
+  const match = useRouteMatch();
+
+  const linkPath = match.url.startsWith("/marketplace") ?
+    UrlJoin("/marketplaces", match.params.marketplaceId, "listings") :
+    UrlJoin("/wallet", "listings");
+
+
   return (
     <FilteredView
+      header="Sales History"
       mode="sales"
-      perPage={50}
+      perPage={100}
       expectRef
+      loadOffset={1500}
       Render={({entries, scrollRef, loading}) => (
         <div
           className="transfer-table activity-table"
@@ -31,7 +42,11 @@ const Activity = () => {
                 !entries || entries.length === 0 ?
                   <div className="transfer-table__empty">No Sales</div> :
                   entries.map(transfer =>
-                    <div className="transfer-table__table__row" key={`transfer-table-row-${transfer.id}`}>
+                    <Link
+                      to={`${linkPath}?filter=${transfer.name}`}
+                      className="transfer-table__table__row"
+                      key={`transfer-table-row-${transfer.id}`}
+                    >
                       <div className="transfer-table__table__cell">
                         { transfer.name }
                       </div>
@@ -50,7 +65,7 @@ const Activity = () => {
                       <div className="transfer-table__table__cell no-tablet">
                         { MiddleEllipsis(transfer.seller, 14) }
                       </div>
-                    </div>
+                    </Link>
                   )
               }
             </div>

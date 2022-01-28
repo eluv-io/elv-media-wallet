@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS listings (
 
 import React, {useState, useEffect} from "react";
 import {observer} from "mobx-react";
-import {useRouteMatch} from "react-router-dom";
+import {useLocation, useRouteMatch} from "react-router-dom";
 import {rootStore, transferStore} from "Stores";
 import AutoComplete from "Components/common/AutoComplete";
 import {ButtonWithLoader} from "Components/common/UIComponents";
@@ -63,17 +63,23 @@ const FilterDropdown = observer(({label, value, options, onChange, placeholder})
 
 export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
   const match = useRouteMatch();
+  const location = useLocation();
+
+  const urlParams = new URLSearchParams(location.search);
+
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const collections = marketplace && marketplace.collections;
 
-  const [filterOptions, setFilterOptions] = useState([]);
+  const initialFilter = urlParams.get("filter");
+
+  const [filterOptions, setFilterOptions] = useState(initialFilter ? [ initialFilter ] : []);
 
   const [sort, setSort] = useState("created");
   const [sortBy, setSortBy] = useState("created");
   const [sortDesc, setSortDesc] = useState(true);
   const [collectionIndex, setCollectionIndex] = useState(-1);
   const [lastNDays, setLastNDays] = useState(-1);
-  const [filter, setFilter] = useState("");
+  const [filter, setFilter] = useState(initialFilter || "");
 
   const Update = async () => {
     UpdateFilters({

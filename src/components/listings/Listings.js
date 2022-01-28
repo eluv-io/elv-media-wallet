@@ -59,8 +59,10 @@ const Listings = observer(() => {
 
   return (
     <FilteredView
+      header="All Listings"
       mode="listings"
       perPage={16}
+      loadOffset={600}
       Render={({entries, loading}) => (
         <>
           {

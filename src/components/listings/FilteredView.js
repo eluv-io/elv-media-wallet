@@ -5,8 +5,7 @@ import ListingFilters from "Components/listings/ListingFilters";
 import {useInfiniteScroll} from "react-g-infinite-scroll";
 import {transferStore} from "Stores";
 
-let scrollDebounceTimeout;
-const FilteredView = ({mode="listings", perPage=50, expectRef, Render}) => {
+const FilteredView = ({header, mode="listings", perPage=50, expectRef, loadOffset=100, Render}) => {
   const [loading, setLoading] = useState(false);
   const [entries, setEntries] = useState([]);
   const [filters, setFilters] = useState(undefined);
@@ -37,20 +36,14 @@ const FilteredView = ({mode="listings", perPage=50, expectRef, Render}) => {
 
   const scrollRef = useInfiniteScroll({
     expectRef,
-    fetchMore: () => {
-      if(loading) {
-        return;
-      }
-      clearTimeout(scrollDebounceTimeout);
-
-      scrollDebounceTimeout = setTimeout(() => Load({currentFilters: filters, currentPaging: paging, currentEntries: entries}), 500);
-    },
+    fetchMore: async () => await Load({currentFilters: filters, currentPaging: paging, currentEntries: entries}),
+    offset: loadOffset,
     ignoreScroll: loading || (entries && entries.length === 0) || (paging && entries.length === paging.total)
   });
 
   return (
     <div className="marketplace-listings marketplace__section">
-      <h1 className="page-header">Sales History</h1>
+      <h1 className="page-header">{ header }</h1>
       <ListingFilters
         mode={mode}
         UpdateFilters={async (newFilters) => {
