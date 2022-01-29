@@ -243,6 +243,7 @@ class TransferStore {
     contractAddress,
     marketplace,
     marketplaceId,
+    tenantIds,
     collectionIndex=-1,
     lastNDays=-1,
     start=0,
@@ -301,6 +302,8 @@ class TransferStore {
       } else if(marketplace) {
         // Show only items in marketplace
         filters.push(`tenant:eq:${marketplace.tenant_id}`);
+      } else if(tenantIds) {
+        tenantIds.map(tenantId => filters.push(`tenant:eq:${tenantId}`));
       }
 
       if(contractAddress) {

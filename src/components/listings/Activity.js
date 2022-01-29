@@ -9,7 +9,7 @@ const Activity = ({header, hideFilters, hideStats, tableHeader, initialFilters})
   const match = useRouteMatch();
 
   const linkPath = match.url.startsWith("/marketplace") ?
-    UrlJoin("/marketplaces", match.params.marketplaceId, "listings") :
+    UrlJoin("/marketplace", match.params.marketplaceId, "listings") :
     UrlJoin("/wallet", "listings");
 
   return (

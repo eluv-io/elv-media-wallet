@@ -288,6 +288,7 @@ class RootStore {
         select: [
           `${tenantSlug}/.`,
           `${tenantSlug}/marketplaces/${marketplaceSlug}/.`,
+          `${tenantSlug}/marketplaces/${marketplaceSlug}/info/tenant_id`,
           `${tenantSlug}/marketplaces/${marketplaceSlug}/info/branding`
         ]
       });
@@ -300,7 +301,7 @@ class RootStore {
         resolveIncludeSource: true,
         produceLinkUrls: true,
         noAuth: true,
-        select: ["*/.", "*/marketplaces/*/.", "*/marketplaces/*/info/branding"]
+        select: ["*/.", "*/marketplaces/*/.", "*/marketplaces/*/info/tenant_id", "*/marketplaces/*/info/branding"]
       });
     }
 
@@ -320,6 +321,7 @@ class RootStore {
 
             availableMarketplaces[tenantSlug][marketplaceSlug] = {
               ...(metadata[tenantSlug].marketplaces[marketplaceSlug].info.branding || {}),
+              tenantId: metadata[tenantSlug].marketplaces[marketplaceSlug].info.tenant_id,
               tenantSlug,
               marketplaceSlug,
               marketplaceId: objectId,

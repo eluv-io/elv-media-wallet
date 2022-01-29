@@ -1,6 +1,7 @@
 .listing-filters {
   align-items: flex-end;
   display: flex;
+  flex-wrap: wrap;
   padding: 0 0 20px;
   width: 100%;
 
@@ -81,6 +82,44 @@
     }
   }
 
+  &__marketplace-selection {
+    align-items: flex-end;
+    display: flex;
+    flex-wrap: wrap;
+    // sass-lint:disable no-important
+    margin-left: 0 !important;
+    margin-top: 10px;
+    order: 999;
+    width: 100%;
+
+    &__selected {
+      align-items: center;
+      display: flex;
+      margin-left: 15px;
+    }
+
+    &__selected__item {
+      align-items: center;
+      border: 1px solid $lightblue;
+      border-radius: 6px;
+      color: $lightblue;
+      display: flex;
+      font-size: 14px;
+      height: 40px;
+      margin-right: 10px;
+      padding: 0 40px 0 15px;
+      position: relative;
+
+      svg {
+        height: 40px;
+        padding: 12px;
+        position: absolute;
+        right: 0;
+        stroke: $lightblue;
+      }
+    }
+  }
+
   @media screen and (max-width: $tablet-breakpoint) {
     align-items: flex-start;
     flex-direction: column;
@@ -107,6 +146,14 @@
       .action {
         max-width: 120px;
         min-width: 120px;
+      }
+    }
+
+    &__marketplace-selection {
+      order: unset;
+
+      &__selected {
+        margin: 10px 0 0;
       }
     }
   }
@@ -215,6 +262,18 @@
 
     &__select-button {
       border: 1px solid $darkergray;
+    }
+
+    &__marketplace-selection {
+      &__selected__item {
+        background-color: $darkestgray;
+        border: 1px solid $darkestgray;
+        color: $lightgray;
+
+        svg {
+          stroke: $darkgray;
+        }
+      }
     }
   }
 }
