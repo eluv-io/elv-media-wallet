@@ -211,21 +211,29 @@ export const InitializeListener = (history) => {
           // Replace route variables
           let route = pages[data.params.page];
 
-          if(data.params.params) {
-            // Convert hash to ID
-            if(data.params.params.marketplaceSlug || data.params.params.marketplaceHash || data.params.params.marketplaceId) {
-              await rootStore.SetMarketplace({
-                tenantSlug: data.params.params.tenantSlug,
-                marketplaceSlug: data.params.params.marketplaceSlug,
-                marketplaceId: data.params.params.marketplaceId,
-                marketplaceHash: data.params.params.marketplaceHash
+          const params = (data.params || {}).params;
+          if(params) {
+            if(params.marketplaceSlug || params.marketplaceHash || params.marketplaceId) {
+              // Ensure marketplace is loaded
+              await rootStore.MarketplaceInfo({
+                tenantSlug: params.tenantSlug,
+                marketplaceSlug: params.marketplaceSlug,
+                marketplaceId: params.marketplaceId,
+                marketplaceHash: params.marketplaceHash
               });
 
-              data.params.params.marketplaceId = rootStore.marketplaceId;
+              await rootStore.SetMarketplace({
+                tenantSlug: params.tenantSlug,
+                marketplaceSlug: params.marketplaceSlug,
+                marketplaceId: params.marketplaceId,
+                marketplaceHash: params.marketplaceHash
+              });
+
+              params.marketplaceId = rootStore.marketplaceId;
             }
 
-            Object.keys(data.params.params).forEach(key => {
-              route = route.replace(`:${key}`, data.params.params[key]);
+            Object.keys(params).forEach(key => {
+              route = route.replace(`:${key}`, params[key]);
             });
           }
 

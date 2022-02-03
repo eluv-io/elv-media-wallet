@@ -126,10 +126,24 @@ export const MobileNavigation = () => {
 export const Navigation = observer(() => {
   if(!rootStore.loggedIn || rootStore.hideNavigation) { return null; }
 
+  const location = useLocation();
+
   return (
     <nav className="navigation">
-      <NavLink className="navigation__link" to={"/marketplaces"}>Marketplaces</NavLink>
-      <NavLink className="navigation__link" to="/wallet/listings">Wallet</NavLink>
+      <NavLink
+        isActive={() => location.pathname.startsWith("/marketplace")}
+        className="navigation__link"
+        to={"/marketplaces"}
+      >
+        Marketplaces
+      </NavLink>
+      <NavLink
+        isActive={() => location.pathname.startsWith("/wallet")}
+        className="navigation__link"
+        to="/wallet/listings"
+      >
+        Wallet
+      </NavLink>
     </nav>
   );
 });

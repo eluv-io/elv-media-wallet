@@ -21,6 +21,7 @@ import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import MyListings from "Components/listings/MyListings";
 import PurchaseHandler from "Components/marketplace/PurchaseHandler";
 import {RecentSales} from "Components/listings/Activity";
+import Profile from "Components/profile";
 
 const MarketplacePurchase = observer(() => {
   const match = useRouteMatch();
@@ -90,22 +91,7 @@ const MarketplaceWrapper = observer(({children}) => {
     );
   }
 
-  return (
-    <AsyncComponent
-      loadKey="marketplace-list"
-      cacheSeconds={1000}
-      Load={async () => {
-        await Promise.all(
-          rootStore.marketplaceIds.map(async marketplaceId => {
-            await rootStore.LoadMarketplace(marketplaceId);
-          })
-        );
-      }}
-      loadingClassName="page-loader"
-    >
-      { children }
-    </AsyncComponent>
-  );
+  return children;
 });
 
 const Routes = (match) => {
@@ -149,6 +135,9 @@ const Routes = (match) => {
         return <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "store")} />;
       }
     },
+
+    // Duplicate profile in marketplace section so navigating to profile doesn't clear the active marketplace
+    { name: "Profile", path: "/marketplace/:marketplaceId/profile", Component: Profile },
 
     { name: "Marketplaces", path: "/marketplaces", Component: MarketplaceBrowser }
   ];

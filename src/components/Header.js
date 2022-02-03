@@ -62,8 +62,11 @@ const MarketplaceIcon = observer(() => {
 
 
 const Profile = observer(() => {
+  const location = useLocation();
+  const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
+
   return (
-    <Link to="/profile" className="header__profile">
+    <Link to={marketplaceId ? `/marketplace/${marketplaceId}/profile` : "/profile"} className="header__profile">
       <div className="header__profile__info ellipsis">
         <div className="header__profile__name">
           { rootStore.userProfile.name }
