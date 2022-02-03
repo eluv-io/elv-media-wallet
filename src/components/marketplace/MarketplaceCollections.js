@@ -18,7 +18,7 @@ const MarketplaceCollections = observer(() => {
 
   if(!marketplace) { return null; }
 
-  const basePath = UrlJoin("/marketplace", match.params.marketplaceId, "collections");
+  const basePath = UrlJoin("/marketplace", match.params.marketplaceId, "collection");
 
   const marketplaceItems = rootStore.MarketplaceOwnedItems(marketplace);
 

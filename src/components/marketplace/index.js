@@ -111,14 +111,14 @@ const Routes = (match) => {
     { name: "Drop Event", path: "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId", Component: Drop, hideNavigation: true },
     { name: "Status", path: "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId/status", Component: DropMintingStatus, hideNavigation: true },
 
-    { name: ((marketplace.storefront || {}).tabs || {}).collection || "My Items", path: "/marketplace/:marketplaceId/collections", Component: MarketplaceOwned },
+    { name: ((marketplace.storefront || {}).tabs || {}).collection || "My Items", path: "/marketplace/:marketplaceId/collection", Component: MarketplaceOwned },
 
-    { name: nft.metadata.display_name, path: "/marketplace/:marketplaceId/collections/owned/:contractId/:tokenId", Component: NFTDetails },
-    { name: "Open Pack", path: "/marketplace/:marketplaceId/collections/owned/:contractId/:tokenId/open", Component: PackOpenStatus },
+    { name: nft.metadata.display_name, path: "/marketplace/:marketplaceId/collection/owned/:contractId/:tokenId", Component: NFTDetails },
+    { name: "Open Pack", path: "/marketplace/:marketplaceId/collection/owned/:contractId/:tokenId/open", Component: PackOpenStatus },
 
-    { name: "Open Pack", path: "/marketplace/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId/open", Component: PackOpenStatus },
-    { name: nft.metadata.display_name, path: "/marketplace/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId", Component: NFTDetails },
-    { name: item.name, path: "/marketplace/:marketplaceId/collections/:collectionIndex/store/:sku", Component: MarketplaceItemDetails },
+    { name: "Open Pack", path: "/marketplace/:marketplaceId/collection/:collectionIndex/owned/:contractId/:tokenId/open", Component: PackOpenStatus },
+    { name: nft.metadata.display_name, path: "/marketplace/:marketplaceId/collection/:collectionIndex/owned/:contractId/:tokenId", Component: NFTDetails },
+    { name: item.name, path: "/marketplace/:marketplaceId/collection/:collectionIndex/store/:sku", Component: MarketplaceItemDetails },
 
     { name: "Claim", path: "/marketplace/:marketplaceId/store/:sku/claim", Component: ClaimMintingStatus },
     { name: "Purchase", path: "/marketplace/:marketplaceId/store/:tenantId/:sku/purchase/:confirmationId/success", Component: MarketplacePurchase, hideNavigation: rootStore.sidePanelMode },

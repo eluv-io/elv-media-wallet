@@ -21,8 +21,9 @@ const NavigationLinks = location => {
         { name: "Activity", link: `/marketplace/${marketplaceId}/activity` }
       ],
       [
-        { name: (((marketplace || {}).storefront || {}).tabs || {}).collection || "My Items", link: `/marketplace/${marketplaceId}/collections` },
-        { name: "My Listings", link: `/marketplace/${marketplaceId}/my-listings` }
+        { name: (((marketplace || {}).storefront || {}).tabs || {}).collection || "My Items", link: `/marketplace/${marketplaceId}/collection` },
+        { name: "My Listings", link: `/marketplace/${marketplaceId}/my-listings` },
+        { name: "My Profile", link: `/marketplace/${marketplaceId}/profile`, mobileOnly: true }
       ]
     ];
   }
@@ -33,8 +34,9 @@ const NavigationLinks = location => {
       { name: "Activity", link: "/wallet/activity" }
     ],
     [
-      { name: "My Collection", link: "/wallet/collections" },
-      { name: "My Listings", link: "/wallet/my-listings" }
+      { name: "My Collection", link: "/wallet/collection" },
+      { name: "My Listings", link: "/wallet/my-listings" },
+      { name: "My Profile", link: "/profile", mobileOnly: true }
     ]
   ];
 };
@@ -47,7 +49,7 @@ export const HeaderNavigation = observer(() => {
     <nav className="header-navigation">
       <div className="header-navigation__left">
         {
-          leftLinks.map(({name, link}) =>
+          leftLinks.filter(item => !item.mobileOnly).map(({name, link}) =>
             <NavLink className="header-navigation__link" to={link} key={`nav-link-${name}`}>
               { name }
             </NavLink>
@@ -56,7 +58,7 @@ export const HeaderNavigation = observer(() => {
       </div>
       <div className="header-navigation__right">
         {
-          rightLinks.map(({name, link}) =>
+          rightLinks.filter(item => !item.mobileOnly).map(({name, link}) =>
             <NavLink className="header-navigation__link" to={link} key={`nav-link-${name}`}>
               { name }
             </NavLink>
@@ -124,9 +126,9 @@ export const MobileNavigation = () => {
 
 
 export const Navigation = observer(() => {
-  if(!rootStore.loggedIn || rootStore.hideNavigation) { return null; }
-
   const location = useLocation();
+
+  if(!rootStore.loggedIn || rootStore.hideNavigation) { return null; }
 
   return (
     <nav className="navigation">
