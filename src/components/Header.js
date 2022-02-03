@@ -6,10 +6,11 @@ import {ProfileImage} from "Components/common/Images";
 import {Link, NavLink, useLocation} from "react-router-dom";
 import {FormatPriceString} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
+import UrlJoin from "url-join";
 
 import BackIcon from "Assets/icons/arrow-left-circle.svg";
 import EluvioIcon from "Assets/images/ELUV.IO-E-Icon.png";
-import UrlJoin from "url-join";
+import {HeaderNavigation, MobileNavigation} from "Components/Navigation";
 
 const MarketplaceIcon = observer(() => {
   const location = useLocation();
@@ -59,60 +60,6 @@ const MarketplaceIcon = observer(() => {
   );
 });
 
-const HeaderLinks = observer(() => {
-  const location = useLocation();
-  const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
-
-  const marketplace = marketplaceId ?
-    rootStore.marketplaces[rootStore.marketplaceId] : null;
-
-  if(marketplaceId) {
-    return (
-      <nav className="header-navigation">
-        <div className="header-navigation__left">
-          <NavLink className="header-navigation__link" to={`/marketplace/${marketplaceId}/store`}>
-            {(((marketplace || {}).storefront || {}).tabs || {}).store || "Store"}
-          </NavLink>
-          <NavLink className="header-navigation__link" to={`/marketplace/${marketplaceId}/listings`}>
-            Listings
-          </NavLink>
-          <NavLink className="header-navigation__link" to={`/marketplace/${marketplaceId}/activity`}>
-            Activity
-          </NavLink>
-        </div>
-        <div className="header-navigation__right">
-          <NavLink className="header-navigation__link" to={`/marketplace/${marketplaceId}/collections`}>
-            {(((marketplace || {}).storefront || {}).tabs || {}).collection || "My Items"}
-          </NavLink>
-          <NavLink className="header-navigation__link" to={`/marketplace/${marketplaceId}/my-listings`}>
-            My Listings
-          </NavLink>
-        </div>
-      </nav>
-    );
-  }
-
-  return (
-    <nav className="header-navigation">
-      <div className="header-navigation__left">
-        <NavLink className="header-navigation__link" to="/wallet/listings">
-          All Listings
-        </NavLink>
-        <NavLink className="header-navigation__link" to="/wallet/activity">
-          Activity
-        </NavLink>
-      </div>
-      <div className="header-navigation__right">
-        <NavLink className="header-navigation__link" to="/wallet/collection">
-          My Collection
-        </NavLink>
-        <NavLink className="header-navigation__link" to="/wallet/my-listings">
-          My Listings
-        </NavLink>
-      </div>
-    </nav>
-  );
-});
 
 const Profile = observer(() => {
   return (
@@ -170,8 +117,9 @@ const Header = observer(() => {
     <header className="header" key="header">
       <div className="header__content">
         <MarketplaceIcon />
-        <HeaderLinks />
+        <HeaderNavigation />
         <Profile />
+        <MobileNavigation />
       </div>
     </header>
   );

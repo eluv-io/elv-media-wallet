@@ -7,7 +7,7 @@ import { observer} from "mobx-react";
 
 import { rootStore } from "Stores/index.js";
 import Header from "Components/Header";
-import Navigation from "Components/Navigation";
+import {Navigation} from "Components/Navigation";
 
 if(
   new URLSearchParams(window.location.search).has("d") ||

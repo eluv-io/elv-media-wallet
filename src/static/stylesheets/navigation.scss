@@ -71,6 +71,7 @@
     display: flex;
     flex: 1 1 100%;
     justify-content: center;
+    margin-right: 10px;
   }
 
   &__right {
@@ -83,6 +84,7 @@
     font-size: 14px;
     min-width: max-content;
     text-align: center;
+    transition: border 0.15s linear;
 
     &:not(:last-child) {
       margin-right: 29px;
@@ -112,6 +114,77 @@
       color: $gray;
       font-size: 9px;
     }
+  }
+}
+
+.mobile-navigation {
+  align-items: center;
+  display: none;
+  height: 100%;
+  justify-content: center;
+  margin-left: 15px;
+
+  &__menu-button {
+    padding: 5px 0;
+
+    svg {
+      height: 100%;
+      stroke: $darkgray;
+    }
+  }
+
+  @media screen and (max-width: $tablet-breakpoint) {
+    display: flex;
+  }
+
+  &__menu {
+    @include page-fade-in(0.15s);
+    background-color: $white;
+    border-top: 1px solid $lightgray;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding-top: 20px;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    width: 100vw;
+  }
+
+  &__link {
+    align-items: center;
+    display: flex;
+    font-size: 24px;
+    font-weight: 300;
+    justify-content: center;
+    letter-spacing: 1px;
+    padding: 15px 0;
+    text-align: center;
+    white-space: nowrap;
+    width: 100%;
+
+    &:hover {
+      background-color: $lightestgray;
+    }
+
+    span {
+      border-bottom: 2px solid transparent;
+      padding: 0 5px;
+      transition: border 0.15s linear;
+    }
+
+    &.active {
+      span {
+        border-bottom: 2px solid $lightblue;
+      }
+    }
+  }
+
+  &__separator {
+    border-bottom: 1px solid $lightgray;
+    margin: 0 auto 10px;
+    padding: 10px 5px 0;
+    width: 85%;
   }
 }
 
@@ -163,6 +236,23 @@
   .header-navigation {
     &__link {
       font-weight: 700;
+    }
+  }
+
+  .mobile-navigation {
+    &__menu {
+      background-color: $black;
+      border-top: 1px solid $darkergray;
+    }
+
+    &__link {
+      &:hover {
+        background-color: $darkestgray;
+      }
+    }
+
+    &__separator {
+      border-bottom: 1px solid $darkergray;
     }
   }
 }
