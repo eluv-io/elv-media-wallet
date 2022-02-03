@@ -14,7 +14,7 @@ const MarketplaceFilters = observer(({SetFilters}) => {
   const [filter, setFilter] = useState("");
 
   const marketplaces = rootStore.allMarketplaces;
-  let tags = [ ...new Set(marketplaces.map(marketplace => (marketplace.discovery || {}).tags || []).flat()) ];
+  let tags = [ ...new Set(marketplaces.map(marketplace => marketplace.tags || []).flat()) ].sort();
 
   useEffect(() => {
     const tags = Object.keys(activeTags).filter(tag => activeTags[tag]);
@@ -61,40 +61,38 @@ const MarketplaceFilters = observer(({SetFilters}) => {
 });
 
 const MarketplaceCard = observer(({marketplace}) => {
-  if(!marketplace.discovery) {
+  if(!marketplace || !marketplace.name) {
     return null;
   }
-
-  const info = marketplace.discovery || {};
 
   return (
     <Link to={UrlJoin("/marketplace", marketplace.marketplaceId)} className="card-shadow marketplace-card">
       {
-        info.card_banner ?
+        marketplace.card_banner ?
           <img
-            alt={info.name}
+            alt={marketplace.name}
             className="marketplace-card__banner"
-            src={info.card_banner.url}
+            src={marketplace.card_banner.url}
           /> : null
       }
 
       <div className="marketplace-card__details">
         {
-          info.round_logo ?
+          marketplace.round_logo ?
             <div className="marketplace-card__logo-container">
               <img
-                alt={info.name}
+                alt={marketplace.name}
                 className="marketplace-card__logo"
-                src={info.round_logo.url}
+                src={marketplace.round_logo.url}
               />
             </div> : null
         }
-        <h2 className="marketplace-card__name">{ info.name }</h2>
-        <h3 className="marketplace-card__subheader">{ info.subheader }</h3>
+        <h2 className="marketplace-card__name">{ marketplace.name }</h2>
+        <h3 className="marketplace-card__subheader">{ marketplace.subheader }</h3>
         <ResponsiveEllipsis
           component="div"
           className="marketplace-card__description"
-          text={info.description + " " + info.description + " " + info.description + " " + info.description + " " + info.description + " " + info.description + " " + info.description}
+          text={marketplace.description}
           maxLine="5"
         />
       </div>
@@ -109,18 +107,17 @@ const MarketplaceBrowser = observer(() => {
 
   if(filters.activeTags && filters.activeTags.length > 0) {
     marketplaces = marketplaces.filter(marketplace =>
-      marketplace && marketplace.discovery && (marketplace.discovery.tags || [])
-        .find(tag => filters.activeTags.includes(tag))
+      marketplace && (marketplace.tags || []).find(tag => filters.activeTags.includes(tag))
     );
   }
 
   if(filters.filter) {
     const filter = (filters.filter || "").toLowerCase();
     marketplaces = marketplaces.filter(marketplace =>
-      marketplace && marketplace.discovery &&
+      marketplace &&
       (
-        (marketplace.discovery.name || "").toLowerCase().includes(filter) ||
-        (marketplace.discovery.description || "").toLowerCase().includes(filter)
+        (marketplace.name || "").toLowerCase().includes(filter) ||
+        (marketplace.description || "").toLowerCase().includes(filter)
       )
     );
   }

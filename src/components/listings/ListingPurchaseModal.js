@@ -427,7 +427,7 @@ const ListingPurchaseSelection = observer(({nft, marketplaceItem, initialListing
   }, []);
 
   if(claimed) {
-    return <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, marketplaceItem.sku, "claim")} />;
+    return <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "store", marketplaceItem.sku, "claim")} />;
   }
 
   return (

@@ -29,6 +29,78 @@
     width: 100%;
   }
 
+  &__marketplace-selection {
+    align-items: center;
+    display: flex;
+    height: 100%;
+    min-width: max-content;
+    padding: 10px 0;
+    width: 200px;
+
+    img {
+      height: 100%;
+      width: auto;
+    }
+
+    h2 {
+      border-bottom: 2px solid transparent;
+      font-weight: 500;
+      margin-left: 10px;
+    }
+
+    &-active {
+      h2 {
+        border-bottom: 2px solid $lightblue;
+      }
+    }
+  }
+
+  &__profile {
+    align-items: center;
+    display: flex;
+    height: 100%;
+    justify-content: flex-end;
+    margin-left: 10px;
+    max-width: 190px;
+    user-select: none;
+  }
+
+  &__profile__info {
+    margin-right: 10px;
+  }
+
+  &__profile__name {
+    font-size: 12px;
+    max-width: 15em;
+    overflow: hidden;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__profile__balance {
+    align-items: center;
+    color: $darkgray;
+    display: flex;
+    font-size: 12px;
+    font-weight: 300;
+    height: 100%;
+    justify-content: flex-end;
+  }
+
+  &__profile__image {
+    height: 30px;
+    min-width: 30px;
+    width: 30px;
+  }
+
+  &__profile__pending-indicator {
+    color: lighten($blue, 5%);
+    font-size: 16px;
+    line-height: 1em;
+    margin-left: 3px;
+  }
+
   &__breadcrumbs {
     align-items: center;
     display: flex;
@@ -93,52 +165,6 @@
     &__separator {
       margin: 0 5px;
     }
-  }
-
-  &__profile {
-    align-items: center;
-    display: flex;
-    height: 100%;
-    justify-content: flex-end;
-    margin-left: 10px;
-    max-width: 190px;
-    user-select: none;
-  }
-
-  &__profile__info {
-    margin-right: 10px;
-  }
-
-  &__profile__name {
-    font-size: 12px;
-    max-width: 15em;
-    overflow: hidden;
-    text-align: right;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  &__profile__balance {
-    align-items: center;
-    color: $darkgray;
-    display: flex;
-    font-size: 12px;
-    font-weight: 300;
-    height: 100%;
-    justify-content: flex-end;
-  }
-
-  &__profile__image {
-    height: 30px;
-    min-width: 30px;
-    width: 30px;
-  }
-
-  &__profile__pending-indicator {
-    color: lighten($blue, 5%);
-    font-size: 16px;
-    line-height: 1em;
-    margin-left: 3px;
   }
 
   @media screen and (max-width: 700px) {

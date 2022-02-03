@@ -8,12 +8,8 @@ const Navigation = observer(() => {
 
   return (
     <nav className="navigation">
-      {
-        rootStore.marketplaceId ?
-          <NavLink className="navigation__link" to={`/marketplace/${rootStore.marketplaceId}`}>Marketplace</NavLink> :
-          <NavLink className="navigation__link" to={"/marketplaces"}>Marketplaces</NavLink>
-      }
-      <NavLink className="navigation__link" to="/wallet">Wallet</NavLink>
+      <NavLink className="navigation__link" to={"/marketplaces"}>Marketplaces</NavLink>
+      <NavLink className="navigation__link" to="/wallet/listings">Wallet</NavLink>
     </nav>
   );
 });

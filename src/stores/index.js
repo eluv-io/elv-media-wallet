@@ -347,7 +347,7 @@ class RootStore {
   SetCustomizationOptions(marketplace) {
     let options = { font: "Hevetica Neue" };
     if(marketplace && marketplace !== "default") {
-      options = (marketplace || {}).marketplace || {};
+      options = (marketplace || {});
     }
 
     const customStyleTag = document.getElementById("_custom-styles");

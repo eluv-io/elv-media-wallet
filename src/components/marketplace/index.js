@@ -4,7 +4,7 @@ import {
   Switch,
   Route,
   useRouteMatch,
-  NavLink,
+  Redirect,
 } from "react-router-dom";
 import UrlJoin from "url-join";
 import {observer} from "mobx-react";
@@ -21,100 +21,14 @@ import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import MyListings from "Components/listings/MyListings";
 import PurchaseHandler from "Components/marketplace/PurchaseHandler";
 import {RecentSales} from "Components/listings/Activity";
-import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
-
-const MarketplaceNavigation = observer(() => {
-  let match = useRouteMatch();
-
-  if(rootStore.hideNavigation || rootStore.sidePanelMode) {
-    return null;
-  }
-
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-
-  if(!marketplace) { return null; }
-
-  return (
-    <nav className="sub-navigation marketplace-navigation">
-      <NavLink
-        className="sub-navigation__link"
-        to={`/marketplace/${match.params.marketplaceId}`}
-        isActive={() =>
-          !match.path.includes("/marketplace/:marketplaceId/collections") &&
-          !match.path.includes("/marketplace/:marketplaceId/owned") &&
-          !match.path.includes("/marketplace/:marketplaceId/listings") &&
-          !match.path.includes("/marketplace/:marketplaceId/my-listings") &&
-          !match.path.includes("/marketplace/:marketplaceId/activity")
-        }
-      >
-        { ((marketplace.storefront || {}).tabs || {}).store || "Store" }
-      </NavLink>
-      <NavLink className="sub-navigation__link" to={`/marketplace/${match.params.marketplaceId}/listings`}>
-        All Listings
-      </NavLink>
-      <NavLink className="sub-navigation__link" to={`/marketplace/${match.params.marketplaceId}/collections`}>
-        { ((marketplace.storefront || {}).tabs || {}).collection || "My Items" }
-      </NavLink>
-      <NavLink className="sub-navigation__link" to={`/marketplace/${match.params.marketplaceId}/my-listings`}>
-        My Listings
-      </NavLink>
-      <NavLink className="sub-navigation__link" to={`/marketplace/${match.params.marketplaceId}/activity`}>
-        Activity
-      </NavLink>
-      <div className="sub-navigation__separator" />
-    </nav>
-  );
-});
 
 const MarketplacePurchase = observer(() => {
   const match = useRouteMatch();
 
   return (
     <PurchaseHandler
-      cancelPath={UrlJoin("/marketplace", match.params.marketplaceId, match.params.sku)}
+      cancelPath={UrlJoin("/marketplace", match.params.marketplaceId, "store", match.params.sku)}
     />
-  );
-});
-
-const MarketplacePage = observer(({children}) => {
-  const match = useRouteMatch();
-
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-
-  if(!marketplace) { return null; }
-
-  if(rootStore.hideNavigation) {
-    return (
-      <div className="marketplace content">
-        { children }
-      </div>
-    );
-  }
-
-  const branding = (marketplace.branding || {}).marketplace || {};
-  const name = branding.name || (marketplace.storefront || {}).header;
-
-  return (
-    <div className="marketplace content">
-      {
-        rootStore.hideNavigation || rootStore.sidePanelMode ? null :
-          <div className="marketplace__header">
-            {
-              branding.top_banner_logo ?
-                <img src={branding.top_banner_logo.url} alt={name} className="marketplace__header__image"/> :
-                <h1 className="page-header marketplace__header__text">{ name }</h1>
-            }
-            <ResponsiveEllipsis
-              component="div"
-              className="marketplace__header__description"
-              maxLine="4"
-              text={branding.description || (marketplace.storefront || {}).subheader}
-            />
-          </div>
-      }
-      <MarketplaceNavigation />
-      { children }
-    </div>
   );
 });
 
@@ -169,9 +83,9 @@ const MarketplaceWrapper = observer(({children}) => {
         }}
         loadingClassName="page-loader"
       >
-        <MarketplacePage>
+        <div className="marketplace content">
           { children }
-        </MarketplacePage>
+        </div>
       </AsyncComponent>
     );
   }
@@ -220,12 +134,21 @@ const Routes = (match) => {
     { name: nft.metadata.display_name, path: "/marketplace/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId", Component: NFTDetails },
     { name: item.name, path: "/marketplace/:marketplaceId/collections/:collectionIndex/store/:sku", Component: MarketplaceItemDetails },
 
-    { name: "Claim", path: "/marketplace/:marketplaceId/:sku/claim", Component: ClaimMintingStatus },
-    { name: "Purchase", path: "/marketplace/:marketplaceId/:tenantId/:sku/purchase/:confirmationId/success", Component: MarketplacePurchase, hideNavigation: rootStore.sidePanelMode },
-    { name: "Purchase", path: "/marketplace/:marketplaceId/:tenantId/:sku/purchase/:confirmationId/cancel", Component: MarketplacePurchase },
-    { name: "Purchase", path: "/marketplace/:marketplaceId/:tenantId/:sku/purchase/:confirmationId", Component: MarketplacePurchase, noBreadcrumb: true },
-    { name: item.name, path: "/marketplace/:marketplaceId/:sku", Component: MarketplaceItemDetails },
-    { name: marketplace.name, path: "/marketplace/:marketplaceId", Component: MarketplaceStorefront },
+    { name: "Claim", path: "/marketplace/:marketplaceId/store/:sku/claim", Component: ClaimMintingStatus },
+    { name: "Purchase", path: "/marketplace/:marketplaceId/store/:tenantId/:sku/purchase/:confirmationId/success", Component: MarketplacePurchase, hideNavigation: rootStore.sidePanelMode },
+    { name: "Purchase", path: "/marketplace/:marketplaceId/store/:tenantId/:sku/purchase/:confirmationId/cancel", Component: MarketplacePurchase },
+    { name: "Purchase", path: "/marketplace/:marketplaceId/store/:tenantId/:sku/purchase/:confirmationId", Component: MarketplacePurchase, noBreadcrumb: true },
+    { name: item.name, path: "/marketplace/:marketplaceId/store/:sku", Component: MarketplaceItemDetails },
+    { name: marketplace.name, path: "/marketplace/:marketplaceId/store", Component: MarketplaceStorefront },
+    {
+      name: marketplace.name,
+      path: "/marketplace/:marketplaceId",
+      Component: () => {
+        const match = useRouteMatch();
+
+        return <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "store")} />;
+      }
+    },
 
     { name: "Marketplaces", path: "/marketplaces", Component: MarketplaceBrowser }
   ];

@@ -55,7 +55,7 @@ const MarketplaceSelection = observer(({selected, setSelected}) => {
   }
 
   const availableMarketplaces = rootStore.allMarketplaces
-    .filter(marketplace => marketplace.tenantId && marketplace.discovery && marketplace.discovery.name);
+    .filter(marketplace => marketplace.tenantId && marketplace.name);
 
   if(availableMarketplaces.length === 0) {
     return;
@@ -63,7 +63,7 @@ const MarketplaceSelection = observer(({selected, setSelected}) => {
 
   const options = availableMarketplaces
     .filter(marketplace => !selected.includes(marketplace.tenantId))
-    .map(marketplace => [marketplace.tenantId, marketplace.discovery.name]);
+    .map(marketplace => [marketplace.tenantId, marketplace.name]);
 
   return (
     <div className="listing-filters__marketplace-selection">
@@ -81,7 +81,7 @@ const MarketplaceSelection = observer(({selected, setSelected}) => {
               onClick={() => setSelected(selected.filter(tid => tid !== tenantId))}
               className="listing-filters__marketplace-selection__selected__item"
             >
-              { ((availableMarketplaces.find(marketplace => marketplace.tenantId === tenantId) || {}).discovery || {}).name || "Unknown Marketplace" }
+              { (availableMarketplaces.find(marketplace => marketplace.tenantId === tenantId) || {}).name || "Unknown Marketplace" }
               <ImageIcon
                 icon={XIcon}
                 title="Remove this filter"
