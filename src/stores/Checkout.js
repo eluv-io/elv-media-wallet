@@ -344,7 +344,6 @@ class CheckoutStore {
 
       // Redirect to stripe
       const {loadStripe} = await import("@stripe/stripe-js/pure");
-      loadStripe.setLoadParameters({advancedFraudSignals: false});
       const stripe = await loadStripe(stripeKey);
       await stripe.redirectToCheckout({sessionId});
     } else if(provider === "coinbase") {

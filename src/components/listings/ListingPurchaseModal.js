@@ -260,7 +260,7 @@ const ListingPurchasePayment = observer(({nft, marketplaceItem, selectedListing,
     const sku = selectedListing ? selectedListing.details.ListingId : marketplaceItem.sku;
 
     if(match.params.marketplaceId) {
-      return <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, tenantId, sku, "purchase", confirmationId, "success")} />;
+      return <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "store", tenantId, sku, "purchase", confirmationId, "success")} />;
     } else {
       return <Redirect to={UrlJoin("/wallet", "listings", tenantId, sku, "purchase", confirmationId, "success")} />;
     }
