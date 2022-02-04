@@ -217,10 +217,11 @@ class RootStore {
       }
 
       if(marketplace) {
-        this.SetMarketplace({tenantSlug, marketplaceSlug, marketplaceHash, marketplaceId, primary: true});
-      } else {
-        this.loginCustomizationLoaded = true;
+        yield this.LoadAvailableMarketplaces({tenantSlug, marketplaceSlug});
+        this.SetMarketplace({tenantSlug, marketplaceSlug, marketplaceHash, marketplaceId});
       }
+
+      this.loginCustomizationLoaded = true;
 
       try {
         const auth = new URLSearchParams(window.location.search).get("auth");
@@ -289,7 +290,10 @@ class RootStore {
           `${tenantSlug}/.`,
           `${tenantSlug}/marketplaces/${marketplaceSlug}/.`,
           `${tenantSlug}/marketplaces/${marketplaceSlug}/info/tenant_id`,
-          `${tenantSlug}/marketplaces/${marketplaceSlug}/info/branding`
+          `${tenantSlug}/marketplaces/${marketplaceSlug}/info/branding`,
+          `${tenantSlug}/marketplaces/${marketplaceSlug}/info/terms`,
+          `${tenantSlug}/marketplaces/${marketplaceSlug}/info/terms_html`,
+          `${tenantSlug}/marketplaces/${marketplaceSlug}/info/login_customization`,
         ]
       });
     } else {
@@ -301,7 +305,15 @@ class RootStore {
         resolveIncludeSource: true,
         produceLinkUrls: true,
         noAuth: true,
-        select: ["*/.", "*/marketplaces/*/.", "*/marketplaces/*/info/tenant_id", "*/marketplaces/*/info/branding"]
+        select: [
+          "*/.",
+          "*/marketplaces/*/.",
+          "*/marketplaces/*/info/tenant_id",
+          "*/marketplaces/*/info/branding",
+          "*/marketplaces/*/info/terms",
+          "*/marketplaces/*/info/terms_html",
+          "*/marketplaces/*/info/login_customization"
+        ]
       });
     }
 
@@ -320,7 +332,8 @@ class RootStore {
             this.marketplaceHashes[objectId] = versionHash;
 
             availableMarketplaces[tenantSlug][marketplaceSlug] = {
-              ...(metadata[tenantSlug].marketplaces[marketplaceSlug].info.branding || {}),
+              branding: {},
+              ...(metadata[tenantSlug].marketplaces[marketplaceSlug].info || {}),
               tenantId: metadata[tenantSlug].marketplaces[marketplaceSlug].info.tenant_id,
               tenantSlug,
               marketplaceSlug,
@@ -347,8 +360,21 @@ class RootStore {
   SetCustomizationOptions(marketplace) {
     let options = { font: "Hevetica Neue" };
     if(marketplace && marketplace !== "default") {
-      options = (marketplace || {});
+      options = {
+        ...options,
+        ...(marketplace.branding || {})
+      };
     }
+
+    this.customizationMetadata = {
+      tenant_id: (marketplace.tenant_id),
+      terms: marketplace.terms,
+      terms_html: marketplace.terms_html,
+      ...(marketplace.login_customization || {}),
+      require_email_verification: false
+    };
+
+    this.loginCustomizationLoaded = true;
 
     const customStyleTag = document.getElementById("_custom-styles");
 
@@ -416,7 +442,7 @@ class RootStore {
     }
   }
 
-  MarketplaceInfo = flow(function * ({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, primary=false, forceReload=false}) {
+  MarketplaceInfo = flow(function * ({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, forceReload=false}) {
     let marketplace = this.allMarketplaces.find(marketplace =>
       (marketplaceId && Utils.EqualHash(marketplaceId, marketplace.marketplaceId)) ||
       (marketplaceSlug && marketplace.tenantSlug === tenantSlug && marketplace.marketplaceSlug === marketplaceSlug) ||
@@ -462,12 +488,6 @@ class RootStore {
       tenantSlug = marketplace.tenantSlug;
       marketplaceSlug = marketplace.marketplaceSlug;
       marketplaceId = marketplace.marketplaceId;
-    }
-
-    if(primary) {
-      this.SetSessionStorage("marketplace", this.marketplaceSlug ? `${this.tenantSlug}/${this.marketplaceSlug}` : this.marketplaceHash || this.marketplaceId);
-
-      this.LoadLoginCustomization();
     }
 
     this.SetCustomizationOptions(marketplace);
@@ -1247,7 +1267,7 @@ class RootStore {
     }
   });
 
-  InitializeClient = flow(function * ({user, idToken, authToken, address, privateKey}) {
+  InitializeClient = flow(function * ({user, idToken, authToken, address, privateKey, loginData={}}) {
     try {
       this.loggingIn = true;
       this.loggedIn = false;
@@ -1278,7 +1298,7 @@ class RootStore {
       } else if(idToken || (user && user.id_token)) {
         this.oauthUser = user;
 
-        yield client.SetRemoteSigner({idToken: idToken || user.id_token, tenantId});
+        yield client.SetRemoteSigner({idToken: idToken || user.id_token, tenantId, extraData: loginData});
 
         try {
           const parsedToken = JSON.parse(atob(idToken.split(".")[1]));

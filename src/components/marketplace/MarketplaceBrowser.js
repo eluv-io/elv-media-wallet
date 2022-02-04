@@ -14,7 +14,7 @@ const MarketplaceFilters = observer(({SetFilters}) => {
   const [filter, setFilter] = useState("");
 
   const marketplaces = rootStore.allMarketplaces;
-  let tags = [ ...new Set(marketplaces.map(marketplace => marketplace.tags || []).flat()) ].sort();
+  let tags = [ ...new Set(marketplaces.map(marketplace => marketplace.branding && marketplace.branding.tags || []).flat()) ].sort();
 
   useEffect(() => {
     const tags = Object.keys(activeTags).filter(tag => activeTags[tag]);
@@ -61,38 +61,40 @@ const MarketplaceFilters = observer(({SetFilters}) => {
 });
 
 const MarketplaceCard = observer(({marketplace}) => {
-  if(!marketplace || !marketplace.name) {
+  const branding = (marketplace && marketplace.branding) || {};
+
+  if(!branding.name) {
     return null;
   }
 
   return (
     <Link to={UrlJoin("/marketplace", marketplace.marketplaceId)} className="card-shadow marketplace-card">
       {
-        marketplace.card_banner ?
+        branding.card_banner ?
           <img
             alt={marketplace.name}
             className="marketplace-card__banner"
-            src={marketplace.card_banner.url}
+            src={branding.card_banner.url}
           /> : null
       }
 
       <div className="marketplace-card__details">
         {
-          marketplace.round_logo ?
+          branding.round_logo ?
             <div className="marketplace-card__logo-container">
               <img
-                alt={marketplace.name}
+                alt={branding.name}
                 className="marketplace-card__logo"
-                src={marketplace.round_logo.url}
+                src={branding.round_logo.url}
               />
             </div> : null
         }
-        <h2 className="marketplace-card__name">{ marketplace.name }</h2>
-        <h3 className="marketplace-card__subheader">{ marketplace.subheader }</h3>
+        <h2 className="marketplace-card__name">{ branding.name }</h2>
+        <h3 className="marketplace-card__subheader">{ branding.subheader }</h3>
         <ResponsiveEllipsis
           component="div"
           className="marketplace-card__description"
-          text={marketplace.description}
+          text={branding.description}
           maxLine="5"
         />
       </div>
@@ -107,17 +109,17 @@ const MarketplaceBrowser = observer(() => {
 
   if(filters.activeTags && filters.activeTags.length > 0) {
     marketplaces = marketplaces.filter(marketplace =>
-      marketplace && (marketplace.tags || []).find(tag => filters.activeTags.includes(tag))
+      marketplace && marketplace.branding && (marketplace.branding.tags || []).find(tag => filters.activeTags.includes(tag))
     );
   }
 
   if(filters.filter) {
     const filter = (filters.filter || "").toLowerCase();
     marketplaces = marketplaces.filter(marketplace =>
-      marketplace &&
+      marketplace && marketplace.branding &&
       (
-        (marketplace.name || "").toLowerCase().includes(filter) ||
-        (marketplace.description || "").toLowerCase().includes(filter)
+        (marketplace.branding.name || "").toLowerCase().includes(filter) ||
+        (marketplace.branding.description || "").toLowerCase().includes(filter)
       )
     );
   }

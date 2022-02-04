@@ -34,15 +34,16 @@ const MarketplaceIcon = observer(() => {
   const marketplace = rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === marketplaceId);
 
   if(marketplaceId) {
+    const branding = (marketplace && marketplace.branding) || {};
     return (
       <NavLink to={UrlJoin("/marketplace", marketplaceId, "store")} className="header__marketplace-selection">
         {
-          marketplace && marketplace.round_logo ?
-            <ImageIcon icon={marketplace.round_logo.url} title="Discover Marketplaces"/> : null
+          branding.round_logo ?
+            <ImageIcon icon={branding.round_logo.url} title="Discover Marketplaces"/> : null
         }
         {
-          marketplace ?
-            <h2>{ marketplace.name }</h2> : null
+          branding.name ?
+            <h2>{ branding.name }</h2> : null
         }
       </NavLink>
     );

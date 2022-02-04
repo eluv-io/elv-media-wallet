@@ -108,6 +108,7 @@
 }
 
 .marketplace-card {
+  // sass-lint:disable no-misspelled-properties
   aspect-ratio: 1 / 1.25;
   background-color: $white;
   border-radius: 8px;
@@ -117,6 +118,7 @@
   width: 100%;
 
   &__banner {
+    // sass-lint:disable no-misspelled-properties
     aspect-ratio: 1.6 / 1;
     left: 0;
     min-width: 100%;

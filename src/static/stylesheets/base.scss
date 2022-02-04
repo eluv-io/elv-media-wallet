@@ -124,7 +124,7 @@ select {
 }
 
 input {
-  -webkit-appearance: none;
+  //-webkit-appearance: none;
 
   &[type="checkbox"] {
     border: 1px solid #6a6a6a;

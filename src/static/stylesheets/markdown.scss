@@ -1,0 +1,39 @@
+.markdown-document {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  p {
+    margin: 1em 0;
+  }
+
+  h2 {
+    font-size: 22px;
+    text-align: center;
+  }
+
+  h3 {
+    font-size: 18px;
+  }
+
+  h4 {
+    font-size: 16px;
+  }
+
+  h5 {
+    text-align: center;
+  }
+
+  p {
+    font-size: 16px;
+  }
+
+  a {
+    color: $blue;
+
+    &:hover {
+      color: $blue;
+    }
+  }
+}

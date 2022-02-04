@@ -14,6 +14,7 @@ import EVENTS from "../../../client/src/Events";
 import Modal from "Components/common/Modal";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
+import PreLogin from "Components/login/PreLogin";
 
 let newWindowLogin =
   new URLSearchParams(window.location.search).has("l") ||
@@ -86,6 +87,10 @@ const Login = observer(() => {
   const [auth0Loading, setAuth0Loading] = useState(true);
   const [showPrivateKeyForm, setShowPrivateKeyForm] = useState(false);
   const [privateKey, setPrivateKey] = useState("");
+
+  const [loginData, setLoginData] = useState(undefined);
+  const loginDataRequired = !customizationInfoLoading && !loginData && (rootStore.customizationMetadata || {}).require_consent;
+
   //const [verificationResent, setVerificationResent] = useState(false);
 
   const url = new URL(window.location.origin);
@@ -125,7 +130,8 @@ const Login = observer(() => {
         await rootStore.InitializeClient({
           authToken: authInfo.authToken,
           address: authInfo.address,
-          user: authInfo.user
+          user: authInfo.user,
+          loginData
         });
 
         SignalOpener();
@@ -371,6 +377,18 @@ const Login = observer(() => {
               </button>
             </div>
           </form>
+        </div>
+      </div>
+    );
+  }
+
+  if(loginDataRequired) {
+    return (
+      <div className={`page-container login-page ${largeLogoMode ? "login-page-large-logo-mode" : ""} ${customBackground ? "login-page-custom-background" : ""}`}>
+        <LoginBackground />
+        <div className="login-page__login-box">
+          { logo }
+          <PreLogin onComplete={({data}) => setLoginData(data)} />
         </div>
       </div>
     );
