@@ -261,6 +261,73 @@ class RootStore {
     );
   }
 
+  LoadProfileData = flow(function * () {
+    this.profileData = yield this.client.ethClient.MakeProviderCall({
+      methodName: "send",
+      args: [
+        "elv_getAccountProfile",
+        [this.client.contentSpaceId, this.accountId]
+      ]
+    });
+  });
+
+  LoadWalletCollection = flow(function * (forceReload=false) {
+    if(this.fromEmbed) { return; }
+
+    if(forceReload || Date.now() - this.lastProfileQuery > 30000) {
+      this.lastProfileQuery = Date.now();
+      yield this.LoadProfileData();
+    }
+
+    if(!this.profileData || !this.profileData.NFTs) { return; }
+
+    const nfts = Object.keys(this.profileData.NFTs).map(tenantId =>
+      this.profileData.NFTs[tenantId].map(details => {
+        const versionHash = (details.TokenUri || "").split("/").find(s => s.startsWith("hq__"));
+
+        if(!versionHash) { return; }
+
+        if(details.TokenHold) {
+          details.TokenHoldDate = new Date(parseInt(details.TokenHold) * 1000);
+        }
+
+        return {
+          ...details,
+          ContractAddr: Utils.FormatAddress(details.ContractAddr),
+          ContractId: `ictr${Utils.AddressToHash(details.ContractAddr)}`,
+          VersionHash: versionHash
+        };
+      }).filter(n => n)
+    ).flat();
+
+    this.nfts = (yield Utils.LimitedMap(
+      15,
+      nfts,
+      async details => {
+        try {
+          const existing = this.NFT({contractAddress: details.ContractAddr, tokenId: details.TokenIdStr});
+
+          if(existing) {
+            return existing;
+          }
+
+          return {
+            details,
+            metadata: (await this.client.ContentObjectMetadata({
+              versionHash: details.VersionHash,
+              metadataSubtree: "public/asset_metadata/nft",
+              produceLinkUrls: true
+            })) || {}
+          };
+        } catch(error) {
+          this.Log("Failed to load owned NFT", true);
+          this.Log(error, true);
+        }
+      }
+    )).filter(nft => nft);
+  });
+
+
   // If marketplace slug is specified, load only that marketplace. Otherwise load all
   LoadAvailableMarketplaces = flow(function * ({tenantSlug, marketplaceSlug, forceReload}={}) {
     if(!forceReload && this.availableMarketplaces["_ALL_LOADED"]) {
@@ -442,6 +509,7 @@ class RootStore {
     }
   }
 
+
   MarketplaceInfo = flow(function * ({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, forceReload=false}) {
     let marketplace = this.allMarketplaces.find(marketplace =>
       (marketplaceId && Utils.EqualHash(marketplaceId, marketplace.marketplaceId)) ||
@@ -500,104 +568,39 @@ class RootStore {
     };
   });
 
-  LoadProfileData = flow(function * () {
-    this.profileData = yield this.client.ethClient.MakeProviderCall({
-      methodName: "send",
-      args: [
-        "elv_getAccountProfile",
-        [this.client.contentSpaceId, this.accountId]
-      ]
-    });
-  });
+  LoadEvent = flow(function * ({tenantSlug, eventSlug, eventId, eventHash}) {
+    if(eventSlug) {
+      if(!tenantSlug) { throw Error("Load Event: Missing required tenant slug"); }
 
-  // TODO: Load branding metadata
-  LoadLoginCustomization = flow(function * () {
-    try {
-      if(!this.marketplaceId || this.customizationMetadata) {
-        return;
-      }
+      const mainSiteId = EluvioConfiguration["main-site-id"];
+      const mainSiteHash = yield this.client.LatestVersionHash({objectId: mainSiteId});
 
-      const customizationMetadata = yield this.client.ContentObjectMetadata({
-        versionHash: this.marketplaceHash,
-        metadataSubtree: "public/asset_metadata/info",
+      return (
+        yield this.client.ContentObjectMetadata({
+          versionHash: mainSiteHash,
+          metadataSubtree: UrlJoin("public", "asset_metadata", "tenants", tenantSlug, "sites", eventSlug),
+          resolveLinks: true,
+          linkDepthLimit: 2,
+          resolveIncludeSource: true,
+          produceLinkUrls: true,
+          noAuth: true,
+        })
+      );
+    }
+
+    return (
+      yield this.client.ContentObjectMetadata({
+        libraryId: yield this.client.ContentObjectLibraryId({objectId: eventId, versionHash: eventHash}),
+        objectId: eventId,
+        versionHash: eventHash,
+        metadataSubtree: UrlJoin("public", "asset_metadata"),
+        resolveLinks: true,
+        linkDepthLimit: 2,
+        resolveIncludeSource: true,
         produceLinkUrls: true,
         noAuth: true,
-        select: [
-          "tenant_id",
-          "terms",
-          "terms_html",
-          "login_customization"
-        ]
-      });
-
-      this.customizationMetadata = {
-        tenant_id: (customizationMetadata.tenant_id),
-        terms: customizationMetadata.terms,
-        terms_html: customizationMetadata.terms_html,
-        ...((customizationMetadata || {}).login_customization || {}),
-
-        // TODO: Remove
-        require_email_verification: false
-      };
-    } finally {
-      this.loginCustomizationLoaded = true;
-    }
-  });
-
-  LoadWalletCollection = flow(function * (forceReload=false) {
-    if(this.fromEmbed) { return; }
-
-    if(forceReload || Date.now() - this.lastProfileQuery > 30000) {
-      this.lastProfileQuery = Date.now();
-      yield this.LoadProfileData();
-    }
-
-    if(!this.profileData || !this.profileData.NFTs) { return; }
-
-    const nfts = Object.keys(this.profileData.NFTs).map(tenantId =>
-      this.profileData.NFTs[tenantId].map(details => {
-        const versionHash = (details.TokenUri || "").split("/").find(s => s.startsWith("hq__"));
-
-        if(!versionHash) { return; }
-
-        if(details.TokenHold) {
-          details.TokenHoldDate = new Date(parseInt(details.TokenHold) * 1000);
-        }
-
-        return {
-          ...details,
-          ContractAddr: Utils.FormatAddress(details.ContractAddr),
-          ContractId: `ictr${Utils.AddressToHash(details.ContractAddr)}`,
-          VersionHash: versionHash
-        };
-      }).filter(n => n)
-    ).flat();
-
-    this.nfts = (yield Utils.LimitedMap(
-      15,
-      nfts,
-      async details => {
-        try {
-          const existing = this.NFT({contractAddress: details.ContractAddr, tokenId: details.TokenIdStr});
-
-          if(existing) {
-            return existing;
-          }
-
-          return {
-            details,
-            metadata: (await this.client.ContentObjectMetadata({
-              versionHash: details.VersionHash,
-              metadataSubtree: "public/asset_metadata/nft",
-              produceLinkUrls: true
-            })) || {}
-          };
-        } catch(error) {
-          this.Log("Failed to load owned NFT", true);
-          this.Log(error, true);
-        }
-      }
-    )).filter(nft => nft);
+      })
+    );
   });
 
   LoadMarketplace = flow(function * (marketplaceId, forceReload=false) {
@@ -1350,7 +1353,7 @@ class RootStore {
         name: (user || {}).name || client.signer.address,
         email: (user || {}).email,
         profileImage: ProfileImage(
-          initials.length <= 1 ? initials.join("") : `${initials[0]}${initials[initials.length - 1]}`,
+          (initials.length <= 1 ? initials.join("") : `${initials[0]}${initials[initials.length - 1]}`).toUpperCase(),
           colors[((user || {}).email || "").length % colors.length]
         )
       };

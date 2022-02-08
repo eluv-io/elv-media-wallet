@@ -1,4 +1,4 @@
-import EVENTS from "./Events";
+const EVENTS = require("./Events");
 
 // https://stackoverflow.com/questions/4068373/center-a-popup-window-on-screen
 const Popup = ({url, title, w, h}) => {
@@ -61,7 +61,7 @@ const LOG_LEVELS = {
 /**
  * Eluvio Media Wallet Client
  */
-export class ElvWalletClient {
+class ElvWalletClient {
   Throw(error) {
     throw new Error(`Eluvio Media Wallet Client | ${error}`);
   }
@@ -230,6 +230,50 @@ const walletClient = await ElvWalletClient.InitializePopup({
     return await this.SendMessage({
       action: "profile",
       params: {}
+    });
+  }
+
+  /**
+   * Retrieve the full metadata for the specified marketplace object (starting from `/public/asset_metadata/info`)
+   *
+   * @methodGroup Metadata
+   * @param {string=} tenantSlug - Specify the URL slug of the marketplace's tenant. Required if specifying marketplace slug
+   * @param {string=} marketplaceSlug - Specify the URL slug of the marketplace
+   * @param {string=} marketplaceHash - Specify a specific version of a the marketplace. Not necessary if marketplaceSlug is specified
+   *
+   * @return Promise<Object> - The full metadata of the marketplace
+   */
+  async MarketplaceMetadata({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash}) {
+    return await this.SendMessage({
+      action: "marketplaceMetadata",
+      params: {
+        tenantSlug,
+        marketplaceSlug,
+        marketplaceId,
+        marketplaceHash
+      }
+    });
+  }
+
+  /**
+   * Retrieve the full metadata for the specified event object (starting from `/public/asset_metadata`)
+   *
+   * @methodGroup Metadata
+   * @param {string=} tenantSlug - Specify the URL slug of the event's tenant. Required if specifying event slug
+   * @param {string=} eventSlug - Specify the URL slug of the event
+   * @param {string=} eventHash - Specify a specific version of a the event. Not necessary if eventSlug is specified
+   *
+   * @return Promise<Object> - The full metadata of the event
+   */
+  async EventMetadata({tenantSlug, eventSlug, eventId, eventHash}) {
+    return await this.SendMessage({
+      action: "eventMetadata",
+      params: {
+        tenantSlug,
+        eventSlug,
+        eventId,
+        eventHash
+      }
     });
   }
 
@@ -625,4 +669,4 @@ const walletClient = await ElvWalletClient.InitializePopup({
 ElvWalletClient.EVENTS = EVENTS;
 ElvWalletClient.LOG_LEVELS = LOG_LEVELS;
 
-export default ElvWalletClient;
+exports.ElvWalletClient = ElvWalletClient;

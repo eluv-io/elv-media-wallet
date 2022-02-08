@@ -6,4 +6,4 @@ const EVENTS = {
   LOADED: "LOADED"
 };
 
-export default EVENTS;
+module.exports = EVENTS;

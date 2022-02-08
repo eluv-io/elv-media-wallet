@@ -123,36 +123,27 @@ export const InitializeListener = (history) => {
         break;
 
       case "marketplaceMetadata":
+        // Ensure marketplace is loaded
+        const { marketplaceId } = await rootStore.MarketplaceInfo({
+          tenantSlug: data.params.tenantSlug,
+          marketplaceSlug: data.params.marketplaceSlug,
+          marketplaceId: data.params.marketplaceId,
+          marketplaceHash: data.params.marketplaceHash
+        });
+
         Respond({
-          response: await rootStore.client.ContentObjectMetadata({
-            libraryId: await rootStore.client.ContentObjectLibraryId({objectId: data.params.marketplaceId, versionHash: data.params.marketplaceHash}),
-            objectId: data.params.marketplaceId,
-            versionHash: data.params.marketplaceHash,
-            metadataSubtree: "public/asset_metadata/info",
-            linkDepthLimit: 2,
-            resolveLinks: true,
-            resolveIgnoreErrors: true,
-            resolveIncludeSource: true,
-            produceLinkUrls: true,
-            noAuth: true
-          })
+          response: await rootStore.LoadMarketplace(marketplaceId)
         });
 
         break;
 
       case "eventMetadata":
         Respond({
-          response: await rootStore.client.ContentObjectMetadata({
-            libraryId: await rootStore.client.ContentObjectLibraryId({objectId: data.params.eventId, versionHash: data.params.eventHash}),
-            objectId: data.params.eventId,
-            versionHash: data.params.eventHash,
-            metadataSubtree: "public/asset_metadata",
-            linkDepthLimit: 2,
-            resolveLinks: true,
-            resolveIgnoreErrors: true,
-            resolveIncludeSource: true,
-            produceLinkUrls: true,
-            noAuth: true
+          response: await rootStore.LoadEvent({
+            tenantSlug: data.params.tenantSlug,
+            eventSlug: data.params.eventSlug,
+            eventId: data.params.eventId,
+            eventHash: data.params.eventHash
           })
         });
 

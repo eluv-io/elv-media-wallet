@@ -195,6 +195,10 @@
       border: 1px solid $lightblue;
       color: $lightblue;
     }
+
+    &__filter-input {
+      background-color: $black;
+    }
   }
 
   .marketplace-card {
