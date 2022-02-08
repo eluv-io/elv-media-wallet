@@ -9,7 +9,7 @@ export const WithdrawalSetupModal = observer(({Close}) => {
   const [errorMessage, setErrorMessage] = useState(undefined);
   const [countryCode, setCountryCode] = useState("");
 
-  const supportedCountries = [["AU","Australia"],["AT","Austria"],["BE","Belgium"],["BR","Brazil"],["BG","Bulgaria"],["CA","Canada"],["CY","Cyprus"],["CZ", "Czech Republic"],["DK","Denmark"],["EE","Estonia"],["FI","Finland"],["FR","France"],["DE","Germany"],["GR","Greece"],["HK","Hong Kong"],["HU","Hungary"],["IE","Ireland"],["IT","Italy"],["JP","Japan"],["LV","Latvia"],["LT","Lithuania"],["LU","Luxembourg"],["MY","Malaysia"],["MT","Malta"],["MX","Mexico"],["NL","Netherlands"],["NZ","New Zealand"],["NO","Norway"],["PL","Poland"],["PT","Portugal"],["RO","Romania"],["SG","Singapore"],["SK","Slovakia"],["SI","Slovenia"],["ES","Spain"],["SE","Sweden"],["CH","Switzerland"],["US","United States of America"],["AE","United Arab Emirates"],["GB","United Kingdom"]];
+  const supportedCountries = [["AU","Australia"],["AT","Austria"],["BE","Belgium"],["BG","Bulgaria"],["CA","Canada"],["CY","Cyprus"],["CZ", "Czech Republic"],["DK","Denmark"],["EE","Estonia"],["FI","Finland"],["FR","France"],["DE","Germany"],["GR","Greece"],["HK","Hong Kong"],["HU","Hungary"],["IE","Ireland"],["IT","Italy"],["LV","Latvia"],["LT","Lithuania"],["LU","Luxembourg"],["MY","Malaysia"],["MT","Malta"],["MX","Mexico"],["NL","Netherlands"],["NZ","New Zealand"],["NO","Norway"],["PL","Poland"],["PT","Portugal"],["RO","Romania"],["SG","Singapore"],["SK","Slovakia"],["SI","Slovenia"],["ES","Spain"],["SE","Sweden"],["CH","Switzerland"],["US","United States of America"],["AE","United Arab Emirates"],["GB","United Kingdom"]];
 
   return (
     <Modal Toggle={Close} className="withdrawal-modal">

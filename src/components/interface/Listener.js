@@ -112,6 +112,43 @@ export const InitializeListener = (history) => {
         rootStore.ToggleDarkMode(data.params.enabled);
 
         break;
+
+      case "marketplaceMetadata":
+        Respond({
+          response: await rootStore.client.ContentObjectMetadata({
+            libraryId: await rootStore.client.ContentObjectLibraryId({objectId: data.params.marketplaceId, versionHash: data.params.marketplaceHash}),
+            objectId: data.params.marketplaceId,
+            versionHash: data.params.marketplaceHash,
+            metadataSubtree: "public/asset_metadata/info",
+            linkDepthLimit: 2,
+            resolveLinks: true,
+            resolveIgnoreErrors: true,
+            resolveIncludeSource: true,
+            produceLinkUrls: true,
+            noAuth: true
+          })
+        });
+
+        break;
+
+      case "eventMetadata":
+        Respond({
+          response: await rootStore.client.ContentObjectMetadata({
+            libraryId: await rootStore.client.ContentObjectLibraryId({objectId: data.params.eventId, versionHash: data.params.eventHash}),
+            objectId: data.params.eventId,
+            versionHash: data.params.eventHash,
+            metadataSubtree: "public/asset_metadata",
+            linkDepthLimit: 2,
+            resolveLinks: true,
+            resolveIgnoreErrors: true,
+            resolveIncludeSource: true,
+            produceLinkUrls: true,
+            noAuth: true
+          })
+        });
+
+        break;
+
       case "setMarketplace":
         await rootStore.SetMarketplaceId({marketplaceId: data.params.marketplaceId, marketplaceHash: data.params.marketplaceHash});
 

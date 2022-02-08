@@ -6,7 +6,7 @@ import SVG from "react-inlinesvg";
 import UserIcon from "Assets/icons/user.svg";
 import NFTPlaceholderIcon from "Assets/icons/nft";
 import ImageIcon from "Components/common/ImageIcon";
-import {Initialize} from "@eluvio/elv-embed/src/Video";
+import {Initialize} from "@eluvio/elv-embed/src/Embed";
 
 export const ProfileImage = observer(({className=""}) => {
   const hasImage = rootStore.initialized && rootStore.userProfile.profileImage;
