@@ -111,7 +111,7 @@ const PreLogin = ({onComplete}) => {
       </div>
 
       <div className="pre-login__actions">
-        <button className="login-page__login-button login-page__login-button-pre-login pre-login__button" onClick={() => onComplete({data: { consent }})}>
+        <button className="login-page__login-button login-page__login-button-pre-login pre-login__button" onClick={() => onComplete({data: { share_email: consent }})}>
           Continue
         </button>
       </div>

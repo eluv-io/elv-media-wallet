@@ -17,8 +17,8 @@ const pages = {
 
   // Marketplace
   "marketplaces": "/marketplaces",
-  "marketplace": "/marketplace/:marketplaceId",
-  "marketplaceItem": "/marketplace/:marketplaceId/:sku",
+  "marketplace": "/marketplace/:marketplaceId/store",
+  "marketplaceItem": "/marketplace/:marketplaceId/store/:sku",
   "drop": "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId"
 };
 
@@ -230,7 +230,9 @@ export const InitializeListener = (history) => {
 
           history.push(route);
 
-          Respond({});
+          Respond({
+            response: route
+          });
         }
 
         break;

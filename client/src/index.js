@@ -459,6 +459,8 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @param {Object=} params - URL parameters for the specified path, e.g. { tokenId: <token-id> } for an 'item' page.
    * @param {string=} path - An absolute app path
    * @param {Array<string>=} marketplaceFilters - A list of filters to limit items shown in the marketplace store page
+   *
+   * @returns {string} - Returns the actual route to which the app has navigated
    */
   async Navigate({page, path, params, marketplaceFilters=[]}) {
     return this.SendMessage({

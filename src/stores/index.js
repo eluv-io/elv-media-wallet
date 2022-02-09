@@ -83,6 +83,7 @@ class RootStore {
   loginCustomizationLoaded = false;
   customizationMetadata = undefined;
 
+  lastMarketplaceId = undefined;
   marketplaceId = undefined;
   marketplaceHashes = {};
   tenantSlug = undefined;
@@ -183,6 +184,8 @@ class RootStore {
     this.transferStore = new TransferStore(this);
 
     window.addEventListener("resize", () => this.HandleResize());
+
+    window.addEventListener("hashchange", () => this.SendEvent({event: EVENTS.ROUTE_CHANGE, data: UrlJoin("/", window.location.hash.replace("#", ""))}));
 
     this.Initialize();
   }
@@ -500,6 +503,8 @@ class RootStore {
       this.tenantSlug = marketplace.tenantSlug;
       this.marketplaceSlug = marketplace.marketplaceSlug;
       this.marketplaceId = marketplace.marketplaceId;
+
+      this.lastMarketplaceId = marketplace.marketplaceId;
 
       this.SetCustomizationOptions(marketplace);
 

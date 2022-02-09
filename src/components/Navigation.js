@@ -6,6 +6,7 @@ import ImageIcon from "Components/common/ImageIcon";
 
 import MenuIcon from "Assets/icons/menu";
 import CloseIcon from "Assets/icons/x.svg";
+import UrlJoin from "url-join";
 
 const NavigationLinks = location => {
   const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
@@ -128,23 +129,28 @@ export const MobileNavigation = () => {
 export const Navigation = observer(() => {
   const location = useLocation();
 
-  if(!rootStore.loggedIn || rootStore.hideNavigation) { return null; }
+  if(!rootStore.loggedIn || rootStore.hideNavigation || !rootStore.lastMarketplaceId) { return null; }
+
+  const lastMarketplace = rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === rootStore.lastMarketplaceId);
 
   return (
     <nav className="navigation">
       <NavLink
-        isActive={() => location.pathname.startsWith("/marketplace")}
+        isActive={() => location.pathname.startsWith("/marketplace/")}
         className="navigation__link"
-        to={"/marketplaces"}
+        to={UrlJoin("/marketplace", rootStore.lastMarketplaceId, "store")}
       >
-        Marketplaces
+        {
+          lastMarketplace && lastMarketplace.branding && lastMarketplace.branding.name ?
+            `${lastMarketplace.branding.name} Store` : "Marketplace"
+        }
       </NavLink>
       <NavLink
-        isActive={() => location.pathname.startsWith("/wallet")}
+        isActive={() => location.pathname.startsWith("/marketplaces") || location.pathname.startsWith("/wallet")}
         className="navigation__link"
-        to="/wallet/listings"
+        to="/marketplaces"
       >
-        Wallet
+        Eluvio Marketplace
       </NavLink>
     </nav>
   );
