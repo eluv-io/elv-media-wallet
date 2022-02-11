@@ -1,7 +1,6 @@
 import {makeAutoObservable, configure, flow, runInAction, computed} from "mobx";
 import UrlJoin from "url-join";
 import {ElvClient} from "@eluvio/elv-client-js";
-import {ElvWalletClient} from "../../client/src/index";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 
 import {SendEvent} from "Components/interface/Listener";
@@ -172,11 +171,6 @@ class RootStore {
 
   constructor() {
     makeAutoObservable(this);
-
-    this.walletClient  = new ElvWalletClient({
-      walletAppUrl: window.location.toString(),
-      target: window
-    });
 
     this.RegisterMetamaskHandlers();
 

@@ -117,13 +117,12 @@
 }
 
 .marketplace-card {
-  // sass-lint:disable no-misspelled-properties
-  aspect-ratio: 1 / 1.25;
   background-color: $black;
   border-radius: 8px;
   display: flex;
   opacity: 0.75;
   overflow: hidden;
+  padding-top: 125%;
   position: relative;
   transition: opacity 0.35s ease;
   width: 100%;
