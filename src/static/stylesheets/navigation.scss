@@ -84,6 +84,14 @@
     &__logo {
       display: none;
     }
+
+    &__link {
+      border-radius: 0;
+
+      &:not(:last-child) {
+        border-radius: 0;
+      }
+    }
   }
 }
 
