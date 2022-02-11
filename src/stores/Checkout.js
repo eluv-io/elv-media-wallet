@@ -181,7 +181,7 @@ class CheckoutStore {
         currency: this.currency,
         email,
         client_reference_id: checkoutId,
-        elv_addr: this.client.signer.address,
+        elv_addr: this.client.CurrentAccountAddress(),
         items: [{sku: listingId, quantity: 1}],
         success_url: UrlJoin(rootUrl.toString(), "/#/", "success"),
         cancel_url: UrlJoin(rootUrl.toString(), "/#/", "cancel")
@@ -280,7 +280,7 @@ class CheckoutStore {
         currency: this.currency,
         email,
         client_reference_id: checkoutId,
-        elv_addr: this.client.signer.address,
+        elv_addr: this.client.CurrentAccountAddress(),
         items: [{sku, quantity}],
         success_url: UrlJoin(rootUrl.toString(), "/#/", "success"),
         cancel_url: UrlJoin(rootUrl.toString(), "/#/", "cancel")

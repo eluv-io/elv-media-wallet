@@ -191,6 +191,7 @@ const App = observer(() => {
         </ScrollToTop>
         <Navigation />
         <DebugFooter />
+        <div className="app-background" />
       </div>
     </HashRouter>
   );

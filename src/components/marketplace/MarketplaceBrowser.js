@@ -63,12 +63,12 @@ const MarketplaceFilters = observer(({SetFilters}) => {
 const MarketplaceCard = observer(({marketplace}) => {
   const branding = (marketplace && marketplace.branding) || {};
 
-  if(!branding.name) {
+  if(!branding.name || !branding.show) {
     return null;
   }
 
   return (
-    <Link to={UrlJoin("/marketplace", marketplace.marketplaceId)} className="card-shadow marketplace-card">
+    <Link to={UrlJoin("/marketplace", marketplace.marketplaceId)} className="marketplace-card">
       {
         branding.card_banner ?
           <img
@@ -126,14 +126,14 @@ const MarketplaceBrowser = observer(() => {
 
   return (
     <AsyncComponent
-      loadingClassName="page-loader"
+      loadingClassName="page-loader content"
       loadKey="all-marketplaces"
       cacheSeconds={900}
       Load={async () => await rootStore.LoadAvailableMarketplaces({})}
     >
       <div className="marketplace-browser">
-        <MarketplaceFilters SetFilters={setFilters} />
-        <div className="content">
+        <div className="content content--no-background">
+          <MarketplaceFilters SetFilters={setFilters} />
           <div className="marketplace-browser__marketplaces">
             {
               marketplaces.map(marketplace =>

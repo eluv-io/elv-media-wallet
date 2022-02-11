@@ -82,7 +82,7 @@ const MarketplaceWrapper = observer(({children}) => {
             rootStore.LoadWalletCollection()
           ]);
         }}
-        loadingClassName="page-loader"
+        loadingClassName="page-loader content"
       >
         <div className="marketplace content">
           { children }
@@ -137,7 +137,7 @@ const Routes = (match) => {
     },
 
     // Duplicate profile in marketplace section so navigating to profile doesn't clear the active marketplace
-    { name: "Profile", path: "/marketplace/:marketplaceId/profile", Component: Profile },
+    { name: "Profile", path: "/marketplace/:marketplaceId/profile", Component: Profile, skipLoading: true },
 
     { name: "Marketplaces", path: "/marketplaces", Component: MarketplaceBrowser }
   ];

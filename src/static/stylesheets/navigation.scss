@@ -12,247 +12,71 @@
 }
 
 .navigation {
-  background-color: $white;
-  border: 1px solid $lightgray;
-  border-radius: 10px;
-  bottom: 30px;
-  box-shadow: $mediumgray 3px 3px 3px;
+  background-color: $darkestgray;
+  border: 0.5px solid $darkergray;
+  border-radius: 8px;
+  bottom: 50px;
+  box-shadow: none;
   display: flex;
-  height: 40px;
+  height: 50px;
   left: 0;
   margin: auto;
-  max-width: 500px;
   position: fixed;
   right: 0;
-  width: 100%;
-  z-index: 100;
+  width: 600px;
+  z-index: 1;
+
+  * {
+    color: $gray;
+    text-align: center;
+  }
 
   &__link {
     align-items: center;
+    border-radius: 0 8px 8px 0;
     display: flex;
     flex: 1 1 auto;
     height: 100%;
     justify-content: center;
+    position: relative;
+    transition: background-color 0.35s linear;
+    width: 100%;
 
     &.active {
-      color: $blue;
+      background-color: $darkergray;
+      color: $white;
     }
 
     &:not(:last-child) {
-      border-right: 1px solid $lightgray;
+      border-radius: 8px 0 0 8px;
+      border-right: 0.5px solid $darkergray;
     }
 
     &:hover {
-      color: $blue;
+      color: $white;
     }
   }
 
-  &:hover {
-    border: 1px solid $mediumgray;
+  &__logo {
+    height: 100%;
+    margin: 0 10px;
+    max-width: 70px;
+    min-width: 70px;
+    object-fit: contain;
+    padding: 3px 0;
+    width: 70px;
   }
 
-  @media screen and (max-width: $mobile-breakpoint) {
+  @media screen and (max-width: $tablet-breakpoint) {
     border-bottom: 0;
     border-radius: 0;
     bottom: 0;
     height: 60px;
-    max-width: 100%;
-  }
-}
-
-.header-navigation {
-  display: flex;
-  justify-content: space-between;
-  margin: 0 50px;
-  position: relative;
-  width: 100%;
-
-  &__left {
-    display: flex;
-    flex: 1 1 100%;
-    justify-content: center;
-    margin-right: 10px;
-  }
-
-  &__right {
-    display: flex;
-    justify-content: flex-end;
-  }
-
-  &__link {
-    border-bottom: 2px solid transparent;
-    font-size: 14px;
-    min-width: max-content;
-    text-align: center;
-    transition: border 0.15s linear;
-
-    &:not(:last-child) {
-      margin-right: 29px;
-    }
-
-    &.active {
-      border-bottom: 2px solid $lightblue;
-      text-shadow: 0 0 1px $black;
-    }
-  }
-
-  &__link-subtext {
-    color: $gray;
-    font-size: 12px;
-  }
-
-  @media screen and (max-width: $mobile-breakpoint) {
-    &__link {
-      font-size: 10px;
-
-      &:not(:last-child) {
-        margin-right: 10px;
-      }
-    }
-
-    &__link-subtext {
-      color: $gray;
-      font-size: 9px;
-    }
-  }
-}
-
-.mobile-navigation {
-  align-items: center;
-  display: none;
-  height: 100%;
-  justify-content: center;
-  margin-left: 15px;
-
-  &__menu-button {
-    padding: 5px 0;
-
-    svg {
-      height: 100%;
-      stroke: $darkgray;
-    }
-  }
-
-  @media screen and (max-width: $tablet-breakpoint) {
-    display: flex;
-  }
-
-  &__menu {
-    @include page-fade-in(0.15s);
-    background-color: $white;
-    border-top: 1px solid $lightgray;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    padding-top: 20px;
-    position: absolute;
-    right: 0;
-    top: 100%;
-    width: 100vw;
-  }
-
-  &__link {
-    align-items: center;
-    display: flex;
-    font-size: 24px;
-    font-weight: 300;
-    justify-content: center;
-    letter-spacing: 1px;
-    padding: 15px 0;
-    text-align: center;
-    white-space: nowrap;
+    max-width: unset;
     width: 100%;
 
-    &:hover {
-      background-color: $lightestgray;
-    }
-
-    span {
-      border-bottom: 2px solid transparent;
-      padding: 0 5px;
-      transition: border 0.15s linear;
-    }
-
-    &.active {
-      span {
-        border-bottom: 2px solid $lightblue;
-      }
-    }
-  }
-
-  &__separator {
-    border-bottom: 1px solid $lightgray;
-    margin: 0 auto 10px;
-    padding: 10px 5px 0;
-    width: 85%;
-  }
-}
-
-.dark {
-  .navigation,
-  .header-navigation {
     &__link {
-      color: $gray;
-
-      &.active {
-        color: $white;
-        text-shadow: none;
-
-        .header-navigation__link-text {
-          color: $white;
-        }
-      }
-    }
-
-    &__link-text {
-      color: $gray;
-    }
-
-    &__link-subtext {
-      color: $darkgray;
-    }
-  }
-
-  .navigation {
-    background-color: $black;
-    border: 0.5px solid $darkgray;
-    box-shadow: none;
-
-    &__link {
-      &:not(:last-child) {
-        border-right: 0.5px solid $darkergray;
-      }
-
-      &:hover {
-        color: $white;
-      }
-    }
-
-    @media screen and (max-width: $mobile-breakpoint) {
-      border-bottom: 0;
-    }
-  }
-
-  .header-navigation {
-    &__link {
-      font-weight: 700;
-    }
-  }
-
-  .mobile-navigation {
-    &__menu {
-      background-color: $black;
-      border-top: 1px solid $darkergray;
-    }
-
-    &__link {
-      &:hover {
-        background-color: $darkestgray;
-      }
-    }
-
-    &__separator {
-      border-bottom: 1px solid $darkergray;
+      font-size: 14px;
     }
   }
 }
@@ -266,8 +90,7 @@
 // Loading checkout / success confirmation from embedded frame. Hide everything but the loader
 .popup-from-embedded {
   .header,
-  .navigation,
-  .header-navigation {
+  .navigation {
     // sass-lint:disable no-important
     display: none !important;
   }

@@ -115,7 +115,7 @@ const Profile = observer(() => {
   const balancePresent = typeof rootStore.totalWalletBalance !== "undefined";
 
   return (
-    <div className="page-container profile-page">
+    <div className="page-container profile-page content">
       { showWithdrawalSetup ? <WithdrawalSetupModal Close={() => setShowWithdrawalSetup(false)} /> : null }
       { showWithdrawalModal ? <WithdrawalModal Close={() => setShowWithdrawalModal(false)} /> : null }
       <div className="profile-page__section profile-page__section-account">

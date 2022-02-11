@@ -514,7 +514,6 @@ class RootStore {
     }
   }
 
-
   MarketplaceInfo = flow(function * ({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, forceReload=false}) {
     let marketplace = this.allMarketplaces.find(marketplace =>
       (marketplaceId && Utils.EqualHash(marketplaceId, marketplace.marketplaceId)) ||
@@ -1275,7 +1274,7 @@ class RootStore {
     }
   });
 
-  InitializeClient = flow(function * ({user, idToken, authToken, address, privateKey, loginData={}}) {
+  InitializeClient = flow(function * ({user, idToken, authToken, privateKey, loginData={}}) {
     try {
       this.loggingIn = true;
       this.loggedIn = false;
@@ -1302,7 +1301,7 @@ class RootStore {
           this.SetSessionStorage(`pk-${this.network}`, privateKey);
         }
       } else if(authToken) {
-        yield client.SetRemoteSigner({authToken, address, tenantId});
+        yield client.SetRemoteSigner({authToken, tenantId});
       } else if(idToken || (user && user.id_token)) {
         this.oauthUser = user;
 
@@ -1345,7 +1344,7 @@ class RootStore {
 
       this.SetAuthInfo({
         authToken: client.signer.authToken,
-        address: client.signer.address,
+        address: client.CurrentAccountAddress(),
         user: {
           name: (user || {}).name,
           email: (user || {}).email
@@ -1354,8 +1353,8 @@ class RootStore {
 
       const initials = ((user || {}).name || "").split(" ").map(s => s.substr(0, 1));
       this.userProfile = {
-        address: client.signer.address,
-        name: (user || {}).name || client.signer.address,
+        address: client.CurrentAccountAddress(),
+        name: (user || {}).name || client.CurrentAccountAddress(),
         email: (user || {}).email,
         profileImage: ProfileImage(
           (initials.length <= 1 ? initials.join("") : `${initials[0]}${initials[initials.length - 1]}`).toUpperCase(),
@@ -1363,7 +1362,7 @@ class RootStore {
         )
       };
 
-      this.SendEvent({event: EVENTS.LOG_IN, data: { address: client.signer.address }});
+      this.SendEvent({event: EVENTS.LOG_IN, data: { address: client.CurrentAccountAddress() }});
       this.SendEvent({event: EVENTS.LOADED});
     } catch(error) {
       this.Log("Failed to initialize client", true);
@@ -1397,7 +1396,7 @@ class RootStore {
       }
     }
 
-    this.SendEvent({event: EVENTS.LOG_OUT, data: { address: this.client.signer.address }});
+    this.SendEvent({event: EVENTS.LOG_OUT, data: { address: this.client.CurrentAccountAddress() }});
 
     this.disableCloseEvent = true;
 

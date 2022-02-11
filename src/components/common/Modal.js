@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+import {createPortal} from "react-dom";
 import {rootStore} from "Stores";
 import {observer} from "mobx-react";
 import CloseIcon from "../../static/icons/x.svg";
@@ -59,4 +60,13 @@ const Modal = observer(({children, Toggle, id="", className=""}) => {
   );
 });
 
-export default Modal;
+const ModalPortal = (args) => {
+  return (
+    createPortal(
+      <Modal {...args} />,
+      document.getElementById("app")
+    )
+  );
+};
+
+export default ModalPortal;

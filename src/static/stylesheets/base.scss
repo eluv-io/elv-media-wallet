@@ -95,7 +95,6 @@ body,
 .site-app,
 .main-app,
 .page-container {
-  background-color: $white;
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -103,6 +102,19 @@ body,
   min-height: 100%;
   overscroll-behavior-y: none; // sass-lint:disable-line no-misspelled-properties
   width: 100%;
+  z-index: 1;
+}
+
+.app-background {
+  background: linear-gradient(180deg, #212730 0%, #080808 100%);
+  height: 100%;
+  left: 0;
+  min-height: 100vh;
+  min-width: 100vw;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 0;
 }
 
 select {
@@ -161,7 +173,6 @@ em {
 
 .page-container {
   height: 100%;
-  margin-top: 60px;
 
   .page-loader {
     min-height: 60vh;
@@ -230,13 +241,19 @@ em {
 }
 
 .content {
+  border-radius: 10px 10px 0 0;
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
   height: max-content;
   max-width: 100%;
+  min-height: calc(100vh - 150px);
   padding: 15px 30px 100px;
   width: 100vw;
+
+  &:not(.content--no-background) {
+    background-color: $white;
+  }
 }
 
 .header-dot {
@@ -325,6 +342,10 @@ em {
 
 // Mid
 @media screen and (max-width: $breakpoint) {
+  .content {
+    border-radius: 0;
+  }
+
   .page-container {
     .page-header {
       font-size: 24px;
@@ -381,8 +402,7 @@ em {
   &.app,
   .app-container,
   .site-app,
-  .main-app,
-  .page-container {
+  .main-app {
     // sass-lint:disable no-important
     background-color: $black !important;
 
@@ -434,6 +454,12 @@ em {
   .page-header {
     &__subtitle {
       color: $gray;
+    }
+  }
+
+  .content {
+    &:not(.content--no-background) {
+      background-color: $black;
     }
   }
 }
