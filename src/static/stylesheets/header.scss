@@ -119,6 +119,7 @@
     justify-content: center;
     margin: 0 8px;
     padding: 0 5px;
+    transition: border 0.25s ease;
 
     &.active {
       border-bottom: 2px solid $lightblue;
@@ -181,6 +182,7 @@
   height: 40px;
   justify-content: center;
   position: relative;
+  transition: height 0.15s ease;
   width: 100%;
 
   &--marketplace {
@@ -225,7 +227,7 @@
 
     .subheader__navigation-link {
       font-size: 18px;
-      margin: 0 10px;
+      margin: 0 20px;
     }
   }
 

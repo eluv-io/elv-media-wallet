@@ -440,6 +440,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
    *
    * Currently supported pages:
 
+      - 'wallet' - The user's global wallet
       - 'items' - List of items in the user's wallet
       - 'item' - A specific item in the user's wallet
         -- Required param: `contractAddress` or `contractId`
@@ -450,6 +451,8 @@ const walletClient = await ElvWalletClient.InitializePopup({
         -- Required param: marketplace parameters
       - 'marketplaceItem`
         -- Required params: `sku`, marketplace parameters
+      - 'marketplaceWallet' - The user's collection for the specified marketplace
+        -- Required params: marketplace parameters
       - `drop`
         -- Required params: `tenantSlug`, `eventSlug`, `dropId`, marketplace parameters
 

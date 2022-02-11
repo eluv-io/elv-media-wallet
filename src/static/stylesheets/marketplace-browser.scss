@@ -122,9 +122,15 @@
   background-color: $black;
   border-radius: 8px;
   display: flex;
+  opacity: 0.75;
   overflow: hidden;
   position: relative;
+  transition: opacity 0.35s ease;
   width: 100%;
+
+  &:hover {
+    opacity: 1;
+  }
 
   &__banner {
     // sass-lint:disable no-misspelled-properties

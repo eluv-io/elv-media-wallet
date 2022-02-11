@@ -19,6 +19,7 @@ const pages = {
   "marketplaces": "/marketplaces",
   "marketplace": "/marketplace/:marketplaceId/store",
   "marketplaceItem": "/marketplace/:marketplaceId/store/:sku",
+  "marketplaceWallet": "/marketplace/:marketplaceId/collection",
   "drop": "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId"
 };
 

@@ -79,6 +79,12 @@
       font-size: 14px;
     }
   }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    &__logo {
+      display: none;
+    }
+  }
 }
 
 .side-panel {
