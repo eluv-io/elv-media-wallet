@@ -433,7 +433,13 @@ const NFTDetails = observer(() => {
       }
       <div className="details-page">
         <div className="details-page__content-container">
-          <NFTCard nft={nft} selectedListing={listing} showVideo showOrdinal />
+          <NFTCard
+            nft={nft}
+            selectedListing={listing}
+            showVideo
+            showOrdinal
+            showAdditionalMedia
+          />
         </div>
         <div className="details-page__info">
           <NFTActions />

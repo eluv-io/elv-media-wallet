@@ -192,7 +192,15 @@ const Login = observer(() => {
 
   if(!rootStore.embedded) {
     auth0 = useAuth0();
+    window.auth0 = auth0;
   }
+
+  // Eventually give up trying to load auth0 if it doesn't load
+  useEffect(() => {
+    setTimeout(() => {
+      setAuth0Loading(false);
+    }, 7500);
+  }, []);
 
   useEffect(() => {
     if(!rootStore.loaded || !rootStore.loginCustomizationLoaded) { return; }

@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 
 import {observer} from "mobx-react";
 import {rootStore} from "Stores/index";
@@ -21,11 +21,29 @@ export const ProfileImage = observer(({className=""}) => {
   );
 });
 
-export const NFTImage = observer(({nft, width, video=false, className=""}) => {
+export const NFTImage = observer(({nft, selectedMedia, width, video=false, className=""}) => {
   const [initialized, setInitialized] = useState(false);
+  const [player, setPlayer] = useState(undefined);
+
+  useEffect(() => {
+    if(player) {
+      player.Destroy();
+      setPlayer(undefined);
+    }
+
+    setInitialized(false);
+  }, [selectedMedia]);
 
   let url;
-  if(nft.metadata.image) {
+  if(selectedMedia && selectedMedia.media_type === "Image" && selectedMedia.media_file) {
+    window.mediaUrl = selectedMedia.media_file;
+    url = new URL(selectedMedia.media_file.url);
+    url.searchParams.set("authorization", selectedMedia.requires_permissions ? rootStore.authedToken : rootStore.staticToken);
+
+    if(url && width) {
+      url.searchParams.set("width", width);
+    }
+  } else if(nft.metadata.image) {
     url = new URL(nft.metadata.image);
     url.searchParams.set("authorization", rootStore.authedToken);
 
@@ -34,31 +52,52 @@ export const NFTImage = observer(({nft, width, video=false, className=""}) => {
     }
   }
 
-  if(video && (typeof nft.metadata.playable === "undefined" || nft.metadata.playable) && nft.metadata.embed_url) {
-    return (
-      <div className="card__image-container">
-        <div className={`card__image card__image-video-embed ${className}`}>
-          <div
-            ref={element => {
-              if(!element || initialized) { return; }
+  if(video) {
+    let embedUrl;
+    if((selectedMedia && selectedMedia.media_type === "Video" && selectedMedia.media_link)) {
+      embedUrl = new URL("https://embed.v3.contentfabric.io");
+      const videoHash = ((selectedMedia.media_link["/"] && selectedMedia.media_link["/"].split("/").find(component => component.startsWith("hq__")) || selectedMedia.media_link["."].source));
 
-              setInitialized(true);
+      embedUrl.searchParams.set("p", "");
+      embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
+      embedUrl.searchParams.set("vid", videoHash);
+      embedUrl.searchParams.set("ct", "h");
+      embedUrl.searchParams.set("ap", "");
+      embedUrl.searchParams.set("ath", selectedMedia.requires_permissions ? rootStore.authedToken : rootStore.staticToken);
+    } else if(!selectedMedia && (typeof nft.metadata.playable === "undefined" || nft.metadata.playable) && nft.metadata.embed_url) {
+      embedUrl = new URL(nft.metadata.embed_url);
+    }
 
-              Initialize({
-                client: rootStore.client,
-                target: element,
-                url: nft.metadata.embed_url,
-                playerOptions: {
-                  capLevelToPlayerSize: true
-                }
-              });
-            }}
-            className="card__image-video-embed__frame"
-          />
+    if(embedUrl) {
+      return (
+        <div className="card__image-container" key={`media-${embedUrl}`}>
+          <div className={`card__image card__image-video-embed ${className}`}>
+            <div
+              key={`media-element-${embedUrl}`}
+              ref={async element => {
+                if(!element || initialized) { return; }
+
+                setInitialized(true);
+
+                setPlayer(
+                  await Initialize({
+                    client: rootStore.client,
+                    target: element,
+                    url: embedUrl.toString(),
+                    playerOptions: {
+                      capLevelToPlayerSize: true
+                    }
+                  })
+                );
+              }}
+              className="card__image-video-embed__frame"
+            />
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
+
   return (
     <div className="card__image-container">
       {
