@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Redirect, useRouteMatch} from "react-router-dom";
 import {rootStore} from "Stores";
@@ -8,8 +8,16 @@ import MarketplaceItemCard from "Components/marketplace/MarketplaceItemCard";
 
 const MarketplaceStorefront = observer(() => {
   const match = useRouteMatch();
+  const [timeouts, setTimeouts] = useState({});
+  const [loadKey, setLoadKey] = useState(0);
 
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+  useEffect(() => {
+    return () => {
+      Object.keys(timeouts).forEach(sku => clearTimeout(timeouts[sku]));
+    };
+  }, []);
+
+  let marketplace = rootStore.marketplaces[match.params.marketplaceId];
 
   if(!marketplace) { return null; }
 
@@ -18,7 +26,7 @@ const MarketplaceStorefront = observer(() => {
   const sections = (((marketplace.storefront || {}).sections || []).map((section, sectionIndex) => {
     const items = section.items.map((sku) => {
       const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
-      const item = itemIndex >= 0 && marketplace.items[itemIndex];
+      let item = itemIndex >= 0 && marketplace.items[itemIndex];
 
       // Authorization
       if(!item || !item.for_sale || (item.requires_permissions && !item.authorized) || (item.type === "nft" && (!item.nft_template || item.nft_template["/"]))) {
@@ -35,13 +43,34 @@ const MarketplaceStorefront = observer(() => {
         return;
       }
 
+      try {
+        const diff = item.available_at ? new Date(item.available_at).getTime() - Date.now() : 0;
+        if(diff > 0) {
+          if(!timeouts[sku]) {
+            setTimeouts({
+              ...timeouts,
+              [sku]: (
+                setTimeout(() => {
+                  setLoadKey(sku);
+                }, diff + 1000)
+              )
+            });
+          }
+
+          return;
+        }
+      } catch(error) {
+        rootStore.Log("Failed to parse item date:", true);
+        rootStore.Log(item, true);
+      }
+
       return { item, itemIndex };
     }).filter(item => item);
 
     if(items.length === 0) { return null; }
 
     return (
-      <div className="marketplace__section" key={`marketplace-section-${sectionIndex}`}>
+      <div className="marketplace__section" key={`marketplace-section-${sectionIndex}-${loadKey}`}>
         <h1 className="page-header">{section.section_header}</h1>
         <h2 className="page-subheader">{section.section_subheader}</h2>
         <div className="card-list">
@@ -51,7 +80,7 @@ const MarketplaceStorefront = observer(() => {
                 marketplaceHash={marketplace.versionHash}
                 item={item}
                 index={itemIndex}
-                key={`marketplace-item-${itemIndex}`}
+                key={`marketplace-item-${itemIndex}-${loadKey}`}
               />
             )
           }
@@ -63,7 +92,7 @@ const MarketplaceStorefront = observer(() => {
   if(sections.length === 0 && marketplace.collections.length === 0) {
     if(rootStore.sidePanelMode) {
       rootStore.SetNoItemsAvailable();
-      return <Redirect to={UrlJoin("/marketplaces", match.params.marketplaceId, "collections")} />;
+      return <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "collection")} />;
     } else {
       return <h2 className="marketplace__empty">No items available</h2>;
     }

@@ -1,20 +1,3 @@
-/*
-CREATE TABLE IF NOT EXISTS listings (
-    id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
-    ord bigint NOT NULL,
-    contract text NOT NULL,
-    token text NOT NULL,
-    tenant text,
-    seller text NOT NULL,
-    price float NOT NULL,
-    fee float,
-    nft jsonb,
-    created timestamp NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
-    updated timestamp NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
-    UNIQUE (contract, token)
-);
- */
-
 import React, {useState, useEffect} from "react";
 import {observer} from "mobx-react";
 import {useLocation, useRouteMatch} from "react-router-dom";
@@ -22,7 +5,9 @@ import {rootStore, transferStore} from "Stores";
 import AutoComplete from "Components/common/AutoComplete";
 import {ButtonWithLoader} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
+
 import FilterIcon from "Assets/icons/search.svg";
+import XIcon from "Assets/icons/x.svg";
 
 const sortOptionsListings = [
   { key: "created", value: "created", label: "Recently Listed", desc: true},
@@ -61,6 +46,54 @@ const FilterDropdown = observer(({label, value, options, onChange, placeholder})
   );
 });
 
+const MarketplaceSelection = observer(({selected, setSelected}) => {
+  const match = useRouteMatch();
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+
+  if(marketplace) {
+    return;
+  }
+
+  const availableMarketplaces = rootStore.allMarketplaces
+    .filter(marketplace => marketplace.tenantId && marketplace.name);
+
+  if(availableMarketplaces.length === 0) {
+    return;
+  }
+
+  const options = availableMarketplaces
+    .filter(marketplace => !selected.includes(marketplace.tenantId))
+    .map(marketplace => [marketplace.tenantId, marketplace.name]);
+
+  return (
+    <div className="listing-filters__marketplace-selection">
+      <FilterDropdown
+        label="Marketplaces"
+        options={options}
+        placeholder={["", "Filter by Marketplace"]}
+        onChange={tenantId => tenantId && setSelected([...selected, tenantId])}
+      />
+      <div className="listing-filters__marketplace-selection__selected">
+        {
+          selected.map(tenantId =>
+            <button
+              key={`selected-marketplace-${tenantId}`}
+              onClick={() => setSelected(selected.filter(tid => tid !== tenantId))}
+              className="listing-filters__marketplace-selection__selected__item"
+            >
+              { (availableMarketplaces.find(marketplace => marketplace.tenantId === tenantId) || {}).name || "Unknown Marketplace" }
+              <ImageIcon
+                icon={XIcon}
+                title="Remove this filter"
+              />
+            </button>
+          )
+        }
+      </div>
+    </div>
+  );
+});
+
 export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
   const match = useRouteMatch();
   const location = useLocation();
@@ -80,6 +113,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
   const [collectionIndex, setCollectionIndex] = useState(-1);
   const [lastNDays, setLastNDays] = useState(-1);
   const [filter, setFilter] = useState(initialFilter || "");
+  const [tenantIds, setTenantIds] = useState([]);
 
   const Update = async () => {
     UpdateFilters({
@@ -88,6 +122,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
       filter,
       collectionIndex,
       lastNDays,
+      tenantIds,
       marketplaceId: match.params.marketplaceId
     });
   };
@@ -101,8 +136,11 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
     } else {
       transferStore.ListingNames()
         .then(names => setFilterOptions(names.sort()));
+
+      rootStore.LoadAvailableMarketplaces({});
     }
   }, []);
+
 
   const sortOptions = mode === "listings" ? sortOptionsListings : sortOptionsActivity;
 
@@ -151,6 +189,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
             options={filterOptions}
           />
         </div>
+        <MarketplaceSelection selected={tenantIds} setSelected={setTenantIds} />
         <div className="listing-filters__actions actions-container">
           <ButtonWithLoader
             className="action action-primary listing-filters__filter-button"

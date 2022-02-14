@@ -14,6 +14,7 @@ import EVENTS from "../../../client/src/Events";
 import Modal from "Components/common/Modal";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
+import PreLogin from "Components/login/PreLogin";
 
 let newWindowLogin =
   new URLSearchParams(window.location.search).has("l") ||
@@ -55,7 +56,6 @@ const TermsModal = observer(({Toggle}) => {
               );
             }}
           />
-
       }
     </Modal>
   );
@@ -65,8 +65,8 @@ const LoginBackground = observer(() => {
   const customizationOptions = rootStore.customizationMetadata || {};
 
   if(customizationOptions.background || customizationOptions.background_mobile) {
-    let backgroundUrl = customizationOptions.background ? rootStore.PublicLink({versionHash: rootStore.marketplaceHash, path: UrlJoin("public", "asset_metadata", "info", "login_customization", "background")}) : "";
-    let mobileBackgroundUrl = customizationOptions.background_mobile ? rootStore.PublicLink({versionHash: rootStore.marketplaceHash, path: UrlJoin("public", "asset_metadata", "info", "login_customization", "background_mobile")}) : "";
+    let backgroundUrl = (customizationOptions.background || {}).url;
+    let mobileBackgroundUrl = (customizationOptions.background_mobile || {}).url;
 
     if(rootStore.pageWidth > 900) {
       return <div className="login-page__background" style={{ backgroundImage: `url("${backgroundUrl || mobileBackgroundUrl}")` }} />;
@@ -82,19 +82,23 @@ let verificationCheckInterval;
 const Login = observer(() => {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [customizationInfoLoading, setCustomizationInfoLoading] = useState(!!rootStore.marketplaceId);
+  const [customizationInfoLoading, setCustomizationInfoLoading] = useState(true);
   const [verified, setVerified] = useState(false);
   const [auth0Loading, setAuth0Loading] = useState(true);
   const [showPrivateKeyForm, setShowPrivateKeyForm] = useState(false);
   const [privateKey, setPrivateKey] = useState("");
+
+  const [loginData, setLoginData] = useState(undefined);
+  const loginDataRequired = !customizationInfoLoading && !loginData && (rootStore.customizationMetadata || {}).require_consent;
+
   //const [verificationResent, setVerificationResent] = useState(false);
 
   const url = new URL(window.location.origin);
   url.pathname = window.location.pathname;
   url.searchParams.set("l", "");
 
-  if(rootStore.marketplaceId) {
-    url.searchParams.set("mid", rootStore.marketplaceId);
+  if(rootStore.marketplaceHash) {
+    url.searchParams.set("mid", rootStore.marketplaceHash);
   }
 
   const extraLoginParams = {};
@@ -126,7 +130,8 @@ const Login = observer(() => {
         await rootStore.InitializeClient({
           authToken: authInfo.authToken,
           address: authInfo.address,
-          user: authInfo.user
+          user: authInfo.user,
+          loginData
         });
 
         SignalOpener();
@@ -187,17 +192,25 @@ const Login = observer(() => {
 
   if(!rootStore.embedded) {
     auth0 = useAuth0();
+    window.auth0 = auth0;
   }
 
+  // Eventually give up trying to load auth0 if it doesn't load
   useEffect(() => {
-    rootStore.LoadCustomizationMetadata().then(() => {
-      setCustomizationInfoLoading(false);
-
-      if(!(rootStore.customizationMetadata || {}).require_email_verification) {
-        setVerified(true);
-      }
-    });
+    setTimeout(() => {
+      setAuth0Loading(false);
+    }, 7500);
   }, []);
+
+  useEffect(() => {
+    if(!rootStore.loaded || !rootStore.loginCustomizationLoaded) { return; }
+
+    setCustomizationInfoLoading(false);
+
+    if(!(rootStore.customizationMetadata || {}).require_email_verification) {
+      setVerified(true);
+    }
+  }, [rootStore.loaded, rootStore.loginCustomizationLoaded]);
 
   useEffect(() => {
     SignalOpener();
@@ -263,7 +276,7 @@ const Login = observer(() => {
       logo = (
         <div className="login-page__logo-container">
           <ImageIcon
-            icon={rootStore.PublicLink({versionHash: rootStore.marketplaceHash, path: UrlJoin("public", "asset_metadata", "info", "login_customization", "logo")})}
+            icon={customizationOptions.logo.url}
             alternateIcon={Logo}
             className="login-page__logo"
             title="Logo"
@@ -372,6 +385,18 @@ const Login = observer(() => {
               </button>
             </div>
           </form>
+        </div>
+      </div>
+    );
+  }
+
+  if(loginDataRequired) {
+    return (
+      <div className={`page-container login-page ${largeLogoMode ? "login-page-large-logo-mode" : ""} ${customBackground ? "login-page-custom-background" : ""}`}>
+        <LoginBackground />
+        <div className="login-page__login-box">
+          { logo }
+          <PreLogin onComplete={({data}) => setLoginData(data)} />
         </div>
       </div>
     );

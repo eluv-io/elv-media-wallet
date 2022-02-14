@@ -1,0 +1,44 @@
+.markdown-document {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  p {
+    margin: 1em 0;
+  }
+
+  h1 {
+    font-size: 32px;
+  }
+
+  h2 {
+    font-size: 24px;
+  }
+
+  h3 {
+    font-size: 20px;
+  }
+
+  h4 {
+    font-size: 18px;
+  }
+
+  h5 {
+    font-size: 16px;
+  }
+
+  p {
+    font-size: 16px;
+  }
+
+  a {
+    // sass-lint:disable no-important
+    color: $blue !important;
+
+    &:hover {
+      // sass-lint:disable no-important
+      color: $blue !important;
+    }
+  }
+}

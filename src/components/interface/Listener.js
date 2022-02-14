@@ -17,9 +17,10 @@ const pages = {
 
   // Marketplace
   "marketplaces": "/marketplaces",
-  "marketplace": "/marketplaces/:marketplaceId",
-  "marketplaceItem": "/marketplaces/:marketplaceId/:sku",
-  "drop": "/marketplaces/:marketplaceId/events/:dropId"
+  "marketplace": "/marketplace/:marketplaceId/store",
+  "marketplaceItem": "/marketplace/:marketplaceId/store/:sku",
+  "marketplaceWallet": "/marketplace/:marketplaceId/collection",
+  "drop": "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId"
 };
 
 const FormatNFT = (nft) => {
@@ -61,6 +62,7 @@ export const InitializeListener = (history) => {
     switch(data.action) {
       case "login":
         await rootStore.InitializeClient({
+          idToken: data.params.idToken,
           authToken: data.params.authToken,
           privateKey: data.params.privateKey,
           address: data.params.address,
@@ -71,6 +73,14 @@ export const InitializeListener = (history) => {
         Respond({});
 
         break;
+
+      case "logout":
+        await rootStore.SignOut();
+
+        Respond({});
+
+        break;
+
       case "purchase":
         checkoutStore.PurchaseComplete({
           confirmationId: data.params.confirmationId,
@@ -114,45 +124,49 @@ export const InitializeListener = (history) => {
         break;
 
       case "marketplaceMetadata":
+        // Ensure marketplace is loaded
+        const { marketplaceId } = await rootStore.MarketplaceInfo({
+          tenantSlug: data.params.tenantSlug,
+          marketplaceSlug: data.params.marketplaceSlug,
+          marketplaceId: data.params.marketplaceId,
+          marketplaceHash: data.params.marketplaceHash
+        });
+
         Respond({
-          response: await rootStore.client.ContentObjectMetadata({
-            libraryId: await rootStore.client.ContentObjectLibraryId({objectId: data.params.marketplaceId, versionHash: data.params.marketplaceHash}),
-            objectId: data.params.marketplaceId,
-            versionHash: data.params.marketplaceHash,
-            metadataSubtree: "public/asset_metadata/info",
-            linkDepthLimit: 2,
-            resolveLinks: true,
-            resolveIgnoreErrors: true,
-            resolveIncludeSource: true,
-            produceLinkUrls: true,
-            noAuth: true
-          })
+          response: await rootStore.LoadMarketplace(marketplaceId)
         });
 
         break;
 
       case "eventMetadata":
         Respond({
-          response: await rootStore.client.ContentObjectMetadata({
-            libraryId: await rootStore.client.ContentObjectLibraryId({objectId: data.params.eventId, versionHash: data.params.eventHash}),
-            objectId: data.params.eventId,
-            versionHash: data.params.eventHash,
-            metadataSubtree: "public/asset_metadata",
-            linkDepthLimit: 2,
-            resolveLinks: true,
-            resolveIgnoreErrors: true,
-            resolveIncludeSource: true,
-            produceLinkUrls: true,
-            noAuth: true
+          response: await rootStore.LoadEvent({
+            tenantSlug: data.params.tenantSlug,
+            eventSlug: data.params.eventSlug,
+            eventId: data.params.eventId,
+            eventHash: data.params.eventHash
           })
         });
 
         break;
 
       case "setMarketplace":
-        await rootStore.SetMarketplaceId({marketplaceId: data.params.marketplaceId, marketplaceHash: data.params.marketplaceHash});
+        // Ensure marketplace is loaded
+        await rootStore.MarketplaceInfo({
+          tenantSlug: data.params.tenantSlug,
+          marketplaceSlug: data.params.marketplaceSlug,
+          marketplaceId: data.params.marketplaceId,
+          marketplaceHash: data.params.marketplaceHash
+        });
 
-        Respond({});
+        const marketplaceHash = await rootStore.SetMarketplace({
+          tenantSlug: data.params.tenantSlug,
+          marketplaceSlug: data.params.marketplaceSlug,
+          marketplaceId: data.params.marketplaceId,
+          marketplaceHash: data.params.marketplaceHash
+        });
+
+        Respond({response: marketplaceHash});
 
         break;
       case "setMarketplaceFilters":
@@ -189,22 +203,37 @@ export const InitializeListener = (history) => {
           // Replace route variables
           let route = pages[data.params.page];
 
-          if(data.params.params) {
-            // Convert hash to ID
-            if(data.params.params.marketplaceHash) {
-              const marketplaceId = Utils.DecodeVersionHash(data.params.params.marketplaceHash).objectId;
-              rootStore.SetMarketplaceHash({marketplaceId, marketplaceHash: data.params.params.marketplaceHash});
-              data.params.params.marketplaceId = marketplaceId;
+          const params = (data.params || {}).params;
+          if(params) {
+            if(params.marketplaceSlug || params.marketplaceHash || params.marketplaceId) {
+              // Ensure marketplace is loaded
+              await rootStore.MarketplaceInfo({
+                tenantSlug: params.tenantSlug,
+                marketplaceSlug: params.marketplaceSlug,
+                marketplaceId: params.marketplaceId,
+                marketplaceHash: params.marketplaceHash
+              });
+
+              await rootStore.SetMarketplace({
+                tenantSlug: params.tenantSlug,
+                marketplaceSlug: params.marketplaceSlug,
+                marketplaceId: params.marketplaceId,
+                marketplaceHash: params.marketplaceHash
+              });
+
+              params.marketplaceId = rootStore.marketplaceId;
             }
 
-            Object.keys(data.params.params).forEach(key => {
-              route = route.replace(`:${key}`, data.params.params[key]);
+            Object.keys(params).forEach(key => {
+              route = route.replace(`:${key}`, params[key]);
             });
           }
 
           history.push(route);
 
-          Respond({});
+          Respond({
+            response: route
+          });
         }
 
         break;

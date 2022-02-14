@@ -4,7 +4,7 @@ import {
   Switch,
   Route,
   useRouteMatch,
-  NavLink,
+  Redirect,
 } from "react-router-dom";
 import UrlJoin from "url-join";
 import {observer} from "mobx-react";
@@ -21,87 +21,15 @@ import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import MyListings from "Components/listings/MyListings";
 import PurchaseHandler from "Components/marketplace/PurchaseHandler";
 import {RecentSales} from "Components/listings/Activity";
-
-const MarketplaceNavigation = observer(() => {
-  let match = useRouteMatch();
-
-  if(rootStore.hideNavigation || rootStore.sidePanelMode) {
-    return null;
-  }
-
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-
-  if(!marketplace) { return null; }
-
-  return (
-    <nav className="sub-navigation marketplace-navigation">
-      <NavLink
-        className="sub-navigation__link"
-        to={`/marketplaces/${match.params.marketplaceId}`}
-        isActive={() =>
-          !match.path.includes("/marketplaces/:marketplaceId/collections") &&
-          !match.path.includes("/marketplaces/:marketplaceId/owned") &&
-          !match.path.includes("/marketplaces/:marketplaceId/listings") &&
-          !match.path.includes("/marketplaces/:marketplaceId/my-listings") &&
-          !match.path.includes("/marketplaces/:marketplaceId/activity")
-        }
-      >
-        { ((marketplace.storefront || {}).tabs || {}).store || "Store" }
-      </NavLink>
-      <NavLink className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/listings`}>
-        All Listings
-      </NavLink>
-      <NavLink className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/collections`}>
-        { ((marketplace.storefront || {}).tabs || {}).collection || "My Items" }
-      </NavLink>
-      <NavLink className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/my-listings`}>
-        My Listings
-      </NavLink>
-      <NavLink className="sub-navigation__link" to={`/marketplaces/${match.params.marketplaceId}/activity`}>
-        Activity
-      </NavLink>
-      <div className="sub-navigation__separator" />
-    </nav>
-  );
-});
+import Profile from "Components/profile";
 
 const MarketplacePurchase = observer(() => {
   const match = useRouteMatch();
 
   return (
     <PurchaseHandler
-      cancelPath={UrlJoin("/marketplaces", match.params.marketplaceId, match.params.sku)}
+      cancelPath={UrlJoin("/marketplace", match.params.marketplaceId, "store", match.params.sku)}
     />
-  );
-});
-
-const MarketplacePage = observer(({children}) => {
-  const match = useRouteMatch();
-
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-
-  if(!marketplace) { return null; }
-
-  if(rootStore.hideNavigation) {
-    return (
-      <div className="marketplace content">
-        { children }
-      </div>
-    );
-  }
-
-  return (
-    <div className="marketplace content">
-      {
-        rootStore.hideNavigation || rootStore.sidePanelMode ? null :
-          <div className="marketplace__header">
-            <h1 className="page-header">{(marketplace.storefront || {}).header}</h1>
-            <h2 className="page-subheader">{(marketplace.storefront || {}).subheader}</h2>
-          </div>
-      }
-      <MarketplaceNavigation />
-      { children }
-    </div>
   );
 });
 
@@ -129,6 +57,12 @@ const MarketplaceWrapper = observer(({children}) => {
       rootStore.ToggleNavigation(false);
       return () => rootStore.ToggleNavigation(true);
     }
+
+    if(match.params.marketplaceId) {
+      rootStore.SetMarketplace({marketplaceId: match.params.marketplaceId});
+    } else {
+      rootStore.ClearMarketplace();
+    }
   }, [match.url, rootStore.marketplaces[match.params.marketplaceId]]);
 
   if(currentRoute.skipLoading) {
@@ -148,67 +82,62 @@ const MarketplaceWrapper = observer(({children}) => {
             rootStore.LoadWalletCollection()
           ]);
         }}
-        loadingClassName="page-loader"
+        loadingClassName="page-loader content"
       >
-        <MarketplacePage>
+        <div className="marketplace content">
           { children }
-        </MarketplacePage>
+        </div>
       </AsyncComponent>
     );
   }
 
-  return (
-    <AsyncComponent
-      loadKey="marketplace-list"
-      cacheSeconds={1000}
-      Load={async () => {
-        await Promise.all(
-          rootStore.marketplaceIds.map(async marketplaceId => {
-            await rootStore.LoadMarketplace(marketplaceId);
-          })
-        );
-      }}
-      loadingClassName="page-loader"
-    >
-      { children }
-    </AsyncComponent>
-  );
+  return children;
 });
 
 const Routes = (match) => {
   const marketplace = rootStore.marketplaces[match.params.marketplaceId] || {};
-  const event = rootStore.eventMetadata || {};
   const item = (marketplace.items || []).find(item => item.sku === match.params.sku) || {};
   const nft = rootStore.NFT({contractId: match.params.contractId, tokenId: match.params.tokenId}) || { metadata: {} };
 
   const listingName = transferStore.listingNames[match.params.listingId] || "Listing";
 
   return [
-    { name: listingName, path: "/marketplaces/:marketplaceId/listings/:listingId", Component: NFTDetails },
-    { name: "All Listings", path: "/marketplaces/:marketplaceId/listings", Component: Listings },
-    { name: nft.metadata.display_name, path: "/marketplaces/:marketplaceId/my-listings/:contractId/:tokenId", Component: NFTDetails },
-    { name: "My Listings", path: "/marketplaces/:marketplaceId/my-listings", Component: MyListings },
-    { name: "Activity", path: "/marketplaces/:marketplaceId/activity", Component: RecentSales },
+    { name: listingName, path: "/marketplace/:marketplaceId/listings/:listingId", Component: NFTDetails },
+    { name: "All Listings", path: "/marketplace/:marketplaceId/listings", Component: Listings },
+    { name: nft.metadata.display_name, path: "/marketplace/:marketplaceId/my-listings/:contractId/:tokenId", Component: NFTDetails },
+    { name: "My Listings", path: "/marketplace/:marketplaceId/my-listings", Component: MyListings },
+    { name: "Activity", path: "/marketplace/:marketplaceId/activity", Component: RecentSales },
 
+    { name: "Drop Event", path: "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId", Component: Drop, hideNavigation: true },
+    { name: "Status", path: "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId/status", Component: DropMintingStatus, hideNavigation: true },
 
-    { name: (event.event_info || {}).event_title, path: "/marketplaces/:marketplaceId/events/:dropId", Component: Drop, hideNavigation: true },
-    { name: "Status", path: "/marketplaces/:marketplaceId/events/:dropId/status", Component: DropMintingStatus, hideNavigation: true },
+    { name: ((marketplace.storefront || {}).tabs || {}).collection || "My Items", path: "/marketplace/:marketplaceId/collection", Component: MarketplaceOwned },
 
-    { name: ((marketplace.storefront || {}).tabs || {}).collection || "My Items", path: "/marketplaces/:marketplaceId/collections", Component: MarketplaceOwned },
+    { name: nft.metadata.display_name, path: "/marketplace/:marketplaceId/collection/owned/:contractId/:tokenId", Component: NFTDetails },
+    { name: "Open Pack", path: "/marketplace/:marketplaceId/collection/owned/:contractId/:tokenId/open", Component: PackOpenStatus },
 
-    { name: nft.metadata.display_name, path: "/marketplaces/:marketplaceId/collections/owned/:contractId/:tokenId", Component: NFTDetails },
-    { name: "Open Pack", path: "/marketplaces/:marketplaceId/collections/owned/:contractId/:tokenId/open", Component: PackOpenStatus },
+    { name: "Open Pack", path: "/marketplace/:marketplaceId/collection/:collectionIndex/owned/:contractId/:tokenId/open", Component: PackOpenStatus },
+    { name: nft.metadata.display_name, path: "/marketplace/:marketplaceId/collection/:collectionIndex/owned/:contractId/:tokenId", Component: NFTDetails },
+    { name: item.name, path: "/marketplace/:marketplaceId/collection/:collectionIndex/store/:sku", Component: MarketplaceItemDetails },
 
-    { name: "Open Pack", path: "/marketplaces/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId/open", Component: PackOpenStatus },
-    { name: nft.metadata.display_name, path: "/marketplaces/:marketplaceId/collections/:collectionIndex/owned/:contractId/:tokenId", Component: NFTDetails },
-    { name: item.name, path: "/marketplaces/:marketplaceId/collections/:collectionIndex/store/:sku", Component: MarketplaceItemDetails },
+    { name: "Claim", path: "/marketplace/:marketplaceId/store/:sku/claim", Component: ClaimMintingStatus },
+    { name: "Purchase", path: "/marketplace/:marketplaceId/store/:tenantId/:sku/purchase/:confirmationId/success", Component: MarketplacePurchase, hideNavigation: rootStore.sidePanelMode },
+    { name: "Purchase", path: "/marketplace/:marketplaceId/store/:tenantId/:sku/purchase/:confirmationId/cancel", Component: MarketplacePurchase },
+    { name: "Purchase", path: "/marketplace/:marketplaceId/store/:tenantId/:sku/purchase/:confirmationId", Component: MarketplacePurchase, noBreadcrumb: true },
+    { name: item.name, path: "/marketplace/:marketplaceId/store/:sku", Component: MarketplaceItemDetails },
+    { name: marketplace.name, path: "/marketplace/:marketplaceId/store", Component: MarketplaceStorefront },
+    {
+      name: marketplace.name,
+      path: "/marketplace/:marketplaceId",
+      Component: () => {
+        const match = useRouteMatch();
 
-    { name: "Claim", path: "/marketplaces/:marketplaceId/:sku/claim", Component: ClaimMintingStatus },
-    { name: "Purchase", path: "/marketplaces/:marketplaceId/:tenantId/:sku/purchase/:confirmationId/success", Component: MarketplacePurchase, hideNavigation: rootStore.sidePanelMode },
-    { name: "Purchase", path: "/marketplaces/:marketplaceId/:tenantId/:sku/purchase/:confirmationId/cancel", Component: MarketplacePurchase },
-    { name: "Purchase", path: "/marketplaces/:marketplaceId/:tenantId/:sku/purchase/:confirmationId", Component: MarketplacePurchase, noBreadcrumb: true },
-    { name: item.name, path: "/marketplaces/:marketplaceId/:sku", Component: MarketplaceItemDetails },
-    { name: marketplace.name, path: "/marketplaces/:marketplaceId", Component: MarketplaceStorefront },
+        return <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "store")} />;
+      }
+    },
+
+    // Duplicate profile in marketplace section so navigating to profile doesn't clear the active marketplace
+    { name: "Profile", path: "/marketplace/:marketplaceId/profile", Component: Profile, skipLoading: true },
 
     { name: "Marketplaces", path: "/marketplaces", Component: MarketplaceBrowser }
   ];

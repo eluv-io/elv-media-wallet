@@ -7,7 +7,7 @@ import { observer} from "mobx-react";
 
 import { rootStore } from "Stores/index.js";
 import Header from "Components/Header";
-import Navigation from "Components/Navigation";
+import {Navigation} from "Components/Navigation";
 
 if(
   new URLSearchParams(window.location.search).has("d") ||
@@ -36,6 +36,18 @@ import { Auth0Provider } from "@auth0/auth0-react";
 import MarketplaceRoutes from "Components/marketplace";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import {PageLoader} from "Components/common/Loaders";
+
+const DebugFooter = () => {
+  if(!EluvioConfiguration["show-debug"]) { return null; }
+
+  return (
+    <div className="debug-footer">
+      <div>{ EluvioConfiguration.version }</div>
+      <div>{ EluvioConfiguration["config-url"].includes("demov3") ? "Demo Network" : "Production Network" }</div>
+      <div>Deployed { new Date(EluvioConfiguration["deployed-at"] || Date.now()).toLocaleString(navigator.languages, {year: "numeric", month: "long", weekday: "long", hour: "numeric", minute: "numeric", second: "numeric" }) }</div>
+    </div>
+  );
+};
 
 const Placeholder = ({ text }) => <div>{text}</div>;
 
@@ -141,6 +153,9 @@ const Routes = () => {
       <Route path="/marketplaces">
         <MarketplaceRoutes />
       </Route>
+      <Route path="/marketplace">
+        <MarketplaceRoutes />
+      </Route>
       <Route path="/">
         <Redirect to="/wallet" />
       </Route>
@@ -175,6 +190,8 @@ const App = observer(() => {
           </ErrorBoundary>
         </ScrollToTop>
         <Navigation />
+        <DebugFooter />
+        <div className="app-background" />
       </div>
     </HashRouter>
   );

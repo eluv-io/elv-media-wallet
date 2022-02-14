@@ -140,7 +140,7 @@ class CheckoutStore {
 
       const basePath =
         marketplaceId ?
-          UrlJoin("/marketplaces", marketplaceId, listing.details.TenantId, listingId, "purchase", confirmationId) :
+          UrlJoin("/marketplace", marketplaceId, "store", listing.details.TenantId, listingId, "purchase", confirmationId) :
           UrlJoin("/wallet", "listings", listing.details.TenantId, listingId, "purchase", confirmationId);
 
       if(requiresPopup) {
@@ -181,7 +181,7 @@ class CheckoutStore {
         currency: this.currency,
         email,
         client_reference_id: checkoutId,
-        elv_addr: this.client.signer.address,
+        elv_addr: this.client.CurrentAccountAddress(),
         items: [{sku: listingId, quantity: 1}],
         success_url: UrlJoin(rootUrl.toString(), "/#/", "success"),
         cancel_url: UrlJoin(rootUrl.toString(), "/#/", "cancel")
@@ -234,7 +234,7 @@ class CheckoutStore {
       email = email || (authInfo.user || {}).email || this.rootStore.userProfile.email;
       authInfo.user.email = email;
 
-      const basePath = UrlJoin("/marketplaces", marketplaceId, tenantId, sku, "purchase", confirmationId);
+      const basePath = UrlJoin("/marketplace", marketplaceId, "store", tenantId, sku, "purchase", confirmationId);
 
       if(!email) {
         throw Error("Unable to determine email address in checkout submit");
@@ -280,7 +280,7 @@ class CheckoutStore {
         currency: this.currency,
         email,
         client_reference_id: checkoutId,
-        elv_addr: this.client.signer.address,
+        elv_addr: this.client.CurrentAccountAddress(),
         items: [{sku, quantity}],
         success_url: UrlJoin(rootUrl.toString(), "/#/", "success"),
         cancel_url: UrlJoin(rootUrl.toString(), "/#/", "cancel")
@@ -344,7 +344,6 @@ class CheckoutStore {
 
       // Redirect to stripe
       const {loadStripe} = await import("@stripe/stripe-js/pure");
-      loadStripe.setLoadParameters({advancedFraudSignals: false});
       const stripe = await loadStripe(stripeKey);
       await stripe.redirectToCheckout({sessionId});
     } else if(provider === "coinbase") {

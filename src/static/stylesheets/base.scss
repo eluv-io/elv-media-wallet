@@ -69,11 +69,23 @@ body {
   font-family: "Helvetica Neue", Helvetica, sans-serif;
   overflow-y: scroll;
   position: absolute;
+  transition: background-color 1000ms linear;
 }
 
 main {
   height: 100%;
   width: 100%;
+}
+
+body,
+.app,
+.app-container,
+.site-app,
+.main-app,
+.page-container,
+header,
+.navigation {
+  transition: background-color 1s, color 0.5s, border 0.5s, box-shadow 0.5s !important;
 }
 
 html,
@@ -83,7 +95,6 @@ body,
 .site-app,
 .main-app,
 .page-container {
-  background-color: $white;
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -91,6 +102,19 @@ body,
   min-height: 100%;
   overscroll-behavior-y: none; // sass-lint:disable-line no-misspelled-properties
   width: 100%;
+  z-index: 1;
+}
+
+.app-background {
+  background: linear-gradient(180deg, $background-gradient-light-top 0%, $background-gradient-light-bottom 100%);
+  height: 100%;
+  left: 0;
+  min-height: 100vh;
+  min-width: 100vw;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 0;
 }
 
 select {
@@ -112,36 +136,13 @@ select {
 }
 
 input {
-  -webkit-appearance: none;
+  //-webkit-appearance: none;
 
   &[type="checkbox"] {
     border: 1px solid #6a6a6a;
     border-radius: 2px;
     height: 19px;
     width: 19px;
-  }
-
-  &[type="text"] {
-    border: 1px solid $gray;
-    color: $black;
-    font-size: 20px;
-    height: 50px;
-    padding: 0 10px;
-    width: 100%;
-
-    &:focus {
-      border: 0.5px solid $gray;
-      outline: 0;
-
-      &::placeholder {
-        opacity: 0;
-      }
-    }
-
-    &::placeholder {
-      font-size: 16px;
-      letter-spacing: 0.08em;
-    }
   }
 }
 
@@ -172,7 +173,6 @@ em {
 
 .page-container {
   height: 100%;
-  margin-top: 60px;
 
   .page-loader {
     min-height: 60vh;
@@ -241,13 +241,19 @@ em {
 }
 
 .content {
+  border-radius: 10px 10px 0 0;
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
   height: max-content;
   max-width: 100%;
-  padding: 15px 35px 80px 25px;
+  min-height: calc(100vh - 150px);
+  padding: 15px 30px 100px;
   width: 100vw;
+
+  &:not(.content--no-background) {
+    background-color: $white;
+  }
 }
 
 .header-dot {
@@ -324,26 +330,22 @@ em {
 @media screen and (min-width: $breakpoint) {
   .app-container {
     margin: auto;
-    max-width: $breakpoint;
-    width: $breakpoint;
-
-    .navigation {
-      width: $breakpoint;
-    }
-
-    .header {
-      max-width: $breakpoint;
-    }
 
     .content {
-      padding: 25px 30px 80px;
-      width: auto;
+      margin: auto;
+      max-width: $breakpoint;
+      padding: 25px 30px 100px;
+      width: 1250px;
     }
   }
 }
 
 // Mid
 @media screen and (max-width: $breakpoint) {
+  .content {
+    border-radius: 0;
+  }
+
   .page-container {
     .page-header {
       font-size: 24px;
@@ -366,7 +368,7 @@ em {
 // Small
 @media screen and (max-width: $mobile-breakpoint) {
   .content {
-    padding: 25px 20px 80px;
+    padding: 25px 20px 100px;
   }
 
   .page-container {
@@ -389,18 +391,28 @@ em {
   }
 }
 
+.debug-footer {
+  bottom: 10px;
+  font-size: 10px;
+  left: 10px;
+  position: absolute;
+}
+
 .dark {
   &.app,
   .app-container,
   .site-app,
-  .main-app,
-  .page-container {
+  .main-app {
     // sass-lint:disable no-important
     background-color: $black !important;
 
     * {
       color: $white;
     }
+  }
+
+  .app-background {
+    background: linear-gradient(180deg, $background-gradient-dark-top 0%, $background-gradient-dark-bottom 100%);
   }
 
   .action,
@@ -410,11 +422,6 @@ em {
     &-primary {
       background-color: $blue;
       border: 1px solid $blue;
-    }
-
-    &:focus-visible {
-      //box-shadow: 0 0 5px $white;
-      filter: drop-shadow(0 0 5px $white);
     }
   }
 
@@ -451,6 +458,12 @@ em {
   .page-header {
     &__subtitle {
       color: $gray;
+    }
+  }
+
+  .content {
+    &:not(.content--no-background) {
+      background-color: $black;
     }
   }
 }

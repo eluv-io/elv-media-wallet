@@ -106,7 +106,8 @@ module.exports = {
           plugins: [
             require("@babel/plugin-proposal-object-rest-spread"),
             require("@babel/plugin-transform-regenerator"),
-            require("@babel/plugin-transform-runtime")
+            require("@babel/plugin-transform-runtime"),
+            require("@babel/plugin-proposal-optional-chaining")
           ]
         }
       },

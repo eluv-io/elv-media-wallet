@@ -4,7 +4,7 @@
   .modal-active {
     .header,
     .navigation,
-    .sub-navigation {
+    .header-navigation {
       // sass-lint:disable no-important
       display: none !important;
     }
@@ -12,157 +12,85 @@
 }
 
 .navigation {
-  background-color: $white;
-  border: 1px solid $lightgray;
-  border-radius: 10px;
-  bottom: 30px;
-  box-shadow: $mediumgray 3px 3px 3px;
+  background-color: $darkestgray;
+  border: 0.5px solid $darkergray;
+  border-radius: 8px;
+  bottom: 50px;
+  box-shadow: none;
   display: flex;
-  height: 40px;
+  height: 50px;
   left: 0;
   margin: auto;
-  max-width: 500px;
   position: fixed;
   right: 0;
-  width: 100%;
-  z-index: 100;
+  width: 600px;
+  z-index: 1;
+
+  * {
+    color: $gray;
+    text-align: center;
+  }
 
   &__link {
     align-items: center;
+    border-radius: 0 8px 8px 0;
     display: flex;
     flex: 1 1 auto;
     height: 100%;
     justify-content: center;
+    position: relative;
+    transition: background-color 0.35s linear;
+    width: 100%;
 
     &.active {
-      color: $blue;
+      background-color: $darkergray;
+      color: $white;
     }
 
     &:not(:last-child) {
-      border-right: 1px solid $lightgray;
+      border-radius: 8px 0 0 8px;
+      border-right: 0.5px solid $darkergray;
     }
 
     &:hover {
-      color: $blue;
+      color: $white;
     }
   }
 
-  &:hover {
-    filter: drop-shadow(0 0 5px $blue);
+  &__logo {
+    height: 100%;
+    margin: 0 10px;
+    max-width: 70px;
+    min-width: 70px;
+    object-fit: contain;
+    padding: 3px 0;
+    width: 70px;
   }
 
-  @media screen and (max-width: $mobile-breakpoint) {
+  @media screen and (max-width: $tablet-breakpoint) {
     border-bottom: 0;
     border-radius: 0;
     bottom: 0;
     height: 60px;
-    max-width: 100%;
-  }
-}
-
-.sub-navigation {
-  display: flex;
-  margin: 10px 0 20px;
-  padding-bottom: 15px;
-  position: relative;
-  width: 100%;
-
-  &__link {
-    font-size: 16px;
-    padding: 20px 5px 5px 0;
-    text-align: center;
-
-    &:not(:last-child) {
-      margin-right: 29px;
-    }
-
-    &.active {
-      font-weight: bold;
-    }
-  }
-
-  &__link-subtext {
-    color: $gray;
-    font-size: 12px;
-  }
-
-  &__separator {
-    border-bottom: 0.5px solid $mediumgray;
-    bottom: 0;
-    left: 0;
-    position: absolute;
+    max-width: unset;
     width: 100%;
+
+    &__link {
+      font-size: 14px;
+    }
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
+    &__logo {
+      display: none;
+    }
+
     &__link {
-      font-size: 10px;
+      border-radius: 0;
 
       &:not(:last-child) {
-        margin-right: 10px;
+        border-radius: 0;
       }
-    }
-
-    &__link-subtext {
-      color: $gray;
-      font-size: 9px;
-    }
-  }
-}
-
-.dark {
-  .navigation,
-  .sub-navigation {
-    background-color: $black;
-
-    &__link {
-      color: $gray;
-
-      &.active {
-        border: 0;
-        color: $white;
-
-        .sub-navigation__link-text {
-          color: $white;
-        }
-      }
-    }
-
-    &__link-text {
-      color: $gray;
-    }
-
-    &__link-subtext {
-      color: $darkgray;
-    }
-  }
-
-  .navigation {
-    border: 0.5px solid $darkgray;
-    box-shadow: none;
-
-    &__link {
-      &:not(:last-child) {
-        border-right: 0.5px solid $darkergray;
-      }
-
-      &:hover {
-        color: $white;
-      }
-    }
-
-    @media screen and (max-width: $mobile-breakpoint) {
-      border-bottom: 0;
-    }
-  }
-
-  .sub-navigation {
-    &__link {
-      font-weight: 700;
-    }
-
-    &__separator {
-      border-bottom: 0.5px solid $darkergray;
     }
   }
 }
@@ -176,8 +104,7 @@
 // Loading checkout / success confirmation from embedded frame. Hide everything but the loader
 .popup-from-embedded {
   .header,
-  .navigation,
-  .sub-navigation {
+  .navigation {
     // sass-lint:disable no-important
     display: none !important;
   }
