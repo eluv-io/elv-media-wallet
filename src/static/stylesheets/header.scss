@@ -14,12 +14,7 @@
   z-index: 1;
 
   * {
-    color: $white;
     font-weight: 300;
-
-    &:hover {
-      color: $white;
-    }
   }
 
   &__profile {
@@ -47,7 +42,7 @@
 
   &__profile__balance {
     align-items: center;
-    color: $mediumgray;
+    color: $darkgray;
     display: flex;
     font-size: 12px;
     height: 100%;
@@ -129,7 +124,7 @@
 }
 
 .global-header-container {
-  background-color: $header-color;
+  background-color: $header-color-light;
 }
 
 .global-header {
@@ -250,7 +245,7 @@
 
     svg {
       height: 100%;
-      stroke: $mediumgray;
+      stroke: $darkgray;
     }
   }
 
@@ -364,6 +359,10 @@
 }
 
 .dark {
+  .global-header-container {
+    background-color: $header-color-dark;
+  }
+
   .mobile-navigation {
     &__menu {
       background-color: $black;

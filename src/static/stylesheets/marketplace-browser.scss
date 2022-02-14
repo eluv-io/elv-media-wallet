@@ -2,10 +2,6 @@
   flex: 1 1 100%;
   height: 100%;
 
-  * {
-    color: $white;
-  }
-
   .content {
     padding: 15px 15px 80px;
   }
@@ -43,16 +39,16 @@
   }
 
   &__tag {
-    border: 1px solid $darkgray;
+    border: 1px solid $mediumgray;
     border-radius: 4px;
+    color: $darkgray;
     font-size: 14px;
-    font-weight: 500;
     height: 32px;
     margin: 10px 10px 0 0;
     max-width: 200px;
     min-width: 100px;
     padding: 0 8px;
-    transition: border 0.15s, background-color 0.15s, color 0.15s;
+    transition: border 0.15s, background-color 0.15s, color 0.15s, font-weight 0.15s;
 
     &:first-child {
       margin-left: 0;
@@ -63,11 +59,10 @@
     }
 
     &-active {
-      background-color: $black;
-      // sass-lint:disable no-important
-      border: 1px solid $lightblue !important;
-      // sass-lint:disable no-important
-      color: $lightblue !important;
+      background-color: $white;
+      border: 1px solid $lightblue;
+      color: $lightblue;
+      font-weight: 500;
     }
   }
 
@@ -80,7 +75,7 @@
 
   &__filter-input {
     background-color: transparent;
-    border: 1px solid $darkgray;
+    border: 1px solid $mediumgray;
     border-radius: 8px;
     font-size: 16px;
     font-weight: 300;
@@ -91,7 +86,7 @@
     width: 225px;
 
     &::placeholder {
-      color: $mediumgray;
+      color: $darkgray;
       font-size: 12px;
     }
   }
@@ -120,12 +115,16 @@
   background-color: $black;
   border-radius: 8px;
   display: flex;
-  opacity: 0.75;
+  opacity: 0.9;
   overflow: hidden;
-  padding-top: 125%;
+  padding-top: 100%;
   position: relative;
   transition: opacity 0.35s ease;
   width: 100%;
+
+  * {
+    color: $white;
+  }
 
   &:hover {
     opacity: 1;
@@ -133,7 +132,7 @@
 
   &__banner {
     // sass-lint:disable no-misspelled-properties
-    aspect-ratio: 1.6 / 1;
+    aspect-ratio: 2 / 1;
     left: 0;
     min-width: 100%;
     object-fit: cover;
@@ -194,6 +193,30 @@
     &__description {
       font-size: 12px;
     }
+  }
+}
+
+.dark {
+  .marketplace-browser {
+    &__tag {
+      border: 1px solid $darkergray;
+      color: $mediumgray;
+
+      &-active {
+        background-color: $black;
+        border: 1px solid $lightblue;
+        color: $lightblue;
+        font-weight: 500;
+      }
+    }
+
+    &__filter-input {
+      border: 1px solid $darkergray;
+    }
+  }
+
+  .marketplace-card {
+    border: 0.5px solid $darkergray;
   }
 }
 

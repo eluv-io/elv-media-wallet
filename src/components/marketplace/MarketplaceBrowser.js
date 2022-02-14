@@ -95,7 +95,7 @@ const MarketplaceCard = observer(({marketplace}) => {
           component="div"
           className="marketplace-card__description"
           text={branding.description}
-          maxLine="5"
+          maxLine="3"
         />
       </div>
     </Link>

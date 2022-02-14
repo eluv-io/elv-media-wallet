@@ -106,7 +106,7 @@ body,
 }
 
 .app-background {
-  background: linear-gradient(180deg, #212730 0%, #080808 100%);
+  background: linear-gradient(180deg, $background-gradient-light-top 0%, $background-gradient-light-bottom 100%);
   height: 100%;
   left: 0;
   min-height: 100vh;
@@ -409,6 +409,10 @@ em {
     * {
       color: $white;
     }
+  }
+
+  .app-background {
+    background: linear-gradient(180deg, $background-gradient-dark-top 0%, $background-gradient-dark-bottom 100%);
   }
 
   .action,
