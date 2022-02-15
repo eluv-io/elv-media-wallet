@@ -17,6 +17,16 @@
     font-weight: 300;
   }
 
+  &--side-panel {
+    height: 40px;
+    background-color: transparent;
+    padding: 10px;
+
+    svg {
+      height: 100%;
+    }
+  }
+
   &__profile {
     align-items: center;
     display: flex;
