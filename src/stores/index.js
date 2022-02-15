@@ -74,7 +74,7 @@ class RootStore {
   loggingIn = false;
   loggedIn = false;
   disableCloseEvent = false;
-  darkMode = window.self === window.top && this.GetSessionStorage("dark-mode");
+  darkMode = typeof this.GetSessionStorage("dark-mode") === undefined ? true : this.GetSessionStorage("dark-mode");
 
   availableMarketplaces = {};
 
