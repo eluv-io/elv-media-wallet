@@ -232,7 +232,6 @@
   }
 }
 
-
 .mobile-navigation {
   align-items: center;
   display: none;
@@ -304,6 +303,14 @@
     .new-header__profile {
       position: absolute;
       right: 15px;
+    }
+  }
+}
+
+@media screen and (max-width: $breakpoint) {
+  .subheader {
+    &__logo-container {
+      max-width: 200px;
     }
   }
 }

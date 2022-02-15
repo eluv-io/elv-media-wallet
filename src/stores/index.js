@@ -74,7 +74,7 @@ class RootStore {
   loggingIn = false;
   loggedIn = false;
   disableCloseEvent = false;
-  darkMode = typeof this.GetSessionStorage("dark-mode") === undefined ? true : this.GetSessionStorage("dark-mode");
+  darkMode = typeof this.GetSessionStorage("dark-mode") === "boolean" ? this.GetSessionStorage("dark-mode") : true;
 
   availableMarketplaces = {};
 
@@ -180,6 +180,8 @@ class RootStore {
     window.addEventListener("resize", () => this.HandleResize());
 
     window.addEventListener("hashchange", () => this.SendEvent({event: EVENTS.ROUTE_CHANGE, data: UrlJoin("/", window.location.hash.replace("#", ""))}));
+
+    this.ToggleDarkMode(this.darkMode);
 
     this.Initialize();
   }

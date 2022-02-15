@@ -35,7 +35,7 @@ class CheckoutStore {
 
   MarketplaceStock = flow(function * ({tenantId}) {
     try {
-      this.stock = yield Utils.ResponseToJson(
+      const stock = yield Utils.ResponseToJson(
         this.client.authClient.MakeAuthServiceRequest({
           path: UrlJoin("as", "wlt", "nft", "info", tenantId),
           method: "GET",
@@ -44,6 +44,16 @@ class CheckoutStore {
           }
         })
       );
+
+      let updatedStock = {
+        ...this.stock
+      };
+
+      Object.keys((stock || {})).map(sku =>
+        updatedStock[sku] = stock[sku]
+      );
+
+      this.stock = updatedStock;
 
       return this.stock;
     } catch(error) {
