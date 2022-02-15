@@ -1479,10 +1479,6 @@ class RootStore {
   }
 
   ToggleDarkMode(enabled) {
-    if(this.darkMode === enabled) {
-      return;
-    }
-
     if(enabled) {
       document.body.style.backgroundColor = "#000000";
       document.getElementById("app").classList.add("dark");

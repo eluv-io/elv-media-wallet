@@ -19,23 +19,23 @@ const Profile = observer(() => {
   const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
 
   return (
-    <Link to={marketplaceId ? `/marketplace/${marketplaceId}/profile` : "/profile"} className="new-header__profile">
-      <div className="new-header__profile__info ellipsis">
-        <div className="new-header__profile__name">
+    <Link to={marketplaceId ? `/marketplace/${marketplaceId}/profile` : "/profile"} className="header__profile">
+      <div className="header__profile__info ellipsis">
+        <div className="header__profile__name">
           { rootStore.userProfile.name }
         </div>
         {
           typeof rootStore.totalWalletBalance !== "undefined" ?
             <div
-              className="new-header__profile__balance"
+              className="header__profile__balance"
               title={`Total balance: ${FormatPriceString({USD: rootStore.totalWalletBalance})}\nAvailable balance: ${FormatPriceString({USD: rootStore.availableWalletBalance}) }\nPending balance: ${FormatPriceString({USD: rootStore.pendingWalletBalance}) }`}
             >
               { FormatPriceString({USD: rootStore.totalWalletBalance}) }
-              { rootStore.pendingWalletBalance ? <div className="new-header__profile__pending-indicator">*</div> : null}
+              { rootStore.pendingWalletBalance ? <div className="header__profile__pending-indicator">*</div> : null}
             </div> : null
         }
       </div>
-      <ProfileImage className="new-header__profile__image" />
+      <ProfileImage className="header__profile__image" />
     </Link>
   );
 });
@@ -231,9 +231,9 @@ const NewHeader = observer(() => {
     if(rootStore.navigationBreadcrumbs.length <= 2) { return null; }
 
     return (
-      <header className="new-header new-header--side-panel">
+      <header className="header header--side-panel">
         <NavLink
-          className="new-header--side-panel__back-button"
+          className="header--side-panel__back-button"
           to={rootStore.navigationBreadcrumbs[rootStore.navigationBreadcrumbs.length - 2].path}
         >
           <ImageIcon icon={BackIcon} title="Back" />
@@ -243,7 +243,7 @@ const NewHeader = observer(() => {
   }
 
   return (
-    <header className="new-header">
+    <header className="header">
       <GlobalHeader marketplace={marketplace} />
       <SubHeader marketplace={marketplace} />
     </header>
