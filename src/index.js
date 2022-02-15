@@ -157,7 +157,7 @@ const Routes = () => {
         <MarketplaceRoutes />
       </Route>
       <Route path="/">
-        <Redirect to="/wallet" />
+        <Redirect to="/marketplaces" />
       </Route>
     </Switch>
   );

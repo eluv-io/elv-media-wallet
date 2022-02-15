@@ -1,13 +1,60 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {Redirect, useRouteMatch} from "react-router-dom";
+import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import {rootStore} from "Stores";
 import UrlJoin from "url-join";
 import MarketplaceCollections from "Components/marketplace/MarketplaceCollections";
 import MarketplaceItemCard from "Components/marketplace/MarketplaceItemCard";
+import ImageIcon from "Components/common/ImageIcon";
 
-const MarketplaceStorefront = observer(() => {
-  const match = useRouteMatch();
+const MarketplaceBanners = ({marketplace}) => {
+  if(!marketplace.banners || marketplace.banners.length === 0) { return null; }
+
+  return (
+    marketplace.banners.map((banner, index) => {
+      const attrs = { key: `banner-${index}`, className: "marketplace__banner" };
+      const image = (
+        <ImageIcon
+          icon={(
+            banner.image_mobile && rootStore.pageWidth <= 900 ?
+              banner.image_mobile : banner.image
+          ).url}
+        />
+      );
+
+      if(banner.link) {
+        return (
+          <a href={banner.link} rel="noopener" target="_blank" { ...attrs }>
+            { image }
+          </a>
+        );
+      } else if(banner.sku) {
+        const item = marketplace.items.find(item => item.sku === banner.sku);
+
+        let link;
+        if(item && item.for_sale && (!item.available_at || Date.now() - new Date(item.available_at).getTime() > 0)) {
+          link = UrlJoin("/marketplace", marketplace.marketplaceId, "store", banner.sku);
+        }
+
+        if(link) {
+          return (
+            <Link to={link} { ...attrs }>
+              { image }
+            </Link>
+          );
+        }
+      }
+
+      return (
+        <div { ...attrs }>
+          { image }
+        </div>
+      );
+    })
+  );
+};
+
+const MarketplaceStorefrontSections = observer(({marketplace}) => {
   const [timeouts, setTimeouts] = useState({});
   const [loadKey, setLoadKey] = useState(0);
 
@@ -16,10 +63,6 @@ const MarketplaceStorefront = observer(() => {
       Object.keys(timeouts).forEach(sku => clearTimeout(timeouts[sku]));
     };
   }, []);
-
-  let marketplace = rootStore.marketplaces[match.params.marketplaceId];
-
-  if(!marketplace) { return null; }
 
   const marketplaceItems = rootStore.MarketplaceOwnedItems(marketplace);
 
@@ -92,15 +135,26 @@ const MarketplaceStorefront = observer(() => {
   if(sections.length === 0 && marketplace.collections.length === 0) {
     if(rootStore.sidePanelMode) {
       rootStore.SetNoItemsAvailable();
-      return <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "collection")} />;
+      return <Redirect to={UrlJoin("/marketplace", marketplace.marketplaceId, "collection")} />;
     } else {
       return <h2 className="marketplace__empty">No items available</h2>;
     }
   }
 
+  return sections;
+});
+
+const MarketplaceStorefront = observer(() => {
+  const match = useRouteMatch();
+
+  let marketplace = rootStore.marketplaces[match.params.marketplaceId];
+
+  if(!marketplace) { return null; }
+
   return (
     <>
-      { sections }
+      <MarketplaceBanners marketplace={marketplace} />
+      <MarketplaceStorefrontSections marketplace={marketplace} />
       <MarketplaceCollections />
     </>
   );

@@ -11,6 +11,23 @@
     padding: 15px 0;
   }
 
+  &__banner {
+    display: block;
+    height: max-content;
+    width: 100%;
+
+    & + .marketplace__banner {
+      margin-top: 20px;
+    }
+
+    img {
+      display: block;
+      height: 100%;
+      margin: 0 auto;
+      object-fit: contain;
+    }
+  }
+
   &__section {
     margin: 30px 0;
 
