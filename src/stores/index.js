@@ -1292,6 +1292,10 @@ class RootStore {
       this.loggedIn = false;
       this.initialized = false;
 
+      if(!(this.customizationMetadata || {}).require_consent) {
+        loginData.share_email = true;
+      }
+
       const client = yield ElvClient.FromConfigurationUrl({
         configUrl: EluvioConfiguration["config-url"],
         assumeV3: true

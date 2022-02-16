@@ -87,9 +87,18 @@ const Login = observer(() => {
   const [auth0Loading, setAuth0Loading] = useState(true);
   const [showPrivateKeyForm, setShowPrivateKeyForm] = useState(false);
   const [privateKey, setPrivateKey] = useState("");
-
   const [loginData, setLoginData] = useState(undefined);
-  const loginDataRequired = !customizationInfoLoading && !loginData && (rootStore.customizationMetadata || {}).require_consent;
+
+  const loginDataKey = `login-data-${rootStore.specifiedMarketplaceId || ""}`;
+  const SaveLoginData = (data) => {
+    setLoginData(data);
+    rootStore.SetSessionStorage(loginDataKey, JSON.stringify(data));
+    rootStore.SetLocalStorage(loginDataKey, JSON.stringify(data));
+
+    return data;
+  };
+
+  const loginDataRequired = !loginData && (rootStore.customizationMetadata || {}).require_consent;
 
   //const [verificationResent, setVerificationResent] = useState(false);
 
@@ -99,6 +108,10 @@ const Login = observer(() => {
 
   if(rootStore.marketplaceHash) {
     url.searchParams.set("mid", rootStore.marketplaceHash);
+  }
+
+  if(loginData) {
+    url.searchParams.set("ld", btoa(JSON.stringify(loginData)));
   }
 
   const extraLoginParams = {};
@@ -177,7 +190,8 @@ const Login = observer(() => {
       setLoading(true);
       await rootStore.InitializeClient({
         idToken,
-        user: userData
+        user: userData,
+        loginData
       });
 
       SignalOpener();
@@ -205,32 +219,46 @@ const Login = observer(() => {
   useEffect(() => {
     if(!rootStore.loaded || !rootStore.loginCustomizationLoaded) { return; }
 
-    setCustomizationInfoLoading(false);
-
     if(!(rootStore.customizationMetadata || {}).require_email_verification) {
       setVerified(true);
+    }
+
+    if(rootStore.loginCustomizationLoaded) {
+      try {
+        let savedLoginData;
+        const urlParam = new URLSearchParams(window.location.search).get("ld");
+        if(urlParam) {
+          savedLoginData = JSON.parse(atob(urlParam));
+        } else if(rootStore.GetSessionStorage(loginDataKey)) {
+          savedLoginData = JSON.parse(rootStore.GetSessionStorage(loginDataKey));
+        } else if(rootStore.GetLocalStorage(loginDataKey)) {
+          savedLoginData = JSON.parse(rootStore.GetLocalStorage(loginDataKey));
+        }
+
+        if(savedLoginData) {
+          SaveLoginData(savedLoginData);
+        } else if((rootStore.customizationMetadata || {}).require_consent) {
+          rootStore.ClearAuthInfo();
+        }
+        // eslint-disable-next-line no-empty
+      } catch{}
+
+      setCustomizationInfoLoading(false);
     }
   }, [rootStore.loaded, rootStore.loginCustomizationLoaded]);
 
   useEffect(() => {
+    if(!rootStore.loginCustomizationLoaded) { return; }
+
     SignalOpener();
 
     const authInfo = rootStore.AuthInfo();
-    if(!loading && authInfo) {
-      setLoading(true);
-      rootStore.InitializeClient({
-        authToken: authInfo.authToken,
-        address: authInfo.address,
-        user: authInfo.user
-      });
-
-      return;
-    }
-
-    if(rootStore.embedded) {
+    if(!loading && authInfo && !loginDataRequired) {
+      SignIn();
+    } else if(rootStore.embedded) {
       setAuth0Loading(false);
       rootStore.SendEvent({event: EVENTS.LOADED});
-    } else if(auth0.isAuthenticated) {
+    } else if(auth0.isAuthenticated && !loginDataRequired) {
       SignIn();
     } else if(!rootStore.loggedIn && newWindowLogin && !rootStore.GetSessionStorage("new-window-login")) {
       rootStore.SetSessionStorage("new-window-login", "true");
@@ -246,7 +274,7 @@ const Login = observer(() => {
 
       rootStore.SendEvent({event: EVENTS.LOADED});
     }
-  }, [auth0 && auth0.isAuthenticated, auth0 && auth0.isLoading, verified]);
+  }, [customizationInfoLoading, auth0 && auth0.isAuthenticated, auth0 && auth0.isLoading, verified]);
 
   useEffect(() => {
     if(!rootStore.navigateToLogIn) { return; }
@@ -396,7 +424,7 @@ const Login = observer(() => {
         <LoginBackground />
         <div className="login-page__login-box">
           { logo }
-          <PreLogin onComplete={({data}) => setLoginData(data)} />
+          <PreLogin onComplete={({data}) => SaveLoginData(data)} />
         </div>
       </div>
     );
