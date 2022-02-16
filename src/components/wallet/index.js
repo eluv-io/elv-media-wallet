@@ -96,6 +96,10 @@ const Routes = (match) => {
 const Wallet = observer(() => {
   const match = useRouteMatch();
 
+  if(rootStore.hideGlobalNavigation && rootStore.specifiedMarketplaceId) {
+    return <Redirect to={UrlJoin("/marketplace", rootStore.specifiedMarketplaceId, "store")} />;
+  }
+
   return (
     <div className="page-container wallet-page">
       <div className="content">

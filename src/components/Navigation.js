@@ -10,7 +10,7 @@ import EluvioLogo from "Assets/images/EluvioLogo.png";
 export const Navigation = observer(() => {
   const location = useLocation();
 
-  if(!rootStore.loggedIn || rootStore.hideNavigation || !rootStore.lastMarketplaceId) { return null; }
+  if(rootStore.hideGlobalNavigation || !rootStore.loggedIn || rootStore.hideNavigation || !rootStore.lastMarketplaceId) { return null; }
 
   const lastMarketplace = rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === rootStore.lastMarketplaceId);
 

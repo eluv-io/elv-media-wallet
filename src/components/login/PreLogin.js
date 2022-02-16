@@ -9,7 +9,6 @@ const PrivacyPolicy = () => {
   const [policyModal, setPolicyModal] = useState(null);
 
   let { link, rich_text, html } = (rootStore.customizationMetadata || {}).privacy_policy || {};
-  link = undefined;
 
   let policyLink;
   if(link) {

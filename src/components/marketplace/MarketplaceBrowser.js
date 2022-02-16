@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {Link} from "react-router-dom";
+import {Link, Redirect} from "react-router-dom";
 import {rootStore} from "Stores";
 import UrlJoin from "url-join";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
@@ -104,6 +104,10 @@ const MarketplaceCard = observer(({marketplace}) => {
 
 const MarketplaceBrowser = observer(() => {
   const [filters, setFilters] = useState({activeTags: [], filter: ""});
+
+  if(rootStore.hideGlobalNavigation && rootStore.specifiedMarketplaceId) {
+    return <Redirect to={UrlJoin("/marketplace", rootStore.specifiedMarketplaceId, "store")} />;
+  }
 
   let marketplaces = rootStore.allMarketplaces;
 

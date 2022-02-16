@@ -12,11 +12,11 @@
 }
 
 .navigation {
-  background-color: $darkestgray;
-  border: 0.5px solid $darkergray;
+  background-color: $lightergray;
+  border: 0.5px solid $mediumgray;
   border-radius: 8px;
   bottom: 50px;
-  box-shadow: none;
+  box-shadow: 2px 2px 2px $mediumgray;
   display: flex;
   height: 50px;
   left: 0;
@@ -27,7 +27,7 @@
   z-index: 1;
 
   * {
-    color: $gray;
+    color: $darkgray;
     text-align: center;
   }
 
@@ -39,12 +39,12 @@
     height: 100%;
     justify-content: center;
     position: relative;
-    transition: background-color 0.35s linear;
+    transition: background-color 0.25s linear;
     width: 100%;
 
     &.active {
-      background-color: $darkergray;
-      color: $white;
+      background-color: $white;
+      color: $black;
     }
 
     &:not(:last-child) {
@@ -53,7 +53,8 @@
     }
 
     &:hover {
-      color: $white;
+      background-color: $white;
+      color: $black;
     }
   }
 
@@ -90,6 +91,30 @@
 
       &:not(:last-child) {
         border-radius: 0;
+      }
+    }
+  }
+}
+
+.dark {
+  .navigation {
+    background-color: $darkestgray;
+    border: 0.5px solid $darkergray;
+    box-shadow: none;
+
+    &__link {
+      &.active {
+        background-color: $darkergray;
+        color: $white;
+      }
+
+      &:not(:last-child) {
+        border-right: 0.5px solid $darkergray;
+      }
+
+      &:hover {
+        background-color: $darkergray;
+        color: $white;
       }
     }
   }

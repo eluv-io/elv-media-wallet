@@ -139,6 +139,8 @@ const GlobalHeaderNavigation = () => {
 };
 
 const GlobalHeader = ({marketplace}) => {
+  if(rootStore.hideGlobalNavigation) { return null; }
+
   return (
     <div className="global-header-container">
       <div className={`global-header ${marketplace ? "global-header--marketplace" : ""}`}>
@@ -156,12 +158,19 @@ const GlobalHeader = ({marketplace}) => {
 const SubHeaderNavigation = ({marketplace}) => {
   return (
     <nav className="subheader__navigation subheader__navigation--personal">
-      <NavLink className="subheader__navigation-link" to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "collection") : "/wallet/collection"}>
-        My Collection
-      </NavLink>
-      <NavLink className="subheader__navigation-link" to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "my-listings") : "/wallet/my-listings"}>
-        My Listings
-      </NavLink>
+      {
+        rootStore.hideGlobalNavigation ?
+          <Profile /> : null
+      }
+
+      <div className="subheader__navigation--personal__links">
+        <NavLink className="subheader__navigation-link" to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "collection") : "/wallet/collection"}>
+          My Collection
+        </NavLink>
+        <NavLink className="subheader__navigation-link" to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "my-listings") : "/wallet/my-listings"}>
+          My Listings
+        </NavLink>
+      </div>
     </nav>
   );
 };
@@ -183,6 +192,10 @@ const MarketplaceNavigation = ({marketplace}) => {
           Activity
         </NavLink>
       </nav>
+      {
+        rootStore.hideGlobalNavigation ?
+          <MobileNavigation marketplace={marketplace} /> : null
+      }
     </div>
   );
 };

@@ -107,6 +107,8 @@ class RootStore {
   pendingWalletBalance = undefined;
   totalWalletBalance = undefined;
 
+  specifiedMarketplaceId = undefined;
+  hideGlobalNavigation = false;
   hideNavigation = false;
   sidePanelMode = false;
 
@@ -136,6 +138,10 @@ class RootStore {
 
   metamaskChainId = undefined;
   transferredNFTs = {};
+
+  @computed get specifiedMarketplace() {
+    return this.marketplaces[this.specifiedMarketplaceId];
+  }
 
   @computed get marketplaceHash() {
     return this.marketplaceHashes[this.marketplaceId];
@@ -217,12 +223,16 @@ class RootStore {
 
       if(marketplace) {
         yield this.LoadAvailableMarketplaces({tenantSlug, marketplaceSlug});
-        this.SetMarketplace({tenantSlug, marketplaceSlug, marketplaceHash, marketplaceId});
+        const specifiedMarketplaceHash = this.SetMarketplace({tenantSlug, marketplaceSlug, marketplaceHash, marketplaceId});
+
+        this.loginCustomizationLoaded = true;
+
+        this.specifiedMarketplaceId = Utils.DecodeVersionHash(specifiedMarketplaceHash).objectId;
 
         this.SetSessionStorage("marketplace", marketplace);
+      } else {
+        this.loginCustomizationLoaded = true;
       }
-
-      this.loginCustomizationLoaded = true;
 
       try {
         const auth = new URLSearchParams(window.location.search).get("auth");
@@ -445,6 +455,10 @@ class RootStore {
     this.loginCustomizationLoaded = true;
 
     const customStyleTag = document.getElementById("_custom-styles");
+
+    if(marketplace.branding && marketplace.branding.hide_global_navigation) {
+      this.hideGlobalNavigation = true;
+    }
 
     let font;
     switch(options.font) {

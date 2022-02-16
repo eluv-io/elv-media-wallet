@@ -196,7 +196,7 @@
 
   &__logo-container {
     height: 100%;
-    left: 5px;
+    left: 10px;
     max-width: 300px;
     position: absolute;
   }
@@ -214,8 +214,20 @@
   }
 
   &__navigation--personal {
+    align-items: flex-end;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
     position: absolute;
-    right: 5px;
+    right: 10px;
+
+    .header__profile {
+      width: 100%;
+    }
+
+    &__links {
+      display: flex;
+    }
   }
 
   &__header {
@@ -239,6 +251,13 @@
   &__navigation-link {
     align-items: flex-end;
     padding-bottom: 3px;
+  }
+
+  .mobile-navigation {
+    height: 50px;
+    position: absolute;
+    right: 0;
+    top: 10px;
   }
 }
 
@@ -358,7 +377,7 @@
 
   .subheader {
     &__header {
-      font-size: 24px;
+      font-size: 20px;
       padding-top: 8px;
     }
 
