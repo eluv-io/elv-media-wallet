@@ -218,6 +218,8 @@ class RootStore {
       if(marketplace) {
         yield this.LoadAvailableMarketplaces({tenantSlug, marketplaceSlug});
         this.SetMarketplace({tenantSlug, marketplaceSlug, marketplaceHash, marketplaceId});
+
+        this.SetSessionStorage("marketplace", marketplace);
       }
 
       this.loginCustomizationLoaded = true;
