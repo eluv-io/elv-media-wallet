@@ -107,6 +107,7 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
           price={price}
           stock={stock}
           showOrdinal={!!selectedListing}
+          hideAvailable={marketplaceItem && marketplaceItem.hide_available}
           truncateDescription
         />
         <div className="listing-purchase-modal__order-details">
@@ -278,6 +279,7 @@ const ListingPurchasePayment = observer(({nft, marketplaceItem, selectedListing,
           price={price}
           stock={stock}
           showOrdinal={!!selectedListing}
+          hideAvailable={marketplaceItem && marketplaceItem.hide_available}
           truncateDescription
         />
         {
@@ -438,9 +440,11 @@ const ListingPurchaseSelection = observer(({nft, marketplaceItem, initialListing
       <div className="listing-purchase-modal__header">
         <NFTCard
           nft={nft}
+          stock={stock}
           selectedListing={selectedListing}
           price={selectedListingId ? selectedListing && { USD: selectedListing.details.Price } : { USD: directPrice }}
           showOrdinal={selectedListingId}
+          hideAvailable={marketplaceItem && marketplaceItem.hide_available}
           truncateDescription
         />
         {
@@ -495,7 +499,7 @@ const ListingPurchaseSelection = observer(({nft, marketplaceItem, initialListing
             </div> : null
         }
         {
-          marketplaceItem && stock && stock.max ?
+          marketplaceItem && !marketplaceItem.hide_available && stock && stock.max ?
             <div className="listing-purchase-modal__stock">
               <div className="header-dot" style={{backgroundColor: outOfStock ? "#a4a4a4" : "#ff0000"}} />
               { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available from Creator` }

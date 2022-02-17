@@ -51,7 +51,7 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
             />
           </div>
           {
-            stock && stock.max ?
+            !item.hide_available && stock && stock.max ?
               <div className="card__stock">
                 <div className={`card__stock__indicator ${outOfStock ? "card__stock__indicator-unavailable" : ""}`} />
                 { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available` }

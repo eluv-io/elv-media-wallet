@@ -51,6 +51,7 @@ const NFTCard = observer(({
   showVideo,
   showOrdinal,
   showAdditionalMedia,
+  hideAvailable,
   truncateDescription
 }) => {
   const [selectedMediaIndex, setSelectedMediaIndex] = useState(-1);
@@ -116,7 +117,7 @@ const NFTCard = observer(({
         }
       </div>
       {
-        stock && stock.max ?
+        !hideAvailable && stock && stock.max ?
           <div className="card__stock">
             <div className="header-dot" style={{backgroundColor: outOfStock ? "#a4a4a4" : "#ff0000"}} />
             { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available` }

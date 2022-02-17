@@ -41,7 +41,12 @@ const MarketplaceItemDetails = observer(() => {
   return (
     <div className="details-page">
       <div className="details-page__content-container">
-        <NFTCard nft={{metadata: item.nftTemplateMetadata}} price={item.price} stock={stock} />
+        <NFTCard
+          nft={{metadata: item.nftTemplateMetadata}}
+          price={item.price}
+          stock={stock}
+          hideAvailable={item && item.hide_available}
+        />
       </div>
 
       <div className="details-page__info">
