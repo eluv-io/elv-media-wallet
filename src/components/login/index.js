@@ -528,6 +528,10 @@ const Login = observer(() => {
               }}
             /> : null
         }
+
+        <div className="login-page__terms login-page__eluvio-terms">
+          By creating an account or signing in, I agree to the <a href="https://live.eluv.io/privacy" target="_blank">Eluvio Privacy Policy</a> and the <a href="https://live.eluv.io/terms" target="_blank">Eluvio Terms and Conditions</a>.
+        </div>
       </div>
     </div>
   );

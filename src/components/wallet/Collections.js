@@ -12,6 +12,7 @@ import ImageIcon from "Components/common/ImageIcon";
 
 import ListingIcon from "Assets/icons/listing.svg";
 import Utils from "@eluvio/elv-client-js/src/Utils";
+import {NFTDisplayToken} from "../../utils/Utils";
 
 const CollectionCard = observer(({nft, listing}) => {
   const match = useRouteMatch();
@@ -41,7 +42,7 @@ const CollectionCard = observer(({nft, listing}) => {
                 </h2> : null
             }
             <div className="card__title-edition">
-              { typeof nft.details.TokenOrdinal !== "undefined" ? `${parseInt(nft.details.TokenOrdinal) + 1} / ${nft.details.Cap}` : nft.details.TokenIdStr }
+              { NFTDisplayToken(nft) }
             </div>
             <ResponsiveEllipsis
               component="h2"

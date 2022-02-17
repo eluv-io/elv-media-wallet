@@ -39,3 +39,21 @@ export const ValidEmail = email => {
   return /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     .test(email);
 };
+
+export const NFTDisplayToken = nft => {
+  try {
+    if(!nft || !nft.details) {
+      return "";
+    }
+
+    if(nft.details.Cap && parseInt(nft.details.Cap) > 10000000) {
+      return nft.details.TokenOrdinal;
+    }
+
+    return typeof nft.details.TokenOrdinal !== "undefined" ?
+      `${parseInt(nft.details.TokenOrdinal) + 1} / ${nft.details.Cap}` :
+      nft.details.TokenIdStr;
+  } catch(error) {
+    return "";
+  }
+};

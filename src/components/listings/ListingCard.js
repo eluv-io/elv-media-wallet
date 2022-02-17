@@ -5,6 +5,7 @@ import Confirm from "Components/common/Confirm";
 import {transferStore} from "Stores";
 import {Link} from "react-router-dom";
 import {ButtonWithLoader} from "Components/common/UIComponents";
+import {NFTDisplayToken} from "../../utils/Utils";
 
 const ListingCard = ({listing, link, Refresh}) => {
   const [showListingModal, setShowListingModal] = useState(false);
@@ -111,7 +112,7 @@ const ListingCard = ({listing, link, Refresh}) => {
                 </h2> : null
             }
             <h3 className="listing-card__header-id">
-              { typeof listing.details.TokenOrdinal !== "undefined" ? `${parseInt(listing.details.TokenOrdinal) + 1} / ${listing.details.Cap}` : listing.details.TokenIdStr }
+              { NFTDisplayToken(listing) }
             </h3>
           </Link>
 

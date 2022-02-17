@@ -368,6 +368,7 @@ class RootStore {
           `${tenantSlug}/.`,
           `${tenantSlug}/marketplaces/${marketplaceSlug}/.`,
           `${tenantSlug}/marketplaces/${marketplaceSlug}/info/tenant_id`,
+          `${tenantSlug}/marketplaces/${marketplaceSlug}/info/tenant_name`,
           `${tenantSlug}/marketplaces/${marketplaceSlug}/info/branding`,
           `${tenantSlug}/marketplaces/${marketplaceSlug}/info/terms`,
           `${tenantSlug}/marketplaces/${marketplaceSlug}/info/terms_html`,
@@ -387,6 +388,7 @@ class RootStore {
           "*/.",
           "*/marketplaces/*/.",
           "*/marketplaces/*/info/tenant_id",
+          "*/marketplaces/*/info/tenant_name",
           "*/marketplaces/*/info/branding",
           "*/marketplaces/*/info/terms",
           "*/marketplaces/*/info/terms_html",
@@ -446,6 +448,7 @@ class RootStore {
 
     this.customizationMetadata = {
       tenant_id: (marketplace.tenant_id),
+      tenant_name: (marketplace.tenant_name),
       terms: marketplace.terms,
       terms_html: marketplace.terms_html,
       ...(marketplace.login_customization || {}),

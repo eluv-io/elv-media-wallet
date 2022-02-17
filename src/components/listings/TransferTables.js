@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore, transferStore} from "Stores";
-import {Ago, MiddleEllipsis, TimeDiff} from "../../utils/Utils";
+import {Ago, MiddleEllipsis, NFTDisplayToken, TimeDiff} from "../../utils/Utils";
 import {Loader} from "Components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 
@@ -136,11 +136,7 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
                       className={`transfer-table__table__row ${isCheckoutLocked ? "transfer-table__table__row-disabled" : ""} ${selectedListingId === listing.details.ListingId ? "transfer-table__table__row-selected" : ""} ${Select && !isCheckoutLocked ? "transfer-table__table__row-selectable" : ""}`}
                     >
                       <div className="transfer-table__table__cell">
-                        {
-                          typeof listing.details.TokenOrdinal !== "undefined" ?
-                            `${parseInt(listing.details.TokenOrdinal) + 1} / ${listing.details.Cap}` :
-                            MiddleEllipsis(listing.details.TokenIdStr, 20)
-                        }
+                        { NFTDisplayToken(listing) }
                       </div>
                       <div className="transfer-table__table__cell">
                         {`$${listing.details.Price.toFixed(2)}`}

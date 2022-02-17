@@ -11,6 +11,7 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 import ImageIcon from "Components/common/ImageIcon";
 import ListingIcon from "Assets/icons/listing";
 import FilteredView from "Components/listings/FilteredView";
+import {NFTDisplayToken} from "../../utils/Utils";
 
 const Listing = memo(({url, listing}) => (
   <div className="card-container card-shadow" >
@@ -40,7 +41,7 @@ const Listing = memo(({url, listing}) => (
               <h2 className="card__title card__title-edition">{listing.metadata.edition_name}</h2> : null
           }
           <h2 className="card__title card__title-edition">
-            { typeof listing.details.TokenOrdinal !== "undefined" ? `${parseInt(listing.details.TokenOrdinal) + 1} / ${listing.details.Cap}` : listing.details.TokenIdStr }
+            { NFTDisplayToken(listing) }
           </h2>
           <ResponsiveEllipsis
             component="h2"

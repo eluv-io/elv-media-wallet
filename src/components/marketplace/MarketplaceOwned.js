@@ -8,6 +8,7 @@ import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 import MarketplaceCollections from "Components/marketplace/MarketplaceCollections";
 import ImageIcon from "Components/common/ImageIcon";
 import ListingIcon from "Assets/icons/listing";
+import {NFTDisplayToken} from "../../utils/Utils";
 
 const MarketplaceOwned = observer(() => {
   const match = useRouteMatch();
@@ -74,7 +75,7 @@ const MarketplaceOwned = observer(() => {
                           </h2> : null
                       }
                       <h2 className="card__title card__title-edition">
-                        { typeof ownedItem.details.TokenOrdinal !== "undefined" ? `${parseInt(ownedItem.details.TokenOrdinal) + 1} / ${ownedItem.details.Cap}` : ownedItem.details.TokenIdStr }
+                        { NFTDisplayToken(ownedItem) }
                       </h2>
                       <ResponsiveEllipsis
                         component="h2"

@@ -8,6 +8,7 @@ import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 import {render} from "react-dom";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
+import {NFTDisplayToken} from "../../utils/Utils";
 
 const MediaSelection = observer(({nft, selected, SelectMedia}) => {
   let media = nft.metadata.additional_media || [];
@@ -86,11 +87,7 @@ const NFTCard = observer(({
         {
           showOrdinal ?
             <h2 className="card__title-edition card__title-ordinal">
-              {
-                typeof info.details.TokenOrdinal !== "undefined" ?
-                  `${parseInt(info.details.TokenOrdinal) + 1} / ${info.details.Cap}` :
-                  info.details.TokenIdStr
-              }
+              { NFTDisplayToken(info) }
             </h2> : null
         }
         {
