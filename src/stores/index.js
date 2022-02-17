@@ -74,7 +74,7 @@ class RootStore {
   loggingIn = false;
   loggedIn = false;
   disableCloseEvent = false;
-  darkMode = typeof this.GetSessionStorage("dark-mode") === "boolean" ? this.GetSessionStorage("dark-mode") : true;
+  darkMode = !this.GetSessionStorage("light-mode") && !new URLSearchParams(window.location.search).has("lt");
 
   availableMarketplaces = {};
 
@@ -1425,8 +1425,8 @@ class RootStore {
       url.searchParams.set("mid", this.marketplaceHash || this.marketplaceId);
     }
 
-    if(this.darkMode) {
-      url.searchParams.set("d", "");
+    if(!this.darkMode) {
+      url.searchParams.set("lt", "");
     }
 
     window.location.href = url.toString();
@@ -1513,7 +1513,11 @@ class RootStore {
     this.darkMode = enabled;
 
     if(!this.embedded) {
-      this.SetSessionStorage("dark-mode", enabled ? "true" : "");
+      if(enabled) {
+        this.RemoveSessionStorage("light-mode");
+      } else {
+        this.SetSessionStorage("light-mode", "true");
+      }
     }
   }
 

@@ -115,8 +115,9 @@ const Login = observer(() => {
 
   const extraLoginParams = {};
   if(rootStore.darkMode) {
-    url.searchParams.set("d", "");
     extraLoginParams.darkMode = true;
+  } else {
+    url.searchParams.set("lt", "");
   }
 
   if(rootStore.customizationMetadata && rootStore.customizationMetadata.disable_third_party) {

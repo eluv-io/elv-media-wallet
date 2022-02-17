@@ -168,8 +168,8 @@ class CheckoutStore {
         url.searchParams.set("marketplaceId", marketplaceId || "");
         url.searchParams.set("listingId", listingId);
 
-        if(this.rootStore.darkMode) {
-          url.searchParams.set("d", "");
+        if(!this.rootStore.darkMode) {
+          url.searchParams.set("lt", "");
         }
 
         url.searchParams.set("auth", Utils.B64(JSON.stringify(authInfo)));
@@ -266,8 +266,8 @@ class CheckoutStore {
         url.searchParams.set("tenantId", tenantId);
         url.searchParams.set("quantity", quantity);
 
-        if(this.rootStore.darkMode) {
-          url.searchParams.set("d", "");
+        if(!this.rootStore.darkMode) {
+          url.searchParams.set("lt", "");
         }
 
         url.searchParams.set("auth", Utils.B64(JSON.stringify(authInfo)));

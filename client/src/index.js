@@ -512,8 +512,8 @@ const walletClient = await ElvWalletClient.InitializePopup({
       walletAppUrl.searchParams.set("mid", marketplaceHash || marketplaceId);
     }
 
-    if(darkMode) {
-      walletAppUrl.searchParams.set("d", "");
+    if(!darkMode) {
+      walletAppUrl.searchParams.set("lt", "");
     }
 
     const target = Popup({url: walletAppUrl.toString(), title: "Eluvio Media Wallet", w: 400, h: 700});
@@ -574,8 +574,8 @@ const walletClient = await ElvWalletClient.InitializePopup({
       walletAppUrl.searchParams.set("mid", marketplaceHash || marketplaceId);
     }
 
-    if(darkMode) {
-      walletAppUrl.searchParams.set("d", "");
+    if(!darkMode) {
+      walletAppUrl.searchParams.set("lt", "");
     }
 
     const client = new ElvWalletClient({

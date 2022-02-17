@@ -9,13 +9,6 @@ import { rootStore } from "Stores/index.js";
 import Header from "Components/Header";
 import {Navigation} from "Components/Navigation";
 
-if(
-  new URLSearchParams(window.location.search).has("d") ||
-  !rootStore.embedded && rootStore.GetSessionStorage("dark-mode")
-) {
-  rootStore.ToggleDarkMode(true);
-}
-
 if(new URLSearchParams(window.location.search).has("n")) {
   rootStore.ToggleNavigation(false);
 }
