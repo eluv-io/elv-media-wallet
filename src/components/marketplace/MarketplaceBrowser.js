@@ -14,6 +14,7 @@ const MarketplaceFilters = observer(({SetFilters}) => {
   const [filter, setFilter] = useState("");
 
   const marketplaces = rootStore.allMarketplaces;
+
   let tags = [ ...new Set(marketplaces.map(marketplace => marketplace.branding && marketplace.branding.tags || []).flat()) ].sort();
 
   useEffect(() => {

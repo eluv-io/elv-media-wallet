@@ -247,7 +247,8 @@
     }
 
     &__action {
-      border: 1px solid $mediumgray;
+      background-color: $darkestgray;
+      border: 1px solid $darkergray;
     }
 
     &__menu-button {

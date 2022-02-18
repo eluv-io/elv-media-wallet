@@ -31,6 +31,15 @@ const colors = [
   "#1C6E8C"
 ];
 
+const MARKETPLACE_ORDER = [
+  "oc-marketplace",
+  "maskverse-marketplace",
+  "emp-marketplace",
+  "marketplace-elevenation",
+  "indieflix-marketplace",
+  "angels-airwaves-marketplace"
+];
+
 const ProfileImage = (text, backgroundColor) => {
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
@@ -159,7 +168,15 @@ class RootStore {
           )
       );
 
-    return marketplaces;
+    marketplaces = marketplaces.sort((a, b) => a.order < b.order ? -1 : 1);
+
+    const orderedMarketplaces = marketplaces.filter(marketplace => marketplace.order >= 0);
+    const unorderedMarketplaces = marketplaces.filter(marketplace => marketplace.order < 0);
+
+    return [
+      ...orderedMarketplaces,
+      ...unorderedMarketplaces
+    ];
   }
 
   Log(message="", error=false) {
@@ -322,13 +339,24 @@ class RootStore {
             return existing;
           }
 
+          let tokenUriMeta = {};
+          try {
+            tokenUriMeta = await (await fetch(details.TokenUri)).json() || {};
+          // eslint-disable-next-line no-empty
+          } catch(error) {}
+
+          const metadata = (await this.client.ContentObjectMetadata({
+            versionHash: details.VersionHash,
+            metadataSubtree: "public/asset_metadata/nft",
+            produceLinkUrls: true
+          })) || {};
+
           return {
             details,
-            metadata: (await this.client.ContentObjectMetadata({
-              versionHash: details.VersionHash,
-              metadataSubtree: "public/asset_metadata/nft",
-              produceLinkUrls: true
-            })) || {}
+            metadata: {
+              ...metadata,
+              ...tokenUriMeta
+            }
           };
         } catch(error) {
           this.Log("Failed to load owned NFT", true);
@@ -418,7 +446,8 @@ class RootStore {
               tenantSlug,
               marketplaceSlug,
               marketplaceId: objectId,
-              marketplaceHash: versionHash
+              marketplaceHash: versionHash,
+              order: MARKETPLACE_ORDER.findIndex(slug => slug === marketplaceSlug)
             };
           } catch(error) {
             this.Log(`Unable to load info for marketplace ${tenantSlug}/${marketplaceSlug}`, true);
@@ -444,24 +473,22 @@ class RootStore {
         ...options,
         ...(marketplace.branding || {})
       };
+
+      this.customizationMetadata = {
+        tenant_id: (marketplace.tenant_id),
+        tenant_name: (marketplace.tenant_name),
+        terms: marketplace.terms,
+        terms_html: marketplace.terms_html,
+        ...(marketplace.login_customization || {}),
+        require_email_verification: false
+      };
     }
 
-    this.customizationMetadata = {
-      tenant_id: (marketplace.tenant_id),
-      tenant_name: (marketplace.tenant_name),
-      terms: marketplace.terms,
-      terms_html: marketplace.terms_html,
-      ...(marketplace.login_customization || {}),
-      require_email_verification: false
-    };
+    this.hideGlobalNavigation = marketplace && this.specifiedMarketplaceId === marketplace.marketplaceId && marketplace.branding && marketplace.branding.hide_global_navigation;
 
     this.loginCustomizationLoaded = true;
 
     const customStyleTag = document.getElementById("_custom-styles");
-
-    if(marketplace.branding && marketplace.branding.hide_global_navigation) {
-      this.hideGlobalNavigation = true;
-    }
 
     let font;
     switch(options.font) {

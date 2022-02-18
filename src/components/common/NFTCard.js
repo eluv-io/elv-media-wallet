@@ -32,7 +32,6 @@ const MediaSelection = observer(({nft, selected, SelectMedia}) => {
 
   return (
     <select className="card__media-selection" value={selected} onChange={event => SelectMedia(parseInt(event.target.value))}>
-      <option value={-1}>{ "Select Additional Media" }</option>
       <option value={-2}>{ "Default" }</option>
       {
         media.map((item, index) =>
