@@ -268,7 +268,7 @@ class TransferStore {
 
       // TODO : Remove
       let unusedAttribute;
-      if(tenantIds) {
+      if(tenantIds && tenantIds.length > 0) {
         tenantIds = tenantIds.filter(tenantId => tenantId !== "iten3RmQEH4LUZgjCRKagr68xPASnKxL");
 
         if(tenantIds.length === 0) {
