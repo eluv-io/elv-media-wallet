@@ -113,7 +113,7 @@ const NFTCard = observer(({
         }
       </div>
       {
-        !hideAvailable && stock && stock.max ?
+        !hideAvailable && stock && stock.max && stock.max < 10000000 ?
           <div className="card__stock">
             <div className="header-dot" style={{backgroundColor: outOfStock ? "#a4a4a4" : "#ff0000"}} />
             { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available` }

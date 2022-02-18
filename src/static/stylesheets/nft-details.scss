@@ -301,6 +301,39 @@
   }
 }
 
+.traits {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+
+  .trait {
+    background-color: $lightestgray;
+    border: 1.5px solid $lightblue;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px;
+    text-align: center;
+
+    &__type {
+      font-size: 12px;
+      font-weight: 300;
+    }
+
+    &__value {
+      font-size: 16px;
+      font-weight: 500;
+      padding: 15px 0;
+    }
+
+    &__rarity {
+      color: $blue;
+      font-size: 12px;
+    }
+  }
+}
+
 .prices-container {
   align-items: center;
   border-radius: 6px;
@@ -346,6 +379,17 @@
 
     &__transfer-error {
       color: $red;
+    }
+  }
+
+  .traits {
+    .trait {
+      background-color: $darkestgray;
+      border: 0.5px solid $lightblue;
+
+      &__rarity {
+        color: $lightblue;
+      }
     }
   }
 }

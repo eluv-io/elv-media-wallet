@@ -499,7 +499,7 @@ const ListingPurchaseSelection = observer(({nft, marketplaceItem, initialListing
             </div> : null
         }
         {
-          marketplaceItem && !marketplaceItem.hide_available && stock && stock.max ?
+          marketplaceItem && !marketplaceItem.hide_available && stock && stock.max && stock.max < 10000000 ?
             <div className="listing-purchase-modal__stock">
               <div className="header-dot" style={{backgroundColor: outOfStock ? "#a4a4a4" : "#ff0000"}} />
               { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available from Creator` }

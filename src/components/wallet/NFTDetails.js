@@ -7,9 +7,6 @@ import UrlJoin from "url-join";
 import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import {ExpandableSection, CopyableField, ButtonWithLoader, FormatPriceString} from "Components/common/UIComponents";
 
-import DescriptionIcon from "Assets/icons/Description icon.svg";
-import DetailsIcon from "Assets/icons/Details icon.svg";
-import ContractIcon from "Assets/icons/Contract icon.svg";
 import {render} from "react-dom";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
@@ -23,6 +20,12 @@ import {v4 as UUID} from "uuid";
 import NFTCard from "Components/common/NFTCard";
 import ListingStats from "Components/listings/ListingStats";
 import Activity from "Components/listings/Activity";
+
+
+import DescriptionIcon from "Assets/icons/Description icon.svg";
+import DetailsIcon from "Assets/icons/Details icon.svg";
+import ContractIcon from "Assets/icons/Contract icon.svg";
+import TraitsIcon from "Assets/icons/properties icon.svg";
 
 const TransferSection = observer(({nft}) => {
   const heldDate = nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
@@ -154,6 +157,59 @@ const TransferSection = observer(({nft}) => {
     </div>
   );
 });
+
+const FormatRarity = (rarity) => {
+  if(!rarity) {
+    return "";
+  }
+
+  rarity = rarity.toString();
+
+  if(!rarity.includes("/")) {
+    return rarity;
+  }
+
+  const [ numerator, denominator ] = rarity.split("/");
+  let percentage = 100 * parseInt(numerator) / parseInt(denominator);
+
+  if(percentage < 1) {
+    percentage = percentage.toFixed(2);
+  } else {
+    percentage = percentage.toFixed(1).toString().replace(".0", "");
+  }
+
+  return `${percentage}% have this trait`;
+};
+
+const NFTTraits = ({nft}) => {
+  const FILTERED_ATTRIBUTES = [ "Content Fabric Hash", "Creator", "Total Minted Supply" ];
+  const traits = ((nft.metadata || {}).attributes || [])
+    .filter(attribute => !FILTERED_ATTRIBUTES.includes(attribute.trait_type));
+
+  if(traits.length === 0) {
+    return null;
+  }
+
+  return (
+    <ExpandableSection header="Properties" icon={TraitsIcon}>
+      <div className="traits">
+        {traits.map(({rarity, trait_type, value}, index) =>
+          <div className="trait" key={`trait-${index}`}>
+            <div className="trait__type">
+              { trait_type }
+            </div>
+            <div className="trait__value">
+              { value }
+            </div>
+            <div className="trait__rarity">
+              { FormatRarity(rarity) }
+            </div>
+          </div>
+        )}
+      </div>
+    </ExpandableSection>
+  );
+};
 
 const NFTDetails = observer(() => {
   const match = useRouteMatch();
@@ -531,6 +587,8 @@ const NFTDetails = observer(() => {
               { mintDate ? `Minted on the Eluvio Content Fabric on ${mintDate}` : "" }
             </div>
           </ExpandableSection>
+
+          <NFTTraits nft={nft} />
 
           <ExpandableSection header="Contract" icon={ContractIcon} className="no-padding">
             <div className="expandable-section__content-row">
