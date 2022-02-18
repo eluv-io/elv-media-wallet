@@ -390,6 +390,7 @@ class RootStore {
         resolveLinks: true,
         linkDepthLimit: 2,
         resolveIncludeSource: true,
+        resolveIgnoreErrors: true,
         produceLinkUrls: true,
         noAuth: true,
         select: [
@@ -410,6 +411,7 @@ class RootStore {
         resolveLinks: true,
         linkDepthLimit: 2,
         resolveIncludeSource: true,
+        resolveIgnoreErrors: true,
         produceLinkUrls: true,
         noAuth: true,
         select: [
