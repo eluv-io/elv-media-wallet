@@ -44,6 +44,7 @@ const MediaSelection = observer(({nft, selected, SelectMedia}) => {
 
 const NFTCard = observer(({
   nft,
+  item,
   selectedListing,
   price,
   stock,
@@ -54,6 +55,10 @@ const NFTCard = observer(({
   hideAvailable,
   truncateDescription
 }) => {
+  if(item) {
+    nft = { metadata: item.nftTemplateMetadata };
+  }
+
   const [selectedMediaIndex, setSelectedMediaIndex] = useState(-1);
   const selectedMedia = (selectedMediaIndex >= 0 && (nft.metadata.additional_media || [])[selectedMediaIndex]);
 
@@ -63,7 +68,7 @@ const NFTCard = observer(({
 
   const card = (
     <div className="card card-shadow">
-      <NFTImage width={400} nft={nft} selectedMedia={selectedMedia} video={showVideo} />
+      <NFTImage width={400} nft={nft} item={item} selectedMedia={selectedMedia} video={showVideo} />
       { showAdditionalMedia ? <MediaSelection nft={nft} selected={selectedMediaIndex} SelectMedia={setSelectedMediaIndex} /> : null }
       <div className="card__titles">
         <h2 className="card__title">

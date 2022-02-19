@@ -21,7 +21,7 @@ export const ProfileImage = observer(({className=""}) => {
   );
 });
 
-export const NFTImage = observer(({nft, selectedMedia, width, video=false, className=""}) => {
+export const NFTImage = observer(({nft, item, selectedMedia, width, video=false, className=""}) => {
   const [initialized, setInitialized] = useState(false);
   const [player, setPlayer] = useState(undefined);
 
@@ -43,8 +43,8 @@ export const NFTImage = observer(({nft, selectedMedia, width, video=false, class
     if(url && width) {
       url.searchParams.set("width", width);
     }
-  } else if(nft.metadata.image) {
-    url = new URL(nft.metadata.image);
+  } else if(item && item.image || nft.metadata.image) {
+    url = new URL((item && item.image && item.image.url) || nft.metadata.image);
     url.searchParams.set("authorization", rootStore.authedToken);
 
     if(url && width) {
@@ -64,6 +64,15 @@ export const NFTImage = observer(({nft, selectedMedia, width, video=false, class
       embedUrl.searchParams.set("ct", "h");
       embedUrl.searchParams.set("ap", "");
       embedUrl.searchParams.set("ath", selectedMedia.requires_permissions ? rootStore.authedToken : rootStore.staticToken);
+    } else if(item && item.video) {
+      embedUrl = new URL("https://embed.v3.contentfabric.io");
+      const videoHash = ((item.video["/"] && item.video["/"].split("/").find(component => component.startsWith("hq__")) || item.video["."].source));
+
+      embedUrl.searchParams.set("p", "");
+      embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
+      embedUrl.searchParams.set("vid", videoHash);
+      embedUrl.searchParams.set("ct", "h");
+      embedUrl.searchParams.set("ap", "");
     } else if(!selectedMedia && (typeof nft.metadata.playable === "undefined" || nft.metadata.playable) && nft.metadata.embed_url) {
       embedUrl = new URL(nft.metadata.embed_url);
     }

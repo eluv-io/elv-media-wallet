@@ -264,48 +264,6 @@ class TransferStore {
 
     try {
       let filters = [];
-
-
-      // TODO : Remove
-      let unusedAttribute;
-      if(tenantIds && tenantIds.length > 0) {
-        tenantIds = tenantIds.filter(tenantId => tenantId !== "iten3RmQEH4LUZgjCRKagr68xPASnKxL");
-
-        if(tenantIds.length === 0) {
-          if(mode.includes("stats")) {
-            return {};
-          } else {
-            return {
-              paging: {
-                start: params.start,
-                limit: params.limit,
-                total: 0,
-                more: false
-              },
-              listings: []
-            };
-          }
-        }
-      }
-
-      // TODO : Remove
-      // No valid items, so there must not be anything relevant in the collection
-      if(marketplace && marketplace.tenant_id === "iten3RmQEH4LUZgjCRKagr68xPASnKxL") {
-        if(mode.includes("stats")) {
-          return {};
-        } else {
-          return {
-            paging: {
-              start: params.start,
-              limit: params.limit,
-              total: 0,
-              more: false
-            },
-            listings: []
-          };
-        }
-      }
-
       if(marketplace && collectionIndex >= 0) {
         const collection = marketplace.collections[collectionIndex];
 
