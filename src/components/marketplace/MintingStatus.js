@@ -142,7 +142,7 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
         rootStore.hideNavigation ? null :
           <div className="minting-status__text">
             <h2 className="minting-status__navigation-message">
-              You can navigate away from this page if you don't want to wait. Your item(s) will be available in your wallet when the process is complete.
+              You can navigate away from this page if you don't want to wait. Your items will be available in your wallet when the process is complete.
             </h2>
           </div>
       }

@@ -68,7 +68,7 @@ const NFTCard = observer(({
 
   const card = (
     <div className="card card-shadow">
-      <NFTImage width={400} nft={nft} item={item} selectedMedia={selectedMedia} video={showVideo} />
+      <NFTImage nft={nft} item={item} selectedMedia={selectedMedia} video={showVideo} />
       { showAdditionalMedia ? <MediaSelection nft={nft} selected={selectedMediaIndex} SelectMedia={setSelectedMediaIndex} /> : null }
       <div className="card__titles">
         <h2 className="card__title">
