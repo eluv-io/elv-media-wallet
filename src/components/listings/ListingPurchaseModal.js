@@ -23,7 +23,7 @@ const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
     if(!value) {
       setQuantity("");
     } else {
-      setQuantity(Math.min(10, maxQuantity, Math.max(1, parseInt(value || 1))));
+      setQuantity(Math.min(25, maxQuantity, Math.max(1, parseInt(value || 1))));
     }
   };
 
