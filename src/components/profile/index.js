@@ -9,6 +9,7 @@ import {ButtonWithLoader, CopyableField, FormatPriceString} from "Components/com
 import {PendingPaymentsTable, UserTransferTable} from "Components/listings/TransferTables";
 import {observer} from "mobx-react";
 import {WithdrawalModal, WithdrawalSetupModal} from "Components/profile/WithdrawalModal";
+import {CryptoProfile} from "Components/profile/Crypto";
 
 const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSetup}) => {
   return (
@@ -145,6 +146,8 @@ const Profile = observer(() => {
           { FormatPriceString({USD: rootStore.availableWalletBalance}) } { balancePresent ? "USD" : "" }
         </div>
       </div>
+
+      <CryptoProfile />
 
       <div className="profile-page__section profile-page__section-balance profile-page__section-box">
         <h2 className="profile-page__section-header">

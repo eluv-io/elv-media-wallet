@@ -1,0 +1,448 @@
+.profile-crypto {
+  flex-direction: column;
+  padding: 20px 0;
+  width: 100%;
+
+  &,
+  &__links,
+  &__link-container,
+  &__link,
+  &__connect {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+  }
+
+  &__links {
+    width: 100%;
+  }
+
+  &__connect {
+    background-color: $lightergray;
+    border-radius: 9px;
+    font-size: 18px;
+    height: 45px;
+    margin-bottom: 20px;
+    padding: 10px 10px;
+    width: 350px;
+
+    img,
+    svg {
+      height: 100%;
+      margin-left: 10px;
+
+      &:first-child {
+        margin-left: 25px;
+      }
+    }
+  }
+
+  &__link-container {
+    background-color: $lightgray;
+    border-radius: 9px;
+    flex-direction: column;
+    padding: 10px 15px;
+
+    &:not(:last-child) {
+      margin-right: 20px;
+    }
+  }
+
+  &__link {
+    background-color: $white;
+    border: 1px solid $mediumgray;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 500;
+    height: 40px;
+    opacity: 0.9;
+    padding: 5px 10px;
+    position: relative;
+    text-align: center;
+    transition: opacity 0.15s linear;
+    width: 250px;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    img,
+    svg {
+      height: 75%;
+      left: 10px;
+      position: absolute;
+    }
+
+    .loader {
+      left: 30px;
+      position: absolute;
+      transform: scale(0.5);
+      width: 0;
+    }
+
+    &-connected {
+      border: 1px solid $blue;
+      padding: 0;
+    }
+
+    &__left,
+    &__right {
+      align-items: center;
+      display: flex;
+      height: 100%;
+      justify-content: center;
+    }
+
+    &__left {
+      justify-content: center;
+      padding-left: 30px;
+      width: 60%;
+
+      img,
+      svg {
+        margin: 0;
+      }
+    }
+
+    &__right {
+      background-color: $blue;
+      border-radius: 0 6px 6px 0;
+      color: $white;
+      width: 40%;
+    }
+
+    &__message {
+      color: $darkgray;
+      font-size: 12px;
+      padding: 5px 0 10px;
+      width: 100%;
+    }
+
+    &__network-info {
+      background-color: $lightestgray;
+      border-radius: 6px;
+      padding: 10px;
+      width: 100%;
+    }
+
+    &__network-name {
+      align-items: center;
+      color: $darkgray;
+      display: flex;
+      font-size: 14px;
+
+      img,
+      svg {
+        height: 15px;
+        margin-right: 10px;
+      }
+    }
+
+    &__network-address {
+      font-size: 12px;
+      font-weight: 300;
+      max-width: 200px;
+    }
+  }
+
+  &__deposit-link {
+    margin-top: 20px;
+    text-decoration: underline;
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    &__connect {
+      font-size: 14px;
+      height: 35px;
+      width: 100%;
+    }
+
+    &__links {
+      flex-direction: column;
+    }
+
+    &__link-container {
+      width: 100%;
+
+      &:not(:last-child) {
+        margin: 0 0 10px;
+      }
+    }
+
+    &__link {
+      width: 100%;
+    }
+  }
+}
+
+.crypto-deposit-modal {
+  .modal__content {
+    align-items: center;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    max-height: unset;
+    overflow-y: hidden;
+    padding-bottom: 5vh;
+    padding-right: 8px;
+    top: 5vh;
+    width: 100%;
+  }
+}
+
+.crypto-deposit {
+  background-color: $white;
+  border: 1px solid $lightgray;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10%;
+  max-width: unset;
+  overflow-y: hidden;
+  position: relative;
+  width: 600px;
+
+  &__header {
+    align-items: center;
+    border-bottom: 1px solid $mediumgray;
+    display: flex;
+    font-size: 20px;
+    height: 60px;
+    justify-content: center;
+    position: relative;
+
+    img,
+    svg {
+      height: 50%;
+      left: 20px;
+      position: absolute;
+    }
+  }
+
+  &__form {
+    background-color: $lightergray;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px 40px;
+  }
+
+  &__exchange-icon {
+    height: 30px;
+    margin: 25px 25px 0;
+  }
+
+  &__inputs {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+  }
+
+  &__labelled-input {
+    width: 100%;
+
+    label {
+      font-size: 14px;
+      padding-left: 2px;
+    }
+
+    img,
+    svg {
+      height: 25px;
+    }
+  }
+
+  &__input-container {
+    align-items: center;
+    display: flex;
+    position: relative;
+
+
+    input {
+      border: 1px solid $mediumgray;
+      border-radius: 6px;
+      font-size: 20px;
+      height: 45px;
+      margin-top: 5px;
+      padding: 0 40px 0 15px;
+      width: 100%;
+    }
+
+    img,
+    svg {
+      position: absolute;
+      right: 10px;
+    }
+  }
+
+  &__note {
+    color: $darkgray;
+    font-size: 10px;
+    margin: 20px auto 0;
+    max-width: 350px;
+    text-align: center;
+  }
+
+  &__actions {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+  }
+
+  .action,
+  .action-loader,
+  .loader-button {
+    margin-right: 10px;
+    width: 175px;
+  }
+
+  &__deposit-message {
+    margin: 20px auto;
+    max-width: 350px;
+    text-align: center;
+  }
+
+  &__summary {
+    background-color: $lightergray;
+    border-radius: 8px;
+    margin: 0 auto 20px;
+    padding: 20px;
+    text-align: center;
+    width: 350px;
+
+    &__label {
+      color: $darkgray;
+      font-size: 18px;
+      font-weight: 300;
+    }
+
+    &__price {
+      color: $blue;
+      font-size: 28px;
+      margin: 15px 0;
+    }
+
+    &__link {
+      font-size: 14px;
+      text-decoration: underline;
+    }
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    max-width: 350px;
+
+    &__header {
+      font-size: 16px;
+
+      img,
+      svg {
+        height: 35%;
+      }
+    }
+
+    &__exchange-icon {
+      margin: 25px 0 15px;
+    }
+
+    &__inputs {
+      flex-direction: column;
+    }
+
+    &__labelled-input {
+      max-width: 300px;
+    }
+
+    &__actions {
+      flex-direction: column-reverse;
+    }
+
+    .action {
+      margin: 0 0 10px;
+      width: 75%;
+    }
+
+    .loader-button {
+      margin: 0 0 10px;
+      width: 75%;
+
+      .action,
+      .action-loader {
+        width: 100%;
+      }
+    }
+
+    &__deposit-message {
+      width: 300px;
+    }
+
+    &__summary {
+      max-width: 300px;
+    }
+  }
+}
+
+.dark {
+  .profile-crypto {
+    &__connect {
+      background-color: $darkergray;
+    }
+
+    &__link-container {
+      background-color: $darkestgray;
+    }
+
+    &__link {
+      background-color: $black;
+      border: 1px solid $darkgray;
+
+      &-connected {
+        border: 1px solid $blue;
+      }
+
+      &__message {
+        color: $gray;
+      }
+
+      &__network-info {
+        background-color: $darkergray;
+      }
+
+      &__network-name {
+        color: $mediumgray;
+      }
+    }
+  }
+
+  .crypto-deposit {
+    background-color: $black;
+    border: 1px solid $darkgray;
+
+    &__header {
+      border-bottom: 1px solid $darkgray;
+    }
+
+    &__form {
+      background-color: $darkestgray;
+    }
+
+    &__input-container {
+      input {
+        background-color: $black;
+        border: 1px solid $darkgray;
+      }
+    }
+
+    &__summary {
+      background-color: $darkestgray;
+
+      &__label {
+        color: $mediumgray;
+      }
+
+      &__price {
+        color: $lightblue;
+      }
+    }
+  }
+}

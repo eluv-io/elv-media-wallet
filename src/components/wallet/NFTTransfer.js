@@ -1,11 +1,11 @@
 import React, {useState} from "react";
 import {observer} from "mobx-react";
-import {rootStore} from "Stores";
+import {cryptoStore, rootStore} from "Stores";
 import Confirm from "Components/common/Confirm";
 
 const TransferSection = observer(({nft}) => {
   const heldDate = nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
-  const notMetamask = !rootStore.MetamaskAvailable() && window.ethereum;
+  const notMetamask = !cryptoStore.MetamaskAvailable() && window.ethereum;
   const notMetaMaskMessage = "Other browser extensions like Coinbase may be preventing the wallet from accessing MetaMask. Please disable them and refresh the page.";
 
   const heldMessage = heldDate ?
@@ -14,7 +14,7 @@ const TransferSection = observer(({nft}) => {
     </h3> : null;
 
   if(rootStore.embedded) {
-    if(!rootStore.MetamaskAvailable()) {
+    if(!cryptoStore.MetamaskAvailable()) {
       return (
         <div className="expandable-section__actions">
           { heldMessage }
@@ -55,7 +55,7 @@ const TransferSection = observer(({nft}) => {
   }
 
   const [transferError, setTransferError] = useState(undefined);
-  const transferInfo = rootStore.transferredNFTs[`${nft.details.ContractAddr}:${nft.details.TokenIdStr}`];
+  const transferInfo = cryptoStore.transferredNFTs[`${nft.details.ContractAddr}:${nft.details.TokenIdStr}`];
 
   if(transferInfo) {
     return (
@@ -88,7 +88,7 @@ const TransferSection = observer(({nft}) => {
 
       <h3 className="details-page__transfer-details">
         {
-          rootStore.MetamaskAvailable() ?
+          cryptoStore.MetamaskAvailable() ?
             "You can transfer your NFT to another network using MetaMask. Select the network you wish to transfer to in MetaMask to enable the transfer option." :
             "Install MetaMask to transfer your NFT"
         }
@@ -98,11 +98,11 @@ const TransferSection = observer(({nft}) => {
 
       <div className="details-page__transfer-buttons">
         {
-          rootStore.ExternalChains()
+          cryptoStore.ExternalChains()
             .sort((a, b) => {
-              if(a.chainId === rootStore.metamaskChainId) {
+              if(a.chainId === cryptoStore.metamaskChainId) {
                 return -1;
-              } else if(b.chainId === rootStore.metamaskChainId) {
+              } else if(b.chainId === cryptoStore.metamaskChainId) {
                 return 1;
               }
 
@@ -111,13 +111,13 @@ const TransferSection = observer(({nft}) => {
             .map(({name, network, chainId}) => (
               <button
                 key={`transfer-button-${network}`}
-                disabled={heldMessage ||!rootStore.MetamaskAvailable() || rootStore.metamaskChainId !== chainId}
+                disabled={heldMessage ||!cryptoStore.MetamaskAvailable() || cryptoStore.metamaskChainId !== chainId}
                 className="action details-page__transfer-button"
                 onClick={async () => await Confirm({
                   message: `Are you sure you want to transfer this NFT to ${name}?`,
                   Confirm: async () => {
                     try {
-                      await rootStore.TransferNFT({network, nft});
+                      await cryptoStore.TransferNFT({network, nft});
                     } catch(error) {
                       rootStore.Log(error, true);
                       setTransferError("Failed to transfer NFT");
