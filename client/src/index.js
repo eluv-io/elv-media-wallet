@@ -455,6 +455,9 @@ const walletClient = await ElvWalletClient.InitializePopup({
         -- Required params: marketplace parameters
       - `drop`
         -- Required params: `tenantSlug`, `eventSlug`, `dropId`, marketplace parameters
+      - `listings`
+      - `marketplaceListings`
+        -- Required params: marketplace parameters
 
    * @methodGroup Navigation
    * @namedParams

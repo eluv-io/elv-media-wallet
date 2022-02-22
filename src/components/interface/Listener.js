@@ -20,7 +20,11 @@ const pages = {
   "marketplace": "/marketplace/:marketplaceId/store",
   "marketplaceItem": "/marketplace/:marketplaceId/store/:sku",
   "marketplaceWallet": "/marketplace/:marketplaceId/collection",
-  "drop": "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId"
+  "marketplaceListings": "/marketplace/:marketplaceId/listings",
+  "drop": "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId",
+
+  // Listings
+  "listings": "/wallet/listings"
 };
 
 const FormatNFT = (nft) => {
