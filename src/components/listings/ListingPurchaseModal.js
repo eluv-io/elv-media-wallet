@@ -72,6 +72,10 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
   const stock = marketplaceItem && checkoutStore.stock[marketplaceItem.sku];
   const outOfStock = stock && stock.max && (stock.max - stock.minted) < quantity;
 
+  const timeToAvailable = marketplaceItem && marketplaceItem.available_at ? new Date(marketplaceItem.available_at).getTime() - Date.now() : 0;
+  const timeToExpired = marketplaceItem && marketplaceItem.expires_at ? new Date(marketplaceItem.expires_at).getTime() - Date.now() : Infinity;
+  const available = timeToAvailable <= 0 && timeToExpired > 0;
+
   const price = listingId ? { USD: selectedListing.details.Price } : marketplaceItem.price;
   const total = price.USD * quantity;
   const fee = Math.max(1, roundToDown(total * 0.05, 2));
@@ -107,7 +111,7 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
           price={price}
           stock={stock}
           showOrdinal={!!selectedListing}
-          hideAvailable={marketplaceItem && marketplaceItem.hide_available}
+          hideAvailable={!available || (marketplaceItem && marketplaceItem.hide_available)}
           truncateDescription
         />
         <div className="listing-purchase-modal__order-details">
@@ -166,7 +170,7 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
         </div>
         <div className="listing-purchase-modal__actions listing-purchase-wallet-balance-actions">
           <ButtonWithLoader
-            disabled={outOfStock || insufficientBalance || errorMessage}
+            disabled={!available || outOfStock || insufficientBalance || errorMessage}
             className="action action-primary"
             onClick={async () => {
               try {
@@ -212,11 +216,13 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
           </button>
         </div>
         {
-          errorMessage || outOfStock || insufficientBalance ?
+          errorMessage || !available || outOfStock || insufficientBalance ?
             <div className="listing-purchase-confirmation-modal__error-message">
               {
                 errorMessage ? errorMessage :
-                  outOfStock ? "This item is out of stock" : "Insufficient wallet balance"
+                  outOfStock ? "This item is out of stock" :
+                    !available ? "This item is no longer available" :
+                      "Insufficient wallet balance"
               }
             </div> : null
         }
@@ -236,6 +242,10 @@ const ListingPurchasePayment = observer(({nft, marketplaceItem, selectedListing,
   const stock = marketplaceItem && checkoutStore.stock[marketplaceItem.sku];
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
   const maxQuantity = stock && (stock.max_per_user || stock.max - stock.minted) || 100;
+
+  const timeToAvailable = marketplaceItem && marketplaceItem.available_at ? new Date(marketplaceItem.available_at).getTime() - Date.now() : 0;
+  const timeToExpired = marketplaceItem && marketplaceItem.expires_at ? new Date(marketplaceItem.expires_at).getTime() - Date.now() : Infinity;
+  const available = timeToAvailable <= 0 && timeToExpired > 0;
 
   const price = listingId ? { USD: selectedListing.details.Price } : marketplaceItem.price;
 
@@ -279,7 +289,7 @@ const ListingPurchasePayment = observer(({nft, marketplaceItem, selectedListing,
           price={price}
           stock={stock}
           showOrdinal={!!selectedListing}
-          hideAvailable={marketplaceItem && marketplaceItem.hide_available}
+          hideAvailable={!available || (marketplaceItem && marketplaceItem.hide_available)}
           truncateDescription
         />
         {
@@ -336,7 +346,7 @@ const ListingPurchasePayment = observer(({nft, marketplaceItem, selectedListing,
             </button>
           </div>
           <ButtonWithLoader
-            disabled={outOfStock || errorMessage}
+            disabled={!available || outOfStock || errorMessage}
             className="action action-primary listing-purchase-confirmation-modal__payment-submit"
             onClick={async () => {
               if(paymentType === "wallet-balance") {
@@ -411,6 +421,10 @@ const ListingPurchaseSelection = observer(({nft, marketplaceItem, initialListing
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
   const maxQuantity = stock && (stock.max_per_user || stock.max - stock.minted) || 100;
 
+  const timeToAvailable = marketplaceItem && marketplaceItem.available_at ? new Date(marketplaceItem.available_at).getTime() - Date.now() : 0;
+  const timeToExpired = marketplaceItem && marketplaceItem.expires_at ? new Date(marketplaceItem.expires_at).getTime() - Date.now() : Infinity;
+  const available = timeToAvailable <= 0 && timeToExpired > 0;
+
   const directPrice = marketplaceItem ? ItemPrice(marketplaceItem, checkoutStore.currency) : undefined;
   const free = marketplaceItem && (!directPrice || marketplaceItem.free);
 
@@ -444,7 +458,7 @@ const ListingPurchaseSelection = observer(({nft, marketplaceItem, initialListing
           selectedListing={selectedListing}
           price={selectedListingId ? selectedListing && { USD: selectedListing.details.Price } : { USD: directPrice }}
           showOrdinal={selectedListingId}
-          hideAvailable={marketplaceItem && marketplaceItem.hide_available}
+          hideAvailable={!available || (marketplaceItem && marketplaceItem.hide_available)}
           truncateDescription
         />
         {
@@ -468,7 +482,7 @@ const ListingPurchaseSelection = observer(({nft, marketplaceItem, initialListing
                 <QuantityInput quantity={quantity} setQuantity={setQuantity} maxQuantity={maxQuantity} />
               </div>
               <ButtonWithLoader
-                disabled={outOfStock || maxOwned}
+                disabled={!available || outOfStock || maxOwned}
                 className="action action-primary listing-purchase-modal__action listing-purchase-modal__action-primary"
                 onClick={async () => {
                   try {
@@ -499,11 +513,16 @@ const ListingPurchaseSelection = observer(({nft, marketplaceItem, initialListing
             </div> : null
         }
         {
-          marketplaceItem && !marketplaceItem.hide_available && stock && stock.max && stock.max < 10000000 ?
+          !available ?
             <div className="listing-purchase-modal__stock">
-              <div className="header-dot" style={{backgroundColor: outOfStock ? "#a4a4a4" : "#ff0000"}} />
-              { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available from Creator` }
-            </div> : null
+              <div className="header-dot" style={{backgroundColor: "#a4a4a4"}} />
+              Sale Ended
+            </div> :
+            marketplaceItem && !marketplaceItem.hide_available && stock && stock.max && stock.max < 10000000 ?
+              <div className="listing-purchase-modal__stock">
+                <div className="header-dot" style={{backgroundColor: outOfStock ? "#a4a4a4" : "#ff0000"}} />
+                { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available from Creator` }
+              </div> : null
         }
       </div>
       <div className="listing-purchase-modal__listing-info">
@@ -576,7 +595,9 @@ const ListingPurchaseSelection = observer(({nft, marketplaceItem, initialListing
   );
 });
 
+let timeout;
 const ListingPurchaseModal = observer(({nft, item, initialListingId, skipListings, Close}) => {
+  const [loadKey, setLoadKey] = useState(0);
   const [useWalletBalance, setUseWalletBalance] = useState(false);
   const [selectedListing, setSelectedListing] = useState(initialListingId);
   const [selectedListingId, setSelectedListingId] = useState(skipListings ? initialListingId || "marketplace" : undefined);
@@ -587,11 +608,19 @@ const ListingPurchaseModal = observer(({nft, item, initialListingId, skipListing
     modal && modal.scrollTo(0, 0);
   }, [selectedListingId, useWalletBalance]);
 
-  let content;
+  const timeToExpired = item && item.expires_at ? new Date(item.expires_at).getTime() - Date.now() : undefined;
+  if(timeToExpired > 0) {
+    clearTimeout(timeout);
+    setTimeout(() => {
+      setLoadKey(loadKey + 1);
+    }, timeToExpired + 1000);
+  }
 
+  let content;
   if(selectedListingId && useWalletBalance) {
     content = (
       <ListingPurchaseBalanceConfirmation
+        key={`listing-${loadKey}`}
         nft={nft}
         marketplaceItem={item}
         selectedListing={selectedListing}
@@ -603,6 +632,7 @@ const ListingPurchaseModal = observer(({nft, item, initialListingId, skipListing
   } else if(selectedListingId) {
     content = (
       <ListingPurchasePayment
+        key={`listing-${loadKey}`}
         nft={nft}
         marketplaceItem={item}
         selectedListing={selectedListing}
@@ -616,6 +646,7 @@ const ListingPurchaseModal = observer(({nft, item, initialListingId, skipListing
   } else {
     content = (
       <ListingPurchaseSelection
+        key={`listing-${loadKey}`}
         nft={nft}
         marketplaceItem={item}
         initialListingId={selectedListingId || initialListingId}

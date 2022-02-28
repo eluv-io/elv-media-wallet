@@ -40,6 +40,10 @@ const MarketplaceCheckout = observer(({item}) => {
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
   const maxOwned = stock && stock.max_per_user && stock.current_user >= stock.max_per_user;
 
+  const timeToAvailable = item.available_at ? new Date(item.available_at).getTime() - Date.now() : 0;
+  const timeToExpired = item.expires_at ? new Date(item.expires_at).getTime() - Date.now() : Infinity;
+  const available = timeToAvailable <= 0 && timeToExpired > 0;
+
   const itemToNFT = {
     details: {
       ContractAddr: itemTemplate.address
@@ -72,7 +76,8 @@ const MarketplaceCheckout = observer(({item}) => {
           <div className="marketplace-price__direct__price">
             { free ?
               "Free!" :
-              outOfStock ? "Out of Stock" : FormatPriceString({USD: directPrice}) }
+              !available ? "Sale Ended" :
+                outOfStock ? "Out of Stock" : FormatPriceString({USD: directPrice}) }
           </div>
           {
             maxOwned ?
@@ -107,7 +112,10 @@ const MarketplaceCheckout = observer(({item}) => {
                 disabled={outOfStock && listingStats.total === 0}
                 className="action action-primary"
               >
-                { free && !outOfStock ? "Claim Now" : "Buy Now" }
+                {
+                  free && !outOfStock ? "Claim Now" :
+                    outOfStock || !available ? "View Listings" : "Buy Now"
+                }
               </ButtonWithLoader>
           }
         </div>
