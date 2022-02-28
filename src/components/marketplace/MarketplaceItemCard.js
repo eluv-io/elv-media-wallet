@@ -13,6 +13,7 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
     return null;
   }
 
+  const expired = item.expires_at && new Date(item.expires_at).getTime() - Date.now() < 0;
   const stock = checkoutStore.stock[item.sku];
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
   const total = ItemPrice(item, checkoutStore.currency);
@@ -22,7 +23,7 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
     <div className={`card-container card-shadow ${className}`}>
       <Link
         to={to || `${match.url}/${item.sku}`}
-        className={`card nft-card ${outOfStock ? "card-disabled" : ""}`}
+        className={`card nft-card ${outOfStock || expired ? "card-disabled" : ""}`}
       >
         <MarketplaceImage
           marketplaceHash={marketplaceHash}
@@ -51,11 +52,16 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
             />
           </div>
           {
-            !item.hide_available && stock && stock.max && stock.max < 10000000 ?
+            expired ?
               <div className="card__stock">
-                <div className={`card__stock__indicator ${outOfStock ? "card__stock__indicator-unavailable" : ""}`} />
-                { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available` }
-              </div> : null
+                <div className="card__stock__indicator card__stock__indicator-unavailable" />
+                Sale Ended
+              </div> :
+              !item.hide_available && stock && stock.max && stock.max < 10000000 ?
+                <div className="card__stock">
+                  <div className={`card__stock__indicator ${outOfStock ? "card__stock__indicator-unavailable" : ""}`} />
+                  { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available` }
+                </div> : null
           }
         </div>
       </Link>

@@ -32,7 +32,7 @@ const MarketplaceBanners = ({marketplace}) => {
         const item = marketplace.items.find(item => item.sku === banner.sku);
 
         let link;
-        if(item && item.for_sale && (!item.available_at || Date.now() - new Date(item.available_at).getTime() > 0)) {
+        if(item && item.for_sale && (!item.available_at || Date.now() - new Date(item.available_at).getTime() > 0) && (!item.expires_at || Date.now() - new Date(item.expires_at).getTime() < 0)) {
           link = UrlJoin("/marketplace", marketplace.marketplaceId, "store", banner.sku);
         }
 
@@ -54,18 +54,17 @@ const MarketplaceBanners = ({marketplace}) => {
   );
 };
 
+let timeout;
 const MarketplaceStorefrontSections = observer(({marketplace}) => {
-  const [timeouts, setTimeouts] = useState({});
   const [loadKey, setLoadKey] = useState(0);
 
   useEffect(() => {
-    return () => {
-      Object.keys(timeouts).forEach(sku => clearTimeout(timeouts[sku]));
-    };
+    return () => clearTimeout(timeout);
   }, []);
 
   const marketplaceItems = rootStore.MarketplaceOwnedItems(marketplace);
 
+  let nextDiff = 0;
   const sections = (((marketplace.storefront || {}).sections || []).map((section, sectionIndex) => {
     const items = section.items.map((sku) => {
       const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
@@ -89,26 +88,32 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
       try {
         const diff = item.available_at ? new Date(item.available_at).getTime() - Date.now() : 0;
         if(diff > 0) {
-          if(!timeouts[sku]) {
-            setTimeouts({
-              ...timeouts,
-              [sku]: (
-                setTimeout(() => {
-                  setLoadKey(sku);
-                }, diff + 1000)
-              )
-            });
-          }
+          nextDiff = nextDiff ? Math.min(diff, nextDiff) : diff;
+        }
 
-          return;
+        const expirationDiff = item.expires_at ? new Date(item.expires_at).getTime() - Date.now() : 0;
+        if(expirationDiff > 0) {
+          nextDiff = nextDiff ? Math.min(expirationDiff, nextDiff) : expirationDiff;
         }
       } catch(error) {
         rootStore.Log("Failed to parse item date:", true);
         rootStore.Log(item, true);
       }
 
+      // Available check - must happen after timeout setup
+      if(item.available_at && Date.now() - new Date(item.available_at).getTime() < 0) {
+        return null;
+      }
+
       return { item, itemIndex };
     }).filter(item => item);
+
+    if(nextDiff > 0) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        setLoadKey(loadKey + 1);
+      }, nextDiff + 1000);
+    }
 
     if(items.length === 0) { return null; }
 
