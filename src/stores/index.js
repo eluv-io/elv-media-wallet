@@ -32,6 +32,7 @@ const colors = [
 ];
 
 const MARKETPLACE_ORDER = [
+  "dolly-marketplace",
   "oc-marketplace",
   "maskverse-marketplace",
   "emp-marketplace",
