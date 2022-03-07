@@ -1350,7 +1350,7 @@ class RootStore {
           this.SetSessionStorage(`pk-${this.network}`, privateKey);
         }
       } else if(authToken) {
-        yield client.SetRemoteSigner({authToken, tenantId});
+        yield client.SetRemoteSigner({authToken, tenantId, unsignedPublicAuth: true});
       } else if(idToken || (user && user.id_token)) {
         this.oauthUser = user;
 

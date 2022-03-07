@@ -17,15 +17,15 @@
 
       &:checked {
         &::after {
-          top: 0;
-          content: '✓';
+          content: "✓";
+          display: flex;
           font-size: 10px;
+          height: 14px;
+          justify-content: center;
           left: -1px;
           position: absolute;
+          top: 0;
           width: 14px;
-          height: 14px;
-          display: flex;
-          justify-content: center;
         }
       }
     }

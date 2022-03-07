@@ -176,11 +176,11 @@ const SubHeaderNavigation = ({marketplace}) => {
 };
 
 const MarketplaceNavigation = ({marketplace}) => {
-  const name = (marketplace.branding || {}).name || "";
+  const branding = marketplace.branding || {};
 
   return (
     <div className="subheader__marketplace">
-      <h1 className="subheader__header">{`${name} Store`}</h1>
+      { branding.hide_name ? null : <h1 className="subheader__header">{`${branding.name} Store`}</h1> }
       <nav className="subheader__navigation subheader__navigation--marketplace">
         <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
           Store

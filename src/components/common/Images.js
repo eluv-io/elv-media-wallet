@@ -54,7 +54,7 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
 
   if(video) {
     let embedUrl;
-    if((selectedMedia && selectedMedia.media_type === "Video" && selectedMedia.media_link)) {
+    if((selectedMedia && ["Audio", "Video"].includes(selectedMedia.media_type) && selectedMedia.media_link)) {
       embedUrl = new URL("https://embed.v3.contentfabric.io");
       const videoHash = ((selectedMedia.media_link["/"] && selectedMedia.media_link["/"].split("/").find(component => component.startsWith("hq__")) || selectedMedia.media_link["."].source));
 
