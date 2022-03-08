@@ -292,7 +292,7 @@
     padding-top: 10px;
   }
 
-  @media screen and (max-width: 700px) {
+  @media screen and (max-width: $mobile-breakpoint) {
     &__terms-modal {
       .modal__content {
         bottom: 0;

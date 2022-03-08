@@ -85,7 +85,7 @@
       margin-left: 15px;
     }
 
-    @media screen and (max-width: 600px) {
+    @media screen and (max-width: $mobile-breakpoint) {
       flex-direction: column;
 
       .page-header {

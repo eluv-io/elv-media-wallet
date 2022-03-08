@@ -178,7 +178,7 @@ $badge-pending: rgba($darkgray, 0.8);
     }
   }
 
-  @media screen and (max-width: 800px) {
+  @media screen and (max-width: $tablet-breakpoint) {
     .no-mobile {
       display: none;
     }

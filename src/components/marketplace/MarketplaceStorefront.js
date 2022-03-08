@@ -16,7 +16,7 @@ const MarketplaceBanners = ({marketplace}) => {
       const image = (
         <ImageIcon
           icon={(
-            banner.image_mobile && rootStore.pageWidth <= 900 ?
+            banner.image_mobile && rootStore.pageWidth <= 800 ?
               banner.image_mobile : banner.image
           ).url}
         />
