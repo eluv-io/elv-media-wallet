@@ -32,7 +32,7 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
 
       setLoading(true);
 
-      const results = await transferStore.FilteredQuery({
+      const query = await transferStore.FilteredQuery({
         contractAddress,
         contractId,
         sortBy: sortField,
@@ -41,15 +41,15 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
         limit: perPage
       });
 
-      setPaging(results.paging);
+      setPaging(query.paging);
 
       if(append) {
         setListings([
           ...listings,
-          ...results.listings
+          ...query.results
         ]);
       } else {
-        setListings(results.listings);
+        setListings(query.results);
       }
     } finally {
       setLoading(false);

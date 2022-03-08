@@ -9,6 +9,13 @@ import ImageIcon from "Components/common/ImageIcon";
 import FilterIcon from "Assets/icons/search.svg";
 import XIcon from "Assets/icons/x.svg";
 
+const sortOptionsOwned = [
+  { key: "minted", value: "minted_desc", label: "Minted (Newest to Oldest)", desc: true},
+  { key: "minted", value: "minted_asc", label: "Minted (Oldest to Newest)", desc: false},
+  { key: "/meta/display_name", value: "display_name_asc", label: "Name (A-Z)", desc: false},
+  { key: "/meta/display_name", value: "display_name_desc", label: "Name (Z-A)", desc: true}
+];
+
 const sortOptionsListings = [
   { key: "created", value: "created", label: "Recently Listed", desc: true},
   { key: "info/ordinal", value: "ord", label: "Ordinal", desc: false},
@@ -25,6 +32,21 @@ const sortOptionsActivity = [
   { key: "name", value: "display_name_asc", label: "Name (A-Z)", desc: false},
   { key: "name", value: "display_name_desc", label: "Name (Z-A)", desc: true}
 ];
+
+const SortOptions = mode => {
+  switch(mode) {
+    case "owned":
+      return sortOptionsOwned;
+
+    case "listings":
+      return sortOptionsListings;
+
+    default:
+      return sortOptionsActivity;
+  }
+};
+
+let savedOptions = {};
 
 const FilterDropdown = observer(({label, value, options, onChange, placeholder}) => {
   return (
@@ -47,13 +69,6 @@ const FilterDropdown = observer(({label, value, options, onChange, placeholder})
 });
 
 const MarketplaceSelection = observer(({selected, setSelected}) => {
-  const match = useRouteMatch();
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-
-  if(marketplace) {
-    return;
-  }
-
   const availableMarketplaces = rootStore.allMarketplaces
     .filter(marketplace => marketplace.tenant_id && marketplace.branding && marketplace.branding.show && marketplace.branding.name);
 
@@ -103,20 +118,26 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const collections = marketplace && marketplace.collections;
 
+  const sortOptions = SortOptions(mode);
+  const initialOption = sortOptions[0];
+
   const initialFilter = urlParams.get("filter");
 
-  const [filterOptions, setFilterOptions] = useState(initialFilter ? [ initialFilter ] : []);
+  if(savedOptions.mode !== mode) {
+    savedOptions = {};
+  }
 
-  const [sort, setSort] = useState("created");
-  const [sortBy, setSortBy] = useState("created");
-  const [sortDesc, setSortDesc] = useState(true);
-  const [collectionIndex, setCollectionIndex] = useState(-1);
-  const [lastNDays, setLastNDays] = useState(-1);
-  const [filter, setFilter] = useState(initialFilter || "");
-  const [tenantIds, setTenantIds] = useState([]);
+  const [filterOptions, setFilterOptions] = useState(initialFilter ? [ initialFilter ] : []);
+  const [sort, setSort] = useState(savedOptions.sort || initialOption.value);
+  const [sortBy, setSortBy] = useState(savedOptions.sortBy || initialOption.key);
+  const [sortDesc, setSortDesc] = useState(savedOptions.sortDesc || initialOption.desc);
+  const [collectionIndex, setCollectionIndex] = useState(savedOptions.collectionIndex || -1);
+  const [lastNDays, setLastNDays] = useState(savedOptions.lastNDays || -1);
+  const [filter, setFilter] = useState(savedOptions.filter || initialFilter || "");
+  const [tenantIds, setTenantIds] = useState(savedOptions.tenantIds || (marketplace ? [marketplace.tenant_id] : []));
 
   const Update = async () => {
-    UpdateFilters({
+    const options = {
       sortBy,
       sortDesc,
       filter,
@@ -124,7 +145,14 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
       lastNDays,
       tenantIds,
       marketplaceId: match.params.marketplaceId
-    });
+    };
+
+    UpdateFilters(options);
+    savedOptions = {
+      ...options,
+      mode,
+      sort
+    };
   };
 
   // Initial load + load item names
@@ -140,9 +168,6 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
       rootStore.LoadAvailableMarketplaces({});
     }
   }, []);
-
-
-  const sortOptions = mode === "listings" ? sortOptionsListings : sortOptionsActivity;
 
   return (
     <>
@@ -172,13 +197,16 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
               }
             /> : null
         }
-        <FilterDropdown
-          label="Time"
-          value={lastNDays}
-          onChange={value => setLastNDays(value)}
-          placeholder={["-1", "All Time"]}
-          options={[["7", "Last 7 Days"], ["30", "Last 30 Days"]]}
-        />
+        {
+          mode === "owned" ? null :
+            <FilterDropdown
+              label="Time"
+              value={lastNDays}
+              onChange={value => setLastNDays(value)}
+              placeholder={["-1", "All Time"]}
+              options={[["7", "Last 7 Days"], ["30", "Last 30 Days"]]}
+            />
+        }
         <div className="listing-filters__autocomplete-container">
           <label className="listing-filters__label">Filter</label>
           <AutoComplete

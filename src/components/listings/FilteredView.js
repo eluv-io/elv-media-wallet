@@ -30,7 +30,7 @@ const FilteredView = ({
         start = currentPaging.start + currentPaging.limit;
       }
 
-      let {listings, paging} = await transferStore.FilteredQuery({
+      let {results, paging} = await transferStore.FilteredQuery({
         ...(currentFilters || {}),
         start,
         limit: perPage,
@@ -38,7 +38,7 @@ const FilteredView = ({
       });
 
       setPaging(paging);
-      setEntries([...(currentEntries || []), ...listings]);
+      setEntries([...(currentEntries || []), ...results]);
     } finally {
       setLoading(false);
     }

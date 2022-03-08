@@ -130,9 +130,10 @@ class RootStore {
   userAddress;
 
   lastProfileQuery = 0;
-  profileData = undefined;
 
-  nfts = [];
+  nftInfo = {};
+  nftData = {};
+
 
   marketplaceIds = [];
   marketplaces = {};
@@ -279,94 +280,101 @@ class RootStore {
     return url.toString();
   }
 
-  NFT({tokenId, contractAddress, contractId}) {
+  NFTData({tokenId, contractAddress, contractId}) {
     if(contractId) {
       contractAddress = Utils.HashToAddress(contractId);
     }
 
-    return this.nfts.find(nft =>
-      tokenId && nft.details.TokenIdStr === tokenId &&
-      contractAddress && Utils.EqualAddress(contractAddress, nft.details.ContractAddr)
-    );
+    const key = `${contractAddress}-${tokenId}`;
+    return this.nftData[key];
   }
 
-  LoadProfileData = flow(function * () {
-    this.profileData = yield this.client.ethClient.MakeProviderCall({
-      methodName: "send",
-      args: [
-        "elv_getAccountProfile",
-        [this.client.contentSpaceId, this.accountId]
-      ]
-    });
+  NFTInfo({tokenId, contractAddress, contractId}) {
+    if(contractId) {
+      contractAddress = Utils.HashToAddress(contractId);
+    }
+
+    return this.nftInfo[`${contractAddress}-${tokenId}`];
+  }
+
+  LoadNFTData = flow(function * ({tokenId, contractAddress, contractId}) {
+    if(contractId) {
+      contractAddress = Utils.HashToAddress(contractId);
+    }
+
+    const nftInfo = this.NFTInfo({tokenId, contractAddress, contractId});
+
+    if(!nftInfo) { return; }
+
+    const key = `${contractAddress}-${tokenId}`;
+    if(!this.nftData[key]) {
+      let tokenUriMeta = {};
+      try {
+        tokenUriMeta = yield (yield fetch(nftInfo.TokenUri)).json() || {};
+        // eslint-disable-next-line no-empty
+      } catch(error) {}
+
+      const metadata = (yield this.client.ContentObjectMetadata({
+        versionHash: nftInfo.VersionHash,
+        metadataSubtree: "public/asset_metadata/nft",
+        produceLinkUrls: true
+      })) || {};
+
+      return {
+        details: nftInfo,
+        metadata: {
+          ...metadata,
+          ...tokenUriMeta
+        }
+      };
+    }
+
+    return this.nftData[key];
   });
 
-  LoadWalletCollection = flow(function * (forceReload=false) {
+  LoadNFTInfo = flow(function * (forceReload=false) {
     if(this.fromEmbed) { return; }
 
-    if(forceReload || Date.now() - this.lastProfileQuery > 30000) {
+    if(!this.profileData || forceReload || Date.now() - this.lastProfileQuery > 30000) {
       this.lastProfileQuery = Date.now();
-      yield this.LoadProfileData();
+
+      this.profileData = yield this.client.ethClient.MakeProviderCall({
+        methodName: "send",
+        args: [
+          "elv_getAccountProfile",
+          [this.client.contentSpaceId, this.accountId]
+        ]
+      });
     }
 
     if(!this.profileData || !this.profileData.NFTs) { return; }
 
-    const nfts = Object.keys(this.profileData.NFTs).map(tenantId =>
-      this.profileData.NFTs[tenantId].map(details => {
+    let nftInfo = {};
+    Object.keys(this.profileData.NFTs).map(tenantId =>
+      this.profileData.NFTs[tenantId].forEach(details => {
         const versionHash = (details.TokenUri || "").split("/").find(s => s.startsWith("hq__"));
 
-        if(!versionHash) { return; }
+        if(!versionHash) {
+          return;
+        }
 
         if(details.TokenHold) {
           details.TokenHoldDate = new Date(parseInt(details.TokenHold) * 1000);
         }
 
-        return {
+        const contractAddress = Utils.FormatAddress(details.ContractAddr);
+        const key = `${contractAddress}-${details.TokenIdStr}`;
+        nftInfo[key] = {
           ...details,
           ContractAddr: Utils.FormatAddress(details.ContractAddr),
           ContractId: `ictr${Utils.AddressToHash(details.ContractAddr)}`,
           VersionHash: versionHash
         };
-      }).filter(n => n)
-    ).flat();
+      })
+    );
 
-    this.nfts = (yield Utils.LimitedMap(
-      15,
-      nfts,
-      async details => {
-        try {
-          const existing = this.NFT({contractAddress: details.ContractAddr, tokenId: details.TokenIdStr});
-
-          if(existing) {
-            return existing;
-          }
-
-          let tokenUriMeta = {};
-          try {
-            tokenUriMeta = await (await fetch(details.TokenUri)).json() || {};
-          // eslint-disable-next-line no-empty
-          } catch(error) {}
-
-          const metadata = (await this.client.ContentObjectMetadata({
-            versionHash: details.VersionHash,
-            metadataSubtree: "public/asset_metadata/nft",
-            produceLinkUrls: true
-          })) || {};
-
-          return {
-            details,
-            metadata: {
-              ...metadata,
-              ...tokenUriMeta
-            }
-          };
-        } catch(error) {
-          this.Log("Failed to load owned NFT", true);
-          this.Log(error, true);
-        }
-      }
-    )).filter(nft => nft);
+    this.nftInfo = nftInfo;
   });
-
 
   // If marketplace slug is specified, load only that marketplace. Otherwise load all
   LoadAvailableMarketplaces = flow(function * ({tenantSlug, marketplaceSlug, forceReload}={}) {
@@ -747,13 +755,13 @@ class RootStore {
 
     let items = {};
 
-    rootStore.nfts.filter(nft => {
+    Object.values(rootStore.nftInfo).filter(details => {
       const matchingItem = marketplace.items.find(item =>
-        item.nft_template && !item.nft_template["/"] && item.nft_template.nft && item.nft_template.nft.template_id && item.nft_template.nft.template_id === nft.metadata.template_id
+        item?.nft_template?.nft?.address && Utils.EqualAddress(item.nft_template.nft.address, details.ContractAddr)
       );
 
       if(matchingItem) {
-        items[matchingItem.sku] = items[matchingItem.sku] ? [ ...items[matchingItem.sku], nft ] : [ nft ];
+        items[matchingItem.sku] = items[matchingItem.sku] ? [ ...items[matchingItem.sku], details ] : [ details ];
       }
     });
 
@@ -1333,6 +1341,8 @@ class RootStore {
         configUrl: EluvioConfiguration["config-url"],
         assumeV3: true
       });
+
+      client.authServiceURIs = ["https://host-76-74-29-8.contentfabric.io"];
 
       this.staticToken = client.staticToken;
 

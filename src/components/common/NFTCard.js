@@ -12,7 +12,7 @@ import {NFTDisplayToken} from "../../utils/Utils";
 
 const MediaSelection = observer(({nft, selected, SelectMedia}) => {
   let media = nft.metadata.additional_media || [];
-  const isOwned = nft.details && rootStore.NFT({contractAddress: nft.details.ContractAddr, tokenId: nft.details.TokenIdStr});
+  const isOwned = nft.details && rootStore.NFTInfo({contractAddress: nft.details.ContractAddr, tokenId: nft.details.TokenIdStr});
 
   if(!isOwned) {
     media = media.filter(item => !item.requires_permissions);

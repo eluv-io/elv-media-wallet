@@ -13,6 +13,8 @@ import ImageIcon from "Components/common/ImageIcon";
 import ListingIcon from "Assets/icons/listing.svg";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {NFTDisplayToken} from "../../utils/Utils";
+import FilteredView from "Components/listings/FilteredView";
+import {Loader} from "Components/common/Loaders";
 
 const CollectionCard = observer(({nft, listing}) => {
   const match = useRouteMatch();
@@ -66,20 +68,45 @@ const Collections = observer(() => {
   }, []);
 
   return (
-    rootStore.nfts.length === 0 ?
-      <h2 className="marketplace__empty">Your wallet is empty</h2> :
-      <div className="card-list collections">
-        {rootStore.nfts.map(nft =>
-          <CollectionCard
-            key={`nft-card-${nft.details.ContractId}-${nft.details.TokenIdStr}`}
-            nft={nft}
-            listing={myListings.find(listing =>
-              nft.details.TokenIdStr === listing.details.TokenIdStr &&
-              Utils.EqualAddress(nft.details.ContractAddr, listing.details.ContractAddr)
-            )}
-          />
-        )}
-      </div>
+    <FilteredView
+      header="My Items"
+      mode="owned"
+      hideStats
+      Render={({entries, paging, loading}) =>
+        <>
+          {
+            !paging ? null :
+              <div className="listing-pagination">
+                {
+                  paging.total <= 0 ?
+                    "No Results" :
+                    `Showing 1 - ${entries.length} of ${paging.total} results`
+                }
+              </div>
+          }
+          {
+            entries.length === 0 ? null :
+              <div className="card-list">
+                {
+                  entries.map((nft) =>
+                    <CollectionCard
+                      key={`nft-card-${nft.details.ContractId}-${nft.details.TokenIdStr}`}
+                      nft={nft}
+                      listing={myListings.find(listing =>
+                        nft.details.TokenIdStr === listing.details.TokenIdStr &&
+                        Utils.EqualAddress(nft.details.ContractAddr, listing.details.ContractAddr)
+                      )}
+                    />
+                  )
+                }
+              </div>
+          }
+          { // Infinite scroll loading indicator
+            loading && entries.length > 1 ? <Loader className="card-list__loader"/> : null
+          }
+        </>
+      }
+    />
   );
 });
 

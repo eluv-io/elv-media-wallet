@@ -40,7 +40,7 @@ const Profile = observer(() => {
   );
 });
 
-const MobileNavigationMenu = ({marketplace, Close}) => {
+const MobileNavigationMenu = observer(({marketplace, Close}) => {
   if(!marketplace) {
     return (
       <nav className="mobile-navigation__menu">
@@ -55,7 +55,7 @@ const MobileNavigationMenu = ({marketplace, Close}) => {
         </NavLink>
         <div className="mobile-navigation__separator" />
         <NavLink className="mobile-navigation__link" to="/wallet/collection" onClick={Close}>
-          <span>My Collection</span>
+          <span>My Items</span>
         </NavLink>
         <NavLink className="mobile-navigation__link" to="/wallet/my-listings" onClick={Close}>
           <span>My Listings</span>
@@ -67,6 +67,7 @@ const MobileNavigationMenu = ({marketplace, Close}) => {
     );
   }
 
+  const fullMarketplace = rootStore.marketplaces[marketplace.marketplaceId];
   const { name } = (marketplace.branding || {});
   return (
     <nav className="mobile-navigation__menu">
@@ -80,8 +81,14 @@ const MobileNavigationMenu = ({marketplace, Close}) => {
         <span>Activity</span>
       </NavLink>
       <NavLink className="mobile-navigation__link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "collection")} onClick={Close}>
-        <span>My Collection</span>
+        <span>My Items</span>
       </NavLink>
+      {
+        fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0 ?
+          <NavLink className="mobile-navigation__link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "collections")} onClick={Close}>
+            My Collections
+          </NavLink> : null
+      }
       <NavLink className="mobile-navigation__link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "my-listings")} onClick={Close}>
         <span>My Listings</span>
       </NavLink>
@@ -97,7 +104,7 @@ const MobileNavigationMenu = ({marketplace, Close}) => {
       </NavLink>
     </nav>
   );
-};
+});
 
 const MobileNavigation = ({marketplace}) => {
   const [showMenu, setShowMenu] = useState(false);
@@ -155,7 +162,8 @@ const GlobalHeader = ({marketplace}) => {
   );
 };
 
-const SubHeaderNavigation = ({marketplace}) => {
+const SubHeaderNavigation = observer(({marketplace}) => {
+  const fullMarketplace = marketplace ? rootStore.marketplaces[marketplace.marketplaceId] : null;
   return (
     <nav className="subheader__navigation subheader__navigation--personal">
       {
@@ -164,8 +172,14 @@ const SubHeaderNavigation = ({marketplace}) => {
       }
 
       <div className="subheader__navigation--personal__links">
+        {
+          fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0 ?
+            <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "collections")}>
+              My Collections
+            </NavLink> : null
+        }
         <NavLink className="subheader__navigation-link" to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "collection") : "/wallet/collection"}>
-          My Collection
+          My Items
         </NavLink>
         <NavLink className="subheader__navigation-link" to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "my-listings") : "/wallet/my-listings"}>
           My Listings
@@ -173,7 +187,7 @@ const SubHeaderNavigation = ({marketplace}) => {
       </div>
     </nav>
   );
-};
+});
 
 const MarketplaceNavigation = ({marketplace}) => {
   const branding = marketplace.branding || {};

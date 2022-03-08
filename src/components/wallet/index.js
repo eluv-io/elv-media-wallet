@@ -59,9 +59,7 @@ const WalletWrapper = observer(({children}) => {
     <AsyncComponent
       loadKey="wallet-collection"
       cacheSeconds={30}
-      Load={async () => {
-        await rootStore.LoadWalletCollection();
-      }}
+      Load={async () => await rootStore.LoadNFTInfo()}
       loadingClassName="page-loader"
     >
       { children }
@@ -70,7 +68,7 @@ const WalletWrapper = observer(({children}) => {
 });
 
 const Routes = (match) => {
-  const nft = rootStore.NFT({contractId: match.params.contractId, tokenId: match.params.tokenId}) || { metadata: {} };
+  const nft = rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId}) || { metadata: {} };
   const listingName = transferStore.listingNames[match.params.listingId] || "Listing";
 
   return [

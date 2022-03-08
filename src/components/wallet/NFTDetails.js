@@ -227,9 +227,11 @@ const NFTDetails = observer(() => {
   const [statusCheckKey, setStatusCheckKey] = useState("");
   const [listingId, setListingId] = useState(match.params.listingId);
 
-  let nft = rootStore.NFT({contractId: match.params.contractId, tokenId: match.params.tokenId});
-  const isOwned = !!nft || (listing && Utils.EqualAddress(listing.details.SellerAddress, rootStore.userAddress));
-  const heldDate = nft && nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
+  const [nftData, setNFTData] = useState(undefined);
+
+  const nftInfo = rootStore.NFTInfo({contractId: match.params.contractId, tokenId: match.params.tokenId});
+  const isOwned = !!nftInfo || (listing && Utils.EqualAddress(listing.details.SellerAddress, rootStore.userAddress));
+  const heldDate = nftInfo && nftInfo.TokenHoldDate && (new Date() < nftInfo.TokenHoldDate) && nftInfo.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
 
   const LoadListing = async ({listingId, setLoading=false}) => {
     try {
@@ -237,7 +239,7 @@ const NFTDetails = observer(() => {
 
       const status = await transferStore.CurrentNFTStatus({
         listingId,
-        nft,
+        nft: { details: nftInfo },
         contractId: match.params.contractId,
         tokenId: match.params.tokenId
       });
@@ -264,6 +266,11 @@ const NFTDetails = observer(() => {
   useEffect(() => {
     let listingStatusInterval;
     rootStore.UpdateMetamaskChainId();
+
+    rootStore.LoadNFTData({
+      contractId: match.params.contractId,
+      tokenId: match.params.tokenId
+    }).then(nft => setNFTData(nft));
 
     LoadListing({listingId, setLoading: true});
 
@@ -311,7 +318,7 @@ const NFTDetails = observer(() => {
                   UrlJoin("/wallet", "collection")
               }
             >
-              Back to My Collection
+              Back to My Items
             </Link>
             <Link
               className="button action"
@@ -329,12 +336,13 @@ const NFTDetails = observer(() => {
     );
   }
 
-  if(!nft && !listing) {
+  if(!nftData && !listing) {
     return <PageLoader />;
   }
 
   // If NFT is not owned, use the listing
-  if(!nft) {
+  let nft = nftData;
+  if(!nftData) {
     nft = listing;
   }
 
@@ -622,7 +630,7 @@ const NFTDetails = observer(() => {
                       if(confirm("Are you sure you want to delete this NFT from your collection?")) {
                         await rootStore.BurnNFT({nft});
                         setDeleted(true);
-                        await rootStore.LoadWalletCollection(true);
+                        await rootStore.LoadNFTInfo(true);
                       }
                     }}
                   >

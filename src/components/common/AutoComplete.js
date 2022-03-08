@@ -45,7 +45,7 @@ const AutoComplete = ({
   useEffect(() => {
     if(inputValue && selectedOption && selectedOption !== inputValue && !matchingOptions.includes(inputValue)) {
       setInputValue(selectedOption);
-    } else if(!options.includes(inputValue)) {
+    } else if(inputValue && options && options.length > 0 && !options.includes(inputValue)) {
       setInputValue("");
     }
   }, [blur]);
@@ -54,7 +54,7 @@ const AutoComplete = ({
     // Only trigger onChange when a matching value is input
     if(inputValue !== value && matchingOptions.includes(inputValue)) {
       onChange(inputValue);
-    } else if(!inputValue) {
+    } else if(!inputValue || !options || options.length === 0) {
       onChange("");
       setShowSuggestions(false);
     } else {

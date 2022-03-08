@@ -31,12 +31,14 @@ class TransferStore {
   /* Listings */
 
   // Format returned listing format to match account profile format
-  FormatListing(entry) {
-    const metadata = entry.nft || {};
-    const info = entry.info || {};
+  FormatResult(entry) {
+    const isListing = !!entry.id;
 
-    const details = {
-      TenantId: entry.tenant,
+    const metadata = (isListing ? entry.nft : entry.meta) || {};
+    const info = (isListing ? entry.info : entry);
+
+    let details = {
+      TenantId: entry.tenant || entry.tenant_id,
       ContractAddr: info.contract_addr,
       ContractId: `ictr${Utils.AddressToHash(info.contract_addr)}`,
       ContractName: info.contract_name,
@@ -48,18 +50,23 @@ class TransferStore {
       TokenHoldDate: info.hold ? new Date(parseInt(info.hold) * 1000) : undefined,
       TokenOwner: Utils.FormatAddress(info.token_owner),
       VersionHash: (info.token_uri || "").split("/").find(s => s.startsWith("hq__")),
-
-      // Listing specific fields
-      ListingId: entry.id,
-      CreatedAt: entry.created * 1000,
-      UpdatedAt: entry.updated * 1000,
-      CheckoutLockedUntil: entry.checkout ? entry.checkout * 1000 : undefined,
-      SellerAddress: Utils.FormatAddress(entry.seller),
-      Price: entry.price,
-      Fee: entry.fee
     };
 
-    this.listingNames[entry.id] = this.listingNames[entry.id] || metadata.display_name || "";
+    if(isListing){
+      details = {
+        ...details,
+        // Listing specific fields
+        ListingId: entry.id,
+        CreatedAt: entry.created * 1000,
+        UpdatedAt: entry.updated * 1000,
+        CheckoutLockedUntil: entry.checkout ? entry.checkout * 1000 : undefined,
+        SellerAddress: Utils.FormatAddress(entry.seller),
+        Price: entry.price,
+        Fee: entry.fee
+      };
+
+      this.listingNames[entry.id] = this.listingNames[entry.id] || metadata.display_name || "";
+    }
 
     return {
       metadata,
@@ -143,7 +150,7 @@ class TransferStore {
         this.listings[listingKey] = {
           retrievedAt: Date.now(),
           listings: (Array.isArray(listings) ? listings : [listings])
-            .map(listing => this.FormatListing(listing))
+            .map(listing => this.FormatResult(listing))
         };
       }
 
@@ -278,7 +285,7 @@ class TransferStore {
 
           if(address) {
             filters.push(
-              `contract:eq:${Utils.FormatAddress(address)}`
+              `${mode === "owned" ? "contract_addr": "contract"}:eq:${Utils.FormatAddress(address)}`
             );
           }
         });
@@ -295,15 +302,12 @@ class TransferStore {
                 total: 0,
                 more: false
               },
-              listings: []
+              results: []
             };
           }
         }
-      } else if(marketplace) {
-        // Show only items in marketplace
-        filters.push(`tenant:eq:${marketplace.tenant_id}`);
       } else if(tenantIds) {
-        tenantIds.map(tenantId => filters.push(`tenant:eq:${tenantId}`));
+        tenantIds.map(tenantId => filters.push(`${mode === "owned" ? "tenant_id" : "tenant"}:eq:${tenantId}`));
       }
 
       if(contractAddress) {
@@ -311,6 +315,8 @@ class TransferStore {
       } else if(filter) {
         if(mode.includes("listing")) {
           filters.push(`nft/display_name:eq:${filter}`);
+        } else if(mode === "owned") {
+          filters.push(`meta:@>:{"display_name":"${filter}"}`);
         } else {
           filters.push(`name:eq:${filter}`);
         }
@@ -322,6 +328,10 @@ class TransferStore {
 
       let path;
       switch(mode) {
+        case "owned":
+          path = UrlJoin("as", "wlt", "nfts");
+          break;
+
         case "listings":
           path = UrlJoin("as", "mkt", "f");
           break;
@@ -358,7 +368,8 @@ class TransferStore {
         yield this.client.authClient.MakeAuthServiceRequest({
           path,
           method: "GET",
-          queryParams: params
+          queryParams: params,
+          headers: mode === "owned" ? { Authorization: `Bearer ${this.client.signer.authToken}` } : {}
         })
       ) || [];
 
@@ -369,7 +380,7 @@ class TransferStore {
           total: paging.total,
           more: paging.total > start + limit
         },
-        listings: (contents || []).map(listing => mode === "listings" ? this.FormatListing(listing) : listing)
+        results: (contents || []).map(item => ["owned", "listings"].includes(mode) ? this.FormatResult(item) : item)
       };
     } catch(error) {
       if(error.status && error.status.toString() === "404") {
@@ -380,7 +391,7 @@ class TransferStore {
             total: 0,
             more: false
           },
-          listings: []
+          results: []
         };
       }
 
