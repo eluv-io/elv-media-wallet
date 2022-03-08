@@ -6,9 +6,45 @@
   white-space: nowrap;
 }
 
+.scroll-text {
+  display: inline-block;
+  min-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  width: max-content;
+
+  span {
+    min-width: 100%;
+    cursor: pointer;
+  }
+
+  &:not(:hover) {
+    text-overflow: ellipsis;
+  }
+
+  &:hover,
+  &:focus {
+    span {
+      animation: scroll-text 5s linear 0s 2 normal;
+      display: inline-block;
+    }
+  }
+
+  @keyframes scroll-text {
+    0% {
+      transform: translateX(0);
+    }
+
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+}
+
 .expandable-section {
   font-size: 14px;
   margin: 10px auto;
+  position: relative;
 
   &.expandable-section-hidden {
     box-shadow: none;

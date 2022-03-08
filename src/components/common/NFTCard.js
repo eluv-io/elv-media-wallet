@@ -51,47 +51,51 @@ const NFTCard = observer(({
   link,
   showVideo,
   showOrdinal,
-  showAdditionalMedia,
   hideAvailable,
-  truncateDescription
+  truncateDescription,
+  selectedMediaIndex=-1
 }) => {
   if(item) {
     nft = { metadata: item.nftTemplateMetadata };
   }
 
-  const [selectedMediaIndex, setSelectedMediaIndex] = useState(-1);
   const selectedMedia = (selectedMediaIndex >= 0 && (nft.metadata.additional_media || [])[selectedMediaIndex]);
 
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
 
   const info = selectedListing || nft;
 
+  let details = {
+    name: selectedMedia?.name || info.metadata.display_name,
+    subtitle_1: selectedMedia ? selectedMedia.subtitle_1 : info.metadata.edition_name,
+    subtitle_2: selectedMedia ? selectedMedia.subtitle_2 : ( showOrdinal ? NFTDisplayToken(info) : undefined )
+  };
+
   const card = (
     <div className="card card-shadow">
       <NFTImage nft={nft} item={item} selectedMedia={selectedMedia} video={showVideo} />
-      { showAdditionalMedia ? <MediaSelection nft={nft} selected={selectedMediaIndex} SelectMedia={setSelectedMediaIndex} /> : null }
       <div className="card__titles">
         <h2 className="card__title">
           <div className="card__title__title">
-            { info.metadata.display_name }
+            { details.name }
           </div>
           {
-            (price || selectedListing) ?
+            !selectedMedia && (price || selectedListing) ?
               <div className="card__title__price">
                 { FormatPriceString(price || {USD: selectedListing.details.Price}) }
               </div> : null
           }
         </h2>
         {
-          info.metadata.edition_name ?
+          details.subtitle_1 ?
             <h2 className="card__title-edition">
-              { info.metadata.edition_name }
+              { details.subtitle_1 }
             </h2> : null
         }
         {
-          showOrdinal ?
+          details.subtitle_2 ?
             <h2 className="card__title-edition card__title-ordinal">
-              { NFTDisplayToken(info) }
+              { details.subtitle_2 }
             </h2> : null
         }
         {
@@ -118,7 +122,7 @@ const NFTCard = observer(({
         }
       </div>
       {
-        !hideAvailable && stock && stock.max && stock.max < 10000000 ?
+        !selectedMedia && !hideAvailable && stock && stock.max && stock.max < 10000000 ?
           <div className="card__stock">
             <div className="header-dot" style={{backgroundColor: outOfStock ? "#a4a4a4" : "#ff0000"}} />
             { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available` }

@@ -236,20 +236,6 @@ $pending-color: rgba($blue, 0.5);
     }
   }
 
-  select {
-    &.card__media-selection {
-      background-color: $white;
-      border: 1px solid $mediumgray;
-      border-radius: 10px;
-      font-size: 14px;
-      height: 35px;
-      line-height: 32px;
-      margin: 0 auto 10px;
-      text-align: center;
-      width: 100%;
-    }
-  }
-
   @media screen and (max-width: $mobile-breakpoint) {
     padding: 15px 15px 25px;
 
@@ -355,13 +341,6 @@ $pending-color: rgba($blue, 0.5);
 
     &__subtitle {
       color: $mediumgray;
-    }
-
-    select {
-      &.card__media-selection {
-        background-color: $black;
-        border: 1px solid $darkergray;
-      }
     }
   }
 

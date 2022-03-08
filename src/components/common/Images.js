@@ -35,9 +35,8 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
   }, [selectedMedia]);
 
   let url;
-  if(selectedMedia && selectedMedia.media_type === "Image" && selectedMedia.media_file) {
-    window.mediaUrl = selectedMedia.media_file;
-    url = new URL(selectedMedia.media_file.url);
+  if(selectedMedia && selectedMedia.media_type === "Image" && (selectedMedia.media_file || selectedMedia.image)) {
+    url = new URL((selectedMedia.media_file || selectedMedia.image).url);
     url.searchParams.set("authorization", selectedMedia.requires_permissions ? rootStore.authedToken : rootStore.staticToken);
 
     if(url && width) {
