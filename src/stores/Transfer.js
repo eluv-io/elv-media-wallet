@@ -177,7 +177,6 @@ class TransferStore {
       if(listingId) {
         try {
           const listingStatus = await this.ListingStatus({listingId});
-
           if(listingStatus) {
             if(listingStatus.action === "SOLD") {
               return { sale: listingStatus };
@@ -307,7 +306,7 @@ class TransferStore {
           }
         }
       } else if(tenantIds) {
-        tenantIds.map(tenantId => filters.push(`${mode === "owned" ? "tenant_id" : "tenant"}:eq:${tenantId}`));
+        tenantIds.map(tenantId => filters.push(`tenant:eq:${tenantId}`));
       }
 
       if(contractAddress) {

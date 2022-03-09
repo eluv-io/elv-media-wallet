@@ -39,6 +39,7 @@ const MarketplaceOwned = observer(() => {
       header={((marketplace.storefront || {}).tabs || {}).collection || "My Items" }
       mode="owned"
       hideStats
+      perPage={32}
       Render={({entries, paging, loading}) =>
         <>
           {

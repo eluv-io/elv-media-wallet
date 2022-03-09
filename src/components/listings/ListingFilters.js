@@ -123,7 +123,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
 
   const initialFilter = urlParams.get("filter");
 
-  if(savedOptions.mode !== mode) {
+  if(savedOptions.mode !== mode || savedOptions.marketplaceId !== marketplace?.marketplaceId) {
     savedOptions = {};
   }
 
@@ -150,6 +150,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
     UpdateFilters(options);
     savedOptions = {
       ...options,
+      marketplaceId: marketplace?.marketplaceId,
       mode,
       sort
     };

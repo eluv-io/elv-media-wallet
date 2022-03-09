@@ -248,7 +248,7 @@ const NFTDetails = observer(() => {
         setSale(status.sale);
       } else if("listing" in status) {
         setListing(status.listing);
-        setListingId(listing ? listing.details.ListingId : undefined);
+        setListingId(status.listing?.details?.ListingId);
 
         if(!match.params.contractId && !status.listing) {
           setErrorMessage("This listing has been removed");

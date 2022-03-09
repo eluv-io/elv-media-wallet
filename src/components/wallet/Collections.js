@@ -72,6 +72,7 @@ const Collections = observer(() => {
       header="My Items"
       mode="owned"
       hideStats
+      perPage={32}
       Render={({entries, paging, loading}) =>
         <>
           {
