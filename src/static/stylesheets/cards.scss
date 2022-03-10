@@ -172,6 +172,21 @@ $pending-color: rgba($blue, 0.5);
     display: flex;
     flex-direction: column;
     height: 100%;
+    position: relative;
+
+    &__return-button {
+      background-color: $lightgray;
+      border-radius: 6px;
+      height: 30px;
+      position: absolute;
+      right: 0;
+      width: 50px;
+
+      svg {
+        height: 100%;
+        padding: 7px;
+      }
+    }
   }
 
   &__title,
@@ -188,6 +203,7 @@ $pending-color: rgba($blue, 0.5);
     font-weight: 500;
     justify-content: space-between;
     line-height: 1.1em;
+    padding-right: 50px;
 
     &-edition {
       font-size: 12px;
@@ -329,6 +345,16 @@ $pending-color: rgba($blue, 0.5);
 
     &__badge {
       filter: none;
+    }
+
+    &__titles__return-button {
+      background-color: $darkergray;
+
+      svg {
+        * {
+          stroke: $lightblue;
+        }
+      }
     }
 
     &__title {

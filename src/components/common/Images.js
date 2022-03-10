@@ -21,9 +21,11 @@ export const ProfileImage = observer(({className=""}) => {
   );
 });
 
-export const NFTImage = observer(({nft, item, selectedMedia, width, video=false, className=""}) => {
+export const NFTImage = observer(({nft, item, selectedMedia, width, video=false, className="", playerCallback}) => {
   const [initialized, setInitialized] = useState(false);
   const [player, setPlayer] = useState(undefined);
+
+  useEffect(() => () => player && player.Destroy(), []);
 
   useEffect(() => {
     if(player) {
@@ -79,6 +81,8 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
     }
 
     if(embedUrl) {
+      embedUrl.searchParams.set("nwm", "");
+
       return (
         <div className="card__image-container" key={`media-${embedUrl}`}>
           <div className={`card__image card__image-video-embed ${className}`}>
@@ -95,7 +99,8 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
                     target: element,
                     url: embedUrl.toString(),
                     playerOptions: {
-                      capLevelToPlayerSize: true
+                      capLevelToPlayerSize: true,
+                      playerCallback
                     }
                   })
                 );
@@ -109,7 +114,7 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
   }
 
   return (
-    <div className="card__image-container">
+    <div className="card__image-container" ref={() => playerCallback && playerCallback(undefined)}>
       {
         nft.metadata.image ?
           <img

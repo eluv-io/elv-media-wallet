@@ -1,5 +1,4 @@
-import React, {useState, useEffect} from "react";
-import {rootStore} from "Stores";
+import React from "react";
 import {NFTImage} from "Components/common/Images";
 import {FormatPriceString} from "Components/common/UIComponents";
 import {observer} from "mobx-react";
@@ -9,38 +8,9 @@ import {render} from "react-dom";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
 import {NFTDisplayToken} from "../../utils/Utils";
+import ImageIcon from "Components/common/ImageIcon";
 
-const MediaSelection = observer(({nft, selected, SelectMedia}) => {
-  let media = nft.metadata.additional_media || [];
-  const isOwned = nft.details && rootStore.NFTInfo({contractAddress: nft.details.ContractAddr, tokenId: nft.details.TokenIdStr});
-
-  if(!isOwned) {
-    media = media.filter(item => !item.requires_permissions);
-  }
-
-  useEffect(() => {
-    const defaultMediaIndex = media.findIndex(media => media.default);
-
-    if(defaultMediaIndex > 0){
-      SelectMedia(defaultMediaIndex);
-    }
-  }, []);
-
-  if(!media || media.length === 0) {
-    return null;
-  }
-
-  return (
-    <select className="card__media-selection" value={selected} onChange={event => SelectMedia(parseInt(event.target.value))}>
-      <option value={-2}>{ "Default" }</option>
-      {
-        media.map((item, index) =>
-          <option value={index} key={`media-selection-${index}`}>{ item.name }</option>
-        )
-      }
-    </select>
-  );
-});
+import ReturnIcon from "Assets/icons/media/back to nft icon.svg";
 
 const NFTCard = observer(({
   nft,
@@ -53,16 +23,16 @@ const NFTCard = observer(({
   showOrdinal,
   hideAvailable,
   truncateDescription,
-  selectedMediaIndex=-1
+  selectedMediaIndex=-1,
+  setSelectedMediaIndex,
+  playerCallback
 }) => {
   if(item) {
     nft = { metadata: item.nftTemplateMetadata };
   }
 
   const selectedMedia = (selectedMediaIndex >= 0 && (nft.metadata.additional_media || [])[selectedMediaIndex]);
-
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
-
   const info = selectedListing || nft;
 
   let details = {
@@ -73,8 +43,14 @@ const NFTCard = observer(({
 
   const card = (
     <div className="card card-shadow">
-      <NFTImage nft={nft} item={item} selectedMedia={selectedMedia} video={showVideo} />
+      <NFTImage nft={nft} item={item} selectedMedia={selectedMedia} video={showVideo} playerCallback={playerCallback} />
       <div className="card__titles">
+        {
+          selectedMediaIndex >= 0 ?
+            <button onClick={() => setSelectedMediaIndex(-1)} className="card__titles__return-button">
+              <ImageIcon icon={ReturnIcon} title="Return to NFT" />
+            </button> : null
+        }
         <h2 className="card__title">
           <div className="card__title__title">
             { details.name }

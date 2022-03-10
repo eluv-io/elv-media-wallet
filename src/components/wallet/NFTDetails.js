@@ -23,16 +23,15 @@ import Activity from "Components/listings/Activity";
 import NFTTransfer from "Components/wallet/NFTTransfer";
 import ImageIcon from "Components/common/ImageIcon";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
+import NFTMediaControls from "Components/wallet/NFTMediaControls";
 
 import DescriptionIcon from "Assets/icons/Description icon.svg";
 import DetailsIcon from "Assets/icons/Details icon.svg";
 import ContractIcon from "Assets/icons/Contract icon.svg";
 import TraitsIcon from "Assets/icons/properties icon.svg";
-import MediaIcon from "Assets/icons/Media tab icon.svg";
+import MediaSectionIcon from "Assets/icons/Media tab icon.svg";
 import PlayIcon from "Assets/icons/blue play icon.svg";
-import NFTMediaControls from "Components/wallet/NFTMediaControls";
-
-
+import {MediaIcon} from "../../utils/Utils";
 
 const FormatRarity = (rarity) => {
   if(!rarity) {
@@ -57,7 +56,7 @@ const FormatRarity = (rarity) => {
   return `${percentage}% have this trait`;
 };
 
-const NFTMediaSection = ({nft, selectedMediaIndex, setSelectedMediaIndex}) => {
+const NFTMediaSection = ({nft, selectedMediaIndex, setSelectedMediaIndex, currentPlayerInfo}) => {
   let media = nft.metadata.additional_media || [];
   const isOwned = nft.details && rootStore.NFTInfo({contractAddress: nft.details.ContractAddr, tokenId: nft.details.TokenIdStr});
 
@@ -65,22 +64,33 @@ const NFTMediaSection = ({nft, selectedMediaIndex, setSelectedMediaIndex}) => {
     media = media.filter(item => !item.requires_permissions);
   }
 
+  if(media.length === 0) {
+    return null;
+  }
+
+  useEffect(() => {
+    const defaultMediaIndex = media.findIndex(item => item.default);
+
+    if(defaultMediaIndex >= 0) {
+      setSelectedMediaIndex(defaultMediaIndex);
+    }
+  }, []);
+
   return (
     <ExpandableSection
       expanded
       toggleable={false}
       header="Media"
-      icon={MediaIcon}
+      icon={MediaSectionIcon}
       contentClassName="details-page__media-container"
       additionalContent={
-        <NFTMediaControls nft={nft} selectedMediaIndex={selectedMediaIndex} setSelectedMediaIndex={setSelectedMediaIndex} />
+        <NFTMediaControls nft={nft} selectedMediaIndex={selectedMediaIndex} setSelectedMediaIndex={setSelectedMediaIndex} currentPlayerInfo={currentPlayerInfo} />
       }
     >
       { media.map((item, index) => {
-        let image = PlayIcon;
-
+        let image;
         if(item.image) {
-          const url = new URL(item.image.url);
+          const url = new URL(typeof item.image === "string" ? item.image : item.image.url);
           url.searchParams.set("width", "400");
           image = url.toString();
         }
@@ -92,19 +102,22 @@ const NFTMediaSection = ({nft, selectedMediaIndex, setSelectedMediaIndex}) => {
             onClick={() => setSelectedMediaIndex(index)}
           >
             <div className="details-page__media__image-container">
-              <ImageIcon icon={image} alternateIcon={PlayIcon} title={item.name} className="details-page__media__image" />
-              { index === selectedMediaIndex ? <ImageIcon icon={PlayIcon} className="details-page__media__selected-indicator" title="Selected" /> : null  }
+              { image ? <ImageIcon icon={image} title={item.name} className="details-page__media__image" /> : <div className="details-page__media__image details-page__media__image--fallback" /> }
+              { index === selectedMediaIndex ?
+                <ImageIcon icon={MediaIcon(item, true)} className="details-page__media__selected-indicator" title="Selected" /> :
+                <ImageIcon icon={PlayIcon} className="details-page__media__hover-icon" label="Play Icon" />
+              }
             </div>
             <div className="details-page__media__details">
               <ResponsiveEllipsis
                 component="h2"
                 className="details-page__media__name"
-                text={item.name}
+                text={item.name || ""}
                 maxLine="2"
               />
               <div className="details-page__media__subtitles">
-                <h3 className="details-page__media__subtitle-1 ellipsis">{item.subtitle_1}</h3>
-                <h3 className="details-page__media__subtitle-2 ellipsis">{item.subtitle_2}</h3>
+                <h3 className="details-page__media__subtitle-1 ellipsis">{item.subtitle_1 || ""}</h3>
+                <h3 className="details-page__media__subtitle-2 ellipsis">{item.subtitle_2 || ""}</h3>
               </div>
             </div>
           </button>
@@ -322,6 +335,7 @@ const NFTDetails = observer(() => {
 
   // TODO: Default media
   const [selectedMediaIndex, setSelectedMediaIndex] = useState(-1);
+  const [currentPlayerInfo, setCurrentPlayerInfo] = useState({selectedMediaIndex: selectedMediaIndex, playerInfo: undefined});
 
   const nftInfo = rootStore.NFTInfo({contractId: match.params.contractId, tokenId: match.params.tokenId});
   const isOwned = !!nftInfo || (listing && Utils.EqualAddress(listing.details.SellerAddress, rootStore.userAddress));
@@ -583,11 +597,24 @@ const NFTDetails = observer(() => {
             showVideo
             showOrdinal
             selectedMediaIndex={selectedMediaIndex}
+            setSelectedMediaIndex={setSelectedMediaIndex}
+            playerCallback={playerInfo => {
+              if(playerInfo === currentPlayerInfo?.playerInfo || playerInfo?.videoElement === currentPlayerInfo?.videoElement) {
+                return;
+              }
+
+              setCurrentPlayerInfo({selectedMediaIndex, playerInfo});
+            }}
           />
         </div>
         <div className="details-page__info">
           <NFTActions />
-          <NFTMediaSection nft={nft} selectedMediaIndex={selectedMediaIndex} setSelectedMediaIndex={setSelectedMediaIndex} />
+          <NFTMediaSection
+            nft={nft}
+            selectedMediaIndex={selectedMediaIndex}
+            setSelectedMediaIndex={setSelectedMediaIndex}
+            currentPlayerInfo={currentPlayerInfo && currentPlayerInfo.selectedMediaIndex === selectedMediaIndex ? currentPlayerInfo.playerInfo : undefined}
+          />
           <NFTDescriptionSection nft={nft} />
           <NFTTraitsSection nft={nft} />
           <NFTDetailsSection nft={nft} />

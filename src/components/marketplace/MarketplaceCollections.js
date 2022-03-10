@@ -175,6 +175,10 @@ const MarketplaceCollections = observer(() => {
     );
   });
 
+  if(collections.length === 0) {
+    return null;
+  }
+
   return (
     <>
       { modal }

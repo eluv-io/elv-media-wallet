@@ -56,11 +56,19 @@
     margin: 0 10px;
     min-width: 0;
     overflow: hidden;
-    padding: 0 10px;
+    padding: 0 10px 0 30px;
     position: relative;
+
+    &__icon {
+      fill: $blue;
+      height: 15px;
+      left: 8px;
+      position: absolute;
+    }
 
     &__text,
     &__span {
+      color: $blue;
       min-width: 100%;
     }
   }
@@ -70,6 +78,14 @@
     height: 30px;
     padding: 5px;
     width: 50px;
+
+    &--active {
+      background-color: $blue;
+
+      svg {
+        filter: invert(100%);
+      }
+    }
 
     &:not(:last-child) {
       margin-right: 10px;
@@ -336,6 +352,8 @@
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     max-height: 400px;
     overflow-y: auto;
+    // sass-lint:disable no-misspelled-properties
+    overscroll-behavior: contain;
   }
 
   &__media {
@@ -370,8 +388,13 @@
       position: absolute;
       top: 0;
       width: 100%;
+
+      &--fallback {
+        background: radial-gradient(ellipse at top, $darkgray, $black);
+      }
     }
 
+    &__hover-icon,
     &__selected-indicator {
       @include page-fade-in(0.25s);
       bottom: 8px;
@@ -380,6 +403,12 @@
       right: 8px;
       width: 20px;
       z-index: 1;
+    }
+
+    &:not(:hover) {
+      .details-page__media__hover-icon {
+        display: none;
+      }
     }
 
     &__details {
@@ -586,8 +615,16 @@
     &__title {
       background-color: $darkergray;
 
+      &__icon {
+        fill: $lightblue;
+      }
+
       &__text {
         color: $lightblue;
+
+        span {
+          color: $lightblue;
+        }
       }
     }
 
