@@ -108,6 +108,7 @@ const Routes = (match) => {
     { name: nft?.metadata?.display_name, path: "/marketplace/:marketplaceId/my-listings/:contractId/:tokenId", Component: NFTDetails },
     { name: "My Listings", path: "/marketplace/:marketplaceId/my-listings", Component: MyListings },
     { name: "Activity", path: "/marketplace/:marketplaceId/activity", Component: RecentSales },
+    { name: nft?.metadata?.display_name, path: "/marketplace/:marketplaceId/activity/:contractId/:tokenId", Component: NFTDetails },
 
     { name: "Drop Event", path: "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId", Component: Drop, hideNavigation: true },
     { name: "Status", path: "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId/status", Component: DropMintingStatus, hideNavigation: true },

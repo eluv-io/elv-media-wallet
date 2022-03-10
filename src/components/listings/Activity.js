@@ -4,13 +4,14 @@ import {Ago, MiddleEllipsis} from "../../utils/Utils";
 import FilteredView from "Components/listings/FilteredView";
 import {Link, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
+import Utils from "@eluvio/elv-client-js/src/Utils";
 
 const Activity = ({header, hideFilters, hideStats, tableHeader, initialFilters}) => {
   const match = useRouteMatch();
 
   const linkPath = match.url.startsWith("/marketplace") ?
-    UrlJoin("/marketplace", match.params.marketplaceId, "listings") :
-    UrlJoin("/wallet", "listings");
+    UrlJoin("/marketplace", match.params.marketplaceId, "activity") :
+    UrlJoin("/wallet", "activity");
 
   return (
     <FilteredView
@@ -58,8 +59,8 @@ const Activity = ({header, hideFilters, hideStats, tableHeader, initialFilters})
                   <div className="transfer-table__empty">No Sales</div> :
                   entries.map(transfer =>
                     <Link
-                      to={`${linkPath}?filter=${transfer.name}`}
-                      className="transfer-table__table__row"
+                      to={transfer.contract && transfer.token ? UrlJoin(linkPath, `ictr${Utils.AddressToHash(transfer.contract)}`, transfer.token) : null}
+                      className={`transfer-table__table__row ${!transfer.contract || !transfer.token ? "transfer-table__table__row--no-click" : ""}`}
                       key={`transfer-table-row-${transfer.id}`}
                     >
                       <div className="transfer-table__table__cell">

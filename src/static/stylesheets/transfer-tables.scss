@@ -89,6 +89,10 @@ $badge-pending: rgba($darkgray, 0.8);
   }
 
   &__table__row {
+    &--no-click {
+      cursor: auto;
+    }
+
     &:nth-child(2n) {
       background-color: $lightergray;
     }

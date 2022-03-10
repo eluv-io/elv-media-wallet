@@ -419,33 +419,32 @@ class RootStore {
       contractAddress = Utils.HashToAddress(contractId);
     }
 
-    const nftInfo = this.NFTInfo({tokenId, contractAddress, contractId});
-
-    if(!nftInfo) { return; }
-
     const key = `${contractAddress}-${tokenId}`;
     if(!this.nftData[key]) {
-      let tokenUriMeta = {};
-      try {
-        tokenUriMeta = yield (yield fetch(nftInfo.TokenUri)).json() || {};
-        // eslint-disable-next-line no-empty
-      } catch(error) {}
+      let nft = this.transferStore.FormatResult(
+        yield Utils.ResponseToJson(
+          this.client.authClient.MakeAuthServiceRequest({
+            path: UrlJoin("as", "nft", "info", contractAddress, tokenId),
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${this.client.signer.authToken}`
+            }
+          })
+        )
+      );
 
-      const metadata = (yield this.client.ContentObjectMetadata({
-        versionHash: nftInfo.VersionHash,
-        metadataSubtree: "public/asset_metadata/nft",
-        produceLinkUrls: true
-      })) || {};
-
-      //metadata.additional_media = MEDIA;
-
-      this.nftData[key] = {
-        details: nftInfo,
-        metadata: {
-          ...metadata,
-          ...tokenUriMeta
-        }
+      nft.metadata = {
+        ...(
+          (yield this.client.ContentObjectMetadata({
+            versionHash: nft.details.VersionHash,
+            metadataSubtree: "public/asset_metadata/nft",
+            produceLinkUrls: true
+          })) || {}
+        ),
+        ...(nft.metadata || {})
       };
+
+      this.nftData[key] = nft;
     }
 
     return this.nftData[key];
@@ -1461,7 +1460,7 @@ class RootStore {
         assumeV3: true
       });
 
-      client.authServiceURIs = ["https://host-76-74-29-8.contentfabric.io"];
+      //client.authServiceURIs = ["https://host-76-74-29-8.contentfabric.io"];
 
       this.staticToken = client.staticToken;
 

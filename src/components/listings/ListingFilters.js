@@ -12,8 +12,8 @@ import XIcon from "Assets/icons/x.svg";
 const sortOptionsOwned = [
   { key: "minted", value: "minted_desc", label: "Minted (Newest to Oldest)", desc: true},
   { key: "minted", value: "minted_asc", label: "Minted (Oldest to Newest)", desc: false},
-  { key: "/meta/display_name", value: "display_name_asc", label: "Name (A-Z)", desc: false},
-  { key: "/meta/display_name", value: "display_name_desc", label: "Name (Z-A)", desc: true}
+  { key: "meta/display_name", value: "display_name_asc", label: "Name (A-Z)", desc: false},
+  { key: "meta/display_name", value: "display_name_desc", label: "Name (Z-A)", desc: true}
 ];
 
 const sortOptionsListings = [
