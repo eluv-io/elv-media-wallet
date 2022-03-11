@@ -156,11 +156,17 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
     };
   };
 
-  // Initial load + load item names
+  useEffect(() => {
+    // Ensure all marketplaces are loaded so they are available in filters
+    rootStore.LoadAvailableMarketplaces({});
+  }, []);
+
   useEffect(() => {
     Update();
+  }, [sortBy, sortDesc, collectionIndex, lastNDays, filter, tenantIds]);
 
-    if(marketplace) {
+  useEffect(() => {
+    if(marketplace && tenantIds && tenantIds[0] === marketplace.tenant_id) {
       setFilterOptions(marketplace.items.map(item => (item.nftTemplateMetadata || {}).display_name || "").sort());
     } else {
       transferStore.ListingNames()
@@ -168,7 +174,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
 
       rootStore.LoadAvailableMarketplaces({});
     }
-  }, []);
+  }, [tenantIds]);
 
   return (
     <>
