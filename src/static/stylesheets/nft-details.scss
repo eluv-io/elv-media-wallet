@@ -638,6 +638,14 @@
         filter: invert(100%);
         opacity: 0.5;
       }
+
+      &--active {
+        background-color: $blue;
+
+        svg {
+          opacity: 1;
+        }
+      }
     }
   }
 }
