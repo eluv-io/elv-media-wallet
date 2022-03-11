@@ -34,7 +34,7 @@
     "@babel/cli": "^7.14.8",
     "@eluvio/elv-client-js": "^3.1.87",
     "@eluvio/elv-embed": "git+https://github.com/eluv-io/elv-embed.git",
-    "@eluvio/elv-player-js": "^1.0.70",
+    "@eluvio/elv-player-js": "^1.0.71",
     "@paypal/react-paypal-js": "^7.2.1",
     "@stripe/stripe-js": "^1.17.1",
     "country-codes-list": "^1.6.8",
@@ -51,7 +51,7 @@
     "react-router-dom": "^5.2.0",
     "round-to": "^6.0.0",
     "sanitize-html": "^2.5.1",
-    "urijs": "^1.19.7",
+    "urijs": "^1.19.10",
     "url-join": "^4.0.1"
   },
   "devDependencies": {

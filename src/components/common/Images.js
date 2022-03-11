@@ -31,11 +31,13 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
   useEffect(() => {
     if(!targetElement || !media.embedUrl) { return; }
 
+    const posterUrl = selectedMedia && selectedMedia.media_type === "Audio" && media.imageUrl ? media.imageUrl.toString() : undefined;
     Initialize({
       client: rootStore.client,
       target: targetElement,
       url: media.embedUrl.toString(),
       playerOptions: {
+        posterUrl,
         capLevelToPlayerSize: true,
         playerCallback
       }
@@ -51,14 +53,16 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
     }
 
     let imageUrl, embedUrl;
-    if(selectedMedia && selectedMedia.media_type === "Image" && (selectedMedia.media_file || selectedMedia.image)) {
-      imageUrl = new URL((selectedMedia.media_file || selectedMedia.image).url);
-      imageUrl.searchParams.set("authorization", selectedMedia.requires_permissions ? rootStore.authedToken : rootStore.staticToken);
+    if(selectedMedia) {
+      imageUrl = new URL(((selectedMedia.media_type === "Image" && selectedMedia.media_file?.url) || selectedMedia.image));
 
+      imageUrl.searchParams.set("authorization", selectedMedia.requires_permissions ? rootStore.authedToken : rootStore.staticToken);
       if(imageUrl && width) {
         imageUrl.searchParams.set("width", width);
       }
-    } else if(item && item.image || nft.metadata.image) {
+    }
+
+    if(!imageUrl && ((item && item.image) || nft.metadata.image)) {
       imageUrl = new URL((item && item.image && item.image.url) || nft.metadata.image);
       imageUrl.searchParams.set("authorization", rootStore.authedToken);
 
