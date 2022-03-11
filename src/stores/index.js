@@ -433,6 +433,14 @@ class RootStore {
         )
       );
 
+      // TODO: Remove when API returns tenant ID
+      const info = this.NFTInfo({contractAddress, tokenId});
+      if(info) {
+        nft.details.TenantId = info.TenantId;
+        nft.details.TokenOwner = info.TokenOwner;
+      }
+
+
       nft.metadata = {
         ...(
           (yield this.client.ContentObjectMetadata({

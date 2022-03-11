@@ -5,6 +5,7 @@ import ListingFilters from "Components/listings/ListingFilters";
 import {useInfiniteScroll} from "react-g-infinite-scroll";
 import {transferStore} from "Stores";
 
+let cachedResults = {};
 const FilteredView = ({
   header,
   mode="listings",
@@ -23,22 +24,48 @@ const FilteredView = ({
 
   const Load = async ({currentFilters={}, currentPaging, currentEntries = []} = {}) => {
     try {
-      setLoading(true);
-
       let start = 0;
       if(currentPaging) {
         start = currentPaging.start + currentPaging.limit;
       }
 
-      let {results, paging} = await transferStore.FilteredQuery({
-        ...(currentFilters || {}),
-        start,
-        limit: perPage,
-        mode
+      // Delete all expired results
+      Object.keys(cachedResults).forEach(key => {
+        if(Date.now() - cachedResults[key].retrievedAt > 30000) {
+          delete cachedResults[key];
+        }
       });
 
-      setPaging(paging);
-      setEntries([...(currentEntries || []), ...results]);
+      // Remove saved results if the filter parameters are different or more results are being requested
+      const key = JSON.stringify(currentFilters);
+      if(cachedResults[mode] && (cachedResults[mode].key !== key || cachedResults[mode].paging.start < start)) {
+        delete cachedResults[mode];
+      }
+
+      if(!cachedResults[mode]) {
+        setLoading(true);
+
+        let {results, paging} = await transferStore.FilteredQuery({
+          ...(currentFilters || {}),
+          start,
+          limit: perPage,
+          mode
+        });
+
+        cachedResults[mode] = {
+          key,
+          retrievedAt: Date.now(),
+          paging,
+          entries: [...(currentEntries || []), ...results]
+        };
+      }
+
+      setPaging(cachedResults[mode].paging);
+      setEntries(cachedResults[mode].entries);
+
+      if(cachedResults[mode].scroll) {
+        setTimeout(() => window.scrollTo({top: cachedResults[mode].scroll, behavior: "smooth"}), 100);
+      }
     } finally {
       setLoading(false);
     }
@@ -55,6 +82,13 @@ const FilteredView = ({
     if(initialFilters) {
       Load({currentFilters: initialFilters});
     }
+
+    return () => {
+      // Cache scroll position when navigating away from page with uncontained filtered view (e.g. my items)
+      if(!expectRef && cachedResults[mode]) {
+        cachedResults[mode].scroll = window.scrollY;
+      }
+    };
   }, []);
 
   return (

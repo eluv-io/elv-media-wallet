@@ -154,7 +154,7 @@ const NFTDescriptionSection = ({nft}) => {
 const NFTTraitsSection = ({nft}) => {
   const FILTERED_ATTRIBUTES = [ "Content Fabric Hash", "Creator", "Total Minted Supply" ];
   const traits = ((nft.metadata || {}).attributes || [])
-    .filter(attribute => !FILTERED_ATTRIBUTES.includes(attribute.trait_type));
+    .filter(attribute => attribute && !FILTERED_ATTRIBUTES.includes(attribute.trait_type));
 
   if(traits.length === 0) {
     return null;
