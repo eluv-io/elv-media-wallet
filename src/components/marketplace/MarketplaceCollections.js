@@ -183,7 +183,6 @@ const MarketplaceCollections = observer(() => {
     <>
       { modal }
       <div className="marketplace-listings marketplace__section">
-        <h1 className="page-header">Collections</h1>
         { collections }
       </div>
     </>

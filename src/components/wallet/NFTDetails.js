@@ -56,7 +56,7 @@ const FormatRarity = (rarity) => {
   return `${percentage}% have this trait`;
 };
 
-const NFTMediaSection = ({nft, selectedMediaIndex, setSelectedMediaIndex, currentPlayerInfo}) => {
+const NFTMediaSection = ({nft, containerElement, selectedMediaIndex, setSelectedMediaIndex, currentPlayerInfo}) => {
   let media = nft.metadata.additional_media || [];
   const isOwned = nft.details && rootStore.NFTInfo({contractAddress: nft.details.ContractAddr, tokenId: nft.details.TokenIdStr});
 
@@ -84,7 +84,13 @@ const NFTMediaSection = ({nft, selectedMediaIndex, setSelectedMediaIndex, curren
       icon={MediaSectionIcon}
       contentClassName="details-page__media-container"
       additionalContent={
-        <NFTMediaControls nft={nft} selectedMediaIndex={selectedMediaIndex} setSelectedMediaIndex={setSelectedMediaIndex} currentPlayerInfo={currentPlayerInfo} />
+        <NFTMediaControls
+          nft={nft}
+          containerElement={containerElement}
+          selectedMediaIndex={selectedMediaIndex}
+          setSelectedMediaIndex={setSelectedMediaIndex}
+          currentPlayerInfo={currentPlayerInfo}
+        />
       }
     >
       { media.map((item, index) => {
@@ -99,7 +105,17 @@ const NFTMediaSection = ({nft, selectedMediaIndex, setSelectedMediaIndex, curren
           <button
             key={`alternate-media-${index}`}
             className={`details-page__media ${index === selectedMediaIndex ? "details-page__media--selected" : ""}`}
-            onClick={() => setSelectedMediaIndex(index)}
+            onClick={() => {
+              setSelectedMediaIndex(index);
+
+              if(containerElement) {
+                const top = containerElement.getBoundingClientRect().top;
+
+                if(item.media_type !== "Audio" && top < 0) {
+                  window.scrollTo({top: Math.max(0, window.scrollY + top - 20), behavior: "smooth"});
+                }
+              }
+            }}
           >
             <div className="details-page__media__image-container">
               { image ? <ImageIcon icon={image} title={item.name} className="details-page__media__image" /> : <div className="details-page__media__image details-page__media__image--fallback" /> }
@@ -330,6 +346,7 @@ const NFTDetails = observer(() => {
 
   const [statusCheckKey, setStatusCheckKey] = useState("");
   const [listingId, setListingId] = useState(match.params.listingId);
+  const [detailsRef, setDetailsRef] = useState(undefined);
 
   const [nftData, setNFTData] = useState(undefined);
 
@@ -347,12 +364,12 @@ const NFTDetails = observer(() => {
 
       const status = await transferStore.CurrentNFTStatus({
         listingId,
-        nft: { details: nftInfo },
+        nft: nftData || (nftInfo ? { details: nftInfo } : undefined),
         contractId: match.params.contractId,
         tokenId: match.params.tokenId
       });
 
-      if("sale" in status) {
+      if(match.params.listingId && "sale" in status) {
         setSale(status.sale);
       } else if("listing" in status) {
         setListing(status.listing);
@@ -375,10 +392,12 @@ const NFTDetails = observer(() => {
     let listingStatusInterval;
     rootStore.UpdateMetamaskChainId();
 
-    rootStore.LoadNFTData({
-      contractId: match.params.contractId,
-      tokenId: match.params.tokenId
-    }).then(nft => setNFTData(nft));
+    if(match.params.contractId) {
+      rootStore.LoadNFTData({
+        contractId: match.params.contractId,
+        tokenId: match.params.tokenId
+      }).then(nft => setNFTData(nft));
+    }
 
     LoadListing({listingId, setLoading: true});
 
@@ -390,7 +409,7 @@ const NFTDetails = observer(() => {
 
   useEffect(() => {
     LoadListing({listingId});
-  }, [statusCheckKey]);
+  }, [statusCheckKey, nftData]);
 
   if(deleted) {
     return match.params.marketplaceId ?
@@ -589,7 +608,7 @@ const NFTDetails = observer(() => {
           Close={() => setShowPurchaseModal(false)}
         /> : null
       }
-      <div className="details-page">
+      <div className="details-page" ref={element => setDetailsRef(element)}>
         <div className="details-page__content-container">
           <NFTCard
             nft={nft}
@@ -611,6 +630,7 @@ const NFTDetails = observer(() => {
           <NFTActions />
           <NFTMediaSection
             nft={nft}
+            containerElement={detailsRef}
             selectedMediaIndex={selectedMediaIndex}
             setSelectedMediaIndex={setSelectedMediaIndex}
             currentPlayerInfo={currentPlayerInfo && currentPlayerInfo.selectedMediaIndex === selectedMediaIndex ? currentPlayerInfo.playerInfo : undefined}
@@ -646,4 +666,11 @@ const NFTDetails = observer(() => {
   );
 });
 
-export default NFTDetails;
+// Ensure component reloads if parameters change
+const NFTDetailsWrapper = () => {
+  const match = useRouteMatch();
+
+  return <NFTDetails key={`nft-details-${match.params.contractId}-${match.params.tokenId}-${match.params.listingId}`} />;
+};
+
+export default NFTDetailsWrapper;

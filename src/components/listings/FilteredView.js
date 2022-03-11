@@ -15,14 +15,15 @@ const FilteredView = ({
   initialFilters,
   hideFilters,
   hideStats,
-  Render
+  Render,
+  cacheDuration=30
 }) => {
   const [loading, setLoading] = useState(false);
   const [entries, setEntries] = useState([]);
   const [filters, setFilters] = useState(initialFilters);
   const [paging, setPaging] = useState(undefined);
 
-  const Load = async ({currentFilters={}, currentPaging, currentEntries = []} = {}) => {
+  const Load = async ({currentFilters={}, currentPaging, currentEntries = [], force=false} = {}) => {
     try {
       let start = 0;
       if(currentPaging) {
@@ -31,14 +32,14 @@ const FilteredView = ({
 
       // Delete all expired results
       Object.keys(cachedResults).forEach(key => {
-        if(Date.now() - cachedResults[key].retrievedAt > 30000) {
+        if(Date.now() - cachedResults[key].retrievedAt > cacheDuration * 1000) {
           delete cachedResults[key];
         }
       });
 
       // Remove saved results if the filter parameters are different or more results are being requested
       const key = JSON.stringify(currentFilters);
-      if(cachedResults[mode] && (cachedResults[mode].key !== key || cachedResults[mode].paging.start < start)) {
+      if(force || (cachedResults[mode] && (cachedResults[mode].key !== key || cachedResults[mode].paging.start < start))) {
         delete cachedResults[mode];
       }
 
@@ -98,12 +99,12 @@ const FilteredView = ({
         hideFilters ? null :
           <ListingFilters
             mode={mode}
-            UpdateFilters={async (newFilters) => {
+            UpdateFilters={async (newFilters, force) => {
               setLoading(true);
               setEntries([]);
               setPaging(undefined);
               setFilters(newFilters);
-              await Load({currentFilters: newFilters});
+              await Load({currentFilters: newFilters, force});
             }}
           />
       }

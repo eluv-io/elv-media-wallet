@@ -437,9 +437,7 @@ class RootStore {
       const info = this.NFTInfo({contractAddress, tokenId});
       if(info) {
         nft.details.TenantId = info.TenantId;
-        nft.details.TokenOwner = info.TokenOwner;
       }
-
 
       nft.metadata = {
         ...(
@@ -1468,7 +1466,7 @@ class RootStore {
         assumeV3: true
       });
 
-      //client.authServiceURIs = ["https://host-76-74-29-8.contentfabric.io"];
+      client.authServiceURIs = ["https://host-76-74-29-8.contentfabric.io"];
 
       this.staticToken = client.staticToken;
 

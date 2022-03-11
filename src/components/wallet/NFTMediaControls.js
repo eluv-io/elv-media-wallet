@@ -50,7 +50,17 @@ const UpdateCallbacks = ({newVideo, oldVideo, order, loop, selectedMediaIndex, s
   }
 };
 
-const NFTMediaControls = ({nft, selectedMediaIndex, setSelectedMediaIndex, currentPlayerInfo}) => {
+const ScrollToMedia = (selectedMedia, containerElement) => {
+  if(containerElement) {
+    const top = containerElement.getBoundingClientRect().top;
+
+    if(selectedMedia?.media_type !== "Audio" && top < 0) {
+      window.scrollTo({top: Math.max(0, window.scrollY + top - 20), behavior: "smooth"});
+    }
+  }
+};
+
+const NFTMediaControls = ({nft, containerElement, selectedMediaIndex, setSelectedMediaIndex, currentPlayerInfo}) => {
   let media = nft.metadata.additional_media || [];
   const isOwned = nft.details && rootStore.NFTInfo({contractAddress: nft.details.ContractAddr, tokenId: nft.details.TokenIdStr});
 
@@ -95,12 +105,14 @@ const NFTMediaControls = ({nft, selectedMediaIndex, setSelectedMediaIndex, curre
         <button
           disabled={selectedMediaIndex === order[0]}
           onClick={() => {
-            if(selectedMediaIndex < 0) {
-              setSelectedMediaIndex(order.slice(-1)[0]);
-            } else {
-              const currentIndex = order.findIndex(mediaIndex => mediaIndex === selectedMediaIndex);
-              setSelectedMediaIndex(order[currentIndex - 1]);
+            let newMediaIndex = order.slice(-1)[0];
+            const currentIndex = order.findIndex(mediaIndex => mediaIndex === selectedMediaIndex);
+            if(currentIndex >= 0) {
+              newMediaIndex = order[currentIndex - 1];
             }
+
+            setSelectedMediaIndex(newMediaIndex);
+            ScrollToMedia(media[newMediaIndex], containerElement);
           }}
           className="media-controls__button"
         >
@@ -114,11 +126,20 @@ const NFTMediaControls = ({nft, selectedMediaIndex, setSelectedMediaIndex, curre
             onClick={() => {
               if(selectedMediaIndex < 0) {
                 setSelectedMediaIndex(order[0]);
+
+                if(!playing) {
+                  ScrollToMedia(media[order[0]], containerElement);
+                }
+
                 return;
               }
 
               if(videoElement) {
                 videoElement.paused ? videoElement.play() : videoElement.pause();
+              }
+
+              if(!playing) {
+                ScrollToMedia(selectedMedia, containerElement);
               }
             }}
           />
@@ -126,12 +147,14 @@ const NFTMediaControls = ({nft, selectedMediaIndex, setSelectedMediaIndex, curre
         <button
           disabled={selectedMediaIndex === order.slice(-1)[0]}
           onClick={() => {
-            if(selectedMediaIndex < 0) {
-              setSelectedMediaIndex(order[0]);
-            } else {
-              const currentIndex = order.findIndex(mediaIndex => mediaIndex === selectedMediaIndex);
-              setSelectedMediaIndex(order[currentIndex + 1]);
+            let newMediaIndex = order[0];
+            const currentIndex = order.findIndex(mediaIndex => mediaIndex === selectedMediaIndex);
+            if(currentIndex >= 0) {
+              newMediaIndex = order[currentIndex + 1];
             }
+
+            setSelectedMediaIndex(newMediaIndex);
+            ScrollToMedia(media[newMediaIndex], containerElement);
           }}
           className="media-controls__button"
         >

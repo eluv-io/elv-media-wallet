@@ -23,6 +23,7 @@ const Activity = ({header, hideFilters, hideStats, tableHeader, initialFilters})
       hideStats={hideStats}
       initialFilters={initialFilters}
       header={header}
+      cacheDuration={10}
       Render={({entries, paging, scrollRef, loading}) => (
         <div
           className="transfer-table activity-table"
@@ -93,10 +94,7 @@ const Activity = ({header, hideFilters, hideStats, tableHeader, initialFilters})
 };
 
 export const RecentSales = () => (
-  <Activity
-    header="Sales History"
-    tableHeader="Recent Sales"
-  />
+  <Activity tableHeader="Recent Sales" />
 );
 
 export default Activity;

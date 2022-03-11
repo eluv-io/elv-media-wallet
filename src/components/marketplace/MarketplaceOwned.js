@@ -36,10 +36,10 @@ const MarketplaceOwned = observer(() => {
 
   return (
     <FilteredView
-      header={((marketplace.storefront || {}).tabs || {}).collection || "My Items" }
       mode="owned"
       hideStats
       perPage={32}
+      cacheDuration={30}
       Render={({entries, paging, loading}) =>
         <>
           {

@@ -359,6 +359,7 @@
   &__media {
     align-items: center;
     background-color: $lightgray;
+    border: 0.5px solid transparent;
     border-radius: 6px;
     display: flex;
     height: 100px;
@@ -366,13 +367,15 @@
     width: 100%;
 
     &--selected {
+      border: 0.5px solid $lightblue;
+      box-shadow: $lightblue 0 0 5px;
+
       .details-page__media__name {
         color: $lightblue;
       }
     }
 
     &__image-container {
-      background-color: $black;
       border-radius: 6px;
       height: 100%;
       max-width: 80px;
@@ -423,7 +426,7 @@
 
     &__name {
       font-size: 15px;
-      font-weight: 300;
+      font-weight: 400;
       line-height: 1.2em;
       transition: color 0.25s linear;
     }

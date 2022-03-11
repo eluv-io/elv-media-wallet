@@ -136,7 +136,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
   const [filter, setFilter] = useState(savedOptions.filter || initialFilter || "");
   const [tenantIds, setTenantIds] = useState(savedOptions.tenantIds || (marketplace ? [marketplace.tenant_id] : []));
 
-  const Update = async () => {
+  const Update = async (force=false) => {
     const options = {
       sortBy,
       sortDesc,
@@ -147,7 +147,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
       marketplaceId: match.params.marketplaceId
     };
 
-    UpdateFilters(options);
+    UpdateFilters(options, force);
     savedOptions = {
       ...options,
       marketplaceId: marketplace?.marketplaceId,
@@ -214,7 +214,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
             placeholder="Filter..."
             value={filter}
             onChange={value => setFilter(value)}
-            onEnterPressed={async () => await Update()}
+            onEnterPressed={async () => await Update(true)}
             options={filterOptions}
           />
         </div>
@@ -222,7 +222,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
         <div className="listing-filters__actions actions-container">
           <ButtonWithLoader
             className="action action-primary listing-filters__filter-button"
-            onClick={async () => await Update()}
+            onClick={async () => await Update(true)}
           >
             <ImageIcon icon={FilterIcon} title="Filter Results" className="action-icon" />
           </ButtonWithLoader>
