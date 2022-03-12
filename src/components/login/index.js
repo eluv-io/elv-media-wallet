@@ -67,7 +67,7 @@ const LoginBackground = observer(() => {
     let backgroundUrl = (customizationOptions.background || {}).url;
     let mobileBackgroundUrl = (customizationOptions.background_mobile || {}).url;
 
-    if(rootStore.pageWidth > 900) {
+    if(rootStore.pageWidth > 800) {
       return <div className="login-page__background" style={{ backgroundImage: `url("${backgroundUrl || mobileBackgroundUrl}")` }} />;
     } else {
       return <div className="login-page__background" style={{ backgroundImage: `url("${mobileBackgroundUrl || backgroundUrl}")` }} />;

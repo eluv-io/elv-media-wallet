@@ -59,9 +59,7 @@ const WalletWrapper = observer(({children}) => {
     <AsyncComponent
       loadKey="wallet-collection"
       cacheSeconds={30}
-      Load={async () => {
-        await rootStore.LoadWalletCollection();
-      }}
+      Load={async () => await rootStore.LoadNFTInfo()}
       loadingClassName="page-loader"
     >
       { children }
@@ -70,7 +68,7 @@ const WalletWrapper = observer(({children}) => {
 });
 
 const Routes = (match) => {
-  const nft = rootStore.NFT({contractId: match.params.contractId, tokenId: match.params.tokenId}) || { metadata: {} };
+  const nft = rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId}) || { metadata: {} };
   const listingName = transferStore.listingNames[match.params.listingId] || "Listing";
 
   return [
@@ -79,12 +77,13 @@ const Routes = (match) => {
     { name: "My Listings", path: "/wallet/my-listings/transactions", Component: MyListings },
 
     { name: "Activity", path: "/wallet/activity", Component: RecentSales },
+    { name: nft.metadata.display_name, path: "/wallet/activity/:contractId/:tokenId", Component: NFTDetails },
 
     { name: listingName, path: "/wallet/listings/:listingId", Component: NFTDetails },
     { name: "All Listings", path: "/wallet/listings", Component: Listings },
     { name: "Open Pack", path: "/wallet/collection/:contractId/:tokenId/open", Component: PackOpenStatus },
     { name: nft.metadata.display_name, path: "/wallet/collection/:contractId/:tokenId", Component: NFTDetails },
-    { name: "Wallet", path: "/wallet/collection", Component: Collections },
+    { name: "My Items", path: "/wallet/collection", Component: Collections },
 
     { name: "Purchase", path: "/wallet/listings/:tenantId/:listingId/purchase/:confirmationId/success", Component: WalletPurchase },
     { name: "Purchase", path: "/wallet/listings/:tenantId/:listingId/purchase/:confirmationId/cancel", Component: WalletPurchase },

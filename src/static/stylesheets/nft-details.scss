@@ -1,3 +1,112 @@
+.media-controls {
+  background-color: $mediumgray;
+  border-radius: 0 0 3px 3px;
+  bottom: 0;
+  height: 50px;
+  justify-content: space-between;
+  padding: 10px;
+  position: sticky;
+  width: 100%;
+
+  &,
+  &__left,
+  &__title,
+  &__right {
+    align-items: center;
+    display: flex;
+  }
+
+  &__left,
+  &__title,
+  &__right {
+    height: 100%;
+  }
+
+  &__button {
+    display: flex;
+    height: 20px;
+    padding: 3px;
+    position: relative;
+    width: 20px;
+
+    &:not(:last-child) {
+      margin-right: 10px;
+    }
+
+    &--play-pause {
+      height: 30px;
+      padding: 0;
+      width: 30px;
+    }
+
+    svg {
+      height: 100%;
+      width: 100%;
+    }
+  }
+
+  &__title {
+    background-color: $lightgray;
+    border-radius: 4px;
+    color: $blue;
+    flex: 1 1 auto;
+    font-size: 16px;
+    justify-content: flex-start;
+    margin: 0 10px;
+    min-width: 0;
+    overflow: hidden;
+    padding: 0 10px 0 30px;
+    position: relative;
+
+    &__icon {
+      fill: $blue;
+      height: 15px;
+      left: 8px;
+      position: absolute;
+    }
+
+    &__text,
+    &__span {
+      color: $blue;
+      min-width: 100%;
+    }
+  }
+
+  &__toggle {
+    background-color: $lightgray;
+    height: 30px;
+    padding: 5px;
+    transition: background-color 0.15s ease;
+    width: 50px;
+
+    &--active {
+      background-color: $blue;
+
+      svg {
+        filter: invert(100%);
+      }
+    }
+
+    &:not(:last-child) {
+      margin-right: 10px;
+    }
+
+    svg {
+      height: 100%;
+    }
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    &__toggle {
+      width: 40px;
+    }
+
+    &__title {
+      font-size: 12px;
+    }
+  }
+}
+
 .details-page {
   max-width: 100%;
   overflow-x: hidden;
@@ -21,11 +130,16 @@
     width: 100%;
   }
 
-  &__message {
+  &__message,
+  &__sub-message {
     font-size: 24px;
     font-weight: 300;
     max-width: 800px;
     text-align: center;
+  }
+
+  &__sub-message {
+    font-size: 14px;
   }
 
   .actions-container {
@@ -237,12 +351,108 @@
     font-weight: bold;
   }
 
+  &__media-container {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    max-height: 400px;
+    overflow-y: auto;
+    // sass-lint:disable no-misspelled-properties
+    overscroll-behavior: contain;
+  }
+
+  &__media {
+    align-items: center;
+    background-color: $lightgray;
+    border: 0.5px solid transparent;
+    border-radius: 6px;
+    display: flex;
+    height: 100px;
+    padding: 10px;
+    width: 100%;
+
+    &--selected {
+      border: 0.5px solid $lightblue;
+      box-shadow: $lightblue 0 0 5px;
+
+      .details-page__media__name {
+        color: $lightblue;
+      }
+    }
+
+    &__image-container {
+      border-radius: 6px;
+      height: 100%;
+      max-width: 80px;
+      position: relative;
+      width: 100%;
+    }
+
+    &__image {
+      border-radius: 6px;
+      height: 100%;
+      left: 0;
+      object-fit: contain;
+      position: absolute;
+      top: 0;
+      width: 100%;
+
+      &--fallback {
+        background: radial-gradient(ellipse at top, $darkgray, $black);
+      }
+    }
+
+    &__hover-icon,
+    &__selected-indicator {
+      @include page-fade-in(0.25s);
+      bottom: 8px;
+      height: 20px;
+      position: absolute;
+      right: 8px;
+      width: 20px;
+      z-index: 1;
+    }
+
+    &:not(:hover) {
+      .details-page__media__hover-icon {
+        display: none;
+      }
+    }
+
+    &__details {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      justify-content: space-between;
+      padding: 5px 0 0 10px;
+      text-align: left;
+      width: 100%;
+    }
+
+    &__name {
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 1.2em;
+      transition: color 0.25s linear;
+    }
+
+    &__subtitle-1 {
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    &__subtitle-2 {
+      font-size: 11px;
+      font-weight: 300;
+    }
+  }
+
   @media screen and (min-width: $tablet-breakpoint) {
     &:not(.details-page-message) {
       align-content: start;
       display: grid;
       grid-gap: 20px;
-      grid-template-columns: 5fr minmax(0, 4fr);
+      grid-template-columns: 5fr minmax(0, 5fr);
     }
 
     .expandable-section {
@@ -380,6 +590,10 @@
     &__transfer-error {
       color: $red;
     }
+
+    &__media {
+      background-color: $darkestgray;
+    }
   }
 
   .traits {
@@ -389,6 +603,53 @@
 
       &__rarity {
         color: $lightblue;
+      }
+    }
+  }
+
+  .media-controls {
+    background-color: $darkestgray;
+    border-top: 1px solid $darkergray;
+
+    &__button {
+      &:not(.media-controls__button--play-pause) {
+        svg {
+          filter: invert(100%);
+          opacity: 0.5;
+        }
+      }
+    }
+
+    &__title {
+      background-color: $darkergray;
+
+      &__icon {
+        fill: $lightblue;
+      }
+
+      &__text {
+        color: $lightblue;
+
+        span {
+          color: $lightblue;
+        }
+      }
+    }
+
+    &__toggle {
+      background-color: $darkergray;
+
+      svg {
+        filter: invert(100%);
+        opacity: 0.5;
+      }
+
+      &--active {
+        background-color: $blue;
+
+        svg {
+          opacity: 1;
+        }
       }
     }
   }

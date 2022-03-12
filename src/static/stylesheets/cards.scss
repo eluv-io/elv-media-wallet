@@ -172,6 +172,21 @@ $pending-color: rgba($blue, 0.5);
     display: flex;
     flex-direction: column;
     height: 100%;
+    position: relative;
+
+    &__return-button {
+      background-color: $lightgray;
+      border-radius: 6px;
+      height: 30px;
+      position: absolute;
+      right: 0;
+      width: 50px;
+
+      svg {
+        height: 100%;
+        padding: 7px;
+      }
+    }
   }
 
   &__title,
@@ -233,20 +248,6 @@ $pending-color: rgba($blue, 0.5);
 
     &-unavailable {
       background: $darkgray;
-    }
-  }
-
-  select {
-    &.card__media-selection {
-      background-color: $white;
-      border: 1px solid $mediumgray;
-      border-radius: 10px;
-      font-size: 14px;
-      height: 35px;
-      line-height: 32px;
-      margin: 0 auto 10px;
-      text-align: center;
-      width: 100%;
     }
   }
 
@@ -345,6 +346,16 @@ $pending-color: rgba($blue, 0.5);
       filter: none;
     }
 
+    &__titles__return-button {
+      background-color: $darkergray;
+
+      svg {
+        * {
+          stroke: $lightblue;
+        }
+      }
+    }
+
     &__title {
       font-weight: 600;
 
@@ -355,13 +366,6 @@ $pending-color: rgba($blue, 0.5);
 
     &__subtitle {
       color: $mediumgray;
-    }
-
-    select {
-      &.card__media-selection {
-        background-color: $black;
-        border: 1px solid $darkergray;
-      }
     }
   }
 

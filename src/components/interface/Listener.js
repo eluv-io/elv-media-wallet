@@ -1,4 +1,4 @@
-import {checkoutStore, rootStore} from "Stores/index";
+import {checkoutStore, rootStore, transferStore} from "Stores/index";
 import {toJS} from "mobx";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import EVENTS from "../../../client/src/Events";
@@ -102,14 +102,12 @@ export const InitializeListener = (history) => {
 
         break;
       case "items":
-        if(rootStore.nfts.length === 0) {
-          await rootStore.LoadWalletCollection();
-        }
+        await rootStore.LoadNFTInfo();
 
         if((data.params.contractAddress || data.params.contractId) && data.params.tokenId) {
-          Respond({response: FormatNFT(rootStore.NFT({contractAddress: data.params.contractAddress, contractId: data.params.contractId, tokenId: data.params.tokenId}))});
+          Respond({response: await FormatNFT(rootStore.LoadNFTData({contractAddress: data.params.contractAddress, contractId: data.params.contractId, tokenId: data.params.tokenId}))});
         } else {
-          Respond({response: rootStore.nfts.map(FormatNFT)});
+          Respond({response: (await transferStore.FilteredQuery({mode: "owned", limit: 10000, start: 0})).results || []});
         }
 
         break;

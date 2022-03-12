@@ -4,7 +4,7 @@ import {rootStore, transferStore} from "Stores/index";
 import Path from "path";
 import UrlJoin from "url-join";
 
-import {Link, Redirect, useRouteMatch} from "react-router-dom";
+import {Link, Redirect, useHistory, useRouteMatch} from "react-router-dom";
 import {ExpandableSection, CopyableField, ButtonWithLoader, FormatPriceString} from "Components/common/UIComponents";
 
 import {render} from "react-dom";
@@ -20,143 +20,18 @@ import {v4 as UUID} from "uuid";
 import NFTCard from "Components/common/NFTCard";
 import ListingStats from "Components/listings/ListingStats";
 import Activity from "Components/listings/Activity";
-
+import NFTTransfer from "Components/wallet/NFTTransfer";
+import ImageIcon from "Components/common/ImageIcon";
+import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
+import NFTMediaControls from "Components/wallet/NFTMediaControls";
 
 import DescriptionIcon from "Assets/icons/Description icon.svg";
 import DetailsIcon from "Assets/icons/Details icon.svg";
 import ContractIcon from "Assets/icons/Contract icon.svg";
 import TraitsIcon from "Assets/icons/properties icon.svg";
-
-const TransferSection = observer(({nft}) => {
-  const heldDate = nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
-  const notMetamask = !rootStore.MetamaskAvailable() && window.ethereum;
-  const notMetaMaskMessage = "Other browser extensions like Coinbase may be preventing the wallet from accessing MetaMask. Please disable them and refresh the page.";
-
-  const heldMessage = heldDate ?
-    <h3 className="details-page__transfer-details details-page__held-message">
-      Note: This NFT in a holding period until { heldDate } for payment settlement. You will not be able to transfer it until then.
-    </h3> : null;
-
-  if(rootStore.embedded) {
-    if(!rootStore.MetamaskAvailable()) {
-      return (
-        <div className="expandable-section__actions">
-          { heldMessage }
-
-          <h3 className="details-page__transfer-details">
-            You can transfer your NFT to another network using MetaMask. Please install MetaMask to transfer your NFT.
-          </h3>
-          { notMetamask ? <h3 className="details-page__transfer-details">{ notMetaMaskMessage }</h3> : "" }
-        </div>
-      );
-    }
-
-    const url = new URL(window.location.href);
-    if(!rootStore.darkMode) {
-      url.searchParams.append("lt", "");
-    }
-
-    if(rootStore.marketplaceHash) {
-      url.searchParams.append("mid", rootStore.marketplaceHash);
-    }
-
-    return (
-      <div className="expandable-section__actions">
-        { heldMessage }
-
-        <h3 className="details-page__transfer-details">
-          You can transfer your NFT to another network using MetaMask. Click the link below to open the full wallet experience and transfer your NFT.
-        </h3>
-        { notMetamask ? <h3 className="details-page__transfer-details">{ notMetaMaskMessage }</h3> : "" }
-
-        <div className="details-page__transfer-buttons">
-          <a href={url.toString()} target="_blank" className="button details-page__transfer-button details-page__transfer-link">
-            Open Full Wallet to Transfer
-          </a>
-        </div>
-      </div>
-    );
-  }
-
-  const [transferError, setTransferError] = useState(undefined);
-  const transferInfo = rootStore.transferredNFTs[`${nft.details.ContractAddr}:${nft.details.TokenIdStr}`];
-
-  if(transferInfo) {
-    return (
-      <div className="expandable-section__actions">
-        <div className="details-page__transfer-details details-page__transfer-success">
-          <h3>
-            Transfer request to { transferInfo.network.name } succeeded
-          </h3>
-
-          <a className="button details-page__transfer-details__opensea-button" target="_blank" href={transferInfo.openSeaLink} rel="noopener">Find it on OpenSea</a>
-
-          <h3 className="details-page__transfer-details__hash">
-            Hash: { transferInfo.hash }
-          </h3>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="expandable-section__actions">
-      {
-        transferError ?
-          <h3 className="details-page__transfer-details details-page__transfer-error">
-            { transferError }
-          </h3> : null
-      }
-
-      { heldMessage }
-
-      <h3 className="details-page__transfer-details">
-        {
-          rootStore.MetamaskAvailable() ?
-            "You can transfer your NFT to another network using MetaMask. Select the network you wish to transfer to in MetaMask to enable the transfer option." :
-            "Install MetaMask to transfer your NFT"
-        }
-      </h3>
-
-      { notMetamask ? <h3 className="details-page__transfer-details">{ notMetaMaskMessage }</h3> : "" }
-
-      <div className="details-page__transfer-buttons">
-        {
-          rootStore.ExternalChains()
-            .sort((a, b) => {
-              if(a.chainId === rootStore.metamaskChainId) {
-                return -1;
-              } else if(b.chainId === rootStore.metamaskChainId) {
-                return 1;
-              }
-
-              return a.name < b.name ? -1 : 1;
-            })
-            .map(({name, network, chainId}) => (
-              <button
-                key={`transfer-button-${network}`}
-                disabled={heldMessage ||!rootStore.MetamaskAvailable() || rootStore.metamaskChainId !== chainId}
-                className="action details-page__transfer-button"
-                onClick={async () => await Confirm({
-                  message: `Are you sure you want to transfer this NFT to ${name}?`,
-                  Confirm: async () => {
-                    try {
-                      await rootStore.TransferNFT({network, nft});
-                    } catch(error) {
-                      rootStore.Log(error, true);
-                      setTransferError("Failed to transfer NFT");
-                    }
-                  }
-                })}
-              >
-                Transfer NFT To { name }
-              </button>
-            ))
-        }
-      </div>
-    </div>
-  );
-});
+import MediaSectionIcon from "Assets/icons/Media tab icon.svg";
+import PlayIcon from "Assets/icons/blue play icon.svg";
+import {MediaIcon} from "../../utils/Utils";
 
 const FormatRarity = (rarity) => {
   if(!rarity) {
@@ -181,10 +56,125 @@ const FormatRarity = (rarity) => {
   return `${percentage}% have this trait`;
 };
 
-const NFTTraits = ({nft}) => {
+const NFTMediaSection = ({nft, containerElement, selectedMediaIndex, setSelectedMediaIndex, currentPlayerInfo}) => {
+  const [orderKey, setOrderKey] = useState(0);
+
+  let media = nft.metadata.additional_media || [];
+  const isOwned = nft.details && rootStore.NFTInfo({contractAddress: nft.details.ContractAddr, tokenId: nft.details.TokenIdStr});
+
+  if(!isOwned) {
+    media = media.filter(item => !item.requires_permissions);
+  }
+
+  if(media.length === 0) {
+    return null;
+  }
+
+  useEffect(() => {
+    const defaultMediaIndex = media.findIndex(item => item.default);
+
+    if(defaultMediaIndex >= 0) {
+      setSelectedMediaIndex(defaultMediaIndex);
+    }
+  }, []);
+
+  return (
+    <ExpandableSection
+      expanded
+      toggleable={false}
+      header="Media"
+      icon={MediaSectionIcon}
+      contentClassName="details-page__media-container"
+      additionalContent={
+        <NFTMediaControls
+          nft={nft}
+          containerElement={containerElement}
+          orderKey={orderKey}
+          selectedMediaIndex={selectedMediaIndex}
+          setSelectedMediaIndex={setSelectedMediaIndex}
+          currentPlayerInfo={currentPlayerInfo}
+        />
+      }
+    >
+      { media.map((item, index) => {
+        let image;
+        if(item.image) {
+          const url = new URL(typeof item.image === "string" ? item.image : item.image.url);
+          url.searchParams.set("width", "400");
+          image = url.toString();
+        }
+
+        return (
+          <button
+            key={`alternate-media-${index}`}
+            className={`details-page__media ${index === selectedMediaIndex ? "details-page__media--selected" : ""}`}
+            onClick={() => {
+              setSelectedMediaIndex(index);
+              setOrderKey(orderKey + 1);
+
+              if(containerElement) {
+                const top = containerElement.getBoundingClientRect().top;
+
+                if(item.media_type !== "Audio" && top < 0) {
+                  window.scrollTo({top: Math.max(0, window.scrollY + top - 20), behavior: "smooth"});
+                }
+              }
+            }}
+          >
+            <div className="details-page__media__image-container">
+              { image ? <ImageIcon icon={image} title={item.name} className="details-page__media__image" /> : <div className="details-page__media__image details-page__media__image--fallback" /> }
+              { index === selectedMediaIndex ?
+                <ImageIcon icon={MediaIcon(item, true)} className="details-page__media__selected-indicator" title="Selected" /> :
+                <ImageIcon icon={PlayIcon} className="details-page__media__hover-icon" label="Play Icon" />
+              }
+            </div>
+            <div className="details-page__media__details">
+              <ResponsiveEllipsis
+                component="h2"
+                className="details-page__media__name"
+                text={item.name || ""}
+                maxLine="2"
+              />
+              <div className="details-page__media__subtitles">
+                <h3 className="details-page__media__subtitle-1 ellipsis">{item.subtitle_1 || ""}</h3>
+                <h3 className="details-page__media__subtitle-2 ellipsis">{item.subtitle_2 || ""}</h3>
+              </div>
+            </div>
+          </button>
+        );
+      })}
+    </ExpandableSection>
+  );
+};
+
+const NFTDescriptionSection = ({nft}) => {
+  return (
+    <ExpandableSection header="Description" icon={DescriptionIcon}>
+      <p className="details-page__description">{ nft.metadata.description }</p>
+      {
+        nft.metadata.rich_text ?
+          <div
+            className="details-page__rich-text rich-text"
+            ref={element => {
+              if(!element) { return; }
+
+              render(
+                <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
+                  { SanitizeHTML(nft.metadata.rich_text) }
+                </ReactMarkdown>,
+                element
+              );
+            }}
+          /> : null
+      }
+    </ExpandableSection>
+  );
+};
+
+const NFTTraitsSection = ({nft}) => {
   const FILTERED_ATTRIBUTES = [ "Content Fabric Hash", "Creator", "Total Minted Supply" ];
   const traits = ((nft.metadata || {}).attributes || [])
-    .filter(attribute => !FILTERED_ATTRIBUTES.includes(attribute.trait_type));
+    .filter(attribute => attribute && !FILTERED_ATTRIBUTES.includes(attribute.trait_type));
 
   if(traits.length === 0) {
     return null;
@@ -211,8 +201,143 @@ const NFTTraits = ({nft}) => {
   );
 };
 
+const NFTDetailsSection = ({nft}) => {
+  let mintDate = nft.metadata.created_at;
+  if(mintDate) {
+    try {
+      const parsedMintDate = new Date(mintDate);
+      if(!(parsedMintDate instanceof Date && !isNaN(parsedMintDate))) {
+        rootStore.Log(`Invalid date: ${mintDate}`, true);
+      } else {
+        mintDate = `${parsedMintDate.getFullYear()}/${parsedMintDate.getMonth() + 1}/${parsedMintDate.getDate()}`;
+      }
+    } catch(error) {
+      mintDate = "";
+    }
+  }
+
+  return (
+    <ExpandableSection header="Details" icon={DetailsIcon}>
+      {
+        nft.details.TokenUri ?
+          <CopyableField value={nft.details.TokenUri}>
+            Token URI: <a href={nft.details.TokenUri} target="_blank">{ nft.details.TokenUri }</a>
+          </CopyableField>
+          : null
+      }
+      {
+        nft.metadata.embed_url ?
+          <CopyableField value={nft.metadata.embed_url}>
+            Media URL: <a href={nft.metadata.embed_url} target="_blank">{ nft.metadata.embed_url }</a>
+          </CopyableField>
+          : null
+      }
+      {
+        nft.metadata.image ?
+          <CopyableField value={nft.metadata.image}>
+            Image URL: <a href={nft.metadata.image} target="_blank">{ nft.metadata.image }</a>
+          </CopyableField>
+          : null
+      }
+      {
+        nft.metadata.creator ?
+          <div>
+            Creator: { nft.metadata.creator }
+          </div>
+          : null
+      }
+      {
+        nft.metadata.edition_name ?
+          <div>
+            Edition: { nft.metadata.edition_name }
+          </div>
+          : null
+      }
+
+      <div>Token ID: { nft.details.TokenIdStr }</div>
+
+      {
+        typeof nft.details.TokenOrdinal !== "undefined" ?
+          <div>
+            Token Ordinal: { nft.details.TokenOrdinal }
+          </div>
+          : null
+      }
+      {
+        nft.metadata.total_supply ?
+          <div>
+            Total Supply: { nft.metadata.total_supply }
+          </div>
+          : null
+      }
+      {
+        nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) ?
+          <div>
+            Held Until { nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
+          </div>
+          : null
+      }
+      <br />
+      <div>
+        { nft.metadata.copyright }
+      </div>
+      <div>
+        { mintDate ? `Minted on the Eluvio Content Fabric on ${mintDate}` : "" }
+      </div>
+    </ExpandableSection>
+  );
+};
+
+const NFTContractSection = ({nft, listing, isOwned, setDeleted}) => {
+  return (
+    <ExpandableSection header="Contract" icon={ContractIcon} className="no-padding">
+      <div className="expandable-section__content-row">
+        <CopyableField value={nft.details.ContractAddr}>
+          Contract Address: { nft.details.ContractAddr }
+        </CopyableField>
+      </div>
+      <div className="expandable-section__content-row">
+        <CopyableField value={nft.details.VersionHash}>
+          Hash: { nft.details.VersionHash }
+        </CopyableField>
+      </div>
+      <div className="expandable-section__actions">
+        <a
+          className="lookout-url"
+          target="_blank"
+          href={
+            EluvioConfiguration["config-url"].includes("main.net955305") ?
+              `https://explorer.contentfabric.io/address/${nft.details.ContractAddr}/transactions` :
+              `https://lookout.qluv.io/address/${nft.details.ContractAddr}/transactions`
+          }
+          rel="noopener"
+        >
+          See More Info on Eluvio Lookout
+        </a>
+        {
+          rootStore.funds ?
+            <ButtonWithLoader
+              className="details-page__delete-button"
+              onClick={async () => {
+                if(confirm("Are you sure you want to delete this NFT from your collection?")) {
+                  await rootStore.BurnNFT({nft});
+                  setDeleted(true);
+                  await rootStore.LoadNFTInfo(true);
+                }
+              }}
+            >
+              Delete this NFT
+            </ButtonWithLoader> : null
+        }
+      </div>
+      { isOwned && !listing ? <NFTTransfer nft={nft}/> : null }
+    </ExpandableSection>
+  );
+};
+
 const NFTDetails = observer(() => {
   const match = useRouteMatch();
+  const history = useHistory();
 
   const [opened, setOpened] = useState(false);
   const [deleted, setDeleted] = useState(false);
@@ -222,31 +347,39 @@ const NFTDetails = observer(() => {
   const [loadingListing, setLoadingListing] = useState(true);
   const [listing, setListing] = useState(undefined);
   const [sale, setSale] = useState(false);
+  const [burned, setBurned] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const [statusCheckKey, setStatusCheckKey] = useState("");
   const [listingId, setListingId] = useState(match.params.listingId);
+  const [detailsRef, setDetailsRef] = useState(undefined);
 
-  let nft = rootStore.NFT({contractId: match.params.contractId, tokenId: match.params.tokenId});
-  const isOwned = !!nft || (listing && Utils.EqualAddress(listing.details.SellerAddress, rootStore.userAddress));
-  const heldDate = nft && nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
+  const [nftData, setNFTData] = useState(undefined);
 
-  const LoadListing = async ({listingId, setLoading=false}) => {
+  // TODO: Default media
+  const [selectedMediaIndex, setSelectedMediaIndex] = useState(-1);
+  const [currentPlayerInfo, setCurrentPlayerInfo] = useState({selectedMediaIndex: selectedMediaIndex, playerInfo: undefined});
+
+  const nftInfo = rootStore.NFTInfo({contractId: match.params.contractId, tokenId: match.params.tokenId});
+  const isOwned = !!nftInfo || (listing && Utils.EqualAddress(listing.details.SellerAddress, rootStore.userAddress));
+  const heldDate = nftInfo && nftInfo.TokenHoldDate && (new Date() < nftInfo.TokenHoldDate) && nftInfo.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
+
+  const LoadListing = async ({listingId, nftData, setLoading=false}) => {
     try {
       if(setLoading) { setLoadingListing(true); }
 
       const status = await transferStore.CurrentNFTStatus({
         listingId,
-        nft,
+        nft: nftData,
         contractId: match.params.contractId,
         tokenId: match.params.tokenId
       });
 
-      if("sale" in status) {
+      if(match.params.listingId && "sale" in status) {
         setSale(status.sale);
       } else if("listing" in status) {
         setListing(status.listing);
-        setListingId(listing ? listing.details.ListingId : undefined);
+        setListingId(status.listing?.details?.ListingId);
 
         if(!match.params.contractId && !status.listing) {
           setErrorMessage("This listing has been removed");
@@ -265,7 +398,19 @@ const NFTDetails = observer(() => {
     let listingStatusInterval;
     rootStore.UpdateMetamaskChainId();
 
-    LoadListing({listingId, setLoading: true});
+    if(match.params.contractId) {
+      rootStore.LoadNFTData({
+        contractId: match.params.contractId,
+        tokenId: match.params.tokenId
+      })
+        .then(nft => {
+          setNFTData(nft);
+          LoadListing({nftData: nft, setLoading: true});
+        })
+        .catch(() => setBurned(true));
+    } else if(match.params.listingId) {
+      LoadListing({listingId: match.params.listingId, setLoading: true});
+    }
 
     listingStatusInterval = setInterval(() => setStatusCheckKey(UUID()), 60000);
 
@@ -274,7 +419,9 @@ const NFTDetails = observer(() => {
 
 
   useEffect(() => {
-    LoadListing({listingId});
+    if(statusCheckKey) {
+      LoadListing({listingId, nftData});
+    }
   }, [statusCheckKey]);
 
   if(deleted) {
@@ -311,7 +458,7 @@ const NFTDetails = observer(() => {
                   UrlJoin("/wallet", "collection")
               }
             >
-              Back to My Collection
+              Back to My Items
             </Link>
             <Link
               className="button action"
@@ -329,27 +476,32 @@ const NFTDetails = observer(() => {
     );
   }
 
-  if(!nft && !listing) {
+  if(burned) {
+    return (
+      <div className="details-page details-page-message">
+        <div className="details-page__message-container">
+          <h2 className="details-page__message">
+            This NFT no longer exists.
+          </h2>
+          <h3 className="details-page__sub-message">If it was a pack, it may have been opened.</h3>
+          <div className="actions-container">
+            <button className="button action" onClick={() => history.goBack()}>
+              Back
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if(!nftData && !listing) {
     return <PageLoader />;
   }
 
   // If NFT is not owned, use the listing
-  if(!nft) {
+  let nft = nftData;
+  if(!nftData) {
     nft = listing;
-  }
-
-  let mintDate = nft.metadata.created_at;
-  if(mintDate) {
-    try {
-      const parsedMintDate = new Date(mintDate);
-      if(!(parsedMintDate instanceof Date && !isNaN(parsedMintDate))) {
-        rootStore.Log(`Invalid date: ${mintDate}`, true);
-      } else {
-        mintDate = `${parsedMintDate.getFullYear()}/${parsedMintDate.getMonth() + 1}/${parsedMintDate.getDate()}`;
-      }
-    } catch(error) {
-      mintDate = "";
-    }
   }
 
   if(opened) {
@@ -375,7 +527,7 @@ const NFTDetails = observer(() => {
             disabled={isInCheckout}
             className="details-page__listing-button action action-primary"
             onClick={async () => {
-              const { listing } = await LoadListing({listingId});
+              const { listing } = await LoadListing({listingId, nftData});
 
               if(listing && listing.details.CheckoutLockedUntil && listing.details.CheckoutLockedUntil > Date.now()) {
                 // checkout locked
@@ -414,7 +566,7 @@ const NFTDetails = observer(() => {
             disabled={heldDate || isInCheckout}
             className="action action-primary details-page__listing-button"
             onClick={async () => {
-              const { listing } = await LoadListing({listingId});
+              const { listing } = await LoadListing({listingId, nftData});
 
               if(listing && listing.details.CheckoutLockedUntil && listing.details.CheckoutLockedUntil > Date.now()) {
                 // checkout locked
@@ -475,7 +627,7 @@ const NFTDetails = observer(() => {
                 }
               } else if(info.listingId) {
                 setListingId(info.listingId);
-                LoadListing({listingId: info.listingId, setLoading: true});
+                LoadListing({listingId: info.listingId, nftData, setLoading: true});
               }
             }}
           /> : null
@@ -487,151 +639,37 @@ const NFTDetails = observer(() => {
           Close={() => setShowPurchaseModal(false)}
         /> : null
       }
-      <div className="details-page">
+      <div className="details-page" ref={element => setDetailsRef(element)}>
         <div className="details-page__content-container">
           <NFTCard
             nft={nft}
             selectedListing={listing}
             showVideo
             showOrdinal
-            showAdditionalMedia
+            selectedMediaIndex={selectedMediaIndex}
+            setSelectedMediaIndex={setSelectedMediaIndex}
+            playerCallback={playerInfo => {
+              if(playerInfo === currentPlayerInfo?.playerInfo || playerInfo?.videoElement === currentPlayerInfo?.videoElement) {
+                return;
+              }
+
+              setCurrentPlayerInfo({selectedMediaIndex, playerInfo});
+            }}
           />
         </div>
         <div className="details-page__info">
           <NFTActions />
-          <ExpandableSection header="Description" icon={DescriptionIcon}>
-            <p className="details-page__description">{ nft.metadata.description }</p>
-            {
-              nft.metadata.rich_text ?
-                <div
-                  className="details-page__rich-text rich-text"
-                  ref={element => {
-                    if(!element) { return; }
-
-                    render(
-                      <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
-                        { SanitizeHTML(nft.metadata.rich_text) }
-                      </ReactMarkdown>,
-                      element
-                    );
-                  }}
-                /> : null
-            }
-          </ExpandableSection>
-
-          <ExpandableSection header="Details" icon={DetailsIcon}>
-            {
-              nft.details.TokenUri ?
-                <CopyableField value={nft.details.TokenUri}>
-                  Token URI: <a href={nft.details.TokenUri} target="_blank">{ nft.details.TokenUri }</a>
-                </CopyableField>
-                : null
-            }
-            {
-              nft.metadata.embed_url ?
-                <CopyableField value={nft.metadata.embed_url}>
-                  Media URL: <a href={nft.metadata.embed_url} target="_blank">{ nft.metadata.embed_url }</a>
-                </CopyableField>
-                : null
-            }
-            {
-              nft.metadata.image ?
-                <CopyableField value={nft.metadata.image}>
-                  Image URL: <a href={nft.metadata.image} target="_blank">{ nft.metadata.image }</a>
-                </CopyableField>
-                : null
-            }
-            {
-              nft.metadata.creator ?
-                <div>
-                  Creator: { nft.metadata.creator }
-                </div>
-                : null
-            }
-            {
-              nft.metadata.edition_name ?
-                <div>
-                  Edition: { nft.metadata.edition_name }
-                </div>
-                : null
-            }
-
-            <div>Token ID: { nft.details.TokenIdStr }</div>
-
-            {
-              typeof nft.details.TokenOrdinal !== "undefined" ?
-                <div>
-                  Token Ordinal: { nft.details.TokenOrdinal }
-                </div>
-                : null
-            }
-            {
-              nft.metadata.total_supply ?
-                <div>
-                  Total Supply: { nft.metadata.total_supply }
-                </div>
-                : null
-            }
-            {
-              nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) ?
-                <div>
-                  Held Until { nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
-                </div>
-                : null
-            }
-            <br />
-            <div>
-              { nft.metadata.copyright }
-            </div>
-            <div>
-              { mintDate ? `Minted on the Eluvio Content Fabric on ${mintDate}` : "" }
-            </div>
-          </ExpandableSection>
-
-          <NFTTraits nft={nft} />
-
-          <ExpandableSection header="Contract" icon={ContractIcon} className="no-padding">
-            <div className="expandable-section__content-row">
-              <CopyableField value={nft.details.ContractAddr}>
-                Contract Address: { nft.details.ContractAddr }
-              </CopyableField>
-            </div>
-            <div className="expandable-section__content-row">
-              <CopyableField value={nft.details.VersionHash}>
-                Hash: { nft.details.VersionHash }
-              </CopyableField>
-            </div>
-            <div className="expandable-section__actions">
-              <a
-                className="lookout-url"
-                target="_blank"
-                href={
-                  EluvioConfiguration["config-url"].includes("main.net955305") ?
-                    `https://explorer.contentfabric.io/address/${nft.details.ContractAddr}/transactions` :
-                    `https://lookout.qluv.io/address/${nft.details.ContractAddr}/transactions`
-                }
-                rel="noopener"
-              >
-                See More Info on Eluvio Lookout
-              </a>
-              {
-                rootStore.funds ?
-                  <ButtonWithLoader
-                    className="details-page__delete-button"
-                    onClick={async () => {
-                      if(confirm("Are you sure you want to delete this NFT from your collection?")) {
-                        await rootStore.BurnNFT({nft});
-                        setDeleted(true);
-                        await rootStore.LoadWalletCollection(true);
-                      }
-                    }}
-                  >
-                    Delete this NFT
-                  </ButtonWithLoader> : null
-              }
-            </div>
-            { isOwned && !listing ? <TransferSection nft={nft}/> : null }
-          </ExpandableSection>
+          <NFTMediaSection
+            nft={nft}
+            containerElement={detailsRef}
+            selectedMediaIndex={selectedMediaIndex}
+            setSelectedMediaIndex={setSelectedMediaIndex}
+            currentPlayerInfo={currentPlayerInfo && currentPlayerInfo.selectedMediaIndex === selectedMediaIndex ? currentPlayerInfo.playerInfo : undefined}
+          />
+          <NFTDescriptionSection nft={nft} />
+          <NFTTraitsSection nft={nft} />
+          <NFTDetailsSection nft={nft} />
+          <NFTContractSection nft={nft} listing={listing} isOwned={isOwned} setDeleted={setDeleted} />
         </div>
       </div>
       <div className="details-page__transfer-tables">
@@ -659,4 +697,11 @@ const NFTDetails = observer(() => {
   );
 });
 
-export default NFTDetails;
+// Ensure component reloads if parameters change
+const NFTDetailsWrapper = () => {
+  const match = useRouteMatch();
+
+  return <NFTDetails key={`nft-details-${match.params.contractId}-${match.params.tokenId}-${match.params.listingId}`} />;
+};
+
+export default NFTDetailsWrapper;

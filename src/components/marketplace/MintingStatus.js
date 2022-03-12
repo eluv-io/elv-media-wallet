@@ -28,9 +28,9 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
         }
 
         if(items.length > 0) {
-          await rootStore.LoadWalletCollection(true);
+          await rootStore.LoadNFTInfo();
 
-          const firstItem = rootStore.NFT({
+          const firstItem = rootStore.NFTInfo({
             contractAddress: items[0].token_addr,
             tokenId: items[0].token_id_str || items[0].token_id
           });
@@ -184,7 +184,15 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
   return (
     <AsyncComponent
       loadingClassName="page-loader"
-      Load={async () => await rootStore.LoadWalletCollection()}
+      Load={async () => {
+        await rootStore.LoadNFTInfo(true);
+
+        await Promise.all(
+          items.map(async ({token_addr, token_id_str}) =>
+            await rootStore.LoadNFTData({contractAddress: token_addr, tokenId: token_id_str})
+          )
+        );
+      }}
     >
       <div className="minting-status-results pack-results">
         <h1 className="content-header">{ header }</h1>
@@ -193,7 +201,7 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
           {
             items.map(({token_addr, token_id, token_id_str}) => {
               token_id = token_id_str || token_id;
-              const nft = rootStore.NFT({contractAddress: token_addr, tokenId: token_id});
+              const nft = rootStore.NFTData({contractAddress: token_addr, tokenId: token_id});
 
               if(!nft) { return null; }
 
@@ -272,7 +280,7 @@ export const ListingPurchaseStatus = observer(() => {
       backText={
         inMarketplace ?
           "Back to the Marketplace" :
-          "Back to My Collection"
+          "Back to My Items"
       }
     />
   );
@@ -338,7 +346,7 @@ export const ClaimMintingStatus = observer(() => {
 
   useEffect(() => {
     if(status) {
-      rootStore.LoadWalletCollection(true);
+      rootStore.LoadNFTInfo(true);
     }
   }, [status]);
 
@@ -361,9 +369,9 @@ export const ClaimMintingStatus = observer(() => {
       const itemAddress = ((marketplaceItem.nft_template || {}).nft || {}).address;
 
       if(itemAddress) {
-        items = rootStore.nfts
-          .filter(nft => Utils.EqualAddress(itemAddress, nft.details.ContractAddr))
-          .map(nft => ({token_id: nft.details.TokenIdStr, token_addr: nft.details.ContractAddr}));
+        items = Object.values(rootStore.nftInfo)
+          .filter(details => Utils.EqualAddress(itemAddress, details.ContractAddr))
+          .map(details => ({token_id: details.TokenIdStr, token_addr: details.ContractAddr}));
       }
     }
   } catch(error) {
@@ -389,7 +397,7 @@ export const PackOpenStatus = observer(() => {
   const match = useRouteMatch();
 
   // Set NFT in state so it doesn't change
-  const [nft] = useState(rootStore.NFT({contractId: match.params.contractId, tokenId: match.params.tokenId}));
+  const [nft] = useState(rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId}));
   const videoHash = nft && nft.metadata && nft.metadata.pack_options && nft.metadata.pack_options.is_openable && nft.metadata.pack_options.open_animation
     && ((nft.metadata.pack_options.open_animation["/"] && nft.metadata.pack_options.open_animation["/"].split("/").find(component => component.startsWith("hq__")) || nft.metadata.pack_options.open_anmiation["."].source));
   const basePath = match.url.startsWith("/marketplace") ?
@@ -417,7 +425,7 @@ export const PackOpenStatus = observer(() => {
         OnFinish={({status}) => setStatus(status)}
         videoHash={videoHash}
         basePath={basePath}
-        backText="Back to My Collection"
+        backText="Back to My Items"
       />
     );
   }
@@ -431,7 +439,7 @@ export const PackOpenStatus = observer(() => {
       items={items}
       basePath={basePath}
       nftBasePath={nftBasePath}
-      backText="Back to My Collection"
+      backText="Back to My Items"
     />
   );
 });

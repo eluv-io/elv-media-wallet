@@ -40,7 +40,11 @@ const MarketplaceCollections = observer(() => {
       if(item && marketplaceItems[sku] && marketplaceItems[sku].length > 0) {
         owned += 1;
 
-        const nft = marketplaceItems[sku][0];
+        const details = marketplaceItems[sku][0];
+        const nft = {
+          metadata: item.nft_template.nft,
+          details
+        };
         return (
           <div className="card-container card-shadow" key={key}>
             <Link
@@ -171,10 +175,16 @@ const MarketplaceCollections = observer(() => {
     );
   });
 
+  if(collections.length === 0) {
+    return null;
+  }
+
   return (
     <>
       { modal }
-      { collections }
+      <div className="marketplace-listings marketplace__section">
+        { collections }
+      </div>
     </>
   );
 });

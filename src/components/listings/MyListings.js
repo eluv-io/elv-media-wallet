@@ -5,7 +5,6 @@ import {rootStore, transferStore} from "Stores";
 import ListingCard from "Components/listings/ListingCard";
 import UrlJoin from "url-join";
 import {UserTransferTable} from "Components/listings/TransferTables";
-import Utils from "@eluvio/elv-client-js/src/Utils";
 
 const MyListings = observer(() => {
   const match = useRouteMatch();
@@ -15,17 +14,6 @@ const MyListings = observer(() => {
   const LoadListings = async () => {
     let retrievedListings = [...(await transferStore.FetchTransferListings({userAddress: rootStore.userAddress}))]
       .sort((a, b) => a.details.CreatedAt > b.details.CreatedAt ? -1 : 1);
-
-    if(match.params.marketplaceId) {
-      const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-      // If marketplace filtered, exclude entries that aren't present in the marketplace
-      retrievedListings = retrievedListings.filter(listing =>
-        marketplace.items.find(item => Utils.EqualAddress(
-          listing.details.ContractAddr,
-          Utils.SafeTraverse(item, "nft_template", "nft", "address"),
-        ))
-      );
-    }
 
     setListings(retrievedListings);
   };

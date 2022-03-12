@@ -16,7 +16,7 @@ const MarketplaceBanners = ({marketplace}) => {
       const image = (
         <ImageIcon
           icon={(
-            banner.image_mobile && rootStore.pageWidth <= 900 ?
+            banner.image_mobile && rootStore.pageWidth <= 800 ?
               banner.image_mobile : banner.image
           ).url}
         />
@@ -62,8 +62,6 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
     return () => clearTimeout(timeout);
   }, []);
 
-  const marketplaceItems = rootStore.MarketplaceOwnedItems(marketplace);
-
   let nextDiff = 0;
   const sections = (((marketplace.storefront || {}).sections || []).map((section, sectionIndex) => {
     const items = section.items.map((sku) => {
@@ -73,11 +71,6 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
       // Authorization
       if(!item || !item.for_sale || (item.requires_permissions && !item.authorized) || (item.type === "nft" && (!item.nft_template || item.nft_template["/"]))) {
         return;
-      }
-
-      if(item.max_per_user && marketplaceItems[item.sku] && marketplaceItems[item.sku].length >= item.max_per_user) {
-        // Purchase limit
-        // return;
       }
 
       // If filters are specified, item must match at least one

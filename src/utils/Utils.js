@@ -1,3 +1,20 @@
+import AudioPlayCircleIcon from "Assets/icons/media/blue play bars icon.svg";
+import AudioPlayIcon from "Assets/icons/media/bars icon (no circle).svg";
+import VideoPlayCircleIcon from "Assets/icons/media/video play icon.svg";
+import VideoPlayIcon from "Assets/icons/media/video play icon (no circle).svg";
+
+
+export const MediaIcon = (media, circle=false) => {
+  switch(media?.media_type) {
+    case "Audio":
+      return circle ? AudioPlayCircleIcon : AudioPlayIcon;
+    case "Video":
+      return circle ? VideoPlayCircleIcon : VideoPlayIcon;
+    default:
+      return circle ? AudioPlayCircleIcon : AudioPlayIcon;
+  }
+};
+
 export const TimeDiff = (diffSeconds) => {
   let days = Math.floor(Math.max(0, diffSeconds) / 60 / 60 / 24);
   let hours = Math.floor(Math.max(0, diffSeconds) / 60 / 60) % 24;
