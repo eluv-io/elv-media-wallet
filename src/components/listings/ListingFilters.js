@@ -165,7 +165,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
   }, [sortBy, sortDesc, collectionIndex, lastNDays, filter, tenantIds]);
 
   useEffect(() => {
-    if(marketplace && tenantIds && tenantIds[0] === marketplace.tenant_id) {
+    if(marketplace && tenantIds && tenantIds.length === 1 && tenantIds[0] === marketplace.tenant_id) {
       setFilterOptions(marketplace.items.map(item => (item.nftTemplateMetadata || {}).display_name || "").sort());
     } else {
       transferStore.ListingNames()
