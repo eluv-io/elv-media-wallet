@@ -4,7 +4,7 @@ import {rootStore, transferStore} from "Stores/index";
 import Path from "path";
 import UrlJoin from "url-join";
 
-import {Link, Redirect, useRouteMatch} from "react-router-dom";
+import {Link, Redirect, useHistory, useRouteMatch} from "react-router-dom";
 import {ExpandableSection, CopyableField, ButtonWithLoader, FormatPriceString} from "Components/common/UIComponents";
 
 import {render} from "react-dom";
@@ -57,6 +57,8 @@ const FormatRarity = (rarity) => {
 };
 
 const NFTMediaSection = ({nft, containerElement, selectedMediaIndex, setSelectedMediaIndex, currentPlayerInfo}) => {
+  const [orderKey, setOrderKey] = useState(0);
+
   let media = nft.metadata.additional_media || [];
   const isOwned = nft.details && rootStore.NFTInfo({contractAddress: nft.details.ContractAddr, tokenId: nft.details.TokenIdStr});
 
@@ -87,6 +89,7 @@ const NFTMediaSection = ({nft, containerElement, selectedMediaIndex, setSelected
         <NFTMediaControls
           nft={nft}
           containerElement={containerElement}
+          orderKey={orderKey}
           selectedMediaIndex={selectedMediaIndex}
           setSelectedMediaIndex={setSelectedMediaIndex}
           currentPlayerInfo={currentPlayerInfo}
@@ -107,6 +110,7 @@ const NFTMediaSection = ({nft, containerElement, selectedMediaIndex, setSelected
             className={`details-page__media ${index === selectedMediaIndex ? "details-page__media--selected" : ""}`}
             onClick={() => {
               setSelectedMediaIndex(index);
+              setOrderKey(orderKey + 1);
 
               if(containerElement) {
                 const top = containerElement.getBoundingClientRect().top;
@@ -333,6 +337,7 @@ const NFTContractSection = ({nft, listing, isOwned, setDeleted}) => {
 
 const NFTDetails = observer(() => {
   const match = useRouteMatch();
+  const history = useHistory();
 
   const [opened, setOpened] = useState(false);
   const [deleted, setDeleted] = useState(false);
@@ -342,6 +347,7 @@ const NFTDetails = observer(() => {
   const [loadingListing, setLoadingListing] = useState(true);
   const [listing, setListing] = useState(undefined);
   const [sale, setSale] = useState(false);
+  const [burned, setBurned] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const [statusCheckKey, setStatusCheckKey] = useState("");
@@ -358,13 +364,13 @@ const NFTDetails = observer(() => {
   const isOwned = !!nftInfo || (listing && Utils.EqualAddress(listing.details.SellerAddress, rootStore.userAddress));
   const heldDate = nftInfo && nftInfo.TokenHoldDate && (new Date() < nftInfo.TokenHoldDate) && nftInfo.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
 
-  const LoadListing = async ({listingId, setLoading=false}) => {
+  const LoadListing = async ({listingId, nftData, setLoading=false}) => {
     try {
       if(setLoading) { setLoadingListing(true); }
 
       const status = await transferStore.CurrentNFTStatus({
         listingId,
-        nft: nftData || (nftInfo ? { details: nftInfo } : undefined),
+        nft: nftData,
         contractId: match.params.contractId,
         tokenId: match.params.tokenId
       });
@@ -396,10 +402,15 @@ const NFTDetails = observer(() => {
       rootStore.LoadNFTData({
         contractId: match.params.contractId,
         tokenId: match.params.tokenId
-      }).then(nft => setNFTData(nft));
+      })
+        .then(nft => {
+          setNFTData(nft);
+          LoadListing({nftData: nft, setLoading: true});
+        })
+        .catch(() => setBurned(true));
+    } else if(match.params.listingId) {
+      LoadListing({listingId: match.params.listingId, setLoading: true});
     }
-
-    LoadListing({listingId, setLoading: true});
 
     listingStatusInterval = setInterval(() => setStatusCheckKey(UUID()), 60000);
 
@@ -408,8 +419,10 @@ const NFTDetails = observer(() => {
 
 
   useEffect(() => {
-    LoadListing({listingId});
-  }, [statusCheckKey, nftData]);
+    if(statusCheckKey) {
+      LoadListing({listingId, nftData});
+    }
+  }, [statusCheckKey]);
 
   if(deleted) {
     return match.params.marketplaceId ?
@@ -463,6 +476,24 @@ const NFTDetails = observer(() => {
     );
   }
 
+  if(burned) {
+    return (
+      <div className="details-page details-page-message">
+        <div className="details-page__message-container">
+          <h2 className="details-page__message">
+            This NFT no longer exists.
+          </h2>
+          <h3 className="details-page__sub-message">If it was a pack, it may have been opened.</h3>
+          <div className="actions-container">
+            <button className="button action" onClick={() => history.goBack()}>
+              Back
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if(!nftData && !listing) {
     return <PageLoader />;
   }
@@ -496,7 +527,7 @@ const NFTDetails = observer(() => {
             disabled={isInCheckout}
             className="details-page__listing-button action action-primary"
             onClick={async () => {
-              const { listing } = await LoadListing({listingId});
+              const { listing } = await LoadListing({listingId, nftData});
 
               if(listing && listing.details.CheckoutLockedUntil && listing.details.CheckoutLockedUntil > Date.now()) {
                 // checkout locked
@@ -535,7 +566,7 @@ const NFTDetails = observer(() => {
             disabled={heldDate || isInCheckout}
             className="action action-primary details-page__listing-button"
             onClick={async () => {
-              const { listing } = await LoadListing({listingId});
+              const { listing } = await LoadListing({listingId, nftData});
 
               if(listing && listing.details.CheckoutLockedUntil && listing.details.CheckoutLockedUntil > Date.now()) {
                 // checkout locked
@@ -596,7 +627,7 @@ const NFTDetails = observer(() => {
                 }
               } else if(info.listingId) {
                 setListingId(info.listingId);
-                LoadListing({listingId: info.listingId, setLoading: true});
+                LoadListing({listingId: info.listingId, nftData, setLoading: true});
               }
             }}
           /> : null

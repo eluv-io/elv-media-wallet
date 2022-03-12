@@ -38,7 +38,7 @@ const MarketplaceOwned = observer(() => {
     <FilteredView
       mode="owned"
       hideStats
-      perPage={32}
+      perPage={48}
       cacheDuration={30}
       Render={({entries, paging, loading}) =>
         <>

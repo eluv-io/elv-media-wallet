@@ -31,8 +31,11 @@ const UpdateCallbacks = ({newVideo, oldVideo, order, loop, selectedMediaIndex, s
 
   const PlayNext = () => {
     const currentIndex = order.findIndex(mediaIndex => mediaIndex === selectedMediaIndex);
-    if(order[currentIndex + 1]) {
+
+    if(typeof order[currentIndex + 1] !== "undefined") {
       setSelectedMediaIndex(order[currentIndex + 1]);
+    } else if(loop) {
+      setSelectedMediaIndex(order[0]);
     }
   };
 
@@ -46,7 +49,6 @@ const UpdateCallbacks = ({newVideo, oldVideo, order, loop, selectedMediaIndex, s
     newVideo.addEventListener("play", SetPlaying);
     newVideo.addEventListener("pause", SetPlaying);
     newVideo.addEventListener("ended", PlayNext);
-    newVideo.loop = loop;
   }
 };
 
@@ -60,7 +62,7 @@ const ScrollToMedia = (selectedMedia, containerElement) => {
   }
 };
 
-const NFTMediaControls = ({nft, containerElement, selectedMediaIndex, setSelectedMediaIndex, currentPlayerInfo}) => {
+const NFTMediaControls = ({nft, containerElement, selectedMediaIndex, orderKey, setSelectedMediaIndex, currentPlayerInfo}) => {
   let media = nft.metadata.additional_media || [];
   const isOwned = nft.details && rootStore.NFTInfo({contractAddress: nft.details.ContractAddr, tokenId: nft.details.TokenIdStr});
 
@@ -74,6 +76,13 @@ const NFTMediaControls = ({nft, containerElement, selectedMediaIndex, setSelecte
   const [videoElement, setVideoElement] = useState(undefined);
   const [playing, setPlaying] = useState(false);
   const [order, setOrder] = useState(media.map((_, index) => index));
+
+  useEffect(() => {
+    // If selected item was changed externally and shuffle is active, we need to reshuffle the order
+    if(shuffle) {
+      setOrder(Shuffle(order, selectedMediaIndex));
+    }
+  }, [orderKey]);
 
   useEffect(() => {
     if(selectedMediaIndex < 0) {
@@ -103,12 +112,13 @@ const NFTMediaControls = ({nft, containerElement, selectedMediaIndex, setSelecte
     <div className="media-controls">
       <div className="media-controls__left">
         <button
-          disabled={selectedMediaIndex === order[0]}
+          disabled={!loop && selectedMediaIndex === order[0]}
           onClick={() => {
             let newMediaIndex = order.slice(-1)[0];
-            const currentIndex = order.findIndex(mediaIndex => mediaIndex === selectedMediaIndex);
-            if(currentIndex >= 0) {
-              newMediaIndex = order[currentIndex - 1];
+
+            const prevIndex = order.findIndex(mediaIndex => mediaIndex === selectedMediaIndex) - 1;
+            if(prevIndex >= 0) {
+              newMediaIndex = order[prevIndex];
             }
 
             setSelectedMediaIndex(newMediaIndex);
@@ -145,12 +155,12 @@ const NFTMediaControls = ({nft, containerElement, selectedMediaIndex, setSelecte
           />
         </button>
         <button
-          disabled={selectedMediaIndex === order.slice(-1)[0]}
+          disabled={!loop && selectedMediaIndex === order.slice(-1)[0]}
           onClick={() => {
             let newMediaIndex = order[0];
-            const currentIndex = order.findIndex(mediaIndex => mediaIndex === selectedMediaIndex);
-            if(currentIndex >= 0) {
-              newMediaIndex = order[currentIndex + 1];
+            const nextIndex = order.findIndex(mediaIndex => mediaIndex === selectedMediaIndex) + 1;
+            if(nextIndex < order.length) {
+              newMediaIndex = order[nextIndex];
             }
 
             setSelectedMediaIndex(newMediaIndex);
@@ -199,9 +209,16 @@ const NFTMediaControls = ({nft, containerElement, selectedMediaIndex, setSelecte
           onClick={() => {
             setLoop(!loop);
 
-            if(videoElement) {
-              videoElement.loop = !loop;
-            }
+            // Must update callbacks so loop behavior is correct
+            UpdateCallbacks({
+              newVideo: videoElement,
+              oldVideo: videoElement,
+              order,
+              loop: !loop,
+              selectedMediaIndex,
+              setPlaying,
+              setSelectedMediaIndex
+            });
           }}
           className={`media-controls__toggle ${loop ? "media-controls__toggle--active" : ""}`}
         >

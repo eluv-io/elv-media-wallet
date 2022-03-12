@@ -53,8 +53,10 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
     }
 
     let imageUrl, embedUrl;
-    if(selectedMedia) {
-      imageUrl = new URL(((selectedMedia.media_type === "Image" && selectedMedia.media_file?.url) || selectedMedia.image));
+
+    const selectedMediaImageUrl = selectedMedia && ((selectedMedia.media_type === "Image" && selectedMedia.media_file?.url) || selectedMedia.image);
+    if(selectedMediaImageUrl) {
+      imageUrl = new URL(selectedMediaImageUrl);
 
       imageUrl.searchParams.set("authorization", selectedMedia.requires_permissions ? rootStore.authedToken : rootStore.staticToken);
       if(imageUrl && width) {
@@ -81,7 +83,6 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
         embedUrl.searchParams.set("vid", videoHash);
         embedUrl.searchParams.set("ct", "h");
         embedUrl.searchParams.set("ap", "");
-        embedUrl.searchParams.set("lp", "");
         embedUrl.searchParams.set("ath", selectedMedia.requires_permissions ? rootStore.authedToken : rootStore.staticToken);
       } else if(item && item.video) {
         embedUrl = new URL("https://embed.v3.contentfabric.io");

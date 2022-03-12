@@ -10,8 +10,7 @@ import FilterIcon from "Assets/icons/search.svg";
 import XIcon from "Assets/icons/x.svg";
 
 const sortOptionsOwned = [
-  { key: "minted", value: "minted_desc", label: "Minted (Newest to Oldest)", desc: true},
-  { key: "minted", value: "minted_asc", label: "Minted (Oldest to Newest)", desc: false},
+  { key: "default", value: "default", label: "Default", desc: true},
   { key: "meta/display_name", value: "display_name_asc", label: "Name (A-Z)", desc: false},
   { key: "meta/display_name", value: "display_name_desc", label: "Name (Z-A)", desc: true}
 ];
@@ -70,7 +69,7 @@ const FilterDropdown = observer(({label, value, options, onChange, placeholder})
 
 const MarketplaceSelection = observer(({selected, setSelected}) => {
   const availableMarketplaces = rootStore.allMarketplaces
-    .filter(marketplace => marketplace.tenant_id && marketplace.branding && marketplace.branding.show && marketplace.branding.name);
+    .filter(marketplace => marketplace && marketplace.tenant_id && marketplace.branding && marketplace.branding.show && marketplace.branding.name);
 
   if(availableMarketplaces.length === 0) {
     return;
@@ -96,7 +95,7 @@ const MarketplaceSelection = observer(({selected, setSelected}) => {
               onClick={() => setSelected(selected.filter(tid => tid !== tenantId))}
               className="listing-filters__marketplace-selection__selected__item"
             >
-              { (availableMarketplaces.find(marketplace => marketplace.tenant_id === tenantId) || {}).branding.name || "Unknown Marketplace" }
+              { (availableMarketplaces.find(marketplace => marketplace.tenant_id === tenantId))?.branding?.name || "Unknown Marketplace" }
               <ImageIcon
                 icon={XIcon}
                 title="Remove this filter"

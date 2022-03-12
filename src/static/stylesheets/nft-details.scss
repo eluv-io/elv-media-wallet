@@ -51,7 +51,6 @@
     color: $blue;
     flex: 1 1 auto;
     font-size: 16px;
-    font-weight: 300;
     justify-content: flex-start;
     margin: 0 10px;
     min-width: 0;
@@ -131,11 +130,16 @@
     width: 100%;
   }
 
-  &__message {
+  &__message,
+  &__sub-message {
     font-size: 24px;
     font-weight: 300;
     max-width: 800px;
     text-align: center;
+  }
+
+  &__sub-message {
+    font-size: 14px;
   }
 
   .actions-container {

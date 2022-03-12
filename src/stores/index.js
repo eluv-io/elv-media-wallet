@@ -1,120 +1,3 @@
-const MEDIA = [
-  {
-    name: "Run",
-    subtitle_1: "Dolly Parton",
-    subtitle_2: "Run, Rose, Run",
-    description: "Description of this item",
-    media_type: "Video",
-    media_link: {
-      "/": "/qfab/hq__972kqKUavXN6Q2QS8ifDexhcT6Kkeukqy49qYgZm2tiEhQF2U1qhwaRwcH3mugF9VvrX7Atrou/public/asset_metadata"
-    },
-    "image": {
-      "/": "./files/WEB_MKTPL PREVIEW_TREE.PNG",
-      "url": "https://host-76-74-91-6.contentfabric.io/q/hq__2cNK7ZHakEVgzaF33i48iWaypoiELCHQTYyunn5f5Y5pa5jvHqesjaxV5kzW6aaUWnzZQTf9Xb/meta/public/asset_metadata/info/items/120/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjMlJVb1JlOWVSMnYzM0hBUlFVVlNwMXJZWHp3MSJ9"
-    },
-  },
-  {
-    name: "Big Dreams and Faded Jeans",
-    subtitle_1: "Dolly Parton",
-    subtitle_2: "Run, Rose, Run",
-    description: "Description of this item",
-    media_type: "Image",
-    media_link: {
-      "/": "/qfab/hq__972kqKUavXN6Q2QS8ifDexhcT6Kkeukqy49qYgZm2tiEhQF2U1qhwaRwcH3mugF9VvrX7Atrou/public/asset_metadata"
-    },
-    "image": {
-      "/": "./files/WEB_MKTPL PREVIEW_TREE.PNG",
-      url: "https://main.net955305.contentfabric.io/s/main/q/hq__3QJg1mDKR2gEpM9ueTTdvzvhB2hbGiwDMgoi5TiZQsEd3F9z4iz4DEdKwHGr4QH4wzjA6w69Ec/files/NFT_S1_MC05_Lion.mp4.png?authorization=eyJxc3BhY2VfaWQiOiJpc3BjMlJVb1JlOWVSMnYzM0hBUlFVVlNwMXJZWHp3MSIsImFkZHIiOiIweDM0MWY0OTAyYWFiODViOTQ3ZjMxYWQ2MmEzMTY0Mzk5MmY1MjQ1NWYifQ%3D%3D.RVMyNTZLX000Z0hHclR1WUVSOHlhdnRGYnVaUHpCV1hkN2NwWUE2YzhvQ1lObmNHeE5wZm4xZWVwellLRGZMNVVRMmJyUjY3NnE1Z1BuWXhqVnFVYm9zWENZUGl0c29Z&"
-    },
-  },
-  {
-    name: "Demons",
-    subtitle_1: "Dolly Parton",
-    subtitle_2: "Run, Rose, Run",
-    description: "Description of this item",
-    media_type: "Audio",
-    media_link: {
-      "/": "/qfab/hq__972kqKUavXN6Q2QS8ifDexhcT6Kkeukqy49qYgZm2tiEhQF2U1qhwaRwcH3mugF9VvrX7Atrou/public/asset_metadata"
-    },
-    "image": {
-      "/": "./files/WEB_MKTPL PREVIEW_TREE.PNG",
-      url: "https://main.net955305.contentfabric.io/s/main/q/hq__81AzfSyd8x4aqpwyMAbvYDHPwpawmmhoH9E8Xg4zjkE8ZHGhLjKzHs7rs7KueRrzfakC4vBint/files/NFT_TMS_AMC1_Men%20in%20Black-4K.mp4.png?authorization=eyJxc3BhY2VfaWQiOiJpc3BjMlJVb1JlOWVSMnYzM0hBUlFVVlNwMXJZWHp3MSIsImFkZHIiOiIweDM0MWY0OTAyYWFiODViOTQ3ZjMxYWQ2MmEzMTY0Mzk5MmY1MjQ1NWYifQ%3D%3D.RVMyNTZLX000Z0hHclR1WUVSOHlhdnRGYnVaUHpCV1hkN2NwWUE2YzhvQ1lObmNHeE5wZm4xZWVwellLRGZMNVVRMmJyUjY3NnE1Z1BuWXhqVnFVYm9zWENZUGl0c29Z"
-    },
-  },
-  {
-    name: "Driven",
-    subtitle_1: "Dolly Parton",
-    subtitle_2: "Run, Rose, Run",
-    description: "Description of this item",
-    default: true,
-    media_type: "Audio",
-    media_link: {
-      "/": "/qfab/hq__972kqKUavXN6Q2QS8ifDexhcT6Kkeukqy49qYgZm2tiEhQF2U1qhwaRwcH3mugF9VvrX7Atrou/public/asset_metadata"
-    },
-    "image": {
-      "/": "./files/WEB_MKTPL PREVIEW_TREE.PNG",
-      url: "https://main.net955305.contentfabric.io/s/main/q/hq__DN9dm58qJAVxLcMTsDJRCYu6aRbouFECAgfShDjzstAYoBPq2MpMcNjWqdqVKyDkC7eBNzVv1x/files/EMP%20-%20Electromagnetism_store_image_compressed.jpg?authorization=eyJxc3BhY2VfaWQiOiJpc3BjMlJVb1JlOWVSMnYzM0hBUlFVVlNwMXJZWHp3MSIsImFkZHIiOiIweDM0MWY0OTAyYWFiODViOTQ3ZjMxYWQ2MmEzMTY0Mzk5MmY1MjQ1NWYifQ%3D%3D.RVMyNTZLX000Z0hHclR1WUVSOHlhdnRGYnVaUHpCV1hkN2NwWUE2YzhvQ1lObmNHeE5wZm4xZWVwellLRGZMNVVRMmJyUjY3NnE1Z1BuWXhqVnFVYm9zWENZUGl0c29Z",
-    },
-  },
-  {
-    name: "Snakes in the Grass",
-    subtitle_1: "Dolly Parton",
-    subtitle_2: "Run, Rose, Run",
-    description: "Description of this item",
-    media_type: "Audio",
-    media_link: {
-      "/": "/qfab/hq__972kqKUavXN6Q2QS8ifDexhcT6Kkeukqy49qYgZm2tiEhQF2U1qhwaRwcH3mugF9VvrX7Atrou/public/asset_metadata"
-    },
-    "image": {
-      "/": "./files/WEB_MKTPL PREVIEW_TREE.PNG",
-      "url": "https://host-76-74-91-6.contentfabric.io/q/hq__2cNK7ZHakEVgzaF33i48iWaypoiELCHQTYyunn5f5Y5pa5jvHqesjaxV5kzW6aaUWnzZQTf9Xb/meta/public/asset_metadata/info/items/120/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjMlJVb1JlOWVSMnYzM0hBUlFVVlNwMXJZWHp3MSJ9"
-    },
-  },
-  {
-    name: "Blue Bonnet Breeze",
-    subtitle_1: "Dolly Parton",
-    subtitle_2: "Run, Rose, Run",
-    description: "Description of this item",
-    media_type: "Audio",
-    media_link: {
-      "/": "/qfab/hq__972kqKUavXN6Q2QS8ifDexhcT6Kkeukqy49qYgZm2tiEhQF2U1qhwaRwcH3mugF9VvrX7Atrou/public/asset_metadata"
-    },
-    "image": {
-      "/": "./files/WEB_MKTPL PREVIEW_TREE.PNG",
-      url: "https://main.net955305.contentfabric.io/s/main/q/hq__3QJg1mDKR2gEpM9ueTTdvzvhB2hbGiwDMgoi5TiZQsEd3F9z4iz4DEdKwHGr4QH4wzjA6w69Ec/files/NFT_S1_MC05_Lion.mp4.png?authorization=eyJxc3BhY2VfaWQiOiJpc3BjMlJVb1JlOWVSMnYzM0hBUlFVVlNwMXJZWHp3MSIsImFkZHIiOiIweDM0MWY0OTAyYWFiODViOTQ3ZjMxYWQ2MmEzMTY0Mzk5MmY1MjQ1NWYifQ%3D%3D.RVMyNTZLX000Z0hHclR1WUVSOHlhdnRGYnVaUHpCV1hkN2NwWUE2YzhvQ1lObmNHeE5wZm4xZWVwellLRGZMNVVRMmJyUjY3NnE1Z1BuWXhqVnFVYm9zWENZUGl0c29Z&"
-    },
-  },
-  {
-    name: "Something Else",
-    subtitle_1: "Dolly Parton",
-    subtitle_2: "Run, Rose, Run",
-    description: "Description of this item",
-    media_type: "Audio",
-    "image": {
-      "/": "./files/WEB_MKTPL PREVIEW_TREE.PNG",
-      url: "https://main.net955305.contentfabric.io/s/main/q/hq__81AzfSyd8x4aqpwyMAbvYDHPwpawmmhoH9E8Xg4zjkE8ZHGhLjKzHs7rs7KueRrzfakC4vBint/files/NFT_TMS_AMC1_Men%20in%20Black-4K.mp4.png?authorization=eyJxc3BhY2VfaWQiOiJpc3BjMlJVb1JlOWVSMnYzM0hBUlFVVlNwMXJZWHp3MSIsImFkZHIiOiIweDM0MWY0OTAyYWFiODViOTQ3ZjMxYWQ2MmEzMTY0Mzk5MmY1MjQ1NWYifQ%3D%3D.RVMyNTZLX000Z0hHclR1WUVSOHlhdnRGYnVaUHpCV1hkN2NwWUE2YzhvQ1lObmNHeE5wZm4xZWVwellLRGZMNVVRMmJyUjY3NnE1Z1BuWXhqVnFVYm9zWENZUGl0c29Z"
-    },
-    media_link: {
-      "/": "/qfab/hq__972kqKUavXN6Q2QS8ifDexhcT6Kkeukqy49qYgZm2tiEhQF2U1qhwaRwcH3mugF9VvrX7Atrou/public/asset_metadata"
-    }
-  },
-  {
-    name: "This Song has a Very Long Title But Maybe we should Add Ellipsis",
-    subtitle_1: "Dolly Parton",
-    subtitle_2: "Run, Rose, Run",
-    description: "Description of this item",
-    media_type: "Audio",
-    media_link: {
-      "/": "/qfab/hq__972kqKUavXN6Q2QS8ifDexhcT6Kkeukqy49qYgZm2tiEhQF2U1qhwaRwcH3mugF9VvrX7Atrou/public/asset_metadata"
-    },
-    "image": {
-      "/": "./files/WEB_MKTPL PREVIEW_TREE.PNG",
-      url: "https://main.net955305.contentfabric.io/s/main/q/hq__DN9dm58qJAVxLcMTsDJRCYu6aRbouFECAgfShDjzstAYoBPq2MpMcNjWqdqVKyDkC7eBNzVv1x/files/EMP%20-%20Electromagnetism_store_image_compressed.jpg?authorization=eyJxc3BhY2VfaWQiOiJpc3BjMlJVb1JlOWVSMnYzM0hBUlFVVlNwMXJZWHp3MSIsImFkZHIiOiIweDM0MWY0OTAyYWFiODViOTQ3ZjMxYWQ2MmEzMTY0Mzk5MmY1MjQ1NWYifQ%3D%3D.RVMyNTZLX000Z0hHclR1WUVSOHlhdnRGYnVaUHpCV1hkN2NwWUE2YzhvQ1lObmNHeE5wZm4xZWVwellLRGZMNVVRMmJyUjY3NnE1Z1BuWXhqVnFVYm9zWENZUGl0c29Z",
-    },
-  }
-];
-
-
 import {makeAutoObservable, configure, flow, runInAction, computed} from "mobx";
 import UrlJoin from "url-join";
 import {ElvClient} from "@eluvio/elv-client-js";
@@ -432,12 +315,6 @@ class RootStore {
           })
         )
       );
-
-      // TODO: Remove when API returns tenant ID
-      const info = this.NFTInfo({contractAddress, tokenId});
-      if(info) {
-        nft.details.TenantId = info.TenantId;
-      }
 
       nft.metadata = {
         ...(
@@ -1465,8 +1342,6 @@ class RootStore {
         configUrl: EluvioConfiguration["config-url"],
         assumeV3: true
       });
-
-      client.authServiceURIs = ["https://host-76-74-29-8.contentfabric.io"];
 
       this.staticToken = client.staticToken;
 
