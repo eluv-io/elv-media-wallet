@@ -51,7 +51,7 @@ const MarketplaceCollections = observer(() => {
               to={UrlJoin(basePath, collectionIndex.toString(), "owned", nft.details.ContractId, nft.details.TokenIdStr)}
               className="card nft-card"
             >
-              <NFTImage nft={nft} width={400} />
+              <NFTImage nft={nft} width={600} />
               <div className="card__text">
                 <div className="card__titles">
                   <h2 className="card__title">

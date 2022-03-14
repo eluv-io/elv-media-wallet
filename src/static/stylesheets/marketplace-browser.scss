@@ -109,6 +109,16 @@
       width: 100%;
     }
   }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    &__tags {
+      display: none;
+    }
+
+    &__filter {
+      margin: 0;
+    }
+  }
 }
 
 .marketplace-card {

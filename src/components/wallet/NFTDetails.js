@@ -100,7 +100,7 @@ const NFTMediaSection = ({nft, containerElement, selectedMediaIndex, setSelected
         let image;
         if(item.image) {
           const url = new URL(typeof item.image === "string" ? item.image : item.image.url);
-          url.searchParams.set("width", "400");
+          url.searchParams.set("width", "600");
           image = url.toString();
         }
 
@@ -133,11 +133,12 @@ const NFTMediaSection = ({nft, containerElement, selectedMediaIndex, setSelected
                 component="h2"
                 className="details-page__media__name"
                 text={item.name || ""}
+                title={item.name || ""}
                 maxLine="2"
               />
               <div className="details-page__media__subtitles">
-                <h3 className="details-page__media__subtitle-1 ellipsis">{item.subtitle_1 || ""}</h3>
-                <h3 className="details-page__media__subtitle-2 ellipsis">{item.subtitle_2 || ""}</h3>
+                <h3 className="details-page__media__subtitle-1 ellipsis" title={item.subtitle_1 || ""}>{item.subtitle_1 || ""}</h3>
+                <h3 className="details-page__media__subtitle-2 ellipsis" title={item.subtitle_2 || ""}>{item.subtitle_2 || ""}</h3>
               </div>
             </div>
           </button>

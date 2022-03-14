@@ -62,7 +62,7 @@ const MarketplaceOwned = observer(() => {
                         to={UrlJoin(match.url, "owned", ownedItem.details.ContractId, ownedItem.details.TokenIdStr)}
                         className="card nft-card"
                       >
-                        <NFTImage nft={ownedItem} width={400} />
+                        <NFTImage nft={ownedItem} width={600} />
                         <div className="card__badges">
                           { listings.find(listing =>
                             listing.details.ContractAddr === ownedItem.details.ContractAddr &&

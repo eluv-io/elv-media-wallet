@@ -19,7 +19,7 @@ const Listing = memo(({url, listing}) => (
       to={UrlJoin(url, listing.details.ListingId)}
       className="card nft-card"
     >
-      <NFTImage nft={listing} width={400}/>
+      <NFTImage nft={listing} width={600}/>
       <div className="card__badges">
         {
           Utils.EqualAddress(rootStore.userAddress, listing.details.SellerAddress) ?

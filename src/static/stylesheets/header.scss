@@ -150,6 +150,8 @@
 
   &__logo {
     height: 100%;
+    min-width: 80px;
+    object-fit: contain;
   }
 
   &__navigation-link {
@@ -346,15 +348,27 @@
 }
 
 @media screen and (max-width: $tablet-breakpoint) {
+
+  .global-header--marketplace {
+    .global-header__logo {
+      padding: 0;
+    }
+  }
+
   .header {
     &__profile {
       flex: 1 1 100%;
       max-width: unset;
+
+      &__info {
+        max-width: 120px;
+      }
     }
   }
 
   .mobile-navigation {
     display: flex;
+    padding-right: 0;
   }
 
   .global-header__navigation,

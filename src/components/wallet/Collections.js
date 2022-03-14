@@ -25,7 +25,7 @@ const CollectionCard = observer(({nft, listing}) => {
         to={UrlJoin(match.url, nft.details.ContractId, nft.details.TokenIdStr)}
         className="card nft-card"
       >
-        <NFTImage nft={nft} width={400} />
+        <NFTImage nft={nft} width={600} />
         <div className="card__badges">
           { listing ?
             <ImageIcon icon={ListingIcon} title="This NFT is listed for sale" alt="Listing Icon" className="card__badge" />
