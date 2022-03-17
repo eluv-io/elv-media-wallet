@@ -140,9 +140,6 @@ class TransferStore {
             method: "GET",
             queryParams: {
               count: 10000
-            },
-            headers: {
-              Authorization: `Bearer ${this.client.signer.authToken}`
             }
           })
         ) || [];
@@ -452,10 +449,7 @@ class TransferStore {
       return yield Utils.ResponseToJson(
         yield this.client.authClient.MakeAuthServiceRequest({
           path: UrlJoin("as", "mkt", "status", listingId),
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${this.client.signer.authToken}`
-          }
+          method: "GET"
         })
       );
     } catch(error) {
@@ -469,10 +463,7 @@ class TransferStore {
     return yield Utils.ResponseToJson(
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "mkt", "names"),
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${this.client.signer.authToken}`
-        }
+        method: "GET"
       })
     );
   });
@@ -518,10 +509,7 @@ class TransferStore {
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "mkt", "hst", contractAddress),
         method: "GET",
-        queryParams: tokenId ? { tid: tokenId } : {},
-        headers: {
-          Authorization: `Bearer ${this.client.signer.authToken}`
-        }
+        queryParams: tokenId ? { tid: tokenId } : {}
       })
     );
   });

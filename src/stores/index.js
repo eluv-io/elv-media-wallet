@@ -308,10 +308,7 @@ class RootStore {
         yield Utils.ResponseToJson(
           this.client.authClient.MakeAuthServiceRequest({
             path: UrlJoin("as", "nft", "info", contractAddress, tokenId),
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${this.client.signer.authToken}`
-            }
+            method: "GET"
           })
         )
       );
