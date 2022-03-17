@@ -68,8 +68,10 @@ const FilterDropdown = observer(({label, value, options, onChange, placeholder})
 });
 
 const MarketplaceSelection = observer(({selected, setSelected}) => {
+  const match = useRouteMatch();
   const availableMarketplaces = rootStore.allMarketplaces
     .filter(marketplace => marketplace && marketplace.tenant_id && marketplace.branding && marketplace.branding.show && marketplace.branding.name);
+  const currentMarketplace = rootStore.marketplaces[match.params.marketplaceId];
 
   if(availableMarketplaces.length === 0) {
     return;
@@ -95,7 +97,11 @@ const MarketplaceSelection = observer(({selected, setSelected}) => {
               onClick={() => setSelected(selected.filter(tid => tid !== tenantId))}
               className="listing-filters__marketplace-selection__selected__item"
             >
-              { (availableMarketplaces.find(marketplace => marketplace.tenant_id === tenantId))?.branding?.name || "Unknown Marketplace" }
+              {
+                (availableMarketplaces.find(marketplace => marketplace.tenant_id === tenantId))?.branding?.name ||
+                (currentMarketplace && currentMarketplace.tenant_id === tenantId && currentMarketplace.branding?.name) ||
+                "Unknown Marketplace"
+              }
               <ImageIcon
                 icon={XIcon}
                 title="Remove this filter"
@@ -174,6 +180,9 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
 
           names = names.filter(name => marketplaceNames[name]);
         }
+
+        // TODO: Remove
+        names = names.filter(name => !["Stone Media Collective", "Let's Dance to the Real Thing"].includes(name));
 
         setFilterOptions(names.map(name => (name || "").trim()).sort());
       });

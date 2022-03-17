@@ -246,7 +246,7 @@ class TransferStore {
     contractAddress,
     marketplace,
     marketplaceId,
-    tenantIds,
+    tenantIds=[],
     collectionIndex=-1,
     lastNDays=-1,
     start=0,
@@ -267,6 +267,33 @@ class TransferStore {
 
     try {
       let filters = [];
+
+      // TODO : Remove
+      if(mode !== "owned") {
+        let unusedAttribute;
+        if(tenantIds && tenantIds.length > 0) {
+          tenantIds = tenantIds.filter(tenantId => tenantId !== "iten2dbu685wiHLyjgLnx19jEKxiNb6J");
+
+          if(tenantIds.length === 0) {
+            if(mode.includes("stats")) {
+              return {};
+            } else {
+              return {
+                paging: {
+                  start: params.start,
+                  limit: params.limit,
+                  total: 0,
+                  more: false
+                },
+                results: []
+              };
+            }
+          }
+        }
+      }
+
+
+
       if(marketplace && collectionIndex >= 0) {
         const collection = marketplace.collections[collectionIndex];
 

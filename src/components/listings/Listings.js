@@ -61,7 +61,7 @@ const Listings = observer(() => {
   return (
     <FilteredView
       mode="listings"
-      perPage={16}
+      perPage={32}
       loadOffset={600}
       cacheDuration={0}
       Render={({entries, paging, loading}) => (
@@ -80,13 +80,20 @@ const Listings = observer(() => {
             entries.length === 0 ? null :
               <div className="card-list">
                 {
-                  entries.map((listing, index) =>
-                    <Listing
-                      url={match.url}
-                      listing={listing}
-                      key={`listing-card-${listing.details.ListingId}-${index}`}
-                    />
-                  )
+                  entries.map((listing, index) => {
+                    // TODO: Remove
+                    if(["iten2dbu685wiHLyjgLnx19jEKxiNb6J"].includes(listing?.details?.TenantId)) {
+                      return null;
+                    }
+
+                    return (
+                      <Listing
+                        url={match.url}
+                        listing={listing}
+                        key={`listing-card-${listing.details.ListingId}-${index}`}
+                      />
+                    );
+                  })
                 }
               </div>
           }
