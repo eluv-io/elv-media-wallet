@@ -177,121 +177,6 @@ class RootStore {
     ];
   }
 
-  async LoadLoginCustomization() {
-    if(!this.specifiedMarketplaceId) {
-      return {};
-    }
-
-    const marketplaceHash =
-      this.marketplaceHashes[this.specifiedMarketplaceId] ||
-      await this.client.LatestVersionHash({objectId: this.specifiedMarketplaceId});
-    const marketplaceId = this.client.utils.DecodeVersionHash(marketplaceHash).objectId;
-
-    // Attempt to load from cache
-    const savedData = this.GetSessionStorage(`marketplace-login-${marketplaceId}`);
-    if(savedData) {
-      try {
-        const parsedData = JSON.parse(atob(savedData));
-
-        if(parsedData && parsedData.marketplaceHash === marketplaceHash) {
-          return parsedData;
-        }
-      // eslint-disable-next-line no-empty
-      } catch(error) {}
-    }
-
-    let metadata = (
-      await this.client.ContentObjectMetadata({
-        versionHash: marketplaceHash,
-        metadataSubtree: UrlJoin("public", "asset_metadata", "info"),
-        select: [
-          "login_customization",
-          "tenant_id",
-          "terms"
-        ],
-        produceLinkUrls: true
-      })
-    ) || {};
-
-    metadata = {
-      ...(metadata.login_customization || {}),
-      marketplaceId,
-      marketplaceHash,
-      tenant_id: metadata.tenant_id,
-      terms: metadata.terms
-    };
-
-    this.SetSessionStorage(`marketplace-login-${marketplaceId}`, btoa(JSON.stringify(metadata)));
-
-    return metadata;
-  }
-
-  Authenticate = flow(function * ({idToken, authToken, tenantId, user}) {
-    console.log("AUTHENTICATE", idToken);
-    try {
-      this.loggedIn = false;
-
-      const client = yield ElvClient.FromConfigurationUrl({
-        configUrl: EluvioConfiguration["config-url"],
-        assumeV3: true
-      });
-
-      this.staticToken = client.staticToken;
-
-      this.client = client;
-
-      if(!user || !user.email) {
-        throw Error("No email provided in user data");
-      }
-
-      if(idToken) {
-        yield client.SetRemoteSigner({idToken: idToken, tenantId, extraData: user?.userData});
-      } else if(authToken) {
-        yield client.SetRemoteSigner({authToken, tenantId, unsignedPublicAuth: true});
-      } else {
-        throw Error("Neither ID token nor auth token provided to Authenticate");
-      }
-
-      this.GetWalletBalance();
-
-      this.SetAuthInfo({
-        authToken: client.signer.authToken,
-        address: client.CurrentAccountAddress(),
-        user
-      });
-
-      this.funds = parseInt((yield client.GetBalance({address: client.CurrentAccountAddress()}) || 0));
-      this.userAddress = client.CurrentAccountAddress();
-      this.accountId = `iusr${Utils.AddressToHash(client.CurrentAccountAddress())}`;
-
-      this.authedToken = yield client.authClient.GenerateAuthorizationToken({noAuth: true});
-      this.basePublicUrl = yield client.FabricUrl({
-        queryParams: {
-          authorization: this.staticToken
-        },
-        noAuth: true
-      });
-
-      const initials = ((user || {}).name || "").split(" ").map(s => s.substr(0, 1));
-      this.userProfile = {
-        address: client.CurrentAccountAddress(),
-        name: user?.name || client.CurrentAccountAddress(),
-        email: user?.email,
-        profileImage: ProfileImage(
-          (initials.length <= 1 ? initials.join("") : `${initials[0]}${initials[initials.length - 1]}`).toUpperCase(),
-          colors[(user?.email || "").length % colors.length]
-        )
-      };
-
-      this.SendEvent({event: EVENTS.LOG_IN, data: {address: client.CurrentAccountAddress()}});
-      this.SendEvent({event: EVENTS.LOADED});
-
-      this.loggedIn = true;
-    } catch(error) {
-      this.Log(error, true);
-    }
-  });
-
   Log(message="", error=false) {
     if(typeof message === "string") {
       message = `Eluvio Media Wallet | ${message}`;
@@ -374,6 +259,123 @@ class RootStore {
     }
   });
 
+  Authenticate = flow(function * ({idToken, authToken, tenantId, user}) {
+    try {
+      this.loggedIn = false;
+
+      const client = yield ElvClient.FromConfigurationUrl({
+        configUrl: EluvioConfiguration["config-url"],
+        assumeV3: true
+      });
+
+      this.staticToken = client.staticToken;
+
+      this.client = client;
+
+      if(!user || !user.email) {
+        throw Error("No email provided in user data");
+      }
+
+      if(idToken) {
+        yield client.SetRemoteSigner({idToken: idToken, tenantId, extraData: user?.userData});
+      } else if(authToken) {
+        yield client.SetRemoteSigner({authToken, tenantId, unsignedPublicAuth: true});
+      } else {
+        throw Error("Neither ID token nor auth token provided to Authenticate");
+      }
+
+      this.GetWalletBalance();
+
+      this.SetAuthInfo({
+        authToken: client.signer.authToken,
+        address: client.CurrentAccountAddress(),
+        user
+      });
+
+      this.funds = parseInt((yield client.GetBalance({address: client.CurrentAccountAddress()}) || 0));
+      this.userAddress = client.CurrentAccountAddress();
+      this.accountId = `iusr${Utils.AddressToHash(client.CurrentAccountAddress())}`;
+
+      this.authedToken = yield client.authClient.GenerateAuthorizationToken({noAuth: true});
+      this.basePublicUrl = yield client.FabricUrl({
+        queryParams: {
+          authorization: this.staticToken
+        },
+        noAuth: true
+      });
+
+      const initials = ((user || {}).name || "").split(" ").map(s => s.substr(0, 1));
+      this.userProfile = {
+        address: client.CurrentAccountAddress(),
+        name: user?.name || client.CurrentAccountAddress(),
+        email: user?.email,
+        profileImage: ProfileImage(
+          (initials.length <= 1 ? initials.join("") : `${initials[0]}${initials[initials.length - 1]}`).toUpperCase(),
+          colors[(user?.email || "").length % colors.length]
+        )
+      };
+
+      this.SendEvent({event: EVENTS.LOG_IN, data: {address: client.CurrentAccountAddress()}});
+      this.SendEvent({event: EVENTS.LOADED});
+
+      // Clear loaded marketplaces so they will be reloaded and authorization rechecked
+      this.marketplaces = {};
+
+      this.loggedIn = true;
+    } catch(error) {
+      this.Log(error, true);
+    }
+  });
+
+  async LoadLoginCustomization() {
+    if(!this.specifiedMarketplaceId) {
+      return {};
+    }
+
+    const marketplaceHash =
+      this.marketplaceHashes[this.specifiedMarketplaceId] ||
+      await this.client.LatestVersionHash({objectId: this.specifiedMarketplaceId});
+    const marketplaceId = this.client.utils.DecodeVersionHash(marketplaceHash).objectId;
+
+    // Attempt to load from cache
+    const savedData = this.GetSessionStorage(`marketplace-login-${marketplaceId}`);
+    if(savedData) {
+      try {
+        const parsedData = JSON.parse(atob(savedData));
+
+        if(parsedData && parsedData.marketplaceHash === marketplaceHash) {
+          return parsedData;
+        }
+        // eslint-disable-next-line no-empty
+      } catch(error) {}
+    }
+
+    let metadata = (
+      await this.client.ContentObjectMetadata({
+        versionHash: marketplaceHash,
+        metadataSubtree: UrlJoin("public", "asset_metadata", "info"),
+        select: [
+          "login_customization",
+          "tenant_id",
+          "terms"
+        ],
+        produceLinkUrls: true
+      })
+    ) || {};
+
+    metadata = {
+      ...(metadata.login_customization || {}),
+      marketplaceId,
+      marketplaceHash,
+      tenant_id: metadata.tenant_id,
+      terms: metadata.terms
+    };
+
+    this.SetSessionStorage(`marketplace-login-${marketplaceId}`, btoa(JSON.stringify(metadata)));
+
+    return metadata;
+  }
+
   SendEvent({event, data}) {
     SendEvent({event, data});
   }
@@ -438,7 +440,7 @@ class RootStore {
   });
 
   LoadNFTInfo = flow(function * (forceReload=false) {
-    if(this.fromEmbed) { return; }
+    if(!this.loggedIn || this.fromEmbed) { return; }
 
     if(!this.profileData || forceReload || Date.now() - this.lastProfileQuery > 30000) {
       this.lastProfileQuery = Date.now();
@@ -800,7 +802,7 @@ class RootStore {
 
       marketplace.items = yield Promise.all(
         marketplace.items.map(async item => {
-          if(item.requires_permissions) {
+          if(this.loggedIn && item.requires_permissions) {
             try {
               let versionHash;
               if(item.nft_template["/"]) {

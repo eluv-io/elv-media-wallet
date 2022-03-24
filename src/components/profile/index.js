@@ -2,13 +2,14 @@ import React, {useEffect, useState} from "react";
 import {rootStore} from "Stores";
 import {useAuth0} from "@auth0/auth0-react";
 import {
-  Link,
+  Link, Redirect,
   useRouteMatch
 } from "react-router-dom";
 import {ButtonWithLoader, CopyableField, FormatPriceString} from "Components/common/UIComponents";
 import {PendingPaymentsTable, UserTransferTable} from "Components/listings/TransferTables";
 import {observer} from "mobx-react";
 import {WithdrawalModal, WithdrawalSetupModal} from "Components/profile/WithdrawalModal";
+import UrlJoin from "url-join";
 
 const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSetup}) => {
   return (
@@ -80,6 +81,11 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSe
 
 const Profile = observer(() => {
   const match = useRouteMatch();
+
+  if(!rootStore.loggedIn) {
+    return <Redirect to={match.params.marketplaceId ? UrlJoin("/marketplace", match.params.marketplaceId, "store") : "/marketplaces" } />;
+  }
+
   const [statusInterval, setStatusInterval] = useState(undefined);
   const [showWithdrawalSetup, setShowWithdrawalSetup] = useState(false);
   const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);

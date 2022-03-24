@@ -177,6 +177,7 @@ const App = observer(() => {
   return (
     <HashRouter>
       <div
+        key={`app-${rootStore.loggedIn}`}
         className={[
           "app-container",
           rootStore.initialized ? "app-container-initialized" : "app-container-not-initialized",

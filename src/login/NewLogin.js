@@ -12,7 +12,6 @@ import EluvioLogo from "./logo.svg";
 //const embedded = window.top !== window.self;
 // TODO: Remove
 let embedded = new URLSearchParams(window.location.search).has("e");
-console.log(embedded)
 
 let newWindowLogin = false;
 try {
@@ -31,7 +30,6 @@ try {
 
 // Log in button clicked - either redirect to auth0, or open new window
 const LogInRedirect = ({auth0, marketplaceHash, userData, darkMode, create=false, customizationOptions, SignIn}) => {
-  console.log(new Error("LIR"));
   // Embedded
   if(embedded) {
     const url = new URL(window.location.origin);
@@ -391,7 +389,6 @@ const Login = observer(({darkMode, SignIn, LoadCustomizationOptions}) => {
     if((!embedded && auth0?.isLoading) || !customizationOptions) { return; }
 
     if(!embedded && auth0?.isAuthenticated) {
-      console.log("AUTH");
       setAuthenticating(true);
       Authenticate({auth0, userData, tenantId: customizationOptions.tenant_id, SignIn})
         .finally(() => setAuthenticating(false));

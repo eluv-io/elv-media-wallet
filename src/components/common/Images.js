@@ -66,7 +66,7 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
 
     if(!imageUrl && ((item && item.image) || nft.metadata.image)) {
       imageUrl = new URL((item && item.image && item.image.url) || nft.metadata.image);
-      imageUrl.searchParams.set("authorization", rootStore.authedToken);
+      imageUrl.searchParams.set("authorization", rootStore.staticToken);
 
       if(imageUrl && width) {
         imageUrl.searchParams.set("width", width);
@@ -151,7 +151,7 @@ export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon,
     } else if(item.nft_template && item.nft_template.nft && item.nft_template.nft.image) {
       url = (item.nft_template.nft || {}).image;
       url = new URL(url);
-      url.searchParams.set("authorization", rootStore.authedToken);
+      url.searchParams.set("authorization", rootStore.staticToken);
       url.searchParams.set("width", "800");
       url = url.toString();
     } else {
