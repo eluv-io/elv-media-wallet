@@ -30,7 +30,7 @@
     ]
   },
   "dependencies": {
-    "@auth0/auth0-react": "^1.6.0",
+    "@auth0/auth0-react": "^1.9.0",
     "@babel/cli": "^7.14.8",
     "@eluvio/elv-client-js": "^3.1.87",
     "@eluvio/elv-embed": "git+https://github.com/eluv-io/elv-embed.git",

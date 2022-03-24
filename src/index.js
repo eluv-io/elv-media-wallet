@@ -29,6 +29,7 @@ import { Auth0Provider } from "@auth0/auth0-react";
 import MarketplaceRoutes from "Components/marketplace";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import {PageLoader} from "Components/common/Loaders";
+import NewLogin from "./login/NewLogin";
 
 const DebugFooter = () => {
   if(!EluvioConfiguration["show-debug"]) { return null; }
@@ -52,7 +53,7 @@ const RedirectHandler = ({storageKey}) => {
   return null;
 };
 
-const Routes = () => {
+const Routes = observer(() => {
   const history = useHistory();
   const location = useLocation();
 
@@ -118,6 +119,11 @@ const Routes = () => {
     );
   }
 
+  if(!rootStore.loaded) {
+    return <PageLoader />;
+  }
+
+  /*
   if(!rootStore.loggedIn) {
     return (
       <Switch>
@@ -126,8 +132,17 @@ const Routes = () => {
     );
   }
 
+   */
+
   return (
     <Switch>
+      <Route exact path="/newlogin">
+        <NewLogin
+          darkMode={rootStore.darkMode}
+          LoadCustomizationOptions={async () => await rootStore.LoadLoginCustomization()}
+          SignIn={params => rootStore.Authenticate(params)}
+        />
+      </Route>
       <Route exact path="/success">
         <RedirectHandler storageKey="successPath" />
       </Route>
@@ -154,7 +169,7 @@ const Routes = () => {
       </Route>
     </Switch>
   );
-};
+});
 
 const App = observer(() => {
   const hasHeader = !rootStore.hideNavigation && (!rootStore.sidePanelMode || rootStore.navigationBreadcrumbs.length > 2);
