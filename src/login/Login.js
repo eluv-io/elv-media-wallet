@@ -5,19 +5,20 @@ import UrlJoin from "url-join";
 import {render} from "react-dom";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
+
+
 import ImageIcon from "Components/common/ImageIcon";
+import {PageLoader} from "Components/common/Loaders";
 
 import EluvioLogo from "./logo.svg";
 
-//const embedded = window.top !== window.self;
-// TODO: Remove
-let embedded = new URLSearchParams(window.location.search).has("e");
+const embedded = window.top !== window.self || new URLSearchParams(window.location.search).has("e");
 
 let newWindowLogin = false;
 try {
   newWindowLogin =
     new URLSearchParams(window.location.search).has("l") ||
-    !embedded && sessionStorage.getItem("new-window-login");
+    sessionStorage.getItem("new-window-login");
 
   if(newWindowLogin) {
     sessionStorage.setItem("new-window-login", "true");
@@ -144,7 +145,7 @@ const Logo = ({customizationOptions}) => {
 };
 
 const Background = ({customizationOptions}) => {
-  if(customizationOptions.background || customizationOptions.background_mobile) {
+  if(customizationOptions?.background || customizationOptions?.background_mobile) {
     let backgroundUrl = customizationOptions?.background?.url;
     let mobileBackgroundUrl = customizationOptions?.background_mobile?.url;
 
@@ -339,7 +340,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, L
   );
 });
 
-const Login = observer(({darkMode, SignIn, LoadCustomizationOptions}) => {
+const Login = observer(({silent, darkMode, SignIn, LoadCustomizationOptions}) => {
   const [customizationOptions, setCustomizationOptions] = useState(undefined);
   const [userData, setUserData] = useState(undefined);
   const [authenticating, setAuthenticating] = useState(true);
@@ -358,7 +359,15 @@ const Login = observer(({darkMode, SignIn, LoadCustomizationOptions}) => {
       darkMode,
       create,
       customizationOptions,
-      SignIn: ({idToken, user}) => Authenticate({idToken, user, userData, tenantId: customizationOptions.tenant_id, SignIn})
+      SignIn: async ({idToken, user}) => {
+        try {
+          setAuthenticating(true);
+
+          await Authenticate({idToken, user, userData, tenantId: customizationOptions.tenant_id, SignIn});
+        } finally {
+          setAuthenticating(false);
+        }
+      }
     });
   };
 
@@ -399,8 +408,20 @@ const Login = observer(({darkMode, SignIn, LoadCustomizationOptions}) => {
     }
   }, [customizationOptions, auth0?.isLoading]);
 
+  if(silent) {
+    return null;
+  }
+
   if(authenticating || !customizationOptions || (embedded && auth0?.isLoading)) {
-    return <h1>LOADING LOADING LOADING</h1>;
+    return (
+      <div className={"page-container login-page"}>
+        <Background customizationOptions={customizationOptions} />
+
+        <div className="login-page__login-box">
+          <PageLoader />
+        </div>
+      </div>
+    );
   }
 
   // User data such as consent - save to localstorage

@@ -6,6 +6,7 @@ import AsyncComponent from "Components/common/AsyncComponent";
 import ListingPurchaseModal from "Components/listings/ListingPurchaseModal";
 import {Redirect, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
+import {LoginClickGate} from "Components/common/LoginGate";
 
 /*
         <div className="checkout card-shadow checkout__email-input">
@@ -84,7 +85,8 @@ const MarketplaceCheckout = observer(({item}) => {
               <h3 className="marketplace-price__direct__max-owned-message">
                 You already own the maximum number of this NFT
               </h3> :
-              <ButtonWithLoader
+              <LoginClickGate
+                Component={ButtonWithLoader}
                 onClick={async () => {
                   if(!free) {
                     setShowModal(true);
@@ -116,7 +118,7 @@ const MarketplaceCheckout = observer(({item}) => {
                   free && !outOfStock ? "Claim Now" :
                     outOfStock || !available ? "View Listings" : "Buy Now"
                 }
-              </ButtonWithLoader>
+              </LoginClickGate>
           }
         </div>
         <div className={`marketplace-price__listings ${listingStats.total === 0 ? "hidden" : ""}`}>

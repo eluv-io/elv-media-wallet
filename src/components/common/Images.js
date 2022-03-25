@@ -3,20 +3,14 @@ import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores/index";
 import SVG from "react-inlinesvg";
-import UserIcon from "Assets/icons/user.svg";
 import NFTPlaceholderIcon from "Assets/icons/nft";
 import ImageIcon from "Components/common/ImageIcon";
 import {Initialize} from "@eluvio/elv-embed/src/Embed";
 
 export const ProfileImage = observer(({className=""}) => {
-  const hasImage = rootStore.initialized && rootStore.userProfile.profileImage;
   return (
-    <div className={`profile-image ${hasImage ? "profile-image-image" : "profile-image-placeholder"} ${className}`}>
-      {
-        hasImage ?
-          <img className="profile-image__image" src={rootStore.userProfile.profileImage} alt="Profile Image" /> :
-          <SVG src={UserIcon} className="profile-image__placeholder" alt="Profile Image" />
-      }
+    <div className={`profile-image profile-image-image ${className}`}>
+      <img className="profile-image__image" src={rootStore?.userProfile?.profileImage || rootStore.defaultProfileImage} alt="Profile Image" />
     </div>
   );
 });

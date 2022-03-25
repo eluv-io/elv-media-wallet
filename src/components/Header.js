@@ -18,6 +18,14 @@ const Profile = observer(() => {
   const location = useLocation();
   const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
 
+  if(!rootStore.loggedIn) {
+    return (
+      <button className="header__profile" onClick={() => rootStore.ShowLogin()}>
+        <ProfileImage className="header__profile__image" />
+      </button>
+    );
+  }
+
   return (
     <Link to={marketplaceId ? `/marketplace/${marketplaceId}/profile` : "/profile"} className="header__profile">
       <div className="header__profile__info ellipsis">
@@ -94,6 +102,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
         })
       }
       {
+        // TODO: change
         !rootStore.loggedIn ?
           <NavLink to="/newlogin" className="mobile-navigation__link" onClick={Close}>
             Log In
@@ -239,7 +248,7 @@ const SubHeader = ({marketplace}) => {
   );
 };
 
-const NewHeader = observer(() => {
+const Header = observer(() => {
   const location = useLocation();
   const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
   const marketplace = marketplaceId && rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === marketplaceId);
@@ -276,4 +285,4 @@ const NewHeader = observer(() => {
   );
 });
 
-export default NewHeader;
+export default Header;

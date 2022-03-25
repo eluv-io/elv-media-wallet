@@ -80,6 +80,7 @@ class RootStore {
   pageWidth = window.innerWidth;
   activeModals = 0;
 
+  showLogin = false;
   navigateToLogIn = undefined;
   loggingIn = false;
   loggedIn = false;
@@ -96,12 +97,10 @@ class RootStore {
 
   drops = {};
 
-  oauthUser = undefined;
   localAccount = false;
   auth0AccessToken = undefined;
 
   loaded = false;
-  initialized = false;
   client = undefined;
   accountId = undefined;
   funds = undefined;
@@ -122,6 +121,7 @@ class RootStore {
   authedToken = undefined;
   basePublicUrl = undefined;
 
+  defaultProfileImage = ProfileImage("", "#1C6E8C");
   userProfile = {};
   userAddress;
 
@@ -254,6 +254,11 @@ class RootStore {
         this.Log("Failed to load auth from parameter", true);
         this.Log(error, true);
       }
+
+      if(this.AuthInfo()) {
+        console.log("AUTH FROM SAVED");
+        yield this.Authenticate(this.AuthInfo());
+      }
     } finally {
       this.loaded = true;
     }
@@ -321,6 +326,7 @@ class RootStore {
       // Clear loaded marketplaces so they will be reloaded and authorization rechecked
       this.marketplaces = {};
 
+      this.HideLogin();
       this.loggedIn = true;
     } catch(error) {
       this.Log(error, true);
@@ -1421,6 +1427,7 @@ class RootStore {
     }
   });
 
+  /*
   InitializeClient = flow(function * ({user, idToken, authToken, privateKey, loginData={}}) {
     try {
       this.loggingIn = true;
@@ -1527,6 +1534,8 @@ class RootStore {
     }
   });
 
+   */
+
   SignOut(auth0) {
     this.ClearAuthInfo();
 
@@ -1631,6 +1640,14 @@ class RootStore {
 
   SetNavigationBreadcrumbs(breadcrumbs=[]) {
     this.navigationBreadcrumbs = breadcrumbs;
+  }
+
+  ShowLogin() {
+    this.showLogin = true;
+  }
+
+  HideLogin() {
+    this.showLogin = false;
   }
 
   ToggleDarkMode(enabled) {

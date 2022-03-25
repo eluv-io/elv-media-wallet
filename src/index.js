@@ -13,6 +13,15 @@ if(new URLSearchParams(window.location.search).has("n")) {
   rootStore.ToggleNavigation(false);
 }
 
+let newWindowLogin = false;
+try {
+  newWindowLogin =
+    new URLSearchParams(window.location.search).has("l") ||
+    sessionStorage.getItem("new-window-login");
+// eslint-disable-next-line no-empty
+} catch(error) {}
+
+
 import {
   useHistory,
   HashRouter,
@@ -21,15 +30,16 @@ import {
   Redirect, useLocation
 } from "react-router-dom";
 import Wallet from "Components/wallet";
-import Login from "Components/login";
+import Login from "./login/Login";
 import Profile from "Components/profile";
 import ScrollToTop from "Components/common/ScrollToTop";
 import { InitializeListener } from "Components/interface/Listener";
-import { Auth0Provider } from "@auth0/auth0-react";
+import {Auth0Provider} from "@auth0/auth0-react";
 import MarketplaceRoutes from "Components/marketplace";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import {PageLoader} from "Components/common/Loaders";
-import NewLogin from "./login/NewLogin";
+import Modal from "Components/common/Modal";
+import {LoginRedirectGate} from "Components/common/LoginGate";
 
 const DebugFooter = () => {
   if(!EluvioConfiguration["show-debug"]) { return null; }
@@ -52,6 +62,45 @@ const RedirectHandler = ({storageKey}) => {
 
   return null;
 };
+
+const LoginModal = observer(() => {
+  if(newWindowLogin) {
+    return (
+      <Login
+        silent
+        darkMode={rootStore.darkMode}
+        LoadCustomizationOptions={async () => ({})}
+        SignIn={params => rootStore.Authenticate(params)}
+      />
+    );
+  }
+
+  if(rootStore.loggedIn || !rootStore.loaded) {
+    return null;
+  }
+
+  if(rootStore.showLogin) {
+    return (
+      <Modal Toggle={() => rootStore.HideLogin()}>
+        <Login
+          darkMode={rootStore.darkMode}
+          LoadCustomizationOptions={async () => await rootStore.LoadLoginCustomization()}
+          SignIn={params => rootStore.Authenticate(params)}
+        />
+      </Modal>
+    );
+  } else {
+    // Load component silently by default - handles auth0 logged-in case
+    return (
+      <Login
+        silent
+        darkMode={rootStore.darkMode}
+        LoadCustomizationOptions={async () => await rootStore.LoadLoginCustomization()}
+        SignIn={params => rootStore.Authenticate(params)}
+      />
+    );
+  }
+});
 
 const Routes = observer(() => {
   const history = useHistory();
@@ -136,13 +185,6 @@ const Routes = observer(() => {
 
   return (
     <Switch>
-      <Route exact path="/newlogin">
-        <NewLogin
-          darkMode={rootStore.darkMode}
-          LoadCustomizationOptions={async () => await rootStore.LoadLoginCustomization()}
-          SignIn={params => rootStore.Authenticate(params)}
-        />
-      </Route>
       <Route exact path="/success">
         <RedirectHandler storageKey="successPath" />
       </Route>
@@ -156,7 +198,9 @@ const Routes = observer(() => {
         <Wallet />
       </Route>
       <Route path="/profile">
-        <Profile />
+        <LoginRedirectGate to="/marketplaces">
+          <Profile />
+        </LoginRedirectGate>
       </Route>
       <Route path="/marketplaces">
         <MarketplaceRoutes />
@@ -172,8 +216,11 @@ const Routes = observer(() => {
 });
 
 const App = observer(() => {
-  const hasHeader = !rootStore.hideNavigation && (!rootStore.sidePanelMode || rootStore.navigationBreadcrumbs.length > 2);
+  if(newWindowLogin) {
+    return <LoginModal />;
+  }
 
+  const hasHeader = !rootStore.hideNavigation && (!rootStore.sidePanelMode || rootStore.navigationBreadcrumbs.length > 2);
   return (
     <HashRouter>
       <div
@@ -201,6 +248,7 @@ const App = observer(() => {
         <Navigation />
         <DebugFooter />
         <div className="app-background" />
+        <LoginModal />
       </div>
     </HashRouter>
   );
