@@ -18,10 +18,14 @@ const Profile = observer(() => {
   const location = useLocation();
   const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
 
+  if(!rootStore.loginLoaded && !rootStore.loggedIn) {
+    return <div className="header__profile header__profile--placeholder" />;
+  }
+
   if(!rootStore.loggedIn) {
     return (
-      <button className="header__profile" onClick={() => rootStore.ShowLogin()}>
-        <ProfileImage className="header__profile__image" />
+      <button className="header__profile header__log-in" onClick={() => rootStore.ShowLogin()}>
+        Sign In
       </button>
     );
   }

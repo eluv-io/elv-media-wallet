@@ -69,6 +69,7 @@ const LoginModal = observer(() => {
       <Login
         silent
         darkMode={rootStore.darkMode}
+        Loaded={() => rootStore.SetLoginLoaded()}
         LoadCustomizationOptions={async () => ({})}
         SignIn={params => rootStore.Authenticate(params)}
       />
@@ -81,11 +82,13 @@ const LoginModal = observer(() => {
 
   if(rootStore.showLogin) {
     return (
-      <Modal Toggle={() => rootStore.HideLogin()}>
+      <Modal className="login-modal" Toggle={() => rootStore.HideLogin()}>
         <Login
           darkMode={rootStore.darkMode}
+          Loaded={() => rootStore.SetLoginLoaded()}
           LoadCustomizationOptions={async () => await rootStore.LoadLoginCustomization()}
           SignIn={params => rootStore.Authenticate(params)}
+          Close={() => rootStore.HideLogin()}
         />
       </Modal>
     );
@@ -95,6 +98,7 @@ const LoginModal = observer(() => {
       <Login
         silent
         darkMode={rootStore.darkMode}
+        Loaded={() => rootStore.SetLoginLoaded()}
         LoadCustomizationOptions={async () => await rootStore.LoadLoginCustomization()}
         SignIn={params => rootStore.Authenticate(params)}
       />
@@ -171,17 +175,6 @@ const Routes = observer(() => {
   if(!rootStore.loaded) {
     return <PageLoader />;
   }
-
-  /*
-  if(!rootStore.loggedIn) {
-    return (
-      <Switch>
-        <Login />
-      </Switch>
-    );
-  }
-
-   */
 
   return (
     <Switch>

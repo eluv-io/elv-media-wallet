@@ -1,9 +1,35 @@
+.login-modal {
+  overflow-y: hidden;
+
+  .modal__content {
+    height: 100vh;
+    max-height: 100vh;
+    max-width: unset;
+    min-height: 100vh;
+    padding: 50px 0;
+    width: 100%;
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    // sass-lint:disable no-vendor-prefixes
+    &::-webkit-scrollbar {
+      width: 0;
+    }
+
+    .modal__content {
+      padding: 0;
+    }
+  }
+}
+
 .login-page {
   align-items: center;
   border-radius: 5px;
   display: flex;
+  height: max-content;
   justify-content: center;
   margin: 0;
+  overflow-y: hidden;
   padding: 0 30px;
 
   input {
@@ -56,14 +82,20 @@
   }
 
   &__background {
+    background-color: $darkestgray;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    height: 100%;
+    height: 100vh;
     left: 0;
-    position: absolute;
+    position: fixed;
     top: 0;
-    width: 100%;
+    user-select: none;
+    width: 100vw;
+
+    &--default {
+      background: linear-gradient($lightestgray, $lightgray);
+    }
   }
 
   h1 {
@@ -76,14 +108,14 @@
   &__login-box {
     align-items: center;
     background: $white;
-    border: 1px solid $lightgray;
+    border: 1px solid $mediumgray;
     border-radius: 5px;
     display: flex;
     flex-direction: column;
-    height: 550px;
+    height: max-content;
     justify-content: space-evenly;
     max-width: 400px;
-    overflow-y: auto;
+    min-height: 550px;
     padding: 50px 30px 20px;
     position: relative;
     width: 100%;
@@ -293,6 +325,20 @@
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
+    padding: 0 0 50px;
+
+    &__background {
+      display: none;
+    }
+
+    &__login-box {
+      height: 100%;
+      max-width: unset;
+      min-height: 100vh;
+      padding: 75px 10px 100px;
+      width: 100%;
+    }
+
     &__terms-modal {
       .modal__content {
         bottom: 0;
@@ -313,23 +359,40 @@
       }
     }
   }
-}
 
-.dark {
-  .login-page {
-    &__login-box {
-      background: $black;
-      border: 1px solid $darkestgray;
+  &:not(.login-page--dark) {
+    * {
+      color: $black;
     }
 
-    &__logo {
+    a {
+      color: $lightblue;
+    }
+
+    .login-page__login-button-sign-in,
+    .login-page__private-key-form__button-submit {
+      color: $white;
+    }
+  }
+
+  &--dark {
+    .login-page__background--default {
+      background: linear-gradient($darkestgray, $black);
+    }
+
+    .login-page__login-box {
+      background: $black;
+      border: 1px solid $darkergray;
+    }
+
+    .login-page__logo {
       * {
         fill: $white;
         stroke: $white;
       }
     }
 
-    &__logo-container {
+    .login-page__logo-container {
       .login-page__tagline {
         color: $lightgray;
 
@@ -342,7 +405,7 @@
       }
     }
 
-    &__text-section {
+    .login-page__text-section {
       * {
         color: $darkgray;
       }
@@ -352,7 +415,7 @@
       }
     }
 
-    &__private-key-form {
+    .login-page__private-key-form {
       button {
         color: $white;
       }
@@ -363,18 +426,18 @@
       }
     }
 
-    &__login-button {
+    .login-page__login-button {
       border: 0;
     }
 
-    &__login-button-cancel,
-    &__login-button-create {
+    .login-page__login-button-cancel,
+    .login-page__login-button-create {
       background-color: $black;
       border: 0.75px solid $gray;
       color: $white;
     }
 
-    &__terms {
+    .login-page__terms {
       a {
         color: $blue;
       }

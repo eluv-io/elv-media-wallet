@@ -101,6 +101,7 @@ class RootStore {
   auth0AccessToken = undefined;
 
   loaded = false;
+  loginLoaded = false;
   client = undefined;
   accountId = undefined;
   funds = undefined;
@@ -256,7 +257,6 @@ class RootStore {
       }
 
       if(this.AuthInfo()) {
-        console.log("AUTH FROM SAVED");
         yield this.Authenticate(this.AuthInfo());
       }
     } finally {
@@ -361,6 +361,7 @@ class RootStore {
         versionHash: marketplaceHash,
         metadataSubtree: UrlJoin("public", "asset_metadata", "info"),
         select: [
+          "branding",
           "login_customization",
           "tenant_id",
           "terms"
@@ -371,6 +372,7 @@ class RootStore {
 
     metadata = {
       ...(metadata.login_customization || {}),
+      darkMode: metadata?.branding?.color_scheme === "Dark",
       marketplaceId,
       marketplaceHash,
       tenant_id: metadata.tenant_id,
@@ -1640,6 +1642,10 @@ class RootStore {
 
   SetNavigationBreadcrumbs(breadcrumbs=[]) {
     this.navigationBreadcrumbs = breadcrumbs;
+  }
+
+  SetLoginLoaded() {
+    this.loginLoaded = true;
   }
 
   ShowLogin() {

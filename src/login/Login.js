@@ -144,19 +144,19 @@ const Logo = ({customizationOptions}) => {
   }
 };
 
-const Background = ({customizationOptions}) => {
+const Background = ({customizationOptions, Close}) => {
   if(customizationOptions?.background || customizationOptions?.background_mobile) {
     let backgroundUrl = customizationOptions?.background?.url;
     let mobileBackgroundUrl = customizationOptions?.background_mobile?.url;
 
     if(window.innerWidth > 800) {
-      return <div className="login-page__background" style={{backgroundImage: `url("${backgroundUrl || mobileBackgroundUrl}")`}}/>;
+      return <div className="login-page__background" style={{backgroundImage: `url("${backgroundUrl || mobileBackgroundUrl}")`}} onClick={Close}/>;
     } else {
-      return <div className="login-page__background" style={{backgroundImage: `url("${mobileBackgroundUrl || backgroundUrl}")`}}/>;
+      return <div className="login-page__background" style={{backgroundImage: `url("${mobileBackgroundUrl || backgroundUrl}")`}} onClick={Close}/>;
     }
   }
 
-  return null;
+  return <div className="login-page__background login-page__background--default" onClick={Close}/>;
 };
 
 const Consent = ({customizationOptions, userData, setUserData}) => {
@@ -244,7 +244,7 @@ const Buttons = ({customizationOptions, LogIn, ShowPrivateKeyForm}) => {
         border: `0.75px solid ${customizationOptions?.log_in_button?.border_color?.color}`
       }}
       autoFocus={!!hasLoggedIn}
-      className="login-page__login-button login-page__login-button-auth0"
+      className="login-page__login-button login-page__login-button-sign-in login-page__login-button-auth0"
       onClick={() => LogIn({create: false})}
     >
       Log In
@@ -320,12 +320,12 @@ const PrivateKeyForm = ({customizationOptions, HidePrivateKeyForm, Submit}) => {
   );
 };
 
-const LoginComponent = observer(({customizationOptions, userData, setUserData, LogIn}) => {
+const LoginComponent = observer(({customizationOptions, darkMode, userData, setUserData, LogIn, Close}) => {
   const [showPrivateKeyForm, setShowPrivateKeyForm] = useState(false);
 
   return (
-    <div className={"page-container login-page"}>
-      <Background customizationOptions={customizationOptions} />
+    <div className={`login-page ${darkMode ? "login-page--dark" : ""}`}>
+      <Background customizationOptions={customizationOptions} Close={Close} />
 
       <div className="login-page__login-box">
         <Logo customizationOptions={customizationOptions} />
@@ -340,7 +340,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, L
   );
 });
 
-const Login = observer(({silent, darkMode, SignIn, LoadCustomizationOptions}) => {
+const Login = observer(({silent, darkMode, Loaded, SignIn, LoadCustomizationOptions, Close}) => {
   const [customizationOptions, setCustomizationOptions] = useState(undefined);
   const [userData, setUserData] = useState(undefined);
   const [authenticating, setAuthenticating] = useState(true);
@@ -404,18 +404,22 @@ const Login = observer(({silent, darkMode, SignIn, LoadCustomizationOptions}) =>
     } else if(newWindowLogin) {
       LogIn({create: new URLSearchParams(window.location.search).has("create")});
     } else {
+      Loaded && Loaded();
       setAuthenticating(false);
     }
   }, [customizationOptions, auth0?.isLoading]);
 
+  // Do login processes without UI
   if(silent) {
     return null;
   }
 
+  darkMode = customizationOptions && typeof customizationOptions.darkMode === "boolean" ? customizationOptions.darkMode : darkMode;
+
   if(authenticating || !customizationOptions || (embedded && auth0?.isLoading)) {
     return (
-      <div className={"page-container login-page"}>
-        <Background customizationOptions={customizationOptions} />
+      <div className={`login-page ${darkMode ? "login-page--dark" : ""}`}>
+        <Background customizationOptions={customizationOptions} Close={() => Close && Close()} />
 
         <div className="login-page__login-box">
           <PageLoader />
@@ -440,7 +444,9 @@ const Login = observer(({silent, darkMode, SignIn, LoadCustomizationOptions}) =>
       customizationOptions={customizationOptions}
       userData={userData}
       setUserData={SaveUserData}
+      darkMode={darkMode}
       LogIn={LogIn}
+      Close={() => Close && Close()}
     />
   );
 });

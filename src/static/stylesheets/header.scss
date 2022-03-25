@@ -27,7 +27,17 @@
     }
   }
 
+  &__log-in {
+    font-size: 14px;
+    font-weight: 400;
+    height: 10px;
+    max-height: 30px;
+    padding: 10px;
+  }
+
   &__profile {
+    @include page-fade-in;
+
     align-items: center;
     display: flex;
     height: 100%;
@@ -348,7 +358,6 @@
 }
 
 @media screen and (max-width: $tablet-breakpoint) {
-
   .global-header--marketplace {
     .global-header__logo {
       padding: 0;
