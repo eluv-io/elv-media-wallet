@@ -259,6 +259,8 @@ class RootStore {
       if(this.AuthInfo()) {
         yield this.Authenticate(this.AuthInfo());
       }
+
+      this.SendEvent({event: EVENTS.LOADED});
     } finally {
       this.loaded = true;
     }
@@ -321,7 +323,6 @@ class RootStore {
       };
 
       this.SendEvent({event: EVENTS.LOG_IN, data: {address: client.CurrentAccountAddress()}});
-      this.SendEvent({event: EVENTS.LOADED});
 
       // Clear loaded marketplaces so they will be reloaded and authorization rechecked
       this.marketplaces = {};
@@ -329,6 +330,7 @@ class RootStore {
       this.HideLogin();
       this.loggedIn = true;
     } catch(error) {
+      this.ClearAuthInfo();
       this.Log(error, true);
     }
   });
@@ -344,14 +346,10 @@ class RootStore {
     const marketplaceId = this.client.utils.DecodeVersionHash(marketplaceHash).objectId;
 
     // Attempt to load from cache
-    const savedData = this.GetSessionStorage(`marketplace-login-${marketplaceId}`);
+    const savedData = this.GetSessionStorage(`marketplace-login-${marketplaceHash}`);
     if(savedData) {
       try {
-        const parsedData = JSON.parse(atob(savedData));
-
-        if(parsedData && parsedData.marketplaceHash === marketplaceHash) {
-          return parsedData;
-        }
+        return JSON.parse(atob(savedData));
         // eslint-disable-next-line no-empty
       } catch(error) {}
     }
@@ -379,7 +377,7 @@ class RootStore {
       terms: metadata.terms
     };
 
-    this.SetSessionStorage(`marketplace-login-${marketplaceId}`, btoa(JSON.stringify(metadata)));
+    this.SetSessionStorage(`marketplace-login-${marketplaceHash}`, btoa(JSON.stringify(metadata)));
 
     return metadata;
   }

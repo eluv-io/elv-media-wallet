@@ -25,7 +25,7 @@ const Profile = observer(() => {
   if(!rootStore.loggedIn) {
     return (
       <button className="header__profile header__log-in" onClick={() => rootStore.ShowLogin()}>
-        Sign In
+        Log In
       </button>
     );
   }
