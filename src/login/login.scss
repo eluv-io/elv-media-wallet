@@ -27,6 +27,7 @@
   border-radius: 5px;
   display: flex;
   height: max-content;
+  min-height: 100%;
   justify-content: center;
   margin: 0;
   overflow-y: hidden;
@@ -325,7 +326,7 @@
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
-    padding: 0 0 50px;
+    padding: 0;
 
     &__background {
       display: none;
@@ -376,6 +377,14 @@
   }
 
   &--dark {
+    .loader {
+      background: $black;
+
+      .lds-default div {
+        background: rgba(255, 255, 255, 0.5);
+      }
+    }
+
     .login-page__background--default {
       background: linear-gradient($darkestgray, $black);
     }

@@ -155,7 +155,7 @@ const GlobalHeaderNavigation = () => {
   );
 };
 
-const GlobalHeader = ({marketplace}) => {
+const GlobalHeader = observer(({marketplace}) => {
   if(rootStore.hideGlobalNavigation) { return null; }
 
   return (
@@ -170,7 +170,7 @@ const GlobalHeader = ({marketplace}) => {
       </div>
     </div>
   );
-};
+});
 
 const SubHeaderNavigation = observer(({marketplace}) => {
   if(!rootStore.loggedIn) { return null; }

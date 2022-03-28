@@ -35,15 +35,25 @@ class CheckoutStore {
 
   MarketplaceStock = flow(function * ({tenantId}) {
     try {
-      const stock = yield Utils.ResponseToJson(
-        this.client.authClient.MakeAuthServiceRequest({
-          path: UrlJoin("as", "wlt", "nft", "info", tenantId),
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${this.client.signer.authToken}`
-          }
-        })
-      );
+      let stock;
+      if(this.rootStore.loggedIn) {
+        stock = yield Utils.ResponseToJson(
+          this.client.authClient.MakeAuthServiceRequest({
+            path: UrlJoin("as", "wlt", "nft", "info", tenantId),
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${this.client.signer.authToken}`
+            }
+          })
+        );
+      } else {
+        stock = yield Utils.ResponseToJson(
+          this.client.authClient.MakeAuthServiceRequest({
+            path: UrlJoin("as", "nft", "stock", tenantId),
+            method: "GET"
+          })
+        );
+      }
 
       let updatedStock = {
         ...this.stock

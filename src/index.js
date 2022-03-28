@@ -85,6 +85,7 @@ const LoginModal = observer(() => {
       <Modal className="login-modal" Toggle={() => rootStore.HideLogin()}>
         <Login
           darkMode={rootStore.darkMode}
+          callbackUrl={UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, "")}
           Loaded={() => rootStore.SetLoginLoaded()}
           LoadCustomizationOptions={async () => await rootStore.LoadLoginCustomization()}
           SignIn={params => rootStore.Authenticate(params)}

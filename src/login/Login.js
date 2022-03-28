@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import { useAuth0 } from "@auth0/auth0-react";
-import UrlJoin from "url-join";
 import {render} from "react-dom";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
@@ -30,7 +29,7 @@ try {
 // Methods
 
 // Log in button clicked - either redirect to auth0, or open new window
-const LogInRedirect = ({auth0, marketplaceHash, userData, darkMode, create=false, customizationOptions, SignIn}) => {
+const LogInRedirect = ({auth0, callbackUrl, marketplaceHash, userData, darkMode, create=false, customizationOptions, SignIn}) => {
   // Embedded
   if(embedded) {
     const url = new URL(window.location.origin);
@@ -69,7 +68,6 @@ const LogInRedirect = ({auth0, marketplaceHash, userData, darkMode, create=false
       disableThirdParty: customizationOptions?.disable_third_party
     };
 
-    const callbackUrl = UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, "");
     auth0.loginWithRedirect({
       redirectUri: callbackUrl,
       initialScreen: create ? "signUp" : "login",
@@ -340,10 +338,11 @@ const LoginComponent = observer(({customizationOptions, darkMode, userData, setU
   );
 });
 
-const Login = observer(({silent, darkMode, Loaded, SignIn, LoadCustomizationOptions, Close}) => {
+const Login = observer(({silent, darkMode, callbackUrl, Loaded, SignIn, LoadCustomizationOptions, Close}) => {
   const [customizationOptions, setCustomizationOptions] = useState(undefined);
   const [userData, setUserData] = useState(undefined);
   const [authenticating, setAuthenticating] = useState(true);
+  const [auth0Loading, setAuth0Loading] = useState(!embedded);
 
   let auth0;
   if(!embedded) {
@@ -354,6 +353,7 @@ const Login = observer(({silent, darkMode, Loaded, SignIn, LoadCustomizationOpti
   const LogIn = ({create=true}) => {
     LogInRedirect({
       auth0,
+      callbackUrl,
       marketplaceHash: customizationOptions?.marketplaceHash,
       userData,
       darkMode,
@@ -370,6 +370,24 @@ const Login = observer(({silent, darkMode, Loaded, SignIn, LoadCustomizationOpti
       }
     });
   };
+
+  // Track auth0 loading status
+  useEffect(() => {
+    if(auth0) {
+      setAuth0Loading(auth0.isLoading);
+    }
+  }, [auth0 && auth0.isLoading]);
+
+  // Ensure auth0 doesn't get stuck loading forever
+  useEffect(() => {
+    if(auth0) {
+      const auth0LoadTimeout = setTimeout(() => {
+        setAuth0Loading(false);
+      }, 5000);
+
+      return () => clearTimeout(auth0LoadTimeout);
+    }
+  }, []);
 
   // Loading customization options
   useEffect(() => {
@@ -395,7 +413,7 @@ const Login = observer(({silent, darkMode, Loaded, SignIn, LoadCustomizationOpti
   // Authenticate if possible
   useEffect(() => {
     // Must wait for customization to be loaded so we can pass tenant ID
-    if((!embedded && auth0?.isLoading) || !customizationOptions) { return; }
+    if((!embedded && auth0Loading) || !customizationOptions) { return; }
 
     if(!embedded && auth0?.isAuthenticated) {
       setAuthenticating(true);
@@ -407,7 +425,7 @@ const Login = observer(({silent, darkMode, Loaded, SignIn, LoadCustomizationOpti
       Loaded && Loaded();
       setAuthenticating(false);
     }
-  }, [customizationOptions, auth0?.isLoading]);
+  }, [customizationOptions, auth0Loading]);
 
   // Do login processes without UI
   if(silent) {
@@ -416,7 +434,7 @@ const Login = observer(({silent, darkMode, Loaded, SignIn, LoadCustomizationOpti
 
   darkMode = customizationOptions && typeof customizationOptions.darkMode === "boolean" ? customizationOptions.darkMode : darkMode;
 
-  if(authenticating || !customizationOptions || (embedded && auth0?.isLoading)) {
+  if(authenticating || !customizationOptions || (!embedded && auth0Loading)) {
     return (
       <div className={`login-page ${darkMode ? "login-page--dark" : ""}`}>
         <Background customizationOptions={customizationOptions} Close={() => Close && Close()} />
