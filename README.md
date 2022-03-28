@@ -11,7 +11,7 @@ The wallet client works by loading the wallet application in either an iframe or
 
 You can use the client to retrieve various information about the user and their wallet, navigate the wallet application to various pages, and register event handlers for when the user logs in or out, or the window is closed.
 
-The Eluvio Live site uses this model, embedding the wallet application in an iframe and controlling it with the client. You can see this in action on [Fox' Maskverse site](https://live.eluv.io/maskverse).
+The Eluvio Live site uses this model, embedding the wallet application in an iframe and controlling it with the client. You can see this in action on Eluvio LIVE sites at [https://live.eluv.io] (https://live.eluv.io/maskverse).
 
 Please read the client documentation for more details:
 ### [Wallet Client API Documentation](https://eluv-io.github.io/elv-media-wallet/ElvWalletClient.html)
