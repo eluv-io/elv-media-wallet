@@ -1,6 +1,6 @@
 ## [Eluvio Media Wallet](https://wallet.contentfabric.io/#/)
 
-The app for buying, selling and collecting NFTs on the Eluvio Content Fabric.
+An embeddable crypto wallet and content presentation app for buying, selling and collecting NFTs on the Eluvio Content Fabric.
 
 
 ### Embedding the Eluvio Media Wallet
