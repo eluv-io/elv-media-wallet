@@ -60,7 +60,7 @@ class CryptoStore {
         this.connectedAccounts[link.link_type][address] = {
           ...link,
           link_acct: address,
-          connected_at: new Date(link.created * 1000).toDateString()
+          connected_at: new Date(link.created * 1000).toLocaleTimeString(navigator.language || "en-US", {year: "numeric", month: "long", day: "numeric"})
         };
       }
     } catch(error) {
@@ -216,7 +216,7 @@ class CryptoStore {
         return {
           name: "Metamask",
           logo: MetamaskLogo,
-          networkName: "Ethereum Mainnet",
+          networkName: "Ethereum",
           currencyLogo: EthereumLogo,
           currencyName: "ETH",
           link: "https://metamask.io",
@@ -226,12 +226,13 @@ class CryptoStore {
           Connect: async () => await this.ConnectMetamask(),
           Connection: () => this.connectedAccounts.eth[Utils.FormatAddress(window.ethereum.selectedAddress)],
           Sign: async message => await this.SignMetamask(message),
+          Disconnect: async () => {}
         };
       case "phantom":
         return {
           name: "Phantom",
           logo: PhantomLogo,
-          networkName: "Solana Mainnet",
+          networkName: "Solana",
           currencyLogo: SolanaLogo,
           currencyName: "SOL",
           link: "https://phantom.app",
@@ -240,7 +241,8 @@ class CryptoStore {
           Connected: () => this.PhantomConnected(),
           Connect: async () => await this.ConnectPhantom(),
           Connection: () => this.connectedAccounts.sol[this.PhantomAddress()],
-          Sign: async message => await this.SignPhantom(message)
+          Sign: async message => await this.SignPhantom(message),
+          Disconnect: async () => {}
         };
     }
 

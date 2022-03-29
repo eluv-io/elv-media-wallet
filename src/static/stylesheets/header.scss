@@ -11,7 +11,7 @@
 
 .header {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 
   * {
     font-weight: 300;
@@ -37,13 +37,14 @@
 
   &__profile {
     @include page-fade-in;
-
     align-items: center;
+
     display: flex;
     height: 100%;
     justify-content: flex-end;
     margin-left: 10px;
     max-width: 190px;
+    position: relative;
     user-select: none;
   }
 
@@ -58,6 +59,22 @@
     text-align: right;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  &__profile__sub {
+    align-items: center;
+    display: flex;
+  }
+
+  &__profile__connected-button {
+    display: flex;
+    height: 20px;
+    margin-right: 3px;
+    padding: 3px;
+
+    svg {
+      height: 100%;
+    }
   }
 
   &__profile__balance {

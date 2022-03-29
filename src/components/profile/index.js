@@ -9,7 +9,7 @@ import {ButtonWithLoader, CopyableField, FormatPriceString} from "Components/com
 import {PendingPaymentsTable, UserTransferTable} from "Components/listings/TransferTables";
 import {observer} from "mobx-react";
 import {WithdrawalModal, WithdrawalSetupModal} from "Components/profile/WithdrawalModal";
-import {CryptoProfile} from "Components/profile/Crypto";
+import WalletConnect from "Components/crypto/WalletConnect";
 
 const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSetup}) => {
   return (
@@ -147,8 +147,6 @@ const Profile = observer(() => {
         </div>
       </div>
 
-      <CryptoProfile />
-
       <div className="profile-page__section profile-page__section-balance profile-page__section-box">
         <h2 className="profile-page__section-header">
           Pending Wallet Balance
@@ -182,6 +180,14 @@ const Profile = observer(() => {
           }}
         /> : null
       }
+
+      <div className="profile-page__section profile-page__section-wallet-connect">
+        <h2 className="profile-page__section-header">
+          Connected Accounts
+        </h2>
+
+        <WalletConnect />
+      </div>
 
       <div className="profile-page__section profile-page__actions">
         <div className="profile-page__actions">

@@ -30,6 +30,13 @@
       margin-bottom: 10px;
       padding: 20px;
     }
+
+    &-wallet-connect {
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
   }
 
   &__section-header {

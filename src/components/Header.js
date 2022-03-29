@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from "react";
-
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import {ProfileImage} from "Components/common/Images";
@@ -13,6 +12,7 @@ import BackIcon from "Assets/icons/arrow-left-circle.svg";
 import EluvioLogo from "Assets/images/EluvioLogo.png";
 import PlaceholderLogo from "Assets/icons/listing.svg";
 import MenuIcon from "Assets/icons/menu";
+import {WalletConnectButton} from "Components/crypto/WalletConnect";
 
 const Profile = observer(() => {
   const location = useLocation();
@@ -38,12 +38,15 @@ const Profile = observer(() => {
         </div>
         {
           typeof rootStore.totalWalletBalance !== "undefined" ?
-            <div
-              className="header__profile__balance"
-              title={`Total balance: ${FormatPriceString({USD: rootStore.totalWalletBalance})}\nAvailable balance: ${FormatPriceString({USD: rootStore.availableWalletBalance}) }\nPending balance: ${FormatPriceString({USD: rootStore.pendingWalletBalance}) }`}
-            >
-              { FormatPriceString({USD: rootStore.totalWalletBalance}) }
-              { rootStore.pendingWalletBalance ? <div className="header__profile__pending-indicator">*</div> : null}
+            <div className="header__profile__sub">
+              <WalletConnectButton />
+              <div
+                className="header__profile__balance"
+                title={`Total balance: ${FormatPriceString({USD: rootStore.totalWalletBalance})}\nAvailable balance: ${FormatPriceString({USD: rootStore.availableWalletBalance}) }\nPending balance: ${FormatPriceString({USD: rootStore.pendingWalletBalance}) }`}
+              >
+                { FormatPriceString({USD: rootStore.totalWalletBalance}) }
+                { rootStore.pendingWalletBalance ? <div className="header__profile__pending-indicator">*</div> : null}
+              </div>
             </div> : null
         }
       </div>

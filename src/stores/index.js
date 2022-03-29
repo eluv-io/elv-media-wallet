@@ -321,6 +321,8 @@ class RootStore {
 
       this.SendEvent({event: EVENTS.LOG_IN, data: {address: client.CurrentAccountAddress()}});
 
+      this.cryptoStore.LoadConnectedAccounts();
+
       // Clear loaded marketplaces so they will be reloaded and authorization rechecked
       this.marketplaces = {};
 

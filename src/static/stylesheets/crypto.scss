@@ -1,3 +1,189 @@
+$wallet-connect-background: rgba($black, 0.35);
+
+.wallet-connect-modal {
+  align-items: flex-start;
+  background-color: $wallet-connect-background;
+  justify-content: flex-end;
+  overflow-y: hidden;
+
+  .modal__content {
+    display: flex;
+    height: max-content;
+    justify-content: flex-end;
+    margin: 60px 40px 0 0;
+    min-height: unset;
+    overflow-y: hidden;
+    width: max-content;
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    justify-content: center;
+
+    .modal__content {
+      margin: 70px 0 0;
+    }
+  }
+}
+
+.wallet-connect {
+  @include page-fade-in;
+  background-color: $lightergray;
+  border-radius: 6px;
+  // sass-lint:disable function-name-format
+  max-width: MIN(90vw, 350px);
+  padding: 15px;
+  right: 5vw;
+  top: 60px;
+  z-index: 100;
+
+  &__header {
+    font-size: 20px;
+    font-weight: 300;
+    padding: 10px 0;
+    text-align: center;
+  }
+
+  &__info {
+    align-items: center;
+    background-color: $white;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 10px 20px;
+    width: 100%;
+  }
+
+  &__message {
+    font-size: 14px;
+    font-weight: 300;
+    text-align: center;
+
+    svg {
+      height: 18px;
+      margin-left: 2px;
+      padding-top: 5px;
+    }
+  }
+
+  &__download-link,
+  .loader-button {
+    margin-top: 20px;
+    max-width: 250px;
+    width: 100%;
+  }
+
+  &__link-button,
+  &__download-link {
+    border: 1px solid $blue;
+    border-radius: 6px;
+    color: $blue;
+    height: 40px;
+
+    &:hover {
+      color: $blue;
+    }
+  }
+
+  &__linked,
+  &__link-button {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+
+    img {
+      height: 20px;
+      margin-right: 10px;
+    }
+  }
+
+  &__unlink-button {
+    font-size: 14px;
+    height: 30px;
+    margin: 0 auto;
+    width: 150px;
+  }
+
+  &__linked {
+    background-color: $white;
+    border: 1px solid $lightblue;
+    border-radius: 6px;
+    color: $lightblue;
+    height: 40px;
+    max-width: 250px;
+  }
+
+  &__connected-at {
+    color: $gray;
+    font-size: 12px;
+    margin: 20px 0 5px;
+  }
+
+  &__network-info {
+    background-color: $lightgray;
+    border-radius: 6px;
+    max-width: 100%;
+    padding: 10px 20px;
+  }
+
+  &__network-name {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+
+    img,
+    svg {
+      height: 20px;
+      margin-right: 10px;
+    }
+  }
+
+  &__network-address {
+    font-size: 12px;
+  }
+}
+
+.dark {
+  .wallet-connect {
+    background-color: $darkestgray;
+
+    &__info {
+      background-color: $lightblack;
+    }
+
+    &__message {
+      svg {
+        filter: invert(100%);
+      }
+    }
+
+    &__link-button,
+    &__download-link {
+      border: 1px solid $lightblue;
+      color: $white;
+    }
+
+    &__linked {
+      background-color: $black;
+      color: $lightblue;
+    }
+
+    &__connected-at {
+      color: $mediumgray;
+    }
+
+    &__network-info {
+      background-color: $darkergray;
+    }
+  }
+}
+
+
+// UNUSED
+
+// sass-lint:disable no-css-comments
+/*
+
 .profile-crypto {
   flex-direction: column;
   padding: 20px 0;
@@ -446,3 +632,6 @@
     }
   }
 }
+
+
+ */
