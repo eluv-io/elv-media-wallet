@@ -4,14 +4,15 @@ import {rootStore, transferStore} from "Stores";
 import {Ago, MiddleEllipsis, NFTDisplayToken, TimeDiff} from "../../utils/Utils";
 import {Loader} from "Components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-
-import UpCaret from "Assets/icons/up-caret.svg";
-import DownCaret from "Assets/icons/down-caret.svg";
 import ImageIcon from "Components/common/ImageIcon";
 import {FormatPriceString} from "Components/common/UIComponents";
 import {v4 as UUID} from "uuid";
 
 import { useInfiniteScroll } from "react-g-infinite-scroll";
+
+import UpCaret from "Assets/icons/up-caret.svg";
+import DownCaret from "Assets/icons/down-caret.svg";
+import USDCIcon from "Assets/icons/USDC coin icon.svg";
 
 export const ActiveListings = observer(({contractAddress, contractId, initialSelectedListingId, Select}) => {
   const [listings, setListings] = useState([]);
@@ -139,6 +140,7 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
                         { NFTDisplayToken(listing) }
                       </div>
                       <div className="transfer-table__table__cell">
+                        { true ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC Accepted" /> : null }
                         {`$${listing.details.Price.toFixed(2)}`}
                       </div>
                       <div className="transfer-table__table__cell no-mobile">

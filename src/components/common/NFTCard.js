@@ -11,6 +11,7 @@ import {NFTDisplayToken} from "../../utils/Utils";
 import ImageIcon from "Components/common/ImageIcon";
 
 import ReturnIcon from "Assets/icons/media/back to nft icon.svg";
+import USDCIcon from "Assets/icons/USDC coin icon.svg";
 
 const NFTCard = observer(({
   nft,
@@ -58,6 +59,7 @@ const NFTCard = observer(({
           {
             !selectedMedia && (price || selectedListing) ?
               <div className="card__title__price">
+                { true ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC Accepted" /> : null }
                 { FormatPriceString(price || {USD: selectedListing.details.Price}) }
               </div> : null
           }

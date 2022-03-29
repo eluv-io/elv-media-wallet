@@ -4,7 +4,7 @@ $wallet-connect-background: rgba($black, 0.35);
   align-items: flex-start;
   background-color: $wallet-connect-background;
   justify-content: flex-end;
-  overflow-y: hidden;
+  overflow-y: auto;
 
   .modal__content {
     display: flex;
@@ -12,7 +12,7 @@ $wallet-connect-background: rgba($black, 0.35);
     justify-content: flex-end;
     margin: 60px 40px 0 0;
     min-height: unset;
-    overflow-y: hidden;
+    padding-bottom: 20px;
     width: max-content;
   }
 
@@ -36,10 +36,24 @@ $wallet-connect-background: rgba($black, 0.35);
   top: 60px;
   z-index: 100;
 
+  &--connected {
+    .wallet-connect__download-link,
+    .loader-button {
+      margin-top: 10px;
+    }
+  }
+
   &__header {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 300;
-    padding: 10px 0;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  &__warning {
+    font-size: 12px;
+    margin-top: 5px;
+    padding: 0 10px;
     text-align: center;
   }
 
@@ -49,13 +63,15 @@ $wallet-connect-background: rgba($black, 0.35);
     border-radius: 6px;
     display: flex;
     flex-direction: column;
-    padding: 10px 10px 20px;
+    margin-top: 10px;
+    padding: 10px 10px 15px;
     width: 100%;
   }
 
   &__message {
     font-size: 14px;
     font-weight: 300;
+    margin-bottom: 10px;
     text-align: center;
 
     svg {
@@ -65,9 +81,10 @@ $wallet-connect-background: rgba($black, 0.35);
     }
   }
 
+  &__linked,
   &__download-link,
   .loader-button {
-    margin-top: 20px;
+    margin: 0 auto;
     max-width: 250px;
     width: 100%;
   }
@@ -99,7 +116,6 @@ $wallet-connect-background: rgba($black, 0.35);
 
   &__unlink-button {
     font-size: 14px;
-    height: 30px;
     margin: 0 auto;
     width: 150px;
   }
@@ -110,18 +126,20 @@ $wallet-connect-background: rgba($black, 0.35);
     border-radius: 6px;
     color: $lightblue;
     height: 40px;
+    margin: 10px auto 0;
     max-width: 250px;
   }
 
   &__connected-at {
     color: $gray;
     font-size: 12px;
-    margin: 20px 0 5px;
+    padding: 10px 0 5px;
   }
 
   &__network-info {
     background-color: $lightgray;
     border-radius: 6px;
+    margin-bottom: 20px;
     max-width: 100%;
     padding: 10px 20px;
   }
@@ -149,12 +167,6 @@ $wallet-connect-background: rgba($black, 0.35);
 
     &__info {
       background-color: $lightblack;
-    }
-
-    &__message {
-      svg {
-        filter: invert(100%);
-      }
     }
 
     &__link-button,

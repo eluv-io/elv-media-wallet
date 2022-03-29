@@ -124,12 +124,20 @@ $badge-pending: rgba($darkgray, 0.8);
   }
 
   &__table__cell {
+    align-items: center;
+    display: flex;
     font-size: 12px;
     padding: 10px 20px;
 
     em {
       color: $gray;
       margin-left: 5px;
+    }
+
+    svg,
+    img {
+      height: 16px;
+      margin-right: 5px;
     }
   }
 

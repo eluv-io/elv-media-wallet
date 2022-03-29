@@ -55,14 +55,17 @@ class CryptoStore {
         return;
       }
 
+      let connectedAccounts = { eth: {}, sol: {} };
       for(const link of links) {
         const address = link.link_type === "eth" ? Utils.FormatAddress(link.link_acct) : link.link_acct;
-        this.connectedAccounts[link.link_type][address] = {
+        connectedAccounts[link.link_type][address] = {
           ...link,
           link_acct: address,
           connected_at: new Date(link.created * 1000).toLocaleTimeString(navigator.language || "en-US", {year: "numeric", month: "long", day: "numeric"})
         };
       }
+
+      this.connectedAccounts = connectedAccounts;
     } catch(error) {
       this.rootStore.Log("Failed to load connected accounts:", true);
       this.rootStore.Log(error, true);
@@ -82,6 +85,8 @@ class CryptoStore {
 
     if(this.connectedAccounts.eth[address]) {
       return;
+    } else if(Object.keys(this.connectedAccounts.eth).length > 0) {
+      throw Error("Attempt to add additional account");
     }
 
     const message = `Eluvio link account - ${new Date().toISOString()}`;
@@ -117,6 +122,8 @@ class CryptoStore {
 
     if(this.connectedAccounts.sol[address]) {
       return;
+    } else if(Object.keys(this.connectedAccounts.sol).length > 0) {
+      throw Error("Attempt to add additional account");
     }
 
     const message = `Eluvio link account - ${new Date().toISOString()}`;
@@ -142,6 +149,38 @@ class CryptoStore {
 
     yield this.LoadConnectedAccounts();
   });
+
+  // TODO: Remove sign dependency
+  DisconnectPhantom = flow(function * (address) {
+    yield window.solana.connect();
+
+    //const address = this.PhantomAddress();
+
+    if(!address) { return; }
+
+    const message = `Eluvio link account - ${new Date().toISOString()}`;
+    let payload = {
+      tgt: "sol",
+      ace: address,
+      msg: message,
+      sig: yield this.SignPhantom(message)
+    };
+
+    if(!payload.sig) {
+      return;
+    }
+
+    yield this.client.authClient.MakeAuthServiceRequest({
+      path: UrlJoin("as", "wlt", "link"),
+      method: "DELETE",
+      body: payload,
+      headers: {
+        Authorization: `Bearer ${this.client.signer.authToken}`
+      }
+    });
+
+    yield this.LoadConnectedAccounts();
+  })
 
   SignMetamask = flow(function * (message, address) {
     try {
@@ -225,6 +264,7 @@ class CryptoStore {
           Connected: () => this.MetamaskConnected(),
           Connect: async () => await this.ConnectMetamask(),
           Connection: () => this.connectedAccounts.eth[Utils.FormatAddress(window.ethereum.selectedAddress)],
+          ConnectedAccounts: () => Object.values(this.connectedAccounts.eth),
           Sign: async message => await this.SignMetamask(message),
           Disconnect: async () => {}
         };
@@ -241,8 +281,9 @@ class CryptoStore {
           Connected: () => this.PhantomConnected(),
           Connect: async () => await this.ConnectPhantom(),
           Connection: () => this.connectedAccounts.sol[this.PhantomAddress()],
+          ConnectedAccounts: () => Object.values(this.connectedAccounts.sol),
           Sign: async message => await this.SignPhantom(message),
-          Disconnect: async () => {}
+          Disconnect: async (address) => await this.DisconnectPhantom(address)
         };
     }
 

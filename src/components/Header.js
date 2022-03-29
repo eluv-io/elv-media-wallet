@@ -98,7 +98,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
           if(hidden || (authed && !rootStore.loggedIn)) { return null; }
 
           if(separator) {
-            return <div className="mobile-navigation__separator" />;
+            return <div key="mobile-link-separator" className="mobile-navigation__separator" />;
           }
 
           return (

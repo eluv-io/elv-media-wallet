@@ -331,6 +331,12 @@
   &__payment-cancel {
     margin-top: 10px;
   }
+
+  &__wallet-connect {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 30px;
+  }
 }
 
 .quantity {

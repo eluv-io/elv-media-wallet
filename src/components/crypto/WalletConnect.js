@@ -17,35 +17,61 @@ const WalletConnect = observer(() => {
 
   useEffect(() => {
     setConnected(wallet.Connected());
-  }, [Object.keys(cryptoStore.connectedAccounts.sol)]);
+  }, [cryptoStore.metamaskAddress, cryptoStore.metamaskChainId, cryptoStore.phantomAddress, Object.keys(cryptoStore.connectedAccounts.sol)]);
 
-  if(connected) {
-    const connection = wallet.Connection();
+  const connectedAccounts = wallet.ConnectedAccounts();
+  const incorrectAccount = connectedAccounts.length > 0 && wallet.Address() && !connectedAccounts.find(account => account.link_acct === wallet.Address());
+
+  const connectButton =
+    connected && connectedAccounts.length > 0 ?
+      <div className="wallet-connect__linked">
+        <ImageIcon icon={wallet.logo} title="Phantom" /> Phantom Connected
+      </div> :
+      wallet.Available() ?
+        <ButtonWithLoader
+          disabled={incorrectAccount}
+          className="wallet-connect__link-button"
+          onClick={async () => {
+            await wallet.Connect();
+            setConnected(true);
+          }}
+        >
+          <ImageIcon icon={wallet.logo} title="Phantom" /> Connect Phantom
+        </ButtonWithLoader> :
+        <a target="_blank" rel="noopener" href={wallet.link} className="wallet-connect__link-button wallet-connect__download-link">
+          <ImageIcon icon={wallet.logo} title={wallet.name} />
+          Get { wallet.name }
+        </a>;
+
+  if(connectedAccounts.length > 0) {
     return (
       <div className="wallet-connect wallet-connect--connected">
-        <div className="wallet-connect__info">
-          <div className="wallet-connect__linked">
-            <ImageIcon icon={wallet.logo} title="Phantom" /> Phantom Linked
-          </div>
-          <div className="wallet-connect__connected-at">
-            Linked { connection.connected_at }
-          </div>
-          <div className="wallet-connect__network-info">
-            <div className="wallet-connect__network-name">
-              <ImageIcon icon={wallet.currencyLogo} title={wallet.currencyName} />
-              { wallet.networkName } Wallet Address
+        { connectButton }
+        { incorrectAccount ? <div className="wallet-connect__warning">Please select the account below in your Phantom extension to connect</div> : null }
+        {
+          connectedAccounts.map(connection =>
+            <div className="wallet-connect__info" key={`wallet-connection-${connection.link_acct}`}>
+              <div className="wallet-connect__connected-at">
+                Linked { connection.connected_at }
+              </div>
+              <div className="wallet-connect__network-info">
+                <div className="wallet-connect__network-name">
+                  <ImageIcon icon={wallet.currencyLogo} title={wallet.currencyName} />
+                  { wallet.networkName } Wallet Address
+                </div>
+                <div className="wallet-connect__network-address ellipsis" title={connection.link_acct}>
+                  { connection.link_acct }
+                </div>
+              </div>
+              <ButtonWithLoader
+                className="wallet-connect__unlink-button"
+                onClick={async () => await Confirm({message: "Are you sure you want to disconnect this account?", Confirm: async () => await wallet.Disconnect(connection.link_acct)})}
+              >
+                Unlink Wallet
+              </ButtonWithLoader>
             </div>
-            <div className="wallet-connect__network-address ellipsis" title={wallet.Address()}>
-              { wallet.Address() }
-            </div>
-          </div>
-          <ButtonWithLoader
-            className="wallet-connect__unlink-button"
-            onClick={async () => await Confirm({message: "Are you sure you want to disconnect this account?", Confirm: async () => await wallet.Disconnect()})}
-          >
-            Unlink Wallet
-          </ButtonWithLoader>
-        </div>
+          )
+        }
       </div>
     );
   }
@@ -58,22 +84,7 @@ const WalletConnect = observer(() => {
           <div className="wallet-connect__message">
             To buy and sell NFTs using <ImageIcon icon={USDCIcon} title="USDC" /> USDC, link your Eluvio Media Wallet to your payment wallet.
           </div>
-          {
-            wallet.Available() ?
-              <ButtonWithLoader
-                className="wallet-connect__link-button"
-                onClick={async () => {
-                  await wallet.Connect();
-                  setConnected(true);
-                }}
-              >
-                <ImageIcon icon={wallet.logo} title="Phantom" /> Link Phantom
-              </ButtonWithLoader> :
-              <a target="_blank" rel="noopener" href={wallet.link} className="wallet-connect__link-button wallet-connect__download-link">
-                <ImageIcon icon={wallet.logo} title={wallet.name} />
-                Get { wallet.name }
-              </a>
-          }
+          { connectButton}
         </div>
       </div>
     </div>

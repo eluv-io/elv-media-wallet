@@ -225,8 +225,16 @@ $pending-color: rgba($blue, 0.5);
   }
 
   &__title__price {
+    align-items: center;
+    display: flex;
     font-size: 14px;
     font-weight: 500;
+
+    svg,
+    img {
+      height: 20px;
+      margin-right: 5px;
+    }
   }
 
   &__stock {
