@@ -35,7 +35,7 @@ const Listing = memo(({url, listing}) => (
               {listing.metadata.display_name}
             </div>
             <div className="card__title__price">
-              { true ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC Accepted" /> : null }
+              { listing.details.USDCAccepted ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC Accepted" /> : null }
               {FormatPriceString({USD: listing.details.Price})}
             </div>
           </h2>

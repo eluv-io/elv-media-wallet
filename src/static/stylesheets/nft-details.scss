@@ -347,8 +347,17 @@
   }
 
   &__listing-price-value {
+    align-items: center;
+    display: flex;
     font-size: 18px;
     font-weight: bold;
+    justify-content: center;
+
+    svg,
+    img {
+      height: 20px;
+      margin-right: 5px;
+    }
   }
 
   &__media-container {

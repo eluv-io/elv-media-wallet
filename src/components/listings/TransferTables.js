@@ -140,7 +140,7 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
                         { NFTDisplayToken(listing) }
                       </div>
                       <div className="transfer-table__table__cell">
-                        { true ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC Accepted" /> : null }
+                        { listing.details.USDCAccepted ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC Accepted" /> : null }
                         {`$${listing.details.Price.toFixed(2)}`}
                       </div>
                       <div className="transfer-table__table__cell no-mobile">

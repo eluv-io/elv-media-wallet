@@ -33,6 +33,7 @@ import ContractIcon from "Assets/icons/Contract icon.svg";
 import TraitsIcon from "Assets/icons/properties icon.svg";
 import MediaSectionIcon from "Assets/icons/Media tab icon.svg";
 import PlayIcon from "Assets/icons/blue play icon.svg";
+import USDCIcon from "Assets/icons/USDC coin icon.svg";
 
 const FormatRarity = (rarity) => {
   if(!rarity) {
@@ -575,6 +576,7 @@ const NFTDetails = observer(() => {
                   Listing Price
                 </div>
                 <div className="details-page__listing-price-value">
+                  { listing.details.USDCAccepted ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC Accepted" /> : null }
                   ${listing.details.Price.toFixed(2)}
                 </div>
               </div> : null

@@ -38,6 +38,7 @@ class TransferStore {
     const info = (isListing ? entry.info : entry);
 
     let details = {
+      USDCAccepted: (entry.accepts || []).includes("sol"),
       TenantId: entry.tenant || entry.tenant_id,
       ContractAddr: info.contract_addr,
       ContractId: `ictr${Utils.AddressToHash(info.contract_addr)}`,

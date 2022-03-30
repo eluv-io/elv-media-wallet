@@ -3,10 +3,14 @@ import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
 import Confirm from "Components/common/Confirm";
 import {ActiveListings} from "Components/listings/TransferTables";
-import {rootStore, transferStore} from "Stores";
+import {cryptoStore, rootStore, transferStore} from "Stores";
 import NFTCard from "Components/common/NFTCard";
 import {ButtonWithLoader} from "Components/common/UIComponents";
 import { roundToUp } from "round-to";
+import ImageIcon from "Components/common/ImageIcon";
+
+import USDCIcon from "Assets/icons/USDC coin icon.svg";
+import WalletConnect from "Components/crypto/WalletConnect";
 
 const ListingModal = observer(({nft, Close}) => {
   const [price, setPrice] = useState(nft.details.Price ? nft.details.Price.toFixed(2) : "");
@@ -31,6 +35,7 @@ const ListingModal = observer(({nft, Close}) => {
           />
           <div className="listing-modal__form__price-input-label">
             USD
+            { cryptoStore.usdcConnected ? <ImageIcon icon={USDCIcon} title="USDC Available" /> : null }
           </div>
           {
             parsedPrice > 10000 ?
@@ -39,6 +44,11 @@ const ListingModal = observer(({nft, Close}) => {
               </div> : null
           }
         </div>
+
+        <div className="listing-modal__wallet-connect">
+          <WalletConnect />
+        </div>
+
         <div className="listing-modal__details">
           <div className="listing-modal__detail listing-modal__detail-faded">
             <label>Creator Royalty</label>
@@ -46,7 +56,7 @@ const ListingModal = observer(({nft, Close}) => {
           </div>
           <div className="listing-modal__detail">
             <label>Total Payout</label>
-            <div>${Math.max(0, payout).toFixed(2)}</div>
+            <div className="listing-modal__payout">{ cryptoStore.usdcConnected ? <ImageIcon icon={USDCIcon} title="USDC Available" /> : null }${Math.max(0, payout).toFixed(2)}</div>
           </div>
         </div>
         <div className="listing-modal__active-listings">
@@ -105,7 +115,7 @@ const ListingModal = observer(({nft, Close}) => {
           </div>
           <div className="listing-modal__detail">
             <label>Total Payout</label>
-            <div>${payout.toFixed(2)}</div>
+            <div className="listing-modal__payout">{ cryptoStore.usdcConnected ? <ImageIcon icon={USDCIcon} title="USDC Available" /> : null }${payout.toFixed(2)}</div>
           </div>
         </div>
         <div className="listing-modal__message">
@@ -167,7 +177,7 @@ const ListingModal = observer(({nft, Close}) => {
       <div className="listing-modal">
         <h1 className="listing-modal__header">List Your NFT for Sale</h1>
         <div className="listing-modal__content">
-          <NFTCard nft={nft} price={{USD: parsedPrice}} showOrdinal />
+          <NFTCard nft={nft} price={{USD: parsedPrice}} usdcAccepted={cryptoStore.usdcConnected} showOrdinal />
           { showConfirmation ? ConfirmationStage() : InputStage() }
         </div>
       </div>

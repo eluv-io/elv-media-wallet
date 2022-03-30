@@ -18,6 +18,7 @@ const NFTCard = observer(({
   item,
   selectedListing,
   price,
+  usdcAccepted,
   stock,
   link,
   showVideo,
@@ -59,7 +60,7 @@ const NFTCard = observer(({
           {
             !selectedMedia && (price || selectedListing) ?
               <div className="card__title__price">
-                { true ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC Accepted" /> : null }
+                { usdcAccepted || selectedListing?.details.USDCAccepted ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC Accepted" /> : null }
                 { FormatPriceString(price || {USD: selectedListing.details.Price}) }
               </div> : null
           }

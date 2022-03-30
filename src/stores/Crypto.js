@@ -1,4 +1,4 @@
-import {flow, makeAutoObservable, runInAction} from "mobx";
+import {computed, flow, makeAutoObservable, runInAction} from "mobx";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import UrlJoin from "url-join";
 import {ethers} from "ethers";
@@ -19,6 +19,10 @@ class CryptoStore {
     eth: {},
     sol: {}
   };
+
+  @computed get usdcConnected() {
+    return Object.keys(this.connectedAccounts.sol || {}).length > 0;
+  }
 
   get client() {
     return this.rootStore.client;
@@ -51,12 +55,8 @@ class CryptoStore {
         })
       );
 
-      if(!links || links.length === 0) {
-        return;
-      }
-
       let connectedAccounts = { eth: {}, sol: {} };
-      for(const link of links) {
+      for(const link of (links || [])) {
         const address = link.link_type === "eth" ? Utils.FormatAddress(link.link_acct) : link.link_acct;
         connectedAccounts[link.link_type][address] = {
           ...link,
@@ -152,23 +152,14 @@ class CryptoStore {
 
   // TODO: Remove sign dependency
   DisconnectPhantom = flow(function * (address) {
-    yield window.solana.connect();
-
-    //const address = this.PhantomAddress();
-
     if(!address) { return; }
 
     const message = `Eluvio link account - ${new Date().toISOString()}`;
     let payload = {
       tgt: "sol",
       ace: address,
-      msg: message,
-      sig: yield this.SignPhantom(message)
+      msg: message
     };
-
-    if(!payload.sig) {
-      return;
-    }
 
     yield this.client.authClient.MakeAuthServiceRequest({
       path: UrlJoin("as", "wlt", "link"),

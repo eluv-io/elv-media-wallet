@@ -610,9 +610,9 @@ const ListingPurchaseSelection = observer(({nft, marketplaceItem, initialListing
         <button
           onClick={() => Select(selectedListingId, selectedListing)}
           disabled={
-            !selectedListing ||
-            Utils.EqualAddress(rootStore.userAddress, selectedListing.details.SellerAddress)
-            || maxOwned
+            typeof selectedListingId === "undefined" ||
+            (selectedListing && Utils.EqualAddress(rootStore.userAddress, selectedListing?.details?.SellerAddress)) ||
+            maxOwned
           }
           className="action action-primary listing-purchase-modal__action"
         >
