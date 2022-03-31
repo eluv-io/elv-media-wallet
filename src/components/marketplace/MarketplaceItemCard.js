@@ -14,16 +14,22 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
   }
 
   const expired = item.expires_at && new Date(item.expires_at).getTime() - Date.now() < 0;
+  const unauthorized = item.requires_permissions && !item.authorized;
   const stock = checkoutStore.stock[item.sku];
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
   const total = ItemPrice(item, checkoutStore.currency);
   const isFree = !total || item.free;
 
+  let description = item.description || item.nftTemplateMetadata.description;
+  if(unauthorized && !expired) {
+    description = item.permission_description || description;
+  }
+
   return (
     <div className={`card-container card-shadow ${className}`}>
       <Link
         to={to || `${match.url}/${item.sku}`}
-        className={`card nft-card ${outOfStock || expired ? "card-disabled" : ""}`}
+        className={`card nft-card ${outOfStock || expired || unauthorized ? "card-disabled" : ""}`}
       >
         <MarketplaceImage
           marketplaceHash={marketplaceHash}
@@ -47,7 +53,7 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
             <ResponsiveEllipsis
               component="h2"
               className="card__subtitle"
-              text={item.description || item.nftTemplateMetadata.description}
+              text={description}
               maxLine="3"
             />
           </div>
@@ -57,11 +63,16 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
                 <div className="card__stock__indicator card__stock__indicator-unavailable" />
                 Sale Ended
               </div> :
-              !item.hide_available && stock && stock.max && stock.max < 10000000 ?
+              unauthorized ?
                 <div className="card__stock">
-                  <div className={`card__stock__indicator ${outOfStock ? "card__stock__indicator-unavailable" : ""}`} />
-                  { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available` }
-                </div> : null
+                  <div className="card__stock__indicator card__stock__indicator-unavailable" />
+                  Private Offering
+                </div> :
+                !item.hide_available && stock && stock.max && stock.max < 10000000 ?
+                  <div className="card__stock">
+                    <div className={`card__stock__indicator ${outOfStock ? "card__stock__indicator-unavailable" : ""}`} />
+                    { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available` }
+                  </div> : null
           }
         </div>
       </Link>

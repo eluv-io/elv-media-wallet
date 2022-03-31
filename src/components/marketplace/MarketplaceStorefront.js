@@ -69,7 +69,12 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
       let item = itemIndex >= 0 && marketplace.items[itemIndex];
 
       // Authorization
-      if(!item || !item.for_sale || (item.requires_permissions && !item.authorized) || (item.type === "nft" && (!item.nft_template || item.nft_template["/"]))) {
+      if(
+        !item ||
+        !item.for_sale ||
+        (item.requires_permissions && !item.authorized && !item.show_if_unauthorized) ||
+        (item.type === "nft" && (!item.nft_template || item.nft_template["/"]))
+      ) {
         return;
       }
 
