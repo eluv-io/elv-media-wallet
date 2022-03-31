@@ -64,9 +64,11 @@ const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
   );
 };
 
+// Confirmation page for wallet balance purchase and linked wallet USDC payment
 const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedListing, listingId, quantity=1, useLinkedWallet, Cancel}) => {
   const match = useRouteMatch();
   const [errorMessage, setErrorMessage] = useState(undefined);
+  const [failed, setFailed] = useState(false);
   const [redirectPath, setRedirectPath] = useState(undefined);
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
@@ -82,7 +84,7 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
   const total = price.USD * quantity;
   const fee = Math.max(1, roundToDown(total * 0.05, 2));
 
-  const insufficientBalance = rootStore.availableWalletBalance < total + fee;
+  const insufficientBalance = !useLinkedWallet && rootStore.availableWalletBalance < total + fee;
 
   useEffect(() => {
     if(!stock) { return; }
@@ -175,7 +177,7 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
         }
         <div className="listing-purchase-modal__actions listing-purchase-wallet-balance-actions">
           <ButtonWithLoader
-            disabled={!available || outOfStock || insufficientBalance || errorMessage}
+            disabled={!available || outOfStock || insufficientBalance || failed}
             className="action action-primary"
             onClick={async () => {
               try {
@@ -185,20 +187,18 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
                 if(selectedListing) {
                   // Listing purchase
                   result = await checkoutStore.ListingCheckoutSubmit({
-                    provider: "wallet-balance",
+                    provider: useLinkedWallet ? "linked-wallet" : "wallet-balance",
                     marketplaceId: match.params.marketplaceId,
                     listingId,
-                    email: undefined
                   });
                 } else {
                   // Marketplace purchase
                   result = await checkoutStore.CheckoutSubmit({
-                    provider: "wallet-balance",
+                    provider: useLinkedWallet ? "linked-wallet" : "wallet-balance",
                     tenantId: marketplace.tenant_id,
                     marketplaceId: match.params.marketplaceId,
                     sku: marketplaceItem.sku,
                     quantity,
-                    email: undefined
                   });
                 }
 
@@ -209,8 +209,11 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
                 rootStore.Log("Checkout failed", true);
                 rootStore.Log(error, true);
 
-                // TODO: Figure out what kind of error it is
-                setErrorMessage("This listing is no longer available");
+                if(!error.recoverable) {
+                  setFailed(true);
+                }
+
+                setErrorMessage(error.message || "Purchase failed");
               }
             }}
           >
@@ -241,6 +244,7 @@ const ListingPurchasePayment = observer(({nft, marketplaceItem, selectedListing,
   const [paymentType, setPaymentType] = useState("stripe");
   const [confirmationId, setConfirmationId] = useState(undefined);
   const [errorMessage, setErrorMessage] = useState(undefined);
+  const [failed, setFailed] = useState(false);
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   marketplaceItem = marketplaceItem || (!listingId && marketplace && rootStore.MarketplaceItemByTemplateId(marketplace, nft.metadata.template_id));
@@ -255,7 +259,7 @@ const ListingPurchasePayment = observer(({nft, marketplaceItem, selectedListing,
   const price = listingId ? { USD: selectedListing.details.Price } : marketplaceItem.price;
 
   const wallet = cryptoStore.WalletFunctions("phantom");
-  const connected = paymentType !== "linked-wallet" || wallet.Connected();
+  const connected = paymentType !== "linked-wallet" || cryptoStore.phantomAddress && wallet.Connected();
 
   useEffect(() => {
     if(!stock) { return; }
@@ -371,7 +375,7 @@ const ListingPurchasePayment = observer(({nft, marketplaceItem, selectedListing,
           </div>
           { paymentType === "linked-wallet" ? <div className="listing-purchase-confirmation-modal__wallet-connect"><WalletConnect /></div> : null }
           <ButtonWithLoader
-            disabled={!available || outOfStock || errorMessage || !connected}
+            disabled={!available || outOfStock || failed || !connected}
             className="action action-primary listing-purchase-confirmation-modal__payment-submit"
             onClick={async () => {
               if(paymentType === "wallet-balance") {
@@ -413,8 +417,11 @@ const ListingPurchasePayment = observer(({nft, marketplaceItem, selectedListing,
                 rootStore.Log("Checkout failed", true);
                 rootStore.Log(error, true);
 
-                // TODO: Figure out what kind of error it is
-                setErrorMessage("This listing is no longer available");
+                if(!error.recoverable) {
+                  setFailed(true);
+                }
+
+                setErrorMessage(error.message || "Purchase failed");
               }
             }}
           >

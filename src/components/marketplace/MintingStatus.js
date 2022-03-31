@@ -292,7 +292,7 @@ export const PurchaseMintingStatus = observer(() => {
 
   const confirmationId = match.params.confirmationId;
 
-  if(confirmationId.startsWith("T-")) {
+  if(!confirmationId.startsWith("M-")) {
     return <ListingPurchaseStatus />;
   }
 

@@ -45,9 +45,12 @@ const ListingModal = observer(({nft, Close}) => {
           }
         </div>
 
-        <div className="listing-modal__wallet-connect">
-          <WalletConnect />
-        </div>
+        {
+          !cryptoStore.usdcConnected ?
+            <div className="listing-modal__wallet-connect">
+              <WalletConnect/>
+            </div> : null
+        }
 
         <div className="listing-modal__details">
           <div className="listing-modal__detail listing-modal__detail-faded">

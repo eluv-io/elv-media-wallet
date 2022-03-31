@@ -147,8 +147,9 @@ class TransferStore {
 
         this.listings[listingKey] = {
           retrievedAt: Date.now(),
-          listings: (Array.isArray(listings) ? listings : [listings])
-            .map(listing => this.FormatResult(listing))
+          listings: !listings ? [] :
+            (Array.isArray(listings) ? listings : [listings])
+              .map(listing => this.FormatResult(listing))
         };
       }
 

@@ -200,6 +200,17 @@ class CryptoStore {
     }
   });
 
+  SignPhantomTransacton = flow(function * (transaction) {
+    try {
+      return yield window.solana.signTransaction(transaction);
+    } catch(error) {
+      this.rootStore.Log("Error signing Phantom message:", true);
+      this.rootStore.Log(error, true);
+
+      throw error;
+    }
+  });
+
   MetamaskAvailable() {
     return window.ethereum && window.ethereum.isMetaMask && window.ethereum.chainId;
   }

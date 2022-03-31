@@ -14,7 +14,7 @@ import CryptoStore from "Stores/Crypto";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
-  //enforceActions: "always"
+  enforceActions: "always"
 });
 
 const colors = [

@@ -92,7 +92,6 @@ const WalletConnect = observer(() => {
 });
 
 export const WalletConnectButton = observer(() => {
-  const connected = cryptoStore.WalletFunctions("phantom").Connected();
   const [showMenu, setShowMenu] = useState(false);
 
   return (
@@ -107,7 +106,7 @@ export const WalletConnectButton = observer(() => {
         title="Connect Phantom"
       >
         <ImageIcon
-          icon={connected ? WalletLinkedIcon : WalletUnlinkedIcon}
+          icon={cryptoStore.usdcConnected ? WalletLinkedIcon : WalletUnlinkedIcon}
           label="Not Connected"
         />
       </button>

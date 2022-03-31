@@ -278,17 +278,17 @@
   &__payment-selection-container {
     align-items: center;
     display: flex;
-    margin-bottom: 10px;
+    flex-direction: column;
+    margin-bottom: 25px;
   }
 
   &__payment-selection {
-    flex: 1 1 100%;
     font-size: 12px;
-    padding-left: 10px;
     position: relative;
+    width: 100%;
 
     &:not(:last-child) {
-      margin-right: 10px;
+      margin: 0 0 5px;
     }
 
     &-selected {
@@ -335,7 +335,7 @@
   &__wallet-connect {
     display: flex;
     justify-content: center;
-    padding-bottom: 30px;
+    margin: 30px 0;
   }
 }
 
