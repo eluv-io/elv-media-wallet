@@ -418,7 +418,13 @@ class CheckoutStore {
 
       setTimeout(() => this.rootStore.GetWalletBalance(), 1000);
     } else if(provider === "linked-wallet") {
-      yield this.rootStore.cryptoStore.ConnectPhantom();
+      if(!this.rootStore.embedded) {
+        yield this.rootStore.cryptoStore.PhantomBalance();
+      }
+
+      if(!(this.rootStore.cryptoStore.phantomBalance > 0)) {
+        throw Error("No Solana balance for " + this.rootStore.cryptoStore.phantomAddress);
+      }
 
       const response = (yield this.client.utils.ResponseToJson(
         this.client.authClient.MakeAuthServiceRequest({
@@ -428,13 +434,7 @@ class CheckoutStore {
         })
       ));
 
-      const SendUSDCPayment = (yield import("../utils/USDCPayment")).default;
-
-      const signature = yield SendUSDCPayment({
-        spec: response.params[0],
-        payer: this.rootStore.cryptoStore.PhantomAddress(),
-        Sign: async transaction => await this.rootStore.cryptoStore.SignPhantomTransacton(transaction)
-      });
+      const signature = yield this.rootStore.cryptoStore.PurchasePhantom(response.params[0]);
 
       this.rootStore.Log("Purchase transaction signature: " + signature);
     } else {

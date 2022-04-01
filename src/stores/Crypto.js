@@ -2,6 +2,7 @@ import {computed, flow, makeAutoObservable, runInAction} from "mobx";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import UrlJoin from "url-join";
 import {ethers} from "ethers";
+import {v4 as UUID} from "uuid";
 
 import MetamaskLogo from "Assets/icons/crypto/metamask fox.png";
 import PhantomLogo from "Assets/icons/crypto/phantom.png";
@@ -13,6 +14,7 @@ class CryptoStore {
   metamaskAddress = undefined;
 
   phantomAddress = undefined;
+  phantomBalance = 0;
 
   transferredNFTs = {};
   connectedAccounts = {
@@ -35,7 +37,7 @@ class CryptoStore {
 
     this.RegisterMetamaskHandlers();
 
-    if(this.PhantomAvailable()) {
+    if(!this.rootStore.embedded && this.PhantomAvailable()) {
       setInterval(() => runInAction(async () => this.phantomAddress = this.PhantomAddress()), 5000);
 
       // Attempt eager connection
@@ -114,38 +116,47 @@ class CryptoStore {
   });
 
   ConnectPhantom = flow(function * () {
-    yield window.solana.connect();
+    if(this.rootStore.embedded) {
+      this.phantomAddress = yield this.EmbeddedSign({provider: "phantom", connect: true});
+    } else {
+      yield window.solana.connect();
 
-    const address = this.PhantomAddress();
+      const address = this.PhantomAddress();
 
-    if(!address) { return; }
-
-    if(this.connectedAccounts.sol[address]) {
-      return;
-    } else if(Object.keys(this.connectedAccounts.sol).length > 0) {
-      throw Error("Attempt to add additional account");
-    }
-
-    const message = `Eluvio link account - ${new Date().toISOString()}`;
-    let payload = {
-      tgt: "sol",
-      ace: address,
-      msg: message,
-      sig: yield this.SignPhantom(message)
-    };
-
-    if(!payload.sig) {
-      return;
-    }
-
-    yield this.client.authClient.MakeAuthServiceRequest({
-      path: UrlJoin("as", "wlt", "link"),
-      method: "POST",
-      body: payload,
-      headers: {
-        Authorization: `Bearer ${this.client.signer.authToken}`
+      if(!address) {
+        return;
       }
-    });
+
+      if(this.connectedAccounts.sol[address]) {
+        this.phantomConnected = true;
+        return;
+      } else if(Object.keys(this.connectedAccounts.sol).length > 0) {
+        throw Error("Attempt to add additional account");
+      }
+
+      const message = `Eluvio link account - ${new Date().toISOString()}`;
+      let payload = {
+        tgt: "sol",
+        ace: address,
+        msg: message,
+        sig: yield this.SignPhantom(message)
+      };
+
+      if(!payload.sig) {
+        return;
+      }
+
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "link"),
+        method: "POST",
+        body: payload,
+        headers: {
+          Authorization: `Bearer ${this.client.signer.authToken}`
+        }
+      });
+
+      this.phantomConnected = true;
+    }
 
     yield this.LoadConnectedAccounts();
   });
@@ -189,22 +200,119 @@ class CryptoStore {
 
   SignPhantom = flow(function * (message) {
     try {
-      const data = new TextEncoder().encode(message);
+      if(this.rootStore.embedded) {
+        return yield this.EmbeddedSign({provider: "phantom", message});
+      } else {
+        yield window.solana.connect();
 
-      const { signature } = yield window.solana.signMessage(data);
+        const data = new TextEncoder().encode(message);
 
-      return signature.toString("hex");
+        const {signature} = yield window.solana.signMessage(data);
+
+        return signature.toString("hex");
+      }
     } catch(error) {
       this.rootStore.Log("Error signing Phantom message:", true);
       this.rootStore.Log(error, true);
+
+      throw error;
     }
   });
 
-  SignPhantomTransacton = flow(function * (transaction) {
+  SignPhantomTransaction = flow(function * (transaction) {
     try {
-      return yield window.solana.signTransaction(transaction);
+      if(this.rootStore.embedded) {
+        return yield this.EmbeddedSign({provider: "phantom", transaction});
+      } else {
+        yield window.solana.connect();
+
+        return yield window.solana.signTransaction(transaction);
+      }
     } catch(error) {
       this.rootStore.Log("Error signing Phantom message:", true);
+      this.rootStore.Log(error, true);
+
+      throw error;
+    }
+  });
+
+  PurchasePhantom = flow(function * (spec) {
+    try {
+      if(this.rootStore.embedded) {
+        return yield this.EmbeddedSign({provider: "phantom", purchaseSpec: spec});
+      } else {
+        const SendUSDCPayment = (yield import("../utils/USDCPayment")).default;
+
+        yield this.ConnectPhantom();
+
+        return yield SendUSDCPayment({
+          spec,
+          payer: this.PhantomAddress(),
+          Sign: async transaction => await this.SignPhantomTransaction(transaction)
+        });
+      }
+    } catch(error) {
+      this.rootStore.Log("Error signing Phantom message:", true);
+      this.rootStore.Log(error, true);
+
+      throw error;
+    }
+  })
+
+  EmbeddedSign = flow(function * ({provider, connect, purchaseSpec, message}) {
+    const popup = window.open("about:blank");
+    const requestId = btoa(UUID());
+
+    try {
+      const popupUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
+
+      popupUrl.searchParams.set("sign", "");
+
+      if(connect) {
+        popupUrl.searchParams.set("connect", "");
+      } else if(message) {
+        popupUrl.searchParams.set("message", btoa(message.toString()));
+      } else if(purchaseSpec) {
+        popupUrl.searchParams.set("purchase", btoa(JSON.stringify(purchaseSpec)));
+      }
+
+      popupUrl.searchParams.set("provider", provider);
+      popupUrl.searchParams.set("request", requestId);
+
+      popup.location.href = popupUrl.toString();
+
+      return yield new Promise((resolve, reject) => {
+        const Listener = event => {
+          if(!event || !event.data || event.data.type !== "ElvMediaWalletSignRequest" || event.data.requestId !== requestId) { return; }
+
+          window.removeEventListener("message", Listener);
+
+          popup.close();
+
+          if(event.data.address) {
+            this.phantomAddress = event.data.address;
+          }
+
+          if(event.data.balance) {
+            this.phantomBalance = event.data.balance;
+          }
+
+          resolve(event.data.response);
+        };
+
+        window.addEventListener("message", Listener);
+
+        const closeCheck = setInterval(async () => {
+          if(!popup || popup.closed) {
+            clearInterval(closeCheck);
+
+            reject("Popup closed");
+          }
+        }, 500);
+      });
+    } catch(error) {
+      popup.close();
+
       this.rootStore.Log(error, true);
 
       throw error;
@@ -226,6 +334,10 @@ class CryptoStore {
   }
 
   PhantomConnected() {
+    if(this.rootStore.embedded && this.phantomAddress) {
+      return true;
+    }
+
     if(!(this.PhantomAvailable() && window.solana.isConnected)) {
       return false;
     }
@@ -236,6 +348,19 @@ class CryptoStore {
   PhantomAddress() {
     return window.solana && window.solana._publicKey && window.solana._publicKey.toString();
   }
+
+  PhantomBalance = flow(function * () {
+    const { Connection, clusterApiUrl } = yield import("@solana/web3.js");
+
+    const connection = new Connection(
+      clusterApiUrl(this.rootStore.client.networkName === "main" ? "mainnet-beta" : "devnet"),
+      "confirmed"
+    );
+
+    this.phantomBalance = yield connection.getBalance(window.solana.publicKey);
+
+    return this.phantomBalance;
+  });
 
   UpdateMetamaskInfo() {
     this.metamaskAddress = window.ethereum.selectedAddress;
@@ -285,6 +410,8 @@ class CryptoStore {
           Connection: () => this.connectedAccounts.sol[this.PhantomAddress()],
           ConnectedAccounts: () => Object.values(this.connectedAccounts.sol),
           Sign: async message => await this.SignPhantom(message),
+          SignTransaction: async transaction => await this.SignPhantomTransaction(transaction),
+          Purchase: async spec => await this.PurchasePhantom(spec),
           Disconnect: async (address) => await this.DisconnectPhantom(address)
         };
     }

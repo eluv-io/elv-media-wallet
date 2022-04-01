@@ -70,7 +70,7 @@ class RootStore {
   DEBUG_ERROR_MESSAGE = "";
   network = EluvioConfiguration["config-url"].includes("main.net955305") ? "main" : "demo";
 
-  embedded = window.self !== window.top;
+  embedded = window.top !== window.self || new URLSearchParams(window.location.search).has("e");
 
   // Opened by embedded window for purchase redirect
   fromEmbed = new URLSearchParams(window.location.search).has("embed") ||
@@ -321,7 +321,7 @@ class RootStore {
 
       this.SendEvent({event: EVENTS.LOG_IN, data: {address: client.CurrentAccountAddress()}});
 
-      this.cryptoStore.LoadConnectedAccounts();
+      yield this.cryptoStore.LoadConnectedAccounts();
 
       // Clear loaded marketplaces so they will be reloaded and authorization rechecked
       this.marketplaces = {};
