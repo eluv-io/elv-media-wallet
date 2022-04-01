@@ -4,15 +4,14 @@ import {rootStore, cryptoStore} from "Stores";
 import {observer} from "mobx-react";
 
 const Sign = async (SetMessage) => {
+  const params = new URLSearchParams(window.location.search);
+  const wallet = cryptoStore.WalletFunctions(params.get("provider"));
+
   try {
-    const params = new URLSearchParams(window.location.search);
-
-    const wallet = cryptoStore.WalletFunctions(params.get("provider"));
-
     let response;
     if(params.has("connect")) {
-      await wallet.Connect();
       SetMessage(<h1>Connecting wallet...</h1>, true);
+      await wallet.Connect();
       response = wallet.Address();
     } else if(params.has("message")) {
       SetMessage(<h1>Awaiting message signature...</h1>, true);
@@ -40,9 +39,16 @@ const Sign = async (SetMessage) => {
       window.close();
     }
   } catch(error) {
+    rootStore.Log(error, true);
+
+    let message = "Transaction failed";
+    if(error.message === "Incorrect account") {
+      message = `Incorrect account selected - expected ${wallet.ConnectedAccounts()[0]?.link_acct}`;
+    }
+
     SetMessage(
       <>
-        <h1>Transaction Failed</h1>
+        <h1>{ message }</h1>
         <button onClick={() => Sign(SetMessage)} className="action">
           Try Again
         </button>

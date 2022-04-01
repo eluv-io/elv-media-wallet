@@ -17,6 +17,7 @@ import SolanaIcon from "Assets/icons/solana icon.svg";
 import WalletIcon from "Assets/icons/wallet balance button icon.svg";
 import LinkedWalletIcon from "Assets/icons/linked wallet icon.svg";
 import WalletConnect from "Components/crypto/WalletConnect";
+import USDCIcon from "Assets/icons/USDC coin icon.svg";
 
 const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
   if(maxQuantity <= 1) { return null; }
@@ -124,6 +125,7 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
               { nft.metadata.display_name } { quantity > 1 ? <div className="listing-purchase-modal__quantity">&nbsp;x {quantity}</div> : "" }
             </div>
             <div className="listing-purchase-modal__order-price">
+              { selectedListing && selectedListing?.details.USDCAccepted ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC" /> : null }
               { FormatPriceString({USD: total}) }
             </div>
           </div>
@@ -132,6 +134,7 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
               Service Fee
             </div>
             <div className="listing-purchase-modal__order-price">
+              { selectedListing && selectedListing?.details.USDCAccepted ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC" /> : null }
               { FormatPriceString({USD: fee}) }
             </div>
           </div>
@@ -141,6 +144,7 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
               Total
             </div>
             <div className="listing-purchase-modal__order-price">
+              { selectedListing && selectedListing?.details.USDCAccepted ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC" /> : null }
               { FormatPriceString({USD: total + fee}) }
             </div>
           </div>
@@ -213,7 +217,7 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
                   setFailed(true);
                 }
 
-                setErrorMessage(error.message || "Purchase failed");
+                setErrorMessage(error.uiMessage || "Purchase failed");
               }
             }}
           >
@@ -357,7 +361,7 @@ const ListingPurchasePayment = observer(({nft, marketplaceItem, selectedListing,
               Wallet Balance
             </button>
             {
-              listingId && true ?
+              selectedListing && selectedListing?.details?.USDCAccepted ?
                 <button
                   onClick={() => setPaymentType("linked-wallet")}
                   className={`action listing-purchase-confirmation-modal__payment-selection listing-purchase-confirmation-modal__payment-selection-linked-wallet ${paymentType === "linked-wallet" ? "listing-purchase-confirmation-modal__payment-selection-selected" : ""}`}
@@ -421,7 +425,7 @@ const ListingPurchasePayment = observer(({nft, marketplaceItem, selectedListing,
                   setFailed(true);
                 }
 
-                setErrorMessage(error.message || "Purchase failed");
+                setErrorMessage(error.uiMessage || "Purchase failed");
               }
             }}
           >

@@ -164,7 +164,7 @@ class CheckoutStore {
         throw {
           status: 409,
           recoverable: false,
-          message: "Listing is no longer available"
+          uiMessage: "Listing is no longer available"
         };
       }
 
@@ -234,7 +234,7 @@ class CheckoutStore {
       } else {
         throw {
           recoverable: true,
-          message: "Purchase failed"
+          uiMessage: error.uiMessage || "Purchase failed"
         };
       }
     } finally {
@@ -286,7 +286,8 @@ class CheckoutStore {
       if(stock && (stock.max - stock.minted) < quantity) {
         throw {
           recoverable: true,
-          message: `Quantity ${quantity} exceeds stock ${stock.max - stock.minted} for ${sku}`
+          message: `Quantity ${quantity} exceeds stock ${stock.max - stock.minted} for ${sku}`,
+          uiMessage: "Insufficient stock available for this purchase"
         };
       }
 
@@ -353,7 +354,7 @@ class CheckoutStore {
       } else {
         throw {
           recoverable: true,
-          message: "Purchase failed"
+          uiMessage: error.uiMessage || "Purchase failed"
         };
       }
     } finally {
@@ -423,7 +424,10 @@ class CheckoutStore {
       }
 
       if(!(this.rootStore.cryptoStore.phantomBalance > 0)) {
-        throw Error("No Solana balance for " + this.rootStore.cryptoStore.phantomAddress);
+        throw {
+          recoverable: false,
+          uiMessage: "Solana account has insufficient balance to perform this transaction"
+        };
       }
 
       const response = (yield this.client.utils.ResponseToJson(

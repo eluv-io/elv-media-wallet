@@ -207,6 +207,17 @@
     font-weight: bold;
   }
 
+  &__order-price {
+    align-items: center;
+    display: flex;
+
+    img,
+    svg {
+      height: 20px;
+      margin-right: 5px;
+    }
+  }
+
   &__quantity {
     font-weight: 300;
   }

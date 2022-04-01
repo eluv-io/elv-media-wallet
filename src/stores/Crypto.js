@@ -88,7 +88,7 @@ class CryptoStore {
     if(this.connectedAccounts.eth[address]) {
       return;
     } else if(Object.keys(this.connectedAccounts.eth).length > 0) {
-      throw Error("Attempt to add additional account");
+      throw Error("Incorrect account");
     }
 
     const message = `Eluvio link account - ${new Date().toISOString()}`;
@@ -131,7 +131,7 @@ class CryptoStore {
         this.phantomConnected = true;
         return;
       } else if(Object.keys(this.connectedAccounts.sol).length > 0) {
-        throw Error("Attempt to add additional account");
+        throw Error("Incorrect account");
       }
 
       const message = `Eluvio link account - ${new Date().toISOString()}`;
@@ -363,7 +363,7 @@ class CryptoStore {
   });
 
   UpdateMetamaskInfo() {
-    this.metamaskAddress = window.ethereum.selectedAddress;
+    this.metamaskAddress = window.ethereum && window.ethereum.selectedAddress;
     this.metamaskChainId = window.ethereum && window.ethereum.chainId;
   }
 

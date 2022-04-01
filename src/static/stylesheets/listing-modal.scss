@@ -93,7 +93,8 @@
     align-items: center;
     display: flex;
     font-weight: bold;
-    margin-left: 15px;
+    position: absolute;
+    right: 10px;
     text-align: center;
 
     svg,
@@ -197,6 +198,8 @@
     &__form__price-input {
       background-color: $black;
       border: 1px solid $darkgray;
+      max-width: unset;
+      width: 100%;
     }
 
     &__form__error {
