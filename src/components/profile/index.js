@@ -80,6 +80,7 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSe
 
 const Profile = observer(() => {
   const match = useRouteMatch();
+
   const [statusInterval, setStatusInterval] = useState(undefined);
   const [showWithdrawalSetup, setShowWithdrawalSetup] = useState(false);
   const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);

@@ -18,6 +18,18 @@ const Profile = observer(() => {
   const location = useLocation();
   const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
 
+  if(!rootStore.loginLoaded && !rootStore.loggedIn) {
+    return <div className="header__profile header__profile--placeholder" />;
+  }
+
+  if(!rootStore.loggedIn) {
+    return (
+      <button className="header__profile header__log-in" onClick={() => rootStore.ShowLogin()}>
+        Log In
+      </button>
+    );
+  }
+
   return (
     <Link to={marketplaceId ? `/marketplace/${marketplaceId}/profile` : "/profile"} className="header__profile">
       <div className="header__profile__info ellipsis">
@@ -40,69 +52,67 @@ const Profile = observer(() => {
   );
 });
 
+// TODO: Add log in link
 const MobileNavigationMenu = observer(({marketplace, Close}) => {
+  let links;
   if(!marketplace) {
-    return (
-      <nav className="mobile-navigation__menu">
-        <NavLink className="mobile-navigation__link" to="/marketplaces" onClick={Close}>
-          <span>Discover Marketplaces</span>
-        </NavLink>
-        <NavLink className="mobile-navigation__link" to="/wallet/listings" onClick={Close}>
-          <span>All Listings</span>
-        </NavLink>
-        <NavLink className="mobile-navigation__link" to="/wallet/activity" onClick={Close}>
-          <span>Activity</span>
-        </NavLink>
-        <div className="mobile-navigation__separator" />
-        <NavLink className="mobile-navigation__link" to="/wallet/collection" onClick={Close}>
-          <span>My Items</span>
-        </NavLink>
-        <NavLink className="mobile-navigation__link" to="/wallet/my-listings" onClick={Close}>
-          <span>My Listings</span>
-        </NavLink>
-        <NavLink className="mobile-navigation__link" to="/profile" onClick={Close}>
-          <span>My Profile</span>
-        </NavLink>
-      </nav>
-    );
+    links = [
+      { name: "Discover Marketplaces", to: "/marketplaces" },
+      { name: "All Listings", to: "/wallet/listings" },
+      { name: "Activity", to: "/wallet/activity" },
+      { separator: true },
+      { name: "My Items", to: "/wallet/collection", authed: true },
+      { name: "My Listings", to: "/wallet/my-listings", authed: true },
+      { name: "My Profile", to: "/profile", authed: true }
+    ];
+  } else {
+    const fullMarketplace = rootStore.marketplaces[marketplace.marketplaceId];
+    const {name} = (marketplace.branding || {});
+
+    links = [
+      {name: `${name || ""} Store`, to: UrlJoin("/marketplace", marketplace.marketplaceId, "store")},
+      {name: "Listings", to: UrlJoin("/marketplace", marketplace.marketplaceId, "listings")},
+      {name: "Activity", to: UrlJoin("/marketplace", marketplace.marketplaceId, "activity")},
+      {name: "My Items", to: UrlJoin("/marketplace", marketplace.marketplaceId, "collection"), authed: true},
+      {
+        name: "My Collections",
+        to: UrlJoin("/marketplace", marketplace.marketplaceId, "collections"),
+        authed: true,
+        hidden: !fullMarketplace || !fullMarketplace.collections || fullMarketplace.collections.length === 0
+      },
+      {name: "My Listings", to: UrlJoin("/marketplace", marketplace.marketplaceId, "my-listings"), authed: true},
+      {separator: true},
+      {name: "Discover Marketplaces", to: "/marketplaces"},
+      {name: "My Full Collection", to: "/wallet/collection", authed: true},
+      {name: "My Profile", to: "/profile", authed: true}
+    ];
   }
 
-  const fullMarketplace = rootStore.marketplaces[marketplace.marketplaceId];
-  const { name } = (marketplace.branding || {});
   return (
-    <nav className="mobile-navigation__menu">
-      <NavLink className="mobile-navigation__link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")} onClick={Close}>
-        <span>{ name || "" } Store</span>
-      </NavLink>
-      <NavLink className="mobile-navigation__link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "listings")} onClick={Close}>
-        <span>Listings</span>
-      </NavLink>
-      <NavLink className="mobile-navigation__link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "activity")} onClick={Close}>
-        <span>Activity</span>
-      </NavLink>
-      <NavLink className="mobile-navigation__link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "collection")} onClick={Close}>
-        <span>My Items</span>
-      </NavLink>
+    <div className="mobile-navigation__menu">
       {
-        fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0 ?
-          <NavLink className="mobile-navigation__link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "collections")} onClick={Close}>
-            My Collections
+        links.map(({name, to, authed, separator, hidden}) => {
+          if(hidden || (authed && !rootStore.loggedIn)) { return null; }
+
+          if(separator) {
+            return <div className="mobile-navigation__separator" />;
+          }
+
+          return (
+            <NavLink to={to} className="mobile-navigation__link" onClick={Close} key={`mobile-link-${name}`}>
+              <span>{ name }</span>
+            </NavLink>
+          );
+        })
+      }
+      {
+        // TODO: change
+        !rootStore.loggedIn ?
+          <NavLink to="/newlogin" className="mobile-navigation__link" onClick={Close}>
+            Log In
           </NavLink> : null
       }
-      <NavLink className="mobile-navigation__link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "my-listings")} onClick={Close}>
-        <span>My Listings</span>
-      </NavLink>
-      <div className="mobile-navigation__separator" />
-      <NavLink className="mobile-navigation__link" to="/marketplaces" onClick={Close}>
-        <span>Discover Marketplaces</span>
-      </NavLink>
-      <NavLink className="mobile-navigation__link" to="/wallet/collection" onClick={Close}>
-        <span>My Full Collection</span>
-      </NavLink>
-      <NavLink className="mobile-navigation__link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "profile")} onClick={Close}>
-        <span>My Profile</span>
-      </NavLink>
-    </nav>
+    </div>
   );
 });
 
@@ -145,7 +155,7 @@ const GlobalHeaderNavigation = () => {
   );
 };
 
-const GlobalHeader = ({marketplace}) => {
+const GlobalHeader = observer(({marketplace}) => {
   if(rootStore.hideGlobalNavigation) { return null; }
 
   return (
@@ -160,9 +170,11 @@ const GlobalHeader = ({marketplace}) => {
       </div>
     </div>
   );
-};
+});
 
 const SubHeaderNavigation = observer(({marketplace}) => {
+  if(!rootStore.loggedIn) { return null; }
+
   const fullMarketplace = marketplace ? rootStore.marketplaces[marketplace.marketplaceId] : null;
   return (
     <nav className="subheader__navigation subheader__navigation--personal">
@@ -240,7 +252,7 @@ const SubHeader = ({marketplace}) => {
   );
 };
 
-const NewHeader = observer(() => {
+const Header = observer(() => {
   const location = useLocation();
   const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
   const marketplace = marketplaceId && rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === marketplaceId);
@@ -252,7 +264,7 @@ const NewHeader = observer(() => {
     return () => clearInterval(interval);
   }, []);
 
-  if(!rootStore.loggedIn || rootStore.hideNavigation) { return null; }
+  if(rootStore.hideNavigation) { return null; }
 
   if(rootStore.sidePanelMode) {
     if(rootStore.navigationBreadcrumbs.length <= 2) { return null; }
@@ -277,4 +289,4 @@ const NewHeader = observer(() => {
   );
 });
 
-export default NewHeader;
+export default Header;

@@ -3,20 +3,14 @@ import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores/index";
 import SVG from "react-inlinesvg";
-import UserIcon from "Assets/icons/user.svg";
 import NFTPlaceholderIcon from "Assets/icons/nft";
 import ImageIcon from "Components/common/ImageIcon";
 import {Initialize} from "@eluvio/elv-embed/src/Embed";
 
 export const ProfileImage = observer(({className=""}) => {
-  const hasImage = rootStore.initialized && rootStore.userProfile.profileImage;
   return (
-    <div className={`profile-image ${hasImage ? "profile-image-image" : "profile-image-placeholder"} ${className}`}>
-      {
-        hasImage ?
-          <img className="profile-image__image" src={rootStore.userProfile.profileImage} alt="Profile Image" /> :
-          <SVG src={UserIcon} className="profile-image__placeholder" alt="Profile Image" />
-      }
+    <div className={`profile-image profile-image-image ${className}`}>
+      <img className="profile-image__image" src={rootStore?.userProfile?.profileImage || rootStore.defaultProfileImage} alt="Profile Image" />
     </div>
   );
 });
@@ -66,7 +60,7 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
 
     if(!imageUrl && ((item && item.image) || nft.metadata.image)) {
       imageUrl = new URL((item && item.image && item.image.url) || nft.metadata.image);
-      imageUrl.searchParams.set("authorization", rootStore.authedToken);
+      imageUrl.searchParams.set("authorization", rootStore.staticToken);
 
       if(imageUrl && width) {
         imageUrl.searchParams.set("width", width);
@@ -151,7 +145,7 @@ export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon,
     } else if(item.nft_template && item.nft_template.nft && item.nft_template.nft.image) {
       url = (item.nft_template.nft || {}).image;
       url = new URL(url);
-      url.searchParams.set("authorization", rootStore.authedToken);
+      url.searchParams.set("authorization", rootStore.staticToken);
       url.searchParams.set("width", "800");
       url = url.toString();
     } else {

@@ -32,6 +32,7 @@ import TraitsIcon from "Assets/icons/properties icon.svg";
 import MediaSectionIcon from "Assets/icons/Media tab icon.svg";
 import PlayIcon from "Assets/icons/blue play icon.svg";
 import {MediaIcon} from "../../utils/Utils";
+import {LoginClickGate} from "Components/common/LoginGate";
 
 const FormatRarity = (rarity) => {
   if(!rarity) {
@@ -451,26 +452,42 @@ const NFTDetails = observer(() => {
             This NFT was sold for { FormatPriceString({USD: sale.price}) } on { new Date(sale.created * 1000).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
           </h2>
           <div className="actions-container">
-            <Link
-              className="button action"
-              to={
-                match.params.marketplaceId ?
-                  UrlJoin("/marketplace", match.params.marketplaceId, "collection") :
-                  UrlJoin("/wallet", "collection")
-              }
-            >
-              Back to My Items
-            </Link>
-            <Link
-              className="button action"
-              to={
-                match.params.marketplaceId ?
-                  UrlJoin("/marketplace", match.params.marketplaceId, "my-listings") :
-                  UrlJoin("/wallet", "my-listings")
-              }
-            >
-              My Listings
-            </Link>
+            {
+              rootStore.loggedIn ?
+
+                <>
+                  <Link
+                    className="button action"
+                    to={
+                      match.params.marketplaceId ?
+                        UrlJoin("/marketplace", match.params.marketplaceId, "collection") :
+                        UrlJoin("/wallet", "collection")
+                    }
+                  >
+                    Back to My Items
+                  </Link>
+                  <Link
+                    className="button action"
+                    to={
+                      match.params.marketplaceId ?
+                        UrlJoin("/marketplace", match.params.marketplaceId, "my-listings") :
+                        UrlJoin("/wallet", "my-listings")
+                    }
+                  >
+                    My Listings
+                  </Link>
+                </> :
+                <Link
+                  className="button action"
+                  to={
+                    match.params.marketplaceId ?
+                      UrlJoin("/marketplace", match.params.marketplaceId, "listings") :
+                      UrlJoin("/wallet", "listings")
+                  }
+                >
+                  Back to Listings
+                </Link>
+            }
           </div>
         </div>
       </div>
@@ -524,7 +541,8 @@ const NFTDetails = observer(() => {
 
       return (
         <div className="details-page__actions">
-          <ButtonWithLoader
+          <LoginClickGate
+            Component={ButtonWithLoader}
             disabled={isInCheckout}
             className="details-page__listing-button action action-primary"
             onClick={async () => {
@@ -538,7 +556,7 @@ const NFTDetails = observer(() => {
             }}
           >
             Buy Now for { FormatPriceString({USD: listing.details.Price}) }
-          </ButtonWithLoader>
+          </LoginClickGate>
           {
             isInCheckout ?
               <h3 className="details-page__transfer-details details-page__held-message">

@@ -498,6 +498,10 @@ class TransferStore {
   // Transfer History
 
   UserTransferHistory = flow(function * () {
+    if(!rootStore.loggedIn) {
+      return [];
+    }
+
     return yield Utils.ResponseToJson(
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "mkt", "hst"),
