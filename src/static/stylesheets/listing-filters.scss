@@ -1,8 +1,10 @@
+$input-height: 30px;
+
 .listing-filters {
   align-items: flex-end;
   display: flex;
   flex-wrap: wrap;
-  padding: 0 0 20px;
+  padding: 0 0 15px;
   width: 100%;
 
   & > div {
@@ -29,17 +31,31 @@
     max-width: 400px;
     min-width: 200px;
 
-    input {
-      border-radius: 6px;
-      height: 40px;
-      padding-right: 40px;
-      width: 100%;
+    .autocomplete {
+      input {
+        border-radius: 6px;
+        height: $input-height;
+        padding: 0 40px 0 12px;
+        width: 100%;
+      }
+
+      &__clear-button {
+        height: $input-height;
+        margin-right: 3px;
+        padding: 6px 6px 5px;
+        width: $input-height;
+      }
+
+      &__options {
+        margin-top: 1px;
+        top: $input-height;
+      }
     }
   }
 
   &__label {
     font-size: 12px;
-    margin-bottom: 5px;
+    margin-bottom: 2px;
   }
 
   &__select-container {
@@ -53,8 +69,9 @@
     background-image: none;
     border: 1px solid $mediumgray;
     border-radius: 6px;
-    height: 40px;
-    padding: 0 15px;
+    font-size: 12px;
+    height: $input-height;
+    padding: 0 8px;
     width: 100%;
 
     &-placeholder {
@@ -63,11 +80,13 @@
   }
 
   &__actions {
-    align-items: center;
+    align-items: flex-start;
     display: flex;
+    height: $input-height;
 
     .action,
     .action-loader {
+      height: $input-height;
       max-width: 80px;
       min-width: 80px;
       padding: 3px;
@@ -88,7 +107,7 @@
     flex-wrap: wrap;
     // sass-lint:disable no-important
     margin-left: 0 !important;
-    margin-top: 10px;
+    margin-top: 5px;
     order: 999;
     width: 100%;
 
@@ -104,15 +123,15 @@
       border-radius: 6px;
       color: $lightblue;
       display: flex;
-      font-size: 14px;
-      height: 40px;
+      font-size: 12px;
+      height: $input-height;
       margin-right: 10px;
       padding: 0 40px 0 15px;
       position: relative;
 
       svg {
-        height: 40px;
-        padding: 12px;
+        height: $input-height;
+        padding: 8px;
         position: absolute;
         right: 0;
         stroke: $lightblue;
@@ -162,7 +181,7 @@
 .listing-pagination {
   font-size: 12px;
   font-weight: 300;
-  margin-top: 30px;
+  margin-top: 20px;
   text-align: center;
 }
 
@@ -173,11 +192,11 @@
   border-radius: 6px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  height: 75px;
+  height: 65px;
   justify-content: center;
-  margin-bottom: 15px;
-  max-height: 75px;
-  padding: 10px;
+  margin-bottom: 10px;
+  max-height: 65px;
+  padding: 8px;
   width: 100%;
 
   &__loader {
@@ -185,11 +204,11 @@
   }
 
   &__item {
-    height: 50px;
+    height: 40px;
 
     &:not(:last-child) {
       // sass-lint:disable no-color-literals
-      border-right: 2px solid rgba($mediumgray, 0.35);
+      border-right: 1px solid rgba($mediumgray, 0.35);
     }
   }
 
@@ -207,7 +226,7 @@
   }
 
   &__value {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 500;
   }
 

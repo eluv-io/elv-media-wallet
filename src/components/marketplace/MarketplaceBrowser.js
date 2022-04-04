@@ -3,7 +3,6 @@ import {observer} from "mobx-react";
 import {Link, Redirect} from "react-router-dom";
 import {rootStore} from "Stores";
 import UrlJoin from "url-join";
-import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 import AsyncComponent from "Components/common/AsyncComponent";
 
 import SearchIcon from "Assets/icons/search.svg";
@@ -92,12 +91,6 @@ const MarketplaceCard = observer(({marketplace}) => {
         }
         <h2 className="marketplace-card__name">{ branding.name }</h2>
         <h3 className="marketplace-card__subheader">{ branding.subheader }</h3>
-        <ResponsiveEllipsis
-          component="div"
-          className="marketplace-card__description"
-          text={branding.description}
-          maxLine="3"
-        />
       </div>
     </Link>
   );

@@ -9,7 +9,7 @@
   &__marketplaces {
     display: grid;
     grid-gap: 15px;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
     height: 100%;
     justify-content: center;
     padding-bottom: 50px;
@@ -127,7 +127,7 @@
   display: flex;
   opacity: 0.9;
   overflow: hidden;
-  padding-top: 100%;
+  padding-top: 90%;
   position: relative;
   transition: opacity 0.35s ease;
   width: 100%;
@@ -141,8 +141,7 @@
   }
 
   &__banner {
-    // sass-lint:disable no-misspelled-properties
-    aspect-ratio: 2 / 1;
+    height: calc(100% - 150px);
     left: 0;
     min-width: 100%;
     object-fit: cover;
@@ -158,7 +157,7 @@
     justify-content: center;
     left: 0;
     position: absolute;
-    top: -32.5px;
+    top: -35px;
     width: 100%;
   }
 
@@ -172,9 +171,8 @@
 
   &__details {
     bottom: 0;
-    height: 50%;
+    height: 150px;
     left: 0;
-    max-height: 50%;
     padding: 35px 15px;
     position: absolute;
     text-align: center;
@@ -182,9 +180,10 @@
   }
 
   &__name {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 500;
     letter-spacing: 1.2px;
+    margin-bottom: 5px;
   }
 
   &__subheader {

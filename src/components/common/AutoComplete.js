@@ -25,6 +25,16 @@ const AutoComplete = ({
   let selectedOptionIndex = matchingOptions.findIndex(option => option === selectedOption);
   selectedOptionIndex = selectedOptionIndex === -1 ? 0 : selectedOptionIndex;
 
+  const mounted = useRef(false);
+
+  useEffect(() => {
+    mounted.current = true;
+
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
   useEffect(() => {
     const onClickOutside = event => {
       const element = document.getElementById(id);
@@ -113,7 +123,7 @@ const AutoComplete = ({
       <input
         placeholder={placeholder}
         value={inputValue}
-        onBlur={() => setTimeout(() => setBlur(UUID()), 250)}
+        onBlur={() => setTimeout(() => mounted ? setBlur(UUID()) : null, 250)}
         onFocus={async () => {
           if(inputValue) {
             setShowSuggestions(true);
