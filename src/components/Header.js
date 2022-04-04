@@ -55,7 +55,6 @@ const Profile = observer(() => {
   );
 });
 
-// TODO: Add log in link
 const MobileNavigationMenu = observer(({marketplace, Close}) => {
   let links;
   if(!marketplace) {
@@ -107,13 +106,6 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
             </NavLink>
           );
         })
-      }
-      {
-        // TODO: change
-        !rootStore.loggedIn ?
-          <NavLink to="/newlogin" className="mobile-navigation__link" onClick={Close}>
-            Log In
-          </NavLink> : null
       }
     </div>
   );

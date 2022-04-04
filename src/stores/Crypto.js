@@ -161,7 +161,6 @@ class CryptoStore {
     yield this.LoadConnectedAccounts();
   });
 
-  // TODO: Remove sign dependency
   DisconnectPhantom = flow(function * (address) {
     if(!address) { return; }
 

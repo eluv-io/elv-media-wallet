@@ -170,9 +170,6 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
           names = names.filter(name => marketplaceNames[name]);
         }
 
-        // TODO: Remove
-        names = names.filter(name => !["Stone Media Collective", "Let's Dance to the Real Thing"].includes(name));
-
         setFilterOptions(names.map(name => (name || "").trim()).sort());
       })
       .finally(() => setFilterOptionsLoaded(true));

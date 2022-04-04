@@ -84,11 +84,6 @@ const Listings = observer(() => {
               <div className="card-list">
                 {
                   entries.map((listing, index) => {
-                    // TODO: Remove
-                    if(["iten2dbu685wiHLyjgLnx19jEKxiNb6J"].includes(listing?.details?.TenantId)) {
-                      return null;
-                    }
-
                     return (
                       <Listing
                         url={match.url}

@@ -165,7 +165,11 @@ export const PendingPaymentsTable = observer(({header, limit, className=""}) => 
 
   const UpdateHistory = async () => {
     let entries = (await transferStore.UserPaymentsHistory())
-      .filter(entry => Utils.EqualAddress(entry.addr, rootStore.userAddress) && Date.now() - entry.created * 1000 < week)
+      .filter(entry =>
+        Utils.EqualAddress(entry.addr, rootStore.userAddress) &&
+        Date.now() - entry.created * 1000 < week &&
+        !entry.processor?.startsWith("solana:p2p")
+      )
       .sort((a, b) => a.created > b.created ? -1 : 1);
 
     if(limit) {
