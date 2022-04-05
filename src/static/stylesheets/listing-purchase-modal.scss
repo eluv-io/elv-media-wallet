@@ -344,7 +344,9 @@
   }
 
   &__wallet-connect {
+    align-items: center;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     margin: 30px 0;
   }

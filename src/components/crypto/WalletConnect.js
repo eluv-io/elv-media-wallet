@@ -14,6 +14,7 @@ import USDCIcon from "Assets/icons/USDC coin icon.svg";
 const WalletConnect = observer(() => {
   const wallet = cryptoStore.WalletFunctions("phantom");
   const [connected, setConnected] = useState(wallet.Connected());
+  const [errorMessage, setErrorMessage] = useState(undefined);
 
   useEffect(() => {
     setConnected(wallet.Connected());
@@ -32,8 +33,17 @@ const WalletConnect = observer(() => {
           disabled={incorrectAccount}
           className="wallet-connect__link-button"
           onClick={async () => {
-            await wallet.Connect();
-            setConnected(true);
+            try {
+              setErrorMessage(undefined);
+              await wallet.Connect();
+              setConnected(true);
+            } catch(error) {
+              if(error.status === 409) {
+                setErrorMessage("This Solana account is already connected to a different Eluvio wallet");
+              } else {
+                setErrorMessage("Something went wrong when connecting your wallet. Please try again.");
+              }
+            }
           }}
         >
           <ImageIcon icon={wallet.logo} title="Phantom" /> Connect Phantom
@@ -77,17 +87,20 @@ const WalletConnect = observer(() => {
   }
 
   return (
-    <div className="wallet-connect">
-      <h2 className="wallet-connect__header">Link Payment Wallet</h2>
-      <div className="wallet-connect__section">
-        <div className="wallet-connect__info">
-          <div className="wallet-connect__message">
-            To buy and sell NFTs using <ImageIcon icon={USDCIcon} title="USDC" /> USDC, link your Eluvio Media Wallet to your payment wallet.
+    <>
+      <div className="wallet-connect">
+        <h2 className="wallet-connect__header">Link Payment Wallet</h2>
+        <div className="wallet-connect__section">
+          <div className="wallet-connect__info">
+            <div className="wallet-connect__message">
+              To buy and sell NFTs using <ImageIcon icon={USDCIcon} title="USDC" /> USDC, link your Eluvio Media Wallet to your payment wallet.
+            </div>
+            { connectButton}
           </div>
-          { connectButton}
         </div>
       </div>
-    </div>
+      { errorMessage ? <div className="wallet-connect__error-message">{ errorMessage }</div> : null }
+    </>
   );
 });
 

@@ -184,6 +184,15 @@ $wallet-connect-background: rgba($black, 0.35);
   &__network-address {
     font-size: 12px;
   }
+
+  &__error-message {
+    color: $red;
+    font-size: 12px;
+    //font-weight: 300;
+    margin-top: 10px;
+    max-width: 250px;
+    text-align: center;
+  }
 }
 
 .dark {
@@ -211,6 +220,10 @@ $wallet-connect-background: rgba($black, 0.35);
 
     &__network-info {
       background-color: $darkergray;
+    }
+
+    &__error-message {
+      color: $red;
     }
   }
 }
