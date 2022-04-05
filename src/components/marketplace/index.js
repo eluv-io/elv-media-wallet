@@ -23,7 +23,7 @@ import PurchaseHandler from "Components/marketplace/PurchaseHandler";
 import {RecentSales} from "Components/listings/Activity";
 import Profile from "Components/profile";
 import MarketplaceCollections from "Components/marketplace/MarketplaceCollections";
-import {LoginRedirectGate} from "Components/common/LoginGate";
+import {LoginGate, LoginRedirectGate} from "Components/common/LoginGate";
 
 const MarketplacePurchase = observer(() => {
   const match = useRouteMatch();
@@ -111,7 +111,7 @@ const Routes = (match) => {
     { name: "Activity", path: "/marketplace/:marketplaceId/activity", Component: RecentSales },
     { name: nft?.metadata?.display_name, path: "/marketplace/:marketplaceId/activity/:contractId/:tokenId", Component: NFTDetails },
 
-    { name: "Drop Event", path: "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId", Component: Drop, hideNavigation: true, authed: true },
+    { name: "Drop Event", path: "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId", Component: Drop, hideNavigation: true, authGated: true },
     { name: "Status", path: "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId/status", Component: DropMintingStatus, hideNavigation: true, authed: true },
 
     { name: ((marketplace.storefront || {}).tabs || {}).collection || "My Items", path: "/marketplace/:marketplaceId/collection", Component: MarketplaceOwned, authed: true },
@@ -154,20 +154,26 @@ const MarketplaceRoutes = observer(() => {
     <div className="page-container marketplace-page">
       <Switch>
         {
-          Routes(match).map(({path, authed, Component}) =>
+          Routes(match).map(({path, authed, authGated, Component}) =>
             <Route exact path={path} key={`marketplace-route-${path}`}>
               <ErrorBoundary>
                 {
-                  authed ?
-                    <LoginRedirectGate to="/marketplaces">
+                  authGated ?
+                    <LoginGate to="/marketplaces">
                       <MarketplaceWrapper>
                         <Component/>
                       </MarketplaceWrapper>
-                    </LoginRedirectGate> :
+                    </LoginGate> :
+                    authed ?
+                      <LoginRedirectGate to="/marketplaces">
+                        <MarketplaceWrapper>
+                          <Component/>
+                        </MarketplaceWrapper>
+                      </LoginRedirectGate> :
 
-                    <MarketplaceWrapper>
-                      <Component/>
-                    </MarketplaceWrapper>
+                      <MarketplaceWrapper>
+                        <Component/>
+                      </MarketplaceWrapper>
                 }
               </ErrorBoundary>
             </Route>
