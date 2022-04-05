@@ -111,7 +111,7 @@ const Routes = (match) => {
     { name: "Activity", path: "/marketplace/:marketplaceId/activity", Component: RecentSales },
     { name: nft?.metadata?.display_name, path: "/marketplace/:marketplaceId/activity/:contractId/:tokenId", Component: NFTDetails },
 
-    { name: "Drop Event", path: "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId", Component: Drop, hideNavigation: true, authGated: true },
+    { name: "Drop Event", path: "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId", Component: Drop, hideNavigation: true, authGated: true, ignoreLoginCapture: true },
     { name: "Status", path: "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId/status", Component: DropMintingStatus, hideNavigation: true, authed: true },
 
     { name: ((marketplace.storefront || {}).tabs || {}).collection || "My Items", path: "/marketplace/:marketplaceId/collection", Component: MarketplaceOwned, authed: true },
@@ -154,12 +154,12 @@ const MarketplaceRoutes = observer(() => {
     <div className="page-container marketplace-page">
       <Switch>
         {
-          Routes(match).map(({path, authed, authGated, Component}) =>
+          Routes(match).map(({path, authed, authGated, ignoreLoginCapture, Component}) =>
             <Route exact path={path} key={`marketplace-route-${path}`}>
               <ErrorBoundary>
                 {
                   authGated ?
-                    <LoginGate to="/marketplaces">
+                    <LoginGate ignoreCapture={ignoreLoginCapture} to="/marketplaces">
                       <MarketplaceWrapper>
                         <Component/>
                       </MarketplaceWrapper>

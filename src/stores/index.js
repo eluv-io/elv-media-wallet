@@ -71,6 +71,7 @@ class RootStore {
   network = EluvioConfiguration["config-url"].includes("main.net955305") ? "main" : "demo";
 
   embedded = window.top !== window.self || new URLSearchParams(window.location.search).has("e");
+  capturedLogin = this.embedded && new URLSearchParams(window.location.search).has("cl");
 
   // Opened by embedded window for purchase redirect
   fromEmbed = new URLSearchParams(window.location.search).has("embed") ||
@@ -1373,8 +1374,12 @@ class RootStore {
     this.loginLoaded = true;
   }
 
-  ShowLogin() {
-    this.showLogin = true;
+  ShowLogin(ignoreCapture=false) {
+    if(this.capturedLogin && !ignoreCapture) {
+      this.SendEvent({event: EVENTS.LOG_IN_REQUESTED});
+    } else {
+      this.showLogin = true;
+    }
   }
 
   HideLogin() {
