@@ -190,9 +190,16 @@ export const InitializeListener = (history) => {
       case "navigate":
         rootStore.SetMarketplaceFilters(data.params.marketplaceFilters || []);
 
-        if(data.params.path) {
+        let route;
+        if(data.params.path === "/login" || data.params.page === "login") {
+          rootStore.ShowLogin({requireLogin: data.params.loginRequired});
+
+          route = "/login";
+        } else if(data.params.path) {
           // Direct path
           history.push(data.params.path);
+
+          route = data.params.path;
         } else {
           // Named page
           if(!pages[data.params.page]) {
@@ -202,7 +209,7 @@ export const InitializeListener = (history) => {
           }
 
           // Replace route variables
-          let route = pages[data.params.page];
+          route = pages[data.params.page];
 
           const params = (data.params || {}).params;
           if(params) {
@@ -231,15 +238,11 @@ export const InitializeListener = (history) => {
           }
 
           history.push(route);
-
-          Respond({
-            response: route
-          });
         }
 
-        break;
-      case "logIn":
-        rootStore.SetNavigateToLogIn(data.params.initialScreen);
+        Respond({
+          response: route
+        });
 
         break;
       default:

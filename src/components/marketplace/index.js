@@ -74,7 +74,8 @@ const MarketplaceWrapper = observer(({children}) => {
   if(match.params.marketplaceId) {
     return (
       <AsyncComponent
-        loadKey={`marketplace-${match.params.marketplaceId}`}
+        // Store info is cleared when logged in
+        loadKey={`marketplace-${match.params.marketplaceId}-${rootStore.loggedIn}`}
         cacheSeconds={30}
         Load={async () => {
           if(currentRoute.skipLoading) { return; }
@@ -106,25 +107,25 @@ const Routes = (match) => {
   return [
     { name: listingName, path: "/marketplace/:marketplaceId/listings/:listingId", Component: NFTDetails },
     { name: "All Listings", path: "/marketplace/:marketplaceId/listings", Component: Listings },
-    { name: nft?.metadata?.display_name, path: "/marketplace/:marketplaceId/my-listings/:contractId/:tokenId", Component: NFTDetails, authed: true },
-    { name: "My Listings", path: "/marketplace/:marketplaceId/my-listings", Component: MyListings, authed: true },
+    { name: nft?.metadata?.display_name, path: "/marketplace/:marketplaceId/my-listings/:contractId/:tokenId", Component: NFTDetails, authRedirect: true },
+    { name: "My Listings", path: "/marketplace/:marketplaceId/my-listings", Component: MyListings, authRedirect: true },
     { name: "Activity", path: "/marketplace/:marketplaceId/activity", Component: RecentSales },
     { name: nft?.metadata?.display_name, path: "/marketplace/:marketplaceId/activity/:contractId/:tokenId", Component: NFTDetails },
 
-    { name: "Drop Event", path: "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId", Component: Drop, hideNavigation: true, authGated: true, ignoreLoginCapture: true },
-    { name: "Status", path: "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId/status", Component: DropMintingStatus, hideNavigation: true, authed: true },
+    { name: "Drop Event", path: "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId", Component: Drop, hideNavigation: true, authGate: true, ignoreLoginCapture: true },
+    { name: "Status", path: "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId/status", Component: DropMintingStatus, hideNavigation: true, authRedirect: true },
 
-    { name: ((marketplace.storefront || {}).tabs || {}).collection || "My Items", path: "/marketplace/:marketplaceId/collection", Component: MarketplaceOwned, authed: true },
+    { name: ((marketplace.storefront || {}).tabs || {}).collection || "My Items", path: "/marketplace/:marketplaceId/collection", Component: MarketplaceOwned, authRedirect: true },
     { name: "Collections", path: "/marketplace/:marketplaceId/collections", Component: MarketplaceCollections },
 
-    { name: nft?.metadata?.display_name, path: "/marketplace/:marketplaceId/collection/owned/:contractId/:tokenId", Component: NFTDetails, authed: true },
-    { name: "Open Pack", path: "/marketplace/:marketplaceId/collection/owned/:contractId/:tokenId/open", Component: PackOpenStatus, authed: true },
+    { name: nft?.metadata?.display_name, path: "/marketplace/:marketplaceId/collection/owned/:contractId/:tokenId", Component: NFTDetails, authRedirect: true },
+    { name: "Open Pack", path: "/marketplace/:marketplaceId/collection/owned/:contractId/:tokenId/open", Component: PackOpenStatus, authRedirect: true },
 
-    { name: "Open Pack", path: "/marketplace/:marketplaceId/collection/:collectionIndex/owned/:contractId/:tokenId/open", Component: PackOpenStatus, authed: true },
-    { name: nft?.metadata?.display_name, path: "/marketplace/:marketplaceId/collection/:collectionIndex/owned/:contractId/:tokenId", Component: NFTDetails, authed: true },
+    { name: "Open Pack", path: "/marketplace/:marketplaceId/collection/:collectionIndex/owned/:contractId/:tokenId/open", Component: PackOpenStatus, authRedirect: true },
+    { name: nft?.metadata?.display_name, path: "/marketplace/:marketplaceId/collection/:collectionIndex/owned/:contractId/:tokenId", Component: NFTDetails, authRedirect: true },
     { name: item.name, path: "/marketplace/:marketplaceId/collection/:collectionIndex/store/:sku", Component: MarketplaceItemDetails },
 
-    { name: "Claim", path: "/marketplace/:marketplaceId/store/:sku/claim", Component: ClaimMintingStatus, authed: true },
+    { name: "Claim", path: "/marketplace/:marketplaceId/store/:sku/claim", Component: ClaimMintingStatus, authRedirect: true },
     { name: "Purchase", path: "/marketplace/:marketplaceId/store/:tenantId/:sku/purchase/:confirmationId/success", Component: MarketplacePurchase, hideNavigation: rootStore.sidePanelMode },
     { name: "Purchase", path: "/marketplace/:marketplaceId/store/:tenantId/:sku/purchase/:confirmationId/cancel", Component: MarketplacePurchase },
     { name: "Purchase", path: "/marketplace/:marketplaceId/store/:tenantId/:sku/purchase/:confirmationId", Component: MarketplacePurchase, noBreadcrumb: true },
@@ -141,7 +142,7 @@ const Routes = (match) => {
     },
 
     // Duplicate profile in marketplace section so navigating to profile doesn't clear the active marketplace
-    { name: "Profile", path: "/marketplace/:marketplaceId/profile", Component: Profile, skipLoading: true, authed: true },
+    { name: "Profile", path: "/marketplace/:marketplaceId/profile", Component: Profile, skipLoading: true, authRedirect: true },
 
     { name: "Marketplaces", path: "/marketplaces", Component: MarketplaceBrowser }
   ];
@@ -154,17 +155,17 @@ const MarketplaceRoutes = observer(() => {
     <div className="page-container marketplace-page">
       <Switch>
         {
-          Routes(match).map(({path, authed, authGated, ignoreLoginCapture, Component}) =>
+          Routes(match).map(({path, authRedirect, authGate, ignoreLoginCapture, Component}) =>
             <Route exact path={path} key={`marketplace-route-${path}`}>
               <ErrorBoundary>
                 {
-                  authGated ?
+                  authGate ?
                     <LoginGate ignoreCapture={ignoreLoginCapture} to="/marketplaces">
                       <MarketplaceWrapper>
                         <Component/>
                       </MarketplaceWrapper>
                     </LoginGate> :
-                    authed ?
+                    authRedirect ?
                       <LoginRedirectGate to="/marketplaces">
                         <MarketplaceWrapper>
                           <Component/>

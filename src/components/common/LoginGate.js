@@ -6,7 +6,7 @@ import {Redirect} from "react-router-dom";
 // Show only login page until logged in
 export const LoginGate = observer(({children, ignoreCapture}) => {
   useEffect(() => {
-    rootStore.ShowLogin(ignoreCapture);
+    rootStore.ShowLogin({requireLogin: true, ignoreCapture});
 
     return () => rootStore.HideLogin();
   }, [rootStore.showLogin]);
