@@ -5,11 +5,11 @@ import Modal from "Components/common/Modal";
 import {ButtonWithLoader, FormatPriceString} from "Components/common/UIComponents";
 import {roundToUp} from "round-to";
 
+const supportedCountries = [["AR","Argentina"],["AU","Australia"],["AT","Austria"],["BE","Belgium"],["BO","Bolivia"],["BG","Bulgaria"],["CA","Canada"],["CL","Chile"],["CO","Colombia"],["CR","Costa Rica"],["HR","Croatia"],["CY","Cyprus"],["CZ","Czech Republic"],["DK","Denmark"],["DO","Dominican Republic"],["EG","Egypt"],["EE","Estonia"],["FI","Finland"],["FR","France"],["GM","Gambia"],["DE","Germany"],["GR","Greece"],["HK","Hong Kong"],["HU","Hungary"],["IS","Iceland"],["IN","India"],["ID","Indonesia"],["IE","Ireland"],["IL","Israel"],["IT","Italy"],["KE","Kenya"],["LV","Latvia"],["LI","Liechtenstein"],["LT","Lithuania"],["LU","Luxembourg"],["MT","Malta"],["MX","Mexico"],["NL","Netherlands"],["NZ","New Zealand"],["NO","Norway"],["PE","Peru"],["PH","Phillipines"],["PL","Poland"],["PT","Portugal"],["RO","Romania"],["SA","Saudi Arabia"],["RS","Serbia"],["SG","Singapore"],["SK","Slovakia"],["SI","Slovenia"],["ZA","South Africa"],["KR","South Korea"],["ES","Spain"],["SE","Sweden"],["CH","Switzerland"],["TH","Thailand"],["TT","Trinidad & Tobago"],["TR","Turkey"],["AE","United Arab Emirates"],["GB","United Kingdom"],["US","United States of America"]];
+
 export const WithdrawalSetupModal = observer(({Close}) => {
   const [errorMessage, setErrorMessage] = useState(undefined);
   const [countryCode, setCountryCode] = useState("");
-
-  const supportedCountries = [["AU","Australia"],["AT","Austria"],["BE","Belgium"],["BG","Bulgaria"],["CA","Canada"],["CY","Cyprus"],["CZ", "Czech Republic"],["DK","Denmark"],["EE","Estonia"],["FI","Finland"],["FR","France"],["DE","Germany"],["GR","Greece"],["HK","Hong Kong"],["HU","Hungary"],["IE","Ireland"],["IT","Italy"],["LV","Latvia"],["LT","Lithuania"],["LU","Luxembourg"],["MY","Malaysia"],["MT","Malta"],["MX","Mexico"],["NL","Netherlands"],["NZ","New Zealand"],["NO","Norway"],["PL","Poland"],["PT","Portugal"],["RO","Romania"],["SG","Singapore"],["SK","Slovakia"],["SI","Slovenia"],["ES","Spain"],["SE","Sweden"],["CH","Switzerland"],["US","United States of America"],["AE","United Arab Emirates"],["GB","United Kingdom"]];
 
   return (
     <Modal Toggle={Close} className="withdrawal-modal">
