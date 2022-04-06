@@ -35,10 +35,12 @@ const PurchaseHandler = observer(({cancelPath}) => {
     useEffect(() => {
       rootStore.ToggleNavigation(false);
 
-      const checkoutProvider = new URLSearchParams(window.location.search).get("provider");
-      const tenantId = new URLSearchParams(window.location.search).get("tenantId") || match.params.tenantId;
-      const quantity = parseInt(new URLSearchParams(window.location.search).get("quantity") || 1);
-      const listingId = new URLSearchParams(window.location.search).get("listingId") || match.params.listingId;
+      const params = new URLSearchParams(window.location.search);
+
+      const checkoutProvider = params.get("provider");
+      const tenantId = params.get("tenantId") || match.params.tenantId;
+      const quantity = parseInt(params.get("quantity") || 1);
+      const listingId = params.get("listingId") || match.params.listingId;
 
       if(listingId) {
         checkoutStore.ListingCheckoutSubmit({
@@ -48,6 +50,8 @@ const PurchaseHandler = observer(({cancelPath}) => {
           confirmationId: match.params.confirmationId
         })
           .catch(error => {
+            rootStore.Log(error, true);
+
             window.opener.postMessage({
               type: "ElvMediaWalletClientRequest",
               action: "purchase",
@@ -58,7 +62,7 @@ const PurchaseHandler = observer(({cancelPath}) => {
               }
             });
 
-            window.close();
+            setTimeout(() => window.close(), 3000);
           });
       } else {
         checkoutStore.CheckoutSubmit({
@@ -69,7 +73,9 @@ const PurchaseHandler = observer(({cancelPath}) => {
           quantity,
           confirmationId: match.params.confirmationId
         })
-          .catch(() => {
+          .catch(error => {
+            rootStore.Log(error, true);
+
             window.opener.postMessage({
               type: "ElvMediaWalletClientRequest",
               action: "purchase",
@@ -80,7 +86,7 @@ const PurchaseHandler = observer(({cancelPath}) => {
               }
             });
 
-            window.close();
+            setTimeout(() => window.close(), 3000);
           });
       }
     }, []);

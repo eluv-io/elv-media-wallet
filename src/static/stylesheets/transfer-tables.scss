@@ -134,10 +134,10 @@ $badge-pending: rgba($darkgray, 0.8);
       margin-left: 5px;
     }
 
-    svg,
-    img {
+    &__icon {
       height: 16px;
       margin-right: 5px;
+      width: 16px;
     }
   }
 

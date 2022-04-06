@@ -144,8 +144,8 @@ class CheckoutStore {
 
       confirmationId = confirmationId || (provider === "linked-wallet" ? this.ConfirmationId(true) : `T-${this.ConfirmationId()}`);
 
-      let authInfo = this.rootStore.AuthInfo();
-      if(!authInfo.user) {
+      let authInfo = this.rootStore.AuthInfo() || {};
+      if(!authInfo?.user) {
         authInfo.user = {};
       }
 

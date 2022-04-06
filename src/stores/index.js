@@ -82,6 +82,8 @@ class RootStore {
   pageWidth = window.innerWidth;
   activeModals = 0;
 
+  authInfo = undefined;
+
   showLogin = false;
   navigateToLogIn = undefined;
   loggingIn = false;
@@ -1346,6 +1348,8 @@ class RootStore {
         } else {
           return { authToken, address, user };
         }
+      } else {
+        return this.authInfo;
       }
     } catch(error) {
       this.Log("Failed to retrieve auth info", true);
@@ -1356,14 +1360,21 @@ class RootStore {
 
   ClearAuthInfo() {
     this.RemoveLocalStorage(`auth-${this.network}`);
+
+    this.authInfo = undefined;
   }
 
   SetAuthInfo({authToken, address, user}) {
+    const authInfo = { authToken, address, user: user || {} };
+
     this.SetLocalStorage(
       `auth-${this.network}`,
-      Utils.B64(JSON.stringify({authToken, address, user: user || {}}))
+      Utils.B64(JSON.stringify(authInfo))
     );
+
     this.SetLocalStorage("hasLoggedIn", "true");
+
+    this.authInfo = authInfo;
   }
 
   SetNavigationBreadcrumbs(breadcrumbs=[]) {

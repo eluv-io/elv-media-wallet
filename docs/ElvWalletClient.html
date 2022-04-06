@@ -237,7 +237,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line677">line 677</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line687">line 687</a>
         </li>
       </ul>
     </dd>
@@ -271,7 +271,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
     </a>
     <h4 class="name" id=".InitializeFrame">
-      <span class="type-signature">async, static </span>InitializeFrame<span class="signature">({<div class="block-param">walletAppUrl<span class="signature-attributes">optional</span>,</div><div class="block-param">target,</div><div class="block-param">tenantSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceHash<span class="signature-attributes">optional</span>,</div><div class="block-param">darkMode<span class="signature-attributes">optional</span></div>})</span><span class="type-signature"> &rarr;  Promise.&lt;<a href="ElvWalletClient.html">ElvWalletClient</a>></span>
+      <span class="type-signature">async, static </span>InitializeFrame<span class="signature">({<div class="block-param">walletAppUrl<span class="signature-attributes">optional</span>,</div><div class="block-param">target,</div><div class="block-param">tenantSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceHash<span class="signature-attributes">optional</span>,</div><div class="block-param">captureLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">darkMode<span class="signature-attributes">optional</span></div>})</span><span class="type-signature"> &rarr;  Promise.&lt;<a href="ElvWalletClient.html">ElvWalletClient</a>></span>
     </h4>
   </span>
 
@@ -550,6 +550,49 @@ and the target can be passed in either as an element directly, or by element ID.
     
       <tr>
         
+          <td class="name"><code>captureLogin</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      boolean
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+          <td class="attributes">
+            
+              &lt;optional><br>
+            
+
+            
+
+            
+          </td>
+        
+
+        
+          <td class="default">
+            
+          </td>
+        
+
+        <td class="description last">
+          <p>If specified, the parent frame will be responsible for handling login requests. When the user attempts to log in, the LOG_IN_REQUESTED event will be fired.</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
           <td class="name"><code>darkMode</code></td>
         
 
@@ -643,7 +686,7 @@ and the target can be passed in either as an element directly, or by element ID.
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line548">line 548</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line554">line 554</a>
         </li>
       </ul>
     </dd>
@@ -666,7 +709,7 @@ and the target can be passed in either as an element directly, or by element ID.
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
     </a>
     <h4 class="name" id=".InitializePopup">
-      <span class="type-signature">async, static </span>InitializePopup<span class="signature">({<div class="block-param">walletAppUrl<span class="signature-attributes">optional</span>,</div><div class="block-param">tenantSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceHash<span class="signature-attributes">optional</span>,</div><div class="block-param">darkMode<span class="signature-attributes">optional</span></div>})</span><span class="type-signature"> &rarr;  Promise.&lt;<a href="ElvWalletClient.html">ElvWalletClient</a>></span>
+      <span class="type-signature">async, static </span>InitializePopup<span class="signature">({<div class="block-param">walletAppUrl<span class="signature-attributes">optional</span>,</div><div class="block-param">tenantSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceHash<span class="signature-attributes">optional</span>,</div><div class="block-param">captureLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">darkMode<span class="signature-attributes">optional</span></div>})</span><span class="type-signature"> &rarr;  Promise.&lt;<a href="ElvWalletClient.html">ElvWalletClient</a>></span>
     </h4>
   </span>
 
@@ -897,6 +940,49 @@ and the target can be passed in either as an element directly, or by element ID.
     
       <tr>
         
+          <td class="name"><code>captureLogin</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      boolean
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+          <td class="attributes">
+            
+              &lt;optional><br>
+            
+
+            
+
+            
+          </td>
+        
+
+        
+          <td class="default">
+            
+          </td>
+        
+
+        <td class="description last">
+          <p>If specified, the parent frame will be responsible for handling login requests. When the user attempts to log in, the LOG_IN_REQUESTED event will be fired.</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
           <td class="name"><code>darkMode</code></td>
         
 
@@ -990,7 +1076,7 @@ and the target can be passed in either as an element directly, or by element ID.
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line509">line 509</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line510">line 510</a>
         </li>
       </ul>
     </dd>
