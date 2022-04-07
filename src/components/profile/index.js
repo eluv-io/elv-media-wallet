@@ -136,6 +136,9 @@ const Profile = observer(() => {
             { rootStore.userAddress }
           </CopyableField>
         </div>
+        <div className="profile-page__message">
+          This is an Eluvio blockchain address
+        </div>
       </div>
 
       <div className="profile-page__section profile-page__section-balance profile-page__section-box">
