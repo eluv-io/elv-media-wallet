@@ -115,6 +115,12 @@ $badge-pending: rgba($darkgray, 0.8);
         }
       }
     }
+
+    &-initial {
+      * {
+        color: $blue;
+      }
+    }
   }
 
   &__content-rows {
@@ -267,6 +273,12 @@ $badge-pending: rgba($darkgray, 0.8);
           * {
             color: $black;
           }
+        }
+      }
+
+      &-initial {
+        * {
+          color: $lightblue;
         }
       }
     }

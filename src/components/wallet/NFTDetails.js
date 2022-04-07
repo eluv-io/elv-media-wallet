@@ -635,6 +635,7 @@ const NFTDetails = observer(() => {
         showListingModal ?
           <ListingModal
             nft={listing || nft}
+            listingId={listingId}
             Close={(info={}) => {
               setShowListingModal(false);
 

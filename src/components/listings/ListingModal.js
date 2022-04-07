@@ -12,7 +12,7 @@ import ImageIcon from "Components/common/ImageIcon";
 import USDCIcon from "Assets/icons/USDC coin icon.svg";
 import WalletConnect from "Components/crypto/WalletConnect";
 
-const ListingModal = observer(({nft, Close}) => {
+const ListingModal = observer(({nft, listingId, Close}) => {
   const [price, setPrice] = useState(nft.details.Price ? nft.details.Price.toFixed(2) : "");
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [errorMessage, setErrorMessage] = useState(undefined);
@@ -64,7 +64,7 @@ const ListingModal = observer(({nft, Close}) => {
         </div>
         <div className="listing-modal__active-listings">
           <h2 className="listing-modal__active-listings__header">Active Listings for this NFT</h2>
-          <ActiveListings contractAddress={nft.details.ContractAddr} />
+          <ActiveListings contractAddress={nft.details.ContractAddr} initialSelectedListingId={listingId} />
         </div>
         <div className="listing-modal__actions">
           <button className="action listing-modal__action" onClick={() => Close()}>

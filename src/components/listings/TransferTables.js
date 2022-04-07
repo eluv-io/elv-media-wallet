@@ -23,7 +23,7 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
   const [id] = useState(`active-listings-table-${UUID()}`);
   const [loading, setLoading] = useState(true);
   const previouslyLoaded = listings && listings.length > 0;
-  const perPage = 10;
+  const perPage = 20;
 
   const UpdateHistory = async (append=false) => {
     try {
@@ -44,14 +44,34 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
 
       setPaging(query.paging);
 
+      let results;
       if(append) {
-        setListings([
+        results = [
           ...listings,
           ...query.results
-        ]);
+        ];
       } else {
-        setListings(query.results);
+        if(initialSelectedListingId) {
+          // If initial listing ID set, ensure it is first item in list
+          const initialListing = ((await transferStore.FetchTransferListings({
+            listingId: initialSelectedListingId
+          })) || [])[0];
+
+          if(initialListing) {
+
+            query.results.unshift(initialListing);
+          }
+        }
+
+        results = query.results;
       }
+
+      if(initialSelectedListingId) {
+        // Filter out normal instance of initial listing
+        results = results.filter((item, index) => index === 0 || item.details.ListingId !== initialSelectedListingId);
+      }
+
+      setListings(results);
     } finally {
       setLoading(false);
     }
@@ -134,7 +154,17 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
                             Select(selected, listing);
                           }
                       }
-                      className={`transfer-table__table__row ${isCheckoutLocked ? "transfer-table__table__row-disabled" : ""} ${selectedListingId === listing.details.ListingId ? "transfer-table__table__row-selected" : ""} ${Select && !isCheckoutLocked ? "transfer-table__table__row-selectable" : ""}`}
+                      className={
+                        [
+                          "transfer-table__table__row",
+                          isCheckoutLocked ? "transfer-table__table__row-disabled" : "",
+                          selectedListingId === listing.details.ListingId ? "transfer-table__table__row-selected" : "",
+                          Select && !isCheckoutLocked ? "transfer-table__table__row-selectable" : "",
+                          initialSelectedListingId === listing.details.ListingId ? "transfer-table__table__row-initial" : ""
+                        ]
+                          .filter(c => c)
+                          .join(" ")
+                      }
                     >
                       <div className="transfer-table__table__cell">
                         { NFTDisplayToken(listing) }

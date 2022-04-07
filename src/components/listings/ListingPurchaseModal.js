@@ -597,7 +597,7 @@ const ListingPurchaseSelection = observer(({nft, marketplaceItem, initialListing
         }
       </div>
       <ActiveListings
-        initialSelectedListingId={selectedListingId}
+        initialSelectedListingId={initialListingId}
         contractAddress={nft.details.ContractAddr}
         Select={(listingId, listing) => {
           setSelectedListingId(listingId);
