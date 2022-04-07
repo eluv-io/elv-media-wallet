@@ -461,13 +461,24 @@ class TransferStore {
     }
   });
 
-  ListingNames = flow(function * () {
-    return yield Utils.ResponseToJson(
+  ListingNames = flow(function * ({marketplaceId}) {
+    let names = yield Utils.ResponseToJson(
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "mkt", "names"),
         method: "GET"
       })
     );
+
+    if(marketplaceId) {
+      const marketplace = yield this.rootStore.LoadMarketplace(marketplaceId);
+
+      let marketplaceNames = {};
+      marketplace.items.map(item => marketplaceNames[item?.nftTemplateMetadata?.display_name] = true);
+
+      names = names.filter(name => marketplaceNames[name]);
+    }
+
+    return names;
   });
 
   // Transfer History

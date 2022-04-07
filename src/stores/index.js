@@ -336,6 +336,7 @@ class RootStore {
 
       // Clear loaded marketplaces so they will be reloaded and authorization rechecked
       this.marketplaces = {};
+      this.marketplaceCache = {};
 
       yield this.cryptoStore.LoadConnectedAccounts();
 
@@ -500,6 +501,18 @@ class RootStore {
 
     this.nftInfo = nftInfo;
   });
+
+
+  MarketplaceId({tenantSlug, marketplaceSlug}) {
+    if(!marketplaceSlug) { return; }
+
+    const marketplace = this.allMarketplaces.find(marketplace =>
+      marketplace.tenantSlug === tenantSlug &&
+      marketplace.marketplaceSlug === marketplaceSlug
+    );
+
+    if(marketplace) { return marketplace.marketplaceId; }
+  }
 
   // If marketplace slug is specified, load only that marketplace. Otherwise load all
   LoadAvailableMarketplaces = flow(function * ({tenantSlug, marketplaceSlug, forceReload}={}) {
@@ -671,6 +684,8 @@ class RootStore {
 
       this.lastMarketplaceId = marketplace.marketplaceId;
 
+      this.specifiedMarketplaceId = marketplace.marketplaceId;
+
       this.SetCustomizationOptions(marketplace);
 
       return marketplace.marketplaceHash;
@@ -796,7 +811,7 @@ class RootStore {
         this.marketplaceCache[marketplaceHash].stock = Date.now();
       }
 
-      return this.marketplaces[marketplaceHash];
+      return this.marketplaces[marketplaceId];
     }
 
     try {
@@ -1443,17 +1458,6 @@ class RootStore {
   // Used for disabling navigation back to main marketplace page when no items are available
   SetNoItemsAvailable() {
     this.noItemsAvailable = true;
-  }
-
-  // Embedding application signalled that the wallet has become active
-  WalletActivated() {
-    if(this.activeLoginButton) {
-      this.activeLoginButton.focus();
-    }
-  }
-
-  SetActiveLoginButton(element) {
-    this.activeLoginButton = element;
   }
 
   GetLocalStorage(key) {

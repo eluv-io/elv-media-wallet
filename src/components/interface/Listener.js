@@ -30,7 +30,14 @@ const pages = {
 const FormatNFT = (nft) => {
   if(!nft || !nft.metadata) { return; }
 
-  return toJS(nft);
+  nft = toJS(nft);
+
+  nft.contractAddress = nft.details.ContractAddr;
+  nft.contractId = nft.details.ContractId;
+  nft.tokenId = nft.details.TokenIdStr;
+  nft.name = nft.metadata.display_name;
+
+  return nft;
 };
 
 const Target = () => {
@@ -64,6 +71,7 @@ export const InitializeListener = (history) => {
     };
 
     switch(data.action) {
+      // client.SignIn
       case "login":
         await rootStore.Authenticate({
           idToken: data.params.idToken,
@@ -77,6 +85,7 @@ export const InitializeListener = (history) => {
 
         break;
 
+      // client.SignOut
       case "logout":
         await rootStore.SignOut();
 
@@ -84,46 +93,58 @@ export const InitializeListener = (history) => {
 
         break;
 
-      case "purchase":
-        checkoutStore.PurchaseComplete({
-          confirmationId: data.params.confirmationId,
-          success: data.params.success,
-          message: data.params.message
-        });
-
-        break;
+      // client.Profile
       case "profile":
         if(!rootStore.loggedIn) {
           Respond({response: null});
         }
 
-        Respond({response: toJS(rootStore.userProfile)});
+        let profile = toJS(rootStore.userProfile);
+        delete profile.profileImage;
+
+        Respond({response: profile});
 
         break;
+
+      // client.ItemNames
+      case "itemNames":
+        Respond({response: await transferStore.ListingNames({marketplaceId: rootStore.MarketplaceId({...data.params})})});
+
+        return;
+
+      // client.Items
       case "items":
         await rootStore.LoadNFTInfo();
 
-        if((data.params.contractAddress || data.params.contractId) && data.params.tokenId) {
-          Respond({response: await FormatNFT(rootStore.LoadNFTData({contractAddress: data.params.contractAddress, contractId: data.params.contractId, tokenId: data.params.tokenId}))});
-        } else {
-          Respond({response: (await transferStore.FilteredQuery({mode: "owned", limit: 10000, start: 0})).results || []});
-        }
+        const contractAddress = data.params.contractAddress || (data.params.contractId && Utils.HashToAddress(data.params.contractId));
 
-        break;
-      case "toggleNavigation":
-        rootStore.ToggleNavigation(data.params.enabled);
-
-        break;
-      case "toggleSidePanelMode":
-        rootStore.ToggleSidePanelMode(data.params.enabled);
-
-        break;
-
-      case "toggleDarkMode":
-        rootStore.ToggleDarkMode(data.params.enabled);
+        Respond({
+          response: (
+            await transferStore.FilteredQuery({
+              mode: "owned",
+              sortBy: data.params.sortBy,
+              sortDesc: data.params.sortDesc,
+              filter: data.params.filter,
+              contractAddress,
+              limit: 10000,
+              start: 0
+            })
+          ).results || []
+        });
 
         break;
 
+      // client.Item
+      case "item":
+        Respond({
+          response: await FormatNFT(
+            await rootStore.LoadNFTData({contractAddress: data.params.contractAddress, contractId: data.params.contractId, tokenId: data.params.tokenId})
+          )
+        });
+
+        break;
+
+      // client.MarketplaceMetadata
       case "marketplaceMetadata":
         // Ensure marketplace is loaded
         const { marketplaceId } = await rootStore.MarketplaceInfo({
@@ -139,6 +160,7 @@ export const InitializeListener = (history) => {
 
         break;
 
+      // client.EventMetadata
       case "eventMetadata":
         Respond({
           response: await rootStore.LoadEvent({
@@ -151,6 +173,7 @@ export const InitializeListener = (history) => {
 
         break;
 
+      // client.SetMarketplace
       case "setMarketplace":
         // Ensure marketplace is loaded
         await rootStore.MarketplaceInfo({
@@ -170,23 +193,24 @@ export const InitializeListener = (history) => {
         Respond({response: marketplaceHash});
 
         break;
+
+      // client.SetMarketplaceFilters, client.ClearMarketplaceFilters
       case "setMarketplaceFilters":
         await rootStore.SetMarketplaceFilters(data.params.filters);
 
         Respond({});
 
         break;
-      case "setActive":
-        rootStore.WalletActivated();
 
-        break;
-
+      // client.CurrentPath
       case "currentPath":
         const pathname = UrlJoin("/", window.location.hash.replace("#", ""));
 
         Respond({response: pathname});
 
         break;
+
+      // client.Navigate
       case "navigate":
         rootStore.SetMarketplaceFilters(data.params.marketplaceFilters || []);
 
@@ -245,6 +269,35 @@ export const InitializeListener = (history) => {
         });
 
         break;
+
+      // client.ToggleNavigation
+      case "toggleNavigation":
+        rootStore.ToggleNavigation(data.params.enabled);
+
+        break;
+
+      // client.ToggleSidePanelMode
+      case "toggleSidePanelMode":
+        rootStore.ToggleSidePanelMode(data.params.enabled);
+
+        break;
+
+      // client.ToggleDarkMode
+      case "toggleDarkMode":
+        rootStore.ToggleDarkMode(data.params.enabled);
+
+        break;
+
+      // POPUP RESPONSES
+      case "purchase":
+        checkoutStore.PurchaseComplete({
+          confirmationId: data.params.confirmationId,
+          success: data.params.success,
+          message: data.params.message
+        });
+
+        break;
+
       default:
         rootStore.Log(`Unknown action: ${data.action}`);
         Respond({error: `Unknown action: ${data.action}`});

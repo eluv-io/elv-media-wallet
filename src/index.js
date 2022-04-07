@@ -90,6 +90,7 @@ const LoginModal = observer(() => {
         Toggle={rootStore.requireLogin ? undefined : () => rootStore.HideLogin()}
       >
         <Login
+          key={`login-${rootStore.specifiedMarketplaceId}`}
           darkMode={rootStore.darkMode}
           callbackUrl={UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, "")}
           Loaded={() => rootStore.SetLoginLoaded()}

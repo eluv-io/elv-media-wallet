@@ -160,18 +160,13 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
   };
 
   useEffect(() => {
-    transferStore.ListingNames()
-      .then(names => {
-        // Limit names to current marketplace
-        if(marketplace && tenantIds && tenantIds.length === 1 && tenantIds[0] === marketplace.tenant_id) {
-          let marketplaceNames = {};
-          marketplace.items.map(item => marketplaceNames[item?.nftTemplateMetadata?.display_name] = true);
+    let marketplaceId;
+    if(marketplace && tenantIds && tenantIds.length === 1 && tenantIds[0] === marketplace.tenant_id) {
+      marketplaceId = marketplace.marketplaceId;
+    }
 
-          names = names.filter(name => marketplaceNames[name]);
-        }
-
-        setFilterOptions(names.map(name => (name || "").trim()).sort());
-      })
+    transferStore.ListingNames({marketplaceId})
+      .then(names => setFilterOptions(names.map(name => (name || "").trim()).sort()))
       .finally(() => setFilterOptionsLoaded(true));
   }, [tenantIds]);
 
