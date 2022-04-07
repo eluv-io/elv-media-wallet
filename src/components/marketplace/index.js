@@ -30,7 +30,11 @@ const MarketplacePurchase = observer(() => {
 
   return (
     <PurchaseHandler
-      cancelPath={UrlJoin("/marketplace", match.params.marketplaceId, "store", match.params.sku)}
+      cancelPath={
+        rootStore.GetSessionStorage("purchaseType") === "listing" ?
+          UrlJoin("/marketplace", match.params.marketplaceId, "listings", match.params.sku) :
+          UrlJoin("/marketplace", match.params.marketplaceId, "store", match.params.sku)
+      }
     />
   );
 });

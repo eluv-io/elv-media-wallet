@@ -83,7 +83,7 @@ class RootStore {
 
   authInfo = undefined;
 
-  requireLogin = new URLSearchParams(window.location.search).has("rl");
+  requireLogin = false;
   capturedLogin = this.embedded && new URLSearchParams(window.location.search).has("cl");
   showLogin = this.requireLogin;
 
@@ -195,6 +195,15 @@ class RootStore {
 
   constructor() {
     makeAutoObservable(this);
+
+    if(
+      new URLSearchParams(window.location.search).has("rl") ||
+      this.GetSessionStorage("loginRequired")
+    ) {
+      this.requireLogin = true;
+      this.ShowLogin({requireLogin: true});
+      this.SetSessionStorage("loginRequired", "true");
+    }
 
     this.checkoutStore = new CheckoutStore(this);
     this.transferStore = new TransferStore(this);
@@ -325,10 +334,10 @@ class RootStore {
 
       this.SendEvent({event: EVENTS.LOG_IN, data: {address: client.CurrentAccountAddress()}});
 
-      yield this.cryptoStore.LoadConnectedAccounts();
-
       // Clear loaded marketplaces so they will be reloaded and authorization rechecked
       this.marketplaces = {};
+
+      yield this.cryptoStore.LoadConnectedAccounts();
 
       this.HideLogin();
       this.loggedIn = true;

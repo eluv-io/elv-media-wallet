@@ -22,9 +22,11 @@ import {LoginGate, LoginRedirectGate} from "Components/common/LoginGate";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
 
 const WalletPurchase = observer(() => {
+  const match = useRouteMatch();
+
   return (
     <PurchaseHandler
-      cancelPath={UrlJoin("/wallet", "collection")}
+      cancelPath={UrlJoin("/wallet", "listings", match.params.listingId)}
     />
   );
 });

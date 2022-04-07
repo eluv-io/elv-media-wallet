@@ -207,6 +207,8 @@ class CheckoutStore {
       this.rootStore.SetSessionStorage("successPath", UrlJoin(basePath, "success"));
       this.rootStore.SetSessionStorage("cancelPath", UrlJoin(basePath, "cancel"));
 
+      this.rootStore.SetSessionStorage("purchaseType", "listing");
+
       let requestParams = {
         currency: this.currency,
         email,
@@ -326,6 +328,8 @@ class CheckoutStore {
 
       this.rootStore.SetSessionStorage("successPath", UrlJoin(basePath.toString(), "success"));
       this.rootStore.SetSessionStorage("cancelPath", UrlJoin(basePath.toString(), "cancel"));
+
+      this.rootStore.SetSessionStorage("purchaseType", "store");
 
       let requestParams = {
         currency: this.currency,
