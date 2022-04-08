@@ -63,6 +63,10 @@ export const InitializeListener = (history) => {
     if(!event || !event.data || event.data.type !== "ElvMediaWalletClientRequest") { return; }
     const data = event.data;
 
+    while(!rootStore.client) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
     const Respond = ({response, error}) => {
       if(!target) { return; }
 
@@ -85,7 +89,7 @@ export const InitializeListener = (history) => {
     }
 
 
-    let contractAddress;
+    let contractAddress, marketplace;
     switch(data.action) {
       // client.SignIn
       case "login":
@@ -175,6 +179,30 @@ export const InitializeListener = (history) => {
           response: FormatNFT(
             ((await transferStore.FetchTransferListings({listingId: data.params.listingId})) || [])[0]
           )
+        });
+
+      // client.MarketplaceItems
+      case "marketplaceItems":
+        marketplace = await rootStore.LoadMarketplace(marketplaceInfo?.marketplaceId);
+
+        return Respond({
+          response: toJS(marketplace.items)
+        });
+
+      // client.MarketplaceStorefront
+      case "marketplaceStorefront":
+        marketplace = await rootStore.LoadMarketplace(marketplaceInfo?.marketplaceId);
+
+        let storefront = toJS(marketplace.storefront);
+        storefront.sections = storefront.sections.map(section => ({
+          ...section,
+          items: section.items
+            .map(sku => toJS(marketplace.items.find(item => item.sku === sku)))
+            .filter(item => item)
+        }));
+
+        return Respond({
+          response: storefront
         });
 
       // client.MarketplaceMetadata

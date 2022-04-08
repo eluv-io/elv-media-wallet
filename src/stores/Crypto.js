@@ -309,12 +309,22 @@ class CryptoStore {
 
       popupUrl.searchParams.set("provider", provider);
       popupUrl.searchParams.set("request", requestId);
+      popupUrl.searchParams.set("hn", "");
 
       popup.location.href = popupUrl.toString();
 
       return yield new Promise((resolve, reject) => {
         const Listener = event => {
-          if(!event || !event.data || event.data.type !== "ElvMediaWalletSignRequest" || event.data.requestId !== requestId) { return; }
+          if(
+            !event ||
+            !event.data ||
+            event.data.type !== "ElvMediaWalletSignRequest" ||
+            event.data.requestId !== requestId
+          ) { return; }
+
+          if(event.origin !== window.location.origin) {
+            reject("Spoofed response");
+          }
 
           window.removeEventListener("message", Listener);
 

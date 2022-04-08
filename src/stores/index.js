@@ -11,11 +11,14 @@ import TransferStore from "Stores/Transfer";
 
 import NFTContractABI from "../static/abi/NFTContract";
 import CryptoStore from "Stores/Crypto";
+import {v4 as UUID} from "uuid";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
   enforceActions: "always"
 });
+
+const searchParams = new URLSearchParams(window.location.search);
 
 const colors = [
   "#621B00",
@@ -70,10 +73,10 @@ class RootStore {
   DEBUG_ERROR_MESSAGE = "";
   network = EluvioConfiguration["config-url"].includes("main.net955305") ? "main" : "demo";
 
-  embedded = window.top !== window.self || new URLSearchParams(window.location.search).has("e");
+  embedded = window.top !== window.self || searchParams.has("e");
 
   // Opened by embedded window for purchase redirect
-  fromEmbed = new URLSearchParams(window.location.search).has("embed") ||
+  fromEmbed = searchParams.has("embed") ||
     this.GetSessionStorage("fromEmbed");
 
   mode = "test";
@@ -84,13 +87,13 @@ class RootStore {
   authInfo = undefined;
 
   requireLogin = false;
-  capturedLogin = this.embedded && new URLSearchParams(window.location.search).has("cl");
+  capturedLogin = this.embedded && searchParams.has("cl");
   showLogin = this.requireLogin;
 
   loggingIn = false;
   loggedIn = false;
   disableCloseEvent = false;
-  darkMode = !this.GetSessionStorage("light-mode") && !new URLSearchParams(window.location.search).has("lt");
+  darkMode = !this.GetSessionStorage("light-mode") && !searchParams.has("lt");
 
   availableMarketplaces = {};
 
@@ -120,7 +123,7 @@ class RootStore {
 
   specifiedMarketplaceId = undefined;
   hideGlobalNavigation = false;
-  hideNavigation = false;
+  hideNavigation = searchParams.has("hn");
   sidePanelMode = false;
 
   staticToken = undefined;
@@ -197,7 +200,7 @@ class RootStore {
     makeAutoObservable(this);
 
     if(
-      new URLSearchParams(window.location.search).has("rl") ||
+      searchParams.has("rl") ||
       this.GetSessionStorage("loginRequired")
     ) {
       this.requireLogin = true;
@@ -234,7 +237,7 @@ class RootStore {
         noAuth: true
       });
 
-      const marketplace = new URLSearchParams(window.location.search).get("mid") || (window.self === window.top && this.GetSessionStorage("marketplace")) || "";
+      const marketplace = searchParams.get("mid") || (window.self === window.top && this.GetSessionStorage("marketplace")) || "";
       let tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash;
       if(marketplace && marketplace.includes("/")) {
         tenantSlug = marketplace.split("/")[0];
@@ -257,7 +260,7 @@ class RootStore {
       }
 
       try {
-        const auth = new URLSearchParams(window.location.search).get("auth");
+        const auth = searchParams.get("auth");
         if(auth) {
           this.SetAuthInfo(JSON.parse(Utils.FromB64(auth)));
         }
@@ -1318,6 +1321,51 @@ class RootStore {
     // Reload page
     window.location.href = url.toString();
   }
+
+  RequestPermission = flow(function * ({requestor, action}) {
+    const popup = window.open("about:blank");
+    const requestId = btoa(UUID());
+
+    const popupUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
+
+    popupUrl.hash = "#/accept";
+    popupUrl.searchParams.set("rq", btoa(requestor));
+    popupUrl.searchParams.set("ac", btoa(action));
+    popupUrl.searchParams.set("request", btoa(requestId));
+    popupUrl.searchParams.set("hn", "");
+
+    popup.location.href = popupUrl.toString();
+
+    const accepted = yield new Promise((resolve) => {
+      const Listener = event => {
+        if(!event || !event.data || event.data.type !== "ElvMediaWalletAcceptResponse") {
+          return;
+        }
+
+        window.removeEventListener("message", Listener);
+
+        resolve(event.data.accept);
+      };
+
+      window.addEventListener("message", Listener);
+
+      const closeCheck = setInterval(async () => {
+        if(!popup || popup.closed) {
+          clearInterval(closeCheck);
+
+          resolve(false);
+        }
+      }, 500);
+    });
+
+    popup.close();
+
+    if(!accepted) {
+      throw Error("User has rejected the request");
+    }
+
+    return true;
+  });
 
   CheckEmailVerification = flow(function * (auth0) {
     try {

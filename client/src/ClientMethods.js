@@ -16,13 +16,19 @@
  * @namedParams
  * @param {string=} tenantSlug - Specify the URL slug of your tenant. Required if specifying marketplaceSlug
  * @param {string=} marketplaceSlug - Specify the URL slug of your marketplace
- * @param {string=} marketplaceId - The ID of the marketplace
- * @param {string=} marketplaceHash - A version hash of the marketplace
  *
  * @return {Promise<string>} - The version hash of the specified marketplace
  */
 exports.SetMarketplace = async function ({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash}) {
-  return this.SendMessage({action: "setMarketplace", params: { tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash }});
+  return this.SendMessage({
+    action: "setMarketplace",
+    params: {
+      tenantSlug,
+      marketplaceSlug,
+      marketplaceId,
+      marketplaceHash
+    }}
+  );
 };
 
 /**
@@ -78,10 +84,10 @@ exports.UserProfile = async function () {
 /**
  * Retrieve the full metadata for the specified marketplace object (starting from `/public/asset_metadata/info`)
  *
- * @methodGroup Metadata
+ * @methodGroup Marketplace
+ * @namedParams
  * @param {string=} tenantSlug - Specify the URL slug of the marketplace's tenant. Required if specifying marketplace slug
  * @param {string=} marketplaceSlug - Specify the URL slug of the marketplace
- * @param {string=} marketplaceHash - Specify a specific version of a the marketplace. Not necessary if marketplaceSlug is specified
  *
  * @return Promise<Object> - The full metadata of the marketplace
  */
@@ -100,7 +106,8 @@ exports.MarketplaceMetadata = async function ({tenantSlug, marketplaceSlug, mark
 /**
  * Retrieve the full metadata for the specified event object (starting from `/public/asset_metadata`)
  *
- * @methodGroup Metadata
+ * @methodGroup Event
+ * @namedParams
  * @param {string=} tenantSlug - Specify the URL slug of the event's tenant. Required if specifying event slug
  * @param {string=} eventSlug - Specify the URL slug of the event
  * @param {string=} eventHash - Specify a specific version of a the event. Not necessary if eventSlug is specified
@@ -115,6 +122,49 @@ exports.EventMetadata = async function ({tenantSlug, eventSlug, eventId, eventHa
       eventSlug,
       eventId,
       eventHash
+    }
+  });
+};
+
+/**
+ * Retrieve all items from the specified marketplace.
+ *
+ * Note that this includes items that may not be for displayed sale in the marketplace. For information specifically about items displayed
+ * for sale, see the <a href="#MarketplaceStorefront">MarketplaceStorefront method</a>.
+ *
+ * @methodGroup Marketplace
+ * @namedParams
+ * @param {string=} tenantSlug - Specify the URL slug of the marketplace's tenant. Required if specifying marketplace slug
+ * @param {string=} marketplaceSlug - Specify the URL slug of the marketplace
+ */
+exports.MarketplaceItems = async function({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash}) {
+  return await this.SendMessage({
+    action: "marketplaceItems",
+    params: {
+      tenantSlug,
+      marketplaceSlug,
+      marketplaceId,
+      marketplaceHash
+    }
+  });
+};
+
+/**
+ * Retrieve information about the items displayed for sale in the specified marketplace
+ *
+ * @methodGroup Marketplace
+ * @namedParams
+ * @param {string=} tenantSlug - Specify the URL slug of the marketplace's tenant. Required if specifying marketplace slug
+ * @param {string=} marketplaceSlug - Specify the URL slug of the marketplace
+ */
+exports.MarketplaceStorefront = async function({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash}) {
+  return await this.SendMessage({
+    action: "marketplaceStorefront",
+    params: {
+      tenantSlug,
+      marketplaceSlug,
+      marketplaceId,
+      marketplaceHash
     }
   });
 };
@@ -263,8 +313,6 @@ exports.Listings = async function ({
  * @methodGroup Listings
  * @namedParams
  * @param {string=} contractAddress - The address of the contract. Either contractAddress or contractId is required.
- * @param {string=} contractId - The ID of the contract. Either contractAddress or contractId is required.
- * @param {string} tokenId - The ID of the item
  *
  * @return Promise<Object> - Information about the requested item. Returns undefined if the item was not found.
  */
