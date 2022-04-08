@@ -12,10 +12,8 @@ import ImageIcon from "Components/common/ImageIcon";
 import {roundToDown} from "round-to";
 
 import CreditCardIcon from "Assets/icons/credit card icon.svg";
-import EthereumIcon from "Assets/icons/ethereum-eth-logo.svg";
-import SolanaIcon from "Assets/icons/solana icon.svg";
 import WalletIcon from "Assets/icons/wallet balance button icon.svg";
-import LinkedWalletIcon from "Assets/icons/linked wallet icon.svg";
+import CoinbaseIcon from "Assets/icons/crypto/coinbase-logo.png";
 import WalletConnect from "Components/crypto/WalletConnect";
 import USDCIcon from "Assets/icons/USDC coin icon.svg";
 
@@ -84,10 +82,18 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
   const price = listingId ? { USD: selectedListing.details.Price } : marketplaceItem.price;
   const total = price.USD * quantity;
   const fee = Math.max(1, roundToDown(total * 0.05, 2));
+  const balanceAmount = useLinkedWallet ? cryptoStore.phantomUSDCBalance : rootStore.availableWalletBalance;
+  const balanceName = useLinkedWallet ? "USDC Balance" : "Wallet Balance";
+  const balanceIcon = useLinkedWallet ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC" /> : null;
 
-  const insufficientBalance = !useLinkedWallet && rootStore.availableWalletBalance < total + fee;
+  const insufficientBalance = balanceAmount < total + fee;
+
 
   useEffect(() => {
+    if(useLinkedWallet) {
+      cryptoStore.PhantomBalance();
+    }
+
     if(!stock) { return; }
 
     // If item has stock, periodically update
@@ -103,6 +109,8 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
   if(redirectPath) {
     return <Redirect to={redirectPath} />;
   }
+
+
 
   return (
     <div className="listing-purchase-confirmation-modal">
@@ -125,7 +133,7 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
               { nft.metadata.display_name } { quantity > 1 ? <div className="listing-purchase-modal__quantity">&nbsp;x {quantity}</div> : "" }
             </div>
             <div className="listing-purchase-modal__order-price">
-              { selectedListing && selectedListing?.details.USDCAccepted ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC" /> : null }
+              { balanceIcon }
               { FormatPriceString({USD: total}) }
             </div>
           </div>
@@ -134,7 +142,7 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
               Service Fee
             </div>
             <div className="listing-purchase-modal__order-price">
-              { selectedListing && selectedListing?.details.USDCAccepted ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC" /> : null }
+              { balanceIcon }
               { FormatPriceString({USD: fee}) }
             </div>
           </div>
@@ -144,41 +152,41 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
               Total
             </div>
             <div className="listing-purchase-modal__order-price">
-              { selectedListing && selectedListing?.details.USDCAccepted ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC" /> : null }
+              { balanceIcon }
               { FormatPriceString({USD: total + fee}) }
             </div>
           </div>
         </div>
-        {
-          useLinkedWallet ? null :
-            <div className="listing-purchase-modal__order-details listing-purchase-modal__order-details-box">
-              <div className="listing-purchase-modal__order-line-item">
-                <div className="listing-purchase-modal__order-label">
-                  Available Wallet Balance
-                </div>
-                <div className="listing-purchase-modal__order-price">
-                  {FormatPriceString({USD: rootStore.availableWalletBalance || 0})}
-                </div>
-              </div>
-              <div className="listing-purchase-modal__order-line-item">
-                <div className="listing-purchase-modal__order-label">
-                  Current Purchase
-                </div>
-                <div className="listing-purchase-modal__order-price">
-                  {FormatPriceString({USD: total + fee})}
-                </div>
-              </div>
-              <div className="listing-purchase-modal__order-separator"/>
-              <div className="listing-purchase-modal__order-line-item">
-                <div className="listing-purchase-modal__order-label">
-                  Remaining Wallet Balance
-                </div>
-                <div className="listing-purchase-modal__order-price">
-                  {FormatPriceString({USD: rootStore.availableWalletBalance - (total + fee)})}
-                </div>
-              </div>
+        <div className="listing-purchase-modal__order-details listing-purchase-modal__order-details-box">
+          <div className="listing-purchase-modal__order-line-item">
+            <div className="listing-purchase-modal__order-label">
+              Available { balanceName }
             </div>
-        }
+            <div className="listing-purchase-modal__order-price">
+              { balanceIcon }
+              {FormatPriceString({USD: balanceAmount || 0})}
+            </div>
+          </div>
+          <div className="listing-purchase-modal__order-line-item">
+            <div className="listing-purchase-modal__order-label">
+              Current Purchase
+            </div>
+            <div className="listing-purchase-modal__order-price">
+              { balanceIcon }
+              {FormatPriceString({USD: total + fee})}
+            </div>
+          </div>
+          <div className="listing-purchase-modal__order-separator"/>
+          <div className="listing-purchase-modal__order-line-item">
+            <div className="listing-purchase-modal__order-label">
+              Remaining { balanceName }
+            </div>
+            <div className="listing-purchase-modal__order-price">
+              { balanceIcon }
+              {FormatPriceString({USD: balanceAmount - (total + fee)})}
+            </div>
+          </div>
+        </div>
         <div className="listing-purchase-modal__actions listing-purchase-wallet-balance-actions">
           <ButtonWithLoader
             disabled={!available || outOfStock || insufficientBalance || failed}
@@ -234,7 +242,7 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
                 errorMessage ? errorMessage :
                   outOfStock ? "This item is out of stock" :
                     !available ? "This item is no longer available" :
-                      "Insufficient wallet balance"
+                      `Insufficient ${balanceName}`
               }
             </div> : null
         }
@@ -342,10 +350,9 @@ const ListingPurchasePayment = observer(({nft, marketplaceItem, selectedListing,
               className={`action listing-purchase-confirmation-modal__payment-selection listing-purchase-confirmation-modal__payment-selection-crypto ${paymentType === "coinbase" ? "listing-purchase-confirmation-modal__payment-selection-selected" : ""}`}
             >
               <div className="listing-purchase-confirmation-modal__payment-selection-icons listing-purchase-confirmation-modal__payment-selection-icons-crypto">
-                <ImageIcon icon={SolanaIcon} className="listing-purchase-confirmation-modal__payment-selection-icon" title="Solana" />
-                <ImageIcon icon={EthereumIcon} className="listing-purchase-confirmation-modal__payment-selection-icon" title="Ethereum" />
+                <ImageIcon icon={CoinbaseIcon} className="listing-purchase-confirmation-modal__payment-selection-icon" title="Coinbase" />
               </div>
-              Crypto
+              Crypto via Coinbase
             </button>
             <button
               onClick={() => setPaymentType("wallet-balance")}
@@ -366,9 +373,9 @@ const ListingPurchasePayment = observer(({nft, marketplaceItem, selectedListing,
                   onClick={() => setPaymentType("linked-wallet")}
                   className={`action listing-purchase-confirmation-modal__payment-selection listing-purchase-confirmation-modal__payment-selection-linked-wallet ${paymentType === "linked-wallet" ? "listing-purchase-confirmation-modal__payment-selection-selected" : ""}`}
                 >
-                  <div className="listing-purchase-confirmation-modal__payment-selection-icons">
+                  <div className="listing-purchase-confirmation-modal__payment-selection-icons listing-purchase-confirmation-modal__payment-selection-icons-crypto">
                     <ImageIcon
-                      icon={LinkedWalletIcon}
+                      icon={USDCIcon}
                       className="listing-purchase-confirmation-modal__payment-selection-icon"
                       title="Linked Wallet"
                     />

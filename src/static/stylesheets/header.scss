@@ -43,7 +43,6 @@
     height: 100%;
     justify-content: flex-end;
     margin-left: 10px;
-    max-width: 190px;
     position: relative;
     user-select: none;
   }
@@ -54,36 +53,53 @@
 
   &__profile__name {
     font-size: 12px;
-    max-width: 15em;
     overflow: hidden;
     text-align: right;
     text-overflow: ellipsis;
     white-space: nowrap;
+    width: 100%;
   }
 
-  &__profile__sub {
+  &__profile__balances {
     align-items: center;
     display: flex;
   }
 
-  &__profile__connected-button {
+  &__profile__usdc {
     display: flex;
     height: 20px;
     margin-right: 3px;
     padding: 3px;
+  }
 
-    svg {
-      height: 100%;
-    }
+  .header__profile__connected-icon--disconnected {
+    filter: grayscale(100%);
   }
 
   &__profile__balance {
     align-items: center;
+    background-color: $lightgray;
+    border-radius: 3px;
     color: $darkgray;
     display: flex;
     font-size: 12px;
-    height: 100%;
+    height: 20px;
     justify-content: flex-end;
+    padding: 2px 5px;
+
+    svg,
+    img {
+      height: 15px;
+      min-width: 15px;
+    }
+
+    svg {
+      filter: invert(100%);
+    }
+  }
+
+  &__profile__balance__amount {
+    margin-left: 5px;
   }
 
   &__profile__image {
@@ -361,15 +377,37 @@
 }
 
 @media screen and (min-width: $tablet-breakpoint) {
-  .global-header--marketplace {
+  .global-header {
     .header__profile {
       position: absolute;
       right: 15px;
+    }
+
+    &:not(&--marketplace) {
+      justify-content: center;
+      position: relative;
+
+      .global-header__logo-container {
+        left: 15px;
+        position: absolute;
+      }
     }
   }
 }
 
 @media screen and (max-width: $breakpoint) {
+  .global-header {
+    &__navigation-link {
+      font-size: 12px;
+    }
+
+    .header__profile__usdc {
+      .header__profile__balance__amount {
+        display: none;
+      }
+    }
+  }
+
   .subheader {
     &__header {
       font-size: 20px;
@@ -382,6 +420,14 @@
     .subheader__navigation-link {
       margin: 0 5px;
     }
+  }
+
+  .header__profile {
+    max-width: 240px;
+  }
+
+  .header__profile__balance__amount {
+    font-size: 10px;
   }
 }
 
@@ -397,8 +443,10 @@
       flex: 1 1 100%;
       max-width: unset;
 
-      &__info {
-        max-width: 120px;
+      &__usdc {
+        .header__profile__balance__amount {
+          display: none;
+        }
       }
     }
   }
@@ -446,6 +494,12 @@
   }
 }
 
+@media screen and (max-width: $mobile-breakpoint) {
+  .header__profile__image {
+    display: none;
+  }
+}
+
 .dark {
   .global-header-container {
     background-color: $header-color-dark;
@@ -465,6 +519,15 @@
 
     &__separator {
       border-bottom: 1px solid $darkergray;
+    }
+  }
+
+  .header__profile__balance {
+    background-color: $darkergray;
+    color: $white;
+
+    svg {
+      filter: none;
     }
   }
 }

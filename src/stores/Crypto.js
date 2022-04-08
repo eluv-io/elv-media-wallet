@@ -15,6 +15,7 @@ class CryptoStore {
 
   phantomAddress = undefined;
   phantomBalance = 0;
+  phantomUSDCBalance = 0;
 
   transferredNFTs = {};
   connectedAccounts = {
@@ -68,6 +69,8 @@ class CryptoStore {
       }
 
       this.connectedAccounts = connectedAccounts;
+
+      this.PhantomBalance();
     } catch(error) {
       this.rootStore.Log("Failed to load connected accounts:", true);
       this.rootStore.Log(error, true);
@@ -293,7 +296,8 @@ class CryptoStore {
           }
 
           if(event.data.balance) {
-            this.phantomBalance = event.data.balance;
+            this.phantomBalance = event.data.balance?.sol || 0;
+            this.phantomUSDCBalance = event.data.balance?.usdc || 0;
           }
 
           resolve(event.data.response);
@@ -349,16 +353,44 @@ class CryptoStore {
   }
 
   PhantomBalance = flow(function * () {
-    const { Connection, clusterApiUrl } = yield import("@solana/web3.js");
+    const { Connection, clusterApiUrl, PublicKey } = yield import("@solana/web3.js");
 
-    const connection = new Connection(
-      clusterApiUrl(this.rootStore.client.networkName === "main" ? "mainnet-beta" : "devnet"),
-      "confirmed"
-    );
+    let publicKey = Object.keys(this.connectedAccounts.sol)[0];
 
-    this.phantomBalance = yield connection.getBalance(window.solana.publicKey);
+    if(!publicKey) {
+      this.phantomBalance = 0;
+      this.phantomUSDCBalance = 0;
+      return;
+    }
 
-    return this.phantomBalance;
+    console.log("RETRIEVING PHANTOM BALANCE");
+
+    publicKey = new PublicKey(publicKey);
+
+    let network, token;
+    if(this.rootStore.client.networkName === "main") {
+      network = "mainnet-beta";
+      token = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+    } else {
+      network = "devnet";
+      token = new PublicKey("8uZyvyKSAxgRLMCxdrcRCppYEgokH2xBLrXshL6wCzJ4");
+    }
+
+    const connection = new Connection(clusterApiUrl(network), "confirmed");
+
+    this.phantomBalance = yield connection.getBalance(publicKey, "confirmed");
+
+    try {
+      const tokenBalances = yield connection.getTokenAccountsByOwner(publicKey, {mint: token}, "confirmed");
+      const tokenKey = tokenBalances.value[0].pubkey;
+      this.phantomUSDCBalance = (yield connection.getTokenAccountBalance(tokenKey, "confirmed")).value.uiAmount;
+    // eslint-disable-next-line no-empty
+    } catch(error) {}
+
+    return {
+      sol: this.phantomBalance,
+      usdc: this.phantomUSDCBalance
+    };
   });
 
   UpdateMetamaskInfo() {

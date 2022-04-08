@@ -6,8 +6,6 @@ import {ButtonWithLoader} from "Components/common/UIComponents";
 import Confirm from "Components/common/Confirm";
 import Modal from "Components/common/Modal";
 
-import WalletUnlinkedIcon from "Assets/icons/unlinked wallet icon.svg";
-import WalletLinkedIcon from "Assets/icons/linked wallet icon.svg";
 import USDCIcon from "Assets/icons/USDC coin icon.svg";
 
 
@@ -104,8 +102,10 @@ const WalletConnect = observer(() => {
   );
 });
 
-export const WalletConnectButton = observer(() => {
+export const WalletHeader = observer(() => {
   const [showMenu, setShowMenu] = useState(false);
+
+  const wallet = cryptoStore.WalletFunctions("phantom");
 
   return (
     <>
@@ -115,15 +115,22 @@ export const WalletConnectButton = observer(() => {
           event.preventDefault();
           setShowMenu(!showMenu);
         }}
-        className="header__profile__connected-button"
+        className="header__profile__balance header__profile__usdc"
         title="Connect Phantom"
       >
         <ImageIcon
-          icon={cryptoStore.usdcConnected ? WalletLinkedIcon : WalletUnlinkedIcon}
+          icon={wallet.logo}
           label="Not Connected"
+          className={`header__profile__connected-icon ${cryptoStore.usdcConnected ? "header__profile__connected-icon--connected" : "header__profile__connected-icon--disconnected"}`}
         />
-      </button>
 
+        {
+          cryptoStore.usdcConnected ?
+            <div className="header__profile__balance__amount header__profile__usdc__balance">
+              { (cryptoStore.phantomUSDCBalance || 0).toFixed(2) } USDC
+            </div> : null
+        }
+      </button>
 
       {
         showMenu ? <Modal Toggle={() => setShowMenu(false)} className="wallet-connect-modal"><WalletConnect /></Modal> : null

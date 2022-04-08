@@ -1151,6 +1151,8 @@ class RootStore {
       });
 
       yield this.GetWalletBalance(false);
+
+      this.cryptoStore.PhantomBalance();
     }
   });
 
