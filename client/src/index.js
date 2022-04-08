@@ -610,6 +610,6 @@ const walletClient = await ElvWalletClient.InitializePopup({
 ElvWalletClient.EVENTS = EVENTS;
 ElvWalletClient.LOG_LEVELS = LOG_LEVELS;
 
-Object.assign(ElvWalletClient.prototype, require("./Methods"));
+Object.assign(ElvWalletClient.prototype, require("./ClientMethods"));
 
 exports.ElvWalletClient = ElvWalletClient;

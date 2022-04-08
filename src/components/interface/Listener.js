@@ -37,6 +37,10 @@ const FormatNFT = (nft) => {
   nft.tokenId = nft.details.TokenIdStr;
   nft.name = nft.metadata.display_name;
 
+  if(nft.details.ListingId) {
+    nft.listingId = nft.details.ListingId;
+  }
+
   return nft;
 };
 
@@ -70,6 +74,18 @@ export const InitializeListener = (history) => {
       }, "*");
     };
 
+    let marketplaceInfo;
+    if(data?.params?.marketplaceSlug) {
+      marketplaceInfo = await rootStore.MarketplaceInfo({
+        tenantSlug: data.params.tenantSlug,
+        marketplaceSlug: data.params.marketplaceSlug,
+        marketplaceId: data.params.marketplaceId,
+        marketplaceHash: data.params.marketplaceHash
+      });
+    }
+
+
+    let contractAddress;
     switch(data.action) {
       // client.SignIn
       case "login":
@@ -81,44 +97,38 @@ export const InitializeListener = (history) => {
           tenantId: data.params.tenantId
         });
 
-        Respond({});
-
-        break;
+        return Respond({});
 
       // client.SignOut
       case "logout":
         await rootStore.SignOut();
 
-        Respond({});
-
-        break;
+        return Respond({});
 
       // client.Profile
       case "profile":
         if(!rootStore.loggedIn) {
-          Respond({response: null});
+          return Respond({response: null});
         }
 
         let profile = toJS(rootStore.userProfile);
         delete profile.profileImage;
 
-        Respond({response: profile});
+        return Respond({response: profile});
 
-        break;
+      // client.Stock
+      case "stock":
+        return Respond({response: toJS(await checkoutStore.MarketplaceStock({tenantId: marketplaceInfo?.tenantId}))});
 
       // client.ItemNames
       case "itemNames":
-        Respond({response: await transferStore.ListingNames({marketplaceId: rootStore.MarketplaceId({...data.params})})});
-
-        return;
+        return Respond({response: await transferStore.ListingNames({marketplaceId: marketplaceInfo?.marketplaceId})});
 
       // client.Items
       case "items":
-        await rootStore.LoadNFTInfo();
+        contractAddress = data.params.contractAddress || (data.params.contractId && Utils.HashToAddress(data.params.contractId));
 
-        const contractAddress = data.params.contractAddress || (data.params.contractId && Utils.HashToAddress(data.params.contractId));
-
-        Respond({
+        return Respond({
           response: (
             await transferStore.FilteredQuery({
               mode: "owned",
@@ -132,37 +142,50 @@ export const InitializeListener = (history) => {
           ).results || []
         });
 
-        break;
-
       // client.Item
       case "item":
-        Respond({
-          response: await FormatNFT(
+        return Respond({
+          response: FormatNFT(
             await rootStore.LoadNFTData({contractAddress: data.params.contractAddress, contractId: data.params.contractId, tokenId: data.params.tokenId})
           )
         });
 
-        break;
+      // client.Listings
+      case "listings":
+        contractAddress = data.params.contractAddress || (data.params.contractId && Utils.HashToAddress(data.params.contractId));
+
+        return Respond({
+          response: (
+            await transferStore.FilteredQuery({
+              mode: "listings",
+              sortBy: data.params.sortBy,
+              sortDesc: data.params.sortDesc,
+              filter: data.params.filter,
+              contractAddress,
+              tenantIds: marketplaceInfo ? [ marketplaceInfo.tenantId ] : [],
+              start: data.params.start || 0,
+              limit: data.params.limit || 50
+            })
+          )
+        });
+
+      // client.Listing
+      case "listing":
+        return Respond({
+          response: FormatNFT(
+            ((await transferStore.FetchTransferListings({listingId: data.params.listingId})) || [])[0]
+          )
+        });
 
       // client.MarketplaceMetadata
       case "marketplaceMetadata":
-        // Ensure marketplace is loaded
-        const { marketplaceId } = await rootStore.MarketplaceInfo({
-          tenantSlug: data.params.tenantSlug,
-          marketplaceSlug: data.params.marketplaceSlug,
-          marketplaceId: data.params.marketplaceId,
-          marketplaceHash: data.params.marketplaceHash
+        return Respond({
+          response: await rootStore.LoadMarketplace(marketplaceInfo?.marketplaceId)
         });
-
-        Respond({
-          response: await rootStore.LoadMarketplace(marketplaceId)
-        });
-
-        break;
 
       // client.EventMetadata
       case "eventMetadata":
-        Respond({
+        return Respond({
           response: await rootStore.LoadEvent({
             tenantSlug: data.params.tenantSlug,
             eventSlug: data.params.eventSlug,
@@ -171,18 +194,8 @@ export const InitializeListener = (history) => {
           })
         });
 
-        break;
-
       // client.SetMarketplace
       case "setMarketplace":
-        // Ensure marketplace is loaded
-        await rootStore.MarketplaceInfo({
-          tenantSlug: data.params.tenantSlug,
-          marketplaceSlug: data.params.marketplaceSlug,
-          marketplaceId: data.params.marketplaceId,
-          marketplaceHash: data.params.marketplaceHash
-        });
-
         const marketplaceHash = await rootStore.SetMarketplace({
           tenantSlug: data.params.tenantSlug,
           marketplaceSlug: data.params.marketplaceSlug,
@@ -190,25 +203,19 @@ export const InitializeListener = (history) => {
           marketplaceHash: data.params.marketplaceHash
         });
 
-        Respond({response: marketplaceHash});
-
-        break;
+        return Respond({response: marketplaceHash});
 
       // client.SetMarketplaceFilters, client.ClearMarketplaceFilters
       case "setMarketplaceFilters":
         await rootStore.SetMarketplaceFilters(data.params.filters);
 
-        Respond({});
-
-        break;
+        return Respond({});
 
       // client.CurrentPath
       case "currentPath":
         const pathname = UrlJoin("/", window.location.hash.replace("#", ""));
 
-        Respond({response: pathname});
-
-        break;
+        return Respond({response: pathname});
 
       // client.Navigate
       case "navigate":
@@ -228,8 +235,7 @@ export const InitializeListener = (history) => {
           // Named page
           if(!pages[data.params.page]) {
             rootStore.Log(`Unknown page: ${data.params.page}`);
-            Respond({error: `Unknown page: ${data.params.page}`});
-            return;
+            return Respond({error: `Unknown page: ${data.params.page}`});
           }
 
           // Replace route variables
@@ -238,14 +244,6 @@ export const InitializeListener = (history) => {
           const params = (data.params || {}).params;
           if(params) {
             if(params.marketplaceSlug || params.marketplaceHash || params.marketplaceId) {
-              // Ensure marketplace is loaded
-              await rootStore.MarketplaceInfo({
-                tenantSlug: params.tenantSlug,
-                marketplaceSlug: params.marketplaceSlug,
-                marketplaceId: params.marketplaceId,
-                marketplaceHash: params.marketplaceHash
-              });
-
               await rootStore.SetMarketplace({
                 tenantSlug: params.tenantSlug,
                 marketplaceSlug: params.marketplaceSlug,
@@ -264,29 +262,25 @@ export const InitializeListener = (history) => {
           history.push(route);
         }
 
-        Respond({
-          response: route
-        });
-
-        break;
+        return Respond({response: route});
 
       // client.ToggleNavigation
       case "toggleNavigation":
         rootStore.ToggleNavigation(data.params.enabled);
 
-        break;
+        return Respond({});
 
       // client.ToggleSidePanelMode
       case "toggleSidePanelMode":
         rootStore.ToggleSidePanelMode(data.params.enabled);
 
-        break;
+        return Respond({});
 
       // client.ToggleDarkMode
       case "toggleDarkMode":
         rootStore.ToggleDarkMode(data.params.enabled);
 
-        break;
+        return Respond({});
 
       // POPUP RESPONSES
       case "purchase":

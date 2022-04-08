@@ -46,6 +46,23 @@ exports.ClearMarketplaceFilters = async function () {
 };
 
 /**
+ * Retrieve available item stock for the specified marketplace. Items are keyed by their SKU. If an item's stock is not restricted,
+ * no entry will be present. If a user is currently logged in, the entry will contain the number of that item the current user owns.
+
+ * @methodGroup Marketplace
+ * @namedParams
+ * @param {string=} tenantSlug - Specify the URL slug of your tenant. Required if specifying marketplaceSlug
+ * @param {string=} marketplaceSlug - Specify the URL slug of your marketplace
+ * @param {string=} marketplaceId - The ID of the marketplace
+ * @param {string=} marketplaceHash - A version hash of the marketplace
+ *
+ * @return {Promise<Object>} - Information about available stock in the specified marketplace
+ */
+exports.MarketplaceStock = async function ({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash}) {
+  return this.SendMessage({action: "stock", params: { tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash }});
+};
+
+/**
  * Return the current user's profile, including name, email and blockchain address.
  *
  * @methodGroup User
@@ -184,6 +201,82 @@ exports.Item = async function ({contractAddress, contractId, tokenId}) {
       contractAddress,
       contractId,
       tokenId: tokenId.toString()
+    }
+  });
+};
+
+/**
+ * Return available listings
+ *
+ * @methodGroup Listings
+ * @namedParams
+ * @param {number=} start=0 - Index to start listing at
+ * @param {number=} limit=50 - Maximum number of results to return
+ * @param {string=} sortBy=created - Sort order for the results. Available sort options:
+ <ul>
+  <li>- created</li>
+  <li>- info/ordinal</li>
+  <li>- price</li>
+  <li>- nft/display_name</li>
+ </ul>
+ * @param {boolean=} sortDesc=false - Sort in descending order
+ * @param {string=} filter - Filter results by item name. NOTE: This string must be an *exact match* on the item name.
+ * You can retrieve all available item names from the <a href="#ItemNames">ItemNames</a> method
+ * @param {string=} tenantSlug - Specify the URL slug of a marketplace's tenant. Required if specifying marketplace slug
+ * @param {string=} marketplaceSlug - Filter listings by marketplace
+ * @param {string=} contractAddress - Filter results by contract address
+ * @param {string=} contractId - Filter results by contract ID
+ *
+ * @methodGroup Listings
+ * @return Promise<Array<Object>> - Information about the items in the user's wallet.
+ */
+exports.Listings = async function ({
+  start=0,
+  limit=50,
+  tenantSlug,
+  marketplaceSlug,
+  sortBy="created",
+  sortDesc=false,
+  filter,
+  contractAddress,
+  contractId
+}={}) {
+  return await this.SendMessage({
+    action: "listings",
+    params: {
+      start,
+      limit,
+      marketplaceSlug,
+      tenantSlug,
+      sortBy,
+      sortDesc,
+      filter,
+      contractAddress,
+      contractId
+    }
+  });
+};
+
+/**
+ * Return info about a specific item in the user's wallet
+ *
+ * @methodGroup Listings
+ * @namedParams
+ * @param {string=} contractAddress - The address of the contract. Either contractAddress or contractId is required.
+ * @param {string=} contractId - The ID of the contract. Either contractAddress or contractId is required.
+ * @param {string} tokenId - The ID of the item
+ *
+ * @return Promise<Object> - Information about the requested item. Returns undefined if the item was not found.
+ */
+exports.Listing = async function ({listingId}) {
+  if(!listingId) {
+    throw Error("Eluvio Wallet Client: Listing ID not provided in Listing call");
+  }
+
+  return await this.SendMessage({
+    action: "listing",
+    params: {
+      listingId
     }
   });
 };

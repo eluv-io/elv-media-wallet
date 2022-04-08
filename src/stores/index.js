@@ -502,18 +502,6 @@ class RootStore {
     this.nftInfo = nftInfo;
   });
 
-
-  MarketplaceId({tenantSlug, marketplaceSlug}) {
-    if(!marketplaceSlug) { return; }
-
-    const marketplace = this.allMarketplaces.find(marketplace =>
-      marketplace.tenantSlug === tenantSlug &&
-      marketplace.marketplaceSlug === marketplaceSlug
-    );
-
-    if(marketplace) { return marketplace.marketplaceId; }
-  }
-
   // If marketplace slug is specified, load only that marketplace. Otherwise load all
   LoadAvailableMarketplaces = flow(function * ({tenantSlug, marketplaceSlug, forceReload}={}) {
     if(!forceReload && this.availableMarketplaces["_ALL_LOADED"]) {
