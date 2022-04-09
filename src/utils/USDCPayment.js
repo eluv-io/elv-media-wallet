@@ -1,8 +1,7 @@
 import {
   Connection,
   PublicKey,
-  Transaction,
-  sendAndConfirmRawTransaction,
+  Transaction
 } from "@solana/web3.js";
 import { setupCreatePaymentIxns } from "@eluvio/elv-paymentgate/lib/paymentgate";
 import { getAssociatedTokenAddress } from "@solana/spl-token/lib/esm/state/mint.mjs";
@@ -53,7 +52,8 @@ const SendPayment = async ({spec, payer, Sign}) => {
   transaction.sign(payerTokens);
   const signedTransaction = await Sign(transaction);
 
-  return await sendAndConfirmRawTransaction(connection, signedTransaction.serialize());
+  // signature
+  return connection.sendRawTransaction(signedTransaction.serialize());
 };
 
 export default SendPayment;

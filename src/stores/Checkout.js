@@ -20,6 +20,8 @@ class CheckoutStore {
   pendingPurchases = {};
   completedPurchases = {};
 
+  solanaSignatures = {};
+
   get client() {
     return this.rootStore.client;
   }
@@ -27,6 +29,13 @@ class CheckoutStore {
   constructor(rootStore) {
     this.rootStore = rootStore;
     makeAutoObservable(this);
+
+    if(this.rootStore.GetSessionStorage("solana-signatures")) {
+      try {
+        this.solanaSignatures = JSON.parse(this.rootStore.GetSessionStorage("solana-signatures"));
+      // eslint-disable-next-line no-empty
+      } catch(error) {}
+    }
   }
 
   ConfirmationId(uuid) {
@@ -223,7 +232,7 @@ class CheckoutStore {
         requestParams.mode = EluvioConfiguration["mode"];
       }
 
-      yield this.CheckoutRedirect({provider, requestParams});
+      yield this.CheckoutRedirect({provider, requestParams, confirmationId});
 
       return { confirmationId, successPath: UrlJoin(basePath, "success") };
     } catch(error) {
@@ -345,7 +354,7 @@ class CheckoutStore {
         requestParams.mode = EluvioConfiguration["mode"];
       }
 
-      yield this.CheckoutRedirect({provider, requestParams});
+      yield this.CheckoutRedirect({provider, requestParams, confirmationId});
 
       return { confirmationId, successPath: UrlJoin(basePath, "success") };
     } catch(error) {
@@ -383,7 +392,7 @@ class CheckoutStore {
     }, 1000);
   }
 
-  CheckoutRedirect = flow(function * ({provider, requestParams}) {
+  CheckoutRedirect = flow(function * ({provider, requestParams, confirmationId}) {
     if(provider === "stripe") {
       const sessionId = (yield this.client.utils.ResponseToJson(
         this.client.authClient.MakeAuthServiceRequest({
@@ -443,6 +452,10 @@ class CheckoutStore {
       ));
 
       const signature = yield this.rootStore.cryptoStore.PurchasePhantom(response.params[0]);
+
+      this.solanaSignatures[confirmationId] = signature;
+
+      this.rootStore.SetSessionStorage("solana-signatures", JSON.stringify(this.solanaSignatures));
 
       this.rootStore.Log("Purchase transaction signature: " + signature);
     } else {

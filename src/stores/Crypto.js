@@ -46,6 +46,35 @@ class CryptoStore {
     }
   }
 
+  SolanaConnection = flow(function * () {
+    if(!this.solanaConnection) {
+      const {Connection, clusterApiUrl} = yield import("@solana/web3.js");
+
+      let network;
+      if(this.rootStore.client.networkName === "main") {
+        network = "mainnet-beta";
+      } else {
+        network = "devnet";
+      }
+
+      this.solanaConnection = new Connection(clusterApiUrl(network), "confirmed");
+    }
+
+    return this.solanaConnection;
+  });
+
+  SolanaTransactionLink(signature) {
+    const url = new URL("https://explorer.solana.com");
+
+    url.pathname = UrlJoin("tx", signature);
+
+    if(this.rootStore.client.networkName !== "main") {
+      url.searchParams.set("cluster", "devnet");
+    }
+
+    return url.toString();
+  }
+
   LoadConnectedAccounts = flow(function * () {
     try {
       const { links } = yield Utils.ResponseToJson(
@@ -353,7 +382,7 @@ class CryptoStore {
   }
 
   PhantomBalance = flow(function * () {
-    const { Connection, clusterApiUrl, PublicKey } = yield import("@solana/web3.js");
+    const { PublicKey } = yield import("@solana/web3.js");
 
     let publicKey = Object.keys(this.connectedAccounts.sol)[0];
 
@@ -363,20 +392,16 @@ class CryptoStore {
       return;
     }
 
-    console.log("RETRIEVING PHANTOM BALANCE");
-
     publicKey = new PublicKey(publicKey);
 
-    let network, token;
+    let token;
     if(this.rootStore.client.networkName === "main") {
-      network = "mainnet-beta";
       token = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
     } else {
-      network = "devnet";
       token = new PublicKey("8uZyvyKSAxgRLMCxdrcRCppYEgokH2xBLrXshL6wCzJ4");
     }
 
-    const connection = new Connection(clusterApiUrl(network), "confirmed");
+    const connection = yield this.SolanaConnection();
 
     this.phantomBalance = yield connection.getBalance(publicKey, "confirmed");
 
@@ -391,6 +416,31 @@ class CryptoStore {
       sol: this.phantomBalance,
       usdc: this.phantomUSDCBalance
     };
+  });
+
+  PhantomPurchaseStatus = flow(function * (confirmationId) {
+    try {
+      const signature = this.rootStore.checkoutStore.solanaSignatures[confirmationId];
+
+      if(!signature) { return { status: "unknown" }; }
+
+      const connection = yield this.SolanaConnection();
+
+      let confirmation = yield connection.getTransaction(signature);
+      if(!confirmation) {
+        confirmation = yield connection.confirmTransaction(signature);
+      }
+
+      return {
+        status: "complete",
+        confirmation
+      };
+    } catch(error) {
+      this.rootStore.Log("Solana transaction failed", true);
+      this.rootStore.Log(error, true);
+
+      return { status: "failed", errorMessage: "Solana transaction failed. Please try again later." };
+    }
   });
 
   UpdateMetamaskInfo() {

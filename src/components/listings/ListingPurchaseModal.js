@@ -133,7 +133,6 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
               { nft.metadata.display_name } { quantity > 1 ? <div className="listing-purchase-modal__quantity">&nbsp;x {quantity}</div> : "" }
             </div>
             <div className="listing-purchase-modal__order-price">
-              { balanceIcon }
               { FormatPriceString({USD: total}) }
             </div>
           </div>
@@ -142,7 +141,6 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
               Service Fee
             </div>
             <div className="listing-purchase-modal__order-price">
-              { balanceIcon }
               { FormatPriceString({USD: fee}) }
             </div>
           </div>
@@ -152,7 +150,6 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
               Total
             </div>
             <div className="listing-purchase-modal__order-price">
-              { balanceIcon }
               { FormatPriceString({USD: total + fee}) }
             </div>
           </div>
@@ -163,7 +160,6 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
               Available { balanceName }
             </div>
             <div className="listing-purchase-modal__order-price">
-              { balanceIcon }
               {FormatPriceString({USD: balanceAmount || 0})}
             </div>
           </div>
@@ -172,7 +168,6 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
               Current Purchase
             </div>
             <div className="listing-purchase-modal__order-price">
-              { balanceIcon }
               {FormatPriceString({USD: total + fee})}
             </div>
           </div>

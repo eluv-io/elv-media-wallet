@@ -21,6 +21,12 @@
     }
   }
 
+  &__transaction-link {
+    color: $blue;
+    font-size: 12px;
+    margin-top: 10px;
+  }
+
   &__navigation-message {
     color: $darkgray;
     font-size: 12px;
@@ -107,6 +113,10 @@
 
 .dark {
   .minting-status {
+    &__transaction-link {
+      color: $lightblue;
+    }
+
     &__navigation-message {
       color: $gray;
     }
