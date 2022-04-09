@@ -295,7 +295,7 @@ export const ListingPurchaseStatus = observer(() => {
             "Back to My Collection"
         }
         intervalPeriod={awaitingSolanaTransaction ? 10000 : 10}
-        transactionLink={cryptoStore.SolanaTransactionLink(solanaSignature)}
+        transactionLink={solanaSignature ? cryptoStore.SolanaTransactionLink(solanaSignature) : undefined}
         transactionLinkText="View your transaction on Solana Explorer"
       />
     );
