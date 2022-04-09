@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from "react";
-
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import {ProfileImage} from "Components/common/Images";
@@ -8,11 +7,13 @@ import {FormatPriceString} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import UrlJoin from "url-join";
 import Modal from "Components/common/Modal";
+import {WalletHeader} from "Components/crypto/WalletConnect";
 
 import BackIcon from "Assets/icons/arrow-left-circle.svg";
 import EluvioLogo from "Assets/images/EluvioLogo.png";
 import PlaceholderLogo from "Assets/icons/listing.svg";
 import MenuIcon from "Assets/icons/menu";
+import WalletIcon from "Assets/icons/wallet balance button icon.svg";
 
 const Profile = observer(() => {
   const location = useLocation();
@@ -38,12 +39,18 @@ const Profile = observer(() => {
         </div>
         {
           typeof rootStore.totalWalletBalance !== "undefined" ?
-            <div
-              className="header__profile__balance"
-              title={`Total balance: ${FormatPriceString({USD: rootStore.totalWalletBalance})}\nAvailable balance: ${FormatPriceString({USD: rootStore.availableWalletBalance}) }\nPending balance: ${FormatPriceString({USD: rootStore.pendingWalletBalance}) }`}
-            >
-              { FormatPriceString({USD: rootStore.totalWalletBalance}) }
-              { rootStore.pendingWalletBalance ? <div className="header__profile__pending-indicator">*</div> : null}
+            <div className="header__profile__balances">
+              <WalletHeader />
+              <div
+                className="header__profile__balance"
+                title={`Total balance: ${FormatPriceString({USD: rootStore.totalWalletBalance})}\nAvailable balance: ${FormatPriceString({USD: rootStore.availableWalletBalance}) }\nPending balance: ${FormatPriceString({USD: rootStore.pendingWalletBalance}) }`}
+              >
+                <ImageIcon icon={WalletIcon} label="Wallet Balance" />
+                <div className="header__profile__balance__amount">
+                  { FormatPriceString({USD: rootStore.totalWalletBalance}) }
+                  { rootStore.pendingWalletBalance ? <div className="header__profile__pending-indicator">*</div> : null}
+                </div>
+              </div>
             </div> : null
         }
       </div>
@@ -52,7 +59,6 @@ const Profile = observer(() => {
   );
 });
 
-// TODO: Add log in link
 const MobileNavigationMenu = observer(({marketplace, Close}) => {
   let links;
   if(!marketplace) {
@@ -95,7 +101,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
           if(hidden || (authed && !rootStore.loggedIn)) { return null; }
 
           if(separator) {
-            return <div className="mobile-navigation__separator" />;
+            return <div key="mobile-link-separator" className="mobile-navigation__separator" />;
           }
 
           return (
@@ -104,13 +110,6 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
             </NavLink>
           );
         })
-      }
-      {
-        // TODO: change
-        !rootStore.loggedIn ?
-          <NavLink to="/newlogin" className="mobile-navigation__link" onClick={Close}>
-            Log In
-          </NavLink> : null
       }
     </div>
   );

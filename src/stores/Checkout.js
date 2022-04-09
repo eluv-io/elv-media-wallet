@@ -20,6 +20,8 @@ class CheckoutStore {
   pendingPurchases = {};
   completedPurchases = {};
 
+  solanaSignatures = {};
+
   get client() {
     return this.rootStore.client;
   }
@@ -27,10 +29,21 @@ class CheckoutStore {
   constructor(rootStore) {
     this.rootStore = rootStore;
     makeAutoObservable(this);
+
+    if(this.rootStore.GetSessionStorage("solana-signatures")) {
+      try {
+        this.solanaSignatures = JSON.parse(this.rootStore.GetSessionStorage("solana-signatures"));
+      // eslint-disable-next-line no-empty
+      } catch(error) {}
+    }
   }
 
-  ConfirmationId() {
-    return Utils.B58(UUIDParse(UUID()));
+  ConfirmationId(uuid) {
+    if(uuid) {
+      return UUID();
+    } else {
+      return Utils.B58(UUIDParse(UUID()));
+    }
   }
 
   MarketplaceStock = flow(function * ({tenantId}) {
@@ -128,7 +141,7 @@ class CheckoutStore {
   }) {
     if(this.submittingOrder) { return; }
 
-    const requiresPopup = this.rootStore.embedded && provider !== "wallet-balance";
+    const requiresPopup = this.rootStore.embedded && !["wallet-balance", "linked-wallet"].includes(provider);
 
     let popup;
     try {
@@ -138,10 +151,10 @@ class CheckoutStore {
 
       this.submittingOrder = true;
 
-      confirmationId = confirmationId || `T-${this.ConfirmationId()}`;
+      confirmationId = confirmationId || (provider === "linked-wallet" ? this.ConfirmationId(true) : `T-${this.ConfirmationId()}`);
 
-      let authInfo = this.rootStore.AuthInfo();
-      if(!authInfo.user) {
+      let authInfo = this.rootStore.AuthInfo() || {};
+      if(!authInfo?.user) {
         authInfo.user = {};
       }
 
@@ -149,13 +162,19 @@ class CheckoutStore {
       authInfo.user.email = email;
 
       if(!email) {
-        throw Error("Unable to determine email address in checkout submit");
+        throw {
+          recoverable: false,
+          message: "Unable to determine email address in checkout submit"
+        };
       }
 
       const listing = (yield this.rootStore.transferStore.FetchTransferListings({listingId, forceUpdate: true}))[0];
-
       if(!listing || (listing && listing.details.CheckoutLockedUntil && listing.details.CheckoutLockedUntil > Date.now())) {
-        throw {status: 409, message: "Listing is no longer available"};
+        throw {
+          status: 409,
+          recoverable: false,
+          uiMessage: "Listing is no longer available"
+        };
       }
 
       const basePath =
@@ -197,6 +216,8 @@ class CheckoutStore {
       this.rootStore.SetSessionStorage("successPath", UrlJoin(basePath, "success"));
       this.rootStore.SetSessionStorage("cancelPath", UrlJoin(basePath, "cancel"));
 
+      this.rootStore.SetSessionStorage("purchaseType", "listing");
+
       let requestParams = {
         currency: this.currency,
         email,
@@ -211,13 +232,22 @@ class CheckoutStore {
         requestParams.mode = EluvioConfiguration["mode"];
       }
 
-      yield this.CheckoutRedirect({provider, requestParams});
+      yield this.CheckoutRedirect({provider, requestParams, confirmationId});
 
       return { confirmationId, successPath: UrlJoin(basePath, "success") };
     } catch(error) {
+      this.rootStore.Log(error, true);
+
       if(popup) { popup.close(); }
 
-      throw error;
+      if(typeof error.recoverable !== "undefined") {
+        throw error;
+      } else {
+        throw {
+          recoverable: true,
+          uiMessage: error.uiMessage || "Purchase failed"
+        };
+      }
     } finally {
       this.submittingOrder = false;
     }
@@ -234,7 +264,7 @@ class CheckoutStore {
   }) {
     if(this.submittingOrder) { return; }
 
-    const requiresPopup = this.rootStore.embedded && provider !== "wallet-balance";
+    const requiresPopup = this.rootStore.embedded && !["wallet-balance", "linked-wallet"].includes(provider);
 
     let popup;
     try {
@@ -244,7 +274,7 @@ class CheckoutStore {
 
       this.submittingOrder = true;
 
-      confirmationId = confirmationId || this.ConfirmationId();
+      confirmationId = confirmationId || `M-${this.ConfirmationId()}`;
 
       let authInfo = this.rootStore.AuthInfo();
       if(!authInfo.user) {
@@ -257,7 +287,19 @@ class CheckoutStore {
       const basePath = UrlJoin("/marketplace", marketplaceId, "store", tenantId, sku, "purchase", confirmationId);
 
       if(!email) {
-        throw Error("Unable to determine email address in checkout submit");
+        throw {
+          recoverable: false,
+          message: "Unable to determine email address in checkout submit"
+        };
+      }
+
+      const stock = (yield this.MarketplaceStock({tenantId}) || {})[sku];
+      if(stock && (stock.max - stock.minted) < quantity) {
+        throw {
+          recoverable: true,
+          message: `Quantity ${quantity} exceeds stock ${stock.max - stock.minted} for ${sku}`,
+          uiMessage: "Insufficient stock available for this purchase"
+        };
       }
 
       if(requiresPopup) {
@@ -296,6 +338,8 @@ class CheckoutStore {
       this.rootStore.SetSessionStorage("successPath", UrlJoin(basePath.toString(), "success"));
       this.rootStore.SetSessionStorage("cancelPath", UrlJoin(basePath.toString(), "cancel"));
 
+      this.rootStore.SetSessionStorage("purchaseType", "store");
+
       let requestParams = {
         currency: this.currency,
         email,
@@ -310,22 +354,22 @@ class CheckoutStore {
         requestParams.mode = EluvioConfiguration["mode"];
       }
 
-      const stock = (yield this.MarketplaceStock({tenantId}) || {})[sku];
-
-      if(stock && (stock.max - stock.minted) < quantity) {
-        throw {
-          status: 409,
-          message: `Quantity ${quantity} exceeds stock ${stock.max - stock.minted} for ${sku}`
-        };
-      }
-
-      yield this.CheckoutRedirect({provider, requestParams});
+      yield this.CheckoutRedirect({provider, requestParams, confirmationId});
 
       return { confirmationId, successPath: UrlJoin(basePath, "success") };
     } catch(error) {
       if(popup) { popup.close(); }
 
       this.rootStore.Log(error, true);
+
+      if(typeof error.recoverable !== "undefined") {
+        throw error;
+      } else {
+        throw {
+          recoverable: true,
+          uiMessage: error.uiMessage || "Purchase failed"
+        };
+      }
     } finally {
       this.submittingOrder = false;
     }
@@ -348,9 +392,9 @@ class CheckoutStore {
     }, 1000);
   }
 
-  async CheckoutRedirect({provider, requestParams}) {
+  CheckoutRedirect = flow(function * ({provider, requestParams, confirmationId}) {
     if(provider === "stripe") {
-      const sessionId = (await this.client.utils.ResponseToJson(
+      const sessionId = (yield this.client.utils.ResponseToJson(
         this.client.authClient.MakeAuthServiceRequest({
           method: "POST",
           path: UrlJoin("as", "checkout", "stripe"),
@@ -363,11 +407,11 @@ class CheckoutStore {
         PUBLIC_KEYS.stripe.production;
 
       // Redirect to stripe
-      const {loadStripe} = await import("@stripe/stripe-js/pure");
-      const stripe = await loadStripe(stripeKey);
-      await stripe.redirectToCheckout({sessionId});
+      const {loadStripe} = yield import("@stripe/stripe-js/pure");
+      const stripe = yield loadStripe(stripeKey);
+      yield stripe.redirectToCheckout({sessionId});
     } else if(provider === "coinbase") {
-      const chargeCode = (await this.client.utils.ResponseToJson(
+      const chargeCode = (yield this.client.utils.ResponseToJson(
         this.client.authClient.MakeAuthServiceRequest({
           method: "POST",
           path: UrlJoin("as", "checkout", "coinbase"),
@@ -377,7 +421,7 @@ class CheckoutStore {
 
       window.location.href = UrlJoin("https://commerce.coinbase.com/charges", chargeCode);
     } else if(provider === "wallet-balance") {
-      await this.client.authClient.MakeAuthServiceRequest({
+      yield this.client.authClient.MakeAuthServiceRequest({
         method: "POST",
         path: UrlJoin("as", "wlt", "mkt", "bal", "pay"),
         body: requestParams,
@@ -387,8 +431,37 @@ class CheckoutStore {
       });
 
       setTimeout(() => this.rootStore.GetWalletBalance(), 1000);
+    } else if(provider === "linked-wallet") {
+      if(!this.rootStore.embedded) {
+        yield this.rootStore.cryptoStore.PhantomBalance();
+      }
+
+      if(!(this.rootStore.cryptoStore.phantomBalance > 0)) {
+        throw {
+          recoverable: false,
+          uiMessage: "Solana account has insufficient balance to perform this transaction"
+        };
+      }
+
+      const response = (yield this.client.utils.ResponseToJson(
+        this.client.authClient.MakeAuthServiceRequest({
+          method: "POST",
+          path: UrlJoin("as", "checkout", "solana"),
+          body: requestParams
+        })
+      ));
+
+      const signature = yield this.rootStore.cryptoStore.PurchasePhantom(response.params[0]);
+
+      this.solanaSignatures[confirmationId] = signature;
+
+      this.rootStore.SetSessionStorage("solana-signatures", JSON.stringify(this.solanaSignatures));
+
+      this.rootStore.Log("Purchase transaction signature: " + signature);
+    } else {
+      throw Error("Invalid provider: " + provider);
     }
-  }
+  });
 }
 
 export default CheckoutStore;

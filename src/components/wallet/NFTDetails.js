@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {rootStore, transferStore} from "Stores/index";
+import {cryptoStore, rootStore, transferStore} from "Stores/index";
 import Path from "path";
 import UrlJoin from "url-join";
 
@@ -24,15 +24,16 @@ import NFTTransfer from "Components/wallet/NFTTransfer";
 import ImageIcon from "Components/common/ImageIcon";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 import NFTMediaControls from "Components/wallet/NFTMediaControls";
+import {LoginClickGate} from "Components/common/LoginGate";
 
+import {MediaIcon} from "../../utils/Utils";
 import DescriptionIcon from "Assets/icons/Description icon.svg";
 import DetailsIcon from "Assets/icons/Details icon.svg";
 import ContractIcon from "Assets/icons/Contract icon.svg";
 import TraitsIcon from "Assets/icons/properties icon.svg";
 import MediaSectionIcon from "Assets/icons/Media tab icon.svg";
 import PlayIcon from "Assets/icons/blue play icon.svg";
-import {MediaIcon} from "../../utils/Utils";
-import {LoginClickGate} from "Components/common/LoginGate";
+import USDCIcon from "Assets/icons/USDC coin icon.svg";
 
 const FormatRarity = (rarity) => {
   if(!rarity) {
@@ -358,7 +359,6 @@ const NFTDetails = observer(() => {
 
   const [nftData, setNFTData] = useState(undefined);
 
-  // TODO: Default media
   const [selectedMediaIndex, setSelectedMediaIndex] = useState(-1);
   const [currentPlayerInfo, setCurrentPlayerInfo] = useState({selectedMediaIndex: selectedMediaIndex, playerInfo: undefined});
 
@@ -398,7 +398,7 @@ const NFTDetails = observer(() => {
 
   useEffect(() => {
     let listingStatusInterval;
-    rootStore.UpdateMetamaskChainId();
+    cryptoStore.UpdateMetamaskInfo();
 
     if(match.params.contractId) {
       rootStore.LoadNFTData({
@@ -576,6 +576,7 @@ const NFTDetails = observer(() => {
                   Listing Price
                 </div>
                 <div className="details-page__listing-price-value">
+                  { listing.details.USDCAccepted ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC Accepted" /> : null }
                   ${listing.details.Price.toFixed(2)}
                 </div>
               </div> : null
@@ -634,6 +635,7 @@ const NFTDetails = observer(() => {
         showListingModal ?
           <ListingModal
             nft={listing || nft}
+            listingId={listingId}
             Close={(info={}) => {
               setShowListingModal(false);
 

@@ -44,12 +44,19 @@ class AsyncComponent extends React.Component {
         });
       }
     } catch(error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
       this.setState({error});
     }
   }
 
   componentWillUnmount() {
     this.mounted = false;
+  }
+
+  componentDidCatch(error, errorInfo) {
+    // eslint-disable-next-line no-console
+    console.error(error, errorInfo);
   }
 
   render() {

@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react";
 import EluvioPlayer, {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 import {observer} from "mobx-react";
-import {rootStore} from "Stores/index";
+import {rootStore, checkoutStore, cryptoStore} from "Stores/index";
 import {Loader} from "Components/common/Loaders";
 import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
@@ -10,7 +10,19 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 import NFTCard from "Components/common/NFTCard";
 
 let statusInterval;
-const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, videoHash, basePath, backText}) => {
+const MintingStatus = observer(({
+  header,
+  subheader,
+  Status,
+  OnFinish,
+  redirect,
+  videoHash,
+  basePath,
+  backText,
+  transactionLink,
+  transactionLinkText,
+  intervalPeriod=10
+}) => {
   const [status, setStatus] = useState(false);
   const [finished, setFinished] = useState(false);
   const [videoInitialized, setVideoInitialized] = useState(false);
@@ -18,6 +30,7 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
   const CheckStatus = async () => {
     try {
       const status = await Status();
+
       setStatus(status);
 
       if(status.status === "complete") {
@@ -61,7 +74,7 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
   useEffect(() => {
     CheckStatus();
 
-    statusInterval = setInterval(CheckStatus, 10000);
+    statusInterval = setInterval(CheckStatus, intervalPeriod * 1000);
 
     return () => clearInterval(statusInterval);
   }, []);
@@ -75,7 +88,7 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
       <div className="minting-status" key="minting-status-failed">
         <div className="minting-status__text">
           <h1 className="content-header">
-            Minting Failed
+            { status.errorMessage || "Minting Failed" }
           </h1>
           <div className="minting-status-results__actions">
             <Link to={basePath} className="button minting-status-results__back-button">
@@ -146,6 +159,7 @@ const MintingStatus = observer(({header, subheader, Status, OnFinish, redirect, 
             </h2>
           </div>
       }
+      { transactionLink ? <a href={transactionLink} target="_blank" rel="noopener" className="minting-status__transaction-link">{ transactionLinkText }</a> : null }
     </div>
   );
 });
@@ -233,15 +247,24 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
 
 export const ListingPurchaseStatus = observer(() => {
   const match = useRouteMatch();
+
+  const solanaSignature = checkoutStore.solanaSignatures[match.params.confirmationId];
+
   const [status, setStatus] = useState(undefined);
+  const [awaitingSolanaTransaction, setAwaitingSolanaTransaction] = useState(solanaSignature);
 
   const inMarketplace = !!match.params.marketplaceId;
 
-  const Status = async () =>
-    rootStore.ListingPurchaseStatus({
-      tenantId: match.params.tenantId,
-      confirmationId: match.params.confirmationId
-    });
+  const Status = async () => {
+    if(awaitingSolanaTransaction) {
+      return await cryptoStore.PhantomPurchaseStatus(match.params.confirmationId);
+    } else {
+      return await rootStore.ListingPurchaseStatus({
+        tenantId: match.params.tenantId,
+        confirmationId: match.params.confirmationId
+      });
+    }
+  };
 
   let basePath = UrlJoin("/wallet", "collection");
   if(inMarketplace) {
@@ -251,15 +274,29 @@ export const ListingPurchaseStatus = observer(() => {
   if(!status) {
     return (
       <MintingStatus
-        header="Your item is being transferred"
+        key={`minting-status-${awaitingSolanaTransaction}`}
+        header={
+          awaitingSolanaTransaction ?
+            "Submitting payment transaction to Solana" :
+            "Your item is being transferred"
+        }
         Status={Status}
-        OnFinish={({status}) => setStatus(status)}
+        OnFinish={({status}) => {
+          if(awaitingSolanaTransaction) {
+            setAwaitingSolanaTransaction(false);
+          } else {
+            setStatus(status);
+          }
+        }}
         basePath={basePath}
         backText={
           inMarketplace ?
             "Back to the Marketplace" :
             "Back to My Collection"
         }
+        intervalPeriod={awaitingSolanaTransaction ? 10000 : 10}
+        transactionLink={solanaSignature ? cryptoStore.SolanaTransactionLink(solanaSignature) : undefined}
+        transactionLinkText="View your transaction on Solana Explorer"
       />
     );
   }
@@ -290,9 +327,7 @@ export const PurchaseMintingStatus = observer(() => {
   const match = useRouteMatch();
   const [status, setStatus] = useState(undefined);
 
-  const confirmationId = match.params.confirmationId;
-
-  if(confirmationId.startsWith("T-")) {
+  if(!match.params.confirmationId.startsWith("M-")) {
     return <ListingPurchaseStatus />;
   }
 

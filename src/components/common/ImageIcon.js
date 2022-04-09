@@ -1,9 +1,11 @@
 import React from "react";
 import SVG from "react-inlinesvg";
 
-const ImageIcon = ({icon, alternateIcon, label, useLoadingIndicator=false, className, ...props}) => {
+const ImageIcon = ({icon, alternateIcon, title, label, useLoadingIndicator=false, className, ...props}) => {
   const [error, setError] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
+
+  label = label || title;
 
   className = "image-icon " + (className || "");
 
@@ -14,13 +16,14 @@ const ImageIcon = ({icon, alternateIcon, label, useLoadingIndicator=false, class
 
   if(currentIcon.startsWith("<svg")) {
     return (
-      <SVG alt={label} className={className} src={currentIcon} {...props} />
+      <SVG alt={label} title={title} className={className} src={currentIcon} {...props} />
     );
   } else {
     className = loading && useLoadingIndicator ? "image-icon-with-loader " + className : className;
 
     return (
       <img
+        title={title}
         alt={label}
         className={className}
         src={currentIcon}

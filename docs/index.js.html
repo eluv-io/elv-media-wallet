@@ -490,7 +490,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * - marketplaceId - Object ID of a marketplace
    *
    * Currently supported pages:
-
+      - 'login' - The login page
       - 'wallet' - The user's global wallet
       - 'items' - List of items in the user's wallet
       - 'item' - A specific item in the user's wallet
@@ -515,17 +515,19 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @param {string=} page - A named app path
    * @param {Object=} params - URL parameters for the specified path, e.g. { tokenId: &lt;token-id> } for an 'item' page.
    * @param {string=} path - An absolute app path
+   * @param {boolean=} loginRequired - If login was specified, this parameter will control whether the login prompt is dismissable
    * @param {Array&lt;string>=} marketplaceFilters - A list of filters to limit items shown in the marketplace store page
    *
    * @returns {string} - Returns the actual route to which the app has navigated
    */
-  async Navigate({page, path, params, marketplaceFilters=[]}) {
+  async Navigate({page, path, loginRequired, params, marketplaceFilters=[]}) {
     return this.SendMessage({
       action: "navigate",
       params: {
         page,
         path,
         params,
+        loginRequired,
         marketplaceFilters
       }
     });
@@ -553,17 +555,36 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @param {string=} tenantSlug - Specify the URL slug of your tenant. Required if specifying marketplaceSlug
    * @param {string=} marketplaceSlug - Specify the URL slug of your marketplace
    * @param {string=} marketplaceHash - Specify a specific version of a your marketplace. Not necessary if marketplaceSlug is specified
+   * @param {boolean=} requireLogin=false - If specified, users will be required to log in before accessing any page in the app
+   * @param {boolean=} captureLogin=false - If specified, the parent frame will be responsible for handling login requests. When the user attempts to log in, the LOG_IN_REQUESTED event will be fired.
    * @param {boolean=} darkMode=false - Specify whether the app should be in dark mode
    *
    * @return {Promise&lt;ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new window.
    */
-  static async InitializePopup({walletAppUrl="http://wallet.contentfabric.io", tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, darkMode=false}) {
+  static async InitializePopup({
+    walletAppUrl="http://wallet.contentfabric.io",
+    tenantSlug,
+    marketplaceSlug,
+    marketplaceId,
+    marketplaceHash,
+    requireLogin=false,
+    captureLogin=false,
+    darkMode=false
+  }) {
     walletAppUrl = new URL(walletAppUrl);
 
     if(marketplaceSlug) {
       walletAppUrl.searchParams.set("mid", `${tenantSlug}/${marketplaceSlug}`);
     } else if(marketplaceId || marketplaceHash) {
       walletAppUrl.searchParams.set("mid", marketplaceHash || marketplaceId);
+    }
+
+    if(requireLogin){
+      walletAppUrl.searchParams.set("rl", "");
+    }
+
+    if(captureLogin) {
+      walletAppUrl.searchParams.set("cl", "");
     }
 
     if(!darkMode) {
@@ -592,11 +613,23 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @param {string=} tenantSlug - Specify the URL slug of your tenant. Required if specifying marketplace slug
    * @param {string=} marketplaceSlug - Specify the URL slug of your marketplace
    * @param {string=} marketplaceHash - Specify a specific version of a your marketplace. Not necessary if marketplaceSlug is specified
+   * @param {boolean=} requireLogin=false - If specified, users will be required to log in before accessing any page in the app
+   * @param {boolean=} captureLogin - If specified, the parent frame will be responsible for handling login requests. When the user attempts to log in, the LOG_IN_REQUESTED event will be fired.
    * @param {boolean=} darkMode=false - Specify whether the app should be in dark mode
    *
    * @return {Promise&lt;ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new iframe.
    */
-  static async InitializeFrame({walletAppUrl="http://wallet.contentfabric.io", target, tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, darkMode=false}) {
+  static async InitializeFrame({
+    walletAppUrl="http://wallet.contentfabric.io",
+    target,
+    tenantSlug,
+    marketplaceSlug,
+    marketplaceId,
+    marketplaceHash,
+    requireLogin=false,
+    captureLogin=false,
+    darkMode=false
+  }) {
     if(typeof target === "string") {
       const targetElement = document.getElementById(target);
 
@@ -626,6 +659,14 @@ const walletClient = await ElvWalletClient.InitializePopup({
       walletAppUrl.searchParams.set("mid", `${tenantSlug}/${marketplaceSlug}`);
     } else if(marketplaceId || marketplaceHash) {
       walletAppUrl.searchParams.set("mid", marketplaceHash || marketplaceId);
+    }
+
+    if(requireLogin){
+      walletAppUrl.searchParams.set("rl", "");
+    }
+
+    if(captureLogin) {
+      walletAppUrl.searchParams.set("cl", "");
     }
 
     if(!darkMode) {

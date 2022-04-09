@@ -4,14 +4,15 @@ import {rootStore, transferStore} from "Stores";
 import {Ago, MiddleEllipsis, NFTDisplayToken, TimeDiff} from "../../utils/Utils";
 import {Loader} from "Components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-
-import UpCaret from "Assets/icons/up-caret.svg";
-import DownCaret from "Assets/icons/down-caret.svg";
 import ImageIcon from "Components/common/ImageIcon";
 import {FormatPriceString} from "Components/common/UIComponents";
 import {v4 as UUID} from "uuid";
 
 import { useInfiniteScroll } from "react-g-infinite-scroll";
+
+import UpCaret from "Assets/icons/up-caret.svg";
+import DownCaret from "Assets/icons/down-caret.svg";
+import USDCIcon from "Assets/icons/USDC coin icon.svg";
 
 export const ActiveListings = observer(({contractAddress, contractId, initialSelectedListingId, Select}) => {
   const [listings, setListings] = useState([]);
@@ -22,7 +23,7 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
   const [id] = useState(`active-listings-table-${UUID()}`);
   const [loading, setLoading] = useState(true);
   const previouslyLoaded = listings && listings.length > 0;
-  const perPage = 10;
+  const perPage = 20;
 
   const UpdateHistory = async (append=false) => {
     try {
@@ -43,14 +44,34 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
 
       setPaging(query.paging);
 
+      let results;
       if(append) {
-        setListings([
+        results = [
           ...listings,
           ...query.results
-        ]);
+        ];
       } else {
-        setListings(query.results);
+        if(initialSelectedListingId) {
+          // If initial listing ID set, ensure it is first item in list
+          const initialListing = ((await transferStore.FetchTransferListings({
+            listingId: initialSelectedListingId
+          })) || [])[0];
+
+          if(initialListing) {
+
+            query.results.unshift(initialListing);
+          }
+        }
+
+        results = query.results;
       }
+
+      if(initialSelectedListingId) {
+        // Filter out normal instance of initial listing
+        results = results.filter((item, index) => index === 0 || item.details.ListingId !== initialSelectedListingId);
+      }
+
+      setListings(results);
     } finally {
       setLoading(false);
     }
@@ -133,12 +154,26 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
                             Select(selected, listing);
                           }
                       }
-                      className={`transfer-table__table__row ${isCheckoutLocked ? "transfer-table__table__row-disabled" : ""} ${selectedListingId === listing.details.ListingId ? "transfer-table__table__row-selected" : ""} ${Select && !isCheckoutLocked ? "transfer-table__table__row-selectable" : ""}`}
+                      className={
+                        [
+                          "transfer-table__table__row",
+                          isCheckoutLocked ? "transfer-table__table__row-disabled" : "",
+                          selectedListingId === listing.details.ListingId ? "transfer-table__table__row-selected" : "",
+                          Select && !isCheckoutLocked ? "transfer-table__table__row-selectable" : "",
+                          initialSelectedListingId === listing.details.ListingId ? "transfer-table__table__row-initial" : ""
+                        ]
+                          .filter(c => c)
+                          .join(" ")
+                      }
                     >
                       <div className="transfer-table__table__cell">
                         { NFTDisplayToken(listing) }
                       </div>
                       <div className="transfer-table__table__cell">
+                        { listing.details.USDCAccepted ?
+                          <ImageIcon icon={USDCIcon} label="USDC" title="USDC Accepted" className="transfer-table__table__cell__icon" /> :
+                          <div className="transfer-table__table__cell__icon transfer-table__table__cell__icon--placeholder" />
+                        }
                         {`$${listing.details.Price.toFixed(2)}`}
                       </div>
                       <div className="transfer-table__table__cell no-mobile">
@@ -163,7 +198,11 @@ export const PendingPaymentsTable = observer(({header, limit, className=""}) => 
 
   const UpdateHistory = async () => {
     let entries = (await transferStore.UserPaymentsHistory())
-      .filter(entry => Utils.EqualAddress(entry.addr, rootStore.userAddress) && Date.now() - entry.created * 1000 < week)
+      .filter(entry =>
+        Utils.EqualAddress(entry.addr, rootStore.userAddress) &&
+        Date.now() - entry.created * 1000 < week &&
+        !entry.processor?.startsWith("solana:p2p")
+      )
       .sort((a, b) => a.created > b.created ? -1 : 1);
 
     if(limit) {

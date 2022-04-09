@@ -61,6 +61,7 @@
     margin: 20px auto;
     max-width: 350px;
     position: relative;
+    width: 100%;
 
     .listing-modal__form__error {
       bottom: -20px;
@@ -80,7 +81,6 @@
     border-radius: 3px;
     font-size: 20px;
     height: 50px;
-    max-width: 290px;
     padding: 0 15px;
     width: 100%;
 
@@ -90,9 +90,25 @@
   }
 
   &__form__price-input-label {
+    align-items: center;
+    display: flex;
     font-weight: bold;
-    margin-left: 25px;
+    position: absolute;
+    right: 10px;
     text-align: center;
+
+    svg,
+    img {
+      height: 20px;
+      margin-left: 10px;
+    }
+  }
+
+  &__wallet-connect {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
   .nft-card {
@@ -124,6 +140,17 @@
   &__detail-faded {
     * {
       color: $gray;
+    }
+  }
+
+  &__payout {
+    align-items: center;
+    display: flex;
+
+    svg,
+    img {
+      height: 20px;
+      margin-right: 10px;
     }
   }
 
@@ -173,6 +200,8 @@
     &__form__price-input {
       background-color: $black;
       border: 1px solid $darkgray;
+      max-width: unset;
+      width: 100%;
     }
 
     &__form__error {

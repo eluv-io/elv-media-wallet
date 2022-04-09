@@ -9,9 +9,11 @@ import {FormatPriceString} from "Components/common/UIComponents";
 import {Loader} from "Components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import ImageIcon from "Components/common/ImageIcon";
-import ListingIcon from "Assets/icons/listing";
 import FilteredView from "Components/listings/FilteredView";
 import {NFTDisplayToken} from "../../utils/Utils";
+
+import ListingIcon from "Assets/icons/listing";
+import USDCIcon from "Assets/icons/USDC coin icon.svg";
 
 const Listing = memo(({url, listing}) => (
   <div className="card-container card-shadow" >
@@ -33,6 +35,7 @@ const Listing = memo(({url, listing}) => (
               {listing.metadata.display_name}
             </div>
             <div className="card__title__price">
+              { listing.details.USDCAccepted ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC Accepted" /> : null }
               {FormatPriceString({USD: listing.details.Price})}
             </div>
           </h2>
@@ -81,11 +84,6 @@ const Listings = observer(() => {
               <div className="card-list">
                 {
                   entries.map((listing, index) => {
-                    // TODO: Remove
-                    if(["iten2dbu685wiHLyjgLnx19jEKxiNb6J"].includes(listing?.details?.TenantId)) {
-                      return null;
-                    }
-
                     return (
                       <Listing
                         url={match.url}

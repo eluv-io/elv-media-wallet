@@ -9,6 +9,7 @@ import {ButtonWithLoader, CopyableField, FormatPriceString} from "Components/com
 import {PendingPaymentsTable, UserTransferTable} from "Components/listings/TransferTables";
 import {observer} from "mobx-react";
 import {WithdrawalModal, WithdrawalSetupModal} from "Components/profile/WithdrawalModal";
+import WalletConnect from "Components/crypto/WalletConnect";
 
 const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSetup}) => {
   return (
@@ -74,6 +75,13 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSe
             </div>
           </> : null
       }
+
+      <div className="profile-page__message">
+        Funds availability notice – A hold period will be imposed on amounts that accrue from the sale of an NFT. Account holders acknowledge that, during this hold period, a seller will be unable to use or withdraw the amounts attributable to such sale(s).  The current hold period for spending the balance is 7 days, and withdrawing the balance is 30 days.
+      </div>
+      <div className="profile-page__message">
+        For questions or concerns, please contact <a href={"mailto:payments@eluv.io"}>payments@eluv.io</a>
+      </div>
     </div>
   );
 });
@@ -128,6 +136,9 @@ const Profile = observer(() => {
             { rootStore.userAddress }
           </CopyableField>
         </div>
+        <div className="profile-page__message">
+          This is an Eluvio blockchain address
+        </div>
       </div>
 
       <div className="profile-page__section profile-page__section-balance profile-page__section-box">
@@ -180,6 +191,14 @@ const Profile = observer(() => {
         /> : null
       }
 
+      <div className="profile-page__section profile-page__section-wallet-connect">
+        <h2 className="profile-page__section-header">
+          Connected Accounts
+        </h2>
+
+        <WalletConnect />
+      </div>
+
       <div className="profile-page__section profile-page__actions">
         <div className="profile-page__actions">
           <button
@@ -188,15 +207,6 @@ const Profile = observer(() => {
           >
             Sign Out
           </button>
-        </div>
-      </div>
-
-      <div className="profile-page__section profile-page__section-message">
-        <div className="profile-page__message">
-          Funds availability notice – A hold period will be imposed on amounts that accrue from the sale of an NFT. Account holders acknowledge that, during this hold period, a seller will be unable to use or withdraw the amounts attributable to such sale(s).  The current hold period for spending the balance is 7 days, and withdrawing the balance is 30 days.
-        </div>
-        <div className="profile-page__message">
-          For questions or concerns, please contact <a href={"mailto:payments@eluv.io"}>payments@eluv.io</a>
         </div>
       </div>
     </div>

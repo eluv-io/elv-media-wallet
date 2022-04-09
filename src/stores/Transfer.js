@@ -38,6 +38,7 @@ class TransferStore {
     const info = (isListing ? entry.info : entry);
 
     let details = {
+      USDCAccepted: (entry.accepts || []).includes("sol"),
       TenantId: entry.tenant || entry.tenant_id,
       ContractAddr: info.contract_addr,
       ContractId: `ictr${Utils.AddressToHash(info.contract_addr)}`,
@@ -146,8 +147,9 @@ class TransferStore {
 
         this.listings[listingKey] = {
           retrievedAt: Date.now(),
-          listings: (Array.isArray(listings) ? listings : [listings])
-            .map(listing => this.FormatResult(listing))
+          listings: !listings ? [] :
+            (Array.isArray(listings) ? listings : [listings])
+              .map(listing => this.FormatResult(listing))
         };
       }
 
@@ -267,33 +269,6 @@ class TransferStore {
 
     try {
       let filters = [];
-
-      // TODO : Remove
-      if(mode !== "owned") {
-        let unusedAttribute;
-        if(tenantIds && tenantIds.length > 0) {
-          tenantIds = tenantIds.filter(tenantId => tenantId !== "iten2dbu685wiHLyjgLnx19jEKxiNb6J");
-
-          if(tenantIds.length === 0) {
-            if(mode.includes("stats")) {
-              return {};
-            } else {
-              return {
-                paging: {
-                  start: params.start,
-                  limit: params.limit,
-                  total: 0,
-                  more: false
-                },
-                results: []
-              };
-            }
-          }
-        }
-      }
-
-
-
       if(marketplace && collectionIndex >= 0) {
         const collection = marketplace.collections[collectionIndex];
 

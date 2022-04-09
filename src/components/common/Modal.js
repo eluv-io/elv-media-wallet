@@ -33,15 +33,19 @@ const Modal = observer(({children, Toggle, id="", className=""}) => {
 
   return (
     <div id={id} className={`modal ${className || ""}`} onClick={() => Close()}>
-      <button className="modal__close-button">
-        <ImageIcon
-          key={"back-icon-Close Modal"}
-          className={"modal__close-icon"}
-          title={"Close Modal"}
-          icon={CloseIcon}
-          onClick={() => Close()}
-        />
-      </button>
+      {
+        Toggle ?
+          <button className="modal__close-button">
+            <ImageIcon
+              key={"back-icon-Close Modal"}
+              className={"modal__close-icon"}
+              title={"Close Modal"}
+              icon={CloseIcon}
+              onClick={() => Close()}
+            />
+          </button> :
+          null
+      }
       <div
         className="modal__content"
         onClick={event => event.stopPropagation()}

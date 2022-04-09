@@ -80,6 +80,7 @@ const ListingCard = ({listing, link, Refresh}) => {
         showListingModal ?
           <ListingModal
             nft={listing}
+            listingId={listing.details.ListingId}
             Close={(info={}) => {
               setShowListingModal(false);
 

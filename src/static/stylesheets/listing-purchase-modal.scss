@@ -207,6 +207,17 @@
     font-weight: bold;
   }
 
+  &__order-price {
+    align-items: center;
+    display: flex;
+
+    img,
+    svg {
+      height: 20px;
+      margin-right: 5px;
+    }
+  }
+
   &__quantity {
     font-weight: 300;
   }
@@ -278,17 +289,17 @@
   &__payment-selection-container {
     align-items: center;
     display: flex;
-    margin-bottom: 10px;
+    flex-direction: column;
+    margin-bottom: 25px;
   }
 
   &__payment-selection {
-    flex: 1 1 100%;
     font-size: 12px;
-    padding-left: 10px;
     position: relative;
+    width: 100%;
 
     &:not(:last-child) {
-      margin-right: 10px;
+      margin: 0 0 5px;
     }
 
     &-selected {
@@ -330,6 +341,14 @@
 
   &__payment-cancel {
     margin-top: 10px;
+  }
+
+  &__wallet-connect {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 30px 0;
   }
 }
 

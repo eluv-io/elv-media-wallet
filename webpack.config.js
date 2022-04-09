@@ -70,7 +70,7 @@ module.exports = {
       // Force webpack to use *one* copy of bn.js instead of 8
       "bn.js": Path.resolve(Path.join(__dirname, "node_modules", "bn.js"))
     },
-    extensions: [".js", ".jsx", ".scss", ".png", ".svg"]
+    extensions: [".js", ".jsx", ".mjs", ".scss", ".png", ".svg"]
   },
   module: {
     rules: [
@@ -92,6 +92,11 @@ module.exports = {
           },
           "sass-loader"
         ]
+      },
+      {
+        test: /\.mjs$/,
+        include: /node_modules/,
+        type: "javascript/auto"
       },
       {
         test: /\.(js|mjs)$/,

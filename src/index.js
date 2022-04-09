@@ -21,6 +21,8 @@ try {
 // eslint-disable-next-line no-empty
 } catch(error) {}
 
+let signaturePopup = new URLSearchParams(window.location.search).has("sign");
+
 
 import {
   useHistory,
@@ -40,6 +42,7 @@ import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import {PageLoader} from "Components/common/Loaders";
 import Modal from "Components/common/Modal";
 import {LoginRedirectGate} from "Components/common/LoginGate";
+import SignaturePopup from "Components/crypto/SignaturePopup";
 
 const DebugFooter = () => {
   if(!EluvioConfiguration["show-debug"]) { return null; }
@@ -82,14 +85,17 @@ const LoginModal = observer(() => {
 
   if(rootStore.showLogin) {
     return (
-      <Modal className="login-modal" Toggle={() => rootStore.HideLogin()}>
+      <Modal
+        className="login-modal"
+        Toggle={rootStore.requireLogin ? undefined : () => rootStore.HideLogin()}
+      >
         <Login
           darkMode={rootStore.darkMode}
           callbackUrl={UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, "")}
           Loaded={() => rootStore.SetLoginLoaded()}
           LoadCustomizationOptions={async () => await rootStore.LoadLoginCustomization()}
           SignIn={params => rootStore.Authenticate(params)}
-          Close={() => rootStore.HideLogin()}
+          Close={rootStore.requireLogin ? undefined : () => rootStore.HideLogin()}
         />
       </Modal>
     );
@@ -212,6 +218,8 @@ const Routes = observer(() => {
 const App = observer(() => {
   if(newWindowLogin) {
     return <LoginModal />;
+  } else if(signaturePopup) {
+    return <SignaturePopup />;
   }
 
   const hasHeader = !rootStore.hideNavigation && (!rootStore.sidePanelMode || rootStore.navigationBreadcrumbs.length > 2);

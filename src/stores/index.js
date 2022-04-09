@@ -6,14 +6,15 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 import {SendEvent} from "Components/interface/Listener";
 import EVENTS from "../../client/src/Events";
 
-import NFTContractABI from "../static/abi/NFTContract";
 import CheckoutStore from "Stores/Checkout";
-import {ethers} from "ethers";
 import TransferStore from "Stores/Transfer";
+
+import NFTContractABI from "../static/abi/NFTContract";
+import CryptoStore from "Stores/Crypto";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
-  //enforceActions: "always"
+  enforceActions: "always"
 });
 
 const colors = [
@@ -69,7 +70,7 @@ class RootStore {
   DEBUG_ERROR_MESSAGE = "";
   network = EluvioConfiguration["config-url"].includes("main.net955305") ? "main" : "demo";
 
-  embedded = window.self !== window.top;
+  embedded = window.top !== window.self || new URLSearchParams(window.location.search).has("e");
 
   // Opened by embedded window for purchase redirect
   fromEmbed = new URLSearchParams(window.location.search).has("embed") ||
@@ -80,8 +81,12 @@ class RootStore {
   pageWidth = window.innerWidth;
   activeModals = 0;
 
-  showLogin = false;
-  navigateToLogIn = undefined;
+  authInfo = undefined;
+
+  requireLogin = false;
+  capturedLogin = this.embedded && new URLSearchParams(window.location.search).has("cl");
+  showLogin = this.requireLogin;
+
   loggingIn = false;
   loggedIn = false;
   disableCloseEvent = false;
@@ -144,9 +149,6 @@ class RootStore {
 
   noItemsAvailable = false;
 
-  metamaskChainId = undefined;
-  transferredNFTs = {};
-
   @computed get specifiedMarketplace() {
     return this.marketplaces[this.specifiedMarketplaceId];
   }
@@ -194,10 +196,18 @@ class RootStore {
   constructor() {
     makeAutoObservable(this);
 
-    this.RegisterMetamaskHandlers();
+    if(
+      new URLSearchParams(window.location.search).has("rl") ||
+      this.GetSessionStorage("loginRequired")
+    ) {
+      this.requireLogin = true;
+      this.ShowLogin({requireLogin: true});
+      this.SetSessionStorage("loginRequired", "true");
+    }
 
     this.checkoutStore = new CheckoutStore(this);
     this.transferStore = new TransferStore(this);
+    this.cryptoStore = new CryptoStore(this);
 
     window.addEventListener("resize", () => this.HandleResize());
 
@@ -326,6 +336,8 @@ class RootStore {
 
       // Clear loaded marketplaces so they will be reloaded and authorization rechecked
       this.marketplaces = {};
+
+      yield this.cryptoStore.LoadConnectedAccounts();
 
       this.HideLogin();
       this.loggedIn = true;
@@ -1100,169 +1112,6 @@ class RootStore {
     });
   });
 
-  TransferNFT = flow(function * ({network, nft}) {
-    yield window.ethereum.enable();
-
-    const signer = (new ethers.providers.Web3Provider(window.ethereum)).getSigner();
-    const address = (yield window.ethereum.request({method: "eth_requestAccounts"}))[0];
-    const response = yield Utils.ResponseToJson(
-      yield this.client.authClient.MakeAuthServiceRequest({
-        path: UrlJoin("as", "wlt", "act", nft.details.TenantId),
-        method: "POST",
-        body: {
-          taddr: address,
-          op: "nft-transfer",
-          tgt: network,
-          adr: nft.details.ContractAddr,
-          tok: nft.details.TokenIdStr
-        },
-        headers: {
-          Authorization: `Bearer ${this.client.signer.authToken}`
-        }
-      })
-    );
-
-    const abi = [
-      {
-        "constant": false,
-        "inputs": [
-          {"name": "to", "type": "address"},
-          {"name": "tokenId", "type": "uint256"},
-          {"name": "tokenURI", "type": "string"},
-          {"name": "v", "type": "uint8"},
-          {"name": "r", "type": "bytes32"},
-          {"name": "s", "type": "bytes32"}
-        ],
-        "name": "mintSignedWithTokenURI",
-        "outputs": [{"name": "", "type": "bool"}],
-        "payable": false,
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "constant": true,
-        "inputs": [
-          {"name": "to", "type": "address"},
-          {"name": "tokenId", "type": "uint256"},
-          {"name": "tokenURI", "type": "string"},
-          {"name": "v", "type": "uint8"},
-          {"name": "r", "type": "bytes32"},
-          {"name": "s", "type": "bytes32"}
-        ],
-        "name": "isMinterSigned",
-        "outputs": [{"name": "", "type": "bool"}],
-        "payable": false,
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "constant": true,
-        "inputs": [
-          {
-            "name": "tokenId",
-            "type": "uint256"
-          }
-        ],
-        "name": "exists",
-        "outputs": [
-          {
-            "name": "",
-            "type": "bool"
-          }
-        ],
-        "payable": false,
-        "stateMutability": "view",
-        "type": "function"
-      }
-    ];
-
-    // Connect contract and validate:
-    const contract = new ethers.Contract(response.caddr, abi, signer);
-    if(!(
-      yield contract.isMinterSigned(
-        response.taddr,
-        response.tok,
-        response.turi,
-        response.v,
-        ethers.utils.arrayify("0x" + response.r),
-        ethers.utils.arrayify("0x" + response.s)
-      ))
-    ) {
-      throw Error("Minter not signed");
-    }
-
-    // Check if token already exists
-    if((yield contract.exists(response.tok))) {
-      throw Error("Token already exists");
-    }
-
-    // Call transfer method
-    const minted = yield contract.mintSignedWithTokenURI(
-      response.taddr,
-      response.tok,
-      response.turi,
-      response.v,
-      ethers.utils.arrayify("0x" + response.r),
-      ethers.utils.arrayify("0x" + response.s),
-      {gasPrice: ethers.utils.parseUnits("100", "gwei"), gasLimit: 1000000} // TODO: Why is this necessary?
-    );
-
-    let openSeaLink;
-    switch(network) {
-      case "eth-mainnet":
-        openSeaLink = `https://opensea.io/assets/${response.caddr}/${response.tok}`;
-        break;
-      case "eth-rinkeby":
-        openSeaLink = `https://testnets.opensea.io/assets/${response.caddr}/${response.tok}`;
-        break;
-      case "poly-mainnet":
-        openSeaLink = `https://opensea.io/assets/matic/${response.caddr}/${response.tok}`;
-        break;
-      case "poly-mumbai":
-        openSeaLink = `https://testnets.opensea.io/assets/mumbai/${response.caddr}/${response.tok}`;
-        break;
-    }
-
-    this.transferredNFTs[`${nft.details.ContractAddr}:${nft.details.TokenIdStr}`] = {
-      network: this.ExternalChains().find(info => info.network === network),
-      hash: minted.hash,
-      openSeaLink
-    };
-  });
-
-  MetamaskAvailable() {
-    return window.ethereum && window.ethereum.isMetaMask && window.ethereum.chainId;
-  }
-
-  UpdateMetamaskChainId() {
-    this.metamaskChainId = window.ethereum && window.ethereum.chainId;
-  }
-
-  RegisterMetamaskHandlers() {
-    if(!window.ethereum) { return; }
-
-    this.UpdateMetamaskChainId();
-
-    window.ethereum.on("accountsChanged", () => this.UpdateMetamaskChainId());
-    window.ethereum.on("chainChanged", () => this.UpdateMetamaskChainId());
-  }
-
-  ExternalChains() {
-    if(EluvioConfiguration["enable-testnet-transfer"]) {
-      return [
-        {name: "Ethereum Mainnet", network: "eth-mainnet", chainId: "0x1"},
-        {name: "Ethereum Testnet (Rinkeby)", network: "eth-rinkeby", chainId: "0x4"},
-        {name: "Polygon Mainnet", network: "poly-mainnet", chainId: "0x89"},
-        {name: "Polygon Testnet (Mumbai)", network: "poly-mumbai", chainId: "0x13881"}
-      ];
-    }
-
-    return [
-      { name: "Ethereum Mainnet", network: "eth-mainnet", chainId: "0x1"},
-      { name: "Polygon Mainnet", network: "poly-mainnet", chainId: "0x89"},
-    ];
-  }
-
   GetWalletBalance = flow(function * (checkOnboard=false) {
     if(!this.loggedIn) { return; }
 
@@ -1302,6 +1151,8 @@ class RootStore {
       });
 
       yield this.GetWalletBalance(false);
+
+      this.cryptoStore.PhantomBalance();
     }
   });
 
@@ -1461,6 +1312,7 @@ class RootStore {
       url.searchParams.set("lt", "");
     }
 
+    // Reload page
     window.location.href = url.toString();
   }
 
@@ -1509,6 +1361,8 @@ class RootStore {
         } else {
           return { authToken, address, user };
         }
+      } else {
+        return this.authInfo;
       }
     } catch(error) {
       this.Log("Failed to retrieve auth info", true);
@@ -1519,14 +1373,21 @@ class RootStore {
 
   ClearAuthInfo() {
     this.RemoveLocalStorage(`auth-${this.network}`);
+
+    this.authInfo = undefined;
   }
 
   SetAuthInfo({authToken, address, user}) {
+    const authInfo = { authToken, address, user: user || {} };
+
     this.SetLocalStorage(
       `auth-${this.network}`,
-      Utils.B64(JSON.stringify({authToken, address, user: user || {}}))
+      Utils.B64(JSON.stringify(authInfo))
     );
+
     this.SetLocalStorage("hasLoggedIn", "true");
+
+    this.authInfo = authInfo;
   }
 
   SetNavigationBreadcrumbs(breadcrumbs=[]) {
@@ -1537,12 +1398,18 @@ class RootStore {
     this.loginLoaded = true;
   }
 
-  ShowLogin() {
-    this.showLogin = true;
+  ShowLogin({requireLogin=false, ignoreCapture=false}={}) {
+    if(this.capturedLogin && !ignoreCapture) {
+      this.SendEvent({event: EVENTS.LOG_IN_REQUESTED});
+    } else {
+      this.requireLogin = requireLogin;
+      this.showLogin = true;
+    }
   }
 
   HideLogin() {
     this.showLogin = false;
+    this.requireLogin = false;
   }
 
   ToggleDarkMode(enabled) {
@@ -1571,10 +1438,6 @@ class RootStore {
 
   ToggleSidePanelMode(enabled) {
     this.sidePanelMode = enabled;
-  }
-
-  SetNavigateToLogIn(initialScreen) {
-    this.navigateToLogIn = initialScreen;
   }
 
   // Used for disabling navigation back to main marketplace page when no items are available
@@ -1671,6 +1534,7 @@ class RootStore {
 export const rootStore = new RootStore();
 export const checkoutStore = rootStore.checkoutStore;
 export const transferStore = rootStore.transferStore;
+export const cryptoStore = rootStore.cryptoStore;
 
 window.rootStore = rootStore;
 
