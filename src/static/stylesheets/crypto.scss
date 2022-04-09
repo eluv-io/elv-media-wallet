@@ -32,6 +32,7 @@ $wallet-connect-background: rgba($black, 0.35);
 
   .modal__content {
     display: flex;
+    flex-direction: column;
     height: max-content;
     justify-content: flex-end;
     margin: 60px 100px 0 0;
@@ -39,6 +40,10 @@ $wallet-connect-background: rgba($black, 0.35);
     overflow-y: auto;
     padding-bottom: 20px;
     width: max-content;
+
+    .wallet-connect__error-message {
+      text-shadow: $black 2px 2px 2px;
+    }
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
@@ -188,8 +193,7 @@ $wallet-connect-background: rgba($black, 0.35);
   &__error-message {
     color: $red;
     font-size: 12px;
-    //font-weight: 300;
-    margin-top: 10px;
+    margin: 10px auto 0;
     max-width: 250px;
     text-align: center;
   }

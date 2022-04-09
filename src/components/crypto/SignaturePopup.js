@@ -44,6 +44,8 @@ const Sign = async (SetMessage) => {
     let message = "Transaction failed";
     if(error.message === "Incorrect account") {
       message = `Incorrect account selected - expected ${wallet.ConnectedAccounts()[0]?.link_acct}`;
+    } else if(params.has("connect") && error.status === 409) {
+      message = "This Solana account is already connected to a different Eluvio wallet";
     }
 
     SetMessage(
