@@ -291,7 +291,7 @@ const NFTDetailsSection = ({nft}) => {
   );
 };
 
-const NFTContractSection = ({nft, listing, isOwned, setDeleted}) => {
+const NFTContractSection = ({nft, listing, heldDate, isOwned, setDeleted}) => {
   return (
     <ExpandableSection header="Contract" icon={ContractIcon} className="no-padding">
       <div className="expandable-section__content-row">
@@ -304,6 +304,12 @@ const NFTContractSection = ({nft, listing, isOwned, setDeleted}) => {
           Hash: { nft.details.VersionHash }
         </CopyableField>
       </div>
+      {
+        heldDate ?
+          <h3 className="expandable-section__details details-page__held-message">
+            This NFT is in a holding period until { heldDate }. You will not be able to transfer it until then.
+          </h3> : null
+      }
       <div className="expandable-section__actions">
         <a
           className="lookout-url"
@@ -333,7 +339,7 @@ const NFTContractSection = ({nft, listing, isOwned, setDeleted}) => {
             </ButtonWithLoader> : null
         }
       </div>
-      { isOwned && !listing ? <NFTTransfer nft={nft}/> : null }
+      { isOwned && !listing && !heldDate ? <NFTTransfer nft={nft}/> : null }
     </ExpandableSection>
   );
 };
@@ -582,21 +588,26 @@ const NFTDetails = observer(() => {
               </div> : null
           }
 
-          <ButtonWithLoader
-            disabled={heldDate || isInCheckout}
-            className="action action-primary details-page__listing-button"
-            onClick={async () => {
-              const { listing } = await LoadListing({listingId, nftData});
+          {
+            heldDate ? null :
 
-              if(listing && listing.details.CheckoutLockedUntil && listing.details.CheckoutLockedUntil > Date.now()) {
-                // checkout locked
-              } else {
-                setShowListingModal(true);
-              }
-            }}
-          >
-            { listing ? "Edit Listing" : "List for Sale" }
-          </ButtonWithLoader>
+              <ButtonWithLoader
+                disabled={heldDate || isInCheckout}
+                className="action action-primary details-page__listing-button"
+                onClick={async () => {
+                  const {listing} = await LoadListing({listingId, nftData});
+
+                  if(listing && listing.details.CheckoutLockedUntil && listing.details.CheckoutLockedUntil > Date.now()) {
+                    // checkout locked
+                  } else {
+                    setShowListingModal(true);
+                  }
+                }}
+              >
+                {listing ? "Edit Listing" : "List for Sale"}
+              </ButtonWithLoader>
+          }
+
           {
             !listing && nft && nft.metadata && nft.metadata.pack_options && nft.metadata.pack_options.is_openable ?
               <ButtonWithLoader
@@ -612,12 +623,7 @@ const NFTDetails = observer(() => {
                 Open Pack
               </ButtonWithLoader> : null
           }
-          {
-            heldDate ?
-              <h3 className="details-page__transfer-details details-page__held-message">
-                This NFT is in a holding period until { heldDate } for payment settlement. You will not be able to transfer it until then.
-              </h3> : null
-          }
+
           {
             isInCheckout ?
               <h3 className="details-page__transfer-details details-page__held-message">
@@ -690,7 +696,7 @@ const NFTDetails = observer(() => {
           <NFTDescriptionSection nft={nft} />
           <NFTTraitsSection nft={nft} />
           <NFTDetailsSection nft={nft} />
-          <NFTContractSection nft={nft} listing={listing} isOwned={isOwned} setDeleted={setDeleted} />
+          <NFTContractSection nft={nft} heldDate={heldDate} listing={listing} isOwned={isOwned} setDeleted={setDeleted} />
         </div>
       </div>
       <div className="details-page__transfer-tables">

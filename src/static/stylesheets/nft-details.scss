@@ -223,6 +223,10 @@
     justify-content: center;
     padding: 20px;
 
+    &:empty {
+      display: none;
+    }
+
     .button-container {
       display: flex;
       justify-content: center;
@@ -246,8 +250,7 @@
   }
 
   &__held-message {
-    color: $blue;
-    font-size: 12px;
+    font-weight: 600;
   }
 
   &__transfer-success {
@@ -591,10 +594,6 @@
       a {
         color: $blue;
       }
-    }
-
-    &__held-message {
-      color: $blue;
     }
 
     &__transfer-error {
