@@ -163,7 +163,7 @@ const App = () => {
 
                   if(!items || items.length === 0) { return; }
 
-                  SetResults(await client.Item({tokenId: items[0].details.TokenIdStr}));
+                  SetResults(await client.Item({contractAddress: items[0].details.ContractAddr, tokenId: items[0].details.TokenIdStr}));
                 }}
               >
                 First Item
