@@ -269,7 +269,7 @@ exports.MarketplaceStorefront = async function({tenantSlug, marketplaceSlug, mar
 };
 
 /**
- * &lt;b>&lt;i>Note: Will either prompt user for consent (wallet balance) or open the third party payment flow in a new window (stripe, coinbase)&lt;/i>&lt;/b>
+ * &lt;b>&lt;i>Note: Will either prompt user for consent (wallet balance) or open the third party payment flow in a new tab (stripe, coinbase)&lt;/i>&lt;/b>
  *
  * Initiate purchase flow for the specified item
  *
@@ -537,7 +537,7 @@ exports.RemoveListing = async function({listingId}) {
 };
 
 /**
- * &lt;b>&lt;i>Note: Will either prompt user for consent (wallet balance, linked solana wallet) or open the third party payment flow in a new window (stripe, coinbase)&lt;/i>&lt;/b>
+ * &lt;b>&lt;i>Note: Will either prompt user for consent (wallet balance, linked solana wallet) or open the third party payment flow in a new tab (stripe, coinbase)&lt;/i>&lt;/b>
  *
  * Initiate purchase flow for the specified listing
  *

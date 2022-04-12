@@ -68,12 +68,14 @@
 
 // Initialize in iframe at target element
 const walletClient = await ElvWalletClient.InitializeFrame({
+  requestor: &quot;My App&quot;,
   walletAppUrl: &quot;https://wallet.contentfabric.io&quot;,
   target: document.getElementById(&quot;#wallet-target&quot;)
 });
     
 // Or initialize in a popup
 const walletClient = await ElvWalletClient.InitializePopup({
+  requestor: &quot;My App&quot;,
   walletAppUrl: &quot;https://wallet.contentfabric.io&quot;,
 });
 </code></pre>
