@@ -182,12 +182,13 @@ class CheckoutStore {
           UrlJoin("/marketplace", marketplaceId, "store", listing.details.TenantId, listingId, "purchase", confirmationId) :
           UrlJoin("/wallet", "listings", listing.details.TenantId, listingId, "purchase", confirmationId);
 
-      if(requiresPopup) {
-        this.pendingPurchases[confirmationId] = {
-          listingId,
-          confirmationId
-        };
+      this.pendingPurchases[confirmationId] = {
+        tenantId: listing.details.TenantId,
+        listingId,
+        confirmationId
+      };
 
+      if(requiresPopup) {
         // Stripe doesn't work in iframe, open new window to initiate purchase
         const url = new URL(window.location.origin);
         url.pathname = window.location.pathname;
@@ -233,6 +234,8 @@ class CheckoutStore {
       }
 
       yield this.CheckoutRedirect({provider, requestParams, confirmationId});
+
+      this.PurchaseComplete({confirmationId, success: true});
 
       return { confirmationId, successPath: UrlJoin(basePath, "success") };
     } catch(error) {
@@ -302,13 +305,14 @@ class CheckoutStore {
         };
       }
 
-      if(requiresPopup) {
-        this.pendingPurchases[confirmationId] = {
-          marketplaceId,
-          sku,
-          confirmationId
-        };
+      this.pendingPurchases[confirmationId] = {
+        tenantId,
+        marketplaceId,
+        sku,
+        confirmationId
+      };
 
+      if(requiresPopup) {
         // Stripe doesn't work in iframe, open new window to initiate purchase
         const url = new URL(window.location.origin);
         url.pathname = window.location.pathname;
@@ -355,6 +359,8 @@ class CheckoutStore {
       }
 
       yield this.CheckoutRedirect({provider, requestParams, confirmationId});
+
+      this.PurchaseComplete({confirmationId, success: true});
 
       return { confirmationId, successPath: UrlJoin(basePath, "success") };
     } catch(error) {

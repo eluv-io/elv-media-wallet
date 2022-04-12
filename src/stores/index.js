@@ -975,6 +975,10 @@ class RootStore {
             tokenId = id;
           }
 
+          if(op === "nft-transfer") {
+            confirmationId = status?.extra?.trans_id;
+          }
+
           return {
             ...status,
             timestamp: new Date(status.ts),
@@ -1158,8 +1162,21 @@ class RootStore {
 
       yield this.GetWalletBalance(false);
 
-      this.cryptoStore.PhantomBalance();
+      yield this.cryptoStore.PhantomBalance();
     }
+
+    let balances = {
+      totalWalletBalance: this.totalWalletBalance,
+      availableWalletBalance: this.availableWalletBalance,
+      pendingWalletBalance: this.pendingWalletBalance,
+      withdrawableWalletBalance: this.withdrawableWalletBalance,
+    };
+
+    if(cryptoStore.usdcConnected) {
+      balances.usdcBalance = cryptoStore.phantomUSDCBalance;
+    }
+
+    return balances;
   });
 
   WithdrawFunds = flow(function * (amount) {

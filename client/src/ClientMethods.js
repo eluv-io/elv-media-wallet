@@ -87,6 +87,26 @@ exports.UserProfile = async function () {
 };
 
 /**
+ * Retrieve the fund balances for the current user
+ *
+ * @methodGroup User
+ * @returns {Promise<Object>} - Returns balances for the user. All values are in USD.
+ <ul>
+ <li>- totalWalletBalance - Total balance of the users sales and wallet balance purchases</li>
+ <li>- availableWalletBalance - Balance available for purchasing items</li>
+ <li>- pendingWalletBalance - Balance unavailable for purchasing items</li>
+ <li>- withdrawableWalletBalance - Amount that is available for withdrawal</li>
+ <li>- usedBalance - <i>(Only included if user has set up Solana link with the Phantom wallet)</i> Available USDC balance of the user's Solana wallet</li>
+ </ul>
+ */
+exports.UserBalances = async function() {
+  return await this.SendMessage({
+    action: "balances",
+    params: {}
+  });
+};
+
+/**
  * Retrieve the full metadata for the specified marketplace object (starting from `/public/asset_metadata/info`)
  *
  * @methodGroup Marketplace
@@ -134,12 +154,12 @@ exports.EventMetadata = async function ({tenantSlug, eventSlug, eventId, eventHa
  * Retrieve all items from the specified marketplace.
  *
  * Note that this includes items that may not be for displayed sale in the marketplace. For information specifically about items displayed
- * for sale, see the <a href="#MarketplaceStorefront">MarketplaceStorefront method</a>.
+ * for sale, see the <a href="#.MarketplaceStorefront">MarketplaceStorefront method</a>.
  *
  * @methodGroup Marketplace
  * @namedParams
- * @param {string=} tenantSlug - Specify the URL slug of the marketplace's tenant. Required if specifying marketplace slug
- * @param {string=} marketplaceSlug - Specify the URL slug of the marketplace
+ * @param {string} tenantSlug - Specify the URL slug of the marketplace's tenant. Required if specifying marketplace slug
+ * @param {string} marketplaceSlug - Specify the URL slug of the marketplace
  */
 exports.MarketplaceItems = async function({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash}) {
   return await this.SendMessage({
@@ -152,6 +172,29 @@ exports.MarketplaceItems = async function({tenantSlug, marketplaceSlug, marketpl
     }
   });
 };
+
+/**
+ * Retrieve the specified item from the specified marketplace
+ *
+ * @methodGroup Marketplace
+ * @namedParams
+ * @param {string} tenantSlug - Specify the URL slug of the marketplace's tenant. Required if specifying marketplace slug
+ * @param {string} marketplaceSlug - Specify the URL slug of the marketplace
+ * @param {string} sku - The SKU of the item
+ */
+exports.MarketplaceItems = async function({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, sku}) {
+  return await this.SendMessage({
+    action: "marketplaceItem",
+    params: {
+      tenantSlug,
+      marketplaceSlug,
+      marketplaceId,
+      marketplaceHash,
+      sku
+    }
+  });
+};
+
 
 /**
  * Retrieve information about the items displayed for sale in the specified marketplace
@@ -169,6 +212,43 @@ exports.MarketplaceStorefront = async function({tenantSlug, marketplaceSlug, mar
       marketplaceSlug,
       marketplaceId,
       marketplaceHash
+    }
+  });
+};
+
+/**
+ * <b><i>Note: Will either prompt user for consent (wallet balance) or open the third party payment flow in a new tab (stripe, coinbase)</i></b>
+ *
+ * Initiate purchase flow for the specified item
+ *
+ * @methodGroup Purchases
+ * @namedParams
+ * @param {string} tenantSlug - Specify the URL slug of the marketplace's tenant. Required if specifying marketplace slug
+ * @param {string} marketplaceSlug - Specify the URL slug of the marketplace
+ * @param {string} purchaseProvider=stripe - The payment flow to use for the purchase. Available providers:
+ <ul>
+ <li>- stripe - Credit card payment flow with stripe</li>
+ <li>- coinbase - Crypto payment flow with Coinbase</li>
+ <li>- wallet-balance - Purchase with the user's available wallet balance (<b>Requires consent prompt</b>).</li>
+ </ul>
+ <br />
+ <b>Note</b>: Use the <a href="#.UserBalances"> UserBalances method</a> to check the user's available balance.
+ * @param {string} sku - SKU ID of the item to purchase
+ * @param {number=} quantity=1 - Quantity of the item to purchase. It is recommended to check the <a href="#.MarketplaceStock">MarketplaceStock API</a> to ensure enough quantity is available.
+ *
+ * @returns {Promise<string>} - The confirmation ID of the purchase. This ID can be used to check purchase and minting status via the <a href="#.PurchaseStatus">PurchaseStatus method</a>.
+ */
+exports.MarketplacePurchase = async function({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, purchaseProvider, sku, quantity}) {
+  return await this.SendMessage({
+    action: "marketplacePurchase",
+    params: {
+      provider: purchaseProvider,
+      tenantSlug,
+      marketplaceSlug,
+      marketplaceId,
+      marketplaceHash,
+      sku,
+      quantity
     }
   });
 };
@@ -202,8 +282,10 @@ exports.ItemNames = async function({tenantSlug, marketplaceSlug}={}) {
  * @namedParams
  * @param {string=} sortBy=default - Sort order for the results - either `default` or `meta/display_name`
  * @param {boolean=} sortDesc=false - Sort in descending order
- * @param {string=} filter - Filter results by item name. NOTE: This string must be an *exact match* on the item name.
- * You can retrieve all available item names from the ItemNames method
+ * @param {string=} filter - Filter results by item name.
+ <br /><br />
+ NOTE: This string must be an <b>exact match</b> on the item name.
+ * You can retrieve all available item names from the <a href="#.ItemNames">ItemNames method</a>.
  * @param {string=} contractAddress - Filter results by contract address
  *
  * @methodGroup Items
@@ -264,8 +346,10 @@ exports.Item = async function ({contractAddress, tokenId}) {
   <li>- nft/display_name</li>
  </ul>
  * @param {boolean=} sortDesc=false - Sort in descending order
- * @param {string=} filter - Filter results by item name. NOTE: This string must be an *exact match* on the item name.
- * You can retrieve all available item names from the <a href="#ItemNames">ItemNames</a> method
+ * @param {string=} filter - Filter results by item name.
+ <br /><br />
+ NOTE: This string must be an <b>exact match</b> on the item name.
+ * You can retrieve all available item names from the <a href="#.ItemNames">ItemNames method</a>.
  * @param {string=} tenantSlug - Specify the URL slug of a marketplace's tenant. Required if specifying marketplace slug
  * @param {string=} marketplaceSlug - Filter listings by marketplace
  * @param {string=} contractAddress - Filter results by contract address
@@ -396,6 +480,62 @@ exports.RemoveListing = async function({listingId}) {
     action: "removeListing",
     params: {
       listingId
+    }
+  });
+};
+
+/**
+ * <b><i>Note: Will either prompt user for consent (wallet balance, linked solana wallet) or open the third party payment flow in a new tab (stripe, coinbase)</i></b>
+ *
+ * Initiate purchase flow for the specified listing
+ *
+ * @methodGroup Purchases
+ * @namedParams
+ * @param {string} listingId - The ID of the listing to purchase
+ * @param {string} purchaseProvider=stripe - The payment flow to use for the purchase. Available providers:
+ <ul>
+ <li>- stripe - Credit card payment flow with stripe</li>
+ <li>- coinbase - Crypto payment flow with Coinbase</li>
+ <li>- wallet-balance - Purchase with the user's available wallet balance (<b>Requires consent prompt</b>).</li>
+ <li>- linked-wallet - Purchase item with USDC on Solana using the Phantom wallet (<b>Requires popup prompt</b>)</li>
+ </ul>
+ <br />
+ <b>Note</b>: Use the <a href="#.UserBalances"> UserBalances method</a> to check the user's available balance.
+ *
+ * @returns {Promise<string>} - The confirmation ID of the purchase. This ID can be used to check purchase and minting status via the <a href="#.PurchaseStatus">PurchaseStatus method</a>.
+ */
+exports.ListingPurchase = async function({listingId, purchaseProvider}) {
+  return await this.SendMessage({
+    action: "listingPurchase",
+    params: {
+      listingId,
+      provider: purchaseProvider
+    }
+  });
+};
+
+/**
+ * Retrieve the status of the specified purchase.
+ *
+ * The returned status has two parts:
+ <ul>
+ <li>- purchase - The status of the purchase flow. When the user has completed the process, this status will be COMPLETED. If the user aborts the purchase flow, this status will be CANCELLED.</li>
+ <li>- minting - The status of the nft minting/transfer process. When the minting/transfer has finished, this status will be COMPLETED. If the process failed, this status will be FAILED.</li>
+ <ul>
+ *
+ * @methodGroup Purchases
+ * @namedParams
+ * @param {string} confirmationId - The confirmation ID of the purchase
+ *
+ * @return {Promise<Object>} - The status of the purchase
+ */
+exports.PurchaseStatus = async function({confirmationId}) {
+  Assert("PurchaseStatus", "Confirmation ID", confirmationId);
+
+  return await this.SendMessage({
+    action: "purchaseStatus",
+    params: {
+      confirmationId
     }
   });
 };
