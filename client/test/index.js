@@ -46,6 +46,7 @@ const App = () => {
     document.getElementById("client-events").innerHTML = "";
 
     ElvWalletClient.InitializeFrame({
+      requestor: "Wallet Client Test App",
       walletAppUrl: appUrl,
       target: targetId
     })
@@ -102,7 +103,11 @@ const App = () => {
 
             document.getElementById("client-events").innerHTML = "";
 
-            const client = await ElvWalletClient.InitializePopup({walletAppUrl: appUrl});
+            const client = await ElvWalletClient.InitializePopup({
+              requestor: "Wallet Client Test App",
+              walletAppUrl: appUrl
+            });
+
             window.client = client;
             setClient(client);
 
@@ -119,9 +124,11 @@ const App = () => {
             document.getElementById("client-events").innerHTML = "";
 
             const client = await ElvWalletClient.InitializeFrame({
+              requestor: "Wallet Client Test App",
               walletAppUrl: appUrl,
               target: targetId
             });
+
             window.client = client;
             setClient(client);
 

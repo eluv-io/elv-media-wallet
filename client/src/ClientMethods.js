@@ -4,6 +4,11 @@
  * @module ElvWalletClient/Methods
  */
 
+const Assert = (method, name, value) => {
+  if(!value) {
+    throw Error(`Eluvio Wallet Client: ${name} not specified in ${method} call`);
+  }
+};
 
 /**
  * Set the marketplace for the wallet.
@@ -17,7 +22,7 @@
  * @param {string=} tenantSlug - Specify the URL slug of your tenant. Required if specifying marketplaceSlug
  * @param {string=} marketplaceSlug - Specify the URL slug of your marketplace
  *
- * @return {Promise<string>} - The version hash of the specified marketplace
+ * @returns {Promise<string>} - The version hash of the specified marketplace
  */
 exports.SetMarketplace = async function ({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash}) {
   return this.SendMessage({
@@ -62,7 +67,7 @@ exports.ClearMarketplaceFilters = async function () {
  * @param {string=} marketplaceId - The ID of the marketplace
  * @param {string=} marketplaceHash - A version hash of the marketplace
  *
- * @return {Promise<Object>} - Information about available stock in the specified marketplace
+ * @returns {Promise<Object>} - Information about available stock in the specified marketplace
  */
 exports.MarketplaceStock = async function ({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash}) {
   return this.SendMessage({action: "stock", params: { tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash }});
@@ -72,7 +77,7 @@ exports.MarketplaceStock = async function ({tenantSlug, marketplaceSlug, marketp
  * Return the current user's profile, including name, email and blockchain address.
  *
  * @methodGroup User
- * @return Promise<Object> - If a user is currently logged in, the user's profile is returned.
+ * @returns {Promise<Object>} - If a user is currently logged in, the user's profile is returned.
  */
 exports.UserProfile = async function () {
   return await this.SendMessage({
@@ -89,7 +94,6 @@ exports.UserProfile = async function () {
  * @param {string=} tenantSlug - Specify the URL slug of the marketplace's tenant. Required if specifying marketplace slug
  * @param {string=} marketplaceSlug - Specify the URL slug of the marketplace
  *
- * @return Promise<Object> - The full metadata of the marketplace
  */
 exports.MarketplaceMetadata = async function ({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash}) {
   return await this.SendMessage({
@@ -112,7 +116,7 @@ exports.MarketplaceMetadata = async function ({tenantSlug, marketplaceSlug, mark
  * @param {string=} eventSlug - Specify the URL slug of the event
  * @param {string=} eventHash - Specify a specific version of a the event. Not necessary if eventSlug is specified
  *
- * @return Promise<Object> - The full metadata of the event
+ * @returns {Promise<Object>} - The full metadata of the event
  */
 exports.EventMetadata = async function ({tenantSlug, eventSlug, eventId, eventHash}) {
   return await this.SendMessage({
@@ -179,7 +183,7 @@ exports.MarketplaceStorefront = async function({tenantSlug, marketplaceSlug, mar
  * @param {string=} tenantSlug - Specify the URL slug of a marketplace's tenant. Required if specifying marketplace slug
  * @param {string=} marketplaceSlug - Specify the URL slug of a marketplace
  *
- * @return Promise<Array<String>> - A list of item names
+ * @returns {Promise<Array<String>>} - A list of item names
  */
 exports.ItemNames = async function({tenantSlug, marketplaceSlug}={}) {
   return await this.SendMessage({
@@ -201,17 +205,15 @@ exports.ItemNames = async function({tenantSlug, marketplaceSlug}={}) {
  * @param {string=} filter - Filter results by item name. NOTE: This string must be an *exact match* on the item name.
  * You can retrieve all available item names from the ItemNames method
  * @param {string=} contractAddress - Filter results by contract address
- * @param {string=} contractId - Filter results by contract ID
  *
  * @methodGroup Items
- * @return Promise<Array<Object>> - Information about the items in the user's wallet.
+ * @returns {Promise<Array<Object>>} - Information about the items in the user's wallet.
  */
 exports.Items = async function ({
   sortBy="default",
   sortDesc=false,
   filter,
-  contractAddress,
-  contractId
+  contractAddress
 }={}) {
   return await this.SendMessage({
     action: "items",
@@ -219,8 +221,7 @@ exports.Items = async function ({
       sortBy,
       sortDesc,
       filter,
-      contractAddress,
-      contractId
+      contractAddress
     }
   });
 };
@@ -230,26 +231,19 @@ exports.Items = async function ({
  *
  * @methodGroup Items
  * @namedParams
- * @param {string=} contractAddress - The address of the contract. Either contractAddress or contractId is required.
- * @param {string=} contractId - The ID of the contract. Either contractAddress or contractId is required.
+ * @param {string} contractAddress - The address of the contract
  * @param {string} tokenId - The ID of the item
  *
- * @return Promise<Object> - Information about the requested item. Returns undefined if the item was not found.
+ * @returns {Promise<Object>} - Information about the requested item. Returns undefined if the item was not found.
  */
-exports.Item = async function ({contractAddress, contractId, tokenId}) {
-  if(!contractAddress && !contractId) {
-    throw Error("Eluvio Wallet Client: Contract information not provided in Item call");
-  }
-
-  if(!tokenId) {
-    throw Error("Eluvio Wallet Client: Token ID not provided in Item call");
-  }
+exports.Item = async function ({contractAddress, tokenId}) {
+  Assert("Item", "Contract address", contractAddress);
+  Assert("Item", "Token ID", tokenId);
 
   return await this.SendMessage({
     action: "item",
     params: {
       contractAddress,
-      contractId,
       tokenId: tokenId.toString()
     }
   });
@@ -275,10 +269,8 @@ exports.Item = async function ({contractAddress, contractId, tokenId}) {
  * @param {string=} tenantSlug - Specify the URL slug of a marketplace's tenant. Required if specifying marketplace slug
  * @param {string=} marketplaceSlug - Filter listings by marketplace
  * @param {string=} contractAddress - Filter results by contract address
- * @param {string=} contractId - Filter results by contract ID
  *
- * @methodGroup Listings
- * @return Promise<Array<Object>> - Information about the items in the user's wallet.
+ * @returns {Promise<Object>} - Available listings and pagination information
  */
 exports.Listings = async function ({
   start=0,
@@ -288,8 +280,7 @@ exports.Listings = async function ({
   sortBy="created",
   sortDesc=false,
   filter,
-  contractAddress,
-  contractId
+  contractAddress
 }={}) {
   return await this.SendMessage({
     action: "listings",
@@ -301,9 +292,22 @@ exports.Listings = async function ({
       sortBy,
       sortDesc,
       filter,
-      contractAddress,
-      contractId
+      contractAddress
     }
+  });
+};
+
+/**
+ * Retrieve all listings posted by the current user.
+ *
+ * @methodGroup Listings
+ * @namedParams
+ *
+ * @returns {Promise<Array<Object>>} - The current user's listings
+  */
+exports.UserListings = async function () {
+  return await this.SendMessage({
+    action: "userListings"
   });
 };
 
@@ -312,17 +316,84 @@ exports.Listings = async function ({
  *
  * @methodGroup Listings
  * @namedParams
- * @param {string=} contractAddress - The address of the contract. Either contractAddress or contractId is required.
+ * @param {string} listingId - The ID of the listing to retrieve
  *
- * @return Promise<Object> - Information about the requested item. Returns undefined if the item was not found.
+ * @returns {Promise<Object>} - Information about the requested listing. Returns undefined if the item was not found.
  */
 exports.Listing = async function ({listingId}) {
-  if(!listingId) {
-    throw Error("Eluvio Wallet Client: Listing ID not provided in Listing call");
-  }
+  Assert("Listing", "Listing ID", listingId);
 
   return await this.SendMessage({
     action: "listing",
+    params: {
+      listingId
+    }
+  });
+};
+
+/**
+ * <b><i>Note: Prompts user for consent</i></b>
+ *
+ * List the specified item for sale. The item must be owned by the current user, and must not have an active hold. (`nft.details.TokenHold`)
+ *
+ * @methodGroup Listings
+ * @param {string} contractAddress - The address of the contract
+ * @param {string} tokenId - The ID of the item
+ * @param {number} price - Price for the item, in USD. The maximum listing price is $10,000
+ *
+ * @returns {Promise<string>} - The listing ID of the item
+ */
+exports.ListItem = async function({contractAddress, tokenId, price}) {
+  Assert("ListItem", "Contract address", contractAddress);
+  Assert("ListItem", "Token ID", tokenId);
+  Assert("ListItem", "Price", price);
+
+  return await this.SendMessage({
+    action: "listItem",
+    params: {
+      contractAddress,
+      tokenId,
+      price
+    }
+  });
+};
+
+
+/**
+ * <b><i>Note: Prompts user for consent</i></b>
+ *
+ * Modify the specify listing
+ *
+ * @methodGroup Listings
+ * @param {string} listingId - The listing ID of the listing to change
+ * @param {number} price - Price for the item, in USD. The maximum listing price is $10,000
+ */
+exports.EditListing = async function({listingId, price}) {
+  Assert("EditListing", "Listing ID", listingId);
+  Assert("ListItem", "Price", price);
+
+  return await this.SendMessage({
+    action: "editListing",
+    params: {
+      listingId,
+      price
+    }
+  });
+};
+
+/**
+ * <b><i>Note: Prompts user for consent</i></b>
+ *
+ * Modify the specify listing
+ *
+ * @methodGroup Listings
+ * @param {string} listingId - The listing ID of the listing to remove
+ */
+exports.RemoveListing = async function({listingId}) {
+  Assert("RemoveListing", "Listing ID", listingId);
+
+  return await this.SendMessage({
+    action: "removeListing",
     params: {
       listingId
     }

@@ -119,10 +119,11 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @constructor
    */
   constructor({
+    requestor,
     walletAppUrl="http://wallet.contentfabric.io",
     target,
     Close,
-    timeout=10
+    timeout=300
   }) {
     if(!walletAppUrl) {
       this.Throw("walletAppUrl not specified");
@@ -132,6 +133,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
       this.Throw("target not specified");
     }
 
+    this.requestor = requestor;
     this.walletAppUrl = walletAppUrl;
     this.target = target;
     this.Close = Close;
@@ -180,7 +182,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
   /**
    * Event keys that can be registered in AddEventListener.
    *
-   * Available options: LOADED, LOG_IN, LOG_OUT, CLOSE, ALL
+   * Available options: LOADED, LOG_IN, LOG_OUT, ROUTE_CHANGE, CLOSE, ALL
    *
    * Also accessible as a property via `walletClient.EVENTS`
    *
@@ -391,6 +393,10 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @methodGroup Constructor
    *
    * @namedParams
+   * @param {string} requestor - The name of your application. This field is used in permission prompts, e.g.
+   <br />
+   <br />
+   `<requestor> is requesting to perform <action>`
    * @param {string=} walletAppUrl=http://wallet.contentfabric.io - The URL of the Eluvio Media Wallet app
    * @param {string=} tenantSlug - Specify the URL slug of your tenant. Required if specifying marketplaceSlug
    * @param {string=} marketplaceSlug - Specify the URL slug of your marketplace
@@ -399,9 +405,10 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @param {boolean=} captureLogin=false - If specified, the parent frame will be responsible for handling login requests. When the user attempts to log in, the LOG_IN_REQUESTED event will be fired.
    * @param {boolean=} darkMode=false - Specify whether the app should be in dark mode
    *
-   * @return {Promise<ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new window.
+   * @returns {Promise<ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new window.
    */
   static async InitializePopup({
+    requestor,
     walletAppUrl="http://wallet.contentfabric.io",
     tenantSlug,
     marketplaceSlug,
@@ -433,7 +440,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
 
     const target = Popup({url: walletAppUrl.toString(), title: "Eluvio Media Wallet", w: 400, h: 700});
 
-    const client = new ElvWalletClient({walletAppUrl: walletAppUrl.toString(), target, Close: () => target.close()});
+    const client = new ElvWalletClient({requestor, walletAppUrl: walletAppUrl.toString(), target, Close: () => target.close()});
 
     // Ensure app is initialized
     await client.AwaitMessage("init");
@@ -448,6 +455,10 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @methodGroup Constructor
    *
    * @namedParams
+   * @param {string} requestor - The name of your application. This field is used in permission prompts, e.g.
+   <br />
+   <br />
+   `<requestor> is requesting to perform <action>`
    * @param {string=} walletAppUrl=http://wallet.contentfabric.io - The URL of the Eluvio Media Wallet app
    * @param {Object | string} target - An HTML element or the ID of an element
    * @param {string=} tenantSlug - Specify the URL slug of your tenant. Required if specifying marketplace slug
@@ -457,9 +468,10 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @param {boolean=} captureLogin - If specified, the parent frame will be responsible for handling login requests. When the user attempts to log in, the LOG_IN_REQUESTED event will be fired.
    * @param {boolean=} darkMode=false - Specify whether the app should be in dark mode
    *
-   * @return {Promise<ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new iframe.
+   * @returns {Promise<ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new iframe.
    */
   static async InitializeFrame({
+    requestor,
     walletAppUrl="http://wallet.contentfabric.io",
     target,
     tenantSlug,
@@ -514,6 +526,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
     }
 
     const client = new ElvWalletClient({
+      requestor,
       walletAppUrl: walletAppUrl.toString(),
       target: target.contentWindow,
       Close: () => target && target.parentNode && target.parentNode.removeChild(target)
@@ -531,6 +544,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
 
     this.target.postMessage({
       type: "ElvMediaWalletClientRequest",
+      requestor: this.requestor,
       requestId,
       action,
       params
@@ -601,9 +615,11 @@ const walletClient = await ElvWalletClient.InitializePopup({
 /**
  * `client.EVENTS` contains event keys for the AddEventListener and RemoveEventListener methods
  *
+ * - `client.EVENTS.LOADED` - Wallet app has finished loading and authentication is settled. If a user is currently logged in, a `LOG_IN` event will have preceded this event.
  * - `client.EVENTS.LOG_IN` - User has logged in. Event data contains user address.
  * - `client.EVENTS.LOG_OUT` - User has logged out. Event data contains user address.
  * - `client.EVENTS.CLOSE` - Target window or frame has been closed or has otherwise unloaded the wallet app.
+ * - `client.EVENTS.ROUTE_CHANGE` - The wallet app's current route has changed. Event data contains the current route of the app.
  * - `client.EVENTS.ALL` - Any of the above events has occurred.
  */
 ElvWalletClient.EVENTS = EVENTS;
