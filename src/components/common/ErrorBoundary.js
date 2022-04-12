@@ -1,8 +1,7 @@
 import React from "react";
 import {Redirect, withRouter} from "react-router-dom";
 
-@withRouter
-class ErrorBoundary extends React.Component {
+class ErrorBoundaryClass extends React.Component {
   constructor(props) {
     super(props);
 
@@ -42,14 +41,6 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-const ErrorWrapper = Component => (
-  props =>
-    <ErrorBoundary>
-      <Component {...props} />
-    </ErrorBoundary>
-);
+const ErrorBoundary = withRouter(ErrorBoundaryClass);
 
-export {
-  ErrorBoundary,
-  ErrorWrapper
-};
+export { ErrorBoundary };

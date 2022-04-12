@@ -30,8 +30,7 @@ import { ElvWalletClient } from "@eluvio/elv-wallet-client";
 // Initialize in iframe at target element
 const walletClient = await ElvWalletClient.InitializeFrame({
   walletAppUrl: "https://wallet.contentfabric.io",
-  target: document.getElementById("#wallet-target"),
-  marketplaceHash: <version-hash-of-marketplace>
+  target: document.getElementById("#wallet-target")
 });
     
 // Or initialize in a popup

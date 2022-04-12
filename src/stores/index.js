@@ -1,4 +1,4 @@
-import {makeAutoObservable, configure, flow, runInAction, computed} from "mobx";
+import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";
 import {ElvClient} from "@eluvio/elv-client-js";
 import Utils from "@eluvio/elv-client-js/src/Utils";
@@ -152,15 +152,15 @@ class RootStore {
 
   noItemsAvailable = false;
 
-  @computed get specifiedMarketplace() {
+  get specifiedMarketplace() {
     return this.marketplaces[this.specifiedMarketplaceId];
   }
 
-  @computed get marketplaceHash() {
+  get marketplaceHash() {
     return this.marketplaceHashes[this.marketplaceId];
   }
 
-  @computed get allMarketplaces() {
+  get allMarketplaces() {
     let marketplaces = [];
     Object.keys((this.availableMarketplaces || {}))
       .filter(key => typeof this.availableMarketplaces[key] === "object")

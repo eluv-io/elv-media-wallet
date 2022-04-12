@@ -1,14 +1,14 @@
 import "../../src/static/stylesheets/reset.scss";
 import "./test.scss";
 
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import {render} from "react-dom";
 
-import ElvWalletClient from "../src/index";
+import {ElvWalletClient} from "../src/index";
 
 window.client = undefined;
 
-const appUrl = window.location.hostname === "localhost" ? "http://localhost:8090" : "https://core.test.contentfabric.io/elv-media-wallet";
+const appUrl = window.location.hostname.startsWith("https://core.test") ? "https://core.test.contentfabric.io/wallet" : "https://192.168.0.17:8090";
 
 const targetId = "wallet-target";
 
@@ -40,6 +40,24 @@ const App = () => {
     [ElvWalletClient.EVENTS.ALL]: undefined,
   });
 
+  useEffect(() => {
+    Destroy();
+
+    document.getElementById("client-events").innerHTML = "";
+
+    ElvWalletClient.InitializeFrame({
+      walletAppUrl: appUrl,
+      target: targetId
+    })
+      .then(client => {
+        window.client = client;
+        setClient(client);
+
+        client.AddEventListener(client.EVENTS.CLOSE, Destroy);
+      });
+  }, []);
+
+
   const ToggleEventListener = event => {
     if(listeners[event]) {
       client.RemoveEventListener(event, EventListener);
@@ -52,6 +70,12 @@ const App = () => {
       [event]: listeners[event] ? undefined : EventListener
     });
   };
+
+  useEffect(() => {
+    if(!client) { return; }
+
+    ToggleEventListener(ElvWalletClient.EVENTS.ALL);
+  }, [client]);
 
   const Destroy = () => {
     if(client) { client.Destroy(); }
@@ -94,7 +118,10 @@ const App = () => {
 
             document.getElementById("client-events").innerHTML = "";
 
-            const client = await ElvWalletClient.InitializeFrame({walletAppUrl: appUrl, target: targetId});
+            const client = await ElvWalletClient.InitializeFrame({
+              walletAppUrl: appUrl,
+              target: targetId
+            });
             window.client = client;
             setClient(client);
 
@@ -111,22 +138,18 @@ const App = () => {
           <>
             <div className="button-row">
               <p>Navigation</p>
-              <button onClick={() => client.Navigate({page: "discover"})}>Discover</button>
               <button onClick={() => client.Navigate({page: "wallet"})}>Wallet</button>
-              <button onClick={() => client.Navigate({page: "items"})}>Items</button>
               <button
                 onClick={async () => {
                   const items = await client.Items();
 
                   if(!items || items.length === 0) { return; }
 
-                  client.Navigate({page: "item", params: { tokenId: items[0].details.TokenIdStr }});
+                  client.Navigate({page: "item", params: { contractAddress: items[0].details.ContractAddr, tokenId: items[0].details.TokenIdStr }});
                 }}
               >
                 First Item
               </button>
-              <button onClick={() => client.Navigate({page: "tickets"})}>Tickets</button>
-              <button onClick={() => client.Navigate({page: "tokens"})}>Tokens</button>
               <button onClick={() => client.Navigate({page: "profile"})}>Profile</button>
             </div>
             <div className="button-row">

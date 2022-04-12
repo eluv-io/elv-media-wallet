@@ -282,6 +282,10 @@ export const InitializeListener = (history) => {
               params.marketplaceId = rootStore.marketplaceId;
             }
 
+            if(params.contractAddress) {
+              params.contractId = `ictr${Utils.AddressToHash(params.contractAddress)}`;
+            }
+
             Object.keys(params).forEach(key => {
               route = route.replace(`:${key}`, params[key]);
             });

@@ -1,7 +1,7 @@
 import React from "react";
 import {observer} from "mobx-react";
 import {Loader} from "./Loaders";
-import {ErrorWrapper} from "./ErrorBoundary";
+import {ErrorBoundary} from "./ErrorBoundary";
 
 let loaded = {};
 
@@ -73,4 +73,12 @@ class AsyncComponent extends React.Component {
   }
 }
 
-export default ErrorWrapper(observer(AsyncComponent));
+const AsyncComponentErrorBoundary = observer((props) => {
+  return (
+    <ErrorBoundary>
+      <AsyncComponent {...props} />
+    </ErrorBoundary>
+  );
+});
+
+export default AsyncComponentErrorBoundary;

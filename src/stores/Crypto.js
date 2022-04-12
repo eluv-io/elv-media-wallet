@@ -1,4 +1,4 @@
-import {computed, flow, makeAutoObservable, runInAction} from "mobx";
+import {flow, makeAutoObservable, runInAction} from "mobx";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import UrlJoin from "url-join";
 import {ethers} from "ethers";
@@ -23,7 +23,7 @@ class CryptoStore {
     sol: {}
   };
 
-  @computed get usdcConnected() {
+  get usdcConnected() {
     return Object.keys(this.connectedAccounts.sol || {}).length > 0;
   }
 
