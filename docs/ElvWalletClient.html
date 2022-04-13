@@ -243,7 +243,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line630">line 630</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line655">line 655</a>
         </li>
       </ul>
     </dd>
@@ -277,7 +277,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
     </a>
     <h4 class="name" id=".InitializeFrame">
-      <span class="type-signature">async, static </span>InitializeFrame<span class="signature">({<div class="block-param">requestor,</div><div class="block-param">walletAppUrl<span class="signature-attributes">optional</span>,</div><div class="block-param">target,</div><div class="block-param">tenantSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceHash<span class="signature-attributes">optional</span>,</div><div class="block-param">requireLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">captureLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">darkMode<span class="signature-attributes">optional</span></div>})</span><span class="type-signature"> &rarr;  Promise.&lt;<a href="ElvWalletClient.html">ElvWalletClient</a>></span>
+      <span class="type-signature">async, static </span>InitializeFrame<span class="signature">({<div class="block-param">requestor,</div><div class="block-param">walletAppUrl<span class="signature-attributes">optional</span>,</div><div class="block-param">target,</div><div class="block-param">tenantSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceHash<span class="signature-attributes">optional</span>,</div><div class="block-param">requireLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">loginOnly<span class="signature-attributes">optional</span>,</div><div class="block-param">captureLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">darkMode<span class="signature-attributes">optional</span></div>})</span><span class="type-signature"> &rarr;  Promise.&lt;<a href="ElvWalletClient.html">ElvWalletClient</a>></span>
     </h4>
   </span>
 
@@ -645,6 +645,51 @@ and the target can be passed in either as an element directly, or by element ID.
     
       <tr>
         
+          <td class="name"><code>loginOnly</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      boolean
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+          <td class="attributes">
+            
+              &lt;optional><br>
+            
+
+            
+
+            
+          </td>
+        
+
+        
+          <td class="default">
+            
+              false
+            
+          </td>
+        
+
+        <td class="description last">
+          <p>If specified, only the login flow will be shown. Be sure to register an event listener for the <code>LOG_IN</code> event. Note that once this mode is activated, it cannot be deactivated - you must re-initialize the popup/frame.</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
           <td class="name"><code>captureLogin</code></td>
         
 
@@ -781,7 +826,7 @@ and the target can be passed in either as an element directly, or by element ID.
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line478">line 478</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line498">line 498</a>
         </li>
       </ul>
     </dd>
@@ -804,7 +849,7 @@ and the target can be passed in either as an element directly, or by element ID.
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
     </a>
     <h4 class="name" id=".InitializePopup">
-      <span class="type-signature">async, static </span>InitializePopup<span class="signature">({<div class="block-param">requestor,</div><div class="block-param">walletAppUrl<span class="signature-attributes">optional</span>,</div><div class="block-param">tenantSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceHash<span class="signature-attributes">optional</span>,</div><div class="block-param">requireLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">captureLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">darkMode<span class="signature-attributes">optional</span></div>})</span><span class="type-signature"> &rarr;  Promise.&lt;<a href="ElvWalletClient.html">ElvWalletClient</a>></span>
+      <span class="type-signature">async, static </span>InitializePopup<span class="signature">({<div class="block-param">requestor,</div><div class="block-param">walletAppUrl<span class="signature-attributes">optional</span>,</div><div class="block-param">tenantSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceHash<span class="signature-attributes">optional</span>,</div><div class="block-param">requireLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">loginOnly<span class="signature-attributes">optional</span>,</div><div class="block-param">captureLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">darkMode<span class="signature-attributes">optional</span></div>})</span><span class="type-signature"> &rarr;  Promise.&lt;<a href="ElvWalletClient.html">ElvWalletClient</a>></span>
     </h4>
   </span>
 
@@ -814,6 +859,7 @@ and the target can be passed in either as an element directly, or by element ID.
 
   <div class="description">
     <p>Initialize the media wallet in a new window.</p>
+<p>Calling client.Destroy() will close the popup.</p>
   </div>
 
 
@@ -1124,6 +1170,51 @@ and the target can be passed in either as an element directly, or by element ID.
     
       <tr>
         
+          <td class="name"><code>loginOnly</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      boolean
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+          <td class="attributes">
+            
+              &lt;optional><br>
+            
+
+            
+
+            
+          </td>
+        
+
+        
+          <td class="default">
+            
+              false
+            
+          </td>
+        
+
+        <td class="description last">
+          <p>If specified, only the login flow will be shown. Be sure to register an event listener for the <code>LOG_IN</code> event. <code>client.Destroy()</code> can be used to close the popup after login. Note that once this mode is activated, it cannot be deactivated - you must re-initialize the popup/frame.</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
           <td class="name"><code>captureLogin</code></td>
         
 
@@ -1262,7 +1353,7 @@ and the target can be passed in either as an element directly, or by element ID.
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line415">line 415</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line421">line 421</a>
         </li>
       </ul>
     </dd>
@@ -1439,7 +1530,7 @@ and the target can be passed in either as an element directly, or by element ID.
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line208">line 208</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line212">line 212</a>
         </li>
       </ul>
     </dd>
@@ -1537,7 +1628,7 @@ and the target can be passed in either as an element directly, or by element ID.
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line291">line 291</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line295">line 295</a>
         </li>
       </ul>
     </dd>
@@ -1630,7 +1721,7 @@ and the target can be passed in either as an element directly, or by element ID.
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line193">line 193</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line197">line 197</a>
         </li>
       </ul>
     </dd>
@@ -1979,7 +2070,7 @@ and the target can be passed in either as an element directly, or by element ID.
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line272">line 272</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line276">line 276</a>
         </li>
       </ul>
     </dd>
@@ -2154,7 +2245,7 @@ and the target can be passed in either as an element directly, or by element ID.
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line222">line 222</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line226">line 226</a>
         </li>
       </ul>
     </dd>
@@ -2471,7 +2562,7 @@ wallet application to the login page, use the <a href="#Navigate">Navigate</a> m
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line368">line 368</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line372">line 372</a>
         </li>
       </ul>
     </dd>
@@ -2562,7 +2653,7 @@ wallet application to the login page, use the <a href="#Navigate">Navigate</a> m
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line388">line 388</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line392">line 392</a>
         </li>
       </ul>
     </dd>
@@ -2728,7 +2819,7 @@ wallet application to the login page, use the <a href="#Navigate">Navigate</a> m
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line322">line 322</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line326">line 326</a>
         </li>
       </ul>
     </dd>
@@ -2894,7 +2985,7 @@ wallet application to the login page, use the <a href="#Navigate">Navigate</a> m
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line305">line 305</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line309">line 309</a>
         </li>
       </ul>
     </dd>
@@ -3060,7 +3151,7 @@ wallet application to the login page, use the <a href="#Navigate">Navigate</a> m
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line339">line 339</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line343">line 343</a>
         </li>
       </ul>
     </dd>

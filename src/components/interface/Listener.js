@@ -521,7 +521,8 @@ export const InitializeListener = (history) => {
 
   window.addEventListener("message", Listener);
   window.onbeforeunload = () => {
-    if(!rootStore.disableCloseEvent) {
+    // Only applies to frame - popup has watcher in client
+    if(!rootStore.disableCloseEvent && rootStore.embedded) {
       SendEvent({event: EVENTS.CLOSE});
     }
     window.removeEventListener("message", Listener);

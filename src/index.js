@@ -122,6 +122,10 @@ const Routes = observer(() => {
 
   useEffect(() => InitializeListener(history), []);
 
+  if(rootStore.loginOnly) {
+    return <LoginModal />;
+  }
+
   const RedirectLoading = () => {
     // Safari + stripe has a weird bug in the onboarding flow where it redirects back to /redirect instead of /withdrawal-setup-complete
     // If we've been redirected already in this tab, we must have been sent back here.

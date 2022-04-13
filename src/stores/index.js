@@ -86,11 +86,11 @@ class RootStore {
 
   authInfo = undefined;
 
-  requireLogin = false;
+  loginOnly = searchParams.has("lo") || this.GetSessionStorage("loginOnly");
+  requireLogin = searchParams.has("rl") || this.GetSessionStorage("loginRequired");
   capturedLogin = this.embedded && searchParams.has("cl");
   showLogin = this.requireLogin;
 
-  loggingIn = false;
   loggedIn = false;
   disableCloseEvent = false;
   darkMode = !this.GetSessionStorage("light-mode") && !searchParams.has("lt");
@@ -123,7 +123,7 @@ class RootStore {
 
   specifiedMarketplaceId = undefined;
   hideGlobalNavigation = false;
-  hideNavigation = searchParams.has("hn");
+  hideNavigation = searchParams.has("hn") || this.loginOnly;
   sidePanelMode = false;
 
   staticToken = undefined;
@@ -199,13 +199,20 @@ class RootStore {
   constructor() {
     makeAutoObservable(this);
 
-    if(
-      searchParams.has("rl") ||
-      this.GetSessionStorage("loginRequired")
-    ) {
+    // Login required
+    if(searchParams.has("rl") || this.GetSessionStorage("loginRequired")) {
       this.requireLogin = true;
       this.ShowLogin({requireLogin: true});
       this.SetSessionStorage("loginRequired", "true");
+    }
+
+    // Show only login screen
+    if(searchParams.has("lo") || this.GetSessionStorage("loginOnly")) {
+      this.loginOnly = true;
+      this.requireLogin = true;
+      this.ShowLogin({requireLogin: true});
+      this.SetSessionStorage("loginOnly", "true");
+      this.ToggleNavigation(false);
     }
 
     this.checkoutStore = new CheckoutStore(this);

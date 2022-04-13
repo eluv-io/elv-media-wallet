@@ -259,6 +259,10 @@
     grid-auto-rows: 1fr 1fr;
     height: 100%;
     justify-items: center;
+
+    .mobile-navigation {
+      margin-right: 30px;
+    }
   }
 
   &__navigation--personal {
@@ -459,8 +463,18 @@
   }
 
   .global-header__navigation,
-  .subheader__navigation--personal {
+  .subheader__navigation--personal__links {
     display: none;
+  }
+
+  .subheader__navigation--personal {
+    .header__profile {
+      align-items: flex-start;
+      position: absolute;
+      right: 55px;
+      top: 15px;
+      width: max-content;
+    }
   }
 
   .global-header {

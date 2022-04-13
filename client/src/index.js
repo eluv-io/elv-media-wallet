@@ -97,6 +97,10 @@ class ElvWalletClient {
     if(this.Close) {
       this.Close();
     }
+
+    if(this.target.close) {
+      this.target.close();
+    }
   }
 
   /**
@@ -395,8 +399,9 @@ const walletClient = await ElvWalletClient.InitializePopup({
   /**
    * Initialize the media wallet in a new window.
    *
-   * @methodGroup Constructor
+   * Calling client.Destroy() will close the popup.
    *
+   * @methodGroup Constructor
    * @namedParams
    * @param {string} requestor - The name of your application. This field is used in permission prompts, e.g.
    <br />
@@ -407,6 +412,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @param {string=} marketplaceSlug - Specify the URL slug of your marketplace
    * @param {string=} marketplaceHash - Specify a specific version of a your marketplace. Not necessary if marketplaceSlug is specified
    * @param {boolean=} requireLogin=false - If specified, users will be required to log in before accessing any page in the app
+   * @param {boolean=} loginOnly=false - If specified, only the login flow will be shown. Be sure to register an event listener for the `LOG_IN` event. `client.Destroy()` can be used to close the popup after login. Note that once this mode is activated, it cannot be deactivated - you must re-initialize the popup/frame.
    * @param {boolean=} captureLogin=false - If specified, the parent frame will be responsible for handling login requests. When the user attempts to log in, the LOG_IN_REQUESTED event will be fired.
    * @param {boolean=} darkMode=false - Specify whether the app should be in dark mode
    *
@@ -420,6 +426,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
     marketplaceId,
     marketplaceHash,
     requireLogin=false,
+    loginOnly=false,
     captureLogin=false,
     darkMode=false
   }) {
@@ -433,6 +440,10 @@ const walletClient = await ElvWalletClient.InitializePopup({
 
     if(requireLogin){
       walletAppUrl.searchParams.set("rl", "");
+    }
+
+    if(loginOnly) {
+      walletAppUrl.searchParams.set("lo", "");
     }
 
     if(captureLogin) {
@@ -449,6 +460,14 @@ const walletClient = await ElvWalletClient.InitializePopup({
 
     // Ensure app is initialized
     await client.AwaitMessage("init");
+
+    // Watch for popup to be closed
+    let popupInterval = setInterval(() => {
+      if(target.closed) {
+        clearInterval(popupInterval);
+        client.EventHandler({data: { type: "ElvMediaWalletEvent", event: EVENTS.CLOSE }});
+      }
+    }, 1000);
 
     return client;
   }
@@ -470,6 +489,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @param {string=} marketplaceSlug - Specify the URL slug of your marketplace
    * @param {string=} marketplaceHash - Specify a specific version of a your marketplace. Not necessary if marketplaceSlug is specified
    * @param {boolean=} requireLogin=false - If specified, users will be required to log in before accessing any page in the app
+   * @param {boolean=} loginOnly=false - If specified, only the login flow will be shown. Be sure to register an event listener for the `LOG_IN` event. Note that once this mode is activated, it cannot be deactivated - you must re-initialize the popup/frame.
    * @param {boolean=} captureLogin - If specified, the parent frame will be responsible for handling login requests. When the user attempts to log in, the LOG_IN_REQUESTED event will be fired.
    * @param {boolean=} darkMode=false - Specify whether the app should be in dark mode
    *
@@ -484,6 +504,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
     marketplaceId,
     marketplaceHash,
     requireLogin=false,
+    loginOnly=false,
     captureLogin=false,
     darkMode=false
   }) {
@@ -520,6 +541,10 @@ const walletClient = await ElvWalletClient.InitializePopup({
 
     if(requireLogin){
       walletAppUrl.searchParams.set("rl", "");
+    }
+
+    if(loginOnly) {
+      walletAppUrl.searchParams.set("lo", "");
     }
 
     if(captureLogin) {
