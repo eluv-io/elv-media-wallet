@@ -182,7 +182,7 @@ exports.MarketplaceItems = async function({tenantSlug, marketplaceSlug, marketpl
  * @param {string} marketplaceSlug - Specify the URL slug of the marketplace
  * @param {string} sku - The SKU of the item
  */
-exports.MarketplaceItems = async function({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, sku}) {
+exports.MarketplaceItem = async function({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, sku}) {
   return await this.SendMessage({
     action: "marketplaceItem",
     params: {

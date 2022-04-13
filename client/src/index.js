@@ -231,30 +231,33 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * Request the wallet app navigate to the specified page.
    *
    * When specifying a marketplace, you must either provide:
-   * - tenantSlug and marketplaceSlug - Slugs for the tenant and marketplace
-   * - marketplaceHash - Version hash of a marketplace
-   * - marketplaceId - Object ID of a marketplace
-   *
+   <pre>
+   - tenantSlug and marketplaceSlug - Slugs for the tenant and marketplace
+   - marketplaceHash - Version hash of a marketplace
+   - marketplaceId - Object ID of a marketplace
+   </pre>
    * Currently supported pages:
+   <pre>
    - 'login' - The login page
    - 'wallet' - The user's global wallet
    - 'items' - List of items in the user's wallet
    - 'item' - A specific item in the user's wallet
-   -- Required param: `contractAddress` or `contractId`
-   -- Required param: `tokenId`
+     -- Required param: `contractAddress` or `contractId`
+     -- Required param: `tokenId`
    - 'profile' - The user's profile
    - 'marketplaces'
    - 'marketplace':
-   -- Required param: marketplace parameters
+     -- Required param: marketplace parameters
    - 'marketplaceItem`
-   -- Required params: `sku`, marketplace parameters
+     -- Required params: `sku`, marketplace parameters
    - 'marketplaceWallet' - The user's collection for the specified marketplace
-   -- Required params: marketplace parameters
+     -- Required params: marketplace parameters
    - `drop`
-   -- Required params: `tenantSlug`, `eventSlug`, `dropId`, marketplace parameters
+     -- Required params: `tenantSlug`, `eventSlug`, `dropId`, marketplace parameters
    - `listings`
    - `marketplaceListings`
-   -- Required params: marketplace parameters
+     -- Required params: marketplace parameters
+   </pre>
 
    * @methodGroup Navigation
    * @namedParams
