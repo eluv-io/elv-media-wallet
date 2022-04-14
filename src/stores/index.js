@@ -934,19 +934,32 @@ class RootStore {
     this.marketplaceFilters = (filters || []).map(filter => filter.trim()).filter(filter => filter);
   }
 
-  OpenNFT = flow(function * ({nft}) {
-    yield this.client.authClient.MakeAuthServiceRequest({
-      path: UrlJoin("as", "wlt", "act", nft.details.TenantId),
-      method: "POST",
-      body: {
-        op: "nft-open",
-        tok_addr: nft.details.ContractAddr,
-        tok_id: nft.details.TokenIdStr
-      },
-      headers: {
-        Authorization: `Bearer ${this.client.signer.authToken}`
-      }
-    });
+  OpenNFT = flow(function * ({tenantId, contractAddress, tokenId}) {
+    contractAddress = Utils.FormatAddress(contractAddress);
+    const confirmationId = `${contractAddress}:${tokenId}`;
+
+    // Save as purchase so tenant ID is preserved for status
+    this.checkoutStore.PurchaseInitiated({tenantId, confirmationId});
+
+    try {
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "act", tenantId),
+        method: "POST",
+        body: {
+          op: "nft-open",
+          tok_addr: contractAddress,
+          tok_id: tokenId
+        },
+        headers: {
+          Authorization: `Bearer ${this.client.signer.authToken}`
+        }
+      });
+
+      this.checkoutStore.PurchaseComplete({confirmationId, success: true});
+    } catch(error) {
+      this.checkoutStore.PurchaseComplete({confirmationId, success: false, message: error.message});
+      throw error;
+    }
   });
 
   BurnNFT = flow(function * ({nft}) {
@@ -1109,9 +1122,12 @@ class RootStore {
     }
   });
 
-  PackOpenStatus = flow(function * ({tenantId, contractId, tokenId}) {
+  PackOpenStatus = flow(function * ({tenantId, contractId, contractAddress, tokenId}) {
     try {
-      const contractAddress = Utils.HashToAddress(contractId);
+      if(contractId) {
+        contractAddress = Utils.HashToAddress(contractId);
+      }
+      
       const statuses = yield this.MintingStatus({tenantId});
 
       return statuses.find(status => status.op === "nft-open" && Utils.EqualAddress(contractAddress, status.address) && status.tokenId === tokenId) || { status: "none" };

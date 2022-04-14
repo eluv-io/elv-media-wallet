@@ -157,7 +157,7 @@ export const InitializeListener = (history) => {
         });
       }
 
-      let marketplace, listing;
+      let marketplace, listing, item, status;
       switch(data.action) {
         // client.SignIn
         case "login":
@@ -248,7 +248,7 @@ export const InitializeListener = (history) => {
 
         // client.ListItem
         case "listItem":
-          const item = await Item(data);
+          item = await Item(data);
 
           await rootStore.RequestPermission({
             requestor: data.requestor,
@@ -417,7 +417,7 @@ export const InitializeListener = (history) => {
 
         // client.PurchaseStatus
         case "purchaseStatus":
-          let status = { purchase: "CANCELLED", minting: "PENDING" };
+          status = { purchase: "CANCELLED", minting: "PENDING" };
           if(checkoutStore.completedPurchases[data.params.confirmationId]) {
             const mint = (((await rootStore.MintingStatus({
               tenantId: checkoutStore.completedPurchases[data.params.confirmationId].tenantId
@@ -448,6 +448,55 @@ export const InitializeListener = (history) => {
             }
           } else if(checkoutStore.pendingPurchases[data.params.confirmationId]) {
             status = { purchase: "PENDING", minting: "PENDING" };
+          }
+
+          return Respond({response: status});
+
+        case "openPack":
+          // Ensure pack exists
+          item = await Item(data);
+
+          await rootStore.RequestPermission({
+            requestor: data.requestor,
+            action: `Open pack '${item?.metadata?.display_name || "NFT"}'`
+          });
+
+          await rootStore.OpenNFT({
+            tenantId: item.details.TenantId,
+            contractAddress: item.details.ContractAddr,
+            tokenId: item.details.TokenIdStr
+          });
+
+          return Respond({});
+
+        case "packOpenStatus":
+          const address = Utils.FormatAddress(data.params.contractAddress);
+          const packInfo = checkoutStore.completedPurchases[`${address}:${data.params.tokenId}`];
+
+          if(!packInfo) {
+            throw Error(`Unable to determine pack open status for item with contract address ${data.params.contractAddress} and token ID ${data.params.tokenId}`);
+          }
+
+          const packStatus = await rootStore.PackOpenStatus({
+            tenantId: packInfo.tenantId,
+            contractAddress: data.params.contractAddress,
+            tokenId: data.params.tokenId
+          });
+
+          status = { status: "PENDING" };
+          if(packStatus?.status === "failed") {
+            status.status = "FAILED";
+          } else if(packStatus?.status === "complete") {
+            status.status = "COMPLETE";
+
+            let items = packStatus.extra.filter(item => item.token_addr && (item.token_id || item.token_id_str));
+            items = await Promise.all(
+              items.map(async ({token_addr, token_id_str}) =>
+                await rootStore.LoadNFTData({contractAddress: token_addr, tokenId: token_id_str})
+              )
+            );
+
+            status.items = JSON.parse(JSON.stringify(items));
           }
 
           return Respond({response: status});

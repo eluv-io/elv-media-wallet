@@ -615,7 +615,11 @@ const NFTDetails = observer(() => {
                 onClick={async () => Confirm({
                   message: "Are you sure you want to open this pack?",
                   Confirm: async () => {
-                    await rootStore.OpenNFT({nft});
+                    await rootStore.OpenNFT({
+                      tenantId: nft.details.TenantId,
+                      contractAddress: nft.details.ContractAddr,
+                      tokenId: nft.details.TokenIdStr
+                    });
                     setOpened(true);
                   }
                 })}

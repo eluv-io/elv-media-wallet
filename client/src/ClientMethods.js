@@ -221,9 +221,9 @@ exports.MarketplaceStorefront = async function({tenantSlug, marketplaceSlug, mar
 };
 
 /**
- * <b><i>Note: Will either prompt user for consent (wallet balance) or open the third party payment flow in a new tab (stripe, coinbase)</i></b>
+ * <b><i>Note: Will either prompt user for consent (wallet balance) or open the third party payment flow in a new tab (stripe, coinbase) unless the item is free to claim</i></b>
  *
- * Initiate purchase flow for the specified item
+ * Initiate purchase/claim flow for the specified item
  *
  * @methodGroup Purchases
  * @namedParams
@@ -321,8 +321,8 @@ exports.Items = async function ({
  *
  * @methodGroup Items
  * @namedParams
- * @param {string} contractAddress - The address of the contract
- * @param {string} tokenId - The ID of the item
+ * @param {string} contractAddress - The address of the NFT contract
+ * @param {string} tokenId - The token ID of the item
  *
  * @returns {Promise<Object>} - Information about the requested item. Returns undefined if the item was not found.
  */
@@ -433,8 +433,8 @@ exports.Listing = async function ({listingId}) {
  * List the specified item for sale. The item must be owned by the current user, and must not have an active hold. (`nft.details.TokenHold`)
  *
  * @methodGroup Listings
- * @param {string} contractAddress - The address of the contract
- * @param {string} tokenId - The ID of the item
+ * @param {string} contractAddress - The address of the NFT contract
+ * @param {string} tokenId - The token ID of the item
  * @param {number} price - Price for the item, in USD. The maximum listing price is $10,000
  *
  * @returns {Promise<string>} - The listing ID of the item
@@ -522,7 +522,9 @@ exports.RemoveListing = async function({listingId}) {
  *
  * @returns {Promise<string>} - The confirmation ID of the purchase. This ID can be used to check purchase and minting status via the <a href="#.PurchaseStatus">PurchaseStatus method</a>.
  */
-exports.ListingPurchase = async function({listingId, purchaseProvider}) {
+exports.ListingPurchase = async function({listingId, purchaseProvider="stripe"}) {
+  Assert("ListingPurchase", "Listing ID", listingId);
+
   return await this.SendMessage({
     action: "listingPurchase",
     params: {
@@ -537,8 +539,8 @@ exports.ListingPurchase = async function({listingId, purchaseProvider}) {
  *
  * The returned status has three parts:
  <ul>
- <li>- purchase - The status of the purchase flow. When the user has completed the process, this status will be COMPLETED. If the user aborts the purchase flow, this status will be CANCELLED.</li>
- <li>- minting - The status of the nft minting/transfer process. When the minting/transfer has finished, this status will be COMPLETED. If the process failed, this status will be FAILED.</li>
+ <li>- purchase - The status of the purchase flow. When the user has completed the process, this status will be COMPLETE. If the user aborts the purchase flow, this status will be CANCELLED.</li>
+ <li>- minting - The status of the nft minting/transfer process. When the minting/transfer has finished, this status will be COMPLETE. If the process failed, this status will be FAILED.</li>
  <li>- items - If minting has been completed, a list of the items received will be included.</li>
  <ul>
  *
@@ -555,6 +557,59 @@ exports.PurchaseStatus = async function({confirmationId}) {
     action: "purchaseStatus",
     params: {
       confirmationId
+    }
+  });
+};
+
+
+/**
+ * <b><i>Prompts user for consent</i></b>
+ *
+ * Initiate opening of the specified pack
+ *
+ * @methodGroup Packs
+ * @namedParams
+ * @param {string} contractAddress - The address of the NFT contract
+ * @param {string} tokenId - The token ID of the item
+ */
+exports.OpenPack = async function ({contractAddress, tokenId}) {
+  Assert("OpenPack", "Contract address", contractAddress);
+  Assert("OpenPack", "Token ID", tokenId);
+
+  return await this.SendMessage({
+    action: "openPack",
+    params: {
+      contractAddress,
+      tokenId
+    }
+  });
+};
+
+/**
+ * Retrieve the status of the specified pack opening.
+ *
+ * The returned status has two parts:
+ <ul>
+ <li>- status - The status of the open process. When the finished, this status will be COMPLETE. If the process failed, this status will be FAILED.</li>
+ <li>- items - If opening has succeeded, a list of the items received will be included.</li>
+ <ul>
+ *
+ * @methodGroup Packs
+ * @namedParams
+ * @param {string} contractAddress - The address of the NFT contract
+ * @param {string} tokenId - The token ID of the item
+ *
+ * @return {Promise<Object>} - The status of the pack opening
+ */
+exports.PackOpenStatus = async function({contractAddress, tokenId}) {
+  Assert("PackOpenStatus", "Contract address", contractAddress);
+  Assert("PackOpenStatus", "Token ID", tokenId);
+
+  return await this.SendMessage({
+    action: "packOpenStatus",
+    params: {
+      contractAddress,
+      tokenId
     }
   });
 };
