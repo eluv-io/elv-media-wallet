@@ -30,7 +30,8 @@ import {
   HashRouter,
   Switch,
   Route,
-  Redirect, useLocation
+  Redirect,
+  useLocation
 } from "react-router-dom";
 import Wallet from "Components/wallet";
 import Login from "./login/Login";
@@ -86,6 +87,9 @@ const LoginModal = observer(() => {
   }
 
   if(rootStore.showLogin) {
+    const redirectUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
+    redirectUrl.hash = window.location.hash;
+
     return (
       <Modal
         className="login-modal"
@@ -94,7 +98,7 @@ const LoginModal = observer(() => {
         <Login
           key={`login-${rootStore.specifiedMarketplaceId}`}
           darkMode={rootStore.darkMode}
-          callbackUrl={UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, "")}
+          callbackUrl={redirectUrl.toString()}
           Loaded={() => rootStore.SetLoginLoaded()}
           LoadCustomizationOptions={async () => await rootStore.LoadLoginCustomization()}
           SignIn={params => rootStore.Authenticate(params)}
