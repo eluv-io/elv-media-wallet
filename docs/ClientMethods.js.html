@@ -126,6 +126,8 @@ exports.MarketplaceStock = async function ({tenantSlug, marketplaceSlug, marketp
 };
 
 /**
+ * &lt;b>&lt;i>Requires login&lt;/i>&lt;/b>
+ *
  * Return the current user's profile, including name, email and blockchain address.
  *
  * @methodGroup User
@@ -139,6 +141,8 @@ exports.UserProfile = async function () {
 };
 
 /**
+ * &lt;b>&lt;i>Requires login&lt;/i>&lt;/b>
+ *
  * Retrieve the fund balances for the current user
  *
  * @methodGroup User
@@ -328,6 +332,8 @@ exports.ItemNames = async function({tenantSlug, marketplaceSlug}={}) {
 };
 
 /**
+ * &lt;b>&lt;i>Requires login&lt;/i>&lt;/b>
+ *
  * Return info about items in the user's wallet
  *
  * @methodGroup Items
@@ -361,6 +367,8 @@ exports.Items = async function ({
 };
 
 /**
+ * &lt;b>&lt;i>Requires login&lt;/i>&lt;/b>
+ *
  * Return info about a specific item in the user's wallet
  *
  * @methodGroup Items
@@ -434,6 +442,8 @@ exports.Listings = async function ({
 };
 
 /**
+ * &lt;b>&lt;i>Requires login&lt;/i>&lt;/b>
+ *
  * Retrieve all listings posted by the current user.
  *
  * @methodGroup Listings
@@ -468,7 +478,9 @@ exports.Listing = async function ({listingId}) {
 };
 
 /**
- * &lt;b>&lt;i>Note: Prompts user for consent&lt;/i>&lt;/b>
+ * &lt;b>&lt;i>Requires login&lt;/i>&lt;/b>
+ *
+ * &lt;b>&lt;i>Prompts user for consent&lt;/i>&lt;/b>
  *
  * List the specified item for sale. The item must be owned by the current user, and must not have an active hold. (`nft.details.TokenHold`)
  *
@@ -496,7 +508,9 @@ exports.ListItem = async function({contractAddress, tokenId, price}) {
 
 
 /**
- * &lt;b>&lt;i>Note: Prompts user for consent&lt;/i>&lt;/b>
+ * &lt;b>&lt;i>Requires login&lt;/i>&lt;/b>
+ *
+ * &lt;b>&lt;i>Prompts user for consent&lt;/i>&lt;/b>
  *
  * Modify the specify listing
  *
@@ -518,7 +532,9 @@ exports.EditListing = async function({listingId, price}) {
 };
 
 /**
- * &lt;b>&lt;i>Note: Prompts user for consent&lt;/i>&lt;/b>
+ * &lt;b>&lt;i>Requires login&lt;/i>&lt;/b>
+ *
+ * &lt;b>&lt;i>Prompts user for consent&lt;/i>&lt;/b>
  *
  * Modify the specify listing
  *
@@ -537,6 +553,8 @@ exports.RemoveListing = async function({listingId}) {
 };
 
 /**
+ * &lt;b>&lt;i>Requires login&lt;/i>&lt;/b>
+ *
  * &lt;b>&lt;i>Note: Will either prompt user for consent (wallet balance, linked solana wallet) or open the third party payment flow in a new tab (stripe, coinbase)&lt;/i>&lt;/b>
  *
  * Initiate purchase flow for the specified listing

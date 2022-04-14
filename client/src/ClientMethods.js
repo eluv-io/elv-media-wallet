@@ -74,6 +74,8 @@ exports.MarketplaceStock = async function ({tenantSlug, marketplaceSlug, marketp
 };
 
 /**
+ * <b><i>Requires login</i></b>
+ *
  * Return the current user's profile, including name, email and blockchain address.
  *
  * @methodGroup User
@@ -87,6 +89,8 @@ exports.UserProfile = async function () {
 };
 
 /**
+ * <b><i>Requires login</i></b>
+ *
  * Retrieve the fund balances for the current user
  *
  * @methodGroup User
@@ -276,6 +280,8 @@ exports.ItemNames = async function({tenantSlug, marketplaceSlug}={}) {
 };
 
 /**
+ * <b><i>Requires login</i></b>
+ *
  * Return info about items in the user's wallet
  *
  * @methodGroup Items
@@ -309,6 +315,8 @@ exports.Items = async function ({
 };
 
 /**
+ * <b><i>Requires login</i></b>
+ *
  * Return info about a specific item in the user's wallet
  *
  * @methodGroup Items
@@ -382,6 +390,8 @@ exports.Listings = async function ({
 };
 
 /**
+ * <b><i>Requires login</i></b>
+ *
  * Retrieve all listings posted by the current user.
  *
  * @methodGroup Listings
@@ -416,7 +426,9 @@ exports.Listing = async function ({listingId}) {
 };
 
 /**
- * <b><i>Note: Prompts user for consent</i></b>
+ * <b><i>Requires login</i></b>
+ *
+ * <b><i>Prompts user for consent</i></b>
  *
  * List the specified item for sale. The item must be owned by the current user, and must not have an active hold. (`nft.details.TokenHold`)
  *
@@ -444,7 +456,9 @@ exports.ListItem = async function({contractAddress, tokenId, price}) {
 
 
 /**
- * <b><i>Note: Prompts user for consent</i></b>
+ * <b><i>Requires login</i></b>
+ *
+ * <b><i>Prompts user for consent</i></b>
  *
  * Modify the specify listing
  *
@@ -466,7 +480,9 @@ exports.EditListing = async function({listingId, price}) {
 };
 
 /**
- * <b><i>Note: Prompts user for consent</i></b>
+ * <b><i>Requires login</i></b>
+ *
+ * <b><i>Prompts user for consent</i></b>
  *
  * Modify the specify listing
  *
@@ -485,6 +501,8 @@ exports.RemoveListing = async function({listingId}) {
 };
 
 /**
+ * <b><i>Requires login</i></b>
+ *
  * <b><i>Note: Will either prompt user for consent (wallet balance, linked solana wallet) or open the third party payment flow in a new tab (stripe, coinbase)</i></b>
  *
  * Initiate purchase flow for the specified listing
