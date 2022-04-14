@@ -13,7 +13,7 @@ import FilteredView from "Components/listings/FilteredView";
 import {NFTDisplayToken} from "../../utils/Utils";
 
 import ListingIcon from "Assets/icons/listing";
-import USDCIcon from "Assets/icons/USDC coin icon.svg";
+import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 
 const Listing = memo(({url, listing}) => (
   <div className="card-container card-shadow" >

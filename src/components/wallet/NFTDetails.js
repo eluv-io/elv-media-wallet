@@ -33,7 +33,7 @@ import ContractIcon from "Assets/icons/Contract icon.svg";
 import TraitsIcon from "Assets/icons/properties icon.svg";
 import MediaSectionIcon from "Assets/icons/Media tab icon.svg";
 import PlayIcon from "Assets/icons/blue play icon.svg";
-import USDCIcon from "Assets/icons/USDC coin icon.svg";
+import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 
 const FormatRarity = (rarity) => {
   if(!rarity) {

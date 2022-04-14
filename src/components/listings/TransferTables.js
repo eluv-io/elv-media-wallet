@@ -12,7 +12,7 @@ import { useInfiniteScroll } from "react-g-infinite-scroll";
 
 import UpCaret from "Assets/icons/up-caret.svg";
 import DownCaret from "Assets/icons/down-caret.svg";
-import USDCIcon from "Assets/icons/USDC coin icon.svg";
+import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 
 export const ActiveListings = observer(({contractAddress, contractId, initialSelectedListingId, Select}) => {
   const [listings, setListings] = useState([]);

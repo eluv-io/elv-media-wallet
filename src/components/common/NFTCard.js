@@ -11,7 +11,7 @@ import {NFTDisplayToken} from "../../utils/Utils";
 import ImageIcon from "Components/common/ImageIcon";
 
 import ReturnIcon from "Assets/icons/media/back to nft icon.svg";
-import USDCIcon from "Assets/icons/USDC coin icon.svg";
+import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 
 const NFTCard = observer(({
   nft,

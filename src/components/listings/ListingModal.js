@@ -8,9 +8,9 @@ import NFTCard from "Components/common/NFTCard";
 import {ButtonWithLoader} from "Components/common/UIComponents";
 import { roundToUp } from "round-to";
 import ImageIcon from "Components/common/ImageIcon";
-
-import USDCIcon from "Assets/icons/USDC coin icon.svg";
 import WalletConnect from "Components/crypto/WalletConnect";
+
+import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 
 const ListingModal = observer(({nft, listingId, Close}) => {
   const [price, setPrice] = useState(nft.details.Price ? nft.details.Price.toFixed(2) : "");

@@ -6,8 +6,7 @@ import {ButtonWithLoader} from "Components/common/UIComponents";
 import Confirm from "Components/common/Confirm";
 import Modal from "Components/common/Modal";
 
-import USDCIcon from "Assets/icons/USDC coin icon.svg";
-
+import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 
 const WalletConnect = observer(() => {
   const wallet = cryptoStore.WalletFunctions("phantom");

@@ -10,12 +10,12 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 import NFTCard from "Components/common/NFTCard";
 import ImageIcon from "Components/common/ImageIcon";
 import {roundToDown} from "round-to";
+import WalletConnect from "Components/crypto/WalletConnect";
 
 import CreditCardIcon from "Assets/icons/credit card icon.svg";
 import WalletIcon from "Assets/icons/wallet balance button icon.svg";
-import CoinbaseIcon from "Assets/icons/crypto/coinbase-logo.png";
-import WalletConnect from "Components/crypto/WalletConnect";
-import USDCIcon from "Assets/icons/USDC coin icon.svg";
+import CoinbaseIcon from "Assets/icons/crypto/Coinbase Icon (16x16)(1).svg";
+import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 
 const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
   if(maxQuantity <= 1) { return null; }
