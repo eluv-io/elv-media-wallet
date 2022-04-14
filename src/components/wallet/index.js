@@ -18,7 +18,7 @@ import Listings from "Components/listings/Listings";
 import PurchaseHandler from "Components/marketplace/PurchaseHandler";
 import UrlJoin from "url-join";
 import {RecentSales} from "Components/listings/Activity";
-import {LoginGate, LoginRedirectGate} from "Components/common/LoginGate";
+import {LoginGate} from "Components/common/LoginGate";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
 
 const WalletPurchase = observer(() => {
@@ -76,18 +76,18 @@ const Routes = (match) => {
   const listingName = transferStore.listingNames[match.params.listingId] || "Listing";
 
   return [
-    { name: nft.metadata.display_name, path: "/wallet/my-listings/:contractId/:tokenId", Component: NFTDetails, authRedirect: true },
-    { name: "My Listings", path: "/wallet/my-listings", Component: MyListings, authRedirect: true },
-    { name: "My Listings", path: "/wallet/my-listings/transactions", Component: MyListings, authRedirect: true },
+    { name: nft.metadata.display_name, path: "/wallet/my-listings/:contractId/:tokenId", Component: NFTDetails, authed: true },
+    { name: "My Listings", path: "/wallet/my-listings", Component: MyListings, authed: true },
+    { name: "My Listings", path: "/wallet/my-listings/transactions", Component: MyListings, authed: true },
 
     { name: "Activity", path: "/wallet/activity", Component: RecentSales },
     { name: nft.metadata.display_name, path: "/wallet/activity/:contractId/:tokenId", Component: NFTDetails },
 
     { name: listingName, path: "/wallet/listings/:listingId", Component: NFTDetails },
     { name: "All Listings", path: "/wallet/listings", Component: Listings },
-    { name: "Open Pack", path: "/wallet/collection/:contractId/:tokenId/open", Component: PackOpenStatus, authRedirect: true },
-    { name: nft.metadata.display_name, path: "/wallet/collection/:contractId/:tokenId", Component: NFTDetails, authRedirect: true },
-    { name: "My Items", path: "/wallet/collection", Component: Collections, authRedirect: true },
+    { name: "Open Pack", path: "/wallet/collection/:contractId/:tokenId/open", Component: PackOpenStatus, authed: true },
+    { name: nft.metadata.display_name, path: "/wallet/collection/:contractId/:tokenId", Component: NFTDetails, authed: true },
+    { name: "My Items", path: "/wallet/collection", Component: Collections, authed: true },
 
     { name: "Purchase", path: "/wallet/listings/:tenantId/:listingId/purchase/:confirmationId/success", Component: WalletPurchase },
     { name: "Purchase", path: "/wallet/listings/:tenantId/:listingId/purchase/:confirmationId/cancel", Component: WalletPurchase },
@@ -108,26 +108,20 @@ const Wallet = observer(() => {
       <div className="content">
         <Switch>
           {
-            Routes(match).map(({path, authRedirect, authGate, ignoreLoginCapture, Component}) =>
+            Routes(match).map(({path, authed, ignoreLoginCapture, Component}) =>
               <Route exact path={path} key={`wallet-route-${path}`}>
                 <ErrorBoundary>
                   {
-                    authGate ?
+                    authed ?
                       <LoginGate ignoreCapture={ignoreLoginCapture} to="/marketplaces">
                         <WalletWrapper>
                           <Component/>
                         </WalletWrapper>
                       </LoginGate> :
-                      authRedirect ?
-                        <LoginRedirectGate to="/marketplaces">
-                          <WalletWrapper>
-                            <Component/>
-                          </WalletWrapper>
-                        </LoginRedirectGate> :
 
-                        <WalletWrapper>
-                          <Component/>
-                        </WalletWrapper>
+                      <WalletWrapper>
+                        <Component/>
+                      </WalletWrapper>
                   }
                 </ErrorBoundary>
               </Route>
