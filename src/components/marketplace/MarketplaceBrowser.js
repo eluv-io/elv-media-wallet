@@ -103,7 +103,8 @@ const MarketplaceBrowser = observer(() => {
     return <Redirect to={UrlJoin("/marketplace", rootStore.specifiedMarketplaceId, "store")} />;
   }
 
-  let marketplaces = rootStore.allMarketplaces;
+  let marketplaces = rootStore.allMarketplaces
+    .filter(marketplace => marketplace?.branding?.show);
 
   if(filters.activeTags && filters.activeTags.length > 0) {
     marketplaces = marketplaces.filter(marketplace =>
@@ -140,6 +141,11 @@ const MarketplaceBrowser = observer(() => {
                   marketplace={marketplace}
                 />
               )
+            }
+            {
+              // Fill any empty spaces with dummy elements to keep the grid at 3 columns
+              [...new Array(Math.max(0, 3 - marketplaces.length))]
+                .map((_, i) => <div className="marketplace-browser__dummy-card" key={`dummy-${i}`} /> )
             }
           </div>
         </div>

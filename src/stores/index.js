@@ -1,4 +1,4 @@
-import {makeAutoObservable, configure, flow, runInAction, computed} from "mobx";
+import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";
 import {ElvClient} from "@eluvio/elv-client-js";
 import Utils from "@eluvio/elv-client-js/src/Utils";
@@ -11,11 +11,14 @@ import TransferStore from "Stores/Transfer";
 
 import NFTContractABI from "../static/abi/NFTContract";
 import CryptoStore from "Stores/Crypto";
+import {v4 as UUID} from "uuid";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
   enforceActions: "always"
 });
+
+const searchParams = new URLSearchParams(window.location.search);
 
 const colors = [
   "#621B00",
@@ -70,10 +73,10 @@ class RootStore {
   DEBUG_ERROR_MESSAGE = "";
   network = EluvioConfiguration["config-url"].includes("main.net955305") ? "main" : "demo";
 
-  embedded = window.top !== window.self || new URLSearchParams(window.location.search).has("e");
+  embedded = window.top !== window.self || searchParams.has("e");
 
   // Opened by embedded window for purchase redirect
-  fromEmbed = new URLSearchParams(window.location.search).has("embed") ||
+  fromEmbed = searchParams.has("embed") ||
     this.GetSessionStorage("fromEmbed");
 
   mode = "test";
@@ -83,14 +86,14 @@ class RootStore {
 
   authInfo = undefined;
 
-  requireLogin = false;
-  capturedLogin = this.embedded && new URLSearchParams(window.location.search).has("cl");
+  loginOnly = searchParams.has("lo") || this.GetSessionStorage("loginOnly");
+  requireLogin = searchParams.has("rl") || this.GetSessionStorage("loginRequired");
+  capturedLogin = this.embedded && searchParams.has("cl");
   showLogin = this.requireLogin;
 
-  loggingIn = false;
   loggedIn = false;
   disableCloseEvent = false;
-  darkMode = !this.GetSessionStorage("light-mode") && !new URLSearchParams(window.location.search).has("lt");
+  darkMode = !this.GetSessionStorage("light-mode") && !searchParams.has("lt");
 
   availableMarketplaces = {};
 
@@ -120,7 +123,7 @@ class RootStore {
 
   specifiedMarketplaceId = undefined;
   hideGlobalNavigation = false;
-  hideNavigation = false;
+  hideNavigation = searchParams.has("hn") || this.loginOnly;
   sidePanelMode = false;
 
   staticToken = undefined;
@@ -149,15 +152,15 @@ class RootStore {
 
   noItemsAvailable = false;
 
-  @computed get specifiedMarketplace() {
+  get specifiedMarketplace() {
     return this.marketplaces[this.specifiedMarketplaceId];
   }
 
-  @computed get marketplaceHash() {
+  get marketplaceHash() {
     return this.marketplaceHashes[this.marketplaceId];
   }
 
-  @computed get allMarketplaces() {
+  get allMarketplaces() {
     let marketplaces = [];
     Object.keys((this.availableMarketplaces || {}))
       .filter(key => typeof this.availableMarketplaces[key] === "object")
@@ -196,13 +199,20 @@ class RootStore {
   constructor() {
     makeAutoObservable(this);
 
-    if(
-      new URLSearchParams(window.location.search).has("rl") ||
-      this.GetSessionStorage("loginRequired")
-    ) {
+    // Login required
+    if(searchParams.has("rl") || this.GetSessionStorage("loginRequired")) {
       this.requireLogin = true;
       this.ShowLogin({requireLogin: true});
       this.SetSessionStorage("loginRequired", "true");
+    }
+
+    // Show only login screen
+    if(searchParams.has("lo") || this.GetSessionStorage("loginOnly")) {
+      this.loginOnly = true;
+      this.requireLogin = true;
+      this.ShowLogin({requireLogin: true});
+      this.SetSessionStorage("loginOnly", "true");
+      this.ToggleNavigation(false);
     }
 
     this.checkoutStore = new CheckoutStore(this);
@@ -234,7 +244,7 @@ class RootStore {
         noAuth: true
       });
 
-      const marketplace = new URLSearchParams(window.location.search).get("mid") || (window.self === window.top && this.GetSessionStorage("marketplace")) || "";
+      const marketplace = searchParams.get("mid") || (window.self === window.top && this.GetSessionStorage("marketplace")) || "";
       let tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash;
       if(marketplace && marketplace.includes("/")) {
         tenantSlug = marketplace.split("/")[0];
@@ -257,7 +267,7 @@ class RootStore {
       }
 
       try {
-        const auth = new URLSearchParams(window.location.search).get("auth");
+        const auth = searchParams.get("auth");
         if(auth) {
           this.SetAuthInfo(JSON.parse(Utils.FromB64(auth)));
         }
@@ -336,6 +346,7 @@ class RootStore {
 
       // Clear loaded marketplaces so they will be reloaded and authorization rechecked
       this.marketplaces = {};
+      this.marketplaceCache = {};
 
       yield this.cryptoStore.LoadConnectedAccounts();
 
@@ -671,6 +682,8 @@ class RootStore {
 
       this.lastMarketplaceId = marketplace.marketplaceId;
 
+      this.specifiedMarketplaceId = marketplace.marketplaceId;
+
       this.SetCustomizationOptions(marketplace);
 
       return marketplace.marketplaceHash;
@@ -796,7 +809,7 @@ class RootStore {
         this.marketplaceCache[marketplaceHash].stock = Date.now();
       }
 
-      return this.marketplaces[marketplaceHash];
+      return this.marketplaces[marketplaceId];
     }
 
     try {
@@ -967,6 +980,10 @@ class RootStore {
             confirmationId = id;
           } else {
             tokenId = id;
+          }
+
+          if(op === "nft-transfer") {
+            confirmationId = status?.extra?.trans_id;
           }
 
           return {
@@ -1152,8 +1169,21 @@ class RootStore {
 
       yield this.GetWalletBalance(false);
 
-      this.cryptoStore.PhantomBalance();
+      yield this.cryptoStore.PhantomBalance();
     }
+
+    let balances = {
+      totalWalletBalance: this.totalWalletBalance,
+      availableWalletBalance: this.availableWalletBalance,
+      pendingWalletBalance: this.pendingWalletBalance,
+      withdrawableWalletBalance: this.withdrawableWalletBalance,
+    };
+
+    if(cryptoStore.usdcConnected) {
+      balances.usdcBalance = cryptoStore.phantomUSDCBalance;
+    }
+
+    return balances;
   });
 
   WithdrawFunds = flow(function * (amount) {
@@ -1316,6 +1346,51 @@ class RootStore {
     window.location.href = url.toString();
   }
 
+  RequestPermission = flow(function * ({requestor, action}) {
+    const popup = window.open("about:blank");
+    const requestId = btoa(UUID());
+
+    const popupUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
+
+    popupUrl.hash = "#/accept";
+    popupUrl.searchParams.set("rq", btoa(requestor));
+    popupUrl.searchParams.set("ac", btoa(action));
+    popupUrl.searchParams.set("request", btoa(requestId));
+    popupUrl.searchParams.set("hn", "");
+
+    popup.location.href = popupUrl.toString();
+
+    const accepted = yield new Promise((resolve) => {
+      const Listener = event => {
+        if(!event || !event.data || event.data.type !== "ElvMediaWalletAcceptResponse") {
+          return;
+        }
+
+        window.removeEventListener("message", Listener);
+
+        resolve(event.data.accept);
+      };
+
+      window.addEventListener("message", Listener);
+
+      const closeCheck = setInterval(async () => {
+        if(!popup || popup.closed) {
+          clearInterval(closeCheck);
+
+          resolve(false);
+        }
+      }, 500);
+    });
+
+    popup.close();
+
+    if(!accepted) {
+      throw Error("User has rejected the request");
+    }
+
+    return true;
+  });
+
   CheckEmailVerification = flow(function * (auth0) {
     try {
       if(!this.auth0AccessToken) {
@@ -1443,17 +1518,6 @@ class RootStore {
   // Used for disabling navigation back to main marketplace page when no items are available
   SetNoItemsAvailable() {
     this.noItemsAvailable = true;
-  }
-
-  // Embedding application signalled that the wallet has become active
-  WalletActivated() {
-    if(this.activeLoginButton) {
-      this.activeLoginButton.focus();
-    }
-  }
-
-  SetActiveLoginButton(element) {
-    this.activeLoginButton = element;
   }
 
   GetLocalStorage(key) {

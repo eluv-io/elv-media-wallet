@@ -59,7 +59,9 @@ const LOG_LEVELS = {
 };
 
 /**
- * Eluvio Media Wallet Client
+ * This page contains documentation for client setup, navigation and other management.
+ <br /><br />
+ * <a href="./module-ElvWalletClient_Methods.html">For details on retrieving information from and performing actions in the wallet, see the wallet client methods page.</a>
  */
 class ElvWalletClient {
   Throw(error) {
@@ -95,6 +97,10 @@ class ElvWalletClient {
     if(this.Close) {
       this.Close();
     }
+
+    if(this.target.close) {
+      this.target.close();
+    }
   }
 
   /**
@@ -105,23 +111,25 @@ import { ElvWalletClient } from "@eluvio/elv-wallet-client";
 
 // Initialize in iframe at target element
 const walletClient = await ElvWalletClient.InitializeFrame({
+ requestor: "My App",
  walletAppUrl: "https://wallet.contentfabric.io",
- target: document.getElementById("#wallet-target"),
- marketplaceHash: <version-hash-of-marketplace>
+ target: document.getElementById("#wallet-target")
 });
 
 // Or initialize in a popup
 const walletClient = await ElvWalletClient.InitializePopup({
+ requestor: "My App",
  walletAppUrl: "https://wallet.contentfabric.io",
 });
 </code></pre>
    * @constructor
    */
   constructor({
+    requestor,
     walletAppUrl="http://wallet.contentfabric.io",
     target,
     Close,
-    timeout=10
+    timeout=300
   }) {
     if(!walletAppUrl) {
       this.Throw("walletAppUrl not specified");
@@ -131,6 +139,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
       this.Throw("target not specified");
     }
 
+    this.requestor = requestor;
     this.walletAppUrl = walletAppUrl;
     this.target = target;
     this.Close = Close;
@@ -179,7 +188,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
   /**
    * Event keys that can be registered in AddEventListener.
    *
-   * Available options: LOADED, LOG_IN, LOG_OUT, CLOSE, ALL
+   * Available options: LOADED, LOG_IN, LOG_OUT, ROUTE_CHANGE, CLOSE, ALL
    *
    * Also accessible as a property via `walletClient.EVENTS`
    *
@@ -221,96 +230,74 @@ const walletClient = await ElvWalletClient.InitializePopup({
     this.eventListeners[event] = this.eventListeners[event].filter(f => f !== Listener);
   }
 
-  /**
-   * Return the current user's profile, including name, email and blockchain address.
-   *
-   * @return Promise<Object> - If a user is currently logged in, the user's profile is returned.
-   */
-  async UserProfile() {
-    return await this.SendMessage({
-      action: "profile",
-      params: {}
-    });
-  }
 
   /**
-   * Retrieve the full metadata for the specified marketplace object (starting from `/public/asset_metadata/info`)
+   * Request the wallet app navigate to the specified page.
    *
-   * @methodGroup Metadata
-   * @param {string=} tenantSlug - Specify the URL slug of the marketplace's tenant. Required if specifying marketplace slug
-   * @param {string=} marketplaceSlug - Specify the URL slug of the marketplace
-   * @param {string=} marketplaceHash - Specify a specific version of a the marketplace. Not necessary if marketplaceSlug is specified
-   *
-   * @return Promise<Object> - The full metadata of the marketplace
-   */
-  async MarketplaceMetadata({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash}) {
-    return await this.SendMessage({
-      action: "marketplaceMetadata",
-      params: {
-        tenantSlug,
-        marketplaceSlug,
-        marketplaceId,
-        marketplaceHash
-      }
-    });
-  }
+   * When specifying a marketplace, you must either provide:
+   <pre>
+   - tenantSlug and marketplaceSlug - Slugs for the tenant and marketplace
+   - marketplaceHash - Version hash of a marketplace
+   - marketplaceId - Object ID of a marketplace
+   </pre>
+   * Currently supported pages:
+   <pre>
+   - 'login' - The login page
+   - 'wallet' - The user's global wallet
+   - 'items' - List of items in the user's wallet
+   - 'item' - A specific item in the user's wallet
+     -- Required param: `contractAddress` or `contractId`
+     -- Required param: `tokenId`
+   - 'profile' - The user's profile
+   - 'marketplaces'
+   - 'marketplace':
+     -- Required param: marketplace parameters
+   - 'marketplaceItem`
+     -- Required params: `sku`, marketplace parameters
+   - 'marketplaceWallet' - The user's collection for the specified marketplace
+     -- Required params: marketplace parameters
+   - `drop`
+     -- Required params: `tenantSlug`, `eventSlug`, `dropId`, marketplace parameters
+   - `listings`
+   - `marketplaceListings`
+     -- Required params: marketplace parameters
+   </pre>
 
-  /**
-   * Retrieve the full metadata for the specified event object (starting from `/public/asset_metadata`)
-   *
-   * @methodGroup Metadata
-   * @param {string=} tenantSlug - Specify the URL slug of the event's tenant. Required if specifying event slug
-   * @param {string=} eventSlug - Specify the URL slug of the event
-   * @param {string=} eventHash - Specify a specific version of a the event. Not necessary if eventSlug is specified
-   *
-   * @return Promise<Object> - The full metadata of the event
-   */
-  async EventMetadata({tenantSlug, eventSlug, eventId, eventHash}) {
-    return await this.SendMessage({
-      action: "eventMetadata",
-      params: {
-        tenantSlug,
-        eventSlug,
-        eventId,
-        eventHash
-      }
-    });
-  }
-
-  /**
-   * Return info about all items in the user's wallet
-   *
-   * @methodGroup Items
-   * @return Promise<Array<Object>> - Information about the items in the user's wallet.
-   */
-  async Items() {
-    return await this.SendMessage({
-      action: "items",
-      params: {}
-    });
-  }
-
-  /**
-   * Return info about a specific item in the user's wallet
-   *
-   * @methodGroup Items
+   * @methodGroup Navigation
    * @namedParams
-   * @param {string=} contractAddress - The address of the contract. Either contractAddress or contractId is required.
-   * @param {string=} contractId - The ID of the contract. Either contractAddress or contractId is required.
-   * @param {string} tokenId - The ID of the item
+   * @param {string=} page - A named app path
+   * @param {Object=} params - URL parameters for the specified path, e.g. { tokenId: <token-id> } for an 'item' page.
+   * @param {string=} path - An absolute app path
+   * @param {boolean=} loginRequired - If login was specified, this parameter will control whether the login prompt is dismissable
+   * @param {Array<string>=} marketplaceFilters - A list of filters to limit items shown in the marketplace store page
    *
-   * @return Promise<Object> - Information about the requested item. Returns undefined if the item was not found.
+   * @returns {string} - Returns the actual route to which the app has navigated
    */
-  async Item({contractAddress, contractId, tokenId}) {
-    return await this.SendMessage({
-      action: "items",
+  async Navigate({page, path, loginRequired, params, marketplaceFilters=[]}) {
+    return this.SendMessage({
+      action: "navigate",
       params: {
-        contractAddress,
-        contractId,
-        tokenId
+        page,
+        path,
+        params,
+        loginRequired,
+        marketplaceFilters
       }
     });
   }
+
+  /**
+   * Retrieve the current location path of the wallet app
+   *
+   * @methodGroup Navigation
+   * @returns {string} - The current path of the wallet app
+   */
+  async CurrentPath() {
+    return this.SendMessage({
+      action: "currentPath"
+    });
+  }
+
 
   /**
    * Request the navigation header and footer to be shown or hidden in the wallet
@@ -364,35 +351,15 @@ const walletClient = await ElvWalletClient.InitializePopup({
   }
 
   /**
-   * Set the marketplace for the wallet
-   *
-   * @methodGroup Navigation
-   * @namedParams
-   * @param {string=} tenantSlug - Specify the URL slug of your tenant. Required if specifying marketplaceSlug
-   * @param {string=} marketplaceSlug - Specify the URL slug of your marketplace
-   * @param {string=} marketplaceId - The ID of the marketplace
-   * @param {string=} marketplaceHash - A version hash of the marketplace
-   */
-  async SetMarketplace({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash}) {
-    return this.SendMessage({action: "setMarketplace", params: { tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash }});
-  }
-
-  async SetMarketplaceFilters({filters=[]}) {
-    return this.SendMessage({action: "setMarketplaceFilters", params: { filters }});
-  }
-
-  /**
-   * Indicate that the wallet has become active in order to activate certain UI behaviors
-   */
-  async SetActive() {
-    return this.SendMessage({action: "setActive", noResponse: true});
-  }
-
-  /**
    * Sign the user in to the wallet app. Authorization can be provided in three ways:
-   * - ID token from an OAuth flow
-   * - Eluvio authorization token previously retrieved from exchanging an ID token
-   * - Private key of the user
+   <ul>
+    <li>- ID token from an OAuth flow</li>
+    <li>- Eluvio authorization token previously retrieved from exchanging an ID token</li>
+    <li>- Private key of the user</li>
+   <br/>
+   *
+   * NOTE: This is only to be used if authorization is performed outside of the wallet app. To direct the
+   * wallet application to the login page, use the <a href="#Navigate">Navigate</a> method
    *
    * @methodGroup Authorization
    * @namedParams
@@ -402,14 +369,13 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @param {string=} authToken - An Eluvio authorization token
    * @param {string=} privateKey - The private key of the user
    */
-  async SignIn({name, email, idToken, authToken, address, privateKey}) {
+  async SignIn({name, email, idToken, authToken, privateKey}) {
     return this.SendMessage({
       action: "login",
       params: {
         idToken,
         authToken,
         privateKey,
-        address,
         user: {
           name,
           email
@@ -431,92 +397,36 @@ const walletClient = await ElvWalletClient.InitializePopup({
   }
 
   /**
-   * Request the wallet app navigate to the specified page.
-   *
-   * When specifying a marketplace, you must either provide:
-   * - tenantSlug and marketplaceSlug - Slugs for the tenant and marketplace
-   * - marketplaceHash - Version hash of a marketplace
-   * - marketplaceId - Object ID of a marketplace
-   *
-   * Currently supported pages:
-      - 'login' - The login page
-      - 'wallet' - The user's global wallet
-      - 'items' - List of items in the user's wallet
-      - 'item' - A specific item in the user's wallet
-        -- Required param: `contractAddress` or `contractId`
-        -- Required param: `tokenId`
-      - 'profile' - The user's profile
-      - 'marketplaces'
-      - 'marketplace':
-        -- Required param: marketplace parameters
-      - 'marketplaceItem`
-        -- Required params: `sku`, marketplace parameters
-      - 'marketplaceWallet' - The user's collection for the specified marketplace
-        -- Required params: marketplace parameters
-      - `drop`
-        -- Required params: `tenantSlug`, `eventSlug`, `dropId`, marketplace parameters
-      - `listings`
-      - `marketplaceListings`
-        -- Required params: marketplace parameters
-
-   * @methodGroup Navigation
-   * @namedParams
-   * @param {string=} page - A named app path
-   * @param {Object=} params - URL parameters for the specified path, e.g. { tokenId: <token-id> } for an 'item' page.
-   * @param {string=} path - An absolute app path
-   * @param {boolean=} loginRequired - If login was specified, this parameter will control whether the login prompt is dismissable
-   * @param {Array<string>=} marketplaceFilters - A list of filters to limit items shown in the marketplace store page
-   *
-   * @returns {string} - Returns the actual route to which the app has navigated
-   */
-  async Navigate({page, path, loginRequired, params, marketplaceFilters=[]}) {
-    return this.SendMessage({
-      action: "navigate",
-      params: {
-        page,
-        path,
-        params,
-        loginRequired,
-        marketplaceFilters
-      }
-    });
-  }
-
-  /**
-   * Retrieve the current location path of the wallet app
-   *
-   * @methodGroup Navigation
-   * @returns {string} - The current path of the wallet app
-   */
-  async CurrentPath() {
-    return this.SendMessage({
-      action: "currentPath"
-    });
-  }
-
-  /**
    * Initialize the media wallet in a new window.
    *
-   * @methodGroup Constructor
+   * Calling client.Destroy() will close the popup.
    *
+   * @methodGroup Constructor
    * @namedParams
+   * @param {string} requestor - The name of your application. This field is used in permission prompts, e.g.
+   <br />
+   <br />
+   `<requestor> is requesting to perform <action>`
    * @param {string=} walletAppUrl=http://wallet.contentfabric.io - The URL of the Eluvio Media Wallet app
    * @param {string=} tenantSlug - Specify the URL slug of your tenant. Required if specifying marketplaceSlug
    * @param {string=} marketplaceSlug - Specify the URL slug of your marketplace
    * @param {string=} marketplaceHash - Specify a specific version of a your marketplace. Not necessary if marketplaceSlug is specified
    * @param {boolean=} requireLogin=false - If specified, users will be required to log in before accessing any page in the app
+   * @param {boolean=} loginOnly=false - If specified, only the login flow will be shown. Be sure to register an event listener for the `LOG_IN` event. `client.Destroy()` can be used to close the popup after login. Note that once this mode is activated, it cannot be deactivated - you must re-initialize the popup/frame.
    * @param {boolean=} captureLogin=false - If specified, the parent frame will be responsible for handling login requests. When the user attempts to log in, the LOG_IN_REQUESTED event will be fired.
    * @param {boolean=} darkMode=false - Specify whether the app should be in dark mode
    *
-   * @return {Promise<ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new window.
+   * @returns {Promise<ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new window.
    */
   static async InitializePopup({
+    requestor,
     walletAppUrl="http://wallet.contentfabric.io",
     tenantSlug,
     marketplaceSlug,
     marketplaceId,
     marketplaceHash,
     requireLogin=false,
+    loginOnly=false,
     captureLogin=false,
     darkMode=false
   }) {
@@ -532,6 +442,10 @@ const walletClient = await ElvWalletClient.InitializePopup({
       walletAppUrl.searchParams.set("rl", "");
     }
 
+    if(loginOnly) {
+      walletAppUrl.searchParams.set("lo", "");
+    }
+
     if(captureLogin) {
       walletAppUrl.searchParams.set("cl", "");
     }
@@ -542,10 +456,18 @@ const walletClient = await ElvWalletClient.InitializePopup({
 
     const target = Popup({url: walletAppUrl.toString(), title: "Eluvio Media Wallet", w: 400, h: 700});
 
-    const client = new ElvWalletClient({walletAppUrl: walletAppUrl.toString(), target, Close: () => target.close()});
+    const client = new ElvWalletClient({requestor, walletAppUrl: walletAppUrl.toString(), target, Close: () => target.close()});
 
     // Ensure app is initialized
     await client.AwaitMessage("init");
+
+    // Watch for popup to be closed
+    let popupInterval = setInterval(() => {
+      if(target.closed) {
+        clearInterval(popupInterval);
+        client.EventHandler({data: { type: "ElvMediaWalletEvent", event: EVENTS.CLOSE }});
+      }
+    }, 1000);
 
     return client;
   }
@@ -557,18 +479,24 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @methodGroup Constructor
    *
    * @namedParams
+   * @param {string} requestor - The name of your application. This field is used in permission prompts, e.g.
+   <br />
+   <br />
+   `<requestor> is requesting to perform <action>`
    * @param {string=} walletAppUrl=http://wallet.contentfabric.io - The URL of the Eluvio Media Wallet app
    * @param {Object | string} target - An HTML element or the ID of an element
    * @param {string=} tenantSlug - Specify the URL slug of your tenant. Required if specifying marketplace slug
    * @param {string=} marketplaceSlug - Specify the URL slug of your marketplace
    * @param {string=} marketplaceHash - Specify a specific version of a your marketplace. Not necessary if marketplaceSlug is specified
    * @param {boolean=} requireLogin=false - If specified, users will be required to log in before accessing any page in the app
+   * @param {boolean=} loginOnly=false - If specified, only the login flow will be shown. Be sure to register an event listener for the `LOG_IN` event. Note that once this mode is activated, it cannot be deactivated - you must re-initialize the popup/frame.
    * @param {boolean=} captureLogin - If specified, the parent frame will be responsible for handling login requests. When the user attempts to log in, the LOG_IN_REQUESTED event will be fired.
    * @param {boolean=} darkMode=false - Specify whether the app should be in dark mode
    *
-   * @return {Promise<ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new iframe.
+   * @returns {Promise<ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new iframe.
    */
   static async InitializeFrame({
+    requestor,
     walletAppUrl="http://wallet.contentfabric.io",
     target,
     tenantSlug,
@@ -576,6 +504,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
     marketplaceId,
     marketplaceHash,
     requireLogin=false,
+    loginOnly=false,
     captureLogin=false,
     darkMode=false
   }) {
@@ -614,6 +543,10 @@ const walletClient = await ElvWalletClient.InitializePopup({
       walletAppUrl.searchParams.set("rl", "");
     }
 
+    if(loginOnly) {
+      walletAppUrl.searchParams.set("lo", "");
+    }
+
     if(captureLogin) {
       walletAppUrl.searchParams.set("cl", "");
     }
@@ -623,6 +556,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
     }
 
     const client = new ElvWalletClient({
+      requestor,
       walletAppUrl: walletAppUrl.toString(),
       target: target.contentWindow,
       Close: () => target && target.parentNode && target.parentNode.removeChild(target)
@@ -640,6 +574,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
 
     this.target.postMessage({
       type: "ElvMediaWalletClientRequest",
+      requestor: this.requestor,
       requestId,
       action,
       params
@@ -710,12 +645,16 @@ const walletClient = await ElvWalletClient.InitializePopup({
 /**
  * `client.EVENTS` contains event keys for the AddEventListener and RemoveEventListener methods
  *
+ * - `client.EVENTS.LOADED` - Wallet app has finished loading and authentication is settled. If a user is currently logged in, a `LOG_IN` event will have preceded this event.
  * - `client.EVENTS.LOG_IN` - User has logged in. Event data contains user address.
  * - `client.EVENTS.LOG_OUT` - User has logged out. Event data contains user address.
  * - `client.EVENTS.CLOSE` - Target window or frame has been closed or has otherwise unloaded the wallet app.
+ * - `client.EVENTS.ROUTE_CHANGE` - The wallet app's current route has changed. Event data contains the current route of the app.
  * - `client.EVENTS.ALL` - Any of the above events has occurred.
  */
 ElvWalletClient.EVENTS = EVENTS;
 ElvWalletClient.LOG_LEVELS = LOG_LEVELS;
+
+Object.assign(ElvWalletClient.prototype, require("./ClientMethods"));
 
 exports.ElvWalletClient = ElvWalletClient;

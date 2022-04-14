@@ -33,6 +33,7 @@
   "dependencies": {
     "@auth0/auth0-react": "^1.9.0",
     "@babel/cli": "^7.14.8",
+    "@babel/plugin-transform-modules-commonjs": "^7.17.9",
     "@eluvio/elv-client-js": "^3.1.92",
     "@eluvio/elv-embed": "git+https://github.com/eluv-io/elv-embed.git",
     "@eluvio/elv-paymentgate": "0.0.1",
@@ -59,7 +60,7 @@
     "url-join": "^4.0.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.17.0",
+    "@babel/core": "^7.17.9",
     "@babel/plugin-proposal-class-properties": "^7.14.5",
     "@babel/plugin-proposal-object-rest-spread": "^7.14.7",
     "@babel/plugin-proposal-optional-chaining": "^7.16.7",
@@ -113,7 +114,13 @@
       "@babel/plugin-proposal-object-rest-spread",
       "@babel/plugin-transform-regenerator",
       "@babel/plugin-transform-runtime",
-      "@babel/plugin-proposal-optional-chaining"
+      "@babel/plugin-proposal-optional-chaining",
+      [
+        "@babel/plugin-proposal-private-property-in-object",
+        {
+          "loose": true
+        }
+      ]
     ]
   }
 }

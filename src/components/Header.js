@@ -87,9 +87,9 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
         hidden: !fullMarketplace || !fullMarketplace.collections || fullMarketplace.collections.length === 0
       },
       {name: "My Listings", to: UrlJoin("/marketplace", marketplace.marketplaceId, "my-listings"), authed: true},
-      {separator: true},
-      {name: "Discover Marketplaces", to: "/marketplaces"},
-      {name: "My Full Collection", to: "/wallet/collection", authed: true},
+      {separator: true, global: true},
+      {name: "Discover Marketplaces", to: "/marketplaces", global: true},
+      {name: "My Full Collection", to: "/wallet/collection", authed: true, global: true},
       {name: "My Profile", to: "/profile", authed: true}
     ];
   }
@@ -97,8 +97,10 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
   return (
     <div className="mobile-navigation__menu">
       {
-        links.map(({name, to, authed, separator, hidden}) => {
+        links.map(({name, to, authed, global, separator, hidden}) => {
           if(hidden || (authed && !rootStore.loggedIn)) { return null; }
+
+          if(global && rootStore.hideGlobalNavigation) { return null; }
 
           if(separator) {
             return <div key="mobile-link-separator" className="mobile-navigation__separator" />;
@@ -172,8 +174,6 @@ const GlobalHeader = observer(({marketplace}) => {
 });
 
 const SubHeaderNavigation = observer(({marketplace}) => {
-  if(!rootStore.loggedIn) { return null; }
-
   const fullMarketplace = marketplace ? rootStore.marketplaces[marketplace.marketplaceId] : null;
   return (
     <nav className="subheader__navigation subheader__navigation--personal">
@@ -182,25 +182,28 @@ const SubHeaderNavigation = observer(({marketplace}) => {
           <Profile /> : null
       }
 
-      <div className="subheader__navigation--personal__links">
-        {
-          fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0 ?
-            <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "collections")}>
-              My Collections
-            </NavLink> : null
-        }
-        <NavLink className="subheader__navigation-link" to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "collection") : "/wallet/collection"}>
-          My Items
-        </NavLink>
-        <NavLink className="subheader__navigation-link" to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "my-listings") : "/wallet/my-listings"}>
-          My Listings
-        </NavLink>
-      </div>
+      {
+        !rootStore.loggedIn ? null :
+          <div className="subheader__navigation--personal__links">
+            {
+              fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0 ?
+                <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "collections")}>
+                  My Collections
+                </NavLink> : null
+            }
+            <NavLink className="subheader__navigation-link" to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "collection") : "/wallet/collection"}>
+              My Items
+            </NavLink>
+            <NavLink className="subheader__navigation-link" to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "my-listings") : "/wallet/my-listings"}>
+              My Listings
+            </NavLink>
+          </div>
+      }
     </nav>
   );
 });
 
-const MarketplaceNavigation = ({marketplace}) => {
+const MarketplaceNavigation = observer(({marketplace}) => {
   const branding = marketplace.branding || {};
 
   return (
@@ -223,7 +226,7 @@ const MarketplaceNavigation = ({marketplace}) => {
       }
     </div>
   );
-};
+});
 
 const SubHeader = ({marketplace}) => {
   if(!marketplace) {

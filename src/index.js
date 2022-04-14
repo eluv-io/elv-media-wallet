@@ -9,20 +9,21 @@ import { rootStore } from "Stores/index.js";
 import Header from "Components/Header";
 import {Navigation} from "Components/Navigation";
 
-if(new URLSearchParams(window.location.search).has("n")) {
+const searchParams = new URLSearchParams(window.location.search);
+
+if(searchParams.has("n")) {
   rootStore.ToggleNavigation(false);
 }
 
 let newWindowLogin = false;
 try {
   newWindowLogin =
-    new URLSearchParams(window.location.search).has("l") ||
+    searchParams.has("l") ||
     sessionStorage.getItem("new-window-login");
 // eslint-disable-next-line no-empty
 } catch(error) {}
 
-let signaturePopup = new URLSearchParams(window.location.search).has("sign");
-
+const signaturePopup = searchParams.has("sign");
 
 import {
   useHistory,
@@ -41,8 +42,9 @@ import MarketplaceRoutes from "Components/marketplace";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import {PageLoader} from "Components/common/Loaders";
 import Modal from "Components/common/Modal";
-import {LoginRedirectGate} from "Components/common/LoginGate";
+import {LoginGate, LoginRedirectGate} from "Components/common/LoginGate";
 import SignaturePopup from "Components/crypto/SignaturePopup";
+import AcceptPopup from "Components/interface/AcceptPopup";
 
 const DebugFooter = () => {
   if(!EluvioConfiguration["show-debug"]) { return null; }
@@ -90,6 +92,7 @@ const LoginModal = observer(() => {
         Toggle={rootStore.requireLogin ? undefined : () => rootStore.HideLogin()}
       >
         <Login
+          key={`login-${rootStore.specifiedMarketplaceId}`}
           darkMode={rootStore.darkMode}
           callbackUrl={UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, "")}
           Loaded={() => rootStore.SetLoginLoaded()}
@@ -117,22 +120,11 @@ const Routes = observer(() => {
   const history = useHistory();
   const location = useLocation();
 
-  useEffect(() => {
-    // Automatically redirect to the intended path, unless opened from an embed window or returning from a purchase
-    if(
-      rootStore.GetSessionStorage("intendedPath") &&
-      !rootStore.fromEmbed &&
-      !["/success", "/cancel", "/redirect", "/withdrawal-setup-complete"].includes(history.location.pathname)
-    ) {
-      history.replace(rootStore.GetSessionStorage("intendedPath"));
-    }
+  useEffect(() => InitializeListener(history), []);
 
-    InitializeListener(history);
-  }, []);
-
-  useEffect(() => {
-    rootStore.SetSessionStorage("intendedPath", location.pathname);
-  }, [location.pathname]);
+  if(rootStore.loginOnly) {
+    return <LoginModal />;
+  }
 
   const RedirectLoading = () => {
     // Safari + stripe has a weird bug in the onboarding flow where it redirects back to /redirect instead of /withdrawal-setup-complete
@@ -185,6 +177,12 @@ const Routes = observer(() => {
 
   return (
     <Switch>
+      <Route exact path="/accept">
+        <LoginGate>
+          <AcceptPopup />
+        </LoginGate>
+      </Route>
+
       <Route exact path="/success">
         <RedirectHandler storageKey="successPath" />
       </Route>

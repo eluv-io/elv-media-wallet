@@ -110,8 +110,6 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
     return <Redirect to={redirectPath} />;
   }
 
-
-
   return (
     <div className="listing-purchase-confirmation-modal">
       <div className="listing-purchase-confirmation-modal__header">
