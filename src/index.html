@@ -12,6 +12,15 @@
 </head>
 
 <body>
+  <script type="text/javascript">
+    const searchParams = new URLSearchParams(window.location.search);
+
+    // If light mode specified, set light body color ASAP
+    if(searchParams.has("lt")) {
+      document.body.style.backgroundColor = "#FFFFFF";
+    }
+  </script>
+
   <div id="app" class="app"></div>
 
   <style id="_custom-styles"></style>

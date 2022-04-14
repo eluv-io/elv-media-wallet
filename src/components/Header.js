@@ -42,7 +42,7 @@ const Profile = observer(() => {
             <div className="header__profile__balances">
               <WalletHeader />
               <div
-                className="header__profile__balance"
+                className="header__profile__balance header__profile__balance--wallet"
                 title={`Total balance: ${FormatPriceString({USD: rootStore.totalWalletBalance})}\nAvailable balance: ${FormatPriceString({USD: rootStore.availableWalletBalance}) }\nPending balance: ${FormatPriceString({USD: rootStore.pendingWalletBalance}) }`}
               >
                 <ImageIcon icon={WalletIcon} label="Wallet Balance" />
@@ -266,7 +266,7 @@ const Header = observer(() => {
     return () => clearInterval(interval);
   }, []);
 
-  if(rootStore.hideNavigation) { return null; }
+  if(!rootStore.loaded || rootStore.hideNavigation) { return null; }
 
   if(rootStore.sidePanelMode) {
     if(rootStore.navigationBreadcrumbs.length <= 2) { return null; }

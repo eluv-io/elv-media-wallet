@@ -87,7 +87,7 @@ const LoginModal = observer(() => {
   }
 
   if(rootStore.showLogin) {
-    const redirectUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
+    const redirectUrl = new URL(UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""));
     redirectUrl.hash = window.location.hash;
 
     return (

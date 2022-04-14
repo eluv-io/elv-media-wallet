@@ -68,24 +68,23 @@
   &__profile__usdc {
     display: flex;
     height: 20px;
-    margin-right: 3px;
-    padding: 3px;
+    margin-right: 5px;
   }
 
   .header__profile__connected-icon--disconnected {
-    filter: grayscale(100%);
+    &:not(:hover) {
+      filter: grayscale(100%);
+    }
   }
 
   &__profile__balance {
     align-items: center;
-    background-color: $lightgray;
     border-radius: 3px;
     color: $darkgray;
     display: flex;
     font-size: 12px;
     height: 20px;
     justify-content: flex-end;
-    padding: 2px 5px;
 
     svg,
     img {
@@ -93,8 +92,10 @@
       min-width: 15px;
     }
 
-    svg {
-      filter: invert(100%);
+    &--wallet {
+      svg {
+        filter: invert(100%);
+      }
     }
   }
 
@@ -539,7 +540,6 @@
   }
 
   .header__profile__balance {
-    background-color: $darkergray;
     color: $white;
 
     svg {
