@@ -109,6 +109,44 @@ $pending-color: rgba($blue, 0.5);
     width: 100%;
   }
 
+  &__image__full-screen {
+    bottom: 12px;
+    height: 15px;
+    position: absolute;
+    right: 8px;
+    width: 15px;
+
+    svg {
+      height: 100%;
+      opacity: 0.5;
+      width: 100%;
+
+      * {
+        stroke-width: 5px;
+      }
+    }
+  }
+
+  &__image-modal {
+    overflow-y: hidden;
+
+    .modal__content {
+      align-items: center;
+      display: flex;
+      height: 100vh !important;
+      justify-content: center;
+      overflow-y: hidden;
+      width: 100vw;
+    }
+
+    img,
+    svg {
+      max-height: 100%;
+      max-width: 100%;
+      object-fit: contain;
+    }
+  }
+
   &__image-loading {
     @include background-gradient-loader;
   }

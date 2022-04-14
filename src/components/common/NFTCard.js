@@ -23,6 +23,7 @@ const NFTCard = observer(({
   link,
   showVideo,
   showOrdinal,
+  allowFullscreen,
   hideAvailable,
   truncateDescription,
   selectedMediaIndex=-1,
@@ -45,7 +46,14 @@ const NFTCard = observer(({
 
   const card = (
     <div className="card card-shadow">
-      <NFTImage nft={nft} item={item} selectedMedia={selectedMedia} video={showVideo} playerCallback={playerCallback} />
+      <NFTImage
+        nft={nft}
+        item={item}
+        selectedMedia={selectedMedia}
+        video={showVideo}
+        allowFullscreen={allowFullscreen}
+        playerCallback={playerCallback}
+      />
       <div className="card__titles">
         {
           selectedMediaIndex >= 0 ?

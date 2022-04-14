@@ -3,9 +3,12 @@ import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores/index";
 import SVG from "react-inlinesvg";
-import NFTPlaceholderIcon from "Assets/icons/nft";
 import ImageIcon from "Components/common/ImageIcon";
 import {Initialize} from "@eluvio/elv-embed/src/Embed";
+
+import NFTPlaceholderIcon from "Assets/icons/nft";
+import FullscreenIcon from "Assets/icons/full screen.svg";
+import Modal from "Components/common/Modal";
 
 export const ProfileImage = observer(({className=""}) => {
   return (
@@ -15,10 +18,11 @@ export const ProfileImage = observer(({className=""}) => {
   );
 });
 
-export const NFTImage = observer(({nft, item, selectedMedia, width, video=false, className="", playerCallback}) => {
+export const NFTImage = observer(({nft, item, selectedMedia, width, video=false, allowFullscreen=false, className="", playerCallback}) => {
   const [player, setPlayer] = useState(undefined);
   const [media, setMedia] = useState({imageUrl: undefined, embedUrl: undefined});
   const [targetElement, setTargetElement] = useState(undefined);
+  const [fullscreen, setFullscreen] = useState(false);
 
   useEffect(() => () => player && player.Destroy(), []);
 
@@ -113,22 +117,36 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
     );
   }
 
+  const image = media?.imageUrl ?
+    <img
+      src={media.imageUrl.toString()}
+      className={`card__image ${className}`}
+      alt={nft.metadata.display_name}
+    /> :
+    <SVG
+      src={NFTPlaceholderIcon}
+      className={`card__image ${className}`}
+      alt={nft.metadata.display_name}
+    />;
+
   return (
-    <div className="card__image-container" ref={() => playerCallback && playerCallback(undefined)}>
+    <>
+      <div className="card__image-container" ref={() => playerCallback && playerCallback(undefined)}>
+        { image }
+        {
+          allowFullscreen ?
+            <button className="card__image__full-screen" onClick={() => setFullscreen(true)}>
+              <ImageIcon icon={FullscreenIcon} label="Enlarge Image"/>
+            </button> : null
+        }
+      </div>
       {
-        media?.imageUrl ?
-          <img
-            src={media.imageUrl.toString()}
-            className={`card__image ${className}`}
-            alt={nft.metadata.display_name}
-          /> :
-          <SVG
-            src={NFTPlaceholderIcon}
-            className={`card__image ${className}`}
-            alt={nft.metadata.display_name}
-          />
+        fullscreen ?
+          <Modal className="card__image-modal" Toggle={() => setFullscreen(false)}>
+            { image }
+          </Modal> : null
       }
-    </div>
+    </>
   );
 });
 

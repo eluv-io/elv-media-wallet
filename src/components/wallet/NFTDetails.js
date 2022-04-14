@@ -673,6 +673,7 @@ const NFTDetails = observer(() => {
             selectedListing={listing}
             showVideo
             showOrdinal
+            allowFullscreen
             selectedMediaIndex={selectedMediaIndex}
             setSelectedMediaIndex={setSelectedMediaIndex}
             playerCallback={playerInfo => {
