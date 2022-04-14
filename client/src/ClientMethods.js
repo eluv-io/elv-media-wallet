@@ -229,7 +229,7 @@ exports.MarketplaceStorefront = async function({tenantSlug, marketplaceSlug, mar
  * @namedParams
  * @param {string} tenantSlug - Specify the URL slug of the marketplace's tenant. Required if specifying marketplace slug
  * @param {string} marketplaceSlug - Specify the URL slug of the marketplace
- * @param {string} purchaseProvider=stripe - The payment flow to use for the purchase. Available providers:
+ * @param {string=} purchaseProvider=stripe - The payment flow to use for the purchase. Not required if the item can be claimed for free. Available providers:
  <ul>
  <li>- stripe - Credit card payment flow with stripe</li>
  <li>- coinbase - Crypto payment flow with Coinbase</li>
@@ -535,10 +535,11 @@ exports.ListingPurchase = async function({listingId, purchaseProvider}) {
 /**
  * Retrieve the status of the specified purchase.
  *
- * The returned status has two parts:
+ * The returned status has three parts:
  <ul>
  <li>- purchase - The status of the purchase flow. When the user has completed the process, this status will be COMPLETED. If the user aborts the purchase flow, this status will be CANCELLED.</li>
  <li>- minting - The status of the nft minting/transfer process. When the minting/transfer has finished, this status will be COMPLETED. If the process failed, this status will be FAILED.</li>
+ <li>- items - If minting has been completed, a list of the items received will be included.</li>
  <ul>
  *
  * @methodGroup Purchases

@@ -978,6 +978,14 @@ class RootStore {
           let confirmationId, tokenId;
           if(op === "nft-buy") {
             confirmationId = id;
+          } else if(op === "nft-claim") {
+            confirmationId = id;
+            status.marketplaceId = address;
+
+            if(status.extra?.["0"]) {
+              address = status.extra.token_addr;
+              tokenId = status.extra.token_id_str;
+            }
           } else {
             tokenId = id;
           }
@@ -1094,7 +1102,7 @@ class RootStore {
     try {
       const statuses = yield this.MintingStatus({tenantId: marketplace.tenant_id});
 
-      return statuses.find(status => status.op === "nft-claim" && status.address === marketplace.marketplaceId && status.tokenId === sku) || { status: "none" };
+      return statuses.find(status => status.op === "nft-claim" && status.marketplaceId === marketplace.marketplaceId && status.confirmationId === sku) || { status: "none" };
     } catch(error) {
       this.Log(error, true);
       return { status: "unknown" };

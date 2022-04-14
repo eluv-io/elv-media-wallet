@@ -539,11 +539,17 @@
     }
   }
 
-  .header__profile__balance {
-    color: $white;
+  .header {
+    &__profile__pending-indicator {
+      color: $lightblue;
+    }
 
-    svg {
-      filter: none;
+    &__profile__balance {
+      color: $white;
+
+      svg {
+        filter: none;
+      }
     }
   }
 }

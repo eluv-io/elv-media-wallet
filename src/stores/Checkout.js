@@ -32,8 +32,22 @@ class CheckoutStore {
 
     if(this.rootStore.GetSessionStorage("solana-signatures")) {
       try {
-        this.solanaSignatures = JSON.parse(this.rootStore.GetSessionStorage("solana-signatures"));
+        this.solanaSignatures = JSON.parse(this.rootStore.GetSessionStorage("solana-signatures")) || {};
       // eslint-disable-next-line no-empty
+      } catch(error) {}
+    }
+
+    if(this.rootStore.GetLocalStorage("pending-purchases")) {
+      try {
+        this.pendingPurchases = JSON.parse(this.rootStore.GetLocalStorage("pending-purchases")) || {};
+        // eslint-disable-next-line no-empty
+      } catch(error) {}
+    }
+
+    if(this.rootStore.GetLocalStorage("completed-purchases")) {
+      try {
+        this.completedPurchases = JSON.parse(this.rootStore.GetLocalStorage("completed-purchases")) || {};
+        // eslint-disable-next-line no-empty
       } catch(error) {}
     }
   }
@@ -85,6 +99,17 @@ class CheckoutStore {
     }
   });
 
+  PurchaseInitiated({tenantId, confirmationId, marketplaceId, sku}) {
+    this.pendingPurchases[confirmationId] = {
+      confirmationId,
+      tenantId,
+      marketplaceId,
+      sku
+    };
+
+    this.rootStore.SetLocalStorage("pending-purchases", JSON.stringify(this.pendingPurchases));
+  }
+
   PurchaseComplete({confirmationId, success, message}) {
     this.submittingOrder = false;
 
@@ -101,6 +126,9 @@ class CheckoutStore {
         message
       };
     }
+
+    this.rootStore.SetLocalStorage("pending-purchases", JSON.stringify(this.pendingPurchases));
+    this.rootStore.SetLocalStorage("completed-purchases", JSON.stringify(this.completedPurchases));
   }
 
   ClaimSubmit = flow(function * ({marketplaceId, sku}) {
@@ -108,6 +136,8 @@ class CheckoutStore {
       this.submittingOrder = true;
 
       const tenantId = this.rootStore.marketplaces[marketplaceId].tenant_id;
+
+      this.PurchaseInitiated({confirmationId: sku, tenantId, marketplaceId, sku});
 
       yield this.client.authClient.MakeAuthServiceRequest({
         method: "POST",
@@ -122,11 +152,15 @@ class CheckoutStore {
         }
       });
 
-      return true;
+      this.PurchaseComplete({confirmationId: sku, success: true});
+
+      return { confirmationId: sku };
     } catch(error) {
       this.rootStore.Log(error, true);
 
-      return false;
+      this.PurchaseComplete({confirmationId: sku, success: false, message: "Claim Failed"});
+
+      throw error;
     } finally {
       this.submittingOrder = false;
     }
@@ -142,6 +176,7 @@ class CheckoutStore {
     if(this.submittingOrder) { return; }
 
     const requiresPopup = this.rootStore.embedded && !["wallet-balance", "linked-wallet"].includes(provider);
+    confirmationId = confirmationId || (provider === "linked-wallet" ? this.ConfirmationId(true) : `T-${this.ConfirmationId()}`);
 
     let popup;
     try {
@@ -151,7 +186,6 @@ class CheckoutStore {
 
       this.submittingOrder = true;
 
-      confirmationId = confirmationId || (provider === "linked-wallet" ? this.ConfirmationId(true) : `T-${this.ConfirmationId()}`);
 
       let authInfo = this.rootStore.AuthInfo() || {};
       if(!authInfo?.user) {
@@ -182,11 +216,7 @@ class CheckoutStore {
           UrlJoin("/marketplace", marketplaceId, "store", listing.details.TenantId, listingId, "purchase", confirmationId) :
           UrlJoin("/wallet", "listings", listing.details.TenantId, listingId, "purchase", confirmationId);
 
-      this.pendingPurchases[confirmationId] = {
-        tenantId: listing.details.TenantId,
-        listingId,
-        confirmationId
-      };
+      this.PurchaseInitiated({confirmationId, tenantId: listing.details.TenantId, listingId});
 
       if(requiresPopup) {
         // Stripe doesn't work in iframe, open new window to initiate purchase
@@ -243,6 +273,8 @@ class CheckoutStore {
 
       if(popup) { popup.close(); }
 
+      this.PurchaseComplete({confirmationId, success: false, message: "Listing purchase failed"});
+
       if(typeof error.recoverable !== "undefined") {
         throw error;
       } else {
@@ -268,6 +300,7 @@ class CheckoutStore {
     if(this.submittingOrder) { return; }
 
     const requiresPopup = this.rootStore.embedded && !["wallet-balance", "linked-wallet"].includes(provider);
+    confirmationId = confirmationId || `M-${this.ConfirmationId()}`;
 
     let popup;
     try {
@@ -276,8 +309,6 @@ class CheckoutStore {
       }
 
       this.submittingOrder = true;
-
-      confirmationId = confirmationId || `M-${this.ConfirmationId()}`;
 
       let authInfo = this.rootStore.AuthInfo();
       if(!authInfo.user) {
@@ -305,12 +336,7 @@ class CheckoutStore {
         };
       }
 
-      this.pendingPurchases[confirmationId] = {
-        tenantId,
-        marketplaceId,
-        sku,
-        confirmationId
-      };
+      this.PurchaseInitiated({confirmationId, tenantId, marketplaceId, sku});
 
       if(requiresPopup) {
         // Stripe doesn't work in iframe, open new window to initiate purchase
@@ -367,6 +393,8 @@ class CheckoutStore {
       if(popup) { popup.close(); }
 
       this.rootStore.Log(error, true);
+
+      this.PurchaseComplete({confirmationId, success: false, message: "Purchase failed"});
 
       if(typeof error.recoverable !== "undefined") {
         throw error;

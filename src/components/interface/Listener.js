@@ -3,7 +3,7 @@ import {toJS} from "mobx";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import EVENTS from "../../../client/src/Events";
 import UrlJoin from "url-join";
-import {FormatPriceString} from "Components/common/UIComponents";
+import {FormatPriceString, ItemPrice} from "Components/common/UIComponents";
 
 const pages = {
   // Wallet
@@ -356,21 +356,32 @@ export const InitializeListener = (history) => {
 
         // client.MarketplacePurchase
         case "marketplacePurchase":
-          if(data.params.provider === "wallet-balance") {
-            const marketplaceItem = await MarketplaceItem(marketplaceInfo, data);
+          const marketplaceItem = await MarketplaceItem(marketplaceInfo, data);
+          const directPrice = ItemPrice(marketplaceItem, checkoutStore.currency);
+          const free = !directPrice || marketplaceItem.free;
+
+          if(!free && data.params.provider === "wallet-balance") {
             await rootStore.RequestPermission({
               requestor: data.requestor,
               action: `Purchase '${marketplaceItem.name || "NFT"}' with wallet balance for ${FormatPriceString(marketplaceItem.price)}`
             });
           }
 
-          const marketplacePurchase = await checkoutStore.CheckoutSubmit({
-            provider: data.params.provider,
-            tenantId: marketplaceInfo?.tenantId,
-            marketplaceId: marketplaceInfo.marketplaceId,
-            sku: data.params.sku,
-            quantity: data.params.quantity || 1
-          });
+          let marketplacePurchase;
+          if(free) {
+            marketplacePurchase = await checkoutStore.ClaimSubmit({
+              marketplaceId: marketplaceInfo.marketplaceId,
+              sku: data.params.sku
+            });
+          } else {
+            marketplacePurchase = await checkoutStore.CheckoutSubmit({
+              provider: data.params.provider,
+              tenantId: marketplaceInfo?.tenantId,
+              marketplaceId: marketplaceInfo.marketplaceId,
+              sku: data.params.sku,
+              quantity: data.params.quantity || 1
+            });
+          }
 
           return Respond({
             response: marketplacePurchase.confirmationId
@@ -408,17 +419,33 @@ export const InitializeListener = (history) => {
         case "purchaseStatus":
           let status = { purchase: "CANCELLED", minting: "PENDING" };
           if(checkoutStore.completedPurchases[data.params.confirmationId]) {
-            const mintingStatus = (((await rootStore.MintingStatus({
+            const mint = (((await rootStore.MintingStatus({
               tenantId: checkoutStore.completedPurchases[data.params.confirmationId].tenantId
             })) || [])
-              .find(status => status.confirmationId === data.params.confirmationId))?.status;
+              .find(status => status.confirmationId === data.params.confirmationId));
 
-            status = {
-              purchase: "COMPLETE",
-              minting:
-                mintingStatus === "complete" ? "COMPLETE" :
-                  mintingStatus === "failed" ? "FAILED" : "PENDING"
-            };
+            status = { purchase: "COMPLETE", minting: "PENDING" };
+
+            if(mint?.status === "failed") {
+              status.minting = "FAILED";
+            } else if(mint?.status === "complete") {
+              status.minting = "COMPLETE";
+
+              let items =
+                mint.tokenId ?
+                  // Claim and transfer - one item
+                  [{token_addr: mint.address, token_id_str: mint.tokenId}] :
+                  // Marketplace purchase - may be list of items
+                  mint.extra.filter(item => item.token_addr && (item.token_id || item.token_id_str));
+
+              items = await Promise.all(
+                items.map(async ({token_addr, token_id_str}) =>
+                  await rootStore.LoadNFTData({contractAddress: token_addr, tokenId: token_id_str})
+                )
+              );
+
+              status.items = JSON.parse(JSON.stringify(items));
+            }
           } else if(checkoutStore.pendingPurchases[data.params.confirmationId]) {
             status = { purchase: "PENDING", minting: "PENDING" };
           }

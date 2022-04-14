@@ -133,7 +133,7 @@ $pending-color: rgba($blue, 0.5);
     .modal__content {
       align-items: center;
       display: flex;
-      height: 100vh !important;
+      height: 100vh;
       justify-content: center;
       overflow-y: hidden;
       width: 100vw;
