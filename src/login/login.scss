@@ -36,23 +36,25 @@
   input {
     &[type="checkbox"] {
       appearance: none;
-      max-height: 14px;
-      max-width: 14px;
-      min-height: 14px;
-      min-width: 14px;
+      max-height: 18px;
+      max-width: 18px;
+      min-height: 18px;
+      min-width: 18px;
       position: relative;
 
       &:checked {
         &::after {
-          content: "✓";
-          display: flex;
-          font-size: 10px;
-          height: 14px;
-          justify-content: center;
-          left: -1px;
-          position: absolute;
           top: 0;
-          width: 14px;
+          left: 0;
+          color: $gray;
+          background-color: transparent;
+          height: 100%;
+          width: 100%;
+          content: "✓";
+          font-size: 12px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
         }
       }
     }

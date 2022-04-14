@@ -79,6 +79,8 @@ class RootStore {
   fromEmbed = searchParams.has("embed") ||
     this.GetSessionStorage("fromEmbed");
 
+  trustedOrigins = this.GetLocalStorageJSON("trusted-origins") || {};
+
   mode = "test";
 
   pageWidth = window.innerWidth;
@@ -368,13 +370,10 @@ class RootStore {
       await this.client.LatestVersionHash({objectId: this.specifiedMarketplaceId});
     const marketplaceId = this.client.utils.DecodeVersionHash(marketplaceHash).objectId;
 
-    // Attempt to load from cache
-    const savedData = this.GetSessionStorage(`marketplace-login-${marketplaceHash}`);
+    const savedData = this.GetSessionStorageJSON(`marketplace-login-${marketplaceHash}`, true);
+
     if(savedData) {
-      try {
-        return JSON.parse(atob(savedData));
-        // eslint-disable-next-line no-empty
-      } catch(error) {}
+      return savedData;
     }
 
     let metadata = (
@@ -1127,7 +1126,7 @@ class RootStore {
       if(contractId) {
         contractAddress = Utils.HashToAddress(contractId);
       }
-      
+
       const statuses = yield this.MintingStatus({tenantId});
 
       return statuses.find(status => status.op === "nft-open" && Utils.EqualAddress(contractAddress, status.address) && status.tokenId === tokenId) || { status: "none" };
@@ -1370,7 +1369,11 @@ class RootStore {
     window.location.href = url.toString();
   }
 
-  RequestPermission = flow(function * ({requestor, action}) {
+  RequestPermission = flow(function * ({origin, requestor, action}) {
+    if(this.trustedOrigins[origin]) {
+      return true;
+    }
+
     const popup = window.open("about:blank");
     const requestId = btoa(UUID());
 
@@ -1381,6 +1384,7 @@ class RootStore {
     popupUrl.searchParams.set("ac", btoa(action));
     popupUrl.searchParams.set("request", btoa(requestId));
     popupUrl.searchParams.set("hn", "");
+    popupUrl.searchParams.set("origin", btoa(origin));
 
     popup.location.href = popupUrl.toString();
 
@@ -1391,6 +1395,10 @@ class RootStore {
         }
 
         window.removeEventListener("message", Listener);
+
+        if(event.data.accept && event.data.trust) {
+          rootStore.SetTrustedOrigin(origin);
+        }
 
         resolve(event.data.accept);
       };
@@ -1544,9 +1552,27 @@ class RootStore {
     this.noItemsAvailable = true;
   }
 
+  SetTrustedOrigin(origin) {
+    this.trustedOrigins[origin] = true;
+
+    this.SetLocalStorage("trusted-origins", JSON.stringify(this.trustedOrigins));
+  }
+
   GetLocalStorage(key) {
     try {
       return localStorage.getItem(key);
+    } catch(error) {
+      return undefined;
+    }
+  }
+
+  GetLocalStorageJSON(key, b64) {
+    try {
+      if(b64) {
+        return JSON.parse(atob(this.GetLocalStorage(key)));
+      } else {
+        return JSON.parse(this.GetLocalStorage(key));
+      }
     } catch(error) {
       return undefined;
     }
@@ -1571,6 +1597,18 @@ class RootStore {
   GetSessionStorage(key) {
     try {
       return sessionStorage.getItem(key);
+    } catch(error) {
+      return undefined;
+    }
+  }
+
+  GetSessionStorageJSON(key, b64) {
+    try {
+      if(b64) {
+        return JSON.parse(atob(this.GetSessionStorage(key)));
+      } else {
+        return JSON.parse(this.GetSessionStorage(key));
+      }
     } catch(error) {
       return undefined;
     }

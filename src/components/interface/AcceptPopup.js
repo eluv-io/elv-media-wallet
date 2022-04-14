@@ -10,11 +10,17 @@ import {ButtonWithLoader} from "Components/common/UIComponents";
 const searchParams = new URLSearchParams(window.location.search);
 const requestor = atob(searchParams.get("rq"));
 const action = atob(searchParams.get("ac"));
+const origin = atob(searchParams.get("origin"));
 
-const Respond = async (accept) => {
+const Respond = async ({accept, trust}) => {
+  if(accept && trust) {
+    rootStore.SetTrustedOrigin(origin);
+  }
+
   window.opener.postMessage({
     type: "ElvMediaWalletAcceptResponse",
     accept,
+    trust,
     requestId: searchParams.get("request")
   });
 
@@ -25,6 +31,7 @@ const Respond = async (accept) => {
 
 const AcceptPopup = observer(() => {
   const [loading, setLoading] = useState(true);
+  const [trusted, setTrusted] = useState(true);
 
   useEffect(() => {
     rootStore.ToggleDarkMode(true);
@@ -41,13 +48,24 @@ const AcceptPopup = observer(() => {
           <h2 className="accept-popup__requested-action">{ action }</h2>
         </div>
         <Loader />
+        <div className="accept-popup__trust">
+          <input type="checkbox" checked={trusted} onClick={() => setTrusted(!trusted)} name="trust" />
+          <label htmlFor="trust" onClick={() => setTrusted(!trusted)} >
+            Trust all requests from { origin }
+          </label>
+        </div>
         {
           loading ? null :
             <div className="accept-popup__actions">
-              <ButtonWithLoader className="action" onClick={async () => await Respond(false)}>
+              <ButtonWithLoader className="action" onClick={async () => await Respond({accept: false})}>
                 Reject
               </ButtonWithLoader>
-              <ButtonWithLoader className="action action-primary" onClick={async () => await Respond(true)}>
+              <ButtonWithLoader
+                className="action action-primary"
+                onClick={async () => {
+                  await Respond({accept: true, trust: trusted});
+                }}
+              >
                 Accept
               </ButtonWithLoader>
             </div>

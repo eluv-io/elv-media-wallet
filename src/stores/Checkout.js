@@ -30,26 +30,11 @@ class CheckoutStore {
     this.rootStore = rootStore;
     makeAutoObservable(this);
 
-    if(this.rootStore.GetSessionStorage("solana-signatures")) {
-      try {
-        this.solanaSignatures = JSON.parse(this.rootStore.GetSessionStorage("solana-signatures")) || {};
-      // eslint-disable-next-line no-empty
-      } catch(error) {}
-    }
-
-    if(this.rootStore.GetLocalStorage("pending-purchases")) {
-      try {
-        this.pendingPurchases = JSON.parse(this.rootStore.GetLocalStorage("pending-purchases")) || {};
-        // eslint-disable-next-line no-empty
-      } catch(error) {}
-    }
-
-    if(this.rootStore.GetLocalStorage("completed-purchases")) {
-      try {
-        this.completedPurchases = JSON.parse(this.rootStore.GetLocalStorage("completed-purchases")) || {};
-        // eslint-disable-next-line no-empty
-      } catch(error) {}
-    }
+    runInAction(() => {
+      this.solanaSignatures = rootStore.GetSessionStorageJSON("solana-signatures") || {};
+      this.pendingPurchases = rootStore.GetLocalStorageJSON("pending-purchases") || {};
+      this.completedPurchases = rootStore.GetLocalStorageJSON("completed-purchases") || {};
+    });
   }
 
   ConfirmationId(uuid) {

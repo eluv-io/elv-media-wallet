@@ -251,6 +251,7 @@ export const InitializeListener = (history) => {
           item = await Item(data);
 
           await rootStore.RequestPermission({
+            origin: event.origin,
             requestor: data.requestor,
             action: `List '${item?.metadata?.display_name || "NFT"}' for sale for ${FormatPriceString({"USD": data.params.price})}`
           });
@@ -267,6 +268,7 @@ export const InitializeListener = (history) => {
           listing = await Listing(data);
 
           await rootStore.RequestPermission({
+            origin: event.origin,
             requestor: data.requestor,
             action: `List '${listing?.metadata?.display_name || "NFT"}' for sale for ${FormatPriceString({"USD": data.params.price})}`
           });
@@ -281,6 +283,7 @@ export const InitializeListener = (history) => {
           listing = await Listing(data);
 
           await rootStore.RequestPermission({
+            origin: event.origin,
             requestor: data.requestor,
             action: `Remove listing for '${listing?.metadata?.display_name || "NFT"}'`
           });
@@ -296,6 +299,7 @@ export const InitializeListener = (history) => {
           if(data.params.provider === "wallet-balance") {
             const listing = await Listing(data);
             await rootStore.RequestPermission({
+              origin: event.origin,
               requestor: data.requestor,
               action: `Purchase '${listing?.metadata?.display_name || "NFT"}' with wallet balance for ${FormatPriceString({USD: listing.details.Price})}`
             });
@@ -362,6 +366,7 @@ export const InitializeListener = (history) => {
 
           if(!free && data.params.provider === "wallet-balance") {
             await rootStore.RequestPermission({
+              origin: event.origin,
               requestor: data.requestor,
               action: `Purchase '${marketplaceItem.name || "NFT"}' with wallet balance for ${FormatPriceString(marketplaceItem.price)}`
             });
@@ -457,6 +462,7 @@ export const InitializeListener = (history) => {
           item = await Item(data);
 
           await rootStore.RequestPermission({
+            origin: event.origin,
             requestor: data.requestor,
             action: `Open pack '${item?.metadata?.display_name || "NFT"}'`
           });

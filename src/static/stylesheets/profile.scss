@@ -364,6 +364,21 @@
     margin-bottom: 20px;
   }
 
+  &__trust {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    width: 100%;
+
+    label {
+      cursor: pointer;
+      font-size: 12px;
+      margin-left: 5px;
+      text-align: center;
+    }
+  }
+
   &__actions {
     align-items: center;
     display: flex;
@@ -454,6 +469,12 @@
   .accept-popup {
     &__requestor {
       color: $gray;
+    }
+
+    &__trust {
+      label {
+        color: $mediumgray;
+      }
     }
   }
 }
