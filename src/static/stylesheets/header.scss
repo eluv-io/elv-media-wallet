@@ -470,11 +470,7 @@
 
   .subheader__navigation--personal {
     .header__profile {
-      align-items: flex-start;
-      position: absolute;
-      right: 55px;
-      top: 15px;
-      width: max-content;
+      display: none;
     }
   }
 

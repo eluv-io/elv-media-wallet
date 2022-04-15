@@ -90,7 +90,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
       {separator: true, global: true},
       {name: "Discover Marketplaces", to: "/marketplaces", global: true},
       {name: "My Full Collection", to: "/wallet/collection", authed: true, global: true},
-      {name: "My Profile", to: "/profile", authed: true}
+      {name: "My Profile", to: UrlJoin("/marketplace", marketplace.marketplaceId, "profile"), authed: true}
     ];
   }
 
