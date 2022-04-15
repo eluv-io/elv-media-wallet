@@ -234,7 +234,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
   /**
    * Request the wallet app navigate to the specified page.
    *
-   * When specifying a marketplace, you must either provide:
+   * When specifying a marketplace, you must provide either:
    <pre>
    - tenantSlug and marketplaceSlug - Slugs for the tenant and marketplace
    - marketplaceHash - Version hash of a marketplace

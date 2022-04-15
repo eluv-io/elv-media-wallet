@@ -4,6 +4,7 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 import EVENTS from "../../../client/src/Events";
 import UrlJoin from "url-join";
 import {FormatPriceString, ItemPrice} from "Components/common/UIComponents";
+import {roundToDown} from "round-to";
 
 const pages = {
   // Wallet
@@ -26,6 +27,23 @@ const pages = {
 
   // Listings
   "listings": "/wallet/listings"
+};
+
+const Price = (item, quantity=1) => {
+  const FormatPrice = amount => parseFloat(parseFloat(amount).toFixed(2));
+
+  const price = item?.details?.ListingId ? item.details.Price : item.price.USD;
+  const subtotal = price * quantity;
+  const fee = Math.max(1, roundToDown(subtotal * 0.05, 2));
+  const total = subtotal + fee;
+
+  return {
+    price: FormatPrice(price),
+    subtotal: FormatPrice(subtotal),
+    fee: FormatPrice(fee),
+    total: FormatPrice(total),
+    quantity
+  };
 };
 
 const FormatNFT = (nft) => {
@@ -148,7 +166,7 @@ export const InitializeListener = (history) => {
 
     try {
       let marketplaceInfo;
-      if(data?.params?.marketplaceSlug) {
+      if(data?.params?.marketplaceSlug || data?.params?.marketplaceId || data?.params?.marketplaceHash) {
         marketplaceInfo = await rootStore.MarketplaceInfo({
           tenantSlug: data.params.tenantSlug,
           marketplaceSlug: data.params.marketplaceSlug,
@@ -157,7 +175,7 @@ export const InitializeListener = (history) => {
         });
       }
 
-      let marketplace, listing, item, status;
+      let marketplace, listing, item, status, balance, price;
       switch(data.action) {
         // client.SignIn
         case "login":
@@ -295,14 +313,25 @@ export const InitializeListener = (history) => {
         // client.ListingPurchase
         case "listingPurchase":
           // Ensure listing exists
+          listing = await Listing(data);
+
+          balance = await rootStore.GetWalletBalance();
+          price = Price(listing);
 
           if(data.params.provider === "wallet-balance") {
-            const listing = await Listing(data);
+            if(balance.availableWalletBalance < price.total) {
+              throw Error("Insufficient available wallet balance for purchase");
+            }
+
             await rootStore.RequestPermission({
               origin: event.origin,
               requestor: data.requestor,
               action: `Purchase '${listing?.metadata?.display_name || "NFT"}' with wallet balance for ${FormatPriceString({USD: listing.details.Price})}`
             });
+          }
+
+          if(data.params.provider === "linked-wallet" && !balance.usdcBalance || balance.usdcBalance < price.total) {
+            throw Error("Insufficient USDC balance for purchase");
           }
 
           try {
@@ -361,10 +390,16 @@ export const InitializeListener = (history) => {
         // client.MarketplacePurchase
         case "marketplacePurchase":
           const marketplaceItem = await MarketplaceItem(marketplaceInfo, data);
-          const directPrice = ItemPrice(marketplaceItem, checkoutStore.currency);
-          const free = !directPrice || marketplaceItem.free;
+
+          balance = await rootStore.GetWalletBalance();
+          price = Price(marketplaceItem, data.params.quantity || 1);
+          const free = price.price === 0 || marketplaceItem.free;
 
           if(!free && data.params.provider === "wallet-balance") {
+            if(balance.availableWalletBalance < price.total) {
+              throw Error("Insufficient available wallet balance for purchase");
+            }
+
             await rootStore.RequestPermission({
               origin: event.origin,
               requestor: data.requestor,
@@ -456,6 +491,16 @@ export const InitializeListener = (history) => {
           }
 
           return Respond({response: status});
+
+        // client.PurchasePrice
+        case "purchasePrice":
+          if(data.params.listingId) {
+            item = await Listing(data);
+          } else {
+            item = await MarketplaceItem(marketplaceInfo, data);
+          }
+
+          return Respond({response: Price(item, data.params.quantity || 1)});
 
         case "openPack":
           // Ensure pack exists

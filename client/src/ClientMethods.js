@@ -260,7 +260,7 @@ exports.MarketplacePurchase = async function({tenantSlug, marketplaceSlug, marke
 /**
  * Retrieve names of all valid items. Full item names are required for filtering results by name.
  *
- * Specify tenant slug and marketplace slug to filter the results to only items offered in that marketplace
+ * Specify marketplace information to filter the results to only items offered in that marketplace.
  *
  * @methodGroup Items
  * @namedParams
@@ -269,12 +269,14 @@ exports.MarketplacePurchase = async function({tenantSlug, marketplaceSlug, marke
  *
  * @returns {Promise<Array<String>>} - A list of item names
  */
-exports.ItemNames = async function({tenantSlug, marketplaceSlug}={}) {
+exports.ItemNames = async function({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash}={}) {
   return await this.SendMessage({
     action: "itemNames",
     params: {
       tenantSlug,
-      marketplaceSlug
+      marketplaceSlug,
+      marketplaceId,
+      marketplaceHash
     }
   });
 };
@@ -369,6 +371,8 @@ exports.Listings = async function ({
   limit=50,
   tenantSlug,
   marketplaceSlug,
+  marketplaceId,
+  marketplaceHash,
   sortBy="created",
   sortDesc=false,
   filter,
@@ -381,6 +385,8 @@ exports.Listings = async function ({
       limit,
       marketplaceSlug,
       tenantSlug,
+      marketplaceId,
+      marketplaceHash,
       sortBy,
       sortDesc,
       filter,
@@ -561,6 +567,32 @@ exports.PurchaseStatus = async function({confirmationId}) {
   });
 };
 
+/**
+ * Retrieve the exact purchase price breakdown of the specified marketplace item or listing. Includes quantity and fee calculations.
+ *
+ * @methodGroup Purchases
+ * @namedParams
+ * @param {string=} tenantSlug - The URL slug of a tenant. Required if specifying marketplaceSlug
+ * @param {string=} marketplaceSlug - The URL slug of a marketplace
+ * @param {string=} listingId - The listing ID of an item
+ * @param {number=} quantity=1 - For marketplace purchases, the number of items to purchase
+ *
+ * @returns {Promise<Object>} - The price of the purchase, including individual item price, subtotal, calculated fees and the total purchase price.
+ */
+exports.PurchasePrice = async function({tenantSlug, marketplaceSlug, marketplaceHash, marketplaceId, listingId, sku, quantity=1}) {
+  return this.SendMessage({
+    action: "purchasePrice",
+    params: {
+      tenantSlug,
+      marketplaceSlug,
+      marketplaceId,
+      marketplaceHash,
+      listingId,
+      sku,
+      quantity
+    }}
+  );
+};
 
 /**
  * <b><i>Prompts user for consent</i></b>
