@@ -50,7 +50,7 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
       setPlayer(undefined);
     }
 
-    let imageUrl, embedUrl;
+    let imageUrl, embedUrl, useFrame=false;
 
     const selectedMediaImageUrl = selectedMedia && ((selectedMedia.media_type === "Image" && selectedMedia.media_file?.url) || selectedMedia.image);
     if(selectedMediaImageUrl) {
@@ -72,7 +72,16 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
     }
 
     if(video) {
-      if((selectedMedia && ["Audio", "Video"].includes(selectedMedia.media_type) && selectedMedia.media_link)) {
+      if((selectedMedia && selectedMedia.media_type === "Ebook" && selectedMedia.media_file)) {
+        embedUrl = new URL("https://embed.v3.contentfabric.io");
+
+        embedUrl.searchParams.set("p", "");
+        embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
+        embedUrl.searchParams.set("type", "ebook");
+        embedUrl.searchParams.set("vid", selectedMedia.media_file["."].container);
+        embedUrl.searchParams.set("murl", btoa(selectedMedia.media_file.url));
+        useFrame = true;
+      } else if((selectedMedia && ["Audio", "Video"].includes(selectedMedia.media_type) && selectedMedia.media_link)) {
         embedUrl = new URL("https://embed.v3.contentfabric.io");
         const videoHash = ((selectedMedia.media_link["/"] && selectedMedia.media_link["/"].split("/").find(component => component.startsWith("hq__")) || selectedMedia.media_link["."].source));
 
@@ -104,14 +113,18 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
       }
     }
 
-    setMedia({imageUrl, embedUrl});
+    setMedia({imageUrl, embedUrl, useFrame});
   }, [selectedMedia]);
 
   if(media?.embedUrl) {
     return (
       <div className="card__image-container" key={`media-${media.embedUrl}`}>
         <div className={`card__image card__image-video-embed ${className}`}>
-          <div ref={element => setTargetElement(element)} className="card__image-video-embed__frame" />
+          {
+            media.useFrame ?
+              <iframe src={media.embedUrl} className="card__image-video-embed__frame" /> :
+              <div ref={element => setTargetElement(element)} className="card__image-video-embed__frame" />
+          }
         </div>
       </div>
     );

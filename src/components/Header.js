@@ -11,7 +11,6 @@ import {WalletHeader} from "Components/crypto/WalletConnect";
 
 import BackIcon from "Assets/icons/arrow-left-circle.svg";
 import EluvioLogo from "Assets/images/EluvioLogo.png";
-import PlaceholderLogo from "Assets/icons/listing.svg";
 import MenuIcon from "Assets/icons/menu";
 import WalletIcon from "Assets/icons/wallet balance button icon.svg";
 
@@ -241,12 +240,16 @@ const SubHeader = ({marketplace}) => {
 
   const { name, round_logo, header_logo } = marketplace.branding || {};
 
+  const logo = (header_logo || round_logo)?.url;
   return (
     <div className="subheader-container subheader-container--marketplace">
       <div className="subheader subheader--marketplace">
-        <Link className="subheader__logo-container" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
-          <ImageIcon icon={header_logo || round_logo ? (header_logo || round_logo).url : PlaceholderLogo} title={name || ""} className="subheader__logo" />
-        </Link>
+        {
+          logo ?
+            <Link className="subheader__logo-container" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
+              <ImageIcon icon={logo} label={name || ""} className="subheader__logo"/>
+            </Link> : null
+        }
         <MarketplaceNavigation marketplace={marketplace} />
         <SubHeaderNavigation marketplace={marketplace} />
       </div>

@@ -57,7 +57,7 @@ const ScrollToMedia = (selectedMedia, containerElement) => {
     const top = containerElement.getBoundingClientRect().top;
 
     if(selectedMedia?.media_type !== "Audio" && top < 0) {
-      window.scrollTo({top: Math.max(0, window.scrollY + top - 20), behavior: "smooth"});
+      window.scrollTo({top: Math.max(0, window.scrollY + top - 100), behavior: "smooth"});
     }
   }
 };

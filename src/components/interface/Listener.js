@@ -3,7 +3,7 @@ import {toJS} from "mobx";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import EVENTS from "../../../client/src/Events";
 import UrlJoin from "url-join";
-import {FormatPriceString, ItemPrice} from "Components/common/UIComponents";
+import {FormatPriceString} from "Components/common/UIComponents";
 import {roundToDown} from "round-to";
 
 const pages = {
