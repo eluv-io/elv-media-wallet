@@ -90,7 +90,7 @@ module.exports = {
               plugins: () => [autoprefixer({})]
             }
           },
-          "fast-sass-loader"
+          "sass-loader"
         ]
       },
       {
