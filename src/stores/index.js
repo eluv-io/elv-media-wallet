@@ -71,6 +71,9 @@ const ProfileImage = (text, backgroundColor) => {
 
 class RootStore {
   DEBUG_ERROR_MESSAGE = "";
+
+  SESSION_STORAGE_AVAILABLE = false;
+
   network = EluvioConfiguration["config-url"].includes("main.net955305") ? "main" : "demo";
 
   embedded = window.top !== window.self || searchParams.has("e");
@@ -201,17 +204,29 @@ class RootStore {
   constructor() {
     makeAutoObservable(this);
 
+    try {
+      sessionStorage.getItem("test");
+      this.SESSION_STORAGE_AVAILABLE = true;
+      // eslint-disable-next-line no-empty
+    } catch(error) {}
+
     // Login required
     if(searchParams.has("rl") || this.GetSessionStorage("loginRequired")) {
-      this.requireLogin = true;
+      runInAction(() => {
+        this.requireLogin = true;
+      });
+
       this.ShowLogin({requireLogin: true});
       this.SetSessionStorage("loginRequired", "true");
     }
 
     // Show only login screen
     if(searchParams.has("lo") || this.GetSessionStorage("loginOnly")) {
-      this.loginOnly = true;
-      this.requireLogin = true;
+      runInAction(() => {
+        this.loginOnly = true;
+        this.requireLogin = true;
+      });
+
       this.ShowLogin({requireLogin: true});
       this.SetSessionStorage("loginOnly", "true");
       this.ToggleNavigation(false);
@@ -246,7 +261,7 @@ class RootStore {
         noAuth: true
       });
 
-      const marketplace = searchParams.get("mid") || (window.self === window.top && this.GetSessionStorage("marketplace")) || "";
+      const marketplace = searchParams.get("mid") || this.GetSessionStorage("marketplace") || "";
       let tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash;
       if(marketplace && marketplace.includes("/")) {
         tenantSlug = marketplace.split("/")[0];
@@ -344,8 +359,6 @@ class RootStore {
         )
       };
 
-      this.SendEvent({event: EVENTS.LOG_IN, data: {address: client.CurrentAccountAddress()}});
-
       // Clear loaded marketplaces so they will be reloaded and authorization rechecked
       this.marketplaces = {};
       this.marketplaceCache = {};
@@ -354,6 +367,8 @@ class RootStore {
 
       this.HideLogin();
       this.loggedIn = true;
+
+      this.SendEvent({event: EVENTS.LOG_IN, data: {address: client.CurrentAccountAddress()}});
     } catch(error) {
       this.ClearAuthInfo();
       this.Log(error, true);
@@ -1331,16 +1346,19 @@ class RootStore {
     }
   });
 
-  SignOut(auth0) {
+  SignOut() {
     this.ClearAuthInfo();
 
     if(!this.embedded) {
       this.RemoveSessionStorage(`pk-${this.network}`);
     }
 
-    if(auth0) {
+    this.SendEvent({event: EVENTS.LOG_OUT, data: { address: this.client.CurrentAccountAddress() }});
+
+    if(window.auth0) {
       try {
-        auth0.logout({
+        this.disableCloseEvent = true;
+        window.auth0.logout({
           returnTo: UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, "")
         });
 
@@ -1350,8 +1368,6 @@ class RootStore {
         this.Log(error, true);
       }
     }
-
-    this.SendEvent({event: EVENTS.LOG_OUT, data: { address: this.client.CurrentAccountAddress() }});
 
     this.disableCloseEvent = true;
 
@@ -1363,6 +1379,12 @@ class RootStore {
 
     if(!this.darkMode) {
       url.searchParams.set("lt", "");
+    }
+
+    if(this.loginOnly) {
+      url.searchParams.set("lo", "");
+    } else if(this.requireLogin) {
+      url.searchParams.set("rl", "");
     }
 
     // Reload page
@@ -1530,12 +1552,10 @@ class RootStore {
 
     this.darkMode = enabled;
 
-    if(!this.embedded) {
-      if(enabled) {
-        this.RemoveSessionStorage("light-mode");
-      } else {
-        this.SetSessionStorage("light-mode", "true");
-      }
+    if(enabled) {
+      this.RemoveSessionStorage("light-mode");
+    } else {
+      this.SetSessionStorage("light-mode", "true");
     }
   }
 

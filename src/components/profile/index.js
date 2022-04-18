@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import {rootStore} from "Stores";
-import {useAuth0} from "@auth0/auth0-react";
 import {
   Link,
   useRouteMatch
@@ -92,11 +91,6 @@ const Profile = observer(() => {
   const [statusInterval, setStatusInterval] = useState(undefined);
   const [showWithdrawalSetup, setShowWithdrawalSetup] = useState(false);
   const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
-
-  let auth0;
-  if(!rootStore.embedded) {
-    auth0 = useAuth0();
-  }
 
   useEffect(() => {
     rootStore.SetNavigationBreadcrumbs([{name: "Wallet", path: "/wallet/collection" }, {name: "Profile", path: "/profile" }]);
@@ -202,7 +196,7 @@ const Profile = observer(() => {
       <div className="profile-page__section profile-page__actions">
         <div className="profile-page__actions">
           <button
-            onClick={() => rootStore.SignOut(auth0)}
+            onClick={() => rootStore.SignOut()}
             className="action"
           >
             Sign Out

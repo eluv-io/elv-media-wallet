@@ -11,6 +11,13 @@ import {Navigation} from "Components/Navigation";
 
 const searchParams = new URLSearchParams(window.location.search);
 
+let sessionStorageAvailable = false;
+try {
+  sessionStorage.getItem("test");
+  sessionStorageAvailable = true;
+// eslint-disable-next-line no-empty
+} catch(error) {}
+
 if(searchParams.has("n")) {
   rootStore.ToggleNavigation(false);
 }
@@ -38,7 +45,7 @@ import Login from "./login/Login";
 import Profile from "Components/profile";
 import ScrollToTop from "Components/common/ScrollToTop";
 import { InitializeListener } from "Components/interface/Listener";
-import {Auth0Provider} from "@auth0/auth0-react";
+import {Auth0Provider, useAuth0} from "@auth0/auth0-react";
 import MarketplaceRoutes from "Components/marketplace";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import {PageLoader} from "Components/common/Loaders";
@@ -218,6 +225,10 @@ const Routes = observer(() => {
 });
 
 const App = observer(() => {
+  if(sessionStorageAvailable) {
+    window.auth0 = useAuth0();
+  }
+
   if(newWindowLogin) {
     return <LoginModal />;
   } else if(signaturePopup) {
@@ -258,7 +269,7 @@ const App = observer(() => {
   );
 });
 
-if(!rootStore.embedded) {
+if(sessionStorageAvailable) {
   render(
     <Auth0Provider
       domain={EluvioConfiguration["auth0-domain"]}

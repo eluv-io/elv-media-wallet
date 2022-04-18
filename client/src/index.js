@@ -125,6 +125,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @constructor
    */
   constructor({
+    clientType="FRAME",
     requestor,
     walletAppUrl="http://wallet.contentfabric.io",
     target,
@@ -147,6 +148,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
     this.LOG_LEVELS = LOG_LEVELS;
     this.logLevel = this.LOG_LEVELS.WARN;
     this.EVENTS = EVENTS;
+    this.clientType = clientType;
 
     this.eventListeners = {};
     Object.keys(EVENTS).forEach(key => this.eventListeners[key] = []);
@@ -162,7 +164,13 @@ const walletClient = await ElvWalletClient.InitializePopup({
   EventHandler(event) {
     const message = event.data;
 
-    if(message.type !== "ElvMediaWalletEvent" || !EVENTS[message.event]) { return; }
+    if(
+      message.type !== "ElvMediaWalletEvent" ||
+      message.clientType !== this.clientType ||
+      !EVENTS[message.event]
+    ) {
+      return;
+    }
 
     const listeners = message.event === EVENTS.ALL ?
       this.eventListeners[EVENTS.ALL] :
@@ -456,7 +464,13 @@ const walletClient = await ElvWalletClient.InitializePopup({
 
     const target = Popup({url: walletAppUrl.toString(), title: "Eluvio Media Wallet", w: 400, h: 700});
 
-    const client = new ElvWalletClient({requestor, walletAppUrl: walletAppUrl.toString(), target, Close: () => target.close()});
+    const client = new ElvWalletClient({
+      clientType: "POPUP",
+      requestor,
+      walletAppUrl: walletAppUrl.toString(),
+      target,
+      Close: () => target.close()
+    });
 
     // Ensure app is initialized
     await client.AwaitMessage("init");
@@ -556,6 +570,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
     }
 
     const client = new ElvWalletClient({
+      clientType: "FRAME",
       requestor,
       walletAppUrl: walletAppUrl.toString(),
       target: target.contentWindow,
