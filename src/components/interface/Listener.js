@@ -6,6 +6,8 @@ import UrlJoin from "url-join";
 import {FormatPriceString} from "Components/common/UIComponents";
 import {roundToDown} from "round-to";
 
+const embedded = window.self !== window.top;
+
 const pages = {
   // Wallet
   "wallet": "/wallet",
@@ -64,7 +66,7 @@ const FormatNFT = (nft) => {
 };
 
 const Target = () => {
-  if(rootStore.embedded) {
+  if(embedded) {
     // In iframe
     return window.top;
   } else if(window.opener) {
@@ -158,7 +160,7 @@ export const InitializeListener = (history) => {
 
       target.postMessage({
         type: "ElvMediaWalletResponse",
-        clientType: rootStore.embedded ? "FRAME" : "POPUP",
+        clientType: embedded ? "FRAME" : "POPUP",
         requestId: data.requestId,
         response: Utils.MakeClonable(response),
         error: Utils.MakeClonable(error)
@@ -650,7 +652,7 @@ export const InitializeListener = (history) => {
   window.addEventListener("message", Listener);
   window.onbeforeunload = () => {
     // Only applies to frame - popup has watcher in client
-    if(!rootStore.disableCloseEvent && rootStore.embedded) {
+    if(!rootStore.disableCloseEvent && embedded) {
       SendEvent({event: EVENTS.CLOSE});
     }
     window.removeEventListener("message", Listener);
@@ -658,7 +660,7 @@ export const InitializeListener = (history) => {
 
   target.postMessage({
     type: "ElvMediaWalletResponse",
-    clientType: rootStore.embedded ? "FRAME" : "POPUP",
+    clientType: embedded ? "FRAME" : "POPUP",
     requestId: "init"
   }, "*");
 };
@@ -670,7 +672,7 @@ export const SendEvent = ({event, data}) => {
 
   target.postMessage({
     type: "ElvMediaWalletEvent",
-    clientType: rootStore.embedded ? "FRAME" : "POPUP",
+    clientType: embedded ? "FRAME" : "POPUP",
     event,
     data: Utils.MakeClonable(data)
   }, "*");

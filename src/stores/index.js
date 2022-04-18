@@ -72,8 +72,6 @@ const ProfileImage = (text, backgroundColor) => {
 class RootStore {
   DEBUG_ERROR_MESSAGE = "";
 
-  SESSION_STORAGE_AVAILABLE = false;
-
   network = EluvioConfiguration["config-url"].includes("main.net955305") ? "main" : "demo";
 
   embedded = window.top !== window.self || searchParams.has("e");
@@ -204,34 +202,6 @@ class RootStore {
   constructor() {
     makeAutoObservable(this);
 
-    try {
-      sessionStorage.getItem("test");
-      this.SESSION_STORAGE_AVAILABLE = true;
-      // eslint-disable-next-line no-empty
-    } catch(error) {}
-
-    // Login required
-    if(searchParams.has("rl") || this.GetSessionStorage("loginRequired")) {
-      runInAction(() => {
-        this.requireLogin = true;
-      });
-
-      this.ShowLogin({requireLogin: true});
-      this.SetSessionStorage("loginRequired", "true");
-    }
-
-    // Show only login screen
-    if(searchParams.has("lo") || this.GetSessionStorage("loginOnly")) {
-      runInAction(() => {
-        this.loginOnly = true;
-        this.requireLogin = true;
-      });
-
-      this.ShowLogin({requireLogin: true});
-      this.SetSessionStorage("loginOnly", "true");
-      this.ToggleNavigation(false);
-    }
-
     this.checkoutStore = new CheckoutStore(this);
     this.transferStore = new TransferStore(this);
     this.cryptoStore = new CryptoStore(this);
@@ -247,6 +217,22 @@ class RootStore {
 
   Initialize = flow(function * () {
     try {
+      // Login required
+      if(searchParams.has("rl") || this.GetSessionStorage("loginRequired")) {
+        this.requireLogin = true;
+        this.ShowLogin({requireLogin: true});
+        this.SetSessionStorage("loginRequired", "true");
+      }
+
+      // Show only login screen
+      if(searchParams.has("lo") || this.GetSessionStorage("loginOnly")) {
+        this.loginOnly = true;
+        this.requireLogin = true;
+        this.ShowLogin({requireLogin: true});
+        this.SetSessionStorage("loginOnly", "true");
+        this.ToggleNavigation(false);
+      }
+
       this.client = yield ElvClient.FromConfigurationUrl({
         configUrl: EluvioConfiguration["config-url"],
         assumeV3: true
