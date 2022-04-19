@@ -110,18 +110,23 @@ $pending-color: rgba($blue, 0.5);
   }
 
   &__image__full-screen {
+    align-items: center;
     bottom: 12px;
-    height: 15px;
+    display: flex;
+    height: 22px;
+    justify-content: center;
+    padding: 3px;
     position: absolute;
     right: 8px;
-    width: 15px;
+    width: 22px;
 
     svg {
       height: 100%;
-      opacity: 0.5;
+      opacity: 0.75;
       width: 100%;
 
       * {
+        stroke: $lightblue;
         stroke-width: 5px;
       }
     }
@@ -166,6 +171,7 @@ $pending-color: rgba($blue, 0.5);
     width: 100%;
 
     &__frame {
+      background-color: $white;
       border: 0;
       height: 100%;
       outline: 0;

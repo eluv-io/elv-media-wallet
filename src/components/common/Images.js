@@ -118,15 +118,33 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
 
   if(media?.embedUrl) {
     return (
-      <div className="card__image-container" key={`media-${media.embedUrl}`}>
-        <div className={`card__image card__image-video-embed ${className}`}>
+      <>
+        <div className="card__image-container" key={`media-${media.embedUrl}`}>
+          <div className={`card__image card__image-video-embed ${className}`}>
+            {
+              media.useFrame ?
+                <iframe src={media.embedUrl} className="card__image-video-embed__frame" /> :
+                <div ref={element => setTargetElement(element)} className="card__image-video-embed__frame" />
+            }
+          </div>
           {
-            media.useFrame ?
-              <iframe src={media.embedUrl} className="card__image-video-embed__frame" /> :
-              <div ref={element => setTargetElement(element)} className="card__image-video-embed__frame" />
+            allowFullscreen && media.useFrame ?
+              <button className="card__image__full-screen" onClick={() => setFullscreen(true)}>
+                <ImageIcon icon={FullscreenIcon} label="Enlarge Image"/>
+              </button> : null
           }
         </div>
-      </div>
+        {
+          fullscreen ?
+            <Modal className="card__image-modal" Toggle={() => setFullscreen(false)}>
+              {
+                media.useFrame ?
+                  <iframe src={media.embedUrl} className="card__image-video-embed__frame" /> :
+                  <div ref={element => setTargetElement(element)} className="card__image-video-embed__frame" />
+              }
+            </Modal> : null
+        }
+      </>
     );
   }
 
