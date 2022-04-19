@@ -505,6 +505,7 @@ export const InitializeListener = (history) => {
 
           return Respond({response: Price(item, data.params.quantity || 1)});
 
+        // client.OpenPack
         case "openPack":
           // Ensure pack exists
           item = await Item(data);
@@ -523,6 +524,7 @@ export const InitializeListener = (history) => {
 
           return Respond({});
 
+        // client.PackOpenStatus
         case "packOpenStatus":
           const address = Utils.FormatAddress(data.params.contractAddress);
           const packInfo = checkoutStore.completedPurchases[`${address}:${data.params.tokenId}`];
@@ -554,6 +556,19 @@ export const InitializeListener = (history) => {
           }
 
           return Respond({response: status});
+
+        // client.ListingStats, client.SalesStats
+        case "listingStats":
+        case "salesStats":
+          const stats = await transferStore.FilteredQuery({
+            mode: data.action === "listingStats" ? "listing-stats" : "sales-stats",
+            marketplaceId: marketplaceInfo?.marketplaceId,
+            tenantIds: marketplaceInfo ? [ marketplaceInfo.tenantId ] : [],
+            contractAddress: data.params.contractAddress,
+            lastNDays: data.params.lastNDays || -1
+          });
+
+          return Respond({response: stats});
 
         // client.CurrentPath
         case "currentPath":

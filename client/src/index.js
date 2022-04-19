@@ -276,7 +276,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @param {string=} page - A named app path
    * @param {Object=} params - URL parameters for the specified path, e.g. { tokenId: <token-id> } for an 'item' page.
    * @param {string=} path - An absolute app path
-   * @param {boolean=} loginRequired - If login was specified, this parameter will control whether the login prompt is dismissable
+   * @param {boolean=} loginRequired - If login was specified, this parameter will control whether the login prompt is dismissible
    * @param {Array<string>=} marketplaceFilters - A list of filters to limit items shown in the marketplace store page
    *
    * @returns {string} - Returns the actual route to which the app has navigated
@@ -543,7 +543,8 @@ const walletClient = await ElvWalletClient.InitializePopup({
     target.classList.add("-elv-media-wallet-frame");
     target.sandbox = SandboxPermissions();
     target.setAttribute("allowFullScreen", "");
-    target.allow = "encrypted-media *; clipboard-read; clipboard-write";
+    target.allow = "encrypted-media *; autoplay; fullscreen; clipboard-read; clipboard-write";
+    target.title = "Eluvio Media Wallet";
 
     walletAppUrl = new URL(walletAppUrl);
 

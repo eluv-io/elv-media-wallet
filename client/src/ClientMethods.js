@@ -396,6 +396,87 @@ exports.Listings = async function ({
 };
 
 /**
+ * Return stats about currently active listings
+ *
+ * @methodGroup Stats
+ * @namedParams
+ * @param {string=} tenantSlug - Specify the URL slug of a marketplace's tenant. Required if specifying marketplace slug
+ * @param {string=} marketplaceSlug - Filter stats by marketplace
+ * @param {string=} contractAddress - Filter results by contract address
+ * @param {number=} lastNDays - Limit results to only include items listed in the past N days
+ *
+ * @returns {Promise<Object>} - Stats for currently active listings matching the specified filters. All monetary values are in USD.
+ <ul>
+ <li>- count - Total number of listed items
+ <li>- avg - Average listing price
+ <li>- max - Maximum listing price
+ <li>- min - Minimum listing price
+ <li>- volume - Total volume, in USD, of all listings
+ </ul>
+ */
+exports.ListingStats = async function ({
+  tenantSlug,
+  marketplaceSlug,
+  marketplaceId,
+  marketplaceHash,
+  contractAddress,
+  lastNDays
+}={}) {
+  return await this.SendMessage({
+    action: "listingStats",
+    params: {
+      marketplaceSlug,
+      tenantSlug,
+      marketplaceId,
+      marketplaceHash,
+      contractAddress,
+      lastNDays
+    }
+  });
+};
+
+/**
+ * Return stats about listing sales
+ *
+ * @methodGroup Stats
+ * @namedParams
+ * @param {string=} tenantSlug - Specify the URL slug of a marketplace's tenant. Required if specifying marketplace slug
+ * @param {string=} marketplaceSlug - Filter stats by marketplace
+ * @param {string=} contractAddress - Filter results by contract address
+ * @param {number=} lastNDays - Limit results to only include items sold in the past N days
+ *
+ * @returns {Promise<Object>} - Stats for listing sales matching the specified filters. All monetary values are in USD.
+ <ul>
+ <li>- count - Total number of sales
+ <li>- avg - Average sale
+ <li>- max - Maximum sale
+ <li>- min - Minimum sale
+ <li>- volume - Total volume, in USD, of all sales
+ </ul>
+ */
+exports.SalesStats = async function ({
+  tenantSlug,
+  marketplaceSlug,
+  marketplaceId,
+  marketplaceHash,
+  contractAddress,
+  lastNDays
+}={}) {
+  return await this.SendMessage({
+    action: "salesStats",
+    params: {
+      marketplaceSlug,
+      tenantSlug,
+      marketplaceId,
+      marketplaceHash,
+      contractAddress,
+      lastNDays
+    }
+  });
+};
+
+
+/**
  * <b><i>Requires login</i></b>
  *
  * Retrieve all listings posted by the current user.
