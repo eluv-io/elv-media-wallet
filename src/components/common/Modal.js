@@ -5,7 +5,7 @@ import {observer} from "mobx-react";
 import CloseIcon from "../../static/icons/x.svg";
 import ImageIcon from "Components/common/ImageIcon";
 
-const Modal = observer(({children, Toggle, id="", className=""}) => {
+const Modal = observer(({children, Toggle, noFade=false, id="", className=""}) => {
   const [scrolled, setScrolled] = useState(false);
 
   const Close = (event) => {
@@ -32,7 +32,7 @@ const Modal = observer(({children, Toggle, id="", className=""}) => {
   }, []);
 
   return (
-    <div id={id} className={`modal ${className || ""}`} onClick={() => Close()}>
+    <div id={id} className={`modal ${noFade ? "modal--no-fade" : ""} ${className || ""}`} onClick={() => Close()}>
       {
         Toggle ?
           <button className="modal__close-button">

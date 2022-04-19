@@ -1,7 +1,6 @@
 $modal-background: rgba($black, 0.8);
 
 .modal {
-  @include page-fade-in;
   align-items: center;
   background-color: $modal-background;
   display: flex;
@@ -19,6 +18,10 @@ $modal-background: rgba($black, 0.8);
 
   * {
     z-index: 100;
+  }
+
+  &:not(&--no-fade) {
+    @include page-fade-in;
   }
 }
 

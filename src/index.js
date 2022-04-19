@@ -101,6 +101,7 @@ const LoginModal = observer(() => {
       <Modal
         className="login-modal"
         Toggle={rootStore.requireLogin ? undefined : () => rootStore.HideLogin()}
+        noFade={rootStore.requireLogin}
       >
         <Login
           key={`login-${rootStore.specifiedMarketplaceId}`}
