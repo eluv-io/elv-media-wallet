@@ -574,6 +574,7 @@ exports.PurchaseStatus = async function({confirmationId}) {
  * @namedParams
  * @param {string=} tenantSlug - The URL slug of a tenant. Required if specifying marketplaceSlug
  * @param {string=} marketplaceSlug - The URL slug of a marketplace
+ * @param {string=} sku - The SKU of an item from a marketplace
  * @param {string=} listingId - The listing ID of an item
  * @param {number=} quantity=1 - For marketplace purchases, the number of items to purchase
  *
