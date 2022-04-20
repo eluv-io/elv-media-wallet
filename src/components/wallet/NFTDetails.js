@@ -460,7 +460,6 @@ const NFTDetails = observer(() => {
           <div className="actions-container">
             {
               rootStore.loggedIn ?
-
                 <>
                   <Link
                     className="button action"
@@ -534,11 +533,7 @@ const NFTDetails = observer(() => {
 
   const NFTActions = () => {
     if(loadingListing) {
-      return (
-        <div className="details-page__actions">
-          <Loader />
-        </div>
-      );
+      return null;
     }
 
     let isInCheckout = listing && listing.details.CheckoutLockedUntil && listing.details.CheckoutLockedUntil > Date.now();

@@ -3,11 +3,12 @@ import {observer} from "mobx-react";
 import {useLocation, useRouteMatch} from "react-router-dom";
 import {rootStore, transferStore} from "Stores";
 import AutoComplete from "Components/common/AutoComplete";
-import {ButtonWithLoader} from "Components/common/UIComponents";
+import {ButtonWithLoader, DebouncedInput} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 
 import FilterIcon from "Assets/icons/search.svg";
 import XIcon from "Assets/icons/x.svg";
+import ClearIcon from "Assets/icons/x";
 
 const sortOptionsOwned = [
   { key: "default", value: "default", label: "Default", desc: true},
@@ -138,6 +139,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
   const [lastNDays, setLastNDays] = useState(-1);
   const [filter, setFilter] = useState(initialFilter || "");
   const [tenantIds, setTenantIds] = useState((marketplace ? [marketplace.tenant_id] : []));
+  const [currency, setCurrency] = useState("");
 
   const Update = async (force=false) => {
     const options = {
@@ -147,6 +149,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
       collectionIndex,
       lastNDays,
       tenantIds,
+      currency,
       marketplaceId: match.params.marketplaceId
     };
 
@@ -208,7 +211,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
     if(!savedOptionsLoaded) { return; }
 
     Update();
-  }, [sortBy, sortDesc, collectionIndex, lastNDays, filter, tenantIds, savedOptionsLoaded]);
+  }, [sortBy, sortDesc, collectionIndex, lastNDays, filter, tenantIds, currency, savedOptionsLoaded]);
 
   return (
     <div className="listing-filters">
@@ -247,16 +250,51 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
             options={[["7", "Last 7 Days"], ["30", "Last 30 Days"]]}
           />
       }
+      {
+        mode === "listings" ?
+          <FilterDropdown
+            label="Currency"
+            value={currency}
+            onChange={value => setCurrency(value)}
+            options={[["", "Any"], ["usdc", "USDC"]]}
+          /> : null
+      }
       <div className="listing-filters__autocomplete-container">
         <label className="listing-filters__label">Filter</label>
-        <AutoComplete
-          key={`autocomplete-${filterOptionsLoaded}-${savedOptionsLoaded}`}
-          placeholder="Filter..."
-          value={filter}
-          onChange={value => setFilter(value)}
-          onEnterPressed={async () => await Update(true)}
-          options={filterOptions}
-        />
+        {
+          mode === "owned" ?
+            // Owned NFTs do not need exact queries
+            <div className="autocomplete">
+              <DebouncedInput
+                className="listing-filters__filter-input autocomplete__input"
+                placeholder="Filter..."
+                value={filter}
+                onChange={value => setFilter(value)}
+                onKeyDown={event => {
+                  if(event.key === "Enter") {
+                    Update(true);
+                  }
+                }}
+              />
+              {
+                filter ?
+                  <button
+                    onClick={() => setFilter("")}
+                    className="autocomplete__clear-button"
+                  >
+                    <ImageIcon icon={ClearIcon} title="Clear" />
+                  </button> : null
+              }
+            </div> :
+            <AutoComplete
+              key={`autocomplete-${filterOptionsLoaded}-${savedOptionsLoaded}`}
+              placeholder="Filter..."
+              value={filter}
+              onChange={value => setFilter(value)}
+              onEnterPressed={async () => await Update(true)}
+              options={filterOptions}
+            />
+        }
       </div>
       <MarketplaceSelection selected={tenantIds} setSelected={setTenantIds} />
       <div className="listing-filters__actions actions-container">

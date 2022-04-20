@@ -247,6 +247,7 @@ class TransferStore {
     filter,
     contractAddress,
     tokenId,
+    currency,
     marketplace,
     marketplaceId,
     tenantIds=[],
@@ -320,9 +321,14 @@ class TransferStore {
           filters.push(`nft/display_name:eq:${filter}`);
         } else if(mode === "owned") {
           filters.push(`meta:@>:{"display_name":"${filter}"}`);
+          params.exact = false;
         } else {
           filters.push(`name:eq:${filter}`);
         }
+      }
+
+      if(currency) {
+        filters.push("link_type:eq:sol");
       }
 
       if(lastNDays && lastNDays > 0) {
