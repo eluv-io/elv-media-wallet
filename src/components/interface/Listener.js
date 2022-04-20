@@ -62,6 +62,45 @@ const FormatNFT = (nft) => {
     nft.listingId = nft.details.ListingId;
   }
 
+  // Generate embed URLs for additional media
+  if(nft.metadata?.additional_media) {
+    nft.metadata.additional_media = nft.metadata.additional_media.map(media => {
+      try {
+        // Generate embed URLs for additional media
+        const mediaType = (media.media_type || "").toLowerCase();
+
+        if(mediaType === "image") {
+          return {
+            ...media,
+            embed_url: media.media_file.url
+          };
+        }
+
+        let embedUrl = new URL("https://embed.v3.contentfabric.io");
+        embedUrl.searchParams.set("p", "");
+        embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
+        embedUrl.searchParams.set("ath", media.requires_permissions ? rootStore.authedToken : rootStore.staticToken);
+
+        if(mediaType === "video") {
+          embedUrl.searchParams.set("vid", media.media_link["."].container);
+          embedUrl.searchParams.set("ct", "h");
+          embedUrl.searchParams.set("ap", "");
+        } else if(mediaType === "ebook") {
+          embedUrl.searchParams.set("type", "ebook");
+          embedUrl.searchParams.set("vid", media.media_file["."].container);
+          embedUrl.searchParams.set("murl", btoa(media.media_file.url));
+        }
+
+        return {
+          ...media,
+          embed_url: embedUrl.toString()
+        };
+      } catch(error) {
+        return media;
+      }
+    });
+  }
+
   return nft;
 };
 
@@ -170,6 +209,7 @@ export const InitializeListener = (history) => {
     try {
       let marketplaceInfo;
       if(data?.params?.marketplaceSlug || data?.params?.marketplaceId || data?.params?.marketplaceHash) {
+        await rootStore.LoadAvailableMarketplaces({tenantSlug: data.params.tenantSlug, marketplaceSlug: data.params.marketplaceSlug});
         marketplaceInfo = await rootStore.MarketplaceInfo({
           tenantSlug: data.params.tenantSlug,
           marketplaceSlug: data.params.marketplaceSlug,
@@ -603,6 +643,8 @@ export const InitializeListener = (history) => {
             const params = (data.params || {}).params;
             if(params) {
               if(params.marketplaceSlug || params.marketplaceHash || params.marketplaceId) {
+                await rootStore.LoadAvailableMarketplaces({tenantSlug: params.tenantSlug, marketplaceSlug: params.marketplaceSlug});
+
                 await rootStore.SetMarketplace({
                   tenantSlug: params.tenantSlug,
                   marketplaceSlug: params.marketplaceSlug,

@@ -804,7 +804,7 @@ class RootStore {
     // Cache marketplace retrieval
     if(useCache) {
       // Cache stock retrieval separately
-      if(Date.now() - this.marketplaceCache[marketplaceHash].stock > 10000) {
+      if(this.marketplaceCache[marketplaceHash] && Date.now() - this.marketplaceCache[marketplaceHash].stock > 10000) {
         this.checkoutStore.MarketplaceStock({tenantId: this.marketplaces[marketplaceId].tenant_id});
         this.marketplaceCache[marketplaceHash].stock = Date.now();
       }

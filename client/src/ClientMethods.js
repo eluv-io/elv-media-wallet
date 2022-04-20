@@ -286,6 +286,8 @@ exports.ItemNames = async function({tenantSlug, marketplaceSlug, marketplaceId, 
  *
  * Return info about items in the user's wallet
  *
+ * <i>Note - Certain information (for example additional media and attributes) is not included in item results for efficiency purposes. Use `client.Items` to retrieve full NFT info</i>
+ *
  * @methodGroup Items
  * @namedParams
  * @param {string=} sortBy=default - Sort order for the results - either `default` or `meta/display_name`

@@ -246,6 +246,7 @@ class TransferStore {
     sortDesc=false,
     filter,
     contractAddress,
+    tokenId,
     marketplace,
     marketplaceId,
     tenantIds=[],
@@ -310,6 +311,10 @@ class TransferStore {
 
       if(contractAddress) {
         filters.push(`contract:eq:${Utils.FormatAddress(contractAddress)}`);
+
+        if(tokenId) {
+          filters.push(`token:eq:${tokenId}`);
+        }
       } else if(filter) {
         if(mode.includes("listing")) {
           filters.push(`nft/display_name:eq:${filter}`);
