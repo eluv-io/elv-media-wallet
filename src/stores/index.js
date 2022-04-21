@@ -682,8 +682,6 @@ class RootStore {
 
       this.lastMarketplaceId = marketplace.marketplaceId;
 
-      this.specifiedMarketplaceId = marketplace.marketplaceId;
-
       this.SetCustomizationOptions(marketplace);
 
       return marketplace.marketplaceHash;
