@@ -35,28 +35,6 @@ import MediaSectionIcon from "Assets/icons/Media tab icon.svg";
 import PlayIcon from "Assets/icons/blue play icon.svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 
-const FormatRarity = (rarity) => {
-  if(!rarity) {
-    return "";
-  }
-
-  rarity = rarity.toString();
-
-  if(!rarity.includes("/")) {
-    return rarity;
-  }
-
-  const [ numerator, denominator ] = rarity.split("/");
-  let percentage = 100 * parseInt(numerator) / parseInt(denominator);
-
-  if(percentage < 1) {
-    percentage = percentage.toFixed(2);
-  } else {
-    percentage = percentage.toFixed(1).toString().replace(".0", "");
-  }
-
-  return `${percentage}% have this trait`;
-};
 
 const NFTMediaSection = ({nft, containerElement, selectedMediaIndex, setSelectedMediaIndex, currentPlayerInfo}) => {
   const [orderKey, setOrderKey] = useState(0);
@@ -175,18 +153,14 @@ const NFTDescriptionSection = ({nft}) => {
 };
 
 const NFTTraitsSection = ({nft}) => {
-  const FILTERED_ATTRIBUTES = [ "Content Fabric Hash", "Creator", "Total Minted Supply" ];
-  const traits = ((nft.metadata || {}).attributes || [])
-    .filter(attribute => attribute && !FILTERED_ATTRIBUTES.includes(attribute.trait_type));
+  const traits = nft?.metadata?.traits || [];
 
-  if(traits.length === 0) {
-    return null;
-  }
+  if(traits.length === 0) { return null; }
 
   return (
     <ExpandableSection header="Properties" icon={TraitsIcon}>
       <div className="traits">
-        {traits.map(({rarity, trait_type, value}, index) =>
+        {traits.map(({trait_type, value, rarity_percent}, index) =>
           <div className="trait" key={`trait-${index}`}>
             <div className="trait__type">
               { trait_type }
@@ -195,7 +169,7 @@ const NFTTraitsSection = ({nft}) => {
               { value }
             </div>
             <div className="trait__rarity">
-              { FormatRarity(rarity) }
+              { `${rarity_percent}% have this trait` }
             </div>
           </div>
         )}

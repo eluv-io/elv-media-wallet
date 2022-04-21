@@ -2,6 +2,7 @@ import {flow, makeAutoObservable} from "mobx";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import UrlJoin from "url-join";
 import {rootStore} from "./index";
+import {RarityToPercentage} from "../utils/Utils";
 
 class TransferStore {
   listings = {};
@@ -67,6 +68,54 @@ class TransferStore {
       };
 
       this.listingNames[entry.id] = this.listingNames[entry.id] || metadata.display_name || "";
+    }
+
+    // Generate embed URLs for additional media
+    if(metadata?.additional_media) {
+      metadata.additional_media = metadata.additional_media.map(media => {
+        try {
+          // Generate embed URLs for additional media
+          const mediaType = (media.media_type || "").toLowerCase();
+
+          if(mediaType === "image") {
+            return {
+              ...media,
+              embed_url: media.media_file.url
+            };
+          }
+
+          let embedUrl = new URL("https://embed.v3.contentfabric.io");
+          embedUrl.searchParams.set("p", "");
+          embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
+          embedUrl.searchParams.set("ath", media.requires_permissions ? rootStore.authedToken : rootStore.staticToken);
+
+          if(mediaType === "video") {
+            embedUrl.searchParams.set("vid", media.media_link["."].container);
+            embedUrl.searchParams.set("ct", "h");
+            embedUrl.searchParams.set("ap", "");
+          } else if(mediaType === "ebook") {
+            embedUrl.searchParams.set("type", "ebook");
+            embedUrl.searchParams.set("vid", media.media_file["."].container);
+            embedUrl.searchParams.set("murl", btoa(media.media_file.url));
+          }
+
+          return {
+            ...media,
+            embed_url: embedUrl.toString()
+          };
+        } catch(error) {
+          return media;
+        }
+      });
+    }
+
+    // Format traits
+    const FILTERED_ATTRIBUTES = [ "Content Fabric Hash", "Creator", "Total Minted Supply" ];
+    const traits = (metadata?.attributes || [])
+      .filter(attribute => attribute && !FILTERED_ATTRIBUTES.includes(attribute.trait_type));
+
+    if(traits.length > 0) {
+      metadata.traits = traits.map(trait => ({ ...trait, rarity_percent: RarityToPercentage(trait.rarity)}));
     }
 
     return {

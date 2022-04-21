@@ -135,12 +135,14 @@
     border: 0;
     border-radius: 10px;
     cursor: pointer;
+    display: flex;
     height: 25px;
     padding: 5px;
     width: 35px;
 
     svg {
       height: 100%;
+      width: 100%;
 
       * {
         stroke: $white;

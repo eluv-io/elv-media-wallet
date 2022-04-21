@@ -48,6 +48,8 @@ const Price = (item, quantity=1) => {
   };
 };
 
+// Serialize NFT and move some important details to top level
+// NOTE: NFT has already run through transferStore.FormatResult
 const FormatNFT = (nft) => {
   if(!nft || !nft.metadata) { return; }
 
@@ -60,45 +62,6 @@ const FormatNFT = (nft) => {
 
   if(nft.details.ListingId) {
     nft.listingId = nft.details.ListingId;
-  }
-
-  // Generate embed URLs for additional media
-  if(nft.metadata?.additional_media) {
-    nft.metadata.additional_media = nft.metadata.additional_media.map(media => {
-      try {
-        // Generate embed URLs for additional media
-        const mediaType = (media.media_type || "").toLowerCase();
-
-        if(mediaType === "image") {
-          return {
-            ...media,
-            embed_url: media.media_file.url
-          };
-        }
-
-        let embedUrl = new URL("https://embed.v3.contentfabric.io");
-        embedUrl.searchParams.set("p", "");
-        embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
-        embedUrl.searchParams.set("ath", media.requires_permissions ? rootStore.authedToken : rootStore.staticToken);
-
-        if(mediaType === "video") {
-          embedUrl.searchParams.set("vid", media.media_link["."].container);
-          embedUrl.searchParams.set("ct", "h");
-          embedUrl.searchParams.set("ap", "");
-        } else if(mediaType === "ebook") {
-          embedUrl.searchParams.set("type", "ebook");
-          embedUrl.searchParams.set("vid", media.media_file["."].container);
-          embedUrl.searchParams.set("murl", btoa(media.media_file.url));
-        }
-
-        return {
-          ...media,
-          embed_url: embedUrl.toString()
-        };
-      } catch(error) {
-        return media;
-      }
-    });
   }
 
   return nft;
