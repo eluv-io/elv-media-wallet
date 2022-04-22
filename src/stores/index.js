@@ -45,6 +45,14 @@ const MARKETPLACE_ORDER = [
   "angels-airwaves-marketplace"
 ];
 
+let storageSupported = true;
+try {
+  sessionStorage.getItem("TestStorage");
+  localStorage.getItem("TestStorage");
+} catch(error) {
+  storageSupported = false;
+}
+
 const ProfileImage = (text, backgroundColor) => {
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
@@ -75,6 +83,7 @@ class RootStore {
   network = EluvioConfiguration["config-url"].includes("main.net955305") ? "main" : "demo";
 
   embedded = window.top !== window.self || searchParams.has("e");
+  storageSupported = storageSupported;
 
   // Opened by embedded window for purchase redirect
   fromEmbed = searchParams.has("embed") ||

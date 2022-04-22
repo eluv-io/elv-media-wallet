@@ -401,7 +401,10 @@ const Login = observer(({silent, darkMode, callbackUrl, Loaded, SignIn, LoadCust
         let initialUserData = { share_email: true };
         try {
           if(localStorage.getItem(userDataKey)) {
-            initialUserData = JSON.parse(localStorage.getItem(userDataKey));
+            initialUserData = {
+              ...initialUserData,
+              ...(JSON.parse(localStorage.getItem(userDataKey)))
+            };
           }
           // eslint-disable-next-line no-empty
         } catch(error) {}
@@ -413,7 +416,7 @@ const Login = observer(({silent, darkMode, callbackUrl, Loaded, SignIn, LoadCust
   // Authenticate if possible
   useEffect(() => {
     // Must wait for customization to be loaded so we can pass tenant ID
-    if((!embedded && auth0Loading) || !customizationOptions) { return; }
+    if((!embedded && auth0Loading) || !customizationOptions || !userData) { return; }
 
     if(!embedded && auth0?.isAuthenticated) {
       setAuthenticating(true);
@@ -425,7 +428,7 @@ const Login = observer(({silent, darkMode, callbackUrl, Loaded, SignIn, LoadCust
       Loaded && Loaded();
       setAuthenticating(false);
     }
-  }, [customizationOptions, auth0Loading]);
+  }, [customizationOptions, auth0Loading, userData]);
 
   // Do login processes without UI
   if(silent) {

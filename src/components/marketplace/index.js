@@ -130,9 +130,9 @@ const Routes = (match) => {
     { name: item.name, path: "/marketplace/:marketplaceId/collection/:collectionIndex/store/:sku", Component: MarketplaceItemDetails },
 
     { name: "Claim", path: "/marketplace/:marketplaceId/store/:sku/claim", Component: ClaimMintingStatus, authed: true },
-    { name: "Purchase", path: "/marketplace/:marketplaceId/store/:tenantId/:sku/purchase/:confirmationId/success", Component: MarketplacePurchase, hideNavigation: rootStore.sidePanelMode },
+    { name: "Purchase", path: "/marketplace/:marketplaceId/store/:tenantId/:sku/purchase/:confirmationId/success", Component: MarketplacePurchase, hideNavigation: rootStore.sidePanelMode || rootStore.fromEmbed },
     { name: "Purchase", path: "/marketplace/:marketplaceId/store/:tenantId/:sku/purchase/:confirmationId/cancel", Component: MarketplacePurchase },
-    { name: "Purchase", path: "/marketplace/:marketplaceId/store/:tenantId/:sku/purchase/:confirmationId", Component: MarketplacePurchase, noBreadcrumb: true },
+    { name: "Purchase", path: "/marketplace/:marketplaceId/store/:tenantId/:sku/purchase/:confirmationId", Component: MarketplacePurchase, noBreadcrumb: true, authed: true, hideNavigation: true, skipLoading: true },
     { name: item.name, path: "/marketplace/:marketplaceId/store/:sku", Component: MarketplaceItemDetails },
     { name: marketplace.name, path: "/marketplace/:marketplaceId/store", Component: MarketplaceStorefront },
     {

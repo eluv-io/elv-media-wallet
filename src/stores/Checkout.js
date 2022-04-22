@@ -212,12 +212,15 @@ class CheckoutStore {
         url.searchParams.set("provider", provider);
         url.searchParams.set("marketplaceId", marketplaceId || "");
         url.searchParams.set("listingId", listingId);
+        url.searchParams.set("hn", "");
 
         if(!this.rootStore.darkMode) {
           url.searchParams.set("lt", "");
         }
 
-        url.searchParams.set("auth", Utils.B64(JSON.stringify(authInfo)));
+        if(!this.rootStore.storageSupported) {
+          url.searchParams.set("auth", Utils.B64(JSON.stringify(authInfo)));
+        }
 
         popup.location.href = url.toString();
 
@@ -227,12 +230,21 @@ class CheckoutStore {
       }
 
       const checkoutId = `nft-marketplace:${confirmationId}`;
-      const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
 
       this.rootStore.SetSessionStorage("successPath", UrlJoin(basePath, "success"));
       this.rootStore.SetSessionStorage("cancelPath", UrlJoin(basePath, "cancel"));
 
       this.rootStore.SetSessionStorage("purchaseType", "listing");
+
+      const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
+
+      if(this.rootStore.hideNavigation) {
+        rootUrl.searchParams.set("hn", "");
+      }
+
+      if(this.rootStore.fromEmbed) {
+        rootUrl.searchParams.set("embed", "");
+      }
 
       let requestParams = {
         currency: this.currency,
@@ -332,12 +344,15 @@ class CheckoutStore {
         url.searchParams.set("provider", provider);
         url.searchParams.set("tenantId", tenantId);
         url.searchParams.set("quantity", quantity);
+        url.searchParams.set("hn", "");
 
         if(!this.rootStore.darkMode) {
           url.searchParams.set("lt", "");
         }
 
-        url.searchParams.set("auth", Utils.B64(JSON.stringify(authInfo)));
+        if(!this.rootStore.storageSupported) {
+          url.searchParams.set("auth", Utils.B64(JSON.stringify(authInfo)));
+        }
 
         popup.location.href = url.toString();
 
@@ -348,12 +363,20 @@ class CheckoutStore {
 
       const checkoutId = `${marketplaceId}:${confirmationId}`;
 
-      const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
-
       this.rootStore.SetSessionStorage("successPath", UrlJoin(basePath.toString(), "success"));
       this.rootStore.SetSessionStorage("cancelPath", UrlJoin(basePath.toString(), "cancel"));
 
       this.rootStore.SetSessionStorage("purchaseType", "store");
+
+      const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
+
+      if(this.rootStore.hideNavigation) {
+        rootUrl.searchParams.set("hn", "");
+      }
+
+      if(this.rootStore.fromEmbed) {
+        rootUrl.searchParams.set("embed", "");
+      }
 
       let requestParams = {
         currency: this.currency,

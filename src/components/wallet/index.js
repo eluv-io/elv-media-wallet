@@ -33,6 +33,7 @@ const WalletPurchase = observer(() => {
 
 const WalletWrapper = observer(({children}) => {
   const match = useRouteMatch();
+  const currentRoute = Routes(match).find(route => match.path === route.path);
 
   useEffect(() => {
     const routes = Routes(match)
@@ -50,7 +51,6 @@ const WalletWrapper = observer(({children}) => {
 
     rootStore.SetNavigationBreadcrumbs(routes);
 
-    const currentRoute = Routes(match).find(route => match.path === route.path);
     if(currentRoute.hideNavigation) {
       rootStore.ToggleNavigation(false);
       return () => rootStore.ToggleNavigation(true);
@@ -58,6 +58,10 @@ const WalletWrapper = observer(({children}) => {
 
     rootStore.ClearMarketplace();
   }, [match.url]);
+
+  if(currentRoute?.skipLoading) {
+    return children;
+  }
 
   return (
     <AsyncComponent
@@ -89,9 +93,9 @@ const Routes = (match) => {
     { name: nft.metadata.display_name, path: "/wallet/collection/:contractId/:tokenId", Component: NFTDetails, authed: true },
     { name: "My Items", path: "/wallet/collection", Component: Collections, authed: true },
 
-    { name: "Purchase", path: "/wallet/listings/:tenantId/:listingId/purchase/:confirmationId/success", Component: WalletPurchase },
+    { name: "Purchase", path: "/wallet/listings/:tenantId/:listingId/purchase/:confirmationId/success", Component: WalletPurchase, hideNavigation: rootStore.fromEmbed },
     { name: "Purchase", path: "/wallet/listings/:tenantId/:listingId/purchase/:confirmationId/cancel", Component: WalletPurchase },
-    { name: "Purchase", path: "/wallet/listings/:tenantId/:listingId/purchase/:confirmationId", Component: WalletPurchase },
+    { name: "Purchase", path: "/wallet/listings/:tenantId/:listingId/purchase/:confirmationId", Component: WalletPurchase, skipLoading: true, hideNavigation: true },
     { path: "/wallet", Component: () => <Redirect to={`${match.path}/collection`} />, noBreadcrumb: true}
   ];
 };

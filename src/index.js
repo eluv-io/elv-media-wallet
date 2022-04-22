@@ -247,8 +247,7 @@ const App = observer(() => {
           rootStore.hideNavigation ? "navigation-hidden" : "",
           rootStore.sidePanelMode ? "side-panel" : "",
           hasHeader ? "" : "no-header",
-          rootStore.activeModals > 0 ? "modal-active" : "",
-          rootStore.fromEmbed ? "popup-from-embedded" : ""
+          rootStore.activeModals > 0 ? "modal-active" : ""
         ]
           .filter(className => className)
           .join(" ")
