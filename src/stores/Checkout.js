@@ -17,8 +17,7 @@ class CheckoutStore {
 
   stock = {};
 
-  pendingPurchases = {};
-  completedPurchases = {};
+  purchaseStatus = {};
 
   solanaSignatures = {};
 
@@ -32,8 +31,7 @@ class CheckoutStore {
 
     runInAction(() => {
       this.solanaSignatures = rootStore.GetSessionStorageJSON("solana-signatures") || {};
-      this.pendingPurchases = rootStore.GetLocalStorageJSON("pending-purchases") || {};
-      this.completedPurchases = rootStore.GetLocalStorageJSON("completed-purchases") || {};
+      this.purchaseStatus = rootStore.GetLocalStorageJSON("purchase-status") || {};
     });
   }
 
@@ -84,36 +82,31 @@ class CheckoutStore {
     }
   });
 
-  PurchaseInitiated({tenantId, confirmationId, marketplaceId, sku}) {
-    this.pendingPurchases[confirmationId] = {
+  PurchaseInitiated({tenantId, confirmationId, marketplaceId, sku, successPath}) {
+    this.purchaseStatus[confirmationId] = {
+      status: "pending",
       confirmationId,
       tenantId,
       marketplaceId,
-      sku
+      sku,
+      successPath
     };
 
-    this.rootStore.SetLocalStorage("pending-purchases", JSON.stringify(this.pendingPurchases));
+    this.rootStore.SetLocalStorage("purchase-status", JSON.stringify(this.purchaseStatus));
   }
 
   PurchaseComplete({confirmationId, success, message}) {
     this.submittingOrder = false;
 
-    if(success) {
-      this.completedPurchases[confirmationId] = {
-        ...(this.pendingPurchases[confirmationId] || {})
-      };
+    this.purchaseStatus[confirmationId] = {
+      ...this.purchaseStatus[confirmationId],
+      status: "complete",
+      success,
+      failed: !success,
+      message
+    };
 
-      delete this.pendingPurchases[confirmationId];
-    } else {
-      this.pendingPurchases[confirmationId] = {
-        ...(this.pendingPurchases[confirmationId] || {}),
-        failed: true,
-        message
-      };
-    }
-
-    this.rootStore.SetLocalStorage("pending-purchases", JSON.stringify(this.pendingPurchases));
-    this.rootStore.SetLocalStorage("completed-purchases", JSON.stringify(this.completedPurchases));
+    this.rootStore.SetLocalStorage("purchase-status", JSON.stringify(this.purchaseStatus));
   }
 
   ClaimSubmit = flow(function * ({marketplaceId, sku}) {
@@ -155,36 +148,64 @@ class CheckoutStore {
     provider="stripe",
     marketplaceId,
     listingId,
+    tenantId,
     confirmationId,
-    email
+    email,
+    address,
+    fromEmbed,
+    actionId
   }) {
     if(this.submittingOrder) { return; }
 
     const requiresPopup = this.rootStore.embedded && !["wallet-balance", "linked-wallet"].includes(provider);
     confirmationId = confirmationId || (provider === "linked-wallet" ? this.ConfirmationId(true) : `T-${this.ConfirmationId()}`);
 
-    let popup;
     try {
-      if(requiresPopup) {
-        popup = window.open("about:blank");
-      }
-
       this.submittingOrder = true;
 
-
-      let authInfo = this.rootStore.AuthInfo() || {};
-      if(!authInfo?.user) {
+      let authInfo = this.rootStore.AuthInfo();
+      if(!authInfo.user) {
         authInfo.user = {};
       }
 
       email = email || (authInfo.user || {}).email || this.rootStore.userProfile.email;
       authInfo.user.email = email;
 
-      if(!email) {
-        throw {
-          recoverable: false,
-          message: "Unable to determine email address in checkout submit"
-        };
+      const successPath =
+        marketplaceId ?
+          UrlJoin("/marketplace", marketplaceId, "store", tenantId, listingId, "purchase", confirmationId) :
+          UrlJoin("/wallet", "listings", tenantId, listingId, "purchase", confirmationId);
+
+      const cancelPath =
+        marketplaceId ?
+          UrlJoin("/marketplace", marketplaceId, "listings", listingId) :
+          UrlJoin("/wallet", "listings", listingId);
+
+
+      this.PurchaseInitiated({confirmationId, tenantId, marketplaceId, listingId, successPath});
+
+      if(requiresPopup) {
+        // Third party checkout doesn't work in iframe, open new window to initiate purchase
+        yield this.rootStore.Action({
+          action: "listing-purchase",
+          params: {
+            provider,
+            tenantId,
+            marketplaceId,
+            listingId,
+            confirmationId,
+            email,
+            address: this.client.CurrentAccountAddress()
+          },
+          OnComplete: () => {
+            this.PurchaseComplete({confirmationId, success: true});
+          },
+          OnCancel: () => {
+            this.PurchaseComplete({confirmationId, success: false, message: "Purchase failed"});
+          }
+        });
+
+        return { confirmationId };
       }
 
       const listing = (yield this.rootStore.transferStore.FetchTransferListings({listingId, forceUpdate: true}))[0];
@@ -196,64 +217,32 @@ class CheckoutStore {
         };
       }
 
-      const basePath =
-        marketplaceId ?
-          UrlJoin("/marketplace", marketplaceId, "store", listing.details.TenantId, listingId, "purchase", confirmationId) :
-          UrlJoin("/wallet", "listings", listing.details.TenantId, listingId, "purchase", confirmationId);
-
-      this.PurchaseInitiated({confirmationId, tenantId: listing.details.TenantId, listingId});
-
-      if(requiresPopup) {
-        // Stripe doesn't work in iframe, open new window to initiate purchase
-        const url = new URL(window.location.origin);
-        url.pathname = window.location.pathname;
-        url.hash = basePath;
-        url.searchParams.set("embed", "");
-        url.searchParams.set("provider", provider);
-        url.searchParams.set("marketplaceId", marketplaceId || "");
-        url.searchParams.set("listingId", listingId);
-        url.searchParams.set("hn", "");
-
-        if(!this.rootStore.darkMode) {
-          url.searchParams.set("lt", "");
-        }
-
-        if(!this.rootStore.storageSupported) {
-          url.searchParams.set("auth", Utils.B64(JSON.stringify(authInfo)));
-        }
-
-        popup.location.href = url.toString();
-
-        this.MonitorCheckoutWindow({popup, confirmationId});
-
-        return { confirmationId, url: url.toString() };
+      if(!email) {
+        throw {
+          recoverable: false,
+          message: "Unable to determine email address in checkout submit"
+        };
       }
 
       const checkoutId = `nft-marketplace:${confirmationId}`;
 
-      this.rootStore.SetSessionStorage("successPath", UrlJoin(basePath, "success"));
-      this.rootStore.SetSessionStorage("cancelPath", UrlJoin(basePath, "cancel"));
-
-      this.rootStore.SetSessionStorage("purchaseType", "listing");
-
-      const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
-
-      if(this.rootStore.hideNavigation) {
-        rootUrl.searchParams.set("hn", "");
-      }
-
-      if(this.rootStore.fromEmbed) {
-        rootUrl.searchParams.set("embed", "");
+      let successUrl, cancelUrl;
+      if(fromEmbed) {
+        successUrl = this.rootStore.ActionURL({action: "respond", params: {actionId, response: {confirmationId, success: true}}});
+        cancelUrl = this.rootStore.ActionURL({action: "respond", params: {actionId, response: {confirmationId, success: false}, error: "User cancelled checkout"}});
+      } else {
+        successUrl = this.rootStore.ActionURL({action: "redirect", params: {to: successPath}});
+        cancelUrl = this.rootStore.ActionURL({action: "redirect", params: {to: cancelPath}});
       }
 
       let requestParams = {
         currency: this.currency,
         email,
         client_reference_id: checkoutId,
-        elv_addr: this.client.CurrentAccountAddress(),
+        elv_addr: address || this.client.CurrentAccountAddress(),
         items: [{sku: listingId, quantity: 1}],
-        success_url: UrlJoin(rootUrl.toString(), "/#/", "success"),
-        cancel_url: UrlJoin(rootUrl.toString(), "/#/", "cancel")
+        success_url: successUrl,
+        cancel_url: cancelUrl
       };
 
       if(EluvioConfiguration["mode"]) {
@@ -262,15 +251,13 @@ class CheckoutStore {
 
       yield this.CheckoutRedirect({provider, requestParams, confirmationId});
 
-      this.PurchaseComplete({confirmationId, success: true});
+      this.PurchaseComplete({confirmationId, success: true, successPath});
 
-      return { confirmationId, successPath: UrlJoin(basePath, "success") };
+      return { confirmationId, successPath };
     } catch(error) {
       this.rootStore.Log(error, true);
 
-      if(popup) { popup.close(); }
-
-      this.PurchaseComplete({confirmationId, success: false, message: "Listing purchase failed"});
+      this.PurchaseComplete({confirmationId, success: false, message: "Purchase failed"});
 
       if(typeof error.recoverable !== "undefined") {
         throw error;
@@ -292,19 +279,17 @@ class CheckoutStore {
     sku,
     quantity=1,
     confirmationId,
-    email
+    email,
+    address,
+    fromEmbed,
+    actionId
   }) {
     if(this.submittingOrder) { return; }
 
     const requiresPopup = this.rootStore.embedded && !["wallet-balance", "linked-wallet"].includes(provider);
     confirmationId = confirmationId || `M-${this.ConfirmationId()}`;
 
-    let popup;
     try {
-      if(requiresPopup) {
-        popup = window.open("about:blank");
-      }
-
       this.submittingOrder = true;
 
       let authInfo = this.rootStore.AuthInfo();
@@ -315,7 +300,35 @@ class CheckoutStore {
       email = email || (authInfo.user || {}).email || this.rootStore.userProfile.email;
       authInfo.user.email = email;
 
-      const basePath = UrlJoin("/marketplace", marketplaceId, "store", tenantId, sku, "purchase", confirmationId);
+      const successPath = UrlJoin("/marketplace", marketplaceId, "store", tenantId, sku, "purchase", confirmationId);
+      const cancelPath = UrlJoin("/marketplace", marketplaceId, "store", sku);
+
+      this.PurchaseInitiated({confirmationId, tenantId, marketplaceId, sku, successPath});
+
+      if(requiresPopup) {
+        // Third party checkout doesn't work in iframe, open new window to initiate purchase
+        yield this.rootStore.Action({
+          action: "purchase",
+          params: {
+            provider,
+            tenantId,
+            marketplaceId,
+            sku,
+            quantity,
+            confirmationId,
+            email,
+            address: this.client.CurrentAccountAddress()
+          },
+          OnComplete: () => {
+            this.PurchaseComplete({confirmationId, success: true});
+          },
+          OnCancel: () => {
+            this.PurchaseComplete({confirmationId, success: false, message: "Purchase failed"});
+          }
+        });
+
+        return { confirmationId };
+      }
 
       if(!email) {
         throw {
@@ -333,59 +346,25 @@ class CheckoutStore {
         };
       }
 
-      this.PurchaseInitiated({confirmationId, tenantId, marketplaceId, sku});
-
-      if(requiresPopup) {
-        // Stripe doesn't work in iframe, open new window to initiate purchase
-        const url = new URL(window.location.origin);
-        url.pathname = window.location.pathname;
-        url.hash = basePath;
-        url.searchParams.set("embed", "");
-        url.searchParams.set("provider", provider);
-        url.searchParams.set("tenantId", tenantId);
-        url.searchParams.set("quantity", quantity);
-        url.searchParams.set("hn", "");
-
-        if(!this.rootStore.darkMode) {
-          url.searchParams.set("lt", "");
-        }
-
-        if(!this.rootStore.storageSupported) {
-          url.searchParams.set("auth", Utils.B64(JSON.stringify(authInfo)));
-        }
-
-        popup.location.href = url.toString();
-
-        this.MonitorCheckoutWindow({popup, confirmationId});
-
-        return { confirmationId, url: url.toString() };
-      }
-
       const checkoutId = `${marketplaceId}:${confirmationId}`;
 
-      this.rootStore.SetSessionStorage("successPath", UrlJoin(basePath.toString(), "success"));
-      this.rootStore.SetSessionStorage("cancelPath", UrlJoin(basePath.toString(), "cancel"));
-
-      this.rootStore.SetSessionStorage("purchaseType", "store");
-
-      const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
-
-      if(this.rootStore.hideNavigation) {
-        rootUrl.searchParams.set("hn", "");
-      }
-
-      if(this.rootStore.fromEmbed) {
-        rootUrl.searchParams.set("embed", "");
+      let successUrl, cancelUrl;
+      if(fromEmbed) {
+        successUrl = this.rootStore.ActionURL({action: "respond", params: {actionId, response: {confirmationId, success: true}}});
+        cancelUrl = this.rootStore.ActionURL({action: "respond", params: {actionId, response: {confirmationId, success: false}, error: "User cancelled checkout"}});
+      } else {
+        successUrl = this.rootStore.ActionURL({action: "redirect", params: {to: successPath}});
+        cancelUrl = this.rootStore.ActionURL({action: "redirect", params: {to: cancelPath}});
       }
 
       let requestParams = {
         currency: this.currency,
         email,
         client_reference_id: checkoutId,
-        elv_addr: this.client.CurrentAccountAddress(),
+        elv_addr: address || this.client.CurrentAccountAddress(),
         items: [{sku, quantity}],
-        success_url: UrlJoin(rootUrl.toString(), "/#/", "success"),
-        cancel_url: UrlJoin(rootUrl.toString(), "/#/", "cancel")
+        success_url: successUrl,
+        cancel_url: cancelUrl
       };
 
       if(EluvioConfiguration["mode"]) {
@@ -394,12 +373,10 @@ class CheckoutStore {
 
       yield this.CheckoutRedirect({provider, requestParams, confirmationId});
 
-      this.PurchaseComplete({confirmationId, success: true});
+      this.PurchaseComplete({confirmationId, success: true, successPath});
 
-      return { confirmationId, successPath: UrlJoin(basePath, "success") };
+      return { confirmationId, successPath };
     } catch(error) {
-      if(popup) { popup.close(); }
-
       this.rootStore.Log(error, true);
 
       this.PurchaseComplete({confirmationId, success: false, message: "Purchase failed"});
@@ -416,23 +393,6 @@ class CheckoutStore {
       this.submittingOrder = false;
     }
   });
-
-  MonitorCheckoutWindow({popup, confirmationId}) {
-    const closeCheck = setInterval(() => {
-      if(!this.pendingPurchases[confirmationId]) {
-        clearInterval(closeCheck);
-
-        return;
-      }
-
-      if(!popup || popup.closed) {
-        clearInterval(closeCheck);
-
-        // Ensure pending is cleaned up when popup is closed without finishing
-        runInAction(() => delete this.pendingPurchases[confirmationId]);
-      }
-    }, 1000);
-  }
 
   CheckoutRedirect = flow(function * ({provider, requestParams, confirmationId}) {
     if(provider === "stripe") {

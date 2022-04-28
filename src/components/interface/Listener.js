@@ -380,7 +380,8 @@ export const InitializeListener = (history) => {
           try {
             const listingPurchase = await checkoutStore.ListingCheckoutSubmit({
               provider: data.params.provider,
-              listingId: data.params.listingId
+              listingId: data.params.listingId,
+              tenantId: listing.details.TenantId
             });
 
             return Respond({
@@ -501,9 +502,11 @@ export const InitializeListener = (history) => {
         // client.PurchaseStatus
         case "purchaseStatus":
           status = { purchase: "CANCELLED", minting: "PENDING" };
-          if(checkoutStore.completedPurchases[data.params.confirmationId]) {
+          const purchaseStatus = checkoutStore.purchaseStatus[data.params.confirmationId] || {};
+
+          if(purchaseStatus.status === "complete" && purchaseStatus.success) {
             const mint = (((await rootStore.MintingStatus({
-              tenantId: checkoutStore.completedPurchases[data.params.confirmationId].tenantId
+              tenantId: purchaseStatus.tenantId
             })) || [])
               .find(status => status.confirmationId === data.params.confirmationId));
 
@@ -529,7 +532,7 @@ export const InitializeListener = (history) => {
 
               status.items = JSON.parse(JSON.stringify(items));
             }
-          } else if(checkoutStore.pendingPurchases[data.params.confirmationId]) {
+          } else if(purchaseStatus.status === "pending") {
             status = { purchase: "PENDING", minting: "PENDING" };
           }
 
@@ -567,7 +570,7 @@ export const InitializeListener = (history) => {
         // client.PackOpenStatus
         case "packOpenStatus":
           const address = Utils.FormatAddress(data.params.contractAddress);
-          const packInfo = checkoutStore.completedPurchases[`${address}:${data.params.tokenId}`];
+          const packInfo = checkoutStore.purchaseStatus[`${address}:${data.params.tokenId}`];
 
           if(!packInfo) {
             throw Error(`Unable to determine pack open status for item with contract address ${data.params.contractAddress} and token ID ${data.params.tokenId}`);

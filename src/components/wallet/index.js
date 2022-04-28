@@ -12,24 +12,13 @@ import {rootStore, transferStore} from "Stores/index";
 import Collections from "Components/wallet/Collections";
 import AsyncComponent from "Components/common/AsyncComponent";
 import NFTDetails from "Components/wallet/NFTDetails";
-import {PackOpenStatus} from "Components/marketplace/MintingStatus";
+import {PackOpenStatus, PurchaseMintingStatus} from "Components/marketplace/MintingStatus";
 import MyListings from "Components/listings/MyListings";
 import Listings from "Components/listings/Listings";
-import PurchaseHandler from "Components/marketplace/PurchaseHandler";
 import UrlJoin from "url-join";
 import {RecentSales} from "Components/listings/Activity";
 import {LoginGate} from "Components/common/LoginGate";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
-
-const WalletPurchase = observer(() => {
-  const match = useRouteMatch();
-
-  return (
-    <PurchaseHandler
-      cancelPath={UrlJoin("/wallet", "listings", match.params.listingId)}
-    />
-  );
-});
 
 const WalletWrapper = observer(({children}) => {
   const match = useRouteMatch();
@@ -93,9 +82,7 @@ const Routes = (match) => {
     { name: nft.metadata.display_name, path: "/wallet/collection/:contractId/:tokenId", Component: NFTDetails, authed: true },
     { name: "My Items", path: "/wallet/collection", Component: Collections, authed: true },
 
-    { name: "Purchase", path: "/wallet/listings/:tenantId/:listingId/purchase/:confirmationId/success", Component: WalletPurchase, hideNavigation: rootStore.fromEmbed },
-    { name: "Purchase", path: "/wallet/listings/:tenantId/:listingId/purchase/:confirmationId/cancel", Component: WalletPurchase },
-    { name: "Purchase", path: "/wallet/listings/:tenantId/:listingId/purchase/:confirmationId", Component: WalletPurchase, skipLoading: true, hideNavigation: true },
+    { name: "Purchase", path: "/wallet/listings/:tenantId/:listingId/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
     { path: "/wallet", Component: () => <Redirect to={`${match.path}/collection`} />, noBreadcrumb: true}
   ];
 };

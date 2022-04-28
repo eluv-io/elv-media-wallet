@@ -1469,6 +1469,116 @@ class RootStore {
     }
   };
 
+  ActionURL({action, params={}}) {
+    const url = new URL(UrlJoin(window.location.origin, window.location.pathname));
+    url.hash = UrlJoin("/action", action, Utils.B58(JSON.stringify(params)));
+
+    return url.toString();
+  }
+
+  Action = flow(function * ({action, params={}, OnComplete, OnCancel}) {
+    const popup = window.open("about:blank");
+
+    const actionId = btoa(UUID());
+
+    params.actionId = actionId;
+
+    if(!this.storageSupported && this.AuthInfo()) {
+      params.auth = this.AuthInfo();
+    }
+
+    popup.location.href = this.ActionURL({action, params});
+
+    try {
+      const result = yield new Promise((resolve, reject) => {
+        const closeCheck = setInterval(() => {
+          if(!popup || popup.closed) {
+            clearInterval(closeCheck);
+
+            reject("Popup closed");
+          }
+        }, 1000);
+
+        const Listener = async event => {
+          if(!event || !event.data || event.origin !== window.location.origin || event.data.type !== "ActionResponse" || event.data.actionId !== actionId) {
+            return;
+          }
+
+          window.removeEventListener("message", Listener);
+
+          clearInterval(closeCheck);
+
+          popup.close();
+
+          if(event.data.error) {
+            reject(event.data.error);
+          }
+
+          resolve(event.data.response);
+        };
+
+        window.addEventListener("message", Listener);
+      });
+
+      OnComplete && OnComplete(result);
+    } catch(error) {
+      this.Log(error, true);
+      OnCancel && OnCancel(error);
+    }
+  });
+
+  HandleAction = flow(function * ({history, action, parameters}) {
+    if(parameters) {
+      parameters = JSON.parse(new TextDecoder().decode(Utils.FromB58(parameters)));
+    }
+
+    const Respond = ({response, error}) => {
+      window.opener.postMessage({
+        type: "ActionResponse",
+        actionId: parameters.actionId,
+        response,
+        error
+      });
+    };
+
+    try {
+      switch(action) {
+        case "purchase":
+          yield checkoutStore.CheckoutSubmit({
+            ...parameters,
+            fromEmbed: true
+          });
+
+          break;
+
+        case "listing-purchase":
+          yield checkoutStore.ListingCheckoutSubmit({
+            ...parameters,
+            fromEmbed: true
+          });
+
+          break;
+
+        case "redirect":
+          history.push(parameters.to);
+
+          break;
+
+        case "respond":
+          Respond({response: parameters.response, error: parameters.error});
+
+          break;
+
+        default:
+          Respond({error: `Unknown action: ${action}`});
+
+          break;
+      }
+    } catch(error) {
+      Respond({error: Utils.MakeClonable(error)});
+    }
+  });
+
   AuthInfo() {
     try {
       const tokenInfo = this.GetLocalStorage(`auth-${this.network}`);

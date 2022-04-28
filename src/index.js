@@ -38,7 +38,8 @@ import {
   Switch,
   Route,
   Redirect,
-  useLocation
+  useLocation,
+  useRouteMatch
 } from "react-router-dom";
 import Wallet from "Components/wallet";
 import Login from "./login/Login";
@@ -53,6 +54,7 @@ import Modal from "Components/common/Modal";
 import {LoginGate, LoginRedirectGate} from "Components/common/LoginGate";
 import SignaturePopup from "Components/crypto/SignaturePopup";
 import AcceptPopup from "Components/interface/AcceptPopup";
+import Utils from "@eluvio/elv-client-js/src/Utils";
 
 const DebugFooter = () => {
   if(!EluvioConfiguration["show-debug"]) { return null; }
@@ -225,6 +227,49 @@ const Routes = observer(() => {
   );
 });
 
+const Actions = observer(() => {
+  const match = useRouteMatch();
+  const history = useHistory();
+
+  const [handled, setHandled] = useState(false);
+
+  let parameters = {};
+  if(match.params.parameters) {
+    parameters = JSON.parse(new TextDecoder().decode(Utils.FromB58(match.params.parameters)));
+  }
+
+  useEffect(() => {
+    if(parameters.auth && !this.AuthInfo()) {
+      // TODO: Test
+      rootStore.Authenticate({...parameters.auth});
+    }
+  }, []);
+
+  useEffect(() => {
+    if(!rootStore.client || (parameters.requireAuth && !rootStore.loggedIn) || handled) { return; }
+
+    rootStore.HandleAction({
+      history,
+      action: match.params.action,
+      parameters: match.params.parameters,
+    });
+
+    setHandled(true);
+  }, [rootStore.client, rootStore.loggedIn]);
+
+  if(parameters.requireAuth) {
+    return (
+      <LoginGate>
+        <PageLoader/>
+      </LoginGate>
+    );
+  } else {
+    return (
+      <PageLoader/>
+    );
+  }
+});
+
 const App = observer(() => {
   if(sessionStorageAvailable) {
     window.auth0 = useAuth0();
@@ -238,34 +283,31 @@ const App = observer(() => {
 
   const hasHeader = !rootStore.hideNavigation && (!rootStore.sidePanelMode || rootStore.navigationBreadcrumbs.length > 2);
   return (
-    <HashRouter>
-      <div
-        key={`app-${rootStore.loggedIn}`}
-        className={[
-          "app-container",
-          rootStore.initialized ? "app-container-initialized" : "app-container-not-initialized",
-          rootStore.hideNavigation ? "navigation-hidden" : "",
-          rootStore.sidePanelMode ? "side-panel" : "",
-          hasHeader ? "" : "no-header",
-          rootStore.activeModals > 0 ? "modal-active" : ""
-        ]
-          .filter(className => className)
-          .join(" ")
-        }
-      >
-        <Header />
-        { rootStore.DEBUG_ERROR_MESSAGE ? <pre className="debug-error-message">{ rootStore.DEBUG_ERROR_MESSAGE }</pre> : null }
-        <ScrollToTop>
-          <ErrorBoundary className="page-container">
-            <Routes />
-          </ErrorBoundary>
-        </ScrollToTop>
-        <Navigation />
-        <DebugFooter />
-        <div className="app-background" />
-        <LoginModal />
-      </div>
-    </HashRouter>
+    <div
+      key={`app-${rootStore.loggedIn}`}
+      className={[
+        "app-container",
+        rootStore.initialized ? "app-container-initialized" : "app-container-not-initialized",
+        rootStore.hideNavigation ? "navigation-hidden" : "",
+        rootStore.sidePanelMode ? "side-panel" : "",
+        hasHeader ? "" : "no-header",
+        rootStore.activeModals > 0 ? "modal-active" : ""
+      ]
+        .filter(className => className)
+        .join(" ")
+      }
+    >
+      <Header />
+      { rootStore.DEBUG_ERROR_MESSAGE ? <pre className="debug-error-message">{ rootStore.DEBUG_ERROR_MESSAGE }</pre> : null }
+      <ScrollToTop>
+        <ErrorBoundary className="page-container">
+          <Routes />
+        </ErrorBoundary>
+      </ScrollToTop>
+      <Navigation />
+      <DebugFooter />
+      <div className="app-background" />
+    </div>
   );
 });
 
@@ -279,7 +321,22 @@ if(sessionStorageAvailable) {
       darkMode={rootStore.darkMode}
     >
       <React.StrictMode>
-        <App/>
+        <HashRouter>
+          <Switch>
+
+            { /* Handle various popup actions */ }
+            <Route path="/action/:action/:parameters">
+              <Actions />
+            </Route>
+
+            { /* All other routes */ }
+            <Route>
+              <App/>
+            </Route>
+
+          </Switch>
+          <LoginModal />
+        </HashRouter>
       </React.StrictMode>
     </Auth0Provider>,
     document.getElementById("app")
