@@ -105,7 +105,7 @@ class RootStore {
 
   loggedIn = false;
   disableCloseEvent = false;
-  darkMode = !this.GetSessionStorage("light-mode") && !searchParams.has("lt");
+  darkMode = (!this.GetSessionStorage("light-mode") && !searchParams.has("lt")) || searchParams.has("dk");
 
   availableMarketplaces = {};
 
@@ -1319,6 +1319,7 @@ class RootStore {
       const response = yield this.Flow({
         type: "action",
         flow: "consent",
+        darkMode: true,
         parameters: {
           origin,
           requestor,
@@ -1327,7 +1328,7 @@ class RootStore {
       });
 
       if(!response.accept) {
-        throw Error("User has rejected the request");
+        throw { message: "User has rejected the request", error: "user_reject" };
       }
 
       if(response.trust) {
@@ -1336,7 +1337,11 @@ class RootStore {
 
       return true;
     } catch(error) {
-      throw Error("User has rejected the request");
+      if(error.error === "popup_blocked") {
+        throw error;
+      }
+
+      throw { message: "User has rejected the request", error: "user_reject" };
     }
   });
 
@@ -1371,33 +1376,41 @@ class RootStore {
     }
   };
 
-  FlowURL({type="flow", flow, parameters={}}) {
+  FlowURL({type="flow", flow, parameters={}, darkMode}) {
     const url = new URL(UrlJoin(window.location.origin, window.location.pathname));
     url.hash = UrlJoin("/", type, flow, Utils.B58(JSON.stringify(parameters)));
+
+    if(darkMode) {
+      url.searchParams.set("dk", "");
+    }
 
     return url.toString();
   }
 
-  Flow = flow(function * ({type="flow", flow, parameters={}, OnComplete, OnCancel}) {
-    const popup = window.open("about:blank");
-
-    const flowId = btoa(UUID());
-
-    parameters.flowId = flowId;
-
-    if(!this.storageSupported && this.AuthInfo()) {
-      parameters.auth = this.AuthInfo();
-    }
-
-    popup.location.href = this.FlowURL({type, flow, parameters});
-
+  Flow = flow(function * ({type="flow", flow, parameters={}, darkMode=false, OnComplete, OnCancel}) {
     try {
+      const popup = window.open("about:blank");
+
+      if(!popup) {
+        throw {message: "Popup Blocked", error: "popup_blocked"};
+      }
+
+      const flowId = btoa(UUID());
+
+      parameters.flowId = flowId;
+
+      if(!this.storageSupported && this.AuthInfo()) {
+        parameters.auth = this.AuthInfo();
+      }
+
+      popup.location.href = this.FlowURL({type, flow, parameters, darkMode});
+
       const result = yield new Promise((resolve, reject) => {
         const closeCheck = setInterval(() => {
           if(!popup || popup.closed) {
             clearInterval(closeCheck);
 
-            reject("Popup closed");
+            reject({message: "Popup Closed", error: "popup_closed"});
           }
         }, 1000);
 

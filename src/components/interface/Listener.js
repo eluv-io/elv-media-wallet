@@ -711,7 +711,11 @@ export const InitializeListener = (history) => {
           Respond({error: `Unknown action: ${data.action}`});
       }
     } catch(error) {
-      Respond({error: error.message});
+      if(error.error) {
+        Respond({error});
+      } else {
+        Respond({error: error.message});
+      }
     }
   };
 
