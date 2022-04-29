@@ -147,7 +147,11 @@ const MarketplaceItem = async (marketplaceInfo, data) => {
 
 const Listing = async data => {
   try {
-    const listing = ((await transferStore.FetchTransferListings({listingId: data.params.listingId})) || [])[0];
+    const listing = ((await transferStore.FetchTransferListings({
+      listingId: data.params.listingId,
+      contractAddress: data.params.contractAddres,
+      tokenId: data.params.tokenId
+    })) || [])[0];
 
     if(!listing) { throw "Listing not found"; }
 
@@ -334,6 +338,8 @@ export const InitializeListener = (history) => {
             action: `List '${listing?.metadata?.display_name || "NFT"}' for sale for ${FormatPriceString({"USD": data.params.price})}`
           });
 
+          data.params.listingId = listing.details.ListingId;
+
           await CreateListing(data);
 
           return Respond({});
@@ -349,7 +355,7 @@ export const InitializeListener = (history) => {
             action: `Remove listing for '${listing?.metadata?.display_name || "NFT"}'`
           });
 
-          await transferStore.RemoveListing({listingId: data.params.listingId});
+          await transferStore.RemoveListing({listingId: listing.details.ListingId});
 
           return Respond({});
 
@@ -380,7 +386,8 @@ export const InitializeListener = (history) => {
           try {
             const listingPurchase = await checkoutStore.ListingCheckoutSubmit({
               provider: data.params.provider,
-              listingId: data.params.listingId
+              listingId: data.params.listingId,
+              tenantId: listing.details.TenantId
             });
 
             return Respond({
@@ -501,9 +508,11 @@ export const InitializeListener = (history) => {
         // client.PurchaseStatus
         case "purchaseStatus":
           status = { purchase: "CANCELLED", minting: "PENDING" };
-          if(checkoutStore.completedPurchases[data.params.confirmationId]) {
+          const purchaseStatus = checkoutStore.purchaseStatus[data.params.confirmationId] || {};
+
+          if(purchaseStatus.status === "complete" && purchaseStatus.success) {
             const mint = (((await rootStore.MintingStatus({
-              tenantId: checkoutStore.completedPurchases[data.params.confirmationId].tenantId
+              tenantId: purchaseStatus.tenantId
             })) || [])
               .find(status => status.confirmationId === data.params.confirmationId));
 
@@ -529,7 +538,7 @@ export const InitializeListener = (history) => {
 
               status.items = JSON.parse(JSON.stringify(items));
             }
-          } else if(checkoutStore.pendingPurchases[data.params.confirmationId]) {
+          } else if(purchaseStatus.status === "pending") {
             status = { purchase: "PENDING", minting: "PENDING" };
           }
 
@@ -567,7 +576,7 @@ export const InitializeListener = (history) => {
         // client.PackOpenStatus
         case "packOpenStatus":
           const address = Utils.FormatAddress(data.params.contractAddress);
-          const packInfo = checkoutStore.completedPurchases[`${address}:${data.params.tokenId}`];
+          const packInfo = checkoutStore.purchaseStatus[`${address}:${data.params.tokenId}`];
 
           if(!packInfo) {
             throw Error(`Unable to determine pack open status for item with contract address ${data.params.contractAddress} and token ID ${data.params.tokenId}`);
@@ -702,7 +711,11 @@ export const InitializeListener = (history) => {
           Respond({error: `Unknown action: ${data.action}`});
       }
     } catch(error) {
-      Respond({error: error.message});
+      if(error.error) {
+        Respond({error});
+      } else {
+        Respond({error: error.message});
+      }
     }
   };
 

@@ -11,7 +11,12 @@ import {observer} from "mobx-react";
 import AsyncComponent from "Components/common/AsyncComponent";
 import Drop from "Components/event/Drop";
 import NFTDetails from "Components/wallet/NFTDetails";
-import {ClaimMintingStatus, DropMintingStatus, PackOpenStatus} from "Components/marketplace/MintingStatus";
+import {
+  ClaimMintingStatus,
+  DropMintingStatus,
+  PackOpenStatus,
+  PurchaseMintingStatus
+} from "Components/marketplace/MintingStatus";
 import MarketplaceItemDetails from "Components/marketplace/MarketplaceItemDetails";
 import MarketplaceOwned from "Components/marketplace/MarketplaceOwned";
 import MarketplaceStorefront from "Components/marketplace/MarketplaceStorefront";
@@ -19,25 +24,10 @@ import MarketplaceBrowser from "Components/marketplace/MarketplaceBrowser";
 import Listings from "Components/listings/Listings";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import MyListings from "Components/listings/MyListings";
-import PurchaseHandler from "Components/marketplace/PurchaseHandler";
 import {RecentSales} from "Components/listings/Activity";
 import Profile from "Components/profile";
 import MarketplaceCollections from "Components/marketplace/MarketplaceCollections";
 import {LoginGate} from "Components/common/LoginGate";
-
-const MarketplacePurchase = observer(() => {
-  const match = useRouteMatch();
-
-  return (
-    <PurchaseHandler
-      cancelPath={
-        rootStore.GetSessionStorage("purchaseType") === "listing" ?
-          UrlJoin("/marketplace", match.params.marketplaceId, "listings", match.params.sku) :
-          UrlJoin("/marketplace", match.params.marketplaceId, "store", match.params.sku)
-      }
-    />
-  );
-});
 
 const MarketplaceWrapper = observer(({children}) => {
   const match = useRouteMatch();
@@ -130,9 +120,8 @@ const Routes = (match) => {
     { name: item.name, path: "/marketplace/:marketplaceId/collection/:collectionIndex/store/:sku", Component: MarketplaceItemDetails },
 
     { name: "Claim", path: "/marketplace/:marketplaceId/store/:sku/claim", Component: ClaimMintingStatus, authed: true },
-    { name: "Purchase", path: "/marketplace/:marketplaceId/store/:tenantId/:sku/purchase/:confirmationId/success", Component: MarketplacePurchase, hideNavigation: rootStore.sidePanelMode || rootStore.fromEmbed },
-    { name: "Purchase", path: "/marketplace/:marketplaceId/store/:tenantId/:sku/purchase/:confirmationId/cancel", Component: MarketplacePurchase },
-    { name: "Purchase", path: "/marketplace/:marketplaceId/store/:tenantId/:sku/purchase/:confirmationId", Component: MarketplacePurchase, noBreadcrumb: true, authed: true, hideNavigation: true, skipLoading: true },
+    { name: "Purchase", path: "/marketplace/:marketplaceId/store/:tenantId/:sku/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
+
     { name: item.name, path: "/marketplace/:marketplaceId/store/:sku", Component: MarketplaceItemDetails },
     { name: marketplace.name, path: "/marketplace/:marketplaceId/store", Component: MarketplaceStorefront },
     {

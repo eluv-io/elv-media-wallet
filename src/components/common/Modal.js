@@ -5,10 +5,12 @@ import {observer} from "mobx-react";
 import CloseIcon from "../../static/icons/x.svg";
 import ImageIcon from "Components/common/ImageIcon";
 
-const Modal = observer(({children, Toggle, noFade=false, id="", className=""}) => {
+const Modal = observer(({children, Toggle, closable=true, noFade=false, id="", className=""}) => {
   const [scrolled, setScrolled] = useState(false);
 
   const Close = (event) => {
+    if(!closable) { return; }
+
     if(event && (event.key || "").toLowerCase() !== "escape") { return; }
 
     document.removeEventListener("keydown", Close);

@@ -1,6 +1,6 @@
 import "Assets/stylesheets/app.scss";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import UrlJoin from "url-join";
 import { render } from "react-dom";
 import { observer} from "mobx-react";
@@ -30,15 +30,12 @@ try {
 // eslint-disable-next-line no-empty
 } catch(error) {}
 
-const signaturePopup = searchParams.has("sign");
-
 import {
   useHistory,
   HashRouter,
   Switch,
   Route,
   Redirect,
-  useLocation
 } from "react-router-dom";
 import Wallet from "Components/wallet";
 import Login from "./login/Login";
@@ -50,9 +47,9 @@ import MarketplaceRoutes from "Components/marketplace";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import {PageLoader} from "Components/common/Loaders";
 import Modal from "Components/common/Modal";
-import {LoginGate, LoginRedirectGate} from "Components/common/LoginGate";
-import SignaturePopup from "Components/crypto/SignaturePopup";
-import AcceptPopup from "Components/interface/AcceptPopup";
+import {LoginRedirectGate} from "Components/common/LoginGate";
+import Flows from "Components/interface/Flows";
+import Actions from "Components/interface/Actions";
 
 const DebugFooter = () => {
   if(!EluvioConfiguration["show-debug"]) { return null; }
@@ -130,57 +127,11 @@ const LoginModal = observer(() => {
 
 const Routes = observer(() => {
   const history = useHistory();
-  const location = useLocation();
 
   useEffect(() => InitializeListener(history), []);
 
   if(rootStore.loginOnly) {
     return <LoginModal />;
-  }
-
-  const RedirectLoading = () => {
-    // Safari + stripe has a weird bug in the onboarding flow where it redirects back to /redirect instead of /withdrawal-setup-complete
-    // If we've been redirected already in this tab, we must have been sent back here.
-    const [returned, setReturned] = useState(false);
-    useEffect(() => {
-      if(rootStore.GetSessionStorage("redirected")) {
-        rootStore.RemoveSessionStorage("redirected");
-        setReturned(true);
-      } else {
-        rootStore.SetSessionStorage("redirected");
-      }
-    });
-
-    if(returned) {
-      return <SetupComplete />;
-    }
-
-    return <PageLoader />;
-  };
-
-  const SetupComplete = () => {
-    window.close();
-
-    return (
-      <div className="page-container setup-complete">
-        <h1 className="setup-complete__message">
-          Setup complete. You can now close this page.
-        </h1>
-      </div>
-    );
-  };
-
-  if(location.pathname.startsWith("/withdrawal") || location.pathname === "/redirect") {
-    return (
-      <Switch>
-        <Route exact path="/redirect">
-          <RedirectLoading />
-        </Route>
-        <Route exact path="/withdrawal-setup-complete">
-          <SetupComplete />
-        </Route>
-      </Switch>
-    );
   }
 
   if(!rootStore.loaded) {
@@ -189,12 +140,6 @@ const Routes = observer(() => {
 
   return (
     <Switch>
-      <Route exact path="/accept">
-        <LoginGate>
-          <AcceptPopup />
-        </LoginGate>
-      </Route>
-
       <Route exact path="/success">
         <RedirectHandler storageKey="successPath" />
       </Route>
@@ -225,6 +170,8 @@ const Routes = observer(() => {
   );
 });
 
+
+
 const App = observer(() => {
   if(sessionStorageAvailable) {
     window.auth0 = useAuth0();
@@ -232,40 +179,35 @@ const App = observer(() => {
 
   if(newWindowLogin) {
     return <LoginModal />;
-  } else if(signaturePopup) {
-    return <SignaturePopup />;
   }
 
   const hasHeader = !rootStore.hideNavigation && (!rootStore.sidePanelMode || rootStore.navigationBreadcrumbs.length > 2);
   return (
-    <HashRouter>
-      <div
-        key={`app-${rootStore.loggedIn}`}
-        className={[
-          "app-container",
-          rootStore.initialized ? "app-container-initialized" : "app-container-not-initialized",
-          rootStore.hideNavigation ? "navigation-hidden" : "",
-          rootStore.sidePanelMode ? "side-panel" : "",
-          hasHeader ? "" : "no-header",
-          rootStore.activeModals > 0 ? "modal-active" : ""
-        ]
-          .filter(className => className)
-          .join(" ")
-        }
-      >
-        <Header />
-        { rootStore.DEBUG_ERROR_MESSAGE ? <pre className="debug-error-message">{ rootStore.DEBUG_ERROR_MESSAGE }</pre> : null }
-        <ScrollToTop>
-          <ErrorBoundary className="page-container">
-            <Routes />
-          </ErrorBoundary>
-        </ScrollToTop>
-        <Navigation />
-        <DebugFooter />
-        <div className="app-background" />
-        <LoginModal />
-      </div>
-    </HashRouter>
+    <div
+      key={`app-${rootStore.loggedIn}`}
+      className={[
+        "app-container",
+        rootStore.initialized ? "app-container-initialized" : "app-container-not-initialized",
+        rootStore.hideNavigation ? "navigation-hidden" : "",
+        rootStore.sidePanelMode ? "side-panel" : "",
+        hasHeader ? "" : "no-header",
+        rootStore.activeModals > 0 ? "modal-active" : ""
+      ]
+        .filter(className => className)
+        .join(" ")
+      }
+    >
+      <Header />
+      { rootStore.DEBUG_ERROR_MESSAGE ? <pre className="debug-error-message">{ rootStore.DEBUG_ERROR_MESSAGE }</pre> : null }
+      <ScrollToTop>
+        <ErrorBoundary className="page-container">
+          <Routes />
+        </ErrorBoundary>
+      </ScrollToTop>
+      <Navigation />
+      <DebugFooter />
+      <div className="app-background" />
+    </div>
   );
 });
 
@@ -279,7 +221,26 @@ if(sessionStorageAvailable) {
       darkMode={rootStore.darkMode}
     >
       <React.StrictMode>
-        <App/>
+        <HashRouter>
+          <Switch>
+
+            { /* Handle various popup actions */ }
+            <Route path="/flow/:flow/:parameters">
+              <Flows />
+            </Route>
+
+            <Route path="/action/:action/:parameters">
+              <Actions />
+            </Route>
+
+            { /* All other routes */ }
+            <Route>
+              <App/>
+            </Route>
+
+          </Switch>
+          <LoginModal />
+        </HashRouter>
       </React.StrictMode>
     </Auth0Provider>,
     document.getElementById("app")

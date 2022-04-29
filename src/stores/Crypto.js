@@ -2,12 +2,12 @@ import {flow, makeAutoObservable, runInAction} from "mobx";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import UrlJoin from "url-join";
 import {ethers} from "ethers";
-import {v4 as UUID} from "uuid";
 
 import MetamaskLogo from "Assets/icons/crypto/metamask fox.png";
 import PhantomLogo from "Assets/icons/crypto/phantom.png";
 import EthereumLogo from "Assets/icons/ethereum-eth-logo.svg";
 import SolanaLogo from "Assets/icons/solana icon.svg";
+import {rootStore} from "./index";
 
 class CryptoStore {
   metamaskChainId = undefined;
@@ -291,74 +291,34 @@ class CryptoStore {
   })
 
   EmbeddedSign = flow(function * ({provider, connect, purchaseSpec, message}) {
-    const popup = window.open("about:blank");
-    const requestId = btoa(UUID());
+    let parameters = { provider };
 
-    try {
-      const popupUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
-
-      popupUrl.searchParams.set("sign", "");
-
-      if(connect) {
-        popupUrl.searchParams.set("connect", "");
-      } else if(message) {
-        popupUrl.searchParams.set("message", btoa(message.toString()));
-      } else if(purchaseSpec) {
-        popupUrl.searchParams.set("purchase", btoa(JSON.stringify(purchaseSpec)));
-      }
-
-      popupUrl.searchParams.set("provider", provider);
-      popupUrl.searchParams.set("request", requestId);
-      popupUrl.searchParams.set("hn", "");
-
-      popup.location.href = popupUrl.toString();
-
-      return yield new Promise((resolve, reject) => {
-        const Listener = event => {
-          if(
-            !event ||
-            !event.data ||
-            event.data.type !== "ElvMediaWalletSignRequest" ||
-            event.data.requestId !== requestId
-          ) { return; }
-
-          if(event.origin !== window.location.origin) {
-            reject("Spoofed response");
-          }
-
-          window.removeEventListener("message", Listener);
-
-          popup.close();
-
-          if(event.data.address) {
-            this.phantomAddress = event.data.address;
-          }
-
-          if(event.data.balance) {
-            this.phantomBalance = event.data.balance?.sol || 0;
-            this.phantomUSDCBalance = event.data.balance?.usdc || 0;
-          }
-
-          resolve(event.data.response);
-        };
-
-        window.addEventListener("message", Listener);
-
-        const closeCheck = setInterval(async () => {
-          if(!popup || popup.closed) {
-            clearInterval(closeCheck);
-
-            reject("Popup closed");
-          }
-        }, 500);
-      });
-    } catch(error) {
-      popup.close();
-
-      this.rootStore.Log(error, true);
-
-      throw error;
+    if(connect) {
+      parameters.action = "connect";
+    } else if(message) {
+      parameters.action = "message";
+      parameters.message = message.toString();
+    } else if(purchaseSpec) {
+      parameters.action = "purchase";
+      parameters.purchaseSpec = purchaseSpec;
     }
+
+    const result = yield rootStore.Flow({
+      type: "action",
+      flow: "sign",
+      parameters
+    });
+
+    if(result.address) {
+      this.phantomAddress = event.data.address;
+    }
+
+    if(result.balance) {
+      this.phantomBalance = event.data.balance?.sol || 0;
+      this.phantomUSDCBalance = event.data.balance?.usdc || 0;
+    }
+
+    return result.response;
   });
 
   MetamaskAvailable() {
@@ -376,7 +336,7 @@ class CryptoStore {
   }
 
   PhantomConnected() {
-    if(this.rootStore.embedded && this.phantomAddress) {
+    if(this.rootStore.embedded && window.solana && this.PhantomAddress()) {
       return true;
     }
 
@@ -388,7 +348,10 @@ class CryptoStore {
   }
 
   PhantomAddress() {
-    return window.solana && window.solana._publicKey && window.solana._publicKey.toString();
+    return (
+      (window.solana && window.solana._publicKey && window.solana._publicKey.toString()) ||
+      (window.solana && this.rootStore.embedded && Object.keys(this.connectedAccounts.sol)[0])
+    );
   }
 
   PhantomBalance = flow(function * () {

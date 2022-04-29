@@ -105,7 +105,7 @@ class RootStore {
 
   loggedIn = false;
   disableCloseEvent = false;
-  darkMode = !this.GetSessionStorage("light-mode") && !searchParams.has("lt");
+  darkMode = (!this.GetSessionStorage("light-mode") && !searchParams.has("lt")) || searchParams.has("dk");
 
   availableMarketplaces = {};
 
@@ -1190,8 +1190,8 @@ class RootStore {
         body: {
           country: "US",
           mode: EluvioConfiguration.mode,
-          refresh_url: UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup-complete"),
-          return_url: UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup-complete")
+          refresh_url: rootUrl.toString(),
+          return_url: rootUrl.toString()
         },
         headers: {
           Authorization: `Bearer ${this.client.signer.authToken}`
@@ -1243,100 +1243,26 @@ class RootStore {
   });
 
   StripeOnboard = flow(function * (countryCode="US") {
-    const popup = window.open("about:blank");
-
-    try {
-      const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
-      popup.location.href = UrlJoin(rootUrl.toString(), "/#/", "redirect");
-
-      const response = yield Utils.ResponseToJson(
-        this.client.authClient.MakeAuthServiceRequest({
-          path: UrlJoin("as", "wlt", "onb", "stripe"),
-          method: "POST",
-          body: {
-            country: countryCode,
-            mode: EluvioConfiguration.mode,
-            refresh_url: UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup-complete"),
-            return_url: UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup-complete")
-          },
-          headers: {
-            Authorization: `Bearer ${this.client.signer.authToken}`
-          }
-        })
-      );
-
-      if(!response.onboard_redirect) {
-        throw "Response missing login URL";
-      }
-
-      popup.location.href = response.onboard_redirect;
-
-      yield new Promise(resolve => {
-        const closeCheck = setInterval(async () => {
-          if(!popup || popup.closed) {
-            clearInterval(closeCheck);
-
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-            await this.GetWalletBalance(true);
-
-            resolve();
-          }
-        }, 1000);
-      });
-    } catch(error) {
-      popup.close();
-
-      this.Log(error, true);
-
-      throw error;
-    }
+    yield this.Flow({
+      type: "flow",
+      flow: "stripe-onboard",
+      parameters: {
+        countryCode,
+        requireAuth: true
+      },
+      OnCancel: () => this.GetWalletBalance()
+    });
   });
 
   StripeLogin = flow (function * () {
-    const popup = window.open("about:blank");
-
-    try {
-      const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
-      popup.location.href = UrlJoin(rootUrl.toString(), "/#/", "redirect");
-
-      const response = yield Utils.ResponseToJson(
-        this.client.authClient.MakeAuthServiceRequest({
-          path: UrlJoin("as", "wlt", "login", "stripe"),
-          method: "POST",
-          body: {
-            mode: EluvioConfiguration.mode,
-          },
-          headers: {
-            Authorization: `Bearer ${this.client.signer.authToken}`
-          }
-        })
-      );
-
-      if(!response.login_url) {
-        throw "Response missing login URL";
-      }
-
-      popup.location.href = response.login_url;
-
-      yield new Promise(resolve => {
-        const closeCheck = setInterval(async () => {
-          if(!popup || popup.closed) {
-            clearInterval(closeCheck);
-
-            await this.GetWalletBalance();
-
-            resolve();
-          }
-        }, 1000);
-      });
-    } catch(error) {
-      popup.close();
-
-      this.Log(error, true);
-
-      throw error;
-    }
+    yield this.Flow({
+      type: "flow",
+      flow: "stripe-login",
+      parameters: {
+        requireAuth: true
+      },
+      OnCancel: () => this.GetWalletBalance()
+    });
   });
 
   SignOut() {
@@ -1389,53 +1315,34 @@ class RootStore {
       return true;
     }
 
-    const popup = window.open("about:blank");
-    const requestId = btoa(UUID());
-
-    const popupUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
-
-    popupUrl.hash = "#/accept";
-    popupUrl.searchParams.set("rq", btoa(requestor));
-    popupUrl.searchParams.set("ac", btoa(action));
-    popupUrl.searchParams.set("request", btoa(requestId));
-    popupUrl.searchParams.set("hn", "");
-    popupUrl.searchParams.set("origin", btoa(origin));
-
-    popup.location.href = popupUrl.toString();
-
-    const accepted = yield new Promise((resolve) => {
-      const Listener = event => {
-        if(!event || !event.data || event.data.type !== "ElvMediaWalletAcceptResponse") {
-          return;
+    try {
+      const response = yield this.Flow({
+        type: "action",
+        flow: "consent",
+        darkMode: true,
+        parameters: {
+          origin,
+          requestor,
+          action
         }
+      });
 
-        window.removeEventListener("message", Listener);
+      if(!response.accept) {
+        throw { message: "User has rejected the request", error: "user_reject" };
+      }
 
-        if(event.data.accept && event.data.trust) {
-          rootStore.SetTrustedOrigin(origin);
-        }
+      if(response.trust) {
+        this.SetTrustedOrigin(origin);
+      }
 
-        resolve(event.data.accept);
-      };
+      return true;
+    } catch(error) {
+      if(error.error === "popup_blocked") {
+        throw error;
+      }
 
-      window.addEventListener("message", Listener);
-
-      const closeCheck = setInterval(async () => {
-        if(!popup || popup.closed) {
-          clearInterval(closeCheck);
-
-          resolve(false);
-        }
-      }, 500);
-    });
-
-    popup.close();
-
-    if(!accepted) {
-      throw Error("User has rejected the request");
+      throw { message: "User has rejected the request", error: "user_reject" };
     }
-
-    return true;
   });
 
   CheckEmailVerification = flow(function * (auth0) {
@@ -1468,6 +1375,180 @@ class RootStore {
       this.Log(error, true);
     }
   };
+
+  FlowURL({type="flow", flow, parameters={}, darkMode}) {
+    const url = new URL(UrlJoin(window.location.origin, window.location.pathname));
+    url.hash = UrlJoin("/", type, flow, Utils.B58(JSON.stringify(parameters)));
+
+    if(darkMode) {
+      url.searchParams.set("dk", "");
+    }
+
+    return url.toString();
+  }
+
+  Flow = flow(function * ({type="flow", flow, parameters={}, darkMode=false, OnComplete, OnCancel}) {
+    try {
+      const popup = window.open("about:blank");
+
+      if(!popup) {
+        throw {message: "Popup Blocked", error: "popup_blocked"};
+      }
+
+      const flowId = btoa(UUID());
+
+      parameters.flowId = flowId;
+
+      if(!this.storageSupported && this.AuthInfo()) {
+        parameters.auth = this.AuthInfo();
+      }
+
+      popup.location.href = this.FlowURL({type, flow, parameters, darkMode});
+
+      const result = yield new Promise((resolve, reject) => {
+        const closeCheck = setInterval(() => {
+          if(!popup || popup.closed) {
+            clearInterval(closeCheck);
+
+            reject({message: "Popup Closed", error: "popup_closed"});
+          }
+        }, 1000);
+
+        const Listener = async event => {
+          if(!event || !event.data || event.origin !== window.location.origin || event.data.type !== "FlowResponse" || event.data.flowId !== flowId) {
+            return;
+          }
+
+          window.removeEventListener("message", Listener);
+
+          clearInterval(closeCheck);
+
+          setTimeout(() => popup.close(), 500);
+
+          if(event.data.error) {
+            reject(event.data.error);
+          }
+
+          resolve(event.data.response);
+        };
+
+        window.addEventListener("message", Listener);
+      });
+
+      OnComplete && OnComplete(result);
+
+      return result;
+    } catch(error) {
+      this.Log(error, true);
+
+      if(OnCancel) {
+        OnCancel(error);
+      } else {
+        throw error;
+      }
+    }
+  });
+
+  HandleFlow = flow(function * ({history, flow, parameters}) {
+    if(parameters) {
+      parameters = JSON.parse(new TextDecoder().decode(Utils.FromB58(parameters)));
+    }
+
+    const Respond = ({response, error}) => {
+      window.opener.postMessage({
+        type: "FlowResponse",
+        flowId: parameters.flowId,
+        response,
+        error
+      });
+    };
+
+    try {
+      switch(flow) {
+        case "purchase":
+          yield checkoutStore.CheckoutSubmit({
+            ...parameters,
+            fromEmbed: true
+          });
+
+          break;
+
+        case "listing-purchase":
+          yield checkoutStore.ListingCheckoutSubmit({
+            ...parameters,
+            fromEmbed: true
+          });
+
+          break;
+
+        case "redirect":
+          history.push(parameters.to);
+
+          break;
+
+        case "respond":
+          Respond({response: parameters.response, error: parameters.error});
+
+          setTimeout(() => window.close(), 5000);
+
+          break;
+
+        case "stripe-onboard":
+          const onboardResponse = yield Utils.ResponseToJson(
+            this.client.authClient.MakeAuthServiceRequest({
+              path: UrlJoin("as", "wlt", "onb", "stripe"),
+              method: "POST",
+              body: {
+                country: parameters.countryCode,
+                mode: EluvioConfiguration.mode,
+                return_url: this.FlowURL({type: "flow", flow: "respond", parameters: { flowId: parameters.flowId, success: true }}),
+                refresh_url: window.location.href
+              },
+              headers: {
+                Authorization: `Bearer ${this.client.signer.authToken}`
+              }
+            })
+          );
+
+          if(!onboardResponse.onboard_redirect) {
+            throw "Response missing login URL";
+          }
+
+          window.location.href = onboardResponse.onboard_redirect;
+
+          break;
+
+        case "stripe-login":
+          const loginResponse = yield Utils.ResponseToJson(
+            this.client.authClient.MakeAuthServiceRequest({
+              path: UrlJoin("as", "wlt", "login", "stripe"),
+              method: "POST",
+              body: {
+                mode: EluvioConfiguration.mode,
+              },
+              headers: {
+                Authorization: `Bearer ${this.client.signer.authToken}`
+              }
+            })
+          );
+
+          if(!loginResponse.login_url) {
+            throw "Response missing login URL";
+          }
+
+          window.location.href = loginResponse.login_url;
+
+          break;
+
+        default:
+          Respond({error: `Unknown flow: ${flow}`});
+
+          break;
+      }
+    } catch(error) {
+      Respond({error: Utils.MakeClonable(error)});
+    }
+  });
 
   AuthInfo() {
     try {
@@ -1565,8 +1646,14 @@ class RootStore {
     this.noItemsAvailable = true;
   }
 
-  SetTrustedOrigin(origin) {
-    this.trustedOrigins[origin] = true;
+  SetTrustedOrigin(origin, trusted=true) {
+    this.trustedOrigins[origin] = trusted;
+
+    this.SetLocalStorage("trusted-origins", JSON.stringify(this.trustedOrigins));
+  }
+
+  RemoveTrustedOrigin(origin) {
+    delete this.trustedOrigins[origin];
 
     this.SetLocalStorage("trusted-origins", JSON.stringify(this.trustedOrigins));
   }

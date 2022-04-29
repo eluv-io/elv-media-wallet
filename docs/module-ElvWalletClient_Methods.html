@@ -256,7 +256,7 @@
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
     </a>
     <h4 class="name" id=".EditListing">
-      <span class="type-signature">static </span>EditListing<span class="signature">(<div class="block-param">listingId,</div><div class="block-param">price</div>)</span><span class="type-signature"></span>
+      <span class="type-signature">static </span>EditListing<span class="signature">(<div class="block-param">listingId<span class="signature-attributes">optional</span>,</div><div class="block-param">contractAddress<span class="signature-attributes">optional</span>,</div><div class="block-param">tokenId<span class="signature-attributes">optional</span>,</div><div class="block-param">price</div>)</span><span class="type-signature"></span>
     </h4>
   </span>
 
@@ -267,7 +267,7 @@
   <div class="description">
     <p><b><i>Requires login</i></b></p>
 <p><b><i>Prompts user for consent</i></b></p>
-<p>Modify the specify listing</p>
+<p>Modify the specify listing. Provide either the listing's ID, or the contract address and token ID of the listed item.</p>
   </div>
 
 
@@ -292,6 +292,8 @@
 
       <th>Type</th>
 
+      
+        <th>Attributes</th>
       
 
       
@@ -321,11 +323,99 @@
         </td>
 
         
+          <td class="attributes">
+            
+              &lt;optional><br>
+            
+
+            
+
+            
+          </td>
+        
 
         
 
         <td class="description last">
           <p>The listing ID of the listing to change</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>contractAddress</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+          <td class="attributes">
+            
+              &lt;optional><br>
+            
+
+            
+
+            
+          </td>
+        
+
+        
+
+        <td class="description last">
+          <p>The address of the NFT contract</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>tokenId</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+          <td class="attributes">
+            
+              &lt;optional><br>
+            
+
+            
+
+            
+          </td>
+        
+
+        
+
+        <td class="description last">
+          <p>The token ID of the item</p>
           
         </td>
       </tr>
@@ -349,6 +439,14 @@
           
         </td>
 
+        
+          <td class="attributes">
+            
+
+            
+
+            
+          </td>
         
 
         
@@ -410,7 +508,7 @@
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="ClientMethods.js.html">ClientMethods.js</a>, <a href="ClientMethods.js.html#line558">line 558</a>
+          <a href="ClientMethods.js.html">ClientMethods.js</a>, <a href="ClientMethods.js.html#line560">line 560</a>
         </li>
       </ul>
     </dd>
@@ -1707,7 +1805,7 @@ You can retrieve all available item names from the <a href="#.ItemNames">ItemNam
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="ClientMethods.js.html">ClientMethods.js</a>, <a href="ClientMethods.js.html#line614">line 614</a>
+          <a href="ClientMethods.js.html">ClientMethods.js</a>, <a href="ClientMethods.js.html#line622">line 622</a>
         </li>
       </ul>
     </dd>
@@ -4281,7 +4379,7 @@ no entry will be present. If a user is currently logged in, the entry will conta
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="ClientMethods.js.html">ClientMethods.js</a>, <a href="ClientMethods.js.html#line691">line 691</a>
+          <a href="ClientMethods.js.html">ClientMethods.js</a>, <a href="ClientMethods.js.html#line699">line 699</a>
         </li>
       </ul>
     </dd>
@@ -4468,7 +4566,7 @@ no entry will be present. If a user is currently logged in, the entry will conta
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="ClientMethods.js.html">ClientMethods.js</a>, <a href="ClientMethods.js.html#line720">line 720</a>
+          <a href="ClientMethods.js.html">ClientMethods.js</a>, <a href="ClientMethods.js.html#line728">line 728</a>
         </li>
       </ul>
     </dd>
@@ -4813,7 +4911,7 @@ no entry will be present. If a user is currently logged in, the entry will conta
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="ClientMethods.js.html">ClientMethods.js</a>, <a href="ClientMethods.js.html#line666">line 666</a>
+          <a href="ClientMethods.js.html">ClientMethods.js</a>, <a href="ClientMethods.js.html#line674">line 674</a>
         </li>
       </ul>
     </dd>
@@ -4972,7 +5070,7 @@ no entry will be present. If a user is currently logged in, the entry will conta
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="ClientMethods.js.html">ClientMethods.js</a>, <a href="ClientMethods.js.html#line642">line 642</a>
+          <a href="ClientMethods.js.html">ClientMethods.js</a>, <a href="ClientMethods.js.html#line650">line 650</a>
         </li>
       </ul>
     </dd>
@@ -4995,7 +5093,7 @@ no entry will be present. If a user is currently logged in, the entry will conta
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
     </a>
     <h4 class="name" id=".RemoveListing">
-      <span class="type-signature">static </span>RemoveListing<span class="signature">(<span class="inline-param">listingId</span>)</span><span class="type-signature"></span>
+      <span class="type-signature">static </span>RemoveListing<span class="signature">(<div class="block-param">listingId<span class="signature-attributes">optional</span>,</div><div class="block-param">contractAddress<span class="signature-attributes">optional</span>,</div><div class="block-param">tokenId<span class="signature-attributes">optional</span></div>)</span><span class="type-signature"></span>
     </h4>
   </span>
 
@@ -5006,7 +5104,7 @@ no entry will be present. If a user is currently logged in, the entry will conta
   <div class="description">
     <p><b><i>Requires login</i></b></p>
 <p><b><i>Prompts user for consent</i></b></p>
-<p>Modify the specify listing</p>
+<p>Modify the specify listing. Provide either the listing's ID, or the contract address and token ID of the listed item.</p>
   </div>
 
 
@@ -5031,6 +5129,8 @@ no entry will be present. If a user is currently logged in, the entry will conta
 
       <th>Type</th>
 
+      
+        <th>Attributes</th>
       
 
       
@@ -5060,11 +5160,99 @@ no entry will be present. If a user is currently logged in, the entry will conta
         </td>
 
         
+          <td class="attributes">
+            
+              &lt;optional><br>
+            
+
+            
+
+            
+          </td>
+        
 
         
 
         <td class="description last">
           <p>The listing ID of the listing to remove</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>contractAddress</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+          <td class="attributes">
+            
+              &lt;optional><br>
+            
+
+            
+
+            
+          </td>
+        
+
+        
+
+        <td class="description last">
+          <p>The address of the NFT contract</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>tokenId</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+          <td class="attributes">
+            
+              &lt;optional><br>
+            
+
+            
+
+            
+          </td>
+        
+
+        
+
+        <td class="description last">
+          <p>The token ID of the item</p>
           
         </td>
       </tr>
@@ -5120,7 +5308,7 @@ no entry will be present. If a user is currently logged in, the entry will conta
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="ClientMethods.js.html">ClientMethods.js</a>, <a href="ClientMethods.js.html#line581">line 581</a>
+          <a href="ClientMethods.js.html">ClientMethods.js</a>, <a href="ClientMethods.js.html#line587">line 587</a>
         </li>
       </ul>
     </dd>

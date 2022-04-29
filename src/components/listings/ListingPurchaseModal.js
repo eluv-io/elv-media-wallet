@@ -68,7 +68,9 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
   const match = useRouteMatch();
   const [errorMessage, setErrorMessage] = useState(undefined);
   const [failed, setFailed] = useState(false);
-  const [redirectPath, setRedirectPath] = useState(undefined);
+  const [confirmationId, setConfirmationId] = useState(undefined);
+
+  const purchaseStatus = confirmationId && checkoutStore.purchaseStatus[confirmationId] || {};
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   marketplaceItem = marketplaceItem || (!listingId && marketplace && rootStore.MarketplaceItemByTemplateId(marketplace, nft.metadata.template_id));
@@ -106,8 +108,15 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
   }, []);
 
 
-  if(redirectPath) {
-    return <Redirect to={redirectPath} />;
+  useEffect(() => {
+    if(purchaseStatus.status === "complete" && !purchaseStatus.success) {
+      setErrorMessage("Purchase failed");
+    }
+  }, [purchaseStatus]);
+
+
+  if(purchaseStatus.status === "complete" && purchaseStatus.success) {
+    return <Redirect to={purchaseStatus.successPath} />;
   }
 
   return (
@@ -195,6 +204,7 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
                     provider: useLinkedWallet ? "linked-wallet" : "wallet-balance",
                     marketplaceId: match.params.marketplaceId,
                     listingId,
+                    tenantId: selectedListing.details.TenantId
                   });
                 } else {
                   // Marketplace purchase
@@ -208,7 +218,7 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
                 }
 
                 if(result) {
-                  setRedirectPath(result.successPath);
+                  setConfirmationId(result.confirmationId);
                 }
               } catch(error) {
                 rootStore.Log("Checkout failed", true);
@@ -224,7 +234,7 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
           >
             Buy Now
           </ButtonWithLoader>
-          <button className="action" onClick={() => Cancel()}>
+          <button className="action" onClick={() => Cancel()} disabled={checkoutStore.submittingOrder}>
             Back
           </button>
         </div>
@@ -264,7 +274,9 @@ const ListingPurchasePayment = observer(({nft, marketplaceItem, selectedListing,
   const price = listingId ? { USD: selectedListing.details.Price } : marketplaceItem.price;
 
   const wallet = cryptoStore.WalletFunctions("phantom");
-  const connected = paymentType !== "linked-wallet" || cryptoStore.phantomAddress && wallet.Connected();
+  const connected = paymentType !== "linked-wallet" || cryptoStore.PhantomAddress() && wallet.Connected();
+
+  const purchaseStatus = confirmationId && checkoutStore.purchaseStatus[confirmationId] || {};
 
   useEffect(() => {
     if(!stock) { return; }
@@ -275,23 +287,15 @@ const ListingPurchasePayment = observer(({nft, marketplaceItem, selectedListing,
     return () => clearInterval(stockCheck);
   }, []);
 
-
   useEffect(() => {
-    if(checkoutStore.pendingPurchases[confirmationId] && checkoutStore.pendingPurchases[confirmationId].failed) {
+    if(purchaseStatus.status === "complete" && !purchaseStatus.success) {
       setErrorMessage("Purchase failed");
     }
-  }, [checkoutStore.pendingPurchases[confirmationId]]);
+  }, [purchaseStatus]);
 
-  // In iframe - child window confirmed purchase
-  if(confirmationId && checkoutStore.completedPurchases[confirmationId]) {
-    const tenantId = selectedListing ? selectedListing.details.TenantId : marketplace.tenant_id;
-    const sku = selectedListing ? selectedListing.details.ListingId : marketplaceItem.sku;
 
-    if(match.params.marketplaceId) {
-      return <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "store", tenantId, sku, "purchase", confirmationId, "success")} />;
-    } else {
-      return <Redirect to={UrlJoin("/wallet", "listings", tenantId, sku, "purchase", confirmationId, "success")} />;
-    }
+  if(purchaseStatus.status === "complete" && purchaseStatus.success) {
+    return <Redirect to={purchaseStatus.successPath} />;
   }
 
   return (
@@ -400,6 +404,7 @@ const ListingPurchasePayment = observer(({nft, marketplaceItem, selectedListing,
                     provider: paymentType,
                     marketplaceId: match.params.marketplaceId,
                     listingId,
+                    tenantId: selectedListing.details.TenantId,
                     email: undefined
                   });
                 } else {
@@ -431,7 +436,11 @@ const ListingPurchasePayment = observer(({nft, marketplaceItem, selectedListing,
           >
             Buy Now for { FormatPriceString(price, {quantity}) }
           </ButtonWithLoader>
-          <button className="action listing-purchase-confirmation-modal__payment-cancel" onClick={() => Cancel()}>
+          <button
+            className="action listing-purchase-confirmation-modal__payment-cancel"
+            onClick={() => Cancel()}
+            disabled={checkoutStore.submittingOrder}
+          >
             Back
           </button>
           {
@@ -706,7 +715,12 @@ const ListingPurchaseModal = observer(({nft, item, initialListingId, skipListing
   }
 
   return (
-    <Modal id="listing-purchase-modal" className="listing-purchase-modal-container" Toggle={() => Close()}>
+    <Modal
+      id="listing-purchase-modal"
+      className="listing-purchase-modal-container"
+      closable={!checkoutStore.submittingOrder}
+      Toggle={() => Close()}
+    >
       { content }
     </Modal>
   );
