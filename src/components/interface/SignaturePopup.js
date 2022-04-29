@@ -3,40 +3,24 @@ import {Loader} from "Components/common/Loaders";
 import {rootStore, cryptoStore} from "Stores";
 import {observer} from "mobx-react";
 
-const Sign = async (SetMessage) => {
-  const params = new URLSearchParams(window.location.search);
-  const wallet = cryptoStore.WalletFunctions(params.get("provider"));
+const Sign = async (params, Respond, SetMessage) => {
+  const wallet = cryptoStore.WalletFunctions(params.provider);
 
   try {
-    let response;
-    if(params.has("connect")) {
+    if(params.action === "connect") {
       SetMessage(<h1>Connecting wallet...</h1>, true);
       await wallet.Connect();
-      response = wallet.Address();
-    } else if(params.has("message")) {
-      SetMessage(<h1>Awaiting message signature...</h1>, true);
-      response = await wallet.Sign(atob(params.get("message")));
-    } else if(params.has("purchase")) {
-      SetMessage(<h1>Awaiting purchase transaction...</h1>, true);
-      response = await wallet.Purchase(JSON.parse(atob(params.get("purchase"))));
-    }
-
-    if(response) {
       const balance = await cryptoStore.PhantomBalance();
 
-      window.opener.postMessage({
-        type: "ElvMediaWalletSignRequest",
-        requestId: params.get("request"),
-        address: wallet.Address(),
-        response,
-        balance
-      });
+      Respond({response: {address: wallet.Address(), balance}});
+    } else if(params.action === "message") {
+      SetMessage(<h1>Awaiting message signature...</h1>, true);
 
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      Respond({response: {address: wallet.Address(), response: await wallet.Sign(params.message)}});
+    } else if(params.action === "purchase") {
+      SetMessage(<h1>Awaiting purchase transaction...</h1>, true);
 
-      window.close();
-    } else {
-      window.close();
+      Respond({response: {address: wallet.Address(), response: await wallet.Purchase(params.purchaseSpec)}});
     }
   } catch(error) {
     rootStore.Log(error, true);
@@ -44,14 +28,14 @@ const Sign = async (SetMessage) => {
     let message = "Transaction failed";
     if(error.message === "Incorrect account") {
       message = `Incorrect account selected - expected ${wallet.ConnectedAccounts()[0]?.link_acct}`;
-    } else if(params.has("connect") && error.status === 409) {
+    } else if(params.action === "connect" && error.status === 409) {
       message = "This Solana account is already connected to a different Eluvio wallet";
     }
 
     SetMessage(
       <>
         <h1>{ message }</h1>
-        <button onClick={() => Sign(SetMessage)} className="action">
+        <button onClick={() => Sign(params, Respond, SetMessage)} className="action">
           Try Again
         </button>
       </>,
@@ -60,13 +44,15 @@ const Sign = async (SetMessage) => {
   }
 };
 
-const SignaturePopup = observer(() => {
+const SignaturePopup = observer(({parameters, Respond}) => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if(rootStore.loggedIn) {
       Sign(
+        parameters,
+        Respond,
         (message, loading) => {
           setMessage(message);
           setLoading(loading);

@@ -1190,8 +1190,8 @@ class RootStore {
         body: {
           country: "US",
           mode: EluvioConfiguration.mode,
-          refresh_url: UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup-complete"),
-          return_url: UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup-complete")
+          refresh_url: rootUrl.toString(),
+          return_url: rootUrl.toString()
         },
         headers: {
           Authorization: `Bearer ${this.client.signer.authToken}`
@@ -1243,100 +1243,26 @@ class RootStore {
   });
 
   StripeOnboard = flow(function * (countryCode="US") {
-    const popup = window.open("about:blank");
-
-    try {
-      const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
-      popup.location.href = UrlJoin(rootUrl.toString(), "/#/", "redirect");
-
-      const response = yield Utils.ResponseToJson(
-        this.client.authClient.MakeAuthServiceRequest({
-          path: UrlJoin("as", "wlt", "onb", "stripe"),
-          method: "POST",
-          body: {
-            country: countryCode,
-            mode: EluvioConfiguration.mode,
-            refresh_url: UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup-complete"),
-            return_url: UrlJoin(rootUrl.toString(), "/#/", "withdrawal-setup-complete")
-          },
-          headers: {
-            Authorization: `Bearer ${this.client.signer.authToken}`
-          }
-        })
-      );
-
-      if(!response.onboard_redirect) {
-        throw "Response missing login URL";
-      }
-
-      popup.location.href = response.onboard_redirect;
-
-      yield new Promise(resolve => {
-        const closeCheck = setInterval(async () => {
-          if(!popup || popup.closed) {
-            clearInterval(closeCheck);
-
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-            await this.GetWalletBalance(true);
-
-            resolve();
-          }
-        }, 1000);
-      });
-    } catch(error) {
-      popup.close();
-
-      this.Log(error, true);
-
-      throw error;
-    }
+    yield this.Flow({
+      type: "flow",
+      flow: "stripe-onboard",
+      parameters: {
+        countryCode,
+        requireAuth: true
+      },
+      OnCancel: () => this.GetWalletBalance()
+    });
   });
 
   StripeLogin = flow (function * () {
-    const popup = window.open("about:blank");
-
-    try {
-      const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
-      popup.location.href = UrlJoin(rootUrl.toString(), "/#/", "redirect");
-
-      const response = yield Utils.ResponseToJson(
-        this.client.authClient.MakeAuthServiceRequest({
-          path: UrlJoin("as", "wlt", "login", "stripe"),
-          method: "POST",
-          body: {
-            mode: EluvioConfiguration.mode,
-          },
-          headers: {
-            Authorization: `Bearer ${this.client.signer.authToken}`
-          }
-        })
-      );
-
-      if(!response.login_url) {
-        throw "Response missing login URL";
-      }
-
-      popup.location.href = response.login_url;
-
-      yield new Promise(resolve => {
-        const closeCheck = setInterval(async () => {
-          if(!popup || popup.closed) {
-            clearInterval(closeCheck);
-
-            await this.GetWalletBalance();
-
-            resolve();
-          }
-        }, 1000);
-      });
-    } catch(error) {
-      popup.close();
-
-      this.Log(error, true);
-
-      throw error;
-    }
+    yield this.Flow({
+      type: "flow",
+      flow: "stripe-login",
+      parameters: {
+        requireAuth: true
+      },
+      OnCancel: () => this.GetWalletBalance()
+    });
   });
 
   SignOut() {
@@ -1389,53 +1315,29 @@ class RootStore {
       return true;
     }
 
-    const popup = window.open("about:blank");
-    const requestId = btoa(UUID());
-
-    const popupUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
-
-    popupUrl.hash = "#/accept";
-    popupUrl.searchParams.set("rq", btoa(requestor));
-    popupUrl.searchParams.set("ac", btoa(action));
-    popupUrl.searchParams.set("request", btoa(requestId));
-    popupUrl.searchParams.set("hn", "");
-    popupUrl.searchParams.set("origin", btoa(origin));
-
-    popup.location.href = popupUrl.toString();
-
-    const accepted = yield new Promise((resolve) => {
-      const Listener = event => {
-        if(!event || !event.data || event.data.type !== "ElvMediaWalletAcceptResponse") {
-          return;
+    try {
+      const response = yield this.Flow({
+        type: "action",
+        flow: "consent",
+        parameters: {
+          origin,
+          requestor,
+          action
         }
+      });
 
-        window.removeEventListener("message", Listener);
+      if(!response.accept) {
+        throw Error("User has rejected the request");
+      }
 
-        if(event.data.accept && event.data.trust) {
-          rootStore.SetTrustedOrigin(origin);
-        }
+      if(response.trust) {
+        this.SetTrustedOrigin(origin);
+      }
 
-        resolve(event.data.accept);
-      };
-
-      window.addEventListener("message", Listener);
-
-      const closeCheck = setInterval(async () => {
-        if(!popup || popup.closed) {
-          clearInterval(closeCheck);
-
-          resolve(false);
-        }
-      }, 500);
-    });
-
-    popup.close();
-
-    if(!accepted) {
+      return true;
+    } catch(error) {
       throw Error("User has rejected the request");
     }
-
-    return true;
   });
 
   CheckEmailVerification = flow(function * (auth0) {
@@ -1469,25 +1371,25 @@ class RootStore {
     }
   };
 
-  ActionURL({action, params={}}) {
+  FlowURL({type="flow", flow, parameters={}}) {
     const url = new URL(UrlJoin(window.location.origin, window.location.pathname));
-    url.hash = UrlJoin("/action", action, Utils.B58(JSON.stringify(params)));
+    url.hash = UrlJoin("/", type, flow, Utils.B58(JSON.stringify(parameters)));
 
     return url.toString();
   }
 
-  Action = flow(function * ({action, params={}, OnComplete, OnCancel}) {
+  Flow = flow(function * ({type="flow", flow, parameters={}, OnComplete, OnCancel}) {
     const popup = window.open("about:blank");
 
-    const actionId = btoa(UUID());
+    const flowId = btoa(UUID());
 
-    params.actionId = actionId;
+    parameters.flowId = flowId;
 
     if(!this.storageSupported && this.AuthInfo()) {
-      params.auth = this.AuthInfo();
+      parameters.auth = this.AuthInfo();
     }
 
-    popup.location.href = this.ActionURL({action, params});
+    popup.location.href = this.FlowURL({type, flow, parameters});
 
     try {
       const result = yield new Promise((resolve, reject) => {
@@ -1500,7 +1402,7 @@ class RootStore {
         }, 1000);
 
         const Listener = async event => {
-          if(!event || !event.data || event.origin !== window.location.origin || event.data.type !== "ActionResponse" || event.data.actionId !== actionId) {
+          if(!event || !event.data || event.origin !== window.location.origin || event.data.type !== "FlowResponse" || event.data.flowId !== flowId) {
             return;
           }
 
@@ -1521,28 +1423,35 @@ class RootStore {
       });
 
       OnComplete && OnComplete(result);
+
+      return result;
     } catch(error) {
       this.Log(error, true);
-      OnCancel && OnCancel(error);
+
+      if(OnCancel) {
+        OnCancel(error);
+      } else {
+        throw error;
+      }
     }
   });
 
-  HandleAction = flow(function * ({history, action, parameters}) {
+  HandleFlow = flow(function * ({history, flow, parameters}) {
     if(parameters) {
       parameters = JSON.parse(new TextDecoder().decode(Utils.FromB58(parameters)));
     }
 
     const Respond = ({response, error}) => {
       window.opener.postMessage({
-        type: "ActionResponse",
-        actionId: parameters.actionId,
+        type: "FlowResponse",
+        flowId: parameters.flowId,
         response,
         error
       });
     };
 
     try {
-      switch(action) {
+      switch(flow) {
         case "purchase":
           yield checkoutStore.CheckoutSubmit({
             ...parameters,
@@ -1567,10 +1476,59 @@ class RootStore {
         case "respond":
           Respond({response: parameters.response, error: parameters.error});
 
+          setTimeout(() => window.close(), 5000);
+
+          break;
+
+        case "stripe-onboard":
+          const onboardResponse = yield Utils.ResponseToJson(
+            this.client.authClient.MakeAuthServiceRequest({
+              path: UrlJoin("as", "wlt", "onb", "stripe"),
+              method: "POST",
+              body: {
+                country: parameters.countryCode,
+                mode: EluvioConfiguration.mode,
+                return_url: this.FlowURL({type: "flow", flow: "respond", parameters: { flowId: parameters.flowId, success: true }}),
+                refresh_url: window.location.href
+              },
+              headers: {
+                Authorization: `Bearer ${this.client.signer.authToken}`
+              }
+            })
+          );
+
+          if(!onboardResponse.onboard_redirect) {
+            throw "Response missing login URL";
+          }
+
+          window.location.href = onboardResponse.onboard_redirect;
+
+          break;
+
+        case "stripe-login":
+          const loginResponse = yield Utils.ResponseToJson(
+            this.client.authClient.MakeAuthServiceRequest({
+              path: UrlJoin("as", "wlt", "login", "stripe"),
+              method: "POST",
+              body: {
+                mode: EluvioConfiguration.mode,
+              },
+              headers: {
+                Authorization: `Bearer ${this.client.signer.authToken}`
+              }
+            })
+          );
+
+          if(!loginResponse.login_url) {
+            throw "Response missing login URL";
+          }
+
+          window.location.href = loginResponse.login_url;
+
           break;
 
         default:
-          Respond({error: `Unknown action: ${action}`});
+          Respond({error: `Unknown flow: ${flow}`});
 
           break;
       }
@@ -1677,6 +1635,12 @@ class RootStore {
 
   SetTrustedOrigin(origin) {
     this.trustedOrigins[origin] = true;
+
+    this.SetLocalStorage("trusted-origins", JSON.stringify(this.trustedOrigins));
+  }
+
+  RemoveTrustedOrigin(origin) {
+    delete this.trustedOrigins[origin];
 
     this.SetLocalStorage("trusted-origins", JSON.stringify(this.trustedOrigins));
   }

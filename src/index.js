@@ -1,6 +1,6 @@
 import "Assets/stylesheets/app.scss";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import UrlJoin from "url-join";
 import { render } from "react-dom";
 import { observer} from "mobx-react";
@@ -30,16 +30,12 @@ try {
 // eslint-disable-next-line no-empty
 } catch(error) {}
 
-const signaturePopup = searchParams.has("sign");
-
 import {
   useHistory,
   HashRouter,
   Switch,
   Route,
   Redirect,
-  useLocation,
-  useRouteMatch
 } from "react-router-dom";
 import Wallet from "Components/wallet";
 import Login from "./login/Login";
@@ -51,10 +47,9 @@ import MarketplaceRoutes from "Components/marketplace";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import {PageLoader} from "Components/common/Loaders";
 import Modal from "Components/common/Modal";
-import {LoginGate, LoginRedirectGate} from "Components/common/LoginGate";
-import SignaturePopup from "Components/crypto/SignaturePopup";
-import AcceptPopup from "Components/interface/AcceptPopup";
-import Utils from "@eluvio/elv-client-js/src/Utils";
+import {LoginRedirectGate} from "Components/common/LoginGate";
+import Flows from "Components/interface/Flows";
+import Actions from "Components/interface/Actions";
 
 const DebugFooter = () => {
   if(!EluvioConfiguration["show-debug"]) { return null; }
@@ -132,57 +127,11 @@ const LoginModal = observer(() => {
 
 const Routes = observer(() => {
   const history = useHistory();
-  const location = useLocation();
 
   useEffect(() => InitializeListener(history), []);
 
   if(rootStore.loginOnly) {
     return <LoginModal />;
-  }
-
-  const RedirectLoading = () => {
-    // Safari + stripe has a weird bug in the onboarding flow where it redirects back to /redirect instead of /withdrawal-setup-complete
-    // If we've been redirected already in this tab, we must have been sent back here.
-    const [returned, setReturned] = useState(false);
-    useEffect(() => {
-      if(rootStore.GetSessionStorage("redirected")) {
-        rootStore.RemoveSessionStorage("redirected");
-        setReturned(true);
-      } else {
-        rootStore.SetSessionStorage("redirected");
-      }
-    });
-
-    if(returned) {
-      return <SetupComplete />;
-    }
-
-    return <PageLoader />;
-  };
-
-  const SetupComplete = () => {
-    window.close();
-
-    return (
-      <div className="page-container setup-complete">
-        <h1 className="setup-complete__message">
-          Setup complete. You can now close this page.
-        </h1>
-      </div>
-    );
-  };
-
-  if(location.pathname.startsWith("/withdrawal") || location.pathname === "/redirect") {
-    return (
-      <Switch>
-        <Route exact path="/redirect">
-          <RedirectLoading />
-        </Route>
-        <Route exact path="/withdrawal-setup-complete">
-          <SetupComplete />
-        </Route>
-      </Switch>
-    );
   }
 
   if(!rootStore.loaded) {
@@ -191,12 +140,6 @@ const Routes = observer(() => {
 
   return (
     <Switch>
-      <Route exact path="/accept">
-        <LoginGate>
-          <AcceptPopup />
-        </LoginGate>
-      </Route>
-
       <Route exact path="/success">
         <RedirectHandler storageKey="successPath" />
       </Route>
@@ -227,48 +170,7 @@ const Routes = observer(() => {
   );
 });
 
-const Actions = observer(() => {
-  const match = useRouteMatch();
-  const history = useHistory();
 
-  const [handled, setHandled] = useState(false);
-
-  let parameters = {};
-  if(match.params.parameters) {
-    parameters = JSON.parse(new TextDecoder().decode(Utils.FromB58(match.params.parameters)));
-  }
-
-  useEffect(() => {
-    if(parameters.auth && !this.AuthInfo()) {
-      // TODO: Test
-      rootStore.Authenticate({...parameters.auth});
-    }
-  }, []);
-
-  useEffect(() => {
-    if(!rootStore.client || (parameters.requireAuth && !rootStore.loggedIn) || handled) { return; }
-
-    rootStore.HandleAction({
-      history,
-      action: match.params.action,
-      parameters: match.params.parameters,
-    });
-
-    setHandled(true);
-  }, [rootStore.client, rootStore.loggedIn]);
-
-  if(parameters.requireAuth) {
-    return (
-      <LoginGate>
-        <PageLoader/>
-      </LoginGate>
-    );
-  } else {
-    return (
-      <PageLoader/>
-    );
-  }
-});
 
 const App = observer(() => {
   if(sessionStorageAvailable) {
@@ -277,8 +179,6 @@ const App = observer(() => {
 
   if(newWindowLogin) {
     return <LoginModal />;
-  } else if(signaturePopup) {
-    return <SignaturePopup />;
   }
 
   const hasHeader = !rootStore.hideNavigation && (!rootStore.sidePanelMode || rootStore.navigationBreadcrumbs.length > 2);
@@ -325,6 +225,10 @@ if(sessionStorageAvailable) {
           <Switch>
 
             { /* Handle various popup actions */ }
+            <Route path="/flow/:flow/:parameters">
+              <Flows />
+            </Route>
+
             <Route path="/action/:action/:parameters">
               <Actions />
             </Route>

@@ -42,7 +42,10 @@ $wallet-connect-background: rgba($black, 0.35);
     width: max-content;
 
     .wallet-connect__error-message {
-      text-shadow: $black 2px 2px 2px;
+      background: $white;
+      border-radius: 6px;
+      padding: 10px;
+      border: 1px solid $lightgray;
     }
   }
 

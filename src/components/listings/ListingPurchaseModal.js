@@ -274,7 +274,7 @@ const ListingPurchasePayment = observer(({nft, marketplaceItem, selectedListing,
   const price = listingId ? { USD: selectedListing.details.Price } : marketplaceItem.price;
 
   const wallet = cryptoStore.WalletFunctions("phantom");
-  const connected = paymentType !== "linked-wallet" || cryptoStore.phantomAddress && wallet.Connected();
+  const connected = paymentType !== "linked-wallet" || cryptoStore.PhantomAddress() && wallet.Connected();
 
   const purchaseStatus = confirmationId && checkoutStore.purchaseStatus[confirmationId] || {};
 

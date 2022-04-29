@@ -153,7 +153,7 @@ class CheckoutStore {
     email,
     address,
     fromEmbed,
-    actionId
+    flowId
   }) {
     if(this.submittingOrder) { return; }
 
@@ -186,9 +186,9 @@ class CheckoutStore {
 
       if(requiresPopup) {
         // Third party checkout doesn't work in iframe, open new window to initiate purchase
-        yield this.rootStore.Action({
-          action: "listing-purchase",
-          params: {
+        yield this.rootStore.Flow({
+          flow: "listing-purchase",
+          parameters: {
             provider,
             tenantId,
             marketplaceId,
@@ -228,11 +228,11 @@ class CheckoutStore {
 
       let successUrl, cancelUrl;
       if(fromEmbed) {
-        successUrl = this.rootStore.ActionURL({action: "respond", params: {actionId, response: {confirmationId, success: true}}});
-        cancelUrl = this.rootStore.ActionURL({action: "respond", params: {actionId, response: {confirmationId, success: false}, error: "User cancelled checkout"}});
+        successUrl = this.rootStore.FlowURL({flow: "respond", parameters: {flowId, response: {confirmationId, success: true}}});
+        cancelUrl = this.rootStore.FlowURL({flow: "respond", parameters: {flowId, response: {confirmationId, success: false}, error: "User cancelled checkout"}});
       } else {
-        successUrl = this.rootStore.ActionURL({action: "redirect", params: {to: successPath}});
-        cancelUrl = this.rootStore.ActionURL({action: "redirect", params: {to: cancelPath}});
+        successUrl = this.rootStore.FlowURL({flow: "redirect", parameters: {to: successPath}});
+        cancelUrl = this.rootStore.FlowURL({flow: "redirect", parameters: {to: cancelPath}});
       }
 
       let requestParams = {
@@ -282,7 +282,7 @@ class CheckoutStore {
     email,
     address,
     fromEmbed,
-    actionId
+    flowId
   }) {
     if(this.submittingOrder) { return; }
 
@@ -307,9 +307,9 @@ class CheckoutStore {
 
       if(requiresPopup) {
         // Third party checkout doesn't work in iframe, open new window to initiate purchase
-        yield this.rootStore.Action({
-          action: "purchase",
-          params: {
+        yield this.rootStore.Flow({
+          flow: "purchase",
+          parameters: {
             provider,
             tenantId,
             marketplaceId,
@@ -350,11 +350,11 @@ class CheckoutStore {
 
       let successUrl, cancelUrl;
       if(fromEmbed) {
-        successUrl = this.rootStore.ActionURL({action: "respond", params: {actionId, response: {confirmationId, success: true}}});
-        cancelUrl = this.rootStore.ActionURL({action: "respond", params: {actionId, response: {confirmationId, success: false}, error: "User cancelled checkout"}});
+        successUrl = this.rootStore.FlowURL({flow: "respond", parameters: {flowId, response: {confirmationId, success: true}}});
+        cancelUrl = this.rootStore.FlowURL({flow: "respond", parameters: {flowId, response: {confirmationId, success: false}, error: "User cancelled checkout"}});
       } else {
-        successUrl = this.rootStore.ActionURL({action: "redirect", params: {to: successPath}});
-        cancelUrl = this.rootStore.ActionURL({action: "redirect", params: {to: cancelPath}});
+        successUrl = this.rootStore.FlowURL({flow: "redirect", parameters: {to: successPath}});
+        cancelUrl = this.rootStore.FlowURL({flow: "redirect", parameters: {to: cancelPath}});
       }
 
       let requestParams = {
