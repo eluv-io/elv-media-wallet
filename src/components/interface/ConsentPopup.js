@@ -8,7 +8,11 @@ import EluvioLogo from "Assets/images/logo.svg";
 import {ButtonWithLoader} from "Components/common/UIComponents";
 
 const ConsentPopup = observer(({parameters, Respond}) => {
-  const [trusted, setTrusted] = useState(true);
+  const [trusted, setTrusted] = useState(
+    parameters.origin in rootStore.trustedOrigins ?
+      rootStore.trustedOrigins[parameters.origin] :
+      true
+  );
 
   useEffect(() => {
     rootStore.ToggleDarkMode(true);
@@ -24,7 +28,15 @@ const ConsentPopup = observer(({parameters, Respond}) => {
         </div>
         <Loader />
         <div className="accept-popup__trust">
-          <input type="checkbox" checked={trusted} onChange={() => setTrusted(!trusted)} name="trust" />
+          <input
+            type="checkbox"
+            checked={trusted}
+            name="trust"
+            onChange={() => {
+              setTrusted(!trusted);
+              rootStore.SetTrustedOrigin(parameters.origin, !trusted);
+            }}
+          />
           <label htmlFor="trust" onClick={() => setTrusted(!trusted)} >
             Trust all requests from { parameters.origin }
           </label>
@@ -33,8 +45,9 @@ const ConsentPopup = observer(({parameters, Respond}) => {
           <ButtonWithLoader
             className="action"
             onClick={async () => {
-              rootStore.RemoveTrustedOrigin(origin);
               await Respond({response: {accept: false}});
+
+              await new Promise(resolve => setTimeout(resolve, 1000));
             }}
           >
             Reject
@@ -42,11 +55,11 @@ const ConsentPopup = observer(({parameters, Respond}) => {
           <ButtonWithLoader
             className="action action-primary"
             onClick={async () => {
-              if(trusted) {
-                rootStore.SetTrustedOrigin(origin);
-              }
+              rootStore.SetTrustedOrigin(origin, trusted);
 
               await Respond({response: {accept: true, trust: trusted}});
+
+              await new Promise(resolve => setTimeout(resolve, 1000));
             }}
           >
             Accept

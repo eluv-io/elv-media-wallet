@@ -147,7 +147,11 @@ const MarketplaceItem = async (marketplaceInfo, data) => {
 
 const Listing = async data => {
   try {
-    const listing = ((await transferStore.FetchTransferListings({listingId: data.params.listingId})) || [])[0];
+    const listing = ((await transferStore.FetchTransferListings({
+      listingId: data.params.listingId,
+      contractAddress: data.params.contractAddres,
+      tokenId: data.params.tokenId
+    })) || [])[0];
 
     if(!listing) { throw "Listing not found"; }
 
@@ -334,6 +338,8 @@ export const InitializeListener = (history) => {
             action: `List '${listing?.metadata?.display_name || "NFT"}' for sale for ${FormatPriceString({"USD": data.params.price})}`
           });
 
+          data.params.listingId = listing.details.ListingId;
+
           await CreateListing(data);
 
           return Respond({});
@@ -349,7 +355,7 @@ export const InitializeListener = (history) => {
             action: `Remove listing for '${listing?.metadata?.display_name || "NFT"}'`
           });
 
-          await transferStore.RemoveListing({listingId: data.params.listingId});
+          await transferStore.RemoveListing({listingId: listing.details.ListingId});
 
           return Respond({});
 

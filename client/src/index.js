@@ -92,7 +92,6 @@ class ElvWalletClient {
   }
 
   Destroy() {
-    return;
     window.removeEventListener("message", this.EventHandler);
 
     if(this.Close) {

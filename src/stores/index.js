@@ -1410,7 +1410,7 @@ class RootStore {
 
           clearInterval(closeCheck);
 
-          popup.close();
+          setTimeout(() => popup.close(), 500);
 
           if(event.data.error) {
             reject(event.data.error);
@@ -1633,8 +1633,8 @@ class RootStore {
     this.noItemsAvailable = true;
   }
 
-  SetTrustedOrigin(origin) {
-    this.trustedOrigins[origin] = true;
+  SetTrustedOrigin(origin, trusted=true) {
+    this.trustedOrigins[origin] = trusted;
 
     this.SetLocalStorage("trusted-origins", JSON.stringify(this.trustedOrigins));
   }

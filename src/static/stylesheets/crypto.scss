@@ -43,9 +43,9 @@ $wallet-connect-background: rgba($black, 0.35);
 
     .wallet-connect__error-message {
       background: $white;
+      border: 1px solid $lightgray;
       border-radius: 6px;
       padding: 10px;
-      border: 1px solid $lightgray;
     }
   }
 

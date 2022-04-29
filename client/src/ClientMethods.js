@@ -549,20 +549,24 @@ exports.ListItem = async function({contractAddress, tokenId, price}) {
  *
  * <b><i>Prompts user for consent</i></b>
  *
- * Modify the specify listing
+ * Modify the specify listing. Provide either the listing's ID, or the contract address and token ID of the listed item.
  *
  * @methodGroup Listings
- * @param {string} listingId - The listing ID of the listing to change
+ * @param {string=} listingId - The listing ID of the listing to change
+ * @param {string=} contractAddress - The address of the NFT contract
+ * @param {string=} tokenId - The token ID of the item
  * @param {number} price - Price for the item, in USD. The maximum listing price is $10,000
  */
-exports.EditListing = async function({listingId, price}) {
-  Assert("EditListing", "Listing ID", listingId);
+exports.EditListing = async function({listingId, contractAddress, tokenId, price}) {
+  Assert("EditListing", "Listing ID or Contract Address and Token ID", listingId || (contractAddress && tokenId));
   Assert("ListItem", "Price", price);
 
   return await this.SendMessage({
     action: "editListing",
     params: {
       listingId,
+      contractAddress,
+      tokenId,
       price
     }
   });
@@ -573,18 +577,22 @@ exports.EditListing = async function({listingId, price}) {
  *
  * <b><i>Prompts user for consent</i></b>
  *
- * Modify the specify listing
+ * Modify the specify listing. Provide either the listing's ID, or the contract address and token ID of the listed item.
  *
  * @methodGroup Listings
- * @param {string} listingId - The listing ID of the listing to remove
+ * @param {string=} listingId - The listing ID of the listing to remove
+ * @param {string=} contractAddress - The address of the NFT contract
+ * @param {string=} tokenId - The token ID of the item
  */
-exports.RemoveListing = async function({listingId}) {
-  Assert("RemoveListing", "Listing ID", listingId);
+exports.RemoveListing = async function({listingId, contractAddress, tokenId}) {
+  Assert("RemoveListing", "Listing ID or Contract Address and Token ID", listingId || (contractAddress && tokenId));
 
   return await this.SendMessage({
     action: "removeListing",
     params: {
-      listingId
+      listingId,
+      contractAddress,
+      tokenId
     }
   });
 };
