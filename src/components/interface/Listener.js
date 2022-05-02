@@ -222,7 +222,7 @@ export const InitializeListener = (history) => {
         });
       }
 
-      let marketplace, listing, item, status, balance, price;
+      let marketplace, listing, item, status, balance, price, tags;
       switch(data.action) {
         // client.SignIn
         case "login":
@@ -404,9 +404,17 @@ export const InitializeListener = (history) => {
         // client.MarketplaceItems
         case "marketplaceItems":
           marketplace = await rootStore.LoadMarketplace(marketplaceInfo?.marketplaceId);
+          tags = (data.params.tags || []).map(tag => tag.toLowerCase());
 
           return Respond({
             response: toJS(marketplace.items)
+              .filter(item => {
+                if(tags.length === 0) { return true; }
+
+                const itemTags = (item.tags || []).map(itemTag => itemTag.toLowerCase());
+
+                return tags.find(tag => itemTags.includes(tag));
+              })
           });
 
         // client.MarketplaceItem
@@ -419,13 +427,23 @@ export const InitializeListener = (history) => {
         case "marketplaceStorefront":
           marketplace = await rootStore.LoadMarketplace(marketplaceInfo?.marketplaceId);
 
+          tags = (data.params.tags || []).map(tag => tag.toLowerCase());
           let storefront = toJS(marketplace.storefront);
-          storefront.sections = storefront.sections.map(section => ({
-            ...section,
-            items: section.items
-              .map(sku => toJS(marketplace.items.find(item => item.sku === sku)))
-              .filter(item => item)
-          }));
+          storefront.sections = storefront.sections
+            .map(section => ({
+              ...section,
+              items: section.items
+                .map(sku => toJS(marketplace.items.find(item => item.sku === sku)))
+                .filter(item => item)
+                .filter(item => {
+                  if(tags.length === 0) { return true; }
+
+                  const itemTags = (item.tags || []).map(itemTag => itemTag.toLowerCase());
+
+                  return tags.find(tag => itemTags.includes(tag));
+                })
+            }))
+            .filter(section => section.items.length > 0);
 
           return Respond({
             response: storefront

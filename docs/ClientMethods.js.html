@@ -216,15 +216,17 @@ exports.EventMetadata = async function ({tenantSlug, eventSlug, eventId, eventHa
  * @namedParams
  * @param {string} tenantSlug - Specify the URL slug of the marketplace's tenant. Required if specifying marketplace slug
  * @param {string} marketplaceSlug - Specify the URL slug of the marketplace
+ * @param {Array&lt;string>=} tags - A list of tags to filter the results. Items not containing at least one specified tag (case insensitive) will be excluded.
  */
-exports.MarketplaceItems = async function({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash}) {
+exports.MarketplaceItems = async function({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, tags}) {
   return await this.SendMessage({
     action: "marketplaceItems",
     params: {
       tenantSlug,
       marketplaceSlug,
       marketplaceId,
-      marketplaceHash
+      marketplaceHash,
+      tags
     }
   });
 };
@@ -257,17 +259,20 @@ exports.MarketplaceItem = async function({tenantSlug, marketplaceSlug, marketpla
  *
  * @methodGroup Marketplace
  * @namedParams
- * @param {string=} tenantSlug - Specify the URL slug of the marketplace's tenant. Required if specifying marketplace slug
- * @param {string=} marketplaceSlug - Specify the URL slug of the marketplace
+ * @param {string} tenantSlug - Specify the URL slug of the marketplace's tenant. Required if specifying marketplace slug
+ * @param {string} marketplaceSlug - Specify the URL slug of the marketplace
+ * @param {Array&lt;string>=} tags - A list of tags to filter the results. Items not containing at least one specified tag (case insensitive) will be excluded.
+ * Storefront sections with no matching items will be omitted
  */
-exports.MarketplaceStorefront = async function({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash}) {
+exports.MarketplaceStorefront = async function({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, tags}) {
   return await this.SendMessage({
     action: "marketplaceStorefront",
     params: {
       tenantSlug,
       marketplaceSlug,
       marketplaceId,
-      marketplaceHash
+      marketplaceHash,
+      tags
     }
   });
 };
