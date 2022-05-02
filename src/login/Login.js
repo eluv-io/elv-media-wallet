@@ -76,6 +76,14 @@ const LogInRedirect = ({auth0, callbackUrl, marketplaceHash, userData, darkMode,
   }
 };
 
+const WalletAuthenticate = async ({tenantId, externalWallet="metamask", SignIn}) => {
+  await SignIn({
+    tenantId,
+    externalWallet,
+    SignIn
+  });
+};
+
 const Authenticate = async ({auth0, idToken, user, userData, tenantId, SignIn}) => {
   if(!auth0?.isAuthenticated && !idToken) {
     throw Error("Not authenticated");
@@ -212,7 +220,7 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
 };
 
 // eslint-disable-next-line no-unused-vars
-const Buttons = ({customizationOptions, LogIn, ShowPrivateKeyForm}) => {
+const Buttons = ({customizationOptions, Auth0LogIn, SignIn}) => {
   let hasLoggedIn = false;
   try {
     hasLoggedIn = localStorage.getItem("hasLoggedIn");
@@ -228,7 +236,7 @@ const Buttons = ({customizationOptions, LogIn, ShowPrivateKeyForm}) => {
         border: `0.75px solid ${customizationOptions?.sign_up_button?.border_color?.color}`
       }}
       autoFocus={!hasLoggedIn}
-      onClick={() => LogIn({create: true})}
+      onClick={() => Auth0LogIn({create: true})}
     >
       Sign Up
     </button>
@@ -243,9 +251,29 @@ const Buttons = ({customizationOptions, LogIn, ShowPrivateKeyForm}) => {
       }}
       autoFocus={!!hasLoggedIn}
       className="login-page__login-button login-page__login-button-sign-in login-page__login-button-auth0"
-      onClick={() => LogIn({create: false})}
+      onClick={() => Auth0LogIn({create: false})}
     >
       Log In
+    </button>
+  );
+
+  const walletButton = (
+    <button
+      style={{
+        color: customizationOptions?.wallet_button?.text_color?.color,
+        backgroundColor: customizationOptions?.wallet_button?.background_color?.color,
+        border: `0.75px solid ${customizationOptions?.wallet_button?.border_color?.color}`
+      }}
+      className="login-page__login-button login-page__login-button-wallet"
+      onClick={() => {
+        WalletAuthenticate({
+          tenantId: customizationOptions.tenant_id,
+          externalWallet: "metamask",
+          SignIn
+        });
+      }}
+    >
+      Sign in with wallet
     </button>
   );
 
@@ -262,76 +290,20 @@ const Buttons = ({customizationOptions, LogIn, ShowPrivateKeyForm}) => {
             { logInButton }
           </>
       }
-      {
-      /*
-        // TODO: Some APIs do not support normal private key auth
-        !customizationOptions.disable_private_key ?
-          <button
-            className="login-page__login-button login-page__login-button-pk"
-            onClick={() => ShowPrivateKeyForm()}
-          >
-            Or Sign In With Private Key
-          </button> : null
 
-       */
-      }
+      { walletButton }
     </div>
   );
 };
 
-const PrivateKeyForm = ({customizationOptions, HidePrivateKeyForm, Submit}) => {
-  const [privateKey, setPrivateKey] = useState("");
-
-  return (
-    <form
-      className="login-page__private-key-form"
-      onSubmit={event => {
-        event.preventDefault();
-        Submit({privateKey});
-      }}
-    >
-      <div className="labelled-field">
-        <label htmlFor="privateKey">Private Key</label>
-        <input name="privateKey" type="text" value={privateKey} onChange={event => setPrivateKey(event.target.value)}/>
-      </div>
-
-      <div className="login-page__private-key-form__actions">
-        <button
-          onClick={HidePrivateKeyForm}
-          className="login-page__private-key-form__button login-page__private-key-form__button-cancel login-page__login-button-cancel"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          className="login-page__private-key-form__button login-page__private-key-form__button-submit"
-          style={{
-            color: customizationOptions?.log_in_button?.text_color?.color,
-            backgroundColor: customizationOptions?.log_in_button?.background_color?.color,
-            border: `0.75px solid ${customizationOptions?.log_in_button?.border_color?.color}`
-          }}
-        >
-          Submit
-        </button>
-      </div>
-    </form>
-  );
-};
-
-const LoginComponent = observer(({customizationOptions, darkMode, userData, setUserData, LogIn, Close}) => {
-  const [showPrivateKeyForm, setShowPrivateKeyForm] = useState(false);
-
+const LoginComponent = observer(({customizationOptions, darkMode, userData, setUserData, Auth0LogIn, SignIn, Close}) => {
   return (
     <div className={`login-page ${darkMode ? "login-page--dark" : ""}`}>
       <Background customizationOptions={customizationOptions} Close={Close} />
 
       <div className="login-page__login-box">
         <Logo customizationOptions={customizationOptions} />
-        {
-          showPrivateKeyForm ?
-            <PrivateKeyForm customizationOptions={customizationOptions} HidePrivateKeyForm={() => setShowPrivateKeyForm(false)} /> :
-            <Buttons customizationOptions={customizationOptions} LogIn={LogIn} ShowPrivateKeyForm={() => setShowPrivateKeyForm(true)}/>
-        }
+        <Buttons customizationOptions={customizationOptions} Auth0LogIn={Auth0LogIn} SignIn={SignIn} />
         <Terms customizationOptions={customizationOptions} userData={userData} setUserData={setUserData}/>
       </div>
     </div>
@@ -350,7 +322,7 @@ const Login = observer(({silent, darkMode, callbackUrl, Loaded, SignIn, LoadCust
     window.auth0 = auth0;
   }
 
-  const LogIn = ({create=true}) => {
+  const Auth0LogIn = ({create=true}) => {
     LogInRedirect({
       auth0,
       callbackUrl,
@@ -423,7 +395,7 @@ const Login = observer(({silent, darkMode, callbackUrl, Loaded, SignIn, LoadCust
       Authenticate({auth0, userData, tenantId: customizationOptions.tenant_id, SignIn})
         .finally(() => setAuthenticating(false));
     } else if(newWindowLogin) {
-      LogIn({create: new URLSearchParams(window.location.search).has("create")});
+      Auth0LogIn({create: new URLSearchParams(window.location.search).has("create")});
     } else {
       Loaded && Loaded();
       setAuthenticating(false);
@@ -466,7 +438,8 @@ const Login = observer(({silent, darkMode, callbackUrl, Loaded, SignIn, LoadCust
       userData={userData}
       setUserData={SaveUserData}
       darkMode={darkMode}
-      LogIn={LogIn}
+      Auth0LogIn={Auth0LogIn}
+      SignIn={SignIn}
       Close={() => Close && Close()}
     />
   );

@@ -298,7 +298,13 @@ class RootStore {
     }
   });
 
-  Authenticate = flow(function * ({idToken, authToken, tenantId, user}) {
+  CurrentAddress() {
+    if(!this.authInfo) { return; }
+
+    return Utils.FormatAddress(this.authInfo.address);
+  }
+
+  Authenticate = flow(function * ({idToken, fabricToken, authToken, externalWallet, tenantId, user}) {
     try {
       this.loggedIn = false;
 
@@ -311,29 +317,45 @@ class RootStore {
 
       this.client = client;
 
-      if(!user || !user.email) {
-        throw Error("No email provided in user data");
-      }
+      let address;
+      if(externalWallet) {
+        const walletMethods = this.cryptoStore.WalletFunctions(externalWallet);
 
-      if(idToken) {
+        address = yield walletMethods.Address();
+
+        fabricToken = yield client.CreateFabricToken({
+          address,
+          Sign: walletMethods.Sign
+        });
+      } else if(idToken) {
         yield client.SetRemoteSigner({idToken: idToken, tenantId, extraData: user?.userData});
+        fabricToken = yield client.CreateFabricToken();
+        authToken = client.signer.authToken;
       } else if(authToken) {
         yield client.SetRemoteSigner({authToken, tenantId, unsignedPublicAuth: true});
-      } else {
+        fabricToken = yield client.CreateFabricToken();
+        authToken = client.signer.authToken;
+      } else if(!fabricToken) {
         throw Error("Neither ID token nor auth token provided to Authenticate");
       }
+
+      // Address might not be current signer if external wallet was used to sign fabric token
+      address = address || this.client.CurrentAccountAddress();
+
+      client.SetStaticToken({token: fabricToken});
 
       this.GetWalletBalance();
 
       this.SetAuthInfo({
-        authToken: client.signer.authToken,
-        address: client.CurrentAccountAddress(),
+        fabricToken,
+        authToken,
+        address,
         user
       });
 
-      this.funds = parseInt((yield client.GetBalance({address: client.CurrentAccountAddress()}) || 0));
-      this.userAddress = client.CurrentAccountAddress();
-      this.accountId = `iusr${Utils.AddressToHash(client.CurrentAccountAddress())}`;
+      this.funds = parseInt((yield client.GetBalance({address}) || 0));
+      this.userAddress = this.CurrentAddress();
+      this.accountId = `iusr${Utils.AddressToHash(address)}`;
 
       this.authedToken = yield client.authClient.GenerateAuthorizationToken({noAuth: true});
       this.basePublicUrl = yield client.FabricUrl({
@@ -345,8 +367,8 @@ class RootStore {
 
       const initials = ((user || {}).name || "").split(" ").map(s => s.substr(0, 1));
       this.userProfile = {
-        address: client.CurrentAccountAddress(),
-        name: user?.name || client.CurrentAccountAddress(),
+        address,
+        name: user?.name || address,
         email: user?.email,
         profileImage: ProfileImage(
           (initials.length <= 1 ? initials.join("") : `${initials[0]}${initials[initials.length - 1]}`).toUpperCase(),
@@ -363,7 +385,7 @@ class RootStore {
       this.HideLogin();
       this.loggedIn = true;
 
-      this.SendEvent({event: EVENTS.LOG_IN, data: {address: client.CurrentAccountAddress()}});
+      this.SendEvent({event: EVENTS.LOG_IN, data: { address }});
     } catch(error) {
       this.ClearAuthInfo();
       this.Log(error, true);
@@ -958,7 +980,7 @@ class RootStore {
           tok_id: tokenId
         },
         headers: {
-          Authorization: `Bearer ${this.client.signer.authToken}`
+          Authorization: `Bearer ${this.client.staticToken}`
         }
       });
 
@@ -985,7 +1007,7 @@ class RootStore {
           path: UrlJoin("as", "wlt", "status", "act", tenantId),
           method: "GET",
           headers: {
-            Authorization: `Bearer ${this.client.signer.authToken}`
+            Authorization: `Bearer ${this.client.staticToken}`
           }
         })
       );
@@ -1080,7 +1102,7 @@ class RootStore {
           path: UrlJoin("as", "wlt", "act", marketplace.tenant_id, eventId, dropId),
           method: "GET",
           headers: {
-            Authorization: `Bearer ${this.client.signer.authToken}`
+            Authorization: `Bearer ${this.client.staticToken}`
           }
         })
       );
@@ -1155,7 +1177,7 @@ class RootStore {
         itm: sku
       },
       headers: {
-        Authorization: `Bearer ${this.client.signer.authToken}`
+        Authorization: `Bearer ${this.client.staticToken}`
       }
     });
   });
@@ -1169,7 +1191,7 @@ class RootStore {
         path: UrlJoin("as", "wlt", "mkt", "bal"),
         method: "GET",
         headers: {
-          Authorization: `Bearer ${this.client.signer.authToken}`
+          Authorization: `Bearer ${this.client.staticToken}`
         }
       })
     );
@@ -1194,7 +1216,7 @@ class RootStore {
           return_url: rootUrl.toString()
         },
         headers: {
-          Authorization: `Bearer ${this.client.signer.authToken}`
+          Authorization: `Bearer ${this.client.staticToken}`
         }
       });
 
@@ -1232,7 +1254,7 @@ class RootStore {
           mode: EluvioConfiguration.mode,
         },
         headers: {
-          Authorization: `Bearer ${this.client.signer.authToken}`
+          Authorization: `Bearer ${this.client.staticToken}`
         }
       })
     );
@@ -1272,7 +1294,7 @@ class RootStore {
       this.RemoveSessionStorage(`pk-${this.network}`);
     }
 
-    this.SendEvent({event: EVENTS.LOG_OUT, data: { address: this.client.CurrentAccountAddress() }});
+    this.SendEvent({event: EVENTS.LOG_OUT, data: { address: this.CurrentAddress() }});
 
     if(window.auth0) {
       try {
@@ -1505,7 +1527,7 @@ class RootStore {
                 refresh_url: window.location.href
               },
               headers: {
-                Authorization: `Bearer ${this.client.signer.authToken}`
+                Authorization: `Bearer ${this.client.staticToken}`
               }
             })
           );
@@ -1527,7 +1549,7 @@ class RootStore {
                 mode: EluvioConfiguration.mode,
               },
               headers: {
-                Authorization: `Bearer ${this.client.signer.authToken}`
+                Authorization: `Bearer ${this.client.staticToken}`
               }
             })
           );
@@ -1555,14 +1577,15 @@ class RootStore {
       const tokenInfo = this.GetLocalStorage(`auth-${this.network}`);
 
       if(tokenInfo) {
-        const { authToken, address, user } = JSON.parse(Utils.FromB64(tokenInfo));
+        // TODO: Expire fabric token
+        const { fabricToken, authToken, address, user } = JSON.parse(Utils.FromB64(tokenInfo));
         const expiration = JSON.parse(atob(authToken)).exp;
         if(expiration - Date.now() < 4 * 3600 * 1000) {
           this.ClearAuthInfo();
         } else if(!user) {
           this.ClearAuthInfo();
         } else {
-          return { authToken, address, user };
+          return { fabricToken, authToken, address, user };
         }
       } else {
         return this.authInfo;
@@ -1580,8 +1603,8 @@ class RootStore {
     this.authInfo = undefined;
   }
 
-  SetAuthInfo({authToken, address, user}) {
-    const authInfo = { authToken, address, user: user || {} };
+  SetAuthInfo({fabricToken, authToken, address, user}) {
+    const authInfo = { fabricToken, authToken, address, user: user || {} };
 
     this.SetLocalStorage(
       `auth-${this.network}`,
