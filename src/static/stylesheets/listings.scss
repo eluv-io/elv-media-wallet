@@ -128,7 +128,7 @@
   }
 
   &__menu-button {
-    background-color: transparent;
+    background-color: var(--background-card);
     font-size: 12px;
     height: 26px;
     min-width: 36px;
@@ -207,61 +207,3 @@
     }
   }
 }
-
-/*
-.dark {
-  .listings-page {
-    &__message {
-      color: $darkgray;
-
-      a {
-        color: $gray;
-      }
-    }
-  }
-
-  .listing-card {
-    background-color: $darkestgray;
-    border: 0;
-
-    &__header-id {
-      color: $mediumgray;
-    }
-
-    &__price-container {
-      background-color: $black;
-      border: 1px solid $darkergray;
-    }
-
-    &__action {
-      background-color: $darkestgray;
-      border: 1px solid $darkergray;
-    }
-
-    &__menu-button {
-      background-color: $black;
-      border: 1px solid $darkergray;
-    }
-
-    &__menu__action {
-      &:disabled {
-        color: $gray;
-      }
-    }
-
-    &__menu {
-      background-color: $black;
-
-      border: 1px solid $darkergray;
-
-      button {
-        &:not(:last-child) {
-          border-bottom: 1px solid $darkergray;
-        }
-      }
-    }
-  }
-}
-
-
- */

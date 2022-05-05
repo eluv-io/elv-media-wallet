@@ -161,13 +161,9 @@
     &.listing-purchase-wallet-balance-actions {
       flex-direction: column;
 
-      .loader-button,
       .action {
-        width: 100%;
-      }
-
-      .loader-button {
         margin-bottom: 10px;
+        width: 100%;
       }
     }
   }
@@ -389,84 +385,6 @@
     // sass-lint:enable no-vendor-prefixes
   }
 }
-
-/*
-.dark {
-  .listing-purchase-modal {
-    background-color: $black;
-    border: 1px solid $darkgray;
-
-    &__buy-container {
-      border: 1px solid $darkgray;
-    }
-
-    &__listing-info {
-      background-color: $darkestgray;
-      border-top: 1px solid $darkergray;
-    }
-
-    &__prices-container {
-      background-color: $black;
-    }
-
-    &__order-label {
-      font-weight: 500;
-    }
-
-    &__order-details-box {
-      background-color: $darkestgray;
-    }
-
-    &__order-separator {
-      border-bottom: 1px solid $darkgray;
-    }
-  }
-
-  .listing-purchase-confirmation-modal {
-    background-color: $black;
-    border: 1px solid $darkgray;
-
-    &__header {
-      border-bottom: 1px solid $darkergray;
-    }
-
-    &__price-details,
-    &__payment-options {
-      border: 1px solid $darkergray;
-    }
-
-    &__payment-selection {
-      &-selected {
-        border: 1px solid $blue;
-      }
-    }
-
-    &__payment-selection-icons {
-      &:not(&-crypto) {
-        svg {
-          filter: none;
-        }
-      }
-    }
-
-    &__error-message {
-      color: $red;
-    }
-  }
-
-  .quantity {
-    &__label {
-      color: $mediumgray;
-    }
-
-    &__input {
-      background-color: $black;
-      border: 1px solid $darkgray;
-    }
-  }
-}
-
- */
 
 @media screen and (max-width: $tablet-breakpoint) {
   .listing-purchase-modal {

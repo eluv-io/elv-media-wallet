@@ -105,7 +105,7 @@ class RootStore {
 
   loggedIn = false;
   disableCloseEvent = false;
-  darkMode = (!this.GetSessionStorage("light-mode") && !searchParams.has("lt")) || searchParams.has("dk");
+  darkMode = this.GetSessionStorage("dark-mode") || searchParams.has("dk");
 
   availableMarketplaces = {};
 
@@ -632,7 +632,6 @@ class RootStore {
 
     this.hideGlobalNavigation = marketplace && this.specifiedMarketplaceId === marketplace.marketplaceId && marketplace.branding && marketplace.branding.hide_global_navigation;
 
-    const customStyleTag = document.getElementById("_theme");
 
     let font;
     switch(options.font) {
@@ -654,13 +653,11 @@ class RootStore {
         break;
     }
 
+    const customStyleTag = document.getElementById("_custom-theme");
     customStyleTag.innerHTML = (`    
        body { font-family: "${font}", sans-serif; }
        body * { font-family: "${font}", sans-serif; }
     `);
-
-    if(marketplace !== "default") {
-    }
 
     switch(options.color_scheme) {
       case "Dark":
@@ -1300,8 +1297,8 @@ class RootStore {
       url.searchParams.set("mid", this.marketplaceHash || this.marketplaceId);
     }
 
-    if(!this.darkMode) {
-      url.searchParams.set("lt", "");
+    if(this.darkMode) {
+      url.searchParams.set("dk", "");
     }
 
     if(this.loginOnly) {
@@ -1323,7 +1320,7 @@ class RootStore {
       const response = yield this.Flow({
         type: "action",
         flow: "consent",
-        darkMode: true,
+        darkMode: this.darkMode,
         parameters: {
           origin,
           requestor,
@@ -1624,20 +1621,22 @@ class RootStore {
   }
 
   ToggleDarkMode(enabled) {
+    const themeContainer = document.querySelector("#_theme");
     if(enabled) {
-      document.body.style.backgroundColor = "#000000";
-      document.getElementById("app").classList.add("dark");
+      import("Assets/stylesheets/themes/dark.theme.css")
+        .then(darkTheme => {
+          themeContainer.innerHTML = darkTheme.default;
+        });
     } else {
-      document.body.style.backgroundColor = "#FFFFFF";
-      document.getElementById("app").classList.remove("dark");
+      themeContainer.innerHTML = "";
     }
 
     this.darkMode = enabled;
 
     if(enabled) {
-      this.RemoveSessionStorage("light-mode");
+      this.SetSessionStorage("dark-mode", "true");
     } else {
-      this.SetSessionStorage("light-mode", "true");
+      this.RemoveSessionStorage("dark-mode");
     }
   }
 

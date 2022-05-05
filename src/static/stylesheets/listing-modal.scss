@@ -169,8 +169,7 @@
     margin-top: 35px;
   }
 
-  &__action,
-  .loader-button__loader {
+  &__action {
     min-width: 150px;
 
     &:not(:last-child) {
@@ -179,51 +178,6 @@
 
     &:disabled {
       opacity: 0.5;
-    }
-  }
-}
-
-/*
-.dark {
-  .listing-modal {
-    background-color: $black;
-    border: 1px solid $darkgray;
-
-    &__header {
-      border-bottom: 1px solid $darkgray;
-    }
-
-    &__form__price-input {
-      background-color: $black;
-      border: 1px solid $darkgray;
-      max-width: unset;
-      width: 100%;
-    }
-
-    &__form__error {
-      color: $mediumgray;
-    }
-
-    &__detail-faded {
-      * {
-        color: $gray;
-      }
-    }
-
-    &__detail-separator {
-      border-bottom: 2px solid $darkgray;
-    }
-
-    &__message {
-      color: $darkgray;
-    }
-
-    &__active-listings {
-      border: 1px solid $darkergray;
-    }
-
-    &__error-message {
-      color: $red;
     }
   }
 }
@@ -274,12 +228,4 @@
       }
     }
   }
-
-  .dark {
-    .listing-modal {
-      border: 0;
-    }
-  }
 }
-
- */

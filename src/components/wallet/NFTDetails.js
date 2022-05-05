@@ -324,7 +324,7 @@ const NFTContractSection = ({nft, listing, heldDate, isOwned, setDeleted}) => {
           See More Info on Eluvio Lookout
         </a>
         {
-          rootStore.funds ?
+          isOwned && rootStore.funds ?
             <ButtonWithLoader
               className="action-danger details-page__delete-button"
               onClick={async () => {
@@ -339,7 +339,7 @@ const NFTContractSection = ({nft, listing, heldDate, isOwned, setDeleted}) => {
             </ButtonWithLoader> : null
         }
       </div>
-      { isOwned && !listing && !heldDate ? <NFTTransfer nft={nft}/> : null }
+      { isOwned && !listing && !heldDate ? <NFTTransfer nft={nft} /> : null }
     </ExpandableSection>
   );
 };

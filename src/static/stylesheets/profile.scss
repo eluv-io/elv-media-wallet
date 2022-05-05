@@ -78,7 +78,7 @@
   &__message {
     color: var(--color-component-text-secondary);
     font-size: 12px;
-    margin-top: 20px;
+    margin-top: 10px;
     text-align: center;
 
     a {
@@ -94,6 +94,10 @@
     margin: 20px auto;
     padding: 0;
     width: 100%;
+  }
+
+  &__sign-out {
+    margin: 40px 0 0;
   }
 
   .action {
@@ -375,78 +379,3 @@
     }
   }
 }
-
-/*
-.dark {
-  .profile-page {
-    &__section-header {
-      color: $mediumgray;
-    }
-
-    &__address-field {
-      .copyable-field__content {
-        background-color: $darkergray;
-      }
-    }
-
-    &__message {
-      color: $darkgray;
-
-      a {
-        color: $gray;
-      }
-    }
-
-    &__section-box {
-      background-color: $darkestgray;
-    }
-
-    &__balance-highlight {
-      color: lighten($blue, 10%);
-    }
-  }
-
-  .withdrawal-confirmation {
-    background-color: $black;
-    border: 1px solid $darkergray;
-    color: $white;
-
-    &__header {
-      border-bottom: 1px solid $darkgray;
-    }
-
-    &__price-input {
-      background-color: $black;
-      border: 1px solid $darkgray;
-    }
-
-    &__error {
-      color: $red;
-    }
-
-    &__detail-faded {
-      * {
-        color: $gray;
-      }
-    }
-
-    &__detail-separator {
-      border-bottom: 2px solid $darkgray;
-    }
-  }
-
-  .accept-popup {
-    &__requestor {
-      color: $gray;
-    }
-
-    &__trust {
-      label {
-        color: $mediumgray;
-      }
-    }
-  }
-}
-
-
- */

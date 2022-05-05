@@ -76,6 +76,7 @@ module.exports = {
     rules: [
       {
         test: /\.(css|scss)$/,
+        exclude: /\.theme\.(css|scss)$/i,
         use: [
           "style-loader",
           {
@@ -92,6 +93,10 @@ module.exports = {
           },
           "sass-loader"
         ]
+      },
+      {
+        test: /\.theme\.(css|scss)$/i,
+        loader: "raw-loader"
       },
       {
         test: /\.mjs$/,

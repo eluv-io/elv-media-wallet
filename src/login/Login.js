@@ -44,8 +44,8 @@ const LogInRedirect = ({auth0, callbackUrl, marketplaceHash, userData, darkMode,
       url.searchParams.set("ld", btoa(JSON.stringify(userData)));
     }
 
-    if(!darkMode) {
-      url.searchParams.set("lt", "");
+    if(darkMode) {
+      url.searchParams.set("dk", "");
     }
 
     if(create) {

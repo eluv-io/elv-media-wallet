@@ -1,0 +1,20 @@
+:root {
+  /* General */
+  --color-bg-primary: #000000;
+  --color-bg-secondary: #151515;
+
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #888;
+
+  --color-loader: rgba(255, 255, 255, 0.5);
+
+  --border: 1px solid #555555;
+  --border-faint: 1px solid #222222;
+
+  /* Page */
+  --color-page-bg-gradient-top: #131313;
+  --color-page-bg-gradient-bottom: #000000;
+
+  /* Header */
+  --background-page-header: #181818;
+}

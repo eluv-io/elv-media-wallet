@@ -93,7 +93,7 @@ export const ButtonWithLoader = ({children, className="", onClick, ...props}) =>
     >
       {
         loading ?
-          <Loader className="action-with-loader__loader" /> :
+          <Loader loader="inline" className="action-with-loader__loader" /> :
           children
       }
     </button>

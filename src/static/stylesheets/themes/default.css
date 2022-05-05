@@ -1,0 +1,184 @@
+:root {
+  /* General */
+  --color-bg-primary: #fff;
+  --color-bg-secondary: #f3f3f3;
+
+  --color-text-primary: #000;
+  --color-text-secondary: #777;
+  --color-text-highlight: var(--color-highlight);
+  --color-text-highlight-dark: var(--color-highlight-dark);
+  --color-text-error: #f00;
+
+  --color-highlight: #529cf5;
+  --color-highlight-rgb: 82, 156, 245;
+  --color-highlight-dark: #2e69c6;
+
+  --color-highlight-container-bg: var(--color-highlight-dark);
+  --color-highlight-container-text: #fff;
+
+  --color-loader: rgba(0, 0, 0, 0.5);
+
+  --border: 1px solid #ccc;
+  --border-faint: 1px solid #e0e0e0;
+  --border-highlight: 1px solid var(--color-highlight);
+  --border-radius: 3px;
+
+  /* Page */
+  --color-page-bg-gradient-top: #f7f7f7;
+  --color-page-bg-gradient-bottom: #fafafa;
+  --background-page: linear-gradient(180deg, var(--color-page-bg-gradient-top) 0%, var(--color-page-bg-gradient-bottom) 100%);
+  --background-content: var(--color-bg-primary);
+  --border-radius-page-content: 10px 10px 0 0;
+
+  /* Header */
+  --background-page-header: #eee;
+  --color-page-header-text: var(--color-text-primary);
+
+  --background-marketplace-header: transparent;
+  --color-marketplace-header-text: var(--color-text-primary);
+  --color-marketplace-header-link-text: var(--color-text-primary);
+
+  --border-header-active-link: 2px solid var(--color-highlight);
+
+  /* Buttons */
+  --color-button-primary-bg: var(--color-highlight-container-bg);
+  --color-button-primary-text: var(--color-highlight-container-text);
+  --border-button-primary: 1px solid var(--color-highlight-container-bg);
+  --border-radius-button-primary: var(--border-radius);
+
+  --color-button-secondary-bg: transparent;
+  --color-button-secondary-text: var(--color-text-primary);
+  --border-button-secondary: var(--border);
+  --border-radius-button-secondary: var(--border-radius);
+
+  --color-button-danger-bg: #333;
+  --color-button-danger-text: var(--color-highlight-container-text);
+  --border-button-danger: 1px solid #333;
+  --border-radius-button-danger: var(--border-radius);
+
+  /* Togglable/selectable options */
+  --color-button-selection-bg: transparent;
+  --color-button-selection-text: var(--color-text-secondary);
+  --border-button-selection: var(--border-faint);
+  --border-radius-button-selection: var(--border-radius);
+
+  --color-button-selection-active-bg: transparent;
+  --color-button-selection-active-text: var(--color-text-highlight);
+  --border-button-selection-active: var(--border-highlight);
+  --border-radius-button-selection-active: var(--border-radius);
+
+  /* Inputs */
+  --color-input-bg: var(--color-bg-primary);
+  --color-input-hover-bg: var(--color-bg-secondary);
+  --color-input-text: var(--color-text-primary);
+  --color-input-text-placeholder: var(--color-text-secondary);
+  --color-input-highlight-bg: var(--color-highlight-container-bg);
+  --color-input-highlight-text: var(--color-highlight-container-text);
+  --border-input: var(--border);
+  --border-radius-input: var(--border-radius);
+
+  --box-shadow-input-focus: 0 0 7px rgba(var(--color-highlight-rgb), 0.8);
+  --outline-input-focus: 1px solid var(--color-highlight);
+
+  /* Cards (store items, listings, owned items) */
+  --background-card: var(--color-bg-primary);
+  --color-card-bg: var(--color-bg-primary);
+  --color-card-text-primary: var(--color-text-primary);
+  --color-card-text-secondary: var(--color-text-secondary);
+  --color-card-text-highlight: var(--color-text-highlight);
+  --border-card: var(--border);
+  --border-radius-card: 6px;
+  --box-shadow-card: 2px 2px 4px rgba(0, 0, 0, 0.1);
+
+  --color-card-stock-available: #f00;
+  --color-card-stock-unavailable: #555;
+
+  --color-card-badge-bg: var(--color-card-bg);
+  --color-card-badge: var(--color-text-primary);
+  --border-radius-card-badge: 6px;
+
+  /* NFT feature card */
+  --background-feature-card-primary: var(--color-bg-primary);
+  --background-feature-card-secondary: var(--color-bg-secondary);
+  --padding-feature-card: 20px;
+
+  --color-feature-card-text-primary: var(--color-text-primary);
+  --color-feature-card-text-secondary: var(--color-text-secondary);
+  --color-feature-card-text-highlight: var(--color-text-highlight);
+  --box-shadow-feature-card: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  --border-feature-card: var(--border);
+  --border-radius-feature-card: 6px;
+
+  --color-button-feature-card-bg: transparent;
+  --color-button-feature-card-text: var(--color-button-secondary-text);
+  --border-button-feature-card: 0;
+  --border-radius-button-feature-card: var(--border-radius);
+
+  /* Tables */
+  --color-table-header: var(--color-bg-primary);
+  --color-table-header-row-bg: var(--color-bg-primary);
+  --color-table-header-row-text: var(--color-text-primary);
+  --color-table-odd-row-bg: var(--color-bg-primary);
+  --color-table-odd-row-text: var(--color-text-primary);
+  --color-table-even-row-bg: var(--color-bg-secondary);
+  --color-table-even-row-text: var(--color-text-primary);
+  --color-table-selected-row-bg: var(--color-highlight-container-bg);
+  --color-table-selected-row-text: var(--color-highlight-container-text);
+  --color-table-highlight-text: var(--color-highlight);
+
+  --border-table-primary: var(--border);
+  --border-table-secondary: var(--border-faint);
+  --border-radius-table: var(--border-radius);
+
+  --color-table-badge-active-bg: var(--color-highlight-container-bg);
+  --color-table-badge-active-text: var(--color-highlight-container-text);
+  --color-table-badge-inactive-bg: #555;
+  --color-table-badge-inactive-text: var(--color-highlight-container-text);
+  --border-radius-table-badge: var(--border-radius);
+
+  /* Other components such as nft detail section boxes, listing stats, etc. */
+  --background-component-primary: var(--color-bg-primary);
+  --background-component-secondary: var(--color-bg-secondary);
+  --color-component-bg-primary: var(--color-bg-primary);
+  --color-component-bg-secondary: var(--color-bg-secondary);
+  --color-component-highlight: var(--color-text-highlight-dark);
+  --color-component-text-primary: var(--color-text-primary);
+  --color-component-text-secondary: var(--color-text-secondary);
+  --color-component-text-highlight: var(--color-text-highlight);
+  --border-component-primary: var(--border);
+  --border-component-secondary: var(--border-faint);
+  --border-component-highlight: var(--border-highlight);
+  --border-radius-component: var(--border-radius);
+  --box-shadow-component: var(--box-shadow-card);
+
+  /* Modals */
+  --background-modal-overlay: rgba(0, 0, 0, 0.75);
+  --background-modal-primary: var(--background-content);
+  --border-modal-primary: var(--border);
+  --border-modal-secondary: var(--border-faint);
+  --border-radius-modal: var(--border-radius);
+
+  --color-button-modal-close-bg: var(--color-bg-primary);
+  --color-button-modal-close-text: var(--color-text-primary);
+  --border-button-modal-close: 1px solid var(--color-text-primary);
+  --border-radius-modal-close: 100%;
+
+  /* Login (NOTE: background image and button colors are controlled in marketplace metadata) */
+  --background-login: var(--background-page);
+  --background-login-box: var(--background-component-primary);
+  --color-login-text-primary: var(--color-component-text-primary);
+  --color-login-text-secondary: var(--color-component-text-secondary);
+  --color-login-text-highlight: var(--color-component-text-highlight);
+  --border-login-box: var(--border);
+  --border-radius-login-box: var(--border-radius);
+  --box-shadow-login-box: var(--box-shadow-card);
+
+
+  /* Misc (internal) */
+  --background-marketplace-card: #000;
+  --color-marketplace-card-text-primary: #fff;
+  --color-marketplace-card-text-secondary: #777;
+  --border-marketplace-card: 0;
+  --border-marketplace-card-logo: 1px solid #333;
+  --border-radius-marketplace-card: 6px;
+}

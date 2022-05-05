@@ -133,6 +133,15 @@ const Profile = observer(() => {
         <div className="profile-page__message">
           This is an Eluvio blockchain address
         </div>
+
+        <div className="profile-page__actions profile-page__sign-out">
+          <button
+            onClick={() => rootStore.SignOut()}
+            className="action profile-page__sign-out-button"
+          >
+            Sign Out
+          </button>
+        </div>
       </div>
 
       <div className="profile-page__section profile-page__section-balance profile-page__section-box">
@@ -191,17 +200,6 @@ const Profile = observer(() => {
         </h2>
 
         <WalletConnect />
-      </div>
-
-      <div className="profile-page__section profile-page__actions">
-        <div className="profile-page__actions">
-          <button
-            onClick={() => rootStore.SignOut()}
-            className="action"
-          >
-            Sign Out
-          </button>
-        </div>
       </div>
     </div>
   );

@@ -96,6 +96,7 @@
 
   &__actions {
     align-items: center;
+    border: 0;
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
@@ -396,83 +397,7 @@
   }
 
   &__option-selected {
-    background-color: var(--color-highlight-bg);
-    color: var(--color-highlight-text);
+    background-color: var(--color-input-highlight-bg);
+    color: var(--color-input-highlight-text);
   }
 }
-
-/*
-.dark {
-  .expandable-section {
-    &__content-row {
-      border-bottom: 1px solid $darkgray;
-
-      * {
-        color: $blue;
-      }
-    }
-
-    .expandable-section__header__icon {
-      filter: none;
-    }
-
-    &.expandable-section-shown {
-      .expandable-section__header {
-        border-bottom: 1px solid $darkgray;
-      }
-    }
-
-    &__actions {
-      + .expandable-section__actions {
-        border-top: 1px solid $darkgray;
-      }
-    }
-  }
-
-  .copyable-field {
-    &__button {
-      background-color: $darkgray;
-    }
-  }
-
-  .info-modal {
-    background-color: $black;
-
-    * {
-      color: $white;
-    }
-
-    &__button {
-      color: $white;
-    }
-  }
-
-  .confirm {
-    background-color: $black;
-    border: 1px solid $darkergray;
-    color: $white;
-  }
-
-  .autocomplete {
-    &__input {
-      background-color: $black;
-      border: 1px solid $darkergray;
-    }
-
-    &__options {
-      background-color: $black;
-      border: 1px solid $darkergray;
-    }
-
-    &__option {
-      &:hover {
-        &:not(.autocomplete__option-selected) {
-          background-color: $darkergray;
-        }
-      }
-    }
-  }
-}
-
-
- */

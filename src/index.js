@@ -186,7 +186,6 @@ const App = observer(() => {
       key={`app-${rootStore.loggedIn}`}
       className={[
         "app-container",
-        rootStore.initialized ? "app-container-initialized" : "app-container-not-initialized",
         rootStore.hideNavigation ? "navigation-hidden" : "",
         rootStore.sidePanelMode ? "side-panel" : "",
         hasHeader ? "" : "no-header",

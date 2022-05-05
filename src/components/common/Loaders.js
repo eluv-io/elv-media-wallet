@@ -1,6 +1,6 @@
 import React from "react";
 
-const LoaderComponent = () => {
+const LoaderComponentDefault = () => {
   return (
     <div className="lds-default">
       {
@@ -12,22 +12,43 @@ const LoaderComponent = () => {
   );
 };
 
-export const PageLoader = () => {
+const InlineLoaderComponent = () => {
+  return (
+    <div className="lds-ellipsis">
+      {
+        [...new Array(4)].map((_, i) =>
+          <div className="lds-ellipsis__element" key={`loader-${i}`}/>
+        )
+      }
+    </div>
+  );
+};
+
+const LoaderComponent = ({loader}) => {
+  switch(loader) {
+    case "inline":
+      return <InlineLoaderComponent />;
+    default:
+      return <LoaderComponentDefault />;
+  }
+};
+
+export const PageLoader = ({loader="default"}) => {
   return (
     <div className="loader page-loader page-container">
       <div className="main-content-container loader-component">
-        <LoaderComponent />
+        <LoaderComponent loader={loader} />
       </div>
     </div>
   );
 };
 
 
-export const Loader = ({className=""}) => {
+export const Loader = ({loader="default", className=""}) => {
   return (
     <div className={`loader ${className}`}>
       <div className="loader-component">
-        <LoaderComponent />
+        <LoaderComponent loader={loader} />
       </div>
     </div>
   );

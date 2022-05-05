@@ -111,6 +111,15 @@
       cursor: pointer;
     }
 
+    &-initial {
+      // Specificity to override nth-child color above
+      &:nth-child(n) {
+        * {
+          color: var(--color-table-highlight-text);
+        }
+      }
+    }
+
     &-selected {
       // Specificity to override nth-child color above
       &:nth-child(n) {
@@ -119,12 +128,6 @@
         * {
           color: var(--color-table-selected-row-text);
         }
-      }
-    }
-
-    &-initial {
-      * {
-        color: var(--color-table-initial-selected-text);
       }
     }
   }
@@ -229,83 +232,3 @@
     }
   }
 }
-
-/*
-.dark {
-  .transfer-table {
-    background-color: $black;
-    border: 1px solid $darkergray;
-
-    &__pagination {
-      color: $gray;
-    }
-
-    &.active-listings {
-      .transfer-table__table__header {
-        border-top: 0;
-
-        .transfer-table__table__cell {
-          border: 1px solid $darkestgray;
-
-          &:not(:first-child) {
-            border-left: 0;
-          }
-        }
-      }
-    }
-
-    &__table__header {
-      background-color: $black;
-      border-bottom: 1px solid $darkergray;
-      border-top: 1px solid $darkergray;
-
-      * {
-        color: $mediumgray;
-      }
-    }
-
-    &__table__row {
-      &:nth-child(2n + 1) {
-        background-color: darken($darkestgray, 2%);
-      }
-
-      &:nth-child(2n) {
-        background-color: $black;
-      }
-
-      &:hover {
-        background-color: $darkergray;
-      }
-
-      &-selected {
-        // Specificity to override nth-child color above
-        &:nth-child(n) {
-          background-color: $mediumgray;
-
-          * {
-            color: $black;
-          }
-        }
-      }
-
-      &-initial {
-        * {
-          color: $lightblue;
-        }
-      }
-    }
-
-    &__table__cell {
-      em {
-        color: $gray;
-      }
-    }
-
-    &__empty {
-      color: $mediumgray;
-    }
-  }
-}
-
-
- */

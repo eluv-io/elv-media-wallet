@@ -176,31 +176,6 @@
   }
 }
 
-/*
-.dark {
-  .marketplace-price {
-    border: 1px solid $darkgray;
-
-    &__listings {
-      border-top: 1px solid $darkgray;
-    }
-
-    .price-container__label {
-      color: $mediumgray;
-    }
-  }
-
-  .checkout {
-    &__button {
-      &:not(.checkout__button-coinbase) {
-        border: 1px solid $blue;
-      }
-    }
-  }
-}
-
- */
-
 .side-panel {
   .marketplace-navigation {
     display: none;
