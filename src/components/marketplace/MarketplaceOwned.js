@@ -60,7 +60,7 @@ const MarketplaceOwned = observer(() => {
                     <div className="card-container card-shadow" key={`marketplace-owned-item-${ownedItem.details.ContractAddr}-${ownedItem.details.TokenIdStr}`}>
                       <Link
                         to={UrlJoin(match.url, "owned", ownedItem.details.ContractId, ownedItem.details.TokenIdStr)}
-                        className="card nft-card"
+                        className="card"
                       >
                         <NFTImage nft={ownedItem} width={600} />
                         <div className="card__badges">

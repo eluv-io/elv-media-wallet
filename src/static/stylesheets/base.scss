@@ -26,11 +26,11 @@ svg:not(:root) {
 }
 
 a {
-  color: $black;
+  color: var(--color-text-primary);
   text-decoration: none;
 
   &:hover {
-    color: $black;
+    color: var(--color-text-primary);
   }
 }
 
@@ -43,16 +43,16 @@ button {
   }
 
   &:focus-visible {
-    box-shadow: 0 0 7px rgba($blue, 0.8);
-    outline: 0;
+    box-shadow: var(--box-shadow-input-focus);
+    outline: var(--outline-input-focus);
   }
 }
 
 div {
   &[role="button"] {
     &:focus-visible {
-      // sass-lint:disable no-important
-      border: 1px solid $blue !important;
+      box-shadow: var(--box-shadow-input-focus);
+      outline: var(--outline-input-focus);
     }
   }
 }
@@ -63,9 +63,9 @@ pre {
 
 body {
   -webkit-overflow-scrolling: touch;
-  background-color: $black;
+  background-color: var(--color-bg-primary);
   box-sizing: border-box;
-  color: #000;
+  color: var(--color-text-primary);
   font-family: "Helvetica Neue", Helvetica, sans-serif;
   overflow-y: scroll;
   position: absolute;
@@ -103,10 +103,14 @@ body,
   overscroll-behavior-y: none; // sass-lint:disable-line no-misspelled-properties
   width: 100%;
   z-index: 1;
+
+  * {
+    color: var(--color-text-primary);
+  }
 }
 
 .app-background {
-  background: linear-gradient(180deg, $background-gradient-light-top 0%, $background-gradient-light-bottom 100%);
+  background: var(--background-page);
   height: 100%;
   left: 0;
   min-height: 100vh;
@@ -119,17 +123,18 @@ body,
 
 select {
   appearance: none;
-  background-color: #f2eeea;
-  background-image: url("data:image/svg+xml,%3Csvg id='Layer_1' data-name='Layer 1' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 35 20.63'%3E%3Cdefs%3E%3Cstyle%3E.cls-1%7Bfill:none;stroke:%23626262;stroke-linecap:round;stroke-miterlimit:10;stroke-width:4px;%7D%3C/style%3E%3C/defs%3E%3Cpolyline class='cls-1' points='2 2 17.8 17.8 33 2.6'/%3E%3C/svg%3E");
+  // TODO: Figure out how to color this properly
+  background-color: var(--color-input-bg);
+  background-image: url("data:image/svg+xml,%3Csvg id='Layer_1' data-name='Layer 1' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 35 20.63'%3E%3Cdefs%3E%3Cstyle%3E.cls-1%7Bfill:none;stroke-linecap:round;stroke-miterlimit:10;stroke:currentColor;stroke-width:4px;%7D%3C/style%3E%3C/defs%3E%3Cpolyline class='cls-1' points='2 2 17.8 17.8 33 2.6'/%3E%3C/svg%3E");
   background-position: right 15px center;
   background-repeat: no-repeat;
   background-size: 14px 7px;
-  border: 0;
-  border-radius: 15px;
+  border: var(--border-input);
+  border-radius: var(--border-radius-input);
   cursor: pointer;
-  height: 45px;
+  height: 30px;
   overflow: hidden;
-  padding: 0 30px 0 15px;
+  padding: 0 20px 0 8px;
   position: relative;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -138,8 +143,8 @@ select {
 input {
   &[type="checkbox"] {
     appearance: none;
-    border: 1px solid $gray;
-    border-radius: 3px;
+    border: var(--border-input);
+    border-radius: var(--border-radius-input);
     cursor: pointer;
     max-height: 18px;
     max-width: 18px;
@@ -151,7 +156,7 @@ input {
       &::after {
         align-items: center;
         background-color: transparent;
-        color: $gray;
+        color: var(--color-highlight-dark);
         content: "✓";
         display: flex;
         font-size: 12px;
@@ -164,15 +169,6 @@ input {
       }
     }
   }
-}
-
-.button,
-button {
-  background-color: transparent;
-  border: 0;
-  border-radius: 3px;
-  color: $black;
-  height: 40px;
 }
 
 em {
@@ -223,7 +219,7 @@ em {
     letter-spacing: 0.03em;
 
     &__subtitle {
-      color: $darkgray;
+      color: var(--color-text-secondary);
     }
   }
 
@@ -233,7 +229,7 @@ em {
 
   .page-subheader,
   .content-subheader {
-    color: $darkgray;
+    color: var(--color-text-secondary);
     font-size: 18px;
     font-weight: 300;
 
@@ -261,7 +257,7 @@ em {
 }
 
 .content {
-  border-radius: 10px 10px 0 0;
+  border-radius: var(--border-radius-page-content);
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -272,7 +268,7 @@ em {
   width: 100vw;
 
   &:not(.content--no-background) {
-    background-color: $white;
+    background: var(--background-content);
   }
 }
 
@@ -283,37 +279,64 @@ em {
   width: 8px;
 }
 
-.action,
-.action-loader {
-  border: 1px solid $mediumgray;
-  border-radius: 6px;
-  display: block;
+.action {
+  align-items: center;
+  background-color: var(--color-button-secondary-bg);
+  border: var(--border-button-secondary);
+  border-radius: var(--border-radius-button-secondary);
+  color: var(--color-button-secondary-text);
+  display: flex;
+  height: 40px;
+  justify-content: center;
   min-width: 120px;
   text-align: center;
 
-  &-primary {
-    background-color: $blue;
-    border: 1px solid $blue;
-    color: $white;
+  * {
+    color: var(--color-button-secondary-text);
+  }
 
-    &:focus-visible {
-      filter: drop-shadow(0 0 5px $black);
+  .loader-component {
+    align-items: center;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+  }
+
+  .lds-default {
+    transform: scale(0.4) !important;
+
+    &__element {
+      background-color: var(--color-button-secondary-text);
+    }
+  }
+
+  &-primary {
+    background-color: var(--color-button-primary-bg);
+    border: var(--border-button-primary);
+    border-radius: var(--border-radius-button-primary);
+    color: var(--color-button-primary-text);
+
+    * {
+      color: var(--color-button-primary-text);
+    }
+
+    .lds-default__element {
+      background-color: var(--color-button-primary-text);
     }
   }
 
   &-danger {
-    background-color: $darkergray;
-    border: 1px solid $darkergray;
-    color: $white;
-  }
+    background-color: var(--color-button-danger-bg);
+    border: var(--border-button-danger);
+    border-radius: var(--border-radius-button-danger);
+    color: var(--color-button-danger-text);
 
-  &-primary,
-  &-danger {
-    .lds-default {
-      div {
-        // sass-lint:disable no-important
-        background: $white !important;
-      }
+    * {
+      color: var(--color-button-danger-text);
+    }
+
+    .lds-default__element {
+      background-color: var(--color-button-danger-text);
     }
   }
 
@@ -340,7 +363,7 @@ em {
 }
 
 .debug-error-message {
-  color: $red !important;
+  color: var(--color-text-error) !important;
   font-size: 16px;
   margin-top: 100px;
   padding: 20px;
@@ -419,6 +442,7 @@ em {
   z-index: 1;
 }
 
+/*
 .dark {
   &.app,
   .app-container,
@@ -488,3 +512,6 @@ em {
     }
   }
 }
+
+
+ */

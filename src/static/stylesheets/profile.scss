@@ -96,7 +96,6 @@
     width: 100%;
   }
 
-  .loader-button,
   .action {
     max-width: 200px;
     width: 100%;
@@ -195,7 +194,6 @@
     margin-top: 10px;
   }
 
-  .button-container,
   .action {
     max-width: 200px;
     width: 100%;
@@ -385,16 +383,9 @@
     width: 100%;
   }
 
-  .loader-button,
-  button {
+  .action {
     max-width: unset;
     width: 100%;
-  }
-
-  .loader-button {
-    &:not(:last-child) {
-      margin-right: 10px;
-    }
   }
 
   @media screen and (max-width: $mobile-breakpoint) {

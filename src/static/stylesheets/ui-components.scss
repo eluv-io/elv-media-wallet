@@ -42,6 +42,7 @@
 }
 
 .expandable-section {
+  @include component;
   font-size: 14px;
   margin: 10px auto;
   position: relative;
@@ -52,13 +53,17 @@
 
   &.expandable-section-shown {
     .expandable-section__header {
-      border-bottom: 1px solid $lightergray;
+      border-bottom: var(--border-component-secondary);
     }
   }
 
   &__header,
   &__content {
     padding: 17px 24px;
+
+    * {
+      color: var(--color-component-text-primary);
+    }
   }
 
   &.no-padding {
@@ -75,19 +80,14 @@
   }
 
   &__header__icon {
-    filter: invert(100%);
     height: auto;
     margin-right: 12px;
     width: 15px;
   }
 
   &__content-row {
-    border-bottom: 1px solid $lightgray;
+    border-bottom: var(--border-component-secondary);
     padding: 7px 24px;
-
-    * {
-      color: $blue;
-    }
   }
 
   &__details {
@@ -103,7 +103,7 @@
     padding: 20px 10px;
 
     + .expandable-section__actions {
-      border-top: 1px solid $lightgray;
+      border-top: var(--border-component-secondary);
     }
   }
 }
@@ -116,22 +116,22 @@
   max-width: 100%;
 
   &__content {
-    color: $blue;
+    color: var(--color-component-text-highlight);
     font-size: 12px;
     max-width: calc(100% - 50px);
     padding-right: 10px;
   }
 
   a {
-    color: $blue;
+    color: var(--color-component-text-highlight);
 
     &:hover {
-      color: $blue;
+      color: var(--color-component-text-highlight);
     }
   }
 
   &__button {
-    background-color: $blue;
+    background-color: var(--color-button-primary-bg);
     border: 0;
     border-radius: 10px;
     cursor: pointer;
@@ -143,7 +143,7 @@
       height: 100%;
 
       * {
-        stroke: $white;
+        color: var(--color-button-primary-text);
       }
     }
   }
@@ -173,6 +173,7 @@
   }
 }
 
+// TODO: modal colors
 .info-modal {
   background-color: $white;
   background-position: center;
@@ -364,12 +365,16 @@
     svg {
       height: 100%;
       width: auto;
+
+      * {
+        color: var(--color-input-text);
+      }
     }
   }
 
   &__input {
-    border: 1px solid $mediumgray;
-    border-radius: 3px;
+    border: var(--border-input);
+    border-radius: var(--border-radius-input);
     height: 35px;
     overflow: hidden;
     padding: 0 15px;
@@ -378,8 +383,8 @@
   }
 
   &__options {
-    background-color: $white;
-    border: 1px solid $mediumgray;
+    background-color: var(--color-input-bg);
+    border: var(--border-input);
     max-height: 200px;
     overflow-y: auto;
     position: absolute;
@@ -400,17 +405,18 @@
 
     &:not(.autocomplete__option-selected) {
       &:hover {
-        background-color: $lightgray;
+        background-color: var(--color-input-hover-bg);
       }
     }
   }
 
   &__option-selected {
-    background-color: $blue;
-    color: $white;
+    background-color: var(--color-highlight-bg);
+    color: var(--color-highlight-text);
   }
 }
 
+/*
 .dark {
   .expandable-section {
     &__content-row {
@@ -482,3 +488,6 @@
     }
   }
 }
+
+
+ */

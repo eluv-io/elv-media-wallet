@@ -1,4 +1,4 @@
-$wallet-connect-background: rgba($black, 0.35);
+$wallet-connect-background: rgba($black, 0.25);
 
 .signature-popup {
   align-items: center;
@@ -26,7 +26,7 @@ $wallet-connect-background: rgba($black, 0.35);
 
 .wallet-connect-modal {
   align-items: flex-start;
-  background-color: $wallet-connect-background;
+  background: $wallet-connect-background;
   justify-content: flex-end;
   overflow-y: auto;
 
@@ -42,9 +42,10 @@ $wallet-connect-background: rgba($black, 0.35);
     width: max-content;
 
     .wallet-connect__error-message {
-      background: $white;
-      border: 1px solid $lightgray;
-      border-radius: 6px;
+      background: var(--color-bg-primary);
+      border: var(--border);
+      border-radius: var(--border-radius);
+      color: var(--color-text-error);
       padding: 10px;
     }
   }
@@ -59,9 +60,10 @@ $wallet-connect-background: rgba($black, 0.35);
 }
 
 .wallet-connect {
+  @include component;
   @include page-fade-in;
-  background-color: $lightergray;
-  border-radius: 6px;
+  background: var(--background-component-secondary);
+  box-shadow: none;
   // sass-lint:disable function-name-format
   max-width: MIN(90vw, 350px);
   padding: 15px;
@@ -92,8 +94,8 @@ $wallet-connect-background: rgba($black, 0.35);
 
   &__info {
     align-items: center;
-    background-color: $white;
-    border-radius: 6px;
+    background: var(--background-component-primary);
+    border-radius: var(--border-radius-component);
     display: flex;
     flex-direction: column;
     margin-top: 10px;
@@ -116,7 +118,7 @@ $wallet-connect-background: rgba($black, 0.35);
 
   &__linked,
   &__download-link,
-  .loader-button {
+  .action {
     margin: 0 auto;
     max-width: 250px;
     width: 100%;
@@ -124,13 +126,13 @@ $wallet-connect-background: rgba($black, 0.35);
 
   &__link-button,
   &__download-link {
-    border: 1px solid $blue;
-    border-radius: 6px;
-    color: $blue;
+    border: var(--border-component-highlight);
+    border-radius: var(--border-radius-component);
+    color: var(--color-component-text-highlight);
     height: 40px;
 
     &:hover {
-      color: $blue;
+      color: var(--color-component-text-highlight);
     }
   }
 
@@ -154,24 +156,24 @@ $wallet-connect-background: rgba($black, 0.35);
   }
 
   &__linked {
-    background-color: $white;
-    border: 1px solid $lightblue;
-    border-radius: 6px;
-    color: $lightblue;
+    background: var(--background-component-primary);
+    border: var(--border-component-highlight);
+    border-radius: var(--border-radius-component);
+    color: var(--color-component-text-highlight);
     height: 40px;
     margin: 0 auto;
     max-width: 250px;
   }
 
   &__connected-at {
-    color: $gray;
+    color: var(--color-component-text-secondary);
     font-size: 12px;
     padding: 10px 0 5px;
   }
 
   &__network-info {
-    background-color: $lightgray;
-    border-radius: 6px;
+    background: var(--background-component-secondary);
+    border-radius: var(--border-radius-component);
     margin-bottom: 20px;
     max-width: 100%;
     padding: 10px 20px;
@@ -194,13 +196,14 @@ $wallet-connect-background: rgba($black, 0.35);
   }
 
   &__error-message {
-    color: $red;
+    color: var(--color-text-error);
     font-size: 12px;
     margin: 10px auto 0;
     max-width: 250px;
     text-align: center;
   }
 }
+/*
 
 .dark {
   .wallet-connect {
@@ -234,6 +237,8 @@ $wallet-connect-background: rgba($black, 0.35);
     }
   }
 }
+
+ */
 
 
 // UNUSED

@@ -312,7 +312,7 @@ const NFTContractSection = ({nft, listing, heldDate, isOwned, setDeleted}) => {
       }
       <div className="expandable-section__actions">
         <a
-          className="lookout-url"
+          className="action lookout-url"
           target="_blank"
           href={
             EluvioConfiguration["config-url"].includes("main.net955305") ?
@@ -326,16 +326,16 @@ const NFTContractSection = ({nft, listing, heldDate, isOwned, setDeleted}) => {
         {
           rootStore.funds ?
             <ButtonWithLoader
-              className="details-page__delete-button"
+              className="action-danger details-page__delete-button"
               onClick={async () => {
-                if(confirm("Are you sure you want to delete this NFT from your collection?")) {
+                if(confirm("Are you sure you want to permanently burn this NFT? This cannot be undone.")) {
                   await rootStore.BurnNFT({nft});
                   setDeleted(true);
                   await rootStore.LoadNFTInfo(true);
                 }
               }}
             >
-              Delete this NFT
+              Burn NFT
             </ButtonWithLoader> : null
         }
       </div>

@@ -100,6 +100,10 @@
     }
   }
 
+  &__collection-header {
+    @include component;
+  }
+
   .collection-info {
     &__button {
       border: 0;
@@ -147,7 +151,6 @@
       text-align: center;
     }
 
-    .loader-button,
     .action-primary {
       min-width: 150px;
     }

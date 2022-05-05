@@ -125,7 +125,7 @@ const MarketplaceBrowser = observer(() => {
 
   return (
     <AsyncComponent
-      loadingClassName="page-loader page-loader--light"
+      loadingClassName="page-loader"
       loadKey="all-marketplaces"
       cacheSeconds={900}
       Load={async () => await rootStore.LoadAvailableMarketplaces({})}

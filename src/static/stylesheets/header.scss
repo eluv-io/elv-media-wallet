@@ -80,7 +80,6 @@
   &__profile__balance {
     align-items: center;
     border-radius: 3px;
-    color: $darkgray;
     display: flex;
     font-size: 12px;
     height: 20px;
@@ -90,11 +89,9 @@
     img {
       height: 15px;
       min-width: 15px;
-    }
 
-    &--wallet {
-      svg {
-        filter: invert(100%);
+      * {
+        color: var(--color-page-header-text);
       }
     }
   }
@@ -112,7 +109,7 @@
   }
 
   &__profile__pending-indicator {
-    color: $lightblue;
+    color: var(--color-highlight);
     font-size: 16px;
     line-height: 1em;
     margin-left: 3px;
@@ -136,7 +133,7 @@
 
   &__placeholder {
     border: 0;
-    stroke: $gray;
+    stroke: var(--color-bg-secondary);
   }
 }
 
@@ -173,14 +170,13 @@
     transition: border 0.25s ease;
 
     &.active {
-      border-bottom: 2px solid $lightblue;
-      text-shadow: 0 0 1px $white;
+      border-bottom: var(--border-header-active-link);
     }
   }
 }
 
 .global-header-container {
-  background-color: $header-color-light;
+  background: var(--background-page-header);
 }
 
 .global-header {
@@ -188,6 +184,10 @@
   display: flex;
   height: 45px;
   justify-content: space-between;
+
+  * {
+    color: var(--color-page-header-text);
+  }
 
   &__logo-container {
     height: 100%;
@@ -206,11 +206,6 @@
     font-weight: 300;
     letter-spacing: 0.07em;
     text-transform: uppercase;
-
-    &.active {
-      border-bottom: 3px solid $lightblue;
-      text-shadow: 0 0 1px $white;
-    }
   }
 
   &--marketplace {
@@ -231,12 +226,17 @@
 
 .subheader {
   align-items: center;
+  background: var(--background-marketplace-header);
   display: flex;
   height: 40px;
   justify-content: center;
   position: relative;
   transition: height 0.15s ease;
   width: 100%;
+
+  * {
+    color: var(--color-marketplace-header-text);
+  }
 
   &--marketplace {
     height: 100px;
@@ -285,12 +285,12 @@
 
   &__header {
     align-items: flex-end;
+    color: var(--color-page-header);
     display: flex;
     font-size: 28px;
     justify-content: center;
     letter-spacing: 1px;
     text-align: center;
-    text-shadow: 0 0 1px $white;
   }
 
   &__navigation--marketplace {
@@ -305,6 +305,7 @@
 
   &__navigation-link {
     align-items: flex-end;
+    color: var(--color-marketplace-header-link-text);
     padding-bottom: 3px;
   }
 
@@ -322,21 +323,27 @@
   height: 100%;
   justify-content: center;
   margin-left: 15px;
+  min-width: 30px;
   padding-right: 15px;
 
   &__menu-button {
+    height: 100%;
     padding: 5px 0;
+    width: 100%;
 
     svg {
       height: 100%;
-      stroke: $darkgray;
+      opacity: 0.5;
+
+      * {
+        color: var(--color-page-header-text);
+      }
     }
   }
 
   &__menu {
     @include page-fade-in(0.15s);
-    background-color: $white;
-    border-top: 1px solid $lightgray;
+    background-color: var(--color-bg-primary);
     display: flex;
     flex-direction: column;
     height: 100vh;
@@ -344,6 +351,10 @@
     position: absolute;
     right: 0;
     width: 100vw;
+
+    * {
+      color: var(--color-text-primary);
+    }
   }
 
   &__link {
@@ -359,7 +370,7 @@
     width: 100%;
 
     &:hover {
-      background-color: $lightestgray;
+      background-color: var(--color-bg-secondary);
     }
 
     span {
@@ -370,13 +381,13 @@
 
     &.active {
       span {
-        border-bottom: 2px solid $lightblue;
+        border-bottom: 2px solid var(--color-highlight);
       }
     }
   }
 
   &__separator {
-    border-bottom: 1px solid $lightgray;
+    border-bottom: var(--border-faint);
     margin: 0 auto 10px;
     padding: 10px 5px 0;
     width: 85%;
@@ -513,6 +524,7 @@
   }
 }
 
+/*
 .dark {
   .global-header-container {
     background-color: $header-color-dark;
@@ -549,3 +561,6 @@
     }
   }
 }
+
+
+ */

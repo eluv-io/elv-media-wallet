@@ -243,8 +243,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
             label="Time"
             value={lastNDays}
             onChange={value => setLastNDays(value)}
-            placeholder={["-1", "All Time"]}
-            options={[["7", "Last 7 Days"], ["30", "Last 30 Days"]]}
+            options={[["-1", "All Time"], ["7", "Last 7 Days"], ["30", "Last 30 Days"]]}
           />
       }
       <div className="listing-filters__autocomplete-container">

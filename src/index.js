@@ -204,7 +204,6 @@ const App = observer(() => {
           <Routes />
         </ErrorBoundary>
       </ScrollToTop>
-      <Navigation />
       <DebugFooter />
       <div className="app-background" />
     </div>

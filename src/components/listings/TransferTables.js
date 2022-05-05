@@ -389,7 +389,7 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
                       { transfer.processor }
                     </div>
                     <div className="transfer-table__table__cell no-mobile">
-                      <div className={`transfer-table__badge ${transfer.pending ? "transfer-table__badge-pending" : "transfer-table__badge-available"}`}>
+                      <div className={`transfer-table__badge ${transfer.pending ? "transfer-table__badge-inactive" : "transfer-table__badge-active"}`}>
                         { transfer.pending ? "Pending" : "Available" }
                       </div>
                     </div>

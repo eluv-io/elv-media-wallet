@@ -19,7 +19,7 @@ const Listing = memo(({url, listing}) => (
   <div className="card-container card-shadow" >
     <Link
       to={UrlJoin(url, listing.details.ListingId)}
-      className="card nft-card"
+      className="card"
     >
       <NFTImage nft={listing} width={600}/>
       <div className="card__badges">

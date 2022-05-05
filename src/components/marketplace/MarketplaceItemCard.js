@@ -29,7 +29,7 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
     <div className={`card-container card-shadow ${className}`}>
       <Link
         to={to || `${match.url}/${item.sku}`}
-        className={`card nft-card ${outOfStock || expired || unauthorized ? "card-disabled" : ""}`}
+        className={`card ${outOfStock || expired || unauthorized ? "card-disabled" : ""}`}
       >
         <MarketplaceImage
           marketplaceHash={marketplaceHash}

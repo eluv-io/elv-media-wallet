@@ -165,13 +165,6 @@
     font-weight: 500;
   }
 
-  &__content__id {
-    color: $darkgray;
-    font-style: italic;
-    letter-spacing: 0.05em;
-    text-align: center;
-  }
-
   .card {
     &__title {
       font-size: 20px;
@@ -187,37 +180,19 @@
     }
   }
 
-  // sass-lint:disable force-element-nesting
-  &__listing-button .button,
-  &__open-button .button,
-  &__delete-button .button,
-  &__transfer-details__opensea-button,
-  .lookout-url {
-    align-items: center;
-    background-color: $blue;
-    border: 0;
-    border-radius: 3px;
-    color: $white;
-    display: flex;
-    justify-content: center;
-    max-width: 300px;
-    padding: 0 30px;
-    text-align: center;
+  .action {
+    max-width: 400px;
+    width: 100%;
 
-    &.button {
-      border: 0;
-    }
-
-    &:hover {
-      color: $white;
+    & + .action {
+      margin-top: 10px;
     }
   }
-  // sass-lint:enable force-element-nesting
 
   &__actions {
+    @include component;
     align-items: center;
-    border: 1px solid $mediumgray;
-    border-radius: 3px;
+    box-shadow: none;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -227,13 +202,7 @@
       display: none;
     }
 
-    .button-container {
-      display: flex;
-      justify-content: center;
-    }
-
-    button,
-    .button-container {
+    button {
       width: 100%;
 
       &:not(:last-child) {
@@ -275,7 +244,7 @@
   }
 
   &__transfer-error {
-    color: $red;
+    color: var(--color-text-error);
   }
 
   &__transfer-buttons {
@@ -303,17 +272,6 @@
     justify-content: center;
   }
 
-  .lookout-url {
-    padding: 10px 30px;
-  }
-
-  &__delete-button {
-    .button {
-      background: $darkgray;
-      border: 0;
-    }
-  }
-
   &__description {
     margin-bottom: 20px;
   }
@@ -326,7 +284,7 @@
     }
 
     a {
-      color: $blue;
+      color: var(--color-component-text-highlight);
     }
   }
 
@@ -375,25 +333,25 @@
 
   &__media {
     align-items: center;
-    background-color: $lightgray;
+    background: var(--background-component-secondary);
     border: 0.5px solid transparent;
-    border-radius: 6px;
+    border-radius: var(--border-radius-component);
     display: flex;
     height: 100px;
     padding: 10px;
     width: 100%;
 
     &--selected {
-      border: 0.5px solid $lightblue;
-      box-shadow: $lightblue 0 0 5px;
+      border: 0.5px solid var(--color-component-text-highlight);
+      box-shadow: var(--color-component-text-highlight) 0 0 5px;
 
       .details-page__media__name {
-        color: $lightblue;
+        color: var(--color-component-text-highlight);
       }
     }
 
     &__image-container {
-      border-radius: 6px;
+      border-radius: var(--border-radius-component);
       height: 100%;
       max-width: 80px;
       min-width: 80px;
@@ -402,7 +360,7 @@
     }
 
     &__image {
-      border-radius: 6px;
+      border-radius: var(--border-radius-component);
       height: 100%;
       left: 0;
       object-fit: contain;
@@ -514,8 +472,7 @@
     &__actions {
       flex-direction: column;
 
-      button,
-      .button-container {
+      button {
         &:not(:last-child) {
           margin: 0 0 10px;
         }
@@ -530,9 +487,9 @@
   grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
 
   .trait {
-    background-color: $lightestgray;
-    border: 1.5px solid $lightblue;
-    border-radius: 6px;
+    background: var(--background-component-secondary);
+    border: 1px solid var(--color-component-highlight);
+    border-radius: var(--border-radius-component);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -551,7 +508,7 @@
     }
 
     &__rarity {
-      color: $blue;
+      color: var(--color-component-text-highlight);
       font-size: 12px;
     }
   }
@@ -580,6 +537,7 @@
   }
 }
 
+/*
 .dark {
   .details-page {
     &__content__id {
@@ -671,3 +629,5 @@
     max-width: 400px;
   }
 }
+
+ */

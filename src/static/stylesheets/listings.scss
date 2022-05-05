@@ -14,14 +14,14 @@
   }
 
   &__message {
-    color: $gray;
+    color: var(--color-text-secondary);
     font-size: 10px;
     margin: 40px auto 20px;
     max-width: 700px;
     text-align: center;
 
     a {
-      color: $darkgray;
+      color: var(--color-text-primary);
     }
   }
 }
@@ -50,8 +50,9 @@
 }
 
 .listing-card {
-  border: 1px solid $mediumgray;
-  border-radius: 6px;
+  background: var(--background-card);
+  border: var(--border-card);
+  border-radius: var(--border-radius-card);
   display: grid;
   grid-gap: 20px;
   grid-template-columns: 190px 1fr;
@@ -111,8 +112,8 @@
 
   &__price-container {
     align-items: center;
-    border: 1px solid $lightgray;
-    border-radius: 6px;
+    border: var(--border-faint);
+    border-radius: var(--border-radius-card);
     display: flex;
     justify-content: space-between;
     margin-top: 15px;
@@ -126,13 +127,8 @@
     font-weight: 300;
   }
 
-  &__action {
-    border: 1px solid $darkgray;
-    padding: 0 20px;
-  }
-
   &__menu-button {
-    background-color: $white;
+    background-color: transparent;
     font-size: 12px;
     height: 26px;
     min-width: 36px;
@@ -144,9 +140,9 @@
   }
 
   &__menu {
-    background-color: $white;
-    border: 1px solid $darkgray;
-    border-radius: 6px;
+    background: var(--background-card);
+    border: var(--border-card);
+    border-radius: var(--border-radius-card);
     position: absolute;
     right: 20px;
     top: 24px;
@@ -159,24 +155,14 @@
       height: 35px;
       width: 100%;
 
-      &:focus {
-        box-shadow: 0 0 5px $blue;
-      }
-
       &:not(:last-child) {
-        border-bottom: 1px solid $mediumgray;
+        border-bottom: var(--border-card);
       }
-    }
-  }
-
-  &__menu__action {
-    &:disabled {
-      color: $gray;
     }
   }
 
   &__message {
-    color: $blue;
+    color: var(--color-card-text-highlight);
     font-size: 12px;
     margin-top: 10px;
   }
@@ -222,6 +208,7 @@
   }
 }
 
+/*
 .dark {
   .listings-page {
     &__message {
@@ -275,3 +262,6 @@
     }
   }
 }
+
+
+ */

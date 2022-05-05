@@ -49,7 +49,7 @@ const MarketplaceCollections = observer(() => {
           <div className="card-container card-shadow" key={key}>
             <Link
               to={UrlJoin(basePath, collectionIndex.toString(), "owned", nft.details.ContractId, nft.details.TokenIdStr)}
-              className="card nft-card"
+              className="card"
             >
               <NFTImage nft={nft} width={600} />
               <div className="card__text">
@@ -86,7 +86,7 @@ const MarketplaceCollections = observer(() => {
 
         return (
           <div className="card-container card-shadow collection-card collection-card-inaccessible collection-card-unowned" key={key}>
-            <div className="card nft-card">
+            <div className="card">
               {
                 placeholder.image ?
                   <MarketplaceImage
@@ -126,7 +126,7 @@ const MarketplaceCollections = observer(() => {
       <div className="marketplace__section" key={`marketplace-section-${collectionIndex}`}>
         <h1 className="page-header section-header">
           <div className="section-header__left">
-            <div className="page-header__title card-shadow">
+            <div className="page-header__title marketplace__collection-header">
               {
                 collectionIcon ?
                   <MarketplaceImage

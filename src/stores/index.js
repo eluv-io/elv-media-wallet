@@ -632,7 +632,7 @@ class RootStore {
 
     this.hideGlobalNavigation = marketplace && this.specifiedMarketplaceId === marketplace.marketplaceId && marketplace.branding && marketplace.branding.hide_global_navigation;
 
-    const customStyleTag = document.getElementById("_custom-styles");
+    const customStyleTag = document.getElementById("_theme");
 
     let font;
     switch(options.font) {
@@ -654,10 +654,13 @@ class RootStore {
         break;
     }
 
-    customStyleTag.innerHTML = (`
+    customStyleTag.innerHTML = (`    
        body { font-family: "${font}", sans-serif; }
        body * { font-family: "${font}", sans-serif; }
     `);
+
+    if(marketplace !== "default") {
+    }
 
     switch(options.color_scheme) {
       case "Dark":

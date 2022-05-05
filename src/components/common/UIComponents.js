@@ -9,7 +9,7 @@ export const ExpandableSection = ({header, icon, children, expanded=false, toggl
   const [ show, setShow ] = useState(expanded);
 
   return (
-    <div className={`expandable-section card-shadow ${show ? "expandable-section-shown" : "expandable-section-hidden"} ${className}`}>
+    <div className={`expandable-section ${show ? "expandable-section-shown" : "expandable-section-hidden"} ${className}`}>
       <div className="expandable-section__header ellipsis" onClick={() => toggleable && setShow(!show)}>
         { icon ? <ImageIcon className="expandable-section__header__icon" icon={icon} title={header} /> : null}
         { header }
@@ -73,37 +73,29 @@ export const FormatPriceString = (priceList, options={currency: "USD", quantity:
   return formattedPrice;
 };
 
-export const ButtonWithLoader = ({children, className="", onClick, disabled}) => {
+export const ButtonWithLoader = ({children, className="", onClick, ...props}) => {
   const [loading, setLoading] = useState(false);
 
   return (
-    <div className="button-container loader-button">
+    <button
+      {...props}
+      className={`action action-with-loader ${className}`}
+      onClick={async event => {
+        if(loading) { return; }
+
+        try {
+          setLoading(true);
+          await onClick(event);
+        } finally {
+          setLoading(false);
+        }
+      }}
+    >
       {
         loading ?
-          <Loader
-            className={[
-              "loader-button__loader",
-              className.includes("action") ? "action-loader" : "",
-              className.includes("action-primary") ? "action-loader-primary" : "",
-              className.includes("action-primary") ? "action-loader-primary" : "",
-              className.includes("action-danger") ? "action-loader-danger" : "",
-            ].filter(className => className).join(" ")}
-          /> :
-          <button
-            disabled={disabled}
-            className={`button action loader-button__button ${className}`}
-            onClick={async event => {
-              try {
-                setLoading(true);
-                await onClick(event);
-              } finally {
-                setLoading(false);
-              }
-            }}
-          >
-            { children }
-          </button>
+          <Loader className="action-with-loader__loader" /> :
+          children
       }
-    </div>
+    </button>
   );
 };

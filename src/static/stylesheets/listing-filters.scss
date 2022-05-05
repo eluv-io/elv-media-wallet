@@ -33,7 +33,6 @@ $input-height: 30px;
 
     .autocomplete {
       input {
-        border-radius: 6px;
         height: $input-height;
         padding: 0 40px 0 12px;
         width: 100%;
@@ -64,18 +63,13 @@ $input-height: 30px;
   }
 
   &__select {
-    align-items: center;
-    background-color: $white;
-    background-image: none;
-    border: 1px solid $mediumgray;
-    border-radius: 6px;
     font-size: 12px;
     height: $input-height;
     padding: 0 8px;
     width: 100%;
 
     &-placeholder {
-      color: $darkgray;
+      color: var(--color-input-text-placeholder);
     }
   }
 
@@ -119,9 +113,9 @@ $input-height: 30px;
 
     &__selected__item {
       align-items: center;
-      border: 1px solid $lightblue;
-      border-radius: 6px;
-      color: $lightblue;
+      border: 1px solid var(--color-highlight);
+      border-radius: var(--border-radius-input);
+      color: var(--color-highlight);
       display: flex;
       font-size: 12px;
       height: $input-height;
@@ -134,7 +128,10 @@ $input-height: 30px;
         padding: 8px;
         position: absolute;
         right: 0;
-        stroke: $lightblue;
+
+        * {
+          color: var(--color-highlight);
+        }
       }
     }
   }
@@ -187,9 +184,9 @@ $input-height: 30px;
 
 
 .listing-stats {
+  @include component;
   align-items: center;
-  border: 1px solid $mediumgray;
-  border-radius: 6px;
+  box-shadow: none;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   height: 65px;
@@ -208,13 +205,13 @@ $input-height: 30px;
 
     &:not(:last-child) {
       // sass-lint:disable no-color-literals
-      border-right: 1px solid rgba($mediumgray, 0.35);
+      border-right: var(--border-component-secondary);
     }
   }
 
   &__label,
   &__value {
-    color: $lightblue;
+    color: var(--color-component-text-highlight);
     display: block;
     text-align: center;
     width: 100%;
@@ -251,6 +248,7 @@ $input-height: 30px;
   }
 }
 
+/*
 .dark {
   .listing-stats {
     background-color: $darkestgray;
@@ -296,3 +294,6 @@ $input-height: 30px;
     }
   }
 }
+
+
+ */

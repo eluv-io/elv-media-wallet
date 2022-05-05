@@ -1,7 +1,3 @@
-$card-shadow: rgba(0, 0, 0, 0.1);
-$overlay-background: rgba($black, 0.25);
-$pending-color: rgba($blue, 0.5);
-
 .card-list {
   display: grid;
   grid-gap: 10px;
@@ -23,19 +19,9 @@ $pending-color: rgba($blue, 0.5);
 }
 
 .card-shadow {
-  border: 1px solid $mediumgray;
-  border-radius: 4px;
-  box-shadow: 2px 2px 4px $card-shadow;
-}
-
-.card-padding-container {
-  background: $lightestgray;
-  border-radius: 10px;
-  padding: 0;
-
-  @media screen and (min-width: $tablet-breakpoint) {
-    padding: 20px;
-  }
+  border: var(--border-card);
+  border-radius: var(--border-radius-card);
+  box-shadow: var(--box-shadow-card);
 }
 
 .card-container {
@@ -47,15 +33,10 @@ $pending-color: rgba($blue, 0.5);
     margin: 3px;
   }
 
-  &-selected {
-    border: 1px solid $blue;
-    box-shadow: $blue 0 0 8px;
-    margin: 0;
-  }
-
+  &--selected,
   &-pending-selection {
-    border: 1px solid $pending-color;
-    box-shadow: $pending-color 0 0 8px;
+    border: var(--border-highlight);
+    box-shadow: var(--color-highlight) 0 0 8px;
     margin: 0;
   }
 
@@ -75,7 +56,7 @@ $pending-color: rgba($blue, 0.5);
 }
 
 .card {
-  border-radius: 10px;
+  border-radius: var(--border-radius-card);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -94,12 +75,14 @@ $pending-color: rgba($blue, 0.5);
   }
 
   &__image-container {
+    margin-bottom: 20px;
     padding-top: 100%;
     position: relative;
     width: 100%;
   }
 
   &__image {
+    border-radius: var(--border-radius-card);
     height: 100%;
     left: 0;
     object-fit: contain;
@@ -126,7 +109,7 @@ $pending-color: rgba($blue, 0.5);
       width: 100%;
 
       * {
-        stroke: $lightblue;
+        stroke: var(--color-feature-card-text-highlight);
         stroke-width: 5px;
       }
     }
@@ -158,7 +141,7 @@ $pending-color: rgba($blue, 0.5);
 
   &__image-placeholder {
     * {
-      stroke: $black;
+      stroke: var(--color-card-text-primary);
       stroke-width: 0.5px;
     }
   }
@@ -171,7 +154,7 @@ $pending-color: rgba($blue, 0.5);
     width: 100%;
 
     &__frame {
-      background-color: $white;
+      background: var(--background-content);
       border: 0;
       height: 100%;
       outline: 0;
@@ -181,8 +164,8 @@ $pending-color: rgba($blue, 0.5);
 
   &__badges {
     align-items: center;
-    background-color: $white;
-    border-radius: 6px;
+    background-color: var(--color-card-badge-bg);
+    border-radius: var(--border-radius-card-badge);
     display: flex;
     height: max-content;
     justify-content: center;
@@ -198,9 +181,11 @@ $pending-color: rgba($blue, 0.5);
   }
 
   &__badge {
-    filter: invert(100%);
+    fill: var(--color-card-badge);
     height: 18px;
     opacity: 0.75;
+
+    stroke: transparent;
     width: auto;
   }
 
@@ -219,8 +204,10 @@ $pending-color: rgba($blue, 0.5);
     position: relative;
 
     &__return-button {
-      background-color: $lightgray;
-      border-radius: 6px;
+      background-color: var(--color-button-feature-card-bg);
+      border: var(--border-button-feature-card);
+      border-radius: var(--border-radius-button-feature-card);
+      color: var(--color-button-feature-card-text);
       height: 30px;
       position: absolute;
       right: 0;
@@ -229,6 +216,10 @@ $pending-color: rgba($blue, 0.5);
       svg {
         height: 100%;
         padding: 7px;
+
+        * {
+          color: var(--color-button-feature-card-text);
+        }
       }
     }
   }
@@ -247,6 +238,7 @@ $pending-color: rgba($blue, 0.5);
     font-weight: 500;
     justify-content: space-between;
     line-height: 1.1em;
+    margin-bottom: 3px;
 
     &-edition {
       font-size: 12px;
@@ -257,15 +249,20 @@ $pending-color: rgba($blue, 0.5);
 
   &__subtitle,
   &__description {
-    color: $gray;
+    color: var(--color-card-text-secondary);
     font-size: 14px;
     font-weight: 300;
-    margin: 10px 0 5px;
+    margin: 15px 0 5px;
   }
 
   &__title__title,
   &__subtitle__title {
     padding-right: 10px;
+  }
+
+  &__title-edition,
+  &__title-ordinal {
+    margin: 1px 0;
   }
 
   &__title__price {
@@ -283,7 +280,7 @@ $pending-color: rgba($blue, 0.5);
 
   &__stock {
     align-items: center;
-    color: $gray;
+    color: var(--color-card-text-secondary);
     display: flex;
     font-size: 12px;
     font-weight: 600;
@@ -292,14 +289,14 @@ $pending-color: rgba($blue, 0.5);
   }
 
   &__stock__indicator {
-    background: $red;
+    background: var(--color-card-stock-available);
     border-radius: 100%;
     height: 7px;
     margin-right: 7px;
     width: 7px;
 
     &-unavailable {
-      background: $darkgray;
+      background: var(--color-card-stock-unavailable);
     }
   }
 
@@ -314,15 +311,24 @@ $pending-color: rgba($blue, 0.5);
 
 
 .nft-card {
-  .card {
-    background-color: $white;
+  background: var(--background-feature-card-secondary);
+  border-radius: var(--border-radius-feature-card);
+  padding: 0;
 
-    &__image-container {
-      margin-bottom: 20px;
-    }
+  @media screen and (min-width: $tablet-breakpoint) {
+    padding: var(--padding-feature-card);
+  }
+
+  .card-shadow {
+    box-shadow: var(--box-shadow-feature-card);
+  }
+
+  .card {
+    background: var(--background-feature-card-primary);
+    border-radius: var(--border-radius-feature-card);
 
     &__image {
-      border-radius: 6px;
+      border-radius: var(--border-radius-feature-card);
     }
 
     &__title {
@@ -334,22 +340,15 @@ $pending-color: rgba($blue, 0.5);
       font-size: 14px;
     }
 
-    &__subtitle {
-      margin: 15px 0 5px;
-    }
-
     &__title-edition {
       font-size: 12px;
       margin-bottom: 0;
-    }
-
-    &__title-ordinal {
-      margin-top: 0;
     }
   }
 }
 
 
+/*
 .dark {
   .card-padding-container {
     background: $darkestgray;
@@ -427,6 +426,8 @@ $pending-color: rgba($blue, 0.5);
     }
   }
 }
+
+ */
 
 .side-panel {
   .card-list {

@@ -23,7 +23,7 @@ const CollectionCard = observer(({nft, listing}) => {
     <div className="card-container card-shadow">
       <Link
         to={UrlJoin(match.url, nft.details.ContractId, nft.details.TokenIdStr)}
-        className="card nft-card"
+        className="card"
       >
         <NFTImage nft={nft} width={600} />
         <div className="card__badges">
