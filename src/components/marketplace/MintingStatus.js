@@ -91,7 +91,7 @@ const MintingStatus = observer(({
             { status.errorMessage || "Minting Failed" }
           </h1>
           <div className="minting-status-results__actions">
-            <Link to={basePath} className="button minting-status-results__back-button">
+            <Link to={basePath} className="action action-primary minting-status-results__back-button">
               { backText }
             </Link>
           </div>

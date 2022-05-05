@@ -22,13 +22,13 @@
   }
 
   &__transaction-link {
-    color: $blue;
+    color: var(--color-text-highlight);
     font-size: 12px;
     margin-top: 10px;
   }
 
   &__navigation-message {
-    color: $darkgray;
+    color: var(--color-text-secondary);
     font-size: 12px;
     font-weight: 300;
     max-width: 400px;
@@ -89,28 +89,9 @@
     justify-content: center;
     margin: 10px 0 20px;
   }
-
-  &__back-button {
-    align-items: center;
-    background-color: $blue;
-    border: 0;
-    border-radius: 8px;
-    color: $white;
-    display: flex;
-    font-size: 16px;
-    height: 45px;
-    justify-content: center;
-    margin: 30px auto 0;
-    max-width: 300px;
-    padding: 0 35px;
-    text-align: center;
-
-    &:hover {
-      color: $white;
-    }
-  }
 }
 
+/*
 .dark {
   .minting-status {
     &__transaction-link {
@@ -129,3 +110,6 @@
     }
   }
 }
+
+
+ */

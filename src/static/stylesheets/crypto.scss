@@ -1,6 +1,7 @@
-$wallet-connect-background: rgba($black, 0.25);
+$wallet-connect-background: rgba(0, 0, 0, 0.25);
 
 .signature-popup {
+  @include component;
   align-items: center;
   display: flex;
   justify-content: center;

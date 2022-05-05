@@ -1,8 +1,3 @@
-// TODO: Support image background
-// TODO: Rewrite buttons
-// TODO: Loader colors (incl. buttons)
-// TODO: expandable sections, incl icons and media controls
-
 :root {
   // General
   --color-highlight: #529cf5;
@@ -24,9 +19,9 @@
   --color-loader: rgba(0, 0, 0, 0.5);
 
   --border: 1px solid #ccc;
-  --border-faint: 1px solid #f0f0f0;
+  --border-faint: 1px solid #e0e0e0;
   --border-highlight: 1px solid var(--color-highlight);
-  --border-radius: 6px;
+  --border-radius: 3px;
 
   // Page
   --color-page-bg-gradient-top: #f7f7f7;
@@ -61,6 +56,17 @@
   --color-button-danger-text: var(--color-highlight-container-text);
   --border-button-danger: 1px solid #333;
   --border-radius-button-danger: var(--border-radius);
+
+  // Togglable/selectable options
+  --color-button-selection-bg: transparent;
+  --color-button-selection-text: var(--color-text-secondary);
+  --border-button-selection: var(--border-faint);
+  --border-radius-button-selection: var(--border-radius);
+
+  --color-button-selection-active-bg: transparent;
+  --color-button-selection-active-text: var(--color-text-highlight);
+  --border-button-selection-active: var(--border-highlight);
+  --border-radius-button-selection-active: var(--border-radius);
 
 
   // Inputs
@@ -108,7 +114,6 @@
   --border-button-feature-card: 0;
   --border-radius-button-feature-card: var(--border-radius);
 
-
   // Tables
   --color-table-header: var(--color-bg-primary);
   --color-table-header-row-bg: var(--color-bg-primary);
@@ -134,6 +139,8 @@
   // Other components such as nft detail section boxes, listing stats, etc.
   --background-component-primary: var(--color-bg-primary);
   --background-component-secondary: var(--color-bg-secondary);
+  --color-component-bg-primary: var(--color-bg-primary);
+  --color-component-bg-secondary: var(--color-bg-secondary);
   --color-component-highlight: var(--color-text-highlight-dark);
   --color-component-text-primary: var(--color-text-primary);
   --color-component-text-secondary: var(--color-text-secondary);
@@ -143,45 +150,51 @@
   --border-component-highlight: var(--border-highlight);
   --border-radius-component: var(--border-radius);
   --box-shadow-component: var(--box-shadow-card);
+
+  // Modals
+  --background-modal-overlay: rgba(0, 0, 0, 0.75);
+  --background-modal-primary: var(--background-content);
+  --border-modal-primary: var(--border);
+  --border-modal-secondary: var(--border-faint);
+  --border-radius-modal: var(--border-radius);
+
+  --color-button-modal-close-bg: var(--color-bg-primary);
+  --color-button-modal-close-text: var(--color-text-primary);
+  --border-button-modal-close: 1px solid var(--color-text-primary);
+  --border-radius-modal-close: 100%;
+
+  // Login (NOTE: background image and button colors are controlled in marketplace metadata)
+  --background-login: var(--background-page);
+  --background-login-box: var(--background-component-primary);
+  --color-login-text-primary: var(--color-component-text-primary);
+  --color-login-text-secondary: var(--color-component-text-secondary);
+  --color-login-text-highlight: var(--color-component-text-highlight);
+  --border-login-box: var(--border);
+  --border-radius-login-box: var(--border-radius);
+  --box-shadow-login-box: var(--box-shadow-card);
+
+
+  // Misc (internal)
+  --background-marketplace-card: #000;
+  --color-marketplace-card-text-primary: #fff;
+  --color-marketplace-card-text-secondary: #777;
+  --border-marketplace-card: 0;
+  --border-marketplace-card-logo: 1px solid #333;
+  --border-radius-marketplace-card: 6px;
 }
 
 @mixin component {
-  border: var(--border-component-primary);
-  background-color: var(--color-component-bg-primary);
   background: var(--background-component-primary);
-  box-shadow: var(--box-shadow-component);
+  border: var(--border-component-primary);
   border-radius: var(--border-radius-component);
   color: var(--color-component-text-primary);
 }
 
-
-
-$white: #fff;
-$black: #000;
-$lightestgray: #f9f9f9;
-$lightergray: #f3f3f3;
-$lightgray: #eee;
-$mediumgray: #ccc;
-$gray: #888;
-$darkgray: #555;
-$darkergray: #333;
-$darkestgray: #151515;
-$lightblack: #0d0d0d;
-
-$bluegray: #404f6b;
-$blue: #2e69c6;
-$blue: #2e69c6;
-$lightblue: #529cf5;
-$gold: #ffc010;
-$red: #f00;
-
-$header-color-light: #e2e2e2;
-$background-gradient-light-top: #f8f8f8;
-$background-gradient-light-bottom: #f9f9f9;
-
-$header-color-dark: #181818;
-$background-gradient-dark-top: #131313;
-$background-gradient-dark-bottom: #000;
+@mixin modal {
+  border: var(--border-modal-primary);
+  background: var(--background-modal-primary);
+  border-radius: var(--border-radius-modal);
+}
 
 $breakpoint: 1250px;
 $intermediate-breakpoint: 1000px;
@@ -219,10 +232,4 @@ $mobile-breakpoint: 600px;
 
 @mixin page-fade-out {
   animation: 0.5s fadeout ease-in;
-}
-
-@mixin background-gradient-loader {
-  animation: BackgroundGradient 15s ease-in-out infinite;
-  background: linear-gradient(-75deg, $lightgray, $white, $lightgray, $white, $lightgray);
-  background-size: 400% 400%;
 }

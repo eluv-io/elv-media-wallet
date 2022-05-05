@@ -2,11 +2,12 @@
 @import "variables";
 @import "base";
 @import "loaders";
-@import "modal";
+@import "actions";
 @import "markdown";
+@import "modal";
 
 @import "header";
-@import "navigation";
+//@import "navigation";
 @import "cards";
 @import "crypto";
 @import "nft-details";

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, {useState} from "react";
 import {Loader} from "Components/common/Loaders";
 import {rootStore} from "Stores";
 import {observer} from "mobx-react";
@@ -13,10 +13,6 @@ const ConsentPopup = observer(({parameters, Respond}) => {
       rootStore.trustedOrigins[parameters.origin] :
       true
   );
-
-  useEffect(() => {
-    rootStore.ToggleDarkMode(true);
-  }, []);
 
   return (
     <div className="page-container accept-popup">

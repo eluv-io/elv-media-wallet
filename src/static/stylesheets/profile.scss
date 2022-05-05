@@ -4,8 +4,8 @@
   padding: 0 30px 100px;
 
   &__section {
-    border-radius: 6px;
-    margin: 0 auto;
+    @include component;
+    margin: 0 auto 10px;
     max-width: 700px;
     padding: 20px 10px;
     width: 100%;
@@ -26,8 +26,7 @@
     }
 
     &-box {
-      background-color: $lightergray;
-      margin-bottom: 10px;
+      background: var(--background-component-secondary);
       padding: 20px;
     }
 
@@ -40,7 +39,7 @@
   }
 
   &__section-header {
-    color: $darkgray;
+    color: var(--color-component-text-secondary);
     font-size: 20px;
     font-weight: 300;
     margin-bottom: 10px;
@@ -55,7 +54,7 @@
     justify-content: center;
 
     &-highlight {
-      color: $blue;
+      color: var(--color-component-text-highlight);
     }
   }
 
@@ -66,8 +65,8 @@
 
   &__address-field {
     .copyable-field__content {
-      background-color: $lightgray;
-      border-radius: 6px;
+      background-color: var(--color-component-bg-secondary);
+      border-radius: var(--border-radius-component);
       font-size: 14px;
       font-weight: 300;
       margin-right: 10px;
@@ -77,13 +76,14 @@
   }
 
   &__message {
-    color: $gray;
+    color: var(--color-component-text-secondary);
     font-size: 12px;
-    margin-top: 10px;
+    margin-top: 20px;
     text-align: center;
 
     a {
-      color: $darkgray;
+      color: var(--color-component-text-primary);
+      font-size: 12px;
     }
   }
 
@@ -156,13 +156,13 @@
 }
 
 .withdrawal-confirmation {
-  background-color: $white;
+  @include modal;
   max-width: 550px;
   overflow-y: hidden;
   width: 100%;
 
   &__header {
-    border-bottom: 1px solid $mediumgray;
+    border-bottom: var(--border-component-primary);
     font-size: 20px;
     font-weight: 300;
     padding: 15px 25px;
@@ -204,7 +204,7 @@
   }
 
   &__input-error {
-    color: $red;
+    color: var(--color-text-error);
     font-size: 10px;
     text-align: center;
     width: 100%;
@@ -227,8 +227,6 @@
   }
 
   &__price-input {
-    border: 1px solid $mediumgray;
-    border-radius: 3px;
     font-size: 20px;
     height: 50px;
     max-width: 290px;
@@ -236,7 +234,7 @@
     width: 100%;
 
     &-error {
-      box-shadow: 0 0 3px $red;
+      box-shadow: 0 0 3px var(--color-text-error);
     }
   }
 
@@ -257,7 +255,7 @@
   }
 
   &__detail-separator {
-    border-bottom: 2px solid $mediumgray;
+    border-bottom: var(--border-component-secondary);
     margin-bottom: 15px;
     padding-top: 15px;
     width: 100%;
@@ -265,12 +263,12 @@
 
   &__detail-faded {
     * {
-      color: $gray;
+      color: var(--color-component-text-secondary);
     }
   }
 
   &__error {
-    color: $red;
+    color: var(--color-text-error);
     font-size: 12px;
     margin: 20px 0;
     text-align: center;
@@ -279,12 +277,6 @@
 
   .loader {
     height: 40px;
-  }
-
-  .action-primary {
-    background-color: $blue;
-    border: 1px solid $blue;
-    color: $white;
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
@@ -300,21 +292,10 @@
   }
 }
 
-.setup-complete {
-  align-items: center;
-  display: flex;
-
-  height: 100%;
-  justify-content: center;
-  width: 100%;
-
-  &__message {
-    font-size: 24px;
-    margin-bottom: 15%;
-  }
-}
-
 .accept-popup {
+  @include component;
+  border: 0;
+
   &,
   &__box {
     align-items: center;
@@ -326,15 +307,12 @@
   }
 
   &__box {
-    background-color: $black;
-    border: 1px solid $darkgray;
-    border-radius: 6px;
+    @include component;
     max-width: 400px;
     padding: 30px;
   }
 
   &__logo {
-    filter: invert(100%);
     max-width: 200px;
   }
 
@@ -349,7 +327,6 @@
   }
 
   &__requestor {
-    color: $black;
     font-size: 14px;
     margin-bottom: 20px;
   }
@@ -399,6 +376,7 @@
   }
 }
 
+/*
 .dark {
   .profile-page {
     &__section-header {
@@ -469,3 +447,6 @@
     }
   }
 }
+
+
+ */

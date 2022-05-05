@@ -1,6 +1,5 @@
 .media-controls {
-  background-color: $mediumgray;
-  border-radius: 0 0 3px 3px;
+  background: var(--background-component-secondary);
   bottom: 0;
   height: 50px;
   justify-content: space-between;
@@ -29,6 +28,10 @@
     position: relative;
     width: 20px;
 
+    * {
+      color: var(--color-component-text-primary);
+    }
+
     &:not(:last-child) {
       margin-right: 10px;
     }
@@ -37,6 +40,10 @@
       height: 30px;
       padding: 0;
       width: 30px;
+
+      circle {
+        fill: var(--color-component-bg-primary);
+      }
     }
 
     svg {
@@ -46,11 +53,9 @@
   }
 
   &__title {
-    background-color: $lightgray;
-    border-radius: 4px;
-    color: $blue;
+    background-color: var(--background-component-primary);
+    border-radius: var(--border-radius-component);
     flex: 1 1 auto;
-    font-size: 16px;
     justify-content: flex-start;
     margin: 0 10px;
     min-width: 0;
@@ -58,8 +63,11 @@
     padding: 0 10px 0 30px;
     position: relative;
 
+    * {
+      color: var(--color-component-text-highlight);
+    }
+
     &__icon {
-      fill: $blue;
       height: 15px;
       left: 8px;
       position: absolute;
@@ -67,28 +75,24 @@
 
     &__text,
     &__span {
-      color: $blue;
       min-width: 100%;
     }
   }
 
   &__toggle {
-    background-color: $lightgray;
     height: 30px;
+    min-width: 50px;
     padding: 5px;
-    transition: background-color 0.15s ease;
     width: 50px;
 
-    &--active {
-      background-color: $blue;
-
-      svg {
-        filter: invert(100%);
-      }
+    &:not(:last-child) {
+      margin-right: 5px;
     }
 
-    &:not(:last-child) {
-      margin-right: 10px;
+    &:not(.action-selection--active) {
+      * {
+        color: var(--color-component-text-primary);
+      }
     }
 
     svg {
@@ -180,19 +184,9 @@
     }
   }
 
-  .action {
-    max-width: 400px;
-    width: 100%;
-
-    & + .action {
-      margin-top: 10px;
-    }
-  }
-
   &__actions {
     @include component;
     align-items: center;
-    box-shadow: none;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -202,11 +196,12 @@
       display: none;
     }
 
-    button {
+    .action {
+      max-width: 400px;
       width: 100%;
 
-      &:not(:last-child) {
-        margin-bottom: 10px;
+      & + .action {
+        margin-top: 10px;
       }
     }
   }
@@ -369,7 +364,8 @@
       width: 100%;
 
       &--fallback {
-        background: radial-gradient(ellipse at top, $darkgray, $black);
+        // sass-lint:disable no-color-literals
+        background: radial-gradient(ellipse at top, #333, #000);
       }
     }
 
@@ -382,6 +378,14 @@
       right: 8px;
       width: 20px;
       z-index: 1;
+
+      * {
+        color: var(--color-highlight-container-text);
+      }
+
+      circle {
+        fill: var(--color-highlight-container-bg);
+      }
     }
 
     &:not(:hover) {

@@ -335,7 +335,7 @@ const ListingPurchasePayment = observer(({nft, marketplaceItem, selectedListing,
           <div className="listing-purchase-confirmation-modal__payment-selection-container">
             <button
               onClick={() => setPaymentType("stripe")}
-              className={`action listing-purchase-confirmation-modal__payment-selection listing-purchase-confirmation-modal__payment-selection-credit-card ${paymentType === "stripe" ? "listing-purchase-confirmation-modal__payment-selection-selected" : ""}`}
+              className={`action action-selection listing-purchase-confirmation-modal__payment-selection listing-purchase-confirmation-modal__payment-selection-credit-card ${paymentType === "stripe" ? "action-selection--active listing-purchase-confirmation-modal__payment-selection--selected" : ""}`}
             >
               <div className="listing-purchase-confirmation-modal__payment-selection-icons">
                 <ImageIcon icon={CreditCardIcon} className="listing-purchase-confirmation-modal__payment-selection-icon" title="Pay with Credit Card" />
@@ -344,7 +344,7 @@ const ListingPurchasePayment = observer(({nft, marketplaceItem, selectedListing,
             </button>
             <button
               onClick={() => setPaymentType("coinbase")}
-              className={`action listing-purchase-confirmation-modal__payment-selection listing-purchase-confirmation-modal__payment-selection-crypto ${paymentType === "coinbase" ? "listing-purchase-confirmation-modal__payment-selection-selected" : ""}`}
+              className={`action action-selection listing-purchase-confirmation-modal__payment-selection listing-purchase-confirmation-modal__payment-selection-crypto ${paymentType === "coinbase" ? "action-selection--active listing-purchase-confirmation-modal__payment-selection--selected" : ""}`}
             >
               <div className="listing-purchase-confirmation-modal__payment-selection-icons listing-purchase-confirmation-modal__payment-selection-icons-crypto">
                 <ImageIcon icon={CoinbaseIcon} className="listing-purchase-confirmation-modal__payment-selection-icon" title="Coinbase" />
@@ -353,7 +353,7 @@ const ListingPurchasePayment = observer(({nft, marketplaceItem, selectedListing,
             </button>
             <button
               onClick={() => setPaymentType("wallet-balance")}
-              className={`action listing-purchase-confirmation-modal__payment-selection listing-purchase-confirmation-modal__payment-selection-wallet-balance ${paymentType === "wallet-balance" ? "listing-purchase-confirmation-modal__payment-selection-selected" : ""}`}
+              className={`action action-selection listing-purchase-confirmation-modal__payment-selection listing-purchase-confirmation-modal__payment-selection-wallet-balance ${paymentType === "wallet-balance" ? "action-selection--active listing-purchase-confirmation-modal__payment-selection--selected" : ""}`}
             >
               <div className="listing-purchase-confirmation-modal__payment-selection-icons">
                 <ImageIcon
@@ -368,7 +368,7 @@ const ListingPurchasePayment = observer(({nft, marketplaceItem, selectedListing,
               selectedListing && selectedListing?.details?.USDCAccepted ?
                 <button
                   onClick={() => setPaymentType("linked-wallet")}
-                  className={`action listing-purchase-confirmation-modal__payment-selection listing-purchase-confirmation-modal__payment-selection-linked-wallet ${paymentType === "linked-wallet" ? "listing-purchase-confirmation-modal__payment-selection-selected" : ""}`}
+                  className={`action action-selection listing-purchase-confirmation-modal__payment-selection listing-purchase-confirmation-modal__payment-selection-linked-wallet ${paymentType === "linked-wallet" ? "action-selection--active listing-purchase-confirmation-modal__payment-selection--selected" : ""}`}
                 >
                   <div className="listing-purchase-confirmation-modal__payment-selection-icons listing-purchase-confirmation-modal__payment-selection-icons-crypto">
                     <ImageIcon

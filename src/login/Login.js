@@ -221,7 +221,7 @@ const Buttons = ({customizationOptions, LogIn, ShowPrivateKeyForm}) => {
 
   const signUpButton = (
     <button
-      className="login-page__login-button login-page__login-button-create login-page__login-button-auth0"
+      className={`action ${hasLoggedIn ? "" : "action-primary"} login-page__login-button login-page__login-button-create login-page__login-button-auth0`}
       style={{
         color: customizationOptions?.sign_up_button?.text_color?.color,
         backgroundColor: customizationOptions?.sign_up_button?.background_color?.color,
@@ -242,7 +242,7 @@ const Buttons = ({customizationOptions, LogIn, ShowPrivateKeyForm}) => {
         border: `0.75px solid ${customizationOptions?.log_in_button?.border_color?.color}`
       }}
       autoFocus={!!hasLoggedIn}
-      className="login-page__login-button login-page__login-button-sign-in login-page__login-button-auth0"
+      className={`action ${hasLoggedIn ? "action-primary" : ""} login-page__login-button login-page__login-button-sign-in login-page__login-button-auth0`}
       onClick={() => LogIn({create: false})}
     >
       Log In

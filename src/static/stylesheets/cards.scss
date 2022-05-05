@@ -135,10 +135,6 @@
     }
   }
 
-  &__image-loading {
-    @include background-gradient-loader;
-  }
-
   &__image-placeholder {
     * {
       stroke: var(--color-card-text-primary);

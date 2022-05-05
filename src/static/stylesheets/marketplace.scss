@@ -66,7 +66,6 @@
       }
 
       &__title {
-        border-radius: 10px;
         padding: 10px 30px;
       }
 
@@ -102,6 +101,7 @@
 
   &__collection-header {
     @include component;
+    box-shadow: var(--box-shadow-component);
   }
 
   .collection-info {
@@ -122,8 +122,7 @@
 }
 
 .marketplace-price {
-  border: 1px solid $mediumgray;
-  border-radius: 6px;
+  @include component;
 
   &__loader {
     height: auto;
@@ -157,7 +156,7 @@
   }
 
   &__listings {
-    border-top: 1px solid $mediumgray;
+    border-top: var(--border-component-secondary);
   }
 
   &__listings-count {
@@ -173,10 +172,11 @@
   }
 
   .price-container__label {
-    color: $darkgray;
+    color: var(--color-component-text-secondary);
   }
 }
 
+/*
 .dark {
   .marketplace-price {
     border: 1px solid $darkgray;
@@ -198,6 +198,8 @@
     }
   }
 }
+
+ */
 
 .side-panel {
   .marketplace-navigation {

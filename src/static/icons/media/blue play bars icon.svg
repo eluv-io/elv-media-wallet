@@ -2,15 +2,11 @@
 <!-- Generator: Adobe Illustrator 26.0.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 25 25" style="enable-background:new 0 0 25 25;" xml:space="preserve">
-<style type="text/css">
-	.st0{fill:#3C6ABF;}
-	.st1{fill:#FFFFFF;}
-</style>
-<circle class="st0" cx="12.5" cy="12.5" r="12.5"/>
+<circle class="st0" cx="12.5" cy="12.5" r="12.5" fill="#3C6ABF"/>
 <g>
-	<rect x="7.1" y="11.5" class="st1" width="2.1" height="6.6"/>
-	<rect x="10" y="6.9" class="st1" width="2.1" height="11.2"/>
-	<rect x="12.9" y="9.2" class="st1" width="2.1" height="8.9"/>
-	<rect x="15.8" y="12.5" class="st1" width="2.1" height="5.6"/>
+	<rect x="7.1" y="11.5" class="st1" width="2.1" height="6.6" fill="currentColor"/>
+	<rect x="10" y="6.9" class="st1" width="2.1" height="11.2" fill="currentColor"/>
+	<rect x="12.9" y="9.2" class="st1" width="2.1" height="8.9" fill="currentColor"/>
+	<rect x="15.8" y="12.5" class="st1" width="2.1" height="5.6" fill="currentColor"/>
 </g>
 </svg>

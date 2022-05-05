@@ -1,8 +1,6 @@
-$modal-background: rgba($black, 0.8);
-
 .modal {
   align-items: center;
-  background-color: $modal-background;
+  background: var(--background-modal-overlay);
   display: flex;
   height: 100vh;
   justify-content: center;
@@ -36,39 +34,17 @@ $modal-background: rgba($black, 0.8);
 }
 
 .modal__close-button {
-  background-color: $white;
-  border-radius: 100%;
-  cursor: pointer;
-  font-weight: 400;
   height: 35px;
+  min-width: 0;
   padding: 8px;
   position: fixed;
   right: 50px;
-  stroke: $black;
   top: 35px;
   width: 35px;
   z-index: 10002;
 
-  &:focus {
-    background-color: $blue;
-
-    svg {
-      stroke: $white;
-    }
-  }
-
-  &:hover {
-    background-color: $black;
-    border: 0.5px solid $darkergray;
-
-    svg {
-      stroke: $white;
-    }
-  }
-
   svg {
     height: 100%;
-    stroke: $black;
     width: auto;
   }
 }
@@ -93,7 +69,6 @@ $modal-background: rgba($black, 0.8);
   }
 
   .modal__close-button {
-    border: 1px solid $black;
     position: fixed;
     right: 15px;
     top: 15px;

@@ -24,7 +24,6 @@
 
 .login-page {
   align-items: center;
-  border-radius: 5px;
   display: flex;
   height: max-content;
   min-height: 100%;
@@ -33,6 +32,7 @@
   overflow-y: hidden;
   padding: 0 30px;
 
+  /*
   input {
     &[type="checkbox"] {
       appearance: none;
@@ -60,6 +60,8 @@
     }
   }
 
+   */
+
   &-large-logo-mode {
     padding: 0;
 
@@ -85,7 +87,7 @@
   }
 
   &__background {
-    background-color: $darkestgray;
+    background: var(--background-login);
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -95,10 +97,6 @@
     top: 0;
     user-select: none;
     width: 100vw;
-
-    &--default {
-      background: linear-gradient($lightestgray, $lightgray);
-    }
   }
 
   h1 {
@@ -109,10 +107,11 @@
   }
 
   &__login-box {
+    background: var(--background-login-box);
+    border: var(--border-login-box);
+    border-radius: var(--border-radius-login-box);
+    color: var(--color-login-text-primary);
     align-items: center;
-    background: $white;
-    border: 1px solid $mediumgray;
-    border-radius: 5px;
     display: flex;
     flex-direction: column;
     height: max-content;
@@ -122,43 +121,6 @@
     padding: 50px 30px 20px;
     position: relative;
     width: 100%;
-  }
-
-  button {
-    cursor: pointer;
-  }
-
-  &__private-key-form {
-    border-radius: 10px;
-    max-width: 500px;
-    padding: 5px 20px 20px;
-    width: 100%;
-
-    &__actions {
-      display: flex;
-      justify-content: center;
-    }
-
-    input {
-      font-size: 12px;
-    }
-
-    button {
-      flex: 1 1 auto;
-      height: 40px;
-      padding: 5px;
-      width: 150px;
-
-      &:not(:last-child) {
-        margin-right: 10px;
-      }
-
-      &.login-page__private-key-form__button-submit {
-        background-color: $blue;
-        border: 1px solid $blue;
-        color: $white;
-      }
-    }
   }
 
   .labelled-field {
@@ -199,7 +161,7 @@
 
     .login-page__tagline {
       align-items: center;
-      color: $black;
+      color: var(--color-login-text-secondary);
       display: flex;
       flex-direction: column;
       font-size: 10px;
@@ -214,56 +176,18 @@
         margin-top: 10px;
 
         * {
-          fill: $black;
-          stroke: $black;
+          fill: var(--color-login-text-secondary);
+          stroke: var(--color-login-text-secondary);
         }
       }
     }
   }
 
   &__login-button {
-    background-color: transparent;
-    border: 0;
-    cursor: pointer;
-    font-size: 12px;
+    font-size: 16px;
     height: 46px;
     margin: 5px 0;
-    outline: 0;
     width: 191px;
-
-    &:focus,
-    &.focus,
-    &.active {
-      filter: drop-shadow(0 0 3px $blue);
-    }
-  }
-
-  &__login-button-auth0 {
-    background-color: $blue;
-    color: $white;
-    font-size: 18px;
-  }
-
-  &__login-button-cancel,
-  &__login-button-create {
-    background-color: $white;
-    border: 0.75px solid $gray;
-    color: $black;
-  }
-
-  &__login-button-pk {
-    font-size: 10px;
-    height: 23px;
-  }
-
-  &__login-button-image {
-    padding: 0;
-
-    img {
-      height: 100%;
-      object-fit: contain;
-      width: 100%;
-    }
   }
 
   &__terms-button {
@@ -291,7 +215,8 @@
     margin-top: 100px;
 
     * {
-      color: $gray;
+      color: var(--color-login-text-secondary);
+      font-size: 10px;
     }
   }
 
@@ -302,18 +227,13 @@
     max-width: 350px;
     text-align: center;
 
-    a {
-      color: $lightblue;
-    }
-
-    &-checkbox {
-      cursor: pointer;
-      margin-right: 10px;
-    }
-
     &-label {
       cursor: pointer;
       font-weight: normal;
+    }
+
+    a {
+      color: var(--color-login-text-highlight);
     }
   }
 
@@ -364,21 +284,7 @@
     }
   }
 
-  &:not(.login-page--dark) {
-    * {
-      color: $black;
-    }
-
-    a {
-      color: $lightblue;
-    }
-
-    .login-page__login-button-sign-in,
-    .login-page__private-key-form__button-submit {
-      color: $white;
-    }
-  }
-
+  /*
   &--dark {
     .loader {
       background: $black;
@@ -461,4 +367,6 @@
       }
     }
   }
+
+   */
 }

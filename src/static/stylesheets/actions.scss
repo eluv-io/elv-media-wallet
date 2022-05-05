@@ -1,0 +1,126 @@
+
+.action {
+  align-items: center;
+  background-color: var(--color-button-secondary-bg);
+  border: var(--border-button-secondary);
+  border-radius: var(--border-radius-button-secondary);
+  color: var(--color-button-secondary-text);
+  cursor: pointer;
+  display: flex;
+  height: 40px;
+  justify-content: center;
+  min-width: 120px;
+  text-align: center;
+  transition: background-color 0.15s ease;
+
+  * {
+    color: var(--color-button-secondary-text);
+  }
+
+  .loader-component {
+    align-items: center;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+  }
+
+  .lds-default {
+    transform: scale(0.4) !important;
+
+    &__element {
+      background-color: var(--color-button-secondary-text);
+    }
+  }
+
+  &-primary {
+    background-color: var(--color-button-primary-bg);
+    border: var(--border-button-primary);
+    border-radius: var(--border-radius-button-primary);
+    color: var(--color-button-primary-text);
+
+    * {
+      color: var(--color-button-primary-text);
+    }
+
+    .lds-default__element {
+      background-color: var(--color-button-primary-text);
+    }
+  }
+
+  &-danger {
+    background-color: var(--color-button-danger-bg);
+    border: var(--border-button-danger);
+    border-radius: var(--border-radius-button-danger);
+    color: var(--color-button-danger-text);
+
+    * {
+      color: var(--color-button-danger-text);
+    }
+
+    .lds-default__element {
+      background-color: var(--color-button-danger-text);
+    }
+  }
+
+  &-selection {
+    background-color: var(--color-button-selection-bg);
+    border: var(--border-button-selection);
+    border-radius: var(--border-radius-button-selection);
+    color: var(--color-button-selection-text);
+
+    * {
+      color: var(--color-button-selection-text);
+    }
+
+    .lds-default__element {
+      background-color: var(--color-button-selection-text);
+    }
+  }
+
+  &-selection--active {
+    background-color: var(--color-button-selection-active-bg);
+    border: var(--border-button-selection-active);
+    border-radius: var(--border-radius-button-selection-active);
+    color: var(--color-button-selection-active-text);
+
+    * {
+      color: var(--color-button-selection-active-text);
+    }
+
+    .lds-default__element {
+      background-color: var(--color-button-selection-active-text);
+    }
+  }
+
+  &-modal-close {
+    background-color: var(--color-button-modal-close-bg);
+    border: var(--border-button-modal-close);
+    border-radius: var(--border-radius-modal-close);
+    color: var(--color-button-modal-close-text);
+
+    * {
+      color: var(--color-button-modal-close-text);
+    }
+
+    .lds-default__element {
+      background-color: var(--color-button-modal-close-text);
+    }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+
+  svg {
+    height: 100%;
+    width: auto;
+  }
+}
+
+.action-link {
+  border: 0 !important;
+  font-size: 14px;
+  // sass-lint:disable no-important
+  height: 1.8em;
+  text-decoration: underline;
+}

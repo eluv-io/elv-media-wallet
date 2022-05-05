@@ -51,7 +51,7 @@ const InfoModal = ({info, imagePath, backgroundImagePath, marketplaceHash, Close
               /> : null
           }
           <div className="info-modal__actions">
-            <button className="info-modal__button info-modal__close" onClick={Close}>
+            <button className="action info-modal__button info-modal__close" onClick={Close}>
               { info.button_text || "Close" }
             </button>
           </div>
