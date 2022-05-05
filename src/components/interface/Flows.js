@@ -19,9 +19,8 @@ const Flows = observer(() => {
   }
 
   useEffect(() => {
-    if(parameters.auth && !this.AuthInfo()) {
-      // TODO: Test
-      rootStore.Authenticate({...parameters.auth});
+    if(parameters.auth && !rootStore.AuthInfo()) {
+      rootStore.Authenticate({...parameters.auth, saveAuthInfo: false});
     }
   }, []);
 

@@ -298,7 +298,7 @@ class RootStore {
     }
   });
 
-  Authenticate = flow(function * ({idToken, authToken, tenantId, user}) {
+  Authenticate = flow(function * ({idToken, authToken, tenantId, user, saveAuthInfo=true}) {
     try {
       this.loggedIn = false;
 
@@ -328,7 +328,8 @@ class RootStore {
       this.SetAuthInfo({
         authToken: client.signer.authToken,
         address: client.CurrentAccountAddress(),
-        user
+        user,
+        save: saveAuthInfo
       });
 
       this.funds = parseInt((yield client.GetBalance({address: client.CurrentAccountAddress()}) || 0));
@@ -1552,6 +1553,10 @@ class RootStore {
 
   AuthInfo() {
     try {
+      if(this.authInfo) {
+        return this.authInfo;
+      }
+
       const tokenInfo = this.GetLocalStorage(`auth-${this.network}`);
 
       if(tokenInfo) {
@@ -1564,8 +1569,6 @@ class RootStore {
         } else {
           return { authToken, address, user };
         }
-      } else {
-        return this.authInfo;
       }
     } catch(error) {
       this.Log("Failed to retrieve auth info", true);
@@ -1580,15 +1583,17 @@ class RootStore {
     this.authInfo = undefined;
   }
 
-  SetAuthInfo({authToken, address, user}) {
+  SetAuthInfo({authToken, address, user, save=true}) {
     const authInfo = { authToken, address, user: user || {} };
 
-    this.SetLocalStorage(
-      `auth-${this.network}`,
-      Utils.B64(JSON.stringify(authInfo))
-    );
+    if(save) {
+      this.SetLocalStorage(
+        `auth-${this.network}`,
+        Utils.B64(JSON.stringify(authInfo))
+      );
 
-    this.SetLocalStorage("hasLoggedIn", "true");
+      this.SetLocalStorage("hasLoggedIn", "true");
+    }
 
     this.authInfo = authInfo;
   }

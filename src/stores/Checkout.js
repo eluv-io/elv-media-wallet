@@ -163,7 +163,7 @@ class CheckoutStore {
     try {
       this.submittingOrder = true;
 
-      let authInfo = this.rootStore.AuthInfo();
+      let authInfo = this.rootStore.AuthInfo() || {};
       if(!authInfo.user) {
         authInfo.user = {};
       }
@@ -292,7 +292,7 @@ class CheckoutStore {
     try {
       this.submittingOrder = true;
 
-      let authInfo = this.rootStore.AuthInfo();
+      let authInfo = this.rootStore.AuthInfo() || {};
       if(!authInfo.user) {
         authInfo.user = {};
       }
