@@ -105,7 +105,7 @@ class RootStore {
 
   loggedIn = false;
   disableCloseEvent = false;
-  darkMode = this.GetSessionStorage("dark-mode") || searchParams.has("dk");
+  darkMode = searchParams.has("dk");
 
   availableMarketplaces = {};
 
@@ -632,32 +632,26 @@ class RootStore {
 
     this.hideGlobalNavigation = marketplace && this.specifiedMarketplaceId === marketplace.marketplaceId && marketplace.branding && marketplace.branding.hide_global_navigation;
 
-
-    let font;
+    let fontImport = "";
     switch(options.font) {
       case "Inter":
-        import("Assets/fonts/Inter/font.css");
-
-        font = "Inter var";
+        fontImport = import("Assets/fonts/Inter/inter.font.css");
 
         break;
       case "Selawik":
-        import("Assets/fonts/Selawik/font.css");
-
-        font = "Selawik var";
+        fontImport = import("Assets/fonts/Selawik/selawik.font.css");
 
         break;
       default:
-        font = "Helvetica Neue";
-
         break;
     }
 
-    const customStyleTag = document.getElementById("_custom-theme");
-    customStyleTag.innerHTML = (`    
-       body { font-family: "${font}", sans-serif; }
-       body * { font-family: "${font}", sans-serif; }
-    `);
+    const fontsTag = document.getElementById("_fonts");
+    if(fontImport) {
+      fontImport.then(font => fontsTag.innerHTML = font.default);
+    } else {
+      fontsTag.innerHTML = ":root { --font-family-primary: \"Helvetica Neue\", Helvetica, sans-serif; }";
+    }
 
     switch(options.color_scheme) {
       case "Dark":
@@ -1424,7 +1418,7 @@ class RootStore {
 
           clearInterval(closeCheck);
 
-          setTimeout(() => popup.close(), 500);
+          //setTimeout(() => popup.close(), 500);
 
           if(event.data.error) {
             reject(event.data.error);
@@ -1622,22 +1616,18 @@ class RootStore {
 
   ToggleDarkMode(enabled) {
     const themeContainer = document.querySelector("#_theme");
-    if(enabled) {
-      import("Assets/stylesheets/themes/dark.theme.css")
-        .then(darkTheme => {
-          themeContainer.innerHTML = darkTheme.default;
-        });
-    } else {
+    if(!enabled) {
       themeContainer.innerHTML = "";
+      return;
+    } else {
+
+      import("Assets/stylesheets/themes/dark.theme.css")
+        .then(theme => {
+          themeContainer.innerHTML = theme.default;
+        });
     }
 
     this.darkMode = enabled;
-
-    if(enabled) {
-      this.SetSessionStorage("dark-mode", "true");
-    } else {
-      this.RemoveSessionStorage("dark-mode");
-    }
   }
 
   ToggleNavigation(enabled) {

@@ -310,7 +310,7 @@ const NFTContractSection = ({nft, listing, heldDate, isOwned, setDeleted}) => {
             This NFT is in a holding period until { heldDate }. You will not be able to transfer it until then.
           </h3> : null
       }
-      <div className="details-page__actions expandable-section__actions">
+      <div className="expandable-section__actions">
         <a
           className="action lookout-url"
           target="_blank"

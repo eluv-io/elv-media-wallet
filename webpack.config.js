@@ -76,7 +76,7 @@ module.exports = {
     rules: [
       {
         test: /\.(css|scss)$/,
-        exclude: /\.theme\.(css|scss)$/i,
+        exclude: /\.(theme|font)\.(css|scss)$/i,
         use: [
           "style-loader",
           {
@@ -95,7 +95,7 @@ module.exports = {
         ]
       },
       {
-        test: /\.theme\.(css|scss)$/i,
+        test: /\.(theme|font)\.(css|scss)$/i,
         loader: "raw-loader"
       },
       {

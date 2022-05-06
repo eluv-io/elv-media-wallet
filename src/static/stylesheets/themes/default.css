@@ -1,5 +1,11 @@
 :root {
   /* General */
+
+  /* Fonts - Primary is for used headers, secondary is for all other text */
+  --font-family-primary: "Helvetica Neue", Helvetica, sans-serif;
+  --font-family-secondary: "Helvetica Neue", Helvetica, sans-serif;
+  --font-default: normal normal normal 16px var(--font-family-secondary);
+
   --color-bg-primary: #fff;
   --color-bg-secondary: #f3f3f3;
 
@@ -31,6 +37,9 @@
   --border-radius-page-content: 10px 10px 0 0;
 
   /* Header */
+  --font-header-links: normal normal 300 14px var(--font-family-secondary);
+  --font-store-header: normal normal normal 32px var(--font-family-primary);
+
   --background-page-header: #eee;
   --color-page-header-text: var(--color-text-primary);
 
@@ -41,34 +50,38 @@
   --border-header-active-link: 2px solid var(--color-highlight);
 
   /* Buttons */
-  --color-button-primary-bg: var(--color-highlight-container-bg);
+  --font-button: var(--font-default);
+
+  --background-button-primary: var(--color-highlight-container-bg);
   --color-button-primary-text: var(--color-highlight-container-text);
   --border-button-primary: 1px solid var(--color-highlight-container-bg);
   --border-radius-button-primary: var(--border-radius);
 
-  --color-button-secondary-bg: transparent;
+  --background-button-secondary: transparent;
   --color-button-secondary-text: var(--color-text-primary);
   --border-button-secondary: var(--border);
   --border-radius-button-secondary: var(--border-radius);
 
-  --color-button-danger-bg: #333;
+  --background-button-danger: #333;
   --color-button-danger-text: var(--color-highlight-container-text);
   --border-button-danger: 1px solid #333;
   --border-radius-button-danger: var(--border-radius);
 
   /* Togglable/selectable options */
-  --color-button-selection-bg: transparent;
+  --background-button-selection: transparent;
   --color-button-selection-text: var(--color-text-secondary);
   --border-button-selection: var(--border-faint);
   --border-radius-button-selection: var(--border-radius);
 
-  --color-button-selection-active-bg: transparent;
+  --background-button-selection-active: transparent;
   --color-button-selection-active-text: var(--color-text-highlight);
   --border-button-selection-active: var(--border-highlight);
   --border-radius-button-selection-active: var(--border-radius);
 
   /* Inputs */
-  --color-input-bg: var(--color-bg-primary);
+  --font-input: var(--font-default);
+
+  --background-input: var(--color-bg-primary);
   --color-input-hover-bg: var(--color-bg-secondary);
   --color-input-text: var(--color-text-primary);
   --color-input-text-placeholder: var(--color-text-secondary);
@@ -81,6 +94,9 @@
   --outline-input-focus: 1px solid var(--color-highlight);
 
   /* Cards (store items, listings, owned items) */
+  --font-card-title: normal normal 500 16px var(--font-family-primary);
+  --font-card-text: normal normal normal 14px var(--font-family-secondary);
+
   --background-card: var(--color-bg-primary);
   --color-card-bg: var(--color-bg-primary);
   --color-card-text-primary: var(--color-text-primary);
@@ -98,6 +114,9 @@
   --border-radius-card-badge: 6px;
 
   /* NFT feature card */
+  --font-feature-card-title: normal normal 500 20px var(--font-family-primary);
+  --font-feature-card-text: var(--font-card-text);
+
   --background-feature-card-primary: var(--color-bg-primary);
   --background-feature-card-secondary: var(--color-bg-secondary);
   --padding-feature-card: 20px;
@@ -107,7 +126,7 @@
   --color-feature-card-text-highlight: var(--color-text-highlight);
   --box-shadow-feature-card: 2px 2px 4px rgba(0, 0, 0, 0.1);
   --border-feature-card: var(--border);
-  --border-radius-feature-card: 6px;
+  --border-radius-feature-card: var(--border-radius);
 
   --color-button-feature-card-bg: transparent;
   --color-button-feature-card-text: var(--color-button-secondary-text);
@@ -115,8 +134,11 @@
   --border-radius-button-feature-card: var(--border-radius);
 
   /* Tables */
-  --color-table-header: var(--color-bg-primary);
-  --color-table-header-row-bg: var(--color-bg-primary);
+  --font-table-header: normal normal 300 20px var(--font-family-primary);
+  --font-table: var(--font-default);
+
+  --background-table: var(--color-bg-primary);
+  --background-table-header-row: var(--color-bg-primary);
   --color-table-header-row-text: var(--color-text-primary);
   --color-table-odd-row-bg: var(--color-bg-primary);
   --color-table-odd-row-text: var(--color-text-primary);
@@ -172,7 +194,6 @@
   --border-login-box: var(--border);
   --border-radius-login-box: var(--border-radius);
   --box-shadow-login-box: var(--box-shadow-card);
-
 
   /* Misc (internal) */
   --background-marketplace-card: #000;

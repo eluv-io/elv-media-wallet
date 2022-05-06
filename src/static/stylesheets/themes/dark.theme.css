@@ -17,4 +17,7 @@
 
   /* Header */
   --background-page-header: #181818;
+
+  /* Cards */
+  --box-shadow-card: none;
 }

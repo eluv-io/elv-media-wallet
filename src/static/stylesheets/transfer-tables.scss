@@ -1,7 +1,8 @@
 .transfer-table {
-  background-color: var(--color-table-header);
+  background: var(--background-table);
   border: var(--border-table-primary);
   border-radius: var(--border-radius-table);
+  font: var(--font-table);
   margin: 20px 0;
   overflow-y: hidden;
   position: relative;
@@ -33,7 +34,7 @@
   }
 
   &__header {
-    font-weight: 300;
+    font: var(--font-table-header);
     padding: 20px;
   }
 
@@ -49,7 +50,7 @@
   }
 
   &__table__header {
-    background-color: var(--color-table-header-row-bg);
+    background: var(--background-table-header-row);
     border-bottom: var(--border-table-secondary);
     border-top: var(--border-table-secondary);
     position: sticky;

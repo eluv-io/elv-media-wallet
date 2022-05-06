@@ -1,11 +1,12 @@
 .action {
   align-items: center;
-  background-color: var(--color-button-secondary-bg);
+  background: var(--background-button-secondary);
   border: var(--border-button-secondary);
   border-radius: var(--border-radius-button-secondary);
   color: var(--color-button-secondary-text);
   cursor: pointer;
   display: flex;
+  font: var(--font-button);
   height: 40px;
   justify-content: center;
   min-width: 120px;
@@ -34,7 +35,7 @@
   }
 
   &-primary {
-    background-color: var(--color-button-primary-bg);
+    background: var(--background-button-primary);
     border: var(--border-button-primary);
     border-radius: var(--border-radius-button-primary);
     color: var(--color-button-primary-text);
@@ -49,7 +50,7 @@
   }
 
   &-danger {
-    background-color: var(--color-button-danger-bg);
+    background: var(--background-button-danger);
     border: var(--border-button-danger);
     border-radius: var(--border-radius-button-danger);
     color: var(--color-button-danger-text);
@@ -64,7 +65,7 @@
   }
 
   &-selection {
-    background-color: var(--color-button-selection-bg);
+    background: var(--background-button-selection);
     border: var(--border-button-selection);
     border-radius: var(--border-radius-button-selection);
     color: var(--color-button-selection-text);
@@ -79,7 +80,7 @@
   }
 
   &-selection--active {
-    background-color: var(--color-button-selection-active-bg);
+    background: var(--background-button-selection-active);
     border: var(--border-button-selection-active);
     border-radius: var(--border-radius-button-selection-active);
     color: var(--color-button-selection-active-text);

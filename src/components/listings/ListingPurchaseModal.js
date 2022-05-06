@@ -17,6 +17,9 @@ import WalletIcon from "Assets/icons/wallet balance button icon.svg";
 import CoinbaseIcon from "Assets/icons/crypto/Coinbase Icon (16x16)(1).svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 
+import PlusIcon from "Assets/icons/plus.svg";
+import MinusIcon from "Assets/icons/minus.svg";
+
 const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
   if(maxQuantity <= 1) { return null; }
 
@@ -33,10 +36,10 @@ const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
       <div className="quantity__inputs">
         <button
           disabled={quantity === 1}
-          className="quantity__button quantity__button-minus"
+          className="action quantity__button quantity__button-minus"
           onClick={() => UpdateQuantity(quantity - 1)}
         >
-          -
+          <ImageIcon icon={MinusIcon} label="Quantity down" />
         </button>
         <input
           title="quantity"
@@ -52,10 +55,10 @@ const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
         />
         <button
           disabled={quantity === maxQuantity}
-          className="quantity__button quantity__button-plus"
+          className="action quantity__button quantity__button-plus"
           onClick={() => UpdateQuantity(quantity + 1)}
         >
-          +
+          <ImageIcon icon={PlusIcon} label="Quantity up" />
         </button>
       </div>
       <label className="quantity__label">Quantity</label>

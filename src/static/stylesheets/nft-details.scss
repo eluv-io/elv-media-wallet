@@ -186,6 +186,7 @@
 
   &__actions {
     @include component;
+
     align-items: center;
     display: flex;
     flex-direction: column;
@@ -196,6 +197,17 @@
       display: none;
     }
 
+    .action {
+      max-width: 400px;
+      width: 100%;
+
+      & + .action {
+        margin-top: 10px;
+      }
+    }
+  }
+
+  .expandable-section__actions {
     .action {
       max-width: 400px;
       width: 100%;

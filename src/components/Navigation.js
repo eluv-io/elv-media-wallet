@@ -28,7 +28,7 @@ export const Navigation = observer(() => {
         to={UrlJoin("/marketplace", rootStore.lastMarketplaceId, "store")}
       >
         { round_logo ? <ImageIcon icon={round_logo.url} title={(name || "") + "Store"} className="navigation__logo" /> : null }
-        {`${name || ""} Store`}
+        {`${name || ""}`}
       </NavLink>
       <NavLink
         isActive={() => location.pathname.startsWith("/marketplaces") || location.pathname.startsWith("/wallet")}

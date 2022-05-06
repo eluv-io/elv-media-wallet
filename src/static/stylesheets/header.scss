@@ -160,8 +160,7 @@
     align-items: center;
     border-bottom: 2px solid transparent;
     display: flex;
-    font-size: 14px;
-    font-weight: 300;
+    font: var(--font-header-links);
     height: 100%;
     justify-content: center;
     margin: 0 8px;
@@ -284,9 +283,9 @@
 
   &__header {
     align-items: flex-end;
-    color: var(--color-page-header);
+    color: var(--color-page-header-text);
     display: flex;
-    font-size: 28px;
+    font: var(--font-store-header);
     justify-content: center;
     letter-spacing: 1px;
     text-align: center;

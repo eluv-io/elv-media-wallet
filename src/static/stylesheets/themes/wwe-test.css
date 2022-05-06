@@ -1,0 +1,174 @@
+/* Font imports */
+/* latin-ext */
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/dmsans/v11/rP2Hp2ywxg089UriCZ2IHTWEBlwu8Q.woff2) format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/dmsans/v11/rP2Hp2ywxg089UriCZOIHTWEBlw.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v29/KFOmCnqEu92Fr1Mu72xKKTU1Kvnz.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v29/KFOmCnqEu92Fr1Mu5mxKKTU1Kvnz.woff2) format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v29/KFOmCnqEu92Fr1Mu7mxKKTU1Kvnz.woff2) format('woff2');
+  unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v29/KFOmCnqEu92Fr1Mu4WxKKTU1Kvnz.woff2) format('woff2');
+  unicode-range: U+0370-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v29/KFOmCnqEu92Fr1Mu7WxKKTU1Kvnz.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v29/KFOmCnqEu92Fr1Mu7GxKKTU1Kvnz.woff2) format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v29/KFOmCnqEu92Fr1Mu4mxKKTU1Kg.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+
+
+
+:root {
+  --font-family-primary: 'Roboto', impact, sans-serif!important;
+  --font-family-secondary: 'DM Sans', sans-serif!important;
+
+  /* Custom */
+  --blue-1: #0021F5;
+  --blue-2: #1cc1e9;
+  --gold-1: #FFCB05;
+
+  --component-gradient: linear-gradient(rgba(235, 235, 235, 0.2), rgba(235, 235, 235, 0.25));
+
+  /* General */
+  --color-bg-primary: rgba(235, 235, 235, 0.2);
+  --color-bg-secondary: rgba(235, 235, 235, 0.2);
+
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #CCCCCC;
+  --color-text-highlight: var(--blue-2);
+
+  --color-loader: rgba(255, 255, 255, 0.5);
+
+  --border: 0;
+  --border-faint: 1px solid rgba(235, 235, 235, 0.1);
+
+  /* Page */
+  --color-page-bg-gradient-top: #0900b2;
+  --color-page-bg-gradient-bottom: #0d091c;
+  --background-page: no-repeat top center / cover url("https://host-66-220-3-86.contentfabric.io/qlibs/ilib3Drbefo7VPfWvY1NVup4VZFzDJ68/q/iq__2FrA2S1XBy4zdRGQn1knakpbrBV4/files/./wwe_background_image.jpg?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDU1NTdmODBkMDUzN2U3YmI0MzlkOTE5ODQxZTBlYjllZDQ0OWU2YmIiLCJ0eF9pZCI6IjB4OWUwNWI4MDc2ZGYwNDBjOTA4MjBkMWVjY2E0OWFiZTVkMzA2NDJjZmJiMTBlZWRjNDRmMTExNzAzMDkzMWU5ZCIsInFsaWJfaWQiOiJpbGliM0RyYmVmbzdWUGZXdlkxTlZ1cDRWWkZ6REo2OCJ9.RVMyNTZLXzcxY2RYalZrNUNCUjJqeVRHeEoxQk51RFlwb21waURWclIyZnUzN0RqZW1ORzg0emt1ZlJNQW5zQ2c1WnJGdzRha1pCWHBQY0RaRjJyb2QzWnlzY29kVWlm");
+  --background-content: transparent;
+
+  /* Header */
+  --background-page-header: transparent;
+
+  /* Modal */
+  --background-modal-primary: linear-gradient(var(--color-page-bg-gradient-top), var(--color-page-bg-gradient-bottom));
+  --border-modal-primary: 0;
+
+  /* Apply gradient to components */
+  --background-input: var(--component-gradient);
+  --background-component-primary: var(--component-gradient);
+  --background-card: var(--component-gradient);
+  --background-feature-card-primary: var(--component-gradient);
+  --background-table: var(--component-gradient);
+
+  /* Feature card */
+  --padding-feature-card: 0;
+
+  /* Inputs */
+  --border-input: 0;
+
+  /* Tables */
+  --color-table-even-row-bg: rgba(6, 8, 41, 0.2);
+  --color-table-odd-row-bg: rgba(241, 241, 241, 0.2);
+  --background-table-header-row: var(--color-table-even-row-bg);
+  --border-table-primary: 0;
+
+  /* Buttons */
+  --background-button-primary: var(--gold-1);
+  --color-button-primary-text: black;
+  --border-button-primary: 0;
+  --border-radius-button-primary: 3px;
+
+  --background-button-secondary: black;
+  --color-button-secondary-text: white;
+  --border-button-secondary: 2px solid var(--blue-1);
+  --border-radius-button-secondary: 3px;
+
+  --background-button-danger: var(--component-gradient);
+  --color-button-danger-text: white;
+  --border-button-danger: 0;
+  --border-radius-button-danger: 3px;
+
+  /* Togglable/selectable options */
+  --background-button-selection: rgba(235, 235, 235, 0.2);
+  --color-button-selection-text: white;
+  --border-button-selection: 0;
+  --border-radius-button-selection: 5px;
+
+  --background-button-selection-active: black;
+  --color-button-selection-active-text: white;
+  --border-button-selection-active: 2px solid var(--blue-1);
+  --border-radius-button-selection-active: 5px;
+}
+
+/* Custom CSS */
+.transfer-table__table__header.transfer-table__table__header {
+  position: relative;
+}

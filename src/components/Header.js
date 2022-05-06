@@ -75,7 +75,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
     const {name} = (marketplace.branding || {});
 
     links = [
-      {name: `${name || ""} Store`, to: UrlJoin("/marketplace", marketplace.marketplaceId, "store")},
+      {name: `${name || ""}`, to: UrlJoin("/marketplace", marketplace.marketplaceId, "store")},
       {name: "Listings", to: UrlJoin("/marketplace", marketplace.marketplaceId, "listings")},
       {name: "Activity", to: UrlJoin("/marketplace", marketplace.marketplaceId, "activity")},
       {name: "My Items", to: UrlJoin("/marketplace", marketplace.marketplaceId, "collection"), authed: true},
@@ -207,7 +207,7 @@ const MarketplaceNavigation = observer(({marketplace}) => {
 
   return (
     <div className="subheader__marketplace">
-      { branding.hide_name ? null : <h1 className="subheader__header">{`${branding.name} Store`}</h1> }
+      { branding.hide_name ? null : <h1 className="subheader__header">{`${branding.name}`}</h1> }
       <nav className="subheader__navigation subheader__navigation--marketplace">
         <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
           Store

@@ -338,7 +338,6 @@
   }
 }
 
-// TODO: quantity button
 .quantity {
   align-items: center;
   display: flex;
@@ -358,11 +357,24 @@
     margin: 5px 0;
   }
 
+  // TODO: Switch to SVG icons
   &__button {
-    border-radius: 3px;
+    align-items: center;
+    border-radius: 100%;
+    display: flex;
     font-size: 24px;
     font-weight: 200;
-    padding: 0 10px;
+    height: 30px;
+    justify-content: center;
+    padding: 5px;
+    min-width: 0;
+    user-select: none;
+    width: 30px;
+
+    * {
+      height: 100%;
+      width: 100%;
+    }
   }
 
   &__input {

@@ -120,6 +120,10 @@
     font-size: 12px;
     max-width: calc(100% - 50px);
     padding-right: 10px;
+
+    * {
+      font-size: 12px;
+    }
   }
 
   a {
@@ -131,7 +135,7 @@
   }
 
   &__button {
-    background-color: var(--color-button-primary-bg);
+    background: var(--background-button-primary);
     border: 0;
     border-radius: 8px;
     cursor: pointer;
@@ -369,7 +373,7 @@
   }
 
   &__options {
-    background-color: var(--color-input-bg);
+    background: var(--background-input);
     border: var(--border-input);
     max-height: 200px;
     overflow-y: auto;
