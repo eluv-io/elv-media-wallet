@@ -665,6 +665,7 @@ const NFTDetails = observer(() => {
       }
       { showPurchaseModal ?
         <ListingPurchaseModal
+          type="listing"
           nft={listing || nft}
           initialListingId={listing && listing.details.ListingId}
           Close={() => setShowPurchaseModal(false)}

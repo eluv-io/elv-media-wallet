@@ -20,21 +20,6 @@ configure({
 
 const searchParams = new URLSearchParams(window.location.search);
 
-const colors = [
-  "#621B00",
-  "#2F1000",
-  "#108280",
-  "#40798C",
-  "#2a6514",
-  "#626864",
-  "#379164",
-  "#2F2235",
-  "#60495A",
-  "#A37871",
-  "#4B0642",
-  "#1C6E8C"
-];
-
 const MARKETPLACE_ORDER = [
   "dolly-marketplace",
   "oc-marketplace",
@@ -53,7 +38,7 @@ try {
   storageSupported = false;
 }
 
-const ProfileImage = (text, backgroundColor) => {
+const ProfileImage = (text) => {
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
 
@@ -61,15 +46,15 @@ const ProfileImage = (text, backgroundColor) => {
   canvas.height = 200;
 
   const gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
-  gradient.addColorStop(0, "#FFFFFF");
-  gradient.addColorStop(0.6, backgroundColor);
-  gradient.addColorStop(1, backgroundColor);
+  gradient.addColorStop(0, "rgba(150, 150, 150, 1)");
+  gradient.addColorStop(0.5, "rgba(200, 200, 200, 0.75)");
+  gradient.addColorStop(1, "rgba(150, 150, 150, 0.25)");
 
   context.fillStyle = gradient;
   context.fillRect(0, 0, canvas.width, canvas.height);
 
   context.font = "80px Helvetica";
-  context.fillStyle = "white";
+  context.fillStyle = "black";
   context.textAlign = "center";
   context.textBaseline = "middle";
   context.fillText(text, canvas.width / 2, canvas.height / 2 + 10);
@@ -142,7 +127,7 @@ class RootStore {
   authedToken = undefined;
   basePublicUrl = undefined;
 
-  defaultProfileImage = ProfileImage("", "#1C6E8C");
+  defaultProfileImage = ProfileImage("");
   userProfile = {};
   userAddress;
 
@@ -350,8 +335,7 @@ class RootStore {
         name: user?.name || client.CurrentAccountAddress(),
         email: user?.email,
         profileImage: ProfileImage(
-          (initials.length <= 1 ? initials.join("") : `${initials[0]}${initials[initials.length - 1]}`).toUpperCase(),
-          colors[(user?.email || "").length % colors.length]
+          (initials.length <= 1 ? initials.join("") : `${initials[0]}${initials[initials.length - 1]}`).toUpperCase()
         )
       };
 
