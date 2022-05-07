@@ -14,7 +14,7 @@ import Confirm from "Components/common/Confirm";
 import {TransferTable} from "Components/listings/TransferTables";
 import ListingModal from "Components/listings/ListingModal";
 import {Loader, PageLoader} from "Components/common/Loaders";
-import ListingPurchaseModal from "Components/listings/ListingPurchaseModal";
+import PurchaseModal from "Components/listings/PurchaseModal";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {v4 as UUID} from "uuid";
 import NFTCard from "Components/common/NFTCard";
@@ -664,7 +664,7 @@ const NFTDetails = observer(() => {
           /> : null
       }
       { showPurchaseModal ?
-        <ListingPurchaseModal
+        <PurchaseModal
           type="listing"
           nft={listing || nft}
           initialListingId={listing && listing.details.ListingId}

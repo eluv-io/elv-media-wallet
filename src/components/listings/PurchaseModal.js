@@ -41,6 +41,7 @@ const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
           <ImageIcon icon={MinusIcon} label="Quantity down" />
         </button>
         <input
+          disabled
           title="quantity"
           name="quantity"
           type="number"
@@ -60,7 +61,6 @@ const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
           <ImageIcon icon={PlusIcon} label="Quantity up" />
         </button>
       </div>
-      <label className="quantity__label">Quantity</label>
     </div>
   );
 };
@@ -71,37 +71,37 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, errorMessage, 
   const connected = paymentType !== "linked-wallet" || cryptoStore.PhantomAddress() && wallet.Connected();
 
   return (
-    <div className="listing-purchase-confirmation-modal__payment-options">
-      <div className="listing-purchase-confirmation-modal__payment-message">
-        Buy NFT With
+    <div className="purchase-modal__payment-options">
+      <div className="purchase-modal__payment-message">
+        Buy with
       </div>
-      <div className="listing-purchase-confirmation-modal__payment-selection-container">
+      <div className="purchase-modal__payment-selection-container">
         <button
           onClick={() => setPaymentType("stripe")}
-          className={`action action-selection listing-purchase-confirmation-modal__payment-selection listing-purchase-confirmation-modal__payment-selection-credit-card ${paymentType === "stripe" ? "action-selection--active listing-purchase-confirmation-modal__payment-selection--selected" : ""}`}
+          className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-credit-card ${paymentType === "stripe" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
         >
-          <div className="listing-purchase-confirmation-modal__payment-selection-icons">
-            <ImageIcon icon={CreditCardIcon} className="listing-purchase-confirmation-modal__payment-selection-icon" title="Pay with Credit Card" />
+          <div className="purchase-modal__payment-selection-icons">
+            <ImageIcon icon={CreditCardIcon} className="purchase-modal__payment-selection-icon" title="Pay with Credit Card" />
           </div>
           Credit Card
         </button>
         <button
           onClick={() => setPaymentType("coinbase")}
-          className={`action action-selection listing-purchase-confirmation-modal__payment-selection listing-purchase-confirmation-modal__payment-selection-crypto ${paymentType === "coinbase" ? "action-selection--active listing-purchase-confirmation-modal__payment-selection--selected" : ""}`}
+          className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-crypto ${paymentType === "coinbase" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
         >
-          <div className="listing-purchase-confirmation-modal__payment-selection-icons listing-purchase-confirmation-modal__payment-selection-icons-crypto">
-            <ImageIcon icon={CoinbaseIcon} className="listing-purchase-confirmation-modal__payment-selection-icon" title="Coinbase" />
+          <div className="purchase-modal__payment-selection-icons purchase-modal__payment-selection-icons-crypto">
+            <ImageIcon icon={CoinbaseIcon} className="purchase-modal__payment-selection-icon" title="Coinbase" />
           </div>
           Crypto via Coinbase
         </button>
         <button
           onClick={() => setPaymentType("wallet-balance")}
-          className={`action action-selection listing-purchase-confirmation-modal__payment-selection listing-purchase-confirmation-modal__payment-selection-wallet-balance ${paymentType === "wallet-balance" ? "action-selection--active listing-purchase-confirmation-modal__payment-selection--selected" : ""}`}
+          className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-wallet-balance ${paymentType === "wallet-balance" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
         >
-          <div className="listing-purchase-confirmation-modal__payment-selection-icons">
+          <div className="purchase-modal__payment-selection-icons">
             <ImageIcon
               icon={WalletIcon}
-              className="listing-purchase-confirmation-modal__payment-selection-icon"
+              className="purchase-modal__payment-selection-icon"
               title="Wallet Balance"
             />
           </div>
@@ -111,12 +111,12 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, errorMessage, 
           usdcAccepted ?
             <button
               onClick={() => setPaymentType("linked-wallet")}
-              className={`action action-selection listing-purchase-confirmation-modal__payment-selection listing-purchase-confirmation-modal__payment-selection-linked-wallet ${paymentType === "linked-wallet" ? "action-selection--active listing-purchase-confirmation-modal__payment-selection--selected" : ""}`}
+              className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-linked-wallet ${paymentType === "linked-wallet" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
             >
-              <div className="listing-purchase-confirmation-modal__payment-selection-icons listing-purchase-confirmation-modal__payment-selection-icons-crypto">
+              <div className="purchase-modal__payment-selection-icons purchase-modal__payment-selection-icons-crypto">
                 <ImageIcon
                   icon={USDCIcon}
-                  className="listing-purchase-confirmation-modal__payment-selection-icon"
+                  className="purchase-modal__payment-selection-icon"
                   title="Linked Wallet"
                 />
               </div>
@@ -124,16 +124,20 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, errorMessage, 
             </button> : null
         }
       </div>
-      { paymentType === "linked-wallet" ? <div className="listing-purchase-confirmation-modal__wallet-connect"><WalletConnect /></div> : null }
+      { paymentType === "linked-wallet" ? <div className="purchase-modal__wallet-connect"><WalletConnect /></div> : null }
       <ButtonWithLoader
         disabled={disabled || !connected}
-        className="action action-primary listing-purchase-confirmation-modal__payment-submit"
+        className="action action-primary purchase-modal__payment-submit"
         onClick={async () => await Continue(paymentType)}
       >
-        Buy Now for { price }
+        {
+          price ?
+            `Buy Now for ${price}` :
+            "Buy Now"
+        }
       </ButtonWithLoader>
       <button
-        className="action listing-purchase-confirmation-modal__payment-cancel"
+        className="action purchase-modal__payment-cancel"
         onClick={() => Cancel()}
         disabled={checkoutStore.submittingOrder}
       >
@@ -141,7 +145,7 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, errorMessage, 
       </button>
       {
         errorMessage ?
-          <div className="listing-purchase-confirmation-modal__error-message">
+          <div className="purchase-modal__error-message">
             { errorMessage }
           </div> : null
       }
@@ -151,7 +155,7 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, errorMessage, 
 
 
 // Confirmation page for wallet balance purchase and linked wallet USDC payment
-const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedListing, listingId, quantity=1, useLinkedWallet, Cancel}) => {
+const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedListing, listingId, quantity=1, useLinkedWallet, Cancel}) => {
   const match = useRouteMatch();
   const [errorMessage, setErrorMessage] = useState(undefined);
   const [failed, setFailed] = useState(false);
@@ -207,7 +211,7 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
   }
 
   return (
-    <div className="listing-purchase-confirmation-modal__content">
+    <div className="purchase-modal__content">
       <NFTCard
         nft={nft}
         selectedListing={selectedListing}
@@ -217,62 +221,62 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
         hideAvailable={!available || (marketplaceItem && marketplaceItem.hide_available)}
         truncateDescription
       />
-      <div className="listing-purchase-modal__order-details">
-        <div className="listing-purchase-modal__order-line-item">
-          <div className="listing-purchase-modal__order-label">
-            { nft.metadata.display_name } { quantity > 1 ? <div className="listing-purchase-modal__quantity">&nbsp;x {quantity}</div> : "" }
+      <div className="purchase-modal__order-details">
+        <div className="purchase-modal__order-line-item">
+          <div className="purchase-modal__order-label">
+            { nft.metadata.display_name } { quantity > 1 ? <div className="purchase-modal__quantity">&nbsp;x {quantity}</div> : "" }
           </div>
-          <div className="listing-purchase-modal__order-price">
+          <div className="purchase-modal__order-price">
             { FormatPriceString({USD: total}) }
           </div>
         </div>
-        <div className="listing-purchase-modal__order-line-item">
-          <div className="listing-purchase-modal__order-label">
+        <div className="purchase-modal__order-line-item">
+          <div className="purchase-modal__order-label">
             Service Fee
           </div>
-          <div className="listing-purchase-modal__order-price">
+          <div className="purchase-modal__order-price">
             { FormatPriceString({USD: fee}) }
           </div>
         </div>
-        <div className="listing-purchase-modal__order-separator" />
-        <div className="listing-purchase-modal__order-line-item">
-          <div className="listing-purchase-modal__order-label">
+        <div className="purchase-modal__order-separator" />
+        <div className="purchase-modal__order-line-item">
+          <div className="purchase-modal__order-label">
             Total
           </div>
-          <div className="listing-purchase-modal__order-price">
+          <div className="purchase-modal__order-price">
             { FormatPriceString({USD: total + fee}) }
           </div>
         </div>
       </div>
-      <div className="listing-purchase-modal__order-details listing-purchase-modal__order-details-box">
-        <div className="listing-purchase-modal__order-line-item">
-          <div className="listing-purchase-modal__order-label">
+      <div className="purchase-modal__order-details purchase-modal__order-details-box">
+        <div className="purchase-modal__order-line-item">
+          <div className="purchase-modal__order-label">
             Available { balanceName }
           </div>
-          <div className="listing-purchase-modal__order-price">
+          <div className="purchase-modal__order-price">
             {FormatPriceString({USD: balanceAmount || 0})}
           </div>
         </div>
-        <div className="listing-purchase-modal__order-line-item">
-          <div className="listing-purchase-modal__order-label">
+        <div className="purchase-modal__order-line-item">
+          <div className="purchase-modal__order-label">
             Current Purchase
           </div>
-          <div className="listing-purchase-modal__order-price">
+          <div className="purchase-modal__order-price">
             {FormatPriceString({USD: total + fee})}
           </div>
         </div>
-        <div className="listing-purchase-modal__order-separator"/>
-        <div className="listing-purchase-modal__order-line-item">
-          <div className="listing-purchase-modal__order-label">
+        <div className="purchase-modal__order-separator"/>
+        <div className="purchase-modal__order-line-item">
+          <div className="purchase-modal__order-label">
             Remaining { balanceName }
           </div>
-          <div className="listing-purchase-modal__order-price">
+          <div className="purchase-modal__order-price">
             { balanceIcon }
             {FormatPriceString({USD: balanceAmount - (total + fee)})}
           </div>
         </div>
       </div>
-      <div className="listing-purchase-modal__actions listing-purchase-wallet-balance-actions">
+      <div className="purchase-modal__actions purchase-wallet-balance-actions">
         <ButtonWithLoader
           disabled={!available || outOfStock || insufficientBalance || failed}
           className="action action-primary"
@@ -323,7 +327,7 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
       </div>
       {
         errorMessage || !available || outOfStock || insufficientBalance ?
-          <div className="listing-purchase-confirmation-modal__error-message">
+          <div className="purchase-modal__error-message">
             {
               errorMessage ? errorMessage :
                 outOfStock ? "This item is out of stock" :
@@ -336,7 +340,7 @@ const ListingPurchaseBalanceConfirmation = observer(({nft, marketplaceItem, sele
   );
 });
 
-const ListingPurchasePayment = observer(({
+const PurchasePayment = observer(({
   type="marketplace",
   nft,
   marketplaceItem,
@@ -354,7 +358,7 @@ const ListingPurchasePayment = observer(({
   const [confirmationId, setConfirmationId] = useState(undefined);
   const [errorMessage, setErrorMessage] = useState(undefined);
   const [failed, setFailed] = useState(false);
-  const [listingStats, setListingStats] = useState({min: 0, max: 0, total: 0});
+  const [listingStats, setListingStats] = useState(undefined);
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   marketplaceItem = marketplaceItem || (type === "marketplace" && marketplace && rootStore.MarketplaceItemByTemplateId(marketplace, nft.metadata.template_id));
@@ -445,7 +449,7 @@ const ListingPurchasePayment = observer(({
   }
 
   return (
-    <div className="listing-purchase-confirmation-modal__content">
+    <div className="purchase-modal__content">
       <NFTCard
         nft={nft}
         selectedListing={selectedListing}
@@ -458,54 +462,43 @@ const ListingPurchasePayment = observer(({
       {
         type === "marketplace" ?
           (maxQuantity > 1 ?
-            <div className="listing-purchase-confirmation-modal__price-details">
-              <div className="price-container">
-                <div className="price-container__label">
-                  Total
-                </div>
-                <div className="price-container__price">
-                  {FormatPriceString(price, {quantity})}
-                </div>
-              </div>
-
+            <div className="purchase-modal__price-details">
               <QuantityInput quantity={quantity} setQuantity={setQuantity} maxQuantity={maxQuantity}/>
+              <div className="purchase-modal__price-details__price">
+                {FormatPriceString(price, {quantity, includeCurrency: true})}
+              </div>
             </div> : null) :
           <>
-            <div className="listing-purchase-modal__listing-info">
-              <div className="listing-purchase-modal__listing-count-container">
-                <div className="listing-purchase-modal__listing-count-label">
-                  Buy from a Collector
-                </div>
-                <div className="listing-purchase-modal__listing-count">
-                  <div className="header-dot" style={{backgroundColor: listingStats.total > 0 ? "#08b908" : "#a4a4a4"}} />
-                  { listingStats.total } Available for Trade
-                </div>
-              </div>
-              {
-                listingStats.max ?
-                  <div className="listing-purchase-modal__prices-container">
-                    <div className="listing-purchase-modal__price-container">
-                      <label className="listing-purchase-modal__price-label">
-                        Low Price
-                      </label>
-                      <div className="listing-purchase-modal__price">
-                        {FormatPriceString({USD: listingStats.min})}
+            {
+              listingStats ?
+                <div className="purchase-modal__stats">
+                  <div className="purchase-modal__stats__label">
+                    Buy from a Collector
+                  </div>
+                  <div className="purchase-modal__stats-list">
+                    <div className="purchase-modal__stat">
+                      <div className="purchase-modal__stat__label">
+                        Highest Price
                       </div>
-                    </div>
-                    <div className="listing-purchase-modal__price-container">
-                      <label className="listing-purchase-modal__price-label">
-                        High Price
-                      </label>
-                      <div className="listing-purchase-modal__price">
+                      <div className="purchase-modal__stat__price">
                         {FormatPriceString({USD: listingStats.max})}
                       </div>
                     </div>
-                  </div> : null
-              }
-            </div>
+                    <div className="purchase-modal__stat">
+                      <div className="purchase-modal__stat__label">
+                        Lowest Price
+                      </div>
+                      <div className="purchase-modal__stat__price">
+                        {FormatPriceString({USD: listingStats.min})}
+                      </div>
+                    </div>
+                  </div>
+                </div> : null
+            }
             <ActiveListings
               initialSelectedListingId={initialListingId}
               contractAddress={nft.details.ContractAddr}
+              noSeller
               Select={SelectListing}
             />
           </>
@@ -514,7 +507,7 @@ const ListingPurchasePayment = observer(({
         price={FormatPriceString(price, {quantity})}
         errorMessage={errorMessage}
         usdcAccepted={selectedListing && selectedListing?.details?.USDCAccepted}
-        disabled={!available || outOfStock || failed}
+        disabled={(type === "listing" && !selectedListingId) || !available || outOfStock || failed}
         Continue={Continue}
         Cancel={Cancel}
       />
@@ -523,16 +516,16 @@ const ListingPurchasePayment = observer(({
 });
 
 let timeout;
-const ListingPurchaseModal = observer(({nft, item, initialListingId, type="marketplace", Close}) => {
+const PurchaseModal = observer(({nft, item, initialListingId, type="marketplace", Close}) => {
   const [loadKey, setLoadKey] = useState(0);
   const [useWalletBalance, setUseWalletBalance] = useState(false);
   const [useLinkedWallet, setUseLinkedWallet] = useState(false);
-  const [selectedListing, setSelectedListing] = useState(undefined);
+  const [selectedListing, setSelectedListing] = useState(item);
   const [selectedListingId, setSelectedListingId] = useState(type === "marketplace" ? "marketplace" : initialListingId);
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
-    const modal = document.getElementById("listing-purchase-modal");
+    const modal = document.getElementById("purchase-modal");
     modal && modal.scrollTo(0, 0);
   }, [useWalletBalance]);
 
@@ -557,7 +550,7 @@ const ListingPurchaseModal = observer(({nft, item, initialListingId, type="marke
   } else if(useWalletBalance || useLinkedWallet) {
     // Purchase confirmation screen - not used for stripe/coinbase checkout
     content = (
-      <ListingPurchaseBalanceConfirmation
+      <PurchaseBalanceConfirmation
         key={`listing-${loadKey}`}
         type={type}
         useLinkedWallet={useLinkedWallet}
@@ -574,7 +567,7 @@ const ListingPurchaseModal = observer(({nft, item, initialListingId, type="marke
     );
   } else {
     content = (
-      <ListingPurchasePayment
+      <PurchasePayment
         key={`listing-${loadKey}`}
         type={type}
         nft={nft}
@@ -583,8 +576,13 @@ const ListingPurchaseModal = observer(({nft, item, initialListingId, type="marke
         selectedListingId={selectedListingId === "marketplace" ? undefined : selectedListingId}
         selectedListing={selectedListing}
         SelectListing={(listingId, listing) => {
-          setSelectedListingId(listingId);
-          setSelectedListing(listing);
+          if(listingId) {
+            setSelectedListingId(listingId);
+            setSelectedListing(listing);
+          } else {
+            setSelectedListingId(undefined);
+            setSelectedListing(item);
+          }
         }}
         quantity={selectedListingId === "marketplace" ? quantity : 1}
         setQuantity={setQuantity}
@@ -597,15 +595,15 @@ const ListingPurchaseModal = observer(({nft, item, initialListingId, type="marke
 
   return (
     <Modal
-      id="listing-purchase-modal"
-      className="listing-purchase-modal-container"
+      id="purchase-modal"
+      className="purchase-modal-container"
       closable={!checkoutStore.submittingOrder}
       Toggle={() => Close()}
     >
-      <div className="listing-purchase-modal">
-        <div className="listing-purchase-modal__header">
+      <div className="purchase-modal">
+        <h1 className="purchase-modal__header">
           Checkout
-        </div>
+        </h1>
         { content }
       </div>
     </Modal>
@@ -613,4 +611,4 @@ const ListingPurchaseModal = observer(({nft, item, initialListingId, type="marke
 });
 
 
-export default ListingPurchaseModal;
+export default PurchaseModal;

@@ -45,7 +45,8 @@
       color: var(--color-button-primary-text);
     }
 
-    .lds-default__element {
+    .lds-default__element,
+    .lds-ellipsis__element {
       background-color: var(--color-button-primary-text);
     }
   }
@@ -60,7 +61,8 @@
       color: var(--color-button-danger-text);
     }
 
-    .lds-default__element {
+    .lds-default__element,
+    .lds-ellipsis__element {
       background-color: var(--color-button-danger-text);
     }
   }
@@ -75,7 +77,8 @@
       color: var(--color-button-selection-text);
     }
 
-    .lds-default__element {
+    .lds-default__element,
+    .lds-ellipsis__element {
       background-color: var(--color-button-selection-text);
     }
   }
@@ -90,7 +93,8 @@
       color: var(--color-button-selection-active-text);
     }
 
-    .lds-default__element {
+    .lds-default__element,
+    .lds-ellipsis__element {
       background-color: var(--color-button-selection-active-text);
     }
   }
@@ -105,8 +109,15 @@
       color: var(--color-button-modal-close-text);
     }
 
-    .lds-default__element {
+    .lds-default__element,
+    .lds-ellipsis__element {
       background-color: var(--color-button-modal-close-text);
+    }
+  }
+
+  &-with-loader {
+    &--loading {
+      cursor: wait;
     }
   }
 

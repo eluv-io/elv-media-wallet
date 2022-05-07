@@ -143,7 +143,7 @@
   /* Buttons */
   --background-button-primary: var(--gold-1);
   --color-button-primary-text: black;
-  --border-button-primary: 0;
+  --border-button-primary: 2px solid var(--gold-1);
   --border-radius-button-primary: 3px;
 
   --background-button-secondary: black;
@@ -153,13 +153,13 @@
 
   --background-button-danger: var(--component-gradient);
   --color-button-danger-text: white;
-  --border-button-danger: 0;
+  --border-button-danger: 2px solid var(--component-gradient);
   --border-radius-button-danger: 3px;
 
   /* Togglable/selectable options */
   --background-button-selection: rgba(235, 235, 235, 0.2);
   --color-button-selection-text: white;
-  --border-button-selection: 0;
+  --border-button-selection: 2px solid rgba(235, 235, 235, 0.2);
   --border-radius-button-selection: 5px;
 
   --background-button-selection-active: black;

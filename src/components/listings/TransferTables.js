@@ -14,7 +14,7 @@ import UpCaret from "Assets/icons/up-caret.svg";
 import DownCaret from "Assets/icons/down-caret.svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 
-export const ActiveListings = observer(({contractAddress, contractId, initialSelectedListingId, Select}) => {
+export const ActiveListings = observer(({contractAddress, contractId, initialSelectedListingId, noSeller=false, Select}) => {
   const [listings, setListings] = useState([]);
   const [paging, setPaging] = useState({});
   const [sortField, setSortField] = useState("price");
@@ -126,9 +126,13 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
           <button className="transfer-table__table__cell" onClick={() => UpdateSort("price")}>
             Price { sortField === "price" ? sortIcon : null }
           </button>
-          <button className="transfer-table__table__cell no-mobile" onClick={() => UpdateSort("seller")}>
-            Seller { sortField === "seller" ? sortIcon : null }
-          </button>
+          {
+            noSeller ?
+              null :
+              <button className="transfer-table__table__cell no-mobile" onClick={() => UpdateSort("seller")}>
+                Seller {sortField === "seller" ? sortIcon : null}
+              </button>
+          }
         </div>
         <div className="transfer-table__content-rows">
           {
@@ -176,9 +180,13 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
                         }
                         {`$${listing.details.Price.toFixed(2)}`}
                       </div>
-                      <div className="transfer-table__table__cell no-mobile">
-                        {MiddleEllipsis(listing.details.SellerAddress, 12)}
-                      </div>
+                      {
+                        noSeller ?
+                          null :
+                          <div className="transfer-table__table__cell no-mobile">
+                            {listing.details.SellerAddress}
+                          </div>
+                      }
                     </div>
                   );
                 })

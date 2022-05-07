@@ -56,18 +56,23 @@ export const ItemPrice = (item, currency) => {
   return parseFloat(item.price[currency]);
 };
 
-export const FormatPriceString = (priceList, options={currency: "USD", quantity: 1, trimZeros: false}) => {
-  let price = ItemPrice({price: priceList}, options.currency || "USD");
+export const FormatPriceString = (priceList, options={currency: "USD", quantity: 1, trimZeros: false, includeCurrency: false}) => {
+  const currency = options?.currency || "USD";
+  let price = ItemPrice({price: priceList}, currency);
 
   if(typeof price !== "number" || isNaN(price)) { return; }
 
   price = price * (options.quantity || 1);
 
   const currentLocale = (navigator.languages && navigator.languages.length) ? navigator.languages[0] : navigator.language;
-  let formattedPrice = new Intl.NumberFormat(currentLocale || "en-US", { style: "currency", currency: options.currency || "USD"}).format(price);
+  let formattedPrice = new Intl.NumberFormat(currentLocale || "en-US", { style: "currency", currency: currency}).format(price);
 
   if(options.trimZeros && formattedPrice.endsWith(".00")) {
     formattedPrice = formattedPrice.slice(0, -3);
+  }
+
+  if(options?.includeCurrency) {
+    formattedPrice = `${formattedPrice} ${currency}`;
   }
 
   return formattedPrice;
@@ -79,7 +84,7 @@ export const ButtonWithLoader = ({children, className="", onClick, ...props}) =>
   return (
     <button
       {...props}
-      className={`action action-with-loader ${className}`}
+      className={`action action-with-loader ${loading ? "action-with-loader--loading": ""} ${className}`}
       onClick={async event => {
         if(loading) { return; }
 

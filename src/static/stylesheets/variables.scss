@@ -8,6 +8,11 @@ $mobile-breakpoint: 600px;
   border: var(--border-component-primary);
   border-radius: var(--border-radius-component);
   color: var(--color-component-text-primary);
+  font: var(--font-component-text);
+
+  h1 {
+    font: var(--font-component-header);
+  }
 }
 
 @mixin modal {

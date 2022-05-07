@@ -3,32 +3,17 @@ import {observer} from "mobx-react";
 import {ButtonWithLoader, FormatPriceString, ItemPrice} from "Components/common/UIComponents";
 import {checkoutStore, rootStore, transferStore} from "Stores";
 import AsyncComponent from "Components/common/AsyncComponent";
-import ListingPurchaseModal from "Components/listings/ListingPurchaseModal";
+import PurchaseModal from "Components/listings/PurchaseModal";
 import {Redirect, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 import {LoginClickGate} from "Components/common/LoginGate";
-
-/*
-        <div className="checkout card-shadow checkout__email-input">
-            <input
-              type="text"
-              className="checkout__email"
-              value={email}
-              placeholder="Email Address"
-              onChange={event => {
-                const email = event.target.value.trim();
-                setEmail(email);
-                setValidEmail(ValidEmail(email));
-              }}
-            />
-          </div>
- */
 
 const MarketplaceCheckout = observer(({item}) => {
   const match = useRouteMatch();
 
   const [claimed, setClaimed] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [modalType, setModalType] = useState("marketplace");
   const [listingStats, setListingStats] = useState({total: 0, min: 0, max: 0});
 
   const itemTemplate = item.nft_template ? item.nft_template.nft || {} : {};
@@ -47,7 +32,8 @@ const MarketplaceCheckout = observer(({item}) => {
 
   const itemToNFT = {
     details: {
-      ContractAddr: itemTemplate.address
+      ContractAddr: itemTemplate.address,
+      TenantId: marketplace.tenant_id
     },
     metadata: itemTemplate
   };
@@ -65,11 +51,10 @@ const MarketplaceCheckout = observer(({item}) => {
     >
       {
         showModal ?
-          <ListingPurchaseModal
-            type="marketplace"
-            skipListings={!free && listingStats.total === 0}
+          <PurchaseModal
+            type={modalType}
             nft={itemToNFT}
-            item={item}
+            item={itemToNFT}
             Close={() => setShowModal(false)}
           /> : null
       }
@@ -86,45 +71,62 @@ const MarketplaceCheckout = observer(({item}) => {
               <h3 className="marketplace-price__direct__max-owned-message">
                 You already own the maximum number of this NFT
               </h3> :
-              <LoginClickGate
-                Component={ButtonWithLoader}
-                onClick={async () => {
-                  if(!free) {
-                    setShowModal(true);
-                    return;
-                  }
-
-                  try {
-                    const status = await rootStore.ClaimStatus({
-                      marketplace,
-                      sku: item.sku
-                    });
-
-                    if(status && status.status !== "none") {
-                      // Already claimed, go to status
-                      setClaimed(true);
-                    } else if(await checkoutStore.ClaimSubmit({marketplaceId: match.params.marketplaceId, sku: item.sku})) {
-                      // Claim successful
-                      setClaimed(true);
+              <>
+                <LoginClickGate
+                  Component={ButtonWithLoader}
+                  onClick={async () => {
+                    if(!free) {
+                      setModalType("marketplace");
+                      setShowModal(true);
+                      return;
                     }
-                  } catch(error){
-                    rootStore.Log("Checkout failed", true);
-                    rootStore.Log(error);
+
+                    try {
+                      const status = await rootStore.ClaimStatus({
+                        marketplace,
+                        sku: item.sku
+                      });
+
+                      if(status && status.status !== "none") {
+                        // Already claimed, go to status
+                        setClaimed(true);
+                      } else if(await checkoutStore.ClaimSubmit({marketplaceId: match.params.marketplaceId, sku: item.sku})) {
+                        // Claim successful
+                        setClaimed(true);
+                      }
+                    } catch(error){
+                      rootStore.Log("Checkout failed", true);
+                      rootStore.Log(error);
+                    }
+                  }}
+                  disabled={outOfStock}
+                  className="action action-primary"
+                >
+                  {
+                    free && !outOfStock ? "Claim Now" :
+                      outOfStock || !available ? "View Listings" : "Buy Now"
                   }
-                }}
-                disabled={outOfStock && listingStats.total === 0}
-                className="action action-primary"
-              >
+                </LoginClickGate>
                 {
-                  free && !outOfStock ? "Claim Now" :
-                    outOfStock || !available ? "View Listings" : "Buy Now"
+                  listingStats.count > 0 ?
+                    <LoginClickGate
+                      Component={ButtonWithLoader}
+                      onClick={() => {
+                        setModalType("listing");
+                        setShowModal(true);
+                      }}
+                      className="action action-secondary"
+                    >
+                      Buy from Collector
+                    </LoginClickGate> :
+                    null
                 }
-              </LoginClickGate>
+              </>
           }
         </div>
-        <div className={`marketplace-price__listings ${listingStats.total === 0 ? "hidden" : ""}`}>
+        <div className={`marketplace-price__listings ${listingStats.count === 0 ? "hidden" : ""}`}>
           <h3 className="marketplace-price__listings-count">
-            { listingStats.total } Offer{ listingStats.total > 1 ? "s" : "" } from Collectors
+            { listingStats.count } Offer{ listingStats.total > 1 ? "s" : "" } from Collectors
           </h3>
           <div className="prices-container">
             <div className="price-container">

@@ -159,6 +159,9 @@
   --border-radius-table-badge: var(--border-radius);
 
   /* Other components such as nft detail section boxes, listing stats, etc. */
+  --font-component-header: normal normal 300 24px var(--font-family-primary);
+  --font-component-text: normal normal normal 16px var(--font-family-primary);
+
   --background-component-primary: var(--color-bg-primary);
   --background-component-secondary: var(--color-bg-secondary);
   --color-component-bg-primary: var(--color-bg-primary);
