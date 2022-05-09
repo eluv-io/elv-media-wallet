@@ -637,12 +637,19 @@ class RootStore {
       fontsTag.innerHTML = ":root { --font-family-primary: \"Helvetica Neue\", Helvetica, sans-serif; }";
     }
 
+    const cssTag = document.getElementById("_custom-css");
+    if(options.color_scheme === "Custom" && marketplace?.branding?.custom_css) {
+      cssTag.innerHTML = marketplace.branding.custom_css.toString();
+    } else {
+      cssTag.innerHTML = "";
+    }
+
     switch(options.color_scheme) {
       case "Dark":
         this.ToggleDarkMode(true);
         break;
 
-      case "Light":
+      default:
         this.ToggleDarkMode(false);
         break;
     }
