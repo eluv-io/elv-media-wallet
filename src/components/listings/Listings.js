@@ -1,10 +1,9 @@
 import React, {memo} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
-import {Link, useRouteMatch} from "react-router-dom";
+import {useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 import {NFTImage} from "Components/common/Images";
-import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 import {FormatPriceString} from "Components/common/UIComponents";
 import {Loader} from "Components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
@@ -13,49 +12,23 @@ import FilteredView from "Components/listings/FilteredView";
 import {NFTDisplayToken} from "../../utils/Utils";
 
 import ListingIcon from "Assets/icons/listing";
-import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
+import ItemCard from "Components/common/ItemCard";
 
 const Listing = memo(({url, listing}) => (
-  <div className="card-container card-shadow" >
-    <Link
-      to={UrlJoin(url, listing.details.ListingId)}
-      className="card"
-    >
-      <NFTImage nft={listing} width={600}/>
-      <div className="card__badges">
-        {
-          Utils.EqualAddress(rootStore.userAddress, listing.details.SellerAddress) ?
-            <ImageIcon icon={ListingIcon} title="This is your listing" alt="Listing Icon" className="card__badge" /> : null
-        }
-      </div>
-      <div className="card__text">
-        <div className="card__titles">
-          <h2 className="card__title">
-            <div className="card__title__title">
-              {listing.metadata.display_name}
-            </div>
-            <div className="card__title__price">
-              { listing.details.USDCAccepted ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC Accepted" /> : null }
-              {FormatPriceString({USD: listing.details.Price})}
-            </div>
-          </h2>
-          {
-            listing.metadata.edition_name ?
-              <h2 className="card__title card__title-edition">{listing.metadata.edition_name}</h2> : null
-          }
-          <h2 className="card__title card__title-edition">
-            { NFTDisplayToken(listing) }
-          </h2>
-          <ResponsiveEllipsis
-            component="h2"
-            className="card__subtitle"
-            text={listing.metadata.description}
-            maxLine="3"
-          />
-        </div>
-      </div>
-    </Link>
-  </div>
+  <ItemCard
+    link={UrlJoin(url, listing.details.ListingId)}
+    image={<NFTImage nft={listing} width={600}/>}
+    name={listing.metadata.display_name}
+    edition={listing.metadata.edition_name}
+    description={listing.metadata.description}
+    price={FormatPriceString({USD: listing.details.Price})}
+    usdcAccepted={listing.details.USDCAccepted}
+    displayToken={NFTDisplayToken(listing)}
+    badges={
+      Utils.EqualAddress(rootStore.userAddress, listing.details.SellerAddress) ?
+        <ImageIcon icon={ListingIcon} title="This is your listing" alt="Listing Icon" className="card__badge" /> : null
+    }
+  />
 ));
 
 const Listings = observer(() => {

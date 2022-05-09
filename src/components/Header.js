@@ -53,7 +53,6 @@ const Profile = observer(() => {
             </div> : null
         }
       </div>
-      <ProfileImage className="header__profile__image" />
     </Link>
   );
 });

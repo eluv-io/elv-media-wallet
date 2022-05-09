@@ -1611,7 +1611,6 @@ class RootStore {
       themeContainer.innerHTML = "";
       return;
     } else {
-
       import("Assets/stylesheets/themes/dark.theme.css")
         .then(theme => {
           themeContainer.innerHTML = theme.default;

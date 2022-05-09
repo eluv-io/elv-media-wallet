@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import {observer} from "mobx-react";
-import {Link, useRouteMatch} from "react-router-dom";
+import {useRouteMatch} from "react-router-dom";
 import {rootStore} from "Stores";
 import UrlJoin from "url-join";
 import {MarketplaceImage, NFTImage} from "Components/common/Images";
@@ -8,8 +8,8 @@ import NFTPlaceholderIcon from "Assets/icons/nft";
 import InfoModal from "Components/common/InfoModal";
 import ImageIcon from "Components/common/ImageIcon";
 import HelpIcon from "Assets/icons/help-circle";
-import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 import MarketplaceItemCard from "Components/marketplace/MarketplaceItemCard";
+import ItemCard from "Components/common/ItemCard";
 
 const MarketplaceCollections = observer(() => {
   const match = useRouteMatch();
@@ -46,37 +46,23 @@ const MarketplaceCollections = observer(() => {
           details
         };
         return (
-          <div className="card-container card-shadow" key={key}>
-            <Link
-              to={UrlJoin(basePath, collectionIndex.toString(), "owned", nft.details.ContractId, nft.details.TokenIdStr)}
-              className="card"
-            >
-              <NFTImage nft={nft} width={600} />
-              <div className="card__text">
-                <div className="card__titles">
-                  <h2 className="card__title">
-                    { nft.metadata.display_name || "" }
-                  </h2>
-                  <ResponsiveEllipsis
-                    component="h2"
-                    className="card__subtitle"
-                    text={item.description || item.nftTemplateMetadata.description}
-                    maxLine="3"
-                  />
-                </div>
-              </div>
-            </Link>
-          </div>
+          <ItemCard
+            key={key}
+            link={UrlJoin(basePath, collectionIndex.toString(), "owned", nft.details.ContractId, nft.details.TokenIdStr)}
+            image={<NFTImage nft={nft} width={600} />}
+            name={nft.metadata.display_name}
+            description={item.description || item.nftTemplateMetadata.description}
+          />
         );
       } else if(item && purchaseableItems[sku]) {
         return (
           <MarketplaceItemCard
+            key={key}
             to={`${basePath}/${collectionIndex}/store/${purchaseableItems[sku].item.sku}`}
-            className="collection-card collection-card-purchasable collection-card-unowned"
             marketplaceHash={marketplace.versionHash}
             item={purchaseableItems[sku].item}
             index={purchaseableItems[sku].index}
-            key={key}
+            className="item-card--disabled"
           />
         );
       } else {
@@ -85,36 +71,24 @@ const MarketplaceCollections = observer(() => {
         const placeholder = item || collection.placeholder || {};
 
         return (
-          <div className="card-container card-shadow collection-card collection-card-inaccessible collection-card-unowned" key={key}>
-            <div className="card">
-              {
-                placeholder.image ?
-                  <MarketplaceImage
-                    marketplaceHash={marketplace.versionHash}
-                    title={placeholder.name}
-                    path={
-                      item ?
-                        UrlJoin("public", "asset_metadata", "info", "items", itemIndex.toString(), "image") :
-                        UrlJoin("public", "asset_metadata", "info", "collections", collectionIndex.toString(), "placeholder", "image")
-                    }
-                  /> :
-                  <MarketplaceImage title={placeholder.name} icon={NFTPlaceholderIcon} />
-              }
-              <div className="card__text">
-                <div className="card__titles">
-                  <h2 className="card__title">
-                    { placeholder.name }
-                  </h2>
-                  <ResponsiveEllipsis
-                    component="h2"
-                    className="card__subtitle"
-                    text={placeholder.description}
-                    maxLine="3"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+          <ItemCard
+            key={key}
+            image={
+              placeholder.image ?
+                <MarketplaceImage
+                  marketplaceHash={marketplace.versionHash}
+                  title={placeholder.name}
+                  path={
+                    item ?
+                      UrlJoin("public", "asset_metadata", "info", "items", itemIndex.toString(), "image") :
+                      UrlJoin("public", "asset_metadata", "info", "collections", collectionIndex.toString(), "placeholder", "image")
+                  }
+                /> :
+                <MarketplaceImage title={placeholder.name} icon={NFTPlaceholderIcon} />
+            }
+            name={placeholder.name}
+            description={placeholder.description}
+          />
         );
       }
     });

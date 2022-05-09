@@ -8,6 +8,7 @@ import {
 import UrlJoin from "url-join";
 import {MarketplaceImage} from "Components/common/Images";
 import Countdown from "Components/common/Countdown";
+import ItemCard from "Components/common/ItemCard";
 
 const DropCard = ({marketplace, label, sku, image, selected=false, pendingSelection=false, Select}) => {
   const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
@@ -17,22 +18,18 @@ const DropCard = ({marketplace, label, sku, image, selected=false, pendingSelect
   const item = marketplace.items[itemIndex];
 
   return (
-    <div className={`card-container card-shadow card-container-selectable ${pendingSelection ? "card-container-pending-selection" : ""} ${selected ? "card-container-selected" : ""}`} onClick={Select}>
-      <div className="card">
+    <ItemCard
+      image={
         <MarketplaceImage
           marketplaceHash={marketplace.versionHash}
           item={!image && item}
           url={(image && image.url) || (item && item.image && item.image.url)}
         />
-        <div className="card__text">
-          <div className="card__titles">
-            <h2 className="card__title">
-              { label || item.name }
-            </h2>
-          </div>
-        </div>
-      </div>
-    </div>
+      }
+      name={label || item.name}
+      onClick={Select}
+      className={`card-container-selectable ${pendingSelection ? "card-container-pending-selection" : ""} ${selected ? "card-container-selected" : ""}`}
+    />
   );
 };
 

@@ -87,10 +87,10 @@
   }
 
   &__background {
-    background: var(--background-login);
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+    background: var(--background-login);
     height: 100vh;
     left: 0;
     position: fixed;

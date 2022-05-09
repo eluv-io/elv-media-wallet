@@ -201,6 +201,9 @@ $input-height: 30px;
 
   &__item {
     height: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
 
     &:not(:last-child) {
       // sass-lint:disable no-color-literals
