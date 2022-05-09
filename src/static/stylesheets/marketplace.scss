@@ -121,61 +121,6 @@
   }
 }
 
-.marketplace-price {
-  @include component;
-
-  &__loader {
-    height: auto;
-  }
-
-  &__direct,
-  &__listings {
-    padding: 15px 25px;
-  }
-
-  &__direct {
-    align-items: center;
-    display: flex;
-    justify-content: space-between;
-
-    &__price {
-      font-size: 24px;
-      font-weight: 500;
-      margin-right: 50px;
-    }
-
-    &__max-owned-message {
-      font-size: 12px;
-      font-weight: 300;
-      text-align: center;
-    }
-
-    .action-primary {
-      min-width: 150px;
-    }
-  }
-
-  &__listings {
-    border-top: var(--border-component-secondary);
-  }
-
-  &__listings-count {
-    font-size: 16px;
-    font-weight: normal;
-  }
-
-  .prices-container {
-    border-radius: 0;
-    margin: 10px 0 0;
-    max-width: 300px;
-    padding: 0;
-  }
-
-  .price-container__label {
-    color: var(--color-component-text-secondary);
-  }
-}
-
 .side-panel {
   .marketplace-navigation {
     display: none;

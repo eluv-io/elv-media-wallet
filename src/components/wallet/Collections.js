@@ -12,6 +12,7 @@ import {NFTDisplayToken} from "../../utils/Utils";
 import FilteredView from "Components/listings/FilteredView";
 import {Loader} from "Components/common/Loaders";
 import ItemCard from "Components/common/ItemCard";
+import {FormatPriceString} from "Components/common/UIComponents";
 
 import ListingIcon from "Assets/icons/listing.svg";
 
@@ -71,6 +72,8 @@ const Collections = observer(() => {
                         edition={nft.metadata.edition_name}
                         displayToken={NFTDisplayToken(nft)}
                         description={nft.metadata.description}
+                        price={listing ? FormatPriceString({USD: listing.details.Price}) : null}
+                        usdcAccepted={listing?.details?.USDCAccepted}
                       />
                     );
                   })

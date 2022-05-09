@@ -14,6 +14,10 @@
   transition: background-color 0.15s ease;
   user-select: none;
 
+  &:hover {
+    color: var(--color-button-secondary-text);
+  }
+
   * {
     color: var(--color-button-secondary-text);
   }
@@ -41,6 +45,10 @@
     border-radius: var(--border-radius-button-primary);
     color: var(--color-button-primary-text);
 
+    &:hover {
+      color: var(--color-button-primary-text);
+    }
+
     * {
       color: var(--color-button-primary-text);
     }
@@ -56,6 +64,10 @@
     border: var(--border-button-danger);
     border-radius: var(--border-radius-button-danger);
     color: var(--color-button-danger-text);
+
+    &:hover {
+      color: var(--color-button-danger-text);
+    }
 
     * {
       color: var(--color-button-danger-text);
@@ -73,6 +85,10 @@
     border-radius: var(--border-radius-button-selection);
     color: var(--color-button-selection-text);
 
+    &:hover {
+      color: var(--color-button-selection-text);
+    }
+
     * {
       color: var(--color-button-selection-text);
     }
@@ -89,6 +105,10 @@
     border-radius: var(--border-radius-button-selection-active);
     color: var(--color-button-selection-active-text);
 
+    &:hover {
+      color: var(--color-button-selection-active-text);
+    }
+
     * {
       color: var(--color-button-selection-active-text);
     }
@@ -104,6 +124,10 @@
     border: var(--border-button-modal-close);
     border-radius: var(--border-radius-modal-close);
     color: var(--color-button-modal-close-text);
+
+    &:hover {
+      color: var(--color-button-modal-close-text);
+    }
 
     * {
       color: var(--color-button-modal-close-text);

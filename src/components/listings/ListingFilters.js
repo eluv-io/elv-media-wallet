@@ -182,6 +182,10 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
         return;
       }
 
+      if(initialFilter) {
+        return;
+      }
+
       setSort(savedOptions.sort);
       setSortBy(savedOptions.sortBy);
       setSortDesc(savedOptions.sortDesc);

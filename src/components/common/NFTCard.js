@@ -28,24 +28,81 @@ const NFTCard = observer(({
   truncateDescription,
   selectedMediaIndex=-1,
   setSelectedMediaIndex,
-  playerCallback
+  playerCallback,
+  onClick,
+  className="",
+  cardClassName=""
 }) => {
-  if(item) {
-    nft = { metadata: item.nftTemplateMetadata };
+  if(item && !nft) {
+    nft = {
+      metadata: item.nftTemplateMetadata
+    };
   }
 
   const selectedMedia = (selectedMediaIndex >= 0 && (nft.metadata.additional_media || [])[selectedMediaIndex]);
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
+  const expired = item && item.expires_at && new Date(item.expires_at).getTime() - Date.now() < 0;
+  const unauthorized = item && item.requires_permissions && !item.authorized;
   const info = selectedListing || nft;
 
   let details = {
     name: selectedMedia?.name || info.metadata.display_name,
     subtitle_1: selectedMedia ? selectedMedia.subtitle_1 : info.metadata.edition_name,
-    subtitle_2: selectedMedia ? selectedMedia.subtitle_2 : ( showOrdinal ? NFTDisplayToken(info) : undefined )
+    subtitle_2: selectedMedia ? selectedMedia.subtitle_2 : undefined
   };
 
-  const card = (
-    <div className="card card-shadow">
+  let sideText;
+  if(item && !hideAvailable && !outOfStock && !expired && !unauthorized && stock &&stock.max && stock.max < 10000000) {
+    sideText = (
+      <div className="item-card__side-text-container">
+        <div className="item-card__side-text">
+          <div className="header-dot" style={{backgroundColor: outOfStock ? "#a4a4a4" : "#ff0000"}} />
+          <div className="item-card__side-text__primary">
+            { outOfStock ? "Sold Out!" : "Available" }
+          </div>
+          {
+            !outOfStock ?
+              <div className="item-card__side-text__secondary">
+                { stock.max - stock.minted }
+              </div> : null
+          }
+        </div>
+      </div>
+    );
+  } else if(!item && showOrdinal) {
+    const [first, second] = NFTDisplayToken(info).split("/");
+
+    sideText = (
+      <div className="item-card__side-text-container">
+        <div className="item-card__side-text">
+          <div className="item-card__side-text__primary">
+            { first } { second ? "/" : "" }
+          </div>
+          {
+            second ?
+              <div className="item-card__side-text__secondary">
+                { second }
+              </div> : null
+          }
+        </div>
+      </div>
+    );
+  }
+
+  let status;
+  if(outOfStock) {
+    status = "Sold Out!";
+  } else if(!selectedMedia && !hideAvailable && stock && stock.max && stock.max < 10000000) {
+    //status = `${stock.max - stock.minted} Available`;
+  }
+
+  if(price) {
+    price = FormatPriceString(price || {USD: selectedListing.details.Price});
+  }
+
+  // NOTE: Keep class/structure in sync with ItemCard
+  const cardContents = (
+    <>
       <NFTImage
         nft={nft}
         item={item}
@@ -54,6 +111,76 @@ const NFTCard = observer(({
         allowFullscreen={allowFullscreen}
         playerCallback={playerCallback}
       />
+      { sideText }
+      <div className="item-card__text">
+        <div className="item-card__title">
+          { details.name }
+        </div>
+        {
+          details.subtitle_1 ?
+            <div className="item-card__edition">
+              { details.subtitle_1 }
+            </div> : null
+        }
+        {
+          details.subtitle_2 ?
+            <div className="item-card__edition">
+              { details.subtitle_2 }
+            </div> : null
+        }
+        {
+          selectedMedia ?
+            <div
+              className="item-card__description rich-text markdown-document"
+              ref={element => {
+                if(!element) { return; }
+
+                render(
+                  <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
+                    { SanitizeHTML(selectedMedia.description) }
+                  </ReactMarkdown>,
+                  element
+                );
+              }}
+            /> :
+            <ResponsiveEllipsis
+              component="div"
+              className="item-card__description"
+              text={info.metadata.description}
+              maxLine={truncateDescription ? "2" : "100"}
+            />
+        }
+        {
+          price || status ?
+            <div className="item-card__status">
+              {
+                price ?
+                  <div className="item-card__status__price">
+                    {
+                      usdcAccepted || selectedListing?.details.USDCAccepted ?
+                        <ImageIcon icon={USDCIcon} label="USDC" title="USDC Accepted" /> : null
+                    }
+                    {price}
+                  </div> : null
+              }
+              {
+                status ?
+                  <div className="item-card__status__text">
+                    {status}
+                  </div> : null
+              }
+            </div> : null
+        }
+        {
+          selectedMediaIndex >= 0 ?
+            <div className="item-card__actions">
+              <button onClick={() => setSelectedMediaIndex(-1)} className="action item-card__action">
+                <ImageIcon icon={ReturnIcon} title="Return to NFT" />
+              </button>
+            </div> : null
+        }
+      </div>
+      {/*
       <div className="card__titles">
         {
           selectedMediaIndex >= 0 ?
@@ -115,20 +242,31 @@ const NFTCard = observer(({
             { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available` }
           </div> : null
       }
-    </div>
+      */}
+    </>
   );
 
   if(link) {
     return (
-      <Link to={link} className="card-padding-container nft-card">
-        { card }
-      </Link>
+      <div className={`card-container card-shadow ${className}`}>
+        <Link
+          to={link}
+          className={`item-card item-card--nft-card ${cardClassName}`}
+        >
+          { cardContents }
+        </Link>
+      </div>
     );
   }
 
   return (
-    <div className="card-padding-container nft-card">
-      { card }
+    <div className={`card-container card-shadow ${className}`}>
+      <div
+        onClick={onClick}
+        className={`item-card item-card--nft-card ${cardClassName}`}
+      >
+        { cardContents }
+      </div>
     </div>
   );
 });

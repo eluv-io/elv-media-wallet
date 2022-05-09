@@ -118,25 +118,25 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
 
   if(media?.embedUrl) {
     const content = media.useFrame ?
-      <iframe src={media.embedUrl} className="card__image-video-embed__frame" /> :
-      <div ref={element => setTargetElement(element)} className="card__image-video-embed__frame" />;
+      <iframe src={media.embedUrl} className="item-card__image-video-embed__frame" /> :
+      <div ref={element => setTargetElement(element)} className="item-card__image-video-embed__frame" />;
 
     return (
       <>
-        <div className="card__image-container" key={`media-${media.embedUrl}`}>
-          <div className={`card__image card__image-video-embed ${className}`}>
+        <div className="item-card__image-container" key={`media-${media.embedUrl}`}>
+          <div className={`item-card__image item-card__image-video-embed ${className}`}>
             { content }
           </div>
           {
             allowFullscreen && media.useFrame ?
-              <button className="card__image__full-screen" onClick={() => setFullscreen(true)}>
+              <button className="item-card__image__full-screen" onClick={() => setFullscreen(true)}>
                 <ImageIcon icon={FullscreenIcon} label="Enlarge Image"/>
               </button> : null
           }
         </div>
         {
           fullscreen ?
-            <Modal className="card__image-modal" Toggle={() => setFullscreen(false)}>
+            <Modal className="item-card__image-modal" Toggle={() => setFullscreen(false)}>
               { content }
             </Modal> : null
         }
@@ -147,29 +147,29 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
   const image = media?.imageUrl ?
     <img
       src={media.imageUrl.toString()}
-      className={`card__image ${className}`}
+      className={`item-card__image ${className}`}
       alt={nft.metadata.display_name}
     /> :
     <SVG
       src={NFTPlaceholderIcon}
-      className={`card__image ${className}`}
+      className={`item-card__image ${className}`}
       alt={nft.metadata.display_name}
     />;
 
   return (
     <>
-      <div className="card__image-container" ref={() => playerCallback && playerCallback(undefined)}>
+      <div className="item-card__image-container" ref={() => playerCallback && playerCallback(undefined)}>
         { image }
         {
           allowFullscreen ?
-            <button className="card__image__full-screen" onClick={() => setFullscreen(true)}>
+            <button className="item-card__image__full-screen" onClick={() => setFullscreen(true)}>
               <ImageIcon icon={FullscreenIcon} label="Enlarge Image"/>
             </button> : null
         }
       </div>
       {
         fullscreen ?
-          <Modal className="card__image-modal" Toggle={() => setFullscreen(false)}>
+          <Modal className="item-card__image-modal" Toggle={() => setFullscreen(false)}>
             { image }
           </Modal> : null
       }
@@ -195,7 +195,7 @@ export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon,
       url = url.toString();
     } else {
       icon = NFTPlaceholderIcon;
-      className = `card__image-placeholder ${className}`;
+      className = `item-card__image-placeholder ${className}`;
     }
   }
 
@@ -204,7 +204,7 @@ export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon,
       title={title || item && item.name || ""}
       icon={url || icon || NFTPlaceholderIcon}
       alternateIcon={NFTPlaceholderIcon}
-      className={rawImage ? className : `card__image ${className}`}
+      className={rawImage ? className : `item-card__image ${className}`}
     />
   );
 
@@ -213,7 +213,7 @@ export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon,
   }
 
   return (
-    <div className={`card__image-container ${className}`}>
+    <div className={`item-card__image-container ${className}`}>
       { image }
     </div>
   );

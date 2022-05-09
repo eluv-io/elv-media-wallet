@@ -20,18 +20,15 @@ $content-width: 475px;
   flex-direction: column;
   position: relative;
 
-  .nft-card {
+  .card-container {
     margin: 0 auto 20px;
     max-width: calc(#{$content-width} / 1.5);
     width: 100%;
 
-    .card__title,
-    .card__title__title {
-      font-size: 16px;
-    }
-
-    .card__description {
-      font-size: 12px;
+    .item-card {
+      &__description {
+        font-size: 12px;
+      }
     }
   }
 

@@ -1,121 +1,9 @@
-.media-controls {
-  background: var(--background-component-secondary);
-  bottom: 0;
-  height: 50px;
-  justify-content: space-between;
-  padding: 10px;
-  position: sticky;
-  width: 100%;
-
-  &,
-  &__left,
-  &__title,
-  &__right {
-    align-items: center;
-    display: flex;
-  }
-
-  &__left,
-  &__title,
-  &__right {
-    height: 100%;
-  }
-
-  &__button {
-    display: flex;
-    height: 20px;
-    padding: 3px;
-    position: relative;
-    width: 20px;
-
-    * {
-      color: var(--color-component-text-primary);
-    }
-
-    &:not(:last-child) {
-      margin-right: 10px;
-    }
-
-    &--play-pause {
-      height: 30px;
-      padding: 0;
-      width: 30px;
-
-      circle {
-        fill: var(--color-component-bg-primary);
-      }
-    }
-
-    svg {
-      height: 100%;
-      width: 100%;
-    }
-  }
-
-  &__title {
-    background-color: var(--background-component-primary);
-    border-radius: var(--border-radius-component);
-    flex: 1 1 auto;
-    justify-content: flex-start;
-    margin: 0 10px;
-    min-width: 0;
-    overflow: hidden;
-    padding: 0 10px 0 30px;
-    position: relative;
-
-    * {
-      color: var(--color-component-text-highlight);
-    }
-
-    &__icon {
-      height: 15px;
-      left: 8px;
-      position: absolute;
-    }
-
-    &__text,
-    &__span {
-      min-width: 100%;
-    }
-  }
-
-  &__toggle {
-    height: 30px;
-    min-width: 50px;
-    padding: 5px;
-    width: 50px;
-
-    &:not(:last-child) {
-      margin-right: 5px;
-    }
-
-    &:not(.action-selection--active) {
-      * {
-        color: var(--color-component-text-primary);
-      }
-    }
-
-    svg {
-      height: 100%;
-    }
-  }
-
-  @media screen and (max-width: $mobile-breakpoint) {
-    &__toggle {
-      width: 40px;
-    }
-
-    &__title {
-      font-size: 12px;
-    }
-  }
-}
-
 .details-page {
   max-width: 100%;
   overflow-x: hidden;
   padding-bottom: 15px;
   width: 100%;
+  overflow: visible;
 
   &-message {
     align-items: center;
@@ -185,20 +73,17 @@
   }
 
   &__actions {
-    @include component;
-
     align-items: center;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 20px;
+    margin: 10px 0 20px;
 
     &:empty {
       display: none;
     }
 
     .action {
-      max-width: 400px;
       width: 100%;
 
       & + .action {
@@ -281,6 +166,11 @@
 
   &__description {
     margin-bottom: 20px;
+  }
+
+  .marketplace__section,
+  .transfer-table {
+    margin: 0 0 10px;
   }
 
   &__rich-text {
@@ -439,7 +329,7 @@
       align-content: start;
       display: grid;
       grid-gap: 20px;
-      grid-template-columns: 5fr minmax(0, 5fr);
+      grid-template-columns: minmax(350px, 1fr) minmax(0, 1.75fr);
     }
 
     .expandable-section {
@@ -493,6 +383,119 @@
           margin: 0 0 10px;
         }
       }
+    }
+  }
+}
+
+.media-controls {
+  background: var(--background-component-secondary);
+  bottom: 0;
+  height: 50px;
+  justify-content: space-between;
+  padding: 10px;
+  position: sticky;
+  width: 100%;
+
+  &,
+  &__left,
+  &__title,
+  &__right {
+    align-items: center;
+    display: flex;
+  }
+
+  &__left,
+  &__title,
+  &__right {
+    height: 100%;
+  }
+
+  &__button {
+    display: flex;
+    height: 20px;
+    padding: 3px;
+    position: relative;
+    width: 20px;
+
+    * {
+      color: var(--color-component-text-primary);
+    }
+
+    &:not(:last-child) {
+      margin-right: 10px;
+    }
+
+    &--play-pause {
+      height: 30px;
+      padding: 0;
+      width: 30px;
+
+      circle {
+        fill: var(--color-component-bg-primary);
+      }
+    }
+
+    svg {
+      height: 100%;
+      width: 100%;
+    }
+  }
+
+  &__title {
+    background-color: var(--background-component-primary);
+    border-radius: var(--border-radius-component);
+    flex: 1 1 auto;
+    justify-content: flex-start;
+    margin: 0 10px;
+    min-width: 0;
+    overflow: hidden;
+    padding: 0 10px 0 30px;
+    position: relative;
+
+    * {
+      color: var(--color-component-text-highlight);
+    }
+
+    &__icon {
+      height: 15px;
+      left: 8px;
+      position: absolute;
+    }
+
+    &__text,
+    &__span {
+      min-width: 100%;
+    }
+  }
+
+  &__toggle {
+    height: 30px;
+    min-width: 50px;
+    padding: 5px;
+    width: 50px;
+
+    &:not(:last-child) {
+      margin-right: 5px;
+    }
+
+    &:not(.action-selection--active) {
+      * {
+        color: var(--color-component-text-primary);
+      }
+    }
+
+    svg {
+      height: 100%;
+    }
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    &__toggle {
+      width: 40px;
+    }
+
+    &__title {
+      font-size: 12px;
     }
   }
 }

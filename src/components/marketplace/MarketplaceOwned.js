@@ -10,6 +10,7 @@ import {NFTDisplayToken} from "../../utils/Utils";
 import FilteredView from "Components/listings/FilteredView";
 import {Loader} from "Components/common/Loaders";
 import ItemCard from "Components/common/ItemCard";
+import {FormatPriceString} from "Components/common/UIComponents";
 
 const MarketplaceOwned = observer(() => {
   const match = useRouteMatch();
@@ -56,23 +57,27 @@ const MarketplaceOwned = observer(() => {
             entries.length === 0 ? null :
               <div className="card-list">
                 {
-                  entries.map((ownedItem) =>
-                    <ItemCard
-                      key={`marketplace-owned-item-${ownedItem.details.ContractAddr}-${ownedItem.details.TokenIdStr}`}
-                      link={UrlJoin(match.url, "owned", ownedItem.details.ContractId, ownedItem.details.TokenIdStr)}
-                      image={<NFTImage nft={ownedItem} width={600} />}
-                      name={ownedItem.metadata.display_name || ""}
-                      edition={ownedItem.metadata.edition_name}
-                      description={ownedItem.metadata.description}
-                      displayToken={NFTDisplayToken(ownedItem)}
-                      badges={
-                        listings.find(listing =>
-                          listing.details.ContractAddr === ownedItem.details.ContractAddr &&
-                          listing.details.TokenIdStr === ownedItem.details.TokenIdStr
-                        ) ? <ImageIcon icon={ListingIcon} title="This NFT is listed for sale" alt="Listing Icon" className="card__badge" /> : null
-                      }
-                    />
-                  )
+                  entries.map((ownedItem) => {
+                    const listing = listings.find(listing =>
+                      listing.details.ContractAddr === ownedItem.details.ContractAddr &&
+                      listing.details.TokenIdStr === ownedItem.details.TokenIdStr
+                    );
+
+                    return (
+                      <ItemCard
+                        key={`marketplace-owned-item-${ownedItem.details.ContractAddr}-${ownedItem.details.TokenIdStr}`}
+                        link={UrlJoin(match.url, "owned", ownedItem.details.ContractId, ownedItem.details.TokenIdStr)}
+                        image={<NFTImage nft={ownedItem} width={600}/>}
+                        name={ownedItem.metadata.display_name || ""}
+                        edition={ownedItem.metadata.edition_name}
+                        description={ownedItem.metadata.description}
+                        displayToken={NFTDisplayToken(ownedItem)}
+                        badges={listing ? <ImageIcon icon={ListingIcon} title="This NFT is listed for sale" alt="Listing Icon" className="card__badge"/> : null}
+                        price={listing ? FormatPriceString({USD: listing.details.Price}) : null}
+                        usdcAccepted={listing?.details?.USDCAccepted}
+                      />
+                    );
+                  })
                 }
               </div>
           }

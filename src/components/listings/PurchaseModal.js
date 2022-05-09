@@ -214,6 +214,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
     <div className="purchase-modal__content">
       <NFTCard
         nft={nft}
+        item={marketplaceItem}
         selectedListing={selectedListing}
         price={price}
         stock={stock}
@@ -452,6 +453,7 @@ const PurchasePayment = observer(({
     <div className="purchase-modal__content">
       <NFTCard
         nft={nft}
+        item={marketplaceItem}
         selectedListing={selectedListing}
         price={price}
         stock={stock}
@@ -520,7 +522,7 @@ const PurchaseModal = observer(({nft, item, initialListingId, type="marketplace"
   const [loadKey, setLoadKey] = useState(0);
   const [useWalletBalance, setUseWalletBalance] = useState(false);
   const [useLinkedWallet, setUseLinkedWallet] = useState(false);
-  const [selectedListing, setSelectedListing] = useState(item);
+  const [selectedListing, setSelectedListing] = useState();
   const [selectedListingId, setSelectedListingId] = useState(type === "marketplace" ? "marketplace" : initialListingId);
   const [quantity, setQuantity] = useState(1);
 

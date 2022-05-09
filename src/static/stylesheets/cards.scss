@@ -90,11 +90,13 @@
   &__edition {
     color: var(--color-card-text-secondary);
     font-size: 12px;
+    margin-top: 2px;
   }
 
   &__description {
     margin: 10px 0;
     color: var(--color-card-text-secondary);
+    line-height: 1.5em;
   }
 
   &__status {
@@ -117,6 +119,34 @@
       img {
         height: 15px;
         margin-right: 5px;
+      }
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+
+    .item-card__action {
+      background: var(--color-button-feature-card-bg);
+      border: var(--border-button-feature-card);
+      border-radius: var(--border-radius-button-feature-card);
+      color: var(--color-button-feature-card-text);
+      height: 30px;
+      width: 30px;
+      min-width: unset;
+
+      svg {
+        height: 100%;
+        padding: 7px;
+
+        * {
+          color: var(--color-button-feature-card-text);
+        }
       }
     }
   }
@@ -172,29 +202,18 @@
     stroke: transparent;
     width: auto;
   }
-}
 
-.card {
-  background: var(--background-card);
-  border-radius: var(--border-radius-card);
-  display: flex;
-  flex-direction: column;
-  font: var(--font-card-text);
-  height: 100%;
-  justify-content: space-between;
-  left: 0;
-  object-fit: cover;
-  object-position: center;
-  overflow: hidden;
-  padding: 15px 15px 30px;
-  top: 0;
-  width: 100%;
-
-  &-disabled {
-    opacity: 0.5;
-    pointer-events: none;
+  // Modifications for NFT details card
+  &--nft-card {
+    .item-card {
+      &__side-text-container {
+        font-size: 18px;
+        font-weight: 500;
+      }
+    }
   }
 
+  // Image
   &__image-container {
     margin-bottom: 15px;
     padding-top: 100%;
@@ -276,213 +295,6 @@
       height: 100%;
       outline: 0;
       width: 100%;
-    }
-  }
-
-  &__badges {
-    align-items: center;
-    background-color: var(--color-card-badge-bg);
-    border-radius: var(--border-radius-card-badge);
-    display: flex;
-    height: max-content;
-    justify-content: center;
-    padding: 7px;
-    position: absolute;
-    right: 7px;
-    top: 7px;
-    width: max-content;
-
-    &:empty {
-      display: none;
-    }
-  }
-
-  &__badge {
-    fill: var(--color-card-badge);
-    height: 18px;
-    opacity: 0.75;
-
-    stroke: transparent;
-    width: auto;
-  }
-
-  &__text {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    justify-content: space-between;
-    margin-top: 10px;
-  }
-
-  &__titles {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    position: relative;
-
-    &__return-button {
-      background-color: var(--color-button-feature-card-bg);
-      border: var(--border-button-feature-card);
-      border-radius: var(--border-radius-button-feature-card);
-      color: var(--color-button-feature-card-text);
-      height: 30px;
-      position: absolute;
-      right: 0;
-      width: 50px;
-
-      svg {
-        height: 100%;
-        padding: 7px;
-
-        * {
-          color: var(--color-button-feature-card-text);
-        }
-      }
-    }
-  }
-
-  &__title,
-  &__subtitle {
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1.1em;
-  }
-
-  &__title {
-    align-items: center;
-    display: flex;
-    font-size: 16px;
-    font-weight: 500;
-    justify-content: space-between;
-    line-height: 1.1em;
-    margin-bottom: 3px;
-
-    &:not(&-edition) {
-      font: var(--font-card-title);
-    }
-
-    * {
-      font: var(--font-card-text);
-    }
-
-    &__title {
-      font: var(--font-card-title);
-    }
-
-    &-edition {
-      font-size: 12px;
-      font-weight: 300;
-      margin: 5px 0;
-    }
-  }
-
-  &__subtitle,
-  &__description {
-    color: var(--color-card-text-secondary);
-    font-size: 14px;
-    font-weight: 300;
-    margin: 15px 0 5px;
-  }
-
-  &__title__title,
-  &__subtitle__title {
-    padding-right: 10px;
-  }
-
-  &__title-edition,
-  &__title-ordinal {
-    margin: 1px 0;
-  }
-
-  &__title__price {
-    align-items: center;
-    display: flex;
-    font-size: 14px;
-    font-weight: 500;
-
-    svg,
-    img {
-      height: 20px;
-      margin-right: 5px;
-    }
-  }
-
-  &__stock {
-    align-items: center;
-    color: var(--color-card-text-primary);
-    display: flex;
-    font-size: 12px;
-    font-weight: 600;
-    justify-content: flex-end;
-    margin-top: 20px;
-  }
-
-  &__stock__indicator {
-    background: var(--color-card-stock-available);
-    border-radius: 100%;
-    height: 7px;
-    margin-right: 7px;
-    width: 7px;
-
-    &-unavailable {
-      background: var(--color-card-stock-unavailable);
-    }
-  }
-
-  @media screen and (max-width: $mobile-breakpoint) {
-    padding: 15px 15px 25px;
-
-    &__subtitle {
-      font-size: 13px;
-    }
-  }
-}
-
-
-.nft-card {
-  background: var(--background-feature-card-secondary);
-  border-radius: var(--border-radius-feature-card);
-  padding: 0;
-
-  @media screen and (min-width: $tablet-breakpoint) {
-    padding: var(--padding-feature-card);
-  }
-
-  .card-shadow {
-    box-shadow: var(--box-shadow-feature-card);
-  }
-
-  .card {
-    background: var(--background-feature-card-primary);
-    border-radius: var(--border-radius-feature-card);
-    font: var(--font-feature-card-text);
-
-    &__image {
-      border-radius: var(--border-radius-feature-card);
-    }
-
-    &__title {
-      &:not(&-edition) {
-        font: var(--font-feature-card-title);
-      }
-
-      * {
-        font: var(--font-feature-card-text);
-      }
-
-      &__title {
-        font: var(--font-feature-card-title);
-      }
-    }
-
-    &__subtitle,
-    &__stock {
-      font-size: 14px;
-    }
-
-    &__title-edition {
-      font-size: 12px;
-      margin-bottom: 0;
     }
   }
 }

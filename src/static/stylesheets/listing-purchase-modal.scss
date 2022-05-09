@@ -13,6 +13,10 @@
 
 .listing-purchase-modal,
 .listing-purchase-confirmation-modal {
+  .item-card {
+    max-width: 350px;
+  }
+
   .nft-card {
     margin: 0 auto 20px;
     max-width: 350px;

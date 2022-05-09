@@ -25,11 +25,12 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className="", ca
     description = item.permission_description || description;
   }
 
-  let status;
+  let status, linkDisabled=false;
   if(expired) {
     status = "Sale Ended";
   } else if(unauthorized) {
     status = "Private Offering";
+    linkDisabled = true;
   } else if(outOfStock) {
     status = "Sold Out!";
   } else if(!item.hide_available && stock && stock.max && stock.max < 10000000) {
@@ -38,7 +39,7 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className="", ca
 
   return (
     <ItemCard
-      link={to || `${match.url}/${item.sku}`}
+      link={linkDisabled ? undefined : (to || `${match.url}/${item.sku}`)}
       image={(
         <MarketplaceImage
           marketplaceHash={marketplaceHash}

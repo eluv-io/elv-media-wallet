@@ -33,7 +33,6 @@ import ContractIcon from "Assets/icons/Contract icon.svg";
 import TraitsIcon from "Assets/icons/properties icon.svg";
 import MediaSectionIcon from "Assets/icons/Media tab icon.svg";
 import PlayIcon from "Assets/icons/blue play icon.svg";
-import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 
 const FormatRarity = (rarity) => {
   if(!rarity) {
@@ -575,20 +574,6 @@ const NFTDetails = observer(() => {
       return (
         <div className="details-page__actions">
           {
-            listing ?
-              <div className="details-page__listing-info">
-                <h3 className="details-page__listing-info__header">This NFT is listed for sale on the marketplace</h3>
-                <div className="details-page__listing-price-label">
-                  Listing Price
-                </div>
-                <div className="details-page__listing-price-value">
-                  { listing.details.USDCAccepted ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC Accepted" /> : null }
-                  ${listing.details.Price.toFixed(2)}
-                </div>
-              </div> : null
-          }
-
-          {
             heldDate ? null :
 
               <ButtonWithLoader
@@ -688,10 +673,12 @@ const NFTDetails = observer(() => {
 
               setCurrentPlayerInfo({selectedMediaIndex, playerInfo});
             }}
+            price={listing ? {USD: listing.details.Price} : null}
+            usdcAccepted={listing?.details?.USDCAccepted}
           />
+          <NFTActions />
         </div>
         <div className="details-page__info">
-          <NFTActions />
           <NFTMediaSection
             nft={nft}
             containerElement={detailsRef}
@@ -703,28 +690,26 @@ const NFTDetails = observer(() => {
           <NFTTraitsSection nft={nft} />
           <NFTDetailsSection nft={nft} />
           <NFTContractSection nft={nft} heldDate={heldDate} listing={listing} isOwned={isOwned} setDeleted={setDeleted} />
+          <ListingStats
+            mode="sales-stats"
+            filterParams={{contractAddress: nft.details.ContractAddr}}
+          />
+          <TransferTable
+            header="Transaction history for this token"
+            contractAddress={nft.details.ContractAddr}
+            tokenId={nft.details.TokenIdStr}
+          />
+          <Activity
+            hideFilters
+            hideStats
+            tableHeader={`Sales history for all '${nft.metadata.display_name}' tokens`}
+            initialFilters={{
+              sortBy: "created",
+              sortDesc: true,
+              contractAddress: nft.details.ContractAddr
+            }}
+          />
         </div>
-      </div>
-      <div className="details-page__transfer-tables">
-        <ListingStats
-          mode="sales-stats"
-          filterParams={{contractAddress: nft.details.ContractAddr}}
-        />
-        <TransferTable
-          header="Transaction history for this token"
-          contractAddress={nft.details.ContractAddr}
-          tokenId={nft.details.TokenIdStr}
-        />
-        <Activity
-          hideFilters
-          hideStats
-          tableHeader={`Sales history for all '${nft.metadata.display_name}' tokens`}
-          initialFilters={{
-            sortBy: "created",
-            sortDesc: true,
-            contractAddress: nft.details.ContractAddr
-          }}
-        />
       </div>
     </>
   );

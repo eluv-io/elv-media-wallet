@@ -64,7 +64,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
         </div>
         <div className="listing-modal__active-listings">
           <h2 className="listing-modal__active-listings__header">Active Listings for this NFT</h2>
-          <ActiveListings contractAddress={nft.details.ContractAddr} initialSelectedListingId={listingId} />
+          <ActiveListings contractAddress={nft.details.ContractAddr} initialSelectedListingId={listingId} noSeller />
         </div>
         <div className="listing-modal__actions">
           <button className="action listing-modal__action" onClick={() => Close()}>
@@ -180,7 +180,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
       <div className="listing-modal">
         <h1 className="listing-modal__header">List Your NFT for Sale</h1>
         <div className="listing-modal__content">
-          <NFTCard nft={nft} price={{USD: parsedPrice}} usdcAccepted={cryptoStore.usdcConnected} showOrdinal />
+          <NFTCard nft={nft} price={{USD: parsedPrice}} usdcAccepted={cryptoStore.usdcConnected} showOrdinal truncateDescription />
           { showConfirmation ? ConfirmationStage() : InputStage() }
         </div>
       </div>

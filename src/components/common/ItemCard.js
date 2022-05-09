@@ -44,6 +44,7 @@ const ItemCard = observer(({
     );
   }
 
+  // NOTE: Keep class/structure in sync with NFTCard
   const cardContents = (
     <>
       { sideText }

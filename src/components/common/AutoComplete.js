@@ -54,7 +54,9 @@ const AutoComplete = ({
   // Click outside and input blur cause blur value to update, so we either select the matching selection or clear invalid value
   useEffect(() => {
     if(inputValue && selectedOption && selectedOption !== inputValue && !matchingOptions.includes(inputValue)) {
-      setInputValue(selectedOption);
+      if(inputValue !== value) {
+        setInputValue(selectedOption);
+      }
     } else if(inputValue && options && options.length > 0 && !options.includes(inputValue)) {
       setInputValue("");
     }
