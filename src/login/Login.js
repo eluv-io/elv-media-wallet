@@ -322,7 +322,7 @@ const LoginComponent = observer(({customizationOptions, darkMode, userData, setU
   const [showPrivateKeyForm, setShowPrivateKeyForm] = useState(false);
 
   return (
-    <div className={`login-page ${darkMode ? "login-page--dark" : ""}`}>
+    <div className={`login-page ${darkMode ? "login-page--dark" : ""} ${customizationOptions?.large_logo_mode ? "login-page-large-logo-mode" : ""}`}>
       <Background customizationOptions={customizationOptions} Close={Close} />
 
       <div className="login-page__login-box">
@@ -436,7 +436,7 @@ const Login = observer(({silent, darkMode, callbackUrl, Loaded, SignIn, LoadCust
   }
 
   darkMode = customizationOptions && typeof customizationOptions.darkMode === "boolean" ? customizationOptions.darkMode : darkMode;
-
+  
   if(authenticating || !customizationOptions || (!embedded && auth0Loading)) {
     return (
       <div className={`login-page ${darkMode ? "login-page--dark" : ""}`}>

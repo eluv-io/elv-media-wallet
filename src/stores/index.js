@@ -389,6 +389,7 @@ class RootStore {
 
     metadata = {
       ...(metadata.login_customization || {}),
+      branding: metadata?.branding || {},
       darkMode: metadata?.branding?.color_scheme === "Dark",
       marketplaceId,
       marketplaceHash,

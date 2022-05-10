@@ -32,46 +32,8 @@
   overflow-y: hidden;
   padding: 0 30px;
 
-  /*
-  input {
-    &[type="checkbox"] {
-      appearance: none;
-      max-height: 18px;
-      max-width: 18px;
-      min-height: 18px;
-      min-width: 18px;
-      position: relative;
-
-      &:checked {
-        &::after {
-          top: 0;
-          left: 0;
-          color: $gray;
-          background-color: transparent;
-          height: 100%;
-          width: 100%;
-          content: "✓";
-          font-size: 12px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-      }
-    }
-  }
-
-   */
-
   &-large-logo-mode {
     padding: 0;
-
-    .login-page__login-box {
-      height: 100%;
-      justify-content: space-evenly;
-      max-width: 500px;
-      min-height: 600px;
-      width: 100%;
-    }
 
     .login-page__logo {
       margin-bottom: 20px;
@@ -215,7 +177,7 @@
   }
 
   &__text-section {
-    margin-top: 100px;
+    margin-top: 50px;
 
     * {
       color: var(--color-login-text-secondary);
@@ -273,103 +235,5 @@
         width: 100%;
       }
     }
-
-    &-large-logo-mode {
-      .login-page__login-box {
-        flex: 1 1 100%;
-        height: 100%;
-        max-height: 100%;
-        max-width: 100%;
-        min-height: 100%;
-        min-width: 100%;
-        width: 100%;
-      }
-    }
   }
-
-  /*
-  &--dark {
-    .loader {
-      background: $black;
-
-      .lds-default div {
-        background: rgba(255, 255, 255, 0.5);
-      }
-    }
-
-    .login-page__background--default {
-      background: linear-gradient($darkestgray, $black);
-    }
-
-    .login-page__login-box {
-      background: $black;
-      border: 1px solid $darkergray;
-    }
-
-    .login-page__logo {
-      * {
-        fill: $white;
-        stroke: $white;
-      }
-    }
-
-    .login-page__logo-container {
-      .login-page__tagline {
-        color: $lightgray;
-
-        &__image {
-          * {
-            fill: $white;
-            stroke: $white;
-          }
-        }
-      }
-    }
-
-    .login-page__text-section {
-      * {
-        color: $darkgray;
-      }
-
-      a {
-        color: $blue;
-      }
-    }
-
-    .login-page__private-key-form {
-      button {
-        color: $white;
-      }
-
-      input {
-        background: $white;
-        color: $black;
-      }
-    }
-
-    .login-page__login-button {
-      border: 0;
-    }
-
-    .login-page__login-button-cancel,
-    .login-page__login-button-create {
-      background-color: $black;
-      border: 0.75px solid $gray;
-      color: $white;
-    }
-
-    .login-page__terms {
-      a {
-        color: $blue;
-      }
-    }
-
-    @media screen and (max-width: $mobile-breakpoint) {
-      .login-page__login-box {
-        border: 0;
-      }
-    }
-  }
-
-   */
 }
