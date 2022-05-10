@@ -17,7 +17,6 @@ const ItemCard = observer(({
   edition,
   description,
   price,
-  availableStock,
   status,
   displayToken,
   usdcAccepted,
@@ -26,21 +25,7 @@ const ItemCard = observer(({
   cardClassName=""
 }) => {
   let sideText;
-  if(availableStock) {
-    sideText = (
-      <div className="item-card__side-text-container">
-        <div className="item-card__side-text">
-          <div className="header-dot" style={{backgroundColor: "#ff0000"}} />
-          <div className="item-card__side-text__primary">
-            Available
-          </div>
-          <div className="item-card__side-text__secondary">
-            { availableStock }
-          </div>
-        </div>
-      </div>
-    );
-  } else if(displayToken) {
+  if(displayToken) {
     const [first, second] = displayToken.split("/");
 
     sideText = (

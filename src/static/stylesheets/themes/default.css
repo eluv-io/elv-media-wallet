@@ -4,6 +4,7 @@
   /* Fonts - Primary is for used headers, secondary is for all other text */
   --font-family-primary: "Helvetica Neue", Helvetica, sans-serif;
   --font-family-secondary: "Helvetica Neue", Helvetica, sans-serif;
+  --font-family-tertiary: "Helvetica Neue", Helvetica, sans-serif;
   --font-default: normal normal normal 16px var(--font-family-secondary);
 
   --color-bg-primary: #fff;
@@ -96,6 +97,7 @@
   /* Cards (store items, listings, owned items) */
   --font-card-title: normal normal 500 16px var(--font-family-primary);
   --font-card-text: normal normal normal 14px var(--font-family-secondary);
+  --font-card-misc: normal normal normal 14px var(--font-family-tertiary);
 
   --background-card: var(--color-bg-primary);
   --color-card-bg: var(--color-bg-primary);
@@ -116,6 +118,7 @@
   /* NFT feature card */
   --font-feature-card-title: normal normal 500 20px var(--font-family-primary);
   --font-feature-card-text: var(--font-card-text);
+  --font-feature-card-misc: var(--font-card-misc);
 
   --background-feature-card: var(--color-bg-primary);
 

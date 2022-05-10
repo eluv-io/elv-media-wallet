@@ -79,6 +79,8 @@ const MarketplaceItemDetails = observer(() => {
             stock={stock}
             hideAvailable={item && item.hide_available}
             showVideo={item.video}
+            className="card-container--feature-card"
+            cardClassName="item-card--feature-card"
           />
 
           <div className="details-page__actions">

@@ -56,7 +56,7 @@ export const ItemPrice = (item, currency) => {
   return parseFloat(item.price[currency]);
 };
 
-export const FormatPriceString = (priceList, options={currency: "USD", quantity: 1, trimZeros: false, includeCurrency: false}) => {
+export const FormatPriceString = (priceList, options={currency: "USD", quantity: 1, trimZeros: false, includeCurrency: false, prependCurrency: false}) => {
   const currency = options?.currency || "USD";
   let price = ItemPrice({price: priceList}, currency);
 
@@ -72,7 +72,10 @@ export const FormatPriceString = (priceList, options={currency: "USD", quantity:
   }
 
   if(options?.includeCurrency) {
-    formattedPrice = `${formattedPrice} ${currency}`;
+    formattedPrice =
+      options.prependCurrency ?
+        `${currency} ${formattedPrice}` :
+        `${formattedPrice} ${currency}`;
   }
 
   return formattedPrice;

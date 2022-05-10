@@ -37,7 +37,7 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className="", ca
 
   let availableStock;
   if(item && !item.hide_available && !outOfStock && !expired && !unauthorized && stock &&stock.max && stock.max < 10000000) {
-    availableStock = stock.max - stock.minted;
+    availableStock = `${stock.max - stock.minted} / ${stock.max}`;
   }
 
   return (
@@ -53,8 +53,8 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className="", ca
       name={item.name}
       edition={item.nftTemplateMetadata.edition_name}
       description={description}
-      price={!isFree ? FormatPriceString(item.price) : ((expired || unauthorized || outOfStock) ? "" : "Claim Now!")}
-      availableStock={availableStock}
+      price={!isFree ? FormatPriceString(item.price, {includeCurrency: true, prependCurrency: true}) : ((expired || unauthorized || outOfStock) ? "" : "Claim Now!")}
+      displayToken={availableStock}
       status={status}
       className={className}
       cardClassName={`${cardClassName} ${outOfStock || expired || unauthorized ? "item-card--disabled" : ""}`}

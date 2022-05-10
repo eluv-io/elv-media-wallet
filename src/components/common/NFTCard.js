@@ -54,24 +54,13 @@ const NFTCard = observer(({
 
   let sideText;
   if(item && !hideAvailable && !outOfStock && !expired && !unauthorized && stock &&stock.max && stock.max < 10000000) {
-    sideText = (
-      <div className="item-card__side-text-container">
-        <div className="item-card__side-text">
-          <div className="header-dot" style={{backgroundColor: outOfStock ? "#a4a4a4" : "#ff0000"}} />
-          <div className="item-card__side-text__primary">
-            { outOfStock ? "Sold Out!" : "Available" }
-          </div>
-          {
-            !outOfStock ?
-              <div className="item-card__side-text__secondary">
-                { stock.max - stock.minted }
-              </div> : null
-          }
-        </div>
-      </div>
-    );
+    sideText = `${stock.max - stock.minted} / ${stock.max}`;
   } else if(!item && showOrdinal) {
-    const [first, second] = NFTDisplayToken(info).split("/");
+    sideText = NFTDisplayToken(info).split("/");
+  }
+
+  if(sideText) {
+    const [first, second] = sideText.split("/");
 
     sideText = (
       <div className="item-card__side-text-container">
@@ -96,7 +85,7 @@ const NFTCard = observer(({
   }
 
   if(price) {
-    price = FormatPriceString(price || {USD: selectedListing.details.Price});
+    price = FormatPriceString(price || {USD: selectedListing.details.Price}, {includeCurrency: true, prependCurrency: true});
   }
 
   // NOTE: Keep class/structure in sync with ItemCard
@@ -184,10 +173,10 @@ const NFTCard = observer(({
 
   if(link) {
     return (
-      <div className={`card-container card-container--nft card-shadow ${rootStore.centerItemText ? "card-container--centered" : ""} ${className}`}>
+      <div className={`card-container card-shadow ${rootStore.centerItemText ? "card-container--centered" : ""} ${className}`}>
         <Link
           to={link}
-          className={`item-card item-card--nft-card ${cardClassName}`}
+          className={`item-card ${cardClassName}`}
         >
           { cardContents }
         </Link>
@@ -196,10 +185,10 @@ const NFTCard = observer(({
   }
 
   return (
-    <div className={`card-container card-container--nft card-shadow ${rootStore.centerItemText ? "card-container--centered" : ""} ${className}`}>
+    <div className={`card-container card-shadow ${rootStore.centerItemText ? "card-container--centered" : ""} ${className}`}>
       <div
         onClick={onClick}
-        className={`item-card item-card--nft-card ${cardClassName}`}
+        className={`item-card ${cardClassName}`}
       >
         { cardContents }
       </div>

@@ -675,6 +675,8 @@ const NFTDetails = observer(() => {
             }}
             price={listing ? {USD: listing.details.Price} : null}
             usdcAccepted={listing?.details?.USDCAccepted}
+            className="card-container--feature-card"
+            cardClassName="item-card--feature-card"
           />
           <NFTActions />
         </div>

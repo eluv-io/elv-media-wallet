@@ -63,7 +63,7 @@
     opacity: 0.5;
   }
 
-  &--nft {
+  &--feature-card {
     &.card-shadow {
       border: var(--border-feature-card);
       border-radius: var(--border-radius-feature-card);
@@ -85,7 +85,7 @@
   object-fit: cover;
   object-position: center;
   overflow: hidden;
-  padding: 30px;
+  padding: 30px 30px 20px;
   top: 0;
   width: 100%;
 
@@ -103,10 +103,12 @@
     font-weight: 500;
     font-size: 16px;
     font: var(--font-card-title);
-    word-break: break-all;
+    word-break: break-word;
+    line-height: 1.25;
   }
 
   &__edition {
+    font: var(--font-card-misc);
     color: var(--color-card-text-secondary);
     font-size: 12px;
     margin-top: 2px;
@@ -128,6 +130,7 @@
     &__price,
     &__text {
       font-weight: 500;
+      font: var(--font-card-misc);
     }
 
     &__price {
@@ -312,13 +315,17 @@
   }
 
   // Modifications for NFT details card
-  &--nft-card {
+  &--feature-card {
     background: var(--background-feature-card);
     border-radius: var(--border-radius-feature-card);
     color: var(--color-feature-card-text-primary);
     font: var(--font-feature-card-text);
 
     .item-card {
+      &__title {
+        font: var(--font-feature-card-title);
+      }
+
       &__edition {
         color: var(--color-feature-card-text-secondary);
       }
