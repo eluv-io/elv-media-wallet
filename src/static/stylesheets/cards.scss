@@ -103,6 +103,7 @@
     font-weight: 500;
     font-size: 16px;
     font: var(--font-card-title);
+    word-break: break-all;
   }
 
   &__edition {
