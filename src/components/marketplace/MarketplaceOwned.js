@@ -71,7 +71,7 @@ const MarketplaceOwned = observer(() => {
                         name={ownedItem.metadata.display_name || ""}
                         edition={ownedItem.metadata.edition_name}
                         description={ownedItem.metadata.description}
-                        displayToken={NFTDisplayToken(ownedItem)}
+                        sideText={NFTDisplayToken(ownedItem)}
                         badges={listing ? <ImageIcon icon={ListingIcon} title="This NFT is listed for sale" alt="Listing Icon" className="item-card__badge"/> : null}
                         price={listing ? FormatPriceString({USD: listing.details.Price}, {includeCurrency: true, prependCurrency: true}) : null}
                         usdcAccepted={listing?.details?.USDCAccepted}

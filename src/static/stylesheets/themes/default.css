@@ -95,8 +95,8 @@
   --outline-input-focus: 1px solid var(--color-highlight);
 
   /* Cards (store items, listings, owned items) */
-  --font-card-title: normal normal 500 16px var(--font-family-primary);
-  --font-card-text: normal normal normal 14px var(--font-family-secondary);
+  --font-card-title: normal normal 500 20px var(--font-family-primary);
+  --font-card-text: normal normal normal 16px var(--font-family-secondary);
   --font-card-misc: normal normal normal 14px var(--font-family-tertiary);
 
   --background-card: var(--color-bg-primary);
@@ -115,19 +115,20 @@
   --color-card-badge: var(--color-text-primary);
   --border-radius-card-badge: 6px;
 
-  /* NFT feature card */
-  --font-feature-card-title: normal normal 500 20px var(--font-family-primary);
-  --font-feature-card-text: var(--font-card-text);
-  --font-feature-card-misc: var(--font-card-misc);
+  /* Featured item card */
+  --font-feature-card-title: normal normal bold 32px var(--font-family-primary);
+  --font-feature-card-text: normal normal normal 20px var(--font-family-secondary);
+  --font-feature-card-misc: normal normal normal 16px var(--font-family-tertiary);
 
   --background-feature-card: var(--color-bg-primary);
+  --background-feature-card-runway: linear-gradient(180deg, var(--background-content) 75%, var(--background-component-secondary) 100%);
 
   --color-feature-card-text-primary: var(--color-text-primary);
   --color-feature-card-text-secondary: var(--color-text-secondary);
   --color-feature-card-text-highlight: var(--color-text-highlight);
   --box-shadow-feature-card: 2px 2px 4px rgba(0, 0, 0, 0.1);
   --border-feature-card: var(--border);
-  --border-radius-feature-card: var(--border-radius);
+  --border-radius-feature-card: 25px;
 
   --color-button-feature-card-bg: transparent;
   --color-button-feature-card-text: var(--color-button-secondary-text);

@@ -71,13 +71,13 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
     ];
   } else {
     const fullMarketplace = rootStore.marketplaces[marketplace.marketplaceId];
-    const {name} = (marketplace.branding || {});
+    const tabs = fullMarketplace.branding?.tabs || {};
 
     links = [
-      {name: `${name || ""}`, to: UrlJoin("/marketplace", marketplace.marketplaceId, "store")},
-      {name: "Listings", to: UrlJoin("/marketplace", marketplace.marketplaceId, "listings")},
+      {name: tabs.store || marketplace?.branding?.name || "Store", to: UrlJoin("/marketplace", marketplace.marketplaceId, "store")},
+      {name: tabs.listings || "Listings", to: UrlJoin("/marketplace", marketplace.marketplaceId, "listings")},
       {name: "Activity", to: UrlJoin("/marketplace", marketplace.marketplaceId, "activity")},
-      {name: "My Items", to: UrlJoin("/marketplace", marketplace.marketplaceId, "collection"), authed: true},
+      {name: tabs.my_items || "My Items", to: UrlJoin("/marketplace", marketplace.marketplaceId, "collection"), authed: true},
       {
         name: "My Collections",
         to: UrlJoin("/marketplace", marketplace.marketplaceId, "collections"),
@@ -173,6 +173,8 @@ const GlobalHeader = observer(({marketplace}) => {
 
 const SubHeaderNavigation = observer(({marketplace}) => {
   const fullMarketplace = marketplace ? rootStore.marketplaces[marketplace.marketplaceId] : null;
+  const tabs = fullMarketplace?.branding?.tabs || {};
+
   return (
     <nav className="subheader__navigation subheader__navigation--personal">
       {
@@ -190,7 +192,7 @@ const SubHeaderNavigation = observer(({marketplace}) => {
                 </NavLink> : null
             }
             <NavLink className="subheader__navigation-link" to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "collection") : "/wallet/collection"}>
-              My Items
+              { tabs.my_items || "My Items" }
             </NavLink>
             <NavLink className="subheader__navigation-link" to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "my-listings") : "/wallet/my-listings"}>
               My Listings
@@ -203,16 +205,17 @@ const SubHeaderNavigation = observer(({marketplace}) => {
 
 const MarketplaceNavigation = observer(({marketplace}) => {
   const branding = marketplace.branding || {};
+  const tabs = branding.tabs || {};
 
   return (
     <div className="subheader__marketplace">
       { branding.hide_name ? null : <h1 className="subheader__header">{`${branding.name}`}</h1> }
       <nav className="subheader__navigation subheader__navigation--marketplace">
         <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
-          Store
+          { tabs.store || "Store" }
         </NavLink>
         <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "listings")}>
-          Listings
+          { tabs.listings || "Listings" }
         </NavLink>
         <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "activity")}>
           Activity

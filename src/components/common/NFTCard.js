@@ -63,18 +63,16 @@ const NFTCard = observer(({
     const [first, second] = sideText.split("/");
 
     sideText = (
-      <div className="item-card__side-text-container">
-        <div className="item-card__side-text">
-          <div className="item-card__side-text__primary">
-            { first } { second ? "/" : "" }
-          </div>
-          {
-            second ?
-              <div className="item-card__side-text__secondary">
-                { second }
-              </div> : null
-          }
+      <div className="item-card__side-text">
+        <div className="item-card__side-text__primary">
+          { first } { second ? "/" : "" }
         </div>
+        {
+          second ?
+            <div className="item-card__side-text__secondary">
+              { second }
+            </div> : null
+        }
       </div>
     );
   }

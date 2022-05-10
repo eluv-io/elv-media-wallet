@@ -18,29 +18,26 @@ const ItemCard = observer(({
   description,
   price,
   status,
-  displayToken,
+  sideText,
   usdcAccepted,
   onClick,
   className="",
   cardClassName=""
 }) => {
-  let sideText;
-  if(displayToken) {
-    const [first, second] = displayToken.split("/");
+  if(sideText) {
+    const [first, second] = sideText.split("/");
 
     sideText = (
-      <div className="item-card__side-text-container">
-        <div className="item-card__side-text">
-          <div className="item-card__side-text__primary">
-            { first } { second ? "/" : "" }
-          </div>
-          {
-            second ?
-              <div className="item-card__side-text__secondary">
-                { second }
-              </div> : null
-          }
+      <div className="item-card__side-text">
+        <div className="item-card__side-text__primary">
+          { first } { second ? "/" : "" }
         </div>
+        {
+          second ?
+            <div className="item-card__side-text__secondary">
+              { second }
+            </div> : null
+        }
       </div>
     );
   }

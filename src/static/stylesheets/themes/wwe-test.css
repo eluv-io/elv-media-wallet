@@ -109,7 +109,8 @@
   --font-card-misc: normal small-caps bold 14px var(--font-family-tertiary);
 
   --font-feature-card-title: normal small-caps bold 32px var(--font-family-primary);
-  --font-feature-card-misc: normal small-caps bold 14px var(--font-family-tertiary);
+  --font-feature-card-text: normal normal normal 16px var(--font-family-secondary);
+  --font-feature-card-misc: normal small-caps bold 16px var(--font-family-tertiary);
 
   --font-table-header: normal small-caps bold 20px var(--font-family-primary);
 
@@ -156,8 +157,11 @@
   /* Cards */
   --background-card: rgba(16, 39, 254, 0.2);
   --border-card: 2px solid #0E01FA;
-  --background-feature-card: transparent;
-  --border-feature-card: 2px solid #0E01FA;
+
+  --background-feature-card: rgba(16, 39, 254, 0.2);
+  --background-feature-card-runway: linear-gradient(180deg, rgba(16, 39, 254, 0) 75%, rgba(16, 39, 254, 0.3) 100%);
+  --border-feature-card: 3px solid #0E01FA;
+  --box-shadow-feature-card: 0px 0px 24px #18D5FF;
 
   /* Tables */
   --color-table-even-row-bg: rgba(6, 8, 41, 0.2);
@@ -210,6 +214,7 @@
   transition: box-shadow 0.15s;
 }
 
+.featured-item__icon::after,
 .listing-card::after,
 .card-container::after {
   content: "";

@@ -70,7 +70,7 @@ const Collections = observer(() => {
                         }
                         name={nft.metadata.display_name}
                         edition={nft.metadata.edition_name}
-                        displayToken={NFTDisplayToken(nft)}
+                        sideText={NFTDisplayToken(nft)}
                         description={nft.metadata.description}
                         price={listing ? FormatPriceString({USD: listing.details.Price}, {includeCurrency: true, prependCurrency: true}) : null}
                         usdcAccepted={listing?.details?.USDCAccepted}

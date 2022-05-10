@@ -23,7 +23,7 @@ const Listing = memo(({url, listing}) => (
     description={listing.metadata.description}
     price={FormatPriceString({USD: listing.details.Price}, {includeCurrency: true, prependCurrency: true})}
     usdcAccepted={listing.details.USDCAccepted}
-    displayToken={NFTDisplayToken(listing)}
+    sideText={NFTDisplayToken(listing)}
     badges={
       Utils.EqualAddress(rootStore.userAddress, listing.details.SellerAddress) ?
         <ImageIcon icon={ListingIcon} title="This is your listing" alt="Listing Icon" className="item-card__badge" /> : null

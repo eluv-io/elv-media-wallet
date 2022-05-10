@@ -6,6 +6,7 @@ import UrlJoin from "url-join";
 import MarketplaceCollections from "Components/marketplace/MarketplaceCollections";
 import MarketplaceItemCard from "Components/marketplace/MarketplaceItemCard";
 import ImageIcon from "Components/common/ImageIcon";
+import MarketplaceFeatured from "Components/marketplace/MarketplaceFeatured";
 
 const MarketplaceBanners = ({marketplace}) => {
   if(!marketplace.banners || marketplace.banners.length === 0) { return null; }
@@ -98,12 +99,15 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
         rootStore.Log(item, true);
       }
 
+      // TODO: Check release date
       // Available check - must happen after timeout setup
-      if(item.available_at && Date.now() - new Date(item.available_at).getTime() < 0) {
+      if(!item.show_if_unreleased && item.available_at && Date.now() - new Date(item.available_at).getTime() < 0) {
         return null;
       }
 
-      return { item, itemIndex };
+      item.itemIndex = itemIndex;
+
+      return item;
     }).filter(item => item);
 
     if(nextDiff > 0) {
@@ -115,22 +119,38 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
 
     if(items.length === 0) { return null; }
 
-    return (
-      <div className="marketplace__section" key={`marketplace-section-${sectionIndex}-${loadKey}`}>
-        <h1 className="page-header">{section.section_header}</h1>
-        <h2 className="page-subheader">{section.section_subheader}</h2>
+    let renderedItems;
+    if(section.type === "Featured" && rootStore.pageWidth > 700) {
+      renderedItems = (
+        <MarketplaceFeatured
+          marketplaceHash={marketplace.versionHash}
+          items={items}
+          justification={section.featured_view_justification}
+          showGallery={section.show_carousel_gallery}
+        />
+      );
+    } else {
+      renderedItems = (
         <div className="card-list">
           {
-            items.map(({item, itemIndex}) =>
+            items.map((item) =>
               <MarketplaceItemCard
                 marketplaceHash={marketplace.versionHash}
                 item={item}
-                index={itemIndex}
-                key={`marketplace-item-${itemIndex}-${loadKey}`}
+                index={item.itemIndex}
+                key={`marketplace-item-${item.itemIndex}-${loadKey}`}
               />
             )
           }
         </div>
+      );
+    }
+
+    return (
+      <div className="marketplace__section" key={`marketplace-section-${sectionIndex}-${loadKey}`}>
+        <h1 className="page-header">{section.section_header}</h1>
+        <h2 className="page-subheader">{section.section_subheader}</h2>
+        { renderedItems }
       </div>
     );
   })).filter(section => section);

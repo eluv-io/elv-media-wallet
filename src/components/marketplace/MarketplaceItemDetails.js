@@ -133,7 +133,7 @@ const MarketplaceItemDetails = observer(() => {
               to={
                 match.params.marketplaceId ?
                   UrlJoin("/marketplace", match.params.marketplaceId, "listings", `?filter=${encodeURIComponent(item.nftTemplateMetadata.display_name)}`) :
-                  UrlJoin("/wallet", "listings", `?addr=${encodeURIComponent(item.nftTemplateMetadata.display_name)}`)
+                  UrlJoin("/wallet", "listings", `?filter=${encodeURIComponent(item.nftTemplateMetadata.display_name)}`)
               }
             >
               View Listings

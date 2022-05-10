@@ -575,7 +575,6 @@ const NFTDetails = observer(() => {
         <div className="details-page__actions">
           {
             heldDate ? null :
-
               <ButtonWithLoader
                 disabled={heldDate || isInCheckout}
                 className="action action-primary details-page__listing-button"

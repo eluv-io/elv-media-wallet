@@ -62,14 +62,6 @@
   &.collection-card-unowned {
     opacity: 0.5;
   }
-
-  &--feature-card {
-    &.card-shadow {
-      border: var(--border-feature-card);
-      border-radius: var(--border-radius-feature-card);
-      box-shadow: var(--box-shadow-feature-card);
-    }
-  }
 }
 
 .item-card {
@@ -154,10 +146,10 @@
     right: 5px;
 
     .item-card__action {
-      background: var(--color-button-feature-card-bg);
-      border: var(--border-button-feature-card);
-      border-radius: var(--border-radius-button-feature-card);
-      color: var(--color-button-feature-card-text);
+      background: var(--color-button-card-bg);
+      border: var(--border-button-card);
+      border-radius: var(--border-radius-button-card);
+      color: var(--color-button-card-text);
       height: 30px;
       width: 30px;
       min-width: unset;
@@ -167,37 +159,28 @@
         padding: 7px;
 
         * {
-          color: var(--color-button-feature-card-text);
+          color: var(--color-button-card-text);
         }
       }
     }
   }
 
-  &__side-text-container {
-    position: absolute;
-    right: 5px;
-    top: 32px;
-    display: flex;
-    justify-content: flex-end;
-    align-items: flex-start;
-  }
-
   &__side-text {
     display: flex;
     align-items: center;
-    transform: translate(100%) rotate(90deg);
-    transform-origin: left top;
-
-    .header-dot {
-      margin-top: 2px;
-    }
+    writing-mode: sideways-rl;
+    text-orientation: sideways;
+    position: absolute;
+    top: 34px;
+    right: 7px;
+    font-size: 20px;
 
     &__primary {
       color: var(--color-card-text-highlight);
+      margin-bottom: 5px;
     }
 
     &__secondary {
-      margin-left: 5px;
       color: var(--color-card-text-secondary);
     }
   }
@@ -265,7 +248,7 @@
       width: 100%;
 
       * {
-        stroke: var(--color-feature-card-text-highlight);
+        stroke: var(--color-card-text-highlight);
         stroke-width: 5px;
       }
     }
@@ -311,54 +294,6 @@
       height: 100%;
       outline: 0;
       width: 100%;
-    }
-  }
-
-  // Modifications for NFT details card
-  &--feature-card {
-    background: var(--background-feature-card);
-    border-radius: var(--border-radius-feature-card);
-    color: var(--color-feature-card-text-primary);
-    font: var(--font-feature-card-text);
-
-    .item-card {
-      &__title {
-        font: var(--font-feature-card-title);
-      }
-
-      &__edition {
-        color: var(--color-feature-card-text-secondary);
-      }
-
-      &__description {
-        color: var(--color-feature-card-text-secondary);
-      }
-
-      &__side-text {
-        &__primary {
-          color: var(--color-feature-card-text-highlight);
-        }
-
-        &__secondary {
-          color: var(--color-feature-card-text-secondary);
-        }
-      }
-
-      &__side-text-container {
-        font-size: 18px;
-        font-weight: 500;
-      }
-
-      &__image {
-        border-radius: var(--border-radius-feature-card);
-      }
-
-      &__image-placeholder {
-        * {
-          stroke: var(--color-feature-card-text-primary);
-          stroke-width: 0.5px;
-        }
-      }
     }
   }
 }
