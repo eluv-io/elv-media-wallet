@@ -135,7 +135,7 @@ const Routes = (match) => {
     },
 
     // Duplicate profile in marketplace section so navigating to profile doesn't clear the active marketplace
-    { name: "Profile", path: "/marketplace/:marketplaceId/profile", Component: Profile, skipLoading: true, authed: true },
+    { name: "Profile", path: "/marketplace/:marketplaceId/profile", Component: Profile, authed: true },
 
     { name: "Marketplaces", path: "/marketplaces", Component: MarketplaceBrowser }
   ];

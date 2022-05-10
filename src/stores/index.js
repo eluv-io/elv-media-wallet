@@ -641,7 +641,7 @@ class RootStore {
 
     const cssTag = document.getElementById("_custom-css");
     if(options.color_scheme === "Custom" && marketplace?.branding?.custom_css) {
-      cssTag.innerHTML = marketplace.branding.custom_css.toString();
+      //cssTag.innerHTML = marketplace.branding.custom_css.toString();
     } else {
       cssTag.innerHTML = "";
     }

@@ -1,6 +1,5 @@
 .details-page {
   max-width: 100%;
-  overflow-x: hidden;
   padding-bottom: 15px;
   width: 100%;
   overflow: visible;
@@ -85,7 +84,7 @@
 
   .expandable-section__actions {
     .action {
-      max-width: 400px;
+      max-width: 475px;
       width: 100%;
 
       & + .action {
@@ -97,8 +96,9 @@
   &__transfer-details {
     font-size: 14px;
     font-weight: 400;
-    margin: 15px 0 0;
+    margin: 15px auto 0;
     text-align: center;
+    max-width: 475px;
   }
 
   &__held-message {
@@ -134,14 +134,14 @@
     margin-top: 20px;
     padding: 0 10px;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 
   &__transfer-button {
     width: 100%;
-
-    &:not(:last-child) {
-      margin-bottom: 10px;
-    }
 
     &:disabled {
       cursor: initial;
@@ -319,7 +319,7 @@
     &:not(.details-page-message) {
       align-content: start;
       display: grid;
-      grid-gap: 20px;
+      grid-gap: 50px;
       grid-template-columns: minmax(350px, 1fr) minmax(0, 1.75fr);
     }
 

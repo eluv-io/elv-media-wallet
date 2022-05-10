@@ -95,8 +95,8 @@
   --neutral-1: #3D475D;
 
   /* General */
-  --color-bg-primary: rgba(235, 235, 235, 0.2);
-  --color-bg-secondary: rgba(235, 235, 235, 0.2);
+  --color-bg-primary: var(--neutral-1);
+  --color-bg-secondary: var(--neutral-1);
 
   --color-text-primary: #FFFFFF;
   --color-text-secondary: #CCCCCC;
@@ -130,6 +130,7 @@
 
   /* Cards */
   --background-card: transparent;
+  //--background-card: rgba(16, 39, 254, 0.2);
   --border-card: 2px solid #0E01FA;
   --background-feature-card: transparent;
   --border-feature-card: 2px solid #0E01FA;
@@ -173,19 +174,28 @@
   position: relative;
 }
 
+.card-container {
+  backdrop-filter: blur(12px);
+}
+
+.card-container:hover {
+  box-shadow: 0 0 10px #18D5FF;
+  transition: box-shadow 0.15s;
+}
+
 .listing-card::after,
 .card-container::after {
   content: "";
   position: absolute;
   display: block;
-  height: 100%;
-  width: 100%;
-  top: 0;
-  left: 0;
+  height: calc(100% + 2px);
+  width: calc(100% + 2px);
+  top: -1px;
+  left: -1px;
   border-radius: var(--border-radius-card);
   z-index: -1;
   background: rgba(16, 39, 254, 0.3);
-  filter: blur(1px) drop-shadow(0px 0px 30px #18D5FF) drop-shadow(0px 0px 10px #0E01FA);
+  filter: blur(1px) drop-shadow(0px 0px 20px #18D5FF) drop-shadow(0px 0px 5px #0E01FA);
   opacity: 0.5;
 }
 

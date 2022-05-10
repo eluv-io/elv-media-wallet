@@ -45,13 +45,6 @@ const ListingModal = observer(({nft, listingId, Close}) => {
           }
         </div>
 
-        {
-          !cryptoStore.usdcConnected ?
-            <div className="listing-modal__wallet-connect">
-              <WalletConnect/>
-            </div> : null
-        }
-
         <div className="listing-modal__details">
           <div className="listing-modal__detail listing-modal__detail-faded">
             <label>Creator Royalty</label>
@@ -62,13 +55,28 @@ const ListingModal = observer(({nft, listingId, Close}) => {
             <div className="listing-modal__payout">{ cryptoStore.usdcConnected ? <ImageIcon icon={USDCIcon} title="USDC Available" /> : null }${Math.max(0, payout).toFixed(2)}</div>
           </div>
         </div>
+        {
+          !cryptoStore.usdcConnected ?
+            <div className="listing-modal__wallet-connect">
+              <WalletConnect/>
+            </div> : null
+        }
         <div className="listing-modal__active-listings">
           <h2 className="listing-modal__active-listings__header">Active Listings for this NFT</h2>
           <ActiveListings contractAddress={nft.details.ContractAddr} initialSelectedListingId={listingId} noSeller />
         </div>
         <div className="listing-modal__actions">
-          <button className="action listing-modal__action" onClick={() => Close()}>
-            Cancel
+          <button
+            disabled={!parsedPrice || isNaN(parsedPrice) || payout <= 0 || parsedPrice > 10000}
+            className="action action-primary listing-modal__action listing-modal__action-primary"
+            onClick={() => {
+              setShowConfirmation(true);
+
+              const modal = document.getElementById("listing-modal");
+              modal && modal.scrollTo(0, 0);
+            }}
+          >
+            Continue
           </button>
           {
             nft.details.ListingId ?
@@ -86,17 +94,8 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                 Remove Listing
               </button> : null
           }
-          <button
-            disabled={!parsedPrice || isNaN(parsedPrice) || payout <= 0 || parsedPrice > 10000}
-            className="action action-primary listing-modal__action listing-modal__action-primary"
-            onClick={() => {
-              setShowConfirmation(true);
-
-              const modal = document.getElementById("listing-modal");
-              modal && modal.scrollTo(0, 0);
-            }}
-          >
-            Continue
+          <button className="action listing-modal__action" onClick={() => Close()}>
+            Cancel
           </button>
         </div>
       </div>

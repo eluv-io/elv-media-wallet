@@ -64,7 +64,7 @@
   }
 
   &--nft {
-    .card-shadow {
+    &.card-shadow {
       border: var(--border-feature-card);
       border-radius: var(--border-radius-feature-card);
       box-shadow: var(--box-shadow-feature-card);

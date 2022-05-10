@@ -49,10 +49,10 @@ $content-width: 475px;
   }
 
   .transfer-table {
-    margin: 0;
+    margin: 0 0 30px;
 
     .transfer-table__table {
-      max-height: 225px;
+      max-height: 275px;
     }
   }
 
@@ -163,7 +163,7 @@ $content-width: 475px;
   }
 
   &__price-details {
-    @include component;
+   // @include component;
     align-items: center;
     display: flex;
     flex-direction: column;
@@ -181,6 +181,7 @@ $content-width: 475px;
   &__payment-message {
     color: var(--color-component-text-secondary);
     margin-bottom: 10px;
+    font-weight: 300;
   }
 
   &__error-message {
@@ -190,11 +191,7 @@ $content-width: 475px;
   }
 
   &__payment-options {
-    @include component;
-
-    margin-top: 25px;
-
-    padding: 20px;
+    margin-top: 15px;
   }
 
   &__payment-selection-container {

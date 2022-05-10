@@ -186,6 +186,7 @@
   }
 
   &__empty {
+    background: var(--background-table-header-row);
     align-items: center;
     color: var(--color-text-secondary);
     display: flex;

@@ -82,6 +82,10 @@ $content-width: 475px;
     padding: 0 15px;
     width: 100%;
 
+    &::placeholder {
+      font-size: 20px;
+    }
+
     &-error {
       box-shadow: 0 0 3px var(--color-text-error);
     }
@@ -107,6 +111,10 @@ $content-width: 475px;
     display: flex;
     flex-direction: column;
     justify-content: center;
+  }
+
+  .wallet-connect {
+    max-width: $content-width;
   }
 
   .card-container {
@@ -169,13 +177,16 @@ $content-width: 475px;
     display: flex;
     justify-content: center;
     margin-top: 35px;
+    flex-direction: column;
+
   }
 
   &__action {
     min-width: 150px;
+    width: 100%;
 
     &:not(:last-child) {
-      margin-right: 10px;
+      margin-bottom: 10px;
     }
 
     &:disabled {
