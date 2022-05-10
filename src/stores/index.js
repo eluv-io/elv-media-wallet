@@ -608,6 +608,12 @@ class RootStore {
   });
 
   SetCustomizationOptions(marketplace) {
+    if(this.currentCustomization === (marketplace && marketplace.marketplaceId)) {
+      return;
+    }
+    
+    this.currentCustomization = marketplace && marketplace.marketplaceId;
+
     let options = { font: "Hevetica Neue" };
     if(marketplace && marketplace !== "default") {
       options = {
