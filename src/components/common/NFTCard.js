@@ -56,7 +56,7 @@ const NFTCard = observer(({
   if(item && !hideAvailable && !outOfStock && !expired && !unauthorized && stock &&stock.max && stock.max < 10000000) {
     sideText = `${stock.max - stock.minted} / ${stock.max}`;
   } else if(!item && showOrdinal) {
-    sideText = NFTDisplayToken(info).split("/");
+    sideText = NFTDisplayToken(info);
   }
 
   if(sideText) {

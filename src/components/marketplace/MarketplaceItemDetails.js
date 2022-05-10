@@ -1,14 +1,15 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {Link, useRouteMatch} from "react-router-dom";
+import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import {checkoutStore, rootStore} from "Stores";
-import {CopyableField, ExpandableSection} from "Components/common/UIComponents";
+import {ButtonWithLoader, CopyableField, ExpandableSection, ItemPrice} from "Components/common/UIComponents";
 import {render} from "react-dom";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
 import NFTCard from "Components/common/NFTCard";
 import PurchaseModal from "Components/listings/PurchaseModal";
 import UrlJoin from "url-join";
+import {LoginClickGate} from "Components/common/LoginGate";
 
 import DetailsIcon from "Assets/icons/Details icon";
 import ContractIcon from "Assets/icons/Contract icon";
@@ -28,6 +29,9 @@ const MarketplaceItemDetails = observer(() => {
   const item = marketplace.items[itemIndex];
   const itemTemplate = item.nft_template ? item.nft_template.nft || {} : {};
 
+  const directPrice = ItemPrice(item, checkoutStore.currency);
+  const free = !directPrice || item.free;
+
   const stock = checkoutStore.stock[item.sku];
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
   const maxOwned = stock && stock.max_per_user && stock.current_user >= stock.max_per_user;
@@ -42,6 +46,7 @@ const MarketplaceItemDetails = observer(() => {
 
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [purchaseModalType, setPurchaseModalType] = useState("marketplace");
+  const [claimed, setClaimed] = useState(false);
 
   useEffect(() => {
     if(!stock) { return; }
@@ -59,6 +64,10 @@ const MarketplaceItemDetails = observer(() => {
     },
     metadata: itemTemplate
   };
+
+  if(claimed) {
+    return <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "store", item.sku, "claim")} />;
+  }
 
   return (
     <>
@@ -86,15 +95,38 @@ const MarketplaceItemDetails = observer(() => {
           <div className="details-page__actions">
             {
               marketplacePurchaseAvailable ?
-                <button
-                  className="action action-primary"
-                  onClick={() => {
-                    setPurchaseModalType("marketplace");
-                    setShowPurchaseModal(true);
+                <LoginClickGate
+                  Component={ButtonWithLoader}
+                  onClick={async () => {
+                    if(!free) {
+                      setPurchaseModalType("marketplace");
+                      setShowPurchaseModal(true);
+                      return;
+                    }
+
+                    try {
+                      const status = await rootStore.ClaimStatus({
+                        marketplace,
+                        sku: item.sku
+                      });
+
+                      if(status && status.status !== "none") {
+                        // Already claimed, go to status
+                        setClaimed(true);
+                      } else if(await checkoutStore.ClaimSubmit({marketplaceId: match.params.marketplaceId, sku: item.sku})) {
+                        // Claim successful
+                        setClaimed(true);
+                      }
+                    } catch(error){
+                      rootStore.Log("Checkout failed", true);
+                      rootStore.Log(error);
+                    }
                   }}
+                  disabled={outOfStock}
+                  className="action action-primary"
                 >
-                  Buy Now
-                </button> : null
+                  { free ? "Claim Now" : "Buy Now" }
+                </LoginClickGate> : null
             }
             <Link
               className={`action ${!marketplacePurchaseAvailable ? "action-primary" : ""}`}

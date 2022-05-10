@@ -436,7 +436,7 @@ const Login = observer(({silent, darkMode, callbackUrl, Loaded, SignIn, LoadCust
   }
 
   darkMode = customizationOptions && typeof customizationOptions.darkMode === "boolean" ? customizationOptions.darkMode : darkMode;
-  
+
   if(authenticating || !customizationOptions || (!embedded && auth0Loading)) {
     return (
       <div className={`login-page ${darkMode ? "login-page--dark" : ""}`}>
