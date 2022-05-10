@@ -191,7 +191,7 @@
 
   /* Login (NOTE: background image and button colors are controlled in marketplace metadata) */
   --background-login: var(--background-page);
-  --background-login-box: var(--background-component-primary);
+  --background-login-box: var(--background-modal-primary);
   --color-login-text-primary: var(--color-component-text-primary);
   --color-login-text-secondary: var(--color-component-text-secondary);
   --color-login-text-highlight: var(--color-component-text-highlight);

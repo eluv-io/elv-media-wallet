@@ -396,6 +396,11 @@ class RootStore {
       terms: metadata.terms
     };
 
+    if(metadata?.branding?.color_scheme === "Custom") {
+      metadata.sign_up_button = undefined;
+      metadata.log_in_button = undefined;
+    }
+
     this.SetSessionStorage(`marketplace-login-${marketplaceHash}`, btoa(JSON.stringify(metadata)));
 
     return metadata;
@@ -611,7 +616,7 @@ class RootStore {
     if(this.currentCustomization === (marketplace && marketplace.marketplaceId)) {
       return;
     }
-    
+
     this.currentCustomization = marketplace && marketplace.marketplaceId;
 
     let options = { font: "Hevetica Neue" };

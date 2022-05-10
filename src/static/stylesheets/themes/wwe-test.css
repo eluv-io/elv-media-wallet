@@ -95,8 +95,10 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+@font-face{font-family:"compacta-bd-bt-bold";src:url("https://www.dafontfree.net/data/24/c/119290/CompactaBoldBT.ttf") format("woff"),url("https://www.dafontfree.net/data/24/c/119290/CompactaBoldBT.ttf") format("opentype"),url("https://www.dafontfree.net/data/24/c/119290/CompactaBoldBT.ttf") format("truetype");}
+
 :root {
-  --font-family-primary: sans-serif!important;
+  --font-family-primary: 'compacta-bd-bt-bold', sans-serif!important;
   --font-family-secondary: 'DM Sans', sans-serif!important;
   --font-family-tertiary: 'Source Code Pro', monospace!important;
 
@@ -152,8 +154,7 @@
   --border-input: 0;
 
   /* Cards */
-  --background-card: transparent;
-  //--background-card: rgba(16, 39, 254, 0.2);
+  --background-card: rgba(16, 39, 254, 0.2);
   --border-card: 2px solid #0E01FA;
   --background-feature-card: transparent;
   --border-feature-card: 2px solid #0E01FA;
@@ -190,6 +191,9 @@
   --color-button-selection-active-text: white;
   --border-button-selection-active: 2px solid var(--blue-1);
   --border-radius-button-selection-active: 5px;
+
+  /* */
+  --background-login: rgba(0, 0, 0, 0.3);
 }
 
 /* Custom CSS */
