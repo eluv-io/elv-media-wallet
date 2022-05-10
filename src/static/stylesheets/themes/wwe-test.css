@@ -17,10 +17,10 @@
   src: url(https://fonts.gstatic.com/s/dmsans/v11/rP2Hp2ywxg089UriCZOIHTWEBlw.woff2) format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
-@font-face{font-family:"compacta-blk-bt-black";src:url("https://www.dafontfree.net/data/24/c/119293/compctak.ttf") format("woff"),url("https://www.dafontfree.net/data/24/c/119293/compctak.ttf") format("opentype"),url("https://www.dafontfree.net/data/24/c/119293/compctak.ttf") format("truetype");}
+@font-face{font-family:"compacta-bd-bt-bold";src:url("https://www.dafontfree.net/data/24/c/119290/CompactaBoldBT.ttf") format("woff"),url("https://www.dafontfree.net/data/24/c/119290/CompactaBoldBT.ttf") format("opentype"),url("https://www.dafontfree.net/data/24/c/119290/CompactaBoldBT.ttf") format("truetype");}
 
 :root {
-  --font-family-primary: 'compacta-blk-bt-black', sans-serif!important;
+  --font-family-primary: 'compacta-blk-bt-bold', sans-serif!important;
   --font-family-secondary: 'DM Sans', sans-serif!important;
 
   --font-header-links: normal small-caps bold 14px var(--font-family-primary);
@@ -28,7 +28,7 @@
 
   --font-card-title: normal small-caps bold 18px var(--font-family-primary);
 
-  --font-table-header: normal small-caps 900 20px var(--font-family-primary);
+  --font-table-header: normal small-caps bold 20px var(--font-family-primary);
 
   /* Custom */
   --blue-1: #0021F5;

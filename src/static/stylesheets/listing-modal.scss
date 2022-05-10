@@ -2,7 +2,7 @@
   .modal__content {
     height: max-content;
     max-height: unset;
-    max-width: 600px;
+    max-width: 550px;
     overflow-y: hidden;
     padding-bottom: 5vh;
     padding-right: 8px;
@@ -14,6 +14,7 @@
 $content-width: 475px;
 
 .listing-modal {
+  @include component;
   @include modal;
 
   &__header {
@@ -22,10 +23,13 @@ $content-width: 475px;
     font-weight: 300;
     padding: 15px 25px;
     text-align: center;
+    border-bottom: var(--border-component-secondary);
   }
 
   &__content {
-    padding: 0 25px 35px;
+    max-width: $content-width;
+    padding: 25px 35px 45px;
+    margin: 0 auto;
   }
 
   &__image-container {
@@ -118,7 +122,7 @@ $content-width: 475px;
   }
 
   .card-container {
-    margin: 20px auto 35px;
+    margin: 0 auto 35px;
     max-width: calc(#{$content-width} / 1.5);
   }
 
@@ -176,9 +180,9 @@ $content-width: 475px;
     align-items: center;
     display: flex;
     justify-content: center;
-    margin-top: 35px;
+    margin: 35px auto 0;
     flex-direction: column;
-
+    max-width: $content-width;
   }
 
   &__action {
@@ -186,7 +190,7 @@ $content-width: 475px;
     width: 100%;
 
     &:not(:last-child) {
-      margin-bottom: 10px;
+      margin-bottom: 5px;
     }
 
     &:disabled {

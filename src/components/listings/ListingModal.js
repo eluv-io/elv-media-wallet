@@ -124,17 +124,6 @@ const ListingModal = observer(({nft, listingId, Close}) => {
           Funds availability notice – A hold period will be imposed on amounts that accrue from the sale of an NFT. Account holders acknowledge that, during this hold period, a seller will be unable to use or withdraw the amounts attributable to such sale(s).  The current hold period for spending the balance is 7 days, and withdrawing the balance is 30 days.
         </div>
         <div className="listing-modal__actions">
-          <button
-            className="action listing-modal__action"
-            onClick={() => {
-              setShowConfirmation(false);
-
-              const modal = document.getElementById("listing-modal");
-              modal && modal.scrollTo(0, 0);
-            }}
-          >
-            Back
-          </button>
           <ButtonWithLoader
             className="action action-primary listing-modal__action listing-modal__action-primary"
             onClick={async () => {
@@ -159,6 +148,17 @@ const ListingModal = observer(({nft, listingId, Close}) => {
           >
             Place for Sale
           </ButtonWithLoader>
+          <button
+            className="action listing-modal__action"
+            onClick={() => {
+              setShowConfirmation(false);
+
+              const modal = document.getElementById("listing-modal");
+              modal && modal.scrollTo(0, 0);
+            }}
+          >
+            Back
+          </button>
         </div>
         {
           errorMessage ?
