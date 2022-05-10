@@ -117,9 +117,7 @@
   --font-feature-card-title: normal normal 500 20px var(--font-family-primary);
   --font-feature-card-text: var(--font-card-text);
 
-  --background-feature-card-primary: var(--color-bg-primary);
-  --background-feature-card-secondary: var(--color-bg-secondary);
-  --padding-feature-card: 20px;
+  --background-feature-card: var(--color-bg-primary);
 
   --color-feature-card-text-primary: var(--color-text-primary);
   --color-feature-card-text-secondary: var(--color-text-secondary);

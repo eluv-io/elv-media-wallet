@@ -65,7 +65,7 @@ const Collections = observer(() => {
                               icon={ListingIcon}
                               title="This NFT is listed for sale"
                               alt="Listing Icon"
-                              className="card__badge"
+                              className="item-card__badge"
                             /> : null
                         }
                         name={nft.metadata.display_name}

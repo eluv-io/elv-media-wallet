@@ -1,4 +1,5 @@
 import React from "react";
+import {rootStore} from "Stores";
 import {NFTImage} from "Components/common/Images";
 import {FormatPriceString} from "Components/common/UIComponents";
 import {observer} from "mobx-react";
@@ -92,8 +93,6 @@ const NFTCard = observer(({
   let status;
   if(outOfStock) {
     status = "Sold Out!";
-  } else if(!selectedMedia && !hideAvailable && stock && stock.max && stock.max < 10000000) {
-    //status = `${stock.max - stock.minted} Available`;
   }
 
   if(price) {
@@ -180,75 +179,12 @@ const NFTCard = observer(({
             </div> : null
         }
       </div>
-      {/*
-      <div className="card__titles">
-        {
-          selectedMediaIndex >= 0 ?
-            <button onClick={() => setSelectedMediaIndex(-1)} className="card__titles__return-button">
-              <ImageIcon icon={ReturnIcon} title="Return to NFT" />
-            </button> : null
-        }
-        <h2 className="card__title">
-          <div className="card__title__title">
-            { details.name }
-          </div>
-          {
-            !selectedMedia && (price || selectedListing) ?
-              <div className="card__title__price">
-                { usdcAccepted || selectedListing?.details.USDCAccepted ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC Accepted" /> : null }
-                { FormatPriceString(price || {USD: selectedListing.details.Price}) }
-              </div> : null
-          }
-        </h2>
-        {
-          details.subtitle_1 ?
-            <h2 className="card__title-edition">
-              { details.subtitle_1 }
-            </h2> : null
-        }
-        {
-          details.subtitle_2 ?
-            <h2 className="card__title-edition card__title-ordinal">
-              { details.subtitle_2 }
-            </h2> : null
-        }
-        {
-          selectedMedia ?
-            <div
-              className="card__description rich-text markdown-document"
-              ref={element => {
-                if(!element) { return; }
-
-                render(
-                  <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
-                    { SanitizeHTML(selectedMedia.description) }
-                  </ReactMarkdown>,
-                  element
-                );
-              }}
-            /> :
-            <ResponsiveEllipsis
-              component="div"
-              className="card__description"
-              text={info.metadata.description}
-              maxLine={truncateDescription ? "2" : "100"}
-            />
-        }
-      </div>
-      {
-        !selectedMedia && !hideAvailable && stock && stock.max && stock.max < 10000000 ?
-          <div className="card__stock">
-            <div className="header-dot" style={{backgroundColor: outOfStock ? "#a4a4a4" : "#ff0000"}} />
-            { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available` }
-          </div> : null
-      }
-      */}
     </>
   );
 
   if(link) {
     return (
-      <div className={`card-container card-shadow ${className}`}>
+      <div className={`card-container card-container--nft card-shadow ${rootStore.centerItemText ? "card-container--centered" : ""} ${className}`}>
         <Link
           to={link}
           className={`item-card item-card--nft-card ${cardClassName}`}
@@ -260,7 +196,7 @@ const NFTCard = observer(({
   }
 
   return (
-    <div className={`card-container card-shadow ${className}`}>
+    <div className={`card-container card-container--nft card-shadow ${rootStore.centerItemText ? "card-container--centered" : ""} ${className}`}>
       <div
         onClick={onClick}
         className={`item-card item-card--nft-card ${cardClassName}`}

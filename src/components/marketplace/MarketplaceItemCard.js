@@ -33,8 +33,11 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className="", ca
     linkDisabled = true;
   } else if(outOfStock) {
     status = "Sold Out!";
-  } else if(!item.hide_available && stock && stock.max && stock.max < 10000000) {
-    status = `${stock.max - stock.minted} Available`;
+  }
+
+  let availableStock;
+  if(item && !item.hide_available && !outOfStock && !expired && !unauthorized && stock &&stock.max && stock.max < 10000000) {
+    availableStock = stock.max - stock.minted;
   }
 
   return (
@@ -51,6 +54,7 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className="", ca
       edition={item.nftTemplateMetadata.edition_name}
       description={description}
       price={!isFree ? FormatPriceString(item.price) : ((expired || unauthorized || outOfStock) ? "" : "Claim Now!")}
+      availableStock={availableStock}
       status={status}
       className={className}
       cardClassName={`${cardClassName} ${outOfStock || expired || unauthorized ? "item-card--disabled" : ""}`}

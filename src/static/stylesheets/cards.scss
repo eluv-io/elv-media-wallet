@@ -28,6 +28,25 @@
   position: relative;
   transition: border 0.15s ease-in, margin 0.15s ease-in-out;
 
+  &--centered {
+    .item-card__text {
+      * {
+        text-align: center;
+      }
+    }
+
+    .item-card__status__price,
+    .item-card__status__text {
+      &:first-child {
+        &:last-child {
+          width: 100%;
+          text-align: center;
+          justify-content: center;
+        }
+      }
+    }
+  }
+
   &-selectable {
     cursor: pointer;
     margin: 3px;
@@ -40,18 +59,16 @@
     margin: 0;
   }
 
-  &-marketplace {
-    border: 0;
-
-    .card {
-      &__title {
-        font-size: 18px;
-      }
-    }
-  }
-
   &.collection-card-unowned {
     opacity: 0.5;
+  }
+
+  &--nft {
+    .card-shadow {
+      border: var(--border-feature-card);
+      border-radius: var(--border-radius-feature-card);
+      box-shadow: var(--box-shadow-feature-card);
+    }
   }
 }
 
@@ -166,6 +183,10 @@
     transform: translate(100%) rotate(90deg);
     transform-origin: left top;
 
+    .header-dot {
+      margin-top: 2px;
+    }
+
     &__primary {
       color: var(--color-card-text-highlight);
     }
@@ -201,16 +222,6 @@
 
     stroke: transparent;
     width: auto;
-  }
-
-  // Modifications for NFT details card
-  &--nft-card {
-    .item-card {
-      &__side-text-container {
-        font-size: 18px;
-        font-weight: 500;
-      }
-    }
   }
 
   // Image
@@ -295,6 +306,50 @@
       height: 100%;
       outline: 0;
       width: 100%;
+    }
+  }
+
+  // Modifications for NFT details card
+  &--nft-card {
+    background: var(--background-feature-card);
+    border-radius: var(--border-radius-feature-card);
+    color: var(--color-feature-card-text-primary);
+    font: var(--font-feature-card-text);
+
+    .item-card {
+      &__edition {
+        color: var(--color-feature-card-text-secondary);
+      }
+
+      &__description {
+        color: var(--color-feature-card-text-secondary);
+      }
+
+      &__side-text {
+        &__primary {
+          color: var(--color-feature-card-text-highlight);
+        }
+
+        &__secondary {
+          color: var(--color-feature-card-text-secondary);
+        }
+      }
+
+      &__side-text-container {
+        font-size: 18px;
+        font-weight: 500;
+      }
+
+      &__image {
+        border-radius: var(--border-radius-feature-card);
+      }
+
+      &__image-placeholder {
+        * {
+          stroke: var(--color-feature-card-text-primary);
+          stroke-width: 0.5px;
+        }
+      }
     }
   }
 }

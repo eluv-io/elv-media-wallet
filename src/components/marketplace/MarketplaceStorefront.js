@@ -110,7 +110,7 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
       clearTimeout(timeout);
       timeout = setTimeout(() => {
         setLoadKey(loadKey + 1);
-      }, nextDiff + 1000);
+      }, Math.min(nextDiff + 1000, 24 * 60 * 60 * 1000));
     }
 
     if(items.length === 0) { return null; }

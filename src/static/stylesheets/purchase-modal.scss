@@ -137,6 +137,7 @@ $content-width: 475px;
   &__order-label {
     align-items: center;
     display: flex;
+    padding-right: 10px;
   }
 
   &__order-price {
@@ -152,6 +153,7 @@ $content-width: 475px;
 
   &__quantity {
     font-weight: 300;
+    min-width: max-content;
   }
 
   &__order-separator {

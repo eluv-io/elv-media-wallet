@@ -92,8 +92,7 @@
   --blue-1: #0021F5;
   --blue-2: #1cc1e9;
   --gold-1: #FFCB05;
-
-  --component-gradient: linear-gradient(rgba(235, 235, 235, 0.2), rgba(235, 235, 235, 0.25));
+  --neutral-1: #3D475D;
 
   /* General */
   --color-bg-primary: rgba(235, 235, 235, 0.2);
@@ -122,17 +121,18 @@
   --border-modal-primary: 0;
 
   /* Apply gradient to components */
-  --background-input: var(--component-gradient);
-  --background-component-primary: var(--component-gradient);
-  --background-card: var(--component-gradient);
-  --background-feature-card-primary: var(--component-gradient);
-  --background-table: var(--component-gradient);
-
-  /* Feature card */
-  --padding-feature-card: 0;
+  --background-input: var(--neutral-1);
+  --background-component-primary: var(--neutral-1);
+  --background-table: var(--neutral-1);
 
   /* Inputs */
   --border-input: 0;
+
+  /* Cards */
+  --background-card: transparent;
+  --border-card: 2px solid #0E01FA;
+  --background-feature-card: transparent;
+  --border-feature-card: 2px solid #0E01FA;
 
   /* Tables */
   --color-table-even-row-bg: rgba(6, 8, 41, 0.2);
@@ -151,9 +151,9 @@
   --border-button-secondary: 2px solid var(--blue-1);
   --border-radius-button-secondary: 3px;
 
-  --background-button-danger: var(--component-gradient);
+  --background-button-danger: var(--neutral-1);
   --color-button-danger-text: white;
-  --border-button-danger: 2px solid var(--component-gradient);
+  --border-button-danger: 2px solid var(--neutral-1);
   --border-radius-button-danger: 3px;
 
   /* Togglable/selectable options */
@@ -172,3 +172,20 @@
 .transfer-table__table__header.transfer-table__table__header {
   position: relative;
 }
+
+.listing-card::after,
+.card-container::after {
+  content: "";
+  position: absolute;
+  display: block;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  border-radius: var(--border-radius-card);
+  z-index: -1;
+  background: rgba(16, 39, 254, 0.3);
+  filter: blur(1px) drop-shadow(0px 0px 30px #18D5FF) drop-shadow(0px 0px 10px #0E01FA);
+  opacity: 0.5;
+}
+

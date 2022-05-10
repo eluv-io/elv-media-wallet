@@ -122,6 +122,8 @@ class RootStore {
   hideGlobalNavigation = false;
   hideNavigation = searchParams.has("hn") || this.loginOnly;
   sidePanelMode = false;
+  centerText = false;
+  centerItemText = false;
 
   staticToken = undefined;
   authedToken = undefined;
@@ -639,10 +641,15 @@ class RootStore {
 
     const cssTag = document.getElementById("_custom-css");
     if(options.color_scheme === "Custom" && marketplace?.branding?.custom_css) {
-      cssTag.innerHTML = marketplace.branding.custom_css.toString();
+      //cssTag.innerHTML = marketplace.branding.custom_css.toString();
     } else {
       cssTag.innerHTML = "";
     }
+
+    this.centerText = marketplace?.branding?.text_justification === "Center";
+    this.centerItemText = marketplace?.branding?.item_text_justification === "Center";
+
+    console.log(marketplace);
 
     switch(options.color_scheme) {
       case "Dark":

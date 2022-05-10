@@ -1,5 +1,6 @@
 import React from "react";
 import {observer} from "mobx-react";
+import {rootStore} from "Stores";
 import {Link} from "react-router-dom";
 import LinesEllipsis from "react-lines-ellipsis";
 import responsiveHOC from "react-lines-ellipsis/lib/responsiveHOC";
@@ -16,6 +17,7 @@ const ItemCard = observer(({
   edition,
   description,
   price,
+  availableStock,
   status,
   displayToken,
   usdcAccepted,
@@ -24,7 +26,21 @@ const ItemCard = observer(({
   cardClassName=""
 }) => {
   let sideText;
-  if(displayToken) {
+  if(availableStock) {
+    sideText = (
+      <div className="item-card__side-text-container">
+        <div className="item-card__side-text">
+          <div className="header-dot" style={{backgroundColor: "#ff0000"}} />
+          <div className="item-card__side-text__primary">
+            Available
+          </div>
+          <div className="item-card__side-text__secondary">
+            { availableStock }
+          </div>
+        </div>
+      </div>
+    );
+  } else if(displayToken) {
     const [first, second] = displayToken.split("/");
 
     sideText = (
@@ -101,7 +117,7 @@ const ItemCard = observer(({
 
   if(link) {
     return (
-      <div className={`card-container card-shadow ${className}`}>
+      <div className={`card-container card-shadow ${rootStore.centerItemText ? "card-container--centered" : ""} ${className}`}>
         <Link
           to={link}
           className={`item-card ${cardClassName}`}
@@ -113,7 +129,7 @@ const ItemCard = observer(({
   }
 
   return (
-    <div className={`card-container card-shadow ${className}`}>
+    <div className={`card-container card-shadow ${rootStore.centerItemText ? "card-container--centered" : ""} ${className}`}>
       <div
         onClick={onClick}
         className={`item-card ${cardClassName}`}
