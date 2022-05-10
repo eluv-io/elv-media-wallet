@@ -1,4 +1,5 @@
 .purchase-modal-container {
+  min-height: 100vh;
   .modal__content {
     height: max-content;
     max-height: unset;
@@ -8,6 +9,7 @@
     padding-right: 8px;
     top: 5vh;
     width: 100%;
+    min-height: 100vh;
   }
 }
 
@@ -19,6 +21,8 @@ $content-width: 475px;
   display: flex;
   flex-direction: column;
   position: relative;
+  height: 100%;
+  min-height: 100vh;
 
   .card-container {
     margin: 0 auto 20px;
@@ -239,6 +243,10 @@ $content-width: 475px;
     flex-direction: column;
     justify-content: center;
     margin: 30px 0;
+  }
+
+  .wallet-connect {
+    max-width: 100%;
   }
 }
 

@@ -136,7 +136,7 @@
 
   &__button {
     background: var(--background-button-secondary);
-    border: 0;
+    border: var(--border-button-secondary);
     border-radius: 8px;
     cursor: pointer;
     height: 25px;

@@ -82,13 +82,17 @@
     }
   }
 
-  .expandable-section__actions {
-    .action {
-      max-width: 475px;
-      width: 100%;
+  .expandable-section {
+    line-height: 1.25;
 
-      & + .action {
-        margin-top: 10px;
+    &__actions {
+      .action {
+        max-width: 475px;
+        width: 100%;
+
+        & + .action {
+          margin-top: 10px;
+        }
       }
     }
   }

@@ -581,9 +581,6 @@ const PurchaseModal = observer(({nft, item, initialListingId, type="marketplace"
           if(listingId) {
             setSelectedListingId(listingId);
             setSelectedListing(listing);
-          } else {
-            setSelectedListingId(undefined);
-            setSelectedListing(item);
           }
         }}
         quantity={selectedListingId === "marketplace" ? quantity : 1}
