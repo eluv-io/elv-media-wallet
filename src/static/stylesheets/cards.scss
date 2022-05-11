@@ -169,10 +169,19 @@
     display: flex;
     align-items: center;
     position: absolute;
-    top: 52px;
-    right: -4%;
-    font-size: 20px;
+    max-height: 2px;
+    max-width: 2px;
+    overflow: visible;
+    white-space: nowrap;
+    word-break: keep-all;
+    top: 32px;
+    right: 1em;
     transform: rotate(90deg);
+
+    * {
+      font: var(--font-card-misc);
+      font-size: 20px;
+    }
 
     &__primary {
       color: var(--color-card-text-highlight);

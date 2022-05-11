@@ -76,14 +76,16 @@
   &__side-text {
     position: absolute;
     left: 0;
-    bottom: 0;
-    height: 100%;
     text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
     transform: rotate(-90deg);
-    margin-left: -35px;
+    max-width: 1px;
+    max-height: 1px;
+    overflow: visible;
+    word-break: keep-all;
+    white-space: nowrap;
 
     &__primary {
       color: var(--color-feature-card-text-highlight);
