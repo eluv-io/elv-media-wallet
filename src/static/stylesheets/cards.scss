@@ -168,16 +168,15 @@
   &__side-text {
     display: flex;
     align-items: center;
-    writing-mode: sideways-rl;
-    text-orientation: sideways;
     position: absolute;
-    top: 34px;
-    right: 3px;
+    top: 52px;
+    right: -4%;
     font-size: 20px;
+    transform: rotate(90deg);
 
     &__primary {
       color: var(--color-card-text-highlight);
-      margin-bottom: 5px;
+      margin-right: 5px;
     }
 
     &__secondary {

@@ -76,18 +76,18 @@
   &__side-text {
     position: absolute;
     left: 0;
-    top: 0;
+    bottom: 0;
     height: 100%;
     text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
-    writing-mode: sideways-lr;
-    text-orientation: sideways;
+    transform: rotate(-90deg);
+    margin-left: -35px;
 
     &__primary {
       color: var(--color-feature-card-text-highlight);
-      margin-bottom: 10px;
+      margin-left: 10px;
       font: var(--font-feature-card-misc);
     }
 
@@ -130,6 +130,10 @@
     grid-template-columns: 1fr 1.5fr;
     padding: 10px;
     grid-gap: 20px;
+
+    &__side-text {
+      display: none;
+    }
 
     &--right-just {
       grid-template-columns: 1.5fr 1fr;

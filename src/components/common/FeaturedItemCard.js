@@ -76,8 +76,8 @@ const FeaturedItemCard = observer(({
   const cardContents = (
     <>
       { justification === "Left" ? icon : null }
+      { sideText ? sideText : null }
       <div className="featured-item__text">
-        { sideText ? sideText : null }
         <h2 className="featured-item__title">
           { name || "" }
         </h2>
