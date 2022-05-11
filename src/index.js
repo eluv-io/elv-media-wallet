@@ -1,3 +1,4 @@
+import "Assets/fonts/fonts.css";
 import "Assets/stylesheets/app.scss";
 
 import React, { useEffect } from "react";

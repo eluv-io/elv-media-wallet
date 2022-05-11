@@ -279,6 +279,10 @@
     &__links {
       display: flex;
     }
+
+    .subheader__navigation-link {
+      font-size: 11px;
+    }
   }
 
   &__header {
@@ -297,10 +301,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-
-    .subheader__navigation-link {
-      font-size: 18px;
-    }
   }
 
   &__navigation-link {

@@ -2,13 +2,15 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-gap: 50px;
-  padding: 50px 75px;
+  padding: 50px 100px 50px;
   position: relative;
   font: var(--font-feature-card-text);
   align-items: center;
+  min-height: 650px;
 
   &__text,
   &__icon {
+    @include page-fade-in;
     z-index: 1;
   }
 
@@ -82,15 +84,16 @@
     justify-content: center;
     writing-mode: sideways-lr;
     text-orientation: sideways;
-    font: var(--font-feature-card-misc);
 
     &__primary {
       color: var(--color-feature-card-text-highlight);
       margin-bottom: 10px;
+      font: var(--font-feature-card-misc);
     }
 
     &__secondary {
       color: var(--color-feature-card-text-secondary);
+      font: var(--font-feature-card-misc);
     }
   }
 
@@ -119,23 +122,91 @@
 
     img {
       background: black;
-      border-radius: var(--border-radius-feature-card);
+      border-radius: calc(var(--border-radius-feature-card) / 2);
     }
   }
 
   @media screen and (max-width: $tablet-breakpoint) {
     grid-template-columns: 1fr 1.5fr;
-    padding: 20px;
+    padding: 10px;
     grid-gap: 20px;
 
+    &--right-just {
+      grid-template-columns: 1.5fr 1fr;
+    }
+
     &__icon {
-      padding: 0;
+      padding: 20px;
     }
 
     &__text {
       min-height: 300px;
       max-width: 500px;
       margin: 0 auto;
+    }
+  }
+}
+
+.feature-gallery {
+  display: grid;
+  grid-gap: 30px;
+  margin-top: 30px;
+
+  &__slider {
+    height: 4px;
+    width: 95%;
+    position: relative;
+    background: var(--color-featured-item-slider);
+    border-radius: 10px;
+    margin: 40px auto 0;
+  }
+
+  &__slider-handle {
+    transition: left 0.15s ease;
+    position: absolute;
+    height: 100%;
+    background: var(--color-featured-item-slider-handle);
+    border-radius: 10px;
+    top: 0;
+
+    &:focus-visible {
+      box-shadow: var(--box-shadow-input-focus);
+      outline: var(--outline-input-focus);
+    }
+  }
+
+  &__slider-drag {
+    width: 100%;
+    height: 300%;
+    position: absolute;
+    left: 0;
+    top: -100%;
+    z-index: 2;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  &__icon {
+    @include page-fade-in;
+    position: relative;
+    border: var(--border-feature-card);
+    border-radius: var(--border-radius-feature-card);
+    background: var(--background-feature-card);
+    padding: 20px;
+    cursor: pointer;
+
+    &--selected {
+      border: var(--border-feature-card-selected);
+      box-shadow: var(--box-shadow-feature-card-selected);
+    }
+
+    div {
+      margin: 0;
+    }
+
+    img {
+      background: black;
+      border-radius: calc(var(--border-radius-feature-card) / 2);
     }
   }
 }

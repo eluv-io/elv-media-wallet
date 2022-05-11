@@ -1,20 +1,13 @@
-@font-face {
-  font-family: "Selawik var";
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url("files/Selawik-variable.ttf") format("ttf");
-  font-named-instance: "Regular";
-}
-
 :root {
   --font-family-primary: 'Selawik', sans-serif;
   --font-family-secondary: 'Selawik', sans-serif;
+  --font-family-tertiary: 'Selawik', sans-serif;
 }
 
 @supports (font-variation-settings: normal) {
   :root {
     --font-family-primary: 'Selawik var', sans-serif;
     --font-family-secondary: 'Selawik var', sans-serif;
+    --font-family-tertiary: 'Selawik var', sans-serif;
   }
 }

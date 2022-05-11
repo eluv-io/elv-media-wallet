@@ -3,6 +3,7 @@
 @import "variables";
 
 * {
+  font-family: var(--font-family-secondary);
   -webkit-overflow-scrolling: touch;
 
   ::-webkit-scrollbar {
@@ -222,6 +223,11 @@ em {
     justify-content: space-between;
     margin: 0;
     position: relative;
+
+    &--centered {
+      text-align: center;
+      justify-content: center;
+    }
 
     &__icon {
       height: 100%;

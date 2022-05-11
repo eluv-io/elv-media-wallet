@@ -136,12 +136,14 @@
 
   &__button {
     background: var(--background-button-secondary);
-    border: var(--border-button-secondary);
     border-radius: 8px;
     cursor: pointer;
     height: 25px;
     padding: 5px;
     width: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     svg {
       height: 100%;

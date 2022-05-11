@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
-import {ProfileImage} from "Components/common/Images";
 import {Link, NavLink, useLocation} from "react-router-dom";
 import {FormatPriceString} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";

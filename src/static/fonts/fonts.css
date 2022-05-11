@@ -1,0 +1,37 @@
+/* Compacta */
+@font-face {
+  font-family: "Compacta Black BT";
+  src: url("./Compacta/files/CompactaBlackBT.woff2") format("woff2"),
+  url("./Compacta/files/CompactaBlackBT.woff") format("woff"),
+  url("./Compacta/files/CompactaBlackBT.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+}
+
+/* Inter */
+@font-face {
+  font-family: "Inter var";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./Inter/files/Inter-roman.var.woff2") format("woff2");
+  font-named-instance: "Regular";
+}
+@font-face {
+  font-family: "Inter var";
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./Inter/files/Inter-italic.var.woff2") format("woff2");
+  font-named-instance: "Italic";
+}
+
+/* Selawik */
+@font-face {
+  font-family: "Selawik var";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./Selawik/files/Selawik-variable.ttf") format("ttf");
+  font-named-instance: "Regular";
+}

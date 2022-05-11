@@ -141,7 +141,7 @@ const FeaturedItemCard = observer(({
   return (
     <div
       onClick={onClick}
-      className={`featured-item ${className}`}
+      className={`featured-item ${justification === "Right" ? "featured-item--right-just" : ""}${className}`}
     >
       { cardContents }
     </div>

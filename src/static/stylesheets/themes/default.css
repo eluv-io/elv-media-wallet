@@ -1,7 +1,7 @@
 :root {
   /* General */
 
-  /* Fonts - Primary is for used headers, secondary is for all other text */
+  /* Fonts - Primary is for used headers, tertiary for buttons, prices and other details, secondary for all other text */
   --font-family-primary: "Helvetica Neue", Helvetica, sans-serif;
   --font-family-secondary: "Helvetica Neue", Helvetica, sans-serif;
   --font-family-tertiary: "Helvetica Neue", Helvetica, sans-serif;
@@ -38,7 +38,7 @@
   --border-radius-page-content: 10px 10px 0 0;
 
   /* Header */
-  --font-header-links: normal normal 300 14px var(--font-family-secondary);
+  --font-header-links: normal normal 300 16px var(--font-family-secondary);
   --font-store-header: normal normal normal 32px var(--font-family-primary);
 
   --background-page-header: #eee;
@@ -50,8 +50,13 @@
 
   --border-header-active-link: 2px solid var(--color-highlight);
 
+  /* Store heading text */
+  --font-store-heading: normal normal normal 32px var(--font-family-primary);
+  --font-store-subheading: normal normal 300 18px var(--font-family-secondary);
+
   /* Buttons */
-  --font-button: var(--font-default);
+  --font-button: normal normal normal 16px var(--font-family-tertiary);
+  --font-button-selection: var(--font-button);
 
   --background-button-primary: var(--color-highlight-container-bg);
   --color-button-primary-text: var(--color-highlight-container-text);
@@ -134,6 +139,12 @@
   --color-button-feature-card-text: var(--color-button-secondary-text);
   --border-button-feature-card: 0;
   --border-radius-button-feature-card: var(--border-radius);
+
+  --border-feature-card-selected: 1px solid var(--color-highlight);
+  --box-shadow-feature-card-selected: 0 0 10px var(--color-highlight);
+
+  --color-featured-item-slider: var(--color-bg-secondary);
+  --color-featured-item-slider-handle: var(--color-highlight);
 
   /* Tables */
   --font-table-header: normal normal 300 20px var(--font-family-primary);

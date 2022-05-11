@@ -84,6 +84,7 @@
     border: var(--border-button-selection);
     border-radius: var(--border-radius-button-selection);
     color: var(--color-button-selection-text);
+    font: var(--font-button-selection);
 
     &:hover {
       color: var(--color-button-selection-text);
@@ -104,6 +105,7 @@
     border: var(--border-button-selection-active);
     border-radius: var(--border-radius-button-selection-active);
     color: var(--color-button-selection-active-text);
+    font: var(--font-button-selection);
 
     &:hover {
       color: var(--color-button-selection-active-text);

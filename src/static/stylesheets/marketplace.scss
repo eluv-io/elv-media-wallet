@@ -1,4 +1,8 @@
 .marketplace {
+  &.content {
+    margin-top: 50px;
+  }
+
   &__empty {
     font-size: 16px;
     font-weight: 300;
@@ -35,12 +39,23 @@
       margin-top: 0;
     }
 
+    .page-header,
+    .page-subheader {
+      max-width: 600px;
+
+      &--centered {
+        margin: 0 auto;
+      }
+    }
+
+
     .page-header {
-      font-size: 20px;
+      font: var(--font-store-heading);
     }
 
     .page-subheader {
-      font-size: 12px;
+      margin-top: 5px;
+      font: var(--font-store-subheading);
     }
   }
 

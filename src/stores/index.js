@@ -15,7 +15,7 @@ import {v4 as UUID} from "uuid";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
-  enforceActions: "always"
+  //enforceActions: "always"
 });
 
 const searchParams = new URLSearchParams(window.location.search);
@@ -630,32 +630,32 @@ class RootStore {
 
     this.hideGlobalNavigation = marketplace && this.specifiedMarketplaceId === marketplace.marketplaceId && marketplace.branding && marketplace.branding.hide_global_navigation;
 
-    let fontImport = "";
-    switch(options.font) {
-      case "Inter":
-        fontImport = import("Assets/fonts/Inter/inter.font.css");
-
-        break;
-      case "Selawik":
-        fontImport = import("Assets/fonts/Selawik/selawik.font.css");
-
-        break;
-      default:
-        break;
-    }
-
-    const fontsTag = document.getElementById("_fonts");
-    if(fontImport) {
-      fontImport.then(font => fontsTag.innerHTML = font.default);
-    } else {
-      fontsTag.innerHTML = ":root { --font-family-primary: \"Helvetica Neue\", Helvetica, sans-serif; }";
-    }
-
     const cssTag = document.getElementById("_custom-css");
     if(options.color_scheme === "Custom" && marketplace?.branding?.custom_css) {
-      //cssTag.innerHTML = marketplace.branding.custom_css.toString();
+      cssTag.innerHTML = marketplace.branding.custom_css.toString();
     } else {
       cssTag.innerHTML = "";
+
+      let fontImport = "";
+      switch(options.font) {
+        case "Inter":
+          fontImport = import("Assets/fonts/Inter/inter.font.css");
+
+          break;
+        case "Selawik":
+          fontImport = import("Assets/fonts/Selawik/selawik.font.css");
+
+          break;
+        default:
+          break;
+      }
+
+      const fontsTag = document.getElementById("_fonts");
+      if(fontImport) {
+        fontImport.then(font => fontsTag.innerHTML = font.default);
+      } else {
+        fontsTag.innerHTML = ":root { --font-family-primary: \"Helvetica Neue\", Helvetica, sans-serif; }";
+      }
     }
 
     this.centerText = marketplace?.branding?.text_justification === "Center";

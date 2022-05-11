@@ -23,7 +23,6 @@ const MarketplaceItemCard = ({
     return null;
   }
 
-  const unreleased = item.available_at && Date.now() - new Date(item.available_at).getTime() < 0;
   const expired = item.expires_at && new Date(item.expires_at).getTime() - Date.now() < 0;
   const unauthorized = item.requires_permissions && !item.authorized;
   const stock = checkoutStore.stock[item.sku];
@@ -83,7 +82,7 @@ const MarketplaceItemCard = ({
       price={!isFree ? FormatPriceString(item.price, {
         includeCurrency: true,
         prependCurrency: true
-      }) : ((expired || unauthorized || outOfStock) ? "" : "Claim Now!")}
+      }) : ((expired || unauthorized || outOfStock || type === "Featured") ? "" : "Claim Now!")}
       sideText={sideText}
       status={status}
       justification={justification}

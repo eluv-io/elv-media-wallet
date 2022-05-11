@@ -148,8 +148,8 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
 
     return (
       <div className="marketplace__section" key={`marketplace-section-${sectionIndex}-${loadKey}`}>
-        <h1 className="page-header">{section.section_header}</h1>
-        <h2 className="page-subheader">{section.section_subheader}</h2>
+        { section.section_header ? <h1 className={`page-header ${rootStore.centerText ? "page-header--centered" : ""}`}>{section.section_header}</h1> : null }
+        { section.section_subheader ? <h2 className={`page-subheader ${rootStore.centerText ? "page-subheader--centered" : ""}`}>{section.section_subheader}</h2> : null }
         { renderedItems }
       </div>
     );
