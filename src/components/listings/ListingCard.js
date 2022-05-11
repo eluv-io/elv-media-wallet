@@ -88,96 +88,98 @@ const ListingCard = ({listing, link, Refresh}) => {
             }}
           /> : null
       }
-      <div className={`listing-card ${message ? "listing-card-with-message" : ""}`} ref={ref}>
-        { showMenu ? <Menu /> : null }
-        <button
-          className="action listing-card__menu-button"
-          onClick={() => {
-            setShowMenu(!showMenu);
-          }}
-        >
-          ···
-        </button>
-        <Link to={link} className="listing-card__image-container">
-          <NFTImage width={600} className="listing-card__image" nft={listing} />
-        </Link>
-        <div className="listing-card__content">
-          <Link to={link} className="listing-card__header">
-            <h3 className="listing-card__header-title ellipsis">
-              { listing.metadata.display_name }
-            </h3>
-            {
-              listing.metadata.edition_name ?
-                <h2 className="listing-card__header-id">
-                  { listing.metadata.edition_name }
-                </h2> : null
-            }
-            <h3 className="listing-card__header-id">
-              { NFTDisplayToken(listing) }
-            </h3>
+      <div className="listing-card-container">
+        <div className={`listing-card ${message ? "listing-card-with-message" : ""}`} ref={ref}>
+          { showMenu ? <Menu /> : null }
+          <button
+            className="action listing-card__menu-button"
+            onClick={() => {
+              setShowMenu(!showMenu);
+            }}
+          >
+            ···
+          </button>
+          <Link to={link} className="listing-card__image-container">
+            <NFTImage width={600} className="listing-card__image" nft={listing} />
           </Link>
+          <div className="listing-card__content">
+            <Link to={link} className="listing-card__header">
+              <h3 className="listing-card__header-title ellipsis">
+                { listing.metadata.display_name }
+              </h3>
+              {
+                listing.metadata.edition_name ?
+                  <h2 className="listing-card__header-id">
+                    { listing.metadata.edition_name }
+                  </h2> : null
+              }
+              <h3 className="listing-card__header-id">
+                { NFTDisplayToken(listing) }
+              </h3>
+            </Link>
 
-          <Link to={link} className="listing-card__details">
-            <div className="listing-card__detail">
-              <div className="listing-card__detail-label">
-                Date Posted
+            <Link to={link} className="listing-card__details">
+              <div className="listing-card__detail">
+                <div className="listing-card__detail-label">
+                  Date Posted
+                </div>
+                <div className="listing-card__detail-value">
+                  { new Date(listing.details.UpdatedAt).toLocaleDateString("en-us", {year: "numeric", month: "long", day: "numeric" }) }
+                </div>
               </div>
-              <div className="listing-card__detail-value">
-                { new Date(listing.details.UpdatedAt).toLocaleDateString("en-us", {year: "numeric", month: "long", day: "numeric" }) }
+              {
+                listing.details.SoldPrice ?
+                  <div className="listing-card__detail">
+                    <div className="listing-card__detail-label">
+                      Date Sold
+                    </div>
+                    <div className="listing-card__detail-value">
+                      November 23, 2021
+                    </div>
+                  </div> : null
+              }
+            </Link>
+
+            <div className="listing-card__price-container">
+              <div className="listing-card__price-details">
+                <div className="listing-card__price-label">
+                  Listing Price
+                </div>
+                <div className="listing-card__price-value">
+                  ${(listing.details.Price || 0).toFixed(2)}
+                </div>
+              </div>
+
+              <div className="listing-card__actions">
+                <ButtonWithLoader
+                  className="listing-card__action"
+                  disabled={isInCheckout}
+                  onClick={async event => {
+                    event.stopPropagation();
+                    const listings = await transferStore.FetchTransferListings({listingId: listing.details.ListingId, forceUpdate: true});
+                    const currentListing = listings[0];
+
+                    let isInCheckout = currentListing && currentListing.details.CheckoutLockedUntil && currentListing.details.CheckoutLockedUntil > Date.now();
+                    setIsInCheckout(isInCheckout);
+
+                    if(isInCheckout) {
+                      setMessage("This listing is currently in the process of being purchased");
+                    } else {
+                      setShowListingModal(true);
+                    }
+                  }}
+                >
+                  Edit Listing
+                </ButtonWithLoader>
               </div>
             </div>
             {
-              listing.details.SoldPrice ?
-                <div className="listing-card__detail">
-                  <div className="listing-card__detail-label">
-                    Date Sold
-                  </div>
-                  <div className="listing-card__detail-value">
-                    November 23, 2021
-                  </div>
+              message ?
+                <div className="listing-card__message">
+                  { message }
                 </div> : null
             }
-          </Link>
-
-          <div className="listing-card__price-container">
-            <div className="listing-card__price-details">
-              <div className="listing-card__price-label">
-                Listing Price
-              </div>
-              <div className="listing-card__price-value">
-                ${(listing.details.Price || 0).toFixed(2)}
-              </div>
-            </div>
-
-            <div className="listing-card__actions">
-              <ButtonWithLoader
-                className="listing-card__action"
-                disabled={isInCheckout}
-                onClick={async event => {
-                  event.stopPropagation();
-                  const listings = await transferStore.FetchTransferListings({listingId: listing.details.ListingId, forceUpdate: true});
-                  const currentListing = listings[0];
-
-                  let isInCheckout = currentListing && currentListing.details.CheckoutLockedUntil && currentListing.details.CheckoutLockedUntil > Date.now();
-                  setIsInCheckout(isInCheckout);
-
-                  if(isInCheckout) {
-                    setMessage("This listing is currently in the process of being purchased");
-                  } else {
-                    setShowListingModal(true);
-                  }
-                }}
-              >
-                Edit Listing
-              </ButtonWithLoader>
-            </div>
           </div>
-          {
-            message ?
-              <div className="listing-card__message">
-                { message }
-              </div> : null
-          }
         </div>
       </div>
     </>

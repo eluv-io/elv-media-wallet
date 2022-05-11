@@ -14,7 +14,12 @@ const FeaturedGallery = ({showIcons, marketplaceHash, items, selectedIndex, setS
     const relativeIndex = selectedIndex - range[0];
 
     if(!dragging) {
-      // Specific item clicked - May need to adjust range
+      // Specific item clicked or slider moved with keyboard - May need to adjust range
+
+      if(width === 1) {
+        setRange([selectedIndex, selectedIndex + 1]);
+        return;
+      }
 
       // First item clicked
       if(relativeIndex <= 0) {
@@ -51,10 +56,10 @@ const FeaturedGallery = ({showIcons, marketplaceHash, items, selectedIndex, setS
         setSelectedIndex(Math.min(selectedIndex + 1, items.length - 1));
         break;
       case "PageDown":
-        setSelectedIndex(Math.max(0, selectedIndex - width));
+        setSelectedIndex(Math.max(0, selectedIndex - Math.max(2, width)));
         break;
       case "PageUp":
-        setSelectedIndex(Math.min(selectedIndex + width, items.length - 1));
+        setSelectedIndex(Math.min(selectedIndex + Math.max(2, width), items.length - 1));
         break;
       case "Home":
         setSelectedIndex(0);
@@ -85,14 +90,16 @@ const FeaturedGallery = ({showIcons, marketplaceHash, items, selectedIndex, setS
                 <button
                   aria-label={item.name || item.nftTemplateMetadata.display_name}
                   key={`feature-gallery-${item.itemIndex}`}
-                  className={`feature-gallery__icon ${index === (selectedIndex - range[0]) ? "feature-gallery__icon--selected" : ""}`}
+                  className={`feature-gallery__icon-container ${index === (selectedIndex - range[0]) ? "feature-gallery__icon-container--selected" : ""}`}
                   onClick={() => setSelectedIndex(range[0] + index)}
                 >
-                  <MarketplaceImage
-                    marketplaceHash={marketplaceHash}
-                    item={item}
-                    path={UrlJoin("public", "asset_metadata", "info", "items", item.itemIndex.toString(), "image")}
-                  />
+                  <div className="feature-gallery__icon">
+                    <MarketplaceImage
+                      marketplaceHash={marketplaceHash}
+                      item={item}
+                      path={UrlJoin("public", "asset_metadata", "info", "items", item.itemIndex.toString(), "image")}
+                    />
+                  </div>
                 </button>
               ) : null
         }

@@ -281,7 +281,7 @@ const Header = observer(() => {
           className="header--side-panel__back-button"
           to={rootStore.navigationBreadcrumbs[rootStore.navigationBreadcrumbs.length - 2].path}
         >
-          <ImageIcon icon={BackIcon} title="Back" />
+          <ImageIcon icon={BackIcon} label="Back" />
         </NavLink>
       </header>
     );

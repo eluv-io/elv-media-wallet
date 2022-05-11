@@ -9,7 +9,7 @@
   min-height: 650px;
 
   &__text,
-  &__icon {
+  &__icon-container {
     @include page-fade-in;
     z-index: 1;
   }
@@ -110,13 +110,17 @@
     z-index: 0;
   }
 
-  &__icon {
+  &__icon-container {
     position: relative;
     border: var(--border-feature-card);
     border-radius: var(--border-radius-feature-card);
+    box-shadow: var(--box-shadow-feature-card);
+  }
+
+  &__icon {
+    border-radius: var(--border-radius-feature-card);
     background: var(--background-feature-card);
     padding: 30px;
-    box-shadow: var(--box-shadow-feature-card);
 
     div {
       margin: 0;
@@ -192,19 +196,23 @@
     cursor: pointer;
   }
 
-  &__icon {
+  &__icon-container {
     @include page-fade-in;
     position: relative;
     border: var(--border-feature-card);
     border-radius: var(--border-radius-feature-card);
-    background: var(--background-feature-card);
-    padding: 20px;
     cursor: pointer;
 
     &--selected {
       border: var(--border-feature-card-selected);
       box-shadow: var(--box-shadow-feature-card-selected);
     }
+  }
+
+  &__icon {
+    border-radius: var(--border-radius-feature-card);
+    background: var(--background-feature-card);
+    padding: 20px;
 
     div {
       margin: 0;

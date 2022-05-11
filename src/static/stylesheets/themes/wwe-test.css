@@ -116,7 +116,9 @@
   --blue-1: #0021F5;
   --blue-2: #1cc1e9;
   --gold-1: #FFCB05;
-  --neutral-1: #3D475D;
+  //--neutral-1: #3D475D;
+  --neutral-1: rgba(235, 235, 235, 0.2);
+
 
   /* General */
   --color-bg-primary: var(--neutral-1);
@@ -153,7 +155,7 @@
   --border-input: 0;
 
   /* Cards */
-  --background-card: rgba(16, 39, 254, 0.2);
+  --background-card: rgba(6, 8, 41, 0.7);
   --border-card: 2px solid #0E01FA;
 
   --background-feature-card: rgba(16, 39, 254, 0.2);
@@ -224,20 +226,43 @@
   text-transform: uppercase;
 }
 
+/* Make table header not stick - does not work when background is transparent */
 .transfer-table__table__header.transfer-table__table__header {
   position: relative;
 }
 
-.card-container {
-  backdrop-filter: blur(12px);
-}
-
-.card-container:hover {
+.card-container--link:hover {
   box-shadow: 0 0 10px #18D5FF;
   transition: box-shadow 0.15s;
 }
 
-.featured-item__icon::after,
+/* Apply gradient border to cards using background gradient and padding on container */
+.card-container,
+.listing-card-container,
+.featured-item__icon-container,
+.feature-gallery__icon-container {
+  padding: 2px!important;
+  background: linear-gradient(180deg, #0214ff 0%, #18d5ff 57.81%, #2d21ff 76.56%, #0214ff 100%)!important;
+  border: 2px solid transparent!important;
+}
+
+.item-card,
+.featured-item__icon,
+.feature-gallery__icon {
+  background: rgba(6, 8, 41, 0.7)!important;
+}
+
+.item-card {
+  border-radius: 3px!important;
+}
+
+.featured-item__icon,
+.feature-gallery__icon {
+  border-radius: 20px!important;
+}
+
+.featured-item__icon-container::after,
+.feature-gallery__icon-container::after,
 .listing-card::after,
 .card-container::after {
   content: "";

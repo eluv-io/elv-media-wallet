@@ -46,8 +46,10 @@ const FeaturedItemCard = observer(({
   }
 
   let icon = (
-    <div className="featured-item__icon">
-      { image }
+    <div className="featured-item__icon-container">
+      <div className="featured-item__icon">
+        { image }
+      </div>
     </div>
   );
 

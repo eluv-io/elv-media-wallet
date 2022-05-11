@@ -137,7 +137,7 @@ const NFTCard = observer(({
             />
         }
         {
-          price || status ?
+          !selectedMedia && price || status ?
             <div className="item-card__status">
               {
                 price ?
@@ -171,7 +171,7 @@ const NFTCard = observer(({
 
   if(link) {
     return (
-      <div className={`card-container card-shadow ${rootStore.centerItemText ? "card-container--centered" : ""} ${className}`}>
+      <div className={`card-container card-container--link card-shadow ${rootStore.centerItemText ? "card-container--centered" : ""} ${className}`}>
         <Link
           to={link}
           className={`item-card ${cardClassName}`}

@@ -99,7 +99,7 @@ const ItemCard = observer(({
 
   if(link) {
     return (
-      <div className={`card-container card-shadow ${rootStore.centerItemText ? "card-container--centered" : ""} ${className}`}>
+      <div className={`card-container card-container--link card-shadow ${rootStore.centerItemText ? "card-container--centered" : ""} ${className}`}>
         <Link
           to={link}
           className={`item-card ${cardClassName}`}
