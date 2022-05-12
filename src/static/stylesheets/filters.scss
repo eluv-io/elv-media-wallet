@@ -5,12 +5,12 @@ $search-height: 50px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: 100%;
   margin-bottom: 10px;
+  width: 100%;
 
   &__controls {
-    display: flex;
     align-items: center;
+    display: flex;
     justify-content: flex-end;
     position: relative;
   }
@@ -20,20 +20,20 @@ $search-height: 50px;
   }
 
   &__menu-button {
-    height: $controls-height;
-    width: $controls-height;
-    padding: 10px;
-    display: flex;
     align-items: center;
-    justify-content: center;
     background: var(--background-input);
-    border-radius: var(--border-radius-input);
     border: var(--border-input);
+    border-radius: var(--border-radius-input);
+    display: flex;
+    height: $controls-height;
+    justify-content: center;
     margin-left: 10px;
+    padding: 10px;
+    width: $controls-height;
 
     svg {
-      width: 100%;
       height: 100%;
+      width: 100%;
     }
   }
 
@@ -47,22 +47,22 @@ $search-height: 50px;
     }
 
     &__clear-button {
+      padding: 12px;
       right: 50px;
       z-index: 10;
-      padding: 12px;
     }
   }
 
   &__search-container,
   &__search,
   input {
-    width: 100%;
     height: $search-height;
+    width: 100%;
   }
 
   &__search-container {
-    display: flex;
     align-items: center;
+    display: flex;
     margin-top: 10px;
     position: relative;
   }
@@ -73,8 +73,8 @@ $search-height: 50px;
       padding: 0 25px;
 
       &::placeholder {
-        font-size: 18px;
         color: var(--color-input-text-placeholder);
+        font-size: 18px;
       }
     }
   }
@@ -82,32 +82,32 @@ $search-height: 50px;
   &__search-button {
     background: transparent;
     border: 0;
-    position: absolute;
-    right: 0;
-    z-index: 2;
     height: 100%;
     min-width: 65px;
-    width: 65px;
     padding: 10px;
+    position: absolute;
+    right: 0;
+    width: 65px;
+    z-index: 2;
   }
 
   &__menu {
     @include page-fade-in(0.5s, ease);
-    z-index: 10;
+    background: var(--color-input-bg-solid);
+    border: var(--border-input);
+    border-radius: var(--border-radius-input);
+    box-shadow: var(--box-shadow-component);
+    padding: 20px;
     position: absolute;
     right: 0;
     top: calc(#{$controls-height + 10px});
-    background: var(--color-input-bg-solid);
     width: 400px;
-    padding: 20px;
-    border-radius: var(--border-radius-input);
-    border: var(--border-input);
-    box-shadow: var(--box-shadow-component);
+    z-index: 10;
 
     .filters__select {
-      width: 100%;
-      text-align: center;
       height: $search-height;
+      text-align: center;
+      width: 100%;
 
       &:not(:last-child) {
         margin-bottom: 20px;
@@ -128,10 +128,10 @@ $search-height: 50px;
 
     &__search-button {
       height: 50%;
-      padding: 0;
       min-width: 35px;
-      width: 35px;
+      padding: 0;
       right: 5px;
+      width: 35px;
     }
 
     .autocomplete__clear-button {
@@ -151,10 +151,10 @@ $search-height: 50px;
   align-items: center;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  min-height: 100px;
   justify-content: center;
   margin-bottom: 10px;
   max-height: 100px;
+  min-height: 100px;
   padding: 20px 10px;
   width: 100%;
 
@@ -163,9 +163,9 @@ $search-height: 50px;
   }
 
   &__item {
-    height: 40px;
     display: flex;
     flex-direction: column;
+    height: 40px;
     justify-content: space-around;
     width: 100%;
 
@@ -186,8 +186,8 @@ $search-height: 50px;
     color: var(--color-component-text-highlight);
     font: var(--font-component-misc);
     font-size: 16px;
-    margin-bottom: 5px;
     font-weight: 500;
+    margin-bottom: 5px;
   }
 
   &__value {
@@ -214,8 +214,8 @@ $search-height: 50px;
 
     &__label {
       font-size: 14px;
-      margin-bottom: 5px;
       font-weight: 500;
+      margin-bottom: 5px;
     }
 
     &__value {

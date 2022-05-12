@@ -218,4 +218,14 @@ const App = () => {
   );
 };
 
-render(<React.StrictMode><App /></React.StrictMode>, document.getElementById("app"));
+const Test = () => {
+  const [test, setTest] = useState("asd");
+  return (
+    <div>
+      Test { test}
+    </div>
+  )
+};
+
+
+render(<React.StrictMode><Test /></React.StrictMode>, document.getElementById("app"));

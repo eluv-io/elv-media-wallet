@@ -139,34 +139,42 @@ const Routes = observer(() => {
   }
 
   return (
-    <Switch>
-      <Route exact path="/success">
-        <RedirectHandler storageKey="successPath" />
-      </Route>
-      <Route exact path="/cancel">
-        <RedirectHandler storageKey="cancelPath" />
-      </Route>
-      <Route path="/discover">
-        <Placeholder text={"Discover"} />
-      </Route>
-      <Route path="/wallet">
-        <Wallet />
-      </Route>
-      <Route path="/profile">
-        <LoginRedirectGate to="/marketplaces">
-          <Profile />
-        </LoginRedirectGate>
-      </Route>
-      <Route path="/marketplaces">
-        <MarketplaceRoutes />
-      </Route>
-      <Route path="/marketplace">
-        <MarketplaceRoutes />
-      </Route>
-      <Route path="/">
-        <Redirect to="/marketplaces" />
-      </Route>
-    </Switch>
+    <>
+      <Header />
+      { rootStore.DEBUG_ERROR_MESSAGE ? <pre className="debug-error-message">{ rootStore.DEBUG_ERROR_MESSAGE }</pre> : null }
+      <ScrollToTop>
+        <ErrorBoundary className="page-container">
+          <Switch>
+            <Route exact path="/success">
+              <RedirectHandler storageKey="successPath" />
+            </Route>
+            <Route exact path="/cancel">
+              <RedirectHandler storageKey="cancelPath" />
+            </Route>
+            <Route path="/discover">
+              <Placeholder text={"Discover"} />
+            </Route>
+            <Route path="/wallet">
+              <Wallet />
+            </Route>
+            <Route path="/profile">
+              <LoginRedirectGate to="/marketplaces">
+                <Profile />
+              </LoginRedirectGate>
+            </Route>
+            <Route path="/marketplaces">
+              <MarketplaceRoutes />
+            </Route>
+            <Route path="/marketplace">
+              <MarketplaceRoutes />
+            </Route>
+            <Route path="/">
+              <Redirect to="/marketplaces" />
+            </Route>
+          </Switch>
+        </ErrorBoundary>
+      </ScrollToTop>
+    </>
   );
 });
 
@@ -196,13 +204,7 @@ const App = observer(() => {
         .join(" ")
       }
     >
-      <Header />
-      { rootStore.DEBUG_ERROR_MESSAGE ? <pre className="debug-error-message">{ rootStore.DEBUG_ERROR_MESSAGE }</pre> : null }
-      <ScrollToTop>
-        <ErrorBoundary className="page-container">
-          <Routes />
-        </ErrorBoundary>
-      </ScrollToTop>
+      <Routes />
       <DebugFooter />
       <div className="app-background" />
     </div>

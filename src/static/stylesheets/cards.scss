@@ -43,9 +43,9 @@
     .item-card__status__text {
       &:first-child {
         &:last-child {
-          width: 100%;
-          text-align: center;
           justify-content: center;
+          text-align: center;
+          width: 100%;
         }
       }
     }
@@ -69,7 +69,6 @@
 }
 
 .item-card {
-  position: relative;
   background: var(--background-card);
   border-radius: var(--border-radius-card);
   color: var(--color-card-text-primary);
@@ -82,6 +81,7 @@
   object-position: center;
   overflow: hidden;
   padding: 30px 30px 20px;
+  position: relative;
   top: 0;
   width: 100%;
 
@@ -90,31 +90,31 @@
   }
 
   &__text {
-    height: 100%;
     display: flex;
     flex-direction: column;
+    height: 100%;
   }
 
   &__title {
-    font-weight: 500;
-    font-size: 16px;
     font: var(--font-card-title);
-    word-break: break-word;
+    font-size: 16px;
+    font-weight: 500;
     line-height: 1.25;
+    word-break: break-word;
   }
 
   &__edition {
-    font: var(--font-card-misc);
     color: var(--color-card-text-secondary);
+    font: var(--font-card-misc);
     font-size: 12px;
     margin-top: 2px;
   }
 
   &__description {
-    margin: 10px 0;
     color: var(--color-card-text-secondary);
-    min-height: 50px;
     line-height: 1.5em;
+    margin: 10px 0;
+    min-height: 50px;
 
     * {
       color: var(--color-card-text-secondary);
@@ -122,21 +122,21 @@
   }
 
   &__status {
+    align-items: flex-end;
     display: flex;
     height: 100%;
-    align-items: flex-end;
     justify-content: space-between;
     margin-top: 10px;
 
     &__price,
     &__text {
-      font-weight: 500;
       font: var(--font-card-misc);
+      font-weight: 500;
     }
 
     &__price {
-      display: flex;
       align-items: center;
+      display: flex;
 
       svg,
       img {
@@ -147,11 +147,11 @@
   }
 
   &__actions {
-    display: flex;
     align-items: center;
+    bottom: 5px;
+    display: flex;
     justify-content: flex-end;
     position: absolute;
-    bottom: 5px;
     right: 5px;
 
     .item-card__action {
@@ -160,8 +160,8 @@
       border-radius: var(--border-radius-button-card);
       color: var(--color-button-card-text);
       height: 30px;
-      width: 30px;
       min-width: unset;
+      width: 30px;
 
       svg {
         height: 100%;
@@ -175,17 +175,17 @@
   }
 
   &__side-text {
-    display: flex;
     align-items: center;
-    position: absolute;
+    display: flex;
     max-height: 2px;
     max-width: 2px;
     overflow: visible;
+    position: absolute;
+    right: 1em;
+    top: 32px;
+    transform: rotate(90deg);
     white-space: nowrap;
     word-break: keep-all;
-    top: 32px;
-    right: 1em;
-    transform: rotate(90deg);
 
     * {
       font: var(--font-card-misc);
@@ -209,9 +209,9 @@
     display: flex;
     height: max-content;
     justify-content: center;
+    left: 7px;
     padding: 7px;
     position: absolute;
-    left: 7px;
     top: 7px;
     width: max-content;
 

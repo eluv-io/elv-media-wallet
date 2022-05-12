@@ -5,12 +5,12 @@
     height: max-content;
     max-height: unset;
     max-width: 550px;
+    min-height: 100vh;
     overflow-y: hidden;
     padding-bottom: 5vh;
     padding-right: 8px;
     top: 5vh;
     width: 100%;
-    min-height: 100vh;
   }
 }
 
@@ -21,9 +21,9 @@ $content-width: 475px;
   @include modal;
   display: flex;
   flex-direction: column;
-  position: relative;
   height: 100%;
   min-height: 100vh;
+  position: relative;
 
   .card-container {
     margin: 0 auto 20px;
@@ -168,7 +168,6 @@ $content-width: 475px;
   }
 
   &__price-details {
-   // @include component;
     align-items: center;
     display: flex;
     flex-direction: column;
@@ -185,8 +184,8 @@ $content-width: 475px;
 
   &__payment-message {
     color: var(--color-component-text-secondary);
-    margin-bottom: 10px;
     font-weight: 300;
+    margin-bottom: 10px;
   }
 
   &__error-message {

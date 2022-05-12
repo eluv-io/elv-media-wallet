@@ -258,6 +258,7 @@ class RootStore {
 
       if(marketplace) {
         yield this.LoadAvailableMarketplaces({tenantSlug, marketplaceSlug});
+
         const specifiedMarketplaceHash = this.SetMarketplace({tenantSlug, marketplaceSlug, marketplaceHash, marketplaceId});
 
         this.specifiedMarketplaceId = Utils.DecodeVersionHash(specifiedMarketplaceHash).objectId;
@@ -714,7 +715,12 @@ class RootStore {
     );
 
     if(marketplace && !forceReload) {
-      return marketplace;
+      return {
+        marketplaceId: marketplace.marketplaceId,
+        marketplaceHash: marketplace.marketplaceHash,
+        tenantSlug: marketplace.tenantSlug,
+        marketplaceSlug: marketplace.marketplaceSlug,
+      };
     } else if(marketplace) {
       tenantSlug = marketplace.tenantSlug;
       marketplaceSlug = marketplace.marketplaceSlug;
@@ -729,17 +735,6 @@ class RootStore {
         throw Error(`Invalid marketplace ${tenantSlug}/${marketplaceSlug}`);
       }
 
-    } else if(marketplaceHash) {
-      // Specific hash specified
-      marketplaceId = Utils.DecodeVersionHash(marketplaceHash).objectId;
-      this.marketplaceHashes[this.marketplaceId] = marketplaceHash;
-
-      marketplace = yield this.client.ContentObjectMetadata({
-        versionHash: marketplaceHash,
-        metadataSubtree: "public/asset_metadata/info/branding",
-        produceLinkUrls: true,
-        noAuth: true
-      });
     } else {
       yield this.LoadAvailableMarketplaces({forceReload});
 
@@ -753,8 +748,6 @@ class RootStore {
       marketplaceSlug = marketplace.marketplaceSlug;
       marketplaceId = marketplace.marketplaceId;
     }
-
-    this.SetCustomizationOptions(marketplace);
 
     return {
       marketplaceId,

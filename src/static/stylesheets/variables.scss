@@ -3,6 +3,9 @@ $intermediate-breakpoint: 1000px;
 $tablet-breakpoint: 850px;
 $mobile-breakpoint: 600px;
 
+$black: #000000;
+$white: #FFFFFF;
+
 @mixin component {
   background: var(--background-component-primary);
   border: var(--border-component-primary);
