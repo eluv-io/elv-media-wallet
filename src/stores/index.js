@@ -294,6 +294,8 @@ class RootStore {
         assumeV3: true
       });
 
+      this.staticToken = client.staticToken;
+
       if(!user || !user.email) {
         throw Error("No email provided in user data");
       }
@@ -345,7 +347,6 @@ class RootStore {
 
       this.HideLogin();
 
-      this.staticToken = client.staticToken;
 
       this.client = client;
 
