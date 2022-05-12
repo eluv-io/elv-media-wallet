@@ -1,14 +1,14 @@
-import "../../src/static/stylesheets/reset.scss";
+import "..//src/static/stylesheets/reset.scss";
 import "./test.scss";
 
 import React, {useEffect, useState} from "react";
 import {render} from "react-dom";
 
-import {ElvWalletClient} from "../src/index";
+import {ElvWalletClient} from "../client/src/index";
 
 window.client = undefined;
 
-const appUrl = window.location.hostname === "core.test.contentfabric.io" ? "https://core.test.contentfabric.io/wallet" : "https://192.168.0.17:8090";
+const appUrl = window.location.hostname === "core.test.contentfabric.io" ? "https://core.test.contentfabric.io/wallet" : "https://192.168.0.23:8090";
 
 const targetId = "wallet-target";
 
@@ -218,14 +218,4 @@ const App = () => {
   );
 };
 
-const Test = () => {
-  const [test, setTest] = useState("asd");
-  return (
-    <div>
-      Test { test}
-    </div>
-  )
-};
-
-
-render(<React.StrictMode><Test /></React.StrictMode>, document.getElementById("app"));
+render(<React.StrictMode><App /></React.StrictMode>, document.getElementById("app"));

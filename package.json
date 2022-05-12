@@ -9,7 +9,7 @@
     "bump-version": "npm --git-tag-version --no-commit-hooks version patch",
     "serve": "webpack-dev-server --hot --port 8090 --host=0.0.0.0 --disable-host-check --useLocalIp",
     "serve-https": "webpack-dev-server --https --cert https/private.pem --key https/private.key --hot --port 8090 --host=0.0.0.0 --disable-host-check --useLocalIp",
-    "serve-client-test": "webpack-dev-server --hot --entry ./client/test/index.js --port 8091 --host=0.0.0.0 --disable-host-check --useLocalIp",
+    "serve-client-test": "webpack-dev-server --entry ./test/index.js --https --cert https/private.pem --key https/private.key --hot --port 8091 --host=0.0.0.0 --disable-host-check --useLocalIp",
     "build": "npm run build-app && npm run build-client-test && npm run build-docs",
     "build-analyze": "ANALYZE_BUNDLE=true npm run build-app",
     "build-app": "rm -rf dist/* && NODE_ENV=production node ./node_modules/webpack-cli/bin/cli.js -p --devtool none",

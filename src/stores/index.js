@@ -344,12 +344,11 @@ class RootStore {
       this.marketplaces = {};
       this.marketplaceCache = {};
 
-      yield this.cryptoStore.LoadConnectedAccounts();
-
       this.HideLogin();
 
-
       this.client = client;
+
+      yield this.cryptoStore.LoadConnectedAccounts();
 
       this.loggedIn = true;
 
