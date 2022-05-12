@@ -294,10 +294,6 @@ class RootStore {
         assumeV3: true
       });
 
-      this.staticToken = client.staticToken;
-
-      this.client = client;
-
       if(!user || !user.email) {
         throw Error("No email provided in user data");
       }
@@ -348,12 +344,19 @@ class RootStore {
       yield this.cryptoStore.LoadConnectedAccounts();
 
       this.HideLogin();
+
+      this.staticToken = client.staticToken;
+
+      this.client = client;
+
       this.loggedIn = true;
 
       this.SendEvent({event: EVENTS.LOG_IN, data: {address: client.CurrentAccountAddress()}});
     } catch(error) {
       this.ClearAuthInfo();
       this.Log(error, true);
+
+      throw error;
     }
   });
 
@@ -632,7 +635,7 @@ class RootStore {
 
     const cssTag = document.getElementById("_custom-css");
     if(options.color_scheme === "Custom" && marketplace?.branding?.custom_css) {
-      cssTag.innerHTML = marketplace.branding.custom_css.toString();
+      //cssTag.innerHTML = marketplace.branding.custom_css.toString();
     } else {
       cssTag.innerHTML = "";
 
@@ -842,7 +845,7 @@ class RootStore {
       const stockPromise = this.checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id});
 
       marketplace.items = yield Promise.all(
-        marketplace.items.map(async item => {
+        marketplace.items.map(async (item, index) => {
           if(this.loggedIn && item.requires_permissions) {
             try {
               let versionHash;
@@ -864,6 +867,7 @@ class RootStore {
           }
 
           item.nftTemplateMetadata = ((item.nft_template || {}).nft || {});
+          item.itemIndex = index;
 
           return item;
         })

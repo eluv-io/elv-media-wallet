@@ -116,8 +116,8 @@
   --blue-1: #0021F5;
   --blue-2: #1cc1e9;
   --gold-1: #FFCB05;
-  //--neutral-1: #3D475D;
   --neutral-1: rgba(235, 235, 235, 0.2);
+  --neutral-2: #585a73;
 
 
   /* General */
@@ -146,13 +146,14 @@
   --background-modal-primary: linear-gradient(var(--color-page-bg-gradient-top), var(--color-page-bg-gradient-bottom));
   --border-modal-primary: 0;
 
-  /* Apply gradient to components */
-  --background-input: var(--neutral-1);
   --background-component-primary: var(--neutral-1);
   --background-table: var(--neutral-1);
 
   /* Inputs */
   --border-input: 0;
+  --background-input: var(--neutral-1);
+  --color-input-bg-solid: var(--neutral-2);
+  --color-input-text-placeholder: #DDDDDD;
 
   /* Cards */
   --background-card: rgba(6, 8, 41, 0.7);

@@ -313,6 +313,16 @@
     }
   }
 
+  .stats {
+    &__label {
+      font-size: 12px;
+    }
+
+    &__value {
+      font-size: 20px;
+    }
+  }
+
   @media screen and (min-width: $tablet-breakpoint) {
     &:not(.details-page-message) {
       align-content: start;
@@ -324,6 +334,16 @@
     .expandable-section {
       &:first-child {
         margin-top: 0;
+      }
+    }
+
+    .stats {
+      &__label {
+        font-size: 10px;
+      }
+
+      &__value {
+        font-size: 16px;
       }
     }
   }

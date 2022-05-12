@@ -45,8 +45,8 @@ $mobile-breakpoint: 600px;
   to { opacity: 0; }
 }
 
-@mixin page-fade-in($duration: 0.5s) {
-  animation: $duration fadein ease-in;
+@mixin page-fade-in($duration: 0.5s, $animation: ease-in) {
+  animation: $duration fadein $animation;
 }
 
 @mixin page-fade-out {

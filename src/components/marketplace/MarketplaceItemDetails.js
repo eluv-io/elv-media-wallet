@@ -6,7 +6,6 @@ import {ButtonWithLoader, CopyableField, ExpandableSection, ItemPrice} from "Com
 import {render} from "react-dom";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
-import NFTCard from "Components/common/NFTCard";
 import PurchaseModal from "Components/listings/PurchaseModal";
 import UrlJoin from "url-join";
 import {LoginClickGate} from "Components/common/LoginGate";
@@ -14,6 +13,7 @@ import {LoginClickGate} from "Components/common/LoginGate";
 import DetailsIcon from "Assets/icons/Details icon";
 import ContractIcon from "Assets/icons/Contract icon";
 import DescriptionIcon from "Assets/icons/Description icon";
+import MarketplaceItemCard from "Components/marketplace/MarketplaceItemCard";
 
 const MarketplaceItemDetails = observer(() => {
   const match = useRouteMatch();
@@ -82,16 +82,12 @@ const MarketplaceItemDetails = observer(() => {
       }
       <div className="details-page">
         <div className="details-page__content-container">
-          <NFTCard
+          <MarketplaceItemCard
+            marketplaceHash={marketplace.versionHash}
             item={item}
-            price={item.price}
-            stock={stock}
-            hideAvailable={item && item.hide_available}
-            showVideo={item.video}
-            className="card-container--feature-card"
-            cardClassName="item-card--feature-card"
+            index={item.itemIndex}
+            noLink
           />
-
           <div className="details-page__actions">
             {
               marketplacePurchaseAvailable ?

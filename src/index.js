@@ -81,7 +81,7 @@ const LoginModal = observer(() => {
         darkMode={rootStore.darkMode}
         Loaded={() => rootStore.SetLoginLoaded()}
         LoadCustomizationOptions={async () => ({})}
-        SignIn={params => rootStore.Authenticate(params)}
+        SignIn={async params => await rootStore.Authenticate(params)}
       />
     );
   }
@@ -106,7 +106,7 @@ const LoginModal = observer(() => {
           callbackUrl={redirectUrl.toString()}
           Loaded={() => rootStore.SetLoginLoaded()}
           LoadCustomizationOptions={async () => await rootStore.LoadLoginCustomization()}
-          SignIn={params => rootStore.Authenticate(params)}
+          SignIn={async params => await rootStore.Authenticate(params)}
           Close={rootStore.requireLogin ? undefined : () => rootStore.HideLogin()}
         />
       </Modal>
@@ -119,7 +119,7 @@ const LoginModal = observer(() => {
         darkMode={rootStore.darkMode}
         Loaded={() => rootStore.SetLoginLoaded()}
         LoadCustomizationOptions={async () => await rootStore.LoadLoginCustomization()}
-        SignIn={params => rootStore.Authenticate(params)}
+        SignIn={async params => await rootStore.Authenticate(params)}
       />
     );
   }

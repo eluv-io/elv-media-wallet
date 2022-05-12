@@ -421,7 +421,10 @@ const Login = observer(({silent, darkMode, callbackUrl, Loaded, SignIn, LoadCust
     if(!embedded && auth0?.isAuthenticated) {
       setAuthenticating(true);
       Authenticate({auth0, userData, tenantId: customizationOptions.tenant_id, SignIn})
-        .finally(() => setAuthenticating(false));
+        .finally(() => {
+          Loaded && Loaded();
+          setAuthenticating(false);
+        });
     } else if(newWindowLogin) {
       LogIn({create: new URLSearchParams(window.location.search).has("create")});
     } else {

@@ -11,7 +11,7 @@ const ListingStats = ({mode="listings-stats", filterParams}) => {
   let params = filterParams || { mode, marketplaceId: match.params.marketplaceId };
 
   if(params.mode === "listings") {
-    params.mode = "listing-stats";
+    params.mode = "stats";
   } else if(params.mode === "sales") {
     params.mode = "sales-stats";
   } else if(!params.mode) {
@@ -25,51 +25,51 @@ const ListingStats = ({mode="listings-stats", filterParams}) => {
 
   if(!stats) {
     return (
-      <div className="listing-stats">
-        <Loader className="listing-stats__loader" />
+      <div className="stats">
+        <Loader className="stats__loader" />
       </div>
     );
   }
 
   return (
-    <div className="listing-stats">
-      <div className="listing-stats__item">
-        <label className="listing-stats__label">
-          { params.mode === "listing-stats" ? "Active Listings" : "Total Sales" }
+    <div className="stats">
+      <div className="stats__item">
+        <label className="stats__label">
+          { params.mode === "stats" ? "Active Listings" : "Total Sales" }
         </label>
-        <div className="listing-stats__value">
+        <div className="stats__value">
           { stats.count || 0 }
         </div>
       </div>
-      <div className="listing-stats__item">
-        <label className="listing-stats__label">
-          { params.mode === "listing-stats" ? "Active Listing Value" : "Total Sales Volume" }
+      <div className="stats__item">
+        <label className="stats__label">
+          { params.mode === "stats" ? "Active Listing Value" : "Total Sales Volume" }
         </label>
-        <div className="listing-stats__value">
+        <div className="stats__value">
           { FormatPriceString({USD: stats.volume || 0}) }
         </div>
       </div>
-      <div className="listing-stats__item">
-        <label className="listing-stats__label">
-          { params.mode === "listing-stats" ? "Average Listing Price" : "Average Price" }
+      <div className="stats__item">
+        <label className="stats__label">
+          { params.mode === "stats" ? "Average Listing Price" : "Average Price" }
         </label>
-        <div className="listing-stats__value">
+        <div className="stats__value">
           { FormatPriceString({USD: stats.avg || 0}) }
         </div>
       </div>
-      <div className="listing-stats__item">
-        <label className="listing-stats__label">
+      <div className="stats__item">
+        <label className="stats__label">
           Highest Price
         </label>
-        <div className="listing-stats__value">
+        <div className="stats__value">
           { FormatPriceString({USD: stats.max || 0}) }
         </div>
       </div>
-      <div className="listing-stats__item">
-        <label className="listing-stats__label">
+      <div className="stats__item">
+        <label className="stats__label">
           Lowest Price
         </label>
-        <div className="listing-stats__value">
+        <div className="stats__value">
           { FormatPriceString({USD: stats.min || 0}) }
         </div>
       </div>

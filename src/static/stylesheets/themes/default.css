@@ -88,6 +88,7 @@
   --font-input: var(--font-default);
 
   --background-input: var(--color-bg-primary);
+  --color-input-bg-solid: var(--color-bg-primary);
   --color-input-hover-bg: var(--color-bg-secondary);
   --color-input-text: var(--color-text-primary);
   --color-input-text-placeholder: var(--color-text-secondary);
@@ -173,7 +174,8 @@
 
   /* Other components such as nft detail section boxes, listing stats, etc. */
   --font-component-header: normal normal 300 24px var(--font-family-primary);
-  --font-component-text: normal normal normal 16px var(--font-family-primary);
+  --font-component-text: normal normal normal 16px var(--font-family-secondary);
+  --font-component-misc: normal normal normal 16px var(--font-family-tertiary);
 
   --background-component-primary: var(--color-bg-primary);
   --background-component-secondary: var(--color-bg-secondary);

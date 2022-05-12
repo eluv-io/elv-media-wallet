@@ -105,8 +105,6 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
         return null;
       }
 
-      item.itemIndex = itemIndex;
-
       return item;
     }).filter(item => item);
 

@@ -28,6 +28,10 @@
   position: relative;
   transition: border 0.15s ease-in, margin 0.15s ease-in-out;
 
+  &--disabled {
+    opacity: 0.5;
+  }
+
   &--centered {
     .item-card__text {
       * {
@@ -109,6 +113,7 @@
   &__description {
     margin: 10px 0;
     color: var(--color-card-text-secondary);
+    min-height: 50px;
     line-height: 1.5em;
   }
 
@@ -185,7 +190,7 @@
 
     &__primary {
       color: var(--color-card-text-highlight);
-      margin-right: 14px;
+      margin-right: 0.5em;
     }
 
     &__secondary {

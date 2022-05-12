@@ -14,6 +14,7 @@ const MarketplaceItemCard = ({
   item,
   index,
   justification="Left",
+  noLink,
   className="",
   cardClassName=""
 }) => {
@@ -35,7 +36,7 @@ const MarketplaceItemCard = ({
     description = item.permission_description || description;
   }
 
-  let status, action, linkDisabled=false;
+  let status, action, linkDisabled=noLink;
   if(expired) {
     action = "Listings";
     status = "Sale Ended";
@@ -87,8 +88,8 @@ const MarketplaceItemCard = ({
       status={status}
       justification={justification}
       action={action}
-      className={className}
-      cardClassName={`${cardClassName} ${outOfStock || expired || unauthorized ? "item-card--disabled" : ""}`}
+      className={`${className} ${type !== "Featured" && (outOfStock || expired || unauthorized) ? "card-container--disabled" : ""}`}
+      cardClassName={`${cardClassName}`}
     />
   );
 };
