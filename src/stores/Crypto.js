@@ -82,7 +82,7 @@ class CryptoStore {
           path: UrlJoin("as", "wlt", "mkt", "info"),
           method: "GET",
           headers: {
-            Authorization: `Bearer ${this.client.signer.authToken}`
+            Authorization: `Bearer ${this.client.staticToken}`
           }
         })
       );
@@ -140,7 +140,7 @@ class CryptoStore {
       method: "POST",
       body: payload,
       headers: {
-        Authorization: `Bearer ${this.client.signer.authToken}`
+        Authorization: `Bearer ${this.client.staticToken}`
       }
     });
 
@@ -183,7 +183,7 @@ class CryptoStore {
         method: "POST",
         body: payload,
         headers: {
-          Authorization: `Bearer ${this.client.signer.authToken}`
+          Authorization: `Bearer ${this.client.staticToken}`
         }
       });
 
@@ -208,7 +208,7 @@ class CryptoStore {
       method: "DELETE",
       body: payload,
       headers: {
-        Authorization: `Bearer ${this.client.signer.authToken}`
+        Authorization: `Bearer ${this.client.staticToken}`
       }
     });
 
@@ -217,6 +217,7 @@ class CryptoStore {
 
   SignMetamask = flow(function * (message, address) {
     try {
+      yield window.ethereum.request({ method: "eth_requestAccounts" })
       const from = address || window.ethereum.selectedAddress;
       return yield window.ethereum.request({
         method: "personal_sign",
@@ -506,7 +507,7 @@ class CryptoStore {
           tok: nft.details.TokenIdStr
         },
         headers: {
-          Authorization: `Bearer ${this.client.signer.authToken}`
+          Authorization: `Bearer ${this.client.staticToken}`
         }
       })
     );
