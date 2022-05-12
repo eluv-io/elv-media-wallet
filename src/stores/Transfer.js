@@ -305,8 +305,8 @@ class TransferStore {
             };
           }
         }
-      } else if(tenantIds) {
-        tenantIds.map(tenantId => filters.push(`tenant:eq:${tenantId}`));
+      } else if(tenantIds && tenantIds.length > 0) {
+        tenantIds.map(tenantId => tenantId && filters.push(`tenant:eq:${tenantId}`));
       }
 
       if(contractAddress) {

@@ -10,6 +10,9 @@ import {observer} from "mobx-react";
 import {WithdrawalModal, WithdrawalSetupModal} from "Components/profile/WithdrawalModal";
 import WalletConnect from "Components/crypto/WalletConnect";
 
+import MetamaskIcon from "Assets/icons/crypto/metamask fox.png";
+import ImageIcon from "Components/common/ImageIcon";
+
 const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSetup}) => {
   return (
     <div className="profile-page__section profile-page__section-balance profile-page__section-box">
@@ -117,6 +120,14 @@ const Profile = observer(() => {
 
   const balancePresent = typeof rootStore.totalWalletBalance !== "undefined";
 
+  let walletMessage, walletIcon;
+  switch(rootStore.AuthInfo()?.walletName) {
+    case "Metamask":
+      walletIcon = MetamaskIcon;
+      walletMessage = "Signed in with Metamask";
+      break;
+  }
+
   return (
     <div className="page-container profile-page content">
       { showWithdrawalSetup ? <WithdrawalSetupModal Close={() => setShowWithdrawalSetup(false)} /> : null }
@@ -133,6 +144,14 @@ const Profile = observer(() => {
         <div className="profile-page__message">
           This is an Eluvio blockchain address
         </div>
+
+        {
+          walletMessage ?
+            <div className="profile-page__wallet-message">
+              <ImageIcon icon={walletIcon} />
+              { walletMessage }
+            </div> : null
+        }
 
         <div className="profile-page__actions profile-page__sign-out">
           <button

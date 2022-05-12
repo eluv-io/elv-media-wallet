@@ -5,11 +5,15 @@ import {render} from "react-dom";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
 
-
 import ImageIcon from "Components/common/ImageIcon";
 import {PageLoader} from "Components/common/Loaders";
 
-import EluvioLogo from "./logo.svg";
+import UpCaretIcon from "./static/up-caret.svg";
+import DownCaretIcon from "./static/down-caret.svg";
+
+import MetamaskIcon from "./static/metamask fox.png";
+
+import EluvioLogo from "./static/logo.svg";
 
 const embedded = window.top !== window.self || new URLSearchParams(window.location.search).has("e");
 
@@ -146,7 +150,11 @@ const Logo = ({customizationOptions}) => {
       </div>
     );
   } else {
-    return <ImageIcon icon={EluvioLogo} className="login-page__logo" title="Eluv.io" />;
+    return (
+      <div className="login-page__logo-container">
+        <ImageIcon icon={EluvioLogo} className="login-page__logo" title="Eluv.io" />
+      </div>
+    );
   }
 };
 
@@ -221,6 +229,8 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
 
 // eslint-disable-next-line no-unused-vars
 const Buttons = ({customizationOptions, Auth0LogIn, SignIn}) => {
+  const [showWalletOptions, setShowWalletOptions] = useState(false);
+
   let hasLoggedIn = false;
   try {
     hasLoggedIn = localStorage.getItem("hasLoggedIn");
@@ -257,14 +267,14 @@ const Buttons = ({customizationOptions, Auth0LogIn, SignIn}) => {
     </button>
   );
 
-  const walletButton = (
+  const metamaskButton = (
     <button
       style={{
         color: customizationOptions?.wallet_button?.text_color?.color,
         backgroundColor: customizationOptions?.wallet_button?.background_color?.color,
         border: `0.75px solid ${customizationOptions?.wallet_button?.border_color?.color}`
       }}
-      className="login-page__login-button login-page__login-button-wallet"
+      className="action login-page__login-button login-page__login-button-wallet"
       onClick={() => {
         WalletAuthenticate({
           tenantId: customizationOptions.tenant_id,
@@ -273,7 +283,8 @@ const Buttons = ({customizationOptions, Auth0LogIn, SignIn}) => {
         });
       }}
     >
-      Sign in with wallet
+      <ImageIcon icon={MetamaskIcon} />
+      Metamask
     </button>
   );
 
@@ -291,7 +302,22 @@ const Buttons = ({customizationOptions, Auth0LogIn, SignIn}) => {
           </>
       }
 
-      { walletButton }
+      <div className="login-page__actions__separator">
+        <div className="login-page__actions__separator-line" />
+        <div className="login-page__actions__separator-text">or</div>
+        <div className="login-page__actions__separator-line" />
+      </div>
+
+      <button className="login-page__wallet-options-toggle" onClick={() => setShowWalletOptions(!showWalletOptions)}>
+        Sign In with 3rd Party Wallet <ImageIcon icon={showWalletOptions ? UpCaretIcon : DownCaretIcon} />
+      </button>
+
+      {
+        showWalletOptions ?
+          <div className="login-page__wallet-actions">
+            { metamaskButton }
+          </div> : null
+      }
     </div>
   );
 };

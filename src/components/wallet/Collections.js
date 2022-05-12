@@ -14,7 +14,7 @@ import {Loader} from "Components/common/Loaders";
 import ItemCard from "Components/common/ItemCard";
 import {FormatPriceString} from "Components/common/UIComponents";
 
-import ListingIcon from "Assets/icons/listing.svg";
+import ListingIcon from "Assets/icons/listings icon.svg";
 
 const Collections = observer(() => {
   const match = useRouteMatch();

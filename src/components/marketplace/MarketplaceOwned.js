@@ -5,7 +5,7 @@ import {rootStore} from "Stores";
 import UrlJoin from "url-join";
 import {NFTImage} from "Components/common/Images";
 import ImageIcon from "Components/common/ImageIcon";
-import ListingIcon from "Assets/icons/listing";
+import ListingIcon from "Assets/icons/listings icon";
 import {NFTDisplayToken} from "../../utils/Utils";
 import FilteredView from "Components/listings/FilteredView";
 import {Loader} from "Components/common/Loaders";

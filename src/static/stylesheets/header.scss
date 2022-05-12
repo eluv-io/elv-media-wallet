@@ -63,6 +63,7 @@
   &__profile__balances {
     align-items: center;
     display: flex;
+    justify-content: flex-end;
   }
 
   &__profile__usdc {
@@ -343,7 +344,7 @@
 
   &__menu {
     @include page-fade-in(0.15s);
-    background-color: var(--color-bg-primary);
+    background-color: var(--color-bg-secondary);
     display: flex;
     flex-direction: column;
     height: 100vh;
@@ -441,7 +442,7 @@
   }
 
   .header__profile {
-    max-width: 240px;
+    max-width: 220px;
   }
 
   .header__profile__balance__amount {
@@ -459,7 +460,6 @@
   .header {
     &__profile {
       flex: 1 1 100%;
-      max-width: unset;
 
       &__usdc {
         .header__profile__balance__amount {
@@ -512,14 +512,22 @@
 
   .subheader--marketplace {
     .subheader__navigation-link {
-      font-size: 16px;
-      margin: 0 25px;
+      font-size: 12px;
+      margin: 0 15px;
     }
   }
 }
 
 @media screen and (max-width: $mobile-breakpoint) {
+  .header__profile {
+    max-width: 150px;
+  }
+
   .header__profile__image {
     display: none;
+  }
+
+  .subheader__navigation-link {
+    margin: 0;
   }
 }

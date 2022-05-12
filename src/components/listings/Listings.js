@@ -11,7 +11,7 @@ import ImageIcon from "Components/common/ImageIcon";
 import FilteredView from "Components/listings/FilteredView";
 import {NFTDisplayToken} from "../../utils/Utils";
 
-import ListingIcon from "Assets/icons/listing";
+import ListingIcon from "Assets/icons/listings icon";
 import ItemCard from "Components/common/ItemCard";
 
 const Listing = memo(({url, listing}) => (

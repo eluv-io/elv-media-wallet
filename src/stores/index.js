@@ -107,6 +107,7 @@ class RootStore {
 
   loaded = false;
   loginLoaded = false;
+  authenticating = false;
   client = undefined;
   accountId = undefined;
   funds = undefined;
@@ -292,8 +293,11 @@ class RootStore {
     return Utils.FormatAddress(this.authInfo.address);
   }
 
-  Authenticate = flow(function * ({idToken, fabricToken, authToken, externalWallet, tenantId, user, saveAuthInfo=true}) {
+  Authenticate = flow(function * ({idToken, fabricToken, authToken, externalWallet, tenantId, user, walletName="Eluvio", expiresAt, saveAuthInfo=true}) {
     try {
+      if(this.authenticating) { return;}
+
+      this.authenticating = true;
       this.loggedIn = false;
 
       const client = yield ElvClient.FromConfigurationUrl({
@@ -310,18 +314,30 @@ class RootStore {
         const walletMethods = this.cryptoStore.WalletFunctions(externalWallet);
 
         address = yield walletMethods.Address();
+        walletName = walletMethods.name;
 
+        const duration = 24 * 60 * 60 * 1000;
+        const buffer = 8 * 60 * 60 * 1000;
         fabricToken = yield client.CreateFabricToken({
           address,
-          Sign: walletMethods.Sign
+          duration,
+          Sign: walletMethods.Sign,
+          addEthereumPrefix: false
         });
+
+        // Expire token early so it does not stop working during usage
+        expiresAt = Date.now() + duration - buffer;
+      } else if(fabricToken && !authToken) {
+        // Signed in previously with external wallet
       } else if(idToken) {
         yield client.SetRemoteSigner({idToken: idToken, tenantId, extraData: user?.userData});
-        fabricToken = yield client.CreateFabricToken();
+        expiresAt = JSON.parse(atob(client.signer.authToken)).exp;
+        fabricToken = yield client.CreateFabricToken({duration: Date.now() - expiresAt});
         authToken = client.signer.authToken;
       } else if(authToken) {
         yield client.SetRemoteSigner({authToken, tenantId, unsignedPublicAuth: true});
-        fabricToken = yield client.CreateFabricToken();
+        expiresAt = JSON.parse(atob(client.signer.authToken)).exp;
+        fabricToken = yield client.CreateFabricToken({duration: Date.now() - expiresAt});
         authToken = client.signer.authToken;
       } else if(!fabricToken) {
         throw Error("Neither ID token nor auth token provided to Authenticate");
@@ -332,6 +348,8 @@ class RootStore {
 
       client.SetStaticToken({token: fabricToken});
 
+      this.client = client;
+
       this.GetWalletBalance();
 
       this.SetAuthInfo({
@@ -339,6 +357,8 @@ class RootStore {
         authToken,
         address,
         user,
+        walletName,
+        expiresAt,
         save: saveAuthInfo
       });
 
@@ -370,8 +390,6 @@ class RootStore {
 
       this.HideLogin();
 
-      this.client = client;
-
       yield this.cryptoStore.LoadConnectedAccounts();
 
       this.loggedIn = true;
@@ -382,6 +400,8 @@ class RootStore {
       this.Log(error, true);
 
       throw error;
+    } finally {
+      this.authenticating = false;
     }
   });
 
@@ -1584,14 +1604,17 @@ class RootStore {
 
       if(tokenInfo) {
         // TODO: Expire fabric token
-        const { fabricToken, authToken, address, user } = JSON.parse(Utils.FromB64(tokenInfo));
-        const expiration = JSON.parse(atob(authToken)).exp;
-        if(expiration - Date.now() < 4 * 3600 * 1000) {
+        let { fabricToken, authToken, address, user, walletName, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
+
+        expiresAt = expiresAt || (authToken && JSON.parse(atob(authToken)).exp);
+
+        if(expiresAt - Date.now() < 4 * 3600 * 1000) {
           this.ClearAuthInfo();
+          this.Log("Authorization expired");
         } else if(!user) {
           this.ClearAuthInfo();
         } else {
-          return { fabricToken, authToken, address, user };
+          return { fabricToken, authToken, address, user, walletName, expiresAt };
         }
       }
     } catch(error) {
@@ -1607,8 +1630,8 @@ class RootStore {
     this.authInfo = undefined;
   }
 
-  SetAuthInfo({fabricToken, authToken, address, user, save=true}) {
-    const authInfo = { fabricToken, authToken, address, user: user || {} };
+  SetAuthInfo({fabricToken, authToken, address, user, walletName, expiresAt, save=true}) {
+    const authInfo = { fabricToken, authToken, address, walletName, expiresAt, user: user || {} };
 
     if(save) {
       this.SetLocalStorage(

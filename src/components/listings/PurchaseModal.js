@@ -181,7 +181,6 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
 
   const insufficientBalance = balanceAmount < total + fee;
 
-
   useEffect(() => {
     if(useLinkedWallet) {
       cryptoStore.PhantomBalance();

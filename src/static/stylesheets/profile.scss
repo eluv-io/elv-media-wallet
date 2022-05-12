@@ -87,6 +87,21 @@
     }
   }
 
+  &__wallet-message {
+    align-items: center;
+    display: flex;
+    font-weight: 300;
+    margin: 30px auto 0;
+    width: max-content;
+
+    img,
+    svg {
+      height: 25px;
+      margin-right: 10px;
+      width: 25px;
+    }
+  }
+
   &__actions {
     align-items: center;
     display: flex;
@@ -135,12 +150,11 @@
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
-    &__address-field {
-      flex-direction: column;
+    padding: 0;
 
+    &__address-field {
       .copyable-field__content {
-        font-size: 10px;
-        margin: 0 0 10px;
+        font-size: 9px;
       }
     }
   }
