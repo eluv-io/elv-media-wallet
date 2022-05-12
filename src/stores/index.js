@@ -293,7 +293,7 @@ class RootStore {
     return Utils.FormatAddress(this.authInfo.address);
   }
 
-  Authenticate = flow(function * ({idToken, fabricToken, authToken, externalWallet, tenantId, user, walletName="Eluvio", expiresAt, saveAuthInfo=true}) {
+  Authenticate = flow(function * ({idToken, fabricToken, authToken, externalWallet, address, tenantId, user, walletName="Eluvio", expiresAt, saveAuthInfo=true}) {
     try {
       if(this.authenticating) { return;}
 
@@ -309,7 +309,6 @@ class RootStore {
 
       this.client = client;
 
-      let address;
       if(externalWallet) {
         const walletMethods = this.cryptoStore.WalletFunctions(externalWallet);
 
@@ -342,9 +341,6 @@ class RootStore {
       } else if(!fabricToken) {
         throw Error("Neither ID token nor auth token provided to Authenticate");
       }
-
-      // Address might not be current signer if external wallet was used to sign fabric token
-      address = address || this.client.CurrentAccountAddress();
 
       client.SetStaticToken({token: fabricToken});
 
