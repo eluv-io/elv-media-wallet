@@ -115,6 +115,10 @@
     color: var(--color-card-text-secondary);
     min-height: 50px;
     line-height: 1.5em;
+
+    * {
+      color: var(--color-card-text-secondary);
+    }
   }
 
   &__status {
