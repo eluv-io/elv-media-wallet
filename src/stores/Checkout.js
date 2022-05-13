@@ -217,13 +217,6 @@ class CheckoutStore {
         };
       }
 
-      if(!email) {
-        throw {
-          recoverable: false,
-          message: "Unable to determine email address in checkout submit"
-        };
-      }
-
       const checkoutId = `nft-marketplace:${confirmationId}`;
 
       let successUrl, cancelUrl;

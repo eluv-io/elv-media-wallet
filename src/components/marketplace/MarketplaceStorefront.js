@@ -196,7 +196,7 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
       );
     } else {
       renderedItems = (
-        <div className="card-list">
+        <div className="card-list card-list--marketplace">
           {
             items.map((item) =>
               <MarketplaceItemCard
