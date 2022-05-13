@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {useLocation, useRouteMatch} from "react-router-dom";
 import {rootStore, transferStore} from "Stores";
 import AutoComplete from "Components/common/AutoComplete";
-import {ButtonWithLoader} from "Components/common/UIComponents";
+import {ButtonWithLoader, DebouncedInput} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 
 import SearchIcon from "Assets/icons/search.svg";
@@ -126,6 +126,16 @@ const FilterMenu = ({mode, filterValues, setFilterValues, Hide}) => {
             }
           /> : null
       }
+      {
+        mode === "listings" ?
+          <FilterDropdown
+            label="Currency"
+            optionLabelPrefix="Currency: "
+            value={filterValues.currency}
+            onChange={value => setFilterValues({...filterValues, currency: value})}
+            options={[["", "Any"], ["usdc", "USDC"]]}
+          /> : null
+      }
     </div>
   );
 };
@@ -156,7 +166,8 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
     collectionIndex: -1,
     lastNDays: -1,
     filter: initialFilter || "",
-    tenantId: marketplace ? marketplace.tenant_id : ""
+    tenantId: marketplace ? marketplace.tenant_id : "",
+    currency: ""
   });
 
   const Update = async (force=false) => {

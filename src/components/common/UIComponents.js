@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import SVG from "react-inlinesvg";
 
 import CopyIcon from "Assets/icons/copy.svg";
@@ -105,5 +105,29 @@ export const ButtonWithLoader = ({children, className="", onClick, ...props}) =>
           children
       }
     </button>
+  );
+};
+
+let debounceTimeout;
+export const DebouncedInput = (props) => {
+  const [inputValue, setInputValue] = useState(props.value);
+
+  useEffect(() => {
+    setInputValue(props.value);
+  }, [props.value]);
+
+  return (
+    <input
+      {...props}
+      className={`debounced-input ${props.className || ""}`}
+      value={inputValue}
+      onChange={event => {
+        clearTimeout(debounceTimeout);
+
+        let value = event.target.value;
+        setInputValue(value);
+        debounceTimeout = setTimeout(() => props.onChange(value), 1000);
+      }}
+    />
   );
 };

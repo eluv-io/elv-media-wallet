@@ -48,6 +48,8 @@ const Price = (item, quantity=1) => {
   };
 };
 
+// Serialize NFT and move some important details to top level
+// NOTE: NFT has already run through transferStore.FormatResult
 const FormatNFT = (nft) => {
   if(!nft || !nft.metadata) { return; }
 
