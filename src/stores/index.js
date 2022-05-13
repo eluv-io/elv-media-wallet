@@ -311,7 +311,7 @@ class RootStore {
       if(externalWallet) {
         const walletMethods = this.cryptoStore.WalletFunctions(externalWallet);
 
-        address = yield walletMethods.Address();
+        address = client.utils.FormatAddress(yield walletMethods.Address());
         walletName = walletMethods.name;
 
         const duration = 24 * 60 * 60 * 1000;
@@ -332,7 +332,7 @@ class RootStore {
         expiresAt = JSON.parse(atob(client.signer.authToken)).exp;
         fabricToken = yield client.CreateFabricToken({duration: expiresAt - Date.now()});
         authToken = client.signer.authToken;
-        address = client.CurrentAccountAddress();
+        address = client.utils.FormatAddress(client.CurrentAccountAddress());
       } else if(!fabricToken) {
         throw Error("Neither ID token nor auth token provided to Authenticate");
       }
@@ -357,7 +357,7 @@ class RootStore {
       this.funds = parseInt((yield client.GetBalance({address}) || 0));
       this.userAddress = this.CurrentAddress();
       this.accountId = `iusr${Utils.AddressToHash(address)}`;
-      
+
       this.basePublicUrl = yield client.FabricUrl({
         queryParams: {
           authorization: this.authToken
@@ -369,7 +369,7 @@ class RootStore {
       this.userProfile = {
         address,
         name: user?.name || address,
-        email: user?.email,
+        email: user?.email || this.AccountEmail(address),
         profileImage: ProfileImage(
           (initials.length <= 1 ? initials.join("") : `${initials[0]}${initials[initials.length - 1]}`).toUpperCase()
         )
@@ -1735,6 +1735,16 @@ class RootStore {
     delete this.trustedOrigins[origin];
 
     this.SetLocalStorage("trusted-origins", JSON.stringify(this.trustedOrigins));
+  }
+
+  SetAccountEmail(address, email) {
+    address = Utils.FormatAddress(address);
+    this.SetLocalStorage(`email-${address}`, email);
+  }
+
+  AccountEmail(address) {
+    address = Utils.FormatAddress(address);
+    return this.GetLocalStorage(`email-${address}`);
   }
 
   GetLocalStorage(key) {

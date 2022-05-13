@@ -18,6 +18,7 @@ import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 import PlusIcon from "Assets/icons/plus.svg";
 import MinusIcon from "Assets/icons/minus.svg";
 import {PageLoader} from "Components/common/Loaders";
+import {ValidEmail} from "../../utils/Utils";
 
 const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
   if(maxQuantity <= 1) { return null; }
@@ -69,9 +70,28 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, errorMessage, 
   const [paymentType, setPaymentType] = useState("stripe");
   const wallet = cryptoStore.WalletFunctions("phantom");
   const connected = paymentType !== "linked-wallet" || cryptoStore.PhantomAddress() && wallet.Connected();
+  const [email, setEmail] = useState(rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.userProfile?.email || "");
+
+  const externalPayment = ["stripe", "coinbase"].includes(paymentType);
 
   return (
     <div className="purchase-modal__payment-options">
+      {
+        !rootStore.userProfile?.email && externalPayment ?
+          <>
+            <div className="purchase-modal__payment-message">
+              Email
+            </div>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              className="purchase-modal__email-input"
+              value={email}
+              onChange={event => setEmail(event.target.value)}
+            />
+          </>: null
+      }
       <div className="purchase-modal__payment-message">
         Buy with
       </div>
@@ -126,14 +146,16 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, errorMessage, 
       </div>
       { paymentType === "linked-wallet" ? <div className="purchase-modal__wallet-connect"><WalletConnect /></div> : null }
       <ButtonWithLoader
-        disabled={disabled || !connected}
+        disabled={disabled || !connected || (externalPayment && !ValidEmail(email))}
         className="action action-primary purchase-modal__payment-submit"
-        onClick={async () => await Continue(paymentType)}
+        onClick={async () => await Continue(paymentType, email)}
       >
         {
-          price ?
-            `Buy Now for ${price}` :
-            "Buy Now"
+          externalPayment ?
+            price ?
+              `Buy Now for ${price}` :
+              "Buy Now" :
+            "Continue"
         }
       </ButtonWithLoader>
       <button
@@ -395,7 +417,7 @@ const PurchasePayment = observer(({
   }, [purchaseStatus]);
 
 
-  const Continue = async (paymentType) => {
+  const Continue = async (paymentType, email) => {
     if(paymentType === "wallet-balance") {
       setUseWalletBalance(true);
       return;
@@ -415,7 +437,7 @@ const PurchasePayment = observer(({
           marketplaceId: match.params.marketplaceId,
           listingId: selectedListingId,
           tenantId: selectedListing.details.TenantId,
-          email: undefined
+          email
         });
       } else {
         // Marketplace purchase
@@ -425,9 +447,11 @@ const PurchasePayment = observer(({
           marketplaceId: match.params.marketplaceId,
           sku: marketplaceItem.sku,
           quantity,
-          email: undefined
+          email
         });
       }
+
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
       if(result) {
         setConfirmationId(result.confirmationId);

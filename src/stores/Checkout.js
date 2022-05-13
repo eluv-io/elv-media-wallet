@@ -228,11 +228,16 @@ class CheckoutStore {
         cancelUrl = this.rootStore.FlowURL({flow: "redirect", parameters: {to: cancelPath}});
       }
 
+      address = address || this.rootStore.CurrentAddress();
+      if(email && !this.rootStore.AccountEmail(address)) {
+        this.rootStore.SetAccountEmail(address, email);
+      }
+
       let requestParams = {
         currency: this.currency,
         email,
         client_reference_id: checkoutId,
-        elv_addr: address || this.rootStore.CurrentAddress(),
+        elv_addr: address,
         items: [{sku: listingId, quantity: 1}],
         success_url: successUrl,
         cancel_url: cancelUrl
@@ -343,11 +348,16 @@ class CheckoutStore {
         cancelUrl = this.rootStore.FlowURL({flow: "redirect", parameters: {to: cancelPath}});
       }
 
+      address = address || this.rootStore.CurrentAddress();
+      if(email && !this.rootStore.AccountEmail(address)) {
+        this.rootStore.SetAccountEmail(address, email);
+      }
+
       let requestParams = {
         currency: this.currency,
         email,
         client_reference_id: checkoutId,
-        elv_addr: address || this.rootStore.CurrentAddress(),
+        elv_addr: address,
         items: [{sku, quantity}],
         success_url: successUrl,
         cancel_url: cancelUrl
