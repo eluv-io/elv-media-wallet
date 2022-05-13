@@ -1461,7 +1461,7 @@ class RootStore {
 
           clearInterval(closeCheck);
 
-          //setTimeout(() => popup.close(), 500);
+          setTimeout(() => popup.close(), 500);
 
           if(event.data.error) {
             reject(event.data.error);

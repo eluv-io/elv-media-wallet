@@ -152,7 +152,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
   const [filterValues, setFilterValues] = useState({
     sort: initialOption.value,
     sortBy: initialOption.key,
-    sortDesc: initialOption.sortDesc,
+    sortDesc: initialOption.desc,
     collectionIndex: -1,
     lastNDays: -1,
     filter: initialFilter || "",

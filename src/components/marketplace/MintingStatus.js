@@ -211,7 +211,7 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
       <div className="minting-status-results pack-results">
         <h1 className="content-header">{ header }</h1>
         <h2 className="content-subheader">{ subheader }</h2>
-        <div className="card-list">
+        <div className="card-list card-list--marketplace">
           {
             items.map(({token_addr, token_id, token_id_str}) => {
               token_id = token_id_str || token_id;

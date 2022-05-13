@@ -154,12 +154,15 @@ const Profile = observer(() => {
         }
 
         <div className="profile-page__actions profile-page__sign-out">
-          <button
-            onClick={() => rootStore.SignOut()}
+          <ButtonWithLoader
+            onClick={async () => {
+              rootStore.SignOut();
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            }}
             className="action profile-page__sign-out-button"
           >
             Sign Out
-          </button>
+          </ButtonWithLoader>
         </div>
       </div>
 

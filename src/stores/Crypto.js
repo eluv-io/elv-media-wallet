@@ -217,12 +217,16 @@ class CryptoStore {
 
   SignMetamask = flow(function * (message, address) {
     try {
-      yield window.ethereum.request({ method: "eth_requestAccounts" });
-      const from = address || window.ethereum.selectedAddress;
-      return yield window.ethereum.request({
-        method: "personal_sign",
-        params: [message, from, ""],
-      });
+      if(this.rootStore.embedded) {
+        return yield this.EmbeddedSign({provider: "metamask", message});
+      } else {
+        yield window.ethereum.request({method: "eth_requestAccounts"});
+        const from = address || window.ethereum.selectedAddress;
+        return yield window.ethereum.request({
+          method: "personal_sign",
+          params: [message, from, ""],
+        });
+      }
 
     } catch(error) {
       this.rootStore.Log("Error signing Metamask message:", true);
