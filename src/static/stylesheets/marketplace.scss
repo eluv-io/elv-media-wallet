@@ -38,7 +38,8 @@
     }
 
     .page-header,
-    .page-subheader {
+    .page-subheader,
+    .page-link {
       max-width: 650px;
     }
 
@@ -118,6 +119,101 @@
   }
 }
 
+.collections-summary {
+  &__link {
+    align-items: center;
+    display: flex;
+    font: var(--font-store-link);
+    margin-top: 10px;
+
+    svg {
+      height: 20px;
+      margin-left: 10px;
+      width: 20px;
+    }
+  }
+
+  &__list {
+    // sass-lint:disable no-misspelled-properties
+    gap: 30px;
+    // sass-lint:enable no-misspelled-properties
+
+    .collection-card {
+      width: calc(#{$breakpoint} / 3 - 50px);
+    }
+  }
+
+  @media screen and (max-width: $breakpoint) {
+    &__list {
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+
+      .collection-card {
+        max-width: unset;
+        //max-width: calc(#{$breakpoint} / 3 - 100px);
+        width: auto;
+      }
+    }
+  }
+}
+
+.collection-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 300px;
+
+  &__icon-container {
+    border: var(--border-feature-card);
+    border-radius: var(--border-radius-feature-card);
+    box-shadow: var(--box-shadow-feature-card);
+    position: relative;
+  }
+
+  &__icon {
+    background: var(--background-feature-card);
+    border-radius: var(--border-radius-feature-card);
+    padding: 30px;
+
+    div {
+      margin: 0;
+    }
+
+    img {
+      background: $black;
+      border-radius: calc(var(--border-radius-feature-card) / 2);
+    }
+  }
+
+  &__details {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 300px;
+    padding: 20px;
+  }
+
+  &__header {
+    font: var(--font-feature-card-title);
+  }
+
+  &__subheader {
+    font: var(--font-feature-card-text);
+    padding: 20px 0;
+  }
+
+  &__actions {
+    align-items: flex-end;
+    display: flex;
+    flex-grow: 1;
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  .action {
+    height: 50px;
+    width: 220px;
+  }
+}
+
 .side-panel {
   .marketplace-navigation {
     display: none;
@@ -128,7 +224,8 @@
   .marketplace {
     &__section {
       .page-header,
-      .page-subheader {
+      .page-subheader,
+      .page-link {
         justify-content: center;
         margin-left: auto;
         margin-right: auto;

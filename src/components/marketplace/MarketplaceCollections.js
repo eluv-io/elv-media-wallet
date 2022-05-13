@@ -1,6 +1,6 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {observer} from "mobx-react";
-import {useRouteMatch} from "react-router-dom";
+import {useLocation, useRouteMatch} from "react-router-dom";
 import {rootStore} from "Stores";
 import UrlJoin from "url-join";
 import {MarketplaceImage, NFTImage} from "Components/common/Images";
@@ -13,6 +13,7 @@ import OwnedIcon from "Assets/icons/down-caret.svg";
 
 const MarketplaceCollections = observer(() => {
   const match = useRouteMatch();
+  const location = useLocation();
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
 
   if(!marketplace) { return null; }
@@ -22,6 +23,20 @@ const MarketplaceCollections = observer(() => {
   const marketplaceItems = rootStore.MarketplaceOwnedItems(marketplace);
 
   const purchaseableItems = rootStore.MarketplacePurchaseableItems(marketplace);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+
+    if(params.has("collection")) {
+      setTimeout(() => {
+        const collectionSection = document.getElementById(`collection-${encodeURIComponent(params.get("collection"))}`);
+
+        if(!collectionSection) { return; }
+
+        window.scrollTo({top: collectionSection.getBoundingClientRect().top});
+      }, 100);
+    }
+  }, []);
 
   const collections = marketplace.collections.map((collection, collectionIndex) => {
     // If filters are specified, must at least one filter
@@ -93,7 +108,7 @@ const MarketplaceCollections = observer(() => {
     const collectionIcon = collection.collection_icon;
 
     return (
-      <div className="marketplace__section" key={`marketplace-section-${collectionIndex}`}>
+      <div className="marketplace__section" key={`marketplace-section-${collectionIndex}`} id={`collection-${encodeURIComponent(collection.name || collection.collection_header)}`}>
         <div className="marketplace__collection-header">
           {
             collectionIcon ?
