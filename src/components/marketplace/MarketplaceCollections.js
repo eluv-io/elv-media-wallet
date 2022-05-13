@@ -9,7 +9,7 @@ import MarketplaceItemCard from "Components/marketplace/MarketplaceItemCard";
 import ItemCard from "Components/common/ItemCard";
 import ImageIcon from "Components/common/ImageIcon";
 
-import OwnedIcon from "Assets/icons/down-caret.svg";
+import OwnedIcon from "Assets/icons/owned icon.svg";
 
 const MarketplaceCollections = observer(() => {
   const match = useRouteMatch();

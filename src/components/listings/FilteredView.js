@@ -111,9 +111,10 @@ const FilteredView = ({
       { filters && !hideStats ? <ListingStats mode={mode === "listings" ? "listing-stats" : "sales-stats"} filterParams={filters} /> : null }
       {
         // Initial Load
-        loading && entries.length === 0 ? <PageLoader/> : null
+        loading && entries.length === 0 ?
+          <PageLoader/> :
+          Render({entries, paging, scrollRef, loading})
       }
-      { Render({entries, paging, scrollRef, loading}) }
     </div>
   );
 };

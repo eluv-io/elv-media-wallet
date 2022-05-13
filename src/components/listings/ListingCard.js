@@ -9,7 +9,7 @@ import LinesEllipsis from "react-lines-ellipsis";
 import responsiveHOC from "react-lines-ellipsis/lib/responsiveHOC";
 const ResponsiveEllipsis = responsiveHOC()(LinesEllipsis);
 
-import EditIcon from "Assets/icons/misc/transfer NFT icon.svg";
+import EditIcon from "Assets/icons/edit listing icon.svg";
 
 const ListingCard = ({listing, link, Refresh}) => {
   const [showListingModal, setShowListingModal] = useState(false);

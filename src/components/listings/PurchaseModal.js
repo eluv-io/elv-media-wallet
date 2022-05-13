@@ -67,17 +67,20 @@ const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
 };
 
 const PurchaseProviderSelection = observer(({price, usdcAccepted, errorMessage, disabled, Continue, Cancel}) => {
+  const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.userProfile?.email || "";
   const [paymentType, setPaymentType] = useState("stripe");
+  const [email, setEmail] = useState(initialEmail);
+
   const wallet = cryptoStore.WalletFunctions("phantom");
   const connected = paymentType !== "linked-wallet" || cryptoStore.PhantomAddress() && wallet.Connected();
-  const [email, setEmail] = useState(rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.userProfile?.email || "");
 
+  const requiresEmail = ["coinbase"].includes(paymentType);
   const externalPayment = ["stripe", "coinbase"].includes(paymentType);
 
   return (
     <div className="purchase-modal__payment-options">
       {
-        !rootStore.userProfile?.email && externalPayment ?
+        !initialEmail && requiresEmail ?
           <>
             <div className="purchase-modal__payment-message">
               Email

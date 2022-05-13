@@ -7,7 +7,7 @@ import MarketplaceItemCard from "Components/marketplace/MarketplaceItemCard";
 import ImageIcon from "Components/common/ImageIcon";
 import MarketplaceFeatured from "Components/marketplace/MarketplaceFeatured";
 
-import LinkIcon from "Assets/icons/misc/sales icon.svg";
+import LinkIcon from "Assets/icons/arrow-right.svg";
 import {MarketplaceImage} from "Components/common/Images";
 
 const MarketplaceBanners = ({marketplace}) => {
