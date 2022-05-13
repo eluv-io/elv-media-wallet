@@ -239,7 +239,6 @@
 
 /* Apply gradient border to cards using background gradient and padding on container */
 .card-container,
-.listing-card-container,
 .featured-item__icon-container,
 .feature-gallery__icon-container {
   padding: 2px!important;
@@ -264,7 +263,6 @@
 
 .featured-item__icon-container::after,
 .feature-gallery__icon-container::after,
-.listing-card::after,
 .card-container::after {
   content: "";
   position: absolute;
@@ -278,4 +276,8 @@
   background: rgba(16, 39, 254, 0.3);
   filter: blur(1px) drop-shadow(0px 0px 20px #18D5FF) drop-shadow(0px 0px 5px #0E01FA);
   opacity: 0.5;
+}
+
+.listing-card * {
+  text-transform: uppercase;
 }

@@ -16,7 +16,10 @@ $search-height: 50px;
   }
 
   &__select {
+    display: flex;
     height: $controls-height;
+    justify-content: center;
+    text-align: center;
   }
 
   &__menu-button {

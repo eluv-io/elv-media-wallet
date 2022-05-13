@@ -1,78 +1,40 @@
-import React, {useState, useRef, useEffect} from "react";
+import React, {useState, useEffect} from "react";
 import {NFTImage} from "Components/common/Images";
 import ListingModal from "Components/listings/ListingModal";
-import Confirm from "Components/common/Confirm";
-import {transferStore} from "Stores";
 import {Link} from "react-router-dom";
-import {ButtonWithLoader} from "Components/common/UIComponents";
+import {FormatPriceString} from "Components/common/UIComponents";
 import {NFTDisplayToken} from "../../utils/Utils";
+import ImageIcon from "Components/common/ImageIcon";
+import LinesEllipsis from "react-lines-ellipsis";
+import responsiveHOC from "react-lines-ellipsis/lib/responsiveHOC";
+const ResponsiveEllipsis = responsiveHOC()(LinesEllipsis);
+
+import EditIcon from "Assets/icons/misc/transfer NFT icon.svg";
 
 const ListingCard = ({listing, link, Refresh}) => {
   const [showListingModal, setShowListingModal] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
   const [isInCheckout, setIsInCheckout] = useState(listing && listing.details.CheckoutLockedUntil && listing.details.CheckoutLockedUntil > Date.now());
-  const [message, setMessage] = useState(undefined);
-
-  const ref = useRef(null);
-
-  const HandleClick = event => {
-    if(ref.current && !ref.current.contains(event.target)) {
-      setShowMenu(false);
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("mousedown", HandleClick);
-
-    return () => document.removeEventListener("mousedown", HandleClick);
-  });
 
   useEffect(() => {
     const checkout = listing && listing.details.CheckoutLockedUntil && listing.details.CheckoutLockedUntil > Date.now();
     setIsInCheckout(checkout);
-
-    if(checkout) {
-      setMessage("This listing is currently in the process of being purchased");
-    } else {
-      setMessage("");
-    }
   }, [listing]);
 
-  const Menu = () => {
-    return (
-      <div className="listing-card__menu">
-        <button
-          autoFocus
-          disabled={isInCheckout}
-          onClick={async event => {
-            event.stopPropagation();
+  const [first, second] = NFTDisplayToken(listing).split("/");
 
-            const listings = await transferStore.FetchTransferListings({listingId: listing.details.ListingId, forceUpdate: true});
-            const currentListing = listings[0];
-
-            let isInCheckout = currentListing && currentListing.details.CheckoutLockedUntil && currentListing.details.CheckoutLockedUntil > Date.now();
-            setIsInCheckout(isInCheckout);
-
-            if(isInCheckout) {
-              setMessage("This listing is currently in the process of being purchased");
-            } else {
-              Confirm({
-                message: "Are you sure you want to remove this listing?",
-                Confirm: async () => {
-                  await transferStore.RemoveListing({listingId: listing.details.ListingId});
-                  await new Promise(resolve => setTimeout(resolve, 500));
-                  Refresh && Refresh();
-                }
-              });
-            }
-          }}
-          className="listing-card__menu__action"
-        >
-          Remove Listing
-        </button>
+  const sideText = (
+    <div className="listing-card__side-text">
+      <div className="listing-card__side-text__primary">
+        { first } { second ? "/" : "" }
       </div>
-    );
-  };
+      {
+        second ?
+          <div className="listing-card__side-text__secondary">
+            { second }
+          </div> : null
+      }
+    </div>
+  );
 
   return (
     <>
@@ -89,96 +51,37 @@ const ListingCard = ({listing, link, Refresh}) => {
           /> : null
       }
       <div className="listing-card-container">
-        <div className={`listing-card ${message ? "listing-card-with-message" : ""}`} ref={ref}>
-          { showMenu ? <Menu /> : null }
+        <div className="listing-card">
           <button
-            className="action listing-card__menu-button"
-            onClick={() => {
-              setShowMenu(!showMenu);
-            }}
+            onClick={() => setShowListingModal(!showListingModal)}
+            aria-label="Edit Listing"
+            disabled={isInCheckout}
+            className="listing-card__edit-button"
+            title={isInCheckout ? "This listing is currently in the process of being purchased" : ""}
           >
-            ···
+            <ImageIcon icon={EditIcon} label="Edit Listing" />
           </button>
-          <Link to={link} className="listing-card__image-container">
-            <NFTImage width={600} className="listing-card__image" nft={listing} />
-          </Link>
-          <div className="listing-card__content">
-            <Link to={link} className="listing-card__header">
-              <h3 className="listing-card__header-title ellipsis">
-                { listing.metadata.display_name }
-              </h3>
-              {
-                listing.metadata.edition_name ?
-                  <h2 className="listing-card__header-id">
-                    { listing.metadata.edition_name }
-                  </h2> : null
-              }
-              <h3 className="listing-card__header-id">
-                { NFTDisplayToken(listing) }
-              </h3>
+          <div className="listing-card__left">
+            <Link to={link} className="listing-card__image-container">
+              <NFTImage width={600} className="listing-card__image" nft={listing} />
             </Link>
-
-            <Link to={link} className="listing-card__details">
-              <div className="listing-card__detail">
-                <div className="listing-card__detail-label">
-                  Date Posted
-                </div>
-                <div className="listing-card__detail-value">
-                  { new Date(listing.details.UpdatedAt).toLocaleDateString("en-us", {year: "numeric", month: "long", day: "numeric" }) }
-                </div>
+            { sideText }
+          </div>
+          <div className="listing-card__details">
+            <ResponsiveEllipsis
+              component="div"
+              className="listing-card__name"
+              maxLine="2"
+              text={listing.metadata.display_name}
+            />
+            <div className="listing-card__status">
+              <div className="listing-card__status-label">
+                Listing Price
               </div>
-              {
-                listing.details.SoldPrice ?
-                  <div className="listing-card__detail">
-                    <div className="listing-card__detail-label">
-                      Date Sold
-                    </div>
-                    <div className="listing-card__detail-value">
-                      November 23, 2021
-                    </div>
-                  </div> : null
-              }
-            </Link>
-
-            <div className="listing-card__price-container">
-              <div className="listing-card__price-details">
-                <div className="listing-card__price-label">
-                  Listing Price
-                </div>
-                <div className="listing-card__price-value">
-                  ${(listing.details.Price || 0).toFixed(2)}
-                </div>
-              </div>
-
-              <div className="listing-card__actions">
-                <ButtonWithLoader
-                  className="listing-card__action"
-                  disabled={isInCheckout}
-                  onClick={async event => {
-                    event.stopPropagation();
-                    const listings = await transferStore.FetchTransferListings({listingId: listing.details.ListingId, forceUpdate: true});
-                    const currentListing = listings[0];
-
-                    let isInCheckout = currentListing && currentListing.details.CheckoutLockedUntil && currentListing.details.CheckoutLockedUntil > Date.now();
-                    setIsInCheckout(isInCheckout);
-
-                    if(isInCheckout) {
-                      setMessage("This listing is currently in the process of being purchased");
-                    } else {
-                      setShowListingModal(true);
-                    }
-                  }}
-                >
-                  Edit Listing
-                </ButtonWithLoader>
+              <div className="listing-card__price">
+                { FormatPriceString({USD: listing.details.Price})}
               </div>
             </div>
-            {
-              message ?
-                <div className="listing-card__message">
-                  { message }
-                </div> : null
-            }
           </div>
         </div>
       </div>

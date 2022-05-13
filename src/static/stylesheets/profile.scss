@@ -40,6 +40,7 @@
 
   &__section-header {
     color: var(--color-component-text-primary);
+    font: var(--font-component-header);
     font-size: 20px;
     font-weight: 300;
     margin-bottom: 10px;
@@ -49,6 +50,7 @@
   &__balance {
     align-items: center;
     display: flex;
+    font: var(--font-component-header);
     font-size: 24px;
     font-weight: 500;
     justify-content: center;

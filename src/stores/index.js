@@ -328,16 +328,12 @@ class RootStore {
         expiresAt = Date.now() + duration - buffer;
       } else if(fabricToken && !authToken) {
         // Signed in previously with external wallet
-      } else if(idToken) {
-        yield client.SetRemoteSigner({idToken: idToken, tenantId, extraData: user?.userData});
+      } else if(idToken || authToken) {
+        yield client.SetRemoteSigner({idToken, authToken, tenantId, extraData: user?.userData, unsignedPublicAuth: true});
         expiresAt = JSON.parse(atob(client.signer.authToken)).exp;
         fabricToken = yield client.CreateFabricToken({duration: Date.now() - expiresAt});
         authToken = client.signer.authToken;
-      } else if(authToken) {
-        yield client.SetRemoteSigner({authToken, tenantId, unsignedPublicAuth: true});
-        expiresAt = JSON.parse(atob(client.signer.authToken)).exp;
-        fabricToken = yield client.CreateFabricToken({duration: Date.now() - expiresAt});
-        authToken = client.signer.authToken;
+        address = client.CurrentAccountAddress();
       } else if(!fabricToken) {
         throw Error("Neither ID token nor auth token provided to Authenticate");
       }
@@ -676,7 +672,7 @@ class RootStore {
 
     const cssTag = document.getElementById("_custom-css");
     if(options.color_scheme === "Custom" && marketplace?.branding?.custom_css) {
-      cssTag.innerHTML = marketplace.branding.custom_css.toString();
+      //cssTag.innerHTML = marketplace.branding.custom_css.toString();
     } else {
       cssTag.innerHTML = "";
 
