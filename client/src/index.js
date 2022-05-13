@@ -446,6 +446,10 @@ const walletClient = await ElvWalletClient.InitializePopup({
       walletAppUrl.searchParams.set("mid", marketplaceHash || marketplaceId);
     }
 
+    if(walletAppUrl.searchParams.has("mid") && !walletAppUrl.hash) {
+      walletAppUrl.hash = `#/marketplaces/redirect/${tenantSlug}/${marketplaceSlug}/store`;
+    }
+
     if(requireLogin){
       walletAppUrl.searchParams.set("rl", "");
     }
@@ -458,8 +462,8 @@ const walletClient = await ElvWalletClient.InitializePopup({
       walletAppUrl.searchParams.set("cl", "");
     }
 
-    if(!darkMode) {
-      walletAppUrl.searchParams.set("lt", "");
+    if(darkMode) {
+      walletAppUrl.searchParams.set("dk", "");
     }
 
     const target = Popup({url: walletAppUrl.toString(), title: "Eluvio Media Wallet", w: 400, h: 700});
@@ -554,6 +558,10 @@ const walletClient = await ElvWalletClient.InitializePopup({
       walletAppUrl.searchParams.set("mid", marketplaceHash || marketplaceId);
     }
 
+    if(walletAppUrl.searchParams.has("mid") && !walletAppUrl.hash) {
+      walletAppUrl.hash = `#/marketplaces/redirect/${tenantSlug}/${marketplaceSlug}/store`;
+    }
+
     if(requireLogin){
       walletAppUrl.searchParams.set("rl", "");
     }
@@ -566,8 +574,8 @@ const walletClient = await ElvWalletClient.InitializePopup({
       walletAppUrl.searchParams.set("cl", "");
     }
 
-    if(!darkMode) {
-      walletAppUrl.searchParams.set("lt", "");
+    if(darkMode) {
+      walletAppUrl.searchParams.set("dk", "");
     }
 
     const client = new ElvWalletClient({

@@ -244,7 +244,7 @@ class RootStore {
         noAuth: true
       });
 
-      const marketplace = searchParams.get("mid") || this.GetSessionStorage("marketplace") || "";
+      const marketplace = decodeURIComponent(searchParams.get("mid") || this.GetSessionStorage("marketplace") || "");
       let tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash;
       if(marketplace && marketplace.includes("/")) {
         tenantSlug = marketplace.split("/")[0];
