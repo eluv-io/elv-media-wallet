@@ -87,7 +87,7 @@ class TransferStore {
           let embedUrl = new URL("https://embed.v3.contentfabric.io");
           embedUrl.searchParams.set("p", "");
           embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
-          embedUrl.searchParams.set("ath", media.requires_permissions ? rootStore.authedToken : rootStore.staticToken);
+          embedUrl.searchParams.set("ath", rootStore.authToken);
 
           if(mediaType === "video") {
             embedUrl.searchParams.set("vid", media.media_link["."].container);
@@ -428,7 +428,7 @@ class TransferStore {
           method: "GET",
           queryParams: params,
           headers: mode === "owned" ?
-            { Authorization: `Bearer ${yield this.client.fabricToken}` } :
+            { Authorization: `Bearer ${this.client.staticToken}` } :
             {}
         })
       ) || [];
@@ -475,7 +475,7 @@ class TransferStore {
             price: parseFloat(price)
           },
           headers: {
-            Authorization: `Bearer ${this.client.fabricToken}`
+            Authorization: `Bearer ${this.client.staticToken}`
           }
         })
       );
@@ -491,7 +491,7 @@ class TransferStore {
             price: parseFloat(price)
           },
           headers: {
-            Authorization: `Bearer ${this.client.fabricToken}`
+            Authorization: `Bearer ${this.client.staticToken}`
           }
         })
       );
@@ -503,7 +503,7 @@ class TransferStore {
       path: UrlJoin("as", "wlt", "mkt", listingId),
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${this.client.fabricToken}`
+        Authorization: `Bearer ${this.client.staticToken}`
       }
     });
   });
@@ -555,7 +555,7 @@ class TransferStore {
         path: UrlJoin("as", "wlt", "mkt", "hst"),
         method: "GET",
         headers: {
-          Authorization: `Bearer ${this.client.fabricToken}`
+          Authorization: `Bearer ${this.client.staticToken}`
         }
       })
     );
@@ -570,7 +570,7 @@ class TransferStore {
             path: UrlJoin("as", "wlt", "mkt", "pmts"),
             method: "GET",
             headers: {
-              Authorization: `Bearer ${this.client.fabricToken}`
+              Authorization: `Bearer ${this.client.staticToken}`
             }
           })
         )

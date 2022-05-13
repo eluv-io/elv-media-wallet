@@ -82,7 +82,7 @@ class CryptoStore {
           path: UrlJoin("as", "wlt", "mkt", "info"),
           method: "GET",
           headers: {
-            Authorization: `Bearer ${this.client.fabricToken}`
+            Authorization: `Bearer ${this.client.staticToken}`
           }
         })
       );
@@ -140,7 +140,7 @@ class CryptoStore {
       method: "POST",
       body: payload,
       headers: {
-        Authorization: `Bearer ${this.client.fabricToken}`
+        Authorization: `Bearer ${this.client.staticToken}`
       }
     });
 
@@ -183,7 +183,7 @@ class CryptoStore {
         method: "POST",
         body: payload,
         headers: {
-          Authorization: `Bearer ${this.client.fabricToken}`
+          Authorization: `Bearer ${this.client.staticToken}`
         }
       });
 
@@ -208,7 +208,7 @@ class CryptoStore {
       method: "DELETE",
       body: payload,
       headers: {
-        Authorization: `Bearer ${this.client.fabricToken}`
+        Authorization: `Bearer ${this.client.staticToken}`
       }
     });
 
@@ -511,7 +511,7 @@ class CryptoStore {
           tok: nft.details.TokenIdStr
         },
         headers: {
-          Authorization: `Bearer ${this.client.fabricToken}`
+          Authorization: `Bearer ${this.client.staticToken}`
         }
       })
     );

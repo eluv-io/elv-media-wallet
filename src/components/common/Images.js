@@ -56,7 +56,7 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
     if(selectedMediaImageUrl) {
       imageUrl = new URL(selectedMediaImageUrl);
 
-      imageUrl.searchParams.set("authorization", selectedMedia.requires_permissions ? rootStore.authedToken : rootStore.staticToken);
+      imageUrl.searchParams.set("authorization", rootStore.authToken);
       if(imageUrl && width) {
         imageUrl.searchParams.set("width", width);
       }
@@ -64,7 +64,7 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
 
     if(!imageUrl && ((item && item.image) || nft.metadata.image)) {
       imageUrl = new URL((item && item.image && item.image.url) || nft.metadata.image);
-      imageUrl.searchParams.set("authorization", rootStore.staticToken);
+      imageUrl.searchParams.set("authorization", rootStore.authToken);
 
       if(imageUrl && width) {
         imageUrl.searchParams.set("width", width);
@@ -90,7 +90,7 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
         embedUrl.searchParams.set("vid", videoHash);
         embedUrl.searchParams.set("ct", "h");
         embedUrl.searchParams.set("ap", "");
-        embedUrl.searchParams.set("ath", selectedMedia.requires_permissions ? rootStore.authedToken : rootStore.staticToken);
+        embedUrl.searchParams.set("ath", rootStore.authToken);
       } else if(item && item.video) {
         embedUrl = new URL("https://embed.v3.contentfabric.io");
         const videoHash = ((item.video["/"] && item.video["/"].split("/").find(component => component.startsWith("hq__")) || item.video["."].source));
@@ -190,7 +190,7 @@ export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon,
     } else if(item.nft_template && item.nft_template.nft && item.nft_template.nft.image) {
       url = (item.nft_template.nft || {}).image;
       url = new URL(url);
-      url.searchParams.set("authorization", rootStore.staticToken);
+      url.searchParams.set("authorization", rootStore.authToken);
       url.searchParams.set("width", "800");
       url = url.toString();
     } else {

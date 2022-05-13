@@ -81,7 +81,7 @@ const FormatNFT = (nft) => {
         let embedUrl = new URL("https://embed.v3.contentfabric.io");
         embedUrl.searchParams.set("p", "");
         embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
-        embedUrl.searchParams.set("ath", media.requires_permissions ? rootStore.authedToken : rootStore.staticToken);
+        embedUrl.searchParams.set("ath", rootStore.authToken);
 
         if(mediaType === "video") {
           embedUrl.searchParams.set("vid", media.media_link["."].container);

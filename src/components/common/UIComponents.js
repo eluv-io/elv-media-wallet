@@ -109,7 +109,7 @@ export const ButtonWithLoader = ({children, className="", onClick, ...props}) =>
 };
 
 let debounceTimeout;
-export const DebouncedInput = (props) => {
+export const DebouncedInput = ({onEnterPressed, ...props}) => {
   const [inputValue, setInputValue] = useState(props.value);
 
   useEffect(() => {
@@ -122,8 +122,8 @@ export const DebouncedInput = (props) => {
       className={`debounced-input ${props.className || ""}`}
       value={inputValue}
       onKeyDown={event => {
-        if(event.key === "Enter" && props.onEnterPressed) {
-          props.onEnterPressed();
+        if(event.key === "Enter" && onEnterPressed) {
+          onEnterPressed();
           clearTimeout(debounceTimeout);
         }
       }}

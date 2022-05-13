@@ -126,8 +126,7 @@ class RootStore {
   centerContent = false;
   centerItems = false;
 
-  staticToken = undefined;
-  authedToken = undefined;
+  authToken = undefined;
   basePublicUrl = undefined;
 
   defaultProfileImage = ProfileImage("");
@@ -235,11 +234,11 @@ class RootStore {
         assumeV3: true
       });
 
-      this.staticToken = this.client.staticToken;
+      this.authToken = this.client.staticToken;
 
       this.basePublicUrl = yield this.client.FabricUrl({
         queryParams: {
-          authorization: this.staticToken
+          authorization: this.authToken
         },
         noAuth: true
       });
@@ -305,7 +304,7 @@ class RootStore {
         assumeV3: true
       });
 
-      this.staticToken = client.staticToken;
+      this.authToken = client.staticToken;
 
       this.client = client;
 
@@ -331,16 +330,15 @@ class RootStore {
       } else if(idToken || authToken) {
         yield client.SetRemoteSigner({idToken, authToken, tenantId, extraData: user?.userData, unsignedPublicAuth: true});
         expiresAt = JSON.parse(atob(client.signer.authToken)).exp;
-        fabricToken = yield client.CreateFabricToken({duration: Date.now() - expiresAt});
+        fabricToken = yield client.CreateFabricToken({duration: expiresAt - Date.now()});
         authToken = client.signer.authToken;
         address = client.CurrentAccountAddress();
       } else if(!fabricToken) {
         throw Error("Neither ID token nor auth token provided to Authenticate");
       }
 
-      client.fabricToken = fabricToken;
-
-      //client.SetStaticToken({token: fabricToken});
+      this.authToken = fabricToken;
+      client.SetStaticToken({token: fabricToken});
 
       this.client = client;
 
@@ -359,11 +357,10 @@ class RootStore {
       this.funds = parseInt((yield client.GetBalance({address}) || 0));
       this.userAddress = this.CurrentAddress();
       this.accountId = `iusr${Utils.AddressToHash(address)}`;
-
-      this.authedToken = yield client.authClient.GenerateAuthorizationToken({noAuth: true});
+      
       this.basePublicUrl = yield client.FabricUrl({
         queryParams: {
-          authorization: this.staticToken
+          authorization: this.authToken
         },
         noAuth: true
       });
@@ -523,7 +520,7 @@ class RootStore {
             let embedUrl = new URL("https://embed.v3.contentfabric.io");
             embedUrl.searchParams.set("p", "");
             embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
-            embedUrl.searchParams.set("ath", media.requires_permissions ? rootStore.authedToken : rootStore.staticToken);
+            embedUrl.searchParams.set("ath", this.authToken);
 
             if(mediaType === "video") {
               embedUrl.searchParams.set("vid", media.media_link["."].container);
@@ -1035,7 +1032,7 @@ class RootStore {
           tok_id: tokenId
         },
         headers: {
-          Authorization: `Bearer ${this.client.fabricToken}`
+          Authorization: `Bearer ${this.client.staticToken}`
         }
       });
 
@@ -1062,7 +1059,7 @@ class RootStore {
           path: UrlJoin("as", "wlt", "status", "act", tenantId),
           method: "GET",
           headers: {
-            Authorization: `Bearer ${this.client.fabricToken}`
+            Authorization: `Bearer ${this.client.staticToken}`
           }
         })
       );
@@ -1157,7 +1154,7 @@ class RootStore {
           path: UrlJoin("as", "wlt", "act", marketplace.tenant_id, eventId, dropId),
           method: "GET",
           headers: {
-            Authorization: `Bearer ${this.client.fabricToken}`
+            Authorization: `Bearer ${this.client.staticToken}`
           }
         })
       );
@@ -1232,7 +1229,7 @@ class RootStore {
         itm: sku
       },
       headers: {
-        Authorization: `Bearer ${this.client.fabricToken}`
+        Authorization: `Bearer ${this.client.staticToken}`
       }
     });
   });
@@ -1246,7 +1243,7 @@ class RootStore {
         path: UrlJoin("as", "wlt", "mkt", "bal"),
         method: "GET",
         headers: {
-          Authorization: `Bearer ${this.client.fabricToken}`
+          Authorization: `Bearer ${this.client.staticToken}`
         }
       })
     );
@@ -1271,7 +1268,7 @@ class RootStore {
           return_url: rootUrl.toString()
         },
         headers: {
-          Authorization: `Bearer ${this.client.fabricToken}`
+          Authorization: `Bearer ${this.client.staticToken}`
         }
       });
 
@@ -1309,7 +1306,7 @@ class RootStore {
           mode: EluvioConfiguration.mode,
         },
         headers: {
-          Authorization: `Bearer ${this.client.fabricToken}`
+          Authorization: `Bearer ${this.client.staticToken}`
         }
       })
     );
@@ -1582,7 +1579,7 @@ class RootStore {
                 refresh_url: window.location.href
               },
               headers: {
-                Authorization: `Bearer ${this.client.fabricToken}`
+                Authorization: `Bearer ${this.client.staticToken}`
               }
             })
           );
@@ -1604,7 +1601,7 @@ class RootStore {
                 mode: EluvioConfiguration.mode,
               },
               headers: {
-                Authorization: `Bearer ${this.client.fabricToken}`
+                Authorization: `Bearer ${this.client.staticToken}`
               }
             })
           );
