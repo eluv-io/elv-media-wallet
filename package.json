@@ -13,7 +13,7 @@
     "build": "npm run build-app && npm run build-client-test && npm run build-docs",
     "build-analyze": "ANALYZE_BUNDLE=true npm run build-app",
     "build-app": "rm -rf dist/* && NODE_ENV=production node ./node_modules/webpack-cli/bin/cli.js -p --devtool none",
-    "build-client-test": "rm -rf ./client/test/dist/* && NODE_ENV=production node ./node_modules/webpack-cli/bin/cli.js --entry ./client/test/index.js --output-path ./client/test/dist --devtool none",
+    "build-client-test": "rm -rf ./test/dist/* && NODE_ENV=production node ./node_modules/webpack-cli/bin/cli.js --entry ./test/index.js --output-path ./test/dist --devtool none",
     "build-docs": "rm -rf ./docs/* && ./node_modules/.bin/jsdoc --configure ./.jsdoc.json --readme README.md",
     "add-build": "COMMIT=`git rev-parse HEAD` ; echo $COMMIT > dist/version.txt ; git add dist",
     "lint": "npm run fix-scss ; npm run lint-scss ; npm run fix-js",
