@@ -15,7 +15,7 @@ import {v4 as UUID} from "uuid";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
-  //enforceActions: "always"
+  enforceActions: "always"
 });
 
 const searchParams = new URLSearchParams(window.location.search);
@@ -123,8 +123,8 @@ class RootStore {
   hideGlobalNavigation = false;
   hideNavigation = searchParams.has("hn") || this.loginOnly;
   sidePanelMode = false;
-  centerText = false;
-  centerItemText = false;
+  centerContent = false;
+  centerItems = false;
 
   staticToken = undefined;
   authedToken = undefined;
@@ -338,7 +338,9 @@ class RootStore {
         throw Error("Neither ID token nor auth token provided to Authenticate");
       }
 
-      client.SetStaticToken({token: fabricToken});
+      client.fabricToken = fabricToken;
+
+      //client.SetStaticToken({token: fabricToken});
 
       this.client = client;
 
@@ -672,7 +674,7 @@ class RootStore {
 
     const cssTag = document.getElementById("_custom-css");
     if(options.color_scheme === "Custom" && marketplace?.branding?.custom_css) {
-      //cssTag.innerHTML = marketplace.branding.custom_css.toString();
+      cssTag.innerHTML = marketplace.branding.custom_css.toString();
     } else {
       cssTag.innerHTML = "";
 
@@ -698,8 +700,8 @@ class RootStore {
       }
     }
 
-    this.centerText = marketplace?.branding?.text_justification === "Center";
-    this.centerItemText = marketplace?.branding?.item_text_justification === "Center";
+    this.centerContent = marketplace?.branding?.text_justification === "Center";
+    this.centerItems = marketplace?.branding?.item_text_justification === "Center";
 
     switch(options.color_scheme) {
       case "Dark":
@@ -994,7 +996,7 @@ class RootStore {
           tok_id: tokenId
         },
         headers: {
-          Authorization: `Bearer ${this.client.staticToken}`
+          Authorization: `Bearer ${this.client.fabricToken}`
         }
       });
 
@@ -1021,7 +1023,7 @@ class RootStore {
           path: UrlJoin("as", "wlt", "status", "act", tenantId),
           method: "GET",
           headers: {
-            Authorization: `Bearer ${this.client.staticToken}`
+            Authorization: `Bearer ${this.client.fabricToken}`
           }
         })
       );
@@ -1116,7 +1118,7 @@ class RootStore {
           path: UrlJoin("as", "wlt", "act", marketplace.tenant_id, eventId, dropId),
           method: "GET",
           headers: {
-            Authorization: `Bearer ${this.client.staticToken}`
+            Authorization: `Bearer ${this.client.fabricToken}`
           }
         })
       );
@@ -1191,7 +1193,7 @@ class RootStore {
         itm: sku
       },
       headers: {
-        Authorization: `Bearer ${this.client.staticToken}`
+        Authorization: `Bearer ${this.client.fabricToken}`
       }
     });
   });
@@ -1205,7 +1207,7 @@ class RootStore {
         path: UrlJoin("as", "wlt", "mkt", "bal"),
         method: "GET",
         headers: {
-          Authorization: `Bearer ${this.client.staticToken}`
+          Authorization: `Bearer ${this.client.fabricToken}`
         }
       })
     );
@@ -1230,7 +1232,7 @@ class RootStore {
           return_url: rootUrl.toString()
         },
         headers: {
-          Authorization: `Bearer ${this.client.staticToken}`
+          Authorization: `Bearer ${this.client.fabricToken}`
         }
       });
 
@@ -1268,7 +1270,7 @@ class RootStore {
           mode: EluvioConfiguration.mode,
         },
         headers: {
-          Authorization: `Bearer ${this.client.staticToken}`
+          Authorization: `Bearer ${this.client.fabricToken}`
         }
       })
     );
@@ -1541,7 +1543,7 @@ class RootStore {
                 refresh_url: window.location.href
               },
               headers: {
-                Authorization: `Bearer ${this.client.staticToken}`
+                Authorization: `Bearer ${this.client.fabricToken}`
               }
             })
           );
@@ -1563,7 +1565,7 @@ class RootStore {
                 mode: EluvioConfiguration.mode,
               },
               headers: {
-                Authorization: `Bearer ${this.client.staticToken}`
+                Authorization: `Bearer ${this.client.fabricToken}`
               }
             })
           );

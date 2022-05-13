@@ -1,20 +1,32 @@
 .card-list {
-  display: grid;
-  grid-gap: 10px;
-  grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));
-  height: min-content;
+  display: flex;
+  flex-wrap: wrap;
+  // sass-lint:disable no-misspelled-properties
+  gap: 10px;
+  // sass-lint:enable no-misspelled-properties
   margin-top: 20px;
 
   .card-container {
-    .card {
-      height: 100%;
-      padding-bottom: 15px;
-    }
+    flex: 1 1 100%;
+    max-width: 290px;
   }
 
   &__loader {
     min-height: 350px;
     min-width: 250px;
+  }
+
+  @media screen and (max-width: $breakpoint) {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));
+    height: min-content;
+    justify-content: center;
+    margin-top: 20px;
+
+    .card-container {
+      max-width: unset;
+    }
   }
 }
 
@@ -312,6 +324,12 @@
       outline: 0;
       width: 100%;
     }
+  }
+}
+
+.app--centered {
+  .card-list {
+    justify-content: center;
   }
 }
 

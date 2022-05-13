@@ -29,6 +29,8 @@
   }
 
   &__section {
+    display: flex;
+    flex-direction: column;
     margin: 30px 0;
 
     &:first-child {
@@ -37,11 +39,7 @@
 
     .page-header,
     .page-subheader {
-      max-width: 600px;
-
-      &--centered {
-        margin: 0 auto;
-      }
+      max-width: 650px;
     }
 
 
@@ -60,15 +58,23 @@
     margin-top: 0;
   }
 
+  &__collection-header {
+    margin: 20px 0;
+
+    &__icon {
+      max-height: 400px;
+      max-width: 600px;
+
+      img {
+        object-fit: contain;
+      }
+    }
+  }
+
   .section-header {
     align-items: center;
     display: flex;
     margin-bottom: 10px;
-
-    &__left {
-      align-items: center;
-      display: flex;
-    }
 
     .page-header {
       &__title,
@@ -110,31 +116,35 @@
       }
     }
   }
-
-  &__collection-header {
-    @include component;
-    box-shadow: var(--box-shadow-component);
-  }
-
-  .collection-info {
-    &__button {
-      border: 0;
-      height: 45px;
-      margin-left: 20px;
-      opacity: 0.5;
-      width: 45px;
-
-      &__icon {
-        height: 100%;
-        padding: 0;
-        width: 100%;
-      }
-    }
-  }
 }
 
 .side-panel {
   .marketplace-navigation {
     display: none;
+  }
+}
+
+.app--centered {
+  .marketplace {
+    &__section {
+      .page-header,
+      .page-subheader {
+        justify-content: center;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+      }
+    }
+
+    &__collection-header {
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      * {
+        text-align: center;
+      }
+    }
   }
 }
