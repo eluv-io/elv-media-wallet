@@ -121,6 +121,12 @@ export const DebouncedInput = (props) => {
       {...props}
       className={`debounced-input ${props.className || ""}`}
       value={inputValue}
+      onKeyDown={event => {
+        if(event.key === "Enter" && props.onEnterPressed) {
+          props.onEnterPressed();
+          clearTimeout(debounceTimeout);
+        }
+      }}
       onChange={event => {
         clearTimeout(debounceTimeout);
 

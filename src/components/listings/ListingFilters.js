@@ -8,6 +8,7 @@ import ImageIcon from "Components/common/ImageIcon";
 
 import SearchIcon from "Assets/icons/search.svg";
 import FilterIcon from "Assets/icons/filter icon.svg";
+import ClearIcon from "Assets/icons/x.svg";
 
 const sortOptionsOwned = [
   { key: "default", value: "default", label: "Default", desc: true},
@@ -276,15 +277,37 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
             /> : null }
       </div>
       <div className="filters__search-container">
-        <AutoComplete
-          className="filters__search"
-          key={`autocomplete-${filterOptionsLoaded}-${savedOptionsLoaded}`}
-          placeholder="Search here"
-          value={filterValues.filter}
-          onChange={value => setFilterValues({...filterValues, filter: value})}
-          onEnterPressed={async () => await Update(true)}
-          options={filterOptions}
-        />
+        {
+          mode === "owned" ?
+            // Owned NFTs do not need exact queries
+            <div className="autocomplete filters__search">
+              <DebouncedInput
+                className="listing-filters__filter-input autocomplete__input"
+                placeholder="Filter..."
+                value={filterValues.filter}
+                onChange={value => setFilterValues({...filterValues, filter: value})}
+                onEnterPressed={async () => await Update(true)}
+              />
+              {
+                filterValues.filter ?
+                  <button
+                    onClick={() => setFilterValues({...filterValues, filter: ""})}
+                    className="autocomplete__clear-button"
+                  >
+                    <ImageIcon icon={ClearIcon} title="Clear" />
+                  </button> : null
+              }
+            </div> :
+            <AutoComplete
+              className="filters__search"
+              key={`autocomplete-${filterOptionsLoaded}-${savedOptionsLoaded}`}
+              placeholder="Search here"
+              value={filterValues.filter}
+              onChange={value => setFilterValues({...filterValues, filter: value})}
+              onEnterPressed={async () => await Update(true)}
+              options={filterOptions}
+            />
+        }
         <ButtonWithLoader onClick={async () => await Update(true)} className="filters__search-button">
           <ImageIcon icon={SearchIcon} label="Search" />
         </ButtonWithLoader>

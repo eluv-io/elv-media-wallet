@@ -13,7 +13,7 @@ import SanitizeHTML from "sanitize-html";
 import Confirm from "Components/common/Confirm";
 import {TransferTable} from "Components/listings/TransferTables";
 import ListingModal from "Components/listings/ListingModal";
-import {Loader, PageLoader} from "Components/common/Loaders";
+import {PageLoader} from "Components/common/Loaders";
 import PurchaseModal from "Components/listings/PurchaseModal";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {v4 as UUID} from "uuid";
