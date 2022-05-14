@@ -1,27 +1,35 @@
 import React from "react";
 import {Redirect, withRouter} from "react-router-dom";
+import {rootStore} from "Stores";
 
 class ErrorBoundaryClass extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      error: undefined
+      hasError: false
     };
   }
 
   componentDidUpdate(prevProps) {
     if(this.props.location.pathname !== prevProps.location.pathname) {
       this.setState({error: undefined});
+      rootStore.SetDebugMessage(undefined);
     }
   }
 
-  componentDidCatch(error) {
-    this.setState({error});
+  componentDidCatch(error, errorInfo) {
+    this.setState({hasError: true});
+
+    rootStore.SetDebugMessage(
+      "Debug Trace:" + "\n\n" +
+      error.toString() + "\n\n" +
+      errorInfo.componentStack
+    );
   }
 
   render() {
-    if(this.state.error) {
+    if(this.state.hasError) {
       if(this.props.redirectOnError) {
         return <Redirect to={this.props.To(this.props.match)} />;
       }

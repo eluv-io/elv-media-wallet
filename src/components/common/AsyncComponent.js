@@ -31,22 +31,16 @@ class AsyncComponent extends React.Component {
       loading: true
     });
 
-    try {
-      await this.props.Load();
+    await this.props.Load();
 
-      if(this.props.loadKey) {
-        loaded[this.props.loadKey] = Date.now();
-      }
+    if(this.props.loadKey) {
+      loaded[this.props.loadKey] = Date.now();
+    }
 
-      if(this.mounted) {
-        this.setState({
-          loading: false
-        });
-      }
-    } catch(error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
-      this.setState({error});
+    if(this.mounted) {
+      this.setState({
+        loading: false
+      });
     }
   }
 
@@ -54,17 +48,7 @@ class AsyncComponent extends React.Component {
     this.mounted = false;
   }
 
-  componentDidCatch(error, errorInfo) {
-    // eslint-disable-next-line no-console
-    console.error(error, errorInfo);
-  }
-
   render() {
-    if(this.state.error) {
-      // Throw error synchronously for ErrorHandler to catch
-      throw this.state.error;
-    }
-
     if(this.state.loading) {
       return <Loader className={this.props.loadingClassName} />;
     }
@@ -73,7 +57,7 @@ class AsyncComponent extends React.Component {
   }
 }
 
-const AsyncComponentErrorBoundary = observer((props) => {
+const AsyncComponentEB = observer((props) => {
   return (
     <ErrorBoundary>
       <AsyncComponent {...props} />
@@ -81,4 +65,4 @@ const AsyncComponentErrorBoundary = observer((props) => {
   );
 });
 
-export default AsyncComponentErrorBoundary;
+export default AsyncComponentEB;

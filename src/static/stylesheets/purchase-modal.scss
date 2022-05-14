@@ -5,12 +5,20 @@
     height: max-content;
     max-height: unset;
     max-width: 550px;
-    min-height: 100vh;
     overflow-y: hidden;
     padding-bottom: 5vh;
     padding-right: 8px;
     top: 5vh;
     width: 100%;
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    .modal__content {
+      max-width: unset;
+      min-height: 100%;
+      padding: 0;
+      top: 0;
+    }
   }
 }
 
@@ -21,7 +29,7 @@ $content-width: 475px;
   @include modal;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: max-content;
   min-height: 100vh;
   position: relative;
 
@@ -74,7 +82,7 @@ $content-width: 475px;
     width: 100%;
 
     & + .action {
-      margin-top: 5px;
+      margin-top: 10px;
     }
   }
 
@@ -260,6 +268,11 @@ $content-width: 475px;
   .wallet-connect {
     max-width: 100%;
   }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    border: 0;
+    min-height: 100vh;
+  }
 }
 
 .quantity {
@@ -281,7 +294,6 @@ $content-width: 475px;
     margin: 5px 0;
   }
 
-  // TODO: Switch to SVG icons
   &__button {
     align-items: center;
     border-radius: 100%;

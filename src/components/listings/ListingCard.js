@@ -52,15 +52,6 @@ const ListingCard = ({listing, link, Refresh}) => {
       }
       <div className="listing-card-container">
         <div className="listing-card">
-          <button
-            onClick={() => setShowListingModal(!showListingModal)}
-            aria-label="Edit Listing"
-            disabled={isInCheckout}
-            className="listing-card__edit-button"
-            title={isInCheckout ? "This listing is currently in the process of being purchased" : ""}
-          >
-            <ImageIcon icon={EditIcon} label="Edit Listing" />
-          </button>
           <div className="listing-card__left">
             <Link to={link} className="listing-card__image-container">
               <NFTImage width={600} className="listing-card__image" nft={listing} />
@@ -68,6 +59,15 @@ const ListingCard = ({listing, link, Refresh}) => {
             { sideText }
           </div>
           <div className="listing-card__details">
+            <button
+              onClick={() => setShowListingModal(!showListingModal)}
+              aria-label="Edit Listing"
+              disabled={isInCheckout}
+              className="listing-card__edit-button"
+              title={isInCheckout ? "This listing is currently in the process of being purchased" : ""}
+            >
+              <ImageIcon icon={EditIcon} label="Edit Listing" />
+            </button>
             <ResponsiveEllipsis
               component="div"
               className="listing-card__name"

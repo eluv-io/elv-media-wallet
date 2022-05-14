@@ -51,17 +51,25 @@ import {LoginRedirectGate} from "Components/common/LoginGate";
 import Flows from "Components/interface/Flows";
 import Actions from "Components/interface/Actions";
 
-const DebugFooter = () => {
+const DebugFooter = observer(() => {
   if(!EluvioConfiguration["show-debug"]) { return null; }
 
   return (
-    <div className="debug-footer">
-      <div>{ EluvioConfiguration.version }</div>
-      <div>{ EluvioConfiguration["config-url"].includes("demov3") ? "Demo Network" : "Production Network" }</div>
-      <div>Deployed { new Date(EluvioConfiguration["deployed-at"] || Date.now()).toLocaleString(navigator.languages, {year: "numeric", month: "long", weekday: "long", hour: "numeric", minute: "numeric", second: "numeric" }) }</div>
-    </div>
+    <>
+      <div className="debug-footer">
+        <div>{ EluvioConfiguration.version }</div>
+        <div>{ EluvioConfiguration["config-url"].includes("demov3") ? "Demo Network" : "Production Network" }</div>
+        <div>Deployed { new Date(EluvioConfiguration["deployed-at"] || Date.now()).toLocaleString(navigator.languages, {year: "numeric", month: "long", weekday: "long", hour: "numeric", minute: "numeric", second: "numeric" }) }</div>
+      </div>
+      {
+        rootStore.DEBUG_ERROR_MESSAGE ?
+          <pre className="debug-error-message">
+            { rootStore.DEBUG_ERROR_MESSAGE }
+          </pre> : null
+      }
+    </>
   );
-};
+});
 
 const Placeholder = ({ text }) => <div>{text}</div>;
 
@@ -141,7 +149,6 @@ const Routes = observer(() => {
   return (
     <>
       <Header />
-      { rootStore.DEBUG_ERROR_MESSAGE ? <pre className="debug-error-message">{ rootStore.DEBUG_ERROR_MESSAGE }</pre> : null }
       <ScrollToTop>
         <ErrorBoundary className="page-container">
           <Switch>
