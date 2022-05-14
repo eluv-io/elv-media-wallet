@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {useLocation, useRouteMatch} from "react-router-dom";
 import {rootStore, transferStore} from "Stores";
 import AutoComplete from "Components/common/AutoComplete";
-import {ButtonWithLoader, DebouncedInput} from "Components/common/UIComponents";
+import {ButtonWithLoader, DebouncedInput, Select} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 
 import SearchIcon from "Assets/icons/search.svg";
@@ -48,19 +48,20 @@ const SortOptions = mode => {
 
 let savedOptions;
 const FilterDropdown = observer(({label, value, options, optionLabelPrefix, onChange, placeholder}) => {
-  // TODO Custom  select
   return (
-    <select
-      title={label}
-      className={`filters__select ${placeholder && (placeholder[0] || "").toString() === (value || "").toString() ? "filters__select-placeholder" : ""}`}
+    <Select
+      label={label}
       value={value}
-      onChange={event => onChange(event.target.value)}
-    >
-      { placeholder ? <option value={placeholder[0]} key={`sort-option-${placeholder[0]}`}>{ placeholder[1] }</option> : null}
-      { options.map(([value, label]) => (
-        <option value={value} key={`sort-option-${value}`}>{ optionLabelPrefix || "" }{ label }</option>
-      ))}
-    </select>
+      onChange={value => onChange(value)}
+      containerClassName="filters__select-container"
+      buttonClassName={`filters__select ${placeholder && (placeholder[0] || "").toString() === (value || "").toString() ? "filters__select-placeholder" : ""}`}
+      options={
+        [
+          placeholder ? [placeholder[0], placeholder[1]] : undefined,
+          ...options.map(options => [options[0], `${optionLabelPrefix}${options[1]}`])
+        ].filter(option => option)
+      }
+    />
   );
 });
 

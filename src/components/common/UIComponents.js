@@ -1,9 +1,12 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import SVG from "react-inlinesvg";
 
 import CopyIcon from "Assets/icons/copy.svg";
 import {Loader} from "Components/common/Loaders";
 import ImageIcon from "Components/common/ImageIcon";
+import {v4 as UUID} from "uuid";
+
+import SelectIcon from "Assets/icons/select-icon.svg";
 
 export const ExpandableSection = ({header, icon, children, expanded=false, toggleable=true, className="", contentClassName="", additionalContent}) => {
   const [ show, setShow ] = useState(expanded);
@@ -135,5 +138,150 @@ export const DebouncedInput = ({onEnterPressed, ...props}) => {
         debounceTimeout = setTimeout(() => props.onChange(value), 1000);
       }}
     />
+  );
+};
+
+export const Select = ({label, value, options, onChange, containerClassName="", buttonClassName="", menuClassName=""}) => {
+  // If only labels are provided, convert to array format
+  if(!Array.isArray(options[0])) {
+    options = options.map(option => [option, option]);
+  }
+
+  const currentIndex = Math.max(options.findIndex(option => option[0] === value), 0);
+
+  const [idPrefix] = useState(UUID());
+  const [showMenu, setShowMenu] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(currentIndex);
+  const [filter, setFilter] = useState("");
+  const [filterLastTyped, setFilterLastTyped] = useState(0);
+
+  const ref = useRef();
+
+  useEffect(() => {
+    const onClickOutside = event => {
+      if(!ref.current || !ref.current.contains(event.target)) {
+        setShowMenu(false);
+      }
+    };
+
+    document.addEventListener("click", onClickOutside);
+
+    return () => document.removeEventListener("click", onClickOutside);
+  }, []);
+
+
+  useEffect(() => {
+    if(showMenu) {
+      const selectedItem = document.getElementById(`styled-select-${idPrefix}-${selectedIndex}`);
+
+      if(selectedItem) {
+        selectedItem.parentElement.scrollTop = selectedItem.offsetTop;
+      }
+    }
+  }, [selectedIndex, showMenu]);
+
+  useEffect(() => {
+    const optionIndex = options.findIndex(option => option[1].toLowerCase().startsWith(filter.toLowerCase()));
+
+    if(optionIndex >= 0) {
+      setSelectedIndex(optionIndex);
+    }
+  }, [filter]);
+
+  const KeyboardControls = event => {
+    if(!showMenu) { return; }
+
+    event.preventDefault();
+
+    switch(event.key) {
+      case "Escape":
+        setShowMenu(false);
+        break;
+      case "ArrowDown":
+        setSelectedIndex(Math.min(selectedIndex + 1, options.length - 1));
+        break;
+      case "ArrowUp":
+        setSelectedIndex(Math.max(selectedIndex - 1, 0));
+        break;
+      case "Home":
+        setSelectedIndex(0);
+        break;
+      case "End":
+        setSelectedIndex(options.length - 1);
+        break;
+      case "Enter":
+        onChange(options[selectedIndex][0]);
+        setShowMenu(false);
+        break;
+      case "Backspace":
+        setFilter(filter.slice(0, filter.length - 1));
+        break;
+      default:
+        if(event.key.length === 1) {
+          if(Date.now() - filterLastTyped < 2000) {
+            setFilter(filter + event.key);
+          } else {
+            setFilter(event.key);
+          }
+
+          setFilterLastTyped(Date.now());
+        }
+
+        return;
+    }
+  };
+
+  let menu;
+  if(showMenu) {
+    menu = (
+      <ul
+        aria-expanded={true}
+        role="listbox"
+        aria-labelledby={`styled-select-${idPrefix}-button`}
+        tabIndex="-1"
+        className={`styled-select__menu ${menuClassName}`}
+      >
+        {
+          options.map((option, index) =>
+            <li
+              onClick={() => onChange(option[0])}
+              role="option"
+              data-value={option[0]}
+              aria-selected={value === option[0]}
+              className={`styled-select__menu__option ${index === selectedIndex ? "styled-select__menu__option--selected" : ""}`}
+              id={`styled-select-${idPrefix}-${index}`}
+              key={`option-${index}`}
+            >
+              { option[1] }
+            </li>
+          )
+        }
+      </ul>
+    );
+  }
+
+  return (
+    <div className={`styled-select ${containerClassName}`}>
+      <button
+        id={`styled-select-${idPrefix}-button`}
+        className={`styled-select__button ${buttonClassName}`}
+        ref={ref}
+        aria-haspopup="listbox"
+        aria-label={label}
+        aria-activedescendant={showMenu ? `styled-select-${idPrefix}-${selectedIndex}` : ""}
+        onClick={() => {
+          if(!showMenu) {
+            setSelectedIndex(currentIndex);
+          }
+
+          setShowMenu(!showMenu);
+        }}
+        onKeyDown={KeyboardControls}
+      >
+        { options[currentIndex || 0][1] }
+        <ImageIcon icon={SelectIcon} className="styled-select__button__icon" />
+      </button>
+      { menu }
+    </div>
   );
 };

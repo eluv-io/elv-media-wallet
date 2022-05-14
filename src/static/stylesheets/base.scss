@@ -37,8 +37,8 @@ a {
 
 a,
 input,
-select,
-button {
+button,
+.styled-select__button {
   font-size: 16px;
 
   &::placeholder {
@@ -127,6 +127,13 @@ body,
   top: 0;
   width: 100%;
   z-index: 0;
+}
+
+.styled-select,
+.styled-select__button,
+.styled-select__menu__option {
+  min-height: 30px;
+  min-width: 220px;
 }
 
 select {

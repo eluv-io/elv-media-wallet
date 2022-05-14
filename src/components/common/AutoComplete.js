@@ -148,6 +148,10 @@ const AutoComplete = ({
         aria-owns={`${id}-options`}
         onChange={event => setInputValue(event.target.value)}
         onKeyDown={event => {
+          if(event.key === "Escape") {
+            setBlur(UUID());
+          }
+
           if(event.key === "Enter") {
             if(!showSuggestions) {
               onEnterPressed && onEnterPressed();

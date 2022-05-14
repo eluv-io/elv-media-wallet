@@ -18,6 +18,11 @@
     z-index: 100;
   }
 
+  .styled-select,
+  .styled-select__menu {
+    z-index: 101;
+  }
+
   &:not(&--no-fade) {
     @include page-fade-in;
   }

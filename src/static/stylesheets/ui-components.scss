@@ -350,7 +350,6 @@
   align-items: center;
   display: flex;
   position: relative;
-  z-index: 2;
 
   &__clear-button {
     align-items: center;
@@ -414,5 +413,75 @@
   &__option-selected {
     background-color: var(--color-input-highlight-bg);
     color: var(--color-input-highlight-text);
+  }
+}
+
+.styled-select {
+  display: block;
+  position: relative;
+
+  * {
+    font: var(--font-input);
+  }
+
+  &__button {
+    align-items: center;
+    background: var(--background-input);
+    border: var(--border-input);
+    border-radius: var(--border-radius-input);
+    cursor: pointer;
+    display: flex;
+    overflow: hidden;
+    padding: 0 1em;
+    position: relative;
+    text-align: left;
+    text-overflow: ellipsis;
+    user-select: none;
+    white-space: nowrap;
+    width: 100%;
+
+    * {
+      color: var(--color-input-text);
+    }
+
+    &__icon {
+      height: 12px;
+      position: absolute;
+      right: 1em;
+      width: 12px;
+
+      * {
+        height: 12px;
+        width: 12px;
+      }
+    }
+  }
+
+  &__menu {
+    @include page-fade-in(0.25s, ease);
+    background: var(--color-input-bg-solid);
+    border: var(--border-input);
+    border-radius: var(--border-radius-input);
+    max-height: 300px;
+    overflow: auto;
+    position: absolute;
+    top: calc(100% + 3px);
+    width: 100%;
+    z-index: 2;
+
+    &__option {
+      align-items: center;
+      cursor: pointer;
+      display: flex;
+      padding: 0 1em;
+      position: relative;
+      width: 100%;
+
+      &:hover,
+      &--selected {
+        background: var(--color-input-highlight-bg);
+        color: var(--color-input-highlight-text);
+      }
+    }
   }
 }

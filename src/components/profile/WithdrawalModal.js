@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {rootStore} from "Stores";
 import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
-import {ButtonWithLoader, FormatPriceString} from "Components/common/UIComponents";
+import {ButtonWithLoader, FormatPriceString, Select} from "Components/common/UIComponents";
 import {roundToUp} from "round-to";
 
 const supportedCountries = [["US","United States of America"], ["AR","Argentina"],["AU","Australia"],["AT","Austria"],["BE","Belgium"],["BO","Bolivia"],["BG","Bulgaria"],["CA","Canada"],["CL","Chile"],["CO","Colombia"],["CR","Costa Rica"],["HR","Croatia"],["CY","Cyprus"],["CZ","Czech Republic"],["DK","Denmark"],["DO","Dominican Republic"],["EG","Egypt"],["EE","Estonia"],["FI","Finland"],["FR","France"],["GM","Gambia"],["DE","Germany"],["GR","Greece"],["HK","Hong Kong"],["HU","Hungary"],["IS","Iceland"],["IN","India"],["ID","Indonesia"],["IE","Ireland"],["IL","Israel"],["IT","Italy"],["KE","Kenya"],["LV","Latvia"],["LI","Liechtenstein"],["LT","Lithuania"],["LU","Luxembourg"],["MT","Malta"],["MX","Mexico"],["NL","Netherlands"],["NZ","New Zealand"],["NO","Norway"],["PY", "Paraguay"],["PE","Peru"],["PH","Phillipines"],["PL","Poland"],["PT","Portugal"],["RO","Romania"],["SA","Saudi Arabia"],["RS","Serbia"],["SG","Singapore"],["SK","Slovakia"],["SI","Slovenia"],["ZA","South Africa"],["KR","South Korea"],["ES","Spain"],["SE","Sweden"],["CH","Switzerland"],["TH","Thailand"],["TT","Trinidad & Tobago"],["TR","Turkey"],["AE","United Arab Emirates"],["GB","United Kingdom"],["UY", "Uruguay"]];
@@ -21,17 +21,15 @@ export const WithdrawalSetupModal = observer(({Close}) => {
           <div className="withdrawal-confirmation__message">
             Please select your country to continue
           </div>
-          <select
+          <Select
             value={countryCode}
-            onChange={event => setCountryCode(event.target.value)}
-            className="withdrawal-confirmation__country-select"
-          >
-            <option value="">Select a Country</option>
-
-            { supportedCountries.map(([code, name]) =>
-              <option value={code} key={`option-${code}`}>{ name }</option>
-            )}
-          </select>
+            onChange={value => setCountryCode(value)}
+            containerClassName="withdrawal-confirmation__country-select"
+            options={[
+              ["", "Select a Country"],
+              ...supportedCountries
+            ]}
+          />
           {
             errorMessage ?
               <div className="withdrawal-confirmation__error">
@@ -43,6 +41,7 @@ export const WithdrawalSetupModal = observer(({Close}) => {
               Cancel
             </button>
             <ButtonWithLoader
+              disabled={!countryCode}
               onClick={async () => {
                 try {
                   await rootStore.StripeOnboard(countryCode);

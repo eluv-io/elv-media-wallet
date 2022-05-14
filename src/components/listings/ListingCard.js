@@ -71,7 +71,7 @@ const ListingCard = ({listing, link, Refresh}) => {
             <ResponsiveEllipsis
               component="div"
               className="listing-card__name"
-              maxLine="2"
+              maxLine="1"
               text={listing.metadata.display_name}
             />
             <div className="listing-card__status">

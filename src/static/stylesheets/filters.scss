@@ -15,11 +15,16 @@ $search-height: 50px;
     position: relative;
   }
 
+  &__select-container,
   &__select {
-    display: flex;
     height: $controls-height;
-    justify-content: center;
-    text-align: center;
+    min-width: 250px;
+  }
+
+  &__select-container {
+    .styled-select__menu__option {
+      height: $controls-height;
+    }
   }
 
   &__menu-button {
@@ -52,7 +57,6 @@ $search-height: 50px;
     &__clear-button {
       padding: 12px;
       right: 50px;
-      z-index: 10;
     }
   }
 
@@ -91,7 +95,6 @@ $search-height: 50px;
     position: absolute;
     right: 0;
     width: 65px;
-    z-index: 2;
   }
 
   &__menu {
@@ -105,13 +108,9 @@ $search-height: 50px;
     right: 0;
     top: calc(#{$controls-height + 10px});
     width: 400px;
-    z-index: 10;
+    z-index: 2;
 
-    .filters__select {
-      height: $search-height;
-      text-align: center;
-      width: 100%;
-
+    & > * {
       &:not(:last-child) {
         margin-bottom: 20px;
       }
@@ -119,6 +118,11 @@ $search-height: 50px;
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
+    &__select-container,
+    &__select {
+      width: 100%;
+    }
+
     &__search {
       input {
         font-size: 16px;

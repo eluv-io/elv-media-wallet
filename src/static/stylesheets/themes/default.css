@@ -64,7 +64,7 @@
   --border-button-primary: 1px solid var(--color-highlight-container-bg);
   --border-radius-button-primary: var(--border-radius);
 
-  --background-button-secondary: transparent;
+  --background-button-secondary: var(--color-bg-primary);
   --color-button-secondary-text: var(--color-text-primary);
   --border-button-secondary: var(--border);
   --border-radius-button-secondary: var(--border-radius);

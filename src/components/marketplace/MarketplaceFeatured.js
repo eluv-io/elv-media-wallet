@@ -45,7 +45,7 @@ const FeaturedGallery = ({showIcons, marketplaceHash, items, selectedIndex, setS
     }
   }, [range]);
 
-  const keyboardControls = event => {
+  const KeyboardControls = event => {
     switch(event.key) {
       case "ArrowLeft":
       case "ArrowDown":
@@ -116,7 +116,7 @@ const FeaturedGallery = ({showIcons, marketplaceHash, items, selectedIndex, setS
                 width: `${Math.min(100, Math.max(0, 100 * width / items.length))}%`,
                 left: `${Math.min(100, Math.max(0, 100 * range[0] / items.length))}%`
               }}
-              onKeyDown={keyboardControls}
+              onKeyDown={KeyboardControls}
               aria-label="Featured Item Gallery Slider"
               aria-valuemin={1}
               aria-valuenow={selectedIndex + 1}
