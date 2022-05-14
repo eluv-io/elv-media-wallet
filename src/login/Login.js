@@ -14,6 +14,7 @@ import DownCaretIcon from "./static/down-caret.svg";
 import MetamaskIcon from "./static/metamask fox.png";
 
 import EluvioLogo from "./static/logo.svg";
+import {cryptoStore} from "Stores";
 
 const embedded = window.top !== window.self || new URLSearchParams(window.location.search).has("e");
 
@@ -268,24 +269,39 @@ const Buttons = ({customizationOptions, Auth0LogIn, SignIn}) => {
   );
 
   const metamaskButton = (
-    <button
-      style={{
-        color: customizationOptions?.wallet_button?.text_color?.color,
-        backgroundColor: customizationOptions?.wallet_button?.background_color?.color,
-        border: `0.75px solid ${customizationOptions?.wallet_button?.border_color?.color}`
-      }}
-      className="action login-page__login-button login-page__login-button-wallet"
-      onClick={() => {
-        WalletAuthenticate({
-          tenantId: customizationOptions.tenant_id,
-          externalWallet: "metamask",
-          SignIn
-        });
-      }}
-    >
-      <ImageIcon icon={MetamaskIcon} />
-      Metamask
-    </button>
+    cryptoStore.MetamaskAvailable() ?
+      <button
+        style={{
+          color: customizationOptions?.wallet_button?.text_color?.color,
+          backgroundColor: customizationOptions?.wallet_button?.background_color?.color,
+          border: `0.75px solid ${customizationOptions?.wallet_button?.border_color?.color}`
+        }}
+        className="action login-page__login-button login-page__login-button-wallet"
+        onClick={() => {
+          WalletAuthenticate({
+            tenantId: customizationOptions.tenant_id,
+            externalWallet: "metamask",
+            SignIn
+          });
+        }}
+      >
+        <ImageIcon icon={MetamaskIcon} />
+        Metamask
+      </button> :
+      <a
+        href="https://metamask.io/download/"
+        rel="noopener"
+        target="_blank"
+        style={{
+          color: customizationOptions?.wallet_button?.text_color?.color,
+          backgroundColor: customizationOptions?.wallet_button?.background_color?.color,
+          border: `0.75px solid ${customizationOptions?.wallet_button?.border_color?.color}`
+        }}
+        className="action login-page__login-button login-page__login-button-wallet"
+      >
+        <ImageIcon icon={MetamaskIcon} />
+        Metamask
+      </a>
   );
 
   return (

@@ -38,6 +38,10 @@
   font-weight: 300;
   margin-top: 75px;
   text-align: center;
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    margin-top: 20px;
+  }
 }
 
 .listing-card-list {

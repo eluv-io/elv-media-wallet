@@ -430,9 +430,10 @@
     border: var(--border-input);
     border-radius: var(--border-radius-input);
     cursor: pointer;
-    display: flex;
+    display: block;
+    //display: flex;
     overflow: hidden;
-    padding: 0 1em;
+    padding: 0 30px 0 15px;
     position: relative;
     text-align: left;
     text-overflow: ellipsis;
@@ -444,10 +445,13 @@
       color: var(--color-input-text);
     }
 
-    &__icon {
-      height: 12px;
+    &__icon-container {
+      align-items: center;
+      display: flex;
+      height: 100%;
       position: absolute;
       right: 1em;
+      top: 0;
       width: 12px;
 
       * {
@@ -473,9 +477,10 @@
       align-items: center;
       cursor: pointer;
       display: flex;
-      padding: 0 1em;
+      padding: 0 15px;
       position: relative;
       width: 100%;
+      //height: max-content!important;
 
       &:hover,
       &--selected {

@@ -217,7 +217,7 @@ export const Select = ({label, value, options, onChange, containerClassName="", 
         setFilter(filter.slice(0, filter.length - 1));
         break;
       default:
-        if(event.key.length === 1) {
+        if(event.key.length === 1 || event.key === "Space") {
           if(Date.now() - filterLastTyped < 2000) {
             setFilter(filter + event.key);
           } else {
@@ -279,7 +279,9 @@ export const Select = ({label, value, options, onChange, containerClassName="", 
         onKeyDown={KeyboardControls}
       >
         { options[currentIndex || 0][1] }
-        <ImageIcon icon={SelectIcon} className="styled-select__button__icon" />
+        <div className="styled-select__button__icon-container">
+          <ImageIcon icon={SelectIcon} className="styled-select__button__icon" />
+        </div>
       </button>
       { menu }
     </div>

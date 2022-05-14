@@ -28,6 +28,10 @@
       max-width: unset;
     }
   }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    grid-gap: 20px;
+  }
 }
 
 .card-shadow {
