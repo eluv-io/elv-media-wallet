@@ -14,7 +14,7 @@ import DownCaretIcon from "./static/down-caret.svg";
 import MetamaskIcon from "./static/metamask fox.png";
 
 import EluvioLogo from "./static/logo.svg";
-import {cryptoStore} from "Stores";
+import {rootStore, cryptoStore} from "Stores";
 
 const embedded = window.top !== window.self || new URLSearchParams(window.location.search).has("e");
 
@@ -261,39 +261,47 @@ const Buttons = ({customizationOptions, Auth0LogIn, SignIn}) => {
   );
 
   const metamaskButton = (
-    cryptoStore.MetamaskAvailable() ?
-      <button
-        style={{
-          color: customizationOptions?.wallet_button?.text_color?.color,
-          backgroundColor: customizationOptions?.wallet_button?.background_color?.color,
-          border: `0.75px solid ${customizationOptions?.wallet_button?.border_color?.color}`
-        }}
-        className="action login-page__login-button login-page__login-button-wallet"
-        onClick={async () => {
-          await SignIn({
-            tenantId: customizationOptions.tenant_id,
-            externalWallet: "metamask",
-            SignIn
-          });
-        }}
-      >
-        <ImageIcon icon={MetamaskIcon} />
-        Metamask
-      </button> :
-      <a
-        href="https://metamask.io/download/"
-        rel="noopener"
-        target="_blank"
-        style={{
-          color: customizationOptions?.wallet_button?.text_color?.color,
-          backgroundColor: customizationOptions?.wallet_button?.background_color?.color,
-          border: `0.75px solid ${customizationOptions?.wallet_button?.border_color?.color}`
-        }}
-        className="action login-page__login-button login-page__login-button-wallet"
-      >
-        <ImageIcon icon={MetamaskIcon} />
-        Metamask
-      </a>
+    <button
+      style={{
+        color: customizationOptions?.wallet_button?.text_color?.color,
+        backgroundColor: customizationOptions?.wallet_button?.background_color?.color,
+        border: `0.75px solid ${customizationOptions?.wallet_button?.border_color?.color}`
+      }}
+      className="action login-page__login-button login-page__login-button-wallet"
+      onClick={async () => {
+        if(!cryptoStore.MetamaskAvailable()) {
+          // Metamask not available, link to download or open in app
+          const url = new URL(window.location.href);
+
+          if(rootStore.specifiedMarketplaceId) {
+            url.searchParams.set("mid", rootStore.specifiedMarketplaceId);
+          }
+
+          if(rootStore.darkMode) {
+            url.searchParams.set("dk", "");
+          }
+
+          const a = document.createElement("a");
+          a.href = `https://metamask.app.link/dapp/${url.toString().replace("https://", "")}`;
+
+          a.target = "_self";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+
+          return;
+        }
+
+        await SignIn({
+          tenantId: customizationOptions.tenant_id,
+          externalWallet: "metamask",
+          SignIn
+        });
+      }}
+    >
+      <ImageIcon icon={MetamaskIcon} />
+      Metamask
+    </button>
   );
 
   return (
