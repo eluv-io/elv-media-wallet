@@ -92,6 +92,7 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
         embedUrl.searchParams.set("vid", videoHash);
         embedUrl.searchParams.set("ap", "");
         embedUrl.searchParams.set("lp", "");
+        embedUrl.searchParams.set("m", "");
 
         if(item?.nftTemplateMetadata?.has_audio) {
           embedUrl.searchParams.set("ct", "h");
@@ -169,8 +170,10 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
   );
 });
 
-export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon, templateImage=false, rawImage=false, className=""}) => {
-  if(!(url || icon)) {
+export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon, video=false, templateImage=false, rawImage=false, className=""}) => {
+  if(video && item.video && item.video["."]) {
+    return <NFTImage nft={{metadata: item.nftTemplateMetadata}} item={item} video className={className} />;
+  } else if(!(url || icon)) {
     if(!item || item.image && (!templateImage || !item.nft_template || !item.nft_template.nft || !item.nft_template.nft.image)) {
       url = rootStore.PublicLink({
         versionHash: marketplaceHash,

@@ -15,6 +15,7 @@ const MarketplaceItemCard = ({
   index,
   justification="Left",
   noLink,
+  video=false,
   className="",
   cardClassName=""
 }) => {
@@ -74,6 +75,7 @@ const MarketplaceItemCard = ({
           marketplaceHash={marketplaceHash}
           item={item}
           path={UrlJoin("public", "asset_metadata", "info", "items", index.toString(), "image")}
+          video={video}
         />
       )}
       name={item.name}
