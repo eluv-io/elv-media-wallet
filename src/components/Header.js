@@ -13,7 +13,7 @@ import EluvioLogo from "Assets/images/EluvioLogo.png";
 import MenuIcon from "Assets/icons/menu";
 import WalletIcon from "Assets/icons/wallet balance button icon.svg";
 
-const Profile = observer(() => {
+const Profile = observer(({marketplace}) => {
   const location = useLocation();
   const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
 
@@ -32,9 +32,12 @@ const Profile = observer(() => {
   return (
     <Link to={marketplaceId ? `/marketplace/${marketplaceId}/profile` : "/profile"} className="header__profile">
       <div className="header__profile__info ellipsis">
-        <div className="header__profile__name">
-          { rootStore.userProfile.name }
-        </div>
+        {
+          !marketplace?.branding?.hide_profile_name ?
+            <div className="header__profile__name">
+              { rootStore.userProfile.name }
+            </div> : null
+        }
         {
           typeof rootStore.totalWalletBalance !== "undefined" ?
             <div className="header__profile__balances">
@@ -176,7 +179,7 @@ const GlobalHeader = observer(({marketplace}) => {
           <ImageIcon icon={EluvioLogo} title="Eluvio" className="global-header__logo" />
         </Link>
         <GlobalHeaderNavigation />
-        <Profile />
+        <Profile marketplace={marketplace} />
         <MobileNavigation marketplace={marketplace} />
       </div>
     </div>

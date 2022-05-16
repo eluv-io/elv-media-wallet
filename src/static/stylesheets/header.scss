@@ -27,8 +27,7 @@
   }
 
   &__log-in {
-    font-size: 14px;
-    font-weight: 400;
+    font: var(--font-header-profile);
     height: 10px;
     max-height: 30px;
     padding: 10px;
