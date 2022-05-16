@@ -44,6 +44,8 @@ class RootStore {
   network = EluvioConfiguration["config-url"].includes("main.net955305") ? "main" : "demo";
 
   embedded = window.top !== window.self || searchParams.has("e");
+  parentAppUrl = undefined;
+
   storageSupported = storageSupported;
 
   // Opened by embedded window for purchase redirect
@@ -225,6 +227,11 @@ class RootStore {
         noAuth: true
       });
 
+      this.parentAppUrl = this.GetSessionStorage("parentAppUrl") || (searchParams.get("app") && atob(searchParams.get("app")));
+      if(this.parentAppUrl) {
+        this.SetSessionStorage("parentApp", this.parentAppUrl);
+      }
+
       const marketplace = decodeURIComponent(searchParams.get("mid") || this.GetSessionStorage("marketplace") || "");
       let tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash;
       if(marketplace && marketplace.includes("/")) {
@@ -282,6 +289,44 @@ class RootStore {
 
       this.authenticating = true;
       this.loggedIn = false;
+
+      if(externalWallet === "metamask" && !this.cryptoStore.MetamaskAvailable()) {
+        let url = rootStore.parentAppUrl;
+        if(!url) {
+          url = new URL(window.location.href);
+
+          if(rootStore.specifiedMarketplaceId) {
+            url.searchParams.set("mid", rootStore.specifiedMarketplaceId);
+          }
+
+          if(rootStore.darkMode) {
+            url.searchParams.set("dk", "");
+          }
+        }
+
+        // Metamask not available, link to download or open in app
+        if(this.embedded) {
+          // Do flow
+          return yield rootStore.Flow({
+            type: "flow",
+            flow: "open-metamask",
+            parameters: {
+              appUrl: url.toString()
+            }
+          });
+        } else {
+          const a = document.createElement("a");
+          a.href = `https://metamask.app.link/dapp/${url.toString().replace("https://", "")}`;
+
+          a.target = "_self";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+
+          return;
+        }
+      }
+
 
       const client = yield ElvClient.FromConfigurationUrl({
         configUrl: EluvioConfiguration["config-url"],
@@ -1553,6 +1598,13 @@ class RootStore {
           Respond({response: parameters.response, error: parameters.error});
 
           setTimeout(() => window.close(), 5000);
+
+          break;
+
+        case "open-metamask":
+          window.location.href = `https://metamask.app.link/dapp/${parameters.appUrl.toString().replace("https://", "")}`;
+
+          setTimeout(() => window.close(), 1000);
 
           break;
 

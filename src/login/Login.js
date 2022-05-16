@@ -269,29 +269,6 @@ const Buttons = ({customizationOptions, Auth0LogIn, SignIn}) => {
       }}
       className="action login-page__login-button login-page__login-button-wallet"
       onClick={async () => {
-        if(!cryptoStore.MetamaskAvailable()) {
-          // Metamask not available, link to download or open in app
-          const url = new URL(window.location.href);
-
-          if(rootStore.specifiedMarketplaceId) {
-            url.searchParams.set("mid", rootStore.specifiedMarketplaceId);
-          }
-
-          if(rootStore.darkMode) {
-            url.searchParams.set("dk", "");
-          }
-
-          const a = document.createElement("a");
-          a.href = `https://metamask.app.link/dapp/${url.toString().replace("https://", "")}`;
-
-          a.target = "_self";
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-
-          return;
-        }
-
         await SignIn({
           tenantId: customizationOptions.tenant_id,
           externalWallet: "metamask",

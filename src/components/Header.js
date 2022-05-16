@@ -110,6 +110,19 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
           );
         })
       }
+
+      {
+        !rootStore.loggedIn ?
+          <button
+            className="mobile-navigation__link"
+            onClick={() => {
+              Close();
+              rootStore.ShowLogin();
+            }}
+          >
+            Log In
+          </button> : null
+      }
     </div>
   );
 });
