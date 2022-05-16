@@ -2,9 +2,9 @@
   /* General */
 
   /* Fonts - Primary is for used headers, tertiary for buttons, prices and other details, secondary for all other text */
-  --font-family-primary: "Helvetica Neue", Helvetica, sans-serif;
-  --font-family-secondary: "Helvetica Neue", Helvetica, sans-serif;
-  --font-family-tertiary: "Helvetica Neue", Helvetica, sans-serif;
+  --font-family-primary: "Montserrat", "Helvetica Neue", Helvetica, sans-serif;
+  --font-family-secondary: "Work Sans", "Helvetica Neue", Helvetica, sans-serif;
+  --font-family-tertiary: "DM Sans", Helvetica, sans-serif;
   --font-default: normal normal normal 16px var(--font-family-secondary);
 
   --color-bg-primary: #fff;
@@ -39,18 +39,17 @@
 
   /* Header */
   --font-header-links: normal normal 300 16px var(--font-family-secondary);
-  --font-header-profile: normal normal normal 12px var(--font-family-primary);
+  --font-header-profile: normal normal 300 14px var(--font-family-primary);
   --font-header-balance: normal normal normal 12px var(--font-family-tertiary);
-  --font-store-header: normal normal normal 32px var(--font-family-primary);
+  --font-store-header: normal normal 600 48px var(--font-family-primary);
 
   --background-page-header: #eee;
   --color-page-header-text: var(--color-text-primary);
+  --color-header-link-text: var(--color-text-primary);
+  --color-header-link-text-active: var(--color-text-highlight);
 
   --background-marketplace-header: transparent;
   --color-marketplace-header-text: var(--color-text-primary);
-  --color-marketplace-header-link-text: var(--color-text-primary);
-
-  --border-header-active-link: 2px solid var(--color-highlight);
 
   /* Store heading text */
   --font-store-heading: normal normal normal 32px var(--font-family-primary);

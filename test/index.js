@@ -9,8 +9,12 @@ import {ElvWalletClient} from "../client/src/index";
 window.client = undefined;
 
 const appUrl = window.location.hostname === "core.test.contentfabric.io" ? "https://core.test.contentfabric.io/wallet" : "https://192.168.0.23:8090";
+const parentAppUrl = "";
 
 const targetId = "wallet-target";
+
+let tenantSlug = "wwe";
+let marketplaceSlug = "a30fb02b-290a-457f-bf70-76111e4e0027";
 
 const SetResults = results => {
   document.getElementById("client-results").innerHTML = results ? JSON.stringify(results, null, 2) : "";
@@ -48,7 +52,10 @@ const App = () => {
     ElvWalletClient.InitializeFrame({
       requestor: "Wallet Client Test App",
       walletAppUrl: appUrl,
-      target: targetId
+      parentAppUrl,
+      target: targetId,
+      tenantSlug,
+      marketplaceSlug
     })
       .then(client => {
         window.client = client;
@@ -105,7 +112,10 @@ const App = () => {
 
             const client = await ElvWalletClient.InitializePopup({
               requestor: "Wallet Client Test App",
-              walletAppUrl: appUrl
+              walletAppUrl: appUrl,
+              parentAppUrl,
+              tenantSlug,
+              marketplaceSlug
             });
 
             window.client = client;
@@ -126,7 +136,10 @@ const App = () => {
             const client = await ElvWalletClient.InitializeFrame({
               requestor: "Wallet Client Test App",
               walletAppUrl: appUrl,
-              target: targetId
+              parentAppUrl,
+              target: targetId,
+              tenantSlug,
+              marketplaceSlug
             });
 
             window.client = client;

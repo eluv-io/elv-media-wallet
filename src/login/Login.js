@@ -14,7 +14,6 @@ import DownCaretIcon from "./static/down-caret.svg";
 import MetamaskIcon from "./static/metamask fox.png";
 
 import EluvioLogo from "./static/logo.svg";
-import {rootStore, cryptoStore} from "Stores";
 
 const embedded = window.top !== window.self || new URLSearchParams(window.location.search).has("e");
 

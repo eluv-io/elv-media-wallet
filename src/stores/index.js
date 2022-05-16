@@ -762,7 +762,7 @@ class RootStore {
       if(fontImport) {
         fontImport.then(font => fontsTag.innerHTML = font.default);
       } else {
-        fontsTag.innerHTML = ":root { --font-family-primary: \"Helvetica Neue\", Helvetica, sans-serif; }";
+        fontsTag.innerHTML = "";
       }
     }
 

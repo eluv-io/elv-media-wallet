@@ -191,30 +191,21 @@ const SubHeaderNavigation = observer(({marketplace}) => {
   const tabs = fullMarketplace?.branding?.tabs || {};
 
   return (
-    <nav className="subheader__navigation subheader__navigation--personal">
-      {
-        rootStore.hideGlobalNavigation ?
-          <Profile /> : null
-      }
-
-      {
-        !rootStore.loggedIn ? null :
-          <div className="subheader__navigation--personal__links">
-            {
-              fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0 ?
-                <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "collections")}>
-                  My Collections
-                </NavLink> : null
-            }
-            <NavLink className="subheader__navigation-link" to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "collection") : "/wallet/collection"}>
-              { tabs.my_items || "My Items" }
-            </NavLink>
-            <NavLink className="subheader__navigation-link" to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "my-listings") : "/wallet/my-listings"}>
-              My Listings
-            </NavLink>
-          </div>
-      }
-    </nav>
+    !rootStore.loggedIn ? null :
+      <nav className="subheader__navigation--personal">
+        {
+          fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0 ?
+            <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "collections")}>
+              My Collections
+            </NavLink> : null
+        }
+        <NavLink className="subheader__navigation-link" to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "collection") : "/wallet/collection"}>
+          { tabs.my_items || "My Items" }
+        </NavLink>
+        <NavLink className="subheader__navigation-link" to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "my-listings") : "/wallet/my-listings"}>
+          My Listings
+        </NavLink>
+      </nav>
   );
 });
 
@@ -223,8 +214,7 @@ const MarketplaceNavigation = observer(({marketplace}) => {
   const tabs = branding.tabs || {};
 
   return (
-    <div className="subheader__marketplace">
-      { branding.hide_name ? null : <h1 className="subheader__header">{`${branding.name}`}</h1> }
+    <>
       <nav className="subheader__navigation subheader__navigation--marketplace">
         <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
           { tabs.store || "Store" }
@@ -236,15 +226,11 @@ const MarketplaceNavigation = observer(({marketplace}) => {
           Activity
         </NavLink>
       </nav>
-      {
-        rootStore.hideGlobalNavigation ?
-          <MobileNavigation marketplace={marketplace} /> : null
-      }
-    </div>
+    </>
   );
 });
 
-const SubHeader = ({marketplace}) => {
+const SubHeader = observer(({marketplace}) => {
   if(!marketplace) {
     return (
       <div className="subheader-container">
@@ -261,18 +247,31 @@ const SubHeader = ({marketplace}) => {
   return (
     <div className="subheader-container subheader-container--marketplace">
       <div className={`subheader subheader--marketplace ${hide_name ? "subheader--marketplace--no-header" : ""}`}>
-        {
-          logo ?
-            <Link className="subheader__logo-container" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
-              <ImageIcon icon={logo} label={name || ""} className="subheader__logo"/>
-            </Link> : null
-        }
-        <MarketplaceNavigation marketplace={marketplace} />
-        <SubHeaderNavigation marketplace={marketplace} />
+        <div className="subheader__header-container">
+          {
+            logo ?
+              <Link className="subheader__logo-container" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
+                <ImageIcon icon={logo} label={name || ""} className="subheader__logo"/>
+              </Link> : null
+          }
+          { hide_name ? null : <h1 className="subheader__header">{`${name}`}</h1> }
+          {
+            rootStore.hideGlobalNavigation ?
+              <Profile /> : null
+          }
+          {
+            rootStore.hideGlobalNavigation ?
+              <MobileNavigation marketplace={marketplace} /> : null
+          }
+        </div>
+        <div className="subheader__navigation-container">
+          <MarketplaceNavigation marketplace={marketplace} />
+          <SubHeaderNavigation marketplace={marketplace} />
+        </div>
       </div>
     </div>
   );
-};
+});
 
 const Header = observer(() => {
   const location = useLocation();
