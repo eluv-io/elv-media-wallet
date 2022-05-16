@@ -33,12 +33,14 @@
   /* Page */
   --color-page-bg-gradient-top: #f7f7f7;
   --color-page-bg-gradient-bottom: #fafafa;
-  --background-page: linear-gradient(180deg, var(--color-page-bg-gradient-top) 0%, var(--color-page-bg-gradient-bottom) 100%);
+  --color-page-bg: linear-gradient(180deg, var(--color-page-bg-gradient-top) 0%, var(--color-page-bg-gradient-bottom) 100%);
   --background-content: var(--color-bg-primary);
   --border-radius-page-content: 10px 10px 0 0;
 
   /* Header */
   --font-header-links: normal normal 300 16px var(--font-family-secondary);
+  --font-header-profile: normal normal normal 12px var(--font-family-primary);
+  --font-header-balance: normal normal normal 12px var(--font-family-tertiary);
   --font-store-header: normal normal normal 32px var(--font-family-primary);
 
   --background-page-header: #eee;
@@ -205,7 +207,7 @@
   --border-radius-modal-close: 100%;
 
   /* Login (NOTE: background image and button colors are controlled in marketplace metadata) */
-  --background-login: var(--background-page);
+  --background-login: var(--color-page-bg);
   --background-login-box: var(--background-modal-primary);
   --color-login-text-primary: var(--color-component-text-primary);
   --color-login-text-secondary: var(--color-component-text-secondary);

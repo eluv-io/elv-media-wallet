@@ -101,6 +101,7 @@
   --font-family-tertiary: 'Source Code Pro', monospace!important;
 
   --font-header-links: normal normal normal 14px var(--font-family-primary);
+  --font-header-profile: normal normal normal 14px var(--font-family-primary);
   --font-store-header: normal normal normal 32px var(--font-family-primary);
 
   --font-card-title: normal normal normal 24px var(--font-family-primary);
@@ -136,7 +137,6 @@
   /* Page */
   --color-page-bg-gradient-top: #0900b2;
   --color-page-bg-gradient-bottom: #0d091c;
-  --background-page: no-repeat top center / cover url("https://host-66-220-3-86.contentfabric.io/qlibs/ilib3Drbefo7VPfWvY1NVup4VZFzDJ68/q/iq__2FrA2S1XBy4zdRGQn1knakpbrBV4/files/./wwe_background_image.jpg?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDU1NTdmODBkMDUzN2U3YmI0MzlkOTE5ODQxZTBlYjllZDQ0OWU2YmIiLCJ0eF9pZCI6IjB4OWUwNWI4MDc2ZGYwNDBjOTA4MjBkMWVjY2E0OWFiZTVkMzA2NDJjZmJiMTBlZWRjNDRmMTExNzAzMDkzMWU5ZCIsInFsaWJfaWQiOiJpbGliM0RyYmVmbzdWUGZXdlkxTlZ1cDRWWkZ6REo2OCJ9.RVMyNTZLXzcxY2RYalZrNUNCUjJqeVRHeEoxQk51RFlwb21waURWclIyZnUzN0RqZW1ORzg0emt1ZlJNQW5zQ2c1WnJGdzRha1pCWHBQY0RaRjJyb2QzWnlzY29kVWlm");
   --background-content: transparent;
 
   /* Header */

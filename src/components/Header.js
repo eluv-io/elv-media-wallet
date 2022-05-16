@@ -239,12 +239,12 @@ const SubHeader = ({marketplace}) => {
     );
   }
 
-  const { name, round_logo, header_logo } = marketplace.branding || {};
+  const { name, round_logo, header_logo, hide_name } = marketplace.branding || {};
 
   const logo = (header_logo || round_logo)?.url;
   return (
     <div className="subheader-container subheader-container--marketplace">
-      <div className="subheader subheader--marketplace">
+      <div className={`subheader subheader--marketplace ${hide_name ? "subheader--marketplace--no-header" : ""}`}>
         {
           logo ?
             <Link className="subheader__logo-container" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>

@@ -198,6 +198,7 @@ const App = observer(() => {
     return <LoginModal />;
   }
 
+  const background = (rootStore.pageWidth < 800 && rootStore.appBackground.mobile) || rootStore.appBackground.desktop;
   const hasHeader = !rootStore.hideNavigation && (!rootStore.sidePanelMode || rootStore.navigationBreadcrumbs.length > 2);
   return (
     <div
@@ -216,7 +217,10 @@ const App = observer(() => {
     >
       <Routes />
       <DebugFooter />
-      <div className="app-background" />
+      <div
+        className="app-background"
+        style={background ? {background: `no-repeat top center / cover url(${background})`} : null}
+      />
     </div>
   );
 });

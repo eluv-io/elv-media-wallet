@@ -78,7 +78,6 @@ class RootStore {
 
   drops = {};
 
-  localAccount = false;
   auth0AccessToken = undefined;
 
   loaded = false;
@@ -99,6 +98,8 @@ class RootStore {
   hideGlobalNavigation = false;
   hideNavigation = searchParams.has("hn") || this.loginOnly;
   sidePanelMode = false;
+
+  appBackground = { desktop: undefined, mobile: undefined };
   centerContent = false;
   centerItems = false;
 
@@ -113,8 +114,6 @@ class RootStore {
   nftInfo = {};
   nftData = {};
 
-
-  marketplaceIds = [];
   marketplaces = {};
   marketplaceCache = {};
 
@@ -188,6 +187,14 @@ class RootStore {
 
   Initialize = flow(function * () {
     try {
+      this.loaded = false;
+
+      const redirectUrl = this.GetSessionStorage("redirect-url");
+      if(redirectUrl) {
+        this.RemoveSessionStorage("redirect-url");
+        window.location.href = redirectUrl;
+      }
+
       // Login required
       if(searchParams.has("rl") || this.GetSessionStorage("loginRequired")) {
         this.requireLogin = true;
@@ -670,6 +677,11 @@ class RootStore {
     }
 
     this.currentCustomization = marketplace && marketplace.marketplaceId;
+
+    this.appBackground = {
+      desktop: marketplace?.branding?.background?.url,
+      mobile: marketplace?.branding?.background_mobile?.url
+    };
 
     let options = { font: "Hevetica Neue" };
     if(marketplace && marketplace !== "default") {
@@ -1321,6 +1333,28 @@ class RootStore {
 
     this.SendEvent({event: EVENTS.LOG_OUT, data: { address: this.CurrentAddress() }});
 
+    this.disableCloseEvent = true;
+
+    const url = new URL(UrlJoin(window.location.origin, window.location.pathname));
+
+    if(this.marketplaceId) {
+      url.hash = UrlJoin("/marketplace", this.marketplaceId, "store");
+    }
+
+    if(this.specifiedMarketplaceId) {
+      url.searchParams.set("mid", this.marketplaceHash || this.marketplaceId);
+    }
+
+    if(this.darkMode) {
+      url.searchParams.set("dk", "");
+    }
+
+    if(this.loginOnly) {
+      url.searchParams.set("lo", "");
+    }
+
+    this.SetSessionStorage("redirect-url", url.toString());
+
     if(window.auth0) {
       try {
         this.disableCloseEvent = true;
@@ -1335,26 +1369,8 @@ class RootStore {
       }
     }
 
-    this.disableCloseEvent = true;
-
-    const url = new URL(UrlJoin(window.location.origin, window.location.pathname));
-
-    if(this.marketplaceId) {
-      url.searchParams.set("mid", this.marketplaceHash || this.marketplaceId);
-    }
-
-    if(this.darkMode) {
-      url.searchParams.set("dk", "");
-    }
-
-    if(this.loginOnly) {
-      url.searchParams.set("lo", "");
-    } else if(this.requireLogin) {
-      url.searchParams.set("rl", "");
-    }
-
     // Reload page
-    window.location.href = url.toString();
+    window.location.reload();
   }
 
   RequestPermission = flow(function * ({origin, requestor, action}) {
