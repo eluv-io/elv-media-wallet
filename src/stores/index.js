@@ -38,30 +38,6 @@ try {
   storageSupported = false;
 }
 
-const ProfileImage = (text) => {
-  const canvas = document.createElement("canvas");
-  const context = canvas.getContext("2d");
-
-  canvas.width = 200;
-  canvas.height = 200;
-
-  const gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
-  gradient.addColorStop(0, "rgba(150, 150, 150, 1)");
-  gradient.addColorStop(0.5, "rgba(200, 200, 200, 0.75)");
-  gradient.addColorStop(1, "rgba(150, 150, 150, 0.25)");
-
-  context.fillStyle = gradient;
-  context.fillRect(0, 0, canvas.width, canvas.height);
-
-  context.font = "80px Helvetica";
-  context.fillStyle = "black";
-  context.textAlign = "center";
-  context.textBaseline = "middle";
-  context.fillText(text, canvas.width / 2, canvas.height / 2 + 10);
-
-  return canvas.toDataURL("image/png");
-};
-
 class RootStore {
   DEBUG_ERROR_MESSAGE = "";
 
@@ -129,7 +105,6 @@ class RootStore {
   authToken = undefined;
   basePublicUrl = undefined;
 
-  defaultProfileImage = ProfileImage("");
   userProfile = {};
   userAddress;
 
@@ -263,6 +238,8 @@ class RootStore {
 
         this.specifiedMarketplaceId = Utils.DecodeVersionHash(specifiedMarketplaceHash).objectId;
 
+        this.SetCustomizationOptions(this.marketplaces[this.specifiedMarketplaceId]);
+
         this.SetSessionStorage("marketplace", marketplace);
       }
 
@@ -365,19 +342,15 @@ class RootStore {
         noAuth: true
       });
 
-      const initials = ((user || {}).name || "").split(" ").map(s => s.substr(0, 1));
       this.userProfile = {
         address,
         name: user?.name || address,
         email: user?.email || this.AccountEmail(address),
-        profileImage: ProfileImage(
-          (initials.length <= 1 ? initials.join("") : `${initials[0]}${initials[initials.length - 1]}`).toUpperCase()
-        )
       };
 
-      // Clear loaded marketplaces so they will be reloaded and authorization rechecked
-      this.marketplaces = {};
+      // Reload marketplaces so they will be reloaded and authorization rechecked
       this.marketplaceCache = {};
+      yield Promise.all(Object.keys(this.marketplaces).map(async marketplaceId => await this.LoadMarketplace(marketplaceId, true)));
 
       this.HideLogin();
 

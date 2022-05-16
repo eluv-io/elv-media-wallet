@@ -251,7 +251,6 @@ export const InitializeListener = (history) => {
           }
 
           let profile = toJS(rootStore.userProfile);
-          delete profile.profileImage;
 
           return Respond({response: profile});
 

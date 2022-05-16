@@ -85,6 +85,7 @@ const LoginModal = observer(() => {
   if(newWindowLogin) {
     return (
       <Login
+        key="login-window"
         silent
         darkMode={rootStore.darkMode}
         Loaded={() => rootStore.SetLoginLoaded()}
@@ -94,7 +95,7 @@ const LoginModal = observer(() => {
     );
   }
 
-  if(rootStore.loggedIn || !rootStore.loaded) {
+  if((rootStore.loggedIn && !rootStore.authenticating) || !rootStore.loaded) {
     return null;
   }
 
@@ -109,7 +110,7 @@ const LoginModal = observer(() => {
         noFade={rootStore.requireLogin}
       >
         <Login
-          key={`login-${rootStore.specifiedMarketplaceId}`}
+          key="login-main"
           darkMode={rootStore.darkMode}
           callbackUrl={redirectUrl.toString()}
           Loaded={() => rootStore.SetLoginLoaded()}
@@ -123,6 +124,7 @@ const LoginModal = observer(() => {
     // Load component silently by default - handles auth0 logged-in case
     return (
       <Login
+        key="login-silent"
         silent
         darkMode={rootStore.darkMode}
         Loaded={() => rootStore.SetLoginLoaded()}

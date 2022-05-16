@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 
 import {observer} from "mobx-react";
-import {rootStore} from "Stores/index";
+import {rootStore} from "Stores";
 import SVG from "react-inlinesvg";
 import ImageIcon from "Components/common/ImageIcon";
 import {Initialize} from "@eluvio/elv-embed/src/Embed";
@@ -9,14 +9,6 @@ import {Initialize} from "@eluvio/elv-embed/src/Embed";
 import NFTPlaceholderIcon from "Assets/icons/nft";
 import FullscreenIcon from "Assets/icons/full screen.svg";
 import Modal from "Components/common/Modal";
-
-export const ProfileImage = observer(({className=""}) => {
-  return (
-    <div className={`profile-image profile-image-image ${className}`}>
-      <img className="profile-image__image" src={rootStore?.userProfile?.profileImage || rootStore.defaultProfileImage} alt="Profile Image" />
-    </div>
-  );
-});
 
 export const NFTImage = observer(({nft, item, selectedMedia, width, video=false, allowFullscreen=false, className="", playerCallback}) => {
   const [player, setPlayer] = useState(undefined);

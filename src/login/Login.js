@@ -81,14 +81,6 @@ const LogInRedirect = ({auth0, callbackUrl, marketplaceHash, userData, darkMode,
   }
 };
 
-const WalletAuthenticate = async ({tenantId, externalWallet="metamask", SignIn}) => {
-  await SignIn({
-    tenantId,
-    externalWallet,
-    SignIn
-  });
-};
-
 const Authenticate = async ({auth0, idToken, user, userData, tenantId, SignIn}) => {
   if(!auth0?.isAuthenticated && !idToken) {
     throw Error("Not authenticated");
@@ -277,8 +269,8 @@ const Buttons = ({customizationOptions, Auth0LogIn, SignIn}) => {
           border: `0.75px solid ${customizationOptions?.wallet_button?.border_color?.color}`
         }}
         className="action login-page__login-button login-page__login-button-wallet"
-        onClick={() => {
-          WalletAuthenticate({
+        onClick={async () => {
+          await SignIn({
             tenantId: customizationOptions.tenant_id,
             externalWallet: "metamask",
             SignIn
