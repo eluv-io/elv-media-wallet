@@ -1165,7 +1165,7 @@ class RootStore {
     if(!this.loggedIn) { return; }
 
     // eslint-disable-next-line no-unused-vars
-    const { balance, seven_day_hold, thirty_day_hold, stripe_id, stripe_payouts_enabled } = yield Utils.ResponseToJson(
+    const { balance, seven_day_hold, usage_hold, thirty_day_hold, payout_hold, stripe_id, stripe_payouts_enabled } = yield Utils.ResponseToJson(
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "mkt", "bal"),
         method: "GET",
@@ -1178,9 +1178,9 @@ class RootStore {
     this.userStripeId = stripe_id;
     this.userStripeEnabled = stripe_payouts_enabled;
     this.totalWalletBalance = parseFloat(balance || 0);
-    this.availableWalletBalance = Math.max(0, this.totalWalletBalance - parseFloat(seven_day_hold || 0));
+    this.availableWalletBalance = Math.max(0, this.totalWalletBalance - parseFloat(usage_hold || seven_day_hold || 0));
     this.pendingWalletBalance = Math.max(0, this.totalWalletBalance - this.availableWalletBalance);
-    this.withdrawableWalletBalance = Math.max(0, this.totalWalletBalance - parseFloat(thirty_day_hold || 0));
+    this.withdrawableWalletBalance = Math.max(0, this.totalWalletBalance - parseFloat(payout_hold || thirty_day_hold || 0));
 
     if(checkOnboard && stripe_id && !stripe_payouts_enabled) {
       // Refresh stripe enabled flag
