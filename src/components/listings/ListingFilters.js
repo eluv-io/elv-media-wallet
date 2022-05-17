@@ -100,7 +100,7 @@ const FilterMenu = ({mode, filterValues, setFilterValues, Hide}) => {
           />
       }
       {
-        availableMarketplaces.length > 0 ?
+        !marketplace && availableMarketplaces.length > 0 ?
           <FilterDropdown
             label="Marketplaces"
             optionLabelPrefix="Marketplace: "
