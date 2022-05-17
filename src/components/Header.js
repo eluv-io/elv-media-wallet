@@ -257,7 +257,7 @@ const SubHeader = observer(({marketplace}) => {
           { hide_name ? null : <h1 className="subheader__header">{`${name}`}</h1> }
           {
             rootStore.hideGlobalNavigation ?
-              <Profile /> : null
+              <Profile marketplace={marketplace} /> : null
           }
           {
             rootStore.hideGlobalNavigation ?
