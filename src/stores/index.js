@@ -252,7 +252,9 @@ class RootStore {
 
         this.specifiedMarketplaceId = Utils.DecodeVersionHash(specifiedMarketplaceHash).objectId;
 
-        this.SetCustomizationOptions(this.marketplaces[this.specifiedMarketplaceId]);
+        if(this.marketplaces[this.specifiedMarketplaceId]) {
+          this.SetCustomizationOptions(this.marketplaces[this.specifiedMarketplaceId]);
+        }
 
         this.SetSessionStorage("marketplace", marketplace);
       }
@@ -717,6 +719,7 @@ class RootStore {
   });
 
   SetCustomizationOptions(marketplace) {
+    console.log("SET CUSTOMIZATION OPTIONS", marketplace, new Error());
     if(this.currentCustomization === (marketplace && marketplace.marketplaceId)) {
       return;
     }
