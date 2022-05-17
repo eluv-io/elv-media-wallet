@@ -4,7 +4,6 @@
   // sass-lint:disable no-misspelled-properties
   gap: 10px;
   // sass-lint:enable no-misspelled-properties
-  margin-top: 20px;
 
   .card-container {
     flex: 1 1 100%;
@@ -23,7 +22,6 @@
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       height: min-content;
       justify-content: center;
-      margin-top: 20px;
 
       .card-container {
         max-width: unset;
@@ -111,7 +109,7 @@
 
   &__title {
     font: var(--font-card-title);
-    font-size: 18px;
+    font-size: 24px;
     font-weight: 700;
     line-height: 1.25;
     text-transform: uppercase;

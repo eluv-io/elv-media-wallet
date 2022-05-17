@@ -1,4 +1,8 @@
 .marketplace {
+  .page-headers {
+    margin-bottom: 50px;
+  }
+
   &__empty {
     font-size: 16px;
     font-weight: 300;
@@ -42,7 +46,7 @@
 
     .page-header {
       font: var(--font-store-heading);
-      margin-top: 50px;
+      text-transform: uppercase;
     }
 
     .page-subheader {
@@ -59,7 +63,7 @@
     margin: 20px 0;
 
     &__icon {
-      max-height: 400px;
+      max-height: 200px;
       max-width: 600px;
 
       img {
@@ -70,7 +74,7 @@
 
   @media screen and (max-width: $tablet-breakpoint) {
     .page-header {
-      font-size: 18px;
+      font-size: 24px;
       margin-top: 20px;
     }
 
@@ -85,7 +89,7 @@
     align-items: center;
     display: flex;
     font: var(--font-store-link);
-    margin-top: 10px;
+    margin-top: 20px;
 
     svg {
       height: 20px;

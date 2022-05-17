@@ -1,8 +1,8 @@
 :root {
   /* General */
-  --color-background-highlight: #1E5EED;
+  --color-background-highlight: #1E1EED;
   --color-background-highlight-rgb: 30, 94, 237;
-  --color-text-highlight: #1E5EED;
+  --color-text-highlight: #2D61E4;
   --color-text-highlight-rgb: 30, 94, 237;
 
   /* Fonts - Primary is for used headers, tertiary for buttons, prices and other details, secondary for all other text */
@@ -50,7 +50,7 @@
   --color-marketplace-header-text: var(--color-text-primary);
 
   /* Store heading text */
-  --font-store-heading: normal normal bold 24px var(--font-family-primary);
+  --font-store-heading: normal normal bold 36px var(--font-family-primary);
   --font-store-subheading: normal normal 300 18px var(--font-family-secondary);
   --font-store-link: normal normal 300 18px var(--font-family-tertiary);
 

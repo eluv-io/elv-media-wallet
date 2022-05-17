@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {useLocation, useRouteMatch} from "react-router-dom";
 import {rootStore} from "Stores";
@@ -10,35 +10,44 @@ import ItemCard from "Components/common/ItemCard";
 import ImageIcon from "Components/common/ImageIcon";
 
 import OwnedIcon from "Assets/icons/owned icon.svg";
+import {PageLoader} from "Components/common/Loaders";
 
 const MarketplaceCollections = observer(() => {
   const match = useRouteMatch();
   const location = useLocation();
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+  const [ownedItems, setOwnedItems] = useState(undefined);
 
   if(!marketplace) { return null; }
 
   const basePath = UrlJoin("/marketplace", match.params.marketplaceId, "collection");
-
-  const marketplaceItems = rootStore.MarketplaceOwnedItems(marketplace);
 
   const purchaseableItems = rootStore.MarketplacePurchaseableItems(marketplace);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
 
-    if(params.has("collection")) {
-      setTimeout(() => {
-        const collectionSection = document.getElementById(`collection-${encodeURIComponent(params.get("collection"))}`);
+    rootStore.MarketplaceOwnedItems(marketplace)
+      .then(ownedItems => {
+        setOwnedItems(ownedItems);
 
-        if(!collectionSection) { return; }
+        if(params.has("collection")) {
+          setTimeout(() => {
+            const collectionSection = document.getElementById(`collection-${encodeURIComponent(params.get("collection"))}`);
 
-        window.scrollTo({top: collectionSection.getBoundingClientRect().top});
-      }, 100);
-    }
+            if(!collectionSection) { return; }
+
+            window.scrollTo({top: collectionSection.getBoundingClientRect().top});
+          }, 100);
+        }
+      });
   }, []);
 
   const collections = marketplace.collections.map((collection, collectionIndex) => {
+    if(!ownedItems) {
+      return null;
+    }
+
     // If filters are specified, must at least one filter
     if(rootStore.marketplaceFilters.length > 0 && !rootStore.marketplaceFilters.find(filter => (collection.collection_header || "").toLowerCase().includes(filter.toLowerCase()))) {
       return null;
@@ -49,20 +58,17 @@ const MarketplaceCollections = observer(() => {
       const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
       const item = marketplace.items[itemIndex];
 
-      if(item && marketplaceItems[sku] && marketplaceItems[sku].length > 0) {
-        const details = marketplaceItems[sku][0];
-        const nft = {
-          metadata: item.nft_template.nft,
-          details
-        };
+      if(item && ownedItems[sku] && ownedItems[sku].length > 0) {
+        const ownedItem = ownedItems[sku][0];
 
         return (
           <ItemCard
             key={key}
-            link={UrlJoin(basePath, collectionIndex.toString(), "owned", nft.details.ContractId, nft.details.TokenIdStr)}
-            image={<NFTImage nft={nft} width={600} />}
-            name={nft.metadata.display_name}
-            description={item.description || item.nftTemplateMetadata.description}
+            link={UrlJoin(basePath, collectionIndex.toString(), "owned", ownedItem.nft.details.ContractId, ownedItem.nft.details.TokenIdStr)}
+            image={<NFTImage nft={ownedItem.nft} width={600} />}
+            name={ownedItem.nft.metadata.display_name}
+            description={ownedItem.nft.description}
+            edition={ownedItem.nft.edition_name}
             badges={<ImageIcon icon={OwnedIcon} title="You own this item" alt="Listing Icon" className="item-card__badge" />}
           />
         );
@@ -74,32 +80,21 @@ const MarketplaceCollections = observer(() => {
             marketplaceHash={marketplace.versionHash}
             item={purchaseableItems[sku].item}
             index={purchaseableItems[sku].index}
-            className="item-card--disabled"
           />
         );
       } else {
-        // Not accessible or null item use placeholder
-
-        const placeholder = item || collection.placeholder || {};
+        // Not accessible or null item
+        if(!item || !item.nftTemplateMetadata) {
+          return;
+        }
 
         return (
           <ItemCard
             key={key}
-            image={
-              placeholder.image ?
-                <MarketplaceImage
-                  marketplaceHash={marketplace.versionHash}
-                  title={placeholder.name}
-                  path={
-                    item ?
-                      UrlJoin("public", "asset_metadata", "info", "items", itemIndex.toString(), "image") :
-                      UrlJoin("public", "asset_metadata", "info", "collections", collectionIndex.toString(), "placeholder", "image")
-                  }
-                /> :
-                <MarketplaceImage title={placeholder.name} icon={NFTPlaceholderIcon} />
-            }
-            name={placeholder.name}
-            description={placeholder.description}
+            image={<NFTImage nft={{metadata: item.nftTemplateMetadata}} />}
+            name={item.nftTemplateMetadata.display_name}
+            description={item.nftTemplateMetadata.description}
+            className="item-card--disabled"
           />
         );
       }
@@ -122,8 +117,10 @@ const MarketplaceCollections = observer(() => {
                 }
               /> : null
           }
-          <div className="page-header">{ collection.collection_header}</div>
-          <div className="page-subheader">{ collection.collection_subheader}</div>
+          <div className="page-headers">
+            <div className="page-header">{ collection.collection_header}</div>
+            <div className="page-subheader">{ collection.collection_subheader}</div>
+          </div>
         </div>
         <div className="card-list card-list-collections">
           { collectionItems }
@@ -138,7 +135,7 @@ const MarketplaceCollections = observer(() => {
 
   return (
     <div className="marketplace-listings marketplace__section">
-      { collections }
+      { ownedItems ? collections : <PageLoader /> }
     </div>
   );
 });

@@ -98,14 +98,16 @@ const CollectionsSummary = observer(({marketplace}) => {
 
   return (
     <div className="marketplace__section collections-summary">
-      <div className="page-header">Explore Collections</div>
-      <Link
-        to={UrlJoin("/marketplace", match.params.marketplaceId, "collections")}
-        className="page-link collections-summary__link"
-      >
-        See All
-        <ImageIcon icon={LinkIcon} />
-      </Link>
+      <div className="page-headers">
+        <div className="page-header">Explore Collections</div>
+        <Link
+          to={UrlJoin("/marketplace", match.params.marketplaceId, "collections")}
+          className="page-link collections-summary__link"
+        >
+          See All
+          <ImageIcon icon={LinkIcon} />
+        </Link>
+      </div>
       <div className="card-list collections-summary__list">
         {
           marketplace.collections.map((collection, collectionIndex) =>
@@ -213,8 +215,10 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
 
     return (
       <div className="marketplace__section" key={`marketplace-section-${sectionIndex}-${loadKey}`}>
-        { section.section_header ? <h1 className="page-header">{section.section_header}</h1> : null }
-        { section.section_subheader ? <h2 className="page-subheader">{section.section_subheader}</h2> : null }
+        <div className="page-headers">
+          { section.section_header ? <h1 className="page-header">{section.section_header}</h1> : null }
+          { section.section_subheader ? <h2 className="page-subheader">{section.section_subheader}</h2> : null }
+        </div>
         { renderedItems }
       </div>
     );

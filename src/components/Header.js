@@ -22,6 +22,12 @@ const Profile = observer(({marketplace}) => {
   }
 
   if(!rootStore.loggedIn) {
+    const isEluvioSite = ["eluv.io", "contentfabric.io", "192.168"].find(domain => window.location.href.includes(domain));
+
+    if(rootStore.capturedLogin && !isEluvioSite) {
+      return null;
+    }
+
     return (
       <button className="header__profile header__log-in" onClick={() => rootStore.ShowLogin()}>
         Log In
