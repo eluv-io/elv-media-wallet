@@ -84,14 +84,14 @@ const MarketplaceItemCard = ({
       edition={item.nftTemplateMetadata.edition_name}
       description={description}
       price={
-        !isFree ?
-          (maxOwned ?
-            "You already own the maximum number of this item" :
+        maxOwned ?
+          "You already own the maximum number of this item" :
+          (isFree ?
+            ((expired || unauthorized || outOfStock || type === "Featured") ? "" : "Claim Now!") :
             FormatPriceString(item.price, {
               includeCurrency: true,
               prependCurrency: true
-            })) :
-          ((expired || unauthorized || outOfStock || type === "Featured") ? "" : "Claim Now!")
+            }))
       }
       sideText={sideText}
       status={status}
