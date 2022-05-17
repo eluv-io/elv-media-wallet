@@ -288,6 +288,7 @@ em {
 }
 
 .content {
+  background-color: var(--color-page-bg);
   border-radius: var(--border-radius-page-content);
   display: flex;
   flex: 1 1 auto;

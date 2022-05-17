@@ -114,6 +114,7 @@
     font-size: 18px;
     font-weight: 700;
     line-height: 1.25;
+    text-transform: uppercase;
     word-break: break-word;
   }
 
@@ -122,6 +123,7 @@
     font: var(--font-card-misc);
     font-size: 12px;
     margin-top: 5px;
+    text-transform: uppercase;
   }
 
   &__description {

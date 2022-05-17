@@ -42,6 +42,7 @@ $content-width: 475px;
 
   &__active-listings {
     @include component;
+    background: transparent;
     border: 0;
     margin: 50px auto;
     max-width: $content-width;
@@ -84,8 +85,7 @@ $content-width: 475px;
     border: var(--border-highlight);
     font-size: 20px;
     height: 50px;
-    padding: 0 15px;
-    text-align: center;
+    padding: 0 75px;
     width: 100%;
 
     &::placeholder {

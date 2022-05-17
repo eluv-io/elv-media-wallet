@@ -3,8 +3,13 @@
   --color-bg-primary: #090909;
   --color-bg-secondary: #151515;
 
+  --color-page-bg: #090909;
+
   --color-text-primary: #FFFFFF;
   --color-text-secondary: #888;
+
+  --color-text-highlight: #9AC0F3;
+  --color-text-highlight-rgb: 154, 192, 243;
 
   --color-loader: rgba(255, 255, 255, 0.5);
 
