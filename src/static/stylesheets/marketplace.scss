@@ -162,10 +162,12 @@
 
   &__header {
     font: var(--font-feature-card-title);
+    text-transform: uppercase;
   }
 
   &__subheader {
     font: var(--font-feature-card-text);
+    font-size: 16px;
     padding: 20px 0;
   }
 
