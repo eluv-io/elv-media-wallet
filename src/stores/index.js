@@ -741,27 +741,6 @@ class RootStore {
       cssTag.innerHTML = marketplace.branding.custom_css.toString();
     } else {
       cssTag.innerHTML = "";
-
-      let fontImport = "";
-      switch(options.font) {
-        case "Inter":
-          fontImport = import("Assets/fonts/Inter/inter.font.css");
-
-          break;
-        case "Selawik":
-          fontImport = import("Assets/fonts/Selawik/selawik.font.css");
-
-          break;
-        default:
-          break;
-      }
-
-      const fontsTag = document.getElementById("_fonts");
-      if(fontImport) {
-        fontImport.then(font => fontsTag.innerHTML = font.default);
-      } else {
-        fontsTag.innerHTML = "";
-      }
     }
 
     this.centerContent = marketplace?.branding?.text_justification === "Center";
