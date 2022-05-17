@@ -248,13 +248,9 @@ class RootStore {
       if(marketplace) {
         yield this.LoadAvailableMarketplaces({tenantSlug, marketplaceSlug});
 
-        const specifiedMarketplaceHash = this.SetMarketplace({tenantSlug, marketplaceSlug, marketplaceHash, marketplaceId});
+        const specifiedMarketplaceHash = this.SetMarketplace({tenantSlug, marketplaceSlug, marketplaceHash, marketplaceId, specified: true});
 
         this.specifiedMarketplaceId = Utils.DecodeVersionHash(specifiedMarketplaceHash).objectId;
-
-        if(this.marketplaces[this.specifiedMarketplaceId]) {
-          this.SetCustomizationOptions(this.marketplaces[this.specifiedMarketplaceId]);
-        }
 
         this.SetSessionStorage("marketplace", marketplace);
       }
@@ -719,7 +715,6 @@ class RootStore {
   });
 
   SetCustomizationOptions(marketplace) {
-    console.log("SET CUSTOMIZATION OPTIONS", marketplace, new Error());
     if(this.currentCustomization === (marketplace && marketplace.marketplaceId)) {
       return;
     }
@@ -791,7 +786,7 @@ class RootStore {
     this.SetCustomizationOptions("default");
   }
 
-  SetMarketplace({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash}) {
+  SetMarketplace({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, specified=false}) {
     const marketplace = this.allMarketplaces.find(marketplace =>
       (marketplaceId && Utils.EqualHash(marketplaceId, marketplace.marketplaceId)) ||
       (marketplaceSlug && marketplace.tenantSlug === tenantSlug && marketplace.marketplaceSlug === marketplaceSlug) ||
@@ -804,6 +799,10 @@ class RootStore {
       this.marketplaceId = marketplace.marketplaceId;
 
       this.lastMarketplaceId = marketplace.marketplaceId;
+
+      if(specified) {
+        this.specifiedMarketplaceId = marketplace.marketplaceId;
+      }
 
       this.SetCustomizationOptions(marketplace);
 
