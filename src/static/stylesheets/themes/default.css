@@ -52,7 +52,7 @@
   --color-marketplace-header-text: var(--color-text-primary);
 
   /* Store heading text */
-  --font-store-heading: normal normal bold 64px var(--font-family-primary);
+  --font-store-heading: normal normal bold 42px var(--font-family-primary);
   --font-store-subheading: normal normal 300 18px var(--font-family-secondary);
   --font-store-link: normal normal 300 18px var(--font-family-tertiary);
 

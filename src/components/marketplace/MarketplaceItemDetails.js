@@ -126,7 +126,7 @@ const MarketplaceItemDetails = observer(() => {
                       rootStore.Log(error);
                     }
                   }}
-                  disabled={outOfStock}
+                  disabled={outOfStock || maxOwned}
                   className="action action-primary"
                 >
                   { free ? "Claim Now" : "Buy Now" }

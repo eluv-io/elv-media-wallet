@@ -85,13 +85,14 @@ const MarketplaceItemCard = ({
       description={description}
       price={
         !isFree ?
-          FormatPriceString(item.price, {
-            includeCurrency: true,
-            prependCurrency: true
-          }) :
-          maxOwned ?
-            "You've already claimed this NFT" :
-            ((expired || unauthorized || outOfStock || type === "Featured") ? "" : "Claim Now!")}
+          (maxOwned ?
+            "You already own the maximum number of this item" :
+            FormatPriceString(item.price, {
+              includeCurrency: true,
+              prependCurrency: true
+            })) :
+          ((expired || unauthorized || outOfStock || type === "Featured") ? "" : "Claim Now!")
+      }
       sideText={sideText}
       status={status}
       justification={justification}
