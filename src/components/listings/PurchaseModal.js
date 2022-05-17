@@ -364,7 +364,12 @@ const PurchasePayment = observer(({
   marketplaceItem = marketplaceItem || (type === "marketplace" && marketplace && rootStore.MarketplaceItemByTemplateId(marketplace, nft.metadata.template_id));
   const stock = marketplaceItem && checkoutStore.stock[marketplaceItem.sku];
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
-  const maxQuantity = stock && (stock.max_per_user || stock.max - stock.minted) || 100;
+
+  const maxPerCheckout = marketplaceItem.max_per_checkout || 25;
+  const maxPerUser = stock?.max_per_user || 25;
+  const quantityAvailable = (stock && (stock.max - stock.minted)) || 25;
+
+  const maxQuantity = Math.max(1, Math.min(maxPerCheckout, Math.min(maxPerUser, quantityAvailable)));
 
   const timeToAvailable = marketplaceItem && marketplaceItem.available_at ? new Date(marketplaceItem.available_at).getTime() - Date.now() : 0;
   const timeToExpired = marketplaceItem && marketplaceItem.expires_at ? new Date(marketplaceItem.expires_at).getTime() - Date.now() : Infinity;
