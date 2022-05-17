@@ -825,6 +825,7 @@ class RootStore {
         marketplaceHash: marketplace.marketplaceHash,
         tenantSlug: marketplace.tenantSlug,
         marketplaceSlug: marketplace.marketplaceSlug,
+        tenantId: marketplace.tenant_id
       };
     } else if(marketplace) {
       tenantSlug = marketplace.tenantSlug;
@@ -858,7 +859,8 @@ class RootStore {
       marketplaceId,
       marketplaceHash: this.marketplaceHashes[marketplaceId],
       tenantSlug,
-      marketplaceSlug
+      marketplaceSlug,
+      tenantId: marketplace.tenant_id
     };
   });
 
