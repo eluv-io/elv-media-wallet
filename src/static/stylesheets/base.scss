@@ -409,5 +409,8 @@ em {
 
 // sass-lint:disable class-name-format
 .LinesEllipsis-canvas {
-  display: none;
+  position: fixed;
+  opacity: 0;
+  right: 10000px;
+  user-select: none;
 }

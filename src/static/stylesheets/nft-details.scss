@@ -345,7 +345,7 @@
     &:not(.details-page-message) {
       align-content: start;
       display: grid;
-      grid-gap: 50px;
+      grid-gap: 30px;
       grid-template-columns: minmax(350px, 1fr) minmax(0, 1.75fr);
     }
 

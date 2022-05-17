@@ -530,7 +530,7 @@ const PurchaseModal = observer(({nft, item, initialListingId, type="marketplace"
   useEffect(() => {
     const modal = document.getElementById("purchase-modal");
     modal && modal.scrollTo(0, 0);
-  }, [useWalletBalance]);
+  }, []);
 
   useEffect(() => {
     if(initialListingId) {

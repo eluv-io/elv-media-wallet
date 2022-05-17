@@ -125,7 +125,6 @@ $content-width: 475px;
 
   .card-container {
     margin: 0 auto 35px;
-    max-width: calc(#{$content-width} / 1.5);
   }
 
   &__details {

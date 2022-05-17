@@ -133,7 +133,7 @@ const NFTCard = observer(({
               component="div"
               className="item-card__description"
               text={info.metadata.description}
-              maxLine={truncateDescription ? "2" : "100"}
+              maxLine={truncateDescription ? 3 : 100}
             />
         }
         {
