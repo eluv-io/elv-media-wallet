@@ -68,15 +68,9 @@
     }
   }
 
-  @media screen and (max-width: $breakpoint) {
-    .page-header {
-      font-size: 32px;
-    }
-  }
-
   @media screen and (max-width: $tablet-breakpoint) {
     .page-header {
-      font-size: 24px;
+      font-size: 18px;
       margin-top: 20px;
     }
 

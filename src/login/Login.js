@@ -68,9 +68,12 @@ const LogInRedirect = ({auth0, callbackUrl, marketplaceHash, userData, darkMode,
   } else {
     // Not embedded
     const auth0LoginParams = {
-      darkMode,
-      disableThirdParty: customizationOptions?.disable_third_party
+      darkMode
     };
+
+    if(customizationOptions.disable_third_party) {
+      auth0LoginParams.disableThirdParty = true;
+    }
 
     auth0.loginWithRedirect({
       redirectUri: callbackUrl,
