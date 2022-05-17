@@ -57,7 +57,7 @@
   --font-store-link: normal normal 300 18px var(--font-family-tertiary);
 
   /* Buttons */
-  --font-button: normal normal normal 16px var(--font-family-tertiary);
+  --font-button: normal normal normal 14px var(--font-family-tertiary);
   --font-button-selection: var(--font-button);
 
   --background-button-primary: var(--color-highlight-container-bg);
