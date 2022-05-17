@@ -63,15 +63,12 @@ const ItemCard = observer(({
               { edition }
             </h2> : null
         }
-        {
-          description ?
-            <ResponsiveEllipsis
-              component="h2"
-              className="item-card__description"
-              text={description}
-              maxLine="4"
-            /> : null
-        }
+        <ResponsiveEllipsis
+          component="h2"
+          className="item-card__description"
+          text={description || ""}
+          maxLine="4"
+        />
         {
           price || status ?
             <div className="item-card__status">

@@ -123,10 +123,11 @@
   }
 
   &__description {
+    align-items: center;
     color: var(--color-card-text-secondary);
     line-height: 1.5em;
-    margin: 10px 0 50px;
-    min-height: 50px;
+    margin: 15px 0 30px;
+    min-height: 100px;
 
     * {
       color: var(--color-card-text-secondary);
