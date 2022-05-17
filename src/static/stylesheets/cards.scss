@@ -109,8 +109,8 @@
 
   &__title {
     font: var(--font-card-title);
-    font-size: 20px;
-    font-weight: 500;
+    font-size: 24px;
+    font-weight: 700;
     line-height: 1.25;
     word-break: break-word;
   }
@@ -255,6 +255,7 @@
     left: 0;
     object-fit: contain;
     object-position: center;
+    overflow: hidden;
     position: absolute;
     top: 0;
     width: 100%;

@@ -229,6 +229,14 @@
   }
 
   @media screen and (max-width: $tablet-breakpoint) {
+    &__header {
+      font-size: 12px;
+    }
+
+    &__pagination {
+      font-size: 10px;
+    }
+
     .no-mobile {
       display: none;
     }

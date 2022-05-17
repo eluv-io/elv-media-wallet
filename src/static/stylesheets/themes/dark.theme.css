@@ -1,6 +1,6 @@
 :root {
   /* General */
-  --color-bg-primary: #000000;
+  --color-bg-primary: #090909;
   --color-bg-secondary: #151515;
 
   --color-text-primary: #FFFFFF;
@@ -8,8 +8,10 @@
 
   --color-loader: rgba(255, 255, 255, 0.5);
 
-  --border: 1px solid #555555;
+  --border: 1px solid #2D2D2D;
   --border-faint: 1px solid #222222;
+
+  --box-shadow: none;
 
   /* Page */
   --color-page-bg-gradient-top: #131313;
@@ -18,6 +20,16 @@
   /* Header */
   --background-page-header: #181818;
 
+  --background-input: #000000;
+  --color-input-bg-solid: #000000;
+
   /* Cards */
-  --box-shadow-card: none;
+  --background-feature-card: #000000;
+  --background-card: #1F1F1F;
+
+  --background-component-primary: #000000;
+  --background-table: #000000;
+  --background-table-header-row: #121212;
+  --color-table-odd-row-bg: #000000;
+  --color-table-even-row-bg: #121212;
 }

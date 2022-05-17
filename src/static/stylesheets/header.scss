@@ -274,7 +274,6 @@
 
     .subheader__navigation-link {
       font-size: 12px;
-      margin: 0;
     }
   }
 
@@ -418,6 +417,12 @@
 
     .subheader__navigation-link {
       margin: 0 5px;
+    }
+
+    .subheader__navigation--personal {
+      .subheader__navigation-link {
+        margin: 0;
+      }
     }
   }
 

@@ -5,7 +5,7 @@
   grid-gap: 50px;
   grid-template-columns: 1fr 1fr;
   min-height: 650px;
-  padding: 50px 100px;
+  padding: 20px 100px 50px;
   position: relative;
 
   &__text,
@@ -25,7 +25,7 @@
 
   &__title {
     font: var(--font-feature-card-title);
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 500;
     word-break: break-word;
   }
@@ -133,8 +133,8 @@
   }
 
   @media screen and (max-width: $tablet-breakpoint) {
-    grid-gap: 20px;
-    grid-template-columns: 1fr 1.5fr;
+    grid-gap: 0;
+    grid-template-columns: 1fr 1.4fr;
     padding: 10px;
 
     &__side-text {
@@ -142,7 +142,7 @@
     }
 
     &--right-just {
-      grid-template-columns: 1.5fr 1fr;
+      grid-template-columns: 1.4fr 1fr;
     }
 
     &__icon {
