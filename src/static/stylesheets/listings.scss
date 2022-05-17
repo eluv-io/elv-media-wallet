@@ -8,6 +8,7 @@
   &__header {
     align-items: center;
     display: flex;
+    font: var(--font-component-header);
     font-size: 20px;
     font-weight: normal;
     margin-bottom: 20px;
@@ -65,6 +66,7 @@
   display: flex;
   height: 160px;
   padding: 12px;
+  position: relative;
   width: 100%;
 
   &__image-container {

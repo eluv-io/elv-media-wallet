@@ -33,7 +33,6 @@ const MyListings = observer(() => {
   return (
     <div className="listings-page">
       <h2 className="listings-page__header">
-        { listings ? <div className="header-dot" style={{backgroundColor: listings.length > 0 ? "#08b908" : "#a4a4a4"}} /> : null }
         { listings && listings.length > 0 ? "My Active Listings" : "No Active Listings" }
       </h2>
       <div className="listing-card-list">
