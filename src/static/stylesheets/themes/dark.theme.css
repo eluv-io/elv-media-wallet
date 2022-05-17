@@ -1,9 +1,9 @@
 :root {
   /* General */
   --color-bg-primary: #090909;
-  --color-bg-secondary: #151515;
+  --color-bg-secondary: #242424;
 
-  --color-page-bg: #090909;
+  --color-page-bg: #000000;
 
   --color-text-primary: #FFFFFF;
   --color-text-secondary: #888;
@@ -13,30 +13,28 @@
 
   --color-loader: rgba(255, 255, 255, 0.5);
 
-  --border: 1px solid #2D2D2D;
+  --border: 1px solid #444444;
   --border-faint: 1px solid #222222;
 
   --box-shadow: none;
 
-  /* Page */
-  --color-page-bg-gradient-top: #131313;
-  --color-page-bg-gradient-bottom: #000000;
+
+
+  /* Header */
+  --background-page-header: var(--color-bg-primary);
+
+  --background-input: var(--color-bg-primary);
+  --color-input-bg-solid: var(--color-bg-primary);
 
   --background-button-secondary: #000000;
 
-  /* Header */
-  --background-page-header: #181818;
-
-  --background-input: #000000;
-  --color-input-bg-solid: #000000;
-
   /* Cards */
-  --background-feature-card: #000000;
-  --background-card: #1F1F1F;
+  --background-feature-card: var(--color-bg-primary);
+  --background-card: var(--color-bg-primary);
 
-  --background-component-primary: #000000;
-  --background-table: #000000;
-  --background-table-header-row: #121212;
-  --color-table-odd-row-bg: #000000;
-  --color-table-even-row-bg: #121212;
+  --background-component-primary: var(--color-bg-primary);
+  --background-table: var(--color-bg-primary);
+  --background-table-header-row: var(--color-bg-secondary);
+  --color-table-odd-row-bg: var(--color-bg-primary);
+  --color-table-even-row-bg: var(--color-bg-secondary);
 }

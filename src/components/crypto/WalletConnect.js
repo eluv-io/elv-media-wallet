@@ -45,7 +45,7 @@ const WalletConnect = observer(() => {
         >
           <ImageIcon icon={wallet.logo} title="Phantom" /> Connect Phantom
         </ButtonWithLoader> :
-        <a target="_blank" rel="noopener" href={wallet.link} className="wallet-connect__link-button wallet-connect__download-link">
+        <a target="_blank" rel="noopener" href={wallet.link} className="action wallet-connect__link-button wallet-connect__download-link">
           <ImageIcon icon={wallet.logo} title={wallet.name} />
           Get { wallet.name }
         </a>;

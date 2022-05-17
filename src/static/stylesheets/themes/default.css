@@ -1,9 +1,9 @@
 :root {
   /* General */
-  --color-background-highlight: #1865D8;
-  --color-background-highlight-rgb: 24, 101, 216;
-  --color-text-highlight: #1456BA;
-  --color-text-highlight-rgb: 20, 86, 186;
+  --color-background-highlight: #1E5EED;
+  --color-background-highlight-rgb: 30, 94, 237;
+  --color-text-highlight: #1E5EED;
+  --color-text-highlight-rgb: 30, 94, 237;
 
   /* Fonts - Primary is for used headers, tertiary for buttons, prices and other details, secondary for all other text */
   --font-family-primary: "Montserrat", "Helvetica Neue", Helvetica, sans-serif;
@@ -31,8 +31,6 @@
   --box-shadow: 0px 0 4px rgba(0, 0, 0, 0.1);
 
   /* Page */
-  --color-page-bg-gradient-top: #f7f7f7;
-  --color-page-bg-gradient-bottom: #fafafa;
   --color-page-bg: #f6f6f6;
   --background-content: var(--color-page-bg);
   --border-radius-page-content: 10px 10px 0 0;
