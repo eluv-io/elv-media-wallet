@@ -971,69 +971,60 @@ class RootStore {
   });
 
   MarketplaceOwnedItems = flow(function * (marketplace) {
-    if(Date.now() - (this.marketplaceOwnedCache[marketplace.tenant_id]?.retrievedAt || 0) > 30000) {
-      delete this.marketplaceOwnedCache[marketplace.tenant_id];
-    }
-
-    if(!this.marketplaceOwnedCache[marketplace.tenant_id]) {
-      let promise = new Promise(async resolve => {
-        let ownedItems = {};
-
-        (await this.transferStore.FilteredQuery({
-          mode: "owned",
-          tenantIds: [marketplace.tenant_id],
-          limit: 10000
-        }))
-          .results
-          .map(nft => {
-            const item = marketplace.items.find(item =>
-              item?.nft_template?.nft?.address && Utils.EqualAddress(item.nft_template.nft.address, nft.details.ContractAddr)
-            );
-
-            if(!item) {
-              return;
-            }
-
-            if(!ownedItems[item.sku]) {
-              ownedItems[item.sku] = [];
-            }
-
-
-            ownedItems[item.sku].push({
-              nft,
-              item
-            });
-          });
-
-        resolve(ownedItems);
-      });
-
-      this.marketplaceOwnedCache[marketplace.tenant_id] = {
-        retrievedAt: Date.now(),
-        ownedItemsPromise: promise
-      };
-    }
-
-    return yield this.marketplaceOwnedCache[marketplace.tenant_id].ownedItemsPromise;
-  });
-
-  MarketplaceOwnedItems2(marketplace) {
-    if(!marketplace) { return {}; }
-
-    let items = {};
-
-    Object.values(rootStore.nftInfo).filter(details => {
-      const matchingItem = marketplace.items.find(item =>
-        item?.nft_template?.nft?.address && Utils.EqualAddress(item.nft_template.nft.address, details.ContractAddr)
-      );
-
-      if(matchingItem) {
-        items[matchingItem.sku] = items[matchingItem.sku] ? [ ...items[matchingItem.sku], details ] : [ details ];
+    try {
+      if(!this.loggedIn) {
+        return {};
       }
-    });
 
-    return items;
-  }
+      if(Date.now() - (this.marketplaceOwnedCache[marketplace.tenant_id]?.retrievedAt || 0) > 30000) {
+        delete this.marketplaceOwnedCache[marketplace.tenant_id];
+      }
+
+      if(!this.marketplaceOwnedCache[marketplace.tenant_id]) {
+        let promise = new Promise(async resolve => {
+          let ownedItems = {};
+
+          (await this.transferStore.FilteredQuery({
+            mode: "owned",
+            tenantIds: [marketplace.tenant_id],
+            limit: 10000
+          }))
+            .results
+            .map(nft => {
+              const item = marketplace.items.find(item =>
+                item?.nft_template?.nft?.address && Utils.EqualAddress(item.nft_template.nft.address, nft.details.ContractAddr)
+              );
+
+              if(!item) {
+                return;
+              }
+
+              if(!ownedItems[item.sku]) {
+                ownedItems[item.sku] = [];
+              }
+
+
+              ownedItems[item.sku].push({
+                nft,
+                item
+              });
+            });
+
+          resolve(ownedItems);
+        });
+
+        this.marketplaceOwnedCache[marketplace.tenant_id] = {
+          retrievedAt: Date.now(),
+          ownedItemsPromise: promise
+        };
+      }
+
+      return yield this.marketplaceOwnedCache[marketplace.tenant_id].ownedItemsPromise;
+    } catch(error) {
+      this.Log(error, true);
+      return {};
+    }
+  });
 
   MarketplacePurchaseableItems(marketplace) {
     let purchaseableItems = {};
