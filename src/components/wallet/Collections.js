@@ -30,7 +30,7 @@ const Collections = observer(() => {
     <FilteredView
       mode="owned"
       hideStats
-      perPage={48}
+      perPage={60}
       cacheDuration={30}
       Render={({entries, paging, loading}) =>
         <>

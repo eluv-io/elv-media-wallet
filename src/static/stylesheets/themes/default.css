@@ -3,8 +3,8 @@
 
   /* Fonts - Primary is for used headers, tertiary for buttons, prices and other details, secondary for all other text */
   --font-family-primary: "Montserrat", "Helvetica Neue", Helvetica, sans-serif;
-  --font-family-secondary: "Work Sans", "Helvetica Neue", Helvetica, sans-serif;
-  --font-family-tertiary: "DM Sans", Helvetica, sans-serif;
+  --font-family-secondary: "DM Sans", "Helvetica Neue", Helvetica, sans-serif;
+  --font-family-tertiary: "Inter", Helvetica, sans-serif;
   --font-default: normal normal normal 16px var(--font-family-secondary);
 
   --color-bg-primary: #fff;
@@ -13,22 +13,22 @@
   --color-text-primary: #000;
   --color-text-secondary: #777;
   --color-text-highlight: var(--color-highlight);
-  --color-text-highlight-dark: var(--color-highlight-dark);
   --color-text-error: #f00;
 
-  --color-highlight: #529cf5;
-  --color-highlight-rgb: 82, 156, 245;
-  --color-highlight-dark: #2e69c6;
+  --color-highlight: #0066FF;
+  --color-highlight-rgb: 0, 102, 255;
 
-  --color-highlight-container-bg: var(--color-highlight-dark);
+  --color-highlight-container-bg: var(--color-highlight);
   --color-highlight-container-text: #fff;
 
   --color-loader: rgba(0, 0, 0, 0.5);
 
   --border: 1px solid #ccc;
-  --border-faint: 1px solid #e0e0e0;
+  --border-faint: 1px solid #D2D2D2;
   --border-highlight: 1px solid var(--color-highlight);
-  --border-radius: 3px;
+  --border-radius: 4px;
+
+  --box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 
   /* Page */
   --color-page-bg-gradient-top: #f7f7f7;
@@ -99,6 +99,7 @@
   --border-input: var(--border);
   --border-radius-input: var(--border-radius);
 
+  --box-shadow-input: var(--box-shadow);
   --box-shadow-input-focus: 0 0 7px rgba(var(--color-highlight-rgb), 0.8);
   --outline-input-focus: 1px solid var(--color-highlight);
 
@@ -114,7 +115,7 @@
   --color-card-text-highlight: var(--color-text-highlight);
   --border-card: var(--border);
   --border-radius-card: 6px;
-  --box-shadow-card: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  --box-shadow-card: var(--box-shadow);
 
   --color-card-stock-available: #f00;
   --color-card-stock-unavailable: #555;
@@ -150,7 +151,7 @@
   --color-featured-item-slider-handle: var(--color-highlight);
 
   /* Tables */
-  --font-table-header: normal normal 300 20px var(--font-family-primary);
+  --font-table-header: normal normal 500 16px var(--font-family-tertiary);
   --font-table: var(--font-default);
 
   --background-table: var(--color-bg-primary);
@@ -160,13 +161,16 @@
   --color-table-odd-row-text: var(--color-text-primary);
   --color-table-even-row-bg: var(--color-bg-secondary);
   --color-table-even-row-text: var(--color-text-primary);
-  --color-table-selected-row-bg: var(--color-highlight-container-bg);
-  --color-table-selected-row-text: var(--color-highlight-container-text);
+  --color-table-selected-row-bg: inherit;
+  --color-table-selected-row-text: var(--color-highlight);
   --color-table-highlight-text: var(--color-highlight);
+
+  --border-table-row-selected: 2px solid var(--color-highlight);
 
   --border-table-primary: var(--border);
   --border-table-secondary: var(--border-faint);
   --border-radius-table: var(--border-radius);
+  --box-shadow-table: var(--box-shadow);
 
   --color-table-badge-active-bg: var(--color-highlight-container-bg);
   --color-table-badge-active-text: var(--color-highlight-container-text);
@@ -175,7 +179,7 @@
   --border-radius-table-badge: var(--border-radius);
 
   /* Other components such as nft detail section boxes, listing stats, etc. */
-  --font-component-header: normal normal 300 24px var(--font-family-primary);
+  --font-component-header: normal normal 500 24px var(--font-family-primary);
   --font-component-text: normal normal normal 16px var(--font-family-secondary);
   --font-component-misc: normal normal normal 16px var(--font-family-tertiary);
 
@@ -183,7 +187,7 @@
   --background-component-secondary: var(--color-bg-secondary);
   --color-component-bg-primary: var(--color-bg-primary);
   --color-component-bg-secondary: var(--color-bg-secondary);
-  --color-component-highlight: var(--color-text-highlight-dark);
+  --color-component-highlight: var(--color-text-highlight);
   --color-component-text-primary: var(--color-text-primary);
   --color-component-text-secondary: var(--color-text-secondary);
   --color-component-text-highlight: var(--color-text-highlight);
@@ -191,7 +195,7 @@
   --border-component-secondary: var(--border-faint);
   --border-component-highlight: var(--border-highlight);
   --border-radius-component: var(--border-radius);
-  --box-shadow-component: var(--box-shadow-card);
+  --box-shadow-component: var(--box-shadow);
 
   /* Modals */
   --background-modal-overlay: rgba(0, 0, 0, 0.75);
@@ -213,7 +217,7 @@
   --color-login-text-highlight: var(--color-component-text-highlight);
   --border-login-box: var(--border);
   --border-radius-login-box: var(--border-radius);
-  --box-shadow-login-box: var(--box-shadow-card);
+  --box-shadow-login-box: var(--box-shadow);
 
   /* Misc (internal) */
   --background-marketplace-card: #000;

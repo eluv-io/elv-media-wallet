@@ -130,7 +130,7 @@ $wallet-connect-background: rgba(0, 0, 0, 0.25);
     border: var(--border-component-highlight);
     border-radius: var(--border-radius-component);
     color: var(--color-component-text-highlight);
-    height: 40px;
+    height: $action-height;
 
     &:hover {
       color: var(--color-component-text-highlight);
@@ -161,7 +161,7 @@ $wallet-connect-background: rgba(0, 0, 0, 0.25);
     border: var(--border-component-highlight);
     border-radius: var(--border-radius-component);
     color: var(--color-component-text-highlight);
-    height: 40px;
+    height: $action-height;
     margin: 0 auto;
     max-width: 250px;
   }

@@ -13,10 +13,10 @@ export const ExpandableSection = ({header, icon, children, expanded=false, toggl
 
   return (
     <div className={`expandable-section ${show ? "expandable-section-shown" : "expandable-section-hidden"} ${className}`}>
-      <div className="expandable-section__header ellipsis" onClick={() => toggleable && setShow(!show)}>
+      <button className="expandable-section__header ellipsis" onClick={() => toggleable && setShow(!show)} tabIndex={0}>
         { icon ? <ImageIcon className="expandable-section__header__icon" icon={icon} title={header} /> : null}
         { header }
-      </div>
+      </button>
       { show ? <div className={`expandable-section__content ${contentClassName}`}>{ children }</div> : null }
       { additionalContent || null }
     </div>

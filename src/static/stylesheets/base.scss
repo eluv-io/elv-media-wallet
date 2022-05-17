@@ -129,6 +129,10 @@ body,
   z-index: 0;
 }
 
+.styled-select__button {
+  box-shadow: var(--box-shadow-input);
+}
+
 .styled-select,
 .styled-select__button,
 .styled-select__menu__option {
@@ -160,9 +164,10 @@ input {
   background: var(--background-input);
   border: var(--border-input);
   border-radius: var(--border-radius-input);
+  box-shadow: var(--box-shadow-input);
   color: var(--color-bg-primary);
   font: var(--font-input);
-  height: 40px;
+  height: $action-height;
 
   &::placeholder {
     color: var(--color-input-text-placeholder);
@@ -400,4 +405,9 @@ em {
   left: 10px;
   position: absolute;
   z-index: 1;
+}
+
+// sass-lint:disable class-name-format
+.LinesEllipsis-canvas {
+  display: none;
 }

@@ -8,7 +8,7 @@
 
   .card-container {
     flex: 1 1 100%;
-    max-width: 290px;
+    max-width: 390px;
   }
 
   &__loader {
@@ -19,7 +19,7 @@
   @media screen and (max-width: $breakpoint) {
     display: grid;
     grid-gap: 10px;
-    grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     height: min-content;
     justify-content: center;
     margin-top: 20px;
@@ -109,7 +109,7 @@
 
   &__title {
     font: var(--font-card-title);
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 500;
     line-height: 1.25;
     word-break: break-word;
@@ -125,7 +125,7 @@
   &__description {
     color: var(--color-card-text-secondary);
     line-height: 1.5em;
-    margin: 10px 0;
+    margin: 10px 0 50px;
     min-height: 50px;
 
     * {
@@ -206,7 +206,7 @@
 
     &__primary {
       color: var(--color-card-text-highlight);
-      margin-right: 0.5em;
+      margin-right: 0.4em;
     }
 
     &__secondary {

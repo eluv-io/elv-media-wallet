@@ -9,7 +9,7 @@ let cachedResults = {};
 const FilteredView = ({
   header,
   mode="listings",
-  perPage=50,
+  perPage=30,
   expectRef,
   loadOffset=100,
   initialFilters,

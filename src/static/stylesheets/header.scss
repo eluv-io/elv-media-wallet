@@ -41,7 +41,7 @@
     height: 100%;
     justify-content: flex-end;
     margin-left: 10px;
-    max-width: 350px;
+    max-width: 250px;
     position: relative;
     user-select: none;
   }
@@ -185,7 +185,7 @@
   &__navigation-link {
     border-bottom: 2px solid transparent;
     font-size: 14px;
-    font-weight: 300;
+    font-weight: normal;
     letter-spacing: 0.07em;
     text-transform: uppercase;
   }
@@ -271,6 +271,11 @@
     position: absolute;
     right: 0;
     width: max-content;
+
+    .subheader__navigation-link {
+      font-size: 12px;
+      margin: 0;
+    }
   }
 
   &__navigation-link {
@@ -290,7 +295,6 @@
   }
 
   .header__profile {
-    max-width: 300px;
     position: absolute;
     right: 0;
   }

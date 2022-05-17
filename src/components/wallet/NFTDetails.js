@@ -27,12 +27,14 @@ import NFTMediaControls from "Components/wallet/NFTMediaControls";
 import {LoginClickGate} from "Components/common/LoginGate";
 
 import {MediaIcon} from "../../utils/Utils";
+import TransactionIcon from "Assets/icons/misc/transaction history icon.svg";
 import DescriptionIcon from "Assets/icons/Description icon.svg";
 import DetailsIcon from "Assets/icons/Details icon.svg";
 import ContractIcon from "Assets/icons/Contract icon.svg";
 import TraitsIcon from "Assets/icons/properties icon.svg";
 import MediaSectionIcon from "Assets/icons/Media tab icon.svg";
 import PlayIcon from "Assets/icons/blue play icon.svg";
+import BackIcon from "Assets/icons/arrow-left.svg";
 
 const NFTMediaSection = ({nft, containerElement, selectedMediaIndex, setSelectedMediaIndex, currentPlayerInfo}) => {
   const [orderKey, setOrderKey] = useState(0);
@@ -591,6 +593,7 @@ const NFTDetails = observer(() => {
     }
   };
 
+  const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
   return (
     <>
       {
@@ -624,6 +627,10 @@ const NFTDetails = observer(() => {
         /> : null
       }
       <div className="details-page" ref={element => setDetailsRef(element)}>
+        <Link to={backPage.path} className="details-page__back-link">
+          <ImageIcon icon={BackIcon} />
+          Back to { backPage.name }
+        </Link>
         <div className="details-page__content-container">
           <NFTCard
             nft={nft}
@@ -664,11 +671,13 @@ const NFTDetails = observer(() => {
             filterParams={{contractAddress: nft.details.ContractAddr}}
           />
           <TransferTable
+            icon={TransactionIcon}
             header="Transaction history for this token"
             contractAddress={nft.details.ContractAddr}
             tokenId={nft.details.TokenIdStr}
           />
           <Activity
+            icon={TransactionIcon}
             hideFilters
             hideStats
             tableHeader={`Sales history for all '${nft.metadata.display_name}' tokens`}

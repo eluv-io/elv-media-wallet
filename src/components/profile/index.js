@@ -13,6 +13,9 @@ import WalletConnect from "Components/crypto/WalletConnect";
 import MetamaskIcon from "Assets/icons/crypto/metamask fox.png";
 import ImageIcon from "Components/common/ImageIcon";
 
+import PendingIcon from "Assets/icons/crypto/Conversion button.svg";
+import WithdrawalsIcon from "Assets/icons/crypto/USD gray.svg";
+
 const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSetup}) => {
   return (
     <div className="profile-page__section profile-page__section-balance profile-page__section-box">
@@ -57,6 +60,7 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSe
       {
         rootStore.userStripeEnabled ?
           <UserTransferTable
+            icon={WithdrawalsIcon}
             header="Withdrawals"
             type="withdrawal"
           /> : null
@@ -191,6 +195,7 @@ const Profile = observer(() => {
         </div>
 
         <PendingPaymentsTable
+          icon={PendingIcon}
           header="Pending Sales"
           className="profile-page__pending-transactions-table"
         />

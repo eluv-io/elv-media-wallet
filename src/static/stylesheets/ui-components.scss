@@ -46,12 +46,7 @@
   box-shadow: var(--box-shadow-component);
   font-size: 14px;
   margin: 10px auto;
-  overflow: hidden;
   position: relative;
-
-  &.expandable-section-hidden {
-    box-shadow: none;
-  }
 
   &.expandable-section-shown {
     .expandable-section__header {
@@ -62,7 +57,7 @@
   &__header,
   &__content {
     color: var(--color-component-text-primary);
-    padding: 20px;
+    padding: 15px;
   }
 
   &.no-padding {
@@ -75,13 +70,16 @@
     align-items: center;
     cursor: pointer;
     display: flex;
+    font-weight: 500;
+    text-transform: uppercase;
     user-select: none;
+    width: 100%;
   }
 
   &__header__icon {
-    height: auto;
+    height: 20px;
     margin-right: 12px;
-    width: 15px;
+    width: 20px;
   }
 
   &__content-row {
@@ -321,7 +319,7 @@
   }
 
   .action {
-    height: 40px;
+    height: $action-height;
     min-width: 150px;
 
     &:not(:last-child) {
@@ -330,7 +328,7 @@
   }
 
   .loader {
-    height: 40px;
+    height: $action-height;
   }
 
   @media screen and (max-width: $mobile-breakpoint) {

@@ -50,7 +50,7 @@ const ListingCard = ({listing, link, Refresh}) => {
             }}
           /> : null
       }
-      <div className="listing-card-container">
+      <div className="listing-card-container card-shadow">
         <div className="listing-card">
           <div className="listing-card__left">
             <Link to={link} className="listing-card__image-container">

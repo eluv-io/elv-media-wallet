@@ -145,6 +145,12 @@ $content-width: 475px;
     display: flex;
     justify-content: space-between;
     line-height: 1.8em;
+
+    &--bold {
+      * {
+        font-weight: bold;
+      }
+    }
   }
 
   &__order-label {
@@ -185,6 +191,7 @@ $content-width: 475px;
 
     &__price {
       font-size: 24px;
+      font-weight: 500;
       margin-top: 5px;
       text-align: center;
     }
@@ -214,7 +221,6 @@ $content-width: 475px;
   }
 
   &__payment-selection {
-    font-size: 12px;
     position: relative;
 
     &:not(&--selected) {
@@ -315,9 +321,10 @@ $content-width: 475px;
     appearance: textfield;
     background: transparent;
     border: 0;
+    box-shadow: none;
     font-size: 24px;
     font-weight: 300;
-    height: 40px;
+    height: $action-height;
     margin: 0 5px;
     max-width: 50px;
     min-width: 50px;

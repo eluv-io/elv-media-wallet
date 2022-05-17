@@ -64,7 +64,7 @@ class RootStore {
   loginOnly = searchParams.has("lo") || this.GetSessionStorage("loginOnly");
   requireLogin = searchParams.has("rl") || this.GetSessionStorage("loginRequired");
   capturedLogin = this.embedded && searchParams.has("cl");
-  showLogin = this.requireLogin;
+  showLogin = this.requireLogin || searchParams.has("sl");
 
   loggedIn = false;
   disableCloseEvent = false;

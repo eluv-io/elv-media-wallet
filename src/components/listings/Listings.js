@@ -37,7 +37,7 @@ const Listings = observer(() => {
   return (
     <FilteredView
       mode="listings"
-      perPage={32}
+      perPage={30}
       loadOffset={600}
       cacheDuration={0}
       Render={({entries, paging, loading}) => (

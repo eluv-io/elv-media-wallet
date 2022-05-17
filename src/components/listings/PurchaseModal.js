@@ -10,11 +10,6 @@ import ImageIcon from "Components/common/ImageIcon";
 import {roundToDown} from "round-to";
 import WalletConnect from "Components/crypto/WalletConnect";
 
-import CreditCardIcon from "Assets/icons/credit card icon.svg";
-import WalletIcon from "Assets/icons/wallet balance button icon.svg";
-import CoinbaseIcon from "Assets/icons/crypto/Coinbase Icon (16x16)(1).svg";
-import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
-
 import PlusIcon from "Assets/icons/plus.svg";
 import MinusIcon from "Assets/icons/minus.svg";
 import {PageLoader} from "Components/common/Loaders";
@@ -103,31 +98,18 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, errorMessage, 
           onClick={() => setPaymentType("stripe")}
           className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-credit-card ${paymentType === "stripe" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
         >
-          <div className="purchase-modal__payment-selection-icons">
-            <ImageIcon icon={CreditCardIcon} className="purchase-modal__payment-selection-icon" title="Pay with Credit Card" />
-          </div>
           Credit Card
         </button>
         <button
           onClick={() => setPaymentType("coinbase")}
           className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-crypto ${paymentType === "coinbase" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
         >
-          <div className="purchase-modal__payment-selection-icons purchase-modal__payment-selection-icons-crypto">
-            <ImageIcon icon={CoinbaseIcon} className="purchase-modal__payment-selection-icon" title="Coinbase" />
-          </div>
           Crypto via Coinbase
         </button>
         <button
           onClick={() => setPaymentType("wallet-balance")}
           className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-wallet-balance ${paymentType === "wallet-balance" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
         >
-          <div className="purchase-modal__payment-selection-icons">
-            <ImageIcon
-              icon={WalletIcon}
-              className="purchase-modal__payment-selection-icon"
-              title="Wallet Balance"
-            />
-          </div>
           Wallet Balance
         </button>
         {
@@ -136,13 +118,6 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, errorMessage, 
               onClick={() => setPaymentType("linked-wallet")}
               className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-linked-wallet ${paymentType === "linked-wallet" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
             >
-              <div className="purchase-modal__payment-selection-icons purchase-modal__payment-selection-icons-crypto">
-                <ImageIcon
-                  icon={USDCIcon}
-                  className="purchase-modal__payment-selection-icon"
-                  title="Linked Wallet"
-                />
-              </div>
               Linked Wallet
             </button> : null
         }
@@ -264,7 +239,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
           </div>
         </div>
         <div className="purchase-modal__order-separator" />
-        <div className="purchase-modal__order-line-item">
+        <div className="purchase-modal__order-line-item purchase-modal__order-line-item--bold">
           <div className="purchase-modal__order-label">
             Total
           </div>
@@ -291,7 +266,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
           </div>
         </div>
         <div className="purchase-modal__order-separator"/>
-        <div className="purchase-modal__order-line-item">
+        <div className="purchase-modal__order-line-item purchase-modal__order-line-item--bold">
           <div className="purchase-modal__order-label">
             Remaining { balanceName }
           </div>

@@ -69,7 +69,7 @@ const ItemCard = observer(({
               component="h2"
               className="item-card__description"
               text={description}
-              maxLine="3"
+              maxLine="4"
             /> : null
         }
         {

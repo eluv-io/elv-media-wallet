@@ -29,6 +29,7 @@ const MarketplaceItemCard = ({
   const unauthorized = item.requires_permissions && !item.authorized;
   const stock = checkoutStore.stock[item.sku];
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
+  const maxOwned = stock && stock.max_per_user && stock.current_user >= stock.max_per_user;
   const total = ItemPrice(item, checkoutStore.currency);
   const isFree = !total || item.free;
 
@@ -82,10 +83,15 @@ const MarketplaceItemCard = ({
       searchName={item.nftTemplateMetadata.display_name}
       edition={item.nftTemplateMetadata.edition_name}
       description={description}
-      price={!isFree ? FormatPriceString(item.price, {
-        includeCurrency: true,
-        prependCurrency: true
-      }) : ((expired || unauthorized || outOfStock || type === "Featured") ? "" : "Claim Now!")}
+      price={
+        !isFree ?
+          FormatPriceString(item.price, {
+            includeCurrency: true,
+            prependCurrency: true
+          }) :
+          maxOwned ?
+            "You've already claimed this NFT" :
+            ((expired || unauthorized || outOfStock || type === "Featured") ? "" : "Claim Now!")}
       sideText={sideText}
       status={status}
       justification={justification}

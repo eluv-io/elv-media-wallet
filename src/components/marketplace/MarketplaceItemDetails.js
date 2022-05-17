@@ -14,6 +14,8 @@ import DetailsIcon from "Assets/icons/Details icon";
 import ContractIcon from "Assets/icons/Contract icon";
 import DescriptionIcon from "Assets/icons/Description icon";
 import MarketplaceItemCard from "Components/marketplace/MarketplaceItemCard";
+import ImageIcon from "Components/common/ImageIcon";
+import BackIcon from "Assets/icons/arrow-left";
 
 const MarketplaceItemDetails = observer(() => {
   const match = useRouteMatch();
@@ -69,6 +71,7 @@ const MarketplaceItemDetails = observer(() => {
     return <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "store", item.sku, "claim")} />;
   }
 
+  const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
   return (
     <>
       {
@@ -81,6 +84,10 @@ const MarketplaceItemDetails = observer(() => {
           /> : null
       }
       <div className="details-page">
+        <Link to={backPage.path} className="details-page__back-link">
+          <ImageIcon icon={BackIcon} />
+          Back to { marketplace?.branding?.name || "Marketplace" }
+        </Link>
         <div className="details-page__content-container">
           <MarketplaceItemCard
             marketplaceHash={marketplace.versionHash}
