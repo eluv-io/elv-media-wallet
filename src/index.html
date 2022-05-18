@@ -37,6 +37,14 @@
   <style id="_fonts"></style>
   <style id="_theme"></style>
   <style id="_custom-css"></style>
+
+  <script type="text/javascript">
+    try {
+      if(sessionStorage.getItem("custom-css")) {
+        document.querySelector("#_custom-css").innerHTML = atob(sessionStorage.getItem("custom-css"));
+      }
+    } catch(error) {}
+  </script>
 </body>
 
 </html>

@@ -27,11 +27,8 @@ const Activity = ({icon, header, hideFilters, hideStats, tableHeader, initialFil
       initialFilters={initialFilters}
       header={header}
       cacheDuration={10}
-      Render={({entries, paging, scrollRef, loading}) => (
-        <div
-          className="transfer-table activity-table"
-          style={!loading && entries.length === 0 ? { visibility: "hidden" } : {}}
-        >
+      Render={({entries, paging, scrollRef}) => (
+        <div className="transfer-table activity-table">
           {
             !tableHeader ? null :
               <div className="transfer-table__header">

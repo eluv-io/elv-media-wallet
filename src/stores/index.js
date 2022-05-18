@@ -722,6 +722,15 @@ class RootStore {
     this.availableMarketplaces = availableMarketplaces;
   });
 
+  SetCustomCSS(css="") {
+    const cssTag = document.getElementById("_custom-css");
+    if(cssTag) {
+      cssTag.innerHTML = css;
+    }
+
+    this.SetSessionStorage("custom-css", btoa(css));
+  }
+
   SetCustomizationOptions(marketplace) {
     if(this.currentCustomization === (marketplace && marketplace.marketplaceId)) {
       return;
@@ -729,9 +738,15 @@ class RootStore {
 
     this.currentCustomization = marketplace && marketplace.marketplaceId;
 
+    const desktopBackground = marketplace?.branding?.background?.url || "";
+    const mobileBackground = marketplace?.branding?.background_mobile?.url || "";
+
+    this.SetSessionStorage("background-image", desktopBackground);
+    this.SetSessionStorage("background-image-mobile", mobileBackground);
+
     this.appBackground = {
-      desktop: marketplace?.branding?.background?.url,
-      mobile: marketplace?.branding?.background_mobile?.url
+      desktop: desktopBackground,
+      mobile: mobileBackground
     };
 
     let options = { font: "Hevetica Neue" };
@@ -744,12 +759,10 @@ class RootStore {
 
     this.hideGlobalNavigation = marketplace && this.specifiedMarketplaceId === marketplace.marketplaceId && marketplace.branding && marketplace.branding.hide_global_navigation;
 
-    const cssTag = document.getElementById("_custom-css");
-    if(options.color_scheme === "Custom" && marketplace?.branding?.custom_css) {
-      cssTag.innerHTML = marketplace.branding.custom_css.toString();
-    } else {
-      cssTag.innerHTML = "";
-    }
+    this.SetCustomCSS(
+      options.color_scheme === "Custom" && marketplace?.branding?.custom_css ?
+        marketplace.branding.custom_css.toString() : ""
+    );
 
     this.centerContent = marketplace?.branding?.text_justification === "Center";
     this.centerItems = marketplace?.branding?.item_text_justification === "Center";
@@ -763,16 +776,6 @@ class RootStore {
         this.ToggleDarkMode(false);
         break;
     }
-
-    setTimeout(() => {
-      const background = document.querySelector(".app-background");
-
-      if(background) {
-        this.SetSessionStorage("background-color", background.style.background);
-      } else {
-        this.RemoveSessionStorage("background-color");
-      }
-    }, 5000);
   }
 
   ClearMarketplace() {

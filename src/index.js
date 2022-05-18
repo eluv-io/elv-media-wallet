@@ -203,11 +203,12 @@ const App = observer(() => {
     return <LoginModal />;
   }
 
-  const backgroundImage = (rootStore.pageWidth < 800 && rootStore.appBackground.mobile) || rootStore.appBackground.desktop;
+  const backgroundImage = (rootStore.pageWidth < 800 && (rootStore.appBackground.mobile || rootStore.GetSessionStorage("background-image-mobile"))) ||
+    rootStore.appBackground.desktop || rootStore.GetSessionStorage("background-image");
   const background =
     backgroundImage ?
       `no-repeat top center / cover url(${backgroundImage})` :
-      rootStore.GetSessionStorage("background-color");
+      !rootStore.loaded && rootStore.GetSessionStorage("background-color");
 
 
   const hasHeader = !rootStore.hideNavigation && (!rootStore.sidePanelMode || rootStore.navigationBreadcrumbs.length > 2);
