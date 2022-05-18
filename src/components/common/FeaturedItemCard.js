@@ -66,8 +66,8 @@ const FeaturedItemCard = observer(({
         className="action action-primary"
         to={
           match.params.marketplaceId ?
-            UrlJoin("/marketplace", match.params.marketplaceId, "listings", `?filter=${encodeURIComponent(searchName)}`) :
-            UrlJoin("/wallet", "listings", `?addr=${encodeURIComponent(searchName)}`)
+            UrlJoin("/marketplace", match.params.marketplaceId, `listings?filter=${encodeURIComponent(searchName)}`) :
+            UrlJoin("/wallet", `listings?filter=${encodeURIComponent(searchName)}`)
         }
       >
         View Listings

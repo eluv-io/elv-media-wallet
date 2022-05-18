@@ -4,7 +4,6 @@ import {useLocation, useRouteMatch} from "react-router-dom";
 import {rootStore} from "Stores";
 import UrlJoin from "url-join";
 import {MarketplaceImage, NFTImage} from "Components/common/Images";
-import NFTPlaceholderIcon from "Assets/icons/nft";
 import MarketplaceItemCard from "Components/marketplace/MarketplaceItemCard";
 import ItemCard from "Components/common/ItemCard";
 import ImageIcon from "Components/common/ImageIcon";
@@ -91,10 +90,10 @@ const MarketplaceCollections = observer(() => {
         return (
           <ItemCard
             key={key}
-            image={<NFTImage nft={{metadata: item.nftTemplateMetadata}} />}
+            link={UrlJoin("/marketplace", match.params.marketplaceId, `listings?filter=${encodeURIComponent(item.nftTemplateMetadata.display_name)}`)}
+            image={<NFTImage nft={{metadata: item.nftTemplateMetadata}} width={600} />}
             name={item.nftTemplateMetadata.display_name}
             description={item.nftTemplateMetadata.description}
-            className="item-card--disabled"
           />
         );
       }
@@ -118,8 +117,8 @@ const MarketplaceCollections = observer(() => {
               /> : null
           }
           <div className="page-headers">
-            <div className="page-header">{ collection.collection_header}</div>
-            <div className="page-subheader">{ collection.collection_subheader}</div>
+            { collection.collection_header ? <div className="page-header">{ collection.collection_header}</div> : null }
+            { collection.collection_subheader ? <div className="page-subheader">{ collection.collection_subheader}</div> : null }
           </div>
         </div>
         <div className="card-list card-list-collections">

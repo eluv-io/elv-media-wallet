@@ -281,3 +281,7 @@
 .listing-card * {
   text-transform: uppercase;
 }
+
+.header__log-in {
+  display: none;
+}
