@@ -6,7 +6,7 @@ import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
 
 import ImageIcon from "Components/common/ImageIcon";
-import {PageLoader} from "Components/common/Loaders";
+import {Loader, PageLoader} from "Components/common/Loaders";
 
 import UpCaretIcon from "./static/up-caret.svg";
 import DownCaretIcon from "./static/down-caret.svg";
@@ -33,54 +33,69 @@ try {
 // Methods
 
 // Log in button clicked - either redirect to auth0, or open new window
-const LogInRedirect = ({auth0, callbackUrl, marketplaceHash, userData, darkMode, create=false, customizationOptions, SignIn}) => {
-  // Embedded
-  if(embedded) {
-    const url = new URL(window.location.origin);
-    url.pathname = window.location.pathname;
-    url.searchParams.set("l", "");
+const LogInRedirect = async ({auth0, callbackUrl, marketplaceHash, userData, darkMode, create=false, customizationOptions, SignIn}) => {
+  await new Promise((resolve, reject) => {
+    // Embedded
+    if(embedded) {
+      const url = new URL(window.location.origin);
+      url.pathname = window.location.pathname;
+      url.searchParams.set("l", "");
 
-    if(marketplaceHash) {
-      url.searchParams.set("mid", marketplaceHash);
+      if(marketplaceHash) {
+        url.searchParams.set("mid", marketplaceHash);
+      }
+
+      if(userData) {
+        url.searchParams.set("ld", btoa(JSON.stringify(userData)));
+      }
+
+      if(darkMode) {
+        url.searchParams.set("dk", "");
+      }
+
+      if(create) {
+        url.searchParams.set("create", "");
+      }
+
+      const newWindow = window.open(url.toString());
+
+      const closeCheck = setInterval(function() {
+        if(newWindow.closed) {
+          clearInterval(closeCheck);
+          reject();
+        }
+      }, 250);
+
+      window.addEventListener("message", async event => {
+        if(!event || !event.data || event.data.type !== "LoginResponse") {
+          return;
+        }
+
+        await SignIn({idToken: event.data.params.idToken, user: event.data.params.user});
+
+        newWindow.close();
+
+        resolve();
+      });
+    } else {
+      // Not embedded
+      const auth0LoginParams = {
+        darkMode
+      };
+
+      if(customizationOptions.disable_third_party) {
+        auth0LoginParams.disableThirdParty = true;
+      }
+
+      auth0.loginWithRedirect({
+        redirectUri: callbackUrl,
+        initialScreen: create ? "signUp" : "login",
+        ...auth0LoginParams
+      });
+
+      resolve();
     }
-
-    if(userData) {
-      url.searchParams.set("ld", btoa(JSON.stringify(userData)));
-    }
-
-    if(darkMode) {
-      url.searchParams.set("dk", "");
-    }
-
-    if(create) {
-      url.searchParams.set("create", "");
-    }
-
-    const newWindow = window.open(url.toString());
-
-    window.addEventListener("message", async event => {
-      if(!event || !event.data || event.data.type !== "LoginResponse") { return; }
-
-      await SignIn({idToken: event.data.params.idToken, user: event.data.params.user});
-
-      newWindow.close();
-    });
-  } else {
-    // Not embedded
-    const auth0LoginParams = {
-      darkMode
-    };
-
-    if(customizationOptions.disable_third_party) {
-      auth0LoginParams.disableThirdParty = true;
-    }
-
-    auth0.loginWithRedirect({
-      redirectUri: callbackUrl,
-      initialScreen: create ? "signUp" : "login",
-      ...auth0LoginParams
-    });
-  }
+  });
 };
 
 const Authenticate = async ({auth0, idToken, user, userData, tenantId, SignIn}) => {
@@ -139,9 +154,6 @@ const Logo = ({customizationOptions}) => {
           className="login-page__logo"
           title="Logo"
         />
-        <h2 className="login-page__tagline">
-          Powered by <ImageIcon icon={EluvioLogo} className="login-page__tagline__image" title="Eluv.io" />
-        </h2>
       </div>
     );
   } else {
@@ -151,6 +163,16 @@ const Logo = ({customizationOptions}) => {
       </div>
     );
   }
+};
+
+const PoweredBy = ({customizationOptions}) => {
+  if(!customizationOptions?.logo) { return null; }
+
+  return (
+    <div className="login-page__tagline">
+      Powered by <ImageIcon icon={EluvioLogo} className="login-page__tagline__image" title="Eluv.io" />
+    </div>
+  );
 };
 
 const Background = ({customizationOptions, Close}) => {
@@ -223,7 +245,7 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
 };
 
 // eslint-disable-next-line no-unused-vars
-const Buttons = ({customizationOptions, Auth0LogIn, SignIn}) => {
+const Buttons = ({customizationOptions, loading, Auth0LogIn, SignIn}) => {
   const [showWalletOptions, setShowWalletOptions] = useState(false);
 
   let hasLoggedIn = false;
@@ -270,13 +292,11 @@ const Buttons = ({customizationOptions, Auth0LogIn, SignIn}) => {
         border: `0.75px solid ${customizationOptions?.wallet_button?.border_color?.color}`
       }}
       className="action login-page__login-button login-page__login-button-wallet"
-      onClick={async () => {
-        await SignIn({
-          tenantId: customizationOptions.tenant_id,
-          externalWallet: "metamask",
-          SignIn
-        });
-      }}
+      onClick={() => SignIn({
+        tenantId: customizationOptions.tenant_id,
+        externalWallet: "metamask",
+        SignIn
+      })}
     >
       <ImageIcon icon={MetamaskIcon} />
       Metamask
@@ -284,7 +304,8 @@ const Buttons = ({customizationOptions, Auth0LogIn, SignIn}) => {
   );
 
   return (
-    <div className="login-page__actions">
+    <div className={`login-page__actions ${loading ? "login-page__actions--loading" : ""}`}>
+      { loading ? <div className="login-page__actions__loader"><Loader /></div> : null }
       {
         hasLoggedIn ?
           <>
@@ -317,24 +338,25 @@ const Buttons = ({customizationOptions, Auth0LogIn, SignIn}) => {
   );
 };
 
-const LoginComponent = observer(({customizationOptions, darkMode, userData, setUserData, Auth0LogIn, SignIn, Close}) => {
+const LoginComponent = observer(({customizationOptions, darkMode, userData, setUserData, loading, Auth0LogIn, SignIn, Close}) => {
   return (
     <div className={`login-page ${darkMode ? "login-page--dark" : ""} ${customizationOptions?.large_logo_mode ? "login-page-large-logo-mode" : ""}`}>
       <Background customizationOptions={customizationOptions} Close={Close} />
 
       <div className="login-page__login-box">
         <Logo customizationOptions={customizationOptions} />
-        <Buttons customizationOptions={customizationOptions} Auth0LogIn={Auth0LogIn} SignIn={SignIn} />
+        <Buttons loading={loading} customizationOptions={customizationOptions} Auth0LogIn={Auth0LogIn} SignIn={SignIn} />
+        <PoweredBy customizationOptions={customizationOptions} />
         <Terms customizationOptions={customizationOptions} userData={userData} setUserData={setUserData}/>
       </div>
     </div>
   );
 });
 
-const Login = observer(({silent, darkMode, callbackUrl, Loaded, SignIn, LoadCustomizationOptions, Close}) => {
+const Login = observer(({silent, darkMode, callbackUrl, authenticating, Loaded, SignIn, LoadCustomizationOptions, Close}) => {
   const [customizationOptions, setCustomizationOptions] = useState(undefined);
   const [userData, setUserData] = useState(undefined);
-  const [authenticating, setAuthenticating] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [auth0Loading, setAuth0Loading] = useState(!embedded);
 
   let auth0;
@@ -354,11 +376,11 @@ const Login = observer(({silent, darkMode, callbackUrl, Loaded, SignIn, LoadCust
       customizationOptions,
       SignIn: async ({idToken, user}) => {
         try {
-          setAuthenticating(true);
+          setLoading(true);
 
           await Authenticate({idToken, user, userData, tenantId: customizationOptions.tenant_id, SignIn});
         } finally {
-          setAuthenticating(false);
+          setLoading(false);
         }
       }
     });
@@ -412,17 +434,17 @@ const Login = observer(({silent, darkMode, callbackUrl, Loaded, SignIn, LoadCust
     if((!embedded && auth0Loading) || !customizationOptions || !userData) { return; }
 
     if(!embedded && auth0?.isAuthenticated) {
-      setAuthenticating(true);
+      setLoading(true);
       Authenticate({auth0, userData, tenantId: customizationOptions.tenant_id, SignIn})
         .finally(() => {
           Loaded && Loaded();
-          setAuthenticating(false);
+          setLoading(false);
         });
     } else if(newWindowLogin) {
       Auth0LogIn({create: new URLSearchParams(window.location.search).has("create")});
     } else {
       Loaded && Loaded();
-      setAuthenticating(false);
+      setLoading(false);
     }
   }, [customizationOptions, auth0Loading, userData]);
 
@@ -433,7 +455,7 @@ const Login = observer(({silent, darkMode, callbackUrl, Loaded, SignIn, LoadCust
 
   darkMode = customizationOptions && typeof customizationOptions.darkMode === "boolean" ? customizationOptions.darkMode : darkMode;
 
-  if(authenticating || !customizationOptions || (!embedded && auth0Loading)) {
+  if(loading || !customizationOptions || (!embedded && auth0Loading)) {
     return (
       <div className={`login-page ${darkMode ? "login-page--dark" : ""}`}>
         <Background customizationOptions={customizationOptions} Close={() => Close && Close()} />
@@ -462,6 +484,7 @@ const Login = observer(({silent, darkMode, callbackUrl, Loaded, SignIn, LoadCust
       userData={userData}
       setUserData={SaveUserData}
       darkMode={darkMode}
+      loading={loading || authenticating}
       Auth0LogIn={Auth0LogIn}
       SignIn={SignIn}
       Close={() => Close && Close()}

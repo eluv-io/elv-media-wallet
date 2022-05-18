@@ -30,7 +30,6 @@ $content-width: 475px;
   display: flex;
   flex-direction: column;
   height: max-content;
-  min-height: 100vh;
   position: relative;
 
   .card-container {
@@ -276,6 +275,7 @@ $content-width: 475px;
 
   @media screen and (max-width: $mobile-breakpoint) {
     border: 0;
+    border-radius: 0;
     min-height: 100vh;
   }
 }

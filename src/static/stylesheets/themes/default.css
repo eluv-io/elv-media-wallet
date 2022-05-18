@@ -209,7 +209,7 @@
 
   /* Login (NOTE: background image and button colors are controlled in marketplace metadata) */
   --background-login: var(--color-page-bg);
-  --background-login-box: var(--background-modal-primary);
+  --background-login-box: var(--color-bg-primary);
   --color-login-text-primary: var(--color-component-text-primary);
   --color-login-text-secondary: var(--color-component-text-secondary);
   --color-login-text-highlight: var(--color-component-text-highlight);

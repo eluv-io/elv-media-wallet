@@ -6,7 +6,7 @@
     max-height: 100vh;
     max-width: unset;
     min-height: 100vh;
-    padding: 50px 0;
+    padding: 100px 0;
     width: 100%;
     overflow-y: auto;
   }
@@ -27,7 +27,6 @@
   align-items: center;
   display: flex;
   height: max-content;
-  min-height: 100%;
   justify-content: center;
   margin: 0;
   overflow-y: hidden;
@@ -116,34 +115,11 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-bottom: 50px;
+    margin-bottom: 30px;
 
     .login-page__logo {
       margin-bottom: 0;
       padding: 0 5px 15px;
-    }
-
-    .login-page__tagline {
-      align-items: center;
-      color: var(--color-login-text-secondary);
-      display: flex;
-      flex-direction: column;
-      font-size: 10px;
-      font-weight: 300;
-      justify-content: center;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      user-select: none;
-
-      &__image {
-        height: 20px;
-        margin-top: 10px;
-
-        * {
-          fill: var(--color-login-text-secondary);
-          stroke: var(--color-login-text-secondary);
-        }
-      }
     }
   }
 
@@ -161,6 +137,35 @@
       height: 20px;
       left: 20px;
       margin-right: 10px;
+    }
+  }
+
+  .login-page__tagline-container {
+    margin-top: 50px;
+    width: 100%;
+  }
+
+  .login-page__tagline {
+    align-items: center;
+    color: var(--color-login-text-secondary);
+    display: flex;
+    flex-direction: column;
+    font-size: 10px;
+    font-weight: 300;
+    justify-content: center;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    user-select: none;
+    margin-top: 50px;
+
+    &__image {
+      height: 25px;
+      margin-top: 10px;
+
+      * {
+        fill: var(--color-login-text-secondary);
+        stroke: var(--color-login-text-secondary);
+      }
     }
   }
 
@@ -183,6 +188,15 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    position: relative;
+
+    &--loading {
+      & > * {
+        &:not(.login-page__actions__loader) {
+          opacity: 0;
+        }
+      }
+    }
 
     &__separator {
       display: flex;
@@ -201,6 +215,17 @@
     &__separator-text {
       font-size: 14px;
       padding: 0 15px;
+    }
+
+    &__loader {
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      position: absolute;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
   }
 
@@ -222,7 +247,7 @@
   }
 
   &__text-section {
-    margin-top: 50px;
+    margin-top: 20px;
 
     * {
       color: var(--color-login-text-secondary);

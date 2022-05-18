@@ -7,7 +7,7 @@
   left: 0;
   margin: auto;
   max-height: 100vh;
-  overflow-y: scroll;
+  overflow-y: auto;
 
   position: fixed;
   top: 0;
@@ -61,7 +61,7 @@
     // sass-lint:enable no-vendor-prefixes
     height: 100%;
     overflow-x: hidden;
-    overflow-y: scroll;
+    overflow-y: auto;
   }
 
   .modal__content {

@@ -1,7 +1,7 @@
 import "Assets/fonts/fonts.css";
 import "Assets/stylesheets/app.scss";
 
-import React, { useEffect } from "react";
+import React, { lazy, Suspense, useEffect } from "react";
 import UrlJoin from "url-join";
 import { render } from "react-dom";
 import { observer} from "mobx-react";
@@ -37,19 +37,20 @@ import {
   Route,
   Redirect,
 } from "react-router-dom";
-import Wallet from "Components/wallet";
 import Login from "./login/Login";
-import Profile from "Components/profile";
 import ScrollToTop from "Components/common/ScrollToTop";
 import { InitializeListener } from "Components/interface/Listener";
 import {Auth0Provider, useAuth0} from "@auth0/auth0-react";
-import MarketplaceRoutes from "Components/marketplace";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import {PageLoader} from "Components/common/Loaders";
 import Modal from "Components/common/Modal";
 import {LoginRedirectGate} from "Components/common/LoginGate";
 import Flows from "Components/interface/Flows";
 import Actions from "Components/interface/Actions";
+
+const WalletRoutes = lazy(() => import("Components/wallet/index"));
+const MarketplaceRoutes = lazy(() => import("Components/marketplace/index"));
+const Profile = lazy(() => import("Components/profile"));
 
 const DebugFooter = observer(() => {
   if(!EluvioConfiguration["show-debug"]) { return null; }
@@ -70,8 +71,6 @@ const DebugFooter = observer(() => {
     </>
   );
 });
-
-const Placeholder = ({ text }) => <div>{text}</div>;
 
 const RedirectHandler = ({storageKey}) => {
   if(!rootStore.embedded && rootStore.GetSessionStorage(storageKey)) {
@@ -95,7 +94,7 @@ const LoginModal = observer(() => {
     );
   }
 
-  if((rootStore.loggedIn && !rootStore.authenticating) || !rootStore.loaded) {
+  if(rootStore.loggedIn) {
     return null;
   }
 
@@ -113,6 +112,7 @@ const LoginModal = observer(() => {
           key="login-main"
           darkMode={rootStore.darkMode}
           callbackUrl={redirectUrl.toString()}
+          authenticating={rootStore.authenticating}
           Loaded={() => rootStore.SetLoginLoaded()}
           LoadCustomizationOptions={async () => await rootStore.LoadLoginCustomization()}
           SignIn={async params => await rootStore.Authenticate(params)}
@@ -160,22 +160,27 @@ const Routes = observer(() => {
             <Route exact path="/cancel">
               <RedirectHandler storageKey="cancelPath" />
             </Route>
-            <Route path="/discover">
-              <Placeholder text={"Discover"} />
-            </Route>
             <Route path="/wallet">
-              <Wallet />
+              <Suspense fallback={<PageLoader />}>
+                <WalletRoutes />
+              </Suspense>
             </Route>
             <Route path="/profile">
               <LoginRedirectGate to="/marketplaces">
-                <Profile />
+                <Suspense fallback={<PageLoader />}>
+                  <Profile />
+                </Suspense>
               </LoginRedirectGate>
             </Route>
             <Route path="/marketplaces">
-              <MarketplaceRoutes />
+              <Suspense fallback={<PageLoader />}>
+                <MarketplaceRoutes />
+              </Suspense>
             </Route>
             <Route path="/marketplace">
-              <MarketplaceRoutes />
+              <Suspense fallback={<PageLoader />}>
+                <MarketplaceRoutes />
+              </Suspense>
             </Route>
             <Route path="/">
               <Redirect to="/marketplaces" />
@@ -198,7 +203,13 @@ const App = observer(() => {
     return <LoginModal />;
   }
 
-  const background = (rootStore.pageWidth < 800 && rootStore.appBackground.mobile) || rootStore.appBackground.desktop;
+  const backgroundImage = (rootStore.pageWidth < 800 && rootStore.appBackground.mobile) || rootStore.appBackground.desktop;
+  const background =
+    backgroundImage ?
+      `no-repeat top center / cover url(${backgroundImage})` :
+      rootStore.GetSessionStorage("background-color");
+
+
   const hasHeader = !rootStore.hideNavigation && (!rootStore.sidePanelMode || rootStore.navigationBreadcrumbs.length > 2);
   return (
     <div
@@ -219,7 +230,7 @@ const App = observer(() => {
       <DebugFooter />
       <div
         className="app-background"
-        style={background ? {background: `no-repeat top center / cover url(${background})`} : null}
+        style={background ? {background} : null}
       />
     </div>
   );

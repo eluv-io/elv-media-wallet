@@ -70,7 +70,7 @@ class RootStore {
 
   loggedIn = false;
   disableCloseEvent = false;
-  darkMode = searchParams.has("dk");
+  darkMode = searchParams.has("dk") || this.GetSessionStorage("dark-mode");
 
   availableMarketplaces = {};
 
@@ -289,8 +289,9 @@ class RootStore {
   }
 
   Authenticate = flow(function * ({idToken, fabricToken, authToken, externalWallet, address, tenantId, user, walletName="Eluvio", expiresAt, saveAuthInfo=true}) {
+    if(this.authenticating) { return; }
+
     try {
-      if(this.authenticating) { return;}
 
       this.authenticating = true;
       this.loggedIn = false;
@@ -762,6 +763,16 @@ class RootStore {
         this.ToggleDarkMode(false);
         break;
     }
+
+    setTimeout(() => {
+      const background = document.querySelector(".app-background");
+
+      if(background) {
+        this.SetSessionStorage("background-color", background.style.background);
+      } else {
+        this.RemoveSessionStorage("background-color");
+      }
+    }, 5000);
   }
 
   ClearMarketplace() {
@@ -1785,6 +1796,8 @@ class RootStore {
     }
 
     this.darkMode = enabled;
+
+    this.SetSessionStorage("dark-mode", "true");
   }
 
   ToggleNavigation(enabled) {

@@ -17,14 +17,19 @@
 
 <body>
   <script type="text/javascript">
-    const searchParams = new URLSearchParams(window.location.search);
+    try {
+      if(sessionStorage.getItem("background-color")) {
+        document.body.style.background = sessionStorage.getItem("background-color");
+      } else {
+        const searchParams = new URLSearchParams(window.location.search);
+        const darkMode = searchParams.has("dk") || sessionStorage.getItem("dark-mode")
 
-    // If light mode specified, set light body color ASAP
-    if(searchParams.has("lt")) {
-      document.body.style.backgroundColor = "#FFFFFF";
-    } else if(searchParams.has("dk")) {
-      document.body.style.backgroundColor = "#000000";
-    }
+        // If light mode specified, set light body color ASAP
+        if(darkMode) {
+          document.body.style.backgroundColor = "#000000";
+        }
+      }
+    } catch(error) {}
   </script>
 
   <div id="app" class="app"></div>
