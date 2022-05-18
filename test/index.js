@@ -65,7 +65,6 @@ const App = () => {
       });
   }, []);
 
-
   const ToggleEventListener = event => {
     if(listeners[event]) {
       client.RemoveEventListener(event, EventListener);
@@ -219,8 +218,7 @@ const App = () => {
           </>
       }
 
-      <div id="wallet-target" className="wallet-target">
-      </div>
+      <div id="wallet-target" className="wallet-target" />
 
       <pre className="client-results" id="client-results">
       </pre>

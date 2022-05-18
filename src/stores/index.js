@@ -39,6 +39,8 @@ try {
 }
 
 class RootStore {
+  appUUID = searchParams.get("appUUID") || this.GetSessionStorage("app-uuid");
+
   DEBUG_ERROR_MESSAGE = "";
 
   network = EluvioConfiguration["config-url"].includes("main.net955305") ? "main" : "demo";
@@ -178,6 +180,10 @@ class RootStore {
     this.checkoutStore = new CheckoutStore(this);
     this.transferStore = new TransferStore(this);
     this.cryptoStore = new CryptoStore(this);
+
+    if(this.appUUID) {
+      this.SetSessionStorage("app-uuid", this.appUUID);
+    }
 
     window.addEventListener("resize", () => this.HandleResize());
 
@@ -1423,10 +1429,16 @@ class RootStore {
     this.SetSessionStorage("redirect-url", url.toString());
 
     if(window.auth0) {
+      const returnUrl = new URL(UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""));
+
+      if(this.appUUID) {
+        returnUrl.searchParams.set("appUUID", this.appUUID);
+      }
+
       try {
         this.disableCloseEvent = true;
         window.auth0.logout({
-          returnTo: UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, "")
+          returnTo: returnUrl.toString()
         });
 
         return;

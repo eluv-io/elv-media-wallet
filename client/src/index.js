@@ -1,5 +1,13 @@
 const EVENTS = require("./Events");
 
+const UUID = () => {
+  return "XXXXXXXX".replace(/[X]/g, () => {
+    const r = Math.floor(Math.random() * 16);
+    return r.toString(16);
+  });
+};
+
+
 // https://stackoverflow.com/questions/4068373/center-a-popup-window-on-screen
 const Popup = ({url, title, w, h}) => {
   // Fixes dual-screen position
@@ -125,7 +133,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @constructor
    */
   constructor({
-    clientType="FRAME",
+    appUUID,
     requestor,
     walletAppUrl="http://wallet.contentfabric.io",
     parentAppUrl,
@@ -141,6 +149,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
       this.Throw("target not specified");
     }
 
+    this.appUUID = appUUID;
     this.requestor = requestor;
     this.walletAppUrl = walletAppUrl;
     this.parentAppUrl = parentAppUrl;
@@ -150,7 +159,6 @@ const walletClient = await ElvWalletClient.InitializePopup({
     this.LOG_LEVELS = LOG_LEVELS;
     this.logLevel = this.LOG_LEVELS.WARN;
     this.EVENTS = EVENTS;
-    this.clientType = clientType;
 
     this.eventListeners = {};
     Object.keys(EVENTS).forEach(key => this.eventListeners[key] = []);
@@ -168,7 +176,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
 
     if(
       message.type !== "ElvMediaWalletEvent" ||
-      message.clientType !== this.clientType ||
+      message.appUUID !== this.appUUID ||
       !EVENTS[message.event]
     ) {
       return;
@@ -221,6 +229,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
    */
   AddEventListener(event, Listener) {
     if(!EVENTS[event]) { this.Throw(`AddEventListener: Invalid event ${event}`); }
+
     if(typeof Listener !== "function") { this.Throw("AddEventListener: Listener is not a function"); }
 
     this.eventListeners[event].push(Listener);
@@ -442,7 +451,11 @@ const walletClient = await ElvWalletClient.InitializePopup({
     captureLogin=false,
     darkMode=false
   }) {
+    const appUUID = UUID();
+
     walletAppUrl = new URL(walletAppUrl);
+
+    walletAppUrl.searchParams.set("appUUID", appUUID);
 
     if(marketplaceSlug) {
       walletAppUrl.searchParams.set("mid", `${tenantSlug}/${marketplaceSlug}`);
@@ -477,7 +490,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
     const target = Popup({url: walletAppUrl.toString(), title: "Eluvio Media Wallet", w: 400, h: 700});
 
     const client = new ElvWalletClient({
-      clientType: "POPUP",
+      appUUID,
       requestor,
       walletAppUrl: walletAppUrl.toString(),
       parentAppUrl,
@@ -537,6 +550,8 @@ const walletClient = await ElvWalletClient.InitializePopup({
     captureLogin=false,
     darkMode=false
   }) {
+    const appUUID = UUID();
+
     if(typeof target === "string") {
       const targetElement = document.getElementById(target);
 
@@ -562,6 +577,8 @@ const walletClient = await ElvWalletClient.InitializePopup({
     target.title = "Eluvio Media Wallet";
 
     walletAppUrl = new URL(walletAppUrl);
+
+    walletAppUrl.searchParams.set("appUUID", appUUID);
 
     if(marketplaceSlug) {
       walletAppUrl.searchParams.set("mid", `${tenantSlug}/${marketplaceSlug}`);
@@ -594,7 +611,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
     }
 
     const client = new ElvWalletClient({
-      clientType: "FRAME",
+      appUUID,
       requestor,
       walletAppUrl: walletAppUrl.toString(),
       parentAppUrl,
