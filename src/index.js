@@ -209,7 +209,12 @@ const App = observer(() => {
   }
 
   if(newWindowLogin) {
-    return <LoginModal />;
+    return (
+      <>
+        <PageLoader />
+        <LoginModal />
+      </>
+    );
   }
 
   useEffect(() => {
