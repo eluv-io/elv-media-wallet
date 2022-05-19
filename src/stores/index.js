@@ -242,8 +242,6 @@ class RootStore {
 
       const marketplace = decodeURIComponent(searchParams.get("mid") || this.GetSessionStorage("marketplace") || "");
 
-      console.log("Marketplace parameter:", marketplace, typeof marketplace);
-
       let tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash;
       if(marketplace && marketplace.includes("/")) {
         tenantSlug = marketplace.split("/")[0];
@@ -432,6 +430,10 @@ class RootStore {
   });
 
   async LoadLoginCustomization() {
+    while(!this.loaded) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
     if(!this.specifiedMarketplaceId) {
       return {};
     }
