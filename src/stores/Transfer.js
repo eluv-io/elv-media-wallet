@@ -51,7 +51,7 @@ class TransferStore {
       TokenHold: info.hold,
       TokenHoldDate: info.hold ? new Date(parseInt(info.hold) * 1000) : undefined,
       TokenOwner: info.token_owner ? Utils.FormatAddress(info.token_owner) : "",
-      VersionHash: (info.token_uri || "").split("/").find(s => s.startsWith("hq__")),
+      VersionHash: (info.token_uri || "").split("/").find(s => (s || "").startsWith("hq__")),
     };
 
     if(isListing){

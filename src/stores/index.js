@@ -241,6 +241,9 @@ class RootStore {
       }
 
       const marketplace = decodeURIComponent(searchParams.get("mid") || this.GetSessionStorage("marketplace") || "");
+
+      console.log("Marketplace parameter:", marketplace, typeof marketplace);
+
       let tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash;
       if(marketplace && marketplace.includes("/")) {
         tenantSlug = marketplace.split("/")[0];
@@ -600,7 +603,7 @@ class RootStore {
     let nftInfo = {};
     Object.keys(this.profileData.NFTs).map(tenantId =>
       this.profileData.NFTs[tenantId].forEach(details => {
-        const versionHash = (details.TokenUri || "").split("/").find(s => s.startsWith("hq__"));
+        const versionHash = (details.TokenUri || "").split("/").find(s => (s || "").startsWith("hq__"));
 
         if(!versionHash) {
           return;
@@ -952,7 +955,7 @@ class RootStore {
             try {
               let versionHash;
               if(item.nft_template["/"]) {
-                versionHash = item.nft_template["/"].split("/").find(component => component.startsWith("hq__"));
+                versionHash = item.nft_template["/"].split("/").find(component => (component || "").startsWith("hq__"));
               } else if(item.nft_template["."] && item.nft_template["."].source) {
                 versionHash = item.nft_template["."].source;
               }
