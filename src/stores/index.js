@@ -205,18 +205,16 @@ class RootStore {
       }
 
       // Login required
-      if(searchParams.has("rl") || this.GetSessionStorage("loginRequired")) {
+      if(searchParams.has("rl")) {
         this.requireLogin = true;
         this.ShowLogin({requireLogin: true});
-        this.SetSessionStorage("loginRequired", "true");
       }
 
       // Show only login screen
-      if(searchParams.has("lo") || this.GetSessionStorage("loginOnly")) {
+      if(searchParams.has("lo")) {
         this.loginOnly = true;
         this.requireLogin = true;
         this.ShowLogin({requireLogin: true});
-        this.SetSessionStorage("loginOnly", "true");
         this.ToggleNavigation(false);
       }
 
