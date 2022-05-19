@@ -1781,6 +1781,8 @@ class RootStore {
 
   ShowLogin({requireLogin=false, ignoreCapture=false}={}) {
     if(this.capturedLogin && !ignoreCapture) {
+      if(this.loggedIn) { return; }
+      
       this.SendEvent({event: EVENTS.LOG_IN_REQUESTED});
     } else {
       this.requireLogin = requireLogin;
