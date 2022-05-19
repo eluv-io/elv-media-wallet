@@ -734,7 +734,7 @@ class RootStore {
   SetCustomCSS(css="") {
     const cssTag = document.getElementById("_custom-css");
     if(cssTag) {
-      //cssTag.innerHTML = css;
+      cssTag.innerHTML = css;
     }
 
     this.SetSessionStorage("custom-css", btoa(css));
