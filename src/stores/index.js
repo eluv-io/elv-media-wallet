@@ -34,12 +34,14 @@ let storageSupported = true;
 try {
   sessionStorage.getItem("TestStorage");
   localStorage.getItem("TestStorage");
+
+  window.appUUID = searchParams.get("appUUID") || sessionStorage.getItem("app-uuid");
 } catch(error) {
   storageSupported = false;
 }
 
 class RootStore {
-  appUUID = searchParams.get("appUUID") || this.GetSessionStorage("app-uuid");
+  appUUID = window.appUUID;
 
   DEBUG_ERROR_MESSAGE = "";
 

@@ -55,7 +55,8 @@ const App = () => {
       parentAppUrl,
       target: targetId,
       tenantSlug,
-      marketplaceSlug
+      marketplaceSlug,
+      loginOnly: true
     })
       .then(client => {
         window.client = client;
