@@ -353,7 +353,7 @@ const LoginComponent = observer(({customizationOptions, darkMode, userData, setU
   );
 });
 
-const Login = observer(({silent, darkMode, callbackUrl, authenticating, Loaded, SignIn, LoadCustomizationOptions, Close}) => {
+const Login = observer(({silent, darkMode, callbackUrl, authenticating, signedIn, Loaded, SignIn, LoadCustomizationOptions, Close}) => {
   const [customizationOptions, setCustomizationOptions] = useState(undefined);
   const [userData, setUserData] = useState(undefined);
   const [loading, setLoading] = useState(true);
@@ -430,6 +430,11 @@ const Login = observer(({silent, darkMode, callbackUrl, authenticating, Loaded, 
 
   // Authenticate if possible
   useEffect(() => {
+    if(signedIn) {
+      setLoading(false);
+      return;
+    }
+
     // Must wait for customization to be loaded so we can pass tenant ID
     if((!embedded && auth0Loading) || !customizationOptions || !userData) { return; }
 

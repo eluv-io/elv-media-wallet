@@ -94,13 +94,21 @@ const LoginModal = observer(() => {
     );
   }
 
-  if(rootStore.loggedIn) {
+  if(rootStore.loggedIn && !rootStore.loginOnly) {
     return null;
   }
 
-  if(rootStore.showLogin) {
+  if(rootStore.showLogin || rootStore.loginOnly) {
     const redirectUrl = new URL(UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""));
     redirectUrl.hash = window.location.hash;
+
+    if(rootStore.requireLogin) {
+      redirectUrl.searchParams.set("rl", "");
+    }
+
+    if(rootStore.loginOnly) {
+      redirectUrl.searchParams.set("lo", "");
+    }
 
     return (
       <Modal
@@ -112,7 +120,8 @@ const LoginModal = observer(() => {
           key="login-main"
           darkMode={rootStore.darkMode}
           callbackUrl={redirectUrl.toString()}
-          authenticating={rootStore.authenticating}
+          authenticating={rootStore.authenticating || rootStore.loggedIn}
+          signedIn={rootStore.loggedIn}
           Loaded={() => rootStore.SetLoginLoaded()}
           LoadCustomizationOptions={async () => await rootStore.LoadLoginCustomization()}
           SignIn={async params => await rootStore.Authenticate(params)}
@@ -141,7 +150,7 @@ const Routes = observer(() => {
   useEffect(() => InitializeListener(history), []);
 
   if(rootStore.loginOnly) {
-    return <LoginModal />;
+    return null;
   }
 
   if(!rootStore.loaded) {
