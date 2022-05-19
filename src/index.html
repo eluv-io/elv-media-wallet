@@ -16,10 +16,20 @@
 </head>
 
 <body>
+  <div id="app" class="app"></div>
+  <div id="app-background" class="app-background"></div>
+
+  <style id="_fonts"></style>
+  <style id="_theme"></style>
+  <style id="_custom-css"></style>
+
   <script type="text/javascript">
     try {
-      if(sessionStorage.getItem("background-color")) {
-        document.body.style.background = sessionStorage.getItem("background-color");
+      const backgroundImage = (window.innerWidth < 800 && sessionStorage.getItem("background-image-mobile")) || sessionStorage.getItem("background-image");
+
+      if(backgroundImage) {
+        console.log(backgroundImage);
+        document.querySelector("#app-background").style.background = "no-repeat top center / cover url(\"" + backgroundImage + "\")";
       } else {
         const searchParams = new URLSearchParams(window.location.search);
         const darkMode = searchParams.has("dk") || sessionStorage.getItem("dark-mode")
@@ -29,21 +39,13 @@
           document.body.style.backgroundColor = "#000000";
         }
       }
-    } catch(error) {}
-  </script>
 
-  <div id="app" class="app"></div>
-
-  <style id="_fonts"></style>
-  <style id="_theme"></style>
-  <style id="_custom-css"></style>
-
-  <script type="text/javascript">
-    try {
       if(sessionStorage.getItem("custom-css")) {
         document.querySelector("#_custom-css").innerHTML = atob(sessionStorage.getItem("custom-css"));
       }
-    } catch(error) {}
+    } catch(error) {
+      console.error(error);
+    }
   </script>
 </body>
 

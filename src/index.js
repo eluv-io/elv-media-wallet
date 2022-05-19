@@ -203,13 +203,25 @@ const App = observer(() => {
     return <LoginModal />;
   }
 
-  const backgroundImage = (rootStore.pageWidth < 800 && (rootStore.appBackground.mobile || rootStore.GetSessionStorage("background-image-mobile"))) ||
-    rootStore.appBackground.desktop || rootStore.GetSessionStorage("background-image");
-  const background =
-    backgroundImage ?
-      `no-repeat top center / cover url(${backgroundImage})` :
-      !rootStore.loaded && rootStore.GetSessionStorage("background-color");
+  useEffect(() => {
+    if(!rootStore.loaded) { return; }
 
+    const backgroundElement = document.querySelector("#app-background");
+
+    const backgroundImage = (rootStore.pageWidth < 800 && rootStore.appBackground.mobile) || rootStore.appBackground.desktop || "";
+
+    const currentBackground = backgroundElement.style.backgroundImage || "";
+    const currentBackgroundImageUrl = ((currentBackground || "").split("contentfabric.io")[1] || "").split("?")[0];
+    const newBackgroundImageUrl = ((backgroundImage || "").split("contentfabric.io")[1] || "").split("?")[0];
+
+    if(newBackgroundImageUrl !== currentBackgroundImageUrl) {
+      if(backgroundImage) {
+        backgroundElement.style.background = `no-repeat top center / cover url("${backgroundImage}")`;
+      } else {
+        backgroundElement.style.removeProperty("background");
+      }
+    }
+  }, [rootStore.loaded, rootStore.appBackground]);
 
   const hasHeader = !rootStore.hideNavigation && (!rootStore.sidePanelMode || rootStore.navigationBreadcrumbs.length > 2);
   return (
@@ -229,10 +241,6 @@ const App = observer(() => {
     >
       <Routes />
       <DebugFooter />
-      <div
-        className="app-background"
-        style={background ? {background} : null}
-      />
     </div>
   );
 });

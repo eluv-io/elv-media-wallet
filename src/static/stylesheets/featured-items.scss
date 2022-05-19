@@ -27,6 +27,7 @@
     font: var(--font-feature-card-title);
     font-size: 24px;
     font-weight: 500;
+    text-transform: uppercase;
     word-break: break-word;
   }
 
@@ -34,6 +35,7 @@
     color: var(--color-feature-card-text-secondary);
     font: var(--font-feature-card-misc);
     font-size: 12px;
+    text-transform: uppercase;
   }
 
   &__description {
@@ -83,6 +85,7 @@
     overflow: visible;
     position: absolute;
     text-align: center;
+    text-transform: uppercase;
     transform: rotate(-90deg);
     white-space: nowrap;
     word-break: keep-all;
@@ -130,6 +133,10 @@
       background: $black;
       border-radius: calc(var(--border-radius-feature-card) / 2);
     }
+  }
+
+  .item-card__image-container {
+    border-radius: var(--border-radius-feature-card);
   }
 
   @media screen and (max-width: $tablet-breakpoint) {

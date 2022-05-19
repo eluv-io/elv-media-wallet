@@ -104,7 +104,9 @@
   --font-header-profile: normal normal normal 14px var(--font-family-primary);
   --font-store-header: normal normal normal 32px var(--font-family-primary);
 
-  --font-card-title: normal normal normal 24px var(--font-family-primary);
+  --font-store-heading: normal normal normal 64px var(--font-family-primary);
+
+  --font-card-title: normal normal normal 40px var(--font-family-primary);
   --font-card-misc: normal normal bold 14px var(--font-family-tertiary);
 
   --font-feature-card-title: normal normal normal 32px var(--font-family-primary);
@@ -141,6 +143,7 @@
 
   /* Header */
   --background-page-header: transparent;
+  --color-header-link-text-active: #FFFFFF;
 
   /* Modal */
   --background-modal-primary: linear-gradient(var(--color-page-bg-gradient-top), var(--color-page-bg-gradient-bottom));
@@ -159,15 +162,19 @@
   --background-card: rgba(6, 8, 41, 0.7);
   --border-card: 2px solid #0E01FA;
 
-  --background-feature-card: rgba(16, 39, 254, 0.2);
-  --background-feature-card-runway: linear-gradient(180deg, rgba(16, 39, 254, 0) 75%, rgba(16, 39, 254, 0.3) 100%);
-  --border-feature-card: 3px solid #0E01FA;
+  --background-feature-card: rgba(24, 213, 255, 0.3);
+  --background-feature-card-runway: linear-gradient(180deg, rgba(24, 213, 255, 0) 75%, rgba(24, 213, 255, 0.3) 100%);
+  --border-feature-card: 2px solid #18D5FF;
   --border-feature-card-selected: 3px solid #18D5FF;
-  --box-shadow-feature-card: 0px 0px 24px #18D5FF;
+  --border-radius-feature-card: 4px;
+  --box-shadow-feature-card: 0px 0px 24px rgba(83, 223, 255, 0.64);
   --box-shadow-feature-card-selected: var(--box-shadow-feature-card);
 
-  --color-feature-card-slider: rgba(235, 235, 235, 0.2);
-  --color-feature-card-slider-handle: #18D5FF;
+  --color-featured-item-slider-handle: #18D5FF;
+
+  --color-feature-card-text-primary: #FFFFFF;
+  --color-feature-card-text-secondary: #FFFFFF;
+  --color-feature-card-text-highlight: #FFFFFF;
 
 
   /* Tables */
@@ -228,6 +235,25 @@
   text-transform: uppercase;
 }
 
+.subheader__navigation-link.active {
+  position: relative;
+  overflow: visible;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.subheader__navigation-link.active::after {
+  animation: 0.25s fadein ease;
+  content: "";
+  height: 4px;
+  width: 120%;
+  position: absolute;
+  bottom: -6px;
+  background: linear-gradient(90deg, rgba(122, 29, 240, 0) 0.22%, #18D5FF 49.07%, rgba(122, 29, 240, 0) 100%);
+  box-shadow: 0 0 4536px #FFFFFF, 0 0 2592px #FFFFFF, 0 0 1512px #FFFFFF, 0 0 756px #FFFFFF, 0 0 216px #FFFFFF, 0 0 108px #FFFFFF;
+}
+
 /* Make table header not stick - does not work when background is transparent */
 .transfer-table__table__header.transfer-table__table__header {
   position: relative;
@@ -239,31 +265,20 @@
 }
 
 /* Apply gradient border to cards using background gradient and padding on container */
-.card-container,
-.featured-item__icon-container,
-.feature-gallery__icon-container {
+.card-container {
   padding: 2px!important;
-  background: linear-gradient(180deg, #0214ff 0%, #18d5ff 57.81%, #2d21ff 76.56%, #0214ff 100%)!important;
+  background: linear-gradient(180deg, #021AFF 0%, #0E01FA 54.17%, #1882FF 75.52%, #021AFF 100%);
   border: 2px solid transparent!important;
-}
-
-.item-card,
-.featured-item__icon,
-.feature-gallery__icon {
-  background: rgba(6, 8, 41, 0.7)!important;
 }
 
 .item-card {
   border-radius: 3px!important;
 }
 
-.featured-item__icon,
-.feature-gallery__icon {
-  border-radius: 20px!important;
+.item-card__title.item-card__title {
+  font-weight: normal;
 }
 
-.featured-item__icon-container::after,
-.feature-gallery__icon-container::after,
 .card-container::after {
   content: "";
   position: absolute;
@@ -285,4 +300,16 @@
 
 .header__log-in {
   display: none;
+}
+
+.expandable-section__header {
+  text-transform: none!important;
+}
+
+.stats__label {
+  text-transform: uppercase;
+}
+
+.stats__item {
+  border: 0!important;
 }

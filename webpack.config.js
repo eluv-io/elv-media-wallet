@@ -6,6 +6,7 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPl
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const HtmlWebpackInlineSourcePlugin = require("html-webpack-inline-source-plugin");
+const fs = require("fs");
 
 let plugins = [
   new HtmlWebpackPlugin({
@@ -34,6 +35,11 @@ module.exports = {
     chunkFilename: "[name].[contenthash].bundle.js"
   },
   devServer: {
+    https: {
+      key: fs.readFileSync("./https/private.key"),
+      cert: fs.readFileSync("./https/dev.local.crt"),
+      ca: fs.readFileSync("./https/private.pem")
+    },
     disableHostCheck: true,
     inline: true,
     port: 8090,

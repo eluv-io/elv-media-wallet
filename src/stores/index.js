@@ -74,7 +74,6 @@ class RootStore {
 
   availableMarketplaces = {};
 
-  lastMarketplaceId = undefined;
   marketplaceId = undefined;
   marketplaceHashes = {};
   tenantSlug = undefined;
@@ -103,11 +102,12 @@ class RootStore {
   hideNavigation = searchParams.has("hn") || this.loginOnly;
   sidePanelMode = false;
 
-  appBackground = { desktop: undefined, mobile: undefined };
+  appBackground = { desktop: this.GetSessionStorage("background-image"), mobile: this.GetSessionStorage("background-image") };
   centerContent = false;
   centerItems = false;
 
   authToken = undefined;
+  staticToken = undefined;
   basePublicUrl = undefined;
 
   userProfile = {};
@@ -225,6 +225,7 @@ class RootStore {
         assumeV3: true
       });
 
+      this.staticToken = this.client.staticToken;
       this.authToken = this.client.staticToken;
 
       this.basePublicUrl = yield this.client.FabricUrl({
@@ -648,6 +649,7 @@ class RootStore {
         resolveIncludeSource: true,
         resolveIgnoreErrors: true,
         produceLinkUrls: true,
+        authorizationToken: this.staticToken,
         noAuth: true,
         select: [
           `${tenantSlug}/.`,
@@ -668,6 +670,7 @@ class RootStore {
         resolveIncludeSource: true,
         resolveIgnoreErrors: true,
         produceLinkUrls: true,
+        authorizationToken: this.staticToken,
         noAuth: true,
         select: [
           "*/.",
@@ -797,8 +800,6 @@ class RootStore {
       this.tenantSlug = marketplace.tenantSlug;
       this.marketplaceSlug = marketplace.marketplaceSlug;
       this.marketplaceId = marketplace.marketplaceId;
-
-      this.lastMarketplaceId = marketplace.marketplaceId;
 
       if(specified) {
         this.specifiedMarketplaceId = marketplace.marketplaceId;
@@ -940,7 +941,7 @@ class RootStore {
         resolveIgnoreErrors: true,
         resolveIncludeSource: true,
         produceLinkUrls: true,
-        noAuth: true
+        authorizationToken: this.staticToken
       });
 
       const stockPromise = this.checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id});
@@ -1789,9 +1790,11 @@ class RootStore {
   ToggleDarkMode(enabled) {
     const themeContainer = document.querySelector("#_theme");
     if(!enabled) {
+      this.RemoveSessionStorage("dark-mode");
       themeContainer.innerHTML = "";
       return;
     } else {
+      this.SetSessionStorage("dark-mode", "true");
       import("Assets/stylesheets/themes/dark.theme.css")
         .then(theme => {
           themeContainer.innerHTML = theme.default;
@@ -1799,8 +1802,6 @@ class RootStore {
     }
 
     this.darkMode = enabled;
-
-    this.SetSessionStorage("dark-mode", "true");
   }
 
   ToggleNavigation(enabled) {
