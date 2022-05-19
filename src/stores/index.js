@@ -63,8 +63,8 @@ class RootStore {
 
   authInfo = undefined;
 
-  loginOnly = searchParams.has("lo") || this.GetSessionStorage("loginOnly");
-  requireLogin = searchParams.has("rl") || this.GetSessionStorage("loginRequired");
+  loginOnly = searchParams.has("lo");
+  requireLogin = searchParams.has("rl");
   capturedLogin = this.embedded && searchParams.has("cl");
   showLogin = this.requireLogin || searchParams.has("sl");
 

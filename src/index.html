@@ -28,7 +28,6 @@
       const backgroundImage = (window.innerWidth < 800 && sessionStorage.getItem("background-image-mobile")) || sessionStorage.getItem("background-image");
 
       if(backgroundImage) {
-        console.log(backgroundImage);
         document.querySelector("#app-background").style.background = "no-repeat top center / cover url(\"" + backgroundImage + "\")";
       } else {
         const searchParams = new URLSearchParams(window.location.search);
