@@ -87,9 +87,11 @@ const MintingStatus = observer(({
     return (
       <div className="minting-status" key="minting-status-failed">
         <div className="minting-status__text">
-          <h1 className="content-header">
-            { status.errorMessage || "Minting Failed" }
-          </h1>
+          <div className="page-headers">
+            <h1 className="page-header">
+              { status.errorMessage || "Minting Failed" }
+            </h1>
+          </div>
           <div className="minting-status-results__actions">
             <Link to={basePath} className="action action-primary minting-status-results__back-button">
               { backText }
@@ -140,13 +142,13 @@ const MintingStatus = observer(({
           </div>
       }
 
-      <div className="minting-status__text">
-        <h1 className="content-header">
+      <div className="page-headers">
+        <div className="page-header">
           { header || "Your items are being minted" }
-        </h1>
-        <h2 className="content-subheader">
+        </div>
+        <div className="page-subheader">
           { subheader || "This may take several minutes" }
-        </h2>
+        </div>
       </div>
 
       { videoHash ? null : <Loader/> }
@@ -209,8 +211,10 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
       }}
     >
       <div className="minting-status-results pack-results">
-        <h1 className="content-header">{ header }</h1>
-        <h2 className="content-subheader">{ subheader }</h2>
+        <div className="page-headers">
+          <div className="page-header">{ header }</div>
+          <div className="page-subheader">{ subheader }</div>
+        </div>
         <div className="card-list card-list--marketplace card-list--centered">
           {
             items.map(({token_addr, token_id, token_id_str}) => {
@@ -235,7 +239,7 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
           rootStore.hideNavigation ? null :
 
             <div className="minting-status-results__actions">
-              <Link to={basePath} className="button minting-status-results__back-button">
+              <Link to={basePath} className="action minting-status-results__back-button">
                 {backText}
               </Link>
             </div>
