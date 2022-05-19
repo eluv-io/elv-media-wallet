@@ -32,10 +32,11 @@ const MARKETPLACE_ORDER = [
 
 let storageSupported = true;
 try {
+  window.loginOnly = searchParams.has("lo");
+  window.appUUID = searchParams.get("appUUID") || sessionStorage.getItem(`app-uuid-${window.loginOnly}`);
+
   sessionStorage.getItem("TestStorage");
   localStorage.getItem("TestStorage");
-
-  window.appUUID = searchParams.get("appUUID") || sessionStorage.getItem("app-uuid");
 } catch(error) {
   storageSupported = false;
 }
@@ -65,7 +66,7 @@ class RootStore {
 
   authInfo = undefined;
 
-  loginOnly = searchParams.has("lo");
+  loginOnly = window.loginOnly;
   requireLogin = searchParams.has("rl");
   capturedLogin = this.embedded && searchParams.has("cl");
   showLogin = this.requireLogin || searchParams.has("sl");
@@ -184,7 +185,7 @@ class RootStore {
     this.cryptoStore = new CryptoStore(this);
 
     if(this.appUUID) {
-      this.SetSessionStorage("app-uuid", this.appUUID);
+      this.SetSessionStorage(`app-uuid-${window.loginOnly}`, this.appUUID);
     }
 
     window.addEventListener("resize", () => this.HandleResize());
