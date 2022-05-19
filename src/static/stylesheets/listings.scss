@@ -49,6 +49,7 @@
   display: grid;
   grid-gap: 10px;
   grid-template-columns: repeat(auto-fill, minmax(370px, 1fr));
+  margin-bottom: 10px;
   width: 100%;
 
   @media screen and (max-width: $mobile-breakpoint) {

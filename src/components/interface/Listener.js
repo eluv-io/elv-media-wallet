@@ -206,6 +206,7 @@ export const InitializeListener = (history) => {
       target.postMessage({
         type: "ElvMediaWalletResponse",
         appUUID: rootStore.appUUID,
+        clientType: embedded ? "FRAME" : "POPUP",
         requestId: data.requestId,
         response: Utils.MakeClonable(response),
         error: Utils.MakeClonable(error)
@@ -750,6 +751,7 @@ export const InitializeListener = (history) => {
   target.postMessage({
     type: "ElvMediaWalletResponse",
     appUUID: rootStore.appUUID,
+    clientType: embedded ? "FRAME" : "POPUP",
     requestId: "init"
   }, "*");
 };
@@ -762,6 +764,7 @@ export const SendEvent = ({event, data}) => {
   target.postMessage({
     type: "ElvMediaWalletEvent",
     appUUID: rootStore.appUUID,
+    clientType: embedded ? "FRAME" : "POPUP",
     event,
     data: Utils.MakeClonable(data)
   }, "*");

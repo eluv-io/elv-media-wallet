@@ -3,10 +3,14 @@
   display: grid;
   font: var(--font-feature-card-text);
   grid-gap: 50px;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.4fr 1fr;
   min-height: 650px;
   padding: 20px 100px 50px;
   position: relative;
+
+  &--right-just {
+    grid-template-columns: 1fr 1.4fr;
+  }
 
   &__text,
   &__icon-container {
@@ -53,6 +57,7 @@
     font: var(--font-feature-card-misc);
     font-weight: 500;
     margin-top: 20px;
+    text-transform: uppercase;
   }
 
   &__price {
@@ -67,7 +72,7 @@
   }
 
   &__actions {
-    margin-top: 40px;
+    margin-top: 30px;
     max-width: 200px;
 
     .action {
@@ -123,7 +128,7 @@
   &__icon {
     background: var(--background-feature-card);
     border-radius: var(--border-radius-feature-card);
-    padding: 30px;
+    padding: 32px;
 
     div {
       margin: 0;
@@ -140,7 +145,7 @@
   }
 
   @media screen and (max-width: $tablet-breakpoint) {
-    grid-gap: 0;
+    grid-gap: 10px;
     grid-template-columns: 1fr 1.4fr;
     padding: 10px;
 
@@ -160,6 +165,7 @@
       margin: 0 auto;
       max-width: 500px;
       min-height: 300px;
+      padding: 20px;
     }
   }
 }

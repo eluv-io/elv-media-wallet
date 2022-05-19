@@ -126,20 +126,6 @@ const FeaturedItemCard = observer(({
     </>
   );
 
-  /*
-  if(link) {
-    return (
-      <Link
-        to={link}
-        className={`featured-item ${className}`}
-      >
-        { cardContents }
-      </Link>
-    );
-  }
-
-   */
-
   return (
     <div
       onClick={onClick}
