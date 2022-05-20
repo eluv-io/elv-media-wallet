@@ -1459,7 +1459,7 @@ class RootStore {
 
     this.SetSessionStorage("redirect-url", url.toString());
 
-    if(window.auth0) {
+    if(!this.embedded && window.auth0) {
       const returnUrl = new URL(UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""));
 
       if(this.appUUID) {
