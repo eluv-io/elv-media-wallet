@@ -1435,7 +1435,7 @@ class RootStore {
   }
 
   ReloadURL() {
-    const url = new URL(UrlJoin(window.location.origin, window.location.pathname));
+    const url = new URL(UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""));
 
     url.searchParams.set("appUUID", this.appUUID);
 
