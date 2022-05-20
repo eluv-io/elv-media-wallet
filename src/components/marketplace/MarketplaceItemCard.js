@@ -70,11 +70,11 @@ const MarketplaceItemCard = ({
 
   let priceText = "";
   if(maxOwned) {
-    priceText = "You already own the maximum number of this item";
+    priceText = "Maximum owned!";
   } else if(!isFree) {
     priceText = FormatPriceString(item.price, {includeCurrency: true, prependCurrency: true});
-  } else if(!(expired || unauthorized || outOfStock || type === "Featured" || type === "Detail")) {
-    priceText = "Claim Now!";
+  } else if(!(expired || unauthorized || outOfStock || type === "Featured")) {
+    priceText = "Free!";
   }
 
   return (
