@@ -130,7 +130,16 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
             }}
           >
             Log In
-          </button> : null
+          </button> :
+          <button
+            className="mobile-navigation__link"
+            onClick={() => {
+              Close();
+              rootStore.SignOut();
+            }}
+          >
+            Log Out
+          </button>
       }
     </div>
   );

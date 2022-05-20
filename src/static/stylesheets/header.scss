@@ -300,10 +300,6 @@
   }
 }
 
-.mobile-navigation__modal {
-  overflow-y: hidden;
-}
-
 .mobile-navigation {
   align-items: center;
   display: none;
@@ -333,8 +329,8 @@
     background-color: var(--color-bg-secondary);
     display: flex;
     flex-direction: column;
-    height: 150vh;
-    padding-top: 40px;
+    min-height: 100vh;
+    padding-top: 50px;
     position: absolute;
     right: 0;
     width: 100vw;
@@ -347,6 +343,7 @@
   &__link {
     align-items: center;
     display: flex;
+    font-family: var(--font-family-primary);
     font-size: 24px;
     font-weight: normal;
     justify-content: center;

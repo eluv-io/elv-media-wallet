@@ -1437,7 +1437,9 @@ class RootStore {
   ReloadURL() {
     const url = new URL(UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""));
 
-    url.searchParams.set("appUUID", this.appUUID);
+    if(this.appUUID) {
+      url.searchParams.set("appUUID", this.appUUID);
+    }
 
     if(this.marketplaceId) {
       url.hash = UrlJoin("/marketplace", this.marketplaceId, "store");
