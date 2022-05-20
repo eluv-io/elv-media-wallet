@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {Link, Redirect, useRouteMatch} from "react-router-dom";
+import {Link, Redirect, useLocation, useRouteMatch} from "react-router-dom";
 import {rootStore} from "Stores";
 import UrlJoin from "url-join";
 import MarketplaceItemCard from "Components/marketplace/MarketplaceItemCard";
@@ -93,11 +93,23 @@ const CollectionCard = ({marketplaceHash, collection, collectionIndex}) => {
 
 const CollectionsSummary = observer(({marketplace}) => {
   const match = useRouteMatch();
+  const location = useLocation();
 
   if(!marketplace?.collections || marketplace.collections.length === 0) { return null; }
 
   return (
-    <div className="marketplace__section collections-summary">
+    <div
+      className="marketplace__section collections-summary"
+      ref={element => {
+        if(!element) { return; }
+
+        if(new URLSearchParams(location.search).get("section") === "collections") {
+          setTimeout(() => {
+            window.scrollTo({top: element.getBoundingClientRect().top - 50});
+          }, 150);
+        }
+      }}
+    >
       <div className="page-headers">
         <div className="page-header">Explore Collections</div>
         <Link

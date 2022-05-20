@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {useLocation, useRouteMatch} from "react-router-dom";
+import {Link, useLocation, useRouteMatch} from "react-router-dom";
 import {rootStore} from "Stores";
 import UrlJoin from "url-join";
 import {MarketplaceImage, NFTImage} from "Components/common/Images";
@@ -10,6 +10,7 @@ import ImageIcon from "Components/common/ImageIcon";
 
 import OwnedIcon from "Assets/icons/owned icon.svg";
 import {PageLoader} from "Components/common/Loaders";
+import BackIcon from "Assets/icons/arrow-left";
 
 const MarketplaceCollections = observer(() => {
   const match = useRouteMatch();
@@ -36,7 +37,7 @@ const MarketplaceCollections = observer(() => {
 
             if(!collectionSection) { return; }
 
-            window.scrollTo({top: collectionSection.getBoundingClientRect().top});
+            window.scrollTo({top: collectionSection.getBoundingClientRect().top - 50});
           }, 100);
         }
       });
@@ -149,6 +150,10 @@ const MarketplaceCollections = observer(() => {
 
   return (
     <div className="marketplace-listings marketplace__section">
+      <Link to={UrlJoin("/marketplace", match.params.marketplaceId, "store?section=collections")} className="details-page__back-link">
+        <ImageIcon icon={BackIcon} />
+        Back to { marketplace?.branding?.name || "Marketplace" } Collections
+      </Link>
       { ownedItems ? collections : <PageLoader /> }
     </div>
   );
