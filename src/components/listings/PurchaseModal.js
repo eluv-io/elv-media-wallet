@@ -549,7 +549,7 @@ const PurchaseModal = observer(({nft, item, initialListingId, type="marketplace"
     clearTimeout(timeout);
     setTimeout(() => {
       setLoadKey(loadKey + 1);
-    }, timeToExpired + 1000);
+    }, Math.min(timeToExpired + 1000, 24 * 60 * 60 * 1000));
   }
 
   let content;

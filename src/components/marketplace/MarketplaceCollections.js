@@ -53,51 +53,66 @@ const MarketplaceCollections = observer(() => {
     }
 
     const collectionItems = collection.items.map((sku, entryIndex) => {
-      const key = `collection-card-${collectionIndex}-${entryIndex}`;
       const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
       const item = marketplace.items[itemIndex];
 
-      if(item && ownedItems[sku] && ownedItems[sku].length > 0) {
-        const ownedItem = ownedItems[sku][0];
 
-        return (
-          <ItemCard
-            key={key}
-            link={UrlJoin(basePath, collectionIndex.toString(), "owned", ownedItem.nft.details.ContractId, ownedItem.nft.details.TokenIdStr)}
-            image={<NFTImage nft={ownedItem.nft} width={600} />}
-            name={ownedItem.nft.metadata.display_name}
-            description={ownedItem.nft.metadata.description}
-            edition={ownedItem.nft.metadata.edition_name}
-            badges={<ImageIcon icon={OwnedIcon} title="You own this item" alt="Listing Icon" className="item-card__badge" />}
-          />
-        );
-      } else if(item && purchaseableItems[sku]) {
-        return (
-          <MarketplaceItemCard
-            key={key}
-            to={`${basePath}/${collectionIndex}/store/${purchaseableItems[sku].item.sku}`}
-            marketplaceHash={marketplace.versionHash}
-            item={purchaseableItems[sku].item}
-            index={purchaseableItems[sku].index}
-          />
-        );
-      } else {
-        // Not accessible or null item
-        if(!item || !item.nftTemplateMetadata) {
-          return;
+      return {
+        sku,
+        entryIndex,
+        item,
+        ownedItem: (ownedItems[sku] || [])[0],
+        purchaseableItem: purchaseableItems[sku]
+      };
+    })
+      .sort((a, b) =>
+        a.ownedItem ? -1 :
+          b.ownedItem ? 1 :
+            a.purchaseableItem ? -1 :
+              b.purchaseableItem ? 1 : 0
+      )
+      .map(({sku, entryIndex, item, ownedItem, purchaseableItem}) => {
+        const key = `item-card-${sku}-${entryIndex}`;
+
+        if(item && ownedItem) {
+          return (
+            <ItemCard
+              key={key}
+              link={UrlJoin(basePath, collectionIndex.toString(), "owned", ownedItem.nft.details.ContractId, ownedItem.nft.details.TokenIdStr)}
+              image={<NFTImage nft={ownedItem.nft} width={600}/>}
+              name={ownedItem.nft.metadata.display_name}
+              description={ownedItem.nft.metadata.description}
+              edition={ownedItem.nft.metadata.edition_name}
+              badges={<ImageIcon icon={OwnedIcon} title="You own this item" alt="Listing Icon" className="item-card__badge"/>}
+            />
+          );
+        } else if(item && purchaseableItem) {
+          return (
+            <MarketplaceItemCard
+              key={key}
+              to={`${basePath}/${collectionIndex}/store/${purchaseableItem.item.sku}`}
+              marketplaceHash={marketplace.versionHash}
+              item={purchaseableItem.item}
+              index={purchaseableItem.index}
+            />
+          );
+        } else {
+          // Not accessible or null item
+          if(!item || !item.nftTemplateMetadata) {
+            return;
+          }
+
+          return (
+            <ItemCard
+              key={key}
+              link={UrlJoin("/marketplace", match.params.marketplaceId, `listings?filter=${encodeURIComponent(item.nftTemplateMetadata.display_name)}`)}
+              image={<NFTImage nft={{metadata: item.nftTemplateMetadata}} width={600}/>}
+              name={item.nftTemplateMetadata.display_name}
+              description={item.nftTemplateMetadata.description}
+            />
+          );
         }
-
-        return (
-          <ItemCard
-            key={key}
-            link={UrlJoin("/marketplace", match.params.marketplaceId, `listings?filter=${encodeURIComponent(item.nftTemplateMetadata.display_name)}`)}
-            image={<NFTImage nft={{metadata: item.nftTemplateMetadata}} width={600} />}
-            name={item.nftTemplateMetadata.display_name}
-            description={item.nftTemplateMetadata.description}
-          />
-        );
-      }
-    });
+      });
 
     const collectionIcon = collection.collection_icon;
 

@@ -73,8 +73,6 @@ const MarketplaceItemCard = ({
     priceText = "Maximum owned!";
   } else if(!isFree) {
     priceText = FormatPriceString(item.price, {includeCurrency: true, prependCurrency: true});
-  } else if(!(expired || unauthorized || outOfStock || type === "Featured")) {
-    priceText = "Free!";
   }
 
   return (
