@@ -32,7 +32,7 @@ try {
 
   clearLogin =
     searchParams.has("clear") ||
-    (embedded && sessionStorage.getItem("signed-out"));
+    (embedded && localStorage.getItem("signed-out"));
 // eslint-disable-next-line no-empty
 } catch(error) {}
 

@@ -412,7 +412,7 @@ class RootStore {
 
       this.loggedIn = true;
 
-      this.RemoveSessionStorage("signed-out");
+      this.RemoveLocalStorage("signed-out");
 
       this.SendEvent({event: EVENTS.LOG_IN, data: { address }});
     } catch(error) {
@@ -1417,7 +1417,7 @@ class RootStore {
     this.ClearAuthInfo();
 
     if(this.embedded) {
-      this.SetSessionStorage("signed-out", "true");
+      this.SetLocalStorage("signed-out", "true");
     }
 
     this.disableCloseEvent = true;
