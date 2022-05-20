@@ -27,7 +27,8 @@ import NFTMediaControls from "Components/wallet/NFTMediaControls";
 import {LoginClickGate} from "Components/common/LoginGate";
 
 import {MediaIcon} from "../../utils/Utils";
-import TransactionIcon from "Assets/icons/misc/transaction history icon.svg";
+import TransactionIcon from "Assets/icons/transaction history icon.svg";
+import SalesIcon from "Assets/icons/sales history icon.svg";
 import DescriptionIcon from "Assets/icons/Description icon.svg";
 import DetailsIcon from "Assets/icons/Details icon.svg";
 import ContractIcon from "Assets/icons/Contract icon.svg";
@@ -677,7 +678,7 @@ const NFTDetails = observer(() => {
             tokenId={nft.details.TokenIdStr}
           />
           <Activity
-            icon={TransactionIcon}
+            icon={SalesIcon}
             hideFilters
             hideStats
             tableHeader={`Sales history for all '${nft.metadata.display_name}' tokens`}
