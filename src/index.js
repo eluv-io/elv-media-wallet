@@ -204,6 +204,7 @@ const Routes = observer(() => {
 
 
 const App = observer(() => {
+  console.log(window.appUUID + ": " + window.location.href);
   if(sessionStorageAvailable) {
     window.auth0 = useAuth0();
   }

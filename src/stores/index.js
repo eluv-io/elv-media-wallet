@@ -184,7 +184,7 @@ class RootStore {
     this.transferStore = new TransferStore(this);
     this.cryptoStore = new CryptoStore(this);
 
-    console.log("WALLET APP INITIALIZED:")
+    console.log("WALLET APP INITIALIZED:", window.appUUID);
     console.log("LOGIN ONLY:", searchParams.get("lo"), this.loginOnly, window.loginOnly)
     console.log("CAPTURE LOGIN:", searchParams.get("cl"), this.capturedLogin);
 
