@@ -184,10 +184,6 @@ class RootStore {
     this.transferStore = new TransferStore(this);
     this.cryptoStore = new CryptoStore(this);
 
-    console.log("WALLET APP INITIALIZED:", window.appUUID);
-    console.log("LOGIN ONLY:", searchParams.get("lo"), this.loginOnly, window.loginOnly)
-    console.log("CAPTURE LOGIN:", searchParams.get("cl"), this.capturedLogin);
-
     if(this.appUUID) {
       this.SetSessionStorage(`app-uuid-${window.loginOnly}`, this.appUUID);
     }
@@ -204,12 +200,6 @@ class RootStore {
   Initialize = flow(function * () {
     try {
       this.loaded = false;
-
-      const redirectUrl = this.GetSessionStorage("redirect-url");
-      if(redirectUrl) {
-        this.RemoveSessionStorage("redirect-url");
-        window.location.href = redirectUrl;
-      }
 
       // Login required
       if(searchParams.has("rl")) {
@@ -1425,15 +1415,29 @@ class RootStore {
   SignOut() {
     this.ClearAuthInfo();
 
-    if(!this.embedded) {
-      this.RemoveSessionStorage(`pk-${this.network}`);
+    this.disableCloseEvent = true;
+    if(window.auth0) {
+      try {
+        this.disableCloseEvent = true;
+        this.SendEvent({event: EVENTS.LOG_OUT, data: {address: this.CurrentAddress()}});
+        window.auth0.logout({
+          returnTo: this.ReloadURL()
+        });
+
+        return;
+      } catch(error) {
+        this.Log("Failed to log out of Auth0:");
+        this.Log(error, true);
+      }
     }
 
-    this.SendEvent({event: EVENTS.LOG_OUT, data: { address: this.CurrentAddress() }});
+    this.Reload();
+  }
 
-    this.disableCloseEvent = true;
-
+  ReloadURL() {
     const url = new URL(UrlJoin(window.location.origin, window.location.pathname));
+
+    url.searchParams.set("appUUID", this.appUUID);
 
     if(this.marketplaceId) {
       url.hash = UrlJoin("/marketplace", this.marketplaceId, "store");
@@ -1455,31 +1459,12 @@ class RootStore {
       url.searchParams.set("cl", "");
     }
 
-    console.log(url.toString());
+    return url.toString();
+  }
 
-    this.SetSessionStorage("redirect-url", url.toString());
-
-    if(!this.embedded && window.auth0) {
-      const returnUrl = new URL(UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""));
-
-      if(this.appUUID) {
-        returnUrl.searchParams.set("appUUID", this.appUUID);
-      }
-
-      try {
-        this.disableCloseEvent = true;
-        window.auth0.logout({
-          returnTo: returnUrl.toString()
-        });
-
-        return;
-      } catch(error) {
-        this.Log("Failed to log out of Auth0:");
-        this.Log(error, true);
-      }
-    }
-
-    // Reload page
+  Reload() {
+    this.disableCloseEvent = true;
+    window.location.href = this.ReloadURL();
     window.location.reload();
   }
 

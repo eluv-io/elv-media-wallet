@@ -409,8 +409,27 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @methodGroup Authorization
    */
   async SignOut() {
-    return this.SendMessage({
+    this.SendMessage({
       action: "logout",
+      params: {}
+    });
+
+    await Promise.race([
+      new Promise(resolve => {
+        this.AddEventListener(EVENTS.LOADED , () => resolve());
+      }),
+      new Promise(resolve => setTimeout(resolve, 5000))
+    ]);
+  }
+
+  /**
+   * Reload the wallet application
+   *
+   * @methodGroup Navigation
+   */
+  async Reload() {
+    return this.SendMessage({
+      action: "reload",
       params: {}
     });
   }

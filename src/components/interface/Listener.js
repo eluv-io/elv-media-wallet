@@ -716,6 +716,12 @@ export const InitializeListener = (history) => {
 
           return Respond({});
 
+        // client.Reload
+        case "reload":
+          rootStore.Reload();
+
+          return Respond({});
+
         // POPUP RESPONSES
         case "purchase":
           checkoutStore.PurchaseComplete({
