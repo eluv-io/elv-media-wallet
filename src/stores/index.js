@@ -1451,6 +1451,8 @@ class RootStore {
       url.searchParams.set("cl", "");
     }
 
+    console.log(url.toString());
+
     this.SetSessionStorage("redirect-url", url.toString());
 
     if(window.auth0) {
