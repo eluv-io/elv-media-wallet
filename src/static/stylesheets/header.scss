@@ -300,6 +300,10 @@
   }
 }
 
+.mobile-navigation__modal {
+  overflow-y: hidden;
+}
+
 .mobile-navigation {
   align-items: center;
   display: none;
@@ -329,7 +333,7 @@
     background-color: var(--color-bg-secondary);
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 150vh;
     padding-top: 40px;
     position: absolute;
     right: 0;
@@ -344,13 +348,17 @@
     align-items: center;
     display: flex;
     font-size: 24px;
-    font-weight: 300;
+    font-weight: normal;
     justify-content: center;
     letter-spacing: 1px;
     padding: 15px 0;
     text-align: center;
     white-space: nowrap;
     width: 100%;
+
+    * {
+      font-family: var(--font-family-primary);
+    }
 
     &:hover {
       background-color: var(--color-bg-secondary);

@@ -52,13 +52,8 @@
     font-size: 12px;
     font-weight: 300;
     max-width: 400px;
-    padding-top: 100px;
+    padding-top: 50px;
     text-align: center;
-  }
-
-  .loader {
-    height: auto;
-    margin-top: 50px;
   }
 
   &__video-container {
@@ -82,23 +77,32 @@
     }
   }
 
-  &__video {
-    background: transparent;
-    flex: 1 1 0;
-    height: 100%;
-    margin-top: 20px;
-    // sass-lint:disable function-name-format
-    max-height: MIN(90vw * 9 / 16, calc(50vh));
+  // sass-lint:disable function-name-format
+  &__loader {
+    max-height: MIN(90vw * 9 / 16, 50vh);
     max-width: MIN(90vw, calc(50vh * 16 / 9));
-    min-height: MIN(90vw * 9 / 16, calc(50vh));
+    min-height: MIN(90vw * 9 / 16, 50vh);
     min-width: MIN(90vw, calc(50vh * 16 / 9));
-    // sass-lint:enable function-name-format
-    width: 100%;
+  }
 
-    video {
+  &__video {
+    &.minting-status__video {
       background: transparent;
-      height: 100%;
-      width: 100%;
+      flex: 1 1 0;
+      max-height: MIN(90vw * 9 / 16, 50vh);
+      max-width: MIN(90vw, calc(50vh * 16 / 9));
+      min-height: MIN(90vw * 9 / 16, 50vh);
+      min-width: MIN(90vw, calc(50vh * 16 / 9));
+
+      video {
+        background: transparent;
+        max-height: MIN(90vw * 9 / 16, 50vh);
+        max-width: MIN(90vw, calc(50vh * 16 / 9));
+        min-height: MIN(90vw * 9 / 16, 50vh);
+        min-width: MIN(90vw, calc(50vh * 16 / 9));
+      }
+
+      // sass-lint:enable function-name-format
     }
   }
 }

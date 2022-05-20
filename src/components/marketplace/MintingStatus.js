@@ -104,8 +104,17 @@ const MintingStatus = observer(({
 
   return (
     <div className={`minting-status ${videoHash ? "minting-status-video" : ""}`}>
+      <div className="page-headers">
+        <div className="page-header">
+          { header || "Your items are being minted" }
+        </div>
+        <div className="page-subheader">
+          { subheader || "This may take several minutes" }
+        </div>
+      </div>
+
       {
-        !videoHash ? null :
+        videoHash ?
           <div className="minting-status__video-container">
             <Loader />
             <div
@@ -139,19 +148,9 @@ const MintingStatus = observer(({
                 );
               }}
             />
-          </div>
+          </div> :
+          <Loader className="minting-status__loader" />
       }
-
-      <div className="page-headers">
-        <div className="page-header">
-          { header || "Your items are being minted" }
-        </div>
-        <div className="page-subheader">
-          { subheader || "This may take several minutes" }
-        </div>
-      </div>
-
-      { videoHash ? null : <Loader/> }
 
       {
         rootStore.hideNavigation ? null :

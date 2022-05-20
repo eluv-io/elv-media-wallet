@@ -79,7 +79,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
     ];
   } else {
     const fullMarketplace = rootStore.marketplaces[marketplace.marketplaceId];
-    const tabs = fullMarketplace.branding?.tabs || {};
+    const tabs = fullMarketplace?.branding?.tabs || {};
 
     links = [
       {name: tabs.store || marketplace?.branding?.name || "Store", to: UrlJoin("/marketplace", marketplace.marketplaceId, "store")},

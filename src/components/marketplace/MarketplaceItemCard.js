@@ -68,6 +68,15 @@ const MarketplaceItemCard = ({
     }
   }
 
+  let priceText = "";
+  if(maxOwned) {
+    priceText = "You already own the maximum number of this item";
+  } else if(!isFree) {
+    priceText = FormatPriceString(item.price, {includeCurrency: true, prependCurrency: true});
+  } else if(!(expired || unauthorized || outOfStock || type === "Featured" || type === "Detail")) {
+    priceText = "Claim Now!";
+  }
+
   return (
     <CardComponent
       link={linkDisabled ? undefined : (to || `${match.url}/${item.sku}`)}
@@ -83,19 +92,11 @@ const MarketplaceItemCard = ({
       searchName={item.nftTemplateMetadata.display_name}
       edition={item.nftTemplateMetadata.edition_name}
       description={description}
-      price={
-        maxOwned ?
-          "You already own the maximum number of this item" :
-          (isFree ?
-            ((expired || unauthorized || outOfStock || type === "Featured") ? "" : "Claim Now!") :
-            FormatPriceString(item.price, {
-              includeCurrency: true,
-              prependCurrency: true
-            }))
-      }
+      price={priceText}
       sideText={sideText}
       status={status}
       justification={justification}
+      fullDescription={type === "Detail"}
       action={action}
       className={`${className} ${type !== "Featured" && (outOfStock || expired || unauthorized) ? "card-container--disabled" : ""}`}
       cardClassName={`${cardClassName}`}

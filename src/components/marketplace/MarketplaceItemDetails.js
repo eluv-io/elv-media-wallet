@@ -90,6 +90,7 @@ const MarketplaceItemDetails = observer(() => {
         </Link>
         <div className="details-page__content-container">
           <MarketplaceItemCard
+            type="Detail"
             marketplaceHash={marketplace.versionHash}
             item={item}
             index={item.itemIndex}
