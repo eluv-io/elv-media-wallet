@@ -66,8 +66,8 @@ const MarketplaceCollections = observer(() => {
             link={UrlJoin(basePath, collectionIndex.toString(), "owned", ownedItem.nft.details.ContractId, ownedItem.nft.details.TokenIdStr)}
             image={<NFTImage nft={ownedItem.nft} width={600} />}
             name={ownedItem.nft.metadata.display_name}
-            description={ownedItem.nft.description}
-            edition={ownedItem.nft.edition_name}
+            description={ownedItem.nft.metadata.description}
+            edition={ownedItem.nft.metadata.edition_name}
             badges={<ImageIcon icon={OwnedIcon} title="You own this item" alt="Listing Icon" className="item-card__badge" />}
           />
         );
