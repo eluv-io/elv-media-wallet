@@ -289,7 +289,6 @@ class RootStore {
     if(this.authenticating) { return; }
 
     try {
-
       this.authenticating = true;
       this.loggedIn = false;
 
@@ -412,6 +411,8 @@ class RootStore {
       yield this.cryptoStore.LoadConnectedAccounts();
 
       this.loggedIn = true;
+
+      this.RemoveSessionStorage("signed-out");
 
       this.SendEvent({event: EVENTS.LOG_IN, data: { address }});
     } catch(error) {
@@ -1412,8 +1413,12 @@ class RootStore {
     });
   });
 
-  SignOut() {
+  SignOut(returnUrl) {
     this.ClearAuthInfo();
+
+    if(this.embedded) {
+      this.SetSessionStorage("signed-out", "true");
+    }
 
     this.disableCloseEvent = true;
     if(window.auth0) {
@@ -1421,7 +1426,7 @@ class RootStore {
         this.disableCloseEvent = true;
         this.SendEvent({event: EVENTS.LOG_OUT, data: {address: this.CurrentAddress()}});
         window.auth0.logout({
-          returnTo: this.ReloadURL()
+          returnTo: returnUrl || this.ReloadURL()
         });
 
         return;

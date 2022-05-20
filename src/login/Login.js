@@ -17,15 +17,22 @@ import EluvioLogo from "./static/logo.svg";
 
 const embedded = window.top !== window.self || new URLSearchParams(window.location.search).has("e");
 
-let newWindowLogin = false;
+const searchParams = new URLSearchParams(window.location.search);
+
+let newWindowAuth0Login = false;
+let clearLogin = false;
 try {
-  newWindowLogin =
-    new URLSearchParams(window.location.search).has("l") ||
+  newWindowAuth0Login =
+    searchParams.has("l") ||
     sessionStorage.getItem("new-window-login");
 
-  if(newWindowLogin) {
+  if(newWindowAuth0Login) {
     sessionStorage.setItem("new-window-login", "true");
   }
+
+  clearLogin =
+    searchParams.has("clear") ||
+    (embedded && sessionStorage.getItem("signed-out"));
 // eslint-disable-next-line no-empty
 } catch(error) {}
 
@@ -55,6 +62,10 @@ const LogInRedirect = async ({auth0, callbackUrl, marketplaceHash, userData, dar
 
       if(create) {
         url.searchParams.set("create", "");
+      }
+
+      if(clearLogin) {
+        url.searchParams.set("clear", "");
       }
 
       const newWindow = window.open(url.toString());
@@ -122,7 +133,7 @@ const Authenticate = async ({auth0, idToken, user, userData, tenantId, SignIn}) 
     throw Error("Email not retrievable");
   }
 
-  if(newWindowLogin) {
+  if(newWindowAuth0Login) {
     window.opener.postMessage({
       type: "LoginResponse",
       params: {
@@ -353,7 +364,7 @@ const LoginComponent = observer(({customizationOptions, darkMode, userData, setU
   );
 });
 
-const Login = observer(({silent, darkMode, callbackUrl, authenticating, signedIn, Loaded, SignIn, LoadCustomizationOptions, Close}) => {
+const Login = observer(({silent, darkMode, callbackUrl, authenticating, signedIn, Loaded, SignIn, SignOut, LoadCustomizationOptions, Close}) => {
   const [customizationOptions, setCustomizationOptions] = useState(undefined);
   const [userData, setUserData] = useState(undefined);
   const [loading, setLoading] = useState(true);
@@ -445,7 +456,16 @@ const Login = observer(({silent, darkMode, callbackUrl, authenticating, signedIn
           Loaded && Loaded();
           setLoading(false);
         });
-    } else if(newWindowLogin) {
+    } else if(newWindowAuth0Login) {
+      if(clearLogin && SignOut) {
+        const returnURL = new URL(window.location.href);
+        returnURL.searchParams.delete("clear");
+
+        SignOut(returnURL.toString());
+
+        return;
+      }
+
       Auth0LogIn({create: new URLSearchParams(window.location.search).has("create")});
     } else {
       Loaded && Loaded();

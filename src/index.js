@@ -22,9 +22,9 @@ if(searchParams.has("n")) {
   rootStore.ToggleNavigation(false);
 }
 
-let newWindowLogin = false;
+let newWindowAuth0Login = false;
 try {
-  newWindowLogin =
+  newWindowAuth0Login =
     searchParams.has("l") ||
     sessionStorage.getItem("new-window-login");
 // eslint-disable-next-line no-empty
@@ -81,7 +81,8 @@ const RedirectHandler = ({storageKey}) => {
 };
 
 const LoginModal = observer(() => {
-  if(newWindowLogin) {
+  if(newWindowAuth0Login) {
+    // Window has been opened specifically to log in to auth0 in native frame
     return (
       <Login
         key="login-window"
@@ -90,6 +91,7 @@ const LoginModal = observer(() => {
         Loaded={() => rootStore.SetLoginLoaded()}
         LoadCustomizationOptions={async () => ({})}
         SignIn={async params => await rootStore.Authenticate(params)}
+        SignOut={async returnURL => await rootStore.SignOut(returnURL)}
       />
     );
   }
@@ -208,7 +210,7 @@ const App = observer(() => {
     window.auth0 = useAuth0();
   }
 
-  if(newWindowLogin) {
+  if(newWindowAuth0Login) {
     return (
       <>
         <PageLoader />
