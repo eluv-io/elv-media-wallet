@@ -459,6 +459,7 @@ const Login = observer(({silent, darkMode, callbackUrl, authenticating, signedIn
     } else if(newWindowAuth0Login) {
       if(clearLogin && SignOut) {
         const returnURL = new URL(window.location.href);
+        returnURL.pathname = returnURL.pathname.replace(/\/$/, "");
         returnURL.searchParams.delete("clear");
 
         SignOut(returnURL.toString());
