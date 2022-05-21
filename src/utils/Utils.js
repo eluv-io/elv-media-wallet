@@ -4,6 +4,29 @@ import VideoPlayCircleIcon from "Assets/icons/media/video play icon.svg";
 import VideoPlayIcon from "Assets/icons/media/video play icon (no circle).svg";
 
 
+export const RarityToPercentage = (rarity) => {
+  if(!rarity) {
+    return "";
+  }
+
+  rarity = rarity.toString();
+
+  if(!rarity.includes("/")) {
+    return rarity;
+  }
+
+  const [ numerator, denominator ] = rarity.split("/");
+  let percentage = 100 * parseInt(numerator) / parseInt(denominator);
+
+  if(percentage < 1) {
+    percentage = percentage.toFixed(2);
+  } else {
+    percentage = percentage.toFixed(1).toString().replace(".0", "");
+  }
+
+  return percentage;
+};
+
 export const MediaIcon = (media, circle=false) => {
   switch(media?.media_type) {
     case "Audio":

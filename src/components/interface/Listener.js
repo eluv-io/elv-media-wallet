@@ -48,6 +48,8 @@ const Price = (item, quantity=1) => {
   };
 };
 
+// Serialize NFT and move some important details to top level
+// NOTE: NFT has already run through transferStore.FormatResult
 const FormatNFT = (nft) => {
   if(!nft || !nft.metadata) { return; }
 
@@ -79,7 +81,7 @@ const FormatNFT = (nft) => {
         let embedUrl = new URL("https://embed.v3.contentfabric.io");
         embedUrl.searchParams.set("p", "");
         embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
-        embedUrl.searchParams.set("ath", media.requires_permissions ? rootStore.authedToken : rootStore.staticToken);
+        embedUrl.searchParams.set("ath", rootStore.authToken);
 
         if(mediaType === "video") {
           embedUrl.searchParams.set("vid", media.media_link["."].container);
@@ -203,6 +205,7 @@ export const InitializeListener = (history) => {
 
       target.postMessage({
         type: "ElvMediaWalletResponse",
+        appUUID: window.appUUID,
         clientType: embedded ? "FRAME" : "POPUP",
         requestId: data.requestId,
         response: Utils.MakeClonable(response),
@@ -249,7 +252,6 @@ export const InitializeListener = (history) => {
           }
 
           let profile = toJS(rootStore.userProfile);
-          delete profile.profileImage;
 
           return Respond({response: profile});
 
@@ -714,6 +716,12 @@ export const InitializeListener = (history) => {
 
           return Respond({});
 
+        // client.Reload
+        case "reload":
+          rootStore.Reload();
+
+          return Respond({});
+
         // POPUP RESPONSES
         case "purchase":
           checkoutStore.PurchaseComplete({
@@ -748,6 +756,7 @@ export const InitializeListener = (history) => {
 
   target.postMessage({
     type: "ElvMediaWalletResponse",
+    appUUID: window.appUUID,
     clientType: embedded ? "FRAME" : "POPUP",
     requestId: "init"
   }, "*");
@@ -760,6 +769,7 @@ export const SendEvent = ({event, data}) => {
 
   target.postMessage({
     type: "ElvMediaWalletEvent",
+    appUUID: window.appUUID,
     clientType: embedded ? "FRAME" : "POPUP",
     event,
     data: Utils.MakeClonable(data)

@@ -31,6 +31,8 @@ const Actions = observer(() => {
       response,
       error
     });
+
+    setTimeout(window.close(), 2000);
   };
 
   switch(match.params.action) {

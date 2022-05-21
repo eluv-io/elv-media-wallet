@@ -1,8 +1,11 @@
 .listing-modal-container {
+  min-height: 100vh;
+  overflow-y: auto;
+
   .modal__content {
     height: max-content;
     max-height: unset;
-    max-width: 600px;
+    max-width: 550px;
     overflow-y: hidden;
     padding-bottom: 5vh;
     padding-right: 8px;
@@ -11,14 +14,14 @@
   }
 }
 
+$content-width: 475px;
 
 .listing-modal {
-  background-color: $white;
-  border: 1px solid $mediumgray;
-  border-radius: 3px;
+  @include component;
+  @include modal;
 
   &__header {
-    border-bottom: 1px solid $mediumgray;
+    border-bottom: var(--border-component-secondary);
     font-size: 20px;
     font-weight: 300;
     padding: 15px 25px;
@@ -26,7 +29,9 @@
   }
 
   &__content {
-    padding: 0 25px 35px;
+    margin: 0 auto;
+    max-width: $content-width;
+    padding: 25px 35px 45px;
   }
 
   &__image-container {
@@ -37,14 +42,15 @@
   }
 
   &__active-listings {
-    border: 1px solid $mediumgray;
-    border-radius: 3px;
-    margin: 30px 0;
-    padding: 20px 20px 10px;
+    @include component;
+    background: transparent;
+    border: 0;
+    margin: 50px auto;
+    max-width: $content-width;
+    width: 100%;
 
     &__header {
-      font-size: 18px;
-      font-weight: 300;
+      font: var(--font-table-header);
     }
 
     .transfer-table {
@@ -59,7 +65,7 @@
     display: flex;
     justify-content: center;
     margin: 20px auto;
-    max-width: 350px;
+    max-width: $content-width;
     position: relative;
     width: 100%;
 
@@ -72,20 +78,23 @@
   }
 
   &__form__error {
-    color: $red;
+    color: var(--color-text-error);
     font-size: 10px;
   }
 
   &__form__price-input {
-    border: 1px solid $mediumgray;
-    border-radius: 3px;
+    border: var(--border-highlight);
     font-size: 20px;
     height: 50px;
-    padding: 0 15px;
+    padding: 0 75px;
     width: 100%;
 
+    &::placeholder {
+      font-size: 20px;
+    }
+
     &-error {
-      box-shadow: 0 0 3px $red;
+      box-shadow: 0 0 3px var(--color-text-error);
     }
   }
 
@@ -93,14 +102,14 @@
     align-items: center;
     display: flex;
     font-weight: bold;
+    left: 10px;
     position: absolute;
-    right: 10px;
     text-align: center;
 
     svg,
     img {
       height: 20px;
-      margin-left: 10px;
+      margin-left: 5px;
     }
   }
 
@@ -111,27 +120,31 @@
     justify-content: center;
   }
 
-  .nft-card {
-    margin: 20px auto 35px;
-    max-width: 350px;
+  .wallet-connect {
+    max-width: $content-width;
+  }
 
-    .card__description {
-      font-size: 12px;
-    }
+  .card-container {
+    margin: 0 auto 35px;
   }
 
   &__details {
-    margin: 35px 0 20px;
+    margin: 10px auto 20px;
+    max-width: $content-width;
   }
 
   &__detail {
     display: flex;
     height: 30px;
     justify-content: space-between;
+
+    &--bold {
+      font-weight: bold;
+    }
   }
 
   &__detail-separator {
-    border-bottom: 2px solid $mediumgray;
+    border-bottom: var(--border-modal-primary);
     margin-bottom: 15px;
     padding-top: 15px;
     width: 100%;
@@ -139,7 +152,7 @@
 
   &__detail-faded {
     * {
-      color: $gray;
+      color: var(--color-component-text-secondary);
     }
   }
 
@@ -155,13 +168,15 @@
   }
 
   &__message {
-    color: $gray;
+    color: var(--color-component-text-secondary);
     font-size: 12px;
+    margin: 30px auto 0;
+    max-width: $content-width;
     text-align: center;
   }
 
   &__error-message {
-    color: $red;
+    color: var(--color-component-text-secondary);
     font-size: 14px;
     margin-top: 20px;
     text-align: center;
@@ -170,64 +185,22 @@
   &__actions {
     align-items: center;
     display: flex;
+    flex-direction: column;
     justify-content: center;
-    margin-top: 35px;
+    margin: 35px auto 0;
+    max-width: $content-width;
   }
 
-  &__action,
-  .loader-button__loader {
+  &__action {
     min-width: 150px;
+    width: 100%;
 
     &:not(:last-child) {
-      margin-right: 10px;
+      margin-bottom: 10px;
     }
 
     &:disabled {
       opacity: 0.5;
-    }
-  }
-}
-
-.dark {
-  .listing-modal {
-    background-color: $black;
-    border: 1px solid $darkgray;
-
-    &__header {
-      border-bottom: 1px solid $darkgray;
-    }
-
-    &__form__price-input {
-      background-color: $black;
-      border: 1px solid $darkgray;
-      max-width: unset;
-      width: 100%;
-    }
-
-    &__form__error {
-      color: $mediumgray;
-    }
-
-    &__detail-faded {
-      * {
-        color: $gray;
-      }
-    }
-
-    &__detail-separator {
-      border-bottom: 2px solid $darkgray;
-    }
-
-    &__message {
-      color: $darkgray;
-    }
-
-    &__active-listings {
-      border: 1px solid $darkergray;
-    }
-
-    &__error-message {
-      color: $red;
     }
   }
 }
@@ -244,13 +217,13 @@
 
   .listing-modal {
     border: 0;
+    border-radius: 0;
     min-height: 100vh;
 
     &__header {
       font-size: 24px;
       padding-left: 35px;
       padding-top: 20px;
-      text-align: start;
     }
 
     &__content {
@@ -260,28 +233,6 @@
     &__image-container {
       max-height: 250px;
       max-width: 250px;
-    }
-
-    &__actions {
-      flex-direction: column-reverse;
-
-      .loader-button {
-        width: 100%;
-      }
-    }
-
-    &__action {
-      width: 100%;
-
-      &:not(:last-child) {
-        margin: 10px 0 0;
-      }
-    }
-  }
-
-  .dark {
-    .listing-modal {
-      border: 0;
     }
   }
 }

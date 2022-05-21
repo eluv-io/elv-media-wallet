@@ -1,109 +1,267 @@
-$card-shadow: rgba(0, 0, 0, 0.1);
-$overlay-background: rgba($black, 0.25);
-$pending-color: rgba($blue, 0.5);
-
 .card-list {
-  display: grid;
-  grid-gap: 10px;
-  grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));
-  height: min-content;
-  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  // sass-lint:disable no-misspelled-properties
+  gap: 10px;
+  // sass-lint:enable no-misspelled-properties
 
   .card-container {
-    .card {
-      height: 100%;
-      padding-bottom: 15px;
-    }
+    flex: 1 1 100%;
+    max-width: 390px;
   }
 
   &__loader {
     min-height: 350px;
     min-width: 250px;
   }
-}
 
-.card-shadow {
-  border: 1px solid $mediumgray;
-  border-radius: 4px;
-  box-shadow: 2px 2px 4px $card-shadow;
-}
+  @media screen and (max-width: $breakpoint) {
+    &:not(&--centered) {
+      display: grid;
+      grid-gap: 10px;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      height: min-content;
+      justify-content: center;
 
-.card-padding-container {
-  background: $lightestgray;
-  border-radius: 10px;
-  padding: 0;
+      .card-container {
+        max-width: unset;
+      }
+    }
+  }
 
-  @media screen and (min-width: $tablet-breakpoint) {
-    padding: 20px;
+  @media screen and (max-width: $mobile-breakpoint) {
+    grid-gap: 20px;
   }
 }
 
 .card-container {
+  background: var(--border-background-card);
+  border-radius: var(--border-radius-card);
+  box-shadow: var(--box-shadow-card);
+  padding: var(--border-width-card);
   position: relative;
   transition: border 0.15s ease-in, margin 0.15s ease-in-out;
+
+  &--disabled {
+    opacity: 0.5;
+  }
+
+  &--centered {
+    .item-card__text {
+      * {
+        text-align: center;
+      }
+    }
+
+    .item-card__status__price,
+    .item-card__status__text {
+      &:first-child {
+        &:last-child {
+          justify-content: center;
+          text-align: center;
+          width: 100%;
+        }
+      }
+    }
+  }
 
   &-selectable {
     cursor: pointer;
     margin: 3px;
   }
 
-  &-selected {
-    border: 1px solid $blue;
-    box-shadow: $blue 0 0 8px;
-    margin: 0;
-  }
-
+  &--selected,
   &-pending-selection {
-    border: 1px solid $pending-color;
-    box-shadow: $pending-color 0 0 8px;
+    border: var(--border-highlight);
+    box-shadow: var(--color-highlight) 0 0 8px;
     margin: 0;
-  }
-
-  &-marketplace {
-    border: 0;
-
-    .card {
-      &__title {
-        font-size: 18px;
-      }
-    }
-  }
-
-  &.collection-card-unowned {
-    opacity: 0.5;
   }
 }
 
-.card {
-  border-radius: 10px;
+.item-card {
+  background: var(--background-card);
+  border-radius: var(--border-radius-card);
+  color: var(--color-card-text-primary);
   display: flex;
   flex-direction: column;
+  font: var(--font-card-text);
   height: 100%;
-  justify-content: space-between;
   left: 0;
   object-fit: cover;
   object-position: center;
   overflow: hidden;
-  padding: 15px 15px 30px;
+  padding: 30px 30px 20px;
+  position: relative;
   top: 0;
   width: 100%;
 
-  &-disabled {
+  &--disabled {
     opacity: 0.5;
-    pointer-events: none;
   }
 
+  &__text {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  &__title {
+    font: var(--font-card-title);
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.25;
+    text-transform: uppercase;
+    word-break: break-word;
+  }
+
+  &__edition {
+    color: var(--color-card-text-secondary);
+    font: var(--font-card-misc);
+    font-size: 12px;
+    margin-top: 5px;
+    text-transform: uppercase;
+  }
+
+  &__description {
+    align-items: center;
+    color: var(--color-card-text-secondary);
+    line-height: 1.5em;
+    margin: 15px 0 30px;
+    min-height: 75px;
+
+    * {
+      color: var(--color-card-text-secondary);
+    }
+  }
+
+  &__status {
+    align-items: flex-end;
+    display: flex;
+    height: 100%;
+    justify-content: space-between;
+    margin-top: 10px;
+    text-transform: uppercase;
+
+    &__price,
+    &__text {
+      font: var(--font-card-misc);
+      font-weight: 500;
+
+      &:not(:first-child),
+      &:not(:last-child) {
+        max-width: 50%;
+      }
+    }
+
+    &__price {
+      align-items: center;
+      display: flex;
+
+      svg,
+      img {
+        height: 15px;
+        margin-right: 5px;
+      }
+    }
+  }
+
+  &__actions {
+    align-items: center;
+    bottom: 5px;
+    display: flex;
+    justify-content: flex-end;
+    position: absolute;
+    right: 5px;
+
+    .item-card__action {
+      background: var(--color-button-card-bg);
+      border: var(--border-button-card);
+      border-radius: var(--border-radius-button-card);
+      color: var(--color-button-card-text);
+      height: 30px;
+      min-width: unset;
+      width: 30px;
+
+      svg {
+        height: 100%;
+        padding: 7px;
+
+        * {
+          color: var(--color-button-card-text);
+        }
+      }
+    }
+  }
+
+  &__side-text {
+    align-items: center;
+    display: flex;
+    max-height: 2px;
+    max-width: 2px;
+    overflow: visible;
+    position: absolute;
+    right: 1em;
+    top: 32px;
+    transform: rotate(90deg);
+    white-space: nowrap;
+    word-break: keep-all;
+
+    * {
+      font: var(--font-card-misc);
+      font-size: 15px;
+    }
+
+    &__primary {
+      color: var(--color-card-text-highlight);
+      margin-right: 0.4em;
+    }
+
+    &__secondary {
+      color: var(--color-card-text-secondary);
+    }
+  }
+
+  &__badges {
+    align-items: center;
+    background-color: var(--color-card-badge-bg);
+    border-radius: var(--border-radius-card-badge);
+    display: flex;
+    height: max-content;
+    justify-content: center;
+    left: 7px;
+    padding: 7px;
+    position: absolute;
+    top: 7px;
+    width: max-content;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  &__badge {
+    color: var(--color-card-badge);
+    height: 18px;
+    stroke: transparent;
+    width: auto;
+  }
+
+  // Image
   &__image-container {
+    margin-bottom: 15px;
+    overflow: hidden;
     padding-top: 100%;
     position: relative;
     width: 100%;
   }
 
   &__image {
+    border-radius: var(--border-radius-card);
     height: 100%;
     left: 0;
     object-fit: contain;
     object-position: center;
+    overflow: hidden;
     position: absolute;
     top: 0;
     width: 100%;
@@ -126,7 +284,7 @@ $pending-color: rgba($blue, 0.5);
       width: 100%;
 
       * {
-        stroke: $lightblue;
+        stroke: var(--color-card-text-highlight);
         stroke-width: 5px;
       }
     }
@@ -138,7 +296,7 @@ $pending-color: rgba($blue, 0.5);
     .modal__content {
       align-items: center;
       display: flex;
-      height: 100vh;
+      height: 100%;
       justify-content: center;
       overflow-y: hidden;
       width: 100vw;
@@ -152,13 +310,9 @@ $pending-color: rgba($blue, 0.5);
     }
   }
 
-  &__image-loading {
-    @include background-gradient-loader;
-  }
-
   &__image-placeholder {
     * {
-      stroke: $black;
+      stroke: var(--color-card-text-primary);
       stroke-width: 0.5px;
     }
   }
@@ -171,260 +325,18 @@ $pending-color: rgba($blue, 0.5);
     width: 100%;
 
     &__frame {
-      background-color: $white;
+      background: var(--background-content);
       border: 0;
       height: 100%;
       outline: 0;
       width: 100%;
     }
   }
+}
 
-  &__badges {
-    align-items: center;
-    background-color: $white;
-    border-radius: 6px;
-    display: flex;
-    height: max-content;
+.app--centered {
+  .card-list--marketplace {
     justify-content: center;
-    padding: 7px;
-    position: absolute;
-    right: 7px;
-    top: 7px;
-    width: max-content;
-
-    &:empty {
-      display: none;
-    }
-  }
-
-  &__badge {
-    filter: invert(100%);
-    height: 18px;
-    opacity: 0.75;
-    width: auto;
-  }
-
-  &__text {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    justify-content: space-between;
-    margin-top: 10px;
-  }
-
-  &__titles {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    position: relative;
-
-    &__return-button {
-      background-color: $lightgray;
-      border-radius: 6px;
-      height: 30px;
-      position: absolute;
-      right: 0;
-      width: 50px;
-
-      svg {
-        height: 100%;
-        padding: 7px;
-      }
-    }
-  }
-
-  &__title,
-  &__subtitle {
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1.1em;
-  }
-
-  &__title {
-    align-items: center;
-    display: flex;
-    font-size: 16px;
-    font-weight: 500;
-    justify-content: space-between;
-    line-height: 1.1em;
-
-    &-edition {
-      font-size: 12px;
-      font-weight: 300;
-      margin: 5px 0;
-    }
-  }
-
-  &__subtitle,
-  &__description {
-    color: $gray;
-    font-size: 14px;
-    font-weight: 300;
-    margin: 10px 0 5px;
-  }
-
-  &__title__title,
-  &__subtitle__title {
-    padding-right: 10px;
-  }
-
-  &__title__price {
-    align-items: center;
-    display: flex;
-    font-size: 14px;
-    font-weight: 500;
-
-    svg,
-    img {
-      height: 20px;
-      margin-right: 5px;
-    }
-  }
-
-  &__stock {
-    align-items: center;
-    color: $gray;
-    display: flex;
-    font-size: 12px;
-    font-weight: 600;
-    justify-content: flex-end;
-    margin-top: 20px;
-  }
-
-  &__stock__indicator {
-    background: $red;
-    border-radius: 100%;
-    height: 7px;
-    margin-right: 7px;
-    width: 7px;
-
-    &-unavailable {
-      background: $darkgray;
-    }
-  }
-
-  @media screen and (max-width: $mobile-breakpoint) {
-    padding: 15px 15px 25px;
-
-    &__subtitle {
-      font-size: 13px;
-    }
-  }
-}
-
-
-.nft-card {
-  .card {
-    background-color: $white;
-
-    &__image-container {
-      margin-bottom: 20px;
-    }
-
-    &__image {
-      border-radius: 6px;
-    }
-
-    &__title {
-      font-size: 16px;
-    }
-
-    &__subtitle,
-    &__stock {
-      font-size: 14px;
-    }
-
-    &__subtitle {
-      margin: 15px 0 5px;
-    }
-
-    &__title-edition {
-      font-size: 12px;
-      margin-bottom: 0;
-    }
-
-    &__title-ordinal {
-      margin-top: 0;
-    }
-  }
-}
-
-
-.dark {
-  .card-padding-container {
-    background: $darkestgray;
-  }
-
-  .card-shadow {
-    border: 1px solid $darkgray;
-    box-shadow: none;
-  }
-
-  .card-container {
-    background: $black;
-
-    &-selected {
-      border: 1px solid $gold;
-      box-shadow: $gold 0 0 8px;
-    }
-
-    &-pending-selection {
-      border: 1px $pending-color;
-      box-shadow: $pending-color 0 0 8px;
-      margin: 0;
-    }
-
-    &-marketplace {
-      border: 0;
-    }
-  }
-
-  .card {
-    &__image {
-      background: $black;
-    }
-
-    &__image-placeholder {
-      * {
-        stroke: $white;
-      }
-    }
-
-    &__badges {
-      background-color: $black;
-    }
-
-    &__badge {
-      filter: none;
-    }
-
-    &__titles__return-button {
-      background-color: $darkergray;
-
-      svg {
-        * {
-          stroke: $lightblue;
-        }
-      }
-    }
-
-    &__title {
-      font-weight: 600;
-
-      &-edition {
-        font-weight: 300;
-      }
-    }
-
-    &__subtitle {
-      color: $mediumgray;
-    }
-  }
-
-  .nft-card {
-    .card {
-      background-color: $black;
-    }
   }
 }
 

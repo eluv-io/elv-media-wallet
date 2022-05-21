@@ -17,6 +17,7 @@ const AutoComplete = ({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedOption, setSelectedOption] = useState(options[0]);
   const [inputValue, setInputValue] = useState(value);
+  const [valueChanged, setValueChanged] = useState(false);
 
   options = options.filter((option, index) => options.indexOf(option) === index);
 
@@ -54,18 +55,23 @@ const AutoComplete = ({
   // Click outside and input blur cause blur value to update, so we either select the matching selection or clear invalid value
   useEffect(() => {
     if(inputValue && selectedOption && selectedOption !== inputValue && !matchingOptions.includes(inputValue)) {
-      setInputValue(selectedOption);
+      if(inputValue !== value) {
+        setInputValue(selectedOption);
+      }
     } else if(inputValue && options && options.length > 0 && !options.includes(inputValue)) {
       setInputValue("");
     }
   }, [blur]);
 
   useEffect(() => {
+    if(value !== inputValue) {
+      setValueChanged(true);
+    }
+
     // Only trigger onChange when a matching value is input
     if(inputValue !== value && matchingOptions.includes(inputValue)) {
       onChange(inputValue);
-    } else if(!inputValue || !options || options.length === 0) {
-      onChange("");
+    } else if(!inputValue || !options || options.length === 0 || !valueChanged) {
       setShowSuggestions(false);
     } else {
       setShowSuggestions(true);
@@ -116,7 +122,7 @@ const AutoComplete = ({
             onClick={() => setInputValue("")}
             className="autocomplete__clear-button"
           >
-            <ImageIcon icon={ClearIcon} title="Clear" />
+            <ImageIcon icon={ClearIcon} label="Clear" />
           </button> : null
       }
 
@@ -146,6 +152,10 @@ const AutoComplete = ({
         aria-owns={`${id}-options`}
         onChange={event => setInputValue(event.target.value)}
         onKeyDown={event => {
+          if(event.key === "Escape") {
+            setBlur(UUID());
+          }
+
           if(event.key === "Enter") {
             if(!showSuggestions) {
               onEnterPressed && onEnterPressed();

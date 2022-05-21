@@ -159,7 +159,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line66">line 66</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line74">line 74</a>
         </li>
       </ul>
     </dd>
@@ -243,7 +243,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line671">line 671</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line712">line 712</a>
         </li>
       </ul>
     </dd>
@@ -277,7 +277,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
     </a>
     <h4 class="name" id=".InitializeFrame">
-      <span class="type-signature">async, static </span>InitializeFrame<span class="signature">({<div class="block-param">requestor,</div><div class="block-param">walletAppUrl<span class="signature-attributes">optional</span>,</div><div class="block-param">target,</div><div class="block-param">tenantSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceHash<span class="signature-attributes">optional</span>,</div><div class="block-param">requireLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">loginOnly<span class="signature-attributes">optional</span>,</div><div class="block-param">captureLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">darkMode<span class="signature-attributes">optional</span></div>})</span><span class="type-signature"> &rarr;  Promise.&lt;<a href="ElvWalletClient.html">ElvWalletClient</a>></span>
+      <span class="type-signature">async, static </span>InitializeFrame<span class="signature">({<div class="block-param">requestor,</div><div class="block-param">walletAppUrl<span class="signature-attributes">optional</span>,</div><div class="block-param">parentAppUrl<span class="signature-attributes">optional</span>,</div><div class="block-param">target,</div><div class="block-param">tenantSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceHash<span class="signature-attributes">optional</span>,</div><div class="block-param">requireLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">loginOnly<span class="signature-attributes">optional</span>,</div><div class="block-param">captureLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">darkMode<span class="signature-attributes">optional</span></div>})</span><span class="type-signature"> &rarr;  Promise.&lt;<a href="ElvWalletClient.html">ElvWalletClient</a>></span>
     </h4>
   </span>
 
@@ -417,6 +417,49 @@ and the target can be passed in either as an element directly, or by element ID.
 
         <td class="description last">
           <p>The URL of the Eluvio Media Wallet app</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>parentAppUrl</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+          <td class="attributes">
+            
+              &lt;optional><br>
+            
+
+            
+
+            
+          </td>
+        
+
+        
+          <td class="default">
+            
+          </td>
+        
+
+        <td class="description last">
+          <p>The URL of your app. The wallet may need to re-open in a different context (e.g. Metamask browser), and this URL will be used instead, if specified.</p>
           
         </td>
       </tr>
@@ -826,7 +869,7 @@ and the target can be passed in either as an element directly, or by element ID.
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line512">line 512</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line539">line 539</a>
         </li>
       </ul>
     </dd>
@@ -849,7 +892,7 @@ and the target can be passed in either as an element directly, or by element ID.
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
     </a>
     <h4 class="name" id=".InitializePopup">
-      <span class="type-signature">async, static </span>InitializePopup<span class="signature">({<div class="block-param">requestor,</div><div class="block-param">walletAppUrl<span class="signature-attributes">optional</span>,</div><div class="block-param">tenantSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceHash<span class="signature-attributes">optional</span>,</div><div class="block-param">requireLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">loginOnly<span class="signature-attributes">optional</span>,</div><div class="block-param">captureLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">darkMode<span class="signature-attributes">optional</span></div>})</span><span class="type-signature"> &rarr;  Promise.&lt;<a href="ElvWalletClient.html">ElvWalletClient</a>></span>
+      <span class="type-signature">async, static </span>InitializePopup<span class="signature">({<div class="block-param">requestor,</div><div class="block-param">walletAppUrl<span class="signature-attributes">optional</span>,</div><div class="block-param">parentAppUrl<span class="signature-attributes">optional</span>,</div><div class="block-param">tenantSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceHash<span class="signature-attributes">optional</span>,</div><div class="block-param">requireLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">loginOnly<span class="signature-attributes">optional</span>,</div><div class="block-param">captureLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">darkMode<span class="signature-attributes">optional</span></div>})</span><span class="type-signature"> &rarr;  Promise.&lt;<a href="ElvWalletClient.html">ElvWalletClient</a>></span>
     </h4>
   </span>
 
@@ -989,6 +1032,49 @@ and the target can be passed in either as an element directly, or by element ID.
 
         <td class="description last">
           <p>The URL of the Eluvio Media Wallet app</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>parentAppUrl</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+          <td class="attributes">
+            
+              &lt;optional><br>
+            
+
+            
+
+            
+          </td>
+        
+
+        
+          <td class="default">
+            
+          </td>
+        
+
+        <td class="description last">
+          <p>The URL of your app. The wallet may need to re-open in a different context (e.g. Metamask browser), and this URL will be used instead, if specified.</p>
           
         </td>
       </tr>
@@ -1353,7 +1439,7 @@ and the target can be passed in either as an element directly, or by element ID.
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line429">line 429</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line441">line 441</a>
         </li>
       </ul>
     </dd>
@@ -1530,7 +1616,7 @@ and the target can be passed in either as an element directly, or by element ID.
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line220">line 220</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line230">line 230</a>
         </li>
       </ul>
     </dd>
@@ -1628,7 +1714,7 @@ and the target can be passed in either as an element directly, or by element ID.
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line303">line 303</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line314">line 314</a>
         </li>
       </ul>
     </dd>
@@ -1721,7 +1807,7 @@ and the target can be passed in either as an element directly, or by element ID.
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line205">line 205</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line215">line 215</a>
         </li>
       </ul>
     </dd>
@@ -2070,7 +2156,7 @@ and the target can be passed in either as an element directly, or by element ID.
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line284">line 284</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line295">line 295</a>
         </li>
       </ul>
     </dd>
@@ -2245,7 +2331,7 @@ and the target can be passed in either as an element directly, or by element ID.
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line234">line 234</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line245">line 245</a>
         </li>
       </ul>
     </dd>
@@ -2562,7 +2648,7 @@ wallet application to the login page, use the <a href="#Navigate">Navigate</a> m
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line380">line 380</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line391">line 391</a>
         </li>
       </ul>
     </dd>
@@ -2653,7 +2739,7 @@ wallet application to the login page, use the <a href="#Navigate">Navigate</a> m
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line400">line 400</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line411">line 411</a>
         </li>
       </ul>
     </dd>
@@ -2819,7 +2905,7 @@ wallet application to the login page, use the <a href="#Navigate">Navigate</a> m
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line334">line 334</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line345">line 345</a>
         </li>
       </ul>
     </dd>
@@ -2985,7 +3071,7 @@ wallet application to the login page, use the <a href="#Navigate">Navigate</a> m
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line317">line 317</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line328">line 328</a>
         </li>
       </ul>
     </dd>
@@ -3151,7 +3237,7 @@ wallet application to the login page, use the <a href="#Navigate">Navigate</a> m
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line351">line 351</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line362">line 362</a>
         </li>
       </ul>
     </dd>

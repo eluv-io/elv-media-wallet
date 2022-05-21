@@ -38,9 +38,6 @@
   }
 
   &__tag {
-    border: 1px solid $mediumgray;
-    border-radius: 4px;
-    color: $darkgray;
     font-size: 14px;
     height: 32px;
     margin: 10px 10px 0 0;
@@ -56,13 +53,6 @@
     &:last-child {
       margin-right: 0;
     }
-
-    &-active {
-      background-color: $white;
-      border: 1px solid $lightblue;
-      color: $lightblue;
-      font-weight: 500;
-    }
   }
 
   &__filter {
@@ -73,29 +63,21 @@
   }
 
   &__filter-input {
-    background-color: transparent;
-    border: 1px solid $mediumgray;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 300;
     height: 32px;
-    letter-spacing: 0.9px;
     padding: 0 10px 0 35px;
     text-align: left;
     width: 225px;
-
-    &::placeholder {
-      color: $darkgray;
-      font-size: 12px;
-    }
   }
 
   &__filter-icon {
     height: 24px;
     left: 5px;
     position: absolute;
-    stroke: $darkgray;
     width: 24px;
+
+    * {
+      color: var(--color-input-text-placeholder);
+    }
   }
 
   @media screen and (max-width: $tablet-breakpoint) {
@@ -121,8 +103,10 @@
 }
 
 .marketplace-card {
-  background-color: $black;
-  border-radius: 8px;
+  background: var(--background-marketplace-card);
+  border: var(--border-marketplace-card);
+  border-radius: var(--border-radius-component);
+  box-shadow: var(--box-shadow-component);
   display: flex;
   min-width: 350px;
   opacity: 0.9;
@@ -133,7 +117,7 @@
   width: 100%;
 
   * {
-    color: $white;
+    color: var(--color-marketplace-card-text-primary);
   }
 
   &:hover {
@@ -162,7 +146,7 @@
   }
 
   &__logo {
-    border: 1px solid $darkergray;
+    border: var(--border-marketplace-card-logo);
     border-radius: 50%;
     height: 65px;
     object-fit: contain;
@@ -187,8 +171,8 @@
   }
 
   &__subheader {
-    // sass-lint:disable no-important
-    color: $mediumgray !important;
+    color: var(--color-marketplace-card-text-secondary);
+
     font-size: 14px;
     letter-spacing: 1.5px;
   }
@@ -202,29 +186,5 @@
     &__description {
       font-size: 12px;
     }
-  }
-}
-
-.dark {
-  .marketplace-browser {
-    &__tag {
-      border: 1px solid $darkergray;
-      color: $mediumgray;
-
-      &-active {
-        background-color: $black;
-        border: 1px solid $lightblue;
-        color: $lightblue;
-        font-weight: 500;
-      }
-    }
-
-    &__filter-input {
-      border: 1px solid $darkergray;
-    }
-  }
-
-  .marketplace-card {
-    border: 0.5px solid $darkergray;
   }
 }

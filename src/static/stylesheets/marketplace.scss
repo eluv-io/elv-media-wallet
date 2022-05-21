@@ -1,14 +1,18 @@
 .marketplace {
+  .page-headers {
+    margin-bottom: 50px;
+  }
+
+  &.content {
+    padding-top: 50px;
+  }
+
   &__empty {
     font-size: 16px;
     font-weight: 300;
     margin: 100px 0;
     text-align: center;
     width: 100%;
-  }
-
-  .details-page {
-    padding: 15px 0;
   }
 
   &__banner {
@@ -29,18 +33,28 @@
   }
 
   &__section {
-    margin: 30px 0;
+    display: flex;
+    flex-direction: column;
+    margin: 50px 0;
 
     &:first-child {
       margin-top: 0;
     }
 
+    .page-header,
+    .page-subheader,
+    .page-link {
+      max-width: 700px;
+    }
+
     .page-header {
-      font-size: 20px;
+      font: var(--font-store-heading);
+      text-transform: uppercase;
     }
 
     .page-subheader {
-      font-size: 12px;
+      font: var(--font-store-subheading);
+      margin-top: 20px;
     }
   }
 
@@ -48,156 +62,190 @@
     margin-top: 0;
   }
 
-  .section-header {
+  &__collection-header {
     align-items: center;
     display: flex;
-    margin-bottom: 10px;
+    margin: 0 0 50px;
 
-    &__left {
-      align-items: center;
-      display: flex;
+    &__icon {
+      height: 200px;
+      margin-right: 50px;
+      object-fit: contain;
+      width: 200px;
     }
 
-    .page-header {
-      &__title,
-      &__subtitle {
-        align-items: center;
-        display: flex;
-      }
-
-      &__title {
-        border-radius: 10px;
-        padding: 10px 30px;
-      }
-
-      &__subtitle {
-        flex-grow: 1;
-        justify-content: flex-end;
-      }
-
-      &__icon {
-        object-fit: contain;
-        padding: 0;
-      }
-    }
-
-    .page-header__title__title + .page-header__icon {
-      margin-left: 15px;
-    }
-
-    @media screen and (max-width: $mobile-breakpoint) {
-      flex-direction: column;
+    .page-headers {
+      margin: 0;
 
       .page-header {
-        &__title {
-          padding: 10px 15px;
-        }
-
-        &__subtitle {
-          margin-top: 15px;
-        }
+        margin: 0;
       }
     }
   }
 
-  .collection-info {
-    &__button {
-      border: 0;
-      height: 45px;
-      margin-left: 20px;
-      opacity: 0.5;
-      width: 45px;
+  @media screen and (max-width: $tablet-breakpoint) {
+    .page-header {
+      font-size: 24px;
+      margin-top: 20px;
+    }
+
+    .page-subheader {
+      font-size: 16px;
+    }
+
+    .page-headers {
+      * {
+        justify-content: center;
+        text-align: center;
+      }
+    }
+
+    &__collection-header {
+      flex-direction: column;
+
+      * {
+        justify-content: center;
+        text-align: center;
+      }
 
       &__icon {
-        height: 100%;
-        padding: 0;
-        width: 100%;
+        margin: 0 0 20px;
       }
     }
   }
 }
 
-.marketplace-price {
-  border: 1px solid $mediumgray;
-  border-radius: 6px;
-
-  &__loader {
-    height: auto;
-  }
-
-  &__direct,
-  &__listings {
-    padding: 15px 25px;
-  }
-
-  &__direct {
+.collections-summary {
+  &__link {
     align-items: center;
     display: flex;
-    justify-content: space-between;
+    font: var(--font-store-link);
+    margin-top: 20px;
 
-    &__price {
-      font-size: 24px;
-      font-weight: 500;
-      margin-right: 50px;
-    }
-
-    &__max-owned-message {
-      font-size: 12px;
-      font-weight: 300;
-      text-align: center;
-    }
-
-    .loader-button,
-    .action-primary {
-      min-width: 150px;
+    svg {
+      height: 20px;
+      margin-left: 10px;
+      width: 20px;
     }
   }
 
-  &__listings {
-    border-top: 1px solid $mediumgray;
+  &__list {
+    // sass-lint:disable no-misspelled-properties
+    gap: 30px;
+    // sass-lint:enable no-misspelled-properties
+
+    .collection-card {
+      width: calc(#{$breakpoint} / 3 - 50px);
+    }
   }
 
-  &__listings-count {
-    font-size: 16px;
-    font-weight: normal;
-  }
+  @media screen and (max-width: $breakpoint) {
+    &__list {
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
 
-  .prices-container {
-    border-radius: 0;
-    margin: 10px 0 0;
-    max-width: 300px;
-    padding: 0;
-  }
-
-  .price-container__label {
-    color: $darkgray;
+      .collection-card {
+        max-width: unset;
+        //max-width: calc(#{$breakpoint} / 3 - 100px);
+        width: auto;
+      }
+    }
   }
 }
 
-.dark {
-  .marketplace-price {
-    border: 1px solid $darkgray;
+.collection-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 300px;
 
-    &__listings {
-      border-top: 1px solid $darkgray;
-    }
-
-    .price-container__label {
-      color: $mediumgray;
-    }
+  &__icon-container {
+    background: var(--border-background-feature-card);
+    border-radius: var(--border-radius-feature-card);
+    padding: var(--border-width-feature-card);
+    position: relative;
   }
 
-  .checkout {
-    &__button {
-      &:not(.checkout__button-coinbase) {
-        border: 1px solid $blue;
-      }
-    }
+  &__icon {
+    background: var(--background-feature-card);
+    border-radius: var(--border-radius-feature-card);
+    margin: 0;
+    padding: 32px;
+  }
+
+  .item-card__image-container {
+    border-radius: var(--border-radius-feature-card);
+    margin: 0;
+  }
+
+  &__details {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 300px;
+    padding: 20px;
+  }
+
+  &__header {
+    font: var(--font-feature-card-title);
+    text-transform: uppercase;
+  }
+
+  &__subheader {
+    font: var(--font-feature-card-text);
+    font-size: 16px;
+    padding: 20px 0;
+  }
+
+  &__actions {
+    align-items: flex-end;
+    display: flex;
+    flex-grow: 1;
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  .action {
+    width: 100%;
   }
 }
 
 .side-panel {
   .marketplace-navigation {
     display: none;
+  }
+}
+
+.app--centered {
+  .marketplace {
+    &__section {
+      .page-header,
+      .page-subheader,
+      .page-link {
+        justify-content: center;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+      }
+    }
+
+    &__collection-header {
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      * {
+        text-align: center;
+      }
+
+      &__icon {
+        margin: 0 0 20px;
+      }
+    }
+  }
+
+  .collection-card {
+    * {
+      text-align: center;
+    }
   }
 }

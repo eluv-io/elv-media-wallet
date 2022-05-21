@@ -1,12 +1,24 @@
 import React from "react";
-import {Link, useRouteMatch} from "react-router-dom";
+import {useRouteMatch} from "react-router-dom";
 import {checkoutStore} from "Stores";
 import {FormatPriceString, ItemPrice} from "Components/common/UIComponents";
 import {MarketplaceImage} from "Components/common/Images";
 import UrlJoin from "url-join";
-import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
+import ItemCard from "Components/common/ItemCard";
+import FeaturedItemCard from "Components/common/FeaturedItemCard";
 
-const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) => {
+const MarketplaceItemCard = ({
+  type="Standard",
+  marketplaceHash,
+  to,
+  item,
+  index,
+  justification="Left",
+  noLink,
+  video=false,
+  className="",
+  cardClassName=""
+}) => {
   const match = useRouteMatch();
 
   if(!item.for_sale || (item.type === "nft" && (!item.nft_template || item.nft_template["/"]))) {
@@ -17,6 +29,7 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
   const unauthorized = item.requires_permissions && !item.authorized;
   const stock = checkoutStore.stock[item.sku];
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
+  const maxOwned = stock && stock.max_per_user && stock.current_user >= stock.max_per_user;
   const total = ItemPrice(item, checkoutStore.currency);
   const isFree = !total || item.free;
 
@@ -25,58 +38,67 @@ const MarketplaceItemCard = ({marketplaceHash, to, item, index, className=""}) =
     description = item.permission_description || description;
   }
 
+  let status, action, linkDisabled=noLink;
+  if(expired) {
+    action = "Listings";
+    status = "Sale Ended";
+  } else if(unauthorized) {
+    status = "Private Offering";
+    linkDisabled = true;
+  } else if(outOfStock) {
+    action = "Listings";
+    status = "Sold Out!";
+  } else {
+    action = isFree ? "Claim" : "Buy";
+  }
+
+  let availableStock;
+  if(item && !item.hide_available && !outOfStock && !expired && !unauthorized && stock &&stock.max && stock.max < 10000000) {
+    availableStock = `${stock.max - stock.minted} / ${stock.max}`;
+  }
+
+  let CardComponent = ItemCard;
+  let sideText = availableStock;
+  if(type === "Featured") {
+    CardComponent = FeaturedItemCard;
+
+    sideText = undefined;
+    if(item.available_at) {
+      sideText = `Release Date: ${new Date(item.available_at).toLocaleDateString("en-US", {year: "numeric", month: "long", day: "numeric"}) }`;
+    }
+  }
+
+  let priceText = "";
+  if(maxOwned) {
+    priceText = "Maximum owned!";
+  } else if(!isFree) {
+    priceText = FormatPriceString(item.price, {includeCurrency: true, prependCurrency: true});
+  }
+
   return (
-    <div className={`card-container card-shadow ${className}`}>
-      <Link
-        to={to || `${match.url}/${item.sku}`}
-        className={`card nft-card ${outOfStock || expired || unauthorized ? "card-disabled" : ""}`}
-      >
+    <CardComponent
+      link={linkDisabled ? undefined : (to || `${match.url}/${item.sku}`)}
+      image={(
         <MarketplaceImage
           marketplaceHash={marketplaceHash}
           item={item}
           path={UrlJoin("public", "asset_metadata", "info", "items", index.toString(), "image")}
+          video={video}
         />
-        <div className="card__text">
-          <div className="card__titles">
-            <h2 className="card__title">
-              <div className="card__title__title">
-                { item.name }
-              </div>
-              <div className="card__title__price">
-                { isFree ? "Claim Now!" : FormatPriceString(item.price) }
-              </div>
-            </h2>
-            {
-              item.nftTemplateMetadata.edition_name ?
-                <h2 className="card__title card__title-edition">{ item.nftTemplateMetadata.edition_name }</h2> : null
-            }
-            <ResponsiveEllipsis
-              component="h2"
-              className="card__subtitle"
-              text={description}
-              maxLine="3"
-            />
-          </div>
-          {
-            expired ?
-              <div className="card__stock">
-                <div className="card__stock__indicator card__stock__indicator-unavailable" />
-                Sale Ended
-              </div> :
-              unauthorized ?
-                <div className="card__stock">
-                  <div className="card__stock__indicator card__stock__indicator-unavailable" />
-                  Private Offering
-                </div> :
-                !item.hide_available && stock && stock.max && stock.max < 10000000 ?
-                  <div className="card__stock">
-                    <div className={`card__stock__indicator ${outOfStock ? "card__stock__indicator-unavailable" : ""}`} />
-                    { outOfStock ? "Sold Out!" : `${stock.max - stock.minted} Available` }
-                  </div> : null
-          }
-        </div>
-      </Link>
-    </div>
+      )}
+      name={item.name}
+      searchName={item.nftTemplateMetadata.display_name}
+      edition={item.nftTemplateMetadata.edition_name}
+      description={description}
+      price={priceText}
+      sideText={sideText}
+      status={status}
+      justification={justification}
+      fullDescription={type === "Detail"}
+      action={action}
+      className={`${className} ${type !== "Featured" && (outOfStock || expired || unauthorized) ? "card-container--disabled" : ""}`}
+      cardClassName={`${cardClassName}`}
+    />
   );
 };
 

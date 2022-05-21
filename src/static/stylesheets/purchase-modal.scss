@@ -1,0 +1,341 @@
+.purchase-modal-container {
+  min-height: 100vh;
+
+  .modal__content {
+    height: max-content;
+    max-height: unset;
+    max-width: 550px;
+    overflow-y: hidden;
+    padding-bottom: 5vh;
+    padding-right: 8px;
+    top: 5vh;
+    width: 100%;
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    .modal__content {
+      max-width: unset;
+      min-height: 100%;
+      padding: 0;
+      top: 0;
+    }
+  }
+}
+
+$content-width: 475px;
+
+.purchase-modal {
+  @include component;
+  @include modal;
+  display: flex;
+  flex-direction: column;
+  height: max-content;
+  position: relative;
+
+  .card-container {
+    margin: 0 auto 20px;
+    width: 100%;
+
+    .item-card {
+      &__description {
+        font-size: 12px;
+      }
+    }
+  }
+
+  &__header {
+    align-items: center;
+    border-bottom: var(--border-component-secondary);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 15px 0;
+  }
+
+  &__content {
+    margin: 0 auto;
+    max-width: $content-width;
+    padding: 25px 35px 45px;
+    width: 100%;
+  }
+
+  .transfer-table {
+    margin: 0 0 30px;
+
+    .transfer-table__table {
+      max-height: 275px;
+    }
+  }
+
+  &__actions {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 35px;
+    width: 100%;
+  }
+
+  .action {
+    width: 100%;
+
+    & + .action {
+      margin-top: 10px;
+    }
+  }
+
+  &__stats {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+
+    &__label {
+      color: var(--color-component-text-secondary);
+      font-weight: 300;
+      text-align: center;
+    }
+  }
+
+  &__stats-list {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  &__stat {
+    align-items: center;
+    display: flex;
+    flex: 1 1 100%;
+    flex-direction: column;
+    justify-content: center;
+    padding: 10px 0 20px;
+
+    &__label {
+      color: var(--color-component-text-primary);
+      font-size: 16px;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    &__price {
+      color: var(--color-component-text-highlight);
+      font-size: 24px;
+      font-weight: 500;
+      margin-top: 5px;
+      text-align: center;
+    }
+  }
+
+  &__order-details {
+    border-radius: var(--border-radius-component);
+    padding: 20px;
+
+    &-box {
+      background: var(--background-component-secondary);
+      margin-top: 30px;
+    }
+  }
+
+  &__order-line-item {
+    display: flex;
+    justify-content: space-between;
+    line-height: 1.8em;
+
+    &--bold {
+      * {
+        font-weight: bold;
+      }
+    }
+  }
+
+  &__order-label {
+    align-items: center;
+    display: flex;
+    padding-right: 10px;
+  }
+
+  &__order-price {
+    align-items: center;
+    display: flex;
+
+    img,
+    svg {
+      height: 20px;
+      margin-right: 5px;
+    }
+  }
+
+  &__quantity {
+    font-weight: 300;
+    min-width: max-content;
+  }
+
+  &__order-separator {
+    border-bottom: var(--border-component-secondary);
+    margin-bottom: 10px;
+    padding-top: 10px;
+  }
+
+  &__price-details {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px 0;
+    width: 100%;
+
+    &__price {
+      font-size: 24px;
+      font-weight: 500;
+      margin-top: 5px;
+      text-align: center;
+    }
+  }
+
+  &__payment-message {
+    color: var(--color-component-text-secondary);
+    font-weight: 300;
+    margin-bottom: 10px;
+  }
+
+  &__error-message {
+    color: var(--color-text-error);
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  &__payment-options {
+    margin-top: 15px;
+  }
+
+  &__payment-selection-container {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 25px;
+  }
+
+  &__payment-selection {
+    position: relative;
+
+    &:not(&--selected) {
+      color: var(--color-component-text-primary);
+
+      * {
+        color: var(--color-component-text-primary);
+      }
+    }
+  }
+
+  &__payment-selection-icons {
+    display: flex;
+    height: 100%;
+    left: 0;
+    padding: 12px 8px;
+    position: absolute;
+    top: 0;
+
+    &-crypto {
+      padding: 9px 7px;
+    }
+  }
+
+  &__payment-selection-icon {
+    height: 100%;
+    min-width: 20px;
+    width: auto;
+  }
+
+  &__wallet-connect {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 30px 0;
+  }
+
+  &__email-input {
+    font-size: 20px;
+    margin-bottom: 20px;
+    padding-left: 20px;
+    text-align: center;
+    width: 100%;
+
+    &::placeholder {
+      font-size: 16px;
+    }
+  }
+
+  .wallet-connect {
+    max-width: 100%;
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    border: 0;
+    border-radius: 0;
+    min-height: 100vh;
+  }
+}
+
+.quantity {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  &__label {
+    color: var(--color-component-text-secondary);
+    font-size: 12px;
+    margin-left: -7px;
+  }
+
+  &__inputs {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin: 5px 0;
+  }
+
+  &__button {
+    align-items: center;
+    border-radius: 100%;
+    display: flex;
+    height: 35px;
+    justify-content: center;
+    min-width: 0;
+    padding: 5px;
+    user-select: none;
+    width: 30px;
+
+    * {
+      height: 100%;
+      width: 100%;
+    }
+  }
+
+  &__input {
+    appearance: textfield;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    font-size: 24px;
+    font-weight: 300;
+    height: $action-height;
+    margin: 0 5px;
+    max-width: 50px;
+    min-width: 50px;
+    text-align: center;
+
+    // sass-lint:disable no-vendor-prefixes
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      appearance: none;
+      margin: 0;
+    }
+
+    // sass-lint:enable no-vendor-prefixes
+  }
+}

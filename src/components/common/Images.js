@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 
 import {observer} from "mobx-react";
-import {rootStore} from "Stores/index";
+import {rootStore} from "Stores";
 import SVG from "react-inlinesvg";
 import ImageIcon from "Components/common/ImageIcon";
 import {Initialize} from "@eluvio/elv-embed/src/Embed";
@@ -9,14 +9,6 @@ import {Initialize} from "@eluvio/elv-embed/src/Embed";
 import NFTPlaceholderIcon from "Assets/icons/nft";
 import FullscreenIcon from "Assets/icons/full screen.svg";
 import Modal from "Components/common/Modal";
-
-export const ProfileImage = observer(({className=""}) => {
-  return (
-    <div className={`profile-image profile-image-image ${className}`}>
-      <img className="profile-image__image" src={rootStore?.userProfile?.profileImage || rootStore.defaultProfileImage} alt="Profile Image" />
-    </div>
-  );
-});
 
 export const NFTImage = observer(({nft, item, selectedMedia, width, video=false, allowFullscreen=false, className="", playerCallback}) => {
   const [player, setPlayer] = useState(undefined);
@@ -56,7 +48,7 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
     if(selectedMediaImageUrl) {
       imageUrl = new URL(selectedMediaImageUrl);
 
-      imageUrl.searchParams.set("authorization", selectedMedia.requires_permissions ? rootStore.authedToken : rootStore.staticToken);
+      imageUrl.searchParams.set("authorization", rootStore.authToken);
       if(imageUrl && width) {
         imageUrl.searchParams.set("width", width);
       }
@@ -64,7 +56,7 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
 
     if(!imageUrl && ((item && item.image) || nft.metadata.image)) {
       imageUrl = new URL((item && item.image && item.image.url) || nft.metadata.image);
-      imageUrl.searchParams.set("authorization", rootStore.staticToken);
+      imageUrl.searchParams.set("authorization", rootStore.authToken);
 
       if(imageUrl && width) {
         imageUrl.searchParams.set("width", width);
@@ -90,7 +82,7 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
         embedUrl.searchParams.set("vid", videoHash);
         embedUrl.searchParams.set("ct", "h");
         embedUrl.searchParams.set("ap", "");
-        embedUrl.searchParams.set("ath", selectedMedia.requires_permissions ? rootStore.authedToken : rootStore.staticToken);
+        embedUrl.searchParams.set("ath", rootStore.authToken);
       } else if(item && item.video) {
         embedUrl = new URL("https://embed.v3.contentfabric.io");
         const videoHash = ((item.video["/"] && item.video["/"].split("/").find(component => component.startsWith("hq__")) || item.video["."].source));
@@ -100,6 +92,7 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
         embedUrl.searchParams.set("vid", videoHash);
         embedUrl.searchParams.set("ap", "");
         embedUrl.searchParams.set("lp", "");
+        embedUrl.searchParams.set("m", "");
 
         if(item?.nftTemplateMetadata?.has_audio) {
           embedUrl.searchParams.set("ct", "h");
@@ -118,25 +111,25 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
 
   if(media?.embedUrl) {
     const content = media.useFrame ?
-      <iframe src={media.embedUrl} className="card__image-video-embed__frame" /> :
-      <div ref={element => setTargetElement(element)} className="card__image-video-embed__frame" />;
+      <iframe src={media.embedUrl} className="item-card__image-video-embed__frame" /> :
+      <div ref={element => setTargetElement(element)} className="item-card__image-video-embed__frame" />;
 
     return (
       <>
-        <div className="card__image-container" key={`media-${media.embedUrl}`}>
-          <div className={`card__image card__image-video-embed ${className}`}>
+        <div className="item-card__image-container" key={`media-${media.embedUrl}`}>
+          <div className={`item-card__image item-card__image-video-embed ${className}`}>
             { content }
           </div>
           {
             allowFullscreen && media.useFrame ?
-              <button className="card__image__full-screen" onClick={() => setFullscreen(true)}>
+              <button className="item-card__image__full-screen" onClick={() => setFullscreen(true)}>
                 <ImageIcon icon={FullscreenIcon} label="Enlarge Image"/>
               </button> : null
           }
         </div>
         {
           fullscreen ?
-            <Modal className="card__image-modal" Toggle={() => setFullscreen(false)}>
+            <Modal className="item-card__image-modal" Toggle={() => setFullscreen(false)}>
               { content }
             </Modal> : null
         }
@@ -147,29 +140,29 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
   const image = media?.imageUrl ?
     <img
       src={media.imageUrl.toString()}
-      className={`card__image ${className}`}
+      className={`item-card__image ${className}`}
       alt={nft.metadata.display_name}
     /> :
     <SVG
       src={NFTPlaceholderIcon}
-      className={`card__image ${className}`}
+      className={`item-card__image ${className}`}
       alt={nft.metadata.display_name}
     />;
 
   return (
     <>
-      <div className="card__image-container" ref={() => playerCallback && playerCallback(undefined)}>
+      <div className="item-card__image-container" ref={() => playerCallback && playerCallback(undefined)}>
         { image }
         {
           allowFullscreen ?
-            <button className="card__image__full-screen" onClick={() => setFullscreen(true)}>
+            <button className="item-card__image__full-screen" onClick={() => setFullscreen(true)}>
               <ImageIcon icon={FullscreenIcon} label="Enlarge Image"/>
             </button> : null
         }
       </div>
       {
         fullscreen ?
-          <Modal className="card__image-modal" Toggle={() => setFullscreen(false)}>
+          <Modal className="item-card__image-modal" Toggle={() => setFullscreen(false)}>
             { image }
           </Modal> : null
       }
@@ -177,8 +170,10 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
   );
 });
 
-export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon, templateImage=false, rawImage=false, className=""}) => {
-  if(!(url || icon)) {
+export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon, video=false, templateImage=false, rawImage=false, className=""}) => {
+  if(video && item.video && item.video["."]) {
+    return <NFTImage nft={{metadata: item.nftTemplateMetadata}} item={item} video className={className} />;
+  } else if(!(url || icon)) {
     if(!item || item.image && (!templateImage || !item.nft_template || !item.nft_template.nft || !item.nft_template.nft.image)) {
       url = rootStore.PublicLink({
         versionHash: marketplaceHash,
@@ -190,12 +185,12 @@ export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon,
     } else if(item.nft_template && item.nft_template.nft && item.nft_template.nft.image) {
       url = (item.nft_template.nft || {}).image;
       url = new URL(url);
-      url.searchParams.set("authorization", rootStore.staticToken);
+      url.searchParams.set("authorization", rootStore.authToken);
       url.searchParams.set("width", "800");
       url = url.toString();
     } else {
       icon = NFTPlaceholderIcon;
-      className = `card__image-placeholder ${className}`;
+      className = `item-card__image-placeholder ${className}`;
     }
   }
 
@@ -204,7 +199,7 @@ export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon,
       title={title || item && item.name || ""}
       icon={url || icon || NFTPlaceholderIcon}
       alternateIcon={NFTPlaceholderIcon}
-      className={rawImage ? className : `card__image ${className}`}
+      className={rawImage ? className : `item-card__image ${className}`}
     />
   );
 
@@ -213,7 +208,7 @@ export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon,
   }
 
   return (
-    <div className={`card__image-container ${className}`}>
+    <div className={`item-card__image-container ${className}`}>
       { image }
     </div>
   );

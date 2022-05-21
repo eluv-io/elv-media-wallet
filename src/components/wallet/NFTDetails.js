@@ -13,8 +13,8 @@ import SanitizeHTML from "sanitize-html";
 import Confirm from "Components/common/Confirm";
 import {TransferTable} from "Components/listings/TransferTables";
 import ListingModal from "Components/listings/ListingModal";
-import {Loader, PageLoader} from "Components/common/Loaders";
-import ListingPurchaseModal from "Components/listings/ListingPurchaseModal";
+import {PageLoader} from "Components/common/Loaders";
+import PurchaseModal from "Components/listings/PurchaseModal";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {v4 as UUID} from "uuid";
 import NFTCard from "Components/common/NFTCard";
@@ -27,36 +27,15 @@ import NFTMediaControls from "Components/wallet/NFTMediaControls";
 import {LoginClickGate} from "Components/common/LoginGate";
 
 import {MediaIcon} from "../../utils/Utils";
+import TransactionIcon from "Assets/icons/transaction history icon.svg";
+import SalesIcon from "Assets/icons/sales history icon.svg";
 import DescriptionIcon from "Assets/icons/Description icon.svg";
 import DetailsIcon from "Assets/icons/Details icon.svg";
 import ContractIcon from "Assets/icons/Contract icon.svg";
 import TraitsIcon from "Assets/icons/properties icon.svg";
 import MediaSectionIcon from "Assets/icons/Media tab icon.svg";
 import PlayIcon from "Assets/icons/blue play icon.svg";
-import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
-
-const FormatRarity = (rarity) => {
-  if(!rarity) {
-    return "";
-  }
-
-  rarity = rarity.toString();
-
-  if(!rarity.includes("/")) {
-    return rarity;
-  }
-
-  const [ numerator, denominator ] = rarity.split("/");
-  let percentage = 100 * parseInt(numerator) / parseInt(denominator);
-
-  if(percentage < 1) {
-    percentage = percentage.toFixed(2);
-  } else {
-    percentage = percentage.toFixed(1).toString().replace(".0", "");
-  }
-
-  return `${percentage}% have this trait`;
-};
+import BackIcon from "Assets/icons/arrow-left.svg";
 
 const NFTMediaSection = ({nft, containerElement, selectedMediaIndex, setSelectedMediaIndex, currentPlayerInfo}) => {
   const [orderKey, setOrderKey] = useState(0);
@@ -175,18 +154,14 @@ const NFTDescriptionSection = ({nft}) => {
 };
 
 const NFTTraitsSection = ({nft}) => {
-  const FILTERED_ATTRIBUTES = [ "Content Fabric Hash", "Creator", "Total Minted Supply" ];
-  const traits = ((nft.metadata || {}).attributes || [])
-    .filter(attribute => attribute && !FILTERED_ATTRIBUTES.includes(attribute.trait_type));
+  const traits = nft?.metadata?.traits || [];
 
-  if(traits.length === 0) {
-    return null;
-  }
+  if(traits.length === 0) { return null; }
 
   return (
     <ExpandableSection header="Properties" icon={TraitsIcon}>
       <div className="traits">
-        {traits.map(({rarity, trait_type, value}, index) =>
+        {traits.map(({trait_type, value, rarity_percent}, index) =>
           <div className="trait" key={`trait-${index}`}>
             <div className="trait__type">
               { trait_type }
@@ -195,7 +170,7 @@ const NFTTraitsSection = ({nft}) => {
               { value }
             </div>
             <div className="trait__rarity">
-              { FormatRarity(rarity) }
+              { `${rarity_percent}% have this trait` }
             </div>
           </div>
         )}
@@ -312,7 +287,7 @@ const NFTContractSection = ({nft, listing, heldDate, isOwned, setDeleted}) => {
       }
       <div className="expandable-section__actions">
         <a
-          className="lookout-url"
+          className="action lookout-url"
           target="_blank"
           href={
             EluvioConfiguration["config-url"].includes("main.net955305") ?
@@ -324,22 +299,22 @@ const NFTContractSection = ({nft, listing, heldDate, isOwned, setDeleted}) => {
           See More Info on Eluvio Lookout
         </a>
         {
-          rootStore.funds ?
+          isOwned && rootStore.funds ?
             <ButtonWithLoader
-              className="details-page__delete-button"
+              className="action-danger details-page__delete-button"
               onClick={async () => {
-                if(confirm("Are you sure you want to delete this NFT from your collection?")) {
+                if(confirm("Are you sure you want to permanently burn this NFT? This cannot be undone.")) {
                   await rootStore.BurnNFT({nft});
                   setDeleted(true);
                   await rootStore.LoadNFTInfo(true);
                 }
               }}
             >
-              Delete this NFT
+              Burn NFT
             </ButtonWithLoader> : null
         }
       </div>
-      { isOwned && !listing && !heldDate ? <NFTTransfer nft={nft}/> : null }
+      { isOwned && !listing && !heldDate ? <NFTTransfer nft={nft} /> : null }
     </ExpandableSection>
   );
 };
@@ -460,7 +435,6 @@ const NFTDetails = observer(() => {
           <div className="actions-container">
             {
               rootStore.loggedIn ?
-
                 <>
                   <Link
                     className="button action"
@@ -534,11 +508,7 @@ const NFTDetails = observer(() => {
 
   const NFTActions = () => {
     if(loadingListing) {
-      return (
-        <div className="details-page__actions">
-          <Loader />
-        </div>
-      );
+      return null;
     }
 
     let isInCheckout = listing && listing.details.CheckoutLockedUntil && listing.details.CheckoutLockedUntil > Date.now();
@@ -575,22 +545,7 @@ const NFTDetails = observer(() => {
       return (
         <div className="details-page__actions">
           {
-            listing ?
-              <div className="details-page__listing-info">
-                <h3 className="details-page__listing-info__header">This NFT is listed for sale on the marketplace</h3>
-                <div className="details-page__listing-price-label">
-                  Listing Price
-                </div>
-                <div className="details-page__listing-price-value">
-                  { listing.details.USDCAccepted ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC Accepted" /> : null }
-                  ${listing.details.Price.toFixed(2)}
-                </div>
-              </div> : null
-          }
-
-          {
             heldDate ? null :
-
               <ButtonWithLoader
                 disabled={heldDate || isInCheckout}
                 className="action action-primary details-page__listing-button"
@@ -639,6 +594,7 @@ const NFTDetails = observer(() => {
     }
   };
 
+  const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
   return (
     <>
       {
@@ -664,13 +620,18 @@ const NFTDetails = observer(() => {
           /> : null
       }
       { showPurchaseModal ?
-        <ListingPurchaseModal
+        <PurchaseModal
+          type="listing"
           nft={listing || nft}
           initialListingId={listing && listing.details.ListingId}
           Close={() => setShowPurchaseModal(false)}
         /> : null
       }
       <div className="details-page" ref={element => setDetailsRef(element)}>
+        <Link to={backPage.path} className="details-page__back-link">
+          <ImageIcon icon={BackIcon} />
+          Back to { backPage.name }
+        </Link>
         <div className="details-page__content-container">
           <NFTCard
             nft={nft}
@@ -687,10 +648,14 @@ const NFTDetails = observer(() => {
 
               setCurrentPlayerInfo({selectedMediaIndex, playerInfo});
             }}
+            price={listing ? {USD: listing.details.Price} : null}
+            usdcAccepted={listing?.details?.USDCAccepted}
+            className="card-container--feature-card"
+            cardClassName="item-card--feature-card"
           />
+          <NFTActions />
         </div>
         <div className="details-page__info">
-          <NFTActions />
           <NFTMediaSection
             nft={nft}
             containerElement={detailsRef}
@@ -702,28 +667,28 @@ const NFTDetails = observer(() => {
           <NFTTraitsSection nft={nft} />
           <NFTDetailsSection nft={nft} />
           <NFTContractSection nft={nft} heldDate={heldDate} listing={listing} isOwned={isOwned} setDeleted={setDeleted} />
+          <ListingStats
+            mode="sales-stats"
+            filterParams={{contractAddress: nft.details.ContractAddr}}
+          />
+          <TransferTable
+            icon={TransactionIcon}
+            header="Transaction history for this token"
+            contractAddress={nft.details.ContractAddr}
+            tokenId={nft.details.TokenIdStr}
+          />
+          <Activity
+            icon={SalesIcon}
+            hideFilters
+            hideStats
+            tableHeader={`Sales history for all '${nft.metadata.display_name}' tokens`}
+            initialFilters={{
+              sortBy: "created",
+              sortDesc: true,
+              contractAddress: nft.details.ContractAddr
+            }}
+          />
         </div>
-      </div>
-      <div className="details-page__transfer-tables">
-        <ListingStats
-          mode="sales-stats"
-          filterParams={{contractAddress: nft.details.ContractAddr}}
-        />
-        <TransferTable
-          header="Transaction history for this token"
-          contractAddress={nft.details.ContractAddr}
-          tokenId={nft.details.TokenIdStr}
-        />
-        <Activity
-          hideFilters
-          hideStats
-          tableHeader={`Sales history for all '${nft.metadata.display_name}' tokens`}
-          initialFilters={{
-            sortBy: "created",
-            sortDesc: true,
-            contractAddress: nft.details.ContractAddr
-          }}
-        />
       </div>
     </>
   );

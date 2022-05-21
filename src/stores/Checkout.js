@@ -52,7 +52,7 @@ class CheckoutStore {
             path: UrlJoin("as", "wlt", "nft", "info", tenantId),
             method: "GET",
             headers: {
-              Authorization: `Bearer ${this.client.signer.authToken}`
+              Authorization: `Bearer ${this.client.staticToken}`
             }
           })
         );
@@ -126,7 +126,7 @@ class CheckoutStore {
           sku
         },
         headers: {
-          Authorization: `Bearer ${this.client.signer.authToken}`
+          Authorization: `Bearer ${this.client.staticToken}`
         }
       });
 
@@ -195,7 +195,7 @@ class CheckoutStore {
             listingId,
             confirmationId,
             email,
-            address: this.client.CurrentAccountAddress()
+            address: this.rootStore.CurrentAddress()
           },
           OnComplete: () => {
             this.PurchaseComplete({confirmationId, success: true});
@@ -217,13 +217,6 @@ class CheckoutStore {
         };
       }
 
-      if(!email) {
-        throw {
-          recoverable: false,
-          message: "Unable to determine email address in checkout submit"
-        };
-      }
-
       const checkoutId = `nft-marketplace:${confirmationId}`;
 
       let successUrl, cancelUrl;
@@ -235,11 +228,16 @@ class CheckoutStore {
         cancelUrl = this.rootStore.FlowURL({flow: "redirect", parameters: {to: cancelPath}});
       }
 
+      address = address || this.rootStore.CurrentAddress();
+      if(email && !this.rootStore.AccountEmail(address)) {
+        this.rootStore.SetAccountEmail(address, email);
+      }
+
       let requestParams = {
         currency: this.currency,
         email,
         client_reference_id: checkoutId,
-        elv_addr: address || this.client.CurrentAccountAddress(),
+        elv_addr: address,
         items: [{sku: listingId, quantity: 1}],
         success_url: successUrl,
         cancel_url: cancelUrl
@@ -317,7 +315,7 @@ class CheckoutStore {
             quantity,
             confirmationId,
             email,
-            address: this.client.CurrentAccountAddress()
+            address: this.rootStore.CurrentAddress()
           },
           OnComplete: () => {
             this.PurchaseComplete({confirmationId, success: true});
@@ -328,13 +326,6 @@ class CheckoutStore {
         });
 
         return { confirmationId };
-      }
-
-      if(!email) {
-        throw {
-          recoverable: false,
-          message: "Unable to determine email address in checkout submit"
-        };
       }
 
       const stock = (yield this.MarketplaceStock({tenantId}) || {})[sku];
@@ -357,11 +348,16 @@ class CheckoutStore {
         cancelUrl = this.rootStore.FlowURL({flow: "redirect", parameters: {to: cancelPath}});
       }
 
+      address = address || this.rootStore.CurrentAddress();
+      if(email && !this.rootStore.AccountEmail(address)) {
+        this.rootStore.SetAccountEmail(address, email);
+      }
+
       let requestParams = {
         currency: this.currency,
         email,
         client_reference_id: checkoutId,
-        elv_addr: address || this.client.CurrentAccountAddress(),
+        elv_addr: address,
         items: [{sku, quantity}],
         success_url: successUrl,
         cancel_url: cancelUrl
@@ -428,7 +424,7 @@ class CheckoutStore {
         path: UrlJoin("as", "wlt", "mkt", "bal", "pay"),
         body: requestParams,
         headers: {
-          Authorization: `Bearer ${this.client.signer.authToken}`
+          Authorization: `Bearer ${this.client.staticToken}`
         }
       });
 

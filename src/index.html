@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
@@ -9,23 +9,43 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <script type="text/javascript" src="./configuration.js"></script>
   <meta property="og:title" content="Eluvio Wallet" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Work+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&display=swap" rel="stylesheet">
 </head>
 
 <body>
-  <script type="text/javascript">
-    const searchParams = new URLSearchParams(window.location.search);
+  <div id="app" class="app"></div>
+  <div id="app-background" class="app-background"></div>
 
-    // If light mode specified, set light body color ASAP
-    if(searchParams.has("lt")) {
-      document.body.style.backgroundColor = "#FFFFFF";
-    } else if(searchParams.has("dk")) {
-      document.body.style.backgroundColor = "#000000";
+  <style id="_fonts"></style>
+  <style id="_theme"></style>
+  <style id="_custom-css"></style>
+
+  <script type="text/javascript">
+    try {
+      const backgroundImage = (window.innerWidth < 800 && sessionStorage.getItem("background-image-mobile")) || sessionStorage.getItem("background-image");
+
+      if(backgroundImage) {
+        document.querySelector("#app-background").style.background = "no-repeat top center / cover url(\"" + backgroundImage + "\")";
+      } else {
+        const searchParams = new URLSearchParams(window.location.search);
+        const darkMode = searchParams.has("dk") || sessionStorage.getItem("dark-mode")
+
+        // If light mode specified, set light body color ASAP
+        if(darkMode) {
+          document.body.style.backgroundColor = "#000000";
+        }
+      }
+
+      if(sessionStorage.getItem("custom-css")) {
+        document.querySelector("#_custom-css").innerHTML = atob(sessionStorage.getItem("custom-css"));
+      }
+    } catch(error) {
+      console.error(error);
     }
   </script>
-
-  <div id="app" class="app"></div>
-
-  <style id="_custom-styles"></style>
 </body>
 
 </html>

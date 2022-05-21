@@ -1,0 +1,238 @@
+$controls-height: $action-height;
+$search-height: 50px;
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 10px;
+  width: 100%;
+
+  &__controls {
+    align-items: center;
+    display: flex;
+    justify-content: flex-end;
+    position: relative;
+  }
+
+  &__select-container,
+  &__select {
+    height: $controls-height;
+    min-width: 250px;
+  }
+
+  &__select-container {
+    .styled-select__menu__option {
+      height: $controls-height;
+    }
+  }
+
+  &__menu-button {
+    align-items: center;
+    background: var(--background-input);
+    border: var(--border-input);
+    border-radius: var(--border-radius-input);
+    box-shadow: var(--box-shadow-input);
+    display: flex;
+    height: $controls-height;
+    justify-content: center;
+    margin-left: 10px;
+    padding: 10px;
+    width: $controls-height;
+
+    svg {
+      height: 20px;
+      width: 20px;
+    }
+  }
+
+  .autocomplete {
+    &__options {
+      top: calc(#{$search-height} + 3px);
+    }
+
+    &__option {
+      height: $search-height;
+    }
+
+    &__clear-button {
+      padding: 12px;
+      right: 50px;
+    }
+  }
+
+  &__search-container,
+  &__search,
+  input {
+    height: $search-height;
+    width: 100%;
+  }
+
+  &__search-container {
+    align-items: center;
+    display: flex;
+    margin-top: 10px;
+    position: relative;
+  }
+
+  &__search {
+    input {
+      font-size: 20px;
+      padding: 0 25px;
+
+      &::placeholder {
+        color: var(--color-input-text-placeholder);
+        font-size: 18px;
+      }
+    }
+  }
+
+  &__search-button {
+    background: transparent;
+    border: 0;
+    height: 100%;
+    min-width: 65px;
+    padding: 10px;
+    position: absolute;
+    right: 0;
+    width: 65px;
+  }
+
+  &__menu {
+    @include page-fade-in(0.5s, ease);
+    background: var(--color-input-bg-solid);
+    border: var(--border-input);
+    border-radius: var(--border-radius-input);
+    box-shadow: var(--box-shadow-component);
+    padding: 20px;
+    position: absolute;
+    right: 0;
+    top: calc(#{$controls-height + 10px});
+    width: 400px;
+    z-index: 2;
+
+    & > * {
+      &:not(:last-child) {
+        margin-bottom: 20px;
+      }
+    }
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    &__select-container,
+    &__select {
+      width: 100%;
+    }
+
+    &__search {
+      input {
+        font-size: 16px;
+
+        &::placeholder {
+          font-size: 14px;
+        }
+      }
+    }
+
+    &__search-button {
+      height: 50%;
+      min-width: 35px;
+      padding: 0;
+      right: 5px;
+      width: 35px;
+    }
+
+    .autocomplete__clear-button {
+      height: 50%;
+      padding: 0;
+      right: 40px;
+    }
+
+    &__menu {
+      width: 100%;
+    }
+  }
+}
+
+.stats {
+  @include component;
+  align-items: center;
+  box-shadow: var(--box-shadow-component);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  justify-content: center;
+  margin-bottom: 10px;
+  max-height: 100px;
+  min-height: 100px;
+  padding: 20px 10px;
+  width: 100%;
+
+  &__loader {
+    height: 60px;
+  }
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    height: 40px;
+    justify-content: space-around;
+    width: 100%;
+
+    &:not(:last-child) {
+      // sass-lint:disable no-color-literals
+      border-right: var(--border-component-secondary);
+    }
+  }
+
+  &__label,
+  &__value {
+    display: block;
+    text-align: center;
+    width: 100%;
+  }
+
+  &__label {
+    color: var(--color-component-text-highlight);
+    font: var(--font-component-misc);
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 5px;
+  }
+
+  &__value {
+    color: var(--color-component-text-primary);
+    font: var(--font-component-header);
+    font-size: 24px;
+    font-weight: normal;
+  }
+
+  @media screen and (max-width: $intermediate-breakpoint) {
+    grid-template-columns: repeat(auto-fit, minmax(33%, 1fr));
+    height: auto;
+    max-height: unset;
+    padding-bottom: 0;
+
+    &__item {
+      margin-bottom: 20px;
+
+      &:not(:last-child) {
+        // sass-lint:disable no-important
+        border: 0 !important;
+      }
+    }
+
+    &__label {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+
+    &__value {
+      font-size: 18px;
+    }
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    grid-template-columns: repeat(auto-fit, minmax(50%, 1fr));
+  }
+}

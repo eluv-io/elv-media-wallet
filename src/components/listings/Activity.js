@@ -5,8 +5,11 @@ import FilteredView from "Components/listings/FilteredView";
 import {Link, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 import Utils from "@eluvio/elv-client-js/src/Utils";
+import ImageIcon from "Components/common/ImageIcon";
 
-const Activity = ({header, hideFilters, hideStats, tableHeader, initialFilters}) => {
+import SalesIcon from "Assets/icons/misc/sales icon.svg";
+
+const Activity = ({icon, header, hideFilters, hideStats, tableHeader, initialFilters}) => {
   const match = useRouteMatch();
 
   const linkPath = match.url.startsWith("/marketplace") ?
@@ -24,14 +27,12 @@ const Activity = ({header, hideFilters, hideStats, tableHeader, initialFilters})
       initialFilters={initialFilters}
       header={header}
       cacheDuration={10}
-      Render={({entries, paging, scrollRef, loading}) => (
-        <div
-          className="transfer-table activity-table"
-          style={!loading && entries.length === 0 ? { visibility: "hidden" } : {}}
-        >
+      Render={({entries, paging, scrollRef}) => (
+        <div className="transfer-table activity-table">
           {
             !tableHeader ? null :
               <div className="transfer-table__header">
+                { icon ? <ImageIcon icon={icon} className="transfer-table__header__icon" /> : <div className="transfer-table__header__icon-placeholder" /> }
                 { tableHeader }
               </div>
           }
@@ -94,7 +95,7 @@ const Activity = ({header, hideFilters, hideStats, tableHeader, initialFilters})
 };
 
 export const RecentSales = () => (
-  <Activity tableHeader="Recent Sales" />
+  <Activity icon={SalesIcon} tableHeader="Recent Sales" />
 );
 
 export default Activity;

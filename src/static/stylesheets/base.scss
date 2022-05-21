@@ -4,6 +4,7 @@
 
 * {
   -webkit-overflow-scrolling: touch;
+  font-family: var(--font-family-secondary);
 
   ::-webkit-scrollbar {
     opacity: 1;
@@ -26,33 +27,39 @@ svg:not(:root) {
 }
 
 a {
-  color: $black;
+  color: var(--color-text-primary);
   text-decoration: none;
 
   &:hover {
-    color: $black;
+    color: var(--color-text-primary);
   }
 }
 
 a,
 input,
-select,
-button {
+button,
+.styled-select__button {
+  font-size: 16px;
+
+  &::placeholder {
+    font-size: 12px;
+  }
+
   &:focus {
     outline: 0;
   }
 
   &:focus-visible {
-    box-shadow: 0 0 7px rgba($blue, 0.8);
-    outline: 0;
+    box-shadow: var(--box-shadow-input-focus);
+    outline: var(--outline-input-focus);
   }
 }
 
 div {
   &[role="button"] {
     &:focus-visible {
-      // sass-lint:disable no-important
-      border: 1px solid $blue !important;
+      box-shadow: var(--box-shadow-input-focus);
+      outline: var(--outline-input-focus);
     }
   }
 }
@@ -63,10 +70,10 @@ pre {
 
 body {
   -webkit-overflow-scrolling: touch;
-  background-color: $black;
+  background-color: var(--color-bg-primary);
   box-sizing: border-box;
-  color: #000;
-  font-family: "Helvetica Neue", Helvetica, sans-serif;
+  color: var(--color-text-primary);
+  font-family: var(--font-family-secondary);
   overflow-y: scroll;
   position: absolute;
   transition: background-color 1000ms linear;
@@ -84,8 +91,10 @@ body,
 .main-app,
 .page-container,
 header,
-.navigation {
-  transition: background-color 1s, color 0.5s, border 0.5s, box-shadow 0.5s !important;
+.navigation,
+.marketplace {
+  // sass-lint:disable no-important
+  transition: color 0.5s, border 0.5s, box-shadow 0.5s !important;
 }
 
 html,
@@ -103,10 +112,18 @@ body,
   overscroll-behavior-y: none; // sass-lint:disable-line no-misspelled-properties
   width: 100%;
   z-index: 1;
+
+  * {
+    color: var(--color-text-primary);
+  }
 }
 
 .app-background {
-  background: linear-gradient(180deg, $background-gradient-light-top 0%, $background-gradient-light-bottom 100%);
+  backface-visibility: hidden;
+  background-color: var(--color-page-bg);
+  background-position: top center;
+  background-repeat: no-repeat;
+  background-size: cover;
   height: 100%;
   left: 0;
   min-height: 100vh;
@@ -117,29 +134,54 @@ body,
   z-index: 0;
 }
 
+.styled-select__button {
+  box-shadow: var(--box-shadow-input);
+}
+
+.styled-select,
+.styled-select__button,
+.styled-select__menu__option {
+  min-height: 30px;
+  min-width: 220px;
+}
+
 select {
+  // TODO: maybe have to make custom
   appearance: none;
-  background-color: #f2eeea;
-  background-image: url("data:image/svg+xml,%3Csvg id='Layer_1' data-name='Layer 1' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 35 20.63'%3E%3Cdefs%3E%3Cstyle%3E.cls-1%7Bfill:none;stroke:%23626262;stroke-linecap:round;stroke-miterlimit:10;stroke-width:4px;%7D%3C/style%3E%3C/defs%3E%3Cpolyline class='cls-1' points='2 2 17.8 17.8 33 2.6'/%3E%3C/svg%3E");
-  background-position: right 15px center;
-  background-repeat: no-repeat;
-  background-size: 14px 7px;
-  border: 0;
-  border-radius: 15px;
+  background: var(--background-input);
+  border: var(--border-input);
+  border-radius: var(--border-radius-input);
   cursor: pointer;
-  height: 45px;
+  font: var(--font-input);
+  height: 30px;
   overflow: hidden;
-  padding: 0 30px 0 15px;
+  padding: 0 20px 0 8px;
   position: relative;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  * {
+    color: #f00;
+  }
 }
 
 input {
+  background: var(--background-input);
+  border: var(--border-input);
+  border-radius: var(--border-radius-input);
+  box-shadow: var(--box-shadow-input);
+  color: var(--color-bg-primary);
+  font: var(--font-input);
+  height: $action-height;
+
+  &::placeholder {
+    color: var(--color-input-text-placeholder);
+  }
+
   &[type="checkbox"] {
     appearance: none;
-    border: 1px solid $gray;
-    border-radius: 3px;
+    border: var(--border-input);
+    border-radius: var(--border-radius-input);
     cursor: pointer;
     max-height: 18px;
     max-width: 18px;
@@ -151,7 +193,7 @@ input {
       &::after {
         align-items: center;
         background-color: transparent;
-        color: $gray;
+        color: var(--color-input-text);
         content: "✓";
         display: flex;
         font-size: 12px;
@@ -164,15 +206,6 @@ input {
       }
     }
   }
-}
-
-.button,
-button {
-  background-color: transparent;
-  border: 0;
-  border-radius: 3px;
-  color: $black;
-  height: 40px;
 }
 
 em {
@@ -208,11 +241,9 @@ em {
     margin: 0;
     position: relative;
 
-    &__icon {
-      height: 100%;
-      max-height: 100%;
-      max-width: 200px;
-      width: 100%;
+    &--centered {
+      justify-content: center;
+      text-align: center;
     }
   }
 
@@ -223,7 +254,7 @@ em {
     letter-spacing: 0.03em;
 
     &__subtitle {
-      color: $darkgray;
+      color: var(--color-text-secondary);
     }
   }
 
@@ -233,7 +264,7 @@ em {
 
   .page-subheader,
   .content-subheader {
-    color: $darkgray;
+    color: var(--color-text-secondary);
     font-size: 18px;
     font-weight: 300;
 
@@ -261,78 +292,27 @@ em {
 }
 
 .content {
-  border-radius: 10px 10px 0 0;
+  background-color: var(--color-page-bg);
+  border-radius: var(--border-radius-page-content);
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
   height: max-content;
   max-width: 100%;
-  min-height: calc(100vh - 150px);
+  min-height: 100%;
   padding: 15px 30px 100px;
   width: 100vw;
 
   &:not(.content--no-background) {
-    background-color: $white;
+    background: var(--background-content);
   }
 }
 
 .header-dot {
-  border-radius: 10px;
-  height: 8px;
+  border-radius: 100%;
+  height: 6px;
   margin-right: 10px;
-  width: 8px;
-}
-
-.action,
-.action-loader {
-  border: 1px solid $mediumgray;
-  border-radius: 6px;
-  display: block;
-  min-width: 120px;
-  text-align: center;
-
-  &-primary {
-    background-color: $blue;
-    border: 1px solid $blue;
-    color: $white;
-
-    &:focus-visible {
-      filter: drop-shadow(0 0 5px $black);
-    }
-  }
-
-  &-danger {
-    background-color: $darkergray;
-    border: 1px solid $darkergray;
-    color: $white;
-  }
-
-  &-primary,
-  &-danger {
-    .lds-default {
-      div {
-        // sass-lint:disable no-important
-        background: $white !important;
-      }
-    }
-  }
-
-  &:disabled {
-    opacity: 0.5;
-  }
-
-  svg {
-    height: 100%;
-    width: auto;
-  }
-}
-
-.action-link {
-  border: 0 !important;
-  font-size: 14px;
-  // sass-lint:disable no-important
-  height: 1.8em;
-  text-decoration: underline;
+  width: 6px;
 }
 
 .hidden {
@@ -340,10 +320,24 @@ em {
 }
 
 .debug-error-message {
-  color: $red !important;
-  font-size: 16px;
-  margin-top: 100px;
-  padding: 20px;
+  background: $black;
+  bottom: 0;
+  color: var(--color-text-error);
+  font-family: monospace;
+  font-size: 12px;
+  height: 500px;
+  left: 0;
+  margin: auto;
+  max-width: 500px;
+  opacity: 0.75;
+  overflow-y: scroll;
+  padding: 30px;
+  position: absolute;
+  right: 0;
+  white-space: pre-line;
+  width: 500px;
+  word-break: break-all;
+  z-index: 100;
 }
 
 // Large
@@ -419,72 +413,10 @@ em {
   z-index: 1;
 }
 
-.dark {
-  &.app,
-  .app-container,
-  .site-app,
-  .main-app {
-    // sass-lint:disable no-important
-    background-color: $black !important;
-
-    * {
-      color: $white;
-    }
-  }
-
-  .app-background {
-    background: linear-gradient(180deg, $background-gradient-dark-top 0%, $background-gradient-dark-bottom 100%);
-  }
-
-  .action,
-  .action-loader {
-    border: 1px solid $darkgray;
-
-    &-primary {
-      background-color: $blue;
-      border: 1px solid $blue;
-    }
-  }
-
-  input {
-    &[type="text"] {
-      background-color: $darkgray;
-      border: 1px solid $darkestgray;
-      color: $white;
-    }
-
-    &:focus {
-      border: 0.5px solid $gray;
-      outline: 0;
-    }
-
-    &::placeholder {
-      color: $white;
-    }
-  }
-
-  select {
-    background-color: $darkgray;
-    background-image: url("data:image/svg+xml,%3Csvg id='Layer_1' data-name='Layer 1' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 35 20.63'%3E%3Cdefs%3E%3Cstyle%3E.cls-1%7Bfill:none;stroke:white;stroke-linecap:round;stroke-miterlimit:10;stroke-width:4px;%7D%3C/style%3E%3C/defs%3E%3Cpolyline class='cls-1' points='2 2 17.8 17.8 33 2.6'/%3E%3C/svg%3E");
-    border: 1px solid $darkestgray;
-  }
-
-  .page-container {
-    .page-subheader {
-      color: $mediumgray;
-    }
-  }
-
-  .content-header,
-  .page-header {
-    &__subtitle {
-      color: $gray;
-    }
-  }
-
-  .content {
-    &:not(.content--no-background) {
-      background-color: $black;
-    }
-  }
+// sass-lint:disable class-name-format
+.LinesEllipsis-canvas {
+  opacity: 0;
+  position: fixed;
+  right: 10000px;
+  user-select: none;
 }

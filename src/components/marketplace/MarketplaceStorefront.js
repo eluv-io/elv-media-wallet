@@ -1,11 +1,14 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {Link, Redirect, useRouteMatch} from "react-router-dom";
+import {Link, Redirect, useLocation, useRouteMatch} from "react-router-dom";
 import {rootStore} from "Stores";
 import UrlJoin from "url-join";
-import MarketplaceCollections from "Components/marketplace/MarketplaceCollections";
 import MarketplaceItemCard from "Components/marketplace/MarketplaceItemCard";
 import ImageIcon from "Components/common/ImageIcon";
+import MarketplaceFeatured from "Components/marketplace/MarketplaceFeatured";
+
+import LinkIcon from "Assets/icons/arrow-right.svg";
+import {MarketplaceImage} from "Components/common/Images";
 
 const MarketplaceBanners = ({marketplace}) => {
   if(!marketplace.banners || marketplace.banners.length === 0) { return null; }
@@ -54,6 +57,86 @@ const MarketplaceBanners = ({marketplace}) => {
   );
 };
 
+const CollectionCard = ({marketplaceHash, collection, collectionIndex}) => {
+  const match = useRouteMatch();
+
+  return (
+    <div className="collection-card">
+      <div className="collection-card__icon-container">
+        <div className="collection-card__icon">
+          <MarketplaceImage
+            className="collection-card__image"
+            marketplaceHash={marketplaceHash}
+            title={collection.name}
+            path={UrlJoin("public", "asset_metadata", "info", "collections", collectionIndex.toString(), "collection_icon")}
+          />
+        </div>
+      </div>
+      <div className="collection-card__details">
+        <div className="collection-card__header">
+          { collection.collection_header}
+        </div>
+        <div className="collection-card__subheader">
+          { collection.collection_subheader}
+        </div>
+        <div className="collection-card__actions">
+          <Link
+            to={UrlJoin("/marketplace", match.params.marketplaceId, `collections?collection=${encodeURIComponent(collection.name || collection.collection_header)}`)}
+            className="action action-primary"
+          >
+            Go to Collection
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CollectionsSummary = observer(({marketplace}) => {
+  const match = useRouteMatch();
+  const location = useLocation();
+
+  if(!marketplace?.collections || marketplace.collections.length === 0) { return null; }
+
+  return (
+    <div
+      className="marketplace__section collections-summary"
+      ref={element => {
+        if(!element) { return; }
+
+        if(new URLSearchParams(location.search).get("section") === "collections") {
+          setTimeout(() => {
+            window.scrollTo({top: element.getBoundingClientRect().top - 50});
+          }, 150);
+        }
+      }}
+    >
+      <div className="page-headers">
+        <div className="page-header">Explore Collections</div>
+        <Link
+          to={UrlJoin("/marketplace", match.params.marketplaceId, "collections")}
+          className="page-link collections-summary__link"
+        >
+          See All
+          <ImageIcon icon={LinkIcon} />
+        </Link>
+      </div>
+      <div className="card-list collections-summary__list">
+        {
+          marketplace.collections.map((collection, collectionIndex) =>
+            <CollectionCard
+              collection={collection}
+              collectionIndex={collectionIndex}
+              marketplaceHash={marketplace.versionHash}
+              key={`collection-${collectionIndex}`}
+            />
+          )
+        }
+      </div>
+    </div>
+  );
+});
+
 let timeout;
 const MarketplaceStorefrontSections = observer(({marketplace}) => {
   const [loadKey, setLoadKey] = useState(0);
@@ -98,39 +181,58 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
         rootStore.Log(item, true);
       }
 
+      // TODO: Check release date
       // Available check - must happen after timeout setup
-      if(item.available_at && Date.now() - new Date(item.available_at).getTime() < 0) {
+      if(!item.show_if_unreleased && item.available_at && Date.now() - new Date(item.available_at).getTime() < 0) {
         return null;
       }
 
-      return { item, itemIndex };
+      return item;
     }).filter(item => item);
 
     if(nextDiff > 0) {
       clearTimeout(timeout);
       timeout = setTimeout(() => {
         setLoadKey(loadKey + 1);
-      }, nextDiff + 1000);
+      }, Math.min(nextDiff + 1000, 24 * 60 * 60 * 1000));
     }
 
     if(items.length === 0) { return null; }
 
-    return (
-      <div className="marketplace__section" key={`marketplace-section-${sectionIndex}-${loadKey}`}>
-        <h1 className="page-header">{section.section_header}</h1>
-        <h2 className="page-subheader">{section.section_subheader}</h2>
-        <div className="card-list">
+    let renderedItems;
+    if(section.type === "Featured" && rootStore.pageWidth > 700) {
+      renderedItems = (
+        <MarketplaceFeatured
+          marketplaceHash={marketplace.versionHash}
+          items={items}
+          justification={section.featured_view_justification}
+          showGallery={section.show_carousel_gallery}
+        />
+      );
+    } else {
+      renderedItems = (
+        <div className="card-list card-list--marketplace">
           {
-            items.map(({item, itemIndex}) =>
+            items.map((item) =>
               <MarketplaceItemCard
                 marketplaceHash={marketplace.versionHash}
                 item={item}
-                index={itemIndex}
-                key={`marketplace-item-${itemIndex}-${loadKey}`}
+                index={item.itemIndex}
+                key={`marketplace-item-${item.itemIndex}-${loadKey}`}
               />
             )
           }
         </div>
+      );
+    }
+
+    return (
+      <div className="marketplace__section" key={`marketplace-section-${sectionIndex}-${loadKey}`}>
+        <div className="page-headers">
+          { section.section_header ? <h1 className="page-header">{section.section_header}</h1> : null }
+          { section.section_subheader ? <h2 className="page-subheader">{section.section_subheader}</h2> : null }
+        </div>
+        { renderedItems }
       </div>
     );
   })).filter(section => section);
@@ -158,7 +260,7 @@ const MarketplaceStorefront = observer(() => {
     <>
       <MarketplaceBanners marketplace={marketplace} />
       <MarketplaceStorefrontSections marketplace={marketplace} />
-      <MarketplaceCollections />
+      <CollectionsSummary marketplace={marketplace} />
     </>
   );
 });

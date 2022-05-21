@@ -1,0 +1,8 @@
+<svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect y="1" width="16" height="2" rx="1" fill="currentColor"/>
+<rect width="16" height="2" rx="1" transform="matrix(-1 0 0 1 16 6)" fill="currentColor"/>
+<rect width="16" height="2" rx="1" transform="matrix(-1 0 0 1 16 11)" fill="currentColor"/>
+<rect x="2" width="4" height="4" rx="2" fill="currentColor"/>
+<rect width="4" height="4" rx="2" transform="matrix(-1 0 0 1 8 10)" fill="currentColor"/>
+<rect width="4" height="4" rx="2" transform="matrix(-1 0 0 1 13 5)" fill="currentColor"/>
+</svg>

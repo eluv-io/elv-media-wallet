@@ -28,8 +28,8 @@ const TransferSection = observer(({nft}) => {
     }
 
     const url = new URL(window.location.href);
-    if(!rootStore.darkMode) {
-      url.searchParams.append("lt", "");
+    if(rootStore.darkMode) {
+      url.searchParams.append("dk", "");
     }
 
     if(rootStore.marketplaceHash) {

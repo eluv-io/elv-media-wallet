@@ -33,7 +33,7 @@ const MarketplaceFilters = observer(({SetFilters}) => {
               return (
                 <button
                   key={`marketplace-tags-${tag}`}
-                  className={`action ellipsis marketplace-browser__tag ${active ? "marketplace-browser__tag-active" : ""}`}
+                  className={`action action-selection ellipsis marketplace-browser__tag ${active ? "action-selection--active marketplace-browser__tag-active" : ""}`}
                   onClick={() => setActiveTags({...activeTags, [tag]: !active})}
                 >
                   { tag }
@@ -52,7 +52,7 @@ const MarketplaceFilters = observer(({SetFilters}) => {
             value={filter}
             placeholder="Search Marketplaces..."
             onChange={event => setFilter(event.target.value)}
-            className="action marketplace-browser__filter-input"
+            className="marketplace-browser__filter-input"
           />
         </div>
       </div>
@@ -125,7 +125,7 @@ const MarketplaceBrowser = observer(() => {
 
   return (
     <AsyncComponent
-      loadingClassName="page-loader page-loader--light"
+      loadingClassName="page-loader"
       loadKey="all-marketplaces"
       cacheSeconds={900}
       Load={async () => await rootStore.LoadAvailableMarketplaces({})}

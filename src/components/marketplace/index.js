@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {rootStore, transferStore} from "Stores/index";
 import {
   Switch,
@@ -28,6 +28,34 @@ import {RecentSales} from "Components/listings/Activity";
 import Profile from "Components/profile";
 import MarketplaceCollections from "Components/marketplace/MarketplaceCollections";
 import {LoginGate} from "Components/common/LoginGate";
+import {PageLoader} from "Components/common/Loaders";
+
+// Given a tenant/marketplace slug, redirect to the proper marketplace
+const MarketplaceSlugRedirect = observer(() => {
+  const match = useRouteMatch();
+  const marketplace = (rootStore.availableMarketplaces[match.params.tenantSlug] || {})[match.params.marketplaceSlug];
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    if(!marketplace) {
+      rootStore.LoadAvailableMarketplaces({
+        tenantSlug: match.params.tenantSlug,
+        marketplaceSlug: match.params.marketplaceSlug
+      })
+        .finally(() => setLoaded(true));
+    }
+  }, []);
+
+  if(!marketplace) {
+    if(!loaded) {
+      return <PageLoader/>;
+    }
+
+    return <Redirect to="/marketplaces" />;
+  }
+
+  return <Redirect to={UrlJoin("/marketplace", marketplace.marketplaceId, match.params.location || "store")} />;
+});
 
 const MarketplaceWrapper = observer(({children}) => {
   const match = useRouteMatch();
@@ -100,7 +128,7 @@ const Routes = (match) => {
 
   return [
     { name: listingName, path: "/marketplace/:marketplaceId/listings/:listingId", Component: NFTDetails },
-    { name: "All Listings", path: "/marketplace/:marketplaceId/listings", Component: Listings },
+    { name: "Listings", path: "/marketplace/:marketplaceId/listings", Component: Listings },
     { name: nft?.metadata?.display_name, path: "/marketplace/:marketplaceId/my-listings/:contractId/:tokenId", Component: NFTDetails, authed: true },
     { name: "My Listings", path: "/marketplace/:marketplaceId/my-listings", Component: MyListings, authed: true },
     { name: "Activity", path: "/marketplace/:marketplaceId/activity", Component: RecentSales },
@@ -135,7 +163,7 @@ const Routes = (match) => {
     },
 
     // Duplicate profile in marketplace section so navigating to profile doesn't clear the active marketplace
-    { name: "Profile", path: "/marketplace/:marketplaceId/profile", Component: Profile, skipLoading: true, authed: true },
+    { name: "Profile", path: "/marketplace/:marketplaceId/profile", Component: Profile, authed: true },
 
     { name: "Marketplaces", path: "/marketplaces", Component: MarketplaceBrowser }
   ];
@@ -147,6 +175,10 @@ const MarketplaceRoutes = observer(() => {
   return (
     <div className="page-container marketplace-page">
       <Switch>
+        <Route exact path="/marketplaces/redirect/:tenantSlug/:marketplaceSlug/:location?">
+          <MarketplaceSlugRedirect />
+        </Route>
+
         {
           Routes(match).map(({path, authed, ignoreLoginCapture, Component}) =>
             <Route exact path={path} key={`marketplace-route-${path}`}>

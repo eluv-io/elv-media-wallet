@@ -10,6 +10,12 @@ import {observer} from "mobx-react";
 import {WithdrawalModal, WithdrawalSetupModal} from "Components/profile/WithdrawalModal";
 import WalletConnect from "Components/crypto/WalletConnect";
 
+import MetamaskIcon from "Assets/icons/crypto/metamask fox.png";
+import ImageIcon from "Components/common/ImageIcon";
+
+import PendingIcon from "Assets/icons/crypto/Conversion button.svg";
+import WithdrawalsIcon from "Assets/icons/crypto/USD gray.svg";
+
 const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSetup}) => {
   return (
     <div className="profile-page__section profile-page__section-balance profile-page__section-box">
@@ -54,6 +60,7 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSe
       {
         rootStore.userStripeEnabled ?
           <UserTransferTable
+            icon={WithdrawalsIcon}
             header="Withdrawals"
             type="withdrawal"
           /> : null
@@ -76,7 +83,7 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSe
       }
 
       <div className="profile-page__message">
-        Funds availability notice – A hold period will be imposed on amounts that accrue from the sale of an NFT. Account holders acknowledge that, during this hold period, a seller will be unable to use or withdraw the amounts attributable to such sale(s).  The current hold period for spending the balance is 7 days, and withdrawing the balance is 30 days.
+        Funds availability notice – A hold period will be imposed on amounts that accrue from the sale of an NFT. Account holders acknowledge that, during this hold period, a seller will be unable to use or withdraw the amounts attributable to such sale(s).  The current hold period for spending the balance is 7 days, and withdrawing the balance is 15 days.
       </div>
       <div className="profile-page__message">
         For questions or concerns, please contact <a href={"mailto:payments@eluv.io"}>payments@eluv.io</a>
@@ -117,6 +124,14 @@ const Profile = observer(() => {
 
   const balancePresent = typeof rootStore.totalWalletBalance !== "undefined";
 
+  let walletMessage, walletIcon;
+  switch(rootStore.AuthInfo()?.walletName) {
+    case "Metamask":
+      walletIcon = MetamaskIcon;
+      walletMessage = "Signed in with Metamask";
+      break;
+  }
+
   return (
     <div className="page-container profile-page content">
       { showWithdrawalSetup ? <WithdrawalSetupModal Close={() => setShowWithdrawalSetup(false)} /> : null }
@@ -132,6 +147,26 @@ const Profile = observer(() => {
         </div>
         <div className="profile-page__message">
           This is an Eluvio blockchain address
+        </div>
+
+        {
+          walletMessage ?
+            <div className="profile-page__wallet-message">
+              <ImageIcon icon={walletIcon} />
+              { walletMessage }
+            </div> : null
+        }
+
+        <div className="profile-page__actions profile-page__sign-out">
+          <ButtonWithLoader
+            onClick={async () => {
+              rootStore.SignOut();
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            }}
+            className="action profile-page__sign-out-button"
+          >
+            Sign Out
+          </ButtonWithLoader>
         </div>
       </div>
 
@@ -160,6 +195,7 @@ const Profile = observer(() => {
         </div>
 
         <PendingPaymentsTable
+          icon={PendingIcon}
           header="Pending Sales"
           className="profile-page__pending-transactions-table"
         />
@@ -191,17 +227,6 @@ const Profile = observer(() => {
         </h2>
 
         <WalletConnect />
-      </div>
-
-      <div className="profile-page__section profile-page__actions">
-        <div className="profile-page__actions">
-          <button
-            onClick={() => rootStore.SignOut()}
-            className="action"
-          >
-            Sign Out
-          </button>
-        </div>
       </div>
     </div>
   );

@@ -3,63 +3,22 @@ import {observer} from "mobx-react";
 
 import {rootStore, transferStore} from "Stores/index";
 import UrlJoin from "url-join";
-import LinesEllipsis from "react-lines-ellipsis";
-import responsiveHOC from "react-lines-ellipsis/lib/responsiveHOC";
-const ResponsiveEllipsis = responsiveHOC()(LinesEllipsis);
-import {Link, useRouteMatch} from "react-router-dom";
+import {useRouteMatch} from "react-router-dom";
 import {NFTImage} from "Components/common/Images";
 import ImageIcon from "Components/common/ImageIcon";
 
-import ListingIcon from "Assets/icons/listing.svg";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {NFTDisplayToken} from "../../utils/Utils";
 import FilteredView from "Components/listings/FilteredView";
 import {Loader} from "Components/common/Loaders";
+import ItemCard from "Components/common/ItemCard";
+import {FormatPriceString} from "Components/common/UIComponents";
 
-const CollectionCard = observer(({nft, listing}) => {
-  const match = useRouteMatch();
-
-  return (
-    <div className="card-container card-shadow">
-      <Link
-        to={UrlJoin(match.url, nft.details.ContractId, nft.details.TokenIdStr)}
-        className="card nft-card"
-      >
-        <NFTImage nft={nft} width={600} />
-        <div className="card__badges">
-          { listing ?
-            <ImageIcon icon={ListingIcon} title="This NFT is listed for sale" alt="Listing Icon" className="card__badge" />
-            : null
-          }
-        </div>
-        <div className="card__text">
-          <div className="card__titles">
-            <h2 className="card__title">
-              { nft.metadata.display_name || "" }
-            </h2>
-            {
-              nft.metadata.edition_name ?
-                <h2 className="card__title-edition">
-                  { nft.metadata.edition_name }
-                </h2> : null
-            }
-            <div className="card__title-edition">
-              { NFTDisplayToken(nft) }
-            </div>
-            <ResponsiveEllipsis
-              component="h2"
-              className="card__subtitle"
-              text={nft.metadata.description}
-              maxLine="3"
-            />
-          </div>
-        </div>
-      </Link>
-    </div>
-  );
-});
+import ListingIcon from "Assets/icons/listings icon.svg";
 
 const Collections = observer(() => {
+  const match = useRouteMatch();
+
   const [myListings, setMyListings] = useState([]);
 
   useEffect(() => {
@@ -71,7 +30,7 @@ const Collections = observer(() => {
     <FilteredView
       mode="owned"
       hideStats
-      perPage={48}
+      perPage={60}
       cacheDuration={30}
       Render={({entries, paging, loading}) =>
         <>
@@ -89,16 +48,35 @@ const Collections = observer(() => {
             entries.length === 0 ? null :
               <div className="card-list">
                 {
-                  entries.map((nft) =>
-                    <CollectionCard
-                      key={`nft-card-${nft.details.ContractId}-${nft.details.TokenIdStr}`}
-                      nft={nft}
-                      listing={myListings.find(listing =>
-                        nft.details.TokenIdStr === listing.details.TokenIdStr &&
-                        Utils.EqualAddress(nft.details.ContractAddr, listing.details.ContractAddr)
-                      )}
-                    />
-                  )
+                  entries.map((nft) => {
+                    const listing = myListings.find(listing =>
+                      nft.details.TokenIdStr === listing.details.TokenIdStr &&
+                      Utils.EqualAddress(nft.details.ContractAddr, listing.details.ContractAddr)
+                    );
+
+                    return (
+                      <ItemCard
+                        key={`nft-card-${nft.details.ContractId}-${nft.details.TokenIdStr}`}
+                        link={UrlJoin(match.url, nft.details.ContractId, nft.details.TokenIdStr)}
+                        image={<NFTImage nft={nft} width={600} />}
+                        badges={
+                          listing ?
+                            <ImageIcon
+                              icon={ListingIcon}
+                              title="This NFT is listed for sale"
+                              alt="Listing Icon"
+                              className="item-card__badge"
+                            /> : null
+                        }
+                        name={nft.metadata.display_name}
+                        edition={nft.metadata.edition_name}
+                        sideText={NFTDisplayToken(nft)}
+                        description={nft.metadata.description}
+                        price={listing ? FormatPriceString({USD: listing.details.Price}, {includeCurrency: true, prependCurrency: true}) : null}
+                        usdcAccepted={listing?.details?.USDCAccepted}
+                      />
+                    );
+                  })
                 }
               </div>
           }

@@ -1,7 +1,34 @@
 .minting-status,
 .minting-status-results {
+  .page-header,
+  .page-subheader {
+    justify-content: center;
+    text-align: center;
+  }
+
   .page-header {
-    font-size: 20px;
+    font: var(--font-store-heading);
+    font-size: 32px;
+    text-transform: uppercase;
+  }
+
+  .page-subheader {
+    font: var(--font-store-subheading);
+    margin-top: 10px;
+  }
+
+  .action {
+    padding: 0 20px;
+  }
+
+  @media screen and (max-width: $tablet-breakpoint) {
+    .page-header {
+      font-size: 20px;
+    }
+
+    .page-subheader {
+      font-size: 14px;
+    }
   }
 }
 
@@ -11,45 +38,34 @@
   flex: 1 0 100%;
   flex-direction: column;
   height: 100%;
-  justify-content: center;
+  margin-top: 25px;
   padding: 0 0 40px;
 
-  &__text {
-    .content-header,
-    .content-subheader {
-      justify-content: center;
-    }
-  }
-
   &__transaction-link {
-    color: $blue;
+    color: var(--color-text-highlight);
     font-size: 12px;
     margin-top: 10px;
   }
 
   &__navigation-message {
-    color: $darkgray;
+    color: var(--color-text-secondary);
     font-size: 12px;
     font-weight: 300;
     max-width: 400px;
-    padding-top: 100px;
+    padding-top: 50px;
     text-align: center;
-  }
-
-  .loader {
-    height: auto;
-    margin-top: 50px;
   }
 
   &__video-container {
     align-items: center;
     display: flex;
+    height: 100%;
     justify-content: center;
     margin-bottom: 20px;
     max-height: 70vh;
     max-width: 90vw;
-    min-height: 30vh;
     position: relative;
+    width: 100%;
 
     .loader {
       height: 100%;
@@ -61,17 +77,32 @@
     }
   }
 
-  &__video {
-    background: transparent;
-    flex: 1 1 0;
-    margin-top: 20px;
-    max-height: 70vh;
-    max-width: 90vw;
+  // sass-lint:disable function-name-format
+  &__loader {
+    max-height: MIN(90vw * 9 / 16, 50vh);
+    max-width: MIN(90vw, calc(50vh * 16 / 9));
+    min-height: MIN(90vw * 9 / 16, 50vh);
+    min-width: MIN(90vw, calc(50vh * 16 / 9));
+  }
 
-    video {
+  &__video {
+    &.minting-status__video {
       background: transparent;
-      max-height: 70vh;
-      max-width: 90vw;
+      flex: 1 1 0;
+      max-height: MIN(90vw * 9 / 16, 50vh);
+      max-width: MIN(90vw, calc(50vh * 16 / 9));
+      min-height: MIN(90vw * 9 / 16, 50vh);
+      min-width: MIN(90vw, calc(50vh * 16 / 9));
+
+      video {
+        background: transparent;
+        max-height: MIN(90vw * 9 / 16, 50vh);
+        max-width: MIN(90vw, calc(50vh * 16 / 9));
+        min-height: MIN(90vw * 9 / 16, 50vh);
+        min-width: MIN(90vw, calc(50vh * 16 / 9));
+      }
+
+      // sass-lint:enable function-name-format
     }
   }
 }
@@ -87,45 +118,15 @@
     align-items: center;
     display: flex;
     justify-content: center;
-    margin: 10px 0 20px;
-  }
-
-  &__back-button {
-    align-items: center;
-    background-color: $blue;
-    border: 0;
-    border-radius: 8px;
-    color: $white;
-    display: flex;
-    font-size: 16px;
-    height: 45px;
-    justify-content: center;
-    margin: 30px auto 0;
-    max-width: 300px;
-    padding: 0 35px;
-    text-align: center;
-
-    &:hover {
-      color: $white;
-    }
+    margin: 50px 0;
   }
 }
 
-.dark {
-  .minting-status {
-    &__transaction-link {
-      color: $lightblue;
-    }
-
-    &__navigation-message {
-      color: $gray;
-    }
-  }
-
+.app--centered {
   .minting-status-results {
-    &__back-button {
-      background-color: transparent;
-      border: 1px solid $gray;
+    .content-header,
+    .content-subheader {
+      justify-content: center;
     }
   }
 }

@@ -1,0 +1,9 @@
+/* Compacta */
+@font-face {
+  font-family: "Compacta Black BT";
+  src: url("./Compacta/files/CompactaBlackBT.woff2") format("woff2"),
+  url("./Compacta/files/CompactaBlackBT.woff") format("woff"),
+  url("./Compacta/files/CompactaBlackBT.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+}

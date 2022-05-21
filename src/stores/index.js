@@ -1,3 +1,5 @@
+const testTheme = undefined;//import("../static/stylesheets/themes/maskverse-test.theme.css");
+
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";
 import {ElvClient} from "@eluvio/elv-client-js";
@@ -20,21 +22,6 @@ configure({
 
 const searchParams = new URLSearchParams(window.location.search);
 
-const colors = [
-  "#621B00",
-  "#2F1000",
-  "#108280",
-  "#40798C",
-  "#2a6514",
-  "#626864",
-  "#379164",
-  "#2F2235",
-  "#60495A",
-  "#A37871",
-  "#4B0642",
-  "#1C6E8C"
-];
-
 const MARKETPLACE_ORDER = [
   "dolly-marketplace",
   "oc-marketplace",
@@ -47,42 +34,25 @@ const MARKETPLACE_ORDER = [
 
 let storageSupported = true;
 try {
+  window.loginOnly = searchParams.has("lo");
+  window.appUUID = searchParams.get("appUUID") || sessionStorage.getItem(`app-uuid-${window.loginOnly}`);
+
   sessionStorage.getItem("TestStorage");
   localStorage.getItem("TestStorage");
 } catch(error) {
   storageSupported = false;
 }
 
-const ProfileImage = (text, backgroundColor) => {
-  const canvas = document.createElement("canvas");
-  const context = canvas.getContext("2d");
-
-  canvas.width = 200;
-  canvas.height = 200;
-
-  const gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
-  gradient.addColorStop(0, "#FFFFFF");
-  gradient.addColorStop(0.6, backgroundColor);
-  gradient.addColorStop(1, backgroundColor);
-
-  context.fillStyle = gradient;
-  context.fillRect(0, 0, canvas.width, canvas.height);
-
-  context.font = "80px Helvetica";
-  context.fillStyle = "white";
-  context.textAlign = "center";
-  context.textBaseline = "middle";
-  context.fillText(text, canvas.width / 2, canvas.height / 2 + 10);
-
-  return canvas.toDataURL("image/png");
-};
-
 class RootStore {
+  appUUID = window.appUUID;
+
   DEBUG_ERROR_MESSAGE = "";
 
   network = EluvioConfiguration["config-url"].includes("main.net955305") ? "main" : "demo";
 
   embedded = window.top !== window.self || searchParams.has("e");
+  parentAppUrl = undefined;
+
   storageSupported = storageSupported;
 
   // Opened by embedded window for purchase redirect
@@ -98,18 +68,17 @@ class RootStore {
 
   authInfo = undefined;
 
-  loginOnly = searchParams.has("lo") || this.GetSessionStorage("loginOnly");
-  requireLogin = searchParams.has("rl") || this.GetSessionStorage("loginRequired");
+  loginOnly = window.loginOnly;
+  requireLogin = searchParams.has("rl");
   capturedLogin = this.embedded && searchParams.has("cl");
-  showLogin = this.requireLogin;
+  showLogin = this.requireLogin || searchParams.has("sl");
 
   loggedIn = false;
   disableCloseEvent = false;
-  darkMode = (!this.GetSessionStorage("light-mode") && !searchParams.has("lt")) || searchParams.has("dk");
+  darkMode = searchParams.has("dk") || this.GetSessionStorage("dark-mode");
 
   availableMarketplaces = {};
 
-  lastMarketplaceId = undefined;
   marketplaceId = undefined;
   marketplaceHashes = {};
   tenantSlug = undefined;
@@ -117,11 +86,11 @@ class RootStore {
 
   drops = {};
 
-  localAccount = false;
   auth0AccessToken = undefined;
 
   loaded = false;
   loginLoaded = false;
+  authenticating = false;
   client = undefined;
   accountId = undefined;
   funds = undefined;
@@ -138,11 +107,14 @@ class RootStore {
   hideNavigation = searchParams.has("hn") || this.loginOnly;
   sidePanelMode = false;
 
+  appBackground = { desktop: this.GetSessionStorage("background-image"), mobile: this.GetSessionStorage("background-image") };
+  centerContent = false;
+  centerItems = false;
+
+  authToken = undefined;
   staticToken = undefined;
-  authedToken = undefined;
   basePublicUrl = undefined;
 
-  defaultProfileImage = ProfileImage("", "#1C6E8C");
   userProfile = {};
   userAddress;
 
@@ -151,10 +123,9 @@ class RootStore {
   nftInfo = {};
   nftData = {};
 
-
-  marketplaceIds = [];
   marketplaces = {};
   marketplaceCache = {};
+  marketplaceOwnedCache = {};
 
   marketplaceFilters = [];
 
@@ -215,6 +186,10 @@ class RootStore {
     this.transferStore = new TransferStore(this);
     this.cryptoStore = new CryptoStore(this);
 
+    if(this.appUUID) {
+      this.SetSessionStorage(`app-uuid-${window.loginOnly}`, this.appUUID);
+    }
+
     window.addEventListener("resize", () => this.HandleResize());
 
     window.addEventListener("hashchange", () => this.SendEvent({event: EVENTS.ROUTE_CHANGE, data: UrlJoin("/", window.location.hash.replace("#", ""))}));
@@ -226,19 +201,19 @@ class RootStore {
 
   Initialize = flow(function * () {
     try {
+      this.loaded = false;
+
       // Login required
-      if(searchParams.has("rl") || this.GetSessionStorage("loginRequired")) {
+      if(searchParams.has("rl")) {
         this.requireLogin = true;
         this.ShowLogin({requireLogin: true});
-        this.SetSessionStorage("loginRequired", "true");
       }
 
       // Show only login screen
-      if(searchParams.has("lo") || this.GetSessionStorage("loginOnly")) {
+      if(searchParams.has("lo")) {
         this.loginOnly = true;
         this.requireLogin = true;
         this.ShowLogin({requireLogin: true});
-        this.SetSessionStorage("loginOnly", "true");
         this.ToggleNavigation(false);
       }
 
@@ -248,15 +223,22 @@ class RootStore {
       });
 
       this.staticToken = this.client.staticToken;
+      this.authToken = this.client.staticToken;
 
       this.basePublicUrl = yield this.client.FabricUrl({
         queryParams: {
-          authorization: this.staticToken
+          authorization: this.authToken
         },
         noAuth: true
       });
 
-      const marketplace = searchParams.get("mid") || this.GetSessionStorage("marketplace") || "";
+      this.parentAppUrl = this.GetSessionStorage("parentAppUrl") || (searchParams.get("app") && atob(searchParams.get("app")));
+      if(this.parentAppUrl) {
+        this.SetSessionStorage("parentApp", this.parentAppUrl);
+      }
+
+      const marketplace = decodeURIComponent(searchParams.get("mid") || this.GetSessionStorage("marketplace") || "");
+
       let tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash;
       if(marketplace && marketplace.includes("/")) {
         tenantSlug = marketplace.split("/")[0];
@@ -271,7 +253,8 @@ class RootStore {
 
       if(marketplace) {
         yield this.LoadAvailableMarketplaces({tenantSlug, marketplaceSlug});
-        const specifiedMarketplaceHash = this.SetMarketplace({tenantSlug, marketplaceSlug, marketplaceHash, marketplaceId});
+
+        const specifiedMarketplaceHash = this.SetMarketplace({tenantSlug, marketplaceSlug, marketplaceHash, marketplaceId, specified: true});
 
         this.specifiedMarketplaceId = Utils.DecodeVersionHash(specifiedMarketplaceHash).objectId;
 
@@ -298,80 +281,157 @@ class RootStore {
     }
   });
 
-  Authenticate = flow(function * ({idToken, authToken, tenantId, user, saveAuthInfo=true}) {
+  CurrentAddress() {
+    if(!this.authInfo) { return; }
+
+    return Utils.FormatAddress(this.authInfo.address);
+  }
+
+  Authenticate = flow(function * ({idToken, fabricToken, authToken, externalWallet, address, tenantId, user, walletName="Eluvio", expiresAt, saveAuthInfo=true}) {
+    if(this.authenticating) { return; }
+
     try {
+      this.authenticating = true;
       this.loggedIn = false;
+
+      if(externalWallet === "metamask" && !this.cryptoStore.MetamaskAvailable()) {
+        let url = rootStore.parentAppUrl;
+        if(!url) {
+          url = new URL(window.location.href);
+
+          if(rootStore.specifiedMarketplaceId) {
+            url.searchParams.set("mid", rootStore.specifiedMarketplaceId);
+          }
+
+          if(rootStore.darkMode) {
+            url.searchParams.set("dk", "");
+          }
+        }
+
+        // Metamask not available, link to download or open in app
+        if(this.embedded) {
+          // Do flow
+          return yield rootStore.Flow({
+            type: "flow",
+            flow: "open-metamask",
+            parameters: {
+              appUrl: url.toString()
+            }
+          });
+        } else {
+          const a = document.createElement("a");
+          a.href = `https://metamask.app.link/dapp/${url.toString().replace("https://", "")}`;
+
+          a.target = "_self";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+
+          return;
+        }
+      }
+
 
       const client = yield ElvClient.FromConfigurationUrl({
         configUrl: EluvioConfiguration["config-url"],
         assumeV3: true
       });
 
-      this.staticToken = client.staticToken;
+      this.authToken = client.staticToken;
 
       this.client = client;
 
-      if(!user || !user.email) {
-        throw Error("No email provided in user data");
-      }
+      if(externalWallet) {
+        const walletMethods = this.cryptoStore.WalletFunctions(externalWallet);
 
-      if(idToken) {
-        yield client.SetRemoteSigner({idToken: idToken, tenantId, extraData: user?.userData});
-      } else if(authToken) {
-        yield client.SetRemoteSigner({authToken, tenantId, unsignedPublicAuth: true});
-      } else {
+        address = client.utils.FormatAddress(yield walletMethods.Address());
+        walletName = walletMethods.name;
+
+        const duration = 24 * 60 * 60 * 1000;
+        const buffer = 8 * 60 * 60 * 1000;
+        fabricToken = yield client.CreateFabricToken({
+          address,
+          duration,
+          Sign: walletMethods.Sign,
+          addEthereumPrefix: false
+        });
+
+        // Expire token early so it does not stop working during usage
+        expiresAt = Date.now() + duration - buffer;
+      } else if(fabricToken && !authToken) {
+        // Signed in previously with external wallet
+      } else if(idToken || authToken) {
+        yield client.SetRemoteSigner({idToken, authToken, tenantId, extraData: user?.userData, unsignedPublicAuth: true});
+        expiresAt = JSON.parse(atob(client.signer.authToken)).exp;
+        fabricToken = yield client.CreateFabricToken({duration: expiresAt - Date.now()});
+        authToken = client.signer.authToken;
+        address = client.utils.FormatAddress(client.CurrentAccountAddress());
+      } else if(!fabricToken) {
         throw Error("Neither ID token nor auth token provided to Authenticate");
       }
+
+      this.authToken = fabricToken;
+      client.SetStaticToken({token: fabricToken});
+
+      this.client = client;
 
       this.GetWalletBalance();
 
       this.SetAuthInfo({
-        authToken: client.signer.authToken,
-        address: client.CurrentAccountAddress(),
+        fabricToken,
+        authToken,
+        address,
         user,
+        walletName,
+        expiresAt,
         save: saveAuthInfo
       });
 
-      this.funds = parseInt((yield client.GetBalance({address: client.CurrentAccountAddress()}) || 0));
-      this.userAddress = client.CurrentAccountAddress();
-      this.accountId = `iusr${Utils.AddressToHash(client.CurrentAccountAddress())}`;
+      this.funds = parseInt((yield client.GetBalance({address}) || 0));
+      this.userAddress = this.CurrentAddress();
+      this.accountId = `iusr${Utils.AddressToHash(address)}`;
 
-      this.authedToken = yield client.authClient.GenerateAuthorizationToken({noAuth: true});
       this.basePublicUrl = yield client.FabricUrl({
         queryParams: {
-          authorization: this.staticToken
+          authorization: this.authToken
         },
         noAuth: true
       });
 
-      const initials = ((user || {}).name || "").split(" ").map(s => s.substr(0, 1));
       this.userProfile = {
-        address: client.CurrentAccountAddress(),
-        name: user?.name || client.CurrentAccountAddress(),
-        email: user?.email,
-        profileImage: ProfileImage(
-          (initials.length <= 1 ? initials.join("") : `${initials[0]}${initials[initials.length - 1]}`).toUpperCase(),
-          colors[(user?.email || "").length % colors.length]
-        )
+        address,
+        name: user?.name || address,
+        email: user?.email || this.AccountEmail(address),
       };
 
-      // Clear loaded marketplaces so they will be reloaded and authorization rechecked
-      this.marketplaces = {};
+      // Reload marketplaces so they will be reloaded and authorization rechecked
       this.marketplaceCache = {};
+      yield Promise.all(Object.keys(this.marketplaces).map(async marketplaceId => await this.LoadMarketplace(marketplaceId, true)));
+
+      this.HideLogin();
 
       yield this.cryptoStore.LoadConnectedAccounts();
 
-      this.HideLogin();
       this.loggedIn = true;
 
-      this.SendEvent({event: EVENTS.LOG_IN, data: {address: client.CurrentAccountAddress()}});
+      this.RemoveLocalStorage("signed-out");
+
+      this.SendEvent({event: EVENTS.LOG_IN, data: { address }});
     } catch(error) {
       this.ClearAuthInfo();
       this.Log(error, true);
+
+      throw error;
+    } finally {
+      this.authenticating = false;
     }
   });
 
   async LoadLoginCustomization() {
+    while(!this.loaded) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
     if(!this.specifiedMarketplaceId) {
       return {};
     }
@@ -403,12 +463,18 @@ class RootStore {
 
     metadata = {
       ...(metadata.login_customization || {}),
+      branding: metadata?.branding || {},
       darkMode: metadata?.branding?.color_scheme === "Dark",
       marketplaceId,
       marketplaceHash,
       tenant_id: metadata.tenant_id,
       terms: metadata.terms
     };
+
+    if(metadata?.branding?.color_scheme === "Custom") {
+      metadata.sign_up_button = undefined;
+      metadata.log_in_button = undefined;
+    }
 
     this.SetSessionStorage(`marketplace-login-${marketplaceHash}`, btoa(JSON.stringify(metadata)));
 
@@ -472,6 +538,45 @@ class RootStore {
         ...(nft.metadata || {})
       };
 
+      // Generate embed URLs for additional media
+      if(nft.metadata?.additional_media) {
+        nft.metadata.additional_media = nft.metadata.additional_media.map(media => {
+          try {
+            // Generate embed URLs for additional media
+            const mediaType = (media.media_type || "").toLowerCase();
+
+            if(mediaType === "image") {
+              return {
+                ...media,
+                embed_url: media.media_file.url
+              };
+            }
+
+            let embedUrl = new URL("https://embed.v3.contentfabric.io");
+            embedUrl.searchParams.set("p", "");
+            embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
+            embedUrl.searchParams.set("ath", this.authToken);
+
+            if(mediaType === "video") {
+              embedUrl.searchParams.set("vid", media.media_link["."].container);
+              embedUrl.searchParams.set("ct", "h");
+              embedUrl.searchParams.set("ap", "");
+            } else if(mediaType === "ebook") {
+              embedUrl.searchParams.set("type", "ebook");
+              embedUrl.searchParams.set("vid", media.media_file["."].container);
+              embedUrl.searchParams.set("murl", btoa(media.media_file.url));
+            }
+
+            return {
+              ...media,
+              embed_url: embedUrl.toString()
+            };
+          } catch(error) {
+            return media;
+          }
+        });
+      }
+
       this.nftData[key] = nft;
     }
 
@@ -498,7 +603,7 @@ class RootStore {
     let nftInfo = {};
     Object.keys(this.profileData.NFTs).map(tenantId =>
       this.profileData.NFTs[tenantId].forEach(details => {
-        const versionHash = (details.TokenUri || "").split("/").find(s => s.startsWith("hq__"));
+        const versionHash = (details.TokenUri || "").split("/").find(s => (s || "").startsWith("hq__"));
 
         if(!versionHash) {
           return;
@@ -547,6 +652,7 @@ class RootStore {
         resolveIncludeSource: true,
         resolveIgnoreErrors: true,
         produceLinkUrls: true,
+        authorizationToken: this.staticToken,
         noAuth: true,
         select: [
           `${tenantSlug}/.`,
@@ -567,6 +673,7 @@ class RootStore {
         resolveIncludeSource: true,
         resolveIgnoreErrors: true,
         produceLinkUrls: true,
+        authorizationToken: this.staticToken,
         noAuth: true,
         select: [
           "*/.",
@@ -621,7 +728,40 @@ class RootStore {
     this.availableMarketplaces = availableMarketplaces;
   });
 
+  SetCustomCSS(css="") {
+    const cssTag = document.getElementById("_custom-css");
+    if(cssTag) {
+      if(testTheme) {
+        testTheme.then(theme => {
+          console.log("CUSTOM");
+          cssTag.innerHTML = theme.default;
+        });
+      } else {
+        cssTag.innerHTML = css;
+      }
+    }
+
+    this.SetSessionStorage("custom-css", btoa(css));
+  }
+
   SetCustomizationOptions(marketplace) {
+    if(this.currentCustomization === (marketplace && marketplace.marketplaceId)) {
+      return;
+    }
+
+    this.currentCustomization = marketplace && marketplace.marketplaceId;
+
+    const desktopBackground = marketplace?.branding?.background?.url || "";
+    const mobileBackground = marketplace?.branding?.background_mobile?.url || "";
+
+    this.SetSessionStorage("background-image", desktopBackground);
+    this.SetSessionStorage("background-image-mobile", mobileBackground);
+
+    this.appBackground = {
+      desktop: desktopBackground,
+      mobile: mobileBackground
+    };
+
     let options = { font: "Hevetica Neue" };
     if(marketplace && marketplace !== "default") {
       options = {
@@ -632,42 +772,23 @@ class RootStore {
 
     this.hideGlobalNavigation = marketplace && this.specifiedMarketplaceId === marketplace.marketplaceId && marketplace.branding && marketplace.branding.hide_global_navigation;
 
-    const customStyleTag = document.getElementById("_custom-styles");
-
-    let font;
-    switch(options.font) {
-      case "Inter":
-        import("Assets/fonts/Inter/font.css");
-
-        font = "Inter var";
-
-        break;
-      case "Selawik":
-        import("Assets/fonts/Selawik/font.css");
-
-        font = "Selawik var";
-
-        break;
-      default:
-        font = "Helvetica Neue";
-
-        break;
-    }
-
-    customStyleTag.innerHTML = (`
-       body { font-family: "${font}", sans-serif; }
-       body * { font-family: "${font}", sans-serif; }
-    `);
+    this.centerContent = marketplace?.branding?.text_justification === "Center";
+    this.centerItems = marketplace?.branding?.item_text_justification === "Center";
 
     switch(options.color_scheme) {
       case "Dark":
         this.ToggleDarkMode(true);
         break;
 
-      case "Light":
+      default:
         this.ToggleDarkMode(false);
         break;
     }
+
+    this.SetCustomCSS(
+      options.color_scheme === "Custom" && marketplace?.branding?.custom_css ?
+        marketplace.branding.custom_css.toString() : ""
+    );
   }
 
   ClearMarketplace() {
@@ -678,7 +799,7 @@ class RootStore {
     this.SetCustomizationOptions("default");
   }
 
-  SetMarketplace({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash}) {
+  SetMarketplace({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, specified=false}) {
     const marketplace = this.allMarketplaces.find(marketplace =>
       (marketplaceId && Utils.EqualHash(marketplaceId, marketplace.marketplaceId)) ||
       (marketplaceSlug && marketplace.tenantSlug === tenantSlug && marketplace.marketplaceSlug === marketplaceSlug) ||
@@ -690,7 +811,9 @@ class RootStore {
       this.marketplaceSlug = marketplace.marketplaceSlug;
       this.marketplaceId = marketplace.marketplaceId;
 
-      this.lastMarketplaceId = marketplace.marketplaceId;
+      if(specified) {
+        this.specifiedMarketplaceId = marketplace.marketplaceId;
+      }
 
       this.SetCustomizationOptions(marketplace);
 
@@ -708,7 +831,13 @@ class RootStore {
     );
 
     if(marketplace && !forceReload) {
-      return marketplace;
+      return {
+        marketplaceId: marketplace.marketplaceId,
+        marketplaceHash: marketplace.marketplaceHash,
+        tenantSlug: marketplace.tenantSlug,
+        marketplaceSlug: marketplace.marketplaceSlug,
+        tenantId: marketplace.tenant_id
+      };
     } else if(marketplace) {
       tenantSlug = marketplace.tenantSlug;
       marketplaceSlug = marketplace.marketplaceSlug;
@@ -723,17 +852,6 @@ class RootStore {
         throw Error(`Invalid marketplace ${tenantSlug}/${marketplaceSlug}`);
       }
 
-    } else if(marketplaceHash) {
-      // Specific hash specified
-      marketplaceId = Utils.DecodeVersionHash(marketplaceHash).objectId;
-      this.marketplaceHashes[this.marketplaceId] = marketplaceHash;
-
-      marketplace = yield this.client.ContentObjectMetadata({
-        versionHash: marketplaceHash,
-        metadataSubtree: "public/asset_metadata/info/branding",
-        produceLinkUrls: true,
-        noAuth: true
-      });
     } else {
       yield this.LoadAvailableMarketplaces({forceReload});
 
@@ -748,13 +866,12 @@ class RootStore {
       marketplaceId = marketplace.marketplaceId;
     }
 
-    this.SetCustomizationOptions(marketplace);
-
     return {
       marketplaceId,
       marketplaceHash: this.marketplaceHashes[marketplaceId],
       tenantSlug,
-      marketplaceSlug
+      marketplaceSlug,
+      tenantId: marketplace.tenant_id
     };
   });
 
@@ -834,18 +951,18 @@ class RootStore {
         resolveIgnoreErrors: true,
         resolveIncludeSource: true,
         produceLinkUrls: true,
-        noAuth: true
+        authorizationToken: this.staticToken
       });
 
       const stockPromise = this.checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id});
 
       marketplace.items = yield Promise.all(
-        marketplace.items.map(async item => {
+        marketplace.items.map(async (item, index) => {
           if(this.loggedIn && item.requires_permissions) {
             try {
               let versionHash;
               if(item.nft_template["/"]) {
-                versionHash = item.nft_template["/"].split("/").find(component => component.startsWith("hq__"));
+                versionHash = item.nft_template["/"].split("/").find(component => (component || "").startsWith("hq__"));
               } else if(item.nft_template["."] && item.nft_template["."].source) {
                 versionHash = item.nft_template["."].source;
               }
@@ -862,6 +979,7 @@ class RootStore {
           }
 
           item.nftTemplateMetadata = ((item.nft_template || {}).nft || {});
+          item.itemIndex = index;
 
           return item;
         })
@@ -883,23 +1001,61 @@ class RootStore {
     }
   });
 
-  MarketplaceOwnedItems(marketplace) {
-    if(!marketplace) { return {}; }
-
-    let items = {};
-
-    Object.values(rootStore.nftInfo).filter(details => {
-      const matchingItem = marketplace.items.find(item =>
-        item?.nft_template?.nft?.address && Utils.EqualAddress(item.nft_template.nft.address, details.ContractAddr)
-      );
-
-      if(matchingItem) {
-        items[matchingItem.sku] = items[matchingItem.sku] ? [ ...items[matchingItem.sku], details ] : [ details ];
+  MarketplaceOwnedItems = flow(function * (marketplace) {
+    try {
+      if(!this.loggedIn) {
+        return {};
       }
-    });
 
-    return items;
-  }
+      if(Date.now() - (this.marketplaceOwnedCache[marketplace.tenant_id]?.retrievedAt || 0) > 30000) {
+        delete this.marketplaceOwnedCache[marketplace.tenant_id];
+      }
+
+      if(!this.marketplaceOwnedCache[marketplace.tenant_id]) {
+        let promise = new Promise(async resolve => {
+          let ownedItems = {};
+
+          (await this.transferStore.FilteredQuery({
+            mode: "owned",
+            tenantIds: [marketplace.tenant_id],
+            limit: 10000
+          }))
+            .results
+            .map(nft => {
+              const item = marketplace.items.find(item =>
+                item?.nft_template?.nft?.address && Utils.EqualAddress(item.nft_template.nft.address, nft.details.ContractAddr)
+              );
+
+              if(!item) {
+                return;
+              }
+
+              if(!ownedItems[item.sku]) {
+                ownedItems[item.sku] = [];
+              }
+
+
+              ownedItems[item.sku].push({
+                nft,
+                item
+              });
+            });
+
+          resolve(ownedItems);
+        });
+
+        this.marketplaceOwnedCache[marketplace.tenant_id] = {
+          retrievedAt: Date.now(),
+          ownedItemsPromise: promise
+        };
+      }
+
+      return yield this.marketplaceOwnedCache[marketplace.tenant_id].ownedItemsPromise;
+    } catch(error) {
+      this.Log(error, true);
+      return {};
+    }
+  });
 
   MarketplacePurchaseableItems(marketplace) {
     let purchaseableItems = {};
@@ -959,7 +1115,7 @@ class RootStore {
           tok_id: tokenId
         },
         headers: {
-          Authorization: `Bearer ${this.client.signer.authToken}`
+          Authorization: `Bearer ${this.client.staticToken}`
         }
       });
 
@@ -986,7 +1142,7 @@ class RootStore {
           path: UrlJoin("as", "wlt", "status", "act", tenantId),
           method: "GET",
           headers: {
-            Authorization: `Bearer ${this.client.signer.authToken}`
+            Authorization: `Bearer ${this.client.staticToken}`
           }
         })
       );
@@ -1081,7 +1237,7 @@ class RootStore {
           path: UrlJoin("as", "wlt", "act", marketplace.tenant_id, eventId, dropId),
           method: "GET",
           headers: {
-            Authorization: `Bearer ${this.client.signer.authToken}`
+            Authorization: `Bearer ${this.client.staticToken}`
           }
         })
       );
@@ -1156,7 +1312,7 @@ class RootStore {
         itm: sku
       },
       headers: {
-        Authorization: `Bearer ${this.client.signer.authToken}`
+        Authorization: `Bearer ${this.client.staticToken}`
       }
     });
   });
@@ -1170,7 +1326,7 @@ class RootStore {
         path: UrlJoin("as", "wlt", "mkt", "bal"),
         method: "GET",
         headers: {
-          Authorization: `Bearer ${this.client.signer.authToken}`
+          Authorization: `Bearer ${this.client.staticToken}`
         }
       })
     );
@@ -1195,7 +1351,7 @@ class RootStore {
           return_url: rootUrl.toString()
         },
         headers: {
-          Authorization: `Bearer ${this.client.signer.authToken}`
+          Authorization: `Bearer ${this.client.staticToken}`
         }
       });
 
@@ -1233,7 +1389,7 @@ class RootStore {
           mode: EluvioConfiguration.mode,
         },
         headers: {
-          Authorization: `Bearer ${this.client.signer.authToken}`
+          Authorization: `Bearer ${this.client.staticToken}`
         }
       })
     );
@@ -1266,20 +1422,20 @@ class RootStore {
     });
   });
 
-  SignOut() {
+  SignOut(returnUrl) {
     this.ClearAuthInfo();
 
-    if(!this.embedded) {
-      this.RemoveSessionStorage(`pk-${this.network}`);
+    if(this.embedded) {
+      this.SetLocalStorage("signed-out", "true");
     }
 
-    this.SendEvent({event: EVENTS.LOG_OUT, data: { address: this.client.CurrentAccountAddress() }});
-
+    this.disableCloseEvent = true;
     if(window.auth0) {
       try {
         this.disableCloseEvent = true;
+        this.SendEvent({event: EVENTS.LOG_OUT, data: {address: this.CurrentAddress()}});
         window.auth0.logout({
-          returnTo: UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, "")
+          returnTo: returnUrl || this.ReloadURL()
         });
 
         return;
@@ -1289,26 +1445,43 @@ class RootStore {
       }
     }
 
-    this.disableCloseEvent = true;
+    this.Reload();
+  }
 
-    const url = new URL(UrlJoin(window.location.origin, window.location.pathname));
+  ReloadURL() {
+    const url = new URL(UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""));
+
+    if(this.appUUID) {
+      url.searchParams.set("appUUID", this.appUUID);
+    }
 
     if(this.marketplaceId) {
+      url.hash = UrlJoin("/marketplace", this.marketplaceId, "store");
+    }
+
+    if(this.specifiedMarketplaceId) {
       url.searchParams.set("mid", this.marketplaceHash || this.marketplaceId);
     }
 
-    if(!this.darkMode) {
-      url.searchParams.set("lt", "");
+    if(this.darkMode) {
+      url.searchParams.set("dk", "");
     }
 
     if(this.loginOnly) {
       url.searchParams.set("lo", "");
-    } else if(this.requireLogin) {
-      url.searchParams.set("rl", "");
     }
 
-    // Reload page
-    window.location.href = url.toString();
+    if(this.capturedLogin) {
+      url.searchParams.set("cl", "");
+    }
+
+    return url.toString();
+  }
+
+  Reload() {
+    this.disableCloseEvent = true;
+    window.location.href = this.ReloadURL();
+    window.location.reload();
   }
 
   RequestPermission = flow(function * ({origin, requestor, action}) {
@@ -1320,7 +1493,7 @@ class RootStore {
       const response = yield this.Flow({
         type: "action",
         flow: "consent",
-        darkMode: true,
+        darkMode: this.darkMode,
         parameters: {
           origin,
           requestor,
@@ -1494,6 +1667,13 @@ class RootStore {
 
           break;
 
+        case "open-metamask":
+          window.location.href = `https://metamask.app.link/dapp/${parameters.appUrl.toString().replace("https://", "")}`;
+
+          setTimeout(() => window.close(), 1000);
+
+          break;
+
         case "stripe-onboard":
           const onboardResponse = yield Utils.ResponseToJson(
             this.client.authClient.MakeAuthServiceRequest({
@@ -1506,7 +1686,7 @@ class RootStore {
                 refresh_url: window.location.href
               },
               headers: {
-                Authorization: `Bearer ${this.client.signer.authToken}`
+                Authorization: `Bearer ${this.client.staticToken}`
               }
             })
           );
@@ -1528,7 +1708,7 @@ class RootStore {
                 mode: EluvioConfiguration.mode,
               },
               headers: {
-                Authorization: `Bearer ${this.client.signer.authToken}`
+                Authorization: `Bearer ${this.client.staticToken}`
               }
             })
           );
@@ -1560,14 +1740,18 @@ class RootStore {
       const tokenInfo = this.GetLocalStorage(`auth-${this.network}`);
 
       if(tokenInfo) {
-        const { authToken, address, user } = JSON.parse(Utils.FromB64(tokenInfo));
-        const expiration = JSON.parse(atob(authToken)).exp;
-        if(expiration - Date.now() < 4 * 3600 * 1000) {
+        // TODO: Expire fabric token
+        let { fabricToken, authToken, address, user, walletName, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
+
+        expiresAt = expiresAt || (authToken && JSON.parse(atob(authToken)).exp);
+
+        if(expiresAt - Date.now() < 4 * 3600 * 1000) {
           this.ClearAuthInfo();
+          this.Log("Authorization expired");
         } else if(!user) {
           this.ClearAuthInfo();
         } else {
-          return { authToken, address, user };
+          return { fabricToken, authToken, address, user, walletName, expiresAt };
         }
       }
     } catch(error) {
@@ -1583,8 +1767,8 @@ class RootStore {
     this.authInfo = undefined;
   }
 
-  SetAuthInfo({authToken, address, user, save=true}) {
-    const authInfo = { authToken, address, user: user || {} };
+  SetAuthInfo({fabricToken, authToken, address, user, walletName, expiresAt, save=true}) {
+    const authInfo = { fabricToken, authToken, address, walletName, expiresAt, user: user || {} };
 
     if(save) {
       this.SetLocalStorage(
@@ -1608,6 +1792,8 @@ class RootStore {
 
   ShowLogin({requireLogin=false, ignoreCapture=false}={}) {
     if(this.capturedLogin && !ignoreCapture) {
+      if(this.loggedIn) { return; }
+
       this.SendEvent({event: EVENTS.LOG_IN_REQUESTED});
     } else {
       this.requireLogin = requireLogin;
@@ -1621,21 +1807,24 @@ class RootStore {
   }
 
   ToggleDarkMode(enabled) {
-    if(enabled) {
-      document.body.style.backgroundColor = "#000000";
-      document.getElementById("app").classList.add("dark");
-    } else {
-      document.body.style.backgroundColor = "#FFFFFF";
-      document.getElementById("app").classList.remove("dark");
+    const themeContainer = document.querySelector("#_theme");
+    if(!enabled) {
+      this.RemoveSessionStorage("dark-mode");
+      themeContainer.innerHTML = "";
+      themeContainer.dataset.theme = "default";
+      return;
+    } else if(themeContainer.dataset.theme !== "dark") {
+      this.SetSessionStorage("dark-mode", "true");
+      import("Assets/stylesheets/themes/dark.theme.css")
+        .then(theme => {
+          console.log("DARK");
+          themeContainer.innerHTML = theme.default;
+        });
+
+      themeContainer.dataset.theme = "dark";
     }
 
     this.darkMode = enabled;
-
-    if(enabled) {
-      this.RemoveSessionStorage("light-mode");
-    } else {
-      this.SetSessionStorage("light-mode", "true");
-    }
   }
 
   ToggleNavigation(enabled) {
@@ -1661,6 +1850,16 @@ class RootStore {
     delete this.trustedOrigins[origin];
 
     this.SetLocalStorage("trusted-origins", JSON.stringify(this.trustedOrigins));
+  }
+
+  SetAccountEmail(address, email) {
+    address = Utils.FormatAddress(address);
+    this.SetLocalStorage(`email-${address}`, email);
+  }
+
+  AccountEmail(address) {
+    address = Utils.FormatAddress(address);
+    return this.GetLocalStorage(`email-${address}`);
   }
 
   GetLocalStorage(key) {

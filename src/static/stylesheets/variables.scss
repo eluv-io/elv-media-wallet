@@ -1,35 +1,30 @@
-$white: #fff;
-$black: #000;
-$lightestgray: #f9f9f9;
-$lightergray: #f3f3f3;
-$lightgray: #eee;
-$mediumgray: #ccc;
-$gray: #888;
-$darkgray: #555;
-$darkergray: #333;
-$darkestgray: #151515;
-$lightblack: #0d0d0d;
-
-$bluegray: #404f6b;
-$blue: #2e69c6;
-$blue: #2e69c6;
-$lightblue: #529cf5;
-$gold: #ffc010;
-$red: #f00;
-
-$header-color-light: #e2e2e2;
-$background-gradient-light-top: #f8f8f8;
-$background-gradient-light-bottom: #f9f9f9;
-
-$header-color-dark: #181818;
-$background-gradient-dark-top: #131313;
-$background-gradient-dark-bottom: #000;
-
 $breakpoint: 1250px;
 $intermediate-breakpoint: 1000px;
-$tablet-breakpoint: 800px;
+$tablet-breakpoint: 850px;
 $mobile-breakpoint: 600px;
 
+$black: #000000;
+$white: #FFFFFF;
+
+$action-height: 48px;
+
+@mixin component {
+  background: var(--background-component-primary);
+  border: var(--border-component-primary);
+  border-radius: var(--border-radius-component);
+  color: var(--color-component-text-primary);
+  font: var(--font-component-text);
+
+  h1 {
+    font: var(--font-component-header);
+  }
+}
+
+@mixin modal {
+  border: var(--border-modal-primary);
+  background: var(--background-modal-primary);
+  border-radius: var(--border-radius-modal);
+}
 
 @keyframes BackgroundGradient {
   0% {
@@ -55,16 +50,10 @@ $mobile-breakpoint: 600px;
   to { opacity: 0; }
 }
 
-@mixin page-fade-in($duration: 0.5s) {
-  animation: $duration fadein ease-in;
+@mixin page-fade-in($duration: 0.5s, $animation: ease-in) {
+  animation: $duration fadein $animation;
 }
 
 @mixin page-fade-out {
   animation: 0.5s fadeout ease-in;
-}
-
-@mixin background-gradient-loader {
-  animation: BackgroundGradient 15s ease-in-out infinite;
-  background: linear-gradient(-75deg, $lightgray, $white, $lightgray, $white, $lightgray);
-  background-size: 400% 400%;
 }

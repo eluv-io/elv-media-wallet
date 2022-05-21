@@ -1,0 +1,238 @@
+html {
+  /* General */
+  --color-background-highlight: #1E1EED;
+  --color-background-highlight-rgb: 30, 94, 237;
+  --color-text-highlight: #2D61E4;
+  --color-text-highlight-rgb: 30, 94, 237;
+
+  /* Fonts - Primary is for used headers, tertiary for buttons, prices and other details, secondary for all other text */
+  --font-family-primary: "Montserrat", "Helvetica Neue", Helvetica, sans-serif;
+  --font-family-secondary: "DM Sans", "Helvetica Neue", Helvetica, sans-serif;
+  --font-family-tertiary: "Inter", Helvetica, sans-serif;
+  --font-default: normal normal normal 16px var(--font-family-secondary);
+
+  --color-bg-primary: #FFFFFF;
+  --color-bg-secondary: #EDEDED;
+
+  --color-text-primary: #000;
+  --color-text-secondary: #777;
+  --color-text-error: #f00;
+
+  --color-highlight-container-bg: var(--color-background-highlight);
+  --color-highlight-container-text: #fff;
+
+  --color-loader: rgba(0, 0, 0, 0.5);
+
+  --border-color: #ccc;
+  --border: 1px solid var(--border-color);
+
+  --border-color-faint: #D2D2D2;
+  --border-faint: 1px solid var(--border-color-faint);
+
+  --border-color-highlight: var(--color-background-highlight);
+  --border-highlight: 1px solid var(--border-color-highlight);
+
+  --border-radius: 4px;
+
+  --box-shadow: 0px 0 4px rgba(0, 0, 0, 0.1);
+
+  /* Page */
+  --color-page-bg: #f6f6f6;
+  --background-content: var(--color-page-bg);
+  --border-radius-page-content: 10px 10px 0 0;
+
+  /* Header */
+  --font-header-links: normal normal 300 16px var(--font-family-secondary);
+  --font-header-profile: normal normal 300 14px var(--font-family-primary);
+  --font-header-balance: normal normal normal 12px var(--font-family-tertiary);
+  --font-store-header: normal normal 600 48px var(--font-family-primary);
+
+  --background-page-header: #eee;
+  --color-page-header-text: var(--color-text-primary);
+  --color-header-link-text: var(--color-text-primary);
+  --color-header-link-text-active: var(--color-text-highlight);
+
+  --background-marketplace-header: transparent;
+  --color-marketplace-header-text: var(--color-text-primary);
+
+  /* Store heading text */
+  --font-store-heading: normal normal bold 32px var(--font-family-primary);
+  --font-store-subheading: normal normal 300 18px var(--font-family-secondary);
+  --font-store-link: normal normal 300 18px var(--font-family-tertiary);
+
+  /* Buttons */
+  --font-button: normal normal normal 14px var(--font-family-tertiary);
+  --font-button-selection: var(--font-button);
+
+  --background-button-primary: var(--color-highlight-container-bg);
+  --color-button-primary-text: var(--color-highlight-container-text);
+  --border-button-primary: 1px solid var(--color-highlight-container-bg);
+  --border-radius-button-primary: var(--border-radius);
+
+  --background-button-secondary: var(--color-bg-primary);
+  --color-button-secondary-text: var(--color-text-primary);
+  --border-button-secondary: var(--border);
+  --border-radius-button-secondary: var(--border-radius);
+
+  --background-button-danger: #333;
+  --color-button-danger-text: var(--color-highlight-container-text);
+  --border-button-danger: 1px solid #333;
+  --border-radius-button-danger: var(--border-radius);
+
+  /* Togglable/selectable options */
+  --background-button-selection: transparent;
+  --color-button-selection-text: var(--color-text-secondary);
+  --border-button-selection: var(--border-faint);
+  --border-radius-button-selection: var(--border-radius);
+
+  --background-button-selection-active: transparent;
+  --color-button-selection-active-text: var(--color-text-highlight);
+  --border-button-selection-active: var(--border-highlight);
+  --border-radius-button-selection-active: var(--border-radius);
+
+  /* Inputs */
+  --font-input: var(--font-default);
+
+  --background-input: var(--color-bg-primary);
+  --color-input-bg-solid: var(--color-bg-primary);
+  --color-input-hover-bg: var(--color-bg-secondary);
+  --color-input-text: var(--color-text-primary);
+  --color-input-text-placeholder: var(--color-text-secondary);
+  --color-input-highlight-bg: var(--color-highlight-container-bg);
+  --color-input-highlight-text: var(--color-highlight-container-text);
+  --border-input: var(--border);
+  --border-radius-input: var(--border-radius);
+
+  --box-shadow-input: var(--box-shadow);
+  --box-shadow-input-focus: 0 0 7px rgba(var(--color-background-highlight-rgb), 0.8);
+  --outline-input-focus: 1px solid var(--color-background-highlight);
+
+  /* Cards (store items, listings, owned items) */
+  --font-card-title: normal normal 500 20px var(--font-family-primary);
+  --font-card-text: normal normal normal 16px var(--font-family-secondary);
+  --font-card-misc: normal normal normal 14px var(--font-family-tertiary);
+
+  --background-card: var(--color-bg-primary);
+  --color-card-bg: var(--color-bg-primary);
+  --color-card-text-primary: var(--color-text-primary);
+  --color-card-text-secondary: var(--color-text-secondary);
+  --color-card-text-highlight: var(--color-text-highlight);
+  --box-shadow-card: var(--box-shadow);
+
+  /* Cards and feature cards have borders implemented as a padded element with a colored background */
+  --border-background-card: var(--border-color-faint);
+  --border-width-card: 1px;
+  --border-radius-card: 5px;
+
+  --color-card-stock-available: #f00;
+  --color-card-stock-unavailable: #555;
+
+  --color-card-badge-bg: var(--color-card-bg);
+  --color-card-badge: var(--color-text-primary);
+  --border-radius-card-badge: 6px;
+
+  /* Featured item card */
+  --font-feature-card-title: normal normal bold 32px var(--font-family-primary);
+  --font-feature-card-text: normal normal normal 20px var(--font-family-secondary);
+  --font-feature-card-misc: normal normal normal 16px var(--font-family-tertiary);
+
+  --background-feature-card: var(--background-card);
+  --background-feature-card-runway: linear-gradient(180deg, var(--background-content) 75%, var(--background-component-secondary) 100%);
+
+  --color-feature-card-text-primary: var(--color-text-primary);
+  --color-feature-card-text-secondary: var(--color-text-secondary);
+  --color-feature-card-text-highlight: var(--color-text-highlight);
+  --box-shadow-feature-card: var(--box-shadow-card);
+
+  --border-background-feature-card: var(--border-background-card);
+  --border-width-feature-card: var(--border-width-card);
+  --border-radius-feature-card: 25px;
+
+  --color-button-feature-card-bg: transparent;
+  --color-button-feature-card-text: var(--color-button-secondary-text);
+  --border-button-feature-card: 0;
+  --border-radius-button-feature-card: var(--border-radius);
+
+  --border-background-feature-card-selected: var(--border-color-highlight);
+  --box-shadow-feature-card-selected: 0 0 10px var(--color-background-highlight);
+
+  --color-featured-item-slider: var(--color-bg-secondary);
+  --color-featured-item-slider-handle: var(--color-background-highlight);
+
+  /* Tables */
+  --font-table-header: normal normal 500 16px var(--font-family-tertiary);
+  --font-table: var(--font-default);
+
+  --background-table: var(--color-bg-primary);
+  --background-table-header-row: var(--color-bg-primary);
+  --color-table-header-row-text: var(--color-text-primary);
+  --color-table-odd-row-bg: var(--color-bg-primary);
+  --color-table-odd-row-text: var(--color-text-primary);
+  --color-table-even-row-bg: var(--color-bg-secondary);
+  --color-table-even-row-text: var(--color-text-primary);
+  --color-table-selected-row-bg: inherit;
+  --color-table-selected-row-text: var(--color-text-highlight);
+  --color-table-highlight-text: var(--color-text-highlight);
+
+  --border-table-row-selected: 2px solid var(--color-background-highlight);
+
+  --border-table-primary: var(--border);
+  --border-table-secondary: var(--border-faint);
+  --border-radius-table: var(--border-radius);
+  --box-shadow-table: var(--box-shadow);
+
+  --color-table-badge-active-bg: var(--color-highlight-container-bg);
+  --color-table-badge-active-text: var(--color-highlight-container-text);
+  --color-table-badge-inactive-bg: #555;
+  --color-table-badge-inactive-text: var(--color-highlight-container-text);
+  --border-radius-table-badge: var(--border-radius);
+
+  /* Other components such as nft detail section boxes, listing stats, etc. */
+  --font-component-header: normal normal 500 24px var(--font-family-primary);
+  --font-component-text: normal normal normal 16px var(--font-family-secondary);
+  --font-component-misc: normal normal normal 16px var(--font-family-tertiary);
+
+  --background-component-primary: var(--color-bg-primary);
+  --background-component-secondary: var(--color-bg-secondary);
+  --color-component-bg-primary: var(--color-bg-primary);
+  --color-component-bg-secondary: var(--color-bg-secondary);
+  --color-component-highlight: var(--color-text-highlight);
+  --color-component-text-primary: var(--color-text-primary);
+  --color-component-text-secondary: var(--color-text-secondary);
+  --color-component-text-highlight: var(--color-text-highlight);
+  --border-component-primary: var(--border);
+  --border-component-secondary: var(--border-faint);
+  --border-component-highlight: var(--border-highlight);
+  --border-radius-component: var(--border-radius);
+  --box-shadow-component: var(--box-shadow);
+
+  /* Modals */
+  --background-modal-overlay: rgba(0, 0, 0, 0.75);
+  --background-modal-primary: var(--background-content);
+  --border-modal-primary: var(--border);
+  --border-modal-secondary: var(--border-faint);
+  --border-radius-modal: var(--border-radius);
+
+  --color-button-modal-close-bg: var(--color-bg-primary);
+  --color-button-modal-close-text: var(--color-text-primary);
+  --border-button-modal-close: 1px solid var(--color-text-primary);
+  --border-radius-modal-close: 100%;
+
+  /* Login (NOTE: background image and button colors are controlled in marketplace metadata) */
+  --background-login: var(--color-page-bg);
+  --background-login-box: var(--color-bg-primary);
+  --color-login-text-primary: var(--color-component-text-primary);
+  --color-login-text-secondary: var(--color-component-text-secondary);
+  --color-login-text-highlight: var(--color-component-text-highlight);
+  --border-login-box: var(--border);
+  --border-radius-login-box: var(--border-radius);
+  --box-shadow-login-box: var(--box-shadow);
+
+  /* Misc (internal) */
+  --background-marketplace-card: #000;
+  --color-marketplace-card-text-primary: #fff;
+  --color-marketplace-card-text-secondary: #777;
+  --border-marketplace-card: 0;
+  --border-marketplace-card-logo: 1px solid #333;
+  --border-radius-marketplace-card: 6px;
+}

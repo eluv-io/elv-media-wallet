@@ -49,17 +49,15 @@ const SignaturePopup = observer(({parameters, Respond}) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if(rootStore.loggedIn) {
-      Sign(
-        parameters,
-        Respond,
-        (message, loading) => {
-          setMessage(message);
-          setLoading(loading);
-        }
-      );
-    }
-  }, [rootStore.loggedIn]);
+    Sign(
+      parameters,
+      Respond,
+      (message, loading) => {
+        setMessage(message);
+        setLoading(loading);
+      }
+    );
+  }, []);
 
   return (
     <div className="page-container signature-popup">

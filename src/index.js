@@ -1,13 +1,13 @@
+import "Assets/fonts/fonts.css";
 import "Assets/stylesheets/app.scss";
 
-import React, { useEffect } from "react";
+import React, { lazy, Suspense, useEffect } from "react";
 import UrlJoin from "url-join";
 import { render } from "react-dom";
 import { observer} from "mobx-react";
 
 import { rootStore } from "Stores/index.js";
 import Header from "Components/Header";
-import {Navigation} from "Components/Navigation";
 
 const searchParams = new URLSearchParams(window.location.search);
 
@@ -22,9 +22,9 @@ if(searchParams.has("n")) {
   rootStore.ToggleNavigation(false);
 }
 
-let newWindowLogin = false;
+let newWindowAuth0Login = false;
 try {
-  newWindowLogin =
+  newWindowAuth0Login =
     searchParams.has("l") ||
     sessionStorage.getItem("new-window-login");
 // eslint-disable-next-line no-empty
@@ -37,13 +37,10 @@ import {
   Route,
   Redirect,
 } from "react-router-dom";
-import Wallet from "Components/wallet";
 import Login from "./login/Login";
-import Profile from "Components/profile";
 import ScrollToTop from "Components/common/ScrollToTop";
 import { InitializeListener } from "Components/interface/Listener";
 import {Auth0Provider, useAuth0} from "@auth0/auth0-react";
-import MarketplaceRoutes from "Components/marketplace";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import {PageLoader} from "Components/common/Loaders";
 import Modal from "Components/common/Modal";
@@ -51,19 +48,29 @@ import {LoginRedirectGate} from "Components/common/LoginGate";
 import Flows from "Components/interface/Flows";
 import Actions from "Components/interface/Actions";
 
-const DebugFooter = () => {
+const WalletRoutes = lazy(() => import("Components/wallet/index"));
+const MarketplaceRoutes = lazy(() => import("Components/marketplace/index"));
+const Profile = lazy(() => import("Components/profile"));
+
+const DebugFooter = observer(() => {
   if(!EluvioConfiguration["show-debug"]) { return null; }
 
   return (
-    <div className="debug-footer">
-      <div>{ EluvioConfiguration.version }</div>
-      <div>{ EluvioConfiguration["config-url"].includes("demov3") ? "Demo Network" : "Production Network" }</div>
-      <div>Deployed { new Date(EluvioConfiguration["deployed-at"] || Date.now()).toLocaleString(navigator.languages, {year: "numeric", month: "long", weekday: "long", hour: "numeric", minute: "numeric", second: "numeric" }) }</div>
-    </div>
+    <>
+      <div className="debug-footer">
+        <div>{ EluvioConfiguration.version }</div>
+        <div>{ EluvioConfiguration["config-url"].includes("demov3") ? "Demo Network" : "Production Network" }</div>
+        <div>Deployed { new Date(EluvioConfiguration["deployed-at"] || Date.now()).toLocaleString(navigator.languages, {year: "numeric", month: "long", weekday: "long", hour: "numeric", minute: "numeric", second: "numeric" }) }</div>
+      </div>
+      {
+        rootStore.DEBUG_ERROR_MESSAGE ?
+          <pre className="debug-error-message">
+            { rootStore.DEBUG_ERROR_MESSAGE }
+          </pre> : null
+      }
+    </>
   );
-};
-
-const Placeholder = ({ text }) => <div>{text}</div>;
+});
 
 const RedirectHandler = ({storageKey}) => {
   if(!rootStore.embedded && rootStore.GetSessionStorage(storageKey)) {
@@ -74,25 +81,36 @@ const RedirectHandler = ({storageKey}) => {
 };
 
 const LoginModal = observer(() => {
-  if(newWindowLogin) {
+  if(newWindowAuth0Login) {
+    // Window has been opened specifically to log in to auth0 in native frame
     return (
       <Login
+        key="login-window"
         silent
         darkMode={rootStore.darkMode}
         Loaded={() => rootStore.SetLoginLoaded()}
         LoadCustomizationOptions={async () => ({})}
-        SignIn={params => rootStore.Authenticate(params)}
+        SignIn={async params => await rootStore.Authenticate(params)}
+        SignOut={async returnURL => await rootStore.SignOut(returnURL)}
       />
     );
   }
 
-  if(rootStore.loggedIn || !rootStore.loaded) {
+  if(rootStore.loggedIn && !rootStore.loginOnly) {
     return null;
   }
 
-  if(rootStore.showLogin) {
+  if(rootStore.showLogin || rootStore.loginOnly) {
     const redirectUrl = new URL(UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""));
     redirectUrl.hash = window.location.hash;
+
+    if(rootStore.requireLogin) {
+      redirectUrl.searchParams.set("rl", "");
+    }
+
+    if(rootStore.loginOnly) {
+      redirectUrl.searchParams.set("lo", "");
+    }
 
     return (
       <Modal
@@ -101,12 +119,14 @@ const LoginModal = observer(() => {
         noFade={rootStore.requireLogin}
       >
         <Login
-          key={`login-${rootStore.specifiedMarketplaceId}`}
+          key="login-main"
           darkMode={rootStore.darkMode}
           callbackUrl={redirectUrl.toString()}
+          authenticating={rootStore.authenticating || rootStore.loggedIn}
+          signedIn={rootStore.loggedIn}
           Loaded={() => rootStore.SetLoginLoaded()}
           LoadCustomizationOptions={async () => await rootStore.LoadLoginCustomization()}
-          SignIn={params => rootStore.Authenticate(params)}
+          SignIn={async params => await rootStore.Authenticate(params)}
           Close={rootStore.requireLogin ? undefined : () => rootStore.HideLogin()}
         />
       </Modal>
@@ -115,11 +135,12 @@ const LoginModal = observer(() => {
     // Load component silently by default - handles auth0 logged-in case
     return (
       <Login
+        key="login-silent"
         silent
         darkMode={rootStore.darkMode}
         Loaded={() => rootStore.SetLoginLoaded()}
         LoadCustomizationOptions={async () => await rootStore.LoadLoginCustomization()}
-        SignIn={params => rootStore.Authenticate(params)}
+        SignIn={async params => await rootStore.Authenticate(params)}
       />
     );
   }
@@ -131,7 +152,7 @@ const Routes = observer(() => {
   useEffect(() => InitializeListener(history), []);
 
   if(rootStore.loginOnly) {
-    return <LoginModal />;
+    return null;
   }
 
   if(!rootStore.loaded) {
@@ -139,34 +160,46 @@ const Routes = observer(() => {
   }
 
   return (
-    <Switch>
-      <Route exact path="/success">
-        <RedirectHandler storageKey="successPath" />
-      </Route>
-      <Route exact path="/cancel">
-        <RedirectHandler storageKey="cancelPath" />
-      </Route>
-      <Route path="/discover">
-        <Placeholder text={"Discover"} />
-      </Route>
-      <Route path="/wallet">
-        <Wallet />
-      </Route>
-      <Route path="/profile">
-        <LoginRedirectGate to="/marketplaces">
-          <Profile />
-        </LoginRedirectGate>
-      </Route>
-      <Route path="/marketplaces">
-        <MarketplaceRoutes />
-      </Route>
-      <Route path="/marketplace">
-        <MarketplaceRoutes />
-      </Route>
-      <Route path="/">
-        <Redirect to="/marketplaces" />
-      </Route>
-    </Switch>
+    <>
+      <Header />
+      <ScrollToTop>
+        <ErrorBoundary className="page-container">
+          <Switch>
+            <Route exact path="/success">
+              <RedirectHandler storageKey="successPath" />
+            </Route>
+            <Route exact path="/cancel">
+              <RedirectHandler storageKey="cancelPath" />
+            </Route>
+            <Route path="/wallet">
+              <Suspense fallback={<PageLoader />}>
+                <WalletRoutes />
+              </Suspense>
+            </Route>
+            <Route path="/profile">
+              <LoginRedirectGate to="/marketplaces">
+                <Suspense fallback={<PageLoader />}>
+                  <Profile />
+                </Suspense>
+              </LoginRedirectGate>
+            </Route>
+            <Route path="/marketplaces">
+              <Suspense fallback={<PageLoader />}>
+                <MarketplaceRoutes />
+              </Suspense>
+            </Route>
+            <Route path="/marketplace">
+              <Suspense fallback={<PageLoader />}>
+                <MarketplaceRoutes />
+              </Suspense>
+            </Route>
+            <Route path="/">
+              <Redirect to="/marketplaces" />
+            </Route>
+          </Switch>
+        </ErrorBoundary>
+      </ScrollToTop>
+    </>
   );
 });
 
@@ -177,9 +210,34 @@ const App = observer(() => {
     window.auth0 = useAuth0();
   }
 
-  if(newWindowLogin) {
-    return <LoginModal />;
+  if(newWindowAuth0Login) {
+    return (
+      <>
+        <PageLoader />
+        <LoginModal />
+      </>
+    );
   }
+
+  useEffect(() => {
+    if(!rootStore.loaded) { return; }
+
+    const backgroundElement = document.querySelector("#app-background");
+
+    const backgroundImage = (rootStore.pageWidth < 800 && rootStore.appBackground.mobile) || rootStore.appBackground.desktop || "";
+
+    const currentBackground = backgroundElement.style.backgroundImage || "";
+    const currentBackgroundImageUrl = ((currentBackground || "").split("contentfabric.io")[1] || "").split("?")[0];
+    const newBackgroundImageUrl = ((backgroundImage || "").split("contentfabric.io")[1] || "").split("?")[0];
+
+    if(newBackgroundImageUrl !== currentBackgroundImageUrl) {
+      if(backgroundImage) {
+        backgroundElement.style.background = `no-repeat top center / cover url("${backgroundImage}")`;
+      } else {
+        backgroundElement.style.removeProperty("background");
+      }
+    }
+  }, [rootStore.loaded, rootStore.appBackground]);
 
   const hasHeader = !rootStore.hideNavigation && (!rootStore.sidePanelMode || rootStore.navigationBreadcrumbs.length > 2);
   return (
@@ -187,7 +245,7 @@ const App = observer(() => {
       key={`app-${rootStore.loggedIn}`}
       className={[
         "app-container",
-        rootStore.initialized ? "app-container-initialized" : "app-container-not-initialized",
+        rootStore.centerContent ? "app--centered" : "",
         rootStore.hideNavigation ? "navigation-hidden" : "",
         rootStore.sidePanelMode ? "side-panel" : "",
         hasHeader ? "" : "no-header",
@@ -197,16 +255,8 @@ const App = observer(() => {
         .join(" ")
       }
     >
-      <Header />
-      { rootStore.DEBUG_ERROR_MESSAGE ? <pre className="debug-error-message">{ rootStore.DEBUG_ERROR_MESSAGE }</pre> : null }
-      <ScrollToTop>
-        <ErrorBoundary className="page-container">
-          <Routes />
-        </ErrorBoundary>
-      </ScrollToTop>
-      <Navigation />
+      <Routes />
       <DebugFooter />
-      <div className="app-background" />
     </div>
   );
 });

@@ -1,13 +1,15 @@
 @import "reset";
+@import "themes/default.css";
 @import "variables";
 @import "base";
 @import "loaders";
-@import "modal";
+@import "actions";
 @import "markdown";
+@import "modal";
 
 @import "header";
-@import "navigation";
 @import "cards";
+@import "featured-items";
 @import "crypto";
 @import "nft-details";
 @import "ui-components";
@@ -18,7 +20,7 @@
 @import "minting-status";
 @import "drop-event";
 @import "transfer-tables";
+@import "purchase-modal";
 @import "listings";
 @import "listing-modal";
-@import "listing-purchase-modal";
-@import "listing-filters";
+@import "filters";

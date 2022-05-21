@@ -3,6 +3,8 @@ files:
   ignore:
     - "src/static/stylesheets/loaders.scss"
     - "src/static/stylesheets/reset.scss"
+    - "src/static/stylesheets/variables.scss"
+    - "src/static/stylesheets/themes"
 rules:
   class-name-format:
   - 2

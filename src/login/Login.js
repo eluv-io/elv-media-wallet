@@ -5,23 +5,34 @@ import {render} from "react-dom";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
 
-
 import ImageIcon from "Components/common/ImageIcon";
-import {PageLoader} from "Components/common/Loaders";
+import {Loader, PageLoader} from "Components/common/Loaders";
 
-import EluvioLogo from "./logo.svg";
+import UpCaretIcon from "./static/up-caret.svg";
+import DownCaretIcon from "./static/down-caret.svg";
+
+import MetamaskIcon from "./static/metamask fox.png";
+
+import EluvioLogo from "./static/logo.svg";
 
 const embedded = window.top !== window.self || new URLSearchParams(window.location.search).has("e");
 
-let newWindowLogin = false;
+const searchParams = new URLSearchParams(window.location.search);
+
+let newWindowAuth0Login = false;
+let clearLogin = false;
 try {
-  newWindowLogin =
-    new URLSearchParams(window.location.search).has("l") ||
+  newWindowAuth0Login =
+    searchParams.has("l") ||
     sessionStorage.getItem("new-window-login");
 
-  if(newWindowLogin) {
+  if(newWindowAuth0Login) {
     sessionStorage.setItem("new-window-login", "true");
   }
+
+  clearLogin =
+    searchParams.has("clear") ||
+    (embedded && localStorage.getItem("signed-out"));
 // eslint-disable-next-line no-empty
 } catch(error) {}
 
@@ -29,54 +40,73 @@ try {
 // Methods
 
 // Log in button clicked - either redirect to auth0, or open new window
-const LogInRedirect = ({auth0, callbackUrl, marketplaceHash, userData, darkMode, create=false, customizationOptions, SignIn}) => {
-  // Embedded
-  if(embedded) {
-    const url = new URL(window.location.origin);
-    url.pathname = window.location.pathname;
-    url.searchParams.set("l", "");
+const LogInRedirect = async ({auth0, callbackUrl, marketplaceHash, userData, darkMode, create=false, customizationOptions, SignIn}) => {
+  await new Promise((resolve, reject) => {
+    // Embedded
+    if(embedded) {
+      const url = new URL(window.location.origin);
+      url.pathname = window.location.pathname;
+      url.searchParams.set("l", "");
 
-    if(marketplaceHash) {
-      url.searchParams.set("mid", marketplaceHash);
+      if(marketplaceHash) {
+        url.searchParams.set("mid", marketplaceHash);
+      }
+
+      if(userData) {
+        url.searchParams.set("ld", btoa(JSON.stringify(userData)));
+      }
+
+      if(darkMode) {
+        url.searchParams.set("dk", "");
+      }
+
+      if(create) {
+        url.searchParams.set("create", "");
+      }
+
+      if(clearLogin) {
+        url.searchParams.set("clear", "");
+      }
+
+      const newWindow = window.open(url.toString());
+
+      const closeCheck = setInterval(function() {
+        if(newWindow.closed) {
+          clearInterval(closeCheck);
+          reject();
+        }
+      }, 250);
+
+      window.addEventListener("message", async event => {
+        if(!event || !event.data || event.data.type !== "LoginResponse") {
+          return;
+        }
+
+        await SignIn({idToken: event.data.params.idToken, user: event.data.params.user});
+
+        newWindow.close();
+
+        resolve();
+      });
+    } else {
+      // Not embedded
+      const auth0LoginParams = {
+        darkMode
+      };
+
+      if(customizationOptions.disable_third_party) {
+        auth0LoginParams.disableThirdParty = true;
+      }
+
+      auth0.loginWithRedirect({
+        redirectUri: callbackUrl,
+        initialScreen: create ? "signUp" : "login",
+        ...auth0LoginParams
+      });
+
+      resolve();
     }
-
-    if(userData) {
-      url.searchParams.set("ld", btoa(JSON.stringify(userData)));
-    }
-
-    if(!darkMode) {
-      url.searchParams.set("lt", "");
-    }
-
-    if(create) {
-      url.searchParams.set("create", "");
-    }
-
-    const newWindow = window.open(url.toString());
-
-    window.addEventListener("message", async event => {
-      if(!event || !event.data || event.data.type !== "LoginResponse") { return; }
-
-      await SignIn({idToken: event.data.params.idToken, user: event.data.params.user});
-
-      newWindow.close();
-    });
-  } else {
-    // Not embedded
-    const auth0LoginParams = {
-      darkMode
-    };
-
-    if(customizationOptions?.disable_third_party) {
-      auth0LoginParams.disableThirdParty = true;
-    }
-
-    auth0.loginWithRedirect({
-      redirectUri: callbackUrl,
-      initialScreen: create ? "signUp" : "login",
-      ...auth0LoginParams
-    });
-  }
+  });
 };
 
 const Authenticate = async ({auth0, idToken, user, userData, tenantId, SignIn}) => {
@@ -103,7 +133,7 @@ const Authenticate = async ({auth0, idToken, user, userData, tenantId, SignIn}) 
     throw Error("Email not retrievable");
   }
 
-  if(newWindowLogin) {
+  if(newWindowAuth0Login) {
     window.opener.postMessage({
       type: "LoginResponse",
       params: {
@@ -135,14 +165,25 @@ const Logo = ({customizationOptions}) => {
           className="login-page__logo"
           title="Logo"
         />
-        <h2 className="login-page__tagline">
-          Powered by <ImageIcon icon={EluvioLogo} className="login-page__tagline__image" title="Eluv.io" />
-        </h2>
       </div>
     );
   } else {
-    return <ImageIcon icon={EluvioLogo} className="login-page__logo" title="Eluv.io" />;
+    return (
+      <div className="login-page__logo-container">
+        <ImageIcon icon={EluvioLogo} className="login-page__logo" title="Eluv.io" />
+      </div>
+    );
   }
+};
+
+const PoweredBy = ({customizationOptions}) => {
+  if(!customizationOptions?.logo) { return null; }
+
+  return (
+    <div className="login-page__tagline">
+      Powered by <ImageIcon icon={EluvioLogo} className="login-page__tagline__image" title="Eluv.io" />
+    </div>
+  );
 };
 
 const Background = ({customizationOptions, Close}) => {
@@ -215,7 +256,9 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
 };
 
 // eslint-disable-next-line no-unused-vars
-const Buttons = ({customizationOptions, LogIn, ShowPrivateKeyForm}) => {
+const Buttons = ({customizationOptions, loading, Auth0LogIn, SignIn}) => {
+  const [showWalletOptions, setShowWalletOptions] = useState(false);
+
   let hasLoggedIn = false;
   try {
     hasLoggedIn = localStorage.getItem("hasLoggedIn");
@@ -224,14 +267,14 @@ const Buttons = ({customizationOptions, LogIn, ShowPrivateKeyForm}) => {
 
   const signUpButton = (
     <button
-      className="login-page__login-button login-page__login-button-create login-page__login-button-auth0"
+      className={`action ${hasLoggedIn ? "" : "action-primary"} login-page__login-button login-page__login-button-create login-page__login-button-auth0`}
       style={{
         color: customizationOptions?.sign_up_button?.text_color?.color,
         backgroundColor: customizationOptions?.sign_up_button?.background_color?.color,
         border: `0.75px solid ${customizationOptions?.sign_up_button?.border_color?.color}`
       }}
       autoFocus={!hasLoggedIn}
-      onClick={() => LogIn({create: true})}
+      onClick={() => Auth0LogIn({create: true})}
     >
       Sign Up
     </button>
@@ -245,15 +288,35 @@ const Buttons = ({customizationOptions, LogIn, ShowPrivateKeyForm}) => {
         border: `0.75px solid ${customizationOptions?.log_in_button?.border_color?.color}`
       }}
       autoFocus={!!hasLoggedIn}
-      className="login-page__login-button login-page__login-button-sign-in login-page__login-button-auth0"
-      onClick={() => LogIn({create: false})}
+      className={`action ${hasLoggedIn ? "action-primary" : ""} login-page__login-button login-page__login-button-sign-in login-page__login-button-auth0`}
+      onClick={() => Auth0LogIn({create: false})}
     >
       Log In
     </button>
   );
 
+  const metamaskButton = (
+    <button
+      style={{
+        color: customizationOptions?.wallet_button?.text_color?.color,
+        backgroundColor: customizationOptions?.wallet_button?.background_color?.color,
+        border: `0.75px solid ${customizationOptions?.wallet_button?.border_color?.color}`
+      }}
+      className="action login-page__login-button login-page__login-button-wallet"
+      onClick={() => SignIn({
+        tenantId: customizationOptions.tenant_id,
+        externalWallet: "metamask",
+        SignIn
+      })}
+    >
+      <ImageIcon icon={MetamaskIcon} />
+      Metamask
+    </button>
+  );
+
   return (
-    <div className="login-page__actions">
+    <div className={`login-page__actions ${loading ? "login-page__actions--loading" : ""}`}>
+      { loading ? <div className="login-page__actions__loader"><Loader /></div> : null }
       {
         hasLoggedIn ?
           <>
@@ -265,86 +328,46 @@ const Buttons = ({customizationOptions, LogIn, ShowPrivateKeyForm}) => {
             { logInButton }
           </>
       }
-      {
-      /*
-        // TODO: Some APIs do not support normal private key auth
-        !customizationOptions.disable_private_key ?
-          <button
-            className="login-page__login-button login-page__login-button-pk"
-            onClick={() => ShowPrivateKeyForm()}
-          >
-            Or Sign In With Private Key
-          </button> : null
 
-       */
+      <div className="login-page__actions__separator">
+        <div className="login-page__actions__separator-line" />
+        <div className="login-page__actions__separator-text">or</div>
+        <div className="login-page__actions__separator-line" />
+      </div>
+
+      <button className="login-page__wallet-options-toggle" onClick={() => setShowWalletOptions(!showWalletOptions)}>
+        Sign In with 3rd Party Wallet <ImageIcon icon={showWalletOptions ? UpCaretIcon : DownCaretIcon} />
+      </button>
+
+      {
+        showWalletOptions ?
+          <div className="login-page__wallet-actions">
+            { metamaskButton }
+          </div> : null
       }
     </div>
   );
 };
 
-const PrivateKeyForm = ({customizationOptions, HidePrivateKeyForm, Submit}) => {
-  const [privateKey, setPrivateKey] = useState("");
-
+const LoginComponent = observer(({customizationOptions, darkMode, userData, setUserData, loading, Auth0LogIn, SignIn, Close}) => {
   return (
-    <form
-      className="login-page__private-key-form"
-      onSubmit={event => {
-        event.preventDefault();
-        Submit({privateKey});
-      }}
-    >
-      <div className="labelled-field">
-        <label htmlFor="privateKey">Private Key</label>
-        <input name="privateKey" type="text" value={privateKey} onChange={event => setPrivateKey(event.target.value)}/>
-      </div>
-
-      <div className="login-page__private-key-form__actions">
-        <button
-          onClick={HidePrivateKeyForm}
-          className="login-page__private-key-form__button login-page__private-key-form__button-cancel login-page__login-button-cancel"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          className="login-page__private-key-form__button login-page__private-key-form__button-submit"
-          style={{
-            color: customizationOptions?.log_in_button?.text_color?.color,
-            backgroundColor: customizationOptions?.log_in_button?.background_color?.color,
-            border: `0.75px solid ${customizationOptions?.log_in_button?.border_color?.color}`
-          }}
-        >
-          Submit
-        </button>
-      </div>
-    </form>
-  );
-};
-
-const LoginComponent = observer(({customizationOptions, darkMode, userData, setUserData, LogIn, Close}) => {
-  const [showPrivateKeyForm, setShowPrivateKeyForm] = useState(false);
-
-  return (
-    <div className={`login-page ${darkMode ? "login-page--dark" : ""}`}>
+    <div className={`login-page ${darkMode ? "login-page--dark" : ""} ${customizationOptions?.large_logo_mode ? "login-page-large-logo-mode" : ""}`}>
       <Background customizationOptions={customizationOptions} Close={Close} />
 
       <div className="login-page__login-box">
         <Logo customizationOptions={customizationOptions} />
-        {
-          showPrivateKeyForm ?
-            <PrivateKeyForm customizationOptions={customizationOptions} HidePrivateKeyForm={() => setShowPrivateKeyForm(false)} /> :
-            <Buttons customizationOptions={customizationOptions} LogIn={LogIn} ShowPrivateKeyForm={() => setShowPrivateKeyForm(true)}/>
-        }
+        <Buttons loading={loading} customizationOptions={customizationOptions} Auth0LogIn={Auth0LogIn} SignIn={SignIn} />
+        <PoweredBy customizationOptions={customizationOptions} />
         <Terms customizationOptions={customizationOptions} userData={userData} setUserData={setUserData}/>
       </div>
     </div>
   );
 });
 
-const Login = observer(({silent, darkMode, callbackUrl, Loaded, SignIn, LoadCustomizationOptions, Close}) => {
+const Login = observer(({silent, darkMode, callbackUrl, authenticating, signedIn, Loaded, SignIn, SignOut, LoadCustomizationOptions, Close}) => {
   const [customizationOptions, setCustomizationOptions] = useState(undefined);
   const [userData, setUserData] = useState(undefined);
-  const [authenticating, setAuthenticating] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [auth0Loading, setAuth0Loading] = useState(!embedded);
 
   let auth0;
@@ -353,7 +376,7 @@ const Login = observer(({silent, darkMode, callbackUrl, Loaded, SignIn, LoadCust
     window.auth0 = auth0;
   }
 
-  const LogIn = ({create=true}) => {
+  const Auth0LogIn = ({create=true}) => {
     LogInRedirect({
       auth0,
       callbackUrl,
@@ -364,11 +387,11 @@ const Login = observer(({silent, darkMode, callbackUrl, Loaded, SignIn, LoadCust
       customizationOptions,
       SignIn: async ({idToken, user}) => {
         try {
-          setAuthenticating(true);
+          setLoading(true);
 
           await Authenticate({idToken, user, userData, tenantId: customizationOptions.tenant_id, SignIn});
         } finally {
-          setAuthenticating(false);
+          setLoading(false);
         }
       }
     });
@@ -418,18 +441,36 @@ const Login = observer(({silent, darkMode, callbackUrl, Loaded, SignIn, LoadCust
 
   // Authenticate if possible
   useEffect(() => {
+    if(signedIn) {
+      setLoading(false);
+      return;
+    }
+
     // Must wait for customization to be loaded so we can pass tenant ID
     if((!embedded && auth0Loading) || !customizationOptions || !userData) { return; }
 
     if(!embedded && auth0?.isAuthenticated) {
-      setAuthenticating(true);
+      setLoading(true);
       Authenticate({auth0, userData, tenantId: customizationOptions.tenant_id, SignIn})
-        .finally(() => setAuthenticating(false));
-    } else if(newWindowLogin) {
-      LogIn({create: new URLSearchParams(window.location.search).has("create")});
+        .finally(() => {
+          Loaded && Loaded();
+          setLoading(false);
+        });
+    } else if(newWindowAuth0Login) {
+      if(clearLogin && SignOut) {
+        const returnURL = new URL(window.location.href);
+        returnURL.pathname = returnURL.pathname.replace(/\/$/, "");
+        returnURL.searchParams.delete("clear");
+
+        SignOut(returnURL.toString());
+
+        return;
+      }
+
+      Auth0LogIn({create: new URLSearchParams(window.location.search).has("create")});
     } else {
       Loaded && Loaded();
-      setAuthenticating(false);
+      setLoading(false);
     }
   }, [customizationOptions, auth0Loading, userData]);
 
@@ -440,7 +481,7 @@ const Login = observer(({silent, darkMode, callbackUrl, Loaded, SignIn, LoadCust
 
   darkMode = customizationOptions && typeof customizationOptions.darkMode === "boolean" ? customizationOptions.darkMode : darkMode;
 
-  if(authenticating || !customizationOptions || (!embedded && auth0Loading)) {
+  if(loading || !customizationOptions || (!embedded && auth0Loading)) {
     return (
       <div className={`login-page ${darkMode ? "login-page--dark" : ""}`}>
         <Background customizationOptions={customizationOptions} Close={() => Close && Close()} />
@@ -469,7 +510,9 @@ const Login = observer(({silent, darkMode, callbackUrl, Loaded, SignIn, LoadCust
       userData={userData}
       setUserData={SaveUserData}
       darkMode={darkMode}
-      LogIn={LogIn}
+      loading={loading || authenticating}
+      Auth0LogIn={Auth0LogIn}
+      SignIn={SignIn}
       Close={() => Close && Close()}
     />
   );

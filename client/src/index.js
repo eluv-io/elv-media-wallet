@@ -1,5 +1,13 @@
 const EVENTS = require("./Events");
 
+const UUID = () => {
+  return "XXXXXXXX".replace(/[X]/g, () => {
+    const r = Math.floor(Math.random() * 16);
+    return r.toString(16);
+  });
+};
+
+
 // https://stackoverflow.com/questions/4068373/center-a-popup-window-on-screen
 const Popup = ({url, title, w, h}) => {
   // Fixes dual-screen position
@@ -125,9 +133,10 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @constructor
    */
   constructor({
-    clientType="FRAME",
+    appUUID,
     requestor,
     walletAppUrl="http://wallet.contentfabric.io",
+    parentAppUrl,
     target,
     Close,
     timeout=300
@@ -140,15 +149,16 @@ const walletClient = await ElvWalletClient.InitializePopup({
       this.Throw("target not specified");
     }
 
+    this.appUUID = appUUID;
     this.requestor = requestor;
     this.walletAppUrl = walletAppUrl;
+    this.parentAppUrl = parentAppUrl;
     this.target = target;
     this.Close = Close;
     this.timeout = timeout;
     this.LOG_LEVELS = LOG_LEVELS;
     this.logLevel = this.LOG_LEVELS.WARN;
     this.EVENTS = EVENTS;
-    this.clientType = clientType;
 
     this.eventListeners = {};
     Object.keys(EVENTS).forEach(key => this.eventListeners[key] = []);
@@ -166,7 +176,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
 
     if(
       message.type !== "ElvMediaWalletEvent" ||
-      message.clientType !== this.clientType ||
+      message.appUUID !== this.appUUID ||
       !EVENTS[message.event]
     ) {
       return;
@@ -219,6 +229,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
    */
   AddEventListener(event, Listener) {
     if(!EVENTS[event]) { this.Throw(`AddEventListener: Invalid event ${event}`); }
+
     if(typeof Listener !== "function") { this.Throw("AddEventListener: Listener is not a function"); }
 
     this.eventListeners[event].push(Listener);
@@ -398,8 +409,27 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @methodGroup Authorization
    */
   async SignOut() {
-    return this.SendMessage({
+    this.SendMessage({
       action: "logout",
+      params: {}
+    });
+
+    await Promise.race([
+      new Promise(resolve => {
+        this.AddEventListener(EVENTS.LOADED , () => resolve());
+      }),
+      new Promise(resolve => setTimeout(resolve, 5000))
+    ]);
+  }
+
+  /**
+   * Reload the wallet application
+   *
+   * @methodGroup Navigation
+   */
+  async Reload() {
+    return this.SendMessage({
+      action: "reload",
       params: {}
     });
   }
@@ -416,6 +446,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
    <br />
    `<requestor> is requesting to perform <action>`
    * @param {string=} walletAppUrl=http://wallet.contentfabric.io - The URL of the Eluvio Media Wallet app
+   * @param {string=} parentAppUrl - The URL of your app. The wallet may need to re-open in a different context (e.g. Metamask browser), and this URL will be used instead, if specified.
    * @param {string=} tenantSlug - Specify the URL slug of your tenant. Required if specifying marketplaceSlug
    * @param {string=} marketplaceSlug - Specify the URL slug of your marketplace
    * @param {string=} marketplaceHash - Specify a specific version of a your marketplace. Not necessary if marketplaceSlug is specified
@@ -429,6 +460,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
   static async InitializePopup({
     requestor,
     walletAppUrl="http://wallet.contentfabric.io",
+    parentAppUrl,
     tenantSlug,
     marketplaceSlug,
     marketplaceId,
@@ -438,12 +470,20 @@ const walletClient = await ElvWalletClient.InitializePopup({
     captureLogin=false,
     darkMode=false
   }) {
+    const appUUID = UUID();
+
     walletAppUrl = new URL(walletAppUrl);
+
+    walletAppUrl.searchParams.set("appUUID", appUUID);
 
     if(marketplaceSlug) {
       walletAppUrl.searchParams.set("mid", `${tenantSlug}/${marketplaceSlug}`);
     } else if(marketplaceId || marketplaceHash) {
       walletAppUrl.searchParams.set("mid", marketplaceHash || marketplaceId);
+    }
+
+    if(walletAppUrl.searchParams.has("mid") && !walletAppUrl.hash) {
+      walletAppUrl.hash = `#/marketplaces/redirect/${tenantSlug}/${marketplaceSlug}/store`;
     }
 
     if(requireLogin){
@@ -458,16 +498,21 @@ const walletClient = await ElvWalletClient.InitializePopup({
       walletAppUrl.searchParams.set("cl", "");
     }
 
-    if(!darkMode) {
-      walletAppUrl.searchParams.set("lt", "");
+    if(darkMode) {
+      walletAppUrl.searchParams.set("dk", "");
+    }
+
+    if(parentAppUrl) {
+      walletAppUrl.searchParams.set("app", (parentAppUrl));
     }
 
     const target = Popup({url: walletAppUrl.toString(), title: "Eluvio Media Wallet", w: 400, h: 700});
 
     const client = new ElvWalletClient({
-      clientType: "POPUP",
+      appUUID,
       requestor,
       walletAppUrl: walletAppUrl.toString(),
+      parentAppUrl,
       target,
       Close: () => target.close()
     });
@@ -498,6 +543,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
    <br />
    `<requestor> is requesting to perform <action>`
    * @param {string=} walletAppUrl=http://wallet.contentfabric.io - The URL of the Eluvio Media Wallet app
+   * @param {string=} parentAppUrl - The URL of your app. The wallet may need to re-open in a different context (e.g. Metamask browser), and this URL will be used instead, if specified.
    * @param {Object | string} target - An HTML element or the ID of an element
    * @param {string=} tenantSlug - Specify the URL slug of your tenant. Required if specifying marketplace slug
    * @param {string=} marketplaceSlug - Specify the URL slug of your marketplace
@@ -512,6 +558,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
   static async InitializeFrame({
     requestor,
     walletAppUrl="http://wallet.contentfabric.io",
+    parentAppUrl,
     target,
     tenantSlug,
     marketplaceSlug,
@@ -522,6 +569,8 @@ const walletClient = await ElvWalletClient.InitializePopup({
     captureLogin=false,
     darkMode=false
   }) {
+    const appUUID = UUID();
+
     if(typeof target === "string") {
       const targetElement = document.getElementById(target);
 
@@ -548,10 +597,16 @@ const walletClient = await ElvWalletClient.InitializePopup({
 
     walletAppUrl = new URL(walletAppUrl);
 
+    walletAppUrl.searchParams.set("appUUID", appUUID);
+
     if(marketplaceSlug) {
       walletAppUrl.searchParams.set("mid", `${tenantSlug}/${marketplaceSlug}`);
     } else if(marketplaceId || marketplaceHash) {
       walletAppUrl.searchParams.set("mid", marketplaceHash || marketplaceId);
+    }
+
+    if(walletAppUrl.searchParams.has("mid") && !walletAppUrl.hash) {
+      walletAppUrl.hash = `#/marketplaces/redirect/${tenantSlug}/${marketplaceSlug}/store`;
     }
 
     if(requireLogin){
@@ -566,14 +621,19 @@ const walletClient = await ElvWalletClient.InitializePopup({
       walletAppUrl.searchParams.set("cl", "");
     }
 
-    if(!darkMode) {
-      walletAppUrl.searchParams.set("lt", "");
+    if(darkMode) {
+      walletAppUrl.searchParams.set("dk", "");
+    }
+
+    if(parentAppUrl) {
+      walletAppUrl.searchParams.set("app", btoa(parentAppUrl));
     }
 
     const client = new ElvWalletClient({
-      clientType: "FRAME",
+      appUUID,
       requestor,
       walletAppUrl: walletAppUrl.toString(),
+      parentAppUrl,
       target: target.contentWindow,
       Close: () => target && target.parentNode && target.parentNode.removeChild(target)
     });

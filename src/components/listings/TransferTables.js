@@ -14,7 +14,7 @@ import UpCaret from "Assets/icons/up-caret.svg";
 import DownCaret from "Assets/icons/down-caret.svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 
-export const ActiveListings = observer(({contractAddress, contractId, initialSelectedListingId, Select}) => {
+export const ActiveListings = observer(({contractAddress, contractId, initialSelectedListingId, noSeller=false, Select}) => {
   const [listings, setListings] = useState([]);
   const [paging, setPaging] = useState({});
   const [sortField, setSortField] = useState("price");
@@ -126,9 +126,13 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
           <button className="transfer-table__table__cell" onClick={() => UpdateSort("price")}>
             Price { sortField === "price" ? sortIcon : null }
           </button>
-          <button className="transfer-table__table__cell no-mobile" onClick={() => UpdateSort("seller")}>
-            Seller { sortField === "seller" ? sortIcon : null }
-          </button>
+          {
+            noSeller ?
+              null :
+              <button className="transfer-table__table__cell no-mobile" onClick={() => UpdateSort("seller")}>
+                Seller {sortField === "seller" ? sortIcon : null}
+              </button>
+          }
         </div>
         <div className="transfer-table__content-rows">
           {
@@ -176,9 +180,13 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
                         }
                         {`$${listing.details.Price.toFixed(2)}`}
                       </div>
-                      <div className="transfer-table__table__cell no-mobile">
-                        {MiddleEllipsis(listing.details.SellerAddress, 12)}
-                      </div>
+                      {
+                        noSeller ?
+                          null :
+                          <div className="transfer-table__table__cell no-mobile">
+                            {listing.details.SellerAddress}
+                          </div>
+                      }
                     </div>
                   );
                 })
@@ -190,7 +198,7 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
   );
 });
 
-export const PendingPaymentsTable = observer(({header, limit, className=""}) => {
+export const PendingPaymentsTable = observer(({icon, header, limit, className=""}) => {
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
 
@@ -224,6 +232,7 @@ export const PendingPaymentsTable = observer(({header, limit, className=""}) => 
   return (
     <div className={`transfer-table pending-payments-table ${className}`}>
       <div className="transfer-table__header">
+        { icon ? <ImageIcon icon={icon} className="transfer-table__header__icon" /> : <div className="transfer-table__header__icon-placeholder" /> }
         { header }
       </div>
       <div className="transfer-table__table">
@@ -261,7 +270,7 @@ export const PendingPaymentsTable = observer(({header, limit, className=""}) => 
   );
 });
 
-export const UserTransferTable = observer(({header, limit, marketplaceId, type="sale", className=""}) => {
+export const UserTransferTable = observer(({icon, header, limit, marketplaceId, type="sale", className=""}) => {
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
 
@@ -315,6 +324,7 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
     return (
       <div className={`transfer-table user-transfer-table withdrawal-table ${className}`}>
         <div className="transfer-table__header">
+          { icon ? <ImageIcon icon={icon} className="transfer-table__header__icon" /> : <div className="transfer-table__header__icon-placeholder" /> }
           { header }
         </div>
         <div className="transfer-table__table">
@@ -355,6 +365,7 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
   return (
     <div className={`transfer-table user-transfer-table ${className}`}>
       <div className="transfer-table__header">
+        { icon ? <ImageIcon icon={icon} className="transfer-table__header__icon" /> : <div className="transfer-table__header__icon-placeholder" /> }
         { header }
       </div>
       <div className="transfer-table__table">
@@ -389,7 +400,7 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
                       { transfer.processor }
                     </div>
                     <div className="transfer-table__table__cell no-mobile">
-                      <div className={`transfer-table__badge ${transfer.pending ? "transfer-table__badge-pending" : "transfer-table__badge-available"}`}>
+                      <div className={`transfer-table__badge ${transfer.pending ? "transfer-table__badge-inactive" : "transfer-table__badge-active"}`}>
                         { transfer.pending ? "Pending" : "Available" }
                       </div>
                     </div>
@@ -402,7 +413,7 @@ export const UserTransferTable = observer(({header, limit, marketplaceId, type="
   );
 });
 
-export const TransferTable = observer(({header, contractAddress, contractId, tokenId, limit}) => {
+export const TransferTable = observer(({icon, header, contractAddress, contractId, tokenId, limit}) => {
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
 
@@ -430,6 +441,7 @@ export const TransferTable = observer(({header, contractAddress, contractId, tok
   return (
     <div className="transfer-table">
       <div className="transfer-table__header">
+        { icon ? <ImageIcon icon={icon} className="transfer-table__header__icon" /> : <div className="transfer-table__header__icon-placeholder" /> }
         { header }
       </div>
       <div className="transfer-table__table">

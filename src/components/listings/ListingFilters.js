@@ -1,13 +1,14 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useRef} from "react";
 import {observer} from "mobx-react";
 import {useLocation, useRouteMatch} from "react-router-dom";
 import {rootStore, transferStore} from "Stores";
 import AutoComplete from "Components/common/AutoComplete";
-import {ButtonWithLoader} from "Components/common/UIComponents";
+import {ButtonWithLoader, DebouncedInput, Select} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 
-import FilterIcon from "Assets/icons/search.svg";
-import XIcon from "Assets/icons/x.svg";
+import SearchIcon from "Assets/icons/search.svg";
+import FilterIcon from "Assets/icons/filter icon.svg";
+import ClearIcon from "Assets/icons/x.svg";
 
 const sortOptionsOwned = [
   { key: "default", value: "default", label: "Default", desc: true},
@@ -46,72 +47,100 @@ const SortOptions = mode => {
 };
 
 let savedOptions;
-const FilterDropdown = observer(({label, value, options, onChange, placeholder}) => {
+const FilterDropdown = observer(({label, value, options, optionLabelPrefix, onChange, placeholder}) => {
   return (
-    <div className="listing-filters__dropdown">
-      <label className="listing-filters__label">{ label }</label>
-      <div className="listing-filters__select-container">
-        <select
-          className={`listing-filters__select ${placeholder && (placeholder[0] || "").toString() === (value || "").toString() ? "listing-filters__select-placeholder" : ""}`}
-          value={value}
-          onChange={event => onChange(event.target.value)}
-        >
-          { placeholder ? <option value={placeholder[0]} key={`sort-option-${placeholder[0]}`}>{ placeholder[1] }</option> : null}
-          { options.map(([value, label]) => (
-            <option value={value} key={`sort-option-${value}`}>{ label }</option>
-          ))}
-        </select>
-      </div>
-    </div>
+    <Select
+      label={label}
+      value={value}
+      onChange={value => onChange(value)}
+      containerClassName="filters__select-container"
+      buttonClassName={`filters__select ${placeholder && (placeholder[0] || "").toString() === (value || "").toString() ? "filters__select-placeholder" : ""}`}
+      options={
+        [
+          placeholder ? [placeholder[0], placeholder[1]] : undefined,
+          ...options.map(options => [options[0], `${optionLabelPrefix}${options[1]}`])
+        ].filter(option => option)
+      }
+    />
   );
 });
 
-const MarketplaceSelection = observer(({selected, setSelected}) => {
+const FilterMenu = ({mode, filterValues, setFilterValues, Hide}) => {
   const match = useRouteMatch();
+
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+  const collections = marketplace && (!filterValues.tenantId || filterValues.tenantId === marketplace.tenant_id) && marketplace.collections;
+
   const availableMarketplaces = rootStore.allMarketplaces
     .filter(marketplace => marketplace && marketplace.tenant_id && marketplace.branding && marketplace.branding.show && marketplace.branding.name);
-  const currentMarketplace = rootStore.marketplaces[match.params.marketplaceId];
 
-  if(availableMarketplaces.length === 0) {
-    return;
-  }
+  const ref = useRef();
+  useEffect(() => {
+    const onClickOutside = event => {
+      if(!ref.current || !ref.current.contains(event.target)) {
+        Hide();
+      }
+    };
 
-  const options = availableMarketplaces
-    .filter(marketplace => !selected.includes(marketplace.tenant_id))
-    .map(marketplace => [marketplace.tenant_id, marketplace.branding.name]);
+    document.addEventListener("click", onClickOutside);
+
+    return () => document.removeEventListener("click", onClickOutside);
+  }, []);
 
   return (
-    <div className="listing-filters__marketplace-selection">
-      <FilterDropdown
-        label="Marketplaces"
-        options={options}
-        placeholder={["", "Filter by Marketplace"]}
-        onChange={tenantId => tenantId && setSelected([...selected, tenantId])}
-      />
-      <div className="listing-filters__marketplace-selection__selected">
-        {
-          selected.map(tenantId =>
-            <button
-              key={`selected-marketplace-${tenantId}`}
-              onClick={() => setSelected(selected.filter(tid => tid !== tenantId))}
-              className="listing-filters__marketplace-selection__selected__item"
-            >
-              {
-                (availableMarketplaces.find(marketplace => marketplace.tenant_id === tenantId))?.branding?.name ||
-                (currentMarketplace && currentMarketplace.tenant_id === tenantId && currentMarketplace.branding?.name) ||
-                "Unknown Marketplace"
-              }
-              <ImageIcon
-                icon={XIcon}
-                title="Remove this filter"
-              />
-            </button>
-          )
-        }
-      </div>
+    <div className="filters__menu" ref={ref}>
+      {
+        mode === "owned" ? null :
+          <FilterDropdown
+            label="Time"
+            optionLabelPrefix="Time: "
+            value={filterValues.lastNDays}
+            onChange={value => setFilterValues({...filterValues, lastNDays: value})}
+            options={[["-1", "All Time"], ["7", "Last 7 Days"], ["30", "Last 30 Days"]]}
+          />
+      }
+      {
+        !marketplace && availableMarketplaces.length > 0 ?
+          <FilterDropdown
+            label="Marketplaces"
+            optionLabelPrefix="Marketplace: "
+            value={filterValues.tenantId}
+            options={
+              availableMarketplaces
+                .map(marketplace => [marketplace.tenant_id, marketplace.branding.name])
+            }
+            placeholder={["", "All Marketplaces"]}
+            onChange={value => setFilterValues({...filterValues, tenantId: value})}
+          /> : null
+      }
+      {
+        collections && collections.length > 0 ?
+          <FilterDropdown
+            label="Collection"
+            optionLabelPrefix="Collection: "
+            value={filterValues.collectionIndex}
+            onChange={value => setFilterValues({...filterValues, collectionIndex: value})}
+            placeholder={["-1", "All Collections"]}
+            options={
+              (collections.map((collection, index) =>
+                [index, collection.collection_header]
+              ))
+            }
+          /> : null
+      }
+      {
+        mode === "listings" ?
+          <FilterDropdown
+            label="Currency"
+            optionLabelPrefix="Currency: "
+            value={filterValues.currency}
+            onChange={value => setFilterValues({...filterValues, currency: value})}
+            options={[["", "Any"], ["usdc", "USDC"]]}
+          /> : null
+      }
     </div>
   );
-});
+};
 
 export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
   const match = useRouteMatch();
@@ -120,7 +149,6 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
   const urlParams = new URLSearchParams(location.search);
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  const collections = marketplace && marketplace.collections;
 
   const sortOptions = SortOptions(mode);
   const initialOption = sortOptions[0];
@@ -131,44 +159,46 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
   const [filterOptionsLoaded, setFilterOptionsLoaded] = useState(false);
 
   const [filterOptions, setFilterOptions] = useState(initialFilter ? [ initialFilter ] : []);
-  const [sort, setSort] = useState(initialOption.value);
-  const [sortBy, setSortBy] = useState(initialOption.key);
-  const [sortDesc, setSortDesc] = useState(initialOption.desc);
-  const [collectionIndex, setCollectionIndex] = useState(-1);
-  const [lastNDays, setLastNDays] = useState(-1);
-  const [filter, setFilter] = useState(initialFilter || "");
-  const [tenantIds, setTenantIds] = useState((marketplace ? [marketplace.tenant_id] : []));
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
+
+  const [filterValues, setFilterValues] = useState({
+    sort: initialOption.value,
+    sortBy: initialOption.key,
+    sortDesc: initialOption.desc,
+    collectionIndex: -1,
+    lastNDays: -1,
+    filter: initialFilter || "",
+    tenantId: marketplace ? marketplace.tenant_id : "",
+    currency: ""
+  });
 
   const Update = async (force=false) => {
     const options = {
-      sortBy,
-      sortDesc,
-      filter,
-      collectionIndex,
-      lastNDays,
-      tenantIds,
+      ...filterValues,
+      tenantIds: [filterValues.tenantId],
       marketplaceId: match.params.marketplaceId
     };
 
-    UpdateFilters(options, force);
+    await UpdateFilters(options, force);
+
     savedOptions = {
       ...options,
       marketplaceId: marketplace?.marketplaceId,
       mode,
-      sort
+      sort: filterValues.sort
     };
   };
 
   useEffect(() => {
     let marketplaceId;
-    if(marketplace && tenantIds && tenantIds.length === 1 && tenantIds[0] === marketplace.tenant_id) {
+    if(marketplace && filterValues.tenantId === marketplace.tenant_id) {
       marketplaceId = marketplace.marketplaceId;
     }
 
     transferStore.ListingNames({marketplaceId})
       .then(names => setFilterOptions(names.map(name => (name || "").trim()).sort()))
       .finally(() => setFilterOptionsLoaded(true));
-  }, [tenantIds]);
+  }, [filterValues.tenantId]);
 
   useEffect(() => {
     if(savedOptionsLoaded || !filterOptionsLoaded) { return; }
@@ -182,14 +212,20 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
         return;
       }
 
-      setSort(savedOptions.sort);
-      setSortBy(savedOptions.sortBy);
-      setSortDesc(savedOptions.sortDesc);
-      setFilter(savedOptions.filter);
-      setCollectionIndex(savedOptions.collectionIndex);
-      setLastNDays(savedOptions.lastNDays);
-      setTenantIds(savedOptions.tenantIds);
+      if(initialFilter) {
+        return;
+      }
 
+      setFilterValues({
+        ...filterValues,
+        sort: savedOptions.sort,
+        sortBy: savedOptions.sortBy,
+        sortDesc: savedOptions.sortDesc,
+        filter: savedOptions.filter,
+        collectionIndex: savedOptions.collectionIndex,
+        lastNDays: savedOptions.lastNDays,
+        tenantId: savedOptions.tenantId
+      });
     } catch(error) {
       // eslint-disable-next-line no-console
       console.error("Error loading saved sort options", error);
@@ -208,63 +244,73 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
     if(!savedOptionsLoaded) { return; }
 
     Update();
-  }, [sortBy, sortDesc, collectionIndex, lastNDays, filter, tenantIds, savedOptionsLoaded]);
+  }, [filterValues, savedOptionsLoaded]);
 
   return (
-    <div className="listing-filters">
-      <FilterDropdown
-        label="Sort By"
-        value={sortOptions.find(option => option.value === sort).value}
-        onChange={value => {
-          const selectedSortOption = sortOptions.find(option => option.value === value);
-          setSort(selectedSortOption.value);
-          setSortBy(selectedSortOption.key);
-          setSortDesc(selectedSortOption.desc);
-        }}
-        options={sortOptions.map(({key, value, label}) => [value || key, label])}
-      />
-      {
-        collections && collections.length > 0 ?
-          <FilterDropdown
-            label="Collection"
-            value={collectionIndex}
-            onChange={value => setCollectionIndex(value)}
-            placeholder={["-1", "Filter by Collection"]}
-            options={
-              (collections.map((collection, index) =>
-                [index, collection.collection_header]
-              ))
-            }
-          /> : null
-      }
-      {
-        mode === "owned" ? null :
-          <FilterDropdown
-            label="Time"
-            value={lastNDays}
-            onChange={value => setLastNDays(value)}
-            placeholder={["-1", "All Time"]}
-            options={[["7", "Last 7 Days"], ["30", "Last 30 Days"]]}
-          />
-      }
-      <div className="listing-filters__autocomplete-container">
-        <label className="listing-filters__label">Filter</label>
-        <AutoComplete
-          key={`autocomplete-${filterOptionsLoaded}-${savedOptionsLoaded}`}
-          placeholder="Filter..."
-          value={filter}
-          onChange={value => setFilter(value)}
-          onEnterPressed={async () => await Update(true)}
-          options={filterOptions}
+    <div className="filters">
+      <div className="filters__controls">
+        <FilterDropdown
+          className="filters__select filters__select--sort"
+          label="Sort By"
+          optionLabelPrefix="Sort: "
+          value={sortOptions.find(option => option.value === filterValues.sort).value}
+          onChange={value => {
+            const selectedSortOption = sortOptions.find(option => option.value === value);
+            setFilterValues({
+              ...filterValues,
+              sort: selectedSortOption.value,
+              sortBy: selectedSortOption.key,
+              sortDesc: selectedSortOption.desc
+            });
+          }}
+          options={sortOptions.map(({key, value, label}) => [value || key, label])}
         />
+        <button className="filters__menu-button" onClick={() => setShowFilterMenu(!showFilterMenu)}>
+          <ImageIcon icon={FilterIcon} title="Show Additional Filter Parameters" />
+        </button>
+        {
+          showFilterMenu ?
+            <FilterMenu
+              mode={mode}
+              filterValues={filterValues}
+              setFilterValues={setFilterValues}
+              Hide={() => setShowFilterMenu(false)}
+            /> : null }
       </div>
-      <MarketplaceSelection selected={tenantIds} setSelected={setTenantIds} />
-      <div className="listing-filters__actions actions-container">
-        <ButtonWithLoader
-          className="action action-primary listing-filters__filter-button"
-          onClick={async () => await Update(true)}
-        >
-          <ImageIcon icon={FilterIcon} title="Filter Results" className="action-icon" />
+      <div className="filters__search-container">
+        {
+          mode === "owned" ?
+            // Owned NFTs do not need exact queries
+            <div className="autocomplete filters__search">
+              <DebouncedInput
+                className="listing-filters__filter-input autocomplete__input"
+                placeholder="Filter..."
+                value={filterValues.filter}
+                onChange={value => setFilterValues({...filterValues, filter: value})}
+                onEnterPressed={async () => await Update(true)}
+              />
+              {
+                filterValues.filter ?
+                  <button
+                    onClick={() => setFilterValues({...filterValues, filter: ""})}
+                    className="autocomplete__clear-button"
+                  >
+                    <ImageIcon icon={ClearIcon} title="Clear" />
+                  </button> : null
+              }
+            </div> :
+            <AutoComplete
+              className="filters__search"
+              key={`autocomplete-${filterOptionsLoaded}-${savedOptionsLoaded}`}
+              placeholder="Search here"
+              value={filterValues.filter}
+              onChange={value => setFilterValues({...filterValues, filter: value})}
+              onEnterPressed={async () => await Update(true)}
+              options={filterOptions}
+            />
+        }
+        <ButtonWithLoader onClick={async () => await Update(true)} className="filters__search-button">
+          <ImageIcon icon={SearchIcon} label="Search" />
         </ButtonWithLoader>
       </div>
     </div>

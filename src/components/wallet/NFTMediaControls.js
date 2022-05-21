@@ -197,7 +197,7 @@ const NFTMediaControls = ({nft, containerElement, selectedMediaIndex, orderKey, 
               setSelectedMediaIndex
             });
           }}
-          className={`media-controls__toggle ${shuffle ? "media-controls__toggle--active" : ""}`}
+          className={`action action-selection media-controls__toggle ${shuffle ? "action-selection--active media-controls__toggle--active" : ""}`}
         >
           <ImageIcon
             icon={ShuffleIcon}
@@ -220,7 +220,7 @@ const NFTMediaControls = ({nft, containerElement, selectedMediaIndex, orderKey, 
               setSelectedMediaIndex
             });
           }}
-          className={`media-controls__toggle ${loop ? "media-controls__toggle--active" : ""}`}
+          className={`action action-selection media-controls__toggle ${loop ? "action-selection--active media-controls__toggle--active" : ""}`}
         >
           <ImageIcon
             icon={LoopIcon}
