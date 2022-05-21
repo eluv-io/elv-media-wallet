@@ -1,3 +1,5 @@
+const testTheme = undefined;//import("../static/stylesheets/themes/maskverse-test.theme.css");
+
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";
 import {ElvClient} from "@eluvio/elv-client-js";
@@ -729,7 +731,14 @@ class RootStore {
   SetCustomCSS(css="") {
     const cssTag = document.getElementById("_custom-css");
     if(cssTag) {
-      cssTag.innerHTML = css;
+      if(testTheme) {
+        testTheme.then(theme => {
+          console.log("CUSTOM");
+          cssTag.innerHTML = theme.default;
+        });
+      } else {
+        cssTag.innerHTML = css;
+      }
     }
 
     this.SetSessionStorage("custom-css", btoa(css));
@@ -763,11 +772,6 @@ class RootStore {
 
     this.hideGlobalNavigation = marketplace && this.specifiedMarketplaceId === marketplace.marketplaceId && marketplace.branding && marketplace.branding.hide_global_navigation;
 
-    this.SetCustomCSS(
-      options.color_scheme === "Custom" && marketplace?.branding?.custom_css ?
-        marketplace.branding.custom_css.toString() : ""
-    );
-
     this.centerContent = marketplace?.branding?.text_justification === "Center";
     this.centerItems = marketplace?.branding?.item_text_justification === "Center";
 
@@ -780,6 +784,11 @@ class RootStore {
         this.ToggleDarkMode(false);
         break;
     }
+
+    this.SetCustomCSS(
+      options.color_scheme === "Custom" && marketplace?.branding?.custom_css ?
+        marketplace.branding.custom_css.toString() : ""
+    );
   }
 
   ClearMarketplace() {
@@ -1802,13 +1811,17 @@ class RootStore {
     if(!enabled) {
       this.RemoveSessionStorage("dark-mode");
       themeContainer.innerHTML = "";
+      themeContainer.dataset.theme = "default";
       return;
-    } else {
+    } else if(themeContainer.dataset.theme !== "dark") {
       this.SetSessionStorage("dark-mode", "true");
       import("Assets/stylesheets/themes/dark.theme.css")
         .then(theme => {
+          console.log("DARK");
           themeContainer.innerHTML = theme.default;
         });
+
+      themeContainer.dataset.theme = "dark";
     }
 
     this.darkMode = enabled;

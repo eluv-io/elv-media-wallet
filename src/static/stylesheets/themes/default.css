@@ -1,4 +1,4 @@
-:root {
+html {
   /* General */
   --color-background-highlight: #1E1EED;
   --color-background-highlight-rgb: 30, 94, 237;
@@ -23,9 +23,15 @@
 
   --color-loader: rgba(0, 0, 0, 0.5);
 
-  --border: 1px solid #ccc;
-  --border-faint: 1px solid #D2D2D2;
-  --border-highlight: 1px solid var(--color-background-highlight);
+  --border-color: #ccc;
+  --border: 1px solid var(--border-color);
+
+  --border-color-faint: #D2D2D2;
+  --border-faint: 1px solid var(--border-color-faint);
+
+  --border-color-highlight: var(--color-background-highlight);
+  --border-highlight: 1px solid var(--border-color-highlight);
+
   --border-radius: 4px;
 
   --box-shadow: 0px 0 4px rgba(0, 0, 0, 0.1);
@@ -111,9 +117,12 @@
   --color-card-text-primary: var(--color-text-primary);
   --color-card-text-secondary: var(--color-text-secondary);
   --color-card-text-highlight: var(--color-text-highlight);
-  --border-card: var(--border);
-  --border-radius-card: 5px;
   --box-shadow-card: var(--box-shadow);
+
+  /* Cards and feature cards have borders implemented as a padded element with a colored background */
+  --border-background-card: var(--border-color-faint);
+  --border-width-card: 1px;
+  --border-radius-card: 5px;
 
   --color-card-stock-available: #f00;
   --color-card-stock-unavailable: #555;
@@ -127,14 +136,16 @@
   --font-feature-card-text: normal normal normal 20px var(--font-family-secondary);
   --font-feature-card-misc: normal normal normal 16px var(--font-family-tertiary);
 
-  --background-feature-card: var(--color-bg-primary);
+  --background-feature-card: var(--background-card);
   --background-feature-card-runway: linear-gradient(180deg, var(--background-content) 75%, var(--background-component-secondary) 100%);
 
   --color-feature-card-text-primary: var(--color-text-primary);
   --color-feature-card-text-secondary: var(--color-text-secondary);
   --color-feature-card-text-highlight: var(--color-text-highlight);
-  --box-shadow-feature-card: 2px 2px 4px rgba(0, 0, 0, 0.1);
-  --border-feature-card: var(--border);
+  --box-shadow-feature-card: var(--box-shadow-card);
+
+  --border-background-feature-card: var(--border-background-card);
+  --border-width-feature-card: var(--border-width-card);
   --border-radius-feature-card: 25px;
 
   --color-button-feature-card-bg: transparent;
@@ -142,7 +153,7 @@
   --border-button-feature-card: 0;
   --border-radius-button-feature-card: var(--border-radius);
 
-  --border-feature-card-selected: 1px solid var(--color-background-highlight);
+  --border-background-feature-card-selected: var(--border-color-highlight);
   --box-shadow-feature-card-selected: 0 0 10px var(--color-background-highlight);
 
   --color-featured-item-slider: var(--color-bg-secondary);

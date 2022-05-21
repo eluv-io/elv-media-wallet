@@ -1,0 +1,21 @@
+:root {
+  --pink-1: #E2A2E7;
+  --pink-1-rgb: 226, 162, 231;
+  --pink-2: #A20CB3;
+  --pink-2-rgb: 162, 12, 179;
+  --purple-1: #420647;
+
+  --color-text-highlight: var(--pink-1);
+  --color-text-highlight-rgb: var(--pink-1-rgb);
+  --color-background-highlight: var(--pink-2);
+  --color-background-highlight-rgb: var(--pink-2-rgb);
+
+  --background-card: var(--purple-1);
+  --border-background-card: linear-gradient(180deg, #CA33FF 0%, #FF1895 57.81%, #ED21FF 76.56%, #BC02FF 100%);
+  --border-width-card: 2px;
+
+  --box-shadow-feature-card: 0 0 12px rgba(237, 33, 255, 0.44);
+  --border-background-feature-card-selected: linear-gradient(180deg, #CA33FF 0%, #FF1895 0.81%, #ED21FF 76.56%, #BC02FF 100%);
+
+  --color-featured-item-slider-handle: var(--pink-1);
+}

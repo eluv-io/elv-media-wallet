@@ -1,4 +1,4 @@
-:root {
+html {
   /* General */
   --color-bg-primary: #090909;
   --color-bg-secondary: #242424;
@@ -6,7 +6,7 @@
   --color-page-bg: #000000;
 
   --color-text-primary: #FFFFFF;
-  --color-text-secondary: #888;
+  --color-text-secondary: #E8E8E8;
 
   --color-text-highlight: #9AC0F3;
   --color-text-highlight-rgb: 154, 192, 243;
@@ -15,6 +15,10 @@
 
   --border: 1px solid #444444;
   --border-faint: 1px solid #333333;
+
+
+  --border-color: #444444;
+  --border-color-faint: #333333;
 
   --box-shadow: none;
 
@@ -29,7 +33,6 @@
   --background-button-secondary: #000000;
 
   /* Cards */
-  --background-feature-card: var(--color-bg-primary);
   --background-card: var(--color-bg-primary);
 
   --background-component-primary: var(--color-bg-primary);

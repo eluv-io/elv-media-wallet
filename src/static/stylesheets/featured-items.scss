@@ -119,9 +119,10 @@
   }
 
   &__icon-container {
-    border: var(--border-feature-card);
+    background: var(--border-background-feature-card);
     border-radius: var(--border-radius-feature-card);
     box-shadow: var(--box-shadow-feature-card);
+    padding: var(--border-width-feature-card);
     position: relative;
   }
 
@@ -211,13 +212,14 @@
 
   &__icon-container {
     @include page-fade-in;
-    border: var(--border-feature-card);
+    background: var(--border-background-feature-card);
     border-radius: var(--border-radius-feature-card);
     cursor: pointer;
+    padding: var(--border-width-feature-card);
     position: relative;
 
     &--selected {
-      border: var(--border-feature-card-selected);
+      background: var(--border-background-feature-card-selected);
       box-shadow: var(--box-shadow-feature-card-selected);
     }
   }

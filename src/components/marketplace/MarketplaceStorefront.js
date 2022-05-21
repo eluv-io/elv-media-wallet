@@ -62,14 +62,15 @@ const CollectionCard = ({marketplaceHash, collection, collectionIndex}) => {
 
   return (
     <div className="collection-card">
-      <div className="item-card__image-container collection-card__icon-container">
-        <MarketplaceImage
-          rawImage
-          className="item-card__image collection-card__icon"
-          marketplaceHash={marketplaceHash}
-          title={collection.name}
-          path={UrlJoin("public", "asset_metadata", "info", "collections", collectionIndex.toString(), "collection_icon")}
-        />
+      <div className="collection-card__icon-container">
+        <div className="collection-card__icon">
+          <MarketplaceImage
+            className="collection-card__image"
+            marketplaceHash={marketplaceHash}
+            title={collection.name}
+            path={UrlJoin("public", "asset_metadata", "info", "collections", collectionIndex.toString(), "collection_icon")}
+          />
+        </div>
       </div>
       <div className="collection-card__details">
         <div className="collection-card__header">

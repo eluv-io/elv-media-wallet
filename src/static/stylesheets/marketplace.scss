@@ -158,25 +158,22 @@
   min-width: 300px;
 
   &__icon-container {
-    border: var(--border-feature-card);
+    background: var(--border-background-feature-card);
     border-radius: var(--border-radius-feature-card);
-    box-shadow: var(--box-shadow-feature-card);
+    padding: var(--border-width-feature-card);
     position: relative;
   }
 
   &__icon {
     background: var(--background-feature-card);
     border-radius: var(--border-radius-feature-card);
-    padding: 30px;
+    margin: 0;
+    padding: 32px;
+  }
 
-    div {
-      margin: 0;
-    }
-
-    img {
-      background: $black;
-      border-radius: calc(var(--border-radius-feature-card) / 2);
-    }
+  .item-card__image-container {
+    border-radius: var(--border-radius-feature-card);
+    margin: 0;
   }
 
   &__details {

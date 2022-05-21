@@ -34,13 +34,11 @@
   }
 }
 
-.card-shadow {
-  border: var(--border-card);
+.card-container {
+  background: var(--border-background-card);
   border-radius: var(--border-radius-card);
   box-shadow: var(--box-shadow-card);
-}
-
-.card-container {
+  padding: var(--border-width-card);
   position: relative;
   transition: border 0.15s ease-in, margin 0.15s ease-in-out;
 
