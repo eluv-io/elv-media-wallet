@@ -287,7 +287,6 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
                 placeholder="Filter..."
                 value={filterValues.filter}
                 onChange={value => setFilterValues({...filterValues, filter: value})}
-                onEnterPressed={async () => await Update(true)}
               />
               {
                 filterValues.filter ?
