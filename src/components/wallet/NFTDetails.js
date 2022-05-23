@@ -302,13 +302,14 @@ const NFTContractSection = ({nft, listing, heldDate, isOwned, setDeleted}) => {
           isOwned && rootStore.funds ?
             <ButtonWithLoader
               className="action-danger details-page__delete-button"
-              onClick={async () => {
-                if(confirm("Are you sure you want to permanently burn this NFT? This cannot be undone.")) {
+              onClick={async () => await Confirm({
+                message: "Are you sure you want to permanently burn this NFT? This cannot be undone.",
+                Confirm: async () => {
                   await rootStore.BurnNFT({nft});
                   setDeleted(true);
                   await rootStore.LoadNFTInfo(true);
                 }
-              }}
+              })}
             >
               Burn NFT
             </ButtonWithLoader> : null

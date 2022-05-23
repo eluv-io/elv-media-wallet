@@ -38,8 +38,8 @@
   }
 
   &__section-header {
-    color: var(--color-component-text-primary);
-    font: var(--font-component-header);
+    color: var(--color-component-text-highlight);
+    font: var(--font-component-misc);
     font-size: 20px;
     margin-bottom: 10px;
     text-align: center;
@@ -54,10 +54,6 @@
     font-weight: 500;
     justify-content: center;
     text-transform: uppercase;
-
-    &-highlight {
-      color: var(--color-component-text-highlight);
-    }
   }
 
   &__address {

@@ -173,7 +173,8 @@
   width: 100%;
 
   &__message {
-    font-size: 18px;
+    font: var(--font-component-text);
+    font-size: 20px;
     margin-bottom: 35px;
     text-align: center;
   }

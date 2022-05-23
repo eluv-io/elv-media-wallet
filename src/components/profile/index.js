@@ -22,7 +22,7 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSe
       <h2 className="profile-page__section-header">
         Withdrawable Wallet Balance
       </h2>
-      <div className="profile-page__balance profile-page__balance-highlight">
+      <div className="profile-page__balance">
         { FormatPriceString({USD: rootStore.withdrawableWalletBalance}) } USD
       </div>
       {
@@ -174,7 +174,7 @@ const Profile = observer(() => {
         <h2 className="profile-page__section-header">
           Total Wallet Balance
         </h2>
-        <div className="profile-page__balance profile-page__balance-highlight">
+        <div className="profile-page__balance">
           { FormatPriceString({USD: rootStore.totalWalletBalance}) } { balancePresent ? "USD" : "" }
         </div>
         <br />

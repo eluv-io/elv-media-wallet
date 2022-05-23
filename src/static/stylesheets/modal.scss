@@ -79,3 +79,19 @@
     top: 25px;
   }
 }
+
+// Deal with very tall frame
+@media screen and (min-height: 2000px) {
+  .modal {
+    align-items: flex-start;
+    padding-top: 300px;
+  }
+
+  .login-modal {
+    padding-top: 0;
+
+    .login-page {
+      align-items: flex-start;
+    }
+  }
+}

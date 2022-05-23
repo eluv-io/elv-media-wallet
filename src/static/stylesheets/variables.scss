@@ -14,11 +14,6 @@ $action-height: 48px;
   border-radius: var(--border-radius-component);
   color: var(--color-component-text-primary);
   font: var(--font-component-text);
-
-  h1 {
-    font: var(--font-component-header);
-    text-transform: uppercase;
-  }
 }
 
 @mixin modal {
