@@ -164,7 +164,7 @@
   --box-shadow-card: 0 0 24px rgba(16, 39, 254, 0.64);
 
   --background-feature-card: rgba(6, 8, 41, 0.7);
-  --background-feature-card-runway: linear-gradient(180deg, rgba(0, 24, 255, 0) 75%, rgba(0, 24, 255, 0.18) 100%);
+  --background-feature-card-runway: none;
   --border-radius-feature-card: 4px;
   --box-shadow-feature-card: 0 0 24px rgba(16, 39, 254, 0.64);
   --box-shadow-feature-card-selected: 0 0 24px rgba(16, 39, 254, 1);

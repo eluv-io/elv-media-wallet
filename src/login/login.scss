@@ -8,7 +8,6 @@
     min-height: 100vh;
     padding: 100px 0;
     width: 100%;
-    overflow-y: auto;
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
@@ -31,6 +30,7 @@
   margin: 0;
   overflow-y: hidden;
   padding: 0 30px;
+  min-height: 100%;
 
   &-large-logo-mode {
     padding: 0;

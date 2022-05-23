@@ -31,6 +31,10 @@
 
   @media screen and (max-width: $mobile-breakpoint) {
     grid-gap: 20px;
+
+    &:not(&--centered) {
+      grid-gap: 20px;
+    }
   }
 }
 
