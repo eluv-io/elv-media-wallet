@@ -204,6 +204,7 @@ $search-height: 50px;
     font: var(--font-component-header);
     font-size: 24px;
     font-weight: normal;
+    text-transform: uppercase;
   }
 
   @media screen and (max-width: $intermediate-breakpoint) {

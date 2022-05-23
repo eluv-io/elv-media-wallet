@@ -6,7 +6,7 @@ html {
   --color-text-highlight-rgb: 30, 94, 237;
 
   /* Fonts - Primary is for used headers, tertiary for buttons, prices and other details, secondary for all other text */
-  --font-family-primary: "Montserrat", "Helvetica Neue", Helvetica, sans-serif;
+  --font-family-primary: "Montserrat", "Helvetica Neue", Helvetica, sans-serif; /* Primary font should be accompanied with 'text-transform: uppercase' */
   --font-family-secondary: "DM Sans", "Helvetica Neue", Helvetica, sans-serif;
   --font-family-tertiary: "Inter", Helvetica, sans-serif;
   --font-default: normal normal normal 16px var(--font-family-secondary);
@@ -43,7 +43,7 @@ html {
 
   /* Header */
   --font-header-links: normal normal 300 16px var(--font-family-secondary);
-  --font-header-profile: normal normal 300 14px var(--font-family-primary);
+  --font-header-profile: normal normal 300 14px var(--font-family-secondary);
   --font-header-balance: normal normal normal 12px var(--font-family-tertiary);
   --font-store-header: normal normal 600 48px var(--font-family-primary);
 
@@ -55,7 +55,7 @@ html {
   --background-marketplace-header: transparent;
   --color-marketplace-header-text: var(--color-text-primary);
 
-  /* Store heading text */
+  /* Store heading text (marketplace title and description) */
   --font-store-heading: normal normal bold 32px var(--font-family-primary);
   --font-store-subheading: normal normal 300 18px var(--font-family-secondary);
   --font-store-link: normal normal 300 18px var(--font-family-tertiary);
