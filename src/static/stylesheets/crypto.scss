@@ -66,12 +66,10 @@ $wallet-connect-background: rgba(0, 0, 0, 0.25);
 .wallet-connect {
   @include component;
   @include page-fade-in;
-  background: var(--background-component-secondary);
-  border: 0;
   box-shadow: none;
   // sass-lint:disable function-name-format
   max-width: MIN(90vw, 350px);
-  padding: 15px;
+  padding: 25px 15px 15px;
   top: 60px;
   z-index: 100;
 
@@ -82,10 +80,11 @@ $wallet-connect-background: rgba(0, 0, 0, 0.25);
   }
 
   &__header {
-    font-size: 18px;
+    font: var(--font-component-misc);
+    font-size: 16px;
     font-weight: 300;
-    margin-bottom: 10px;
     text-align: center;
+    text-transform: uppercase;
   }
 
   &__warning {
@@ -97,11 +96,8 @@ $wallet-connect-background: rgba(0, 0, 0, 0.25);
 
   &__info {
     align-items: center;
-    background: var(--background-component-primary);
-    border-radius: var(--border-radius-component);
     display: flex;
     flex-direction: column;
-    margin-top: 10px;
     padding: 10px 10px 15px;
     width: 100%;
   }
@@ -150,7 +146,6 @@ $wallet-connect-background: rgba(0, 0, 0, 0.25);
     background: var(--background-component-primary);
     border: var(--border-component-highlight);
     border-radius: var(--border-radius-component);
-    color: var(--color-component-text-highlight);
     height: $action-height;
     margin: 0 auto;
     max-width: 250px;
