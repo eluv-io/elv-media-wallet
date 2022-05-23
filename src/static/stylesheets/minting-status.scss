@@ -108,9 +108,13 @@
 }
 
 .minting-status-results {
+  height: 100%;
   padding-top: 20px;
+  position: relative;
+  width: 100%;
 
   .card-list {
+    @include page-fade-in;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   }
 
@@ -119,6 +123,28 @@
     display: flex;
     justify-content: center;
     margin: 50px 0;
+  }
+
+  &__video-container {
+    align-items: center;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    left: 0;
+    margin-bottom: 20px;
+    position: relative;
+    top: 0;
+    width: 100%;
+    z-index: 1;
+
+    .loader {
+      height: 100%;
+      left: 0;
+      margin: 0;
+      position: absolute;
+      top: 0;
+      width: 100%;
+    }
   }
 }
 

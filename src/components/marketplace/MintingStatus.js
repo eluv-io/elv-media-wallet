@@ -2,12 +2,12 @@ import React, {useState, useEffect} from "react";
 import EluvioPlayer, {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 import {observer} from "mobx-react";
 import {rootStore, checkoutStore, cryptoStore} from "Stores/index";
-import {Loader} from "Components/common/Loaders";
+import {Loader, PageLoader} from "Components/common/Loaders";
 import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
-import AsyncComponent from "Components/common/AsyncComponent";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import NFTCard from "Components/common/NFTCard";
+import {MobileOption} from "../../utils/Utils";
 
 let statusInterval;
 const MintingStatus = observer(({
@@ -141,8 +141,7 @@ const MintingStatus = observer(({
                       muted: EluvioPlayerParameters.muted.ON,
                       autoplay: EluvioPlayerParameters.autoplay.WHEN_VISIBLE,
                       controls: EluvioPlayerParameters.controls.OFF,
-                      loop: EluvioPlayerParameters.loop.ON,
-                      capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.ON
+                      loop: EluvioPlayerParameters.loop.ON
                     }
                   }
                 );
@@ -195,21 +194,75 @@ export const DropMintingStatus = observer(() => {
   );
 });
 
-const MintResults = observer(({header, subheader, basePath, nftBasePath, items, backText}) => {
-  return (
-    <AsyncComponent
-      loadingClassName="page-loader"
-      Load={async () => {
-        await rootStore.LoadNFTInfo(true);
+const MintResults = observer(({header, subheader, basePath, nftBasePath, items, revealVideoHash, backText}) => {
+  const [loading, setLoading] = useState(true);
+  const [videoInitialized, setVideoInitialized] = useState(false);
+  const [animationComplete, setAnimationComplete] = useState(!revealVideoHash);
 
+  useEffect(() => {
+    rootStore.LoadNFTInfo(true)
+      .then(async () => {
         await Promise.all(
           items.map(async ({token_addr, token_id_str}) =>
             await rootStore.LoadNFTData({contractAddress: token_addr, tokenId: token_id_str})
           )
         );
-      }}
-    >
-      <div className="minting-status-results pack-results">
+
+        setLoading(false);
+      });
+  }, []);
+
+  if(loading) {
+    return (
+      <div className="minting-status-results">
+        <PageLoader />
+      </div>
+    );
+  } else if(!animationComplete) {
+    return (
+      <div className="minting-status-results" key="minting-status-results-animation">
+        <div className="minting-status-results__video-container">
+          <Loader />
+          <div
+            className="minting-status-results__video"
+            ref={element => {
+              if(!element || videoInitialized) { return; }
+
+              setVideoInitialized(true);
+
+              new EluvioPlayer(
+                element,
+                {
+                  clientOptions: {
+                    network: EluvioConfiguration["config-url"].includes("main.net955305") ?
+                      EluvioPlayerParameters.networks.MAIN : EluvioPlayerParameters.networks.DEMO,
+                    client: rootStore.client
+                  },
+                  sourceOptions: {
+                    playoutParameters: {
+                      versionHash: revealVideoHash
+                    }
+                  },
+                  playerOptions: {
+                    watermark: EluvioPlayerParameters.watermark.OFF,
+                    muted: EluvioPlayerParameters.muted.OFF_IF_POSSIBLE,
+                    autoplay: EluvioPlayerParameters.autoplay.ON,
+                    controls: EluvioPlayerParameters.controls.OFF,
+                    loop: EluvioPlayerParameters.loop.OFF,
+                    playerCallback: ({videoElement}) => {
+                      videoElement.addEventListener("ended", () => setAnimationComplete(true));
+                    }
+                  }
+                }
+              );
+            }}
+          />
+        </div>
+      </div>
+    );
+  } else {
+    return (
+      <div className="minting-status-results" key="minting-status-results-card-list">
         <div className="page-headers">
           <div className="page-header">{ header }</div>
           <div className="page-subheader">{ subheader }</div>
@@ -244,8 +297,8 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
             </div>
         }
       </div>
-    </AsyncComponent>
-  );
+    );
+  }
 });
 
 export const ListingPurchaseStatus = observer(() => {
@@ -335,8 +388,12 @@ export const PurchaseMintingStatus = observer(() => {
   }
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  const videoHash = marketplace.storefront.purchase_animation &&
-    ((marketplace.storefront.purchase_animation["/"] && marketplace.storefront.purchase_animation["/"].split("/").find(component => component.startsWith("hq__")) || marketplace.storefront.purchase_animation["."].source));
+  const animation = MobileOption(rootStore.pageWidth, marketplace.storefront?.purchase_animation, marketplace.storefront?.purchase_animation_mobile);
+  const videoHash = animation && ((animation["/"] && animation["/"].split("/").find(component => component.startsWith("hq__")) || animation["."].source));
+
+  const revealAnimation = MobileOption(rootStore.pageWidth, marketplace.storefront?.reveal_animation, marketplace.storefront?.reveal_animation_mobile);
+  const revealVideoHash = revealAnimation && ((revealAnimation["/"] && revealAnimation["/"].split("/").find(component => component.startsWith("hq__")) || revealAnimation["."].source));
+
 
   const Status = async () => await rootStore.PurchaseStatus({
     marketplace,
@@ -346,6 +403,7 @@ export const PurchaseMintingStatus = observer(() => {
   if(!status) {
     return (
       <MintingStatus
+        key={`status-${videoHash}`}
         Status={Status}
         OnFinish={({status}) => setStatus(status)}
         basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
@@ -359,6 +417,8 @@ export const PurchaseMintingStatus = observer(() => {
 
   return (
     <MintResults
+      key={`results-${revealVideoHash}`}
+      revealVideoHash={revealVideoHash}
       header="Congratulations!"
       subheader={`Thank you for your purchase! You've received the following ${items.length === 1 ? "item" : "items"}:`}
       items={items}
@@ -374,8 +434,11 @@ export const ClaimMintingStatus = observer(() => {
   const [status, setStatus] = useState(undefined);
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  const videoHash = marketplace.storefront.purchase_animation &&
-    ((marketplace.storefront.purchase_animation["/"] && marketplace.storefront.purchase_animation["/"].split("/").find(component => component.startsWith("hq__")) || marketplace.storefront.purchase_animation["."].source));
+  const animation = MobileOption(rootStore.pageWidth, marketplace.storefront?.purchase_animation, marketplace.storefront?.purchase_animation_mobile);
+  const videoHash = animation && ((animation["/"] && animation["/"].split("/").find(component => component.startsWith("hq__")) || animation["."].source));
+
+  const revealAnimation = MobileOption(rootStore.pageWidth, marketplace.storefront?.reveal_animation, marketplace.storefront?.reveal_animation_mobile);
+  const revealVideoHash = revealAnimation && ((revealAnimation["/"] && revealAnimation["/"].split("/").find(component => component.startsWith("hq__")) || revealAnimation["."].source));
 
   const Status = async () => await rootStore.ClaimStatus({
     marketplace,
@@ -391,6 +454,7 @@ export const ClaimMintingStatus = observer(() => {
   if(!status) {
     return (
       <MintingStatus
+        key={`status-${videoHash}`}
         videoHash={videoHash}
         Status={Status}
         OnFinish={({status}) => setStatus(status)}
@@ -419,6 +483,8 @@ export const ClaimMintingStatus = observer(() => {
 
   return (
     <MintResults
+      key={`results-${revealVideoHash}`}
+      revealVideoHash={revealVideoHash}
       header="Congratulations!"
       subheader={`You've received the following ${items.length === 1 ? "item" : "items"}:`}
       items={items}
@@ -434,10 +500,29 @@ export const PackOpenStatus = observer(() => {
 
   const match = useRouteMatch();
 
+  const key = `pack-${match.params.contractId}-${match.params.tokenId}`;
+
   // Set NFT in state so it doesn't change
-  const [nft] = useState(rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId}));
-  const videoHash = nft && nft.metadata && nft.metadata.pack_options && nft.metadata.pack_options.is_openable && nft.metadata.pack_options.open_animation
-    && ((nft.metadata.pack_options.open_animation["/"] && nft.metadata.pack_options.open_animation["/"].split("/").find(component => component.startsWith("hq__")) || nft.metadata.pack_options.open_anmiation["."].source));
+  const [nft] = useState(
+    rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId}) ||
+    rootStore.GetSessionStorageJSON(key)
+  );
+
+  useEffect(() => {
+    const nftData = rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId});
+    if(nftData) {
+      // Save pack info in case of refresh after burn
+      rootStore.SetSessionStorage(`pack-${match.params.contractId}-${match.params.tokenId}`, btoa(JSON.stringify(nftData)));
+    }
+  }, []);
+
+  const packOptions = nft?.metadata?.pack_options || {};
+  const animation = MobileOption(rootStore.pageWidth, packOptions.open_animation, packOptions.open_animation_mobile);
+  const videoHash = animation && ((animation["/"] && animation["/"].split("/").find(component => component.startsWith("hq__")) || animation["."].source));
+
+  const revealAnimation = MobileOption(rootStore.pageWidth, packOptions.reveal_animation, packOptions.reveal_animation_mobile);
+  const revealVideoHash = revealAnimation && ((revealAnimation["/"] && revealAnimation["/"].split("/").find(component => component.startsWith("hq__")) || revealAnimation["."].source));
+
   const basePath = match.url.startsWith("/marketplace") ?
     UrlJoin("/marketplace", match.params.marketplaceId, "collection") :
     UrlJoin("/wallet", "collection");
@@ -458,6 +543,7 @@ export const PackOpenStatus = observer(() => {
   if(!status) {
     return (
       <MintingStatus
+        key={`status-${videoHash}`}
         header="Your pack is opening"
         Status={Status}
         OnFinish={({status}) => setStatus(status)}
@@ -472,6 +558,8 @@ export const PackOpenStatus = observer(() => {
 
   return (
     <MintResults
+      key={`results-${revealVideoHash}`}
+      revealVideoHash={revealVideoHash}
       header="Congratulations!"
       subheader={`You've received the following ${items.length === 1 ? "item" : "items"}:`}
       items={items}

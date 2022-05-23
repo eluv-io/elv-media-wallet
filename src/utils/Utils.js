@@ -97,3 +97,7 @@ export const NFTDisplayToken = nft => {
     return "";
   }
 };
+
+export const MobileOption = (width, desktop, mobile) => {
+  return (width < 800 && mobile) || desktop || "";
+};
