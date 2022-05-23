@@ -295,6 +295,8 @@ exports.ItemNames = async function({tenantSlug, marketplaceSlug, marketplaceId, 
  *
  * @methodGroup Items
  * @namedParams
+ * @param {string=} tenantSlug - Specify the URL slug of the marketplace's tenant. Required if specifying marketplace slug
+ * @param {string=} marketplaceSlug - Specify the URL slug of the marketplace to filter items by marketplace
  * @param {string=} sortBy=default - Sort order for the results - either `default` or `meta/display_name`
  * @param {boolean=} sortDesc=false - Sort in descending order
  * @param {string=} filter - Filter results by item name.
@@ -307,6 +309,8 @@ exports.ItemNames = async function({tenantSlug, marketplaceSlug, marketplaceId, 
  * @returns {Promise<Array<Object>>} - Information about the items in the user's wallet.
  */
 exports.Items = async function ({
+  tenantSlug,
+  marketplaceSlug,
   sortBy="default",
   sortDesc=false,
   filter,
@@ -315,6 +319,8 @@ exports.Items = async function ({
   return await this.SendMessage({
     action: "items",
     params: {
+      tenantSlug,
+      marketplaceSlug,
       sortBy,
       sortDesc,
       filter,

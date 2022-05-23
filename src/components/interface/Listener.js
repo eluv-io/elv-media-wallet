@@ -113,6 +113,27 @@ const FormatNFT = (nft) => {
     });
   }
 
+  ["open_animation", "open_animation__mobile", "reveal_animation", "reveal_animation_mobile"].forEach(key => {
+    // Generate embed URLs for pack opening animations
+    try {
+      if(nft.metadata?.pack_options && nft.metadata.pack_options[key]) {
+        let embedUrl = new URL("https://embed.v3.contentfabric.io");
+        embedUrl.searchParams.set("p", "");
+        embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
+        embedUrl.searchParams.set("ath", rootStore.authToken);
+        embedUrl.searchParams.set("vid", nft.metadata.pack_options[key]["."].container);
+        embedUrl.searchParams.set("ap", "");
+
+        if(!key.startsWith("reveal")) {
+          embedUrl.searchParams.set("m", "");
+        }
+
+        nft.metadata.pack_options[`${key}_embed_url`] = embedUrl.toString();
+      }
+    // eslint-disable-next-line no-empty
+    } catch(error) {}
+  });
+
   return nft;
 };
 
@@ -286,11 +307,13 @@ export const InitializeListener = (history) => {
                 sortDesc: data.params.sortDesc,
                 filter: data.params.filter,
                 contractAddress: data.params.contractAddress,
+                tenantIds: marketplaceInfo ? [ marketplaceInfo.tenantId ] : [],
                 limit: 10000,
                 start: 0
               })
             ).results || []
-          });
+          })
+            .map(item => FormatNFT(item));
 
         // client.Item
         case "item":
