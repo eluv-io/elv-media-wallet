@@ -13,7 +13,7 @@ import WalletConnect from "Components/crypto/WalletConnect";
 import MetamaskIcon from "Assets/icons/crypto/metamask fox.png";
 import ImageIcon from "Components/common/ImageIcon";
 
-import PendingIcon from "Assets/icons/crypto/Conversion button.svg";
+import PendingSalesIcon from "Assets/icons/sales history icon.svg";
 import WithdrawalsIcon from "Assets/icons/crypto/USD gray.svg";
 
 const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSetup}) => {
@@ -195,7 +195,7 @@ const Profile = observer(() => {
         </div>
 
         <PendingPaymentsTable
-          icon={PendingIcon}
+          icon={PendingSalesIcon}
           header="Pending Sales"
           className="profile-page__pending-transactions-table"
         />
