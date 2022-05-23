@@ -6,8 +6,8 @@
     max-height: 100vh;
     max-width: unset;
     min-height: 100vh;
-    padding: 100px 0;
     width: 100%;
+    overflow-y: auto;
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
@@ -28,13 +28,10 @@
   height: max-content;
   justify-content: center;
   margin: 0;
-  overflow-y: hidden;
-  padding: 0 30px;
+  padding: 100px 30px;
   min-height: 100%;
 
   &-large-logo-mode {
-    padding: 0;
-
     .login-page__logo {
       margin-bottom: 20px;
       max-height: 250px;
@@ -57,7 +54,7 @@
     left: 0;
     position: fixed;
     top: 0;
-    user-select: none;
+    z-index: -1;
     width: 100vw;
   }
 
@@ -77,8 +74,8 @@
     display: flex;
     flex-direction: column;
     max-width: 400px;
-    min-height: 550px;
-    padding: 50px 30px 30px;
+    min-height: 500px;
+    padding: 60px 30px 30px;
     position: relative;
     width: 100%;
   }
@@ -250,6 +247,11 @@
 
   &__text-section {
     margin-top: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
 
     * {
       color: var(--color-login-text-secondary);
