@@ -9,26 +9,36 @@ import {roundToDown} from "round-to";
 const embedded = window.self !== window.top;
 
 const pages = {
-  // Wallet
-  "wallet": "/wallet",
+  // Global
+  "listings": "/wallet/listings",
+  "listing": "/wallet/listings/:listingId",
+  "activity": "/wallet/activity",
+
+  // User pages
+  "wallet": "/wallet/collection",
   "items": "/wallet/collection",
   "item": "/wallet/collection/:contractId/:tokenId",
-  "tickets": "/wallet/tickets",
-  "tokens": "/wallet/tokens",
-
-  // Profile
+  "myListings": "/wallet/myListings",
+  "myListing": "/wallet/myListings/:listingId",
   "profile": "/profile",
 
   // Marketplace
   "marketplaces": "/marketplaces",
   "marketplace": "/marketplace/:marketplaceId/store",
   "marketplaceItem": "/marketplace/:marketplaceId/store/:sku",
-  "marketplaceWallet": "/marketplace/:marketplaceId/collection",
   "marketplaceListings": "/marketplace/:marketplaceId/listings",
-  "drop": "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId",
+  "marketplaceListing": "/marketplace/:marketplaceId/listings/:listingId",
+  "marketplaceActivity": "/marketplace/:marketplaceId/activity",
+  "marketplaceProfile": "/marketplace/:marketplaceId/profile",
 
-  // Listings
-  "listings": "/wallet/listings"
+  // Marketplace user pages
+  "marketplaceWallet": "/marketplace/:marketplaceId/collection",
+  "marketplaceCollections": "/marketplace/:marketplaceId/collections",
+  "marketplaceMyListings": "/marketplace/:marketplaceId/my-listings",
+  "marketplaceMyListing": "/marketplace/:marketplaceId/my-listings/:listingId",
+
+  // Drop
+  "drop": "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId",
 };
 
 const Price = (item, quantity=1) => {
@@ -422,7 +432,7 @@ export const InitializeListener = (history) => {
         // client.MarketplaceItem
         case "marketplaceItem":
           return Respond({
-            response: toJS(MarketplaceItem(marketplaceInfo, data))
+            response: toJS(await MarketplaceItem(marketplaceInfo, data))
           });
 
         // client.MarketplaceStorefront
@@ -669,7 +679,7 @@ export const InitializeListener = (history) => {
             // Replace route variables
             route = pages[data.params.page];
 
-            const params = (data.params || {}).params;
+            const params = (data.params || {}).params || {};
             if(params) {
               if(params.marketplaceSlug || params.marketplaceHash || params.marketplaceId) {
                 await rootStore.LoadAvailableMarketplaces({tenantSlug: params.tenantSlug, marketplaceSlug: params.marketplaceSlug});

@@ -733,7 +733,6 @@ class RootStore {
     if(cssTag) {
       if(testTheme) {
         testTheme.then(theme => {
-          console.log("CUSTOM");
           cssTag.innerHTML = theme.default;
         });
       } else {
@@ -1817,7 +1816,6 @@ class RootStore {
       this.SetSessionStorage("dark-mode", "true");
       import("Assets/stylesheets/themes/dark.theme.css")
         .then(theme => {
-          console.log("DARK");
           themeContainer.innerHTML = theme.default;
         });
 
