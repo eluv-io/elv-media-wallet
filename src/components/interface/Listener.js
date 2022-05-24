@@ -263,9 +263,11 @@ export const InitializeListener = (history) => {
           await rootStore.Authenticate({
             idToken: data.params.idToken,
             authToken: data.params.authToken,
-            privateKey: data.params.privateKey,
+            fabricToken: data.params.fabricToken,
+            address: data.params.address,
             user: data.params.user,
-            tenantId: data.params.tenantId
+            tenantId: data.params.tenantId,
+            walletName: data.params.walletName
           });
 
           return Respond({});

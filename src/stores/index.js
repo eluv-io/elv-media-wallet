@@ -287,7 +287,7 @@ class RootStore {
     return Utils.FormatAddress(this.authInfo.address);
   }
 
-  Authenticate = flow(function * ({idToken, fabricToken, authToken, externalWallet, address, tenantId, user, walletName="Eluvio", expiresAt, saveAuthInfo=true}) {
+  Authenticate = flow(function * ({idToken, fabricToken, authToken, externalWallet, walletName, address, tenantId, user, expiresAt, saveAuthInfo=true}) {
     if(this.authenticating) { return; }
 
     try {
@@ -345,7 +345,7 @@ class RootStore {
         const walletMethods = this.cryptoStore.WalletFunctions(externalWallet);
 
         address = client.utils.FormatAddress(yield walletMethods.Address());
-        walletName = walletMethods.name;
+        walletName = externalWallet;
 
         const duration = 24 * 60 * 60 * 1000;
         const buffer = 8 * 60 * 60 * 1000;

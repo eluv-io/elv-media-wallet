@@ -382,19 +382,25 @@ const walletClient = await ElvWalletClient.InitializePopup({
    *
    * @methodGroup Authorization
    * @namedParams
-   * @param {string} name - The name of the user
-   * @param {string} email - The email address of the user
+   * @param {string=} name - The name of the user
+   * @param {string=} email - The email address of the user
+   * @param {string=} address - The address of the user
+   * @param {string=} tenantId - A tenant Id to associate with the login
    * @param {string=} idToken - An OAuth ID token to authenticate with
    * @param {string=} authToken - An Eluvio authorization token
-   * @param {string=} privateKey - The private key of the user
+   * @param {string=} fabricToken - An Eluvio authorization token signed by the user
+   * @param {string=} walletName - If signing in from an external wallet such as metamask, the name of the wallet.
    */
-  async SignIn({name, email, idToken, authToken, privateKey}) {
+  async SignIn({name, email, idToken, authToken, fabricToken, address, walletName, tenantId}) {
     return this.SendMessage({
       action: "login",
       params: {
         idToken,
         authToken,
-        privateKey,
+        fabricToken,
+        address,
+        tenantId,
+        walletName,
         user: {
           name,
           email

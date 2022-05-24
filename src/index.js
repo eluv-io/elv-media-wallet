@@ -90,7 +90,7 @@ const LoginModal = observer(() => {
         darkMode={rootStore.darkMode}
         Loaded={() => rootStore.SetLoginLoaded()}
         LoadCustomizationOptions={async () => ({})}
-        SignIn={async params => await rootStore.Authenticate(params)}
+        SignIn={async params => await rootStore.Authenticate({...params, silent: true})}
         SignOut={async returnURL => await rootStore.SignOut(returnURL)}
       />
     );

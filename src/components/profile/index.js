@@ -125,8 +125,8 @@ const Profile = observer(() => {
   const balancePresent = typeof rootStore.totalWalletBalance !== "undefined";
 
   let walletMessage, walletIcon;
-  switch(rootStore.AuthInfo()?.walletName) {
-    case "Metamask":
+  switch(rootStore.AuthInfo()?.walletName?.toLowerCase()) {
+    case "metamask":
       walletIcon = MetamaskIcon;
       walletMessage = "Signed in with Metamask";
       break;
