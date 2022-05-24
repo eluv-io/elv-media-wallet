@@ -286,10 +286,9 @@ if(sessionStorageAvailable) {
             { /* All other routes */ }
             <Route>
               <App/>
+              <LoginModal />
             </Route>
-
           </Switch>
-          <LoginModal />
         </HashRouter>
       </React.StrictMode>
     </Auth0Provider>,

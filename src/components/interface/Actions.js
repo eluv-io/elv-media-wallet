@@ -1,28 +1,35 @@
 import {observer} from "mobx-react";
 import {useRouteMatch} from "react-router-dom";
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {rootStore} from "Stores";
 
 import SignaturePopup from "Components/interface/SignaturePopup";
 import ConsentPopup from "Components/interface/ConsentPopup";
+import {PageLoader} from "Components/common/Loaders";
 
-// Actions are popups that present UI
+// Actions are popups that present UI (signing, accepting permissions, etc.)
 const Actions = observer(() => {
   const match = useRouteMatch();
+
+  const [loading, setLoading] = useState(true);
 
   let parameters = {};
   if(match.params.parameters) {
     parameters = JSON.parse(new TextDecoder().decode(Utils.FromB58(match.params.parameters)));
   }
 
+  // Authenticate with auth parameter, if necessary
   useEffect(() => {
-    if(parameters.auth && !this.AuthInfo()) {
-      // TODO: Test
-      rootStore.Authenticate({...parameters.auth});
-    }
-  }, []);
+    if(!rootStore.client) { return; }
 
+    if(parameters.auth && !rootStore.loggedIn) {
+      rootStore.Authenticate({...parameters.auth})
+        .finally(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
+  }, [rootStore.client]);
 
   const Respond = ({response, error}) => {
     window.opener.postMessage({
@@ -35,6 +42,11 @@ const Actions = observer(() => {
     setTimeout(window.close(), 2000);
   };
 
+  if(loading) {
+    return <PageLoader />;
+  }
+
+  // When finished handling authentication, present UI
   switch(match.params.action) {
     case "sign":
       return <SignaturePopup parameters={parameters} Respond={Respond} />;

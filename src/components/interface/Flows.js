@@ -11,42 +11,45 @@ const Flows = observer(() => {
   const match = useRouteMatch();
   const history = useHistory();
 
-  const [handled, setHandled] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   let parameters = {};
   if(match.params.parameters) {
     parameters = JSON.parse(new TextDecoder().decode(Utils.FromB58(match.params.parameters)));
   }
 
+  // Authenticate with auth parameter, if necessary
   useEffect(() => {
-    if(parameters.auth && !rootStore.AuthInfo()) {
-      rootStore.Authenticate({...parameters.auth, saveAuthInfo: false});
-    }
-  }, []);
+    if(!rootStore.client) { return; }
 
+    if(parameters.auth && !rootStore.loggedIn) {
+      rootStore.Authenticate({...parameters.auth, saveAuthInfo: false})
+        .finally(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
+  }, [rootStore.client]);
+
+  // When finished handling authentication, handle flow
   useEffect(() => {
-    if(!rootStore.client || (parameters.requireAuth && !rootStore.loggedIn) || handled) { return; }
+    if(loading) { return; }
 
     rootStore.HandleFlow({
       history,
       flow: match.params.flow,
       parameters: match.params.parameters,
     });
+  }, [loading]);
 
-    setHandled(true);
-  }, [rootStore.client, rootStore.loggedIn]);
-
-  if(parameters.requireAuth) {
-    return (
-      <LoginGate loader={<PageLoader />}>
-        <PageLoader/>
-      </LoginGate>
-    );
-  } else {
-    return (
-      <PageLoader/>
-    );
+  if(loading) {
+    return <PageLoader />;
   }
+
+  return (
+    <LoginGate loader={<PageLoader />}>
+      <PageLoader/>
+    </LoginGate>
+  );
 });
 
 export default Flows;

@@ -1,6 +1,14 @@
 .login-modal {
   overflow-y: hidden;
 
+  * {
+    font-family: var(--font-family-secondary);
+  }
+
+  .action {
+    font: var(--font-button);
+  }
+
   input {
     background: var(--background-input);
     border: var(--border-input);
