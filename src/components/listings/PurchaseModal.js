@@ -9,11 +9,13 @@ import NFTCard from "Components/common/NFTCard";
 import ImageIcon from "Components/common/ImageIcon";
 import {roundToDown} from "round-to";
 import WalletConnect from "Components/crypto/WalletConnect";
+import {PageLoader} from "Components/common/Loaders";
+import {ValidEmail} from "../../utils/Utils";
 
 import PlusIcon from "Assets/icons/plus.svg";
 import MinusIcon from "Assets/icons/minus.svg";
-import {PageLoader} from "Components/common/Loaders";
-import {ValidEmail} from "../../utils/Utils";
+import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
+
 
 const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
   if(maxQuantity <= 1) { return null; }
