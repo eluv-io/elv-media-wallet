@@ -355,7 +355,7 @@ class TransferStore {
             };
           }
         }
-      } else if(tenantIds && tenantIds.length > 0) {
+      } else if(mode !== "owned" && tenantIds && tenantIds.length > 0) {
         tenantIds.map(tenantId => tenantId && filters.push(`tenant:eq:${tenantId}`));
       }
 
@@ -388,6 +388,11 @@ class TransferStore {
       switch(mode) {
         case "owned":
           path = UrlJoin("as", "wlt", "nfts");
+
+          if(tenantIds && tenantIds.length > 0) {
+            path = UrlJoin("as", "wlt", "nfts", tenantIds[0]);
+          }
+
           break;
 
         case "listings":
