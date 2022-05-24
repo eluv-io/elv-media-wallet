@@ -21,7 +21,7 @@ const MarketplaceItemCard = ({
 }) => {
   const match = useRouteMatch();
 
-  if(!item.for_sale || (item.type === "nft" && (!item.nft_template || item.nft_template["/"]))) {
+  if(item.type === "nft" && (!item.nft_template || item.nft_template["/"])) {
     return null;
   }
 
