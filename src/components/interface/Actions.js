@@ -24,7 +24,7 @@ const Actions = observer(() => {
     if(!rootStore.client) { return; }
 
     if(!parameters.auth) {
-      setLoading(true);
+      setLoading(false);
       return;
     }
 

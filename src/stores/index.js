@@ -1752,8 +1752,6 @@ class RootStore {
         if(expiresAt - Date.now() < expirationBuffer) {
           this.ClearAuthInfo();
           this.Log("Authorization expired");
-        } else if(!user) {
-          this.ClearAuthInfo();
         } else {
           return { fabricToken, authToken, address, user, walletName, expiresAt };
         }
