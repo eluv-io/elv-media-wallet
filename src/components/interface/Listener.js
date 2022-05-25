@@ -267,7 +267,8 @@ export const InitializeListener = (history) => {
             address: data.params.address,
             user: data.params.user,
             tenantId: data.params.tenantId,
-            walletName: data.params.walletName
+            walletName: data.params.walletName,
+            expiresAt: data.params.expiresAt || (Date.now() + 12 * 60 * 60 * 1000)
           });
 
           return Respond({});

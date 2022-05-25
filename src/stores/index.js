@@ -333,7 +333,6 @@ class RootStore {
         }
       }
 
-
       const client = yield ElvClient.FromConfigurationUrl({
         configUrl: EluvioConfiguration["config-url"],
         assumeV3: true
@@ -350,7 +349,6 @@ class RootStore {
         walletName = externalWallet;
 
         const duration = 24 * 60 * 60 * 1000;
-        const buffer = 8 * 60 * 60 * 1000;
         fabricToken = yield client.CreateFabricToken({
           address,
           duration,
@@ -358,8 +356,7 @@ class RootStore {
           addEthereumPrefix: false
         });
 
-        // Expire token early so it does not stop working during usage
-        expiresAt = Date.now() + duration - buffer;
+        expiresAt = Date.now() + duration;
       } else if(fabricToken && !authToken) {
         // Signed in previously with external wallet
       } else if(idToken || authToken) {
@@ -1746,12 +1743,13 @@ class RootStore {
       const tokenInfo = this.GetLocalStorage(`auth-${this.network}`);
 
       if(tokenInfo) {
-        // TODO: Expire fabric token
         let { fabricToken, authToken, address, user, walletName, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
 
-        expiresAt = expiresAt || (authToken && JSON.parse(atob(authToken)).exp);
+        // Expire tokens early so they don't stop working while in use
+        const expirationBuffer = 4 * 60 * 60 * 1000;
 
-        if(expiresAt - Date.now() < 4 * 3600 * 1000) {
+        expiresAt = expiresAt || (authToken && JSON.parse(atob(authToken)).exp);
+        if(expiresAt - Date.now() < expirationBuffer) {
           this.ClearAuthInfo();
           this.Log("Authorization expired");
         } else if(!user) {

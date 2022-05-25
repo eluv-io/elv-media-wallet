@@ -441,9 +441,10 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @param {string=} idToken - An OAuth ID token to authenticate with
    * @param {string=} authToken - An Eluvio authorization token
    * @param {string=} fabricToken - An Eluvio authorization token signed by the user
-   * @param {string=} walletName - If signing in from an external wallet such as metamask, the name of the wallet.
+   * @param {string=} walletName - If signing in from an external wallet such as metamask, the name of the wallet
+   * @param {number=} expiresAt - A unix epoch timestamp indicating when the specified authorization expires
    */
-  async SignIn({name, email, idToken, authToken, fabricToken, address, walletName, tenantId}) {
+  async SignIn({name, email, idToken, authToken, fabricToken, address, walletName, tenantId, expiresAt}) {
     return this.SendMessage({
       action: "login",
       params: {
@@ -453,6 +454,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
         address,
         tenantId,
         walletName,
+        expiresAt,
         user: {
           name,
           email
