@@ -1,3 +1,5 @@
+import {FormatNFT, LinkTargetHash} from "../utils/Utils";
+
 const testTheme = undefined;//import("../static/stylesheets/themes/maskverse-test.theme.css");
 
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
@@ -52,7 +54,6 @@ class RootStore {
 
   embedded = window.top !== window.self || searchParams.has("e");
   parentAppUrl = undefined;
-  inFlow = window.location.hash.startsWith("#/flow/") || window.location.hash.startsWith("#/action/");
 
   storageSupported = storageSupported;
 
@@ -233,6 +234,22 @@ class RootStore {
         noAuth: true
       });
 
+      try {
+        const auth = searchParams.get("auth");
+
+        if(auth) {
+          this.SetAuthInfo(JSON.parse(Utils.FromB64(auth)));
+        }
+      } catch(error) {
+        this.Log("Failed to load auth from parameter", true);
+        this.Log(error, true);
+      }
+
+      let authenticationPromise;
+      if(this.AuthInfo()) {
+        authenticationPromise = this.Authenticate(this.AuthInfo());
+      }
+
       this.parentAppUrl = this.GetSessionStorage("parentAppUrl") || (searchParams.get("app") && atob(searchParams.get("app")));
       if(this.parentAppUrl) {
         this.SetSessionStorage("parentApp", this.parentAppUrl);
@@ -255,26 +272,23 @@ class RootStore {
       if(marketplace) {
         yield this.LoadAvailableMarketplaces({tenantSlug, marketplaceSlug});
 
-        const specifiedMarketplaceHash = this.SetMarketplace({tenantSlug, marketplaceSlug, marketplaceHash, marketplaceId, specified: true});
+        const specifiedMarketplaceHash = this.SetMarketplace({
+          tenantSlug,
+          marketplaceSlug,
+          marketplaceHash,
+          marketplaceId,
+          specified: true
+        });
 
-        this.specifiedMarketplaceId = Utils.DecodeVersionHash(specifiedMarketplaceHash).objectId;
+        if(specifiedMarketplaceHash) {
+          this.specifiedMarketplaceId = Utils.DecodeVersionHash(specifiedMarketplaceHash).objectId;
 
-        this.SetSessionStorage("marketplace", marketplace);
-      }
-
-      try {
-        const auth = searchParams.get("auth");
-
-        if(auth) {
-          this.SetAuthInfo(JSON.parse(Utils.FromB64(auth)));
+          this.SetSessionStorage("marketplace", marketplace);
         }
-      } catch(error) {
-        this.Log("Failed to load auth from parameter", true);
-        this.Log(error, true);
       }
 
-      if(!this.inFlow && this.AuthInfo()) {
-        yield this.Authenticate(this.AuthInfo());
+      if(authenticationPromise) {
+        yield authenticationPromise;
       }
 
       this.SendEvent({event: EVENTS.LOADED});
@@ -537,46 +551,7 @@ class RootStore {
         ...(nft.metadata || {})
       };
 
-      // Generate embed URLs for additional media
-      if(nft.metadata?.additional_media) {
-        nft.metadata.additional_media = nft.metadata.additional_media.map(media => {
-          try {
-            // Generate embed URLs for additional media
-            const mediaType = (media.media_type || "").toLowerCase();
-
-            if(mediaType === "image") {
-              return {
-                ...media,
-                embed_url: media.media_file.url
-              };
-            }
-
-            let embedUrl = new URL("https://embed.v3.contentfabric.io");
-            embedUrl.searchParams.set("p", "");
-            embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
-            embedUrl.searchParams.set("ath", this.authToken);
-
-            if(mediaType === "video") {
-              embedUrl.searchParams.set("vid", media.media_link["."].container);
-              embedUrl.searchParams.set("ct", "h");
-              embedUrl.searchParams.set("ap", "");
-            } else if(mediaType === "ebook") {
-              embedUrl.searchParams.set("type", "ebook");
-              embedUrl.searchParams.set("vid", media.media_file["."].container);
-              embedUrl.searchParams.set("murl", btoa(media.media_file.url));
-            }
-
-            return {
-              ...media,
-              embed_url: embedUrl.toString()
-            };
-          } catch(error) {
-            return media;
-          }
-        });
-      }
-
-      this.nftData[key] = nft;
+      this.nftData[key] = FormatNFT(nft);
     }
 
     return this.nftData[key];
@@ -743,7 +718,7 @@ class RootStore {
   }
 
   SetCustomizationOptions(marketplace) {
-    if(this.currentCustomization === (marketplace && marketplace.marketplaceId)) {
+    if(marketplace !== "default" && this.currentCustomization === (marketplace && marketplace.marketplaceId)) {
       return;
     }
 
@@ -958,15 +933,8 @@ class RootStore {
         marketplace.items.map(async (item, index) => {
           if(this.loggedIn && item.requires_permissions) {
             try {
-              let versionHash;
-              if(item.nft_template["/"]) {
-                versionHash = item.nft_template["/"].split("/").find(component => (component || "").startsWith("hq__"));
-              } else if(item.nft_template["."] && item.nft_template["."].source) {
-                versionHash = item.nft_template["."].source;
-              }
-
               await this.client.ContentObjectMetadata({
-                versionHash,
+                versionHash: LinkTargetHash(item.nft_template),
                 metadataSubtree: "permissioned"
               });
 
@@ -986,6 +954,29 @@ class RootStore {
       marketplace.retrievedAt = Date.now();
       marketplace.marketplaceId = marketplaceId;
       marketplace.versionHash = marketplaceHash;
+
+      // Generate embed URLs for pack opening animations
+      ["purchase_animation", "purchase_animation__mobile", "reveal_animation", "reveal_animation_mobile"].forEach(key => {
+        try {
+          if(marketplace?.storefront[key]) {
+            let embedUrl = new URL("https://embed.v3.contentfabric.io");
+            const targetHash = LinkTargetHash(marketplace.storefront[key]);
+            embedUrl.searchParams.set("p", "");
+            embedUrl.searchParams.set("net", this.network === "demo" ? "demo" : "main");
+            embedUrl.searchParams.set("ath", this.authToken || this.staticToken);
+            embedUrl.searchParams.set("vid", targetHash);
+            embedUrl.searchParams.set("ap", "");
+
+            if(!key.startsWith("reveal")) {
+              embedUrl.searchParams.set("m", "");
+              embedUrl.searchParams.set("lp", "");
+            }
+
+            marketplace.storefront[`${key}_embed_url`] = embedUrl.toString();
+          }
+          // eslint-disable-next-line no-empty
+        } catch(error) {}
+      });
 
       this.marketplaces[marketplaceId] = marketplace;
 

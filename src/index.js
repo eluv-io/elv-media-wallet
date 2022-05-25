@@ -35,7 +35,7 @@ import {
   HashRouter,
   Switch,
   Route,
-  Redirect,
+  Redirect
 } from "react-router-dom";
 import Login from "./login/Login";
 import ScrollToTop from "Components/common/ScrollToTop";
@@ -96,7 +96,7 @@ const LoginModal = observer(() => {
     );
   }
 
-  if(rootStore.loggedIn && !rootStore.loginOnly) {
+  if(!rootStore.loaded || (rootStore.loggedIn && !rootStore.loginOnly)) {
     return null;
   }
 

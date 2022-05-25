@@ -7,7 +7,7 @@ import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import NFTCard from "Components/common/NFTCard";
-import {MobileOption} from "../../utils/Utils";
+import {LinkTargetHash, MobileOption} from "../../utils/Utils";
 
 let statusInterval;
 const MintingStatus = observer(({
@@ -175,8 +175,7 @@ export const DropMintingStatus = observer(() => {
       .then(drop => setDrop(drop));
   }, []);
 
-  const videoHash = drop.minting_animation &&
-    ((drop.minting_animation["/"] && drop.minting_animation["/"].split("/").find(component => component.startsWith("hq__")) || drop.minting_animation["."].source));
+  const videoHash = LinkTargetHash(drop.minting_animation);
 
   const Status = async () => await rootStore.DropStatus({
     marketplace,
@@ -389,10 +388,10 @@ export const PurchaseMintingStatus = observer(() => {
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const animation = MobileOption(rootStore.pageWidth, marketplace.storefront?.purchase_animation, marketplace.storefront?.purchase_animation_mobile);
-  const videoHash = animation && ((animation["/"] && animation["/"].split("/").find(component => component.startsWith("hq__")) || animation["."].source));
+  const videoHash = LinkTargetHash(animation);
 
   const revealAnimation = MobileOption(rootStore.pageWidth, marketplace.storefront?.reveal_animation, marketplace.storefront?.reveal_animation_mobile);
-  const revealVideoHash = revealAnimation && ((revealAnimation["/"] && revealAnimation["/"].split("/").find(component => component.startsWith("hq__")) || revealAnimation["."].source));
+  const revealVideoHash = LinkTargetHash(revealAnimation);
 
 
   const Status = async () => await rootStore.PurchaseStatus({
@@ -435,10 +434,10 @@ export const ClaimMintingStatus = observer(() => {
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const animation = MobileOption(rootStore.pageWidth, marketplace.storefront?.purchase_animation, marketplace.storefront?.purchase_animation_mobile);
-  const videoHash = animation && ((animation["/"] && animation["/"].split("/").find(component => component.startsWith("hq__")) || animation["."].source));
+  const videoHash = LinkTargetHash(animation);
 
   const revealAnimation = MobileOption(rootStore.pageWidth, marketplace.storefront?.reveal_animation, marketplace.storefront?.reveal_animation_mobile);
-  const revealVideoHash = revealAnimation && ((revealAnimation["/"] && revealAnimation["/"].split("/").find(component => component.startsWith("hq__")) || revealAnimation["."].source));
+  const revealVideoHash = LinkTargetHash(revealAnimation);
 
   const Status = async () => await rootStore.ClaimStatus({
     marketplace,
@@ -518,10 +517,10 @@ export const PackOpenStatus = observer(() => {
 
   const packOptions = nft?.metadata?.pack_options || {};
   const animation = MobileOption(rootStore.pageWidth, packOptions.open_animation, packOptions.open_animation_mobile);
-  const videoHash = animation && ((animation["/"] && animation["/"].split("/").find(component => component.startsWith("hq__")) || animation["."].source));
+  const videoHash = LinkTargetHash(animation);
 
   const revealAnimation = MobileOption(rootStore.pageWidth, packOptions.reveal_animation, packOptions.reveal_animation_mobile);
-  const revealVideoHash = revealAnimation && ((revealAnimation["/"] && revealAnimation["/"].split("/").find(component => component.startsWith("hq__")) || revealAnimation["."].source));
+  const revealVideoHash = LinkTargetHash(revealAnimation);
 
   const basePath = match.url.startsWith("/marketplace") ?
     UrlJoin("/marketplace", match.params.marketplaceId, "collection") :

@@ -58,85 +58,6 @@ const Price = (item, quantity=1) => {
   };
 };
 
-// Serialize NFT and move some important details to top level
-// NOTE: NFT has already run through transferStore.FormatResult
-const FormatNFT = (nft) => {
-  if(!nft || !nft.metadata) { return; }
-
-  nft = toJS(nft);
-
-  nft.contractAddress = nft.details.ContractAddr;
-  nft.contractId = nft.details.ContractId;
-  nft.tokenId = nft.details.TokenIdStr;
-  nft.name = nft.metadata.display_name;
-
-  if(nft.details.ListingId) {
-    nft.listingId = nft.details.ListingId;
-  }
-
-  // Generate embed URLs for additional media
-  if(nft.metadata?.additional_media) {
-    nft.metadata.additional_media = nft.metadata.additional_media.map(media => {
-      try {
-        // Generate embed URLs for additional media
-        const mediaType = (media.media_type || "").toLowerCase();
-
-        if(mediaType === "image") {
-          return {
-            ...media,
-            embed_url: media.media_file.url
-          };
-        }
-
-        let embedUrl = new URL("https://embed.v3.contentfabric.io");
-        embedUrl.searchParams.set("p", "");
-        embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
-        embedUrl.searchParams.set("ath", rootStore.authToken);
-
-        if(mediaType === "video") {
-          embedUrl.searchParams.set("vid", media.media_link["."].container);
-          embedUrl.searchParams.set("ct", "h");
-          embedUrl.searchParams.set("ap", "");
-        } else if(mediaType === "ebook") {
-          embedUrl.searchParams.set("type", "ebook");
-          embedUrl.searchParams.set("vid", media.media_file["."].container);
-          embedUrl.searchParams.set("murl", btoa(media.media_file.url));
-        }
-
-        return {
-          ...media,
-          embed_url: embedUrl.toString()
-        };
-      } catch(error) {
-        return media;
-      }
-    });
-  }
-
-  ["open_animation", "open_animation__mobile", "reveal_animation", "reveal_animation_mobile"].forEach(key => {
-    // Generate embed URLs for pack opening animations
-    try {
-      if(nft.metadata?.pack_options && nft.metadata.pack_options[key]) {
-        let embedUrl = new URL("https://embed.v3.contentfabric.io");
-        embedUrl.searchParams.set("p", "");
-        embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
-        embedUrl.searchParams.set("ath", rootStore.authToken);
-        embedUrl.searchParams.set("vid", nft.metadata.pack_options[key]["."].container);
-        embedUrl.searchParams.set("ap", "");
-
-        if(!key.startsWith("reveal")) {
-          embedUrl.searchParams.set("m", "");
-        }
-
-        nft.metadata.pack_options[`${key}_embed_url`] = embedUrl.toString();
-      }
-    // eslint-disable-next-line no-empty
-    } catch(error) {}
-  });
-
-  return nft;
-};
-
 const Target = () => {
   if(embedded) {
     // In iframe
@@ -158,7 +79,7 @@ const Item = async data => {
 
     if(!item) { throw "Item not found"; }
 
-    return FormatNFT(item);
+    return toJS(item);
   } catch(error) {
     throw Error(`Unable to find item with contract address '${data.params.contractAddress}' and token ID '${data.params.tokenId}'`);
   }
@@ -188,7 +109,7 @@ const Listing = async data => {
 
     if(!listing) { throw "Listing not found"; }
 
-    return FormatNFT(listing);
+    return toJS(listing);
   } catch(error) {
     throw Error(`Unable to find listing with ID ${data.params.listingId}`);
   }
@@ -316,7 +237,7 @@ export const InitializeListener = (history) => {
               })
             ).results || []
           })
-            .map(item => FormatNFT(item));
+            .map(item => toJS(item));
 
         // client.Item
         case "item":
