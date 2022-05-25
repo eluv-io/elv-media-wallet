@@ -90,9 +90,11 @@ const LogInRedirect = async ({auth0, callbackUrl, marketplaceHash, userData, dar
       });
     } else {
       // Not embedded
-      const auth0LoginParams = {
-        darkMode
-      };
+      let auth0LoginParams = {};
+
+      if(darkMode) {
+        auth0LoginParams.darkMode = true;
+      }
 
       if(customizationOptions.disable_third_party) {
         auth0LoginParams.disableThirdParty = true;

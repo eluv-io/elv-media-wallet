@@ -54,6 +54,7 @@ class RootStore {
 
   embedded = window.top !== window.self || searchParams.has("e");
   parentAppUrl = undefined;
+  inFlow = (window.location.hash.startsWith("#/flow/") || window.location.hash.startsWith("#/action/")) && !window.location.hash.includes("redirect");
 
   storageSupported = storageSupported;
 
@@ -246,7 +247,7 @@ class RootStore {
       }
 
       let authenticationPromise;
-      if(this.AuthInfo()) {
+      if(!this.inFlow && this.AuthInfo()) {
         authenticationPromise = this.Authenticate(this.AuthInfo());
       }
 
@@ -1392,9 +1393,9 @@ class RootStore {
     yield this.Flow({
       type: "flow",
       flow: "stripe-onboard",
+      includeAuth: true,
       parameters: {
-        countryCode,
-        auth: this.AuthInfo()
+        countryCode
       },
       OnCancel: () => this.GetWalletBalance()
     });
@@ -1404,10 +1405,8 @@ class RootStore {
     yield this.Flow({
       type: "flow",
       flow: "stripe-login",
+      includeAuth: true,
       noResponse: true,
-      parameters: {
-        auth: this.AuthInfo()
-      },
       OnCancel: () => this.GetWalletBalance()
     });
   });
@@ -1553,7 +1552,7 @@ class RootStore {
 
   // Flows are popups that do not require UI input (redirecting to purchase, etc)
   // Actions are popups that present UI (signing, accepting permissions, etc.)
-  Flow = flow(function * ({type="flow", flow, parameters={}, darkMode=false, noResponse, OnComplete, OnCancel}) {
+  Flow = flow(function * ({type="flow", flow, parameters={}, includeAuth=false, darkMode=false, noResponse, OnComplete, OnCancel}) {
     try {
       const popup = window.open("about:blank");
 
@@ -1565,7 +1564,7 @@ class RootStore {
 
       parameters.flowId = flowId;
 
-      if(!this.storageSupported && this.AuthInfo()) {
+      if(includeAuth || (!this.storageSupported && this.AuthInfo())) {
         parameters.auth = this.AuthInfo();
       }
 

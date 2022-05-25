@@ -188,6 +188,7 @@ class CheckoutStore {
         // Third party checkout doesn't work in iframe, open new window to initiate purchase
         yield this.rootStore.Flow({
           flow: "listing-purchase",
+          includeAuth: true,
           parameters: {
             provider,
             tenantId,
@@ -307,6 +308,7 @@ class CheckoutStore {
         // Third party checkout doesn't work in iframe, open new window to initiate purchase
         yield this.rootStore.Flow({
           flow: "purchase",
+          includeAuth: true,
           parameters: {
             provider,
             tenantId,
@@ -396,7 +398,10 @@ class CheckoutStore {
         this.client.authClient.MakeAuthServiceRequest({
           method: "POST",
           path: UrlJoin("as", "checkout", "stripe"),
-          body: requestParams
+          body: requestParams,
+          headers: {
+            Authorization: `Bearer ${this.rootStore.authToken}`
+          }
         })
       )).session_id;
 
@@ -413,7 +418,10 @@ class CheckoutStore {
         this.client.authClient.MakeAuthServiceRequest({
           method: "POST",
           path: UrlJoin("as", "checkout", "coinbase"),
-          body: requestParams
+          body: requestParams,
+          headers: {
+            Authorization: `Bearer ${this.rootStore.authToken}`
+          }
         })
       )).charge_code;
 
@@ -445,7 +453,10 @@ class CheckoutStore {
         this.client.authClient.MakeAuthServiceRequest({
           method: "POST",
           path: UrlJoin("as", "checkout", "solana"),
-          body: requestParams
+          body: requestParams,
+          headers: {
+            Authorization: `Bearer ${this.rootStore.authToken}`
+          }
         })
       ));
 

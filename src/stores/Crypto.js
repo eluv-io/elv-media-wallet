@@ -297,8 +297,7 @@ class CryptoStore {
 
   EmbeddedSign = flow(function * ({provider, connect, purchaseSpec, message}) {
     let parameters = {
-      provider,
-      auth: this.rootStore.AuthInfo()
+      provider
     };
 
     if(connect) {
@@ -314,6 +313,7 @@ class CryptoStore {
     const result = yield rootStore.Flow({
       type: "action",
       flow: "sign",
+      includeAuth: true,
       parameters
     });
 
