@@ -23,12 +23,17 @@ const Actions = observer(() => {
   useEffect(() => {
     if(!rootStore.client) { return; }
 
-    if(parameters.auth && !rootStore.loggedIn) {
-      rootStore.Authenticate({...parameters.auth})
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
+    if(!parameters.auth) {
+      setLoading(true);
+      return;
     }
+
+    if(rootStore.loggedIn || rootStore.authenticating) {
+      return;
+    }
+
+    rootStore.Authenticate({...parameters.auth, saveAuthInfo: false})
+      .then(() => setLoading(false));
   }, [rootStore.client]);
 
   const Respond = ({response, error}) => {

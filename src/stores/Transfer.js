@@ -433,7 +433,7 @@ class TransferStore {
           method: "GET",
           queryParams: params,
           headers: mode === "owned" ?
-            { Authorization: `Bearer ${this.client.staticToken}` } :
+            { Authorization: `Bearer ${this.rootStore.authToken}` } :
             {}
         })
       ) || [];
@@ -480,7 +480,7 @@ class TransferStore {
             price: parseFloat(price)
           },
           headers: {
-            Authorization: `Bearer ${this.client.staticToken}`
+            Authorization: `Bearer ${this.rootStore.authToken}`
           }
         })
       );
@@ -496,7 +496,7 @@ class TransferStore {
             price: parseFloat(price)
           },
           headers: {
-            Authorization: `Bearer ${this.client.staticToken}`
+            Authorization: `Bearer ${this.rootStore.authToken}`
           }
         })
       );
@@ -508,7 +508,7 @@ class TransferStore {
       path: UrlJoin("as", "wlt", "mkt", listingId),
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${this.client.staticToken}`
+        Authorization: `Bearer ${this.rootStore.authToken}`
       }
     });
   });
@@ -560,7 +560,7 @@ class TransferStore {
         path: UrlJoin("as", "wlt", "mkt", "hst"),
         method: "GET",
         headers: {
-          Authorization: `Bearer ${this.client.staticToken}`
+          Authorization: `Bearer ${this.rootStore.authToken}`
         }
       })
     );
@@ -575,7 +575,7 @@ class TransferStore {
             path: UrlJoin("as", "wlt", "mkt", "pmts"),
             method: "GET",
             headers: {
-              Authorization: `Bearer ${this.client.staticToken}`
+              Authorization: `Bearer ${this.rootStore.authToken}`
             }
           })
         )

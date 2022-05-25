@@ -52,7 +52,7 @@ class CheckoutStore {
             path: UrlJoin("as", "wlt", "nft", "info", tenantId),
             method: "GET",
             headers: {
-              Authorization: `Bearer ${this.client.staticToken}`
+              Authorization: `Bearer ${this.rootStore.authToken}`
             }
           })
         );
@@ -126,7 +126,7 @@ class CheckoutStore {
           sku
         },
         headers: {
-          Authorization: `Bearer ${this.client.staticToken}`
+          Authorization: `Bearer ${this.rootStore.authToken}`
         }
       });
 
@@ -424,7 +424,7 @@ class CheckoutStore {
         path: UrlJoin("as", "wlt", "mkt", "bal", "pay"),
         body: requestParams,
         headers: {
-          Authorization: `Bearer ${this.client.staticToken}`
+          Authorization: `Bearer ${this.rootStore.authToken}`
         }
       });
 

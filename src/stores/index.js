@@ -224,7 +224,7 @@ class RootStore {
       });
 
       this.staticToken = this.client.staticToken;
-      this.authToken = this.client.staticToken;
+      this.authToken = undefined;
 
       this.basePublicUrl = yield this.client.FabricUrl({
         queryParams: {
@@ -339,7 +339,7 @@ class RootStore {
         assumeV3: true
       });
 
-      this.authToken = client.staticToken;
+      this.authToken = undefined;
 
       this.client = client;
 
@@ -1116,7 +1116,7 @@ class RootStore {
           tok_id: tokenId
         },
         headers: {
-          Authorization: `Bearer ${this.client.staticToken}`
+          Authorization: `Bearer ${this.authToken}`
         }
       });
 
@@ -1143,7 +1143,7 @@ class RootStore {
           path: UrlJoin("as", "wlt", "status", "act", tenantId),
           method: "GET",
           headers: {
-            Authorization: `Bearer ${this.client.staticToken}`
+            Authorization: `Bearer ${this.authToken}`
           }
         })
       );
@@ -1238,7 +1238,7 @@ class RootStore {
           path: UrlJoin("as", "wlt", "act", marketplace.tenant_id, eventId, dropId),
           method: "GET",
           headers: {
-            Authorization: `Bearer ${this.client.staticToken}`
+            Authorization: `Bearer ${this.authToken}`
           }
         })
       );
@@ -1313,7 +1313,7 @@ class RootStore {
         itm: sku
       },
       headers: {
-        Authorization: `Bearer ${this.client.staticToken}`
+        Authorization: `Bearer ${this.authToken}`
       }
     });
   });
@@ -1327,7 +1327,7 @@ class RootStore {
         path: UrlJoin("as", "wlt", "mkt", "bal"),
         method: "GET",
         headers: {
-          Authorization: `Bearer ${this.client.staticToken}`
+          Authorization: `Bearer ${this.authToken}`
         }
       })
     );
@@ -1352,7 +1352,7 @@ class RootStore {
           return_url: rootUrl.toString()
         },
         headers: {
-          Authorization: `Bearer ${this.client.staticToken}`
+          Authorization: `Bearer ${this.authToken}`
         }
       });
 
@@ -1390,7 +1390,7 @@ class RootStore {
           mode: EluvioConfiguration.mode,
         },
         headers: {
-          Authorization: `Bearer ${this.client.staticToken}`
+          Authorization: `Bearer ${this.authToken}`
         }
       })
     );
@@ -1692,7 +1692,7 @@ class RootStore {
                 refresh_url: window.location.href
               },
               headers: {
-                Authorization: `Bearer ${this.client.staticToken}`
+                Authorization: `Bearer ${this.authToken}`
               }
             })
           );
@@ -1714,7 +1714,7 @@ class RootStore {
                 mode: EluvioConfiguration.mode,
               },
               headers: {
-                Authorization: `Bearer ${this.client.staticToken}`
+                Authorization: `Bearer ${this.authToken}`
               }
             })
           );
