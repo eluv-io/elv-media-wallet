@@ -251,7 +251,7 @@ class RootStore {
         authenticationPromise = this.Authenticate(this.AuthInfo());
       }
 
-      this.parentAppUrl = this.GetSessionStorage("parentAppUrl") || (searchParams.get("app") && atob(searchParams.get("app")));
+      this.parentAppUrl = this.GetSessionStorage("parentAppUrl") || (searchParams.get("app") && atob(searchParams.get("app"))) || (this.embedded && document.referrer);
       if(this.parentAppUrl) {
         this.SetSessionStorage("parentApp", this.parentAppUrl);
       }
