@@ -215,10 +215,10 @@ class CryptoStore {
     yield this.LoadConnectedAccounts();
   })
 
-  SignMetamask = flow(function * (message, address) {
+  SignMetamask = flow(function * (message, address, popup) {
     try {
       if(this.rootStore.embedded) {
-        return yield this.EmbeddedSign({provider: "metamask", message});
+        return yield this.EmbeddedSign({popup, provider: "metamask", message});
       } else {
         yield window.ethereum.request({method: "eth_requestAccounts"});
         const from = address || window.ethereum?.selectedAddress;
@@ -234,10 +234,10 @@ class CryptoStore {
     }
   });
 
-  SignPhantom = flow(function * (message) {
+  SignPhantom = flow(function * (message, popup) {
     try {
       if(this.rootStore.embedded) {
-        return yield this.EmbeddedSign({provider: "phantom", message});
+        return yield this.EmbeddedSign({popup, provider: "phantom", message});
       } else {
         yield window.solana.connect();
 
@@ -295,7 +295,7 @@ class CryptoStore {
     }
   })
 
-  EmbeddedSign = flow(function * ({provider, connect, purchaseSpec, message}) {
+  EmbeddedSign = flow(function * ({provider, connect, purchaseSpec, message, popup}) {
     let parameters = {
       provider,
       parentAppUrl: rootStore.parentAppUrl
@@ -312,6 +312,7 @@ class CryptoStore {
     }
 
     const result = yield rootStore.Flow({
+      popup,
       type: "action",
       flow: "sign",
       includeAuth: true,
@@ -455,7 +456,7 @@ class CryptoStore {
           Connect: async () => await this.ConnectMetamask(),
           Connection: () => this.connectedAccounts.eth[Utils.FormatAddress(window.ethereum?.selectedAddress)],
           ConnectedAccounts: () => Object.values(this.connectedAccounts.eth),
-          Sign: async message => await this.SignMetamask(message),
+          Sign: async (message, popup) => await this.SignMetamask(message, undefined, popup),
           Disconnect: async () => {}
         };
       case "phantom":
@@ -472,7 +473,7 @@ class CryptoStore {
           Connect: async () => await this.ConnectPhantom(),
           Connection: () => this.connectedAccounts.sol[this.PhantomAddress()],
           ConnectedAccounts: () => Object.values(this.connectedAccounts.sol),
-          Sign: async message => await this.SignPhantom(message),
+          Sign: async (message, popup) => await this.SignPhantom(message, popup),
           SignTransaction: async transaction => await this.SignPhantomTransaction(transaction),
           Purchase: async spec => await this.PurchasePhantom(spec),
           Disconnect: async (address) => await this.DisconnectPhantom(address)

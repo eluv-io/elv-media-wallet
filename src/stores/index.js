@@ -308,6 +308,11 @@ class RootStore {
     if(this.authenticating) { return; }
 
     try {
+      let popup;
+      if(externalWallet && this.embedded) {
+        popup = window.open("about:blank");
+      }
+
       this.authenticating = true;
       this.loggedIn = false;
 
@@ -330,7 +335,7 @@ class RootStore {
         fabricToken = yield client.CreateFabricToken({
           address,
           duration,
-          Sign: walletMethods.Sign,
+          Sign: message => walletMethods.Sign(message, popup),
           addEthereumPrefix: false
         });
 
@@ -1515,9 +1520,11 @@ class RootStore {
 
   // Flows are popups that do not require UI input (redirecting to purchase, etc)
   // Actions are popups that present UI (signing, accepting permissions, etc.)
-  Flow = flow(function * ({type="flow", flow, parameters={}, includeAuth=false, darkMode=false, noResponse, OnComplete, OnCancel}) {
+  Flow = flow(function * ({popup, type="flow", flow, parameters={}, includeAuth=false, darkMode=false, noResponse, OnComplete, OnCancel}) {
     try {
-      const popup = window.open("about:blank");
+      if(!popup) {
+        popup = window.open("about:blank");
+      }
 
       if(!popup) {
         throw {message: "Popup Blocked", error: "popup_blocked"};
@@ -1570,6 +1577,8 @@ class RootStore {
       return result;
     } catch(error) {
       this.Log(error, true);
+
+      this.DEBUG_ERROR_MESSAGE = JSON.stringify(error, null, 2);
 
       if(OnCancel) {
         OnCancel(error);
