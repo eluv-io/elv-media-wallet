@@ -298,7 +298,6 @@ class CryptoStore {
   EmbeddedSign = flow(function * ({provider, connect, purchaseSpec, message, popup}) {
     let parameters = {
       provider,
-      parentAppUrl: rootStore.parentAppUrl
     };
 
     if(connect) {

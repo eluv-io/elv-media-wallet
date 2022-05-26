@@ -49,31 +49,6 @@ const SignaturePopup = observer(({parameters, Respond}) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if(parameters.provider === "metamask" && !cryptoStore.MetamaskAvailable()) {
-      let url = rootStore.parentAppUrl || parameters.parentAppUrl;
-      if(!url) {
-        url = new URL(window.location.href);
-
-        if(rootStore.specifiedMarketplaceId) {
-          url.searchParams.set("mid", rootStore.specifiedMarketplaceId);
-        }
-
-        if(rootStore.darkMode) {
-          url.searchParams.set("dk", "");
-        }
-      }
-
-      const a = document.createElement("a");
-      a.href = `https://metamask.app.link/dapp/${url.toString().replace("https://", "")}`;
-
-      a.target = "_self";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-
-      return;
-    }
-
     Sign(
       parameters,
       Respond,

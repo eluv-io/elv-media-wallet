@@ -53,7 +53,6 @@ class RootStore {
   network = EluvioConfiguration["config-url"].includes("main.net955305") ? "main" : "demo";
 
   embedded = window.top !== window.self || searchParams.has("e");
-  parentAppUrl = undefined;
   inFlow = (window.location.hash.startsWith("#/flow/") || window.location.hash.startsWith("#/action/")) && !window.location.hash.includes("redirect");
 
   storageSupported = storageSupported;
@@ -251,11 +250,6 @@ class RootStore {
         authenticationPromise = this.Authenticate(this.AuthInfo());
       }
 
-      this.parentAppUrl = this.GetSessionStorage("parentAppUrl") || (searchParams.get("app") && atob(searchParams.get("app"))) || (this.embedded && document.referrer);
-      if(this.parentAppUrl) {
-        this.SetSessionStorage("parentApp", this.parentAppUrl);
-      }
-
       const marketplace = decodeURIComponent(searchParams.get("mid") || this.GetSessionStorage("marketplace") || "");
 
       let tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash;
@@ -308,13 +302,43 @@ class RootStore {
     if(this.authenticating) { return; }
 
     try {
-      let popup;
-      if(externalWallet && this.embedded) {
-        popup = window.open("about:blank");
-      }
-
       this.authenticating = true;
       this.loggedIn = false;
+
+      if(externalWallet === "metamask" && !this.cryptoStore.MetamaskAvailable()) {
+        const url = new URL(window.location.href);
+        url.searchParams.set("sl", "");
+
+        if(rootStore.specifiedMarketplaceId) {
+          url.searchParams.set("mid", rootStore.specifiedMarketplaceId);
+        }
+
+        if(rootStore.darkMode) {
+          url.searchParams.set("dk", "");
+        }
+
+        // Metamask not available, link to download or open in app
+        if(this.embedded) {
+          // Do flow
+          return yield rootStore.Flow({
+            type: "flow",
+            flow: "open-metamask",
+            parameters: {
+              appUrl: url.toString()
+            }
+          });
+        } else {
+          const a = document.createElement("a");
+          a.href = `https://metamask.app.link/dapp/${url.toString().replace("https://", "")}`;
+
+          a.target = "_self";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+
+          return;
+        }
+      }
 
       const client = yield ElvClient.FromConfigurationUrl({
         configUrl: EluvioConfiguration["config-url"],
@@ -335,7 +359,7 @@ class RootStore {
         fabricToken = yield client.CreateFabricToken({
           address,
           duration,
-          Sign: message => walletMethods.Sign(message, popup),
+          Sign: walletMethods.Sign,
           addEthereumPrefix: false
         });
 
@@ -1520,11 +1544,9 @@ class RootStore {
 
   // Flows are popups that do not require UI input (redirecting to purchase, etc)
   // Actions are popups that present UI (signing, accepting permissions, etc.)
-  Flow = flow(function * ({popup, type="flow", flow, parameters={}, includeAuth=false, darkMode=false, noResponse, OnComplete, OnCancel}) {
+  Flow = flow(function * ({type="flow", flow, parameters={}, includeAuth=false, darkMode=false, noResponse, OnComplete, OnCancel}) {
     try {
-      if(!popup) {
-        popup = window.open("about:blank");
-      }
+      const popup = window.open("about:blank");
 
       if(!popup) {
         throw {message: "Popup Blocked", error: "popup_blocked"};
@@ -1577,8 +1599,6 @@ class RootStore {
       return result;
     } catch(error) {
       this.Log(error, true);
-
-      this.DEBUG_ERROR_MESSAGE = JSON.stringify(error, null, 2);
 
       if(OnCancel) {
         OnCancel(error);

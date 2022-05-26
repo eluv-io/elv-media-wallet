@@ -136,7 +136,6 @@ const walletClient = await ElvWalletClient.InitializePopup({
     appUUID,
     requestor,
     walletAppUrl="http://wallet.contentfabric.io",
-    parentAppUrl,
     target,
     Close,
     timeout=300
@@ -152,7 +151,6 @@ const walletClient = await ElvWalletClient.InitializePopup({
     this.appUUID = appUUID;
     this.requestor = requestor;
     this.walletAppUrl = walletAppUrl;
-    this.parentAppUrl = parentAppUrl;
     this.target = target;
     this.Close = Close;
     this.timeout = timeout;
@@ -454,7 +452,6 @@ const walletClient = await ElvWalletClient.InitializePopup({
    <br />
    `<requestor> is requesting to perform <action>`
    * @param {string=} walletAppUrl=http://wallet.contentfabric.io - The URL of the Eluvio Media Wallet app
-   * @param {string=} parentAppUrl - The URL of your app. The wallet may need to re-open in a different context (e.g. Metamask browser), and this URL will be used instead, if specified.
    * @param {string=} tenantSlug - Specify the URL slug of your tenant. Required if specifying marketplaceSlug
    * @param {string=} marketplaceSlug - Specify the URL slug of your marketplace
    * @param {string=} marketplaceHash - Specify a specific version of a your marketplace. Not necessary if marketplaceSlug is specified
@@ -468,7 +465,6 @@ const walletClient = await ElvWalletClient.InitializePopup({
   static async InitializePopup({
     requestor,
     walletAppUrl="http://wallet.contentfabric.io",
-    parentAppUrl,
     tenantSlug,
     marketplaceSlug,
     marketplaceId,
@@ -510,17 +506,12 @@ const walletClient = await ElvWalletClient.InitializePopup({
       walletAppUrl.searchParams.set("dk", "");
     }
 
-    if(parentAppUrl) {
-      walletAppUrl.searchParams.set("app", (parentAppUrl));
-    }
-
     const target = Popup({url: walletAppUrl.toString(), title: "Eluvio Media Wallet", w: 400, h: 700});
 
     const client = new ElvWalletClient({
       appUUID,
       requestor,
       walletAppUrl: walletAppUrl.toString(),
-      parentAppUrl,
       target,
       Close: () => target.close()
     });
@@ -551,7 +542,6 @@ const walletClient = await ElvWalletClient.InitializePopup({
    <br />
    `<requestor> is requesting to perform <action>`
    * @param {string=} walletAppUrl=http://wallet.contentfabric.io - The URL of the Eluvio Media Wallet app
-   * @param {string=} parentAppUrl - The URL of your app. The wallet may need to re-open in a different context (e.g. Metamask browser), and this URL will be used instead, if specified.
    * @param {Object | string} target - An HTML element or the ID of an element
    * @param {string=} tenantSlug - Specify the URL slug of your tenant. Required if specifying marketplace slug
    * @param {string=} marketplaceSlug - Specify the URL slug of your marketplace
@@ -566,7 +556,6 @@ const walletClient = await ElvWalletClient.InitializePopup({
   static async InitializeFrame({
     requestor,
     walletAppUrl="http://wallet.contentfabric.io",
-    parentAppUrl,
     target,
     tenantSlug,
     marketplaceSlug,
@@ -633,15 +622,10 @@ const walletClient = await ElvWalletClient.InitializePopup({
       walletAppUrl.searchParams.set("dk", "");
     }
 
-    if(parentAppUrl) {
-      walletAppUrl.searchParams.set("app", btoa(parentAppUrl));
-    }
-
     const client = new ElvWalletClient({
       appUUID,
       requestor,
       walletAppUrl: walletAppUrl.toString(),
-      parentAppUrl,
       target: target.contentWindow,
       Close: () => target && target.parentNode && target.parentNode.removeChild(target)
     });

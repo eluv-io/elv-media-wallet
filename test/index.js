@@ -9,7 +9,6 @@ import {ElvWalletClient} from "../client/src/index";
 window.client = undefined;
 
 const appUrl = window.location.hostname === "core.test.contentfabric.io" ? "https://core.test.contentfabric.io/wallet" : "https://192.168.0.23:8090";
-const parentAppUrl = "";
 
 const targetId = "wallet-target";
 
@@ -52,7 +51,6 @@ const App = () => {
     ElvWalletClient.InitializeFrame({
       requestor: "Wallet Client Test App",
       walletAppUrl: appUrl,
-      parentAppUrl,
       target: targetId,
       tenantSlug,
       marketplaceSlug
@@ -105,19 +103,6 @@ const App = () => {
       <div className="button-row">
         <button
           onClick={async () => {
-            const popup = window.open("about:blank");
-
-            setTimeout(() => {
-              popup.location.href = window.location.href;
-            }, 3000);
-          }}
-        >
-          Popup Test
-        </button>
-      </div>
-      <div className="button-row">
-        <button
-          onClick={async () => {
             Destroy();
 
             document.getElementById("client-events").innerHTML = "";
@@ -125,7 +110,6 @@ const App = () => {
             const client = await ElvWalletClient.InitializePopup({
               requestor: "Wallet Client Test App",
               walletAppUrl: appUrl,
-              parentAppUrl,
               tenantSlug,
               marketplaceSlug
             });
@@ -148,7 +132,6 @@ const App = () => {
             const client = await ElvWalletClient.InitializeFrame({
               requestor: "Wallet Client Test App",
               walletAppUrl: appUrl,
-              parentAppUrl,
               target: targetId,
               tenantSlug,
               marketplaceSlug
