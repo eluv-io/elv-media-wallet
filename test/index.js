@@ -105,6 +105,19 @@ const App = () => {
       <div className="button-row">
         <button
           onClick={async () => {
+            const popup = window.open("about:blank");
+
+            setTimeout(() => {
+              popup.location.href = window.location.href;
+            }, 3000);
+          }}
+        >
+          Popup Test
+        </button>
+      </div>
+      <div className="button-row">
+        <button
+          onClick={async () => {
             Destroy();
 
             document.getElementById("client-events").innerHTML = "";
