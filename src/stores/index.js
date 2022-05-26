@@ -312,6 +312,7 @@ class RootStore {
       this.loggedIn = false;
 
       if(externalWallet === "metamask" && !this.cryptoStore.MetamaskAvailable()) {
+        console.log("METAMASK LOGIN: METAMASK NOT AVAILABLE");
         let url = rootStore.parentAppUrl;
         if(!url) {
           url = new URL(window.location.href);
@@ -358,10 +359,13 @@ class RootStore {
       this.client = client;
 
       if(externalWallet) {
+        console.log("METAMASK LOGIN");
         const walletMethods = this.cryptoStore.WalletFunctions(externalWallet);
 
         address = client.utils.FormatAddress(yield walletMethods.Address());
         walletName = externalWallet;
+
+        console.log(address, walletName);
 
         const duration = 24 * 60 * 60 * 1000;
         fabricToken = yield client.CreateFabricToken({

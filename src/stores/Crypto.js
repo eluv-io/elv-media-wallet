@@ -38,6 +38,8 @@ class CryptoStore {
 
     this.RegisterMetamaskHandlers();
 
+    console.log("METAMASK AVAILABLE:", window.ethereum);
+
     if(!this.rootStore.embedded && this.PhantomAvailable()) {
       setInterval(() => runInAction(async () => this.phantomAddress = this.PhantomAddress()), 5000);
 
