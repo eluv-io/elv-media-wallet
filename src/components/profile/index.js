@@ -133,7 +133,7 @@ const Profile = observer(() => {
   }
 
   return (
-    <div className="page-container profile-page content">
+    <div className="page-container profile-page">
       { showWithdrawalSetup ? <WithdrawalSetupModal Close={() => setShowWithdrawalSetup(false)} /> : null }
       { showWithdrawalModal ? <WithdrawalModal Close={() => setShowWithdrawalModal(false)} /> : null }
       <div className="profile-page__section profile-page__section-account">

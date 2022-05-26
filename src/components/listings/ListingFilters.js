@@ -246,6 +246,10 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
     Update();
   }, [filterValues, savedOptionsLoaded]);
 
+  // Owned items view with no available collections has no extra filters available
+  const collections = marketplace && (!filterValues.tenantId || filterValues.tenantId === marketplace.tenant_id) && marketplace.collections;
+  const extraFiltersAvailable = mode !== "owned" || (collections && collections.length > 0);
+
   return (
     <div className="filters">
       <div className="filters__controls">
@@ -265,9 +269,12 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
           }}
           options={sortOptions.map(({key, value, label}) => [value || key, label])}
         />
-        <button className="filters__menu-button" onClick={() => setShowFilterMenu(!showFilterMenu)}>
-          <ImageIcon icon={FilterIcon} title="Show Additional Filter Parameters" />
-        </button>
+        {
+          extraFiltersAvailable ?
+            <button className={`filters__menu-button ${showFilterMenu ? "filters__menu-button--active" : ""}`} onClick={() => setShowFilterMenu(!showFilterMenu)}>
+              <ImageIcon icon={FilterIcon} title="Show Additional Filter Parameters"/>
+            </button> : null
+        }
         {
           showFilterMenu ?
             <FilterMenu

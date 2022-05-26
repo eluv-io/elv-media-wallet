@@ -217,10 +217,31 @@
   --background-login-box: var(--background-modal-primary);
 }
 
+input,
+.styled-select__button {
+  border: 2px solid transparent!important;
+}
+
+input:focus-visible,
+.filters__menu-button--active,
+.styled-select__button--active {
+  background: #07106a;
+  border: 2px solid #0E01FA!important;
+  box-shadow: 0 0 20px #0E01FA;
+  backdrop-filter: blur(16px);
+}
 
 /* Custom CSS */
 .action {
   letter-spacing: 0.12em;
+}
+
+.action:hover:not(:disabled) {
+  box-shadow: 0 0 10px var(--blue-1);
+}
+
+.action.action-primary:hover:not(:disabled) {
+  box-shadow: 0 0 10px var(--gold-1);
 }
 
 .action:not(.action-selection),
@@ -296,4 +317,24 @@
 
 .stats__item {
   border: 0!important;
+}
+
+.stats,
+.expandable-section,
+.transfer-table,
+.listing-card-container,
+.wallet-connect,
+.profile-page__section {
+  backdrop-filter: blur(20px);
+}
+
+
+.featured-item__title {
+  font-size: 44px;
+}
+
+@media screen and (max-width: 1000px) {
+  .featured-item__title {
+    font-size: 24px;
+  }
 }

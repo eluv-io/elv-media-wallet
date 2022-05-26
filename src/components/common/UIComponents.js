@@ -264,7 +264,7 @@ export const Select = ({label, value, options, onChange, containerClassName="", 
     <div className={`styled-select ${containerClassName}`}>
       <button
         id={`styled-select-${idPrefix}-button`}
-        className={`styled-select__button ${buttonClassName}`}
+        className={`styled-select__button ${showMenu ? "styled-select__button--active" : ""} ${buttonClassName}`}
         ref={ref}
         aria-haspopup="listbox"
         aria-label={label}
