@@ -306,7 +306,9 @@ class RootStore {
       this.loggedIn = false;
 
       if(externalWallet === "metamask" && !this.cryptoStore.MetamaskAvailable()) {
-        const url = new URL(window.location.href);
+        const url = new URL(window.location.origin);
+        url.pathname = window.location.pathname;
+
         url.searchParams.set("sl", "");
 
         if(rootStore.specifiedMarketplaceId) {
