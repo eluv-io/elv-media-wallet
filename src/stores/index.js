@@ -311,44 +311,6 @@ class RootStore {
       this.authenticating = true;
       this.loggedIn = false;
 
-      if(externalWallet === "metamask" && !this.cryptoStore.MetamaskAvailable()) {
-        console.log("METAMASK LOGIN: METAMASK NOT AVAILABLE");
-        let url = rootStore.parentAppUrl;
-        if(!url) {
-          url = new URL(window.location.href);
-
-          if(rootStore.specifiedMarketplaceId) {
-            url.searchParams.set("mid", rootStore.specifiedMarketplaceId);
-          }
-
-          if(rootStore.darkMode) {
-            url.searchParams.set("dk", "");
-          }
-        }
-
-        // Metamask not available, link to download or open in app
-        if(this.embedded) {
-          // Do flow
-          return yield rootStore.Flow({
-            type: "flow",
-            flow: "open-metamask",
-            parameters: {
-              appUrl: url.toString()
-            }
-          });
-        } else {
-          const a = document.createElement("a");
-          a.href = `https://metamask.app.link/dapp/${url.toString().replace("https://", "")}`;
-
-          a.target = "_self";
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-
-          return;
-        }
-      }
-
       const client = yield ElvClient.FromConfigurationUrl({
         configUrl: EluvioConfiguration["config-url"],
         assumeV3: true
@@ -359,13 +321,10 @@ class RootStore {
       this.client = client;
 
       if(externalWallet) {
-        console.log("METAMASK LOGIN");
         const walletMethods = this.cryptoStore.WalletFunctions(externalWallet);
 
         address = client.utils.FormatAddress(yield walletMethods.Address());
         walletName = externalWallet;
-
-        console.log(address, walletName);
 
         const duration = 24 * 60 * 60 * 1000;
         fabricToken = yield client.CreateFabricToken({

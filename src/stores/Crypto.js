@@ -38,8 +38,6 @@ class CryptoStore {
 
     this.RegisterMetamaskHandlers();
 
-    console.log("METAMASK AVAILABLE:", window.ethereum);
-
     if(!this.rootStore.embedded && this.PhantomAvailable()) {
       setInterval(() => runInAction(async () => this.phantomAddress = this.PhantomAddress()), 5000);
 
@@ -223,8 +221,8 @@ class CryptoStore {
         return yield this.EmbeddedSign({provider: "metamask", message});
       } else {
         yield window.ethereum.request({method: "eth_requestAccounts"});
-        const from = address || window.ethereum.selectedAddress;
-        return yield window.ethereum.request({
+        const from = address || window.ethereum?.selectedAddress;
+        return yield window.ethereum?.request({
           method: "personal_sign",
           params: [message, from, ""],
         });
@@ -299,7 +297,8 @@ class CryptoStore {
 
   EmbeddedSign = flow(function * ({provider, connect, purchaseSpec, message}) {
     let parameters = {
-      provider
+      provider,
+      parentAppUrl: rootStore.parentAppUrl
     };
 
     if(connect) {
@@ -338,7 +337,7 @@ class CryptoStore {
   MetamaskConnected() {
     if(!this.MetamaskAvailable()) { return false; }
 
-    return !!this.connectedAccounts.eth[window.ethereum.selectedAddress] && window.ethereum.chainId === "0x1";
+    return !!this.connectedAccounts.eth[window.ethereum?.selectedAddress] && window.ethereum.chainId === "0x1";
   }
 
   PhantomAvailable() {
@@ -427,8 +426,8 @@ class CryptoStore {
   });
 
   UpdateMetamaskInfo() {
-    this.metamaskAddress = window.ethereum && window.ethereum.selectedAddress;
-    this.metamaskChainId = window.ethereum && window.ethereum.chainId;
+    this.metamaskAddress = window.ethereum?.selectedAddress;
+    this.metamaskChainId = window.ethereum?.chainId;
   }
 
   RegisterMetamaskHandlers() {
@@ -450,11 +449,11 @@ class CryptoStore {
           currencyLogo: EthereumLogo,
           currencyName: "ETH",
           link: "https://metamask.io",
-          Address: () => window.ethereum.selectedAddress,
+          Address: () => window.ethereum?.selectedAddress,
           Available: () => this.MetamaskAvailable(),
           Connected: () => this.MetamaskConnected(),
           Connect: async () => await this.ConnectMetamask(),
-          Connection: () => this.connectedAccounts.eth[Utils.FormatAddress(window.ethereum.selectedAddress)],
+          Connection: () => this.connectedAccounts.eth[Utils.FormatAddress(window.ethereum?.selectedAddress)],
           ConnectedAccounts: () => Object.values(this.connectedAccounts.eth),
           Sign: async message => await this.SignMetamask(message),
           Disconnect: async () => {}
