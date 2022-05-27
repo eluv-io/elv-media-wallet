@@ -221,6 +221,40 @@ export const InitializeListener = (history) => {
         case "itemNames":
           return Respond({response: await transferStore.ListingNames({marketplaceId: marketplaceInfo?.marketplaceId})});
 
+        case "userTransferHistory":
+          let response = {
+            purchases: [],
+            sales: [],
+            withdrawals: []
+          };
+
+          (await transferStore.UserPaymentsHistory())
+            .sort((a, b) => a.created > b.created ? -1 : 1)
+            .map(entry => {
+              entry = ({
+                ...entry,
+                created: entry.created * 1000,
+                processed_at: entry.processed_at * 1000,
+                type:
+                  !entry.addr && (entry.processor || "").includes("stripe-payout") ?
+                    "withdrawal" : Utils.EqualAddress(entry.buyer, rootStore.userAddress) ? "purchase" : "sale",
+                processor:
+                  (entry.processor || "").startsWith("eluvio") ? "Wallet Balance" :
+                    (entry.processor || "").startsWith("stripe") ? "Credit Card" : "Crypto",
+                pending: Date.now() < entry.created * 1000 + 7 * 24 * 60 * 60 * 1000
+              });
+
+              if(entry.type === "withdrawal") {
+                response.withdrawals.push(entry);
+              } else if(entry.type === "purchase") {
+                response.purchases.push(entry);
+              } else {
+                response.sales.push(entry);
+              }
+            });
+
+          return Respond({response: toJS(response)});
+
         // client.Items
         case "items":
           return Respond({

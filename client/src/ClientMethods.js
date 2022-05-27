@@ -111,6 +111,21 @@ exports.UserBalances = async function() {
 };
 
 /**
+ * <b><i>Requires login</i></b>
+ *
+ * Retrieve the transfer history for the current user, including purchases, sales and balance withdrawals. Transactions are sorted by newest first.
+ *
+ * @methodGroup User
+ * @returns {Promise<Object>} - The transfer history of the current user
+ */
+exports.UserTransferHistory = async function () {
+  return await this.SendMessage({
+    action: "userTransferHistory",
+    params: {}
+  });
+};
+
+/**
  * Retrieve the full metadata for the specified marketplace object (starting from `/public/asset_metadata/info`)
  *
  * @methodGroup Marketplace
