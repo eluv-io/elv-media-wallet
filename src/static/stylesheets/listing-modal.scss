@@ -22,6 +22,8 @@ $content-width: 475px;
 
   &__header {
     border-bottom: var(--border-component-secondary);
+    font: var(--font-component-header);
+    text-transform: uppercase;
     font-size: 20px;
     font-weight: 300;
     padding: 15px 25px;

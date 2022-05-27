@@ -1,3 +1,4 @@
+
 .purchase-modal-container {
   min-height: 100vh;
 
@@ -45,6 +46,8 @@ $content-width: 475px;
 
   &__header {
     align-items: center;
+    font: var(--font-component-header);
+    text-transform: uppercase;
     border-bottom: var(--border-component-secondary);
     display: flex;
     flex-direction: column;
