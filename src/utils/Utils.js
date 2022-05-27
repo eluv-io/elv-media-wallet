@@ -101,7 +101,7 @@ export const NFTDisplayToken = nft => {
 };
 
 export const MobileOption = (width, desktop, mobile) => {
-  return (width < 800 && mobile) || desktop || "";
+  return (width < 850 && mobile) || desktop || "";
 };
 
 export const LinkTargetHash = (link) => {

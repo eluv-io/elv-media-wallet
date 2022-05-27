@@ -17,6 +17,7 @@ const MintingStatus = observer(({
   OnFinish,
   redirect,
   videoHash,
+  hideText,
   basePath,
   backText,
   transactionLink,
@@ -104,18 +105,21 @@ const MintingStatus = observer(({
 
   return (
     <div className={`minting-status ${videoHash ? "minting-status-video" : ""}`}>
-      <div className="page-headers">
-        <div className="page-header">
-          { header || "Your items are being minted" }
-        </div>
-        <div className="page-subheader">
-          { subheader || "This may take several minutes" }
-        </div>
-      </div>
+      {
+        hideText ? null :
+          <div className="page-headers">
+            <div className="page-header">
+              {header || "Your items are being minted"}
+            </div>
+            <div className="page-subheader">
+              {subheader || "This may take several minutes"}
+            </div>
+          </div>
+      }
 
       {
         videoHash ?
-          <div className="minting-status__video-container">
+          <div className={`minting-status__video-container ${hideText ? "minting-status__video-container--large" : ""}`}>
             <Loader />
             <div
               className="minting-status__video"
@@ -152,7 +156,7 @@ const MintingStatus = observer(({
       }
 
       {
-        rootStore.hideNavigation ? null :
+        rootStore.hideNavigation || hideText ? null :
           <div className="minting-status__text">
             <h2 className="minting-status__navigation-message">
               You can navigate away from this page if you don't want to wait. Your items will be available in your wallet when the process is complete.
@@ -220,10 +224,10 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
   } else if(!animationComplete) {
     return (
       <div className="minting-status-results" key="minting-status-results-animation">
-        <div className="minting-status-results__video-container">
+        <div className="minting-status__video-container minting-status__video-container--large">
           <Loader />
           <div
-            className="minting-status-results__video"
+            className="minting-status__video"
             ref={element => {
               if(!element || videoInitialized) { return; }
 
@@ -504,7 +508,7 @@ export const PackOpenStatus = observer(() => {
   // Set NFT in state so it doesn't change
   const [nft] = useState(
     rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId}) ||
-    rootStore.GetSessionStorageJSON(key)
+    rootStore.GetSessionStorageJSON(key, true)
   );
 
   useEffect(() => {
@@ -516,6 +520,7 @@ export const PackOpenStatus = observer(() => {
   }, []);
 
   const packOptions = nft?.metadata?.pack_options || {};
+  const hideText = packOptions.hide_text;
   const animation = MobileOption(rootStore.pageWidth, packOptions.open_animation, packOptions.open_animation_mobile);
   const videoHash = LinkTargetHash(animation);
 
@@ -529,12 +534,13 @@ export const PackOpenStatus = observer(() => {
     UrlJoin("/marketplace", match.params.marketplaceId, "collection", "owned") :
     UrlJoin("/wallet", "collection");
 
-  if(!nft) {
+  const tenantId = nft?.details?.TenantId || rootStore.marketplaces[match.params.marketplaceId]?.tenant_id;
+  if(!tenantId) {
     return <Redirect to={basePath} />;
   }
 
   const Status = async () => await rootStore.PackOpenStatus({
-    tenantId: nft.details.TenantId,
+    tenantId,
     contractId: match.params.contractId,
     tokenId: match.params.tokenId
   });
@@ -547,6 +553,7 @@ export const PackOpenStatus = observer(() => {
         Status={Status}
         OnFinish={({status}) => setStatus(status)}
         videoHash={videoHash}
+        hideText={hideText}
         basePath={basePath}
         backText="Back to My Items"
       />

@@ -59,13 +59,9 @@
   &__video-container {
     align-items: center;
     display: flex;
-    height: 100%;
     justify-content: center;
     margin-bottom: 20px;
-    max-height: 70vh;
-    max-width: 90vw;
     position: relative;
-    width: 100%;
 
     .loader {
       height: 100%;
@@ -77,38 +73,68 @@
     }
   }
 
-  // sass-lint:disable function-name-format
-  &__loader {
-    max-height: MIN(90vw * 9 / 16, 50vh);
-    max-width: MIN(90vw, calc(50vh * 16 / 9));
-    min-height: MIN(90vw * 9 / 16, 50vh);
-    min-width: MIN(90vw, calc(50vh * 16 / 9));
-  }
-
   &__video {
     &.minting-status__video {
       background: transparent;
       flex: 1 1 0;
-      max-height: MIN(90vw * 9 / 16, 50vh);
-      max-width: MIN(90vw, calc(50vh * 16 / 9));
-      min-height: MIN(90vw * 9 / 16, 50vh);
-      min-width: MIN(90vw, calc(50vh * 16 / 9));
 
       video {
         background: transparent;
-        max-height: MIN(90vw * 9 / 16, 50vh);
-        max-width: MIN(90vw, calc(50vh * 16 / 9));
-        min-height: MIN(90vw * 9 / 16, 50vh);
-        min-width: MIN(90vw, calc(50vh * 16 / 9));
       }
+    }
+  }
 
-      // sass-lint:enable function-name-format
+  @media screen and (min-width: $tablet-breakpoint) {
+    &__loader,
+    &__video-container {
+      @include aspect-ratio-sized(90vw, 50vh);
+    }
+
+
+    &__video {
+      &.minting-status__video {
+        @include aspect-ratio-sized(90vw, 50vh);
+
+        video {
+          @include aspect-ratio-sized(90vw, 50vh);
+        }
+      }
+    }
+
+    &__video-container--large {
+      @include aspect-ratio-sized(90vw, 90vh);
+
+      .minting-status__video {
+        @include aspect-ratio-sized(90vw, 90vh);
+
+        video {
+          @include aspect-ratio-sized(90vw, 90vh);
+        }
+      }
+    }
+  }
+
+  @media screen and (max-width: $tablet-breakpoint) {
+    video {
+      max-width: 75vw;
+      min-width: 75vw;
+    }
+
+    &__video-container--large {
+      video {
+        max-width: 90vw;
+        min-width: 90vw;
+      }
     }
   }
 }
 
 .minting-status-results {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
   height: 100%;
+  justify-content: center;
   padding-top: 20px;
   position: relative;
   width: 100%;
@@ -123,28 +149,6 @@
     display: flex;
     justify-content: center;
     margin: 50px 0;
-  }
-
-  &__video-container {
-    align-items: center;
-    display: flex;
-    height: 100%;
-    justify-content: center;
-    left: 0;
-    margin-bottom: 20px;
-    position: relative;
-    top: 0;
-    width: 100%;
-    z-index: 1;
-
-    .loader {
-      height: 100%;
-      left: 0;
-      margin: 0;
-      position: absolute;
-      top: 0;
-      width: 100%;
-    }
   }
 }
 
