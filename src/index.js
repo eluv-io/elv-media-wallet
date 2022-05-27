@@ -261,44 +261,46 @@ const App = observer(() => {
   );
 });
 
-if(sessionStorageAvailable) {
-  render(
-    <Auth0Provider
-      domain={EluvioConfiguration["auth0-domain"]}
-      clientId={EluvioConfiguration["auth0-configuration-id"]}
-      redirectUri={UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, "")}
-      useRefreshTokens
-      darkMode={rootStore.darkMode}
-    >
-      <React.StrictMode>
-        <HashRouter>
-          <Switch>
+const AuthWrapper = ({children}) => {
+  if(sessionStorageAvailable) {
+    return (
+      <Auth0Provider
+        domain={EluvioConfiguration["auth0-domain"]}
+        clientId={EluvioConfiguration["auth0-configuration-id"]}
+        redirectUri={UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, "")}
+        useRefreshTokens
+        darkMode={rootStore.darkMode}
+      >
+        {children}
+      </Auth0Provider>
+    );
+  }
 
-            { /* Handle various popup actions */ }
-            <Route path="/flow/:flow/:parameters">
-              <Flows />
-            </Route>
+  return children;
+};
 
-            <Route path="/action/:action/:parameters">
-              <Actions />
-            </Route>
-
-            { /* All other routes */ }
-            <Route>
-              <App/>
-              <LoginModal />
-            </Route>
-          </Switch>
-        </HashRouter>
-      </React.StrictMode>
-    </Auth0Provider>,
-    document.getElementById("app")
-  );
-} else {
-  render(
+render(
+  <AuthWrapper>
     <React.StrictMode>
-      <App/>
-    </React.StrictMode>,
-    document.getElementById("app")
-  );
-}
+      <HashRouter>
+        <Switch>
+          { /* Handle various popup actions */ }
+          <Route path="/flow/:flow/:parameters">
+            <Flows />
+          </Route>
+
+          <Route path="/action/:action/:parameters">
+            <Actions />
+          </Route>
+
+          { /* All other routes */ }
+          <Route>
+            <App/>
+            <LoginModal />
+          </Route>
+        </Switch>
+      </HashRouter>
+    </React.StrictMode>
+  </AuthWrapper>,
+  document.getElementById("app")
+);
