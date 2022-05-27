@@ -53,6 +53,8 @@ const MarketplaceItemDetails = observer(() => {
   useEffect(() => {
     if(!stock) { return; }
 
+    checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id});
+
     // If item has stock, periodically update
     const stockCheck = setInterval(() => checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id}), 10000);
 
