@@ -309,7 +309,10 @@ class RootStore {
         const url = new URL(window.location.origin);
         url.pathname = window.location.pathname;
 
+        // Show login
         url.searchParams.set("sl", "");
+        // Show wallet options in login
+        url.searchParams.set("swl", "");
 
         if(rootStore.specifiedMarketplaceId) {
           url.searchParams.set("mid", rootStore.specifiedMarketplaceId);

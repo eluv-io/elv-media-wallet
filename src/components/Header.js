@@ -39,10 +39,11 @@ const Profile = observer(({marketplace}) => {
     <Link to={marketplaceId ? `/marketplace/${marketplaceId}/profile` : "/profile"} className="header__profile">
       <div className="header__profile__info ellipsis">
         {
-          !marketplace?.branding?.hide_profile_name ?
+          (rootStore.embedded && marketplace?.branding?.hide_profile_name) ?
+            null :
             <div className="header__profile__name">
               { rootStore.userProfile.name }
-            </div> : null
+            </div>
         }
         {
           typeof rootStore.totalWalletBalance !== "undefined" ?

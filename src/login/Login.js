@@ -259,7 +259,7 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
 
 // eslint-disable-next-line no-unused-vars
 const Buttons = ({customizationOptions, loading, Auth0LogIn, SignIn}) => {
-  const [showWalletOptions, setShowWalletOptions] = useState(false);
+  const [showWalletOptions, setShowWalletOptions] = useState(searchParams.has("swl"));
 
   let hasLoggedIn = false;
   try {

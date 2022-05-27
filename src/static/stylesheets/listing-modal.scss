@@ -51,6 +51,9 @@ $content-width: 475px;
 
     &__header {
       font: var(--font-table-header);
+      margin-bottom: 10px;
+      text-align: center;
+      text-transform: uppercase;
     }
 
     .transfer-table {
