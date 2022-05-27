@@ -718,6 +718,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
  * - `client.EVENTS.LOG_OUT` - User has logged out. Event data contains user address.
  * - `client.EVENTS.CLOSE` - Target window or frame has been closed or has otherwise unloaded the wallet app.
  * - `client.EVENTS.ROUTE_CHANGE` - The wallet app's current route has changed. Event data contains the current route of the app.
+ * - `client.EVENTS.RESIZE` - This event will specify the full height and width of the wallet application as currently rendered
  * - `client.EVENTS.ALL` - Any of the above events has occurred.
  */
 ElvWalletClient.EVENTS = EVENTS;

@@ -4,6 +4,7 @@ import ListingStats from "Components/listings/ListingStats";
 import ListingFilters from "Components/listings/ListingFilters";
 import {useInfiniteScroll} from "react-g-infinite-scroll";
 import {transferStore} from "Stores";
+import {ButtonWithLoader} from "Components/common/UIComponents";
 
 let cachedResults = {};
 const FilteredView = ({
@@ -93,7 +94,7 @@ const FilteredView = ({
   }, []);
 
   return (
-    <div className="marketplace-listings marketplace__section">
+    <div className="marketplace-listings marketplace__section filtered-view">
       { header ? <h1 className="page-header">{ header }</h1> : null }
       {
         hideFilters ? null :
@@ -114,6 +115,18 @@ const FilteredView = ({
         loading && entries.length === 0 ?
           <PageLoader/> :
           Render({entries, paging, scrollRef, loading})
+      }
+
+      {
+        !loading && paging && entries.length < paging.total ?
+          <div className="filtered-view__actions">
+            <ButtonWithLoader
+              onClick={async () => await Load({currentFilters: filters, currentPaging: paging, currentEntries: entries})}
+              className="action action-primary filtered-view__action"
+            >
+              Load More
+            </ButtonWithLoader>
+          </div> : null
       }
     </div>
   );

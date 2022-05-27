@@ -192,7 +192,14 @@ class RootStore {
       this.SetSessionStorage(`app-uuid-${window.loginOnly}`, this.appUUID);
     }
 
-    window.addEventListener("resize", () => this.HandleResize());
+    this.resizeHandler = new ResizeObserver(elements => {
+      const {width, height} = elements[0].contentRect;
+
+      this.HandleResize({width, height});
+    });
+
+    this.resizeHandler.observe(document.body);
+
 
     window.addEventListener("hashchange", () => this.SendEvent({event: EVENTS.ROUTE_CHANGE, data: UrlJoin("/", window.location.hash.replace("#", ""))}));
 
@@ -1930,14 +1937,26 @@ class RootStore {
     this.activeModals = Math.max(0, this.activeModals - 1);
   }
 
-  HandleResize() {
+  HandleResize({width, height}) {
     clearTimeout(this.resizeTimeout);
 
     this.resizeTimeout = setTimeout(() => {
-      if(this.pageWidth !== window.innerWidth) {
-        runInAction(() => this.pageWidth = window.innerWidth);
+      runInAction(() => {
+        this.pageWidth = width;
+        this.pageHeight = height;
+      });
+
+      const bodyScrollVisible = document.body.getBoundingClientRect().height > window.innerHeight;
+      if(this.embedded && bodyScrollVisible) {
+        this.SendEvent({
+          event: EVENTS.RESIZE,
+          data: {
+            width,
+            height: height + 200
+          }
+        });
       }
-    }, 50);
+    }, 250);
   }
 
   SetDebugMessage(message) {

@@ -34,8 +34,11 @@ const EventListener = event => {
     currentEvents + "\n\n" + JSON.stringify(event, null, 2);
 };
 
+const minHeight = 2000;
+
 const App = () => {
   const [client, setClient] = useState(undefined);
+  const [height, setHeight] = useState(minHeight);
   const [listeners, setEventListeners] = useState({
     [ElvWalletClient.EVENTS.LOG_IN]: undefined,
     [ElvWalletClient.EVENTS.LOG_OUT]: undefined,
@@ -80,6 +83,21 @@ const App = () => {
     if(!client) { return; }
 
     ToggleEventListener(ElvWalletClient.EVENTS.ALL);
+
+    client.AddEventListener(
+      client.EVENTS.RESIZE,
+      event => {
+        setHeight(event.data.height);
+      }
+    );
+
+    client.AddEventListener(
+      client.EVENTS.ROUTE_CHANGE,
+      () => {
+        setHeight(minHeight);
+        window.scrollTo({top: 0});
+      }
+    );
   }, [client]);
 
   const Destroy = () => {
@@ -214,7 +232,7 @@ const App = () => {
           </>
       }
 
-      <div id="wallet-target" className="wallet-target" />
+      <div id="wallet-target" className="wallet-target" style={{height: `${height}px`}} />
 
       <pre className="client-results" id="client-results">
       </pre>
