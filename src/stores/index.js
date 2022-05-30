@@ -1125,7 +1125,7 @@ class RootStore {
       contractAddress: nft.details.ContractAddr,
       abi: NFTContractABI,
       methodName: "burn",
-      methodArgs: [nft.details.TokenId]
+      methodArgs: [nft.details.TokenIdStr]
     });
   });
 

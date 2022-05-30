@@ -272,7 +272,7 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
         </div>
         <div className="card-list card-list--marketplace card-list--centered">
           {
-            items.map(({token_addr, token_id, token_id_str}) => {
+            items.map(({token_addr, token_id, token_id_str}, index) => {
               token_id = token_id_str || token_id;
               const nft = rootStore.NFTData({contractAddress: token_addr, tokenId: token_id});
 
@@ -285,6 +285,9 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
                   showOrdinal
                   link={UrlJoin(nftBasePath || basePath, nft.details.ContractId, nft.details.TokenIdStr)}
                   truncateDescription
+                  style={{
+                    animationDelay: `${index}s`
+                  }}
                 />
               );
             })
@@ -520,7 +523,7 @@ export const PackOpenStatus = observer(() => {
   }, []);
 
   const packOptions = nft?.metadata?.pack_options || {};
-  const hideText = packOptions.hide_text;
+  const hideText = packOptions.hide_text || true;
   const animation = MobileOption(rootStore.pageWidth, packOptions.open_animation, packOptions.open_animation_mobile);
   const videoHash = LinkTargetHash(animation);
 

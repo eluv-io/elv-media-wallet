@@ -1,5 +1,17 @@
+@keyframes card-reveal {
+  from {
+    transform: scale(0%);
+  }
+
+  to {
+    transform: scale(100%);
+  }
+}
+
 .minting-status,
 .minting-status-results {
+  overflow-x: visible;
+
   .page-header,
   .page-subheader {
     justify-content: center;
@@ -62,6 +74,7 @@
     justify-content: center;
     margin-bottom: 20px;
     position: relative;
+    width: 75vw;
 
     .loader {
       height: 100%;
@@ -71,59 +84,31 @@
       top: 0;
       width: 100%;
     }
+
+    video {
+      max-height: 50vh;
+    }
+
+    &--large {
+      width: 100vw;
+
+      video {
+        max-height: 100vh;
+      }
+    }
   }
 
   &__video {
+    width: 100vw;
+
     &.minting-status__video {
       background: transparent;
       flex: 1 1 0;
+      width: 100%;
 
       video {
         background: transparent;
-      }
-    }
-  }
-
-  @media screen and (min-width: $tablet-breakpoint) {
-    &__loader,
-    &__video-container {
-      @include aspect-ratio-sized(90vw, 50vh);
-    }
-
-
-    &__video {
-      &.minting-status__video {
-        @include aspect-ratio-sized(90vw, 50vh);
-
-        video {
-          @include aspect-ratio-sized(90vw, 50vh);
-        }
-      }
-    }
-
-    &__video-container--large {
-      @include aspect-ratio-sized(90vw, 90vh);
-
-      .minting-status__video {
-        @include aspect-ratio-sized(90vw, 90vh);
-
-        video {
-          @include aspect-ratio-sized(90vw, 90vh);
-        }
-      }
-    }
-  }
-
-  @media screen and (max-width: $tablet-breakpoint) {
-    video {
-      max-width: 75vw;
-      min-width: 75vw;
-    }
-
-    &__video-container--large {
-      video {
-        max-width: 90vw;
-        min-width: 90vw;
+        width: 100%;
       }
     }
   }
@@ -143,6 +128,12 @@
     @include page-fade-in;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     width: 100%;
+  }
+
+  .card-container {
+    animation: 1s card-reveal ease forwards;
+    animation-iteration-count: 1;
+    transform: scale(0%);
   }
 
   &__actions {
