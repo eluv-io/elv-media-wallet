@@ -315,7 +315,7 @@ const NFTContractSection = ({nft, listing, heldDate, isOwned, setDeleted}) => {
             </ButtonWithLoader> : null
         }
       </div>
-      { isOwned && !listing && !heldDate ? <NFTTransfer nft={nft} /> : null }
+      { false && isOwned && !listing && !heldDate ? <NFTTransfer nft={nft} /> : null }
     </ExpandableSection>
   );
 };
