@@ -246,6 +246,8 @@ class TransferStore {
     sortBy="created",
     sortDesc=false,
     filter,
+    editionFilter,
+    attributeFilters,
     contractAddress,
     tokenId,
     currency,
@@ -312,7 +314,11 @@ class TransferStore {
       }
 
       if(contractAddress) {
-        filters.push(`contract:eq:${Utils.FormatAddress(contractAddress)}`);
+        if(mode === "owned") {
+          filters.push(`contract_addr:eq:${Utils.FormatAddress(contractAddress)}`);
+        } else {
+          filters.push(`contract:eq:${Utils.FormatAddress(contractAddress)}`);
+        }
 
         if(tokenId) {
           filters.push(`token:eq:${tokenId}`);
@@ -326,6 +332,21 @@ class TransferStore {
         } else {
           filters.push(`name:eq:${filter}`);
         }
+      }
+
+      if(editionFilter) {
+        if(mode.includes("listing")) {
+          filters.push(`nft/edition_name:eq:${editionFilter}`);
+        } else if(mode === "owned") {
+          filters.push(`meta:@>:{"edition_name":"${editionFilter}"}`);
+          params.exact = false;
+        } else {
+          filters.push(`edition:eq:${editionFilter}`);
+        }
+      }
+
+      if(attributeFilters) {
+        attributeFilters.map(({name, value}) => filters.push(`nft/attributes/${name}:eq:${value}`));
       }
 
       if(currency) {
