@@ -22,6 +22,7 @@ const NFTCard = observer(({
   usdcAccepted,
   stock,
   link,
+  imageWidth,
   showVideo,
   showOrdinal,
   allowFullscreen,
@@ -32,7 +33,8 @@ const NFTCard = observer(({
   playerCallback,
   onClick,
   className="",
-  cardClassName=""
+  cardClassName="",
+  style
 }) => {
   if(item && !nft) {
     nft = {
@@ -94,6 +96,7 @@ const NFTCard = observer(({
         item={item}
         selectedMedia={selectedMedia}
         video={showVideo}
+        width={imageWidth}
         allowFullscreen={allowFullscreen}
         playerCallback={playerCallback}
       />
@@ -171,7 +174,7 @@ const NFTCard = observer(({
 
   if(link) {
     return (
-      <div className={`card-container card-container--link ${rootStore.centerItems ? "card-container--centered" : ""} ${className}`}>
+      <div className={`card-container card-container--link ${rootStore.centerItems ? "card-container--centered" : ""} ${className}`} style={style}>
         <Link
           to={link}
           className={`item-card ${cardClassName}`}
@@ -183,7 +186,7 @@ const NFTCard = observer(({
   }
 
   return (
-    <div className={`card-container ${rootStore.centerItems ? "card-container--centered" : ""} ${className}`}>
+    <div className={`card-container ${rootStore.centerItems ? "card-container--centered" : ""} ${className}`} style={style}>
       <div
         onClick={onClick}
         className={`item-card ${cardClassName}`}

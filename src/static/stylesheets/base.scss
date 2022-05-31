@@ -74,6 +74,7 @@ body {
   box-sizing: border-box;
   color: var(--color-text-primary);
   font-family: var(--font-family-secondary);
+  overflow-x: hidden;
   overflow-y: scroll;
   position: absolute;
   transition: background-color 1000ms linear;
@@ -222,6 +223,10 @@ em {
   justify-content: center;
   max-height: 50vh;
   text-align: center;
+}
+
+.page-headers {
+  margin-bottom: 50px;
 }
 
 .page-container {

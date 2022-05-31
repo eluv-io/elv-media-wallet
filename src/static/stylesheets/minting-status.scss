@@ -1,5 +1,19 @@
+@keyframes card-reveal {
+  from {
+    opacity: 0;
+    transform: scale(25%);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(100%);
+  }
+}
+
 .minting-status,
 .minting-status-results {
+  overflow-x: visible;
+
   .page-header,
   .page-subheader {
     justify-content: center;
@@ -56,16 +70,21 @@
     text-align: center;
   }
 
+  &__loader {
+    min-height: 30vh;
+  }
+
   &__video-container {
     align-items: center;
     display: flex;
-    height: 100%;
     justify-content: center;
     margin-bottom: 20px;
-    max-height: 70vh;
-    max-width: 90vw;
     position: relative;
     width: 100%;
+
+    &--hidden {
+      display: none;
+    }
 
     .loader {
       height: 100%;
@@ -75,40 +94,48 @@
       top: 0;
       width: 100%;
     }
-  }
 
-  // sass-lint:disable function-name-format
-  &__loader {
-    max-height: MIN(90vw * 9 / 16, 50vh);
-    max-width: MIN(90vw, calc(50vh * 16 / 9));
-    min-height: MIN(90vw * 9 / 16, 50vh);
-    min-width: MIN(90vw, calc(50vh * 16 / 9));
+    video {
+      max-height: 50vh;
+    }
+
+    &--large {
+      video {
+        max-height: 80vh;
+      }
+    }
   }
 
   &__video {
     &.minting-status__video {
       background: transparent;
       flex: 1 1 0;
-      max-height: MIN(90vw * 9 / 16, 50vh);
-      max-width: MIN(90vw, calc(50vh * 16 / 9));
-      min-height: MIN(90vw * 9 / 16, 50vh);
-      min-width: MIN(90vw, calc(50vh * 16 / 9));
+      width: 100%;
 
       video {
         background: transparent;
-        max-height: MIN(90vw * 9 / 16, 50vh);
-        max-width: MIN(90vw, calc(50vh * 16 / 9));
-        min-height: MIN(90vw * 9 / 16, 50vh);
-        min-width: MIN(90vw, calc(50vh * 16 / 9));
+        width: 100%;
       }
+    }
+  }
 
-      // sass-lint:enable function-name-format
+  @media screen and (max-width: $mobile-breakpoint) {
+    &__video-container {
+      width: 100vw;
+
+      video {
+        max-height: 90vh;
+      }
     }
   }
 }
 
 .minting-status-results {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
   height: 100%;
+  justify-content: center;
   padding-top: 20px;
   position: relative;
   width: 100%;
@@ -116,6 +143,13 @@
   .card-list {
     @include page-fade-in;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    width: 100%;
+  }
+
+  .card-container {
+    animation: 1s card-reveal ease forwards;
+    animation-iteration-count: 1;
+    transform: scale(0%);
   }
 
   &__actions {
@@ -123,28 +157,6 @@
     display: flex;
     justify-content: center;
     margin: 50px 0;
-  }
-
-  &__video-container {
-    align-items: center;
-    display: flex;
-    height: 100%;
-    justify-content: center;
-    left: 0;
-    margin-bottom: 20px;
-    position: relative;
-    top: 0;
-    width: 100%;
-    z-index: 1;
-
-    .loader {
-      height: 100%;
-      left: 0;
-      margin: 0;
-      position: absolute;
-      top: 0;
-      width: 100%;
-    }
   }
 }
 

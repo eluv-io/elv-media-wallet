@@ -2,7 +2,7 @@ import React, {useState, useEffect} from "react";
 import EluvioPlayer, {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 import {observer} from "mobx-react";
 import {rootStore, checkoutStore, cryptoStore} from "Stores/index";
-import {Loader, PageLoader} from "Components/common/Loaders";
+import {Loader} from "Components/common/Loaders";
 import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 import Utils from "@eluvio/elv-client-js/src/Utils";
@@ -17,6 +17,8 @@ const MintingStatus = observer(({
   OnFinish,
   redirect,
   videoHash,
+  revealVideoHash,
+  hideText,
   basePath,
   backText,
   transactionLink,
@@ -25,7 +27,9 @@ const MintingStatus = observer(({
 }) => {
   const [status, setStatus] = useState(false);
   const [finished, setFinished] = useState(false);
+  const [revealed, setRevealed] = useState(false);
   const [videoInitialized, setVideoInitialized] = useState(false);
+  const [revealVideoPlayer, setRevealVideoPlayer] = useState(undefined);
 
   const CheckStatus = async () => {
     try {
@@ -41,7 +45,7 @@ const MintingStatus = observer(({
         }
 
         if(items.length > 0) {
-          await rootStore.LoadNFTInfo();
+          await rootStore.LoadNFTInfo(true);
 
           const firstItem = rootStore.NFTInfo({
             contractAddress: items[0].token_addr,
@@ -49,18 +53,20 @@ const MintingStatus = observer(({
           });
 
           if(!firstItem) { return; }
+
+          await Promise.all(
+            items.map(async ({token_addr, token_id_str}) =>
+              await rootStore.LoadNFTData({contractAddress: token_addr, tokenId: token_id_str})
+            )
+          );
         }
 
-        if(OnFinish) {
-          try {
-            await OnFinish({status});
-          } catch(error) {
-            rootStore.Log("OnFinish failed", true);
-            rootStore.Log(error, true);
-          }
+        if(!revealVideoHash) {
+          setRevealed(true);
         }
 
         setFinished(true);
+
         clearInterval(statusInterval);
       } else if(status.status === "failed") {
         clearInterval(statusInterval);
@@ -78,6 +84,26 @@ const MintingStatus = observer(({
 
     return () => clearInterval(statusInterval);
   }, []);
+
+  useEffect(() => {
+    if(finished && revealVideoPlayer) {
+      revealVideoPlayer.video.play();
+
+      setTimeout(() => {
+        // Mute video if autoplay is blocked
+        if(revealVideoPlayer.video.paused) {
+          revealVideoPlayer.video.muted = true;
+          revealVideoPlayer.video.play();
+        }
+      }, 250);
+    }
+  }, [finished]);
+
+  useEffect(() => {
+    if(revealed && OnFinish) {
+      OnFinish({status});
+    }
+  }, [revealed]);
 
   if(finished && redirect) {
     return <Redirect to={redirect}/>;
@@ -104,18 +130,21 @@ const MintingStatus = observer(({
 
   return (
     <div className={`minting-status ${videoHash ? "minting-status-video" : ""}`}>
-      <div className="page-headers">
-        <div className="page-header">
-          { header || "Your items are being minted" }
-        </div>
-        <div className="page-subheader">
-          { subheader || "This may take several minutes" }
-        </div>
-      </div>
+      {
+        hideText || finished ? null :
+          <div className="page-headers">
+            <div className="page-header">
+              {header || "Your items are being minted"}
+            </div>
+            <div className="page-subheader">
+              {subheader || "This may take several minutes"}
+            </div>
+          </div>
+      }
 
       {
         videoHash ?
-          <div className="minting-status__video-container">
+          <div className={`minting-status__video-container ${hideText ? "minting-status__video-container--large" : ""} ${finished ? "minting-status__video-container--hidden" : ""}`}>
             <Loader />
             <div
               className="minting-status__video"
@@ -152,7 +181,48 @@ const MintingStatus = observer(({
       }
 
       {
-        rootStore.hideNavigation ? null :
+        revealVideoHash ?
+          <div className={`minting-status__video-container minting-status__video-container--large ${finished ? "" : "minting-status__video-container--hidden"}`}>
+            <Loader />
+            <div
+              className="minting-status__video"
+              ref={element => {
+                if(!element || revealVideoPlayer) { return; }
+
+                setRevealVideoPlayer(
+                  new EluvioPlayer(
+                    element,
+                    {
+                      clientOptions: {
+                        network: EluvioConfiguration["config-url"].includes("main.net955305") ?
+                          EluvioPlayerParameters.networks.MAIN : EluvioPlayerParameters.networks.DEMO,
+                        client: rootStore.client
+                      },
+                      sourceOptions: {
+                        playoutParameters: {
+                          versionHash: revealVideoHash
+                        }
+                      },
+                      playerOptions: {
+                        watermark: EluvioPlayerParameters.watermark.OFF,
+                        muted: EluvioPlayerParameters.muted.OFF_IF_POSSIBLE,
+                        autoplay: EluvioPlayerParameters.autoplay.OFF,
+                        controls: EluvioPlayerParameters.controls.OFF,
+                        loop: EluvioPlayerParameters.loop.OFF,
+                        playerCallback: ({videoElement}) => {
+                          videoElement.addEventListener("ended", () => setRevealed(true));
+                        }
+                      }
+                    }
+                  )
+                );
+              }}
+            />
+          </div> : null
+      }
+
+      {
+        rootStore.hideNavigation || hideText || finished ? null :
           <div className="minting-status__text">
             <h2 className="minting-status__navigation-message">
               You can navigate away from this page if you don't want to wait. Your items will be available in your wallet when the process is complete.
@@ -160,6 +230,50 @@ const MintingStatus = observer(({
           </div>
       }
       { transactionLink ? <a href={transactionLink} target="_blank" rel="noopener" className="minting-status__transaction-link">{ transactionLinkText }</a> : null }
+    </div>
+  );
+});
+
+const MintResults = observer(({header, subheader, basePath, nftBasePath, items, backText}) => {
+  return (
+    <div className="minting-status-results" key="minting-status-results-card-list">
+      <div className="page-headers">
+        <div className="page-header">{ header }</div>
+        <div className="page-subheader">{ subheader }</div>
+      </div>
+      <div className="card-list card-list--marketplace card-list--centered">
+        {
+          items.map(({token_addr, token_id, token_id_str}, index) => {
+            token_id = token_id_str || token_id;
+            const nft = rootStore.NFTData({contractAddress: token_addr, tokenId: token_id});
+
+            if(!nft) { return null; }
+
+            return (
+              <NFTCard
+                key={`mint-result-${token_addr}-${token_id}`}
+                nft={nft}
+                imageWidth={600}
+                showOrdinal
+                link={UrlJoin(nftBasePath || basePath, nft.details.ContractId, nft.details.TokenIdStr)}
+                truncateDescription
+                style={{
+                  animationDelay: `${index + 0.5}s`
+                }}
+              />
+            );
+          })
+        }
+      </div>
+      {
+        rootStore.hideNavigation ? null :
+
+          <div className="minting-status-results__actions">
+            <Link to={basePath} className="action minting-status-results__back-button">
+              {backText}
+            </Link>
+          </div>
+      }
     </div>
   );
 });
@@ -191,113 +305,6 @@ export const DropMintingStatus = observer(() => {
       videoHash={videoHash}
     />
   );
-});
-
-const MintResults = observer(({header, subheader, basePath, nftBasePath, items, revealVideoHash, backText}) => {
-  const [loading, setLoading] = useState(true);
-  const [videoInitialized, setVideoInitialized] = useState(false);
-  const [animationComplete, setAnimationComplete] = useState(!revealVideoHash);
-
-  useEffect(() => {
-    rootStore.LoadNFTInfo(true)
-      .then(async () => {
-        await Promise.all(
-          items.map(async ({token_addr, token_id_str}) =>
-            await rootStore.LoadNFTData({contractAddress: token_addr, tokenId: token_id_str})
-          )
-        );
-
-        setLoading(false);
-      });
-  }, []);
-
-  if(loading) {
-    return (
-      <div className="minting-status-results">
-        <PageLoader />
-      </div>
-    );
-  } else if(!animationComplete) {
-    return (
-      <div className="minting-status-results" key="minting-status-results-animation">
-        <div className="minting-status-results__video-container">
-          <Loader />
-          <div
-            className="minting-status-results__video"
-            ref={element => {
-              if(!element || videoInitialized) { return; }
-
-              setVideoInitialized(true);
-
-              new EluvioPlayer(
-                element,
-                {
-                  clientOptions: {
-                    network: EluvioConfiguration["config-url"].includes("main.net955305") ?
-                      EluvioPlayerParameters.networks.MAIN : EluvioPlayerParameters.networks.DEMO,
-                    client: rootStore.client
-                  },
-                  sourceOptions: {
-                    playoutParameters: {
-                      versionHash: revealVideoHash
-                    }
-                  },
-                  playerOptions: {
-                    watermark: EluvioPlayerParameters.watermark.OFF,
-                    muted: EluvioPlayerParameters.muted.OFF_IF_POSSIBLE,
-                    autoplay: EluvioPlayerParameters.autoplay.ON,
-                    controls: EluvioPlayerParameters.controls.OFF,
-                    loop: EluvioPlayerParameters.loop.OFF,
-                    playerCallback: ({videoElement}) => {
-                      videoElement.addEventListener("ended", () => setAnimationComplete(true));
-                    }
-                  }
-                }
-              );
-            }}
-          />
-        </div>
-      </div>
-    );
-  } else {
-    return (
-      <div className="minting-status-results" key="minting-status-results-card-list">
-        <div className="page-headers">
-          <div className="page-header">{ header }</div>
-          <div className="page-subheader">{ subheader }</div>
-        </div>
-        <div className="card-list card-list--marketplace card-list--centered">
-          {
-            items.map(({token_addr, token_id, token_id_str}) => {
-              token_id = token_id_str || token_id;
-              const nft = rootStore.NFTData({contractAddress: token_addr, tokenId: token_id});
-
-              if(!nft) { return null; }
-
-              return (
-                <NFTCard
-                  key={`mint-result-${token_addr}-${token_id}`}
-                  nft={nft}
-                  showOrdinal
-                  link={UrlJoin(nftBasePath || basePath, nft.details.ContractId, nft.details.TokenIdStr)}
-                  truncateDescription
-                />
-              );
-            })
-          }
-        </div>
-        {
-          rootStore.hideNavigation ? null :
-
-            <div className="minting-status-results__actions">
-              <Link to={basePath} className="action minting-status-results__back-button">
-                {backText}
-              </Link>
-            </div>
-        }
-      </div>
-    );
-  }
 });
 
 export const ListingPurchaseStatus = observer(() => {
@@ -387,12 +394,13 @@ export const PurchaseMintingStatus = observer(() => {
   }
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  const animation = MobileOption(rootStore.pageWidth, marketplace.storefront?.purchase_animation, marketplace.storefront?.purchase_animation_mobile);
+  const animation = MobileOption(rootStore.pageWidth, marketplace?.storefront?.purchase_animation, marketplace?.storefront?.purchase_animation_mobile);
   const videoHash = LinkTargetHash(animation);
 
-  const revealAnimation = MobileOption(rootStore.pageWidth, marketplace.storefront?.reveal_animation, marketplace.storefront?.reveal_animation_mobile);
+  const revealAnimation = MobileOption(rootStore.pageWidth, marketplace?.storefront?.reveal_animation, marketplace?.storefront?.reveal_animation_mobile);
   const revealVideoHash = LinkTargetHash(revealAnimation);
 
+  const hideText = marketplace?.storefront?.hide_text;
 
   const Status = async () => await rootStore.PurchaseStatus({
     marketplace,
@@ -408,6 +416,8 @@ export const PurchaseMintingStatus = observer(() => {
         basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
         backText="Back to the Marketplace"
         videoHash={videoHash}
+        revealVideoHash={revealVideoHash}
+        hideText={hideText}
       />
     );
   }
@@ -416,8 +426,6 @@ export const PurchaseMintingStatus = observer(() => {
 
   return (
     <MintResults
-      key={`results-${revealVideoHash}`}
-      revealVideoHash={revealVideoHash}
       header="Congratulations!"
       subheader={`Thank you for your purchase! You've received the following ${items.length === 1 ? "item" : "items"}:`}
       items={items}
@@ -433,11 +441,13 @@ export const ClaimMintingStatus = observer(() => {
   const [status, setStatus] = useState(undefined);
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  const animation = MobileOption(rootStore.pageWidth, marketplace.storefront?.purchase_animation, marketplace.storefront?.purchase_animation_mobile);
+  const animation = MobileOption(rootStore.pageWidth, marketplace?.storefront?.purchase_animation, marketplace?.storefront?.purchase_animation_mobile);
   const videoHash = LinkTargetHash(animation);
 
-  const revealAnimation = MobileOption(rootStore.pageWidth, marketplace.storefront?.reveal_animation, marketplace.storefront?.reveal_animation_mobile);
+  const revealAnimation = MobileOption(rootStore.pageWidth, marketplace?.storefront?.reveal_animation, marketplace?.storefront?.reveal_animation_mobile);
   const revealVideoHash = LinkTargetHash(revealAnimation);
+
+  const hideText = marketplace?.storefront?.hide_text;
 
   const Status = async () => await rootStore.ClaimStatus({
     marketplace,
@@ -455,6 +465,8 @@ export const ClaimMintingStatus = observer(() => {
       <MintingStatus
         key={`status-${videoHash}`}
         videoHash={videoHash}
+        revealVideoHash={revealVideoHash}
+        hideText={hideText}
         Status={Status}
         OnFinish={({status}) => setStatus(status)}
         basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
@@ -466,7 +478,7 @@ export const ClaimMintingStatus = observer(() => {
   let items = status.extra.filter(item => item.token_addr && (item.token_id || item.token_id_str));
   try {
     if(!items || items.length === 0) {
-      const marketplaceItem = (marketplace.items.find(item => item.sku === match.params.sku)) || {};
+      const marketplaceItem = ((marketplace?.items || []).find(item => item.sku === match.params.sku)) || {};
       const itemAddress = ((marketplaceItem.nft_template || {}).nft || {}).address;
 
       if(itemAddress) {
@@ -482,8 +494,6 @@ export const ClaimMintingStatus = observer(() => {
 
   return (
     <MintResults
-      key={`results-${revealVideoHash}`}
-      revealVideoHash={revealVideoHash}
       header="Congratulations!"
       subheader={`You've received the following ${items.length === 1 ? "item" : "items"}:`}
       items={items}
@@ -504,7 +514,7 @@ export const PackOpenStatus = observer(() => {
   // Set NFT in state so it doesn't change
   const [nft] = useState(
     rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId}) ||
-    rootStore.GetSessionStorageJSON(key)
+    rootStore.GetSessionStorageJSON(key, true)
   );
 
   useEffect(() => {
@@ -516,6 +526,7 @@ export const PackOpenStatus = observer(() => {
   }, []);
 
   const packOptions = nft?.metadata?.pack_options || {};
+  const hideText = packOptions.hide_text;
   const animation = MobileOption(rootStore.pageWidth, packOptions.open_animation, packOptions.open_animation_mobile);
   const videoHash = LinkTargetHash(animation);
 
@@ -529,12 +540,13 @@ export const PackOpenStatus = observer(() => {
     UrlJoin("/marketplace", match.params.marketplaceId, "collection", "owned") :
     UrlJoin("/wallet", "collection");
 
-  if(!nft) {
+  const tenantId = nft?.details?.TenantId || rootStore.marketplaces[match.params.marketplaceId]?.tenant_id;
+  if(!tenantId) {
     return <Redirect to={basePath} />;
   }
 
   const Status = async () => await rootStore.PackOpenStatus({
-    tenantId: nft.details.TenantId,
+    tenantId,
     contractId: match.params.contractId,
     tokenId: match.params.tokenId
   });
@@ -547,6 +559,8 @@ export const PackOpenStatus = observer(() => {
         Status={Status}
         OnFinish={({status}) => setStatus(status)}
         videoHash={videoHash}
+        revealVideoHash={revealVideoHash}
+        hideText={hideText}
         basePath={basePath}
         backText="Back to My Items"
       />
@@ -557,8 +571,6 @@ export const PackOpenStatus = observer(() => {
 
   return (
     <MintResults
-      key={`results-${revealVideoHash}`}
-      revealVideoHash={revealVideoHash}
       header="Congratulations!"
       subheader={`You've received the following ${items.length === 1 ? "item" : "items"}:`}
       items={items}

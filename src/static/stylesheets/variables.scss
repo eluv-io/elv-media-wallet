@@ -22,6 +22,13 @@ $action-height: 48px;
   border-radius: var(--border-radius-modal);
 }
 
+@mixin aspect-ratio-sized($vwMax, $vhMax, $ratioWidth: 16, $ratioHeight: 9) {
+  max-height: MIN(#{$vwMax} * #{$ratioHeight} / #{$ratioWidth}, #{$vhMax});
+  max-width: MIN(#{$vwMax}, calc(#{$vhMax} * #{$ratioWidth} / #{$ratioHeight}));
+  min-height: MIN(#{$vwMax} * #{$ratioHeight} / #{$ratioWidth}, #{$vhMax});
+  min-width: MIN(#{$vwMax}, calc(#{$vhMax} * #{$ratioWidth} / #{$ratioHeight}));
+}
+
 @keyframes BackgroundGradient {
   0% {
     background-position: 0 50%;

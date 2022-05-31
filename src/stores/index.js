@@ -1,6 +1,6 @@
 import {FormatNFT, LinkTargetHash} from "../utils/Utils";
 
-const testTheme = undefined;//import("../static/stylesheets/themes/maskverse-test.theme.css");
+const testTheme = import("../static/stylesheets/themes/wwe-test.theme.css");
 
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";
@@ -1125,7 +1125,7 @@ class RootStore {
       contractAddress: nft.details.ContractAddr,
       abi: NFTContractABI,
       methodName: "burn",
-      methodArgs: [nft.details.TokenId]
+      methodArgs: [nft.details.TokenIdStr]
     });
   });
 
