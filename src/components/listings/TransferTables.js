@@ -283,8 +283,9 @@ export const UserTransferTable = observer(({icon, header, limit, marketplaceId, 
             "withdrawal" : Utils.EqualAddress(entry.buyer, rootStore.userAddress) ? "purchase" : "sale",
         processor:
           (entry.processor || "").startsWith("eluvio") ? "Wallet Balance" :
-            (entry.processor || "").startsWith("stripe") ? "Credit Card" : "Crypto",
-        pending: Date.now() < entry.created * 1000 + 7 * 24 * 60 * 60 * 1000
+            (entry.processor || "").startsWith("stripe") ? "Credit Card" :
+              entry.processor?.startsWith("solana:p2p") ? "USDC" : "Crypto",
+        pending: !entry.processor?.startsWith("solana:p2p") && Date.now() < entry.created * 1000 + 7 * 24 * 60 * 60 * 1000
       }))
       .filter(entry => entry.type === type)
       .filter(entry => entry.type === "withdrawal" || Utils.EqualAddress(rootStore.userAddress, type === "sale" ? entry.addr : entry.buyer))
