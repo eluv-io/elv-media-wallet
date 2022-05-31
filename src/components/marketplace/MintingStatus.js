@@ -526,7 +526,7 @@ export const PackOpenStatus = observer(() => {
   }, []);
 
   const packOptions = nft?.metadata?.pack_options || {};
-  const hideText = packOptions.hide_text || true;
+  const hideText = packOptions.hide_text;
   const animation = MobileOption(rootStore.pageWidth, packOptions.open_animation, packOptions.open_animation_mobile);
   const videoHash = LinkTargetHash(animation);
 
