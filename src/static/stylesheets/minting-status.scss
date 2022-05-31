@@ -1,9 +1,11 @@
 @keyframes card-reveal {
   from {
-    transform: scale(0%);
+    opacity: 0;
+    transform: scale(25%);
   }
 
   to {
+    opacity: 1;
     transform: scale(100%);
   }
 }
@@ -68,13 +70,21 @@
     text-align: center;
   }
 
+  &__loader {
+    min-height: 30vh;
+  }
+
   &__video-container {
     align-items: center;
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
     position: relative;
-    width: 75vw;
+    width: 100%;
+
+    &--hidden {
+      display: none;
+    }
 
     .loader {
       height: 100%;
@@ -90,17 +100,13 @@
     }
 
     &--large {
-      width: 100vw;
-
       video {
-        max-height: 100vh;
+        max-height: 80vh;
       }
     }
   }
 
   &__video {
-    width: 100vw;
-
     &.minting-status__video {
       background: transparent;
       flex: 1 1 0;
@@ -109,6 +115,16 @@
       video {
         background: transparent;
         width: 100%;
+      }
+    }
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    &__video-container {
+      width: 100vw;
+
+      video {
+        max-height: 90vh;
       }
     }
   }

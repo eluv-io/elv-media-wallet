@@ -22,6 +22,7 @@ const NFTCard = observer(({
   usdcAccepted,
   stock,
   link,
+  imageWidth,
   showVideo,
   showOrdinal,
   allowFullscreen,
@@ -95,6 +96,7 @@ const NFTCard = observer(({
         item={item}
         selectedMedia={selectedMedia}
         video={showVideo}
+        width={imageWidth}
         allowFullscreen={allowFullscreen}
         playerCallback={playerCallback}
       />
