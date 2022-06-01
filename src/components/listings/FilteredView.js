@@ -118,7 +118,7 @@ const FilteredView = ({
       }
 
       {
-        !loading && paging && entries.length < paging.total ?
+        !expectRef && !loading && paging && entries.length < paging.total ?
           <div className="filtered-view__actions">
             <ButtonWithLoader
               onClick={async () => await Load({currentFilters: filters, currentPaging: paging, currentEntries: entries})}
