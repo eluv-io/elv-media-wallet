@@ -22,6 +22,16 @@ h1 {
   text-align: center;
 }
 
+.wallet-route {
+  width: 75%;
+  margin: 50px auto 0;
+  padding: 15px;
+  font-size: 14px;
+  color: white;
+  letter-spacing: 0.5px;
+  background: black;
+}
+
 .wallet-target {
   display: block;
   height: 75%;
@@ -31,7 +41,7 @@ h1 {
 }
 
 .-elv-media-wallet-frame {
-  border: 1px solid #6495ed;
+  border: 0;
   min-height: 75vh;
   height: 100%;
   outline: 0;

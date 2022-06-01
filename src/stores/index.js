@@ -17,6 +17,8 @@ import NFTContractABI from "../static/abi/NFTContract";
 import CryptoStore from "Stores/Crypto";
 import {v4 as UUID} from "uuid";
 
+import {ethers} from "ethers";
+
 // Force strict mode so mutations are only allowed within actions.
 configure({
   enforceActions: "always"
@@ -556,6 +558,8 @@ class RootStore {
         ...(nft.metadata || {})
       };
 
+      nft.config = yield this.TenantConfiguration({contractAddress});
+
       this.nftData[key] = FormatNFT(nft);
     }
 
@@ -1093,6 +1097,41 @@ class RootStore {
   }
 
   OpenNFT = flow(function * ({tenantId, contractAddress, tokenId}) {
+    /*
+    //console.log("NFT:", this.nftData[])
+    const nftAddressBytes = ethers.utils.arrayify("0x031c6afb4c3d43daf84c941e1fd71ab9d375bda2");
+    const mintAddressBytes = ethers.utils.arrayify("0x8aaeb4ac54e240224f087b1990ccfa1065a141c3");
+    const tokenIdBigInt = ethers.utils.bigNumberify("1001321").toHexString();
+
+    console.log(nftAddressBytes, mintAddressBytes);
+
+    const res = ethers.utils.arrayify(
+      ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["bytes", "bytes", "uint256"],
+          [nftAddressBytes, mintAddressBytes, tokenIdBigInt]
+        )
+      )
+    );
+
+    console.log(res);
+
+    const provider = new ethers.providers.Web3Provider(web3.currentProvider);
+    const signer = provider.getSigner();
+
+    window.signer = signer;
+    window.provider = provider;
+
+
+    console.log(yield signer.signMessage(res));
+
+
+    throw Error("asd");
+
+    return;
+
+     */
+
     contractAddress = Utils.FormatAddress(contractAddress);
     const confirmationId = `${contractAddress}:${tokenId}`;
 
@@ -1127,6 +1166,24 @@ class RootStore {
       methodName: "burn",
       methodArgs: [nft.details.TokenIdStr]
     });
+  });
+
+  TenantConfiguration = flow(function * ({tenantId, contractAddress}) {
+    try {
+      return yield Utils.ResponseToJson(
+        this.client.authClient.MakeAuthServiceRequest({
+          path: contractAddress ?
+            UrlJoin("as", "config", "nft", contractAddress) :
+            UrlJoin("as", "config", "tnt", tenantId),
+          method: "GET",
+        })
+      );
+    } catch(error) {
+      this.Log("Failed to load tenant configuration", true);
+      this.Log(error, true);
+
+      return {};
+    }
   });
 
   MintingStatus = flow(function * ({tenantId}) {

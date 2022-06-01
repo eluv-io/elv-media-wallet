@@ -296,7 +296,6 @@
     border-radius: var(--border-radius-input);
     cursor: pointer;
     display: block;
-    //display: flex;
     overflow: hidden;
     padding: 0 30px 0 15px;
     position: relative;
@@ -324,6 +323,10 @@
         width: 12px;
       }
     }
+
+    &--active {
+      border: var(--outline-input-focus);
+    }
   }
 
   &__menu {
@@ -345,7 +348,6 @@
       padding: 0 15px;
       position: relative;
       width: 100%;
-      //height: max-content!important;
 
       &:hover,
       &--selected {

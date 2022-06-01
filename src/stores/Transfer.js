@@ -521,6 +521,18 @@ class TransferStore {
     return names;
   });
 
+  EditionNames = flow(function * ({displayName}) {
+    return yield Utils.ResponseToJson(
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "mkt", "editions"),
+        queryParams: {
+          filter: `nft/display_name:eq:${displayName}`
+        },
+        method: "GET"
+      })
+    );
+  });
+
   // Transfer History
 
   UserTransferHistory = flow(function * () {

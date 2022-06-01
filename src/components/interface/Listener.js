@@ -4,7 +4,7 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 import EVENTS from "../../../client/src/Events";
 import UrlJoin from "url-join";
 import {FormatPriceString} from "Components/common/UIComponents";
-import {roundToDown} from "round-to";
+import {roundToDown, roundToUp} from "round-to";
 
 const embedded = window.self !== window.top;
 
@@ -55,6 +55,22 @@ const Price = (item, quantity=1) => {
     fee: FormatPrice(fee),
     total: FormatPrice(total),
     quantity
+  };
+};
+
+const ListingPayout = (nft, listingPrice) => {
+  const royalty = parseFloat((nft.config || {})["nft-royalty"] || 20) / 100;
+
+  const parsedPrice = isNaN(parseFloat(listingPrice)) ? 0 : parseFloat(listingPrice);
+  const payout = roundToUp(parsedPrice * (1 - royalty), 2);
+
+  const royaltyFee = roundToDown(parsedPrice - payout, 2);
+
+  return {
+    listingPrice: parsedPrice,
+    royalty,
+    royaltyFee,
+    payout
   };
 };
 
@@ -564,6 +580,16 @@ export const InitializeListener = (history) => {
           }
 
           return Respond({response: Price(item, data.params.quantity || 1)});
+
+        case "listingPayout":
+          const nft = await rootStore.LoadNFTData({
+            contractAddress: data.params.contractAddress,
+            tokenId: data.params.tokenId
+          });
+
+          if(!nft) { throw Error(`Unable to find NFT with contract address ${data.params.contractAddress} and token ID ${data.params.tokenId}`); }
+
+          return Respond({response: ListingPayout(nft, data.params.listingPrice)});
 
         // client.OpenPack
         case "openPack":

@@ -65,7 +65,7 @@ const FilterDropdown = observer(({label, value, options, optionLabelPrefix, onCh
   );
 });
 
-const FilterMenu = ({mode, filterValues, setFilterValues, Hide}) => {
+const FilterMenu = ({mode, filterValues, editions, setFilterValues, Hide}) => {
   const match = useRouteMatch();
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
@@ -90,13 +90,26 @@ const FilterMenu = ({mode, filterValues, setFilterValues, Hide}) => {
   return (
     <div className="filters__menu" ref={ref}>
       {
+        mode === "listings" && filterValues.filter && editions.length > 0 ?
+          <FilterDropdown
+            label="Edition"
+            optionLabelPrefix="Edition: "
+            value={filterValues.editionFilter}
+            onChange={value => setFilterValues({...filterValues, editionFilter: value})}
+            placeholder={["", "All Editions"]}
+            options={editions}
+          /> : null
+      }
+
+      {
         mode === "owned" ? null :
           <FilterDropdown
             label="Time"
             optionLabelPrefix="Time: "
             value={filterValues.lastNDays}
             onChange={value => setFilterValues({...filterValues, lastNDays: value})}
-            options={[["-1", "All Time"], ["7", "Last 7 Days"], ["30", "Last 30 Days"]]}
+            placeholder={["-1", "All Time"]}
+            options={[["7", "Last 7 Days"], ["30", "Last 30 Days"]]}
           />
       }
       {
@@ -135,7 +148,8 @@ const FilterMenu = ({mode, filterValues, setFilterValues, Hide}) => {
             optionLabelPrefix="Currency: "
             value={filterValues.currency}
             onChange={value => setFilterValues({...filterValues, currency: value})}
-            options={[["", "Any"], ["usdc", "USDC"]]}
+            placeholder={["", "All Currencies"]}
+            options={[["usdc", "USDC"]]}
           /> : null
       }
     </div>
@@ -154,9 +168,11 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
   const initialOption = sortOptions[0];
 
   const initialFilter = urlParams.get("filter");
+  const initialEditionFilter = urlParams.get("edition");
 
   const [savedOptionsLoaded, setSavedOptionsLoaded] = useState(false);
   const [filterOptionsLoaded, setFilterOptionsLoaded] = useState(false);
+  const [editions, setEditions] = useState([]);
 
   const [filterOptions, setFilterOptions] = useState(initialFilter ? [ initialFilter ] : []);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
@@ -168,6 +184,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
     collectionIndex: -1,
     lastNDays: -1,
     filter: initialFilter || "",
+    editionFilter: initialEditionFilter || "",
     tenantId: marketplace ? marketplace.tenant_id : "",
     currency: ""
   });
@@ -201,6 +218,23 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
   }, [filterValues.tenantId]);
 
   useEffect(() => {
+    if(!filterValues.filter) {
+      setEditions([]);
+      return;
+    }
+
+    transferStore.EditionNames({displayName: filterValues.filter})
+      .then(editions =>
+        setEditions(
+          editions
+            .map(edition => (edition || "").trim())
+            .sort()
+            .map(edition => [edition, edition])
+        )
+      );
+  }, [filterValues.filter]);
+
+  useEffect(() => {
     if(savedOptionsLoaded || !filterOptionsLoaded) { return; }
 
     try {
@@ -222,6 +256,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
         sortBy: savedOptions.sortBy,
         sortDesc: savedOptions.sortDesc,
         filter: savedOptions.filter,
+        editionFilter: savedOptions.editionFilter,
         collectionIndex: savedOptions.collectionIndex,
         lastNDays: savedOptions.lastNDays,
         tenantId: savedOptions.tenantId
@@ -280,6 +315,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
             <FilterMenu
               mode={mode}
               filterValues={filterValues}
+              editions={editions}
               setFilterValues={setFilterValues}
               Hide={() => setShowFilterMenu(false)}
             /> : null }
@@ -293,12 +329,12 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
                 className="listing-filters__filter-input autocomplete__input"
                 placeholder="Filter..."
                 value={filterValues.filter}
-                onChange={value => setFilterValues({...filterValues, filter: value})}
+                onChange={value => setFilterValues({...filterValues, filter: value, editionFilter: ""})}
               />
               {
                 filterValues.filter ?
                   <button
-                    onClick={() => setFilterValues({...filterValues, filter: ""})}
+                    onClick={() => setFilterValues({...filterValues, filter: "", editionFilter: ""})}
                     className="autocomplete__clear-button"
                   >
                     <ImageIcon icon={ClearIcon} title="Clear" />
@@ -310,7 +346,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
               key={`autocomplete-${filterOptionsLoaded}-${savedOptionsLoaded}`}
               placeholder="Search here"
               value={filterValues.filter}
-              onChange={value => setFilterValues({...filterValues, filter: value})}
+              onChange={value => setFilterValues({...filterValues, filter: value, editionFilter: ""})}
               onEnterPressed={async () => await Update(true)}
               options={filterOptions}
             />

@@ -9,7 +9,7 @@ import ImageIcon from "Components/common/ImageIcon";
 
 import SalesIcon from "Assets/icons/misc/sales icon.svg";
 
-const Activity = ({icon, header, hideFilters, hideStats, tableHeader, initialFilters}) => {
+const Activity = ({icon, header, hideName, hideFilters, hideStats, tableHeader, initialFilters}) => {
   const match = useRouteMatch();
 
   const linkPath = match.url.startsWith("/marketplace") ?
@@ -48,7 +48,7 @@ const Activity = ({icon, header, hideFilters, hideStats, tableHeader, initialFil
           }
           <div className="transfer-table__table" ref={scrollRef}>
             <div className="transfer-table__table__header">
-              <div className="transfer-table__table__cell">Name</div>
+              { hideName ? null : <div className="transfer-table__table__cell">Name</div> }
               <div className="transfer-table__table__cell">Token ID</div>
               <div className="transfer-table__table__cell no-mobile">Time</div>
               <div className="transfer-table__table__cell">Total Amount</div>
@@ -65,9 +65,12 @@ const Activity = ({icon, header, hideFilters, hideStats, tableHeader, initialFil
                       className={`transfer-table__table__row ${!transfer.contract || !transfer.token ? "transfer-table__table__row--no-click" : ""}`}
                       key={`transfer-table-row-${transfer.id}`}
                     >
-                      <div className="transfer-table__table__cell">
-                        { transfer.name }
-                      </div>
+                      {
+                        hideName ? null :
+                          <div className="transfer-table__table__cell">
+                            {transfer.name}
+                          </div>
+                      }
                       <div className="transfer-table__table__cell">
                         { transfer.token }
                       </div>

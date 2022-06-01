@@ -370,6 +370,30 @@ exports.Item = async function ({contractAddress, tokenId}) {
 };
 
 /**
+ * * <b><i>Requires login</i></b>
+ *
+ * Retrieve the exact listing payout breakdown for the specified owned NFT at the specified price
+ *
+ * @methodGroup Listings
+ * @namedParams
+ * @param {string} contractAddress - The contract address of the NFT
+ * @param {string} tokenId - The token ID of the NFT
+ * @param {number} listingPrice - The desired listing price of the NFT
+ *
+ * @returns {Promise<Object>} - The breakdown of the payout for the listing, including the royalty rate, total royalty fee, and ultimate payout to the user
+ */
+exports.ListingPayout = async function({contractAddress, tokenId, listingPrice}) {
+  return this.SendMessage({
+    action: "listingPayout",
+    params: {
+      contractAddress,
+      tokenId,
+      listingPrice
+    }}
+  );
+};
+
+/**
  * Return available listings
  *
  * @methodGroup Listings

@@ -569,18 +569,19 @@ const NFTDetails = observer(() => {
               <ButtonWithLoader
                 className="details-page__open-button"
                 onClick={async () => Confirm({
-                  message: "Are you sure you want to open this pack?",
+                  message: `Are you sure you want to open '${nft.metadata.display_name}?'`,
                   Confirm: async () => {
                     await rootStore.OpenNFT({
                       tenantId: nft.details.TenantId,
                       contractAddress: nft.details.ContractAddr,
                       tokenId: nft.details.TokenIdStr
                     });
+
                     setOpened(true);
                   }
                 })}
               >
-                Open Pack
+                { nft.metadata.pack_options.open_button_text || "Open Pack" }
               </ButtonWithLoader> : null
           }
 
@@ -682,6 +683,7 @@ const NFTDetails = observer(() => {
             icon={SalesIcon}
             hideFilters
             hideStats
+            hideName
             tableHeader={`Sales history for all '${nft.metadata.display_name}' tokens`}
             initialFilters={{
               sortBy: "created",

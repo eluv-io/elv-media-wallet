@@ -37,6 +37,7 @@ const EventListener = event => {
 const minHeight = 2000;
 
 const App = () => {
+  const [currentRoute, setCurrentRoute] = useState("");
   const [client, setClient] = useState(undefined);
   const [height, setHeight] = useState(minHeight);
   const [listeners, setEventListeners] = useState({
@@ -93,7 +94,8 @@ const App = () => {
 
     client.AddEventListener(
       client.EVENTS.ROUTE_CHANGE,
-      () => {
+      event => {
+        setCurrentRoute(event.data);
         setHeight(minHeight);
         window.scrollTo({top: 0});
       }
@@ -114,6 +116,9 @@ const App = () => {
 
     setClient(undefined);
   };
+
+  const currentUrl = new URL(appUrl);
+  currentUrl.hash = currentRoute;
 
   return (
     <div className="page-container">
@@ -231,6 +236,10 @@ const App = () => {
             </div>
           </>
       }
+
+      <div className="wallet-route">
+        { currentUrl.toString() }
+      </div>
 
       <div id="wallet-target" className="wallet-target" style={{height: `${height}px`}} />
 

@@ -18,6 +18,7 @@ const AutoComplete = ({
   const [selectedOption, setSelectedOption] = useState(options[0]);
   const [inputValue, setInputValue] = useState(value);
   const [valueChanged, setValueChanged] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState("");
 
   options = options.filter((option, index) => options.indexOf(option) === index);
 
@@ -71,10 +72,16 @@ const AutoComplete = ({
     // Only trigger onChange when a matching value is input
     if(inputValue !== value && matchingOptions.includes(inputValue)) {
       onChange(inputValue);
+      setLastUpdate(inputValue);
     } else if(!inputValue || !options || options.length === 0 || !valueChanged) {
       setShowSuggestions(false);
     } else {
       setShowSuggestions(true);
+    }
+
+    if(!inputValue && lastUpdate) {
+      onChange("");
+      setLastUpdate("");
     }
   }, [inputValue]);
 
