@@ -1,6 +1,6 @@
 import {FormatNFT, LinkTargetHash} from "../utils/Utils";
 
-const testTheme = undefined; //import("../static/stylesheets/themes/wwe-test.theme.css");
+const testTheme = undefined;//import("../static/stylesheets/themes/wwe-test.theme.css");
 
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";

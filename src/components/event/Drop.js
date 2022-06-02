@@ -28,6 +28,7 @@ const DropCard = ({marketplace, label, sku, image, selected=false, pendingSelect
       }
       name={label || item.name}
       onClick={Select}
+      variant={item?.nftTemplateMetadata?.style}
       className={`card-container-selectable ${pendingSelection ? "card-container-pending-selection" : ""} ${selected ? "card-container-selected" : ""}`}
     />
   );

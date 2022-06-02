@@ -28,6 +28,7 @@ const Listing = memo(({url, listing}) => (
       Utils.EqualAddress(rootStore.userAddress, listing.details.SellerAddress) ?
         <ImageIcon icon={ListingIcon} title="This is your listing" alt="Listing Icon" className="item-card__badge" /> : null
     }
+    variant={listing.metadata.style}
   />
 ));
 

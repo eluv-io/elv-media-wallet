@@ -74,6 +74,7 @@ const Collections = observer(() => {
                         description={nft.metadata.description}
                         price={listing ? FormatPriceString({USD: listing.details.Price}, {includeCurrency: true, prependCurrency: true}) : null}
                         usdcAccepted={listing?.details?.USDCAccepted}
+                        variant={nft.metadata.style}
                       />
                     );
                   })

@@ -121,6 +121,8 @@
   --gold-1: #FFCB05;
   --neutral-1: rgba(235, 235, 235, 0.2);
   --neutral-2: #585a73;
+  --red-1: #F1493A;
+  --red-2: #FF6C3D;
 
 
   /* General */
@@ -161,13 +163,18 @@
   /* Cards */
   --background-card: rgba(6, 8, 41, 0.7);
   --border-card: 2px solid #0E01FA;
-  --box-shadow-card: 0 0 24px rgba(16, 39, 254, 0.64);
+  --box-shadow-card: 0 0 12px rgba(16, 39, 254, 0.64);
+
+  --border-background-card: linear-gradient(180deg, #021AFF 0%, #0E01FA 54.17%, #1882FF 75.52%, #021AFF 100%);
+  --border-width-card: 2px;
 
   --background-feature-card: rgba(6, 8, 41, 0.7);
   --background-feature-card-runway: none;
   --border-radius-feature-card: 4px;
   --box-shadow-feature-card: 0 0 24px rgba(16, 39, 254, 0.64);
   --box-shadow-feature-card-selected: 0 0 24px rgba(16, 39, 254, 1);
+
+  --border-width-feature-card: 3px;
 
   --color-featured-item-slider-handle: #1C77FF;
 
@@ -282,15 +289,6 @@ input:focus-visible,
   transition: box-shadow 0.15s;
 }
 
-/* Apply gradient border to cards using background gradient and padding on container */
-.featured-item__icon-container,
-.feature-gallery__icon-container,
-.card-container {
-  padding: 2px!important;
-  background: linear-gradient(180deg, #021AFF 0%, #0E01FA 54.17%, #1882FF 75.52%, #021AFF 100%);
-  border: 2px solid transparent!important;
-}
-
 .item-card {
   border-radius: 3px!important;
 }
@@ -337,4 +335,30 @@ input:focus-visible,
   .featured-item__title {
     font-size: 24px;
   }
+}
+
+
+.card-container--variant-wwe-red,
+.featured-item__icon-container--variant-wwe-red,
+.feature-gallery__icon-container--variant-wwe-red {
+  background: linear-gradient(180deg, #F1493A 0%, #FF823C 54.17%, #FF6C3D 75.52%, #F1493A 100%);
+  box-shadow: 0 0 24px rgba(241, 73, 51, 0.64);
+}
+
+.card-container--variant-wwe-red {
+  box-shadow: 0 0 12px rgba(241, 73, 51, 0.64);
+}
+
+.card-container--variant-wwe-red.card-container--link:hover {
+  box-shadow: 0 0 12px #ff1820;
+}
+
+.feature-gallery__icon-container--variant-wwe-red.feature-gallery__icon-container--selected {
+  box-shadow: 0 0 24px rgba(250, 73, 51, 1);
+}
+
+.card-container--variant-wwe-red .item-card,
+.featured-item__icon-container--variant-wwe-red .featured-item__icon,
+.feature-gallery__icon-container--variant-wwe-red .feature-gallery__icon {
+  background: #501b2f;
 }

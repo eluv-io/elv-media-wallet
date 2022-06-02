@@ -48,6 +48,8 @@ const NFTCard = observer(({
   const unauthorized = item && item.requires_permissions && !item.authorized;
   const info = selectedListing || nft;
 
+  const variant = (item?.nftTemplateMetadata || nft?.metadata).style;
+
   let details = {
     name: selectedMedia?.name || info.metadata.display_name,
     subtitle_1: selectedMedia ? selectedMedia.subtitle_1 : info.metadata.edition_name,
@@ -174,7 +176,7 @@ const NFTCard = observer(({
 
   if(link) {
     return (
-      <div className={`card-container card-container--link ${rootStore.centerItems ? "card-container--centered" : ""} ${className}`} style={style}>
+      <div className={`card-container card-container--link ${rootStore.centerItems ? "card-container--centered" : ""} ${variant ? `card-container--variant-${variant}` : ""} ${className}`} style={style}>
         <Link
           to={link}
           className={`item-card ${cardClassName}`}
@@ -186,7 +188,7 @@ const NFTCard = observer(({
   }
 
   return (
-    <div className={`card-container ${rootStore.centerItems ? "card-container--centered" : ""} ${className}`} style={style}>
+    <div className={`card-container ${rootStore.centerItems ? "card-container--centered" : ""} ${variant ? `card-container--variant-${variant}` : ""} ${className}`} style={style}>
       <div
         onClick={onClick}
         className={`item-card ${cardClassName}`}

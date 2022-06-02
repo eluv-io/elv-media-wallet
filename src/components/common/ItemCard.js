@@ -21,6 +21,7 @@ const ItemCard = observer(({
   sideText,
   usdcAccepted,
   onClick,
+  variant="",
   className="",
   cardClassName=""
 }) => {
@@ -96,7 +97,7 @@ const ItemCard = observer(({
 
   if(link) {
     return (
-      <div className={`card-container card-container--link ${rootStore.centerItems ? "card-container--centered" : ""} ${className}`}>
+      <div className={`card-container card-container--link ${rootStore.centerItems ? "card-container--centered" : ""} ${variant ? `card-container--variant-${variant}` : ""} ${className}`}>
         <Link
           to={link}
           className={`item-card ${cardClassName}`}
@@ -108,7 +109,7 @@ const ItemCard = observer(({
   }
 
   return (
-    <div className={`card-container ${rootStore.centerItems ? "card-container--centered" : ""} ${className}`}>
+    <div className={`card-container ${rootStore.centerItems ? "card-container--centered" : ""} ${variant ? `card-container--variant-${variant}` : ""} ${className}`}>
       <div
         onClick={onClick}
         className={`item-card ${cardClassName}`}

@@ -38,6 +38,8 @@ const MarketplaceItemCard = ({
     description = item.permission_description || description;
   }
 
+  const variant = item.nftTemplateMetadata.style;
+
   let status, action, linkDisabled=noLink;
   if(expired) {
     action = "Listings";
@@ -96,6 +98,7 @@ const MarketplaceItemCard = ({
       justification={justification}
       fullDescription={type === "Detail"}
       action={action}
+      variant={variant}
       className={`${className} ${type !== "Featured" && (outOfStock || expired || unauthorized) ? "card-container--disabled" : ""}`}
       cardClassName={`${cardClassName}`}
     />

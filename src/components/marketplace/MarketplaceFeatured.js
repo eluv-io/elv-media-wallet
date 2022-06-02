@@ -90,7 +90,7 @@ const FeaturedGallery = ({showIcons, marketplaceHash, items, selectedIndex, setS
                 <button
                   aria-label={item.name || item.nftTemplateMetadata.display_name}
                   key={`feature-gallery-${item.itemIndex}`}
-                  className={`feature-gallery__icon-container ${index === (selectedIndex - range[0]) ? "feature-gallery__icon-container--selected" : ""}`}
+                  className={`feature-gallery__icon-container ${index === (selectedIndex - range[0]) ? "feature-gallery__icon-container--selected" : ""} ${item.nftTemplateMetadata.style ? `feature-gallery__icon-container--variant-${item.nftTemplateMetadata.style}` : ""}`}
                   onClick={() => setSelectedIndex(range[0] + index)}
                 >
                   <div className="feature-gallery__icon">

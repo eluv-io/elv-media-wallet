@@ -85,6 +85,7 @@ const MarketplaceCollections = observer(() => {
               description={ownedItem.nft.metadata.description}
               edition={ownedItem.nft.metadata.edition_name}
               badges={<ImageIcon icon={OwnedIcon} title="You own this item" alt="Listing Icon" className="item-card__badge"/>}
+              variant={ownedItem.nft.metadata.style}
             />
           );
         } else if(item && purchaseableItem) {
@@ -110,6 +111,7 @@ const MarketplaceCollections = observer(() => {
               image={<NFTImage nft={{metadata: item.nftTemplateMetadata}} width={600}/>}
               name={item.nftTemplateMetadata.display_name}
               description={item.nftTemplateMetadata.description}
+              variant={item.nftTemplateMetadata.style}
             />
           );
         }

@@ -23,6 +23,7 @@ const FeaturedItemCard = observer(({
   action,
   usdcAccepted,
   onClick,
+  variant,
   className="",
 }) => {
   const match = useRouteMatch();
@@ -46,7 +47,7 @@ const FeaturedItemCard = observer(({
   }
 
   let icon = (
-    <div className="featured-item__icon-container">
+    <div className={`featured-item__icon-container ${variant ? `featured-item__icon-container--variant-${variant}` : ""}`}>
       <div className="featured-item__icon">
         { image }
       </div>
@@ -129,7 +130,7 @@ const FeaturedItemCard = observer(({
   return (
     <div
       onClick={onClick}
-      className={`featured-item ${justification === "Right" ? "featured-item--right-just" : ""}${className}`}
+      className={`featured-item ${justification === "Right" ? "featured-item--right-just" : ""} ${className}`}
     >
       { cardContents }
     </div>
