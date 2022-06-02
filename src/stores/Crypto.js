@@ -227,7 +227,6 @@ class CryptoStore {
           params: [message, from, ""],
         });
       }
-
     } catch(error) {
       this.rootStore.Log("Error signing Metamask message:", true);
       this.rootStore.Log(error, true);

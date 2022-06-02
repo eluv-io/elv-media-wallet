@@ -1097,56 +1097,54 @@ class RootStore {
   }
 
   OpenNFT = flow(function * ({tenantId, contractAddress, tokenId}) {
-    /*
-    //console.log("NFT:", this.nftData[])
-    const nftAddressBytes = ethers.utils.arrayify("0x031c6afb4c3d43daf84c941e1fd71ab9d375bda2");
-    const mintAddressBytes = ethers.utils.arrayify("0x8aaeb4ac54e240224f087b1990ccfa1065a141c3");
-    const tokenIdBigInt = ethers.utils.bigNumberify("1001321").toHexString();
-
-    console.log(nftAddressBytes, mintAddressBytes);
-
-    const res = ethers.utils.arrayify(
-      ethers.utils.keccak256(
-        ethers.utils.solidityPack(
-          ["bytes", "bytes", "uint256"],
-          [nftAddressBytes, mintAddressBytes, tokenIdBigInt]
-        )
-      )
-    );
-
-    console.log(res);
-
-    const provider = new ethers.providers.Web3Provider(web3.currentProvider);
-    const signer = provider.getSigner();
-
-    window.signer = signer;
-    window.provider = provider;
-
-
-    console.log(yield signer.signMessage(res));
-
-
-    throw Error("asd");
-
-    return;
-
-     */
-
-    contractAddress = Utils.FormatAddress(contractAddress);
-    const confirmationId = `${contractAddress}:${tokenId}`;
-
-    // Save as purchase so tenant ID is preserved for status
-    this.checkoutStore.PurchaseInitiated({tenantId, confirmationId});
-
     try {
+      contractAddress = Utils.FormatAddress(contractAddress);
+      const confirmationId = `${contractAddress}:${tokenId}`;
+
+      // Save as purchase so tenant ID is preserved for status
+      this.checkoutStore.PurchaseInitiated({tenantId, confirmationId});
+
+      let params = {
+        op: "nft-open",
+        tok_addr: contractAddress,
+        tok_id: tokenId
+      };
+
+      if(this.AuthInfo().walletName === "metamask") {
+        // Must create signature for burn operation to pass to API
+
+        let popup;
+        if(this.embedded) {
+          // Create popup before calling async config method to avoid popup blocker
+          popup = window.open("about:blank");
+        }
+
+        const config = yield this.TenantConfiguration({contractAddress});
+
+        const mintHelperAddress = config["mint-helper"];
+
+        if(!mintHelperAddress) {
+          throw Error(`Mint helper not defined in configuration for NFT ${contractAddress}`);
+        }
+
+        const nftAddressBytes = ethers.utils.arrayify(contractAddress);
+        const mintAddressBytes = ethers.utils.arrayify(mintHelperAddress);
+        const tokenIdBigInt = ethers.utils.bigNumberify(tokenId).toHexString();
+
+        const hash = ethers.utils.keccak256(
+          ethers.utils.solidityPack(
+            ["bytes", "bytes", "uint256"],
+            [nftAddressBytes, mintAddressBytes, tokenIdBigInt]
+          )
+        );
+
+        params.sig_hex = yield this.cryptoStore.SignMetamask(hash, this.AuthInfo().address, popup);
+      }
+
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "act", tenantId),
         method: "POST",
-        body: {
-          op: "nft-open",
-          tok_addr: contractAddress,
-          tok_id: tokenId
-        },
+        body: params,
         headers: {
           Authorization: `Bearer ${this.authToken}`
         }
@@ -1613,9 +1611,11 @@ class RootStore {
 
   // Flows are popups that do not require UI input (redirecting to purchase, etc)
   // Actions are popups that present UI (signing, accepting permissions, etc.)
-  Flow = flow(function * ({type="flow", flow, parameters={}, includeAuth=false, darkMode=false, noResponse, OnComplete, OnCancel}) {
+  Flow = flow(function * ({popup, type="flow", flow, parameters={}, includeAuth=false, darkMode=false, noResponse, OnComplete, OnCancel}) {
     try {
-      const popup = window.open("about:blank");
+      if(!popup) {
+        popup = window.open("about:blank");
+      }
 
       if(!popup) {
         throw {message: "Popup Blocked", error: "popup_blocked"};
