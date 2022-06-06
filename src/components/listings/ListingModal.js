@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
 import Confirm from "Components/common/Confirm";
@@ -12,16 +12,25 @@ import WalletConnect from "Components/crypto/WalletConnect";
 
 import USDIcon from "Assets/icons/crypto/USD gray.svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
+import {Loader} from "Components/common/Loaders";
 
 const ListingModal = observer(({nft, listingId, Close}) => {
   const [price, setPrice] = useState(nft.details.Price ? nft.details.Price.toFixed(2) : "");
   const [errorMessage, setErrorMessage] = useState(undefined);
 
-  const royalty = parseFloat((nft.config || {})["nft-royalty"] || 20) / 100;
+  const [royaltyRate, setRoyaltyRate] = useState(undefined);
+
+  useEffect(() => {
+    rootStore.TenantConfiguration({
+      contractAddress: nft.details.ContractAddr,
+    })
+      .then(config => {
+        setRoyaltyRate(parseFloat((config || {})["nft-royalty"] || 10) / 100);
+      });
+  }, []);
 
   const parsedPrice = isNaN(parseFloat(price)) ? 0 : parseFloat(price);
-  const payout = roundToUp(parsedPrice * (1 - royalty), 2);
-
+  const payout = roundToUp(parsedPrice * (1 - royaltyRate), 2);
   const royaltyFee = roundToDown(parsedPrice - payout, 2);
 
   return (
@@ -60,14 +69,23 @@ const ListingModal = observer(({nft, listingId, Close}) => {
             </div>
 
             <div className="listing-modal__details">
-              <div className="listing-modal__detail listing-modal__detail-faded">
-                <label>Creator Royalty</label>
-                <div>${royaltyFee.toFixed(2)}</div>
-              </div>
-              <div className="listing-modal__detail listing-modal__detail--bold">
-                <label>Total Payout</label>
-                <div className="listing-modal__payout">{ cryptoStore.usdcConnected ? <ImageIcon icon={USDCIcon} title="USDC Available" /> : null }${Math.max(0, payout).toFixed(2)}</div>
-              </div>
+              {
+                royaltyRate ?
+                  <>
+                    <div className="listing-modal__detail listing-modal__detail-faded">
+                      <label>Creator Royalty</label>
+                      <div>${royaltyFee.toFixed(2)}</div>
+                    </div>
+                    <div className="listing-modal__detail listing-modal__detail--bold">
+                      <label>Total Payout</label>
+                      <div
+                        className="listing-modal__payout"
+                      >
+                        {cryptoStore.usdcConnected ? <ImageIcon icon={USDCIcon} title="USDC Available"/> : null} ${Math.max(0, payout).toFixed(2)}
+                      </div>
+                    </div>
+                  </> : <Loader/>
+              }
             </div>
             {
               !cryptoStore.usdcConnected ?
