@@ -206,7 +206,6 @@ const Routes = observer(() => {
 
 
 const App = observer(() => {
-  console.log("");
   if(sessionStorageAvailable) {
     window.auth0 = useAuth0();
   }

@@ -415,6 +415,8 @@ exports.ListingPayout = async function({contractAddress, tokenId, listingPrice})
  * @param {string=} tenantSlug - Specify the URL slug of a marketplace's tenant. Required if specifying marketplace slug
  * @param {string=} marketplaceSlug - Filter listings by marketplace
  * @param {string=} contractAddress - Filter results by contract address
+ * @param {string=} tokenId - Filter by specific token (along with contract address)
+ * @param {number=} lastNDays - Limit results to only include items listed in the past N days
  *
  * @returns {Promise<Object>} - Available listings and pagination information
  */
@@ -428,7 +430,9 @@ exports.Listings = async function ({
   sortBy="created",
   sortDesc=false,
   filter,
-  contractAddress
+  contractAddress,
+  tokenId,
+  lastNDays
 }={}) {
   return await this.SendMessage({
     action: "listings",
@@ -442,7 +446,9 @@ exports.Listings = async function ({
       sortBy,
       sortDesc,
       filter,
-      contractAddress
+      contractAddress,
+      tokenId,
+      lastNDays
     }
   });
 };
@@ -455,6 +461,7 @@ exports.Listings = async function ({
  * @param {string=} tenantSlug - Specify the URL slug of a marketplace's tenant. Required if specifying marketplace slug
  * @param {string=} marketplaceSlug - Filter stats by marketplace
  * @param {string=} contractAddress - Filter results by contract address
+ * @param {string=} tokenId - Filter results by individual token (along with contract address)
  * @param {number=} lastNDays - Limit results to only include items listed in the past N days
  *
  * @returns {Promise<Object>} - Stats for currently active listings matching the specified filters. All monetary values are in USD.
@@ -472,6 +479,7 @@ exports.ListingStats = async function ({
   marketplaceId,
   marketplaceHash,
   contractAddress,
+  tokenId,
   lastNDays
 }={}) {
   return await this.SendMessage({
@@ -482,6 +490,7 @@ exports.ListingStats = async function ({
       marketplaceId,
       marketplaceHash,
       contractAddress,
+      tokenId,
       lastNDays
     }
   });
@@ -495,6 +504,7 @@ exports.ListingStats = async function ({
  * @param {string=} tenantSlug - Specify the URL slug of a marketplace's tenant. Required if specifying marketplace slug
  * @param {string=} marketplaceSlug - Filter stats by marketplace
  * @param {string=} contractAddress - Filter results by contract address
+ * @param {string=} tokenId - Filter results by individual token (along with contract address)
  * @param {number=} lastNDays - Limit results to only include items sold in the past N days
  *
  * @returns {Promise<Object>} - Stats for listing sales matching the specified filters. All monetary values are in USD.
@@ -512,6 +522,7 @@ exports.SalesStats = async function ({
   marketplaceId,
   marketplaceHash,
   contractAddress,
+  tokenId,
   lastNDays
 }={}) {
   return await this.SendMessage({
@@ -522,11 +533,65 @@ exports.SalesStats = async function ({
       marketplaceId,
       marketplaceHash,
       contractAddress,
+      tokenId,
       lastNDays
     }
   });
 };
 
+
+/**
+ * Return records about sales
+ *
+ * @methodGroup Stats
+ * @namedParams
+ * @param {number=} start=0 - Index to start listing at
+ * @param {number=} limit=50 - Maximum number of results to return
+ * @param {string=} sortBy=created - Sort order for the results. Available sort options:
+ *  <ul>
+ *   <li>- created</li>
+ *   <li>- price</li>
+ *   <li>- name</li>
+ *  </ul>
+ * @param {boolean=} sortDesc=false - Sort in descending order
+ * @param {string=} tenantSlug - Specify the URL slug of a marketplace's tenant. Required if specifying marketplace slug
+ * @param {string=} marketplaceSlug - Filter results by marketplace
+ * @param {string=} contractAddress - Filter results by contract address
+ * @param {string=} tokenId - Filter results by individual token (along with contract address)
+ * @param {number=} lastNDays - Limit results to only include items sold in the past N days
+ *
+ * @returns {Promise<Object>} - List of sales records  matching the specified filters. All monetary values are in USD.
+ */
+exports.Sales = async function ({
+  start=0,
+  limit=50,
+  sortBy="created",
+  sortDesc=false,
+  tenantSlug,
+  marketplaceSlug,
+  marketplaceId,
+  marketplaceHash,
+  contractAddress,
+  tokenId,
+  lastNDays
+}={}) {
+  return await this.SendMessage({
+    action: "activity",
+    params: {
+      start,
+      limit,
+      sortBy,
+      sortDesc,
+      marketplaceSlug,
+      tenantSlug,
+      marketplaceId,
+      marketplaceHash,
+      contractAddress,
+      tokenId,
+      lastNDays
+    }
+  });
+};
 
 /**
  * <b><i>Requires login</i></b>

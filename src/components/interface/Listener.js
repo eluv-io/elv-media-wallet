@@ -273,25 +273,50 @@ export const InitializeListener = (history) => {
 
         // client.Items
         case "items":
-          return Respond({
-            response: (
-              await transferStore.FilteredQuery({
-                mode: "owned",
-                sortBy: data.params.sortBy,
-                sortDesc: data.params.sortDesc,
-                filter: data.params.filter,
-                contractAddress: data.params.contractAddress,
-                tenantIds: marketplaceInfo ? [ marketplaceInfo.tenantId ] : [],
-                limit: 10000,
-                start: 0
-              })
-            ).results || []
-          })
-            .map(item => toJS(item));
+          let items = (await transferStore.FilteredQuery({
+            mode: "owned",
+            sortBy: data.params.sortBy,
+            sortDesc: data.params.sortDesc,
+            filter: data.params.filter,
+            contractAddress: data.params.contractAddress,
+            tenantIds: marketplaceInfo ? [ marketplaceInfo.tenantId ] : [],
+            limit: 10000,
+            start: 0
+          })).results || [];
+
+          let myListings = toJS(await transferStore.FetchTransferListings({userAddress: rootStore.userAddress}));
+
+          items.forEach((item) => {
+            const listing = myListings.find(listing =>
+              Utils.EqualAddress(listing.contractAddress, item.contractAddress) &&
+              listing.tokenId === item.tokenId
+            );
+
+            if(!listing) { return; }
+
+            item.listingId = listing.listingId;
+            item.details.ListingId = listing.listingId;
+
+            myListings = myListings.filter(otherListing => otherListing !== listing);
+          });
+
+          return Respond({response: items});
 
         // client.Item
         case "item":
-          return Respond({response: await Item(data)});
+          item = await Item(data);
+
+          listing = ((await transferStore.FetchTransferListings({
+            contractAddress: item.contractAddress,
+            tokenId: item.tokenId
+          })) || [])[0];
+
+          if(listing) {
+            item.listingId = listing.listingId;
+            item.details.ListingId = listing.listingId;
+          }
+
+          return Respond({response: item});
 
         // client.UserListings
         case "userListings":
@@ -307,9 +332,11 @@ export const InitializeListener = (history) => {
                 mode: "listings",
                 sortBy: data.params.sortBy,
                 sortDesc: data.params.sortDesc,
+                tenantIds: marketplaceInfo ? [marketplaceInfo.tenantId] : [],
                 filter: data.params.filter,
                 contractAddress: data.params.contractAddress,
-                tenantIds: marketplaceInfo ? [marketplaceInfo.tenantId] : [],
+                tokenId: data.params.tokenId,
+                lastNDays: data.params.lastNDays || -1,
                 start: data.params.start || 0,
                 limit: data.params.limit || 50
               })
@@ -651,10 +678,29 @@ export const InitializeListener = (history) => {
             marketplaceId: marketplaceInfo?.marketplaceId,
             tenantIds: marketplaceInfo ? [ marketplaceInfo.tenantId ] : [],
             contractAddress: data.params.contractAddress,
+            tokenId: data.params.tokenId,
             lastNDays: data.params.lastNDays || -1
           });
 
           return Respond({response: stats});
+
+        // client.Activity
+        case "activity":
+          const activity = await transferStore.FilteredQuery({
+            mode: "sales",
+            start: data.params.start || 0,
+            limit: data.params.limit || 50,
+            sortBy: data.params.sortBy,
+            sortDesc: data.params.sortDesc,
+            marketplaceId: marketplaceInfo?.marketplaceId,
+            tenantIds: marketplaceInfo ? [ marketplaceInfo.tenantId ] : [],
+            filter: data.params.filter,
+            contractAddress: data.params.contractAddress,
+            tokenId: data.params.tokenId,
+            lastNDays: data.params.lastNDays || -1
+          });
+
+          return Respond({response: activity});
 
         // client.CurrentPath
         case "currentPath":

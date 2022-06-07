@@ -36,6 +36,36 @@ const EventListener = event => {
 
 const minHeight = 2000;
 
+const Initialize = ({type="frame", setClient, Destroy}) => {
+  Destroy();
+
+  document.getElementById("client-events").innerHTML = "";
+
+  const Method = type === "frame" ?
+    ElvWalletClient.InitializeFrame :
+    ElvWalletClient.InitializePopup;
+
+  Method({
+    requestor: "Wallet Client Test App",
+    walletAppUrl: appUrl,
+    target: targetId,
+    tenantSlug,
+    marketplaceSlug
+  })
+    .then(client => {
+      window.client = client;
+      setClient(client);
+
+      client.AddEventListener(client.EVENTS.CLOSE, () => {
+        if(type === "frame") {
+          Initialize({type, setClient, Destroy});
+        } else {
+          Destroy();
+        }
+      });
+    });
+};
+
 const App = () => {
   const [currentRoute, setCurrentRoute] = useState("");
   const [client, setClient] = useState(undefined);
@@ -47,25 +77,20 @@ const App = () => {
     [ElvWalletClient.EVENTS.ALL]: undefined,
   });
 
-  useEffect(() => {
-    Destroy();
+  const Destroy = () => {
+    if(client) { client.Destroy(); }
 
-    document.getElementById("client-events").innerHTML = "";
+    SetResults();
 
-    ElvWalletClient.InitializeFrame({
-      requestor: "Wallet Client Test App",
-      walletAppUrl: appUrl,
-      target: targetId,
-      tenantSlug,
-      marketplaceSlug
-    })
-      .then(client => {
-        window.client = client;
-        setClient(client);
+    setEventListeners({
+      [ElvWalletClient.EVENTS.LOG_IN]: undefined,
+      [ElvWalletClient.EVENTS.LOG_OUT]: undefined,
+      [ElvWalletClient.EVENTS.CLOSE]: undefined,
+      [ElvWalletClient.EVENTS.ALL]: undefined,
+    });
 
-        client.AddEventListener(client.EVENTS.CLOSE, Destroy);
-      });
-  }, []);
+    setClient(undefined);
+  };
 
   const ToggleEventListener = event => {
     if(listeners[event]) {
@@ -79,6 +104,10 @@ const App = () => {
       [event]: listeners[event] ? undefined : EventListener
     });
   };
+
+  useEffect(() => {
+    Initialize({type: "frame", setClient, Destroy});
+  }, []);
 
   useEffect(() => {
     if(!client) { return; }
@@ -102,21 +131,6 @@ const App = () => {
     );
   }, [client]);
 
-  const Destroy = () => {
-    if(client) { client.Destroy(); }
-
-    SetResults();
-
-    setEventListeners({
-      [ElvWalletClient.EVENTS.LOG_IN]: undefined,
-      [ElvWalletClient.EVENTS.LOG_OUT]: undefined,
-      [ElvWalletClient.EVENTS.CLOSE]: undefined,
-      [ElvWalletClient.EVENTS.ALL]: undefined,
-    });
-
-    setClient(undefined);
-  };
-
   const currentUrl = new URL(appUrl);
   currentUrl.hash = currentRoute;
 
@@ -124,48 +138,11 @@ const App = () => {
     <div className="page-container">
       <h1>Test Wallet Client</h1>
       <div className="button-row">
-        <button
-          onClick={async () => {
-            Destroy();
-
-            document.getElementById("client-events").innerHTML = "";
-
-            const client = await ElvWalletClient.InitializePopup({
-              requestor: "Wallet Client Test App",
-              walletAppUrl: appUrl,
-              tenantSlug,
-              marketplaceSlug
-            });
-
-            window.client = client;
-            setClient(client);
-
-            client.AddEventListener(client.EVENTS.CLOSE, Destroy);
-          }}
-        >
+        <button onClick={() => Initialize({type: "popup", setClient, Destroy})}>
           Popup
         </button>
 
-        <button
-          onClick={async () => {
-            Destroy();
-
-            document.getElementById("client-events").innerHTML = "";
-
-            const client = await ElvWalletClient.InitializeFrame({
-              requestor: "Wallet Client Test App",
-              walletAppUrl: appUrl,
-              target: targetId,
-              tenantSlug,
-              marketplaceSlug
-            });
-
-            window.client = client;
-            setClient(client);
-
-            client.AddEventListener(client.EVENTS.CLOSE, Destroy);
-          }}
-        >
+        <button onClick={() => Initialize({type: "frame", setClient, Destroy})}>
           Frame
         </button>
         <button onClick={() => Destroy()}>Close</button>

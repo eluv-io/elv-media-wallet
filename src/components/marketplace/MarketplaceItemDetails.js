@@ -56,7 +56,7 @@ const MarketplaceItemDetails = observer(() => {
     checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id});
 
     // If item has stock, periodically update
-    const stockCheck = setInterval(() => checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id}), 10000);
+    const stockCheck = setInterval(() => checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id}), 30000);
 
     return () => clearInterval(stockCheck);
   }, []);
