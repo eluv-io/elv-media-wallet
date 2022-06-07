@@ -169,9 +169,12 @@ const NFTTraitsSection = ({nft}) => {
             <div className="trait__value">
               { value }
             </div>
-            <div className="trait__rarity">
-              { `${rarity_percent}% have this trait` }
-            </div>
+            {
+              rarity_percent ?
+                <div className="trait__rarity">
+                  {`${rarity_percent}% have this trait`}
+                </div> : null
+            }
           </div>
         )}
       </div>
