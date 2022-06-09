@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {cryptoStore, rootStore, transferStore} from "Stores/index";
+import {checkoutStore, cryptoStore, rootStore, transferStore} from "Stores/index";
 import Path from "path";
 import UrlJoin from "url-join";
 
@@ -574,7 +574,7 @@ const NFTDetails = observer(() => {
                 onClick={async () => Confirm({
                   message: `Are you sure you want to open '${nft.metadata.display_name}?'`,
                   Confirm: async () => {
-                    await rootStore.OpenNFT({
+                    await checkoutStore.OpenPack({
                       tenantId: nft.details.TenantId,
                       contractAddress: nft.details.ContractAddr,
                       tokenId: nft.details.TokenIdStr

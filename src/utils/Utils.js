@@ -5,6 +5,12 @@ import VideoPlayIcon from "Assets/icons/media/video play icon (no circle).svg";
 import {rootStore} from "Stores";
 import {toJS} from "mobx";
 
+export const Slugify = str =>
+  (str || "")
+    .toLowerCase()
+    .replace(/ /g, "-")
+    .replace(/[^a-z0-9\-]/g,"")
+    .replace(/-+/g, "-");
 
 export const RarityToPercentage = (rarity) => {
   if(!rarity) {

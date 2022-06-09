@@ -5,6 +5,11 @@
   gap: 10px;
   // sass-lint:enable no-misspelled-properties
 
+
+  &--centered {
+    justify-content: center;
+  }
+
   .card-container {
     flex: 1 1 100%;
     max-width: 390px;
@@ -347,12 +352,6 @@
       outline: 0;
       width: 100%;
     }
-  }
-}
-
-.app--centered {
-  .card-list--marketplace {
-    justify-content: center;
   }
 }
 

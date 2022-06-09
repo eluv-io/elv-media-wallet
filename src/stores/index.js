@@ -1,6 +1,6 @@
-import {FormatNFT, LinkTargetHash} from "../utils/Utils";
+import {FormatNFT, LinkTargetHash, Slugify} from "../utils/Utils";
 
-const testTheme = undefined;//import("../static/stylesheets/themes/wwe-test.theme.css");
+const testTheme = import("../static/stylesheets/themes/maskverse-test.theme.css");
 
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";
@@ -16,8 +16,6 @@ import TransferStore from "Stores/Transfer";
 import NFTContractABI from "../static/abi/NFTContract";
 import CryptoStore from "Stores/Crypto";
 import {v4 as UUID} from "uuid";
-
-import {ethers} from "ethers";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
@@ -800,7 +798,8 @@ class RootStore {
       this.SetCustomizationOptions(marketplace);
 
       return marketplace.marketplaceHash;
-    } else {
+    } else if(Object.keys(this.availableMarketplaces) > 0) {
+      // Don't reset customization if marketplaces haven't yet loaded
       this.SetCustomizationOptions("default");
     }
   }
@@ -960,6 +959,12 @@ class RootStore {
         })
       );
 
+      marketplace.collections = (marketplace.collections || []).map((collection, collectionIndex) => ({
+        ...collection,
+        collectionIndex,
+        collectionSlug: Slugify(collection.name || collection.collection_header)
+      }));
+
       marketplace.retrievedAt = Date.now();
       marketplace.marketplaceId = marketplaceId;
       marketplace.versionHash = marketplaceHash;
@@ -1055,6 +1060,30 @@ class RootStore {
     }
   });
 
+  MarketplaceCollectionItems = flow(function * ({marketplace, collection}) {
+    const ownedItems = yield this.MarketplaceOwnedItems(marketplace);
+    const purchaseableItems = this.MarketplacePurchaseableItems(marketplace);
+
+    return collection.items.map((sku, entryIndex) => {
+      const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
+      const item = marketplace.items[itemIndex];
+
+      return {
+        sku,
+        entryIndex,
+        item,
+        ownedItems: ownedItems[sku] || [],
+        purchaseableItem: purchaseableItems[sku]
+      };
+    })
+      .sort((a, b) =>
+        a.ownedItems.length > 0 ? -1 :
+          b.ownedItems.length > 0 ? 1 :
+            a.purchaseableItem ? -1 :
+              b.purchaseableItem ? 1 : 0
+      );
+  });
+
   MarketplacePurchaseableItems(marketplace) {
     let purchaseableItems = {};
     ((marketplace.storefront || {}).sections || []).forEach(section =>
@@ -1095,67 +1124,6 @@ class RootStore {
   SetMarketplaceFilters(filters) {
     this.marketplaceFilters = (filters || []).map(filter => filter.trim()).filter(filter => filter);
   }
-
-  OpenNFT = flow(function * ({tenantId, contractAddress, tokenId}) {
-    try {
-      contractAddress = Utils.FormatAddress(contractAddress);
-      const confirmationId = `${contractAddress}:${tokenId}`;
-
-      // Save as purchase so tenant ID is preserved for status
-      this.checkoutStore.PurchaseInitiated({tenantId, confirmationId});
-
-      let params = {
-        op: "nft-open",
-        tok_addr: contractAddress,
-        tok_id: tokenId
-      };
-
-      if(this.AuthInfo().walletName === "metamask") {
-        // Must create signature for burn operation to pass to API
-
-        let popup;
-        if(this.embedded) {
-          // Create popup before calling async config method to avoid popup blocker
-          popup = window.open("about:blank");
-        }
-
-        const config = yield this.TenantConfiguration({contractAddress});
-
-        const mintHelperAddress = config["mint-helper"];
-
-        if(!mintHelperAddress) {
-          throw Error(`Mint helper not defined in configuration for NFT ${contractAddress}`);
-        }
-
-        const nftAddressBytes = ethers.utils.arrayify(contractAddress);
-        const mintAddressBytes = ethers.utils.arrayify(mintHelperAddress);
-        const tokenIdBigInt = ethers.utils.bigNumberify(tokenId).toHexString();
-
-        const hash = ethers.utils.keccak256(
-          ethers.utils.solidityPack(
-            ["bytes", "bytes", "uint256"],
-            [nftAddressBytes, mintAddressBytes, tokenIdBigInt]
-          )
-        );
-
-        params.sig_hex = yield this.cryptoStore.SignMetamask(hash, this.AuthInfo().address, popup);
-      }
-
-      yield this.client.authClient.MakeAuthServiceRequest({
-        path: UrlJoin("as", "wlt", "act", tenantId),
-        method: "POST",
-        body: params,
-        headers: {
-          Authorization: `Bearer ${this.authToken}`
-        }
-      });
-
-      this.checkoutStore.PurchaseComplete({confirmationId, success: true});
-    } catch(error) {
-      this.checkoutStore.PurchaseComplete({confirmationId, success: false, message: error.message});
-      throw error;
-    }
-  });
 
   BurnNFT = flow(function * ({nft}) {
     yield this.client.CallContractMethodAndWait({

@@ -629,7 +629,7 @@ export const InitializeListener = (history) => {
             action: `Open pack '${item?.metadata?.display_name || "NFT"}'`
           });
 
-          await rootStore.OpenNFT({
+          await checkoutStore.OpenPack({
             tenantId: item.details.TenantId,
             contractAddress: item.details.ContractAddr,
             tokenId: item.details.TokenIdStr

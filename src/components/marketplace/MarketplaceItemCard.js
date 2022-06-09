@@ -15,6 +15,8 @@ const MarketplaceItemCard = ({
   index,
   justification="Left",
   noLink,
+  noStock,
+  noPrice,
   video=false,
   className="",
   cardClassName=""
@@ -60,7 +62,7 @@ const MarketplaceItemCard = ({
   }
 
   let CardComponent = ItemCard;
-  let sideText = availableStock;
+  let sideText = noStock ? undefined : availableStock;
   if(type === "Featured") {
     CardComponent = FeaturedItemCard;
 
@@ -71,10 +73,12 @@ const MarketplaceItemCard = ({
   }
 
   let priceText = "";
-  if(maxOwned) {
-    priceText = "Maximum owned!";
-  } else if(!isFree) {
-    priceText = FormatPriceString(item.price, {includeCurrency: true, prependCurrency: true, useCurrencyIcon: false});
+  if(!noPrice) {
+    if(maxOwned) {
+      priceText = "Maximum owned!";
+    } else if(!isFree) {
+      priceText = FormatPriceString(item.price, {includeCurrency: true, prependCurrency: true, useCurrencyIcon: true});
+    }
   }
 
   return (

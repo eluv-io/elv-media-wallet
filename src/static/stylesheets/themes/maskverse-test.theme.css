@@ -55,4 +55,6 @@
   --border-background-feature-card-selected: linear-gradient(180deg, #CA33FF 0%, #FF1895 0.81%, #ED21FF 76.56%, #BC02FF 100%);
 
   --color-featured-item-slider-handle: var(--pink-1);
+
+  --background-collection-component: linear-gradient(264.96deg, rgba(202, 51, 255, 0.3) 0.81%, rgba(255, 24, 149, 0.3) 57.8%, rgba(237, 33, 255, 0.3) 76.28%, rgba(188, 2, 255, 0.3) 99.38%);
 }
