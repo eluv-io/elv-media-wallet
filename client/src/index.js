@@ -135,7 +135,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
   constructor({
     appUUID,
     requestor,
-    walletAppUrl="http://wallet.contentfabric.io",
+    walletAppUrl="https://wallet.contentfabric.io",
     target,
     Close,
     timeout=300
@@ -451,7 +451,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
    <br />
    <br />
    `<requestor> is requesting to perform <action>`
-   * @param {string=} walletAppUrl=http://wallet.contentfabric.io - The URL of the Eluvio Media Wallet app
+   * @param {string=} walletAppUrl=https://wallet.contentfabric.io - The URL of the Eluvio Media Wallet app
    * @param {string=} tenantSlug - Specify the URL slug of your tenant. Required if specifying marketplaceSlug
    * @param {string=} marketplaceSlug - Specify the URL slug of your marketplace
    * @param {string=} marketplaceHash - Specify a specific version of a your marketplace. Not necessary if marketplaceSlug is specified
@@ -464,7 +464,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
    */
   static async InitializePopup({
     requestor,
-    walletAppUrl="http://wallet.contentfabric.io",
+    walletAppUrl="https://wallet.contentfabric.io",
     tenantSlug,
     marketplaceSlug,
     marketplaceId,
@@ -541,7 +541,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
    <br />
    <br />
    `<requestor> is requesting to perform <action>`
-   * @param {string=} walletAppUrl=http://wallet.contentfabric.io - The URL of the Eluvio Media Wallet app
+   * @param {string=} walletAppUrl=https://wallet.contentfabric.io - The URL of the Eluvio Media Wallet app
    * @param {Object | string} target - An HTML element or the ID of an element
    * @param {string=} tenantSlug - Specify the URL slug of your tenant. Required if specifying marketplace slug
    * @param {string=} marketplaceSlug - Specify the URL slug of your marketplace
@@ -555,7 +555,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
    */
   static async InitializeFrame({
     requestor,
-    walletAppUrl="http://wallet.contentfabric.io",
+    walletAppUrl="https://wallet.contentfabric.io",
     target,
     tenantSlug,
     marketplaceSlug,
