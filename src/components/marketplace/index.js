@@ -142,13 +142,12 @@ const Routes = (match) => {
     { name: ((marketplace.storefront || {}).tabs || {}).collection || "My Items", path: "/marketplace/:marketplaceId/collection", Component: MarketplaceOwned, authed: true },
     { name: "Collections", path: "/marketplace/:marketplaceId/collections", Component: MarketplaceCollectionsSummaryPage },
     { name: "Collections", path: "/marketplace/:marketplaceId/collections/:collectionSlug", Component: MarketplaceCollection },
+    { name: item.name, path: "/marketplace/:marketplaceId/collections/:collectionSlug/store/:sku", Component: MarketplaceItemDetails },
     { name: "Redeem Collection", path: "/marketplace/:marketplaceId/collections/:collectionSlug/redeem", Component: MarketplaceCollectionRedemption },
 
-    { name: nft?.metadata?.display_name, path: "/marketplace/:marketplaceId/collections/:collectionSlug/owned/:contractId/:tokenId", Component: NFTDetails, authed: true },
-    { name: "Open Pack", path: "/marketplace/:marketplaceId/collections/:collectionSlug/owned/:contractId/:tokenId/open", Component: PackOpenStatus, authed: true },
-
-    { name: "Open Pack", path: "/marketplace/:marketplaceId/collections/:collectionSlug/owned/:contractId/:tokenId/open", Component: PackOpenStatus, authed: true },
-    { name: item.name, path: "/marketplace/:marketplaceId/collections/:collectionSlug/store/:sku", Component: MarketplaceItemDetails },
+    { name: nft?.metadata?.display_name, path: "/marketplace/:marketplaceId/collection/owned/:contractId/:tokenId", Component: NFTDetails, authed: true },
+    { name: "Open Pack", path: "/marketplace/:marketplaceId/collection/owned/:contractId/:tokenId/open", Component: PackOpenStatus, authed: true },
+    { name: "Open Pack", path: "/marketplace/:marketplaceId/collection/owned/:contractId/:tokenId/open", Component: PackOpenStatus, authed: true },
 
     { name: "Claim", path: "/marketplace/:marketplaceId/store/:sku/claim", Component: ClaimMintingStatus, authed: true },
     { name: "Purchase", path: "/marketplace/:marketplaceId/store/:tenantId/:sku/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
