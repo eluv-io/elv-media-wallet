@@ -15,6 +15,7 @@ import {ValidEmail} from "../../utils/Utils";
 import PlusIcon from "Assets/icons/plus.svg";
 import MinusIcon from "Assets/icons/minus.svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
+import HelpIcon from "Assets/icons/help-circle.svg";
 
 
 const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
@@ -65,8 +66,9 @@ const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
 
 const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, errorMessage, disabled, Continue, Cancel}) => {
   const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.userProfile?.email || "";
-  const [paymentType, setPaymentType] = useState(usdcOnly ? "linked-wallet" : "stripe");
+  const [paymentType, setPaymentType] = useState(usdcOnly || (usdcAccepted && cryptoStore.usdcOnly) ? "linked-wallet" : "stripe");
   const [email, setEmail] = useState(initialEmail);
+  const [showUSDCOnlyMessage, setShowUSDCOnlyMessage] = useState(false);
 
   const wallet = cryptoStore.WalletFunctions("phantom");
   const connected = paymentType !== "linked-wallet" || cryptoStore.PhantomAddress() && wallet.Connected();
@@ -94,6 +96,12 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, erro
       }
       <div className="purchase-modal__payment-message">
         Buy with
+        {
+          usdcOnly ?
+            <button onClick={() => setShowUSDCOnlyMessage(!showUSDCOnlyMessage)}>
+              <ImageIcon icon={HelpIcon} label="Why is only linked wallet available?"/>
+            </button> : null
+        }
       </div>
       <div className="purchase-modal__payment-selection-container">
         {
@@ -129,6 +137,12 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, erro
             </button> : null
         }
       </div>
+      {
+        usdcOnly && showUSDCOnlyMessage ?
+          <div className="purchase-modal__help-message">
+            The seller has elected to only accept direct purchases with USDC via linked wallet. { cryptoStore.usdcConnected ? null : "Please connect your wallet to purchase this item, or select a different option from the list above." }
+          </div> : null
+      }
       { paymentType === "linked-wallet" ? <div className="purchase-modal__wallet-connect"><WalletConnect /></div> : null }
       <ButtonWithLoader
         disabled={disabled || !connected || (requiresEmail && !ValidEmail(email))}
@@ -484,7 +498,7 @@ const PurchasePayment = observer(({
             <div className="purchase-modal__price-details">
               <QuantityInput quantity={quantity} setQuantity={setQuantity} maxQuantity={maxQuantity}/>
               <div className="purchase-modal__price-details__price">
-                {FormatPriceString(price, {quantity, includeCurrency: true})}
+                {FormatPriceString(price, {quantity, includeCurrency: true, useCurrencyIcon: true})}
               </div>
             </div> : null) :
           <>

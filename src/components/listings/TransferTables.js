@@ -13,6 +13,7 @@ import { useInfiniteScroll } from "react-g-infinite-scroll";
 import UpCaret from "Assets/icons/up-caret.svg";
 import DownCaret from "Assets/icons/down-caret.svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
+import USDIcon from "Assets/icons/crypto/USD gray.svg";
 
 export const ActiveListings = observer(({contractAddress, contractId, initialSelectedListingId, noSeller=false, Select}) => {
   const [listings, setListings] = useState([]);
@@ -174,9 +175,19 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
                         { NFTDisplayToken(listing) }
                       </div>
                       <div className="transfer-table__table__cell">
-                        { listing.details.USDCAccepted ?
-                          <ImageIcon icon={USDCIcon} label="USDC" title="USDC Accepted" className="transfer-table__table__cell__icon" /> :
-                          <div className="transfer-table__table__cell__icon transfer-table__table__cell__icon--placeholder" />
+                        { listing.details.USDCOnly ?
+                          <>
+                            <ImageIcon icon={USDCIcon} label="USDC" title="USDC Accepted" className="transfer-table__table__cell__icon" />
+                            <div className="transfer-table__table__cell__icon transfer-table__table__cell__icon--placeholder" />
+                          </> :
+                          <>
+                            <ImageIcon icon={USDIcon} label="USD" title="USD Accepted" className="transfer-table__table__cell__icon" />
+                            {
+                              listing.details.USDCAccepted ?
+                                <ImageIcon icon={USDCIcon} label="USDC" title="USDC Accepted" className="transfer-table__table__cell__icon"/> :
+                                <div className="transfer-table__table__cell__icon transfer-table__table__cell__icon--placeholder"/>
+                            }
+                          </>
                         }
                         {`$${listing.details.Price.toFixed(2)}`}
                       </div>

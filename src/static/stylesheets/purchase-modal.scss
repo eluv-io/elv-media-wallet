@@ -199,9 +199,23 @@ $content-width: 475px;
   }
 
   &__payment-message {
+    align-items: center;
     color: var(--color-component-text-secondary);
+    display: flex;
     font-weight: 300;
     margin-bottom: 10px;
+
+    button {
+      height: 20px;
+      margin-left: 5px;
+      width: 20px;
+    }
+  }
+
+  &__help-message {
+    color: var(--color-component-text-secondary);
+    font-size: 14px;
+    text-align: center;
   }
 
   &__error-message {

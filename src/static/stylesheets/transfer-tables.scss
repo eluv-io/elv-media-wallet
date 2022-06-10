@@ -128,7 +128,7 @@
     &-initial {
       // Specificity to override nth-child color above
       &:nth-child(n) {
-        * {
+        div {
           color: var(--color-table-highlight-text);
         }
       }
@@ -140,7 +140,7 @@
         background-color: var(--color-table-selected-row-bg);
         border: var(--border-table-row-selected);
 
-        * {
+        div {
           color: var(--color-table-selected-row-text);
         }
       }

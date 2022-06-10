@@ -1651,7 +1651,7 @@ class RootStore {
 
           clearInterval(closeCheck);
 
-          //setTimeout(() => popup.close(), 500);
+          setTimeout(() => popup.close(), 500);
 
           if(event.data.error) {
             reject(event.data.error);
@@ -1717,14 +1717,14 @@ class RootStore {
         case "respond":
           Respond({response: parameters.response, error: parameters.error});
 
-          //setTimeout(() => window.close(), 5000);
+          setTimeout(() => window.close(), 5000);
 
           break;
 
         case "open-metamask":
           window.location.href = `https://metamask.app.link/dapp/${parameters.appUrl.toString().replace("https://", "")}`;
 
-          //setTimeout(() => window.close(), 1000);
+          setTimeout(() => window.close(), 1000);
 
           break;
 

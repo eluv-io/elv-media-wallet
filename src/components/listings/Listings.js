@@ -22,8 +22,7 @@ const Listing = memo(({url, listing}) => (
     name={listing.metadata.display_name}
     edition={listing.metadata.edition_name}
     description={listing.metadata.description}
-    price={FormatPriceString({USD: listing.details.Price}, {includeCurrency: !listing.details.USDCOnly, prependCurrency: true})}
-    usdcAccepted={listing.details.USDCAccepted}
+    price={FormatPriceString({USD: listing.details.Price}, {includeCurrency: !listing.details.USDCOnly, includeUSDCIcon: listing.details.USDCAccepted, prependCurrency: true, useCurrencyIcon: true})}
     sideText={NFTDisplayToken(listing)}
     badges={
       <>

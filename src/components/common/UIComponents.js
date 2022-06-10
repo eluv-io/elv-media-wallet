@@ -7,6 +7,8 @@ import ImageIcon from "Components/common/ImageIcon";
 import {v4 as UUID} from "uuid";
 
 import SelectIcon from "Assets/icons/select-icon.svg";
+import USDIcon from "Assets/icons/crypto/USD gray.svg";
+import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 
 export const ExpandableSection = ({header, icon, children, expanded=false, toggleable=true, className="", contentClassName="", additionalContent}) => {
   const [ show, setShow ] = useState(expanded);
@@ -59,8 +61,24 @@ export const ItemPrice = (item, currency) => {
   return parseFloat(item.price[currency]);
 };
 
-export const FormatPriceString = (priceList, options={currency: "USD", quantity: 1, trimZeros: false, includeCurrency: false, prependCurrency: false}) => {
+export const FormatPriceString = (
+  priceList,
+  options= {
+    currency: "USD",
+    quantity: 1,
+    trimZeros: false,
+    includeCurrency: false,
+    useCurrencyIcon: false,
+    includeUSDCIcon: false,
+    prependCurrency: false
+  }
+) => {
   const currency = options?.currency || "USD";
+
+  if(typeof priceList !== "object") {
+    priceList = { USD: priceList };
+  }
+
   let price = ItemPrice({price: priceList}, currency);
 
   if(typeof price !== "number" || isNaN(price)) { return; }
@@ -74,11 +92,39 @@ export const FormatPriceString = (priceList, options={currency: "USD", quantity:
     formattedPrice = formattedPrice.slice(0, -3);
   }
 
+  const usdcIcon = options.includeUSDCIcon ? <ImageIcon icon={USDCIcon} className="formatted-price__icon" /> : null;
   if(options?.includeCurrency) {
-    formattedPrice =
-      options.prependCurrency ?
-        `${currency} ${formattedPrice}` :
-        `${formattedPrice} ${currency}`;
+    if(options?.useCurrencyIcon) {
+      const icon = <ImageIcon icon={USDIcon} className="formatted-price__icon" />;
+      formattedPrice = (
+        <div className="formatted-price">
+          {
+            options.prependCurrency ?
+              <>{usdcIcon}{icon}{formattedPrice}</> :
+              <>{formattedPrice}{usdcIcon}{icon}</>
+          }
+        </div>
+      );
+    } else {
+      formattedPrice =
+        options.prependCurrency ?
+          `${currency} ${formattedPrice}` :
+          `${formattedPrice} ${currency}`;
+
+      if(options.includeUSDCIcon) {
+        formattedPrice = (
+          <div className="formatted-price">
+            {usdcIcon}{formattedPrice}
+          </div>
+        );
+      }
+    }
+  } else if(options.includeUSDCIcon) {
+    formattedPrice = (
+      <div className="formatted-price">
+        {usdcIcon}{formattedPrice}
+      </div>
+    );
   }
 
   return formattedPrice;

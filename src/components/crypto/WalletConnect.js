@@ -114,7 +114,7 @@ const WalletConnect = observer(({showPaymentPreference}) => {
           {
             showPaymentPreferenceInfo ?
               <div className="wallet-connect__payment-preference-info">
-                Checking this option limit your listings to only be purchasable with USDC via linked wallet. Purchases of your items made with USDC will settle directly to your linked wallet address. If unchecked, your listings may also be purchased via credit card, coinbase, or wallet balance, and the proceeds will be credited to your Eluvio wallet balance which is redeemable via Stripe.
+                Checking this option will limit your listings to purchase with USDC via linked wallet only. Payment will settle directly to your linked wallet address. If unchecked, your listings may also be purchased via credit card, coinbase, or wallet balance, and the proceeds will be credited to your Eluvio wallet balance, which is redeemable via Stripe.
               </div> : null
           }
           <ButtonWithLoader
@@ -136,7 +136,7 @@ const WalletConnect = observer(({showPaymentPreference}) => {
         <div className="wallet-connect__section">
           <div className="wallet-connect__info">
             <div className="wallet-connect__message">
-              To buy and sell NFTs using <ImageIcon icon={USDCIcon} title="USDC" /> USDC, link your Eluvio Media Wallet to your payment wallet.
+              To buy and sell NFTs using <ImageIcon icon={USDCIcon} title="USDC" /> USDC with direct payment, link your Eluvio Media Wallet to your payment wallet.
             </div>
             { connectButton}
           </div>
