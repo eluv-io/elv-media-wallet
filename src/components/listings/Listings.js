@@ -10,9 +10,10 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 import ImageIcon from "Components/common/ImageIcon";
 import FilteredView from "Components/listings/FilteredView";
 import {NFTDisplayToken} from "../../utils/Utils";
+import ItemCard from "Components/common/ItemCard";
 
 import ListingIcon from "Assets/icons/listings icon";
-import ItemCard from "Components/common/ItemCard";
+import LinkedIcon from "Assets/icons/linked wallet icon (r).svg";
 
 const Listing = memo(({url, listing}) => (
   <ItemCard
@@ -21,12 +22,20 @@ const Listing = memo(({url, listing}) => (
     name={listing.metadata.display_name}
     edition={listing.metadata.edition_name}
     description={listing.metadata.description}
-    price={FormatPriceString({USD: listing.details.Price}, {includeCurrency: true, prependCurrency: true})}
+    price={FormatPriceString({USD: listing.details.Price}, {includeCurrency: !listing.details.USDCOnly, prependCurrency: true})}
     usdcAccepted={listing.details.USDCAccepted}
     sideText={NFTDisplayToken(listing)}
     badges={
-      Utils.EqualAddress(rootStore.userAddress, listing.details.SellerAddress) ?
-        <ImageIcon icon={ListingIcon} title="This is your listing" alt="Listing Icon" className="item-card__badge" /> : null
+      <>
+        {
+          Utils.EqualAddress(rootStore.userAddress, listing.details.SellerAddress) ?
+            <ImageIcon icon={ListingIcon} title="This is your listing" alt="Listing Icon" className="item-card__badge"/> : null
+        }
+        {
+          listing.details.USDCOnly ?
+            <ImageIcon icon={LinkedIcon} title="This listing may only be purchased with a linked wallet" alt="Linked Wallet Icon" className="item-card__badge"/> : null
+        }
+      </>
     }
     variant={listing.metadata.style}
   />

@@ -27,6 +27,12 @@ class CryptoStore {
     return Object.keys(this.connectedAccounts.sol || {}).length > 0;
   }
 
+  get usdcOnly() {
+    const connectedAccount = Object.values(this.connectedAccounts.sol || {})[0];
+
+    return connectedAccount?.preferred;
+  }
+
   get client() {
     return this.rootStore.client;
   }
@@ -147,9 +153,9 @@ class CryptoStore {
     yield this.LoadConnectedAccounts();
   });
 
-  ConnectPhantom = flow(function * () {
+  ConnectPhantom = flow(function * ({setPreferred=false, preferLinkedWalletPayment=false}={}) {
     if(this.rootStore.embedded) {
-      this.phantomAddress = yield this.EmbeddedSign({provider: "phantom", connect: true});
+      this.phantomAddress = yield this.EmbeddedSign({provider: "phantom", connect: true, params: {setPreferred, preferLinkedWalletPayment}});
     } else {
       yield window.solana.connect();
 
@@ -159,10 +165,10 @@ class CryptoStore {
         return;
       }
 
-      if(this.connectedAccounts.sol[address]) {
-        this.phantomConnected = true;
+      const connectedAccount = Object.values(this.connectedAccounts.sol)[0];
+      if(connectedAccount && (!setPreferred || connectedAccount.preferred === preferLinkedWalletPayment)) {
         return;
-      } else if(Object.keys(this.connectedAccounts.sol).length > 0) {
+      } else if(connectedAccount && connectedAccount.link_acct !== address) {
         throw Error("Incorrect account");
       }
 
@@ -171,6 +177,7 @@ class CryptoStore {
         tgt: "sol",
         ace: address,
         msg: message,
+        preferred: preferLinkedWalletPayment,
         sig: yield this.SignPhantom(message)
       };
 
@@ -186,8 +193,6 @@ class CryptoStore {
           Authorization: `Bearer ${this.rootStore.authToken}`
         }
       });
-
-      this.phantomConnected = true;
     }
 
     yield this.LoadConnectedAccounts();
@@ -294,9 +299,10 @@ class CryptoStore {
     }
   })
 
-  EmbeddedSign = flow(function * ({provider, connect, purchaseSpec, message, popup}) {
+  EmbeddedSign = flow(function * ({provider, connect, purchaseSpec, message, params, popup}) {
     let parameters = {
       provider,
+      params
     };
 
     if(connect) {
@@ -451,7 +457,7 @@ class CryptoStore {
           Address: () => window.ethereum?.selectedAddress,
           Available: () => this.MetamaskAvailable(),
           Connected: () => this.MetamaskConnected(),
-          Connect: async () => await this.ConnectMetamask(),
+          Connect: async params => await this.ConnectMetamask(params),
           Connection: () => this.connectedAccounts.eth[Utils.FormatAddress(window.ethereum?.selectedAddress)],
           ConnectedAccounts: () => Object.values(this.connectedAccounts.eth),
           Sign: async (message, popup) => await this.SignMetamask(message, undefined, popup),
@@ -468,7 +474,7 @@ class CryptoStore {
           Address: () => this.PhantomAddress(),
           Available: () => this.PhantomAvailable(),
           Connected: () => this.PhantomConnected(),
-          Connect: async () => await this.ConnectPhantom(),
+          Connect: async params => await this.ConnectPhantom(params),
           Connection: () => this.connectedAccounts.sol[this.PhantomAddress()],
           ConnectedAccounts: () => Object.values(this.connectedAccounts.sol),
           Sign: async (message, popup) => await this.SignPhantom(message, popup),

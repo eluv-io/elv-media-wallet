@@ -248,6 +248,10 @@
     height: 18px;
     stroke: transparent;
     width: auto;
+
+    &:not(:last-child) {
+      margin-right: 5px;
+    }
   }
 
   // Image

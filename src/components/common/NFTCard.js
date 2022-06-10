@@ -20,6 +20,7 @@ const NFTCard = observer(({
   selectedListing,
   price,
   usdcAccepted,
+  usdcOnly,
   stock,
   link,
   imageWidth,
@@ -87,7 +88,7 @@ const NFTCard = observer(({
   }
 
   if(price) {
-    price = FormatPriceString(price || {USD: selectedListing.details.Price}, {includeCurrency: true, prependCurrency: true});
+    price = FormatPriceString(price || {USD: selectedListing.details.Price}, {includeCurrency: !usdcOnly, prependCurrency: true});
   }
 
   // NOTE: Keep class/structure in sync with ItemCard

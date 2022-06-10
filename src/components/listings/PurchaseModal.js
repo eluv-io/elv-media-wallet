@@ -63,9 +63,9 @@ const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
   );
 };
 
-const PurchaseProviderSelection = observer(({price, usdcAccepted, errorMessage, disabled, Continue, Cancel}) => {
+const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, errorMessage, disabled, Continue, Cancel}) => {
   const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.userProfile?.email || "";
-  const [paymentType, setPaymentType] = useState("stripe");
+  const [paymentType, setPaymentType] = useState(usdcOnly ? "linked-wallet" : "stripe");
   const [email, setEmail] = useState(initialEmail);
 
   const wallet = cryptoStore.WalletFunctions("phantom");
@@ -96,24 +96,29 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, errorMessage, 
         Buy with
       </div>
       <div className="purchase-modal__payment-selection-container">
-        <button
-          onClick={() => setPaymentType("stripe")}
-          className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-credit-card ${paymentType === "stripe" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
-        >
-          Credit Card
-        </button>
-        <button
-          onClick={() => setPaymentType("coinbase")}
-          className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-crypto ${paymentType === "coinbase" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
-        >
-          Crypto via Coinbase
-        </button>
-        <button
-          onClick={() => setPaymentType("wallet-balance")}
-          className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-wallet-balance ${paymentType === "wallet-balance" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
-        >
-          Wallet Balance
-        </button>
+        {
+          usdcOnly ? null :
+            <>
+              <button
+                onClick={() => setPaymentType("stripe")}
+                className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-credit-card ${paymentType === "stripe" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
+              >
+                Credit Card
+              </button>
+              <button
+                onClick={() => setPaymentType("coinbase")}
+                className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-crypto ${paymentType === "coinbase" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
+              >
+                Crypto via Coinbase
+              </button>
+              <button
+                onClick={() => setPaymentType("wallet-balance")}
+                className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-wallet-balance ${paymentType === "wallet-balance" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
+              >
+                Wallet Balance
+              </button>
+            </>
+        }
         {
           usdcAccepted ?
             <button
@@ -218,6 +223,8 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
         item={marketplaceItem}
         selectedListing={selectedListing}
         price={price}
+        usdcAccepted={selectedListing?.details?.USDCAccepted}
+        usdcOnly={selectedListing?.details?.USDCOnly}
         stock={stock}
         showOrdinal={!!selectedListing}
         hideAvailable={!available || (marketplaceItem && marketplaceItem.hide_available)}
@@ -464,6 +471,8 @@ const PurchasePayment = observer(({
         item={marketplaceItem}
         selectedListing={selectedListing}
         price={price}
+        usdcAccepted={selectedListing?.details?.USDCAccepted}
+        usdcOnly={selectedListing?.details?.USDCOnly}
         stock={stock}
         showOrdinal={!!selectedListing}
         hideAvailable={!available || (marketplaceItem && marketplaceItem.hide_available)}
@@ -516,7 +525,8 @@ const PurchasePayment = observer(({
       <PurchaseProviderSelection
         price={FormatPriceString(price, {quantity})}
         errorMessage={errorMessage}
-        usdcAccepted={selectedListing && selectedListing?.details?.USDCAccepted}
+        usdcAccepted={selectedListing?.details?.USDCAccepted}
+        usdcOnly={selectedListing?.details?.USDCOnly}
         disabled={(type === "listing" && !selectedListingId) || !available || outOfStock || failed}
         Continue={Continue}
         Cancel={Cancel}

@@ -9,7 +9,7 @@ const Sign = async (params, Respond, SetMessage) => {
   try {
     if(params.action === "connect") {
       SetMessage(<h1>Connecting wallet...</h1>, true);
-      await wallet.Connect();
+      await wallet.Connect(params.params);
       const balance = await cryptoStore.PhantomBalance();
 
       Respond({response: {address: wallet.Address(), balance}});

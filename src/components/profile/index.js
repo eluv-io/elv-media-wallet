@@ -226,7 +226,7 @@ const Profile = observer(() => {
           Connected Accounts
         </h2>
 
-        <WalletConnect />
+        <WalletConnect showPaymentPreference />
       </div>
     </div>
   );
