@@ -361,4 +361,9 @@
 .formatted-price {
   align-items: center;
   display: flex;
+
+  &__icon {
+    height: 20px;
+    width: 20px;
+  }
 }

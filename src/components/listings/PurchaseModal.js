@@ -498,7 +498,7 @@ const PurchasePayment = observer(({
             <div className="purchase-modal__price-details">
               <QuantityInput quantity={quantity} setQuantity={setQuantity} maxQuantity={maxQuantity}/>
               <div className="purchase-modal__price-details__price">
-                {FormatPriceString(price, {quantity, includeCurrency: true, useCurrencyIcon: true})}
+                {FormatPriceString(price, {quantity, includeCurrency: true})}
               </div>
             </div> : null) :
           <>
