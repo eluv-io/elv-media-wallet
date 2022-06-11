@@ -12,7 +12,6 @@ import {NFTDisplayToken} from "../../utils/Utils";
 import ImageIcon from "Components/common/ImageIcon";
 
 import ReturnIcon from "Assets/icons/media/back to nft icon.svg";
-import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 
 const NFTCard = observer(({
   nft,
@@ -20,6 +19,7 @@ const NFTCard = observer(({
   selectedListing,
   price,
   usdcAccepted,
+  usdcOnly,
   stock,
   link,
   imageWidth,
@@ -87,7 +87,7 @@ const NFTCard = observer(({
   }
 
   if(price) {
-    price = FormatPriceString(price || {USD: selectedListing.details.Price}, {includeCurrency: true, prependCurrency: true});
+    price = FormatPriceString(price || {USD: selectedListing.details.Price}, {includeCurrency: !usdcOnly, includeUSDCIcon: usdcAccepted, prependCurrency: true, useCurrencyIcon: false});
   }
 
   // NOTE: Keep class/structure in sync with ItemCard
@@ -147,10 +147,6 @@ const NFTCard = observer(({
               {
                 price ?
                   <div className="item-card__status__price">
-                    {
-                      usdcAccepted || selectedListing?.details.USDCAccepted ?
-                        <ImageIcon icon={USDCIcon} label="USDC" title="USDC Accepted" /> : null
-                    }
                     {price}
                   </div> : null
               }

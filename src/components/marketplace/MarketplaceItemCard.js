@@ -74,7 +74,7 @@ const MarketplaceItemCard = ({
   if(maxOwned) {
     priceText = "Maximum owned!";
   } else if(!isFree) {
-    priceText = FormatPriceString(item.price, {includeCurrency: true, prependCurrency: true});
+    priceText = FormatPriceString(item.price, {includeCurrency: true, prependCurrency: true, useCurrencyIcon: false});
   }
 
   return (

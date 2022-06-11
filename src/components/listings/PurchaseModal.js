@@ -15,6 +15,7 @@ import {ValidEmail} from "../../utils/Utils";
 import PlusIcon from "Assets/icons/plus.svg";
 import MinusIcon from "Assets/icons/minus.svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
+import HelpIcon from "Assets/icons/help-circle.svg";
 
 
 const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
@@ -63,10 +64,11 @@ const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
   );
 };
 
-const PurchaseProviderSelection = observer(({price, usdcAccepted, errorMessage, disabled, Continue, Cancel}) => {
+const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, errorMessage, disabled, Continue, Cancel}) => {
   const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.userProfile?.email || "";
-  const [paymentType, setPaymentType] = useState("stripe");
+  const [paymentType, setPaymentType] = useState(usdcOnly || (usdcAccepted && cryptoStore.usdcOnly) ? "linked-wallet" : "stripe");
   const [email, setEmail] = useState(initialEmail);
+  const [showUSDCOnlyMessage, setShowUSDCOnlyMessage] = useState(false);
 
   const wallet = cryptoStore.WalletFunctions("phantom");
   const connected = paymentType !== "linked-wallet" || cryptoStore.PhantomAddress() && wallet.Connected();
@@ -94,26 +96,37 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, errorMessage, 
       }
       <div className="purchase-modal__payment-message">
         Buy with
+        {
+          usdcOnly ?
+            <button onClick={() => setShowUSDCOnlyMessage(!showUSDCOnlyMessage)}>
+              <ImageIcon icon={HelpIcon} label="Why is only linked wallet available?"/>
+            </button> : null
+        }
       </div>
       <div className="purchase-modal__payment-selection-container">
-        <button
-          onClick={() => setPaymentType("stripe")}
-          className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-credit-card ${paymentType === "stripe" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
-        >
-          Credit Card
-        </button>
-        <button
-          onClick={() => setPaymentType("coinbase")}
-          className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-crypto ${paymentType === "coinbase" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
-        >
-          Crypto via Coinbase
-        </button>
-        <button
-          onClick={() => setPaymentType("wallet-balance")}
-          className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-wallet-balance ${paymentType === "wallet-balance" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
-        >
-          Wallet Balance
-        </button>
+        {
+          usdcOnly ? null :
+            <>
+              <button
+                onClick={() => setPaymentType("stripe")}
+                className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-credit-card ${paymentType === "stripe" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
+              >
+                Credit Card
+              </button>
+              <button
+                onClick={() => setPaymentType("coinbase")}
+                className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-crypto ${paymentType === "coinbase" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
+              >
+                Crypto via Coinbase
+              </button>
+              <button
+                onClick={() => setPaymentType("wallet-balance")}
+                className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-wallet-balance ${paymentType === "wallet-balance" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
+              >
+                Wallet Balance
+              </button>
+            </>
+        }
         {
           usdcAccepted ?
             <button
@@ -124,6 +137,12 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, errorMessage, 
             </button> : null
         }
       </div>
+      {
+        usdcOnly && showUSDCOnlyMessage ?
+          <div className="purchase-modal__help-message">
+            The seller has elected to only accept direct purchases with USDC via linked wallet. { cryptoStore.usdcConnected ? null : "Please connect your wallet to purchase this item, or select a different option from the list above." }
+          </div> : null
+      }
       { paymentType === "linked-wallet" ? <div className="purchase-modal__wallet-connect"><WalletConnect /></div> : null }
       <ButtonWithLoader
         disabled={disabled || !connected || (requiresEmail && !ValidEmail(email))}
@@ -218,6 +237,8 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
         item={marketplaceItem}
         selectedListing={selectedListing}
         price={price}
+        usdcAccepted={selectedListing?.details?.USDCAccepted}
+        usdcOnly={selectedListing?.details?.USDCOnly}
         stock={stock}
         showOrdinal={!!selectedListing}
         hideAvailable={!available || (marketplaceItem && marketplaceItem.hide_available)}
@@ -464,6 +485,8 @@ const PurchasePayment = observer(({
         item={marketplaceItem}
         selectedListing={selectedListing}
         price={price}
+        usdcAccepted={selectedListing?.details?.USDCAccepted}
+        usdcOnly={selectedListing?.details?.USDCOnly}
         stock={stock}
         showOrdinal={!!selectedListing}
         hideAvailable={!available || (marketplaceItem && marketplaceItem.hide_available)}
@@ -516,7 +539,8 @@ const PurchasePayment = observer(({
       <PurchaseProviderSelection
         price={FormatPriceString(price, {quantity})}
         errorMessage={errorMessage}
-        usdcAccepted={selectedListing && selectedListing?.details?.USDCAccepted}
+        usdcAccepted={selectedListing?.details?.USDCAccepted}
+        usdcOnly={selectedListing?.details?.USDCOnly}
         disabled={(type === "listing" && !selectedListingId) || !available || outOfStock || failed}
         Continue={Continue}
         Cancel={Cancel}

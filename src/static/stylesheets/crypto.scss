@@ -68,9 +68,10 @@ $wallet-connect-background: rgba(0, 0, 0, 0.25);
   @include page-fade-in;
   box-shadow: none;
   // sass-lint:disable function-name-format
-  max-width: MIN(90vw, 350px);
+  max-width: MIN(90vw, 500px);
   padding: 25px 15px 15px;
   top: 60px;
+  width: 100%;
   z-index: 100;
 
   &--connected {
@@ -186,7 +187,46 @@ $wallet-connect-background: rgba(0, 0, 0, 0.25);
     color: var(--color-text-error);
     font-size: 12px;
     margin: 10px auto 0;
-    max-width: 250px;
+    text-align: center;
+  }
+
+  &__help-link {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+
+    a {
+      color: var(--color-component-text-highlight);
+      font-size: 12px;
+    }
+  }
+
+  &__payment-preference {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    width: 100%;
+
+    &__checkbox {
+      margin-right: 10px;
+    }
+
+    &__label {
+      font-size: 12px;
+      text-align: center;
+    }
+
+    &__help-button {
+      height: 20px;
+      margin-left: 10px;
+      width: 20px;
+    }
+  }
+
+  &__payment-preference-info {
+    font-size: 12px;
+    margin-bottom: 20px;
     text-align: center;
   }
 }

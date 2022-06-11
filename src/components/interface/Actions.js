@@ -44,7 +44,7 @@ const Actions = observer(() => {
       error
     });
 
-    setTimeout(window.close(), 2000);
+    //setTimeout(window.close(), 2000);
   };
 
   if(loading) {

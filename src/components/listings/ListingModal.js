@@ -10,7 +10,7 @@ import {roundToDown, roundToUp} from "round-to";
 import ImageIcon from "Components/common/ImageIcon";
 import WalletConnect from "Components/crypto/WalletConnect";
 
-import USDIcon from "Assets/icons/crypto/USD gray.svg";
+import USDIcon from "Assets/icons/crypto/USD icon.svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 import {Loader} from "Components/common/Loaders";
 
@@ -42,7 +42,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
       <div className="listing-modal">
         <h1 className="listing-modal__header">List Your NFT for Sale</h1>
         <div className="listing-modal__content">
-          <NFTCard nft={nft} price={{USD: parsedPrice}} usdcAccepted={cryptoStore.usdcConnected} showOrdinal truncateDescription />
+          <NFTCard nft={nft} price={{USD: parsedPrice}} usdcAccepted={cryptoStore.usdcConnected} usdcOnly={cryptoStore.usdcOnly} showOrdinal truncateDescription />
           <div className="listing-modal__form listing-modal__inputs">
             <div className="listing-modal__active-listings">
               <h2 className="listing-modal__active-listings__header">Active Listings for this NFT</h2>
@@ -57,7 +57,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                 onBlur={() => setPrice(parsedPrice.toFixed(2))}
               />
               <div className="listing-modal__form__price-input-label">
-                <ImageIcon icon={USDIcon} />
+                { cryptoStore.usdcOnly ? null : <ImageIcon icon={USDIcon} /> }
                 { cryptoStore.usdcConnected ? <ImageIcon icon={USDCIcon} title="USDC Available" /> : null }
               </div>
               {
@@ -90,7 +90,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
             {
               !cryptoStore.usdcConnected ?
                 <div className="listing-modal__wallet-connect">
-                  <WalletConnect/>
+                  <WalletConnect showPaymentPreference />
                 </div> : null
             }
             <div className="listing-modal__actions">

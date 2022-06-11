@@ -357,3 +357,21 @@
     }
   }
 }
+
+.formatted-price {
+  align-items: center;
+  display: flex;
+
+  &__icon {
+    height: 20px;
+    width: auto;
+
+    & + .formatted-price__icon {
+      margin-left: 5px;
+    }
+  }
+
+  &__value {
+    margin: 0 5px;
+  }
+}

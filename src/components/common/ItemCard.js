@@ -4,10 +4,7 @@ import {rootStore} from "Stores";
 import {Link} from "react-router-dom";
 import LinesEllipsis from "react-lines-ellipsis";
 import responsiveHOC from "react-lines-ellipsis/lib/responsiveHOC";
-import ImageIcon from "Components/common/ImageIcon";
 const ResponsiveEllipsis = responsiveHOC()(LinesEllipsis);
-
-import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 
 const ItemCard = observer(({
   link,
@@ -19,7 +16,6 @@ const ItemCard = observer(({
   price,
   status,
   sideText,
-  usdcAccepted,
   onClick,
   variant="",
   className="",
@@ -76,10 +72,6 @@ const ItemCard = observer(({
               {
                 price ?
                   <div className="item-card__status__price">
-                    {
-                      usdcAccepted ?
-                        <ImageIcon icon={USDCIcon} label="USDC" title="USDC Accepted" /> : null
-                    }
                     {price}
                   </div> : null
               }
