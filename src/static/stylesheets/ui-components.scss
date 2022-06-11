@@ -364,6 +364,14 @@
 
   &__icon {
     height: 20px;
-    width: 20px;
+    width: auto;
+
+    & + .formatted-price__icon {
+      margin-left: 5px;
+    }
+  }
+
+  &__value {
+    margin: 0 5px;
   }
 }

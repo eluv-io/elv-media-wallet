@@ -160,12 +160,6 @@
     &__price {
       align-items: center;
       display: flex;
-
-      svg,
-      img {
-        height: 15px;
-        margin-right: 5px;
-      }
     }
   }
 
@@ -277,22 +271,36 @@
 
   &__image__full-screen {
     align-items: center;
+    border-radius: var(--border-radius-card);
     bottom: 12px;
     display: flex;
-    height: 22px;
+    height: 25px;
     justify-content: center;
-    padding: 3px;
+    overflow: hidden;
+    padding: 5px;
     position: absolute;
     right: 8px;
-    width: 22px;
+    width: 25px;
+
+    &::after {
+      background: $black;
+      content: "";
+      height: 100%;
+      left: 0;
+      opacity: 0.35;
+      position: absolute;
+      top: 0;
+      width: 100%;
+    }
 
     svg {
       height: 100%;
       opacity: 0.75;
       width: 100%;
+      z-index: 1;
 
       * {
-        stroke: var(--color-card-text-highlight);
+        color: $white;
         stroke-width: 5px;
       }
     }

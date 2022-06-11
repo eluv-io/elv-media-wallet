@@ -77,7 +77,7 @@ const Collections = observer(() => {
                             listing.details.Price,
                             {
                               includeCurrency: !listing.details.USDCOnly,
-                              useCurrencyIcon: true,
+                              useCurrencyIcon: false,
                               includeUSDCIcon: listing.details.USDCAccepted,
                               prependCurrency: true
                             }

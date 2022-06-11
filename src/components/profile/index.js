@@ -14,7 +14,7 @@ import MetamaskIcon from "Assets/icons/crypto/metamask fox.png";
 import ImageIcon from "Components/common/ImageIcon";
 
 import PendingSalesIcon from "Assets/icons/sales history icon.svg";
-import WithdrawalsIcon from "Assets/icons/crypto/USD gray.svg";
+import WithdrawalsIcon from "Assets/icons/crypto/USD icon.svg";
 
 const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSetup}) => {
   return (

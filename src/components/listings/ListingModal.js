@@ -10,7 +10,7 @@ import {roundToDown, roundToUp} from "round-to";
 import ImageIcon from "Components/common/ImageIcon";
 import WalletConnect from "Components/crypto/WalletConnect";
 
-import USDIcon from "Assets/icons/crypto/USD gray.svg";
+import USDIcon from "Assets/icons/crypto/USD icon.svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 import {Loader} from "Components/common/Loaders";
 
