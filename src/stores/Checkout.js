@@ -152,7 +152,7 @@ class CheckoutStore {
           )
         );
 
-        params.sig_hex = yield this.rootStore.cryptoStore.SignMetamask(hash, this.AuthInfo().address, popup);
+        params.sig_hex = yield this.rootStore.cryptoStore.SignMetamask(hash, this.rootStore.AuthInfo().address, popup);
       }
 
       yield this.client.authClient.MakeAuthServiceRequest({
@@ -219,7 +219,7 @@ class CheckoutStore {
           )
         );
 
-        params.sig_hex = yield this.rootStore.cryptoStore.SignMetamask(hash, this.AuthInfo().address, popup);
+        params.sig_hex = yield this.rootStore.cryptoStore.SignMetamask(hash, this.rootStore.AuthInfo().address, popup);
       }
 
        */

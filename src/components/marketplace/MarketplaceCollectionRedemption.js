@@ -36,7 +36,7 @@ const MarketplaceCollection = observer(() => {
 
         let selected = {};
         items.forEach(slot => {
-          const nft = (slot.ownedItems || []).find(nft => !nft.details.ListingId);
+          const nft = (slot.ownedItems || []).find(({nft}) => !nft?.details?.ListingId)?.nft;
 
           if(!nft) { return; }
 

@@ -274,19 +274,13 @@ class RootStore {
       if(marketplace) {
         yield this.LoadAvailableMarketplaces({tenantSlug, marketplaceSlug});
 
-        const specifiedMarketplaceHash = this.SetMarketplace({
+        this.SetMarketplace({
           tenantSlug,
           marketplaceSlug,
           marketplaceHash,
           marketplaceId,
           specified: true
         });
-
-        if(specifiedMarketplaceHash) {
-          this.specifiedMarketplaceId = Utils.DecodeVersionHash(specifiedMarketplaceHash).objectId;
-
-          this.SetSessionStorage("marketplace", marketplace);
-        }
       }
 
       if(authenticationPromise) {
@@ -750,7 +744,9 @@ class RootStore {
       };
     }
 
-    this.hideGlobalNavigation = marketplace && this.specifiedMarketplaceId === marketplace.marketplaceId && marketplace.branding && marketplace.branding.hide_global_navigation;
+    if(marketplace && this.specifiedMarketplaceId === marketplace.marketplaceId && marketplace.branding && marketplace.branding.hide_global_navigation) {
+      this.hideGlobalNavigation = true;
+    }
 
     this.centerContent = marketplace?.branding?.text_justification === "Center";
     this.centerItems = marketplace?.branding?.item_text_justification === "Center";
@@ -793,6 +789,7 @@ class RootStore {
 
       if(specified) {
         this.specifiedMarketplaceId = marketplace.marketplaceId;
+        this.SetSessionStorage("marketplace", marketplace);
       }
 
       this.SetCustomizationOptions(marketplace);
