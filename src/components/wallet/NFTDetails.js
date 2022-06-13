@@ -413,7 +413,7 @@ const NFTDetails = observer(() => {
 
   if(deleted) {
     return match.params.marketplaceId ?
-      <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "collection")}/> :
+      <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "my-items")}/> :
       <Redirect to={Path.dirname(Path.dirname(match.url))}/>;
   }
 
@@ -444,8 +444,8 @@ const NFTDetails = observer(() => {
                     className="button action"
                     to={
                       match.params.marketplaceId ?
-                        UrlJoin("/marketplace", match.params.marketplaceId, "collection") :
-                        UrlJoin("/wallet", "collection")
+                        UrlJoin("/marketplace", match.params.marketplaceId, "my-items") :
+                        UrlJoin("/wallet", "my-items")
                     }
                   >
                     Back to My Items
@@ -507,7 +507,11 @@ const NFTDetails = observer(() => {
   }
 
   if(opened) {
-    return <Redirect to={UrlJoin(match.url, "open")} />;
+    if(match.params.marketplaceId) {
+      return <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "my-items", match.params.contractId, match.params.tokenId, "open")} />;
+    } else {
+      return <Redirect to={UrlJoin("/wallet", "my-items", match.params.contractId, match.params.tokenId, "open")} />;
+    }
   }
 
   const NFTActions = () => {

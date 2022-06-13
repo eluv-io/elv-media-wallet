@@ -9,7 +9,7 @@ import {
 
 import {rootStore, transferStore} from "Stores/index";
 
-import Collections from "Components/wallet/Collections";
+import MyItems from "Components/wallet/MyItems";
 import AsyncComponent from "Components/common/AsyncComponent";
 import NFTDetails from "Components/wallet/NFTDetails";
 import {PackOpenStatus, PurchaseMintingStatus} from "Components/marketplace/MintingStatus";
@@ -78,12 +78,12 @@ const Routes = (match) => {
 
     { name: listingName, path: "/wallet/listings/:listingId", Component: NFTDetails },
     { name: "Listings", path: "/wallet/listings", Component: Listings },
-    { name: "Open Pack", path: "/wallet/collection/:contractId/:tokenId/open", Component: PackOpenStatus, authed: true },
-    { name: nft.metadata.display_name, path: "/wallet/collection/:contractId/:tokenId", Component: NFTDetails, authed: true },
-    { name: "My Items", path: "/wallet/collection", Component: Collections, authed: true },
+    { name: "Open Pack", path: "/wallet/my-items/:contractId/:tokenId/open", Component: PackOpenStatus, authed: true },
+    { name: nft.metadata.display_name, path: "/wallet/my-items/:contractId/:tokenId", Component: NFTDetails, authed: true },
+    { name: "My Items", path: "/wallet/my-items", Component: MyItems, authed: true },
 
     { name: "Purchase", path: "/wallet/listings/:tenantId/:listingId/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
-    { path: "/wallet", Component: () => <Redirect to={`${match.path}/collection`} />, noBreadcrumb: true}
+    { path: "/wallet", Component: () => <Redirect to="/wallet/my-items" />, noBreadcrumb: true}
   ];
 };
 

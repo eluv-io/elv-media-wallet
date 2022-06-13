@@ -328,7 +328,7 @@ export const ListingPurchaseStatus = observer(() => {
     }
   };
 
-  let basePath = UrlJoin("/wallet", "collection");
+  let basePath = UrlJoin("/wallet", "my-items");
   if(inMarketplace) {
     basePath = UrlJoin("/marketplace", match.params.marketplaceId);
   }
@@ -373,7 +373,7 @@ export const ListingPurchaseStatus = observer(() => {
       basePath={basePath}
       nftBasePath={
         inMarketplace ?
-          UrlJoin("/marketplace", match.params.marketplaceId, "collection", "owned") :
+          UrlJoin("/marketplace", match.params.marketplaceId, "my-items") :
           basePath
       }
       backText={
@@ -430,7 +430,7 @@ export const PurchaseMintingStatus = observer(() => {
       subheader={`Thank you for your purchase! You've received the following ${items.length === 1 ? "item" : "items"}:`}
       items={items}
       basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
-      nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "collection", "owned")}
+      nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "my-items")}
       backText="Back to the Marketplace"
     />
   );
@@ -498,7 +498,7 @@ export const ClaimMintingStatus = observer(() => {
       subheader={`You've received the following ${items.length === 1 ? "item" : "items"}:`}
       items={items}
       basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
-      nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "collection", "owned")}
+      nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "my-items")}
       backText="Back to the Marketplace"
     />
   );
@@ -534,11 +534,8 @@ export const PackOpenStatus = observer(() => {
   const revealVideoHash = LinkTargetHash(revealAnimation);
 
   const basePath = match.url.startsWith("/marketplace") ?
-    UrlJoin("/marketplace", match.params.marketplaceId, "collection") :
-    UrlJoin("/wallet", "collection");
-  const nftBasePath = match.url.startsWith("/marketplace") ?
-    UrlJoin("/marketplace", match.params.marketplaceId, "collection", "owned") :
-    UrlJoin("/wallet", "collection");
+    UrlJoin("/marketplace", match.params.marketplaceId, "my-items") :
+    UrlJoin("/wallet", "my-items");
 
   const tenantId = nft?.details?.TenantId || rootStore.marketplaces[match.params.marketplaceId]?.tenant_id;
   if(!tenantId) {
@@ -575,7 +572,7 @@ export const PackOpenStatus = observer(() => {
       subheader={`You've received the following ${items.length === 1 ? "item" : "items"}:`}
       items={items}
       basePath={basePath}
-      nftBasePath={nftBasePath}
+      nftBasePath={basePath}
       backText="Back to My Items"
     />
   );
@@ -646,7 +643,7 @@ export const CollectionRedeemStatus = observer(() => {
       subheader={`You've received the following ${items.length === 1 ? "item" : "items"}:`}
       items={items}
       basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
-      nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "collection", "owned")}
+      nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "my-items")}
       backText="Back to the Marketplace"
     />
   );

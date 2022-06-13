@@ -140,16 +140,16 @@ const Routes = (match) => {
     { name: "Drop Event", path: "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId", Component: Drop, hideNavigation: true, authed: true, ignoreLoginCapture: true },
     { name: "Status", path: "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId/status", Component: DropMintingStatus, hideNavigation: true, authed: true },
 
-    { name: ((marketplace.storefront || {}).tabs || {}).collection || "My Items", path: "/marketplace/:marketplaceId/collection", Component: MarketplaceOwned, authed: true },
+    { name: ((marketplace.storefront || {}).tabs || {}).my_items || "My Items", path: "/marketplace/:marketplaceId/my-items", Component: MarketplaceOwned, authed: true },
+    { name: nft?.metadata?.display_name, path: "/marketplace/:marketplaceId/my-items/:contractId/:tokenId", Component: NFTDetails, authed: true },
+    { name: "Open Pack", path: "/marketplace/:marketplaceId/my-items/:contractId/:tokenId/open", Component: PackOpenStatus, authed: true },
+
     { name: "Collections", path: "/marketplace/:marketplaceId/collections", Component: MarketplaceCollectionsSummaryPage },
     { name: "Collections", path: "/marketplace/:marketplaceId/collections/:collectionSKU", Component: MarketplaceCollection },
     { name: item.name, path: "/marketplace/:marketplaceId/collections/:collectionSKU/store/:sku", Component: MarketplaceItemDetails },
+    { name: item.name, path: "/marketplace/:marketplaceId/collections/:collectionSKU/owned/:contractId/:tokenId", Component: NFTDetails },
     { name: "Redeem Collection", path: "/marketplace/:marketplaceId/collections/:collectionSKU/redeem", Component: MarketplaceCollectionRedemption },
     { name: "Redeem Collection", path: "/marketplace/:marketplaceId/collections/:collectionSKU/redeem/:confirmationId/status", Component: CollectionRedeemStatus },
-
-    { name: nft?.metadata?.display_name, path: "/marketplace/:marketplaceId/collection/owned/:contractId/:tokenId", Component: NFTDetails, authed: true },
-    { name: "Open Pack", path: "/marketplace/:marketplaceId/collection/owned/:contractId/:tokenId/open", Component: PackOpenStatus, authed: true },
-    { name: "Open Pack", path: "/marketplace/:marketplaceId/collection/owned/:contractId/:tokenId/open", Component: PackOpenStatus, authed: true },
 
     { name: "Claim", path: "/marketplace/:marketplaceId/store/:sku/claim", Component: ClaimMintingStatus, authed: true },
     { name: "Purchase", path: "/marketplace/:marketplaceId/store/:tenantId/:sku/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
