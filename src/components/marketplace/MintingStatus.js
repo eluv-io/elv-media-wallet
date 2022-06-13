@@ -580,3 +580,74 @@ export const PackOpenStatus = observer(() => {
     />
   );
 });
+
+export const CollectionRedeemStatus = observer(() => {
+  const match = useRouteMatch();
+  const [status, setStatus] = useState(undefined);
+
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+  const collectionsInfo = marketplace.collections_info;
+  const collection = marketplace.collections.find(collection => collection.sku === match.params.collectionSKU);
+  const animation =
+    MobileOption(rootStore.pageWidth, collection.redeem_animation, collection.redeem_animation_mobile) ||
+    MobileOption(rootStore.pageWidth, collectionsInfo.redeem_animation, collectionsInfo.redeem_animation_mobile);
+  const videoHash = LinkTargetHash(animation);
+
+  const revealAnimation =
+    MobileOption(rootStore.pageWidth, collection.reveal_animation, collection.reveal_animation_mobile) ||
+    MobileOption(rootStore.pageWidth, collectionsInfo.reveal_animation, collectionsInfo.reveal_animation_mobile);
+  const revealVideoHash = LinkTargetHash(revealAnimation);
+
+  const hideText = collection.hide_text || collectionsInfo.hide_text;
+
+  const Status = async () => await rootStore.CollectionRedemptionStatus({tenantId: marketplace.tenant_id, confirmationId: match.params.confirmationId});
+
+  useEffect(() => {
+    if(status) {
+      rootStore.LoadNFTInfo(true);
+    }
+  }, [status]);
+
+  if(!status) {
+    return (
+      <MintingStatus
+        key={`status-${videoHash}`}
+        videoHash={videoHash}
+        revealVideoHash={revealVideoHash}
+        hideText={hideText}
+        Status={Status}
+        OnFinish={({status}) => setStatus(status)}
+        basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
+        backText="Back to the Marketplace"
+      />
+    );
+  }
+
+  let items = status.extra.filter(item => item.token_addr && (item.token_id || item.token_id_str));
+  try {
+    if(!items || items.length === 0) {
+      const marketplaceItem = ((marketplace?.items || []).find(item => item.sku === match.params.sku)) || {};
+      const itemAddress = ((marketplaceItem.nft_template || {}).nft || {}).address;
+
+      if(itemAddress) {
+        items = Object.values(rootStore.nftInfo)
+          .filter(details => Utils.EqualAddress(itemAddress, details.ContractAddr))
+          .map(details => ({token_id: details.TokenIdStr, token_addr: details.ContractAddr}));
+      }
+    }
+  } catch(error) {
+    rootStore.Log("Failed to load backup mint result", true);
+    rootStore.Log(error, true);
+  }
+
+  return (
+    <MintResults
+      header="Congratulations!"
+      subheader={`You've received the following ${items.length === 1 ? "item" : "items"}:`}
+      items={items}
+      basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
+      nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "collection", "owned")}
+      backText="Back to the Marketplace"
+    />
+  );
+});

@@ -20,7 +20,7 @@ const MarketplaceCollection = observer(() => {
   if(!marketplace) { return null; }
 
   const collection = (marketplace.collections || []).find(collection =>
-    match.params.collectionSlug === collection.collectionSlug
+    match.params.collectionSKU === collection.sku
   );
 
   const basePath = UrlJoin("/marketplace", match.params.marketplaceId, "collections");
@@ -41,7 +41,7 @@ const MarketplaceCollection = observer(() => {
         return (
           <ItemCard
             key={key}
-            link={UrlJoin(basePath, collection.collectionSlug, "owned", ownedItem.nft.details.ContractId, ownedItem.nft.details.TokenIdStr)}
+            link={UrlJoin(basePath, collection.sku, "owned", ownedItem.nft.details.ContractId, ownedItem.nft.details.TokenIdStr)}
             image={<NFTImage nft={ownedItem.nft} width={600}/>}
             name={ownedItem.nft.metadata.display_name}
             description={ownedItem.nft.metadata.description}
@@ -54,7 +54,7 @@ const MarketplaceCollection = observer(() => {
         return (
           <MarketplaceItemCard
             key={key}
-            to={UrlJoin(basePath, collection.collectionSlug, "store", purchaseableItem.item.sku)}
+            to={UrlJoin(basePath, collection.sku, "store", purchaseableItem.item.sku)}
             marketplaceHash={marketplace.versionHash}
             item={purchaseableItem.item}
             index={purchaseableItem.index}
@@ -84,7 +84,7 @@ const MarketplaceCollection = observer(() => {
 
   let redeemButton = (
     <Link
-      to={UrlJoin(basePath, collection.collectionSlug, "redeem")}
+      to={UrlJoin(basePath, collection.sku, "redeem")}
       className="action action-primary marketplace__collection__redeem__button"
     >
       Redeem
@@ -129,6 +129,7 @@ const MarketplaceCollection = observer(() => {
               <div className="marketplace__collection-header__banner-container">
                 <MarketplaceImage
                   rawImage
+                  width="2000"
                   className="marketplace__collection-header__banner"
                   marketplaceHash={marketplace.versionHash}
                   path={UrlJoin("public", "asset_metadata", "info", "collections", collection.collectionIndex.toString(), "collection_banner")}
@@ -164,11 +165,12 @@ const MarketplaceCollection = observer(() => {
               </div>
               <div className="card-list card-list--centered collection-redemption__rewards">
                 {
-                  collection.redeem_items.map(sku => {
+                  collection.redeem_items.map((sku, index) => {
                     const item = marketplace.items.find(item => item.sku === sku);
 
                     return (
                       <MarketplaceItemCard
+                        key={`marketplace-card-${index}`}
                         noLink
                         noStock
                         noPrice

@@ -1,4 +1,4 @@
-import {FormatNFT, LinkTargetHash, Slugify} from "../utils/Utils";
+import {FormatNFT, LinkTargetHash} from "../utils/Utils";
 
 const testTheme = import("../static/stylesheets/themes/maskverse-test.theme.css");
 
@@ -961,8 +961,7 @@ class RootStore {
 
       marketplace.collections = (marketplace.collections || []).map((collection, collectionIndex) => ({
         ...collection,
-        collectionIndex,
-        collectionSlug: Slugify(collection.name || collection.collection_header)
+        collectionIndex
       }));
 
       marketplace.retrievedAt = Date.now();
@@ -1010,13 +1009,15 @@ class RootStore {
         return {};
       }
 
-      if(Date.now() - (this.marketplaceOwnedCache[marketplace.tenant_id]?.retrievedAt || 0) > 30000) {
+      if(Date.now() - (this.marketplaceOwnedCache[marketplace.tenant_id]?.retrievedAt || 0) > 60000) {
         delete this.marketplaceOwnedCache[marketplace.tenant_id];
       }
 
       if(!this.marketplaceOwnedCache[marketplace.tenant_id]) {
         let promise = new Promise(async resolve => {
           let ownedItems = {};
+
+          const listings = await transferStore.FetchTransferListings({userAddress: rootStore.userAddress});
 
           (await this.transferStore.FilteredQuery({
             mode: "owned",
@@ -1033,10 +1034,18 @@ class RootStore {
                 return;
               }
 
+              const listing = listings.find(listing =>
+                listing.details.TokenIdStr === nft.details.TokenIdStr &&
+                Utils.EqualAddress(nft.details.ContractAddr, listing.details.ContractAddr)
+              );
+
+              if(listing) {
+                nft.details = { ...listing.details, ...nft.details };
+              }
+
               if(!ownedItems[item.sku]) {
                 ownedItems[item.sku] = [];
               }
-
 
               ownedItems[item.sku].push({
                 nft,
@@ -1180,6 +1189,8 @@ class RootStore {
               address = status.extra.token_addr;
               tokenId = status.extra.token_id_str;
             }
+          } else if(op === "nft-redeem") {
+            confirmationId = status.op.split(":").slice(-1)[0];
           } else {
             tokenId = id;
           }
@@ -1312,6 +1323,17 @@ class RootStore {
       const statuses = yield this.MintingStatus({tenantId});
 
       return statuses.find(status => status.op === "nft-open" && Utils.EqualAddress(contractAddress, status.address) && status.tokenId === tokenId) || { status: "none" };
+    } catch(error) {
+      this.Log(error, true);
+      return { status: "unknown" };
+    }
+  });
+
+  CollectionRedemptionStatus = flow(function * ({tenantId, confirmationId}) {
+    try {
+      const statuses = yield this.MintingStatus({tenantId});
+
+      return statuses.find(status => status.op === "nft-redeem" && status.confirmationId === confirmationId) || { status: "none" };
     } catch(error) {
       this.Log(error, true);
       return { status: "unknown" };

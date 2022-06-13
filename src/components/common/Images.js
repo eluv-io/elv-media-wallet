@@ -169,7 +169,7 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
   );
 });
 
-export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon, video=false, templateImage=false, rawImage=false, className=""}) => {
+export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon, width="800", video=false, templateImage=false, rawImage=false, className=""}) => {
   if(video && item.video && item.video["."]) {
     return <NFTImage nft={{metadata: item.nftTemplateMetadata}} item={item} video className={className} />;
   } else if(!(url || icon)) {
@@ -177,15 +177,17 @@ export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon,
       url = rootStore.PublicLink({
         versionHash: marketplaceHash,
         path,
-        queryParams: {
-          width: 800
-        }
+        queryParams: width ? { width } : {}
       });
     } else if(item.nft_template && item.nft_template.nft && item.nft_template.nft.image) {
       url = (item.nft_template.nft || {}).image;
       url = new URL(url);
       url.searchParams.set("authorization", rootStore.authToken || rootStore.staticToken);
-      url.searchParams.set("width", "800");
+
+      if(width) {
+        url.searchParams.set("width", width);
+      }
+
       url = url.toString();
     } else {
       icon = NFTPlaceholderIcon;

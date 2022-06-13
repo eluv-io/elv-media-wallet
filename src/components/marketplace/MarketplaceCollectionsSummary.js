@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Link, useLocation, useRouteMatch} from "react-router-dom";
+import {Link, useRouteMatch} from "react-router-dom";
 import {rootStore} from "Stores";
 import {MarketplaceImage} from "Components/common/Images";
 import UrlJoin from "url-join";
@@ -48,7 +48,7 @@ const CollectionCard = observer(({marketplace, collection}) => {
         </div>
         <div className="collection-card__actions">
           <Link
-            to={UrlJoin("/marketplace", match.params.marketplaceId, "collections", collection.collectionSlug)}
+            to={UrlJoin("/marketplace", match.params.marketplaceId, "collections", collection.sku)}
             className="action action-primary"
           >
             Go to Collection
@@ -97,6 +97,7 @@ export const MarketplaceCollectionsSummary = observer(({marketplace}) => {
             <div className="marketplace__collection-header__banner-container">
               <MarketplaceImage
                 rawImage
+                width="2000"
                 className="marketplace__collection-header__banner"
                 marketplaceHash={marketplace.versionHash}
                 path={UrlJoin("public", "asset_metadata", "info", "collections_info", "banner")}
@@ -110,7 +111,7 @@ export const MarketplaceCollectionsSummary = observer(({marketplace}) => {
             <CollectionCard
               marketplace={marketplace}
               collection={collection}
-              key={`collection-${collection.collectionSlug}`}
+              key={`collection-${collection.sku}`}
             />
           )
         }

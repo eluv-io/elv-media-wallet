@@ -73,9 +73,11 @@
     }
 
     &__banner-container {
+      border-radius: var(--border-radius-component);
       display: flex;
       justify-content: flex-start;
-      margin-top: 20px;
+      margin-top: 30px;
+      overflow: hidden;
     }
 
     .page-headers {
@@ -368,7 +370,7 @@
 
   @media screen and (max-width: $breakpoint) {
     &__option {
-      max-width: unset;
+      max-width: 380px;
     }
   }
 

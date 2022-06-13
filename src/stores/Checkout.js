@@ -172,7 +172,7 @@ class CheckoutStore {
   });
 
   RedeemCollection = flow(function * ({marketplace, collectionSKU, selectedNFTs}) {
-    const confirmationId = `${collectionSKU}:${this.ConfirmationId()}`;
+    const confirmationId = this.ConfirmationId();
     const tenantId = marketplace?.tenant_id;
 
     try {
@@ -187,7 +187,7 @@ class CheckoutStore {
         collection_sku: collectionSKU,
         items: selectedNFTs.map(item => ({addr: item.contractAddress, id: item.tokenId})),
         from_addr: config["mint-helper"],
-        client_reference_id: confirmationId
+        client_reference_id: `${collectionSKU}:${confirmationId}`
       };
 
       /*
@@ -234,6 +234,8 @@ class CheckoutStore {
       });
 
       this.PurchaseComplete({confirmationId, success: true});
+
+      return confirmationId;
     } catch(error) {
       this.PurchaseComplete({confirmationId, success: false, message: error.message});
       throw error;
