@@ -297,6 +297,7 @@ export const Select = ({label, value, options, onChange, containerClassName="", 
           options.map((option, index) =>
             <li
               onClick={() => onChange(option[0])}
+              onMouseEnter={() => setSelectedIndex(index)}
               role="option"
               data-value={option[0]}
               aria-selected={value === option[0]}
