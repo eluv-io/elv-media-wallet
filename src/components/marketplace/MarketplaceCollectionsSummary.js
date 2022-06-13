@@ -60,8 +60,6 @@ const CollectionCard = observer(({marketplace, collection}) => {
 });
 
 export const MarketplaceCollectionsSummary = observer(({marketplace}) => {
-  const location = useLocation();
-
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -76,21 +74,35 @@ export const MarketplaceCollectionsSummary = observer(({marketplace}) => {
     return <PageLoader />;
   }
 
-  return (
-    <div
-      className="marketplace__section collections-summary"
-      ref={element => {
-        if(!element) { return; }
+  const collectionsInfo = marketplace.collections_info || {};
 
-        if(new URLSearchParams(location.search).get("section") === "collections") {
-          setTimeout(() => {
-            window.scrollTo({top: element.getBoundingClientRect().top - 50});
-          }, 150);
+  return (
+    <div className="marketplace__section collections-summary">
+      <div className="marketplace__collection-header">
+        {
+          collectionsInfo.icon ?
+            <MarketplaceImage
+              rawImage
+              className="marketplace__collection-header__icon"
+              marketplaceHash={marketplace.versionHash}
+              path={UrlJoin("public", "asset_metadata", "info", "collections_info", "icon")}
+            /> : null
         }
-      }}
-    >
-      <div className="page-headers">
-        <div className="page-header">Explore Collections</div>
+        <div className="page-headers">
+          <div className="page-header">{ collectionsInfo.header || "Explore Collections" }</div>
+          { collectionsInfo.subheader ? <div className="page-subheader">{ collectionsInfo.subheader }</div> : null }
+        </div>
+        {
+          collectionsInfo.banner ?
+            <div className="marketplace__collection-header__banner-container">
+              <MarketplaceImage
+                rawImage
+                className="marketplace__collection-header__banner"
+                marketplaceHash={marketplace.versionHash}
+                path={UrlJoin("public", "asset_metadata", "info", "collections_info", "banner")}
+              />
+            </div> : null
+        }
       </div>
       <div className="card-list collections-summary__list">
         {

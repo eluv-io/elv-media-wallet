@@ -60,15 +60,22 @@
   }
 
   &__collection-header {
-    align-items: center;
+    align-items: flex-start;
     display: flex;
-    margin: 0 0 50px;
+    flex-direction: column;
+    margin: 0 0 20px;
 
     &__icon {
       height: 200px;
       margin-right: 50px;
       object-fit: contain;
       width: 200px;
+    }
+
+    &__banner-container {
+      display: flex;
+      justify-content: flex-start;
+      margin-top: 20px;
     }
 
     .page-headers {
@@ -177,11 +184,11 @@
 
   &__list {
     // sass-lint:disable no-misspelled-properties
-    gap: 30px;
+    gap: 20px;
     // sass-lint:enable no-misspelled-properties
 
     .collection-card {
-      width: calc(#{$breakpoint} / 3 - 50px);
+      width: calc(#{$breakpoint} / 3 - 40px);
     }
   }
 

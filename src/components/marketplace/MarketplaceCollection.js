@@ -117,15 +117,24 @@ const MarketplaceCollection = observer(() => {
                 className="marketplace__collection-header__icon"
                 marketplaceHash={marketplace.versionHash}
                 title={collection.name}
-                path={
-                  UrlJoin("public", "asset_metadata", "info", "collections", collection.collectionIndex.toString(), "collection_icon")
-                }
+                path={UrlJoin("public", "asset_metadata", "info", "collections", collection.collectionIndex.toString(), "collection_icon")}
               /> : null
           }
           <div className="page-headers">
             { collection.collection_header ? <div className="page-header">{ collection.collection_header}</div> : null }
             { collection.collection_subheader ? <div className="page-subheader">{ collection.collection_subheader}</div> : null }
           </div>
+          {
+            collection.collection_banner ?
+              <div className="marketplace__collection-header__banner-container">
+                <MarketplaceImage
+                  rawImage
+                  className="marketplace__collection-header__banner"
+                  marketplaceHash={marketplace.versionHash}
+                  path={UrlJoin("public", "asset_metadata", "info", "collections", collection.collectionIndex.toString(), "collection_banner")}
+                />
+              </div> : null
+          }
         </div>
         {
           collectionItems && collection.redeemable ?
