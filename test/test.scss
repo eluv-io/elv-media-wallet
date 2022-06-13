@@ -48,6 +48,14 @@ h1 {
   //height: 2250px;
 }
 
+@media screen and (max-width: 600px) {
+  .wallet-route,
+  .wallet-target,
+  .-elv-media-wallet-frame {
+    width: 100vw;
+  }
+}
+
 .button-row {
   align-items: center;
   display: flex;

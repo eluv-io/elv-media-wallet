@@ -224,6 +224,13 @@ class CryptoStore {
     try {
       if(this.rootStore.embedded) {
         return yield this.EmbeddedSign({popup, provider: "metamask", message});
+      } else if(Array.isArray(message)) {
+        let signatures = [];
+        for(let i = 0; i < message.length; i++) {
+          signatures[i] = yield this.SignMetamask(message[i], address);
+        }
+
+        return signatures;
       } else {
         yield window.ethereum.request({method: "eth_requestAccounts"});
         const from = address || window.ethereum?.selectedAddress;
@@ -235,6 +242,8 @@ class CryptoStore {
     } catch(error) {
       this.rootStore.Log("Error signing Metamask message:", true);
       this.rootStore.Log(error, true);
+
+      throw error;
     }
   });
 
@@ -309,7 +318,7 @@ class CryptoStore {
       parameters.action = "connect";
     } else if(message) {
       parameters.action = "message";
-      parameters.message = message.toString();
+      parameters.message = message;
     } else if(purchaseSpec) {
       parameters.action = "purchase";
       parameters.purchaseSpec = purchaseSpec;

@@ -204,7 +204,7 @@
     //display: flex;
     height: $action-height;
     margin: 0 auto 30px;
-    width: 410px;
+    max-width: 410px;
 
     .styled-select__button,
     .styled-select__option {
@@ -337,8 +337,8 @@
     padding: 30px;
   }
 
-  &__logo {
-    max-width: 200px;
+  &__logo-container {
+    max-width: 300px;
   }
 
   &__text {

@@ -177,7 +177,7 @@ const MintingStatus = observer(({
               }}
             />
           </div> :
-          <Loader className="minting-status__loader" />
+          (finished ? null : <Loader className="minting-status__loader" />)
       }
 
       {

@@ -332,8 +332,6 @@
     flex-direction: column;
     min-height: 100vh;
     padding-top: 50px;
-    position: absolute;
-    right: 0;
     width: 100vw;
 
     * {
@@ -502,6 +500,10 @@
 }
 
 @media screen and (max-width: $mobile-breakpoint) {
+  .header__profile__name {
+    font-size: 12px;
+  }
+
   .subheader__header {
     font-size: 24px;
   }

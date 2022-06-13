@@ -76,6 +76,7 @@ class RootStore {
   showLogin = this.requireLogin || searchParams.has("sl");
 
   loggedIn = false;
+  externalWalletUser = false;
   disableCloseEvent = false;
   darkMode = searchParams.has("dk") || this.GetSessionStorage("dark-mode");
 
@@ -425,6 +426,7 @@ class RootStore {
       yield this.cryptoStore.LoadConnectedAccounts();
 
       this.loggedIn = true;
+      this.externalWalletUser = externalWallet || (walletName && walletName !== "Eluvio");
 
       this.RemoveLocalStorage("signed-out");
 

@@ -22,6 +22,7 @@ const MarketplaceCollection = observer(() => {
   const [collectionItems, setCollectionItems] = useState(undefined);
   const [selectedCards, setSelectedCards] = useState({});
   const [confirmationId, setConfirmationId] = useState(undefined);
+  const [redeeming, setRedeeming] = useState(false);
 
   if(!marketplace) { return null; }
 
@@ -184,17 +185,32 @@ const MarketplaceCollection = observer(() => {
           <div className="collection-redemption__redeem__message">
             Clicking redeem will permanently burn the selected tokens and mint the reward tokens to your account. Your new NFTs will appear in your wallet when minting is complete. This operation cannot be reversed and burned tokens cannot be recovered.
           </div>
+          {
+            rootStore.externalWalletUser && redeeming ?
+              <div className="collection-redemption__redeem__external-wallet-message">
+                This operation requires one signature per redeemed token.<br />Please check your Metamask browser extension and accept all pending signature requests.
+              </div> : null
+          }
+
           <ButtonWithLoader
             className="action action-primary collection-redemption__redeem__button"
             disabled={collection.items.find(sku => !selectedCards[sku]?.contractAddress || !selectedCards[sku]?.tokenId)}
             onClick={async () => {
-              setConfirmationId(
-                await checkoutStore.RedeemCollection({
-                  marketplace,
-                  collectionSKU: collection.sku,
-                  selectedNFTs: Object.values(selectedCards)
-                })
-              );
+              setRedeeming(true);
+
+              try {
+                setConfirmationId(
+                  await checkoutStore.RedeemCollection({
+                    marketplace,
+                    collectionSKU: collection.sku,
+                    selectedNFTs: Object.values(selectedCards)
+                  })
+                );
+              } catch(error) {
+                rootStore.Log(error, true);
+              } finally {
+                setRedeeming(false);
+              }
             }}
           >
             Redeem
