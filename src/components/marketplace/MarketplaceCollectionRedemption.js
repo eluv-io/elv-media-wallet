@@ -14,6 +14,7 @@ import ListingIcon from "Assets/icons/listings icon";
 import {NFTDisplayToken} from "../../utils/Utils";
 
 import BackIcon from "Assets/icons/arrow-left";
+import Confirm from "Components/common/Confirm";
 
 const MarketplaceCollection = observer(() => {
   const match = useRouteMatch();
@@ -32,23 +33,7 @@ const MarketplaceCollection = observer(() => {
 
   useEffect(() => {
     rootStore.MarketplaceCollectionItems({marketplace, collection})
-      .then(items => {
-        setCollectionItems(items);
-
-        let selected = {};
-        items.forEach(slot => {
-          const nft = (slot.ownedItems || []).find(({nft}) => !nft?.details?.ListingId)?.nft;
-
-          if(!nft) { return; }
-
-          selected[slot.sku] = {
-            contractAddress: nft.details.ContractAddr,
-            tokenId: nft.details.TokenIdStr
-          };
-        });
-
-        setSelectedCards(selected);
-      });
+      .then(items => setCollectionItems(items));
   }, []);
 
 
@@ -57,6 +42,7 @@ const MarketplaceCollection = observer(() => {
   }
 
   const collectionIcon = collection.collection_icon;
+  const allTokensSelected = !collection.items.find(sku => !selectedCards[sku]?.contractAddress || !selectedCards[sku]?.tokenId);
 
   let slots;
   if(collectionItems) {
@@ -186,6 +172,12 @@ const MarketplaceCollection = observer(() => {
             Clicking redeem will permanently burn the selected tokens and mint the reward tokens to your account. Your new NFTs will appear in your wallet when minting is complete. This operation cannot be reversed and burned tokens cannot be recovered.
           </div>
           {
+            allTokensSelected ? null :
+              <div className="collection-redemption__redeem__message">
+                Please select one token to redeem for each item in the collection.
+              </div>
+          }
+          {
             rootStore.externalWalletUser && redeeming ?
               <div className="collection-redemption__redeem__external-wallet-message">
                 This operation requires one signature per redeemed token.<br />Please check your Metamask browser extension and accept all pending signature requests.
@@ -194,24 +186,27 @@ const MarketplaceCollection = observer(() => {
 
           <ButtonWithLoader
             className="action action-primary collection-redemption__redeem__button"
-            disabled={collection.items.find(sku => !selectedCards[sku]?.contractAddress || !selectedCards[sku]?.tokenId)}
-            onClick={async () => {
-              setRedeeming(true);
+            disabled={!allTokensSelected}
+            onClick={async () => await Confirm({
+              message: "Are you sure you want to redeem this collection with the selected tokens? This action cannot be reversed.",
+              Confirm: async () => {
+                setRedeeming(true);
 
-              try {
-                setConfirmationId(
-                  await checkoutStore.RedeemCollection({
-                    marketplace,
-                    collectionSKU: collection.sku,
-                    selectedNFTs: Object.values(selectedCards)
-                  })
-                );
-              } catch(error) {
-                rootStore.Log(error, true);
-              } finally {
-                setRedeeming(false);
+                try {
+                  setConfirmationId(
+                    await checkoutStore.RedeemCollection({
+                      marketplace,
+                      collectionSKU: collection.sku,
+                      selectedNFTs: Object.values(selectedCards)
+                    })
+                  );
+                } catch(error) {
+                  rootStore.Log(error, true);
+                } finally {
+                  setRedeeming(false);
+                }
               }
-            }}
+            })}
           >
             Redeem
           </ButtonWithLoader>
