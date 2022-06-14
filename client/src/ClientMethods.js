@@ -306,7 +306,7 @@ exports.ItemNames = async function({tenantSlug, marketplaceSlug, marketplaceId, 
  *
  * Return info about items in the user's wallet
  *
- * <i>Note - Certain information (for example additional media and attributes) is not included in item results for efficiency purposes. Use `client.Items` to retrieve full NFT info</i>
+ * <i>Note - Certain information (for example additional media and attributes) is not included in item results for efficiency purposes. Use `client.Item` to retrieve full NFT info</i>
  *
  * @methodGroup Items
  * @namedParams
@@ -314,10 +314,7 @@ exports.ItemNames = async function({tenantSlug, marketplaceSlug, marketplaceId, 
  * @param {string=} marketplaceSlug - Specify the URL slug of the marketplace to filter items by marketplace
  * @param {string=} sortBy=default - Sort order for the results - either `default` or `meta/display_name`
  * @param {boolean=} sortDesc=false - Sort in descending order
- * @param {string=} filter - Filter results by item name.
- <br /><br />
- NOTE: This string must be an <b>exact match</b> on the item name.
- * You can retrieve all available item names from the <a href="#.ItemNames">ItemNames method</a>.
+ * @param {string=} filter - Filter results by item name
  * @param {string=} contractAddress - Filter results by contract address
  *
  * @methodGroup Items
