@@ -255,6 +255,7 @@
     position: absolute;
     top: 38px;
     width: 100%;
+    z-index: 1;
 
     &:not(.autocomplete__options-visible) {
       display: none;

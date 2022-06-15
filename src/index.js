@@ -115,6 +115,7 @@ const LoginModal = observer(() => {
     return (
       <Modal
         className="login-modal"
+        closeable={!rootStore.loginOnly && (!rootStore.requireLogin || rootStore.loggedIn)}
         Toggle={rootStore.requireLogin ? undefined : () => rootStore.HideLogin()}
         noFade={rootStore.requireLogin}
       >

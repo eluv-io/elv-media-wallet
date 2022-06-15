@@ -103,7 +103,7 @@ const MarketplaceCollection = observer(() => {
   }
 
   return (
-    <div className="marketplace-listings marketplace__section">
+    <div className="marketplace__section">
       <Link to={basePath} className="details-page__back-link">
         <ImageIcon icon={BackIcon} />
         Back to { marketplace?.branding?.name || "Marketplace" } Collections

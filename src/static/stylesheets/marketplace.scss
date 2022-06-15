@@ -104,6 +104,10 @@
       padding: 20px 50px;
       width: 100%;
 
+      &__header {
+        font-size: 12px;
+      }
+
       &__message {
         font: var(--font-store-heading);
         font-size: 24px;
@@ -321,8 +325,6 @@
 
   &__rewards-container {
     align-items: center;
-    background: var(--background-collection-component);
-    border-radius: var(--border-radius-component);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -341,6 +343,10 @@
       font: var(--font-feature-card-text);
       text-align: center;
     }
+
+    .card-container {
+      box-shadow: var(--box-shadow-collection-reward-card);
+    }
   }
 
   &__rewards {
@@ -357,6 +363,18 @@
     justify-content: center;
     padding: 30px 50px;
     width: 100%;
+
+    &__headers {
+      margin-bottom: 50px;
+      max-width: unset;
+    }
+
+    &__header {
+      &.page-header {
+        margin-bottom: 0;
+        max-width: unset;
+      }
+    }
 
     &__message {
       margin-bottom: 20px;

@@ -161,6 +161,7 @@ html {
 
   /* Collections */
   --background-collection-component: var(--color-bg-primary);
+  --box-shadow-collection-reward-card: 0 0 8px var(--color-component-highlight);
 
   /* Tables */
   --font-table-header: normal normal 500 16px var(--font-family-tertiary);

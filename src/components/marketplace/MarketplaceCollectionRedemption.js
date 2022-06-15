@@ -3,8 +3,7 @@ import {observer} from "mobx-react";
 import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import {checkoutStore, rootStore} from "Stores";
 import UrlJoin from "url-join";
-import {MarketplaceImage, NFTImage} from "Components/common/Images";
-import MarketplaceItemCard from "Components/marketplace/MarketplaceItemCard";
+import {NFTImage} from "Components/common/Images";
 import ImageIcon from "Components/common/ImageIcon";
 
 import {PageLoader} from "Components/common/Loaders";
@@ -41,7 +40,6 @@ const MarketplaceCollection = observer(() => {
     return <Redirect to={UrlJoin(match.url, confirmationId, "status")} />;
   }
 
-  const collectionIcon = collection.collection_icon;
   const allTokensSelected = !collection.items.find(sku => !selectedCards[sku]?.contractAddress || !selectedCards[sku]?.tokenId);
 
   let slots;
@@ -92,10 +90,19 @@ const MarketplaceCollection = observer(() => {
                     key={`redemption-option-${nft.details.TokenIdStr}`}
                     disabled={nft.details.ListingId}
                     title={nft.details.ListingId ? "You may not redeem a token while it is listed for sale." : undefined}
-                    onClick={() => setSelectedCards({
-                      ...selectedCards,
-                      [slot.sku]: {contractAddress: nft.details.ContractAddr, tokenId: nft.details.TokenIdStr}
-                    })}
+                    onClick={() => {
+                      if(selectedCards[slot.sku]?.contractAddress === nft.details.ContractAddr && selectedCards[slot.sku]?.tokenId === nft.details.TokenIdStr) {
+                        setSelectedCards({
+                          ...selectedCards,
+                          [slot.sku]: undefined
+                        });
+                      } else {
+                        setSelectedCards({
+                          ...selectedCards,
+                          [slot.sku]: {contractAddress: nft.details.ContractAddr, tokenId: nft.details.TokenIdStr}
+                        });
+                      }
+                    }}
                   >
                     { selected ? "Selected" : "Select This Token"}
                   </button>
@@ -109,56 +116,18 @@ const MarketplaceCollection = observer(() => {
   }
 
   return (
-    <div className="marketplace-listings marketplace__section">
+    <div className="marketplace__section">
       <Link to={UrlJoin("/marketplace", match.params.marketplaceId, "collections", collection.sku)} className="details-page__back-link">
         <ImageIcon icon={BackIcon} />
         Back to { collection.name || collection.collection_header || "Collection" }
       </Link>
       <div className="marketplace__section">
-        <div className="marketplace__collection-header">
-          {
-            collectionIcon ?
-              <MarketplaceImage
-                rawImage
-                className="marketplace__collection-header__icon"
-                marketplaceHash={marketplace.versionHash}
-                title={collection.name}
-                path={
-                  UrlJoin("public", "asset_metadata", "info", "collections", collection.collectionIndex.toString(), "collection_icon")
-                }
-              /> : null
-          }
-          <div className="page-headers">
-            { collection.collection_header ? <div className="page-header">{ collection.collection_header}</div> : null }
-            { collection.collection_subheader ? <div className="page-subheader">{ collection.collection_subheader}</div> : null }
+        <div className="page-headers collection-redemption__redeem__headers">
+          <div className="page-header collection-redemption__redeem__header">
+            Select the NFTs you wish to trade in
           </div>
-        </div>
-
-        <div className="collection-redemption__rewards-container">
-          <div className="collection-redemption__rewards-container__header">
-            Select tokens to trade in for these rewards
-          </div>
-          <div className={`card-list ${rootStore.centerContent ? "card-list--centered" : ""} collection-redemption__rewards`}>
-            {
-              collection.redeem_items.map((sku, index) => {
-                const item = marketplace.items.find(item => item.sku === sku);
-
-                return (
-                  <MarketplaceItemCard
-                    key={`item-card-${index}`}
-                    noLink
-                    noStock
-                    noPrice
-                    item={item}
-                    index={item.itemIndex}
-                    marketplaceHash={marketplace.versionHash}
-                  />
-                );
-              })
-            }
-          </div>
-          <div className="collection-redemption__rewards-container__message">
-            Select the NFT you wish to trade for each slot
+          <div className="page-subheader collection-redemption__redeem__subheader">
+            Choose one NFT per collection slot
           </div>
         </div>
         {

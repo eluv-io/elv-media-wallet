@@ -154,7 +154,7 @@ const NFTDescriptionSection = ({nft}) => {
 };
 
 const NFTTraitsSection = ({nft}) => {
-  const traits = nft?.metadata?.traits || [];
+  const traits = nft?.metadata?.attributes || [];
 
   if(traits.length === 0) { return null; }
 

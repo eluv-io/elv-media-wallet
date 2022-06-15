@@ -128,7 +128,7 @@ const MarketplaceCollectionsSummaryPage = () => {
   if(!marketplace) { return; }
 
   return (
-    <div className="marketplace-listings marketplace__section">
+    <div className="marketplace__section">
       <Link to={UrlJoin("/marketplace", match.params.marketplaceId, "store")} className="details-page__back-link">
         <ImageIcon icon={BackIcon} />
         Back to { marketplace?.branding?.name || "Marketplace" } Storefront
