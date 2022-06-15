@@ -645,7 +645,7 @@ const NFTDetails = observer(() => {
           <NFTCard
             nft={nft}
             selectedListing={listing}
-            showVideo
+            showFullMedia
             showOrdinal
             allowFullscreen
             selectedMediaIndex={selectedMediaIndex}

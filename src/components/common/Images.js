@@ -10,8 +10,9 @@ import NFTPlaceholderIcon from "Assets/icons/nft";
 import FullscreenIcon from "Assets/icons/full screen.svg";
 import Modal from "Components/common/Modal";
 import {LinkTargetHash} from "../../utils/Utils";
+import UrlJoin from "url-join";
 
-export const NFTImage = observer(({nft, item, selectedMedia, width, video=false, allowFullscreen=false, className="", playerCallback}) => {
+export const NFTImage = observer(({nft, item, selectedMedia, width, showFullMedia=false, allowFullscreen=false, className="", playerCallback}) => {
   const [player, setPlayer] = useState(undefined);
   const [media, setMedia] = useState({imageUrl: undefined, embedUrl: undefined});
   const [targetElement, setTargetElement] = useState(undefined);
@@ -64,8 +65,25 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
       }
     }
 
-    if(video) {
-      if((selectedMedia && selectedMedia.media_type === "Ebook" && selectedMedia.media_file)) {
+    if(showFullMedia) {
+      if((selectedMedia && selectedMedia.media_type === "HTML") && selectedMedia.media_file) {
+        const targetHash = LinkTargetHash(selectedMedia.media_file);
+        const filePath = selectedMedia.media_file["/"].split("/files/")[1];
+
+        embedUrl = new URL(
+          rootStore.network === "demo" ?
+            "https://demov3.net955210.contentfabric.io/s/demov3" :
+            "https://main.net955305.contentfabric.io/s/main"
+        );
+
+        embedUrl.pathname = UrlJoin(embedUrl.pathname, "q", targetHash, "files", filePath);
+
+        (selectedMedia.parameters || []).forEach(({name, value}) =>
+          embedUrl.searchParams.set(name, value)
+        );
+
+        useFrame = true;
+      } else if((selectedMedia && selectedMedia.media_type === "Ebook" && selectedMedia.media_file)) {
         embedUrl = new URL("https://embed.v3.contentfabric.io");
 
         embedUrl.searchParams.set("p", "");
@@ -169,9 +187,9 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, video=false,
   );
 });
 
-export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon, width="800", video=false, templateImage=false, rawImage=false, className=""}) => {
-  if(video && item.video && item.video["."]) {
-    return <NFTImage nft={{metadata: item.nftTemplateMetadata}} item={item} video className={className} />;
+export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon, width="800", showFullMedia=false, templateImage=false, rawImage=false, className=""}) => {
+  if(showFullMedia && item.video && item.video["."]) {
+    return <NFTImage nft={{metadata: item.nftTemplateMetadata}} item={item} showFullMedia={showFullMedia} className={className} />;
   } else if(!(url || icon)) {
     if(!item || item.image && (!templateImage || !item.nft_template || !item.nft_template.nft || !item.nft_template.nft.image)) {
       url = rootStore.PublicLink({

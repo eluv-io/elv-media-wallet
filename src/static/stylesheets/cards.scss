@@ -347,7 +347,8 @@
 
     &__frame {
       background: var(--background-content);
-      border: 0;
+      border: var(--border-component-primary);
+      border-radius: var(--border-radius-component);
       height: 100%;
       outline: 0;
       width: 100%;

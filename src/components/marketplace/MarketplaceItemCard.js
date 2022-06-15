@@ -17,7 +17,7 @@ const MarketplaceItemCard = ({
   noLink,
   noStock,
   noPrice,
-  video=false,
+  showFullMedia=false,
   className="",
   cardClassName=""
 }) => {
@@ -89,7 +89,7 @@ const MarketplaceItemCard = ({
           marketplaceHash={marketplaceHash}
           item={item}
           path={UrlJoin("public", "asset_metadata", "info", "items", index.toString(), "image")}
-          video={video}
+          showFullMedia={showFullMedia}
         />
       )}
       name={item.name}
