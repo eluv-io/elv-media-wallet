@@ -15,9 +15,9 @@ const pages = {
   "activity": "/wallet/activity",
 
   // User pages
-  "wallet": "/wallet/collection",
-  "items": "/wallet/collection",
-  "item": "/wallet/collection/:contractId/:tokenId",
+  "wallet": "/wallet/my-items",
+  "items": "/wallet/my-items",
+  "item": "/wallet/my-items/:contractId/:tokenId",
   "myListings": "/wallet/myListings",
   "myListing": "/wallet/myListings/:listingId",
   "profile": "/profile",
@@ -32,7 +32,7 @@ const pages = {
   "marketplaceProfile": "/marketplace/:marketplaceId/profile",
 
   // Marketplace user pages
-  "marketplaceWallet": "/marketplace/:marketplaceId/collection",
+  "marketplaceWallet": "/marketplace/:marketplaceId/my-items",
   "marketplaceCollections": "/marketplace/:marketplaceId/collections",
   "marketplaceMyListings": "/marketplace/:marketplaceId/my-listings",
   "marketplaceMyListing": "/marketplace/:marketplaceId/my-listings/:listingId",
