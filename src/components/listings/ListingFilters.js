@@ -65,7 +65,77 @@ const FilterDropdown = observer(({label, value, options, optionLabelPrefix, onCh
   );
 });
 
-const FilterMenu = ({mode, filterValues, editions, setFilterValues, Hide}) => {
+const AttributeFilters = ({attributes, filterValues, setFilterValues}) => {
+  if(!attributes || attributes.length === 0) { return null; }
+
+  const availableAttributes = attributes
+    .filter(({trait_type}) => !filterValues.attributeFilters.find(attrFilter => attrFilter.name === trait_type))
+    .map(({trait_type}) => [trait_type, trait_type]);
+
+  let selected = (filterValues.attributeFilters || []).map(({name, value}, index) =>
+    <div className="filters__menu__attribute-group" key={`trait-selection-${index}`}>
+      <FilterDropdown
+        label="Attribute"
+        optionLabelPrefix="Attribute: "
+        value={name}
+        onChange={newAttributeName => {
+          let newFilters = { ...filterValues };
+
+          if(newAttributeName) {
+            newFilters.attributeFilters[index] = { name: newAttributeName, value: "" };
+          } else {
+            newFilters.attributeFilters = newFilters.attributeFilters.filter((_, otherIndex) => otherIndex !== index);
+          }
+
+          setFilterValues(newFilters);
+        }}
+        placeholder={["", "Any Attributes"]}
+        options={[[name, name], ...availableAttributes]}
+      />
+      {
+        name ?
+          <FilterDropdown
+            label={name}
+            optionLabelPrefix={`${name}: `}
+            value={value}
+            onChange={newAttributeValue => {
+              let newFilters = { ...filterValues };
+              newFilters.attributeFilters[index] = { name, value: newAttributeValue };
+              setFilterValues(newFilters);
+            }}
+            placeholder={["", "Any Value"]}
+            options={(attributes.find(attr => attr.trait_type === name)?.values || []).map(v => [v, v])}
+          /> : null
+      }
+    </div>
+  );
+
+  return (
+    <>
+      { selected }
+      {
+        availableAttributes.length > 0 ?
+          <div className="filters__menu__attribute-group">
+            <FilterDropdown
+              label="Attribute"
+              optionLabelPrefix="Attribute: "
+              value=""
+              onChange={newAttributeName => {
+                setFilterValues({
+                  ...filterValues,
+                  attributeFilters: [...filterValues.attributeFilters, {name: newAttributeName, value: ""}]
+                });
+              }}
+              placeholder={["", "Any Attributes"]}
+              options={availableAttributes}
+            />
+          </div> : null
+      }
+    </>
+  );
+};
+
+const FilterMenu = ({mode, filterValues, editions, attributes, setFilterValues, Hide, ResetFilters}) => {
   const match = useRouteMatch();
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
@@ -77,7 +147,7 @@ const FilterMenu = ({mode, filterValues, editions, setFilterValues, Hide}) => {
   const ref = useRef();
   useEffect(() => {
     const onClickOutside = event => {
-      if(!ref.current || !ref.current.contains(event.target)) {
+      if(!ref.current || !ref.current.contains(event.target) && event.target.localName !== "li") {
         Hide();
       }
     };
@@ -152,6 +222,14 @@ const FilterMenu = ({mode, filterValues, editions, setFilterValues, Hide}) => {
             options={[["usdc", "USDC"]]}
           /> : null
       }
+      {
+        mode === "listings" ?
+          <AttributeFilters attributes={attributes} filterValues={filterValues} setFilterValues={setFilterValues} /> :
+          null
+      }
+      <button className="action filters__menu__reset-button" onClick={() => ResetFilters()}>
+        Reset Filters
+      </button>
     </div>
   );
 };
@@ -173,21 +251,35 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
   const [savedOptionsLoaded, setSavedOptionsLoaded] = useState(false);
   const [filterOptionsLoaded, setFilterOptionsLoaded] = useState(false);
   const [editions, setEditions] = useState([]);
+  const [attributes, setAttributes] = useState([]);
 
   const [filterOptions, setFilterOptions] = useState(initialFilter ? [ initialFilter ] : []);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [renderIndex, setRenderIndex] = useState(0);
 
-  const [filterValues, setFilterValues] = useState({
+  const defaultFilters = {
     sort: initialOption.value,
     sortBy: initialOption.key,
     sortDesc: initialOption.desc,
     collectionIndex: -1,
     lastNDays: -1,
-    filter: initialFilter || "",
-    editionFilter: initialEditionFilter || "",
+    filter: "",
+    editionFilter: "",
+    attributeFilters: [],
     tenantId: marketplace ? marketplace.tenant_id : "",
     currency: ""
+  };
+
+  const [filterValues, setFilterValues] = useState({
+    ...defaultFilters,
+    filter: initialFilter || "",
+    editionFilter: initialEditionFilter || ""
   });
+
+  const ResetFilters = () => {
+    setFilterValues(defaultFilters);
+    setRenderIndex(renderIndex + 1);
+  };
 
   const Update = async (force=false) => {
     const options = {
@@ -215,6 +307,10 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
     transferStore.ListingNames({marketplaceId})
       .then(names => setFilterOptions(names.map(name => (name || "").trim()).sort()))
       .finally(() => setFilterOptionsLoaded(true));
+
+    setAttributes([]);
+    transferStore.ListingAttributes({tenantId: filterValues.tenantId})
+      .then(attributes => setAttributes(attributes));
   }, [filterValues.tenantId]);
 
   useEffect(() => {
@@ -257,6 +353,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
         sortDesc: savedOptions.sortDesc,
         filter: savedOptions.filter,
         editionFilter: savedOptions.editionFilter,
+        attributeFilters: savedOptions.attributeFilters,
         collectionIndex: savedOptions.collectionIndex,
         lastNDays: savedOptions.lastNDays,
         tenantId: savedOptions.tenantId
@@ -316,8 +413,10 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
               mode={mode}
               filterValues={filterValues}
               editions={editions}
+              attributes={attributes}
               setFilterValues={setFilterValues}
               Hide={() => setShowFilterMenu(false)}
+              ResetFilters={ResetFilters}
             /> : null }
       </div>
       <div className="filters__search-container">
@@ -326,6 +425,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
             // Owned NFTs do not need exact queries
             <div className="autocomplete filters__search">
               <DebouncedInput
+                key={`autocomplete-${filterOptionsLoaded}-${savedOptionsLoaded}-${renderIndex}`}
                 className="listing-filters__filter-input autocomplete__input"
                 placeholder="Filter..."
                 value={filterValues.filter}
@@ -343,7 +443,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
             </div> :
             <AutoComplete
               className="filters__search"
-              key={`autocomplete-${filterOptionsLoaded}-${savedOptionsLoaded}`}
+              key={`autocomplete-${filterOptionsLoaded}-${savedOptionsLoaded}-${renderIndex}`}
               placeholder="Search here"
               value={filterValues.filter}
               onChange={value => setFilterValues({...filterValues, filter: value, editionFilter: ""})}

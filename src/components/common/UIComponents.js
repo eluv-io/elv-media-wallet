@@ -206,6 +206,7 @@ export const Select = ({label, value, options, onChange, containerClassName="", 
   const [selectedIndex, setSelectedIndex] = useState(currentIndex);
   const [filter, setFilter] = useState("");
   const [filterLastTyped, setFilterLastTyped] = useState(0);
+  const [mouseIn, setMouseIn] = useState(false);
 
   const ref = useRef();
 
@@ -223,12 +224,13 @@ export const Select = ({label, value, options, onChange, containerClassName="", 
 
 
   useEffect(() => {
-    if(showMenu) {
-      const selectedItem = document.getElementById(`styled-select-${idPrefix}-${selectedIndex}`);
+    if(!showMenu || mouseIn) { return; }
 
-      if(selectedItem) {
-        selectedItem.parentElement.scrollTop = selectedItem.offsetTop;
-      }
+    // Scroll to selected item for keyboard selection
+    const selectedItem = document.getElementById(`styled-select-${idPrefix}-${selectedIndex}`);
+
+    if(selectedItem ) {
+      selectedItem.parentElement.scrollTop = selectedItem.offsetTop;
     }
   }, [selectedIndex, showMenu]);
 
@@ -292,6 +294,8 @@ export const Select = ({label, value, options, onChange, containerClassName="", 
         aria-labelledby={`styled-select-${idPrefix}-button`}
         tabIndex="-1"
         className={`styled-select__menu ${menuClassName}`}
+        onMouseEnter={() => setMouseIn(true)}
+        onMouseLeave={() => setMouseIn(false)}
       >
         {
           options.map((option, index) =>

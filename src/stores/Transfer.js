@@ -347,7 +347,11 @@ class TransferStore {
       }
 
       if(attributeFilters) {
-        attributeFilters.map(({name, value}) => filters.push(`nft/attributes/${name}:eq:${value}`));
+        attributeFilters.map(({name, value}) => {
+          if(!name || !value) { return; }
+
+          filters.push(`nft/attributes/${name}:eq:${value}`);
+        });
       }
 
       if(currency) {
@@ -531,6 +535,22 @@ class TransferStore {
         },
         method: "GET"
       })
+    );
+  });
+
+  ListingAttributes = flow(function * ({tenantId}={}) {
+    const attributes = yield Utils.ResponseToJson(
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "mkt", "attributes"),
+        method: "GET",
+        queryParams: {
+          filter: tenantId ? `tenant:eq:${tenantId}` : null
+        }
+      })
+    );
+
+    return attributes.filter(({trait_type}) =>
+      !["Content Fabric Hash", "Total Minted Supply", "Creator"].includes(trait_type)
     );
   });
 
