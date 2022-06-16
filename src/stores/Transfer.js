@@ -530,13 +530,22 @@ class TransferStore {
     );
   });
 
-  ListingAttributes = flow(function * ({tenantId}={}) {
+  ListingAttributes = flow(function * ({tenantId, displayName}={}) {
+    let filters = [];
+    if(tenantId) {
+      filters.push(`tenant:eq:${tenantId}`);
+    }
+
+    if(displayName) {
+      filters.push(`nft/display_name:eq:${displayName}`);
+    }
+
     const attributes = yield Utils.ResponseToJson(
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "mkt", "attributes"),
         method: "GET",
         queryParams: {
-          filter: tenantId ? `tenant:eq:${tenantId}` : null
+          filter: filters
         }
       })
     );

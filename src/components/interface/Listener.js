@@ -242,7 +242,7 @@ export const InitializeListener = (history) => {
           return Respond({response: await transferStore.ListingEditionNames({displayName: data.params.displayName})});
 
         case "listingAttributes":
-          return Respond({response: await transferStore.ListingAttributes({tenantId: marketplaceInfo?.tenantId})});
+          return Respond({response: await transferStore.ListingAttributes({tenantId: marketplaceInfo?.tenantId, displayName: data.params.displayName})});
 
         case "userTransferHistory":
           let response = {

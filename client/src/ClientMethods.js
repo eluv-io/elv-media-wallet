@@ -346,17 +346,19 @@ exports.ListingEditionNames = async function({displayName}) {
  * @namedParams
  * @param {string=} tenantSlug - Specify the URL slug of a marketplace's tenant. Required if specifying marketplace slug
  * @param {string=} marketplaceSlug - Specify the URL slug of a marketplace
+ * @param {string=} displayName - Display name of the item from which to request edition names
  *
  * @returns {Promise<Array<String>>} - A list of item names
  */
-exports.ListingAttributes = async function({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash}={}) {
+exports.ListingAttributes = async function({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, displayName}={}) {
   return await this.SendMessage({
     action: "listingAttributes",
     params: {
       tenantSlug,
       marketplaceSlug,
       marketplaceId,
-      marketplaceHash
+      marketplaceHash,
+      displayName
     }
   });
 };
