@@ -81,7 +81,7 @@
     }
 
     .page-headers {
-      margin: 0;
+      margin: 0 0 20px;
 
       .page-header {
         margin: 0;
@@ -100,13 +100,18 @@
       margin-bottom: 100px;
     }
 
+    &__card {
+      &:not(&--owned) {
+        opacity: 0.5;
+      }
+    }
+
     &__redeem {
       align-items: center;
       background: var(--background-collection-component);
       border-radius: var(--border-radius-component);
       display: flex;
       justify-content: space-between;
-      margin-bottom: 20px;
       padding: 20px 50px;
       width: 100%;
 
@@ -116,11 +121,13 @@
 
       &__message {
         font: var(--font-store-heading);
-        font-size: 24px;
+        font-size: 20px;
+        padding-right: 50px;
         text-transform: uppercase;
       }
 
       &__button {
+        min-width: 200px;
         width: 200px;
       }
     }
@@ -161,7 +168,7 @@
         padding: 20px 30px;
 
         &__message {
-          font-size: 18px;
+          font-size: 16px;
         }
       }
     }
@@ -174,6 +181,7 @@
 
         &__message {
           margin-bottom: 20px;
+          padding: 0;
         }
       }
     }
@@ -335,15 +343,7 @@
     flex-direction: column;
     justify-content: center;
     margin-bottom: 50px;
-    padding: 30px 50px;
     width: 100%;
-
-    &__header {
-      font: var(--font-feature-card-title);
-      font-size: 24px;
-      text-align: center;
-      text-transform: uppercase;
-    }
 
     &__message {
       font: var(--font-feature-card-text);

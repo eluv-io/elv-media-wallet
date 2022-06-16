@@ -243,7 +243,7 @@ class CheckoutStore {
     }
   })
 
-  ClaimSubmit = flow(function * ({marketplaceId, sku}) {
+  ClaimSubmit = flow(function * ({marketplaceId, sku, email}) {
     try {
       this.submittingOrder = true;
 
@@ -251,14 +251,22 @@ class CheckoutStore {
 
       this.PurchaseInitiated({confirmationId: sku, tenantId, marketplaceId, sku});
 
+      let body = {
+        op: "nft-claim",
+        sid: marketplaceId,
+        sku
+      };
+
+      email = email || (this.rootStore.AuthInfo()?.user || {}).email || this.rootStore.userProfile.email;
+
+      if(email) {
+        body.email = email;
+      }
+
       yield this.client.authClient.MakeAuthServiceRequest({
         method: "POST",
         path: UrlJoin("as", "wlt", "act", tenantId),
-        body: {
-          op: "nft-claim",
-          sid: marketplaceId,
-          sku
-        },
+        body,
         headers: {
           Authorization: `Bearer ${this.rootStore.authToken}`
         }

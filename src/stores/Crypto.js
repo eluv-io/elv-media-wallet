@@ -83,7 +83,7 @@ class CryptoStore {
 
   LoadConnectedAccounts = flow(function * () {
     try {
-      const { links } = yield Utils.ResponseToJson(
+      let { links } = yield Utils.ResponseToJson(
         this.client.authClient.MakeAuthServiceRequest({
           path: UrlJoin("as", "wlt", "mkt", "info"),
           method: "GET",
@@ -93,9 +93,12 @@ class CryptoStore {
         })
       );
 
+      links = (links || []).filter(link => link.link_type);
+
       let connectedAccounts = { eth: {}, sol: {} };
       for(const link of (links || [])) {
         const address = link.link_type === "eth" ? Utils.FormatAddress(link.link_acct) : link.link_acct;
+
         connectedAccounts[link.link_type][address] = {
           ...link,
           link_acct: address,

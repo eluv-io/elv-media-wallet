@@ -48,6 +48,7 @@ const MarketplaceCollection = observer(() => {
             edition={ownedItem.nft.metadata.edition_name}
             badges={<ImageIcon icon={OwnedIcon} title="You own this item" alt="Listing Icon" className="item-card__badge"/>}
             variant={ownedItem.nft.metadata.style}
+            className="marketplace__collection__card marketplace__collection__card--owned"
           />
         );
       } else if(item && purchaseableItem) {
@@ -58,6 +59,7 @@ const MarketplaceCollection = observer(() => {
             marketplaceHash={marketplace.versionHash}
             item={purchaseableItem.item}
             index={purchaseableItem.index}
+            className="marketplace__collection__card"
           />
         );
       } else {
@@ -74,6 +76,7 @@ const MarketplaceCollection = observer(() => {
             name={item.nftTemplateMetadata.display_name}
             description={item.nftTemplateMetadata.description}
             variant={item.nftTemplateMetadata.style}
+            className="marketplace__collection__card"
           />
         );
       }
@@ -138,19 +141,6 @@ const MarketplaceCollection = observer(() => {
           }
         </div>
         {
-          collectionItems && collection.redeemable ?
-            <div className="marketplace__collection__redeem">
-              <div className="marketplace__collection__redeem__message">
-                {
-                  collectionCompleted ?
-                    "Your collection is complete!" :
-                    "Collect all the tokens to redeem rewards!"
-                }
-              </div>
-              { redeemButton }
-            </div> : null
-        }
-        {
           collectionItems ?
             <div className="card-list marketplace__collection__list">
               {collectionCards}
@@ -158,12 +148,22 @@ const MarketplaceCollection = observer(() => {
             <PageLoader/>
         }
         {
+          collectionItems && collection.redeemable ?
+            <div className="marketplace__collection__redeem">
+              <div className="marketplace__collection__redeem__message">
+                {
+                  collectionCompleted ?
+                    "Your collection is complete!" :
+                    "Complete your collection to redeem the rewards below!"
+                }
+              </div>
+              { redeemButton }
+            </div> : null
+        }
+        {
           collection.redeemable ?
             <div className="collection-redemption__rewards-container">
-              <div className="collection-redemption__rewards-container__header">
-                Complete your collection to redeem these rewards!
-              </div>
-              <div className="card-list card-list--centered collection-redemption__rewards">
+              <div className={`card-list ${rootStore.centerContent ? "card-list--centered" : ""} collection-redemption__rewards`}>
                 {
                   collection.redeem_items.map((sku, index) => {
                     const item = marketplace.items.find(item => item.sku === sku);
