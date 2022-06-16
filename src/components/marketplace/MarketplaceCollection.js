@@ -182,7 +182,6 @@ const MarketplaceCollection = observer(() => {
                   })
                 }
               </div>
-              { redeemButton }
             </div> : null
         }
       </div>

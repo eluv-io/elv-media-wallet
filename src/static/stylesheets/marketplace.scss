@@ -76,7 +76,7 @@
       border-radius: var(--border-radius-component);
       display: flex;
       justify-content: flex-start;
-      margin-top: 30px;
+      margin-top: 50px;
       overflow: hidden;
     }
 
@@ -85,6 +85,12 @@
 
       .page-header {
         margin: 0;
+      }
+
+      .page-subheader {
+        &:last-child {
+          margin-bottom: 30px;
+        }
       }
     }
   }
