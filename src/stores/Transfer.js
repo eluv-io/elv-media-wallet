@@ -506,27 +506,19 @@ class TransferStore {
     }
   });
 
-  ListingNames = flow(function * ({marketplaceId}) {
-    let names = yield Utils.ResponseToJson(
+  ListingNames = flow(function * ({tenantId}) {
+    return yield Utils.ResponseToJson(
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "mkt", "names"),
-        method: "GET"
+        method: "GET",
+        queryParams: {
+          filter: tenantId ? `tenant:eq:${tenantId}` : null
+        }
       })
     );
-
-    if(marketplaceId) {
-      const marketplace = yield this.rootStore.LoadMarketplace(marketplaceId);
-
-      let marketplaceNames = {};
-      marketplace.items.map(item => marketplaceNames[item?.nftTemplateMetadata?.display_name] = true);
-
-      names = names.filter(name => marketplaceNames[name]);
-    }
-
-    return names;
   });
 
-  EditionNames = flow(function * ({displayName}) {
+  ListingEditionNames = flow(function * ({displayName}) {
     return yield Utils.ResponseToJson(
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "mkt", "editions"),
@@ -549,9 +541,11 @@ class TransferStore {
       })
     );
 
-    return attributes.filter(({trait_type}) =>
-      !["Content Fabric Hash", "Total Minted Supply", "Creator"].includes(trait_type)
-    );
+    return attributes
+      .map(({trait_type, values}) => ({ name: trait_type, values }))
+      .filter(({name}) =>
+        !["Content Fabric Hash", "Total Minted Supply", "Creator"].includes(name)
+      );
   });
 
   // Transfer History

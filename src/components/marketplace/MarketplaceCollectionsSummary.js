@@ -9,6 +9,8 @@ import BackIcon from "Assets/icons/arrow-left";
 import {PageLoader} from "Components/common/Loaders";
 
 const CollectionCard = observer(({marketplace, collection}) => {
+  if(!collection.sku) { return; }
+
   const match = useRouteMatch();
 
   const [collected, setCollected] = useState(undefined);

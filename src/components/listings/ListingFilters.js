@@ -69,8 +69,8 @@ const AttributeFilters = ({attributes, filterValues, setFilterValues}) => {
   if(!attributes || attributes.length === 0) { return null; }
 
   const availableAttributes = attributes
-    .filter(({trait_type}) => !filterValues.attributeFilters.find(attrFilter => attrFilter.name === trait_type))
-    .map(({trait_type}) => [trait_type, trait_type]);
+    .filter(({name}) => !filterValues.attributeFilters.find(attrFilter => attrFilter.name === name))
+    .map(({name}) => [name, name]);
 
   let selected = (filterValues.attributeFilters || []).map(({name, value}, index) =>
     <div className="filters__menu__attribute-group" key={`trait-selection-${index}`}>
@@ -104,7 +104,7 @@ const AttributeFilters = ({attributes, filterValues, setFilterValues}) => {
               setFilterValues(newFilters);
             }}
             placeholder={["", "Any Value"]}
-            options={(attributes.find(attr => attr.trait_type === name)?.values || []).map(v => [v, v])}
+            options={(attributes.find(attr => attr.name === name)?.values || []).map(v => [v, v])}
           /> : null
       }
     </div>
@@ -299,12 +299,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
   };
 
   useEffect(() => {
-    let marketplaceId;
-    if(marketplace && filterValues.tenantId === marketplace.tenant_id) {
-      marketplaceId = marketplace.marketplaceId;
-    }
-
-    transferStore.ListingNames({marketplaceId})
+    transferStore.ListingNames({tenantId: filterValues.tenantId})
       .then(names => setFilterOptions(names.map(name => (name || "").trim()).sort()))
       .finally(() => setFilterOptionsLoaded(true));
 
@@ -319,7 +314,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
       return;
     }
 
-    transferStore.EditionNames({displayName: filterValues.filter})
+    transferStore.ListingEditionNames({displayName: filterValues.filter})
       .then(editions =>
         setEditions(
           editions

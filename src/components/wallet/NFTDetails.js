@@ -161,10 +161,10 @@ const NFTTraitsSection = ({nft}) => {
   return (
     <ExpandableSection header="Properties" icon={TraitsIcon}>
       <div className="traits">
-        {traits.map(({trait_type, value, rarity_percent}, index) =>
+        {traits.map(({name, value, rarity_percent}, index) =>
           <div className="trait" key={`trait-${index}`}>
             <div className="trait__type">
-              { trait_type }
+              { name }
             </div>
             <div className="trait__value">
               { value }

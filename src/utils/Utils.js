@@ -145,7 +145,7 @@ export const FormatNFT = (nft) => {
     .filter(attribute => attribute && !FILTERED_ATTRIBUTES.includes(attribute.trait_type));
 
   if(traits.length > 0) {
-    nft.metadata.attributes = traits.map(trait => ({...trait, rarity_percent: RarityToPercentage(trait.rarity)}));
+    nft.metadata.attributes = traits.map(trait => ({...trait, name: trait.trait_type, rarity_percent: RarityToPercentage(trait.rarity)}));
   }
 
   // Generate embed URLs for additional media

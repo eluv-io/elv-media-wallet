@@ -233,9 +233,16 @@ export const InitializeListener = (history) => {
         case "stock":
           return Respond({response: toJS(await checkoutStore.MarketplaceStock({tenantId: marketplaceInfo?.tenantId}))});
 
-        // client.ItemNames
+        // client.ItemNames, client.ListingNames
         case "itemNames":
-          return Respond({response: await transferStore.ListingNames({marketplaceId: marketplaceInfo?.marketplaceId})});
+        case "listingNames":
+          return Respond({response: await transferStore.ListingNames({tenantId: marketplaceInfo?.tenantId})});
+
+        case "listingEditionNames":
+          return Respond({response: await transferStore.ListingEditionNames({displayName: data.params.displayName})});
+
+        case "listingAttributes":
+          return Respond({response: await transferStore.ListingAttributes({tenantId: marketplaceInfo?.tenantId})});
 
         case "userTransferHistory":
           let response = {
