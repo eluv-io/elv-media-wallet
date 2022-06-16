@@ -82,7 +82,7 @@ const AttributeFilters = ({attributes, filterValues, setFilterValues}) => {
           let newFilters = { ...filterValues };
 
           if(newAttributeName) {
-            const firstValue = attributes.find(attr => attr.name === name)?.values[0] || "";
+            const firstValue = attributes.find(attr => attr.name === newAttributeName)?.values[0] || "";
             newFilters.attributeFilters[index] = { name: newAttributeName, value: firstValue };
           } else {
             newFilters.attributeFilters = newFilters.attributeFilters.filter((_, otherIndex) => otherIndex !== index);
@@ -121,9 +121,11 @@ const AttributeFilters = ({attributes, filterValues, setFilterValues}) => {
               optionLabelPrefix="Attribute: "
               value=""
               onChange={newAttributeName => {
+                const firstValue = attributes.find(attr => attr.name === newAttributeName)?.values[0] || "";
+
                 setFilterValues({
                   ...filterValues,
-                  attributeFilters: [...filterValues.attributeFilters, {name: newAttributeName, value: ""}]
+                  attributeFilters: [...filterValues.attributeFilters, {name: newAttributeName, value: firstValue}]
                 });
               }}
               placeholder={["", "Any Attributes"]}
