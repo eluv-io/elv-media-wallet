@@ -82,7 +82,8 @@ const AttributeFilters = ({attributes, filterValues, setFilterValues}) => {
           let newFilters = { ...filterValues };
 
           if(newAttributeName) {
-            newFilters.attributeFilters[index] = { name: newAttributeName, value: "" };
+            const firstValue = attributes.find(attr => attr.name === name)?.values[0] || "";
+            newFilters.attributeFilters[index] = { name: newAttributeName, value: firstValue };
           } else {
             newFilters.attributeFilters = newFilters.attributeFilters.filter((_, otherIndex) => otherIndex !== index);
           }
@@ -103,7 +104,6 @@ const AttributeFilters = ({attributes, filterValues, setFilterValues}) => {
               newFilters.attributeFilters[index] = { name, value: newAttributeValue };
               setFilterValues(newFilters);
             }}
-            placeholder={["", "Any Value"]}
             options={(attributes.find(attr => attr.name === name)?.values || []).map(v => [v, v])}
           /> : null
       }
