@@ -11,10 +11,10 @@ import Header from "Components/Header";
 
 const searchParams = new URLSearchParams(window.location.search);
 
-let sessionStorageAvailable = false;
+window.sessionStorageAvailable = false;
 try {
   sessionStorage.getItem("test");
-  sessionStorageAvailable = true;
+  window.sessionStorageAvailable = true;
 // eslint-disable-next-line no-empty
 } catch(error) {}
 

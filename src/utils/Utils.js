@@ -155,6 +155,7 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, showFullMedia, width}) =
     }
   }
 
+  // TODO: Consolidate embed url determination
   if(showFullMedia) {
     if((selectedMedia && selectedMedia.media_type === "HTML") && selectedMedia.media_file) {
       const targetHash = LinkTargetHash(selectedMedia.media_file);

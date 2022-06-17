@@ -26,6 +26,10 @@ class CheckoutStore {
     return this.rootStore.client;
   }
 
+  get marketplaceClient() {
+    return this.rootStore.marketplaceClient;
+  }
+
   constructor(rootStore) {
     this.rootStore = rootStore;
     makeAutoObservable(this);
@@ -46,26 +50,9 @@ class CheckoutStore {
 
   MarketplaceStock = flow(function * ({tenantId}) {
     try {
-      let stock;
-      if(this.rootStore.loggedIn) {
-        stock = yield Utils.ResponseToJson(
-          this.client.authClient.MakeAuthServiceRequest({
-            path: UrlJoin("as", "wlt", "nft", "info", tenantId),
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${this.rootStore.authToken}`
-            }
-          })
-        );
-      } else {
-        stock = yield Utils.ResponseToJson(
-          this.client.authClient.MakeAuthServiceRequest({
-            path: UrlJoin("as", "nft", "stock", tenantId),
-            method: "GET"
-          })
-        );
-      }
+      const stock = yield this.marketplaceClient.MarketplaceStock({tenantId});
 
+      // Keep all retrieved stock across marketplaces
       let updatedStock = {
         ...this.stock
       };
@@ -124,7 +111,7 @@ class CheckoutStore {
         tok_id: tokenId
       };
 
-      if(this.rootStore.AuthInfo().walletName === "metamask") {
+      if(this.rootStore.AuthInfo().walletName === "Metamask") {
         // Must create signature for burn operation to pass to API
 
         let popup;
@@ -133,7 +120,7 @@ class CheckoutStore {
           popup = window.open("about:blank");
         }
 
-        const config = yield this.rootStore.TenantConfiguration({contractAddress});
+        const config = yield this.marketplaceClient.TenantConfiguration({contractAddress});
 
         const mintHelperAddress = config["mint-helper"];
 
@@ -180,17 +167,16 @@ class CheckoutStore {
       this.PurchaseInitiated({tenantId, confirmationId});
 
       let popup;
-      if(this.rootStore.embedded && this.rootStore.AuthInfo().walletName === "metamask") {
+      if(this.rootStore.embedded && this.rootStore.AuthInfo().walletName === "Metamask") {
         // Create popup before calling async config method to avoid popup blocker
         popup = window.open("about:blank");
       }
 
-      const config = yield this.rootStore.TenantConfiguration({tenantId});
+      const config = yield this.marketplaceClient.TenantConfiguration({tenantId});
 
       const items = selectedNFTs.map(item => ({addr: item.contractAddress, id: item.tokenId}));
 
       const mintHelperAddress = Utils.FormatAddress(config["mint-helper"]);
-
       if(!mintHelperAddress) {
         throw Error(`Mint helper not defined in configuration for NFT ${contractAddress}`);
       }
@@ -307,8 +293,8 @@ class CheckoutStore {
 
       const successPath =
         marketplaceId ?
-          UrlJoin("/marketplace", marketplaceId, "store", tenantId, listingId, "purchase", confirmationId) :
-          UrlJoin("/wallet", "listings", tenantId, listingId, "purchase", confirmationId);
+          UrlJoin("/marketplace", marketplaceId, "store", listingId, "purchase", confirmationId) :
+          UrlJoin("/wallet", "listings", listingId, "purchase", confirmationId);
 
       const cancelPath =
         marketplaceId ?
@@ -343,8 +329,10 @@ class CheckoutStore {
         return { confirmationId };
       }
 
-      const listing = (yield this.rootStore.transferStore.FetchTransferListings({listingId, forceUpdate: true}))[0];
-      if(!listing || (listing && listing.details.CheckoutLockedUntil && listing.details.CheckoutLockedUntil > Date.now())) {
+      try {
+        // Ensure listing is still available
+        yield this.rootStore.marketplaceClient.Listing({listingId});
+      } catch(error) {
         throw {
           status: 409,
           recoverable: false,
@@ -378,8 +366,8 @@ class CheckoutStore {
         cancel_url: cancelUrl
       };
 
-      if(EluvioConfiguration["mode"]) {
-        requestParams.mode = EluvioConfiguration["mode"];
+      if(EluvioConfiguration["purchase-mode"]) {
+        requestParams.mode = EluvioConfiguration["purchase-mode"];
       }
 
       yield this.CheckoutRedirect({provider, requestParams, confirmationId});
@@ -433,7 +421,7 @@ class CheckoutStore {
       email = email || (authInfo.user || {}).email || this.rootStore.userProfile.email;
       authInfo.user.email = email;
 
-      const successPath = UrlJoin("/marketplace", marketplaceId, "store", tenantId, sku, "purchase", confirmationId);
+      const successPath = UrlJoin("/marketplace", marketplaceId, "store", sku, "purchase", confirmationId);
       const cancelPath = UrlJoin("/marketplace", marketplaceId, "store", sku);
 
       this.PurchaseInitiated({confirmationId, tenantId, marketplaceId, sku, successPath});
@@ -503,8 +491,8 @@ class CheckoutStore {
         cancel_url: cancelUrl
       };
 
-      if(EluvioConfiguration["mode"]) {
-        requestParams.mode = EluvioConfiguration["mode"];
+      if(EluvioConfiguration["purchase-mode"]) {
+        requestParams.mode = EluvioConfiguration["purchase-mode"];
       }
 
       yield this.CheckoutRedirect({provider, requestParams, confirmationId});
@@ -543,7 +531,7 @@ class CheckoutStore {
         })
       )).session_id;
 
-      const stripeKey = EluvioConfiguration.mode && EluvioConfiguration.mode !== "production" ?
+      const stripeKey = EluvioConfiguration["purchase-mode"] && EluvioConfiguration["purchase-mode"] !== "production" ?
         PUBLIC_KEYS.stripe.test :
         PUBLIC_KEYS.stripe.production;
 

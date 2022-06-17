@@ -137,7 +137,7 @@ export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon,
     } else if(item.nft_template && item.nft_template.nft && item.nft_template.nft.image) {
       url = (item.nft_template.nft || {}).image;
       url = new URL(url);
-      url.searchParams.set("authorization", rootStore.authToken || rootStore.staticToken);
+      url.searchParams.set("authorization", item.requires_permissions ? rootStore.authToken || rootStore.staticToken : rootStore.staticToken);
 
       if(width) {
         url.searchParams.set("width", width);

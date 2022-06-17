@@ -3,7 +3,7 @@ import {PageLoader} from "Components/common/Loaders";
 import ListingStats from "Components/listings/ListingStats";
 import ListingFilters from "Components/listings/ListingFilters";
 import {useInfiniteScroll} from "react-g-infinite-scroll";
-import {transferStore} from "Stores";
+import {rootStore} from "Stores";
 import {ButtonWithLoader} from "Components/common/UIComponents";
 
 let cachedResults = {};
@@ -50,11 +50,28 @@ const FilteredView = ({
       if(!cachedResults[mode]) {
         setLoading(true);
 
-        let {results, paging} = await transferStore.FilteredQuery({
+        let Method;
+        switch(mode) {
+          case "listings":
+            Method = async params => await rootStore.marketplaceClient.Listings(params);
+            break;
+
+          case "sales":
+            Method = async params => await rootStore.marketplaceClient.Sales(params);
+            break;
+
+          case "owned":
+            Method = async params => await rootStore.marketplaceClient.UserItems(params);
+            break;
+
+          default:
+            throw Error("Invalid mode: " + mode);
+        }
+
+        let {results, paging} = await Method({
           ...(currentFilters || {}),
           start,
-          limit: perPage,
-          mode
+          limit: perPage
         });
 
         cachedResults[mode] = {
@@ -119,7 +136,7 @@ const FilteredView = ({
             }}
           />
       }
-      { filters && !hideStats ? <ListingStats mode={mode === "listings" ? "listing-stats" : "sales-stats"} filterParams={filters} /> : null }
+      { filters && !hideStats ? <ListingStats mode={mode} filterParams={filters} /> : null }
       {
         // Initial Load
         loading && entries.length === 0 ?

@@ -34,7 +34,7 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
 
       setLoading(true);
 
-      const query = await transferStore.FilteredQuery({
+      const query = await rootStore.marketplaceClient.Listings({
         contractAddress,
         contractId,
         sortBy: sortField,
@@ -54,12 +54,9 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
       } else {
         if(initialSelectedListingId) {
           // If initial listing ID set, ensure it is first item in list
-          const initialListing = ((await transferStore.FetchTransferListings({
-            listingId: initialSelectedListingId
-          })) || [])[0];
+          const initialListing = await rootStore.marketplaceClient.Listing({listingId: initialSelectedListingId});
 
           if(initialListing) {
-
             query.results.unshift(initialListing);
           }
         }
@@ -430,13 +427,11 @@ export const TransferTable = observer(({icon, header, contractAddress, contractI
   const [entries, setEntries] = useState([]);
 
   const UpdateHistory = async () => {
-    let entries = (await transferStore.TransferHistory({contractAddress, contractId, tokenId}))
-      .filter(entry => entry.action === "SOLD")
-      .sort((a, b) => a.created > b.created ? -1 : 1);
-
-    if(limit) {
-      entries = entries.slice(0, limit);
+    if(contractId) {
+      contractAddress = rootStore.client.utils.HashToAddress(contractId);
     }
+
+    const entries = (await rootStore.marketplaceClient.Sales({sortBy: "created", contractAddress, tokenId, limit})).results;
 
     setEntries(entries);
     setLoading(false);

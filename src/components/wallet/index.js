@@ -7,7 +7,7 @@ import {
   useRouteMatch
 } from "react-router-dom";
 
-import {rootStore, transferStore} from "Stores/index";
+import {rootStore} from "Stores/index";
 
 import MyItems from "Components/wallet/MyItems";
 import AsyncComponent from "Components/common/AsyncComponent";
@@ -66,7 +66,6 @@ const WalletWrapper = observer(({children}) => {
 
 const Routes = (match) => {
   const nft = rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId}) || { metadata: {} };
-  const listingName = transferStore.listingNames[match.params.listingId] || "Listing";
 
   return [
     { name: nft.metadata.display_name, path: "/wallet/my-listings/:contractId/:tokenId", Component: NFTDetails, authed: true },
@@ -76,13 +75,13 @@ const Routes = (match) => {
     { name: "Activity", path: "/wallet/activity", Component: RecentSales },
     { name: nft.metadata.display_name, path: "/wallet/activity/:contractId/:tokenId", Component: NFTDetails },
 
-    { name: listingName, path: "/wallet/listings/:listingId", Component: NFTDetails },
+    { name: "Listing", path: "/wallet/listings/:listingId", Component: NFTDetails },
     { name: "Listings", path: "/wallet/listings", Component: Listings },
     { name: "Open Pack", path: "/wallet/my-items/:contractId/:tokenId/open", Component: PackOpenStatus, authed: true },
     { name: nft.metadata.display_name, path: "/wallet/my-items/:contractId/:tokenId", Component: NFTDetails, authed: true },
     { name: "My Items", path: "/wallet/my-items", Component: MyItems, authed: true },
 
-    { name: "Purchase", path: "/wallet/listings/:tenantId/:listingId/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
+    { name: "Purchase", path: "/wallet/listings/:listingId/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
     { path: "/wallet", Component: () => <Redirect to="/wallet/my-items" />, noBreadcrumb: true}
   ];
 };

@@ -76,7 +76,7 @@ exports.MarketplaceStock = async function ({tenantSlug, marketplaceSlug, marketp
 /**
  * <b><i>Requires login</i></b>
  *
- * Return the current user's profile, including name, email and blockchain address.
+ * Return the current user's profile, including email (for custodial users) and blockchain address.
  *
  * @methodGroup User
  * @returns {Promise<Object>} - If a user is currently logged in, the user's profile is returned.
@@ -348,7 +348,7 @@ exports.ListingEditionNames = async function({displayName}) {
  * @param {string=} marketplaceSlug - Specify the URL slug of a marketplace
  * @param {string=} displayName - Display name of the item from which to request edition names
  *
- * @returns {Promise<Array<String>>} - A list of item names
+ * @returns {Promise<Array<String>>} - A list of item attributes
  */
 exports.ListingAttributes = async function({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, displayName}={}) {
   return await this.SendMessage({
@@ -830,16 +830,24 @@ exports.ListingPurchase = async function({listingId, purchaseProvider="stripe"})
  * @methodGroup Purchases
  * @namedParams
  * @param {string} confirmationId - The confirmation ID of the purchase
+ * @param {string=} tenantSlug - (If purchasing from a marketplace) The URL slug of a tenant. Required if specifying marketplaceSlug
+ * @param {string=} marketplaceSlug - (If purchasing from a marketplace) The URL slug of a marketplace
+ * @param {string=} listingId - (If purchasing a listing) The ID of the listing
  *
  * @return {Promise<Object>} - The status of the purchase
  */
-exports.PurchaseStatus = async function({confirmationId}) {
+exports.PurchaseStatus = async function({confirmationId, listingId, tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash}) {
   Assert("PurchaseStatus", "Confirmation ID", confirmationId);
 
   return await this.SendMessage({
     action: "purchaseStatus",
     params: {
-      confirmationId
+      confirmationId,
+      listingId,
+      tenantSlug,
+      marketplaceSlug,
+      marketplaceId,
+      marketplaceHash
     }
   });
 };

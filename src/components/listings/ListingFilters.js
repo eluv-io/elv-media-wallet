@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useRef} from "react";
 import {observer} from "mobx-react";
 import {useLocation, useRouteMatch} from "react-router-dom";
-import {rootStore, transferStore} from "Stores";
+import {rootStore} from "Stores";
 import AutoComplete from "Components/common/AutoComplete";
 import {ButtonWithLoader, DebouncedInput, Select} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
@@ -141,8 +141,8 @@ const AttributeFilters = ({attributes, filterValues, setFilterValues}) => {
 const FilterMenu = ({mode, filterValues, editions, attributes, setFilterValues, Hide, ResetFilters}) => {
   const match = useRouteMatch();
 
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  const collections = marketplace && (!filterValues.tenantId || filterValues.tenantId === marketplace.tenant_id) && marketplace.collections;
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId || filterValues.marketplaceId];
+  const collections = marketplace?.collections;
 
   const availableMarketplaces = rootStore.allMarketplaces
     .filter(marketplace => marketplace && marketplace.tenant_id && marketplace.branding && marketplace.branding.show && marketplace.branding.name);
@@ -175,6 +175,21 @@ const FilterMenu = ({mode, filterValues, editions, attributes, setFilterValues, 
       }
 
       {
+        !marketplace && availableMarketplaces.length > 0 ?
+          <FilterDropdown
+            label="Marketplaces"
+            optionLabelPrefix="Marketplace: "
+            value={filterValues.marketplaceId}
+            options={
+              availableMarketplaces
+                .map(marketplace => [marketplace.marketplaceId, marketplace.branding.name])
+            }
+            placeholder={["", "All Marketplaces"]}
+            onChange={value => setFilterValues({...filterValues, marketplaceId: value})}
+          /> : null
+      }
+
+      {
         mode === "owned" ? null :
           <FilterDropdown
             label="Time"
@@ -185,20 +200,7 @@ const FilterMenu = ({mode, filterValues, editions, attributes, setFilterValues, 
             options={[["7", "Last 7 Days"], ["30", "Last 30 Days"]]}
           />
       }
-      {
-        !marketplace && availableMarketplaces.length > 0 ?
-          <FilterDropdown
-            label="Marketplaces"
-            optionLabelPrefix="Marketplace: "
-            value={filterValues.tenantId}
-            options={
-              availableMarketplaces
-                .map(marketplace => [marketplace.tenant_id, marketplace.branding.name])
-            }
-            placeholder={["", "All Marketplaces"]}
-            onChange={value => setFilterValues({...filterValues, tenantId: value})}
-          /> : null
-      }
+
       {
         collections && collections.length > 0 ?
           <FilterDropdown
@@ -243,8 +245,6 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
 
   const urlParams = new URLSearchParams(location.search);
 
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-
   const sortOptions = SortOptions(mode);
   const initialOption = sortOptions[0];
 
@@ -269,7 +269,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
     filter: "",
     editionFilter: "",
     attributeFilters: [],
-    tenantId: marketplace ? marketplace.tenant_id : "",
+    marketplaceId: match.params.marketplaceId,
     currency: ""
   };
 
@@ -279,6 +279,8 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
     editionFilter: initialEditionFilter || ""
   });
 
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId || filterValues.marketplaceId];
+
   const ResetFilters = () => {
     setFilterValues(defaultFilters);
     setRenderIndex(renderIndex + 1);
@@ -287,29 +289,27 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
   const Update = async (force=false) => {
     const options = {
       ...filterValues,
-      tenantIds: [filterValues.tenantId],
-      marketplaceId: match.params.marketplaceId
+      marketplaceParams: filterValues.marketplaceId ? { marketplaceId: filterValues.marketplaceId } : undefined
     };
 
     await UpdateFilters(options, force);
 
     savedOptions = {
       ...options,
-      marketplaceId: marketplace?.marketplaceId,
       mode,
       sort: filterValues.sort
     };
   };
 
   useEffect(() => {
-    transferStore.ListingNames({tenantId: filterValues.tenantId})
+    rootStore.marketplaceClient.ListingNames({marketplaceParams: filterValues.marketplaceId ? {marketplaceId: filterValues.marketplaceId} : undefined})
       .then(names => setFilterOptions(names.map(name => (name || "").trim()).sort()))
       .finally(() => setFilterOptionsLoaded(true));
 
     setAttributes([]);
-    transferStore.ListingAttributes({tenantId: filterValues.tenantId})
+    rootStore.marketplaceClient.ListingAttributes({marketplaceParams: filterValues.marketplaceId ? {marketplaceId: filterValues.marketplaceId} : undefined})
       .then(attributes => setAttributes(attributes));
-  }, [filterValues.tenantId]);
+  }, [filterValues.marketplaceId]);
 
   useEffect(() => {
     if(!filterValues.filter) {
@@ -317,7 +317,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
       return;
     }
 
-    transferStore.ListingEditionNames({displayName: filterValues.filter})
+    rootStore.marketplaceClient.ListingEditionNames({displayName: filterValues.filter})
       .then(editions =>
         setEditions(
           editions
@@ -354,7 +354,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
         attributeFilters: savedOptions.attributeFilters,
         collectionIndex: savedOptions.collectionIndex,
         lastNDays: savedOptions.lastNDays,
-        tenantId: savedOptions.tenantId
+        marketplaceId: savedOptions.marketplaceId
       });
     } catch(error) {
       // eslint-disable-next-line no-console
@@ -365,11 +365,6 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
   }, [filterOptionsLoaded]);
 
   useEffect(() => {
-    // Ensure all marketplaces are loaded so they are available in filters
-    rootStore.LoadAvailableMarketplaces({});
-  }, []);
-
-  useEffect(() => {
     // Don't start updating until all saved values are loaded
     if(!savedOptionsLoaded) { return; }
 
@@ -377,7 +372,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
   }, [filterValues, savedOptionsLoaded]);
 
   // Owned items view with no available collections has no extra filters available
-  const collections = marketplace && (!filterValues.tenantId || filterValues.tenantId === marketplace.tenant_id) && marketplace.collections;
+  const collections = marketplace?.collections;
   const extraFiltersAvailable = mode !== "owned" || (collections && collections.length > 0);
 
   return (

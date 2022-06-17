@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import { useAuth0 } from "@auth0/auth0-react";
+import {useAuth0} from "@auth0/auth0-react";
 import {render} from "react-dom";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
@@ -155,8 +155,9 @@ const Authenticate = async ({auth0, idToken, user, userData, tenantId, SignIn}) 
   });
 };
 
-// Components
 
+
+// Components
 const Logo = ({customizationOptions}) => {
   if(customizationOptions?.logo) {
     return (
@@ -307,7 +308,7 @@ const Buttons = ({customizationOptions, loading, Auth0LogIn, SignIn}) => {
       className="action login-page__login-button login-page__login-button-wallet"
       onClick={() => SignIn({
         tenantId: customizationOptions.tenant_id,
-        externalWallet: "metamask",
+        externalWallet: "Metamask",
         SignIn
       })}
     >

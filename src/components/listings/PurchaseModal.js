@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
-import {checkoutStore, cryptoStore, rootStore, transferStore} from "Stores";
+import {checkoutStore, cryptoStore, rootStore} from "Stores";
 import {ActiveListings} from "Components/listings/TransferTables";
 import {ButtonWithLoader, FormatPriceString} from "Components/common/UIComponents";
 import {Redirect, useRouteMatch} from "react-router-dom";
@@ -185,7 +185,6 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
   const purchaseStatus = confirmationId && checkoutStore.purchaseStatus[confirmationId] || {};
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  marketplaceItem = marketplaceItem || (!listingId && marketplace && rootStore.MarketplaceItemByTemplateId(marketplace, nft.metadata.template_id));
   const stock = marketplaceItem && checkoutStore.stock[marketplaceItem.sku];
   const outOfStock = stock && stock.max && (stock.max - stock.minted) < quantity;
 
@@ -384,7 +383,6 @@ const PurchasePayment = observer(({
   const [listingStats, setListingStats] = useState(undefined);
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  marketplaceItem = marketplaceItem || (type === "marketplace" && marketplace && rootStore.MarketplaceItemByTemplateId(marketplace, nft.metadata.template_id));
   const stock = marketplaceItem && checkoutStore.stock[marketplaceItem.sku];
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
 
@@ -404,7 +402,7 @@ const PurchasePayment = observer(({
 
   useEffect(() => {
     if(type === "listing") {
-      transferStore.FilteredQuery({mode: "listing-stats", contractAddress: nft.details.ContractAddr})
+      rootStore.marketplaceClient.ListingStats({contractAddress: nft.details.ContractAddr})
         .then(stats => setListingStats(stats));
     }
 
@@ -565,8 +563,8 @@ const PurchaseModal = observer(({nft, item, initialListingId, type="marketplace"
 
   useEffect(() => {
     if(initialListingId) {
-      transferStore.FetchTransferListings({listingId: initialListingId, forceUpdate: true})
-        .then(listings => setSelectedListing(listings[0]));
+      rootStore.marketplaceClient.Listing({listingId: initialListingId})
+        .then(listing => setSelectedListing(listing));
     }
   }, []);
 

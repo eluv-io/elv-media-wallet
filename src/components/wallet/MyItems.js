@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react";
 import {observer} from "mobx-react";
 
-import {rootStore, transferStore} from "Stores/index";
+import {rootStore} from "Stores/index";
 import UrlJoin from "url-join";
 import {useRouteMatch} from "react-router-dom";
 import {NFTImage} from "Components/common/Images";
@@ -23,7 +23,7 @@ const MyItems = observer(() => {
   const [myListings, setMyListings] = useState([]);
 
   useEffect(() => {
-    transferStore.FetchTransferListings({userAddress: rootStore.CurrentAddress()})
+    rootStore.marketplaceClient.UserListings()
       .then(listings => setMyListings(listings));
   }, []);
 

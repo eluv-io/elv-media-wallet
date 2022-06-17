@@ -1,11 +1,10 @@
-import {FormatNFT, LinkTargetHash} from "../utils/Utils";
-
 const testTheme = undefined;//import("../static/stylesheets/themes/maskverse-test.theme.css");
 
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";
-import {ElvClient} from "@eluvio/elv-client-js";
+import {ElvMarketplaceClient} from "@eluvio/elv-client-js";
 import Utils from "@eluvio/elv-client-js/src/Utils";
+import SanitizeHTML from "sanitize-html";
 
 import {SendEvent} from "Components/interface/Listener";
 import EVENTS from "../../client/src/Events";
@@ -23,16 +22,6 @@ configure({
 });
 
 const searchParams = new URLSearchParams(window.location.search);
-
-const MARKETPLACE_ORDER = [
-  "dolly-marketplace",
-  "oc-marketplace",
-  "maskverse-marketplace",
-  "emp-marketplace",
-  "marketplace-elevenation",
-  "indieflix-marketplace",
-  "angels-airwaves-marketplace"
-];
 
 let storageSupported = true;
 try {
@@ -65,8 +54,6 @@ class RootStore {
 
   trustedOrigins = this.GetLocalStorageJSON("trusted-origins") || {};
 
-  mode = "test";
-
   pageWidth = window.innerWidth;
   activeModals = 0;
 
@@ -97,6 +84,7 @@ class RootStore {
   loginLoaded = false;
   authenticating = false;
   client = undefined;
+  marketplaceClient = undefined;
   accountId = undefined;
   funds = undefined;
 
@@ -145,20 +133,11 @@ class RootStore {
   }
 
   get marketplaceHash() {
-    return this.marketplaceHashes[this.marketplaceId];
+    return this.marketplaceClient.marketplaceHashes[this.marketplaceId];
   }
 
   get allMarketplaces() {
-    let marketplaces = [];
-    Object.keys((this.availableMarketplaces || {}))
-      .filter(key => typeof this.availableMarketplaces[key] === "object")
-      .forEach(tenantSlug =>
-        Object.keys((this.availableMarketplaces[tenantSlug] || {}))
-          .filter(key => typeof this.availableMarketplaces[tenantSlug][key] === "object")
-          .map(marketplaceSlug =>
-            marketplaces.push(this.availableMarketplaces[tenantSlug][marketplaceSlug])
-          )
-      );
+    let marketplaces = Object.values(this.marketplaceClient.availableMarketplacesById);
 
     marketplaces = marketplaces.sort((a, b) => a.order < b.order ? -1 : 1);
 
@@ -229,10 +208,12 @@ class RootStore {
         this.ToggleNavigation(false);
       }
 
-      this.client = yield ElvClient.FromConfigurationUrl({
-        configUrl: EluvioConfiguration["config-url"],
-        assumeV3: true
+      this.marketplaceClient = yield ElvMarketplaceClient.Initialize({
+        network: EluvioConfiguration.network,
+        mode: EluvioConfiguration.mode
       });
+
+      this.client = this.marketplaceClient.client;
 
       this.staticToken = this.client.staticToken;
       this.authToken = undefined;
@@ -275,8 +256,6 @@ class RootStore {
       }
 
       if(marketplace) {
-        yield this.LoadAvailableMarketplaces({tenantSlug, marketplaceSlug});
-
         this.SetMarketplace({
           tenantSlug,
           marketplaceSlug,
@@ -302,14 +281,14 @@ class RootStore {
     return Utils.DecodeSignedToken(this.authToken).payload.adr;
   }
 
-  Authenticate = flow(function * ({idToken, fabricToken, authToken, externalWallet, walletName, address, tenantId, user, expiresAt, saveAuthInfo=true}) {
+  Authenticate = flow(function * ({idToken, clientAuthToken, externalWallet, walletName, tenantId, user, saveAuthInfo=true}) {
     if(this.authenticating) { return; }
 
     try {
       this.authenticating = true;
       this.loggedIn = false;
 
-      if(externalWallet === "metamask" && !this.cryptoStore.MetamaskAvailable()) {
+      if(externalWallet === "Metamask" && !this.cryptoStore.MetamaskAvailable()) {
         const url = new URL(window.location.origin);
         url.pathname = window.location.pathname;
 
@@ -349,68 +328,46 @@ class RootStore {
         }
       }
 
-      const client = yield ElvClient.FromConfigurationUrl({
-        configUrl: EluvioConfiguration["config-url"],
-        assumeV3: true
-      });
-
       this.authToken = undefined;
-
-      this.client = client;
 
       if(externalWallet) {
         const walletMethods = this.cryptoStore.WalletFunctions(externalWallet);
 
-        address = client.utils.FormatAddress(yield walletMethods.RetrieveAddress());
-        walletName = externalWallet;
-
-        if(!address) {
-          throw Error("Unable to determine user address for external wallet");
-        }
-
-        const duration = 24 * 60 * 60 * 1000;
-        fabricToken = yield client.CreateFabricToken({
-          address,
-          duration,
+        clientAuthToken = yield this.marketplaceClient.AuthenticateExternalWallet({
+          address: yield walletMethods.RetrieveAddress(),
           Sign: walletMethods.Sign,
-          addEthereumPrefix: false
+          walletName: walletMethods.name
         });
-
-        expiresAt = Date.now() + duration;
-      } else if(fabricToken && !authToken) {
-        // Signed in previously with external wallet
-      } else if(idToken || authToken) {
-        yield client.SetRemoteSigner({idToken, authToken, tenantId, extraData: user?.userData, unsignedPublicAuth: true});
-        expiresAt = JSON.parse(atob(client.signer.authToken)).exp;
-        fabricToken = yield client.CreateFabricToken({duration: expiresAt - Date.now()});
-        authToken = client.signer.authToken;
-        address = client.utils.FormatAddress(client.CurrentAccountAddress());
-      } else if(!fabricToken) {
-        throw Error("Neither ID token nor auth token provided to Authenticate");
+      } else if(idToken) {
+        clientAuthToken = yield this.marketplaceClient.AuthenticateOAuth({
+          idToken,
+          tenantId,
+          shareEmail: user?.userData.share_email
+        });
+      } else if(clientAuthToken) {
+        yield this.marketplaceClient.Authenticate({token: clientAuthToken});
+      } else if(!clientAuthToken) {
+        throw Error("Invalid parameters provided to Authenticate");
       }
 
-      this.authToken = fabricToken;
-      client.SetStaticToken({token: fabricToken});
-
-      this.client = client;
-
-      this.GetWalletBalance();
-
       this.SetAuthInfo({
-        fabricToken,
-        authToken,
-        address,
-        user,
-        walletName,
-        expiresAt,
+        clientAuthToken,
         save: saveAuthInfo
       });
 
-      this.funds = parseInt((yield client.GetBalance({address}) || 0));
+      const { address, fabricToken } = this.AuthInfo();
+
+      this.authToken = fabricToken;
+
+      this.client = this.marketplaceClient.client;
+
+      this.GetWalletBalance();
+
+      this.funds = parseInt((yield this.client.GetBalance({address}) || 0));
       this.userAddress = this.CurrentAddress();
       this.accountId = `iusr${Utils.AddressToHash(address)}`;
 
-      this.basePublicUrl = yield client.FabricUrl({
+      this.basePublicUrl = yield this.client.FabricUrl({
         queryParams: {
           authorization: this.authToken
         },
@@ -425,7 +382,7 @@ class RootStore {
 
       // Reload marketplaces so they will be reloaded and authorization rechecked
       this.marketplaceCache = {};
-      yield Promise.all(Object.keys(this.marketplaces).map(async marketplaceId => await this.LoadMarketplace(marketplaceId, true)));
+      yield Promise.all(Object.keys(this.marketplaces).map(async marketplaceId => await this.LoadMarketplace(marketplaceId)));
 
       this.HideLogin();
 
@@ -457,7 +414,7 @@ class RootStore {
     }
 
     const marketplaceHash =
-      this.marketplaceHashes[this.specifiedMarketplaceId] ||
+      this.marketplaceClient.marketplaceHashes[this.specifiedMarketplaceId] ||
       await this.client.LatestVersionHash({objectId: this.specifiedMarketplaceId});
     const marketplaceId = this.client.utils.DecodeVersionHash(marketplaceHash).objectId;
 
@@ -514,6 +471,23 @@ class RootStore {
     return url.toString();
   }
 
+  // Get already loaded basic NFT contract info
+  NFTInfo({tokenId, contractAddress, contractId}) {
+    if(contractId) {
+      contractAddress = Utils.HashToAddress(contractId);
+    }
+
+    return this.nftInfo[`${contractAddress}-${tokenId}`];
+  }
+
+  // Load basic owned NFT contract info
+  LoadNFTInfo = flow(function * () {
+    if(!this.loggedIn || this.fromEmbed) { return; }
+
+    this.nftInfo = yield this.marketplaceClient.OwnedItemInfo();
+  });
+
+  // Get already loaded full NFT data
   NFTData({tokenId, contractAddress, contractId}) {
     if(contractId) {
       contractAddress = Utils.HashToAddress(contractId);
@@ -523,14 +497,7 @@ class RootStore {
     return this.nftData[key];
   }
 
-  NFTInfo({tokenId, contractAddress, contractId}) {
-    if(contractId) {
-      contractAddress = Utils.HashToAddress(contractId);
-    }
-
-    return this.nftInfo[`${contractAddress}-${tokenId}`];
-  }
-
+  // Load full NFT data
   LoadNFTData = flow(function * ({tokenId, contractAddress, contractId}) {
     if(contractId) {
       contractAddress = Utils.HashToAddress(contractId);
@@ -538,180 +505,14 @@ class RootStore {
 
     const key = `${contractAddress}-${tokenId}`;
     if(!this.nftData[key]) {
-      let nft = this.transferStore.FormatResult(
-        yield Utils.ResponseToJson(
-          this.client.authClient.MakeAuthServiceRequest({
-            path: UrlJoin("as", "nft", "info", contractAddress, tokenId),
-            method: "GET"
-          })
-        )
-      );
-
-      nft.metadata = {
-        ...(
-          (yield this.client.ContentObjectMetadata({
-            versionHash: nft.details.VersionHash,
-            metadataSubtree: "public/asset_metadata/nft",
-            produceLinkUrls: true
-          })) || {}
-        ),
-        ...(nft.metadata || {})
-      };
-
-      nft.config = yield this.TenantConfiguration({contractAddress});
-
-      this.nftData[key] = FormatNFT(nft);
+      this.nftData[key] = yield this.marketplaceClient.NFT({contractAddress, tokenId});
     }
 
     return this.nftData[key];
   });
 
-  LoadNFTInfo = flow(function * (forceReload=false) {
-    if(!this.loggedIn || this.fromEmbed) { return; }
-
-    if(!this.profileData || forceReload || Date.now() - this.lastProfileQuery > 30000) {
-      this.lastProfileQuery = Date.now();
-
-      this.profileData = yield this.client.ethClient.MakeProviderCall({
-        methodName: "send",
-        args: [
-          "elv_getAccountProfile",
-          [this.client.contentSpaceId, this.accountId]
-        ]
-      });
-    }
-
-    if(!this.profileData || !this.profileData.NFTs) { return; }
-
-    let nftInfo = {};
-    Object.keys(this.profileData.NFTs).map(tenantId =>
-      this.profileData.NFTs[tenantId].forEach(details => {
-        const versionHash = (details.TokenUri || "").split("/").find(s => (s || "").startsWith("hq__"));
-
-        if(!versionHash) {
-          return;
-        }
-
-        if(details.TokenHold) {
-          details.TokenHoldDate = new Date(parseInt(details.TokenHold) * 1000);
-        }
-
-        const contractAddress = Utils.FormatAddress(details.ContractAddr);
-        const key = `${contractAddress}-${details.TokenIdStr}`;
-        nftInfo[key] = {
-          ...details,
-          ContractAddr: Utils.FormatAddress(details.ContractAddr),
-          ContractId: `ictr${Utils.AddressToHash(details.ContractAddr)}`,
-          VersionHash: versionHash
-        };
-      })
-    );
-
-    this.nftInfo = nftInfo;
-  });
-
-  // If marketplace slug is specified, load only that marketplace. Otherwise load all
-  LoadAvailableMarketplaces = flow(function * ({tenantSlug, marketplaceSlug, forceReload}={}) {
-    if(!forceReload && this.availableMarketplaces["_ALL_LOADED"]) {
-      return;
-    }
-
-    let metadata;
-
-    const mainSiteId = EluvioConfiguration["main-site-id"];
-    const mainSiteHash = yield this.client.LatestVersionHash({objectId: mainSiteId});
-
-    // Loading specific marketplace
-    if(marketplaceSlug) {
-      if(!forceReload && this.availableMarketplaces[tenantSlug] && this.availableMarketplaces[tenantSlug][marketplaceSlug]) {
-        return;
-      }
-
-      metadata = yield this.client.ContentObjectMetadata({
-        versionHash: mainSiteHash,
-        metadataSubtree: "public/asset_metadata/tenants",
-        resolveLinks: true,
-        linkDepthLimit: 2,
-        resolveIncludeSource: true,
-        resolveIgnoreErrors: true,
-        produceLinkUrls: true,
-        authorizationToken: this.staticToken,
-        noAuth: true,
-        select: [
-          `${tenantSlug}/.`,
-          `${tenantSlug}/marketplaces/${marketplaceSlug}/.`,
-          `${tenantSlug}/marketplaces/${marketplaceSlug}/info/tenant_id`,
-          `${tenantSlug}/marketplaces/${marketplaceSlug}/info/tenant_name`,
-          `${tenantSlug}/marketplaces/${marketplaceSlug}/info/branding`,
-          `${tenantSlug}/marketplaces/${marketplaceSlug}/info/terms`,
-          `${tenantSlug}/marketplaces/${marketplaceSlug}/info/terms_html`
-        ]
-      });
-    } else {
-      metadata = yield this.client.ContentObjectMetadata({
-        versionHash: mainSiteHash,
-        metadataSubtree: "public/asset_metadata/tenants",
-        resolveLinks: true,
-        linkDepthLimit: 2,
-        resolveIncludeSource: true,
-        resolveIgnoreErrors: true,
-        produceLinkUrls: true,
-        authorizationToken: this.staticToken,
-        noAuth: true,
-        select: [
-          "*/.",
-          "*/marketplaces/*/.",
-          "*/marketplaces/*/info/tenant_id",
-          "*/marketplaces/*/info/tenant_name",
-          "*/marketplaces/*/info/branding",
-          "*/marketplaces/*/info/terms",
-          "*/marketplaces/*/info/terms_html"
-        ]
-      });
-    }
-
-    let availableMarketplaces = { ...(this.availableMarketplaces || {}) };
-    Object.keys(metadata || {}).forEach(tenantSlug => {
-      try {
-        availableMarketplaces[tenantSlug] = {
-          versionHash: metadata[tenantSlug]["."].source
-        };
-
-        Object.keys(metadata[tenantSlug].marketplaces || {}).forEach(marketplaceSlug => {
-          try {
-            const versionHash = metadata[tenantSlug].marketplaces[marketplaceSlug]["."].source;
-            const objectId = Utils.DecodeVersionHash(versionHash).objectId;
-
-            this.marketplaceHashes[objectId] = versionHash;
-
-            availableMarketplaces[tenantSlug][marketplaceSlug] = {
-              branding: {},
-              ...(metadata[tenantSlug].marketplaces[marketplaceSlug].info || {}),
-              tenantId: metadata[tenantSlug].marketplaces[marketplaceSlug].info.tenant_id,
-              tenantSlug,
-              marketplaceSlug,
-              marketplaceId: objectId,
-              marketplaceHash: versionHash,
-              order: MARKETPLACE_ORDER.findIndex(slug => slug === marketplaceSlug)
-            };
-          } catch(error) {
-            this.Log(`Unable to load info for marketplace ${tenantSlug}/${marketplaceSlug}`, true);
-          }
-        });
-      } catch(error) {
-        this.Log(`Failed to load tenant info ${tenantSlug}`, true);
-        this.Log(error, true);
-      }
-    });
-
-    if(!marketplaceSlug) {
-      availableMarketplaces["_ALL_LOADED"] = true;
-    }
-
-    this.availableMarketplaces = availableMarketplaces;
-  });
-
   SetCustomCSS(css="") {
+    css = SanitizeHTML(css);
     const cssTag = document.getElementById("_custom-css");
     if(cssTag) {
       if(testTheme) {
@@ -769,10 +570,12 @@ class RootStore {
         break;
     }
 
-    this.SetCustomCSS(
-      options.color_scheme === "Custom" && marketplace?.branding?.custom_css ?
-        marketplace.branding.custom_css.toString() : ""
-    );
+    if(options.color_scheme === "Custom") {
+      this.marketplaceClient.MarketplaceCSS({marketplaceParams: {marketplaceId: marketplace.marketplaceId}})
+        .then(css => this.SetCustomCSS(css));
+    } else {
+      this.SetCustomCSS("");
+    }
   }
 
   ClearMarketplace() {
@@ -803,63 +606,11 @@ class RootStore {
       this.SetCustomizationOptions(marketplace);
 
       return marketplace.marketplaceHash;
-    } else if(Object.keys(this.availableMarketplaces) > 0) {
+    } else if(Object.keys(this.marketplaceClient.availableMarketplaces) > 0) {
       // Don't reset customization if marketplaces haven't yet loaded
       this.SetCustomizationOptions("default");
     }
   }
-
-  MarketplaceInfo = flow(function * ({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, forceReload=false}) {
-    let marketplace = this.allMarketplaces.find(marketplace =>
-      (marketplaceId && Utils.EqualHash(marketplaceId, marketplace.marketplaceId)) ||
-      (marketplaceSlug && marketplace.tenantSlug === tenantSlug && marketplace.marketplaceSlug === marketplaceSlug) ||
-      (marketplaceHash && marketplace.marketplaceHash === marketplaceHash)
-    );
-
-    if(marketplace && !forceReload) {
-      return {
-        marketplaceId: marketplace.marketplaceId,
-        marketplaceHash: marketplace.marketplaceHash,
-        tenantSlug: marketplace.tenantSlug,
-        marketplaceSlug: marketplace.marketplaceSlug,
-        tenantId: marketplace.tenant_id
-      };
-    } else if(marketplace) {
-      tenantSlug = marketplace.tenantSlug;
-      marketplaceSlug = marketplace.marketplaceSlug;
-    }
-
-    if(marketplaceSlug) {
-      yield this.LoadAvailableMarketplaces({tenantSlug, marketplaceSlug, forceReload});
-
-      marketplace = this.availableMarketplaces[tenantSlug][marketplaceSlug];
-
-      if(!marketplace) {
-        throw Error(`Invalid marketplace ${tenantSlug}/${marketplaceSlug}`);
-      }
-
-    } else {
-      yield this.LoadAvailableMarketplaces({forceReload});
-
-      marketplace = this.allMarketplaces.find(marketplace => Utils.EqualHash(marketplaceId, marketplace.marketplaceId));
-
-      if(!marketplace) {
-        throw Error(`Invalid marketplace ${marketplaceId}`);
-      }
-
-      tenantSlug = marketplace.tenantSlug;
-      marketplaceSlug = marketplace.marketplaceSlug;
-      marketplaceId = marketplace.marketplaceId;
-    }
-
-    return {
-      marketplaceId,
-      marketplaceHash: this.marketplaceHashes[marketplaceId],
-      tenantSlug,
-      marketplaceSlug,
-      tenantId: marketplace.tenant_id
-    };
-  });
 
   LoadEvent = flow(function * ({tenantSlug, eventSlug, eventId, eventHash}) {
     if(eventSlug) {
@@ -896,120 +647,12 @@ class RootStore {
     );
   });
 
-  LoadMarketplace = flow(function * (marketplaceId, forceReload=false) {
-    const cacheTimeSeconds = 300;
+  LoadMarketplace = flow(function * (marketplaceId) {
+    this.marketplaces[marketplaceId] = yield this.marketplaceClient.Marketplace({marketplaceParams: {marketplaceId}});
 
-    let marketplaceHash = (this.marketplaces[marketplaceId] || {}).versionHash;
-    let useCache = !forceReload && marketplaceHash && this.marketplaceCache[marketplaceHash] && Date.now() - this.marketplaceCache[marketplaceHash].marketplace < cacheTimeSeconds * 1000;
-    if(!useCache) {
-      const marketplaceInfo = yield this.MarketplaceInfo({marketplaceId, forceReload});
+    yield this.checkoutStore.MarketplaceStock({tenantId: this.marketplaces[marketplaceId].tenant_id});
 
-      if(marketplaceHash && marketplaceHash === marketplaceInfo.marketplaceHash) {
-        // Marketplace object has not been updated
-        useCache = true;
-      }
-
-      marketplaceHash = marketplaceInfo.marketplaceHash;
-    }
-
-    // Cache marketplace retrieval
-    if(useCache) {
-      // Cache stock retrieval separately
-      if(this.marketplaceCache[marketplaceHash] && Date.now() - this.marketplaceCache[marketplaceHash].stock > 10000) {
-        this.checkoutStore.MarketplaceStock({tenantId: this.marketplaces[marketplaceId].tenant_id});
-        this.marketplaceCache[marketplaceHash].stock = Date.now();
-      }
-
-      return this.marketplaces[marketplaceId];
-    }
-
-    try {
-      this.marketplaceCache[marketplaceHash] = {
-        marketplace: Date.now(),
-        stock: Date.now()
-      };
-
-      let marketplace = yield this.client.ContentObjectMetadata({
-        versionHash: marketplaceHash,
-        metadataSubtree: "public/asset_metadata/info",
-        linkDepthLimit: 2,
-        resolveLinks: true,
-        resolveIgnoreErrors: true,
-        resolveIncludeSource: true,
-        produceLinkUrls: true,
-        authorizationToken: this.staticToken
-      });
-
-      const stockPromise = this.checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id});
-
-      marketplace.items = yield Promise.all(
-        marketplace.items.map(async (item, index) => {
-          if(item.requires_permissions) {
-            if(!this.loggedIn) {
-              item.authorized = false;
-            } else {
-              try {
-                await this.client.ContentObjectMetadata({
-                  versionHash: LinkTargetHash(item.nft_template),
-                  metadataSubtree: "permissioned"
-                });
-
-                item.authorized = true;
-              } catch(error) {
-                item.authorized = false;
-              }
-            }
-          }
-
-          item.nftTemplateMetadata = ((item.nft_template || {}).nft || {});
-          item.itemIndex = index;
-
-          return item;
-        })
-      );
-
-      marketplace.collections = (marketplace.collections || []).map((collection, collectionIndex) => ({
-        ...collection,
-        collectionIndex
-      }));
-
-      marketplace.retrievedAt = Date.now();
-      marketplace.marketplaceId = marketplaceId;
-      marketplace.versionHash = marketplaceHash;
-
-      // Generate embed URLs for pack opening animations
-      ["purchase_animation", "purchase_animation__mobile", "reveal_animation", "reveal_animation_mobile"].forEach(key => {
-        try {
-          if(marketplace?.storefront[key]) {
-            let embedUrl = new URL("https://embed.v3.contentfabric.io");
-            const targetHash = LinkTargetHash(marketplace.storefront[key]);
-            embedUrl.searchParams.set("p", "");
-            embedUrl.searchParams.set("net", this.network === "demo" ? "demo" : "main");
-            embedUrl.searchParams.set("ath", this.authToken || this.staticToken);
-            embedUrl.searchParams.set("vid", targetHash);
-            embedUrl.searchParams.set("ap", "");
-
-            if(!key.startsWith("reveal")) {
-              embedUrl.searchParams.set("m", "");
-              embedUrl.searchParams.set("lp", "");
-            }
-
-            marketplace.storefront[`${key}_embed_url`] = embedUrl.toString();
-          }
-          // eslint-disable-next-line no-empty
-        } catch(error) {}
-      });
-
-      this.marketplaces[marketplaceId] = marketplace;
-
-      // Ensure stock call has completed
-      yield stockPromise;
-
-      return marketplace;
-    } catch(error) {
-      delete this.marketplaceCache[marketplaceHash];
-      throw error;
-    }
+    return this.marketplaces[marketplaceId];
   });
 
   MarketplaceOwnedItems = flow(function * (marketplace) {
@@ -1026,11 +669,10 @@ class RootStore {
         let promise = new Promise(async resolve => {
           let ownedItems = {};
 
-          const listings = await transferStore.FetchTransferListings({userAddress: rootStore.CurrentAddress()});
+          const listings = await this.marketplaceClient.UserListings({marketplaceParams: { marketplaceId: marketplace.marketplaceId }});
 
-          (await this.transferStore.FilteredQuery({
-            mode: "owned",
-            tenantIds: [marketplace.tenant_id],
+          (await this.marketplaceClient.UserItems({
+            marketplaceParams: { marketplaceId: marketplace.marketplaceId },
             limit: 10000
           }))
             .results
@@ -1127,17 +769,6 @@ class RootStore {
     return purchaseableItems;
   }
 
-  MarketplaceItemByTemplateId(marketplace, templateId) {
-    const purchaseableItems = this.MarketplacePurchaseableItems(marketplace);
-    const item = marketplace.items.find(item =>
-      item.nft_template && !item.nft_template["/"] && item.nft_template.nft && item.nft_template.nft.template_id && item.nft_template.nft.template_id === templateId
-    );
-
-    if(item && purchaseableItems[item.sku]) {
-      return purchaseableItems[item.sku].item;
-    }
-  }
-
   // Actions
   SetMarketplaceFilters(filters) {
     this.marketplaceFilters = (filters || []).map(filter => filter.trim()).filter(filter => filter);
@@ -1152,201 +783,36 @@ class RootStore {
     });
   });
 
-  TenantConfiguration = flow(function * ({tenantId, contractAddress}) {
-    try {
-      return yield Utils.ResponseToJson(
-        this.client.authClient.MakeAuthServiceRequest({
-          path: contractAddress ?
-            UrlJoin("as", "config", "nft", contractAddress) :
-            UrlJoin("as", "config", "tnt", tenantId),
-          method: "GET",
-        })
-      );
-    } catch(error) {
-      this.Log("Failed to load tenant configuration", true);
-      this.Log(error, true);
-
-      return {};
-    }
+  ListingPurchaseStatus = flow(function * ({listingId, confirmationId}) {
+    return yield this.marketplaceClient.ListingPurchaseStatus({listingId, confirmationId});
   });
 
-  MintingStatus = flow(function * ({tenantId}) {
-    try {
-      const response = yield Utils.ResponseToJson(
-        this.client.authClient.MakeAuthServiceRequest({
-          path: UrlJoin("as", "wlt", "status", "act", tenantId),
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${this.authToken}`
-          }
-        })
-      );
+  PurchaseStatus = flow(function * ({marketplaceId, confirmationId}) {
+    return yield this.marketplaceClient.PurchaseStatus({marketplaceParams: { marketplaceId }, confirmationId});
+  });
 
-      return response
-        .map(status => {
-          let [op, address, id] = status.op.split(":");
-          address = address.startsWith("0x") ? Utils.FormatAddress(address) : address;
+  ClaimStatus = flow(function * ({marketplaceId, sku}) {
+    return yield this.marketplaceClient.ClaimStatus({marketplaceParams: { marketplaceId }, sku});
+  });
 
-          let confirmationId, tokenId;
-          if(op === "nft-buy") {
-            confirmationId = id;
-          } else if(op === "nft-claim") {
-            confirmationId = id;
-            status.marketplaceId = address;
-
-            if(status.extra?.["0"]) {
-              address = status.extra.token_addr;
-              tokenId = status.extra.token_id_str;
-            }
-          } else if(op === "nft-redeem") {
-            confirmationId = status.op.split(":").slice(-1)[0];
-          } else {
-            tokenId = id;
-          }
-
-          if(op === "nft-transfer") {
-            confirmationId = status?.extra?.trans_id;
-          }
-
-          return {
-            ...status,
-            timestamp: new Date(status.ts),
-            state: status.state && typeof status.state === "object" ? Object.values(status.state) : status.state,
-            extra: status.extra && typeof status.extra === "object" ? Object.values(status.extra) : status.extra,
-            confirmationId,
-            op,
-            address,
-            tokenId
-          };
-        })
-        .sort((a, b) => a.ts < b.ts ? 1 : -1);
-    } catch(error) {
-      this.Log("Failed to retrieve minting status", true);
-      this.Log(error);
-
-      return [];
+  PackOpenStatus = flow(function * ({contractId, contractAddress, tokenId}) {
+    if(contractId) {
+      contractAddress = Utils.HashToAddress(contractId);
     }
+
+    return yield this.marketplaceClient.PackOpenStatus({contractId, contractAddress, tokenId});
+  });
+
+  CollectionRedemptionStatus = flow(function * ({marketplaceId, confirmationId}) {
+    return yield this.marketplaceClient.CollectionRedemptionStatus({marketplaceParams: { marketplaceId }, confirmationId});
   });
 
   LoadDrop = flow(function * ({tenantSlug, eventSlug, dropId}) {
-    if(!this.drops[tenantSlug]) {
-      this.drops[tenantSlug] = {};
-    }
-
-    if(!this.drops[tenantSlug][eventSlug]) {
-      this.drops[tenantSlug][eventSlug] = {};
-    }
-
-    if(!this.drops[tenantSlug][eventSlug][dropId]) {
-      const mainSiteId = EluvioConfiguration["main-site-id"];
-      const mainSiteHash = yield this.client.LatestVersionHash({objectId: mainSiteId});
-      const event = (yield this.client.ContentObjectMetadata({
-        versionHash: mainSiteHash,
-        metadataSubtree: UrlJoin("public", "asset_metadata", "tenants", tenantSlug, "sites", eventSlug, "info"),
-        resolveLinks: true,
-        linkDepthLimit: 2,
-        resolveIncludeSource: true,
-        produceLinkUrls: true,
-        select: [".", "drops"],
-        noAuth: true
-      })) || [];
-
-      const eventId = Utils.DecodeVersionHash(event["."].source).objectId;
-
-      event.drops.forEach(drop => {
-        drop = {
-          ...drop,
-          eventId
-        };
-
-        this.drops[tenantSlug][eventSlug][drop.uuid] = drop;
-        this.drops[drop.uuid] = drop;
-      });
-    }
-
-    return this.drops[dropId];
+    return yield this.marketplaceClient.LoadDrop({tenantSlug, eventSlug, dropId});
   });
 
   DropStatus = flow(function * ({marketplace, eventId, dropId}) {
-    try {
-      const response = yield Utils.ResponseToJson(
-        this.client.authClient.MakeAuthServiceRequest({
-          path: UrlJoin("as", "wlt", "act", marketplace.tenant_id, eventId, dropId),
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${this.authToken}`
-          }
-        })
-      );
-
-      return response.sort((a, b) => a.ts > b.ts ? 1 : -1)[0] || { status: "none" };
-    } catch(error) {
-      this.Log(error, true);
-      return "";
-    }
-  });
-
-  ListingPurchaseStatus = flow(function * ({tenantId, confirmationId}) {
-    try {
-      const statuses = yield this.MintingStatus({tenantId});
-
-      return statuses
-        .find(status =>
-          status.op === "nft-transfer" &&
-          status.extra && status.extra[0] === confirmationId
-        ) || { status: "none" };
-    } catch(error) {
-      this.Log(error, true);
-      return { status: "unknown" };
-    }
-  });
-
-  PurchaseStatus = flow(function * ({marketplace, confirmationId}) {
-    try {
-      const statuses = yield this.MintingStatus({tenantId: marketplace.tenant_id});
-
-      return statuses.find(status => status.op === "nft-buy" && status.confirmationId === confirmationId) || { status: "none" };
-    } catch(error) {
-      this.Log(error, true);
-      return { status: "unknown" };
-    }
-  });
-
-  ClaimStatus = flow(function * ({marketplace, sku}) {
-    try {
-      const statuses = yield this.MintingStatus({tenantId: marketplace.tenant_id});
-
-      return statuses.find(status => status.op === "nft-claim" && status.marketplaceId === marketplace.marketplaceId && status.confirmationId === sku) || { status: "none" };
-    } catch(error) {
-      this.Log(error, true);
-      return { status: "unknown" };
-    }
-  });
-
-  PackOpenStatus = flow(function * ({tenantId, contractId, contractAddress, tokenId}) {
-    try {
-      if(contractId) {
-        contractAddress = Utils.HashToAddress(contractId);
-      }
-
-      const statuses = yield this.MintingStatus({tenantId});
-
-      return statuses.find(status => status.op === "nft-open" && Utils.EqualAddress(contractAddress, status.address) && status.tokenId === tokenId) || { status: "none" };
-    } catch(error) {
-      this.Log(error, true);
-      return { status: "unknown" };
-    }
-  });
-
-  CollectionRedemptionStatus = flow(function * ({tenantId, confirmationId}) {
-    try {
-      const statuses = yield this.MintingStatus({tenantId});
-
-      return statuses.find(status => status.op === "nft-redeem" && status.confirmationId === confirmationId) || { status: "none" };
-    } catch(error) {
-      this.Log(error, true);
-      return { status: "unknown" };
-    }
+    return yield this.marketplaceClient.DropStatus({marketplaceParams: {marketplaceId: marketplace.id}, eventId, dropId});
   });
 
   SubmitDropVote = flow(function * ({marketplace, eventId, dropId, sku}) {
@@ -1368,56 +834,15 @@ class RootStore {
   GetWalletBalance = flow(function * (checkOnboard=false) {
     if(!this.loggedIn) { return; }
 
-    // eslint-disable-next-line no-unused-vars
-    const { balance, seven_day_hold, usage_hold, thirty_day_hold, payout_hold, stripe_id, stripe_payouts_enabled } = yield Utils.ResponseToJson(
-      yield this.client.authClient.MakeAuthServiceRequest({
-        path: UrlJoin("as", "wlt", "mkt", "bal"),
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${this.authToken}`
-        }
-      })
-    );
+    const balances = yield this.marketplaceClient.UserWalletBalance(checkOnboard);
 
-    this.userStripeId = stripe_id;
-    this.userStripeEnabled = stripe_payouts_enabled;
-    this.totalWalletBalance = parseFloat(balance || 0);
-    this.availableWalletBalance = Math.max(0, this.totalWalletBalance - parseFloat(usage_hold || seven_day_hold || 0));
-    this.pendingWalletBalance = Math.max(0, this.totalWalletBalance - this.availableWalletBalance);
-    this.withdrawableWalletBalance = Math.max(0, this.totalWalletBalance - parseFloat(payout_hold || thirty_day_hold || 0));
-
-    if(checkOnboard && stripe_id && !stripe_payouts_enabled) {
-      // Refresh stripe enabled flag
-      const rootUrl = new URL(UrlJoin(window.location.origin, window.location.pathname)).toString();
-      yield this.client.authClient.MakeAuthServiceRequest({
-        path: UrlJoin("as", "wlt", "onb", "stripe"),
-        method: "POST",
-        body: {
-          country: "US",
-          mode: EluvioConfiguration.mode,
-          refresh_url: rootUrl.toString(),
-          return_url: rootUrl.toString()
-        },
-        headers: {
-          Authorization: `Bearer ${this.authToken}`
-        }
-      });
-
-      yield this.GetWalletBalance(false);
-
-      yield this.cryptoStore.PhantomBalance();
-    }
-
-    let balances = {
-      totalWalletBalance: this.totalWalletBalance,
-      availableWalletBalance: this.availableWalletBalance,
-      pendingWalletBalance: this.pendingWalletBalance,
-      withdrawableWalletBalance: this.withdrawableWalletBalance,
-    };
-
-    if(cryptoStore.usdcConnected) {
-      balances.usdcBalance = cryptoStore.phantomUSDCBalance;
-    }
+    this.userStripeId = balances.userStripeId;
+    this.userStripeEnabled = balances.userStripeEnabled;
+    this.totalWalletBalance = balances.totalWalletBalance;
+    this.availableWalletBalance = balances.availableWalletBalance;
+    this.pendingWalletBalance = balances.pendingWalletBalance;
+    this.withdrawableWalletBalance = balances.withdrawableWalletBalance;
+    this.usdcBalance = balances.phantomUSDCBalance;
 
     return balances;
   });
@@ -1434,7 +859,7 @@ class RootStore {
         body: {
           amount,
           currency: "USD",
-          mode: EluvioConfiguration.mode,
+          mode: EluvioConfiguration["purchase-mode"],
         },
         headers: {
           Authorization: `Bearer ${this.authToken}`
@@ -1734,7 +1159,7 @@ class RootStore {
               method: "POST",
               body: {
                 country: parameters.countryCode,
-                mode: EluvioConfiguration.mode,
+                mode: EluvioConfiguration["purchase-mode"],
                 return_url: this.FlowURL({type: "flow", flow: "respond", parameters: { flowId: parameters.flowId, success: true }}),
                 refresh_url: window.location.href
               },
@@ -1758,7 +1183,7 @@ class RootStore {
               path: UrlJoin("as", "wlt", "login", "stripe"),
               method: "POST",
               body: {
-                mode: EluvioConfiguration.mode,
+                mode: EluvioConfiguration["purchase-mode"],
               },
               headers: {
                 Authorization: `Bearer ${this.authToken}`
@@ -1793,7 +1218,7 @@ class RootStore {
       const tokenInfo = this.GetLocalStorage(`auth-${this.network}`);
 
       if(tokenInfo) {
-        let { fabricToken, authToken, address, user, walletName, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
+        let { clientAuthToken, fabricToken, authToken, address, user, walletType, walletName, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
 
         // Expire tokens early so they don't stop working while in use
         const expirationBuffer = 4 * 60 * 60 * 1000;
@@ -1803,7 +1228,7 @@ class RootStore {
           this.ClearAuthInfo();
           this.Log("Authorization expired");
         } else {
-          return { fabricToken, authToken, address, user, walletName, expiresAt };
+          return { clientAuthToken, fabricToken, authToken, address, user, walletType, walletName, expiresAt };
         }
       }
     } catch(error) {
@@ -1819,8 +1244,22 @@ class RootStore {
     this.authInfo = undefined;
   }
 
-  SetAuthInfo({fabricToken, authToken, address, user, walletName, expiresAt, save=true}) {
-    const authInfo = { fabricToken, authToken, address, walletName, expiresAt, user: user || {} };
+  SetAuthInfo({clientAuthToken, save=true}) {
+    const { fabricToken, email, address, walletName, walletType, expiresAt } = JSON.parse(Utils.FromB58(clientAuthToken));
+
+    const authInfo = {
+      clientAuthToken,
+      fabricToken,
+      address,
+      expiresAt,
+      walletName,
+      walletType,
+      user: {
+        name: email || address,
+        email,
+        address
+      }
+    };
 
     if(save) {
       this.SetLocalStorage(
