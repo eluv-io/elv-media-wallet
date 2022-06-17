@@ -4,7 +4,7 @@ import {rootStore} from "Stores";
 import {observer} from "mobx-react";
 import ImageIcon from "Components/common/ImageIcon";
 
-import EluvioLogo from "Assets/images/logo.svg";
+import EluvioLogo from "Assets/images/EluvioLogo.png";
 import {ButtonWithLoader} from "Components/common/UIComponents";
 
 const ConsentPopup = observer(({parameters, Respond}) => {
@@ -17,7 +17,9 @@ const ConsentPopup = observer(({parameters, Respond}) => {
   return (
     <div className="page-container accept-popup">
       <div className="accept-popup__box">
-        <ImageIcon icon={EluvioLogo} className="accept-popup__logo" />
+        <div className="accept-popup__logo-container">
+          <ImageIcon icon={EluvioLogo} className="accept-popup__logo" />
+        </div>
         <div className="accept-popup__text">
           <h1 className="accept-popup__requestor">{ parameters.requestor } is requesting the following action:</h1>
           <h2 className="accept-popup__requested-action">{ parameters.action }</h2>

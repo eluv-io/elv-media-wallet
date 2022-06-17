@@ -278,7 +278,9 @@ exports.MarketplacePurchase = async function({tenantSlug, marketplaceSlug, marke
 };
 
 /**
- * Retrieve names of all valid items. Full item names are required for filtering results by name.
+ * Alias of <a href="#.ListingNames">ListingNames</a>.
+ *
+ * Retrieve names of all valid items. Full item names are required for filtering listing results by name.
  *
  * Specify marketplace information to filter the results to only items offered in that marketplace.
  *
@@ -290,8 +292,24 @@ exports.MarketplacePurchase = async function({tenantSlug, marketplaceSlug, marke
  * @returns {Promise<Array<String>>} - A list of item names
  */
 exports.ItemNames = async function({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash}={}) {
+  return await this.ListingNames({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash});
+};
+
+/**
+ * Retrieve names of all valid items. Full item names are required for filtering listing results by name.
+ *
+ * Specify marketplace information to filter the results to only items offered in that marketplace.
+ *
+ * @methodGroup Listings
+ * @namedParams
+ * @param {string=} tenantSlug - Specify the URL slug of a marketplace's tenant. Required if specifying marketplace slug
+ * @param {string=} marketplaceSlug - Specify the URL slug of a marketplace
+ *
+ * @returns {Promise<Array<String>>} - A list of item names
+ */
+exports.ListingNames = async function({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash}={}) {
   return await this.SendMessage({
-    action: "itemNames",
+    action: "listingNames",
     params: {
       tenantSlug,
       marketplaceSlug,
@@ -302,11 +320,55 @@ exports.ItemNames = async function({tenantSlug, marketplaceSlug, marketplaceId, 
 };
 
 /**
+ * Retrieve all valid edition names of the specified item. Full item edition names are required for filtering listing results by edition.
+ *
+ * @methodGroup Listings
+ * @namedParams
+ * @param {string} displayName - Display name of the item from which to request edition names
+ *
+ * @returns {Promise<Array<String>>} - A list of item editions
+ */
+exports.ListingEditionNames = async function({displayName}) {
+  return await this.SendMessage({
+    action: "listingEditionNames",
+    params: {
+      displayName
+    }
+  });
+};
+
+/**
+ * Retrieve names of all valid attributes. Full attribute names and values are required for filtering listing results by attributes.
+ *
+ * Specify marketplace information to filter the results to only items offered in that marketplace.
+ *
+ * @methodGroup Listings
+ * @namedParams
+ * @param {string=} tenantSlug - Specify the URL slug of a marketplace's tenant. Required if specifying marketplace slug
+ * @param {string=} marketplaceSlug - Specify the URL slug of a marketplace
+ * @param {string=} displayName - Display name of the item from which to request edition names
+ *
+ * @returns {Promise<Array<String>>} - A list of item names
+ */
+exports.ListingAttributes = async function({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, displayName}={}) {
+  return await this.SendMessage({
+    action: "listingAttributes",
+    params: {
+      tenantSlug,
+      marketplaceSlug,
+      marketplaceId,
+      marketplaceHash,
+      displayName
+    }
+  });
+};
+
+/**
  * <b><i>Requires login</i></b>
  *
  * Return info about items in the user's wallet
  *
- * <i>Note - Certain information (for example additional media and attributes) is not included in item results for efficiency purposes. Use `client.Items` to retrieve full NFT info</i>
+ * <i>Note - Certain information (for example additional media and attributes) is not included in item results for efficiency purposes. Use `client.Item` to retrieve full NFT info</i>
  *
  * @methodGroup Items
  * @namedParams
@@ -314,10 +376,7 @@ exports.ItemNames = async function({tenantSlug, marketplaceSlug, marketplaceId, 
  * @param {string=} marketplaceSlug - Specify the URL slug of the marketplace to filter items by marketplace
  * @param {string=} sortBy=default - Sort order for the results - either `default` or `meta/display_name`
  * @param {boolean=} sortDesc=false - Sort in descending order
- * @param {string=} filter - Filter results by item name.
- <br /><br />
- NOTE: This string must be an <b>exact match</b> on the item name.
- * You can retrieve all available item names from the <a href="#.ItemNames">ItemNames method</a>.
+ * @param {string=} filter - Filter results by item name
  * @param {string=} contractAddress - Filter results by contract address
  *
  * @methodGroup Items
@@ -398,7 +457,7 @@ exports.ListingPayout = async function({contractAddress, tokenId, listingPrice})
  *
  * @methodGroup Listings
  * @namedParams
- * @param {number=} start=0 - Index to start listing at
+ * @param {number=} start=0 - Index at which to start listing
  * @param {number=} limit=50 - Maximum number of results to return
  * @param {string=} sortBy=created - Sort order for the results. Available sort options:
  <ul>
@@ -411,7 +470,15 @@ exports.ListingPayout = async function({contractAddress, tokenId, listingPrice})
  * @param {string=} filter - Filter results by item name.
  <br /><br />
  NOTE: This string must be an <b>exact match</b> on the item name.
- * You can retrieve all available item names from the <a href="#.ItemNames">ItemNames method</a>.
+ * You can retrieve all available item names from the <a href="#.ListingNames">ListingNames method</a>.
+ @param {string=} editionFilter - Filter results by item edition.
+ *  <br /><br />
+ *  NOTE: This string must be an <b>exact match</b> on the edition name.
+ * You can retrieve all available item edition names from the <a href="#.ListingEditionNames">ListingEditionNames method</a>.
+ @param {Array<Object>} attributeFilters - Filter results by item attributes. Each entry should include name and value (e.g. `[{name: "attribute-name", value: "attribute-value"}]`)
+ *  <br /><br />
+ *  NOTE: These filters must be an <b>exact match</b> on the attribute name and value.
+ * You can retrieve all available item attributes from the <a href="#.ListingAttributes">ListingAttributes method</a>.
  * @param {string=} tenantSlug - Specify the URL slug of a marketplace's tenant. Required if specifying marketplace slug
  * @param {string=} marketplaceSlug - Filter listings by marketplace
  * @param {string=} contractAddress - Filter results by contract address
@@ -430,6 +497,8 @@ exports.Listings = async function ({
   sortBy="created",
   sortDesc=false,
   filter,
+  editionFilter,
+  attributeFilters,
   contractAddress,
   tokenId,
   lastNDays
@@ -446,6 +515,8 @@ exports.Listings = async function ({
       sortBy,
       sortDesc,
       filter,
+      editionFilter,
+      attributeFilters,
       contractAddress,
       tokenId,
       lastNDays
@@ -545,7 +616,7 @@ exports.SalesStats = async function ({
  *
  * @methodGroup Stats
  * @namedParams
- * @param {number=} start=0 - Index to start listing at
+ * @param {number=} start=0 - Index at which to start listing
  * @param {number=} limit=50 - Maximum number of results to return
  * @param {string=} sortBy=created - Sort order for the results. Available sort options:
  *  <ul>

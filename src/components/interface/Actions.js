@@ -21,6 +21,8 @@ const Actions = observer(() => {
 
   // Authenticate with auth parameter, if necessary
   useEffect(() => {
+    rootStore.ToggleDarkMode(true);
+
     if(!rootStore.client) { return; }
 
     if(!parameters.auth) {

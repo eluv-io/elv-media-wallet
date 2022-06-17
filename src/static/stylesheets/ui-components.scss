@@ -255,6 +255,7 @@
     position: absolute;
     top: 38px;
     width: 100%;
+    z-index: 1;
 
     &:not(.autocomplete__options-visible) {
       display: none;
@@ -349,7 +350,6 @@
       position: relative;
       width: 100%;
 
-      &:hover,
       &--selected {
         background: var(--color-input-highlight-bg);
         color: var(--color-input-highlight-text);

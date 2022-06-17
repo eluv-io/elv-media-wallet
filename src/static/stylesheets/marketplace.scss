@@ -1,6 +1,7 @@
 .marketplace {
   &.content {
     padding-top: 50px;
+    position: relative;
   }
 
   &__empty {
@@ -50,7 +51,7 @@
 
     .page-subheader {
       font: var(--font-store-subheading);
-      margin-top: 20px;
+      margin-top: 10px;
     }
   }
 
@@ -59,9 +60,10 @@
   }
 
   &__collection-header {
-    align-items: center;
+    align-items: flex-start;
     display: flex;
-    margin: 0 0 50px;
+    flex-direction: column;
+    margin: 0 0 20px;
 
     &__icon {
       height: 200px;
@@ -70,11 +72,63 @@
       width: 200px;
     }
 
+    &__banner-container {
+      border-radius: var(--border-radius-component);
+      display: flex;
+      justify-content: flex-start;
+      margin-top: 50px;
+      overflow: hidden;
+    }
+
     .page-headers {
-      margin: 0;
+      margin: 0 0 20px;
 
       .page-header {
         margin: 0;
+      }
+
+      .page-subheader {
+        &:last-child {
+          margin-bottom: 30px;
+        }
+      }
+    }
+  }
+
+  &__collection {
+    &__list {
+      margin-bottom: 100px;
+    }
+
+    &__card {
+      &:not(&--owned) {
+        opacity: 0.5;
+      }
+    }
+
+    &__redeem {
+      align-items: center;
+      background: var(--background-collection-component);
+      border-radius: var(--border-radius-component);
+      display: flex;
+      justify-content: space-between;
+      padding: 20px 50px;
+      width: 100%;
+
+      &__header {
+        font-size: 12px;
+      }
+
+      &__message {
+        font: var(--font-store-heading);
+        font-size: 20px;
+        padding-right: 50px;
+        text-transform: uppercase;
+      }
+
+      &__button {
+        min-width: 200px;
+        width: 200px;
       }
     }
   }
@@ -108,6 +162,29 @@
         margin: 0 0 20px;
       }
     }
+
+    &__collection {
+      &__redeem {
+        padding: 20px 30px;
+
+        &__message {
+          font-size: 16px;
+        }
+      }
+    }
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    &__collection {
+      &__redeem {
+        flex-direction: column;
+
+        &__message {
+          margin-bottom: 20px;
+          padding: 0;
+        }
+      }
+    }
   }
 }
 
@@ -127,11 +204,11 @@
 
   &__list {
     // sass-lint:disable no-misspelled-properties
-    gap: 30px;
+    gap: 20px;
     // sass-lint:enable no-misspelled-properties
 
     .collection-card {
-      width: calc(#{$breakpoint} / 3 - 50px);
+      width: calc(#{$breakpoint} / 3 - 40px);
     }
   }
 
@@ -183,13 +260,25 @@
 
   &__header {
     font: var(--font-feature-card-title);
+    font-size: 28px;
     text-transform: uppercase;
   }
 
   &__subheader {
     font: var(--font-feature-card-text);
     font-size: 16px;
+    height: 100%;
     padding: 20px 0;
+  }
+
+  &__summary {
+    font: var(--font-feature-card-misc);
+    font-size: 16px;
+    padding: 10px 0;
+
+    &--highlight {
+      color: var(--color-feature-card-text-highlight);
+    }
   }
 
   &__actions {
@@ -207,6 +296,130 @@
   @media screen and (max-width: $mobile-breakpoint) {
     &__details {
       min-height: unset;
+    }
+  }
+}
+
+.collection-redemption {
+  &__list-container {
+    margin-bottom: 50px;
+
+    &__header {
+      font: var(--font-store-heading);
+      font-size: 24px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+  }
+
+  &__option {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: 20px;
+    max-width: 390px;
+    width: 100%;
+
+    .card-container {
+      width: 100%;
+    }
+
+    &:not(&--selected) {
+      .card-container {
+        opacity: 0.75;
+      }
+    }
+
+    &__button {
+      margin-top: 10px;
+      width: 200px;
+    }
+  }
+
+  &__rewards-container {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: 50px;
+    width: 100%;
+
+    &__message {
+      font: var(--font-feature-card-text);
+      text-align: center;
+    }
+
+    .card-container {
+      box-shadow: var(--box-shadow-collection-reward-card);
+    }
+  }
+
+  &__rewards {
+    margin: 30px 0;
+    width: 100%;
+  }
+
+  &__redeem {
+    align-items: center;
+    background: var(--background-collection-component);
+    border-radius: var(--border-radius-component);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 30px 50px;
+    width: 100%;
+
+    &__headers {
+      margin-bottom: 50px;
+      max-width: unset;
+    }
+
+    &__header {
+      &.page-header {
+        margin-bottom: 0;
+        max-width: unset;
+      }
+    }
+
+    &__message {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    &__external-wallet-message {
+      @include page-fade-in;
+      font-size: 24px;
+      margin: 20px 0 50px;
+      text-align: center;
+    }
+
+    &__button {
+      width: 200px;
+    }
+  }
+
+  @media screen and (max-width: $breakpoint) {
+    &__option {
+      max-width: 380px;
+    }
+  }
+
+  @media screen and (max-width: $tablet-breakpoint) {
+    &__rewards-container {
+      padding-inline: 20px;
+
+      &__header {
+        font-size: 18px;
+      }
+
+      &__message {
+        font-size: 16px;
+      }
+    }
+
+    &__redeem {
+      padding-inline: 20px;
     }
   }
 }
@@ -243,6 +456,18 @@
       &__icon {
         margin: 0 0 20px;
       }
+    }
+
+    &__collection {
+      &__redeem__message {
+        text-align: center;
+      }
+    }
+  }
+
+  .collection-redemption {
+    &__list-container__header {
+      text-align: center;
     }
   }
 

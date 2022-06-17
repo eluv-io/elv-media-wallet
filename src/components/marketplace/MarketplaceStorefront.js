@@ -1,14 +1,12 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {Link, Redirect, useLocation, useRouteMatch} from "react-router-dom";
+import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import {rootStore} from "Stores";
 import UrlJoin from "url-join";
 import MarketplaceItemCard from "Components/marketplace/MarketplaceItemCard";
 import ImageIcon from "Components/common/ImageIcon";
 import MarketplaceFeatured from "Components/marketplace/MarketplaceFeatured";
-
-import LinkIcon from "Assets/icons/arrow-right.svg";
-import {MarketplaceImage} from "Components/common/Images";
+import {MarketplaceCollectionsSummary} from "Components/marketplace/MarketplaceCollectionsSummary";
 
 const MarketplaceBanners = ({marketplace}) => {
   if(!marketplace.banners || marketplace.banners.length === 0) { return null; }
@@ -56,86 +54,6 @@ const MarketplaceBanners = ({marketplace}) => {
     })
   );
 };
-
-const CollectionCard = ({marketplaceHash, collection, collectionIndex}) => {
-  const match = useRouteMatch();
-
-  return (
-    <div className="collection-card">
-      <div className="collection-card__icon-container">
-        <div className="collection-card__icon">
-          <MarketplaceImage
-            className="collection-card__image"
-            marketplaceHash={marketplaceHash}
-            title={collection.name}
-            path={UrlJoin("public", "asset_metadata", "info", "collections", collectionIndex.toString(), "collection_icon")}
-          />
-        </div>
-      </div>
-      <div className="collection-card__details">
-        <div className="collection-card__header">
-          { collection.collection_header}
-        </div>
-        <div className="collection-card__subheader">
-          { collection.collection_subheader}
-        </div>
-        <div className="collection-card__actions">
-          <Link
-            to={UrlJoin("/marketplace", match.params.marketplaceId, `collections?collection=${encodeURIComponent(collection.name || collection.collection_header)}`)}
-            className="action action-primary"
-          >
-            Go to Collection
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const CollectionsSummary = observer(({marketplace}) => {
-  const match = useRouteMatch();
-  const location = useLocation();
-
-  if(!marketplace?.collections || marketplace.collections.length === 0) { return null; }
-
-  return (
-    <div
-      className="marketplace__section collections-summary"
-      ref={element => {
-        if(!element) { return; }
-
-        if(new URLSearchParams(location.search).get("section") === "collections") {
-          setTimeout(() => {
-            window.scrollTo({top: element.getBoundingClientRect().top - 50});
-          }, 150);
-        }
-      }}
-    >
-      <div className="page-headers">
-        <div className="page-header">Explore Collections</div>
-        <Link
-          to={UrlJoin("/marketplace", match.params.marketplaceId, "collections")}
-          className="page-link collections-summary__link"
-        >
-          See All
-          <ImageIcon icon={LinkIcon} />
-        </Link>
-      </div>
-      <div className="card-list collections-summary__list">
-        {
-          marketplace.collections.map((collection, collectionIndex) =>
-            <CollectionCard
-              collection={collection}
-              collectionIndex={collectionIndex}
-              marketplaceHash={marketplace.versionHash}
-              key={`collection-${collectionIndex}`}
-            />
-          )
-        }
-      </div>
-    </div>
-  );
-});
 
 let timeout;
 const MarketplaceStorefrontSections = observer(({marketplace}) => {
@@ -211,7 +129,7 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
       );
     } else {
       renderedItems = (
-        <div className="card-list card-list--marketplace">
+        <div className={`card-list card-list--marketplace ${rootStore.centerContent ? "card-list--centered" : ""}`}>
           {
             items.map((item) =>
               <MarketplaceItemCard
@@ -240,7 +158,7 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
   if(sections.length === 0 && marketplace.collections.length === 0) {
     if(rootStore.sidePanelMode) {
       rootStore.SetNoItemsAvailable();
-      return <Redirect to={UrlJoin("/marketplace", marketplace.marketplaceId, "collection")} />;
+      return <Redirect to={UrlJoin("/marketplace", marketplace.marketplaceId, "my-items")} />;
     } else if(!marketplace.banners || marketplace.banners.length === 0) {
       return <h2 className="marketplace__empty">No items available</h2>;
     }
@@ -260,7 +178,7 @@ const MarketplaceStorefront = observer(() => {
     <>
       <MarketplaceBanners marketplace={marketplace} />
       <MarketplaceStorefrontSections marketplace={marketplace} />
-      <CollectionsSummary marketplace={marketplace} />
+      <MarketplaceCollectionsSummary marketplace={marketplace} />
     </>
   );
 });

@@ -1,6 +1,6 @@
 import {FormatNFT, LinkTargetHash} from "../utils/Utils";
 
-const testTheme = undefined;//import("../static/stylesheets/themes/wwe-test.theme.css");
+const testTheme = undefined;//import("../static/stylesheets/themes/maskverse-test.theme.css");
 
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";
@@ -16,8 +16,6 @@ import TransferStore from "Stores/Transfer";
 import NFTContractABI from "../static/abi/NFTContract";
 import CryptoStore from "Stores/Crypto";
 import {v4 as UUID} from "uuid";
-
-import {ethers} from "ethers";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
@@ -78,6 +76,7 @@ class RootStore {
   showLogin = this.requireLogin || searchParams.has("sl");
 
   loggedIn = false;
+  externalWalletUser = false;
   disableCloseEvent = false;
   darkMode = searchParams.has("dk") || this.GetSessionStorage("dark-mode");
 
@@ -276,19 +275,13 @@ class RootStore {
       if(marketplace) {
         yield this.LoadAvailableMarketplaces({tenantSlug, marketplaceSlug});
 
-        const specifiedMarketplaceHash = this.SetMarketplace({
+        this.SetMarketplace({
           tenantSlug,
           marketplaceSlug,
           marketplaceHash,
           marketplaceId,
           specified: true
         });
-
-        if(specifiedMarketplaceHash) {
-          this.specifiedMarketplaceId = Utils.DecodeVersionHash(specifiedMarketplaceHash).objectId;
-
-          this.SetSessionStorage("marketplace", marketplace);
-        }
       }
 
       if(authenticationPromise) {
@@ -433,6 +426,7 @@ class RootStore {
       yield this.cryptoStore.LoadConnectedAccounts();
 
       this.loggedIn = true;
+      this.externalWalletUser = externalWallet || (walletName && walletName !== "Eluvio");
 
       this.RemoveLocalStorage("signed-out");
 
@@ -752,7 +746,9 @@ class RootStore {
       };
     }
 
-    this.hideGlobalNavigation = marketplace && this.specifiedMarketplaceId === marketplace.marketplaceId && marketplace.branding && marketplace.branding.hide_global_navigation;
+    if(marketplace && this.specifiedMarketplaceId === marketplace.marketplaceId && marketplace.branding && marketplace.branding.hide_global_navigation) {
+      this.hideGlobalNavigation = true;
+    }
 
     this.centerContent = marketplace?.branding?.text_justification === "Center";
     this.centerItems = marketplace?.branding?.item_text_justification === "Center";
@@ -795,12 +791,14 @@ class RootStore {
 
       if(specified) {
         this.specifiedMarketplaceId = marketplace.marketplaceId;
+        this.SetSessionStorage("marketplace", marketplace);
       }
 
       this.SetCustomizationOptions(marketplace);
 
       return marketplace.marketplaceHash;
-    } else {
+    } else if(Object.keys(this.availableMarketplaces) > 0) {
+      // Don't reset customization if marketplaces haven't yet loaded
       this.SetCustomizationOptions("default");
     }
   }
@@ -960,6 +958,11 @@ class RootStore {
         })
       );
 
+      marketplace.collections = (marketplace.collections || []).map((collection, collectionIndex) => ({
+        ...collection,
+        collectionIndex
+      }));
+
       marketplace.retrievedAt = Date.now();
       marketplace.marketplaceId = marketplaceId;
       marketplace.versionHash = marketplaceHash;
@@ -1005,13 +1008,15 @@ class RootStore {
         return {};
       }
 
-      if(Date.now() - (this.marketplaceOwnedCache[marketplace.tenant_id]?.retrievedAt || 0) > 30000) {
+      if(Date.now() - (this.marketplaceOwnedCache[marketplace.tenant_id]?.retrievedAt || 0) > 60000) {
         delete this.marketplaceOwnedCache[marketplace.tenant_id];
       }
 
       if(!this.marketplaceOwnedCache[marketplace.tenant_id]) {
         let promise = new Promise(async resolve => {
           let ownedItems = {};
+
+          const listings = await transferStore.FetchTransferListings({userAddress: rootStore.userAddress});
 
           (await this.transferStore.FilteredQuery({
             mode: "owned",
@@ -1028,10 +1033,18 @@ class RootStore {
                 return;
               }
 
+              const listing = listings.find(listing =>
+                listing.details.TokenIdStr === nft.details.TokenIdStr &&
+                Utils.EqualAddress(nft.details.ContractAddr, listing.details.ContractAddr)
+              );
+
+              if(listing) {
+                nft.details = { ...listing.details, ...nft.details };
+              }
+
               if(!ownedItems[item.sku]) {
                 ownedItems[item.sku] = [];
               }
-
 
               ownedItems[item.sku].push({
                 nft,
@@ -1053,6 +1066,30 @@ class RootStore {
       this.Log(error, true);
       return {};
     }
+  });
+
+  MarketplaceCollectionItems = flow(function * ({marketplace, collection}) {
+    const ownedItems = yield this.MarketplaceOwnedItems(marketplace);
+    const purchaseableItems = this.MarketplacePurchaseableItems(marketplace);
+
+    return collection.items.map((sku, entryIndex) => {
+      const itemIndex = marketplace.items.findIndex(item => item.sku === sku);
+      const item = marketplace.items[itemIndex];
+
+      return {
+        sku,
+        entryIndex,
+        item,
+        ownedItems: ownedItems[sku] || [],
+        purchaseableItem: purchaseableItems[sku]
+      };
+    })
+      .sort((a, b) =>
+        a.ownedItems.length > 0 ? -1 :
+          b.ownedItems.length > 0 ? 1 :
+            a.purchaseableItem ? -1 :
+              b.purchaseableItem ? 1 : 0
+      );
   });
 
   MarketplacePurchaseableItems(marketplace) {
@@ -1095,67 +1132,6 @@ class RootStore {
   SetMarketplaceFilters(filters) {
     this.marketplaceFilters = (filters || []).map(filter => filter.trim()).filter(filter => filter);
   }
-
-  OpenNFT = flow(function * ({tenantId, contractAddress, tokenId}) {
-    try {
-      contractAddress = Utils.FormatAddress(contractAddress);
-      const confirmationId = `${contractAddress}:${tokenId}`;
-
-      // Save as purchase so tenant ID is preserved for status
-      this.checkoutStore.PurchaseInitiated({tenantId, confirmationId});
-
-      let params = {
-        op: "nft-open",
-        tok_addr: contractAddress,
-        tok_id: tokenId
-      };
-
-      if(this.AuthInfo().walletName === "metamask") {
-        // Must create signature for burn operation to pass to API
-
-        let popup;
-        if(this.embedded) {
-          // Create popup before calling async config method to avoid popup blocker
-          popup = window.open("about:blank");
-        }
-
-        const config = yield this.TenantConfiguration({contractAddress});
-
-        const mintHelperAddress = config["mint-helper"];
-
-        if(!mintHelperAddress) {
-          throw Error(`Mint helper not defined in configuration for NFT ${contractAddress}`);
-        }
-
-        const nftAddressBytes = ethers.utils.arrayify(contractAddress);
-        const mintAddressBytes = ethers.utils.arrayify(mintHelperAddress);
-        const tokenIdBigInt = ethers.utils.bigNumberify(tokenId).toHexString();
-
-        const hash = ethers.utils.keccak256(
-          ethers.utils.solidityPack(
-            ["bytes", "bytes", "uint256"],
-            [nftAddressBytes, mintAddressBytes, tokenIdBigInt]
-          )
-        );
-
-        params.sig_hex = yield this.cryptoStore.SignMetamask(hash, this.AuthInfo().address, popup);
-      }
-
-      yield this.client.authClient.MakeAuthServiceRequest({
-        path: UrlJoin("as", "wlt", "act", tenantId),
-        method: "POST",
-        body: params,
-        headers: {
-          Authorization: `Bearer ${this.authToken}`
-        }
-      });
-
-      this.checkoutStore.PurchaseComplete({confirmationId, success: true});
-    } catch(error) {
-      this.checkoutStore.PurchaseComplete({confirmationId, success: false, message: error.message});
-      throw error;
-    }
-  });
 
   BurnNFT = flow(function * ({nft}) {
     yield this.client.CallContractMethodAndWait({
@@ -1212,6 +1188,8 @@ class RootStore {
               address = status.extra.token_addr;
               tokenId = status.extra.token_id_str;
             }
+          } else if(op === "nft-redeem") {
+            confirmationId = status.op.split(":").slice(-1)[0];
           } else {
             tokenId = id;
           }
@@ -1344,6 +1322,17 @@ class RootStore {
       const statuses = yield this.MintingStatus({tenantId});
 
       return statuses.find(status => status.op === "nft-open" && Utils.EqualAddress(contractAddress, status.address) && status.tokenId === tokenId) || { status: "none" };
+    } catch(error) {
+      this.Log(error, true);
+      return { status: "unknown" };
+    }
+  });
+
+  CollectionRedemptionStatus = flow(function * ({tenantId, confirmationId}) {
+    try {
+      const statuses = yield this.MintingStatus({tenantId});
+
+      return statuses.find(status => status.op === "nft-redeem" && status.confirmationId === confirmationId) || { status: "none" };
     } catch(error) {
       this.Log(error, true);
       return { status: "unknown" };

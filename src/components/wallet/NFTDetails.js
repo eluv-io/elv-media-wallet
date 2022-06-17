@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {cryptoStore, rootStore, transferStore} from "Stores/index";
+import {checkoutStore, cryptoStore, rootStore, transferStore} from "Stores/index";
 import Path from "path";
 import UrlJoin from "url-join";
 
@@ -154,17 +154,17 @@ const NFTDescriptionSection = ({nft}) => {
 };
 
 const NFTTraitsSection = ({nft}) => {
-  const traits = nft?.metadata?.traits || [];
+  const traits = nft?.metadata?.attributes || [];
 
   if(traits.length === 0) { return null; }
 
   return (
     <ExpandableSection header="Properties" icon={TraitsIcon}>
       <div className="traits">
-        {traits.map(({trait_type, value, rarity_percent}, index) =>
+        {traits.map(({name, value, rarity_percent}, index) =>
           <div className="trait" key={`trait-${index}`}>
             <div className="trait__type">
-              { trait_type }
+              { name }
             </div>
             <div className="trait__value">
               { value }
@@ -413,7 +413,7 @@ const NFTDetails = observer(() => {
 
   if(deleted) {
     return match.params.marketplaceId ?
-      <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "collection")}/> :
+      <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "my-items")}/> :
       <Redirect to={Path.dirname(Path.dirname(match.url))}/>;
   }
 
@@ -444,8 +444,8 @@ const NFTDetails = observer(() => {
                     className="button action"
                     to={
                       match.params.marketplaceId ?
-                        UrlJoin("/marketplace", match.params.marketplaceId, "collection") :
-                        UrlJoin("/wallet", "collection")
+                        UrlJoin("/marketplace", match.params.marketplaceId, "my-items") :
+                        UrlJoin("/wallet", "my-items")
                     }
                   >
                     Back to My Items
@@ -507,7 +507,11 @@ const NFTDetails = observer(() => {
   }
 
   if(opened) {
-    return <Redirect to={UrlJoin(match.url, "open")} />;
+    if(match.params.marketplaceId) {
+      return <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "my-items", match.params.contractId, match.params.tokenId, "open")} />;
+    } else {
+      return <Redirect to={UrlJoin("/wallet", "my-items", match.params.contractId, match.params.tokenId, "open")} />;
+    }
   }
 
   const NFTActions = () => {
@@ -574,7 +578,7 @@ const NFTDetails = observer(() => {
                 onClick={async () => Confirm({
                   message: `Are you sure you want to open '${nft.metadata.display_name}?'`,
                   Confirm: async () => {
-                    await rootStore.OpenNFT({
+                    await checkoutStore.OpenPack({
                       tenantId: nft.details.TenantId,
                       contractAddress: nft.details.ContractAddr,
                       tokenId: nft.details.TokenIdStr
@@ -641,7 +645,7 @@ const NFTDetails = observer(() => {
           <NFTCard
             nft={nft}
             selectedListing={listing}
-            showVideo
+            showFullMedia
             showOrdinal
             allowFullscreen
             selectedMediaIndex={selectedMediaIndex}

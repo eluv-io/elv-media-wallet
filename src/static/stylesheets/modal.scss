@@ -65,12 +65,9 @@
   }
 
   .modal__content {
-    height: auto;
-    max-height: max-content;
+    height: max-content;
+    max-height: unset;
     max-width: 100vw;
-    min-height: 100vh;
-    overflow: visible;
-    top: 0;
   }
 
   .modal__close-button {

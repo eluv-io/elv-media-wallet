@@ -66,7 +66,7 @@ const MarketplaceOwned = observer(() => {
                     return (
                       <ItemCard
                         key={`marketplace-owned-item-${ownedItem.details.ContractAddr}-${ownedItem.details.TokenIdStr}`}
-                        link={UrlJoin(match.url, "owned", ownedItem.details.ContractId, ownedItem.details.TokenIdStr)}
+                        link={UrlJoin(match.url, ownedItem.details.ContractId, ownedItem.details.TokenIdStr)}
                         image={<NFTImage nft={ownedItem} width={600}/>}
                         name={ownedItem.metadata.display_name || ""}
                         edition={ownedItem.metadata.edition_name}

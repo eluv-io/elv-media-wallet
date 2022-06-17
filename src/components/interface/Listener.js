@@ -15,9 +15,9 @@ const pages = {
   "activity": "/wallet/activity",
 
   // User pages
-  "wallet": "/wallet/collection",
-  "items": "/wallet/collection",
-  "item": "/wallet/collection/:contractId/:tokenId",
+  "wallet": "/wallet/my-items",
+  "items": "/wallet/my-items",
+  "item": "/wallet/my-items/:contractId/:tokenId",
   "myListings": "/wallet/myListings",
   "myListing": "/wallet/myListings/:listingId",
   "profile": "/profile",
@@ -32,7 +32,7 @@ const pages = {
   "marketplaceProfile": "/marketplace/:marketplaceId/profile",
 
   // Marketplace user pages
-  "marketplaceWallet": "/marketplace/:marketplaceId/collection",
+  "marketplaceWallet": "/marketplace/:marketplaceId/my-items",
   "marketplaceCollections": "/marketplace/:marketplaceId/collections",
   "marketplaceMyListings": "/marketplace/:marketplaceId/my-listings",
   "marketplaceMyListing": "/marketplace/:marketplaceId/my-listings/:listingId",
@@ -233,9 +233,16 @@ export const InitializeListener = (history) => {
         case "stock":
           return Respond({response: toJS(await checkoutStore.MarketplaceStock({tenantId: marketplaceInfo?.tenantId}))});
 
-        // client.ItemNames
+        // client.ItemNames, client.ListingNames
         case "itemNames":
-          return Respond({response: await transferStore.ListingNames({marketplaceId: marketplaceInfo?.marketplaceId})});
+        case "listingNames":
+          return Respond({response: await transferStore.ListingNames({tenantId: marketplaceInfo?.tenantId})});
+
+        case "listingEditionNames":
+          return Respond({response: await transferStore.ListingEditionNames({displayName: data.params.displayName})});
+
+        case "listingAttributes":
+          return Respond({response: await transferStore.ListingAttributes({tenantId: marketplaceInfo?.tenantId, displayName: data.params.displayName})});
 
         case "userTransferHistory":
           let response = {
@@ -629,7 +636,7 @@ export const InitializeListener = (history) => {
             action: `Open pack '${item?.metadata?.display_name || "NFT"}'`
           });
 
-          await rootStore.OpenNFT({
+          await checkoutStore.OpenPack({
             tenantId: item.details.TenantId,
             contractAddress: item.details.ContractAddr,
             tokenId: item.details.TokenIdStr

@@ -3,6 +3,9 @@ import {Loader} from "Components/common/Loaders";
 import {rootStore, cryptoStore} from "Stores";
 import {observer} from "mobx-react";
 
+import EluvioLogo from "Assets/images/EluvioLogo.png";
+import ImageIcon from "Components/common/ImageIcon";
+
 const Sign = async (params, Respond, SetMessage) => {
   const wallet = cryptoStore.WalletFunctions(params.provider);
 
@@ -15,6 +18,17 @@ const Sign = async (params, Respond, SetMessage) => {
       Respond({response: {address: wallet.Address(), balance}});
     } else if(params.action === "message") {
       SetMessage(<h1>Awaiting message signature...</h1>, true);
+
+      if(Array.isArray(params.message)) {
+        SetMessage(
+          <>
+            <h1>Awaiting message signatures...</h1>
+            <h2>This operation requires multiple signatures.</h2>
+            <h2>Please check your browser extension and accept all pending signature requests.</h2>
+          </>,
+          true
+        );
+      }
 
       Respond({response: {address: wallet.Address(), response: await wallet.Sign(params.message)}});
     } else if(params.action === "purchase") {
@@ -61,6 +75,9 @@ const SignaturePopup = observer(({parameters, Respond}) => {
 
   return (
     <div className="page-container signature-popup">
+      <div className="signature-popup__logo-container">
+        <ImageIcon icon={EluvioLogo} className="signature-popup__logo" />
+      </div>
       { message }
       { loading ? <Loader /> : null }
     </div>

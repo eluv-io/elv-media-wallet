@@ -16,7 +16,7 @@ import {FormatPriceString} from "Components/common/UIComponents";
 
 import ListingIcon from "Assets/icons/listings icon.svg";
 
-const Collections = observer(() => {
+const MyItems = observer(() => {
   const match = useRouteMatch();
 
   const [myListings, setMyListings] = useState([]);
@@ -100,4 +100,4 @@ const Collections = observer(() => {
   );
 });
 
-export default Collections;
+export default MyItems;

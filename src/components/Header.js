@@ -74,7 +74,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
       { name: "All Listings", to: "/wallet/listings" },
       { name: "Activity", to: "/wallet/activity" },
       { separator: true },
-      { name: "My Items", to: "/wallet/collection", authed: true },
+      { name: "My Items", to: "/wallet/my-items", authed: true },
       { name: "My Listings", to: "/wallet/my-listings", authed: true },
       { name: "My Profile", to: "/profile", authed: true }
     ];
@@ -86,17 +86,16 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
       {name: tabs.store || marketplace?.branding?.name || "Store", to: UrlJoin("/marketplace", marketplace.marketplaceId, "store")},
       {name: tabs.listings || "Listings", to: UrlJoin("/marketplace", marketplace.marketplaceId, "listings")},
       {name: "Activity", to: UrlJoin("/marketplace", marketplace.marketplaceId, "activity")},
-      {name: tabs.my_items || "My Items", to: UrlJoin("/marketplace", marketplace.marketplaceId, "collection"), authed: true},
+      {name: tabs.my_items || "My Items", to: UrlJoin("/marketplace", marketplace.marketplaceId, "my-items"), authed: true},
       {
-        name: "My Collections",
+        name: rootStore.loggedIn ? "My Collections" : "Collections",
         to: UrlJoin("/marketplace", marketplace.marketplaceId, "collections"),
-        authed: true,
         hidden: !fullMarketplace || !fullMarketplace.collections || fullMarketplace.collections.length === 0
       },
       {name: "My Listings", to: UrlJoin("/marketplace", marketplace.marketplaceId, "my-listings"), authed: true},
       {separator: true, global: true},
       {name: "Discover Marketplaces", to: "/marketplaces", global: true},
-      {name: "My Full Collection", to: "/wallet/collection", authed: true, global: true},
+      {name: "My Full Collection", to: "/wallet/my-items", authed: true, global: true},
       {name: "My Profile", to: UrlJoin("/marketplace", marketplace.marketplaceId, "profile"), authed: true}
     ];
   }
@@ -204,24 +203,36 @@ const GlobalHeader = observer(({marketplace}) => {
 
 const SubHeaderNavigation = observer(({marketplace}) => {
   const fullMarketplace = marketplace ? rootStore.marketplaces[marketplace.marketplaceId] : null;
+  const hasCollections = fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0;
   const tabs = fullMarketplace?.branding?.tabs || {};
 
-  return (
-    !rootStore.loggedIn ? null :
+  if(!rootStore.loggedIn) {
+    if(!hasCollections) { return null; }
+
+    return (
       <nav className="subheader__navigation--personal">
-        {
-          fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0 ?
-            <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "collections")}>
-              My Collections
-            </NavLink> : null
-        }
-        <NavLink className="subheader__navigation-link" to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "collection") : "/wallet/collection"}>
-          { tabs.my_items || "My Items" }
-        </NavLink>
-        <NavLink className="subheader__navigation-link" to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "my-listings") : "/wallet/my-listings"}>
-          My Listings
+        <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "collections")}>
+          Collections
         </NavLink>
       </nav>
+    );
+  }
+
+  return (
+    <nav className="subheader__navigation--personal">
+      {
+        hasCollections ?
+          <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "collections")}>
+            My Collections
+          </NavLink> : null
+      }
+      <NavLink className="subheader__navigation-link" to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "my-items") : "/wallet/my-items"}>
+        { tabs.my_items || "My Items" }
+      </NavLink>
+      <NavLink className="subheader__navigation-link" to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "my-listings") : "/wallet/my-listings"}>
+        My Listings
+      </NavLink>
+    </nav>
   );
 });
 

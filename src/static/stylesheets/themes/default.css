@@ -159,6 +159,10 @@ html {
   --color-featured-item-slider: var(--color-bg-secondary);
   --color-featured-item-slider-handle: var(--color-background-highlight);
 
+  /* Collections */
+  --background-collection-component: var(--color-bg-primary);
+  --box-shadow-collection-reward-card: 0 0 8px var(--color-component-highlight);
+
   /* Tables */
   --font-table-header: normal normal 500 16px var(--font-family-tertiary);
   --font-table: var(--font-default);

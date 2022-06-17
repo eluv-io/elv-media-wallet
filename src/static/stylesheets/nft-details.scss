@@ -522,10 +522,10 @@
     }
 
     &__value {
+      flex-grow: 1;
       font-size: 16px;
       font-weight: 500;
       padding: 15px 0;
-      flex-grow: 1;
     }
 
     &__rarity {

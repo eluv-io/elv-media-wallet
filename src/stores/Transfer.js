@@ -347,7 +347,11 @@ class TransferStore {
       }
 
       if(attributeFilters) {
-        attributeFilters.map(({name, value}) => filters.push(`nft/attributes/${name}:eq:${value}`));
+        attributeFilters.map(({name, value}) => {
+          if(!name || !value) { return; }
+
+          filters.push(`nft/attributes/${name}:eq:${value}`);
+        });
       }
 
       if(currency) {
@@ -502,27 +506,19 @@ class TransferStore {
     }
   });
 
-  ListingNames = flow(function * ({marketplaceId}) {
-    let names = yield Utils.ResponseToJson(
+  ListingNames = flow(function * ({tenantId}) {
+    return yield Utils.ResponseToJson(
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "mkt", "names"),
-        method: "GET"
+        method: "GET",
+        queryParams: {
+          filter: tenantId ? `tenant:eq:${tenantId}` : null
+        }
       })
     );
-
-    if(marketplaceId) {
-      const marketplace = yield this.rootStore.LoadMarketplace(marketplaceId);
-
-      let marketplaceNames = {};
-      marketplace.items.map(item => marketplaceNames[item?.nftTemplateMetadata?.display_name] = true);
-
-      names = names.filter(name => marketplaceNames[name]);
-    }
-
-    return names;
   });
 
-  EditionNames = flow(function * ({displayName}) {
+  ListingEditionNames = flow(function * ({displayName}) {
     return yield Utils.ResponseToJson(
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "mkt", "editions"),
@@ -532,6 +528,33 @@ class TransferStore {
         method: "GET"
       })
     );
+  });
+
+  ListingAttributes = flow(function * ({tenantId, displayName}={}) {
+    let filters = [];
+    if(tenantId) {
+      filters.push(`tenant:eq:${tenantId}`);
+    }
+
+    if(displayName) {
+      filters.push(`nft/display_name:eq:${displayName}`);
+    }
+
+    const attributes = yield Utils.ResponseToJson(
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "mkt", "attributes"),
+        method: "GET",
+        queryParams: {
+          filter: filters
+        }
+      })
+    );
+
+    return attributes
+      .map(({trait_type, values}) => ({ name: trait_type, values }))
+      .filter(({name}) =>
+        !["Content Fabric Hash", "Total Minted Supply", "Creator"].includes(name)
+      );
   });
 
   // Transfer History

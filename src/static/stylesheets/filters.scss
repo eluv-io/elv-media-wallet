@@ -120,6 +120,19 @@ $search-height: 50px;
         margin-bottom: 20px;
       }
     }
+
+    &__reset-button {
+      margin: 0 auto;
+      width: 200px;
+    }
+
+    &__attribute-group {
+      .filters__select-container {
+        &:first-child {
+          margin-bottom: 5px;
+        }
+      }
+    }
   }
 
   @media screen and (max-width: $mobile-breakpoint) {

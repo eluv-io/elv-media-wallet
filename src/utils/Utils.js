@@ -5,6 +5,12 @@ import VideoPlayIcon from "Assets/icons/media/video play icon (no circle).svg";
 import {rootStore} from "Stores";
 import {toJS} from "mobx";
 
+export const Slugify = str =>
+  (str || "")
+    .toLowerCase()
+    .replace(/ /g, "-")
+    .replace(/[^a-z0-9\-]/g,"")
+    .replace(/-+/g, "-");
 
 export const RarityToPercentage = (rarity) => {
   if(!rarity) {
@@ -139,7 +145,7 @@ export const FormatNFT = (nft) => {
     .filter(attribute => attribute && !FILTERED_ATTRIBUTES.includes(attribute.trait_type));
 
   if(traits.length > 0) {
-    nft.metadata.traits = traits.map(trait => ({...trait, rarity_percent: RarityToPercentage(trait.rarity)}));
+    nft.metadata.attributes = traits.map(trait => ({...trait, name: trait.trait_type, rarity_percent: RarityToPercentage(trait.rarity)}));
   }
 
   // Generate embed URLs for additional media

@@ -2,6 +2,7 @@ import UrlJoin from "url-join";
 import {parse as UUIDParse, v4 as UUID} from "uuid";
 import {makeAutoObservable, flow, runInAction} from "mobx";
 import Utils from "@eluvio/elv-client-js/src/Utils";
+import {ethers} from "ethers";
 
 const PUBLIC_KEYS = {
   stripe: {
@@ -108,6 +109,139 @@ class CheckoutStore {
 
     this.rootStore.SetLocalStorage("purchase-status", JSON.stringify(this.purchaseStatus));
   }
+
+  OpenPack = flow(function * ({tenantId, contractAddress, tokenId}) {
+    contractAddress = Utils.FormatAddress(contractAddress);
+    const confirmationId = `${contractAddress}:${tokenId}`;
+
+    try {
+      // Save as purchase so tenant ID is preserved for status
+      this.PurchaseInitiated({tenantId, confirmationId});
+
+      let params = {
+        op: "nft-open",
+        tok_addr: contractAddress,
+        tok_id: tokenId
+      };
+
+      if(this.rootStore.AuthInfo().walletName === "metamask") {
+        // Must create signature for burn operation to pass to API
+
+        let popup;
+        if(this.rootStore.embedded) {
+          // Create popup before calling async config method to avoid popup blocker
+          popup = window.open("about:blank");
+        }
+
+        const config = yield this.rootStore.TenantConfiguration({contractAddress});
+
+        const mintHelperAddress = config["mint-helper"];
+
+        if(!mintHelperAddress) {
+          throw Error(`Mint helper not defined in configuration for NFT ${contractAddress}`);
+        }
+
+        const nftAddressBytes = ethers.utils.arrayify(contractAddress);
+        const mintAddressBytes = ethers.utils.arrayify(mintHelperAddress);
+        const tokenIdBigInt = ethers.utils.bigNumberify(tokenId).toHexString();
+
+        const hash = ethers.utils.keccak256(
+          ethers.utils.solidityPack(
+            ["bytes", "bytes", "uint256"],
+            [nftAddressBytes, mintAddressBytes, tokenIdBigInt]
+          )
+        );
+
+        params.sig_hex = yield this.rootStore.cryptoStore.SignMetamask(hash, this.rootStore.AuthInfo().address, popup);
+      }
+
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "act", tenantId),
+        method: "POST",
+        body: params,
+        headers: {
+          Authorization: `Bearer ${this.rootStore.authToken}`
+        }
+      });
+
+      this.PurchaseComplete({confirmationId, success: true});
+    } catch(error) {
+      this.PurchaseComplete({confirmationId, success: false, message: error.message});
+      throw error;
+    }
+  });
+
+  RedeemCollection = flow(function * ({marketplace, collectionSKU, selectedNFTs}) {
+    const confirmationId = this.ConfirmationId();
+    const tenantId = marketplace?.tenant_id;
+
+    try {
+      // Save as purchase so tenant ID is preserved for status
+      this.PurchaseInitiated({tenantId, confirmationId});
+
+      let popup;
+      if(this.rootStore.embedded && this.rootStore.AuthInfo().walletName === "metamask") {
+        // Create popup before calling async config method to avoid popup blocker
+        popup = window.open("about:blank");
+      }
+
+      const config = yield this.rootStore.TenantConfiguration({tenantId});
+
+      const items = selectedNFTs.map(item => ({addr: item.contractAddress, id: item.tokenId}));
+
+      if(this.rootStore.AuthInfo().walletName === "metamask") {
+        const mintHelperAddress = config["mint-helper"];
+
+        if(!mintHelperAddress) {
+          throw Error(`Mint helper not defined in configuration for NFT ${contractAddress}`);
+        }
+
+        const itemHashes = items.map(({addr, id}) => {
+          const nftAddressBytes = ethers.utils.arrayify(addr);
+          const mintAddressBytes = ethers.utils.arrayify(mintHelperAddress);
+          const tokenIdBigInt = ethers.utils.bigNumberify(id).toHexString();
+
+          return ethers.utils.keccak256(
+            ethers.utils.solidityPack(
+              ["bytes", "bytes", "uint256"],
+              [nftAddressBytes, mintAddressBytes, tokenIdBigInt]
+            )
+          );
+        });
+
+        const signedHashes = yield this.rootStore.cryptoStore.SignMetamask(itemHashes, this.rootStore.AuthInfo().address, popup);
+
+        signedHashes.forEach((signedHash, index) => {
+          items[index].sig_hex = signedHash;
+        });
+      }
+
+      let params = {
+        op: "nft-redeem",
+        marketplace_hash: marketplace.versionHash,
+        collection_sku: collectionSKU,
+        items,
+        from_addr: config["mint-helper"],
+        client_reference_id: `${collectionSKU}:${confirmationId}`
+      };
+
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "act", tenantId),
+        method: "POST",
+        body: params,
+        headers: {
+          Authorization: `Bearer ${this.rootStore.authToken}`
+        }
+      });
+
+      this.PurchaseComplete({confirmationId, success: true});
+
+      return confirmationId;
+    } catch(error) {
+      this.PurchaseComplete({confirmationId, success: false, message: error.message});
+      throw error;
+    }
+  })
 
   ClaimSubmit = flow(function * ({marketplaceId, sku}) {
     try {

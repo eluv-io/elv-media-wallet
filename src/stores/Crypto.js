@@ -83,7 +83,7 @@ class CryptoStore {
 
   LoadConnectedAccounts = flow(function * () {
     try {
-      const { links } = yield Utils.ResponseToJson(
+      let { links } = yield Utils.ResponseToJson(
         this.client.authClient.MakeAuthServiceRequest({
           path: UrlJoin("as", "wlt", "mkt", "info"),
           method: "GET",
@@ -93,9 +93,12 @@ class CryptoStore {
         })
       );
 
+      links = (links || []).filter(link => link.link_type);
+
       let connectedAccounts = { eth: {}, sol: {} };
       for(const link of (links || [])) {
         const address = link.link_type === "eth" ? Utils.FormatAddress(link.link_acct) : link.link_acct;
+
         connectedAccounts[link.link_type][address] = {
           ...link,
           link_acct: address,
@@ -224,6 +227,13 @@ class CryptoStore {
     try {
       if(this.rootStore.embedded) {
         return yield this.EmbeddedSign({popup, provider: "metamask", message});
+      } else if(Array.isArray(message)) {
+        let signatures = [];
+        for(let i = 0; i < message.length; i++) {
+          signatures[i] = yield this.SignMetamask(message[i], address);
+        }
+
+        return signatures;
       } else {
         yield window.ethereum.request({method: "eth_requestAccounts"});
         const from = address || window.ethereum?.selectedAddress;
@@ -235,6 +245,8 @@ class CryptoStore {
     } catch(error) {
       this.rootStore.Log("Error signing Metamask message:", true);
       this.rootStore.Log(error, true);
+
+      throw error;
     }
   });
 
@@ -309,7 +321,7 @@ class CryptoStore {
       parameters.action = "connect";
     } else if(message) {
       parameters.action = "message";
-      parameters.message = message.toString();
+      parameters.message = message;
     } else if(purchaseSpec) {
       parameters.action = "purchase";
       parameters.purchaseSpec = purchaseSpec;
