@@ -127,6 +127,8 @@ export const FormatNFT = (nft) => {
     return;
   }
 
+  nft.formatted = true;
+
   nft = toJS(nft);
 
   // Surface relevant details to top level
@@ -141,12 +143,9 @@ export const FormatNFT = (nft) => {
 
   // Format traits
   const FILTERED_ATTRIBUTES = ["Content Fabric Hash", "Creator", "Total Minted Supply"];
-  const traits = (nft.metadata?.attributes || [])
-    .filter(attribute => attribute && !FILTERED_ATTRIBUTES.includes(attribute.trait_type));
-
-  if(traits.length > 0) {
-    nft.metadata.attributes = traits.map(trait => ({...trait, name: trait.trait_type, rarity_percent: RarityToPercentage(trait.rarity)}));
-  }
+  nft.metadata.attributes = (nft.metadata.attributes || [])
+    .filter(attribute => attribute && !FILTERED_ATTRIBUTES.includes(attribute.trait_type))
+    .map(trait => ({...trait, name: trait.trait_type, rarity_percent: RarityToPercentage(trait.rarity)}));
 
   // Generate embed URLs for additional media
   if(nft.metadata?.additional_media) {
