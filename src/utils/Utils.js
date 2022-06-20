@@ -2,6 +2,8 @@ import AudioPlayCircleIcon from "Assets/icons/media/blue play bars icon.svg";
 import AudioPlayIcon from "Assets/icons/media/bars icon (no circle).svg";
 import VideoPlayCircleIcon from "Assets/icons/media/video play icon.svg";
 import VideoPlayIcon from "Assets/icons/media/video play icon (no circle).svg";
+import PlayIcon from "Assets/icons/media/Play icon.svg";
+
 import {rootStore} from "Stores";
 import {toJS} from "mobx";
 import UrlJoin from "url-join";
@@ -43,7 +45,7 @@ export const MediaIcon = (media, circle=false) => {
     case "Video":
       return circle ? VideoPlayCircleIcon : VideoPlayIcon;
     default:
-      return circle ? AudioPlayCircleIcon : AudioPlayIcon;
+      return PlayIcon;
   }
 };
 
