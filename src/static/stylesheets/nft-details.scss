@@ -341,6 +341,12 @@
     }
   }
 
+  .item-card {
+    &__image {
+      background: $black;
+    }
+  }
+
   @media screen and (min-width: $tablet-breakpoint) {
     &:not(.details-page-message) {
       align-content: start;

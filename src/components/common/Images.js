@@ -7,10 +7,11 @@ import ImageIcon from "Components/common/ImageIcon";
 import {Initialize} from "@eluvio/elv-embed/src/Embed";
 
 import NFTPlaceholderIcon from "Assets/icons/nft";
-import FullscreenIcon from "Assets/icons/full screen.svg";
 import Modal from "Components/common/Modal";
-import {LinkTargetHash} from "../../utils/Utils";
-import UrlJoin from "url-join";
+import {NFTMediaInfo} from "../../utils/Utils";
+
+import FullscreenIcon from "Assets/icons/full screen.svg";
+import ExternalLinkIcon from "Assets/icons/external-link.svg";
 
 export const NFTImage = observer(({nft, item, selectedMedia, width, showFullMedia=false, allowFullscreen=false, className="", playerCallback}) => {
   const [player, setPlayer] = useState(undefined);
@@ -44,86 +45,9 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, showFullMedi
       setPlayer(undefined);
     }
 
-    let imageUrl, embedUrl, useFrame=false;
+    const { imageUrl, embedUrl, mediaLink, useFrame } = NFTMediaInfo({nft, item, selectedMedia, width, showFullMedia});
 
-    const selectedMediaImageUrl = selectedMedia && ((selectedMedia.media_type === "Image" && selectedMedia.media_file?.url) || selectedMedia.image);
-    if(selectedMediaImageUrl) {
-      imageUrl = new URL(selectedMediaImageUrl);
-
-      imageUrl.searchParams.set("authorization", rootStore.authToken || rootStore.staticToken);
-      if(imageUrl && width) {
-        imageUrl.searchParams.set("width", width);
-      }
-    }
-
-    if(!imageUrl && ((item && item.image) || nft.metadata.image)) {
-      imageUrl = new URL((item && item.image && item.image.url) || nft.metadata.image);
-      imageUrl.searchParams.set("authorization", rootStore.authToken || rootStore.staticToken);
-
-      if(imageUrl && width) {
-        imageUrl.searchParams.set("width", width);
-      }
-    }
-
-    if(showFullMedia) {
-      if((selectedMedia && selectedMedia.media_type === "HTML") && selectedMedia.media_file) {
-        const targetHash = LinkTargetHash(selectedMedia.media_file);
-        const filePath = selectedMedia.media_file["/"].split("/files/")[1];
-
-        embedUrl = new URL(
-          rootStore.network === "demo" ?
-            "https://demov3.net955210.contentfabric.io/s/demov3" :
-            "https://main.net955305.contentfabric.io/s/main"
-        );
-
-        embedUrl.pathname = UrlJoin(embedUrl.pathname, "q", targetHash, "files", filePath);
-
-        (selectedMedia.parameters || []).forEach(({name, value}) =>
-          embedUrl.searchParams.set(name, value)
-        );
-
-        useFrame = true;
-      } else if((selectedMedia && selectedMedia.media_type === "Ebook" && selectedMedia.media_file)) {
-        embedUrl = new URL("https://embed.v3.contentfabric.io");
-
-        embedUrl.searchParams.set("p", "");
-        embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
-        embedUrl.searchParams.set("type", "ebook");
-        embedUrl.searchParams.set("vid", selectedMedia.media_file["."].container);
-        embedUrl.searchParams.set("murl", btoa(selectedMedia.media_file.url));
-        useFrame = true;
-      } else if((selectedMedia && ["Audio", "Video"].includes(selectedMedia.media_type) && selectedMedia.media_link)) {
-        embedUrl = new URL("https://embed.v3.contentfabric.io");
-
-        embedUrl.searchParams.set("p", "");
-        embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
-        embedUrl.searchParams.set("vid", LinkTargetHash(selectedMedia.media_link));
-        embedUrl.searchParams.set("ct", "h");
-        embedUrl.searchParams.set("ap", "");
-        embedUrl.searchParams.set("ath", rootStore.authToken || rootStore.staticToken);
-      } else if(item && item.video) {
-        embedUrl = new URL("https://embed.v3.contentfabric.io");
-
-        embedUrl.searchParams.set("p", "");
-        embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
-        embedUrl.searchParams.set("vid", LinkTargetHash(item.video));
-        embedUrl.searchParams.set("ap", "");
-        embedUrl.searchParams.set("lp", "");
-        embedUrl.searchParams.set("m", "");
-
-        if(item?.nftTemplateMetadata?.has_audio) {
-          embedUrl.searchParams.set("ct", "h");
-        }
-      } else if(!selectedMedia && (typeof nft.metadata.playable === "undefined" || nft.metadata.playable) && nft.metadata.embed_url) {
-        embedUrl = new URL(nft.metadata.embed_url);
-      }
-
-      if(embedUrl) {
-        embedUrl.searchParams.set("nwm", "");
-      }
-    }
-
-    setMedia({imageUrl, embedUrl, useFrame});
+    setMedia({imageUrl, embedUrl, mediaLink, useFrame});
   }, [selectedMedia]);
 
   if(media?.embedUrl) {
@@ -137,12 +61,17 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, showFullMedi
           <div className={`item-card__image item-card__image-video-embed ${className}`}>
             { content }
           </div>
-          {
-            allowFullscreen && media.useFrame ?
-              <button className="item-card__image__full-screen" onClick={() => setFullscreen(true)}>
-                <ImageIcon icon={FullscreenIcon} label="Enlarge Image"/>
-              </button> : null
-          }
+          <div className="item-card__image-container__actions">
+            <a href={media.embedUrl} target="_blank" className="item-card__image-container__action" title="Open Media in New Tab">
+              <ImageIcon icon={ExternalLinkIcon} label="Open Media"/>
+            </a>
+            {
+              allowFullscreen && media.useFrame ?
+                <button className="item-card__image-container__action item-card__image-container__action--full-screen" onClick={() => setFullscreen(true)} title="Fullscreen">
+                  <ImageIcon icon={FullscreenIcon} label="Enlarge Image"/>
+                </button> : null
+            }
+          </div>
         </div>
         {
           fullscreen ?
@@ -172,9 +101,17 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, showFullMedi
         { image }
         {
           allowFullscreen ?
-            <button className="item-card__image__full-screen" onClick={() => setFullscreen(true)}>
-              <ImageIcon icon={FullscreenIcon} label="Enlarge Image"/>
-            </button> : null
+            <div className="item-card__image-container__actions">
+              {
+                media.mediaLink ?
+                  <a href={media.mediaLink} target="_blank" className="item-card__image-container__action" title="Open Media in New Tab">
+                    <ImageIcon icon={ExternalLinkIcon} label="Open Media"/>
+                  </a> : null
+              }
+              <button className="item-card__image-container__action item-card__image-container__action--full-screen" onClick={() => setFullscreen(true)} title="Fullscreen">
+                <ImageIcon icon={FullscreenIcon} label="Enlarge Image"/>
+              </button>
+            </div> : null
         }
       </div>
       {

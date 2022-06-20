@@ -8,10 +8,7 @@ import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 import {render} from "react-dom";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
-import {NFTDisplayToken} from "../../utils/Utils";
-import ImageIcon from "Components/common/ImageIcon";
-
-import ReturnIcon from "Assets/icons/media/back to nft icon.svg";
+import {NFTDisplayToken, NFTMediaInfo} from "../../utils/Utils";
 
 const NFTCard = observer(({
   nft,
@@ -47,6 +44,7 @@ const NFTCard = observer(({
   const expired = item && item.expires_at && new Date(item.expires_at).getTime() - Date.now() < 0;
   const unauthorized = item && item.requires_permissions && !item.authorized;
   const info = selectedListing || nft;
+  const mediaInfo = NFTMediaInfo({nft, item, selectedMedia, showFullMedia, width: imageWidth});
 
   const variant = (item?.nftTemplateMetadata || nft?.metadata).style;
 
@@ -159,11 +157,20 @@ const NFTCard = observer(({
             </div> : null
         }
         {
-          selectedMediaIndex >= 0 ?
+          selectedMediaIndex >= 0 || mediaInfo.mediaLink ?
             <div className="item-card__actions">
-              <button onClick={() => setSelectedMediaIndex(-1)} className="action item-card__action">
-                <ImageIcon icon={ReturnIcon} title="Return to NFT" />
-              </button>
+              {
+                mediaInfo.mediaLink ?
+                  <a href={mediaInfo.mediaLink} target="_blank" className="action">
+                    View Media
+                  </a> : null
+              }
+              {
+                selectedMediaIndex >= 0 ?
+                  <button onClick={() => setSelectedMediaIndex(-1)} className="action">
+                    Back to NFT
+                  </button> : null
+              }
             </div> : null
         }
       </div>

@@ -59,35 +59,41 @@ const Activity = ({icon, header, hideName, hideFilters, hideStats, tableHeader, 
               {
                 !entries || entries.length === 0 ?
                   <div className="transfer-table__empty">No Sales</div> :
-                  entries.map(transfer =>
-                    <Link
-                      to={transfer.contract && transfer.token ? UrlJoin(linkPath, `ictr${Utils.AddressToHash(transfer.contract)}`, transfer.token) : null}
-                      className={`transfer-table__table__row ${!transfer.contract || !transfer.token ? "transfer-table__table__row--no-click" : ""}`}
-                      key={`transfer-table-row-${transfer.id}`}
-                    >
-                      {
-                        hideName ? null :
-                          <div className="transfer-table__table__cell">
-                            {transfer.name}
-                          </div>
-                      }
-                      <div className="transfer-table__table__cell">
-                        { transfer.token }
-                      </div>
-                      <div className="transfer-table__table__cell no-mobile">
-                        { Ago(transfer.created * 1000) } ago
-                      </div>
-                      <div className="transfer-table__table__cell">
-                        { FormatPriceString({USD: transfer.price}) }
-                      </div>
-                      <div className="transfer-table__table__cell no-tablet">
-                        { MiddleEllipsis(transfer.buyer, 14) }
-                      </div>
-                      <div className="transfer-table__table__cell no-tablet">
-                        { MiddleEllipsis(transfer.seller, 14) }
-                      </div>
-                    </Link>
-                  )
+                  entries.map(transfer => {
+                    const link = transfer.contract && transfer.token ? UrlJoin(linkPath, `ictr${Utils.AddressToHash(transfer.contract)}`, transfer.token) : undefined;
+
+                    // Link complains if 'to' is blank, so use div instead
+                    const Component = link ? Link : ({children, ...props}) => <div {...props}>{children}</div>;
+                    return (
+                      <Component
+                        to={link}
+                        className={`transfer-table__table__row ${!transfer.contract || !transfer.token ? "transfer-table__table__row--no-click" : ""}`}
+                        key={`transfer-table-row-${transfer.id}`}
+                      >
+                        {
+                          hideName ? null :
+                            <div className="transfer-table__table__cell">
+                              {transfer.name}
+                            </div>
+                        }
+                        <div className="transfer-table__table__cell">
+                          { transfer.token }
+                        </div>
+                        <div className="transfer-table__table__cell no-mobile">
+                          { Ago(transfer.created * 1000) } ago
+                        </div>
+                        <div className="transfer-table__table__cell">
+                          { FormatPriceString({USD: transfer.price}) }
+                        </div>
+                        <div className="transfer-table__table__cell no-tablet">
+                          { MiddleEllipsis(transfer.buyer, 14) }
+                        </div>
+                        <div className="transfer-table__table__cell no-tablet">
+                          { MiddleEllipsis(transfer.seller, 14) }
+                        </div>
+                      </Component>
+                    );
+                  })
               }
             </div>
           </div>
