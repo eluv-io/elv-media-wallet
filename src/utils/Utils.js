@@ -143,7 +143,7 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, showFullMedia, width}) =
     if((selectedMedia && selectedMedia.media_type === "HTML") && selectedMedia.media_file) {
       const targetHash = LinkTargetHash(selectedMedia.media_file);
       const filePath = selectedMedia.media_file["/"].split("/files/")[1];
-
+      
       mediaLink = new URL(
         rootStore.network === "demo" ?
           "https://demov3.net955210.contentfabric.io/s/demov3" :
@@ -212,8 +212,8 @@ export const MobileOption = (width, desktop, mobile) => {
 export const LinkTargetHash = (link) => {
   if(!link) { return; }
 
-  if(link["."] && link["."].source) {
-    return link["."].source;
+  if(link["."] && link["."].source || link["."].container) {
+    return link["."].source || link["."].container;
   }
 
   if(link["/"]) {
