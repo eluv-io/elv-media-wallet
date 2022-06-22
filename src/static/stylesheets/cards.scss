@@ -170,28 +170,19 @@
 
   &__actions {
     align-items: center;
-    bottom: 5px;
+    bottom: 0;
     display: flex;
+    flex-direction: column;
     justify-content: flex-end;
-    position: absolute;
-    right: 5px;
+    left: 0;
+    padding: 10px;
+    width: 100%;
 
-    .item-card__action {
-      background: var(--color-button-card-bg);
-      border: var(--border-button-card);
-      border-radius: var(--border-radius-button-card);
-      color: var(--color-button-card-text);
-      height: 30px;
-      min-width: unset;
-      width: 30px;
+    .action {
+      width: 100%;
 
-      svg {
-        height: 100%;
-        padding: 7px;
-
-        * {
-          color: var(--color-button-card-text);
-        }
+      &:not(:last-child) {
+        margin-bottom: 5px;
       }
     }
   }
@@ -260,6 +251,62 @@
     padding-top: 100%;
     position: relative;
     width: 100%;
+
+    &__actions {
+      align-items: center;
+      border-radius: 5px;
+      bottom: 12px;
+      display: flex;
+      overflow: hidden;
+      position: absolute;
+      right: 8px;
+      width: auto;
+
+      &::after {
+        background: $black;
+        content: "";
+        height: 100%;
+        left: 0;
+        opacity: 0.35;
+        position: absolute;
+        top: 0;
+        width: 100%;
+      }
+    }
+
+    &__action {
+      align-items: center;
+      border-radius: var(--border-radius-card);
+      display: flex;
+      height: 25px;
+      justify-content: center;
+      overflow: hidden;
+      padding: 5px;
+      width: 25px;
+
+      &:not(:last-child) {
+        margin-right: 3px;
+      }
+
+      svg {
+        height: 100%;
+        opacity: 0.75;
+        width: 100%;
+        z-index: 1;
+
+        * {
+          color: $white;
+        }
+      }
+
+      &--full-screen {
+        svg {
+          * {
+            stroke-width: 5px;
+          }
+        }
+      }
+    }
   }
 
   &__image {
@@ -272,43 +319,6 @@
     position: absolute;
     top: 0;
     width: 100%;
-  }
-
-  &__image__full-screen {
-    align-items: center;
-    border-radius: var(--border-radius-card);
-    bottom: 12px;
-    display: flex;
-    height: 25px;
-    justify-content: center;
-    overflow: hidden;
-    padding: 5px;
-    position: absolute;
-    right: 8px;
-    width: 25px;
-
-    &::after {
-      background: $black;
-      content: "";
-      height: 100%;
-      left: 0;
-      opacity: 0.35;
-      position: absolute;
-      top: 0;
-      width: 100%;
-    }
-
-    svg {
-      height: 100%;
-      opacity: 0.75;
-      width: 100%;
-      z-index: 1;
-
-      * {
-        color: $white;
-        stroke-width: 5px;
-      }
-    }
   }
 
   &__image-modal {

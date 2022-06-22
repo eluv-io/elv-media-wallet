@@ -2,8 +2,11 @@ import AudioPlayCircleIcon from "Assets/icons/media/blue play bars icon.svg";
 import AudioPlayIcon from "Assets/icons/media/bars icon (no circle).svg";
 import VideoPlayCircleIcon from "Assets/icons/media/video play icon.svg";
 import VideoPlayIcon from "Assets/icons/media/video play icon (no circle).svg";
+import PlayIcon from "Assets/icons/media/Play icon.svg";
+
 import {rootStore} from "Stores";
 import {toJS} from "mobx";
+import UrlJoin from "url-join";
 
 export const Slugify = str =>
   (str || "")
@@ -42,7 +45,7 @@ export const MediaIcon = (media, circle=false) => {
     case "Video":
       return circle ? VideoPlayCircleIcon : VideoPlayIcon;
     default:
-      return circle ? AudioPlayCircleIcon : AudioPlayIcon;
+      return PlayIcon;
   }
 };
 
@@ -104,6 +107,102 @@ export const NFTDisplayToken = nft => {
   } catch(error) {
     return "";
   }
+};
+
+export const NFTMediaInfo = ({nft, item, selectedMedia, showFullMedia, width}) => {
+  let imageUrl, embedUrl, mediaLink, useFrame=false;
+
+  if(!selectedMedia && nft.metadata.media && ["Ebook", "HTML"].includes(nft.metadata.media_type)) {
+    selectedMedia = {
+      media_type: nft.metadata.media_type,
+      media_file: nft.metadata.media,
+      parameters: nft.metadata.media_parameters
+    };
+  }
+
+  const selectedMediaImageUrl = selectedMedia && ((selectedMedia.media_type === "Image" && selectedMedia.media_file?.url) || selectedMedia.image);
+  if(selectedMediaImageUrl) {
+    imageUrl = new URL(selectedMediaImageUrl);
+
+    imageUrl.searchParams.set("authorization", rootStore.authToken || rootStore.staticToken);
+    if(imageUrl && width) {
+      imageUrl.searchParams.set("width", width);
+    }
+  }
+
+  if(!imageUrl && ((item && item.image) || nft.metadata.image)) {
+    imageUrl = new URL((item && item.image && item.image.url) || nft.metadata.image);
+    imageUrl.searchParams.set("authorization", rootStore.authToken || rootStore.staticToken);
+
+    if(imageUrl && width) {
+      imageUrl.searchParams.set("width", width);
+    }
+  }
+
+  if(showFullMedia) {
+    if((selectedMedia && selectedMedia.media_type === "HTML") && selectedMedia.media_file) {
+      const targetHash = LinkTargetHash(selectedMedia.media_file);
+      const filePath = selectedMedia.media_file["/"].split("/files/")[1];
+
+      mediaLink = new URL(
+        rootStore.network === "demo" ?
+          "https://demov3.net955210.contentfabric.io/s/demov3" :
+          "https://main.net955305.contentfabric.io/s/main"
+      );
+
+      mediaLink.pathname = UrlJoin(mediaLink.pathname, "q", targetHash, "files", filePath);
+
+      (selectedMedia.parameters || []).forEach(({name, value}) =>
+        mediaLink.searchParams.set(name, value)
+      );
+
+      useFrame = true;
+    } else if((selectedMedia && selectedMedia.media_type === "Ebook" && selectedMedia.media_file)) {
+      embedUrl = new URL("https://embed.v3.contentfabric.io");
+
+      embedUrl.searchParams.set("p", "");
+      embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
+      embedUrl.searchParams.set("type", "ebook");
+      embedUrl.searchParams.set("vid", selectedMedia.media_file["."].container);
+      embedUrl.searchParams.set("murl", btoa(selectedMedia.media_file.url));
+      useFrame = true;
+    } else if((selectedMedia && ["Audio", "Video"].includes(selectedMedia.media_type) && selectedMedia.media_link)) {
+      embedUrl = new URL("https://embed.v3.contentfabric.io");
+
+      embedUrl.searchParams.set("p", "");
+      embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
+      embedUrl.searchParams.set("vid", LinkTargetHash(selectedMedia.media_link));
+      embedUrl.searchParams.set("ct", "h");
+      embedUrl.searchParams.set("ap", "");
+      embedUrl.searchParams.set("ath", rootStore.authToken || rootStore.staticToken);
+    } else if(item && item.video) {
+      embedUrl = new URL("https://embed.v3.contentfabric.io");
+
+      embedUrl.searchParams.set("p", "");
+      embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
+      embedUrl.searchParams.set("vid", LinkTargetHash(item.video));
+      embedUrl.searchParams.set("ap", "");
+      embedUrl.searchParams.set("lp", "");
+      embedUrl.searchParams.set("m", "");
+
+      if(item?.nftTemplateMetadata?.has_audio) {
+        embedUrl.searchParams.set("ct", "h");
+      }
+    } else if(!selectedMedia && (typeof nft.metadata.playable === "undefined" || nft.metadata.playable) && nft.metadata.embed_url) {
+      embedUrl = new URL(nft.metadata.embed_url);
+    }
+
+    if(embedUrl) {
+      embedUrl.searchParams.set("nwm", "");
+    }
+  }
+
+  return {
+    imageUrl,
+    embedUrl,
+    mediaLink,
+    useFrame
+  };
 };
 
 export const MobileOption = (width, desktop, mobile) => {

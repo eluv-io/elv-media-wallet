@@ -27,6 +27,8 @@ const MarketplaceItemCard = ({
     return null;
   }
 
+
+  const released = !item.available_at || Date.now() - new Date(item.available_at).getTime() > 0;
   const expired = item.expires_at && new Date(item.expires_at).getTime() - Date.now() < 0;
   const unauthorized = item.requires_permissions && !item.authorized;
   const stock = checkoutStore.stock[item.sku];
@@ -52,6 +54,9 @@ const MarketplaceItemCard = ({
   } else if(outOfStock) {
     action = "Listings";
     status = "Sold Out!";
+  } else if(!released) {
+    linkDisabled = true;
+    status = "";
   } else {
     action = isFree ? "Claim" : "Buy";
   }

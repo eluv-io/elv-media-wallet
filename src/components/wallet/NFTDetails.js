@@ -67,14 +67,15 @@ const NFTMediaSection = ({nft, containerElement, selectedMediaIndex, setSelected
       icon={MediaSectionIcon}
       contentClassName="details-page__media-container"
       additionalContent={
-        <NFTMediaControls
-          nft={nft}
-          containerElement={containerElement}
-          orderKey={orderKey}
-          selectedMediaIndex={selectedMediaIndex}
-          setSelectedMediaIndex={setSelectedMediaIndex}
-          currentPlayerInfo={currentPlayerInfo}
-        />
+        nft.metadata.hide_additional_media_player_controls ? null :
+          <NFTMediaControls
+            nft={nft}
+            containerElement={containerElement}
+            orderKey={orderKey}
+            selectedMediaIndex={selectedMediaIndex}
+            setSelectedMediaIndex={setSelectedMediaIndex}
+            currentPlayerInfo={currentPlayerInfo}
+          />
       }
     >
       { media.map((item, index) => {
