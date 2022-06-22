@@ -115,7 +115,8 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, showFullMedia, width}) =
   if(!selectedMedia && nft.metadata.media && ["Ebook", "HTML"].includes(nft.metadata.media_type)) {
     selectedMedia = {
       media_type: nft.metadata.media_type,
-      media_file: nft.metadata.media
+      media_file: nft.metadata.media,
+      parameters: nft.metadata.media_parameters
     };
   }
 
