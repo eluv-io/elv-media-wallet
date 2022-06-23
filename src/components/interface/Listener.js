@@ -341,6 +341,8 @@ export const InitializeListener = (history) => {
                 sortDesc: data.params.sortDesc,
                 tenantIds: marketplaceInfo ? [marketplaceInfo.tenantId] : [],
                 filter: data.params.filter,
+                editionFilter: data.params.editionFilter,
+                attributeFilters: data.params.attributeFilters,
                 contractAddress: data.params.contractAddress,
                 tokenId: data.params.tokenId,
                 lastNDays: data.params.lastNDays || -1,
