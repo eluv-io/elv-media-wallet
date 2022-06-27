@@ -211,8 +211,7 @@ export const MobileOption = (width, desktop, mobile) => {
 
 export const LinkTargetHash = (link) => {
   if(!link) { return; }
-
-  console.log(link);
+  
   if(link["."] && link["."].source) {
     return link["."].source;
   }

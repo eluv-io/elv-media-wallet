@@ -86,20 +86,6 @@ const MintingStatus = observer(({
   }, []);
 
   useEffect(() => {
-    if(finished && revealVideoPlayer) {
-      revealVideoPlayer.video.play();
-
-      setTimeout(() => {
-        // Mute video if autoplay is blocked
-        if(revealVideoPlayer.video.paused) {
-          revealVideoPlayer.video.muted = true;
-          revealVideoPlayer.video.play();
-        }
-      }, 250);
-    }
-  }, [finished]);
-
-  useEffect(() => {
     if(revealed && OnFinish) {
       OnFinish({status});
     }
@@ -206,7 +192,7 @@ const MintingStatus = observer(({
                       playerOptions: {
                         watermark: EluvioPlayerParameters.watermark.OFF,
                         muted: EluvioPlayerParameters.muted.OFF_IF_POSSIBLE,
-                        autoplay: EluvioPlayerParameters.autoplay.OFF,
+                        autoplay: EluvioPlayerParameters.autoplay.ON,
                         controls: EluvioPlayerParameters.controls.OFF,
                         loop: EluvioPlayerParameters.loop.OFF,
                         playerCallback: ({videoElement}) => {
