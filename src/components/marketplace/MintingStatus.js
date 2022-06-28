@@ -393,7 +393,7 @@ export const PurchaseMintingStatus = observer(() => {
     confirmationId: match.params.confirmationId
   });
 
-  if(!status) {
+  if(status?.status !== "complete") {
     return (
       <MintingStatus
         key={`status-${videoHash}`}
