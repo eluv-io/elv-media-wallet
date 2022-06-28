@@ -102,7 +102,7 @@ const MintingStatus = observer(({
           revealVideoPlayer.video.muted = true;
           revealVideoPlayer.video.play();
         }
-      }, 250);
+      }, 1000);
     }
   }, [finished]);
 
@@ -206,7 +206,7 @@ const MintingStatus = observer(({
                       },
                       playerOptions: {
                         watermark: EluvioPlayerParameters.watermark.OFF,
-                        muted: EluvioPlayerParameters.muted.OFF_IF_POSSIBLE,
+                        muted: EluvioPlayerParameters.muted.OFF,
                         autoplay: EluvioPlayerParameters.autoplay.OFF,
                         controls: EluvioPlayerParameters.controls.OFF,
                         loop: EluvioPlayerParameters.loop.OFF,
