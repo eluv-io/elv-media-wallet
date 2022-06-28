@@ -63,7 +63,7 @@ const MarketplaceItemCard = ({
 
   let availableStock;
   if(item && !item.hide_available && !outOfStock && !expired && !unauthorized && stock &&stock.max && stock.max < 10000000) {
-    availableStock = `${stock.max - stock.minted} / ${stock.max}`;
+    availableStock = `${stock.max - stock.minted} / ${stock.max} Available`;
   }
 
   let CardComponent = ItemCard;
@@ -108,7 +108,7 @@ const MarketplaceItemCard = ({
       fullDescription={type === "Detail"}
       action={action}
       variant={variant}
-      className={`${className} ${type !== "Featured" && (outOfStock || expired || unauthorized) ? "card-container--disabled" : ""}`}
+      className={`${className} item-card--marketplace ${type !== "Featured" && (outOfStock || expired || unauthorized) ? "card-container--disabled" : ""}`}
       cardClassName={`${cardClassName}`}
     />
   );

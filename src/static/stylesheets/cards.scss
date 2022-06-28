@@ -108,6 +108,12 @@
     opacity: 0.5;
   }
 
+  &--marketplace {
+    .item-card__side-text {
+      text-transform: uppercase;
+    }
+  }
+
   &__text {
     display: flex;
     flex-direction: column;

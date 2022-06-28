@@ -91,6 +91,21 @@ const MintingStatus = observer(({
     }
   }, [revealed]);
 
+  // Play reveal video when minting is finished
+  useEffect(() => {
+    if(finished && revealVideoPlayer) {
+      revealVideoPlayer.video.play();
+
+      setTimeout(() => {
+        // Mute video if autoplay is blocked
+        if(revealVideoPlayer.video.paused) {
+          revealVideoPlayer.video.muted = true;
+          revealVideoPlayer.video.play();
+        }
+      }, 250);
+    }
+  }, [finished]);
+
   if(finished && redirect) {
     return <Redirect to={redirect}/>;
   }
@@ -154,7 +169,7 @@ const MintingStatus = observer(({
                     playerOptions: {
                       watermark: EluvioPlayerParameters.watermark.OFF,
                       muted: EluvioPlayerParameters.muted.ON,
-                      autoplay: EluvioPlayerParameters.autoplay.WHEN_VISIBLE,
+                      autoplay: EluvioPlayerParameters.autoplay.ON,
                       controls: EluvioPlayerParameters.controls.OFF,
                       loop: EluvioPlayerParameters.loop.ON
                     }
@@ -192,7 +207,7 @@ const MintingStatus = observer(({
                       playerOptions: {
                         watermark: EluvioPlayerParameters.watermark.OFF,
                         muted: EluvioPlayerParameters.muted.OFF_IF_POSSIBLE,
-                        autoplay: EluvioPlayerParameters.autoplay.ON,
+                        autoplay: EluvioPlayerParameters.autoplay.OFF,
                         controls: EluvioPlayerParameters.controls.OFF,
                         loop: EluvioPlayerParameters.loop.OFF,
                         playerCallback: ({videoElement}) => {

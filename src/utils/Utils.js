@@ -97,15 +97,31 @@ export const NFTDisplayToken = nft => {
       return "";
     }
 
-    if(nft.details.Cap && parseInt(nft.details.Cap) > 10000000) {
-      return nft.details.TokenOrdinal;
-    }
+    const cap = nft.details.Cap && parseInt(nft.details.Cap) < 10000000 ? nft.details.Cap.toString() : undefined;
+    const ordinal = typeof nft.details.TokenOrdinal !== "undefined" ? nft.details.TokenOrdinal.toString() : undefined;
+    const tokenId = nft.details.TokenIdStr.toString();
 
-    return typeof nft.details.TokenOrdinal !== "undefined" ?
-      `${parseInt(nft.details.TokenOrdinal) + 1} / ${nft.details.Cap}` :
-      nft.details.TokenIdStr;
+    switch(nft.metadata?.id_format) {
+      case "token_id":
+        return `#${tokenId}`;
+
+      case "token_id/cap":
+        return cap ? `${tokenId} / ${cap}` : tokenId;
+
+      case "ordinal":
+        return ordinal || tokenId;
+
+      // ordinal/cap
+      default:
+        if(!ordinal) {
+          return tokenId;
+        }
+
+        return cap ? `${ordinal} / ${cap}` : ordinal;
+
+    }
   } catch(error) {
-    return "";
+    return nft?.details?.TokenIdStr || "";
   }
 };
 
@@ -211,7 +227,7 @@ export const MobileOption = (width, desktop, mobile) => {
 
 export const LinkTargetHash = (link) => {
   if(!link) { return; }
-  
+
   if(link["."] && link["."].source) {
     return link["."].source;
   }
