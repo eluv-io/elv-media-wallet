@@ -208,7 +208,7 @@ const MintingStatus = observer(({
                         watermark: EluvioPlayerParameters.watermark.OFF,
                         muted: EluvioPlayerParameters.muted.OFF,
                         autoplay: EluvioPlayerParameters.autoplay.OFF,
-                        controls: EluvioPlayerParameters.controls.OFF,
+                        controls: EluvioPlayerParameters.controls.OFF_WITH_VOLUME_TOGGLE,
                         loop: EluvioPlayerParameters.loop.OFF,
                         playerCallback: ({videoElement}) => {
                           videoElement.addEventListener("ended", () => setRevealed(true));

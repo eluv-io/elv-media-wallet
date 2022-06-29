@@ -49,7 +49,8 @@ const MarketplaceItemCard = ({
     action = "Listings";
     status = "Sale Ended";
   } else if(unauthorized) {
-    status = "Private Offering";
+    status = item.permission_message || "Private Offering";
+    noPrice = true;
     linkDisabled = true;
   } else if(outOfStock) {
     action = "Listings";

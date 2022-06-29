@@ -98,7 +98,7 @@ export const NFTDisplayToken = nft => {
     }
 
     const cap = nft.details.Cap && parseInt(nft.details.Cap) < 10000000 ? nft.details.Cap.toString() : undefined;
-    const ordinal = typeof nft.details.TokenOrdinal !== "undefined" ? nft.details.TokenOrdinal.toString() : undefined;
+    const ordinal = typeof nft.details.TokenOrdinal !== "undefined" ? nft.details.TokenOrdinal + 1 : undefined;
     const tokenId = nft.details.TokenIdStr.toString();
 
     switch(nft.metadata?.id_format) {

@@ -938,16 +938,20 @@ class RootStore {
 
       marketplace.items = yield Promise.all(
         marketplace.items.map(async (item, index) => {
-          if(this.loggedIn && item.requires_permissions) {
-            try {
-              await this.client.ContentObjectMetadata({
-                versionHash: LinkTargetHash(item.nft_template),
-                metadataSubtree: "permissioned"
-              });
-
-              item.authorized = true;
-            } catch(error) {
+          if(item.requires_permissions) {
+            if(!this.loggedIn) {
               item.authorized = false;
+            } else {
+              try {
+                await this.client.ContentObjectMetadata({
+                  versionHash: LinkTargetHash(item.nft_template),
+                  metadataSubtree: "permissioned"
+                });
+
+                item.authorized = true;
+              } catch(error) {
+                item.authorized = false;
+              }
             }
           }
 

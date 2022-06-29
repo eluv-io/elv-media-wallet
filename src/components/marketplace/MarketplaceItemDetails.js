@@ -97,7 +97,7 @@ const MarketplaceItemDetails = observer(() => {
             item={item}
             index={item.itemIndex}
             noLink
-            video
+            showFullMedia
           />
           <div className="details-page__actions">
             {
