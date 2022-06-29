@@ -126,7 +126,10 @@ const AutoComplete = ({
       {
         inputValue ?
           <button
-            onClick={() => setInputValue("")}
+            onClick={() => {
+              setInputValue("");
+              onChange("");
+            }}
             className="autocomplete__clear-button"
           >
             <ImageIcon icon={ClearIcon} label="Clear" />

@@ -239,11 +239,12 @@ const NFTDetailsSection = ({nft}) => {
       <div>Token ID: { nft.details.TokenIdStr }</div>
 
       {
-        typeof nft.details.TokenOrdinal !== "undefined" ?
+        typeof nft.details.TokenOrdinal === "undefined" ||
+        (nft.metadata?.id_format || "").includes("token_id") ?
+          null :
           <div>
             Token Ordinal: { nft.details.TokenOrdinal }
           </div>
-          : null
       }
       {
         nft.metadata.total_supply ?

@@ -103,7 +103,7 @@ export const NFTDisplayToken = nft => {
 
     switch(nft.metadata?.id_format) {
       case "token_id":
-        return `#${tokenId}`;
+        return `# ${tokenId}`;
 
       case "token_id/cap":
         return cap ? `${tokenId} / ${cap}` : tokenId;

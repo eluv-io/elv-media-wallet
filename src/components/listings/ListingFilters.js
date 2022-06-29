@@ -18,6 +18,7 @@ const sortOptionsOwned = [
 
 const sortOptionsListings = [
   { key: "created", value: "created", label: "Recently Listed", desc: true},
+  { key: "info/token_id", value: "token_id", label: "Token ID", desc: false},
   { key: "info/ordinal", value: "ord", label: "Ordinal", desc: false},
   { key: "price", value: "price_asc", label: "Price (Low to High)", desc: false},
   { key: "price", value: "price_desc", label: "Price (High to Low)", desc: true},
