@@ -189,13 +189,13 @@ class CheckoutStore {
 
       const items = selectedNFTs.map(item => ({addr: item.contractAddress, id: item.tokenId}));
 
+      const mintHelperAddress = Utils.FormatAddress(config["mint-helper"]);
+
+      if(!mintHelperAddress) {
+        throw Error(`Mint helper not defined in configuration for NFT ${contractAddress}`);
+      }
+
       if(this.rootStore.AuthInfo().walletName === "metamask") {
-        const mintHelperAddress = config["mint-helper"];
-
-        if(!mintHelperAddress) {
-          throw Error(`Mint helper not defined in configuration for NFT ${contractAddress}`);
-        }
-
         const itemHashes = items.map(({addr, id}) => {
           const nftAddressBytes = ethers.utils.arrayify(addr);
           const mintAddressBytes = ethers.utils.arrayify(mintHelperAddress);
@@ -221,7 +221,7 @@ class CheckoutStore {
         marketplace_hash: marketplace.versionHash,
         collection_sku: collectionSKU,
         items,
-        from_addr: config["mint-helper"],
+        from_addr: mintHelperAddress,
         client_reference_id: `${collectionSKU}:${confirmationId}`
       };
 
