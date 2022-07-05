@@ -7,6 +7,7 @@ import {transferStore} from "Stores";
 import {ButtonWithLoader} from "Components/common/UIComponents";
 
 let cachedResults = {};
+let queryIndex = 0;
 const FilteredView = ({
   header,
   mode="listings",
@@ -25,6 +26,8 @@ const FilteredView = ({
   const [paging, setPaging] = useState(undefined);
 
   const Load = async ({currentFilters={}, currentPaging, currentEntries = [], force=false} = {}) => {
+    const query = ++queryIndex;
+
     try {
       let start = 0;
       if(currentPaging) {
@@ -62,6 +65,11 @@ const FilteredView = ({
         };
       }
 
+      // Don't update results if a more recent query was made
+      if(query !== queryIndex) {
+        return;
+      }
+
       setPaging(cachedResults[mode].paging);
       setEntries(cachedResults[mode].entries);
 
@@ -69,7 +77,9 @@ const FilteredView = ({
         setTimeout(() => window.scrollTo({top: cachedResults[mode].scroll, behavior: "smooth"}), 100);
       }
     } finally {
-      setLoading(false);
+      if(query === queryIndex) {
+        setLoading(false);
+      }
     }
   };
 

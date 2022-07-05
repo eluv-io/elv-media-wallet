@@ -507,7 +507,7 @@ class TransferStore {
   });
 
   ListingNames = flow(function * ({tenantId}) {
-    return yield Utils.ResponseToJson(
+    return (yield Utils.ResponseToJson(
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "mkt", "names"),
         method: "GET",
@@ -515,11 +515,12 @@ class TransferStore {
           filter: tenantId ? `tenant:eq:${tenantId}` : null
         }
       })
-    );
+    ))
+      .sort();
   });
 
   ListingEditionNames = flow(function * ({displayName}) {
-    return yield Utils.ResponseToJson(
+    return (yield Utils.ResponseToJson(
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "mkt", "editions"),
         queryParams: {
@@ -527,7 +528,8 @@ class TransferStore {
         },
         method: "GET"
       })
-    );
+    ))
+      .sort();
   });
 
   ListingAttributes = flow(function * ({tenantId, displayName}={}) {
@@ -554,7 +556,8 @@ class TransferStore {
       .map(({trait_type, values}) => ({ name: trait_type, values }))
       .filter(({name}) =>
         !["Content Fabric Hash", "Total Minted Supply", "Creator"].includes(name)
-      );
+      )
+      .sort((a, b) => a.name < b.name ? -1 : 1);
   });
 
   // Transfer History
