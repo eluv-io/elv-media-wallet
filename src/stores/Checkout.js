@@ -152,7 +152,7 @@ class CheckoutStore {
           )
         );
 
-        params.sig_hex = yield this.rootStore.cryptoStore.SignMetamask(hash, this.rootStore.AuthInfo().address, popup);
+        params.sig_hex = yield this.rootStore.cryptoStore.SignMetamask(hash, this.rootStore.CurrentAddress(), popup);
       }
 
       yield this.client.authClient.MakeAuthServiceRequest({
@@ -209,7 +209,7 @@ class CheckoutStore {
           );
         });
 
-        const signedHashes = yield this.rootStore.cryptoStore.SignMetamask(itemHashes, this.rootStore.AuthInfo().address, popup);
+        const signedHashes = yield this.rootStore.cryptoStore.SignMetamask(itemHashes, this.rootStore.CurrentAddress(), popup);
 
         signedHashes.forEach((signedHash, index) => {
           items[index].sig_hex = signedHash;
@@ -487,6 +487,10 @@ class CheckoutStore {
       address = address || this.rootStore.CurrentAddress();
       if(email && !this.rootStore.AccountEmail(address)) {
         this.rootStore.SetAccountEmail(address, email);
+      }
+
+      if(!address) {
+        throw Error("Unable to determine address for current user");
       }
 
       let requestParams = {

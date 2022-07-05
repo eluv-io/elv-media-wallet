@@ -218,7 +218,7 @@ export const PendingPaymentsTable = observer(({icon, header, limit, className=""
   const UpdateHistory = async () => {
     let entries = (await transferStore.UserPaymentsHistory())
       .filter(entry =>
-        Utils.EqualAddress(entry.addr, rootStore.userAddress) &&
+        Utils.EqualAddress(entry.addr, rootStore.CurrentAddress()) &&
         Date.now() - entry.created * 1000 < week &&
         !entry.processor?.startsWith("solana:p2p")
       )
@@ -291,7 +291,7 @@ export const UserTransferTable = observer(({icon, header, limit, marketplaceId, 
         ...entry,
         type:
           !entry.addr && (entry.processor || "").includes("stripe-payout") ?
-            "withdrawal" : Utils.EqualAddress(entry.buyer, rootStore.userAddress) ? "purchase" : "sale",
+            "withdrawal" : Utils.EqualAddress(entry.buyer, rootStore.CurrentAddress()) ? "purchase" : "sale",
         processor:
           (entry.processor || "").startsWith("eluvio") ? "Wallet Balance" :
             (entry.processor || "").startsWith("stripe") ? "Credit Card" :
@@ -299,7 +299,7 @@ export const UserTransferTable = observer(({icon, header, limit, marketplaceId, 
         pending: !entry.processor?.startsWith("solana:p2p") && Date.now() < entry.created * 1000 + 7 * 24 * 60 * 60 * 1000
       }))
       .filter(entry => entry.type === type)
-      .filter(entry => entry.type === "withdrawal" || Utils.EqualAddress(rootStore.userAddress, type === "sale" ? entry.addr : entry.buyer))
+      .filter(entry => entry.type === "withdrawal" || Utils.EqualAddress(rootStore.CurrentAddress(), type === "sale" ? entry.addr : entry.buyer))
       .sort((a, b) => a.created > b.created ? -1 : 1);
 
     /*

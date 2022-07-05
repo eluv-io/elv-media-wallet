@@ -350,7 +350,7 @@ const NFTDetails = observer(() => {
   const [currentPlayerInfo, setCurrentPlayerInfo] = useState({selectedMediaIndex: selectedMediaIndex, playerInfo: undefined});
 
   const nftInfo = rootStore.NFTInfo({contractId: match.params.contractId, tokenId: match.params.tokenId});
-  const isOwned = !!nftInfo || (listing && Utils.EqualAddress(listing.details.SellerAddress, rootStore.userAddress));
+  const isOwned = !!nftInfo || (listing && Utils.EqualAddress(listing.details.SellerAddress, rootStore.CurrentAddress()));
   const heldDate = nftInfo && nftInfo.TokenHoldDate && (new Date() < nftInfo.TokenHoldDate) && nftInfo.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
 
   const LoadListing = async ({listingId, nftData, setLoading=false}) => {

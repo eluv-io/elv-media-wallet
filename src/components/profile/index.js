@@ -141,8 +141,8 @@ const Profile = observer(() => {
           Wallet Address
         </h2>
         <div className="profile-page__address">
-          <CopyableField className="profile-page__address-field" value={rootStore.userAddress} ellipsis={false}>
-            { rootStore.userAddress }
+          <CopyableField className="profile-page__address-field" value={rootStore.CurrentAddress()} ellipsis={false}>
+            { rootStore.CurrentAddress() }
           </CopyableField>
         </div>
         <div className="profile-page__message">

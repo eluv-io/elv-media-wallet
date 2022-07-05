@@ -8,6 +8,7 @@ import ImageIcon from "Components/common/ImageIcon";
 
 const Sign = async (params, Respond, SetMessage) => {
   const wallet = cryptoStore.WalletFunctions(params.provider);
+  const address = await cryptoStore.RequestMetamaskAddress();
 
   try {
     if(params.action === "connect") {
@@ -15,7 +16,7 @@ const Sign = async (params, Respond, SetMessage) => {
       await wallet.Connect(params.params);
       const balance = await cryptoStore.PhantomBalance();
 
-      Respond({response: {address: wallet.Address(), balance}});
+      Respond({response: {address: address, balance}});
     } else if(params.action === "message") {
       SetMessage(<h1>Awaiting message signature...</h1>, true);
 
@@ -30,11 +31,11 @@ const Sign = async (params, Respond, SetMessage) => {
         );
       }
 
-      Respond({response: {address: wallet.Address(), response: await wallet.Sign(params.message)}});
+      Respond({response: {address: address, response: await wallet.Sign(params.message)}});
     } else if(params.action === "purchase") {
       SetMessage(<h1>Awaiting purchase transaction...</h1>, true);
 
-      Respond({response: {address: wallet.Address(), response: await wallet.Purchase(params.purchaseSpec)}});
+      Respond({response: {address: address, response: await wallet.Purchase(params.purchaseSpec)}});
     }
   } catch(error) {
     rootStore.Log(error, true);

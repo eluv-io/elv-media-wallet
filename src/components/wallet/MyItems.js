@@ -22,7 +22,7 @@ const MyItems = observer(() => {
   const [myListings, setMyListings] = useState([]);
 
   useEffect(() => {
-    transferStore.FetchTransferListings({userAddress: rootStore.userAddress})
+    transferStore.FetchTransferListings({userAddress: rootStore.CurrentAddress()})
       .then(listings => setMyListings(listings));
   }, []);
 

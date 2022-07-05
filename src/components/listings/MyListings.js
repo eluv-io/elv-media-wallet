@@ -15,7 +15,7 @@ const MyListings = observer(() => {
   const [listings, setListings] = useState(undefined);
 
   const LoadListings = async () => {
-    let retrievedListings = [...(await transferStore.FetchTransferListings({userAddress: rootStore.userAddress}))]
+    let retrievedListings = [...(await transferStore.FetchTransferListings({userAddress: rootStore.CurrentAddress()}))]
       .sort((a, b) => a.details.CreatedAt > b.details.CreatedAt ? -1 : 1);
 
     setListings(retrievedListings);

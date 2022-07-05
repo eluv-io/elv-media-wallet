@@ -225,12 +225,12 @@ class TransferStore {
           entry.action === "SOLD" &&
           Utils.EqualAddress(contractAddress, entry.contract) &&
           (
-            Utils.EqualAddress(rootStore.userAddress, entry.seller) ||
-            Utils.EqualAddress(rootStore.userAddress, entry.buyer)
+            Utils.EqualAddress(rootStore.CurrentAddress(), entry.seller) ||
+            Utils.EqualAddress(rootStore.CurrentAddress(), entry.buyer)
           )
         );
 
-      if(lastTransfer && Utils.EqualAddress(rootStore.userAddress, lastTransfer.seller)) {
+      if(lastTransfer && Utils.EqualAddress(rootStore.CurrentAddress(), lastTransfer.seller)) {
         return { sale: lastTransfer };
       }
 

@@ -115,14 +115,21 @@ class CryptoStore {
     }
   });
 
+  RequestMetamaskAddress = flow(function * () {
+    const accounts = yield window.ethereum.request({ method: "eth_requestAccounts" });
+
+    this.metamaskAddress = accounts[0];
+
+    return this.metamaskAddress;
+  });
+
   ConnectMetamask = flow(function * () {
     yield window.ethereum.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: "0x1" }],
     });
 
-    const accounts = yield window.ethereum.request({ method: "eth_requestAccounts" });
-    const address = Utils.FormatAddress(accounts[0]);
+    const address = yield this.RequestMetamaskAddress();
 
     if(!address) { return; }
 
@@ -235,11 +242,10 @@ class CryptoStore {
 
         return signatures;
       } else {
-        yield window.ethereum.request({method: "eth_requestAccounts"});
-        const from = address || window.ethereum?.selectedAddress;
+        const address = yield this.RequestMetamaskAddress();
         return yield window.ethereum?.request({
           method: "personal_sign",
-          params: [message, from, ""],
+          params: [message, address, ""],
         });
       }
     } catch(error) {
@@ -443,8 +449,8 @@ class CryptoStore {
   });
 
   UpdateMetamaskInfo() {
-    this.metamaskAddress = window.ethereum?.selectedAddress;
     this.metamaskChainId = window.ethereum?.chainId;
+    this.RequestMetamaskAddress();
   }
 
   RegisterMetamaskHandlers() {
@@ -466,7 +472,8 @@ class CryptoStore {
           currencyLogo: EthereumLogo,
           currencyName: "ETH",
           link: "https://metamask.io",
-          Address: () => window.ethereum?.selectedAddress,
+          Address: () => window.ethereum?.selectedAddress || this.metamaskAddress,
+          RetrieveAddress: async () => await this.RequestMetamaskAddress(),
           Available: () => this.MetamaskAvailable(),
           Connected: () => this.MetamaskConnected(),
           Connect: async params => await this.ConnectMetamask(params),
@@ -519,7 +526,7 @@ class CryptoStore {
     yield window.ethereum.enable();
 
     const signer = (new ethers.providers.Web3Provider(window.ethereum)).getSigner();
-    const address = (yield window.ethereum.request({method: "eth_requestAccounts"}))[0];
+    const address = yield this.RequestMetamaskAddress();
     const response = yield Utils.ResponseToJson(
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "act", nft.details.TenantId),

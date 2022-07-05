@@ -260,7 +260,7 @@ export const InitializeListener = (history) => {
                 processed_at: entry.processed_at * 1000,
                 type:
                   !entry.addr && (entry.processor || "").includes("stripe-payout") ?
-                    "withdrawal" : Utils.EqualAddress(entry.buyer, rootStore.userAddress) ? "purchase" : "sale",
+                    "withdrawal" : Utils.EqualAddress(entry.buyer, rootStore.CurrentAddress()) ? "purchase" : "sale",
                 processor:
                   (entry.processor || "").startsWith("eluvio") ? "Wallet Balance" :
                     (entry.processor || "").startsWith("stripe") ? "Credit Card" : "Crypto",
@@ -291,7 +291,7 @@ export const InitializeListener = (history) => {
             start: 0
           })).results || [];
 
-          let myListings = toJS(await transferStore.FetchTransferListings({userAddress: rootStore.userAddress}));
+          let myListings = toJS(await transferStore.FetchTransferListings({userAddress: rootStore.CurrentAddress()}));
 
           items.forEach((item) => {
             const listing = myListings.find(listing =>
@@ -328,7 +328,7 @@ export const InitializeListener = (history) => {
         // client.UserListings
         case "userListings":
           return Respond({
-            response: toJS(await transferStore.FetchTransferListings({userAddress: rootStore.userAddress}))
+            response: toJS(await transferStore.FetchTransferListings({userAddress: rootStore.CurrentAddress()}))
           });
 
         // client.Listings

@@ -295,9 +295,9 @@ class RootStore {
   });
 
   CurrentAddress() {
-    if(!this.authInfo) { return; }
+    if(!this.authToken) { return; }
 
-    return Utils.FormatAddress(this.authInfo.address);
+    return Utils.DecodeSignedToken(this.authToken).payload.adr;
   }
 
   Authenticate = flow(function * ({idToken, fabricToken, authToken, externalWallet, walletName, address, tenantId, user, expiresAt, saveAuthInfo=true}) {
@@ -359,8 +359,12 @@ class RootStore {
       if(externalWallet) {
         const walletMethods = this.cryptoStore.WalletFunctions(externalWallet);
 
-        address = client.utils.FormatAddress(yield walletMethods.Address());
+        address = client.utils.FormatAddress(yield walletMethods.RetrieveAddress());
         walletName = externalWallet;
+
+        if(!address) {
+          throw Error("Unable to determine user address for external wallet");
+        }
 
         const duration = 24 * 60 * 60 * 1000;
         fabricToken = yield client.CreateFabricToken({
@@ -1020,7 +1024,7 @@ class RootStore {
         let promise = new Promise(async resolve => {
           let ownedItems = {};
 
-          const listings = await transferStore.FetchTransferListings({userAddress: rootStore.userAddress});
+          const listings = await transferStore.FetchTransferListings({userAddress: rootStore.CurrentAddress()});
 
           (await this.transferStore.FilteredQuery({
             mode: "owned",

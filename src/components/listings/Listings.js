@@ -27,7 +27,7 @@ const Listing = memo(({url, listing}) => (
     badges={
       <>
         {
-          Utils.EqualAddress(rootStore.userAddress, listing.details.SellerAddress) ?
+          Utils.EqualAddress(rootStore.CurrentAddress(), listing.details.SellerAddress) ?
             <ImageIcon icon={ListingIcon} title="This is your listing" alt="Listing Icon" className="item-card__badge"/> : null
         }
         {
