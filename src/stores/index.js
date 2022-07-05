@@ -273,7 +273,7 @@ class RootStore {
     return this.marketplaceClient.UserAddress();
   }
 
-  Authenticate = flow(function * ({idToken, clientAuthToken, externalWallet, walletName, tenantId, user, saveAuthInfo=true}) {
+  Authenticate = flow(function * ({idToken, clientAuthToken, clientSigningToken, externalWallet, walletName, tenantId, user, saveAuthInfo=true}) {
     if(this.authenticating) { return; }
 
     try {
@@ -331,19 +331,23 @@ class RootStore {
           walletName: walletMethods.name
         });
       } else if(idToken) {
-        clientAuthToken = yield this.marketplaceClient.AuthenticateOAuth({
+        const tokens = yield this.marketplaceClient.AuthenticateOAuth({
           idToken,
           tenantId,
           shareEmail: user?.userData.share_email
         });
+
+        clientAuthToken = tokens.authToken;
+        clientSigningToken = tokens.signingToken;
       } else if(clientAuthToken) {
-        yield this.marketplaceClient.Authenticate({token: clientAuthToken});
+        yield this.marketplaceClient.Authenticate({token: clientSigningToken || clientAuthToken});
       } else if(!clientAuthToken) {
         throw Error("Invalid parameters provided to Authenticate");
       }
 
       this.SetAuthInfo({
         clientAuthToken,
+        clientSigningToken,
         save: saveAuthInfo
       });
 
@@ -1202,7 +1206,7 @@ class RootStore {
       const tokenInfo = this.GetLocalStorage(`auth-${this.network}`);
 
       if(tokenInfo) {
-        let { clientAuthToken, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
+        let { clientAuthToken, clientSigningToken, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
 
         // Expire tokens early so they don't stop working while in use
         const expirationBuffer = 4 * 60 * 60 * 1000;
@@ -1211,7 +1215,7 @@ class RootStore {
           this.ClearAuthInfo();
           this.Log("Authorization expired");
         } else {
-          return { clientAuthToken, expiresAt };
+          return { clientAuthToken, clientSigningToken, expiresAt };
         }
       }
     } catch(error) {
@@ -1227,10 +1231,11 @@ class RootStore {
     this.authInfo = undefined;
   }
 
-  SetAuthInfo({clientAuthToken, save=true}) {
+  SetAuthInfo({clientAuthToken, clientSigningToken, save=true}) {
     const { expiresAt } = JSON.parse(Utils.FromB58(clientAuthToken));
 
     const authInfo = {
+      clientSigningToken,
       clientAuthToken,
       expiresAt
     };
