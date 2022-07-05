@@ -35,6 +35,7 @@ const Profile = observer(({marketplace}) => {
     );
   }
 
+  const user = rootStore.marketplaceClient.User() || {};
   return (
     <Link to={marketplaceId ? `/marketplace/${marketplaceId}/profile` : "/profile"} className="header__profile">
       <div className="header__profile__info ellipsis">
@@ -42,7 +43,7 @@ const Profile = observer(({marketplace}) => {
           (rootStore.embedded && marketplace?.branding?.hide_profile_name) ?
             null :
             <div className="header__profile__name">
-              { rootStore.userProfile.name }
+              { user.email || user.address }
             </div>
         }
         {

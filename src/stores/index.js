@@ -76,8 +76,6 @@ class RootStore {
   tenantSlug = undefined;
   marketplaceSlug = undefined;
 
-  drops = {};
-
   auth0AccessToken = undefined;
 
   loaded = false;
@@ -85,7 +83,6 @@ class RootStore {
   authenticating = false;
   client = undefined;
   marketplaceClient = undefined;
-  accountId = undefined;
   funds = undefined;
 
   userStripeId = undefined;
@@ -107,11 +104,6 @@ class RootStore {
   authToken = undefined;
   staticToken = undefined;
   basePublicUrl = undefined;
-
-  userProfile = {};
-  userAddress;
-
-  lastProfileQuery = 0;
 
   nftInfo = {};
   nftData = {};
@@ -278,7 +270,7 @@ class RootStore {
   CurrentAddress() {
     if(!this.authToken) { return; }
 
-    return Utils.DecodeSignedToken(this.authToken).payload.adr;
+    return this.marketplaceClient.UserAddress();
   }
 
   Authenticate = flow(function * ({idToken, clientAuthToken, externalWallet, walletName, tenantId, user, saveAuthInfo=true}) {
@@ -355,17 +347,15 @@ class RootStore {
         save: saveAuthInfo
       });
 
-      const { address, fabricToken } = this.AuthInfo();
+      this.authToken = this.marketplaceClient.AuthToken();
 
-      this.authToken = fabricToken;
+      const address = this.marketplaceClient.UserAddress();
 
       this.client = this.marketplaceClient.client;
 
       this.GetWalletBalance();
 
       this.funds = parseInt((yield this.client.GetBalance({address}) || 0));
-      this.userAddress = this.CurrentAddress();
-      this.accountId = `iusr${Utils.AddressToHash(address)}`;
 
       this.basePublicUrl = yield this.client.FabricUrl({
         queryParams: {
@@ -373,12 +363,6 @@ class RootStore {
         },
         noAuth: true
       });
-
-      this.userProfile = {
-        address,
-        name: user?.name || address,
-        email: user?.email || this.AccountEmail(address),
-      };
 
       // Reload marketplaces so they will be reloaded and authorization rechecked
       this.marketplaceCache = {};
@@ -1218,17 +1202,16 @@ class RootStore {
       const tokenInfo = this.GetLocalStorage(`auth-${this.network}`);
 
       if(tokenInfo) {
-        let { clientAuthToken, fabricToken, authToken, address, user, walletType, walletName, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
+        let { clientAuthToken, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
 
         // Expire tokens early so they don't stop working while in use
         const expirationBuffer = 4 * 60 * 60 * 1000;
 
-        expiresAt = expiresAt || (authToken && JSON.parse(atob(authToken)).exp);
         if(expiresAt - Date.now() < expirationBuffer) {
           this.ClearAuthInfo();
           this.Log("Authorization expired");
         } else {
-          return { clientAuthToken, fabricToken, authToken, address, user, walletType, walletName, expiresAt };
+          return { clientAuthToken, expiresAt };
         }
       }
     } catch(error) {
@@ -1245,20 +1228,11 @@ class RootStore {
   }
 
   SetAuthInfo({clientAuthToken, save=true}) {
-    const { fabricToken, email, address, walletName, walletType, expiresAt } = JSON.parse(Utils.FromB58(clientAuthToken));
+    const { expiresAt } = JSON.parse(Utils.FromB58(clientAuthToken));
 
     const authInfo = {
       clientAuthToken,
-      fabricToken,
-      address,
-      expiresAt,
-      walletName,
-      walletType,
-      user: {
-        name: email || address,
-        email,
-        address
-      }
+      expiresAt
     };
 
     if(save) {

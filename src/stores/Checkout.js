@@ -111,7 +111,7 @@ class CheckoutStore {
         tok_id: tokenId
       };
 
-      if(this.rootStore.AuthInfo().walletName === "Metamask") {
+      if(this.rootStore.marketplaceClient.User().walletName.toLowerCase() === "metamask") {
         // Must create signature for burn operation to pass to API
 
         let popup;
@@ -167,7 +167,7 @@ class CheckoutStore {
       this.PurchaseInitiated({tenantId, confirmationId});
 
       let popup;
-      if(this.rootStore.embedded && this.rootStore.AuthInfo().walletName === "Metamask") {
+      if(this.rootStore.marketplaceClient.User().walletName.toLowerCase() === "metamask") {
         // Create popup before calling async config method to avoid popup blocker
         popup = window.open("about:blank");
       }
@@ -181,7 +181,7 @@ class CheckoutStore {
         throw Error(`Mint helper not defined in configuration for NFT ${contractAddress}`);
       }
 
-      if(this.rootStore.AuthInfo().walletName === "metamask") {
+      if(this.rootStore.embedded && this.marketplaceClient.User().walletName === "Metamask") {
         const itemHashes = items.map(({addr, id}) => {
           const nftAddressBytes = ethers.utils.arrayify(addr);
           const mintAddressBytes = ethers.utils.arrayify(mintHelperAddress);
@@ -283,13 +283,7 @@ class CheckoutStore {
     try {
       this.submittingOrder = true;
 
-      let authInfo = this.rootStore.AuthInfo() || {};
-      if(!authInfo.user) {
-        authInfo.user = {};
-      }
-
-      email = email || (authInfo.user || {}).email || this.rootStore.userProfile.email;
-      authInfo.user.email = email;
+      email = email || this.rootStore.marketplaceClient.User().email;
 
       const successPath =
         marketplaceId ?
@@ -413,13 +407,7 @@ class CheckoutStore {
     try {
       this.submittingOrder = true;
 
-      let authInfo = this.rootStore.AuthInfo() || {};
-      if(!authInfo.user) {
-        authInfo.user = {};
-      }
-
-      email = email || (authInfo.user || {}).email || this.rootStore.userProfile.email;
-      authInfo.user.email = email;
+      email = email || this.rootStore.marketplaceClient.User().email;
 
       const successPath = UrlJoin("/marketplace", marketplaceId, "store", sku, "purchase", confirmationId);
       const cancelPath = UrlJoin("/marketplace", marketplaceId, "store", sku);

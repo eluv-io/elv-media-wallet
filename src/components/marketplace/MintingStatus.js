@@ -406,7 +406,7 @@ export const PurchaseMintingStatus = observer(() => {
   const hideText = marketplace?.storefront?.hide_text;
 
   const Status = async () => await rootStore.PurchaseStatus({
-    marketplace: match.params.marketplaceId,
+    marketplaceId: match.params.marketplaceId,
     confirmationId: match.params.confirmationId
   });
 

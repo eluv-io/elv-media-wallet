@@ -62,10 +62,10 @@ class TransferStore {
         listing = await this.rootStore.marketplaceClient.Listing({listingId});
       } else if(nft) {
         try {
-          listing = (await this.rootStore.marketplaceClient.Listings({
+          listing = ((await this.rootStore.marketplaceClient.Listings({
             contractAddress: nft.details.ContractAddr,
             tokenId: nft.details.TokenIdStr
-          })) || [];
+          }))?.results || [])[0];
           // eslint-disable-next-line no-empty
         } catch(error) {}
       }
