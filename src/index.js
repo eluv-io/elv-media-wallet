@@ -22,14 +22,6 @@ if(searchParams.has("n")) {
   rootStore.ToggleNavigation(false);
 }
 
-let newWindowAuth0Login = false;
-try {
-  newWindowAuth0Login =
-    searchParams.has("l") ||
-    sessionStorage.getItem("new-window-login");
-// eslint-disable-next-line no-empty
-} catch(error) {}
-
 import {
   useHistory,
   HashRouter,
@@ -37,7 +29,7 @@ import {
   Route,
   Redirect
 } from "react-router-dom";
-import Login from "./login/Login";
+import Login, {Auth0Authentication} from "Components/login/index";
 import ScrollToTop from "Components/common/ScrollToTop";
 import { InitializeListener } from "Components/interface/Listener";
 import {Auth0Provider, useAuth0} from "@auth0/auth0-react";
@@ -81,70 +73,18 @@ const RedirectHandler = ({storageKey}) => {
 };
 
 const LoginModal = observer(() => {
-  if(newWindowAuth0Login) {
-    // Window has been opened specifically to log in to auth0 in native frame
-    return (
-      <Login
-        key="login-window"
-        silent
-        darkMode={rootStore.darkMode}
-        Loaded={() => rootStore.SetLoginLoaded()}
-        LoadCustomizationOptions={async () => ({})}
-        SignIn={async params => await rootStore.Authenticate({...params, silent: true})}
-        SignOut={async returnURL => await rootStore.SignOut(returnURL)}
-      />
-    );
-  }
+  if(!rootStore.showLogin || rootStore.loggedIn) { return null; }
 
-  if(!rootStore.loaded || (rootStore.loggedIn && !rootStore.loginOnly)) {
-    return null;
-  }
-
-  if(rootStore.showLogin || rootStore.loginOnly) {
-    const redirectUrl = new URL(UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""));
-    redirectUrl.hash = window.location.hash;
-
-    if(rootStore.requireLogin) {
-      redirectUrl.searchParams.set("rl", "");
-    }
-
-    if(rootStore.loginOnly) {
-      redirectUrl.searchParams.set("lo", "");
-    }
-
-    return (
-      <Modal
-        className="login-modal"
-        closeable={!rootStore.loginOnly && (!rootStore.requireLogin || rootStore.loggedIn)}
-        Toggle={rootStore.requireLogin ? undefined : () => rootStore.HideLogin()}
-        noFade={rootStore.requireLogin}
-      >
-        <Login
-          key="login-main"
-          darkMode={rootStore.darkMode}
-          callbackUrl={redirectUrl.toString()}
-          authenticating={rootStore.authenticating || rootStore.loggedIn}
-          signedIn={rootStore.loggedIn}
-          Loaded={() => rootStore.SetLoginLoaded()}
-          LoadCustomizationOptions={async () => await rootStore.LoadLoginCustomization()}
-          SignIn={async params => await rootStore.Authenticate(params)}
-          Close={rootStore.requireLogin ? undefined : () => rootStore.HideLogin()}
-        />
-      </Modal>
-    );
-  } else {
-    // Load component silently by default - handles auth0 logged-in case
-    return (
-      <Login
-        key="login-silent"
-        silent
-        darkMode={rootStore.darkMode}
-        Loaded={() => rootStore.SetLoginLoaded()}
-        LoadCustomizationOptions={async () => await rootStore.LoadLoginCustomization()}
-        SignIn={async params => await rootStore.Authenticate(params)}
-      />
-    );
-  }
+  return (
+    <Modal
+      className="login-modal"
+      closeable={!rootStore.loginOnly && (!rootStore.requireLogin || rootStore.loggedIn)}
+      Toggle={rootStore.requireLogin ? undefined : () => rootStore.HideLogin()}
+      noFade={rootStore.requireLogin}
+    >
+      <Login key="login-main" Close={rootStore.requireLogin ? undefined : () => rootStore.HideLogin()} />
+    </Modal>
+  );
 });
 
 const Routes = observer(() => {
@@ -166,6 +106,9 @@ const Routes = observer(() => {
       <ScrollToTop>
         <ErrorBoundary className="page-container">
           <Switch>
+            <Route path="/login">
+              <Login />
+            </Route>
             <Route exact path="/success">
               <RedirectHandler storageKey="successPath" />
             </Route>
@@ -207,17 +150,8 @@ const Routes = observer(() => {
 
 
 const App = observer(() => {
-  if(sessionStorageAvailable) {
+  if(window.sessionStorageAvailable) {
     window.auth0 = useAuth0();
-  }
-
-  if(newWindowAuth0Login) {
-    return (
-      <>
-        <PageLoader />
-        <LoginModal />
-      </>
-    );
   }
 
   useEffect(() => {
@@ -240,6 +174,10 @@ const App = observer(() => {
     }
   }, [rootStore.loaded, rootStore.appBackground]);
 
+  if(rootStore.loginOnly) {
+    return <Redirect to="/login" />;
+  }
+
   const hasHeader = !rootStore.hideNavigation && (!rootStore.sidePanelMode || rootStore.navigationBreadcrumbs.length > 2);
   return (
     <div
@@ -257,13 +195,14 @@ const App = observer(() => {
       }
     >
       <Routes />
+      <Auth0Authentication />
       <DebugFooter />
     </div>
   );
 });
 
 const AuthWrapper = ({children}) => {
-  if(sessionStorageAvailable) {
+  if(window.sessionStorageAvailable) {
     return (
       <Auth0Provider
         domain={EluvioConfiguration["auth0-domain"]}
@@ -292,6 +231,13 @@ render(
 
           <Route path="/action/:action/:parameters">
             <Actions />
+          </Route>
+
+          <Route path="/login">
+            <div className="login-page-container">
+              <Login />
+              <Auth0Authentication />
+            </div>
           </Route>
 
           { /* All other routes */ }

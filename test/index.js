@@ -8,7 +8,15 @@ import {ElvWalletClient} from "../client/src/index";
 
 window.client = undefined;
 
-const appUrl = window.location.hostname === "core.test.contentfabric.io" ? "https://core.test.contentfabric.io/wallet" : "https://192.168.1.8:8090";
+let appUrl;
+if(window.location.hostname === "core.test.contentfabric.io") {
+  appUrl = "https://core.test.contentfabric.io/wallet";
+} else {
+  const url = new URL(window.location.origin);
+  url.port = "8090";
+
+  appUrl = url.toString();
+}
 
 const targetId = "wallet-target";
 

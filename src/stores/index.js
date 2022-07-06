@@ -62,7 +62,7 @@ class RootStore {
   loginOnly = window.loginOnly;
   requireLogin = searchParams.has("rl");
   capturedLogin = this.embedded && searchParams.has("cl");
-  showLogin = this.requireLogin || searchParams.has("sl");
+  showLogin = this.requireLogin || searchParams.get("action") === "login";
 
   loggedIn = false;
   externalWalletUser = false;
@@ -333,6 +333,7 @@ class RootStore {
       } else if(idToken) {
         const tokens = yield this.marketplaceClient.AuthenticateOAuth({
           idToken,
+          email: user?.email,
           tenantId,
           shareEmail: user?.userData.share_email
         });

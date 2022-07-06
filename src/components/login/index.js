@@ -4,184 +4,63 @@ import {useAuth0} from "@auth0/auth0-react";
 import {render} from "react-dom";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
+import {rootStore} from "Stores";
 
 import ImageIcon from "Components/common/ImageIcon";
 import {Loader, PageLoader} from "Components/common/Loaders";
 
-import UpCaretIcon from "./static/up-caret.svg";
-import DownCaretIcon from "./static/down-caret.svg";
-
-import MetamaskIcon from "./static/metamask fox.png";
-
-import EluvioLogo from "./static/logo.svg";
+import UpCaretIcon from "Assets/icons/up-caret.svg";
+import DownCaretIcon from "Assets/icons/down-caret.svg";
+import MetamaskIcon from "Assets/icons/metamask fox.png";
+import EluvioLogo from "Assets/icons/logo.svg";
 
 const embedded = window.top !== window.self || new URLSearchParams(window.location.search).has("e");
 
 const searchParams = new URLSearchParams(window.location.search);
 
-let newWindowAuth0Login = false;
-let clearLogin = false;
-try {
-  newWindowAuth0Login =
-    searchParams.has("l") ||
-    sessionStorage.getItem("new-window-login");
+const params = {
+  source: searchParams.get("source"),
+  action: searchParams.get("action"),
+  provider: searchParams.get("provider"),
+  mode: searchParams.get("mode"),
+  response: searchParams.get("response"),
+  redirect: searchParams.get("redirect"),
+  clearAuth0Login: searchParams.has("clear") || (window.sessionStorageAvailable && localStorage.getItem("signed-out")),
+  loginOnly: searchParams.has("lo"),
+  userData: searchParams.has("data") ? JSON.parse(atob(searchParams.get("data"))) : { share_email: true }
+};
 
-  if(newWindowAuth0Login) {
-    sessionStorage.setItem("new-window-login", "true");
-  }
+// Automatic login when auth0 is authenticated
+export const Auth0Authentication = observer(() => {
+  if(!window.sessionStorageAvailable) { return; }
 
-  clearLogin =
-    searchParams.has("clear") ||
-    (embedded && localStorage.getItem("signed-out"));
-// eslint-disable-next-line no-empty
-} catch(error) {}
+  const auth0 = useAuth0();
 
-
-/*
-UI:
-- Normal login screen
-- Embedded login screen
-
-Embedded
-- Auto login auth0 (sign in / sign up) (new-window-login)
-- Sign MM request (should this be changed?)
-
-
-
-- Log in automatically
--- from saved
--- from auth0
-
-
-*/
-
-
-/* URL Parameters */
-
-
-
-
-// Methods
-
-// Log in button clicked - either redirect to auth0, or open new window
-const LogInRedirect = async ({auth0, callbackUrl, marketplaceHash, userData, darkMode, create=false, customizationOptions, SignIn}) => {
-  await new Promise((resolve, reject) => {
-    // Embedded
-    if(embedded) {
-      const url = new URL(window.location.origin);
-      url.pathname = window.location.pathname;
-      url.searchParams.set("l", "");
-
-      if(marketplaceHash) {
-        url.searchParams.set("mid", marketplaceHash);
-      }
-
-      if(userData) {
-        url.searchParams.set("ld", btoa(JSON.stringify(userData)));
-      }
-
-      if(darkMode) {
-        url.searchParams.set("dk", "");
-      }
-
-      if(create) {
-        url.searchParams.set("create", "");
-      }
-
-      if(clearLogin) {
-        url.searchParams.set("clear", "");
-      }
-
-      const newWindow = window.open(url.toString());
-
-      const closeCheck = setInterval(function() {
-        if(newWindow.closed) {
-          clearInterval(closeCheck);
-          reject();
-        }
-      }, 250);
-
-      window.addEventListener("message", async event => {
-        if(!event || !event.data || event.data.type !== "LoginResponse") {
-          return;
-        }
-
-        await SignIn({idToken: event.data.params.idToken, user: event.data.params.user});
-
-        newWindow.close();
-
-        resolve();
-      });
-    } else {
-      // Not embedded
-      let auth0LoginParams = {};
-
-      if(darkMode) {
-        auth0LoginParams.darkMode = true;
-      }
-
-      if(customizationOptions.disable_third_party) {
-        auth0LoginParams.disableThirdParty = true;
-      }
-
-      auth0.loginWithRedirect({
-        redirectUri: callbackUrl,
-        initialScreen: create ? "signUp" : "login",
-        ...auth0LoginParams
-      });
-
-      resolve();
+  useEffect(() => {
+    if(!auth0.isLoading) {
+      rootStore.SetLoginLoaded();
     }
-  });
-};
 
-const Authenticate = async ({auth0, idToken, user, userData, tenantId, SignIn}) => {
-  if(!auth0?.isAuthenticated && !idToken) {
-    throw Error("Not authenticated");
-  }
+    if(params.clearAuth0Login || !rootStore.loaded || rootStore.loggedIn || auth0.isLoading || !auth0.isAuthenticated) { return; }
 
-  if(auth0) {
-    idToken = (await auth0.getIdTokenClaims()).__raw;
+    auth0.getIdTokenClaims()
+      .then(async response => {
+        await rootStore.Authenticate({
+          idToken: response.__raw,
+          tenantId: rootStore.specifiedMarketplace?.tenant_id,
+          user: {
+            name: auth0?.user?.name,
+            email: auth0?.user?.email,
+            verified: auth0?.user?.email_verified,
+            userData: params.userData
+          }
+        });
+      });
+  }, [rootStore.loaded, auth0.isLoading, auth0.isAuthenticated]);
 
-    user = {
-      name: auth0?.user?.name,
-      email: auth0?.user?.email,
-      verified: auth0?.user?.email_verified,
-      userData
-    };
-  }
+  return null;
+});
 
-  if(!idToken) {
-    throw Error("ID token not retrievable");
-  }
-
-  if(!user.email) {
-    throw Error("Email not retrievable");
-  }
-
-  if(newWindowAuth0Login) {
-    window.opener.postMessage({
-      type: "LoginResponse",
-      params: {
-        idToken,
-        user
-      }
-    });
-
-    window.close();
-    return;
-  }
-
-  await SignIn({
-    idToken,
-    tenantId,
-    user
-  });
-};
-
-
-
-// Components
 const Logo = ({customizationOptions}) => {
   if(customizationOptions?.logo) {
     return (
@@ -283,14 +162,16 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
 };
 
 // eslint-disable-next-line no-unused-vars
-const Buttons = ({customizationOptions, loading, Auth0LogIn, SignIn}) => {
+const Buttons = observer(({customizationOptions, Authenticate}) => {
   const [showWalletOptions, setShowWalletOptions] = useState(searchParams.has("swl"));
 
   let hasLoggedIn = false;
   try {
     hasLoggedIn = localStorage.getItem("hasLoggedIn");
-  // eslint-disable-next-line no-empty
+    // eslint-disable-next-line no-empty
   } catch(error) {}
+
+  const loading = !rootStore.loaded || rootStore.authenticating || !rootStore.loginLoaded || rootStore.loggedIn || params.source === "parent";
 
   const signUpButton = (
     <button
@@ -301,7 +182,7 @@ const Buttons = ({customizationOptions, loading, Auth0LogIn, SignIn}) => {
         border: `0.75px solid ${customizationOptions?.sign_up_button?.border_color?.color}`
       }}
       autoFocus={!hasLoggedIn}
-      onClick={() => Auth0LogIn({create: true})}
+      onClick={() => Authenticate({provider: "oauth", mode: "create"})}
     >
       Sign Up
     </button>
@@ -316,7 +197,7 @@ const Buttons = ({customizationOptions, loading, Auth0LogIn, SignIn}) => {
       }}
       autoFocus={!!hasLoggedIn}
       className={`action ${hasLoggedIn ? "action-primary" : ""} login-page__login-button login-page__login-button-sign-in login-page__login-button-auth0`}
-      onClick={() => Auth0LogIn({create: false})}
+      onClick={() => Authenticate({provider: "oauth", mode: "login"})}
     >
       Log In
     </button>
@@ -330,11 +211,7 @@ const Buttons = ({customizationOptions, loading, Auth0LogIn, SignIn}) => {
         border: `0.75px solid ${customizationOptions?.wallet_button?.border_color?.color}`
       }}
       className="action login-page__login-button login-page__login-button-wallet"
-      onClick={() => SignIn({
-        tenantId: customizationOptions.tenant_id,
-        externalWallet: "Metamask",
-        SignIn
-      })}
+      onClick={() => Authenticate({provider: "metamask"})}
     >
       <ImageIcon icon={MetamaskIcon} />
       Metamask
@@ -374,16 +251,122 @@ const Buttons = ({customizationOptions, loading, Auth0LogIn, SignIn}) => {
       }
     </div>
   );
-};
+});
 
-const LoginComponent = observer(({customizationOptions, darkMode, userData, setUserData, loading, Auth0LogIn, SignIn, Close}) => {
+const LoginComponent = observer(({customizationOptions, userData, setUserData, Close}) => {
+  const Authenticate = async ({provider, mode}) => {
+    if(provider === "metamask") {
+      await rootStore.Authenticate({
+        externalWallet: "Metamask",
+        tenantId: customizationOptions?.tenant_id
+      });
+    } else if(provider === "oauth") {
+      let loginUrl = new URL(window.location.origin);
+
+      loginUrl.searchParams.set("action", "login");
+      loginUrl.searchParams.set("provider", "oauth");
+      loginUrl.searchParams.set("mode", mode);
+      loginUrl.searchParams.set("data", btoa(JSON.stringify(userData)));
+
+      if(customizationOptions?.marketplaceHash) {
+        loginUrl.searchParams.set("mid", customizationOptions.marketplaceHash);
+      }
+
+      if(rootStore.darkMode) {
+        loginUrl.searchParams.set("dk", "");
+      }
+
+      if(embedded) {
+        loginUrl.hash = "/login";
+        loginUrl.searchParams.set("response", "message");
+        loginUrl.searchParams.set("source", "parent");
+
+        if(searchParams.has("clear") || (window.sessionStorageAvailable && localStorage.getItem("signed-out"))) {
+          loginUrl.searchParams.set("clear", "");
+        }
+
+        await new Promise(resolve => {
+          const newWindow = window.open(loginUrl.toString());
+
+          const closeCheck = setInterval(function() {
+            if(newWindow.closed) {
+              clearInterval(closeCheck);
+              resolve();
+            }
+          }, 250);
+
+          window.addEventListener("message", async event => {
+            if(!event || !event.data || event.data.type !== "LoginResponse") {
+              return;
+            }
+
+            await rootStore.Authenticate({
+              clientAuthToken: event.data.params.clientAuthToken,
+              clientSigningToken: event.data.params.clientSigningToken
+            });
+
+            newWindow.close();
+
+            resolve();
+          });
+        });
+      } else {
+        loginUrl.hash = window.location.hash;
+        loginUrl.searchParams.set("redirect", window.location.href);
+        loginUrl.searchParams.set("action", "login");
+        loginUrl.searchParams.set("source", "oauth");
+        loginUrl.searchParams.set("response", params.response);
+
+        // Not embedded
+        let auth0LoginParams = {};
+
+        if(rootStore.darkMode) {
+          auth0LoginParams.darkMode = true;
+        }
+
+        if(customizationOptions?.disable_third_party) {
+          auth0LoginParams.disableThirdParty = true;
+        }
+
+        window.auth0.loginWithRedirect({
+          redirectUri: loginUrl.toString(),
+          initialScreen: mode === "create" ? "signUp" : "login",
+          ...auth0LoginParams
+        });
+      }
+    }
+  };
+
+  useEffect(() => {
+    if(params.clearAuth0Login) {
+      const returnURL = new URL(window.location.href);
+      returnURL.pathname = returnURL.pathname.replace(/\/$/, "");
+      returnURL.hash = window.location.hash;
+      returnURL.searchParams.delete("clear");
+
+      rootStore.SignOut(returnURL.toString());
+    } else if(params.source === "parent" && params.action === "login" && params.provider === "oauth") {
+      Authenticate({provider: "oauth", mode: params.mode});
+    } else if(rootStore.loggedIn && params.response === "message") {
+      window.opener.postMessage({
+        type: "LoginResponse",
+        params: {
+          clientAuthToken: rootStore.AuthInfo().clientAuthToken,
+          clientSigningToken: rootStore.AuthInfo().clientSigningToken
+        }
+      });
+
+      window.close();
+    }
+  }, [rootStore.loggedIn]);
+
   return (
-    <div className={`login-page ${darkMode ? "login-page--dark" : ""} ${customizationOptions?.large_logo_mode ? "login-page-large-logo-mode" : ""}`}>
+    <div className={`login-page ${rootStore.darkMode ? "login-page--dark" : ""} ${customizationOptions?.large_logo_mode ? "login-page-large-logo-mode" : ""}`}>
       <Background customizationOptions={customizationOptions} Close={Close} />
 
       <div className="login-page__login-box">
         <Logo customizationOptions={customizationOptions} />
-        <Buttons loading={loading} customizationOptions={customizationOptions} Auth0LogIn={Auth0LogIn} SignIn={SignIn} />
+        <Buttons Authenticate={Authenticate} customizationOptions={customizationOptions} />
         <PoweredBy customizationOptions={customizationOptions} />
         <Terms customizationOptions={customizationOptions} userData={userData} setUserData={setUserData}/>
       </div>
@@ -391,11 +374,9 @@ const LoginComponent = observer(({customizationOptions, darkMode, userData, setU
   );
 });
 
-const Login = observer(({silent, darkMode, callbackUrl, authenticating, signedIn, Loaded, SignIn, SignOut, LoadCustomizationOptions, Close}) => {
+const Login = observer(({darkMode, Close}) => {
   const [customizationOptions, setCustomizationOptions] = useState(undefined);
-  const [userData, setUserData] = useState(undefined);
-  const [loading, setLoading] = useState(true);
-  const [auth0Loading, setAuth0Loading] = useState(!embedded);
+  const [userData, setUserData] = useState(params.userData || {});
 
   let auth0;
   if(!embedded) {
@@ -403,51 +384,10 @@ const Login = observer(({silent, darkMode, callbackUrl, authenticating, signedIn
     window.auth0 = auth0;
   }
 
-  const Auth0LogIn = ({create=true}) => {
-    LogInRedirect({
-      auth0,
-      callbackUrl,
-      marketplaceHash: customizationOptions?.marketplaceHash,
-      userData,
-      darkMode,
-      create,
-      customizationOptions,
-      SignIn: async ({idToken, user}) => {
-        try {
-          setLoading(true);
-
-          await Authenticate({idToken, user, userData, tenantId: customizationOptions.tenant_id, SignIn});
-        } finally {
-          setLoading(false);
-        }
-      }
-    });
-  };
-
-  // Track auth0 loading status
-  useEffect(() => {
-    if(auth0) {
-      setAuth0Loading(auth0.isLoading);
-    }
-  }, [auth0 && auth0.isLoading]);
-
-  // Ensure auth0 doesn't get stuck loading forever
-  useEffect(() => {
-    if(auth0) {
-      const auth0LoadTimeout = setTimeout(() => {
-        setAuth0Loading(false);
-      }, 5000);
-
-      return () => clearTimeout(auth0LoadTimeout);
-    }
-  }, []);
-
   // Loading customization options
   useEffect(() => {
-    LoadCustomizationOptions()
+    rootStore.LoadLoginCustomization()
       .then(options => {
-        setCustomizationOptions({...(options || {})});
-
         const userDataKey = `login-data-${options?.marketplaceId || "default"}`;
 
         // Load initial user data from localstorage, if present
@@ -463,52 +403,13 @@ const Login = observer(({silent, darkMode, callbackUrl, authenticating, signedIn
         } catch(error) {}
 
         setUserData(initialUserData);
+        setCustomizationOptions({...(options || {})});
       });
   }, []);
 
-  // Authenticate if possible
-  useEffect(() => {
-    if(signedIn) {
-      setLoading(false);
-      return;
-    }
-
-    // Must wait for customization to be loaded so we can pass tenant ID
-    if((!embedded && auth0Loading) || !customizationOptions || !userData) { return; }
-
-    if(!embedded && auth0?.isAuthenticated) {
-      setLoading(true);
-      Authenticate({auth0, userData, tenantId: customizationOptions.tenant_id, SignIn})
-        .finally(() => {
-          Loaded && Loaded();
-          setLoading(false);
-        });
-    } else if(newWindowAuth0Login) {
-      if(clearLogin && SignOut) {
-        const returnURL = new URL(window.location.href);
-        returnURL.pathname = returnURL.pathname.replace(/\/$/, "");
-        returnURL.searchParams.delete("clear");
-
-        SignOut(returnURL.toString());
-
-        return;
-      }
-
-      Auth0LogIn({create: new URLSearchParams(window.location.search).has("create")});
-    } else {
-      Loaded && Loaded();
-      setLoading(false);
-    }
-  }, [customizationOptions, auth0Loading, userData]);
-
-  // Do login processes without UI
-  if(silent) {
-    return null;
-  }
-
   darkMode = customizationOptions && typeof customizationOptions.darkMode === "boolean" ? customizationOptions.darkMode : darkMode;
 
-  if(loading || !customizationOptions || (!embedded && auth0Loading)) {
+  if(!rootStore.loaded || !customizationOptions || (!embedded && !rootStore.loginLoaded)) {
     return (
       <div className={`login-page ${darkMode ? "login-page--dark" : ""}`}>
         <Background customizationOptions={customizationOptions} Close={() => Close && Close()} />
@@ -537,9 +438,6 @@ const Login = observer(({silent, darkMode, callbackUrl, authenticating, signedIn
       userData={userData}
       setUserData={SaveUserData}
       darkMode={darkMode}
-      loading={loading || authenticating}
-      Auth0LogIn={Auth0LogIn}
-      SignIn={SignIn}
       Close={() => Close && Close()}
     />
   );
