@@ -177,14 +177,6 @@ const Profile = observer(() => {
         <div className="profile-page__balance">
           { FormatPriceString({USD: rootStore.totalWalletBalance}) } { balancePresent ? "USD" : "" }
         </div>
-        <br />
-        <h2 className="profile-page__section-header">
-          Available Wallet Balance
-        </h2>
-        <div className="profile-page__balance">
-          { FormatPriceString({USD: rootStore.availableWalletBalance}) } { balancePresent ? "USD" : "" }
-        </div>
-
         <Link
           className="profile-page__transactions-link"
           to={
