@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from "react";
 import {rootStore} from "Stores";
+import UrlJoin from "url-join";
 import {
   Link,
   useRouteMatch
 } from "react-router-dom";
 import {ButtonWithLoader, CopyableField, FormatPriceString} from "Components/common/UIComponents";
-import {PendingPaymentsTable, UserTransferTable} from "Components/listings/TransferTables";
+import {UserTransferTable} from "Components/listings/TransferTables";
 import {observer} from "mobx-react";
 import {WithdrawalModal, WithdrawalSetupModal} from "Components/profile/WithdrawalModal";
 import WalletConnect from "Components/crypto/WalletConnect";
@@ -13,7 +14,6 @@ import WalletConnect from "Components/crypto/WalletConnect";
 import MetamaskIcon from "Assets/icons/crypto/metamask fox.png";
 import ImageIcon from "Components/common/ImageIcon";
 
-import PendingSalesIcon from "Assets/icons/sales history icon.svg";
 import WithdrawalsIcon from "Assets/icons/crypto/USD icon.svg";
 
 const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSetup}) => {
@@ -184,25 +184,14 @@ const Profile = observer(() => {
         <div className="profile-page__balance">
           { FormatPriceString({USD: rootStore.availableWalletBalance}) } { balancePresent ? "USD" : "" }
         </div>
-      </div>
-
-      <div className="profile-page__section profile-page__section-balance profile-page__section-box">
-        <h2 className="profile-page__section-header">
-          Pending Wallet Balance
-        </h2>
-        <div className="profile-page__balance">
-          { FormatPriceString({USD: rootStore.pendingWalletBalance}) } { balancePresent ? "USD" : "" }
-        </div>
-
-        <PendingPaymentsTable
-          icon={PendingSalesIcon}
-          header="Pending Sales"
-          className="profile-page__pending-transactions-table"
-        />
 
         <Link
           className="profile-page__transactions-link"
-          to={"/wallet/my-listings/transactions"}
+          to={
+            match.params.marketplaceId ?
+              UrlJoin("/marketplace", match.params.marketplaceId, "my-listings", "transactions") :
+              "/wallet/my-listings/transactions"
+          }
         >
           View Full Transaction History
         </Link>

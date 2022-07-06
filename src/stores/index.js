@@ -46,6 +46,8 @@ try {
 }
 
 class RootStore {
+  salePendingDurationDays = 0;
+
   appUUID = window.appUUID;
 
   DEBUG_ERROR_MESSAGE = "";

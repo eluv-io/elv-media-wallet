@@ -14,6 +14,8 @@ const MyListings = observer(() => {
   const [key, setKey] = useState(0);
   const [listings, setListings] = useState(undefined);
 
+  const transactionsPage = match.url.endsWith("/transactions");
+
   const LoadListings = async () => {
     let retrievedListings = [...(await transferStore.FetchTransferListings({userAddress: rootStore.CurrentAddress()}))]
       .sort((a, b) => a.details.CreatedAt > b.details.CreatedAt ? -1 : 1);
@@ -32,23 +34,31 @@ const MyListings = observer(() => {
 
   return (
     <div className="listings-page">
-      <h2 className="listings-page__header">
-        { listings && listings.length > 0 ? "My Active Listings" : "No Active Listings" }
-      </h2>
-      <div className="listing-card-list">
-        { (listings || []).map((listing, index) =>
-          <ListingCard
-            key={`nft-listing-${index}`}
-            listing={listing}
-            link={
-              match.params.marketplaceId ?
-                UrlJoin("/marketplace", match.params.marketplaceId, "my-listings", listing.details.ContractId, listing.details.TokenIdStr) :
-                UrlJoin("/wallet", "my-listings", listing.details.ContractId, listing.details.TokenIdStr)
-            }
-            Refresh={() => setKey(key + 1)}
-          />
-        )}
-      </div>
+      {
+        !transactionsPage ?
+          <>
+            <h2 className="listings-page__header">
+              {listings && listings.length > 0 ? "My Active Listings" : "No Active Listings"}
+            </h2>
+            <div className="listing-card-list">
+              {(listings || []).map((listing, index) =>
+                <ListingCard
+                  key={`nft-listing-${index}`}
+                  listing={listing}
+                  link={
+                    match.params.marketplaceId ?
+                      UrlJoin("/marketplace", match.params.marketplaceId, "my-listings", listing.details.ContractId, listing.details.TokenIdStr) :
+                      UrlJoin("/wallet", "my-listings", listing.details.ContractId, listing.details.TokenIdStr)
+                  }
+                  Refresh={() => setKey(key + 1)}
+                />
+              )}
+            </div>
+          </> :
+          <h2 className="listings-page__header">
+            My Transactions
+          </h2>
+      }
       <UserTransferTable
         icon={PurchasesIcon}
         header="Bought NFTs"
