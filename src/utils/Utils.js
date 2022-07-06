@@ -331,3 +331,31 @@ export const FormatNFT = (nft) => {
 
   return nft;
 };
+
+export const ActionPopup = async ({url, onMessage, onCancel}) => {
+  await new Promise(resolve => {
+    const newWindow = window.open(url);
+
+    const closeCheck = setInterval(async () => {
+      if(newWindow.closed) {
+        clearInterval(closeCheck);
+
+        if(onCancel) {
+          await onCancel();
+        }
+
+        resolve();
+      }
+    }, 500);
+
+    window.addEventListener("message", async event => {
+      await onMessage(
+        event,
+        () => {
+          newWindow.close();
+          resolve();
+        }
+      );
+    });
+  });
+};

@@ -20,8 +20,8 @@ if(window.location.hostname === "core.test.contentfabric.io") {
 
 const targetId = "wallet-target";
 
-let tenantSlug = "";//"wwe";
-let marketplaceSlug = "";//"a30fb02b-290a-457f-bf70-76111e4e0027";
+let tenantSlug = "bcl-live";//"wwe";
+let marketplaceSlug = "masked-singer-marketplace";//"a30fb02b-290a-457f-bf70-76111e4e0027";
 
 const SetResults = results => {
   document.getElementById("client-results").innerHTML = results ? JSON.stringify(results, null, 2) : "";

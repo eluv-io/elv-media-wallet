@@ -30,7 +30,7 @@
       if(backgroundImage) {
         document.querySelector("#app-background").style.background = "no-repeat top center / cover url(\"" + backgroundImage + "\")";
       } else {
-        const searchParams = new URLSearchParams(window.location.search);
+        const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
         const darkMode = searchParams.has("dk") || sessionStorage.getItem("dark-mode")
 
         // If light mode specified, set light body color ASAP

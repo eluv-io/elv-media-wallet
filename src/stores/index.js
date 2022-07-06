@@ -21,7 +21,7 @@ configure({
   enforceActions: "always"
 });
 
-const searchParams = new URLSearchParams(window.location.search);
+const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 
 let storageSupported = true;
 try {
@@ -79,7 +79,7 @@ class RootStore {
   auth0AccessToken = undefined;
 
   loaded = false;
-  loginLoaded = false;
+  loginLoaded = this.embedded;
   authenticating = false;
   client = undefined;
   marketplaceClient = undefined;
@@ -233,26 +233,11 @@ class RootStore {
         authenticationPromise = this.Authenticate(this.AuthInfo());
       }
 
-      const marketplace = decodeURIComponent(searchParams.get("mid") || this.GetSessionStorage("marketplace") || "");
-
-      let tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash;
-      if(marketplace && marketplace.includes("/")) {
-        tenantSlug = marketplace.split("/")[0];
-        marketplaceSlug = marketplace.split("/")[1];
-      } else if(marketplace && marketplace.startsWith("hq__")) {
-        const objectId = Utils.DecodeVersionHash(marketplace).objectId;
-        marketplaceHash = marketplace;
-        marketplaceId = objectId.replace(/\//g, "");
-      } else if(marketplace) {
-        marketplaceId = marketplace.replace(/\//g, "");
-      }
+      const marketplace = decodeURIComponent(searchParams.get("mid")) || decodeURIComponent(searchParams.get("marketplace")) || this.GetSessionStorage("marketplace") || "";
 
       if(marketplace) {
         this.SetMarketplace({
-          tenantSlug,
-          marketplaceSlug,
-          marketplaceHash,
-          marketplaceId,
+          ...(this.ParseMarketplaceParameter(marketplace)),
           specified: true
         });
       }
@@ -273,7 +258,7 @@ class RootStore {
     return this.marketplaceClient.UserAddress();
   }
 
-  Authenticate = flow(function * ({idToken, clientAuthToken, clientSigningToken, externalWallet, walletName, tenantId, user, saveAuthInfo=true}) {
+  Authenticate = flow(function * ({idToken, clientAuthToken, clientSigningToken, externalWallet, walletName, user, saveAuthInfo=true}) {
     if(this.authenticating) { return; }
 
     try {
@@ -324,13 +309,18 @@ class RootStore {
 
       if(externalWallet) {
         const walletMethods = this.cryptoStore.WalletFunctions(externalWallet);
-
         clientAuthToken = yield this.marketplaceClient.AuthenticateExternalWallet({
           address: yield walletMethods.RetrieveAddress(),
           Sign: walletMethods.Sign,
           walletName: walletMethods.name
         });
       } else if(idToken) {
+        let tenantId;
+
+        if(this.specifiedMarketplaceId) {
+          tenantId = (yield this.LoadLoginCustomization())?.tenant_id;
+        }
+
         const tokens = yield this.marketplaceClient.AuthenticateOAuth({
           idToken,
           email: user?.email,
@@ -393,19 +383,22 @@ class RootStore {
     }
   });
 
-  async LoadLoginCustomization() {
-    while(!this.loaded) {
-      await new Promise(resolve => setTimeout(resolve, 100));
+  LoadLoginCustomization = flow(function * (marketplaceHash) {
+    let marketplaceId;
+    if(marketplaceHash) {
+      marketplaceId = Utils.DecodeVersionHash(marketplaceHash).objectId;
+    } else {
+      marketplaceId = this.specifiedMarketplaceId;
+      marketplaceHash =
+        this.marketplaceClient.marketplaceHashes[marketplaceId] ||
+        (yield this.client.LatestVersionHash({objectId: marketplaceId}));
     }
 
-    if(!this.specifiedMarketplaceId) {
+    marketplaceId = marketplaceId || this.specifiedMarketplaceId;
+
+    if(!marketplaceId) {
       return {};
     }
-
-    const marketplaceHash =
-      this.marketplaceClient.marketplaceHashes[this.specifiedMarketplaceId] ||
-      await this.client.LatestVersionHash({objectId: this.specifiedMarketplaceId});
-    const marketplaceId = this.client.utils.DecodeVersionHash(marketplaceHash).objectId;
 
     const savedData = this.GetSessionStorageJSON(`marketplace-login-${marketplaceHash}`, true);
 
@@ -414,7 +407,7 @@ class RootStore {
     }
 
     let metadata = (
-      await this.client.ContentObjectMetadata({
+      yield this.client.ContentObjectMetadata({
         versionHash: marketplaceHash,
         metadataSubtree: UrlJoin("public", "asset_metadata", "info"),
         select: [
@@ -445,7 +438,7 @@ class RootStore {
     this.SetSessionStorage(`marketplace-login-${marketplaceHash}`, btoa(JSON.stringify(metadata)));
 
     return metadata;
-  }
+  });
 
   SendEvent({event, data}) {
     SendEvent({event, data});
@@ -1330,6 +1323,27 @@ class RootStore {
   AccountEmail(address) {
     address = Utils.FormatAddress(address);
     return this.GetLocalStorage(`email-${address}`);
+  }
+
+  ParseMarketplaceParameter(marketplace) {
+    let tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash;
+    if(marketplace && marketplace.includes("/")) {
+      tenantSlug = marketplace.split("/")[0];
+      marketplaceSlug = marketplace.split("/")[1];
+    } else if(marketplace && marketplace.startsWith("hq__")) {
+      const objectId = Utils.DecodeVersionHash(marketplace).objectId;
+      marketplaceHash = marketplace;
+      marketplaceId = objectId.replace(/\//g, "");
+    } else if(marketplace) {
+      marketplaceId = marketplace.replace(/\//g, "");
+    }
+
+    return {
+      tenantSlug,
+      marketplaceSlug,
+      marketplaceId,
+      marketplaceHash
+    };
   }
 
   GetLocalStorage(key) {

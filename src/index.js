@@ -9,7 +9,7 @@ import { observer} from "mobx-react";
 import { rootStore } from "Stores/index.js";
 import Header from "Components/Header";
 
-const searchParams = new URLSearchParams(window.location.search);
+const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 
 window.sessionStorageAvailable = false;
 try {
@@ -32,7 +32,7 @@ import {
 import Login, {Auth0Authentication} from "Components/login/index";
 import ScrollToTop from "Components/common/ScrollToTop";
 import { InitializeListener } from "Components/interface/Listener";
-import {Auth0Provider, useAuth0} from "@auth0/auth0-react";
+import {Auth0Provider} from "@auth0/auth0-react";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import {PageLoader} from "Components/common/Loaders";
 import Modal from "Components/common/Modal";
@@ -150,10 +150,6 @@ const Routes = observer(() => {
 
 
 const App = observer(() => {
-  if(window.sessionStorageAvailable) {
-    window.auth0 = useAuth0();
-  }
-
   useEffect(() => {
     if(!rootStore.loaded) { return; }
 
