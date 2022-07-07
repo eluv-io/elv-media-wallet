@@ -205,6 +205,8 @@ class RootStore {
         mode: EluvioConfiguration.mode
       });
 
+      this.marketplaceClient.appUrl = window.location.origin;
+
       this.client = this.marketplaceClient.client;
 
       this.staticToken = this.client.staticToken;
@@ -384,14 +386,23 @@ class RootStore {
   });
 
   LoadLoginCustomization = flow(function * (marketplaceHash) {
+    // Client may not be initialized yet but may not be needed
+    const Client = async () => {
+      while(!this.client) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
+      return this.client;
+    };
+
     let marketplaceId;
     if(marketplaceHash) {
       marketplaceId = Utils.DecodeVersionHash(marketplaceHash).objectId;
-    } else {
+    } else if(this.specifiedMarketplaceId) {
       marketplaceId = this.specifiedMarketplaceId;
       marketplaceHash =
         this.marketplaceClient.marketplaceHashes[marketplaceId] ||
-        (yield this.client.LatestVersionHash({objectId: marketplaceId}));
+        (yield (yield Client()).LatestVersionHash({objectId: marketplaceId}));
     }
 
     marketplaceId = marketplaceId || this.specifiedMarketplaceId;
@@ -407,7 +418,7 @@ class RootStore {
     }
 
     let metadata = (
-      yield this.client.ContentObjectMetadata({
+      yield (yield Client()).ContentObjectMetadata({
         versionHash: marketplaceHash,
         metadataSubtree: UrlJoin("public", "asset_metadata", "info"),
         select: [

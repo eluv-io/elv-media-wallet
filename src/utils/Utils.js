@@ -352,6 +352,7 @@ export const ActionPopup = async ({url, onMessage, onCancel}) => {
       await onMessage(
         event,
         () => {
+          clearInterval(closeCheck);
           newWindow.close();
           resolve();
         }

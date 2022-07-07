@@ -1,4 +1,4 @@
-import "..//src/static/stylesheets/reset.scss";
+import "../src/static/stylesheets/reset.scss";
 import "./test.scss";
 
 import React, {useEffect, useState} from "react";

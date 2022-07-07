@@ -241,6 +241,7 @@
     align-items: center;
     display: flex;
     flex-direction: column;
+    flex-grow: 1;
     justify-content: center;
     position: relative;
 
@@ -256,6 +257,7 @@
     &__separator {
       align-items: center;
       display: flex;
+      justify-content: center;
       margin: 25px 0;
       width: 100%;
     }
@@ -264,6 +266,7 @@
       border-bottom: var(--border-login-box);
       flex: 1 1 100%;
       height: 3px;
+      max-width: 100px;
       width: 100%;
     }
 

@@ -7,7 +7,6 @@ import SanitizeHTML from "sanitize-html";
 import {rootStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
 import {Loader} from "Components/common/Loaders";
-import {ActionPopup} from "../../utils/Utils";
 
 import UpCaretIcon from "Assets/icons/up-caret.svg";
 import DownCaretIcon from "Assets/icons/down-caret.svg";
@@ -16,6 +15,8 @@ import EluvioLogo from "Assets/icons/logo.svg";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 const params = {
+  // Origin URL of the opener
+  origin: searchParams.get("origin"),
   // Who opened the page (parent)
   source: searchParams.get("source"),
   // What action should be performed (login)
@@ -29,7 +30,7 @@ const params = {
   // Where should the page redirect to with login credentials
   redirect: searchParams.get("redirect"),
   // Should Auth0 credentials be cleared before login?
-  clearAuth0Login: searchParams.has("clear") || (window.sessionStorageAvailable && localStorage.getItem("signed-out")),
+  clearLogin: searchParams.has("clear"),
   // Marketplace
   marketplace: searchParams.get("marketplace"),
   // User data to pass to custodial sign-in
@@ -40,7 +41,9 @@ const params = {
 
 // Top logo
 const Logo = ({customizationOptions}) => {
-  if(customizationOptions?.logo) {
+  if(!customizationOptions) { return null; }
+
+  if(customizationOptions.logo) {
     return (
       <div className="login-page__logo-container">
         <ImageIcon
@@ -89,6 +92,8 @@ const Background = observer(({customizationOptions, Close}) => {
 
 // Terms of use. May include custom terms, and may include opt out checkbox for sharing email
 const Terms = ({customizationOptions, userData, setUserData}) => {
+  if(!customizationOptions) { return null; }
+
   return (
     <div className="login-page__text-section">
       {
@@ -146,7 +151,7 @@ const Form = observer(({userData, setUserData, customizationOptions, Authenticat
     // eslint-disable-next-line no-empty
   } catch(error) {}
 
-  const loading = !rootStore.loaded || !customizationOptions || rootStore.authenticating || !rootStore.loginLoaded || rootStore.loggedIn || params.source === "parent";
+  const loading = !rootStore.loaded || !customizationOptions || params.clearLogin || rootStore.authenticating || !rootStore.loginLoaded || rootStore.loggedIn || (params.source === "parent" && params.provider);
 
   const signUpButton = (
     <button
@@ -227,13 +232,8 @@ const Form = observer(({userData, setUserData, customizationOptions, Authenticat
             </div> : null
         }
       </div>
-      {
-        loading ? null :
-          <>
-            <PoweredBy customizationOptions={customizationOptions}/>
-            <Terms customizationOptions={customizationOptions} userData={userData} setUserData={setUserData}/>
-          </>
-      }
+      <PoweredBy customizationOptions={customizationOptions}/>
+      <Terms customizationOptions={customizationOptions} userData={userData} setUserData={setUserData}/>
     </>
   );
 });
@@ -251,7 +251,7 @@ export const Auth0Authentication = observer(() => {
       rootStore.SetLoginLoaded();
     }
 
-    if(params.clearAuth0Login || !rootStore.loaded || rootStore.loggedIn || window.auth0.isLoading || !window.auth0.isAuthenticated) { return; }
+    if(params.clearLogin || !rootStore.loaded || rootStore.loggedIn || window.auth0.isLoading || !window.auth0.isAuthenticated) { return; }
 
     window.auth0.getIdTokenClaims()
       .then(async response => {
@@ -270,70 +270,25 @@ export const Auth0Authentication = observer(() => {
   return null;
 });
 
-// Authenticate and close popup when popup passes login credentials
-const HandlePopupResponse = async (event, Close) => {
-  if(!event || !event.data || event.data.type !== "LoginResponse") {
-    return;
-  }
-
-  try {
-    await rootStore.Authenticate({
-      clientAuthToken: event.data.params.clientAuthToken,
-      clientSigningToken: event.data.params.clientSigningToken
-    });
-  } catch(error) {
-    rootStore.Log(error, true);
-  } finally {
-    Close();
-  }
-};
-
 const LoginComponent = observer(({customizationOptions, userData, setUserData, Close}) => {
   // Handle login button clicked - Initiate popup/login flow
   const Authenticate = async ({provider, mode}) => {
-    let loginUrl = new URL(window.location.origin);
-
-    loginUrl.searchParams.set("action", "login");
-    loginUrl.searchParams.set("provider", provider);
-    loginUrl.searchParams.set("mode", mode);
-    loginUrl.searchParams.set("data", btoa(JSON.stringify(userData)));
-
-    if(params.marketplace || customizationOptions?.marketplaceHash) {
-      loginUrl.searchParams.set("marketplace", params.marketplace || customizationOptions.marketplaceHash);
-    }
-
-    if(rootStore.darkMode) {
-      loginUrl.searchParams.set("dk", "");
-    }
-
     if(rootStore.embedded) {
-      // Embedded - open popup to log in and wait for message with auth info
-
-      loginUrl.hash = "/login";
-      loginUrl.searchParams.set("response", "message");
-      loginUrl.searchParams.set("source", "parent");
-
-      if(provider === "oauth" && (searchParams.has("clear") || (window.sessionStorageAvailable && localStorage.getItem("signed-out")))) {
-        // If user has logged out, ensure auth0 session is cleared before logging in
-        loginUrl.searchParams.set("clear", "");
-      }
-
-      await ActionPopup({
-        url: loginUrl.toString(),
-        onMessage: HandlePopupResponse
+      await rootStore.marketplaceClient.LogIn({
+        method: "tab",
+        provider,
+        mode,
+        callback: async ({clientAuthToken, clientSigningToken}) => await rootStore.Authenticate({clientAuthToken, clientSigningToken}),
+        marketplaceParams: {
+          marketplaceHash: params.marketplace || customizationOptions.marketplaceHash
+        },
+        clearLogin: params.clearLogin || rootStore.GetLocalStorage("signed-out")
       });
     } else {
       if(provider === "metamask") {
         // Authenticate with metamask
         await rootStore.Authenticate({externalWallet: "Metamask"});
       } else if(provider === "oauth") {
-        // Redirect to Auth0
-
-        loginUrl.hash = window.location.hash;
-        loginUrl.searchParams.set("action", "login");
-        loginUrl.searchParams.set("source", "oauth");
-        loginUrl.searchParams.set("response", params.response);
-
         let auth0LoginParams = {};
 
         if(rootStore.darkMode) {
@@ -344,10 +299,12 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           auth0LoginParams.disableThirdParty = true;
         }
 
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        const callbackUrl = new URL(window.location.href);
+        callbackUrl.pathname = callbackUrl.pathname.replace(/\/$/, "");
+        callbackUrl.searchParams.set("source", "oauth");
 
         window.auth0.loginWithRedirect({
-          redirectUri: loginUrl.toString(),
+          redirectUri: callbackUrl.toString(),
           initialScreen: mode === "create" ? "signUp" : "login",
           ...auth0LoginParams
         });
@@ -358,35 +315,55 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
   // Handle login event, popup flow, and auth0 logout
   useEffect(() => {
     const Respond = () => {
+      const origin = params.origin || window.location.origin;
+
+      let response = { clientAuthToken: rootStore.AuthInfo().clientAuthToken };
+
+      if(origin === window.location.origin) {
+        response.clientSigningToken = rootStore.AuthInfo().clientSigningToken;
+      }
+
       window.opener.postMessage({
         type: "LoginResponse",
-        params: {
-          clientAuthToken: rootStore.AuthInfo().clientAuthToken,
-          clientSigningToken: rootStore.AuthInfo().clientSigningToken
-        }
-      });
+        params: response
+      }, params.origin || window.location.origin);
 
       window.close();
     };
 
-    if(params.clearAuth0Login) {
+    const Redirect = () => {
+      // TODO: Verify redirect origin
+
+      let redirectUrl = new URL(params.redirect);
+      redirectUrl.searchParams.set("elvToken", rootStore.AuthInfo().clientAuthToken);
+      window.location = redirectUrl;
+    };
+
+
+    if(params.clearLogin) {
       const returnURL = new URL(window.location.href);
       returnURL.pathname = returnURL.pathname.replace(/\/$/, "");
       returnURL.hash = window.location.hash;
       returnURL.searchParams.delete("clear");
 
       setTimeout(() => rootStore.SignOut(returnURL.toString()), 1000);
-    } else if(rootStore.loaded && params.source === "parent" && params.action === "login") {
+    } else if(rootStore.loaded && ["parent", "origin"].includes(params.source) && params.action === "login" && params.provider) {
       // Opened from frame - do appropriate login flow
       Authenticate({provider: params.provider, mode: params.mode})
         .then(() => {
           if(params.provider !== "oauth") {
-            Respond();
+            if(params.response === "message") {
+              Respond();
+            } else if(params.response === "redirect") {
+              Redirect();
+            }
           }
         });
     } else if(rootStore.loggedIn && params.response === "message") {
       // Opened from frame and logged in, respond with auth info
       Respond();
+    } else if(rootStore.loggedIn && params.response === "redirect") {
+      Redirect();
     }
   }, [rootStore.loaded, rootStore.loggedIn]);
 
@@ -407,7 +384,8 @@ const Login = observer(({darkMode, Close}) => {
 
   // Loading customization options
   useEffect(() => {
-    rootStore.LoadLoginCustomization(params.marketplace)
+    const marketplaceHash = params.marketplace || (searchParams.get("mid").startsWith("hq__") ? searchParams.get("mid") : "");
+    rootStore.LoadLoginCustomization(marketplaceHash)
       .then(options => {
         const userDataKey = `login-data-${options?.marketplaceId || "default"}`;
 
@@ -422,6 +400,8 @@ const Login = observer(({darkMode, Close}) => {
           }
           // eslint-disable-next-line no-empty
         } catch(error) {}
+
+        rootStore.ToggleDarkMode(options.darkMode);
 
         setUserData(initialUserData);
         setCustomizationOptions({...(options || {})});
