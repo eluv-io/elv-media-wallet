@@ -22,7 +22,7 @@ const ItemCard = observer(({
   cardClassName=""
 }) => {
   if(sideText) {
-    const [first, second] = sideText.split("/");
+    const [first, second] = sideText.toString().split("/");
 
     sideText = (
       <div className="item-card__side-text">

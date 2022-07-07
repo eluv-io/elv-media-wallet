@@ -20,7 +20,7 @@ const ListingCard = ({listing, link, Refresh}) => {
     setIsInCheckout(checkout);
   }, [listing]);
 
-  const [first, second] = NFTDisplayToken(listing).split("/");
+  const [first, second] = NFTDisplayToken(listing).toString().split("/");
 
   const sideText = (
     <div className="listing-card__side-text">

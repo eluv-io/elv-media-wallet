@@ -29,7 +29,7 @@ const FeaturedItemCard = observer(({
   const match = useRouteMatch();
 
   if(sideText) {
-    const [first, second] = sideText.split(/[\/:]/);
+    const [first, second] = sideText.toString().split(/[\/:]/);
 
     sideText = (
       <div className="featured-item__side-text">
