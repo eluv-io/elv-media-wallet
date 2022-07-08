@@ -116,6 +116,10 @@ class CryptoStore {
   });
 
   RequestMetamaskAddress = flow(function * () {
+    if(window.ethereum?.selectedAddress) {
+      return window.ethereum.selectedAddress;
+    }
+
     const accounts = yield window.ethereum.request({ method: "eth_requestAccounts" });
 
     this.metamaskAddress = accounts[0];
@@ -449,11 +453,9 @@ class CryptoStore {
   });
 
   UpdateMetamaskInfo() {
-    if(!window.ethereum) { return; }
-    
     this.metamaskChainId = window.ethereum?.chainId;
 
-    if(window.ethereum.selectedAddress) {
+    if(window.ethereum?.selectedAddress) {
       this.metamaskAddress = window.ethereum.selectedAddress;
     }
   }

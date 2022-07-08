@@ -797,7 +797,7 @@ class RootStore {
 
       if(specified) {
         this.specifiedMarketplaceId = marketplace.marketplaceId;
-        this.SetSessionStorage("marketplace", marketplace);
+        this.SetSessionStorage("marketplace", marketplace.marketplaceId);
       }
 
       this.SetCustomizationOptions(marketplace);
