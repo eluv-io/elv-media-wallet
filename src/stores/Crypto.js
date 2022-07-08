@@ -450,7 +450,10 @@ class CryptoStore {
 
   UpdateMetamaskInfo() {
     this.metamaskChainId = window.ethereum?.chainId;
-    this.RequestMetamaskAddress();
+
+    if(window.ethereum.selectedAddress) {
+      this.metamaskAddress = window.ethereum.selectedAddress;
+    }
   }
 
   RegisterMetamaskHandlers() {
