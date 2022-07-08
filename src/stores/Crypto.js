@@ -449,6 +449,8 @@ class CryptoStore {
   });
 
   UpdateMetamaskInfo() {
+    if(!window.ethereum) { return; }
+    
     this.metamaskChainId = window.ethereum?.chainId;
 
     if(window.ethereum.selectedAddress) {
