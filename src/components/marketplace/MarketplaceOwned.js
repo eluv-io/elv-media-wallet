@@ -22,7 +22,7 @@ const MarketplaceOwned = observer(() => {
   if(!marketplace) { return null; }
 
   useEffect(() => {
-    rootStore.marketplaceClient.UserListings()
+    rootStore.walletClient.UserListings()
       .then(listings => setListings(listings));
 
     if(!rootStore.sidePanelMode || !rootStore.noItemsAvailable) { return; }

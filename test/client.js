@@ -4,7 +4,7 @@ import "../src/static/stylesheets/loaders.scss";
 
 import React, {useEffect, useState} from "react";
 import {render} from "react-dom";
-import {ElvMarketplaceClient} from "@eluvio/elv-client-js/src/marketplaceClient";
+import {ElvWalletClient} from "@eluvio/elv-client-js/src/walletClient";
 import {PageLoader} from "Components/common/Loaders";
 
 
@@ -15,22 +15,24 @@ let marketplaceParams = {
   marketplaceSlug: "masked-singer-marketplace" //"a30fb02b-290a-457f-bf70-76111e4e0027"
 };
 
-const AuthSection = ({marketplaceClient}) => {
-  const [loggedIn, setLoggedIn] = useState(marketplaceClient.loggedIn);
+const AuthSection = ({walletClient}) => {
+  const [loggedIn, setLoggedIn] = useState(walletClient.loggedIn);
 
   const LogIn = async ({method}) => {
-    await marketplaceClient.LogIn({
+    await walletClient.LogIn({
       method,
       callbackUrl: window.location.href,
       marketplaceParams,
       clearLogin: true
     });
 
-    setLoggedIn(true);
+    if(method !== "redirect") {
+      setLoggedIn(true);
+    }
   };
 
   const LogOut = async () => {
-    await marketplaceClient.LogOut();
+    await walletClient.LogOut();
 
     setLoggedIn(false);
   };
@@ -56,7 +58,7 @@ const AuthSection = ({marketplaceClient}) => {
 
   return (
     <div className="section">
-      <h2>Logged In as { marketplaceClient.UserInfo().email || marketplaceClient.UserAddress() }</h2>
+      <h2>Logged In as { walletClient.UserInfo()?.email || walletClient.UserAddress() }</h2>
       <div className="button-row">
         <button onClick={() => LogOut()}>
           Log Out
@@ -67,11 +69,11 @@ const AuthSection = ({marketplaceClient}) => {
 };
 
 const App = () => {
-  const [marketplaceClient, setMarketplaceClient] = useState(undefined);
+  const [walletClient, setWalletClient] = useState(undefined);
   const [results, setResults] = useState(undefined);
 
   useEffect(() => {
-    ElvMarketplaceClient.Initialize({
+    ElvWalletClient.Initialize({
       network,
       mode,
       //marketplaceParams
@@ -85,11 +87,11 @@ const App = () => {
 
         window.client = client;
 
-        setMarketplaceClient(client);
+        setWalletClient(client);
       });
   }, []);
 
-  if(!marketplaceClient) {
+  if(!walletClient) {
     return (
       <div className="app">
         <PageLoader />
@@ -101,14 +103,14 @@ const App = () => {
     <div className="page-container">
       <h1>Test Marketplace Client</h1>
 
-      <AuthSection marketplaceClient={marketplaceClient} />
+      <AuthSection walletClient={walletClient} />
 
       <h2>Methods</h2>
       <div className="button-row">
-        <button onClick={async () => setResults(await marketplaceClient.Listings())}>
+        <button onClick={async () => setResults(await walletClient.Listings())}>
           Listings
         </button>
-        <button onClick={async () => setResults(await marketplaceClient.MarketplaceStock({marketplaceParams}))}>
+        <button onClick={async () => setResults(await walletClient.MarketplaceStock({marketplaceParams}))}>
           Stock
         </button>
       </div>

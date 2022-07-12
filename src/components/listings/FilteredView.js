@@ -53,15 +53,15 @@ const FilteredView = ({
         let Method;
         switch(mode) {
           case "listings":
-            Method = async params => await rootStore.marketplaceClient.Listings(params);
+            Method = async params => await rootStore.walletClient.Listings(params);
             break;
 
           case "sales":
-            Method = async params => await rootStore.marketplaceClient.Sales(params);
+            Method = async params => await rootStore.walletClient.Sales(params);
             break;
 
           case "owned":
-            Method = async params => await rootStore.marketplaceClient.UserItems(params);
+            Method = async params => await rootStore.walletClient.UserItems(params);
             break;
 
           default:

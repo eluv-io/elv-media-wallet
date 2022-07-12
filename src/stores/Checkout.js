@@ -26,8 +26,8 @@ class CheckoutStore {
     return this.rootStore.client;
   }
 
-  get marketplaceClient() {
-    return this.rootStore.marketplaceClient;
+  get walletClient() {
+    return this.rootStore.walletClient;
   }
 
   constructor(rootStore) {
@@ -50,7 +50,7 @@ class CheckoutStore {
 
   MarketplaceStock = flow(function * ({tenantId}) {
     try {
-      const stock = yield this.marketplaceClient.MarketplaceStock({tenantId});
+      const stock = yield this.walletClient.MarketplaceStock({tenantId});
 
       // Keep all retrieved stock across marketplaces
       let updatedStock = {
@@ -111,7 +111,7 @@ class CheckoutStore {
         tok_id: tokenId
       };
 
-      if(this.rootStore.marketplaceClient.UserInfo().walletName.toLowerCase() === "metamask") {
+      if(this.rootStore.walletClient.UserInfo().walletName.toLowerCase() === "metamask") {
         // Must create signature for burn operation to pass to API
 
         let popup;
@@ -120,7 +120,7 @@ class CheckoutStore {
           popup = window.open("about:blank");
         }
 
-        const config = yield this.marketplaceClient.TenantConfiguration({contractAddress});
+        const config = yield this.walletClient.TenantConfiguration({contractAddress});
 
         const mintHelperAddress = config["mint-helper"];
 
@@ -167,12 +167,12 @@ class CheckoutStore {
       this.PurchaseInitiated({tenantId, confirmationId});
 
       let popup;
-      if(this.rootStore.marketplaceClient.UserInfo().walletName.toLowerCase() === "metamask") {
+      if(this.rootStore.walletClient.UserInfo().walletName.toLowerCase() === "metamask") {
         // Create popup before calling async config method to avoid popup blocker
         popup = window.open("about:blank");
       }
 
-      const config = yield this.marketplaceClient.TenantConfiguration({tenantId});
+      const config = yield this.walletClient.TenantConfiguration({tenantId});
 
       const items = selectedNFTs.map(item => ({addr: item.contractAddress, id: item.tokenId}));
 
@@ -181,7 +181,7 @@ class CheckoutStore {
         throw Error(`Mint helper not defined in configuration for NFT ${contractAddress}`);
       }
 
-      if(this.rootStore.embedded && this.marketplaceClient.UserInfo().walletName === "Metamask") {
+      if(this.rootStore.embedded && this.walletClient.UserInfo().walletName === "Metamask") {
         const itemHashes = items.map(({addr, id}) => {
           const nftAddressBytes = ethers.utils.arrayify(addr);
           const mintAddressBytes = ethers.utils.arrayify(mintHelperAddress);
@@ -283,7 +283,7 @@ class CheckoutStore {
     try {
       this.submittingOrder = true;
 
-      email = email || this.rootStore.marketplaceClient.UserInfo().email;
+      email = email || this.rootStore.walletClient.UserInfo().email;
 
       const successPath =
         marketplaceId ?
@@ -325,7 +325,7 @@ class CheckoutStore {
 
       try {
         // Ensure listing is still available
-        yield this.rootStore.marketplaceClient.Listing({listingId});
+        yield this.rootStore.walletClient.Listing({listingId});
       } catch(error) {
         throw {
           status: 409,
@@ -407,7 +407,7 @@ class CheckoutStore {
     try {
       this.submittingOrder = true;
 
-      email = email || this.rootStore.marketplaceClient.UserInfo().email;
+      email = email || this.rootStore.walletClient.UserInfo().email;
 
       const successPath = UrlJoin("/marketplace", marketplaceId, "store", sku, "purchase", confirmationId);
       const cancelPath = UrlJoin("/marketplace", marketplaceId, "store", sku);

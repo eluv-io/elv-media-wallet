@@ -17,7 +17,7 @@ const Profile = observer(({marketplace}) => {
   const location = useLocation();
   const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
 
-  if(!rootStore.loginLoaded && !rootStore.loggedIn) {
+  if((!rootStore.loginLoaded && !rootStore.loggedIn) || rootStore.authenticating) {
     return <div className="header__profile header__profile--placeholder" />;
   }
 
@@ -35,7 +35,7 @@ const Profile = observer(({marketplace}) => {
     );
   }
 
-  const user = rootStore.marketplaceClient.UserInfo() || {};
+  const user = rootStore.walletClient.UserInfo() || {};
   return (
     <Link to={marketplaceId ? `/marketplace/${marketplaceId}/profile` : "/profile"} className="header__profile">
       <div className="header__profile__info ellipsis">

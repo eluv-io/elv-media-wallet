@@ -2,7 +2,7 @@ const testTheme = undefined;//import("../static/stylesheets/themes/maskverse-tes
 
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";
-import {ElvMarketplaceClient} from "@eluvio/elv-client-js/src/marketplaceClient/index";
+import {ElvWalletClient} from "@eluvio/elv-client-js/src/walletClient/index";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import SanitizeHTML from "sanitize-html";
 
@@ -82,7 +82,7 @@ class RootStore {
   loginLoaded = this.embedded;
   authenticating = false;
   client = undefined;
-  marketplaceClient = undefined;
+  walletClient = undefined;
   funds = undefined;
 
   userStripeId = undefined;
@@ -125,11 +125,11 @@ class RootStore {
   }
 
   get marketplaceHash() {
-    return this.marketplaceClient.marketplaceHashes[this.marketplaceId];
+    return this.walletClient.marketplaceHashes[this.marketplaceId];
   }
 
   get allMarketplaces() {
-    let marketplaces = Object.values(this.marketplaceClient.availableMarketplacesById);
+    let marketplaces = Object.values(this.walletClient.availableMarketplacesById);
 
     marketplaces = marketplaces.sort((a, b) => a.order < b.order ? -1 : 1);
 
@@ -200,14 +200,15 @@ class RootStore {
         this.ToggleNavigation(false);
       }
 
-      this.marketplaceClient = yield ElvMarketplaceClient.Initialize({
+      this.walletClient = yield ElvWalletClient.Initialize({
         network: EluvioConfiguration.network,
-        mode: EluvioConfiguration.mode
+        mode: EluvioConfiguration.mode,
+        storeAuthToken: false
       });
 
-      this.marketplaceClient.appUrl = window.location.origin;
+      this.walletClient.appUrl = window.location.origin;
 
-      this.client = this.marketplaceClient.client;
+      this.client = this.walletClient.client;
 
       this.staticToken = this.client.staticToken;
       this.authToken = undefined;
@@ -257,7 +258,7 @@ class RootStore {
   CurrentAddress() {
     if(!this.authToken) { return; }
 
-    return this.marketplaceClient.UserAddress();
+    return this.walletClient.UserAddress();
   }
 
   Authenticate = flow(function * ({idToken, clientAuthToken, clientSigningToken, externalWallet, walletName, user, saveAuthInfo=true}) {
@@ -311,7 +312,7 @@ class RootStore {
 
       if(externalWallet) {
         const walletMethods = this.cryptoStore.WalletFunctions(externalWallet);
-        clientAuthToken = yield this.marketplaceClient.AuthenticateExternalWallet({
+        clientAuthToken = yield this.walletClient.AuthenticateExternalWallet({
           address: yield walletMethods.RetrieveAddress(),
           Sign: walletMethods.Sign,
           walletName: walletMethods.name
@@ -323,7 +324,7 @@ class RootStore {
           tenantId = (yield this.LoadLoginCustomization())?.tenant_id;
         }
 
-        const tokens = yield this.marketplaceClient.AuthenticateOAuth({
+        const tokens = yield this.walletClient.AuthenticateOAuth({
           idToken,
           email: user?.email,
           tenantId,
@@ -333,7 +334,7 @@ class RootStore {
         clientAuthToken = tokens.authToken;
         clientSigningToken = tokens.signingToken;
       } else if(clientAuthToken) {
-        yield this.marketplaceClient.Authenticate({token: clientSigningToken || clientAuthToken});
+        yield this.walletClient.Authenticate({token: clientSigningToken || clientAuthToken});
       } else if(!clientAuthToken) {
         throw Error("Invalid parameters provided to Authenticate");
       }
@@ -344,11 +345,11 @@ class RootStore {
         save: saveAuthInfo
       });
 
-      this.authToken = this.marketplaceClient.AuthToken();
+      this.authToken = this.walletClient.AuthToken();
 
-      const address = this.marketplaceClient.UserAddress();
+      const address = this.walletClient.UserAddress();
 
-      this.client = this.marketplaceClient.client;
+      this.client = this.walletClient.client;
 
       this.GetWalletBalance();
 
@@ -370,6 +371,7 @@ class RootStore {
       yield this.cryptoStore.LoadConnectedAccounts();
 
       this.loggedIn = true;
+      this.loginLoaded = true;
       this.externalWalletUser = externalWallet || (walletName && walletName !== "Eluvio");
 
       this.RemoveLocalStorage("signed-out");
@@ -401,7 +403,7 @@ class RootStore {
     } else if(this.specifiedMarketplaceId) {
       marketplaceId = this.specifiedMarketplaceId;
       marketplaceHash =
-        this.marketplaceClient.marketplaceHashes[marketplaceId] ||
+        this.walletClient.marketplaceHashes[marketplaceId] ||
         (yield (yield Client()).LatestVersionHash({objectId: marketplaceId}));
     }
 
@@ -477,7 +479,7 @@ class RootStore {
   LoadNFTInfo = flow(function * () {
     if(!this.loggedIn || this.fromEmbed) { return; }
 
-    this.nftInfo = yield this.marketplaceClient.UserItemInfo();
+    this.nftInfo = yield this.walletClient.UserItemInfo();
   });
 
   // Get already loaded full NFT data
@@ -498,7 +500,7 @@ class RootStore {
 
     const key = `${contractAddress}-${tokenId}`;
     if(!this.nftData[key]) {
-      this.nftData[key] = yield this.marketplaceClient.NFT({contractAddress, tokenId});
+      this.nftData[key] = yield this.walletClient.NFT({contractAddress, tokenId});
     }
 
     return this.nftData[key];
@@ -564,7 +566,7 @@ class RootStore {
     }
 
     if(options.color_scheme === "Custom") {
-      this.marketplaceClient.MarketplaceCSS({marketplaceParams: {marketplaceId: marketplace.marketplaceId}})
+      this.walletClient.MarketplaceCSS({marketplaceParams: {marketplaceId: marketplace.marketplaceId}})
         .then(css => this.SetCustomCSS(css));
     } else {
       this.SetCustomCSS("");
@@ -599,7 +601,7 @@ class RootStore {
       this.SetCustomizationOptions(marketplace);
 
       return marketplace.marketplaceHash;
-    } else if(Object.keys(this.marketplaceClient.availableMarketplaces) > 0) {
+    } else if(Object.keys(this.walletClient.availableMarketplaces) > 0) {
       // Don't reset customization if marketplaces haven't yet loaded
       this.SetCustomizationOptions("default");
     }
@@ -641,7 +643,7 @@ class RootStore {
   });
 
   LoadMarketplace = flow(function * (marketplaceId) {
-    this.marketplaces[marketplaceId] = yield this.marketplaceClient.Marketplace({marketplaceParams: {marketplaceId}});
+    this.marketplaces[marketplaceId] = yield this.walletClient.Marketplace({marketplaceParams: {marketplaceId}});
 
     yield this.checkoutStore.MarketplaceStock({tenantId: this.marketplaces[marketplaceId].tenant_id});
 
@@ -662,9 +664,9 @@ class RootStore {
         let promise = new Promise(async resolve => {
           let ownedItems = {};
 
-          const listings = await this.marketplaceClient.UserListings({marketplaceParams: { marketplaceId: marketplace.marketplaceId }});
+          const listings = await this.walletClient.UserListings({marketplaceParams: { marketplaceId: marketplace.marketplaceId }});
 
-          (await this.marketplaceClient.UserItems({
+          (await this.walletClient.UserItems({
             marketplaceParams: { marketplaceId: marketplace.marketplaceId },
             limit: 10000
           }))
@@ -777,15 +779,15 @@ class RootStore {
   });
 
   ListingPurchaseStatus = flow(function * ({listingId, confirmationId}) {
-    return yield this.marketplaceClient.ListingPurchaseStatus({listingId, confirmationId});
+    return yield this.walletClient.ListingPurchaseStatus({listingId, confirmationId});
   });
 
   PurchaseStatus = flow(function * ({marketplaceId, confirmationId}) {
-    return yield this.marketplaceClient.PurchaseStatus({marketplaceParams: { marketplaceId }, confirmationId});
+    return yield this.walletClient.PurchaseStatus({marketplaceParams: { marketplaceId }, confirmationId});
   });
 
   ClaimStatus = flow(function * ({marketplaceId, sku}) {
-    return yield this.marketplaceClient.ClaimStatus({marketplaceParams: { marketplaceId }, sku});
+    return yield this.walletClient.ClaimStatus({marketplaceParams: { marketplaceId }, sku});
   });
 
   PackOpenStatus = flow(function * ({contractId, contractAddress, tokenId}) {
@@ -793,19 +795,19 @@ class RootStore {
       contractAddress = Utils.HashToAddress(contractId);
     }
 
-    return yield this.marketplaceClient.PackOpenStatus({contractId, contractAddress, tokenId});
+    return yield this.walletClient.PackOpenStatus({contractId, contractAddress, tokenId});
   });
 
   CollectionRedemptionStatus = flow(function * ({marketplaceId, confirmationId}) {
-    return yield this.marketplaceClient.CollectionRedemptionStatus({marketplaceParams: { marketplaceId }, confirmationId});
+    return yield this.walletClient.CollectionRedemptionStatus({marketplaceParams: { marketplaceId }, confirmationId});
   });
 
   LoadDrop = flow(function * ({tenantSlug, eventSlug, dropId}) {
-    return yield this.marketplaceClient.LoadDrop({tenantSlug, eventSlug, dropId});
+    return yield this.walletClient.LoadDrop({tenantSlug, eventSlug, dropId});
   });
 
   DropStatus = flow(function * ({marketplace, eventId, dropId}) {
-    return yield this.marketplaceClient.DropStatus({marketplaceParams: {marketplaceId: marketplace.id}, eventId, dropId});
+    return yield this.walletClient.DropStatus({marketplaceParams: {marketplaceId: marketplace.id}, eventId, dropId});
   });
 
   SubmitDropVote = flow(function * ({marketplace, eventId, dropId, sku}) {
@@ -827,7 +829,7 @@ class RootStore {
   GetWalletBalance = flow(function * (checkOnboard=false) {
     if(!this.loggedIn) { return; }
 
-    const balances = yield this.marketplaceClient.UserWalletBalance(checkOnboard);
+    const balances = yield this.walletClient.UserWalletBalance(checkOnboard);
 
     this.userStripeId = balances.userStripeId;
     this.userStripeEnabled = balances.userStripeEnabled;
@@ -894,11 +896,11 @@ class RootStore {
       this.SetLocalStorage("signed-out", "true");
     }
 
-    this.disableCloseEvent = true;
+    this.SendEvent({event: EVENTS.LOG_OUT, data: {address: this.CurrentAddress()}});
+
     if(window.auth0) {
       try {
         this.disableCloseEvent = true;
-        this.SendEvent({event: EVENTS.LOG_OUT, data: {address: this.CurrentAddress()}});
         window.auth0.logout({
           returnTo: returnUrl || this.ReloadURL()
         });

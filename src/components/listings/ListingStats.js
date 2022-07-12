@@ -12,10 +12,10 @@ const ListingStats = ({mode="listings", filterParams}) => {
 
   useEffect(() => {
     if(mode === "listings") {
-      rootStore.marketplaceClient.ListingStats(params)
+      rootStore.walletClient.ListingStats(params)
         .then(results => setStats(results));
     } else {
-      rootStore.marketplaceClient.SalesStats(params)
+      rootStore.walletClient.SalesStats(params)
         .then(results => setStats(results));
     }
   }, [filterParams]);

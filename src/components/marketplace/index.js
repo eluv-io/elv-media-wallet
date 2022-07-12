@@ -39,7 +39,7 @@ const MarketplaceSlugRedirect = observer(() => {
 
   if(!rootStore.loaded) { return <PageLoader />; }
 
-  const marketplaceInfo = rootStore.marketplaceClient.MarketplaceInfo({
+  const marketplaceInfo = rootStore.walletClient.MarketplaceInfo({
     marketplaceParams: {
       tenantSlug: match.params.tenantSlug,
       marketplaceSlug: match.params.marketplaceSlug

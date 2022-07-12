@@ -65,7 +65,7 @@ const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
 };
 
 const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, errorMessage, disabled, Continue, Cancel}) => {
-  const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.marketplaceClient.UserInfo()?.email || "";
+  const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.walletClient.UserInfo()?.email || "";
   const [paymentType, setPaymentType] = useState(usdcOnly || (usdcAccepted && cryptoStore.usdcOnly) ? "linked-wallet" : "stripe");
   const [email, setEmail] = useState(initialEmail);
   const [showUSDCOnlyMessage, setShowUSDCOnlyMessage] = useState(false);
@@ -402,7 +402,7 @@ const PurchasePayment = observer(({
 
   useEffect(() => {
     if(type === "listing") {
-      rootStore.marketplaceClient.ListingStats({contractAddress: nft.details.ContractAddr})
+      rootStore.walletClient.ListingStats({contractAddress: nft.details.ContractAddr})
         .then(stats => setListingStats(stats));
     }
 
@@ -563,7 +563,7 @@ const PurchaseModal = observer(({nft, item, initialListingId, type="marketplace"
 
   useEffect(() => {
     if(initialListingId) {
-      rootStore.marketplaceClient.Listing({listingId: initialListingId})
+      rootStore.walletClient.Listing({listingId: initialListingId})
         .then(listing => setSelectedListing(listing));
     }
   }, []);

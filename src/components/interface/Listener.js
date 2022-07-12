@@ -119,9 +119,9 @@ const Listing = async data => {
   try {
     let listing;
     if(data.params.listingId) {
-      listing = await rootStore.marketplaceClient.Listings({listingId: data.params.listingId});
+      listing = await rootStore.walletClient.Listings({listingId: data.params.listingId});
     } else {
-      listing = (await rootStore.marketplaceClient.Listings({
+      listing = (await rootStore.walletClient.Listings({
         contractAddress: data.params.contractAddress,
         tokenId: data.params.tokenId
       })).results[0];
@@ -138,7 +138,7 @@ const Listing = async data => {
 // Create or update listing
 const CreateListing = async data => {
   try {
-    return await rootStore.marketplaceClient.CreateListing({
+    return await rootStore.walletClient.CreateListing({
       listingId: data.params.listingId,
       contractAddress: data.params.contractAddress,
       tokenId: data.params.tokenId,
@@ -188,7 +188,7 @@ export const InitializeListener = (history) => {
     try {
       let marketplaceInfo;
       if(data?.params?.marketplaceSlug || data?.params?.marketplaceId || data?.params?.marketplaceHash) {
-        marketplaceInfo = await rootStore.marketplaceClient.MarketplaceInfo({
+        marketplaceInfo = await rootStore.walletClient.MarketplaceInfo({
           marketplaceParams: {
             tenantSlug: data.params.tenantSlug,
             marketplaceSlug: data.params.marketplaceSlug,
@@ -204,6 +204,7 @@ export const InitializeListener = (history) => {
         case "login":
           // TODO: Sort this out with Live
           await rootStore.Authenticate({
+            clientAuthToken: data.params.clientAuthToken,
             idToken: data.params.idToken,
             authToken: data.params.authToken,
             fabricToken: data.params.fabricToken,
@@ -228,7 +229,7 @@ export const InitializeListener = (history) => {
             return Respond({response: null});
           }
 
-          let profile = toJS(rootStore.marketplaceClient.UserInfo() || {});
+          let profile = toJS(rootStore.walletClient.UserInfo() || {});
 
           return Respond({response: profile});
 
@@ -242,13 +243,13 @@ export const InitializeListener = (history) => {
         // client.ItemNames, client.ListingNames
         case "itemNames":
         case "listingNames":
-          return Respond({response: await rootStore.marketplaceClient.ListingNames({marketplaceParams: marketplaceInfo})});
+          return Respond({response: await rootStore.walletClient.ListingNames({marketplaceParams: marketplaceInfo})});
 
         case "listingEditionNames":
-          return Respond({response: await rootStore.marketplaceClient.ListingEditionNames({displayName: data.params.displayName})});
+          return Respond({response: await rootStore.walletClient.ListingEditionNames({displayName: data.params.displayName})});
 
         case "listingAttributes":
-          return Respond({response: await rootStore.marketplaceClient.ListingAttributes({marketplaceParams: marketplaceInfo, displayName: data.params.displayName})});
+          return Respond({response: await rootStore.walletClient.ListingAttributes({marketplaceParams: marketplaceInfo, displayName: data.params.displayName})});
 
         case "userTransferHistory":
           let response = {
@@ -286,7 +287,7 @@ export const InitializeListener = (history) => {
 
         // client.Items
         case "items":
-          let items = (await rootStore.marketplaceClient.UserItems({
+          let items = (await rootStore.walletClient.UserItems({
             sortBy: data.params.sortBy,
             sortDesc: data.params.sortDesc,
             filter: data.params.filter,
@@ -296,7 +297,7 @@ export const InitializeListener = (history) => {
             start: 0
           })).results || [];
 
-          let myListings = toJS(await rootStore.marketplaceClient.UserListings({marketplaceParams: marketplaceInfo ? marketplaceInfo : undefined}));
+          let myListings = toJS(await rootStore.walletClient.UserListings({marketplaceParams: marketplaceInfo ? marketplaceInfo : undefined}));
 
           items.forEach((item) => {
             const listing = myListings.find(listing =>
@@ -318,7 +319,7 @@ export const InitializeListener = (history) => {
         case "item":
           item = await Item(data);
 
-          listing = ((await rootStore.marketplaceClient.Listings({
+          listing = ((await rootStore.walletClient.Listings({
             contractAddress: item.contractAddress,
             tokenId: item.tokenId
           })) || [])[0];
@@ -333,14 +334,14 @@ export const InitializeListener = (history) => {
         // client.UserListings
         case "userListings":
           return Respond({
-            response: toJS(await rootStore.marketplaceClient.UserListings())
+            response: toJS(await rootStore.walletClient.UserListings())
           });
 
         // client.Listings
         case "listings":
           return Respond({
             response: (
-              await rootStore.marketplaceClient.Listings({
+              await rootStore.walletClient.Listings({
                 sortBy: data.params.sortBy,
                 sortDesc: data.params.sortDesc,
                 marketplaceParams: marketplaceInfo ? marketplaceInfo : undefined,
@@ -404,7 +405,7 @@ export const InitializeListener = (history) => {
             action: `Remove listing for '${listing?.metadata?.display_name || "NFT"}'`
           });
 
-          await rootStore.marketplaceClient.RemoveListing({listingId: listing.details.ListingId});
+          await rootStore.walletClient.RemoveListing({listingId: listing.details.ListingId});
 
           return Respond({});
 
@@ -681,7 +682,7 @@ export const InitializeListener = (history) => {
         // client.ListingStats, client.SalesStats
         case "listingStats":
           return Respond({
-            response: await rootStore.marketplaceClient.ListingStats({
+            response: await rootStore.walletClient.ListingStats({
               marketplaceParams: marketplaceInfo ? marketplaceInfo : undefined,
               contractAddress: data.params.contractAddress,
               tokenId: data.params.tokenId,
@@ -691,7 +692,7 @@ export const InitializeListener = (history) => {
 
         case "salesStats":
           return Respond({
-            response: await rootStore.marketplaceClient.SalesStats({
+            response: await rootStore.walletClient.SalesStats({
               marketplaceParams: marketplaceInfo ? marketplaceInfo : undefined,
               contractAddress: data.params.contractAddress,
               tokenId: data.params.tokenId,
@@ -701,7 +702,7 @@ export const InitializeListener = (history) => {
 
         // client.Activity
         case "activity":
-          const activity = await rootStore.marketplaceClient.Sales({
+          const activity = await rootStore.walletClient.Sales({
             start: data.params.start || 0,
             limit: data.params.limit || 50,
             sortBy: data.params.sortBy,

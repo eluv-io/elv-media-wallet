@@ -274,7 +274,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
   // Handle login button clicked - Initiate popup/login flow
   const Authenticate = async ({provider, mode}) => {
     if(rootStore.embedded) {
-      await rootStore.marketplaceClient.LogIn({
+      await rootStore.walletClient.LogIn({
         method: "tab",
         provider,
         mode,

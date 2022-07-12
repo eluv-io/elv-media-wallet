@@ -23,7 +23,7 @@ const MyItems = observer(() => {
   const [myListings, setMyListings] = useState([]);
 
   useEffect(() => {
-    rootStore.marketplaceClient.UserListings()
+    rootStore.walletClient.UserListings()
       .then(listings => setMyListings(listings));
   }, []);
 

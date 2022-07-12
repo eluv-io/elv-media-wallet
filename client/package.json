@@ -1,6 +1,6 @@
 {
-  "name": "@eluvio/elv-wallet-client",
-  "version": "1.0.17",
+  "name": "@eluvio/elv-wallet-frame-client",
+  "version": "2.0.1",
   "license": "MIT",
   "description": "Client used for initializing and interacting with the Eluvio media wallet.",
   "author": "Kevin Talmadge",
@@ -14,7 +14,7 @@
   ],
   "scripts": {
     "bump-version": "npm --git-tag-version --no-commit-hooks version patch",
-    "build": "npm run build-client-min && npm run build-client-dist",
+    "build": "cp ../README.md . && npm run build-client-min && npm run build-client-dist",
     "build-client-min": "rm -rf ./dist/ElvMediaWalletClient-min.js && webpack --mode production --target web --entry ./src/index.js --output-path ./dist --output-filename ElvMediaWalletClient.min.js  --devtool none",
     "build-client-dist": "rm -rf ./dist/src && node ./node_modules/@babel/cli/bin/babel.js --source-type=unambiguous --presets=@babel/preset-env --plugins @babel/plugin-transform-runtime ./src/index.js --out-dir ./dist/src"
   },

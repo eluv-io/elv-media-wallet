@@ -21,7 +21,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
   const [royaltyRate, setRoyaltyRate] = useState(undefined);
 
   useEffect(() => {
-    rootStore.marketplaceClient.TenantConfiguration({
+    rootStore.walletClient.TenantConfiguration({
       contractAddress: nft.details.ContractAddr,
     })
       .then(config => {
@@ -100,7 +100,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                 onClick={async () => {
                   try {
                     setErrorMessage(undefined);
-                    const listingId = await rootStore.marketplaceClient.CreateListing({
+                    const listingId = await rootStore.walletClient.CreateListing({
                       contractAddress: nft.details.ContractAddr,
                       tokenId: nft.details.TokenIdStr,
                       price: parsedPrice,
@@ -126,7 +126,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                     onClick={async () => Confirm({
                       message: "Are you sure you want to remove this listing?",
                       Confirm: async () => {
-                        await rootStore.marketplaceClient.RemoveListing({listingId: nft.details.ListingId});
+                        await rootStore.walletClient.RemoveListing({listingId: nft.details.ListingId});
                         await new Promise(resolve => setTimeout(resolve, 1000));
                         Close({deleted: true});
                       }

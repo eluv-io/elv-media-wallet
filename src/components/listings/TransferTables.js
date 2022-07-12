@@ -34,7 +34,7 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
 
       setLoading(true);
 
-      const query = await rootStore.marketplaceClient.Listings({
+      const query = await rootStore.walletClient.Listings({
         contractAddress,
         contractId,
         sortBy: sortField,
@@ -54,7 +54,7 @@ export const ActiveListings = observer(({contractAddress, contractId, initialSel
       } else {
         if(initialSelectedListingId) {
           // If initial listing ID set, ensure it is first item in list
-          const initialListing = await rootStore.marketplaceClient.Listing({listingId: initialSelectedListingId});
+          const initialListing = await rootStore.walletClient.Listing({listingId: initialSelectedListingId});
 
           if(initialListing) {
             query.results.unshift(initialListing);
@@ -431,7 +431,7 @@ export const TransferTable = observer(({icon, header, contractAddress, contractI
       contractAddress = rootStore.client.utils.HashToAddress(contractId);
     }
 
-    const entries = (await rootStore.marketplaceClient.Sales({sortBy: "created", contractAddress, tokenId, limit})).results;
+    const entries = (await rootStore.walletClient.Sales({sortBy: "created", contractAddress, tokenId, limit})).results;
 
     setEntries(entries);
     setLoading(false);

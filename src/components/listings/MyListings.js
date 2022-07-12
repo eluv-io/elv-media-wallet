@@ -18,7 +18,7 @@ const MyListings = observer(() => {
 
   const LoadListings = async () => {
     setListings(
-      await rootStore.marketplaceClient.UserListings()
+      await rootStore.walletClient.UserListings()
     );
   };
 

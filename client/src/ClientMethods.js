@@ -1,7 +1,7 @@
 /**
  * Methods for accessing information from the wallet and performing actions
  *
- * @module ElvWalletClient/Methods
+ * @module ElvWalletFrameClient/Methods
  */
 
 const Assert = (method, name, value) => {

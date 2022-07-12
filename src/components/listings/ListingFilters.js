@@ -302,12 +302,12 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
   };
 
   useEffect(() => {
-    rootStore.marketplaceClient.ListingNames({marketplaceParams: filterValues.marketplaceId ? {marketplaceId: filterValues.marketplaceId} : undefined})
+    rootStore.walletClient.ListingNames({marketplaceParams: filterValues.marketplaceId ? {marketplaceId: filterValues.marketplaceId} : undefined})
       .then(names => setFilterOptions(names.map(name => (name || "").trim()).sort()))
       .finally(() => setFilterOptionsLoaded(true));
 
     setAttributes([]);
-    rootStore.marketplaceClient.ListingAttributes({marketplaceParams: filterValues.marketplaceId ? {marketplaceId: filterValues.marketplaceId} : undefined})
+    rootStore.walletClient.ListingAttributes({marketplaceParams: filterValues.marketplaceId ? {marketplaceId: filterValues.marketplaceId} : undefined})
       .then(attributes => setAttributes(attributes));
   }, [filterValues.marketplaceId]);
 
@@ -317,7 +317,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
       return;
     }
 
-    rootStore.marketplaceClient.ListingEditionNames({displayName: filterValues.filter})
+    rootStore.walletClient.ListingEditionNames({displayName: filterValues.filter})
       .then(editions =>
         setEditions(
           editions

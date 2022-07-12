@@ -38,7 +38,7 @@ class TransferStore {
       // Check first to see if NFT has sold if listing ID is known
       if(listingId) {
         try {
-          const listingStatus = await this.rootStore.marketplaceClient.ListingStatus({listingId});
+          const listingStatus = await this.rootStore.walletClient.ListingStatus({listingId});
 
           if(listingStatus) {
             contractAddress = Utils.FormatAddress(listingStatus.contract);
@@ -59,10 +59,10 @@ class TransferStore {
 
       let listing;
       if(listingId) {
-        listing = await this.rootStore.marketplaceClient.Listing({listingId});
+        listing = await this.rootStore.walletClient.Listing({listingId});
       } else if(nft) {
         try {
-          listing = ((await this.rootStore.marketplaceClient.Listings({
+          listing = ((await this.rootStore.walletClient.Listings({
             contractAddress: nft.details.ContractAddr,
             tokenId: nft.details.TokenIdStr
           }))?.results || [])[0];
@@ -76,7 +76,7 @@ class TransferStore {
       }
 
       // Listing is expected, but NFT inaccessible and not listed - check if it was sold by us
-      const lastTransfer = (await this.rootStore.marketplaceClient.UserSales({contractAddress, tokenId}))[0];
+      const lastTransfer = (await this.rootStore.walletClient.UserSales({contractAddress, tokenId}))[0];
 
       if(lastTransfer && Utils.EqualAddress(rootStore.CurrentAddress(), lastTransfer.seller)) {
         return { sale: lastTransfer };

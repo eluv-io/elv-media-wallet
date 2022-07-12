@@ -21,20 +21,50 @@ body {
   align-items: center;
   display: flex;
   justify-content: center;
-  margin: 50px;
 }
 
 h1,
 h2 {
   display: block;
-  font-weight: 500;
   text-align: center;
+  margin: 10px 0;
+}
+
+h1 {
+  font-size: 32px;
+}
+
+h2 {
+  font-size: 20px;
 }
 
 pre {
   white-space: pre-wrap;
   background: #EEE;
   padding: 50px;
+}
+
+code {
+  font-family: monospace;
+}
+
+select {
+  border: 1px solid gray;
+  text-align: center;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 20px 0;
+  padding: 5px 20px;
+}
+
+.description {
+  margin: 15px auto;
+  max-width: 800px;
+  text-align: center;
+}
+
+.section {
+  margin: 20px 0;
 }
 
 .wallet-route {
@@ -50,8 +80,8 @@ pre {
 .wallet-target {
   display: block;
   height: 75%;
-  margin: auto;
-  width: 75%;
+  margin: 50px auto;
+  width: 90%;
   //height: 2250px;
 }
 
@@ -74,7 +104,7 @@ pre {
 .button-row {
   align-items: center;
   display: flex;
-  justify-content: space-evenly;
+  justify-content: center;
   margin: auto;
   margin-bottom: 10px;
   width: 75%;
@@ -91,6 +121,7 @@ pre {
     flex: 1 1 auto;
     outline: 0;
     padding: 3px 10px;
+    max-width: 400px;
 
     &.active,
     &:hover {
