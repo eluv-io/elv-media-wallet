@@ -367,6 +367,11 @@ const walletClient = await ElvWalletFrameClient.InitializePopup({
     });
   }
 
+  // Alias
+  async SignIn() {
+    return await this.LogIn(arguments[0] || {});
+  }
+
   /**
    * Sign the user in to the wallet app. Authorization can be provided in three ways:
    <ul>
@@ -390,7 +395,7 @@ const walletClient = await ElvWalletFrameClient.InitializePopup({
    * @param {string=} walletName - If signing in from an external wallet such as metamask, the name of the wallet
    * @param {number=} expiresAt - A unix epoch timestamp indicating when the specified authorization expires
    */
-  async SignIn({clientAuthToken, email, idToken, authToken, fabricToken, address, walletName, tenantId, expiresAt}) {
+  async LogIn({clientAuthToken, email, idToken, authToken, fabricToken, address, walletName, tenantId, expiresAt}) {
     return this.SendMessage({
       action: "login",
       params: {
@@ -410,12 +415,17 @@ const walletClient = await ElvWalletFrameClient.InitializePopup({
     });
   }
 
+  // Alias
+  async SignOut() {
+    return await this.LogOut(arguments[0] || {});
+  }
+
   /**
    * Sign the current user out
    *
    * @methodGroup Authorization
    */
-  async SignOut() {
+  async LogOut() {
     this.SendMessage({
       action: "logout",
       params: {}

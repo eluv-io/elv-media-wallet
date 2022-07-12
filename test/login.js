@@ -68,11 +68,11 @@ const AuthSection = ({walletClient, frameClient, callbackUrl}) => {
     if(!frameClient) { return; }
 
     if(loggedIn) {
-      frameClient.SignIn({
+      frameClient.LogIn({
         clientAuthToken: walletClient.ClientAuthToken()
       });
     } else {
-      frameClient.SignOut();
+      frameClient.LogOut();
     }
   }, [loggedIn, frameClient]);
 

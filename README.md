@@ -16,7 +16,7 @@ The Wallet operates against a backend Marketplace object hosted in the Content F
 The Eluvio Live site uses this model, embedding the wallet application in an iframe and controlling it with the client. You can see this in action on Eluvio LIVE sites at https://live.eluv.io .
 
 Please read the client documentation for more details:
-### [Wallet Client API Documentation](https://eluv-io.github.io/elv-media-wallet/ElvWalletClient.html)
+### [Frame Client API Documentation](https://eluv-io.github.io/elv-media-wallet/ElvWalletFrameClient.html)
 
 #### Basic Usage
 
