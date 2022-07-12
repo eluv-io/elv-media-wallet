@@ -35,7 +35,7 @@ const Profile = observer(({marketplace}) => {
     );
   }
 
-  const user = rootStore.marketplaceClient.User() || {};
+  const user = rootStore.marketplaceClient.UserInfo() || {};
   return (
     <Link to={marketplaceId ? `/marketplace/${marketplaceId}/profile` : "/profile"} className="header__profile">
       <div className="header__profile__info ellipsis">

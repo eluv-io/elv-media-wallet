@@ -111,7 +111,7 @@ class CheckoutStore {
         tok_id: tokenId
       };
 
-      if(this.rootStore.marketplaceClient.User().walletName.toLowerCase() === "metamask") {
+      if(this.rootStore.marketplaceClient.UserInfo().walletName.toLowerCase() === "metamask") {
         // Must create signature for burn operation to pass to API
 
         let popup;
@@ -167,7 +167,7 @@ class CheckoutStore {
       this.PurchaseInitiated({tenantId, confirmationId});
 
       let popup;
-      if(this.rootStore.marketplaceClient.User().walletName.toLowerCase() === "metamask") {
+      if(this.rootStore.marketplaceClient.UserInfo().walletName.toLowerCase() === "metamask") {
         // Create popup before calling async config method to avoid popup blocker
         popup = window.open("about:blank");
       }
@@ -181,7 +181,7 @@ class CheckoutStore {
         throw Error(`Mint helper not defined in configuration for NFT ${contractAddress}`);
       }
 
-      if(this.rootStore.embedded && this.marketplaceClient.User().walletName === "Metamask") {
+      if(this.rootStore.embedded && this.marketplaceClient.UserInfo().walletName === "Metamask") {
         const itemHashes = items.map(({addr, id}) => {
           const nftAddressBytes = ethers.utils.arrayify(addr);
           const mintAddressBytes = ethers.utils.arrayify(mintHelperAddress);
@@ -283,7 +283,7 @@ class CheckoutStore {
     try {
       this.submittingOrder = true;
 
-      email = email || this.rootStore.marketplaceClient.User().email;
+      email = email || this.rootStore.marketplaceClient.UserInfo().email;
 
       const successPath =
         marketplaceId ?
@@ -407,7 +407,7 @@ class CheckoutStore {
     try {
       this.submittingOrder = true;
 
-      email = email || this.rootStore.marketplaceClient.User().email;
+      email = email || this.rootStore.marketplaceClient.UserInfo().email;
 
       const successPath = UrlJoin("/marketplace", marketplaceId, "store", sku, "purchase", confirmationId);
       const cancelPath = UrlJoin("/marketplace", marketplaceId, "store", sku);

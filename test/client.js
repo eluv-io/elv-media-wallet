@@ -56,7 +56,7 @@ const AuthSection = ({marketplaceClient}) => {
 
   return (
     <div className="section">
-      <h2>Logged In as { marketplaceClient.User().email || marketplaceClient.UserAddress() }</h2>
+      <h2>Logged In as { marketplaceClient.UserInfo().email || marketplaceClient.UserAddress() }</h2>
       <div className="button-row">
         <button onClick={() => LogOut()}>
           Log Out

@@ -228,7 +228,7 @@ export const InitializeListener = (history) => {
             return Respond({response: null});
           }
 
-          let profile = toJS(rootStore.marketplaceClient.User() || {});
+          let profile = toJS(rootStore.marketplaceClient.UserInfo() || {});
 
           return Respond({response: profile});
 

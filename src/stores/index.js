@@ -2,7 +2,7 @@ const testTheme = undefined;//import("../static/stylesheets/themes/maskverse-tes
 
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";
-import {ElvMarketplaceClient} from "@eluvio/elv-client-js";
+import {ElvMarketplaceClient} from "@eluvio/elv-client-js/src/marketplaceClient/index";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import SanitizeHTML from "sanitize-html";
 
@@ -477,7 +477,7 @@ class RootStore {
   LoadNFTInfo = flow(function * () {
     if(!this.loggedIn || this.fromEmbed) { return; }
 
-    this.nftInfo = yield this.marketplaceClient.OwnedItemInfo();
+    this.nftInfo = yield this.marketplaceClient.UserItemInfo();
   });
 
   // Get already loaded full NFT data

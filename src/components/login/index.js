@@ -384,7 +384,7 @@ const Login = observer(({darkMode, Close}) => {
 
   // Loading customization options
   useEffect(() => {
-    const marketplaceHash = params.marketplace || (searchParams.get("mid").startsWith("hq__") ? searchParams.get("mid") : "");
+    const marketplaceHash = params.marketplace || ((searchParams.get("mid") || "").startsWith("hq__") ? searchParams.get("mid") : "");
     rootStore.LoadLoginCustomization(marketplaceHash)
       .then(options => {
         const userDataKey = `login-data-${options?.marketplaceId || "default"}`;
