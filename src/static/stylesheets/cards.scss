@@ -245,6 +245,12 @@
     stroke: transparent;
     width: auto;
 
+    &--test {
+      * {
+        color: var(--color-text-error);
+      }
+    }
+
     &:not(:last-child) {
       margin-right: 5px;
     }

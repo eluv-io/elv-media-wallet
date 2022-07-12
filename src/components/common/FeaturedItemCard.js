@@ -12,6 +12,7 @@ import UrlJoin from "url-join";
 const FeaturedItemCard = observer(({
   link,
   image,
+  badges,
   name,
   searchName,
   edition,
@@ -48,6 +49,12 @@ const FeaturedItemCard = observer(({
 
   let icon = (
     <div className={`featured-item__icon-container ${variant ? `featured-item__icon-container--variant-${variant}` : ""}`}>
+      {
+        badges ?
+          <div className="featured-item__badges">
+            { badges }
+          </div> : null
+      }
       <div className="featured-item__icon">
         { image }
       </div>

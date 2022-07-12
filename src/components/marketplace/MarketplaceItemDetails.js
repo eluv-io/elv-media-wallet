@@ -146,6 +146,12 @@ const MarketplaceItemDetails = observer(() => {
               View Listings
             </Link>
           </div>
+          {
+            item.nftTemplateMetadata.test ?
+              <div className="details-page__test-banner">
+                This is a test NFT
+              </div> : null
+          }
         </div>
 
         <div className="details-page__info">
