@@ -139,6 +139,17 @@
     }
   }
 
+  &__badges {
+    background-color: var(--color-card-badge-bg);
+    border-radius: var(--border-radius-card-badge);
+    display: flex;
+    height: max-content;
+    left: 12px;
+    padding: 5px;
+    position: absolute;
+    top: 12px;
+  }
+
   .item-card__image-container {
     border-radius: var(--border-radius-feature-card);
   }

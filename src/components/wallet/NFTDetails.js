@@ -557,7 +557,8 @@ const NFTDetails = observer(() => {
           {
             heldDate ? null :
               <ButtonWithLoader
-                disabled={heldDate || isInCheckout}
+                title={nft?.metadata?.test ? "Test NFTs may not be listed for sale" : undefined}
+                disabled={heldDate || isInCheckout || nft?.metadata?.test}
                 className="action action-primary details-page__listing-button"
                 onClick={async () => {
                   const {listing} = await LoadListing({listingId, nftData});
@@ -666,6 +667,12 @@ const NFTDetails = observer(() => {
             cardClassName="item-card--feature-card"
           />
           <NFTActions />
+          {
+            nft?.metadata?.test ?
+              <div className="details-page__test-banner">
+                This is a test NFT
+              </div> : null
+          }
         </div>
         <div className="details-page__info">
           <NFTMediaSection

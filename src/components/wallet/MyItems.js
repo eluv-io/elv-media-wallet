@@ -15,6 +15,7 @@ import ItemCard from "Components/common/ItemCard";
 import {FormatPriceString} from "Components/common/UIComponents";
 
 import ListingIcon from "Assets/icons/listings icon.svg";
+import TestIcon from "Assets/icons/alert-circle.svg";
 
 const MyItems = observer(() => {
   const match = useRouteMatch();
@@ -60,13 +61,26 @@ const MyItems = observer(() => {
                         link={UrlJoin(match.url, nft.details.ContractId, nft.details.TokenIdStr)}
                         image={<NFTImage nft={nft} width={600} />}
                         badges={
-                          listing ?
-                            <ImageIcon
-                              icon={ListingIcon}
-                              title="This NFT is listed for sale"
-                              alt="Listing Icon"
-                              className="item-card__badge"
-                            /> : null
+                          <>
+                            {
+                              listing ?
+                                <ImageIcon
+                                  icon={ListingIcon}
+                                  title="This NFT is listed for sale"
+                                  alt="Listing Icon"
+                                  className="item-card__badge"
+                                /> : null
+                            }
+                            {
+                              nft.metadata.test ?
+                                <ImageIcon
+                                  icon={TestIcon}
+                                  title="This is a test NFT"
+                                  alt="Test NFT"
+                                  className="item-card__badge item-card__badge--test"
+                                /> : null
+                            }
+                          </>
                         }
                         name={nft.metadata.display_name}
                         edition={nft.metadata.edition_name}

@@ -11,6 +11,7 @@ import FilteredView from "Components/listings/FilteredView";
 import {Loader} from "Components/common/Loaders";
 import ItemCard from "Components/common/ItemCard";
 import {FormatPriceString} from "Components/common/UIComponents";
+import TestIcon from "Assets/icons/alert-circle";
 
 const MarketplaceOwned = observer(() => {
   const match = useRouteMatch();
@@ -72,7 +73,28 @@ const MarketplaceOwned = observer(() => {
                         edition={ownedItem.metadata.edition_name}
                         description={ownedItem.metadata.description}
                         sideText={NFTDisplayToken(ownedItem)}
-                        badges={listing ? <ImageIcon icon={ListingIcon} title="This NFT is listed for sale" alt="Listing Icon" className="item-card__badge"/> : null}
+                        badges={
+                          <>
+                            {
+                              listing ?
+                                <ImageIcon
+                                  icon={ListingIcon}
+                                  title="This NFT is listed for sale"
+                                  alt="Listing Icon"
+                                  className="item-card__badge"
+                                /> : null
+                            }
+                            {
+                              ownedItem.metadata.test ?
+                                <ImageIcon
+                                  icon={TestIcon}
+                                  title="This is a test NFT"
+                                  alt="Test NFT"
+                                  className="item-card__badge item-card__badge--test"
+                                /> : null
+                            }
+                          </>
+                        }
                         price={listing ? FormatPriceString({USD: listing.details.Price}, {includeCurrency: !listing.details.USDCOnly, includeUSDCIcon: listing.details.USDCAccepted, prependCurrency: true, useCurrencyIcon: false}) : null}
                         variant={ownedItem.metadata.style}
                       />

@@ -6,6 +6,9 @@ import {MarketplaceImage} from "Components/common/Images";
 import UrlJoin from "url-join";
 import ItemCard from "Components/common/ItemCard";
 import FeaturedItemCard from "Components/common/FeaturedItemCard";
+import ImageIcon from "Components/common/ImageIcon";
+
+import TestIcon from "Assets/icons/alert-circle";
 
 const MarketplaceItemCard = ({
   type="Standard",
@@ -26,7 +29,6 @@ const MarketplaceItemCard = ({
   if(item.type === "nft" && (!item.nft_template || item.nft_template["/"])) {
     return null;
   }
-
 
   const released = !item.available_at || Date.now() - new Date(item.available_at).getTime() > 0;
   const expired = item.expires_at && new Date(item.expires_at).getTime() - Date.now() < 0;
@@ -89,6 +91,15 @@ const MarketplaceItemCard = ({
   return (
     <CardComponent
       link={linkDisabled ? undefined : (to || `${match.url}/${item.sku}`)}
+      badges={
+        item.nftTemplateMetadata.test ?
+          <ImageIcon
+            icon={TestIcon}
+            title="This is a test NFT"
+            alt="Test NFT"
+            className="item-card__badge item-card__badge--test"
+          /> : null
+      }
       image={(
         <MarketplaceImage
           marketplaceHash={marketplaceHash}
