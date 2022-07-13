@@ -35,6 +35,8 @@ try {
 }
 
 class RootStore {
+  authOrigin = this.GetSessionStorage("auth-origin");
+
   salePendingDurationDays = 0;
 
   appUUID = window.appUUID;
@@ -157,6 +159,11 @@ class RootStore {
 
   constructor() {
     makeAutoObservable(this);
+
+    if(searchParams.get("origin")) {
+      this.authOrigin = searchParams.get("origin");
+      this.SetSessionStorage("auth-origin", searchParams.get("origin"));
+    }
 
     this.checkoutStore = new CheckoutStore(this);
     this.transferStore = new TransferStore(this);
@@ -1204,13 +1211,26 @@ class RootStore {
     }
   });
 
+  AuthStorageKey() {
+    let key = `auth-${this.network}`;
+
+    if(this.authOrigin) {
+      try {
+        key = `${key}-${(new URL(this.authOrigin)).hostname}`;
+      // eslint-disable-next-line no-empty
+      } catch(error) {}
+    }
+
+    return key;
+  }
+
   AuthInfo() {
     try {
       if(this.authInfo) {
         return this.authInfo;
       }
 
-      const tokenInfo = this.GetLocalStorage(`auth-${this.network}`);
+      const tokenInfo = this.GetLocalStorage(this.AuthStorageKey());
 
       if(tokenInfo) {
         let { clientAuthToken, clientSigningToken, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
@@ -1228,12 +1248,12 @@ class RootStore {
     } catch(error) {
       this.Log("Failed to retrieve auth info", true);
       this.Log(error, true);
-      this.RemoveLocalStorage(`auth-${this.network}`);
+      this.RemoveLocalStorage(this.AuthStorageKey());
     }
   }
 
   ClearAuthInfo() {
-    this.RemoveLocalStorage(`auth-${this.network}`);
+    this.RemoveLocalStorage(this.AuthStorageKey());
 
     this.authInfo = undefined;
   }
@@ -1249,7 +1269,7 @@ class RootStore {
 
     if(save) {
       this.SetLocalStorage(
-        `auth-${this.network}`,
+        this.AuthStorageKey(),
         Utils.B64(JSON.stringify(authInfo))
       );
 

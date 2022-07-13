@@ -136,7 +136,7 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
                 marketplaceHash={marketplace.versionHash}
                 item={item}
                 index={item.itemIndex}
-                key={`marketplace-item-${item.itemIndex}-${loadKey}`}
+                key={`marketplace-item-${sectionIndex}-${item.sku}-${loadKey}`}
               />
             )
           }

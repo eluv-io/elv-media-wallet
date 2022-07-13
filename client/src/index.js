@@ -491,6 +491,8 @@ const walletClient = await ElvWalletFrameClient.InitializePopup({
 
     walletAppUrl.searchParams.set("appUUID", appUUID);
 
+    walletAppUrl.searchParams.set("origin", window.location.origin);
+
     if(marketplaceSlug) {
       walletAppUrl.searchParams.set("mid", `${tenantSlug}/${marketplaceSlug}`);
     } else if(marketplaceId || marketplaceHash) {
@@ -606,6 +608,8 @@ const walletClient = await ElvWalletFrameClient.InitializePopup({
     walletAppUrl = new URL(walletAppUrl);
 
     walletAppUrl.searchParams.set("appUUID", appUUID);
+
+    walletAppUrl.searchParams.set("origin", window.location.origin);
 
     if(marketplaceSlug) {
       walletAppUrl.searchParams.set("mid", `${tenantSlug}/${marketplaceSlug}`);
