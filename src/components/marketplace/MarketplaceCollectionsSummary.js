@@ -70,7 +70,7 @@ export const MarketplaceCollectionsSummary = observer(({marketplace}) => {
       .then(() => setLoading(false));
   }, [marketplace]);
 
-  if(!marketplace?.collections || marketplace.collections.length === 0) { return null; }
+  if(rootStore.marketplaceFilters.length > 0 || !marketplace?.collections || marketplace.collections.length === 0) { return null; }
 
   if(loading) {
     return <PageLoader />;
