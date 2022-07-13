@@ -386,7 +386,7 @@ const PurchasePayment = observer(({
   const stock = marketplaceItem && checkoutStore.stock[marketplaceItem.sku];
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
 
-  const maxPerCheckout = marketplaceItem.max_per_checkout || 25;
+  const maxPerCheckout = marketplaceItem?.max_per_checkout || 25;
   const maxPerUser = (stock && stock.max_per_user && (stock.max_per_user - stock.current_user)) || 25;
   const quantityAvailable = (stock && (stock.max - stock.minted)) || 25;
 
