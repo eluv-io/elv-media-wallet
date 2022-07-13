@@ -84,8 +84,8 @@ const AuthSection = ({walletClient, frameClient, callbackUrl}) => {
           <button onClick={() => LogIn({method: "redirect"})}>
             Redirect
           </button>
-          <button onClick={() => LogIn({method: "tab"})}>
-            New Tab
+          <button onClick={() => LogIn({method: "popup"})}>
+            Popup
           </button>
         </div>
       </div>
