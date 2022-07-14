@@ -95,6 +95,8 @@ class RootStore {
   totalWalletBalance = undefined;
 
   specifiedMarketplaceId = undefined;
+  specifiedMarketplaceHash = undefined;
+
   hideGlobalNavigation = false;
   hideNavigation = searchParams.has("hn") || this.loginOnly;
   sidePanelMode = false;
@@ -329,8 +331,8 @@ class RootStore {
       } else if(idToken) {
         let tenantId;
 
-        if(this.specifiedMarketplaceId) {
-          tenantId = (yield this.LoadLoginCustomization())?.tenant_id;
+        if(this.specifiedMarketplaceHash) {
+          tenantId = (yield this.LoadLoginCustomization(this.specifiedMarketplaceHash))?.tenant_id;
         }
 
         const tokens = yield this.walletClient.AuthenticateOAuth({
@@ -411,9 +413,7 @@ class RootStore {
       marketplaceId = Utils.DecodeVersionHash(marketplaceHash).objectId;
     } else if(this.specifiedMarketplaceId) {
       marketplaceId = this.specifiedMarketplaceId;
-      marketplaceHash =
-        this.walletClient.marketplaceHashes[marketplaceId] ||
-        (yield (yield Client()).LatestVersionHash({objectId: marketplaceId}));
+      marketplaceHash = this.specifiedMarketplaceHash;
     }
 
     marketplaceId = marketplaceId || this.specifiedMarketplaceId;
@@ -604,6 +604,7 @@ class RootStore {
 
       if(specified) {
         this.specifiedMarketplaceId = marketplace.marketplaceId;
+        this.specifiedMarketplaceHash = marketplace.marketplaceHash;
         this.SetSessionStorage("marketplace", marketplace.marketplaceId);
       }
 
@@ -936,7 +937,7 @@ class RootStore {
     }
 
     if(this.specifiedMarketplaceId) {
-      url.searchParams.set("mid", this.marketplaceHash || this.marketplaceId);
+      url.searchParams.set("mid", this.specifiedMarketplaceHash);
     }
 
     if(this.darkMode) {

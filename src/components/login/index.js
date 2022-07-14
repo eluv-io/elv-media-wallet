@@ -383,7 +383,15 @@ const Login = observer(({darkMode, Close}) => {
 
   // Loading customization options
   useEffect(() => {
-    const marketplaceHash = params.marketplace || ((searchParams.get("mid") || "").startsWith("hq__") ? searchParams.get("mid") : "");
+    if(customizationOptions) { return; }
+
+    // Marketplace is specified as something other than hash - wait for it to be resolved to rootStore.specifiedMarketplaceHash
+    if(searchParams.get("mid") && !searchParams.get("mid").startsWith("hq__") && !rootStore.specifiedMarketplaceHash) {
+      return;
+    }
+
+    const marketplaceHash = rootStore.specifiedMarketplaceHash || params.marketplace || searchParams.get("mid");
+
     rootStore.LoadLoginCustomization(marketplaceHash)
       .then(options => {
         const userDataKey = `login-data-${options?.marketplaceId || "default"}`;
@@ -405,7 +413,7 @@ const Login = observer(({darkMode, Close}) => {
         setUserData(initialUserData);
         setCustomizationOptions({...(options || {})});
       });
-  }, []);
+  }, [rootStore.specifiedMarketplaceHash]);
 
   darkMode = customizationOptions && typeof customizationOptions.darkMode === "boolean" ? customizationOptions.darkMode : darkMode;
 

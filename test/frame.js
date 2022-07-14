@@ -4,7 +4,7 @@ import "./test.scss";
 import React, {useEffect, useState} from "react";
 import {render} from "react-dom";
 
-import {ElvWalletClient} from "../client/src/index";
+import {ElvWalletFrameClient} from "../client/src/index";
 
 window.client = undefined;
 
@@ -50,8 +50,8 @@ const Initialize = ({type="frame", setClient, Destroy}) => {
   document.getElementById("client-events").innerHTML = "";
 
   const Method = type === "frame" ?
-    ElvWalletClient.InitializeFrame :
-    ElvWalletClient.InitializePopup;
+    ElvWalletFrameClient.InitializeFrame :
+    ElvWalletFrameClient.InitializePopup;
 
   Method({
     requestor: "Wallet Client Test App",
@@ -79,10 +79,10 @@ const App = () => {
   const [client, setClient] = useState(undefined);
   const [height, setHeight] = useState(minHeight);
   const [listeners, setEventListeners] = useState({
-    [ElvWalletClient.EVENTS.LOG_IN]: undefined,
-    [ElvWalletClient.EVENTS.LOG_OUT]: undefined,
-    [ElvWalletClient.EVENTS.CLOSE]: undefined,
-    [ElvWalletClient.EVENTS.ALL]: undefined,
+    [ElvWalletFrameClient.EVENTS.LOG_IN]: undefined,
+    [ElvWalletFrameClient.EVENTS.LOG_OUT]: undefined,
+    [ElvWalletFrameClient.EVENTS.CLOSE]: undefined,
+    [ElvWalletFrameClient.EVENTS.ALL]: undefined,
   });
 
   const Destroy = () => {
@@ -91,10 +91,10 @@ const App = () => {
     SetResults();
 
     setEventListeners({
-      [ElvWalletClient.EVENTS.LOG_IN]: undefined,
-      [ElvWalletClient.EVENTS.LOG_OUT]: undefined,
-      [ElvWalletClient.EVENTS.CLOSE]: undefined,
-      [ElvWalletClient.EVENTS.ALL]: undefined,
+      [ElvWalletFrameClient.EVENTS.LOG_IN]: undefined,
+      [ElvWalletFrameClient.EVENTS.LOG_OUT]: undefined,
+      [ElvWalletFrameClient.EVENTS.CLOSE]: undefined,
+      [ElvWalletFrameClient.EVENTS.ALL]: undefined,
     });
 
     setClient(undefined);
@@ -120,7 +120,7 @@ const App = () => {
   useEffect(() => {
     if(!client) { return; }
 
-    ToggleEventListener(ElvWalletClient.EVENTS.ALL);
+    ToggleEventListener(ElvWalletFrameClient.EVENTS.ALL);
 
     client.AddEventListener(
       client.EVENTS.RESIZE,
@@ -195,26 +195,26 @@ const App = () => {
             <div className="button-row">
               <p>Events</p>
               <button
-                className={listeners[ElvWalletClient.EVENTS.LOG_IN] ? "active" : ""}
-                onClick={() => ToggleEventListener(ElvWalletClient.EVENTS.LOG_IN)}
+                className={listeners[ElvWalletFrameClient.EVENTS.LOG_IN] ? "active" : ""}
+                onClick={() => ToggleEventListener(ElvWalletFrameClient.EVENTS.LOG_IN)}
               >
                 Log In
               </button>
               <button
-                className={listeners[ElvWalletClient.EVENTS.LOG_OUT] ? "active" : ""}
-                onClick={() => ToggleEventListener(ElvWalletClient.EVENTS.LOG_OUT)}
+                className={listeners[ElvWalletFrameClient.EVENTS.LOG_OUT] ? "active" : ""}
+                onClick={() => ToggleEventListener(ElvWalletFrameClient.EVENTS.LOG_OUT)}
               >
                 Log Out
               </button>
               <button
-                className={listeners[ElvWalletClient.EVENTS.CLOSE] ? "active" : ""}
-                onClick={() => ToggleEventListener(ElvWalletClient.EVENTS.CLOSE)}
+                className={listeners[ElvWalletFrameClient.EVENTS.CLOSE] ? "active" : ""}
+                onClick={() => ToggleEventListener(ElvWalletFrameClient.EVENTS.CLOSE)}
               >
                 Close
               </button>
               <button
-                className={listeners[ElvWalletClient.EVENTS.ALL] ? "active" : ""}
-                onClick={() => ToggleEventListener(ElvWalletClient.EVENTS.ALL)}
+                className={listeners[ElvWalletFrameClient.EVENTS.ALL] ? "active" : ""}
+                onClick={() => ToggleEventListener(ElvWalletFrameClient.EVENTS.ALL)}
               >
                 All
               </button>
