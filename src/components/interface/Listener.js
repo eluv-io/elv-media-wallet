@@ -202,7 +202,6 @@ export const InitializeListener = (history) => {
       switch(data.action) {
         // client.SignIn
         case "login":
-          // TODO: Sort this out with Live
           await rootStore.Authenticate({
             clientAuthToken: data.params.clientAuthToken,
             idToken: data.params.idToken,

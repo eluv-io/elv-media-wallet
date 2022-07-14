@@ -88,10 +88,6 @@ const LoginModal = observer(() => {
 });
 
 const Routes = observer(() => {
-  const history = useHistory();
-
-  useEffect(() => InitializeListener(history), []);
-
   if(rootStore.loginOnly) {
     return null;
   }
@@ -150,6 +146,10 @@ const Routes = observer(() => {
 
 
 const App = observer(() => {
+  const history = useHistory();
+
+  useEffect(() => InitializeListener(history), []);
+
   useEffect(() => {
     if(!rootStore.loaded) { return; }
 
