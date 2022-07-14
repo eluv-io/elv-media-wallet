@@ -215,9 +215,7 @@ class RootStore {
         storeAuthToken: false
       });
 
-      const appUrl = new URL(window.location.origin);
-      appUrl.pathname = appUrl.pathname.replace(/\/$/, "");
-      this.walletClient.appUrl = appUrl.toString();
+      this.walletClient.appUrl = (new URL(UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""))).toString();
 
       this.client = this.walletClient.client;
 
