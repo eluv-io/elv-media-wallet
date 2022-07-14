@@ -57,6 +57,7 @@ $wallet-connect-background: rgba(0, 0, 0, 0.25);
     min-height: unset;
     overflow-y: auto;
     padding-bottom: 20px;
+    top: 0;
     width: max-content;
 
     .wallet-connect__error-message {

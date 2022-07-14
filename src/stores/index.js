@@ -213,7 +213,9 @@ class RootStore {
         storeAuthToken: false
       });
 
-      this.walletClient.appUrl = window.location.origin;
+      const appUrl = new URL(window.location.origin);
+      appUrl.pathname = appUrl.pathname.replace(/\/$/, "");
+      this.walletClient.appUrl = appUrl.toString();
 
       this.client = this.walletClient.client;
 
@@ -1214,7 +1216,7 @@ class RootStore {
   AuthStorageKey() {
     let key = `auth-${this.network}`;
 
-    if(this.authOrigin) {
+    if(this.authOrigin && false) {
       try {
         key = `${key}-${(new URL(this.authOrigin)).hostname}`;
       // eslint-disable-next-line no-empty

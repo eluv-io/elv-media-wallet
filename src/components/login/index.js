@@ -274,14 +274,13 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
   // Handle login button clicked - Initiate popup/login flow
   const Authenticate = async ({provider, mode}) => {
     if(rootStore.embedded) {
+      const marketplaceHash = params.marketplace || customizationOptions.marketplaceHash;
       await rootStore.walletClient.LogIn({
         method: "tab",
         provider,
         mode,
         callback: async ({clientAuthToken, clientSigningToken}) => await rootStore.Authenticate({clientAuthToken, clientSigningToken}),
-        marketplaceParams: {
-          marketplaceHash: params.marketplace || customizationOptions.marketplaceHash
-        },
+        marketplaceParams: marketplaceHash ? { marketplaceHash } : undefined,
         clearLogin: params.clearLogin || rootStore.GetLocalStorage("signed-out")
       });
     } else {
