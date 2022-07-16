@@ -113,7 +113,7 @@ const MarketplaceItemDetails = observer(() => {
 
                     try {
                       const status = await rootStore.ClaimStatus({
-                        marketplace,
+                        marketplaceId: match.params.marketplaceId,
                         sku: item.sku
                       });
 
