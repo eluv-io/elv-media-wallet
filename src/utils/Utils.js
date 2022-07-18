@@ -325,8 +325,7 @@ export const FormatNFT = (nft) => {
         nft.metadata.pack_options[`${key}_embed_url`] = embedUrl.toString();
       }
       // eslint-disable-next-line no-empty
-    } catch(error) {
-    }
+    } catch(error) {}
   });
 
   return nft;

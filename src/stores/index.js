@@ -1053,7 +1053,7 @@ class RootStore {
       parameters.flowId = flowId;
 
       if(includeAuth || (!this.storageSupported && this.AuthInfo())) {
-        parameters.auth = this.AuthInfo();
+        parameters.auth = this.AuthInfo().clientAuthToken;
       }
 
       popup.location.href = this.FlowURL({type, flow, parameters, darkMode});
