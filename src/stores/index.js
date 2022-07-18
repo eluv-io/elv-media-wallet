@@ -43,7 +43,7 @@ class RootStore {
 
   DEBUG_ERROR_MESSAGE = "";
 
-  network = EluvioConfiguration["config-url"].includes("main.net955305") ? "main" : "demo";
+  network = EluvioConfiguration.network;
 
   embedded = window.top !== window.self || searchParams.has("e");
   inFlow = (window.location.hash.startsWith("#/flow/") || window.location.hash.startsWith("#/action/")) && !window.location.hash.includes("redirect");
