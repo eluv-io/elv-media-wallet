@@ -117,19 +117,21 @@ const MarketplaceItem = async (marketplaceInfo, data) => {
 
 const Listing = async data => {
   try {
-    let listingResults;
+    let listing;
     if(data.params.listingId) {
-      listingResults = await rootStore.walletClient.Listings({listingId: data.params.listingId});
+      listing = await rootStore.walletClient.Listing({listingId: data.params.listingId});
     } else {
-      listingResults = await rootStore.walletClient.Listings({
+      const listingResults = await rootStore.walletClient.Listings({
         contractAddress: data.params.contractAddress,
         tokenId: data.params.tokenId
       });
+
+      listing = listingResults.results[0];
     }
 
-    if(!listingResults || !listingResults.results || listingResults.results.length === 0) { throw "Listing not found"; }
+    if(!listing) { throw "Listing not found"; }
 
-    return toJS(listingResults.results[0]);
+    return toJS(listing);
   } catch(error) {
     throw Error(`Unable to find listing with ID ${data.params.listingId}`);
   }
@@ -360,7 +362,7 @@ export const InitializeListener = (history) => {
 
         // client.Listing
         case "listing":
-          console.log("CLIENT.LISTING")
+          console.log("CLIENT.LISTING");
           return Respond({response: await Listing(data)});
 
         // client.ListItem

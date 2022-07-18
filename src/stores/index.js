@@ -1215,6 +1215,7 @@ class RootStore {
   AuthStorageKey() {
     let key = `auth-${this.network}`;
 
+    // TODO: Enable auth storage scoping later
     if(this.authOrigin && false) {
       try {
         key = `${key}-${(new URL(this.authOrigin)).hostname}`;
