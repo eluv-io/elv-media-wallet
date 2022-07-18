@@ -34,7 +34,7 @@ const Actions = observer(() => {
       return;
     }
 
-    rootStore.Authenticate({...parameters.auth, saveAuthInfo: false})
+    rootStore.Authenticate({clientAuthToken: parameters.auth, saveAuthInfo: false})
       .then(() => setLoading(false));
   }, [rootStore.client]);
 
