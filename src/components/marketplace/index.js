@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from "react";
-import {rootStore, transferStore} from "Stores/index";
+import React, {useEffect} from "react";
+import {rootStore} from "Stores/index";
 import {
   Switch,
   Route,
@@ -36,28 +36,21 @@ import MarketplaceCollectionRedemption from "Components/marketplace/MarketplaceC
 // Given a tenant/marketplace slug, redirect to the proper marketplace
 const MarketplaceSlugRedirect = observer(() => {
   const match = useRouteMatch();
-  const marketplace = (rootStore.availableMarketplaces[match.params.tenantSlug] || {})[match.params.marketplaceSlug];
-  const [loaded, setLoaded] = useState(false);
 
-  useEffect(() => {
-    if(!marketplace) {
-      rootStore.LoadAvailableMarketplaces({
-        tenantSlug: match.params.tenantSlug,
-        marketplaceSlug: match.params.marketplaceSlug
-      })
-        .finally(() => setLoaded(true));
+  if(!rootStore.loaded) { return <PageLoader />; }
+
+  const marketplaceInfo = rootStore.walletClient.MarketplaceInfo({
+    marketplaceParams: {
+      tenantSlug: match.params.tenantSlug,
+      marketplaceSlug: match.params.marketplaceSlug
     }
-  }, []);
+  });
 
-  if(!marketplace) {
-    if(!loaded) {
-      return <PageLoader/>;
-    }
-
+  if(!marketplaceInfo) {
     return <Redirect to="/marketplaces" />;
   }
 
-  return <Redirect to={UrlJoin("/marketplace", marketplace.marketplaceId, match.params.location || "store")} />;
+  return <Redirect to={UrlJoin("/marketplace", marketplaceInfo.marketplaceId, match.params.location || "store")} />;
 });
 
 const MarketplaceWrapper = observer(({children}) => {
@@ -91,6 +84,10 @@ const MarketplaceWrapper = observer(({children}) => {
       rootStore.ClearMarketplace();
     }
   }, [match.url, rootStore.marketplaces[match.params.marketplaceId]]);
+
+  if(!rootStore.loaded) {
+    return <PageLoader />;
+  }
 
   if(currentRoute.skipLoading) {
     return children;
@@ -127,10 +124,8 @@ const Routes = (match) => {
   const item = (marketplace.items || []).find(item => item.sku === match.params.sku) || {};
   const nft = rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId}) || { metadata: {} };
 
-  const listingName = transferStore.listingNames[match.params.listingId] || "Listing";
-
   return [
-    { name: listingName, path: "/marketplace/:marketplaceId/listings/:listingId", Component: NFTDetails },
+    { name: "Listing", path: "/marketplace/:marketplaceId/listings/:listingId", Component: NFTDetails },
     { name: "Listings", path: "/marketplace/:marketplaceId/listings", Component: Listings },
     { name: nft?.metadata?.display_name, path: "/marketplace/:marketplaceId/my-listings/:contractId/:tokenId", Component: NFTDetails, authed: true },
     { name: "My Listings", path: "/marketplace/:marketplaceId/my-listings", Component: MyListings, authed: true },
@@ -153,7 +148,7 @@ const Routes = (match) => {
     { name: "Redeem Collection", path: "/marketplace/:marketplaceId/collections/:collectionSKU/redeem/:confirmationId/status", Component: CollectionRedeemStatus },
 
     { name: "Claim", path: "/marketplace/:marketplaceId/store/:sku/claim", Component: ClaimMintingStatus, authed: true },
-    { name: "Purchase", path: "/marketplace/:marketplaceId/store/:tenantId/:sku/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
+    { name: "Purchase", path: "/marketplace/:marketplaceId/store/:sku/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
 
     { name: item.name, path: "/marketplace/:marketplaceId/store/:sku", Component: MarketplaceItemDetails },
     { name: marketplace.name, path: "/marketplace/:marketplaceId/store", Component: MarketplaceStorefront },

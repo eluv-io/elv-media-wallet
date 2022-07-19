@@ -22,7 +22,7 @@ const MarketplaceOwned = observer(() => {
   if(!marketplace) { return null; }
 
   useEffect(() => {
-    rootStore.transferStore.FetchTransferListings({userAddress: rootStore. userAddress})
+    rootStore.walletClient.UserListings()
       .then(listings => setListings(listings));
 
     if(!rootStore.sidePanelMode || !rootStore.noItemsAvailable) { return; }

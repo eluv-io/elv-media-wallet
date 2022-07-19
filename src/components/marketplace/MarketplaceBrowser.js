@@ -3,7 +3,6 @@ import {observer} from "mobx-react";
 import {Link, Redirect} from "react-router-dom";
 import {rootStore} from "Stores";
 import UrlJoin from "url-join";
-import AsyncComponent from "Components/common/AsyncComponent";
 
 import SearchIcon from "Assets/icons/search.svg";
 import ImageIcon from "Components/common/ImageIcon";
@@ -124,33 +123,26 @@ const MarketplaceBrowser = observer(() => {
   }
 
   return (
-    <AsyncComponent
-      loadingClassName="page-loader"
-      loadKey="all-marketplaces"
-      cacheSeconds={900}
-      Load={async () => await rootStore.LoadAvailableMarketplaces({})}
-    >
-      <div className="marketplace-browser">
-        <div className="content content--no-background">
-          <MarketplaceFilters SetFilters={setFilters} />
-          <div className="marketplace-browser__marketplaces">
-            {
-              marketplaces.map(marketplace =>
-                <MarketplaceCard
-                  key={`${marketplace.tenantSlug}-${marketplace.marketplaceSlug}`}
-                  marketplace={marketplace}
-                />
-              )
-            }
-            {
-              // Fill any empty spaces with dummy elements to keep the grid at 3 columns
-              [...new Array(Math.max(0, 3 - marketplaces.length))]
-                .map((_, i) => <div className="marketplace-browser__dummy-card" key={`dummy-${i}`} /> )
-            }
-          </div>
+    <div className="marketplace-browser">
+      <div className="content content--no-background">
+        <MarketplaceFilters SetFilters={setFilters} />
+        <div className="marketplace-browser__marketplaces">
+          {
+            marketplaces.map(marketplace =>
+              <MarketplaceCard
+                key={`${marketplace.tenantSlug}-${marketplace.marketplaceSlug}`}
+                marketplace={marketplace}
+              />
+            )
+          }
+          {
+            // Fill any empty spaces with dummy elements to keep the grid at 3 columns
+            [...new Array(Math.max(0, 3 - marketplaces.length))]
+              .map((_, i) => <div className="marketplace-browser__dummy-card" key={`dummy-${i}`} /> )
+          }
         </div>
       </div>
-    </AsyncComponent>
+    </div>
   );
 });
 

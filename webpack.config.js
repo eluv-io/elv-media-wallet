@@ -35,6 +35,7 @@ module.exports = {
     chunkFilename: "[name].[contenthash].bundle.js"
   },
   devServer: {
+    public: "elv-test.io",
     https: {
       key: fs.readFileSync("./https/private.key"),
       cert: fs.readFileSync("./https/dev.local.crt"),

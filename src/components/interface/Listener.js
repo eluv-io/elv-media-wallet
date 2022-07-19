@@ -117,11 +117,17 @@ const MarketplaceItem = async (marketplaceInfo, data) => {
 
 const Listing = async data => {
   try {
-    const listing = ((await transferStore.FetchTransferListings({
-      listingId: data.params.listingId,
-      contractAddress: data.params.contractAddres,
-      tokenId: data.params.tokenId
-    })) || [])[0];
+    let listing;
+    if(data.params.listingId) {
+      listing = await rootStore.walletClient.Listing({listingId: data.params.listingId});
+    } else {
+      const listingResults = await rootStore.walletClient.Listings({
+        contractAddress: data.params.contractAddress,
+        tokenId: data.params.tokenId
+      });
+
+      listing = listingResults.results[0];
+    }
 
     if(!listing) { throw "Listing not found"; }
 
@@ -134,7 +140,7 @@ const Listing = async data => {
 // Create or update listing
 const CreateListing = async data => {
   try {
-    return await transferStore.CreateListing({
+    return await rootStore.walletClient.CreateListing({
       listingId: data.params.listingId,
       contractAddress: data.params.contractAddress,
       tokenId: data.params.tokenId,
@@ -184,12 +190,13 @@ export const InitializeListener = (history) => {
     try {
       let marketplaceInfo;
       if(data?.params?.marketplaceSlug || data?.params?.marketplaceId || data?.params?.marketplaceHash) {
-        await rootStore.LoadAvailableMarketplaces({tenantSlug: data.params.tenantSlug, marketplaceSlug: data.params.marketplaceSlug});
-        marketplaceInfo = await rootStore.MarketplaceInfo({
-          tenantSlug: data.params.tenantSlug,
-          marketplaceSlug: data.params.marketplaceSlug,
-          marketplaceId: data.params.marketplaceId,
-          marketplaceHash: data.params.marketplaceHash
+        marketplaceInfo = await rootStore.walletClient.MarketplaceInfo({
+          marketplaceParams: {
+            tenantSlug: data.params.tenantSlug,
+            marketplaceSlug: data.params.marketplaceSlug,
+            marketplaceId: data.params.marketplaceId,
+            marketplaceHash: data.params.marketplaceHash
+          }
         });
       }
 
@@ -198,6 +205,7 @@ export const InitializeListener = (history) => {
         // client.SignIn
         case "login":
           await rootStore.Authenticate({
+            clientAuthToken: data.params.clientAuthToken,
             idToken: data.params.idToken,
             authToken: data.params.authToken,
             fabricToken: data.params.fabricToken,
@@ -222,7 +230,9 @@ export const InitializeListener = (history) => {
             return Respond({response: null});
           }
 
-          let profile = toJS(rootStore.userProfile);
+          let profile = toJS(rootStore.walletClient.UserInfo() || {});
+
+          profile.name = profile.email || profile.address;
 
           return Respond({response: profile});
 
@@ -236,13 +246,13 @@ export const InitializeListener = (history) => {
         // client.ItemNames, client.ListingNames
         case "itemNames":
         case "listingNames":
-          return Respond({response: await transferStore.ListingNames({tenantId: marketplaceInfo?.tenantId})});
+          return Respond({response: await rootStore.walletClient.ListingNames({marketplaceParams: marketplaceInfo})});
 
         case "listingEditionNames":
-          return Respond({response: await transferStore.ListingEditionNames({displayName: data.params.displayName})});
+          return Respond({response: await rootStore.walletClient.ListingEditionNames({displayName: data.params.displayName})});
 
         case "listingAttributes":
-          return Respond({response: await transferStore.ListingAttributes({tenantId: marketplaceInfo?.tenantId, displayName: data.params.displayName})});
+          return Respond({response: await rootStore.walletClient.ListingAttributes({marketplaceParams: marketplaceInfo, displayName: data.params.displayName})});
 
         case "userTransferHistory":
           let response = {
@@ -280,18 +290,17 @@ export const InitializeListener = (history) => {
 
         // client.Items
         case "items":
-          let items = (await transferStore.FilteredQuery({
-            mode: "owned",
+          let items = (await rootStore.walletClient.UserItems({
             sortBy: data.params.sortBy,
             sortDesc: data.params.sortDesc,
             filter: data.params.filter,
             contractAddress: data.params.contractAddress,
-            tenantIds: marketplaceInfo ? [ marketplaceInfo.tenantId ] : [],
+            marketplaceParams: marketplaceInfo ? marketplaceInfo : undefined,
             limit: 10000,
             start: 0
           })).results || [];
 
-          let myListings = toJS(await transferStore.FetchTransferListings({userAddress: rootStore.CurrentAddress()}));
+          let myListings = toJS(await rootStore.walletClient.UserListings({marketplaceParams: marketplaceInfo ? marketplaceInfo : undefined}));
 
           items.forEach((item) => {
             const listing = myListings.find(listing =>
@@ -313,7 +322,7 @@ export const InitializeListener = (history) => {
         case "item":
           item = await Item(data);
 
-          listing = ((await transferStore.FetchTransferListings({
+          listing = ((await rootStore.walletClient.Listings({
             contractAddress: item.contractAddress,
             tokenId: item.tokenId
           })) || [])[0];
@@ -328,18 +337,17 @@ export const InitializeListener = (history) => {
         // client.UserListings
         case "userListings":
           return Respond({
-            response: toJS(await transferStore.FetchTransferListings({userAddress: rootStore.CurrentAddress()}))
+            response: toJS(await rootStore.walletClient.UserListings())
           });
 
         // client.Listings
         case "listings":
           return Respond({
             response: (
-              await transferStore.FilteredQuery({
-                mode: "listings",
+              await rootStore.walletClient.Listings({
                 sortBy: data.params.sortBy,
                 sortDesc: data.params.sortDesc,
-                tenantIds: marketplaceInfo ? [marketplaceInfo.tenantId] : [],
+                marketplaceParams: marketplaceInfo ? marketplaceInfo : undefined,
                 filter: data.params.filter,
                 editionFilter: data.params.editionFilter,
                 attributeFilters: data.params.attributeFilters,
@@ -354,6 +362,7 @@ export const InitializeListener = (history) => {
 
         // client.Listing
         case "listing":
+          console.log("CLIENT.LISTING");
           return Respond({response: await Listing(data)});
 
         // client.ListItem
@@ -400,7 +409,7 @@ export const InitializeListener = (history) => {
             action: `Remove listing for '${listing?.metadata?.display_name || "NFT"}'`
           });
 
-          await transferStore.RemoveListing({listingId: listing.details.ListingId});
+          await rootStore.walletClient.RemoveListing({listingId: listing.details.ListingId});
 
           return Respond({});
 
@@ -571,13 +580,16 @@ export const InitializeListener = (history) => {
         // client.PurchaseStatus
         case "purchaseStatus":
           status = { purchase: "CANCELLED", minting: "PENDING" };
+
           const purchaseStatus = checkoutStore.purchaseStatus[data.params.confirmationId] || {};
 
           if(purchaseStatus.status === "complete" && purchaseStatus.success) {
-            const mint = (((await rootStore.MintingStatus({
-              tenantId: purchaseStatus.tenantId
-            })) || [])
-              .find(status => status.confirmationId === data.params.confirmationId));
+            let mint;
+            if(data.params.listingId) {
+              mint = await rootStore.ListingPurchaseStatus({listingId: data.params.listingId, confirmationId: data.params.confirmationId});
+            } else {
+              mint = await rootStore.PurchaseStatus({marketplaceId: marketplaceInfo.marketplaceId, confirmationId: data.params.confirmationId});
+            }
 
             status = { purchase: "COMPLETE", minting: "PENDING" };
 
@@ -648,15 +660,7 @@ export const InitializeListener = (history) => {
 
         // client.PackOpenStatus
         case "packOpenStatus":
-          const address = Utils.FormatAddress(data.params.contractAddress);
-          const packInfo = checkoutStore.purchaseStatus[`${address}:${data.params.tokenId}`];
-
-          if(!packInfo) {
-            throw Error(`Unable to determine pack open status for item with contract address ${data.params.contractAddress} and token ID ${data.params.tokenId}`);
-          }
-
           const packStatus = await rootStore.PackOpenStatus({
-            tenantId: packInfo.tenantId,
             contractAddress: data.params.contractAddress,
             tokenId: data.params.tokenId
           });
@@ -681,28 +685,33 @@ export const InitializeListener = (history) => {
 
         // client.ListingStats, client.SalesStats
         case "listingStats":
-        case "salesStats":
-          const stats = await transferStore.FilteredQuery({
-            mode: data.action === "listingStats" ? "listing-stats" : "sales-stats",
-            marketplaceId: marketplaceInfo?.marketplaceId,
-            tenantIds: marketplaceInfo ? [ marketplaceInfo.tenantId ] : [],
-            contractAddress: data.params.contractAddress,
-            tokenId: data.params.tokenId,
-            lastNDays: data.params.lastNDays || -1
+          return Respond({
+            response: await rootStore.walletClient.ListingStats({
+              marketplaceParams: marketplaceInfo ? marketplaceInfo : undefined,
+              contractAddress: data.params.contractAddress,
+              tokenId: data.params.tokenId,
+              lastNDays: data.params.lastNDays || -1
+            })
           });
 
-          return Respond({response: stats});
+        case "salesStats":
+          return Respond({
+            response: await rootStore.walletClient.SalesStats({
+              marketplaceParams: marketplaceInfo ? marketplaceInfo : undefined,
+              contractAddress: data.params.contractAddress,
+              tokenId: data.params.tokenId,
+              lastNDays: data.params.lastNDays || -1
+            })
+          });
 
         // client.Activity
         case "activity":
-          const activity = await transferStore.FilteredQuery({
-            mode: "sales",
+          const activity = await rootStore.walletClient.Sales({
             start: data.params.start || 0,
             limit: data.params.limit || 50,
             sortBy: data.params.sortBy,
             sortDesc: data.params.sortDesc,
-            marketplaceId: marketplaceInfo?.marketplaceId,
-            tenantIds: marketplaceInfo ? [ marketplaceInfo.tenantId ] : [],
+            marketplaceParams: marketplaceInfo ? marketplaceInfo: undefined,
             filter: data.params.filter,
             contractAddress: data.params.contractAddress,
             tokenId: data.params.tokenId,
@@ -744,8 +753,6 @@ export const InitializeListener = (history) => {
             const params = (data.params || {}).params || {};
             if(params) {
               if(params.marketplaceSlug || params.marketplaceHash || params.marketplaceId) {
-                await rootStore.LoadAvailableMarketplaces({tenantSlug: params.tenantSlug, marketplaceSlug: params.marketplaceSlug});
-
                 await rootStore.SetMarketplace({
                   tenantSlug: params.tenantSlug,
                   marketplaceSlug: params.marketplaceSlug,

@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
-import {checkoutStore, cryptoStore, rootStore, transferStore} from "Stores";
+import {checkoutStore, cryptoStore, rootStore} from "Stores";
 import {ActiveListings} from "Components/listings/TransferTables";
 import {ButtonWithLoader, FormatPriceString} from "Components/common/UIComponents";
 import {Redirect, useRouteMatch} from "react-router-dom";
@@ -65,7 +65,7 @@ const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
 };
 
 const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, errorMessage, disabled, Continue, Cancel}) => {
-  const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.userProfile?.email || "";
+  const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.walletClient.UserInfo()?.email || "";
   const [paymentType, setPaymentType] = useState(usdcOnly || (usdcAccepted && cryptoStore.usdcOnly) ? "linked-wallet" : "stripe");
   const [email, setEmail] = useState(initialEmail);
   const [showUSDCOnlyMessage, setShowUSDCOnlyMessage] = useState(false);
@@ -185,7 +185,6 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
   const purchaseStatus = confirmationId && checkoutStore.purchaseStatus[confirmationId] || {};
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  marketplaceItem = marketplaceItem || (!listingId && marketplace && rootStore.MarketplaceItemByTemplateId(marketplace, nft.metadata.template_id));
   const stock = marketplaceItem && checkoutStore.stock[marketplaceItem.sku];
   const outOfStock = stock && stock.max && (stock.max - stock.minted) < quantity;
 
@@ -384,11 +383,10 @@ const PurchasePayment = observer(({
   const [listingStats, setListingStats] = useState(undefined);
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  marketplaceItem = marketplaceItem || (type === "marketplace" && marketplace && rootStore.MarketplaceItemByTemplateId(marketplace, nft.metadata.template_id));
   const stock = marketplaceItem && checkoutStore.stock[marketplaceItem.sku];
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
 
-  const maxPerCheckout = marketplaceItem.max_per_checkout || 25;
+  const maxPerCheckout = marketplaceItem?.max_per_checkout || 25;
   const maxPerUser = (stock && stock.max_per_user && (stock.max_per_user - stock.current_user)) || 25;
   const quantityAvailable = (stock && (stock.max - stock.minted)) || 25;
 
@@ -404,7 +402,7 @@ const PurchasePayment = observer(({
 
   useEffect(() => {
     if(type === "listing") {
-      transferStore.FilteredQuery({mode: "listing-stats", contractAddress: nft.details.ContractAddr})
+      rootStore.walletClient.ListingStats({contractAddress: nft.details.ContractAddr})
         .then(stats => setListingStats(stats));
     }
 
@@ -565,8 +563,8 @@ const PurchaseModal = observer(({nft, item, initialListingId, type="marketplace"
 
   useEffect(() => {
     if(initialListingId) {
-      transferStore.FetchTransferListings({listingId: initialListingId, forceUpdate: true})
-        .then(listings => setSelectedListing(listings[0]));
+      rootStore.walletClient.Listing({listingId: initialListingId})
+        .then(listing => setSelectedListing(listing));
     }
   }, []);
 

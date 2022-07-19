@@ -312,7 +312,7 @@ const NFTContractSection = ({nft, listing, heldDate, isOwned, setDeleted}) => {
                 Confirm: async () => {
                   await rootStore.BurnNFT({nft});
                   setDeleted(true);
-                  await rootStore.LoadNFTInfo(true);
+                  await rootStore.LoadNFTInfo();
                 }
               })}
             >

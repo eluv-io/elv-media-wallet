@@ -155,6 +155,7 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, showFullMedia, width}) =
     }
   }
 
+  // TODO: Consolidate embed url determination
   if(showFullMedia) {
     if((selectedMedia && selectedMedia.media_type === "HTML") && selectedMedia.media_file) {
       const targetHash = LinkTargetHash(selectedMedia.media_file);
@@ -324,9 +325,37 @@ export const FormatNFT = (nft) => {
         nft.metadata.pack_options[`${key}_embed_url`] = embedUrl.toString();
       }
       // eslint-disable-next-line no-empty
-    } catch(error) {
-    }
+    } catch(error) {}
   });
 
   return nft;
+};
+
+export const ActionPopup = async ({url, onMessage, onCancel}) => {
+  await new Promise(resolve => {
+    const newWindow = window.open(url);
+
+    const closeCheck = setInterval(async () => {
+      if(newWindow.closed) {
+        clearInterval(closeCheck);
+
+        if(onCancel) {
+          await onCancel();
+        }
+
+        resolve();
+      }
+    }, 500);
+
+    window.addEventListener("message", async event => {
+      await onMessage(
+        event,
+        () => {
+          clearInterval(closeCheck);
+          newWindow.close();
+          resolve();
+        }
+      );
+    });
+  });
 };

@@ -45,7 +45,7 @@ const MintingStatus = observer(({
         }
 
         if(items.length > 0) {
-          await rootStore.LoadNFTInfo(true);
+          await rootStore.LoadNFTInfo();
 
           const firstItem = rootStore.NFTInfo({
             contractAddress: items[0].token_addr,
@@ -302,7 +302,7 @@ export const DropMintingStatus = observer(() => {
     <MintingStatus
       Status={Status}
       redirect={UrlJoin("/marketplace", match.params.marketplaceId)}
-      OnFinish={async () => rootStore.LoadMarketplace(match.params.marketplaceId, true)}
+      OnFinish={async () => rootStore.LoadMarketplace(match.params.marketplaceId)}
       videoHash={videoHash}
     />
   );
@@ -318,12 +318,14 @@ export const ListingPurchaseStatus = observer(() => {
 
   const inMarketplace = !!match.params.marketplaceId;
 
+  const listingId = match.params.listingId || match.params.sku;
+
   const Status = async () => {
     if(awaitingSolanaTransaction) {
       return await cryptoStore.PhantomPurchaseStatus(match.params.confirmationId);
     } else {
       return await rootStore.ListingPurchaseStatus({
-        tenantId: match.params.tenantId,
+        listingId,
         confirmationId: match.params.confirmationId
       });
     }
@@ -404,7 +406,7 @@ export const PurchaseMintingStatus = observer(() => {
   const hideText = marketplace?.storefront?.hide_text;
 
   const Status = async () => await rootStore.PurchaseStatus({
-    marketplace,
+    marketplaceId: match.params.marketplaceId,
     confirmationId: match.params.confirmationId
   });
 
@@ -451,13 +453,13 @@ export const ClaimMintingStatus = observer(() => {
   const hideText = marketplace?.storefront?.hide_text;
 
   const Status = async () => await rootStore.ClaimStatus({
-    marketplace,
+    marketplaceId: match.params.marketplaceId,
     sku: match.params.sku
   });
 
   useEffect(() => {
     if(status) {
-      rootStore.LoadNFTInfo(true);
+      rootStore.LoadNFTInfo();
     }
   }, [status]);
 
@@ -538,13 +540,7 @@ export const PackOpenStatus = observer(() => {
     UrlJoin("/marketplace", match.params.marketplaceId, "my-items") :
     UrlJoin("/wallet", "my-items");
 
-  const tenantId = nft?.details?.TenantId || rootStore.marketplaces[match.params.marketplaceId]?.tenant_id;
-  if(!tenantId) {
-    return <Redirect to={basePath} />;
-  }
-
   const Status = async () => await rootStore.PackOpenStatus({
-    tenantId,
     contractId: match.params.contractId,
     tokenId: match.params.tokenId
   });
@@ -598,11 +594,11 @@ export const CollectionRedeemStatus = observer(() => {
 
   const hideText = collection.hide_text || collectionsInfo.hide_text;
 
-  const Status = async () => await rootStore.CollectionRedemptionStatus({tenantId: marketplace.tenant_id, confirmationId: match.params.confirmationId});
+  const Status = async () => await rootStore.CollectionRedemptionStatus({marketplaceId: marketplace.marketplaceId, confirmationId: match.params.confirmationId});
 
   useEffect(() => {
     if(status) {
-      rootStore.LoadNFTInfo(true);
+      rootStore.LoadNFTInfo();
     }
   }, [status]);
 

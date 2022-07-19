@@ -470,7 +470,7 @@ class CryptoStore {
   }
 
   WalletFunctions(type) {
-    switch(type) {
+    switch(type.toLowerCase()) {
       case "metamask":
         return {
           name: "Metamask",

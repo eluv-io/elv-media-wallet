@@ -1,3 +1,9 @@
+.login-page-container {
+  .login-page {
+    flex: 1 1 100%;
+  }
+}
+
 .login-modal {
   overflow-y: hidden;
 
@@ -57,8 +63,8 @@
     max-height: 100vh;
     max-width: unset;
     min-height: 100vh;
-    width: 100%;
     overflow-y: auto;
+    width: 100%;
   }
 
   @media screen and (max-width: 600px) {
@@ -79,8 +85,8 @@
   height: max-content;
   justify-content: center;
   margin: 0;
-  padding: 100px 30px;
   min-height: 100%;
+  padding: 100px 30px;
 
   &-large-logo-mode {
     .login-page__logo {
@@ -105,8 +111,8 @@
     left: 0;
     position: fixed;
     top: 0;
-    z-index: -1;
     width: 100vw;
+    z-index: -1;
   }
 
   h1 {
@@ -117,11 +123,11 @@
   }
 
   &__login-box {
+    align-items: center;
     background: var(--background-login-box);
     border: var(--border-login-box);
     border-radius: var(--border-radius-login-box);
     color: var(--color-login-text-primary);
-    align-items: center;
     display: flex;
     flex-direction: column;
     max-width: 400px;
@@ -150,12 +156,12 @@
   }
 
   &__logo {
+    fill: var(--color-login-text-primary);
     margin-bottom: 20px;
     object-fit: contain;
-    width: 220px;
 
     stroke: var(--color-login-text-primary);
-    fill: var(--color-login-text-primary);
+    width: 220px;
   }
 
   &__logo-container {
@@ -172,13 +178,13 @@
   }
 
   &__login-button {
+    align-items: center;
+    display: flex;
     font-size: 16px;
     height: 50px;
+    justify-content: center;
     margin: 5px 0;
     width: 220px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 
     img,
     svg {
@@ -202,9 +208,9 @@
     font-weight: 300;
     justify-content: center;
     letter-spacing: 0.07em;
+    margin-top: 50px;
     text-transform: uppercase;
     user-select: none;
-    margin-top: 50px;
 
     &__image {
       height: 25px;
@@ -235,6 +241,7 @@
     align-items: center;
     display: flex;
     flex-direction: column;
+    flex-grow: 1;
     justify-content: center;
     position: relative;
 
@@ -248,17 +255,19 @@
     }
 
     &__separator {
-      display: flex;
       align-items: center;
-      width: 100%;
+      display: flex;
+      justify-content: center;
       margin: 25px 0;
+      width: 100%;
     }
 
     &__separator-line {
-      height: 3px;
-      width: 100%;
-      flex: 1 1 100%;
       border-bottom: var(--border-login-box);
+      flex: 1 1 100%;
+      height: 3px;
+      max-width: 100px;
+      width: 100%;
     }
 
     &__separator-text {
@@ -267,32 +276,32 @@
     }
 
     &__loader {
-      width: 100%;
+      align-items: center;
+      display: flex;
       height: 100%;
-      top: 0;
+      justify-content: center;
       left: 0;
       position: absolute;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      top: 0;
+      width: 100%;
       z-index: 1000;
     }
   }
 
   &__wallet-options-toggle {
-    display: flex;
     align-items: center;
-    font-size: 12px;
-    cursor: pointer;
     background: transparent;
-    color: var(--color-login-text-primary);
     border: 0;
+    color: var(--color-login-text-primary);
+    cursor: pointer;
+    display: flex;
+    font-size: 12px;
 
     svg {
-      margin-left: 5px;
       height: 25px;
-      width: 25px;
+      margin-left: 5px;
       padding-bottom: 5px;
+      width: 25px;
     }
   }
 
@@ -301,12 +310,12 @@
   }
 
   &__text-section {
-    margin-top: 20px;
-    flex-grow: 1;
+    align-items: center;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    flex-grow: 1;
     justify-content: flex-end;
+    margin-top: 20px;
 
     * {
       color: var(--color-login-text-secondary);
@@ -353,12 +362,12 @@
     }
 
     &__login-box {
+      border: 0;
       height: 100%;
       max-width: unset;
       min-height: 100vh;
       padding: 75px 20px 100px;
       width: 100%;
-      border: 0;
     }
 
     &__terms-modal {

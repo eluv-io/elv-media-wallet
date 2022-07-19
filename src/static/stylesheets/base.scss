@@ -104,7 +104,8 @@ body,
 .app-container,
 .site-app,
 .main-app,
-.page-container {
+.page-container,
+.login-page-container {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;

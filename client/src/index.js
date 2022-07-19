@@ -69,9 +69,9 @@ const LOG_LEVELS = {
 /**
  * This page contains documentation for client setup, navigation and other management.
  <br /><br />
- * <a href="./module-ElvWalletClient_Methods.html">For details on retrieving information from and performing actions in the wallet, see the wallet client methods page.</a>
+ * <a href="./module-ElvWalletFrameClient_Methods.html">For details on retrieving information from and performing actions in the wallet, see the wallet client methods page.</a>
  */
-class ElvWalletClient {
+class ElvWalletFrameClient {
   Throw(error) {
     throw new Error(`Eluvio Media Wallet Client | ${error}`);
   }
@@ -115,17 +115,17 @@ class ElvWalletClient {
    * This constructor should not be used. Please use <a href="#.InitializePopup">InitializeFrame</a> or <a href="#.InitializePopup">InitializePopup</a> instead.
    *
 <pre><code>
-import { ElvWalletClient } from "@eluvio/elv-wallet-client";
+import { ElvWalletFrameClient } from "@eluvio/elv-wallet-client";
 
 // Initialize in iframe at target element
-const walletClient = await ElvWalletClient.InitializeFrame({
+const walletClient = await ElvWalletFrameClient.InitializeFrame({
  requestor: "My App",
  walletAppUrl: "https://wallet.contentfabric.io",
  target: document.getElementById("#wallet-target")
 });
 
 // Or initialize in a popup
-const walletClient = await ElvWalletClient.InitializePopup({
+const walletClient = await ElvWalletFrameClient.InitializePopup({
  requestor: "My App",
  walletAppUrl: "https://wallet.contentfabric.io",
 });
@@ -367,12 +367,17 @@ const walletClient = await ElvWalletClient.InitializePopup({
     });
   }
 
+  // Alias
+  async SignIn() {
+    return await this.LogIn(arguments[0] || {});
+  }
+
   /**
    * Sign the user in to the wallet app. Authorization can be provided in three ways:
    <ul>
+    <li>- Wallet app token retrieved from elv-wallet-app-client (Preferred)</li>
     <li>- ID token from an OAuth flow</li>
     <li>- Eluvio authorization token previously retrieved from exchanging an ID token</li>
-    <li>- Private key of the user</li>
    <br/>
    *
    * NOTE: This is only to be used if authorization is performed outside of the wallet app. To direct the
@@ -380,7 +385,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
    *
    * @methodGroup Authorization
    * @namedParams
-   * @param {string=} name - The name of the user
+   * @param {string=} clientAuthToken - An app token retrieved via elv-wallet-app-client. If this is provided, no other parameters are necessary.
    * @param {string=} email - The email address of the user
    * @param {string=} address - The address of the user
    * @param {string=} tenantId - A tenant Id to associate with the login
@@ -390,10 +395,11 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @param {string=} walletName - If signing in from an external wallet such as metamask, the name of the wallet
    * @param {number=} expiresAt - A unix epoch timestamp indicating when the specified authorization expires
    */
-  async SignIn({name, email, idToken, authToken, fabricToken, address, walletName, tenantId, expiresAt}) {
+  async LogIn({clientAuthToken, email, idToken, authToken, fabricToken, address, walletName, tenantId, expiresAt}) {
     return this.SendMessage({
       action: "login",
       params: {
+        clientAuthToken,
         idToken,
         authToken,
         fabricToken,
@@ -409,12 +415,17 @@ const walletClient = await ElvWalletClient.InitializePopup({
     });
   }
 
+  // Alias
+  async SignOut() {
+    return await this.LogOut(arguments[0] || {});
+  }
+
   /**
    * Sign the current user out
    *
    * @methodGroup Authorization
    */
-  async SignOut() {
+  async LogOut() {
     this.SendMessage({
       action: "logout",
       params: {}
@@ -460,7 +471,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @param {boolean=} captureLogin=false - If specified, the parent frame will be responsible for handling login requests. When the user attempts to log in, the LOG_IN_REQUESTED event will be fired.
    * @param {boolean=} darkMode=false - Specify whether the app should be in dark mode
    *
-   * @returns {Promise<ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new window.
+   * @returns {Promise<ElvWalletFrameClient>} - The ElvWalletFrameClient initialized to communicate with the media wallet app in the new window.
    */
   static async InitializePopup({
     requestor,
@@ -479,6 +490,8 @@ const walletClient = await ElvWalletClient.InitializePopup({
     walletAppUrl = new URL(walletAppUrl);
 
     walletAppUrl.searchParams.set("appUUID", appUUID);
+
+    walletAppUrl.searchParams.set("origin", window.location.origin);
 
     if(marketplaceSlug) {
       walletAppUrl.searchParams.set("mid", `${tenantSlug}/${marketplaceSlug}`);
@@ -508,7 +521,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
 
     const target = Popup({url: walletAppUrl.toString(), title: "Eluvio Media Wallet", w: 400, h: 700});
 
-    const client = new ElvWalletClient({
+    const client = new ElvWalletFrameClient({
       appUUID,
       requestor,
       walletAppUrl: walletAppUrl.toString(),
@@ -551,7 +564,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
    * @param {boolean=} captureLogin - If specified, the parent frame will be responsible for handling login requests. When the user attempts to log in, the LOG_IN_REQUESTED event will be fired.
    * @param {boolean=} darkMode=false - Specify whether the app should be in dark mode
    *
-   * @returns {Promise<ElvWalletClient>} - The ElvWalletClient initialized to communicate with the media wallet app in the new iframe.
+   * @returns {Promise<ElvWalletFrameClient>} - The ElvWalletFrameClient initialized to communicate with the media wallet app in the new iframe.
    */
   static async InitializeFrame({
     requestor,
@@ -596,6 +609,8 @@ const walletClient = await ElvWalletClient.InitializePopup({
 
     walletAppUrl.searchParams.set("appUUID", appUUID);
 
+    walletAppUrl.searchParams.set("origin", window.location.origin);
+
     if(marketplaceSlug) {
       walletAppUrl.searchParams.set("mid", `${tenantSlug}/${marketplaceSlug}`);
     } else if(marketplaceId || marketplaceHash) {
@@ -622,7 +637,7 @@ const walletClient = await ElvWalletClient.InitializePopup({
       walletAppUrl.searchParams.set("dk", "");
     }
 
-    const client = new ElvWalletClient({
+    const client = new ElvWalletFrameClient({
       appUUID,
       requestor,
       walletAppUrl: walletAppUrl.toString(),
@@ -721,9 +736,9 @@ const walletClient = await ElvWalletClient.InitializePopup({
  * - `client.EVENTS.RESIZE` - This event will specify the full height and width of the wallet application as currently rendered
  * - `client.EVENTS.ALL` - Any of the above events has occurred.
  */
-ElvWalletClient.EVENTS = EVENTS;
-ElvWalletClient.LOG_LEVELS = LOG_LEVELS;
+ElvWalletFrameClient.EVENTS = EVENTS;
+ElvWalletFrameClient.LOG_LEVELS = LOG_LEVELS;
 
-Object.assign(ElvWalletClient.prototype, require("./ClientMethods"));
+Object.assign(ElvWalletFrameClient.prototype, require("./ClientMethods"));
 
-exports.ElvWalletClient = ElvWalletClient;
+exports.ElvWalletFrameClient = ElvWalletFrameClient;

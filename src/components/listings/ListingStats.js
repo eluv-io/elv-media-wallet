@@ -1,26 +1,23 @@
 import React, {useState, useEffect} from "react";
-import {transferStore} from "Stores";
+import {rootStore} from "Stores";
 import {useRouteMatch} from "react-router-dom";
 import {Loader} from "Components/common/Loaders";
 import {FormatPriceString} from "Components/common/UIComponents";
 
-const ListingStats = ({mode="listings-stats", filterParams}) => {
+const ListingStats = ({mode="listings", filterParams}) => {
   const match = useRouteMatch();
   const [stats, setStats] = useState(undefined);
 
   let params = filterParams || { mode, marketplaceId: match.params.marketplaceId };
 
-  if(params.mode === "listings") {
-    params.mode = "listing-stats";
-  } else if(params.mode === "sales") {
-    params.mode = "sales-stats";
-  } else if(!params.mode) {
-    params.mode = mode;
-  }
-
   useEffect(() => {
-    transferStore.FilteredQuery(params)
-      .then(results => setStats(results));
+    if(mode === "listings") {
+      rootStore.walletClient.ListingStats(params)
+        .then(results => setStats(results));
+    } else {
+      rootStore.walletClient.SalesStats(params)
+        .then(results => setStats(results));
+    }
   }, [filterParams]);
 
   if(!stats) {
@@ -35,7 +32,7 @@ const ListingStats = ({mode="listings-stats", filterParams}) => {
     <div className="stats">
       <div className="stats__item">
         <label className="stats__label">
-          { params.mode === "listing-stats" ? "Active Listings" : "Total Sales" }
+          { mode === "listings" ? "Active Listings" : "Total Sales" }
         </label>
         <div className="stats__value">
           { stats.count || 0 }
@@ -43,7 +40,7 @@ const ListingStats = ({mode="listings-stats", filterParams}) => {
       </div>
       <div className="stats__item">
         <label className="stats__label">
-          { params.mode === "listing-stats" ? "Active Listing Value" : "Total Sales Volume" }
+          { mode === "listings" ? "Active Listing Value" : "Total Sales Volume" }
         </label>
         <div className="stats__value">
           { FormatPriceString({USD: stats.volume || 0}) }
@@ -51,7 +48,7 @@ const ListingStats = ({mode="listings-stats", filterParams}) => {
       </div>
       <div className="stats__item">
         <label className="stats__label">
-          { params.mode === "listing-stats" ? "Average Listing Price" : "Average Price" }
+          { mode === "listings" ? "Average Listing Price" : "Average Price" }
         </label>
         <div className="stats__value">
           { FormatPriceString({USD: stats.avg || 0}) }

@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {useRouteMatch} from "react-router-dom";
-import {rootStore, transferStore} from "Stores";
+import {rootStore} from "Stores";
 import ListingCard from "Components/listings/ListingCard";
 import UrlJoin from "url-join";
 import {UserTransferTable} from "Components/listings/TransferTables";
@@ -17,10 +17,9 @@ const MyListings = observer(() => {
   const transactionsPage = match.url.endsWith("/transactions");
 
   const LoadListings = async () => {
-    let retrievedListings = [...(await transferStore.FetchTransferListings({userAddress: rootStore.CurrentAddress()}))]
-      .sort((a, b) => a.details.CreatedAt > b.details.CreatedAt ? -1 : 1);
-
-    setListings(retrievedListings);
+    setListings(
+      await rootStore.walletClient.UserListings()
+    );
   };
 
   useEffect(() => {
