@@ -30,7 +30,7 @@ class TransferStore {
 
   TransferNFT = flow(function * ({nft, targetAddress}) {
     try {
-      yield rootStore.walletClient.UserTransferNFT({
+      yield rootStore.walletClient.TransferNFT({
         contractAddress: nft.details.ContractAddr,
         tokenId: nft.details.TokenIdStr,
         targetAddress

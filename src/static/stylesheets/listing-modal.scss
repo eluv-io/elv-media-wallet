@@ -68,8 +68,8 @@ $content-width: 475px;
   &__form__inputs {
     align-items: center;
     display: flex;
-    justify-content: center;
     flex-direction: column;
+    justify-content: center;
     margin: 20px auto;
     max-width: $content-width;
     position: relative;
@@ -102,8 +102,8 @@ $content-width: 475px;
   }
 
   &__form__input {
-    width: 100%;
     padding: 0 20px;
+    width: 100%;
 
     &:disabled {
       color: var(--color-text-secondary);

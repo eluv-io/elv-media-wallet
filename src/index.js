@@ -51,7 +51,7 @@ const DebugFooter = observer(() => {
     <>
       <div className="debug-footer">
         <div>{ EluvioConfiguration.version }</div>
-        <div>{ EluvioConfiguration["config-url"].includes("demov3") ? "Demo Network" : "Production Network" }</div>
+        <div>{ EluvioConfiguration.network === "demo" ? "Demo Network" : "Production Network" }</div>
         <div>Deployed { new Date(EluvioConfiguration["deployed-at"] || Date.now()).toLocaleString(navigator.languages, {year: "numeric", month: "long", weekday: "long", hour: "numeric", minute: "numeric", second: "numeric" }) }</div>
       </div>
       {
@@ -177,7 +177,7 @@ const App = observer(() => {
   const hasHeader = !rootStore.hideNavigation && (!rootStore.sidePanelMode || rootStore.navigationBreadcrumbs.length > 2);
   return (
     <div
-      key={`app-${rootStore.loggedIn}`}
+      key={`app-${rootStore.loggedIn}-${rootStore.renderKey}`}
       className={[
         "app-container",
         rootStore.centerContent ? "app--centered" : "",

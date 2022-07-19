@@ -233,7 +233,7 @@ const MarketplaceItemDetails = observer(() => {
                     className="action lookout-url"
                     target="_blank"
                     href={
-                      EluvioConfiguration["config-url"].includes("main.net955305") ?
+                      rootStore.walletClient.network === "main" ?
                         `https://explorer.contentfabric.io/address/${itemTemplate.address}/transactions` :
                         `https://lookout.qluv.io/address/${itemTemplate.address}/transactions`
                     }

@@ -157,7 +157,7 @@ const MintingStatus = observer(({
                   element,
                   {
                     clientOptions: {
-                      network: EluvioConfiguration["config-url"].includes("main.net955305") ?
+                      network: rootStore.walletClient.network === "main" ?
                         EluvioPlayerParameters.networks.MAIN : EluvioPlayerParameters.networks.DEMO,
                       client: rootStore.client
                     },
@@ -195,7 +195,7 @@ const MintingStatus = observer(({
                     element,
                     {
                       clientOptions: {
-                        network: EluvioConfiguration["config-url"].includes("main.net955305") ?
+                        network: rootStore.walletClient.network === "main" ?
                           EluvioPlayerParameters.networks.MAIN : EluvioPlayerParameters.networks.DEMO,
                         client: rootStore.client
                       },

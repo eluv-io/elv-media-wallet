@@ -5,7 +5,6 @@ import VideoPlayIcon from "Assets/icons/media/video play icon (no circle).svg";
 import PlayIcon from "Assets/icons/media/Play icon.svg";
 
 import {rootStore} from "Stores";
-import {toJS} from "mobx";
 import UrlJoin from "url-join";
 
 export const Slugify = str =>
@@ -14,29 +13,6 @@ export const Slugify = str =>
     .replace(/ /g, "-")
     .replace(/[^a-z0-9\-]/g,"")
     .replace(/-+/g, "-");
-
-export const RarityToPercentage = (rarity) => {
-  if(!rarity) {
-    return "";
-  }
-
-  rarity = rarity.toString();
-
-  if(!rarity.includes("/")) {
-    return rarity;
-  }
-
-  const [ numerator, denominator ] = rarity.split("/");
-  let percentage = 100 * parseInt(numerator) / parseInt(denominator);
-
-  if(percentage < 1) {
-    percentage = percentage.toFixed(2);
-  } else {
-    percentage = percentage.toFixed(1).toString().replace(".0", "");
-  }
-
-  return percentage;
-};
 
 export const MediaIcon = (media, circle=false) => {
   switch(media?.media_type) {

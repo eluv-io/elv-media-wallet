@@ -35,6 +35,8 @@ try {
 }
 
 class RootStore {
+  renderKey = 0;
+
   authOrigin = this.GetSessionStorage("auth-origin");
 
   salePendingDurationDays = 0;
@@ -619,7 +621,7 @@ class RootStore {
     if(eventSlug) {
       if(!tenantSlug) { throw Error("Load Event: Missing required tenant slug"); }
 
-      const mainSiteId = EluvioConfiguration["main-site-id"];
+      const mainSiteId = rootStore.walletClient.mainSiteId;
       const mainSiteHash = yield this.client.LatestVersionHash({objectId: mainSiteId});
 
       return (
@@ -1331,6 +1333,11 @@ class RootStore {
 
   ToggleSidePanelMode(enabled) {
     this.sidePanelMode = enabled;
+  }
+
+  // Update the reload key, forcing the app to re-render
+  Reload() {
+    this.renderKey += 1;
   }
 
   // Used for disabling navigation back to main marketplace page when no items are available
