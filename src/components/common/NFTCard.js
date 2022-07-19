@@ -21,7 +21,7 @@ const NFTCard = observer(({
   link,
   imageWidth,
   showFullMedia,
-  showOrdinal,
+  showToken,
   allowFullscreen,
   hideAvailable,
   truncateDescription,
@@ -57,7 +57,7 @@ const NFTCard = observer(({
   let sideText;
   if(item && !hideAvailable && !outOfStock && !expired && !unauthorized && stock &&stock.max && stock.max < 10000000) {
     sideText = `${stock.max - stock.minted} / ${stock.max}`;
-  } else if(!item && showOrdinal) {
+  } else if(!item && showToken) {
     sideText = NFTDisplayToken(info);
   }
 

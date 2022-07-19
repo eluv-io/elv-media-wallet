@@ -255,7 +255,7 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
                 key={`mint-result-${token_addr}-${token_id}`}
                 nft={nft}
                 imageWidth={600}
-                showOrdinal
+                showToken
                 link={UrlJoin(nftBasePath || basePath, nft.details.ContractId, nft.details.TokenIdStr)}
                 truncateDescription
                 style={{
