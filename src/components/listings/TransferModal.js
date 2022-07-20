@@ -14,9 +14,10 @@ const TransferModal = observer(({nft, setTransferred, Close}) => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const valid = !targetAddress || rootStore.client.utils.ValidAddress(targetAddress);
+    const invalid = targetAddress &&
+      (!rootStore.client.utils.ValidAddress(targetAddress) || rootStore.client.utils.EqualAddress(rootStore.client.utils.nullAddress, targetAddress));
 
-    if(!valid) {
+    if(invalid) {
       setAddressValid(false);
       setError("Invalid target address");
     } else if(rootStore.client.utils.EqualAddress(rootStore.CurrentAddress(), targetAddress)) {
