@@ -24,6 +24,19 @@ let marketplaceParams = {
   marketplaceSlug: "masked-singer-marketplace"
 };
 
+// Use locally running wallet app if running from local IP
+let walletAppUrl;
+if(window.location.hostname === "core.test.contentfabric.io") {
+  walletAppUrl = network === "demo" ?
+    "https://core.test.contentfabric.io/wallet-demo" :
+    "https://core.test.contentfabric.io/wallet";
+} else {
+  const url = new URL(window.location.origin);
+  url.port = "8090";
+
+  walletAppUrl = url.toString();
+}
+
 const AuthSection = ({walletClient, setResults}) => {
   const [loggedIn, setLoggedIn] = useState(walletClient.loggedIn);
 
@@ -92,11 +105,7 @@ const App = () => {
       //marketplaceParams
     })
       .then(client => {
-        if(window.location.hostname.startsWith("192") || window.location.hostname.startsWith("elv-test")) {
-          let appUrl = new URL(window.location.origin);
-          appUrl.port = "8090";
-          client.appUrl = appUrl.toString();
-        }
+        client.walletAppUrl = walletAppUrl;
 
         window.client = client;
 

@@ -26,7 +26,9 @@ let marketplaceParams = {
 // Use locally running wallet app if running from local IP
 let walletAppUrl;
 if(window.location.hostname === "core.test.contentfabric.io") {
-  walletAppUrl = "https://core.test.contentfabric.io/wallet";
+  walletAppUrl = network === "demo" ?
+    "https://core.test.contentfabric.io/wallet-demo" :
+    "https://core.test.contentfabric.io/wallet";
 } else {
   const url = new URL(window.location.origin);
   url.port = "8090";
