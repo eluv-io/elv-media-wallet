@@ -110,9 +110,13 @@ const App = () => {
         <button onClick={async () => setResults(await walletClient.MarketplaceStock({marketplaceParams}))}>
           Stock
         </button>
-        <button onClick={async () => setResults(`Signed message 'Test':${await walletClient.PersonalSign({message: "test"})}`)}>
-          Personal Sign
-        </button>
+        {
+          walletClient?.loggedIn ?
+            <button
+              onClick={async () => setResults(`Signed message 'test' :${await walletClient.PersonalSign({message: "test"})}`)}>
+              Personal Sign
+            </button> : null
+        }
       </div>
 
       {
