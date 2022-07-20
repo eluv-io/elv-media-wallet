@@ -25,17 +25,19 @@ const Actions = observer(() => {
 
     if(!rootStore.client) { return; }
 
-    if(!parameters.auth) {
-      setLoading(false);
-      return;
-    }
-
     if(rootStore.loggedIn || rootStore.authenticating) {
       return;
     }
 
-    rootStore.Authenticate({clientAuthToken: parameters.auth, saveAuthInfo: false})
-      .then(() => setLoading(false));
+    if(parameters.auth) {
+      rootStore.Authenticate({clientAuthToken: parameters.auth, saveAuthInfo: false})
+        .then(() => setLoading(false));
+    } else if(parameters.logIn) {
+      rootStore.Authenticate({...rootStore.AuthInfo(), saveAuthInfo: false})
+        .then(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
   }, [rootStore.client]);
 
   const Respond = ({response, error}) => {
@@ -44,7 +46,7 @@ const Actions = observer(() => {
       flowId: parameters.flowId,
       response,
       error
-    });
+    }, rootStore.authOrigin || window.location.origin);
 
     setTimeout(() => window.close(), 2000);
   };

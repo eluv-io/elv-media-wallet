@@ -45,9 +45,6 @@ const AuthSection = ({walletClient}) => {
           <button onClick={() => LogIn({method: "redirect"})}>
             Redirect
           </button>
-          <button onClick={() => LogIn({method: "tab"})}>
-            New Tab
-          </button>
           <button onClick={() => LogIn({method: "popup"})}>
             Popup
           </button>
@@ -79,7 +76,7 @@ const App = () => {
       //marketplaceParams
     })
       .then(client => {
-        if(window.location.hostname.startsWith("192")) {
+        if(window.location.hostname.startsWith("192") || window.location.hostname.startsWith("elv-test")) {
           let appUrl = new URL(window.location.origin);
           appUrl.port = "8090";
           client.appUrl = appUrl.toString();
@@ -112,6 +109,9 @@ const App = () => {
         </button>
         <button onClick={async () => setResults(await walletClient.MarketplaceStock({marketplaceParams}))}>
           Stock
+        </button>
+        <button onClick={async () => setResults(`Signed message 'Test':${await walletClient.PersonalSign({message: "test"})}`)}>
+          Personal Sign
         </button>
       </div>
 

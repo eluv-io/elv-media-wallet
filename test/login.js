@@ -6,12 +6,20 @@ import React, {useEffect, useState} from "react";
 import {render} from "react-dom";
 import {ElvWalletClient} from "@eluvio/elv-client-js/src/walletClient";
 import {ElvWalletFrameClient} from "../client/src/index";
-
+/*
 let network = "main";
 let mode = "staging";
 let marketplaceParams = {
   tenantSlug: "bcl",
   marketplaceSlug: "maskverse-marketplace"
+};
+ */
+
+let network = "demo";
+let mode = "staging";
+let marketplaceParams = {
+  tenantSlug: "bcl-live",
+  marketplaceSlug: "masked-singer-marketplace"
 };
 
 // Use locally running wallet app if running from local IP
