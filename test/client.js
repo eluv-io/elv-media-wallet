@@ -100,6 +100,9 @@ const App = () => {
 
         window.client = client;
 
+        // Replace CanSign method to force popup flow for personal sign with custodial wallet user
+        walletClient.CanSign = () => walletClient.loggedIn && walletClient.UserInfo().walletName.toLowerCase() === "metamask";
+
         setWalletClient(client);
       });
   }, []);
