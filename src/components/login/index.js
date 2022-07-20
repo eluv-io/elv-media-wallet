@@ -327,7 +327,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
         params: response
       }, params.origin || window.location.origin);
 
-      window.close();
+      setTimeout(() => window.close(), 2000);
     };
 
     const Redirect = () => {
