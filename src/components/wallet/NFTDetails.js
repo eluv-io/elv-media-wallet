@@ -48,10 +48,6 @@ const NFTMediaSection = ({nft, containerElement, selectedMediaIndex, setSelected
     media = media.filter(item => !item.requires_permissions);
   }
 
-  if(media.length === 0) {
-    return null;
-  }
-
   useEffect(() => {
     const defaultMediaIndex = media.findIndex(item => item.default);
 
@@ -59,6 +55,11 @@ const NFTMediaSection = ({nft, containerElement, selectedMediaIndex, setSelected
       setSelectedMediaIndex(defaultMediaIndex);
     }
   }, []);
+
+
+  if(media.length === 0) {
+    return null;
+  }
 
   return (
     <ExpandableSection
@@ -332,6 +333,7 @@ const NFTDetails = observer(() => {
   const history = useHistory();
 
   const [opened, setOpened] = useState(false);
+  const [transferred, setTransferred] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const [showListingModal, setShowListingModal] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
@@ -422,6 +424,18 @@ const NFTDetails = observer(() => {
       <Redirect to={Path.dirname(Path.dirname(match.url))}/>;
   }
 
+  if(transferred) {
+    return match.params.marketplaceId ?
+      <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "activity", match.params.contractId, match.params.tokenId)} /> :
+      <Redirect to={UrlJoin("/wallet", "activity", match.params.contractId, match.params.tokenId)} />;
+  }
+
+  if(opened) {
+    return match.params.marketplaceId ?
+      <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "my-items", match.params.contractId, match.params.tokenId, "open")} /> :
+      <Redirect to={UrlJoin("/wallet", "my-items", match.params.contractId, match.params.tokenId, "open")} />;
+  }
+
   if(errorMessage) {
     return (
       <div className="details-page details-page-message">
@@ -509,14 +523,6 @@ const NFTDetails = observer(() => {
   let nft = nftData;
   if(!nftData) {
     nft = listing;
-  }
-
-  if(opened) {
-    if(match.params.marketplaceId) {
-      return <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "my-items", match.params.contractId, match.params.tokenId, "open")} />;
-    } else {
-      return <Redirect to={UrlJoin("/wallet", "my-items", match.params.contractId, match.params.tokenId, "open")} />;
-    }
   }
 
   const NFTActions = () => {
@@ -658,10 +664,11 @@ const NFTDetails = observer(() => {
         showTransferModal ?
           <TransferModal
             nft={nft}
+            setTransferred={() => setTransferred(true)}
             Close={() => setShowTransferModal(false)}
           /> : null
       }
-      <div className="details-page" ref={element => setDetailsRef(element)}>
+      <div key={match.url} className="details-page" ref={element => setDetailsRef(element)}>
         <Link to={backPage.path} className="details-page__back-link">
           <ImageIcon icon={BackIcon} />
           Back to { backPage.name }

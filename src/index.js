@@ -177,7 +177,7 @@ const App = observer(() => {
   const hasHeader = !rootStore.hideNavigation && (!rootStore.sidePanelMode || rootStore.navigationBreadcrumbs.length > 2);
   return (
     <div
-      key={`app-${rootStore.loggedIn}-${rootStore.renderKey}`}
+      key={`app-${rootStore.loggedIn}`}
       className={[
         "app-container",
         rootStore.centerContent ? "app--centered" : "",
