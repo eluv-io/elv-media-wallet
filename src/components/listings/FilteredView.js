@@ -56,6 +56,10 @@ const FilteredView = ({
             Method = async params => await rootStore.walletClient.Listings(params);
             break;
 
+          case "transfers":
+            Method = async params => await rootStore.walletClient.Transfers(params);
+            break;
+
           case "sales":
             Method = async params => await rootStore.walletClient.Sales(params);
             break;
