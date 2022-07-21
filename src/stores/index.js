@@ -362,7 +362,7 @@ class RootStore {
 
       this.GetWalletBalance();
 
-      this.funds = parseInt((yield this.client.GetBalance({address}) || 0));
+      this.funds = parseFloat((yield this.client.GetBalance({address}) || 0));
 
       this.basePublicUrl = yield this.client.FabricUrl({
         queryParams: {
