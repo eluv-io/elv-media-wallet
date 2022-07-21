@@ -3,7 +3,6 @@ $search-height: 50px;
 
 .filters {
   display: flex;
-  flex-direction: column;
   justify-content: center;
   margin-bottom: 10px;
   width: 100%;
@@ -13,12 +12,13 @@ $search-height: 50px;
     display: flex;
     justify-content: flex-end;
     position: relative;
+    margin-left: 10px;
   }
 
   &__select-container,
   &__select {
     height: $controls-height;
-    min-width: 250px;
+    min-width: 300px;
   }
 
   &__select-container {
@@ -38,7 +38,7 @@ $search-height: 50px;
     justify-content: center;
     margin-left: 10px;
     padding: 10px;
-    width: $controls-height;
+    min-width: $controls-height;
 
     svg {
       height: 20px;
@@ -75,7 +75,6 @@ $search-height: 50px;
   &__search-container {
     align-items: center;
     display: flex;
-    margin-top: 10px;
     position: relative;
   }
 
@@ -136,6 +135,12 @@ $search-height: 50px;
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
+    flex-direction: column;
+
+    &__controls {
+      margin: 10px 0 0;
+    }
+
     &__select-container,
     &__select {
       width: 100%;

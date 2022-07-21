@@ -2,6 +2,8 @@ html {
   /* General */
   --color-background-highlight: #1E1EED;
   --color-background-highlight-rgb: 30, 94, 237;
+  --color-text-background-highlight: #FFFFFF;
+  --color-text-background-highlight-rgb: 255, 255, 255;
   --color-text-highlight: #2D61E4;
   --color-text-highlight-rgb: 30, 94, 237;
 
@@ -168,8 +170,8 @@ html {
   --font-table: var(--font-default);
 
   --background-table: var(--color-bg-primary);
-  --background-table-header-row: var(--color-bg-primary);
-  --color-table-header-row-text: var(--color-text-primary);
+  --background-table-header-row: var(--color-background-highlight);
+  --color-table-header-row-text: var(--color-text-background-highlight);
   --color-table-odd-row-bg: var(--color-bg-primary);
   --color-table-odd-row-text: var(--color-text-primary);
   --color-table-even-row-bg: var(--color-bg-secondary);

@@ -6,7 +6,7 @@ $mobile-breakpoint: 600px;
 $black: #000000;
 $white: #FFFFFF;
 
-$action-height: 48px;
+$action-height: 50px;
 
 @mixin component {
   background: var(--background-component-primary);

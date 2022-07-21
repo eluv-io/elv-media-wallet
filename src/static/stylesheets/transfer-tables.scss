@@ -37,9 +37,11 @@
     align-items: center;
     display: flex;
     font: var(--font-table-header);
+    font-size: 18px;
     letter-spacing: 0.03em;
-    padding: 15px;
+    padding: 15px 0 10px;
     text-transform: uppercase;
+    justify-content: center;
   }
 
   &__header__icon,
@@ -52,6 +54,7 @@
   &__pagination {
     font-size: 12px;
     padding: 0 20px 10px;
+    text-align: center;
   }
 
   &__table {
@@ -84,6 +87,8 @@
 
     .transfer-table__table__cell {
       border-radius: 0;
+      text-transform: uppercase;
+      font-weight: 500;
     }
   }
 
@@ -159,6 +164,8 @@
     font-size: 12px;
     overflow: hidden;
     padding: 10px 15px;
+    justify-content: center;
+    text-align: center;
 
     em {
       margin-left: 5px;
@@ -201,7 +208,6 @@
 
   &__empty {
     align-items: center;
-    background: var(--background-table-header-row);
     color: var(--color-text-secondary);
     display: flex;
     justify-content: center;

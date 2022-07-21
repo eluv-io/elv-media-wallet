@@ -31,7 +31,6 @@
 
   --background-component-primary: var(--color-bg-primary);
   --background-table: var(--color-bg-primary);
-  --background-table-header-row: var(--color-bg-secondary);
   --color-table-odd-row-bg: var(--color-bg-primary);
   --color-table-even-row-bg: var(--color-bg-secondary);
 

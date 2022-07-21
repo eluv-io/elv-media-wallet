@@ -377,6 +377,42 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
 
   return (
     <div className="filters">
+      <div className="filters__search-container">
+        {
+          mode === "owned" ?
+            // Owned NFTs do not need exact queries
+            <div className="autocomplete filters__search">
+              <DebouncedInput
+                key={`autocomplete-${filterOptionsLoaded}-${savedOptionsLoaded}-${renderIndex}`}
+                className="listing-filters__filter-input autocomplete__input"
+                placeholder="Filter..."
+                value={filterValues.filter}
+                onChange={value => setFilterValues({...filterValues, filter: value, editionFilter: ""})}
+              />
+              {
+                filterValues.filter ?
+                  <button
+                    onClick={() => setFilterValues({...filterValues, filter: "", editionFilter: ""})}
+                    className="autocomplete__clear-button"
+                  >
+                    <ImageIcon icon={ClearIcon} title="Clear" />
+                  </button> : null
+              }
+            </div> :
+            <AutoComplete
+              className="filters__search"
+              key={`autocomplete-${filterOptionsLoaded}-${savedOptionsLoaded}-${renderIndex}`}
+              placeholder="Search"
+              value={filterValues.filter}
+              onChange={value => setFilterValues({...filterValues, filter: value, editionFilter: ""})}
+              onEnterPressed={async () => await Update(true)}
+              options={filterOptions}
+            />
+        }
+        <ButtonWithLoader onClick={async () => await Update(true)} className="filters__search-button">
+          <ImageIcon icon={SearchIcon} label="Search" />
+        </ButtonWithLoader>
+      </div>
       <div className="filters__controls">
         <FilterDropdown
           className="filters__select filters__select--sort"
@@ -411,42 +447,6 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
               Hide={() => setShowFilterMenu(false)}
               ResetFilters={ResetFilters}
             /> : null }
-      </div>
-      <div className="filters__search-container">
-        {
-          mode === "owned" ?
-            // Owned NFTs do not need exact queries
-            <div className="autocomplete filters__search">
-              <DebouncedInput
-                key={`autocomplete-${filterOptionsLoaded}-${savedOptionsLoaded}-${renderIndex}`}
-                className="listing-filters__filter-input autocomplete__input"
-                placeholder="Filter..."
-                value={filterValues.filter}
-                onChange={value => setFilterValues({...filterValues, filter: value, editionFilter: ""})}
-              />
-              {
-                filterValues.filter ?
-                  <button
-                    onClick={() => setFilterValues({...filterValues, filter: "", editionFilter: ""})}
-                    className="autocomplete__clear-button"
-                  >
-                    <ImageIcon icon={ClearIcon} title="Clear" />
-                  </button> : null
-              }
-            </div> :
-            <AutoComplete
-              className="filters__search"
-              key={`autocomplete-${filterOptionsLoaded}-${savedOptionsLoaded}-${renderIndex}`}
-              placeholder="Search here"
-              value={filterValues.filter}
-              onChange={value => setFilterValues({...filterValues, filter: value, editionFilter: ""})}
-              onEnterPressed={async () => await Update(true)}
-              options={filterOptions}
-            />
-        }
-        <ButtonWithLoader onClick={async () => await Update(true)} className="filters__search-button">
-          <ImageIcon icon={SearchIcon} label="Search" />
-        </ButtonWithLoader>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
-const testTheme = undefined;//import("../static/stylesheets/themes/maskverse-test.theme.css");
+//const testTheme = undefined;
+const testTheme = import("../static/stylesheets/themes/maskverse-test.theme.css");
 
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";
@@ -113,7 +114,6 @@ class RootStore {
   nftData = {};
 
   marketplaces = {};
-  marketplaceCache = {};
   marketplaceOwnedCache = {};
 
   marketplaceFilters = [];
@@ -372,7 +372,6 @@ class RootStore {
       });
 
       // Reload marketplaces so they will be reloaded and authorization rechecked
-      this.marketplaceCache = {};
       yield Promise.all(Object.keys(this.marketplaces).map(async marketplaceId => await this.LoadMarketplace(marketplaceId)));
 
       this.HideLogin();
