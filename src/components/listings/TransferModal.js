@@ -6,7 +6,7 @@ import NFTCard from "Components/common/NFTCard";
 import {ButtonWithLoader} from "Components/common/UIComponents";
 import Confirm from "Components/common/Confirm";
 
-const TransferModal = observer(({nft, setTransferred, Close}) => {
+const TransferModal = observer(({nft, onTransferring, onTransferred, Close}) => {
   const [transferring, setTransferring] = useState(false);
   const [targetAddress, setTargetAddress] = useState("");
   const [addressValid, setAddressValid] = useState(true);
@@ -101,16 +101,18 @@ const TransferModal = observer(({nft, setTransferred, Close}) => {
 
                 try {
                   setTransferring(true);
+                  onTransferring(true);
                   setError("");
                   setMessage("Transferring NFT. This may take several minutes.");
 
                   await transferStore.TransferNFT({nft, targetAddress});
 
-                  setTransferred(true);
+                  onTransferred();
                 } catch(error) {
                   setMessage("");
                   setError("Transfer failed");
                   setTransferring(false);
+                  onTransferring(false);
                 }
               }}
             >

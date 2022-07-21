@@ -333,6 +333,7 @@ const NFTDetails = observer(() => {
   const history = useHistory();
 
   const [opened, setOpened] = useState(false);
+  const [transferring, setTransferring] = useState(false);
   const [transferred, setTransferred] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const [showListingModal, setShowListingModal] = useState(false);
@@ -531,36 +532,11 @@ const NFTDetails = observer(() => {
     }
 
     let isInCheckout = listing && listing.details.CheckoutLockedUntil && listing.details.CheckoutLockedUntil > Date.now();
-    if(!isOwned) {
-      if(!listing) { return null; }
+    if(isOwned) {
+      if(transferring || transferred) {
+        return null;
+      }
 
-      return (
-        <div className="details-page__actions">
-          <LoginClickGate
-            Component={ButtonWithLoader}
-            disabled={isInCheckout}
-            className="details-page__listing-button action action-primary"
-            onClick={async () => {
-              const { listing } = await LoadListing({listingId, nftData});
-
-              if(listing && listing.details.CheckoutLockedUntil && listing.details.CheckoutLockedUntil > Date.now()) {
-                // checkout locked
-              } else {
-                setShowPurchaseModal(true);
-              }
-            }}
-          >
-            Buy Now for { FormatPriceString({USD: listing.details.Price}) }
-          </LoginClickGate>
-          {
-            isInCheckout ?
-              <h3 className="details-page__transfer-details details-page__held-message">
-                This NFT is currently in the process of being purchased
-              </h3> : null
-          }
-        </div>
-      );
-    } else {
       return (
         <div className="details-page__actions">
           {
@@ -624,6 +600,35 @@ const NFTDetails = observer(() => {
           }
         </div>
       );
+    } else if(listing) {
+      return (
+        <div className="details-page__actions">
+          <LoginClickGate
+            Component={ButtonWithLoader}
+            disabled={isInCheckout}
+            className="details-page__listing-button action action-primary"
+            onClick={async () => {
+              const { listing } = await LoadListing({listingId, nftData});
+
+              if(listing && listing.details.CheckoutLockedUntil && listing.details.CheckoutLockedUntil > Date.now()) {
+                // checkout locked
+              } else {
+                setShowPurchaseModal(true);
+              }
+            }}
+          >
+            Buy Now for { FormatPriceString({USD: listing.details.Price}) }
+          </LoginClickGate>
+          {
+            isInCheckout ?
+              <h3 className="details-page__transfer-details details-page__held-message">
+                This NFT is currently in the process of being purchased
+              </h3> : null
+          }
+        </div>
+      );
+    } else {
+      return null;
     }
   };
 
@@ -664,7 +669,8 @@ const NFTDetails = observer(() => {
         showTransferModal ?
           <TransferModal
             nft={nft}
-            setTransferred={() => setTransferred(true)}
+            onTransferring={value => setTransferring(value)}
+            onTransferred={() => setTransferred(true)}
             Close={() => setShowTransferModal(false)}
           /> : null
       }
