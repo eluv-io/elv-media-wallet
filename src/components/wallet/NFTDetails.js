@@ -250,9 +250,16 @@ const NFTDetailsSection = ({nft, contractStats}) => {
           </div>
       }
       {
+        contractStats?.minted ?
+          <div className="details-page__detail-field">
+            Total Minted: { contractStats.minted }
+          </div> :
+          null
+      }
+      {
         contractStats?.total_supply ?
           <div className="details-page__detail-field">
-            Total Supply: { contractStats.total_supply }
+            Total Supply in Circulation: { contractStats.total_supply }
           </div> :
           null
       }
@@ -381,14 +388,14 @@ const NFTDetails = observer(() => {
 
       if(match.params.listingId && "sale" in status) {
         setSale(status.sale);
-      } else if("listing" in status) {
+      } else if(status?.listing) {
         setListing(status.listing);
         setListingId(status.listing?.details?.ListingId);
 
         if(!match.params.contractId && !status.listing) {
           setErrorMessage("This listing has been removed");
         }
-      } else if("error" in status) {
+      } else if(status?.error) {
         setErrorMessage(status.error);
       }
 
@@ -410,19 +417,27 @@ const NFTDetails = observer(() => {
         .then(async nft => {
           setNFTData(nft);
           LoadListing({nftData: nft, setLoading: true});
-
-          setContractStats(await rootStore.walletClient.NFTContractStats({contractAddress: nft.details.ContractAddr}));
         })
         .catch(() => setBurned(true));
     } else if(match.params.listingId) {
       LoadListing({listingId: match.params.listingId, setLoading: true});
     }
 
-    listingStatusInterval = setInterval(() => setStatusCheckKey(UUID()), 60000);
+    listingStatusInterval = setInterval(() => setStatusCheckKey(UUID()), 10000);
 
     return () => clearInterval(listingStatusInterval);
   }, []);
 
+  useEffect(() => {
+    if(contractStats || (!nftData && !listing)) { return; }
+
+    const contractAddress = (nftData || listing)?.details?.ContractAddr;
+
+    if(!contractAddress) { return; }
+
+    rootStore.walletClient.NFTContractStats({contractAddress})
+      .then(stats => setContractStats(stats));
+  }, [nftData, listing]);
 
   useEffect(() => {
     if(statusCheckKey) {

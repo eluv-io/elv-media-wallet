@@ -213,11 +213,18 @@ const MarketplaceItemDetails = observer(() => {
                 : null
             }
             {
+              contractStats?.minted ?
+                <div className="details-page__detail-field">
+                  Total Minted: { contractStats.minted }
+                </div> :
+                null
+            }
+            {
               contractStats?.total_supply ?
                 <div className="details-page__detail-field">
-                  Total Supply: { contractStats.total_supply }
-                </div>
-                : null
+                  Total Supply in Circulation: { contractStats.total_supply }
+                </div> :
+                null
             }
             {
               contractStats?.cap ?
