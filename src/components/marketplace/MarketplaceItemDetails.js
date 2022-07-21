@@ -49,11 +49,15 @@ const MarketplaceItemDetails = observer(() => {
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [purchaseModalType, setPurchaseModalType] = useState("marketplace");
   const [claimed, setClaimed] = useState(false);
+  const [contractStats, setContractStats] = useState(undefined);
 
   useEffect(() => {
     if(!stock) { return; }
 
     checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id});
+
+    rootStore.walletClient.NFTContractStats({contractAddress: itemTemplate.address})
+      .then(stats => setContractStats(stats));
 
     // If item has stock, periodically update
     const stockCheck = setInterval(() => checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id}), 30000);
@@ -193,24 +197,32 @@ const MarketplaceItemDetails = observer(() => {
                 </CopyableField>
                 : null
             }
+            <br />
             {
               itemTemplate.creator ?
-                <div>
+                <div className="details-page__detail-field">
                   Creator: { itemTemplate.creator }
                 </div>
                 : null
             }
             {
               itemTemplate.edition_name ?
-                <div>
+                <div className="details-page__detail-field">
                   Edition: { itemTemplate.edition_name }
                 </div>
                 : null
             }
             {
-              itemTemplate.total_supply ?
-                <div>
-                  Total Supply: { itemTemplate.total_supply }
+              contractStats?.total_supply ?
+                <div className="details-page__detail-field">
+                  Total Supply: { contractStats.total_supply }
+                </div>
+                : null
+            }
+            {
+              contractStats?.cap ?
+                <div className="details-page__detail-field">
+                  Cap: { contractStats.cap }
                 </div>
                 : null
             }

@@ -185,7 +185,7 @@ const NFTTraitsSection = ({nft}) => {
   );
 };
 
-const NFTDetailsSection = ({nft}) => {
+const NFTDetailsSection = ({nft, contractStats}) => {
   let mintDate = nft.metadata.created_at;
   if(mintDate) {
     try {
@@ -223,41 +223,49 @@ const NFTDetailsSection = ({nft}) => {
           </CopyableField>
           : null
       }
+      <br />
       {
         nft.metadata.creator ?
-          <div>
+          <div className="details-page__detail-field">
             Creator: { nft.metadata.creator }
           </div>
           : null
       }
       {
         nft.metadata.edition_name ?
-          <div>
+          <div className="details-page__detail-field">
             Edition: { nft.metadata.edition_name }
           </div>
           : null
       }
 
-      <div>Token ID: { nft.details.TokenIdStr }</div>
+      <div className="details-page__detail-field">Token ID: { nft.details.TokenIdStr }</div>
 
       {
         typeof nft.details.TokenOrdinal === "undefined" ||
         (nft.metadata?.id_format || "").includes("token_id") ?
           null :
-          <div>
+          <div className="details-page__detail-field">
             Token Ordinal: { nft.details.TokenOrdinal }
           </div>
       }
       {
-        nft.metadata.total_supply ?
-          <div>
-            Total Supply: { nft.metadata.total_supply }
+        contractStats?.total_supply ?
+          <div className="details-page__detail-field">
+            Total Supply: { contractStats.total_supply }
+          </div> :
+          null
+      }
+      {
+        nft.details.Cap ?
+          <div className="details-page__detail-field">
+            Cap: { nft.details.Cap }
           </div>
           : null
       }
       {
         nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) ?
-          <div>
+          <div className="details-page__detail-field">
             Held Until { nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
           </div>
           : null
@@ -339,6 +347,7 @@ const NFTDetails = observer(() => {
   const [showListingModal, setShowListingModal] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
+  const [contractStats, setContractStats] = useState(undefined);
 
   const [loadingListing, setLoadingListing] = useState(true);
   const [listing, setListing] = useState(undefined);
@@ -398,9 +407,11 @@ const NFTDetails = observer(() => {
         contractId: match.params.contractId,
         tokenId: match.params.tokenId
       })
-        .then(nft => {
+        .then(async nft => {
           setNFTData(nft);
           LoadListing({nftData: nft, setLoading: true});
+
+          setContractStats(await rootStore.walletClient.NFTContractStats({contractAddress: nft.details.ContractAddr}));
         })
         .catch(() => setBurned(true));
     } else if(match.params.listingId) {
@@ -719,7 +730,7 @@ const NFTDetails = observer(() => {
           />
           <NFTDescriptionSection nft={nft} />
           <NFTTraitsSection nft={nft} />
-          <NFTDetailsSection nft={nft} />
+          <NFTDetailsSection nft={nft} contractStats={contractStats} />
           <NFTContractSection nft={nft} heldDate={heldDate} listing={listing} isOwned={isOwned} setDeleted={setDeleted} />
           <ListingStats
             mode="sales-stats"
