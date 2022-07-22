@@ -6,6 +6,29 @@
   white-space: nowrap;
 }
 
+.page-controls {
+  align-items: center;
+  display: flex;
+  height: 50px;
+  justify-content: center;
+
+  &__button,
+  &__page {
+    border-radius: 100%;
+    cursor: pointer;
+    font-size: 14px;
+    height: 2em;
+    margin: 0 5px;
+    text-align: center;
+    width: 2em;
+
+    &--current {
+      background: var(--background-table-header-row);
+      color: var(--color-text-background-highlight);
+    }
+  }
+}
+
 .scroll-text {
   display: inline-block;
   min-width: 100%;

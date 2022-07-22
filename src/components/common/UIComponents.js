@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import SVG from "react-inlinesvg";
-
-import CopyIcon from "Assets/icons/copy.svg";
+import {observer} from "mobx-react";
+import {rootStore} from "Stores";
 import {Loader} from "Components/common/Loaders";
 import ImageIcon from "Components/common/ImageIcon";
 import {v4 as UUID} from "uuid";
@@ -9,6 +9,51 @@ import {v4 as UUID} from "uuid";
 import SelectIcon from "Assets/icons/select-icon.svg";
 import USDIcon from "Assets/icons/crypto/USD icon.svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
+import CopyIcon from "Assets/icons/copy.svg";
+
+export const PageControls = observer(({paging, perPage, SetPage, className=""}) => {
+  if(!paging) { return null; }
+
+  const currentPage = Math.floor(paging.start / perPage) + 1;
+  const pages = Math.ceil(paging.total / perPage) + 1;
+
+  let spread = rootStore.pageWidth > 600 ? 9 : 5;
+  let spreadStart = Math.max(1, currentPage - Math.floor(spread / 2));
+  const spreadEnd = Math.min(pages, spreadStart + spread);
+  spreadStart = Math.max(1, spreadEnd - spread);
+
+  return (
+    <div className={`page-controls ${className}`}>
+      <button
+        title="Previous Page"
+        disabled={paging.start <= 0}
+        onClick={() => SetPage(currentPage - 1)}
+        className="page-controls__button page-controls__button--previous"
+      >
+        {"<"}
+      </button>
+      {
+        [...new Array(spreadEnd - spreadStart)].map((_, index) => (
+          <button
+            key={`page-controls-${index}`}
+            onClick={() => SetPage(spreadStart + index)}
+            className={`page-controls__page ${spreadStart + index === currentPage ? "page-controls__page--current" : ""}`}
+          >
+            {spreadStart + index}
+          </button>
+        ))
+      }
+      <button
+        title="Next Page"
+        disabled={paging.total <= currentPage * perPage}
+        onClick={() => SetPage(currentPage + 1)}
+        className="page-controls__button page-controls__button--previous"
+      >
+        {">"}
+      </button>
+    </div>
+  );
+});
 
 export const ExpandableSection = ({header, icon, children, expanded=false, toggleable=true, className="", contentClassName="", additionalContent}) => {
   const [ show, setShow ] = useState(expanded);

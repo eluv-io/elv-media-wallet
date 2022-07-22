@@ -27,7 +27,7 @@ import NFTMediaControls from "Components/wallet/NFTMediaControls";
 import {LoginClickGate} from "Components/common/LoginGate";
 import TransferModal from "Components/listings/TransferModal";
 
-import {MediaIcon} from "../../utils/Utils";
+import {Ago, MediaIcon, MiddleEllipsis} from "../../utils/Utils";
 import TransactionIcon from "Assets/icons/transaction history icon.svg";
 import SalesIcon from "Assets/icons/sales history icon.svg";
 import DescriptionIcon from "Assets/icons/Description icon.svg";
@@ -37,6 +37,7 @@ import TraitsIcon from "Assets/icons/properties icon.svg";
 import MediaSectionIcon from "Assets/icons/Media tab icon.svg";
 import PlayIcon from "Assets/icons/blue play icon.svg";
 import BackIcon from "Assets/icons/arrow-left.svg";
+import {FilteredTable} from "Components/common/Table";
 
 const NFTMediaSection = ({nft, containerElement, selectedMediaIndex, setSelectedMediaIndex, currentPlayerInfo}) => {
   const [orderKey, setOrderKey] = useState(0);
@@ -434,7 +435,7 @@ const NFTDetails = observer(() => {
       LoadListing({listingId: match.params.listingId, setLoading: true});
     }
 
-    listingStatusInterval = setInterval(() => setStatusCheckKey(UUID()), 10000);
+    listingStatusInterval = setInterval(() => setStatusCheckKey(UUID()), 30000);
 
     return () => clearInterval(listingStatusInterval);
   }, []);
@@ -750,6 +751,31 @@ const NFTDetails = observer(() => {
             mode="sales-stats"
             filterParams={{contractAddress: nft.details.ContractAddr}}
           />
+          <FilteredTable
+            mode="sales"
+            pagingMode="infinite"
+            perPage={100}
+            headerText="Transaction history for this token"
+            headerIcon={TransactionIcon}
+            columnHeaders={[
+              "Time",
+              "Total Amount",
+              "Buyer",
+              "Seller"
+            ]}
+            columnWidths={[1, 1, 1, 1]}
+            filters={{
+              sortBy: "created",
+              sortDesc: true,
+              contractAddress: nft.details.ContractAddr
+            }}
+            CalculateRowValues={transfer => [
+              `${Ago(transfer.created * 1000)} ago`,
+              FormatPriceString({USD: transfer.price}),
+              MiddleEllipsis(transfer.buyer, 14),
+              MiddleEllipsis(transfer.seller, 14)
+            ]}
+          />
           <TransferTable
             icon={TransactionIcon}
             header="Transaction history for this token"
@@ -758,15 +784,15 @@ const NFTDetails = observer(() => {
           />
           <Activity
             icon={SalesIcon}
-            hideFilters
-            hideStats
-            hideName
             tableHeader={`Sales history for all '${nft.metadata.display_name}' tokens`}
             initialFilters={{
               sortBy: "created",
               sortDesc: true,
               contractAddress: nft.details.ContractAddr
             }}
+            hideFilters
+            hideStats
+            hideName
           />
         </div>
       </div>

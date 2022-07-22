@@ -11,8 +11,8 @@ $search-height: 50px;
     align-items: center;
     display: flex;
     justify-content: flex-end;
-    position: relative;
     margin-left: 10px;
+    position: relative;
   }
 
   &__select-container,
@@ -37,8 +37,8 @@ $search-height: 50px;
     height: $controls-height;
     justify-content: center;
     margin-left: 10px;
-    padding: 10px;
     min-width: $controls-height;
+    padding: 10px;
 
     svg {
       height: 20px;

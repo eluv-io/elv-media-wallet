@@ -492,3 +492,4 @@ export const TransferTable = observer(({icon, header, contractAddress, contractI
     </div>
   );
 });
+
