@@ -431,7 +431,7 @@ export const TransferTable = observer(({icon, header, contractAddress, contractI
       contractAddress = rootStore.client.utils.HashToAddress(contractId);
     }
 
-    const entries = (await rootStore.walletClient.Sales({sortBy: "created", contractAddress, tokenId, limit})).results;
+    const entries = (await rootStore.walletClient.Transfers({sortBy: "created", sortDesc: true, contractAddress, tokenId, limit})).results;
 
     setEntries(entries);
     setLoading(false);

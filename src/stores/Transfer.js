@@ -28,6 +28,39 @@ class TransferStore {
     makeAutoObservable(this);
   }
 
+  TransferNFT = flow(function * ({nft, targetAddress}) {
+    try {
+      yield rootStore.walletClient.TransferNFT({
+        contractAddress: nft.details.ContractAddr,
+        tokenId: nft.details.TokenIdStr,
+        targetAddress
+      });
+
+      const start = Date.now();
+      do {
+        yield new Promise(resolve => setTimeout(resolve, 10000));
+
+        const nftInfo = yield rootStore.walletClient.NFT({
+          contractAddress: nft.details.ContractAddr,
+          tokenId: nft.details.TokenIdStr
+        });
+
+        if(this.client.utils.EqualAddress(targetAddress, nftInfo.details.TokenOwner)) {
+          const key = `${nft.details.ContractAddr}-${nft.details.TokenIdStr}`;
+          delete rootStore.nftData[key];
+          delete rootStore.nftInfo[key];
+
+          return;
+        }
+      } while(Date.now() - start < 3 * 60 * 1000);
+
+      throw Error("Transfer never completed");
+    } catch(error) {
+      rootStore.Log(error, true);
+      throw new Error("Transfer failed");
+    }
+  });
+
   /* Listings */
 
   async CurrentNFTStatus({listingId, nft, contractAddress, contractId, tokenId}) {

@@ -42,7 +42,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
       <div className="listing-modal">
         <h1 className="listing-modal__header">Sell your NFT</h1>
         <div className="listing-modal__content">
-          <NFTCard nft={nft} price={{USD: parsedPrice}} usdcAccepted={cryptoStore.usdcConnected} usdcOnly={cryptoStore.usdcOnly} showOrdinal truncateDescription />
+          <NFTCard nft={nft} price={{USD: parsedPrice}} usdcAccepted={cryptoStore.usdcConnected} usdcOnly={cryptoStore.usdcOnly} showToken truncateDescription />
           <div className="listing-modal__form listing-modal__inputs">
             <div className="listing-modal__active-listings">
               <h2 className="listing-modal__active-listings__header">Active Listings for this NFT</h2>

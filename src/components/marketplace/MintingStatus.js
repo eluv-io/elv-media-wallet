@@ -157,7 +157,7 @@ const MintingStatus = observer(({
                   element,
                   {
                     clientOptions: {
-                      network: EluvioConfiguration["config-url"].includes("main.net955305") ?
+                      network: rootStore.walletClient.network === "main" ?
                         EluvioPlayerParameters.networks.MAIN : EluvioPlayerParameters.networks.DEMO,
                       client: rootStore.client
                     },
@@ -195,7 +195,7 @@ const MintingStatus = observer(({
                     element,
                     {
                       clientOptions: {
-                        network: EluvioConfiguration["config-url"].includes("main.net955305") ?
+                        network: rootStore.walletClient.network === "main" ?
                           EluvioPlayerParameters.networks.MAIN : EluvioPlayerParameters.networks.DEMO,
                         client: rootStore.client
                       },
@@ -255,7 +255,7 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
                 key={`mint-result-${token_addr}-${token_id}`}
                 nft={nft}
                 imageWidth={600}
-                showOrdinal
+                showToken
                 link={UrlJoin(nftBasePath || basePath, nft.details.ContractId, nft.details.TokenIdStr)}
                 truncateDescription
                 style={{

@@ -5,12 +5,52 @@ import {observer} from "mobx-react";
 
 import EluvioLogo from "Assets/images/EluvioLogo.png";
 import ImageIcon from "Components/common/ImageIcon";
+import {ButtonWithLoader} from "Components/common/UIComponents";
 
 const Sign = async (params, Respond, SetMessage) => {
-  const wallet = cryptoStore.WalletFunctions(params.provider);
-  const address = await cryptoStore.RequestMetamaskAddress();
-
   try {
+    if(params.action === "personal-sign") {
+      SetMessage(
+        <>
+          <h1>Signature Request</h1>
+
+          <div className="labelled-field">
+            <label>Account</label>
+            <div>{ rootStore.walletClient.UserInfo()?.name }</div>
+          </div>
+
+          <div className="labelled-field">
+            <label>Requesting Origin</label>
+            <div>{ rootStore.authOrigin }</div>
+          </div>
+
+          <div className="labelled-field">
+            <label>Message</label>
+            <div>{ params.message }</div>
+          </div>
+
+          <div className="actions">
+            <ButtonWithLoader
+              onClick={async () => {
+                const signature = await rootStore.walletClient.PersonalSign({message: params.message});
+
+                Respond({response: signature});
+              }}
+              className="action action-primary"
+            >
+              Sign
+            </ButtonWithLoader>
+            <button onClick={() => window.close()} className="action">Cancel</button>
+          </div>
+        </>
+      );
+
+      return;
+    }
+
+    const wallet = cryptoStore.WalletFunctions(params.provider);
+    const address = await cryptoStore.RequestMetamaskAddress();
+
     if(params.action === "connect") {
       SetMessage(<h1>Connecting wallet...</h1>, true);
       await wallet.Connect(params.params);
@@ -76,11 +116,13 @@ const SignaturePopup = observer(({parameters, Respond}) => {
 
   return (
     <div className="page-container signature-popup">
-      <div className="signature-popup__logo-container">
-        <ImageIcon icon={EluvioLogo} className="signature-popup__logo" />
+      <div className="signature-popup__content">
+        <div className="signature-popup__logo-container">
+          <ImageIcon icon={EluvioLogo} className="signature-popup__logo" />
+        </div>
+        { message }
+        { loading ? <Loader className="signature-popup__loader" /> : null }
       </div>
-      { message }
-      { loading ? <Loader /> : null }
     </div>
   );
 });

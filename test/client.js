@@ -8,14 +8,36 @@ import {ElvWalletClient} from "@eluvio/elv-client-js/src/walletClient";
 import {PageLoader} from "Components/common/Loaders";
 
 
+/*
+let network = "main";
+let mode = "staging";
+let marketplaceParams = {
+  tenantSlug: "bcl",
+  marketplaceSlug: "maskverse-marketplace"
+};
+ */
+
 let network = "demo";
 let mode = "staging";
 let marketplaceParams = {
-  tenantSlug: "bcl-live", //"wwe",
-  marketplaceSlug: "masked-singer-marketplace" //"a30fb02b-290a-457f-bf70-76111e4e0027"
+  tenantSlug: "bcl-live",
+  marketplaceSlug: "masked-singer-marketplace"
 };
 
-const AuthSection = ({walletClient}) => {
+// Use locally running wallet app if running from local IP
+let walletAppUrl;
+if(window.location.hostname === "core.test.contentfabric.io") {
+  walletAppUrl = network === "demo" ?
+    "https://core.test.contentfabric.io/wallet-demo" :
+    "https://core.test.contentfabric.io/wallet";
+} else {
+  const url = new URL(window.location.origin);
+  url.port = "8090";
+
+  walletAppUrl = url.toString();
+}
+
+const AuthSection = ({walletClient, setResults}) => {
   const [loggedIn, setLoggedIn] = useState(walletClient.loggedIn);
 
   const LogIn = async ({method}) => {
@@ -45,9 +67,6 @@ const AuthSection = ({walletClient}) => {
           <button onClick={() => LogIn({method: "redirect"})}>
             Redirect
           </button>
-          <button onClick={() => LogIn({method: "tab"})}>
-            New Tab
-          </button>
           <button onClick={() => LogIn({method: "popup"})}>
             Popup
           </button>
@@ -57,14 +76,21 @@ const AuthSection = ({walletClient}) => {
   }
 
   return (
-    <div className="section">
-      <h2>Logged In as { walletClient.UserInfo()?.email || walletClient.UserAddress() }</h2>
+    <>
+      <div className="section">
+        <h2>Logged In as { walletClient.UserInfo()?.email || walletClient.UserAddress() }</h2>
+        <div className="button-row">
+          <button onClick={() => LogOut()}>
+            Log Out
+          </button>
+        </div>
+      </div>
       <div className="button-row">
-        <button onClick={() => LogOut()}>
-          Log Out
+        <button onClick={async () => setResults(`Signed message 'Test': ${await walletClient.PersonalSign({message: "test"})}`)}>
+          Personal Sign
         </button>
       </div>
-    </div>
+    </>
   );
 };
 
@@ -79,13 +105,12 @@ const App = () => {
       //marketplaceParams
     })
       .then(client => {
-        if(window.location.hostname.startsWith("192")) {
-          let appUrl = new URL(window.location.origin);
-          appUrl.port = "8090";
-          client.appUrl = appUrl.toString();
-        }
+        client.walletAppUrl = walletAppUrl;
 
         window.client = client;
+
+        // Replace CanSign method to force popup flow for personal sign with custodial wallet user
+        client.CanSign = () => client.loggedIn && client.UserInfo().walletName.toLowerCase() === "metamask";
 
         setWalletClient(client);
       });
@@ -103,7 +128,7 @@ const App = () => {
     <div className="page-container">
       <h1>Test Marketplace Client</h1>
 
-      <AuthSection walletClient={walletClient} />
+      <AuthSection walletClient={walletClient} setResults={setResults} />
 
       <h2>Methods</h2>
       <div className="button-row">

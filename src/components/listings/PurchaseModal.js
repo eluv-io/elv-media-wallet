@@ -239,7 +239,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
         usdcAccepted={selectedListing?.details?.USDCAccepted}
         usdcOnly={selectedListing?.details?.USDCOnly}
         stock={stock}
-        showOrdinal={!!selectedListing}
+        showToken={!!selectedListing}
         hideAvailable={!available || (marketplaceItem && marketplaceItem.hide_available)}
         truncateDescription
       />
@@ -486,7 +486,7 @@ const PurchasePayment = observer(({
         usdcAccepted={selectedListing?.details?.USDCAccepted}
         usdcOnly={selectedListing?.details?.USDCOnly}
         stock={stock}
-        showOrdinal={!!selectedListing}
+        showToken={!!selectedListing}
         hideAvailable={!available || (marketplaceItem && marketplaceItem.hide_available)}
         truncateDescription
       />

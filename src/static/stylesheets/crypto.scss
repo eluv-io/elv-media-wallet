@@ -10,13 +10,42 @@ $wallet-connect-background: rgba(0, 0, 0, 0.25);
   padding: 0 20px;
 
   &__logo-container {
-    margin-bottom: 50px;
-    max-width: 300px;
+    margin-bottom: 30px;
+    max-width: 200px;
+  }
+
+  &__content {
+    @include component;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    max-width: 400px;
+    min-height: 500px;
+    padding: 40px 30px 50px;
+    position: relative;
+    width: 100%;
+  }
+
+  .actions {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .action {
+    height: 50px;
+    min-width: 220px;
+
+    &:not(:last-child) {
+      margin-bottom: 10px;
+    }
   }
 
   h1 {
-    font-size: 20px;
-    margin-bottom: 20px;
+    font-size: 24px;
+    margin-bottom: 40px;
     text-align: center;
     word-wrap: anywhere;
   }
@@ -26,12 +55,29 @@ $wallet-connect-background: rgba(0, 0, 0, 0.25);
     text-align: center;
   }
 
-  .loader {
-    margin-top: 50px;
+  .labelled-field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 25px;
+
+    label {
+      font-weight: bold;
+    }
+
+    div {
+      font-size: 14px;
+      font-weight: 300;
+      margin-top: 5px;
+    }
+
+    label,
+    div {
+      text-align: center;
+    }
   }
 
-  .action {
-    width: 200px;
+  &__loader {
+    margin-top: 50px;
   }
 
   @media screen and (max-width: $mobile-breakpoint) {

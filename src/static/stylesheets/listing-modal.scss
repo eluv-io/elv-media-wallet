@@ -68,6 +68,7 @@ $content-width: 475px;
   &__form__inputs {
     align-items: center;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     margin: 20px auto;
     max-width: $content-width;
@@ -85,6 +86,36 @@ $content-width: 475px;
   &__form__error {
     color: var(--color-text-error);
     font-size: 10px;
+  }
+
+  &__form__labelled-input {
+    width: 100%;
+
+    &:not(:last-child) {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+  }
+
+  &__form__input {
+    padding: 0 20px;
+    width: 100%;
+
+    &:disabled {
+      color: var(--color-text-secondary);
+    }
+
+    &--address {
+      font-size: 14px;
+    }
+
+    &--error {
+      box-shadow: 0 0 3px var(--color-text-error);
+    }
   }
 
   &__form__price-input {
@@ -181,7 +212,7 @@ $content-width: 475px;
   }
 
   &__error-message {
-    color: var(--color-component-text-secondary);
+    color: var(--color-text-error);
     font-size: 14px;
     margin-top: 20px;
     text-align: center;

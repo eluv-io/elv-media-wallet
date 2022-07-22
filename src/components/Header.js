@@ -22,7 +22,7 @@ const Profile = observer(({marketplace}) => {
   }
 
   if(!rootStore.loggedIn) {
-    const isEluvioSite = ["eluv.io", "contentfabric.io", "192.168"].find(domain => window.location.href.includes(domain));
+    const isEluvioSite = ["elv-test.io", "eluv.io", "contentfabric.io", "192.168"].find(domain => window.location.href.includes(domain));
 
     if(rootStore.capturedLogin && !isEluvioSite) {
       return null;

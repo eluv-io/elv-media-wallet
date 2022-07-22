@@ -9,7 +9,7 @@ import ImageIcon from "Components/common/ImageIcon";
 
 import SalesIcon from "Assets/icons/misc/sales icon.svg";
 
-const Activity = ({icon, header, hideName, hideFilters, hideStats, tableHeader, initialFilters}) => {
+const Activity = ({mode="sales", icon, header, hideName, hideFilters, hideStats, tableHeader, initialFilters}) => {
   const match = useRouteMatch();
 
   const linkPath = match.url.startsWith("/marketplace") ?
@@ -18,7 +18,7 @@ const Activity = ({icon, header, hideName, hideFilters, hideStats, tableHeader, 
 
   return (
     <FilteredView
-      mode="sales"
+      mode={mode}
       perPage={100}
       expectRef
       loadOffset={1500}

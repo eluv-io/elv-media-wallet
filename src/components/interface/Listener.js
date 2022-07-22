@@ -362,7 +362,6 @@ export const InitializeListener = (history) => {
 
         // client.Listing
         case "listing":
-          console.log("CLIENT.LISTING");
           return Respond({response: await Listing(data)});
 
         // client.ListItem

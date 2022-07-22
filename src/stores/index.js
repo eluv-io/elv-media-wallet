@@ -362,7 +362,7 @@ class RootStore {
 
       this.GetWalletBalance();
 
-      this.funds = parseInt((yield this.client.GetBalance({address}) || 0));
+      this.funds = parseFloat((yield this.client.GetBalance({address}) || 0));
 
       this.basePublicUrl = yield this.client.FabricUrl({
         queryParams: {
@@ -619,7 +619,7 @@ class RootStore {
     if(eventSlug) {
       if(!tenantSlug) { throw Error("Load Event: Missing required tenant slug"); }
 
-      const mainSiteId = EluvioConfiguration["main-site-id"];
+      const mainSiteId = rootStore.walletClient.mainSiteId;
       const mainSiteHash = yield this.client.LatestVersionHash({objectId: mainSiteId});
 
       return (
