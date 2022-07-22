@@ -288,7 +288,7 @@ const NFTDetailsSection = ({nft, contractStats}) => {
   );
 };
 
-const NFTContractSection = ({nft, listing, heldDate, isOwned, setDeleted}) => {
+const NFTContractSection = ({nft, listing, heldDate, isOwned, setShowTransferModal, setDeleted}) => {
   return (
     <ExpandableSection header="Contract" icon={ContractIcon} className="no-padding">
       <div className="expandable-section__content-row">
@@ -320,6 +320,17 @@ const NFTContractSection = ({nft, listing, heldDate, isOwned, setDeleted}) => {
         >
           See More Info on Eluvio Lookout
         </a>
+        {
+          !listing ?
+            <button
+              disabled={nft?.metadata?.test}
+              title={nft?.metadata?.test ? "Test NFTs may not be transferred" : ""}
+              className="action details-page-transfer-button"
+              onClick={() => setShowTransferModal(true)}
+            >
+              Transfer NFT
+            </button> : null
+        }
         {
           isOwned && rootStore.funds ?
             <ButtonWithLoader
@@ -607,18 +618,6 @@ const NFTDetails = observer(() => {
           }
 
           {
-            !listing ?
-              <button
-                disabled={nft?.metadata?.test}
-                title={nft?.metadata?.test ? "Test NFTs may not be transferred" : ""}
-                className="action details-page-transfer-button"
-                onClick={() => setShowTransferModal(true)}
-              >
-                Transfer NFT
-              </button> : null
-          }
-
-          {
             isInCheckout ?
               <h3 className="details-page__transfer-details details-page__held-message">
                 This NFT is currently in the process of being purchased
@@ -746,7 +745,7 @@ const NFTDetails = observer(() => {
           <NFTDescriptionSection nft={nft} />
           <NFTTraitsSection nft={nft} />
           <NFTDetailsSection nft={nft} contractStats={contractStats} />
-          <NFTContractSection nft={nft} heldDate={heldDate} listing={listing} isOwned={isOwned} setDeleted={setDeleted} />
+          <NFTContractSection nft={nft} heldDate={heldDate} listing={listing} isOwned={isOwned} setShowTransferModal={setShowTransferModal} setDeleted={setDeleted} />
           <ListingStats
             mode="sales-stats"
             filterParams={{contractAddress: nft.details.ContractAddr}}
