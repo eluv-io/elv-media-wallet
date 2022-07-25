@@ -26,6 +26,32 @@
       background: var(--background-table-header-row);
       color: var(--color-text-background-highlight);
     }
+
+    &:not(&--current) {
+      &:disabled {
+        opacity: 0.5;
+      }
+    }
+
+    &--previous {
+      margin-right: 10px;
+    }
+
+    &--next {
+      margin-left: 10px;
+    }
+
+    &--next,
+    &--previous {
+      height: 2.5em;
+      width: 2.5em;
+    }
+
+    svg {
+      * {
+        stroke-width: 1.5px;
+      }
+    }
   }
 }
 

@@ -8,7 +8,6 @@ import ImageIcon from "Components/common/ImageIcon";
 import ListingIcon from "Assets/icons/listings icon";
 import {NFTDisplayToken} from "../../utils/Utils";
 import FilteredView from "Components/listings/FilteredView";
-import {Loader} from "Components/common/Loaders";
 import ItemCard from "Components/common/ItemCard";
 import {FormatPriceString} from "Components/common/UIComponents";
 import TestIcon from "Assets/icons/alert-circle";
@@ -40,73 +39,58 @@ const MarketplaceOwned = observer(() => {
     <FilteredView
       mode="owned"
       hideStats
-      perPage={60}
-      cacheDuration={30}
-      Render={({entries, paging, loading}) =>
-        <>
-          {
-            !paging ? null :
-              <div className="listing-pagination">
-                {
-                  paging.total <= 0 ?
-                    "No Results" :
-                    `Showing 1 - ${entries.length} of ${paging.total} results`
-                }
-              </div>
-          }
-          {
-            entries.length === 0 ? null :
-              <div className="card-list">
-                {
-                  entries.map((ownedItem) => {
-                    const listing = listings.find(listing =>
-                      listing.details.ContractAddr === ownedItem.details.ContractAddr &&
-                      listing.details.TokenIdStr === ownedItem.details.TokenIdStr
-                    );
+      topPagination
+      showPagingInfo
+      perPage={12}
+      scrollOnPageChange
+      Render={({entries}) =>
+        entries.length === 0 ? null :
+          <div className="card-list">
+            {
+              entries.map((ownedItem) => {
+                const listing = listings.find(listing =>
+                  listing.details.ContractAddr === ownedItem.details.ContractAddr &&
+                  listing.details.TokenIdStr === ownedItem.details.TokenIdStr
+                );
 
-                    return (
-                      <ItemCard
-                        key={`marketplace-owned-item-${ownedItem.details.ContractAddr}-${ownedItem.details.TokenIdStr}`}
-                        link={UrlJoin(match.url, ownedItem.details.ContractId, ownedItem.details.TokenIdStr)}
-                        image={<NFTImage nft={ownedItem} width={600}/>}
-                        name={ownedItem.metadata.display_name || ""}
-                        edition={ownedItem.metadata.edition_name}
-                        description={ownedItem.metadata.description}
-                        sideText={NFTDisplayToken(ownedItem)}
-                        badges={
-                          <>
-                            {
-                              listing ?
-                                <ImageIcon
-                                  icon={ListingIcon}
-                                  title="This NFT is listed for sale"
-                                  alt="Listing Icon"
-                                  className="item-card__badge"
-                                /> : null
-                            }
-                            {
-                              ownedItem.metadata.test ?
-                                <ImageIcon
-                                  icon={TestIcon}
-                                  title="This is a test NFT"
-                                  alt="Test NFT"
-                                  className="item-card__badge item-card__badge--test"
-                                /> : null
-                            }
-                          </>
+                return (
+                  <ItemCard
+                    key={`marketplace-owned-item-${ownedItem.details.ContractAddr}-${ownedItem.details.TokenIdStr}`}
+                    link={UrlJoin(match.url, ownedItem.details.ContractId, ownedItem.details.TokenIdStr)}
+                    image={<NFTImage nft={ownedItem} width={600}/>}
+                    name={ownedItem.metadata.display_name || ""}
+                    edition={ownedItem.metadata.edition_name}
+                    description={ownedItem.metadata.description}
+                    sideText={NFTDisplayToken(ownedItem)}
+                    badges={
+                      <>
+                        {
+                          listing ?
+                            <ImageIcon
+                              icon={ListingIcon}
+                              title="This NFT is listed for sale"
+                              alt="Listing Icon"
+                              className="item-card__badge"
+                            /> : null
                         }
-                        price={listing ? FormatPriceString({USD: listing.details.Price}, {includeCurrency: !listing.details.USDCOnly, includeUSDCIcon: listing.details.USDCAccepted, prependCurrency: true, useCurrencyIcon: false}) : null}
-                        variant={ownedItem.metadata.style}
-                      />
-                    );
-                  })
-                }
-              </div>
-          }
-          { // Infinite scroll loading indicator
-            loading && entries.length > 1 ? <Loader className="card-list__loader"/> : null
-          }
-        </>
+                        {
+                          ownedItem.metadata.test ?
+                            <ImageIcon
+                              icon={TestIcon}
+                              title="This is a test NFT"
+                              alt="Test NFT"
+                              className="item-card__badge item-card__badge--test"
+                            /> : null
+                        }
+                      </>
+                    }
+                    price={listing ? FormatPriceString({USD: listing.details.Price}, {includeCurrency: !listing.details.USDCOnly, includeUSDCIcon: listing.details.USDCAccepted, prependCurrency: true, useCurrencyIcon: false}) : null}
+                    variant={ownedItem.metadata.style}
+                  />
+                );
+              })
+            }
+          </div>
       }
     />
   );

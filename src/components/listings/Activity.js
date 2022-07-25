@@ -19,17 +19,15 @@ const Activity = ({mode="sales", icon, header, hideName, hideFilters, hideStats,
   return (
     <FilteredView
       mode={mode}
-      perPage={100}
+      perPage={10}
       expectRef
-      loadOffset={1500}
       hideFilters={hideFilters}
       hideStats={hideStats}
       initialFilters={initialFilters}
       header={header}
-      cacheDuration={10}
-      Render={({entries, paging, scrollRef}) => (
+      Render={({entries, paging}) => (
         <Table
-          scrollRef={scrollRef}
+          pagingMode="none"
           headerText={tableHeader}
           headerIcon={icon}
           columnHeaders={[

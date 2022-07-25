@@ -15,6 +15,7 @@ const Table = observer(({
   paging,
   pagingMode="infinite",
   perPage=10,
+  hidePagingInfo,
   Update,
   scrollRef,
   loading,
@@ -24,6 +25,8 @@ const Table = observer(({
   mobileColumnWidths,
   className=""
 }) => {
+  columnHeaders = columnHeaders.filter(h => h);
+
   // Handle column widths
   tabletColumnWidths = tabletColumnWidths || columnWidths;
   mobileColumnWidths = mobileColumnWidths || tabletColumnWidths;
@@ -35,7 +38,14 @@ const Table = observer(({
       : mobileColumnWidths;
 
   let gridTemplateColumns = [...new Array(columnHeaders.length)]
-    .map((_, column) => columnWidths[column] ? `${columnWidths[column]}fr` : "")
+    .map((_, column) => {
+      const width = columnWidths[column];
+      if(typeof width === "string") {
+        return width;
+      } else if(width) {
+        return `${width}fr`;
+      }
+    })
     .filter(c => c)
     .join(" ");
 
@@ -53,16 +63,14 @@ const Table = observer(({
         setLastUpdate(Date.now());
         Update();
       },
-      offset: 100,
-      ignoreScroll: !paging || loading || paging.start + paging.limit > paging.total
+      offset: 200,
+      ignoreScroll: entries.length === 0 || !paging || loading || paging.start + paging.limit > paging.total
     });
   }
 
   // Pagination info
   let pagingInfo = null;
-  if(paging?.total <= 0) {
-    pagingInfo = "No results";
-  } else if(paging?.total) {
+  if(paging && !hidePagingInfo) {
     pagingInfo = (
       <div className="transfer-table__pagination-message">
         Showing
@@ -88,38 +96,47 @@ const Table = observer(({
         }
         { pagingInfo }
         {
-          !paging || paging.total <= 0 ?
+          (!paging && pagingMode !== "none") ?
             <div className={`transfer-table__table ${pagingMode === "infinite" ? "transfer-table__table--infinite" : "transfer-table__table--paginated"}`} ref={scrollRef} /> :
             <div className={`transfer-table__table ${pagingMode === "infinite" ? "transfer-table__table--infinite" : "transfer-table__table--paginated"}`} ref={scrollRef}>
               <div className="transfer-table__table__header" style={{gridTemplateColumns}}>
                 {
-                  columnHeaders.map((field, columnIndex) => (
-                    !columnWidths[columnIndex] ?
-                      null :
-                      <div key={`table-header-${field}`} className="transfer-table__table__cell">
-                        {field}
-                      </div>
-                  ))
+                  columnHeaders.map((field, columnIndex) => {
+                    if(!columnWidths[columnIndex]) { return null; }
+
+                    const Component = props => field?.onClick ? <button {...props} /> : <div {...props} />;
+
+                    return (
+                      <Component key={`table-header-${columnIndex}`} onClick={field?.onClick} className="transfer-table__table__cell">
+                        { field?.icon ? <ImageIcon icon={field.icon} className="transfer-table__table__cell__icon" /> : null }
+                        { field?.text || field }
+                      </Component>
+                    );
+                  })
                 }
               </div>
+
               <div className="transfer-table__content-rows">
                 {
                   !entries || entries.length === 0 ?
-                    <div className="transfer-table__empty">{emptyText}</div> :
+                    <div className="transfer-table__empty">{ loading ? "" : emptyText }</div> :
                     entries.map((row, rowIndex) => {
                       // Row may be defined as simple list, or { columns, ?link, ?onClick }
                       const link = row?.link;
                       const onClick = row?.onClick;
+                      const disabled = row?.disabled;
+                      const className = row?.className || "";
                       const columns = row?.columns || row;
 
                       // Link complains if 'to' is blank, so use div instead
-                      const Component = link ? Link : ({children, ...props}) => <div {...props}>{children}</div>;
+                      const Component = link ? Link : props => onClick ? <button {...props} /> : <div {...props} />;
 
                       return (
                         <Component
                           to={link}
                           onClick={onClick}
-                          className={`transfer-table__table__row ${!link && !onClick ? "transfer-table__table__row--no-click" : ""}`}
+                          disabled={disabled}
+                          className={`transfer-table__table__row ${!link && !onClick ? "transfer-table__table__row--no-click" : ""} ${className}`}
                           key={`transfer-table-row-${rowIndex}`}
                           style={{gridTemplateColumns}}
                         >
@@ -153,11 +170,13 @@ const Table = observer(({
   );
 });
 
-export const FilteredTable = observer(({mode, filters, CalculateRowValues, pagingMode="infinite", perPage=10, ...props}) => {
+export const FilteredTable = observer(({mode, filters, pinnedEntries, CalculateRowValues, pagingMode="infinite", perPage=10, ...props}) => {
   const [page, setPage] = useState(1);
+  const [loadKey, setLoadKey] = useState(1);
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
   const [paging, setPaging] = useState(undefined);
+  const [previousFilters, setPreviousFilters] = useState(filters);
 
   useEffect(() => {
     let Method;
@@ -197,16 +216,39 @@ export const FilteredTable = observer(({mode, filters, CalculateRowValues, pagin
         }
 
         setPaging(paging);
+        setPreviousFilters(filters);
       })
       .finally(() => setLoading(false));
-  }, [page]);
+  }, [page, loadKey]);
 
+  // Reload from start when filters change
+  useEffect(() => {
+    if(JSON.stringify(filters || {}) === JSON.stringify(previousFilters)) {
+      return;
+    }
+
+    setEntries([]);
+
+    page === 1 ? setLoadKey(loadKey + 1) : setPage(1);
+  }, [filters]);
+
+  let rows = entries;
+  if(pinnedEntries && !loading && entries.length > 0) {
+    rows = [
+      ...pinnedEntries,
+      ...entries
+    ];
+  }
 
   return (
     <Table
       {...props}
       loading={loading}
-      entries={entries.map(entry => CalculateRowValues(entry))}
+      entries={
+        rows
+          .map(CalculateRowValues)
+          .filter(row => row)
+      }
       pagingMode={pagingMode}
       paging={paging}
       Update={newPage => setPage(newPage || page + 1)}

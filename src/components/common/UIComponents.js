@@ -11,13 +11,21 @@ import USDIcon from "Assets/icons/crypto/USD icon.svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 import CopyIcon from "Assets/icons/copy.svg";
 
-export const PageControls = observer(({paging, perPage, SetPage, className=""}) => {
+import PageBackIcon from "Assets/icons/pagination arrow back.svg";
+import PageForwardIcon from "Assets/icons/pagination arrow forward.svg";
+
+export const PageControls = observer(({paging, perPage, maxSpread=15, SetPage, className=""}) => {
   if(!paging) { return null; }
 
   const currentPage = Math.floor(paging.start / perPage) + 1;
   const pages = Math.ceil(paging.total / perPage) + 1;
 
-  let spread = rootStore.pageWidth > 600 ? 9 : 5;
+  let spread = maxSpread;
+  if(rootStore.pageWidth < 600) {
+    spread = Math.min(5, maxSpread);
+  } else if(rootStore.pageWidth < 1200) {
+    spread = Math.min(9, maxSpread);
+  }
   let spreadStart = Math.max(1, currentPage - Math.floor(spread / 2));
   const spreadEnd = Math.min(pages, spreadStart + spread);
   spreadStart = Math.max(1, spreadEnd - spread);
@@ -30,26 +38,31 @@ export const PageControls = observer(({paging, perPage, SetPage, className=""}) 
         onClick={() => SetPage(currentPage - 1)}
         className="page-controls__button page-controls__button--previous"
       >
-        {"<"}
+        <ImageIcon icon={PageBackIcon} />
       </button>
       {
-        [...new Array(spreadEnd - spreadStart)].map((_, index) => (
-          <button
-            key={`page-controls-${index}`}
-            onClick={() => SetPage(spreadStart + index)}
-            className={`page-controls__page ${spreadStart + index === currentPage ? "page-controls__page--current" : ""}`}
-          >
-            {spreadStart + index}
-          </button>
-        ))
+        [...new Array(spreadEnd - spreadStart)].map((_, index) => {
+          const page = spreadStart + index;
+          return (
+            <button
+              key={`page-controls-${index}`}
+              title={`Page ${page}`}
+              disabled={page === currentPage}
+              onClick={() => SetPage(page)}
+              className={`page-controls__page ${page === currentPage ? "page-controls__page--current" : ""}`}
+            >
+              {page}
+            </button>
+          );
+        })
       }
       <button
         title="Next Page"
         disabled={paging.total <= currentPage * perPage}
         onClick={() => SetPage(currentPage + 1)}
-        className="page-controls__button page-controls__button--previous"
+        className="page-controls__button page-controls__button--next"
       >
-        {">"}
+        <ImageIcon icon={PageForwardIcon} />
       </button>
     </div>
   );

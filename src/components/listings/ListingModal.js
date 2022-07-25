@@ -46,7 +46,10 @@ const ListingModal = observer(({nft, listingId, Close}) => {
           <div className="listing-modal__form listing-modal__inputs">
             <div className="listing-modal__active-listings">
               <h2 className="listing-modal__active-listings__header">Active Listings for this NFT</h2>
-              <ActiveListings contractAddress={nft.details.ContractAddr} initialSelectedListingId={listingId} noSeller />
+              <ActiveListings
+                contractAddress={nft.details.ContractAddr}
+                selectedListingId={listingId}
+              />
             </div>
             <div className="listing-modal__form__inputs">
               <input

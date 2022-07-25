@@ -1,5 +1,5 @@
-//const testTheme = undefined;
-const testTheme = import("../static/stylesheets/themes/maskverse-test.theme.css");
+const testTheme = undefined;
+//const testTheme = import("../static/stylesheets/themes/maskverse-test.theme.css");
 
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";

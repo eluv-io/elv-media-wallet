@@ -251,7 +251,7 @@ export const Auth0Authentication = observer(() => {
       rootStore.SetLoginLoaded();
     }
 
-    if(params.clearLogin || !rootStore.loaded || rootStore.loggedIn || window.auth0.isLoading || !window.auth0.isAuthenticated) { return; }
+    if(params.clearLogin || rootStore.authenticating || !rootStore.loaded || rootStore.loggedIn || window.auth0.isLoading || !window.auth0.isAuthenticated) { return; }
 
     window.auth0.getIdTokenClaims()
       .then(async response => {

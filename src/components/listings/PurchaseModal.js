@@ -527,9 +527,8 @@ const PurchasePayment = observer(({
                 </div> : null
             }
             <ActiveListings
-              initialSelectedListingId={initialListingId}
+              selectedListingId={selectedListingId || initialListingId}
               contractAddress={nft.details.ContractAddr}
-              noSeller
               Select={SelectListing}
             />
           </>
