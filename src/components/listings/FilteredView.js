@@ -31,6 +31,8 @@ const FilteredView = ({
   const containerRef = useRef();
 
   useEffect(() => {
+    if(!filters) { return; }
+    
     let Method;
     switch(mode) {
       case "listings":
