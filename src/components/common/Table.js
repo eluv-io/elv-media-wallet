@@ -23,6 +23,7 @@ const Table = observer(({
   columnWidths=[],
   tabletColumnWidths,
   mobileColumnWidths,
+  hideOverflow,
   className=""
 }) => {
   columnHeaders = columnHeaders.filter(h => h);
@@ -147,6 +148,15 @@ const Table = observer(({
                                 <div
                                   className="transfer-table__table__cell"
                                   key={`table-cell-${rowIndex}-${columnIndex}`}
+                                  style={
+                                    hideOverflow ?
+                                      {
+                                        display: "block",
+                                        overflow: "hidden",
+                                        whiteSpace: "nowrap",
+                                        textOverflow: "ellipsis"
+                                      } : {}
+                                  }
                                 >
                                   {field}
                                 </div>

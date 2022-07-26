@@ -30,7 +30,7 @@ const MyItems = observer(() => {
     <FilteredView
       mode="owned"
       hideStats
-      perPage={12}
+      perPage={9}
       showPagingInfo
       topPagination
       scrollOnPageChange

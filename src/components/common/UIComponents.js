@@ -40,6 +40,7 @@ export const PageControls = observer(({paging, perPage, maxSpread=15, SetPage, c
       >
         <ImageIcon icon={PageBackIcon} />
       </button>
+      { spreadStart > 1 ? <div className="page-controls__ellipsis">...</div> : null }
       {
         [...new Array(spreadEnd - spreadStart)].map((_, index) => {
           const page = spreadStart + index;
@@ -56,6 +57,7 @@ export const PageControls = observer(({paging, perPage, maxSpread=15, SetPage, c
           );
         })
       }
+      { spreadEnd < pages ? <div className="page-controls__ellipsis">...</div> : null }
       <button
         title="Next Page"
         disabled={paging.total <= currentPage * perPage}

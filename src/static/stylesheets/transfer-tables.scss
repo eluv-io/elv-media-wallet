@@ -64,12 +64,12 @@
 
   &__table {
     height: 100%;
-    max-height: 50vh;
+    max-height: 60vh;
     overflow-y: auto;
 
     &--infinite {
       max-height: 320px;
-      overscroll-behavior-y: contain;
+      overscroll-behavior-y: contain; // sass-lint:disable-line no-misspelled-properties
     }
   }
 

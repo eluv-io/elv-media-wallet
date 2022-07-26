@@ -57,6 +57,7 @@ const Activity = ({mode="sales", icon, header, hideName, hideFilters, hideStats,
           columnWidths={[hideName ? 0 : 2, 2, 1, 2, 2, 2]}
           tabletColumnWidths={[hideName ? 0 : 2, 2, 1, 2, 0, 0]}
           mobileColumnWidths={[hideName ? 0 : 2, 0, 1, 2, 0, 0]}
+          hideOverflow
         />
       )}
     />

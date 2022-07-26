@@ -41,7 +41,7 @@ const MarketplaceOwned = observer(() => {
       hideStats
       topPagination
       showPagingInfo
-      perPage={12}
+      perPage={9}
       scrollOnPageChange
       Render={({entries}) =>
         entries.length === 0 ? null :

@@ -48,7 +48,7 @@ const Listings = observer(() => {
       pagingMode="paginated"
       topPagination
       showPagingInfo
-      perPage={12}
+      perPage={9}
       scrollOnPageChange
       Render={({entries}) => (
         entries.length === 0 ? null :
