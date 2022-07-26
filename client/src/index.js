@@ -115,17 +115,17 @@ class ElvWalletFrameClient {
    * This constructor should not be used. Please use <a href="#.InitializePopup">InitializeFrame</a> or <a href="#.InitializePopup">InitializePopup</a> instead.
    *
 <pre><code>
-import { ElvWalletFrameClient } from "@eluvio/elv-wallet-client";
+import { ElvWalletFrameClient } from "@eluvio/elv-wallet-frame-client";
 
 // Initialize in iframe at target element
-const walletClient = await ElvWalletFrameClient.InitializeFrame({
+const frameClient = await ElvWalletFrameClient.InitializeFrame({
  requestor: "My App",
  walletAppUrl: "https://wallet.contentfabric.io",
  target: document.getElementById("#wallet-target")
 });
 
 // Or initialize in a popup
-const walletClient = await ElvWalletFrameClient.InitializePopup({
+const frameClient = await ElvWalletFrameClient.InitializePopup({
  requestor: "My App",
  walletAppUrl: "https://wallet.contentfabric.io",
 });

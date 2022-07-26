@@ -53,28 +53,38 @@
     <article>
       <h2><a href="https://wallet.contentfabric.io/#/">Eluvio Media Wallet</a></h2>
 <p>An embeddable crypto wallet and content presentation app for buying, selling and collecting NFTs on the Eluvio Content Fabric.</p>
-<h3>Embedding the Eluvio Media Wallet</h3>
-<p>The Media Wallet can be easily embedded into your web application using the wallet client.</p>
-<p>The wallet client works by loading the wallet application in either an iframe or a popup and using message passing to send information and commands to and from your application.</p>
-<p>You can use the client to retrieve various information about the user and their wallet, navigate the wallet application to various pages, and register event handlers for when the user logs in or out, or the window is closed.</p>
-<p>The Wallet operates against a backend Marketplace object hosted in the Content Fabric.  The Marketplace object can be populated with items that can be sold via the Content Fabric payment APIs and listed for secondary sale via the listing APIs.</p>
-<p>The Eluvio Live site uses this model, embedding the wallet application in an iframe and controlling it with the client. You can see this in action on Eluvio LIVE sites at https://live.eluv.io .</p>
+<h3>Developing on the Eluvio Marketplace</h3>
+<p>There are two JavaScript clients available for development in the Eluvio marketplace ecosystem.</p>
+<p>The Eluvio Wallet Client is a standard client that offers much of the functionality of the Eluvio Media Wallet application.</p>
+<p>The Eluvio Wallet Frame Client is a client that allows you to embed the entire Eluvio Media Wallet application into your own application, using an iframe or a popup. The client allows you to control the frame, retrieve information, and register callbacks for events.</p>
+<p>Both of these clients allow for retrieving various information about the user and their wallet, and operating backend Marketplace objects. The Marketplace object can be populated with items that can be sold via the Content Fabric payment APIs and listed for secondary sale via the listing APIs.</p>
+<p>For information about implementing login using the wallet and/or frame client, please see this <a href="https://core.test.contentfabric.io/elv-media-wallet-client-test/test-login/">example application</a> (source available in <code>test/login.js</code>)</p>
+<h3></h3>
+<h3>Eluvio Wallet Client</h3>
+<p>Most functionality of the Eluvio Media Wallet is available in the Eluvio Wallet Client.</p>
+<h3><a href="https://eluv-io.github.io/elv-client-js/wallet-client/index.html">Eluvio Wallet Client Documentation</a></h3>
+<h3></h3>
+<h3>Eluvio Wallet Frame Client</h3>
+<p>The Eluvio Media Wallet application can also be easily embedded into your web application using the Eluvio Wallet Frame Client.</p>
+<p>The frame client works by loading the wallet application in either an iframe or a popup and using message passing to send information and commands to and from your application.</p>
+<p>You can use the client to retrieve various information about the user and their wallet, navigate the wallet application to various pages, and register event handlers for when the user logs in or out, navigates to a different page, or when the window is closed.</p>
+<p>The Eluvio Live site uses this model, embedding the wallet application in an iframe and controlling it with the client. You can see this in action on Eluvio LIVE sites at <a href="https://live.eluv.io">https://live.eluv.io</a>.</p>
 <p>Please read the client documentation for more details:</p>
-<h3><a href="https://eluv-io.github.io/elv-media-wallet/ElvWalletFrameClient.html">Frame Client API Documentation</a></h3>
+<h3><a href="https://eluv-io.github.io/elv-media-wallet/ElvWalletFrameClient.html">Eluvio Wallet Frame Client API Documentation</a></h3>
 <h4>Basic Usage</h4>
-<pre class="prettyprint source"><code>npm install &quot;@eluvio/elv-wallet-client&quot;
+<pre class="prettyprint source"><code>npm install &quot;@eluvio/elv-wallet-frame-client&quot;
 </code></pre>
-<pre class="prettyprint source lang-javascript"><code>import { ElvWalletClient } from &quot;@eluvio/elv-wallet-client&quot;;
+<pre class="prettyprint source lang-javascript"><code>import { ElvWalletFrameClient } from &quot;@eluvio/elv-wallet-frame-client&quot;;
 
 // Initialize in iframe at target element
-const walletClient = await ElvWalletClient.InitializeFrame({
+const walletFrameClient = await ElvWalletFrameClient.InitializeFrame({
   requestor: &quot;My App&quot;,
   walletAppUrl: &quot;https://wallet.contentfabric.io&quot;,
   target: document.getElementById(&quot;#wallet-target&quot;)
 });
     
 // Or initialize in a popup
-const walletClient = await ElvWalletClient.InitializePopup({
+const walletFrameClient = await ElvWalletFrameClient.InitializePopup({
   requestor: &quot;My App&quot;,
   walletAppUrl: &quot;https://wallet.contentfabric.io&quot;,
 });
