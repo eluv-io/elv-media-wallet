@@ -27,6 +27,7 @@ const Activity = ({mode="sales", icon, header, hideName, hideFilters, hideStats,
       header={header}
       Render={({entries, paging}) => (
         <Table
+          className="transfer-table--activity"
           pagingMode="none"
           headerText={tableHeader}
           headerIcon={icon}

@@ -11,7 +11,7 @@ class TransferStore {
     sort_by: "created",
     sort_desc: false,
     filters: [],
-    collectionIndex: -1,
+    collectionIndexes: [],
     limit: 50,
     start: 0
   }

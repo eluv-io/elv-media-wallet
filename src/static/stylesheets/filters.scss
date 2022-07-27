@@ -15,6 +15,12 @@ $search-height: 50px;
     position: relative;
   }
 
+  .styled-select__button {
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
+
   &__select-container,
   &__select {
     height: $controls-height;
@@ -107,6 +113,7 @@ $search-height: 50px;
     border: var(--border-input);
     border-radius: var(--border-radius-input);
     box-shadow: var(--box-shadow-component);
+    margin-bottom: 50px;
     padding: 20px;
     position: absolute;
     right: 0;
@@ -116,13 +123,17 @@ $search-height: 50px;
 
     & > * {
       &:not(:last-child) {
-        margin-bottom: 20px;
+        margin-bottom: 15px;
       }
     }
 
-    &__reset-button {
-      margin: 0 auto;
-      width: 200px;
+    &__actions {
+      margin-top: 30px;
+
+      .action {
+        margin-bottom: 10px;
+        width: 100%;
+      }
     }
 
     &__attribute-group {
@@ -131,6 +142,75 @@ $search-height: 50px;
           margin-bottom: 5px;
         }
       }
+    }
+  }
+
+  &__multiselect-container {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .filters__select-container {
+      width: 100%;
+    }
+
+    &__values {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      width: 100%;
+    }
+
+    &__value {
+      align-items: center;
+      background: var(--background-component-secondary);
+      border-radius: 6px;
+      display: flex;
+      font-size: 14px;
+      margin: 10px 10px 0 0;
+      padding: 15px 40px 15px 20px;
+      position: relative;
+
+      button {
+        height: 100%;
+        position: absolute;
+        right: 12px;
+        width: 18px;
+      }
+
+      svg {
+        height: 100%;
+        user-select: none;
+        width: 100%;
+      }
+    }
+  }
+
+  &__range-container {
+    margin-top: 30px;
+  }
+
+  &__range {
+    align-items: center;
+    display: flex;
+    justify-content: flex-start;
+    padding: 15px 0 0 10px;
+
+    * {
+      text-align: center;
+    }
+
+    &__label {
+      color: var(--color-component-text-secondary);
+      width: 125px;
+    }
+
+    input {
+      background: var(--color-component-bg-secondary);
+      height: 45px;
+      margin: 0 10px;
     }
   }
 
@@ -143,6 +223,7 @@ $search-height: 50px;
 
     &__select-container,
     &__select {
+      min-width: unset;
       width: 100%;
     }
 

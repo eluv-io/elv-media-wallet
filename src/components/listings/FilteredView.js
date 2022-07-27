@@ -27,7 +27,6 @@ const FilteredView = ({
   const [page, setPage] = useState(1);
   const [lastUpdate, setLastUpdate] = useState(0);
   const [loadKey, setLoadKey] = useState(1);
-  const [previousFilters, setPreviousFilters] = useState(filters);
   const containerRef = useRef();
 
   useEffect(() => {
@@ -70,17 +69,12 @@ const FilteredView = ({
         }
 
         setPaging(paging);
-        setPreviousFilters(filters);
       })
       .finally(() => setLoading(false));
   }, [page, loadKey]);
 
   // Reload from start when filters change
   useEffect(() => {
-    if(JSON.stringify(filters || {}) === JSON.stringify(previousFilters)) {
-      return;
-    }
-
     setEntries([]);
 
     page === 1 ? setLoadKey(loadKey + 1) : setPage(1);

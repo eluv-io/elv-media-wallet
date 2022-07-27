@@ -7,8 +7,10 @@
   overflow-y: hidden;
   position: relative;
 
-  &__page-controls {
-    margin-bottom: 50px;
+  &--activity {
+    .transfer-table__table {
+      max-height: unset;
+    }
   }
 
   &--active-listings {
@@ -26,6 +28,10 @@
       justify-content: flex-start;
       text-align: left;
     }
+  }
+
+  &__page-controls {
+    margin-bottom: 50px;
   }
 
   &__header {

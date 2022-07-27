@@ -15,6 +15,7 @@ html {
 
   --color-bg-primary: #FFFFFF;
   --color-bg-secondary: #EDEDED;
+  --color-bg-highlight: #D1E0F7;
 
   --color-text-primary: #000;
   --color-text-secondary: #777;
@@ -202,6 +203,7 @@ html {
   --background-component-secondary: var(--color-bg-secondary);
   --color-component-bg-primary: var(--color-bg-primary);
   --color-component-bg-secondary: var(--color-bg-secondary);
+  --color-component-bg-highlight: var(--color-bg-highlight);
   --color-component-highlight: var(--color-text-highlight);
   --color-component-text-primary: var(--color-text-primary);
   --color-component-text-secondary: var(--color-text-secondary);
