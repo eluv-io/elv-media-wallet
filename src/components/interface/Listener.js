@@ -202,8 +202,13 @@ export const InitializeListener = (history) => {
 
       let marketplace, listing, item, status, balance, price, tags;
       switch(data.action) {
-        // client.SignIn
+        // client.LogIn
         case "login":
+          if(rootStore.AuthInfo()?.clientAuthToken === data.params.clientAuthToken) {
+            // Already logged in with this token
+            return Respond({});
+          }
+
           await rootStore.Authenticate({
             clientAuthToken: data.params.clientAuthToken,
             idToken: data.params.idToken,
@@ -218,7 +223,7 @@ export const InitializeListener = (history) => {
 
           return Respond({});
 
-        // client.SignOut
+        // client.LogOut
         case "logout":
           await rootStore.SignOut();
 
