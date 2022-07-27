@@ -251,24 +251,6 @@ const FilterMenu = ({mode, filterValues, editions, attributes, setFilterValues, 
           /> : null
       }
       {
-        mode === "listings" ?
-          <FilterSelect
-            label="Rarity"
-            optionLabelPrefix="Rarity: "
-            value={selectedFilterValues.capLimit}
-            onChange={value => setSelectedFilterValues({...selectedFilterValues, capLimit: value})}
-            options={[
-              ["", "Any Rarity"],
-              [1, "/1 total supply"],
-              [10, "/10 total supply"],
-              [50, "/50 total supply"],
-              [1000, "/1000 total supply"],
-              [5000, "/5000 total supply"],
-            ]}
-          /> : null
-      }
-
-      {
         mode === "owned" ? null :
           <FilterSelect
             label="Time"
