@@ -702,48 +702,52 @@ const NFTDetails = observer(() => {
           <ImageIcon icon={BackIcon} />
           Back to { backPage.name }
         </Link>
-        <div className="details-page__content-container">
-          <NFTCard
-            nft={nft}
-            selectedListing={listing}
-            showFullMedia
-            showToken
-            allowFullscreen
-            selectedMediaIndex={selectedMediaIndex}
-            setSelectedMediaIndex={setSelectedMediaIndex}
-            playerCallback={playerInfo => {
-              if(playerInfo === currentPlayerInfo?.playerInfo || playerInfo?.videoElement === currentPlayerInfo?.videoElement) {
-                return;
-              }
+        <div className="details-page__main-content">
+          <div className="details-page__content-container">
+            <NFTCard
+              nft={nft}
+              selectedListing={listing}
+              showFullMedia
+              showToken
+              allowFullscreen
+              selectedMediaIndex={selectedMediaIndex}
+              setSelectedMediaIndex={setSelectedMediaIndex}
+              playerCallback={playerInfo => {
+                if(playerInfo === currentPlayerInfo?.playerInfo || playerInfo?.videoElement === currentPlayerInfo?.videoElement) {
+                  return;
+                }
 
-              setCurrentPlayerInfo({selectedMediaIndex, playerInfo});
-            }}
-            price={listing ? {USD: listing.details.Price} : null}
-            usdcAccepted={listing?.details?.USDCAccepted}
-            usdcOnly={listing?.details?.USDCOnly}
-            className="card-container--feature-card"
-            cardClassName="item-card--feature-card"
-          />
-          <NFTActions />
-          {
-            nft?.metadata?.test ?
-              <div className="details-page__test-banner">
-                This is a test NFT
-              </div> : null
-          }
+                setCurrentPlayerInfo({selectedMediaIndex, playerInfo});
+              }}
+              price={listing ? {USD: listing.details.Price} : null}
+              usdcAccepted={listing?.details?.USDCAccepted}
+              usdcOnly={listing?.details?.USDCOnly}
+              className="card-container--feature-card"
+              cardClassName="item-card--feature-card"
+            />
+            <NFTActions />
+            {
+              nft?.metadata?.test ?
+                <div className="details-page__test-banner">
+                  This is a test NFT
+                </div> : null
+            }
+          </div>
+          <div className="details-page__info">
+            <NFTMediaSection
+              nft={nft}
+              containerElement={detailsRef}
+              selectedMediaIndex={selectedMediaIndex}
+              setSelectedMediaIndex={setSelectedMediaIndex}
+              currentPlayerInfo={currentPlayerInfo && currentPlayerInfo.selectedMediaIndex === selectedMediaIndex ? currentPlayerInfo.playerInfo : undefined}
+            />
+            <NFTDescriptionSection nft={nft} />
+            <NFTTraitsSection nft={nft} />
+            <NFTDetailsSection nft={nft} contractStats={contractStats} />
+            <NFTContractSection nft={nft} heldDate={heldDate} listing={listing} isOwned={isOwned} setShowTransferModal={setShowTransferModal} setDeleted={setDeleted} />
+          </div>
         </div>
-        <div className="details-page__info">
-          <NFTMediaSection
-            nft={nft}
-            containerElement={detailsRef}
-            selectedMediaIndex={selectedMediaIndex}
-            setSelectedMediaIndex={setSelectedMediaIndex}
-            currentPlayerInfo={currentPlayerInfo && currentPlayerInfo.selectedMediaIndex === selectedMediaIndex ? currentPlayerInfo.playerInfo : undefined}
-          />
-          <NFTDescriptionSection nft={nft} />
-          <NFTTraitsSection nft={nft} />
-          <NFTDetailsSection nft={nft} contractStats={contractStats} />
-          <NFTContractSection nft={nft} heldDate={heldDate} listing={listing} isOwned={isOwned} setShowTransferModal={setShowTransferModal} setDeleted={setDeleted} />
+        <div className="details-page__tables">
           <ListingStats
             mode="sales-stats"
             filterParams={{contractAddress: nft.details.ContractAddr}}

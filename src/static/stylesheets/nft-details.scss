@@ -365,8 +365,15 @@
 
   @media screen and (min-width: $tablet-breakpoint) {
     &:not(.details-page-message) {
-      align-content: start;
+      //align-content: start;
+      //display: grid;
+      //grid-gap: 30px;
+
+    }
+
+    .details-page__main-content {
       display: grid;
+      align-content: start;
       grid-gap: 30px;
       grid-template-columns: 388px minmax(0, 1.75fr);
     }
