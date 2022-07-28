@@ -3,7 +3,7 @@ const testTheme = undefined;
 
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";
-import {ElvWalletClient} from "@eluvio/elv-client-js/src/walletClient/index";
+import {ElvWalletClient} from "@eluvio/elv-client-js";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import SanitizeHTML from "sanitize-html";
 
