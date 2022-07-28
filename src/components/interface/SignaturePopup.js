@@ -49,7 +49,7 @@ const Sign = async (params, Respond, SetMessage) => {
     }
 
     const wallet = cryptoStore.WalletFunctions(params.provider);
-    const address = await cryptoStore.RequestMetamaskAddress();
+    const address = await wallet.RequestAddress();
 
     if(params.action === "connect") {
       SetMessage(<h1>Connecting wallet...</h1>, true);

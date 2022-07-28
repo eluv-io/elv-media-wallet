@@ -322,7 +322,7 @@ class RootStore {
       if(externalWallet) {
         const walletMethods = this.cryptoStore.WalletFunctions(externalWallet);
         clientAuthToken = yield this.walletClient.AuthenticateExternalWallet({
-          address: yield walletMethods.RetrieveAddress(),
+          address: yield walletMethods.RequestAddress(),
           Sign: walletMethods.Sign,
           walletName: walletMethods.name
         });
@@ -1029,6 +1029,8 @@ class RootStore {
     const url = new URL(UrlJoin(window.location.origin, window.location.pathname));
     url.hash = UrlJoin("/", type, flow, Utils.B58(JSON.stringify(parameters)));
 
+    url.searchParams.set("origin", window.location.origin);
+
     if(darkMode) {
       url.searchParams.set("dk", "");
     }
@@ -1078,7 +1080,7 @@ class RootStore {
 
           clearInterval(closeCheck);
 
-          setTimeout(() => popup.close(), 500);
+          setTimeout(() => popup.close(), 1000);
 
           if(event.data.error) {
             reject(event.data.error);

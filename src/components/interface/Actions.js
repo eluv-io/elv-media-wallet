@@ -48,7 +48,7 @@ const Actions = observer(() => {
       error
     }, rootStore.authOrigin || window.location.origin);
 
-    setTimeout(() => window.close(), 2000);
+    setTimeout(() => window.close(), 5000);
   };
 
   if(loading) {
