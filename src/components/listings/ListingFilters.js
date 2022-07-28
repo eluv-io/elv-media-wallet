@@ -100,7 +100,7 @@ const RangeFilter = observer(({label, valueLabel, value, onChange, precision=0})
         <input
           value={max}
           onChange={event => setMax(FormatInput(event.target.value))}
-          placeholder="Min"
+          placeholder="Max"
           className="filters__range__input"
           onBlur={() => UpdateValues({min: parsedMin, max: parsedMax})}
         />
