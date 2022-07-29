@@ -341,6 +341,14 @@ input:focus-visible,
   .featured-item__title {
     font-size: 24px;
   }
+
+  .stats__label {
+    font-size: 12px;
+  }
+
+  .stats__value {
+    font-size: 14px;
+  }
 }
 
 
