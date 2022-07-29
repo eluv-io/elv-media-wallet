@@ -368,3 +368,25 @@ input:focus-visible,
 .feature-gallery__icon-container--variant-wwe-red .feature-gallery__icon {
   background: #501b2f;
 }
+
+.card-container--variant-wwe-green,
+.featured-item__icon-container--variant-wwe-green,
+.feature-gallery__icon-container--variant-wwe-green {
+  background: linear-gradient(180deg, #7EDB64 0%, #98FF7B 54.17%, #B5FFA0 75.52%, #7EDB64 100%);
+  box-shadow: 0 0 24px rgba(42, 163, 0, 0.64);
+}
+.card-container--variant-wwe-green {
+  box-shadow: 0 0 12px rgba(42, 163, 0, 0.64);
+}
+.card-container--variant-wwe-green.card-container--link:hover {
+  box-shadow: 0 0 12px #40811B;
+}
+.feature-gallery__icon-container--variant-wwe-green.feature-gallery__icon-container--selected {
+  box-shadow: 0 0 24px rgba(42, 163, 0, 1);
+}
+.card-container--variant-wwe-green .item-card,
+.featured-item__icon-container--variant-wwe-green .featured-item__icon,
+.feature-gallery__icon-container--variant-wwe-green	 .feature-gallery__icon {
+  background: rgba(0, 55, 30, 0.9);
+}
+
