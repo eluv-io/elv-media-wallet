@@ -121,6 +121,7 @@
   --gold-1: #FFCB05;
   --neutral-1: rgba(235, 235, 235, 0.2);
   --neutral-2: #585a73;
+  --neutral-3: #2C2F4C;
   --red-1: #F1493A;
   --red-2: #FF6C3D;
 
@@ -152,6 +153,7 @@
   --border-modal-primary: 0;
 
   --background-component-primary: var(--neutral-1);
+  --background-component-secondary: var(--neutral-3);
   --background-table: var(--neutral-1);
 
   /* Inputs */
@@ -236,6 +238,10 @@ input:focus-visible,
   border: 2px solid #0E01FA!important;
   box-shadow: 0 0 20px #0E01FA;
   backdrop-filter: blur(16px);
+}
+
+.styled-select__menu {
+  background: var(--neutral-3);
 }
 
 /* Custom CSS */

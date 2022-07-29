@@ -29,7 +29,8 @@ $search-height: 50px;
 
   &__select-container {
     .styled-select__menu__option {
-      height: $controls-height;
+      min-height: $controls-height;
+      padding: 5px 15px;
     }
   }
 

@@ -1,4 +1,5 @@
 import React from "react";
+import {observer} from "mobx-react";
 import {FormatPriceString} from "Components/common/UIComponents";
 import {Ago, MiddleEllipsis} from "../../utils/Utils";
 import FilteredView from "Components/listings/FilteredView";
@@ -9,7 +10,7 @@ import Table from "Components/common/Table";
 
 import SalesIcon from "Assets/icons/misc/sales icon.svg";
 
-const Activity = ({mode="sales", icon, header, hideName, hideFilters, hideStats, tableHeader, initialFilters}) => {
+const Activity = observer(({mode="sales", icon, header, hideName, hideFilters, hideStats, tableHeader, initialFilters}) => {
   const match = useRouteMatch();
 
   const linkPath = match.url.startsWith("/marketplace") ?
@@ -19,7 +20,8 @@ const Activity = ({mode="sales", icon, header, hideName, hideFilters, hideStats,
   return (
     <FilteredView
       mode={mode}
-      perPage={10}
+      perPage={20}
+      scrollOnPageChange
       expectRef
       hideFilters={hideFilters}
       hideStats={hideStats}
@@ -63,7 +65,7 @@ const Activity = ({mode="sales", icon, header, hideName, hideFilters, hideStats,
       )}
     />
   );
-};
+});
 
 export const RecentSales = () => (
   <Activity icon={SalesIcon} tableHeader="Recent Sales" />

@@ -342,12 +342,12 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
     capLimit: "",
     currency: "",
     priceRange: {
-      min: undefined,
-      max: undefined
+      min: "",
+      max: ""
     },
     tokenIdRange: {
-      min: undefined,
-      max: undefined
+      min: "",
+      max: ""
     }
   };
 

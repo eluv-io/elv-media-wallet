@@ -1,5 +1,6 @@
 const testTheme = undefined;
 //const testTheme = import("../static/stylesheets/themes/maskverse-test.theme.css");
+//const testTheme = import("../static/stylesheets/themes/wwe-test.theme.css");
 
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";
@@ -58,6 +59,8 @@ class RootStore {
   trustedOrigins = this.GetLocalStorageJSON("trusted-origins") || {};
 
   pageWidth = window.innerWidth;
+  pageHeight = window.innerHeight;
+
   activeModals = 0;
 
   authInfo = undefined;
