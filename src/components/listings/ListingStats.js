@@ -32,7 +32,7 @@ const ListingStats = ({mode="listings", filterParams}) => {
     <div className="stats">
       <div className="stats__item">
         <label className="stats__label">
-          { mode === "listings" ? "Active Listings" : "Total Sales" }
+          { mode === "listings" ? "Active Listings" : "Total Secondary Sales" }
         </label>
         <div className="stats__value">
           { stats.count || 0 }
@@ -40,7 +40,7 @@ const ListingStats = ({mode="listings", filterParams}) => {
       </div>
       <div className="stats__item">
         <label className="stats__label">
-          { mode === "listings" ? "Active Listing Value" : "Total Sales Volume" }
+          { mode === "listings" ? "Active Listing Value" : "Secondary Sales Volume" }
         </label>
         <div className="stats__value">
           { FormatPriceString({USD: stats.volume || 0}) }
