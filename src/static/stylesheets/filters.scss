@@ -339,5 +339,13 @@ $search-height: 50px;
 
   @media screen and (max-width: $mobile-breakpoint) {
     grid-template-columns: repeat(auto-fit, minmax(50%, 1fr));
+
+    &__label {
+      font-size: 12px;
+    }
+
+    &__value {
+      font-size: 14px;
+    }
   }
 }
