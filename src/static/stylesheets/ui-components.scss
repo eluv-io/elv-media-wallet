@@ -428,12 +428,8 @@
     height: 20px;
     width: auto;
 
-    & + .formatted-price__icon {
-      margin-left: 5px;
+    &:not(:last-child) {
+      margin-right: 5px;
     }
-  }
-
-  &__value {
-    margin: 0 5px;
   }
 }

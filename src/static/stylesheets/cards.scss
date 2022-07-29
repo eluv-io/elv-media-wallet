@@ -104,6 +104,14 @@
   top: 0;
   width: 100%;
 
+  &.media-card {
+    padding: 20px;
+
+    .item-card__image-container {
+      margin: 0;
+    }
+  }
+
   &--disabled {
     opacity: 0.5;
   }

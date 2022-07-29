@@ -4,8 +4,14 @@ import VideoPlayCircleIcon from "Assets/icons/media/video play icon.svg";
 import VideoPlayIcon from "Assets/icons/media/video play icon (no circle).svg";
 import PlayIcon from "Assets/icons/media/Play icon.svg";
 
+import React from "react";
 import {rootStore} from "Stores";
 import UrlJoin from "url-join";
+import {FormatPriceString} from "Components/common/UIComponents";
+import {render} from "react-dom";
+import ReactMarkdown from "react-markdown";
+import SanitizeHTML from "sanitize-html";
+import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 
 export const Slugify = str =>
   (str || "")
@@ -99,6 +105,79 @@ export const NFTDisplayToken = nft => {
   } catch(error) {
     return nft?.details?.TokenIdStr || "";
   }
+};
+
+export const NFTInfo = ({
+  nft,
+  item,
+  selectedListing,
+  price,
+  usdcAccepted,
+  usdcOnly,
+  stock,
+  imageWidth,
+  showFullMedia,
+  showToken,
+  hideAvailable,
+  truncateDescription,
+  selectedMediaIndex=-1,
+}) => {
+  if(selectedListing) {
+    nft = selectedListing;
+  } else if(item && !nft) {
+    nft = {
+      metadata: item.nftTemplateMetadata
+    };
+  }
+
+  const selectedMedia = (selectedMediaIndex >= 0 && (nft.metadata.additional_media || [])[selectedMediaIndex]);
+  const outOfStock = stock && stock.max && stock.minted >= stock.max;
+  const expired = item && item.expires_at && new Date(item.expires_at).getTime() - Date.now() < 0;
+  const unauthorized = item && item.requires_permissions && !item.authorized;
+  const mediaInfo = NFTMediaInfo({nft, item, selectedMedia, showFullMedia, width: imageWidth});
+
+  const variant = (item?.nftTemplateMetadata || nft?.metadata).style;
+
+  const name = selectedMedia?.name || nft.metadata.display_name;
+  const subtitle1 = selectedMedia ? selectedMedia.subtitle_1 : nft.metadata.edition_name;
+  const subtitle2 = selectedMedia ? selectedMedia.subtitle_2 : undefined;
+
+  let sideText;
+  if(item && !hideAvailable && !outOfStock && !expired && !unauthorized && stock &&stock.max && stock.max < 10000000) {
+    sideText = `${stock.max - stock.minted} / ${stock.max}`;
+  } else if(!item && showToken) {
+    sideText = NFTDisplayToken(nft);
+  }
+
+  sideText = sideText ? sideText.toString().split("/") : undefined;
+
+  let status;
+  if(outOfStock) {
+    status = "Sold Out!";
+  }
+
+  let renderedPrice;
+  if(price) {
+    renderedPrice = FormatPriceString(price || {USD: selectedListing.details.Price}, {includeCurrency: !usdcOnly, includeUSDCIcon: usdcAccepted, prependCurrency: true, useCurrencyIcon: false});
+  }
+
+  return {
+    nft,
+    name,
+    subtitle1,
+    subtitle2,
+    variant,
+    sideText,
+    price,
+    renderedPrice,
+    status,
+    selectedMedia,
+    selectedMediaIndex,
+    mediaInfo,
+    expired,
+    unauthorized,
+    outOfStock
+  };
 };
 
 export const NFTMediaInfo = ({nft, item, selectedMedia, showFullMedia, width}) => {

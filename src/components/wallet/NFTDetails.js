@@ -25,7 +25,7 @@ import NFTMediaControls from "Components/wallet/NFTMediaControls";
 import {LoginClickGate} from "Components/common/LoginGate";
 import TransferModal from "Components/listings/TransferModal";
 
-import {Ago, MediaIcon, MiddleEllipsis} from "../../utils/Utils";
+import {Ago, MediaIcon, MiddleEllipsis, NFTInfo} from "../../utils/Utils";
 import TransactionIcon from "Assets/icons/transaction history icon.svg";
 import DescriptionIcon from "Assets/icons/Description icon.svg";
 import DetailsIcon from "Assets/icons/Details icon.svg";
@@ -35,6 +35,7 @@ import MediaSectionIcon from "Assets/icons/Media tab icon.svg";
 import PlayIcon from "Assets/icons/blue play icon.svg";
 import BackIcon from "Assets/icons/arrow-left.svg";
 import {FilteredTable} from "Components/common/Table";
+import {NFTImage} from "Components/common/Images";
 
 const NFTMediaSection = ({nft, containerElement, selectedMediaIndex, setSelectedMediaIndex, currentPlayerInfo}) => {
   const [orderKey, setOrderKey] = useState(0);
@@ -130,30 +131,6 @@ const NFTMediaSection = ({nft, containerElement, selectedMediaIndex, setSelected
   );
 };
 
-const NFTDescriptionSection = ({nft}) => {
-  return (
-    <ExpandableSection header="Description" icon={DescriptionIcon}>
-      <p className="details-page__description">{ nft.metadata.description }</p>
-      {
-        nft.metadata.rich_text ?
-          <div
-            className="details-page__rich-text rich-text"
-            ref={element => {
-              if(!element) { return; }
-
-              render(
-                <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
-                  { SanitizeHTML(nft.metadata.rich_text) }
-                </ReactMarkdown>,
-                element
-              );
-            }}
-          /> : null
-      }
-    </ExpandableSection>
-  );
-};
-
 const NFTTraitsSection = ({nft}) => {
   const traits = nft?.metadata?.attributes || [];
 
@@ -200,6 +177,22 @@ const NFTDetailsSection = ({nft, contractStats}) => {
 
   return (
     <ExpandableSection header="Details" icon={DetailsIcon}>
+      {
+        nft.metadata.rich_text ?
+          <div
+            className="details-page__rich-text rich-text"
+            ref={element => {
+              if(!element) { return; }
+
+              render(
+                <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
+                  { SanitizeHTML(nft.metadata.rich_text) }
+                </ReactMarkdown>,
+                element
+              );
+            }}
+          /> : null
+      }
       {
         nft.details.TokenUri ?
           <CopyableField value={nft.details.TokenUri}>
@@ -351,8 +344,98 @@ const NFTContractSection = ({nft, listing, heldDate, isOwned, setShowTransferMod
   );
 };
 
+const NFTInfoSection = ({nftInfo, setSelectedMediaIndex}) => {
+  return (
+    <div className="nft-info">
+      <div className="nft-info__name">
+        { nftInfo.name }
+      </div>
+      <div className="nft-info__subtitle-container">
+        {
+          nftInfo.subtitle1 ?
+            <div className="nft-info__edition">
+              {nftInfo.subtitle1}
+            </div> : null
+        }
+        {
+          nftInfo.sideText && !nftInfo.selectedMedia ?
+            <div className="nft-info__token-container">
+              <div className="nft-info__token nft-info__token--highlight">
+                {nftInfo.sideText[0]} {nftInfo.sideText[1] ? "/" : ""}
+              </div>
+              {
+                nftInfo.sideText[1] ?
+                  <div className="nft-info__token">
+                    {nftInfo.sideText[1]}
+                  </div> : null
+              }
+            </div> : null
+        }
+      </div>
+      {
+        nftInfo.selectedMedia ?
+          <div
+            className="nft-info__description rich-text markdown-document"
+            ref={element => {
+              if(!element) { return; }
 
+              render(
+                <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
+                  { SanitizeHTML(nftInfo.selectedMedia.description) }
+                </ReactMarkdown>,
+                element
+              );
+            }}
+          /> :
+          <ResponsiveEllipsis
+            component="div"
+            className="nft-info__description"
+            text={nftInfo.nft.metadata.description}
+            maxLine={50}
+          />
+      }
+      {
+        !nftInfo.selectedMedia && nftInfo.renderedPrice || nftInfo.status ?
+          <div className="nft-info__status">
+            {
+              nftInfo.renderedPrice ?
+                <div className="nft-info__status__price">
+                  {nftInfo.renderedPrice}
+                </div> : null
+            }
+            {
+              nftInfo.status ?
+                <div className="nft-info__status__text">
+                  {nftInfo.status}
+                </div> : null
+            }
+          </div> : null
+      }
+
+      {
+        nftInfo.selectedMedia || nftInfo.mediaInfo.mediaLink ?
+          <div className="nft-info__actions">
+            {
+              nftInfo.mediaInfo.mediaLink ?
+                <a href={nftInfo.mediaInfo.mediaLink} target="_blank" className="action">
+                  View Media
+                </a> : null
+            }
+            {
+              nftInfo.selectedMedia ?
+                <button onClick={() => setSelectedMediaIndex(-1)} className="action">
+                  Back to NFT
+                </button> : null
+            }
+          </div> : null
+      }
+    </div>
+  );
+};
+
+let renders = 0;
 const NFTDetails = observer(() => {
+  console.log(renders++);
   const match = useRouteMatch();
   const history = useHistory();
 
@@ -655,6 +738,21 @@ const NFTDetails = observer(() => {
     }
   };
 
+  const info = NFTInfo({
+    nft,
+    selectedListing: listing,
+    showFullMedia: true,
+    showToken: true,
+    allowFullscreen: true,
+    selectedMediaIndex,
+    price: listing ? {USD: listing.details.Price} : null,
+    usdcAccepted: listing?.details?.USDCAccepted,
+    usdcOnly: listing?.details?.USDCOnly,
+  });
+
+  console.log(info);
+
+  const selectedMedia = (selectedMediaIndex >= 0 && (nft.metadata.additional_media || [])[selectedMediaIndex]);
   const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
   return (
     <>
@@ -704,6 +802,27 @@ const NFTDetails = observer(() => {
         </Link>
         <div className="details-page__main-content">
           <div className="details-page__content-container">
+            <div className="card-container">
+              <div className="item-card media-card">
+                <NFTImage
+                  nft={nft}
+                  selectedMedia={selectedMedia}
+                  showFullMedia
+                  allowFullscreen
+                  playerCallback={playerInfo => {
+                    if(playerInfo === currentPlayerInfo?.playerInfo || playerInfo?.videoElement === currentPlayerInfo?.videoElement) {
+                      return;
+                    }
+
+                    setCurrentPlayerInfo({selectedMediaIndex, playerInfo});
+                  }}
+                />
+              </div>
+            </div>
+            {
+              /*
+              TODO: Badges
+
             <NFTCard
               nft={nft}
               selectedListing={listing}
@@ -725,6 +844,9 @@ const NFTDetails = observer(() => {
               className="card-container--feature-card"
               cardClassName="item-card--feature-card"
             />
+
+               */
+            }
             <NFTActions />
             {
               nft?.metadata?.test ?
@@ -734,6 +856,7 @@ const NFTDetails = observer(() => {
             }
           </div>
           <div className="details-page__info">
+            <NFTInfoSection nftInfo={info} setSelectedMediaIndex={setSelectedMediaIndex} />
             <NFTMediaSection
               nft={nft}
               containerElement={detailsRef}
@@ -741,7 +864,6 @@ const NFTDetails = observer(() => {
               setSelectedMediaIndex={setSelectedMediaIndex}
               currentPlayerInfo={currentPlayerInfo && currentPlayerInfo.selectedMediaIndex === selectedMediaIndex ? currentPlayerInfo.playerInfo : undefined}
             />
-            <NFTDescriptionSection nft={nft} />
             <NFTTraitsSection nft={nft} />
             <NFTDetailsSection nft={nft} contractStats={contractStats} />
             <NFTContractSection nft={nft} heldDate={heldDate} listing={listing} isOwned={isOwned} setShowTransferModal={setShowTransferModal} setDeleted={setDeleted} />
