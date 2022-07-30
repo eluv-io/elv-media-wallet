@@ -2,6 +2,8 @@ html {
   /* General */
   --color-background-highlight: #1E1EED;
   --color-background-highlight-rgb: 30, 94, 237;
+  --color-text-background-highlight: #FFFFFF;
+  --color-text-background-highlight-rgb: 255, 255, 255;
   --color-text-highlight: #2D61E4;
   --color-text-highlight-rgb: 30, 94, 237;
 
@@ -13,6 +15,7 @@ html {
 
   --color-bg-primary: #FFFFFF;
   --color-bg-secondary: #EDEDED;
+  --color-bg-highlight: #D1E0F7;
 
   --color-text-primary: #000;
   --color-text-secondary: #777;
@@ -168,8 +171,8 @@ html {
   --font-table: var(--font-default);
 
   --background-table: var(--color-bg-primary);
-  --background-table-header-row: var(--color-bg-primary);
-  --color-table-header-row-text: var(--color-text-primary);
+  --background-table-header-row: var(--color-background-highlight);
+  --color-table-header-row-text: var(--color-text-background-highlight);
   --color-table-odd-row-bg: var(--color-bg-primary);
   --color-table-odd-row-text: var(--color-text-primary);
   --color-table-even-row-bg: var(--color-bg-secondary);
@@ -200,6 +203,7 @@ html {
   --background-component-secondary: var(--color-bg-secondary);
   --color-component-bg-primary: var(--color-bg-primary);
   --color-component-bg-secondary: var(--color-bg-secondary);
+  --color-component-bg-highlight: var(--color-bg-highlight);
   --color-component-highlight: var(--color-text-highlight);
   --color-component-text-primary: var(--color-text-primary);
   --color-component-text-secondary: var(--color-text-secondary);

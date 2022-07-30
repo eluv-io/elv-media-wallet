@@ -3,6 +3,7 @@
   /* General */
   --color-bg-primary: #090909;
   --color-bg-secondary: #242424;
+  --color-bg-highlight: #D8A6E3;
 
   --color-page-bg: #000000;
 
@@ -31,7 +32,6 @@
 
   --background-component-primary: var(--color-bg-primary);
   --background-table: var(--color-bg-primary);
-  --background-table-header-row: var(--color-bg-secondary);
   --color-table-odd-row-bg: var(--color-bg-primary);
   --color-table-even-row-bg: var(--color-bg-secondary);
 

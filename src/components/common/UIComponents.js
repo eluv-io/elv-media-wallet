@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import SVG from "react-inlinesvg";
-
-import CopyIcon from "Assets/icons/copy.svg";
+import {observer} from "mobx-react";
+import {rootStore} from "Stores";
 import {Loader} from "Components/common/Loaders";
 import ImageIcon from "Components/common/ImageIcon";
 import {v4 as UUID} from "uuid";
@@ -9,6 +9,67 @@ import {v4 as UUID} from "uuid";
 import SelectIcon from "Assets/icons/select-icon.svg";
 import USDIcon from "Assets/icons/crypto/USD icon.svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
+import CopyIcon from "Assets/icons/copy.svg";
+
+import PageBackIcon from "Assets/icons/pagination arrow back.svg";
+import PageForwardIcon from "Assets/icons/pagination arrow forward.svg";
+
+export const PageControls = observer(({paging, perPage, maxSpread=15, SetPage, className=""}) => {
+  if(!paging || paging.total === 0) { return null; }
+
+  const currentPage = Math.floor(paging.start / perPage) + 1;
+  const pages = Math.ceil(paging.total / perPage) + 1;
+
+  let spread = maxSpread;
+  if(rootStore.pageWidth < 600) {
+    spread = Math.min(5, maxSpread);
+  } else if(rootStore.pageWidth < 1200) {
+    spread = Math.min(9, maxSpread);
+  }
+
+  let spreadStart = Math.max(1, currentPage - Math.floor(spread / 2));
+  const spreadEnd = Math.min(pages, spreadStart + spread);
+  spreadStart = Math.max(1, spreadEnd - spread);
+
+  return (
+    <div className={`page-controls ${className}`}>
+      <button
+        title="Previous Page"
+        disabled={paging.start <= 0}
+        onClick={() => SetPage(currentPage - 1)}
+        className="page-controls__button page-controls__button--previous"
+      >
+        <ImageIcon icon={PageBackIcon} />
+      </button>
+      { spreadStart > 1 ? <div className="page-controls__ellipsis">...</div> : null }
+      {
+        [...new Array(Math.max(1, spreadEnd - spreadStart))].map((_, index) => {
+          const page = spreadStart + index;
+          return (
+            <button
+              key={`page-controls-${index}`}
+              title={`Page ${page}`}
+              disabled={page === currentPage}
+              onClick={() => SetPage(page)}
+              className={`page-controls__page ${page === currentPage ? "page-controls__page--current" : ""}`}
+            >
+              {page}
+            </button>
+          );
+        })
+      }
+      { spreadEnd < pages ? <div className="page-controls__ellipsis">...</div> : null }
+      <button
+        title="Next Page"
+        disabled={paging.total <= currentPage * perPage}
+        onClick={() => SetPage(currentPage + 1)}
+        className="page-controls__button page-controls__button--next"
+      >
+        <ImageIcon icon={PageForwardIcon} />
+      </button>
+    </div>
+  );
+});
 
 export const ExpandableSection = ({header, icon, children, expanded=false, toggleable=true, className="", contentClassName="", additionalContent}) => {
   const [ show, setShow ] = useState(expanded);
@@ -193,13 +254,17 @@ export const DebouncedInput = ({...props}) => {
   );
 };
 
-export const Select = ({label, value, options, onChange, containerClassName="", buttonClassName="", menuClassName=""}) => {
+export const Select = ({label, value, options, placeholder, onChange, containerClassName="", buttonClassName="", menuClassName=""}) => {
   // If only labels are provided, convert to array format
   if(!Array.isArray(options[0])) {
     options = options.map(option => [option, option]);
   }
 
-  const currentIndex = Math.max(options.findIndex(option => option[0] === value), 0);
+  let currentIndex = options.findIndex(option => option[0] === value);
+  if(currentIndex < 0 && !placeholder) {
+    currentIndex = 0;
+  }
+
 
   const [idPrefix] = useState(UUID());
   const [showMenu, setShowMenu] = useState(false);
@@ -323,6 +388,7 @@ export const Select = ({label, value, options, onChange, containerClassName="", 
         id={`styled-select-${idPrefix}-button`}
         className={`styled-select__button ${showMenu ? "styled-select__button--active" : ""} ${buttonClassName}`}
         ref={ref}
+        disabled={options.length === 0}
         aria-haspopup="listbox"
         aria-label={label}
         aria-activedescendant={showMenu ? `styled-select-${idPrefix}-${selectedIndex}` : ""}
@@ -335,7 +401,7 @@ export const Select = ({label, value, options, onChange, containerClassName="", 
         }}
         onKeyDown={KeyboardControls}
       >
-        { options[currentIndex || 0][1] }
+        { currentIndex < 0 ? placeholder : options[currentIndex || 0][1] }
         <div className="styled-select__button__icon-container">
           <ImageIcon icon={SelectIcon} className="styled-select__button__icon" />
         </div>

@@ -1,8 +1,10 @@
-const testTheme = undefined;//import("../static/stylesheets/themes/maskverse-test.theme.css");
+const testTheme = undefined;
+//const testTheme = import("../static/stylesheets/themes/maskverse-test.theme.css");
+//const testTheme = import("../static/stylesheets/themes/wwe-test.theme.css");
 
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";
-import {ElvWalletClient} from "@eluvio/elv-client-js/src/walletClient/index";
+import {ElvWalletClient} from "@eluvio/elv-client-js";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import SanitizeHTML from "sanitize-html";
 
@@ -57,6 +59,8 @@ class RootStore {
   trustedOrigins = this.GetLocalStorageJSON("trusted-origins") || {};
 
   pageWidth = window.innerWidth;
+  pageHeight = window.innerHeight;
+
   activeModals = 0;
 
   authInfo = undefined;
@@ -113,7 +117,6 @@ class RootStore {
   nftData = {};
 
   marketplaces = {};
-  marketplaceCache = {};
   marketplaceOwnedCache = {};
 
   marketplaceFilters = [];
@@ -372,7 +375,6 @@ class RootStore {
       });
 
       // Reload marketplaces so they will be reloaded and authorization rechecked
-      this.marketplaceCache = {};
       yield Promise.all(Object.keys(this.marketplaces).map(async marketplaceId => await this.LoadMarketplace(marketplaceId)));
 
       this.HideLogin();

@@ -237,17 +237,9 @@ class CheckoutStore {
 
       this.PurchaseInitiated({confirmationId: sku, tenantId, marketplaceId, sku});
 
-      yield this.client.authClient.MakeAuthServiceRequest({
-        method: "POST",
-        path: UrlJoin("as", "wlt", "act", tenantId),
-        body: {
-          op: "nft-claim",
-          sid: marketplaceId,
-          sku
-        },
-        headers: {
-          Authorization: `Bearer ${this.rootStore.authToken}`
-        }
+      yield this.rootStore.walletClient.ClaimItem({
+        marketplaceParams: { marketplaceId },
+        sku
       });
 
       this.PurchaseComplete({confirmationId: sku, success: true});

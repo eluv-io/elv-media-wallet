@@ -6,6 +6,68 @@
   white-space: nowrap;
 }
 
+.page-controls {
+  align-items: center;
+  display: flex;
+  height: 50px;
+  justify-content: center;
+
+  &__button,
+  &__page,
+  &__ellipsis {
+    border-radius: 100%;
+    cursor: pointer;
+    font-size: 14px;
+    height: 2em;
+    margin: 0 5px;
+    text-align: center;
+    width: 2em;
+
+    &--current {
+      background: var(--color-component-highlight);
+      color: var(--color-text-background-highlight);
+    }
+
+    &:not(&--current) {
+      &:disabled {
+        opacity: 0.2;
+      }
+    }
+
+    &--previous {
+      margin-right: 10px;
+    }
+
+    &--next {
+      margin-left: 10px;
+    }
+
+    &--next,
+    &--previous {
+      height: 2.5em;
+      width: 2.5em;
+    }
+
+    svg {
+      * {
+        stroke-width: 1.5px;
+      }
+    }
+  }
+
+  &__ellipsis {
+    cursor: default;
+    height: auto;
+    user-select: none;
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    &__ellipsis {
+      display: none;
+    }
+  }
+}
+
 .scroll-text {
   display: inline-block;
   min-width: 100%;

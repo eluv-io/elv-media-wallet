@@ -5,7 +5,6 @@ import {useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 import {NFTImage} from "Components/common/Images";
 import {FormatPriceString} from "Components/common/UIComponents";
-import {Loader} from "Components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import ImageIcon from "Components/common/ImageIcon";
 import FilteredView from "Components/listings/FilteredView";
@@ -46,41 +45,26 @@ const Listings = observer(() => {
   return (
     <FilteredView
       mode="listings"
-      perPage={30}
-      loadOffset={600}
-      cacheDuration={0}
-      Render={({entries, paging, loading}) => (
-        <>
-          {
-            !paging ? null :
-              <div className="listing-pagination">
-                {
-                  paging.total <= 0 ?
-                    "No Results" :
-                    `Showing 1 - ${entries.length} of ${paging.total} results`
-                }
-              </div>
-          }
-          {
-            entries.length === 0 ? null :
-              <div className="card-list">
-                {
-                  entries.map((listing, index) => {
-                    return (
-                      <Listing
-                        url={match.url}
-                        listing={listing}
-                        key={`listing-card-${listing.details.ListingId}-${index}`}
-                      />
-                    );
-                  })
-                }
-              </div>
-          }
-          { // Infinite scroll loading indicator
-            loading && entries.length > 1 ? <Loader className="card-list__loader"/> : null
-          }
-        </>
+      pagingMode="paginated"
+      topPagination
+      showPagingInfo
+      perPage={9}
+      scrollOnPageChange
+      Render={({entries}) => (
+        entries.length === 0 ? null :
+          <div className="card-list">
+            {
+              entries.map((listing, index) => {
+                return (
+                  <Listing
+                    url={match.url}
+                    listing={listing}
+                    key={`listing-card-${listing.details.ListingId}-${index}`}
+                  />
+                );
+              })
+            }
+          </div>
       )}
     />
   );
