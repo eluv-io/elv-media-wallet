@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import SVG from "react-inlinesvg";
 import {observer} from "mobx-react";
-import {rootStore} from "Stores";
+import {checkoutStore, rootStore} from "Stores";
 import {Loader} from "Components/common/Loaders";
 import ImageIcon from "Components/common/ImageIcon";
 import {v4 as UUID} from "uuid";
@@ -137,7 +137,7 @@ export const FormatPriceString = (
   const currency = options?.currency || "USD";
 
   if(typeof priceList !== "object") {
-    priceList = { USD: priceList };
+    priceList = { [checkoutStore.currency]: priceList };
   }
 
   let price = ItemPrice({price: priceList}, currency);

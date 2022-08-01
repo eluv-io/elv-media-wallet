@@ -27,12 +27,12 @@ const ItemCard = observer(({
     sideText = (
       <div className="item-card__side-text">
         <div className="item-card__side-text__primary">
-          { first } { second ? "/" : "" }
+          { first }
         </div>
         {
           second ?
             <div className="item-card__side-text__secondary">
-              { second }
+              { ` / ${second}` }
             </div> : null
         }
       </div>

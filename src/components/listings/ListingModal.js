@@ -22,7 +22,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
 
   useEffect(() => {
     rootStore.walletClient.TenantConfiguration({
-      contractAddress: nft.details.ContractAddr,
+      contractAddress: nft.details.ContractAddr
     })
       .then(config => {
         setRoyaltyRate(parseFloat((config || {})["nft-royalty"] || 10) / 100);

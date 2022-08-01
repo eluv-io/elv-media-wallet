@@ -45,9 +45,9 @@ const MintingStatus = observer(({
         }
 
         if(items.length > 0) {
-          await rootStore.LoadNFTInfo();
+          await rootStore.LoadNFTContractInfo();
 
-          const firstItem = rootStore.NFTInfo({
+          const firstItem = rootStore.NFTContractInfo({
             contractAddress: items[0].token_addr,
             tokenId: items[0].token_id_str || items[0].token_id
           });
@@ -459,7 +459,7 @@ export const ClaimMintingStatus = observer(() => {
 
   useEffect(() => {
     if(status) {
-      rootStore.LoadNFTInfo();
+      rootStore.LoadNFTContractInfo();
     }
   }, [status]);
 
@@ -598,7 +598,7 @@ export const CollectionRedeemStatus = observer(() => {
 
   useEffect(() => {
     if(status) {
-      rootStore.LoadNFTInfo();
+      rootStore.LoadNFTContractInfo();
     }
   }, [status]);
 

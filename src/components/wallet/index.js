@@ -11,7 +11,7 @@ import {rootStore} from "Stores/index";
 
 import MyItems from "Components/wallet/MyItems";
 import AsyncComponent from "Components/common/AsyncComponent";
-import NFTDetails from "Components/wallet/NFTDetails";
+import NFTDetails, {ListingDetails, MintedNFTDetails} from "Components/wallet/NFTDetails";
 import {PackOpenStatus, PurchaseMintingStatus} from "Components/marketplace/MintingStatus";
 import MyListings from "Components/listings/MyListings";
 import Listings from "Components/listings/Listings";
@@ -56,7 +56,7 @@ const WalletWrapper = observer(({children}) => {
     <AsyncComponent
       loadKey="wallet-collection"
       cacheSeconds={30}
-      Load={async () => await rootStore.LoadNFTInfo()}
+      Load={async () => await rootStore.LoadNFTContractInfo()}
       loadingClassName="page-loader"
     >
       { children }
@@ -68,17 +68,17 @@ const Routes = (match) => {
   const nft = rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId}) || { metadata: {} };
 
   return [
-    { name: nft.metadata.display_name, path: "/wallet/my-listings/:contractId/:tokenId", Component: NFTDetails, authed: true },
+    { name: nft.metadata.display_name, path: "/wallet/my-listings/:contractId/:tokenId", Component: MintedNFTDetails, authed: true },
     { name: "My Listings", path: "/wallet/my-listings", Component: MyListings, authed: true },
     { name: "My Transactions", path: "/wallet/my-listings/transactions", Component: MyListings, authed: true },
 
     { name: "Activity", path: "/wallet/activity", Component: RecentSales },
-    { name: nft.metadata.display_name, path: "/wallet/activity/:contractId/:tokenId", Component: NFTDetails },
+    { name: nft.metadata.display_name, path: "/wallet/activity/:contractId/:tokenId", Component: MintedNFTDetails },
 
-    { name: "Listing", path: "/wallet/listings/:listingId", Component: NFTDetails },
+    { name: "Listing", path: "/wallet/listings/:listingId", Component: ListingDetails },
     { name: "Listings", path: "/wallet/listings", Component: Listings },
     { name: "Open Pack", path: "/wallet/my-items/:contractId/:tokenId/open", Component: PackOpenStatus, authed: true },
-    { name: nft.metadata.display_name, path: "/wallet/my-items/:contractId/:tokenId", Component: NFTDetails, authed: true },
+    { name: nft.metadata.display_name, path: "/wallet/my-items/:contractId/:tokenId", Component: MintedNFTDetails, authed: true },
     { name: "My Items", path: "/wallet/my-items", Component: MyItems, authed: true },
 
     { name: "Purchase", path: "/wallet/listings/:listingId/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },

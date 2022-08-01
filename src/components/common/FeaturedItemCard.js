@@ -40,7 +40,7 @@ const FeaturedItemCard = observer(({
         {
           second ?
             <div className="featured-item__side-text__primary">
-              { second }
+              { `:${second}` }
             </div> : null
         }
       </div>

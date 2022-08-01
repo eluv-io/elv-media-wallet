@@ -72,6 +72,7 @@ class TransferStore {
       if(listingId) {
         try {
           const listingStatus = await this.rootStore.walletClient.ListingStatus({listingId});
+          console.log(listingStatus)
 
           if(listingStatus) {
             contractAddress = Utils.FormatAddress(listingStatus.contract);
@@ -79,11 +80,7 @@ class TransferStore {
             if(listingStatus.action === "SOLD") {
               return { sale: listingStatus };
             } else if(listingStatus.action === "UNLISTED") {
-              if(nft) {
-                return { listing: undefined };
-              } else {
-                return { error: "This listing has been removed" };
-              }
+              return { removed: listingStatus };
             }
           }
         // eslint-disable-next-line no-empty

@@ -476,7 +476,7 @@ class RootStore {
   }
 
   // Get already loaded basic NFT contract info
-  NFTInfo({tokenId, contractAddress, contractId}) {
+  NFTContractInfo({tokenId, contractAddress, contractId}) {
     if(contractId) {
       contractAddress = Utils.HashToAddress(contractId);
     }
@@ -485,7 +485,7 @@ class RootStore {
   }
 
   // Load basic owned NFT contract info
-  LoadNFTInfo = flow(function * () {
+  LoadNFTContractInfo = flow(function * () {
     if(!this.loggedIn || this.fromEmbed) { return; }
 
     this.nftInfo = yield this.walletClient.UserItemInfo();
