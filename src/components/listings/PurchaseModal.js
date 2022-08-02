@@ -191,7 +191,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
   const purchaseStatus = confirmationId && checkoutStore.purchaseStatus[confirmationId] || {};
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
 
-  const total = info.price.USD * quantity;
+  const total = info.price * quantity;
   const fee = Math.max(1, roundToDown(total * 0.05, 2));
   const balanceAmount = useLinkedWallet ? cryptoStore.phantomUSDCBalance : rootStore.availableWalletBalance;
   const balanceName = useLinkedWallet ? "USDC Balance" : "Wallet Balance";
