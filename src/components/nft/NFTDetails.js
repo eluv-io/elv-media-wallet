@@ -574,6 +574,40 @@ const NFTActions = observer(({
         }
       </div>
     );
+  } else if(nftInfo.listingId && !nftInfo.isOwned) {
+    return (
+      <div className="details-page__actions">
+        <LoginClickGate
+          Component={ButtonWithLoader}
+          disabled={isInCheckout}
+          className="details-page__listing-button action action-primary"
+          onClick={ShowPurchaseModal}
+        >
+          Buy Now for {FormatPriceString({USD: nftInfo.nft.details.Price})}
+        </LoginClickGate>
+        {
+          isInCheckout ?
+            <h3 className="details-page__transfer-details details-page__held-message">
+              This NFT is currently in the process of being purchased
+            </h3> : null
+        }
+      </div>
+    );
+  } else if(match.params.listingId && (listingStatus?.sale || listingStatus?.removed)) {
+    // Listing page, but listing must have been sold or deleted
+    if(listingStatus.sale) {
+      return (
+        <h2 className="details-page__message">
+          This NFT was sold for { FormatPriceString({USD: listingStatus.sale.price}) } on { new Date(listingStatus.sale.created * 1000).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
+        </h2>
+      );
+    } else if(listingStatus.removed) {
+      return (
+        <h2 className="details-page__message">
+          This listing has been removed
+        </h2>
+      );
+    }
   } else if(nftInfo.isOwned) {
     return (
       <div className="details-page__actions">
@@ -618,41 +652,6 @@ const NFTActions = observer(({
         }
       </div>
     );
-  } else if(nftInfo.listingId) {
-    return (
-      <div className="details-page__actions">
-        <LoginClickGate
-          Component={ButtonWithLoader}
-          disabled={isInCheckout}
-          className="details-page__listing-button action action-primary"
-          onClick={ShowPurchaseModal}
-        >
-          Buy Now for {FormatPriceString({USD: nftInfo.nft.details.Price})}
-        </LoginClickGate>
-        {
-          isInCheckout ?
-            <h3 className="details-page__transfer-details details-page__held-message">
-              This NFT is currently in the process of being purchased
-            </h3> : null
-        }
-      </div>
-    );
-  } else if(match.params.listingId && listingStatus) {
-    // Listing page, but listing must have been sold or deleted
-    if(listingStatus.sale) {
-      return (
-        <h2 className="details-page__message">
-          This NFT was sold for { FormatPriceString({USD: listingStatus.sale.price}) } on { new Date(listingStatus.sale.created * 1000).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
-        </h2>
-      );
-    } else if(listingStatus.removed) {
-      return (
-        <h2 className="details-page__message">
-          This listing has been removed
-        </h2>
-      );
-    }
-
   }
 
   return null;
@@ -718,6 +717,12 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
 
     rootStore.walletClient.NFTContractStats({contractAddress})
       .then(stats => setContractStats(stats));
+
+    if(match.params.listingId) {
+      let listingStatusInterval = setInterval(LoadListingStatus, 10000);
+
+      return () => clearInterval(listingStatusInterval);
+    }
   }, []);
 
   const nftInfo = NFTInfo({
@@ -966,17 +971,15 @@ export const ListingDetails = observer(() => {
       loadingClassName="page-loader"
       Load={async () => {
         try {
-          const status = await transferStore.CurrentNFTStatus({listingId: match.params.listingId});
+          const status = (await transferStore.CurrentNFTStatus({listingId: match.params.listingId})) || {};
 
-          if(status.sale || status.removed) {
-            // Listing sold or removed - Load NFT
-            setNFT(
-              await rootStore.LoadNFTData({
-                contractAddress: (status.sale || status.removed).contract,
-                tokenId: (status.sale || status.removed).token
-              })
-            );
-          }
+          // Load full nft in case listing is removed or sold
+          setNFT(
+            await rootStore.LoadNFTData({
+              contractAddress: status.listing?.details?.ContractAddr || (status.sale || status.removed).contract,
+              tokenId: status.listing?.details?.TokenIdStr || (status.sale || status.removed).token
+            })
+          );
 
           setListingStatus(status);
         } catch(error) {
