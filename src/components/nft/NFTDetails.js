@@ -719,7 +719,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
       .then(stats => setContractStats(stats));
 
     if(match.params.listingId) {
-      let listingStatusInterval = setInterval(LoadListingStatus, 10000);
+      let listingStatusInterval = setInterval(LoadListingStatus, 30000);
 
       return () => clearInterval(listingStatusInterval);
     }
