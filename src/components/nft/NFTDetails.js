@@ -174,16 +174,7 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
       mintDate = "";
     }
   }
-
-  console.log(contractStats);
-
-  /*
-  burned: 42
-cap: 10000
-minted: 532
-total_supply: 490
-   */
-
+  
   return (
     <ExpandableSection header="Details" icon={DetailsIcon}>
       {
@@ -253,32 +244,21 @@ total_supply: 490
           </div>
       }
       {
-        contractStats?.minted ?
-          <div className="details-page__detail-field">
-            Number Minted: { contractStats.minted }
-          </div> :
-          null
-      }
-      {
-        contractStats?.total_supply ?
-          <div className="details-page__detail-field">
-            Number in Circulation: { contractStats.total_supply }
-          </div> :
-          null
-      }
-      {
-        contractStats?.burned ?
-          <div className="details-page__detail-field">
-            Number Burned: { contractStats.burned }
-          </div> :
-          null
-      }
-      {
         contractStats ?
-          <div className="details-page__detail-field">
-            Maximum Possible in Circulation: { contractStats.cap - contractStats.burned }
-          </div> :
-          null
+          <>
+            <div className="details-page__detail-field">
+              Number Minted: { contractStats.minted || 0 }
+            </div>
+            <div className="details-page__detail-field">
+              Number in Circulation: { contractStats.total_supply || 0 }
+            </div>
+            <div className="details-page__detail-field">
+              Number Burned: { contractStats.burned || 0 }
+            </div>
+            <div className="details-page__detail-field">
+              Maximum Possible in Circulation: { contractStats.cap - contractStats.burned }
+            </div>
+          </> : null
       }
       {
         contractStats?.cap || nft.details.Cap ?
