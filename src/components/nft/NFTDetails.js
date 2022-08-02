@@ -348,6 +348,11 @@ const NFTContractSection = ({nftInfo, SetBurned, ShowTransferModal}) => {
 };
 
 const NFTInfoSection = ({nftInfo, className=""}) => {
+  let sideText = nftInfo.sideText;
+  if(nftInfo.stock) {
+    sideText = [`${nftInfo.stock.minted} Minted`, `${nftInfo.stock.max - nftInfo.stock.minted} Available`];
+  }
+
   return (
     <div className={`details-page__nft-info ${className}`}>
       <div className="details-page__nft-info__name">
@@ -361,16 +366,19 @@ const NFTInfoSection = ({nftInfo, className=""}) => {
             </div> : null
         }
         {
-          nftInfo.sideText && !nftInfo.selectedMedia ?
+          sideText && !nftInfo.selectedMedia ?
             <div className="details-page__nft-info__token-container">
-              <div className="details-page__nft-info__token details-page__nft-info__token--highlight">
-                {nftInfo.sideText[0]}
+              <div className={`details-page__nft-info__token ${!nftInfo.stock ? "details-page__nft-info__token--highlight" : ""}`}>
+                {sideText[0]}
               </div>
               {
-                nftInfo.sideText[1] ?
-                  <div className="details-page__nft-info__token">
-                    {` / ${nftInfo.sideText[1]}`}
-                  </div> : null
+                sideText[1] ?
+                  <>
+                    /&nbsp;
+                    <div className={`details-page__nft-info__token ${nftInfo.stock ? "details-page__nft-info__token--highlight" : ""}`}>
+                      {sideText[1]}
+                    </div>
+                  </> : null
               }
             </div> : null
         }
