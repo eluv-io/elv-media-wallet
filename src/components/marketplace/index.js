@@ -10,7 +10,7 @@ import UrlJoin from "url-join";
 import {observer} from "mobx-react";
 import AsyncComponent from "Components/common/AsyncComponent";
 import Drop from "Components/event/Drop";
-import NFTDetails, {ListingDetails, MarketplaceItemDetails2, MintedNFTDetails} from "Components/wallet/NFTDetails";
+import {ListingDetails, MarketplaceItemDetails, MintedNFTDetails} from "Components/nft/NFTDetails";
 import {
   ClaimMintingStatus,
   CollectionRedeemStatus,
@@ -18,7 +18,6 @@ import {
   PackOpenStatus,
   PurchaseMintingStatus
 } from "Components/marketplace/MintingStatus";
-import MarketplaceItemDetails from "Components/marketplace/MarketplaceItemDetails";
 import MarketplaceOwned from "Components/marketplace/MarketplaceOwned";
 import MarketplaceStorefront from "Components/marketplace/MarketplaceStorefront";
 import MarketplaceBrowser from "Components/marketplace/MarketplaceBrowser";
@@ -109,7 +108,7 @@ const MarketplaceWrapper = observer(({children}) => {
         }}
         loadingClassName="page-loader content"
       >
-        <div className="marketplace content">
+        <div className="marketplace content" key={`marketplace-component-${match.url}`}>
           { children }
         </div>
       </AsyncComponent>
@@ -142,7 +141,7 @@ const Routes = (match) => {
 
     { name: "Collections", path: "/marketplace/:marketplaceId/collections", Component: MarketplaceCollectionsSummaryPage },
     { name: "Collections", path: "/marketplace/:marketplaceId/collections/:collectionSKU", Component: MarketplaceCollection },
-    { name: item.name, path: "/marketplace/:marketplaceId/collections/:collectionSKU/store/:sku", Component: MarketplaceItemDetails2 },
+    { name: item.name, path: "/marketplace/:marketplaceId/collections/:collectionSKU/store/:sku", Component: MarketplaceItemDetails },
     { name: item.name, path: "/marketplace/:marketplaceId/collections/:collectionSKU/owned/:contractId/:tokenId", Component: MintedNFTDetails },
     { name: "Redeem Collection", path: "/marketplace/:marketplaceId/collections/:collectionSKU/redeem", Component: MarketplaceCollectionRedemption },
     { name: "Redeem Collection", path: "/marketplace/:marketplaceId/collections/:collectionSKU/redeem/:confirmationId/status", Component: CollectionRedeemStatus },
@@ -150,7 +149,7 @@ const Routes = (match) => {
     { name: "Claim", path: "/marketplace/:marketplaceId/store/:sku/claim", Component: ClaimMintingStatus, authed: true },
     { name: "Purchase", path: "/marketplace/:marketplaceId/store/:sku/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
 
-    { name: item.name, path: "/marketplace/:marketplaceId/store/:sku", Component: MarketplaceItemDetails2 },
+    { name: item.name, path: "/marketplace/:marketplaceId/store/:sku", Component: MarketplaceItemDetails },
     { name: marketplace.name, path: "/marketplace/:marketplaceId/store", Component: MarketplaceStorefront },
     {
       name: marketplace.name,

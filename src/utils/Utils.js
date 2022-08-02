@@ -4,14 +4,9 @@ import VideoPlayCircleIcon from "Assets/icons/media/video play icon.svg";
 import VideoPlayIcon from "Assets/icons/media/video play icon (no circle).svg";
 import PlayIcon from "Assets/icons/media/Play icon.svg";
 
-import React from "react";
 import {checkoutStore, rootStore} from "Stores";
 import UrlJoin from "url-join";
 import {FormatPriceString, ItemPrice} from "Components/common/UIComponents";
-import {render} from "react-dom";
-import ReactMarkdown from "react-markdown";
-import SanitizeHTML from "sanitize-html";
-import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 
 export const Slugify = str =>
@@ -115,7 +110,6 @@ export const NFTInfo = ({
   imageWidth,
   showFullMedia,
   showToken,
-  hideAvailable,
   selectedMediaIndex=-1,
 }) => {
   if(listing) {
@@ -138,7 +132,6 @@ export const NFTInfo = ({
   const stock = item && checkoutStore.stock[item.sku];
   const selectedMedia = (selectedMediaIndex >= 0 && (nft.metadata.additional_media || [])[selectedMediaIndex]);
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
-  const expired = item && item.expires_at && new Date(item.expires_at).getTime() - Date.now() < 0;
   const unauthorized = item && item.requires_permissions && !item.authorized;
   const mediaInfo = NFTMediaInfo({nft, item, selectedMedia, showFullMedia, width: imageWidth});
 
@@ -147,6 +140,19 @@ export const NFTInfo = ({
   const name = selectedMedia?.name || item?.name || nft.metadata.display_name;
   const subtitle1 = selectedMedia ? selectedMedia.subtitle_1 : nft.metadata.edition_name;
   const subtitle2 = selectedMedia ? selectedMedia.subtitle_2 : undefined;
+
+  const isOwned = nft?.details?.TokenOwner && Utils.EqualAddress(nft.details.TokenOwner, rootStore.CurrentAddress());
+  const heldDate = nft?.details?.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
+
+  const timeToAvailable = item && item.available_at ? new Date(item.available_at).getTime() - Date.now() : 0;
+  const timeToExpired = item && item.expires_at ? new Date(item.expires_at).getTime() - Date.now() : Infinity;
+  const available = !item || timeToAvailable <= 0 && timeToExpired > 0;
+  const released = !item || !item.available_at || timeToAvailable <= 0;
+  const expired = item && item.expires_at && timeToExpired > 0;
+  const maxOwned = stock && stock.max_per_user && stock.current_user >= stock.max_per_user;
+  const marketplacePurchaseAvailable = item && !outOfStock && available && !unauthorized && !maxOwned;
+  const hideAvailable = !available || (item && item.hide_available);
+
 
   let sideText;
   if(item && !hideAvailable && !outOfStock && !expired && !unauthorized && stock &&stock.max && stock.max < 10000000) {
@@ -167,15 +173,6 @@ export const NFTInfo = ({
     renderedPrice = FormatPriceString(price || {USD: listing.details.Price}, {includeCurrency: !usdcOnly, includeUSDCIcon: usdcAccepted, prependCurrency: true, useCurrencyIcon: false});
   }
 
-  const isOwned = nft?.details?.TokenOwner && Utils.EqualAddress(nft.details.TokenOwner, rootStore.CurrentAddress());
-  const heldDate = nft?.details?.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
-
-  const timeToAvailable = item && item.available_at ? new Date(item.available_at).getTime() - Date.now() : 0;
-  const timeToExpired = item && item.expires_at ? new Date(item.expires_at).getTime() - Date.now() : Infinity;
-  const available = item && timeToAvailable <= 0 && timeToExpired > 0;
-  const maxOwned = stock && stock.max_per_user && stock.current_user >= stock.max_per_user;
-  const marketplacePurchaseAvailable = item && !outOfStock && available && !unauthorized && !maxOwned;
-
   return {
     // Details
     nft,
@@ -187,9 +184,13 @@ export const NFTInfo = ({
     subtitle2,
     variant,
     sideText,
+
+    // Price
     price,
     free,
     renderedPrice,
+    usdcAccepted,
+    usdcOnly,
 
     // Media
     selectedMedia,
@@ -201,8 +202,11 @@ export const NFTInfo = ({
     status,
     marketplacePurchaseAvailable,
     available,
-    maxOwned,
+    timeToAvailable,
+    timeToExpired,
+    released,
     expired,
+    maxOwned,
     unauthorized,
     outOfStock,
     isOwned,

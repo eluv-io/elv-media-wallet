@@ -4,17 +4,14 @@ import {observer} from "mobx-react";
 import {rootStore} from "Stores/index";
 import UrlJoin from "url-join";
 import {useRouteMatch} from "react-router-dom";
-import {NFTImage} from "Components/common/Images";
 import ImageIcon from "Components/common/ImageIcon";
 
 import Utils from "@eluvio/elv-client-js/src/Utils";
-import {NFTDisplayToken} from "../../utils/Utils";
 import FilteredView from "Components/listings/FilteredView";
-import ItemCard from "Components/common/ItemCard";
-import {FormatPriceString} from "Components/common/UIComponents";
 
 import ListingIcon from "Assets/icons/listings icon.svg";
 import TestIcon from "Assets/icons/alert-circle.svg";
+import NFTCard from "Components/nft/NFTCard";
 
 const MyItems = observer(() => {
   const match = useRouteMatch();
@@ -45,10 +42,12 @@ const MyItems = observer(() => {
                 );
 
                 return (
-                  <ItemCard
-                    key={`nft-card-${nft.details.ContractId}-${nft.details.TokenIdStr}`}
+                  <NFTCard
+                    key={`nft-card2-${nft.details.ContractId}-${nft.details.TokenIdStr}`}
                     link={UrlJoin(match.url, nft.details.ContractId, nft.details.TokenIdStr)}
-                    image={<NFTImage nft={nft} width={600} />}
+                    nft={nft}
+                    selectedListing={listing}
+                    imageWidth={600}
                     badges={
                       <>
                         {
@@ -71,23 +70,6 @@ const MyItems = observer(() => {
                         }
                       </>
                     }
-                    name={nft.metadata.display_name}
-                    edition={nft.metadata.edition_name}
-                    sideText={NFTDisplayToken(nft)}
-                    description={nft.metadata.description}
-                    price={listing ?
-                      FormatPriceString(
-                        listing.details.Price,
-                        {
-                          includeCurrency: !listing.details.USDCOnly,
-                          useCurrencyIcon: false,
-                          includeUSDCIcon: listing.details.USDCAccepted,
-                          prependCurrency: true
-                        }
-                      ) : null
-                    }
-                    usdcAccepted={listing?.details?.USDCAccepted}
-                    variant={nft.metadata.style}
                   />
                 );
               })

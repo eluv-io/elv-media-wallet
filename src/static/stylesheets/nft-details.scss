@@ -11,19 +11,19 @@
 
     &__name {
       font: var(--font-card-title);
-      text-transform: uppercase;
       font-size: 32px;
       font-weight: 600;
       margin-bottom: 15px;
+      text-transform: uppercase;
     }
 
     &__status,
     &__subtitle-container {
-      display: flex;
       align-content: center;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
+      display: flex;
       font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
 
       * {
         font: var(--font-card-misc);
@@ -36,14 +36,14 @@
     }
 
     &__token-container {
-      display: flex;
       align-content: center;
+      display: flex;
     }
 
     &__token {
-      width: max-content;
       color: var(--color-card-text-secondary);
       margin-right: 4px;
+      width: max-content;
 
       &--highlight {
         color: var(--color-card-text-highlight);
@@ -136,9 +136,9 @@
 
   &__message,
   &__sub-message {
-    margin: 16px 0;
     font-size: 20px;
     font-weight: 300;
+    margin: 16px 0;
     max-width: 800px;
     text-align: center;
   }
@@ -282,6 +282,7 @@
 
   &__rich-text {
     margin-bottom: 50px;
+
     p,
     a {
       font-size: 12px;
@@ -454,8 +455,8 @@
 
   @media screen and (min-width: $tablet-breakpoint) {
     .details-page__main-content {
-      display: grid;
       align-content: start;
+      display: grid;
       grid-gap: 30px;
       grid-template-columns: minmax(400px, 1fr) minmax(0, 1.5fr);
     }

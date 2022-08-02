@@ -6,7 +6,7 @@ import {Loader} from "Components/common/Loaders";
 import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-import NFTCard from "Components/common/NFTCard";
+import NFTCard from "Components/nft/NFTCard";
 import {LinkTargetHash, MobileOption} from "../../utils/Utils";
 
 let statusInterval;
@@ -255,7 +255,6 @@ const MintResults = observer(({header, subheader, basePath, nftBasePath, items, 
                 key={`mint-result-${token_addr}-${token_id}`}
                 nft={nft}
                 imageWidth={600}
-                showToken
                 link={UrlJoin(nftBasePath || basePath, nft.details.ContractId, nft.details.TokenIdStr)}
                 truncateDescription
                 style={{

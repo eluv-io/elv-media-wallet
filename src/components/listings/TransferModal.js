@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore, transferStore} from "Stores";
 import Modal from "Components/common/Modal";
-import NFTCard from "Components/common/NFTCard";
+import NFTCard from "Components/nft/NFTCard";
 import {ButtonWithLoader} from "Components/common/UIComponents";
 import Confirm from "Components/common/Confirm";
 
@@ -50,7 +50,7 @@ const TransferModal = observer(({nft, onTransferring, onTransferred, Close}) => 
           Transfer Your Item
         </h1>
         <div className="listing-modal__content">
-          <NFTCard nft={nft} showToken truncateDescription />
+          <NFTCard nft={nft} truncateDescription />
           <div className="listing-modal__form__inputs">
             <div className="listing-modal__form__labelled-input">
               <label className="listing-modal__form__label">

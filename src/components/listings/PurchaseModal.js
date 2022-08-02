@@ -5,12 +5,12 @@ import {checkoutStore, cryptoStore, rootStore} from "Stores";
 import {ActiveListings} from "Components/listings/TransferTables";
 import {ButtonWithLoader, FormatPriceString} from "Components/common/UIComponents";
 import {Redirect, useRouteMatch} from "react-router-dom";
-import NFTCard from "Components/common/NFTCard";
+import NFTCard from "Components/nft/NFTCard";
 import ImageIcon from "Components/common/ImageIcon";
 import {roundToDown} from "round-to";
 import WalletConnect from "Components/crypto/WalletConnect";
 import {PageLoader} from "Components/common/Loaders";
-import {ValidEmail} from "../../utils/Utils";
+import {NFTInfo, ValidEmail} from "../../utils/Utils";
 
 import PlusIcon from "Assets/icons/plus.svg";
 import MinusIcon from "Assets/icons/minus.svg";
@@ -182,18 +182,16 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
   const [failed, setFailed] = useState(false);
   const [confirmationId, setConfirmationId] = useState(undefined);
 
+  const info = NFTInfo({
+    nft,
+    item: marketplaceItem,
+    listing: selectedListing
+  });
+
   const purchaseStatus = confirmationId && checkoutStore.purchaseStatus[confirmationId] || {};
-
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  const stock = marketplaceItem && checkoutStore.stock[marketplaceItem.sku];
-  const outOfStock = stock && stock.max && (stock.max - stock.minted) < quantity;
 
-  const timeToAvailable = marketplaceItem && marketplaceItem.available_at ? new Date(marketplaceItem.available_at).getTime() - Date.now() : 0;
-  const timeToExpired = marketplaceItem && marketplaceItem.expires_at ? new Date(marketplaceItem.expires_at).getTime() - Date.now() : Infinity;
-  const available = timeToAvailable <= 0 && timeToExpired > 0;
-
-  const price = listingId ? { USD: selectedListing.details.Price } : marketplaceItem.price;
-  const total = price.USD * quantity;
+  const total = info.price.USD * quantity;
   const fee = Math.max(1, roundToDown(total * 0.05, 2));
   const balanceAmount = useLinkedWallet ? cryptoStore.phantomUSDCBalance : rootStore.availableWalletBalance;
   const balanceName = useLinkedWallet ? "USDC Balance" : "Wallet Balance";
@@ -206,7 +204,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
       cryptoStore.PhantomBalance();
     }
 
-    if(!stock) { return; }
+    if(!info.stock || !marketplace) { return; }
 
     // If item has stock, periodically update
     const stockCheck = setInterval(() => {
@@ -235,12 +233,8 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
         nft={nft}
         item={marketplaceItem}
         selectedListing={selectedListing}
-        price={price}
-        usdcAccepted={selectedListing?.details?.USDCAccepted}
-        usdcOnly={selectedListing?.details?.USDCOnly}
-        stock={stock}
-        showToken={!!selectedListing}
-        hideAvailable={!available || (marketplaceItem && marketplaceItem.hide_available)}
+        hideToken={!selectedListing}
+        hideAvailable={!info.available || (marketplaceItem && marketplaceItem.hide_available)}
         truncateDescription
       />
       <div className="purchase-modal__order-details">
@@ -300,7 +294,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
       </div>
       <div className="purchase-modal__actions purchase-wallet-balance-actions">
         <ButtonWithLoader
-          disabled={!available || outOfStock || insufficientBalance || failed}
+          disabled={!info.available || info.outOfStock || insufficientBalance || failed}
           className="action action-primary"
           onClick={async () => {
             try {
@@ -348,12 +342,12 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
         </button>
       </div>
       {
-        errorMessage || !available || outOfStock || insufficientBalance ?
+        errorMessage || !info.available || info.outOfStock || insufficientBalance ?
           <div className="purchase-modal__error-message">
             {
               errorMessage ? errorMessage :
-                outOfStock ? "This item is out of stock" :
-                  !available ? "This item is no longer available" :
+                info.outOfStock ? "This item is out of stock" :
+                  !info.available ? "This item is no longer available" :
                     `Insufficient ${balanceName}`
             }
           </div> : null
@@ -383,20 +377,17 @@ const PurchasePayment = observer(({
   const [listingStats, setListingStats] = useState(undefined);
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  const stock = marketplaceItem && checkoutStore.stock[marketplaceItem.sku];
-  const outOfStock = stock && stock.max && stock.minted >= stock.max;
+  const info = NFTInfo({
+    nft,
+    item: marketplaceItem,
+    listing: selectedListing
+  });
 
   const maxPerCheckout = marketplaceItem?.max_per_checkout || 25;
-  const maxPerUser = (stock && stock.max_per_user && (stock.max_per_user - stock.current_user)) || 25;
-  const quantityAvailable = (stock && (stock.max - stock.minted)) || 25;
+  const maxPerUser = (info.stock && info.stock.max_per_user && (info.stock.max_per_user - info.stock.current_user)) || 25;
+  const quantityAvailable = (info.stock && (info.stock.max - info.stock.minted)) || 25;
 
   const maxQuantity = Math.max(1, Math.min(maxPerCheckout, Math.min(maxPerUser, quantityAvailable)));
-
-  const timeToAvailable = marketplaceItem && marketplaceItem.available_at ? new Date(marketplaceItem.available_at).getTime() - Date.now() : 0;
-  const timeToExpired = marketplaceItem && marketplaceItem.expires_at ? new Date(marketplaceItem.expires_at).getTime() - Date.now() : Infinity;
-  const available = timeToAvailable <= 0 && timeToExpired > 0;
-
-  const price = type === "marketplace" ? marketplaceItem.price : { USD: selectedListing.details.Price };
 
   const purchaseStatus = confirmationId && checkoutStore.purchaseStatus[confirmationId] || {};
 
@@ -406,7 +397,7 @@ const PurchasePayment = observer(({
         .then(stats => setListingStats(stats));
     }
 
-    if(!stock) { return; }
+    if(!info.stock || !marketplace) { return; }
 
     // If item has stock, periodically update
     const stockCheck = setInterval(() => checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id}), 10000);
@@ -482,12 +473,7 @@ const PurchasePayment = observer(({
         nft={nft}
         item={marketplaceItem}
         selectedListing={selectedListing}
-        price={price}
-        usdcAccepted={selectedListing?.details?.USDCAccepted}
-        usdcOnly={selectedListing?.details?.USDCOnly}
-        stock={stock}
-        showToken={!!selectedListing}
-        hideAvailable={!available || (marketplaceItem && marketplaceItem.hide_available)}
+        hideToken={!selectedListing}
         truncateDescription
       />
       {
@@ -496,7 +482,7 @@ const PurchasePayment = observer(({
             <div className="purchase-modal__price-details">
               <QuantityInput quantity={quantity} setQuantity={setQuantity} maxQuantity={maxQuantity}/>
               <div className="purchase-modal__price-details__price">
-                {FormatPriceString(price, {quantity, includeCurrency: true})}
+                {FormatPriceString(info.price, {quantity, includeCurrency: true})}
               </div>
             </div> : null) :
           <>
@@ -534,11 +520,11 @@ const PurchasePayment = observer(({
           </>
       }
       <PurchaseProviderSelection
-        price={FormatPriceString(price, {quantity})}
+        price={FormatPriceString(info.price, {quantity})}
         errorMessage={errorMessage}
         usdcAccepted={selectedListing?.details?.USDCAccepted}
         usdcOnly={selectedListing?.details?.USDCOnly}
-        disabled={(type === "listing" && !selectedListingId) || !available || outOfStock || failed}
+        disabled={(type === "listing" && !selectedListingId) || !info.available || info.outOfStock || failed}
         Continue={Continue}
         Cancel={Cancel}
       />

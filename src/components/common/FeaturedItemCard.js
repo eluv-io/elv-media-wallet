@@ -3,10 +3,8 @@ import {observer} from "mobx-react";
 import {Link, useRouteMatch} from "react-router-dom";
 import LinesEllipsis from "react-lines-ellipsis";
 import responsiveHOC from "react-lines-ellipsis/lib/responsiveHOC";
-import ImageIcon from "Components/common/ImageIcon";
 const ResponsiveEllipsis = responsiveHOC()(LinesEllipsis);
 
-import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 import UrlJoin from "url-join";
 
 const FeaturedItemCard = observer(({
@@ -15,14 +13,13 @@ const FeaturedItemCard = observer(({
   badges,
   name,
   searchName,
-  edition,
+  subtitle1,
   description,
   price,
   status,
   sideText,
   justification,
   action,
-  usdcAccepted,
   onClick,
   variant,
   className="",
@@ -35,12 +32,12 @@ const FeaturedItemCard = observer(({
     sideText = (
       <div className="featured-item__side-text">
         <div className="featured-item__side-text__secondary">
-          { first }{ second ? ":" : "" }
+          { first }{ second ? ": " : "" }
         </div>
         {
           second ?
             <div className="featured-item__side-text__primary">
-              { `:${second}` }
+              { second }
             </div> : null
         }
       </div>
@@ -92,9 +89,9 @@ const FeaturedItemCard = observer(({
           { name || "" }
         </h2>
         {
-          edition ?
+          subtitle1 ?
             <h2 className="featured-item__edition">
-              { edition }
+              { subtitle1 }
             </h2> : null
         }
         {
@@ -113,10 +110,6 @@ const FeaturedItemCard = observer(({
             </div> :
             price ?
               <div className="featured-item__price">
-                {
-                  usdcAccepted ?
-                    <ImageIcon icon={USDCIcon} label="USDC" title="USDC Accepted" /> : null
-                }
                 { price }
               </div> : null
         }

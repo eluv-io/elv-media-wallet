@@ -11,7 +11,7 @@ import {rootStore} from "Stores/index";
 
 import MyItems from "Components/wallet/MyItems";
 import AsyncComponent from "Components/common/AsyncComponent";
-import NFTDetails, {ListingDetails, MintedNFTDetails} from "Components/wallet/NFTDetails";
+import {ListingDetails, MintedNFTDetails} from "Components/nft/NFTDetails";
 import {PackOpenStatus, PurchaseMintingStatus} from "Components/marketplace/MintingStatus";
 import MyListings from "Components/listings/MyListings";
 import Listings from "Components/listings/Listings";
@@ -54,6 +54,7 @@ const WalletWrapper = observer(({children}) => {
 
   return (
     <AsyncComponent
+      key={`wallet-component-${match.url}`}
       loadKey="wallet-collection"
       cacheSeconds={30}
       Load={async () => await rootStore.LoadNFTContractInfo()}
@@ -105,12 +106,12 @@ const Wallet = observer(() => {
                     authed ?
                       <LoginGate ignoreCapture={ignoreLoginCapture} to="/marketplaces">
                         <WalletWrapper>
-                          <Component/>
+                          <Component key={`wallet-component-${path}`}/>
                         </WalletWrapper>
                       </LoginGate> :
 
                       <WalletWrapper>
-                        <Component/>
+                        <Component key={`wallet-component-${path}`}/>
                       </WalletWrapper>
                   }
                 </ErrorBoundary>

@@ -6,12 +6,14 @@ import LinesEllipsis from "react-lines-ellipsis";
 import responsiveHOC from "react-lines-ellipsis/lib/responsiveHOC";
 const ResponsiveEllipsis = responsiveHOC()(LinesEllipsis);
 
+// General card component
 const ItemCard = observer(({
   link,
   image,
   badges,
   name,
-  edition,
+  subtitle1,
+  subtitle2,
   description,
   price,
   status,
@@ -21,8 +23,12 @@ const ItemCard = observer(({
   className="",
   cardClassName=""
 }) => {
-  if(sideText) {
-    const [first, second] = sideText.toString().split("/");
+  if(sideText && typeof sideText === "string") {
+    sideText = sideText.toString().split("/");
+  }
+
+  if(sideText && Array.isArray(sideText)) {
+    const [first, second] = sideText;
 
     sideText = (
       <div className="item-card__side-text">
@@ -39,7 +45,6 @@ const ItemCard = observer(({
     );
   }
 
-  // NOTE: Keep class/structure in sync with NFTCard
   const cardContents = (
     <>
       { sideText }
@@ -55,17 +60,26 @@ const ItemCard = observer(({
           { name || "" }
         </h2>
         {
-          edition ?
+          subtitle1 ?
             <h2 className="item-card__edition">
-              { edition }
+              { subtitle1 }
             </h2> : null
         }
-        <ResponsiveEllipsis
-          component="h2"
-          className="item-card__description"
-          text={description || ""}
-          maxLine="4"
-        />
+        {
+          subtitle2 ?
+            <h2 className="item-card__edition">
+              { subtitle2 }
+            </h2> : null
+        }
+        {
+          typeof description === "string" ?
+            <ResponsiveEllipsis
+              component="h2"
+              className="item-card__description"
+              text={description || ""}
+              maxLine="4"
+            /> : description
+        }
         {
           price || status ?
             <div className="item-card__status">

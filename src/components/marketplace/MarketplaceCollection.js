@@ -11,6 +11,7 @@ import ImageIcon from "Components/common/ImageIcon";
 import OwnedIcon from "Assets/icons/owned icon.svg";
 import {PageLoader} from "Components/common/Loaders";
 import BackIcon from "Assets/icons/arrow-left";
+import NFTCard from "Components/nft/NFTCard";
 
 const MarketplaceCollection = observer(() => {
   const match = useRouteMatch();
@@ -39,15 +40,13 @@ const MarketplaceCollection = observer(() => {
 
       if(item && ownedItem) {
         return (
-          <ItemCard
+          <NFTCard
             key={key}
+            nft={ownedItem.nft}
+            hideToken
             link={UrlJoin(basePath, collection.sku, "owned", ownedItem.nft.details.ContractId, ownedItem.nft.details.TokenIdStr)}
-            image={<NFTImage nft={ownedItem.nft} width={600}/>}
-            name={ownedItem.nft.metadata.display_name}
-            description={ownedItem.nft.metadata.description}
-            edition={ownedItem.nft.metadata.edition_name}
+            imageWidth={600}
             badges={<ImageIcon icon={OwnedIcon} title="You own this item" alt="Listing Icon" className="item-card__badge"/>}
-            variant={ownedItem.nft.metadata.style}
             className="marketplace__collection__card marketplace__collection__card--owned"
           />
         );

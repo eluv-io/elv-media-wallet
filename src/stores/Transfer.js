@@ -72,7 +72,6 @@ class TransferStore {
       if(listingId) {
         try {
           const listingStatus = await this.rootStore.walletClient.ListingStatus({listingId});
-          console.log(listingStatus)
 
           if(listingStatus) {
             contractAddress = Utils.FormatAddress(listingStatus.contract);
