@@ -175,6 +175,15 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
     }
   }
 
+  console.log(contractStats);
+
+  /*
+  burned: 42
+cap: 10000
+minted: 532
+total_supply: 490
+   */
+
   return (
     <ExpandableSection header="Details" icon={DetailsIcon}>
       {
@@ -246,21 +255,35 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
       {
         contractStats?.minted ?
           <div className="details-page__detail-field">
-            Total Minted: { contractStats.minted }
+            Number Minted: { contractStats.minted }
           </div> :
           null
       }
       {
         contractStats?.total_supply ?
           <div className="details-page__detail-field">
-            Total Supply in Circulation: { contractStats.total_supply }
+            Number in Circulation: { contractStats.total_supply }
           </div> :
           null
       }
       {
-        nft.details.Cap ?
+        contractStats?.burned ?
           <div className="details-page__detail-field">
-            Cap: { nft.details.Cap }
+            Number Burned: { contractStats.burned }
+          </div> :
+          null
+      }
+      {
+        contractStats ?
+          <div className="details-page__detail-field">
+            Maximum Possible in Circulation: { contractStats.cap - contractStats.burned }
+          </div> :
+          null
+      }
+      {
+        contractStats?.cap || nft.details.Cap ?
+          <div className="details-page__detail-field">
+            Cap: { contractStats?.cap || nft.details.Cap }
           </div>
           : null
       }
