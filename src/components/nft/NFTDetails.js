@@ -174,7 +174,7 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
       mintDate = "";
     }
   }
-  
+
   return (
     <ExpandableSection header="Details" icon={DetailsIcon}>
       {
@@ -802,7 +802,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
       <div key={match.url} className="details-page" ref={element => setDetailsRef(element)}>
         <Link to={backPage.path} className="details-page__back-link">
           <ImageIcon icon={BackIcon} />
-          Back to { backPage.name }
+          Back to { marketplace ? marketplace.branding?.name || "Marketplace" : backPage.name }
         </Link>
         <div className="details-page__main-content">
           <div className="details-page__content-container">
