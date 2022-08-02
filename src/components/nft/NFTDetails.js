@@ -806,7 +806,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
         </Link>
         <div className="details-page__main-content">
           <div className="details-page__content-container">
-            <div className="card-container">
+            <div className={`card-container ${nftInfo.variant ? `card-container--variant-${nftInfo.variant}` : ""}`}>
               <div className="item-card media-card">
                 {
                   item ?
