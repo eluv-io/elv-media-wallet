@@ -372,7 +372,6 @@ const NFTInfoSection = ({nftInfo, className=""}) => {
 
   return (
     <div className={`details-page__nft-info ${className}`}>
-      <NFTShareMenu nftInfo={nftInfo} />
       <div className="details-page__nft-info__name">
         { nftInfo.name }
       </div>
