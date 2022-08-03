@@ -86,22 +86,24 @@ export const ExpandableSection = ({header, icon, children, expanded=false, toggl
   );
 };
 
+export const Copy = async (value) => {
+  try {
+    value = (value || "").toString();
+
+    await navigator.clipboard.writeText(value);
+  } catch(error) {
+    const input = document.createElement("input");
+
+    input.value = value;
+    input.select();
+    input.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+  }
+};
+
 export const CopyableField = ({value, children, className="", ellipsis=true}) => {
-  const Copy = async () => {
-    try {
-      await navigator.clipboard.writeText(value);
-    } catch(error) {
-      const input = document.createElement("input");
-
-      input.value = value;
-      input.select();
-      input.setSelectionRange(0, 99999);
-      document.execCommand("copy");
-    }
-  };
-
   return (
-    <div className={`copyable-field ${className}`} onClick={Copy}>
+    <div className={`copyable-field ${className}`} onClick={() => Copy(value)}>
       <div className={`copyable-field__content ${ellipsis ? "ellipsis" : ""}`}>
         { children }
       </div>
@@ -221,6 +223,45 @@ export const ButtonWithLoader = ({children, className="", onClick, ...props}) =>
           children
       }
     </button>
+  );
+};
+
+export const ButtonWithMenu = ({buttonProps, RenderMenu, className=""}) => {
+  const ref = useRef();
+  const [showMenu, setShowMenu] = useState(false);
+
+  useEffect(() => {
+    const onClickOutside = event => {
+      if(!ref.current || !ref.current.contains(event.target)) {
+        setShowMenu(false);
+      }
+    };
+
+    document.addEventListener("click", onClickOutside);
+
+    return () => document.removeEventListener("click", onClickOutside);
+  }, []);
+
+  return (
+    <div className={`menu-button ${showMenu ? "menu-button--active" : ""} ${className}`} ref={ref}>
+      <button
+        {...buttonProps}
+        className={`menu-button__button ${buttonProps?.className || ""}`}
+        onClick={() => {
+          setShowMenu(!showMenu);
+
+          if(buttonProps?.onClick) {
+            buttonProps.onClick();
+          }
+        }}
+      />
+      {
+        showMenu ?
+          <div className="menu-button__menu">
+            { RenderMenu(() => setShowMenu(false)) }
+          </div> : null
+      }
+    </div>
   );
 };
 

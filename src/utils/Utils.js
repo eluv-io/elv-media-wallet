@@ -217,6 +217,9 @@ export const NFTInfo = ({
 export const NFTMediaInfo = ({nft, item, selectedMedia, showFullMedia, width}) => {
   let imageUrl, embedUrl, mediaLink, useFrame=false;
 
+  const requiresPermissions = selectedMedia?.requires_permissions || item?.requires_permissions;
+  const authToken = requiresPermissions ? rootStore.authToken : rootStore.staticToken;
+
   if(!selectedMedia && nft.metadata.media && ["Ebook", "HTML"].includes(nft.metadata.media_type)) {
     selectedMedia = {
       media_type: nft.metadata.media_type,
@@ -229,7 +232,7 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, showFullMedia, width}) =
   if(selectedMediaImageUrl) {
     imageUrl = new URL(selectedMediaImageUrl);
 
-    imageUrl.searchParams.set("authorization", rootStore.authToken || rootStore.staticToken);
+    imageUrl.searchParams.set("authorization", authToken);
     if(imageUrl && width) {
       imageUrl.searchParams.set("width", width);
     }
@@ -237,7 +240,7 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, showFullMedia, width}) =
 
   if(!imageUrl && ((item && item.image) || nft.metadata.image)) {
     imageUrl = new URL((item && item.image && item.image.url) || nft.metadata.image);
-    imageUrl.searchParams.set("authorization", rootStore.authToken || rootStore.staticToken);
+    imageUrl.searchParams.set("authorization", authToken);
 
     if(imageUrl && width) {
       imageUrl.searchParams.set("width", width);
@@ -280,7 +283,6 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, showFullMedia, width}) =
       embedUrl.searchParams.set("vid", LinkTargetHash(selectedMedia.media_link));
       embedUrl.searchParams.set("ct", "h");
       embedUrl.searchParams.set("ap", "");
-      embedUrl.searchParams.set("ath", rootStore.authToken || rootStore.staticToken);
     } else if(item && item.video) {
       embedUrl = new URL("https://embed.v3.contentfabric.io");
 
@@ -300,6 +302,10 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, showFullMedia, width}) =
 
     if(embedUrl) {
       embedUrl.searchParams.set("nwm", "");
+
+      if(requiresPermissions) {
+        embedUrl.searchParams.set("ath", authToken);
+      }
     }
   }
 
@@ -307,6 +313,7 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, showFullMedia, width}) =
     imageUrl,
     embedUrl,
     mediaLink,
+    requiresPermissions,
     useFrame
   };
 };

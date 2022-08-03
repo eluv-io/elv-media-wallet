@@ -5,7 +5,13 @@ import Path from "path";
 import UrlJoin from "url-join";
 
 import {Link, Redirect, useRouteMatch} from "react-router-dom";
-import {ExpandableSection, CopyableField, ButtonWithLoader, FormatPriceString} from "Components/common/UIComponents";
+import {
+  ExpandableSection,
+  CopyableField,
+  ButtonWithLoader,
+  FormatPriceString,
+  ButtonWithMenu, Copy
+} from "Components/common/UIComponents";
 
 import {render} from "react-dom";
 import ReactMarkdown from "react-markdown";
@@ -20,8 +26,11 @@ import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 import NFTMediaControls from "Components/nft/NFTMediaControls";
 import {LoginClickGate} from "Components/common/LoginGate";
 import TransferModal from "Components/listings/TransferModal";
-
+import {FilteredTable} from "Components/common/Table";
+import {MarketplaceImage, NFTImage} from "Components/common/Images";
+import AsyncComponent from "Components/common/AsyncComponent";
 import {Ago, MediaIcon, MiddleEllipsis, NFTInfo} from "../../utils/Utils";
+
 import TransactionIcon from "Assets/icons/transaction history icon.svg";
 import DetailsIcon from "Assets/icons/Details icon.svg";
 import ContractIcon from "Assets/icons/Contract icon.svg";
@@ -29,9 +38,9 @@ import TraitsIcon from "Assets/icons/properties icon.svg";
 import MediaSectionIcon from "Assets/icons/Media tab icon.svg";
 import PlayIcon from "Assets/icons/blue play icon.svg";
 import BackIcon from "Assets/icons/arrow-left.svg";
-import {FilteredTable} from "Components/common/Table";
-import {MarketplaceImage, NFTImage} from "Components/common/Images";
-import AsyncComponent from "Components/common/AsyncComponent";
+import ShareIcon from "Assets/icons/share icon.svg";
+import TwitterIcon from "Assets/icons/twitter.svg";
+import CopyIcon from "Assets/icons/copy.svg";
 
 const NFTMediaSection = ({nftInfo, containerElement, selectedMediaIndex, setSelectedMediaIndex, currentPlayerInfo}) => {
   const nft = nftInfo.nft;
@@ -350,17 +359,73 @@ const NFTContractSection = ({nftInfo, SetBurned, ShowTransferModal}) => {
   );
 };
 
-const NFTShareMenu = ({nftInfo}) => {
+const NFTInfoMenu = ({nftInfo}) => {
   const match = useRouteMatch();
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
 
-  const url = new URL("https://twitter.com/share");
+  const listingId = match.params.listingId || nftInfo.listingId;
+  let shareUrl;
+  if(listingId) {
+    shareUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
+    shareUrl.hash = match.params.marketplaceId ?
+      UrlJoin("/marketplace", match.params.marketplaceId, "listings", listingId) :
+      UrlJoin("/wallet", "listings", listingId);
+  } else if(match.params.marketplaceId && match.params.sku) {
+    shareUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
+    shareUrl.hash = UrlJoin("/marketplace", match.params.marketplaceId, "store", match.params.sku);
+  }
 
-  url.searchParams.set("url", window.location.href);
-  url.searchParams.set("text", `${nftInfo.name} on ${(marketplace && marketplace.branding?.name) || "Eluvio Marketplace"}\n\n`);
+  let twitterUrl;
+  if(shareUrl) {
+    twitterUrl = new URL("https://twitter.com/share");
+    twitterUrl.searchParams.set("url", shareUrl);
+    twitterUrl.searchParams.set("text", `${nftInfo.name}\n\n`);
+  }
 
   return (
-    <a href={url.toString()} target="_blank">Test</a>
+    <div className="details-page__nft-info__buttons">
+      <ButtonWithMenu
+        className="action details-page__nft-info__menu-button-container"
+        buttonProps={{
+          className: "details-page__nft-info__menu-button",
+          children: <ImageIcon icon={ShareIcon} />
+        }}
+        RenderMenu={Close => (
+          <>
+            {
+              twitterUrl ?
+                <a href={twitterUrl.toString()} target="_blank" onClick={Close}>
+                  <ImageIcon icon={TwitterIcon}/>
+                  Share on Twitter
+                </a> : null
+            }
+            {
+              shareUrl ?
+                <button
+                  onClick={() => {
+                    Copy(shareUrl);
+                    Close();
+                  }}
+                >
+                  <ImageIcon icon={CopyIcon}/>
+                  Copy { listingId ? "Listing" : "Item" } URL
+                </button> : null
+            }
+            {
+              nftInfo.mediaInfo && !nftInfo.mediaInfo.requiresPermissions ?
+                <button
+                  onClick={() => {
+                    Copy(nftInfo.mediaInfo.mediaLink || nftInfo.mediaInfo.embedUrl || nftInfo.mediaInfo.imageUrl);
+                    Close();
+                  }}
+                >
+                  <ImageIcon icon={CopyIcon}/>
+                  Copy Media URL
+                </button> : null
+            }
+          </>
+        )}
+      />
+    </div>
   );
 };
 
@@ -372,6 +437,7 @@ const NFTInfoSection = ({nftInfo, className=""}) => {
 
   return (
     <div className={`details-page__nft-info ${className}`}>
+      <NFTInfoMenu nftInfo={nftInfo} />
       <div className="details-page__nft-info__name">
         { nftInfo.name }
       </div>
