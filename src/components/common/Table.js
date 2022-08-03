@@ -180,7 +180,7 @@ const Table = observer(({
             SetPage={page => {
               Update(page);
 
-              tableRef?.current?.scrollIntoView({behavior: "smooth"});
+              setTimeout(() => tableRef?.current?.scrollIntoView({behavior: "smooth"}), 500);
             }}
           /> : null
       }
