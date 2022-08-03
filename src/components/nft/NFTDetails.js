@@ -518,40 +518,10 @@ const NFTTables = observer(({nftInfo}) => {
         mode="sales-stats"
         filterParams={{contractAddress: nft.details.ContractAddr}}
       />
-      {
-        nft.details.TokenIdStr ?
-          <FilteredTable
-            mode="transfers"
-            pagingMode="infinite"
-            perPage={100}
-            headerText="Transaction history for this token"
-            headerIcon={TransactionIcon}
-            columnHeaders={[
-              "Time",
-              "Total Amount",
-              "Buyer",
-              "Seller"
-            ]}
-            columnWidths={[1, 1, 1, 1]}
-            mobileColumnWidths={[1, 1, 0, 0]}
-            filters={{
-              sortBy: "created",
-              sortDesc: true,
-              contractAddress: nft.details.ContractAddr,
-              tokenId: nft.details.TokenIdStr
-            }}
-            CalculateRowValues={transfer => [
-              `${Ago(transfer.created * 1000)} ago`,
-              FormatPriceString({USD: transfer.price}),
-              MiddleEllipsis(transfer.buyer, 14),
-              MiddleEllipsis(transfer.seller, 14)
-            ]}
-          /> : null
-      }
       <FilteredTable
         mode="sales"
-        pagingMode="infinite"
-        perPage={100}
+        pagingMode="paginated"
+        perPage={20}
         headerText={`Secondary sales history for all '${nft.metadata.display_name}' tokens`}
         headerIcon={TransactionIcon}
         columnHeaders={[
@@ -576,6 +546,36 @@ const NFTTables = observer(({nftInfo}) => {
           MiddleEllipsis(transfer.seller, 14)
         ]}
       />
+      {
+        nft.details.TokenIdStr ?
+          <FilteredTable
+            mode="transfers"
+            pagingMode="paginated"
+            perPage={20}
+            headerText="Transaction history for this token"
+            headerIcon={TransactionIcon}
+            columnHeaders={[
+              "Time",
+              "Total Amount",
+              "Buyer",
+              "Seller"
+            ]}
+            columnWidths={[1, 1, 1, 1]}
+            mobileColumnWidths={[1, 1, 0, 0]}
+            filters={{
+              sortBy: "created",
+              sortDesc: true,
+              contractAddress: nft.details.ContractAddr,
+              tokenId: nft.details.TokenIdStr
+            }}
+            CalculateRowValues={transfer => [
+              `${Ago(transfer.created * 1000)} ago`,
+              FormatPriceString({USD: transfer.price}),
+              MiddleEllipsis(transfer.buyer, 14),
+              MiddleEllipsis(transfer.seller, 14)
+            ]}
+          /> : null
+      }
     </div>
   );
 });

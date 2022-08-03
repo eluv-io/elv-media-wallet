@@ -14,11 +14,12 @@ import CopyIcon from "Assets/icons/copy.svg";
 import PageBackIcon from "Assets/icons/pagination arrow back.svg";
 import PageForwardIcon from "Assets/icons/pagination arrow forward.svg";
 
-export const PageControls = observer(({paging, perPage, maxSpread=15, SetPage, className=""}) => {
+export const PageControls = observer(({paging, maxSpread=15, hideIfOnePage, SetPage, className=""}) => {
   if(!paging || paging.total === 0) { return null; }
 
+  const perPage = paging.limit || 1;
   const currentPage = Math.floor(paging.start / perPage) + 1;
-  const pages = Math.ceil(paging.total / perPage) + 1;
+  const pages = Math.ceil(paging.total / perPage);
 
   let spread = maxSpread;
   if(rootStore.pageWidth < 600) {
@@ -28,8 +29,12 @@ export const PageControls = observer(({paging, perPage, maxSpread=15, SetPage, c
   }
 
   let spreadStart = Math.max(1, currentPage - Math.floor(spread / 2));
-  const spreadEnd = Math.min(pages, spreadStart + spread);
+  const spreadEnd = Math.min(pages + 1, spreadStart + spread);
   spreadStart = Math.max(1, spreadEnd - spread);
+
+  if(hideIfOnePage && pages <= 1) {
+    return null;
+  }
 
   return (
     <div className={`page-controls ${className}`}>

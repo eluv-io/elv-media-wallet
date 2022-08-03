@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {rootStore} from "Stores";
 import {Link} from "react-router-dom";
 import ImageIcon from "Components/common/ImageIcon";
@@ -14,7 +14,6 @@ const Table = observer(({
   entries,
   paging,
   pagingMode="infinite",
-  perPage=10,
   hidePagingInfo,
   Update,
   scrollRef,
@@ -70,6 +69,7 @@ const Table = observer(({
   }
 
   // Pagination info
+  const tableRef = useRef();
   let pagingInfo = null;
   if(paging && !hidePagingInfo) {
     pagingInfo = (
@@ -86,7 +86,7 @@ const Table = observer(({
   }
 
   return (
-    <div className="transfer-table-container">
+    <div className="transfer-table-container" ref={tableRef}>
       <div className={`transfer-table ${className}`}>
         {
           !headerText ? null :
@@ -173,8 +173,16 @@ const Table = observer(({
       </div>
       {
         pagingMode === "paginated" ?
-          <PageControls className="transfer-table__page-controls" paging={paging} perPage={perPage} SetPage={page => Update(page)} /> :
-          null
+          <PageControls
+            className="transfer-table__page-controls"
+            paging={paging}
+            hideIfOnePage
+            SetPage={page => {
+              Update(page);
+
+              tableRef?.current?.scrollIntoView({behavior: "smooth"});
+            }}
+          /> : null
       }
     </div>
   );

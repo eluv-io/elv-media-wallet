@@ -135,7 +135,6 @@ const FilteredView = ({
         topPagination && pagingMode === "paginated" ?
           <PageControls
             paging={paging}
-            perPage={perPage}
             className={`filtered-view__page-controls ${loading ? "filtered-view__page-controls--loading" : ""}`}
             SetPage={page => setPage(page)}
           />
@@ -163,7 +162,6 @@ const FilteredView = ({
         pagingMode === "paginated" ?
           <PageControls
             paging={paging}
-            perPage={perPage}
             className="filtered-view__page-controls"
             SetPage={page => {
               setPage(page);
