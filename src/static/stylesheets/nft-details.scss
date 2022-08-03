@@ -136,11 +136,12 @@
 
   &__message,
   &__sub-message {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 300;
     margin: 16px 0;
     max-width: 800px;
     text-align: center;
+    word-wrap: anywhere;
   }
 
   &__sub-message {

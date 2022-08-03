@@ -107,7 +107,7 @@ const TransferModal = observer(({nft, onTransferring, onTransferred, Close}) => 
 
                   await transferStore.TransferNFT({nft, targetAddress});
 
-                  onTransferred();
+                  await onTransferred(targetAddress);
                 } catch(error) {
                   setMessage("");
                   setError("Transfer failed");

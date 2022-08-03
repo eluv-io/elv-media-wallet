@@ -305,6 +305,17 @@ const NFTContractSection = ({nftInfo, SetBurned, ShowTransferModal}) => {
           </h3> : null
       }
       <div className="expandable-section__actions">
+        {
+          nftInfo.isOwned && !nftInfo.listingId ?
+            <button
+              disabled={nftInfo.nft?.metadata?.test}
+              title={nftInfo.nft?.metadata?.test ? "Test NFTs may not be transferred" : ""}
+              className="action details-page-transfer-button"
+              onClick={ShowTransferModal}
+            >
+              Transfer NFT
+            </button> : null
+        }
         <a
           className="action lookout-url"
           target="_blank"
@@ -317,17 +328,6 @@ const NFTContractSection = ({nftInfo, SetBurned, ShowTransferModal}) => {
         >
           See More Info on Eluvio Lookout
         </a>
-        {
-          nftInfo.isOwned && !nftInfo.listingId ?
-            <button
-              disabled={nftInfo.nft?.metadata?.test}
-              title={nftInfo.nft?.metadata?.test ? "Test NFTs may not be transferred" : ""}
-              className="action details-page-transfer-button"
-              onClick={ShowTransferModal}
-            >
-              Transfer NFT
-            </button> : null
-        }
         {
           nftInfo.isOwned && !nftInfo.listingId && rootStore.funds ?
             <ButtonWithLoader
@@ -350,6 +350,20 @@ const NFTContractSection = ({nftInfo, SetBurned, ShowTransferModal}) => {
   );
 };
 
+const NFTShareMenu = ({nftInfo}) => {
+  const match = useRouteMatch();
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+
+  const url = new URL("https://twitter.com/share");
+
+  url.searchParams.set("url", window.location.href);
+  url.searchParams.set("text", `${nftInfo.name} on ${(marketplace && marketplace.branding?.name) || "Eluvio Marketplace"}\n\n`);
+
+  return (
+    <a href={url.toString()} target="_blank">Test</a>
+  );
+};
+
 const NFTInfoSection = ({nftInfo, className=""}) => {
   let sideText = nftInfo.sideText;
   if(nftInfo.stock) {
@@ -358,6 +372,7 @@ const NFTInfoSection = ({nftInfo, className=""}) => {
 
   return (
     <div className={`details-page__nft-info ${className}`}>
+      <NFTShareMenu nftInfo={nftInfo} />
       <div className="details-page__nft-info__name">
         { nftInfo.name }
       </div>
@@ -504,6 +519,7 @@ const NFTActions = observer(({
   nftInfo,
   listingStatus,
   isInCheckout,
+  transferring,
   ShowListingModal,
   ShowMarketplacePurchaseModal,
   ShowPurchaseModal,
@@ -618,7 +634,7 @@ const NFTActions = observer(({
           nftInfo.heldDate ? null :
             <ButtonWithLoader
               title={nftInfo.nft?.metadata?.test ? "Test NFTs may not be listed for sale" : undefined}
-              disabled={nftInfo.heldDate || isInCheckout || nftInfo.nft?.metadata?.test}
+              disabled={transferring || nftInfo.heldDate || isInCheckout || nftInfo.nft?.metadata?.test}
               className="action action-primary details-page__listing-button"
               onClick={ShowListingModal}
             >
@@ -629,6 +645,7 @@ const NFTActions = observer(({
         {
           !nftInfo.listingId && nftInfo.nft?.metadata?.pack_options?.is_openable ?
             <ButtonWithLoader
+              disabled={transferring}
               className="details-page__open-button"
               onClick={async () => Confirm({
                 message: `Are you sure you want to open '${nftInfo.nft.metadata.display_name}?'`,
@@ -673,6 +690,8 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
   const [opened, setOpened] = useState(false);
   const [claimed, setClaimed] = useState(false);
   const [burned, setBurned] = useState(false);
+  const [transferring, setTransferring] = useState(false);
+  const [transferAddress, setTransferAddress] = useState(false);
 
   // Media
   const [selectedMediaIndex, setSelectedMediaIndex] = useState(-1);
@@ -759,6 +778,13 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
       <Redirect to={Path.dirname(Path.dirname(match.url))}/>;
   }
 
+  // NFT Transferred
+  if(transferAddress) {
+    return match.params.marketplaceId ?
+      <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "activity", match.params.contractId, match.params.tokenId)} /> :
+      <Redirect to={UrlJoin("/wallet", "activity", match.params.contractId, match.params.tokenId)} />;
+  }
+
   const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
   return (
     <>
@@ -795,7 +821,10 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
           <TransferModal
             nft={nft}
             onTransferring={value => setTransferring(value)}
-            onTransferred={() => setTransferred(true)}
+            onTransferred={address => {
+              setTransferAddress(address);
+              setShowTransferModal(false);
+            }}
             Close={() => setShowTransferModal(false)}
           /> : null
       }
@@ -839,6 +868,8 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
               nftInfo={nftInfo}
               listingStatus={listingStatus}
               isInCheckout={isInCheckout}
+              transferring={transferring}
+              transferAddress={transferAddress}
               SetOpened={setOpened}
               SetClaimed={setClaimed}
               SetSelectedMediaIndex={setSelectedMediaIndex}
