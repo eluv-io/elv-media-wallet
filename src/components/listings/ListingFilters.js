@@ -9,6 +9,7 @@ import ImageIcon from "Components/common/ImageIcon";
 import SearchIcon from "Assets/icons/search.svg";
 import FilterIcon from "Assets/icons/filter icon.svg";
 import ClearIcon from "Assets/icons/x.svg";
+import {SavedValue} from "../../utils/Utils";
 
 const sortOptionsOwned = [
   { key: "default", value: "default", label: "Default", desc: true},
@@ -47,8 +48,7 @@ const SortOptions = mode => {
   }
 };
 
-let savedOptions;
-
+let savedFilters = SavedValue(undefined, "");
 
 const RangeFilter = observer(({label, valueLabel, value, onChange, precision=0}) => {
   const [min, setMin] = useState(value.min || "");
@@ -372,11 +372,14 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
 
     await UpdateFilters(options, force);
 
-    savedOptions = {
-      ...options,
-      mode,
-      sort: filterValues.sort
-    };
+    savedFilters.SetValue(
+      {
+        ...options,
+        mode,
+        sort: filterValues.sort
+      },
+      JSON.stringify({mode, marketplaceId: marketplace?.marketplaceId})
+    );
   };
 
   useEffect(() => {
@@ -410,9 +413,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
     if(savedOptionsLoaded || !filterOptionsLoaded) { return; }
 
     try {
-      if(savedOptions && (savedOptions.mode !== mode || savedOptions.marketplaceId !== marketplace?.marketplaceId)) {
-        savedOptions = undefined;
-      }
+      const savedOptions = savedFilters.GetValue(JSON.stringify({mode, marketplaceId: marketplace?.marketplaceId}));
 
       if(!savedOptions) {
         return;

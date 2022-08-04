@@ -5,6 +5,9 @@ import ListingFilters from "Components/listings/ListingFilters";
 import {useInfiniteScroll} from "react-g-infinite-scroll";
 import {rootStore} from "Stores";
 import {PageControls} from "Components/common/UIComponents";
+import {SavedValue} from "../../utils/Utils";
+
+const savedPage = SavedValue(1, "");
 
 const FilteredView = ({
   header,
@@ -69,15 +72,21 @@ const FilteredView = ({
         }
 
         setPaging(paging);
+
+        savedPage.SetValue(page, JSON.stringify(filters));
       })
       .finally(() => setLoading(false));
   }, [page, loadKey]);
 
   // Reload from start when filters change
   useEffect(() => {
+    if(!filters) { return; }
+
     setEntries([]);
 
-    page === 1 ? setLoadKey(loadKey + 1) : setPage(1);
+    const newPage = savedPage.GetValue(JSON.stringify(filters));
+
+    page === newPage ? setLoadKey(loadKey + 1) : setPage(newPage);
   }, [filters]);
 
   let scrollRef;

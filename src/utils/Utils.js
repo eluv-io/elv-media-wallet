@@ -16,6 +16,31 @@ export const Slugify = str =>
     .replace(/[^a-z0-9\-]/g,"")
     .replace(/-+/g, "-");
 
+
+// Closure for saving values until a discriminant changes, e.g. page number or filters
+export const SavedValue = (initialValue, initialDiscriminant) => {
+  let value = initialValue;
+  let discriminant = initialDiscriminant;
+
+  return {
+    GetValue: (currentDiscriminant) => {
+      if(currentDiscriminant !== discriminant) {
+        value = initialValue;
+      }
+
+      return value;
+    },
+    SetValue: (newValue, newDiscriminant) => {
+      value = newValue;
+      discriminant = newDiscriminant;
+    },
+    Reset: () => {
+      value = initialValue;
+      discriminant = initialDiscriminant;
+    }
+  };
+};
+
 export const MediaIcon = (media, circle=false) => {
   switch(media?.media_type) {
     case "Audio":
