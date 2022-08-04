@@ -86,7 +86,7 @@ export const ExpandableSection = ({header, icon, children, expanded=false, toggl
         { header }
       </button>
       { show ? <div className={`expandable-section__content ${contentClassName}`}>{ children }</div> : null }
-      { additionalContent || null }
+      { show && additionalContent || null }
     </div>
   );
 };
