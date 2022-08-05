@@ -157,7 +157,60 @@ const FilterMultiSelect = ({label, values, options, optionLabelPrefix="", onChan
   );
 };
 
-const FilterMenu = ({mode, filterValues, editions, attributes, setFilterValues, Hide, ResetFilters}) => {
+// Must separate out drop event attribute to separate control
+const AttributeFilters = ({attributes, dropAttributes, selectedFilterValues, setSelectedFilterValues}) => {
+  // Attribute name/value pairs are combined with delimiter - must convert to and from: { name, value } <=> name:|:value
+  const SelectValueToAttributeFilter = value => ({ name: value.split(":|:")[0], value: value.split(":|:")[1] });
+  const AttributeFilterToSelectValue = ({name, value}) => `${name}:|:${value}`;
+
+  const attributeOptions = (attributes || [])
+    .map(({name, values}) => values.map(value => [AttributeFilterToSelectValue({name, value}), `${name}: ${value}`]))
+    .flat()
+    .sort((a, b) => a[1] < b[1] ? -1 : 1);
+
+  const dropAttributeOptions = (dropAttributes || [])
+    .map(({name, values}) => values.map(value => [AttributeFilterToSelectValue({name, value}), `Drop: ${value}`]))
+    .flat()
+    .sort((a, b) => a[1] < b[1] ? -1 : 1);
+
+  let selectedAttributeValues = [];
+  let selectedDropValues = [];
+  (selectedFilterValues.attributeFilters || []).forEach(filter => {
+    if(["drop", "drop event"].includes(filter.name.toLowerCase())) {
+      selectedDropValues.push(AttributeFilterToSelectValue(filter));
+    } else {
+      selectedAttributeValues.push(AttributeFilterToSelectValue(filter));
+    }
+  });
+
+  return (
+    <>
+      {
+        dropAttributeOptions.length > 0 ?
+          <FilterMultiSelect
+            label="Choose Drops"
+            values={selectedDropValues}
+            onChange={values => setSelectedFilterValues({...selectedFilterValues, attributeFilters: [...selectedAttributeValues, ...values].map(SelectValueToAttributeFilter)})}
+            placeholder="Choose Drops"
+            options={dropAttributeOptions}
+          /> : null
+      }
+
+      {
+        attributeOptions.length > 0 ?
+          <FilterMultiSelect
+            label="Choose Attributes"
+            values={selectedAttributeValues}
+            onChange={values => setSelectedFilterValues({...selectedFilterValues, attributeFilters: [...values, ...selectedDropValues].map(SelectValueToAttributeFilter)})}
+            placeholder="Choose Attributes"
+            options={attributeOptions}
+          /> : null
+      }
+    </>
+  );
+};
+
+const FilterMenu = ({mode, filterValues, editions, attributes, dropAttributes, setFilterValues, Hide, ResetFilters}) => {
   const match = useRouteMatch();
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId || filterValues.marketplaceId];
@@ -185,14 +238,6 @@ const FilterMenu = ({mode, filterValues, editions, attributes, setFilterValues, 
   useEffect(() => {
     setSelectedFilterValues(filterValues);
   }, [filterValues]);
-
-  // Attribute name/value pairs are combined with delimiter - must convert to and from: { name, value } <=> name:|:value
-  const SelectValueToAttributeFilter = value => ({ name: value.split(":|:")[0], value: value.split(":|:")[1] });
-  const AttributeFilterToSelectValue = ({name, value}) => `${name}:|:${value}`;
-
-  const attributeOptions = (attributes || []).map(({name, values}) =>
-    values.map(value => [AttributeFilterToSelectValue({name, value}), `${name}: ${value}`])
-  ).flat();
 
   return (
     <div className="filters__menu" ref={ref}>
@@ -230,12 +275,11 @@ const FilterMenu = ({mode, filterValues, editions, attributes, setFilterValues, 
 
       {
         mode === "listings" ?
-          <FilterMultiSelect
-            label="Choose Attributes"
-            values={selectedFilterValues.attributeFilters.map(filter => AttributeFilterToSelectValue(filter))}
-            onChange={values => setSelectedFilterValues({...selectedFilterValues, attributeFilters: values.map(SelectValueToAttributeFilter)})}
-            placeholder="Choose Attributes"
-            options={attributeOptions}
+          <AttributeFilters
+            attributes={attributes}
+            dropAttributes={dropAttributes}
+            selectedFilterValues={selectedFilterValues}
+            setSelectedFilterValues={setSelectedFilterValues}
           /> : null
       }
 
@@ -324,6 +368,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
   const [filterOptionsLoaded, setFilterOptionsLoaded] = useState(false);
   const [editions, setEditions] = useState([]);
   const [attributes, setAttributes] = useState([]);
+  const [dropAttributes, setDropAttributes] = useState([]);
 
   const [filterOptions, setFilterOptions] = useState(initialFilter ? [ initialFilter ] : []);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
@@ -388,8 +433,16 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
       .finally(() => setFilterOptionsLoaded(true));
 
     setAttributes([]);
+    setDropAttributes([]);
+
     rootStore.walletClient.ListingAttributes({marketplaceParams: filterValues.marketplaceId ? {marketplaceId: filterValues.marketplaceId} : undefined})
-      .then(attributes => setAttributes(attributes));
+      .then(attributes => {
+        attributes = (attributes || [])
+          .sort((a, b) => a.name < b.name ? -1 : 1);
+
+        setAttributes(attributes.filter(attr => !["drop", "drop event"].includes(attr?.name?.toLowerCase())));
+        setDropAttributes(attributes.filter(attr => ["drop", "drop event"].includes(attr?.name?.toLowerCase())));
+      });
   }, [filterValues.marketplaceId]);
 
   useEffect(() => {
@@ -527,6 +580,7 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
               filterValues={filterValues}
               editions={editions}
               attributes={attributes}
+              dropAttributes={dropAttributes}
               setFilterValues={setFilterValues}
               Hide={() => setShowFilterMenu(false)}
               ResetFilters={ResetFilters}

@@ -311,7 +311,6 @@ export const Select = ({label, value, options, placeholder, onChange, containerC
     currentIndex = 0;
   }
 
-
   const [idPrefix] = useState(UUID());
   const [showMenu, setShowMenu] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(currentIndex);
@@ -358,6 +357,7 @@ export const Select = ({label, value, options, placeholder, onChange, containerC
 
     event.preventDefault();
 
+    setMouseIn(false);
     switch(event.key) {
       case "Escape":
         setShowMenu(false);
@@ -391,8 +391,6 @@ export const Select = ({label, value, options, placeholder, onChange, containerC
 
           setFilterLastTyped(Date.now());
         }
-
-        return;
     }
   };
 
@@ -412,7 +410,10 @@ export const Select = ({label, value, options, placeholder, onChange, containerC
           options.map((option, index) =>
             <li
               onClick={() => onChange(option[0])}
-              onMouseEnter={() => setSelectedIndex(index)}
+              onMouseEnter={() => {
+                setMouseIn(true);
+                setSelectedIndex(index);
+              }}
               role="option"
               data-value={option[0]}
               aria-selected={value === option[0]}
