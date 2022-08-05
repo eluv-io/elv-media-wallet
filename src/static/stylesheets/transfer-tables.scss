@@ -66,8 +66,9 @@
     height: 100%;
     overflow-y: auto;
 
+    &--none,
     &--infinite {
-      max-height: 320px;
+      max-height: 350px;
       overscroll-behavior-y: contain; // sass-lint:disable-line no-misspelled-properties
     }
   }

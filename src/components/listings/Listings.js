@@ -17,6 +17,7 @@ const Listing = memo(({url, listing}) => (
     imageWidth={600}
     nft={listing}
     selectedListing={listing}
+    truncateDescription
     badges={
       <>
         {

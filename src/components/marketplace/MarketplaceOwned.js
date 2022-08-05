@@ -57,6 +57,7 @@ const MarketplaceOwned = observer(() => {
                     nft={ownedItem}
                     selectedListing={listing}
                     imageWidth={600}
+                    truncateDescription
                     badges={
                       <>
                         {

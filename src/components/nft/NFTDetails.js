@@ -615,7 +615,7 @@ const NFTActions = observer(({
                       SetClaimed(true);
                     } else if(await checkoutStore.ClaimSubmit({
                       marketplaceId: match.params.marketplaceId,
-                      sku: item.sku
+                      sku: nftInfo.item.sku
                     })) {
                       // Claim successful
                       SetClaimed(true);

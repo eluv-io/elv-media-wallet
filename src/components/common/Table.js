@@ -98,8 +98,8 @@ const Table = observer(({
         { pagingInfo }
         {
           (!paging && pagingMode !== "none") ?
-            <div className={`transfer-table__table ${pagingMode === "infinite" ? "transfer-table__table--infinite" : "transfer-table__table--paginated"}`} ref={scrollRef} /> :
-            <div className={`transfer-table__table ${pagingMode === "infinite" ? "transfer-table__table--infinite" : "transfer-table__table--paginated"}`} ref={scrollRef}>
+            <div className={`transfer-table__table transfer-table__table--${pagingMode}`} ref={scrollRef} /> :
+            <div className={`transfer-table__table transfer-table__table--${pagingMode}`} ref={scrollRef}>
               <div className="transfer-table__table__header" style={{gridTemplateColumns}}>
                 {
                   columnHeaders.map((field, columnIndex) => {

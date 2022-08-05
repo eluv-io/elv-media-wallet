@@ -48,6 +48,7 @@ const MyItems = observer(() => {
                     nft={nft}
                     selectedListing={listing}
                     imageWidth={600}
+                    truncateDescription
                     badges={
                       <>
                         {
