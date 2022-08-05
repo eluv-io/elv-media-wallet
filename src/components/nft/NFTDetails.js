@@ -380,6 +380,10 @@ const NFTInfoMenu = ({nftInfo}) => {
     twitterUrl.searchParams.set("text", `${nftInfo.name}\n\n`);
   }
 
+  if(!shareUrl && !(nftInfo.mediaInfo && !nftInfo.mediaInfo.requiresPermissions)) {
+    return null;
+  }
+
   return (
     <div className="details-page__nft-info__buttons">
       <ButtonWithMenu
