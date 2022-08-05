@@ -537,7 +537,7 @@ const NFTTables = observer(({nftInfo}) => {
             ]}
             columnWidths={[1, 1, 1, 1]}
             mobileColumnWidths={[1, 1, 0, 0]}
-            filters={{
+            initialFilters={{
               sortBy: "created",
               sortDesc: true,
               contractAddress: nft.details.ContractAddr,
@@ -566,7 +566,7 @@ const NFTTables = observer(({nftInfo}) => {
         ]}
         columnWidths={[1, 1, 1, 1, 1]}
         mobileColumnWidths={[1, 1, 1, 0, 0]}
-        filters={{
+        initialFilters={{
           sortBy: "created",
           sortDesc: true,
           contractAddress: nft.details.ContractAddr

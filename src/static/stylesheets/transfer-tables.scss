@@ -25,7 +25,9 @@
   }
 
   &__page-controls {
-    margin-bottom: 50px;
+    &:last-child {
+      margin-bottom: 50px;
+    }
   }
 
   &__header {

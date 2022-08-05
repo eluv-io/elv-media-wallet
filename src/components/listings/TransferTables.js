@@ -63,7 +63,7 @@ export const ActiveListings = observer(({contractAddress, selectedListingId, sho
           [1, 1]
       }
       mobileColumnWidths={[1, 1]}
-      filters={sortOptions}
+      initialFilters={sortOptions}
       pinnedEntries={initialListing ? [initialListing] : null}
       CalculateRowValues={(listing, index) => {
         if(listing.details.ListingId === initialListingId && index > 0) {
