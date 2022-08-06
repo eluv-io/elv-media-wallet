@@ -89,7 +89,7 @@ const MarketplaceCollection = observer(() => {
       to={UrlJoin(basePath, collection.sku, "redeem")}
       className="action action-primary marketplace__collection__redeem__button"
     >
-      Redeem
+      Select NFTs to Redeem
     </Link>
   );
 
@@ -99,7 +99,7 @@ const MarketplaceCollection = observer(() => {
         disabled={true}
         className="action action-primary marketplace__collection__redeem__button"
       >
-        Redeem
+        Select NFTs to Redeem
       </button>
     );
   }
