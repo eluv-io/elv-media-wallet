@@ -205,6 +205,10 @@ export const InitializeListener = (history) => {
         // client.LogIn
         case "login":
           if(rootStore.AuthInfo()?.clientAuthToken === data.params.clientAuthToken) {
+            while(rootStore.authenticating) {
+              await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
             // Already logged in with this token
             return Respond({});
           }

@@ -79,11 +79,7 @@ class TransferStore {
             if(listingStatus.action === "SOLD") {
               return { sale: listingStatus };
             } else if(listingStatus.action === "UNLISTED") {
-              if(nft) {
-                return { listing: undefined };
-              } else {
-                return { error: "This listing has been removed" };
-              }
+              return { removed: listingStatus };
             }
           }
         // eslint-disable-next-line no-empty

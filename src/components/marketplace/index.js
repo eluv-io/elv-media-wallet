@@ -10,7 +10,7 @@ import UrlJoin from "url-join";
 import {observer} from "mobx-react";
 import AsyncComponent from "Components/common/AsyncComponent";
 import Drop from "Components/event/Drop";
-import NFTDetails from "Components/wallet/NFTDetails";
+import {ListingDetails, MarketplaceItemDetails, MintedNFTDetails} from "Components/nft/NFTDetails";
 import {
   ClaimMintingStatus,
   CollectionRedeemStatus,
@@ -18,7 +18,6 @@ import {
   PackOpenStatus,
   PurchaseMintingStatus
 } from "Components/marketplace/MintingStatus";
-import MarketplaceItemDetails from "Components/marketplace/MarketplaceItemDetails";
 import MarketplaceOwned from "Components/marketplace/MarketplaceOwned";
 import MarketplaceStorefront from "Components/marketplace/MarketplaceStorefront";
 import MarketplaceBrowser from "Components/marketplace/MarketplaceBrowser";
@@ -104,12 +103,12 @@ const MarketplaceWrapper = observer(({children}) => {
 
           await Promise.all([
             rootStore.LoadMarketplace(match.params.marketplaceId),
-            rootStore.LoadNFTInfo()
+            rootStore.LoadNFTContractInfo()
           ]);
         }}
         loadingClassName="page-loader content"
       >
-        <div className="marketplace content">
+        <div className="marketplace content" key={`marketplace-component-${match.url}`}>
           { children }
         </div>
       </AsyncComponent>
@@ -125,25 +124,25 @@ const Routes = (match) => {
   const nft = rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId}) || { metadata: {} };
 
   return [
-    { name: "Listing", path: "/marketplace/:marketplaceId/listings/:listingId", Component: NFTDetails },
+    { name: "Listing", path: "/marketplace/:marketplaceId/listings/:listingId", Component: ListingDetails },
     { name: "Listings", path: "/marketplace/:marketplaceId/listings", Component: Listings },
-    { name: nft?.metadata?.display_name, path: "/marketplace/:marketplaceId/my-listings/:contractId/:tokenId", Component: NFTDetails, authed: true },
+    { name: nft?.metadata?.display_name, path: "/marketplace/:marketplaceId/my-listings/:contractId/:tokenId", Component: MintedNFTDetails, authed: true },
     { name: "My Listings", path: "/marketplace/:marketplaceId/my-listings", Component: MyListings, authed: true },
     { name: "My Transactions", path: "/marketplace/:marketplaceId/my-listings/transactions", Component: MyListings, authed: true },
     { name: "Activity", path: "/marketplace/:marketplaceId/activity", Component: RecentSales },
-    { name: nft?.metadata?.display_name, path: "/marketplace/:marketplaceId/activity/:contractId/:tokenId", Component: NFTDetails },
+    { name: nft?.metadata?.display_name, path: "/marketplace/:marketplaceId/activity/:contractId/:tokenId", Component: MintedNFTDetails },
 
     { name: "Drop Event", path: "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId", Component: Drop, hideNavigation: true, authed: true, ignoreLoginCapture: true },
     { name: "Status", path: "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId/status", Component: DropMintingStatus, hideNavigation: true, authed: true },
 
     { name: ((marketplace.storefront || {}).tabs || {}).my_items || "My Items", path: "/marketplace/:marketplaceId/my-items", Component: MarketplaceOwned, authed: true },
-    { name: nft?.metadata?.display_name, path: "/marketplace/:marketplaceId/my-items/:contractId/:tokenId", Component: NFTDetails, authed: true },
+    { name: nft?.metadata?.display_name, path: "/marketplace/:marketplaceId/my-items/:contractId/:tokenId", Component: MintedNFTDetails, authed: true },
     { name: "Open Pack", path: "/marketplace/:marketplaceId/my-items/:contractId/:tokenId/open", Component: PackOpenStatus, authed: true },
 
     { name: "Collections", path: "/marketplace/:marketplaceId/collections", Component: MarketplaceCollectionsSummaryPage },
     { name: "Collections", path: "/marketplace/:marketplaceId/collections/:collectionSKU", Component: MarketplaceCollection },
     { name: item.name, path: "/marketplace/:marketplaceId/collections/:collectionSKU/store/:sku", Component: MarketplaceItemDetails },
-    { name: item.name, path: "/marketplace/:marketplaceId/collections/:collectionSKU/owned/:contractId/:tokenId", Component: NFTDetails },
+    { name: item.name, path: "/marketplace/:marketplaceId/collections/:collectionSKU/owned/:contractId/:tokenId", Component: MintedNFTDetails },
     { name: "Redeem Collection", path: "/marketplace/:marketplaceId/collections/:collectionSKU/redeem", Component: MarketplaceCollectionRedemption },
     { name: "Redeem Collection", path: "/marketplace/:marketplaceId/collections/:collectionSKU/redeem/:confirmationId/status", Component: CollectionRedeemStatus },
 

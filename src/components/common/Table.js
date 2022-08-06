@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {rootStore} from "Stores";
 import {Link} from "react-router-dom";
 import ImageIcon from "Components/common/ImageIcon";
@@ -6,6 +6,9 @@ import {observer} from "mobx-react";
 import {Loader} from "Components/common/Loaders";
 import {PageControls} from "Components/common/UIComponents";
 import {useInfiniteScroll} from "react-g-infinite-scroll";
+import ListingFilters from "Components/listings/ListingFilters";
+import ListingStats from "Components/listings/ListingStats";
+import {SavedValue} from "../../utils/Utils";
 
 const Table = observer(({
   headerText,
@@ -14,7 +17,7 @@ const Table = observer(({
   entries,
   paging,
   pagingMode="infinite",
-  perPage=10,
+  topPagination,
   hidePagingInfo,
   Update,
   scrollRef,
@@ -70,6 +73,7 @@ const Table = observer(({
   }
 
   // Pagination info
+  const tableRef = useRef();
   let pagingInfo = null;
   if(paging && !hidePagingInfo) {
     pagingInfo = (
@@ -85,8 +89,24 @@ const Table = observer(({
     );
   }
 
+  let pageControls;
+  if(pagingMode === "paginated") {
+    pageControls = (
+      <PageControls
+        className="transfer-table__page-controls"
+        paging={paging}
+        hideIfOnePage
+        SetPage={page => {
+          Update(page);
+
+          setTimeout(() => tableRef?.current?.scrollIntoView({behavior: "smooth"}), 500);
+        }}
+      />
+    );
+  }
+
   return (
-    <div className="transfer-table-container">
+    <div className="transfer-table-container" ref={tableRef}>
       <div className={`transfer-table ${className}`}>
         {
           !headerText ? null :
@@ -96,10 +116,13 @@ const Table = observer(({
             </div>
         }
         { pagingInfo }
+        { pageControls && topPagination ? pageControls : null }
         {
           (!paging && pagingMode !== "none") ?
-            <div className={`transfer-table__table ${pagingMode === "infinite" ? "transfer-table__table--infinite" : "transfer-table__table--paginated"}`} ref={scrollRef} /> :
-            <div className={`transfer-table__table ${pagingMode === "infinite" ? "transfer-table__table--infinite" : "transfer-table__table--paginated"}`} ref={scrollRef}>
+            <div className={`transfer-table__table transfer-table__table--${pagingMode}`} ref={scrollRef}>
+              <Loader />
+            </div> :
+            <div className={`transfer-table__table transfer-table__table--${pagingMode}`} ref={scrollRef}>
               <div className="transfer-table__table__header" style={{gridTemplateColumns}}>
                 {
                   columnHeaders.map((field, columnIndex) => {
@@ -171,24 +194,25 @@ const Table = observer(({
             </div>
         }
       </div>
-      {
-        pagingMode === "paginated" ?
-          <PageControls className="transfer-table__page-controls" paging={paging} perPage={perPage} SetPage={page => Update(page)} /> :
-          null
-      }
+      { pageControls }
     </div>
   );
 });
 
-export const FilteredTable = observer(({mode, filters, pinnedEntries, CalculateRowValues, pagingMode="infinite", perPage=10, ...props}) => {
+const savedPage = SavedValue(1, "");
+
+export const FilteredTable = observer(({mode, initialFilters, pinnedEntries, showFilters, topPagination, showStats, CalculateRowValues, pagingMode="infinite", perPage=10, ...props}) => {
   const [page, setPage] = useState(1);
   const [loadKey, setLoadKey] = useState(1);
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
   const [paging, setPaging] = useState(undefined);
+  const [filters, setFilters] = useState(initialFilters);
   const [previousFilters, setPreviousFilters] = useState(filters);
 
   useEffect(() => {
+    if(!filters) { return; }
+
     let Method;
     switch(mode) {
       case "listings":
@@ -227,20 +251,27 @@ export const FilteredTable = observer(({mode, filters, pinnedEntries, CalculateR
 
         setPaging(paging);
         setPreviousFilters(filters);
+        savedPage.SetValue(page, JSON.stringify(filters));
       })
       .finally(() => setLoading(false));
   }, [page, loadKey]);
 
   // Reload from start when filters change
   useEffect(() => {
-    if(JSON.stringify(filters || {}) === JSON.stringify(previousFilters)) {
+    if(!filters || JSON.stringify(filters || {}) === JSON.stringify(previousFilters)) {
       return;
     }
 
     setEntries([]);
 
-    page === 1 ? setLoadKey(loadKey + 1) : setPage(1);
+    const newPage = savedPage.GetValue(JSON.stringify(filters));
+
+    page === newPage ? setLoadKey(loadKey + 1) : setPage(newPage);
   }, [filters]);
+
+  useEffect(() => {
+    setFilters(initialFilters);
+  }, [initialFilters]);
 
   let rows = entries;
   if(pinnedEntries && !loading && entries.length > 0) {
@@ -250,7 +281,7 @@ export const FilteredTable = observer(({mode, filters, pinnedEntries, CalculateR
     ];
   }
 
-  return (
+  let table = (
     <Table
       {...props}
       loading={loading}
@@ -261,8 +292,33 @@ export const FilteredTable = observer(({mode, filters, pinnedEntries, CalculateR
       }
       pagingMode={pagingMode}
       paging={paging}
+      topPagination={topPagination}
       Update={newPage => setPage(newPage || page + 1)}
     />
+  );
+
+  if(!showFilters && !showStats) {
+    return table;
+  }
+
+  return (
+    <div className="filtered-view">
+      {
+        showFilters ?
+          <ListingFilters
+            mode={mode}
+            UpdateFilters={async (newFilters) => {
+              setLoading(true);
+              setEntries([]);
+              setPaging(undefined);
+              setFilters(newFilters);
+              setPage(1);
+            }}
+          /> : null
+      }
+      { filters && showStats ? <ListingStats mode={mode} filterParams={filters} /> : null }
+      { table }
+    </div>
   );
 });
 

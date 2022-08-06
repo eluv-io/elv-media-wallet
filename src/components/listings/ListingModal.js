@@ -4,7 +4,7 @@ import Modal from "Components/common/Modal";
 import Confirm from "Components/common/Confirm";
 import {ActiveListings} from "Components/listings/TransferTables";
 import {cryptoStore, rootStore} from "Stores";
-import NFTCard from "Components/common/NFTCard";
+import NFTCard from "Components/nft/NFTCard";
 import {ButtonWithLoader, FormatPriceString} from "Components/common/UIComponents";
 import {roundToDown, roundToUp} from "round-to";
 import ImageIcon from "Components/common/ImageIcon";
@@ -22,7 +22,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
 
   useEffect(() => {
     rootStore.walletClient.TenantConfiguration({
-      contractAddress: nft.details.ContractAddr,
+      contractAddress: nft.details.ContractAddr
     })
       .then(config => {
         setRoyaltyRate(parseFloat((config || {})["nft-royalty"] || 10) / 100);
@@ -42,7 +42,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
       <div className="listing-modal">
         <h1 className="listing-modal__header">Sell your NFT</h1>
         <div className="listing-modal__content">
-          <NFTCard nft={nft} price={{USD: parsedPrice}} usdcAccepted={cryptoStore.usdcConnected} usdcOnly={cryptoStore.usdcOnly} showToken truncateDescription />
+          <NFTCard nft={nft} price={{USD: parsedPrice}} usdcAccepted={cryptoStore.usdcConnected} usdcOnly={cryptoStore.usdcOnly} truncateDescription />
           <div className="listing-modal__form listing-modal__inputs">
             <div className="listing-modal__active-listings">
               <h2 className="listing-modal__active-listings__header">Active Listings for this NFT</h2>

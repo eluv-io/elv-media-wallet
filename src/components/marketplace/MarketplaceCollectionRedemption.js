@@ -3,17 +3,15 @@ import {observer} from "mobx-react";
 import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import {checkoutStore, rootStore} from "Stores";
 import UrlJoin from "url-join";
-import {NFTImage} from "Components/common/Images";
 import ImageIcon from "Components/common/ImageIcon";
 
 import {PageLoader} from "Components/common/Loaders";
-import {ButtonWithLoader, FormatPriceString} from "Components/common/UIComponents";
-import ItemCard from "Components/common/ItemCard";
+import {ButtonWithLoader} from "Components/common/UIComponents";
 import ListingIcon from "Assets/icons/listings icon";
-import {NFTDisplayToken} from "../../utils/Utils";
 
 import BackIcon from "Assets/icons/arrow-left";
 import Confirm from "Components/common/Confirm";
+import NFTCard from "Components/nft/NFTCard";
 
 const MarketplaceCollection = observer(() => {
   const match = useRouteMatch();
@@ -55,9 +53,10 @@ const MarketplaceCollection = observer(() => {
               const selected = selectedCards[slot.sku]?.tokenId === nft.details.TokenIdStr;
               return (
                 <div className={`collection-redemption__option ${selected ? "collection-redemption__option--selected" : ""}`} key={`redemption-option-${nft.details.TokenIdStr}`}>
-                  <ItemCard
+                  <NFTCard
                     key={`nft-card-${nft.details.ContractId}-${nft.details.TokenIdStr}`}
-                    image={<NFTImage nft={nft} width={600} />}
+                    nft={nft}
+                    imageWidth={600}
                     badges={
                       nft.details.ListingId ?
                         <ImageIcon
@@ -67,23 +66,6 @@ const MarketplaceCollection = observer(() => {
                           className="item-card__badge"
                         /> : null
                     }
-                    name={nft.metadata.display_name}
-                    edition={nft.metadata.edition_name}
-                    sideText={NFTDisplayToken(nft)}
-                    description={nft.metadata.description}
-                    price={nft.details.ListingId ?
-                      FormatPriceString(
-                        nft.details.Price,
-                        {
-                          includeCurrency: !nft.details.USDCOnly,
-                          useCurrencyIcon: false,
-                          includeUSDCIcon: nft.details.USDCAccepted,
-                          prependCurrency: true
-                        }
-                      ) : null
-                    }
-                    usdcAccepted={nft.details.USDCAccepted}
-                    variant={nft.metadata.style}
                   />
                   <button
                     className={`action collection-redemption__option__button ${selected ? "action-primary" : ""}`}

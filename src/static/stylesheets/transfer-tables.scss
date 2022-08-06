@@ -7,12 +7,6 @@
   overflow-y: hidden;
   position: relative;
 
-  &--activity {
-    .transfer-table__table {
-      max-height: unset;
-    }
-  }
-
   &--active-listings {
     .transfer-table__table__header {
       border: 0;
@@ -31,7 +25,9 @@
   }
 
   &__page-controls {
-    margin-bottom: 50px;
+    &:last-child {
+      margin-bottom: 50px;
+    }
   }
 
   &__header {
@@ -70,11 +66,11 @@
 
   &__table {
     height: 100%;
-    max-height: 60vh;
     overflow-y: auto;
 
+    &--none,
     &--infinite {
-      max-height: 320px;
+      max-height: 350px;
       overscroll-behavior-y: contain; // sass-lint:disable-line no-misspelled-properties
     }
   }

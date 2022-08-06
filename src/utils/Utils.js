@@ -4,8 +4,10 @@ import VideoPlayCircleIcon from "Assets/icons/media/video play icon.svg";
 import VideoPlayIcon from "Assets/icons/media/video play icon (no circle).svg";
 import PlayIcon from "Assets/icons/media/Play icon.svg";
 
-import {rootStore} from "Stores";
+import {checkoutStore, rootStore} from "Stores";
 import UrlJoin from "url-join";
+import {FormatPriceString, ItemPrice} from "Components/common/UIComponents";
+import Utils from "@eluvio/elv-client-js/src/Utils";
 
 export const Slugify = str =>
   (str || "")
@@ -13,6 +15,31 @@ export const Slugify = str =>
     .replace(/ /g, "-")
     .replace(/[^a-z0-9\-]/g,"")
     .replace(/-+/g, "-");
+
+
+// Closure for saving values until a discriminant changes, e.g. page number or filters
+export const SavedValue = (initialValue, initialDiscriminant) => {
+  let value = initialValue;
+  let discriminant = initialDiscriminant;
+
+  return {
+    GetValue: (currentDiscriminant) => {
+      if(currentDiscriminant !== discriminant) {
+        value = initialValue;
+      }
+
+      return value;
+    },
+    SetValue: (newValue, newDiscriminant) => {
+      value = newValue;
+      discriminant = newDiscriminant;
+    },
+    Reset: () => {
+      value = initialValue;
+      discriminant = initialDiscriminant;
+    }
+  };
+};
 
 export const MediaIcon = (media, circle=false) => {
   switch(media?.media_type) {
@@ -101,8 +128,122 @@ export const NFTDisplayToken = nft => {
   }
 };
 
+export const NFTInfo = ({
+  nft,
+  item,
+  listing,
+  imageWidth,
+  showFullMedia,
+  showToken,
+  selectedMediaIndex=-1,
+}) => {
+  if(listing) {
+    nft = listing;
+  } else if(item && !nft) {
+    nft = {
+      metadata: item.nftTemplateMetadata,
+      details: {
+        ContractAddr: item.nftTemplateMetadata?.address
+      }
+    };
+  }
+
+  const listingId = nft?.details?.ListingId;
+  const price = item ? ItemPrice(item, checkoutStore.currency) : listing?.details?.Price;
+  const free = !price || item?.free;
+  const usdcAccepted = listing?.details?.USDCAccepted;
+  const usdcOnly = listing?.details?.USDCOnly;
+
+  const stock = item && checkoutStore.stock[item.sku];
+  const selectedMedia = (selectedMediaIndex >= 0 && (nft.metadata.additional_media || [])[selectedMediaIndex]);
+  const outOfStock = stock && stock.max && stock.minted >= stock.max;
+  const unauthorized = item && item.requires_permissions && !item.authorized;
+  const mediaInfo = NFTMediaInfo({nft, item, selectedMedia, showFullMedia, width: imageWidth});
+
+  const variant = (item?.nftTemplateMetadata || nft?.metadata).style;
+
+  const name = selectedMedia?.name || item?.name || nft.metadata.display_name;
+  const subtitle1 = selectedMedia ? selectedMedia.subtitle_1 : nft.metadata.edition_name;
+  const subtitle2 = selectedMedia ? selectedMedia.subtitle_2 : undefined;
+
+  const isOwned = nft?.details?.TokenOwner && Utils.EqualAddress(nft.details.TokenOwner, rootStore.CurrentAddress());
+  const heldDate = nft?.details?.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
+
+  const timeToAvailable = item && item.available_at ? new Date(item.available_at).getTime() - Date.now() : 0;
+  const timeToExpired = item && item.expires_at ? new Date(item.expires_at).getTime() - Date.now() : Infinity;
+  const available = !item || timeToAvailable <= 0 && timeToExpired > 0;
+  const released = !item || !item.available_at || timeToAvailable <= 0;
+  const expired = item && item.expires_at && timeToExpired > 0;
+  const maxOwned = stock && stock.max_per_user && stock.current_user >= stock.max_per_user;
+  const marketplacePurchaseAvailable = item && !outOfStock && available && !unauthorized && !maxOwned;
+  const hideAvailable = !available || (item && item.hide_available);
+
+
+  let sideText;
+  if(item && !hideAvailable && !outOfStock && !expired && !unauthorized && stock &&stock.max && stock.max < 10000000) {
+    sideText = `${stock.max - stock.minted} / ${stock.max} Available`;
+  } else if(!item && showToken) {
+    sideText = NFTDisplayToken(nft);
+  }
+
+  sideText = sideText ? sideText.toString().split("/") : undefined;
+
+  let status;
+  if(outOfStock) {
+    status = "Sold Out!";
+  }
+
+  let renderedPrice;
+  if(price) {
+    renderedPrice = FormatPriceString(price || {USD: listing.details.Price}, {includeCurrency: !usdcOnly, includeUSDCIcon: usdcAccepted, prependCurrency: true, useCurrencyIcon: false});
+  }
+
+  return {
+    // Details
+    nft,
+    item,
+    listing,
+    listingId,
+    name,
+    subtitle1,
+    subtitle2,
+    variant,
+    sideText,
+
+    // Price
+    price,
+    free,
+    renderedPrice,
+    usdcAccepted,
+    usdcOnly,
+
+    // Media
+    selectedMedia,
+    selectedMediaIndex,
+    mediaInfo,
+
+    // Status
+    stock,
+    status,
+    marketplacePurchaseAvailable,
+    available,
+    timeToAvailable,
+    timeToExpired,
+    released,
+    expired,
+    maxOwned,
+    unauthorized,
+    outOfStock,
+    isOwned,
+    heldDate
+  };
+};
+
 export const NFTMediaInfo = ({nft, item, selectedMedia, showFullMedia, width}) => {
   let imageUrl, embedUrl, mediaLink, useFrame=false;
+
+  const requiresPermissions = selectedMedia?.requires_permissions || item?.requires_permissions;
+  const authToken = requiresPermissions ? rootStore.authToken : rootStore.staticToken;
 
   if(!selectedMedia && nft.metadata.media && ["Ebook", "HTML"].includes(nft.metadata.media_type)) {
     selectedMedia = {
@@ -116,7 +257,7 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, showFullMedia, width}) =
   if(selectedMediaImageUrl) {
     imageUrl = new URL(selectedMediaImageUrl);
 
-    imageUrl.searchParams.set("authorization", rootStore.authToken || rootStore.staticToken);
+    imageUrl.searchParams.set("authorization", authToken);
     if(imageUrl && width) {
       imageUrl.searchParams.set("width", width);
     }
@@ -124,7 +265,7 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, showFullMedia, width}) =
 
   if(!imageUrl && ((item && item.image) || nft.metadata.image)) {
     imageUrl = new URL((item && item.image && item.image.url) || nft.metadata.image);
-    imageUrl.searchParams.set("authorization", rootStore.authToken || rootStore.staticToken);
+    imageUrl.searchParams.set("authorization", authToken);
 
     if(imageUrl && width) {
       imageUrl.searchParams.set("width", width);
@@ -167,7 +308,6 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, showFullMedia, width}) =
       embedUrl.searchParams.set("vid", LinkTargetHash(selectedMedia.media_link));
       embedUrl.searchParams.set("ct", "h");
       embedUrl.searchParams.set("ap", "");
-      embedUrl.searchParams.set("ath", rootStore.authToken || rootStore.staticToken);
     } else if(item && item.video) {
       embedUrl = new URL("https://embed.v3.contentfabric.io");
 
@@ -187,6 +327,10 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, showFullMedia, width}) =
 
     if(embedUrl) {
       embedUrl.searchParams.set("nwm", "");
+
+      if(requiresPermissions) {
+        embedUrl.searchParams.set("ath", authToken);
+      }
     }
   }
 
@@ -194,6 +338,7 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, showFullMedia, width}) =
     imageUrl,
     embedUrl,
     mediaLink,
+    requiresPermissions,
     useFrame
   };
 };

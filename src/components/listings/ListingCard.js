@@ -25,12 +25,12 @@ const ListingCard = ({listing, link, Refresh}) => {
   const sideText = (
     <div className="listing-card__side-text">
       <div className="listing-card__side-text__primary">
-        { first } { second ? "/" : "" }
+        { first }
       </div>
       {
         second ?
           <div className="listing-card__side-text__secondary">
-            { second }
+            { ` / ${second}` }
           </div> : null
       }
     </div>

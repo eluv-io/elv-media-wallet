@@ -64,7 +64,7 @@ const ScrollToMedia = (selectedMedia, containerElement) => {
 
 const NFTMediaControls = ({nft, containerElement, selectedMediaIndex, orderKey, setSelectedMediaIndex, currentPlayerInfo}) => {
   let media = nft.metadata.additional_media || [];
-  const isOwned = nft.details && rootStore.NFTInfo({contractAddress: nft.details.ContractAddr, tokenId: nft.details.TokenIdStr});
+  const isOwned = nft.details && rootStore.NFTContractInfo({contractAddress: nft.details.ContractAddr, tokenId: nft.details.TokenIdStr});
 
   if(!isOwned) {
     media = media.filter(item => !item.requires_permissions);

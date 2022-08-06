@@ -3,26 +3,21 @@ import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import {useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
-import {NFTImage} from "Components/common/Images";
-import {FormatPriceString} from "Components/common/UIComponents";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import ImageIcon from "Components/common/ImageIcon";
 import FilteredView from "Components/listings/FilteredView";
-import {NFTDisplayToken} from "../../utils/Utils";
-import ItemCard from "Components/common/ItemCard";
 
 import ListingIcon from "Assets/icons/listings icon";
 import LinkedIcon from "Assets/icons/linked wallet icon (r).svg";
+import NFTCard from "Components/nft/NFTCard";
 
 const Listing = memo(({url, listing}) => (
-  <ItemCard
+  <NFTCard
     link={UrlJoin(url, listing.details.ListingId)}
-    image={<NFTImage nft={listing} width={600}/>}
-    name={listing.metadata.display_name}
-    edition={listing.metadata.edition_name}
-    description={listing.metadata.description}
-    price={FormatPriceString({USD: listing.details.Price}, {includeCurrency: !listing.details.USDCOnly, includeUSDCIcon: listing.details.USDCAccepted, prependCurrency: true, useCurrencyIcon: false})}
-    sideText={NFTDisplayToken(listing)}
+    imageWidth={600}
+    nft={listing}
+    selectedListing={listing}
+    truncateDescription
     badges={
       <>
         {
@@ -35,7 +30,6 @@ const Listing = memo(({url, listing}) => (
         }
       </>
     }
-    variant={listing.metadata.style}
   />
 ));
 

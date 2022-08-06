@@ -1,7 +1,5 @@
 import React from "react";
 import {useRouteMatch} from "react-router-dom";
-import {checkoutStore} from "Stores";
-import {FormatPriceString, ItemPrice} from "Components/common/UIComponents";
 import {MarketplaceImage} from "Components/common/Images";
 import UrlJoin from "url-join";
 import ItemCard from "Components/common/ItemCard";
@@ -9,6 +7,7 @@ import FeaturedItemCard from "Components/common/FeaturedItemCard";
 import ImageIcon from "Components/common/ImageIcon";
 
 import TestIcon from "Assets/icons/alert-circle";
+import {NFTInfo} from "../../utils/Utils";
 
 const MarketplaceItemCard = ({
   type="Standard",
@@ -30,46 +29,37 @@ const MarketplaceItemCard = ({
     return null;
   }
 
-  const released = !item.available_at || Date.now() - new Date(item.available_at).getTime() > 0;
-  const expired = item.expires_at && new Date(item.expires_at).getTime() - Date.now() < 0;
-  const unauthorized = item.requires_permissions && !item.authorized;
-  const stock = checkoutStore.stock[item.sku];
-  const outOfStock = stock && stock.max && stock.minted >= stock.max;
-  const maxOwned = stock && stock.max_per_user && stock.current_user >= stock.max_per_user;
-  const total = ItemPrice(item, checkoutStore.currency);
-  const isFree = !total || item.free;
+  const info = NFTInfo({
+    item,
+    showFullMedia
+  });
 
   let description = item.description || item.nftTemplateMetadata.description;
-  if(unauthorized && !expired) {
+  if(info.unauthorized && !info.expired) {
     description = item.permission_description || description;
   }
 
   const variant = item.nftTemplateMetadata.style;
 
   let status, action, linkDisabled=noLink;
-  if(expired) {
+  if(info.expired) {
     action = "Listings";
     status = "Sale Ended";
-  } else if(unauthorized) {
+  } else if(info.unauthorized) {
     status = item.permission_message || "Private Offering";
     linkDisabled = true;
-  } else if(outOfStock) {
+  } else if(info.outOfStock) {
     action = "Listings";
     status = "Sold Out!";
-  } else if(!released) {
+  } else if(!info.released) {
     linkDisabled = true;
     status = "";
   } else {
-    action = isFree ? "Claim" : "Buy";
-  }
-
-  let availableStock;
-  if(item && !item.hide_available && !outOfStock && !expired && !unauthorized && stock &&stock.max && stock.max < 10000000) {
-    availableStock = `${stock.max - stock.minted} / ${stock.max} Available`;
+    action = info.free ? "Claim" : "Buy";
   }
 
   let CardComponent = ItemCard;
-  let sideText = noStock ? undefined : availableStock;
+  let sideText = noStock ? undefined : info.sideText;
   if(type === "Featured") {
     CardComponent = FeaturedItemCard;
 
@@ -81,15 +71,16 @@ const MarketplaceItemCard = ({
 
   let priceText = "";
   if(!noPrice) {
-    if(maxOwned) {
+    if(info.maxOwned) {
       priceText = "Maximum owned!";
-    } else if(!isFree) {
-      priceText = FormatPriceString(item.price, {includeCurrency: true, prependCurrency: true, useCurrencyIcon: false});
+    } else if(!info.free) {
+      priceText = info.renderedPrice;
     }
   }
 
   return (
     <CardComponent
+      info={info}
       link={linkDisabled ? undefined : (to || `${match.url}/${item.sku}`)}
       badges={
         item.nftTemplateMetadata.test ?
@@ -108,9 +99,9 @@ const MarketplaceItemCard = ({
           showFullMedia={showFullMedia}
         />
       )}
-      name={item.name}
+      name={info.name}
       searchName={item.nftTemplateMetadata.display_name}
-      edition={item.nftTemplateMetadata.edition_name}
+      subtitle1={info.subtitle1}
       description={description}
       price={priceText}
       sideText={sideText}
@@ -119,7 +110,7 @@ const MarketplaceItemCard = ({
       fullDescription={type === "Detail"}
       action={action}
       variant={variant}
-      className={`${className} item-card--marketplace ${type !== "Featured" && (outOfStock || expired || unauthorized) ? "card-container--disabled" : ""}`}
+      className={`${className} item-card--marketplace ${type !== "Featured" && (info.outOfStock || info.expired || info.unauthorized) ? "card-container--disabled" : ""}`}
       cardClassName={`${cardClassName}`}
     />
   );

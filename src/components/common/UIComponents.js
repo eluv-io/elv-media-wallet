@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import SVG from "react-inlinesvg";
 import {observer} from "mobx-react";
-import {rootStore} from "Stores";
+import {checkoutStore, rootStore} from "Stores";
 import {Loader} from "Components/common/Loaders";
 import ImageIcon from "Components/common/ImageIcon";
 import {v4 as UUID} from "uuid";
@@ -14,11 +14,12 @@ import CopyIcon from "Assets/icons/copy.svg";
 import PageBackIcon from "Assets/icons/pagination arrow back.svg";
 import PageForwardIcon from "Assets/icons/pagination arrow forward.svg";
 
-export const PageControls = observer(({paging, perPage, maxSpread=15, SetPage, className=""}) => {
+export const PageControls = observer(({paging, maxSpread=15, hideIfOnePage, SetPage, className=""}) => {
   if(!paging || paging.total === 0) { return null; }
 
+  const perPage = paging.limit || 1;
   const currentPage = Math.floor(paging.start / perPage) + 1;
-  const pages = Math.ceil(paging.total / perPage) + 1;
+  const pages = Math.ceil(paging.total / perPage);
 
   let spread = maxSpread;
   if(rootStore.pageWidth < 600) {
@@ -28,8 +29,12 @@ export const PageControls = observer(({paging, perPage, maxSpread=15, SetPage, c
   }
 
   let spreadStart = Math.max(1, currentPage - Math.floor(spread / 2));
-  const spreadEnd = Math.min(pages, spreadStart + spread);
+  const spreadEnd = Math.min(pages + 1, spreadStart + spread);
   spreadStart = Math.max(1, spreadEnd - spread);
+
+  if(hideIfOnePage && pages <= 1) {
+    return null;
+  }
 
   return (
     <div className={`page-controls ${className}`}>
@@ -81,27 +86,29 @@ export const ExpandableSection = ({header, icon, children, expanded=false, toggl
         { header }
       </button>
       { show ? <div className={`expandable-section__content ${contentClassName}`}>{ children }</div> : null }
-      { additionalContent || null }
+      { show && additionalContent || null }
     </div>
   );
 };
 
+export const Copy = async (value) => {
+  try {
+    value = (value || "").toString();
+
+    await navigator.clipboard.writeText(value);
+  } catch(error) {
+    const input = document.createElement("input");
+
+    input.value = value;
+    input.select();
+    input.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+  }
+};
+
 export const CopyableField = ({value, children, className="", ellipsis=true}) => {
-  const Copy = async () => {
-    try {
-      await navigator.clipboard.writeText(value);
-    } catch(error) {
-      const input = document.createElement("input");
-
-      input.value = value;
-      input.select();
-      input.setSelectionRange(0, 99999);
-      document.execCommand("copy");
-    }
-  };
-
   return (
-    <div className={`copyable-field ${className}`} onClick={Copy}>
+    <div className={`copyable-field ${className}`} onClick={() => Copy(value)}>
       <div className={`copyable-field__content ${ellipsis ? "ellipsis" : ""}`}>
         { children }
       </div>
@@ -137,7 +144,7 @@ export const FormatPriceString = (
   const currency = options?.currency || "USD";
 
   if(typeof priceList !== "object") {
-    priceList = { USD: priceList };
+    priceList = { [checkoutStore.currency]: priceList };
   }
 
   let price = ItemPrice({price: priceList}, currency);
@@ -224,6 +231,45 @@ export const ButtonWithLoader = ({children, className="", onClick, ...props}) =>
   );
 };
 
+export const ButtonWithMenu = ({buttonProps, RenderMenu, className=""}) => {
+  const ref = useRef();
+  const [showMenu, setShowMenu] = useState(false);
+
+  useEffect(() => {
+    const onClickOutside = event => {
+      if(!ref.current || !ref.current.contains(event.target)) {
+        setShowMenu(false);
+      }
+    };
+
+    document.addEventListener("click", onClickOutside);
+
+    return () => document.removeEventListener("click", onClickOutside);
+  }, []);
+
+  return (
+    <div className={`menu-button ${showMenu ? "menu-button--active" : ""} ${className}`} ref={ref}>
+      <button
+        {...buttonProps}
+        className={`menu-button__button ${buttonProps?.className || ""}`}
+        onClick={() => {
+          setShowMenu(!showMenu);
+
+          if(buttonProps?.onClick) {
+            buttonProps.onClick();
+          }
+        }}
+      />
+      {
+        showMenu ?
+          <div className="menu-button__menu">
+            { RenderMenu(() => setShowMenu(false)) }
+          </div> : null
+      }
+    </div>
+  );
+};
+
 let debounceTimeout;
 export const DebouncedInput = ({...props}) => {
   const [inputValue, setInputValue] = useState(props.value);
@@ -264,7 +310,6 @@ export const Select = ({label, value, options, placeholder, onChange, containerC
   if(currentIndex < 0 && !placeholder) {
     currentIndex = 0;
   }
-
 
   const [idPrefix] = useState(UUID());
   const [showMenu, setShowMenu] = useState(false);
@@ -312,6 +357,7 @@ export const Select = ({label, value, options, placeholder, onChange, containerC
 
     event.preventDefault();
 
+    setMouseIn(false);
     switch(event.key) {
       case "Escape":
         setShowMenu(false);
@@ -345,8 +391,6 @@ export const Select = ({label, value, options, placeholder, onChange, containerC
 
           setFilterLastTyped(Date.now());
         }
-
-        return;
     }
   };
 
@@ -366,7 +410,10 @@ export const Select = ({label, value, options, placeholder, onChange, containerC
           options.map((option, index) =>
             <li
               onClick={() => onChange(option[0])}
-              onMouseEnter={() => setSelectedIndex(index)}
+              onMouseEnter={() => {
+                setMouseIn(true);
+                setSelectedIndex(index);
+              }}
               role="option"
               data-value={option[0]}
               aria-selected={value === option[0]}

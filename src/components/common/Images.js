@@ -45,9 +45,9 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, showFullMedi
       setPlayer(undefined);
     }
 
-    const { imageUrl, embedUrl, mediaLink, useFrame } = NFTMediaInfo({nft, item, selectedMedia, width, showFullMedia});
+    const { imageUrl, embedUrl, mediaLink, requiresPermissions, useFrame } = NFTMediaInfo({nft, item, selectedMedia, width, showFullMedia});
 
-    setMedia({imageUrl, embedUrl, mediaLink, useFrame});
+    setMedia({imageUrl, embedUrl, mediaLink, requiresPermissions, useFrame});
   }, [selectedMedia]);
 
   if(media?.embedUrl) {
@@ -62,9 +62,12 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, showFullMedi
             { content }
           </div>
           <div className="item-card__image-container__actions">
-            <a href={media.embedUrl} target="_blank" className="item-card__image-container__action" title="Open Media in New Tab">
-              <ImageIcon icon={ExternalLinkIcon} label="Open Media"/>
-            </a>
+            {
+              !media.requiresPermissions ?
+                <a href={media.embedUrl} target="_blank" className="item-card__image-container__action" title="Open Media in New Tab">
+                  <ImageIcon icon={ExternalLinkIcon} label="Open Media"/>
+                </a> : null
+            }
             {
               allowFullscreen && media.useFrame ?
                 <button className="item-card__image-container__action item-card__image-container__action--full-screen" onClick={() => setFullscreen(true)} title="Fullscreen">
@@ -103,7 +106,7 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, showFullMedi
           allowFullscreen ?
             <div className="item-card__image-container__actions">
               {
-                media.mediaLink ?
+                media.mediaLink && !media.requiresPermissions ?
                   <a href={media.mediaLink} target="_blank" className="item-card__image-container__action" title="Open Media in New Tab">
                     <ImageIcon icon={ExternalLinkIcon} label="Open Media"/>
                   </a> : null

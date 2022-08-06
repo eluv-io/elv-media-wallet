@@ -104,6 +104,14 @@
   top: 0;
   width: 100%;
 
+  &.media-card {
+    padding: 20px;
+
+    .item-card__image-container {
+      margin: 0;
+    }
+  }
+
   &--disabled {
     opacity: 0.5;
   }
@@ -267,11 +275,11 @@
     &__actions {
       align-items: center;
       border-radius: 5px;
-      bottom: 12px;
       display: flex;
       overflow: hidden;
       position: absolute;
       right: 8px;
+      top: 12px;
       width: auto;
 
       &::after {

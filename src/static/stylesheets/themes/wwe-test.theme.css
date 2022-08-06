@@ -328,7 +328,8 @@ input:focus-visible,
 .transfer-table,
 .listing-card-container,
 .wallet-connect,
-.profile-page__section {
+.profile-page__section,
+.menu-button__menu {
   backdrop-filter: blur(20px);
 }
 
