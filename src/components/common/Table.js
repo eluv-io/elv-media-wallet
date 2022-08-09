@@ -111,7 +111,7 @@ const Table = observer(({
         {
           !headerText ? null :
             <div className="transfer-table__header">
-              { headerIcon ? <ImageIcon icon={headerIcon} className="transfer-table__header__icon" /> : <div className="transfer-table__header__icon-placeholder" /> }
+              { headerIcon ? <ImageIcon icon={headerIcon} className="transfer-table__header__icon" /> : null }
               { headerText }
             </div>
         }
@@ -229,6 +229,10 @@ export const FilteredTable = observer(({mode, initialFilters, pinnedEntries, sho
 
       case "owned":
         Method = async params => await rootStore.walletClient.UserItems(params);
+        break;
+
+      case "leaderboard":
+        Method = async params => await rootStore.walletClient.Leaderboard(params);
         break;
 
       default:
