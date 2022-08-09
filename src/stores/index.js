@@ -194,6 +194,18 @@ class RootStore {
     this.Initialize();
   }
 
+  UserIdToAddress(id) {
+    id = id || "";
+
+    if(id === "me") {
+      return this.walletClient.UserAddress();
+    } else if(id.startsWith("0x")) {
+      return Utils.FormatAddress(id);
+    } else {
+      throw Error("Not implemented");
+    }
+  }
+
   Initialize = flow(function * () {
     try {
       this.loaded = false;

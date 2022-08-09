@@ -16,11 +16,11 @@ import NFTCard from "Components/nft/NFTCard";
 const UserItems = observer(() => {
   const match = useRouteMatch();
 
-  const [myListings, setMyListings] = useState([]);
+  const [userListings, setUserListings] = useState([]);
 
   useEffect(() => {
-    rootStore.walletClient.UserListings()
-      .then(listings => setMyListings(listings));
+    rootStore.walletClient.UserListings({userAddress: rootStore.UserIdToAddress(match.params.userId)})
+      .then(listings => setUserListings(listings));
 
     if(match.params.marketplaceId) {
       if(!rootStore.sidePanelMode || !rootStore.noItemsAvailable) { return; }
@@ -48,7 +48,7 @@ const UserItems = observer(() => {
           <div className="card-list">
             {
               entries.map((nft) => {
-                const listing = myListings.find(listing =>
+                const listing = userListings.find(listing =>
                   nft.details.TokenIdStr === listing.details.TokenIdStr &&
                   Utils.EqualAddress(nft.details.ContractAddr, listing.details.ContractAddr)
                 );

@@ -13,7 +13,7 @@ import {
   PackOpenStatus,
   PurchaseMintingStatus
 } from "Components/marketplace/MintingStatus";
-import MyListings from "Components/listings/MyListings";
+import UserListings from "Components/user/UserListings";
 import UserItems from "Components/user/UserItems";
 import {Redirect, Route, Switch, useRouteMatch} from "react-router-dom";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
@@ -25,6 +25,7 @@ import {observer} from "mobx-react";
 import UserProfileContainer from "Components/profile/UserProfileContainer";
 import Drop from "Components/event/Drop";
 import MarketplaceStorefront from "Components/marketplace/MarketplaceStorefront";
+import UserActivity from "Components/user/UserActivity";
 
 const GetMarketplace = (match) => {
   return rootStore.marketplaces[match.params.marketplaceId] || {};
@@ -55,9 +56,9 @@ const UserRoutes = ({includeMarketplaceRoutes}) => {
   return [
     ...(includeMarketplaceRoutes ? UserMarketplaceRoutes() : []),
 
-    { name: "My Listings", path: "listings", includeUserProfile: true, Component: MyListings },
+    { name: "Listings", path: "listings", includeUserProfile: true, Component: UserListings },
+    { name: "Activity", path: "activity", includeUserProfile: true, Component: UserActivity },
     { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "listings/:contractId/:tokenId", Component: MintedNFTDetails },
-    { name: "My Transactions", path: "listings/transactions", Component: MyListings },
 
     { name: match => (GetMarketplace(match)?.storefront?.tabs?.my_items || "Items"), includeUserProfile: true, path: "items", Component: UserItems },
     { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId", Component: MintedNFTDetails },

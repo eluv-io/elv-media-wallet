@@ -181,8 +181,8 @@ const Profile = observer(() => {
           className="profile-page__transactions-link"
           to={
             match.params.marketplaceId ?
-              UrlJoin("/marketplace", match.params.marketplaceId, "my-listings", "transactions") :
-              "/wallet/my-listings/transactions"
+              UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "activity") :
+              "/wallet/users/me/activity"
           }
         >
           View Full Transaction History

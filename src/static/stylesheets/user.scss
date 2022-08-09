@@ -1,23 +1,21 @@
 .user {
   &__profile {
-    display: flex;
     align-items: center;
+    display: flex;
 
     &__image-container {
-      width: 120px;
       height: 120px;
       margin-right: 30px;
+      width: 120px;
     }
 
     &__image {
-      width: 100%;
-      height: 100%;
+      background: var(--color-bg-secondary);
+      border: 0;
       border-radius: 100%;
-      background: red;
-    }
-
-    &__details {
-
+      height: 100%;
+      outline: 0;
+      width: 100%;
     }
 
     &__name {
@@ -27,32 +25,32 @@
     }
 
     &__address-container {
-      height: 30px;
-      display: flex;
       align-items: center;
+      display: flex;
+      height: 30px;
     }
 
     &__address {
       @include component;
-      font-size: 12px;
-      padding: 0 10px;
-      display: flex;
       align-items: center;
-      justify-content: center;
-      height: 100%;
       border: 0;
+      display: flex;
+      font-size: 12px;
+      height: 100%;
+      justify-content: center;
+      padding: 0 10px;
     }
 
     &__address-copy {
       @include component;
-      height: 30px;
-      width: 30px;
-      padding: 7px;
-      display: flex;
       align-items: center;
+      border: 0;
+      display: flex;
+      height: 30px;
       justify-content: center;
       margin-left: 5px;
-      border: 0;
+      padding: 7px;
+      width: 30px;
 
       svg {
         height: 100%;
@@ -62,18 +60,20 @@
   }
 
   &__badges {
-    display: flex;
     align-items: center;
+    display: flex;
+    // sass-lint:disable no-misspelled-properties
     gap: 15px;
+    // sass-lint:enable no-misspelled-properties
     margin-top: 25px;
   }
 
   &__badge {
     @include component;
-    display: flex;
     align-items: center;
-    padding: 20px 15px;
     border: 0;
+    display: flex;
+    padding: 20px 15px;
 
     &__label {
       margin-right: 30px;
@@ -82,7 +82,7 @@
 
   &__nav {
     justify-content: flex-start;
-    margin: 25px 0;
+    margin: 25px 0 50px;
 
     &__link {
       margin: 0 30px 0 0;

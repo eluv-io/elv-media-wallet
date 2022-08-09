@@ -17,9 +17,6 @@ const UserProfileContainer = observer(({children}) => {
     addr: rootStore.client.utils.nullAddress
   };
 
-  console.log(match);
-  console.log(marketplace)
-
   return (
     <div className="user">
       <div className="user__profile">
