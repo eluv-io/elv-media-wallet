@@ -281,7 +281,7 @@
   z-index: 1;
 
   * {
-    transition: background 0.15s linear, color 0.15s linear, border 0.15s linear;
+    transition: background 0.1s linear, color 0.1s linear, border 0.1s linear;
   }
 
   &--active {
@@ -329,7 +329,9 @@
 
     & > * {
       align-items: center;
+      background: var(--background-input);
       border: 0;
+      color: var(--color-input-text);
       display: flex;
       font-size: 14px;
       height: 45px;
@@ -341,12 +343,12 @@
 
       &:hover,
       &:active {
-        background: var(--background-button-primary);
-        color: var(--color-button-primary-text);
+        background: var(--color-input-highlight-bg);
+        color: var(--color-input-highlight-text);
 
         svg {
           * {
-            color: var(--color-button-primary-text);
+            color: var(--color-input-highlight-text);
           }
         }
       }

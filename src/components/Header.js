@@ -43,7 +43,7 @@ const Profile = observer(({marketplace}) => {
           (rootStore.embedded && marketplace?.branding?.hide_profile_name) ?
             null :
             <div className="header__profile__name">
-              { user.email || user.address }
+              { rootStore.userProfiles.me?.userName || user.email || user.address }
             </div>
         }
         {

@@ -7,6 +7,12 @@
   overflow-y: hidden;
   position: relative;
 
+  &--leaderboard {
+    .transfer-table__table__row {
+      min-height: 50px;
+    }
+  }
+
   &--active-listings {
     .transfer-table__table__header {
       border: 0;
@@ -113,7 +119,9 @@
   }
 
   &__table__row {
+    align-items: center;
     border: 2px solid transparent;
+    width: 100%;
 
     &--no-click {
       cursor: auto;
@@ -199,6 +207,22 @@
       height: 16px;
       margin-right: 5px;
       width: 16px;
+    }
+
+    &--with-image {
+      align-items: center;
+      display: flex;
+      justify-content: center;
+    }
+
+    &__image {
+      background: var(--background-component-secondary);
+      border-radius: 100%;
+      height: 50px;
+      margin-right: 10px;
+      object-fit: cover;
+      object-position: center;
+      width: 50px;
     }
   }
 

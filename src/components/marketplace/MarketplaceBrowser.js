@@ -122,6 +122,10 @@ const MarketplaceBrowser = observer(() => {
     );
   }
 
+  useEffect(() => {
+    rootStore.ClearMarketplace();
+  }, []);
+
   return (
     <div className="marketplace-browser">
       <div className="content content--no-background">

@@ -177,7 +177,8 @@ const Table = observer(({
                                         display: "block",
                                         overflow: "hidden",
                                         whiteSpace: "nowrap",
-                                        textOverflow: "ellipsis"
+                                        textOverflow: "ellipsis",
+                                        height: "max-content"
                                       } : {}
                                   }
                                 >

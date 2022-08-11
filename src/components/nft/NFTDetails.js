@@ -40,6 +40,7 @@ import PlayIcon from "Assets/icons/blue play icon.svg";
 import BackIcon from "Assets/icons/arrow-left.svg";
 import ShareIcon from "Assets/icons/share icon.svg";
 import TwitterIcon from "Assets/icons/twitter.svg";
+import PictureIcon from "Assets/icons/image.svg";
 import CopyIcon from "Assets/icons/copy.svg";
 
 const NFTMediaSection = ({nftInfo, containerElement, selectedMediaIndex, setSelectedMediaIndex, currentPlayerInfo}) => {
@@ -358,8 +359,13 @@ const NFTContractSection = ({nftInfo, SetBurned, ShowTransferModal}) => {
   );
 };
 
-const NFTInfoMenu = ({nftInfo}) => {
+const NFTInfoMenu = observer(({nftInfo}) => {
   const match = useRouteMatch();
+
+  let nftImageUrl;
+  if(nftInfo.isOwned && rootStore.userProfiles.me?.imageUrl?.toString() !== nftInfo?.mediaInfo.imageUrl?.toString()) {
+    nftImageUrl = nftInfo?.mediaInfo?.imageUrl;
+  }
 
   const listingId = match.params.listingId || nftInfo.listingId;
   let shareUrl;
@@ -380,7 +386,7 @@ const NFTInfoMenu = ({nftInfo}) => {
     twitterUrl.searchParams.set("text", `${nftInfo.name}\n\n`);
   }
 
-  if(!shareUrl && !(nftInfo.mediaInfo && !nftInfo.mediaInfo.requiresPermissions)) {
+  if(!nftImageUrl && !shareUrl && !(nftInfo.mediaInfo && !nftInfo.mediaInfo.requiresPermissions)) {
     return null;
   }
 
@@ -395,9 +401,16 @@ const NFTInfoMenu = ({nftInfo}) => {
         RenderMenu={Close => (
           <>
             {
+              nftImageUrl ?
+                <ButtonWithLoader onClick={async () => await rootStore.UpdateUserProfile({newProfileImageUrl: nftImageUrl.toString()})}>
+                  <ImageIcon icon={PictureIcon} />
+                  Set as My Profile Image
+                </ButtonWithLoader> : null
+            }
+            {
               twitterUrl ?
                 <a href={twitterUrl.toString()} target="_blank" onClick={Close}>
-                  <ImageIcon icon={TwitterIcon}/>
+                  <ImageIcon icon={TwitterIcon} />
                   Share on Twitter
                 </a> : null
             }
@@ -430,7 +443,7 @@ const NFTInfoMenu = ({nftInfo}) => {
       />
     </div>
   );
-};
+});
 
 const NFTInfoSection = ({nftInfo, className=""}) => {
   let sideText = nftInfo.sideText;
@@ -899,7 +912,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
       <div key={match.url} className="details-page" ref={element => setDetailsRef(element)}>
         <Link to={backPage.path} className="details-page__back-link">
           <ImageIcon icon={BackIcon} />
-          Back to { marketplace ? marketplace.branding?.name || "Marketplace" : backPage.name }
+          Back to { backPage.name }
         </Link>
         <div className="details-page__main-content">
           <div className="details-page__content-container">

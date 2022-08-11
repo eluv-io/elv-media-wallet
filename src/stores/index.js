@@ -17,6 +17,7 @@ import TransferStore from "Stores/Transfer";
 import NFTContractABI from "../static/abi/NFTContract";
 import CryptoStore from "Stores/Crypto";
 import {v4 as UUID} from "uuid";
+import ProfanityFilter from "bad-words";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
@@ -116,6 +117,8 @@ class RootStore {
   nftInfo = {};
   nftData = {};
 
+  userProfiles = {};
+
   marketplaces = {};
   marketplaceOwnedCache = {};
 
@@ -194,18 +197,6 @@ class RootStore {
     this.Initialize();
   }
 
-  UserIdToAddress(id) {
-    id = id || "";
-
-    if(id === "me") {
-      return this.walletClient.UserAddress();
-    } else if(id.startsWith("0x")) {
-      return Utils.FormatAddress(id);
-    } else {
-      throw Error("Not implemented");
-    }
-  }
-
   Initialize = flow(function * () {
     try {
       this.loaded = false;
@@ -225,6 +216,7 @@ class RootStore {
       }
 
       this.walletClient = yield ElvWalletClient.Initialize({
+        appId: "eluvio-media-wallet",
         network: EluvioConfiguration.network,
         mode: EluvioConfiguration.mode,
         storeAuthToken: false
@@ -376,6 +368,7 @@ class RootStore {
       this.client = this.walletClient.client;
 
       this.GetWalletBalance();
+      this.UserProfile({userAddress: address});
 
       this.funds = parseFloat((yield this.client.GetBalance({address}) || 0));
 
@@ -486,6 +479,118 @@ class RootStore {
 
     return url.toString();
   }
+
+  async ValidateUserName(userName) {
+    const symbolFilter = new RegExp(/^[A-Za-zÀ-ÖØ-öø-ÿ0-9_]+$/);
+    const profanityFilter = new ProfanityFilter();
+
+    let errorMessage;
+    if(userName.length < 3 || userName.length > 30) {
+      errorMessage = "Username must be between 3 and 30 characters";
+    } else if(!symbolFilter.test(userName)) {
+      errorMessage = "Username must consist of alphanumeric characters, numbers, and underscores";
+    } else if(profanityFilter.isProfane(userName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace("_", " "))) {
+      errorMessage = "Invalid username";
+    } else {
+      const address = await rootStore.walletClient.UserNameToAddress({userName});
+
+      if(address && !Utils.EqualAddress(address, rootStore.CurrentAddress())) {
+        errorMessage = "Username has already been taken";
+      }
+    }
+
+    return errorMessage;
+  }
+
+  ValidProfileImageUrl(imageUrl) {
+    try {
+      const url = new URL(imageUrl);
+
+      return url.hostname.endsWith("contentfabric.io");
+    } catch(error) {
+      return false;
+    }
+  }
+
+  ProfileImageUrl(imageUrl, width) {
+    if(!imageUrl || !this.ValidProfileImageUrl(imageUrl)) { return; }
+
+    try {
+      imageUrl = new URL(imageUrl);
+      imageUrl.searchParams.set("width", width);
+
+      return imageUrl.toString();
+    // eslint-disable-next-line no-empty
+    } catch(error) {}
+  }
+
+  UserProfile = flow(function * ({userAddress, userName, force=false}) {
+    if(userName === "me") {
+      userAddress = this.CurrentAddress();
+      userName = undefined;
+    }
+
+    if(userAddress) {
+      userAddress = Utils.FormatAddress(userAddress);
+    } else if(!userName) {
+      return;
+    }
+
+    if(force || (!this.userProfiles[userAddress] && !this.userProfiles[userName])) {
+      const profile = yield this.walletClient.Profile({userAddress, userName});
+
+      if(!profile) {
+        return;
+      }
+
+      if(profile.imageUrl && !this.ValidProfileImageUrl(profile.imageUrl)) {
+        delete profile.imageUrl;
+      }
+
+      this.userProfiles[profile.userAddress] = profile;
+      this.userProfiles[profile.userName] = profile;
+
+      if(Utils.EqualAddress(profile.userAddress, this.CurrentAddress())) {
+        this.userProfiles.me = profile;
+      }
+    }
+
+    return this.userProfiles[userAddress] || this.userProfiles[userName];
+  });
+
+  UpdateUserProfile = flow(function * ({newUserName, newProfileImageUrl}) {
+    const profile = yield this.UserProfile({userAddress: this.CurrentAddress()});
+
+    // Update username
+    if(newUserName) {
+      yield this.walletClient.SetProfileMetadata({
+        type: "user",
+        mode: "public",
+        key: "username",
+        value: newUserName
+      });
+    }
+
+    if(newProfileImageUrl) {
+      if(!this.ValidProfileImageUrl(newProfileImageUrl)) {
+        throw Error("Invalid profile image url: " + newProfileImageUrl);
+      }
+
+      yield this.walletClient.SetProfileMetadata({
+        type: "user",
+        mode: "public",
+        key: "icon_url",
+        value: newProfileImageUrl.toString()
+      });
+    }
+
+    if(profile.userName) {
+      this.userProfiles[profile.userName].newUserName = newUserName;
+    }
+
+    // Reload cache
+    yield this.UserProfile({userAddress: this.CurrentAddress(), force: true});
+  });
 
   // Get already loaded basic NFT contract info
   NFTContractInfo({tokenId, contractAddress, contractId}) {

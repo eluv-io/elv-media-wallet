@@ -352,7 +352,7 @@ const FilterMenu = ({mode, filterValues, editions, attributes, dropAttributes, s
   );
 };
 
-export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
+export const ListingFilters = observer(({mode="listings", initialFilters, UpdateFilters}) => {
   const match = useRouteMatch();
   const location = useLocation();
 
@@ -393,7 +393,8 @@ export const ListingFilters = observer(({mode="listings", UpdateFilters}) => {
     tokenIdRange: {
       min: "",
       max: ""
-    }
+    },
+    ...(initialFilters || {})
   };
 
   const [filterValues, setFilterValues] = useState({

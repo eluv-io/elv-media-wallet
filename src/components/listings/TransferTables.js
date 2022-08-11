@@ -203,12 +203,12 @@ export const PendingPaymentsTable = observer(({icon, header, limit, className=""
   );
 });
 
-export const UserTransferTable = observer(({icon, header, limit, marketplaceId, type="sale"}) => {
+export const UserTransferTable = observer(({userAddress, icon, header, limit, marketplaceId, type="sale"}) => {
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
 
   const UpdateHistory = async () => {
-    let entries = (await transferStore.UserPaymentsHistory())
+    let entries = (await transferStore.UserPaymentsHistory(userAddress))
       .map(entry => ({
         ...entry,
         type:

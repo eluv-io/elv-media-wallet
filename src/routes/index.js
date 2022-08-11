@@ -43,7 +43,7 @@ const GetNFT = (match) => {
 
 const UserMarketplaceRoutes = () => {
   return [
-    { name: "Collections", path: "collections", includeUserProfile: true, Component: MarketplaceCollectionsSummaryPage },
+    { name: "Collections", path: "collections", Component: MarketplaceCollectionsSummaryPage },
     { name: "Collections", path: "collections/:collectionSKU", Component: MarketplaceCollection },
     { name: match => (GetItem(match)?.name || "Item"), path: "collections/:collectionSKU/store/:sku", Component: MarketplaceItemDetails },
     { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "collections/:collectionSKU/owned/:contractId/:tokenId", Component: MintedNFTDetails },
@@ -57,7 +57,11 @@ const UserRoutes = ({includeMarketplaceRoutes}) => {
     ...(includeMarketplaceRoutes ? UserMarketplaceRoutes() : []),
 
     { name: "Listings", path: "listings", includeUserProfile: true, Component: UserListings },
+    { name: "Listing", path: "listings/:listingId", Component: ListingDetails },
+    { name: "Purchase Listing", path: "listings/:listingId/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
+
     { name: "Activity", path: "activity", includeUserProfile: true, Component: UserActivity },
+
     { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "listings/:contractId/:tokenId", Component: MintedNFTDetails },
 
     { name: match => (GetMarketplace(match)?.storefront?.tabs?.my_items || "Items"), includeUserProfile: true, path: "items", Component: UserItems },
@@ -86,6 +90,13 @@ const SharedRoutes = ({includeMarketplaceRoutes}) => {
 
 const MarketplaceRoutes = () => {
   return [
+    { name: "Collections", path: "collections", Component: MarketplaceCollectionsSummaryPage },
+    { name: "Collections", path: "collections/:collectionSKU", Component: MarketplaceCollection },
+    { name: match => (GetItem(match)?.name || "Item"), path: "collections/:collectionSKU/store/:sku", Component: MarketplaceItemDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "collections/:collectionSKU/owned/:contractId/:tokenId", Component: MintedNFTDetails },
+    { name: "Redeem Collection", path: "collections/:collectionSKU/redeem", Component: MarketplaceCollectionRedemption },
+    { name: "Redeem Collection", path: "collections/:collectionSKU/redeem/:confirmationId/status", Component: CollectionRedeemStatus },
+
     { name: "Drop Event", path: "events/:tenantSlug/:eventSlug/:dropId", Component: Drop, hideNavigation: true, authed: true, ignoreLoginCapture: true },
     { name: "Drop Status", path: "events/:tenantSlug/:eventSlug/:dropId/status", Component: DropMintingStatus, hideNavigation: true, authed: true },
 

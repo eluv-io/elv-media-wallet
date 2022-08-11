@@ -25,7 +25,7 @@ const FilteredView = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [entries, setEntries] = useState([]);
-  const [filters, setFilters] = useState(initialFilters);
+  const [filters, setFilters] = useState(hideFilters ? initialFilters : undefined);
   const [paging, setPaging] = useState(undefined);
   const [page, setPage] = useState(1);
   const [lastUpdate, setLastUpdate] = useState(0);
@@ -130,6 +130,7 @@ const FilteredView = ({
         hideFilters ? null :
           <ListingFilters
             mode={mode}
+            initialFilters={initialFilters}
             UpdateFilters={async (newFilters) => {
               setLoading(true);
               setEntries([]);
@@ -146,8 +147,7 @@ const FilteredView = ({
             paging={paging}
             className={`filtered-view__page-controls ${loading ? "filtered-view__page-controls--loading" : ""}`}
             SetPage={page => setPage(page)}
-          />
-          : null
+          /> : null
       }
       { pagingInfo }
       {
@@ -179,8 +179,7 @@ const FilteredView = ({
                 containerRef.current.scrollIntoView({behavior: "smooth"});
               }
             }}
-          />
-          : null
+          /> : null
       }
     </div>
   );

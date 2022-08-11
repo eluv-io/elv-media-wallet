@@ -15,11 +15,12 @@ import NFTCard from "Components/nft/NFTCard";
 
 const UserItems = observer(() => {
   const match = useRouteMatch();
+  const userAddress = rootStore.userProfiles[match.params.userId].userAddress;
 
   const [userListings, setUserListings] = useState([]);
 
   useEffect(() => {
-    rootStore.walletClient.UserListings({userAddress: rootStore.UserIdToAddress(match.params.userId)})
+    rootStore.walletClient.UserListings({userAddress: rootStore.userProfiles[match.params.userId].userAddress})
       .then(listings => setUserListings(listings));
 
     if(match.params.marketplaceId) {
@@ -43,6 +44,7 @@ const UserItems = observer(() => {
       showPagingInfo
       topPagination
       scrollOnPageChange
+      initialFilters={{ userAddress }}
       Render={({entries}) =>
         entries.length === 0 ? null :
           <div className="card-list">

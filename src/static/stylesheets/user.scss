@@ -2,6 +2,7 @@
   &__profile {
     align-items: center;
     display: flex;
+    position: relative;
 
     &__image-container {
       height: 120px;
@@ -9,19 +10,43 @@
       width: 120px;
     }
 
+    &__image-button,
     &__image {
-      background: var(--color-bg-secondary);
+      background: var(--background-component-primary);
       border: 0;
       border-radius: 100%;
       height: 100%;
+      object-fit: cover;
+      object-position: center;
       outline: 0;
       width: 100%;
+
+      &--placeholder {
+        border: var(--border-component-primary);
+      }
     }
 
     &__name {
+      align-items: center;
+      display: flex;
       font: var(--font-component-header);
       font-size: 24px;
       margin-bottom: 10px;
+
+      &__edit-button {
+        align-items: center;
+        display: flex;
+        height: 30px;
+        margin-left: 10px;
+        min-width: unset;
+        padding: 6px;
+        width: 30px;
+
+        svg {
+          height: 100%;
+          width: 100%;
+        }
+      }
     }
 
     &__address-container {
@@ -49,6 +74,8 @@
       height: 30px;
       justify-content: center;
       margin-left: 5px;
+      min-height: 30px;
+      min-width: 30px;
       padding: 7px;
       width: 30px;
 
@@ -57,11 +84,21 @@
         width: 100%;
       }
     }
+
+    &__message {
+      bottom: 0;
+      color: var(--color-text-highlight);
+      font-size: 12px;
+      margin-left: 5px;
+      position: absolute;
+    }
   }
+
 
   &__badges {
     align-items: center;
     display: flex;
+    flex-wrap: wrap;
     // sass-lint:disable no-misspelled-properties
     gap: 15px;
     // sass-lint:enable no-misspelled-properties
@@ -73,7 +110,8 @@
     align-items: center;
     border: 0;
     display: flex;
-    padding: 20px 15px;
+    font-size: 16px;
+    padding: 20px;
 
     &__label {
       margin-right: 30px;
@@ -88,5 +126,87 @@
       margin: 0 30px 0 0;
       padding: 0;
     }
+  }
+
+  @media screen and (max-width: $tablet-breakpoint) {
+    &__profile {
+      flex-direction: column;
+      margin: 0 auto;
+      max-width: 400px;
+      width: 100%;
+
+      &__image-container {
+        height: 150px;
+        margin: 0 0 20px;
+        width: 150px;
+      }
+
+      &__details {
+        width: 100%;
+      }
+
+      &__name {
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+
+      &__address-container {
+        width: 100%;
+      }
+
+      &__address {
+        flex: 1 1 0;
+        width: 0;
+      }
+    }
+
+    &__badges {
+      // sass-lint:disable no-misspelled-properties
+      gap: 10px;
+      // sass-lint:enable no-misspelled-properties
+      justify-content: center;
+      margin: 10px auto;
+      max-width: 400px;
+    }
+
+    &__badge {
+      font-size: 14px;
+      justify-content: space-around;
+      padding: 15px;
+      width: 100%;
+    }
+
+    &__nav {
+      justify-content: center;
+      margin: 40px 0 20px;
+    }
+  }
+}
+
+.username-modal-container {
+  .modal__content {
+    align-items: center;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    overflow-y: hidden;
+  }
+}
+
+.username-modal {
+  &__inputs {
+    margin: 20px auto 10px;
+  }
+
+  input {
+    max-width: unset;
+  }
+
+  &__error-message {
+    color: var(--color-text-error);
+    margin-bottom: 10px;
+    min-height: 30px;
+    text-align: center;
+    width: 100%;
   }
 }

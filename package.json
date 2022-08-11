@@ -45,6 +45,7 @@
     "@solana/spl-token": "^0.2.0",
     "@solana/web3.js": "^1.37.0",
     "@stripe/stripe-js": "^1.17.1",
+    "bad-words": "^3.0.4",
     "country-codes-list": "^1.6.8",
     "jsdoc": "^3.6.10",
     "mobx": "^6.3.3",
