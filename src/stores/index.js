@@ -490,7 +490,11 @@ class RootStore {
       errorMessage = "Username must be between 3 and 30 characters";
     } else if(!symbolFilter.test(userName)) {
       errorMessage = "Username must consist of alphanumeric characters, numbers, and underscores";
-    } else if(invalidUsernames.includes(userName.toLowerCase()) || userName.toLowerCase().startsWith("0x") || profanityFilter.isProfane(userName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace("_", " "))) {
+    } else if(
+      invalidUsernames.includes(userName.toLowerCase()) ||
+      userName.toLowerCase().startsWith("0x") ||
+      profanityFilter.isProfane(userName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replaceAll("_", " "))
+    ) {
       errorMessage = "Invalid username";
     } else {
       const address = await rootStore.walletClient.UserNameToAddress({userName});
