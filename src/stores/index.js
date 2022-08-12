@@ -368,7 +368,7 @@ class RootStore {
       this.client = this.walletClient.client;
 
       this.GetWalletBalance();
-      this.UserProfile({userAddress: address});
+      this.UserProfile({userId: address, force: true});
 
       this.funds = parseFloat((yield this.client.GetBalance({address}) || 0));
 
@@ -529,7 +529,12 @@ class RootStore {
     } catch(error) {}
   }
 
-  UserProfile = flow(function * ({userAddress, userName, force=false}) {
+  UserProfile = flow(function * ({userId, force=false}) {
+    console.log("GETTING USER PROFILE FOR", userId);
+    let userAddress = userId.toLowerCase().startsWith("0x") ? userId : undefined;
+    let userName = !userId.toLowerCase().startsWith("0x") ? userId : undefined;
+
+    console.log(userName, userAddress);
     if(userName === "me") {
       userAddress = this.CurrentAddress();
       userName = undefined;
@@ -541,7 +546,7 @@ class RootStore {
       return;
     }
 
-    if(force || (!this.userProfiles[userAddress] && !this.userProfiles[userName])) {
+    if(force || !this.userProfiles[userId]) {
       const profile = yield this.walletClient.Profile({userAddress, userName});
 
       if(!profile) {
@@ -560,11 +565,11 @@ class RootStore {
       }
     }
 
-    return this.userProfiles[userAddress] || this.userProfiles[userName];
+    return this.userProfiles[userId];
   });
 
   UpdateUserProfile = flow(function * ({newUserName, newProfileImageUrl}) {
-    const profile = yield this.UserProfile({userAddress: this.CurrentAddress()});
+    const profile = yield this.UserProfile({userId: this.CurrentAddress()});
 
     // Update username
     if(newUserName) {
@@ -594,7 +599,7 @@ class RootStore {
     }
 
     // Reload cache
-    yield this.UserProfile({userAddress: this.CurrentAddress(), force: true});
+    yield this.UserProfile({userId: this.CurrentAddress(), force: true});
   });
 
   // Get already loaded basic NFT contract info

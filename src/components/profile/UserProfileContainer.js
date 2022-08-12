@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Link, NavLink, Redirect, useRouteMatch} from "react-router-dom";
+import {NavLink, Redirect, useRouteMatch} from "react-router-dom";
 import {rootStore} from "Stores";
 import {ButtonWithLoader, Copy, DebouncedInput} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
@@ -8,10 +8,9 @@ import {observer} from "mobx-react";
 import {PageLoader} from "Components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import Modal from "Components/common/Modal";
-import UrlJoin from "url-join";
 
+import UserIcon from "Assets/icons/user.svg";
 import EditIcon from "Assets/icons/edit listing icon.svg";
-import {LoginGate} from "Components/common/LoginGate";
 
 const UsernameModal = observer(({UpdateUsername, Close}) => {
   const userProfile = rootStore.userProfiles[rootStore.CurrentAddress()];
@@ -86,55 +85,28 @@ const UserProfileContainer = observer(({children}) => {
   const match = useRouteMatch();
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId] || {};
-  const userProfile = rootStore.userProfiles[match.params.userId];
-  const currentUser = Utils.EqualAddress(userProfile?.userAddress, rootStore.CurrentAddress());
 
-  const [userNotFound, setUserNotFound] = useState(false);
+  const [userProfile, setUserProfile] = useState(undefined);
   const [showUsernameModal, setShowUsernameModal] = useState(false);
   const [usernameUpdated, setUsernameUpdated] = useState(false);
 
+  const currentUser = Utils.EqualAddress(userProfile?.userAddress, rootStore.CurrentAddress());
+
   useEffect(() => {
     setUsernameUpdated(false);
-    rootStore.UserProfile({
-      userAddress: match.params.userId.startsWith("0x") ? match.params.userId : undefined,
-      userName: match.params.userId.startsWith("0x") ? undefined : match.params.userId
-    })
+    setUserProfile(undefined);
+    rootStore.UserProfile({userId: match.params.userId})
       .then(profile => {
-        if(!profile) {
-          setUserNotFound(true);
-        }
-      })
-      .catch(() => setUserNotFound(true));
+        setUserProfile(profile);
+      });
   }, [match.params.userId]);
-
-
-  if(userNotFound) {
-    if(match.params.userId === "me") {
-      return <LoginGate />;
-    }
-
-    return (
-      <div className="details-page details-page-message">
-        <div className="details-page__message-container">
-          <h2 className="details-page__message">
-            User not found
-          </h2>
-          <div className="actions-container">
-            <Link className="button action" to={match.params.marketplaceId ? UrlJoin("/marketplace", match.params.marketplaceId, "listings") : "/wallet/listings"}>
-              Back
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if(!userProfile) {
     return <PageLoader />;
   }
 
   // Username changed and route depends on username
-  if(usernameUpdated && userProfile.newUserName && match.params.userId !== "me" && !match.params.userId.startsWith("0x")) {
+  if(usernameUpdated && rootStore.userProfiles[match.params.userId].newUserName && match.params.userId !== "me" && !match.params.userId.startsWith("0x")) {
     return <Redirect to={match.url.replace(`/users/${match.params.userId}`, `/users/${userProfile.newUserName}`)} />;
   }
 
@@ -157,11 +129,11 @@ const UserProfileContainer = observer(({children}) => {
         }
         <div className="user__profile">
           <div className="user__profile__image-container">
-            {
-              userProfile.imageUrl ?
-                <ImageIcon icon={rootStore.ProfileImageUrl(userProfile.imageUrl, 800)} alternateIcon="<svg></svg>" className="user__profile__image" /> :
-                <div className="user__profile__image user__profile__image--placeholder" />
-            }
+            <ImageIcon
+              icon={rootStore.ProfileImageUrl(userProfile.imageUrl, 800) || UserIcon}
+              alternateIcon={UserIcon}
+              className="user__profile__image"
+            />
           </div>
           <div className="user__profile__details">
             <div className="user__profile__name">

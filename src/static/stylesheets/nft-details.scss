@@ -32,6 +32,27 @@
       }
     }
 
+    &__seller {
+      align-items: center;
+      display: flex;
+      margin-top: 30px;
+    }
+
+    &__seller-image-container {
+      height: 50px;
+      margin-right: 10px;
+      width: 50px;
+    }
+
+    &__seller-name {
+      color: var(--color-text-secondary);
+      font-size: 18px;
+    }
+
+    &__seller-address {
+      font-size: 12px;
+    }
+
     &__edition {
       margin-right: 20px;
     }

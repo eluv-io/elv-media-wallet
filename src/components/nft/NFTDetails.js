@@ -30,7 +30,9 @@ import {FilteredTable} from "Components/common/Table";
 import {MarketplaceImage, NFTImage} from "Components/common/Images";
 import AsyncComponent from "Components/common/AsyncComponent";
 import {Ago, MediaIcon, MiddleEllipsis, NFTInfo} from "../../utils/Utils";
+import Utils from "@eluvio/elv-client-js/src/Utils";
 
+import UserIcon from "Assets/icons/user.svg";
 import TransactionIcon from "Assets/icons/transaction history icon.svg";
 import DetailsIcon from "Assets/icons/Details icon.svg";
 import ContractIcon from "Assets/icons/Contract icon.svg";
@@ -446,10 +448,23 @@ const NFTInfoMenu = observer(({nftInfo}) => {
 });
 
 const NFTInfoSection = ({nftInfo, className=""}) => {
+  const match = useRouteMatch();
+
   let sideText = nftInfo.sideText;
   if(nftInfo.stock) {
     sideText = [`${nftInfo.stock.minted} Minted`, `${nftInfo.stock.max - nftInfo.stock.minted} Available`];
   }
+
+  useEffect(() => {
+    const sellerAddress = nftInfo?.listing?.details?.SellerAddress;
+
+    if(!sellerAddress) { return; }
+
+    rootStore.UserProfile({userId: sellerAddress});
+  }, [nftInfo?.listing?.details?.SellerAddress]);
+
+  const sellerAddress = nftInfo?.listing?.details?.SellerAddress;
+  const sellerProfile = sellerAddress ? rootStore.userProfiles[Utils.FormatAddress(sellerAddress)] : undefined;
 
   return (
     <div className={`details-page__nft-info ${className}`}>
@@ -520,6 +535,28 @@ const NFTInfoSection = ({nftInfo, className=""}) => {
                 </div> : null
             }
           </div> : null
+      }
+      {
+        sellerProfile ?
+          <Link
+            className="details-page__nft-info__seller"
+            to={
+              match.params.marketplaceId ?
+                UrlJoin("/marketplace", match.params.marketplaceId, "users", sellerProfile.userName || sellerProfile.userAddress, "listings") :
+                UrlJoin("/wallet", "users", sellerProfile.userName || sellerProfile.userAddress, "listings")
+            }
+          >
+            <div className="user__profile__image-container details-page__nft-info__seller-image-container">
+              <ImageIcon
+                icon={rootStore.ProfileImageUrl(sellerProfile.imageUrl, "400") || UserIcon}
+                className="user__profile__image details-page__nft_info__seller-image"
+                alternateIcon={UserIcon}
+              />
+            </div>
+            <div className={`details-page__nft-info__seller-name ${!sellerProfile.userName ? "details-page__nft-info__seller-address" : ""}`}>
+              { sellerProfile.userName ? `@${sellerProfile.userName}` : sellerProfile.userAddress }
+            </div>
+          </Link> : null
       }
     </div>
   );

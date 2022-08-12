@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {rootStore} from "Stores";
 import Profile from "Components/profile";
 import Leaderboard from "Components/marketplace/Leaderboard";
@@ -15,7 +15,7 @@ import {
 } from "Components/marketplace/MintingStatus";
 import UserListings from "Components/user/UserListings";
 import UserItems from "Components/user/UserItems";
-import {Redirect, Route, Switch, useRouteMatch} from "react-router-dom";
+import {Link, Redirect, Route, Switch, useRouteMatch} from "react-router-dom";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import MarketplaceCollectionsSummaryPage from "Components/marketplace/MarketplaceCollectionsSummary";
 import MarketplaceCollection from "Components/marketplace/MarketplaceCollection";
@@ -27,6 +27,7 @@ import Drop from "Components/event/Drop";
 import MarketplaceStorefront from "Components/marketplace/MarketplaceStorefront";
 import UserActivity from "Components/user/UserActivity";
 import UserCollections from "Components/user/UserCollections";
+import {PageLoader} from "Components/common/Loaders";
 
 const GetMarketplace = (match) => {
   return rootStore.marketplaces[match.params.marketplaceId] || {};
@@ -64,7 +65,7 @@ const UserRoutes = ({includeMarketplaceRoutes}) => {
     { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId", Component: MintedNFTDetails },
     { name: "Open Pack", path: "items/:contractId/:tokenId/open", Component: PackOpenStatus },
   ]
-    .map(route => ({ ...route, path: UrlJoin("users", ":userId", route.path) }));
+    .map(route => ({ ...route, loadUser: true, path: UrlJoin("users", ":userId", route.path) }));
 };
 
 const SharedRoutes = ({includeMarketplaceRoutes}) => {
@@ -105,6 +106,55 @@ const MarketplaceRoutes = () => {
     { path: "/", redirect: "/store" }
   ];
 };
+
+const UserRouteWrapper = observer(({children}) => {
+  const match = useRouteMatch();
+  const [userNotFound, setUserNotFound] = useState(false);
+
+  useEffect(() => {
+    setUserNotFound(false);
+    rootStore.UserProfile({userId: match.params.userId})
+      .then(profile => {
+        if(!profile) {
+          setUserNotFound(true);
+        }
+      })
+      .catch(() => {
+        setUserNotFound(true);
+      });
+  }, [match.params.userId]);
+
+  if(userNotFound) {
+    return (
+      <div className="details-page details-page-message">
+        <div className="details-page__message-container">
+          <h2 className="details-page__message">
+            User not found
+          </h2>
+          <div className="actions-container">
+            <Link className="button action" to={match.params.marketplaceId ? UrlJoin("/marketplace", match.params.marketplaceId, "listings") : "/wallet/listings"}>
+              Back
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if(match.params.userId === "me") {
+    return (
+      <LoginGate>
+        { children }
+      </LoginGate>
+    );
+  }
+
+  if(!rootStore.userProfiles[match.params.userId]) {
+    return <PageLoader />;
+  }
+
+  return children;
+});
 
 const RouteWrapper = observer(({routes, children}) => {
   const match = useRouteMatch();
@@ -168,7 +218,7 @@ const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
   return (
     <Switch>
       {
-        routes.map(({path, exact, authed, includeUserProfile, ignoreLoginCapture, Component}) => {
+        routes.map(({path, exact, authed, loadUser, includeUserProfile, ignoreLoginCapture, Component}) => {
           let result = (
             <RouteWrapper routes={routes}>
               { Component ? <Component key={`component-${path}`} /> : null }
@@ -188,6 +238,14 @@ const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
               <UserProfileContainer>
                 { result }
               </UserProfileContainer>
+            );
+          }
+
+          if(loadUser) {
+            result = (
+              <UserRouteWrapper>
+                { result }
+              </UserRouteWrapper>
             );
           }
 
