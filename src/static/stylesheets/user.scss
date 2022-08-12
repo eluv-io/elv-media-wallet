@@ -37,8 +37,9 @@
         align-items: center;
         display: flex;
         height: 30px;
+        min-height: 30px;
         margin-left: 10px;
-        min-width: unset;
+        min-width: 30px;
         padding: 6px;
         width: 30px;
 
@@ -148,6 +149,7 @@
       &__name {
         justify-content: center;
         margin-bottom: 20px;
+        font-size: 16px;
       }
 
       &__address-container {
@@ -178,7 +180,7 @@
 
     &__nav {
       justify-content: center;
-      margin: 40px 0 20px;
+      margin: 40px 0;
     }
   }
 }
