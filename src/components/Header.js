@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
-import {Link, NavLink, useLocation} from "react-router-dom";
+import {Link, NavLink, useLocation, useRouteMatch} from "react-router-dom";
 import {FormatPriceString} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import UrlJoin from "url-join";
@@ -87,9 +87,10 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
       {name: tabs.store || marketplace?.branding?.name || "Store", to: UrlJoin("/marketplace", marketplace.marketplaceId, "store")},
       {name: tabs.listings || "Listings", to: UrlJoin("/marketplace", marketplace.marketplaceId, "listings")},
       {name: "Activity", to: UrlJoin("/marketplace", marketplace.marketplaceId, "activity")},
+      {name: "Leaderboard", to: UrlJoin("/marketplace", marketplace.marketplaceId, "leaderboard")},
       {name: tabs.my_items || "My Items", to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items"), authed: true},
       {
-        name: rootStore.loggedIn ? "My Collections" : "Collections",
+        name: "Collections",
         to: UrlJoin("/marketplace", marketplace.marketplaceId, "collections"),
         hidden: !fullMarketplace || !fullMarketplace.collections || fullMarketplace.collections.length === 0
       },
@@ -208,7 +209,11 @@ const SubHeaderNavigation = observer(({marketplace}) => {
   const tabs = marketplace?.branding?.tabs || {};
   return (
     <nav className="subheader__navigation--personal">
-      <NavLink className="subheader__navigation-link" to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items") : "/wallet/users/me/items"}>
+      <NavLink
+        className="subheader__navigation-link"
+        to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items") : "/wallet/users/me/items"}
+        isActive={() => window.location.hash?.includes("/users/me/")}
+      >
         { tabs.my_items || "My Items" }
       </NavLink>
     </nav>
