@@ -26,6 +26,7 @@ import UserProfileContainer from "Components/profile/UserProfileContainer";
 import Drop from "Components/event/Drop";
 import MarketplaceStorefront from "Components/marketplace/MarketplaceStorefront";
 import UserActivity from "Components/user/UserActivity";
+import UserCollections from "Components/user/UserCollections";
 
 const GetMarketplace = (match) => {
   return rootStore.marketplaces[match.params.marketplaceId] || {};
@@ -43,12 +44,7 @@ const GetNFT = (match) => {
 
 const UserMarketplaceRoutes = () => {
   return [
-    { name: "Collections", path: "collections", Component: MarketplaceCollectionsSummaryPage },
-    { name: "Collections", path: "collections/:collectionSKU", Component: MarketplaceCollection },
-    { name: match => (GetItem(match)?.name || "Item"), path: "collections/:collectionSKU/store/:sku", Component: MarketplaceItemDetails },
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "collections/:collectionSKU/owned/:contractId/:tokenId", Component: MintedNFTDetails },
-    { name: "Redeem Collection", path: "collections/:collectionSKU/redeem", Component: MarketplaceCollectionRedemption },
-    { name: "Redeem Collection", path: "collections/:collectionSKU/redeem/:confirmationId/status", Component: CollectionRedeemStatus },
+    { name: "Collections", path: "collections", includeUserProfile: true, Component: UserCollections }
   ];
 };
 

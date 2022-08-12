@@ -848,14 +848,14 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
   // Pack opened
   if(opened) {
     return match.params.marketplaceId ?
-      <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "my-items", match.params.contractId, match.params.tokenId, "open")} /> :
-      <Redirect to={UrlJoin("/wallet", "my-items", match.params.contractId, match.params.tokenId, "open")} />;
+      <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items", match.params.contractId, match.params.tokenId, "open")} /> :
+      <Redirect to={UrlJoin("/wallet", "users", "me", "items", match.params.contractId, match.params.tokenId, "open")} />;
   }
 
   // NFT Burned
   if(burned) {
     return match.params.marketplaceId ?
-      <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "my-items")}/> :
+      <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items")}/> :
       <Redirect to={Path.dirname(Path.dirname(match.url))}/>;
   }
 

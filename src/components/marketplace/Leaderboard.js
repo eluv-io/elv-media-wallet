@@ -34,7 +34,6 @@ const Leaderboard = observer(() => {
           <div className="transfer-table__table__cell--with-image">
             <ImageIcon
               icon={rootStore.ProfileImageUrl(entry.icon_url, 300)}
-              alt={entry.username || entry.addr}
               alternateIcon="<svg></svg>"
               className="transfer-table__table__cell__image"
             />

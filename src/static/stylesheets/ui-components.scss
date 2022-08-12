@@ -341,6 +341,16 @@
       text-transform: initial;
       width: 100%;
 
+      svg {
+        * {
+          color: var(--color-input-text);
+        }
+      }
+
+      .lds-ellipsis__element {
+        background: var(--color-input-text);
+      }
+
       &:hover,
       &:active {
         background: var(--color-input-highlight-bg);
@@ -350,6 +360,10 @@
           * {
             color: var(--color-input-highlight-text);
           }
+        }
+
+        .lds-ellipsis__element {
+          background: var(--color-input-highlight-text);
         }
       }
     }

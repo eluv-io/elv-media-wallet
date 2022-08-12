@@ -158,7 +158,7 @@ const UserProfileContainer = observer(({children}) => {
         <div className="user__profile__image-container">
           {
             userProfile.imageUrl ?
-              <ImageIcon icon={rootStore.ProfileImageUrl(userProfile.imageUrl, 800)} alt={match.params.userId} alternateIcon="<svg></svg>" className="user__profile__image" /> :
+              <ImageIcon icon={rootStore.ProfileImageUrl(userProfile.imageUrl, 800)} alternateIcon="<svg></svg>" className="user__profile__image" /> :
               <div className="user__profile__image user__profile__image--placeholder" />
           }
         </div>

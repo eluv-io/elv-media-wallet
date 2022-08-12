@@ -66,7 +66,7 @@ export const MarketplaceCollectionsSummary = observer(({marketplace}) => {
 
   useEffect(() => {
     if(!marketplace) { return; }
-    rootStore.MarketplaceOwnedItems(marketplace)
+    rootStore.MarketplaceOwnedItems({marketplace})
       .then(() => setLoading(false));
   }, [marketplace]);
 

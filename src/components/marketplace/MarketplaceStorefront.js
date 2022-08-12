@@ -158,7 +158,7 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
   if(sections.length === 0 && marketplace.collections.length === 0) {
     if(rootStore.sidePanelMode) {
       rootStore.SetNoItemsAvailable();
-      return <Redirect to={UrlJoin("/marketplace", marketplace.marketplaceId, "my-items")} />;
+      return <Redirect to={UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items")} />;
     } else if(!marketplace.banners || marketplace.banners.length === 0) {
       return <h2 className="marketplace__empty">No items available</h2>;
     }

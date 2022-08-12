@@ -483,13 +483,14 @@ class RootStore {
   async ValidateUserName(userName) {
     const symbolFilter = new RegExp(/^[A-Za-zÀ-ÖØ-öø-ÿ0-9_]+$/);
     const profanityFilter = new ProfanityFilter();
+    const invalidUsernames = ["me"];
 
     let errorMessage;
     if(userName.length < 3 || userName.length > 30) {
       errorMessage = "Username must be between 3 and 30 characters";
     } else if(!symbolFilter.test(userName)) {
       errorMessage = "Username must consist of alphanumeric characters, numbers, and underscores";
-    } else if(profanityFilter.isProfane(userName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace("_", " "))) {
+    } else if(invalidUsernames.includes(userName.toLowerCase()) || userName.toLowerCase().startsWith("0x") || profanityFilter.isProfane(userName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace("_", " "))) {
       errorMessage = "Invalid username";
     } else {
       const address = await rootStore.walletClient.UserNameToAddress({userName});
@@ -777,23 +778,26 @@ class RootStore {
     return this.marketplaces[marketplaceId];
   });
 
-  MarketplaceOwnedItems = flow(function * (marketplace) {
+  MarketplaceOwnedItems = flow(function * ({marketplace, userAddress}) {
     try {
-      if(!this.loggedIn) {
-        return {};
+      if(!userAddress) {
+        userAddress = this.CurrentAddress();
       }
 
-      if(Date.now() - (this.marketplaceOwnedCache[marketplace.tenant_id]?.retrievedAt || 0) > 60000) {
-        delete this.marketplaceOwnedCache[marketplace.tenant_id];
+      userAddress = Utils.FormatAddress(userAddress);
+
+      if(Date.now() - (this.marketplaceOwnedCache[userAddress]?.[marketplace.tenant_id]?.retrievedAt || 0) > 60000) {
+        delete this.marketplaceOwnedCache[userAddress]?.[marketplace.tenant_id];
       }
 
-      if(!this.marketplaceOwnedCache[marketplace.tenant_id]) {
+      if(!this.marketplaceOwnedCache[userAddress]?.[marketplace.tenant_id]) {
         let promise = new Promise(async resolve => {
           let ownedItems = {};
 
-          const listings = await this.walletClient.UserListings({marketplaceParams: { marketplaceId: marketplace.marketplaceId }});
+          const listings = await this.walletClient.UserListings({userAddress, marketplaceParams: { marketplaceId: marketplace.marketplaceId }});
 
           (await this.walletClient.UserItems({
+            userAddress,
             marketplaceParams: { marketplaceId: marketplace.marketplaceId },
             limit: 10000
           }))
@@ -829,21 +833,25 @@ class RootStore {
           resolve(ownedItems);
         });
 
-        this.marketplaceOwnedCache[marketplace.tenant_id] = {
+        if(!this.marketplaceOwnedCache[userAddress]) {
+          this.marketplaceOwnedCache[userAddress] = {};
+        }
+
+        this.marketplaceOwnedCache[userAddress][marketplace.tenant_id] = {
           retrievedAt: Date.now(),
           ownedItemsPromise: promise
         };
       }
 
-      return yield this.marketplaceOwnedCache[marketplace.tenant_id].ownedItemsPromise;
+      return yield this.marketplaceOwnedCache[userAddress][marketplace.tenant_id].ownedItemsPromise;
     } catch(error) {
       this.Log(error, true);
       return {};
     }
   });
 
-  MarketplaceCollectionItems = flow(function * ({marketplace, collection}) {
-    const ownedItems = yield this.MarketplaceOwnedItems(marketplace);
+  MarketplaceCollectionItems = flow(function * ({marketplace, collection, userAddress}) {
+    const ownedItems = yield this.MarketplaceOwnedItems({marketplace, userAddress});
     const purchaseableItems = this.MarketplacePurchaseableItems(marketplace);
 
     return collection.items.map((sku, entryIndex) => {

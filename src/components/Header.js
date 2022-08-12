@@ -203,22 +203,9 @@ const GlobalHeader = observer(({marketplace}) => {
 });
 
 const SubHeaderNavigation = observer(({marketplace}) => {
-  const fullMarketplace = marketplace ? rootStore.marketplaces[marketplace.marketplaceId] : null;
-  const hasCollections = fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0;
-  const tabs = fullMarketplace?.branding?.tabs || {};
+  if(!rootStore.loggedIn) { return null; }
 
-  if(!rootStore.loggedIn) {
-    if(!hasCollections) { return null; }
-
-    return (
-      <nav className="subheader__navigation--personal">
-        <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "collections")}>
-          Collections
-        </NavLink>
-      </nav>
-    );
-  }
-
+  const tabs = marketplace?.branding?.tabs || {};
   return (
     <nav className="subheader__navigation--personal">
       <NavLink className="subheader__navigation-link" to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items") : "/wallet/users/me/items"}>
@@ -231,10 +218,18 @@ const SubHeaderNavigation = observer(({marketplace}) => {
 const MarketplaceNavigation = observer(({marketplace}) => {
   const branding = marketplace.branding || {};
   const tabs = branding.tabs || {};
+  const fullMarketplace = marketplace ? rootStore.marketplaces[marketplace.marketplaceId] : null;
+  const hasCollections = fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0;
 
   return (
     <>
       <nav className="subheader__navigation subheader__navigation--marketplace">
+        {
+          hasCollections ?
+            <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "collections")}>
+              Collections
+            </NavLink> : null
+        }
         <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
           { tabs.store || "Store" }
         </NavLink>
