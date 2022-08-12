@@ -61,8 +61,12 @@ const CollectionCard = observer(({marketplace, collection}) => {
   );
 });
 
-export const MarketplaceCollectionsSummary = observer(({marketplace}) => {
+export const MarketplaceCollectionsSummary = observer(() => {
+  const match = useRouteMatch();
   const [loading, setLoading] = useState(true);
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+
+  if(!marketplace) { return; }
 
   useEffect(() => {
     if(!marketplace) { return; }
@@ -122,22 +126,4 @@ export const MarketplaceCollectionsSummary = observer(({marketplace}) => {
   );
 });
 
-const MarketplaceCollectionsSummaryPage = () => {
-  const match = useRouteMatch();
-
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-
-  if(!marketplace) { return; }
-
-  return (
-    <div className="marketplace__section">
-      <Link to={UrlJoin("/marketplace", match.params.marketplaceId, "store")} className="details-page__back-link">
-        <ImageIcon icon={BackIcon} />
-        Back to { marketplace?.branding?.name || "Marketplace" } Storefront
-      </Link>
-      <MarketplaceCollectionsSummary marketplace={marketplace} />
-    </div>
-  );
-};
-
-export default MarketplaceCollectionsSummaryPage;
+export default MarketplaceCollectionsSummary;
