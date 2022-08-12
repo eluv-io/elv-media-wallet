@@ -388,6 +388,10 @@ em {
 
 // Small
 @media screen and (max-width: $mobile-breakpoint) {
+  .no-mobile {
+    display: none;
+  }
+
   .content {
     padding: 25px 20px 100px;
   }

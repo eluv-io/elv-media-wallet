@@ -241,7 +241,7 @@ const MarketplaceNavigation = observer(({marketplace}) => {
         <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "listings")}>
           { tabs.listings || "Listings" }
         </NavLink>
-        <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "activity")}>
+        <NavLink className="subheader__navigation-link no-mobile" to={UrlJoin("/marketplace", marketplace.marketplaceId, "activity")}>
           Activity
         </NavLink>
         <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "leaderboard")}>

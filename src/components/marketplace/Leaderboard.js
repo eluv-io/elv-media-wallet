@@ -44,7 +44,7 @@ const Leaderboard = observer(() => {
         ],
         link: UrlJoin("/marketplace", match.params.marketplaceId, "users", entry.username || entry.addr, "items")
       })}
-      columnWidths={["100px", 1, 3, "250px"]}
+      columnWidths={["100px", 2, 3, "250px"]}
       tabletColumnWidths={["100px", 1, 0, "250px"]}
       mobileColumnWidths={[1, 2, 0, 0]}
       hideOverflow
