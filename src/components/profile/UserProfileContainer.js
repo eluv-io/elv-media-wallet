@@ -139,103 +139,105 @@ const UserProfileContainer = observer(({children}) => {
   }
 
   return (
-    <div className="user">
-      {
-        showUsernameModal ?
-          <UsernameModal
-            UpdateUsername={async (userName) => {
-              await rootStore.UpdateUserProfile({
-                newUserName: userName
-              });
+    <>
+      <div className="user">
+        {
+          showUsernameModal ?
+            <UsernameModal
+              UpdateUsername={async (userName) => {
+                await rootStore.UpdateUserProfile({
+                  newUserName: userName
+                });
 
-              setShowUsernameModal(false);
-              setUsernameUpdated(true);
-            }}
-            Close={() => setShowUsernameModal(false)}
-          /> : null
-      }
-      <div className="user__profile">
-        <div className="user__profile__image-container">
-          {
-            userProfile.imageUrl ?
-              <ImageIcon icon={rootStore.ProfileImageUrl(userProfile.imageUrl, 800)} alternateIcon="<svg></svg>" className="user__profile__image" /> :
-              <div className="user__profile__image user__profile__image--placeholder" />
-          }
-        </div>
-        <div className="user__profile__details">
-          <div className="user__profile__name">
+                setShowUsernameModal(false);
+                setUsernameUpdated(true);
+              }}
+              Close={() => setShowUsernameModal(false)}
+            /> : null
+        }
+        <div className="user__profile">
+          <div className="user__profile__image-container">
             {
-              userProfile.userName ?
-                <div className="user__profile__name__text">
-                  {`@${userProfile.userName}`}
-                </div> :
-                currentUser ?
+              userProfile.imageUrl ?
+                <ImageIcon icon={rootStore.ProfileImageUrl(userProfile.imageUrl, 800)} alternateIcon="<svg></svg>" className="user__profile__image" /> :
+                <div className="user__profile__image user__profile__image--placeholder" />
+            }
+          </div>
+          <div className="user__profile__details">
+            <div className="user__profile__name">
+              {
+                userProfile.userName ?
                   <div className="user__profile__name__text">
-                    Set Your Username
-                  </div> : null
-            }
-            {
-              currentUser ?
-                <button onClick={() => setShowUsernameModal(!showUsernameModal)} className="action user__profile__name__edit-button">
-                  <ImageIcon
-                    icon={EditIcon}
-                    title="Set Username"
-                  />
-                </button> : null
-            }
-          </div>
-          <div className="user__profile__address-container">
-            <div className="user__profile__address">
-              <div className="ellipsis">
-                { userProfile.userAddress }
-              </div>
+                    {`@${userProfile.userName}`}
+                  </div> :
+                  currentUser ?
+                    <div className="user__profile__name__text">
+                      Set Your Username
+                    </div> : null
+              }
+              {
+                currentUser ?
+                  <button onClick={() => setShowUsernameModal(!showUsernameModal)} className="action user__profile__name__edit-button">
+                    <ImageIcon
+                      icon={EditIcon}
+                      title="Set Username"
+                    />
+                  </button> : null
+              }
             </div>
-            <button onClick={() => Copy(userProfile.userAddress)} className="user__profile__address-copy">
-              <ImageIcon icon={CopyIcon} alt="copy" />
-            </button>
+            <div className="user__profile__address-container">
+              <div className="user__profile__address">
+                <div className="ellipsis">
+                  { userProfile.userAddress }
+                </div>
+              </div>
+              <button onClick={() => Copy(userProfile.userAddress)} className="user__profile__address-copy">
+                <ImageIcon icon={CopyIcon} alt="copy" />
+              </button>
+            </div>
+            {
+              currentUser && !userProfile.imageUrl ?
+                <div className="user__profile__message">
+                  You can set your profile image from any of your owned NFTs!
+                </div> : null
+            }
           </div>
+        </div>
+        <div className="user__badges">
+          <div className="user__badge">
+            <div className="user__badge__label">Leaderboard Rank</div>
+            <div className="user__badge__value">33</div>
+          </div>
+          <div className="user__badge">
+            <div className="user__badge__label">Number of Collectibles</div>
+            <div className="user__badge__value">1,293</div>
+          </div>
+        </div>
+        <div className="subheader__navigation user__nav">
           {
-            currentUser && !userProfile.imageUrl ?
-              <div className="user__profile__message">
-                You can set your profile image from any of your owned NFTs!
-              </div> : null
+            marketplace.collections && marketplace.collections.length > 0 ?
+              <NavLink to="collections" className="subheader__navigation-link user__nav__link">
+                Collections
+              </NavLink> : null
+          }
+          <NavLink to="items" className="subheader__navigation-link user__nav__link">
+            Items
+          </NavLink>
+          <NavLink to="listings" className="subheader__navigation-link user__nav__link">
+            Listings
+          </NavLink>
+          {
+            currentUser ?
+              <NavLink to="activity" className="subheader__navigation-link user__nav__link">
+                Activity
+              </NavLink> : null
           }
         </div>
-      </div>
-      <div className="user__badges">
-        <div className="user__badge">
-          <div className="user__badge__label">Leaderboard Rank</div>
-          <div className="user__badge__value">33</div>
-        </div>
-        <div className="user__badge">
-          <div className="user__badge__label">Number of Collectibles</div>
-          <div className="user__badge__value">1,293</div>
+        <div className="user__content">
+          {children}
         </div>
       </div>
-      <div className="subheader__navigation user__nav">
-        {
-          marketplace.collections && marketplace.collections.length > 0 ?
-            <NavLink to="collections" className="subheader__navigation-link user__nav__link">
-              Collections
-            </NavLink> : null
-        }
-        <NavLink to="items" className="subheader__navigation-link user__nav__link">
-          Items
-        </NavLink>
-        <NavLink to="listings" className="subheader__navigation-link user__nav__link">
-          Listings
-        </NavLink>
-        {
-          currentUser ?
-            <NavLink to="activity" className="subheader__navigation-link user__nav__link">
-              Activity
-            </NavLink> : null
-        }
-      </div>
-      <div className="user__content">
-        {children}
-      </div>
-    </div>
+    </>
   );
 });
 

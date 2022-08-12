@@ -6,7 +6,6 @@ import UrlJoin from "url-join";
 import {FilteredTable} from "Components/common/Table";
 
 import LeaderboardIcon from "Assets/icons/leaderboard icon.svg";
-import ImageIcon from "Components/common/ImageIcon";
 
 const Leaderboard = observer(() => {
   const match = useRouteMatch();
@@ -15,7 +14,7 @@ const Leaderboard = observer(() => {
     <FilteredTable
       mode="leaderboard"
       pagingMode="paginated"
-      perPage={50}
+      perPage={20}
       initialFilters={{
         marketplaceId: match.params.marketplaceId
       }}
@@ -31,14 +30,7 @@ const Leaderboard = observer(() => {
       CalculateRowValues={entry => ({
         columns: [
           entry.rank,
-          <div className="transfer-table__table__cell--with-image">
-            <ImageIcon
-              icon={rootStore.ProfileImageUrl(entry.icon_url, 300)}
-              alternateIcon="<svg></svg>"
-              className="transfer-table__table__cell__image"
-            />
-            { entry.username ? `@${entry.username }` : (rootStore.pageWidth <= 1250 ? entry.addr : null) }
-          </div>,
+          entry.username ? `@${entry.username }` : (rootStore.pageWidth <= 1250 ? entry.addr : null),
           entry.addr,
           entry.count
         ],

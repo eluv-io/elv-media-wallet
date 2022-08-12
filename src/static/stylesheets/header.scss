@@ -345,10 +345,10 @@
     font-family: var(--font-family-primary);
     font-size: 24px;
     font-weight: normal;
-    justify-content: center;
+    justify-content: flex-start;
     letter-spacing: 1px;
-    padding: 15px 0;
-    text-align: center;
+    padding: 15px 0 15px 25px;
+    text-align: left;
     text-transform: uppercase;
     white-space: nowrap;
     width: 100%;
@@ -359,10 +359,6 @@
 
     &:hover {
       background-color: var(--color-bg-secondary);
-    }
-
-    span {
-      padding: 0 5px;
     }
 
     &.active {

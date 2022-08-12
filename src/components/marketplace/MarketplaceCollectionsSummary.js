@@ -4,8 +4,6 @@ import {rootStore} from "Stores";
 import {MarketplaceImage} from "Components/common/Images";
 import UrlJoin from "url-join";
 import {observer} from "mobx-react";
-import ImageIcon from "Components/common/ImageIcon";
-import BackIcon from "Assets/icons/arrow-left";
 import {PageLoader} from "Components/common/Loaders";
 
 const CollectionCard = observer(({marketplace, collection}) => {

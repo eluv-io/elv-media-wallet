@@ -389,7 +389,8 @@ em {
 // Small
 @media screen and (max-width: $mobile-breakpoint) {
   .no-mobile {
-    display: none;
+
+    display: none !important;
   }
 
   .content {

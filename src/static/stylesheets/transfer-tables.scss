@@ -8,6 +8,9 @@
   position: relative;
 
   &--leaderboard {
+    margin: auto;
+    max-width: 1000px;
+
     .transfer-table__table__row {
       min-height: 50px;
     }
