@@ -104,6 +104,7 @@ class RootStore {
 
   hideGlobalNavigation = false;
   hideNavigation = searchParams.has("hn") || this.loginOnly;
+  hideMarketplaceNavigation = false;
   sidePanelMode = false;
 
   appBackground = { desktop: this.GetSessionStorage("background-image"), mobile: this.GetSessionStorage("background-image") };
@@ -808,6 +809,7 @@ class RootStore {
           (await this.walletClient.UserItems({
             userAddress,
             marketplaceParams: { marketplaceId: marketplace.marketplaceId },
+            sortBy: "default",
             limit: 10000
           }))
             .results
@@ -1465,6 +1467,10 @@ class RootStore {
 
   ToggleNavigation(enabled) {
     this.hideNavigation = !enabled;
+  }
+
+  ToggleMarketplaceNavigation(enabled) {
+    this.hideMarketplaceNavigation = !enabled;
   }
 
   ToggleSidePanelMode(enabled) {

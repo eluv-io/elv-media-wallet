@@ -72,19 +72,17 @@ const MarketplaceWrapper = observer(({children}) => {
 const Marketplace = observer(() => {
   return (
     <div className="page-container marketplace-page">
-      <div className="marketplace content">
-        <Switch>
-          <Route exact path="/marketplaces/redirect/:tenantSlug/:marketplaceSlug/:location?">
-            <MarketplaceSlugRedirect />
-          </Route>
+      <Switch>
+        <Route exact path="/marketplaces/redirect/:tenantSlug/:marketplaceSlug/:location?">
+          <MarketplaceSlugRedirect />
+        </Route>
 
-          <RenderRoutes
-            basePath="/marketplace/:marketplaceId"
-            routeList="marketplace"
-            Wrapper={MarketplaceWrapper}
-          />
-        </Switch>
-      </div>
+        <RenderRoutes
+          basePath="/marketplace/:marketplaceId"
+          routeList="marketplace"
+          Wrapper={MarketplaceWrapper}
+        />
+      </Switch>
     </div>
   );
 });

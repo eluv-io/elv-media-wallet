@@ -303,10 +303,6 @@ input:focus-visible,
   font-weight: normal;
 }
 
-.listing-card * {
-  text-transform: uppercase;
-}
-
 .header__log-in {
   display: none;
 }
@@ -326,7 +322,6 @@ input:focus-visible,
 .stats,
 .expandable-section,
 .transfer-table,
-.listing-card-container,
 .wallet-connect,
 .profile-page__section,
 .menu-button__menu {

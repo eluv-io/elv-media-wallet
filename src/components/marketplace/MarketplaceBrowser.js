@@ -127,23 +127,27 @@ const MarketplaceBrowser = observer(() => {
   }, []);
 
   return (
-    <div className="marketplace-browser">
-      <div className="content content--no-background">
-        <MarketplaceFilters SetFilters={setFilters} />
-        <div className="marketplace-browser__marketplaces">
-          {
-            marketplaces.map(marketplace =>
-              <MarketplaceCard
-                key={`${marketplace.tenantSlug}-${marketplace.marketplaceSlug}`}
-                marketplace={marketplace}
-              />
-            )
-          }
-          {
-            // Fill any empty spaces with dummy elements to keep the grid at 3 columns
-            [...new Array(Math.max(0, 3 - marketplaces.length))]
-              .map((_, i) => <div className="marketplace-browser__dummy-card" key={`dummy-${i}`} /> )
-          }
+    <div className="page-block page-block--marketplace-browser">
+      <div className="page-block__content">
+        <div className="marketplace-browser">
+          <div className="content content--no-background">
+            <MarketplaceFilters SetFilters={setFilters} />
+            <div className="marketplace-browser__marketplaces">
+              {
+                marketplaces.map(marketplace =>
+                  <MarketplaceCard
+                    key={`${marketplace.tenantSlug}-${marketplace.marketplaceSlug}`}
+                    marketplace={marketplace}
+                  />
+                )
+              }
+              {
+                // Fill any empty spaces with dummy elements to keep the grid at 3 columns
+                [...new Array(Math.max(0, 3 - marketplaces.length))]
+                  .map((_, i) => <div className="marketplace-browser__dummy-card" key={`dummy-${i}`} /> )
+              }
+            </div>
+          </div>
         </div>
       </div>
     </div>

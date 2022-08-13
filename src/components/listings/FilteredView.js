@@ -124,7 +124,7 @@ const FilteredView = ({
   }
 
   return (
-    <div className="marketplace-listings marketplace__section filtered-view" ref={containerRef}>
+    <div className="filtered-view" ref={containerRef}>
       { header ? <h1 className="page-header">{ header }</h1> : null }
       {
         hideFilters ? null :

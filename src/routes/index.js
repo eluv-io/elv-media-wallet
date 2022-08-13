@@ -112,6 +112,12 @@ const UserRouteWrapper = observer(({children}) => {
   const [userNotFound, setUserNotFound] = useState(false);
 
   useEffect(() => {
+    rootStore.ToggleMarketplaceNavigation(false);
+
+    return () => rootStore.ToggleMarketplaceNavigation(true);
+  }, []);
+
+  useEffect(() => {
     setUserNotFound(false);
     rootStore.UserProfile({userId: match.params.userId})
       .then(profile => {
@@ -123,6 +129,14 @@ const UserRouteWrapper = observer(({children}) => {
         setUserNotFound(true);
       });
   }, [match.params.userId]);
+
+  if(match.params.userId === "me") {
+    return (
+      <LoginGate>
+        { children }
+      </LoginGate>
+    );
+  }
 
   if(userNotFound) {
     return (
@@ -138,14 +152,6 @@ const UserRouteWrapper = observer(({children}) => {
           </div>
         </div>
       </div>
-    );
-  }
-
-  if(match.params.userId === "me") {
-    return (
-      <LoginGate>
-        { children }
-      </LoginGate>
     );
   }
 
@@ -221,7 +227,11 @@ const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
         routes.map(({path, exact, authed, loadUser, includeUserProfile, ignoreLoginCapture, Component}) => {
           let result = (
             <RouteWrapper routes={routes}>
-              { Component ? <Component key={`component-${path}`} /> : null }
+              <div className="page-block page-block--main-content">
+                <div className="page-block__content">
+                  { Component ? <Component key={`component-${path}`} /> : null }
+                </div>
+              </div>
             </RouteWrapper>
           );
 

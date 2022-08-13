@@ -98,7 +98,7 @@ const Routes = observer(() => {
     <>
       <Header />
       <ScrollToTop>
-        <ErrorBoundary className="page-container">
+        <ErrorBoundary className="page-container wallet-page">
           <Switch>
             <Route path="/login">
               <Login />

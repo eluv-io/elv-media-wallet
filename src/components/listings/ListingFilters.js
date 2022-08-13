@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {useLocation, useRouteMatch} from "react-router-dom";
 import {rootStore} from "Stores";
 import AutoComplete from "Components/common/AutoComplete";
-import {ButtonWithLoader, DebouncedInput, Select} from "Components/common/UIComponents";
+import {ButtonWithLoader, Select} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 
 import SearchIcon from "Assets/icons/search.svg";
@@ -429,21 +429,29 @@ export const ListingFilters = observer(({mode="listings", initialFilters, Update
   };
 
   useEffect(() => {
-    rootStore.walletClient.ListingNames({marketplaceParams: filterValues.marketplaceId ? {marketplaceId: filterValues.marketplaceId} : undefined})
+    const marketplaceParams = filterValues.marketplaceId ? {marketplaceId: filterValues.marketplaceId} : undefined;
+
+    const namesPromise = mode === "owned" ?
+      rootStore.walletClient.UserItemNames({marketplaceParams}) :
+      rootStore.walletClient.ListingNames({marketplaceParams});
+
+    namesPromise
       .then(names => setFilterOptions(names.map(name => (name || "").trim()).sort()))
       .finally(() => setFilterOptionsLoaded(true));
 
     setAttributes([]);
     setDropAttributes([]);
 
-    rootStore.walletClient.ListingAttributes({marketplaceParams: filterValues.marketplaceId ? {marketplaceId: filterValues.marketplaceId} : undefined})
-      .then(attributes => {
-        attributes = (attributes || [])
-          .sort((a, b) => a.name < b.name ? -1 : 1);
+    if(mode === "listings") {
+      rootStore.walletClient.ListingAttributes({marketplaceParams: filterValues.marketplaceId ? {marketplaceId: filterValues.marketplaceId} : undefined})
+        .then(attributes => {
+          attributes = (attributes || [])
+            .sort((a, b) => a.name < b.name ? -1 : 1);
 
-        setAttributes(attributes.filter(attr => !["drop", "drop event"].includes(attr?.name?.toLowerCase())));
-        setDropAttributes(attributes.filter(attr => ["drop", "drop event"].includes(attr?.name?.toLowerCase())));
-      });
+          setAttributes(attributes.filter(attr => !["drop", "drop event"].includes(attr?.name?.toLowerCase())));
+          setDropAttributes(attributes.filter(attr => ["drop", "drop event"].includes(attr?.name?.toLowerCase())));
+        });
+    }
   }, [filterValues.marketplaceId]);
 
   useEffect(() => {
@@ -516,37 +524,15 @@ export const ListingFilters = observer(({mode="listings", initialFilters, Update
   return (
     <div className="filters">
       <div className="filters__search-container">
-        {
-          mode === "owned" ?
-            // Owned NFTs do not need exact queries
-            <div className="autocomplete filters__search">
-              <DebouncedInput
-                key={`autocomplete-${filterOptionsLoaded}-${savedOptionsLoaded}-${renderIndex}`}
-                className="listing-filters__filter-input autocomplete__input"
-                placeholder="Filter..."
-                value={filterValues.filter}
-                onChange={value => setFilterValues({...filterValues, filter: value, editionFilters: []})}
-              />
-              {
-                filterValues.filter ?
-                  <button
-                    onClick={() => setFilterValues({...filterValues, filter: "", editionFilters: []})}
-                    className="autocomplete__clear-button"
-                  >
-                    <ImageIcon icon={ClearIcon} title="Clear" />
-                  </button> : null
-              }
-            </div> :
-            <AutoComplete
-              className="filters__search"
-              key={`autocomplete-${filterOptionsLoaded}-${savedOptionsLoaded}-${renderIndex}`}
-              placeholder="Search"
-              value={filterValues.filter}
-              onChange={value => setFilterValues({...filterValues, filter: value, editionFilters: []})}
-              onEnterPressed={async () => await Update(true)}
-              options={filterOptions}
-            />
-        }
+        <AutoComplete
+          className="filters__search"
+          key={`autocomplete-${filterOptionsLoaded}-${savedOptionsLoaded}-${renderIndex}`}
+          placeholder="Search"
+          value={filterValues.filter}
+          onChange={value => setFilterValues({...filterValues, filter: value, editionFilters: []})}
+          onEnterPressed={async () => await Update(true)}
+          options={filterOptions}
+        />
         <ButtonWithLoader onClick={async () => await Update(true)} className="filters__search-button">
           <ImageIcon icon={SearchIcon} label="Search" />
         </ButtonWithLoader>

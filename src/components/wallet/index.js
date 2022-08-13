@@ -26,24 +26,22 @@ const Wallet = observer(() => {
   }
 
   return (
-    <div className="page-container wallet-page">
-      <div className="content">
-        <Switch>
-          <Route path="/wallet" exact>
-            <Redirect to="/marketplaces" />
-          </Route>
+    <div className="page-container error-page">
+      <Switch>
+        <Route path="/wallet" exact>
+          <Redirect to="/marketplaces" />
+        </Route>
 
-          <Route path="/marketplaces" exact>
-            <MarketplaceBrowser />
-          </Route>
+        <Route path="/marketplaces" exact>
+          <MarketplaceBrowser />
+        </Route>
 
-          <RenderRoutes
-            routeList="wallet"
-            basePath="/wallet"
-            Wrapper={WalletWrapper}
-          />
-        </Switch>
-      </div>
+        <RenderRoutes
+          routeList="wallet"
+          basePath="/wallet"
+          Wrapper={WalletWrapper}
+        />
+      </Switch>
     </div>
   );
 });

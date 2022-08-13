@@ -16,7 +16,9 @@ const Leaderboard = observer(() => {
       pagingMode="paginated"
       perPage={20}
       initialFilters={{
-        marketplaceId: match.params.marketplaceId
+        marketplaceParams: {
+          marketplaceId: match.params.marketplaceId
+        }
       }}
       className="transfer-table--leaderboard"
       headerText="Climb the Leaderboard"
