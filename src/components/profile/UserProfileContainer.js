@@ -5,7 +5,7 @@ import {ButtonWithLoader, Copy, DebouncedInput} from "Components/common/UICompon
 import ImageIcon from "Components/common/ImageIcon";
 import CopyIcon from "Assets/icons/copy";
 import {observer} from "mobx-react";
-import {PageLoader} from "Components/common/Loaders";
+import {Loader, PageLoader} from "Components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import Modal from "Components/common/Modal";
 
@@ -87,6 +87,7 @@ const UserProfileContainer = observer(({children}) => {
   const marketplace = rootStore.marketplaces[match.params.marketplaceId] || {};
 
   const [userProfile, setUserProfile] = useState(undefined);
+  const [userStats, setUserStats] = useState(undefined);
   const [showUsernameModal, setShowUsernameModal] = useState(false);
   const [usernameUpdated, setUsernameUpdated] = useState(false);
 
@@ -95,9 +96,18 @@ const UserProfileContainer = observer(({children}) => {
   useEffect(() => {
     setUsernameUpdated(false);
     setUserProfile(undefined);
+    setUserStats(undefined);
+
     rootStore.UserProfile({userId: match.params.userId})
-      .then(profile => {
+      .then(async profile => {
         setUserProfile(profile);
+
+        setUserStats(
+          await rootStore.walletClient.Leaderboard({
+            userAddress: profile.userAddress,
+            marketplaceParams: match.params.marketplaceId ? { marketplaceId: match.params.marketplaceId } : undefined
+          })
+        );
       });
   }, [match.params.userId]);
 
@@ -177,14 +187,19 @@ const UserProfileContainer = observer(({children}) => {
             </div>
           </div>
           <div className="user__badges">
-            <div className="user__badge">
-              <div className="user__badge__label">Leaderboard Rank</div>
-              <div className="user__badge__value">33</div>
-            </div>
-            <div className="user__badge">
-              <div className="user__badge__label">Number of Collectibles</div>
-              <div className="user__badge__value">1,293</div>
-            </div>
+            {
+              userStats ?
+                <>
+                  <div className="user__badge">
+                    <div className="user__badge__label">Leaderboard Rank</div>
+                    <div className="user__badge__value">{ userStats.rank ? userStats.rank.toLocaleString() : "" }</div>
+                  </div>
+                  <div className="user__badge">
+                    <div className="user__badge__label">Number of Collectibles</div>
+                    <div className="user__badge__value">{ (userStats.count || 0).toLocaleString() }</div>
+                  </div>
+                </> : null
+            }
           </div>
         </div>
       </div>

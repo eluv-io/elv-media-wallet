@@ -127,6 +127,8 @@
 
 
   /* General */
+  --color-page-bg: transparent;
+
   --color-bg-primary: var(--neutral-1);
   --color-bg-secondary: var(--neutral-2);
 
