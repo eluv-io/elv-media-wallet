@@ -124,6 +124,9 @@ const Routes = observer(() => {
                 <MarketplaceRoutes />
               </Suspense>
             </Route>
+            <Route path="/profile">
+              <Redirect to="/wallet/profile" />
+            </Route>
             <Route path="/">
               <Redirect to="/marketplaces" />
             </Route>

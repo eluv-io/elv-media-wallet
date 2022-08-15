@@ -128,9 +128,11 @@ const UserProfileContainer = observer(({children}) => {
             showUsernameModal ?
               <UsernameModal
                 UpdateUsername={async (userName) => {
-                  await rootStore.UpdateUserProfile({
-                    newUserName: userName
-                  });
+                  setUserProfile(
+                    await rootStore.UpdateUserProfile({
+                      newUserName: userName
+                    })
+                  );
 
                   setShowUsernameModal(false);
                   setUsernameUpdated(true);

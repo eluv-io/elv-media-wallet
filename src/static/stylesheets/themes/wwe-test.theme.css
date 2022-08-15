@@ -194,7 +194,8 @@
   /* Tables */
   --color-table-even-row-bg: rgba(6, 8, 41, 0.2);
   --color-table-odd-row-bg: rgba(241, 241, 241, 0.2);
-  --background-table-header-row: var(--color-table-even-row-bg);
+  --background-table-header-row: #FFFFFF;
+  --color-table-header-row-text: #0014AD;
   --border-table-primary: 0;
 
   /* Buttons */

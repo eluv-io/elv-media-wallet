@@ -598,7 +598,7 @@ class RootStore {
     }
 
     // Reload cache
-    yield this.UserProfile({userId: this.CurrentAddress(), force: true});
+    return yield this.UserProfile({userId: this.CurrentAddress(), force: true});
   });
 
   // Get already loaded basic NFT contract info
