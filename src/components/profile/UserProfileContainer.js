@@ -209,15 +209,15 @@ const UserProfileContainer = observer(({children}) => {
       <div className="page-block page-block--user-profile-nav user__content">
         <div className="page-block__content">
           <div className="subheader__navigation user__nav">
+            <NavLink to="items" className="subheader__navigation-link user__nav__link">
+              Items
+            </NavLink>
             {
               marketplace.collections && marketplace.collections.length > 0 ?
                 <NavLink to="collections" className="subheader__navigation-link user__nav__link">
                   Collections
                 </NavLink> : null
             }
-            <NavLink to="items" className="subheader__navigation-link user__nav__link">
-              Items
-            </NavLink>
             <NavLink to="listings" className="subheader__navigation-link user__nav__link">
               Listings
             </NavLink>
