@@ -5,7 +5,7 @@ import {ButtonWithLoader, Copy, DebouncedInput} from "Components/common/UICompon
 import ImageIcon from "Components/common/ImageIcon";
 import CopyIcon from "Assets/icons/copy";
 import {observer} from "mobx-react";
-import {Loader, PageLoader} from "Components/common/Loaders";
+import {PageLoader} from "Components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import Modal from "Components/common/Modal";
 

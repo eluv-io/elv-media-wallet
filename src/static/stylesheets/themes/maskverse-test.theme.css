@@ -37,6 +37,10 @@
   --color-table-odd-row-bg: var(--color-bg-primary);
   --color-table-even-row-bg: var(--color-bg-secondary);
 
+  /* User Profile */
+  --color-user-profile-bg-primary: var(--color-bg-primary);
+  --color-user-profile-bg-secondary: var(--color-bg-secondary);
+
   /* Custom */
   --pink-1: #E2A2E7;
   --pink-1-rgb: 226, 162, 231;

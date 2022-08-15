@@ -40,4 +40,8 @@
   --background-table-header-row: var(--color-bg-secondary);
   --color-table-odd-row-bg: var(--color-bg-primary);
   --color-table-even-row-bg: var(--color-bg-secondary);
+
+  /* User Profile */
+  --color-user-profile-bg-primary: var(--color-bg-primary);
+  --color-user-profile-bg-secondary: var(--color-bg-secondary);
 }

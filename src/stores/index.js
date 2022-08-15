@@ -1,6 +1,6 @@
-//const testTheme = undefined;
-const testTheme = import("../static/stylesheets/themes/maskverse-test.theme.css");
-//const testTheme = import("../static/stylesheets/themes/wwe-test.theme.css");
+let testTheme = undefined;
+//testTheme = import("../static/stylesheets/themes/maskverse-test.theme.css");
+//testTheme = import("../static/stylesheets/themes/wwe-test.theme.css");
 
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";
@@ -531,11 +531,9 @@ class RootStore {
   }
 
   UserProfile = flow(function * ({userId, force=false}) {
-    console.log("GETTING USER PROFILE FOR", userId);
     let userAddress = userId.toLowerCase().startsWith("0x") ? userId : undefined;
     let userName = !userId.toLowerCase().startsWith("0x") ? userId : undefined;
 
-    console.log(userName, userAddress);
     if(userName === "me") {
       userAddress = this.CurrentAddress();
       userName = undefined;

@@ -166,6 +166,11 @@ html {
   --background-collection-component: var(--color-bg-primary);
   --box-shadow-collection-reward-card: 0 0 8px var(--color-component-highlight);
 
+  /* User Profile */
+  --color-user-profile-bg-primary: var(--color-bg-secondary);
+  --color-user-profile-bg-secondary: var(--color-bg-primary);
+
+
   /* Tables */
   --font-table-header: normal normal 500 16px var(--font-family-tertiary);
   --font-table: var(--font-default);

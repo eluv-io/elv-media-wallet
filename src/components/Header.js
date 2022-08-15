@@ -209,7 +209,6 @@ const SubHeaderNavigation = observer(({marketplace}) => {
   const fullMarketplace = marketplace ? rootStore.marketplaces[marketplace.marketplaceId] : null;
   const hasCollections = fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0;
 
-  console.log(hasCollections, fullMarketplace);
   const tabs = marketplace?.branding?.tabs || {};
   return (
     <nav className="subheader__navigation--personal">
