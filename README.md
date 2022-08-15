@@ -10,7 +10,7 @@ The Eluvio Wallet Client is a standard client that offers much of the functional
 
 The Eluvio Wallet Frame Client is a client that allows you to embed the entire Eluvio Media Wallet application into your own application, using an iframe or a popup. The client allows you to control the frame, retrieve information, and register callbacks for events.
 
-Both of these clients allow for retrieving various information about the user and their wallet, and operating backend Marketplace objects. The Marketplace object can be populated with items that can be sold via the Content Fabric payment APIs and listed for secondary sale via the listing APIs.
+Both of these clients allow for retrieving various information about the user and their wallet, sigming transactions (via built-in custodial signing or connected non-custodial signing wallets), and operating backend Marketplace objects. The Marketplace object can be populated with items that can be sold via the Content Fabric payment APIs, minted on demand, and listed and sold for secondary sale via the listing APIs.
 
 For information about implementing login using the wallet and/or frame client, please see this [example application](https://core.test.contentfabric.io/elv-media-wallet-client-test/test-login/) (source available in `test/login.js`)
 
