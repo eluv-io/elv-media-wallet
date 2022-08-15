@@ -1,15 +1,22 @@
 .user {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
   &__profile {
     align-items: center;
     display: flex;
     position: relative;
+    width: max-content;
 
     &__image-container {
+      border: 4px solid var(--color-component-bg-primary);
       border-radius: 100%;
-      height: 120px;
+      height: 200px;
       margin-right: 30px;
       overflow: hidden;
-      width: 120px;
+      width: 200px;
     }
 
     &__image-button,
@@ -66,17 +73,23 @@
     &__address {
       @include component;
       align-items: center;
+      background: var(--color-bg-secondary);
       border: 0;
       display: flex;
       font-size: 12px;
       height: 100%;
       justify-content: center;
       padding: 0 10px;
+
+      * {
+        color: var(--color-component-text-highlight);
+      }
     }
 
     &__address-copy {
       @include component;
       align-items: center;
+      background: var(--color-bg-secondary);
       border: 0;
       display: flex;
       height: 30px;
@@ -102,27 +115,35 @@
     }
   }
 
-
   &__badges {
     align-items: center;
     display: flex;
-    flex-wrap: wrap;
-    // sass-lint:disable no-misspelled-properties
-    gap: 15px;
-    // sass-lint:enable no-misspelled-properties
-    margin-top: 25px;
+    height: 60px;
+    width: max-content;
+
+    &__separator {
+      background: var(--color-component-bg-highlight);
+      height: 100%;
+      margin: 0 25px;
+      width: 3px;
+    }
   }
 
   &__badge {
-    @include component;
-    align-items: center;
-    border: 0;
-    display: flex;
-    font-size: 16px;
-    padding: 20px;
+    text-align: center;
 
     &__label {
-      margin-right: 30px;
+      color: var(--color-component-text-secondary);
+      font: var(--font-component-misc);
+      font-size: 16px;
+      letter-spacing: 0.75px;
+      padding-bottom: 5px;
+    }
+
+    &__value {
+      color: var(--color-component-text-primary);
+      font: var(--font-component-header);
+      font-size: 24px;
     }
   }
 
@@ -137,6 +158,8 @@
   }
 
   @media screen and (max-width: $tablet-breakpoint) {
+    flex-direction: column;
+
     &__profile {
       flex-direction: column;
       margin: 0 auto;
@@ -170,19 +193,7 @@
     }
 
     &__badges {
-      // sass-lint:disable no-misspelled-properties
-      gap: 10px;
-      // sass-lint:enable no-misspelled-properties
-      justify-content: center;
-      margin: 10px auto;
-      max-width: 400px;
-    }
-
-    &__badge {
-      font-size: 14px;
-      justify-content: space-around;
-      padding: 15px;
-      width: 100%;
+      margin-top: 30px;
     }
 
     &__nav {

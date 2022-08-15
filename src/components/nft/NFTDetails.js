@@ -456,15 +456,15 @@ const NFTInfoSection = ({nftInfo, className=""}) => {
   }
 
   useEffect(() => {
-    const sellerAddress = nftInfo?.listing?.details?.SellerAddress;
+    const ownerAddress = nftInfo.ownerAddress;
 
-    if(!sellerAddress) { return; }
+    if(!ownerAddress) { return; }
 
-    rootStore.UserProfile({userId: sellerAddress});
-  }, [nftInfo?.listing?.details?.SellerAddress]);
+    rootStore.UserProfile({userId: ownerAddress});
+  }, [nftInfo?.listing?.details?.ownerAddress]);
 
-  const sellerAddress = nftInfo?.listing?.details?.SellerAddress;
-  const sellerProfile = sellerAddress ? rootStore.userProfiles[Utils.FormatAddress(sellerAddress)] : undefined;
+  const ownerAddress = nftInfo.ownerAddress;
+  const ownerProfile = ownerAddress ? rootStore.userProfiles[Utils.FormatAddress(ownerAddress)] : undefined;
 
   return (
     <div className={`details-page__nft-info ${className}`}>
@@ -537,24 +537,24 @@ const NFTInfoSection = ({nftInfo, className=""}) => {
           </div> : null
       }
       {
-        sellerProfile ?
+        ownerProfile ?
           <Link
-            className="details-page__nft-info__seller"
+            className="details-page__nft-info__owner"
             to={
               match.params.marketplaceId ?
-                UrlJoin("/marketplace", match.params.marketplaceId, "users", sellerProfile.userName || sellerProfile.userAddress, "listings") :
-                UrlJoin("/wallet", "users", sellerProfile.userName || sellerProfile.userAddress, "listings")
+                UrlJoin("/marketplace", match.params.marketplaceId, "users", ownerProfile.userName || ownerProfile.userAddress, "listings") :
+                UrlJoin("/wallet", "users", ownerProfile.userName || ownerProfile.userAddress, "listings")
             }
           >
-            <div className="user__profile__image-container details-page__nft-info__seller-image-container">
+            <div className="user__profile__image-container details-page__nft-info__owner-image-container">
               <ImageIcon
-                icon={rootStore.ProfileImageUrl(sellerProfile.imageUrl, "400") || UserIcon}
-                className="user__profile__image details-page__nft_info__seller-image"
+                icon={rootStore.ProfileImageUrl(ownerProfile.imageUrl, "400") || UserIcon}
+                className="user__profile__image details-page__nft_info__owner-image"
                 alternateIcon={UserIcon}
               />
             </div>
-            <div className={`details-page__nft-info__seller-name ${!sellerProfile.userName ? "details-page__nft-info__seller-address" : ""}`}>
-              { sellerProfile.userName ? `@${sellerProfile.userName}` : sellerProfile.userAddress }
+            <div className={`details-page__nft-info__owner-name ${!ownerProfile.userName ? "details-page__nft-info__owner-address" : ""}`}>
+              { ownerProfile.userName ? `@${ownerProfile.userName}` : ownerProfile.userAddress }
             </div>
           </Link> : null
       }

@@ -206,11 +206,10 @@ const GlobalHeader = observer(({marketplace}) => {
 });
 
 const SubHeaderNavigation = observer(({marketplace}) => {
-  if(!rootStore.loggedIn) { return null; }
-
   const fullMarketplace = marketplace ? rootStore.marketplaces[marketplace.marketplaceId] : null;
   const hasCollections = fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0;
 
+  console.log(hasCollections, fullMarketplace);
   const tabs = marketplace?.branding?.tabs || {};
   return (
     <nav className="subheader__navigation--personal">
@@ -220,13 +219,16 @@ const SubHeaderNavigation = observer(({marketplace}) => {
             { rootStore.loggedIn ? "My Collections" : "Collections" }
           </NavLink> : null
       }
-      <NavLink
-        className="subheader__navigation-link"
-        to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items") : "/wallet/users/me/items"}
-        isActive={() => window.location.hash?.includes("/users/me/")}
-      >
-        { tabs.my_items || "My Items" }
-      </NavLink>
+      {
+        rootStore.loggedIn ?
+          <NavLink
+            className="subheader__navigation-link"
+            to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items") : "/wallet/users/me/items"}
+            isActive={() => window.location.hash?.includes("/users/me/")}
+          >
+            {tabs.my_items || "My Items"}
+          </NavLink> : null
+      }
     </nav>
   );
 });

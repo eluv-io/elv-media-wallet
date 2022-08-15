@@ -1,5 +1,5 @@
-const testTheme = undefined;
-//const testTheme = import("../static/stylesheets/themes/maskverse-test.theme.css");
+//const testTheme = undefined;
+const testTheme = import("../static/stylesheets/themes/maskverse-test.theme.css");
 //const testTheme = import("../static/stylesheets/themes/wwe-test.theme.css");
 
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
@@ -789,6 +789,8 @@ class RootStore {
   });
 
   MarketplaceOwnedItems = flow(function * ({marketplace, userAddress}) {
+    if(!this.loggedIn) { return {}; }
+
     try {
       if(!userAddress) {
         userAddress = this.CurrentAddress();

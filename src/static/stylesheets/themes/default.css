@@ -15,7 +15,7 @@ html {
 
   --color-bg-primary: #FFFFFF;
   --color-bg-secondary: #EDEDED;
-  --color-bg-highlight: #D1E0F7;
+  --color-bg-highlight: #2D61E4;
 
   --color-text-primary: #000;
   --color-text-secondary: #777;
@@ -40,7 +40,7 @@ html {
   --box-shadow: 0px 0 4px rgba(0, 0, 0, 0.1);
 
   /* Page */
-  --color-page-bg: #f6f6f6;
+  --color-page-bg: #F6F6F6;
   --background-content: var(--color-page-bg);
   --border-radius-page-content: 10px 10px 0 0;
 
@@ -171,7 +171,7 @@ html {
   --font-table: var(--font-default);
 
   --background-table: var(--color-bg-primary);
-  --background-table-header-row: var(--color-background-highlight);
+  --background-table-header-row: var(--color-bg-highlight);
   --color-table-header-row-text: var(--color-text-background-highlight);
   --color-table-odd-row-bg: var(--color-bg-primary);
   --color-table-odd-row-text: var(--color-text-primary);

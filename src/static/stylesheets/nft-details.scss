@@ -32,24 +32,24 @@
       }
     }
 
-    &__seller {
+    &__owner {
       align-items: center;
       display: flex;
       margin-top: 30px;
     }
 
-    &__seller-image-container {
+    &__owner-image-container {
       height: 50px;
       margin-right: 10px;
       width: 50px;
     }
 
-    &__seller-name {
+    &__owner-name {
       color: var(--color-text-secondary);
-      font-size: 18px;
+      font-size: 16px;
     }
 
-    &__seller-address {
+    &__owner-address {
       font-size: 12px;
     }
 

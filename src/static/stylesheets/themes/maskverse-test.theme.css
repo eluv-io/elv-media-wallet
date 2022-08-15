@@ -10,14 +10,16 @@
   --color-text-primary: #FFFFFF;
   --color-text-secondary: #E8E8E8;
 
+  --color-text-background-highlight: #000000;
+
   --color-loader: rgba(255, 255, 255, 0.5);
 
-  --border: 1px solid #444444;
-  --border-faint: 1px solid #333333;
 
+  --border-color: #333333;
+  --border-color-faint: #2A2A2A;
 
-  --border-color: #444444;
-  --border-color-faint: #333333;
+  --border: 1px solid var(--border-color);
+  --border-faint: 1px solid var(--border-color-faint);
 
   --box-shadow: none;
 

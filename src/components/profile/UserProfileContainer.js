@@ -191,11 +191,12 @@ const UserProfileContainer = observer(({children}) => {
               userStats ?
                 <>
                   <div className="user__badge">
-                    <div className="user__badge__label">Leaderboard Rank</div>
-                    <div className="user__badge__value">{ userStats.rank ? userStats.rank.toLocaleString() : "" }</div>
+                    <div className="user__badge__label">Leaderboard</div>
+                    <div className="user__badge__value">#{ userStats.rank ? userStats.rank.toLocaleString() : "" }</div>
                   </div>
+                  <div className="user__badges__separator" />
                   <div className="user__badge">
-                    <div className="user__badge__label">Number of Collectibles</div>
+                    <div className="user__badge__label">Collectibles</div>
                     <div className="user__badge__value">{ (userStats.count || 0).toLocaleString() }</div>
                   </div>
                 </> : null

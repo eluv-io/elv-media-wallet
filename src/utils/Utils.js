@@ -148,6 +148,7 @@ export const NFTInfo = ({
     };
   }
 
+  const ownerAddress = (nft || listing)?.details?.TokenOwner;
   const listingId = nft?.details?.ListingId;
   const price = item ? ItemPrice(item, checkoutStore.currency) : listing?.details?.Price;
   const free = !price || item?.free;
@@ -202,6 +203,7 @@ export const NFTInfo = ({
     // Details
     nft,
     item,
+    ownerAddress,
     listing,
     listingId,
     name,

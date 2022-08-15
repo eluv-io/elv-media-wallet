@@ -431,8 +431,9 @@ export const ListingFilters = observer(({mode="listings", initialFilters, Update
   useEffect(() => {
     const marketplaceParams = filterValues.marketplaceId ? {marketplaceId: filterValues.marketplaceId} : undefined;
 
+    console.log(filterValues);
     const namesPromise = mode === "owned" ?
-      rootStore.walletClient.UserItemNames({marketplaceParams}) :
+      rootStore.walletClient.UserItemNames({marketplaceParams, userAddress: filterValues.userAddress}) :
       rootStore.walletClient.ListingNames({marketplaceParams});
 
     namesPromise
