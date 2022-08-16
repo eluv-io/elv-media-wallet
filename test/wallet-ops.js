@@ -199,16 +199,16 @@ const App = () => {
 
       {
         inputs ?
-          <pre>
-            input: {JSON.stringify(inputs, null, 2)}
-          </pre> : null
+          <div><div className="preformat-header">input:</div>
+            <pre> {JSON.stringify(inputs, null, 2)} </pre>
+          </div> : null
       }
 
       {
         results ?
-          <pre>
-            output: {JSON.stringify(results, null, 2)}
-          </pre> : null
+          <div><div className="preformat-header">output:</div>
+            <pre> {JSON.stringify(results, null, 2)} </pre>
+          </div> : null
       }
     </div>
   );
