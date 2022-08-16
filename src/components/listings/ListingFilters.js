@@ -12,7 +12,8 @@ import ClearIcon from "Assets/icons/x.svg";
 import {SavedValue} from "../../utils/Utils";
 
 const sortOptionsOwned = [
-  { key: "default", value: "default", label: "Default", desc: true},
+  { key: "default", value: "newest", label: "Minted (Newest to Oldest)", desc: true},
+  { key: "default", value: "oldest", label: "Minted (Oldest to Newest)", desc: false},
   { key: "meta/display_name", value: "display_name_asc", label: "Name (A-Z)", desc: false},
   { key: "meta/display_name", value: "display_name_desc", label: "Name (Z-A)", desc: true}
 ];
