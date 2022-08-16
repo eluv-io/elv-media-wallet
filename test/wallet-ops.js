@@ -85,27 +85,36 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
 
   const Sign = async () => {
     setInputs("message to sign: " + msgText);
-    setResults({ "Signed Message": { input: msgText, output: await walletClient.PersonalSign({message: msgText})} });
+    let res =
+      await walletClient.PersonalSign({message: msgText})
+        .catch(err => { return err; });
+    setResults(res);
   };
 
   const Verify = async () => {
     setInputs("message to verify: " + verifyText);
     // TODO
-    setResults(`Verified: '${verifyText}': ${await walletClient.PersonalSign({message: verifyText})}`);
+    let res =
+      await walletClient.PersonalSign({message: verifyText})
+        .catch(err => { return err; });
+    setResults(res);
   };
 
   const CheckNft = async () => {
-    setInputs("nft: " + nft);
     setInputs({ contactAddress: contact_address, tokenId: nft});
-    setResults(
+    let res =
       await walletClient.NFT({contractAddress: contact_address, tokenId: nft})
-    );
+        .catch(err => { return err; });
+    setResults(res);
   };
 
   const Playout = async () => {
     setInputs("playout: " + playout);
     // TODO
-    setResults(`NFT status: '${nft}': ${await walletClient.PersonalSign({message: playout})}`);
+    let res =
+      await walletClient.PersonalSign({message: msgText})
+        .catch(err => { return err; });
+    setResults(res);
   };
 
   return (
