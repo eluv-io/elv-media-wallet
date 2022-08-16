@@ -147,26 +147,28 @@ const App = () => {
   // TODO: allow user to select these (their tenantId)
   marketplaceParams = network == "main" ? {
     tenantSlug: "bcl",
-    marketplaceSlug: "masked-singer-marketplace"
+    marketplaceSlug: "maskverse-marketplace"
   } : {
     tenantSlug: "bcl-live",
     marketplaceSlug: "masked-singer-marketplace"
   };
-  console.log("marketplaceParams", marketplaceParams);
+  window.console.log("marketplaceParams", marketplaceParams);
 
   // Use locally running wallet app if running from local IP
   let walletAppUrl;
-  if(window.location.hostname === "core.test.contentfabric.io") {
+  if(window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1" ||
+    window.location.hostname === "elv-test.io"
+  ) {
+    const url = new URL(window.location.origin);
+    url.port = "8090";
+    walletAppUrl = url.toString();
+  } else {
     walletAppUrl = network === "demo" ?
       "https://core.test.contentfabric.io/wallet-demo" :
       "https://core.test.contentfabric.io/wallet";
-  } else {
-    const url = new URL(window.location.origin);
-    url.port = "8090";
-
-    walletAppUrl = url.toString();
   }
-  console.log("isDemo?", network == "demo", "isMain?", network == "main", "walletAppUrl", walletAppUrl);
+  window.console.log("isDemo?", network == "demo", "isMain?", network == "main", "walletAppUrl", walletAppUrl);
 
 
   useEffect(() => {
