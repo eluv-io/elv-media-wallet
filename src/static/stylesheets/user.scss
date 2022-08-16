@@ -204,9 +204,9 @@
     }
 
     &__nav {
+      display: flex;
       justify-content: center;
       margin: 40px 0;
-      display: flex;
 
       &__link {
         font-size: 12px;
