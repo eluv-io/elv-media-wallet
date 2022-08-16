@@ -84,36 +84,39 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
   let contact_address = "0xfe5857eab6b4034a2eac1012b081594acd3cd920"; // XXX -- add selector or input
 
   const Sign = async () => {
-    setInputs("message to sign: " + msgText);
-    let res =
-      await walletClient.PersonalSign({message: msgText})
-        .catch(err => { return err; });
+    setInputs({ messageToSign:  msgText});
+    let res = await walletClient.PersonalSign({message: msgText})
+      .catch(err => { return err; });
     setResults(res);
   };
 
   const Verify = async () => {
-    setInputs("message to verify: " + verifyText);
+    setInputs({messageToVerify: verifyText});
     // TODO
-    let res =
-      await walletClient.PersonalSign({message: verifyText})
-        .catch(err => { return err; });
+    let res = await walletClient.PersonalSign({message: verifyText})
+      .catch(err => { return err; });
     setResults(res);
   };
 
   const CheckNft = async () => {
     setInputs({ contactAddress: contact_address, tokenId: nft});
-    let res =
-      await walletClient.NFT({contractAddress: contact_address, tokenId: nft})
-        .catch(err => { return err; });
+    let res = await walletClient.NFT({contractAddress: contact_address, tokenId: nft})
+      .catch(err => { return err; });
+    setResults(res);
+  };
+
+  const CheckNftContract = async () => {
+    setInputs({ contactAddress: nft});
+    let res = await walletClient.NFTContractStats({contractAddress: nft})
+      .catch(err => { return err; });
     setResults(res);
   };
 
   const Playout = async () => {
-    setInputs("playout: " + playout);
+    setInputs({playoutId: playout});
     // TODO
-    let res =
-      await walletClient.PersonalSign({message: msgText})
-        .catch(err => { return err; });
+    let res = await walletClient.PersonalSign({message: msgText})
+      .catch(err => { return err; });
     setResults(res);
   };
 
@@ -144,7 +147,12 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
         &nbsp;<button onClick={CheckNft}>Check NFT</button>
       </div>
       <div className="button-row">
-        <label htmlFor="playout">Playout gated content:&nbsp;</label>
+        <label htmlFor="nft">NFT Contract Stats:&nbsp;</label>
+        <input type="text" id="nft" name="nft" onChange={event => { nft = event.target.value; }} />
+        &nbsp;<button onClick={CheckNftContract}>Check NFT contract</button>
+      </div>
+      <div className="button-row">
+        <label htmlFor="playout">Playout token-gated content:&nbsp;</label>
         <input type="text" id="playout" name="playout" onChange={event => { playout = event.target.value; }} />
         &nbsp;<button onClick={Playout}>Playout</button>
       </div>
@@ -192,31 +200,29 @@ const App = () => {
 
       <h2>Methods</h2>
       <div className="button-row">
-        <button onClick={async () => setResults(await walletClient.Listings())}>
-          Listings
-        </button>
-        <button onClick={async () => setResults(await walletClient.MarketplaceStock({marketplaceParams}))}>
-          Stock
-        </button>
-        <button onClick={async () => setResults(await walletClient.AvailableMarketplaces())}>
-          AvailableMarketPlaces
-        </button>
-        <button onClick={async () => setResults(await walletClient.UserItems())}>
-          UserItems
-        </button>
+        <button onClick={async () => setResults(await walletClient.Listings())}>Listings</button>
+        <button onClick={async () => setResults(await walletClient.MarketplaceStock({marketplaceParams}))}>Stock</button>
+      </div>
+      <div className="button-row">
+        <button onClick={async () => setResults(await walletClient.UserInfo())}>UserInfo</button>
+        <button onClick={async () => setResults(await walletClient.UserItems())}>UserItems</button>
+      </div>
+      <div className="button-row">
+        <button onClick={async () => setResults(await walletClient.AvailableMarketplaces())}>AvailableMarketPlaces</button>
+        <button onClick={async () => setResults(await walletClient.UserItemInfo())}>UserItemInfo</button>
       </div>
 
       {
         inputs ?
           <div><div className="preformat-header">input:</div>
-            <pre> {JSON.stringify(inputs, null, 2)} </pre>
+            <pre>{JSON.stringify(inputs, null, 2)}</pre>
           </div> : null
       }
 
       {
         results ?
           <div><div className="preformat-header">output:</div>
-            <pre> {JSON.stringify(results, null, 2)} </pre>
+            <pre>{JSON.stringify(results, null, 2)}</pre>
           </div> : null
       }
     </div>
