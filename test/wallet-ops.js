@@ -37,7 +37,8 @@ if(window.location.hostname === "core.test.contentfabric.io") {
   walletAppUrl = url.toString();
 }
 
-const AuthSection = ({walletClient, setResults}) => {
+
+const AuthSection = ({walletClient, setResults, setInputs}) => {
   const [loggedIn, setLoggedIn] = useState(walletClient.loggedIn);
 
   const LogIn = async ({method}) => {
@@ -80,26 +81,30 @@ const AuthSection = ({walletClient, setResults}) => {
   let nft = "0x0000_invalid_nft";
   let playout = "0x00000_invalid_playout_object";
 
+  let contact_address = "0xfe5857eab6b4034a2eac1012b081594acd3cd920"; // XXX -- add selector or input
+
   const Sign = async () => {
-    console.log("message to sign", msgText);
+    setInputs("message to sign: " + msgText);
     setResults({ "Signed Message": { input: msgText, output: await walletClient.PersonalSign({message: msgText})} });
   };
 
   const Verify = async () => {
-    console.log("message to verify", verifyText);
-    // XXX
+    setInputs("message to verify: " + verifyText);
+    // TODO
     setResults(`Verified: '${verifyText}': ${await walletClient.PersonalSign({message: verifyText})}`);
   };
 
   const CheckNft = async () => {
-    console.log("nft", nft);
-    // XXX
-    setResults(`NFT status: '${nft}': ${await walletClient.PersonalSign({message: nft})}`);
+    setInputs("nft: " + nft);
+    setInputs({ contactAddress: contact_address, tokenId: nft});
+    setResults(
+      await walletClient.NFT({contractAddress: contact_address, tokenId: nft})
+    );
   };
 
   const Playout = async () => {
-    console.log("playout", playout);
-    // XXX
+    setInputs("playout: " + playout);
+    // TODO
     setResults(`NFT status: '${nft}': ${await walletClient.PersonalSign({message: playout})}`);
   };
 
@@ -142,6 +147,7 @@ const AuthSection = ({walletClient, setResults}) => {
 const App = () => {
   const [walletClient, setWalletClient] = useState(undefined);
   const [results, setResults] = useState(undefined);
+  const [inputs, setInputs] = useState(undefined);
 
   useEffect(() => {
     ElvWalletClient.Initialize({
@@ -173,7 +179,7 @@ const App = () => {
     <div className="page-container">
       <h1>Test Wallet Operations via Marketplace Client</h1>
 
-      <AuthSection walletClient={walletClient} setResults={setResults} />
+      <AuthSection walletClient={walletClient} setResults={setResults} setInputs={setInputs}/>
 
       <h2>Methods</h2>
       <div className="button-row">
@@ -183,12 +189,25 @@ const App = () => {
         <button onClick={async () => setResults(await walletClient.MarketplaceStock({marketplaceParams}))}>
           Stock
         </button>
+        <button onClick={async () => setResults(await walletClient.AvailableMarketplaces())}>
+          AvailableMarketPlaces
+        </button>
+        <button onClick={async () => setResults(await walletClient.UserItems())}>
+          UserItems
+        </button>
       </div>
+
+      {
+        inputs ?
+          <pre>
+            input: {JSON.stringify(inputs, null, 2)}
+          </pre> : null
+      }
 
       {
         results ?
           <pre>
-            {JSON.stringify(results, null, 2)}
+            output: {JSON.stringify(results, null, 2)}
           </pre> : null
       }
     </div>
