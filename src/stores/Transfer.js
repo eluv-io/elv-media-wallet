@@ -93,7 +93,8 @@ class TransferStore {
         try {
           listing = ((await this.rootStore.walletClient.Listings({
             contractAddress: nft.details.ContractAddr,
-            tokenId: nft.details.TokenIdStr
+            tokenId: nft.details.TokenIdStr,
+            includeCheckoutLocked: true
           }))?.results || [])[0];
           // eslint-disable-next-line no-empty
         } catch(error) {}
