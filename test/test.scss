@@ -156,3 +156,10 @@ select {
   padding-top: 20px;
   padding-left: 20px;
 }
+
+label {
+  float: left;
+  clear: left;
+  width: 13em;
+  //padding-right: .5em;
+}

@@ -9,6 +9,7 @@ import {PageLoader} from "Components/common/Loaders";
 
 
 let mode = "staging";
+let marketplaceParams = { };
 
 const searchParams = new URLSearchParams(window.location.search);
 
@@ -30,7 +31,6 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
 
   const LogOut = async () => {
     await walletClient.LogOut();
-
     setLoggedIn(false);
   };
 
@@ -51,11 +51,11 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
   }
 
   let msgText = "hello eluvio";
-  let verifyText = "0xffffffffffffffffffffffffffffffffffffffff";
-  let nft = "0xffffffffffffffffffffffffffffffffffffffff";
-  let playout = "0xffffffffffffffffffffffffffffffffffffffff";
+  let verifyText = "0x0000000000000000000000000000000000000000";
+  let nft = "0x0000000000000000000000000000000000000000";
+  let playout = "0x0000000000000000000000000000000000000000";
 
-  let contact_address = "0xfe5857eab6b4034a2eac1012b081594acd3cd920"; // TODO: add selector or input
+  let tokenId = "1810"; // TODO: add selector or input
 
   const Sign = async () => {
     setInputs({ messageToSign:  msgText});
@@ -73,8 +73,8 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
   };
 
   const CheckNft = async () => {
-    setInputs({ contactAddress: contact_address, tokenId: nft});
-    let res = await walletClient.NFT({contractAddress: contact_address, tokenId: nft})
+    setInputs({ contactAddress: nft, tokenId: tokenId});
+    let res = await walletClient.NFT({contractAddress: nft, tokenId: tokenId})
       .catch(err => { return err; });
     setResults(res);
   };
@@ -106,29 +106,29 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
       </div>
       <br /><br />
       <div className="button-row">
-        <label htmlFor="msg">Message to Sign:&nbsp;</label>
-        <input type="text" id="msg" name="msg" onChange={event => { msgText = event.target.value; }} />
-        &nbsp;<button onClick={Sign}>Personal Sign</button>
+        <label htmlFor="msg">Message to Sign:</label>
+        <input type="text" size="50" id="msg" name="msg" onChange={event => { msgText = event.target.value; }} />
+        &nbsp;&nbsp;&nbsp;<button onClick={Sign}>Sign</button>
       </div>
       <div className="button-row">
-        <label htmlFor="verMsg">Signed message to verify:&nbsp;</label>
-        <input type="text" id="verMsg" name="verMsg" onChange={event => { verifyText = event.target.value; }} />
-        &nbsp;<button onClick={Verify}>Verify</button>
+        <label htmlFor="verMsg">Signed message to verify:</label>
+        <input type="text" size="50" id="verMsg" name="verMsg" onChange={event => { verifyText = event.target.value; }} />
+        &nbsp;&nbsp;&nbsp;<button onClick={Verify}>Verify</button>
       </div>
       <div className="button-row">
-        <label htmlFor="nft">Verify NFT ownership:&nbsp;</label>
-        <input type="text" id="nft" name="nft" onChange={event => { nft = event.target.value; }} />
-        &nbsp;<button onClick={CheckNft}>Check NFT</button>
+        <label htmlFor="nft">Verify NFT ownership:</label>
+        <input type="text" size="50" id="nft" name="nft" onChange={event => { nft = event.target.value; }} />
+        &nbsp;&nbsp;&nbsp;<button onClick={CheckNft}>Check NFT</button>
       </div>
       <div className="button-row">
-        <label htmlFor="nft">NFT Contract Stats:&nbsp;</label>
-        <input type="text" id="nft" name="nft" onChange={event => { nft = event.target.value; }} />
-        &nbsp;<button onClick={CheckNftContract}>Check NFT contract</button>
+        <label htmlFor="nftStats">NFT Contract Statistics:</label>
+        <input type="text" size="50" id="nftStats" name="nftStats" onChange={event => { nft = event.target.value; }} />
+        &nbsp;&nbsp;&nbsp;<button onClick={CheckNftContract}>Get statistics</button>
       </div>
       <div className="button-row">
-        <label htmlFor="playout">Playout token-gated content:&nbsp;</label>
-        <input type="text" id="playout" name="playout" onChange={event => { playout = event.target.value; }} />
-        &nbsp;<button onClick={Playout}>Playout</button>
+        <label htmlFor="playout">Play token-gated content:</label>
+        <input type="text" size="50" id="playout" name="playout" onChange={event => { playout = event.target.value; }} />
+        &nbsp;&nbsp;&nbsp;<button onClick={Playout}>Playout</button>
       </div>
       <br /><br />
     </>
@@ -140,9 +140,13 @@ const App = () => {
   const [walletClient, setWalletClient] = useState(undefined);
   const [results, setResults] = useState(undefined);
   const [inputs, setInputs] = useState(undefined);
+  const clearAndSetResults = async (res) => {
+    setInputs("");
+    setResults(res);
+  };
 
   // TODO: allow user to select these (their tenantId)
-  let marketplaceParams = network == "main" ? {
+  marketplaceParams = network == "main" ? {
     tenantSlug: "bcl",
     marketplaceSlug: "masked-singer-marketplace"
   } : {
@@ -194,7 +198,7 @@ const App = () => {
 
   return (
     <div className="page-container">
-      <h1>DApp Wallet Operations Tests</h1>
+      <h1>DApp Wallet Operation Examples</h1>
 
       <div className="button-row">
         <select
@@ -217,18 +221,18 @@ const App = () => {
 
       <h2>Methods (no Marketplace required)</h2>
       <div className="button-row">
-        <button onClick={async () => setResults(await walletClient.UserInfo())}>UserInfo</button>
-        <button onClick={async () => setResults(await walletClient.UserItems())}>UserItems</button>
+        <button onClick={async () => clearAndSetResults(await walletClient.UserInfo())}>UserInfo</button>
+        <button onClick={async () => clearAndSetResults(await walletClient.UserItems())}>UserItems</button>
       </div>
       <div className="button-row">
-        <button onClick={async () => setResults(await walletClient.AvailableMarketplaces())}>AvailableMarketPlaces</button>
-        <button onClick={async () => setResults(await walletClient.UserItemInfo())}>UserItemInfo</button>
+        <button onClick={async () => clearAndSetResults(await walletClient.AvailableMarketplaces())}>AvailableMarketPlaces</button>
+        <button onClick={async () => clearAndSetResults(await walletClient.UserItemInfo())}>UserItemInfo</button>
       </div>
 
       <h2>Methods (require Marketplace)</h2>
       <div className="button-row">
-        <button onClick={async () => setResults(await walletClient.Listings())}>Listings</button>
-        <button onClick={async () => setResults(await walletClient.MarketplaceStock({marketplaceParams}))}>Stock</button>
+        <button onClick={async () => clearAndSetResults(await walletClient.Listings())}>Listings</button>
+        <button onClick={async () => clearAndSetResults(await walletClient.MarketplaceStock({marketplaceParams}))}>Stock</button>
       </div>
 
       {
