@@ -8,35 +8,9 @@ import {ElvWalletClient} from "@eluvio/elv-client-js/src/walletClient";
 import {PageLoader} from "Components/common/Loaders";
 
 
-/*
-let network = "main";
 let mode = "staging";
-let marketplaceParams = {
-  tenantSlug: "bcl",
-  marketplaceSlug: "maskverse-marketplace"
-};
- */
 
-let network = "demo";
-let mode = "staging";
-let marketplaceParams = {
-  tenantSlug: "bcl-live",
-  marketplaceSlug: "masked-singer-marketplace"
-};
-
-// Use locally running wallet app if running from local IP
-let walletAppUrl;
-if(window.location.hostname === "core.test.contentfabric.io") {
-  walletAppUrl = network === "demo" ?
-    "https://core.test.contentfabric.io/wallet-demo" :
-    "https://core.test.contentfabric.io/wallet";
-} else {
-  const url = new URL(window.location.origin);
-  url.port = "8090";
-
-  walletAppUrl = url.toString();
-}
-
+const searchParams = new URLSearchParams(window.location.search);
 
 const AuthSection = ({walletClient, setResults, setInputs}) => {
   const [loggedIn, setLoggedIn] = useState(walletClient.loggedIn);
@@ -77,11 +51,11 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
   }
 
   let msgText = "hello eluvio";
-  let verifyText = "0x0000000000000000000000000";
-  let nft = "0x0000_invalid_nft";
-  let playout = "0x00000_invalid_playout_object";
+  let verifyText = "0xffffffffffffffffffffffffffffffffffffffff";
+  let nft = "0xffffffffffffffffffffffffffffffffffffffff";
+  let playout = "0xffffffffffffffffffffffffffffffffffffffff";
 
-  let contact_address = "0xfe5857eab6b4034a2eac1012b081594acd3cd920"; // XXX -- add selector or input
+  let contact_address = "0xfe5857eab6b4034a2eac1012b081594acd3cd920"; // TODO: add selector or input
 
   const Sign = async () => {
     setInputs({ messageToSign:  msgText});
@@ -92,7 +66,7 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
 
   const Verify = async () => {
     setInputs({messageToVerify: verifyText});
-    // TODO
+    // TODO: find verify function
     let res = await walletClient.PersonalSign({message: verifyText})
       .catch(err => { return err; });
     setResults(res);
@@ -114,7 +88,7 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
 
   const Playout = async () => {
     setInputs({playoutId: playout});
-    // TODO
+    // TODO: take NFT and hq__ hash, get access token, generate embed url
     let res = await walletClient.PersonalSign({message: msgText})
       .catch(err => { return err; });
     setResults(res);
@@ -162,9 +136,35 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
 };
 
 const App = () => {
+  const [network, setNetwork] = useState(searchParams.get("network-name") || "demo");
   const [walletClient, setWalletClient] = useState(undefined);
   const [results, setResults] = useState(undefined);
   const [inputs, setInputs] = useState(undefined);
+
+  // TODO: allow user to select these (their tenantId)
+  let marketplaceParams = network == "main" ? {
+    tenantSlug: "bcl",
+    marketplaceSlug: "masked-singer-marketplace"
+  } : {
+    tenantSlug: "bcl-live",
+    marketplaceSlug: "masked-singer-marketplace"
+  };
+  console.log("marketplaceParams", marketplaceParams);
+
+  // Use locally running wallet app if running from local IP
+  let walletAppUrl;
+  if(window.location.hostname === "core.test.contentfabric.io") {
+    walletAppUrl = network === "demo" ?
+      "https://core.test.contentfabric.io/wallet-demo" :
+      "https://core.test.contentfabric.io/wallet";
+  } else {
+    const url = new URL(window.location.origin);
+    url.port = "8090";
+
+    walletAppUrl = url.toString();
+  }
+  console.log("isDemo?", network == "demo", "isMain?", network == "main", "walletAppUrl", walletAppUrl);
+
 
   useEffect(() => {
     ElvWalletClient.Initialize({
@@ -194,15 +194,28 @@ const App = () => {
 
   return (
     <div className="page-container">
-      <h1>Test Wallet Operations via Marketplace Client</h1>
+      <h1>DApp Wallet Operations Tests</h1>
+
+      <div className="button-row">
+        <select
+          value={network}
+          onChange={event => {
+            setNetwork(event.target.value);
+
+            const url = new URL(window.location.href);
+            url.searchParams.set("network-name", event.target.value);
+            window.history.replaceState("", "", url.toString());
+            window.location = url;
+          }}
+        >
+          <option value="main">Selected Network: main</option>
+          <option value="demo">Selected Network: demo</option>
+        </select>
+      </div>
 
       <AuthSection walletClient={walletClient} setResults={setResults} setInputs={setInputs}/>
 
-      <h2>Methods</h2>
-      <div className="button-row">
-        <button onClick={async () => setResults(await walletClient.Listings())}>Listings</button>
-        <button onClick={async () => setResults(await walletClient.MarketplaceStock({marketplaceParams}))}>Stock</button>
-      </div>
+      <h2>Methods (no Marketplace required)</h2>
       <div className="button-row">
         <button onClick={async () => setResults(await walletClient.UserInfo())}>UserInfo</button>
         <button onClick={async () => setResults(await walletClient.UserItems())}>UserItems</button>
@@ -210,6 +223,12 @@ const App = () => {
       <div className="button-row">
         <button onClick={async () => setResults(await walletClient.AvailableMarketplaces())}>AvailableMarketPlaces</button>
         <button onClick={async () => setResults(await walletClient.UserItemInfo())}>UserItemInfo</button>
+      </div>
+
+      <h2>Methods (require Marketplace)</h2>
+      <div className="button-row">
+        <button onClick={async () => setResults(await walletClient.Listings())}>Listings</button>
+        <button onClick={async () => setResults(await walletClient.MarketplaceStock({marketplaceParams}))}>Stock</button>
       </div>
 
       {
