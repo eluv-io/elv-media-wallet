@@ -82,7 +82,7 @@ const AuthSection = ({walletClient, setResults}) => {
 
   const Sign = async () => {
     console.log("message to sign", msgText);
-    setResults(`Signed Message: '${msgText}': ${await walletClient.PersonalSign({message: msgText})}`);
+    setResults({ "Signed Message": { input: msgText, output: await walletClient.PersonalSign({message: msgText})} });
   };
 
   const Verify = async () => {
