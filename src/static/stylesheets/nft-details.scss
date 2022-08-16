@@ -32,6 +32,28 @@
       }
     }
 
+    &__owner {
+      align-items: center;
+      display: flex;
+      margin-top: 30px;
+      width: max-content;
+    }
+
+    &__owner-image-container {
+      height: 50px;
+      margin-right: 10px;
+      width: 50px;
+    }
+
+    &__owner-name {
+      color: var(--color-text-secondary);
+      font-size: 16px;
+    }
+
+    &__owner-address {
+      font-size: 12px;
+    }
+
     &__edition {
       margin-right: 20px;
     }

@@ -99,6 +99,73 @@ header,
   transition: color 0.5s, border 0.5s, box-shadow 0.5s !important;
 }
 
+.app-container {
+  padding-bottom: 200px;
+}
+
+.page-block {
+  background-color: var(--color-page-bg);
+  display: flex;
+  height: max-content;
+  justify-content: center;
+  width: 100vw;
+
+  &--main-content {
+    flex: 1 1 auto;
+    min-height: 100%;
+  }
+
+  &--global-header {
+    background: var(--background-page-header);
+
+    .page-block__content {
+      padding-bottom: 0;
+      padding-top: 0;
+    }
+  }
+
+  &--subheader {
+    .page-block__content {
+      padding-bottom: 10px;
+      padding-top: 10px;
+    }
+  }
+
+  &--user-profile {
+    background: var(--color-user-profile-bg-primary);
+  }
+
+  &--user-profile-nav {
+    .page-block__content {
+      padding-bottom: 0;
+      padding-top: 0;
+    }
+  }
+
+  &--user-profile-content {
+    .page-block__content {
+      padding-top: 0;
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    height: max-content;
+    max-width: 100%;
+    min-height: 100%;
+    padding: 25px;
+    width: 100%;
+  }
+
+  @media screen and (max-width: $breakpoint) {
+    &__content {
+      padding-right: 40px;
+    }
+  }
+}
+
 html,
 body,
 .app,
@@ -298,23 +365,6 @@ em {
   }
 }
 
-.content {
-  background-color: var(--color-page-bg);
-  border-radius: var(--border-radius-page-content);
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  height: max-content;
-  max-width: 100%;
-  min-height: 100%;
-  padding: 15px 30px 100px;
-  width: 100vw;
-
-  &:not(.content--no-background) {
-    background: var(--background-content);
-  }
-}
-
 .header-dot {
   border-radius: 100%;
   height: 6px;
@@ -351,11 +401,11 @@ em {
 @media screen and (min-width: $breakpoint) {
   .app-container {
     margin: auto;
+  }
 
-    .content {
-      margin: auto;
+  .page-block {
+    &__content {
       max-width: $breakpoint;
-      padding: 25px 30px 100px;
       width: 1250px;
     }
   }
@@ -363,8 +413,10 @@ em {
 
 // Mid
 @media screen and (max-width: $breakpoint) {
-  .content {
-    border-radius: 0;
+  .page-block {
+    &__content {
+      border-radius: 0;
+    }
   }
 
   .page-container {
@@ -388,8 +440,8 @@ em {
 
 // Small
 @media screen and (max-width: $mobile-breakpoint) {
-  .content {
-    padding: 25px 20px 100px;
+  .no-mobile {
+    display: none !important;
   }
 
   .page-container {

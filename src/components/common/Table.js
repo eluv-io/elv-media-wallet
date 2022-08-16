@@ -111,7 +111,7 @@ const Table = observer(({
         {
           !headerText ? null :
             <div className="transfer-table__header">
-              { headerIcon ? <ImageIcon icon={headerIcon} className="transfer-table__header__icon" /> : <div className="transfer-table__header__icon-placeholder" /> }
+              { headerIcon ? <ImageIcon icon={headerIcon} className="transfer-table__header__icon" /> : null }
               { headerText }
             </div>
         }
@@ -177,7 +177,8 @@ const Table = observer(({
                                         display: "block",
                                         overflow: "hidden",
                                         whiteSpace: "nowrap",
-                                        textOverflow: "ellipsis"
+                                        textOverflow: "ellipsis",
+                                        height: "max-content"
                                       } : {}
                                   }
                                 >
@@ -231,6 +232,10 @@ export const FilteredTable = observer(({mode, initialFilters, pinnedEntries, sho
         Method = async params => await rootStore.walletClient.UserItems(params);
         break;
 
+      case "leaderboard":
+        Method = async params => await rootStore.walletClient.Leaderboard(params);
+        break;
+
       default:
         throw Error("Invalid mode: " + mode);
     }
@@ -258,13 +263,16 @@ export const FilteredTable = observer(({mode, initialFilters, pinnedEntries, sho
 
   // Reload from start when filters change
   useEffect(() => {
-    if(!filters || JSON.stringify(filters || {}) === JSON.stringify(previousFilters)) {
+    const newPage = savedPage.GetValue(JSON.stringify(filters || {}));
+
+    if(!filters) {
+      return;
+    } else if(JSON.stringify(filters || {}) === JSON.stringify(previousFilters)) {
+      setPage(newPage);
       return;
     }
 
     setEntries([]);
-
-    const newPage = savedPage.GetValue(JSON.stringify(filters));
 
     page === newPage ? setLoadKey(loadKey + 1) : setPage(newPage);
   }, [filters]);

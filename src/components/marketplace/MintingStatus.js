@@ -330,7 +330,7 @@ export const ListingPurchaseStatus = observer(() => {
     }
   };
 
-  let basePath = UrlJoin("/wallet", "my-items");
+  let basePath = UrlJoin("/wallet", "users", "me", "items");
   if(inMarketplace) {
     basePath = UrlJoin("/marketplace", match.params.marketplaceId);
   }
@@ -375,7 +375,7 @@ export const ListingPurchaseStatus = observer(() => {
       basePath={basePath}
       nftBasePath={
         inMarketplace ?
-          UrlJoin("/marketplace", match.params.marketplaceId, "my-items") :
+          UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items") :
           basePath
       }
       backText={
@@ -432,7 +432,7 @@ export const PurchaseMintingStatus = observer(() => {
       subheader={`Thank you for your purchase! You've received the following ${items.length === 1 ? "item" : "items"}:`}
       items={items}
       basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
-      nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "my-items")}
+      nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items")}
       backText="Back to the Marketplace"
     />
   );
@@ -500,7 +500,7 @@ export const ClaimMintingStatus = observer(() => {
       subheader={`You've received the following ${items.length === 1 ? "item" : "items"}:`}
       items={items}
       basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
-      nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "my-items")}
+      nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items")}
       backText="Back to the Marketplace"
     />
   );
@@ -536,8 +536,8 @@ export const PackOpenStatus = observer(() => {
   const revealVideoHash = LinkTargetHash(revealAnimation);
 
   const basePath = match.url.startsWith("/marketplace") ?
-    UrlJoin("/marketplace", match.params.marketplaceId, "my-items") :
-    UrlJoin("/wallet", "my-items");
+    UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items") :
+    UrlJoin("/wallet", "users", "me", "items");
 
   const Status = async () => await rootStore.PackOpenStatus({
     contractId: match.params.contractId,
@@ -639,7 +639,7 @@ export const CollectionRedeemStatus = observer(() => {
       subheader={`You've received the following ${items.length === 1 ? "item" : "items"}:`}
       items={items}
       basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
-      nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "my-items")}
+      nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items")}
       backText="Back to the Marketplace"
     />
   );

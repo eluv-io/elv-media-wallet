@@ -33,7 +33,7 @@ const Listing = memo(({url, listing}) => (
   />
 ));
 
-const Listings = observer(() => {
+const Listings = observer(({initialFilters}) => {
   const match = useRouteMatch();
 
   return (
@@ -44,6 +44,7 @@ const Listings = observer(() => {
       showPagingInfo
       perPage={9}
       scrollOnPageChange
+      initialFilters={initialFilters}
       Render={({entries}) => (
         entries.length === 0 ? null :
           <div className="card-list">

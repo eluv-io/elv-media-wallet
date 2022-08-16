@@ -4,122 +4,44 @@ import {
   Switch,
   Route,
   Redirect,
-  useRouteMatch
 } from "react-router-dom";
 
 import {rootStore} from "Stores/index";
 
-import MyItems from "Components/wallet/MyItems";
-import AsyncComponent from "Components/common/AsyncComponent";
-import {ListingDetails, MintedNFTDetails} from "Components/nft/NFTDetails";
-import {PackOpenStatus, PurchaseMintingStatus} from "Components/marketplace/MintingStatus";
-import MyListings from "Components/listings/MyListings";
-import Listings from "Components/listings/Listings";
 import UrlJoin from "url-join";
-import {RecentSales} from "Components/listings/Activity";
-import {LoginGate} from "Components/common/LoginGate";
-import {ErrorBoundary} from "Components/common/ErrorBoundary";
+import RenderRoutes from "Routes";
+import MarketplaceBrowser from "Components/marketplace/MarketplaceBrowser";
 
-const WalletWrapper = observer(({children}) => {
-  const match = useRouteMatch();
-  const currentRoute = Routes(match).find(route => match.path === route.path);
-
+const WalletWrapper = ({children}) => {
   useEffect(() => {
-    const routes = Routes(match)
-      .filter(route => !route.noBreadcrumb && match.path.includes(route.path))
-      .sort((a, b) => a.path.length < b.path.length ? -1 : 1)
-      .map(route => {
-        let path = route.path;
-        Object.keys(match.params).map(key => path = path.replace(`:${key}`, match.params[key]));
-
-        return {
-          name: route.name,
-          path
-        };
-      });
-
-    rootStore.SetNavigationBreadcrumbs(routes);
-
-    if(currentRoute.hideNavigation) {
-      rootStore.ToggleNavigation(false);
-      return () => rootStore.ToggleNavigation(true);
-    }
-
     rootStore.ClearMarketplace();
-  }, [match.url]);
+  });
 
-  if(currentRoute?.skipLoading) {
-    return children;
-  }
-
-  return (
-    <AsyncComponent
-      key={`wallet-component-${match.url}`}
-      loadKey="wallet-collection"
-      cacheSeconds={30}
-      Load={async () => await rootStore.LoadNFTContractInfo()}
-      loadingClassName="page-loader"
-    >
-      { children }
-    </AsyncComponent>
-  );
-});
-
-const Routes = (match) => {
-  const nft = rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId}) || { metadata: {} };
-
-  return [
-    { name: nft.metadata.display_name, path: "/wallet/my-listings/:contractId/:tokenId", Component: MintedNFTDetails, authed: true },
-    { name: "My Listings", path: "/wallet/my-listings", Component: MyListings, authed: true },
-    { name: "My Transactions", path: "/wallet/my-listings/transactions", Component: MyListings, authed: true },
-
-    { name: "Activity", path: "/wallet/activity", Component: RecentSales },
-    { name: nft.metadata.display_name, path: "/wallet/activity/:contractId/:tokenId", Component: MintedNFTDetails },
-
-    { name: "Listing", path: "/wallet/listings/:listingId", Component: ListingDetails },
-    { name: "Listings", path: "/wallet/listings", Component: Listings },
-    { name: "Open Pack", path: "/wallet/my-items/:contractId/:tokenId/open", Component: PackOpenStatus, authed: true },
-    { name: nft.metadata.display_name, path: "/wallet/my-items/:contractId/:tokenId", Component: MintedNFTDetails, authed: true },
-    { name: "My Items", path: "/wallet/my-items", Component: MyItems, authed: true },
-
-    { name: "Purchase", path: "/wallet/listings/:listingId/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
-    { path: "/wallet", Component: () => <Redirect to="/wallet/my-items" />, noBreadcrumb: true}
-  ];
+  return children;
 };
 
 const Wallet = observer(() => {
-  const match = useRouteMatch();
-
   if(rootStore.hideGlobalNavigation && rootStore.specifiedMarketplaceId) {
     return <Redirect to={UrlJoin("/marketplace", rootStore.specifiedMarketplaceId, "store")} />;
   }
 
   return (
-    <div className="page-container wallet-page">
-      <div className="content">
-        <Switch>
-          {
-            Routes(match).map(({path, authed, ignoreLoginCapture, Component}) =>
-              <Route exact path={path} key={`wallet-route-${path}`}>
-                <ErrorBoundary>
-                  {
-                    authed ?
-                      <LoginGate ignoreCapture={ignoreLoginCapture} to="/marketplaces">
-                        <WalletWrapper>
-                          <Component key={`wallet-component-${path}`}/>
-                        </WalletWrapper>
-                      </LoginGate> :
+    <div className="page-container error-page">
+      <Switch>
+        <Route path="/wallet" exact>
+          <Redirect to="/marketplaces" />
+        </Route>
 
-                      <WalletWrapper>
-                        <Component key={`wallet-component-${path}`}/>
-                      </WalletWrapper>
-                  }
-                </ErrorBoundary>
-              </Route>
-            )
-          }
-        </Switch>
-      </div>
+        <Route path="/marketplaces" exact>
+          <MarketplaceBrowser />
+        </Route>
+
+        <RenderRoutes
+          routeList="wallet"
+          basePath="/wallet"
+          Wrapper={WalletWrapper}
+        />
+      </Switch>
     </div>
   );
 });

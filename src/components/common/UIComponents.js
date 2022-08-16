@@ -204,7 +204,7 @@ export const FormatPriceString = (
   }
 };
 
-export const ButtonWithLoader = ({children, className="", onClick, ...props}) => {
+export const ButtonWithLoader = ({children, className="", onClick, isLoading, ...props}) => {
   const [loading, setLoading] = useState(false);
 
   return (
@@ -223,7 +223,7 @@ export const ButtonWithLoader = ({children, className="", onClick, ...props}) =>
       }}
     >
       {
-        loading ?
+        loading || isLoading ?
           <Loader loader="inline" className="action-with-loader__loader" /> :
           children
       }
@@ -278,9 +278,12 @@ export const DebouncedInput = ({...props}) => {
     setInputValue(props.value);
   }, [props.value]);
 
+  let inputProps = {...props};
+  delete inputProps.onImmediateChange;
+
   return (
     <input
-      {...props}
+      {...inputProps}
       className={`debounced-input ${props.className || ""}`}
       value={inputValue}
       onKeyDown={event => {
@@ -294,7 +297,11 @@ export const DebouncedInput = ({...props}) => {
 
         let value = event.target.value;
         setInputValue(value);
-        debounceTimeout = setTimeout(() => props.onChange(value), 1000);
+        debounceTimeout = setTimeout(() => props.onChange(value), props.timeout || 1000);
+
+        if(props.onImmediateChange) {
+          props.onImmediateChange(value);
+        }
       }}
     />
   );

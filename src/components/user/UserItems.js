@@ -1,60 +1,65 @@
 import React, {useState, useEffect} from "react";
 import {observer} from "mobx-react";
-import {useRouteMatch} from "react-router-dom";
+
 import {rootStore} from "Stores";
 import UrlJoin from "url-join";
+import {useRouteMatch} from "react-router-dom";
 import ImageIcon from "Components/common/ImageIcon";
-import ListingIcon from "Assets/icons/listings icon";
+
+import Utils from "@eluvio/elv-client-js/src/Utils";
 import FilteredView from "Components/listings/FilteredView";
-import TestIcon from "Assets/icons/alert-circle";
+
+import ListingIcon from "Assets/icons/listings icon.svg";
+import TestIcon from "Assets/icons/alert-circle.svg";
 import NFTCard from "Components/nft/NFTCard";
 
-const MarketplaceOwned = observer(() => {
+const UserItems = observer(() => {
   const match = useRouteMatch();
-  const [listings, setListings] = useState([]);
+  const userAddress = rootStore.userProfiles[match.params.userId].userAddress;
 
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-
-  if(!marketplace) { return null; }
+  const [userListings, setUserListings] = useState([]);
 
   useEffect(() => {
-    rootStore.walletClient.UserListings()
-      .then(listings => setListings(listings));
+    rootStore.walletClient.UserListings({userAddress: rootStore.userProfiles[match.params.userId].userAddress})
+      .then(listings => setUserListings(listings));
 
-    if(!rootStore.sidePanelMode || !rootStore.noItemsAvailable) { return; }
+    if(match.params.marketplaceId) {
+      if(!rootStore.sidePanelMode || !rootStore.noItemsAvailable) { return; }
 
-    // If there are no items available for sale and we're in the side panel, we want to avoid navigating back to the marketplace page.
-    const originalHideNavigation = rootStore.hideNavigation;
-    rootStore.ToggleNavigation(false);
+      // If there are no items available for sale and we're in the side panel, we want to avoid navigating back to the marketplace page.
+      const originalHideNavigation = rootStore.hideNavigation;
+      rootStore.ToggleNavigation(false);
 
-    return () => {
-      rootStore.ToggleNavigation(originalHideNavigation);
-    };
+      return () => {
+        rootStore.ToggleNavigation(originalHideNavigation);
+      };
+    }
   }, []);
 
   return (
     <FilteredView
       mode="owned"
       hideStats
-      topPagination
-      showPagingInfo
       perPage={9}
+      showPagingInfo
+      topPagination
       scrollOnPageChange
+      initialFilters={{ userAddress }}
       Render={({entries}) =>
         entries.length === 0 ? null :
           <div className="card-list">
             {
-              entries.map((ownedItem) => {
-                const listing = listings.find(listing =>
-                  listing.details.ContractAddr === ownedItem.details.ContractAddr &&
-                  listing.details.TokenIdStr === ownedItem.details.TokenIdStr
+              entries.map((nft) => {
+                const listing = userListings.find(listing =>
+                  nft.details.TokenIdStr === listing.details.TokenIdStr &&
+                  Utils.EqualAddress(nft.details.ContractAddr, listing.details.ContractAddr)
                 );
 
                 return (
                   <NFTCard
-                    key={`nft-card2-${ownedItem.details.ContractId}-${ownedItem.details.TokenIdStr}`}
-                    link={UrlJoin(match.url, ownedItem.details.ContractId, ownedItem.details.TokenIdStr)}
-                    nft={ownedItem}
+                    key={`nft-card-${nft.details.ContractId}-${nft.details.TokenIdStr}`}
+                    link={UrlJoin(match.url, nft.details.ContractId, nft.details.TokenIdStr)}
+                    nft={nft}
                     selectedListing={listing}
                     imageWidth={600}
                     truncateDescription
@@ -70,7 +75,7 @@ const MarketplaceOwned = observer(() => {
                             /> : null
                         }
                         {
-                          ownedItem.metadata.test ?
+                          nft.metadata.test ?
                             <ImageIcon
                               icon={TestIcon}
                               title="This is a test NFT"
@@ -90,4 +95,4 @@ const MarketplaceOwned = observer(() => {
   );
 });
 
-export default MarketplaceOwned;
+export default UserItems;

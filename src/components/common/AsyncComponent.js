@@ -12,7 +12,7 @@ class AsyncComponent extends React.Component {
     const cache = (props.cacheSeconds || 0) * 1000;
 
     this.state = {
-      loading: !props.loadKey || !loaded[props.loadKey] || (Date.now() - loaded[props.loadKey]) > cache
+      loading: !props.loaded && (!props.loadKey || !loaded[props.loadKey] || (Date.now() - loaded[props.loadKey]) > cache)
     };
   }
 

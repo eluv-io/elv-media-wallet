@@ -100,7 +100,7 @@ const Profile = observer(() => {
   const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
 
   useEffect(() => {
-    rootStore.SetNavigationBreadcrumbs([{name: "Wallet", path: "/wallet/my-items" }, {name: "Profile", path: "/profile" }]);
+    rootStore.SetNavigationBreadcrumbs([{name: "Wallet", path: "/wallet/users/me/items" }, {name: "Profile", path: "/profile" }]);
     rootStore.GetWalletBalance(true);
   }, [match.url]);
 
@@ -181,8 +181,8 @@ const Profile = observer(() => {
           className="profile-page__transactions-link"
           to={
             match.params.marketplaceId ?
-              UrlJoin("/marketplace", match.params.marketplaceId, "my-listings", "transactions") :
-              "/wallet/my-listings/transactions"
+              UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "activity") :
+              "/wallet/users/me/activity"
           }
         >
           View Full Transaction History

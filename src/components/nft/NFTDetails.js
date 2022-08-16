@@ -30,7 +30,9 @@ import {FilteredTable} from "Components/common/Table";
 import {MarketplaceImage, NFTImage} from "Components/common/Images";
 import AsyncComponent from "Components/common/AsyncComponent";
 import {Ago, MediaIcon, MiddleEllipsis, NFTInfo} from "../../utils/Utils";
+import Utils from "@eluvio/elv-client-js/src/Utils";
 
+import UserIcon from "Assets/icons/user.svg";
 import TransactionIcon from "Assets/icons/transaction history icon.svg";
 import DetailsIcon from "Assets/icons/Details icon.svg";
 import ContractIcon from "Assets/icons/Contract icon.svg";
@@ -40,6 +42,7 @@ import PlayIcon from "Assets/icons/blue play icon.svg";
 import BackIcon from "Assets/icons/arrow-left.svg";
 import ShareIcon from "Assets/icons/share icon.svg";
 import TwitterIcon from "Assets/icons/twitter.svg";
+import PictureIcon from "Assets/icons/image.svg";
 import CopyIcon from "Assets/icons/copy.svg";
 
 const NFTMediaSection = ({nftInfo, containerElement, selectedMediaIndex, setSelectedMediaIndex, currentPlayerInfo}) => {
@@ -358,8 +361,13 @@ const NFTContractSection = ({nftInfo, SetBurned, ShowTransferModal}) => {
   );
 };
 
-const NFTInfoMenu = ({nftInfo}) => {
+const NFTInfoMenu = observer(({nftInfo}) => {
   const match = useRouteMatch();
+
+  let nftImageUrl;
+  if(nftInfo.isOwned && rootStore.userProfiles.me?.imageUrl?.toString() !== nftInfo?.mediaInfo.imageUrl?.toString()) {
+    nftImageUrl = nftInfo?.mediaInfo?.imageUrl;
+  }
 
   const listingId = match.params.listingId || nftInfo.listingId;
   let shareUrl;
@@ -380,7 +388,7 @@ const NFTInfoMenu = ({nftInfo}) => {
     twitterUrl.searchParams.set("text", `${nftInfo.name}\n\n`);
   }
 
-  if(!shareUrl && !(nftInfo.mediaInfo && !nftInfo.mediaInfo.requiresPermissions)) {
+  if(!nftImageUrl && !shareUrl && !(nftInfo.mediaInfo && !nftInfo.mediaInfo.requiresPermissions)) {
     return null;
   }
 
@@ -395,9 +403,16 @@ const NFTInfoMenu = ({nftInfo}) => {
         RenderMenu={Close => (
           <>
             {
+              nftImageUrl ?
+                <ButtonWithLoader onClick={async () => await rootStore.UpdateUserProfile({newProfileImageUrl: nftImageUrl.toString()})}>
+                  <ImageIcon icon={PictureIcon} />
+                  Set as My Profile Image
+                </ButtonWithLoader> : null
+            }
+            {
               twitterUrl ?
                 <a href={twitterUrl.toString()} target="_blank" onClick={Close}>
-                  <ImageIcon icon={TwitterIcon}/>
+                  <ImageIcon icon={TwitterIcon} />
                   Share on Twitter
                 </a> : null
             }
@@ -430,13 +445,26 @@ const NFTInfoMenu = ({nftInfo}) => {
       />
     </div>
   );
-};
+});
 
 const NFTInfoSection = ({nftInfo, className=""}) => {
+  const match = useRouteMatch();
+
   let sideText = nftInfo.sideText;
   if(nftInfo.stock) {
     sideText = [`${nftInfo.stock.minted} Minted`, `${nftInfo.stock.max - nftInfo.stock.minted} Available`];
   }
+
+  useEffect(() => {
+    const ownerAddress = nftInfo.ownerAddress;
+
+    if(!ownerAddress) { return; }
+
+    rootStore.UserProfile({userId: ownerAddress});
+  }, [nftInfo?.listing?.details?.ownerAddress]);
+
+  const ownerAddress = nftInfo.ownerAddress;
+  const ownerProfile = ownerAddress ? rootStore.userProfiles[Utils.FormatAddress(ownerAddress)] : undefined;
 
   return (
     <div className={`details-page__nft-info ${className}`}>
@@ -507,6 +535,28 @@ const NFTInfoSection = ({nftInfo, className=""}) => {
                 </div> : null
             }
           </div> : null
+      }
+      {
+        ownerProfile ?
+          <Link
+            className="details-page__nft-info__owner"
+            to={
+              match.params.marketplaceId ?
+                UrlJoin("/marketplace", match.params.marketplaceId, "users", ownerProfile.userName || ownerProfile.userAddress, "listings") :
+                UrlJoin("/wallet", "users", ownerProfile.userName || ownerProfile.userAddress, "listings")
+            }
+          >
+            <div className="user__profile__image-container details-page__nft-info__owner-image-container">
+              <ImageIcon
+                icon={rootStore.ProfileImageUrl(ownerProfile.imageUrl, "400") || UserIcon}
+                className="user__profile__image details-page__nft_info__owner-image"
+                alternateIcon={UserIcon}
+              />
+            </div>
+            <div className={`details-page__nft-info__owner-name ${!ownerProfile.userName ? "details-page__nft-info__owner-address" : ""}`}>
+              { ownerProfile.userName ? `@${ownerProfile.userName}` : ownerProfile.userAddress }
+            </div>
+          </Link> : null
       }
     </div>
   );
@@ -835,14 +885,14 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
   // Pack opened
   if(opened) {
     return match.params.marketplaceId ?
-      <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "my-items", match.params.contractId, match.params.tokenId, "open")} /> :
-      <Redirect to={UrlJoin("/wallet", "my-items", match.params.contractId, match.params.tokenId, "open")} />;
+      <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items", match.params.contractId, match.params.tokenId, "open")} /> :
+      <Redirect to={UrlJoin("/wallet", "users", "me", "items", match.params.contractId, match.params.tokenId, "open")} />;
   }
 
   // NFT Burned
   if(burned) {
     return match.params.marketplaceId ?
-      <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "my-items")}/> :
+      <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items")}/> :
       <Redirect to={Path.dirname(Path.dirname(match.url))}/>;
   }
 
@@ -899,7 +949,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
       <div key={match.url} className="details-page" ref={element => setDetailsRef(element)}>
         <Link to={backPage.path} className="details-page__back-link">
           <ImageIcon icon={BackIcon} />
-          Back to { marketplace ? marketplace.branding?.name || "Marketplace" : backPage.name }
+          Back to { backPage.name }
         </Link>
         <div className="details-page__main-content">
           <div className="details-page__content-container">

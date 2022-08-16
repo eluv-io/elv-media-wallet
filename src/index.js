@@ -36,13 +36,11 @@ import {Auth0Provider} from "@auth0/auth0-react";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import {PageLoader} from "Components/common/Loaders";
 import Modal from "Components/common/Modal";
-import {LoginRedirectGate} from "Components/common/LoginGate";
 import Flows from "Components/interface/Flows";
 import Actions from "Components/interface/Actions";
 
 const WalletRoutes = lazy(() => import("Components/wallet/index"));
 const MarketplaceRoutes = lazy(() => import("Components/marketplace/index"));
-const Profile = lazy(() => import("Components/profile"));
 
 const DebugFooter = observer(() => {
   if(!EluvioConfiguration["show-debug"]) { return null; }
@@ -100,7 +98,7 @@ const Routes = observer(() => {
     <>
       <Header />
       <ScrollToTop>
-        <ErrorBoundary className="page-container">
+        <ErrorBoundary className="page-container wallet-page">
           <Switch>
             <Route path="/login">
               <Login />
@@ -116,22 +114,18 @@ const Routes = observer(() => {
                 <WalletRoutes />
               </Suspense>
             </Route>
-            <Route path="/profile">
-              <LoginRedirectGate to="/marketplaces">
-                <Suspense fallback={<PageLoader />}>
-                  <Profile />
-                </Suspense>
-              </LoginRedirectGate>
-            </Route>
             <Route path="/marketplaces">
               <Suspense fallback={<PageLoader />}>
-                <MarketplaceRoutes />
+                <WalletRoutes />
               </Suspense>
             </Route>
             <Route path="/marketplace">
               <Suspense fallback={<PageLoader />}>
                 <MarketplaceRoutes />
               </Suspense>
+            </Route>
+            <Route path="/profile">
+              <Redirect to="/wallet/profile" />
             </Route>
             <Route path="/">
               <Redirect to="/marketplaces" />

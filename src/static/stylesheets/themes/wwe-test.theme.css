@@ -127,6 +127,8 @@
 
 
   /* General */
+  --color-page-bg: transparent;
+
   --color-bg-primary: var(--neutral-1);
   --color-bg-secondary: var(--neutral-2);
 
@@ -184,11 +186,16 @@
   --color-feature-card-text-secondary: #FFFFFF;
   --color-feature-card-text-highlight: #FFFFFF;
 
+  /* User Profile */
+  --color-user-profile-bg-primary: var(--neutral-1);
+  --color-user-profile-bg-secondary: var(--color-bg-primary);
+
 
   /* Tables */
   --color-table-even-row-bg: rgba(6, 8, 41, 0.2);
   --color-table-odd-row-bg: rgba(241, 241, 241, 0.2);
-  --background-table-header-row: var(--color-table-even-row-bg);
+  --background-table-header-row: #FFFFFF;
+  --color-table-header-row-text: #0014AD;
   --border-table-primary: 0;
 
   /* Buttons */
@@ -303,10 +310,6 @@ input:focus-visible,
   font-weight: normal;
 }
 
-.listing-card * {
-  text-transform: uppercase;
-}
-
 .header__log-in {
   display: none;
 }
@@ -326,10 +329,10 @@ input:focus-visible,
 .stats,
 .expandable-section,
 .transfer-table,
-.listing-card-container,
 .wallet-connect,
 .profile-page__section,
-.menu-button__menu {
+.menu-button__menu,
+.page-block {
   backdrop-filter: blur(20px);
 }
 

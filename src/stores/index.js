@@ -1,6 +1,6 @@
-const testTheme = undefined;
-//const testTheme = import("../static/stylesheets/themes/maskverse-test.theme.css");
-//const testTheme = import("../static/stylesheets/themes/wwe-test.theme.css");
+let testTheme = undefined;
+//testTheme = import("../static/stylesheets/themes/maskverse-test.theme.css");
+//testTheme = import("../static/stylesheets/themes/wwe-test.theme.css");
 
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";
@@ -17,6 +17,7 @@ import TransferStore from "Stores/Transfer";
 import NFTContractABI from "../static/abi/NFTContract";
 import CryptoStore from "Stores/Crypto";
 import {v4 as UUID} from "uuid";
+import ProfanityFilter from "bad-words";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
@@ -103,6 +104,7 @@ class RootStore {
 
   hideGlobalNavigation = false;
   hideNavigation = searchParams.has("hn") || this.loginOnly;
+  hideMarketplaceNavigation = false;
   sidePanelMode = false;
 
   appBackground = { desktop: this.GetSessionStorage("background-image"), mobile: this.GetSessionStorage("background-image") };
@@ -115,6 +117,8 @@ class RootStore {
 
   nftInfo = {};
   nftData = {};
+
+  userProfiles = {};
 
   marketplaces = {};
   marketplaceOwnedCache = {};
@@ -213,6 +217,7 @@ class RootStore {
       }
 
       this.walletClient = yield ElvWalletClient.Initialize({
+        appId: "eluvio-media-wallet",
         network: EluvioConfiguration.network,
         mode: EluvioConfiguration.mode,
         storeAuthToken: false
@@ -364,6 +369,7 @@ class RootStore {
       this.client = this.walletClient.client;
 
       this.GetWalletBalance();
+      this.UserProfile({userId: address, force: true});
 
       this.funds = parseFloat((yield this.client.GetBalance({address}) || 0));
 
@@ -474,6 +480,126 @@ class RootStore {
 
     return url.toString();
   }
+
+  async ValidateUserName(userName) {
+    const symbolFilter = new RegExp(/^[A-Za-zÀ-ÖØ-öø-ÿ0-9_]+$/);
+    const profanityFilter = new ProfanityFilter();
+    const invalidUsernames = ["me"];
+
+    let errorMessage;
+    if(userName.length < 3 || userName.length > 30) {
+      errorMessage = "Username must be between 3 and 30 characters";
+    } else if(!symbolFilter.test(userName)) {
+      errorMessage = "Username must consist of alphanumeric characters, numbers, and underscores";
+    } else if(
+      invalidUsernames.includes(userName.toLowerCase()) ||
+      userName.toLowerCase().startsWith("0x") ||
+      profanityFilter.isProfane(userName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replaceAll("_", " "))
+    ) {
+      errorMessage = "Invalid username";
+    } else {
+      const address = await rootStore.walletClient.UserNameToAddress({userName});
+
+      if(address && !Utils.EqualAddress(address, rootStore.CurrentAddress())) {
+        errorMessage = "Username has already been taken";
+      }
+    }
+
+    return errorMessage;
+  }
+
+  ValidProfileImageUrl(imageUrl) {
+    try {
+      const url = new URL(imageUrl);
+
+      return url.hostname.endsWith("contentfabric.io");
+    } catch(error) {
+      return false;
+    }
+  }
+
+  ProfileImageUrl(imageUrl, width) {
+    if(!imageUrl || !this.ValidProfileImageUrl(imageUrl)) { return; }
+
+    try {
+      imageUrl = new URL(imageUrl);
+      imageUrl.searchParams.set("width", width);
+
+      return imageUrl.toString();
+    // eslint-disable-next-line no-empty
+    } catch(error) {}
+  }
+
+  UserProfile = flow(function * ({userId, force=false}) {
+    let userAddress = userId.toLowerCase().startsWith("0x") ? userId : undefined;
+    let userName = !userId.toLowerCase().startsWith("0x") ? userId : undefined;
+
+    if(userName === "me") {
+      userAddress = this.CurrentAddress();
+      userName = undefined;
+    }
+
+    if(userAddress) {
+      userAddress = Utils.FormatAddress(userAddress);
+    } else if(!userName) {
+      return;
+    }
+
+    if(force || !this.userProfiles[userId]) {
+      const profile = yield this.walletClient.Profile({userAddress, userName});
+
+      if(!profile) {
+        return;
+      }
+
+      if(profile.imageUrl && !this.ValidProfileImageUrl(profile.imageUrl)) {
+        delete profile.imageUrl;
+      }
+
+      this.userProfiles[profile.userAddress] = profile;
+      this.userProfiles[profile.userName] = profile;
+
+      if(Utils.EqualAddress(profile.userAddress, this.CurrentAddress())) {
+        this.userProfiles.me = profile;
+      }
+    }
+
+    return this.userProfiles[userId];
+  });
+
+  UpdateUserProfile = flow(function * ({newUserName, newProfileImageUrl}) {
+    const profile = yield this.UserProfile({userId: this.CurrentAddress()});
+
+    // Update username
+    if(newUserName) {
+      yield this.walletClient.SetProfileMetadata({
+        type: "user",
+        mode: "public",
+        key: "username",
+        value: newUserName
+      });
+    }
+
+    if(newProfileImageUrl) {
+      if(!this.ValidProfileImageUrl(newProfileImageUrl)) {
+        throw Error("Invalid profile image url: " + newProfileImageUrl);
+      }
+
+      yield this.walletClient.SetProfileMetadata({
+        type: "user",
+        mode: "public",
+        key: "icon_url",
+        value: newProfileImageUrl.toString()
+      });
+    }
+
+    if(profile.userName) {
+      this.userProfiles[profile.userName].newUserName = newUserName;
+    }
+
+    // Reload cache
+    return yield this.UserProfile({userId: this.CurrentAddress(), force: true});
+  });
 
   // Get already loaded basic NFT contract info
   NFTContractInfo({tokenId, contractAddress, contractId}) {
@@ -660,24 +786,30 @@ class RootStore {
     return this.marketplaces[marketplaceId];
   });
 
-  MarketplaceOwnedItems = flow(function * (marketplace) {
+  MarketplaceOwnedItems = flow(function * ({marketplace, userAddress}) {
+    if(!this.loggedIn) { return {}; }
+
     try {
-      if(!this.loggedIn) {
-        return {};
+      if(!userAddress) {
+        userAddress = this.CurrentAddress();
       }
 
-      if(Date.now() - (this.marketplaceOwnedCache[marketplace.tenant_id]?.retrievedAt || 0) > 60000) {
-        delete this.marketplaceOwnedCache[marketplace.tenant_id];
+      userAddress = Utils.FormatAddress(userAddress);
+
+      if(Date.now() - (this.marketplaceOwnedCache[userAddress]?.[marketplace.tenant_id]?.retrievedAt || 0) > 60000) {
+        delete this.marketplaceOwnedCache[userAddress]?.[marketplace.tenant_id];
       }
 
-      if(!this.marketplaceOwnedCache[marketplace.tenant_id]) {
+      if(!this.marketplaceOwnedCache[userAddress]?.[marketplace.tenant_id]) {
         let promise = new Promise(async resolve => {
           let ownedItems = {};
 
-          const listings = await this.walletClient.UserListings({marketplaceParams: { marketplaceId: marketplace.marketplaceId }});
+          const listings = await this.walletClient.UserListings({userAddress, marketplaceParams: { marketplaceId: marketplace.marketplaceId }});
 
           (await this.walletClient.UserItems({
+            userAddress,
             marketplaceParams: { marketplaceId: marketplace.marketplaceId },
+            sortBy: "default",
             limit: 10000
           }))
             .results
@@ -712,21 +844,25 @@ class RootStore {
           resolve(ownedItems);
         });
 
-        this.marketplaceOwnedCache[marketplace.tenant_id] = {
+        if(!this.marketplaceOwnedCache[userAddress]) {
+          this.marketplaceOwnedCache[userAddress] = {};
+        }
+
+        this.marketplaceOwnedCache[userAddress][marketplace.tenant_id] = {
           retrievedAt: Date.now(),
           ownedItemsPromise: promise
         };
       }
 
-      return yield this.marketplaceOwnedCache[marketplace.tenant_id].ownedItemsPromise;
+      return yield this.marketplaceOwnedCache[userAddress][marketplace.tenant_id].ownedItemsPromise;
     } catch(error) {
       this.Log(error, true);
       return {};
     }
   });
 
-  MarketplaceCollectionItems = flow(function * ({marketplace, collection}) {
-    const ownedItems = yield this.MarketplaceOwnedItems(marketplace);
+  MarketplaceCollectionItems = flow(function * ({marketplace, collection, userAddress}) {
+    const ownedItems = yield this.MarketplaceOwnedItems({marketplace, userAddress});
     const purchaseableItems = this.MarketplacePurchaseableItems(marketplace);
 
     return collection.items.map((sku, entryIndex) => {
@@ -1331,6 +1467,10 @@ class RootStore {
 
   ToggleNavigation(enabled) {
     this.hideNavigation = !enabled;
+  }
+
+  ToggleMarketplaceNavigation(enabled) {
+    this.hideMarketplaceNavigation = !enabled;
   }
 
   ToggleSidePanelMode(enabled) {

@@ -131,7 +131,6 @@
 .subheader,
 .global-header {
   max-width: $breakpoint;
-  padding: 0 15px;
   width: 100%;
 
   &__navigation {
@@ -148,18 +147,12 @@
     font: var(--font-header-links);
     height: 100%;
     justify-content: center;
-    margin: 0 8px;
-    padding: 0 10px;
     transition: border 0.25s ease;
 
     &.active {
       color: var(--color-header-link-text-active);
     }
   }
-}
-
-.global-header-container {
-  background: var(--background-page-header);
 }
 
 .global-header {
@@ -189,6 +182,10 @@
     font-weight: normal;
     letter-spacing: 0.07em;
     text-transform: uppercase;
+
+    &:not(:last-child) {
+      margin-right: 20px;
+    }
   }
 
   &--marketplace {
@@ -196,13 +193,12 @@
     position: relative;
 
     .global-header__logo {
-      padding: 5px 10px 8px 0;
+      padding: 5px 20px 8px 0;
     }
 
     .global-header__navigation-link {
       font-size: 12px;
       letter-spacing: 0.03em;
-      margin: 0 3px;
     }
   }
 }
@@ -211,8 +207,8 @@
   align-items: center;
   background: var(--background-marketplace-header);
   display: flex;
-  height: 40px;
-  justify-content: center;
+  flex-direction: row;
+  justify-content: flex-end;
   position: relative;
   transition: height 0.15s ease;
   width: 100%;
@@ -262,20 +258,25 @@
     align-items: center;
     display: flex;
     justify-content: center;
-    margin-top: 10px;
+    margin: 10px 0;
+    min-height: 20px;
     position: relative;
+    width: 100%;
   }
 
   &__navigation--personal {
     align-items: center;
     display: flex;
     position: absolute;
-    right: 0;
+    right: 10px;
     width: max-content;
 
     .subheader__navigation-link {
       font-size: 12px;
-      margin: 0;
+
+      &:not(:last-child) {
+        margin-right: 20px;
+      }
     }
   }
 
@@ -284,8 +285,11 @@
     color: var(--color-header-link-text);
     font-size: 16px;
     font-weight: 500;
-    padding-bottom: 3px;
     text-transform: uppercase;
+
+    &:not(:last-child) {
+      margin-right: 20px;
+    }
   }
 
   .mobile-navigation {
@@ -308,7 +312,7 @@
   justify-content: center;
   margin-left: 15px;
   min-width: 30px;
-  padding-right: 15px;
+  padding-right: 25px;
 
   &__menu-button {
     height: 100%;
@@ -331,7 +335,7 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    padding-top: 50px;
+    padding: 50px 0;
     width: 100vw;
 
     * {
@@ -345,10 +349,10 @@
     font-family: var(--font-family-primary);
     font-size: 24px;
     font-weight: normal;
-    justify-content: center;
+    justify-content: flex-start;
     letter-spacing: 1px;
-    padding: 15px 0;
-    text-align: center;
+    padding: 15px 0 15px 25px;
+    text-align: left;
     text-transform: uppercase;
     white-space: nowrap;
     width: 100%;
@@ -359,10 +363,6 @@
 
     &:hover {
       background-color: var(--color-bg-secondary);
-    }
-
-    span {
-      padding: 0 5px;
     }
 
     &.active {
@@ -419,16 +419,6 @@
 
     &__logo-container {
       max-width: 200px;
-    }
-
-    .subheader__navigation-link {
-      margin: 0 5px;
-    }
-
-    .subheader__navigation--personal {
-      .subheader__navigation-link {
-        margin: 0;
-      }
     }
   }
 

@@ -15,12 +15,12 @@ const pages = {
   "activity": "/wallet/activity",
 
   // User pages
-  "wallet": "/wallet/my-items",
-  "items": "/wallet/my-items",
-  "item": "/wallet/my-items/:contractId/:tokenId",
-  "myListings": "/wallet/myListings",
-  "myListing": "/wallet/myListings/:listingId",
-  "profile": "/profile",
+  "wallet": "/wallet/users/me/items",
+  "items": "/wallet/users/me/items",
+  "item": "/wallet/users/me/items/:contractId/:tokenId",
+  "myListings": "/wallet/users/me/listings",
+  "myListing": "/wallet/users/me/listings/:listingId",
+  "profile": "/wallet/profile",
 
   // Marketplace
   "marketplaces": "/marketplaces",
@@ -32,10 +32,11 @@ const pages = {
   "marketplaceProfile": "/marketplace/:marketplaceId/profile",
 
   // Marketplace user pages
-  "marketplaceWallet": "/marketplace/:marketplaceId/my-items",
+  "marketplaceWallet": "/marketplace/:marketplaceId/users/me/items/",
   "marketplaceCollections": "/marketplace/:marketplaceId/collections",
-  "marketplaceMyListings": "/marketplace/:marketplaceId/my-listings",
-  "marketplaceMyListing": "/marketplace/:marketplaceId/my-listings/:listingId",
+  "marketplaceMyCollections": "/marketplace/:marketplaceId/users/me/collections",
+  "marketplaceMyListings": "/marketplace/:marketplaceId/users/me/listings",
+  "marketplaceMyListing": "/marketplace/:marketplaceId/users/me/listings/:listingId",
 
   // Drop
   "drop": "/marketplace/:marketplaceId/events/:tenantSlug/:eventSlug/:dropId",
