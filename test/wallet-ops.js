@@ -8,9 +8,8 @@ import {ElvWalletClient} from "@eluvio/elv-client-js/src/walletClient";
 import {PageLoader} from "Components/common/Loaders";
 
 
-let mode = "staging";
+const mode = "staging";
 let marketplaceParams = { };
-
 const searchParams = new URLSearchParams(window.location.search);
 
 const AuthSection = ({walletClient, setResults, setInputs}) => {
@@ -108,27 +107,27 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
       <div className="button-row">
         <label htmlFor="msg">Message to Sign:</label>
         <input type="text" size="50" id="msg" name="msg" onChange={event => { msgText = event.target.value; }} />
-        &nbsp;&nbsp;&nbsp;<button onClick={Sign}>Sign</button>
+        <button onClick={Sign}>Sign</button>
       </div>
       <div className="button-row">
         <label htmlFor="verMsg">Signed message to verify:</label>
         <input type="text" size="50" id="verMsg" name="verMsg" onChange={event => { verifyText = event.target.value; }} />
-        &nbsp;&nbsp;&nbsp;<button onClick={Verify}>Verify</button>
+        <button onClick={Verify}>Verify</button>
       </div>
       <div className="button-row">
         <label htmlFor="nft">Verify NFT ownership:</label>
         <input type="text" size="50" id="nft" name="nft" onChange={event => { nft = event.target.value; }} />
-        &nbsp;&nbsp;&nbsp;<button onClick={CheckNft}>Check NFT</button>
+        <button onClick={CheckNft}>Check NFT</button>
       </div>
       <div className="button-row">
         <label htmlFor="nftStats">NFT Contract Statistics:</label>
         <input type="text" size="50" id="nftStats" name="nftStats" onChange={event => { nft = event.target.value; }} />
-        &nbsp;&nbsp;&nbsp;<button onClick={CheckNftContract}>Get statistics</button>
+        <button onClick={CheckNftContract}>Get statistics</button>
       </div>
       <div className="button-row">
         <label htmlFor="playout">Play token-gated content:</label>
         <input type="text" size="50" id="playout" name="playout" onChange={event => { playout = event.target.value; }} />
-        &nbsp;&nbsp;&nbsp;<button onClick={Playout}>Playout</button>
+        <button onClick={Playout}>Playout</button>
       </div>
       <br /><br />
     </>
