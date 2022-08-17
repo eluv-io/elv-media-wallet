@@ -947,10 +947,13 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
           /> : null
       }
       <div key={match.url} className="details-page" ref={element => setDetailsRef(element)}>
-        <Link to={backPage.path} className="details-page__back-link">
-          <ImageIcon icon={BackIcon} />
-          Back to { backPage.name }
-        </Link>
+        {
+          backPage ?
+            <Link to={backPage.path} className="details-page__back-link">
+              <ImageIcon icon={BackIcon}/>
+              Back to {backPage.name}
+            </Link> : null
+        }
         <div className="details-page__main-content">
           <div className="details-page__content-container">
             <div className={`card-container ${nftInfo.variant ? `card-container--variant-${nftInfo.variant}` : ""}`}>
