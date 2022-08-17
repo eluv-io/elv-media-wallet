@@ -24,18 +24,10 @@ let marketplaceParams = network == "main" ? {
 };
 window.console.log("marketplaceParams", marketplaceParams);
 
-// wallet app configuration -- Use locally running wallet app if running from local IP, otherwise, public
-let walletAppUrl;
-if(window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-  const url = new URL(window.location.origin);
-  url.port = "8090";
-  walletAppUrl = url.toString();
-} else {
-  walletAppUrl = network === "demo" ?
-    "https://core.test.contentfabric.io/wallet-demo" :
-    "https://core.test.contentfabric.io/wallet";
-}
-window.console.log("isDemo?", network == "demo", "isMain?", network == "main", "walletAppUrl", walletAppUrl);
+// wallet app configuration
+let walletAppUrl = network === "demo" ?
+  "https://core.test.contentfabric.io/wallet-demo" :
+  "https://core.test.contentfabric.io/wallet";
 
 
 const AuthSection = ({walletClient, setResults, setInputs}) => {
