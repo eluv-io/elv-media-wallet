@@ -83,9 +83,8 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
   const Verify = async () => {
     let toVerify = getInput("verifyMsg");
     setInputs({messageToVerify: toVerify});
-    // TODO: find verify function
-    let res = await walletClient.PersonalSign({message: toVerify})
-      .catch(err => { return err; });
+    // TODO: verify function
+    let res = "TODO";
     setResults(res);
   };
 
@@ -110,11 +109,10 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
   };
 
   const Playout = async () => {
-    let playoutId = getInput("nftToVerify");
+    let playoutId = getInput("playoutId");
     setInputs({playoutId: playoutId});
     // TODO: take NFT and hq__ hash, get access token, generate embed url
-    let res = await walletClient.PersonalSign({message: playoutId})
-      .catch(err => { return err; });
+    let res = "TODO";
     setResults(res);
   };
 
