@@ -49,29 +49,31 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
     );
   }
 
-  let msgText = "hello eluvio";
-  let verifyText = "0x0000000000000000000000000000000000000000";
-  let nft = "0x0000000000000000000000000000000000000000";
-  let playout = "0x0000000000000000000000000000000000000000";
-
   let tokenId = "1810"; // TODO: add selector or input
 
+  function getInput(name) {
+    return document.getElementsByName(name)?.item(0)?.value;
+  }
+
   const Sign = async () => {
-    setInputs({ messageToSign:  msgText});
-    let res = await walletClient.PersonalSign({message: msgText})
+    let msgToSign = getInput("signMsg");
+    setInputs({ messageToSign: msgToSign});
+    let res = await walletClient.PersonalSign({message: msgToSign})
       .catch(err => { return err; });
     setResults(res);
   };
 
   const Verify = async () => {
-    setInputs({messageToVerify: verifyText});
+    let toVerify = getInput("verifyMsg");
+    setInputs({messageToVerify: toVerify});
     // TODO: find verify function
-    let res = await walletClient.PersonalSign({message: verifyText})
+    let res = await walletClient.PersonalSign({message: toVerify})
       .catch(err => { return err; });
     setResults(res);
   };
 
   const CheckNft = async () => {
+    let nft = getInput("nftToVerify");
     setInputs({ contactAddress: nft, tokenId: tokenId});
     let res = await walletClient.NFT({contractAddress: nft, tokenId: tokenId})
       .catch(err => { return err; });
@@ -79,6 +81,7 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
   };
 
   const CheckNftContract = async () => {
+    let nft = getInput("nftForStats");
     setInputs({ contactAddress: nft});
     let res = await walletClient.NFTContractStats({contractAddress: nft})
       .catch(err => { return err; });
@@ -86,9 +89,10 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
   };
 
   const Playout = async () => {
-    setInputs({playoutId: playout});
+    let playoutId = getInput("nftToVerify");
+    setInputs({playoutId: playoutId});
     // TODO: take NFT and hq__ hash, get access token, generate embed url
-    let res = await walletClient.PersonalSign({message: msgText})
+    let res = await walletClient.PersonalSign({message: playoutId})
       .catch(err => { return err; });
     setResults(res);
   };
@@ -105,28 +109,28 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
       </div>
       <br /><br />
       <div className="button-row">
-        <label htmlFor="msg">Message to Sign:</label>
-        <input type="text" size="50" id="msg" name="msg" onChange={event => { msgText = event.target.value; }} />
+        <label htmlFor="signMsg">Message to Sign:</label>
+        <input type="text" size="50" id="signMsg" name="signMsg" />
         <button onClick={Sign}>Sign</button>
       </div>
       <div className="button-row">
-        <label htmlFor="verMsg">Signed message to verify:</label>
-        <input type="text" size="50" id="verMsg" name="verMsg" onChange={event => { verifyText = event.target.value; }} />
+        <label htmlFor="verifyMsg">Signed message to verify:</label>
+        <input type="text" size="50" id="verifyMsg" name="verifyMsg" />
         <button onClick={Verify}>Verify</button>
       </div>
       <div className="button-row">
-        <label htmlFor="nft">Verify NFT ownership:</label>
-        <input type="text" size="50" id="nft" name="nft" onChange={event => { nft = event.target.value; }} />
+        <label htmlFor="nftToVerify">Verify NFT ownership:</label>
+        <input type="text" size="50" id="nftToVerify" name="nftToVerify" />
         <button onClick={CheckNft}>Check NFT</button>
       </div>
       <div className="button-row">
-        <label htmlFor="nftStats">NFT Contract Statistics:</label>
-        <input type="text" size="50" id="nftStats" name="nftStats" onChange={event => { nft = event.target.value; }} />
+        <label htmlFor="nftForStats">NFT Contract Statistics:</label>
+        <input type="text" size="50" id="nftForStats" name="nftForStats" />
         <button onClick={CheckNftContract}>Get statistics</button>
       </div>
       <div className="button-row">
-        <label htmlFor="playout">Play token-gated content:</label>
-        <input type="text" size="50" id="playout" name="playout" onChange={event => { playout = event.target.value; }} />
+        <label htmlFor="playoutId">Play token-gated content:</label>
+        <input type="text" size="50" id="playoutId" name="playoutId" />
         <button onClick={Playout}>Playout</button>
       </div>
       <br /><br />
