@@ -41,6 +41,7 @@ import TwitterIcon from "Assets/icons/twitter.svg";
 import PictureIcon from "Assets/icons/image.svg";
 import CopyIcon from "Assets/icons/copy.svg";
 import NFTOffers from "Components/nft/NFTOffers";
+import {NFTMediaBrowser} from "Components/nft/NFTMedia";
 
 const NFTTraitsSection = ({nftInfo}) => {
   const traits = nftInfo.nft?.metadata?.attributes || [];
@@ -664,7 +665,6 @@ const NFTActions = observer(({
   return null;
 });
 
-
 const NFTTabbedContent = observer(({nft, nftInfo}) => {
   const anyTabs = (nftInfo.offers || []).filter(offer => !offer.hidden).length > 0;
 
@@ -685,10 +685,11 @@ const NFTTabbedContent = observer(({nft, nftInfo}) => {
       break;
 
     case "media":
-      //activeContent = <NFTMediaBrowser nft={nft} />;
+      activeContent = <NFTMediaBrowser nft={nft} />;
       break;
   }
 
+  // TODO: Determine availability of offers / additional media
   return (
     <div className="details-page__tabbed-content">
       {
@@ -937,7 +938,6 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
             <NFTContractSection nftInfo={nftInfo} SetBurned={setBurned} ShowTransferModal={() => setShowTransferModal(true)} />
           </div>
         </div>
-
         <NFTTabbedContent nft={nft} nftInfo={nftInfo} />
       </div>
     </>
@@ -973,8 +973,8 @@ export const MarketplaceItemDetails = observer(() => {
   return <NFTDetails item={item} />;
 });
 
-// NFT
-export const MintedNFTDetails = observer(() => {
+// NFT - Also used for NFTMedia page
+export const MintedNFTDetails = observer(({Render}) => {
   const match = useRouteMatch();
 
   const nft = rootStore.NFTData({
@@ -1003,7 +1003,11 @@ export const MintedNFTDetails = observer(() => {
           setUnavailable(true);
         }
       }}
-      render={() => <NFTDetails nft={nft} />}
+      render={() =>
+        Render ?
+          Render({nft}) :
+          <NFTDetails nft={nft} />
+      }
     />
   );
 });
