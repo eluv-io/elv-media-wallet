@@ -45,101 +45,6 @@ import PictureIcon from "Assets/icons/image.svg";
 import CopyIcon from "Assets/icons/copy.svg";
 import NFTOffers from "Components/nft/NFTOffers";
 
-const NFTMediaSection = ({nftInfo, containerElement, selectedMediaIndex, setSelectedMediaIndex, currentPlayerInfo}) => {
-  const nft = nftInfo.nft;
-
-  const [orderKey, setOrderKey] = useState(0);
-
-  let media = nft.metadata.additional_media || [];
-  const isOwned = nft.details && rootStore.NFTContractInfo({contractAddress: nft.details.ContractAddr, tokenId: nft.details.TokenIdStr});
-
-  if(!isOwned) {
-    media = media.filter(item => !item.requires_permissions);
-  }
-
-  useEffect(() => {
-    const defaultMediaIndex = media.findIndex(item => item.default);
-
-    if(defaultMediaIndex >= 0) {
-      setSelectedMediaIndex(defaultMediaIndex);
-    }
-  }, []);
-
-
-  if(media.length === 0) {
-    return null;
-  }
-
-  return (
-    <ExpandableSection
-      expanded
-      header="Media"
-      icon={MediaSectionIcon}
-      contentClassName="details-page__media-container"
-      additionalContent={
-        nft.metadata.hide_additional_media_player_controls ? null :
-          <NFTMediaControls
-            nft={nft}
-            containerElement={containerElement}
-            orderKey={orderKey}
-            selectedMediaIndex={selectedMediaIndex}
-            setSelectedMediaIndex={setSelectedMediaIndex}
-            currentPlayerInfo={currentPlayerInfo}
-          />
-      }
-    >
-      { media.map((item, index) => {
-        let image;
-        if(item.image) {
-          const url = new URL(typeof item.image === "string" ? item.image : item.image.url);
-          url.searchParams.set("width", "600");
-          image = url.toString();
-        }
-
-        return (
-          <button
-            key={`alternate-media-${index}`}
-            className={`details-page__media ${index === selectedMediaIndex ? "details-page__media--selected" : ""}`}
-            onClick={() => {
-              setSelectedMediaIndex(index);
-              setOrderKey(orderKey + 1);
-
-              if(containerElement) {
-                const top = containerElement.getBoundingClientRect().top;
-
-                if(item.media_type !== "Audio" && top < 0) {
-                  window.scrollTo({top: Math.max(0, window.scrollY + top - 20), behavior: "smooth"});
-                }
-              }
-            }}
-          >
-            <div className="details-page__media__image-container">
-              { image ? <ImageIcon icon={image} title={item.name} className="details-page__media__image" /> : <div className="details-page__media__image details-page__media__image--fallback" /> }
-              { index === selectedMediaIndex ?
-                <ImageIcon icon={MediaIcon(item, true)} className="details-page__media__selected-indicator" title="Selected" /> :
-                <ImageIcon icon={PlayIcon} className="details-page__media__hover-icon" label="Play Icon" />
-              }
-            </div>
-            <div className="details-page__media__details">
-              <ResponsiveEllipsis
-                component="h2"
-                className="details-page__media__name"
-                text={item.name || ""}
-                title={item.name || ""}
-                maxLine="2"
-              />
-              <div className="details-page__media__subtitles">
-                <h3 className="details-page__media__subtitle-1 ellipsis" title={item.subtitle_1 || ""}>{item.subtitle_1 || ""}</h3>
-                <h3 className="details-page__media__subtitle-2 ellipsis" title={item.subtitle_2 || ""}>{item.subtitle_2 || ""}</h3>
-              </div>
-            </div>
-          </button>
-        );
-      })}
-    </ExpandableSection>
-  );
-};
-
 const NFTTraitsSection = ({nftInfo}) => {
   const traits = nftInfo.nft?.metadata?.attributes || [];
 
@@ -465,7 +370,7 @@ const NFTInfoSection = ({nftInfo, className=""}) => {
             </div> : null
         }
         {
-          sideText && !nftInfo.selectedMedia ?
+          sideText ?
             <div className="details-page__nft-info__token-container">
               <div className={`details-page__nft-info__token ${!nftInfo.stock ? "details-page__nft-info__token--highlight" : ""}`}>
                 {sideText[0]}
@@ -482,18 +387,20 @@ const NFTInfoSection = ({nftInfo, className=""}) => {
             </div> : null
         }
       </div>
+      <ResponsiveEllipsis
+        component="div"
+        className="details-page__nft-info__description"
+        text={nftInfo.item?.description || nftInfo.nft.metadata.description}
+        maxLine={50}
+      />
+      <ResponsiveEllipsis
+        component="div"
+        className="details-page__nft-info__description"
+        text={nftInfo.item?.description || nftInfo.nft.metadata.description}
+        maxLine={50}
+      />
       {
-        nftInfo.selectedMedia ?
-          <RichText richText={nftInfo.selectedMedia.description} className="details-page__nft-info__description markdown-document" /> :
-          <ResponsiveEllipsis
-            component="div"
-            className="details-page__nft-info__description"
-            text={nftInfo.item?.description || nftInfo.nft.metadata.description}
-            maxLine={50}
-          />
-      }
-      {
-        !nftInfo.selectedMedia && nftInfo.renderedPrice || nftInfo.status ?
+        nftInfo.renderedPrice || nftInfo.status ?
           <div className="details-page__nft-info__status">
             {
               nftInfo.renderedPrice ?
@@ -616,7 +523,6 @@ const NFTActions = observer(({
   ShowPurchaseModal,
   SetClaimed,
   SetOpened,
-  SetSelectedMediaIndex
 }) => {
   const match = useRouteMatch();
 
@@ -667,23 +573,6 @@ const NFTActions = observer(({
         >
           View Listings
         </Link>
-      </div>
-    );
-  } else if(nftInfo.selectedMedia) {
-    return (
-      <div className="details-page__actions">
-        {
-          nftInfo.mediaInfo.mediaLink ?
-            <a href={nftInfo.mediaInfo.mediaLink} target="_blank" className="action">
-              View Media
-            </a> : null
-        }
-        {
-          nftInfo.selectedMedia ?
-            <button onClick={() => SetSelectedMediaIndex(-1)} className="action">
-              Back to NFT
-            </button> : null
-        }
       </div>
     );
   } else if(nftInfo.listingId && !nftInfo.isOwned) {
@@ -833,9 +722,6 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
   const [transferring, setTransferring] = useState(false);
   const [transferAddress, setTransferAddress] = useState(false);
 
-  // Media
-  const [selectedMediaIndex, setSelectedMediaIndex] = useState(-1);
-
   // Modals
   const [showListingModal, setShowListingModal] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
@@ -843,9 +729,6 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
   const [showTransferModal, setShowTransferModal] = useState(false);
 
   // Misc
-  const [detailsRef, setDetailsRef] = useState(undefined);
-  const [currentPlayerInfo, setCurrentPlayerInfo] = useState(undefined);
-
   if(listingStatus?.listing) {
     nft = {
       ...(nft || {}),
@@ -923,8 +806,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
     item,
     showFullMedia: true,
     showToken: true,
-    allowFullscreen: true,
-    selectedMediaIndex
+    allowFullscreen: true
   });
 
   const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
@@ -970,7 +852,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
             Close={() => setShowTransferModal(false)}
           /> : null
       }
-      <div key={match.url} className="details-page" ref={element => setDetailsRef(element)}>
+      <div key={match.url} className="details-page">
         {
           backPage ?
             <Link to={backPage.path} className="details-page__back-link">
@@ -992,16 +874,8 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
                     /> :
                     <NFTImage
                       nft={nft}
-                      selectedMedia={nftInfo.selectedMedia}
                       showFullMedia
                       allowFullscreen
-                      playerCallback={playerInfo => {
-                        if(playerInfo === currentPlayerInfo?.playerInfo || playerInfo?.videoElement === currentPlayerInfo?.videoElement) {
-                          return;
-                        }
-
-                        setCurrentPlayerInfo({selectedMediaIndex, playerInfo});
-                      }}
                     />
                 }
               </div>
@@ -1017,7 +891,6 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
               transferAddress={transferAddress}
               SetOpened={setOpened}
               SetClaimed={setClaimed}
-              SetSelectedMediaIndex={setSelectedMediaIndex}
               ShowMarketplacePurchaseModal={() => setShowMarketplacePurchaseModal(true)}
               ShowListingModal={async () => {
                 const status = await LoadListingStatus();
@@ -1045,16 +918,6 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
           </div>
           <div className="details-page__info">
             <NFTInfoSection nftInfo={nftInfo} className="details-page__nft-info--default" />
-            {
-              nftInfo.item ? null :
-                <NFTMediaSection
-                  nftInfo={nftInfo}
-                  containerElement={detailsRef}
-                  selectedMediaIndex={selectedMediaIndex}
-                  setSelectedMediaIndex={setSelectedMediaIndex}
-                  currentPlayerInfo={currentPlayerInfo && currentPlayerInfo.selectedMediaIndex === selectedMediaIndex ? currentPlayerInfo.playerInfo : undefined}
-                />
-            }
             {
               nftInfo.item ? null :
                 <NFTTraitsSection

@@ -134,8 +134,7 @@ export const NFTInfo = ({
   listing,
   imageWidth,
   showFullMedia,
-  showToken,
-  selectedMediaIndex=-1,
+  showToken
 }) => {
   if(listing) {
     nft = {
@@ -164,16 +163,15 @@ export const NFTInfo = ({
   const usdcOnly = listing?.details?.USDCOnly;
 
   const stock = item && checkoutStore.stock[item.sku];
-  const selectedMedia = (selectedMediaIndex >= 0 && (nft.metadata.additional_media || [])[selectedMediaIndex]);
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
   const unauthorized = item && item.requires_permissions && !item.authorized;
-  const mediaInfo = NFTMediaInfo({nft, item, selectedMedia, showFullMedia, width: imageWidth});
+  const mediaInfo = NFTMediaInfo({nft, item, showFullMedia, width: imageWidth});
 
   const variant = (item?.nftTemplateMetadata || nft?.metadata).style;
 
-  const name = selectedMedia?.name || item?.name || nft.metadata.display_name;
-  const subtitle1 = selectedMedia ? selectedMedia.subtitle_1 : nft.metadata.edition_name;
-  const subtitle2 = selectedMedia ? selectedMedia.subtitle_2 : undefined;
+  const name = item?.name || nft.metadata.display_name;
+  const subtitle1 = nft.metadata.edition_name;
+  const subtitle2 = undefined;
 
   const isOwned = nft?.details?.TokenOwner && Utils.EqualAddress(nft.details.TokenOwner, rootStore.CurrentAddress());
   const heldDate = nft?.details?.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
@@ -278,8 +276,6 @@ export const NFTInfo = ({
     usdcOnly,
 
     // Media
-    selectedMedia,
-    selectedMediaIndex,
     mediaInfo,
 
     // Offers
@@ -302,13 +298,14 @@ export const NFTInfo = ({
   };
 };
 
-export const NFTMediaInfo = ({nft, item, selectedMedia, showFullMedia, width}) => {
+export const NFTMediaInfo = ({nft, item,  showFullMedia, width}) => {
   let imageUrl, embedUrl, mediaLink, useFrame=false;
 
-  const requiresPermissions = selectedMedia?.requires_permissions || item?.requires_permissions;
+  const requiresPermissions = item?.requires_permissions;
   const authToken = requiresPermissions ? rootStore.authToken : rootStore.staticToken;
 
-  if(!selectedMedia && nft.metadata.media && ["Ebook", "HTML"].includes(nft.metadata.media_type)) {
+  let selectedMedia;
+  if(nft.metadata.media && ["Ebook", "HTML"].includes(nft.metadata.media_type)) {
     selectedMedia = {
       media_type: nft.metadata.media_type,
       media_file: nft.metadata.media,
