@@ -97,7 +97,11 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
     let balance = await new EluvioLive(walletClient).NftBalanceOf(inputs)
       .catch(err => { return { error: err.toString()}; });
     window.console.log("balance", balance);
-    setResults(balance);
+    let ownedOrError = balance;
+    if(typeof balance === "number") {
+      ownedOrError = balance > 0;
+    }
+    setResults({ "isOwned": ownedOrError });
   };
 
   const CheckNftContract = async () => {

@@ -17,8 +17,11 @@ export class EluvioLive {
    * @return {Promise<Object>} - Number of tokens owned
    */
   async NftBalanceOf({addr, ownerAddr}) {
-    const resp = await fetch("test/ElvTradableLocal.abi");
-    const abi = await resp.text();
+    const abi = await fetch("test/ElvTradableLocal.abi")
+      .then(resp => {
+        return resp.text();
+      });
+
     let res = await this.client.CallContractMethod({
       contractAddress: addr,
       abi: JSON.parse(abi),
@@ -27,6 +30,6 @@ export class EluvioLive {
       formatArguments: true,
     });
 
-    return res;
+    return res.toNumber();
   }
 }
