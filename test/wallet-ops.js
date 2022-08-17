@@ -89,22 +89,17 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
   };
 
   const CheckNft = async () => {
-    let contract = getInput("nftAddressToVerify");
-    let owner = getInput("nftOwnerToVerify");
-    const inputs = { addr: contract, ownerAddr: owner};
-
+    const inputs = { addr: getInput("nftAddressToVerify"), ownerAddr: getInput("nftOwnerToVerify")};
     setInputs(inputs);
+
     let balance = await new EluvioLive(walletClient).NftBalanceOf(inputs)
       .catch(err => { return { error: err.toString()}; });
-    window.console.log("balance", balance);
-    let ownedOrError = balance;
-    if(typeof balance === "number") {
-      ownedOrError = balance > 0;
-    }
-    setResults({ "isOwned": ownedOrError });
+
+    let ownedOrError = (typeof balance === "number") ? { isOwned: balance > 0, balance: balance } : { err: balance };
+    setResults(ownedOrError);
   };
 
-  const CheckNftContract = async () => {
+  const CheckNftStats = async () => {
     let nft = getInput("nftForStats");
     setInputs({ contactAddress: nft});
     let res = await walletClient.NFTContractStats({contractAddress: nft})
@@ -154,7 +149,7 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
       <div className="button-row">
         <label htmlFor="nftForStats">NFT Contract Statistics:</label>
         <input type="text" size="50" id="nftForStats" name="nftForStats" />
-        <button onClick={CheckNftContract}>Get statistics</button>
+        <button onClick={CheckNftStats}>Get statistics</button>
       </div>
       <div className="button-row">
         <label htmlFor="playoutId">Play token-gated content:</label>
