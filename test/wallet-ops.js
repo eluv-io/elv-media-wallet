@@ -223,17 +223,17 @@ const App = () => {
 
       <AuthSection walletClient={walletClient} setResults={setResults} setInputs={setInputs}/>
 
-      <h2>Methods (no Marketplace required)</h2>
+      <h2>User Methods</h2>
       <div className="button-row">
         <button onClick={async () => clearAndSetResults(await walletClient.UserInfo())}>UserInfo</button>
-        <button onClick={async () => clearAndSetResults(await walletClient.UserItems())}>UserItems</button>
-      </div>
-      <div className="button-row">
         <button onClick={async () => clearAndSetResults(await walletClient.AvailableMarketplaces())}>AvailableMarketPlaces</button>
-        <button onClick={async () => clearAndSetResults(await walletClient.UserItemInfo())}>UserItemInfo</button>
       </div>
 
-      <h2>Methods (require Marketplace)</h2>
+      <h2>Marketplace Methods</h2>
+      <div className="button-row">
+        <button onClick={async () => clearAndSetResults(await walletClient.UserItems())}>UserItems</button>
+        <button onClick={async () => clearAndSetResults(await walletClient.UserItemInfo())}>UserItemInfo</button>
+      </div>
       <div className="button-row">
         <button onClick={async () => clearAndSetResults(await walletClient.Listings())}>Listings</button>
         <button onClick={async () => clearAndSetResults(await walletClient.MarketplaceStock({marketplaceParams}))}>Stock</button>
