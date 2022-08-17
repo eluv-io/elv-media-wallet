@@ -13,8 +13,9 @@ const mode = "staging";
 const searchParams = new URLSearchParams(window.location.search);
 
 // eluvio backend network configuration -- "main" or "demo"
-// TODO: allow user to select these (via their tenantId) from within the UI
 const network = searchParams.get("network-name") || "demo";
+
+// marketplace configuration -- TODO: allow user to select these from within the UI
 let marketplaceParams = network == "main" ? {
   tenantSlug: "bcl",
   marketplaceSlug: "maskverse-marketplace"
