@@ -7,10 +7,36 @@ import {render} from "react-dom";
 import {ElvWalletClient} from "@eluvio/elv-client-js/src/walletClient";
 import {PageLoader} from "Components/common/Loaders";
 
+import {EluvioLive} from "./EluvioLive.js";
 
 const mode = "staging";
-let marketplaceParams = { };
 const searchParams = new URLSearchParams(window.location.search);
+
+// eluvio backend network configuration -- "main" or "demo"
+// TODO: allow user to select these (via their tenantId) from within the UI
+const network = searchParams.get("network-name") || "demo";
+let marketplaceParams = network == "main" ? {
+  tenantSlug: "bcl",
+  marketplaceSlug: "maskverse-marketplace"
+} : {
+  tenantSlug: "bcl-live",
+  marketplaceSlug: "masked-singer-marketplace"
+};
+window.console.log("marketplaceParams", marketplaceParams);
+
+// wallet app configuration -- Use locally running wallet app if running from local IP, otherwise, public
+let walletAppUrl;
+if(window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+  const url = new URL(window.location.origin);
+  url.port = "8090";
+  walletAppUrl = url.toString();
+} else {
+  walletAppUrl = network === "demo" ?
+    "https://core.test.contentfabric.io/wallet-demo" :
+    "https://core.test.contentfabric.io/wallet";
+}
+window.console.log("isDemo?", network == "demo", "isMain?", network == "main", "walletAppUrl", walletAppUrl);
+
 
 const AuthSection = ({walletClient, setResults, setInputs}) => {
   const [loggedIn, setLoggedIn] = useState(walletClient.loggedIn);
@@ -49,10 +75,10 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
     );
   }
 
-  let tokenId = "1810"; // TODO: add selector or input
+  let ownerAddr = "0x80ff0c9b1e7aa9a3c4b665e3a601d648d402bd7e"; // TODO: add selector or input
 
   function getInput(name) {
-    return document.getElementsByName(name)?.item(0)?.value;
+    return document.getElementsByName(name)?.item(0)?.value || "";
   }
 
   const Sign = async () => {
@@ -74,10 +100,13 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
 
   const CheckNft = async () => {
     let nft = getInput("nftToVerify");
-    setInputs({ contactAddress: nft, tokenId: tokenId});
-    let res = await walletClient.NFT({contractAddress: nft, tokenId: tokenId})
-      .catch(err => { return err; });
-    setResults(res);
+    const inputs = { addr: nft, ownerAddr: ownerAddr};
+
+    setInputs(inputs);
+    let balance = await new EluvioLive(walletClient).NftBalanceOf(inputs)
+      .catch(err => { return { error: err.toString()}; });
+    window.console.log("balance", balance);
+    setResults(balance);
   };
 
   const CheckNftContract = async () => {
@@ -147,33 +176,6 @@ const App = () => {
     setInputs("");
     setResults(res);
   };
-
-  // TODO: allow user to select these (their tenantId)
-  marketplaceParams = network == "main" ? {
-    tenantSlug: "bcl",
-    marketplaceSlug: "maskverse-marketplace"
-  } : {
-    tenantSlug: "bcl-live",
-    marketplaceSlug: "masked-singer-marketplace"
-  };
-  window.console.log("marketplaceParams", marketplaceParams);
-
-  // Use locally running wallet app if running from local IP
-  let walletAppUrl;
-  if(window.location.hostname === "localhost" ||
-    window.location.hostname === "127.0.0.1" ||
-    window.location.hostname === "elv-test.io"
-  ) {
-    const url = new URL(window.location.origin);
-    url.port = "8090";
-    walletAppUrl = url.toString();
-  } else {
-    walletAppUrl = network === "demo" ?
-      "https://core.test.contentfabric.io/wallet-demo" :
-      "https://core.test.contentfabric.io/wallet";
-  }
-  window.console.log("isDemo?", network == "demo", "isMain?", network == "main", "walletAppUrl", walletAppUrl);
-
 
   useEffect(() => {
     ElvWalletClient.Initialize({
