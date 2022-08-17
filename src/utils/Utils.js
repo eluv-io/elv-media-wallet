@@ -298,14 +298,13 @@ export const NFTInfo = ({
   };
 };
 
-export const NFTMediaInfo = ({nft, item,  showFullMedia, width}) => {
+export const NFTMediaInfo = ({nft, item, selectedMedia, showFullMedia, width}) => {
   let imageUrl, embedUrl, mediaLink, useFrame=false;
 
-  const requiresPermissions = item?.requires_permissions;
+  const requiresPermissions = item?.requires_permissions || selectedMedia?.requires_permissions;
   const authToken = requiresPermissions ? rootStore.authToken : rootStore.staticToken;
 
-  let selectedMedia;
-  if(nft.metadata.media && ["Ebook", "HTML"].includes(nft.metadata.media_type)) {
+  if(nft && nft.metadata.media && ["Ebook", "HTML"].includes(nft.metadata.media_type)) {
     selectedMedia = {
       media_type: nft.metadata.media_type,
       media_file: nft.metadata.media,
@@ -323,8 +322,8 @@ export const NFTMediaInfo = ({nft, item,  showFullMedia, width}) => {
     }
   }
 
-  if(!imageUrl && ((item && item.image) || nft.metadata.image)) {
-    imageUrl = new URL((item && item.image && item.image.url) || nft.metadata.image);
+  if(!imageUrl && ((item && item.image) || nft?.metadata.image)) {
+    imageUrl = new URL((item && item.image && item.image.url) || nft?.metadata.image);
     imageUrl.searchParams.set("authorization", authToken);
 
     if(imageUrl && width) {
@@ -381,8 +380,8 @@ export const NFTMediaInfo = ({nft, item,  showFullMedia, width}) => {
       if(item?.nftTemplateMetadata?.has_audio) {
         embedUrl.searchParams.set("ct", "h");
       }
-    } else if(!selectedMedia && (typeof nft.metadata.playable === "undefined" || nft.metadata.playable) && nft.metadata.embed_url) {
-      embedUrl = new URL(nft.metadata.embed_url);
+    } else if(!selectedMedia && (typeof nft?.metadata.playable === "undefined" || nft?.metadata.playable) && nft?.metadata.embed_url) {
+      embedUrl = new URL(nft?.metadata.embed_url);
     }
 
     if(embedUrl) {

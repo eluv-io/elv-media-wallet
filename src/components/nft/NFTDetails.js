@@ -22,13 +22,12 @@ import ListingStats from "Components/listings/ListingStats";
 import NFTTransfer from "Components/nft/NFTTransfer";
 import ImageIcon from "Components/common/ImageIcon";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
-import NFTMediaControls from "Components/nft/NFTMediaControls";
 import {LoginClickGate} from "Components/common/LoginGate";
 import TransferModal from "Components/listings/TransferModal";
 import {FilteredTable} from "Components/common/Table";
 import {MarketplaceImage, NFTImage} from "Components/common/Images";
 import AsyncComponent from "Components/common/AsyncComponent";
-import {Ago, MediaIcon, MiddleEllipsis, NFTInfo} from "../../utils/Utils";
+import {Ago, MiddleEllipsis, NFTInfo} from "../../utils/Utils";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 
 import UserIcon from "Assets/icons/user.svg";
@@ -36,14 +35,13 @@ import TransactionIcon from "Assets/icons/transaction history icon.svg";
 import DetailsIcon from "Assets/icons/Details icon.svg";
 import ContractIcon from "Assets/icons/Contract icon.svg";
 import TraitsIcon from "Assets/icons/properties icon.svg";
-import MediaSectionIcon from "Assets/icons/Media tab icon.svg";
-import PlayIcon from "Assets/icons/blue play icon.svg";
 import BackIcon from "Assets/icons/arrow-left.svg";
 import ShareIcon from "Assets/icons/share icon.svg";
 import TwitterIcon from "Assets/icons/twitter.svg";
 import PictureIcon from "Assets/icons/image.svg";
 import CopyIcon from "Assets/icons/copy.svg";
 import NFTOffers from "Components/nft/NFTOffers";
+import {NFTMediaBrowser} from "Components/nft/NFTMedia";
 
 const NFTTraitsSection = ({nftInfo}) => {
   const traits = nftInfo.nft?.metadata?.attributes || [];
@@ -659,7 +657,6 @@ const NFTActions = observer(({
   return null;
 });
 
-
 const NFTTabbedContent = observer(({nft, nftInfo}) => {
   const anyTabs = (nftInfo.offers || []).filter(offer => !offer.hidden).length > 0;
 
@@ -680,10 +677,11 @@ const NFTTabbedContent = observer(({nft, nftInfo}) => {
       break;
 
     case "media":
-      //activeContent = <NFTMediaBrowser nft={nft} />;
+      activeContent = <NFTMediaBrowser nft={nft} />;
       break;
   }
 
+  // TODO: Determine availability of offers / additional media
   return (
     <div className="details-page__tabbed-content">
       {
@@ -928,7 +926,6 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
             <NFTContractSection nftInfo={nftInfo} SetBurned={setBurned} ShowTransferModal={() => setShowTransferModal(true)} />
           </div>
         </div>
-
         <NFTTabbedContent nft={nft} nftInfo={nftInfo} />
       </div>
     </>
@@ -964,8 +961,8 @@ export const MarketplaceItemDetails = observer(() => {
   return <NFTDetails item={item} />;
 });
 
-// NFT
-export const MintedNFTDetails = observer(() => {
+// NFT - Also used for NFTMedia page
+export const MintedNFTDetails = observer(({Render}) => {
   const match = useRouteMatch();
 
   const nft = rootStore.NFTData({
@@ -994,7 +991,11 @@ export const MintedNFTDetails = observer(() => {
           setUnavailable(true);
         }
       }}
-      render={() => <NFTDetails nft={nft} />}
+      render={() =>
+        Render ?
+          Render({nft}) :
+          <NFTDetails nft={nft} />
+      }
     />
   );
 });

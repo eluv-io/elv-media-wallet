@@ -28,6 +28,7 @@ import MarketplaceStorefront from "Components/marketplace/MarketplaceStorefront"
 import UserActivity from "Components/user/UserActivity";
 import UserCollections from "Components/user/UserCollections";
 import {PageLoader} from "Components/common/Loaders";
+import NFTMedia from "Components/nft/NFTMedia";
 
 const GetMarketplace = (match) => {
   return rootStore.marketplaces[match.params.marketplaceId] || {};
@@ -41,7 +42,6 @@ const GetItem = (match) => {
 const GetNFT = (match) => {
   return rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId}) || { metadata: {} };
 };
-
 
 const UserMarketplaceRoutes = () => {
   return [
@@ -63,6 +63,11 @@ const UserRoutes = ({includeMarketplaceRoutes}) => {
     { name: match => (GetMarketplace(match)?.storefront?.tabs?.my_items || "Items"), includeUserProfile: true, path: "items", Component: UserItems },
     { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId", Component: MintedNFTDetails },
     { name: "Open Pack", path: "items/:contractId/:tokenId/open", Component: PackOpenStatus },
+
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/media", noBlock: true, Component: NFTMedia },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/media/featured/:mediaId", noBlock: true, Component: NFTMedia },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/media/:sectionId/:collectionId/:mediaId", noBlock: true, Component: NFTMedia },
+
     { path: "/", includeUserProfile: true, redirect: "items" },
   ]
     .map(route => ({ ...route, loadUser: true, path: UrlJoin("users", ":userId", route.path) }));
@@ -194,7 +199,17 @@ const RouteWrapper = observer(({routes, children}) => {
     return <Redirect to={UrlJoin(match.url, currentRoute.redirect)} />;
   }
 
-  return children;
+  if(currentRoute?.noBlock) {
+    return children;
+  }
+
+  return (
+    <div className="page-block page-block--main-content" key={currentRoute?.routeKey || `main-content-${match.url}`}>
+      <div className="page-block__content">
+        {children}
+      </div>
+    </div>
+  );
 });
 
 const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
@@ -227,11 +242,18 @@ const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
         routes.map(({path, exact, authed, loadUser, includeUserProfile, ignoreLoginCapture, Component}) => {
           let result = (
             <RouteWrapper routes={routes}>
-              <div className={`page-block page-block--main-content ${rootStore.appBackground ? "page-block--custom-background" : ""}`}>
-                <div className="page-block__content">
-                  { Component ? <Component key={`component-${path}`} /> : null }
-                </div>
-              </div>
+              {
+                /*
+
+                            <div className={`page-block page-block--main-content ${rootStore.appBackground ? "page-block--custom-background" : ""}`}>
+                              <div className="page-block__content">
+                                { Component ? <Component key={`component-${path}`} /> : null }
+                              </div>
+                            </div>
+
+                 */
+              }
+              { Component ? <Component key={`component-${path}`} /> : null }
             </RouteWrapper>
           );
 
