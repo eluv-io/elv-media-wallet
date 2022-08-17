@@ -47,10 +47,6 @@
     user-select: none;
   }
 
-  &__profile__info {
-    margin-right: 10px;
-  }
-
   &__profile__name {
     font: var(--font-header-profile);
     overflow: hidden;
@@ -268,7 +264,7 @@
     align-items: center;
     display: flex;
     position: absolute;
-    right: 10px;
+    right: 0;
     width: max-content;
 
     .subheader__navigation-link {
@@ -382,7 +378,7 @@
   .global-header {
     .header__profile {
       position: absolute;
-      right: 15px;
+      right: 0;
     }
 
     &:not(&--marketplace) {
