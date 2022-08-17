@@ -160,10 +160,14 @@ select {
 label {
   float: left;
   clear: left;
-  width: 13em;
+  width: 19em;
   //padding-right: .5em;
 }
 
 input {
   margin-right: 1em;
+}
+
+.hidden-placeholder {
+  visibility: hidden;
 }

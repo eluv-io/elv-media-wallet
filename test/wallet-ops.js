@@ -139,12 +139,12 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
         <button onClick={Verify}>Verify</button>
       </div>
       <div className="button-row">
-        <label htmlFor="nftOwnerToVerify">Verify NFT ownership<br/>(owner address):</label>
+        <label htmlFor="nftOwnerToVerify">Verify NFT ownership (owner address):</label>
         <input type="text" size="50" id="nftOwnerToVerify" name="nftOwnerToVerify" />
-        <button style={{ "visibility": "hidden" }}></button>
+        <button class="hidden-placeholder"></button>
       </div>
       <div className="button-row">
-        <label htmlFor="nftAddressToVerify">Verify NFT ownership<br/>(contract address):</label>
+        <label htmlFor="nftAddressToVerify">Verify NFT ownership (contract address):</label>
         <input type="text" size="50" id="nftAddressToVerify" name="nftAddressToVerify" />
         <button onClick={CheckNft}>Check NFT</button>
       </div>
