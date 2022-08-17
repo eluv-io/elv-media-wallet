@@ -13,7 +13,7 @@ import {NFTMediaInfo} from "../../utils/Utils";
 import FullscreenIcon from "Assets/icons/full screen.svg";
 import ExternalLinkIcon from "Assets/icons/external-link.svg";
 
-export const NFTImage = observer(({nft, item, selectedMedia, width, showFullMedia=false, allowFullscreen=false, className="", playerCallback}) => {
+export const NFTImage = observer(({nft, item, width, showFullMedia=false, allowFullscreen=false, className="", playerCallback}) => {
   const [player, setPlayer] = useState(undefined);
   const [media, setMedia] = useState({imageUrl: undefined, embedUrl: undefined});
   const [targetElement, setTargetElement] = useState(undefined);
@@ -22,33 +22,23 @@ export const NFTImage = observer(({nft, item, selectedMedia, width, showFullMedi
   useEffect(() => () => player && player.Destroy(), []);
 
   useEffect(() => {
+    const media = NFTMediaInfo({nft, item, width, showFullMedia});
+    setMedia(media);
+
     if(!targetElement || !media.embedUrl) { return; }
 
-    const posterUrl = selectedMedia && selectedMedia.media_type === "Audio" && media.imageUrl ? media.imageUrl.toString() : undefined;
     Initialize({
       client: rootStore.client,
       target: targetElement,
       url: media.embedUrl.toString(),
       playerOptions: {
-        posterUrl,
         capLevelToPlayerSize: true,
         playerCallback
       }
     }).then(player => setPlayer(player));
+
+    return () => player?.Destroy();
   }, [targetElement]);
-
-  useEffect(() => {
-    setMedia({imageUrl: undefined, embedUrl: undefined});
-
-    if(player) {
-      player.Destroy();
-      setPlayer(undefined);
-    }
-
-    const { imageUrl, embedUrl, mediaLink, requiresPermissions, useFrame } = NFTMediaInfo({nft, item, selectedMedia, width, showFullMedia});
-
-    setMedia({imageUrl, embedUrl, mediaLink, requiresPermissions, useFrame});
-  }, [selectedMedia]);
 
   if(media?.embedUrl) {
     const content = media.useFrame ?
