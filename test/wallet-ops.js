@@ -75,8 +75,6 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
     );
   }
 
-  let ownerAddr = "0x80ff0c9b1e7aa9a3c4b665e3a601d648d402bd7e"; // TODO: add selector or input
-
   function getInput(name) {
     return document.getElementsByName(name)?.item(0)?.value || "";
   }
@@ -99,8 +97,9 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
   };
 
   const CheckNft = async () => {
-    let nft = getInput("nftToVerify");
-    const inputs = { addr: nft, ownerAddr: ownerAddr};
+    let contract = getInput("nftAddressToVerify");
+    let owner = getInput("nftOwnerToVerify");
+    const inputs = { addr: contract, ownerAddr: owner};
 
     setInputs(inputs);
     let balance = await new EluvioLive(walletClient).NftBalanceOf(inputs)
@@ -148,8 +147,13 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
         <button onClick={Verify}>Verify</button>
       </div>
       <div className="button-row">
-        <label htmlFor="nftToVerify">Verify NFT ownership:</label>
-        <input type="text" size="50" id="nftToVerify" name="nftToVerify" />
+        <label htmlFor="nftOwnerToVerify">Verify NFT ownership<br/>(owner address):</label>
+        <input type="text" size="50" id="nftOwnerToVerify" name="nftOwnerToVerify" />
+        <button style={{ "visibility": "hidden" }}></button>
+      </div>
+      <div className="button-row">
+        <label htmlFor="nftAddressToVerify">Verify NFT ownership<br/>(contract address):</label>
+        <input type="text" size="50" id="nftAddressToVerify" name="nftAddressToVerify" />
         <button onClick={CheckNft}>Check NFT</button>
       </div>
       <div className="button-row">
