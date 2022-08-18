@@ -47,7 +47,11 @@ const ConfirmModal = ({message, Confirm, Close}) => {
   );
 };
 
-const Confirm = async ({message, Confirm, Close}) => {
+const Confirm = async ({message, ModalComponent, Confirm, Close}) => {
+  if(!ModalComponent) {
+    ModalComponent = ConfirmModal;
+  }
+
   return await new Promise(resolve => {
     const targetId = "-elv-confirm-target";
 
@@ -57,9 +61,9 @@ const Confirm = async ({message, Confirm, Close}) => {
       target.parentNode.removeChild(target);
     };
 
-    const HandleConfirm = async () => {
+    const HandleConfirm = async (response) => {
       if(Confirm) {
-        await Confirm();
+        await Confirm(response);
       }
 
       RemoveModal();
@@ -84,7 +88,7 @@ const Confirm = async ({message, Confirm, Close}) => {
     document.getElementById("app").appendChild(target);
 
     render(
-      <ConfirmModal message={message} Confirm={HandleConfirm} Close={HandleClose} />,
+      <ModalComponent message={message} Confirm={HandleConfirm} Close={HandleClose} />,
       target
     );
   });

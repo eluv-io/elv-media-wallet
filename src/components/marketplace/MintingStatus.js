@@ -523,7 +523,7 @@ export const PackOpenStatus = observer(() => {
     const nftData = rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId});
     if(nftData) {
       // Save pack info in case of refresh after burn
-      rootStore.SetSessionStorage(`pack-${match.params.contractId}-${match.params.tokenId}`, btoa(JSON.stringify(nftData)));
+      rootStore.SetSessionStorage(`pack-${match.params.contractId}-${match.params.tokenId}`, rootStore.client.utils.B64(JSON.stringify(nftData)));
     }
   }, []);
 

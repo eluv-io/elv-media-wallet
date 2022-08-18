@@ -131,12 +131,12 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
       renderedItems = (
         <div className={`card-list card-list--marketplace ${rootStore.centerContent ? "card-list--centered" : ""}`}>
           {
-            items.map((item) =>
+            items.map((item, index) =>
               <MarketplaceItemCard
                 marketplaceHash={marketplace.versionHash}
                 item={item}
                 index={item.itemIndex}
-                key={`marketplace-item-${sectionIndex}-${item.sku}-${loadKey}`}
+                key={`marketplace-item-${sectionIndex}-${item.sku}-${index}-${loadKey}`}
               />
             )
           }
