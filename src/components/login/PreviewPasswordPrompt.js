@@ -13,6 +13,7 @@ const PreviewPasswordPromptComponent = ({marketplaceId, digest, Confirm}) => {
   const ref = useRef(null);
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const Submit = async (password) => {
     setError(false);
@@ -37,9 +38,17 @@ const PreviewPasswordPromptComponent = ({marketplaceId, digest, Confirm}) => {
     const savedPassword = rootStore.GetLocalStorage(`preview-password-${marketplaceId}`);
     if(savedPassword) {
       setPassword(savedPassword);
-      Submit(savedPassword);
+      Submit(savedPassword)
+        .finally(() => setLoading(false));
+      return;
     }
+
+    setLoading(false);
   }, []);
+
+  if(loading) {
+    return null;
+  }
 
   return (
     <Modal className="confirm-modal">
