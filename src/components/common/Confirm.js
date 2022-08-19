@@ -63,12 +63,12 @@ const Confirm = async ({message, ModalComponent, Confirm, Close}) => {
 
     const HandleConfirm = async (response) => {
       if(Confirm) {
-        await Confirm(response);
+        await Confirm();
       }
 
       RemoveModal();
 
-      resolve(true);
+      resolve(response || true);
     };
 
     const HandleClose = async () => {

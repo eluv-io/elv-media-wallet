@@ -122,7 +122,7 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
 
       {
         // Allow the user to opt out of sharing email
-        customizationOptions?.require_consent ?
+        customizationOptions?.require_consent && !customizationOptions?.custom_consent?.enabled ?
           <div className="login-page__consent">
             <input
               name="consent"
@@ -323,7 +323,7 @@ const CustomConsentModal = ({customConsent}) => {
               className="action action-primary"
               disabled={actionRequired}
             >
-              { customConsent.button_text }
+              { customConsent.button_text || "I Accept" }
             </button>
           </div>
         </div>
@@ -339,56 +339,62 @@ export const Auth0Authentication = observer(() => {
   window.auth0 = useAuth0();
 
   const LogIn = async () => {
-    let customizationMetadata;
-    let userData = params.userData;
-    let customUserData;
-    // If specific marketplace, check if we need to prompt for custom consent
-    if(rootStore.specifiedMarketplaceHash) {
-      // Load custom consent info
-      customizationMetadata = (
-        rootStore.marketplaces[rootStore.specifiedMarketplaceId]?.login_customization ||
-        await rootStore.LoadLoginCustomization(rootStore.specifiedMarketplaceHash)
-      );
-
-      const customConsent = customizationMetadata.custom_consent;
-      if(customConsent?.enabled) {
-        // Disable default user data
-        userData = undefined;
-
-        // Check custom consent
-        const savedConsentData = rootStore.GetLocalStorage(`consent-data-${rootStore.specifiedMarketplaceId}`);
-
-        if(!savedConsentData) {
-          // Prompt for custom consent data
-          await Confirm({
-            ModalComponent: CustomConsentModal({customConsent}),
-            Confirm: selections => customUserData = selections
-          });
-        }
-      }
-    }
-
     await rootStore.Authenticate({
       idToken: (await window.auth0.getIdTokenClaims()).__raw,
       user: {
         name: auth0?.user?.name,
         email: auth0?.user?.email,
         verified: auth0?.user?.email_verified,
-        userData
+        userData: params.userData
+      },
+      callback: async () => {
+        if(!rootStore.specifiedMarketplaceHash) { return; }
+
+        const customizationMetadata = (
+          rootStore.marketplaces[rootStore.specifiedMarketplaceId]?.login_customization ||
+          await rootStore.LoadLoginCustomization(rootStore.specifiedMarketplaceHash)
+        );
+
+        if(!customizationMetadata?.custom_consent?.enabled) { return; }
+
+        // Check custom consent
+        let savedConsentData = await rootStore.walletClient.ProfileMetadata({
+          type: "app",
+          mode: "private",
+          appId: customizationMetadata.tenant_id,
+          key: `user-consent-${rootStore.specifiedMarketplaceId}`
+        });
+
+        // If any new keys have been added, user should be re-prompted
+        if(savedConsentData) {
+          try {
+            const parsedConsentData = JSON.parse(savedConsentData);
+
+            const consentKeys = customizationMetadata.custom_consent.options.map(option => option.key);
+
+            if(consentKeys.find(key => typeof parsedConsentData[key] === "undefined")) {
+              savedConsentData = undefined;
+            }
+          } catch(error) {
+            rootStore.Log(error, true);
+            savedConsentData = undefined;
+          }
+        }
+
+        if(!savedConsentData) {
+          // Prompt for custom consent data
+          const customUserData = await Confirm({ModalComponent: CustomConsentModal({customConsent: customizationMetadata.custom_consent})});
+
+          await rootStore.walletClient.SetProfileMetadata({
+            type: "app",
+            mode: "private",
+            appId: customizationMetadata.tenant_id,
+            key: `user-consent-${rootStore.specifiedMarketplaceId}`,
+            value: JSON.stringify(customUserData)
+          });
+        }
       }
     });
-
-    if(customUserData) {
-      await rootStore.walletClient.SetProfileMetadata({
-        type: "app",
-        mode: "private",
-        appId: customizationMetadata.tenant_id,
-        key: `user-consent-${rootStore.specifiedMarketplaceId}`,
-        value: JSON.stringify(customUserData)
-      });
-
-      rootStore.SetLocalStorage(`consent-data-${rootStore.specifiedMarketplaceId}`, Utils.B64(JSON.stringify));
-    }
   };
 
   useEffect(() => {
@@ -538,7 +544,7 @@ const Login = observer(({darkMode, Close}) => {
         const userDataKey = `login-data-${options?.marketplaceId || "default"}`;
 
         // Load initial user data from localstorage, if present
-        let initialUserData = { share_email: true };
+        let initialUserData = options?.custom_consent?.enabled ? undefined : { share_email: true };
         try {
           if(localStorage.getItem(userDataKey)) {
             initialUserData = {
@@ -557,21 +563,6 @@ const Login = observer(({darkMode, Close}) => {
   }, [rootStore.specifiedMarketplaceHash]);
 
   darkMode = customizationOptions && typeof customizationOptions.darkMode === "boolean" ? customizationOptions.darkMode : darkMode;
-
-  /*
-  if(!rootStore.loaded || !customizationOptions || (!rootStore.embedded && !rootStore.loginLoaded)) {
-    return (
-      <div className={`login-page ${darkMode ? "login-page--dark" : ""}`}>
-        <Background customizationOptions={customizationOptions} Close={() => Close && Close()} />
-
-        <div className="login-page__login-box">
-          <PageLoader />
-        </div>
-      </div>
-    );
-  }
-
-   */
 
   // User data such as consent - save to localstorage
   const SaveUserData = (data) => {

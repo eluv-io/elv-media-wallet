@@ -27,7 +27,7 @@ import {
   HashRouter,
   Switch,
   Route,
-  Redirect
+  Redirect, useRouteMatch
 } from "react-router-dom";
 import Login, {Auth0Authentication} from "Components/login/index";
 import ScrollToTop from "Components/common/ScrollToTop";
@@ -70,6 +70,26 @@ const RedirectHandler = ({storageKey}) => {
   return null;
 };
 
+// Given a tenant/marketplace slug, redirect to the proper marketplace
+const MarketplaceSlugRedirect = observer(() => {
+  const match = useRouteMatch();
+
+  if(!rootStore.loaded) { return <PageLoader />; }
+
+  const marketplaceInfo = rootStore.walletClient.MarketplaceInfo({
+    marketplaceParams: {
+      tenantSlug: match.params.tenantSlug,
+      marketplaceSlug: match.params.marketplaceSlug
+    }
+  });
+
+  if(!marketplaceInfo) {
+    return <Redirect to="/marketplaces" />;
+  }
+
+  return <Redirect to={UrlJoin("/marketplace", marketplaceInfo.marketplaceId, match.params.location || "store")} />;
+});
+
 const LoginModal = observer(() => {
   if(!rootStore.showLogin || rootStore.loggedIn) { return null; }
 
@@ -100,6 +120,9 @@ const Routes = observer(() => {
       <ScrollToTop>
         <ErrorBoundary className="page-container wallet-page">
           <Switch>
+            <Route exact path="/marketplaces/redirect/:tenantSlug/:marketplaceSlug/:location?">
+              <MarketplaceSlugRedirect />
+            </Route>
             <Route path="/login">
               <Login />
             </Route>

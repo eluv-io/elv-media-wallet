@@ -278,7 +278,7 @@ class RootStore {
     return this.walletClient.UserAddress();
   }
 
-  Authenticate = flow(function * ({idToken, clientAuthToken, clientSigningToken, externalWallet, walletName, user, saveAuthInfo=true}) {
+  Authenticate = flow(function * ({idToken, clientAuthToken, clientSigningToken, externalWallet, walletName, user, saveAuthInfo=true, callback}) {
     if(this.authenticating) { return; }
 
     try {
@@ -386,6 +386,10 @@ class RootStore {
       this.HideLogin();
 
       yield this.cryptoStore.LoadConnectedAccounts();
+
+      if(callback) {
+        yield callback();
+      }
 
       this.loggedIn = true;
       this.loginLoaded = true;
