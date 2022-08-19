@@ -544,7 +544,12 @@ const Login = observer(({darkMode, Close}) => {
         const userDataKey = `login-data-${options?.marketplaceId || "default"}`;
 
         // Load initial user data from localstorage, if present
-        let initialUserData = { share_email: !options?.require_consent };
+        let initialUserData = {
+          share_email: options?.require_consent ?
+            (typeof options.default_consent === "undefined" ? true : options.default_consent) :
+            true
+        };
+
         try {
           if(localStorage.getItem(userDataKey)) {
             initialUserData = {
