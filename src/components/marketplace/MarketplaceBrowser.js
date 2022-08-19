@@ -88,7 +88,7 @@ const MarketplaceCard = observer(({marketplace}) => {
               />
             </div> : null
         }
-        <h2 className="marketplace-card__name">{ branding.name }</h2>
+        <h2 className="marketplace-card__name">{ branding.preview ? "(PREVIEW)" : "" } { branding.name }</h2>
         <h3 className="marketplace-card__subheader">{ branding.subheader }</h3>
       </div>
     </Link>

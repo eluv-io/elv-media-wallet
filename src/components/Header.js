@@ -272,12 +272,13 @@ const SubHeader = observer(({marketplace}) => {
     );
   }
 
-  const { name, round_logo, header_logo, hide_name } = marketplace.branding || {};
+  const { name, round_logo, header_logo, hide_name, preview } = marketplace.branding || {};
   const logo = (header_logo || round_logo)?.url;
 
   return (
     <div className="page-block page-block--subheader subheader-container subheader-container--marketplace">
       <div className={`page-block__content subheader subheader--marketplace ${hide_name ? "subheader--marketplace--no-header" : ""}`}>
+        { preview ? <div className="subheader__preview-indicator">PREVIEW</div> : null }
         {
           rootStore.hideMarketplaceNavigation ? null :
             <div className="subheader__header-container">

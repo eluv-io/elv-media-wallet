@@ -16,9 +16,11 @@ const ConfirmModal = ({message, Confirm, Close}) => {
   return (
     <Modal className="confirm-modal" Toggle={Close}>
       <div className="confirm">
-        <h1 className="confirm__message">
-          { message }
-        </h1>
+        <div className="confirm__content">
+          <h1 className="confirm__message">
+            { message }
+          </h1>
+        </div>
         <div className="actions-container">
           {
             confirming ? <Loader/> :
