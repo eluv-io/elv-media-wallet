@@ -36,7 +36,7 @@ const Modal = observer(({children, Toggle, closable=true, noFade=false, id="", c
   return (
     <div id={id} className={`modal ${noFade ? "modal--no-fade" : ""} ${className || ""}`} onClick={() => Close()}>
       {
-        Toggle ?
+        closable && Toggle ?
           <button className="action action-modal-close modal__close-button">
             <ImageIcon
               key={"back-icon-Close Modal"}

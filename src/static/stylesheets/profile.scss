@@ -255,11 +255,13 @@
 
   input,
   &__price-input {
-    font-size: 20px;
-    height: 50px;
-    max-width: 290px;
-    padding: 0 15px;
-    width: 100%;
+    &:not([type="checkbox"]) {
+      font-size: 20px;
+      height: 50px;
+      max-width: 290px;
+      padding: 0 15px;
+      width: 100%;
+    }
 
     &-error {
       box-shadow: 0 0 3px var(--color-text-error);

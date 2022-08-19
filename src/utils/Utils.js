@@ -300,7 +300,7 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, showFullMedia, width}) =
       embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
       embedUrl.searchParams.set("type", "ebook");
       embedUrl.searchParams.set("vid", selectedMedia.media_file["."].container);
-      embedUrl.searchParams.set("murl", btoa(selectedMedia.media_file.url));
+      embedUrl.searchParams.set("murl", Utils.B64(selectedMedia.media_file.url));
       useFrame = true;
     } else if((selectedMedia && ["Audio", "Video"].includes(selectedMedia.media_type) && selectedMedia.media_link)) {
       embedUrl = new URL("https://embed.v3.contentfabric.io");

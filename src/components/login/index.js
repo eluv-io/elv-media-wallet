@@ -12,6 +12,9 @@ import UpCaretIcon from "Assets/icons/up-caret.svg";
 import DownCaretIcon from "Assets/icons/down-caret.svg";
 import MetamaskIcon from "Assets/icons/metamask fox.png";
 import EluvioLogo from "Assets/icons/logo.svg";
+import Utils from "@eluvio/elv-client-js/src/Utils";
+import Modal from "Components/common/Modal";
+import Confirm from "Components/common/Confirm";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 const params = {
@@ -34,7 +37,7 @@ const params = {
   // Marketplace
   marketplace: searchParams.get("marketplace"),
   // User data to pass to custodial sign-in
-  userData: searchParams.has("data") ? JSON.parse(atob(searchParams.get("data"))) : { share_email: true }
+  userData: searchParams.has("data") ? JSON.parse(Utils.FromB64(searchParams.get("data"))) : { share_email: true }
 };
 
 // COMPONENTS
@@ -240,11 +243,159 @@ const Form = observer(({userData, setUserData, customizationOptions, Authenticat
 
 // LOGIN HANDLERS
 
+const CustomConsentModal = ({customConsent}) => {
+  let initialSelections = {};
+  customConsent.options.map(({key, initially_checked}) =>
+    initialSelections[key] = !!initially_checked
+  );
+
+  return ({Confirm}) => {
+    const [selections, setSelections] = useState({...initialSelections});
+    const [renderKey, setRenderKey] = useState(0);
+
+    const anyRequired = !!customConsent.options.find(option => option.required);
+    const actionRequired = !!customConsent.options.find(option => option.required && !selections[option.key]);
+    const allSelected = Object.values(selections).findIndex(selected => !selected) < 0;
+
+    return (
+      <Modal className="consent-modal" closable={!anyRequired} Toggle={() => Confirm(initialSelections)}>
+        <div className="custom-consent">
+          <h1 className="custom-consent__header">{ customConsent.consent_modal_header }</h1>
+          <div className="custom-consent__options" key={renderKey}>
+            {
+              customConsent.options.map(option =>
+                <div className="custom-consent__option" key={`option-${option.key}`}>
+                  <input
+                    type="checkbox"
+                    checked={selections[option.key]}
+                    className="custom-consent__option__checkbox"
+                    onChange={event => setSelections({...selections, [option.key]: event.target.checked})}
+                  />
+                  { option.required ? <div className="custom-consent__option__required-indicator">*</div> : null }
+                  <div
+                    className="custom-consent__option__label"
+                    onClick={() => setSelections({...selections, [option.key]: !selections[option.key]})}
+                    ref={element => {
+                      if(!element) { return; }
+
+                      render(
+                        <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
+                          { SanitizeHTML(option.message) }
+                        </ReactMarkdown>,
+                        element
+                      );
+                    }}
+                  />
+                </div>
+              )
+            }
+            {
+              customConsent.options.length > 0 ?
+                <div className="custom-consent__option">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    className="custom-consent__option__checkbox"
+                    onChange={event => {
+                      let newSelections = selections;
+                      customConsent.options.forEach(option => newSelections[option.key] = event.target.checked);
+                      setSelections(newSelections);
+                      setRenderKey(renderKey + 1);
+                    }}
+                  />
+                  <div
+                    onClick={() => {
+                      let newSelections = selections;
+                      customConsent.options.forEach(option => newSelections[option.key] = !allSelected);
+                      setSelections(newSelections);
+                      setRenderKey(renderKey + 1);
+                    }}
+                    className="custom-consent__option__label"
+                  >
+                    Select All
+                  </div>
+                </div> : null
+            }
+          </div>
+          <div className="custom-consent__actions">
+            <button
+              onClick={() => Confirm(selections)}
+              className="action action-primary"
+              disabled={actionRequired}
+            >
+              { customConsent.button_text || "I Accept" }
+            </button>
+          </div>
+        </div>
+      </Modal>
+    );
+  };
+};
+
 // Automatic login when auth0 is authenticated
 export const Auth0Authentication = observer(() => {
   if(!window.sessionStorageAvailable) { return; }
 
   window.auth0 = useAuth0();
+
+  const LogIn = async () => {
+    await rootStore.Authenticate({
+      idToken: (await window.auth0.getIdTokenClaims()).__raw,
+      user: {
+        name: auth0?.user?.name,
+        email: auth0?.user?.email,
+        verified: auth0?.user?.email_verified,
+        userData: params.userData
+      },
+      callback: async () => {
+        if(!rootStore.specifiedMarketplaceHash) { return; }
+
+        const customizationMetadata = (
+          rootStore.marketplaces[rootStore.specifiedMarketplaceId]?.login_customization ||
+          await rootStore.LoadLoginCustomization(rootStore.specifiedMarketplaceHash)
+        );
+
+        if(!customizationMetadata?.custom_consent?.enabled) { return; }
+
+        // Check custom consent
+        let savedConsentData = await rootStore.walletClient.ProfileMetadata({
+          type: "app",
+          mode: "private",
+          appId: customizationMetadata.tenant_id,
+          key: `user-consent-${rootStore.specifiedMarketplaceId}`
+        });
+
+        // If any new keys have been added, user should be re-prompted
+        if(savedConsentData) {
+          try {
+            const parsedConsentData = JSON.parse(savedConsentData);
+
+            const consentKeys = customizationMetadata.custom_consent.options.map(option => option.key);
+
+            if(consentKeys.find(key => typeof parsedConsentData[key] === "undefined")) {
+              savedConsentData = undefined;
+            }
+          } catch(error) {
+            rootStore.Log(error, true);
+            savedConsentData = undefined;
+          }
+        }
+
+        if(!savedConsentData) {
+          // Prompt for custom consent data
+          const customUserData = await Confirm({ModalComponent: CustomConsentModal({customConsent: customizationMetadata.custom_consent})});
+
+          await rootStore.walletClient.SetProfileMetadata({
+            type: "app",
+            mode: "private",
+            appId: customizationMetadata.tenant_id,
+            key: `user-consent-${rootStore.specifiedMarketplaceId}`,
+            value: JSON.stringify(customUserData)
+          });
+        }
+      }
+    });
+  };
 
   useEffect(() => {
     if(!window.auth0.isLoading) {
@@ -253,18 +404,7 @@ export const Auth0Authentication = observer(() => {
 
     if(params.clearLogin || rootStore.authenticating || !rootStore.loaded || rootStore.loggedIn || window.auth0.isLoading || !window.auth0.isAuthenticated) { return; }
 
-    window.auth0.getIdTokenClaims()
-      .then(async response => {
-        await rootStore.Authenticate({
-          idToken: response.__raw,
-          user: {
-            name: auth0?.user?.name,
-            email: auth0?.user?.email,
-            verified: auth0?.user?.email_verified,
-            userData: params.userData
-          }
-        });
-      });
+    LogIn();
   }, [rootStore.loaded, window.auth0.isLoading, window.auth0.isAuthenticated]);
 
   return null;
@@ -302,6 +442,14 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
         callbackUrl.pathname = callbackUrl.pathname.replace(/\/$/, "");
         callbackUrl.searchParams.set("source", "oauth");
 
+        if(rootStore.specifiedMarketplaceHash && !callbackUrl.searchParams.get("mid") && !callbackUrl.searchParams.get("marketplace")) {
+          callbackUrl.searchParams.set("marketplace", rootStore.specifiedMarketplaceHash);
+        }
+
+        if(userData && !callbackUrl.searchParams.get("data")) {
+          callbackUrl.searchParams.set("data", Utils.B64(JSON.stringify(userData)));
+        }
+
         window.auth0.loginWithRedirect({
           redirectUri: callbackUrl.toString(),
           initialScreen: mode === "create" ? "signUp" : "login",
@@ -337,7 +485,6 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       redirectUrl.searchParams.set("elvToken", rootStore.AuthInfo().clientAuthToken);
       window.location = redirectUrl;
     };
-
 
     if(params.clearLogin) {
       const returnURL = new URL(window.location.href);
@@ -416,21 +563,6 @@ const Login = observer(({darkMode, Close}) => {
   }, [rootStore.specifiedMarketplaceHash]);
 
   darkMode = customizationOptions && typeof customizationOptions.darkMode === "boolean" ? customizationOptions.darkMode : darkMode;
-
-  /*
-  if(!rootStore.loaded || !customizationOptions || (!rootStore.embedded && !rootStore.loginLoaded)) {
-    return (
-      <div className={`login-page ${darkMode ? "login-page--dark" : ""}`}>
-        <Background customizationOptions={customizationOptions} Close={() => Close && Close()} />
-
-        <div className="login-page__login-box">
-          <PageLoader />
-        </div>
-      </div>
-    );
-  }
-
-   */
 
   // User data such as consent - save to localstorage
   const SaveUserData = (data) => {

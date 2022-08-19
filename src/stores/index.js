@@ -278,7 +278,7 @@ class RootStore {
     return this.walletClient.UserAddress();
   }
 
-  Authenticate = flow(function * ({idToken, clientAuthToken, clientSigningToken, externalWallet, walletName, user, saveAuthInfo=true}) {
+  Authenticate = flow(function * ({idToken, clientAuthToken, clientSigningToken, externalWallet, walletName, user, saveAuthInfo=true, callback}) {
     if(this.authenticating) { return; }
 
     try {
@@ -345,7 +345,7 @@ class RootStore {
           idToken,
           email: user?.email,
           tenantId,
-          shareEmail: user?.userData.share_email
+          shareEmail: user?.userData?.share_email
         });
 
         clientAuthToken = tokens.authToken;
@@ -386,6 +386,10 @@ class RootStore {
       this.HideLogin();
 
       yield this.cryptoStore.LoadConnectedAccounts();
+
+      if(callback) {
+        yield callback();
+      }
 
       this.loggedIn = true;
       this.loginLoaded = true;
@@ -463,7 +467,7 @@ class RootStore {
       metadata.log_in_button = undefined;
     }
 
-    this.SetSessionStorage(`marketplace-login-${marketplaceHash}`, btoa(JSON.stringify(metadata)));
+    this.SetSessionStorage(`marketplace-login-${marketplaceHash}`, Utils.B64(JSON.stringify(metadata)));
 
     return metadata;
   });
@@ -654,7 +658,7 @@ class RootStore {
       }
     }
 
-    this.SetSessionStorage("custom-css", btoa(css));
+    this.SetSessionStorage("custom-css", Utils.B64(css));
   }
 
   SetCustomizationOptions(marketplace) {
@@ -1188,7 +1192,7 @@ class RootStore {
         throw {message: "Popup Blocked", error: "popup_blocked"};
       }
 
-      const flowId = btoa(UUID());
+      const flowId = Utils.B64(UUID());
 
       parameters.flowId = flowId;
 
@@ -1536,7 +1540,7 @@ class RootStore {
   GetLocalStorageJSON(key, b64) {
     try {
       if(b64) {
-        return JSON.parse(atob(this.GetLocalStorage(key)));
+        return JSON.parse(Utils.FromB64(this.GetLocalStorage(key)));
       } else {
         return JSON.parse(this.GetLocalStorage(key));
       }
@@ -1572,7 +1576,7 @@ class RootStore {
   GetSessionStorageJSON(key, b64) {
     try {
       if(b64) {
-        return JSON.parse(atob(this.GetSessionStorage(key)));
+        return JSON.parse(Utils.FromB64(this.GetSessionStorage(key)));
       } else {
         return JSON.parse(this.GetSessionStorage(key));
       }
