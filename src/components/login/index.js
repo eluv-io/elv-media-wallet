@@ -122,7 +122,7 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
 
       {
         // Allow the user to opt out of sharing email
-        customizationOptions?.require_consent && !customizationOptions?.custom_consent?.enabled ?
+        customizationOptions?.require_consent ?
           <div className="login-page__consent">
             <input
               name="consent"
@@ -544,7 +544,7 @@ const Login = observer(({darkMode, Close}) => {
         const userDataKey = `login-data-${options?.marketplaceId || "default"}`;
 
         // Load initial user data from localstorage, if present
-        let initialUserData = options?.custom_consent?.enabled ? undefined : { share_email: true };
+        let initialUserData = { share_email: true };
         try {
           if(localStorage.getItem(userDataKey)) {
             initialUserData = {
