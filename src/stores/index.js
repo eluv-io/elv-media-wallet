@@ -457,7 +457,7 @@ class RootStore {
 
     let metadata = (
       yield (yield Client()).ContentObjectMetadata({
-        versionHash: this.walletClient.LatestMarketplaceHash({marketplaceParams: {marketplaceId, marketplaceHash}}),
+        versionHash: yield this.walletClient.LatestMarketplaceHash({marketplaceParams: {marketplaceId, marketplaceHash}}),
         metadataSubtree: UrlJoin("public", "asset_metadata", "info"),
         select: [
           "branding",
