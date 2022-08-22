@@ -18,6 +18,7 @@ import NFTContractABI from "../static/abi/NFTContract";
 import CryptoStore from "Stores/Crypto";
 import {v4 as UUID} from "uuid";
 import ProfanityFilter from "bad-words";
+import PreviewPasswordPrompt from "Components/login/PreviewPasswordPrompt";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
@@ -142,7 +143,11 @@ class RootStore {
   get allMarketplaces() {
     let marketplaces = Object.values(this.walletClient.availableMarketplacesById);
 
-    marketplaces = marketplaces.sort((a, b) => a.order < b.order ? -1 : 1);
+    marketplaces = marketplaces.sort((a, b) =>
+      a?.branding?.preview ? -1 :
+        (b?.branding?.preview ? 1 :
+          (a.order < b.order ? -1 : 1))
+    );
 
     const orderedMarketplaces = marketplaces.filter(marketplace => marketplace.order >= 0);
     const unorderedMarketplaces = marketplaces.filter(marketplace => marketplace.order < 0);
@@ -220,8 +225,20 @@ class RootStore {
         appId: "eluvio-media-wallet",
         network: EluvioConfiguration.network,
         mode: EluvioConfiguration.mode,
+        previewMarketplaceId: searchParams.get("preview"),
         storeAuthToken: false
       });
+
+      if(this.walletClient.previewMarketplaceHash) {
+        const passwordDigest = yield this.walletClient.client.ContentObjectMetadata({
+          versionHash: this.walletClient.previewMarketplaceHash,
+          metadataSubtree: "public/asset_metadata/info/preview_password_digest"
+        });
+
+        if(passwordDigest) {
+          yield PreviewPasswordPrompt({marketplaceId: this.walletClient.previewMarketplaceId, passwordDigest});
+        }
+      }
 
       this.walletClient.appUrl = (new URL(UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""))).toString();
 
@@ -440,7 +457,7 @@ class RootStore {
 
     let metadata = (
       yield (yield Client()).ContentObjectMetadata({
-        versionHash: marketplaceHash,
+        versionHash: yield this.walletClient.LatestMarketplaceHash({marketplaceParams: {marketplaceId, marketplaceHash}}),
         metadataSubtree: UrlJoin("public", "asset_metadata", "info"),
         select: [
           "branding",

@@ -231,25 +231,47 @@
   @include modal;
   max-width: 550px;
   overflow-y: hidden;
-  padding: 40px 30px;
+  padding: 50px 30px;
   width: 100%;
+
+  &__content {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
 
   &__message {
     font: var(--font-component-text);
     font-size: 18px;
-    margin-bottom: 35px;
+    margin-bottom: 20px;
     text-align: center;
+  }
+
+  &__error {
+    color: var(--color-text-error);
+    text-align: center;
+  }
+
+  &__input {
+    font-size: 18px;
+    margin: 20px auto;
+    max-width: 400px;
+    padding: 0 20px;
+    text-align: center;
+    width: 100%;
   }
 
   .actions-container {
     align-items: center;
     display: flex;
     justify-content: center;
+    margin-top: 30px;
   }
 
   .action {
     height: $action-height;
-    min-width: 150px;
+    min-width: 200px;
 
     &:not(:last-child) {
       margin-right: 10px;
@@ -263,12 +285,14 @@
   @media screen and (max-width: $mobile-breakpoint) {
     margin: 0 20px;
 
-    &__message {
-      font-size: 16px;
+    .actions-container {
+      flex-direction: column-reverse;
     }
 
     .action {
-      min-width: 125px;
+      &:not(:last-child) {
+        margin: 10px 0 0;
+      }
     }
   }
 }

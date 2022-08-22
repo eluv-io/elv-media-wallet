@@ -9,7 +9,7 @@ const Modal = observer(({children, Toggle, closable=true, noFade=false, id="", c
   const [scrolled, setScrolled] = useState(false);
 
   const Close = (event) => {
-    if(!closable) { return; }
+    if(!closable || !Toggle) { return; }
 
     if(event && (event.key || "").toLowerCase() !== "escape") { return; }
 

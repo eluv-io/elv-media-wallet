@@ -218,6 +218,15 @@
     height: max-content;
   }
 
+  &__preview-indicator {
+    color: var(--color-text-highlight);
+    font: var(--font-store-header);
+    font-size: 10px;
+    left: 25px;
+    position: absolute;
+    top: 2px;
+  }
+
   &__header-container {
     align-items: center;
     display: flex;
