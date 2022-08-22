@@ -143,7 +143,7 @@ export const NFTInfo = ({
     nft = {
       metadata: item.nftTemplateMetadata,
       details: {
-        ContractAddr: item.nftTemplateMetadata?.address
+        ContractAddr: item.nftTemplateMetadata?.address || Utils.nullAddress
       }
     };
   }
