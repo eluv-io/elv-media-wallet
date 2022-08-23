@@ -143,6 +143,12 @@
     }
   }
 
+  &__offer {
+    .item-card__title {
+      font-size: 24px;
+      margin: 10px 0;
+    }
+  }
 
   &__back-link {
     align-items: center;
