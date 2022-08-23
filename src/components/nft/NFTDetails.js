@@ -826,7 +826,7 @@ const NFTOffers = observer(({nft}) => {
 });
 
 const NFTTabbedContent = observer(({nft, nftInfo}) => {
-  const anyTabs = nft.metadata.redeemable_offers?.length > 0;
+  const anyTabs = nft?.metadata?.redeemable_offers?.length > 0;
 
   const [tab, setTab] = useState(anyTabs ? "offers" : "trading");
 
