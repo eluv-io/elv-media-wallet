@@ -1,9 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {useAuth0} from "@auth0/auth0-react";
-import {render} from "react-dom";
-import ReactMarkdown from "react-markdown";
-import SanitizeHTML from "sanitize-html";
 import {rootStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
 import {Loader} from "Components/common/Loaders";
@@ -15,6 +12,7 @@ import EluvioLogo from "Assets/icons/logo.svg";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import Modal from "Components/common/Modal";
 import Confirm from "Components/common/Confirm";
+import {RichText} from "Components/common/UIComponents";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 const params = {
@@ -99,22 +97,7 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
 
   return (
     <div className="login-page__text-section">
-      {
-        customizationOptions.terms ?
-          <div
-            className="login-page__terms"
-            ref={element => {
-              if(!element) { return; }
-
-              render(
-                <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
-                  { SanitizeHTML(customizationOptions.terms) }
-                </ReactMarkdown>,
-                element
-              );
-            }}
-          /> : null
-      }
+      { customizationOptions.terms ? <RichText richText={customizationOptions.terms} className="login-page__terms" /> : null }
 
       <div className="login-page__terms login-page__eluvio-terms">
         By creating an account or signing in, I agree to the <a href="https://live.eluv.io/privacy" target="_blank">Eluvio Privacy Policy</a> and the <a href="https://live.eluv.io/terms" target="_blank">Eluvio Terms and Conditions</a>.
@@ -272,20 +255,7 @@ const CustomConsentModal = ({customConsent}) => {
                     onChange={event => setSelections({...selections, [option.key]: event.target.checked})}
                   />
                   { option.required ? <div className="custom-consent__option__required-indicator">*</div> : null }
-                  <div
-                    className="custom-consent__option__label"
-                    onClick={() => setSelections({...selections, [option.key]: !selections[option.key]})}
-                    ref={element => {
-                      if(!element) { return; }
-
-                      render(
-                        <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
-                          { SanitizeHTML(option.message) }
-                        </ReactMarkdown>,
-                        element
-                      );
-                    }}
-                  />
+                  <RichText richText={option.message} className="custom-consent__option__label" />
                 </div>
               )
             }

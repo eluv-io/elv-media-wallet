@@ -122,6 +122,27 @@
     }
   }
 
+  &__tabbed-content {
+    &__tabs {
+      display: flex;
+      justify-content: flex-end;
+      margin: 30px 0;
+    }
+
+    &__tab {
+      font: var(--font-component-misc);
+      text-transform: uppercase;
+
+      &:not(:last-child) {
+        margin-right: 30px;
+      }
+
+      &--active {
+        color: var(--color-component-text-highlight);
+      }
+    }
+  }
+
 
   &__back-link {
     align-items: center;

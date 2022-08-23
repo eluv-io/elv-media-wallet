@@ -13,6 +13,9 @@ import CopyIcon from "Assets/icons/copy.svg";
 
 import PageBackIcon from "Assets/icons/pagination arrow back.svg";
 import PageForwardIcon from "Assets/icons/pagination arrow forward.svg";
+import {render} from "react-dom";
+import ReactMarkdown from "react-markdown";
+import SanitizeHTML from "sanitize-html";
 
 export const PageControls = observer(({paging, maxSpread=15, hideIfOnePage, SetPage, className=""}) => {
   if(!paging || paging.total === 0) { return null; }
@@ -202,6 +205,24 @@ export const FormatPriceString = (
   } else {
     return formattedPrice;
   }
+};
+
+export const RichText = ({richText, className=""}) => {
+  return (
+    <div
+      className={`rich-text ${className}`}
+      ref={element => {
+        if(!element) { return; }
+
+        render(
+          <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
+            { SanitizeHTML(richText) }
+          </ReactMarkdown>,
+          element
+        );
+      }}
+    />
+  );
 };
 
 export const ButtonWithLoader = ({children, className="", onClick, isLoading, ...props}) => {

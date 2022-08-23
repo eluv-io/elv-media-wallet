@@ -10,12 +10,9 @@ import {
   CopyableField,
   ButtonWithLoader,
   FormatPriceString,
-  ButtonWithMenu, Copy
+  ButtonWithMenu, Copy, RichText
 } from "Components/common/UIComponents";
 
-import {render} from "react-dom";
-import ReactMarkdown from "react-markdown";
-import SanitizeHTML from "sanitize-html";
 import Confirm from "Components/common/Confirm";
 import ListingModal from "Components/listings/ListingModal";
 import PurchaseModal from "Components/listings/PurchaseModal";
@@ -44,6 +41,7 @@ import ShareIcon from "Assets/icons/share icon.svg";
 import TwitterIcon from "Assets/icons/twitter.svg";
 import PictureIcon from "Assets/icons/image.svg";
 import CopyIcon from "Assets/icons/copy.svg";
+import ItemCard from "Components/common/ItemCard";
 
 const NFTMediaSection = ({nftInfo, containerElement, selectedMediaIndex, setSelectedMediaIndex, currentPlayerInfo}) => {
   const nft = nftInfo.nft;
@@ -188,22 +186,7 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
 
   return (
     <ExpandableSection header="Details" icon={DetailsIcon}>
-      {
-        nft.metadata.rich_text ?
-          <div
-            className="details-page__rich-text rich-text"
-            ref={element => {
-              if(!element) { return; }
-
-              render(
-                <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
-                  { SanitizeHTML(nft.metadata.rich_text) }
-                </ReactMarkdown>,
-                element
-              );
-            }}
-          /> : null
-      }
+      { nft.metadata.rich_text ? <RichText richText={nft.metadata.rich_text} className="details-page__rich-text" /> : null }
       {
         nft.details.TokenUri ?
           <CopyableField value={nft.details.TokenUri}>
@@ -499,19 +482,7 @@ const NFTInfoSection = ({nftInfo, className=""}) => {
       </div>
       {
         nftInfo.selectedMedia ?
-          <div
-            className="details-page__nft-info__description rich-text markdown-document"
-            ref={element => {
-              if(!element) { return; }
-
-              render(
-                <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
-                  { SanitizeHTML(nftInfo.selectedMedia.description) }
-                </ReactMarkdown>,
-                element
-              );
-            }}
-          /> :
+          <RichText richText={nftInfo.selectedMedia.description} className="details-page__nft-info__description markdown-document" /> :
           <ResponsiveEllipsis
             component="div"
             className="details-page__nft-info__description"
@@ -797,6 +768,109 @@ const NFTActions = observer(({
   return null;
 });
 
+const NFTOffers = observer(({nft}) => {
+  const offers = nft.metadata.redeemable_offers || [];
+
+  return (
+    <div className="details-page__offers">
+      <div className="card-list details-page__offers__list">
+        {
+          offers.map(offer => {
+            let imageUrl;
+            if(offer.image) {
+              imageUrl = new URL(offer.image.url);
+              imageUrl.searchParams.set("width", "1000");
+              imageUrl.searchParams.set("authorization", rootStore.staticToken);
+              imageUrl = imageUrl.toString();
+            }
+
+            let released = true;
+            let expired = false;
+            let releaseDate, expirationDate;
+            if(offer.available_at) {
+              releaseDate = `Available: ${new Date(offer.available_at).toLocaleDateString("en-US", {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", hour12: true}) }`;
+              released = Date.now() > new Date(offer.available_at).getTime();
+            }
+
+            if(offer.expires_at) {
+              expired = Date.now() > new Date(offer.available_at).getTime();
+              expirationDate = `${expired ? "Expired" : "Expires"}: ${new Date(offer.expires_at).toLocaleDateString("en-US", {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", hour12: true}) }`;
+            }
+
+            return (
+              <ItemCard
+                key={`offer-${offer.name}`}
+                className={`details-page__offer redeemable-offer ${offer.style ? `redeemable-offer--variant-${offer.style}` : ""}`}
+                name={offer.name}
+                description={<RichText richText={offer.description} className="item-card__description" />}
+                image={
+                  imageUrl ?
+                    <div className="item-card__image-container">
+                      <img alt={offer.name} src={imageUrl} className="item-card__image details-page__offer__image"/>
+                    </div> : null
+                }
+                status={!released ? releaseDate : expirationDate}
+                actions={[{
+                  label: "Redeem",
+                  className: "action-primary",
+                  disabled: !released || expired,
+                  onClick: async () => await new Promise(resolve => setTimeout(resolve, 1000))
+                }]}
+              />
+            );
+          })
+        }
+      </div>
+    </div>
+  );
+});
+
+const NFTTabbedContent = observer(({nft, nftInfo}) => {
+  const [tab, setTab] = useState("offers");
+
+  if(!nft || !nftInfo.isOwned) {
+    return <NFTTables nftInfo={nftInfo} />;
+  }
+
+  const anyTabs = nft.metadata.redeemable_offers?.length > 0;
+
+  let activeContent;
+  switch(tab) {
+    case "trading":
+      activeContent = <NFTTables nftInfo={nftInfo} />;
+      break;
+
+    case "offers":
+      activeContent = <NFTOffers nft={nft} />;
+      break;
+
+    case "media":
+      //activeContent = <NFTMediaBrowser nft={nft} />;
+      break;
+  }
+
+  return (
+    <div className="details-page__tabbed-content">
+      {
+        anyTabs ?
+          <div className="details-page__tabbed-content__tabs">
+            {
+              [["Offers", "offers"], ["Trading", "trading"]].map(([tabLabel, tabName]) =>
+                <button
+                  key={`tab-${tabName}`}
+                  className={`details-page__tabbed-content__tab ${tab === tabName ? "details-page__tabbed-content__tab--active" : ""}`}
+                  onClick={() => setTab(tabName)}>
+                  {tabLabel}
+                </button>
+              )
+            }
+          </div> : null
+      }
+      { activeContent }
+    </div>
+  );
+});
+
 const NFTDetails = observer(({nft, initialListingStatus, item}) => {
   const match = useRouteMatch();
 
@@ -1044,7 +1118,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
           </div>
         </div>
 
-        <NFTTables nftInfo={nftInfo} />
+        <NFTTabbedContent nft={nft} nftInfo={nftInfo} />
       </div>
     </>
   );

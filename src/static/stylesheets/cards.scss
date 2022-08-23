@@ -72,6 +72,10 @@
         }
       }
     }
+
+    .item-card__actions {
+      align-items: center;
+    }
   }
 
   &-selectable {
@@ -155,12 +159,16 @@
     * {
       color: var(--color-card-text-secondary);
     }
+
+    a {
+      color: var(--color-card-text-highlight);
+    }
   }
 
   &__status {
     align-items: flex-end;
     display: flex;
-    height: 100%;
+    flex: 1 1 auto;
     justify-content: space-between;
     margin-top: 10px;
     text-transform: uppercase;
@@ -183,16 +191,17 @@
   }
 
   &__actions {
-    align-items: center;
+    align-items: flex-start;
     bottom: 0;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
     left: 0;
-    padding: 10px;
+    margin: 40px 0 20px;
     width: 100%;
 
     .action {
+      max-width: 200px;
       width: 100%;
 
       &:not(:last-child) {
