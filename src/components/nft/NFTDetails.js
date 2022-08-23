@@ -826,13 +826,13 @@ const NFTOffers = observer(({nft}) => {
 });
 
 const NFTTabbedContent = observer(({nft, nftInfo}) => {
-  const [tab, setTab] = useState("offers");
+  const anyTabs = nft.metadata.redeemable_offers?.length > 0;
+
+  const [tab, setTab] = useState(anyTabs ? "offers" : "trading");
 
   if(!nft || !nftInfo.isOwned) {
     return <NFTTables nftInfo={nftInfo} />;
   }
-
-  const anyTabs = nft.metadata.redeemable_offers?.length > 0;
 
   let activeContent;
   switch(tab) {
