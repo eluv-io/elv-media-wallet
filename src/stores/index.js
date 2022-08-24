@@ -22,7 +22,7 @@ import PreviewPasswordPrompt from "Components/login/PreviewPasswordPrompt";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
-  //enforceActions: "always"
+  enforceActions: "always"
 });
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
@@ -225,7 +225,7 @@ class RootStore {
         appId: "eluvio-media-wallet",
         network: EluvioConfiguration.network,
         mode: EluvioConfiguration.mode,
-        previewMarketplaceId: searchParams.get("preview"),
+        previewMarketplaceId: searchParams.get("preview") || this.GetSessionStorage("preview-marketplace"),
         storeAuthToken: false
       });
 
@@ -238,6 +238,8 @@ class RootStore {
         if(passwordDigest) {
           yield PreviewPasswordPrompt({marketplaceId: this.walletClient.previewMarketplaceId, passwordDigest});
         }
+
+        this.SetSessionStorage("preview-marketplace", this.walletClient.previewMarketplaceId);
       }
 
       this.walletClient.appUrl = (new URL(UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""))).toString();

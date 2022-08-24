@@ -768,34 +768,14 @@ const NFTActions = observer(({
   return null;
 });
 
-const NFTOffers = observer(({nft}) => {
-  const offers = nft.metadata.redeemable_offers || [];
 
+const NFTOffers = observer(({nftInfo}) => {
   return (
     <div className="details-page__offers">
       <div className="card-list details-page__offers__list">
         {
-          offers.map(offer => {
-            let imageUrl;
-            if(offer.image) {
-              imageUrl = new URL(offer.image.url);
-              imageUrl.searchParams.set("width", "1000");
-              imageUrl.searchParams.set("authorization", rootStore.staticToken);
-              imageUrl = imageUrl.toString();
-            }
-
-            let released = true;
-            let expired = false;
-            let releaseDate, expirationDate;
-            if(offer.available_at) {
-              releaseDate = `Available: ${new Date(offer.available_at).toLocaleDateString("en-US", {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", hour12: true}) }`;
-              released = Date.now() > new Date(offer.available_at).getTime();
-            }
-
-            if(offer.expires_at) {
-              expired = Date.now() > new Date(offer.available_at).getTime();
-              expirationDate = `${expired ? "Expired" : "Expires"}: ${new Date(offer.expires_at).toLocaleDateString("en-US", {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", hour12: true}) }`;
-            }
+          nftInfo.offers.map(offer => {
+            if(offer.hidden) { return null; }
 
             return (
               <ItemCard
@@ -804,16 +784,16 @@ const NFTOffers = observer(({nft}) => {
                 name={offer.name}
                 description={<RichText richText={offer.description} className="item-card__description" />}
                 image={
-                  imageUrl ?
+                  offer.imageUrl ?
                     <div className="item-card__image-container">
-                      <img alt={offer.name} src={imageUrl} className="item-card__image details-page__offer__image"/>
+                      <img alt={offer.name} src={offer.imageUrl} className="item-card__image details-page__offer__image"/>
                     </div> : null
                 }
-                status={!released ? releaseDate : expirationDate}
+                status={!offer.released ? offer.releaseDate : offer.expirationDate}
                 actions={[{
                   label: "Redeem",
                   className: "action-primary",
-                  disabled: !released || expired,
+                  disabled: !offer.released || offer.expired,
                   onClick: async () => await new Promise(resolve => setTimeout(resolve, 1000))
                 }]}
               />
@@ -826,7 +806,7 @@ const NFTOffers = observer(({nft}) => {
 });
 
 const NFTTabbedContent = observer(({nft, nftInfo}) => {
-  const anyTabs = nft?.metadata?.redeemable_offers?.length > 0;
+  const anyTabs = (nftInfo.offers || []).filter(offer => !offer.hidden).length > 0;
 
   const [tab, setTab] = useState(anyTabs ? "offers" : "trading");
 
@@ -841,7 +821,7 @@ const NFTTabbedContent = observer(({nft, nftInfo}) => {
       break;
 
     case "offers":
-      activeContent = <NFTOffers nft={nft} />;
+      activeContent = <NFTOffers nftInfo={nftInfo} />;
       break;
 
     case "media":

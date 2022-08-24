@@ -199,6 +199,48 @@ export const NFTInfo = ({
     renderedPrice = FormatPriceString(price || {USD: listing.details.Price}, {includeCurrency: !usdcOnly, includeUSDCIcon: usdcAccepted, prependCurrency: true, useCurrencyIcon: false});
   }
 
+  const offers = (nft?.metadata?.redeemable_offers || []).map(offer => {
+    let imageUrl;
+    if(offer.image) {
+      imageUrl = new URL(offer.image.url);
+      imageUrl.searchParams.set("width", "1000");
+      imageUrl.searchParams.set("authorization", rootStore.staticToken);
+      imageUrl = imageUrl.toString();
+    }
+
+    const dateFormat = { year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", hour12: true };
+
+    let released = true;
+    let expired = false;
+    let releaseDate, expirationDate;
+    if(offer.available_at) {
+      releaseDate = `Available: ${new Date(offer.available_at).toLocaleDateString("en-US", dateFormat)}`;
+      released = Date.now() > new Date(offer.available_at).getTime();
+    }
+
+    if(offer.expires_at) {
+      expired = Date.now() > new Date(offer.available_at).getTime();
+      expirationDate = `${expired ? "Expired" : "Expires"}: ${new Date(offer.expires_at).toLocaleDateString("en-US", dateFormat)}`;
+    }
+
+    let {hide, hide_if_unreleased, hide_if_expired} = (offer.visibility || {});
+
+    let hidden = false;
+    if(hide || (hide_if_unreleased && !released) || (hide_if_expired && expired)) {
+      hidden = true;
+    }
+
+    return {
+      ...offer,
+      imageUrl,
+      released,
+      releaseDate,
+      expired,
+      expirationDate,
+      hidden
+    };
+  });
+
   return {
     // Details
     nft,
@@ -223,6 +265,9 @@ export const NFTInfo = ({
     selectedMedia,
     selectedMediaIndex,
     mediaInfo,
+
+    // Offers
+    offers,
 
     // Status
     stock,
