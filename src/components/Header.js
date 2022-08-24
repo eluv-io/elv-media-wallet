@@ -94,7 +94,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
       {name: tabs.store || marketplace?.branding?.name || "Store", to: UrlJoin("/marketplace", marketplace.marketplaceId, "store")},
       {name: tabs.listings || "Listings", to: UrlJoin("/marketplace", marketplace.marketplaceId, "listings")},
       {name: "Activity", to: UrlJoin("/marketplace", marketplace.marketplaceId, "activity")},
-      {name: "Leaderboard", to: UrlJoin("/marketplace", marketplace.marketplaceId, "leaderboard")},
+      {name: "Leaderboard", to: UrlJoin("/marketplace", marketplace.marketplaceId, "leaderboard"), hidden: marketplace?.branding?.hide_leaderboard},
       {separator: true, global: true},
       {name: "Discover Marketplaces", to: "/marketplaces", global: true},
       {name: "My Full Collection", to: "/wallet/users/me/items", authed: true, global: true},
@@ -249,7 +249,7 @@ const MarketplaceNavigation = observer(({marketplace}) => {
           Activity
         </NavLink>
         {
-          rootStore.pageWidth >= 600 ?
+          rootStore.pageWidth >= 600 && !branding.hide_leaderboard ?
             <NavLink className="subheader__navigation-link no-mobile" to={UrlJoin("/marketplace", marketplace.marketplaceId, "leaderboard")}>
               Leaderboard
             </NavLink> : null
