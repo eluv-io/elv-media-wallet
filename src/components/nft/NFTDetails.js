@@ -1157,7 +1157,11 @@ export const MarketplaceItemDetails = observer(() => {
 export const MintedNFTDetails = observer(() => {
   const match = useRouteMatch();
 
-  const [nft, setNFT] = useState(undefined);
+  const [nft, setNFT] = useState(rootStore.NFTData({
+    contractId: match.params.contractId,
+    tokenId: match.params.tokenId
+  }));
+
   const [unavailable, setUnavailable] = useState(false);
 
   if(unavailable) {
@@ -1167,6 +1171,7 @@ export const MintedNFTDetails = observer(() => {
   return (
     <AsyncComponent
       loadingClassName="page-loader"
+      loaded={!!nft}
       Load={async () => {
         try {
           setNFT(
@@ -1190,7 +1195,10 @@ export const ListingDetails = observer(() => {
   const match = useRouteMatch();
 
   const [listingStatus, setListingStatus] = useState(undefined);
-  const [nft, setNFT] = useState(undefined);
+  const [nft, setNFT] = useState(rootStore.NFTData({
+    contractId: match.params.contractId,
+    tokenId: match.params.tokenId
+  }));
   const [unavailable, setUnavailable] = useState(false);
 
   if(unavailable) {
