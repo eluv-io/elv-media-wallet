@@ -80,14 +80,6 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
     setResults(res);
   };
 
-  const Verify = async () => {
-    let toVerify = getInput("verifyMsg");
-    setInputs({messageToVerify: toVerify});
-    // TODO: verify function
-    let res = "TODO";
-    setResults(res);
-  };
-
   const CheckNft = async () => {
     const inputs = { addr: getInput("nftAddressToVerify"), ownerAddr: getInput("nftOwnerToVerify")};
     setInputs(inputs);
@@ -132,11 +124,6 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
         <button onClick={Sign}>Sign</button>
       </div>
       <div className="button-row">
-        <label htmlFor="verifyMsg">Signed message to verify:</label>
-        <input type="text" size="50" id="verifyMsg" name="verifyMsg" />
-        <button onClick={Verify}>Verify</button>
-      </div>
-      <div className="button-row">
         <label htmlFor="nftOwnerToVerify">Verify NFT ownership (owner address):</label>
         <input type="text" size="50" id="nftOwnerToVerify" name="nftOwnerToVerify" />
         <button className="hidden-placeholder"></button>
@@ -144,7 +131,7 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
       <div className="button-row">
         <label htmlFor="nftAddressToVerify">Verify NFT ownership (contract address):</label>
         <input type="text" size="50" id="nftAddressToVerify" name="nftAddressToVerify" />
-        <button onClick={CheckNft}>Check NFT</button>
+        <button onClick={CheckNft}>Verify NFT</button>
       </div>
       <div className="button-row">
         <label htmlFor="nftForStats">NFT Contract Statistics:</label>
@@ -224,6 +211,10 @@ const App = () => {
       <div className="button-row">
         <button onClick={async () => clearAndSetResults(await walletClient.UserInfo())}>UserInfo</button>
         <button onClick={async () => clearAndSetResults(await walletClient.AvailableMarketplaces())}>AvailableMarketPlaces</button>
+      </div>
+      <div className="button-row">
+        <button onClick={async () => clearAndSetResults(await walletClient.client.CreateSignedToken({grantType: "read", duration: 60*60*1000}))}>CreateSignedToken</button>
+        <button onClick={async () => clearAndSetResults(await walletClient.client.CreateFabricToken())}>CreateFabricToken</button>
       </div>
 
       <h2>Marketplace Methods</h2>
