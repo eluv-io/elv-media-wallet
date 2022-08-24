@@ -22,7 +22,7 @@ import PreviewPasswordPrompt from "Components/login/PreviewPasswordPrompt";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
-  enforceActions: "always"
+  //enforceActions: "always"
 });
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));

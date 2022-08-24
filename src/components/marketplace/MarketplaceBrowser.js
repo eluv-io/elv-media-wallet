@@ -66,8 +66,8 @@ const MarketplaceCard = observer(({marketplace}) => {
     return null;
   }
 
-  return (
-    <Link to={UrlJoin("/marketplace", marketplace.marketplaceId)} className="marketplace-card">
+  const content = (
+    <>
       {
         branding.card_banner ?
           <img
@@ -91,6 +91,20 @@ const MarketplaceCard = observer(({marketplace}) => {
         <h2 className="marketplace-card__name">{ branding.preview ? "(PREVIEW)" : "" } { branding.name }</h2>
         <h3 className="marketplace-card__subheader">{ branding.subheader }</h3>
       </div>
+    </>
+  );
+
+  if(branding.external_link) {
+    return (
+      <a rel="noopener" target="_blank" href={branding.external_link} className="marketplace-card">
+        { content }
+      </a>
+    );
+  }
+
+  return (
+    <Link to={UrlJoin("/marketplace", marketplace.marketplaceId)} className="marketplace-card">
+      { content }
     </Link>
   );
 });
