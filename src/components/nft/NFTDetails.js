@@ -779,7 +779,7 @@ const NFTOffers = observer(({nftInfo}) => {
             return (
               <div
                 key={`offer-${offer.name}`}
-                className={`card-container ${rootStore.centerItems ? "card-container--centered" : ""} details-page__offer redeemable-offer ${offer.style ? `redeemable-offer--variant-${offer.style}` : ""}`}
+                className={`card-container card-container--no-border ${rootStore.centerItems ? "card-container--centered" : ""} details-page__offer redeemable-offer ${offer.style ? `redeemable-offer--variant-${offer.style}` : ""}`}
               >
                 <div className="item-card">
                   {

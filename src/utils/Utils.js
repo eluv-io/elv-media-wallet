@@ -219,7 +219,7 @@ export const NFTInfo = ({
     }
 
     if(offer.expires_at) {
-      expired = Date.now() > new Date(offer.available_at).getTime();
+      expired = Date.now() > new Date(offer.expires_at).getTime();
       expirationDate = new Date(offer.expires_at).toLocaleDateString("en-US", dateFormat);
     }
 

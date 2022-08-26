@@ -2,7 +2,7 @@
   display: flex;
   flex-wrap: wrap;
   // sass-lint:disable no-misspelled-properties
-  gap: 10px;
+  gap: 15px;
   // sass-lint:enable no-misspelled-properties
 
 
@@ -12,7 +12,7 @@
 
   .card-container {
     flex: 1 1 100%;
-    max-width: calc(#{$breakpoint} / 3 - 24px);
+    max-width: calc(#{$breakpoint} / 3 - 27px);
     min-width: 350px;
   }
 
@@ -60,6 +60,10 @@
 
   &--disabled {
     opacity: 0.5;
+  }
+
+  &--no-border {
+    padding: 0;
   }
 
   &--centered {
