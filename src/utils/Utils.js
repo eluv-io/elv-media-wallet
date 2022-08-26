@@ -138,7 +138,14 @@ export const NFTInfo = ({
   selectedMediaIndex=-1,
 }) => {
   if(listing) {
-    nft = listing;
+    nft = {
+      ...(nft || {}),
+      ...listing,
+      metadata: {
+        ...(nft?.metadata || {}),
+        ...listing.metadata
+      }
+    };
   } else if(item && !nft) {
     nft = {
       metadata: item.nftTemplateMetadata,
@@ -178,16 +185,6 @@ export const NFTInfo = ({
   const maxOwned = stock && stock.max_per_user && stock.current_user >= stock.max_per_user;
   const marketplacePurchaseAvailable = item && !outOfStock && available && !unauthorized && !maxOwned;
   const hideAvailable = !available || (item && item.hide_available);
-
-
-  let sideText;
-  if(item && !hideAvailable && !outOfStock && !expired && !unauthorized && stock &&stock.max && stock.max < 10000000) {
-    sideText = `${stock.max - stock.minted} / ${stock.max} Available`;
-  } else if(!item && showToken) {
-    sideText = NFTDisplayToken(nft);
-  }
-
-  sideText = sideText ? sideText.toString().split("/") : undefined;
 
   let status;
   if(outOfStock) {
@@ -240,6 +237,21 @@ export const NFTInfo = ({
       hidden
     };
   });
+
+  let sideText;
+  if(item && !hideAvailable && !outOfStock && !expired && !unauthorized && stock &&stock.max && stock.max < 10000000) {
+    sideText = `${stock.max - stock.minted} / ${stock.max} Available`;
+  } else if(!item && showToken) {
+    sideText = NFTDisplayToken(nft);
+
+    // TODO: Change to look at NFT details section
+    if(false) {
+      sideText += " Includes Offers";
+    }
+  }
+
+  sideText = sideText ? sideText.toString().split("/") : undefined;
+
 
   return {
     // Details

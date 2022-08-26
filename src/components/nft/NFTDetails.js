@@ -848,7 +848,7 @@ const NFTTabbedContent = observer(({nft, nftInfo}) => {
 
   const [tab, setTab] = useState(anyTabs ? "offers" : "trading");
 
-  if(!nft) {
+  if(!nft || !anyTabs) {
     return <NFTTables nftInfo={nftInfo} />;
   }
 
@@ -918,7 +918,16 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
   const [detailsRef, setDetailsRef] = useState(undefined);
   const [currentPlayerInfo, setCurrentPlayerInfo] = useState(undefined);
 
-  nft = listingStatus?.listing || nft;
+  if(listingStatus?.listing) {
+    nft = {
+      ...(nft || {}),
+      ...listingStatus.listing,
+      metadata: {
+        ...(nft?.metadata || {}),
+        ...listingStatus.listing
+      }
+    };
+  }
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const itemTemplate = item?.nft_template?.nft;
