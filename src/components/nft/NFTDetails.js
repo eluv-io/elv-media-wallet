@@ -41,7 +41,6 @@ import ShareIcon from "Assets/icons/share icon.svg";
 import TwitterIcon from "Assets/icons/twitter.svg";
 import PictureIcon from "Assets/icons/image.svg";
 import CopyIcon from "Assets/icons/copy.svg";
-import ItemCard from "Components/common/ItemCard";
 
 const NFTMediaSection = ({nftInfo, containerElement, selectedMediaIndex, setSelectedMediaIndex, currentPlayerInfo}) => {
   const nft = nftInfo.nft;
@@ -778,25 +777,64 @@ const NFTOffers = observer(({nftInfo}) => {
             if(offer.hidden) { return null; }
 
             return (
-              <ItemCard
+              <div
                 key={`offer-${offer.name}`}
-                className={`details-page__offer redeemable-offer ${offer.style ? `redeemable-offer--variant-${offer.style}` : ""}`}
-                name={offer.name}
-                description={<RichText richText={offer.description} className="item-card__description" />}
-                image={
-                  offer.imageUrl ?
-                    <div className="item-card__image-container">
-                      <img alt={offer.name} src={offer.imageUrl} className="item-card__image details-page__offer__image"/>
-                    </div> : null
-                }
-                status={!offer.released ? offer.releaseDate : offer.expirationDate}
-                actions={[{
-                  label: "Redeem",
-                  className: "action-primary",
-                  disabled: !offer.released || offer.expired,
-                  onClick: async () => await new Promise(resolve => setTimeout(resolve, 1000))
-                }]}
-              />
+                className={`card-container ${rootStore.centerItems ? "card-container--centered" : ""} details-page__offer redeemable-offer ${offer.style ? `redeemable-offer--variant-${offer.style}` : ""}`}
+              >
+                <div className="item-card">
+                  {
+                    offer.imageUrl ?
+                      <div className="item-card__image-container">
+                        <img alt={offer.name} src={offer.imageUrl} className="item-card__image details-page__offer__image"/>
+                      </div> : null
+                  }
+                  <div className="item-card__text">
+                    <div className="item-card__tag">Offer</div>
+                    <div className="item-card__title">{offer.name}</div>
+                    <RichText richText={offer.description} className="item-card__description" />
+                    {
+                      offer.releaseDate || offer.expirationDate ?
+                        <div className="item-card__dates">
+                          {
+                            offer.releaseDate ?
+                              <div className="item-card__date">
+                                <div className="item-card__date__label">
+                                  Redemption Available
+                                </div>
+                                <div className="item-card__date__date">
+                                  { offer.releaseDate }
+                                </div>
+                              </div> : null
+                          }
+                          { offer.releaseDate && offer.expirationDate ? <div className="item-card__dates__separator" /> : null }
+                          {
+                            offer.expirationDate ?
+                              <div className="item-card__date">
+                                <div className="item-card__date__label">
+                                  Redemption Expires
+                                </div>
+                                <div className="item-card__date__date">
+                                  { offer.expirationDate }
+                                </div>
+                              </div> : null
+                          }
+                        </div> : null
+                    }
+                    {
+                      nftInfo.isOwned ?
+                        <div className="item-card__actions">
+                          <ButtonWithLoader
+                            disabled={!offer.released || offer.expired}
+                            className="action action-primary item-card__action"
+                            onClick={async () => await new Promise(resolve => setTimeout(resolve, 1000))}
+                          >
+                            Redeem
+                          </ButtonWithLoader>
+                        </div> : null
+                    }
+                  </div>
+                </div>
+              </div>
             );
           })
         }
@@ -810,7 +848,7 @@ const NFTTabbedContent = observer(({nft, nftInfo}) => {
 
   const [tab, setTab] = useState(anyTabs ? "offers" : "trading");
 
-  if(!nft || !nftInfo.isOwned) {
+  if(!nft) {
     return <NFTTables nftInfo={nftInfo} />;
   }
 

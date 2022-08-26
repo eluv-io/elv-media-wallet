@@ -208,19 +208,19 @@ export const NFTInfo = ({
       imageUrl = imageUrl.toString();
     }
 
-    const dateFormat = { year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", hour12: true };
+    const dateFormat = { year: "numeric", month: "long", day: "numeric" };
 
     let released = true;
     let expired = false;
     let releaseDate, expirationDate;
     if(offer.available_at) {
-      releaseDate = `Available: ${new Date(offer.available_at).toLocaleDateString("en-US", dateFormat)}`;
+      releaseDate = new Date(offer.available_at).toLocaleDateString("en-US", dateFormat);
       released = Date.now() > new Date(offer.available_at).getTime();
     }
 
     if(offer.expires_at) {
       expired = Date.now() > new Date(offer.available_at).getTime();
-      expirationDate = `${expired ? "Expired" : "Expires"}: ${new Date(offer.expires_at).toLocaleDateString("en-US", dateFormat)}`;
+      expirationDate = new Date(offer.expires_at).toLocaleDateString("en-US", dateFormat);
     }
 
     let {hide, hide_if_unreleased, hide_if_expired} = (offer.visibility || {});

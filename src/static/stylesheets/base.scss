@@ -406,7 +406,7 @@ em {
   .page-block {
     &__content {
       max-width: $breakpoint;
-      width: 1250px;
+      width: $breakpoint;
     }
   }
 }

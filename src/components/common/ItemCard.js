@@ -12,6 +12,7 @@ const ItemCard = observer(({
   link,
   image,
   badges,
+  tag,
   name,
   subtitle1,
   subtitle2,
@@ -66,6 +67,12 @@ const ItemCard = observer(({
           </div> : null
       }
       <div className="item-card__text">
+        {
+          tag ?
+            <h2 className="item-card__tag">
+              { tag }
+            </h2> : null
+        }
         <h2 className="item-card__title">
           { name || "" }
         </h2>
