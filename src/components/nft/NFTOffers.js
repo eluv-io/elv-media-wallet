@@ -10,6 +10,7 @@ import UrlJoin from "url-join";
 
 import YouRedeemedIcon from "Assets/icons/you-redeemed";
 import RedeemedIcon from "Assets/icons/redeemed";
+import {MiddleEllipsis} from "../../utils/Utils";
 
 const NFTOfferCodeModal = observer(({offer, Close}) => {
   return (
@@ -48,7 +49,7 @@ const NFTOffers = observer(({nftInfo}) => {
           {
             nftInfo.offers.map(offer => {
               if(offer.hidden) { return null; }
-
+              
               const redeemer = offer.state?.redeemer;
               const redeemerName = redeemer && rootStore.userProfiles[redeemer]?.userName;
               const isRedeemer = Utils.EqualAddress(redeemer, rootStore.CurrentAddress());
@@ -165,7 +166,7 @@ const NFTOffers = observer(({nftInfo}) => {
                                 className="redeemable-offer__redeemer"
                               >
                                 <div className="redeemable-offer__redeemer__name">
-                                  By { redeemerName || redeemer }
+                                  By { redeemerName || MiddleEllipsis(redeemer, 20) }
                                 </div>
                                 { redeemerName ? <div className="redeemable-offer__redeemer__address">{ redeemer }</div> : null }
                               </Link>

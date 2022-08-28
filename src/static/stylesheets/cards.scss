@@ -473,9 +473,21 @@
 }
 
 .redeemable-offer {
+  &__redeem-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    margin-top: 20px;
+
+    .item-card__actions {
+      flex: 0 0 auto;
+      margin-top: 10px;
+    }
+  }
+
   &__redeemed-icon {
     margin: 20px 0;
-    max-width: 175px;
+    max-width: 150px;
   }
 
   &__lookout-url {
@@ -487,7 +499,7 @@
 
   &__redeemer {
     font-size: 14px;
-    margin: 20px 0;
+    margin-bottom: 20px;
 
     &__address {
       font-size: 12px;

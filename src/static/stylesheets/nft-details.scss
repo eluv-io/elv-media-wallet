@@ -549,7 +549,10 @@
     }
 
     .qr-code {
-      padding: 20px 20px 15px;
+      align-items: center;
+      display: flex;
+      justify-content: center;
+      padding: 30px 20px;
     }
 
     .qr-code,
