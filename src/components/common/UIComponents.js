@@ -16,6 +16,7 @@ import PageForwardIcon from "Assets/icons/pagination arrow forward.svg";
 import {render} from "react-dom";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
+import QRCode from "qrcode";
 
 export const PageControls = observer(({paging, maxSpread=15, hideIfOnePage, SetPage, className=""}) => {
   if(!paging || paging.total === 0) { return null; }
@@ -243,11 +244,10 @@ export const ButtonWithLoader = ({children, className="", onClick, isLoading, ..
         }
       }}
     >
-      {
-        loading || isLoading ?
-          <Loader loader="inline" className="action-with-loader__loader" /> :
-          children
-      }
+      { loading || isLoading ? <Loader loader="inline" className="action-with-loader__loader" /> : null }
+      <div className="action-with-loader__content">
+        { children }
+      </div>
     </button>
   );
 };
@@ -485,3 +485,30 @@ export const Select = ({label, value, options, placeholder, onChange, containerC
     </div>
   );
 };
+
+export const QRCodeElement = ({content}) => {
+  let options = { errorCorrectionLevel: "M", margin: 1 };
+
+  if(rootStore.pageWidth < 600) {
+    options.width = rootStore.pageWidth - 100;
+  }
+
+  return (
+    <div className="qr-code">
+      <canvas
+        ref={element => {
+          if(!element) { return; }
+
+          QRCode.toCanvas(
+            element,
+            JSON.stringify(content),
+            options,
+            error => error && rootStore.Log(error, true)
+          );
+        }}
+        className="qr-code__canvas"
+      />
+    </div>
+  );
+};
+

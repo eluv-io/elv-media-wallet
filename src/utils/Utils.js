@@ -155,6 +155,7 @@ export const NFTInfo = ({
     };
   }
 
+  const tenantId = (nft || listing)?.details?.TenantId;
   const ownerAddress = (nft || listing)?.details?.TokenOwner;
   const listingId = nft?.details?.ListingId;
   const price = item ? ItemPrice(item, checkoutStore.currency) : listing?.details?.Price;
@@ -227,8 +228,15 @@ export const NFTInfo = ({
       hidden = true;
     }
 
+    const state = nft?.details?.Offers?.find(offerDetails => offerDetails.id === offer.offer_id);
+
+    if(state?.redeemer) {
+      state.redeemer = Utils.FormatAddress(state.redeemer);
+    }
+
     return {
       ...offer,
+      state,
       imageUrl,
       released,
       releaseDate,
@@ -243,11 +251,6 @@ export const NFTInfo = ({
     sideText = `${stock.max - stock.minted} / ${stock.max} Available`;
   } else if(!item && showToken) {
     sideText = NFTDisplayToken(nft);
-
-    // TODO: Change to look at NFT details section
-    if(false) {
-      sideText += " Includes Offers";
-    }
   }
 
   sideText = sideText ? sideText.toString().split("/") : undefined;
@@ -258,6 +261,7 @@ export const NFTInfo = ({
     nft,
     item,
     ownerAddress,
+    tenantId,
     listing,
     listingId,
     name,

@@ -144,8 +144,19 @@
   }
 
   &-with-loader {
+    position: relative;
+
     &--loading {
       cursor: wait;
+
+      .action-with-loader__content {
+        opacity: 0;
+      }
+    }
+
+    &__loader {
+      position: absolute;
+      width: 100%;
     }
   }
 

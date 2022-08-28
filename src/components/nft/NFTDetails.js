@@ -10,7 +10,9 @@ import {
   CopyableField,
   ButtonWithLoader,
   FormatPriceString,
-  ButtonWithMenu, Copy, RichText
+  ButtonWithMenu,
+  Copy,
+  RichText
 } from "Components/common/UIComponents";
 
 import Confirm from "Components/common/Confirm";
@@ -41,6 +43,7 @@ import ShareIcon from "Assets/icons/share icon.svg";
 import TwitterIcon from "Assets/icons/twitter.svg";
 import PictureIcon from "Assets/icons/image.svg";
 import CopyIcon from "Assets/icons/copy.svg";
+import NFTOffers from "Components/nft/NFTOffers";
 
 const NFTMediaSection = ({nftInfo, containerElement, selectedMediaIndex, setSelectedMediaIndex, currentPlayerInfo}) => {
   const nft = nftInfo.nft;
@@ -768,81 +771,6 @@ const NFTActions = observer(({
 });
 
 
-const NFTOffers = observer(({nftInfo}) => {
-  return (
-    <div className="details-page__offers">
-      <div className="card-list details-page__offers__list">
-        {
-          nftInfo.offers.map(offer => {
-            if(offer.hidden) { return null; }
-
-            return (
-              <div
-                key={`offer-${offer.name}`}
-                className={`card-container card-container--no-border ${rootStore.centerItems ? "card-container--centered" : ""} details-page__offer redeemable-offer ${offer.style ? `redeemable-offer--variant-${offer.style}` : ""}`}
-              >
-                <div className="item-card">
-                  {
-                    offer.imageUrl ?
-                      <div className="item-card__image-container">
-                        <img alt={offer.name} src={offer.imageUrl} className="item-card__image details-page__offer__image"/>
-                      </div> : null
-                  }
-                  <div className="item-card__text">
-                    <div className="item-card__tag">Offer</div>
-                    <div className="item-card__title">{offer.name}</div>
-                    <RichText richText={offer.description} className="item-card__description" />
-                    {
-                      offer.releaseDate || offer.expirationDate ?
-                        <div className="item-card__dates">
-                          {
-                            offer.releaseDate ?
-                              <div className="item-card__date">
-                                <div className="item-card__date__label">
-                                  Redemption Available
-                                </div>
-                                <div className="item-card__date__date">
-                                  { offer.releaseDate }
-                                </div>
-                              </div> : null
-                          }
-                          { offer.releaseDate && offer.expirationDate ? <div className="item-card__dates__separator" /> : null }
-                          {
-                            offer.expirationDate ?
-                              <div className="item-card__date">
-                                <div className="item-card__date__label">
-                                  Redemption Expires
-                                </div>
-                                <div className="item-card__date__date">
-                                  { offer.expirationDate }
-                                </div>
-                              </div> : null
-                          }
-                        </div> : null
-                    }
-                    {
-                      nftInfo.isOwned ?
-                        <div className="item-card__actions">
-                          <ButtonWithLoader
-                            disabled={!offer.released || offer.expired}
-                            className="action action-primary item-card__action"
-                            onClick={async () => await new Promise(resolve => setTimeout(resolve, 1000))}
-                          >
-                            Redeem
-                          </ButtonWithLoader>
-                        </div> : null
-                    }
-                  </div>
-                </div>
-              </div>
-            );
-          })
-        }
-      </div>
-    </div>
-  );
-});
-
 const NFTTabbedContent = observer(({nft, nftInfo}) => {
   const anyTabs = (nftInfo.offers || []).filter(offer => !offer.hidden).length > 0;
 
@@ -1184,10 +1112,10 @@ export const MarketplaceItemDetails = observer(() => {
 export const MintedNFTDetails = observer(() => {
   const match = useRouteMatch();
 
-  const [nft, setNFT] = useState(rootStore.NFTData({
+  const nft = rootStore.NFTData({
     contractId: match.params.contractId,
     tokenId: match.params.tokenId
-  }));
+  });
 
   const [unavailable, setUnavailable] = useState(false);
 
@@ -1201,12 +1129,10 @@ export const MintedNFTDetails = observer(() => {
       loaded={!!nft}
       Load={async () => {
         try {
-          setNFT(
-            await rootStore.LoadNFTData({
-              contractId: match.params.contractId,
-              tokenId: match.params.tokenId
-            })
-          );
+          await rootStore.LoadNFTData({
+            contractId: match.params.contractId,
+            tokenId: match.params.tokenId
+          });
         } catch(error) {
           rootStore.Log(error, true);
           setUnavailable(true);
@@ -1222,11 +1148,12 @@ export const ListingDetails = observer(() => {
   const match = useRouteMatch();
 
   const [listingStatus, setListingStatus] = useState(undefined);
-  const [nft, setNFT] = useState(rootStore.NFTData({
+  const [unavailable, setUnavailable] = useState(false);
+
+  const nft = useState(rootStore.NFTData({
     contractId: match.params.contractId,
     tokenId: match.params.tokenId
   }));
-  const [unavailable, setUnavailable] = useState(false);
 
   if(unavailable) {
     return <DeletedPage />;
@@ -1240,12 +1167,10 @@ export const ListingDetails = observer(() => {
           const status = (await transferStore.CurrentNFTStatus({listingId: match.params.listingId})) || {};
 
           // Load full nft in case listing is removed or sold
-          setNFT(
-            await rootStore.LoadNFTData({
-              contractAddress: status.listing?.details?.ContractAddr || (status.sale || status.removed).contract,
-              tokenId: status.listing?.details?.TokenIdStr || (status.sale || status.removed).token
-            })
-          );
+          await rootStore.LoadNFTData({
+            contractAddress: status.listing?.details?.ContractAddr || (status.sale || status.removed).contract,
+            tokenId: status.listing?.details?.TokenIdStr || (status.sale || status.removed).token
+          });
 
           setListingStatus(status);
         } catch(error) {

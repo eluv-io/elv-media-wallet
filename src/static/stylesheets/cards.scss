@@ -91,6 +91,12 @@
     .item-card__actions {
       align-items: center;
     }
+
+    .redeemable-offer {
+      &__redeemed-icon {
+        margin-inline: auto;
+      }
+    }
   }
 
   &-selectable {
@@ -255,8 +261,8 @@
     width: 100%;
 
     .action {
-      max-width: 150px;
-      width: 100%;
+      padding-inline: 50px;
+      width: max-content;
 
       &:not(:last-child) {
         margin-bottom: 5px;
@@ -450,7 +456,11 @@
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
-
+    &__actions {
+      .action {
+        padding-inline: 25px;
+      }
+    }
 
     &__dates {
       flex-direction: column;
@@ -458,6 +468,30 @@
       &__separator {
         display: none;
       }
+    }
+  }
+}
+
+.redeemable-offer {
+  &__redeemed-icon {
+    margin: 20px 0;
+    max-width: 175px;
+  }
+
+  &__lookout-url {
+    color: var(--color-card-text-secondary);
+    font-size: 12px;
+    margin-top: 20px;
+    text-decoration: underline;
+  }
+
+  &__redeemer {
+    font-size: 14px;
+    margin: 20px 0;
+
+    &__address {
+      font-size: 12px;
+      margin-top: 5px;
     }
   }
 }
