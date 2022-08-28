@@ -49,7 +49,7 @@ const NFTOffers = observer(({nftInfo}) => {
           {
             nftInfo.offers.map(offer => {
               if(offer.hidden) { return null; }
-              
+
               const redeemer = offer.state?.redeemer;
               const redeemerName = redeemer && rootStore.userProfiles[redeemer]?.userName;
               const isRedeemer = Utils.EqualAddress(redeemer, rootStore.CurrentAddress());
@@ -114,7 +114,7 @@ const NFTOffers = observer(({nftInfo}) => {
                         nftInfo.isOwned && !redeemer ?
                           <div className="item-card__actions">
                             <ButtonWithLoader
-                              disabled={!offer.released || offer.expired}
+                              disabled={!offer.released || offer.expired || (!offer.offer_id && typeof offer.offer_id === "string")}
                               className="action action-primary item-card__action"
                               onClick={async () => {
                                 await checkoutStore.RedeemOffer({
