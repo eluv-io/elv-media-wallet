@@ -182,8 +182,8 @@
     color: var(--color-card-text-secondary);
     flex: 1 1 100%;
     line-height: 1.5em;
-    margin: 15px 0 30px;
-    min-height: 75px;
+    margin: 10px 0 20px;
+    min-height: 50px;
 
     * {
       color: var(--color-card-text-secondary);
@@ -257,11 +257,11 @@
     flex-direction: column;
     justify-content: flex-end;
     left: 0;
-    margin: 40px 0 20px;
+    margin: 20px 0;
     width: 100%;
 
     .action {
-      padding-inline: 50px;
+      padding-inline: 40px;
       width: max-content;
 
       &:not(:last-child) {
@@ -473,11 +473,21 @@
 }
 
 .redeemable-offer {
+  &--redeemed {
+    .item-card__image,
+    .item-card__text {
+
+      &:not(.redeemable-offer__redeem-info) {
+        opacity: 0.75;
+      }
+    }
+  }
+
   &__redeem-info {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    margin-top: 20px;
+    margin-top: 10px;
 
     .item-card__actions {
       flex: 0 0 auto;
@@ -486,20 +496,20 @@
   }
 
   &__redeemed-icon {
-    margin: 20px 0;
-    max-width: 150px;
+    margin: 10px 0;
+    max-width: 125px;
   }
 
   &__lookout-url {
     color: var(--color-card-text-secondary);
     font-size: 12px;
-    margin: 20px 0 10px;
+    margin: 20px 0 5px;
     text-decoration: underline;
   }
 
   &__redeemer {
     font-size: 14px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 
     &__address {
       font-size: 12px;

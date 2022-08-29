@@ -232,7 +232,7 @@ export const ButtonWithLoader = ({children, className="", onClick, isLoading, ..
   return (
     <button
       {...props}
-      className={`action action-with-loader ${loading ? "action-with-loader--loading": ""} ${className}`}
+      className={`action action-with-loader ${loading || isLoading ? "action-with-loader--loading": ""} ${className}`}
       onClick={async event => {
         if(loading) { return; }
 

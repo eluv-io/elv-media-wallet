@@ -52,7 +52,6 @@ const UserMarketplaceRoutes = () => {
 const UserRoutes = ({includeMarketplaceRoutes}) => {
   return [
     ...(includeMarketplaceRoutes ? UserMarketplaceRoutes() : []),
-
     { name: "Listings", path: "listings", includeUserProfile: true, Component: UserListings },
     { name: "Listing", path: "listings/:listingId", Component: ListingDetails },
     { name: "Purchase Listing", path: "listings/:listingId/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
@@ -64,6 +63,7 @@ const UserRoutes = ({includeMarketplaceRoutes}) => {
     { name: match => (GetMarketplace(match)?.storefront?.tabs?.my_items || "Items"), includeUserProfile: true, path: "items", Component: UserItems },
     { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId", Component: MintedNFTDetails },
     { name: "Open Pack", path: "items/:contractId/:tokenId/open", Component: PackOpenStatus },
+    { path: "/", includeUserProfile: true, redirect: "items" },
   ]
     .map(route => ({ ...route, loadUser: true, path: UrlJoin("users", ":userId", route.path) }));
 };

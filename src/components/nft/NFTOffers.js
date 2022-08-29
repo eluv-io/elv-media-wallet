@@ -65,7 +65,7 @@ const NFTOffers = observer(({nftInfo}) => {
                       "details-page__offer",
                       "redeemable-offer",
                       offer.style ? `redeemable-offer--variant-${offer.style}` : "",
-                      !offer.state?.active ? "redeemable-offer--redeemed" : ""
+                      redeemer ? "redeemable-offer--redeemed" : ""
                     ]
                       .filter(c => c)
                       .join(" ")
