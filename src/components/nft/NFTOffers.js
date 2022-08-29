@@ -166,7 +166,7 @@ const NFTOffers = observer(({nftInfo}) => {
                                 className="redeemable-offer__redeemer"
                               >
                                 <div className="redeemable-offer__redeemer__name">
-                                  By { redeemerName || MiddleEllipsis(redeemer, 20) }
+                                  By { redeemerName ? `@${redeemerName}` : MiddleEllipsis(redeemer, 20) }
                                 </div>
                                 { redeemerName ? <div className="redeemable-offer__redeemer__address">{ redeemer }</div> : null }
                               </Link>
