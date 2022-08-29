@@ -208,6 +208,7 @@ const App = () => {
   };
 
   window.console.log("******* setTimeout");
+  // XXX this is getting called too much: twice on start, and after method calls
   setTimeout(loadMarketplaces, 1);
 
   return (

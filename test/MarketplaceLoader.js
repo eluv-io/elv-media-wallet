@@ -11,7 +11,7 @@ export class MarketplaceLoader {
   }
 
   async loadMarketplaces() {
-    window.console.log("*** loadMarketplaces ***", this.walletClient);
+    window.console.log("loadMarketplaces from ", this.walletClient);
     await this.walletClient.AvailableMarketplaces()
       .catch(err => { return err; })
       .then(marketplaces => {
@@ -22,12 +22,12 @@ export class MarketplaceLoader {
         } else {
           defaultOption?.remove();
         }
-        for(const rm of document.getElementsByClassName("mkOption")) {
-          rm?.remove();
+        for(const existingOption of document.getElementsByClassName("mkOption")) {
+          existingOption?.remove();
         }
         window.console.log("marketplaces[", marketplaces.length, "]:", marketplaces);
-        for(const [_, cContents] of Object.entries(marketplaces)) {
-          for(const [_, value] of Object.entries(cContents)) {
+        for(const contents of Object.values(marketplaces)) {
+          for(const value of Object.values(contents)) {
             if(typeof value === "object" && "marketplaceSlug" in value && "tenantSlug" in value) {
               window.console.log(value.tenantSlug, value.marketplaceSlug);
               let el = document.createElement("option");
