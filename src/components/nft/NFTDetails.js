@@ -302,7 +302,7 @@ const NFTContractSection = ({nftInfo, SetBurned, ShowTransferModal}) => {
       }
       <div className="expandable-section__actions">
         {
-          nftInfo.isOwned && !nftInfo.listingId ?
+          nftInfo.isOwned && !nftInfo.listingId && nftInfo.heldDate ?
             <button
               disabled={nftInfo.nft?.metadata?.test}
               title={nftInfo.nft?.metadata?.test ? "Test NFTs may not be transferred" : ""}
