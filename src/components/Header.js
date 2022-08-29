@@ -12,8 +12,9 @@ import BackIcon from "Assets/icons/arrow-left-circle.svg";
 import EluvioLogo from "Assets/images/EluvioLogo.png";
 import MenuIcon from "Assets/icons/menu";
 import WalletIcon from "Assets/icons/wallet balance button icon.svg";
+import UserIcon from "Assets/icons/user.svg";
 
-const Profile = observer(({marketplace}) => {
+const Profile = observer(() => {
   const location = useLocation();
   const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
 
@@ -36,32 +37,23 @@ const Profile = observer(({marketplace}) => {
   }
 
   const user = rootStore.walletClient.UserInfo() || {};
+
   return (
-    <Link to={marketplaceId ? `/marketplace/${marketplaceId}/profile` : "/wallet/profile"} className="header__profile">
-      <div className="header__profile__info ellipsis">
-        {
-          (rootStore.embedded && marketplace?.branding?.hide_profile_name) ?
-            null :
-            <div className="header__profile__name">
-              { rootStore.userProfiles.me?.userName || user.email || user.address }
-            </div>
-        }
-        {
-          typeof rootStore.totalWalletBalance !== "undefined" ?
-            <div className="header__profile__balances">
-              <WalletHeader />
-              <div
-                className="header__profile__balance header__profile__balance--wallet"
-                title={`Total balance: ${FormatPriceString({USD: rootStore.totalWalletBalance})}\nAvailable balance: ${FormatPriceString({USD: rootStore.availableWalletBalance}) }\nPending balance: ${FormatPriceString({USD: rootStore.pendingWalletBalance}) }`}
-              >
-                <ImageIcon icon={WalletIcon} label="Wallet Balance" />
-                <div className="header__profile__balance__amount">
-                  { FormatPriceString({USD: rootStore.totalWalletBalance}) }
-                  { rootStore.pendingWalletBalance ? <div className="header__profile__pending-indicator">*</div> : null}
-                </div>
-              </div>
-            </div> : null
-        }
+    <Link
+      to={marketplaceId ? `/marketplace/${marketplaceId}/profile` : "/wallet/profile"}
+      title={rootStore.userProfiles.me?.userName || user.email || user.address}
+      className="header__profile2"
+    >
+      <div className="header__profile2__user">
+        <ImageIcon icon={UserIcon} className="header__profile2__user__icon" />
+      </div>
+      <div className="header__profile2__balance">
+        <ImageIcon icon={WalletIcon} className="header__profile2__balance__icon" />
+        <WalletHeader />
+        <div className="header__profile2__balance__amount">
+          { FormatPriceString({USD: rootStore.totalWalletBalance}) }
+          { rootStore.pendingWalletBalance ? <div className="header__profile__pending-indicator">*</div> : null}
+        </div>
       </div>
     </Link>
   );
@@ -197,7 +189,7 @@ const GlobalHeader = observer(({marketplace}) => {
             <ImageIcon icon={EluvioLogo} title="Eluvio" className="global-header__logo" />
           </Link>
           <GlobalHeaderNavigation />
-          <Profile marketplace={marketplace} />
+          <Profile />
           <MobileNavigation marketplace={marketplace} />
         </div>
       </div>
@@ -272,8 +264,8 @@ const SubHeader = observer(({marketplace}) => {
     );
   }
 
-  const { name, round_logo, header_logo, hide_name, preview } = marketplace.branding || {};
-  const logo = (header_logo || round_logo)?.url;
+  const { name, header_logo, hide_name, preview } = marketplace.branding || {};
+  const logo = header_logo?.url;
 
   return (
     <div className="page-block page-block--subheader subheader-container subheader-container--marketplace">

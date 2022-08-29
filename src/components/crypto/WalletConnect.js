@@ -165,21 +165,15 @@ export const WalletHeader = observer(() => {
           event.stopPropagation();
           setShowMenu(!showMenu);
         }}
-        className="header__profile__balance header__profile__usdc"
+        className="header__profile2__usdc"
         title="Connect Phantom"
       >
         <ImageIcon
           icon={wallet.logo}
           label="Not Connected"
-          className={`header__profile__connected-icon ${cryptoStore.usdcConnected ? "header__profile__connected-icon--connected" : "header__profile__connected-icon--disconnected"}`}
+          className={`header__profile2__balance__icon ${!cryptoStore.usdcConnected ? "header__profile2__balance__icon--disabled" : ""}`}
         />
 
-        {
-          cryptoStore.usdcConnected ?
-            <div className="header__profile__balance__amount header__profile__usdc__balance">
-              { (cryptoStore.phantomUSDCBalance || 0).toFixed(2) } USDC
-            </div> : null
-        }
       </button>
 
       {
