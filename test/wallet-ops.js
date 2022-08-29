@@ -8,6 +8,7 @@ import {ElvWalletClient} from "@eluvio/elv-client-js/src/walletClient";
 import {PageLoader} from "Components/common/Loaders";
 
 import {EluvioLive} from "./EluvioLive.js";
+import {MarketplaceLoader} from "./MarketplaceLoader.js";
 
 const mode = "staging";
 const searchParams = new URLSearchParams(window.location.search);
@@ -20,10 +21,11 @@ const tSlug = searchParams.get("tenant-name") ||
   (network == "main" ? "bcl" : "bcl-live");
 const mSlug = searchParams.get("marketplace-name") ||
   (network == "main" ? "maskverse-marketplace" : "masked-singer-marketplace");
+
 let marketplaceParams = {
   tenantSlug: tSlug,
   marketplaceSlug: mSlug,
-  toString: function() { return this.tenantSlug + ": " + this.marketplaceSlug; }
+  toString: function() { return this.tenantSlug + "/" + this.marketplaceSlug; },
 };
 
 window.console.log("marketplaceParams", marketplaceParams);
@@ -187,49 +189,17 @@ const App = () => {
     );
   }
 
-  function mtos(t, m) { return "Selected Marketplace: " + t + "/" + m; }
-
   const loadMarketplaces = async () => {
-    window.console.log("*** loadMarketplaces ***");
-    await walletClient.AvailableMarketplaces()
-      .catch(err => { return err; })
-      .then(marketplaces => {
-        let select = document.getElementById("marketplaceSelector");
-        let defaultOption = document.getElementById("defaultMarketplaceOption");
-        if(defaultOption == undefined) {
-          return;
-        } else {
-          defaultOption?.remove();
-        }
-        for(const rm of document.getElementsByClassName("mkOption")) {
-          rm?.remove();
-        }
-        window.console.log("marketplaces[", marketplaces.length, "]:", marketplaces);
-        for(const [_, cContents] of Object.entries(marketplaces)) {
-          for(const [_, value] of Object.entries(cContents)) {
-            if(typeof value === "object" && "marketplaceSlug" in value && "tenantSlug" in value) {
-              window.console.log(value.tenantSlug, value.marketplaceSlug);
-              let el = document.createElement("option");
-              el.textContent = mtos(value.tenantSlug, value.marketplaceSlug);
-              el.value = value.tenantSlug + ":" +  value.marketplaceSlug;
-              el.className = "mkOption";
-              select.appendChild(el);
-            }
-          }
-        }
-        select.value = marketplaceParams.toString().replace(": ", ":");
-      });
+    await new MarketplaceLoader(walletClient, marketplaceParams).loadMarketplaces()
+      .catch(err => { return { error: err.toString()}; });
   };
 
   const setMarketplace = async (event) => {
-    window.console.log("*** setMarketplace ***");
-    const t = event.target.value.split(":")[0];
-    const m = event.target.value.split(":")[1];
-    marketplaceParams = {tenantSlug: t, marketplaceSlug: m};
+    const [tenant, market] = event.target.value.split("/");
 
     const url = new URL(window.location.href);
-    url.searchParams.set("marketplace-name", m);
-    url.searchParams.set("tenant-name", t);
+    url.searchParams.set("tenant-name", tenant);
+    url.searchParams.set("marketplace-name", market);
     window.history.replaceState("", "", url.toString());
     window.location = url;
   };
