@@ -46,9 +46,11 @@ class TransferStore {
         });
 
         if(this.client.utils.EqualAddress(targetAddress, nftInfo.details.TokenOwner)) {
-          const key = `${nft.details.ContractAddr}-${nft.details.TokenIdStr}`;
-          delete rootStore.nftData[key];
-          delete rootStore.nftInfo[key];
+          yield this.rootStore.LoadNFTData({
+            contractAddress: nft.details.ContractAddr,
+            tokenId: nft.details.TokenIdStr,
+            force: true
+          });
 
           return;
         }

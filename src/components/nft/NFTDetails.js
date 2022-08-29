@@ -302,7 +302,7 @@ const NFTContractSection = ({nftInfo, SetBurned, ShowTransferModal}) => {
       }
       <div className="expandable-section__actions">
         {
-          nftInfo.isOwned && !nftInfo.listingId && nftInfo.heldDate ?
+          nftInfo.isOwned && !nftInfo.listingId && !nftInfo.heldDate ?
             <button
               disabled={nftInfo.nft?.metadata?.test}
               title={nftInfo.nft?.metadata?.test ? "Test NFTs may not be transferred" : ""}
@@ -896,16 +896,6 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
     }
   }, []);
 
-  const nftInfo = NFTInfo({
-    nft,
-    listing: listingStatus?.listing,
-    item,
-    showFullMedia: true,
-    showToken: true,
-    allowFullscreen: true,
-    selectedMediaIndex
-  });
-
   // Redirects
 
   // Marketplace item claimed
@@ -929,10 +919,21 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
 
   // NFT Transferred
   if(transferAddress) {
-    return match.params.marketplaceId ?
-      <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "activity", match.params.contractId, match.params.tokenId)} /> :
-      <Redirect to={UrlJoin("/wallet", "activity", match.params.contractId, match.params.tokenId)} />;
+    //return match.params.marketplaceId ?
+    //  <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "users", transferAddress, match.params.contractId, match.params.tokenId)} /> :
+    //  <Redirect to={UrlJoin("/wallet", "users", transferAddress, match.params.contractId, match.params.tokenId)} />;
   }
+
+
+  const nftInfo = NFTInfo({
+    nft,
+    listing: listingStatus?.listing,
+    item,
+    showFullMedia: true,
+    showToken: true,
+    allowFullscreen: true,
+    selectedMediaIndex
+  });
 
   const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
   return (

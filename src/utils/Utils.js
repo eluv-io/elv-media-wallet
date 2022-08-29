@@ -199,7 +199,7 @@ export const NFTInfo = ({
 
   const offers = (nft?.metadata?.redeemable_offers || []).map(offer => {
     let imageUrl;
-    if(offer.image) {
+    if(offer.image && offer.image.url) {
       imageUrl = new URL(offer.image.url);
       imageUrl.searchParams.set("width", "1000");
       imageUrl.searchParams.set("authorization", rootStore.staticToken);
