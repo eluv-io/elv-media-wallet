@@ -497,7 +497,11 @@
 
   &__redeemed-icon {
     margin: 10px 0;
-    max-width: 125px;
+    max-height: 75px;
+
+    * {
+      color: var(--color-card-icon-redeem);
+    }
   }
 
   &__lookout-url {

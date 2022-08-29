@@ -120,6 +120,7 @@ html {
   --color-card-text-primary: var(--color-text-primary);
   --color-card-text-secondary: var(--color-text-secondary);
   --color-card-text-highlight: var(--color-text-highlight);
+  --color-card-icon-redeem: #0EAD00;
   --box-shadow-card: var(--box-shadow);
 
   /* Cards and feature cards have borders implemented as a padded element with a colored background */
