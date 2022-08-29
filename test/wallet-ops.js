@@ -190,18 +190,11 @@ const App = () => {
   }
 
   const loadMarketplaces = async () => {
-    await new MarketplaceLoader(walletClient, marketplaceParams).loadMarketplaces()
-      .catch(err => { return { error: err.toString()}; });
+    await new MarketplaceLoader(walletClient, marketplaceParams).loadMarketplaces();
   };
 
   const setMarketplace = async (event) => {
-    const [tenant, market] = event.target.value.split("/");
-
-    const url = new URL(window.location.href);
-    url.searchParams.set("tenant-name", tenant);
-    url.searchParams.set("marketplace-name", market);
-    window.history.replaceState("", "", url.toString());
-    window.location = url;
+    await new MarketplaceLoader(walletClient, marketplaceParams).setMarketplace(event);
   };
 
   const changeNetwork = async (event) => {
