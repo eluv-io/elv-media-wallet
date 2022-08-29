@@ -15,14 +15,17 @@ const searchParams = new URLSearchParams(window.location.search);
 // eluvio backend network configuration -- "main" or "demo"
 const network = searchParams.get("network-name") || "demo";
 
-// marketplace configuration -- TODO: allow user to select these from within the UI
-let marketplaceParams = network == "main" ? {
-  tenantSlug: "bcl",
-  marketplaceSlug: "maskverse-marketplace"
-} : {
-  tenantSlug: "bcl-live",
-  marketplaceSlug: "masked-singer-marketplace"
+// marketplace configuration
+const tSlug = searchParams.get("tenant-name") ||
+  (network == "main" ? "bcl" : "bcl-live");
+const mSlug = searchParams.get("marketplace-name") ||
+  (network == "main" ? "maskverse-marketplace" : "masked-singer-marketplace");
+let marketplaceParams = {
+  tenantSlug: tSlug,
+  marketplaceSlug: mSlug,
+  toString: function() { return this.tenantSlug + ": " + this.marketplaceSlug; }
 };
+
 window.console.log("marketplaceParams", marketplaceParams);
 
 // wallet app configuration
@@ -184,22 +187,72 @@ const App = () => {
     );
   }
 
+  function mtos(t, m) { return "Selected Marketplace: " + t + "/" + m; }
+
+  const loadMarketplaces = async () => {
+    window.console.log("*** loadMarketplaces ***");
+    await walletClient.AvailableMarketplaces()
+      .catch(err => { return err; })
+      .then(marketplaces => {
+        let select = document.getElementById("marketplaceSelector");
+        let defaultOption = document.getElementById("defaultMarketplaceOption");
+        if(defaultOption == undefined) {
+          return;
+        } else {
+          defaultOption?.remove();
+        }
+        for(const rm of document.getElementsByClassName("mkOption")) {
+          rm?.remove();
+        }
+        window.console.log("marketplaces[", marketplaces.length, "]:", marketplaces);
+        for(const [_, cContents] of Object.entries(marketplaces)) {
+          for(const [_, value] of Object.entries(cContents)) {
+            if(typeof value === "object" && "marketplaceSlug" in value && "tenantSlug" in value) {
+              window.console.log(value.tenantSlug, value.marketplaceSlug);
+              let el = document.createElement("option");
+              el.textContent = mtos(value.tenantSlug, value.marketplaceSlug);
+              el.value = value.tenantSlug + ":" +  value.marketplaceSlug;
+              el.className = "mkOption";
+              select.appendChild(el);
+            }
+          }
+        }
+        select.value = marketplaceParams.toString().replace(": ", ":");
+      });
+  };
+
+  const setMarketplace = async (event) => {
+    window.console.log("*** setMarketplace ***");
+    const t = event.target.value.split(":")[0];
+    const m = event.target.value.split(":")[1];
+    marketplaceParams = {tenantSlug: t, marketplaceSlug: m};
+
+    const url = new URL(window.location.href);
+    url.searchParams.set("marketplace-name", m);
+    url.searchParams.set("tenant-name", t);
+    window.history.replaceState("", "", url.toString());
+    window.location = url;
+  };
+
+  const changeNetwork = async (event) => {
+    setNetwork(event.target.value);
+
+    const url = new URL(window.location.href);
+    url.searchParams.set("network-name", event.target.value);
+    window.history.replaceState("", "", url.toString());
+    window.location = url;
+
+  };
+
+  window.console.log("******* setTimeout");
+  setTimeout(loadMarketplaces, 1);
+
   return (
     <div className="page-container">
       <h1>DApp Wallet Operation Examples</h1>
 
       <div className="button-row">
-        <select
-          value={network}
-          onChange={event => {
-            setNetwork(event.target.value);
-
-            const url = new URL(window.location.href);
-            url.searchParams.set("network-name", event.target.value);
-            window.history.replaceState("", "", url.toString());
-            window.location = url;
-          }}
-        >
+        <select value={network} onChange={changeNetwork}>
           <option value="main">Selected Network: main</option>
           <option value="demo">Selected Network: demo</option>
         </select>
@@ -213,14 +266,19 @@ const App = () => {
         <button onClick={async () => clearAndSetResults(await walletClient.AvailableMarketplaces())}>AvailableMarketPlaces</button>
       </div>
       <div className="button-row">
-        <button onClick={async () => clearAndSetResults(await walletClient.client.CreateSignedToken({grantType: "read", duration: 60*60*1000}))}>CreateSignedToken</button>
-        <button onClick={async () => clearAndSetResults(await walletClient.client.CreateFabricToken())}>CreateFabricToken</button>
-      </div>
-
-      <h2>Marketplace Methods</h2>
-      <div className="button-row">
         <button onClick={async () => clearAndSetResults(await walletClient.UserItems())}>UserItems</button>
         <button onClick={async () => clearAndSetResults(await walletClient.UserItemInfo())}>UserItemInfo</button>
+      </div>
+      <div className="button-row">
+        <button onClick={async () => clearAndSetResults(await walletClient.client.CreateSignedToken({grantType: "read", duration: 60*60*1000}))}>CreateSignedToken</button>
+      </div>
+
+      <br/>
+      <h2>Marketplace Methods</h2>
+      <div className="button-row">
+        <select id="marketplaceSelector" onChange={setMarketplace}>
+          <option id="defaultMarketplaceOption"></option>
+        </select>
       </div>
       <div className="button-row">
         <button onClick={async () => clearAndSetResults(await walletClient.Listings())}>Listings</button>
