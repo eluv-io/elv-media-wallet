@@ -106,6 +106,7 @@ class RootStore {
   specifiedMarketplaceHash = undefined;
 
   hideGlobalNavigation = false;
+  hideGlobalNavigationInMarketplace = searchParams.has("hgm");
   hideNavigation = searchParams.has("hn") || this.loginOnly;
   hideMarketplaceNavigation = false;
   sidePanelMode = false;

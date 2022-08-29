@@ -42,15 +42,15 @@ const Profile = observer(() => {
     <Link
       to={marketplaceId ? `/marketplace/${marketplaceId}/profile` : "/wallet/profile"}
       title={rootStore.userProfiles.me?.userName || user.email || user.address}
-      className="header__profile2"
+      className="header__profile"
     >
-      <div className="header__profile2__user">
-        <ImageIcon icon={UserIcon} className="header__profile2__user__icon" />
+      <div className="header__profile__user">
+        <ImageIcon icon={UserIcon} className="header__profile__user__icon" />
       </div>
-      <div className="header__profile2__balance">
-        <ImageIcon icon={WalletIcon} className="header__profile2__balance__icon" />
+      <div className="header__profile__balance">
+        <ImageIcon icon={WalletIcon} className="header__profile__balance__icon" />
         <WalletHeader />
-        <div className="header__profile2__balance__amount">
+        <div className="header__profile__balance__amount">
           { FormatPriceString({USD: rootStore.totalWalletBalance}) }
           { rootStore.pendingWalletBalance ? <div className="header__profile__pending-indicator">*</div> : null}
         </div>
@@ -179,7 +179,7 @@ const GlobalHeaderNavigation = () => {
 };
 
 const GlobalHeader = observer(({marketplace}) => {
-  if(rootStore.hideGlobalNavigation) { return null; }
+  if(rootStore.hideGlobalNavigation || (rootStore.hideGlobalNavigationInMarketplace && marketplace)) { return null; }
 
   return (
     <div className="page-block page-block--global-header global-header-container">
@@ -267,6 +267,7 @@ const SubHeader = observer(({marketplace}) => {
   const { name, header_logo, hide_name, preview } = marketplace.branding || {};
   const logo = header_logo?.url;
 
+  const hideGlobalNavigation = rootStore.hideGlobalNavigation || (rootStore.hideGlobalNavigationInMarketplace && marketplace);
   return (
     <div className="page-block page-block--subheader subheader-container subheader-container--marketplace">
       <div className={`page-block__content subheader subheader--marketplace ${hide_name ? "subheader--marketplace--no-header" : ""}`}>
@@ -282,11 +283,11 @@ const SubHeader = observer(({marketplace}) => {
               }
               {hide_name ? null : <h1 className="subheader__header">{`${name}`}</h1>}
               {
-                rootStore.hideGlobalNavigation ?
+                hideGlobalNavigation ?
                   <Profile marketplace={marketplace}/> : null
               }
               {
-                rootStore.hideGlobalNavigation ?
+                hideGlobalNavigation ?
                   <MobileNavigation marketplace={marketplace}/> : null
               }
             </div>

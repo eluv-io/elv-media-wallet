@@ -34,7 +34,7 @@
     text-transform: uppercase;
   }
 
-  &__profile2 {
+  &__profile {
     @include page-fade-in;
     align-items: center;
     display: flex;
@@ -53,7 +53,7 @@
     &__user,
     &__balance {
       align-items: center;
-      background: var(--color-bg-secondary);
+      background: var(--background-page-header-profile);
       border-radius: 6px;
       display: flex;
       height: 35px;
@@ -366,13 +366,13 @@
     }
   }
 
-  .header__profile2 {
+  .header__profile {
     font-size: 12px;
   }
 }
 
 @media screen and (max-width: $tablet-breakpoint) {
-  .header__profile2 {
+  .header__profile {
     max-width: unset;
     position: relative;
     width: 100%;
@@ -416,8 +416,10 @@
 }
 
 @media screen and (max-width: $mobile-breakpoint) {
-  .header__profile2 {
-    display: none;
+  .header__profile {
+    &:not(.header__log-in) {
+      display: none;
+    }
   }
 
   .subheader__header {
