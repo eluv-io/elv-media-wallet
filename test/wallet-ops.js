@@ -10,25 +10,14 @@ import {PageLoader} from "Components/common/Loaders";
 import {EluvioLive} from "./EluvioLive.js";
 import {MarketplaceLoader} from "./MarketplaceLoader.js";
 
+// eluvio EvWalletClient mode -- "staging" or "production"
 const mode = "staging";
-const searchParams = new URLSearchParams(window.location.search);
 
 // eluvio backend network configuration -- "main" or "demo"
-const network = searchParams.get("network-name") || "demo";
+const network = new URLSearchParams(window.location.search).get("network-name") || "demo";
 
 // marketplace configuration
-const tSlug = searchParams.get("tenant-name") ||
-  (network == "main" ? "bcl" : "bcl-live");
-const mSlug = searchParams.get("marketplace-name") ||
-  (network == "main" ? "maskverse-marketplace" : "masked-singer-marketplace");
-
-let marketplaceParams = {
-  tenantSlug: tSlug,
-  marketplaceSlug: mSlug,
-  toString: function() { return this.tenantSlug + "/" + this.marketplaceSlug; },
-};
-
-window.console.log("marketplaceParams", marketplaceParams);
+let marketplaceParams = MarketplaceLoader.parseMarketplaceParams();
 
 // wallet app configuration
 let walletAppUrl = network === "demo" ?
@@ -71,10 +60,6 @@ const AuthSection = ({walletClient, setResults, setInputs, setEmbed}) => {
         </div>
       </div>
     );
-  }
-
-  function getInput(name) {
-    return document.getElementsByName(name)?.item(0)?.value || "";
   }
 
   const Sign = async () => {
@@ -152,6 +137,10 @@ const AuthSection = ({walletClient, setResults, setInputs, setEmbed}) => {
 
   const loadMarketplaces = async () => {
     await new MarketplaceLoader(walletClient, marketplaceParams).loadMarketplaces();
+  };
+
+  const getInput = (name) => {
+    return document.getElementsByName(name)?.item(0)?.value || "";
   };
 
   // TODO: this is getting called too much: twice on start, and after method calls
@@ -279,7 +268,6 @@ const App = () => {
             <h2>Marketplace Methods</h2>
             <div className="button-row">
               <select id="marketplaceSelector" onChange={changeMarketplace}>
-                <option id="defaultMarketplaceOption"></option>
               </select>
             </div>
             <div className="button-row">

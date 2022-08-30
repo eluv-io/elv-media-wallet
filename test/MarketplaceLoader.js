@@ -10,22 +10,17 @@ export class MarketplaceLoader {
     this.marketplaceParams = curMarketplaceParams;
   }
 
-  toMarketplaceString(t, m) {
-    return "Selected Marketplace: " + t + "/" + m;
-  }
-
+  /**
+   * Loads an existing <select id="marketplaceSelector"> element with marketplace selection options
+   * using the walletClient AvailableMarketplaces() API.
+   * @returns {Promise}
+   */
   async loadMarketplaces() {
     await this.walletClient.AvailableMarketplaces()
       .catch(err => { return err; })
       .then(marketplaces => {
         let select = document.getElementById("marketplaceSelector");
-        let defaultOption = document.getElementById("defaultMarketplaceOption");
-        if(defaultOption == undefined) {
-          return;
-        } else {
-          defaultOption?.remove();
-        }
-        for(const existingOption of document.getElementsByClassName("mkOption")) {
+        for(const existingOption of document.getElementsByClassName("marketOption")) {
           existingOption?.remove();
         }
         window.console.log("marketplaces[" + Object.keys(marketplaces).length + "]:", marketplaces);
@@ -33,9 +28,9 @@ export class MarketplaceLoader {
           for(const value of Object.values(contents)) {
             if(typeof value === "object" && "marketplaceSlug" in value && "tenantSlug" in value) {
               let el = document.createElement("option");
-              el.textContent = this.toMarketplaceString(value.tenantSlug, value.marketplaceSlug);
+              el.textContent = this.toDisplayString(value.tenantSlug, value.marketplaceSlug);
               el.value = value.tenantSlug + "/" + value.marketplaceSlug;
-              el.className = "mkOption";
+              el.className = "marketOption";
               select.appendChild(el);
             }
           }
@@ -44,6 +39,9 @@ export class MarketplaceLoader {
       });
   }
 
+  /**
+   * Set tenant name and marketplace name in url, and reloads to use them.
+   */
   setMarketplace(event) {
     const [tenant, market] = event.target.value.split("/");
     const url = new URL(window.location.href);
@@ -54,4 +52,28 @@ export class MarketplaceLoader {
     window.location = url;
   };
 
+  /**
+   * Parse tenant name and marketplace name from url, or default if unset.
+   * @returns {marketplaceParams} for use in client construction.
+   */
+  static parseMarketplaceParams() {
+    const searchParams = new URLSearchParams(window.location.search);
+    const network = searchParams.get("network-name") || "demo";
+    const [tenantDefault, marketplaceDefault] = network == "main" ?
+      [ "bcl", "maskverse-marketplace" ] :
+      [ "bcl-live", "masked-singer-marketplace"];
+
+    let marketplaceParams = {
+      tenantSlug: searchParams.get("tenant-name") || tenantDefault,
+      marketplaceSlug: searchParams.get("marketplace-name") || marketplaceDefault,
+      toString: function() { return this.tenantSlug + "/" + this.marketplaceSlug; },
+    };
+    window.console.log("marketplaceParams", marketplaceParams);
+
+    return marketplaceParams;
+  }
+
+  toDisplayString(tenant, marketplace) {
+    return "Selected Marketplace: " + tenant + "/" + marketplace;
+  }
 }
