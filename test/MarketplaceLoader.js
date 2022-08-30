@@ -29,7 +29,7 @@ export class MarketplaceLoader {
           for(const value of Object.values(contents)) {
             if(typeof value === "object" && "marketplaceSlug" in value && "tenantSlug" in value) {
               let el = document.createElement("option");
-              el.textContent = this.toDisplayString(value.tenantSlug, value.marketplaceSlug);
+              el.textContent = this.display(value.tenantSlug, value.marketplaceSlug);
               el.value = value.tenantSlug + "/" + value.marketplaceSlug;
               select.appendChild(el);
             }
@@ -73,7 +73,5 @@ export class MarketplaceLoader {
     return marketplaceParams;
   }
 
-  toDisplayString(tenant, marketplace) {
-    return "Selected Marketplace: " + tenant + "/" + marketplace;
-  }
+  display(tenant, marketplace) { return "Selected Marketplace: " + tenant + "/" + marketplace; }
 }
