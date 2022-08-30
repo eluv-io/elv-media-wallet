@@ -112,17 +112,6 @@ const App = () => {
     );
   }
 
-  const changeNetwork = async (event) => {
-    const url = new URL(window.location.href);
-    url.search = "network-name=" + event.target.value;
-    window.history.replaceState("", "", url.toString());
-    window.location = url;
-  };
-
-  const changeMarketplace = async (event) => {
-    await new MarketplaceLoader(walletClient, marketplaceParams).setMarketplace(event);
-  };
-
   const Sign = async () => {
     let msgToSign = getInput("signMsg");
     setInputs({ messageToSign: msgToSign});
@@ -191,8 +180,18 @@ const App = () => {
     );
   };
 
+  const changeNetwork = async (event) => {
+    const url = new URL(window.location.href);
+    url.search = "network-name=" + event.target.value;
+    window.history.replaceState("", "", url.toString());
+    window.location = url;
+  };
+
   const loadMarketplaces = async () => {
     await new MarketplaceLoader(walletClient, marketplaceParams).loadMarketplaces();
+  };
+  const changeMarketplace = async (event) => {
+    await new MarketplaceLoader(walletClient, marketplaceParams).setMarketplace(event);
   };
 
   const getInput = (name) => {
