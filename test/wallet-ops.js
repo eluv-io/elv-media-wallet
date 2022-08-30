@@ -36,7 +36,7 @@ let walletAppUrl = network === "demo" ?
   "https://core.test.contentfabric.io/wallet";
 
 
-const AuthSection = ({walletClient, setResults, setInputs}) => {
+const AuthSection = ({walletClient, setResults, setInputs, setEmbed}) => {
   const [loggedIn, setLoggedIn] = useState(walletClient.loggedIn);
 
   const LogIn = async ({method}) => {
@@ -110,11 +110,44 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
     setInputs({playoutVersionHash: playoutVersionHash, playoutToken: playoutToken});
 
     if(playoutVersionHash.startsWith("hq__")) {
-      let res = `https://embed.v3.contentfabric.io//?net=${network}&p&ct=h&vid=${playoutVersionHash}&ath=${playoutToken}`;
-      setResults(res);
+      let embedUrl = `https://embed.v3.contentfabric.io//?net=${network}&p&ct=h&vid=${playoutVersionHash}&ath=${playoutToken}`;
+      setResults(embedUrl);
+      setEmbed(EmbedCode(embedUrl));
     } else {
       setResults("invalid version hash (expecting 'hq__...')");
     }
+  };
+
+  const EmbedCode = (embedUrl) => {
+    let embedCode = `<iframe width=854 height=480
+        scrolling="no" marginheight="0" marginwidth="0"
+        frameborder="0" type="text/html"
+        src="${embedUrl}" />`;
+    return (
+      <div className="embed-code-container">
+        <h2>Embed Code</h2>
+        <pre className="embed-code">
+          { embedCode }
+        </pre>
+        <h2>Embed URL</h2>
+        <pre className="embed-code">
+          { embedUrl }
+        </pre>
+        <h2>Embedded Content (visible if valid)</h2>
+        <div
+          className="embed"
+          ref={element => {
+            if(!element) { return; }
+            element.innerHTML = embedCode;
+
+            window.scrollTo({
+              top: element.parentElement.getBoundingClientRect().top + (window.pageYOffset || element.parentElement.scrollTop),
+              behavior: "smooth"
+            });
+          }}
+        />
+      </div>
+    );
   };
 
   const loadMarketplaces = async () => {
@@ -169,8 +202,9 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
 
 const App = () => {
   const [walletClient, setWalletClient] = useState(undefined);
-  const [results, setResults] = useState(undefined);
   const [inputs, setInputs] = useState(undefined);
+  const [results, setResults] = useState(undefined);
+  const [embed, setEmbed] = useState(undefined);
 
   const clearAndSetResults = (results) => { setInputs(""); setResults(results);};
   const stringify = (o) => { if(typeof o === "string") {return o;} else return JSON.stringify(o, null, 2);};
@@ -223,7 +257,7 @@ const App = () => {
         </select>
       </div>
 
-      <AuthSection walletClient={walletClient} setResults={setResults} setInputs={setInputs}/>
+      <AuthSection walletClient={walletClient} setResults={setResults} setInputs={setInputs} setEmbed={setEmbed} />
 
       {
         walletClient.loggedIn ?
@@ -267,6 +301,10 @@ const App = () => {
           <div><div className="preformat-header">output:</div>
             <pre>{stringify(results)}</pre>
           </div> : null
+      }
+
+      {
+        embed ? <>{embed}</> : null
       }
     </div>
   );
