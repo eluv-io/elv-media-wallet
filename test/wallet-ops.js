@@ -156,7 +156,6 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
         <input type="text" size="50" id="playoutId" name="playoutId" />
         <button onClick={Playout}>Playout</button>
       </div>
-      <br /><br />
     </>
   );
 };
@@ -220,30 +219,35 @@ const App = () => {
 
       <AuthSection walletClient={walletClient} setResults={setResults} setInputs={setInputs}/>
 
-      <h2>User Methods</h2>
-      <div className="button-row">
-        <button onClick={async () => clearAndSetResults(await walletClient.UserInfo())}>UserInfo</button>
-        <button onClick={async () => clearAndSetResults(await walletClient.AvailableMarketplaces())}>AvailableMarketPlaces</button>
-      </div>
-      <div className="button-row">
-        <button onClick={async () => clearAndSetResults(await walletClient.UserItems())}>UserItems</button>
-        <button onClick={async () => clearAndSetResults(await walletClient.UserItemInfo())}>UserItemInfo</button>
-      </div>
-      <div className="button-row">
-        <button onClick={async () => clearAndSetResults(await walletClient.client.CreateSignedToken({grantType: "read", duration: 60*60*1000}))}>CreateSignedToken</button>
-      </div>
-
-      <br/>
-      <h2>Marketplace Methods</h2>
-      <div className="button-row">
-        <select id="marketplaceSelector" onChange={changeMarketplace}>
-          <option id="defaultMarketplaceOption"></option>
-        </select>
-      </div>
-      <div className="button-row">
-        <button onClick={async () => clearAndSetResults(await walletClient.Listings())}>Listings</button>
-        <button onClick={async () => clearAndSetResults(await walletClient.MarketplaceStock({marketplaceParams}))}>Stock</button>
-      </div>
+      {
+        walletClient.loggedIn ?
+          <>
+            <br />
+            <h2>User Methods</h2>
+            <div className="button-row">
+              <button onClick={async () => clearAndSetResults(await walletClient.UserInfo())}>UserInfo</button>
+              <button onClick={async () => clearAndSetResults(await walletClient.AvailableMarketplaces())}>AvailableMarketPlaces</button>
+            </div>
+            <div className="button-row">
+              <button onClick={async () => clearAndSetResults(await walletClient.UserItems())}>UserItems</button>
+              <button onClick={async () => clearAndSetResults(await walletClient.UserItemInfo())}>UserItemInfo</button>
+            </div>
+            <div className="button-row">
+              <button onClick={async () => clearAndSetResults(await walletClient.client.CreateSignedToken({grantType: "read", duration: 60*60*1000}))}>CreateSignedToken</button>
+            </div>
+            <br/>
+            <h2>Marketplace Methods</h2>
+            <div className="button-row">
+              <select id="marketplaceSelector" onChange={changeMarketplace}>
+                <option id="defaultMarketplaceOption"></option>
+              </select>
+            </div>
+            <div className="button-row">
+              <button onClick={async () => clearAndSetResults(await walletClient.Listings())}>Listings</button>
+              <button onClick={async () => clearAndSetResults(await walletClient.MarketplaceStock({marketplaceParams}))}>Stock</button>
+            </div>
+          </> : null
+      }
 
       {
         inputs ?
