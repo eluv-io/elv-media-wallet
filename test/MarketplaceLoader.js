@@ -20,6 +20,12 @@ export class MarketplaceLoader {
       .catch(err => { return err; })
       .then(marketplaces => {
         let select = document.getElementById("marketplaceSelector");
+        let defaultOption = document.getElementById("default");
+        if(defaultOption == undefined) {
+          return;
+        } else {
+          defaultOption?.remove();
+        }
         for(const existingOption of document.getElementsByClassName("marketOption")) {
           existingOption?.remove();
         }
@@ -54,7 +60,7 @@ export class MarketplaceLoader {
 
   /**
    * Parse tenant name and marketplace name from url, or default if unset.
-   * @returns {marketplaceParams} for use in client construction.
+   * @returns a marketplaceParams object for use in client construction.
    */
   static parseMarketplaceParams() {
     const searchParams = new URLSearchParams(window.location.search);
