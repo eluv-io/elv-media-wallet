@@ -112,6 +112,14 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
     setResults(res);
   };
 
+  const loadMarketplaces = async () => {
+    await new MarketplaceLoader(walletClient, marketplaceParams).loadMarketplaces();
+  };
+
+  window.console.log("******* setTimeout");
+  // XXX this is getting called too much: twice on start, and after method calls
+  setTimeout(loadMarketplaces, 1);
+
   return (
     <>
       <div className="section">
@@ -154,7 +162,6 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
 };
 
 const App = () => {
-  const [network, setNetwork] = useState(searchParams.get("network-name") || "demo");
   const [walletClient, setWalletClient] = useState(undefined);
   const [results, setResults] = useState(undefined);
   const [inputs, setInputs] = useState(undefined);
@@ -189,27 +196,17 @@ const App = () => {
     );
   }
 
-  const loadMarketplaces = async () => {
-    await new MarketplaceLoader(walletClient, marketplaceParams).loadMarketplaces();
-  };
-
-  const setMarketplace = async (event) => {
-    await new MarketplaceLoader(walletClient, marketplaceParams).setMarketplace(event);
-  };
-
   const changeNetwork = async (event) => {
-    setNetwork(event.target.value);
-
     const url = new URL(window.location.href);
+    Array.from(url.searchParams.keys()).forEach((p) => {url.searchParams.delete(p);});
     url.searchParams.set("network-name", event.target.value);
     window.history.replaceState("", "", url.toString());
     window.location = url;
-
   };
 
-  window.console.log("******* setTimeout");
-  // XXX this is getting called too much: twice on start, and after method calls
-  setTimeout(loadMarketplaces, 1);
+  const changeMarketplace = async (event) => {
+    await new MarketplaceLoader(walletClient, marketplaceParams).setMarketplace(event);
+  };
 
   return (
     <div className="page-container">
@@ -240,7 +237,7 @@ const App = () => {
       <br/>
       <h2>Marketplace Methods</h2>
       <div className="button-row">
-        <select id="marketplaceSelector" onChange={setMarketplace}>
+        <select id="marketplaceSelector" onChange={changeMarketplace}>
           <option id="defaultMarketplaceOption"></option>
         </select>
       </div>
