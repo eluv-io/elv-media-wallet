@@ -17,10 +17,10 @@ const mode = "staging";
 const network = new URLSearchParams(window.location.search).get("network-name") || "demo";
 
 // marketplace configuration -- returns { tenantSlug:, marketplaceSlug: }
-let marketplaceParams = MarketplaceLoader.parseMarketplaceParams();
+const marketplaceParams = MarketplaceLoader.parseMarketplaceParams();
 
 // wallet app configuration
-let walletAppUrl = network === "demo" ?
+const walletAppUrl = network === "demo" ?
   "https://core.test.contentfabric.io/wallet-demo" :
   "https://core.test.contentfabric.io/wallet";
 
