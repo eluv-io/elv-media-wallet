@@ -198,8 +198,7 @@ const App = () => {
 
   const changeNetwork = async (event) => {
     const url = new URL(window.location.href);
-    Array.from(url.searchParams.keys()).forEach((p) => {url.searchParams.delete(p);});
-    url.searchParams.set("network-name", event.target.value);
+    url.search = "network-name=" + event.target.value;
     window.history.replaceState("", "", url.toString());
     window.location = url;
   };
