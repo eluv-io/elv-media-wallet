@@ -23,17 +23,14 @@ export class MarketplaceLoader {
         if(select.hasChildNodes()) {
           return;
         }
-        for(const existingOption of document.getElementsByClassName("marketOption")) {
-          existingOption?.remove();
-        }
-        window.console.log("marketplaces[" + Object.keys(marketplaces).length + "]:", marketplaces);
+
+        window.console.log("load marketplaces[" + Object.keys(marketplaces).length + "]:", marketplaces);
         for(const contents of Object.values(marketplaces)) {
           for(const value of Object.values(contents)) {
             if(typeof value === "object" && "marketplaceSlug" in value && "tenantSlug" in value) {
               let el = document.createElement("option");
               el.textContent = this.toDisplayString(value.tenantSlug, value.marketplaceSlug);
               el.value = value.tenantSlug + "/" + value.marketplaceSlug;
-              el.className = "marketOption";
               select.appendChild(el);
             }
           }
