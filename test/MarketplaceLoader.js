@@ -63,7 +63,7 @@ export class MarketplaceLoader {
       [ "bcl", "maskverse-marketplace" ] :
       [ "bcl-live", "masked-singer-marketplace"];
 
-    let marketplaceParams = {
+    const marketplaceParams = {
       tenantSlug: searchParams.get("tenant-name") || tenantDefault,
       marketplaceSlug: searchParams.get("marketplace-name") || marketplaceDefault,
       toString: function() { return this.tenantSlug + "/" + this.marketplaceSlug; },
