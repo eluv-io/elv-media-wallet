@@ -110,6 +110,10 @@ header,
   justify-content: center;
   width: 100vw;
 
+  &--custom-background {
+    background-color: transparent;
+  }
+
   &--main-content {
     flex: 1 1 auto;
     min-height: 100%;

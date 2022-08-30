@@ -39,23 +39,25 @@ const Profile = observer(() => {
   const user = rootStore.walletClient.UserInfo() || {};
 
   return (
-    <Link
-      to={marketplaceId ? `/marketplace/${marketplaceId}/profile` : "/wallet/profile"}
-      title={rootStore.userProfiles.me?.userName || user.email || user.address}
-      className="header__profile"
-    >
-      <div className="header__profile__user">
+    <div title={rootStore.userProfiles.me?.userName || user.email || user.address} className="header__profile">
+      <Link
+        to={marketplaceId ? `/marketplace/${marketplaceId}/users/me/items` : "/wallet/profile/users/me/items"}
+        className="header__profile__user"
+      >
         <ImageIcon icon={UserIcon} className="header__profile__user__icon" />
-      </div>
-      <div className="header__profile__balance">
+      </Link>
+      <Link
+        to={marketplaceId ? `/marketplace/${marketplaceId}/profile` : "/wallet/profile"}
+        className="header__profile__balance"
+      >
         <ImageIcon icon={WalletIcon} className="header__profile__balance__icon" />
         <WalletHeader />
         <div className="header__profile__balance__amount">
           { FormatPriceString({USD: rootStore.totalWalletBalance}) }
           { rootStore.pendingWalletBalance ? <div className="header__profile__pending-indicator">*</div> : null}
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 });
 
@@ -254,7 +256,7 @@ const MarketplaceNavigation = observer(({marketplace}) => {
 const SubHeader = observer(({marketplace}) => {
   if(!marketplace) {
     return (
-      <div className="page-block page-block--subheader subheader-container">
+      <div className={`page-block page-block--subheader ${rootStore.appBackground ? "page-block--custom-background" : ""} subheader-container`}>
         <div className="page-block__content subheader subheader--wallet">
           <div className="subheader__navigation-container">
             <SubHeaderNavigation />
@@ -269,7 +271,7 @@ const SubHeader = observer(({marketplace}) => {
 
   const hideGlobalNavigation = rootStore.hideGlobalNavigation || (rootStore.hideGlobalNavigationInMarketplace && marketplace);
   return (
-    <div className="page-block page-block--subheader subheader-container subheader-container--marketplace">
+    <div className={`page-block page-block--subheader ${rootStore.appBackground ? "page-block--custom-background" : ""} subheader-container subheader-container--marketplace`}>
       <div className={`page-block__content subheader subheader--marketplace ${hide_name ? "subheader--marketplace--no-header" : ""}`}>
         { preview ? <div className="subheader__preview-indicator">PREVIEW</div> : null }
         {

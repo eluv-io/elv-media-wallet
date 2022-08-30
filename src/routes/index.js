@@ -227,7 +227,7 @@ const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
         routes.map(({path, exact, authed, loadUser, includeUserProfile, ignoreLoginCapture, Component}) => {
           let result = (
             <RouteWrapper routes={routes}>
-              <div className="page-block page-block--main-content">
+              <div className={`page-block page-block--main-content ${rootStore.appBackground ? "page-block--custom-background" : ""}`}>
                 <div className="page-block__content">
                   { Component ? <Component key={`component-${path}`} /> : null }
                 </div>
