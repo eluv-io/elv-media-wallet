@@ -852,7 +852,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
       ...listingStatus.listing,
       metadata: {
         ...(nft?.metadata || {}),
-        ...listingStatus.listing
+        ...listingStatus.listing.metadata
       }
     };
   }
@@ -916,14 +916,6 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
       <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items")}/> :
       <Redirect to={Path.dirname(Path.dirname(match.url))}/>;
   }
-
-  // NFT Transferred
-  if(transferAddress) {
-    //return match.params.marketplaceId ?
-    //  <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "users", transferAddress, match.params.contractId, match.params.tokenId)} /> :
-    //  <Redirect to={UrlJoin("/wallet", "users", transferAddress, match.params.contractId, match.params.tokenId)} />;
-  }
-
 
   const nftInfo = NFTInfo({
     nft,
