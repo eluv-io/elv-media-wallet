@@ -85,6 +85,7 @@ const App = () => {
 
   const clearAndSetResults = (results) => { setInputs(""); setEmbed(""); setResults(results); };
   const stringify = (o) => { if(typeof o === "string") { return o; } else return JSON.stringify(o, null, 2); };
+  const getInput = (name) => { return document.getElementsByName(name)?.item(0)?.value || ""; };
 
   useEffect(() => {
     ElvWalletClient.Initialize({
@@ -180,33 +181,30 @@ const App = () => {
     );
   };
 
-  const changeNetwork = async (event) => {
+  const ChangeNetwork = async (event) => {
     const url = new URL(window.location.href);
     url.search = "network-name=" + event.target.value;
     window.history.replaceState("", "", url.toString());
     window.location = url;
   };
 
-  const loadMarketplaces = async () => {
+  const LoadMarketplaces = async () => {
     await new MarketplaceLoader(walletClient, marketplaceParams).loadMarketplaces();
   };
-  const changeMarketplace = async (event) => {
+
+  const ChangeMarketplace = async (event) => {
     await new MarketplaceLoader(walletClient, marketplaceParams).setMarketplace(event);
   };
 
-  const getInput = (name) => {
-    return document.getElementsByName(name)?.item(0)?.value || "";
-  };
-
   // TODO: this is getting called too much: twice on start, and after method calls
-  setTimeout(loadMarketplaces, 1);
+  setTimeout(LoadMarketplaces, 1);
 
   return (
     <div className="page-container">
       <h1>DApp Wallet Operation Examples</h1>
 
       <div className="button-row">
-        <select value={network} onChange={changeNetwork}>
+        <select value={network} onChange={ChangeNetwork}>
           <option value="main">Selected Network: main</option>
           <option value="demo">Selected Network: demo</option>
         </select>
@@ -261,7 +259,7 @@ const App = () => {
             <br/>
             <h2>Marketplace Methods</h2>
             <div className="button-row">
-              <select id="marketplaceSelector" onChange={changeMarketplace}>
+              <select id="marketplaceSelector" onChange={ChangeMarketplace}>
               </select>
             </div>
             <div className="button-row">
