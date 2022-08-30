@@ -108,10 +108,10 @@ const AuthSection = ({walletClient, setResults, setInputs, setEmbed}) => {
     let playoutVersionHash = getInput("playoutVersionHash");
     let playoutToken = await walletClient.client.CreateFabricToken();
     setInputs({playoutVersionHash: playoutVersionHash, playoutToken: playoutToken});
+    setResults("");
 
     if(playoutVersionHash.startsWith("hq__")) {
       let embedUrl = `https://embed.v3.contentfabric.io//?net=${network}&p&ct=h&vid=${playoutVersionHash}&ath=${playoutToken}`;
-      setResults(embedUrl);
       setEmbed(EmbedCode(embedUrl));
     } else {
       setResults("invalid version hash (expecting 'hq__...')");
@@ -206,8 +206,8 @@ const App = () => {
   const [results, setResults] = useState(undefined);
   const [embed, setEmbed] = useState(undefined);
 
-  const clearAndSetResults = (results) => { setInputs(""); setResults(results);};
-  const stringify = (o) => { if(typeof o === "string") {return o;} else return JSON.stringify(o, null, 2);};
+  const clearAndSetResults = (results) => { setInputs(""); setEmbed(""); setResults(results); };
+  const stringify = (o) => { if(typeof o === "string") { return o; } else return JSON.stringify(o, null, 2); };
 
   useEffect(() => {
     ElvWalletClient.Initialize({
