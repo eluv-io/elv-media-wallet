@@ -263,7 +263,6 @@ const App = () => {
             <h2>Marketplace Methods</h2>
             <div className="button-row">
               <select id="marketplaceSelector" onChange={changeMarketplace}>
-                <option id="default"></option>
               </select>
             </div>
             <div className="button-row">

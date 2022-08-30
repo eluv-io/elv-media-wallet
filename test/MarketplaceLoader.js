@@ -20,11 +20,8 @@ export class MarketplaceLoader {
       .catch(err => { return err; })
       .then(marketplaces => {
         let select = document.getElementById("marketplaceSelector");
-        let defaultOption = document.getElementById("default");
-        if(defaultOption == undefined) {
+        if(select.hasChildNodes()) {
           return;
-        } else {
-          defaultOption?.remove();
         }
         for(const existingOption of document.getElementsByClassName("marketOption")) {
           existingOption?.remove();
