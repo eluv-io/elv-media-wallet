@@ -110,17 +110,12 @@ const AuthSection = ({walletClient, setResults, setInputs, setEmbed}) => {
         src="${embedUrl}" />`;
     return (
       <div className="embed-code-container">
-        <h2>Embed Code</h2>
-        <pre className="embed-code">
-          { embedCode }
-        </pre>
-        <h2>Embed URL</h2>
-        <pre className="embed-code">
-          { embedUrl }
-        </pre>
-        <h2>Embedded Content (visible if valid)</h2>
-        <div
-          className="embed"
+        <div className="preformat-header">Embed Code</div>
+        <pre className="embed-code">{ embedCode }</pre>
+        <div className="preformat-header">Embed URL</div>
+        <pre className="embed-code">{ embedUrl }</pre>
+        <div className="preformat-header">Embedded Content (invisible if invalid)</div>
+        <div className="embed"
           ref={element => {
             if(!element) { return; }
             element.innerHTML = embedCode;
@@ -279,14 +274,16 @@ const App = () => {
 
       {
         inputs ?
-          <div><div className="preformat-header">input:</div>
+          <div>
+            <div className="preformat-header">Input</div>
             <pre>{stringify(inputs)}</pre>
           </div> : null
       }
 
       {
         results ?
-          <div><div className="preformat-header">output:</div>
+          <div>
+            <div className="preformat-header">Output</div>
             <pre>{stringify(results)}</pre>
           </div> : null
       }
