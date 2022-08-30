@@ -105,19 +105,23 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
   };
 
   const Playout = async () => {
-    let playoutId = getInput("playoutId");
-    setInputs({playoutId: playoutId});
-    // TODO: take NFT and hq__ hash, get access token, generate embed url
-    let res = "TODO";
-    setResults(res);
+    let playoutVersionHash = getInput("playoutVersionHash");
+    let playoutToken = await walletClient.client.CreateFabricToken();
+    setInputs({playoutVersionHash: playoutVersionHash, playoutToken: playoutToken});
+
+    if(playoutVersionHash.startsWith("hq__")) {
+      let res = `https://embed.v3.contentfabric.io//?net=${network}&p&ct=h&vid=${playoutVersionHash}&ath=${playoutToken}`;
+      setResults(res);
+    } else {
+      setResults("invalid version hash (expecting 'hq__...')");
+    }
   };
 
   const loadMarketplaces = async () => {
     await new MarketplaceLoader(walletClient, marketplaceParams).loadMarketplaces();
   };
 
-  window.console.log("******* setTimeout");
-  // XXX this is getting called too much: twice on start, and after method calls
+  // TODO: this is getting called too much: twice on start, and after method calls
   setTimeout(loadMarketplaces, 1);
 
   return (
@@ -136,6 +140,7 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
         <input type="text" size="50" id="signMsg" name="signMsg" />
         <button onClick={Sign}>Sign</button>
       </div>
+      <br/>
       <div className="button-row">
         <label htmlFor="nftOwnerToVerify">Verify NFT ownership (owner address):</label>
         <input type="text" size="50" id="nftOwnerToVerify" name="nftOwnerToVerify" />
@@ -146,15 +151,17 @@ const AuthSection = ({walletClient, setResults, setInputs}) => {
         <input type="text" size="50" id="nftAddressToVerify" name="nftAddressToVerify" />
         <button onClick={CheckNft}>Verify NFT</button>
       </div>
+      <br/>
       <div className="button-row">
         <label htmlFor="nftForStats">NFT Contract Statistics:</label>
         <input type="text" size="50" id="nftForStats" name="nftForStats" />
         <button onClick={CheckNftStats}>Get statistics</button>
       </div>
+      <br/>
       <div className="button-row">
-        <label htmlFor="playoutId">Play token-gated content:</label>
-        <input type="text" size="50" id="playoutId" name="playoutId" />
-        <button onClick={Playout}>Playout</button>
+        <label htmlFor="playoutVersionHash">Play token-gated content (version hash):</label>
+        <input type="text" size="50" id="playoutVersionHash" name="playoutVersionHash" />
+        <button onClick={Playout}>Embed</button>
       </div>
     </>
   );
@@ -164,10 +171,9 @@ const App = () => {
   const [walletClient, setWalletClient] = useState(undefined);
   const [results, setResults] = useState(undefined);
   const [inputs, setInputs] = useState(undefined);
-  const clearAndSetResults = async (res) => {
-    setInputs("");
-    setResults(res);
-  };
+
+  const clearAndSetResults = (results) => { setInputs(""); setResults(results);};
+  const stringify = (o) => { if(typeof o === "string") {return o;} else return JSON.stringify(o, null, 2);};
 
   useEffect(() => {
     ElvWalletClient.Initialize({
@@ -233,7 +239,7 @@ const App = () => {
               <button onClick={async () => clearAndSetResults(await walletClient.UserItemInfo())}>UserItemInfo</button>
             </div>
             <div className="button-row">
-              <button onClick={async () => clearAndSetResults(await walletClient.client.CreateSignedToken({grantType: "read", duration: 60*60*1000}))}>CreateSignedToken</button>
+              <button onClick={async () => clearAndSetResults(await walletClient.client.CreateFabricToken())}>CreateFabricToken</button>
             </div>
             <br/>
             <h2>Marketplace Methods</h2>
@@ -252,14 +258,14 @@ const App = () => {
       {
         inputs ?
           <div><div className="preformat-header">input:</div>
-            <pre>{JSON.stringify(inputs, null, 2)}</pre>
+            <pre>{stringify(inputs)}</pre>
           </div> : null
       }
 
       {
         results ?
           <div><div className="preformat-header">output:</div>
-            <pre>{JSON.stringify(results, null, 2)}</pre>
+            <pre>{stringify(results)}</pre>
           </div> : null
       }
     </div>

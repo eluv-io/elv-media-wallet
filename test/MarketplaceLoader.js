@@ -28,7 +28,7 @@ export class MarketplaceLoader {
         for(const existingOption of document.getElementsByClassName("mkOption")) {
           existingOption?.remove();
         }
-        window.console.log("marketplaces[", Object.keys(marketplaces).length, "]:", marketplaces);
+        window.console.log("marketplaces[" + Object.keys(marketplaces).length + "]:", marketplaces);
         for(const contents of Object.values(marketplaces)) {
           for(const value of Object.values(contents)) {
             if(typeof value === "object" && "marketplaceSlug" in value && "tenantSlug" in value) {
