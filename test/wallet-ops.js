@@ -25,7 +25,7 @@ const walletAppUrl = network === "demo" ?
   "https://core.test.contentfabric.io/wallet";
 
 
-const AuthSection = ({walletClient, setResults, setInputs, setEmbed}) => {
+const AuthSection = ({walletClient}) => {
   const [loggedIn, setLoggedIn] = useState(walletClient.loggedIn);
 
   const LogIn = async ({method}) => {
@@ -61,6 +61,67 @@ const AuthSection = ({walletClient, setResults, setInputs, setEmbed}) => {
       </div>
     );
   }
+
+  return (
+    <>
+      <div className="section">
+        <h2>Logged In as { walletClient.UserInfo()?.email || walletClient.UserAddress() }</h2>
+        <div className="button-row">
+          <button onClick={() => LogOut()}>
+            Log Out
+          </button>
+        </div>
+      </div>
+      <br /><br />
+    </>
+  );
+};
+
+const App = () => {
+  const [walletClient, setWalletClient] = useState(undefined);
+  const [inputs, setInputs] = useState(undefined);
+  const [results, setResults] = useState(undefined);
+  const [embed, setEmbed] = useState(undefined);
+
+  const clearAndSetResults = (results) => { setInputs(""); setEmbed(""); setResults(results); };
+  const stringify = (o) => { if(typeof o === "string") { return o; } else return JSON.stringify(o, null, 2); };
+
+  useEffect(() => {
+    ElvWalletClient.Initialize({
+      network,
+      mode,
+      //marketplaceParams
+    })
+      .then(client => {
+        client.walletAppUrl = walletAppUrl;
+
+        window.client = client;
+
+        // Replace CanSign method to force popup flow for personal sign with custodial wallet user
+        client.CanSign = () => client.loggedIn && client.UserInfo().walletName.toLowerCase() === "metamask";
+
+        setWalletClient(client);
+      });
+  }, []);
+
+  if(!walletClient) {
+    return (
+      <div className="app">
+        <PageLoader />
+      </div>
+    );
+  }
+
+  const changeNetwork = async (event) => {
+    const url = new URL(window.location.href);
+    url.search = "network-name=" + event.target.value;
+    window.history.replaceState("", "", url.toString());
+    window.location = url;
+  };
+
+  const changeMarketplace = async (event) => {
+    await new MarketplaceLoader(walletClient, marketplaceParams).setMarketplace(event);
+  };
 
   const Sign = async () => {
     let msgToSign = getInput("signMsg");
@@ -142,95 +203,6 @@ const AuthSection = ({walletClient, setResults, setInputs, setEmbed}) => {
   setTimeout(loadMarketplaces, 1);
 
   return (
-    <>
-      <div className="section">
-        <h2>Logged In as { walletClient.UserInfo()?.email || walletClient.UserAddress() }</h2>
-        <div className="button-row">
-          <button onClick={() => LogOut()}>
-            Log Out
-          </button>
-        </div>
-      </div>
-      <br /><br />
-      <div className="button-row">
-        <label htmlFor="signMsg">Message to Sign:</label>
-        <input type="text" size="50" id="signMsg" name="signMsg" />
-        <button onClick={Sign}>Sign</button>
-      </div>
-      <br/>
-      <div className="button-row">
-        <label htmlFor="nftOwnerToVerify">Verify NFT ownership (owner address):</label>
-        <input type="text" size="50" id="nftOwnerToVerify" name="nftOwnerToVerify" />
-        <button className="hidden-placeholder"></button>
-      </div>
-      <div className="button-row">
-        <label htmlFor="nftAddressToVerify">Verify NFT ownership (contract address):</label>
-        <input type="text" size="50" id="nftAddressToVerify" name="nftAddressToVerify" />
-        <button onClick={CheckNft}>Verify NFT</button>
-      </div>
-      <br/>
-      <div className="button-row">
-        <label htmlFor="nftForStats">NFT Contract Statistics:</label>
-        <input type="text" size="50" id="nftForStats" name="nftForStats" />
-        <button onClick={CheckNftStats}>Get statistics</button>
-      </div>
-      <br/>
-      <div className="button-row">
-        <label htmlFor="playoutVersionHash">Play token-gated content (version hash):</label>
-        <input type="text" size="50" id="playoutVersionHash" name="playoutVersionHash" />
-        <button onClick={Playout}>Embed</button>
-      </div>
-    </>
-  );
-};
-
-const App = () => {
-  const [walletClient, setWalletClient] = useState(undefined);
-  const [inputs, setInputs] = useState(undefined);
-  const [results, setResults] = useState(undefined);
-  const [embed, setEmbed] = useState(undefined);
-
-  const clearAndSetResults = (results) => { setInputs(""); setEmbed(""); setResults(results); };
-  const stringify = (o) => { if(typeof o === "string") { return o; } else return JSON.stringify(o, null, 2); };
-
-  useEffect(() => {
-    ElvWalletClient.Initialize({
-      network,
-      mode,
-      //marketplaceParams
-    })
-      .then(client => {
-        client.walletAppUrl = walletAppUrl;
-
-        window.client = client;
-
-        // Replace CanSign method to force popup flow for personal sign with custodial wallet user
-        client.CanSign = () => client.loggedIn && client.UserInfo().walletName.toLowerCase() === "metamask";
-
-        setWalletClient(client);
-      });
-  }, []);
-
-  if(!walletClient) {
-    return (
-      <div className="app">
-        <PageLoader />
-      </div>
-    );
-  }
-
-  const changeNetwork = async (event) => {
-    const url = new URL(window.location.href);
-    url.search = "network-name=" + event.target.value;
-    window.history.replaceState("", "", url.toString());
-    window.location = url;
-  };
-
-  const changeMarketplace = async (event) => {
-    await new MarketplaceLoader(walletClient, marketplaceParams).setMarketplace(event);
-  };
-
-  return (
     <div className="page-container">
       <h1>DApp Wallet Operation Examples</h1>
 
@@ -241,11 +213,39 @@ const App = () => {
         </select>
       </div>
 
-      <AuthSection walletClient={walletClient} setResults={setResults} setInputs={setInputs} setEmbed={setEmbed} />
+      <AuthSection walletClient={walletClient} />
 
       {
         walletClient.loggedIn ?
           <>
+            <div className="button-row">
+              <label htmlFor="signMsg">Message to Sign:</label>
+              <input type="text" size="50" id="signMsg" name="signMsg" />
+              <button onClick={Sign}>Sign</button>
+            </div>
+            <br/>
+            <div className="button-row">
+              <label htmlFor="nftOwnerToVerify">Verify NFT ownership (owner address):</label>
+              <input type="text" size="50" id="nftOwnerToVerify" name="nftOwnerToVerify" />
+              <button className="hidden-placeholder"></button>
+            </div>
+            <div className="button-row">
+              <label htmlFor="nftAddressToVerify">Verify NFT ownership (contract address):</label>
+              <input type="text" size="50" id="nftAddressToVerify" name="nftAddressToVerify" />
+              <button onClick={CheckNft}>Verify NFT</button>
+            </div>
+            <br/>
+            <div className="button-row">
+              <label htmlFor="nftForStats">NFT Contract Statistics:</label>
+              <input type="text" size="50" id="nftForStats" name="nftForStats" />
+              <button onClick={CheckNftStats}>Get statistics</button>
+            </div>
+            <br/>
+            <div className="button-row">
+              <label htmlFor="playoutVersionHash">Play token-gated content (version hash):</label>
+              <input type="text" size="50" id="playoutVersionHash" name="playoutVersionHash" />
+              <button onClick={Playout}>Embed</button>
+            </div>
             <br />
             <h2>User Methods</h2>
             <div className="button-row">

@@ -20,7 +20,7 @@ export class MarketplaceLoader {
       .catch(err => { return err; })
       .then(marketplaces => {
         let select = document.getElementById("marketplaceSelector");
-        if(select.hasChildNodes()) {
+        if(!select || select?.hasChildNodes()) {
           return;
         }
 
