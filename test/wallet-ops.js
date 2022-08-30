@@ -72,7 +72,7 @@ const AuthSection = ({walletClient}) => {
           </button>
         </div>
       </div>
-      <br /><br />
+      <br />
     </>
   );
 };
