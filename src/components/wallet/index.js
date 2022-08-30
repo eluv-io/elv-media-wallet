@@ -15,7 +15,7 @@ import MarketplaceBrowser from "Components/marketplace/MarketplaceBrowser";
 const WalletWrapper = ({children}) => {
   useEffect(() => {
     rootStore.ClearMarketplace();
-  });
+  }, []);
 
   return children;
 };
