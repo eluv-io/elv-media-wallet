@@ -4,6 +4,7 @@ import {rootStore} from "Stores";
 import {Link} from "react-router-dom";
 import LinesEllipsis from "react-lines-ellipsis";
 import responsiveHOC from "react-lines-ellipsis/lib/responsiveHOC";
+import {ButtonWithLoader} from "Components/common/UIComponents";
 const ResponsiveEllipsis = responsiveHOC()(LinesEllipsis);
 
 // General card component
@@ -11,6 +12,7 @@ const ItemCard = observer(({
   link,
   image,
   badges,
+  tag,
   name,
   subtitle1,
   subtitle2,
@@ -19,6 +21,7 @@ const ItemCard = observer(({
   status,
   sideText,
   onClick,
+  actions,
   variant="",
   className="",
   cardClassName=""
@@ -45,6 +48,14 @@ const ItemCard = observer(({
     );
   }
 
+  if(actions) {
+    actions = actions.map(({label, disabled, onClick, className=""}) =>
+      <ButtonWithLoader key={`item-action-${label}`} disabled={disabled} onClick={onClick} className={`action item-card__action ${className}`}>
+        { label }
+      </ButtonWithLoader>
+    );
+  }
+
   const cardContents = (
     <>
       { sideText }
@@ -56,6 +67,12 @@ const ItemCard = observer(({
           </div> : null
       }
       <div className="item-card__text">
+        {
+          tag ?
+            <h2 className="item-card__tag">
+              { tag }
+            </h2> : null
+        }
         <h2 className="item-card__title">
           { name || "" }
         </h2>
@@ -97,6 +114,7 @@ const ItemCard = observer(({
               }
             </div> : null
         }
+        { actions ? <div className="item-card__actions">{ actions }</div> : null }
       </div>
     </>
   );

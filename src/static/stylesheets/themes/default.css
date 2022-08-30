@@ -50,7 +50,8 @@ html {
   --font-header-balance: normal normal normal 12px var(--font-family-tertiary);
   --font-store-header: normal normal 600 48px var(--font-family-primary);
 
-  --background-page-header: #eee;
+  --background-page-header: #e6e6e6;
+  --background-page-header-profile: var(--color-bg-secondary);
   --color-page-header-text: var(--color-text-primary);
   --color-header-link-text: var(--color-text-primary);
   --color-header-link-text-active: var(--color-text-highlight);
@@ -120,6 +121,7 @@ html {
   --color-card-text-primary: var(--color-text-primary);
   --color-card-text-secondary: var(--color-text-secondary);
   --color-card-text-highlight: var(--color-text-highlight);
+  --color-card-icon-redeem: var(--color-card-text-highlight);
   --box-shadow-card: var(--box-shadow);
 
   /* Cards and feature cards have borders implemented as a padded element with a colored background */

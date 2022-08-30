@@ -122,6 +122,40 @@
     }
   }
 
+  &__tabbed-content {
+    &__tabs {
+      display: flex;
+      justify-content: flex-end;
+      margin: 30px 0;
+    }
+
+    &__tab {
+      font: var(--font-component-misc);
+      text-transform: uppercase;
+
+      &:not(:last-child) {
+        margin-right: 30px;
+      }
+
+      &--active {
+        color: var(--color-component-text-highlight);
+      }
+    }
+  }
+
+  &__offer {
+    .item-card__title {
+      font-size: 24px;
+      margin: 10px 0;
+    }
+
+    .item-card__description {
+      p {
+        font-size: 14px;
+        line-height: 1.5em;
+      }
+    }
+  }
 
   &__back-link {
     align-items: center;
@@ -487,6 +521,44 @@
 
   &__tables {
     margin-top: 20px;
+  }
+
+  &__offer-code-modal-container {
+    .modal__content {
+      align-items: center;
+      display: flex;
+      height: max-content;
+      justify-content: center;
+      max-width: 100%;
+      overflow-y: hidden;
+      width: max-content;
+    }
+  }
+
+  &__offer-code-modal {
+    @include modal;
+    width: 100%;
+
+    &__header {
+      border-bottom: var(--border-component-primary);
+      font: var(--font-component-header);
+      font-size: 20px;
+      font-weight: 300;
+      padding: 15px 25px;
+      text-align: center;
+    }
+
+    .qr-code {
+      align-items: center;
+      display: flex;
+      justify-content: center;
+      padding: 30px;
+    }
+
+    .qr-code,
+    .qr-code__canvas {
+      width: 100%;
+    }
   }
 
   @media screen and (min-width: $tablet-breakpoint) {

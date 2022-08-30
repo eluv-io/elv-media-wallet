@@ -10,12 +10,11 @@ import {
   CopyableField,
   ButtonWithLoader,
   FormatPriceString,
-  ButtonWithMenu, Copy
+  ButtonWithMenu,
+  Copy,
+  RichText
 } from "Components/common/UIComponents";
 
-import {render} from "react-dom";
-import ReactMarkdown from "react-markdown";
-import SanitizeHTML from "sanitize-html";
 import Confirm from "Components/common/Confirm";
 import ListingModal from "Components/listings/ListingModal";
 import PurchaseModal from "Components/listings/PurchaseModal";
@@ -44,6 +43,7 @@ import ShareIcon from "Assets/icons/share icon.svg";
 import TwitterIcon from "Assets/icons/twitter.svg";
 import PictureIcon from "Assets/icons/image.svg";
 import CopyIcon from "Assets/icons/copy.svg";
+import NFTOffers from "Components/nft/NFTOffers";
 
 const NFTMediaSection = ({nftInfo, containerElement, selectedMediaIndex, setSelectedMediaIndex, currentPlayerInfo}) => {
   const nft = nftInfo.nft;
@@ -188,22 +188,7 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
 
   return (
     <ExpandableSection header="Details" icon={DetailsIcon}>
-      {
-        nft.metadata.rich_text ?
-          <div
-            className="details-page__rich-text rich-text"
-            ref={element => {
-              if(!element) { return; }
-
-              render(
-                <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
-                  { SanitizeHTML(nft.metadata.rich_text) }
-                </ReactMarkdown>,
-                element
-              );
-            }}
-          /> : null
-      }
+      { nft.metadata.rich_text ? <RichText richText={nft.metadata.rich_text} className="details-page__rich-text" /> : null }
       {
         nft.details.TokenUri ?
           <CopyableField value={nft.details.TokenUri}>
@@ -317,7 +302,7 @@ const NFTContractSection = ({nftInfo, SetBurned, ShowTransferModal}) => {
       }
       <div className="expandable-section__actions">
         {
-          nftInfo.isOwned && !nftInfo.listingId ?
+          nftInfo.isOwned && !nftInfo.listingId && !nftInfo.heldDate ?
             <button
               disabled={nftInfo.nft?.metadata?.test}
               title={nftInfo.nft?.metadata?.test ? "Test NFTs may not be transferred" : ""}
@@ -499,19 +484,7 @@ const NFTInfoSection = ({nftInfo, className=""}) => {
       </div>
       {
         nftInfo.selectedMedia ?
-          <div
-            className="details-page__nft-info__description rich-text markdown-document"
-            ref={element => {
-              if(!element) { return; }
-
-              render(
-                <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
-                  { SanitizeHTML(nftInfo.selectedMedia.description) }
-                </ReactMarkdown>,
-                element
-              );
-            }}
-          /> :
+          <RichText richText={nftInfo.selectedMedia.description} className="details-page__nft-info__description markdown-document" /> :
           <ResponsiveEllipsis
             component="div"
             className="details-page__nft-info__description"
@@ -797,6 +770,53 @@ const NFTActions = observer(({
   return null;
 });
 
+
+const NFTTabbedContent = observer(({nft, nftInfo}) => {
+  const anyTabs = (nftInfo.offers || []).filter(offer => !offer.hidden).length > 0;
+
+  const [tab, setTab] = useState(anyTabs ? "offers" : "trading");
+
+  if(!nft || !anyTabs) {
+    return <NFTTables nftInfo={nftInfo} />;
+  }
+
+  let activeContent;
+  switch(tab) {
+    case "trading":
+      activeContent = <NFTTables nftInfo={nftInfo} />;
+      break;
+
+    case "offers":
+      activeContent = <NFTOffers nftInfo={nftInfo} />;
+      break;
+
+    case "media":
+      //activeContent = <NFTMediaBrowser nft={nft} />;
+      break;
+  }
+
+  return (
+    <div className="details-page__tabbed-content">
+      {
+        anyTabs ?
+          <div className="details-page__tabbed-content__tabs">
+            {
+              [["Offers", "offers"], ["Trading", "trading"]].map(([tabLabel, tabName]) =>
+                <button
+                  key={`tab-${tabName}`}
+                  className={`details-page__tabbed-content__tab ${tab === tabName ? "details-page__tabbed-content__tab--active" : ""}`}
+                  onClick={() => setTab(tabName)}>
+                  {tabLabel}
+                </button>
+              )
+            }
+          </div> : null
+      }
+      { activeContent }
+    </div>
+  );
+});
+
 const NFTDetails = observer(({nft, initialListingStatus, item}) => {
   const match = useRouteMatch();
 
@@ -826,7 +846,16 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
   const [detailsRef, setDetailsRef] = useState(undefined);
   const [currentPlayerInfo, setCurrentPlayerInfo] = useState(undefined);
 
-  nft = listingStatus?.listing || nft;
+  if(listingStatus?.listing) {
+    nft = {
+      ...(nft || {}),
+      ...listingStatus.listing,
+      metadata: {
+        ...(nft?.metadata || {}),
+        ...listingStatus.listing.metadata
+      }
+    };
+  }
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const itemTemplate = item?.nft_template?.nft;
@@ -867,16 +896,6 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
     }
   }, []);
 
-  const nftInfo = NFTInfo({
-    nft,
-    listing: listingStatus?.listing,
-    item,
-    showFullMedia: true,
-    showToken: true,
-    allowFullscreen: true,
-    selectedMediaIndex
-  });
-
   // Redirects
 
   // Marketplace item claimed
@@ -898,12 +917,15 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
       <Redirect to={Path.dirname(Path.dirname(match.url))}/>;
   }
 
-  // NFT Transferred
-  if(transferAddress) {
-    return match.params.marketplaceId ?
-      <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "activity", match.params.contractId, match.params.tokenId)} /> :
-      <Redirect to={UrlJoin("/wallet", "activity", match.params.contractId, match.params.tokenId)} />;
-  }
+  const nftInfo = NFTInfo({
+    nft,
+    listing: listingStatus?.listing,
+    item,
+    showFullMedia: true,
+    showToken: true,
+    allowFullscreen: true,
+    selectedMediaIndex
+  });
 
   const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
   return (
@@ -1044,7 +1066,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
           </div>
         </div>
 
-        <NFTTables nftInfo={nftInfo} />
+        <NFTTabbedContent nft={nft} nftInfo={nftInfo} />
       </div>
     </>
   );
@@ -1083,7 +1105,11 @@ export const MarketplaceItemDetails = observer(() => {
 export const MintedNFTDetails = observer(() => {
   const match = useRouteMatch();
 
-  const [nft, setNFT] = useState(undefined);
+  const nft = rootStore.NFTData({
+    contractId: match.params.contractId,
+    tokenId: match.params.tokenId
+  });
+
   const [unavailable, setUnavailable] = useState(false);
 
   if(unavailable) {
@@ -1093,14 +1119,13 @@ export const MintedNFTDetails = observer(() => {
   return (
     <AsyncComponent
       loadingClassName="page-loader"
+      loaded={!!nft}
       Load={async () => {
         try {
-          setNFT(
-            await rootStore.LoadNFTData({
-              contractId: match.params.contractId,
-              tokenId: match.params.tokenId
-            })
-          );
+          await rootStore.LoadNFTData({
+            contractId: match.params.contractId,
+            tokenId: match.params.tokenId
+          });
         } catch(error) {
           rootStore.Log(error, true);
           setUnavailable(true);
@@ -1116,8 +1141,12 @@ export const ListingDetails = observer(() => {
   const match = useRouteMatch();
 
   const [listingStatus, setListingStatus] = useState(undefined);
-  const [nft, setNFT] = useState(undefined);
   const [unavailable, setUnavailable] = useState(false);
+
+  const nft = useState(rootStore.NFTData({
+    contractId: match.params.contractId,
+    tokenId: match.params.tokenId
+  }));
 
   if(unavailable) {
     return <DeletedPage />;
@@ -1131,12 +1160,10 @@ export const ListingDetails = observer(() => {
           const status = (await transferStore.CurrentNFTStatus({listingId: match.params.listingId})) || {};
 
           // Load full nft in case listing is removed or sold
-          setNFT(
-            await rootStore.LoadNFTData({
-              contractAddress: status.listing?.details?.ContractAddr || (status.sale || status.removed).contract,
-              tokenId: status.listing?.details?.TokenIdStr || (status.sale || status.removed).token
-            })
-          );
+          await rootStore.LoadNFTData({
+            contractAddress: status.listing?.details?.ContractAddr || (status.sale || status.removed).contract,
+            tokenId: status.listing?.details?.TokenIdStr || (status.sale || status.removed).token
+          });
 
           setListingStatus(status);
         } catch(error) {

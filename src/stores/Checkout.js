@@ -167,7 +167,7 @@ class CheckoutStore {
       this.PurchaseInitiated({tenantId, confirmationId});
 
       let popup;
-      if(this.rootStore.walletClient.UserInfo().walletName.toLowerCase() === "metamask") {
+      if(this.rootStore.embedded && this.rootStore.walletClient.UserInfo().walletName.toLowerCase() === "metamask") {
         // Create popup before calling async config method to avoid popup blocker
         popup = window.open("about:blank");
       }
@@ -181,7 +181,7 @@ class CheckoutStore {
         throw Error(`Mint helper not defined in configuration for NFT ${contractAddress}`);
       }
 
-      if(this.rootStore.embedded && this.walletClient.UserInfo().walletName === "Metamask") {
+      if(this.walletClient.UserInfo().walletName === "Metamask") {
         const itemHashes = items.map(({addr, id}) => {
           const nftAddressBytes = ethers.utils.arrayify(addr);
           const mintAddressBytes = ethers.utils.arrayify(mintHelperAddress);
@@ -223,6 +223,68 @@ class CheckoutStore {
       this.PurchaseComplete({confirmationId, success: true});
 
       return confirmationId;
+    } catch(error) {
+      this.PurchaseComplete({confirmationId, success: false, message: error.message});
+      throw error;
+    }
+  })
+
+  RedeemOffer = flow(function * ({tenantId, contractAddress, tokenId, offerId}) {
+    const confirmationId = this.ConfirmationId();
+
+    try {
+      offerId = parseInt(offerId);
+      this.PurchaseInitiated({tenantId, confirmationId});
+
+      let popup;
+      if(this.rootStore.embedded && this.rootStore.walletClient.UserInfo().walletName.toLowerCase() === "metamask") {
+        // Create popup before calling async config method to avoid popup blocker
+        popup = window.open("about:blank");
+      }
+
+      const config = yield this.walletClient.TenantConfiguration({tenantId});
+
+      const mintHelperAddress = Utils.FormatAddress(config["mint-helper"]);
+      if(!mintHelperAddress) {
+        throw Error(`Mint helper not defined in configuration for NFT ${contractAddress}`);
+      }
+
+      let signedHash;
+      if(this.walletClient.UserInfo().walletName === "Metamask") {
+        const nftAddressBytes = ethers.utils.arrayify(contractAddress);
+        const mintAddressBytes = ethers.utils.arrayify(mintHelperAddress);
+        const tokenIdBigInt = ethers.utils.bigNumberify(tokenId).toHexString();
+
+        const offerHash = ethers.utils.keccak256(
+          ethers.utils.solidityPack(
+            ["bytes", "bytes", "uint256", "uint8"],
+            [nftAddressBytes, mintAddressBytes, tokenIdBigInt, offerId]
+          )
+        );
+
+        signedHash = yield this.rootStore.cryptoStore.SignMetamask(offerHash, this.rootStore.CurrentAddress(), popup);
+      }
+
+      let params = {
+        op: "nft-offer-redeem",
+        client_reference_id: confirmationId,
+        tok_addr: contractAddress,
+        tok_id: tokenId,
+        offerId: offerId,
+      };
+
+      if(signedHash){
+        params.sig_hex = signedHash;
+      }
+
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "act", tenantId),
+        method: "POST",
+        body: params,
+        headers: {
+          Authorization: `Bearer ${this.rootStore.authToken}`
+        }
+      });
     } catch(error) {
       this.PurchaseComplete({confirmationId, success: false, message: error.message});
       throw error;

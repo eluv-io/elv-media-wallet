@@ -2,11 +2,8 @@ import React from "react";
 import {NFTImage} from "Components/common/Images";
 import {observer} from "mobx-react";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
-import {render} from "react-dom";
-import ReactMarkdown from "react-markdown";
-import SanitizeHTML from "sanitize-html";
 import {NFTInfo} from "../../utils/Utils";
-import {FormatPriceString} from "Components/common/UIComponents";
+import {FormatPriceString, RichText} from "Components/common/UIComponents";
 import ItemCard from "Components/common/ItemCard";
 
 const NFTCard = observer(({
@@ -62,19 +59,7 @@ const NFTCard = observer(({
 
   const description = (
     info.selectedMedia ?
-      <div
-        className="item-card__description rich-text markdown-document"
-        ref={element => {
-          if(!element) { return; }
-
-          render(
-            <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
-              { SanitizeHTML(info.selectedMedia.description) }
-            </ReactMarkdown>,
-            element
-          );
-        }}
-      /> :
+      <RichText richText={info.selectedMedia.description} className="item-card__description markdown-document" /> :
       <ResponsiveEllipsis
         component="div"
         className="item-card__description"

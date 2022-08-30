@@ -138,7 +138,14 @@ export const NFTInfo = ({
   selectedMediaIndex=-1,
 }) => {
   if(listing) {
-    nft = listing;
+    nft = {
+      ...(nft || {}),
+      ...listing,
+      metadata: {
+        ...(nft?.metadata || {}),
+        ...listing.metadata
+      }
+    };
   } else if(item && !nft) {
     nft = {
       metadata: item.nftTemplateMetadata,
@@ -148,6 +155,7 @@ export const NFTInfo = ({
     };
   }
 
+  const tenantId = (nft || listing)?.details?.TenantId;
   const ownerAddress = (nft || listing)?.details?.TokenOwner;
   const listingId = nft?.details?.ListingId;
   const price = item ? ItemPrice(item, checkoutStore.currency) : listing?.details?.Price;
@@ -179,16 +187,6 @@ export const NFTInfo = ({
   const marketplacePurchaseAvailable = item && !outOfStock && available && !unauthorized && !maxOwned;
   const hideAvailable = !available || (item && item.hide_available);
 
-
-  let sideText;
-  if(item && !hideAvailable && !outOfStock && !expired && !unauthorized && stock &&stock.max && stock.max < 10000000) {
-    sideText = `${stock.max - stock.minted} / ${stock.max} Available`;
-  } else if(!item && showToken) {
-    sideText = NFTDisplayToken(nft);
-  }
-
-  sideText = sideText ? sideText.toString().split("/") : undefined;
-
   let status;
   if(outOfStock) {
     status = "Sold Out!";
@@ -199,11 +197,71 @@ export const NFTInfo = ({
     renderedPrice = FormatPriceString(price || {USD: listing.details.Price}, {includeCurrency: !usdcOnly, includeUSDCIcon: usdcAccepted, prependCurrency: true, useCurrencyIcon: false});
   }
 
+  const offers = (nft?.metadata?.redeemable_offers || []).map(offer => {
+    let imageUrl;
+    if(offer.image && offer.image.url) {
+      imageUrl = new URL(offer.image.url);
+      imageUrl.searchParams.set("width", "1000");
+      imageUrl.searchParams.set("authorization", rootStore.staticToken);
+      imageUrl = imageUrl.toString();
+    }
+
+    const dateFormat = { year: "numeric", month: "long", day: "numeric" };
+
+    let released = true;
+    let expired = false;
+    let releaseDate, expirationDate;
+    if(offer.available_at) {
+      releaseDate = new Date(offer.available_at).toLocaleDateString("en-US", dateFormat);
+      released = Date.now() > new Date(offer.available_at).getTime();
+    }
+
+    if(offer.expires_at) {
+      expired = Date.now() > new Date(offer.expires_at).getTime();
+      expirationDate = new Date(offer.expires_at).toLocaleDateString("en-US", dateFormat);
+    }
+
+    let {hide, hide_if_unreleased, hide_if_expired} = (offer.visibility || {});
+
+    let hidden = false;
+    if(hide || (hide_if_unreleased && !released) || (hide_if_expired && expired)) {
+      hidden = true;
+    }
+
+    const state = nft?.details?.Offers?.find(offerDetails => offerDetails.id === offer.offer_id);
+
+    if(state?.redeemer) {
+      state.redeemer = Utils.FormatAddress(state.redeemer);
+    }
+
+    return {
+      ...offer,
+      state,
+      imageUrl,
+      released,
+      releaseDate,
+      expired,
+      expirationDate,
+      hidden
+    };
+  });
+
+  let sideText;
+  if(item && !hideAvailable && !outOfStock && !expired && !unauthorized && stock &&stock.max && stock.max < 10000000) {
+    sideText = `${stock.max - stock.minted} / ${stock.max} Available`;
+  } else if(!item && showToken) {
+    sideText = NFTDisplayToken(nft);
+  }
+
+  sideText = sideText ? sideText.toString().split("/") : undefined;
+
+
   return {
     // Details
     nft,
     item,
     ownerAddress,
+    tenantId,
     listing,
     listingId,
     name,
@@ -223,6 +281,9 @@ export const NFTInfo = ({
     selectedMedia,
     selectedMediaIndex,
     mediaInfo,
+
+    // Offers
+    offers,
 
     // Status
     stock,

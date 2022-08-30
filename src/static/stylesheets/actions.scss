@@ -144,8 +144,29 @@
   }
 
   &-with-loader {
+    position: relative;
+
+    svg {
+      height: 100%;
+    }
+
     &--loading {
       cursor: wait;
+
+      .action-with-loader__content {
+        opacity: 0;
+      }
+    }
+
+    &__loader {
+      position: absolute;
+      width: 100%;
+    }
+
+    &__content {
+      align-items: center;
+      display: flex;
+      height: 100%;
     }
   }
 

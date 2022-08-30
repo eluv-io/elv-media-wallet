@@ -26,6 +26,7 @@
 
   /* Header */
   --background-page-header: var(--color-bg-primary);
+  --background-page-header-profile: var(--color-bg-secondary);
 
   --background-input: var(--color-bg-primary);
   --color-input-bg-solid: var(--color-bg-primary);

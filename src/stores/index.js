@@ -22,7 +22,7 @@ import PreviewPasswordPrompt from "Components/login/PreviewPasswordPrompt";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
-  //enforceActions: "always"
+  enforceActions: "always"
 });
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
@@ -39,6 +39,8 @@ try {
 }
 
 class RootStore {
+  appId = "eluvio-media-wallet";
+
   authOrigin = this.GetSessionStorage("auth-origin");
 
   salePendingDurationDays = 0;
@@ -104,6 +106,7 @@ class RootStore {
   specifiedMarketplaceHash = undefined;
 
   hideGlobalNavigation = false;
+  hideGlobalNavigationInMarketplace = searchParams.has("hgm");
   hideNavigation = searchParams.has("hn") || this.loginOnly;
   hideMarketplaceNavigation = false;
   sidePanelMode = false;
@@ -118,7 +121,7 @@ class RootStore {
 
   nftInfo = {};
   nftData = {};
-
+  offerCodeData = {};
   userProfiles = {};
 
   marketplaces = {};
@@ -222,10 +225,10 @@ class RootStore {
       }
 
       this.walletClient = yield ElvWalletClient.Initialize({
-        appId: "eluvio-media-wallet",
+        appId: this.appId,
         network: EluvioConfiguration.network,
         mode: EluvioConfiguration.mode,
-        previewMarketplaceId: searchParams.get("preview"),
+        previewMarketplaceId: searchParams.get("preview") || this.GetSessionStorage("preview-marketplace"),
         storeAuthToken: false
       });
 
@@ -238,6 +241,8 @@ class RootStore {
         if(passwordDigest) {
           yield PreviewPasswordPrompt({marketplaceId: this.walletClient.previewMarketplaceId, passwordDigest});
         }
+
+        this.SetSessionStorage("preview-marketplace", this.walletClient.previewMarketplaceId);
       }
 
       this.walletClient.appUrl = (new URL(UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""))).toString();
@@ -649,13 +654,13 @@ class RootStore {
   }
 
   // Load full NFT data
-  LoadNFTData = flow(function * ({tokenId, contractAddress, contractId}) {
+  LoadNFTData = flow(function * ({contractAddress, contractId, tokenId, force}) {
     if(contractId) {
       contractAddress = Utils.HashToAddress(contractId);
     }
 
     const key = `${contractAddress}-${tokenId}`;
-    if(!this.nftData[key]) {
+    if(force || !this.nftData[key]) {
       this.nftData[key] = yield this.walletClient.NFT({contractAddress, tokenId});
     }
 
@@ -930,6 +935,49 @@ class RootStore {
 
     return purchaseableItems;
   }
+
+  GenerateOfferCodeData = flow(function * ({nftInfo, offer}) {
+    const key = `offer-code-data-${nftInfo.nft.details.ContractAddr}-${nftInfo.nft.details.TokenIdStr}-${offer.offer_id}`;
+
+    let offerCodeData = yield this.walletClient.ProfileMetadata({
+      type: "app",
+      mode: "private",
+      appId: this.appId,
+      key
+    });
+
+    if(offerCodeData) {
+      try {
+        offerCodeData = JSON.parse(offerCodeData);
+      } catch(error) {
+        this.Log(error, true);
+      }
+    }
+
+    if(!offerCodeData) {
+      offerCodeData = {
+        adr: this.walletClient.UserAddress(),
+        tx: offer.state.transaction,
+        ts: Date.now()
+      };
+
+      offerCodeData.sig = yield this.walletClient.PersonalSign({message: JSON.stringify(offerCodeData)});
+    }
+
+    try {
+      yield this.walletClient.SetProfileMetadata({
+        type: "app",
+        mode: "private",
+        appId: this.appId,
+        key,
+        value: JSON.stringify(offerCodeData)
+      });
+    } catch(error) {
+      this.Log(error, true);
+    }
+
+    return offerCodeData;
+  });
 
   // Actions
   SetMarketplaceFilters(filters) {
