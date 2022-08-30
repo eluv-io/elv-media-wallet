@@ -16,7 +16,7 @@ const mode = "staging";
 // eluvio backend network configuration -- "main" or "demo"
 const network = new URLSearchParams(window.location.search).get("network-name") || "demo";
 
-// marketplace configuration
+// marketplace configuration -- returns { tenantSlug, marketplaceSlug }
 let marketplaceParams = MarketplaceLoader.parseMarketplaceParams();
 
 // wallet app configuration
