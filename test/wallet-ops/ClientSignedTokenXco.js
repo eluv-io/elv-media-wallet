@@ -28,7 +28,7 @@ export class ClientSignedTokenXco {
     this.client.authServiceURIs = ["http://127.0.0.1:6546"];  // Dev instance
     //this.client.authServiceURIs = ["https://host-216-66-89-94.contentfabric.io/as"];
     this.client.AuthHttpClient.uris = this.client.authServiceURIs;
-    window.window.console.log("client.AuthHttpClient", this.client.AuthHttpClient);
+    window.console.log("client.AuthHttpClient", this.client.AuthHttpClient);
   }
 
   /**
