@@ -41,7 +41,7 @@ h2 {
 pre {
   white-space: pre-wrap;
   background: #EEE;
-  padding: 50px;
+  padding: 40px;
 }
 
 code {
@@ -149,4 +149,25 @@ select {
   &:empty {
     display: none;
   }
+}
+
+.preformat-header {
+  font-size: 16px;
+  padding-top: 20px;
+  padding-left: 20px;
+}
+
+label {
+  float: left;
+  clear: left;
+  width: 19em;
+  //padding-right: .5em;
+}
+
+input {
+  margin-right: 1em;
+}
+
+.hidden-placeholder {
+  visibility: hidden;
 }
