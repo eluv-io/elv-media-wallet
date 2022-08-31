@@ -17,7 +17,7 @@ export class EluvioLive {
    * @return {Promise<Object>} - Number of tokens owned
    */
   async NftBalanceOf({addr, ownerAddr}) {
-    const abi = await fetch("test/ElvTradableLocal.abi")
+    const abi = await fetch("test/wallet-ops/ElvTradableLocal.abi")
       .then(resp => {
         return resp.text();
       });

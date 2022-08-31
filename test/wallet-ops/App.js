@@ -1,6 +1,6 @@
-import "../src/static/stylesheets/reset.scss";
-import "./test.scss";
-import "../src/static/stylesheets/loaders.scss";
+import "../../src/static/stylesheets/reset.scss";
+import "../test.scss";
+import "../../src/static/stylesheets/loaders.scss";
 
 import React, { useEffect, useState } from "react";
 import { render } from "react-dom";
@@ -83,7 +83,7 @@ const App = () => {
   const [results, setResults] = useState(undefined);
   const [embed, setEmbed] = useState(undefined);
 
-  const clearAndSetResults = (results) => { setInputs(""); setEmbed(""); setResults(results); };
+  const clearAndShow = (results) => { setInputs(""); setEmbed(""); setResults(results); };
   const stringify = (o) => { if(typeof o === "string") { return o; } else return JSON.stringify(o, null, 2); };
   const getInput = (name) => { return document.getElementsByName(name)?.item(0)?.value || ""; };
 
@@ -246,15 +246,15 @@ const App = () => {
             <br />
             <h2>User Methods</h2>
             <div className="button-row">
-              <button onClick={async () => clearAndSetResults(await walletClient.UserInfo())}>UserInfo</button>
-              <button onClick={async () => clearAndSetResults(await walletClient.AvailableMarketplaces())}>AvailableMarketPlaces</button>
+              <button onClick={async () => clearAndShow(await walletClient.UserInfo())}>UserInfo</button>
+              <button onClick={async () => clearAndShow(await walletClient.AvailableMarketplaces())}>AvailableMarketPlaces</button>
             </div>
             <div className="button-row">
-              <button onClick={async () => clearAndSetResults(await walletClient.UserItems())}>UserItems</button>
-              <button onClick={async () => clearAndSetResults(await walletClient.UserItemInfo())}>UserItemInfo</button>
+              <button onClick={async () => clearAndShow(await walletClient.UserItems())}>UserItems</button>
+              <button onClick={async () => clearAndShow(await walletClient.UserItemInfo())}>UserItemInfo</button>
             </div>
             <div className="button-row">
-              <button onClick={async () => clearAndSetResults(await walletClient.client.CreateFabricToken())}>CreateFabricToken</button>
+              <button onClick={async () => clearAndShow(await walletClient.client.CreateFabricToken())}>CreateFabricToken</button>
             </div>
             <br/>
             <h2>Marketplace Methods</h2>
@@ -263,8 +263,8 @@ const App = () => {
               </select>
             </div>
             <div className="button-row">
-              <button onClick={async () => clearAndSetResults(await walletClient.Listings())}>Listings</button>
-              <button onClick={async () => clearAndSetResults(await walletClient.MarketplaceStock({marketplaceParams}))}>Stock</button>
+              <button onClick={async () => clearAndShow(await walletClient.Listings({marketplaceParams}))}>Listings</button>
+              <button onClick={async () => clearAndShow(await walletClient.MarketplaceStock({marketplaceParams}))}>Stock</button>
             </div>
           </> : null
       }
