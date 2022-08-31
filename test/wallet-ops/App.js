@@ -9,6 +9,7 @@ import { PageLoader } from "Components/common/Loaders";
 
 import { EluvioLive } from "./EluvioLive.js";
 import { MarketplaceLoader } from "./MarketplaceLoader.js";
+import { ClientSignedTokenXco } from "./ClientSignedTokenXco.js";
 
 // eluvio EvWalletClient mode -- "staging" or "production"
 const mode = "staging";
@@ -196,6 +197,10 @@ const App = () => {
     await new MarketplaceLoader(walletClient, marketplaceParams).setMarketplace(event);
   };
 
+  const CrossChainAuth = async () => {
+    await new ClientSignedTokenXco(walletClient).Run();
+  };
+
   // TODO: this is getting called too much: twice on start, and after method calls
   setTimeout(LoadMarketplaces, 1);
 
@@ -255,6 +260,7 @@ const App = () => {
             </div>
             <div className="button-row">
               <button onClick={async () => clearAndShow(await walletClient.client.CreateFabricToken())}>CreateFabricToken</button>
+              <button onClick={async () => clearAndShow(await CrossChainAuth())}>Cross-chain Auth</button>
             </div>
             <br/>
             <h2>Marketplace Methods</h2>
