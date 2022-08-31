@@ -27,7 +27,7 @@ export class ClientSignedTokenXco {
     //this.client.authServiceURIs = ["https://host-216-66-89-94.contentfabric.io/as"];
     this.client.AuthHttpClient.uris = this.client.authServiceURIs;
 
-    window.console.log(".AuthHttpClient", this.client.AuthHttpClient);
+    window.window.console.log(".AuthHttpClient", this.client.AuthHttpClient);
   }
 
   /**
@@ -69,7 +69,7 @@ export class ClientSignedTokenXco {
       versionHash: contentHash,
       metadataSubtree: "/public/asset_metadata"
     });
-    console.log("META", meta);
+    window.console.log("META", meta);
 
     // Retrieve playout info (DASH and HLS URLs)
     let res = await this.client.PlayoutOptions({
@@ -83,7 +83,7 @@ export class ClientSignedTokenXco {
   Run = async () => {
     // Call the oracle cross-chain 'view' API 'balanceOf'
     let xcMsg = await this.XcoMessage({msg: this.sampleXcMsg});
-    console.log("XCO MSG", JSON.stringify(xcMsg));
+    window.console.log("XCO MSG", JSON.stringify(xcMsg));
 
     // Create a client-signed-token including the 'xco-msg' as context
     const accessToken = await this.client.CreateFabricToken({
@@ -94,17 +94,17 @@ export class ClientSignedTokenXco {
         }
       }
     });
-    console.log("TOKEN", accessToken);
+    window.console.log("TOKEN", accessToken);
 
     // Play
     let playoutOptions = await this.Play({token: accessToken});
-    console.log("PLAYOUT", JSON.stringify(playoutOptions, null, 2));
+    window.console.log("PLAYOUT", JSON.stringify(playoutOptions, null, 2));
   };
 
 }
 
 //if(!process.env.PRIVATE_KEY) {
-//  console.log("Must set environment variable PRIVATE_KEY");
+//  window.console.log("Must set environment variable PRIVATE_KEY");
 //  exit;
 //}
 //
