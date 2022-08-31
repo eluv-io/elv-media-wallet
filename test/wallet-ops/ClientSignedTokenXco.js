@@ -19,6 +19,8 @@ export class ClientSignedTokenXco {
         owner: "0xcd8323da264e9c599af47a0d559dcdcb335d44ab"
       }
     };
+    this.contentHash = "hq__93SK4rgxMarq1ZeDSEu9WJkDoptTKYiA2GmYocK7inMthUssGkG6Q9BREBEhNtVCiCBFsPd4Gd";
+
     this.walletClient = wallet;
     this.client = this.walletClient.client;
 
@@ -57,20 +59,19 @@ export class ClientSignedTokenXco {
    * Retrieve playout URLs
    */
   Play = async ({token}) => {
-    const contentHash = "hq__93SK4rgxMarq1ZeDSEu9WJkDoptTKYiA2GmYocK7inMthUssGkG6Q9BREBEhNtVCiCBFsPd4Gd";
 
     this.client.SetStaticToken({ token });
 
     // First retrieve title metadata (title, synopsis, cast, ...)
     let meta = await this.client.ContentObjectMetadata({
-      versionHash: contentHash,
+      versionHash: this.contentHash,
       metadataSubtree: "/public/asset_metadata"
     });
     window.console.log("META", meta);
 
     // Retrieve playout info (DASH and HLS URLs)
     let res = await this.client.PlayoutOptions({
-      versionHash: contentHash,
+      versionHash: this.contentHash,
       drms: ["clear", "aes-128", "fairplay", "widevine"]
     });
 
@@ -95,6 +96,6 @@ export class ClientSignedTokenXco {
 
     // Play
     let playoutOptions = await this.Play({token: accessToken});
-    window.console.log("PLAYOUT", JSON.stringify(playoutOptions, null, 2));
+    window.console.log("PLAYOUT", playoutOptions);
   };
 }
