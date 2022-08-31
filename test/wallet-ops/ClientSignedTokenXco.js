@@ -22,12 +22,11 @@ export class ClientSignedTokenXco {
     this.walletClient = wallet;
     this.client = this.walletClient.client;
 
-    // Overwrite auth service endpoints (until the cross-chain feture is fully deployed)
+    // Overwrite auth service endpoints (until the cross-chain feature is fully deployed)
     this.client.authServiceURIs = ["http://127.0.0.1:6546"];  // Dev instance
     //this.client.authServiceURIs = ["https://host-216-66-89-94.contentfabric.io/as"];
     this.client.AuthHttpClient.uris = this.client.authServiceURIs;
-
-    window.window.console.log(".AuthHttpClient", this.client.AuthHttpClient);
+    window.window.console.log("client.AuthHttpClient", this.client.AuthHttpClient);
   }
 
   /**
@@ -35,9 +34,7 @@ export class ClientSignedTokenXco {
    */
   XcoMessage = async ({msg}) => {
     // Create a client-signed-token in order to access the cross-chain oracle API
-    const token = await this.client.CreateFabricToken({
-      duration: 60 * 60 * 1000, // millisec
-    });
+    const token = await this.client.CreateFabricToken({duration: 60 * 60 * 1000});
 
     // Call the cross-chain oracle 'view' API
     let res = await Utils.ResponseToFormat(
@@ -45,7 +42,7 @@ export class ClientSignedTokenXco {
       this.client.authClient.MakeAuthServiceRequest({
         method: "POST",
         //path: "/as/xco/view",  // On main/dev net /as/xco/view
-        path: "/xco/view",  // On main/dev net /as/xco/view
+        path: "/xco/view",  // On local authd as /xco/view
         body: msg,
         headers: {
           Authorization: `Bearer ${token}`,
@@ -83,7 +80,7 @@ export class ClientSignedTokenXco {
   Run = async () => {
     // Call the oracle cross-chain 'view' API 'balanceOf'
     let xcMsg = await this.XcoMessage({msg: this.sampleXcMsg});
-    window.console.log("XCO MSG", JSON.stringify(xcMsg));
+    window.console.log("XCO MSG", xcMsg);
 
     // Create a client-signed-token including the 'xco-msg' as context
     const accessToken = await this.client.CreateFabricToken({
@@ -100,12 +97,4 @@ export class ClientSignedTokenXco {
     let playoutOptions = await this.Play({token: accessToken});
     window.console.log("PLAYOUT", JSON.stringify(playoutOptions, null, 2));
   };
-
 }
-
-//if(!process.env.PRIVATE_KEY) {
-//  window.console.log("Must set environment variable PRIVATE_KEY");
-//  exit;
-//}
-//
-//Run();
