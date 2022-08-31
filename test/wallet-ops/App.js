@@ -263,7 +263,7 @@ const App = () => {
               </select>
             </div>
             <div className="button-row">
-              <button onClick={async () => clearAndSetResults(await walletClient.Listings())}>Listings</button>
+              <button onClick={async () => clearAndSetResults(await walletClient.Listings({marketplaceParams}))}>Listings</button>
               <button onClick={async () => clearAndSetResults(await walletClient.MarketplaceStock({marketplaceParams}))}>Stock</button>
             </div>
           </> : null
