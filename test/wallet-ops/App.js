@@ -1,6 +1,6 @@
-import "../src/static/stylesheets/reset.scss";
-import "./test.scss";
-import "../src/static/stylesheets/loaders.scss";
+import "../../src/static/stylesheets/reset.scss";
+import "../test.scss";
+import "../../src/static/stylesheets/loaders.scss";
 
 import React, { useEffect, useState } from "react";
 import { render } from "react-dom";
