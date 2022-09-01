@@ -10,7 +10,7 @@ const Utils = require("@eluvio/elv-client-js/src/Utils.js");
 export class ClientSignedTokenXco {
 
   constructor(wallet) {
-    this.sampleXcMsg = {
+    this.ethSampleXcMsg = {
       chain: "eip155:955305",
       contract_addr: "0xd4c8153372b0292b364dac40d0ade37da4c4869a",
       id: 1,
@@ -19,6 +19,15 @@ export class ClientSignedTokenXco {
         owner: "0xcd8323da264e9c599af47a0d559dcdcb335d44ab"
       }
     };
+    this.sampleXcMsg = {
+      "chain_type": "flow",
+      "chain_id": "mainnet",
+      "asset_type": "NonFungibleToken",
+      "asset_id": "0x329feb3ab062d289:CNN_NFT",
+      "method": "balance",
+      "params": { "owner":"0xcbd420284fd5e19b" }
+    };
+
     this.contentHash = "hq__93SK4rgxMarq1ZeDSEu9WJkDoptTKYiA2GmYocK7inMthUssGkG6Q9BREBEhNtVCiCBFsPd4Gd";
 
     this.walletClient = wallet;

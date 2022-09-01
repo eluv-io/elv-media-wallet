@@ -159,6 +159,7 @@ const App = () => {
     let embedCode = `<iframe width=854 height=480
         scrolling="no" marginheight="0" marginwidth="0"
         frameborder="0" type="text/html"
+        allow="encrypted-media"
         src="${embedUrl}" />`;
     return (
       <div className="embed-code-container">
