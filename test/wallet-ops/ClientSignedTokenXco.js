@@ -11,12 +11,13 @@ export class ClientSignedTokenXco {
 
   constructor(wallet) {
     this.ethSampleXcMsg = {
-      chain: "eip155:955305",
-      contract_addr: "0xd4c8153372b0292b364dac40d0ade37da4c4869a",
-      id: 1,
-      method: "balanceOf",
-      params: {
-        owner: "0xcd8323da264e9c599af47a0d559dcdcb335d44ab"
+      "chain_type": "eip155",
+      "chain_id": "955210",
+      "asset_type": "erc20",
+      "asset_id": "0x43842733179fa1c38560a44f1d9067677461c8ca",
+      "method": "balance",
+      "params": {
+        "owner": "0x4163a41b433cbF55C5836376c417F676bD4e0DE0"
       }
     };
     this.sampleXcMsg = {
@@ -106,5 +107,6 @@ export class ClientSignedTokenXco {
     // Play
     let playoutOptions = await this.Play({token: accessToken});
     window.console.log("PLAYOUT", playoutOptions);
+    window.console.log("PLAYOUT", JSON.stringify(playoutOptions));
   };
 }
