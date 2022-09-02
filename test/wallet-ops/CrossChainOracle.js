@@ -27,7 +27,40 @@ export class CrossChainOracle {
       "params": { "owner":"0xcbd420284fd5e19b" }
     };
 
-    this.contentHash = "hq__93SK4rgxMarq1ZeDSEu9WJkDoptTKYiA2GmYocK7inMthUssGkG6Q9BREBEhNtVCiCBFsPd4Gd";
+    const contents = {
+      "0": {
+        objectId: "iq__SoPtztGZavHUaSnkMRPQ6T138mp",
+        hash: "hq__8xLaEZhWVTjFifiCZRKNQ3m1BdBRjJ9Q7EwGd6K73TKbtFruiCFeptWcGF9tNkhqNV6Ho5gqr2",
+        filename: "NSilva_wave2.mp4",
+        description: "New York in Black and White, 4x4 grid",
+      },
+      "1": {
+        objectId: "iq__28vntkNAao7buCoAHMpSjo7tANE2",
+        hash: "hq__3GVpW3oYZteaUGyi3pjnNVDZfn7kdudjnANGRXogTeoZkeG6uCqSk2YfphdwkT7iksGd2Do4Ue",
+        filename: "06_CNN_NFT_SE_2020PresCall_1920x1080_V01.mp4",
+        description: "Election Day In America",
+      },
+      "2": {
+        objectId: "iq__7Lr8DajdkarPBGTe1fmaefNy8nG",
+        hash: "hq__GrQ7G7ZppPSkbfmARrKWv3mA5jx7cw1wAcCp8UcWTxNAoeHKeyGEkXvmRB6G1hDUdcTJbPZtMz",
+        filename: "NYSLNFT_CardPack.mp4",
+        description: "New York Subliners",
+      }
+    };
+
+    // original / non-CNN
+    //this.contentHash = "hq__93SK4rgxMarq1ZeDSEu9WJkDoptTKYiA2GmYocK7inMthUssGkG6Q9BREBEhNtVCiCBFsPd4Gd";
+
+    // works -- iq__SoPtztGZavHUaSnkMRPQ6T138mp  - black and white    - JNSilva_wave2.mp4
+    //this.contentHash = "hq__8xLaEZhWVTjFifiCZRKNQ3m1BdBRjJ9Q7EwGd6K73TKbtFruiCFeptWcGF9tNkhqNV6Ho5gqr2";
+    // works -- iq__28vntkNAao7buCoAHMpSjo7tANE2 - election day       - 06_CNN_NFT_SE_2020PresCall_1920x1080_V01.mp4
+    //this.contentHash = "hq__3GVpW3oYZteaUGyi3pjnNVDZfn7kdudjnANGRXogTeoZkeG6uCqSk2YfphdwkT7iksGd2Do4Ue";
+    // works -- iq__7Lr8DajdkarPBGTe1fmaefNy8nG  - New York subliners - NYSLNFT_CardPack.mp4
+    //this.contentHash = "hq__GrQ7G7ZppPSkbfmARrKWv3mA5jx7cw1wAcCp8UcWTxNAoeHKeyGEkXvmRB6G1hDUdcTJbPZtMz";
+
+    this.item = contents[Math.floor(Math.random() * 3)];
+    window.console.log("using", this.item);
+    this.contentHash = this.item.hash;
 
     this.walletClient = wallet;
     this.client = this.walletClient.client;

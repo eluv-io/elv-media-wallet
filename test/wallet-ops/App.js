@@ -202,7 +202,7 @@ const App = () => {
     const provider = await new CrossChainOracle(walletClient);
     setInputs(provider.sampleXcMsg);
     let res = await provider.Run();
-    setResults(res);
+    setResults({token: res, item: provider.item});
   };
 
   // TODO: this is getting called too much: twice on start, and after method calls
