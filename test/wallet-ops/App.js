@@ -279,8 +279,7 @@ const App = () => {
             <br/>
             <h2>Marketplace Methods</h2>
             <div className="button-row">
-              <select id="marketplaceSelector" onChange={ChangeMarketplace}>
-              </select>
+              <select id="marketplaceSelector" onChange={ChangeMarketplace}/>
             </div>
             <div className="button-row">
               <button onClick={async () => clearAndShow(await walletClient.Listings({marketplaceParams}))}>Listings</button>
