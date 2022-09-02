@@ -10,6 +10,9 @@ const Utils = require("@eluvio/elv-client-js/src/Utils.js");
 export class CrossChainOracle {
 
   constructor(wallet) {
+    this.walletClient = wallet;
+    this.client = this.walletClient.client;
+
     this.ethSampleXcMsg = {
       "chain_type": "eip155",
       "chain_id": "955210",
@@ -51,19 +54,14 @@ export class CrossChainOracle {
       }
     };
 
-    // original / non-CNN
     this.item = contents[Math.floor(Math.random() * 3)];
-    window.console.log("using", this.item);
     this.contentHash = this.item.hash;
-
-    this.walletClient = wallet;
-    this.client = this.walletClient.client;
+    window.console.log("using", this.item);
 
     // Overwrite auth service endpoints (until the cross-chain feature is fully deployed)
     this.client.authServiceURIs = ["http://127.0.0.1:6546"];  // Dev instance
     //this.client.authServiceURIs = ["https://host-216-66-89-94.contentfabric.io/as"];
     this.client.AuthHttpClient.uris = this.client.authServiceURIs;
-    window.console.log("client.AuthHttpClient", this.client.AuthHttpClient);
   }
 
   /**
@@ -78,7 +76,7 @@ export class CrossChainOracle {
       "json",
       this.client.authClient.MakeAuthServiceRequest({
         method: "POST",
-        //path: "/as/xco/view",  // On main/dev net /as/xco/view
+        //path: "/as/xco/view",  // On main/dev net /as/xco/view, if authServiceURIs not suffixed /as
         path: "/xco/view",  // On local authd as /xco/view
         body: msg,
         headers: {
