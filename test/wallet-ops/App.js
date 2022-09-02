@@ -142,8 +142,8 @@ const App = () => {
   };
 
   const Playout = async () => {
+    let playoutToken = getInput("playoutToken");
     let playoutVersionHash = getInput("playoutVersionHash");
-    let playoutToken = await walletClient.client.CreateFabricToken();
     setInputs({playoutVersionHash: playoutVersionHash, playoutToken: playoutToken});
     setResults("");
 
@@ -247,6 +247,11 @@ const App = () => {
               <button onClick={CheckNftStats}>Get statistics</button>
             </div>
             <br/>
+            <div className="button-row">
+              <label htmlFor="playoutToken">Play token-gated content (token):</label>
+              <input type="text" size="50" id="playoutToken" name="playoutToken" />
+              <button className="hidden-placeholder"></button>
+            </div>
             <div className="button-row">
               <label htmlFor="playoutVersionHash">Play token-gated content (version hash):</label>
               <input type="text" size="50" id="playoutVersionHash" name="playoutVersionHash" />
