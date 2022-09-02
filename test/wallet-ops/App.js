@@ -226,7 +226,7 @@ const App = () => {
         walletClient.loggedIn ?
           <>
             <div className="button-row">
-              <label htmlFor="signMsg">Message to Sign:</label>
+              <label htmlFor="signMsg">Sign a Message:</label>
               <input type="text" size="50" id="signMsg" name="signMsg" />
               <button onClick={Sign}>Sign</button>
             </div>

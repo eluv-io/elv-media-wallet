@@ -61,7 +61,7 @@ export class MarketplaceLoader {
     const network = searchParams.get("network-name") || "demo";
     const [tenantDefault, marketplaceDefault] = network == "main" ?
       [ "bcl", "maskverse-marketplace" ] :
-      [ "bcl-live", "masked-singer-marketplace"];
+      [ "starflicks", "starflicks-marketplace"];
 
     const marketplaceParams = {
       tenantSlug: searchParams.get("tenant-name") || tenantDefault,
