@@ -211,7 +211,7 @@ const App = () => {
 
   return (
     <div className="page-container">
-      <h1>DApp Wallet Operation Examples</h1>
+      <h1>DApp Wallet Examples</h1>
 
       <div className="button-row">
         <select value={network} onChange={ChangeNetwork}>
@@ -245,12 +245,12 @@ const App = () => {
             <div className="button-row">
               <label className="hidden-placeholder"></label>
               <input type="text" size="50" className="hidden-placeholder" />
-              <button onClick={async () => await CrossChainAuth()}>Cross-chain Auth - flow:mainnet</button>
+              <button onClick={async () => await CrossChainAuth()}>Cross-chain Oracle Query - flow:mainnet</button>
             </div>
             <div className="button-row">
               <label className="hidden-placeholder"></label>
               <input type="text" size="50" className="hidden-placeholder" />
-              <button onClick={async () => await CrossChainAuth("eth")}>Cross-chain Auth - eip155/erc20</button>
+              <button onClick={async () => await CrossChainAuth("eth")}>Cross-chain Oracle Query - eip155/erc20</button>
             </div>
             <br/>
             <div className="button-row">
@@ -270,8 +270,8 @@ const App = () => {
               <button onClick={async () => clearAndShow(await walletClient.AvailableMarketplaces())}>AvailableMarketPlaces</button>
             </div>
             <div className="button-row">
-              <button onClick={async () => clearAndShow(await walletClient.UserItems())}>UserItems</button>
               <button onClick={async () => clearAndShow(await walletClient.UserItemInfo())}>UserItemInfo</button>
+              <button onClick={async () => clearAndShow(await walletClient.UserItems({sortBy: "default"}))}>UserItems</button>
             </div>
             <div className="button-row">
               <button onClick={async () => clearAndShow(await walletClient.client.CreateFabricToken())}>CreateFabricToken</button>
