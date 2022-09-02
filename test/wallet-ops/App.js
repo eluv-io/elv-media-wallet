@@ -199,7 +199,10 @@ const App = () => {
   };
 
   const CrossChainAuth = async () => {
-    await new ClientSignedTokenXco(walletClient).Run();
+    const provider = await new ClientSignedTokenXco(walletClient);
+    setInputs(provider.sampleXcMsg);
+    let res = await provider.Run();
+    setResults(res);
   };
 
   // TODO: this is getting called too much: twice on start, and after method calls
@@ -261,7 +264,7 @@ const App = () => {
             </div>
             <div className="button-row">
               <button onClick={async () => clearAndShow(await walletClient.client.CreateFabricToken())}>CreateFabricToken</button>
-              <button onClick={async () => clearAndShow(await CrossChainAuth())}>Cross-chain Auth</button>
+              <button onClick={async () => await CrossChainAuth()}>Cross-chain Auth</button>
             </div>
             <br/>
             <h2>Marketplace Methods</h2>

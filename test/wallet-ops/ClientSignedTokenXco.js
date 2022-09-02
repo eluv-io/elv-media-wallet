@@ -16,9 +16,7 @@ export class ClientSignedTokenXco {
       "asset_type": "erc20",
       "asset_id": "0x43842733179fa1c38560a44f1d9067677461c8ca",
       "method": "balance",
-      "params": {
-        "owner": "0x4163a41b433cbF55C5836376c417F676bD4e0DE0"
-      }
+      "params": { "owner": "0x4163a41b433cbF55C5836376c417F676bD4e0DE0" }
     };
     this.sampleXcMsg = {
       "chain_type": "flow",
@@ -108,5 +106,7 @@ export class ClientSignedTokenXco {
     let playoutOptions = await this.Play({token: accessToken});
     window.console.log("PLAYOUT", playoutOptions);
     window.console.log("PLAYOUT", JSON.stringify(playoutOptions));
+
+    return accessToken;
   };
 }
