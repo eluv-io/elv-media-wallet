@@ -248,12 +248,12 @@ const App = () => {
             </div>
             <br/>
             <div className="button-row">
-              <label htmlFor="playoutToken">Play token-gated content (token):</label>
+              <label htmlFor="playoutToken">Embed gated content (access token):</label>
               <input type="text" size="50" id="playoutToken" name="playoutToken" />
               <button className="hidden-placeholder"></button>
             </div>
             <div className="button-row">
-              <label htmlFor="playoutVersionHash">Play token-gated content (version hash):</label>
+              <label htmlFor="playoutVersionHash">Embed gated content (version hash):</label>
               <input type="text" size="50" id="playoutVersionHash" name="playoutVersionHash" />
               <button onClick={Playout}>Embed</button>
             </div>
