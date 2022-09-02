@@ -21,7 +21,8 @@ export class CrossChainOracle {
       "method": "balance",
       "params": { "owner": "0x4163a41b433cbF55C5836376c417F676bD4e0DE0" }
     };
-    this.sampleXcMsg = {
+
+    this.flowSampleXcMsg = {
       "chain_type": "flow",
       "chain_id": "mainnet",
       "asset_type": "NonFungibleToken",
@@ -53,7 +54,6 @@ export class CrossChainOracle {
         description: "New York Subliners",
       }
     };
-
     this.item = contents[Math.floor(Math.random() * 3)];
     this.contentHash = this.item.hash;
     window.console.log("using", this.item);
@@ -63,6 +63,8 @@ export class CrossChainOracle {
     //this.client.authServiceURIs = ["https://host-216-66-89-94.contentfabric.io/as"];
     this.client.AuthHttpClient.uris = this.client.authServiceURIs;
   }
+
+  GetXcInputMessage = (type) => (type && type == "eth" ) ? this.ethSampleXcMsg : this.flowSampleXcMsg;
 
   /**
    * Make a cross-chain oracle call
@@ -76,7 +78,7 @@ export class CrossChainOracle {
       "json",
       this.client.authClient.MakeAuthServiceRequest({
         method: "POST",
-        //path: "/as/xco/view",  // On main/dev net /as/xco/view, if authServiceURIs not suffixed /as
+        //path: "/as/xco/view",  // On main/dev net /as/xco/view
         path: "/xco/view",  // On local authd as /xco/view
         body: msg,
         headers: {
@@ -111,9 +113,11 @@ export class CrossChainOracle {
     return res;
   };
 
-  Run = async () => {
+  Run = async (type) => {
+    let msg = (type && type == "eth" ) ? this.ethSampleXcMsg : this.flowSampleXcMsg;
+
     // Call the oracle cross-chain 'view' API 'balanceOf'
-    let xcMsg = await this.XcoMessage({msg: this.sampleXcMsg});
+    let xcMsg = await this.XcoMessage({msg: msg});
     window.console.log("XCO MSG", xcMsg);
 
     // Create a client-signed-token including the 'xco-msg' as context

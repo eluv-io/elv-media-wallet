@@ -126,19 +126,19 @@ const App = () => {
     const inputs = { addr: getInput("nftAddressToVerify"), ownerAddr: getInput("nftOwnerToVerify")};
     setInputs(inputs);
 
-    let balance = await new EluvioLive(walletClient).NftBalanceOf(inputs)
+    let ownedOrError = await new EluvioLive(walletClient).NftBalanceOf(inputs)
+      .then(balance => {
+        return (typeof balance === "number") ? { isOwned: balance > 0, balance: balance } : { err: balance };
+      })
       .catch(err => { return { error: err.toString()}; });
 
-    let ownedOrError = (typeof balance === "number") ? { isOwned: balance > 0, balance: balance } : { err: balance };
-    setResults(ownedOrError);
-  };
-
-  const CheckNftStats = async () => {
-    let nft = getInput("nftForStats");
-    setInputs({ contactAddress: nft});
-    let res = await walletClient.NFTContractStats({contractAddress: nft})
-      .catch(err => { return err; });
-    setResults(res);
+    if (ownedOrError?.error) {
+      setResults(ownedOrError);
+    } else {
+      let nftStats = await walletClient.NFTContractStats({contractAddress: inputs.addr})
+        .catch(err => { return err; });
+      setResults({ ownership: ownedOrError, nftStats: nftStats });
+    }
   };
 
   const Playout = async () => {
@@ -198,10 +198,10 @@ const App = () => {
     await new MarketplaceLoader(walletClient, marketplaceParams).setMarketplace(event);
   };
 
-  const CrossChainAuth = async () => {
+  const CrossChainAuth = async (type) => {
     const provider = await new CrossChainOracle(walletClient);
-    setInputs(provider.sampleXcMsg);
-    let res = await provider.Run();
+    setInputs(provider.GetXcInputMessage(type));
+    let res = await provider.Run(type);
     setResults({token: res, item: provider.item});
   };
 
@@ -242,9 +242,14 @@ const App = () => {
             </div>
             <br/>
             <div className="button-row">
-              <label htmlFor="nftForStats">NFT Contract Statistics:</label>
-              <input type="text" size="50" id="nftForStats" name="nftForStats" />
-              <button onClick={CheckNftStats}>Get statistics</button>
+              <label className="hidden-placeholder"></label>
+              <input type="text" size="50" className="hidden-placeholder" />
+              <button onClick={async () => await CrossChainAuth()}>Cross-chain Auth - flow:mainnet</button>
+            </div>
+            <div className="button-row">
+              <label className="hidden-placeholder"></label>
+              <input type="text" size="50" className="hidden-placeholder" />
+              <button onClick={async () => await CrossChainAuth("eth")}>Cross-chain Auth - eip155/erc20</button>
             </div>
             <br/>
             <div className="button-row">
@@ -269,7 +274,6 @@ const App = () => {
             </div>
             <div className="button-row">
               <button onClick={async () => clearAndShow(await walletClient.client.CreateFabricToken())}>CreateFabricToken</button>
-              <button onClick={async () => await CrossChainAuth()}>Cross-chain Auth</button>
             </div>
             <br/>
             <h2>Marketplace Methods</h2>
