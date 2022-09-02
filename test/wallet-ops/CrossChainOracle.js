@@ -7,7 +7,7 @@
 
 const Utils = require("@eluvio/elv-client-js/src/Utils.js");
 
-export class ClientSignedTokenXco {
+export class CrossChainOracle {
 
   constructor(wallet) {
     this.ethSampleXcMsg = {

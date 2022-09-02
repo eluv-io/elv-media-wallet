@@ -9,7 +9,7 @@ import { PageLoader } from "Components/common/Loaders";
 
 import { EluvioLive } from "./EluvioLive.js";
 import { MarketplaceLoader } from "./MarketplaceLoader.js";
-import { ClientSignedTokenXco } from "./ClientSignedTokenXco.js";
+import { CrossChainOracle } from "./CrossChainOracle.js";
 
 // eluvio EvWalletClient mode -- "staging" or "production"
 const mode = "staging";
@@ -199,7 +199,7 @@ const App = () => {
   };
 
   const CrossChainAuth = async () => {
-    const provider = await new ClientSignedTokenXco(walletClient);
+    const provider = await new CrossChainOracle(walletClient);
     setInputs(provider.sampleXcMsg);
     let res = await provider.Run();
     setResults(res);
