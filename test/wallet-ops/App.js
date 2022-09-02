@@ -201,6 +201,7 @@ const App = () => {
   const CrossChainAuth = async (type) => {
     const provider = await new CrossChainOracle(walletClient);
     setInputs(provider.GetXcInputMessage(type));
+    setEmbed("");
     let res = await provider.Run(type);
     setResults({token: res, item: provider.item});
   };
