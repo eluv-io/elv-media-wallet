@@ -135,7 +135,6 @@ export class CrossChainOracle {
     // Play
     let playoutOptions = await this.Play({token: accessToken});
     window.console.log("PLAYOUT", playoutOptions);
-    window.console.log("PLAYOUT", JSON.stringify(playoutOptions));
 
     return accessToken;
   };
