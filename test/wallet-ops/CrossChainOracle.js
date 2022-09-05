@@ -33,10 +33,13 @@ export class CrossChainOracle {
       "params": { "owner":"0xcbd420284fd5e19b" }
     };
 
-    // original / non-CNN
-    //this.contentHash = "hq__93SK4rgxMarq1ZeDSEu9WJkDoptTKYiA2GmYocK7inMthUssGkG6Q9BREBEhNtVCiCBFsPd4Gd";
+    // original / non-CNN content
+    this.ethContents = {
+      hash: "hq__93SK4rgxMarq1ZeDSEu9WJkDoptTKYiA2GmYocK7inMthUssGkG6Q9BREBEhNtVCiCBFsPd4Gd"
+    };
 
-    const contents = {
+    // CNN content
+    this.flowContents = {
       "0": {
         objectId: "iq__SoPtztGZavHUaSnkMRPQ6T138mp",
         hash: "hq__8xLaEZhWVTjFifiCZRKNQ3m1BdBRjJ9Q7EwGd6K73TKbtFruiCFeptWcGF9tNkhqNV6Ho5gqr2",
@@ -56,9 +59,6 @@ export class CrossChainOracle {
         description: "New York Subliners",
       }
     };
-    this.item = contents[Math.floor(Math.random() * 3)];
-    this.contentHash = this.item.hash;
-    window.console.log("using", this.item);
 
     // to use a local a dev authd instance:
     //this.client.authServiceURIs = ["http://127.0.0.1:6546"];
@@ -117,7 +117,16 @@ export class CrossChainOracle {
   Run = async (type) => {
     let msg = (type && type == "eth" ) ? this.ethSampleXcMsg : this.flowSampleXcMsg;
 
-    // Call the oracle cross-chain 'view' API 'balanceOf'
+    if(type && type == "eth") {
+      this.item = this.ethContents;
+      this.contentHash = this.ethContents.hash;
+    } else {
+      this.item = this.flowContents[Math.floor(Math.random() * 3)];
+      this.contentHash = this.item.hash;
+    }
+    window.console.log("using", this.item);
+
+    // Call the oracle cross-chain 'view' API 'balance'
     let xcMsg = await this.XcoMessage({msg: msg});
     window.console.log("XCO MSG", xcMsg);
 
