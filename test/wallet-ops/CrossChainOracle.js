@@ -13,6 +13,8 @@ export class CrossChainOracle {
     this.walletClient = wallet;
     this.client = this.walletClient.client;
 
+    // TODO: pull out all these hardcoded samples before this code is acceptable for general consumption.
+
     this.ethSampleXcMsg = {
       "chain_type": "eip155",
       "chain_id": "955210",
