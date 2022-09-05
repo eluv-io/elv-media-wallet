@@ -267,11 +267,11 @@ const App = () => {
             <h2>User Methods</h2>
             <div className="button-row">
               <button onClick={async () => clearAndShow(await walletClient.UserInfo())}>UserInfo</button>
-              <button onClick={async () => clearAndShow(await walletClient.AvailableMarketplaces())}>AvailableMarketPlaces</button>
+              <button onClick={async () => clearAndShow(await walletClient.UserItems({sortBy: "default"}))}>UserItems</button>
             </div>
             <div className="button-row">
               <button onClick={async () => clearAndShow(await walletClient.UserItemInfo())}>UserItemInfo</button>
-              <button onClick={async () => clearAndShow(await walletClient.UserItems({sortBy: "default"}))}>UserItems</button>
+              <button onClick={async () => clearAndShow(await walletClient.AvailableMarketplaces())}>AvailableMarketPlaces</button>
             </div>
             <div className="button-row">
               <button onClick={async () => clearAndShow(await walletClient.client.CreateFabricToken())}>CreateFabricToken</button>
