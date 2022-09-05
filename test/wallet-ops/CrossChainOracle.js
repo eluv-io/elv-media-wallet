@@ -60,10 +60,9 @@ export class CrossChainOracle {
     this.contentHash = this.item.hash;
     window.console.log("using", this.item);
 
-    // Overwrite auth service endpoints (until the cross-chain feature is fully deployed)
-    this.client.authServiceURIs = ["http://127.0.0.1:6546"];  // Dev instance
-    //this.client.authServiceURIs = ["https://host-216-66-89-94.contentfabric.io/as"];
-    this.client.AuthHttpClient.uris = this.client.authServiceURIs;
+    // to use a local a dev authd instance:
+    //this.client.authServiceURIs = ["http://127.0.0.1:6546"];
+    //this.client.AuthHttpClient.uris = this.client.authServiceURIs;
   }
 
   GetXcInputMessage = (type) => (type && type == "eth" ) ? this.ethSampleXcMsg : this.flowSampleXcMsg;
@@ -80,8 +79,8 @@ export class CrossChainOracle {
       "json",
       this.client.authClient.MakeAuthServiceRequest({
         method: "POST",
-        //path: "/as/xco/view",  // On main/dev net /as/xco/view
-        path: "/xco/view",  // On local authd as /xco/view
+        path: "/as/xco/view",  // On main/dev net /as/xco/view
+        //path: "/xco/view",  // On local authd as /xco/view
         body: msg,
         headers: {
           Authorization: `Bearer ${token}`,
