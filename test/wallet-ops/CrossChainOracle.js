@@ -33,7 +33,7 @@ export class CrossChainOracle {
       "params": { "owner":"0xcbd420284fd5e19b" }
     };
 
-    // original / non-CNN content
+    // caminandes content
     this.ethContents = {
       hash: "hq__93SK4rgxMarq1ZeDSEu9WJkDoptTKYiA2GmYocK7inMthUssGkG6Q9BREBEhNtVCiCBFsPd4Gd"
     };
