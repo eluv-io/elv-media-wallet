@@ -432,9 +432,20 @@ export const ListingFilters = observer(({mode="listings", initialFilters, Update
   useEffect(() => {
     const marketplaceParams = filterValues.marketplaceId ? {marketplaceId: filterValues.marketplaceId} : undefined;
 
-    const namesPromise = mode === "owned" ?
-      rootStore.walletClient.UserItemNames({marketplaceParams, userAddress: filterValues.userAddress}) :
-      rootStore.walletClient.ListingNames({marketplaceParams});
+    let namesPromise;
+    switch(mode) {
+      case "owned":
+        namesPromise = rootStore.walletClient.UserItemNames({marketplaceParams, userAddress: filterValues.userAddress});
+        break;
+
+      case "sales":
+        namesPromise = rootStore.walletClient.SalesNames({marketplaceParams});
+        break;
+
+      default:
+        namesPromise = rootStore.walletClient.ListingNames({marketplaceParams});
+        break;
+    }
 
     namesPromise
       .then(names => setFilterOptions(names.map(name => (name || "").trim()).sort()))

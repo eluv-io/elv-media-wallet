@@ -266,7 +266,7 @@ const SubHeader = observer(({marketplace}) => {
     );
   }
 
-  const { name, header_logo, hide_name, preview } = marketplace.branding || {};
+  const { name, header_logo, header_image, hide_name, preview } = marketplace.branding || {};
   const logo = header_logo?.url;
 
   const hideGlobalNavigation = rootStore.hideGlobalNavigation || (rootStore.hideGlobalNavigationInMarketplace && marketplace);
@@ -283,7 +283,13 @@ const SubHeader = observer(({marketplace}) => {
                     <ImageIcon icon={logo} label={name || ""} className="subheader__logo"/>
                   </Link> : null
               }
-              {hide_name ? null : <h1 className="subheader__header">{`${name}`}</h1>}
+              {
+                header_image?.url ?
+                  <div className="subheader__header__image-container">
+                    <ImageIcon icon={header_image.url} label={name || ""} className="subheader__header__image" />
+                  </div> :
+                  (!hide_name ? <h1 className="subheader__header">{`${name}`}</h1> : null)
+              }
               {
                 hideGlobalNavigation ?
                   <Profile marketplace={marketplace}/> : null
