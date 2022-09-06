@@ -9,6 +9,7 @@ import { PageLoader } from "Components/common/Loaders";
 
 import { EluvioLive } from "./EluvioLive.js";
 import { MarketplaceLoader } from "./MarketplaceLoader.js";
+import { CrossChainOracle } from "./CrossChainOracle.js";
 
 // eluvio EvWalletClient mode -- "staging" or "production"
 const mode = "staging";
@@ -125,24 +126,24 @@ const App = () => {
     const inputs = { addr: getInput("nftAddressToVerify"), ownerAddr: getInput("nftOwnerToVerify")};
     setInputs(inputs);
 
-    let balance = await new EluvioLive(walletClient).NftBalanceOf(inputs)
+    let ownedOrError = await new EluvioLive(walletClient).NftBalanceOf(inputs)
+      .then(balance => {
+        return (typeof balance === "number") ? { isOwned: balance > 0, balance: balance } : { err: balance };
+      })
       .catch(err => { return { error: err.toString()}; });
 
-    let ownedOrError = (typeof balance === "number") ? { isOwned: balance > 0, balance: balance } : { err: balance };
-    setResults(ownedOrError);
-  };
-
-  const CheckNftStats = async () => {
-    let nft = getInput("nftForStats");
-    setInputs({ contactAddress: nft});
-    let res = await walletClient.NFTContractStats({contractAddress: nft})
-      .catch(err => { return err; });
-    setResults(res);
+    if (ownedOrError?.error) {
+      setResults(ownedOrError);
+    } else {
+      let nftStats = await walletClient.NFTContractStats({contractAddress: inputs.addr})
+        .catch(err => { return err; });
+      setResults({ ownership: ownedOrError, nftStats: nftStats });
+    }
   };
 
   const Playout = async () => {
+    let playoutToken = getInput("playoutToken");
     let playoutVersionHash = getInput("playoutVersionHash");
-    let playoutToken = await walletClient.client.CreateFabricToken();
     setInputs({playoutVersionHash: playoutVersionHash, playoutToken: playoutToken});
     setResults("");
 
@@ -158,6 +159,7 @@ const App = () => {
     let embedCode = `<iframe width=854 height=480
         scrolling="no" marginheight="0" marginwidth="0"
         frameborder="0" type="text/html"
+        allow="encrypted-media"
         src="${embedUrl}" />`;
     return (
       <div className="embed-code-container">
@@ -196,12 +198,20 @@ const App = () => {
     await new MarketplaceLoader(walletClient, marketplaceParams).setMarketplace(event);
   };
 
+  const CrossChainAuth = async (type) => {
+    const provider = await new CrossChainOracle(walletClient);
+    setInputs(provider.GetXcInputMessage(type));
+    setEmbed("");
+    let res = await provider.Run(type);
+    setResults({token: res, item: provider.item});
+  };
+
   // TODO: this is getting called too much: twice on start, and after method calls
   setTimeout(LoadMarketplaces, 1);
 
   return (
     <div className="page-container">
-      <h1>DApp Wallet Operation Examples</h1>
+      <h1>DApp Wallet Examples</h1>
 
       <div className="button-row">
         <select value={network} onChange={ChangeNetwork}>
@@ -216,7 +226,7 @@ const App = () => {
         walletClient.loggedIn ?
           <>
             <div className="button-row">
-              <label htmlFor="signMsg">Message to Sign:</label>
+              <label htmlFor="signMsg">Sign a Message:</label>
               <input type="text" size="50" id="signMsg" name="signMsg" />
               <button onClick={Sign}>Sign</button>
             </div>
@@ -233,13 +243,23 @@ const App = () => {
             </div>
             <br/>
             <div className="button-row">
-              <label htmlFor="nftForStats">NFT Contract Statistics:</label>
-              <input type="text" size="50" id="nftForStats" name="nftForStats" />
-              <button onClick={CheckNftStats}>Get statistics</button>
+              <label className="hidden-placeholder"></label>
+              <input type="text" size="50" className="hidden-placeholder" />
+              <button onClick={async () => await CrossChainAuth()}>Cross-chain Oracle Query - flow:mainnet</button>
+            </div>
+            <div className="button-row">
+              <label className="hidden-placeholder"></label>
+              <input type="text" size="50" className="hidden-placeholder" />
+              <button onClick={async () => await CrossChainAuth("eth")}>Cross-chain Oracle Query - eip155/erc20</button>
             </div>
             <br/>
             <div className="button-row">
-              <label htmlFor="playoutVersionHash">Play token-gated content (version hash):</label>
+              <label htmlFor="playoutToken">Embed gated content (access token):</label>
+              <input type="text" size="50" id="playoutToken" name="playoutToken" />
+              <button className="hidden-placeholder"></button>
+            </div>
+            <div className="button-row">
+              <label htmlFor="playoutVersionHash">Embed gated content (version hash):</label>
               <input type="text" size="50" id="playoutVersionHash" name="playoutVersionHash" />
               <button onClick={Playout}>Embed</button>
             </div>
@@ -247,11 +267,11 @@ const App = () => {
             <h2>User Methods</h2>
             <div className="button-row">
               <button onClick={async () => clearAndShow(await walletClient.UserInfo())}>UserInfo</button>
-              <button onClick={async () => clearAndShow(await walletClient.AvailableMarketplaces())}>AvailableMarketPlaces</button>
+              <button onClick={async () => clearAndShow(await walletClient.UserItems({sortBy: "default"}))}>UserItems</button>
             </div>
             <div className="button-row">
-              <button onClick={async () => clearAndShow(await walletClient.UserItems())}>UserItems</button>
               <button onClick={async () => clearAndShow(await walletClient.UserItemInfo())}>UserItemInfo</button>
+              <button onClick={async () => clearAndShow(await walletClient.AvailableMarketplaces())}>AvailableMarketPlaces</button>
             </div>
             <div className="button-row">
               <button onClick={async () => clearAndShow(await walletClient.client.CreateFabricToken())}>CreateFabricToken</button>
@@ -259,8 +279,7 @@ const App = () => {
             <br/>
             <h2>Marketplace Methods</h2>
             <div className="button-row">
-              <select id="marketplaceSelector" onChange={ChangeMarketplace}>
-              </select>
+              <select id="marketplaceSelector" onChange={ChangeMarketplace}/>
             </div>
             <div className="button-row">
               <button onClick={async () => clearAndShow(await walletClient.Listings({marketplaceParams}))}>Listings</button>
