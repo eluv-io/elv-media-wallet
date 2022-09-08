@@ -985,7 +985,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
                 {
                   item ?
                     <MarketplaceImage
-                      marketplaceHash={marketplace.marketplaceHash}
+                      marketplaceHash={marketplace.versionHash}
                       item={item}
                       path={UrlJoin("public", "asset_metadata", "info", "items", item.itemIndex.toString(), "image")}
                       showFullMedia
