@@ -1,29 +1,40 @@
 // sass-lint:disable no-misspelled-properties
 
 .nft-media {
-  padding: 50px 0;
+  --elv-gallery-max-height: calc(100vh - 350px);
+
   position: relative;
+  height: 100%;
 
   &__content {
     position: relative;
+    padding-top: 40px;
+    height: 100%;
 
     &__target-container {
-      aspect-ratio: 16 / 9;
       margin-inline: auto;
-      max-height: 65vh;
+      max-height: var(--elv-gallery-max-height);
+      height: var(--elv-gallery-max-height);
+      min-height: var(--elv-gallery-max-height);
       padding: 0 60px;
+      max-width: 100%;
       position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     &__target {
-      height: 100%;
+      height: max-content;
+      max-height: var(--elv-gallery-max-height);
       object-fit: contain;
       width: 100%;
+      border: 0;
     }
 
     &__button {
       align-items: center;
-      bottom: -15px;
+      bottom: -45px;
       display: flex;
       height: 30px;
       justify-content: center;
@@ -42,13 +53,14 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      margin-top: 20px;
+      margin-top: 15px;
       text-align: center;
     }
 
     &__name {
-      font: var(--font-component-header);
+      font: var(--font-nft-media-header);
       font-size: 24px;
+      padding-inline: 40px;
     }
 
     &__subtitle-1 {
@@ -62,7 +74,30 @@
     &__description {
       font-size: 16px;
       margin-top: 20px;
-      max-width: 800px;
+
+      a {
+        color: var(--color-nft-media-text-highlight);
+      }
+
+      h1 {
+        font-size: 32px;
+      }
+
+      h2 {
+        font-size: 28px;
+      }
+
+      h3 {
+        font-size: 24px;
+      }
+
+      h4 {
+        font-size: 20px;
+      }
+
+      h5 {
+        font-size: 18px;
+      }
     }
   }
 
@@ -70,10 +105,8 @@
     &__content {
       &__target-container {
         padding: 0;
-      }
-
-      &__button {
-        display: none;
+        height: 100%;
+        width: 100%;
       }
 
       &__name {
@@ -97,7 +130,44 @@
 }
 
 .nft-media-browser {
-  padding-bottom: 100px;
+  &--inactive {
+    .nft-media-browser__item {
+      opacity: 1;
+    }
+  }
+
+  &__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  &__list-item {
+    &--active {
+      * {
+        color: var(--color-nft-media-text-highlight);
+      }
+    }
+
+    &__image {
+      height: 100%;
+      width: 100%;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+
+    &__name {
+      font: var(--font-nft-media-header);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    &__subtitle-1,
+    &__subtitle-2 {
+      font: var(--font-nft-media-misc);
+      font-size: 12px;
+    }
+  }
 
   &__featured {
     align-items: center;
@@ -109,7 +179,7 @@
 
   &__featured-item {
     @include component;
-    background: var(--color-component-bg-primary);
+    background: var(--color-nft-media-bg-primary);
     border: 0;
     border-radius: 25px;
     display: flex;
@@ -140,19 +210,19 @@
     }
 
     &__name {
-      color: var(--color-component-text-primary);
+      color: var(--color-nft-media-text-primary);
       font-size: 32px;
       margin-top: 5px;
     }
 
     &__subtitle-1 {
-      color: var(--color-component-text-secondary);
+      color: var(--color-nft-media-text-secondary);
       font-size: 18px;
       text-transform: uppercase;
     }
 
     &__subtitle-2 {
-      color: var(--color-component-text-highlight);
+      color: var(--color-nft-media-text-highlight);
       font-size: 12px;
       text-transform: uppercase;
     }
@@ -166,41 +236,70 @@
 
     &__header {
       cursor: pointer;
-      font: var(--font-component-misc);
+      font: var(--font-nft-media-misc);
       font-size: 16px;
-      padding: 30px 50px;
+      padding: 25px 70px 25px 50px;
       text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      position: relative;
+      width: 100%;
+    }
+
+    &__header-indicator {
+      height: 25px;
+      width: 25px;
+      position: absolute;
+      right: 30px;
     }
 
     &__content {
-      background: var(--color-component-bg-secondary);
-      padding: 50px;
+      background: var(--color-nft-media-bg-secondary);
+      padding: 25px;
     }
   }
 
   &__collection {
     @include component;
-    background: var(--color-component-bg-primary);
+    background: var(--color-nft-media-bg-primary);
     border: 0;
     border-radius: 12px;
-    margin-bottom: 30px;
     overflow: hidden;
+
+    &:not(:last-child) {
+      margin-bottom: 30px;
+    }
 
     &__header {
       cursor: pointer;
-      font: var(--font-component-header);
-      font-size: 24px;
-      padding: 25px 50px;
+      font: var(--font-nft-media-header);
+      font-size: 18px;
+      padding: 20px 60px 20px 30px;
+      position: relative;
+      width: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    &__header-indicator {
+      height: 25px;
+      width: 25px;
+      position: absolute;
+      right: 30px;
     }
 
     &__content {
-      padding: 0 50px 30px;
+      padding-inline: 30px;
       width: 100%;
     }
   }
 
+  --nft-media-carousel-height: 250px;
+
   &__carousel {
     position: relative;
+    height: calc(var(--nft-media-carousel-height) + 45px);
+    padding-right: 50px;
 
     &__shadow {
       background: linear-gradient(90deg, transparent, var(--color-component-bg-primary));
@@ -208,47 +307,50 @@
       position: absolute;
       right: 0;
       top: 0;
-      width: 30px;
+      width: 20px;
+      z-index: 100;
+    }
+
+    .swiper-button-next,
+    .swiper-button-prev {
+      color: var(--color-nft-media-text-secondary);
+      opacity: 0.75;
+      padding-bottom: 30px;
+
+      &::after {
+        font-size: 24px;
+      }
+    }
+
+    .swiper-button-disabled {
+      opacity: 0.25;
     }
   }
 
-  &__carousel-content {
-    display: flex;
-    overflow-x: auto;
-    padding: 0 30px 15px 0;
-    scrollbar-color: var(--color-component-bg-highlight) transparent;
-    scrollbar-width: thick;
-    width: 100%;
+  &__item-slide {
+    width: var(--nft-media-carousel-height);
+    max-width: var(--nft-media-carousel-height);
+    height: calc(var(--nft-media-carousel-height));
+    max-height: calc(var(--nft-media-carousel-height));
 
-    // sass-lint:disable no-vendor-prefixes
-    &::-webkit-scrollbar {
-      cursor: pointer;
-      height: 8px;
+    &--wide {
+      max-width: calc(#{var(--nft-media-carousel-height)} * 1.5);
+      width: calc(#{var(--nft-media-carousel-height)} * 1.5);
     }
 
-    &::-webkit-scrollbar-track {
-      background: transparent;
+    &--tall {
+      max-width: calc(#{var(--nft-media-carousel-height)} * 0.75);
+      width: calc(#{var(--nft-media-carousel-height)} * 0.75);
     }
-
-    &::-webkit-scrollbar-thumb {
-      background: var(--color-component-bg-secondary);
-      border-radius: 5px;
-      height: 10px;
-      padding: 10px;
-
-      &:hover {
-        background: var(--color-component-bg-highlight);
-      }
-    }
-    // sass-lint:enable no-vendor-prefixes
   }
 
   &__item {
+    width: 100%;
+    max-width: 100%;
+    opacity: 0.65;
+
     &.active {
-      .nft-media-browser__item__image-container {
-        border: var(--border-component-highlight);
-        border-width: 3px;
-      }
+      opacity: 1;
     }
 
     &:not(:last-child) {
@@ -257,9 +359,9 @@
 
     &__image-container {
       border-radius: 12px;
-      height: 200px;
+      height: 100%;
       overflow: hidden;
-      width: 356px;
+      width: 100%;
     }
 
     &__image {
@@ -270,7 +372,7 @@
     }
 
     &__name {
-      font-size: 18px;
+      font-size: 14px;
       font-weight: bold;
       margin-top: 10px;
     }
@@ -285,8 +387,43 @@
   }
 
   @media screen and (max-width: $tablet-breakpoint) {
+    --nft-media-carousel-height: 100px;
+
+    &__carousel {
+      &__shadow {
+        display: none;
+      }
+    }
+
     &__featured-item {
       max-width: unset;
+    }
+
+    &__section,
+    &__collection {
+      &__header {
+        padding: 15px 40px 15px 15px;
+        font-size: 14px;
+      }
+
+      &__header-indicator {
+        right: 10px;
+      }
+
+      &__content {
+        padding: 10px;
+
+        &--hidden {
+          padding: 0;
+          height: 0;
+        }
+      }
+    }
+
+    &__item {
+      &__name {
+        font-size: 12px;
+      }
     }
   }
 
@@ -312,6 +449,22 @@
 
       &__name {
         margin: 0;
+      }
+    }
+  }
+}
+
+.app--centered {
+  .nft-media-browser {
+    &__list-item {
+      * {
+        text-align: center;
+      }
+    }
+
+    &__item {
+      &__name {
+        text-align: center;
       }
     }
   }

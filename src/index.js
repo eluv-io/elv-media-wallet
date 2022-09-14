@@ -208,7 +208,7 @@ const App = observer(() => {
       }
     >
       <Routes />
-      <Auth0Authentication />
+      { rootStore.loaded && !rootStore.loggedIn ? <Auth0Authentication /> : null }
       <DebugFooter />
     </div>
   );
@@ -222,6 +222,7 @@ const AuthWrapper = ({children}) => {
         clientId={EluvioConfiguration["auth0-configuration-id"]}
         redirectUri={UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, "")}
         useRefreshTokens
+        cacheLocation="localstorage"
         darkMode={rootStore.darkMode}
       >
         {children}

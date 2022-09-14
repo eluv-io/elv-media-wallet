@@ -221,6 +221,26 @@ html {
   --border-radius-component: var(--border-radius);
   --box-shadow-component: var(--box-shadow);
 
+  /* NFT Media */
+  --font-nft-media-header: normal normal 500 24px var(--font-family-primary);
+  --font-nft-media-text: normal normal normal 16px var(--font-family-secondary);
+  --font-nft-media-misc: normal normal normal 16px var(--font-family-tertiary);
+
+  --background-nft-media-primary: var(--color-bg-primary);
+  --background-nft-media-secondary: var(--color-bg-secondary);
+  --color-nft-media-bg-primary: var(--color-bg-primary);
+  --color-nft-media-bg-secondary: var(--color-bg-secondary);
+  --color-nft-media-bg-highlight: var(--color-bg-highlight);
+  --color-nft-media-highlight: var(--color-text-highlight);
+  --color-nft-media-text-primary: var(--color-text-primary);
+  --color-nft-media-text-secondary: var(--color-text-secondary);
+  --color-nft-media-text-highlight: var(--color-text-highlight);
+  --border-nft-media-primary: var(--border);
+  --border-nft-media-secondary: var(--border-faint);
+  --border-nft-media-highlight: var(--border-highlight);
+  --border-radius-nft-media: var(--border-radius);
+  --box-shadow-nft-media: var(--box-shadow);
+
   /* Modals */
   --background-modal-overlay: rgba(0, 0, 0, 0.75);
   --background-modal-primary: var(--background-content);
