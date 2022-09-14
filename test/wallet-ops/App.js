@@ -200,10 +200,15 @@ const App = () => {
 
   const CrossChainAuth = async (type) => {
     const provider = await new CrossChainOracle(walletClient);
-    setInputs(provider.GetXcInputMessage(type));
+    const addr =  getInput("nftAddressToVerify");
+    const owner = getInput("nftOwnerToVerify");
+    const xcMsg = provider.GetXcMessage(type, addr, owner);
+
+    setInputs(xcMsg);
     setEmbed("");
-    let res = await provider.Run(type);
-    setResults({token: res, item: provider.item});
+    let res = await provider.Run(type, xcMsg)
+      .catch(err => { return err; });
+    setResults({rpcResult: res, policyFor: provider.item});
   };
 
   // TODO: this is getting called too much: twice on start, and after method calls

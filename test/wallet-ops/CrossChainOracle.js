@@ -12,8 +12,9 @@ export class CrossChainOracle {
   constructor(wallet) {
     this.walletClient = wallet;
     this.client = this.walletClient.client;
+    this.authServicePath = "/as/xco/view";  // On main/demo net as /as/xco/view
 
-    // FUTURE: pull out all these hardcoded samples and make configurable type-ins and reference material
+    // FUTURE: migrate hardcoded samples to (i) icon reference material
 
     this.ethSampleXcMsg = {
       "chain_type": "eip155",
@@ -60,12 +61,19 @@ export class CrossChainOracle {
       }
     };
 
-    // to use a local a dev authd instance:
+
+    // To use a local authd dev instance:
     //this.client.authServiceURIs = ["http://127.0.0.1:6546"];
     //this.client.AuthHttpClient.uris = this.client.authServiceURIs;
+    //this.authServicePath = "/xco/view";   // On local authd as /xco/view instead of /as/xco/view
   }
 
-  GetXcInputMessage = (type) => (type && type == "eth" ) ? this.ethSampleXcMsg : this.flowSampleXcMsg;
+  GetXcMessage = (type, asset, owner) => {
+    let msg = type == "eth" ? this.ethSampleXcMsg : this.flowSampleXcMsg;
+    msg.params.owner = !owner ? msg.params.owner : owner;
+    msg.asset_id = !asset ? msg.asset_id : asset;
+    return msg;
+  }
 
   /**
    * Make a cross-chain oracle call
@@ -79,8 +87,7 @@ export class CrossChainOracle {
       "json",
       this.client.authClient.MakeAuthServiceRequest({
         method: "POST",
-        path: "/as/xco/view",  // On main/dev net /as/xco/view
-        //path: "/xco/view",  // On local authd as /xco/view
+        path: this.authServicePath,
         body: msg,
         headers: {
           Authorization: `Bearer ${token}`,
@@ -95,7 +102,6 @@ export class CrossChainOracle {
    * Retrieve playout URLs
    */
   Play = async ({token}) => {
-
     this.client.SetStaticToken({ token });
 
     // First retrieve title metadata (title, synopsis, cast, ...)
@@ -114,10 +120,9 @@ export class CrossChainOracle {
     return res;
   };
 
-  Run = async (type) => {
-    let msg = (type && type == "eth" ) ? this.ethSampleXcMsg : this.flowSampleXcMsg;
-
-    if(type && type == "eth") {
+  Run = async (type, msg) => {
+    // this is just for demo convenience -- show the matching content
+    if(type == "eth") {
       this.item = this.ethContents;
       this.contentHash = this.ethContents.hash;
     } else {
@@ -128,23 +133,22 @@ export class CrossChainOracle {
 
     // Call the oracle cross-chain 'view' API 'balance'
     let xcMsg = await this.XcoMessage({msg: msg});
-    window.console.log("XCO MSG", xcMsg);
+    const balance = xcMsg?.ctx?.xc_msg?.results?.balance;
+    window.console.log("balance", balance);
 
-    // Create a client-signed-token including the 'xco-msg' as context
-    const accessToken = await this.client.CreateFabricToken({
-      duration: 60 * 60 * 1000, // millisec
-      spec: {
-        ctx : {
-          xco_msg: xcMsg.xco_msg
-        }
-      }
-    });
-    window.console.log("TOKEN", accessToken);
+    if(balance <= 0) {
+      return { balance: balance };
+    } else {
+      // Create a client-signed-token including the 'xco-msg' as context
+      const accessToken = await this.client.CreateFabricToken({
+        duration: 60 * 60 * 1000,
+        spec: {ctx : {xco_msg: xcMsg.xco_msg}}
+      });
+      let playoutOptions = await this.Play({token: accessToken});
+      window.console.log("PLAYOUT", playoutOptions);
 
-    // Play
-    let playoutOptions = await this.Play({token: accessToken});
-    window.console.log("PLAYOUT", playoutOptions);
-
-    return accessToken;
+      //return { balance: balance, msg: xcMsg, xcContextToken: accessToken };
+      return { balance: balance, msg: xcMsg?.msg, xcContextToken: accessToken };
+    }
   };
 }
