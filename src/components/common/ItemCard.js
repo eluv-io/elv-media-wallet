@@ -2,10 +2,8 @@ import React from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import {Link} from "react-router-dom";
-import LinesEllipsis from "react-lines-ellipsis";
-import responsiveHOC from "react-lines-ellipsis/lib/responsiveHOC";
 import {ButtonWithLoader} from "Components/common/UIComponents";
-const ResponsiveEllipsis = responsiveHOC()(LinesEllipsis);
+import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 
 // General card component
 const ItemCard = observer(({

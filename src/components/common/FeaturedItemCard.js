@@ -1,9 +1,7 @@
 import React from "react";
 import {observer} from "mobx-react";
 import {Link, useRouteMatch} from "react-router-dom";
-import LinesEllipsis from "react-lines-ellipsis";
-import responsiveHOC from "react-lines-ellipsis/lib/responsiveHOC";
-const ResponsiveEllipsis = responsiveHOC()(LinesEllipsis);
+import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 
 import UrlJoin from "url-join";
 

@@ -65,7 +65,7 @@ const UserRoutes = ({includeMarketplaceRoutes}) => {
     { name: "Open Pack", path: "items/:contractId/:tokenId/open", Component: PackOpenStatus },
 
     { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/media", noBlock: true, Component: NFTMedia },
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/media/featured/:mediaId", noBlock: true, Component: NFTMedia },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/media/:sectionId/:mediaId", noBlock: true, Component: NFTMedia },
     { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/media/:sectionId/:collectionId/:mediaId", noBlock: true, Component: NFTMedia },
 
     { path: "/", includeUserProfile: true, redirect: "items" },

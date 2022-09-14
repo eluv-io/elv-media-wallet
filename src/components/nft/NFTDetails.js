@@ -658,42 +658,48 @@ const NFTActions = observer(({
 });
 
 const NFTTabbedContent = observer(({nft, nftInfo}) => {
-  const anyTabs = (nftInfo.offers || []).filter(offer => !offer.hidden).length > 0;
+  const anyTabs = nftInfo.hasOffers || nftInfo.hasAdditionalMedia;
 
-  const [tab, setTab] = useState(anyTabs ? "offers" : "trading");
+  const [tab, setTab] = useState(nftInfo.hasAdditionalMedia ? "Media" : nftInfo.hasOffers ? "Offers" : "Trading");
 
   if(!nft || !anyTabs) {
     return <NFTTables nftInfo={nftInfo} />;
   }
 
+  let tabs = [
+    nftInfo.hasAdditionalMedia ? "Media" : "",
+    nftInfo.hasOffers ? "Offers" : "",
+    "Trading"
+  ].filter(tab => tab);
+
   let activeContent;
   switch(tab) {
-    case "trading":
+    case "Trading":
       activeContent = <NFTTables nftInfo={nftInfo} />;
       break;
 
-    case "offers":
+    case "Offers":
       activeContent = <NFTOffers nftInfo={nftInfo} />;
       break;
 
-    case "media":
-      activeContent = <NFTMediaBrowser nft={nft} />;
+    case "Media":
+      activeContent = <NFTMediaBrowser nftInfo={nftInfo} inactive={true} />;
       break;
   }
 
-  // TODO: Determine availability of offers / additional media
   return (
     <div className="details-page__tabbed-content">
       {
         anyTabs ?
           <div className="details-page__tabbed-content__tabs">
             {
-              [["Offers", "offers"], ["Trading", "trading"]].map(([tabLabel, tabName]) =>
+              tabs.map(tabName =>
                 <button
                   key={`tab-${tabName}`}
                   className={`details-page__tabbed-content__tab ${tab === tabName ? "details-page__tabbed-content__tab--active" : ""}`}
-                  onClick={() => setTab(tabName)}>
-                  {tabLabel}
+                  onClick={() => setTab(tabName)}
+                >
+                  {tabName}
                 </button>
               )
             }
@@ -1007,10 +1013,10 @@ export const ListingDetails = observer(() => {
   const [listingStatus, setListingStatus] = useState(undefined);
   const [unavailable, setUnavailable] = useState(false);
 
-  const nft = useState(rootStore.NFTData({
-    contractId: match.params.contractId,
-    tokenId: match.params.tokenId
-  }));
+  const contractAddress = match.params.contractId || listingStatus?.listing?.details?.ContractAddr || (listingStatus?.sale || listingStatus?.removed)?.contract;
+  const tokenId = match.params.tokenId || listingStatus?.listing?.details?.TokenIdStr || (listingStatus?.sale || listingStatus?.removed)?.token;
+
+  const nft = rootStore.NFTData({contractAddress, tokenId});
 
   if(unavailable) {
     return <DeletedPage />;

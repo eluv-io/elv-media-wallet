@@ -244,6 +244,20 @@ export const NFTInfo = ({
     };
   });
 
+  const hasOffers = offers.filter(offer => !offer.hidden).length > 0;
+
+  let additionalMedia, additionalMediaType, hasAdditionalMedia;
+  if(nft?.metadata?.additional_media_type === "Sections") {
+    additionalMediaType = "Sections";
+    additionalMedia = nft?.metadata?.additional_media_sections || {};
+    hasAdditionalMedia = additionalMedia.featured_media?.length > 0 ||
+      (additionalMedia?.sections || []).find(section => section.collections?.length > 0);
+  } else {
+    additionalMediaType = "List";
+    hasAdditionalMedia = nft?.metadata?.additional_media?.length > 0;
+    additionalMedia = nft?.metadata?.additional_media || [];
+  }
+
   let sideText;
   if(item && !hideAvailable && !outOfStock && !expired && !unauthorized && stock &&stock.max && stock.max < 10000000) {
     sideText = `${stock.max - stock.minted} / ${stock.max} Available`;
@@ -279,7 +293,13 @@ export const NFTInfo = ({
     mediaInfo,
 
     // Offers
+    hasOffers,
     offers,
+
+    // Media
+    hasAdditionalMedia,
+    additionalMediaType,
+    additionalMedia,
 
     // Status
     stock,
@@ -298,13 +318,13 @@ export const NFTInfo = ({
   };
 };
 
-export const NFTMediaInfo = ({nft, item, selectedMedia, showFullMedia, width}) => {
+export const NFTMediaInfo = ({versionHash, nft, item, selectedMedia, selectedMediaPath, showFullMedia, width}) => {
   let imageUrl, embedUrl, mediaLink, useFrame=false;
 
   const requiresPermissions = item?.requires_permissions || selectedMedia?.requires_permissions;
   const authToken = requiresPermissions ? rootStore.authToken : rootStore.staticToken;
 
-  if(nft && nft.metadata.media && ["Ebook", "HTML"].includes(nft.metadata.media_type)) {
+  if(!selectedMedia && nft && nft.metadata.media && ["Ebook", "HTML"].includes(nft.metadata.media_type)) {
     selectedMedia = {
       media_type: nft.metadata.media_type,
       media_file: nft.metadata.media,
@@ -359,6 +379,16 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, showFullMedia, width}) =
       embedUrl.searchParams.set("vid", selectedMedia.media_file["."].container);
       embedUrl.searchParams.set("murl", Utils.B64(selectedMedia.media_file.url));
       useFrame = true;
+    } else if(selectedMedia && selectedMedia.media_type === "Gallery" && selectedMedia.gallery) {
+      //embedUrl = new URL("https://embed.v3.contentfabric.io");
+      embedUrl = new URL("http://localhost:8088");
+
+      embedUrl.searchParams.set("p", "");
+      embedUrl.searchParams.set("mt", "g");
+      embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
+      embedUrl.searchParams.set("vid", versionHash);
+      embedUrl.searchParams.set("ln", Utils.B64(selectedMediaPath));
+      embedUrl.searchParams.set("ht", "");
     } else if((selectedMedia && ["Audio", "Video"].includes(selectedMedia.media_type) && selectedMedia.media_link)) {
       embedUrl = new URL("https://embed.v3.contentfabric.io");
 
