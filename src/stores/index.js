@@ -662,13 +662,6 @@ class RootStore {
     const key = `${contractAddress}-${tokenId}`;
     if(force || !this.nftData[key]) {
       this.nftData[key] = yield this.walletClient.NFT({contractAddress, tokenId});
-      // TODO: Remove
-      const versionHash = "hq__ATbJtnXW7YBmBj1WxE1kEkA4oXy8sY6xVMUyWsHPT58tnwJ3JANyPVcwiLFSp1tvrNBFB7LKTQ";
-      this.nftData[key].metadata = yield this.client.ContentObjectMetadata({
-        versionHash,
-        metadataSubtree: "public/asset_metadata/nft"
-      });
-      this.nftData[key].details.VersionHash = versionHash;
     }
 
 
