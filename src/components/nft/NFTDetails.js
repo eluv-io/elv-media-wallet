@@ -52,7 +52,6 @@ const NFTMediaSection = ({nftInfo, containerElement, selectedMediaIndex, setSele
 
   let media = nft.metadata.additional_media || [];
   const isOwned = nft.details && Utils.EqualAddress(rootStore.CurrentAddress(), nft.details.TokenOwner);
-  console.log(media, isOwned);
 
   if(!isOwned) {
     media = media.filter(item => !item.requires_permissions);
@@ -851,6 +850,10 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
     nft = {
       ...(nft || {}),
       ...listingStatus.listing,
+      details: {
+        ...(nft?.details || {}),
+        ...listingStatus.listing.details
+      },
       metadata: {
         ...(nft?.metadata || {}),
         ...listingStatus.listing.metadata
@@ -1144,10 +1147,10 @@ export const ListingDetails = observer(() => {
   const [listingStatus, setListingStatus] = useState(undefined);
   const [unavailable, setUnavailable] = useState(false);
 
-  const nft = useState(rootStore.NFTData({
-    contractId: match.params.contractId,
-    tokenId: match.params.tokenId
-  }));
+  const nft = rootStore.NFTData({
+    contractAddress: listingStatus?.listing?.details?.ContractAddr || (listingStatus?.sale || listingStatus?.removed)?.contract,
+    tokenId: listingStatus?.listing?.details?.TokenIdStr || (listingStatus?.sale || listingStatus?.removed)?.token
+  });
 
   if(unavailable) {
     return <DeletedPage />;

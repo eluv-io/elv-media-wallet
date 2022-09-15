@@ -40,7 +40,7 @@
     "@auth0/auth0-react": "^1.9.0",
     "@babel/cli": "^7.14.8",
     "@babel/plugin-transform-modules-commonjs": "^7.17.9",
-    "@eluvio/elv-client-js": "^3.2.23",
+    "@eluvio/elv-client-js": "^3.2.25",
     "@eluvio/elv-embed": "git+https://github.com/eluv-io/elv-embed.git",
     "@eluvio/elv-paymentgate": "0.0.1",
     "@eluvio/elv-player-js": "^1.0.83",

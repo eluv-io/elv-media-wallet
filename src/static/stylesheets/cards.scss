@@ -506,9 +506,11 @@
 
   &__lookout-url {
     color: var(--color-card-text-secondary);
+    display: block;
     font-size: 12px;
-    margin: 20px 0 5px;
+    margin: 20px auto 5px;
     text-decoration: underline;
+    width: max-content;
   }
 
   &__redeemer {

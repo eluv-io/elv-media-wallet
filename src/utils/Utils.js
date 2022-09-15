@@ -141,6 +141,10 @@ export const NFTInfo = ({
     nft = {
       ...(nft || {}),
       ...listing,
+      details: {
+        ...(nft?.details || {}),
+        ...listing.details
+      },
       metadata: {
         ...(nft?.metadata || {}),
         ...listing.metadata
