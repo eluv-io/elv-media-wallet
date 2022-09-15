@@ -20,9 +20,9 @@ export class CrossChainOracle {
       "chain_type": "eip155",
       "chain_id": "955210",
       "asset_type": "erc20",
-      "asset_id": "0x43842733179fa1c38560a44f1d9067677461c8ca",
+      "asset_id": "0xc21ea77699666e2bb6b96dd20157db08f22cb9c3",
       "method": "balance",
-      "params": { "owner": "0x4163a41b433cbF55C5836376c417F676bD4e0DE0" }
+      "params": { "owner": "0x80ff0c9b1e7aa9a3c4b665e3a601d648d402bd7e" }
     };
 
     this.flowSampleXcMsg = {
