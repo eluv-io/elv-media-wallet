@@ -51,7 +51,8 @@ const NFTMediaSection = ({nftInfo, containerElement, selectedMediaIndex, setSele
   const [orderKey, setOrderKey] = useState(0);
 
   let media = nft.metadata.additional_media || [];
-  const isOwned = nft.details && rootStore.NFTContractInfo({contractAddress: nft.details.ContractAddr, tokenId: nft.details.TokenIdStr});
+  const isOwned = nft.details && Utils.EqualAddress(rootStore.CurrentAddress(), nft.details.TokenOwner);
+  console.log(media, isOwned);
 
   if(!isOwned) {
     media = media.filter(item => !item.requires_permissions);
