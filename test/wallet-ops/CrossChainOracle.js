@@ -34,9 +34,24 @@ export class CrossChainOracle {
       "params": { "owner":"0xcbd420284fd5e19b" }
     };
 
-    // caminandes content
+    // starflicks content
     this.ethContents = {
-      hash: "hq__93SK4rgxMarq1ZeDSEu9WJkDoptTKYiA2GmYocK7inMthUssGkG6Q9BREBEhNtVCiCBFsPd4Gd"
+      "0xc21ea77699666e2bb6b96dd20157db08f22cb9c3": {
+        description: "Caminades - Ep 1",
+        hash: "hq__93SK4rgxMarq1ZeDSEu9WJkDoptTKYiA2GmYocK7inMthUssGkG6Q9BREBEhNtVCiCBFsPd4Gd",
+        objectId: "iq__43HBatpRLVM2LwEUxChe7C9eBRMo",
+        contractAddress: "0xc21ea77699666e2bb6b96dd20157db08f22cb9c3",
+      },
+      "0x43842733179fa1c38560a44f1d9067677461c8ca": {
+        description: "Meridian",
+        hash: "hq__JHFZaD9f4q8LqZNANFq8MLhjRRMAXxSjKRwqR9KdBEydAH7Bb6XkdV2s7dNJQ6W4KPzHFct87c",
+        objectId: "iq__GGchzeLUFdGwJD4gyS9ZXR2867k",
+        contractAddress: "0x43842733179fa1c38560a44f1d9067677461c8ca",
+      },
+      "default": {
+        description: "Caminades - Ep 1",
+        hash: "hq__93SK4rgxMarq1ZeDSEu9WJkDoptTKYiA2GmYocK7inMthUssGkG6Q9BREBEhNtVCiCBFsPd4Gd",
+      },
     };
 
     // CNN content
@@ -60,7 +75,6 @@ export class CrossChainOracle {
         description: "New York Subliners",
       }
     };
-
 
     // To use a local authd dev instance:
     //this.client.authServiceURIs = ["http://127.0.0.1:6546"];
@@ -108,27 +122,27 @@ export class CrossChainOracle {
     let meta = await this.client.ContentObjectMetadata({
       versionHash: this.contentHash,
       metadataSubtree: "/public/asset_metadata"
-    });
+    }).catch(err => { return err; });
     window.console.log("META", meta);
 
     // Retrieve playout info (DASH and HLS URLs)
-    let res = await this.client.PlayoutOptions({
+    let playoutOptions = await this.client.PlayoutOptions({
       versionHash: this.contentHash,
       drms: ["clear", "aes-128", "fairplay", "widevine"]
-    });
+    }).catch(err => { return err; });
 
-    return res;
+    return { metadata: meta, playoutOptions: playoutOptions};
   };
 
   Run = async (type, msg) => {
     // this is just for demo convenience -- show the matching content
     if(type == "eth") {
-      this.item = this.ethContents;
-      this.contentHash = this.ethContents.hash;
+      window.console.log("msg.asset_id", msg.asset_id);
+      this.item = this.ethContents[msg.asset_id] || this.ethContents["default"];
     } else {
       this.item = this.flowContents[Math.floor(Math.random() * 3)];
-      this.contentHash = this.item.hash;
     }
+    this.contentHash = this.item.hash;
     window.console.log("using", this.item);
 
     // Call the oracle cross-chain 'view' API 'balance'
@@ -139,16 +153,9 @@ export class CrossChainOracle {
     if(balance <= 0) {
       return { balance: balance };
     } else {
-      // Create a client-signed-token including the 'xco-msg' as context
-      const accessToken = await this.client.CreateFabricToken({
-        duration: 60 * 60 * 1000,
-        spec: {ctx : {xco_msg: xcMsg.xco_msg}}
-      });
-      let playoutOptions = await this.Play({token: accessToken});
-      window.console.log("PLAYOUT", playoutOptions);
-
-      //return { balance: balance, msg: xcMsg, xcContextToken: accessToken };
-      return { balance: balance, msg: xcMsg?.msg, xcContextToken: accessToken };
+      // let playoutOptions = await this.Play({token: accessToken});
+      // window.console.log("PLAYOUT", playoutOptions);
+      return { balance: balance, msg: xcMsg };
     }
   };
 }
