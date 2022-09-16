@@ -19,7 +19,7 @@
     "build-frame-test": "rm -rf ./test/dist/test-frame/* && NODE_ENV=production node ./node_modules/webpack-cli/bin/cli.js --entry ./test/frame.js --output-path ./test/dist/test-frame --devtool none",
     "build-client-test": "rm -rf ./test/dist/test-client/* && NODE_ENV=production node ./node_modules/webpack-cli/bin/cli.js --entry ./test/client.js --output-path ./test/dist/test-client --devtool none",
     "build-login-test": "rm -rf ./test/dist/test-login/* && NODE_ENV=production node ./node_modules/webpack-cli/bin/cli.js --entry ./test/login.js --output-path ./test/dist/test-login --devtool none",
-    "build-wallet-ops-test": "rm -rf ./test/dist/test-wallet-ops/* && NODE_ENV=production node ./node_modules/webpack-cli/bin/cli.js --entry ./test/wallet-ops/App.js --output-path ./test/dist/test-wallet-ops --devtool none && mkdir -p ./test/dist/test-wallet-ops/test/wallet-ops/ && cp ./test/wallet-ops/*abi ./test/dist/test-wallet-ops/test/wallet-ops/",
+    "build-wallet-ops-test": "rm -rf ./test/dist/test-wallet-ops/* && NODE_ENV=production node ./node_modules/webpack-cli/bin/cli.js --entry ./test/wallet-ops/App.js --output-path ./test/dist/test-wallet-ops --devtool none && mkdir -p ./test/dist/test-wallet-ops/test/wallet-ops/ && cp ./test/wallet-ops/*abi ./test/dist/test-wallet-ops/test/wallet-ops/ && cp index-template.html ./test/dist/test-wallet-ops/",
     "build-docs": "rm -rf ./docs/* && ./node_modules/.bin/jsdoc --configure ./.jsdoc.json --readme README.md",
     "add-build": "COMMIT=`git rev-parse HEAD` ; echo $COMMIT > dist/version.txt ; git add dist",
     "lint": "npm run fix-scss ; npm run lint-scss ; npm run fix-js",

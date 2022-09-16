@@ -1,17 +1,31 @@
 {
   "hosting": {
-    "target": "elv-rewriter",
     "public": "test/dist/test-wallet-ops",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**",
       "index.html"
-    ],"rewrites": [
+    ],
+    "rewrites": [
       {
-        "source": "**",
-        "function": "host"
+        "source": "/bigben",
+        "function": "bigben"
       }
     ]
+  },
+  "functions": {
+    "ignore": [
+      "node_modules",
+      ".git",
+      "firebase-debug.log",
+      "firebase-debug.*.log"
+    ]
+  },
+  "emulators": {
+    "hosting": {
+      "host": "localhost",
+      "port": "5050"
+    }
   }
 }
