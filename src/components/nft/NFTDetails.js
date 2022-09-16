@@ -186,6 +186,7 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
     }
   }
 
+  const cap = contractStats?.cap || nft.details.Cap;
   return (
     <ExpandableSection header="Details" icon={DetailsIcon}>
       { nft.metadata.rich_text ? <RichText richText={nft.metadata.rich_text} className="details-page__rich-text" /> : null }
@@ -257,7 +258,7 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
           </> : null
       }
       {
-        contractStats?.cap || nft.details.Cap ?
+        cap && cap < 10000000 ?
           <div className="details-page__detail-field">
             Cap: { contractStats?.cap || nft.details.Cap }
           </div>

@@ -84,7 +84,7 @@ const UsernameModal = observer(({UpdateUsername, Close}) => {
 const UserProfileContainer = observer(({children}) => {
   const match = useRouteMatch();
 
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId] || {};
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
 
   const [userProfile, setUserProfile] = useState(undefined);
   const [userStats, setUserStats] = useState(undefined);
@@ -192,11 +192,16 @@ const UserProfileContainer = observer(({children}) => {
             {
               userStats ?
                 <>
-                  <div className="user__badge">
-                    <div className="user__badge__label">Leaderboard</div>
-                    <div className="user__badge__value">#{ userStats.rank ? userStats.rank.toLocaleString() : "" }</div>
-                  </div>
-                  <div className="user__badges__separator" />
+                  {
+                    marketplace && !marketplace?.branding?.hide_leaderboard ?
+                      <>
+                        <div className="user__badge">
+                          <div className="user__badge__label">Leaderboard</div>
+                          <div className="user__badge__value">#{userStats.rank ? userStats.rank.toLocaleString() : ""}</div>
+                        </div>
+                        <div className="user__badges__separator" />
+                      </> : null
+                  }
                   <div className="user__badge">
                     <div className="user__badge__label">Collectibles</div>
                     <div className="user__badge__value">{ (userStats.count || 0).toLocaleString() }</div>
@@ -213,7 +218,7 @@ const UserProfileContainer = observer(({children}) => {
               Items
             </NavLink>
             {
-              marketplace.collections && marketplace.collections.length > 0 ?
+              marketplace?.collections && marketplace?.collections.length > 0 ?
                 <NavLink to="collections" className="subheader__navigation-link user__nav__link">
                   Collections
                 </NavLink> : null
