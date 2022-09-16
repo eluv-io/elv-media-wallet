@@ -2,6 +2,19 @@
 
 .nft-media {
   --elv-gallery-max-height: calc(100vh - 350px);
+  --elv-gallery-min-height: 500px;
+
+  &--with-album-view {
+    --elv-gallery-max-height: calc(100vh - 600px);
+
+    .nft-media__content__target-container {
+      aspect-ratio: 21/9;
+    }
+
+    .nft-media__content__target {
+      max-width: calc(100% - 400px);
+    }
+  }
 
   position: relative;
   height: 100%;
@@ -15,7 +28,9 @@
       margin-inline: auto;
       max-height: var(--elv-gallery-max-height);
       height: var(--elv-gallery-max-height);
-      min-height: var(--elv-gallery-max-height);
+      min-height: var(--elv-gallery-min-height);
+      width: 100%;
+      aspect-ratio: 16/9;
       padding: 0 60px;
       max-width: 100%;
       position: relative;
@@ -30,6 +45,7 @@
       object-fit: contain;
       width: 100%;
       border: 0;
+      border-radius: var(--border-radius-nft-media);
     }
 
     &__button {
@@ -101,12 +117,145 @@
     }
   }
 
+
+  &__album-view {
+    width: 400px;
+    max-width: 400px;
+    height: 100%;
+    max-height: 100%;
+    position: relative;
+
+    &__media-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      max-height: 100%;
+      overflow-y: auto;
+      // sass-lint:disable no-misspelled-properties
+      overscroll-behavior: contain;
+
+      &--with-controls {
+        padding-bottom: 50px;
+      }
+    }
+
+    &__media {
+      align-items: center;
+      background: var(--background-nft-media-secondary);
+      border: 0.5px solid transparent;
+      display: flex;
+      height: 100px;
+      padding: 10px;
+      width: 100%;
+      scroll-margin: 100px;
+
+      &--selected {
+        background: var(--color-nft-media-bg-highlight);
+
+        * {
+          color: var(--color-text-background-highlight);
+        }
+
+        .details-page__media__name {
+          color: var(--color-nft-media-text-highlight);
+        }
+      }
+
+      &__image-container {
+        border-radius: var(--border-radius-nft-media);
+        height: 100%;
+        max-width: 80px;
+        min-width: 80px;
+        position: relative;
+        width: 100%;
+      }
+
+      &__image {
+        border-radius: var(--border-radius-nft-media);
+        height: 100%;
+        left: 0;
+        object-fit: contain;
+        position: absolute;
+        top: 0;
+        width: 100%;
+
+        &--fallback {
+          // sass-lint:disable no-color-literals
+          background: radial-gradient(ellipse at top, #333, #000);
+        }
+      }
+
+      &__hover-icon,
+      &__selected-indicator {
+        @include page-fade-in(0.25s);
+        bottom: 8px;
+        height: 20px;
+        position: absolute;
+        right: 8px;
+        width: 20px;
+
+        * {
+          color: var(--color-highlight-container-text);
+        }
+
+        circle {
+          fill: var(--color-highlight-container-bg);
+        }
+      }
+
+      &:not(:hover) {
+        .details-page__media__hover-icon {
+          display: none;
+        }
+      }
+
+      &__details {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        justify-content: space-between;
+        padding: 0 10px;
+        text-align: left;
+        width: calc(100% - 80px);
+      }
+
+      &__name {
+        font-size: 15px;
+        font-weight: 400;
+        line-height: 1.2em;
+      }
+
+      &__subtitle-1 {
+        font-size: 11px;
+        font-weight: 500;
+      }
+
+      &__subtitle-2 {
+        font-size: 11px;
+        font-weight: 300;
+      }
+    }
+  }
+
   @media screen and (max-width: $tablet-breakpoint) {
+    --elv-gallery-max-height: unset;
+
+    &--with-album-view {
+      .nft-media__content__target-container {
+        aspect-ratio: unset;
+      }
+
+      .nft-media__content__target {
+        max-width: unset;
+      }
+    }
+
     &__content {
       &__target-container {
         padding: 0;
         height: 100%;
         width: 100%;
+        max-height: unset;
+        flex-direction: column;
       }
 
       &__name {
@@ -124,6 +273,16 @@
       &__description {
         font-size: 14px;
         max-width: unset;
+      }
+    }
+
+    &__album-view {
+      width: 100%;
+      max-height: 250px;
+      margin-top: 20px;
+
+      &__media-container {
+        max-height: 250px;
       }
     }
   }
@@ -178,7 +337,6 @@
   }
 
   &__featured-item {
-    @include component;
     background: var(--color-nft-media-bg-primary);
     border: 0;
     border-radius: 25px;
@@ -229,13 +387,13 @@
   }
 
   &__section {
-    @include component;
+    background: var(--color-nft-media-bg-primary);
     border: 0;
-    border-radius: 8px;
+    border-radius: var(--border-radius-nft-media);
     overflow: hidden;
+    padding-bottom: 20px;
 
     &__header {
-      cursor: pointer;
       font: var(--font-nft-media-misc);
       font-size: 16px;
       padding: 25px 70px 25px 50px;
@@ -255,15 +413,13 @@
 
     &__content {
       background: var(--color-nft-media-bg-secondary);
-      padding: 25px;
     }
   }
 
   &__collection {
-    @include component;
-    background: var(--color-nft-media-bg-primary);
+    background: var(--color-nft-media-bg-secondary);
     border: 0;
-    border-radius: 12px;
+    border-radius: var(--border-radius-nft-media);
     overflow: hidden;
 
     &:not(:last-child) {
@@ -271,10 +427,9 @@
     }
 
     &__header {
-      cursor: pointer;
       font: var(--font-nft-media-header);
-      font-size: 18px;
-      padding: 20px 60px 20px 30px;
+      font-size: 16px;
+      padding: 20px 70px 20px 50px;
       position: relative;
       width: 100%;
       display: flex;
@@ -289,7 +444,7 @@
     }
 
     &__content {
-      padding-inline: 30px;
+      padding: 0 30px 0 50px;
       width: 100%;
     }
   }
@@ -302,7 +457,7 @@
     padding-right: 50px;
 
     &__shadow {
-      background: linear-gradient(90deg, transparent, var(--color-component-bg-primary));
+      background: linear-gradient(90deg, transparent, var(--color-nft-media-bg-secondary));
       height: calc(100% - 30px);
       position: absolute;
       right: 0;

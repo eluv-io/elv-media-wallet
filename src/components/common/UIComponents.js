@@ -95,6 +95,14 @@ export const ExpandableSection = ({header, icon, children, expanded=false, toggl
   );
 };
 
+export const PossibleButton = ({isButton, onClick, ...args}) => {
+  if(isButton) {
+    return <button onClick={onClick} {...args} />;
+  }
+
+  return <div {...args} />;
+};
+
 export const Copy = async (value) => {
   try {
     value = (value || "").toString();

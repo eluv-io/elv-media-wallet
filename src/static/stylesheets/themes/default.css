@@ -227,9 +227,9 @@ html {
   --font-nft-media-misc: normal normal normal 16px var(--font-family-tertiary);
 
   --background-nft-media-primary: var(--color-bg-primary);
-  --background-nft-media-secondary: var(--color-bg-secondary);
+  --background-nft-media-secondary: var(--color-bg-primary);
   --color-nft-media-bg-primary: var(--color-bg-primary);
-  --color-nft-media-bg-secondary: var(--color-bg-secondary);
+  --color-nft-media-bg-secondary: var(--color-bg-primary);
   --color-nft-media-bg-highlight: var(--color-bg-highlight);
   --color-nft-media-highlight: var(--color-text-highlight);
   --color-nft-media-text-primary: var(--color-text-primary);
