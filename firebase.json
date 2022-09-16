@@ -1,11 +1,17 @@
 {
   "hosting": {
-    "target": "elv-dapp-sample",
+    "target": "elv-rewriter",
     "public": "test/dist/test-wallet-ops",
     "ignore": [
       "firebase.json",
       "**/.*",
-      "**/node_modules/**"
+      "**/node_modules/**",
+      "index.html"
+    ],"rewrites": [
+      {
+        "source": "**",
+        "function": "host"
+      }
     ]
   }
 }

@@ -1,14 +1,5 @@
 {
   "projects": {
-    "default": "production-260101"
-  },
-  "targets": {
-    "production-260101": {
-      "hosting": {
-        "elv-dapp-sample": [
-          "elv-dapp-sample"
-        ]
-      }
-    }
+    "default": "elv-rewriter"
   }
 }

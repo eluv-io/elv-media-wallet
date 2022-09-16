@@ -1,5 +1,5 @@
 #
-# currently only used for the wallet-ops-deploy
+# testing an index rewriter app
 #
 
 build:
@@ -8,9 +8,8 @@ build:
 clean:
 	rm -rf dist/
 
-wallet-ops-deploy:
-	firebase use production-260101
-	npm run build-wallet-ops-test && firebase deploy --only hosting:elv-dapp-sample	
+deploy:
+	npm run build-wallet-ops-test && firebase deploy --only hosting:elv-rewriter
 
 wallet-ops:
 	@echo :8094
@@ -19,12 +18,3 @@ wallet-ops:
 media-wallet:
 	@echo :8090
 	npm run serve-https
-
-client-test:
-	@echo :8092
-	npm run serve-client-test
-
-login-test:
-	@echo :8093
-	npm run serve-login-test
-
