@@ -20,4 +20,10 @@ exports.bigben = functions.https.onRequest((req, res) => {
   </html>`);
 });
 
+exports.create_index_html = functions.https.onRequest((req, res) => {
+  let html = fs.readFileSync(Path.resolve(__dirname, "./index-template.html")).toString();
 
+  // Inject metadata
+
+  res.status(200).send(html);
+});

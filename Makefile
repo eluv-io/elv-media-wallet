@@ -17,7 +17,11 @@ functions-test:
 	curl http://localhost:5001/elv-rewriter/us-central1/bigben || true
 	@echo --- real
 	curl https://us-central1-elv-rewriter.cloudfunctions.net/bigben
+	@echo --- emulator index
+	curl http://localhost:5001/elv-rewriter/us-central1/create_index_html
 
+emu:
+	firebase emulators:start &
 
 wallet-ops:
 	@echo :8094

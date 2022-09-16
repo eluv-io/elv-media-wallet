@@ -8,10 +8,8 @@
       "index.html"
     ],
     "rewrites": [
-      {
-        "source": "/bigben",
-        "function": "bigben"
-      }
+      { "source": "/bigben", "function": "bigben" },
+      { "source": "/index.html", "function": "create_index_html" }
     ]
   },
   "functions": {
