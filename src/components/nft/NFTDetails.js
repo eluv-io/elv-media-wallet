@@ -441,7 +441,11 @@ const NFTInfoSection = ({nftInfo, className=""}) => {
 
   let sideText = nftInfo.sideText;
   if(nftInfo.stock) {
-    sideText = [`${nftInfo.stock.minted} Minted`, `${nftInfo.stock.max - nftInfo.stock.minted} Available`];
+    sideText = [`${nftInfo.stock.minted} Minted`];
+
+    if(nftInfo.stock.max < 10000000) {
+      sideText.push(`${nftInfo.stock.max - nftInfo.stock.minted} Available`);
+    }
   }
 
   useEffect(() => {
