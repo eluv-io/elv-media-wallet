@@ -252,9 +252,12 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
             <div className="details-page__detail-field">
               Number Burned: { contractStats.burned || 0 }
             </div>
-            <div className="details-page__detail-field">
-              Maximum Possible in Circulation: { contractStats.cap - contractStats.burned }
-            </div>
+            {
+              cap && cap < 10000000 ?
+                <div className="details-page__detail-field">
+                  Maximum Possible in Circulation: {contractStats.cap - contractStats.burned}
+                </div> : null
+            }
           </> : null
       }
       {
