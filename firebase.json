@@ -10,6 +10,7 @@
     "rewrites": [
       { "source": "/ping", "function": "ping" },
       { "source": "/index.html", "function": "create_index_html" },
+      { "source": "/", "function": "create_index_html" },
       { "source": "index.html", "function": "create_index_html" },
       { "source": "**", "function": "create_index_html" }
     ]

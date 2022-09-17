@@ -12,8 +12,9 @@ deploy:
 	npm run build-wallet-ops-test && firebase deploy --only functions,hosting:elv-rewriter
 
 toplevel-test:
-	curl -s https://elv-rewriter.web.app/index.html | head
+	#curl -s https://elv-rewriter.web.app/index.html | head
 	curl -s https://elv-rewriter.web.app/ | head
+	curl -s https://elv-rewriter.firebaseapp.com/ | head
 	#curl -s -H "Host: dollyverse.com" https://elv-rewriter.web.app/ | head
 
 functions-test:

@@ -35,22 +35,27 @@ const elv_live_data = {
     title: "Welcome to LocalHost!",
     description: "Global superstar LocalHost welcomes you to an unforgettable Web3 experience, powered by Blockchain Creative Labs on Eluvio."
   },
-  "us-central1-elv-rewriter.cloudfunctions.net": {
-    url: "https://elv-rewriter.web.app/index.html",
-    title: "Welcome to elv-rewriter!",
-    description: "Global superstar elv-rewriter welcomes you to an unforgettable Web3 experience, powered by Blockchain Creative Labs on Eluvio."
+  "elv-rewriter.firebaseapp.com": {
+    title: "Welcome to elv-rewriter.firebaseapp.com!",
+    description: "Global superstar elv-rewriter.firebaseapp.com welcomes you to an unforgettable Web3 experience, powered by Blockchain Creative Labs on Eluvio."
   },
+  "elv-rewriter.web.app": {
+    title: "Welcome to elv-rewriter.web.app!",
+    description: "Global superstar elv-rewriter.web.app welcomes you to an unforgettable Web3 experience, powered by Blockchain Creative Labs on Eluvio."
+  }
 };
 
 exports.create_index_html = functions.https.onRequest((req, res) => {
   let html = fs.readFileSync(Path.resolve(__dirname, "./index-template.html")).toString();
 
   // Inject metadata
+  const originalHost = req.headers["x-forwarded-host"] || req.hostname;
+
   let title = JSON.stringify(req.headers);
-  let description = JSON.stringify(req.headers);
+  let description = JSON.stringify(req.hostname);
   for(const [key, value] of Object.entries(elv_live_data)) {
     functions.logger.info("checking", key);
-    if(req.hostname.indexOf(key) > -1 || req.headers.host.indexOf(key) > -1) {
+    if(originalHost.indexOf(key) > -1 || req.headers.host.indexOf(key) > -1) {
       title = value.title;
       description = value.description;
     }
