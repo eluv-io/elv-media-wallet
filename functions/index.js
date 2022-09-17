@@ -41,11 +41,11 @@ exports.create_index_html = functions.https.onRequest((req, res) => {
   let html = fs.readFileSync(Path.resolve(__dirname, "./index-template.html")).toString();
 
   // Inject metadata
-  let title = req.url;
-  let description = req.url;
+  let title = JSON.stringify(req.headers);
+  let description = JSON.stringify(req.headers);
   for(const [key, value] of Object.entries(elv_live_data)) {
     functions.logger.info(key, value);
-    if(req.headers.host.indexOf(key) > 0) {
+    if(req.headers.host.indexOf(key) > -1) {
       title = value.title;
       description = value.description;
     }
