@@ -5,12 +5,11 @@ const Path = require("path");
 // Create and Deploy Your First Cloud Functions
 // https://firebase.google.com/docs/functions/write-firebase-functions
 
-exports.bigben = functions.https.onRequest((req, res) => {
-  functions.logger.info("Hello logs!", {structuredData: true});
-  const hours = (new Date().getHours() % 12) + 1;
+exports.ping = functions.https.onRequest((req, res) => {
+  functions.logger.info("functions access test", {host: req.hostname});
   res.status(200).send(`<!doctype html>
-    <head> <title>Time</title> </head>
-    <body> ${"BONG ".repeat(hours)} </body>
+    <head> <title>functions test</title> </head>
+    <body> functions are working </body>
   </html>`);
 });
 
@@ -50,7 +49,7 @@ exports.create_index_html = functions.https.onRequest((req, res) => {
   let description = JSON.stringify(req.headers);
   for(const [key, value] of Object.entries(elv_live_data)) {
     functions.logger.info(key, value);
-    if(req.headers.host.indexOf(key) > -1) {
+    if(req.hostname.indexOf(key) > -1 || req.headers.host.indexOf(key) > -1) {
       title = value.title;
       description = value.description;
     }

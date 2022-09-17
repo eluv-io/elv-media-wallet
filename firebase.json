@@ -8,7 +8,7 @@
       "index.html"
     ],
     "rewrites": [
-      { "source": "/bigben", "function": "bigben" },
+      { "source": "/ping", "function": "ping" },
       { "source": "/index.html", "function": "create_index_html" },
       { "source": "**", "function": "create_index_html" }
     ]
