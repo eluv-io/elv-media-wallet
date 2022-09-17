@@ -10,7 +10,8 @@ exports.ping = functions.https.onRequest((req, res) => {
   res.status(200).send(`<!doctype html>
     <head> <title>functions test</title> </head>
     <body> functions are working </body>
-  </html>`);
+  </html>
+`);
 });
 
 const elv_live_data = {
@@ -48,7 +49,7 @@ exports.create_index_html = functions.https.onRequest((req, res) => {
   let title = JSON.stringify(req.headers);
   let description = JSON.stringify(req.headers);
   for(const [key, value] of Object.entries(elv_live_data)) {
-    functions.logger.info(key, value);
+    functions.logger.info("checking", key);
     if(req.hostname.indexOf(key) > -1 || req.headers.host.indexOf(key) > -1) {
       title = value.title;
       description = value.description;
