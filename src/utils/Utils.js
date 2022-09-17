@@ -128,6 +128,90 @@ export const NFTDisplayToken = nft => {
   }
 };
 
+const FormatAdditionalMedia = ({metadata={}, versionHash}) => {
+  let additionalMedia, additionalMediaType, hasAdditionalMedia;
+  if(metadata?.additional_media_type === "Sections") {
+    additionalMediaType = "Sections";
+    additionalMedia = { ...(metadata?.additional_media_sections || {}) };
+    hasAdditionalMedia = additionalMedia.featured_media?.length > 0 ||
+      (additionalMedia?.sections || []).find(section => section.collections?.length > 0);
+
+    additionalMedia.type = "Sections";
+  } else {
+    additionalMediaType = "List";
+    hasAdditionalMedia = metadata?.additional_media?.length > 0;
+    const display =  metadata.additional_media_display ||
+      (typeof metadata.additional_media_display === "undefined" && !metadata.hide_additional_media_player_controls) ? "Album" : "Media";
+    additionalMedia = {
+      type: "List",
+      featured_media: [],
+      sections: [{
+        id: "list",
+        name: display === "Album" ? "Tracks" : "Media",
+        isSingleAlbum: display === "Album",
+        collections: [{
+          id: "list",
+          name: name,
+          display,
+          media: [ ...(metadata?.additional_media || []) ]
+        }]
+      }]
+    };
+  }
+
+  if(hasAdditionalMedia) {
+    const MediaInfo = ({mediaItem, type, sectionIndex, collectionIndex, mediaIndex}) => {
+      type = type.toLowerCase();
+      mediaIndex = mediaIndex.toString();
+      let path = "/public/asset_metadata/nft";
+      if(type === "list") {
+        path = UrlJoin(path, "additional_media", mediaIndex);
+      } else if(type === "featured") {
+        path = UrlJoin(path, "additional_media_sections", "featured_media", mediaIndex);
+      } else {
+        path = UrlJoin(path, "additional_media_sections", "sections", sectionIndex.toString(), "collections", collectionIndex.toString(), "media", mediaIndex);
+      }
+
+      return NFTMediaInfo({
+        versionHash,
+        selectedMedia: mediaItem,
+        selectedMediaPath: path,
+        showFullMedia: true
+      });
+    };
+
+    additionalMedia.featured_media = (additionalMedia.featured_media || []).map((mediaItem, mediaIndex) => ({
+      ...mediaItem,
+      sectionId: "featured",
+      collectionId: "featured",
+      mediaIndex,
+      mediaInfo: MediaInfo({mediaItem, type: "Featured", mediaIndex})
+    }));
+
+    additionalMedia.sections = (additionalMedia.sections || []).map((section, sectionIndex) => ({
+      ...section,
+      collections: (section.collections || []).map((collection, collectionIndex) => ({
+        ...collection,
+        media: (collection.media || []).map((mediaItem, mediaIndex) => ({
+          ...mediaItem,
+          sectionIndex,
+          sectionId: section.id,
+          collectionIndex,
+          collectionId: collection.id,
+          mediaIndex,
+          mediaInfo: MediaInfo({mediaItem, type: additionalMediaType, sectionIndex, collectionIndex, mediaIndex})
+        }))
+      }))
+    }));
+  }
+
+  return {
+    additionalMedia,
+    additionalMediaType,
+    hasAdditionalMedia
+  };
+};
+
 export const NFTInfo = ({
   nft,
   item,
@@ -250,17 +334,7 @@ export const NFTInfo = ({
 
   const hasOffers = offers.filter(offer => !offer.hidden).length > 0;
 
-  let additionalMedia, additionalMediaType, hasAdditionalMedia;
-  if(nft?.metadata?.additional_media_type === "Sections") {
-    additionalMediaType = "Sections";
-    additionalMedia = nft?.metadata?.additional_media_sections || {};
-    hasAdditionalMedia = additionalMedia.featured_media?.length > 0 ||
-      (additionalMedia?.sections || []).find(section => section.collections?.length > 0);
-  } else {
-    additionalMediaType = "List";
-    hasAdditionalMedia = nft?.metadata?.additional_media?.length > 0;
-    additionalMedia = nft?.metadata?.additional_media || [];
-  }
+  const { additionalMedia, additionalMediaType, hasAdditionalMedia } = FormatAdditionalMedia({metadata: nft?.metadata, versionHash: nft?.details?.VersionHash});
 
   let sideText;
   if(item && !hideAvailable && !outOfStock && !expired && !unauthorized && stock && stock.max && stock.max < 10000000) {
@@ -270,7 +344,6 @@ export const NFTInfo = ({
   }
 
   sideText = sideText ? sideText.toString().split("/") : undefined;
-
 
   return {
     // Details
@@ -357,7 +430,9 @@ export const NFTMediaInfo = ({versionHash, nft, item, selectedMedia, selectedMed
 
   // TODO: Consolidate embed url determination
   if(showFullMedia) {
-    if((selectedMedia && selectedMedia.media_type === "HTML") && selectedMedia.media_file) {
+    if(selectedMedia && selectedMedia.media_type === "Link") {
+      mediaLink = selectedMedia.link;
+    } else if((selectedMedia && selectedMedia.media_type === "HTML") && selectedMedia.media_file) {
       const targetHash = LinkTargetHash(selectedMedia.media_file);
       const filePath = selectedMedia.media_file["/"].split("/files/")[1];
 
@@ -384,8 +459,7 @@ export const NFTMediaInfo = ({versionHash, nft, item, selectedMedia, selectedMed
       embedUrl.searchParams.set("murl", Utils.B64(selectedMedia.media_file.url));
       useFrame = true;
     } else if(selectedMedia && selectedMedia.media_type === "Gallery" && selectedMedia.gallery) {
-      //embedUrl = new URL("https://embed.v3.contentfabric.io");
-      embedUrl = new URL("http://localhost:8088");
+      embedUrl = new URL("https://embed.v3.contentfabric.io");
 
       embedUrl.searchParams.set("p", "");
       embedUrl.searchParams.set("mt", "g");

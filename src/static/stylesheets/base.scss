@@ -100,7 +100,7 @@ header,
 }
 
 .app-container {
-  padding-bottom: 200px;
+  //padding-bottom: 200px;
 }
 
 .page-block {
@@ -152,6 +152,11 @@ header,
     }
   }
 
+  &--nft-content,
+  &--media-browser {
+    background: var(--color-nft-media-bg-browser);
+  }
+
   &__content {
     display: flex;
     flex: 1 1 auto;
@@ -167,6 +172,14 @@ header,
   @media screen and (max-width: $breakpoint) {
     &__content {
       padding-right: 40px;
+    }
+  }
+}
+
+.page-container {
+  .page-block {
+    &:last-child {
+      padding-bottom: 200px;
     }
   }
 }
@@ -221,7 +234,6 @@ body,
 }
 
 select {
-  // TODO: maybe have to make custom
   appearance: none;
   background: var(--background-input);
   border: var(--border-input);

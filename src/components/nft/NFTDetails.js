@@ -29,6 +29,8 @@ import {MarketplaceImage, NFTImage} from "Components/common/Images";
 import AsyncComponent from "Components/common/AsyncComponent";
 import {Ago, MiddleEllipsis, NFTInfo} from "../../utils/Utils";
 import Utils from "@eluvio/elv-client-js/src/Utils";
+import NFTOffers from "Components/nft/NFTOffers";
+import {NFTMediaBrowser} from "Components/nft/NFTMedia";
 
 import UserIcon from "Assets/icons/user.svg";
 import TransactionIcon from "Assets/icons/transaction history icon.svg";
@@ -40,8 +42,8 @@ import ShareIcon from "Assets/icons/share icon.svg";
 import TwitterIcon from "Assets/icons/twitter.svg";
 import PictureIcon from "Assets/icons/image.svg";
 import CopyIcon from "Assets/icons/copy.svg";
-import NFTOffers from "Components/nft/NFTOffers";
-import {NFTMediaBrowser} from "Components/nft/NFTMedia";
+import MediaIcon from "Assets/icons/media-icon.svg";
+
 
 const NFTTraitsSection = ({nftInfo}) => {
   const traits = nftInfo.nft?.metadata?.attributes || [];
@@ -665,10 +667,8 @@ const NFTActions = observer(({
   return null;
 });
 
-const NFTTabbedContent = observer(({nft, nftInfo}) => {
+const NFTTabbedContent = observer(({nft, nftInfo, tab, setTab}) => {
   const anyTabs = nftInfo.hasOffers || nftInfo.hasAdditionalMedia;
-
-  const [tab, setTab] = useState(nftInfo.hasAdditionalMedia ? "Media" : nftInfo.hasOffers ? "Offers" : "Trading");
 
   if(!nft || !anyTabs) {
     return <NFTTables nftInfo={nftInfo} />;
@@ -691,7 +691,7 @@ const NFTTabbedContent = observer(({nft, nftInfo}) => {
       break;
 
     case "Media":
-      activeContent = <NFTMediaBrowser nftInfo={nftInfo} inactive={true} />;
+      activeContent = <NFTMediaBrowser nftInfo={nftInfo} />;
       break;
   }
 
@@ -720,6 +720,9 @@ const NFTTabbedContent = observer(({nft, nftInfo}) => {
 
 const NFTDetails = observer(({nft, initialListingStatus, item}) => {
   const match = useRouteMatch();
+
+  const [nftInfo, setNFTInfo] = useState(undefined);
+  const [tab, setTab] = useState(undefined);
 
   // Contract
   const [contractStats, setContractStats] = useState(undefined);
@@ -795,6 +798,23 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
     }
   }, []);
 
+  useEffect(() => {
+    const nftInfo = NFTInfo({
+      nft,
+      listing: listingStatus?.listing,
+      item,
+      showFullMedia: true,
+      showToken: true,
+      allowFullscreen: true
+    });
+
+    setNFTInfo(nftInfo);
+
+    if(!tab) {
+      setTab(nftInfo.hasAdditionalMedia ? "Media" : nftInfo.hasOffers ? "Offers" : "Trading");
+    }
+  }, [nft, listingStatus]);
+
   // Redirects
 
   // Marketplace item claimed
@@ -816,14 +836,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
       <Redirect to={Path.dirname(Path.dirname(match.url))}/>;
   }
 
-  const nftInfo = NFTInfo({
-    nft,
-    listing: listingStatus?.listing,
-    item,
-    showFullMedia: true,
-    showToken: true,
-    allowFullscreen: true
-  });
+  if(!nftInfo) { return; }
 
   const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
   return (
@@ -868,83 +881,109 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
             Close={() => setShowTransferModal(false)}
           /> : null
       }
-      <div key={match.url} className="details-page">
-        {
-          backPage ?
-            <Link to={backPage.path} className="details-page__back-link">
-              <ImageIcon icon={BackIcon}/>
-              Back to {backPage.name}
-            </Link> : null
-        }
-        <div className="details-page__main-content">
-          <div className="details-page__content-container">
-            <div className={`card-container ${nftInfo.variant ? `card-container--variant-${nftInfo.variant}` : ""}`}>
-              <div className="item-card media-card">
+      <div className="page-block page-block--nft">
+        <div className="page-block__content">
+          <div key={match.url} className="details-page">
+            {
+              backPage ?
+                <Link to={backPage.path} className="details-page__back-link">
+                  <ImageIcon icon={BackIcon}/>
+                  Back to {backPage.name}
+                </Link> : null
+            }
+            <div className="details-page__main-content">
+              <div className="details-page__content-container">
+                <div className={`card-container ${nftInfo.variant ? `card-container--variant-${nftInfo.variant}` : ""}`}>
+                  <div className="item-card media-card">
+                    {
+                      item ?
+                        <MarketplaceImage
+                          marketplaceHash={marketplace.versionHash}
+                          item={item}
+                          path={UrlJoin("public", "asset_metadata", "info", "items", item.itemIndex.toString(), "image")}
+                          showFullMedia
+                        /> :
+                        <NFTImage
+                          nft={nft}
+                          showFullMedia
+                          allowFullscreen
+                        />
+                    }
+                  </div>
+                </div>
+
+                <NFTInfoSection nftInfo={nftInfo} className="details-page__nft-info--mobile" />
+
+                <NFTActions
+                  nftInfo={nftInfo}
+                  listingStatus={listingStatus}
+                  isInCheckout={isInCheckout}
+                  transferring={transferring}
+                  transferAddress={transferAddress}
+                  SetOpened={setOpened}
+                  SetClaimed={setClaimed}
+                  ShowMarketplacePurchaseModal={() => setShowMarketplacePurchaseModal(true)}
+                  ShowListingModal={async () => {
+                    const status = await LoadListingStatus();
+
+                    if(status?.listing?.details?.CheckoutLockedUntil && status?.listing.details.CheckoutLockedUntil > Date.now()) {
+                      return;
+                    }
+
+                    setShowListingModal(true);
+                  }}
+                  ShowPurchaseModal={async () => {
+                    const status = await LoadListingStatus();
+
+                    if(!status.listing) { return; }
+
+                    setShowPurchaseModal(true);
+                  }}
+                />
                 {
-                  item ?
-                    <MarketplaceImage
-                      marketplaceHash={marketplace.versionHash}
-                      item={item}
-                      path={UrlJoin("public", "asset_metadata", "info", "items", item.itemIndex.toString(), "image")}
-                      showFullMedia
-                    /> :
-                    <NFTImage
-                      nft={nft}
-                      showFullMedia
-                      allowFullscreen
-                    />
+                  nft?.metadata?.test ?
+                    <div className="details-page__test-banner">
+                      This is a test NFT
+                    </div> : null
                 }
               </div>
-            </div>
+              <div className="details-page__info">
+                <NFTInfoSection nftInfo={nftInfo} className="details-page__nft-info--default" />
+                {
+                  nftInfo.hasAdditionalMedia ?
+                    <ExpandableSection
+                      header="Media"
+                      toggleable={false}
+                      icon={MediaIcon}
+                      onClick={() => {
+                        if(tab !== "Media") {
+                          setTab("Media");
+                        }
 
-            <NFTInfoSection nftInfo={nftInfo} className="details-page__nft-info--mobile" />
-
-            <NFTActions
-              nftInfo={nftInfo}
-              listingStatus={listingStatus}
-              isInCheckout={isInCheckout}
-              transferring={transferring}
-              transferAddress={transferAddress}
-              SetOpened={setOpened}
-              SetClaimed={setClaimed}
-              ShowMarketplacePurchaseModal={() => setShowMarketplacePurchaseModal(true)}
-              ShowListingModal={async () => {
-                const status = await LoadListingStatus();
-
-                if(status?.listing?.details?.CheckoutLockedUntil && status?.listing.details.CheckoutLockedUntil > Date.now()) {
-                  return;
+                        setTimeout(() => {
+                          document.querySelector(".page-block--nft-content")
+                            .scrollIntoView({block: "start", inline: "start", behavior: "smooth"});
+                        }, tab !== "Media" ? 500 : 100);
+                      }}
+                    /> : null
                 }
-
-                setShowListingModal(true);
-              }}
-              ShowPurchaseModal={async () => {
-                const status = await LoadListingStatus();
-
-                if(!status.listing) { return; }
-
-                setShowPurchaseModal(true);
-              }}
-            />
-            {
-              nft?.metadata?.test ?
-                <div className="details-page__test-banner">
-                  This is a test NFT
-                </div> : null
-            }
-          </div>
-          <div className="details-page__info">
-            <NFTInfoSection nftInfo={nftInfo} className="details-page__nft-info--default" />
-            {
-              nftInfo.item ? null :
-                <NFTTraitsSection
-                  nftInfo={nftInfo}
-                />
-            }
-            <NFTDetailsSection nftInfo={nftInfo} contractStats={contractStats} />
-            <NFTContractSection nftInfo={nftInfo} SetBurned={setBurned} ShowTransferModal={() => setShowTransferModal(true)} />
+                {
+                  nftInfo.item ? null :
+                    <NFTTraitsSection
+                      nftInfo={nftInfo}
+                    />
+                }
+                <NFTDetailsSection nftInfo={nftInfo} contractStats={contractStats} />
+                <NFTContractSection nftInfo={nftInfo} SetBurned={setBurned} ShowTransferModal={() => setShowTransferModal(true)} />
+              </div>
+            </div>
           </div>
         </div>
-        <NFTTabbedContent nft={nft} nftInfo={nftInfo} />
+      </div>
+      <div className="page-block page-block--nft-content">
+        <div className="page-block__content">
+          <NFTTabbedContent nft={nft} nftInfo={nftInfo} tab={tab} setTab={setTab} />
+        </div>
       </div>
     </>
   );
@@ -952,16 +991,20 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
 
 const DeletedPage = () => {
   return (
-    <div className="details-page details-page-message">
-      <div className="details-page__message-container">
-        <h2 className="details-page__message">
-          This NFT is no longer available.
-        </h2>
-        <h3 className="details-page__sub-message">If it was a pack, it may have been opened.</h3>
-        <div className="actions-container">
-          <button className="button action" onClick={() => history.goBack()}>
-            Back
-          </button>
+    <div className="page-block--nft">
+      <div className="page-block__content">
+        <div className="details-page details-page-message">
+          <div className="details-page__message-container">
+            <h2 className="details-page__message">
+              This NFT is no longer available.
+            </h2>
+            <h3 className="details-page__sub-message">If it was a pack, it may have been opened.</h3>
+            <div className="actions-container">
+              <button className="button action" onClick={() => history.goBack()}>
+                Back
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

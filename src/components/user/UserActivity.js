@@ -12,7 +12,6 @@ const UserActivity = observer(() => {
   const match = useRouteMatch();
   const userAddress = rootStore.userProfiles[match.params.userId].userAddress;
 
-  // TODO: Figure out scoping these APIs to arbitrary users
   return (
     <div className="listings-page">
       <UserTransferTable

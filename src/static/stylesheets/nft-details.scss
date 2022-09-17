@@ -505,13 +505,17 @@
 }
 
 .media-controls {
-  background: var(--background-component-secondary);
+  --controls-background-color: rgba(0, 0, 0, 0.7);
+  --controls-foreground-color: #fff;
+
+  background: var(--controls-background-color);
+  backdrop-filter: blur(20px);
   bottom: 0;
-  height: 50px;
+  height: 40px;
   justify-content: space-between;
-  padding: 10px;
   position: absolute;
   width: 100%;
+  padding: 5px 20px;
 
   &,
   &__left,
@@ -529,13 +533,13 @@
 
   &__button {
     display: flex;
-    height: 20px;
+    height: 18px;
     padding: 3px;
     position: relative;
-    width: 20px;
+    width: 18px;
 
     * {
-      color: var(--color-component-text-primary);
+      color: var(--controls-foreground-color);
     }
 
     &:not(:last-child) {
@@ -543,12 +547,18 @@
     }
 
     &--play-pause {
-      height: 30px;
+      height: 23px;
       padding: 0;
-      width: 30px;
+      width: 23px;
+      color: #000;
 
       circle {
-        fill: var(--color-component-bg-primary);
+        fill: var(--controls-foreground-color);
+      }
+
+      path,
+      rect {
+        fill: var(--controls-background-color);
       }
     }
 
@@ -559,8 +569,8 @@
   }
 
   &__title {
-    background-color: var(--background-component-primary);
-    border-radius: var(--border-radius-component);
+    background-color: transparent;
+    border-radius: var(--border-radius-nft-media);
     flex: 1 1 auto;
     justify-content: flex-start;
     margin: 0 10px;
@@ -570,7 +580,7 @@
     position: relative;
 
     * {
-      color: var(--color-component-text-highlight);
+      color: var(--controls-foreground-color);
     }
 
     &__icon {
@@ -586,19 +596,22 @@
   }
 
   &__toggle {
-    height: 30px;
-    min-width: 50px;
+    height: 25px;
+    min-width: 30px;
     padding: 5px;
-    width: 50px;
+    width: 30px;
+    border: 0;
 
     &:not(:last-child) {
       margin-right: 5px;
     }
 
-    &:not(.action-selection--active) {
-      * {
-        color: var(--color-component-text-primary);
-      }
+    * {
+      color: var(--controls-foreground-color);
+    }
+
+    &--active {
+      background: var(--controls-background-color);
     }
 
     svg {

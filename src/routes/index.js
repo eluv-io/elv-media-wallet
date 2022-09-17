@@ -53,15 +53,15 @@ const UserRoutes = ({includeMarketplaceRoutes}) => {
   return [
     ...(includeMarketplaceRoutes ? UserMarketplaceRoutes() : []),
     { name: "Listings", path: "listings", includeUserProfile: true, Component: UserListings },
-    { name: "Listing", path: "listings/:listingId", Component: ListingDetails },
+    { name: "Listing", path: "listings/:listingId", noBlock: true, Component: ListingDetails },
     { name: "Purchase Listing", path: "listings/:listingId/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
 
     { name: "Activity", path: "activity", includeUserProfile: true, Component: UserActivity },
 
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "listings/:contractId/:tokenId", Component: MintedNFTDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "listings/:contractId/:tokenId", noBlock: true, Component: MintedNFTDetails },
 
     { name: match => (GetMarketplace(match)?.storefront?.tabs?.my_items || "Items"), includeUserProfile: true, path: "items", Component: UserItems },
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId", Component: MintedNFTDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId", noBlock: true, Component: MintedNFTDetails },
     { name: "Open Pack", path: "items/:contractId/:tokenId/open", Component: PackOpenStatus },
 
     { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/media", noBlock: true, Component: NFTMedia },
@@ -78,11 +78,11 @@ const SharedRoutes = ({includeMarketplaceRoutes}) => {
     ...UserRoutes({includeMarketplaceRoutes}),
     { name: "Leaderboard", path: "leaderboard", Component: Leaderboard },
 
-    { name: "Listing", path: "listings/:listingId", Component: ListingDetails },
+    { name: "Listing", path: "listings/:listingId", noBlock: true, Component: ListingDetails },
     { name: "Listings", path: "listings", Component: Listings },
 
     { name: "Activity", path: "activity", Component: RecentSales },
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "activity/:contractId/:tokenId", Component: MintedNFTDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "activity/:contractId/:tokenId", noBlock: true, Component: MintedNFTDetails },
 
     { name: "Purchase Listing", path: "listings/:listingId/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
 
@@ -94,8 +94,8 @@ const MarketplaceRoutes = () => {
   return [
     { name: "Collections", path: "collections", Component: MarketplaceCollectionsSummaryPage },
     { name: "Collections", path: "collections/:collectionSKU", Component: MarketplaceCollection },
-    { name: match => (GetItem(match)?.name || "Item"), path: "collections/:collectionSKU/store/:sku", Component: MarketplaceItemDetails },
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "collections/:collectionSKU/owned/:contractId/:tokenId", Component: MintedNFTDetails },
+    { name: match => (GetItem(match)?.name || "Item"), path: "collections/:collectionSKU/store/:sku", noBlock: true, Component: MarketplaceItemDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "collections/:collectionSKU/owned/:contractId/:tokenId", noBlock: true, Component: MintedNFTDetails },
     { name: "Redeem Collection", path: "collections/:collectionSKU/redeem", Component: MarketplaceCollectionRedemption },
     { name: "Redeem Collection", path: "collections/:collectionSKU/redeem/:confirmationId/status", Component: CollectionRedeemStatus },
 
@@ -105,7 +105,7 @@ const MarketplaceRoutes = () => {
     { name: "Claim", path: "store/:sku/claim", Component: ClaimMintingStatus, authed: true },
     { name: "Purchase", path: "store/:sku/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
 
-    { name: match => (GetItem(match)?.name || "Item"), path: "store/:sku", Component: MarketplaceItemDetails },
+    { name: match => (GetItem(match)?.name || "Item"), path: "store/:sku", noBlock: true, Component: MarketplaceItemDetails },
     { name: match => (GetMarketplace(match)?.branding?.name || "Marketplace"), path: "store", Component: MarketplaceStorefront },
 
     { path: "/", redirect: "/store" }
@@ -242,17 +242,6 @@ const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
         routes.map(({path, exact, authed, loadUser, includeUserProfile, ignoreLoginCapture, Component}) => {
           let result = (
             <RouteWrapper routes={routes}>
-              {
-                /*
-
-                            <div className={`page-block page-block--main-content ${rootStore.appBackground ? "page-block--custom-background" : ""}`}>
-                              <div className="page-block__content">
-                                { Component ? <Component key={`component-${path}`} /> : null }
-                              </div>
-                            </div>
-
-                 */
-              }
               { Component ? <Component key={`component-${path}`} /> : null }
             </RouteWrapper>
           );

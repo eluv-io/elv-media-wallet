@@ -664,7 +664,6 @@ class RootStore {
       this.nftData[key] = yield this.walletClient.NFT({contractAddress, tokenId});
     }
 
-
     return this.nftData[key];
   });
 

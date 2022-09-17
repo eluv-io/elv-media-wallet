@@ -228,6 +228,7 @@ html {
 
   --background-nft-media-primary: var(--color-bg-primary);
   --background-nft-media-secondary: var(--color-bg-primary);
+  --color-nft-media-bg-browser: var(--color-bg-secondary);
   --color-nft-media-bg-primary: var(--color-bg-primary);
   --color-nft-media-bg-secondary: var(--color-bg-primary);
   --color-nft-media-bg-highlight: var(--color-bg-highlight);
@@ -239,7 +240,7 @@ html {
   --border-nft-media-secondary: var(--border-faint);
   --border-nft-media-highlight: var(--border-highlight);
   --border-radius-nft-media: var(--border-radius);
-  --box-shadow-nft-media: var(--box-shadow);
+  --border-radius-nft-media-featured: 25px;
 
   /* Modals */
   --background-modal-overlay: rgba(0, 0, 0, 0.75);
