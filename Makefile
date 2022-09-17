@@ -3,7 +3,6 @@
 #
 
 build:
-	npm install
 	npm run build-wallet-ops-test
 
 clean:
