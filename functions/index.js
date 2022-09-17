@@ -35,6 +35,11 @@ const elv_live_data = {
     title: "Welcome to LocalHost!",
     description: "Global superstar LocalHost welcomes you to an unforgettable Web3 experience, powered by Blockchain Creative Labs on Eluvio."
   },
+  "us-central1-elv-rewriter.cloudfunctions.net": {
+    url: "https://elv-rewriter.web.app/index.html",
+    title: "Welcome to elv-rewriter!",
+    description: "Global superstar elv-rewriter welcomes you to an unforgettable Web3 experience, powered by Blockchain Creative Labs on Eluvio."
+  },
 };
 
 exports.create_index_html = functions.https.onRequest((req, res) => {
