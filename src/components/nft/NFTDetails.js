@@ -683,7 +683,7 @@ const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, tab, setTab}) =>
   }
 
   let tabs = [
-    nftInfo.hasAdditionalMedia ? "Media" : "",
+    nftInfo.hasAdditionalMedia && nftInfo.isOwned ? "Media" : "",
     nftInfo.hasOffers ? "Offers" : "",
     "Trading"
   ].filter(tab => tab);
@@ -752,30 +752,6 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [previewMedia, setPreviewMedia] = useState(false);
 
-  // Misc
-  if(listingStatus?.listing) {
-    nft = {
-      ...(nft || {}),
-      ...listingStatus.listing,
-      details: {
-        ...(nft?.details || {}),
-        ...listingStatus.listing.details
-      },
-      metadata: {
-        ...(nft?.metadata || {}),
-        ...listingStatus.listing.metadata
-      }
-    };
-  }
-
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  const itemTemplate = item?.nft_template?.nft;
-  const listingId = nft?.details?.ListingId || match.params.listingId || listingStatus?.listing?.details?.ListingId;
-  const contractAddress = nft?.details?.ContractAddr || itemTemplate?.address;
-  const tokenId = match.params.tokenId || listingStatus?.listing?.details?.TokenIdStr;
-
-  const isInCheckout = listingStatus?.listing?.details?.CheckoutLockedUntil && listingStatus?.listing.details.CheckoutLockedUntil > Date.now();
-
   const LoadListingStatus = async () => {
     const status = await transferStore.CurrentNFTStatus({
       listingId,
@@ -820,7 +796,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
     setNFTInfo(nftInfo);
 
     if(!tab) {
-      setTab(nftInfo.hasAdditionalMedia ? "Media" : nftInfo.hasOffers ? "Offers" : "Trading");
+      setTab(nftInfo.hasAdditionalMedia && nftInfo.isOwned ? "Media" : nftInfo.hasOffers ? "Offers" : "Trading");
     }
   }, [nft, listingStatus]);
 
@@ -846,6 +822,29 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
   }
 
   if(!nftInfo) { return; }
+
+  // Misc
+  if(listingStatus?.listing) {
+    nft = {
+      ...(nft || {}),
+      ...listingStatus.listing,
+      details: {
+        ...(nft?.details || {}),
+        ...listingStatus.listing.details
+      },
+      metadata: {
+        ...(nft?.metadata || {}),
+        ...listingStatus.listing.metadata
+      }
+    };
+  }
+
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+  const itemTemplate = item?.nft_template?.nft;
+  const listingId = nft?.details?.ListingId || match.params.listingId || listingStatus?.listing?.details?.ListingId;
+  const contractAddress = nft?.details?.ContractAddr || itemTemplate?.address;
+  const tokenId = match.params.tokenId || listingStatus?.listing?.details?.TokenIdStr;
+  const isInCheckout = listingStatus?.listing?.details?.CheckoutLockedUntil && listingStatus?.listing.details.CheckoutLockedUntil > Date.now();
 
   const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
   return (

@@ -228,7 +228,7 @@ class RootStore {
         appId: this.appId,
         network: EluvioConfiguration.network,
         mode: EluvioConfiguration.mode,
-        previewMarketplaceId: (searchParams.get("preview") || this.GetSessionStorage("preview-marketplace") || "").replaceAll("/", ""),
+        previewMarketplaceId: (searchParams.get("preview") || (!this.embedded && this.GetSessionStorage("preview-marketplace")) || "").replaceAll("/", ""),
         storeAuthToken: false
       });
 
