@@ -226,10 +226,14 @@
         display: flex;
         flex-direction: column;
         height: 100%;
-        justify-content: space-between;
+        justify-content: center;
         padding: 0 10px;
         text-align: left;
         width: calc(100% - 80px);
+      }
+
+      &__subtitles {
+        margin-top: 3px;
       }
 
       &__name {
@@ -757,6 +761,133 @@
       &__name {
         text-align: center;
       }
+    }
+  }
+}
+
+
+.media-controls {
+  --controls-background-color: rgba(0, 0, 0, 0.7);
+  --controls-foreground-color: #fff;
+
+  background: var(--controls-background-color);
+  backdrop-filter: blur(20px);
+  bottom: 0;
+  height: 40px;
+  justify-content: space-between;
+  position: absolute;
+  width: 100%;
+  padding: 5px 20px;
+
+  &,
+  &__left,
+  &__title,
+  &__right {
+    align-items: center;
+    display: flex;
+  }
+
+  &__left,
+  &__title,
+  &__right {
+    height: 100%;
+  }
+
+  &__button {
+    display: flex;
+    height: 18px;
+    padding: 3px;
+    position: relative;
+    width: 18px;
+
+    * {
+      color: var(--controls-foreground-color);
+    }
+
+    &:not(:last-child) {
+      margin-right: 10px;
+    }
+
+    &--play-pause {
+      height: 23px;
+      padding: 0;
+      width: 23px;
+      color: #000;
+
+      circle {
+        fill: var(--controls-foreground-color);
+      }
+
+      path,
+      rect {
+        fill: var(--controls-background-color);
+      }
+    }
+
+    svg {
+      height: 100%;
+      width: 100%;
+    }
+  }
+
+  &__title {
+    background-color: transparent;
+    border-radius: var(--border-radius-nft-media);
+    flex: 1 1 auto;
+    justify-content: flex-start;
+    margin: 0 10px;
+    min-width: 0;
+    overflow: hidden;
+    padding: 0 10px 0 30px;
+    position: relative;
+
+    * {
+      color: var(--controls-foreground-color);
+    }
+
+    &__icon {
+      height: 15px;
+      left: 8px;
+      position: absolute;
+    }
+
+    &__text,
+    &__span {
+      min-width: 100%;
+    }
+  }
+
+  &__toggle {
+    height: 25px;
+    min-width: 30px;
+    padding: 5px;
+    width: 30px;
+    border: 0;
+
+    &:not(:last-child) {
+      margin-right: 5px;
+    }
+
+    * {
+      color: var(--controls-foreground-color);
+    }
+
+    &--active {
+      background: var(--controls-background-color);
+    }
+
+    svg {
+      height: 100%;
+    }
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    &__toggle {
+      width: 40px;
+    }
+
+    &__title {
+      font-size: 12px;
     }
   }
 }
