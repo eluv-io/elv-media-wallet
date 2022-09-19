@@ -128,7 +128,7 @@ export const NFTDisplayToken = nft => {
   }
 };
 
-const FormatAdditionalMedia = ({metadata={}, versionHash}) => {
+const FormatAdditionalMedia = ({name, metadata={}, versionHash}) => {
   let additionalMedia, additionalMediaType, hasAdditionalMedia;
   if(metadata?.additional_media_type === "Sections") {
     additionalMediaType = "Sections";
@@ -151,7 +151,7 @@ const FormatAdditionalMedia = ({metadata={}, versionHash}) => {
         isSingleAlbum: display === "Album",
         collections: [{
           id: "list",
-          name: name,
+          name,
           display,
           media: [ ...(metadata?.additional_media || []) ]
         }]
@@ -335,7 +335,7 @@ export const NFTInfo = ({
 
   const hasOffers = offers.filter(offer => !offer.hidden).length > 0;
 
-  const { additionalMedia, additionalMediaType, hasAdditionalMedia } = FormatAdditionalMedia({metadata: nft?.metadata, versionHash: nft?.details?.VersionHash});
+  const { additionalMedia, additionalMediaType, hasAdditionalMedia } = FormatAdditionalMedia({name, metadata: nft?.metadata, versionHash: nft?.details?.VersionHash});
 
   let sideText;
   if(item && !hideAvailable && !outOfStock && !expired && !unauthorized && stock && stock.max && stock.max < 10000000) {

@@ -20,6 +20,10 @@
       &__target-container {
         padding: 0;
       }
+
+      &__text {
+        align-items: flex-start;
+      }
     }
   }
 
@@ -82,13 +86,19 @@
       &--previous {
         padding-left: 0;
       }
+
+      &__text {
+        font-size: 12px;
+        padding: 2px 10px 0;
+        max-width: 250px;
+      }
     }
 
     &__text {
       align-items: center;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
       margin-top: 15px;
       text-align: left;
       grid-area: text;
@@ -98,7 +108,7 @@
       font: var(--font-nft-media-header);
       font-size: 16px;
       font-weight: 500;
-      padding-inline: 40px;
+      max-width: 600px;
     }
 
     &__subtitle-1 {
@@ -158,6 +168,8 @@
       overflow-y: auto;
       // sass-lint:disable no-misspelled-properties
       overscroll-behavior: contain;
+      background: var(--background-nft-media-secondary);
+      padding-top: 10px;
 
       &--with-controls {
         padding-bottom: 50px;
@@ -174,6 +186,11 @@
       width: 100%;
       scroll-margin: 100px;
       position: relative;
+
+      &__track-number {
+        padding: 0 20px 0 10px;
+        font-weight: 500;
+      }
 
       &__image-container {
         border-radius: var(--border-radius-nft-media);
@@ -255,6 +272,16 @@
     }
   }
 
+  @media screen and (max-width: $breakpoint) {
+    &__content__name {
+      max-width: 400px;
+    }
+
+    &__content__button__text {
+      max-width: 200px;
+    }
+  }
+
   @media screen and (max-width: $tablet-breakpoint) {
     --elv-gallery-max-height: unset;
 
@@ -291,6 +318,10 @@
       &__description {
         font-size: 14px;
         max-width: unset;
+      }
+
+      &__button__text {
+        display: none;
       }
     }
 

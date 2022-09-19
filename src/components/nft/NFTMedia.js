@@ -209,6 +209,7 @@ const MediaCollection = ({sectionId, collection}) => {
             prevEl: ".nft-media-browser__carousel__arrow--previous"
           }}
           slidesPerView="auto"
+          slidesPerGroup={3}
           lazy={{
             enabled: true,
             loadPrevNext: true,
@@ -485,6 +486,7 @@ const AlbumView = observer(({media, videoElement, showPlayerControls}) => {
               className={`nft-media__album-view__media ${isSelected ? "nft-media__album-view__media--selected" : ""}`}
               to={MediaLinkPath({match, sectionId: match.params.sectionId, collectionId: match.params.collectionId, mediaIndex})}
             >
+              <div className="nft-media__album-view__media__track-number">{mediaIndex + 1}</div>
               <div className="nft-media__album-view__media__image-container">
                 {
                   image ?
@@ -497,7 +499,7 @@ const AlbumView = observer(({media, videoElement, showPlayerControls}) => {
                 <ResponsiveEllipsis
                   component="h2"
                   className="nft-media__album-view__media__name"
-                  text={item.name || ""}
+                  text={(item.name || "").replace(/\d+\.\w?/, "")}
                   title={item.name || ""}
                   maxLine="2"
                 />
@@ -652,6 +654,12 @@ const NFTActiveMedia = observer(({nftInfo}) => {
                 className="nft-media__content__button nft-media__content__button--previous"
               >
                 <ImageIcon icon={LeftArrow} />
+                {
+                  currentCollection?.media[previousMediaIndex]?.name ?
+                    <div className="nft-media__content__button__text ellipsis">
+                      Previous: {currentCollection?.media[previousMediaIndex]?.name}
+                    </div> : null
+                }
               </Link> : null
           }
           {
@@ -660,6 +668,12 @@ const NFTActiveMedia = observer(({nftInfo}) => {
                 to={MediaLinkPath({match, sectionId: match.params.sectionId, collectionId: match.params.collectionId, mediaIndex: nextMediaIndex})}
                 className="nft-media__content__button nft-media__content__button--next"
               >
+                {
+                  currentCollection?.media[nextMediaIndex]?.name ?
+                    <div className="nft-media__content__button__text ellipsis">
+                      Next: {currentCollection?.media[nextMediaIndex]?.name}
+                    </div> : null
+                }
                 <ImageIcon icon={RightArrow} />
               </Link> : null
           }
