@@ -15,7 +15,7 @@
         "target album"
         "text empty";
       grid-template-columns: 1fr max-content;
-      gap: 10px 20px;
+      gap: 0 20px;
 
       &__target-container {
         padding: 0;
@@ -148,6 +148,8 @@
     max-height: var(--elv-gallery-max-height);
     height: var(--elv-gallery-max-height);
     min-height: var(--elv-gallery-min-height);
+    border-radius: var(--border-radius-nft-media);
+    overflow: hidden;
 
     &__media-container {
       display: grid;

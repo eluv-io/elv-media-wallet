@@ -237,6 +237,7 @@ export const NFTInfo = ({
     nft = {
       metadata: item.nftTemplateMetadata,
       details: {
+        VersionHash: item.nftTemplateHash,
         ContractAddr: item.nftTemplateMetadata?.address || Utils.nullAddress
       }
     };
@@ -397,6 +398,10 @@ export const NFTInfo = ({
 
 export const NFTMediaInfo = ({versionHash, nft, item, selectedMedia, selectedMediaPath, showFullMedia, width}) => {
   let imageUrl, embedUrl, mediaLink, useFrame=false;
+
+  if(item && !versionHash) {
+    versionHash = item.nftTemplateHash;
+  }
 
   const requiresPermissions = item?.requires_permissions || selectedMedia?.requires_permissions;
   const authToken = requiresPermissions ? rootStore.authToken : rootStore.staticToken;

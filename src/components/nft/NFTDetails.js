@@ -526,11 +526,13 @@ const NFTActions = observer(({
   listingStatus,
   isInCheckout,
   transferring,
+  previewMedia,
   ShowListingModal,
   ShowMarketplacePurchaseModal,
   ShowPurchaseModal,
   SetClaimed,
   SetOpened,
+  SetPreviewMedia
 }) => {
   const match = useRouteMatch();
 
@@ -581,6 +583,12 @@ const NFTActions = observer(({
         >
           View Listings
         </Link>
+        {
+          previewMode && nftInfo.hasAdditionalMedia && !previewMedia ?
+            <button className="action" onClick={() => SetPreviewMedia(true)}>
+              Preview Media
+            </button> : null
+        }
       </div>
     );
   } else if(nftInfo.listingId && !nftInfo.isOwned) {
@@ -667,10 +675,10 @@ const NFTActions = observer(({
   return null;
 });
 
-const NFTTabbedContent = observer(({nft, nftInfo, tab, setTab}) => {
+const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, tab, setTab}) => {
   const anyTabs = nftInfo.hasOffers || nftInfo.hasAdditionalMedia;
 
-  if(!nft || !anyTabs) {
+  if((!nft && !previewMedia) || !anyTabs) {
     return <NFTTables nftInfo={nftInfo} />;
   }
 
@@ -737,11 +745,12 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
   const [transferring, setTransferring] = useState(false);
   const [transferAddress, setTransferAddress] = useState(false);
 
-  // Modals
+  // Modals / Settings
   const [showListingModal, setShowListingModal] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [showMarketplacePurchaseModal, setShowMarketplacePurchaseModal] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
+  const [previewMedia, setPreviewMedia] = useState(false);
 
   // Misc
   if(listingStatus?.listing) {
@@ -920,6 +929,8 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
                   isInCheckout={isInCheckout}
                   transferring={transferring}
                   transferAddress={transferAddress}
+                  previewMedia={previewMedia}
+                  SetPreviewMedia={setPreviewMedia}
                   SetOpened={setOpened}
                   SetClaimed={setClaimed}
                   ShowMarketplacePurchaseModal={() => setShowMarketplacePurchaseModal(true)}
@@ -982,7 +993,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
       </div>
       <div className="page-block page-block--nft-content">
         <div className="page-block__content">
-          <NFTTabbedContent nft={nft} nftInfo={nftInfo} tab={tab} setTab={setTab} />
+          <NFTTabbedContent nft={nft} nftInfo={nftInfo} tab={tab} setTab={setTab} previewMedia={previewMedia} />
         </div>
       </div>
     </>
@@ -1012,14 +1023,18 @@ const DeletedPage = () => {
 };
 
 // Marketplace Item
-export const MarketplaceItemDetails = observer(() => {
+export const MarketplaceItemDetails = observer(({Render}) => {
   const match = useRouteMatch();
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const itemIndex = marketplace.items.findIndex(item => item.sku === match.params.sku);
   const item = marketplace.items[itemIndex];
 
-  return <NFTDetails item={item} />;
+  return (
+    Render ?
+      Render({item}) :
+      <NFTDetails item={item} />
+  );
 });
 
 // NFT - Also used for NFTMedia page

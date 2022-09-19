@@ -228,7 +228,7 @@ class RootStore {
         appId: this.appId,
         network: EluvioConfiguration.network,
         mode: EluvioConfiguration.mode,
-        previewMarketplaceId: searchParams.get("preview") || this.GetSessionStorage("preview-marketplace"),
+        previewMarketplaceId: (searchParams.get("preview") || this.GetSessionStorage("preview-marketplace") || "").replaceAll("/", ""),
         storeAuthToken: false
       });
 
@@ -290,7 +290,9 @@ class RootStore {
 
       this.SendEvent({event: EVENTS.LOADED});
     } finally {
-      this.loaded = true;
+      if(this.walletClient) {
+        this.loaded = true;
+      }
     }
   });
 

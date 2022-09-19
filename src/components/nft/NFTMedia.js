@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {Link, NavLink, useHistory, useRouteMatch} from "react-router-dom";
 import {NFTInfo} from "../../utils/Utils";
-import {MintedNFTDetails} from "Components/nft/NFTDetails";
+import {MarketplaceItemDetails, MintedNFTDetails} from "Components/nft/NFTDetails";
 import UrlJoin from "url-join";
 import ImageIcon from "Components/common/ImageIcon";
 import SwiperCore, {Lazy, Navigation, Keyboard, Mousewheel} from "swiper";
@@ -666,8 +666,8 @@ const NFTActiveMedia = observer(({nftInfo}) => {
         </div>
         <div className="nft-media__content__text">
           <div className="nft-media__content__name">{mediaItem.name || ""}</div>
-          <div className="nft-media__content__subtitle-1">{mediaItem.subtitle_1 || ""}</div>
-          <div className="nft-media__content__subtitle-2">{mediaItem.subtitle_2 || ""}</div>
+          { albumView ? null : <div className="nft-media__content__subtitle-1">{mediaItem.subtitle_1 || ""}</div> }
+          { albumView ? null : <div className="nft-media__content__subtitle-2">{mediaItem.subtitle_2 || ""}</div> }
           { mediaItem.description ? <RichText richText={mediaItem.description} className="nft-media__content__description" /> : null }
         </div>
         { albumView ? <AlbumView media={currentCollection.media} videoElement={videoElement} showPlayerControls /> : null }
@@ -676,10 +676,10 @@ const NFTActiveMedia = observer(({nftInfo}) => {
   );
 });
 
-const NFTMedia = observer(({nft}) => {
+const NFTMedia = observer(({nft, item}) => {
   const match = useRouteMatch();
 
-  const nftInfo = NFTInfo({nft});
+  const nftInfo = NFTInfo({nft, item});
 
   const isSingleAlbum = (nftInfo?.additionalMedia?.sections || [])[0]?.isSingleAlbum;
   return (
@@ -702,6 +702,16 @@ const NFTMedia = observer(({nft}) => {
 });
 
 const NFTMediaWrapper = (props) => {
+  const match = useRouteMatch();
+
+  if(match.params.sku) {
+    return (
+      <MarketplaceItemDetails
+        Render={({item}) => <NFTMedia item={item} {...props} />}
+      />
+    );
+  }
+
   return (
     <MintedNFTDetails
       Render={({nft}) => <NFTMedia nft={nft} {...props} />}
