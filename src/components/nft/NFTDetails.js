@@ -683,7 +683,7 @@ const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, tab, setTab}) =>
   }
 
   let tabs = [
-    nftInfo.hasAdditionalMedia && nftInfo.isOwned ? "Media" : "",
+    nftInfo.hasAdditionalMedia && (nftInfo.isOwned || previewMedia) ? "Media" : "",
     nftInfo.hasOffers ? "Offers" : "",
     "Trading"
   ].filter(tab => tab);
