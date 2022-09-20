@@ -162,6 +162,7 @@
     overflow: hidden;
 
     &__media-container {
+      min-height: 100%;
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
       max-height: 100%;
@@ -383,20 +384,15 @@
   }
 
   &__featured {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
-    flex-wrap: wrap;
+    display: flex;
+    flex-direction: column;
     gap: 15px;
     margin: 30px 0;
-
-    &--locked {
-      grid-template-columns: 1fr;
-    }
   }
 
   &__locked-featured-item,
   &__featured-item {
-    background: var(--color-nft-media-bg-primary);
+    background: var(--background-nft-media-featured);
     border: 0;
     border-radius: var(--border-radius-nft-media-featured);
     display: flex;
@@ -466,6 +462,7 @@
     }
 
     &__content {
+      flex: 1 1 100%;
       margin-right: 30px;
     }
 
@@ -485,18 +482,21 @@
 
     &__actions {
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       flex-direction: column;
       justify-content: center;
+      flex: 1 1 0;
     }
 
     &__button {
-      background-color: var(--color-nft-media-bg-primary);
       color: var(--color-nft-media-text-highlight);
       padding: 25px 50px;
       border-radius: var(--border-radius-nft-media-featured);
-      text-align: center;
+      min-width: 250px;
+      min-height: 80px;
+      height: max-content;
       width: max-content;
+      text-align: center;
       text-transform: uppercase;
 
       &:hover {
@@ -528,10 +528,15 @@
   }
 
   &__section {
+    margin-bottom: 25px;
     background: var(--color-nft-media-bg-primary);
     border: 0;
     border-radius: var(--border-radius-nft-media);
     overflow: hidden;
+
+    &--locked {
+      margin-bottom: 12px;
+    }
 
     &__header {
       font: var(--font-nft-media-misc);
@@ -728,6 +733,18 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
+
+      &__actions {
+        align-items: center;
+        width: 100%;
+      }
+
+      &__button {
+        min-width: 200px;
+        min-height: 60px;
+        width: 100%;
+        max-width: 400px;
+      }
 
       &__image-container,
       &__content {

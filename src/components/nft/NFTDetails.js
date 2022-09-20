@@ -993,7 +993,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
           </div>
         </div>
       </div>
-      <div className="page-block page-block--nft-content">
+      <div className="page-block page-block--lower-content page-block--nft-content">
         <div className="page-block__content">
           <NFTTabbedContent nft={nft} nftInfo={nftInfo} tab={tab} setTab={setTab} previewMedia={previewMedia} />
         </div>

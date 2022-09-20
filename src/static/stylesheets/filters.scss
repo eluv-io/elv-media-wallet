@@ -259,9 +259,10 @@ $search-height: 50px;
 }
 
 .stats {
-  @include component;
+  //@include component;
   align-items: center;
-  box-shadow: var(--box-shadow-component);
+  background: var(--background-table);
+  box-shadow: var(--box-shadow-table);
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   justify-content: center;

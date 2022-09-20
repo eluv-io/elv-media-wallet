@@ -99,6 +99,10 @@ header,
   transition: color 0.5s, border 0.5s, box-shadow 0.5s !important;
 }
 
+.app {
+  background-color: var(--color-page-bg);
+}
+
 .app-container {
   //padding-bottom: 200px;
 }
@@ -152,9 +156,8 @@ header,
     }
   }
 
-  &--nft-content,
-  &--media-browser {
-    background: var(--color-nft-media-bg-browser);
+  &--lower-content {
+    background: var(--color-lower-page-bg);
   }
 
   &__content {

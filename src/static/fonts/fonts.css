@@ -7,3 +7,13 @@
   font-style: normal;
   font-weight: 400;
 }
+
+/* Avenir */
+@font-face {
+  font-family: "Compacta Black BT";
+  src: url("./Avenir/files/AvenirLTStd-Black.otf") format("opentype"),
+  url("./Avenir/files/AvenirLTStd-Book.otf") format("opentype"),
+  url("./Avenir/files/AvenirLTStd-Roman.otf") format("opentype");
+  font-style: normal;
+  font-weight: 400;
+}

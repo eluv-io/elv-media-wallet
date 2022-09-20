@@ -1,0 +1,93 @@
+:root {
+  --font-family-primary: 'Avenir', sans-serif!important;
+  --font-family-secondary: 'Avenir', sans-serif!important;
+  --font-family-tertiary: 'Avenir', monospace!important;
+
+  --yellow-1: #FCBE01;
+  --yellow-2: #BF9837;
+
+
+  /* General */
+  --color-bg-primary: #1c1c1c;
+  --color-bg-secondary: #242424;
+  --color-bg-highlight: var(--yellow-1);
+
+  --color-page-bg: #101010;
+  --color-lower-page-bg: #1c1c1c;
+
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #E8E8E8;
+  --color-text-highlight: var(--yellow-1);
+  --color-text-highlight-rgb: 252 190 1;
+  --color-text-background-highlight: #000000;
+
+  --color-loader: rgba(255, 255, 255, 0.5);
+
+  --border: 1px solid #444444;
+  --border-faint: 1px solid #333333;
+
+
+  --border-color: #444444;
+  --border-color-faint: #333333;
+
+  --box-shadow: none;
+
+
+  /* Disable borders */
+  --border-width-card: 0;
+  --border-nft-media-primary: 0;
+  --border-nft-media-secondary: 0;
+  --border-nft-media-highlight: 0;
+  --border-component-primary: 0;
+  --border-component-secondary: 0;
+  --border-component-highlight: 0;
+  --border-button-primary: 0;
+  --border-button-secondary: 0;
+  --border-button-danger: 0;
+  --border-table-primary: 0;
+  --border-table-secondary: 0;
+
+  --border-width-feature-card: 1px;
+
+
+  /* Buttons */
+  --color-button-primary-text: #000000;
+
+  /* Header */
+  --background-page-header: var(--color-bg-primary);
+  --background-page-header-profile: var(--color-bg-secondary);
+
+
+  --background-input: var(--color-bg-primary);
+  --color-input-bg-solid: var(--color-bg-primary);
+
+  --background-button-secondary: #000000;
+
+  --background-card: #1c1c1c;
+  --background-feature-card: #000000;
+
+  --background-component-primary: var(--color-bg-primary);
+
+  --background-table: #141414;
+  --background-table-header-row: var(--yellow-1);
+  --color-table-header-row-text: #000000;
+  --color-table-even-row-bg: #141414;
+  --color-table-odd-row-bg: #1a1a1a;
+
+  --color-feature-card-text-primary: var(--yellow-2);
+
+  /* User Profile */
+  --color-user-profile-bg-primary: var(--color-bg-primary);
+  --color-user-profile-bg-secondary: var(--color-bg-secondary);
+
+  /* Media */
+  --background-nft-media-featured: rgba(0, 0, 0, 0.8);
+  --color-nft-media-bg-primary: #101010;
+}
+
+/* Remove capitalization on names */
+.featured-item__title,
+.item-card__title,
+.details-page__nft-info__name {
+  text-transform: unset;
+}

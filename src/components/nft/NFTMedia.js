@@ -5,10 +5,10 @@ import {NFTInfo} from "../../utils/Utils";
 import {MarketplaceItemDetails, MintedNFTDetails} from "Components/nft/NFTDetails";
 import UrlJoin from "url-join";
 import ImageIcon from "Components/common/ImageIcon";
-import SwiperCore, {Lazy, Navigation, Keyboard, Mousewheel} from "swiper";
+import SwiperCore, {Lazy, Navigation, Keyboard} from "swiper";
 import {Swiper, SwiperSlide} from "swiper/react";
 
-SwiperCore.use([Lazy, Navigation, Keyboard, Mousewheel]);
+SwiperCore.use([Lazy, Navigation, Keyboard]);
 
 import ItemIcon from "Assets/icons/image.svg";
 import {Initialize} from "@eluvio/elv-embed/src/Import";
@@ -31,6 +31,8 @@ import PauseIcon from "Assets/icons/media/Pause icon";
 import SkipForwardIcon from "Assets/icons/media/skip forward icon";
 import ShuffleIcon from "Assets/icons/media/shuffle icon";
 import LoopIcon from "Assets/icons/media/loop icon";
+
+let unlockedMedia = {};
 
 export const MediaIcon = (media, circle=false) => {
   switch(media?.media_type) {
@@ -152,7 +154,7 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
             rel="noopener"
             useNavLink
             onClick={() => Unlock(mediaItem.id)}
-            className="nft-media-browser__locked-featured-item__button"
+            className="action nft-media-browser__locked-featured-item__button"
           >
             { button_text || "View"}
           </Linkish>
@@ -215,7 +217,6 @@ const MediaCollection = ({sectionId, collection}) => {
             loadPrevNext: true,
             loadOnTransitionStart: true
           }}
-          mousewheel
           observer
           observeParents
           parallax
@@ -257,7 +258,7 @@ const MediaCollection = ({sectionId, collection}) => {
 
 const MediaSection = ({section, locked}) => {
   return (
-    <div className="nft-media-browser__section">
+    <div className={`nft-media-browser__section ${locked ? "nft-media-browser__section--locked" : ""}`}>
       <div className="nft-media-browser__section__header">
         <ImageIcon icon={locked ? LockedIcon : UnlockedIcon} className="nft-media-browser__section__header-icon" />
         <div className="nft-media-browser__section__header-text ellipsis">
@@ -286,13 +287,14 @@ export const NFTMediaBrowser = observer(({nftInfo, activeMedia}) => {
       (nftInfo.additionalMedia.featured_media || []).map(async mediaItem => {
         if(!mediaItem.required) { return; }
 
-        let viewed = false;
+        const key = `media-viewed-${nftInfo.nft.details.ContractAddr}-${nftInfo.nft.details.TokenIdStr}-${mediaItem.id}`;
+        let viewed = unlockedMedia[key];
         if(!rootStore.previewMarketplaceId) {
           viewed = await rootStore.walletClient.ProfileMetadata({
             type: "app",
             mode: "private",
             appId: rootStore.appId,
-            key: `media-viewed-${nftInfo.nft.details.ContractAddr}-${nftInfo.nft.details.TokenIdStr}-${mediaItem.id}`
+            key
           });
         }
 
@@ -304,17 +306,20 @@ export const NFTMediaBrowser = observer(({nftInfo, activeMedia}) => {
   }, []);
 
   const Unlock = async (mediaId) => {
+    const key = `media-viewed-${nftInfo.nft.details.ContractAddr}-${nftInfo.nft.details.TokenIdStr}-${mediaId}`;
     if(!rootStore.previewMarketplaceId) {
       await rootStore.walletClient.SetProfileMetadata({
         type: "app",
         mode: "private",
         appId: rootStore.appId,
-        key: `media-viewed-${nftInfo.nft.details.ContractAddr}-${nftInfo.nft.details.TokenIdStr}-${mediaId}`,
+        key,
         value: true
       });
     }
 
-    setLocks(locks.filter(id => id !== mediaId));
+    unlockedMedia[key] = true;
+
+    setTimeout(() => setLocks(locks.filter(id => id !== mediaId)), 500);
   };
 
   if(!locks || !nftInfo.hasAdditionalMedia) {
@@ -710,7 +715,7 @@ const NFTMedia = observer(({nft, item}) => {
       </div>
       {
         isSingleAlbum ? null :
-          <div className="page-block page-block--media-browser">
+          <div className="page-block page-block--lower-content page-block--media-browser">
             <div className="page-block__content">
               <NFTMediaBrowser nftInfo={nftInfo} activeMedia/>
             </div>
