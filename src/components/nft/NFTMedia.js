@@ -286,12 +286,15 @@ export const NFTMediaBrowser = observer(({nftInfo, activeMedia}) => {
       (nftInfo.additionalMedia.featured_media || []).map(async mediaItem => {
         if(!mediaItem.required) { return; }
 
-        const viewed = await rootStore.walletClient.ProfileMetadata({
-          type: "app",
-          mode: "private",
-          appId: rootStore.appId,
-          key: `media-viewed-${nftInfo.nft.details.ContractAddr}-${nftInfo.nft.details.TokenIdStr}-${mediaItem.id}`
-        });
+        let viewed = false;
+        if(!rootStore.previewMarketplaceId) {
+          viewed = await rootStore.walletClient.ProfileMetadata({
+            type: "app",
+            mode: "private",
+            appId: rootStore.appId,
+            key: `media-viewed-${nftInfo.nft.details.ContractAddr}-${nftInfo.nft.details.TokenIdStr}-${mediaItem.id}`
+          });
+        }
 
         if(!viewed) {
           lockInfo.push(mediaItem.id);
@@ -301,13 +304,15 @@ export const NFTMediaBrowser = observer(({nftInfo, activeMedia}) => {
   }, []);
 
   const Unlock = async (mediaId) => {
-    await rootStore.walletClient.SetProfileMetadata({
-      type: "app",
-      mode: "private",
-      appId: rootStore.appId,
-      key: `media-viewed-${nftInfo.nft.details.ContractAddr}-${nftInfo.nft.details.TokenIdStr}-${mediaId}`,
-      value: true
-    });
+    if(!rootStore.previewMarketplaceId) {
+      await rootStore.walletClient.SetProfileMetadata({
+        type: "app",
+        mode: "private",
+        appId: rootStore.appId,
+        key: `media-viewed-${nftInfo.nft.details.ContractAddr}-${nftInfo.nft.details.TokenIdStr}-${mediaId}`,
+        value: true
+      });
+    }
 
     setLocks(locks.filter(id => id !== mediaId));
   };

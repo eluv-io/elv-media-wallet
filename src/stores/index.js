@@ -104,6 +104,8 @@ class RootStore {
 
   specifiedMarketplaceId = undefined;
   specifiedMarketplaceHash = undefined;
+  previewMarketplaceId = undefined;
+  previewMarketplaceHash = undefined;
 
   hideGlobalNavigation = false;
   hideGlobalNavigationInMarketplace = searchParams.has("hgm");
@@ -231,6 +233,9 @@ class RootStore {
         previewMarketplaceId: (searchParams.get("preview") || (!this.embedded && this.GetSessionStorage("preview-marketplace")) || "").replaceAll("/", ""),
         storeAuthToken: false
       });
+
+      this.previewMarketplaceId = this.walletClient.previewMarketplaceId;
+      this.previewMarketplaceHash = this.walletClient.previewMarketplaceHash;
 
       if(this.walletClient.previewMarketplaceHash) {
         const passwordDigest = yield this.walletClient.client.ContentObjectMetadata({

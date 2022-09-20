@@ -929,7 +929,10 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
                   transferring={transferring}
                   transferAddress={transferAddress}
                   previewMedia={previewMedia}
-                  SetPreviewMedia={setPreviewMedia}
+                  SetPreviewMedia={preview => {
+                    setPreviewMedia(preview);
+                    setTab(preview ? "Media" : "Trading");
+                  }}
                   SetOpened={setOpened}
                   SetClaimed={setClaimed}
                   ShowMarketplacePurchaseModal={() => setShowMarketplacePurchaseModal(true)}

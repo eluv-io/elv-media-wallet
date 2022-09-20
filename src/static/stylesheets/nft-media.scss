@@ -411,9 +411,11 @@
     &__image-container {
       border-radius: var(--border-radius-nft-media-featured);
       height: 150px;
+      min-height: 150px;
       margin-right: 30px;
       overflow: hidden;
       width: 150px;
+      min-width: 150px;
     }
 
     &__image {
@@ -431,7 +433,7 @@
 
     &__name {
       color: var(--color-nft-media-text-primary);
-      font-size: 32px;
+      font-size: 28px;
       margin-top: 5px;
     }
 
