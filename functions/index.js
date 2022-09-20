@@ -3,6 +3,7 @@ const fs = require("fs");
 const Path = require("path");
 const axios = require("axios");
 
+
 //
 // Firebase cloud functions definitions for rewrite support
 // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -15,8 +16,8 @@ exports.ping = functions.https.onRequest((req, res) => {
   let meta = "";
   let body = "";
   for(const [key, value] of Object.entries(req.headers)) {
-    meta = meta + `\t<meta property="og:` + key + `" content="` + value + `" />\n`;
-    body = body + `\tmeta property="og:` + key + `" content="` + value + `"<br/>\n`;
+    meta = meta + "\t<meta property=\"og:" + key + "\" content=\"" + value + "\" />\n";
+    body = body + "\tmeta property=\"og:" + key + "\" content=\"" + value + "\"<br/>\n";
   }
 
   res.status(200).send(`<!doctype html>
@@ -36,7 +37,7 @@ exports.load_elv_live_data = functions.https.onRequest(async (req, res) => {
     functions.logger.info("loaded elv-live sites", sites);
 
     res.status(200).send(sites);
-  } catch (error) {
+  } catch(error) {
     functions.logger.info(error);
     res.status(500).send("something went wrong.");
   }
