@@ -44,6 +44,7 @@ import PictureIcon from "Assets/icons/image.svg";
 import CopyIcon from "Assets/icons/copy.svg";
 import MediaIcon from "Assets/icons/media-icon.svg";
 
+let mediaPreviewEnabled = false;
 
 const NFTTraitsSection = ({nftInfo}) => {
   const traits = nftInfo.nft?.metadata?.attributes || [];
@@ -730,7 +731,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
   const match = useRouteMatch();
 
   const [nftInfo, setNFTInfo] = useState(undefined);
-  const [tab, setTab] = useState(undefined);
+  const [tab, setTab] = useState(new URLSearchParams(window.location.hash.split("?")[1]).get("tab"));
 
   // Contract
   const [contractStats, setContractStats] = useState(undefined);
@@ -750,7 +751,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [showMarketplacePurchaseModal, setShowMarketplacePurchaseModal] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
-  const [previewMedia, setPreviewMedia] = useState(false);
+  const [previewMedia, setPreviewMedia] = useState(mediaPreviewEnabled);
 
   const LoadListingStatus = async () => {
     const status = await transferStore.CurrentNFTStatus({
@@ -767,6 +768,11 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
 
   // Load listing status and contract stats
   useEffect(() => {
+    // Tab parameter set, scroll to tab
+    if(tab) {
+      setTimeout(() => document.querySelector(".page-block--nft-content")?.scrollIntoView({block: "start", inline: "start", behavior: "smooth"}), 100);
+    }
+
     if(!item) {
       LoadListingStatus();
     }
@@ -930,6 +936,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
                   transferAddress={transferAddress}
                   previewMedia={previewMedia}
                   SetPreviewMedia={preview => {
+                    mediaPreviewEnabled = preview;
                     setPreviewMedia(preview);
                     setTab(preview ? "Media" : "Trading");
                   }}
