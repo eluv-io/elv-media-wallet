@@ -103,18 +103,46 @@ const loadElvLiveAsync = async () => {
     const site = tenantData[tenant_name]["sites"][site_name]["info"];
     const event_info = site["event_info"] || {};
 
-    const image = tenantsUrl + "/" + tenant_name +
-      "/sites/" + site_name + "/info/event_images/hero_background?width=1200";
     const title = event_info["event_title"] || "";
     const description = event_info["description"] || "";
+    const image = tenantsUrl + "/" + tenant_name + "/sites/" + site_name +
+      "/info/event_images/hero_background?width=1200";
 
-    const metadata = {
+    ret[tenant_name + "/" + site_name] = {
       "title": title,
       "description": description,
       "image": image,
     };
-    ret[tenant_name + "/" + site_name] = metadata;
-    ret[site_name] = metadata;
+    ret[site_name] = {
+      "title": title,
+      "description": description,
+      "image": image,
+    };
+  }
+
+  const featuredEvents = "https://host-76-74-91-11.contentfabric.io/s/main/" +
+    "qlibs/ilib2GdaYEFxB7HyLPhSDPKMyPLhV8x9/" +
+    "q/iq__suqRJUt2vmXsyiWS5ZaSGwtFU9R/meta/public/asset_metadata/featured_events";
+
+  const fe = await axios.get(featuredEvents);
+  const featuredEventData = fe.data;
+
+  for(const [idx, event] of Object.entries(featuredEventData)) {
+    for(const [eventName, eventData] of Object.entries(event)) {
+      const fe = eventData["info"];
+      const event_info = fe["event_info"] || {};
+
+      const title = event_info["event_title"] || "";
+      const description = event_info["description"] || "";
+      const image = featuredEvents + "/" + idx + "/" + eventName +
+        "/info/event_images/hero_background?width=1200";
+
+      ret[eventName] = {
+        "title": title,
+        "description": description,
+        "image": image,
+      };
+    }
   }
 
   functions.logger.info("elv-live site metadata", ret);
