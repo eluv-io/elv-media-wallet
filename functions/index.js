@@ -105,7 +105,8 @@ const loadElvLiveAsync = async () => {
     const event_info = site["event_info"] || {};
     //functions.logger.info("event_info", event_info);
 
-    const image = tenantsUrl + "/" + tenant_name + "/sites/" + site_name + "/info/event_images/hero_background";
+    const image = tenantsUrl + "/" + tenant_name +
+      "/sites/" + site_name + "/info/event_images/hero_background?width=1200";
     functions.logger.info("image", image);
     const title = event_info["event_title"] || "";
     const description = event_info["description"] || "";
