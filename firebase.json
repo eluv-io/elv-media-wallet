@@ -8,9 +8,10 @@
       "index.html"
     ],
     "rewrites": [
-      { "source": "/ping", "function": "ping" },
-      { "source": "**/configuration.js", "destination": "/configuration.js" },
       { "source": "**/index.js", "destination": "/index.js" },
+      { "source": "**/vendors~null.c88fea43d7149ed02ee1.bundle.js", "destination": "/vendors~null.c88fea43d7149ed02ee1.bundle.js" },
+      { "source": "/ping", "function": "ping" },
+      { "source": "/headers", "function": "ping" },
       { "source": "**", "function": "create_index_html" }
     ]
   },
