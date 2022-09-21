@@ -12,9 +12,11 @@ deploy:
 	npm run build-wallet-ops-test && firebase deploy --only functions,hosting:elv-rewriter
 
 toplevel-test:
-	curl -s https://elv-rewriter.web.app/index.html | head -15
-	curl -s https://elv-rewriter.web.app/maskverse | head -15
-	curl -s https://elv-rewriter.firebaseapp.com/dolly/dolly | head -15
+	curl -s https://elv-rewriter.web.app/index.html | head -20
+	curl -s https://elv-rewriter.web.app/maskverse | head -20
+	curl -s https://elv-rewriter.firebaseapp.com/dolly/dolly | head -20
+	curl -s https://elv-rewriter.web.app/indieflix/indieflix | head -20
+	curl -s https://elv-rewriter.web.app/microsoft/ms | head -20
 
 functions-test:
 	@echo --- emulator

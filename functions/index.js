@@ -90,12 +90,11 @@ const loadElvLiveAsync = async () => {
 
   const tenantsUrl = "https://host-76-74-91-11.contentfabric.io/s/main/" +
     "qlibs/ilib2GdaYEFxB7HyLPhSDPKMyPLhV8x9/" +
-    "q/iq__suqRJUt2vmXsyiWS5ZaSGwtFU9R/meta/public/asset_metadata/tenants/?link_depth=2";
+    "q/iq__suqRJUt2vmXsyiWS5ZaSGwtFU9R/meta/public/asset_metadata/tenants";
 
-  const resp = await axios.get(tenantsUrl);
+  const resp = await axios.get(tenantsUrl + "/?link_depth=2");
+  const tenantData = resp.data;
 
-  const data = resp.data;
-  const tenantData = data; //JSON.parse(data);
   let tenantsAndSite = {};
   for(const [tenant_name, tenant_obj] of Object.entries(tenantData)) {
     let sites = tenant_obj["sites"];
@@ -105,19 +104,21 @@ const loadElvLiveAsync = async () => {
     }
   }
   functions.logger.info("returning tenants", tenantsAndSite);
-  elvLiveTenants = tenantsAndSite;
 
   let ret = {};
   for(const [tenant_name, site_name] of Object.entries(tenantsAndSite)) {
     functions.logger.info("trying to load", tenant_name, site_name);
 
     const site = tenantData[tenant_name]["sites"][site_name]["info"];
-    const event_images = site["event_images"] || {};
     const event_info = site["event_info"] || {};
     //functions.logger.info("event_info", event_info);
+
+    //const event_images = site["event_images"] || {};
     //functions.logger.info("event_images", event_images);
 
-    const image = event_images["hero_background"] || "";
+    // url + "/indieflix/sites/indieflix/info/event_images/hero_background";
+    const image = tenantsUrl + "/" + tenant_name + "/sites/" + site_name + "/info/event_images/hero_background";
+    functions.logger.info("image", image);
     const title = event_info["event_title"] || "";
     const description = event_info["description"] || "";
 
