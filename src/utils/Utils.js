@@ -453,6 +453,10 @@ export const NFTMediaInfo = ({versionHash, nft, item, selectedMedia, selectedMed
         mediaLink.searchParams.set(name, value)
       );
 
+      if(requiresPermissions) {
+        mediaLink.searchParams.set("authorization", authToken);
+      }
+
       useFrame = true;
     } else if((selectedMedia && selectedMedia.media_type === "Ebook" && selectedMedia.media_file)) {
       embedUrl = new URL("https://embed.v3.contentfabric.io");

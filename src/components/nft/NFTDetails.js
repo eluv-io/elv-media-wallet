@@ -536,7 +536,7 @@ const NFTActions = observer(({
 }) => {
   const match = useRouteMatch();
 
-  const previewMode = rootStore.walletClient.previewMarketplaceId && match.params.marketplaceId === rootStore.walletClient.previewMarketplaceId;
+  const previewMode = match.params.marketplaceId === rootStore.previewMarketplaceId;
 
   if(nftInfo.item) {
     return (
@@ -571,7 +571,7 @@ const NFTActions = observer(({
                   }
                 }
               }}
-              disabled={nftInfo.outOfStock || nftInfo.maxOwned || previewMode}
+              disabled={nftInfo.outOfStock || nftInfo.maxOwned}
               className="action action-primary"
             >
               {nftInfo.free ? "Claim Now" : "Buy Now"}

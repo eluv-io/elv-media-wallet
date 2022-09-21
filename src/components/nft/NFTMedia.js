@@ -585,6 +585,121 @@ const NFTActiveMediaContent = observer(({mediaItem, SetVideoElement}) => {
   );
 });
 
+const ActiveMediaInfo = ({additionalMedia, sectionId, collectionId, mediaIndex}) => {
+  let sectionIndex = 0;
+  let collectionIndex = 0;
+  mediaIndex = parseInt(mediaIndex);
+
+  let display = "Media";
+  let mediaList;
+  switch(sectionId) {
+    case "list":
+      mediaList = additionalMedia.sections[0].collections[0].media;
+      display = additionalMedia.sections[0].collections[0].display;
+      break;
+
+    case "featured":
+      mediaList = additionalMedia.featured_media;
+      break;
+
+    default:
+      additionalMedia.sections.forEach((section, sIndex) => {
+        if(section.id !== sectionId) { return; }
+
+        section.collections.forEach((collection, cIndex) => {
+          if(collection.id !== collectionId) { return; }
+
+          sectionIndex = sIndex;
+          collectionIndex = cIndex;
+          display = collection.display;
+        });
+      });
+
+      mediaList = additionalMedia.sections[sectionIndex].collections[collectionIndex]?.media || [];
+      break;
+  }
+
+  let current = {
+    sectionId,
+    sectionIndex,
+    collectionId,
+    collectionIndex,
+    display,
+    mediaIndex,
+    mediaItem: mediaList[mediaIndex],
+    mediaList
+  };
+
+  let previous = {
+    ...current,
+    mediaIndex: mediaIndex - 1
+  };
+
+  let next = {
+    ...current,
+    mediaIndex: mediaIndex + 1
+  };
+
+  if(["list", "featured"].includes(sectionId)) {
+    if(previous.mediaIndex < 0) {
+      previous = undefined;
+    } else {
+      previous.media = mediaList[previous.mediaIndex];
+    }
+
+    if(next.mediaIndex >= mediaList.length - 1) {
+      next = undefined;
+    } else {
+      next.media = mediaList[next.mediaIndex];
+    }
+  } else {
+    // Collection
+    if(previous.mediaIndex < 0) {
+      if(collectionIndex > 0) {
+        previous.collectionIndex = collectionIndex - 1;
+        previous.mediaIndex = additionalMedia.sections[sectionIndex].collections[previous.collectionIndex].media.length - 1;
+      } else if(sectionIndex > 0) {
+        previous.sectionIndex = sectionIndex - 1;
+        previous.collectionIndex = additionalMedia.sections[previous.sectionIndex].collections.length - 1;
+        previous.mediaIndex = additionalMedia.sections[previous.sectionIndex].collections[previous.collectionIndex].media.length - 1;
+      } else {
+        previous = undefined;
+      }
+    }
+
+    if(next.mediaIndex >= mediaList.length - 1) {
+      if(collectionIndex < additionalMedia.sections[sectionIndex].collections.length - 1) {
+        next.collectionIndex = collectionIndex + 1;
+        next.mediaIndex = 0;
+      } else if(sectionIndex < additionalMedia.sections.length - 1) {
+        next.sectionIndex = sectionIndex + 1;
+        next.collectionIndex = 0;
+        next.mediaIndex = 0;
+      } else {
+        next = undefined;
+      }
+    }
+
+    if(previous) {
+      previous.sectionId = additionalMedia.sections[previous.sectionIndex].id;
+      previous.collectionId = additionalMedia.sections[previous.sectionIndex].collections[previous.collectionIndex].id;
+      previous.mediaItem = additionalMedia.sections[previous.sectionIndex].collections[previous.collectionIndex].media[previous.mediaIndex];
+    }
+
+    if(next) {
+      next.sectionId = additionalMedia.sections[next.sectionIndex].id;
+      next.collectionId = additionalMedia.sections[next.sectionIndex].collections[next.collectionIndex].id;
+      next.mediaItem = additionalMedia.sections[next.sectionIndex].collections[next.collectionIndex].media[next.mediaIndex];
+    }
+  }
+
+  return {
+    previous,
+    current,
+    next
+  };
+};
+
 const NFTActiveMedia = observer(({nftInfo}) => {
   const match = useRouteMatch();
   const [videoElement, setVideoElement] = useState(undefined);
@@ -593,48 +708,19 @@ const NFTActiveMedia = observer(({nftInfo}) => {
     setVideoElement(undefined);
   }, [match.params.sectionId, match.params.collectionId, match.params.mediaIndex]);
 
-  const media = nftInfo.additionalMedia;
   const mediaIndex = parseInt(match.params.mediaIndex);
 
-  let mediaItem, sectionIndex, collectionIndex, nextMediaIndex, previousMediaIndex, currentCollection;
-  if(match.params.sectionId === "list") {
-    previousMediaIndex = mediaIndex - 1;
-    nextMediaIndex = mediaIndex < media.length - 2 ? mediaIndex + 1 : -1;
-    currentCollection = nftInfo.additionalMedia.sections[0].collections[0];
-    mediaItem = currentCollection.media[match.params.mediaIndex];
-  } else if(match.params.sectionId === "featured") {
-    // Featured item
-    mediaItem = media.featured_media[mediaIndex];
-    previousMediaIndex = mediaIndex - 1;
-    nextMediaIndex = mediaIndex < media.featured_media.length - 1 ? mediaIndex + 1 : -1;
-  } else {
-    // Find item from section -> collections
-    media.sections.forEach((section, sIndex) => {
-      if(section.id !== match.params.sectionId) {
-        return;
-      }
+  const { previous, current, next } = ActiveMediaInfo({
+    additionalMedia: nftInfo.additionalMedia,
+    type: match.params.sectionId,
+    sectionId: match.params.sectionId,
+    collectionId: match.params.collectionId,
+    mediaIndex: match.params.mediaIndex
+  });
 
-      section.collections.forEach((collection, cIndex) => {
-        if(collection.id !== match.params.collectionId) { return; }
+  if(!current.mediaItem) { return null; }
 
-        mediaItem = collection.media[mediaIndex];
-
-        if(!mediaItem) {
-          return;
-        }
-
-        sectionIndex = sIndex;
-        collectionIndex = cIndex;
-        previousMediaIndex = mediaIndex - 1;
-        nextMediaIndex = mediaIndex < collection.media.length - 1 ? mediaIndex + 1 : -1;
-        currentCollection = nftInfo.additionalMedia.sections[sectionIndex].collections[collectionIndex];
-      });
-    });
-  }
-
-  if(!mediaItem) { return null; }
-
-  const albumView = currentCollection?.display === "Album";
+  const albumView = current.display === "Album";
   const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
   return (
     <div className={`nft-media ${albumView ? "nft-media--with-album-view" : ""}`}>
@@ -648,40 +734,40 @@ const NFTActiveMedia = observer(({nftInfo}) => {
       <div className="nft-media__content">
         <div className="nft-media__content__target-container">
           <NFTActiveMediaContent
-            key={`nft-media-${sectionIndex}-${collectionIndex}-${mediaIndex}`}
+            key={`nft-media-${current.sectionIndex}-${current.collectionIndex}-${mediaIndex}`}
             nftInfo={nftInfo}
-            mediaItem={mediaItem}
-            collectionIndex={collectionIndex}
-            sectionIndex={sectionIndex}
+            mediaItem={current.mediaItem}
+            collectionIndex={current.collectionIndex}
+            sectionIndex={current.sectionIndex}
             mediaIndex={mediaIndex}
             SetVideoElement={setVideoElement}
           />
 
           {
-            !albumView && previousMediaIndex >= 0 ?
+            !albumView && previous ?
               <Link
-                to={MediaLinkPath({match, sectionId: match.params.sectionId, collectionId: match.params.collectionId, mediaIndex: previousMediaIndex})}
+                to={MediaLinkPath({match, sectionId: previous.sectionId, collectionId: previous.collectionId, mediaIndex: previous.mediaIndex})}
                 className="nft-media__content__button nft-media__content__button--previous"
               >
                 <ImageIcon icon={LeftArrow} />
                 {
-                  currentCollection?.media[previousMediaIndex]?.name ?
+                  previous.mediaItem?.name ?
                     <div className="nft-media__content__button__text ellipsis">
-                      Previous: {currentCollection?.media[previousMediaIndex]?.name}
+                      Previous: {previous.mediaItem.name}
                     </div> : null
                 }
               </Link> : null
           }
           {
-            !albumView && nextMediaIndex >= 0 ?
+            !albumView && next ?
               <Link
-                to={MediaLinkPath({match, sectionId: match.params.sectionId, collectionId: match.params.collectionId, mediaIndex: nextMediaIndex})}
+                to={MediaLinkPath({match, sectionId: next.sectionId, collectionId: next.collectionId, mediaIndex: next.mediaIndex})}
                 className="nft-media__content__button nft-media__content__button--next"
               >
                 {
-                  currentCollection?.media[nextMediaIndex]?.name ?
+                  next.mediaItem?.name ?
                     <div className="nft-media__content__button__text ellipsis">
-                      Next: {currentCollection?.media[nextMediaIndex]?.name}
+                      Next: {next.mediaItem?.name}
                     </div> : null
                 }
                 <ImageIcon icon={RightArrow} />
@@ -689,12 +775,12 @@ const NFTActiveMedia = observer(({nftInfo}) => {
           }
         </div>
         <div className="nft-media__content__text">
-          <div className="nft-media__content__name">{mediaItem.name || ""}</div>
-          { albumView ? null : <div className="nft-media__content__subtitle-1">{mediaItem.subtitle_1 || ""}</div> }
-          { albumView ? null : <div className="nft-media__content__subtitle-2">{mediaItem.subtitle_2 || ""}</div> }
-          { mediaItem.description ? <RichText richText={mediaItem.description} className="nft-media__content__description" /> : null }
+          <div className="nft-media__content__name">{current.mediaItem.name || ""}</div>
+          { albumView ? null : <div className="nft-media__content__subtitle-1">{current.mediaItem.subtitle_1 || ""}</div> }
+          { albumView ? null : <div className="nft-media__content__subtitle-2">{current.mediaItem.subtitle_2 || ""}</div> }
+          { current.mediaItem.description ? <RichText richText={current.mediaItem.description} className="nft-media__content__description" /> : null }
         </div>
-        { albumView ? <AlbumView media={currentCollection.media} videoElement={videoElement} showPlayerControls /> : null }
+        { albumView ? <AlbumView media={current.mediaList} videoElement={videoElement} showPlayerControls /> : null }
       </div>
     </div>
   );

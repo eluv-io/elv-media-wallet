@@ -65,6 +65,8 @@ const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
 };
 
 const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, errorMessage, disabled, Continue, Cancel}) => {
+  const match = useRouteMatch();
+
   const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.walletClient.UserInfo()?.email || "";
   const [paymentType, setPaymentType] = useState(usdcOnly || (usdcAccepted && cryptoStore.usdcOnly) ? "linked-wallet" : "stripe");
   const [email, setEmail] = useState(initialEmail);
@@ -75,6 +77,7 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, erro
 
   const requiresEmail = ["coinbase"].includes(paymentType);
   const externalPayment = ["stripe", "coinbase"].includes(paymentType);
+  const previewMode = match.params.marketplaceId === rootStore.previewMarketplaceId;
 
   return (
     <div className="purchase-modal__payment-options">
@@ -145,7 +148,7 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, erro
       }
       { paymentType === "linked-wallet" ? <div className="purchase-modal__wallet-connect"><WalletConnect /></div> : null }
       <ButtonWithLoader
-        disabled={disabled || !connected || (requiresEmail && !ValidEmail(email))}
+        disabled={disabled || !connected || (requiresEmail && !ValidEmail(email)) || previewMode}
         className="action action-primary purchase-modal__payment-submit"
         onClick={async () => await Continue(paymentType, email)}
       >

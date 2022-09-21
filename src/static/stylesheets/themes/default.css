@@ -13,13 +13,13 @@ html {
 
   --color-bg-primary: #FFFFFF;
   --color-bg-secondary: #EDEDED;
-  --color-bg-highlight: var(--color-background-highlight, #2D61E4);
+  --color-bg-highlight: #2D61E4;
 
   --color-text-primary: #000;
   --color-text-secondary: #777;
   --color-text-error: #f00;
 
-  --color-highlight-container-bg: var(--color-background-highlight, --color-bg-highlight);
+  --color-highlight-container-bg: var(--color-bg-highlight);
   --color-highlight-container-text: #fff;
 
   --color-loader: rgba(0, 0, 0, 0.5);
@@ -38,6 +38,7 @@ html {
   --box-shadow: 0px 0 4px rgba(0, 0, 0, 0.1);
 
   /* Page */
+  --background-content: var(--color-page-bg);
   --color-page-bg: #F6F6F6;
   --color-lower-page-bg: var(--color-page-bg);
 
