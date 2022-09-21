@@ -770,7 +770,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
               >
                 <ImageIcon icon={LeftArrow} />
                 <div className="nft-media__content__button__text ellipsis">
-                  Previous{previous.mediaItem.name ? `: ${previous.mediaItem.name}` : ""}
+                  Previous{previous.mediaItem?.name ? `: ${previous.mediaItem.name}` : ""}
                 </div>
               </Link> : null
           }
@@ -781,7 +781,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
                 className="nft-media__content__button nft-media__content__button--next"
               >
                 <div className="nft-media__content__button__text ellipsis">
-                  Next{next.mediaItem.name ? `: ${next.mediaItem.name}` : ""}
+                  Next{next.mediaItem?.name ? `: ${next.mediaItem.name}` : ""}
                 </div>
                 <ImageIcon icon={RightArrow} />
               </Link> : null
