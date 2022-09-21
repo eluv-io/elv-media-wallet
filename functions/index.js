@@ -48,7 +48,6 @@ exports.create_index_html = functions.https.onRequest(async (req, res) => {
   let html = fs.readFileSync(Path.resolve(__dirname, "./index-template.html")).toString();
 
   let sites = await loadElvLiveAsync();
-  functions.logger.info("loaded elv-live sites", sites);
 
   // Inject metadata
   const originalHost = req.headers["x-forwarded-host"] || req.hostname;
@@ -103,21 +102,21 @@ const loadElvLiveAsync = async () => {
 
     const site = tenantData[tenant_name]["sites"][site_name]["info"];
     const event_info = site["event_info"] || {};
-    //functions.logger.info("event_info", event_info);
 
     const image = tenantsUrl + "/" + tenant_name +
       "/sites/" + site_name + "/info/event_images/hero_background?width=1200";
-    functions.logger.info("image", image);
     const title = event_info["event_title"] || "";
     const description = event_info["description"] || "";
 
-    ret[tenant_name + "/" + site_name] = {
+    const metadata = {
       "title": title,
       "description": description,
       "image": image,
     };
+    ret[tenant_name + "/" + site_name] = metadata;
+    ret[site_name] = metadata;
   }
 
-  functions.logger.info("metadata", ret);
+  functions.logger.info("elv-live site metadata", ret);
   return ret;
 };
