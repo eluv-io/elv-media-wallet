@@ -66,7 +66,8 @@
 
     &__button {
       align-items: center;
-      bottom: -45px;
+      top: 10px;
+      height: max-content;
       display: flex;
       justify-content: center;
       left: 0;
@@ -97,6 +98,7 @@
     }
 
     &__text {
+      position: relative;
       align-items: center;
       display: flex;
       flex-direction: column;
@@ -124,7 +126,7 @@
 
     &__description {
       font-size: 16px;
-      margin-top: 20px;
+      margin-top: 40px;
 
       a {
         color: var(--color-nft-media-text-highlight);
