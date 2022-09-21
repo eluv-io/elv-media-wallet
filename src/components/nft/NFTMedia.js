@@ -34,6 +34,46 @@ import LoopIcon from "Assets/icons/media/loop icon";
 
 let unlockedMedia = {};
 
+
+/*
+
+copy((() => {
+  const FormatEmbedUrl = embedUrl => {
+    embedUrl = new URL(embedUrl);
+    embedUrl.searchParams.delete("ath");
+    return embedUrl.toString();
+  };
+
+  let config = {};
+  window.nftInfo.additionalMedia.featured_media.map(mediaItem => {
+    if(mediaItem.key) {
+      config[mediaItem.key] = FormatEmbedUrl(mediaItem.mediaInfo.embedUrl);
+    }
+  });
+
+  window.nftInfo.additionalMedia.sections.map(section => {
+    section.collections.map(collection => {
+      collection.media.map(mediaItem => {
+        if(mediaItem.key) {
+          config[mediaItem.key] = FormatEmbedUrl(mediaItem.mediaInfo.embedUrl);
+        }
+
+        (mediaItem.gallery || []).map(galleryItem => {
+          if(galleryItem.key) {
+            config[galleryItem.key] = FormatEmbedUrl(mediaItem.mediaInfo.embedUrl);
+          }
+        });
+      });
+    });
+  });
+
+  return JSON.stringify(config, null, 2);
+})());
+
+
+ */
+
+
 export const MediaIcon = (media, circle=false) => {
   switch(media?.media_type) {
     case "Audio":
@@ -790,6 +830,7 @@ const NFTMedia = observer(({nft, item}) => {
   const match = useRouteMatch();
 
   const nftInfo = NFTInfo({nft, item});
+  window.nftInfo = nftInfo;
 
   const isSingleAlbum = (nftInfo?.additionalMedia?.sections || [])[0]?.isSingleAlbum;
   return (
