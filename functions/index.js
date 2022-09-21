@@ -54,12 +54,7 @@ exports.create_index_html = functions.https.onRequest(async (req, res) => {
   const originalHost = req.headers["x-forwarded-host"] || req.hostname;
   const originalUrl = req.headers["x-forwarded-url"] || req.url;
   const fullPath = originalHost + originalUrl;
-  let meta = `<meta property="rewritten-from" content="` + fullPath + `" />\n`;
-
-  let headers = "";
-  for(const [key, value] of Object.entries(req.headers)) {
-    headers = headers + `<meta property="og:"` + key + `" content="` + value + `" />\n`;
-  }
+  const meta = "<meta property=\"rewritten-from\" content=\"" + fullPath + "\" />\n";
 
   let title = "rewrite based on " + fullPath;
   let description = "rewrite based on " + fullPath;
