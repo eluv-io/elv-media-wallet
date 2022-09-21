@@ -56,10 +56,10 @@ exports.create_index_html = functions.https.onRequest(async (req, res) => {
   const fullPath = originalHost + originalUrl;
   const meta = "<meta property=\"rewritten-from\" content=\"" + fullPath + "\" />\n";
 
-  let title = "rewrite based on " + fullPath;
-  let description = "rewrite based on " + fullPath;
-  let image = "";
-  let url = "";
+  let title = "Eluvio Media Wallet";
+  let description = "Eluvio Media wallet accessed from " + fullPath;
+  let image = "https://live.eluv.io/875458425032ed6b77076d67678a20a1.png";
+  let url = "https://live.eluv.io";
 
   for(const [key, value] of Object.entries(sites)) {
     functions.logger.info("checking", key);
