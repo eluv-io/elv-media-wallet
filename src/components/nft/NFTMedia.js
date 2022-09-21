@@ -841,16 +841,16 @@ const NFTMedia = observer(({nft, item}) => {
 
   const isSingleAlbum = (nftInfo?.additionalMedia?.sections || [])[0]?.isSingleAlbum;
   return (
-    <div className="nft-media-page">
+    <div className="nft-media-page" id="top-scroll-target">
       <div className="page-block page-block--main-content">
-        <div className="page-block__content">
+        <div className="page-block__content page-block__content--unrestricted">
           <NFTActiveMedia nftInfo={nftInfo} key={`nft-media-${match.params.sectionIndex}-${match.params.collectionIndex}`} />
         </div>
       </div>
       {
         isSingleAlbum ? null :
           <div className="page-block page-block--lower-content page-block--media-browser">
-            <div className="page-block__content">
+            <div className="page-block__content page-block__content--unrestricted">
               <NFTMediaBrowser nftInfo={nftInfo} activeMedia/>
             </div>
           </div>

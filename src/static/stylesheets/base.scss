@@ -427,6 +427,11 @@ em {
     &__content {
       max-width: $breakpoint;
       width: $breakpoint;
+
+      &--unrestricted {
+        max-width: 90%;
+        width: 90%;
+      }
     }
   }
 }

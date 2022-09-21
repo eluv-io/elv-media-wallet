@@ -5,11 +5,17 @@ class ScrollToTop extends React.Component {
   async componentDidUpdate(prevProps) {
     if(this.props.location !== prevProps.location) {
       await new Promise(resolve => setTimeout(resolve, 100));
-      window.scrollTo({
-        top: 0,
-        left: 0,
-        behavior: "smooth"
-      });
+      const target = document.querySelector("#top-scroll-target");
+
+      if(target) {
+        target?.scrollIntoView({block: "start", inline: "start", behavior: "smooth"});
+      } else {
+        window.scrollTo({
+          top: 0,
+          left: 0,
+          behavior: "smooth"
+        });
+      }
     }
   }
 
