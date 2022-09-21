@@ -152,12 +152,6 @@
         color: var(--color-component-text-highlight);
       }
     }
-
-    @media screen and (max-width: $mobile-breakpoint) {
-      &__tabs {
-        justify-content: center;
-      }
-    }
   }
 
   &__offer {

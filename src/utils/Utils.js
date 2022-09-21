@@ -416,7 +416,7 @@ export const NFTMediaInfo = ({versionHash, nft, item, selectedMedia, selectedMed
 
   const selectedMediaImageUrl = selectedMedia && ((selectedMedia.media_type === "Image" && selectedMedia.media_file?.url) || selectedMedia.image);
   if(selectedMediaImageUrl) {
-    imageUrl = new URL(selectedMediaImageUrl);
+    imageUrl = new URL(selectedMediaImageUrl?.url || selectedMediaImageUrl);
 
     imageUrl.searchParams.set("authorization", authToken);
     if(imageUrl && width) {
