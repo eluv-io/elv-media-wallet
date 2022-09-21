@@ -230,10 +230,11 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
 const MediaCollection = ({sectionId, collection}) => {
   const match = useRouteMatch();
 
-  const activeIndex = match.params.mediaIndex;
+  const collectionActive = match.params.sectionId === sectionId && match.params.collectionId === collection.id;
+  const activeIndex = collectionActive ? parseInt(match.params.mediaIndex) : undefined;
 
   return (
-    <div className={`nft-media-browser__collection ${collection.display === "Album" ? "nft-media-browser__collection--album" : ""}`}>
+    <div className={`nft-media-browser__collection ${collectionActive ? "nft-media-browser__collection--active" : ""} ${collection.display === "Album" ? "nft-media-browser__collection--album" : ""}`}>
       <div className="nft-media-browser__collection__header">
         <div className="nft-media-browser__collection__header-text ellipsis">
           { collection.name }
@@ -266,6 +267,7 @@ const MediaCollection = ({sectionId, collection}) => {
         >
           { collection.media.map((mediaItem, mediaIndex) => {
             let imageUrl = MediaImageUrl({mediaItem, maxWidth: 600});
+            const itemActive = collectionActive && mediaIndex === activeIndex;
 
             return (
               <SwiperSlide
@@ -274,14 +276,17 @@ const MediaCollection = ({sectionId, collection}) => {
               >
                 <NavLink
                   to={MediaLinkPath({match, sectionId, collectionId: collection.id, mediaIndex})}
-                  className="nft-media-browser__item"
+                  className={`nft-media-browser__item ${itemActive ? "nft-media-browser__item--active" : ""}`}
                 >
                   <div className="nft-media-browser__item__image-container">
                     <ImageIcon icon={imageUrl || ItemIcon} className="nft-media-browser__item__image" />
                   </div>
 
-                  <div className="nft-media-browser__item__name ellipsis">
-                    { mediaItem.name }
+                  <div className="nft-media-browser__item__name">
+                    { itemActive ? <ImageIcon icon={PlayIcon} className="nft-media-browser__item__name__icon" /> : null }
+                    <div className="nft-media-browser__item__name__text ellipsis">
+                      { mediaItem.name }
+                    </div>
                   </div>
                 </NavLink>
               </SwiperSlide>
@@ -297,8 +302,10 @@ const MediaCollection = ({sectionId, collection}) => {
 };
 
 const MediaSection = ({section, locked}) => {
+  const match = useRouteMatch();
+
   return (
-    <div className={`nft-media-browser__section ${locked ? "nft-media-browser__section--locked" : ""}`}>
+    <div className={`nft-media-browser__section ${match.params.sectionId === section.id ? "nft-media-browser__section--active" : ""} ${locked ? "nft-media-browser__section--locked" : ""}`}>
       <div className="nft-media-browser__section__header">
         <ImageIcon icon={locked ? LockedIcon : UnlockedIcon} className="nft-media-browser__section__header-icon" />
         <div className="nft-media-browser__section__header-text ellipsis">

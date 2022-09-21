@@ -219,6 +219,7 @@
     font: var(--font-store-header);
     justify-content: center;
     letter-spacing: 1px;
+    max-width: 700px;
     text-align: center;
 
     &__image-container {
@@ -274,17 +275,17 @@
   }
 
   .mobile-navigation {
-    height: 50px;
+    height: 100px;
     position: absolute;
     right: 0;
-    top: 10px;
+    top: 0;
   }
 }
 
 .mobile-navigation {
   align-items: center;
   display: none;
-  height: 100%;
+  height: 100px;
   justify-content: center;
   margin-left: 15px;
   min-width: 30px;
@@ -293,11 +294,12 @@
   &__menu-button {
     height: 100%;
     padding: 10px 0;
-    width: 100%;
+    width: 30px;
 
     svg {
       height: 100%;
       opacity: 0.5;
+      width: 100%;
 
       * {
         color: var(--color-page-header-text);
@@ -437,6 +439,10 @@
 
   .subheader__header {
     font-size: 24px;
+
+    &__image-container {
+      padding-right: 60px;
+    }
   }
 
   .mobile-navigation__link {

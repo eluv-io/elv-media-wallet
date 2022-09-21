@@ -91,6 +91,7 @@
         font-size: 12px;
         padding: 2px 10px 0;
         max-width: 250px;
+        color: var(--color-nft-media-text-secondary);
       }
     }
 
@@ -399,7 +400,6 @@
     flex: 1 1 50%;
     width: 100%;
     padding: 25px 50px 25px 25px;
-    max-width: 750px;
 
     * {
       font-family: var(--font-nft-media-text);
@@ -535,6 +535,14 @@
     border-radius: var(--border-radius-nft-media);
     overflow: hidden;
 
+    &--active {
+      .nft-media-browser__section__header {
+        * {
+          color: var(--color-nft-media-text-highlight);
+        }
+      }
+    }
+
     &--locked {
       margin-bottom: 12px;
     }
@@ -542,7 +550,7 @@
     &__header {
       font: var(--font-nft-media-misc);
       font-size: 16px;
-      padding: 25px 70px 25px 60px;
+      padding: 25px 70px 15px 60px;
       text-transform: uppercase;
       display: flex;
       align-items: center;
@@ -578,16 +586,20 @@
     border-radius: var(--border-radius-nft-media);
     overflow: hidden;
 
+    &--active {
+      background: var(--color-nft-media-bg-active);
+    }
+
     &--album {
       --nft-media-carousel-height: 215px;
     }
 
     &:not(:last-child) {
-      margin-bottom: 30px;
+      margin-bottom: 20px;
     }
 
     &__header {
-      padding: 20px 70px 20px 60px;
+      padding: 15px 70px 10px 60px;
       position: relative;
       width: 100%;
       display: flex;
@@ -667,10 +679,17 @@
   &__item {
     width: 100%;
     max-width: 100%;
-    opacity: 0.65;
 
-    &.active {
-      opacity: 1;
+    &--active {
+      .nft-media-browser__item__image-container {
+        border: 3px solid var(--color-nft-media-bg-highlight) !important;
+      }
+
+      .nft-media-browser__item__name {
+        * {
+          color: var(--color-nft-media-text-highlight);
+        }
+      }
     }
 
     &:not(:last-child) {
@@ -696,6 +715,18 @@
       font-size: 12px;
       font-weight: 500;
       margin-top: 10px;
+      display: flex;
+      align-items: center;
+
+      svg {
+        height: 20px;
+        width: 20px;
+        margin-right: 5px;
+
+        circle {
+          fill: transparent;
+        }
+      }
     }
   }
 
@@ -791,11 +822,22 @@
         height: auto;
         margin: 0 0 20px;
         width: 100%;
+        max-height: unset;
+        max-width: unset;
       }
 
       &__name {
         margin: 0;
       }
+    }
+  }
+
+  &__locked-featured-item {
+    &__image-container {
+      max-height: unset;
+      max-width: unset;
+      height: 100%;
+      width: 100%;
     }
   }
 }

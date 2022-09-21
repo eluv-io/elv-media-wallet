@@ -5,6 +5,7 @@
 
   --yellow-1: #FCBE01;
   --yellow-2: #BF9837;
+  --yellow-2-rgb: 191, 152, 55;
 
 
   /* General */
@@ -83,6 +84,9 @@
   /* Media */
   --background-nft-media-featured: rgba(0, 0, 0, 0.8);
   --color-nft-media-bg-primary: #101010;
+  --color-nft-media-bg-secondary: #101010;
+  --color-nft-media-bg-active: rgba(var(--yellow-2-rgb), 0.1);
+  --border-nft-media-active: 3px solid var(--yellow-2);
 }
 
 /* Remove capitalization on names */

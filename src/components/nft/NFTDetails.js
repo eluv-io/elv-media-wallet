@@ -402,12 +402,6 @@ const NFTInfoSection = ({nftInfo, className=""}) => {
         text={nftInfo.item?.description || nftInfo.nft.metadata.description}
         maxLine={50}
       />
-      <ResponsiveEllipsis
-        component="div"
-        className="details-page__nft-info__description"
-        text={nftInfo.item?.description || nftInfo.nft.metadata.description}
-        maxLine={50}
-      />
       {
         nftInfo.renderedPrice || nftInfo.status ?
           <div className="details-page__nft-info__status">
@@ -970,7 +964,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
               <div className="details-page__info">
                 <NFTInfoSection nftInfo={nftInfo} className="details-page__nft-info--default" />
                 {
-                  nftInfo.hasAdditionalMedia ?
+                  nftInfo.hasAdditionalMedia && (nftInfo.isOwned || previewMedia) ?
                     <ExpandableSection
                       header="Media"
                       toggleable={false}

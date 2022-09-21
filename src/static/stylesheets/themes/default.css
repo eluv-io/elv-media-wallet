@@ -230,6 +230,7 @@ html {
   --color-nft-media-bg-primary: var(--color-bg-primary);
   --color-nft-media-bg-secondary: var(--color-bg-primary);
   --color-nft-media-bg-highlight: var(--color-bg-highlight);
+  --color-nft-media-bg-active: var(--color-bg-secondary);
   --color-nft-media-highlight: var(--color-text-highlight);
   --color-nft-media-text-primary: var(--color-text-primary);
   --color-nft-media-text-secondary: var(--color-text-secondary);
@@ -237,6 +238,7 @@ html {
   --border-nft-media-primary: var(--border);
   --border-nft-media-secondary: var(--border-faint);
   --border-nft-media-highlight: var(--border-highlight);
+  --border-nft-media-active: var(--border-highlight);
   --border-radius-nft-media: var(--border-radius);
   --border-radius-nft-media-featured: 25px;
 
