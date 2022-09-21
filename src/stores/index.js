@@ -109,7 +109,7 @@ class RootStore {
   previewMarketplaceHash = undefined;
 
   hideGlobalNavigation = false;
-  hideGlobalNavigationInMarketplace = searchParams.has("hgm");
+  hideGlobalNavigationInMarketplace = searchParams.has("hgm") || this.GetSessionStorage("hide-global-navigation-in-marketplace");
   hideNavigation = searchParams.has("hn") || this.loginOnly;
   hideMarketplaceNavigation = false;
   sidePanelMode = false;
@@ -719,6 +719,10 @@ class RootStore {
 
     if(marketplace && this.specifiedMarketplaceId === marketplace.marketplaceId && marketplace.branding && marketplace.branding.hide_global_navigation) {
       this.hideGlobalNavigation = true;
+    }
+
+    if(this.hideGlobalNavigationInMarketplace) {
+      this.SetSessionStorage("hide-global-navigation-in-marketplace", "true");
     }
 
     this.centerContent = marketplace?.branding?.text_justification === "Center";
