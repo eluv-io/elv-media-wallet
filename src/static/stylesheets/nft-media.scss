@@ -104,6 +104,7 @@
       margin-top: 15px;
       text-align: left;
       grid-area: text;
+      min-height: 75px;
     }
 
     &__name {
@@ -609,7 +610,7 @@
     }
 
     &__content {
-      background: var(--color-nft-media-bg-secondary);
+      background: var(--color-nft-media-bg-primary);
     }
   }
 
@@ -874,15 +875,6 @@
       &__name {
         margin: 0;
       }
-    }
-  }
-
-  &__locked-featured-item {
-    &__image-container {
-      max-height: unset;
-      max-width: unset;
-      height: 100%;
-      width: 100%;
     }
   }
 }

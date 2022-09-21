@@ -84,7 +84,7 @@
   /* Media */
   --background-nft-media-featured: rgba(0, 0, 0, 0.8);
   --color-nft-media-bg-primary: #101010;
-  --color-nft-media-bg-secondary: #101010;
+  --color-nft-media-bg-secondary: #1c1c1c;
   --color-nft-media-bg-active: rgba(var(--yellow-2-rgb), 0.1);
   --border-nft-media-active: 3px solid var(--yellow-2);
 }
