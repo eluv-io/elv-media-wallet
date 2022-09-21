@@ -154,7 +154,7 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
             rel="noopener"
             useNavLink
             onClick={() => Unlock(mediaItem.id)}
-            className="action nft-media-browser__locked-featured-item__button"
+            className="action action-primary nft-media-browser__locked-featured-item__button"
           >
             { button_text || "View"}
           </Linkish>

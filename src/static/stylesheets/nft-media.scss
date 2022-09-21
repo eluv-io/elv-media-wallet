@@ -442,7 +442,7 @@
     display: flex;
     flex: 1 1 50%;
     width: 100%;
-    padding: 25px 50px 25px 25px;
+    padding: 50px 100px 50px 50px;
 
     * {
       font-family: var(--font-nft-media-text);
@@ -496,7 +496,6 @@
     max-width: 100%;
     position: relative;
     overflow: hidden;
-    padding: 50px 100px 50px 50px;
     min-width: 100%;
 
     * {
@@ -533,8 +532,7 @@
     }
 
     &__button {
-      color: var(--color-nft-media-text-highlight);
-      padding: 25px 50px;
+      padding: 25px 40px;
       border-radius: var(--border-radius-nft-media-featured);
       min-width: 250px;
       min-height: 80px;
@@ -542,10 +540,8 @@
       width: max-content;
       text-align: center;
       text-transform: uppercase;
-
-      &:hover {
-        color: var(--color-nft-media-text-highlight);
-      }
+      font-weight: 500;
+      font-size: 16px;
     }
 
     &__image-container {
@@ -778,9 +774,12 @@
   }
 
   @media screen and (max-width: $breakpoint) {
+    &__featured-item,
     &__locked-featured-item {
       padding: 30px;
+    }
 
+    &__locked-featured-item {
       &__content {
         width: 100%;
       }

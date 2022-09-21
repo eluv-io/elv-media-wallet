@@ -77,7 +77,6 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, erro
 
   const requiresEmail = ["coinbase"].includes(paymentType);
   const externalPayment = ["stripe", "coinbase"].includes(paymentType);
-  const previewMode = match.params.marketplaceId === rootStore.previewMarketplaceId;
 
   return (
     <div className="purchase-modal__payment-options">

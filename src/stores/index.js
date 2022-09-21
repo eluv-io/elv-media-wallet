@@ -19,7 +19,6 @@ import NFTContractABI from "../static/abi/NFTContract";
 import CryptoStore from "Stores/Crypto";
 import {v4 as UUID} from "uuid";
 import ProfanityFilter from "bad-words";
-import PreviewPasswordPrompt from "Components/login/PreviewPasswordPrompt";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
@@ -239,15 +238,6 @@ class RootStore {
       this.previewMarketplaceHash = this.walletClient.previewMarketplaceHash;
 
       if(this.walletClient.previewMarketplaceHash) {
-        const passwordDigest = yield this.walletClient.client.ContentObjectMetadata({
-          versionHash: this.walletClient.previewMarketplaceHash,
-          metadataSubtree: "public/asset_metadata/info/preview_password_digest"
-        });
-
-        if(passwordDigest) {
-          yield PreviewPasswordPrompt({marketplaceId: this.walletClient.previewMarketplaceId, passwordDigest});
-        }
-
         this.SetSessionStorage("preview-marketplace", this.walletClient.previewMarketplaceId);
       }
 

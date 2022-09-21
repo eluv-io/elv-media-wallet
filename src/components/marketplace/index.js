@@ -5,6 +5,7 @@ import {observer} from "mobx-react";
 import AsyncComponent from "Components/common/AsyncComponent";
 import {PageLoader} from "Components/common/Loaders";
 import RenderRoutes from "Routes";
+import PreviewPasswordPrompt from "Components/login/PreviewPasswordPrompt";
 
 const MarketplaceWrapper = observer(({children}) => {
   const match = useRouteMatch();
@@ -32,6 +33,14 @@ const MarketplaceWrapper = observer(({children}) => {
             rootStore.LoadMarketplace(match.params.marketplaceId),
             rootStore.LoadNFTContractInfo()
           ]);
+
+          const passwordDigest = rootStore.marketplaces[match.params.marketplaceId]?.preview_password_digest;
+          if(passwordDigest && (rootStore.walletClient.mode === "staging" || match.params.marketplaceId === rootStore.previewMarketplaceId)) {
+            await PreviewPasswordPrompt({
+              marketplaceId: match.params.marketplaceId,
+              passwordDigest
+            });
+          }
         }}
         loadingClassName="page-loader content"
       >
