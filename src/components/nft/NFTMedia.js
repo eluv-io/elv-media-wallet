@@ -637,6 +637,10 @@ const ActiveMediaInfo = ({additionalMedia, sectionId, collectionId, mediaIndex})
     mediaList
   };
 
+  if(sectionId === "featured") {
+    return { current };
+  }
+
   try {
     let previous = {
       ...current,
@@ -648,7 +652,7 @@ const ActiveMediaInfo = ({additionalMedia, sectionId, collectionId, mediaIndex})
       mediaIndex: mediaIndex + 1
     };
 
-    if(["list", "featured"].includes(sectionId)) {
+    if(sectionId === "list") {
       if(previous.mediaIndex < 0) {
         previous = undefined;
       } else {
