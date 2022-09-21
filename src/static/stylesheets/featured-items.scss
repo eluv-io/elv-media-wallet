@@ -123,18 +123,24 @@
     box-shadow: var(--box-shadow-feature-card);
     padding: var(--border-width-feature-card);
     position: relative;
+    max-height: 75vh;
+    max-width: 75vh;
   }
 
   &__icon {
     background: var(--background-feature-card);
     border-radius: var(--border-radius-feature-card);
     padding: 32px;
+    max-height: 75vh;
+    max-width: 75vh;
 
     div {
       margin: 0;
     }
 
     img {
+      max-height: 75vh;
+      max-width: 75vh;
       background: $black;
       border-radius: calc(var(--border-radius-feature-card) / 2);
     }

@@ -106,7 +106,7 @@ const MarketplaceRoutes = () => {
     { name: "Purchase", path: "store/:sku/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
 
     { name: match => (GetItem(match)?.name || "Item"), path: "store/:sku", noBlock: true, Component: MarketplaceItemDetails },
-    { name: match => (GetMarketplace(match)?.branding?.name || "Marketplace"), path: "store", Component: MarketplaceStorefront },
+    { name: match => (GetMarketplace(match)?.branding?.name || "Marketplace"), path: "store", noBlock: true, Component: MarketplaceStorefront },
 
     { name: match => (GetItem(match)?.name || "Item"), path: "store/:sku/media", noBlock: true, Component: NFTMedia },
     { name: match => (GetItem(match)?.name || "Item"), path: "store/:sku/media/:sectionId/:mediaIndex", noBlock: true, Component: NFTMedia },

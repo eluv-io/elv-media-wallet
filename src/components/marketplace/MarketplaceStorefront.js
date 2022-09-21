@@ -175,11 +175,13 @@ const MarketplaceStorefront = observer(() => {
   if(!marketplace) { return null; }
 
   return (
-    <>
-      <MarketplaceBanners marketplace={marketplace} />
-      <MarketplaceStorefrontSections marketplace={marketplace} />
-      <MarketplaceCollectionsSummary marketplace={marketplace} />
-    </>
+    <div className="page-block page-block--main-content page-block--storefront">
+      <div className="page-block__content page-block__content--unrestricted">
+        <MarketplaceBanners marketplace={marketplace} />
+        <MarketplaceStorefrontSections marketplace={marketplace} />
+        <MarketplaceCollectionsSummary marketplace={marketplace} />
+      </div>
+    </div>
   );
 });
 

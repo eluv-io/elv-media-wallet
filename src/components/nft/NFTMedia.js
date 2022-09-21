@@ -753,6 +753,8 @@ const NFTActiveMedia = observer(({nftInfo}) => {
 
   useEffect(() => {
     setVideoElement(undefined);
+
+    document.querySelector("#top-scroll-target")?.scrollIntoView({block: "start", inline: "start", behavior: "smooth"});
   }, [match.params.sectionId, match.params.collectionId, match.params.mediaIndex]);
 
   const mediaIndex = parseInt(match.params.mediaIndex);
