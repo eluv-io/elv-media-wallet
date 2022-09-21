@@ -59,7 +59,6 @@ exports.create_index_html = functions.https.onRequest(async (req, res) => {
   let title = "Eluvio Media Wallet";
   let description = "Eluvio Media wallet accessed from " + fullPath;
   let image = "https://live.eluv.io/875458425032ed6b77076d67678a20a1.png";
-  let url = "https://live.eluv.io";
 
   for(const [key, value] of Object.entries(sites)) {
     functions.logger.info("checking", key);
@@ -67,13 +66,11 @@ exports.create_index_html = functions.https.onRequest(async (req, res) => {
       title = value.title;
       description = value.description;
       image = value.image;
-      url = value.url;
     }
   }
 
   html = html.replace(/@@TITLE@@/g, title);
   html = html.replace(/@@DESCRIPTION@@/g, description);
-  html = html.replace(/@@URL@@/g, url);
   html = html.replace(/@@IMAGE@@/g, image);
   html = html.replace(/@@ADDITIONAL_META@@/g, meta);
 
@@ -108,10 +105,6 @@ const loadElvLiveAsync = async () => {
     const event_info = site["event_info"] || {};
     //functions.logger.info("event_info", event_info);
 
-    //const event_images = site["event_images"] || {};
-    //functions.logger.info("event_images", event_images);
-
-    // url + "/indieflix/sites/indieflix/info/event_images/hero_background";
     const image = tenantsUrl + "/" + tenant_name + "/sites/" + site_name + "/info/event_images/hero_background";
     functions.logger.info("image", image);
     const title = event_info["event_title"] || "";
@@ -121,7 +114,6 @@ const loadElvLiveAsync = async () => {
       "title": title,
       "description": description,
       "image": image,
-      "url": "",
     };
   }
 
