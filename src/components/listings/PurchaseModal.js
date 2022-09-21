@@ -148,7 +148,7 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, erro
       }
       { paymentType === "linked-wallet" ? <div className="purchase-modal__wallet-connect"><WalletConnect /></div> : null }
       <ButtonWithLoader
-        disabled={disabled || !connected || (requiresEmail && !ValidEmail(email)) || previewMode}
+        disabled={disabled || !connected || (requiresEmail && !ValidEmail(email))}
         className="action action-primary purchase-modal__payment-submit"
         onClick={async () => await Continue(paymentType, email)}
       >
