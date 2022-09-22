@@ -51,7 +51,8 @@ media-wallet:
 	npm run serve-https
 
 featured_sites:
-	curl -s "https://host-76-74-91-11.contentfabric.io/s/main/qlibs/ilib2GdaYEFxB7HyLPhSDPKMyPLhV8x9/q/iq__suqRJUt2vmXsyiWS5ZaSGwtFU9R/meta/public/asset_metadata/"  |jq ".featured_events | . [] | keys"
+	curl -s "https://host-76-74-91-11.contentfabric.io/s/main/qlibs/ilib2GdaYEFxB7HyLPhSDPKMyPLhV8x9/q/iq__suqRJUt2vmXsyiWS5ZaSGwtFU9R/meta/public/asset_metadata/"  |jq ".featured_events | . [] | keys" | paste - - -
+	curl -s -L https://main.net955305.contentfabric.io/s/main/qlibs/ilib2GdaYEFxB7HyLPhSDPKMyPLhV8x9/q/iq__suqRJUt2vmXsyiWS5ZaSGwtFU9R/meta/public/asset_metadata/info/domain_map | jq .
 
 network_and_mode_test:
 	time curl -s "https://host-76-74-91-11.contentfabric.io/s/main/qlibs/ilib2GdaYEFxB7HyLPhSDPKMyPLhV8x9/q/iq__suqRJUt2vmXsyiWS5ZaSGwtFU9R/meta/public/asset_metadata/" | jq . | head
