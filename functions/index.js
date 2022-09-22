@@ -3,6 +3,10 @@ const fs = require("fs");
 const Path = require("path");
 const axios = require("axios");
 
+const Networks = {
+  main: "https://main.net955305.contentfabric.io/s/main/",
+  demo: "https://demov3.net955210.contentfabric.io/s/demov3/",
+};
 
 //
 // Firebase cloud functions definitions for rewrite support
@@ -62,9 +66,11 @@ exports.create_index_html = functions.https.onRequest(async (req, res) => {
   for(const [key, value] of Object.entries(sites)) {
     functions.logger.info("checking", key);
     if(originalUrl.indexOf(key) > -1) {
+      functions.logger.info("match", key);
       title = value.title;
       description = value.description;
       image = value.image;
+      break;
     }
   }
 
@@ -79,7 +85,7 @@ exports.create_index_html = functions.https.onRequest(async (req, res) => {
 
 const loadElvLiveAsync = async () => {
 
-  const tenantsUrl = "https://host-76-74-91-11.contentfabric.io/s/main/" +
+  const tenantsUrl = Networks.main +
     "qlibs/ilib2GdaYEFxB7HyLPhSDPKMyPLhV8x9/" +
     "q/iq__suqRJUt2vmXsyiWS5ZaSGwtFU9R/meta/public/asset_metadata/tenants";
 
@@ -120,7 +126,7 @@ const loadElvLiveAsync = async () => {
     };
   }
 
-  const featuredEvents = "https://host-76-74-91-11.contentfabric.io/s/main/" +
+  const featuredEvents = Networks.main +
     "qlibs/ilib2GdaYEFxB7HyLPhSDPKMyPLhV8x9/" +
     "q/iq__suqRJUt2vmXsyiWS5ZaSGwtFU9R/meta/public/asset_metadata/featured_events";
 
