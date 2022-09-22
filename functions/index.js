@@ -126,11 +126,11 @@ const loadElvLiveAsync = async () => {
     };
   }
 
-  const featuredEvents = Networks.main +
+  const featuredEventsUrl = Networks.main +
     "qlibs/ilib2GdaYEFxB7HyLPhSDPKMyPLhV8x9/" +
     "q/iq__suqRJUt2vmXsyiWS5ZaSGwtFU9R/meta/public/asset_metadata/featured_events";
 
-  const fe = await axios.get(featuredEvents);
+  const fe = await axios.get(featuredEventsUrl);
   const featuredEventData = fe.data;
 
   for(const [idx, event] of Object.entries(featuredEventData)) {
@@ -141,7 +141,7 @@ const loadElvLiveAsync = async () => {
 
       const title = event_info["event_title"] || "";
       const description = event_info["description"] || "";
-      const image = featuredEvents + "/" + idx + "/" + eventName +
+      const image = featuredEventsUrl + "/" + idx + "/" + eventName +
         "/info/event_images/hero_background?width=1200";
 
       ret[eventName] = {
