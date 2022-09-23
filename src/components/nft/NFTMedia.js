@@ -522,11 +522,18 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
 
     if(!targetRef || !targetRef.current) { return; }
 
+    // For preview mode, ensure viewed status is not actually saved
+    let embedUrl = mediaItem.mediaInfo.embedUrl;
+    if(!nftInfo.nft.details.TokenIdStr) {
+      embedUrl = new URL(embedUrl);
+      embedUrl.searchParams.delete("vrk");
+    }
+
     const playerPromise = new Promise(async resolve =>
       Initialize({
         client: rootStore.client,
         target: targetRef.current,
-        url: mediaItem.mediaInfo.embedUrl.toString(),
+        url: embedUrl.toString(),
         playerOptions: {
           posterUrl: mediaItem.mediaInfo.imageUrl,
           playerCallback: ({player, videoElement}) => {
