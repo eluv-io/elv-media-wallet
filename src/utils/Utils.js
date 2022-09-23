@@ -484,6 +484,10 @@ export const NFTMediaInfo = ({versionHash, nft, item, selectedMedia, selectedMed
       embedUrl.searchParams.set("vid", LinkTargetHash(selectedMedia.media_link));
       embedUrl.searchParams.set("ct", "h");
       embedUrl.searchParams.set("ap", "");
+
+      if(selectedMedia.offerings?.length > 0) {
+        embedUrl.searchParams.set("off", selectedMedia.offerings.map(o => (o || "").toString().trim()).join(","));
+      }
     } else if(item && item.video) {
       embedUrl = new URL("https://embed.v3.contentfabric.io");
 

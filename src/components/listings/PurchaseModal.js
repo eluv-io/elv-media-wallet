@@ -65,8 +65,6 @@ const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
 };
 
 const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, errorMessage, disabled, Continue, Cancel}) => {
-  const match = useRouteMatch();
-
   const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.walletClient.UserInfo()?.email || "";
   const [paymentType, setPaymentType] = useState(usdcOnly || (usdcAccepted && cryptoStore.usdcOnly) ? "linked-wallet" : "stripe");
   const [email, setEmail] = useState(initialEmail);
