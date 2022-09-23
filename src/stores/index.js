@@ -123,8 +123,9 @@ class RootStore {
 
   nftInfo = {};
   nftData = {};
-  offerCodeData = {};
   userProfiles = {};
+
+  viewedMedia = {};
 
   marketplaces = {};
   marketplaceOwnedCache = {};
@@ -1104,6 +1105,69 @@ class RootStore {
       noResponse: true,
       OnCancel: () => this.GetWalletBalance()
     });
+  });
+
+  MediaViewKey({contractAddress, tokenId, mediaId}) {
+    contractAddress = Utils.FormatAddress(contractAddress);
+    return `nft-media-viewed-${contractAddress}-${tokenId || "preview"}-${mediaId}`;
+  }
+
+  MediaViewed({nft, contractAddress, tokenId, mediaId}) {
+    if(nft) {
+      contractAddress = nft.details.ContractAddr || contractAddress;
+      tokenId = nft.details.TokenIdStr || tokenId;
+    }
+
+    return this.viewedMedia[this.MediaViewKey({contractAddress, tokenId, mediaId})];
+  }
+
+  CheckViewedMedia = flow(function * ({nft, contractAddress, tokenId, mediaIds}) {
+    if(nft) {
+      contractAddress = nft.details.ContractAddr || contractAddress;
+      tokenId = nft.details.TokenIdStr || tokenId;
+    }
+
+    let viewedMedia = { ...this.viewedMedia };
+
+    yield Promise.all(
+      mediaIds.map(async mediaId => {
+        const key = this.MediaViewKey({contractAddress, tokenId, mediaId});
+        if(this.viewedMedia[key]) { return; }
+
+        const viewed = await rootStore.walletClient.ProfileMetadata({
+          type: "app",
+          mode: "private",
+          appId: rootStore.appId,
+          key
+        });
+
+        if(viewed) {
+          viewedMedia[key] = true;
+        }
+      })
+    );
+
+    this.viewedMedia = viewedMedia;
+  });
+
+  SetMediaViewed = flow(function * ({nft, contractAddress, tokenId, mediaId}) {
+    if(nft) {
+      contractAddress = nft.details.ContractAddr || contractAddress;
+      tokenId = nft.details.TokenIdStr || tokenId;
+    }
+
+    const key = this.MediaViewKey({contractAddress, tokenId, mediaId});
+    if(!this.viewedMedia[key] && tokenId) {
+      yield rootStore.walletClient.SetProfileMetadata({
+        type: "app",
+        mode: "private",
+        appId: rootStore.appId,
+        key,
+        value: true
+      });
+    }
+
+    this.viewedMedia[key] = true;
   });
 
   SignOut(returnUrl) {

@@ -7,7 +7,7 @@
   padding-bottom: 20px;
 
   &--with-album-view {
-    --elv-gallery-max-height: calc(100vh - 600px);
+    --elv-gallery-max-height: calc((100vw - 600px) * 9 / 16);
 
     .nft-media__content {
       display: grid;
@@ -16,9 +16,24 @@
         "text empty";
       grid-template-columns: 1fr max-content;
       gap: 0 20px;
+      max-width: calc(#{var(--elv-gallery-max-height)} * 16 / 9 + 600px);
 
-      &__target-container {
+      &__target-container,
+      &__target {
         padding: 0;
+        height: 100%;
+        width: 100%;
+        min-height: 100%;
+        min-width: 100%;
+        max-height: 100%;
+        max-width: 100%;
+      }
+
+
+      &__name,
+      &__subtitle-1,
+      &__subtitle-2 {
+        max-width: unset;
       }
 
       &__text {
@@ -325,19 +340,39 @@
         font-size: 12px;
       }
     }
-  }
-
-  @media screen and (max-width: $tablet-breakpoint) {
-    --elv-gallery-max-height: unset;
 
     &--with-album-view {
       .nft-media__content {
+        grid-gap: 0;
         grid-template-areas:
           "target"
           "text"
           "album";
+
+        &__target-container,
+        &__target {
+          max-height: calc((100vw - 50px) * 9 / 16);
+          min-height: calc((100vw - 50px) * 9 / 16);
+        }
       }
     }
+
+    &__album-view {
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      max-height: 400px;
+      min-height: max-content;
+      margin-top: 20px;
+
+      &__media-container {
+        max-height: 400px;
+      }
+    }
+  }
+
+  @media screen and (max-width: $tablet-breakpoint) {
+    --elv-gallery-max-height: unset;
 
     &__content {
       &__target-container {
@@ -367,19 +402,6 @@
 
       &__button__text {
         display: none;
-      }
-    }
-
-    &__album-view {
-      width: 100%;
-      max-width: 100%;
-      height: auto;
-      max-height: 400px;
-      min-height: max-content;
-      margin-top: 20px;
-
-      &__media-container {
-        max-height: 400px;
       }
     }
   }

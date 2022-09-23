@@ -128,8 +128,9 @@ export const NFTDisplayToken = nft => {
   }
 };
 
-const FormatAdditionalMedia = ({name, metadata={}, versionHash}) => {
+const FormatAdditionalMedia = ({nft, name, metadata={}, versionHash}) => {
   let additionalMedia, additionalMediaType, hasAdditionalMedia;
+  let watchedMediaIds = [];
   if(metadata?.additional_media_type === "Sections") {
     additionalMediaType = "Sections";
     additionalMedia = { ...(metadata?.additional_media_sections || {}) };
@@ -160,7 +161,7 @@ const FormatAdditionalMedia = ({name, metadata={}, versionHash}) => {
   }
 
   if(hasAdditionalMedia) {
-    const MediaInfo = ({mediaItem, type, sectionIndex, collectionIndex, mediaIndex}) => {
+    const MediaInfo = ({mediaItem, type, sectionIndex, collectionIndex, mediaIndex, watchedMediaIds}) => {
       type = type.toLowerCase();
       mediaIndex = mediaIndex.toString();
       let path = "/public/asset_metadata/nft";
@@ -173,34 +174,54 @@ const FormatAdditionalMedia = ({name, metadata={}, versionHash}) => {
       }
 
       return NFTMediaInfo({
+        nft,
         versionHash,
         selectedMedia: mediaItem,
         selectedMediaPath: path,
-        showFullMedia: true
+        showFullMedia: true,
+        watchedMediaIds
       });
     };
 
-    additionalMedia.featured_media = (additionalMedia.featured_media || []).map((mediaItem, mediaIndex) => ({
-      ...mediaItem,
-      sectionId: "featured",
-      collectionId: "featured",
-      mediaIndex,
-      mediaInfo: MediaInfo({mediaItem, type: "Featured", mediaIndex})
-    }));
+    additionalMedia.featured_media = (additionalMedia.featured_media || []).map((mediaItem, mediaIndex) => {
+      if(mediaItem.required) {
+        watchedMediaIds.push(mediaItem.id);
+      }
+
+      return {
+        ...mediaItem,
+        sectionId: "featured",
+        collectionId: "featured",
+        mediaIndex,
+        mediaInfo: MediaInfo({mediaItem, type: "Featured", mediaIndex, watchedMediaIds})
+      };
+    });
+
+    (additionalMedia.sections || []).forEach(({collections}) =>
+      collections.forEach(({media}) =>
+        media.forEach(mediaItem => {
+          if(mediaItem.locked && mediaItem.locked_state.lock_condition === "View Media") {
+            watchedMediaIds = [...watchedMediaIds, ...mediaItem.locked_state.required_media];
+          }
+        })
+      )
+    );
 
     additionalMedia.sections = (additionalMedia.sections || []).map((section, sectionIndex) => ({
       ...section,
       collections: (section.collections || []).map((collection, collectionIndex) => ({
         ...collection,
-        media: (collection.media || []).map((mediaItem, mediaIndex) => ({
-          ...mediaItem,
-          sectionIndex,
-          sectionId: section.id,
-          collectionIndex,
-          collectionId: collection.id,
-          mediaIndex,
-          mediaInfo: MediaInfo({mediaItem, type: additionalMediaType, sectionIndex, collectionIndex, mediaIndex})
-        }))
+        media: (collection.media || []).map((mediaItem, mediaIndex) => {
+          return {
+            ...mediaItem,
+            sectionIndex,
+            sectionId: section.id,
+            collectionIndex,
+            collectionId: collection.id,
+            mediaIndex,
+            mediaInfo: MediaInfo({mediaItem, type: additionalMediaType, sectionIndex, collectionIndex, mediaIndex, watchedMediaIds})
+          };
+        })
       }))
     }));
   }
@@ -208,7 +229,8 @@ const FormatAdditionalMedia = ({name, metadata={}, versionHash}) => {
   return {
     additionalMedia,
     additionalMediaType,
-    hasAdditionalMedia
+    hasAdditionalMedia,
+    watchedMediaIds
   };
 };
 
@@ -254,7 +276,6 @@ export const NFTInfo = ({
   const stock = item && checkoutStore.stock[item.sku];
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
   const unauthorized = item && item.requires_permissions && !item.authorized;
-  const mediaInfo = NFTMediaInfo({nft, item, showFullMedia, width: imageWidth});
 
   const variant = (item?.nftTemplateMetadata || nft?.metadata).style;
 
@@ -335,7 +356,8 @@ export const NFTInfo = ({
 
   const hasOffers = offers.filter(offer => !offer.hidden).length > 0;
 
-  const { additionalMedia, additionalMediaType, hasAdditionalMedia } = FormatAdditionalMedia({name, metadata: nft?.metadata, versionHash: nft?.details?.VersionHash});
+  const { additionalMedia, additionalMediaType, hasAdditionalMedia, watchedMediaIds } = FormatAdditionalMedia({nft, name, metadata: nft?.metadata, versionHash: nft?.details?.VersionHash});
+  const mediaInfo = NFTMediaInfo({nft, item, showFullMedia, watchedMediaIds, width: imageWidth});
 
   let sideText;
   if(item && !hideAvailable && !outOfStock && !expired && !unauthorized && stock && stock.max && stock.max < 10000000) {
@@ -378,6 +400,7 @@ export const NFTInfo = ({
     hasAdditionalMedia,
     additionalMediaType,
     additionalMedia,
+    watchedMediaIds,
 
     // Status
     stock,
@@ -396,15 +419,13 @@ export const NFTInfo = ({
   };
 };
 
-export const NFTMediaInfo = ({versionHash, nft, item, selectedMedia, selectedMediaPath, showFullMedia, width}) => {
-  let imageUrl, embedUrl, mediaLink, useFrame=false;
+export const NFTMediaInfo = ({versionHash, nft, item, watchedMediaIds=[], selectedMedia, selectedMediaPath, showFullMedia, width}) => {
+  let isNFTMedia = false;
+  let imageUrl, embedUrl, mediaLink, recordView=false, useFrame=false;
 
   if(item && !versionHash) {
     versionHash = item.nftTemplateHash;
   }
-
-  const requiresPermissions = item?.requires_permissions || selectedMedia?.requires_permissions;
-  const authToken = requiresPermissions ? rootStore.authToken : rootStore.staticToken;
 
   if(!selectedMedia && nft && nft.metadata.media && ["Ebook", "HTML"].includes(nft.metadata.media_type)) {
     selectedMedia = {
@@ -412,7 +433,12 @@ export const NFTMediaInfo = ({versionHash, nft, item, selectedMedia, selectedMed
       media_file: nft.metadata.media,
       parameters: nft.metadata.media_parameters
     };
+
+    isNFTMedia = true;
   }
+
+  const requiresPermissions = !isNFTMedia || item?.requires_permissions || selectedMedia?.requires_permissions;
+  const authToken = requiresPermissions ? rootStore.authToken : rootStore.staticToken;
 
   const selectedMediaImageUrl = selectedMedia && ((selectedMedia.media_type === "Image" && selectedMedia.media_file?.url) || selectedMedia.image);
   if(selectedMediaImageUrl) {
@@ -505,6 +531,19 @@ export const NFTMediaInfo = ({versionHash, nft, item, selectedMedia, selectedMed
       embedUrl = new URL(nft?.metadata.embed_url);
     }
 
+    if(watchedMediaIds.includes(selectedMedia?.id)) {
+      recordView = true;
+
+      if(embedUrl && nft) {
+        const key = rootStore.MediaViewKey({
+          contractAddress: nft.details.ContractAddr,
+          tokenId: nft.details.TokenIdStr,
+          mediaId: selectedMedia.id
+        });
+        embedUrl.searchParams.set("vrk", Utils.B64(`${rootStore.appId}:${key}`));
+      }
+    }
+
     if(embedUrl) {
       embedUrl.searchParams.set("nwm", "");
 
@@ -519,6 +558,7 @@ export const NFTMediaInfo = ({versionHash, nft, item, selectedMedia, selectedMed
     embedUrl,
     mediaLink,
     requiresPermissions,
+    recordView,
     useFrame
   };
 };

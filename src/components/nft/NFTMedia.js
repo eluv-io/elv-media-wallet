@@ -32,8 +32,6 @@ import SkipForwardIcon from "Assets/icons/media/skip forward icon";
 import ShuffleIcon from "Assets/icons/media/shuffle icon";
 import LoopIcon from "Assets/icons/media/loop icon";
 
-let unlockedMedia = {};
-
 export const MediaIcon = (media, circle=false) => {
   switch(media?.media_type) {
     case "Audio":
@@ -90,7 +88,7 @@ const UpdateVideoCallbacks = ({match, order, loop, history, currentVideoElement,
 const MediaImageUrl = ({mediaItem, maxWidth}) => {
   let imageUrl = mediaItem.image || (mediaItem.media_type === "Image" && mediaItem.media_file?.url);
 
-  if(imageUrl){
+  if(imageUrl && maxWidth){
     imageUrl = new URL(imageUrl);
     imageUrl.searchParams.set("width", maxWidth);
     imageUrl = imageUrl.toString();
@@ -187,7 +185,7 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
   );
 };
 
-const MediaCollection = ({sectionId, collection}) => {
+const MediaCollection = observer(({nftInfo, sectionId, collection}) => {
   const match = useRouteMatch();
 
   const collectionActive = match.params.sectionId === sectionId && match.params.collectionId === collection.id;
@@ -226,6 +224,14 @@ const MediaCollection = ({sectionId, collection}) => {
           initialSlide={activeIndex > 2 ? activeIndex - 1 : 0}
         >
           { collection.media.map((mediaItem, mediaIndex) => {
+            const locked = mediaItem.locked && (mediaItem.locked_state.required_media || []).find(requiredMediaId =>
+              !rootStore.MediaViewed({nft: nftInfo.nft, mediaId: requiredMediaId})
+            );
+
+            if(locked) {
+              mediaItem = mediaItem.locked_state;
+            }
+
             let imageUrl = MediaImageUrl({mediaItem, maxWidth: 600});
             const itemActive = collectionActive && mediaIndex === activeIndex;
 
@@ -243,7 +249,11 @@ const MediaCollection = ({sectionId, collection}) => {
                   </div>
 
                   <div className="nft-media-browser__item__name">
-                    { itemActive ? <ImageIcon icon={PlayIcon} className="nft-media-browser__item__name__icon" /> : null }
+                    {
+                      locked ?
+                        <ImageIcon icon={LockedIcon} className="nft-media-browser__item__name__icon" /> :
+                        itemActive ? <ImageIcon icon={PlayIcon} className="nft-media-browser__item__name__icon" /> : null
+                    }
                     <div className="nft-media-browser__item__name__text ellipsis">
                       { mediaItem.name }
                     </div>
@@ -259,9 +269,9 @@ const MediaCollection = ({sectionId, collection}) => {
       </div>
     </div>
   );
-};
+});
 
-const MediaSection = ({section, locked}) => {
+const MediaSection = ({nftInfo, section, locked}) => {
   const match = useRouteMatch();
 
   return (
@@ -276,7 +286,7 @@ const MediaSection = ({section, locked}) => {
         !locked ?
           <div
             className="nft-media-browser__section__content">
-            {section.collections.map(collection => <MediaCollection key={`collection-${collection.id}`} sectionId={section.id} collection={collection}/>)}
+            {section.collections.map(collection => <MediaCollection key={`collection-${collection.id}`} nftInfo={nftInfo} sectionId={section.id} collection={collection}/>)}
           </div> : null
       }
     </div>
@@ -284,57 +294,19 @@ const MediaSection = ({section, locked}) => {
 };
 
 export const NFTMediaBrowser = observer(({nftInfo, activeMedia}) => {
-  const [locks, setLocks] = useState(undefined);
-
-  useEffect(() => {
-    if(!nftInfo.hasAdditionalMedia) { return; }
-
-    let lockInfo = [];
-    Promise.all(
-      (nftInfo.additionalMedia.featured_media || []).map(async mediaItem => {
-        if(!mediaItem.required) { return; }
-
-        const key = `media-viewed-${nftInfo.nft.details.ContractAddr}-${nftInfo.nft.details.TokenIdStr}-${mediaItem.id}`;
-        let viewed = unlockedMedia[key];
-        if(!rootStore.previewMarketplaceId) {
-          viewed = await rootStore.walletClient.ProfileMetadata({
-            type: "app",
-            mode: "private",
-            appId: rootStore.appId,
-            key
-          });
-        }
-
-        if(!viewed) {
-          lockInfo.push(mediaItem.id);
-        }
-      })
-    ).then(() => setLocks(lockInfo));
-  }, []);
-
-  const Unlock = async (mediaId) => {
-    const key = `media-viewed-${nftInfo.nft.details.ContractAddr}-${nftInfo.nft.details.TokenIdStr}-${mediaId}`;
-    if(!rootStore.previewMarketplaceId) {
-      await rootStore.walletClient.SetProfileMetadata({
-        type: "app",
-        mode: "private",
-        appId: rootStore.appId,
-        key,
-        value: true
-      });
-    }
-
-    unlockedMedia[key] = true;
-
-    setTimeout(() => setLocks(locks.filter(id => id !== mediaId)), 500);
-  };
-
-  if(!locks || !nftInfo.hasAdditionalMedia) {
+  if(!nftInfo.hasAdditionalMedia) {
     return null;
   }
 
-  const lockedFeaturedMedia = (nftInfo.additionalMedia.featured_media || []).filter(mediaItem => mediaItem.required && locks.includes(mediaItem.id));
-  const unlockedFeaturedMedia = (nftInfo.additionalMedia.featured_media || []).filter(mediaItem => !mediaItem.required || !locks.includes(mediaItem.id));
+  const lockedFeaturedMedia = (nftInfo.additionalMedia.featured_media || [])
+    .filter(mediaItem => mediaItem.required && !rootStore.MediaViewed({nft: nftInfo.nft, mediaId: mediaItem.id}));
+  const unlockedFeaturedMedia = (nftInfo.additionalMedia.featured_media || [])
+    .filter(mediaItem => !mediaItem.required || rootStore.MediaViewed({nft: nftInfo.nft, mediaId: mediaItem.id}));
+
+  const Unlock = mediaId => rootStore.SetMediaViewed({
+    nft: nftInfo.nft,
+    mediaId
+  });
 
   return (
     <div className={`nft-media-browser ${!activeMedia ? "nft-media-browser--inactive" : ""} nft-media-browser--sections`}>
@@ -356,7 +328,7 @@ export const NFTMediaBrowser = observer(({nftInfo, activeMedia}) => {
             }
           </div> : null
       }
-      { nftInfo.additionalMedia.sections.map(section => <MediaSection key={`section-${section.id}`} section={section} locked={lockedFeaturedMedia.length > 0} />) }
+      { nftInfo.additionalMedia.sections.map(section => <MediaSection key={`section-${section.id}`} nftInfo={nftInfo} section={section} locked={lockedFeaturedMedia.length > 0} Unlock={Unlock} />) }
     </div>
   );
 });
@@ -487,7 +459,8 @@ const AlbumView = observer(({media, videoElement, showPlayerControls}) => {
   return (
     <div className="nft-media__album-view">
       <div className={`nft-media__album-view__media-container ${showPlayerControls ? "nft-media__album-view__media-container--with-controls" : ""}`}>
-        { media.map((item, mediaIndex) => {
+        { media.map((mediaInfo, mediaIndex) => {
+          const item = mediaInfo.mediaItem;
           const isSelected = mediaIndex.toString() === match.params.mediaIndex;
 
           let image;
@@ -534,13 +507,20 @@ const AlbumView = observer(({media, videoElement, showPlayerControls}) => {
   );
 });
 
-const NFTActiveMediaContent = observer(({mediaItem, SetVideoElement}) => {
+const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) => {
   const targetRef = useRef();
 
   useEffect(() => {
-    if(!targetRef || !targetRef.current || !mediaItem.mediaInfo) { return; }
+    if(!mediaItem.mediaInfo) { return; }
 
-    if(!mediaItem.mediaInfo.embedUrl) { return; }
+    if(mediaItem.mediaInfo?.recordView) {
+      rootStore.SetMediaViewed({
+        nft: nftInfo.nft,
+        mediaId: mediaItem.id
+      });
+    }
+
+    if(!targetRef || !targetRef.current) { return; }
 
     const playerPromise = new Promise(async resolve =>
       Initialize({
@@ -592,133 +572,72 @@ const NFTActiveMediaContent = observer(({mediaItem, SetVideoElement}) => {
   );
 });
 
-const ActiveMediaInfo = ({additionalMedia, sectionId, collectionId, mediaIndex}) => {
+const AvailableMedia = ({additionalMedia, sectionId, collectionId, mediaIndex}) => {
   let sectionIndex = 0;
   let collectionIndex = 0;
   mediaIndex = parseInt(mediaIndex);
 
   let display = "Media";
-  let mediaList;
+  let availableMediaList = [];
+  let currentListIndex = 0;
   switch(sectionId) {
     case "list":
-      mediaList = additionalMedia.sections[0].collections[0].media;
       display = additionalMedia.sections[0].collections[0].display;
+      availableMediaList = additionalMedia.sections[0].collections[0].media
+        .map((mediaItem, mediaIndex) => ({ display, sectionId, sectionIndex, collectionId, collectionIndex, mediaIndex, mediaItem }));
+      currentListIndex = mediaIndex;
       break;
-
     case "featured":
-      mediaList = additionalMedia.featured_media;
+      availableMediaList = [{ display, sectionId, sectionIndex, collectionId, collectionIndex, mediaIndex, mediaItem: additionalMedia.featured[mediaIndex] }];
+      currentListIndex = 0;
       break;
-
     default:
+      let listIndex = 0;
       additionalMedia.sections.forEach((section, sIndex) => {
-        if(section.id !== sectionId) { return; }
-
         section.collections.forEach((collection, cIndex) => {
-          if(collection.id !== collectionId) { return; }
+          collection.media.forEach((mediaItem, mIndex) => {
+            availableMediaList[listIndex] = {
+              display: collection.display,
+              sectionId: section.id,
+              sectionIndex: sIndex,
+              collectionId: collection.id,
+              collectionIndex: cIndex,
+              mediaIndex: mIndex,
+              mediaId: mediaItem.id,
+              mediaItem,
+              listIndex
+            };
 
-          sectionIndex = sIndex;
-          collectionIndex = cIndex;
-          display = collection.display;
+            if(sectionId === section.id && collectionId === collection.id && mediaIndex === mIndex) {
+              currentListIndex = listIndex;
+            }
+
+            listIndex += 1;
+          });
         });
       });
-
-      mediaList = additionalMedia.sections[sectionIndex].collections[collectionIndex]?.media || [];
       break;
   }
 
-  let current = {
-    sectionId,
-    sectionIndex,
-    collectionId,
-    collectionIndex,
-    display,
-    mediaIndex,
-    mediaItem: mediaList[mediaIndex],
-    mediaList
-  };
-
-  if(sectionId === "featured") {
-    return { current };
-  }
-
-  try {
-    let previous = {
-      ...current,
-      mediaIndex: mediaIndex - 1
-    };
-
-    let next = {
-      ...current,
-      mediaIndex: mediaIndex + 1
-    };
-
-    if(sectionId === "list") {
-      if(previous.mediaIndex < 0) {
-        previous = undefined;
-      } else {
-        previous.media = mediaList[previous.mediaIndex];
-      }
-
-      if(next.mediaIndex >= mediaList.length - 1) {
-        next = undefined;
-      } else {
-        next.media = mediaList[next.mediaIndex];
-      }
-    } else {
-      // Collection
-      if(previous.mediaIndex < 0) {
-        if(collectionIndex > 0) {
-          previous.collectionIndex = collectionIndex - 1;
-          previous.mediaIndex = additionalMedia.sections[sectionIndex].collections[previous.collectionIndex].media.length - 1;
-        } else if(sectionIndex > 0) {
-          previous.sectionIndex = sectionIndex - 1;
-          previous.collectionIndex = additionalMedia.sections[previous.sectionIndex].collections.length - 1;
-          previous.mediaIndex = additionalMedia.sections[previous.sectionIndex].collections[previous.collectionIndex].media.length - 1;
-        } else {
-          previous = undefined;
-        }
-      }
-
-      if(next.mediaIndex >= mediaList.length - 1) {
-        if(collectionIndex < additionalMedia.sections[sectionIndex].collections.length - 1) {
-          next.collectionIndex = collectionIndex + 1;
-          next.mediaIndex = 0;
-        } else if(sectionIndex < additionalMedia.sections.length - 1) {
-          next.sectionIndex = sectionIndex + 1;
-          next.collectionIndex = 0;
-          next.mediaIndex = 0;
-        } else {
-          next = undefined;
-        }
-      }
-
-      if(previous) {
-        previous.sectionId = additionalMedia.sections[previous.sectionIndex].id;
-        previous.collectionId = additionalMedia.sections[previous.sectionIndex].collections[previous.collectionIndex].id;
-        previous.mediaItem = additionalMedia.sections[previous.sectionIndex].collections[previous.collectionIndex].media[previous.mediaIndex];
-      }
-
-      if(next) {
-        next.sectionId = additionalMedia.sections[next.sectionIndex].id;
-        next.collectionId = additionalMedia.sections[next.sectionIndex].collections[next.collectionIndex].id;
-        next.mediaItem = additionalMedia.sections[next.sectionIndex].collections[next.collectionIndex].media[next.mediaIndex];
-      }
-    }
-
-    return {
-      previous,
-      current,
-      next
-    };
-  } catch(error) {
-    rootStore.Log(error, true);
-    return { current };
-  }
+  return { availableMediaList, currentListIndex };
 };
 
 const NFTActiveMedia = observer(({nftInfo}) => {
   const match = useRouteMatch();
   const [videoElement, setVideoElement] = useState(undefined);
+
+  const mediaIndex = parseInt(match.params.mediaIndex);
+
+  const { availableMediaList, currentListIndex } = AvailableMedia({
+    additionalMedia: nftInfo.additionalMedia,
+    sectionId: match.params.sectionId,
+    collectionId: match.params.collectionId,
+    mediaIndex: match.params.mediaIndex
+  });
+
+  const previous = availableMediaList[currentListIndex - 1];
+  const current = availableMediaList[currentListIndex];
+  const next = availableMediaList[currentListIndex + 1];
 
   useEffect(() => {
     setVideoElement(undefined);
@@ -726,17 +645,18 @@ const NFTActiveMedia = observer(({nftInfo}) => {
     document.querySelector("#top-scroll-target")?.scrollIntoView({block: "start", inline: "start", behavior: "smooth"});
   }, [match.params.sectionId, match.params.collectionId, match.params.mediaIndex]);
 
-  const mediaIndex = parseInt(match.params.mediaIndex);
 
-  const { previous, current, next } = ActiveMediaInfo({
-    additionalMedia: nftInfo.additionalMedia,
-    type: match.params.sectionId,
-    sectionId: match.params.sectionId,
-    collectionId: match.params.collectionId,
-    mediaIndex: match.params.mediaIndex
-  });
+  if(!current) { return null; }
 
-  if(!current.mediaItem) { return null; }
+  let currentMediaItem = current.mediaItem;
+  const locked = currentMediaItem.locked && (currentMediaItem.locked_state.required_media || []).find(requiredMediaId =>
+    !rootStore.MediaViewed({nft: nftInfo.nft, mediaId: requiredMediaId})
+  );
+
+  if(locked) {
+    currentMediaItem = currentMediaItem.locked_state;
+    currentMediaItem.mediaInfo = { imageUrl: MediaImageUrl({mediaItem: currentMediaItem}) };
+  }
 
   const albumView = current.display === "Album";
   const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
@@ -754,7 +674,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
           <NFTActiveMediaContent
             key={`nft-media-${current.sectionIndex}-${current.collectionIndex}-${mediaIndex}`}
             nftInfo={nftInfo}
-            mediaItem={current.mediaItem}
+            mediaItem={currentMediaItem}
             collectionIndex={current.collectionIndex}
             sectionIndex={current.sectionIndex}
             mediaIndex={mediaIndex}
@@ -762,10 +682,10 @@ const NFTActiveMedia = observer(({nftInfo}) => {
           />
         </div>
         <div className="nft-media__content__text">
-          <div className="nft-media__content__name">{current.mediaItem.name || ""}</div>
-          { albumView ? null : <div className="nft-media__content__subtitle-1">{current.mediaItem.subtitle_1 || ""}</div> }
-          { albumView ? null : <div className="nft-media__content__subtitle-2">{current.mediaItem.subtitle_2 || ""}</div> }
-          { current.mediaItem.description ? <RichText richText={current.mediaItem.description} className="nft-media__content__description" /> : null }
+          <div className="nft-media__content__name">{currentMediaItem.name || ""}</div>
+          { albumView ? null : <div className="nft-media__content__subtitle-1">{currentMediaItem.subtitle_1 || ""}</div> }
+          { albumView ? null : <div className="nft-media__content__subtitle-2">{currentMediaItem.subtitle_2 || ""}</div> }
+          { currentMediaItem.description ? <RichText richText={currentMediaItem.description} className="nft-media__content__description" /> : null }
           {
             !albumView && previous ?
               <Link
@@ -791,7 +711,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
               </Link> : null
           }
         </div>
-        { albumView ? <AlbumView media={current.mediaList} videoElement={videoElement} showPlayerControls /> : null }
+        { albumView ? <AlbumView media={availableMediaList.filter(item => item.collectionId === match.params.collectionId)} videoElement={videoElement} showPlayerControls /> : null }
       </div>
     </div>
   );
@@ -799,9 +719,20 @@ const NFTActiveMedia = observer(({nftInfo}) => {
 
 const NFTMedia = observer(({nft, item}) => {
   const match = useRouteMatch();
+  const [loaded, setLoaded] = useState(false);
 
   const nftInfo = NFTInfo({nft, item});
   window.nftInfo = nftInfo;
+
+  useEffect(() => {
+    rootStore.CheckViewedMedia({
+      nft: nftInfo.nft,
+      mediaIds: nftInfo.watchedMediaIds
+    })
+      .finally(() => setLoaded(true));
+  }, []);
+
+  if(!loaded) { return null; }
 
   const isSingleAlbum = (nftInfo?.additionalMedia?.sections || [])[0]?.isSingleAlbum;
   return (
