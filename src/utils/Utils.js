@@ -438,31 +438,24 @@ export const NFTMediaInfo = ({versionHash, nft, item, watchedMediaIds=[], select
     isNFTMedia = true;
   }
 
-  const requiresPermissions = !isNFTMedia || item?.requires_permissions || selectedMedia?.requires_permissions;
-  const authToken = requiresPermissions ? rootStore.authToken : rootStore.staticToken;
-
-  const selectedMediaImageUrl = selectedMedia && ((selectedMedia.media_type === "Image" && selectedMedia.media_file?.url) || selectedMedia.image);
-  if(selectedMediaImageUrl) {
-    imageUrl = new URL(selectedMediaImageUrl?.url || selectedMediaImageUrl);
-
-    imageUrl.searchParams.set("authorization", authToken);
-    if(imageUrl && width) {
-      imageUrl.searchParams.set("width", width);
-    }
-  }
-
-  if(!imageUrl && ((item && item.image) || nft?.metadata.image)) {
-    imageUrl = new URL((item && item.image && item.image.url) || nft?.metadata.image);
-    imageUrl.searchParams.set("authorization", authToken);
-
-    if(imageUrl && width) {
-      imageUrl.searchParams.set("width", width);
-    }
-  }
+  let requiresPermissions = !isNFTMedia || item?.requires_permissions || selectedMedia?.requires_permissions;
+  let authToken = requiresPermissions ? rootStore.authToken : rootStore.staticToken;
 
   // TODO: Consolidate embed url determination
   if(showFullMedia) {
     embedUrl = new URL("https://embed.v3.contentfabric.io");
+    if(!selectedMedia && item && item.video) {
+      embedUrl.searchParams.set("vid", LinkTargetHash(item.video));
+      embedUrl.searchParams.set("ap", "");
+      embedUrl.searchParams.set("lp", "");
+      embedUrl.searchParams.set("m", "");
+
+      if(item?.nftTemplateMetadata?.has_audio) {
+        embedUrl.searchParams.set("ct", "h");
+      }
+
+      authToken = item.requires_permissions ? rootStore.authToken || "" : rootStore.staticToken;
+    }
     if(selectedMedia && selectedMedia.media_type === "Link") {
       mediaLink = selectedMedia.link;
       embedUrl = undefined;
@@ -511,15 +504,6 @@ export const NFTMediaInfo = ({versionHash, nft, item, watchedMediaIds=[], select
       if(selectedMedia.offerings?.length > 0) {
         embedUrl.searchParams.set("off", selectedMedia.offerings.map(o => (o || "").toString().trim()).join(","));
       }
-    } else if(item && item.video) {
-      embedUrl.searchParams.set("vid", LinkTargetHash(item.video));
-      embedUrl.searchParams.set("ap", "");
-      embedUrl.searchParams.set("lp", "");
-      embedUrl.searchParams.set("m", "");
-
-      if(item?.nftTemplateMetadata?.has_audio) {
-        embedUrl.searchParams.set("ct", "h");
-      }
     } else if(!selectedMedia && (typeof nft?.metadata.playable === "undefined" || nft?.metadata.playable) && nft?.metadata.embed_url) {
       embedUrl = new URL(nft?.metadata.embed_url);
     }
@@ -550,6 +534,15 @@ export const NFTMediaInfo = ({versionHash, nft, item, watchedMediaIds=[], select
       if(mediaType) {
         embedUrl.searchParams.set("mt", mediaType);
       }
+    }
+  }
+
+  if(!imageUrl && ((item && item.image) || nft?.metadata.image)) {
+    imageUrl = new URL((item && item.image && item.image.url) || nft?.metadata.image);
+    imageUrl.searchParams.set("authorization", authToken);
+
+    if(imageUrl && width) {
+      imageUrl.searchParams.set("width", width);
     }
   }
 
