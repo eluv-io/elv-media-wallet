@@ -422,7 +422,7 @@ export const NFTInfo = ({
 
 export const NFTMediaInfo = ({versionHash, nft, item, watchedMediaIds=[], selectedMedia, selectedMediaPath, showFullMedia, width}) => {
   let isNFTMedia = false;
-  let imageUrl, embedUrl, mediaLink, recordView=false, useFrame=false;
+  let imageUrl, embedUrl, mediaLink, htmlUrl, recordView=false, useFrame=false;
 
   if(item && !versionHash) {
     versionHash = item.nftTemplateHash;
@@ -470,7 +470,7 @@ export const NFTMediaInfo = ({versionHash, nft, item, watchedMediaIds=[], select
       const targetHash = LinkTargetHash(selectedMedia.media_file);
       const filePath = selectedMedia.media_file["/"].split("/files/")[1];
 
-      let htmlUrl = new URL(
+      htmlUrl = new URL(
         rootStore.network === "demo" ?
           "https://demov3.net955210.contentfabric.io/s/demov3" :
           "https://main.net955305.contentfabric.io/s/main"
@@ -556,6 +556,7 @@ export const NFTMediaInfo = ({versionHash, nft, item, watchedMediaIds=[], select
   return {
     imageUrl,
     embedUrl,
+    htmlUrl,
     mediaLink,
     requiresPermissions,
     recordView,

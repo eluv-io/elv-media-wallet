@@ -148,7 +148,7 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
         <div className="nft-media-browser__locked-featured-item__actions">
           <Linkish
             to={isExternal ? undefined : MediaLinkPath({match, sectionId: "featured", mediaIndex})}
-            href={isExternal ? mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.embedUrl : undefined}
+            href={isExternal ? mediaItem.mediaInfo.htmlUrl || mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.embedUrl : undefined}
             target={isExternal ? "_blank" : undefined}
             rel="noopener"
             useNavLink
@@ -165,7 +165,7 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
   return (
     <Linkish
       to={isExternal ? undefined : MediaLinkPath({match, sectionId: "featured", mediaIndex})}
-      href={isExternal ? mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.embedUrl : undefined}
+      href={isExternal ? mediaItem.mediaInfo.htmlUrl || mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.embedUrl : undefined}
       target={isExternal ? "_blank" : undefined}
       rel="noopener"
       useNavLink
@@ -345,7 +345,7 @@ const AlbumControls = observer(({videoElement, media}) => {
   const [currentVideoElement, setCurrentVideoElement] = useState(videoElement);
 
   const currentIndex = parseInt(match.params.mediaIndex);
-  const currentMedia = media[match.params.mediaIndex];
+  const currentMedia = media[currentIndex]?.mediaItem;
 
   useEffect(() => {
     UpdateVideoCallbacks({match, history, order, loop, currentVideoElement, videoElement, setPlaying});
@@ -354,7 +354,6 @@ const AlbumControls = observer(({videoElement, media}) => {
   }, [videoElement, order, loop]);
 
   const selectedTitle = currentMedia ? [currentMedia.name, currentMedia.subtitle_1, currentMedia.subtitle_2].filter(str => str).join(" - ") : "";
-
   return (
     <div className="media-controls">
       <div className="media-controls__left">
@@ -403,7 +402,6 @@ const AlbumControls = observer(({videoElement, media}) => {
         </button>
       </div>
       <div className="media-controls__title">
-        { currentIndex >= 0 ? <ImageIcon icon={MediaIcon(media[currentIndex], false)} label="Audio Icon" className="media-controls__title__icon" /> : null }
         <div className="media-controls__title__text scroll-text" title={selectedTitle}>
           <span>
             { selectedTitle }
@@ -513,6 +511,8 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
   const [mediaUrl, setMediaUrl] = useState(undefined);
 
   useEffect(() => {
+    setMediaUrl(undefined);
+
     if(!mediaItem.mediaInfo) { return; }
 
     if(mediaItem.mediaInfo?.recordView) {
@@ -534,20 +534,22 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
     }
 
     if(mediaItem.mediaInfo.mediaLink) {
-      setMediaUrl(mediaItem.mediaInfo.mediaLink);
+      setMediaUrl(mediaItem.mediaInfo.mediaLink.toString());
     } else if(mediaItem.mediaInfo.embedUrl) {
-      setMediaUrl(embedUrl);
+      setMediaUrl(embedUrl.toString());
     } else {
-      setMediaUrl(mediaItem.mediaInfo.imageUrl);
+      setMediaUrl(mediaItem.mediaInfo.imageUrl.toString());
     }
+  }, [mediaItem?.mediaInfo]);
 
+  useEffect(() => {
     if(!targetRef || !targetRef.current) { return; }
 
     const playerPromise = new Promise(async resolve =>
       Initialize({
         client: rootStore.client,
         target: targetRef.current,
-        url: embedUrl.toString(),
+        url: mediaUrl,
         playerOptions: {
           posterUrl: mediaItem.mediaInfo.imageUrl,
           playerCallback: ({player, videoElement}) => {
@@ -567,7 +569,7 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
       const player = await playerPromise;
       player.Destroy();
     };
-  }, [targetRef, mediaItem.mediaInfo]);
+  }, [targetRef, mediaUrl]);
 
   if(!mediaItem.mediaInfo || !mediaUrl) {
     return null;

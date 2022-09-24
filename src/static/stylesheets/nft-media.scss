@@ -15,6 +15,7 @@
         "target album"
         "text empty";
       grid-template-columns: 1fr max-content;
+      grid-template-rows: 1fr auto;
       gap: 0 20px;
       max-width: calc(#{var(--elv-gallery-max-height)} * 16 / 9 + 600px);
 
@@ -42,9 +43,6 @@
     }
   }
 
-  position: relative;
-  height: 100%;
-
   &__content {
     position: relative;
     padding-top: 40px;
@@ -56,17 +54,20 @@
       height: var(--elv-gallery-max-height);
       min-height: var(--elv-gallery-min-height);
       width: 100%;
-      padding: 0 60px;
       max-width: 100%;
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
       grid-area: target;
+
+      .-elv-player-target,
+      video {
+        max-height: calc((100vw - 100px) * 9 / 16) !important;
+      }
     }
 
     &__target {
-      height: max-content;
       max-height: var(--elv-gallery-max-height);
       max-width: calc(#{var(--elv-gallery-max-height)} * 16 / 9);
       object-fit: contain;
@@ -182,9 +183,9 @@
     position: relative;
     grid-area: album;
     max-height: var(--elv-gallery-max-height);
-    height: var(--elv-gallery-max-height);
     min-height: var(--elv-gallery-min-height);
     border-radius: var(--border-radius-nft-media);
+    height: 100%;
     overflow: hidden;
 
     &__media-container {
@@ -273,7 +274,7 @@
         justify-content: center;
         padding: 0 10px;
         text-align: left;
-        width: calc(100% - 80px);
+        width: calc(100% - 120px);
       }
 
       &__subtitles {
@@ -1008,17 +1009,12 @@
     margin: 0 10px;
     min-width: 0;
     overflow: hidden;
-    padding: 0 10px 0 30px;
+    padding-inline: 10px;
     position: relative;
+    font-size: 12px;
 
     * {
       color: var(--controls-foreground-color);
-    }
-
-    &__icon {
-      height: 15px;
-      left: 8px;
-      position: absolute;
     }
 
     &__text,
