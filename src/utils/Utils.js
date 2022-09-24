@@ -8,6 +8,7 @@ import {checkoutStore, rootStore} from "Stores";
 import UrlJoin from "url-join";
 import {FormatPriceString, ItemPrice} from "Components/common/UIComponents";
 import Utils from "@eluvio/elv-client-js/src/Utils";
+import {mediaTypes} from "@eluvio/elv-embed/src/Utils";
 
 export const Slugify = str =>
   (str || "")
@@ -461,52 +462,48 @@ export const NFTMediaInfo = ({versionHash, nft, item, watchedMediaIds=[], select
 
   // TODO: Consolidate embed url determination
   if(showFullMedia) {
+    embedUrl = new URL("https://embed.v3.contentfabric.io");
     if(selectedMedia && selectedMedia.media_type === "Link") {
       mediaLink = selectedMedia.link;
+      embedUrl = undefined;
     } else if((selectedMedia && selectedMedia.media_type === "HTML") && selectedMedia.media_file) {
       const targetHash = LinkTargetHash(selectedMedia.media_file);
       const filePath = selectedMedia.media_file["/"].split("/files/")[1];
 
-      mediaLink = new URL(
+      let htmlUrl = new URL(
         rootStore.network === "demo" ?
           "https://demov3.net955210.contentfabric.io/s/demov3" :
           "https://main.net955305.contentfabric.io/s/main"
       );
 
-      mediaLink.pathname = UrlJoin(mediaLink.pathname, "q", targetHash, "files", filePath);
+      htmlUrl.pathname = UrlJoin(htmlUrl.pathname, "q", targetHash, "files", filePath);
 
       (selectedMedia.parameters || []).forEach(({name, value}) =>
-        mediaLink.searchParams.set(name, value)
+        htmlUrl.searchParams.set(name, value)
       );
 
       if(requiresPermissions) {
-        mediaLink.searchParams.set("authorization", authToken);
+        htmlUrl.searchParams.set("authorization", authToken);
+      }
+
+      // Route through embed url so that watch can be recorded
+      if(watchedMediaIds.includes(selectedMedia?.id)) {
+        embedUrl.searchParams.set("murl", Utils.B64(htmlUrl.toString()));
+      } else {
+        mediaLink = htmlUrl.toString();
       }
 
       useFrame = true;
     } else if((selectedMedia && selectedMedia.media_type === "Ebook" && selectedMedia.media_file)) {
-      embedUrl = new URL("https://embed.v3.contentfabric.io");
-
-      embedUrl.searchParams.set("p", "");
-      embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
       embedUrl.searchParams.set("type", "ebook");
       embedUrl.searchParams.set("vid", selectedMedia.media_file["."].container);
       embedUrl.searchParams.set("murl", Utils.B64(selectedMedia.media_file.url));
       useFrame = true;
     } else if(selectedMedia && selectedMedia.media_type === "Gallery" && selectedMedia.gallery) {
-      embedUrl = new URL("https://embed.v3.contentfabric.io");
-
-      embedUrl.searchParams.set("p", "");
-      embedUrl.searchParams.set("mt", "g");
-      embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
       embedUrl.searchParams.set("vid", versionHash);
       embedUrl.searchParams.set("ln", Utils.B64(selectedMediaPath));
       embedUrl.searchParams.set("ht", "");
     } else if((selectedMedia && ["Audio", "Video"].includes(selectedMedia.media_type) && selectedMedia.media_link)) {
-      embedUrl = new URL("https://embed.v3.contentfabric.io");
-
-      embedUrl.searchParams.set("p", "");
-      embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
       embedUrl.searchParams.set("vid", LinkTargetHash(selectedMedia.media_link));
       embedUrl.searchParams.set("ct", "h");
       embedUrl.searchParams.set("ap", "");
@@ -515,10 +512,6 @@ export const NFTMediaInfo = ({versionHash, nft, item, watchedMediaIds=[], select
         embedUrl.searchParams.set("off", selectedMedia.offerings.map(o => (o || "").toString().trim()).join(","));
       }
     } else if(item && item.video) {
-      embedUrl = new URL("https://embed.v3.contentfabric.io");
-
-      embedUrl.searchParams.set("p", "");
-      embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
       embedUrl.searchParams.set("vid", LinkTargetHash(item.video));
       embedUrl.searchParams.set("ap", "");
       embedUrl.searchParams.set("lp", "");
@@ -546,9 +539,16 @@ export const NFTMediaInfo = ({versionHash, nft, item, watchedMediaIds=[], select
 
     if(embedUrl) {
       embedUrl.searchParams.set("nwm", "");
+      embedUrl.searchParams.set("p", "");
+      embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
 
       if(requiresPermissions) {
         embedUrl.searchParams.set("ath", authToken);
+      }
+
+      const mediaType = Object.keys(mediaTypes).find(key => mediaTypes[key] === selectedMedia?.media_type);
+      if(mediaType) {
+        embedUrl.searchParams.set("mt", mediaType);
       }
     }
   }
