@@ -49,6 +49,8 @@
   --border-table-secondary: 0;
 
   --border-width-feature-card: 1px;
+  
+  --border-background-feature-card: #bf9837 1px;
 
 
   /* Buttons */
@@ -65,7 +67,7 @@
   --background-button-secondary: #000000;
 
   --background-card: #1c1c1c;
-  --background-feature-card: #000000;
+  --background-feature-card: linear-gradient(90deg, #6C5900 0%, #8B7100 50%, #977C00 100%);
 
   --background-component-primary: var(--color-bg-primary);
 
@@ -75,7 +77,7 @@
   --color-table-even-row-bg: #141414;
   --color-table-odd-row-bg: #1a1a1a;
 
-  --color-feature-card-text-primary: var(--yellow-2);
+  --color-feature-card-text-primary: #FFFFFF;
 
   /* User Profile */
   --color-user-profile-bg-primary: var(--color-bg-primary);
