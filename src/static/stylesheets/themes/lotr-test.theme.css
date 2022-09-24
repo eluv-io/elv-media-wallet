@@ -49,7 +49,7 @@
   --border-table-secondary: 0;
 
   --border-width-feature-card: 1px;
-  
+
   --border-background-feature-card: #bf9837 1px;
 
 
@@ -68,6 +68,7 @@
 
   --background-card: #1c1c1c;
   --background-feature-card: linear-gradient(90deg, #6C5900 0%, #8B7100 50%, #977C00 100%);
+  --background-feature-card-runway: transparent;
 
   --background-component-primary: var(--color-bg-primary);
 
