@@ -118,7 +118,7 @@ export const NFTImage = observer(({nft, item, width, showFullMedia=false, allowF
 });
 
 export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon, width="800", showFullMedia=false, templateImage=false, rawImage=false, className=""}) => {
-  if(showFullMedia && item.video && item.video["."]) {
+  if(showFullMedia) {
     return <NFTImage nft={{metadata: item.nftTemplateMetadata}} item={item} showFullMedia={showFullMedia} className={className} />;
   } else if(!(url || icon)) {
     if(!item || item.image && (!templateImage || !item.nft_template || !item.nft_template.nft || !item.nft_template.nft.image)) {

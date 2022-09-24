@@ -168,7 +168,6 @@ const FeaturedGallery = ({showIcons, marketplaceHash, items, selectedIndex, setS
   );
 };
 
-
 const MarketplaceFeatured = observer(({marketplaceHash, items, justification, showGallery}) => {
   const [featuredItemIndex, setFeaturedItemIndex] = useState(0);
 
@@ -181,6 +180,7 @@ const MarketplaceFeatured = observer(({marketplaceHash, items, justification, sh
         marketplaceHash={marketplaceHash}
         item={items[featuredItemIndex]}
         index={items[featuredItemIndex].itemIndex}
+        showFullMedia={items[featuredItemIndex].play_on_storefront}
       />
       <FeaturedGallery
         showIcons={showGallery}
