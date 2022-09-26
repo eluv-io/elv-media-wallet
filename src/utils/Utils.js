@@ -421,8 +421,7 @@ export const NFTInfo = ({
 };
 
 export const NFTMediaInfo = ({versionHash, nft, item, watchedMediaIds=[], selectedMedia, selectedMediaPath, showFullMedia, width}) => {
-  let isNFTMedia = false;
-  let imageUrl, embedUrl, mediaLink, htmlUrl, recordView=false, useFrame=false;
+  let imageUrl, embedUrl, mediaLink, htmlUrl, mediaType="Image", isNFTMedia=false, recordView=false, useFrame=false;
 
   if(item && !versionHash) {
     versionHash = item.nftTemplateHash;
@@ -439,10 +438,11 @@ export const NFTMediaInfo = ({versionHash, nft, item, watchedMediaIds=[], select
   }
 
   let requiresPermissions = !isNFTMedia || item?.requires_permissions || selectedMedia?.requires_permissions;
-  let authToken = requiresPermissions ? rootStore.authToken : rootStore.staticToken;
+  let authToken = requiresPermissions ? rootStore.authToken || rootStore.staticToken : rootStore.staticToken;
 
   // TODO: Consolidate embed url determination
   if(showFullMedia) {
+    mediaType = selectedMedia?.media_type;
     embedUrl = new URL("https://embed.v3.contentfabric.io");
     if(!selectedMedia && item && item.video) {
       embedUrl.searchParams.set("vid", LinkTargetHash(item.video));
@@ -454,9 +454,9 @@ export const NFTMediaInfo = ({versionHash, nft, item, watchedMediaIds=[], select
         embedUrl.searchParams.set("ct", "h");
       }
 
+      mediaType = "ItemVideo";
       authToken = item.requires_permissions ? rootStore.authToken || "" : rootStore.staticToken;
-    }
-    if(selectedMedia && selectedMedia.media_type === "Link") {
+    } else if(selectedMedia && selectedMedia.media_type === "Link") {
       mediaLink = selectedMedia.link;
       embedUrl = undefined;
     } else if((selectedMedia && selectedMedia.media_type === "HTML") && selectedMedia.media_file) {
@@ -506,6 +506,8 @@ export const NFTMediaInfo = ({versionHash, nft, item, watchedMediaIds=[], select
       }
     } else if(!selectedMedia && (typeof nft?.metadata.playable === "undefined" || nft?.metadata.playable) && nft?.metadata.embed_url) {
       embedUrl = new URL(nft?.metadata.embed_url);
+    } else {
+      embedUrl = undefined;
     }
 
     if(watchedMediaIds.includes(selectedMedia?.id)) {
@@ -551,6 +553,7 @@ export const NFTMediaInfo = ({versionHash, nft, item, watchedMediaIds=[], select
     embedUrl,
     htmlUrl,
     mediaLink,
+    mediaType,
     requiresPermissions,
     recordView,
     useFrame

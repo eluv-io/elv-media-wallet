@@ -4,7 +4,7 @@ import {checkoutStore, rootStore, transferStore} from "Stores";
 import Path from "path";
 import UrlJoin from "url-join";
 
-import {Link, Redirect, useRouteMatch} from "react-router-dom";
+import {Link, Redirect, useHistory, useRouteMatch} from "react-router-dom";
 import {
   ExpandableSection,
   CopyableField,
@@ -522,9 +522,7 @@ const NFTActions = observer(({
   isInCheckout,
   transferring,
   previewMedia,
-  ShowListingModal,
-  ShowMarketplacePurchaseModal,
-  ShowPurchaseModal,
+  ShowModal,
   SetClaimed,
   SetOpened,
   SetPreviewMedia
@@ -540,9 +538,14 @@ const NFTActions = observer(({
           nftInfo.marketplacePurchaseAvailable ?
             <LoginClickGate
               Component={ButtonWithLoader}
+              onLoginBlocked={() => {
+                if(!nftInfo.free) {
+                  ShowModal();
+                }
+              }}
               onClick={async () => {
                 if(!nftInfo.free) {
-                  ShowMarketplacePurchaseModal();
+                  ShowModal();
                 } else {
                   try {
                     const status = await rootStore.ClaimStatus({
@@ -593,7 +596,8 @@ const NFTActions = observer(({
           Component={ButtonWithLoader}
           disabled={isInCheckout}
           className="details-page__listing-button action action-primary"
-          onClick={ShowPurchaseModal}
+          onLoginBlocked={ShowModal}
+          onClick={ShowModal}
         >
           Buy Now for {FormatPriceString({USD: nftInfo.nft.details.Price})}
         </LoginClickGate>
@@ -629,7 +633,7 @@ const NFTActions = observer(({
               title={nftInfo.nft?.metadata?.test ? "Test NFTs may not be listed for sale" : undefined}
               disabled={transferring || nftInfo.heldDate || isInCheckout || nftInfo.nft?.metadata?.test}
               className="action action-primary details-page__listing-button"
-              onClick={ShowListingModal}
+              onClick={ShowModal}
             >
               {nftInfo.listingId ? "Edit Listing" : "List for Sale"}
             </ButtonWithLoader>
@@ -723,6 +727,7 @@ const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, tab, setTab}) =>
 
 const NFTDetails = observer(({nft, initialListingStatus, item}) => {
   const match = useRouteMatch();
+  const history = useHistory();
 
   const [nftInfo, setNFTInfo] = useState(undefined);
   const [tab, setTab] = useState(new URLSearchParams(window.location.hash.split("?")[1]).get("tab"));
@@ -741,9 +746,6 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
   const [transferAddress, setTransferAddress] = useState(false);
 
   // Modals / Settings
-  const [showListingModal, setShowListingModal] = useState(false);
-  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
-  const [showMarketplacePurchaseModal, setShowMarketplacePurchaseModal] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [previewMedia, setPreviewMedia] = useState(mediaPreviewEnabled);
 
@@ -845,37 +847,31 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
   const contractAddress = nft?.details?.ContractAddr || itemTemplate?.address;
   const tokenId = match.params.tokenId || listingStatus?.listing?.details?.TokenIdStr;
   const isInCheckout = listingStatus?.listing?.details?.CheckoutLockedUntil && listingStatus?.listing.details.CheckoutLockedUntil > Date.now();
+  const showModal = match.params.mode === "purchase" || match.params.mode === "list";
 
   const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
   return (
     <>
       {
-        showListingModal ?
-          <ListingModal
-            nft={listingStatus?.listing || nft}
-            listingId={listingId}
-            Close={() => {
-              setShowListingModal(false);
-              LoadListingStatus();
-            }}
-          /> : null
-      }
-      { showPurchaseModal ?
-        <PurchaseModal
-          type="listing"
-          nft={nft}
-          initialListingId={listingId}
-          Close={() => setShowPurchaseModal(false)}
-        /> : null
-      }
-      {
-        showMarketplacePurchaseModal ?
-          <PurchaseModal
-            type="marketplace"
-            nft={nftInfo.nft}
-            item={item}
-            Close={() => setShowMarketplacePurchaseModal(false)}
-          /> : null
+        !showModal ? null :
+          match.params.mode === "list" ?
+            <ListingModal
+              nft={listingStatus?.listing || nft}
+              listingId={listingId}
+              Close={() => {
+                history.replace(match.url.split("/").slice(0, -1).join("/"));
+                LoadListingStatus();
+              }}
+            /> :
+            <PurchaseModal
+              type={match.params.sku ? "marketplace" : "listing"}
+              nft={nftInfo.nft}
+              item={item}
+              initialListingId={listingId}
+              Close={() => {
+                history.replace(match.url.split("/").slice(0, -1).join("/"));
+              }}
+            />
       }
       {
         showTransferModal ?
@@ -936,22 +932,16 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
                   }}
                   SetOpened={setOpened}
                   SetClaimed={setClaimed}
-                  ShowMarketplacePurchaseModal={() => setShowMarketplacePurchaseModal(true)}
-                  ShowListingModal={async () => {
-                    const status = await LoadListingStatus();
+                  ShowModal={async () => {
+                    if(listingId) {
+                      const status = await LoadListingStatus();
 
-                    if(status?.listing?.details?.CheckoutLockedUntil && status?.listing.details.CheckoutLockedUntil > Date.now()) {
-                      return;
+                      if(!nftInfo.isOwned && status?.listing?.details?.CheckoutLockedUntil && status?.listing.details.CheckoutLockedUntil > Date.now()) {
+                        return;
+                      }
                     }
 
-                    setShowListingModal(true);
-                  }}
-                  ShowPurchaseModal={async () => {
-                    const status = await LoadListingStatus();
-
-                    if(!status.listing) { return; }
-
-                    setShowPurchaseModal(true);
+                    history.replace(UrlJoin(match.url, nftInfo.isOwned ? "list" : "purchase"));
                   }}
                 />
                 {

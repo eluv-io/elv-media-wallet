@@ -80,12 +80,12 @@ export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showFu
     <img
       src={media.imageUrl.toString()}
       className={`item-card__image ${className}`}
-      alt={nft.metadata.display_name}
+      alt={nft?.metadata?.display_name}
     /> :
     <SVG
       src={NFTPlaceholderIcon}
       className={`item-card__image ${className}`}
-      alt={nft.metadata.display_name}
+      alt={nft?.metadata?.display_name}
     />;
 
   return (
@@ -118,8 +118,8 @@ export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showFu
 });
 
 export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon, width="800", showFullMedia=false, templateImage=false, rawImage=false, className=""}) => {
-  if(showFullMedia) {
-    return <NFTImage nft={{metadata: item.nftTemplateMetadata}} item={item} hideEmbedLink showFullMedia={showFullMedia} className={className} />;
+  if(showFullMedia && item.video) {
+    return <NFTImage item={item} hideEmbedLink showFullMedia={showFullMedia} className={className} />;
   } else if(!(url || icon)) {
     if(!item || item.image && (!templateImage || !item.nft_template || !item.nft_template.nft || !item.nft_template.nft.image)) {
       url = rootStore.PublicLink({

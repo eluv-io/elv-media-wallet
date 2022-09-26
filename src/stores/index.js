@@ -1532,6 +1532,8 @@ class RootStore {
   ClearAuthInfo() {
     this.RemoveLocalStorage(this.AuthStorageKey());
 
+    this.walletClient?.LogOut();
+
     this.authInfo = undefined;
   }
 
