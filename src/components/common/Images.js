@@ -13,7 +13,7 @@ import {NFTMediaInfo} from "../../utils/Utils";
 import FullscreenIcon from "Assets/icons/full screen.svg";
 import ExternalLinkIcon from "Assets/icons/external-link.svg";
 
-export const NFTImage = observer(({nft, item, width, showFullMedia=false, allowFullscreen=false, className="", playerCallback}) => {
+export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showFullMedia=false, allowFullscreen=false, className="", playerCallback}) => {
   const [player, setPlayer] = useState(undefined);
   const [media, setMedia] = useState({imageUrl: undefined, embedUrl: undefined});
   const [targetElement, setTargetElement] = useState(undefined);
@@ -53,7 +53,7 @@ export const NFTImage = observer(({nft, item, width, showFullMedia=false, allowF
           </div>
           <div className="item-card__image-container__actions">
             {
-              !media.requiresPermissions ?
+              !media.requiresPermissions && !hideEmbedLink ?
                 <a href={media.embedUrl} target="_blank" className="item-card__image-container__action" title="Open Media in New Tab">
                   <ImageIcon icon={ExternalLinkIcon} label="Open Media"/>
                 </a> : null
@@ -119,7 +119,7 @@ export const NFTImage = observer(({nft, item, width, showFullMedia=false, allowF
 
 export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon, width="800", showFullMedia=false, templateImage=false, rawImage=false, className=""}) => {
   if(showFullMedia) {
-    return <NFTImage nft={{metadata: item.nftTemplateMetadata}} item={item} showFullMedia={showFullMedia} className={className} />;
+    return <NFTImage nft={{metadata: item.nftTemplateMetadata}} item={item} hideEmbedLink showFullMedia={showFullMedia} className={className} />;
   } else if(!(url || icon)) {
     if(!item || item.image && (!templateImage || !item.nft_template || !item.nft_template.nft || !item.nft_template.nft.image)) {
       url = rootStore.PublicLink({

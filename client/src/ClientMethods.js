@@ -258,11 +258,12 @@ exports.MarketplaceStorefront = async function({tenantSlug, marketplaceSlug, mar
  <br />
  <b>Note</b>: Use the <a href="#.UserBalances"> UserBalances method</a> to check the user's available balance.
  * @param {string} sku - SKU ID of the item to purchase
+ * @param {string=} email - The email address of the user. If specified, it will bind the user to the tenant of the specified marketplace
  * @param {number=} quantity=1 - Quantity of the item to purchase. It is recommended to check the <a href="#.MarketplaceStock">MarketplaceStock API</a> to ensure enough quantity is available.
  *
  * @returns {Promise<string>} - The confirmation ID of the purchase. This ID can be used to check purchase and minting status via the <a href="#.PurchaseStatus">PurchaseStatus method</a>.
  */
-exports.MarketplacePurchase = async function({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, purchaseProvider, sku, quantity}) {
+exports.MarketplacePurchase = async function({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, purchaseProvider, sku, email, quantity}) {
   return await this.SendMessage({
     action: "marketplacePurchase",
     params: {
@@ -272,6 +273,7 @@ exports.MarketplacePurchase = async function({tenantSlug, marketplaceSlug, marke
       marketplaceId,
       marketplaceHash,
       sku,
+      email,
       quantity
     }
   });

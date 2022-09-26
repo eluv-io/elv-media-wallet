@@ -542,7 +542,8 @@ export const InitializeListener = (history) => {
           if(free) {
             marketplacePurchase = await checkoutStore.ClaimSubmit({
               marketplaceId: marketplaceInfo.marketplaceId,
-              sku: data.params.sku
+              sku: data.params.sku,
+              email: data.params.email
             });
           } else {
             marketplacePurchase = await checkoutStore.CheckoutSubmit({
