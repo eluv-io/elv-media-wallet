@@ -513,6 +513,10 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
         (selectedMedia.parameters || []).forEach(({name, value}) =>
           mediaLink.searchParams.set(name, value)
         );
+
+        if(requiresPermissions && rootStore.authToken) {
+          mediaLink.searchParams.set("authorization", rootStore.authToken);
+        }
       } else {
         mediaLink = selectedMedia.image;
       }
