@@ -790,7 +790,6 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
       nft,
       listing: listingStatus?.listing,
       item,
-      showFullMedia: true,
       showToken: true,
       allowFullscreen: true
     });
@@ -905,11 +904,11 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
                           marketplaceHash={marketplace.versionHash}
                           item={item}
                           path={UrlJoin("public", "asset_metadata", "info", "items", item.itemIndex.toString(), "image")}
-                          showFullMedia
+                          showVideo
                         /> :
                         <NFTImage
                           nft={nft}
-                          showFullMedia
+                          showVideo
                           allowFullscreen
                         />
                     }

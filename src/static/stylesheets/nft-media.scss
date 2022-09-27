@@ -192,6 +192,7 @@
       min-height: 100%;
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      grid-template-rows: max-content;
       max-height: 100%;
       overflow-y: auto;
       // sass-lint:disable no-misspelled-properties

@@ -16,7 +16,7 @@ const NFTCard = observer(({
   link,
   badges,
   imageWidth,
-  showFullMedia,
+  showVideo,
   hideToken,
   allowFullscreen,
   truncateDescription,
@@ -29,7 +29,6 @@ const NFTCard = observer(({
     item,
     listing: selectedListing,
     imageWidth,
-    showFullMedia,
     showToken: !hideToken
   });
 
@@ -82,7 +81,7 @@ const NFTCard = observer(({
         <NFTImage
           nft={nft}
           item={item}
-          showFullMedia={showFullMedia}
+          showVideo={showVideo}
           width={imageWidth}
           allowFullscreen={allowFullscreen}
           playerCallback={playerCallback}

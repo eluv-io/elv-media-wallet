@@ -8,29 +8,26 @@ import {Initialize} from "@eluvio/elv-embed/src/Embed";
 
 import NFTPlaceholderIcon from "Assets/icons/nft";
 import Modal from "Components/common/Modal";
-import {NFTMediaInfo} from "../../utils/Utils";
+import {NFTMedia} from "../../utils/Utils";
 
 import FullscreenIcon from "Assets/icons/full screen.svg";
 import ExternalLinkIcon from "Assets/icons/external-link.svg";
 
-export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showFullMedia=false, allowFullscreen=false, className="", playerCallback}) => {
+export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVideo=false, allowFullscreen=false, className="", playerCallback}) => {
   const [player, setPlayer] = useState(undefined);
-  const [media, setMedia] = useState({imageUrl: undefined, embedUrl: undefined});
   const [targetElement, setTargetElement] = useState(undefined);
   const [fullscreen, setFullscreen] = useState(false);
+  const media = NFTMedia({nft, item, width});
 
   useEffect(() => () => player && player.Destroy(), []);
 
   useEffect(() => {
-    const media = NFTMediaInfo({nft, item, width, showFullMedia});
-    setMedia(media);
-
-    if(!targetElement || !media.embedUrl) { return; }
+    if(!showVideo || !targetElement || !media.embedUrl) { return; }
 
     Initialize({
       client: rootStore.client,
       target: targetElement,
-      url: media.embedUrl.toString(),
+      url: media.embedUrl,
       playerOptions: {
         capLevelToPlayerSize: true,
         playerCallback
@@ -40,7 +37,7 @@ export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showFu
     return () => player?.Destroy();
   }, [targetElement]);
 
-  if(media?.embedUrl) {
+  if(media?.embedUrl && showVideo) {
     const content = media.useFrame ?
       <iframe src={media.embedUrl} className="item-card__image-video-embed__frame" /> :
       <div ref={element => setTargetElement(element)} className="item-card__image-video-embed__frame" />;
@@ -117,10 +114,20 @@ export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showFu
   );
 });
 
-export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon, width="800", showFullMedia=false, templateImage=false, rawImage=false, className=""}) => {
-  if(showFullMedia && item.video) {
-    return <NFTImage item={item} hideEmbedLink showFullMedia={showFullMedia} className={className} />;
-  } else if(!(url || icon)) {
+export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon, width="800", showVideo=false, templateImage=false, rawImage=false, className=""}) => {
+  if(!path && !showVideo) {
+    return (
+      <NFTImage
+        item={item}
+        hideEmbedLink
+        showVideo={showVideo}
+        width={width}
+        className={className}
+      />
+    );
+  }
+
+  if(!(url || icon)) {
     if(!item || item.image && (!templateImage || !item.nft_template || !item.nft_template.nft || !item.nft_template.nft.image)) {
       url = rootStore.PublicLink({
         versionHash: marketplaceHash,

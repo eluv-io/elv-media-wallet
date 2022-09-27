@@ -19,7 +19,7 @@ const MarketplaceItemCard = ({
   noLink,
   noStock,
   noPrice,
-  showFullMedia=false,
+  showVideo=false,
   className="",
   cardClassName=""
 }) => {
@@ -31,7 +31,7 @@ const MarketplaceItemCard = ({
 
   const info = NFTInfo({
     item,
-    showFullMedia
+    showVideo
   });
 
   let description = item.description || item.nftTemplateMetadata.description;
@@ -96,7 +96,7 @@ const MarketplaceItemCard = ({
           marketplaceHash={marketplaceHash}
           item={item}
           path={UrlJoin("public", "asset_metadata", "info", "items", index.toString(), "image")}
-          showFullMedia={showFullMedia}
+          showVideo={showVideo}
         />
       )}
       name={info.name}

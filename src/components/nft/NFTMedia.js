@@ -31,7 +31,6 @@ import PauseIcon from "Assets/icons/media/Pause icon";
 import SkipForwardIcon from "Assets/icons/media/skip forward icon";
 import ShuffleIcon from "Assets/icons/media/shuffle icon";
 import LoopIcon from "Assets/icons/media/loop icon";
-import Utils from "@eluvio/elv-client-js/src/Utils";
 
 export const MediaIcon = (media, circle=false) => {
   switch(media?.media_type) {
@@ -148,7 +147,7 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
         <div className="nft-media-browser__locked-featured-item__actions">
           <Linkish
             to={isExternal ? undefined : MediaLinkPath({match, sectionId: "featured", mediaIndex})}
-            href={isExternal ? mediaItem.mediaInfo.htmlUrl || mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.embedUrl : undefined}
+            href={isExternal ? mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.embedUrl : undefined}
             target={isExternal ? "_blank" : undefined}
             rel="noopener"
             useNavLink
@@ -165,7 +164,7 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
   return (
     <Linkish
       to={isExternal ? undefined : MediaLinkPath({match, sectionId: "featured", mediaIndex})}
-      href={isExternal ? mediaItem.mediaInfo.htmlUrl || mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.embedUrl : undefined}
+      href={isExternal ? mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.embedUrl : undefined}
       target={isExternal ? "_blank" : undefined}
       rel="noopener"
       useNavLink
@@ -508,13 +507,10 @@ const AlbumView = observer(({media, videoElement, showPlayerControls}) => {
 
 const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) => {
   const targetRef = useRef();
-  const [mediaUrl, setMediaUrl] = useState(undefined);
+
+  if(!mediaItem.mediaInfo) { return null; }
 
   useEffect(() => {
-    setMediaUrl(undefined);
-
-    if(!mediaItem.mediaInfo) { return; }
-
     if(mediaItem.mediaInfo?.recordView) {
       rootStore.SetMediaViewed({
         nft: nftInfo.nft,
@@ -522,34 +518,13 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
       });
     }
 
-    // For preview mode, ensure viewed status is not actually saved
-    // Or, skip view record if the item has already been viewed
-    let embedUrl = mediaItem.mediaInfo.embedUrl ? new URL(mediaItem.mediaInfo.embedUrl) : undefined;
-    const viewRecordKey = embedUrl.searchParams.get("vrk");
-    if(viewRecordKey) {
-      const key = Utils.FromB64(viewRecordKey).split(":")[1] || "";
-      if(rootStore.viewedMedia[key] || !nftInfo.nft.details.TokenIdStr) {
-        embedUrl.searchParams.delete("vrk");
-      }
-    }
-
-    if(mediaItem.mediaInfo.mediaLink) {
-      setMediaUrl(mediaItem.mediaInfo.mediaLink.toString());
-    } else if(mediaItem.mediaInfo.embedUrl) {
-      setMediaUrl(embedUrl.toString());
-    } else {
-      setMediaUrl(mediaItem.mediaInfo.imageUrl.toString());
-    }
-  }, [mediaItem?.mediaInfo]);
-
-  useEffect(() => {
     if(!targetRef || !targetRef.current) { return; }
 
     const playerPromise = new Promise(async resolve =>
       Initialize({
         client: rootStore.client,
         target: targetRef.current,
-        url: mediaUrl,
+        url: mediaItem.mediaInfo.embedUrl,
         playerOptions: {
           posterUrl: mediaItem.mediaInfo.imageUrl,
           playerCallback: ({player, videoElement}) => {
@@ -569,30 +544,26 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
       const player = await playerPromise;
       player.Destroy();
     };
-  }, [targetRef, mediaUrl]);
+  }, [targetRef]);
 
-  if(!mediaItem.mediaInfo || !mediaUrl) {
-    return null;
+  switch(mediaItem.mediaInfo.mediaType) {
+    case "html":
+      return (
+        <iframe
+          src={mediaItem.mediaInfo.mediaLink}
+          allowFullScreen
+          allow="accelerometer;autoplay;clipboard-write;encrypted-media;fullscreen;gyroscope;picture-in-picture"
+          className="nft-media__content__target nft-media__content__target--frame"
+        />
+      );
+
+    case "image":
+      return <img alt={mediaItem.mediaInfo.name} src={mediaItem.mediaInfo.imageUrl} className="nft-media__content__target" />;
+
+    default:
+      return <div className="nft-media__content__target" ref={targetRef} />;
+
   }
-
-  if(mediaItem.mediaInfo.useFrame) {
-    return (
-      <iframe
-        src={mediaUrl}
-        allowFullScreen
-        allow="accelerometer;autoplay;clipboard-write;encrypted-media;fullscreen;gyroscope;picture-in-picture"
-        className="nft-media__content__target nft-media__content__target--frame"
-      />
-    );
-  }
-
-  if(!mediaItem.mediaInfo.embedUrl && mediaItem.mediaInfo.imageUrl) {
-    return <img alt={mediaItem.mediaInfo.name} src={mediaItem.mediaInfo.imageUrl} className="nft-media__content__target" />;
-  }
-
-  return (
-    <div className="nft-media__content__target" ref={targetRef} />
-  );
 });
 
 const AvailableMedia = ({additionalMedia, sectionId, collectionId, mediaIndex}) => {
@@ -668,7 +639,6 @@ const NFTActiveMedia = observer(({nftInfo}) => {
     document.querySelector("#top-scroll-target")?.scrollIntoView({block: "start", inline: "start", behavior: "smooth"});
   }, [match.params.sectionId, match.params.collectionId, match.params.mediaIndex]);
 
-
   if(!current) { return null; }
 
   let currentMediaItem = current.mediaItem;
@@ -677,8 +647,13 @@ const NFTActiveMedia = observer(({nftInfo}) => {
   );
 
   if(locked) {
-    currentMediaItem = currentMediaItem.locked_state;
-    currentMediaItem.mediaInfo = { imageUrl: MediaImageUrl({mediaItem: currentMediaItem}) };
+    currentMediaItem = {
+      ...currentMediaItem.locked_state,
+      mediaInfo: {
+        mediaType: "image",
+        imageUrl: MediaImageUrl({mediaItem: currentMediaItem})
+      }
+    };
   }
 
   const albumView = current.display === "Album";

@@ -129,7 +129,7 @@ export const NFTDisplayToken = nft => {
   }
 };
 
-const FormatAdditionalMedia = ({nft, name, metadata={}, versionHash}) => {
+const FormatAdditionalMedia = ({nft, name, metadata={}}) => {
   let additionalMedia, additionalMediaType, hasAdditionalMedia;
   let watchedMediaIds = [];
   if(metadata?.additional_media_type === "Sections") {
@@ -176,11 +176,10 @@ const FormatAdditionalMedia = ({nft, name, metadata={}, versionHash}) => {
 
       return NFTMediaInfo({
         nft,
-        versionHash,
         selectedMedia: mediaItem,
         selectedMediaPath: path,
-        showFullMedia: true,
-        watchedMediaIds
+        watchedMediaIds,
+        requiresPermissions: true
       });
     };
 
@@ -240,7 +239,6 @@ export const NFTInfo = ({
   item,
   listing,
   imageWidth,
-  showFullMedia,
   showToken
 }) => {
   if(listing) {
@@ -358,7 +356,7 @@ export const NFTInfo = ({
   const hasOffers = offers.filter(offer => !offer.hidden).length > 0;
 
   const { additionalMedia, additionalMediaType, hasAdditionalMedia, watchedMediaIds } = FormatAdditionalMedia({nft, name, metadata: nft?.metadata, versionHash: nft?.details?.VersionHash});
-  const mediaInfo = NFTMediaInfo({nft, item, showFullMedia, watchedMediaIds, width: imageWidth});
+  const mediaInfo = NFTMediaInfo({nft, item, watchedMediaIds, width: imageWidth});
 
   let sideText;
   if(item && !hideAvailable && !outOfStock && !expired && !unauthorized && stock && stock.max && stock.max < 10000000) {
@@ -420,140 +418,166 @@ export const NFTInfo = ({
   };
 };
 
-export const NFTMediaInfo = ({versionHash, nft, item, watchedMediaIds=[], selectedMedia, selectedMediaPath, showFullMedia, width}) => {
-  let imageUrl, embedUrl, mediaLink, htmlUrl, mediaType="Image", isNFTMedia=false, recordView=false, useFrame=false;
+export const NFTMedia = ({nft, item, width}) => {
+  let embedUrl, imageUrl;
+  if(item?.video) {
+    embedUrl = new URL("https://embed.v3.contentfabric.io");
+    embedUrl.searchParams.set("m", "");
+    embedUrl.searchParams.set("vid", LinkTargetHash(item.video));
+  } else if(nft?.metadata?.embed_url) {
+    embedUrl = new URL(nft.metadata.embed_url);
 
-  if(item && !versionHash) {
-    versionHash = item.nftTemplateHash;
+    if(nft.metadata.has_audio) {
+      embedUrl.searchParams.set("ct", "h");
+    } else {
+      embedUrl.searchParams.set("m", "");
+    }
   }
 
-  if(!selectedMedia && nft && nft.metadata.media && ["Ebook", "HTML"].includes(nft.metadata.media_type)) {
+  if(embedUrl) {
+    embedUrl.searchParams.set("ap", "");
+    embedUrl.searchParams.set("lp", "");
+    embedUrl.searchParams.set("nwm", "");
+    embedUrl.searchParams.set("p", "");
+    embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
+
+    if(item?.requires_permissions && rootStore.authToken) {
+      embedUrl.searchParams.set("ath", rootStore.authToken);
+    }
+  }
+
+  if(item?.image) {
+    imageUrl = typeof item.image === "string" ? item.image : item.image.url;
+  } else {
+    imageUrl = item?.nftTemplateMetadata?.image || nft?.metadata?.image;
+  }
+
+  if(imageUrl && width) {
+    imageUrl = new URL(imageUrl);
+    imageUrl.searchParams.set("width", width);
+    imageUrl = imageUrl.toString();
+  }
+
+  return {
+    embedUrl,
+    imageUrl
+  };
+};
+
+export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requiresPermissions, watchedMediaIds=[], width}) => {
+  let embedUrl = new URL("https://embed.v3.contentfabric.io");
+  let imageUrl, mediaLink, mediaType, viewRecordKey, recordView=false, useFrame=false;
+
+  const versionHash = item ? item.nftTemplateHash : nft?.details?.VersionHash;
+
+  if(!selectedMedia) {
     selectedMedia = {
       media_type: nft.metadata.media_type,
       media_file: nft.metadata.media,
-      parameters: nft.metadata.media_parameters
+      parameters: nft.metadata.media_parameters,
+      image: nft.metadata.image
     };
-
-    isNFTMedia = true;
   }
 
-  let requiresPermissions = !isNFTMedia || item?.requires_permissions || selectedMedia?.requires_permissions;
-  let authToken = requiresPermissions ? rootStore.authToken || rootStore.staticToken : rootStore.staticToken;
+  imageUrl = selectedMedia.image;
+  mediaType = (selectedMedia.media_type || "Image").toLowerCase();
 
-  // TODO: Consolidate embed url determination
-  if(showFullMedia) {
-    mediaType = selectedMedia?.media_type;
-    embedUrl = new URL("https://embed.v3.contentfabric.io");
-    if(!selectedMedia && item && item.video) {
-      embedUrl.searchParams.set("vid", LinkTargetHash(item.video));
-      embedUrl.searchParams.set("ap", "");
-      embedUrl.searchParams.set("lp", "");
-      embedUrl.searchParams.set("m", "");
+  const embedMediaTypeParameter = Object.keys(mediaTypes).find(key => mediaTypes[key].toLowerCase() === mediaType.toLowerCase());
+  if(embedMediaTypeParameter) {
+    embedUrl.searchParams.set("mt", embedMediaTypeParameter);
+  }
 
-      if(item?.nftTemplateMetadata?.has_audio) {
-        embedUrl.searchParams.set("ct", "h");
-      }
-
-      mediaType = "ItemVideo";
-      authToken = item.requires_permissions ? rootStore.authToken || "" : rootStore.staticToken;
-    } else if(selectedMedia && selectedMedia.media_type === "Link") {
-      mediaLink = selectedMedia.link;
-      embedUrl = undefined;
-    } else if((selectedMedia && selectedMedia.media_type === "HTML") && selectedMedia.media_file) {
-      const targetHash = LinkTargetHash(selectedMedia.media_file);
-      const filePath = selectedMedia.media_file["/"].split("/files/")[1];
-
-      htmlUrl = new URL(
-        rootStore.network === "demo" ?
-          "https://demov3.net955210.contentfabric.io/s/demov3" :
-          "https://main.net955305.contentfabric.io/s/main"
-      );
-
-      htmlUrl.pathname = UrlJoin(htmlUrl.pathname, "q", targetHash, "files", filePath);
-
-      (selectedMedia.parameters || []).forEach(({name, value}) =>
-        htmlUrl.searchParams.set(name, value)
-      );
-
-      if(requiresPermissions) {
-        htmlUrl.searchParams.set("authorization", authToken);
-      }
-
-      // Route through embed url so that watch can be recorded
-      if(watchedMediaIds.includes(selectedMedia?.id)) {
-        embedUrl.searchParams.set("murl", Utils.B64(htmlUrl.toString()));
-      } else {
-        mediaLink = htmlUrl.toString();
-      }
-
-      useFrame = true;
-    } else if((selectedMedia && selectedMedia.media_type === "Ebook" && selectedMedia.media_file)) {
-      embedUrl.searchParams.set("type", "ebook");
-      embedUrl.searchParams.set("vid", selectedMedia.media_file["."].container);
-      embedUrl.searchParams.set("murl", Utils.B64(selectedMedia.media_file.url));
-      useFrame = true;
-    } else if(selectedMedia && selectedMedia.media_type === "Gallery" && selectedMedia.gallery) {
+  switch(mediaType) {
+    case "gallery":
       embedUrl.searchParams.set("vid", versionHash);
       embedUrl.searchParams.set("ln", Utils.B64(selectedMediaPath));
       embedUrl.searchParams.set("ht", "");
-    } else if((selectedMedia && ["Audio", "Video"].includes(selectedMedia.media_type) && selectedMedia.media_link)) {
-      embedUrl.searchParams.set("vid", LinkTargetHash(selectedMedia.media_link));
+      break;
+
+    case "ebook":
+    case "html":
+    case "image":
+      const targetHash = LinkTargetHash(selectedMedia.media_file || selectedMedia.image) || versionHash;
+      embedUrl.searchParams.set("vid", targetHash);
+
+      if(selectedMedia.media_file) {
+        mediaLink = new URL(
+          rootStore.network === "demo" ?
+            "https://demov3.net955210.contentfabric.io/s/demov3" :
+            "https://main.net955305.contentfabric.io/s/main"
+        );
+
+        const filePath = selectedMedia.media_file["/"].split("/files/")[1];
+        mediaLink.pathname = UrlJoin(mediaLink.pathname, "q", targetHash, "files", filePath);
+
+        (selectedMedia.parameters || []).forEach(({name, value}) =>
+          mediaLink.searchParams.set(name, value)
+        );
+      } else {
+        mediaLink = selectedMedia.image;
+      }
+
+      embedUrl.searchParams.set("murl", Utils.B64(mediaLink.toString()));
+
+      break;
+
+    case "audio":
+    case "video":
+    default:
+      // Fall back to image if video is not set properly for some reason
+      if(!selectedMedia.media_link) {
+        mediaLink = selectedMedia.image;
+        mediaType = "image";
+        embedUrl.searchParams.set("murl", Utils.B64(mediaLink.toString()));
+        break;
+      }
+
+      embedUrl.searchParams.set("vid", LinkTargetHash(selectedMedia.media_link) || versionHash);
       embedUrl.searchParams.set("ct", "h");
       embedUrl.searchParams.set("ap", "");
 
       if(selectedMedia.offerings?.length > 0) {
         embedUrl.searchParams.set("off", selectedMedia.offerings.map(o => (o || "").toString().trim()).join(","));
       }
-    } else if(!selectedMedia && (typeof nft?.metadata.playable === "undefined" || nft?.metadata.playable) && nft?.metadata.embed_url) {
-      embedUrl = new URL(nft?.metadata.embed_url);
-    } else {
-      embedUrl = undefined;
-    }
 
-    if(watchedMediaIds.includes(selectedMedia?.id)) {
-      recordView = true;
+      break;
+  }
 
-      if(embedUrl && nft) {
-        const key = rootStore.MediaViewKey({
-          contractAddress: nft.details.ContractAddr,
-          tokenId: nft.details.TokenIdStr,
-          mediaId: selectedMedia.id
-        });
-        embedUrl.searchParams.set("vrk", Utils.B64(`${rootStore.appId}:${key}`));
-      }
-    }
+  embedUrl.searchParams.set("nwm", "");
+  embedUrl.searchParams.set("p", "");
+  embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
 
-    if(embedUrl) {
-      embedUrl.searchParams.set("nwm", "");
-      embedUrl.searchParams.set("p", "");
-      embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
+  if(watchedMediaIds.includes(selectedMedia?.id)) {
+    recordView = true;
 
-      if(requiresPermissions) {
-        embedUrl.searchParams.set("ath", authToken);
-      }
+    if(embedUrl && nft) {
+      const key = rootStore.MediaViewKey({
+        contractAddress: nft.details.ContractAddr,
+        tokenId: nft.details.TokenIdStr,
+        mediaId: selectedMedia.id
+      });
 
-      const mediaType = Object.keys(mediaTypes).find(key => mediaTypes[key] === selectedMedia?.media_type);
-      if(mediaType) {
-        embedUrl.searchParams.set("mt", mediaType);
-      }
+      embedUrl.searchParams.set("vrk", Utils.B64(`${rootStore.appId}:${key}`));
+      viewRecordKey = key;
     }
   }
 
-  if(!imageUrl && ((item && item.image) || nft?.metadata.image)) {
-    imageUrl = new URL((item && item.image && item.image.url) || nft?.metadata.image);
-    imageUrl.searchParams.set("authorization", authToken);
+  if(requiresPermissions && rootStore.authToken) {
+    embedUrl.searchParams.set("ath", rootStore.authToken);
+  }
 
-    if(imageUrl && width) {
-      imageUrl.searchParams.set("width", width);
-    }
+  if(imageUrl && width) {
+    imageUrl = new URL(imageUrl);
+    imageUrl.searchParams.set("width", width);
+    imageUrl = imageUrl.toString();
   }
 
   return {
     imageUrl,
     embedUrl,
-    htmlUrl,
     mediaLink,
     mediaType,
+    viewRecordKey,
     requiresPermissions,
     recordView,
     useFrame
@@ -566,6 +590,10 @@ export const MobileOption = (width, desktop, mobile) => {
 
 export const LinkTargetHash = (link) => {
   if(!link) { return; }
+
+  if(typeof link === "string") {
+    return link.split("/").find(segment => segment.startsWith("hq__"));
+  }
 
   if(link["."] && link["."].source) {
     return link["."].source;

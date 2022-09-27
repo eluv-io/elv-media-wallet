@@ -180,7 +180,7 @@ const MarketplaceFeatured = observer(({marketplaceHash, items, justification, sh
         marketplaceHash={marketplaceHash}
         item={items[featuredItemIndex]}
         index={items[featuredItemIndex].itemIndex}
-        showFullMedia={items[featuredItemIndex].play_on_storefront}
+        showVideo={items[featuredItemIndex].play_on_storefront}
       />
       <FeaturedGallery
         showIcons={showGallery}
