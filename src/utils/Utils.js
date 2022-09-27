@@ -532,7 +532,7 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
         if(mediaLink) {
           embedUrl.searchParams.set("murl", Utils.B64(mediaLink.toString()));
         }
-        
+
         break;
       }
 

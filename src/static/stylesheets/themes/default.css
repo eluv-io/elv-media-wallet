@@ -140,7 +140,7 @@ html {
   --font-feature-card-misc: normal normal normal 16px var(--font-family-tertiary);
 
   --background-feature-card: var(--background-card);
-  --background-feature-card-runway: linear-gradient(180deg, var(--background-content) 75%, var(--background-component-secondary) 100%);
+  --background-featured-item: transparent;
 
   --color-feature-card-text-primary: var(--color-text-primary);
   --color-feature-card-text-secondary: var(--color-text-secondary);
@@ -148,8 +148,11 @@ html {
   --box-shadow-feature-card: var(--box-shadow-card);
 
   --border-background-feature-card: var(--border-background-card);
+  --border-background-featured-item: transparent;
   --border-width-feature-card: var(--border-width-card);
+  --border-width-featured-item: 2px;
   --border-radius-feature-card: 25px;
+  --border-radius-featured-item: 10px;
 
   --color-button-feature-card-bg: transparent;
   --color-button-feature-card-text: var(--color-button-secondary-text);

@@ -1,15 +1,17 @@
 .featured-item {
   align-items: center;
+  background: var(--border-background-featured-item);
+  border-radius: var(--border-radius-featured-item);
   display: grid;
   font: var(--font-feature-card-text);
-  grid-gap: 50px;
-  grid-template-columns: 1.4fr 1fr;
+  grid-gap: 80px;
+  grid-template-columns: 500px 1.4fr;
   min-height: 650px;
-  padding: 20px 100px 50px;
+  padding: 65px 85px;
   position: relative;
 
   &--right-just {
-    grid-template-columns: 1fr 1.4fr;
+    grid-template-columns: 1.4fr 500px;
   }
 
   &__text,
@@ -23,7 +25,6 @@
     flex-direction: column;
     height: 100%;
     justify-content: center;
-    padding-left: 50px;
     position: relative;
   }
 
@@ -46,6 +47,7 @@
     align-items: center;
     color: var(--color-feature-card-text-primary);
     display: flex;
+    font-size: 18px;
     line-height: 1.5em;
     margin: 20px 0 10px;
     min-height: 50px;
@@ -107,13 +109,14 @@
   }
 
   &__background {
-    background: var(--background-feature-card-runway);
-    bottom: 0;
-    clip-path: polygon(0 100%, 100% 100%, 75% 75%, 25% 75%);
-    height: 100%;
-    left: 0;
+    background: var(--background-featured-item);
+    border: var(--border-background-featured-item);
+    border-radius: var(--border-radius-featured-item);
+    bottom: var(--border-width-featured-item);
+    left: var(--border-width-featured-item);
     position: absolute;
-    width: 100%;
+    right: var(--border-width-featured-item);
+    top: var(--border-width-featured-item);
     z-index: 0;
   }
 
@@ -159,6 +162,20 @@
 
   .item-card__image-container {
     border-radius: var(--border-radius-feature-card);
+  }
+
+  @media screen and (max-width: $breakpoint) {
+    grid-gap: 30px;
+    grid-template-columns: 1fr 1fr;
+    padding: 25px 35px;
+
+    &--right-just {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    &__description {
+      font-size: 14px;
+    }
   }
 
   @media screen and (max-width: $tablet-breakpoint) {

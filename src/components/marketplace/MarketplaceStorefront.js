@@ -146,7 +146,7 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
     }
 
     return (
-      <div className="marketplace__section" key={`marketplace-section-${sectionIndex}-${loadKey}`}>
+      <div className="marketplace__section marketplace__section--no-margin" key={`marketplace-section-${sectionIndex}-${loadKey}`}>
         <div className="page-headers">
           { section.section_header ? <h1 className="page-header">{section.section_header}</h1> : null }
           { section.section_subheader ? <h2 className="page-subheader">{section.section_subheader}</h2> : null }
