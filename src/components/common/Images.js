@@ -12,6 +12,7 @@ import {NFTMedia} from "../../utils/Utils";
 
 import FullscreenIcon from "Assets/icons/full screen.svg";
 import ExternalLinkIcon from "Assets/icons/external-link.svg";
+import Utils from "@eluvio/elv-client-js/src/Utils";
 
 export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVideo=false, allowFullscreen=false, className="", playerCallback}) => {
   const [player, setPlayer] = useState(undefined);
@@ -37,10 +38,14 @@ export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVi
     return () => player?.Destroy();
   }, [targetElement]);
 
-  if(media?.embedUrl && showVideo) {
-    const content = media.useFrame ?
-      <iframe src={media.embedUrl} className="item-card__image-video-embed__frame" /> :
-      <div ref={element => setTargetElement(element)} className="item-card__image-video-embed__frame" />;
+  const isFrameContent = ["html", "ebook"].includes(media.mediaType);
+  const isOwned = Utils.EqualAddress(nft?.details?.TokenOwner, rootStore.CurrentAddress());
+
+  if(media?.embedUrl && showVideo && (!isFrameContent || isOwned)) {
+    const content =
+    ["html", "ebook"].includes(media.mediaType) ?
+      <iframe src={media.embedUrl} className="item-card__image-video-embed__frame"/> :
+      <div ref={element => setTargetElement(element)} className="item-card__image-video-embed__frame"/>;
 
     return (
       <>
@@ -56,7 +61,7 @@ export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVi
                 </a> : null
             }
             {
-              allowFullscreen && media.useFrame ?
+              allowFullscreen && isFrameContent ?
                 <button className="item-card__image-container__action item-card__image-container__action--full-screen" onClick={() => setFullscreen(true)} title="Fullscreen">
                   <ImageIcon icon={FullscreenIcon} label="Enlarge Image"/>
                 </button> : null

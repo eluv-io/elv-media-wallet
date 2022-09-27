@@ -419,6 +419,13 @@ export const NFTInfo = ({
 };
 
 export const NFTMedia = ({nft, item, width}) => {
+  if(nft && ["HTML", "Ebook"].includes(nft.metadata.media_type)) {
+    return NFTMediaInfo({
+      nft,
+      item
+    });
+  }
+
   let embedUrl, imageUrl;
   if(item?.video) {
     embedUrl = new URL("https://embed.v3.contentfabric.io");
