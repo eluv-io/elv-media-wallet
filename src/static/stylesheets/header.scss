@@ -89,7 +89,6 @@
 
 .subheader,
 .global-header {
-  max-width: $breakpoint;
   width: 100%;
 
   &__navigation {
@@ -374,6 +373,10 @@
   .subheader {
     &__header {
       font-size: 32px;
+
+      &__image-container {
+        max-width: 300px;
+      }
     }
 
     &__logo-container {
@@ -383,6 +386,7 @@
 
   .header__profile {
     font-size: 12px;
+    padding-right: 50px;
   }
 }
 

@@ -1,7 +1,7 @@
 import "Assets/fonts/fonts.css";
 import "Assets/stylesheets/app.scss";
 
-import React, { lazy, Suspense, useEffect } from "react";
+import React, {lazy, Suspense, useEffect, useState} from "react";
 import UrlJoin from "url-join";
 import { render } from "react-dom";
 import { observer} from "mobx-react";
@@ -164,6 +164,7 @@ const Routes = observer(() => {
 
 const App = observer(() => {
   const history = useHistory();
+  const [hasBackgroundImage, setHasBackgroundImage] = useState(false);
 
   useEffect(() => InitializeListener(history), []);
 
@@ -181,10 +182,13 @@ const App = observer(() => {
     if(newBackgroundImageUrl !== currentBackgroundImageUrl) {
       if(backgroundImage) {
         backgroundElement.style.background = `no-repeat top center / cover url("${backgroundImage}")`;
+        document.querySelector("#app").style.background = "transparent";
       } else {
         backgroundElement.style.removeProperty("background");
       }
     }
+
+    setHasBackgroundImage(!!backgroundImage);
   }, [rootStore.loaded, rootStore.appBackground]);
 
   if(rootStore.loginOnly) {
@@ -197,6 +201,7 @@ const App = observer(() => {
       key={`app-${rootStore.loggedIn}`}
       className={[
         "app-container",
+        hasBackgroundImage ? "app-container--transparent" : "",
         rootStore.centerContent ? "app--centered" : "",
         rootStore.hideNavigation ? "navigation-hidden" : "",
         rootStore.sidePanelMode ? "side-panel" : "",

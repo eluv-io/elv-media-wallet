@@ -99,12 +99,16 @@ header,
   transition: color 0.5s, border 0.5s, box-shadow 0.5s !important;
 }
 
-.app {
-  background-color: var(--color-page-bg);
-}
-
 .app-container {
-  //padding-bottom: 200px;
+  background-color: var(--color-page-bg);
+
+  &--transparent {
+    background: transparent;
+
+    .page-block {
+      background: transparent !important;
+    }
+  }
 }
 
 .page-block {
@@ -134,8 +138,9 @@ header,
 
   &--subheader {
     .page-block__content {
-      padding-bottom: 10px;
-      padding-top: 10px;
+      //padding-bottom: 10px;
+      //padding-top: 10px;
+      //max-width: unset;
     }
   }
 
