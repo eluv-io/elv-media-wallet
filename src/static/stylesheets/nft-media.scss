@@ -389,6 +389,7 @@
         width: 100%;
         max-height: unset;
         flex-direction: column;
+        justify-content: flex-end;
       }
 
       &__name {
