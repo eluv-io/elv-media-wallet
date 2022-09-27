@@ -226,7 +226,7 @@ const MarketplaceStorefront = observer(() => {
 
   return (
     <div className="page-block page-block--main-content page-block--storefront">
-      <div className="page-block__content page-block__content--unrestricted">
+      <div className="page-block__content">
         <MarketplaceBanners marketplace={marketplace} />
         <MarketplaceStorefrontSections marketplace={marketplace} />
         <MarketplaceCollectionsSummary marketplace={marketplace} />

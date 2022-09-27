@@ -28,7 +28,7 @@
 
   &__title {
     font: var(--font-feature-card-title);
-    font-size: 36px;
+    font-size: 32px;
     font-weight: 500;
     text-transform: uppercase;
   }
@@ -36,7 +36,7 @@
   &__edition {
     color: var(--color-feature-card-text-secondary);
     font: var(--font-feature-card-misc);
-    font-size: 12px;
+    font-size: 14px;
     margin-top: 5px;
     text-transform: uppercase;
   }
@@ -45,7 +45,7 @@
     align-items: center;
     color: var(--color-feature-card-text-primary);
     display: flex;
-    font-size: 24px;
+    font-size: 20px;
     line-height: 1.5em;
     margin: 20px 0 10px;
     min-height: 50px;
@@ -164,10 +164,10 @@
 
   @media screen and (max-width: $breakpoint) {
     grid-gap: 30px;
-    padding: 25px 35px;
+    padding: 35px 45px;
 
     &__title {
-      font-size: 32px;
+      font-size: 28px;
     }
 
     &__text {
