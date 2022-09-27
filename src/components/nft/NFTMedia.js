@@ -293,7 +293,7 @@ const MediaSection = ({nftInfo, section, locked}) => {
   );
 };
 
-export const NFTMediaBrowser = observer(({nftInfo, activeMedia}) => {
+const NFTMediaBrowser = observer(({nftInfo}) => {
   if(!nftInfo.hasAdditionalMedia) {
     return null;
   }
@@ -309,7 +309,7 @@ export const NFTMediaBrowser = observer(({nftInfo, activeMedia}) => {
   });
 
   return (
-    <div className={`nft-media-browser ${!activeMedia ? "nft-media-browser--inactive" : ""} nft-media-browser--sections`}>
+    <div className="nft-media-browser nft-media-browser--sections">
       {
         lockedFeaturedMedia.length > 0 ?
           <div className="nft-media-browser__featured nft-media-browser__featured--locked">
@@ -717,11 +717,13 @@ const NFTActiveMedia = observer(({nftInfo}) => {
   );
 });
 
-const NFTMedia = observer(({nft, item}) => {
+export const NFTMediaContainer = observer(({nftInfo, nft, item, browserOnly}) => {
   const match = useRouteMatch();
   const [loaded, setLoaded] = useState(false);
 
-  const nftInfo = NFTInfo({nft, item});
+  if(!nftInfo) {
+    nftInfo = NFTInfo({nft, item});
+  }
   window.nftInfo = nftInfo;
 
   useEffect(() => {
@@ -733,6 +735,10 @@ const NFTMedia = observer(({nft, item}) => {
   }, []);
 
   if(!loaded) { return null; }
+
+  if(browserOnly) {
+    return <NFTMediaBrowser nftInfo={nftInfo} />;
+  }
 
   const isSingleAlbum = (nftInfo?.additionalMedia?.sections || [])[0]?.isSingleAlbum;
   return (
@@ -746,7 +752,7 @@ const NFTMedia = observer(({nft, item}) => {
         isSingleAlbum ? null :
           <div className="page-block page-block--lower-content page-block--media-browser">
             <div className="page-block__content page-block__content--unrestricted">
-              <NFTMediaBrowser nftInfo={nftInfo} activeMedia/>
+              <NFTMediaBrowser nftInfo={nftInfo} />
             </div>
           </div>
       }
@@ -760,14 +766,14 @@ const NFTMediaWrapper = (props) => {
   if(match.params.sku) {
     return (
       <MarketplaceItemDetails
-        Render={({item}) => <NFTMedia item={item} {...props} />}
+        Render={({item}) => <NFTMediaContainer item={item} {...props} />}
       />
     );
   }
 
   return (
     <MintedNFTDetails
-      Render={({nft}) => <NFTMedia nft={nft} {...props} />}
+      Render={({nft}) => <NFTMediaContainer nft={nft} {...props} />}
     />
   );
 };

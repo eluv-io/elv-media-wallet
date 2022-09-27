@@ -419,12 +419,6 @@
 .nft-media-browser {
   --nft-media-carousel-height: 250px;
 
-  &--inactive {
-    .nft-media-browser__item {
-      opacity: 1;
-    }
-  }
-
   &__list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));

@@ -30,7 +30,7 @@ import AsyncComponent from "Components/common/AsyncComponent";
 import {Ago, MiddleEllipsis, NFTInfo} from "../../utils/Utils";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import NFTOffers from "Components/nft/NFTOffers";
-import {NFTMediaBrowser} from "Components/nft/NFTMedia";
+import {NFTMediaContainer} from "Components/nft/NFTMedia";
 
 import UserIcon from "Assets/icons/user.svg";
 import TransactionIcon from "Assets/icons/transaction history icon.svg";
@@ -698,7 +698,7 @@ const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, tab, setTab}) =>
       break;
 
     case "Media":
-      activeContent = <NFTMediaBrowser nftInfo={nftInfo} />;
+      activeContent = <NFTMediaContainer nftInfo={nftInfo} browserOnly />;
       break;
   }
 
