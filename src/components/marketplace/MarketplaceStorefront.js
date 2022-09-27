@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import {observer} from "mobx-react";
 import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import {rootStore} from "Stores";
@@ -7,6 +7,62 @@ import MarketplaceItemCard from "Components/marketplace/MarketplaceItemCard";
 import ImageIcon from "Components/common/ImageIcon";
 import MarketplaceFeatured from "Components/marketplace/MarketplaceFeatured";
 import {MarketplaceCollectionsSummary} from "Components/marketplace/MarketplaceCollectionsSummary";
+import EluvioPlayer, {EluvioPlayerParameters} from "@eluvio/elv-player-js";
+import {LinkTargetHash} from "../../utils/Utils";
+
+const MarketplaceBannerContent = observer(({banner}) => {
+  const targetRef = useRef();
+
+  if(!banner) { return null; }
+
+  useEffect(() => {
+    if(!targetRef || !targetRef.current) { return; }
+
+    const playerPromise = new EluvioPlayer(
+      targetRef.current,
+      {
+        clientOptions: {
+          network: rootStore.walletClient.network === "main" ?
+            EluvioPlayerParameters.networks.MAIN : EluvioPlayerParameters.networks.DEMO,
+          client: rootStore.client
+        },
+        sourceOptions: {
+          playoutParameters: {
+            versionHash: LinkTargetHash(banner.video)
+          }
+        },
+        playerOptions: {
+          watermark: EluvioPlayerParameters.watermark.OFF,
+          muted: banner.video_muted ? EluvioPlayerParameters.muted.ON : EluvioPlayerParameters.muted.OFF,
+          autoplay: banner.video_muted ? EluvioPlayerParameters.autoplay.ON : EluvioPlayerParameters.autoplay.OFF,
+          controls: banner.video_muted ? EluvioPlayerParameters.controls.OFF : EluvioPlayerParameters.controls.AUTO_HIDE,
+          loop: banner.video_muted ? EluvioPlayerParameters.loop.ON : EluvioPlayerParameters.loop.OFF
+        }
+      }
+    );
+
+    return async () => {
+      if(!playerPromise) { return; }
+
+      const player = await playerPromise;
+      player.Destroy();
+    };
+  }, [targetRef]);
+
+  if(banner.video) {
+    return <div className="marketplace__banner__video" ref={targetRef} />;
+  }
+
+  return (
+    <ImageIcon
+      className="marketplace__banner__image"
+      icon={(
+        banner.image_mobile && rootStore.pageWidth <= 800 ?
+          banner.image_mobile : banner.image
+      ).url}
+    />
+  );
+});
 
 const MarketplaceBanners = ({marketplace}) => {
   if(!marketplace.banners || marketplace.banners.length === 0) { return null; }
@@ -14,19 +70,12 @@ const MarketplaceBanners = ({marketplace}) => {
   return (
     marketplace.banners.map((banner, index) => {
       const attrs = { key: `banner-${index}`, className: "marketplace__banner" };
-      const image = (
-        <ImageIcon
-          icon={(
-            banner.image_mobile && rootStore.pageWidth <= 800 ?
-              banner.image_mobile : banner.image
-          ).url}
-        />
-      );
+      const bannerContent = <MarketplaceBannerContent banner={banner} />;
 
       if(banner.link) {
         return (
           <a href={banner.link} rel="noopener" target="_blank" { ...attrs }>
-            { image }
+            { bannerContent }
           </a>
         );
       } else if(banner.sku) {
@@ -40,7 +89,7 @@ const MarketplaceBanners = ({marketplace}) => {
         if(link) {
           return (
             <Link to={link} { ...attrs }>
-              { image }
+              { bannerContent }
             </Link>
           );
         }
@@ -48,7 +97,7 @@ const MarketplaceBanners = ({marketplace}) => {
 
       return (
         <div { ...attrs }>
-          { image }
+          { bannerContent }
         </div>
       );
     })

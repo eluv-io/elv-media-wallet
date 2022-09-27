@@ -1,18 +1,16 @@
 .featured-item {
+  --max-height-icon: 80vh;
+
   align-items: center;
   background: var(--border-background-featured-item);
   border-radius: var(--border-radius-featured-item);
   display: grid;
   font: var(--font-feature-card-text);
   grid-gap: 80px;
-  grid-template-columns: 500px 1.4fr;
+  grid-template-columns: 1fr 1fr;
   min-height: 650px;
   padding: 65px 85px;
   position: relative;
-
-  &--right-just {
-    grid-template-columns: 1.4fr 500px;
-  }
 
   &__text,
   &__icon-container {
@@ -124,8 +122,8 @@
     background: var(--border-background-feature-card);
     border-radius: var(--border-radius-feature-card);
     box-shadow: var(--box-shadow-feature-card);
-    max-height: 75vh;
-    max-width: 75vh;
+    max-height: var(--max-height-icon);
+    max-width: var(--max-height-icon);
     padding: var(--border-width-feature-card);
     position: relative;
   }
@@ -133,8 +131,8 @@
   &__icon {
     background: var(--background-feature-card);
     border-radius: var(--border-radius-feature-card);
-    max-height: 75vh;
-    max-width: 75vh;
+    max-height: var(--max-height-icon);
+    max-width: var(--max-height-icon);
     padding: 32px;
 
     div {
@@ -144,8 +142,8 @@
     img {
       background: $black;
       border-radius: calc(var(--border-radius-feature-card) / 2);
-      max-height: 75vh;
-      max-width: 75vh;
+      max-height: var(--max-height-icon);
+      max-width: var(--max-height-icon);
     }
   }
 
@@ -166,11 +164,10 @@
 
   @media screen and (max-width: $breakpoint) {
     grid-gap: 30px;
-    grid-template-columns: 1fr 1fr;
     padding: 25px 35px;
 
-    &--right-just {
-      grid-template-columns: 1fr 1fr;
+    &__text {
+      padding: 0;
     }
 
     &__description {
@@ -180,15 +177,18 @@
 
   @media screen and (max-width: $tablet-breakpoint) {
     grid-gap: 10px;
-    grid-template-columns: 1fr 1.4fr;
-    padding: 10px;
+    min-height: 300px;
+
+    &__title {
+      font-size: 18px;
+    }
+
+    &__description {
+      font-size: 12px;
+    }
 
     &__side-text {
       display: none;
-    }
-
-    &--right-just {
-      grid-template-columns: 1.4fr 1fr;
     }
 
     &__icon {

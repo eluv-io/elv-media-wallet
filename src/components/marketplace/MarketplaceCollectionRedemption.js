@@ -101,7 +101,9 @@ const MarketplaceCollection = observer(() => {
     <div className="marketplace__section">
       <Link to={UrlJoin("/marketplace", match.params.marketplaceId, "collections", collection.sku)} className="details-page__back-link">
         <ImageIcon icon={BackIcon} />
-        Back to { collection.name || collection.collection_header || "Collection" }
+        <div className="details-page__back-link__text ellipsis">
+          Back to { collection.name || collection.collection_header || "Collection" }
+        </div>
       </Link>
       <div className="marketplace__section">
         <div className="page-headers collection-redemption__redeem__headers">

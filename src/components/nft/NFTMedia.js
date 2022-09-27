@@ -664,7 +664,9 @@ const NFTActiveMedia = observer(({nftInfo}) => {
         backPage ?
           <Link to={`${match.url.split("/media")[0]}?tab=Media`} className="details-page__back-link">
             <ImageIcon icon={BackIcon}/>
-            Back to {backPage.name}
+            <div className="details-page__back-link__text ellipsis">
+              Back to {backPage.name}
+            </div>
           </Link> : null
       }
       <div className="nft-media__content">

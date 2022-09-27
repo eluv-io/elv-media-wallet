@@ -432,9 +432,7 @@
 
 @media screen and (max-width: $mobile-breakpoint) {
   .header__profile {
-    &:not(.header__log-in) {
-      display: none;
-    }
+    display: none;
   }
 
   .subheader__header {

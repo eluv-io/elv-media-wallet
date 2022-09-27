@@ -891,7 +891,9 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
               backPage ?
                 <Link to={backPage.path} className="details-page__back-link">
                   <ImageIcon icon={BackIcon}/>
-                  Back to {backPage.name}
+                  <div className="details-page__back-link__text ellipsis">
+                    Back to {backPage.name}
+                  </div>
                 </Link> : null
             }
             <div className="details-page__main-content">

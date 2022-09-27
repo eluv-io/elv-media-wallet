@@ -335,6 +335,7 @@
       &__subtitle-1,
       &__subtitle-2 {
         max-width: 400px;
+        padding-inline: 20px;
       }
 
       &__button__text {
@@ -374,7 +375,12 @@
   }
 
   @media screen and (max-width: $tablet-breakpoint) {
-    --elv-gallery-max-height: unset;
+    --elv-gallery-min-height: 50vh;
+    --elv-gallery-max-height: 75vh;
+
+    iframe {
+      min-height: var(--elv-gallery-max-height);
+    }
 
     &__content {
       &__target-container {
