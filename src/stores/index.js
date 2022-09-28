@@ -1177,14 +1177,19 @@ class RootStore {
       this.SetLocalStorage("signed-out", "true");
     }
 
+    this.walletClient?.LogOut();
+
     this.SendEvent({event: EVENTS.LOG_OUT, data: {address: this.CurrentAddress()}});
 
     if(window.auth0) {
       try {
         this.disableCloseEvent = true;
-        window.auth0.logout({
-          returnTo: returnUrl || this.ReloadURL()
-        });
+
+        setTimeout(() => {
+          window.auth0.logout({
+            returnTo: returnUrl || this.ReloadURL()
+          });
+        }, 1000);
 
         return;
       } catch(error) {
@@ -1531,8 +1536,6 @@ class RootStore {
 
   ClearAuthInfo() {
     this.RemoveLocalStorage(this.AuthStorageKey());
-
-    this.walletClient?.LogOut();
 
     this.authInfo = undefined;
   }

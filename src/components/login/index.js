@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {useAuth0} from "@auth0/auth0-react";
 import {rootStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
 import {Loader} from "Components/common/Loaders";
@@ -305,8 +304,6 @@ const CustomConsentModal = ({customConsent}) => {
 // Automatic login when auth0 is authenticated
 export const Auth0Authentication = observer(() => {
   if(!window.sessionStorageAvailable) { return; }
-
-  window.auth0 = useAuth0();
 
   const LogIn = async () => {
     await rootStore.Authenticate({

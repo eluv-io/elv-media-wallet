@@ -43,6 +43,8 @@ import TwitterIcon from "Assets/icons/twitter.svg";
 import PictureIcon from "Assets/icons/image.svg";
 import CopyIcon from "Assets/icons/copy.svg";
 import MediaIcon from "Assets/icons/media-icon.svg";
+import TradeIcon from "Assets/icons/Trading Icon.svg";
+import OffersIcon from "Assets/icons/Offers icon.svg";
 
 let mediaPreviewEnabled = false;
 
@@ -674,17 +676,17 @@ const NFTActions = observer(({
   return null;
 });
 
-const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, tab, setTab}) => {
-  const anyTabs = nftInfo.hasOffers || nftInfo.hasAdditionalMedia;
+const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, showMediaSections, tab, setTab}) => {
+  const anyTabs = nftInfo.hasOffers || showMediaSections;
 
   if((!nft && !previewMedia) || !anyTabs) {
     return <NFTTables nftInfo={nftInfo} />;
   }
 
   let tabs = [
-    nftInfo.hasAdditionalMedia && (nftInfo.isOwned || previewMedia) ? "Media" : "",
-    nftInfo.hasOffers ? "Offers" : "",
-    "Trading"
+    showMediaSections ? ["Media", MediaIcon] : "",
+    nftInfo.hasOffers ? ["Offers", OffersIcon] : "",
+    ["Trading", TradeIcon]
   ].filter(tab => tab);
 
   let activeContent;
@@ -708,13 +710,16 @@ const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, tab, setTab}) =>
         anyTabs ?
           <div className="details-page__tabbed-content__tabs">
             {
-              tabs.map(tabName =>
+              tabs.map(([tabName, tabIcon]) =>
                 <button
                   key={`tab-${tabName}`}
-                  className={`details-page__tabbed-content__tab ${tab === tabName ? "details-page__tabbed-content__tab--active" : ""}`}
+                  className={`action details-page__tabbed-content__tab ${tab === tabName ? "details-page__tabbed-content__tab--active" : ""}`}
                   onClick={() => setTab(tabName)}
                 >
-                  {tabName}
+                  <ImageIcon icon={tabIcon} className="details-page__tabbed-content__tab__icon" />
+                  <div className="details-page__tabbed-content__tab__text">
+                    {tabName}
+                  </div>
                 </button>
               )
             }
@@ -764,11 +769,6 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
 
   // Load listing status and contract stats
   useEffect(() => {
-    // Tab parameter set, scroll to tab
-    if(tab) {
-      setTimeout(() => document.querySelector(".page-block--nft-content")?.scrollIntoView({block: "start", inline: "start", behavior: "smooth"}), 100);
-    }
-
     if(!item) {
       LoadListingStatus();
     }
@@ -847,6 +847,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
   const tokenId = match.params.tokenId || listingStatus?.listing?.details?.TokenIdStr;
   const isInCheckout = listingStatus?.listing?.details?.CheckoutLockedUntil && listingStatus?.listing.details.CheckoutLockedUntil > Date.now();
   const showModal = match.params.mode === "purchase" || match.params.mode === "list";
+  const showMediaSections = (nftInfo.isOwned || previewMedia) && nftInfo.hasAdditionalMedia && nftInfo.additionalMedia.type !== "List";
 
   const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
   return (
@@ -961,6 +962,10 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
                       toggleable={false}
                       icon={MediaIcon}
                       onClick={() => {
+                        if(nftInfo.additionalMedia.type === "List") {
+                          history.push(UrlJoin(match.url, "media", "list", "0"));
+                        }
+
                         if(tab !== "Media") {
                           setTab("Media");
                         }
@@ -986,8 +991,8 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
         </div>
       </div>
       <div className="page-block page-block--lower-content page-block--nft-content">
-        <div className="page-block__content page-block__content--unrestricted">
-          <NFTTabbedContent nft={nft} nftInfo={nftInfo} tab={tab} setTab={setTab} previewMedia={previewMedia} />
+        <div className={`page-block__content ${showMediaSections ? "page-block__content--unrestricted" : ""}`}>
+          <NFTTabbedContent nft={nft} nftInfo={nftInfo} showMediaSections={showMediaSections} tab={tab} setTab={setTab} previewMedia={previewMedia} />
         </div>
       </div>
     </>

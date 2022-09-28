@@ -170,7 +170,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
           <div className="nft-media-album">
             {
               backPage ?
-                <Link to={`${match.url.split("/media")[0]}?tab=Media`} className="details-page__back-link">
+                <Link to={match.url.split("/media")[0]} className="details-page__back-link">
                   <ImageIcon icon={BackIcon}/>
                   <div className="details-page__back-link__text ellipsis">
                     Back to {backPage.name}
@@ -179,16 +179,18 @@ const NFTActiveMedia = observer(({nftInfo}) => {
             }
             <div className="nft-media-album__content">
               <div className="nft-media-album__row nft-media-album__row--content">
-                <div className="nft-media-album__content__target-container">
-                  <NFTActiveMediaContent
-                    key={`nft-media-album-${current.sectionIndex}-${current.collectionIndex}-${mediaIndex}`}
-                    nftInfo={nftInfo}
-                    mediaItem={currentMediaItem}
-                    collectionIndex={current.collectionIndex}
-                    sectionIndex={current.sectionIndex}
-                    mediaIndex={mediaIndex}
-                    SetVideoElement={setVideoElement}
-                  />
+                <div className="nft-media-album__content__target-border">
+                  <div className="nft-media-album__content__target-container">
+                    <NFTActiveMediaContent
+                      key={`nft-media-album-${current.sectionIndex}-${current.collectionIndex}-${mediaIndex}`}
+                      nftInfo={nftInfo}
+                      mediaItem={currentMediaItem}
+                      collectionIndex={current.collectionIndex}
+                      sectionIndex={current.sectionIndex}
+                      mediaIndex={mediaIndex}
+                      SetVideoElement={setVideoElement}
+                    />
+                  </div>
                 </div>
                 <div className="nft-media-album__text--mobile nft-media__content__text">
                   <div className="nft-media__content__name">{currentMediaItem.name || ""}</div>

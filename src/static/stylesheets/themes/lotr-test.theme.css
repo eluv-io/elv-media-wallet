@@ -48,6 +48,8 @@
   --border-table-primary: 0;
   --border-table-secondary: 0;
   --border-modal-primary: 0;
+  --border-nft-media-album-content: 0;
+  --border-nft-media-album-list: 0;
 
   --border-width-feature-card: 1px;
   --border-width-featured-item: 0;
@@ -65,7 +67,7 @@
   --background-input: var(--color-bg-primary);
   --color-input-bg-solid: var(--color-bg-primary);
 
-  --background-button-secondary: #000000;
+  --background-button-secondary: #101010;
 
   --background-card: #1c1c1c;
   --background-feature-card: transparent;
@@ -93,6 +95,7 @@
   --color-nft-media-bg-secondary: #1c1c1c;
   --color-nft-media-bg-active: rgba(var(--yellow-2-rgb), 0.1);
   --border-nft-media-active: 3px solid var(--yellow-2);
+  --background-nft-media-album-content: linear-gradient(90deg, #6C5900 0%, #8B7100 50%, #977C00 100%);
 }
 
 /* Remove capitalization on names */

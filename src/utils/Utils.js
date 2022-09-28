@@ -132,6 +132,7 @@ export const NFTDisplayToken = nft => {
 const FormatAdditionalMedia = ({nft, name, metadata={}}) => {
   let additionalMedia, additionalMediaType, hasAdditionalMedia;
   let watchedMediaIds = [];
+
   if(metadata?.additional_media_type === "Sections") {
     additionalMediaType = "Sections";
     additionalMedia = { ...(metadata?.additional_media_sections || {}) };
@@ -142,15 +143,15 @@ const FormatAdditionalMedia = ({nft, name, metadata={}}) => {
   } else {
     additionalMediaType = "List";
     hasAdditionalMedia = metadata?.additional_media?.length > 0;
-    const display =  metadata.additional_media_display ||
-      (typeof metadata.additional_media_display === "undefined" && !metadata.hide_additional_media_player_controls) ? "Album" : "Media";
+
+    const display = metadata.additional_media_display || "Media";
     additionalMedia = {
       type: "List",
       featured_media: [],
+      isSingleAlbum: display === "Album",
       sections: [{
         id: "list",
         name: display === "Album" ? "Tracks" : "Media",
-        isSingleAlbum: display === "Album",
         collections: [{
           id: "list",
           name,
@@ -431,7 +432,7 @@ export const NFTMedia = ({nft, item, width}) => {
     embedUrl = new URL("https://embed.v3.contentfabric.io");
     embedUrl.searchParams.set("m", "");
     embedUrl.searchParams.set("vid", LinkTargetHash(item.video));
-  } else if(nft?.metadata?.embed_url) {
+  } else if(nft?.metadata?.embed_url && nft.metadata.playable) {
     embedUrl = new URL(nft.metadata.embed_url);
 
     if(nft.metadata.has_audio) {
@@ -528,7 +529,9 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
         mediaLink = selectedMedia.image;
       }
 
-      embedUrl.searchParams.set("murl", Utils.B64(mediaLink.toString()));
+      if(mediaLink) {
+        embedUrl.searchParams.set("murl", Utils.B64(mediaLink.toString()));
+      }
 
       break;
 

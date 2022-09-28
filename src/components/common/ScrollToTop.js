@@ -4,7 +4,7 @@ import { withRouter } from "react-router-dom";
 class ScrollToTop extends React.Component {
   async componentDidUpdate(prevProps) {
     if(this.props.location !== prevProps.location) {
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 50));
       const target = document.querySelector("#top-scroll-target");
 
       if(target) {

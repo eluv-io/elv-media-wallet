@@ -32,7 +32,7 @@ import {
 import Login, {Auth0Authentication} from "Components/login/index";
 import ScrollToTop from "Components/common/ScrollToTop";
 import { InitializeListener } from "Components/interface/Listener";
-import {Auth0Provider} from "@auth0/auth0-react";
+import {Auth0Provider, useAuth0} from "@auth0/auth0-react";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import {PageLoader} from "Components/common/Loaders";
 import Modal from "Components/common/Modal";
@@ -165,6 +165,10 @@ const Routes = observer(() => {
 const App = observer(() => {
   const history = useHistory();
   const [hasBackgroundImage, setHasBackgroundImage] = useState(false);
+
+  if(!rootStore.embedded) {
+    window.auth0 = useAuth0();
+  }
 
   useEffect(() => InitializeListener(history), []);
 
