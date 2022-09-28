@@ -35,8 +35,10 @@ const MarketplaceItemCard = ({
   });
 
   let description = item.description || item.nftTemplateMetadata.description;
+  let descriptionRichText = item.description_rich_text || (!item.description && item.nftTemplateMetadata.description_rich_text);
   if(info.unauthorized && !info.expired) {
     description = item.permission_description || description;
+    descriptionRichText = undefined;
   }
 
   const variant = item.nftTemplateMetadata.style;
@@ -103,6 +105,7 @@ const MarketplaceItemCard = ({
       searchName={item.nftTemplateMetadata.display_name}
       subtitle1={info.subtitle1}
       description={description}
+      descriptionRichText={descriptionRichText}
       price={priceText}
       sideText={sideText}
       status={status}

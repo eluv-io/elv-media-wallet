@@ -398,12 +398,16 @@ const NFTInfoSection = ({nftInfo, className=""}) => {
             </div> : null
         }
       </div>
-      <ResponsiveEllipsis
-        component="div"
-        className="details-page__nft-info__description"
-        text={nftInfo.item?.description || nftInfo.nft.metadata.description}
-        maxLine={50}
-      />
+      {
+        nftInfo.item?.description_rich_text || (!nftInfo.item?.description && nftInfo.nft.metadata.description_rich_text) ?
+          <RichText richText={nftInfo.item?.description_rich_text || nftInfo.nft.metadata.description_rich_text} className="markdown-document details-page__nft-info__description"/> :
+          <ResponsiveEllipsis
+            component="div"
+            className="details-page__nft-info__description"
+            text={nftInfo.item?.description || nftInfo.nft.metadata.description}
+            maxLine={50}
+          />
+      }
       {
         nftInfo.renderedPrice || nftInfo.status ?
           <div className="details-page__nft-info__status">
