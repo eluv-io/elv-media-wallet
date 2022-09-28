@@ -166,10 +166,6 @@ const App = observer(() => {
   const history = useHistory();
   const [hasBackgroundImage, setHasBackgroundImage] = useState(false);
 
-  if(window.sessionStorageAvailable) {
-    window.auth0 = useAuth0();
-  }
-
   useEffect(() => InitializeListener(history), []);
 
   useEffect(() => {
@@ -225,6 +221,8 @@ const App = observer(() => {
 
 const AuthWrapper = ({children}) => {
   if(window.sessionStorageAvailable) {
+    window.auth0 = useAuth0();
+    
     return (
       <Auth0Provider
         domain={EluvioConfiguration["auth0-domain"]}
