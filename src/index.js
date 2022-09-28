@@ -166,7 +166,7 @@ const App = observer(() => {
   const history = useHistory();
   const [hasBackgroundImage, setHasBackgroundImage] = useState(false);
 
-  if(!rootStore.embedded) {
+  if(window.sessionStorageAvailable) {
     window.auth0 = useAuth0();
   }
 
