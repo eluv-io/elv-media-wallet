@@ -47,6 +47,7 @@
   --border-button-danger: 0;
   --border-table-primary: 0;
   --border-table-secondary: 0;
+  --border-modal-primary: 0;
 
   --border-width-feature-card: 1px;
   --border-width-featured-item: 0;
@@ -87,6 +88,7 @@
 
   /* Media */
   --background-nft-media-featured: rgba(0, 0, 0, 0.8);
+  --background-nft-media-qr-modal: rgba(28, 28, 28, 0.5);
   --color-nft-media-bg-primary: #101010;
   --color-nft-media-bg-secondary: #1c1c1c;
   --color-nft-media-bg-active: rgba(var(--yellow-2-rgb), 0.1);

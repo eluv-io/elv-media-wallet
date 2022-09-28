@@ -534,7 +534,7 @@ export const QRCodeElement = ({content}) => {
 
           QRCode.toCanvas(
             element,
-            JSON.stringify(content),
+            typeof content === "object" ? JSON.stringify(content) : content,
             options,
             error => error && rootStore.Log(error, true)
           );

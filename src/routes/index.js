@@ -58,15 +58,17 @@ const UserRoutes = ({includeMarketplaceRoutes}) => {
 
     { name: "Activity", path: "activity", includeUserProfile: true, Component: UserActivity },
 
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "listings/:contractId/:tokenId/:mode?", noBlock: true, Component: MintedNFTDetails },
 
     { name: match => (GetMarketplace(match)?.storefront?.tabs?.my_items || "Items"), includeUserProfile: true, path: "items", Component: UserItems },
     { name: "Open Pack", path: "items/:contractId/:tokenId/open", Component: PackOpenStatus },
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/:mode?", noBlock: true, Component: MintedNFTDetails },
+
 
     { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/media", noBlock: true, Component: NFTMedia },
     { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/media/:sectionId/:mediaIndex", noBlock: true, Component: NFTMedia },
     { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/media/:sectionId/:collectionId/:mediaIndex", noBlock: true, Component: NFTMedia },
+
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "listings/:contractId/:tokenId/:mode?", noBlock: true, Component: MintedNFTDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/:mode?", noBlock: true, Component: MintedNFTDetails },
 
     { path: "/", includeUserProfile: true, redirect: "items" },
   ]

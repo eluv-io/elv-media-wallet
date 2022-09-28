@@ -5,14 +5,36 @@ import {Initialize} from "@eluvio/elv-embed/src/Import";
 import {Link, useRouteMatch} from "react-router-dom";
 import {AvailableMedia, MediaImageUrl, MediaLinkPath} from "Components/nft/media/Utils";
 import ImageIcon from "Components/common/ImageIcon";
-import {RichText} from "Components/common/UIComponents";
+import {QRCodeElement, RichText} from "Components/common/UIComponents";
 import AlbumView from "Components/nft/media/Album";
+import Modal from "Components/common/Modal";
 
 import BackIcon from "Assets/icons/arrow-left";
 import LeftArrow from "Assets/icons/left-arrow";
 import RightArrow from "Assets/icons/right-arrow";
 import MediaErrorIcon from "Assets/icons/media-error-icon.svg";
+import QRCodeIcon from "Assets/icons/QR Code Icon.svg";
+import ARPhoneIcon from "Assets/icons/AR Phone Icon.svg";
 
+
+const NFTActiveMediaQRCode = ({link, Close}) => {
+  return (
+    <Modal className="nft-media__qr-modal-container" closable Toggle={Close} >
+      <div className="nft-media__qr-modal">
+        <h1 className="nft-media__qr-modal__header">
+          View AR Experience on Mobile
+        </h1>
+        <div className="nft-media__qr-modal__content">
+          <QRCodeElement content={link} className="nft-media__qr-modal__qr-code" />
+          <ImageIcon icon={ARPhoneIcon} className="nft-media__qr-modal__icon" />
+          <div className="nft-media__qr-modal__text">
+            Point your phone's camera at this QR code to view on mobile.
+          </div>
+        </div>
+      </div>
+    </Modal>
+  );
+};
 
 const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) => {
   const [error, setError] = useState(false);
@@ -98,6 +120,7 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
 const NFTActiveMedia = observer(({nftInfo}) => {
   const match = useRouteMatch();
   const [videoElement, setVideoElement] = useState(undefined);
+  const [showQRModal, setShowQRModal] = useState(false);
 
   const mediaIndex = parseInt(match.params.mediaIndex);
 
@@ -191,6 +214,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
 
   return (
     <div className="page-block page-block--main-content">
+      { showQRModal ? <NFTActiveMediaQRCode link={currentMediaItem.mediaInfo.mediaLink} Close={() => setShowQRModal(false)} /> : null }
       <div className="page-block__content page-block__content--unrestricted">
         <div className="nft-media">
           {
@@ -218,6 +242,16 @@ const NFTActiveMedia = observer(({nftInfo}) => {
               <div className="nft-media__content__name">{currentMediaItem.name || ""}</div>
               <div className="nft-media__content__subtitle-1">{currentMediaItem.subtitle_1 || ""}</div>
               <div className="nft-media__content__subtitle-2">{currentMediaItem.subtitle_2 || ""}</div>
+              {
+                currentMediaItem.mediaInfo.mediaType === "html" ?
+                  <button onClick={() => setShowQRModal(!showQRModal)} className="nft-media__content__button nft-media__content__button--qr">
+                    <ImageIcon icon={QRCodeIcon} />
+                    <ImageIcon icon={ARPhoneIcon} />
+                    <div className="nft-media__content__button__text">
+                      View this AR experience on mobile
+                    </div>
+                  </button> : null
+              }
               { currentMediaItem.description ? <RichText richText={currentMediaItem.description} className="nft-media__content__description" /> : null }
               {
                 previous ?

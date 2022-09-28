@@ -230,6 +230,7 @@ html {
   --background-nft-media-featured: var(--color-bg-primary);
   --background-nft-media-primary: var(--color-bg-primary);
   --background-nft-media-secondary: var(--color-bg-primary);
+  --background-nft-media-qr-modal: var(--background-modal-primary);
   --color-nft-media-bg-primary: var(--color-bg-primary);
   --color-nft-media-bg-secondary: var(--color-bg-primary);
   --color-nft-media-bg-highlight: var(--color-bg-highlight);
