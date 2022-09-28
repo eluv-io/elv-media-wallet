@@ -433,6 +433,11 @@ em {
       max-width: $breakpoint;
       width: $breakpoint;
 
+      &--album {
+        max-width: $large-breakpoint;
+        width: $large-breakpoint;
+      }
+
       &--unrestricted {
         max-width: 90%;
         width: 90%;

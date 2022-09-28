@@ -90,6 +90,8 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
     return (
       <div className="nft-media__content__target nft-media__content__target--error">
         <ImageIcon icon={MediaErrorIcon} className="nft-media__content__target__error-icon" />
+        <ImageIcon icon={mediaItem.mediaInfo.imageUrl} className="nft-media__content__target__error-image" />
+        <div className="nft-media__content__target__error-cover" />
         <div className="nft-media__content__target__error-message">
           This media is no longer available
         </div>
@@ -164,7 +166,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
   if(albumView) {
     return (
       <div className="page-block page-block--main-content">
-        <div className="page-block__content">
+        <div className="page-block__content page-block__content--album">
           <div className="nft-media-album">
             {
               backPage ?

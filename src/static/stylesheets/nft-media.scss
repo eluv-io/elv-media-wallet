@@ -50,7 +50,9 @@
         flex-direction: column;
         height: 100%;
         width: 100%;
-        background: #a9a9a9;
+        position: relative;
+        overflow: hidden;
+        background: #000000;
 
         * {
           color: #fff;
@@ -61,6 +63,25 @@
         margin-bottom: 10px;
         height: 50px;
         width: 50px;
+        z-index: 1;
+      }
+
+      &__error-message {
+        z-index: 1;
+      }
+
+      &__error-cover,
+      &__error-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        object-fit: cover;
+      }
+
+      &__error-cover {
+        background: rgba(0,0,0,0.7);
       }
     }
 
@@ -297,6 +318,7 @@
 
   .nft-media__content__name {
     font-size: 20px;
+    max-width: unset;
   }
 
   .nft-media__content__description {
@@ -305,7 +327,10 @@
 
   .nft-media__content__target {
     height: 100%;
-    background: #000000;
+
+    &:not(&--error) {
+      background: #000;
+    }
   }
 
   &__row {
@@ -331,6 +356,7 @@
       padding-right: 20px;
       align-items: center;
       display: flex;
+      position: relative;
     }
 
     &__target-container,
@@ -340,7 +366,7 @@
     }
 
     &__target {
-      background: #000000;
+      background: #000;
       height: 100%;
       max-height: unset;
       min-height: unset;
