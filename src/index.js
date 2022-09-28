@@ -219,10 +219,14 @@ const App = observer(() => {
   );
 });
 
+const Auth0Initialization = ({children}) => {
+  window.auth0 = useAuth0();
+
+  return children;
+};
+
 const AuthWrapper = ({children}) => {
   if(window.sessionStorageAvailable) {
-    window.auth0 = useAuth0();
-    
     return (
       <Auth0Provider
         domain={EluvioConfiguration["auth0-domain"]}
@@ -232,7 +236,9 @@ const AuthWrapper = ({children}) => {
         cacheLocation="localstorage"
         darkMode={rootStore.darkMode}
       >
-        {children}
+        <Auth0Initialization>
+          {children}
+        </Auth0Initialization>
       </Auth0Provider>
     );
   }
