@@ -90,7 +90,22 @@ const PreviewPasswordPromptComponent = ({marketplaceId, digest, Confirm}) => {
 };
 
 const PreviewPasswordPrompt = async ({marketplaceId, passwordDigest}) => {
-  await Confirm({ModalComponent: ({Confirm}) => <PreviewPasswordPromptComponent marketplaceId={marketplaceId} digest={passwordDigest} Confirm={Confirm} />});
+  if(!window.passwordConfirmation) {
+    window.passwordConfirmation = await Confirm({
+      ModalComponent: ({Confirm}) =>
+        <PreviewPasswordPromptComponent
+          marketplaceId={marketplaceId}
+          digest={passwordDigest}
+          Confirm={async () => {
+            await Confirm();
+
+            window.passwordConfirmation = undefined;
+          }}
+        />
+    });
+  }
+
+  await window.passwordConfirmation;
 };
 
 export default PreviewPasswordPrompt;

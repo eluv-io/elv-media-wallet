@@ -1189,7 +1189,7 @@ class RootStore {
           window.auth0.logout({
             returnTo: returnUrl || this.ReloadURL()
           });
-        }, 1000);
+        }, 100);
 
         return;
       } catch(error) {
