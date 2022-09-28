@@ -92,6 +92,8 @@ const MediaCollection = observer(({nftInfo, sectionId, collection}) => {
   const collectionActive = match.params.sectionId === sectionId && match.params.collectionId === collection.id;
   const activeIndex = collectionActive ? parseInt(match.params.mediaIndex) : undefined;
 
+  const previousArrowClass = `swiper-arrow-${sectionId}-${collection.id}--previous`;
+  const nextArrowClass = `swiper-arrow-${sectionId}-${collection.id}--next`;
   return (
     <div className={`nft-media-browser__collection ${collectionActive ? "nft-media-browser__collection--active" : ""} ${collection.display === "Album" ? "nft-media-browser__collection--album" : ""}`}>
       <div className="nft-media-browser__collection__header">
@@ -100,15 +102,16 @@ const MediaCollection = observer(({nftInfo, sectionId, collection}) => {
         </div>
       </div>
       <div className="nft-media-browser__collection__content">
-        <button className="nft-media-browser__carousel__arrow nft-media-browser__carousel__arrow--previous">
+        <button className={`nft-media-browser__carousel__arrow nft-media-browser__carousel__arrow--previous ${previousArrowClass}`}>
           <ImageIcon icon={LeftArrow} />
         </button>
         <Swiper
+          threshold={5}
           className="nft-media-browser__carousel"
           keyboard
           navigation={{
-            nextEl: ".nft-media-browser__carousel__arrow--next",
-            prevEl: ".nft-media-browser__carousel__arrow--previous"
+            prevEl: "." + previousArrowClass,
+            nextEl: "." + nextArrowClass
           }}
           slidesPerView="auto"
           slidesPerGroup={3}
@@ -164,7 +167,7 @@ const MediaCollection = observer(({nftInfo, sectionId, collection}) => {
             );
           })}
         </Swiper>
-        <button className="nft-media-browser__carousel__arrow nft-media-browser__carousel__arrow--next">
+        <button className={`nft-media-browser__carousel__arrow nft-media-browser__carousel__arrow--next ${nextArrowClass}`}>
           <ImageIcon icon={RightArrow} />
         </button>
       </div>
