@@ -192,7 +192,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
                     />
                   </div>
                 </div>
-                <div className="nft-media-album__text--mobile nft-media__content__text">
+                <div className="nft-media-album__text-container nft-media-album__text-container--mobile nft-media__content__text">
                   <div className="nft-media__content__name">{currentMediaItem.name || ""}</div>
                   { currentMediaItem.description ? <RichText richText={currentMediaItem.description} className="nft-media__content__description" /> : null }
                 </div>
@@ -202,7 +202,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
                   showPlayerControls
                 />
               </div>
-              <div className="nft-media-album__text--desktop nft-media-album__row">
+              <div className={`nft-media-album__text-container nft-media-album__text-container--desktop ${currentMediaItem.description ? "nft-media-album__text-container--description" : ""}`}>
                 <div className="nft-media__content__text">
                   <div className="nft-media__content__name">{currentMediaItem.name || ""}</div>
                   { currentMediaItem.description ? <RichText richText={currentMediaItem.description} className="nft-media__content__description" /> : null }
