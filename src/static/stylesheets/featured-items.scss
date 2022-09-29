@@ -29,7 +29,7 @@
 
   &__title {
     font: var(--font-feature-card-title);
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 500;
     text-transform: uppercase;
   }
@@ -167,10 +167,10 @@
 
   @media screen and (max-width: $breakpoint) {
     grid-gap: 30px;
-    padding: 35px 45px;
+    padding: 30px 50px;
 
     &__title {
-      font-size: 28px;
+      font-size: 24px;
     }
 
     &__text {
@@ -178,13 +178,14 @@
     }
 
     &__description {
-      font-size: 18px;
+      font-size: 16px;
     }
   }
 
   @media screen and (max-width: $tablet-breakpoint) {
     grid-gap: 10px;
     min-height: 300px;
+    padding: 30px 50px 30px 20px;
 
     &__title {
       font-size: 24px;
