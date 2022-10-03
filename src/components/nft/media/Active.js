@@ -163,6 +163,15 @@ const NFTActiveMedia = observer(({nftInfo}) => {
   const albumView = current.display === "Album";
   const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
 
+  const textContent = (
+    <div className="nft-media-album__content__text">
+      <div className="nft-media-album__content__name">{currentMediaItem.name || ""}</div>
+      { currentMediaItem.description && currentMediaItem.subtitle_1 ? <div className="nft-media-album__content__subtitle-1">{ currentMediaItem.subtitle_1 }</div> : null }
+      { currentMediaItem.description && currentMediaItem.subtitle_2 ? <div className="nft-media-album__content__subtitle-2">{ currentMediaItem.subtitle_2 }</div> : null }
+      { currentMediaItem.description ? <RichText richText={currentMediaItem.description} className="nft-media-album__content__description" /> : null }
+    </div>
+  );
+
   if(albumView) {
     return (
       <div className="page-block page-block--main-content">
@@ -192,9 +201,8 @@ const NFTActiveMedia = observer(({nftInfo}) => {
                     />
                   </div>
                 </div>
-                <div className="nft-media-album__text-container nft-media-album__text-container--mobile nft-media__content__text">
-                  <div className="nft-media__content__name">{currentMediaItem.name || ""}</div>
-                  { currentMediaItem.description ? <RichText richText={currentMediaItem.description} className="nft-media__content__description" /> : null }
+                <div className={`nft-media-album__text-container nft-media-album__text-container--mobile nft-media-album__content__text ${currentMediaItem.description ? "nft-media-album__text-container--description" : ""}`}>
+                  { textContent }
                 </div>
                 <AlbumView
                   media={availableMediaList.filter(item => item.collectionId === match.params.collectionId)}
@@ -203,10 +211,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
                 />
               </div>
               <div className={`nft-media-album__text-container nft-media-album__text-container--desktop ${currentMediaItem.description ? "nft-media-album__text-container--description" : ""}`}>
-                <div className="nft-media__content__text">
-                  <div className="nft-media__content__name">{currentMediaItem.name || ""}</div>
-                  { currentMediaItem.description ? <RichText richText={currentMediaItem.description} className="nft-media__content__description" /> : null }
-                </div>
+                { textContent }
                 <div className="nft-media-album__row-placeholder" />
               </div>
             </div>

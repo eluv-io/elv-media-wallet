@@ -56,7 +56,7 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
             target={isExternal ? "_blank" : undefined}
             rel="noopener"
             useNavLink
-            onClick={() => Unlock(mediaItem.id)}
+            onClick={() => Unlock && Unlock(mediaItem.id)}
             className="action action-primary nft-media-browser__large-featured-item__button"
           >
             { itemDetails.button_text || "View"}
@@ -70,6 +70,7 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
     <Linkish
       to={isExternal ? undefined : MediaLinkPath({match, sectionId: "featured", mediaIndex})}
       href={isExternal ? mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.embedUrl : undefined}
+      onClick={() => Unlock && Unlock(mediaItem.id)}
       target={isExternal ? "_blank" : undefined}
       rel="noopener"
       useNavLink

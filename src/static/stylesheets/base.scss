@@ -439,8 +439,8 @@ em {
       }
 
       &--unrestricted {
-        max-width: 90%;
-        width: 90%;
+        max-width: calc(100vw - 100px);
+        width: calc(100vw - 100px);
       }
     }
   }
