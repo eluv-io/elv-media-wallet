@@ -6,9 +6,13 @@
   min-height: 100vh;
   position: relative;
 
+  * {
+    font: var(--font-nft-media-text);
+  }
+
   &__content {
     position: relative;
-    padding-top: 40px;
+    padding-top: 50px;
     height: 100%;
 
     &__target-container {
@@ -376,6 +380,7 @@
     }
 
     &__name {
+      font: var(--font-nft-media-header);
       font-size: 20px;
       font-weight: 600;
       max-width: unset;
@@ -572,6 +577,10 @@
 .nft-media-browser {
   --nft-media-carousel-height: 250px;
 
+  * {
+    font: var(--font-nft-media-text);
+  }
+
   &__list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -623,7 +632,7 @@
     padding: 50px 100px 50px 50px;
 
     * {
-      font-family: var(--font-nft-media-text);
+      font: var(--font-nft-media-text);
     }
 
     &__image-container {
@@ -769,7 +778,7 @@
     }
 
     &__header {
-      font: var(--font-nft-media-misc);
+      font: var(--font-nft-media-header);
       font-size: 16px;
       padding: 25px 70px 15px 48px;
       text-transform: uppercase;
@@ -780,6 +789,7 @@
 
       * {
         font: var(--font-nft-media-header);
+        font-weight: 600;
         font-size: 16px;
       }
     }
@@ -827,8 +837,9 @@
       align-items: center;
 
       * {
-        font: var(--font-nft-media-header);
-        font-size: 16px;
+        font: var(--font-nft-media-text);
+        font-size: 18px;
+        font-weight: 500;
       }
     }
 
@@ -933,11 +944,14 @@
 
     &__name {
       font: var(--font-nft-media-header);
-      font-size: 12px;
-      font-weight: 500;
       margin-top: 10px;
       display: flex;
       align-items: center;
+
+      &__text {
+        font-size: 14px;
+        font-weight: 500;
+      }
 
       svg {
         height: 20px;
@@ -1170,6 +1184,8 @@
 
     * {
       color: var(--controls-foreground-color);
+      font: var(--font-nft-media-misc);
+      font-size: 16px;
     }
 
     &__text,
