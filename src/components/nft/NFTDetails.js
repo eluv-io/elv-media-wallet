@@ -94,7 +94,9 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
     }
   }
 
+  const embedUrl = (nftInfo.mediaInfo?.embedUrl || nft.metadata.embed_url || "").toString();
   const cap = contractStats?.cap || nft.details.Cap;
+
   return (
     <ExpandableSection header="Details" icon={DetailsIcon}>
       { nft.metadata.rich_text ? <RichText richText={nft.metadata.rich_text} className="details-page__rich-text" /> : null }
@@ -106,9 +108,9 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
           : null
       }
       {
-        nft.metadata.embed_url ?
-          <CopyableField value={nft.metadata.embed_url}>
-            Media URL: <a href={nft.metadata.embed_url} target="_blank">{ nft.metadata.embed_url }</a>
+        embedUrl ?
+          <CopyableField value={embedUrl}>
+            Media URL: <a href={embedUrl} target="_blank">{ embedUrl }</a>
           </CopyableField>
           : null
       }
@@ -827,6 +829,8 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
   }
 
   if(!nftInfo) { return; }
+
+  window.nftInfo = nftInfo;
 
   // Misc
   if(listingStatus?.listing) {

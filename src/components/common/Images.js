@@ -38,14 +38,23 @@ export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVi
     return () => player?.Destroy();
   }, [targetElement]);
 
-  const isFrameContent = ["html", "ebook"].includes(media.mediaType);
+  const isFrameContent = ["html", "ebook", "gallery"].includes(media.mediaType);
   const isOwned = Utils.EqualAddress(nft?.details?.TokenOwner, rootStore.CurrentAddress());
 
+  const image = media?.imageUrl ?
+    <img
+      src={media.imageUrl.toString()}
+      className={`item-card__image ${className}`}
+      alt={nft?.metadata?.display_name}
+    /> :
+    <SVG
+      src={NFTPlaceholderIcon}
+      className={`item-card__image ${className}`}
+      alt={nft?.metadata?.display_name}
+    />;
+
   if(media?.embedUrl && showVideo && (!isFrameContent || isOwned)) {
-    const content =
-    ["html", "ebook"].includes(media.mediaType) ?
-      <iframe src={media.embedUrl} className="item-card__image-video-embed__frame"/> :
-      <div ref={element => setTargetElement(element)} className="item-card__image-video-embed__frame"/>;
+    const content = isFrameContent ? image : <div ref={element => setTargetElement(element)} className="item-card__image-video-embed__frame"/>;
 
     return (
       <>
@@ -61,7 +70,7 @@ export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVi
                 </a> : null
             }
             {
-              allowFullscreen && isFrameContent ?
+              allowFullscreen && !isFrameContent ?
                 <button className="item-card__image-container__action item-card__image-container__action--full-screen" onClick={() => setFullscreen(true)} title="Fullscreen">
                   <ImageIcon icon={FullscreenIcon} label="Enlarge Image"/>
                 </button> : null
@@ -77,18 +86,6 @@ export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVi
       </>
     );
   }
-
-  const image = media?.imageUrl ?
-    <img
-      src={media.imageUrl.toString()}
-      className={`item-card__image ${className}`}
-      alt={nft?.metadata?.display_name}
-    /> :
-    <SVG
-      src={NFTPlaceholderIcon}
-      className={`item-card__image ${className}`}
-      alt={nft?.metadata?.display_name}
-    />;
 
   return (
     <>
