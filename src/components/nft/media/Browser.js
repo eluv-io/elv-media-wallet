@@ -2,7 +2,7 @@ import React from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import {NavLink, useRouteMatch} from "react-router-dom";
-import {Linkish} from "Components/common/UIComponents";
+import {Linkish, RichText} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import {Swiper, SwiperSlide} from "swiper/react";
 import ItemIcon from "Assets/icons/image";
@@ -22,30 +22,34 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
   let imageUrl = MediaImageUrl({mediaItem, maxWidth: 600});
   const isExternal = ["HTML", "Link"].includes(mediaItem.media_type);
 
+  let itemDetails = mediaItem;
   if(locked) {
-    const { name, subtitle_1, subtitle_2, description, button_text, image, background_image } = mediaItem.locked_state;
+    itemDetails = mediaItem.locked_state;
+  }
+
+  if(mediaItem.style === "Large") {
     return (
-      <div className="nft-media-browser__locked-featured-item">
-        { background_image ?
+      <div className="nft-media-browser__large-featured-item">
+        { itemDetails.background_image ?
           <img
-            alt={`${name || mediaItem.name} background`}
-            src={background_image.url}
-            className="nft-media-browser__locked-featured-item__background-image"
+            alt={`${itemDetails.name || mediaItem.name} background`}
+            src={itemDetails.background_image.url}
+            className="nft-media-browser__large-featured-item__background-image"
           /> : null
         }
         {
           imageUrl ?
-            <div className="nft-media-browser__locked-featured-item__image-container">
-              <img src={image || imageUrl} alt={name || mediaItem.name} className="nft-media-browser__locked-featured-item__image" />
+            <div className="nft-media-browser__large-featured-item__image-container">
+              <img src={itemDetails.image || itemDetails.imageUrl} alt={name || mediaItem.name} className="nft-media-browser__large-featured-item__image" />
             </div> : null
         }
-        <div className="nft-media-browser__locked-featured-item__content">
-          <div className="nft-media-browser__locked-featured-item__subtitle-2">{subtitle_2 || ""}</div>
-          <div className="nft-media-browser__locked-featured-item__name">{name || mediaItem.name || ""}</div>
-          <div className="nft-media-browser__locked-featured-item__subtitle-1">{subtitle_1 || ""}</div>
-          <div className="nft-media-browser__locked-featured-item__description">{description}</div>
+        <div className="nft-media-browser__large-featured-item__content">
+          <div className="nft-media-browser__large-featured-item__subtitle-2">{itemDetails.subtitle_2 || ""}</div>
+          <div className="nft-media-browser__large-featured-item__name">{itemDetails.name || mediaItem.name || ""}</div>
+          <div className="nft-media-browser__large-featured-item__subtitle-1">{itemDetails.subtitle_1 || ""}</div>
+          <RichText richText={itemDetails.description} className="nft-media-browser__large-featured-item__description" />
         </div>
-        <div className="nft-media-browser__locked-featured-item__actions">
+        <div className="nft-media-browser__large-featured-item__actions">
           <Linkish
             to={isExternal ? undefined : MediaLinkPath({match, sectionId: "featured", mediaIndex})}
             href={isExternal ? mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.embedUrl : undefined}
@@ -53,9 +57,9 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
             rel="noopener"
             useNavLink
             onClick={() => Unlock(mediaItem.id)}
-            className="action action-primary nft-media-browser__locked-featured-item__button"
+            className="action action-primary nft-media-browser__large-featured-item__button"
           >
-            { button_text || "View"}
+            { itemDetails.button_text || "View"}
           </Linkish>
         </div>
       </div>
@@ -74,13 +78,13 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
       {
         imageUrl ?
           <div className="nft-media-browser__featured-item__image-container">
-            <img src={imageUrl} alt={mediaItem.name} className="nft-media-browser__featured-item__image" />
+            <img src={itemDetails.image || itemDetails.imageUrl} alt={itemDetails.name || mediaItem.name} className="nft-media-browser__featured-item__image" />
           </div> : null
       }
       <div className="nft-media-browser__featured-item__content">
-        <div className="nft-media-browser__featured-item__subtitle-2">{mediaItem.subtitle_2 || ""}</div>
-        <div className="nft-media-browser__featured-item__name">{mediaItem.name || ""}</div>
-        <div className="nft-media-browser__featured-item__subtitle-1">{mediaItem.subtitle_1 || ""}</div>
+        <div className="nft-media-browser__featured-item__subtitle-2">{itemDetails.subtitle_1 || mediaItem.subtitle_2 || ""}</div>
+        <div className="nft-media-browser__featured-item__name">{itemDetails.name || mediaItem.name || ""}</div>
+        <div className="nft-media-browser__featured-item__subtitle-1">{itemDetails.subtitle_2 || mediaItem.subtitle_1 || ""}</div>
       </div>
     </Linkish>
   );
