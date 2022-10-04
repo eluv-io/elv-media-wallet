@@ -110,6 +110,16 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
         />
       );
 
+    case "ebook":
+      return (
+        <iframe
+          src={mediaItem.mediaInfo.embedUrl}
+          allowFullScreen
+          allow="accelerometer;autoplay;clipboard-write;encrypted-media;fullscreen;gyroscope;picture-in-picture"
+          className="nft-media__content__target nft-media__content__target--frame"
+        />
+      );
+
     case "image":
       return <img alt={mediaItem.mediaInfo.name} src={mediaItem.mediaInfo.imageUrl} className="nft-media__content__target" />;
 
