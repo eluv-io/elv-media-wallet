@@ -573,7 +573,8 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
       const key = rootStore.MediaViewKey({
         contractAddress: nft.details.ContractAddr,
         tokenId: nft.details.TokenIdStr,
-        mediaId: selectedMedia.id
+        mediaId: selectedMedia.id,
+        preview: !nft.details.TokenIdStr
       });
 
       embedUrl.searchParams.set("vrk", Utils.B64(`${rootStore.appId}:${key}`));

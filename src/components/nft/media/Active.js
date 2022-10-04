@@ -46,7 +46,8 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
     if(mediaItem.mediaInfo?.recordView) {
       rootStore.SetMediaViewed({
         nft: nftInfo.nft,
-        mediaId: mediaItem.id
+        mediaId: mediaItem.id,
+        preview: !nftInfo.nft.details.TokenIdStr
       });
     }
 
@@ -157,7 +158,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
 
   let currentMediaItem = current.mediaItem;
   const locked = currentMediaItem.locked && (currentMediaItem.locked_state.required_media || []).find(requiredMediaId =>
-    !rootStore.MediaViewed({nft: nftInfo.nft, mediaId: requiredMediaId})
+    !rootStore.MediaViewed({nft: nftInfo.nft, mediaId: requiredMediaId, preview: !nftInfo.nft.details.TokenIdStr})
   );
 
   if(locked) {

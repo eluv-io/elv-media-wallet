@@ -1107,31 +1107,29 @@ class RootStore {
     });
   });
 
-  MediaViewKey({contractAddress, tokenId, mediaId}) {
+  MediaViewKey({contractAddress, mediaId, preview}) {
     contractAddress = Utils.FormatAddress(contractAddress);
-    return `nft-media-viewed-${contractAddress}-${tokenId || "preview"}-${mediaId}`;
+    return `nft-media-viewed-${contractAddress}-${mediaId}${preview ? "-preview" : ""}`;
   }
 
-  MediaViewed({nft, contractAddress, tokenId, mediaId}) {
+  MediaViewed({nft, contractAddress, mediaId, preview}) {
     if(nft) {
       contractAddress = nft.details.ContractAddr || contractAddress;
-      tokenId = nft.details.TokenIdStr || tokenId;
     }
 
-    return this.viewedMedia[this.MediaViewKey({contractAddress, tokenId, mediaId})];
+    return this.viewedMedia[this.MediaViewKey({contractAddress, mediaId, preview})];
   }
 
-  CheckViewedMedia = flow(function * ({nft, contractAddress, tokenId, mediaIds}) {
+  CheckViewedMedia = flow(function * ({nft, contractAddress, mediaIds, preview}) {
     if(nft) {
       contractAddress = nft.details.ContractAddr || contractAddress;
-      tokenId = nft.details.TokenIdStr || tokenId;
     }
 
     let viewedMedia = { ...this.viewedMedia };
 
     yield Promise.all(
       mediaIds.map(async mediaId => {
-        const key = this.MediaViewKey({contractAddress, tokenId, mediaId});
+        const key = this.MediaViewKey({contractAddress, mediaId, preview});
         if(this.viewedMedia[key]) { return; }
 
         const viewed = await rootStore.walletClient.ProfileMetadata({
@@ -1150,14 +1148,13 @@ class RootStore {
     this.viewedMedia = viewedMedia;
   });
 
-  SetMediaViewed = flow(function * ({nft, contractAddress, tokenId, mediaId}) {
+  SetMediaViewed = flow(function * ({nft, contractAddress, mediaId, preview}) {
     if(nft) {
       contractAddress = nft.details.ContractAddr || contractAddress;
-      tokenId = nft.details.TokenIdStr || tokenId;
     }
 
-    const key = this.MediaViewKey({contractAddress, tokenId, mediaId});
-    if(!this.viewedMedia[key] && tokenId) {
+    const key = this.MediaViewKey({contractAddress, mediaId, preview});
+    if(!this.viewedMedia[key] && !preview) {
       yield rootStore.walletClient.SetProfileMetadata({
         type: "app",
         mode: "private",
@@ -1168,6 +1165,17 @@ class RootStore {
     }
 
     this.viewedMedia[key] = true;
+  });
+
+  RemoveMediaViewed = flow(function * (key) {
+    yield rootStore.walletClient.RemoveProfileMetadata({
+      type: "app",
+      mode: "private",
+      appId: rootStore.appId,
+      key
+    });
+
+    delete this.viewedMedia[key];
   });
 
   SignOut(returnUrl) {

@@ -22,9 +22,20 @@ export const NFTMediaContainer = observer(({nftInfo, nft, item, browserOnly}) =>
   useEffect(() => {
     rootStore.CheckViewedMedia({
       nft: nftInfo.nft,
-      mediaIds: nftInfo.watchedMediaIds
+      mediaIds: nftInfo.watchedMediaIds,
+      preview: !nftInfo.nft.details.TokenIdStr
     })
       .finally(() => setLoaded(true));
+
+    const mediaViewedInterval = setInterval(() => {
+      rootStore.CheckViewedMedia({
+        nft: nftInfo.nft,
+        mediaIds: nftInfo.watchedMediaIds,
+        preview: !nftInfo.nft.details.TokenIdStr
+      });
+    }, 60000);
+
+    return () => clearInterval(mediaViewedInterval);
   }, []);
 
   if(!loaded) { return null; }

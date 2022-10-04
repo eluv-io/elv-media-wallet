@@ -133,7 +133,7 @@ export const MediaCollection = observer(({nftInfo, sectionId, collection, single
         >
           { collection.media.map((mediaItem, mediaIndex) => {
             const locked = mediaItem.locked && (mediaItem.locked_state.required_media || []).find(requiredMediaId =>
-              !rootStore.MediaViewed({nft: nftInfo.nft, mediaId: requiredMediaId})
+              !rootStore.MediaViewed({nft: nftInfo.nft, mediaId: requiredMediaId, preview: !nftInfo.nft.details.TokenIdStr})
             );
 
             if(locked) {
@@ -208,13 +208,14 @@ const NFTMediaBrowser = observer(({nftInfo}) => {
   }
 
   const lockedFeaturedMedia = (nftInfo.additionalMedia.featured_media || [])
-    .filter(mediaItem => mediaItem.required && !rootStore.MediaViewed({nft: nftInfo.nft, mediaId: mediaItem.id}));
+    .filter(mediaItem => mediaItem.required && !rootStore.MediaViewed({nft: nftInfo.nft, mediaId: mediaItem.id, preview: !nftInfo.nft.details.TokenIdStr}));
   const unlockedFeaturedMedia = (nftInfo.additionalMedia.featured_media || [])
-    .filter(mediaItem => !mediaItem.required || rootStore.MediaViewed({nft: nftInfo.nft, mediaId: mediaItem.id}));
+    .filter(mediaItem => !mediaItem.required || rootStore.MediaViewed({nft: nftInfo.nft, mediaId: mediaItem.id, preview: !nftInfo.nft.details.TokenIdStr}));
 
   const Unlock = mediaId => rootStore.SetMediaViewed({
     nft: nftInfo.nft,
-    mediaId
+    mediaId,
+    preview: !nftInfo.nft.details.TokenIdStr
   });
 
   return (
