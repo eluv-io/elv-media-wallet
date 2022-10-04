@@ -37,7 +37,7 @@ export const NFTMediaContainer = observer(({nftInfo, nft, item, browserOnly}) =>
     <div className="nft-media-page" id="top-scroll-target">
       <NFTActiveMedia nftInfo={nftInfo} key={`nft-media-${match.params.sectionIndex}-${match.params.collectionIndex}`} />
       {
-        nftInfo.additionalMedia.isSingleAlbum ? null :
+        nftInfo.additionalMedia.isSingleList || nftInfo.additionalMedia.isSingleAlbum ? null :
           <div className="page-block page-block--lower-content page-block--media-browser">
             <div className="page-block__content page-block__content--unrestricted">
               <NFTMediaBrowser nftInfo={nftInfo} />

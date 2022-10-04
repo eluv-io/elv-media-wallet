@@ -15,7 +15,6 @@ import RightArrow from "Assets/icons/right-arrow";
 import UnlockedIcon from "Assets/icons/unlock icon";
 import LeftArrow from "Assets/icons/left-arrow";
 
-
 const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
   const match = useRouteMatch();
 
@@ -91,10 +90,10 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
   );
 };
 
-const MediaCollection = observer(({nftInfo, sectionId, collection}) => {
+export const MediaCollection = observer(({nftInfo, sectionId, collection, singleCollection}) => {
   const match = useRouteMatch();
 
-  const collectionActive = match.params.sectionId === sectionId && match.params.collectionId === collection.id;
+  const collectionActive = singleCollection || (match.params.sectionId === sectionId && match.params.collectionId === collection.id);
   const activeIndex = collectionActive ? parseInt(match.params.mediaIndex) : undefined;
 
   const previousArrowClass = `swiper-arrow-${sectionId}-${collection.id}--previous`;

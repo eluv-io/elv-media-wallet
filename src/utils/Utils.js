@@ -149,6 +149,7 @@ const FormatAdditionalMedia = ({nft, name, metadata={}}) => {
       type: "List",
       featured_media: [],
       isSingleAlbum: display === "Album",
+      isSingleList: display !== "Album",
       sections: [{
         id: "list",
         name: display === "Album" ? "Tracks" : "Media",

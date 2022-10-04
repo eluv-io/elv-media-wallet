@@ -15,7 +15,7 @@ import RightArrow from "Assets/icons/right-arrow";
 import MediaErrorIcon from "Assets/icons/media-error-icon.svg";
 import QRCodeIcon from "Assets/icons/QR Code Icon.svg";
 import ARPhoneIcon from "Assets/icons/AR Phone Icon.svg";
-
+import {MediaCollection} from "Components/nft/media/Browser";
 
 const NFTActiveMediaQRCode = ({link, Close}) => {
   return (
@@ -224,8 +224,8 @@ const NFTActiveMedia = observer(({nftInfo}) => {
   return (
     <div className="page-block page-block--main-content">
       { showQRModal ? <NFTActiveMediaQRCode link={currentMediaItem.mediaInfo.mediaLink} Close={() => setShowQRModal(false)} /> : null }
-      <div className="page-block__content page-block__content--unrestricted">
-        <div className="nft-media">
+      <div className={`page-block__content ${nftInfo.additionalMedia.isSingleList ? "" : "page-block__content--unrestricted"}`}>
+        <div className={`nft-media ${nftInfo.additionalMedia.isSingleList ? "nft-media--single-list" : ""}`}>
           {
             backPage ?
               <Link to={`${match.url.split("/media")[0]}?tab=Media`} className="details-page__back-link">
@@ -289,6 +289,18 @@ const NFTActiveMedia = observer(({nftInfo}) => {
             </div>
           </div>
         </div>
+        {
+          nftInfo.additionalMedia.isSingleList ?
+            <div className="nft-media-browser nft-media-browser--single-list">
+              <MediaCollection
+                collection={nftInfo.additionalMedia.sections[0].collections[0]}
+                nftInfo={nftInfo}
+                sectionId="list"
+                singleCollection
+              />
+            </div> :
+            null
+        }
       </div>
     </div>
   );
