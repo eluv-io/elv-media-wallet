@@ -228,6 +228,7 @@ html {
   --font-nft-media-misc: normal normal normal 16px var(--font-family-tertiary);
 
   --background-nft-media-featured: var(--color-bg-primary);
+  --background-nft-media-featured-button: var(--background-button-primary);
   --background-nft-media-primary: var(--color-bg-primary);
   --background-nft-media-secondary: var(--color-bg-primary);
   --background-nft-media-qr-modal: var(--background-modal-primary);
@@ -237,9 +238,11 @@ html {
   --color-nft-media-bg-highlight: var(--color-bg-highlight);
   --color-nft-media-bg-active: var(--color-bg-secondary);
   --color-nft-media-highlight: var(--color-text-highlight);
+  --color-nft-media-featured-button-text: var(--color-button-primary-text);
   --color-nft-media-text-primary: var(--color-text-primary);
   --color-nft-media-text-secondary: var(--color-text-secondary);
   --color-nft-media-text-highlight: var(--color-text-highlight);
+  --border-nft-media-featured-button: var(--border-button-primary);
   --border-nft-media-primary: var(--border);
   --border-nft-media-secondary: var(--border-faint);
   --border-nft-media-highlight: var(--border-highlight);
@@ -248,6 +251,7 @@ html {
   --border-nft-media-album-list: var(--border);
   --border-radius-nft-media: var(--border-radius);
   --border-radius-nft-media-featured: 25px;
+  --border-radius-nft-media-featured-button: var(--border-radius-button-primary);
   --border-radius-nft-media-album-content: 10px;
   --border-width-nft-media-album-content: 30px;
   --box-shadow-nft-media-album-content: 0px 0 8px rgba(0, 0, 0, 0.1);

@@ -96,6 +96,10 @@
   --color-nft-media-bg-active: rgba(var(--yellow-2-rgb), 0.1);
   --border-nft-media-active: 3px solid var(--yellow-2);
   --background-nft-media-album-content: linear-gradient(90deg, #6C5900 0%, #8B7100 50%, #977C00 100%);
+
+  --background-nft-media-featured-button: #000;
+  --color-nft-media-featured-button-text: var(--yellow-1);
+  --border-nft-media-featured-button: 1px solid var(--yellow-1);
 }
 
 /* Remove capitalization on names */
