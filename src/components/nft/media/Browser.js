@@ -221,17 +221,12 @@ const NFTMediaBrowser = observer(({nftInfo}) => {
   return (
     <div className="nft-media-browser nft-media-browser--sections">
       {
-        lockedFeaturedMedia.length > 0 ?
-          <div className="nft-media-browser__featured nft-media-browser__featured--locked">
+        (nftInfo.additionalMedia.featured_media || []).length > 0 ?
+          <div className="nft-media-browser__featured">
             {
               lockedFeaturedMedia
                 .map(mediaItem => <FeaturedMediaItem key={`featured-${mediaItem.id}`} mediaItem={mediaItem} mediaIndex={mediaItem.mediaIndex} locked Unlock={Unlock} />)
             }
-          </div> : null
-      }
-      {
-        unlockedFeaturedMedia.length > 0 ?
-          <div className="nft-media-browser__featured">
             {
               unlockedFeaturedMedia
                 .map(mediaItem => <FeaturedMediaItem key={`featured-${mediaItem.id}`} mediaItem={mediaItem} mediaIndex={mediaItem.mediaIndex} />)
