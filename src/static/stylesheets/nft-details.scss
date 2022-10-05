@@ -296,6 +296,10 @@
 
   &__detail-field {
     margin-top: 5px;
+
+    a {
+      color: var(--color-text-highlight);
+    }
   }
 
   .expandable-section {

@@ -188,6 +188,20 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
       <div>
         { nft.metadata.copyright }
       </div>
+      {
+        nft.metadata.terms_document?.terms_document ?
+          <div className="details-page__detail-field">
+            <a
+              href={nft.metadata.terms_document.terms_document.url}
+              target="_blank"
+              rel="noopener"
+              className="details-page__terms-link"
+            >
+              {nft.metadata.terms_document.link_text}
+            </a>
+          </div>: null
+      }
+      <br />
       <div>
         { mintDate ? `Minted on the Eluvio Content Fabric on ${mintDate}` : "" }
       </div>

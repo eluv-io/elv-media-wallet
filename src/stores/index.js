@@ -274,6 +274,7 @@ class RootStore {
 
       const marketplace = decodeURIComponent(searchParams.get("mid")) || decodeURIComponent(searchParams.get("marketplace")) || this.GetSessionStorage("marketplace") || "";
 
+
       if(marketplace) {
         this.SetMarketplace({
           ...(this.ParseMarketplaceParameter(marketplace)),
@@ -467,7 +468,8 @@ class RootStore {
           "branding",
           "login_customization",
           "tenant_id",
-          "terms"
+          "terms",
+          "terms_document"
         ],
         produceLinkUrls: true
       })
@@ -480,7 +482,8 @@ class RootStore {
       marketplaceId,
       marketplaceHash,
       tenant_id: metadata.tenant_id,
-      terms: metadata.terms
+      terms: metadata.terms,
+      terms_document: metadata.terms_document
     };
 
     if(metadata?.branding?.color_scheme === "Custom") {
@@ -1653,6 +1656,8 @@ class RootStore {
   }
 
   ParseMarketplaceParameter(marketplace) {
+    marketplace = marketplace?.replace(/\/+$/, "");
+
     let tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash;
     if(marketplace && marketplace.includes("/")) {
       tenantSlug = marketplace.split("/")[0];

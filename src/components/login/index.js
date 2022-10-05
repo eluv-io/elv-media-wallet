@@ -98,6 +98,20 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
     <div className="login-page__text-section">
       { customizationOptions.terms ? <RichText richText={customizationOptions.terms} className="login-page__terms" /> : null }
 
+      {
+        customizationOptions.terms_document?.terms_document ?
+          <div className="login-page__terms login-page__terms-link-container">
+            <a
+              href={customizationOptions.terms_document.terms_document.url}
+              target="_blank"
+              rel="noopener"
+              className="login-page__terms-link"
+            >
+              {customizationOptions.terms_document.link_text}
+            </a>
+          </div>: null
+      }
+
       <div className="login-page__terms login-page__eluvio-terms">
         By creating an account or signing in, I agree to the <a href="https://live.eluv.io/privacy" target="_blank">Eluvio Privacy Policy</a> and the <a href="https://live.eluv.io/terms" target="_blank">Eluvio Terms and Conditions</a>.
       </div>
