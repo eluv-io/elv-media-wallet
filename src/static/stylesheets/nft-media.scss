@@ -220,6 +220,10 @@
       max-width: 800px;
       width: 100%;
 
+      * {
+        text-align: center;
+      }
+
       a {
         color: var(--color-nft-media-text-highlight);
       }
