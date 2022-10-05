@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import {NavLink, useRouteMatch} from "react-router-dom";
@@ -76,12 +76,27 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
 
 export const MediaCollection = observer(({nftInfo, sectionId, collection, singleCollection}) => {
   const match = useRouteMatch();
+  const [swiper, setSwiper] = useState();
 
   const collectionActive = singleCollection || (match.params.sectionId === sectionId && match.params.collectionId === collection.id);
   const activeIndex = collectionActive ? parseInt(match.params.mediaIndex) : undefined;
 
   const previousArrowClass = `swiper-arrow-${sectionId}-${collection.id}--previous`;
   const nextArrowClass = `swiper-arrow-${sectionId}-${collection.id}--next`;
+
+  useEffect(() => {
+    // Slide to active index if necessary
+    if(!swiper || typeof activeIndex === "undefined") { return; }
+
+    const currentSlideDimensions = swiper.slides[activeIndex].getBoundingClientRect();
+    const swiperDimensions = swiper.el.getBoundingClientRect();
+    const slideX = currentSlideDimensions.x - swiperDimensions.x;
+
+    if(slideX < 0 || (slideX + currentSlideDimensions.width > swiperDimensions.width)) {
+      swiper.slideTo(activeIndex);
+    }
+  }, [swiper, activeIndex]);
+
   return (
     <div className={`nft-media-browser__collection ${collectionActive ? "nft-media-browser__collection--active" : ""} ${collection.display === "Album" ? "nft-media-browser__collection--album" : ""}`}>
       <div className="nft-media-browser__collection__header">
@@ -114,6 +129,7 @@ export const MediaCollection = observer(({nftInfo, sectionId, collection, single
           updateOnWindowResize
           spaceBetween={10}
           initialSlide={activeIndex > 2 ? activeIndex - 1 : 0}
+          onSwiper={setSwiper}
         >
           { collection.media.map((mediaItem, mediaIndex) => {
             const locked = mediaItem.locked && (mediaItem.locked_state.required_media || []).find(requiredMediaId =>
