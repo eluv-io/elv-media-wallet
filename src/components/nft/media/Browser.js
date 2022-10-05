@@ -57,7 +57,7 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
         <div className="nft-media-browser__featured-item__subtitle-2">{itemDetails.subtitle_2 || ""}</div>
         <div className="nft-media-browser__featured-item__name">{itemDetails.name || mediaItem.name || ""}</div>
         <div className="nft-media-browser__featured-item__subtitle-1">{itemDetails.subtitle_1 || ""}</div>
-        <RichText richText={itemDetails.description} className="nft-media-browser__featured-item__description"/>
+        <RichText richText={itemDetails.description} className="markdown-document nft-media-browser__featured-item__description"/>
       </div>
       {
         itemDetails.button_text ?
