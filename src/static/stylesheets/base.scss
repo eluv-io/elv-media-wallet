@@ -136,14 +136,6 @@ header,
     }
   }
 
-  &--subheader {
-    .page-block__content {
-      //padding-bottom: 10px;
-      //padding-top: 10px;
-      //max-width: unset;
-    }
-  }
-
   &--user-profile {
     background: var(--color-user-profile-bg-primary);
   }
@@ -180,14 +172,6 @@ header,
   @media screen and (max-width: $breakpoint) {
     &__content {
       padding-right: 40px;
-    }
-  }
-}
-
-.page-container {
-  .page-block {
-    &:last-child {
-      padding-bottom: 200px;
     }
   }
 }
@@ -325,6 +309,12 @@ em {
 
 .page-container {
   height: 100%;
+
+  .page-block {
+    &:last-child {
+      padding-bottom: 200px;
+    }
+  }
 
   .page-loader {
     min-height: 60vh;

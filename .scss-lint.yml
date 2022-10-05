@@ -4,7 +4,6 @@ files:
     - "src/static/stylesheets/loaders.scss"
     - "src/static/stylesheets/reset.scss"
     - "src/static/stylesheets/variables.scss"
-    - "src/static/stylesheets/themes"
 rules:
   class-name-format:
   - 2
@@ -13,8 +12,7 @@ rules:
   - 0
   nesting-depth:
     - 1
-    -
-      max-depth: 5
+    - max-depth: 5
   quotes:
   - 1
   - style: double

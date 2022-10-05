@@ -26,66 +26,50 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
     itemDetails = mediaItem.locked_state;
   }
 
-  if(mediaItem.style === "Large") {
-    return (
-      <div className="nft-media-browser__large-featured-item">
-        { itemDetails.background_image ?
-          <img
-            alt={`${itemDetails.name || mediaItem.name} background`}
-            src={itemDetails.background_image.url}
-            className="nft-media-browser__large-featured-item__background-image"
-          /> : null
-        }
-        {
-          imageUrl ?
-            <div className="nft-media-browser__large-featured-item__image-container">
-              <img src={itemDetails.image || itemDetails.imageUrl} alt={name || mediaItem.name} className="nft-media-browser__large-featured-item__image" />
-            </div> : null
-        }
-        <div className="nft-media-browser__large-featured-item__content">
-          <div className="nft-media-browser__large-featured-item__subtitle-2">{itemDetails.subtitle_2 || ""}</div>
-          <div className="nft-media-browser__large-featured-item__name">{itemDetails.name || mediaItem.name || ""}</div>
-          <div className="nft-media-browser__large-featured-item__subtitle-1">{itemDetails.subtitle_1 || ""}</div>
-          <RichText richText={itemDetails.description} className="nft-media-browser__large-featured-item__description" />
-        </div>
-        <div className="nft-media-browser__large-featured-item__actions">
-          <Linkish
-            to={isExternal ? undefined : MediaLinkPath({match, sectionId: "featured", mediaIndex})}
-            href={isExternal ? mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.embedUrl : undefined}
-            target={isExternal ? "_blank" : undefined}
-            rel="noopener"
-            useNavLink
-            onClick={() => Unlock && Unlock(mediaItem.id)}
-            className="action action-primary nft-media-browser__large-featured-item__button"
-          >
-            { itemDetails.button_text || "View"}
-          </Linkish>
-        </div>
-      </div>
-    );
-  }
+  const linkParams = {
+    to: isExternal ? undefined : MediaLinkPath({match, sectionId: "featured", mediaIndex}),
+    href: isExternal ? mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.embedUrl : undefined,
+    onClick: () => Unlock && Unlock(mediaItem.id),
+    target: isExternal ? "_blank" : undefined,
+    rel: "noopener",
+    useNavLink: true
+  };
 
   return (
     <Linkish
-      to={isExternal ? undefined : MediaLinkPath({match, sectionId: "featured", mediaIndex})}
-      href={isExternal ? mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.embedUrl : undefined}
-      onClick={() => Unlock && Unlock(mediaItem.id)}
-      target={isExternal ? "_blank" : undefined}
-      rel="noopener"
-      useNavLink
+      {...(itemDetails.button_text ? {} : linkParams)}
       className="nft-media-browser__featured-item"
     >
+      {itemDetails.background_image ?
+        <img
+          alt={`${itemDetails.name || mediaItem.name} background`}
+          src={itemDetails.background_image.url}
+          className="nft-media-browser__featured-item__background-image"
+        /> : null
+      }
       {
         imageUrl ?
           <div className="nft-media-browser__featured-item__image-container">
-            <img src={itemDetails.image || itemDetails.imageUrl} alt={itemDetails.name || mediaItem.name} className="nft-media-browser__featured-item__image" />
+            <img src={imageUrl} alt={name || mediaItem.name} className="nft-media-browser__featured-item__image"/>
           </div> : null
       }
       <div className="nft-media-browser__featured-item__content">
-        <div className="nft-media-browser__featured-item__subtitle-2">{itemDetails.subtitle_1 || mediaItem.subtitle_2 || ""}</div>
+        <div className="nft-media-browser__featured-item__subtitle-2">{itemDetails.subtitle_2 || ""}</div>
         <div className="nft-media-browser__featured-item__name">{itemDetails.name || mediaItem.name || ""}</div>
-        <div className="nft-media-browser__featured-item__subtitle-1">{itemDetails.subtitle_2 || mediaItem.subtitle_1 || ""}</div>
+        <div className="nft-media-browser__featured-item__subtitle-1">{itemDetails.subtitle_1 || ""}</div>
+        <RichText richText={itemDetails.description} className="nft-media-browser__featured-item__description"/>
       </div>
+      {
+        itemDetails.button_text ?
+          <div className="nft-media-browser__featured-item__actions">
+            <Linkish
+              {...linkParams}
+              className="action action-primary nft-media-browser__featured-item__button"
+            >
+              {itemDetails.button_text}
+            </Linkish>
+          </div> : null
+      }
     </Linkish>
   );
 };

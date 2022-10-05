@@ -1,6 +1,7 @@
+$max-height-icon: 80vh;
+
 .featured-item {
   @include page-fade-in;
-  --max-height-icon: 80vh;
 
   align-items: center;
   background: var(--border-background-featured-item);
@@ -123,8 +124,8 @@
     background: var(--border-background-feature-card);
     border-radius: var(--border-radius-feature-card);
     box-shadow: var(--box-shadow-feature-card);
-    max-height: var(--max-height-icon);
-    max-width: var(--max-height-icon);
+    max-height: $max-height-icon;
+    max-width: $max-height-icon;
     padding: var(--border-width-feature-card);
     position: relative;
   }
@@ -132,8 +133,8 @@
   &__icon {
     background: var(--background-feature-card);
     border-radius: var(--border-radius-feature-card);
-    max-height: var(--max-height-icon);
-    max-width: var(--max-height-icon);
+    max-height: $max-height-icon;
+    max-width: $max-height-icon;
     padding: 32px;
 
     div {
@@ -143,8 +144,8 @@
     img {
       background: $black;
       border-radius: calc(var(--border-radius-feature-card) / 2);
-      max-height: var(--max-height-icon);
-      max-width: var(--max-height-icon);
+      max-height: $max-height-icon;
+      max-width: $max-height-icon;
     }
   }
 
@@ -161,7 +162,7 @@
   }
 
   .item-card__image-container {
-    background: #000;
+    background: $black;
     border-radius: var(--border-radius-feature-card);
   }
 

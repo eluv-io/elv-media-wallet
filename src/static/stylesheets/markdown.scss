@@ -71,7 +71,7 @@
       counter-increment: item;
       margin-bottom: 5px;
 
-      &:before {
+      &::before {
         content: counter(item);
         display: inline-block;
         margin-right: 10px;
