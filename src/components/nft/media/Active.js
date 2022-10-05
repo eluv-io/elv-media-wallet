@@ -58,9 +58,11 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
         client: rootStore.client,
         target: targetRef.current,
         url: mediaItem.mediaInfo.embedUrl,
-        errorCallback: error => {
+        errorCallback: (error, player) => {
           setError(error);
           rootStore.Log(error, true);
+
+          player?.Destroy();
         },
         playerOptions: {
           posterUrl: mediaItem.mediaInfo.imageUrl,
@@ -71,9 +73,11 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
 
             resolve(player);
           },
-          errorCallback: error => {
+          errorCallback: (error, player) => {
             setError(error);
             rootStore.Log(error, true);
+
+            player?.Destroy();
           }
         }
       })

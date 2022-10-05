@@ -88,6 +88,10 @@
         position: relative;
         width: 100%;
 
+        .-elv-player-target {
+          display: none;
+        }
+
         * {
           color: $white;
         }
