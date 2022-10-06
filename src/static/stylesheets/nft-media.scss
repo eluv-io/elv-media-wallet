@@ -56,18 +56,22 @@
       position: relative;
       width: 100%;
 
+      .elv-gallery,
       .-elv-player-target,
       .-elv-embed {
-        height: max-content !important;
-        max-height: max-content !important;
-        min-height: calc((100vw - 65px) * 9 / 16);
+        height: var(--elv-gallery-max-height);
+        width: 100%;
       }
 
       .-elv-player-target,
       video {
-        // sass-lint:disable no-important
-        max-height: calc((100vw - 100px) * 9 / 16) !important;
-        // sass-lint:enable no-important
+        height: 100%;
+        width: auto;
+      }
+
+      .eluvio-player,
+      video {
+        background: $black;
       }
     }
 
@@ -337,7 +341,7 @@
 
       &__target-container {
         flex-direction: column;
-        height: 100%;
+        height: auto;
         max-height: unset;
         min-height: calc(100vw * 9 / 16);
         padding: 0;
@@ -354,8 +358,20 @@
         }
       }
 
+
+      .elv-gallery,
+      .-elv-player-target,
+      .-elv-embed {
+        height: auto;
+        min-height: calc((100vw - 65px) * 9 / 16);
+        width: 100%;
+      }
+
+      .-elv-player-target,
       video {
-        z-index: 100;
+        height: auto;
+        min-height: calc((100vw - 65px) * 9 / 16);
+        width: 100%;
       }
 
       &__target,

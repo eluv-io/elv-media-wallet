@@ -65,7 +65,6 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
           player?.Destroy();
         },
         playerOptions: {
-          posterUrl: mediaItem.mediaInfo.imageUrl,
           playerCallback: ({player, videoElement}) => {
             if(SetVideoElement) {
               SetVideoElement(videoElement);
