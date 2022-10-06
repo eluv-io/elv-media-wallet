@@ -251,7 +251,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
               </Link> : null
           }
           <div className="nft-media__content">
-            <div className="nft-media__content__target-container">
+            <div className={`nft-media__content__target-container nft-media__content__target-container--${currentMediaItem?.mediaInfo?.mediaType?.toLowerCase() || "video"}`}>
               <NFTActiveMediaContent
                 key={`nft-media-${current.sectionIndex}-${current.collectionIndex}-${mediaIndex}`}
                 nftInfo={nftInfo}

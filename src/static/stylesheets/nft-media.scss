@@ -57,6 +57,13 @@
       width: 100%;
 
       .-elv-player-target,
+      .-elv-embed {
+        height: max-content !important;
+        max-height: max-content !important;
+        min-height: calc((100vw - 65px) * 9 / 16);
+      }
+
+      .-elv-player-target,
       video {
         // sass-lint:disable no-important
         max-height: calc((100vw - 100px) * 9 / 16) !important;
@@ -200,6 +207,10 @@
       max-width: 600px;
       text-align: center;
       width: 100%;
+
+      &:empty {
+        display: none;
+      }
     }
 
     &__name {
@@ -328,18 +339,34 @@
         flex-direction: column;
         height: 100%;
         max-height: unset;
+        min-height: calc(100vw * 9 / 16);
         padding: 0;
         width: 100%;
+
+        &--gallery,
+        &--html,
+        &--ebook {
+          min-height: var(--elv-gallery-min-height);
+        }
+
+        .elv-gallery {
+          min-height: var(--elv-gallery-min-height);
+        }
+      }
+
+      video {
+        z-index: 100;
       }
 
       &__target,
       video,
       .eluvio-player {
-        min-height: var(--elv-gallery-min-height);
+        overflow: visible;
       }
 
       &__name {
-        font-size: 20px;
+        font-size: 16px;
+        word-wrap: break-word;
       }
 
       &__subtitle-1 {
@@ -1118,7 +1145,6 @@
     &__section,
     &__collection {
       &__header {
-        font-size: 14px;
         padding: 15px 40px 15px 35px;
       }
     }
@@ -1128,10 +1154,23 @@
         padding-inline: 35px;
       }
     }
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    &__section,
+    &__collection {
+      &__header {
+        * {
+          font-size: 14px;
+        }
+      }
+    }
 
     &__item {
       &__name {
-        font-size: 12px;
+        * {
+          font-size: 10px;
+        }
       }
     }
   }
