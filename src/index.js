@@ -161,7 +161,6 @@ const Routes = observer(() => {
 });
 
 
-
 const App = observer(() => {
   const history = useHistory();
   const [hasBackgroundImage, setHasBackgroundImage] = useState(false);
@@ -173,7 +172,15 @@ const App = observer(() => {
 
     const backgroundElement = document.querySelector("#app-background");
 
-    const backgroundImage = (rootStore.pageWidth < 800 && rootStore.appBackground.mobile) || rootStore.appBackground.desktop || "";
+    let backgroundImage = (rootStore.pageWidth < 800 && rootStore.appBackground.mobile) || rootStore.appBackground.desktop || "";
+
+    if(rootStore.navigationInfo.navigationKey === "marketplace") {
+      const currentMarketplace = rootStore.marketplaces[rootStore.navigationInfo.marketplaceId];
+
+      if(currentMarketplace) {
+        backgroundImage = ((rootStore.pageWidth < 800 && currentMarketplace?.storefront?.background_mobile) || currentMarketplace?.storefront?.background)?.url || backgroundImage;
+      }
+    }
 
     const currentBackground = backgroundElement.style.backgroundImage || "";
     const currentBackgroundImageUrl = ((currentBackground || "").split("contentfabric.io")[1] || "").split("?")[0];
@@ -189,7 +196,7 @@ const App = observer(() => {
     }
 
     setHasBackgroundImage(!!backgroundImage);
-  }, [rootStore.loaded, rootStore.appBackground]);
+  }, [rootStore.loaded, rootStore.appBackground, rootStore.pageWidth, rootStore.navigationInfo.navigationKey]);
 
   if(rootStore.loginOnly) {
     return <Redirect to="/login" />;

@@ -100,7 +100,6 @@ const Profile = observer(() => {
   const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
 
   useEffect(() => {
-    rootStore.SetNavigationBreadcrumbs([{name: "Wallet", path: "/wallet/users/me/items" }, {name: "Profile", path: "/profile" }]);
     rootStore.GetWalletBalance(true);
   }, [match.url]);
 
