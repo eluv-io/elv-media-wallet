@@ -134,6 +134,8 @@ class RootStore {
 
   EVENTS = EVENTS;
 
+  navigationInfo = {};
+
   navigationBreadcrumbs = [];
 
   noItemsAvailable = false;
@@ -1529,7 +1531,7 @@ class RootStore {
         let { clientAuthToken, clientSigningToken, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
 
         // Expire tokens early so they don't stop working while in use
-        const expirationBuffer = 4 * 60 * 60 * 1000;
+        const expirationBuffer = 6 * 60 * 60 * 1000;
 
         if(expiresAt - Date.now() < expirationBuffer) {
           this.ClearAuthInfo();
@@ -1572,8 +1574,15 @@ class RootStore {
     this.authInfo = authInfo;
   }
 
-  SetNavigationBreadcrumbs(breadcrumbs=[]) {
+  SetNavigationInfo({navigationKey, path, url, marketplaceId, breadcrumbs=[]}) {
     this.navigationBreadcrumbs = breadcrumbs;
+
+    this.navigationInfo = {
+      marketplaceId,
+      navigationKey,
+      path,
+      url
+    };
   }
 
   SetLoginLoaded() {
