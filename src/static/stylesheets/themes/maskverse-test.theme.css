@@ -39,7 +39,9 @@
   --background-button-secondary: #000000;
 
   --background-component-primary: var(--color-bg-primary);
+  --color-component-bg-highlight: var(--pink-1);
   --background-table: var(--color-bg-primary);
+  --background-table-header-row: var(--pink-1);
   --color-table-odd-row-bg: var(--color-bg-primary);
   --color-table-even-row-bg: var(--color-bg-secondary);
 
