@@ -542,7 +542,8 @@
       align-items: center;
       background: var(--background-nft-media-secondary);
       border: 0.5px solid transparent;
-      display: flex;
+      display: grid;
+      grid-template-columns: auto 80px 1fr;
       height: 100px;
       padding: 10px;
       position: relative;
@@ -609,7 +610,6 @@
         justify-content: center;
         padding: 0 10px;
         text-align: left;
-        width: calc(100% - 120px);
       }
 
       &__subtitles {
@@ -620,7 +620,6 @@
         font-size: 16px;
         font-weight: 400;
         line-height: 1.2em;
-        padding-right: 30px;
       }
 
       &__subtitle-1,
@@ -637,6 +636,17 @@
     }
   }
 
+  @media screen and (max-width: $breakpoint) {
+    &__album-view {
+      &__media {
+        &__track-number {
+          padding-left: 10px;
+          width: 45px;
+        }
+      }
+    }
+  }
+
   @media screen and (max-width: $tablet-breakpoint) {
     &__text-container--desktop {
       display: none;
@@ -650,6 +660,7 @@
       aspect-ratio: unset;
       flex-direction: column;
       padding: 0;
+      width: 100%;
     }
 
     &__content__target-border {
@@ -657,9 +668,8 @@
     }
 
     &__album-view {
-      &__media__name {
-        padding-right: 70px;
-
+      &__media-container {
+        display: block;
       }
 
       &__album-view {

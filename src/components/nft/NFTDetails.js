@@ -984,17 +984,20 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
                       toggleable={false}
                       icon={MediaIcon}
                       onClick={() => {
+                        // Single list - clicking navigates to media page
                         if(nftInfo.additionalMedia.type === "List") {
                           history.push(UrlJoin(match.url, "media", "list", "0"));
+                          return;
                         }
 
+                        // Sectional media - switch to media tab and scroll down to media browser
                         if(tab !== "Media") {
                           setTab("Media");
                         }
 
                         setTimeout(() => {
                           document.querySelector(".page-block--nft-content")
-                            .scrollIntoView({block: "start", inline: "start", behavior: "smooth"});
+                            ?.scrollIntoView({block: "start", inline: "start", behavior: "smooth"});
                         }, tab !== "Media" ? 500 : 100);
                       }}
                     /> : null
