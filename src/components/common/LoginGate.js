@@ -17,14 +17,20 @@ export const LoginGate = observer(({children, ignoreCapture, loader}) => {
 });
 
 // Show login when component is clicked, if not logged in
-export const LoginClickGate = observer(({Component, ...props}) => {
+export const LoginClickGate = observer(({Component, onLoginBlocked, ...props}) => {
   return (
     <Component
       {...props}
       onClick={
         rootStore.loggedIn ?
           props.onClick :
-          () => rootStore.ShowLogin()
+          async () => {
+            if(onLoginBlocked) {
+              await onLoginBlocked();
+            }
+
+            rootStore.ShowLogin();
+          }
       }
     />
   );

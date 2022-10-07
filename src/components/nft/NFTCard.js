@@ -3,7 +3,7 @@ import {NFTImage} from "Components/common/Images";
 import {observer} from "mobx-react";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 import {NFTInfo} from "../../utils/Utils";
-import {FormatPriceString, RichText} from "Components/common/UIComponents";
+import {FormatPriceString} from "Components/common/UIComponents";
 import ItemCard from "Components/common/ItemCard";
 
 const NFTCard = observer(({
@@ -16,11 +16,10 @@ const NFTCard = observer(({
   link,
   badges,
   imageWidth,
-  showFullMedia,
+  showVideo,
   hideToken,
   allowFullscreen,
   truncateDescription,
-  selectedMediaIndex=-1,
   playerCallback,
   className="",
   cardClassName="",
@@ -30,9 +29,7 @@ const NFTCard = observer(({
     item,
     listing: selectedListing,
     imageWidth,
-    showFullMedia,
-    showToken: !hideToken,
-    selectedMediaIndex
+    showToken: !hideToken
   });
 
   let sideText;
@@ -58,14 +55,12 @@ const NFTCard = observer(({
     info.renderedPrice;
 
   const description = (
-    info.selectedMedia ?
-      <RichText richText={info.selectedMedia.description} className="item-card__description markdown-document" /> :
-      <ResponsiveEllipsis
-        component="div"
-        className="item-card__description"
-        text={info.nft.metadata.description}
-        maxLine={truncateDescription ? 3 : 100}
-      />
+    <ResponsiveEllipsis
+      component="div"
+      className="item-card__description"
+      text={info.nft.metadata.description}
+      maxLine={truncateDescription ? 3 : 100}
+    />
   );
 
   return (
@@ -86,8 +81,7 @@ const NFTCard = observer(({
         <NFTImage
           nft={nft}
           item={item}
-          selectedMedia={info.selectedMedia}
-          showFullMedia={showFullMedia}
+          showVideo={showVideo}
           width={imageWidth}
           allowFullscreen={allowFullscreen}
           playerCallback={playerCallback}

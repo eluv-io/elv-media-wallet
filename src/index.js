@@ -1,7 +1,7 @@
 import "Assets/fonts/fonts.css";
 import "Assets/stylesheets/app.scss";
 
-import React, { lazy, Suspense, useEffect } from "react";
+import React, {lazy, Suspense, useEffect, useState} from "react";
 import UrlJoin from "url-join";
 import { render } from "react-dom";
 import { observer} from "mobx-react";
@@ -32,7 +32,7 @@ import {
 import Login, {Auth0Authentication} from "Components/login/index";
 import ScrollToTop from "Components/common/ScrollToTop";
 import { InitializeListener } from "Components/interface/Listener";
-import {Auth0Provider} from "@auth0/auth0-react";
+import {Auth0Provider, useAuth0} from "@auth0/auth0-react";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import {PageLoader} from "Components/common/Loaders";
 import Modal from "Components/common/Modal";
@@ -164,6 +164,7 @@ const Routes = observer(() => {
 
 const App = observer(() => {
   const history = useHistory();
+  const [hasBackgroundImage, setHasBackgroundImage] = useState(false);
 
   useEffect(() => InitializeListener(history), []);
 
@@ -181,10 +182,13 @@ const App = observer(() => {
     if(newBackgroundImageUrl !== currentBackgroundImageUrl) {
       if(backgroundImage) {
         backgroundElement.style.background = `no-repeat top center / cover url("${backgroundImage}")`;
+        document.querySelector("#app").style.background = "transparent";
       } else {
         backgroundElement.style.removeProperty("background");
       }
     }
+
+    setHasBackgroundImage(!!backgroundImage);
   }, [rootStore.loaded, rootStore.appBackground]);
 
   if(rootStore.loginOnly) {
@@ -197,6 +201,7 @@ const App = observer(() => {
       key={`app-${rootStore.loggedIn}`}
       className={[
         "app-container",
+        hasBackgroundImage ? "app-container--transparent" : "",
         rootStore.centerContent ? "app--centered" : "",
         rootStore.hideNavigation ? "navigation-hidden" : "",
         rootStore.sidePanelMode ? "side-panel" : "",
@@ -208,11 +213,17 @@ const App = observer(() => {
       }
     >
       <Routes />
-      <Auth0Authentication />
+      { rootStore.loaded && !rootStore.loggedIn ? <Auth0Authentication /> : null }
       <DebugFooter />
     </div>
   );
 });
+
+const Auth0Initialization = ({children}) => {
+  window.auth0 = useAuth0();
+
+  return children;
+};
 
 const AuthWrapper = ({children}) => {
   if(window.sessionStorageAvailable) {
@@ -222,9 +233,12 @@ const AuthWrapper = ({children}) => {
         clientId={EluvioConfiguration["auth0-configuration-id"]}
         redirectUri={UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, "")}
         useRefreshTokens
+        cacheLocation="localstorage"
         darkMode={rootStore.darkMode}
       >
-        {children}
+        <Auth0Initialization>
+          {children}
+        </Auth0Initialization>
       </Auth0Provider>
     );
   }

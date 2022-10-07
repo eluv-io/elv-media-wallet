@@ -11,10 +11,10 @@
 
     &__name {
       font: var(--font-card-title);
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 600;
       margin-bottom: 15px;
-      padding-right: 40px;
+      padding-right: 50px;
       text-transform: uppercase;
     }
 
@@ -109,6 +109,12 @@
       }
     }
 
+    @media screen and (max-width: $breakpoint) {
+      &__name {
+        font-size: 24px;
+      }
+    }
+
     @media screen and (max-width: $tablet-breakpoint) {
       text-align: center;
 
@@ -117,7 +123,22 @@
       }
 
       &__name {
-        font-size: 24px;
+        font-size: 22px;
+      }
+    }
+
+    @media screen and (max-width: $mobile-breakpoint) {
+      &__name {
+        font-size: 20px;
+        padding-inline: 40px;
+      }
+
+      &__subtitle-container {
+        flex-direction: column;
+      }
+
+      &__edition {
+        margin: 0;
       }
     }
   }
@@ -125,20 +146,29 @@
   &__tabbed-content {
     &__tabs {
       display: flex;
-      justify-content: flex-end;
-      margin: 30px 0;
+      // sass-lint:disable no-misspelled-properties
+      gap: 10px;
+      justify-content: flex-start;
+      margin: 5px 0 10px;
     }
 
     &__tab {
+      align-items: center;
+      display: flex;
       font: var(--font-component-misc);
+      justify-content: center;
       text-transform: uppercase;
 
-      &:not(:last-child) {
-        margin-right: 30px;
+      svg {
+        height: 25px;
+        margin-right: 15px;
+        width: 25px;
       }
 
       &--active {
-        color: var(--color-component-text-highlight);
+        * {
+          color: var(--color-component-text-highlight);
+        }
       }
     }
   }
@@ -165,12 +195,17 @@
     left: 0;
     position: absolute;
     text-transform: uppercase;
-    top: 0;
+    top: 5px;
+    z-index: 1;
 
     svg {
       height: 20px;
       margin-right: 15px;
       width: 20px;
+    }
+
+    &__text {
+      max-width: 250px;
     }
   }
 
@@ -245,7 +280,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin: 10px 0 20px;
+    margin: 15px 0 20px;
 
     &:empty {
       display: none;
@@ -262,6 +297,10 @@
 
   &__detail-field {
     margin-top: 5px;
+
+    a {
+      color: var(--color-text-highlight);
+    }
   }
 
   .expandable-section {
@@ -397,112 +436,6 @@
     }
   }
 
-  &__media-container {
-    display: grid;
-    grid-gap: 10px;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    max-height: 400px;
-    overflow-y: auto;
-    // sass-lint:disable no-misspelled-properties
-    overscroll-behavior: contain;
-  }
-
-  &__media {
-    align-items: center;
-    background: var(--background-component-secondary);
-    border: 0.5px solid transparent;
-    border-radius: var(--border-radius-component);
-    display: flex;
-    height: 100px;
-    padding: 10px;
-    width: 100%;
-
-    &--selected {
-      border: 0.5px solid var(--color-component-text-highlight);
-      box-shadow: var(--color-component-text-highlight) 0 0 5px;
-
-      .details-page__media__name {
-        color: var(--color-component-text-highlight);
-      }
-    }
-
-    &__image-container {
-      border-radius: var(--border-radius-component);
-      height: 100%;
-      max-width: 80px;
-      min-width: 80px;
-      position: relative;
-      width: 100%;
-    }
-
-    &__image {
-      border-radius: var(--border-radius-component);
-      height: 100%;
-      left: 0;
-      object-fit: contain;
-      position: absolute;
-      top: 0;
-      width: 100%;
-
-      &--fallback {
-        // sass-lint:disable no-color-literals
-        background: radial-gradient(ellipse at top, #333, #000);
-      }
-    }
-
-    &__hover-icon,
-    &__selected-indicator {
-      @include page-fade-in(0.25s);
-      bottom: 8px;
-      height: 20px;
-      position: absolute;
-      right: 8px;
-      width: 20px;
-      z-index: 1;
-
-      * {
-        color: var(--color-highlight-container-text);
-      }
-
-      circle {
-        fill: var(--color-highlight-container-bg);
-      }
-    }
-
-    &:not(:hover) {
-      .details-page__media__hover-icon {
-        display: none;
-      }
-    }
-
-    &__details {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      justify-content: space-between;
-      padding: 0 10px;
-      text-align: left;
-      width: calc(100% - 80px);
-    }
-
-    &__name {
-      font-size: 15px;
-      font-weight: 400;
-      line-height: 1.2em;
-      transition: color 0.25s linear;
-    }
-
-    &__subtitle-1 {
-      font-size: 11px;
-      font-weight: 500;
-    }
-
-    &__subtitle-2 {
-      font-size: 11px;
-      font-weight: 300;
-    }
-  }
-
   .stats {
     &__label {
       font-size: 14px;
@@ -517,10 +450,6 @@
     &__image {
       background: $black;
     }
-  }
-
-  &__tables {
-    margin-top: 20px;
   }
 
   &__offer-code-modal-container {
@@ -606,118 +535,18 @@
     &__info {
       margin-top: 20px;
     }
-  }
-}
 
-.media-controls {
-  background: var(--background-component-secondary);
-  bottom: 0;
-  height: 50px;
-  justify-content: space-between;
-  padding: 10px;
-  position: sticky;
-  width: 100%;
+    &__tabbed-content {
+      &__tab {
+        flex: 1 1 100%;
+        font-size: 12px;
+        max-width: 175px;
+        min-width: unset;
 
-  &,
-  &__left,
-  &__title,
-  &__right {
-    align-items: center;
-    display: flex;
-  }
-
-  &__left,
-  &__title,
-  &__right {
-    height: 100%;
-  }
-
-  &__button {
-    display: flex;
-    height: 20px;
-    padding: 3px;
-    position: relative;
-    width: 20px;
-
-    * {
-      color: var(--color-component-text-primary);
-    }
-
-    &:not(:last-child) {
-      margin-right: 10px;
-    }
-
-    &--play-pause {
-      height: 30px;
-      padding: 0;
-      width: 30px;
-
-      circle {
-        fill: var(--color-component-bg-primary);
+        svg {
+          display: none;
+        }
       }
-    }
-
-    svg {
-      height: 100%;
-      width: 100%;
-    }
-  }
-
-  &__title {
-    background-color: var(--background-component-primary);
-    border-radius: var(--border-radius-component);
-    flex: 1 1 auto;
-    justify-content: flex-start;
-    margin: 0 10px;
-    min-width: 0;
-    overflow: hidden;
-    padding: 0 10px 0 30px;
-    position: relative;
-
-    * {
-      color: var(--color-component-text-highlight);
-    }
-
-    &__icon {
-      height: 15px;
-      left: 8px;
-      position: absolute;
-    }
-
-    &__text,
-    &__span {
-      min-width: 100%;
-    }
-  }
-
-  &__toggle {
-    height: 30px;
-    min-width: 50px;
-    padding: 5px;
-    width: 50px;
-
-    &:not(:last-child) {
-      margin-right: 5px;
-    }
-
-    &:not(.action-selection--active) {
-      * {
-        color: var(--color-component-text-primary);
-      }
-    }
-
-    svg {
-      height: 100%;
-    }
-  }
-
-  @media screen and (max-width: $mobile-breakpoint) {
-    &__toggle {
-      width: 40px;
-    }
-
-    &__title {
-      font-size: 12px;
     }
   }
 }

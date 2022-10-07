@@ -41,7 +41,7 @@ const Profile = observer(() => {
   return (
     <div title={rootStore.userProfiles.me?.userName || user.email || user.address} className="header__profile">
       <Link
-        to={marketplaceId ? `/marketplace/${marketplaceId}/users/me/items` : "/wallet/profile/users/me/items"}
+        to={marketplaceId ? `/marketplace/${marketplaceId}/users/me/items` : "/wallet/users/me/items"}
         className="header__profile__user"
       >
         <ImageIcon icon={UserIcon} className="header__profile__user__icon" />

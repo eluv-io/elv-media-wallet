@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {useAuth0} from "@auth0/auth0-react";
 import {rootStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
 import {Loader} from "Components/common/Loaders";
@@ -98,6 +97,20 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
   return (
     <div className="login-page__text-section">
       { customizationOptions.terms ? <RichText richText={customizationOptions.terms} className="login-page__terms" /> : null }
+
+      {
+        customizationOptions.terms_document?.terms_document ?
+          <div className="login-page__terms login-page__terms-link-container">
+            <a
+              href={customizationOptions.terms_document.terms_document.url}
+              target="_blank"
+              rel="noopener"
+              className="login-page__terms-link"
+            >
+              {customizationOptions.terms_document.link_text}
+            </a>
+          </div>: null
+      }
 
       <div className="login-page__terms login-page__eluvio-terms">
         By creating an account or signing in, I agree to the <a href="https://live.eluv.io/privacy" target="_blank">Eluvio Privacy Policy</a> and the <a href="https://live.eluv.io/terms" target="_blank">Eluvio Terms and Conditions</a>.
@@ -305,8 +318,6 @@ const CustomConsentModal = ({customConsent}) => {
 // Automatic login when auth0 is authenticated
 export const Auth0Authentication = observer(() => {
   if(!window.sessionStorageAvailable) { return; }
-
-  window.auth0 = useAuth0();
 
   const LogIn = async () => {
     await rootStore.Authenticate({

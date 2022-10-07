@@ -24,7 +24,7 @@
   }
 
   &:not(&--no-fade) {
-    @include page-fade-in;
+    @include page-fade-in(0.3s);
   }
 }
 

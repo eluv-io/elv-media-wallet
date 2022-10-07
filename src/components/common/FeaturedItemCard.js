@@ -1,11 +1,10 @@
 import React from "react";
 import {observer} from "mobx-react";
 import {Link, useRouteMatch} from "react-router-dom";
-import LinesEllipsis from "react-lines-ellipsis";
-import responsiveHOC from "react-lines-ellipsis/lib/responsiveHOC";
-const ResponsiveEllipsis = responsiveHOC()(LinesEllipsis);
+import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 
 import UrlJoin from "url-join";
+import {RichText} from "Components/common/UIComponents";
 
 const FeaturedItemCard = observer(({
   link,
@@ -15,6 +14,7 @@ const FeaturedItemCard = observer(({
   searchName,
   subtitle1,
   description,
+  descriptionRichText,
   price,
   status,
   sideText,
@@ -95,13 +95,15 @@ const FeaturedItemCard = observer(({
             </h2> : null
         }
         {
-          description ?
-            <ResponsiveEllipsis
-              component="h2"
-              className="featured-item__description"
-              text={description}
-              maxLine="10"
-            /> : null
+          descriptionRichText ?
+            <RichText richText={descriptionRichText} className="markdown-document featured-item__description" /> :
+            description ?
+              <ResponsiveEllipsis
+                component="h2"
+                className="featured-item__description"
+                text={description}
+                maxLine="10"
+              /> : null
         }
         {
           status ?

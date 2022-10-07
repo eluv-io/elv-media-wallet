@@ -32,11 +32,17 @@
   &__section {
     display: flex;
     flex-direction: column;
-    margin: 50px 0;
+    margin: 40px 0;
     position: relative;
 
     &:first-child {
       margin-top: 0;
+    }
+
+    .page-headers {
+      &:empty {
+        margin: 0;
+      }
     }
 
     .page-header,

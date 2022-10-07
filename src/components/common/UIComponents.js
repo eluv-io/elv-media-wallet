@@ -17,6 +17,7 @@ import {render} from "react-dom";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
 import QRCode from "qrcode";
+import {Link, NavLink} from "react-router-dom";
 
 export const PageControls = observer(({paging, maxSpread=15, hideIfOnePage, SetPage, className=""}) => {
   if(!paging || paging.total === 0) { return null; }
@@ -80,12 +81,22 @@ export const PageControls = observer(({paging, maxSpread=15, hideIfOnePage, SetP
   );
 });
 
-export const ExpandableSection = ({header, icon, children, expanded=false, toggleable=true, className="", contentClassName="", additionalContent}) => {
+export const ExpandableSection = ({header, icon, children, expanded=false, toggleable=true, onClick, className="", contentClassName="", additionalContent}) => {
   const [ show, setShow ] = useState(expanded);
 
   return (
     <div className={`expandable-section ${show ? "expandable-section-shown" : "expandable-section-hidden"} ${className}`}>
-      <button className="expandable-section__header ellipsis" onClick={() => toggleable && setShow(!show)} tabIndex={0}>
+      <button
+        className="expandable-section__header ellipsis"
+        onClick={() => {
+          toggleable && setShow(!show);
+
+          if(onClick) {
+            onClick();
+          }
+        }}
+        tabIndex={0}
+      >
         { icon ? <ImageIcon className="expandable-section__header__icon" icon={icon} title={header} /> : null}
         { header }
       </button>
@@ -93,6 +104,28 @@ export const ExpandableSection = ({header, icon, children, expanded=false, toggl
       { show && additionalContent || null }
     </div>
   );
+};
+
+export const PossibleButton = ({isButton, onClick, ...args}) => {
+  if(isButton) {
+    return <button onClick={onClick} {...args} />;
+  }
+
+  return <div {...args} />;
+};
+
+export const Linkish = ({to, href, useNavLink, ...args}) => {
+  if(to) {
+    if(useNavLink) {
+      return  <NavLink to={to} {...args} />;
+    } else {
+      return  <Link to={to} {...args} />;
+    }
+  } else if(href) {
+    return <a href={href} {...args} />;
+  }
+
+  return <div {...args} />;
 };
 
 export const Copy = async (value) => {
@@ -501,7 +534,7 @@ export const QRCodeElement = ({content}) => {
 
           QRCode.toCanvas(
             element,
-            JSON.stringify(content),
+            typeof content === "object" ? JSON.stringify(content) : content,
             options,
             error => error && rootStore.Log(error, true)
           );

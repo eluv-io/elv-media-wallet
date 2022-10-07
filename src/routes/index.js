@@ -28,6 +28,7 @@ import MarketplaceStorefront from "Components/marketplace/MarketplaceStorefront"
 import UserActivity from "Components/user/UserActivity";
 import UserCollections from "Components/user/UserCollections";
 import {PageLoader} from "Components/common/Loaders";
+import NFTMedia from "Components/nft/media/index";
 
 const GetMarketplace = (match) => {
   return rootStore.marketplaces[match.params.marketplaceId] || {};
@@ -42,7 +43,6 @@ const GetNFT = (match) => {
   return rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId}) || { metadata: {} };
 };
 
-
 const UserMarketplaceRoutes = () => {
   return [
     { name: "Collections", path: "collections", includeUserProfile: true, Component: UserCollections }
@@ -53,16 +53,23 @@ const UserRoutes = ({includeMarketplaceRoutes}) => {
   return [
     ...(includeMarketplaceRoutes ? UserMarketplaceRoutes() : []),
     { name: "Listings", path: "listings", includeUserProfile: true, Component: UserListings },
-    { name: "Listing", path: "listings/:listingId", Component: ListingDetails },
+    { name: "Listing", path: "listings/:listingId/:mode?", noBlock: true, Component: ListingDetails },
     { name: "Purchase Listing", path: "listings/:listingId/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
 
     { name: "Activity", path: "activity", includeUserProfile: true, Component: UserActivity },
 
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "listings/:contractId/:tokenId", Component: MintedNFTDetails },
 
     { name: match => (GetMarketplace(match)?.storefront?.tabs?.my_items || "Items"), includeUserProfile: true, path: "items", Component: UserItems },
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId", Component: MintedNFTDetails },
     { name: "Open Pack", path: "items/:contractId/:tokenId/open", Component: PackOpenStatus },
+
+
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/media", noBlock: true, Component: NFTMedia },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/media/:sectionId/:mediaIndex", noBlock: true, Component: NFTMedia },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/media/:sectionId/:collectionId/:mediaIndex", noBlock: true, Component: NFTMedia },
+
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "listings/:contractId/:tokenId/:mode?", noBlock: true, Component: MintedNFTDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/:mode?", noBlock: true, Component: MintedNFTDetails },
+
     { path: "/", includeUserProfile: true, redirect: "items" },
   ]
     .map(route => ({ ...route, loadUser: true, path: UrlJoin("users", ":userId", route.path) }));
@@ -73,11 +80,11 @@ const SharedRoutes = ({includeMarketplaceRoutes}) => {
     ...UserRoutes({includeMarketplaceRoutes}),
     { name: "Leaderboard", path: "leaderboard", Component: Leaderboard },
 
-    { name: "Listing", path: "listings/:listingId", Component: ListingDetails },
+    { name: "Listing", path: "listings/:listingId/:mode?", noBlock: true, Component: ListingDetails },
     { name: "Listings", path: "listings", Component: Listings },
 
     { name: "Activity", path: "activity", Component: RecentSales },
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "activity/:contractId/:tokenId", Component: MintedNFTDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "activity/:contractId/:tokenId/:mode?", noBlock: true, Component: MintedNFTDetails },
 
     { name: "Purchase Listing", path: "listings/:listingId/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
 
@@ -89,8 +96,8 @@ const MarketplaceRoutes = () => {
   return [
     { name: "Collections", path: "collections", Component: MarketplaceCollectionsSummaryPage },
     { name: "Collections", path: "collections/:collectionSKU", Component: MarketplaceCollection },
-    { name: match => (GetItem(match)?.name || "Item"), path: "collections/:collectionSKU/store/:sku", Component: MarketplaceItemDetails },
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "collections/:collectionSKU/owned/:contractId/:tokenId", Component: MintedNFTDetails },
+    { name: match => (GetItem(match)?.name || "Item"), path: "collections/:collectionSKU/store/:sku/:mode?", noBlock: true, Component: MarketplaceItemDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "collections/:collectionSKU/owned/:contractId/:tokenId", noBlock: true, Component: MintedNFTDetails },
     { name: "Redeem Collection", path: "collections/:collectionSKU/redeem", Component: MarketplaceCollectionRedemption },
     { name: "Redeem Collection", path: "collections/:collectionSKU/redeem/:confirmationId/status", Component: CollectionRedeemStatus },
 
@@ -100,8 +107,12 @@ const MarketplaceRoutes = () => {
     { name: "Claim", path: "store/:sku/claim", Component: ClaimMintingStatus, authed: true },
     { name: "Purchase", path: "store/:sku/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
 
-    { name: match => (GetItem(match)?.name || "Item"), path: "store/:sku", Component: MarketplaceItemDetails },
-    { name: match => (GetMarketplace(match)?.branding?.name || "Marketplace"), path: "store", Component: MarketplaceStorefront },
+    { name: match => (GetItem(match)?.name || "Item"), path: "store/:sku/:mode?", noBlock: true, Component: MarketplaceItemDetails },
+    { name: match => (GetMarketplace(match)?.branding?.name || "Marketplace"), path: "store", noBlock: true, Component: MarketplaceStorefront },
+
+    { name: match => (GetItem(match)?.name || "Item"), path: "store/:sku/media", noBlock: true, Component: NFTMedia },
+    { name: match => (GetItem(match)?.name || "Item"), path: "store/:sku/media/:sectionId/:mediaIndex", noBlock: true, Component: NFTMedia },
+    { name: match => (GetItem(match)?.name || "Item"), path: "store/:sku/media/:sectionId/:collectionId/:mediaIndex", noBlock: true, Component: NFTMedia },
 
     { path: "/", redirect: "/store" }
   ];
@@ -194,7 +205,17 @@ const RouteWrapper = observer(({routes, children}) => {
     return <Redirect to={UrlJoin(match.url, currentRoute.redirect)} />;
   }
 
-  return children;
+  if(currentRoute?.noBlock) {
+    return children;
+  }
+
+  return (
+    <div className="page-block page-block--main-content" key={currentRoute?.routeKey || `main-content-${match.url}`}>
+      <div className="page-block__content">
+        {children}
+      </div>
+    </div>
+  );
 });
 
 const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
@@ -227,11 +248,7 @@ const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
         routes.map(({path, exact, authed, loadUser, includeUserProfile, ignoreLoginCapture, Component}) => {
           let result = (
             <RouteWrapper routes={routes}>
-              <div className={`page-block page-block--main-content ${rootStore.appBackground ? "page-block--custom-background" : ""}`}>
-                <div className="page-block__content">
-                  { Component ? <Component key={`component-${path}`} /> : null }
-                </div>
-              </div>
+              { Component ? <Component key={`component-${path}`} /> : null }
             </RouteWrapper>
           );
 

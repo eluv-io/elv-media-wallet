@@ -7,3 +7,13 @@
   font-style: normal;
   font-weight: 400;
 }
+
+
+/* Albertus */
+@font-face {
+  font-family: "Albertus MT Std";
+  src: url("./Albertus/files/AlbertusMT.otf") format("opentype"),
+  url("./Albertus/files/AlbertusMTStd.otf") format("opentype"),
+  url("./Albertus/files/AlbertusMTStdLight.otf") format("opentype"),
+  url("./Albertus/files/AlbertusMTStdItalic.otf") format("opentype");
+}

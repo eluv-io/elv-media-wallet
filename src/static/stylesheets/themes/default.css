@@ -1,7 +1,5 @@
 html {
   /* General */
-  --color-background-highlight: #1E1EED;
-  --color-background-highlight-rgb: 30, 94, 237;
   --color-text-background-highlight: #FFFFFF;
   --color-text-background-highlight-rgb: 255, 255, 255;
   --color-text-highlight: #2D61E4;
@@ -21,7 +19,7 @@ html {
   --color-text-secondary: #777;
   --color-text-error: #f00;
 
-  --color-highlight-container-bg: var(--color-background-highlight);
+  --color-highlight-container-bg: var(--color-bg-highlight);
   --color-highlight-container-text: #fff;
 
   --color-loader: rgba(0, 0, 0, 0.5);
@@ -32,7 +30,7 @@ html {
   --border-color-faint: #D2D2D2;
   --border-faint: 1px solid var(--border-color-faint);
 
-  --border-color-highlight: var(--color-background-highlight);
+  --border-color-highlight: var(--color-bg-highlight);
   --border-highlight: 1px solid var(--border-color-highlight);
 
   --border-radius: 4px;
@@ -40,9 +38,9 @@ html {
   --box-shadow: 0px 0 4px rgba(0, 0, 0, 0.1);
 
   /* Page */
-  --color-page-bg: #F6F6F6;
   --background-content: var(--color-page-bg);
-  --border-radius-page-content: 10px 10px 0 0;
+  --color-page-bg: #F6F6F6;
+  --color-lower-page-bg: var(--color-page-bg);
 
   /* Header */
   --font-header-links: normal normal 300 16px var(--font-family-secondary);
@@ -108,8 +106,8 @@ html {
   --border-radius-input: var(--border-radius);
 
   --box-shadow-input: var(--box-shadow);
-  --box-shadow-input-focus: 0 0 7px rgba(var(--color-background-highlight-rgb), 0.8);
-  --outline-input-focus: 1px solid var(--color-background-highlight);
+  --box-shadow-input-focus: 0 0 7px var(--color-bg-highlight);
+  --outline-input-focus: 1px solid var(--color-bg-highlight);
 
   /* Cards (store items, listings, owned items) */
   --font-card-title: normal normal 500 20px var(--font-family-primary);
@@ -142,7 +140,7 @@ html {
   --font-feature-card-misc: normal normal normal 16px var(--font-family-tertiary);
 
   --background-feature-card: var(--background-card);
-  --background-feature-card-runway: linear-gradient(180deg, var(--background-content) 75%, var(--background-component-secondary) 100%);
+  --background-featured-item: transparent;
 
   --color-feature-card-text-primary: var(--color-text-primary);
   --color-feature-card-text-secondary: var(--color-text-secondary);
@@ -150,8 +148,11 @@ html {
   --box-shadow-feature-card: var(--box-shadow-card);
 
   --border-background-feature-card: var(--border-background-card);
+  --border-background-featured-item: transparent;
   --border-width-feature-card: var(--border-width-card);
+  --border-width-featured-item: 2px;
   --border-radius-feature-card: 25px;
+  --border-radius-featured-item: 10px;
 
   --color-button-feature-card-bg: transparent;
   --color-button-feature-card-text: var(--color-button-secondary-text);
@@ -159,10 +160,10 @@ html {
   --border-radius-button-feature-card: var(--border-radius);
 
   --border-background-feature-card-selected: var(--border-color-highlight);
-  --box-shadow-feature-card-selected: 0 0 10px var(--color-background-highlight);
+  --box-shadow-feature-card-selected: 0 0 10px var(--color-bg-highlight);
 
   --color-featured-item-slider: var(--color-bg-secondary);
-  --color-featured-item-slider-handle: var(--color-background-highlight);
+  --color-featured-item-slider-handle: var(--color-bg-highlight);
 
   /* Collections */
   --background-collection-component: var(--color-bg-primary);
@@ -188,7 +189,7 @@ html {
   --color-table-selected-row-text: var(--color-text-highlight);
   --color-table-highlight-text: var(--color-text-highlight);
 
-  --border-table-row-selected: 2px solid var(--color-background-highlight);
+  --border-table-row-selected: 2px solid var(--color-bg-highlight);
 
   --border-table-primary: var(--border);
   --border-table-secondary: var(--border-faint);
@@ -220,6 +221,41 @@ html {
   --border-component-highlight: var(--border-highlight);
   --border-radius-component: var(--border-radius);
   --box-shadow-component: var(--box-shadow);
+
+  /* NFT Media */
+  --font-nft-media-header: normal normal 500 24px var(--font-family-primary);
+  --font-nft-media-text: normal normal normal 16px var(--font-family-secondary);
+  --font-nft-media-misc: normal normal normal 16px var(--font-family-tertiary);
+
+  --background-nft-media-featured: var(--color-bg-primary);
+  --background-nft-media-featured-button: var(--background-button-primary);
+  --background-nft-media-primary: var(--color-bg-primary);
+  --background-nft-media-secondary: var(--color-bg-primary);
+  --background-nft-media-qr-modal: var(--background-modal-primary);
+  --background-nft-media-album-content: var(--background-feature-card);
+  --color-nft-media-bg-primary: var(--color-bg-primary);
+  --color-nft-media-bg-secondary: var(--color-bg-primary);
+  --color-nft-media-bg-highlight: var(--color-bg-highlight);
+  --color-nft-media-bg-active: var(--color-bg-secondary);
+  --color-nft-media-highlight: var(--color-text-highlight);
+  --color-nft-media-featured-button-text: var(--color-button-primary-text);
+  --color-nft-media-text-primary: var(--color-text-primary);
+  --color-nft-media-text-secondary: var(--color-text-secondary);
+  --color-nft-media-text-highlight: var(--color-text-highlight);
+  --border-nft-media-featured-button: var(--border-button-primary);
+  --border-nft-media-primary: var(--border);
+  --border-nft-media-secondary: var(--border-faint);
+  --border-nft-media-highlight: var(--border-highlight);
+  --border-nft-media-active: var(--border-highlight);
+  --border-nft-media-album-content: var(--border);
+  --border-nft-media-album-list: var(--border);
+  --border-radius-nft-media: var(--border-radius);
+  --border-radius-nft-media-featured: 25px;
+  --border-radius-nft-media-featured-button: var(--border-radius-button-primary);
+  --border-radius-nft-media-album-content: 10px;
+  --border-width-nft-media-album-content: 30px;
+  --box-shadow-nft-media-album-content: 0px 0 8px rgba(0, 0, 0, 0.1);
+  --box-shadow-nft-media-album-list: 0px 0 8px rgba(0, 0, 0, 0.1);
 
   /* Modals */
   --background-modal-overlay: rgba(0, 0, 0, 0.75);

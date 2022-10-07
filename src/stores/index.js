@@ -1,6 +1,7 @@
 let testTheme = undefined;
 //testTheme = import("../static/stylesheets/themes/maskverse-test.theme.css");
 //testTheme = import("../static/stylesheets/themes/wwe-test.theme.css");
+//testTheme = import("../static/stylesheets/themes/lotr-test.theme.css");
 
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";
@@ -18,7 +19,6 @@ import NFTContractABI from "../static/abi/NFTContract";
 import CryptoStore from "Stores/Crypto";
 import {v4 as UUID} from "uuid";
 import ProfanityFilter from "bad-words";
-import PreviewPasswordPrompt from "Components/login/PreviewPasswordPrompt";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
@@ -104,9 +104,11 @@ class RootStore {
 
   specifiedMarketplaceId = undefined;
   specifiedMarketplaceHash = undefined;
+  previewMarketplaceId = undefined;
+  previewMarketplaceHash = undefined;
 
   hideGlobalNavigation = false;
-  hideGlobalNavigationInMarketplace = searchParams.has("hgm");
+  hideGlobalNavigationInMarketplace = searchParams.has("hgm") || this.GetSessionStorage("hide-global-navigation-in-marketplace");
   hideNavigation = searchParams.has("hn") || this.loginOnly;
   hideMarketplaceNavigation = false;
   sidePanelMode = false;
@@ -121,8 +123,9 @@ class RootStore {
 
   nftInfo = {};
   nftData = {};
-  offerCodeData = {};
   userProfiles = {};
+
+  viewedMedia = {};
 
   marketplaces = {};
   marketplaceOwnedCache = {};
@@ -228,20 +231,14 @@ class RootStore {
         appId: this.appId,
         network: EluvioConfiguration.network,
         mode: EluvioConfiguration.mode,
-        previewMarketplaceId: searchParams.get("preview") || this.GetSessionStorage("preview-marketplace"),
+        previewMarketplaceId: (searchParams.get("preview") || (!this.embedded && this.GetSessionStorage("preview-marketplace")) || "").replaceAll("/", ""),
         storeAuthToken: false
       });
 
+      this.previewMarketplaceId = this.walletClient.previewMarketplaceId;
+      this.previewMarketplaceHash = this.walletClient.previewMarketplaceHash;
+
       if(this.walletClient.previewMarketplaceHash) {
-        const passwordDigest = yield this.walletClient.client.ContentObjectMetadata({
-          versionHash: this.walletClient.previewMarketplaceHash,
-          metadataSubtree: "public/asset_metadata/info/preview_password_digest"
-        });
-
-        if(passwordDigest) {
-          yield PreviewPasswordPrompt({marketplaceId: this.walletClient.previewMarketplaceId, passwordDigest});
-        }
-
         this.SetSessionStorage("preview-marketplace", this.walletClient.previewMarketplaceId);
       }
 
@@ -277,6 +274,7 @@ class RootStore {
 
       const marketplace = decodeURIComponent(searchParams.get("mid")) || decodeURIComponent(searchParams.get("marketplace")) || this.GetSessionStorage("marketplace") || "";
 
+
       if(marketplace) {
         this.SetMarketplace({
           ...(this.ParseMarketplaceParameter(marketplace)),
@@ -290,7 +288,9 @@ class RootStore {
 
       this.SendEvent({event: EVENTS.LOADED});
     } finally {
-      this.loaded = true;
+      if(this.walletClient) {
+        this.loaded = true;
+      }
     }
   });
 
@@ -468,7 +468,8 @@ class RootStore {
           "branding",
           "login_customization",
           "tenant_id",
-          "terms"
+          "terms",
+          "terms_document"
         ],
         produceLinkUrls: true
       })
@@ -481,7 +482,8 @@ class RootStore {
       marketplaceId,
       marketplaceHash,
       tenant_id: metadata.tenant_id,
-      terms: metadata.terms
+      terms: metadata.terms,
+      terms_document: metadata.terms_document
     };
 
     if(metadata?.branding?.color_scheme === "Custom") {
@@ -711,6 +713,10 @@ class RootStore {
 
     if(marketplace && this.specifiedMarketplaceId === marketplace.marketplaceId && marketplace.branding && marketplace.branding.hide_global_navigation) {
       this.hideGlobalNavigation = true;
+    }
+
+    if(this.hideGlobalNavigationInMarketplace) {
+      this.SetSessionStorage("hide-global-navigation-in-marketplace", "true");
     }
 
     this.centerContent = marketplace?.branding?.text_justification === "Center";
@@ -1104,6 +1110,77 @@ class RootStore {
     });
   });
 
+  MediaViewKey({contractAddress, mediaId, preview}) {
+    contractAddress = Utils.FormatAddress(contractAddress);
+    return `nft-media-viewed-${contractAddress}-${mediaId}${preview ? "-preview" : ""}`;
+  }
+
+  MediaViewed({nft, contractAddress, mediaId, preview}) {
+    if(nft) {
+      contractAddress = nft.details.ContractAddr || contractAddress;
+    }
+
+    return this.viewedMedia[this.MediaViewKey({contractAddress, mediaId, preview})];
+  }
+
+  CheckViewedMedia = flow(function * ({nft, contractAddress, mediaIds, preview}) {
+    if(nft) {
+      contractAddress = nft.details.ContractAddr || contractAddress;
+    }
+
+    let viewedMedia = { ...this.viewedMedia };
+
+    yield Promise.all(
+      mediaIds.map(async mediaId => {
+        const key = this.MediaViewKey({contractAddress, mediaId, preview});
+        if(this.viewedMedia[key]) { return; }
+
+        const viewed = await rootStore.walletClient.ProfileMetadata({
+          type: "app",
+          mode: "private",
+          appId: rootStore.appId,
+          key
+        });
+
+        if(viewed) {
+          viewedMedia[key] = true;
+        }
+      })
+    );
+
+    this.viewedMedia = viewedMedia;
+  });
+
+  SetMediaViewed = flow(function * ({nft, contractAddress, mediaId, preview}) {
+    if(nft) {
+      contractAddress = nft.details.ContractAddr || contractAddress;
+    }
+
+    const key = this.MediaViewKey({contractAddress, mediaId, preview});
+    if(!this.viewedMedia[key] && !preview) {
+      yield rootStore.walletClient.SetProfileMetadata({
+        type: "app",
+        mode: "private",
+        appId: rootStore.appId,
+        key,
+        value: true
+      });
+    }
+
+    this.viewedMedia[key] = true;
+  });
+
+  RemoveMediaViewed = flow(function * (key) {
+    yield rootStore.walletClient.RemoveProfileMetadata({
+      type: "app",
+      mode: "private",
+      appId: rootStore.appId,
+      key
+    });
+
+    delete this.viewedMedia[key];
+  });
+
   SignOut(returnUrl) {
     this.ClearAuthInfo();
 
@@ -1111,14 +1188,19 @@ class RootStore {
       this.SetLocalStorage("signed-out", "true");
     }
 
+    this.walletClient?.LogOut();
+
     this.SendEvent({event: EVENTS.LOG_OUT, data: {address: this.CurrentAddress()}});
 
     if(window.auth0) {
       try {
         this.disableCloseEvent = true;
-        window.auth0.logout({
-          returnTo: returnUrl || this.ReloadURL()
-        });
+
+        setTimeout(() => {
+          window.auth0.logout({
+            returnTo: returnUrl || this.ReloadURL()
+          });
+        }, 100);
 
         return;
       } catch(error) {
@@ -1574,6 +1656,8 @@ class RootStore {
   }
 
   ParseMarketplaceParameter(marketplace) {
+    marketplace = marketplace?.replace(/\/+$/, "");
+
     let tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash;
     if(marketplace && marketplace.includes("/")) {
       tenantSlug = marketplace.split("/")[0];

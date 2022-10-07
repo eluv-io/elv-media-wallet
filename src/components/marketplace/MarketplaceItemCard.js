@@ -19,7 +19,7 @@ const MarketplaceItemCard = ({
   noLink,
   noStock,
   noPrice,
-  showFullMedia=false,
+  showVideo=false,
   className="",
   cardClassName=""
 }) => {
@@ -31,12 +31,14 @@ const MarketplaceItemCard = ({
 
   const info = NFTInfo({
     item,
-    showFullMedia
+    showVideo
   });
 
   let description = item.description || item.nftTemplateMetadata.description;
+  let descriptionRichText = item.description_rich_text || (!item.description && item.nftTemplateMetadata.description_rich_text);
   if(info.unauthorized && !info.expired) {
     description = item.permission_description || description;
+    descriptionRichText = undefined;
   }
 
   const variant = item.nftTemplateMetadata.style;
@@ -96,13 +98,14 @@ const MarketplaceItemCard = ({
           marketplaceHash={marketplaceHash}
           item={item}
           path={UrlJoin("public", "asset_metadata", "info", "items", index.toString(), "image")}
-          showFullMedia={showFullMedia}
+          showVideo={showVideo}
         />
       )}
       name={info.name}
       searchName={item.nftTemplateMetadata.display_name}
       subtitle1={info.subtitle1}
       description={description}
+      descriptionRichText={descriptionRichText}
       price={priceText}
       sideText={sideText}
       status={status}

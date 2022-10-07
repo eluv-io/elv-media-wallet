@@ -291,7 +291,7 @@ class CheckoutStore {
     }
   })
 
-  ClaimSubmit = flow(function * ({marketplaceId, sku}) {
+  ClaimSubmit = flow(function * ({marketplaceId, sku, email}) {
     try {
       this.submittingOrder = true;
 
@@ -299,8 +299,13 @@ class CheckoutStore {
 
       this.PurchaseInitiated({confirmationId: sku, tenantId, marketplaceId, sku});
 
+      if(!email) {
+        email = this.rootStore.walletClient.UserInfo()?.email;
+      }
+
       yield this.rootStore.walletClient.ClaimItem({
         marketplaceParams: { marketplaceId },
+        email,
         sku
       });
 

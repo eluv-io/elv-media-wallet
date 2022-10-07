@@ -11,6 +11,7 @@ import {LinkTargetHash, MobileOption} from "../../utils/Utils";
 
 let statusInterval;
 const MintingStatus = observer(({
+  text,
   header,
   subheader,
   Status,
@@ -135,10 +136,10 @@ const MintingStatus = observer(({
         hideText || finished ? null :
           <div className="page-headers">
             <div className="page-header">
-              {header || "Your items are being minted"}
+              {text ? text.header : (header || "Your items are being minted")}
             </div>
             <div className="page-subheader">
-              {subheader || "This may take several minutes"}
+              {text ? text.subheader1 : (subheader || "This may take several minutes")}
             </div>
           </div>
       }
@@ -223,10 +224,10 @@ const MintingStatus = observer(({
       }
 
       {
-        rootStore.hideNavigation || hideText || finished ? null :
+        rootStore.hideNavigation || hideText || finished || (text && !text.subheader2) ? null :
           <div className="minting-status__text">
             <h2 className="minting-status__navigation-message">
-              You can navigate away from this page if you don't want to wait. Your items will be available in your wallet when the process is complete.
+              { text ? text.subheader2 : "You can navigate away from this page if you don't want to wait. Your items will be available in your wallet when the process is complete." }
             </h2>
           </div>
       }
@@ -235,12 +236,12 @@ const MintingStatus = observer(({
   );
 });
 
-const MintResults = observer(({header, subheader, basePath, nftBasePath, items, backText}) => {
+const MintResults = observer(({text, header, subheader, basePath, nftBasePath, items, backText}) => {
   return (
     <div className="minting-status-results" key="minting-status-results-card-list">
       <div className="page-headers">
-        <div className="page-header">{ header }</div>
-        <div className="page-subheader">{ subheader }</div>
+        <div className="page-header">{ text ? text.header : header }</div>
+        <div className="page-subheader">{ text ? text.subheader1 : subheader }</div>
       </div>
       <div className="card-list card-list--centered">
         {
@@ -544,11 +545,21 @@ export const PackOpenStatus = observer(() => {
     tokenId: match.params.tokenId
   });
 
+  const mintingText = packOptions.use_custom_open_text && packOptions.minting_text || {};
+
   if(!status) {
     return (
       <MintingStatus
         key={`status-${videoHash}`}
-        header="Your pack is opening"
+        text={!packOptions.use_custom_open_text ?
+          undefined :
+          {
+            header: mintingText.minting_header,
+            subheader1: mintingText.minting_subheader1,
+            subheader2: mintingText.minting_subheader2
+          }
+        }
+        header={"Your pack is opening"}
         Status={Status}
         OnFinish={({status}) => setStatus(status)}
         videoHash={videoHash}
@@ -564,6 +575,13 @@ export const PackOpenStatus = observer(() => {
 
   return (
     <MintResults
+      text={!packOptions.use_custom_open_text ?
+        undefined :
+        {
+          header: mintingText.reveal_header,
+          subheader1: mintingText.reveal_subheader
+        }
+      }
       header="Congratulations!"
       subheader={`You've received the following ${items.length === 1 ? "item" : "items"}:`}
       items={items}

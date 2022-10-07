@@ -1,10 +1,15 @@
 .markdown-document {
+  & > * {
+    font-size: 16px;
+  }
+
   h1,
   h2,
   h3,
   h4,
   h5,
   p {
+    line-height: 1.3em;
     margin: 1em 0;
   }
 
@@ -32,13 +37,86 @@
     font-size: 16px;
   }
 
+  strong {
+    font-weight: 600;
+  }
+
   a {
     // sass-lint:disable no-important
     color: var(--color-text-highlight) !important;
 
+    * {
+      color: var(--color-text-highlight) !important;
+    }
+
     &:hover {
       // sass-lint:disable no-important
       color: var(--color-text-highlight) !important;
+
+      * {
+        color: var(--color-text-highlight) !important;
+      }
+    }
+  }
+
+  blockquote {
+    margin: 30px 0 20px 20px;
+  }
+
+  ol {
+    counter-reset: item;
+    list-style: none;
+
+    li {
+      counter-increment: item;
+      margin-bottom: 5px;
+
+      &::before {
+        content: counter(item);
+        display: inline-block;
+        margin-right: 10px;
+        text-align: center;
+        width: 0.8em;
+      }
+    }
+  }
+
+  ul {
+    list-style: disc;
+    margin-left: 1em;
+  }
+
+  @media screen and (max-width: $tablet-breakpoint) {
+    & > * {
+      font-size: 14px;
+    }
+
+    h1 {
+      font-size: 24px;
+    }
+
+    h2 {
+      font-size: 20px;
+    }
+
+    h3 {
+      font-size: 18px;
+    }
+
+    h4 {
+      font-size: 16px;
+    }
+
+    h5 {
+      font-size: 14px;
+    }
+
+    p {
+      font-size: 14px;
+    }
+
+    strong {
+      font-weight: 600;
     }
   }
 }

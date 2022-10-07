@@ -100,7 +100,15 @@ header,
 }
 
 .app-container {
-  padding-bottom: 200px;
+  background-color: var(--color-page-bg);
+
+  &--transparent {
+    background: transparent;
+
+    .page-block {
+      background: transparent !important;
+    }
+  }
 }
 
 .page-block {
@@ -128,13 +136,6 @@ header,
     }
   }
 
-  &--subheader {
-    .page-block__content {
-      padding-bottom: 10px;
-      padding-top: 10px;
-    }
-  }
-
   &--user-profile {
     background: var(--color-user-profile-bg-primary);
   }
@@ -152,6 +153,10 @@ header,
     }
   }
 
+  &--lower-content {
+    background: var(--color-lower-page-bg);
+  }
+
   &__content {
     display: flex;
     flex: 1 1 auto;
@@ -160,6 +165,7 @@ header,
     max-width: 100%;
     min-height: 100%;
     padding: 25px;
+    position: relative;
     width: 100%;
   }
 
@@ -220,7 +226,6 @@ body,
 }
 
 select {
-  // TODO: maybe have to make custom
   appearance: none;
   background: var(--background-input);
   border: var(--border-input);
@@ -304,6 +309,12 @@ em {
 
 .page-container {
   height: 100%;
+
+  .page-block {
+    &:last-child {
+      padding-bottom: 200px;
+    }
+  }
 
   .page-loader {
     min-height: 60vh;
@@ -411,6 +422,16 @@ em {
     &__content {
       max-width: $breakpoint;
       width: $breakpoint;
+
+      &--album {
+        max-width: $large-breakpoint;
+        width: $large-breakpoint;
+      }
+
+      &--unrestricted {
+        max-width: calc(100vw - 100px);
+        width: calc(100vw - 100px);
+      }
     }
   }
 }
