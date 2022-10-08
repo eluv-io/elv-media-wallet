@@ -65,6 +65,8 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
           player?.Destroy();
         },
         playerOptions: {
+          // Poster only for audio
+          posterUrl: mediaItem.mediaInfo.mediaType === "audio" ? mediaItem.mediaInfo.imageUrl : undefined,
           playerCallback: ({player, videoElement}) => {
             if(SetVideoElement) {
               SetVideoElement(videoElement);

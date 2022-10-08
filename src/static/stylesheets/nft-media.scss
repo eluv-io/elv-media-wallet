@@ -419,6 +419,8 @@
 
   &__row {
     display: flex;
+    gap: 16px;
+    padding-bottom: 8px;
     width: 100%;
 
     &--content {
@@ -442,7 +444,6 @@
       border-radius: var(--border-radius-nft-media-album-content);
       box-shadow: var(--box-shadow-nft-media-album-content);
       display: flex;
-      margin-right: 16px;
       position: relative;
     }
 
@@ -498,14 +499,14 @@
   }
 
   &__text-container {
-    margin-top: 16px;
-    padding: 20px;
+    margin-top: 8px;
 
     &--description {
       background: var(--background-nft-media-album-content);
       border: var(--border-nft-media-album-content);
       border-radius: var(--border-radius-nft-media-album-content);
       box-shadow: var(--box-shadow-nft-media-album-content);
+      padding: 20px;
     }
 
   }
