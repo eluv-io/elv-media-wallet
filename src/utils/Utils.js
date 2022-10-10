@@ -433,6 +433,8 @@ export const NFTMedia = ({nft, item, width}) => {
     embedUrl = new URL("https://embed.v3.contentfabric.io");
     embedUrl.searchParams.set("m", "");
     embedUrl.searchParams.set("vid", LinkTargetHash(item.video));
+    embedUrl.searchParams.set("ap", "");
+    embedUrl.searchParams.set("lp", "");
   } else if(nft?.metadata?.embed_url && nft.metadata.playable) {
     embedUrl = new URL(nft.metadata.embed_url);
 
@@ -440,12 +442,12 @@ export const NFTMedia = ({nft, item, width}) => {
       embedUrl.searchParams.set("ct", "h");
     } else {
       embedUrl.searchParams.set("m", "");
+      embedUrl.searchParams.set("ap", "");
+      embedUrl.searchParams.set("lp", "");
     }
   }
 
   if(embedUrl) {
-    embedUrl.searchParams.set("ap", "");
-    embedUrl.searchParams.set("lp", "");
     embedUrl.searchParams.set("nwm", "");
     embedUrl.searchParams.set("p", "");
     embedUrl.searchParams.set("net", rootStore.network === "demo" ? "demo" : "main");
