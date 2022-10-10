@@ -134,7 +134,7 @@ class RootStore {
 
   EVENTS = EVENTS;
 
-  navigationInfo = {};
+  navigationInfo = this.GetSessionStorageJSON("navigation-info") || {};
 
   navigationBreadcrumbs = [];
 
@@ -1577,12 +1577,18 @@ class RootStore {
   SetNavigationInfo({navigationKey, path, url, marketplaceId, breadcrumbs=[]}) {
     this.navigationBreadcrumbs = breadcrumbs;
 
+    const currentMarketplace = this.marketplaces[marketplaceId];
+
     this.navigationInfo = {
       marketplaceId,
       navigationKey,
       path,
-      url
+      url,
+      marketplaceBackground: currentMarketplace?.storefront?.background?.url,
+      marketplaceBackgroundMobile: currentMarketplace?.storefront?.background_mobile?.url
     };
+
+    this.SetSessionStorage("navigation-info", JSON.stringify(this.navigationInfo));
   }
 
   SetLoginLoaded() {

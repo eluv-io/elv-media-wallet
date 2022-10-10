@@ -175,11 +175,7 @@ const App = observer(() => {
     let backgroundImage = (rootStore.pageWidth < 800 && rootStore.appBackground.mobile) || rootStore.appBackground.desktop || "";
 
     if(rootStore.navigationInfo.navigationKey === "marketplace") {
-      const currentMarketplace = rootStore.marketplaces[rootStore.navigationInfo.marketplaceId];
-
-      if(currentMarketplace) {
-        backgroundImage = ((rootStore.pageWidth < 800 && currentMarketplace?.storefront?.background_mobile) || currentMarketplace?.storefront?.background)?.url || backgroundImage;
-      }
+      backgroundImage = (rootStore.pageWidth < 800 && rootStore.navigationInfo.marketplaceBackgroundMobile) || rootStore.navigationInfo.marketplaceBackground || backgroundImage;
     }
 
     const currentBackground = backgroundElement.style.backgroundImage || "";
@@ -196,7 +192,7 @@ const App = observer(() => {
     }
 
     setHasBackgroundImage(!!backgroundImage);
-  }, [rootStore.loaded, rootStore.appBackground, rootStore.pageWidth, rootStore.navigationInfo.navigationKey]);
+  }, [rootStore.loaded, rootStore.appBackground, rootStore.pageWidth, rootStore.navigationInfo]);
 
   if(rootStore.loginOnly) {
     return <Redirect to="/login" />;
