@@ -774,6 +774,9 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [previewMedia, setPreviewMedia] = useState(mediaPreviewEnabled);
 
+  const itemTemplate = item?.nft_template?.nft;
+  const contractAddress = nft?.details?.ContractAddr || itemTemplate?.address;
+
   const LoadListingStatus = async () => {
     const status = await transferStore.CurrentNFTStatus({
       listingId,
@@ -863,9 +866,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
   }
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  const itemTemplate = item?.nft_template?.nft;
   const listingId = nft?.details?.ListingId || match.params.listingId || listingStatus?.listing?.details?.ListingId;
-  const contractAddress = nft?.details?.ContractAddr || itemTemplate?.address;
   const tokenId = match.params.tokenId || listingStatus?.listing?.details?.TokenIdStr;
   const isInCheckout = listingStatus?.listing?.details?.CheckoutLockedUntil && listingStatus?.listing.details.CheckoutLockedUntil > Date.now();
   const showModal = match.params.mode === "purchase" || match.params.mode === "list";
