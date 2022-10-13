@@ -771,6 +771,7 @@
     padding: 30px 50px 30px 30px;
     position: relative;
     width: 100%;
+    max-width: $breakpoint;
 
     * {
       font: var(--font-nft-media-text);
