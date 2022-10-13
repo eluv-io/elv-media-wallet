@@ -80,6 +80,7 @@ class RootStore {
   darkMode = searchParams.has("dk") || this.GetSessionStorage("dark-mode");
 
   availableMarketplaces = {};
+  loginCustomization = {};
 
   marketplaceId = undefined;
   marketplaceHashes = {};
@@ -102,9 +103,9 @@ class RootStore {
   pendingWalletBalance = undefined;
   totalWalletBalance = undefined;
 
-  specifiedMarketplaceId = undefined;
+  specifiedMarketplaceId = this.GetSessionStorage("marketplace");
   specifiedMarketplaceHash = undefined;
-  previewMarketplaceId = undefined;
+  previewMarketplaceId = this.GetSessionStorage("preview-marketplace");
   previewMarketplaceHash = undefined;
 
   hideGlobalNavigation = false;
@@ -456,46 +457,47 @@ class RootStore {
       return {};
     }
 
-    const savedData = this.GetSessionStorageJSON(`marketplace-login-${marketplaceHash}`, true);
+    if(!this.loginCustomization[marketplaceId]) {
+      let metadata = (
+        yield (yield Client()).ContentObjectMetadata({
+          versionHash: yield this.walletClient.LatestMarketplaceHash({
+            marketplaceParams: {
+              marketplaceId,
+              marketplaceHash
+            }
+          }),
+          metadataSubtree: UrlJoin("public", "asset_metadata", "info"),
+          select: [
+            "branding",
+            "login_customization",
+            "tenant_id",
+            "terms",
+            "terms_document"
+          ],
+          produceLinkUrls: true
+        })
+      ) || {};
 
-    if(savedData) {
-      return savedData;
+      metadata = {
+        ...(metadata.login_customization || {}),
+        branding: metadata?.branding || {},
+        darkMode: metadata?.branding?.color_scheme === "Dark",
+        marketplaceId,
+        marketplaceHash,
+        tenant_id: metadata.tenant_id,
+        terms: metadata.terms,
+        terms_document: metadata.terms_document
+      };
+
+      if(metadata?.branding?.color_scheme === "Custom") {
+        metadata.sign_up_button = undefined;
+        metadata.log_in_button = undefined;
+      }
+
+      this.loginCustomization[marketplaceId] = metadata;
     }
 
-    let metadata = (
-      yield (yield Client()).ContentObjectMetadata({
-        versionHash: yield this.walletClient.LatestMarketplaceHash({marketplaceParams: {marketplaceId, marketplaceHash}}),
-        metadataSubtree: UrlJoin("public", "asset_metadata", "info"),
-        select: [
-          "branding",
-          "login_customization",
-          "tenant_id",
-          "terms",
-          "terms_document"
-        ],
-        produceLinkUrls: true
-      })
-    ) || {};
-
-    metadata = {
-      ...(metadata.login_customization || {}),
-      branding: metadata?.branding || {},
-      darkMode: metadata?.branding?.color_scheme === "Dark",
-      marketplaceId,
-      marketplaceHash,
-      tenant_id: metadata.tenant_id,
-      terms: metadata.terms,
-      terms_document: metadata.terms_document
-    };
-
-    if(metadata?.branding?.color_scheme === "Custom") {
-      metadata.sign_up_button = undefined;
-      metadata.log_in_button = undefined;
-    }
-
-    this.SetSessionStorage(`marketplace-login-${marketplaceHash}`, Utils.B64(JSON.stringify(metadata)));
-
-    return metadata;
+    return this.loginCustomization[marketplaceId];
   });
 
   SendEvent({event, data}) {
