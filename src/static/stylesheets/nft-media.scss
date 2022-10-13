@@ -835,10 +835,8 @@
     }
 
     &__actions {
-      align-items: center;
       display: flex;
       flex-direction: column;
-      justify-content: center;
     }
 
     &__button {
@@ -860,8 +858,9 @@
       &--image {
         background: transparent;
         border: 0;
-        height: 80px;
-        width: 300px;
+        height: auto;
+        max-height: 100px;
+        width: 225px;
       }
 
       img {
@@ -1119,19 +1118,12 @@
     &__featured-item {
       padding: 30px;
 
-      &__actions {
-        align-items: flex-end;
-        padding-right: 20px;
-      }
-
       &__content {
         width: 100%;
       }
 
       &__button {
         font-size: 14px;
-        max-height: 60px;
-        max-width: 250px;
         padding: 20px 40px;
       }
 
@@ -1173,6 +1165,7 @@
       justify-content: center;
 
       &__actions {
+        align-items: center;
         padding: 0;
       }
 
@@ -1182,6 +1175,10 @@
           min-height: 60px;
           min-width: 200px;
           width: 100%;
+        }
+
+        &--image {
+          width: 250px;
         }
       }
 

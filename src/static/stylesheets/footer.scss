@@ -1,0 +1,84 @@
+.footer {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: 100px;
+  width: 100%;
+
+  &__links {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 60px;
+    justify-content: center;
+    width: 100%;
+  }
+
+  &__separator {
+    border-bottom: 1px solid var(--color-text-primary);
+    border-radius: 3px;
+    margin: 30px;
+    opacity: 0.5;
+    width: 100%;
+  }
+
+  &__tagline {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    height: max-content;
+    justify-content: center;
+    width: 125px;
+
+    &__text {
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+    }
+
+    &__image {
+      stroke-width: 5px;
+    }
+  }
+
+  &__item {
+    font-size: 16px;
+    min-width: 80px;
+    text-align: center;
+  }
+
+  &__modal {
+    height: 100%;
+    width: 100%;
+
+    .modal__content {
+      align-items: center;
+      display: flex;
+      height: 100%;
+      justify-content: center;
+      overflow: auto;
+      width: 100%;
+    }
+
+    &__content {
+      &--frame {
+        height: 100%;
+        max-width: $tablet-breakpoint;
+        width: 100%;
+      }
+
+      &--rich-text {
+        @include component;
+        max-width: $tablet-breakpoint;
+        padding: 20px 50px 50px;
+        width: 100%;
+      }
+
+      &--image {
+        object-fit: contain;
+      }
+    }
+  }
+
+}
