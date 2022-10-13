@@ -194,11 +194,6 @@
     }
   }
 
-  .login-page__tagline-container {
-    margin-top: 50px;
-    width: 100%;
-  }
-
   .login-page__tagline {
     align-items: center;
     color: var(--color-login-text-secondary);
@@ -208,7 +203,7 @@
     font-weight: 300;
     justify-content: center;
     letter-spacing: 0.07em;
-    margin-top: 50px;
+    margin: 40px 0 25px;
     text-transform: uppercase;
     user-select: none;
 
@@ -355,11 +350,45 @@
   &__consent {
     align-items: center;
     display: flex;
+    justify-content: center;
     padding-top: 10px;
+    position: relative;
+    width: 100%;
   }
 
   &__consent-checkbox {
     margin-right: 10px;
+  }
+
+  &__consent-label {
+    text-align: center;
+
+    * {
+      text-align: center;
+    }
+
+    p,
+    a {
+      font-size: 11px;
+      margin: 0;
+    }
+
+    &:not(&--required) {
+      margin-right: 30px;
+    }
+
+    &.markdown-document {
+      cursor: unset;
+    }
+  }
+
+  &__consent-required-indicator {
+    align-items: center;
+    color: var(--color-component-text-highlight);
+    display: flex;
+    font-size: 14px;
+    justify-content: center;
+    margin: 0 20px 0 5px;
   }
 
   @media screen and (max-width: 600px) {
