@@ -313,6 +313,11 @@ em {
   .page-block {
     &:last-child {
       padding-bottom: 200px;
+
+      &.page-block--footer {
+        padding-bottom: 50px;
+        padding-top: 100px;
+      }
     }
   }
 

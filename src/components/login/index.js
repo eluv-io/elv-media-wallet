@@ -3,15 +3,16 @@ import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
 import {Loader} from "Components/common/Loaders";
+import Utils from "@eluvio/elv-client-js/src/Utils";
+import Modal from "Components/common/Modal";
+import Confirm from "Components/common/Confirm";
+import {RichText} from "Components/common/UIComponents";
+
 
 import UpCaretIcon from "Assets/icons/up-caret.svg";
 import DownCaretIcon from "Assets/icons/down-caret.svg";
 import MetamaskIcon from "Assets/icons/metamask fox.png";
 import EluvioLogo from "Assets/icons/logo.svg";
-import Utils from "@eluvio/elv-client-js/src/Utils";
-import Modal from "Components/common/Modal";
-import Confirm from "Components/common/Confirm";
-import {RichText} from "Components/common/UIComponents";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 const params = {
@@ -69,7 +70,7 @@ const PoweredBy = ({customizationOptions}) => {
 
   return (
     <div className="login-page__tagline">
-      Powered by <ImageIcon icon={EluvioLogo} className="login-page__tagline__image" title="Eluv.io" />
+      <ImageIcon icon={EluvioLogo} className="login-page__tagline__image" title="Eluv.io" />
     </div>
   );
 };

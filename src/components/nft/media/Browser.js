@@ -59,22 +59,22 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
         <div className="nft-media-browser__featured-item__name">{itemDetails.name || mediaItem.name || ""}</div>
         <div className="nft-media-browser__featured-item__subtitle-1">{itemDetails.subtitle_1 || ""}</div>
         <RichText richText={itemDetails.description} className="markdown-document nft-media-browser__featured-item__description"/>
+        {
+          hasButton ?
+            <div className="nft-media-browser__featured-item__actions">
+              <Linkish
+                {...linkParams}
+                className={`action action-primary nft-media-browser__featured-item__button ${itemDetails.button_image ? "nft-media-browser__featured-item__button--image" : ""}`}
+              >
+                {
+                  itemDetails.button_image ?
+                    <img src={itemDetails.button_image.url} alt={itemDetails.button_text}/> :
+                    itemDetails.button_text
+                }
+              </Linkish>
+            </div> : null
+        }
       </div>
-      {
-        hasButton ?
-          <div className="nft-media-browser__featured-item__actions">
-            <Linkish
-              {...linkParams}
-              className={`action action-primary nft-media-browser__featured-item__button ${itemDetails.button_image ? "nft-media-browser__featured-item__button--image" : ""}`}
-            >
-              {
-                itemDetails.button_image ?
-                  <img src={itemDetails.button_image.url} alt={itemDetails.button_text}/> :
-                  itemDetails.button_text
-              }
-            </Linkish>
-          </div> : null
-      }
     </Linkish>
   );
 };
