@@ -5,6 +5,8 @@
 }
 
 .login-modal {
+  backdrop-filter: unset;
+  background: var(--background-modal-overlay);
   overflow-y: hidden;
 
   * {
