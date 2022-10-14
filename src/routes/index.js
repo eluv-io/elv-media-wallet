@@ -179,13 +179,12 @@ const RouteWrapper = observer(({routes, children}) => {
   useEffect(() => {
     const currentRoute = routes.find(route => match.path === route.path);
 
-    // Make copy of routes
-    routes = JSON.parse(JSON.stringify(routes));
-
     const breadcrumbs = routes
       .filter(route => !route.noBreadcrumb && match.path.includes(route.path))
       .sort((a, b) => a.path.length < b.path.length ? -1 : 1)
       .map(route => {
+        route = { ...route };
+
         Object.keys(match.params).map(key => route.path = route.path.replace(`:${key}`, match.params[key]));
 
         return {
