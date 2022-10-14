@@ -11,10 +11,10 @@ import {RichText} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import EluvioLogo from "Assets/icons/EluvioLogo2.svg";
 
-const Footer = ({footerLinks=[]}) => {
+const Footer = ({footerText, footerLinks=[]}) => {
   const [visibleItem, setVisibleItem] = useState(undefined);
 
-  if(footerLinks.length === 0) {
+  if(footerLinks.length === 0 && !footerText) {
     return null;
   }
 
@@ -40,10 +40,14 @@ const Footer = ({footerLinks=[]}) => {
     <div className="page-block page-block--footer">
       <div className="page-block__content">
         <div className="footer footer--marketplace">
-          <div className="footer__links">
-            { links }
-          </div>
+          {
+            links.length > 0 ?
+              <div className="footer__links">
+                {links}
+              </div> : null
+          }
           <div className="footer__separator" />
+          { footerText ? <RichText className="markdown-document footer__text" richText={footerText}/> : null }
           <div className="footer__tagline">
             <div className="footer__tagline__text">Powered by</div>
             <ImageIcon icon={EluvioLogo} className="footer__tagline__image" title="Powered by Eluv.io" />
@@ -117,7 +121,10 @@ const MarketplaceWrapper = observer(({children}) => {
         loadingClassName="page-loader content"
       >
         { children }
-        <Footer footerLinks={rootStore.marketplaces[match.params.marketplaceId]?.footer_links} />
+        <Footer
+          footerText={rootStore.marketplaces[match.params.marketplaceId]?.footer_text}
+          footerLinks={rootStore.marketplaces[match.params.marketplaceId]?.footer_links}
+        />
       </AsyncComponent>
     );
   }

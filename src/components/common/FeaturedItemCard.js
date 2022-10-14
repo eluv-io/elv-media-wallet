@@ -22,6 +22,7 @@ const FeaturedItemCard = observer(({
   action,
   onClick,
   variant,
+  disabled,
   className="",
 }) => {
   const match = useRouteMatch();
@@ -132,7 +133,7 @@ const FeaturedItemCard = observer(({
   return (
     <div
       onClick={onClick}
-      className={`featured-item ${justification === "Right" ? "featured-item--right-just" : ""} ${className}`}
+      className={`featured-item ${disabled ? "featured-item--disabled" : ""} ${justification === "Right" ? "featured-item--right-just" : ""} ${className}`}
     >
       { cardContents }
     </div>

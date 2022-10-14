@@ -114,7 +114,12 @@ class RootStore {
   hideMarketplaceNavigation = false;
   sidePanelMode = false;
 
-  appBackground = { desktop: this.GetSessionStorage("background-image"), mobile: this.GetSessionStorage("background-image") };
+  appBackground = {
+    desktop: this.GetSessionStorage("background-image"),
+    mobile: this.GetSessionStorage("background-image-mobile"),
+    marketplaceDesktop: this.GetSessionStorage("background-image-marketplace"),
+    marketplaceMobile: this.GetSessionStorage("background-image-marketplace-mobile"),
+  };
   centerContent = false;
   centerItems = false;
 
@@ -699,12 +704,19 @@ class RootStore {
     const desktopBackground = marketplace?.branding?.background?.url || "";
     const mobileBackground = marketplace?.branding?.background_mobile?.url || "";
 
+    const marketplaceBackground = marketplace?.storefront?.background?.url || "";
+    const marketplaceBackgroundMobile = marketplace?.storefront?.background_mobile?.url || "";
+
     this.SetSessionStorage("background-image", desktopBackground);
     this.SetSessionStorage("background-image-mobile", mobileBackground);
+    this.SetSessionStorage("background-image-marketplace", marketplaceBackground);
+    this.SetSessionStorage("background-image-marketplace-mobile", marketplaceBackgroundMobile);
 
     this.appBackground = {
       desktop: desktopBackground,
-      mobile: mobileBackground
+      mobile: mobileBackground,
+      marketplaceDesktop: marketplaceBackground,
+      marketplaceMobile: marketplaceBackgroundMobile
     };
 
     let options = { font: "Hevetica Neue" };
@@ -1579,15 +1591,11 @@ class RootStore {
   SetNavigationInfo({navigationKey, path, url, marketplaceId, breadcrumbs=[]}) {
     this.navigationBreadcrumbs = breadcrumbs;
 
-    const currentMarketplace = this.marketplaces[marketplaceId];
-
     this.navigationInfo = {
       marketplaceId,
       navigationKey,
       path,
-      url,
-      marketplaceBackground: currentMarketplace?.storefront?.background?.url,
-      marketplaceBackgroundMobile: currentMarketplace?.storefront?.background_mobile?.url
+      url
     };
 
     this.SetSessionStorage("navigation-info", JSON.stringify(this.navigationInfo));

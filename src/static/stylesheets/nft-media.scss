@@ -768,11 +768,11 @@
     border: 0;
     border-radius: var(--border-radius-nft-media-featured);
     display: flex;
+    max-width: $breakpoint;
     overflow: hidden;
     padding: 30px 50px 30px 30px;
     position: relative;
     width: 100%;
-    max-width: $breakpoint;
 
     * {
       font: var(--font-nft-media-text);

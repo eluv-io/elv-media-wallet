@@ -175,7 +175,7 @@ const App = observer(() => {
     let backgroundImage = (rootStore.pageWidth < 800 && rootStore.appBackground.mobile) || rootStore.appBackground.desktop || "";
 
     if(rootStore.navigationInfo.navigationKey === "marketplace") {
-      backgroundImage = (rootStore.pageWidth < 800 && rootStore.navigationInfo.marketplaceBackgroundMobile) || rootStore.navigationInfo.marketplaceBackground || backgroundImage;
+      backgroundImage = (rootStore.pageWidth < 800 && rootStore.appBackground.marketplaceMobile) || rootStore.appBackground.marketplaceDesktop || backgroundImage;
     }
 
     const currentBackground = backgroundElement.style.backgroundImage || "";

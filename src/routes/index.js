@@ -87,7 +87,7 @@ const SharedRoutes = ({includeMarketplaceRoutes}) => {
 
     { name: "Profile", path: "profile", Component: Profile, authed: true }
   ]
-    .map(route => ({ ...route, navigationKey: "shared" }));
+    .map(route => ({ ...route, navigationKey: route.navigationKey || "shared" }));
 };
 
 const MarketplaceRoutes = () => {
@@ -179,6 +179,9 @@ const RouteWrapper = observer(({routes, children}) => {
   useEffect(() => {
     const currentRoute = routes.find(route => match.path === route.path);
 
+    // Make copy of routes
+    routes = JSON.parse(JSON.stringify(routes));
+
     const breadcrumbs = routes
       .filter(route => !route.noBreadcrumb && match.path.includes(route.path))
       .sort((a, b) => a.path.length < b.path.length ? -1 : 1)
@@ -191,8 +194,13 @@ const RouteWrapper = observer(({routes, children}) => {
         };
       });
 
+    let navigationKey = currentRoute.navigationKey;
+    if(navigationKey === "shared") {
+      navigationKey = match.params.marketplaceId ? "marketplace" : "global";
+    }
+
     rootStore.SetNavigationInfo({
-      navigationKey: currentRoute.navigationKey,
+      navigationKey,
       marketplaceId: match.params.marketplaceId,
       url: match.url,
       path: match.path,
@@ -205,6 +213,13 @@ const RouteWrapper = observer(({routes, children}) => {
     }
   });
 
+  return children;
+});
+
+const GlobalWrapper = observer(({routes, children}) => {
+  const match = useRouteMatch();
+
+  window.routes = routes;
   const currentRoute = routes.find(route => match.path === route.path);
 
   if(currentRoute?.redirect) {
@@ -253,9 +268,9 @@ const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
       {
         routes.map(({path, exact, authed, loadUser, includeUserProfile, ignoreLoginCapture, Component}) => {
           let result = (
-            <RouteWrapper routes={routes}>
+            <GlobalWrapper routes={[...routes]}>
               { Component ? <Component key={`component-${path}`} /> : null }
-            </RouteWrapper>
+            </GlobalWrapper>
           );
 
           if(Wrapper) {
@@ -293,7 +308,9 @@ const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
           return (
             <Route exact={typeof exact === "undefined" ? true : exact} path={path} key={`wallet-route-${path}`}>
               <ErrorBoundary>
-                { result }
+                <RouteWrapper routes={routes}>
+                  { result }
+                </RouteWrapper>
               </ErrorBoundary>
             </Route>
           );
