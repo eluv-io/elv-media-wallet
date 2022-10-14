@@ -25,7 +25,7 @@
 
   <script type="text/javascript">
     try {
-      const backgroundImage = (window.innerWidth < 800 && sessionStorage.getItem("background-image-mobile")) || sessionStorage.getItem("background-image");
+      const backgroundImage = sessionStorage.getItem("current-background");
 
       if(backgroundImage) {
         document.querySelector("#app-background").style.background = "no-repeat top center / cover url(\"" + backgroundImage + "\")";

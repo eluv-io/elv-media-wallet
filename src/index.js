@@ -186,8 +186,10 @@ const App = observer(() => {
       if(backgroundImage) {
         backgroundElement.style.background = `no-repeat top center / cover url("${backgroundImage}")`;
         document.querySelector("#app").style.background = "transparent";
+        rootStore.SetSessionStorage("current-background", backgroundImage);
       } else {
         backgroundElement.style.removeProperty("background");
+        rootStore.RemoveSessionStorage("current-background");
       }
     }
 
