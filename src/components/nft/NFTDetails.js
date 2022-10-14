@@ -997,8 +997,13 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
                         }
 
                         setTimeout(() => {
-                          document.querySelector(".page-block--nft-content")
-                            ?.scrollIntoView({block: "start", inline: "start", behavior: "smooth"});
+                          const target = document.querySelector(".page-block--nft-content");
+                          if(target) {
+                            window.scrollTo({
+                              top: target.getBoundingClientRect().top + window.scrollY,
+                              behavior: "smooth"
+                            });
+                          }
                         }, tab !== "Media" ? 500 : 100);
                       }}
                     /> : null

@@ -322,7 +322,7 @@ em {
   }
 
   .page-loader {
-    min-height: 60vh;
+    min-height: 75vh;
     width: 100%;
   }
 
@@ -491,6 +491,10 @@ em {
     .content-subheader {
       font-size: 12px;
     }
+  }
+
+  .page-block__content--unrestricted {
+    padding: 25px 15px;
   }
 }
 

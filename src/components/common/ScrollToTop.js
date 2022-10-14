@@ -8,7 +8,10 @@ class ScrollToTop extends React.Component {
       const target = document.querySelector("#top-scroll-target");
 
       if(target) {
-        target?.scrollIntoView({block: "start", inline: "start", behavior: "smooth"});
+        window.scrollTo({
+          top: target.getBoundingClientRect().top + window.scrollY,
+          behavior: "smooth"
+        });
       } else {
         window.scrollTo({
           top: 0,

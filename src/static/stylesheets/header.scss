@@ -47,6 +47,7 @@
     svg,
     img {
       height: 20px;
+      min-width: 20px;
       width: 20px;
     }
 
@@ -258,6 +259,10 @@
       &:not(:last-child) {
         margin-right: 20px;
       }
+    }
+
+    .header__profile {
+      position: relative;
     }
   }
 

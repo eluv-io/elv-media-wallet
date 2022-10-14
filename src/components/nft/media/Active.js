@@ -155,8 +155,13 @@ const NFTActiveMedia = observer(({nftInfo}) => {
 
   useEffect(() => {
     setVideoElement(undefined);
-
-    document.querySelector("#top-scroll-target")?.scrollIntoView({block: "start", inline: "start", behavior: "smooth"});
+    const target = document.querySelector("#top-scroll-target");
+    if(target) {
+      window.scrollTo({
+        top: target.getBoundingClientRect().top + window.scrollY,
+        behavior: "smooth"
+      });
+    }
   }, [match.params.sectionId, match.params.collectionId, match.params.mediaIndex]);
 
   if(!current) { return null; }
