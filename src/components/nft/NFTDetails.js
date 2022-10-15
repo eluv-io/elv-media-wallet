@@ -734,7 +734,19 @@ const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, showMediaSection
                 <button
                   key={`tab-${tabName}`}
                   className={`action details-page__tabbed-content__tab ${tab === tabName ? "details-page__tabbed-content__tab--active" : ""}`}
-                  onClick={() => setTab(tabName)}
+                  onClick={() => {
+                    setTab(tabName);
+
+                    setTimeout(() => {
+                      const target = document.querySelector(".page-block--nft-content");
+                      if(target) {
+                        window.scrollTo({
+                          top: target.getBoundingClientRect().top + window.scrollY,
+                          behavior: "smooth"
+                        });
+                      }
+                    }, 250);
+                  }}
                 >
                   <ImageIcon icon={tabIcon} className="details-page__tabbed-content__tab__icon" />
                   <div className="details-page__tabbed-content__tab__text">
