@@ -196,7 +196,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
   if(albumView) {
     return (
       <div className="page-block page-block--main-content">
-        <div className="page-block__content page-block__content--album">
+        <div className="page-block__content page-block__content--wide">
           <div className="nft-media-album">
             {
               backPage ?
@@ -245,7 +245,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
   return (
     <div className="page-block page-block--main-content">
       { showQRModal ? <NFTActiveMediaQRCode link={currentMediaItem.mediaInfo.mediaLink} Close={() => setShowQRModal(false)} /> : null }
-      <div className={`page-block__content ${nftInfo.additionalMedia.isSingleList ? "" : "page-block__content--unrestricted"}`}>
+      <div className={`page-block__content ${nftInfo.additionalMedia.isSingleList ? "" : "page-block__content--extra-wide"}`}>
         <div className={`nft-media ${nftInfo.additionalMedia.isSingleList ? "nft-media--single-list" : ""}`}>
           {
             backPage ?

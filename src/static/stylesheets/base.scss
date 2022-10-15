@@ -428,14 +428,14 @@ em {
       max-width: $breakpoint;
       width: $breakpoint;
 
-      &--album {
+      &--wide {
         max-width: $large-breakpoint;
         width: $large-breakpoint;
       }
 
-      &--unrestricted {
-        max-width: calc(100vw - 100px);
-        width: calc(100vw - 100px);
+      &--extra-wide {
+        max-width: $extra-large-breakpoint;
+        width: $extra-large-breakpoint;
       }
     }
   }
@@ -493,7 +493,7 @@ em {
     }
   }
 
-  .page-block__content--unrestricted {
+  .page-block__content--extra-wide {
     padding: 25px 15px;
   }
 }
