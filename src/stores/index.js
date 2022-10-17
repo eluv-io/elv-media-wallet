@@ -173,16 +173,14 @@ class RootStore {
   }
 
   Log(message="", error=false) {
+    // eslint-disable-next-line no-console
+    const logMethod = error === "warn" ? console.warn : error ? console.error : console.log;
+
     if(typeof message === "string") {
       message = `Eluvio Media Wallet | ${message}`;
-      // eslint-disable-next-line no-console
-      error ? console.error(message) : console.log(message);
-    } else {
-      // eslint-disable-next-line no-console
-      error ? console.error("Eluvio Media Wallet") : console.log("Eluvio Media Wallet");
-      // eslint-disable-next-line no-console
-      error ? console.error(message) : console.log(message);
     }
+
+    logMethod(message);
   }
 
   constructor() {
@@ -831,6 +829,10 @@ class RootStore {
 
     yield this.checkoutStore.MarketplaceStock({tenantId: this.marketplaces[marketplaceId].tenant_id});
 
+    if(marketplaceId === this.specifiedMarketplaceId) {
+      this.InitializeAnalytics(this.marketplaces[marketplaceId]);
+    }
+
     return this.marketplaces[marketplaceId];
   });
 
@@ -1196,6 +1198,130 @@ class RootStore {
 
     delete this.viewedMedia[key];
   });
+
+  InitializeAnalytics(marketplace) {
+    marketplace.analytics_ids.forEach(analytics => {
+      const ids = analytics.ids;
+
+      if(!ids || ids.length === 0) { return; }
+
+      for(const entry of ids) {
+        try {
+          switch(entry.type) {
+            case "Google Analytics ID":
+              this.Log("Initializing Google Analytics", "warn");
+
+              const s = document.createElement("script");
+              s.setAttribute("src", `https://www.googletagmanager.com/gtag/js?id=${entry.id}`);
+              s.async = true;
+              document.head.appendChild(s);
+
+              window.dataLayer = window.dataLayer || [];
+
+              // eslint-disable-next-line no-inner-declarations
+              function gtag() {
+                window.dataLayer.push(arguments);
+              }
+
+              window.gtag = gtag;
+
+              const config = {
+                "cookie_expires": 31536000
+              };
+
+              gtag("js", new Date(), config);
+              gtag("config", entry.id, config);
+
+              window.ac = {g: gtag};
+
+              break;
+
+            case "Google Tag Manager ID":
+              this.Log("Initializing Google Tag Manager", "warn");
+
+              (function(w, d, s, l, i) {
+                w[l] = w[l] || [];
+                w[l].push({
+                  "gtm.start":
+                    new Date().getTime(), event: "gtm.js"
+                });
+                var f = d.getElementsByTagName(s)[0],
+                  j = d.createElement(s), dl = l != "dataLayer" ? "&l=" + l : "";
+                j.async = true;
+                j.src =
+                  "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+                f.parentNode.insertBefore(j, f);
+              })(window, document, "script", "dataLayer", entry.id);
+
+              break;
+
+            case "Facebook Pixel ID":
+              this.Log("Initializing Facebook Analytics", "warn");
+
+              !function(f, b, e, v, n, t, s) {
+                if(f.fbq) return;
+                n = f.fbq = function() {
+                  n.callMethod ?
+                    n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+                };
+                if(!f._fbq) f._fbq = n;
+                n.push = n;
+                n.loaded = !0;
+                n.version = "2.0";
+                n.queue = [];
+                t = b.createElement(e);
+                t.async = !0;
+                t.src = v;
+                s = b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t, s);
+              }(window, document, "script",
+                "https://connect.facebook.net/en_US/fbevents.js");
+              fbq("init", entry.id);
+              fbq("track", "PageView");
+
+              window.ac[`${this.siteSlug}-${analytics.label}-f`] = fbq;
+
+              break;
+
+            case "App Nexus Segment ID":
+              this.Log("Initializing App Nexus Analytics", "warn");
+
+              const pixel = document.createElement("img");
+
+              pixel.setAttribute("width", "1");
+              pixel.setAttribute("height", "1");
+              pixel.style.display = "none";
+              pixel.setAttribute("src", `https://secure.adnxs.com/seg?add=${entry.id}&t=2`);
+
+              document.body.appendChild(pixel);
+
+              break;
+
+            case "Twitter Pixel ID":
+              this.Log("Initializing Twitter Analytics", "warn");
+
+              !function(e, t, n, s, u, a) {
+                e.twq || (s = e.twq = function() {
+                  s.exe ? s.exe.apply(s, arguments) : s.queue.push(arguments);
+                }, s.version = "1.1", s.queue = [], u = t.createElement(n), u.async = !0, u.src = "https://static.ads-twitter.com/uwt.js",
+                a = t.getElementsByTagName(n)[0], a.parentNode.insertBefore(u, a));
+              }(window, document, "script");
+              twq("config", entry.id);
+
+              break;
+
+            default:
+              break;
+          }
+        } catch(error) {
+          this.Log(`Failed to initialize analytics for ${entry.type}`, true);
+          this.Log(error, true);
+        }
+      }
+    });
+
+    marketplace.analyticsInitialized = true;
+  }
 
   SignOut(returnUrl) {
     this.ClearAuthInfo();

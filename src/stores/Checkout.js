@@ -32,6 +32,8 @@ class CheckoutStore {
 
   constructor(rootStore) {
     this.rootStore = rootStore;
+    this.Log = this.rootStore.Log;
+
     makeAutoObservable(this);
 
     runInAction(() => {
@@ -70,12 +72,14 @@ class CheckoutStore {
     }
   });
 
-  PurchaseInitiated({tenantId, confirmationId, marketplaceId, sku, successPath}) {
+  PurchaseInitiated({tenantId, confirmationId, marketplaceId, price, quantity=1, sku, successPath}) {
     this.purchaseStatus[confirmationId] = {
       status: "pending",
       confirmationId,
       tenantId,
       marketplaceId,
+      price,
+      quantity,
       sku,
       successPath
     };
@@ -86,6 +90,8 @@ class CheckoutStore {
   PurchaseComplete({confirmationId, success, message}) {
     this.submittingOrder = false;
 
+    const marketplaceId = this.purchaseStatus[confirmationId]?.marketplaceId;
+
     this.purchaseStatus[confirmationId] = {
       ...this.purchaseStatus[confirmationId],
       status: "complete",
@@ -95,6 +101,83 @@ class CheckoutStore {
     };
 
     this.rootStore.SetLocalStorage("purchase-status", JSON.stringify(this.purchaseStatus));
+
+    if(success && marketplaceId && this.rootStore.marketplaces[marketplaceId]) {
+      this.PurchaseCompleteAnalytics(this.rootStore.marketplaces[marketplaceId], this.purchaseStatus[confirmationId]);
+    }
+  }
+
+  PurchaseCompleteAnalytics(marketplace, purchaseStatus) {
+    marketplace.analytics_ids.forEach(analytics => {
+      const ids = analytics.ids;
+
+      if(!ids || ids.length === 0) { return; }
+
+      let price = purchaseStatus?.price && purchaseStatus?.quantity ? purchaseStatus.price * purchaseStatus.quantity : 0;
+
+      for(const entry of ids) {
+        try {
+          switch(entry.type) {
+            case "Google Analytics ID":
+              this.Log("Registering Google Analytics purchase event", "warn");
+
+              window.gtag(
+                "event",
+                "purchase",
+                {
+                  transaction_id: purchaseStatus?.confirmationId,
+                  affiliation: "Eluvio Marketplace",
+                  value: price,
+                  currency: "USD",
+                  items: [{
+                    item_id: purchaseStatus?.sku,
+                    price: purchaseStatus?.price,
+                    quantity: purchaseStatus?.quantity
+                  }]
+                }
+              );
+
+              break;
+
+            case "Facebook Pixel ID":
+              this.Log("Registering Facebook Analytics purchase event", "warn");
+
+              fbq("track", "Purchase", {value: price, currency: "USD"});
+
+              break;
+
+            case "Twitter Pixel ID":
+              if(!entry.purchase_event_id) {
+                break;
+              }
+
+              this.Log("Registering Twitter Analytics purchase event", "warn");
+
+              twq(
+                "event",
+                entry.purchase_event_id,
+                {
+                  value: price,
+                  currency: "USD",
+                  contents: [{
+                    content_id: purchaseStatus?.sku,
+                    content_price: purchaseStatus?.price,
+                    num_items: purchaseStatus?.quantity
+                  }]
+                }
+              );
+
+              break;
+
+            default:
+              break;
+          }
+        } catch(error) {
+          this.Log(`Failed to register purchase event for ${entry.type}`, true);
+          this.Log(error, true);
+        }
+      }
+    });
   }
 
   OpenPack = flow(function * ({tenantId, contractAddress, tokenId}) {
@@ -471,7 +554,9 @@ class CheckoutStore {
       const successPath = UrlJoin("/marketplace", marketplaceId, "store", sku, "purchase", confirmationId);
       const cancelPath = UrlJoin("/marketplace", marketplaceId, "store", sku);
 
-      this.PurchaseInitiated({confirmationId, tenantId, marketplaceId, sku, successPath});
+      const item = this.rootStore.marketplaces[marketplaceId]?.items?.find(item => item.sku === sku);
+
+      this.PurchaseInitiated({confirmationId, tenantId, marketplaceId, sku, price: item?.price?.USD, quantity, successPath});
 
       if(requiresPopup) {
         // Third party checkout doesn't work in iframe, open new window to initiate purchase
