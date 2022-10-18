@@ -70,22 +70,24 @@ $content-width: 475px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin: 20px auto;
+    margin: 20px auto 30px;
     max-width: $content-width;
     position: relative;
     width: 100%;
 
     .listing-modal__form__error {
-      bottom: -20px;
+      bottom: -25px;
       position: absolute;
-      text-align: left;
+      text-align: center;
       width: 100%;
     }
   }
 
   &__form__error {
     color: var(--color-text-error);
-    font-size: 10px;
+    font-size: 11px;
+    text-align: center;
+    width: 100%;
   }
 
   &__form__labelled-input {

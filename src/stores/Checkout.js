@@ -90,8 +90,6 @@ class CheckoutStore {
   async PurchaseComplete({confirmationId, success, message}) {
     this.submittingOrder = false;
 
-    const marketplaceId = this.purchaseStatus[confirmationId]?.marketplaceId;
-
     this.purchaseStatus[confirmationId] = {
       ...this.purchaseStatus[confirmationId],
       status: "complete",
@@ -101,90 +99,45 @@ class CheckoutStore {
     };
 
     this.rootStore.SetLocalStorage("purchase-status", JSON.stringify(this.purchaseStatus));
-
-    if(success && marketplaceId && this.rootStore.marketplaces[marketplaceId]) {
-      await this.PurchaseCompleteAnalytics(this.rootStore.marketplaces[marketplaceId], this.purchaseStatus[confirmationId]);
-    }
   }
 
-  async PurchaseCompleteAnalytics(marketplace, purchaseStatus) {
-    let anyAnalytics = false;
-    marketplace.analytics_ids.forEach(analytics => {
-      const ids = analytics.ids;
+  AnalyticsEvent({marketplace, analytics, eventName}) {
+    try {
+      if(!this.rootStore.analyticsInitialized || !analytics) {
+        return;
+      }
 
-      if(!ids || ids.length === 0) { return; }
+      if(analytics.google_conversion_id) {
+        this.Log(`Registering Google Tag Manager ${eventName} event`, "warn");
 
-      anyAnalytics = true;
-
-      let price = purchaseStatus?.price && purchaseStatus?.quantity ? purchaseStatus.price * purchaseStatus.quantity : 0;
-
-      for(const entry of ids) {
-        try {
-          switch(entry.type) {
-            case "Google Tag Manager ID":
-              this.Log("Registering Google Tag Manager purchase event", "warn");
-
-              window.gtag(
-                "event",
-                "purchase",
-                {
-                  transaction_id: purchaseStatus?.confirmationId,
-                  affiliation: "Eluvio Marketplace",
-                  value: price,
-                  currency: "USD",
-                  items: [{
-                    item_id: purchaseStatus?.sku,
-                    price: purchaseStatus?.price,
-                    quantity: purchaseStatus?.quantity
-                  }]
-                }
-              );
-
-              break;
-
-            case "Facebook Pixel ID":
-              this.Log("Registering Facebook Analytics purchase event", "warn");
-
-              fbq("track", "Purchase", {value: price, currency: "USD"});
-
-              break;
-
-            case "Twitter Pixel ID":
-              if(!entry.purchase_event_id) {
-                break;
-              }
-
-              this.Log("Registering Twitter Analytics purchase event", "warn");
-
-              twq(
-                "event",
-                entry.purchase_event_id,
-                {
-                  value: price,
-                  currency: "USD",
-                  contents: [{
-                    content_id: purchaseStatus?.sku,
-                    content_price: purchaseStatus?.price,
-                    num_items: purchaseStatus?.quantity
-                  }]
-                }
-              );
-
-              break;
-
-            default:
-              break;
+        window.gtag(
+          "event",
+          "conversion", {
+            "allow_custom_scripts": true,
+            "send_to": `DC-3461539/${analytics.google_conversion_id}/${analytics.google_conversion_label}`
           }
-        } catch(error) {
-          this.Log(`Failed to register purchase event for ${entry.type}`, true);
-          this.Log(error, true);
+        );
+      }
+
+      if(analytics.facebook_event_id) {
+        const analyticsId = marketplace.analytics_ids[0]?.ids.find(id => id.type === "Facebook Pixel ID")?.id;
+
+        if(analyticsId) {
+          this.Log(`Registering Facebook Analytics ${eventName} event`, "warn");
+          fbq("trackSingleCustom", analyticsId, analytics.facebook_event_id);
         }
       }
-    });
 
-    if(anyAnalytics) {
-      // Add a short delay to ensure requests go through before redirecting to payment
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      if(analytics.twitter_event_id) {
+        const analyticsId = marketplace.analytics_ids[0]?.ids.find(id => id.type === "Twitter Pixel ID")?.id;
+
+        if(analyticsId) {
+          this.Log(`Registering Twitter Analytics ${eventName} event`, "warn");
+          twq("event", `tw-${analyticsId}-${analytics.twitter_event_id}`);
+        }
+      }
+    } catch(error) {
+      this.Log(error, true);
     }
   }
 
@@ -517,9 +470,10 @@ class CheckoutStore {
       yield this.CheckoutRedirect({
         provider,
         requestParams,
-        confirmationId,
-        BeforeRedirect: async () => await this.PurchaseComplete({confirmationId, success: true, successPath})
+        confirmationId
       });
+
+      this.PurchaseComplete({confirmationId, success: true, successPath});
 
       return { confirmationId, successPath };
     } catch(error) {
@@ -642,8 +596,18 @@ class CheckoutStore {
         provider,
         requestParams,
         confirmationId,
-        BeforeRedirect: async () => await this.PurchaseComplete({confirmationId, success: true, successPath})
+        BeforeRedirect: async () => {
+          this.AnalyticsEvent({
+            marketplace: this.rootStore.marketplaces[marketplaceId],
+            analytics: item.purchase_analytics,
+            eventName: "Item Purchase"
+          });
+
+          await new Promise(resolve => setTimeout(resolve, 2000000));
+        }
       });
+
+      this.PurchaseComplete({confirmationId, success: true, successPath});
 
       return { confirmationId, successPath };
     } catch(error) {

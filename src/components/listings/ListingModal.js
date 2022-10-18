@@ -18,6 +18,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
   const [price, setPrice] = useState(nft.details.Price ? nft.details.Price.toFixed(2) : "");
   const [errorMessage, setErrorMessage] = useState(undefined);
 
+  const [priceFloor, setPriceFloor] = useState(0);
   const [royaltyRate, setRoyaltyRate] = useState(undefined);
 
   useEffect(() => {
@@ -26,6 +27,16 @@ const ListingModal = observer(({nft, listingId, Close}) => {
     })
       .then(config => {
         setRoyaltyRate(parseFloat((config || {})["nft-royalty"] || 10) / 100);
+
+        if(config["min-listing-price"]) {
+          const floor = parseFloat(config["min-listing-price"]) || 0;
+          setPriceFloor(floor);
+
+          const parsedPrice = isNaN(parseFloat(price)) ? 0 : parseFloat(price);
+          if(parsedPrice < floor) {
+            setPrice(Math.max(parsedPrice, floor));
+          }
+        }
       });
   }, []);
 
@@ -63,6 +74,12 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                 { cryptoStore.usdcOnly ? null : <ImageIcon icon={USDIcon} /> }
                 { cryptoStore.usdcConnected ? <ImageIcon icon={USDCIcon} title="USDC Available" /> : null }
               </div>
+              {
+                priceFloor && parsedPrice < priceFloor ?
+                  <div className="listing-modal__form__error">
+                    Minimum listing price is { FormatPriceString({USD: priceFloor}) }
+                  </div> : null
+              }
               {
                 parsedPrice > 10000 ?
                   <div className="listing-modal__form__error">

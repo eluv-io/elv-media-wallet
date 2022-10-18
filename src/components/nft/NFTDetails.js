@@ -1072,6 +1072,16 @@ export const MarketplaceItemDetails = observer(({Render}) => {
   const itemIndex = marketplace.items.findIndex(item => item.sku === match.params.sku);
   const item = marketplace.items[itemIndex];
 
+  useEffect(() => {
+    if(!item.use_analytics) { return; }
+
+    checkoutStore.AnalyticsEvent({
+      marketplace,
+      analytics: item.page_view_analytics,
+      eventName: "Item Page View"
+    });
+  }, []);
+
   return (
     Render ?
       Render({item}) :

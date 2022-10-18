@@ -146,6 +146,8 @@ class RootStore {
 
   noItemsAvailable = false;
 
+  analyticsInitialized = false;
+
   get specifiedMarketplace() {
     return this.marketplaces[this.specifiedMarketplaceId];
   }
@@ -1224,13 +1226,8 @@ class RootStore {
               }
 
               window.gtag = gtag;
-
-              const config = {
-                "cookie_expires": 31536000
-              };
-
-              gtag("js", new Date(), config);
-              gtag("config", entry.id, config);
+              gtag("js", new Date());
+              gtag("config", entry.id);
 
               window.ac = {g: gtag};
 
@@ -1279,8 +1276,6 @@ class RootStore {
               fbq("init", entry.id);
               fbq("track", "PageView");
 
-              window.ac[`${this.siteSlug}-${analytics.label}-f`] = fbq;
-
               break;
 
             case "App Nexus Segment ID":
@@ -1320,6 +1315,7 @@ class RootStore {
       }
     });
 
+    this.analyticsInitialized = true;
     marketplace.analyticsInitialized = true;
   }
 
@@ -1675,7 +1671,7 @@ class RootStore {
 
         if(expiresAt - Date.now() < expirationBuffer) {
           this.ClearAuthInfo();
-          this.Log("Authorization expired");
+          this.Log("Authorization expired", "warn");
         } else {
           return { clientAuthToken, clientSigningToken, expiresAt };
         }

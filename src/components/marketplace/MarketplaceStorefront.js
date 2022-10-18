@@ -1,7 +1,7 @@
 import React, {useEffect, useState, useRef} from "react";
 import {observer} from "mobx-react";
 import {Link, Redirect, useRouteMatch} from "react-router-dom";
-import {rootStore} from "Stores";
+import {checkoutStore, rootStore} from "Stores";
 import UrlJoin from "url-join";
 import MarketplaceItemCard from "Components/marketplace/MarketplaceItemCard";
 import ImageIcon from "Components/common/ImageIcon";
@@ -223,6 +223,16 @@ const MarketplaceStorefront = observer(() => {
   let marketplace = rootStore.marketplaces[match.params.marketplaceId];
 
   if(!marketplace) { return null; }
+
+  useEffect(() => {
+    if(marketplace.analyticsInitialized) {
+      checkoutStore.AnalyticsEvent({
+        marketplace,
+        analytics: marketplace.storefront_page_view_analytics,
+        eventName: "Storefront Page View"
+      });
+    }
+  }, []);
 
   return (
     <div className="page-block page-block--main-content page-block--storefront">
