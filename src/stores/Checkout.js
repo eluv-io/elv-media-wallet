@@ -87,7 +87,7 @@ class CheckoutStore {
     this.rootStore.SetLocalStorage("purchase-status", JSON.stringify(this.purchaseStatus));
   }
 
-  PurchaseComplete({confirmationId, success, message}) {
+  async PurchaseComplete({confirmationId, success, message}) {
     this.submittingOrder = false;
 
     const marketplaceId = this.purchaseStatus[confirmationId]?.marketplaceId;
@@ -103,23 +103,26 @@ class CheckoutStore {
     this.rootStore.SetLocalStorage("purchase-status", JSON.stringify(this.purchaseStatus));
 
     if(success && marketplaceId && this.rootStore.marketplaces[marketplaceId]) {
-      this.PurchaseCompleteAnalytics(this.rootStore.marketplaces[marketplaceId], this.purchaseStatus[confirmationId]);
+      await this.PurchaseCompleteAnalytics(this.rootStore.marketplaces[marketplaceId], this.purchaseStatus[confirmationId]);
     }
   }
 
-  PurchaseCompleteAnalytics(marketplace, purchaseStatus) {
+  async PurchaseCompleteAnalytics(marketplace, purchaseStatus) {
+    let anyAnalytics = false;
     marketplace.analytics_ids.forEach(analytics => {
       const ids = analytics.ids;
 
       if(!ids || ids.length === 0) { return; }
+
+      anyAnalytics = true;
 
       let price = purchaseStatus?.price && purchaseStatus?.quantity ? purchaseStatus.price * purchaseStatus.quantity : 0;
 
       for(const entry of ids) {
         try {
           switch(entry.type) {
-            case "Google Analytics ID":
-              this.Log("Registering Google Analytics purchase event", "warn");
+            case "Google Tag Manager ID":
+              this.Log("Registering Google Tag Manager purchase event", "warn");
 
               window.gtag(
                 "event",
@@ -178,6 +181,11 @@ class CheckoutStore {
         }
       }
     });
+
+    if(anyAnalytics) {
+      // Add a short delay to ensure requests go through before redirecting to payment
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
   }
 
   OpenPack = flow(function * ({tenantId, contractAddress, tokenId}) {
@@ -506,9 +514,12 @@ class CheckoutStore {
         requestParams.mode = EluvioConfiguration["purchase-mode"];
       }
 
-      yield this.CheckoutRedirect({provider, requestParams, confirmationId});
-
-      this.PurchaseComplete({confirmationId, success: true, successPath});
+      yield this.CheckoutRedirect({
+        provider,
+        requestParams,
+        confirmationId,
+        BeforeRedirect: async () => await this.PurchaseComplete({confirmationId, success: true, successPath})
+      });
 
       return { confirmationId, successPath };
     } catch(error) {
@@ -627,9 +638,12 @@ class CheckoutStore {
         requestParams.mode = EluvioConfiguration["purchase-mode"];
       }
 
-      yield this.CheckoutRedirect({provider, requestParams, confirmationId});
-
-      this.PurchaseComplete({confirmationId, success: true, successPath});
+      yield this.CheckoutRedirect({
+        provider,
+        requestParams,
+        confirmationId,
+        BeforeRedirect: async () => await this.PurchaseComplete({confirmationId, success: true, successPath})
+      });
 
       return { confirmationId, successPath };
     } catch(error) {
@@ -650,7 +664,7 @@ class CheckoutStore {
     }
   });
 
-  CheckoutRedirect = flow(function * ({provider, requestParams, confirmationId}) {
+  CheckoutRedirect = flow(function * ({provider, requestParams, confirmationId, BeforeRedirect}) {
     if(provider === "stripe") {
       const sessionId = (yield this.client.utils.ResponseToJson(
         this.client.authClient.MakeAuthServiceRequest({
@@ -670,6 +684,9 @@ class CheckoutStore {
       // Redirect to stripe
       const {loadStripe} = yield import("@stripe/stripe-js/pure");
       const stripe = yield loadStripe(stripeKey);
+
+      yield BeforeRedirect && BeforeRedirect();
+
       yield stripe.redirectToCheckout({sessionId});
     } else if(provider === "coinbase") {
       const chargeCode = (yield this.client.utils.ResponseToJson(
@@ -683,6 +700,8 @@ class CheckoutStore {
         })
       )).charge_code;
 
+      yield BeforeRedirect && BeforeRedirect();
+
       window.location.href = UrlJoin("https://commerce.coinbase.com/charges", chargeCode);
     } else if(provider === "wallet-balance") {
       yield this.client.authClient.MakeAuthServiceRequest({
@@ -693,6 +712,8 @@ class CheckoutStore {
           Authorization: `Bearer ${this.rootStore.authToken}`
         }
       });
+
+      yield BeforeRedirect && BeforeRedirect();
 
       setTimeout(() => this.rootStore.GetWalletBalance(), 1000);
     } else if(provider === "linked-wallet") {
@@ -725,6 +746,8 @@ class CheckoutStore {
       this.rootStore.SetSessionStorage("solana-signatures", JSON.stringify(this.solanaSignatures));
 
       this.rootStore.Log("Purchase transaction signature: " + signature);
+
+      yield BeforeRedirect && BeforeRedirect();
     } else {
       throw Error("Invalid provider: " + provider);
     }

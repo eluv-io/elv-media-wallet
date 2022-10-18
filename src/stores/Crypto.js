@@ -46,9 +46,6 @@ class CryptoStore {
 
     if(!this.rootStore.embedded && this.PhantomAvailable()) {
       setInterval(() => runInAction(async () => this.phantomAddress = this.PhantomAddress()), 5000);
-
-      // Attempt eager connection
-      window.solana.connect({ onlyIfTrusted: true });
     }
   }
 
