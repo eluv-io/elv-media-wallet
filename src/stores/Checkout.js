@@ -603,7 +603,7 @@ class CheckoutStore {
             eventName: "Item Purchase"
           });
 
-          await new Promise(resolve => setTimeout(resolve, 2000000));
+          await new Promise(resolve => setTimeout(resolve, 2000));
         }
       });
 
