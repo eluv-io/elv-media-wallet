@@ -101,6 +101,7 @@ class CheckoutStore {
     this.rootStore.SetLocalStorage("purchase-status", JSON.stringify(this.purchaseStatus));
   }
 
+  // Note: Synchronize with live
   AnalyticsEvent({marketplace, analytics, eventName}) {
     try {
       if(!this.rootStore.analyticsInitialized || !analytics) {
@@ -524,6 +525,12 @@ class CheckoutStore {
       this.PurchaseInitiated({confirmationId, tenantId, marketplaceId, sku, price: item?.price?.USD, quantity, successPath});
 
       if(requiresPopup) {
+        this.AnalyticsEvent({
+          marketplace: this.rootStore.marketplaces[marketplaceId],
+          analytics: item?.purchase_analytics,
+          eventName: "Item Purchase"
+        });
+
         // Third party checkout doesn't work in iframe, open new window to initiate purchase
         yield this.rootStore.Flow({
           flow: "purchase",
