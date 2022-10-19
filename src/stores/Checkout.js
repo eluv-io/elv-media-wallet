@@ -599,7 +599,7 @@ class CheckoutStore {
         BeforeRedirect: async () => {
           this.AnalyticsEvent({
             marketplace: this.rootStore.marketplaces[marketplaceId],
-            analytics: item.purchase_analytics,
+            analytics: item?.purchase_analytics,
             eventName: "Item Purchase"
           });
 

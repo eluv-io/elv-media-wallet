@@ -1077,7 +1077,7 @@ export const MarketplaceItemDetails = observer(({Render}) => {
 
     checkoutStore.AnalyticsEvent({
       marketplace,
-      analytics: item.page_view_analytics,
+      analytics: item?.page_view_analytics,
       eventName: "Item Page View"
     });
   }, []);

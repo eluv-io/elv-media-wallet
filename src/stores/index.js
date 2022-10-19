@@ -1202,7 +1202,7 @@ class RootStore {
   });
 
   InitializeAnalytics(marketplace) {
-    marketplace.analytics_ids.forEach(analytics => {
+    (marketplace?.analytics_ids || []).forEach(analytics => {
       const ids = analytics.ids;
 
       if(!ids || ids.length === 0) { return; }

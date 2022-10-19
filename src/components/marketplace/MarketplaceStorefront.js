@@ -252,7 +252,7 @@ const MarketplaceStorefront = observer(() => {
     if(marketplace.analyticsInitialized) {
       checkoutStore.AnalyticsEvent({
         marketplace,
-        analytics: marketplace.storefront_page_view_analytics,
+        analytics: marketplace?.storefront_page_view_analytics,
         eventName: "Storefront Page View"
       });
     }
