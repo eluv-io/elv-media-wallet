@@ -281,7 +281,7 @@ export const NFTInfo = ({
   const variant = (item?.nftTemplateMetadata || nft?.metadata).style;
 
   const name = item?.name || nft.metadata.display_name;
-  const subtitle1 = nft.metadata.edition_name;
+  const subtitle1 = item?.subtitle || nft.metadata.edition_name;
   const subtitle2 = undefined;
 
   const isOwned = nft?.details?.TokenOwner && Utils.EqualAddress(nft.details.TokenOwner, rootStore.CurrentAddress());
@@ -358,7 +358,7 @@ export const NFTInfo = ({
   const hasOffers = offers.filter(offer => !offer.hidden).length > 0;
 
   const { additionalMedia, additionalMediaType, hasAdditionalMedia, watchedMediaIds } = FormatAdditionalMedia({nft, name, metadata: nft?.metadata, versionHash: nft?.details?.VersionHash});
-  const mediaInfo = NFTMediaInfo({nft, item, watchedMediaIds, width: imageWidth});
+  const mediaInfo = NFTMedia({nft, item, width: imageWidth});
 
   let sideText;
   if(item && !hideAvailable && !outOfStock && !expired && !unauthorized && stock && stock.max && stock.max < 10000000) {

@@ -32,7 +32,7 @@ const pages = {
   "marketplaceProfile": "/marketplace/:marketplaceId/profile",
 
   // Marketplace user pages
-  "marketplaceWallet": "/marketplace/:marketplaceId/users/me/items/",
+  "marketplaceWallet": "/marketplace/:marketplaceId/users/me/items",
   "marketplaceCollections": "/marketplace/:marketplaceId/collections",
   "marketplaceMyCollections": "/marketplace/:marketplaceId/users/me/collections",
   "marketplaceMyListings": "/marketplace/:marketplaceId/users/me/listings",
