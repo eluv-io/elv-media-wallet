@@ -283,6 +283,11 @@
     position: absolute;
     right: 0;
     top: 0;
+
+    &--profile {
+      height: 100%;
+      right: 30px;
+    }
   }
 }
 

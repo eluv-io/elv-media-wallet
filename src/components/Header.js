@@ -141,12 +141,12 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
   );
 });
 
-const MobileNavigation = ({marketplace}) => {
+const MobileNavigation = ({marketplace, className=""}) => {
   const [showMenu, setShowMenu] = useState(false);
 
   return (
     <>
-      <div className="mobile-navigation">
+      <div className={`mobile-navigation ${className}`}>
         <button onClick={() => setShowMenu(!showMenu)} className="mobile-navigation__menu-button">
           <ImageIcon
             icon={MenuIcon}
@@ -233,25 +233,23 @@ const MarketplaceNavigation = observer(({marketplace}) => {
   const tabs = branding.tabs || {};
 
   return (
-    <>
-      <nav className="subheader__navigation subheader__navigation--marketplace">
-        <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
-          { tabs.store || "Store" }
-        </NavLink>
-        <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "listings")}>
-          { tabs.listings || "Listings" }
-        </NavLink>
-        <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "activity")}>
-          Activity
-        </NavLink>
-        {
-          rootStore.pageWidth >= 600 && !branding.hide_leaderboard ?
-            <NavLink className="subheader__navigation-link no-mobile" to={UrlJoin("/marketplace", marketplace.marketplaceId, "leaderboard")}>
-              Leaderboard
-            </NavLink> : null
-        }
-      </nav>
-    </>
+    <nav className="subheader__navigation subheader__navigation--marketplace">
+      <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
+        { tabs.store || "Store" }
+      </NavLink>
+      <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "listings")}>
+        { tabs.listings || "Listings" }
+      </NavLink>
+      <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "activity")}>
+        Activity
+      </NavLink>
+      {
+        rootStore.pageWidth >= 600 && !branding.hide_leaderboard ?
+          <NavLink className="subheader__navigation-link no-mobile" to={UrlJoin("/marketplace", marketplace.marketplaceId, "leaderboard")}>
+            Leaderboard
+          </NavLink> : null
+      }
+    </nav>
   );
 });
 
@@ -306,6 +304,11 @@ const SubHeader = observer(({marketplace}) => {
           <MarketplaceNavigation marketplace={marketplace} />
           <SubHeaderNavigation marketplace={marketplace} />
         </div>
+        {
+          rootStore.hideMarketplaceNavigation && (rootStore.hideGlobalNavigation || rootStore.hideGlobalNavigationInMarketplace && marketplace) ?
+            <MobileNavigation marketplace={marketplace} className="mobile-navigation--profile" /> :
+            null
+        }
       </div>
     </div>
   );

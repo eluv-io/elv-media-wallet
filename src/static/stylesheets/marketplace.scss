@@ -30,7 +30,10 @@
 
     &__video-modal {
       .modal__content {
+        max-width: $extra-large-breakpoint;
         overflow-y: hidden;
+        padding-inline: 50px;
+        width: 100%;
       }
     }
   }
