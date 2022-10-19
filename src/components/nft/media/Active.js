@@ -127,7 +127,7 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
       );
 
     case "image":
-      return <img alt={mediaItem.mediaInfo.name} src={mediaItem.mediaInfo.imageUrl} className="nft-media__content__target" />;
+      return <img alt={mediaItem.mediaInfo.name} src={mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.imageUrl} className="nft-media__content__target" />;
 
     default:
       return <div className="nft-media__content__target" ref={targetRef} />;
@@ -155,8 +155,13 @@ const NFTActiveMedia = observer(({nftInfo}) => {
 
   useEffect(() => {
     setVideoElement(undefined);
-
-    document.querySelector("#top-scroll-target")?.scrollIntoView({block: "start", inline: "start", behavior: "smooth"});
+    const target = document.querySelector("#top-scroll-target");
+    if(target) {
+      window.scrollTo({
+        top: target.getBoundingClientRect().top + window.scrollY,
+        behavior: "smooth"
+      });
+    }
   }, [match.params.sectionId, match.params.collectionId, match.params.mediaIndex]);
 
   if(!current) { return null; }
@@ -191,7 +196,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
   if(albumView) {
     return (
       <div className="page-block page-block--main-content">
-        <div className="page-block__content page-block__content--album">
+        <div className="page-block__content page-block__content--wide">
           <div className="nft-media-album">
             {
               backPage ?
@@ -240,7 +245,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
   return (
     <div className="page-block page-block--main-content">
       { showQRModal ? <NFTActiveMediaQRCode link={currentMediaItem.mediaInfo.mediaLink} Close={() => setShowQRModal(false)} /> : null }
-      <div className={`page-block__content ${nftInfo.additionalMedia.isSingleList ? "" : "page-block__content--unrestricted"}`}>
+      <div className={`page-block__content ${nftInfo.additionalMedia.isSingleList ? "" : "page-block__content--extra-wide"}`}>
         <div className={`nft-media ${nftInfo.additionalMedia.isSingleList ? "nft-media--single-list" : ""}`}>
           {
             backPage ?

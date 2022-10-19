@@ -1,7 +1,7 @@
 import React, {useEffect, useState, useRef} from "react";
 import {observer} from "mobx-react";
 import {Link, Redirect, useRouteMatch} from "react-router-dom";
-import {rootStore} from "Stores";
+import {checkoutStore, rootStore} from "Stores";
 import UrlJoin from "url-join";
 import MarketplaceItemCard from "Components/marketplace/MarketplaceItemCard";
 import ImageIcon from "Components/common/ImageIcon";
@@ -9,11 +9,10 @@ import MarketplaceFeatured from "Components/marketplace/MarketplaceFeatured";
 import {MarketplaceCollectionsSummary} from "Components/marketplace/MarketplaceCollectionsSummary";
 import EluvioPlayer, {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 import {LinkTargetHash} from "../../utils/Utils";
+import Modal from "Components/common/Modal";
 
-const MarketplaceBannerContent = observer(({banner}) => {
+const MarketplaceVideo = ({videoLink, muted, className}) => {
   const targetRef = useRef();
-
-  if(!banner) { return null; }
 
   useEffect(() => {
     if(!targetRef || !targetRef.current) { return; }
@@ -28,15 +27,15 @@ const MarketplaceBannerContent = observer(({banner}) => {
         },
         sourceOptions: {
           playoutParameters: {
-            versionHash: LinkTargetHash(banner.video)
+            versionHash: LinkTargetHash(videoLink)
           }
         },
         playerOptions: {
           watermark: EluvioPlayerParameters.watermark.OFF,
-          muted: banner.video_muted ? EluvioPlayerParameters.muted.ON : EluvioPlayerParameters.muted.OFF,
-          autoplay: banner.video_muted ? EluvioPlayerParameters.autoplay.ON : EluvioPlayerParameters.autoplay.OFF,
-          controls: banner.video_muted ? EluvioPlayerParameters.controls.OFF : EluvioPlayerParameters.controls.AUTO_HIDE,
-          loop: banner.video_muted ? EluvioPlayerParameters.loop.ON : EluvioPlayerParameters.loop.OFF
+          muted: muted ? EluvioPlayerParameters.muted.ON : EluvioPlayerParameters.muted.OFF,
+          autoplay: muted ? EluvioPlayerParameters.autoplay.ON : EluvioPlayerParameters.autoplay.OFF,
+          controls: muted ? EluvioPlayerParameters.controls.OFF : EluvioPlayerParameters.controls.AUTO_HIDE,
+          loop: muted ? EluvioPlayerParameters.loop.ON : EluvioPlayerParameters.loop.OFF
         }
       }
     );
@@ -49,8 +48,14 @@ const MarketplaceBannerContent = observer(({banner}) => {
     };
   }, [targetRef]);
 
+  return <div className={className} ref={targetRef} />;
+};
+
+const MarketplaceBannerContent = observer(({banner}) => {
+  if(!banner) { return null; }
+
   if(banner.video) {
-    return <div className="marketplace__banner__video" ref={targetRef} />;
+    return <MarketplaceVideo muted={banner.video_muted} videoLink={banner.video} className="marketplace__banner__video" />;
   }
 
   return (
@@ -65,42 +70,61 @@ const MarketplaceBannerContent = observer(({banner}) => {
 });
 
 const MarketplaceBanners = ({marketplace}) => {
+  const [videoModal, setVideoModal] = useState(false);
+
   if(!marketplace.banners || marketplace.banners.length === 0) { return null; }
 
   return (
-    marketplace.banners.map((banner, index) => {
-      const attrs = { key: `banner-${index}`, className: "marketplace__banner" };
-      const bannerContent = <MarketplaceBannerContent banner={banner} />;
+    <>
+      {
+        marketplace.banners.map((banner, index) => {
+          const attrs = {key: `banner-${index}`, className: "marketplace__banner"};
+          const bannerContent = <MarketplaceBannerContent banner={banner}/>;
 
-      if(banner.link) {
-        return (
-          <a href={banner.link} rel="noopener" target="_blank" { ...attrs }>
-            { bannerContent }
-          </a>
-        );
-      } else if(banner.sku) {
-        const item = marketplace.items.find(item => item.sku === banner.sku);
+          if(banner.link) {
+            return (
+              <a href={banner.link} rel="noopener" target="_blank" {...attrs}>
+                {bannerContent}
+              </a>
+            );
+          } else if(banner.sku) {
+            const item = marketplace.items.find(item => item.sku === banner.sku);
 
-        let link;
-        if(item && item.for_sale && (!item.available_at || Date.now() - new Date(item.available_at).getTime() > 0) && (!item.expires_at || Date.now() - new Date(item.expires_at).getTime() < 0)) {
-          link = UrlJoin("/marketplace", marketplace.marketplaceId, "store", banner.sku);
-        }
+            let link;
+            if(item && item.for_sale && (!item.available_at || Date.now() - new Date(item.available_at).getTime() > 0) && (!item.expires_at || Date.now() - new Date(item.expires_at).getTime() < 0)) {
+              link = UrlJoin("/marketplace", marketplace.marketplaceId, "store", banner.sku);
+            }
 
-        if(link) {
+            if(link) {
+              return (
+                <Link to={link} {...attrs}>
+                  {bannerContent}
+                </Link>
+              );
+            }
+          } else if(banner.modal_video) {
+            return (
+              <button {...attrs} onClick={() => setVideoModal(banner.modal_video)}>
+                {bannerContent}
+              </button>
+            );
+          }
+
           return (
-            <Link to={link} { ...attrs }>
-              { bannerContent }
-            </Link>
+            <div {...attrs}>
+              {bannerContent}
+            </div>
           );
-        }
+        })
       }
-
-      return (
-        <div { ...attrs }>
-          { bannerContent }
-        </div>
-      );
-    })
+      {
+        videoModal ?
+          <Modal className="marketplace__banner__video-modal" Toggle={() => setVideoModal(undefined)}>
+            <MarketplaceVideo videoLink={videoModal} className="marketplace__banner__video-modal__video" />
+          </Modal> :
+          null
+      }
+    </>
   );
 };
 
@@ -223,6 +247,16 @@ const MarketplaceStorefront = observer(() => {
   let marketplace = rootStore.marketplaces[match.params.marketplaceId];
 
   if(!marketplace) { return null; }
+
+  useEffect(() => {
+    if(marketplace.analyticsInitialized) {
+      checkoutStore.AnalyticsEvent({
+        marketplace,
+        analytics: marketplace.storefront_page_view_analytics,
+        eventName: "Storefront Page View"
+      });
+    }
+  }, []);
 
   return (
     <div className="page-block page-block--main-content page-block--storefront">

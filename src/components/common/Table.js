@@ -99,7 +99,14 @@ const Table = observer(({
         SetPage={page => {
           Update(page);
 
-          setTimeout(() => tableRef?.current?.scrollIntoView({behavior: "smooth"}), 500);
+          setTimeout(() => {
+            if(tableRef.current) {
+              window.scrollTo({
+                top: tableRef.current.getBoundingClientRect().top + window.scrollY,
+                behavior: "smooth"
+              });
+            }
+          }, 500);
         }}
       />
     );

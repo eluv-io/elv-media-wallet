@@ -1,5 +1,6 @@
 .modal {
   align-items: center;
+  backdrop-filter: blur(3px);
   background: var(--background-modal-overlay);
   display: flex;
   height: 100vh;

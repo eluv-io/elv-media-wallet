@@ -80,6 +80,8 @@ const MarketplaceItemCard = ({
     }
   }
 
+  const unavailable = info.outOfStock || info.expired || info.unauthorized;
+
   return (
     <CardComponent
       info={info}
@@ -113,7 +115,8 @@ const MarketplaceItemCard = ({
       fullDescription={type === "Detail"}
       action={action}
       variant={variant}
-      className={`${className} item-card--marketplace ${type !== "Featured" && (info.outOfStock || info.expired || info.unauthorized) ? "card-container--disabled" : ""}`}
+      disabled={unavailable}
+      className={`${className} item-card--marketplace`}
       cardClassName={`${cardClassName}`}
     />
   );

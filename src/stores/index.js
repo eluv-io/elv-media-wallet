@@ -80,6 +80,7 @@ class RootStore {
   darkMode = searchParams.has("dk") || this.GetSessionStorage("dark-mode");
 
   availableMarketplaces = {};
+  loginCustomization = {};
 
   marketplaceId = undefined;
   marketplaceHashes = {};
@@ -102,9 +103,9 @@ class RootStore {
   pendingWalletBalance = undefined;
   totalWalletBalance = undefined;
 
-  specifiedMarketplaceId = undefined;
+  specifiedMarketplaceId = this.GetSessionStorage("marketplace");
   specifiedMarketplaceHash = undefined;
-  previewMarketplaceId = undefined;
+  previewMarketplaceId = this.GetSessionStorage("preview-marketplace");
   previewMarketplaceHash = undefined;
 
   hideGlobalNavigation = false;
@@ -113,7 +114,12 @@ class RootStore {
   hideMarketplaceNavigation = false;
   sidePanelMode = false;
 
-  appBackground = { desktop: this.GetSessionStorage("background-image"), mobile: this.GetSessionStorage("background-image") };
+  appBackground = {
+    desktop: this.GetSessionStorage("background-image"),
+    mobile: this.GetSessionStorage("background-image-mobile"),
+    marketplaceDesktop: this.GetSessionStorage("background-image-marketplace"),
+    marketplaceMobile: this.GetSessionStorage("background-image-marketplace-mobile"),
+  };
   centerContent = false;
   centerItems = false;
 
@@ -134,9 +140,13 @@ class RootStore {
 
   EVENTS = EVENTS;
 
+  navigationInfo = this.GetSessionStorageJSON("navigation-info") || {};
+
   navigationBreadcrumbs = [];
 
   noItemsAvailable = false;
+
+  analyticsInitialized = false;
 
   get specifiedMarketplace() {
     return this.marketplaces[this.specifiedMarketplaceId];
@@ -165,16 +175,14 @@ class RootStore {
   }
 
   Log(message="", error=false) {
+    // eslint-disable-next-line no-console
+    const logMethod = error === "warn" ? console.warn : error ? console.error : console.log;
+
     if(typeof message === "string") {
       message = `Eluvio Media Wallet | ${message}`;
-      // eslint-disable-next-line no-console
-      error ? console.error(message) : console.log(message);
-    } else {
-      // eslint-disable-next-line no-console
-      error ? console.error("Eluvio Media Wallet") : console.log("Eluvio Media Wallet");
-      // eslint-disable-next-line no-console
-      error ? console.error(message) : console.log(message);
     }
+
+    logMethod(message);
   }
 
   constructor() {
@@ -454,46 +462,47 @@ class RootStore {
       return {};
     }
 
-    const savedData = this.GetSessionStorageJSON(`marketplace-login-${marketplaceHash}`, true);
+    if(!this.loginCustomization[marketplaceId]) {
+      let metadata = (
+        yield (yield Client()).ContentObjectMetadata({
+          versionHash: yield this.walletClient.LatestMarketplaceHash({
+            marketplaceParams: {
+              marketplaceId,
+              marketplaceHash
+            }
+          }),
+          metadataSubtree: UrlJoin("public", "asset_metadata", "info"),
+          select: [
+            "branding",
+            "login_customization",
+            "tenant_id",
+            "terms",
+            "terms_document"
+          ],
+          produceLinkUrls: true
+        })
+      ) || {};
 
-    if(savedData) {
-      return savedData;
+      metadata = {
+        ...(metadata.login_customization || {}),
+        branding: metadata?.branding || {},
+        darkMode: metadata?.branding?.color_scheme === "Dark",
+        marketplaceId,
+        marketplaceHash,
+        tenant_id: metadata.tenant_id,
+        terms: metadata.terms,
+        terms_document: metadata.terms_document
+      };
+
+      if(metadata?.branding?.color_scheme === "Custom") {
+        metadata.sign_up_button = undefined;
+        metadata.log_in_button = undefined;
+      }
+
+      this.loginCustomization[marketplaceId] = metadata;
     }
 
-    let metadata = (
-      yield (yield Client()).ContentObjectMetadata({
-        versionHash: yield this.walletClient.LatestMarketplaceHash({marketplaceParams: {marketplaceId, marketplaceHash}}),
-        metadataSubtree: UrlJoin("public", "asset_metadata", "info"),
-        select: [
-          "branding",
-          "login_customization",
-          "tenant_id",
-          "terms",
-          "terms_document"
-        ],
-        produceLinkUrls: true
-      })
-    ) || {};
-
-    metadata = {
-      ...(metadata.login_customization || {}),
-      branding: metadata?.branding || {},
-      darkMode: metadata?.branding?.color_scheme === "Dark",
-      marketplaceId,
-      marketplaceHash,
-      tenant_id: metadata.tenant_id,
-      terms: metadata.terms,
-      terms_document: metadata.terms_document
-    };
-
-    if(metadata?.branding?.color_scheme === "Custom") {
-      metadata.sign_up_button = undefined;
-      metadata.log_in_button = undefined;
-    }
-
-    this.SetSessionStorage(`marketplace-login-${marketplaceHash}`, Utils.B64(JSON.stringify(metadata)));
-
-    return metadata;
+    return this.loginCustomization[marketplaceId];
   });
 
   SendEvent({event, data}) {
@@ -695,12 +704,19 @@ class RootStore {
     const desktopBackground = marketplace?.branding?.background?.url || "";
     const mobileBackground = marketplace?.branding?.background_mobile?.url || "";
 
+    const marketplaceBackground = marketplace?.storefront?.background?.url || "";
+    const marketplaceBackgroundMobile = marketplace?.storefront?.background_mobile?.url || "";
+
     this.SetSessionStorage("background-image", desktopBackground);
     this.SetSessionStorage("background-image-mobile", mobileBackground);
+    this.SetSessionStorage("background-image-marketplace", marketplaceBackground);
+    this.SetSessionStorage("background-image-marketplace-mobile", marketplaceBackgroundMobile);
 
     this.appBackground = {
       desktop: desktopBackground,
-      mobile: mobileBackground
+      mobile: mobileBackground,
+      marketplaceDesktop: marketplaceBackground,
+      marketplaceMobile: marketplaceBackgroundMobile
     };
 
     let options = { font: "Hevetica Neue" };
@@ -814,6 +830,10 @@ class RootStore {
     this.marketplaces[marketplaceId] = yield this.walletClient.Marketplace({marketplaceParams: {marketplaceId}});
 
     yield this.checkoutStore.MarketplaceStock({tenantId: this.marketplaces[marketplaceId].tenant_id});
+
+    if(marketplaceId === this.specifiedMarketplaceId) {
+      this.InitializeAnalytics(this.marketplaces[marketplaceId]);
+    }
 
     return this.marketplaces[marketplaceId];
   });
@@ -1181,6 +1201,124 @@ class RootStore {
     delete this.viewedMedia[key];
   });
 
+  InitializeAnalytics(marketplace) {
+    marketplace.analytics_ids.forEach(analytics => {
+      const ids = analytics.ids;
+
+      if(!ids || ids.length === 0) { return; }
+
+      for(const entry of ids) {
+        try {
+          switch(entry.type) {
+            case "Google Analytics ID":
+              this.Log("Initializing Google Analytics", "warn");
+
+              const s = document.createElement("script");
+              s.setAttribute("src", `https://www.googletagmanager.com/gtag/js?id=${entry.id}`);
+              s.async = true;
+              document.head.appendChild(s);
+
+              window.dataLayer = window.dataLayer || [];
+
+              // eslint-disable-next-line no-inner-declarations
+              function gtag() {
+                window.dataLayer.push(arguments);
+              }
+
+              window.gtag = gtag;
+              gtag("js", new Date());
+              gtag("config", entry.id);
+
+              window.ac = {g: gtag};
+
+              break;
+
+            case "Google Tag Manager ID":
+              this.Log("Initializing Google Tag Manager", "warn");
+
+              (function(w, d, s, l, i) {
+                w[l] = w[l] || [];
+                w[l].push({
+                  "gtm.start":
+                    new Date().getTime(), event: "gtm.js"
+                });
+                var f = d.getElementsByTagName(s)[0],
+                  j = d.createElement(s), dl = l != "dataLayer" ? "&l=" + l : "";
+                j.async = true;
+                j.src =
+                  "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+                f.parentNode.insertBefore(j, f);
+              })(window, document, "script", "dataLayer", entry.id);
+
+              break;
+
+            case "Facebook Pixel ID":
+              this.Log("Initializing Facebook Analytics", "warn");
+
+              !function(f, b, e, v, n, t, s) {
+                if(f.fbq) return;
+                n = f.fbq = function() {
+                  n.callMethod ?
+                    n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+                };
+                if(!f._fbq) f._fbq = n;
+                n.push = n;
+                n.loaded = !0;
+                n.version = "2.0";
+                n.queue = [];
+                t = b.createElement(e);
+                t.async = !0;
+                t.src = v;
+                s = b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t, s);
+              }(window, document, "script",
+                "https://connect.facebook.net/en_US/fbevents.js");
+              fbq("init", entry.id);
+              fbq("track", "PageView");
+
+              break;
+
+            case "App Nexus Segment ID":
+              this.Log("Initializing App Nexus Analytics", "warn");
+
+              const pixel = document.createElement("img");
+
+              pixel.setAttribute("width", "1");
+              pixel.setAttribute("height", "1");
+              pixel.style.display = "none";
+              pixel.setAttribute("src", `https://secure.adnxs.com/seg?add=${entry.id}&t=2`);
+
+              document.body.appendChild(pixel);
+
+              break;
+
+            case "Twitter Pixel ID":
+              this.Log("Initializing Twitter Analytics", "warn");
+
+              !function(e, t, n, s, u, a) {
+                e.twq || (s = e.twq = function() {
+                  s.exe ? s.exe.apply(s, arguments) : s.queue.push(arguments);
+                }, s.version = "1.1", s.queue = [], u = t.createElement(n), u.async = !0, u.src = "https://static.ads-twitter.com/uwt.js",
+                a = t.getElementsByTagName(n)[0], a.parentNode.insertBefore(u, a));
+              }(window, document, "script");
+              twq("config", entry.id);
+
+              break;
+
+            default:
+              break;
+          }
+        } catch(error) {
+          this.Log(`Failed to initialize analytics for ${entry.type}`, true);
+          this.Log(error, true);
+        }
+      }
+    });
+
+    this.analyticsInitialized = true;
+    marketplace.analyticsInitialized = true;
+  }
+
   SignOut(returnUrl) {
     this.ClearAuthInfo();
 
@@ -1529,11 +1667,11 @@ class RootStore {
         let { clientAuthToken, clientSigningToken, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
 
         // Expire tokens early so they don't stop working while in use
-        const expirationBuffer = 4 * 60 * 60 * 1000;
+        const expirationBuffer = 6 * 60 * 60 * 1000;
 
         if(expiresAt - Date.now() < expirationBuffer) {
           this.ClearAuthInfo();
-          this.Log("Authorization expired");
+          this.Log("Authorization expired", "warn");
         } else {
           return { clientAuthToken, clientSigningToken, expiresAt };
         }
@@ -1572,8 +1710,17 @@ class RootStore {
     this.authInfo = authInfo;
   }
 
-  SetNavigationBreadcrumbs(breadcrumbs=[]) {
+  SetNavigationInfo({navigationKey, path, url, marketplaceId, breadcrumbs=[]}) {
     this.navigationBreadcrumbs = breadcrumbs;
+
+    this.navigationInfo = {
+      marketplaceId,
+      navigationKey,
+      path,
+      url
+    };
+
+    this.SetSessionStorage("navigation-info", JSON.stringify(this.navigationInfo));
   }
 
   SetLoginLoaded() {

@@ -175,8 +175,11 @@ const FilteredView = ({
             SetPage={page => {
               setPage(page);
 
-              if(scrollOnPageChange) {
-                containerRef.current.scrollIntoView({behavior: "smooth"});
+              if(scrollOnPageChange && containerRef.current) {
+                window.scrollTo({
+                  top: containerRef.current.getBoundingClientRect().top + window.scrollY,
+                  behavior: "smooth"
+                });
               }
             }}
           /> : null

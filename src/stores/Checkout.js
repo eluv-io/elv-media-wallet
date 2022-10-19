@@ -32,6 +32,8 @@ class CheckoutStore {
 
   constructor(rootStore) {
     this.rootStore = rootStore;
+    this.Log = this.rootStore.Log;
+
     makeAutoObservable(this);
 
     runInAction(() => {
@@ -70,12 +72,14 @@ class CheckoutStore {
     }
   });
 
-  PurchaseInitiated({tenantId, confirmationId, marketplaceId, sku, successPath}) {
+  PurchaseInitiated({tenantId, confirmationId, marketplaceId, price, quantity=1, sku, successPath}) {
     this.purchaseStatus[confirmationId] = {
       status: "pending",
       confirmationId,
       tenantId,
       marketplaceId,
+      price,
+      quantity,
       sku,
       successPath
     };
@@ -83,7 +87,7 @@ class CheckoutStore {
     this.rootStore.SetLocalStorage("purchase-status", JSON.stringify(this.purchaseStatus));
   }
 
-  PurchaseComplete({confirmationId, success, message}) {
+  async PurchaseComplete({confirmationId, success, message}) {
     this.submittingOrder = false;
 
     this.purchaseStatus[confirmationId] = {
@@ -95,6 +99,46 @@ class CheckoutStore {
     };
 
     this.rootStore.SetLocalStorage("purchase-status", JSON.stringify(this.purchaseStatus));
+  }
+
+  AnalyticsEvent({marketplace, analytics, eventName}) {
+    try {
+      if(!this.rootStore.analyticsInitialized || !analytics) {
+        return;
+      }
+
+      if(analytics.google_conversion_id) {
+        this.Log(`Registering Google Tag Manager ${eventName} event`, "warn");
+
+        window.gtag(
+          "event",
+          "conversion", {
+            "allow_custom_scripts": true,
+            "send_to": `DC-3461539/${analytics.google_conversion_id}/${analytics.google_conversion_label}`
+          }
+        );
+      }
+
+      if(analytics.facebook_event_id) {
+        const analyticsId = marketplace.analytics_ids[0]?.ids.find(id => id.type === "Facebook Pixel ID")?.id;
+
+        if(analyticsId) {
+          this.Log(`Registering Facebook Analytics ${eventName} event`, "warn");
+          fbq("trackSingleCustom", analyticsId, analytics.facebook_event_id);
+        }
+      }
+
+      if(analytics.twitter_event_id) {
+        const analyticsId = marketplace.analytics_ids[0]?.ids.find(id => id.type === "Twitter Pixel ID")?.id;
+
+        if(analyticsId) {
+          this.Log(`Registering Twitter Analytics ${eventName} event`, "warn");
+          twq("event", `tw-${analyticsId}-${analytics.twitter_event_id}`);
+        }
+      }
+    } catch(error) {
+      this.Log(error, true);
+    }
   }
 
   OpenPack = flow(function * ({tenantId, contractAddress, tokenId}) {
@@ -423,7 +467,11 @@ class CheckoutStore {
         requestParams.mode = EluvioConfiguration["purchase-mode"];
       }
 
-      yield this.CheckoutRedirect({provider, requestParams, confirmationId});
+      yield this.CheckoutRedirect({
+        provider,
+        requestParams,
+        confirmationId
+      });
 
       this.PurchaseComplete({confirmationId, success: true, successPath});
 
@@ -471,7 +519,9 @@ class CheckoutStore {
       const successPath = UrlJoin("/marketplace", marketplaceId, "store", sku, "purchase", confirmationId);
       const cancelPath = UrlJoin("/marketplace", marketplaceId, "store", sku);
 
-      this.PurchaseInitiated({confirmationId, tenantId, marketplaceId, sku, successPath});
+      const item = this.rootStore.marketplaces[marketplaceId]?.items?.find(item => item.sku === sku);
+
+      this.PurchaseInitiated({confirmationId, tenantId, marketplaceId, sku, price: item?.price?.USD, quantity, successPath});
 
       if(requiresPopup) {
         // Third party checkout doesn't work in iframe, open new window to initiate purchase
@@ -542,7 +592,20 @@ class CheckoutStore {
         requestParams.mode = EluvioConfiguration["purchase-mode"];
       }
 
-      yield this.CheckoutRedirect({provider, requestParams, confirmationId});
+      yield this.CheckoutRedirect({
+        provider,
+        requestParams,
+        confirmationId,
+        BeforeRedirect: async () => {
+          this.AnalyticsEvent({
+            marketplace: this.rootStore.marketplaces[marketplaceId],
+            analytics: item.purchase_analytics,
+            eventName: "Item Purchase"
+          });
+
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+      });
 
       this.PurchaseComplete({confirmationId, success: true, successPath});
 
@@ -565,7 +628,7 @@ class CheckoutStore {
     }
   });
 
-  CheckoutRedirect = flow(function * ({provider, requestParams, confirmationId}) {
+  CheckoutRedirect = flow(function * ({provider, requestParams, confirmationId, BeforeRedirect}) {
     if(provider === "stripe") {
       const sessionId = (yield this.client.utils.ResponseToJson(
         this.client.authClient.MakeAuthServiceRequest({
@@ -585,6 +648,9 @@ class CheckoutStore {
       // Redirect to stripe
       const {loadStripe} = yield import("@stripe/stripe-js/pure");
       const stripe = yield loadStripe(stripeKey);
+
+      yield BeforeRedirect && BeforeRedirect();
+
       yield stripe.redirectToCheckout({sessionId});
     } else if(provider === "coinbase") {
       const chargeCode = (yield this.client.utils.ResponseToJson(
@@ -598,6 +664,8 @@ class CheckoutStore {
         })
       )).charge_code;
 
+      yield BeforeRedirect && BeforeRedirect();
+
       window.location.href = UrlJoin("https://commerce.coinbase.com/charges", chargeCode);
     } else if(provider === "wallet-balance") {
       yield this.client.authClient.MakeAuthServiceRequest({
@@ -608,6 +676,8 @@ class CheckoutStore {
           Authorization: `Bearer ${this.rootStore.authToken}`
         }
       });
+
+      yield BeforeRedirect && BeforeRedirect();
 
       setTimeout(() => this.rootStore.GetWalletBalance(), 1000);
     } else if(provider === "linked-wallet") {
@@ -640,6 +710,8 @@ class CheckoutStore {
       this.rootStore.SetSessionStorage("solana-signatures", JSON.stringify(this.solanaSignatures));
 
       this.rootStore.Log("Purchase transaction signature: " + signature);
+
+      yield BeforeRedirect && BeforeRedirect();
     } else {
       throw Error("Invalid provider: " + provider);
     }

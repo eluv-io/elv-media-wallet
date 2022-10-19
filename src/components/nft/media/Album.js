@@ -185,8 +185,12 @@ const AlbumView = observer(({media, videoElement, showPlayerControls}) => {
   useEffect(() => {
     setTimeout(() => {
       const activeElement = document.querySelector(".nft-media-album__album-view__media--selected");
-
-      activeElement?.scrollIntoView({block: "nearest", inline: "end", behavior: "smooth"});
+      if(activeElement) {
+        window.scrollTo({
+          top: target.getBoundingClientRect().top + window.scrollY,
+          behavior: "smooth"
+        });
+      }
     }, 1);
   }, [match.params.mediaIndex]);
 

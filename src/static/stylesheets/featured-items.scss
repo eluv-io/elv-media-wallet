@@ -14,6 +14,14 @@ $max-height-icon: 80vh;
   padding: 65px 85px;
   position: relative;
 
+  &--disabled {
+    opacity: 0.85;
+
+    .featured-item__icon-container {
+      opacity: 0.5;
+    }
+  }
+
   &__text,
   &__icon-container {
     @include page-fade-in;

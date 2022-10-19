@@ -213,14 +213,16 @@ const SubHeaderNavigation = observer(({marketplace}) => {
           </NavLink> : null
       }
       {
-        rootStore.loggedIn ?
-          <NavLink
-            className="subheader__navigation-link"
-            to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items") : "/wallet/users/me/items"}
-            isActive={() => window.location.hash?.includes("/users/me/")}
-          >
-            {tabs.my_items || "My Items"}
-          </NavLink> : null
+        rootStore.hideMarketplaceNavigation && (rootStore.hideGlobalNavigation || rootStore.hideGlobalNavigationInMarketplace && marketplace) ?
+          <Profile /> :
+          rootStore.loggedIn ?
+            <NavLink
+              className="subheader__navigation-link"
+              to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items") : "/wallet/users/me/items"}
+              isActive={() => window.location.hash?.includes("/users/me/")}
+            >
+              {tabs.my_items || "My Items"}
+            </NavLink> : null
       }
     </nav>
   );

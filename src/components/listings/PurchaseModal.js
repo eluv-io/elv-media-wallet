@@ -117,7 +117,7 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, erro
                 onClick={() => setPaymentType("coinbase")}
                 className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-crypto ${paymentType === "coinbase" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
               >
-                Crypto via Coinbase
+                Crypto
               </button>
               <button
                 onClick={() => setPaymentType("wallet-balance")}

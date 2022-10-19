@@ -3,15 +3,16 @@ import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
 import {Loader} from "Components/common/Loaders";
+import Utils from "@eluvio/elv-client-js/src/Utils";
+import Modal from "Components/common/Modal";
+import Confirm from "Components/common/Confirm";
+import {RichText} from "Components/common/UIComponents";
+
 
 import UpCaretIcon from "Assets/icons/up-caret.svg";
 import DownCaretIcon from "Assets/icons/down-caret.svg";
 import MetamaskIcon from "Assets/icons/metamask fox.png";
 import EluvioLogo from "Assets/icons/logo.svg";
-import Utils from "@eluvio/elv-client-js/src/Utils";
-import Modal from "Components/common/Modal";
-import Confirm from "Components/common/Confirm";
-import {RichText} from "Components/common/UIComponents";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 const params = {
@@ -69,7 +70,7 @@ const PoweredBy = ({customizationOptions}) => {
 
   return (
     <div className="login-page__tagline">
-      Powered by <ImageIcon icon={EluvioLogo} className="login-page__tagline__image" title="Eluv.io" />
+      <ImageIcon icon={EluvioLogo} className="login-page__tagline__image" title="Eluv.io" />
     </div>
   );
 };
@@ -112,6 +113,23 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
           </div>: null
       }
 
+      {
+        customizationOptions?.custom_consent?.type === "Checkboxes" && customizationOptions.custom_consent.enabled ?
+          customizationOptions.custom_consent.options.map((option, index) =>
+            <div className="login-page__consent" key={`option-${index}`}>
+              <input
+                name="consent"
+                type="checkbox"
+                checked={userData && userData[option.key]}
+                onChange={event => setUserData({...userData, [option.key]: event.target.checked})}
+                className="login-page__consent-checkbox"
+              />
+              <RichText className={`markdown-document login-page__consent-label ${option.required ? "login-page__consent-label--required" : ""}`} richText={option.message} />
+              { option.required ? <div className="login-page__consent-required-indicator">*</div> : null }
+            </div>
+          ) : null
+      }
+
       <div className="login-page__terms login-page__eluvio-terms">
         By creating an account or signing in, I agree to the <a href="https://live.eluv.io/privacy" target="_blank">Eluvio Privacy Policy</a> and the <a href="https://live.eluv.io/terms" target="_blank">Eluvio Terms and Conditions</a>.
       </div>
@@ -124,13 +142,13 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
               name="consent"
               type="checkbox"
               checked={userData && userData.share_email}
-              onChange={event => setUserData({share_email: event.target.checked})}
+              onChange={event => setUserData({...userData, share_email: event.target.checked})}
               className="login-page__consent-checkbox"
             />
             <label
               htmlFor="consent"
               className="login-page__consent-label"
-              onClick={() => setUserData({share_email: !(userData || {}).share_email})}
+              onClick={() => setUserData({...userData, share_email: !(userData || {}).share_email})}
             >
               By checking this box, I give consent for my email address to be stored with my wallet address{ customizationOptions.tenant_name ? ` and shared with ${customizationOptions.tenant_name}` : "" }. Eluvio may also send informational and marketing emails to this address.
             </label>
@@ -152,6 +170,11 @@ const Form = observer(({userData, setUserData, customizationOptions, Authenticat
 
   const loading = !rootStore.loaded || !customizationOptions || params.clearLogin || rootStore.authenticating || !rootStore.loginLoaded || rootStore.loggedIn || (params.source === "parent" && params.provider);
 
+  const requiredOptionsMissing =
+    customizationOptions?.custom_consent?.type === "Checkboxes" &&
+    customizationOptions.custom_consent.enabled &&
+    customizationOptions.custom_consent.options.find(option => option.required && !userData[option.key]);
+
   const signUpButton = (
     <button
       className={`action ${hasLoggedIn ? "" : "action-primary"} login-page__login-button login-page__login-button-create login-page__login-button-auth0`}
@@ -162,6 +185,8 @@ const Form = observer(({userData, setUserData, customizationOptions, Authenticat
       }}
       autoFocus={!hasLoggedIn}
       onClick={() => Authenticate({provider: "oauth", mode: "create"})}
+      disabled={requiredOptionsMissing}
+      title={requiredOptionsMissing ? "Please accept the required options below" : undefined}
     >
       Sign Up
     </button>
@@ -177,6 +202,8 @@ const Form = observer(({userData, setUserData, customizationOptions, Authenticat
       autoFocus={!!hasLoggedIn}
       className={`action ${hasLoggedIn ? "action-primary" : ""} login-page__login-button login-page__login-button-sign-in login-page__login-button-auth0`}
       onClick={() => Authenticate({provider: "oauth", mode: "login"})}
+      disabled={requiredOptionsMissing}
+      title={requiredOptionsMissing ? "Please accept the required options below" : undefined}
     >
       Log In
     </button>
@@ -191,6 +218,8 @@ const Form = observer(({userData, setUserData, customizationOptions, Authenticat
       }}
       className="action login-page__login-button login-page__login-button-wallet"
       onClick={() => Authenticate({provider: "metamask", mode: "login"})}
+      disabled={requiredOptionsMissing}
+      title={requiredOptionsMissing ? "Please accept the required options below" : undefined}
     >
       <ImageIcon icon={MetamaskIcon} />
       Metamask
@@ -315,6 +344,60 @@ const CustomConsentModal = ({customConsent}) => {
   };
 };
 
+export const SaveCustomConsent = async (userData) => {
+  if(!rootStore.specifiedMarketplaceHash) { return; }
+
+  const customizationMetadata = await rootStore.LoadLoginCustomization(rootStore.specifiedMarketplaceHash);
+
+  if(!customizationMetadata?.custom_consent?.enabled) { return; }
+
+  const useModal = customizationMetadata.custom_consent.type !== "Checkboxes";
+
+  // Login page checkbox options should always be re-saved
+  let savedConsentData;
+  if(useModal) {
+    // Check custom consent
+    savedConsentData = await rootStore.walletClient.ProfileMetadata({
+      type: "app",
+      mode: "private",
+      appId: customizationMetadata.tenant_id || rootStore.marketplaces[rootStore.specifiedMarketplaceId]?.tenant_id,
+      key: `user-consent-${rootStore.specifiedMarketplaceId}`
+    });
+
+    // If any new keys have been added, user should be re-prompted
+    if(savedConsentData) {
+      try {
+        const parsedConsentData = JSON.parse(savedConsentData);
+
+        const consentKeys = customizationMetadata.custom_consent.options.map(option => option.key);
+
+        if(consentKeys.find(key => typeof parsedConsentData[key] === "undefined")) {
+          savedConsentData = undefined;
+        }
+      } catch(error) {
+        rootStore.Log(error, true);
+        savedConsentData = undefined;
+      }
+    }
+  }
+
+  if(!savedConsentData) {
+    let customUserData = userData || params.userData;
+    if(customizationMetadata.custom_consent.type !== "Checkboxes") {
+      // Prompt for custom consent data
+      customUserData = await Confirm({ModalComponent: CustomConsentModal({customConsent: customizationMetadata.custom_consent})});
+    }
+
+    await rootStore.walletClient.SetProfileMetadata({
+      type: "app",
+      mode: "private",
+      appId: customizationMetadata.tenant_id,
+      key: `user-consent-${rootStore.specifiedMarketplaceId}`,
+      value: JSON.stringify(customUserData)
+    });
+  }
+};
+
 // Automatic login when auth0 is authenticated
 export const Auth0Authentication = observer(() => {
   if(!window.sessionStorageAvailable) { return; }
@@ -328,53 +411,7 @@ export const Auth0Authentication = observer(() => {
         verified: auth0?.user?.email_verified,
         userData: params.userData
       },
-      callback: async () => {
-        if(!rootStore.specifiedMarketplaceHash) { return; }
-
-        const customizationMetadata = (
-          rootStore.marketplaces[rootStore.specifiedMarketplaceId]?.login_customization ||
-          await rootStore.LoadLoginCustomization(rootStore.specifiedMarketplaceHash)
-        );
-
-        if(!customizationMetadata?.custom_consent?.enabled) { return; }
-
-        // Check custom consent
-        let savedConsentData = await rootStore.walletClient.ProfileMetadata({
-          type: "app",
-          mode: "private",
-          appId: customizationMetadata.tenant_id,
-          key: `user-consent-${rootStore.specifiedMarketplaceId}`
-        });
-
-        // If any new keys have been added, user should be re-prompted
-        if(savedConsentData) {
-          try {
-            const parsedConsentData = JSON.parse(savedConsentData);
-
-            const consentKeys = customizationMetadata.custom_consent.options.map(option => option.key);
-
-            if(consentKeys.find(key => typeof parsedConsentData[key] === "undefined")) {
-              savedConsentData = undefined;
-            }
-          } catch(error) {
-            rootStore.Log(error, true);
-            savedConsentData = undefined;
-          }
-        }
-
-        if(!savedConsentData) {
-          // Prompt for custom consent data
-          const customUserData = await Confirm({ModalComponent: CustomConsentModal({customConsent: customizationMetadata.custom_consent})});
-
-          await rootStore.walletClient.SetProfileMetadata({
-            type: "app",
-            mode: "private",
-            appId: customizationMetadata.tenant_id,
-            key: `user-consent-${rootStore.specifiedMarketplaceId}`,
-            value: JSON.stringify(customUserData)
-          });
-        }
-      }
+      callback: SaveCustomConsent
     });
   };
 
@@ -408,6 +445,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       if(provider === "metamask") {
         // Authenticate with metamask
         await rootStore.Authenticate({externalWallet: "Metamask"});
+        await SaveCustomConsent(userData);
       } else if(provider === "oauth") {
         let auth0LoginParams = {};
 
@@ -530,6 +568,11 @@ const Login = observer(({darkMode, Close}) => {
             (typeof options.default_consent === "undefined" ? true : options.default_consent) :
             true
         };
+
+        // Set initial customization options from custom consent if checkbox mode is enabled
+        if(options?.custom_consent?.type === "Checkboxes" && options.custom_consent.enabled) {
+          options.custom_consent.options.forEach(consentOption => initialUserData[consentOption.key] = consentOption.initially_checked);
+        }
 
         try {
           if(localStorage.getItem(userDataKey)) {

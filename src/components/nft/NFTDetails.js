@@ -734,7 +734,19 @@ const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, showMediaSection
                 <button
                   key={`tab-${tabName}`}
                   className={`action details-page__tabbed-content__tab ${tab === tabName ? "details-page__tabbed-content__tab--active" : ""}`}
-                  onClick={() => setTab(tabName)}
+                  onClick={() => {
+                    setTab(tabName);
+
+                    setTimeout(() => {
+                      const target = document.querySelector(".page-block--nft-content");
+                      if(target) {
+                        window.scrollTo({
+                          top: target.getBoundingClientRect().top + window.scrollY,
+                          behavior: "smooth"
+                        });
+                      }
+                    }, 250);
+                  }}
                 >
                   <ImageIcon icon={tabIcon} className="details-page__tabbed-content__tab__icon" />
                   <div className="details-page__tabbed-content__tab__text">
@@ -997,8 +1009,13 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
                         }
 
                         setTimeout(() => {
-                          document.querySelector(".page-block--nft-content")
-                            ?.scrollIntoView({block: "start", inline: "start", behavior: "smooth"});
+                          const target = document.querySelector(".page-block--nft-content");
+                          if(target) {
+                            window.scrollTo({
+                              top: target.getBoundingClientRect().top + window.scrollY,
+                              behavior: "smooth"
+                            });
+                          }
                         }, tab !== "Media" ? 500 : 100);
                       }}
                     /> : null
@@ -1017,7 +1034,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
         </div>
       </div>
       <div className="page-block page-block--lower-content page-block--nft-content">
-        <div className={`page-block__content ${showMediaSections ? "page-block__content--unrestricted" : ""}`}>
+        <div className={`page-block__content ${showMediaSections ? "page-block__content--extra-wide" : ""}`}>
           <NFTTabbedContent nft={nft} nftInfo={nftInfo} showMediaSections={showMediaSections} tab={tab} setTab={setTab} previewMedia={previewMedia} />
         </div>
       </div>
@@ -1054,6 +1071,16 @@ export const MarketplaceItemDetails = observer(({Render}) => {
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const itemIndex = marketplace.items.findIndex(item => item.sku === match.params.sku);
   const item = marketplace.items[itemIndex];
+
+  useEffect(() => {
+    if(!item.use_analytics) { return; }
+
+    checkoutStore.AnalyticsEvent({
+      marketplace,
+      analytics: item.page_view_analytics,
+      eventName: "Item Page View"
+    });
+  }, []);
 
   return (
     Render ?

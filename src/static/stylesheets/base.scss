@@ -124,7 +124,7 @@ header,
 
   &--main-content {
     flex: 1 1 auto;
-    min-height: 100%;
+    min-height: 70vh;
   }
 
   &--global-header {
@@ -313,11 +313,16 @@ em {
   .page-block {
     &:last-child {
       padding-bottom: 200px;
+
+      &.page-block--footer {
+        padding-bottom: 50px;
+        padding-top: 100px;
+      }
     }
   }
 
   .page-loader {
-    min-height: 60vh;
+    min-height: 75vh;
     width: 100%;
   }
 
@@ -423,14 +428,12 @@ em {
       max-width: $breakpoint;
       width: $breakpoint;
 
-      &--album {
+      &--wide {
         max-width: $large-breakpoint;
-        width: $large-breakpoint;
       }
 
-      &--unrestricted {
-        max-width: calc(100vw - 100px);
-        width: calc(100vw - 100px);
+      &--extra-wide {
+        max-width: $extra-large-breakpoint;
       }
     }
   }
@@ -486,6 +489,10 @@ em {
     .content-subheader {
       font-size: 12px;
     }
+  }
+
+  .page-block__content--extra-wide {
+    padding: 25px 15px;
   }
 }
 
