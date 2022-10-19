@@ -199,7 +199,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
     };
   }
 
-  const albumView = false //current.display === "Album";
+  const albumView = current.display === "Album";
   const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
 
   const textContent = (
