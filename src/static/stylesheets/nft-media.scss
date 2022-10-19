@@ -81,6 +81,7 @@
       max-height: var(--elv-gallery-max-height);
       max-width: calc(MAX(#{var(--elv-gallery-min-height)}, #{var(--elv-gallery-max-height)}) * 16 / 9);
       object-fit: contain;
+      position: relative;
       width: 100%;
 
       &--frame {
@@ -105,6 +106,37 @@
 
         * {
           color: $white;
+        }
+      }
+
+      &__image {
+        height: 100%;
+        max-height: var(--elv-gallery-max-height);
+        max-width: calc(MAX(#{var(--elv-gallery-min-height)}, #{var(--elv-gallery-max-height)}) * 16 / 9);
+        object-fit: contain;
+        width: 100%;
+      }
+
+      &__fullscreen-button {
+        // sass-lint:disable no-color-literals
+        background: rgba(0, 0, 0, 0.35);
+        border-radius: 3px;
+        bottom: 0;
+        height: 25px;
+        opacity: 0.5;
+        padding: 4px;
+        position: absolute;
+        right: 0;
+        width: 25px;
+
+        svg {
+          height: 100%;
+          width: 100%;
+        }
+
+        * {
+          color: $white;
+          stroke-width: 3px;
         }
       }
 
@@ -134,6 +166,22 @@
       &__error-cover {
         // sass-lint:disable no-color-literals
         background: rgba(0, 0, 0, 0.7);
+      }
+    }
+
+    &__fullscreen-modal {
+      .modal__content {
+        height: 100%;
+        max-height: 90vh;
+        max-width: 90vw;
+        overflow-y: hidden;
+        width: 100%;
+      }
+
+      &__image {
+        height: 100%;
+        object-fit: contain;
+        width: 100%;
       }
     }
 
@@ -411,9 +459,15 @@
 
   .nft-media__content__target {
     height: 100%;
+    position: relative;
 
     &:not(&--error) {
       background: $black;
+    }
+
+    &__fullscreen-button {
+      bottom: 10px;
+      right: 10px;
     }
   }
 

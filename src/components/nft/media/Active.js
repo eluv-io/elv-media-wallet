@@ -8,6 +8,7 @@ import ImageIcon from "Components/common/ImageIcon";
 import {QRCodeElement, RichText} from "Components/common/UIComponents";
 import AlbumView from "Components/nft/media/Album";
 import Modal from "Components/common/Modal";
+import {MediaCollection} from "Components/nft/media/Browser";
 
 import BackIcon from "Assets/icons/arrow-left";
 import LeftArrow from "Assets/icons/left-arrow";
@@ -15,7 +16,7 @@ import RightArrow from "Assets/icons/right-arrow";
 import MediaErrorIcon from "Assets/icons/media-error-icon.svg";
 import QRCodeIcon from "Assets/icons/QR Code Icon.svg";
 import ARPhoneIcon from "Assets/icons/AR Phone Icon.svg";
-import {MediaCollection} from "Components/nft/media/Browser";
+import FullscreenIcon from "Assets/icons/full screen.svg";
 
 const NFTActiveMediaQRCode = ({link, Close}) => {
   return (
@@ -38,6 +39,7 @@ const NFTActiveMediaQRCode = ({link, Close}) => {
 
 const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) => {
   const [error, setError] = useState(false);
+  const [showFullscreen, setShowFullscreen] = useState(false);
   const targetRef = useRef();
 
   if(!mediaItem.mediaInfo) { return null; }
@@ -127,7 +129,23 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
       );
 
     case "image":
-      return <img alt={mediaItem.mediaInfo.name} src={mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.imageUrl} className="nft-media__content__target" />;
+      return (
+        <>
+          <div className="nft-media__content__target">
+            <img alt={mediaItem.mediaInfo.name} src={mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.imageUrl} className="nft-media__content__target__image" />
+            <button onClick={() => setShowFullscreen(!showFullscreen)} className="nft-media__content__target__fullscreen-button">
+              <ImageIcon icon={FullscreenIcon} alt="Toggle Full Screen" />
+            </button>
+          </div>
+          {
+            showFullscreen ?
+              <Modal Toggle={() => setShowFullscreen(false)} className="nft-media__content__fullscreen-modal">
+                <img alt={mediaItem.mediaInfo.name} src={mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.imageUrl} className="nft-media__content__fullscreen-modal__image" />
+              </Modal> :
+              null
+          }
+        </>
+      );
 
     default:
       return <div className="nft-media__content__target" ref={targetRef} />;
@@ -181,7 +199,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
     };
   }
 
-  const albumView = current.display === "Album";
+  const albumView = false //current.display === "Album";
   const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
 
   const textContent = (
