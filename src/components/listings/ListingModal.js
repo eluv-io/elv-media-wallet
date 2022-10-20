@@ -13,6 +13,7 @@ import WalletConnect from "Components/crypto/WalletConnect";
 import USDIcon from "Assets/icons/crypto/USD icon.svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 import {Loader} from "Components/common/Loaders";
+import {useRouteMatch} from "react-router-dom";
 
 const ListingModal = observer(({nft, listingId, Close}) => {
   const [price, setPrice] = useState(nft.details.Price ? nft.details.Price.toFixed(2) : "");
@@ -108,7 +109,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
               }
             </div>
             {
-              !cryptoStore.usdcConnected ?
+              !cryptoStore.usdcConnected && rootStore.usdcDisabled ?
                 <div className="listing-modal__wallet-connect">
                   <WalletConnect showPaymentPreference />
                 </div> : null
