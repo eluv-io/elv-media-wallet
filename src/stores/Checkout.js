@@ -125,7 +125,7 @@ class CheckoutStore {
 
         if(analyticsId) {
           this.Log(`Registering Facebook Analytics ${eventName} event`, "warn");
-          fbq("trackSingleCustom", analyticsId, analytics.facebook_event_id);
+          fbq("trackSingle", analyticsId, "InitiateCheckout", {content_id: analytics.facebook_event_id});
         }
       }
 
