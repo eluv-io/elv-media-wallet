@@ -35,6 +35,11 @@
         padding-inline: 50px;
         width: 100%;
       }
+
+      &__video,
+      video {
+        width: 100%;
+      }
     }
   }
 
@@ -199,6 +204,12 @@
           margin-bottom: 20px;
           padding: 0;
         }
+      }
+    }
+
+    &__banner__video-modal {
+      .modal__content {
+        padding-inline: 10px;
       }
     }
   }
