@@ -1,5 +1,6 @@
 import React from "react";
 import { withRouter } from "react-router-dom";
+import {ScrollTo} from "../../utils/Utils";
 
 class ScrollToTop extends React.Component {
   async componentDidUpdate(prevProps) {
@@ -8,16 +9,9 @@ class ScrollToTop extends React.Component {
       const target = document.querySelector("#top-scroll-target");
 
       if(target) {
-        window.scrollTo({
-          top: target.getBoundingClientRect().top + window.scrollY,
-          behavior: "smooth"
-        });
+        ScrollTo(target.getBoundingClientRect().top + window.scrollY);
       } else {
-        window.scrollTo({
-          top: 0,
-          left: 0,
-          behavior: "smooth"
-        });
+        ScrollTo(0);
       }
     }
   }

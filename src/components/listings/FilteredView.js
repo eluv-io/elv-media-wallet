@@ -5,7 +5,7 @@ import ListingFilters from "Components/listings/ListingFilters";
 import {useInfiniteScroll} from "react-g-infinite-scroll";
 import {rootStore} from "Stores";
 import {PageControls} from "Components/common/UIComponents";
-import {SavedValue} from "../../utils/Utils";
+import {SavedValue, ScrollTo} from "../../utils/Utils";
 
 const savedPage = SavedValue(1, "");
 
@@ -176,10 +176,7 @@ const FilteredView = ({
               setPage(page);
 
               if(scrollOnPageChange && containerRef.current) {
-                window.scrollTo({
-                  top: containerRef.current.getBoundingClientRect().top + window.scrollY,
-                  behavior: "smooth"
-                });
+                ScrollTo(containerRef.current.getBoundingClientRect().top + window.scrollY);
               }
             }}
           /> : null

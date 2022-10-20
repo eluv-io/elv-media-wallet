@@ -8,7 +8,7 @@ import {PageControls} from "Components/common/UIComponents";
 import {useInfiniteScroll} from "react-g-infinite-scroll";
 import ListingFilters from "Components/listings/ListingFilters";
 import ListingStats from "Components/listings/ListingStats";
-import {SavedValue} from "../../utils/Utils";
+import {SavedValue, ScrollTo} from "../../utils/Utils";
 
 const Table = observer(({
   headerText,
@@ -101,10 +101,7 @@ const Table = observer(({
 
           setTimeout(() => {
             if(tableRef.current) {
-              window.scrollTo({
-                top: tableRef.current.getBoundingClientRect().top + window.scrollY,
-                behavior: "smooth"
-              });
+              ScrollTo(tableRef.current.getBoundingClientRect().top + window.scrollY);
             }
           }, 500);
         }}

@@ -4,6 +4,7 @@ import {Link, useHistory, useRouteMatch} from "react-router-dom";
 import ImageIcon from "Components/common/ImageIcon";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 import {MediaLinkPath, NavigateToMedia} from "Components/nft/media/Utils";
+import {ScrollTo} from "../../../utils/Utils";
 
 import SkipBackIcon from "Assets/icons/media/skip back icon";
 import PauseIcon from "Assets/icons/media/Pause icon";
@@ -186,10 +187,7 @@ const AlbumView = observer(({media, videoElement, showPlayerControls}) => {
     setTimeout(() => {
       const activeElement = document.querySelector(".nft-media-album__album-view__media--selected");
       if(activeElement) {
-        window.scrollTo({
-          top: target.getBoundingClientRect().top + window.scrollY,
-          behavior: "smooth"
-        });
+        ScrollTo(target.getBoundingClientRect().top + window.scrollY);
       }
     }, 1);
   }, [match.params.mediaIndex]);

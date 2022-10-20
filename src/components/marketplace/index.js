@@ -9,6 +9,7 @@ import PreviewPasswordPrompt from "Components/login/PreviewPasswordPrompt";
 import Modal from "Components/common/Modal";
 import {RichText} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
+
 import EluvioLogo from "Assets/icons/EluvioLogo2.svg";
 
 const Footer = ({footerText, footerLinks=[]}) => {

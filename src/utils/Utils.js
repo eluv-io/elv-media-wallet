@@ -95,6 +95,15 @@ export const ValidEmail = email => {
     .test(email);
 };
 
+export const ScrollTo = (top=0) => {
+  // Mobile has a bug that prevents scroll top from working
+  if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+    window.scrollTo(0, top);
+  } else {
+    window.scrollTo({top, behavior: "smooth"});
+  }
+};
+
 export const NFTDisplayToken = nft => {
   try {
     if(!nft || !nft.details) {

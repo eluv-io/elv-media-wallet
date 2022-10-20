@@ -9,6 +9,7 @@ import {QRCodeElement, RichText} from "Components/common/UIComponents";
 import AlbumView from "Components/nft/media/Album";
 import Modal from "Components/common/Modal";
 import {MediaCollection} from "Components/nft/media/Browser";
+import {ScrollTo} from "../../../utils/Utils";
 
 import BackIcon from "Assets/icons/arrow-left";
 import LeftArrow from "Assets/icons/left-arrow";
@@ -17,6 +18,7 @@ import MediaErrorIcon from "Assets/icons/media-error-icon.svg";
 import QRCodeIcon from "Assets/icons/QR Code Icon.svg";
 import ARPhoneIcon from "Assets/icons/AR Phone Icon.svg";
 import FullscreenIcon from "Assets/icons/full screen.svg";
+
 
 const NFTActiveMediaQRCode = ({link, Close}) => {
   return (
@@ -175,10 +177,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
     setVideoElement(undefined);
     const target = document.querySelector("#top-scroll-target");
     if(target) {
-      window.scrollTo({
-        top: target.getBoundingClientRect().top + window.scrollY,
-        behavior: "smooth"
-      });
+      ScrollTo(target.getBoundingClientRect().top + window.scrollY);
     }
   }, [match.params.sectionId, match.params.collectionId, match.params.mediaIndex]);
 

@@ -27,7 +27,7 @@ import TransferModal from "Components/listings/TransferModal";
 import {FilteredTable} from "Components/common/Table";
 import {MarketplaceImage, NFTImage} from "Components/common/Images";
 import AsyncComponent from "Components/common/AsyncComponent";
-import {Ago, MiddleEllipsis, NFTInfo} from "../../utils/Utils";
+import {Ago, MiddleEllipsis, NFTInfo, ScrollTo} from "../../utils/Utils";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import NFTOffers from "Components/nft/NFTOffers";
 import {NFTMediaContainer} from "Components/nft/media/index";
@@ -740,10 +740,7 @@ const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, showMediaSection
                     setTimeout(() => {
                       const target = document.querySelector(".page-block--nft-content");
                       if(target) {
-                        window.scrollTo({
-                          top: target.getBoundingClientRect().top + window.scrollY,
-                          behavior: "smooth"
-                        });
+                        ScrollTo(target.getBoundingClientRect().top + window.scrollY);
                       }
                     }, 250);
                   }}
@@ -1011,10 +1008,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
                         setTimeout(() => {
                           const target = document.querySelector(".page-block--nft-content");
                           if(target) {
-                            window.scrollTo({
-                              top: target.getBoundingClientRect().top + window.scrollY,
-                              behavior: "smooth"
-                            });
+                            ScrollTo(target.getBoundingClientRect().top + window.scrollY);
                           }
                         }, tab !== "Media" ? 500 : 100);
                       }}
