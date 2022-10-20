@@ -29,7 +29,12 @@
     }
 
     &__video-modal {
+      backdrop-filter: blur(15px);
+
       .modal__content {
+        align-items: center;
+        display: flex;
+        height: 100%;
         max-width: $extra-large-breakpoint;
         overflow-y: hidden;
         padding-inline: 50px;
@@ -38,7 +43,12 @@
 
       &__video,
       video {
+        height: auto;
         width: 100%;
+
+        &.eluvio-player {
+          height: auto;
+        }
       }
     }
   }
