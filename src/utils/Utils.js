@@ -542,7 +542,13 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
       }
 
       if(mediaLink) {
-        embedUrl.searchParams.set("murl", Utils.B64(mediaLink.toString()));
+        const murl = new URL(mediaLink.toString());
+        if(requiresPermissions && rootStore.authToken) {
+          // Remove authroization token from the murl in the embed url, as the embed auth token parameter will be used
+          murl.searchParams.delete("authorization");
+        }
+
+        embedUrl.searchParams.set("murl", Utils.B64(murl.toString()));
       }
 
       break;
