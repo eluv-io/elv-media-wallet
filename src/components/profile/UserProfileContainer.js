@@ -102,12 +102,14 @@ const UserProfileContainer = observer(({children}) => {
       .then(async profile => {
         setUserProfile(profile);
 
-        setUserStats(
-          await rootStore.walletClient.Leaderboard({
-            userAddress: profile.userAddress,
-            marketplaceParams: match.params.marketplaceId ? { marketplaceId: match.params.marketplaceId } : undefined
-          })
-        );
+        if(!marketplace?.branding?.hide_leaderboard) {
+          setUserStats(
+            await rootStore.walletClient.Leaderboard({
+              userAddress: profile.userAddress,
+              marketplaceParams: match.params.marketplaceId ? {marketplaceId: match.params.marketplaceId} : undefined
+            })
+          );
+        }
       });
   }, [match.params.userId]);
 
