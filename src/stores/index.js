@@ -102,6 +102,7 @@ class RootStore {
   availableWalletBalance = undefined;
   pendingWalletBalance = undefined;
   totalWalletBalance = undefined;
+  usdcDisabled = false;
 
   specifiedMarketplaceId = this.GetSessionStorage("marketplace");
   specifiedMarketplaceHash = undefined;
@@ -780,6 +781,10 @@ class RootStore {
         this.specifiedMarketplaceId = marketplace.marketplaceId;
         this.specifiedMarketplaceHash = marketplace.marketplaceHash;
         this.SetSessionStorage("marketplace", marketplace.marketplaceId);
+
+        if(marketplace.branding?.disable_usdc) {
+          this.usdcDisabled = true;
+        }
       }
 
       this.SetCustomizationOptions(marketplace);

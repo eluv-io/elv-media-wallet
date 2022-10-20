@@ -201,13 +201,17 @@ const Profile = observer(() => {
         /> : null
       }
 
-      <div className="profile-page__section profile-page__section-wallet-connect">
-        <h2 className="profile-page__section-header">
-          Connected Accounts
-        </h2>
+      {
+        rootStore.usdcDisabled ?
+          null :
+          <div className="profile-page__section profile-page__section-wallet-connect">
+            <h2 className="profile-page__section-header">
+              Connected Accounts
+            </h2>
 
-        <WalletConnect showPaymentPreference />
-      </div>
+            <WalletConnect showPaymentPreference/>
+          </div>
+      }
     </div>
   );
 });
