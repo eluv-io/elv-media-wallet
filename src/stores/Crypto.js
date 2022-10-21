@@ -55,12 +55,12 @@ class CryptoStore {
 
       let network;
       if(this.rootStore.client.networkName === "main") {
-        network = "mainnet-beta";
+        network = "https://rpc.solana.cfab.io";
       } else {
-        network = "devnet";
+        network = clusterApiUrl("devnet");
       }
 
-      this.solanaConnection = new Connection(clusterApiUrl(network), "confirmed");
+      this.solanaConnection = new Connection(network, "confirmed");
     }
 
     return this.solanaConnection;
