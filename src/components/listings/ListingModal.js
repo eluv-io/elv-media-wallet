@@ -13,7 +13,6 @@ import WalletConnect from "Components/crypto/WalletConnect";
 import USDIcon from "Assets/icons/crypto/USD icon.svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 import {Loader} from "Components/common/Loaders";
-import {useRouteMatch} from "react-router-dom";
 
 const ListingModal = observer(({nft, listingId, Close}) => {
   const [price, setPrice] = useState(nft.details.Price ? nft.details.Price.toFixed(2) : "");
@@ -29,8 +28,8 @@ const ListingModal = observer(({nft, listingId, Close}) => {
       .then(config => {
         setRoyaltyRate(parseFloat((config || {})["nft-royalty"] || 10) / 100);
 
-        if(config["min-listing-price"]) {
-          const floor = parseFloat(config["min-listing-price"]) || 0;
+        if(config["min-list-price"]) {
+          const floor = parseFloat(config["min-list-price"]) || 0;
           setPriceFloor(floor);
 
           const parsedPrice = isNaN(parseFloat(price)) ? 0 : parseFloat(price);
@@ -116,7 +115,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
             }
             <div className="listing-modal__actions">
               <ButtonWithLoader
-                disabled={!parsedPrice || isNaN(parsedPrice) || payout <= 0 || parsedPrice > 10000}
+                disabled={!parsedPrice || isNaN(parsedPrice) || payout <= 0 || parsedPrice > 10000 || (priceFloor && parsedPrice < priceFloor)}
                 className="action action-primary listing-modal__action listing-modal__action-primary"
                 onClick={async () => {
                   try {
