@@ -55,7 +55,7 @@ class CryptoStore {
 
       let network;
       if(this.rootStore.client.networkName === "main") {
-        network = "https://rpc.solana.cfab.io";
+        network = "https://rpc01.solana.cfab.io";
       } else {
         network = clusterApiUrl("devnet");
       }

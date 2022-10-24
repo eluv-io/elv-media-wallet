@@ -145,7 +145,7 @@ const Profile = observer(() => {
           </CopyableField>
         </div>
         <div className="profile-page__message">
-          This is an Eluvio blockchain address
+          This is an Eluvio Content Blockchain address. This is not a payment address. Do not send funds to this address.
         </div>
 
         {
