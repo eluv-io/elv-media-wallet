@@ -20,7 +20,7 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSe
   return (
     <div className="profile-page__section profile-page__section-balance profile-page__section-box">
       <h2 className="profile-page__section-header">
-        Withdrawable Wallet Balance
+        Withdrawable Seller Balance
       </h2>
       <div className="profile-page__balance">
         { FormatPriceString({USD: rootStore.withdrawableWalletBalance}) } USD
@@ -137,7 +137,7 @@ const Profile = observer(() => {
       { showWithdrawalModal ? <WithdrawalModal Close={() => setShowWithdrawalModal(false)} /> : null }
       <div className="profile-page__section profile-page__section-account">
         <h2 className="profile-page__section-header">
-          Wallet Address
+          Media Wallet Address
         </h2>
         <div className="profile-page__address">
           <CopyableField className="profile-page__address-field" value={rootStore.CurrentAddress()} ellipsis={false}>
@@ -145,7 +145,7 @@ const Profile = observer(() => {
           </CopyableField>
         </div>
         <div className="profile-page__message">
-          This is an Eluvio Content Blockchain address. This is not a payment address. Do not send funds to this address.
+          Do not send funds to this address.<br />This is an Eluvio Content Blockchain address and is not a payment address.
         </div>
 
         {
@@ -171,7 +171,7 @@ const Profile = observer(() => {
 
       <div className="profile-page__section profile-page__section-balance profile-page__section-box">
         <h2 className="profile-page__section-header">
-          Total Wallet Balance
+          Total Seller Balance
         </h2>
         <div className="profile-page__balance">
           { FormatPriceString({USD: rootStore.totalWalletBalance}) } { balancePresent ? "USD" : "" }
