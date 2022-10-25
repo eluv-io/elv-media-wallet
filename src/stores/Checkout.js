@@ -620,15 +620,24 @@ class CheckoutStore {
     } catch(error) {
       this.rootStore.Log(error, true);
 
-      this.PurchaseComplete({confirmationId, success: false, message: "Purchase failed"});
+      if([403, 409].includes(error.status)) {
+        this.PurchaseComplete({confirmationId, success: false, message: "Out of Stock"});
 
-      if(typeof error.recoverable !== "undefined") {
-        throw error;
-      } else {
         throw {
-          recoverable: true,
-          uiMessage: error.uiMessage || "Purchase failed"
+          recoverable: false,
+          uiMessage: error.uiMessage || "This item is out of stock"
         };
+      } else {
+        this.PurchaseComplete({confirmationId, success: false, message: "Purchase failed"});
+
+        if(typeof error.recoverable !== "undefined") {
+          throw error;
+        } else {
+          throw {
+            recoverable: true,
+            uiMessage: error.uiMessage || "Purchase failed"
+          };
+        }
       }
     } finally {
       this.submittingOrder = false;
