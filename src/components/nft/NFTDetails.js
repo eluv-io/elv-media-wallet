@@ -696,17 +696,17 @@ const NFTActions = observer(({
   return null;
 });
 
-const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, showMediaSections, tab, setTab}) => {
+const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, showMediaSections, hideTables, tab, setTab}) => {
   const anyTabs = nftInfo.hasOffers || showMediaSections;
 
   if((!nft && !previewMedia) || !anyTabs) {
-    return <NFTTables nftInfo={nftInfo} />;
+    return hideTables ? null : <NFTTables nftInfo={nftInfo} />;
   }
 
   let tabs = [
     showMediaSections ? ["Media", MediaIcon] : "",
     nftInfo.hasOffers ? ["Offers", OffersIcon] : "",
-    ["Trading", TradeIcon]
+    hideTables ? "" : ["Trading", TradeIcon]
   ].filter(tab => tab);
 
   let activeContent;
@@ -759,7 +759,7 @@ const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, showMediaSection
   );
 });
 
-const NFTDetails = observer(({nft, initialListingStatus, item}) => {
+const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStats}) => {
   const match = useRouteMatch();
   const history = useHistory();
 
@@ -1029,7 +1029,15 @@ const NFTDetails = observer(({nft, initialListingStatus, item}) => {
       </div>
       <div className="page-block page-block--lower-content page-block--nft-content">
         <div className={`page-block__content ${showMediaSections ? "page-block__content--extra-wide" : ""}`}>
-          <NFTTabbedContent nft={nft} nftInfo={nftInfo} showMediaSections={showMediaSections} tab={tab} setTab={setTab} previewMedia={previewMedia} />
+          <NFTTabbedContent
+            nft={nft}
+            nftInfo={nftInfo}
+            showMediaSections={showMediaSections}
+            tab={tab}
+            setTab={setTab}
+            previewMedia={previewMedia}
+            hideTables={hideSecondaryStats}
+          />
         </div>
       </div>
     </>
@@ -1079,7 +1087,7 @@ export const MarketplaceItemDetails = observer(({Render}) => {
   return (
     Render ?
       Render({item}) :
-      <NFTDetails item={item} />
+      <NFTDetails item={item} hideSecondaryStats={marketplace?.branding?.hide_secondary_in_store} />
   );
 });
 
