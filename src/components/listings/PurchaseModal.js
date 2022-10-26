@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
 import {checkoutStore, cryptoStore, rootStore} from "Stores";
 import {ActiveListings} from "Components/listings/TransferTables";
-import {ButtonWithLoader, FormatPriceString} from "Components/common/UIComponents";
+import {ButtonWithLoader, Copy, FormatPriceString} from "Components/common/UIComponents";
 import {Redirect, useRouteMatch} from "react-router-dom";
 import NFTCard from "Components/nft/NFTCard";
 import ImageIcon from "Components/common/ImageIcon";
@@ -16,6 +16,12 @@ import PlusIcon from "Assets/icons/plus.svg";
 import MinusIcon from "Assets/icons/minus.svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 import HelpIcon from "Assets/icons/help-circle.svg";
+
+import StripeLogo from "Assets/icons/stripe-logo.png";
+import EbanxLogo from "Assets/icons/ebanx-logo-1-L.png";
+import CoinbaseLogo from "Assets/icons/crypto/Coinbase Icon (16x16)(1).svg";
+import SolanaLogo from "Assets/icons/solana icon.svg";
+import PhantomLogo from "Assets/icons/crypto/phantom.png";
 
 
 const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
@@ -67,6 +73,7 @@ const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
 const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, errorMessage, disabled, Continue, Cancel}) => {
   const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.walletClient.UserInfo()?.email || "";
   const [paymentType, setPaymentType] = useState(usdcOnly || (usdcAccepted && cryptoStore.usdcOnly) ? "linked-wallet" : "stripe");
+  const [selectedSection, setSelectedSection] = useState(usdcOnly || (usdcAccepted && cryptoStore.usdcOnly) ? "crypto" : "card");
   const [email, setEmail] = useState(initialEmail);
   const [showUSDCOnlyMessage, setShowUSDCOnlyMessage] = useState(false);
 
@@ -74,7 +81,10 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, erro
   const connected = paymentType !== "linked-wallet" || cryptoStore.PhantomAddress() && wallet.Connected();
 
   const requiresEmail = ["coinbase"].includes(paymentType);
-  const externalPayment = ["stripe", "coinbase"].includes(paymentType);
+  const externalPayment = ["stripe", "ebanx", "coinbase"].includes(paymentType);
+
+  const solanaWallet = cryptoStore.WalletFunctions("phantom");
+  const solanaAccount = solanaWallet.ConnectedAccounts()[0];
 
   return (
     <div className="purchase-modal__payment-options">
@@ -103,40 +113,97 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, erro
             </button> : null
         }
       </div>
-      <div className="purchase-modal__payment-selection-container">
-        {
-          usdcOnly ? null :
-            <>
-              <button
-                onClick={() => setPaymentType("stripe")}
-                className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-credit-card ${paymentType === "stripe" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
-              >
-                Credit Card
-              </button>
-              <button
-                onClick={() => setPaymentType("coinbase")}
-                className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-crypto ${paymentType === "coinbase" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
-              >
-                Crypto
-              </button>
-              <button
-                onClick={() => setPaymentType("wallet-balance")}
-                className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-wallet-balance ${paymentType === "wallet-balance" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
-              >
-                Wallet Balance
-              </button>
-            </>
-        }
-        {
-          usdcAccepted ?
-            <button
-              onClick={() => setPaymentType("linked-wallet")}
-              className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-linked-wallet ${paymentType === "linked-wallet" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
-            >
-              Linked Wallet
-            </button> : null
-        }
+
+
+      <div className="purchase-modal__provider-options">
+        <div className={`purchase-modal__provider-options__section ${selectedSection !== "card" ? "purchase-modal__provider-options__section--hidden" : ""}`}>
+          <button
+            className="purchase-modal__provider-options__header"
+            onClick={() => {
+              setSelectedSection("card");
+              setPaymentType("stripe");
+            }}
+          >
+            Credit/Debit Card
+          </button>
+          <div className="purchase-modal__provider-options__options">
+            <div className={`purchase-modal__provider-options__option-container ${paymentType === "stripe" ? "purchase-modal__provider-options__option-container--active" : ""}`}>
+              <div className="purchase-modal__provider-options__option">
+                <ImageIcon icon={StripeLogo} label="Stripe" className="purchase-modal__provider-options__option__logo" />
+                <div className="purchase-modal__provider-options__option__text">
+                  Stripe
+                </div>
+              </div>
+              <button onClick={() => setPaymentType("stripe")} className="purchase-modal__provider-options__selected-indicator" />
+            </div>
+            <div className={`purchase-modal__provider-options__option-container ${paymentType === "ebanx" ? "purchase-modal__provider-options__option-container--active" : ""}`}>
+              <div className="purchase-modal__provider-options__option">
+                <ImageIcon icon={EbanxLogo} label="Stripe" className="purchase-modal__provider-options__option__logo" />
+                <div className="purchase-modal__provider-options__option__text">
+                  Ebanx
+                </div>
+              </div>
+              <button onClick={() => setPaymentType("ebanx")} className="purchase-modal__provider-options__selected-indicator" />
+            </div>
+          </div>
+        </div>
+
+        <div className={`purchase-modal__provider-options__section ${selectedSection !== "crypto" ? "purchase-modal__provider-options__section--hidden" : ""}`}>
+          <button
+            className="purchase-modal__provider-options__header"
+            onClick={() => {
+              setSelectedSection("crypto");
+              setPaymentType("coinbase");
+            }}
+          >
+            Crypto
+          </button>
+          <div className="purchase-modal__provider-options__options">
+            <div className={`purchase-modal__provider-options__option-container ${paymentType === "coinbase" ? "purchase-modal__provider-options__option-container--active" : ""}`}>
+              <div className="purchase-modal__provider-options__option purchase-modal__provider-options__option--crypto">
+                <ImageIcon icon={CoinbaseLogo} label="Coinbase" className="purchase-modal__provider-options__option__logo" />
+                <div className="purchase-modal__provider-options__option__text">
+                  Coinbase
+                </div>
+              </div>
+              <button onClick={() => setPaymentType("coinbase")} className="purchase-modal__provider-options__selected-indicator" />
+            </div>
+            <div className={`purchase-modal__provider-options__option-container ${paymentType === "linked-wallet" ? "purchase-modal__provider-options__option-container--active" : ""}`}>
+              <div className="purchase-modal__provider-options__option purchase-modal__provider-options__option--crypto">
+                <ImageIcon icon={SolanaLogo} label="USDC on Solana" className="purchase-modal__provider-options__option__logo" />
+                <div className="purchase-modal__provider-options__option__text">
+                  USDC on Sol
+                </div>
+                <div className="purchase-modal__provider-options__option__crypto">
+                  <ImageIcon icon={PhantomLogo} label="Phantom" className="purchase-modal__provider-options__option__crypto__icon"/>
+                  {
+                    solanaAccount ?
+                      <button onClick={() => Copy(solanaAccount.link_acct)} className="purchase-modal__provider-options__option__crypto__account ellipsis">
+                        { solanaAccount.link_acct }
+                      </button> :
+                      <button onClick={() => solanaWallet.Connect()} className="purchase-modal__provider-options__option__crypto__account">
+                        { solanaAccount ? solanaAccount : "Link Wallet" }
+                      </button>
+                  }
+                </div>
+              </div>
+              <button onClick={() => setPaymentType("linked-wallet")} className="purchase-modal__provider-options__selected-indicator" />
+            </div>
+          </div>
+        </div>
+        <div className={`purchase-modal__provider-options__section ${selectedSection !== "wallet-balance" ? "purchase-modal__provider-options__section--hidden" : ""}`}>
+          <button
+            className="purchase-modal__provider-options__header"
+            onClick={() => {
+              setSelectedSection("wallet-balance");
+              setPaymentType("wallet-balance");
+            }}
+          >
+            Seller Balance
+          </button>
+        </div>
       </div>
+
       {
         usdcOnly && showUSDCOnlyMessage ?
           <div className="purchase-modal__help-message">
@@ -173,7 +240,6 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, erro
     </div>
   );
 });
-
 
 // Confirmation page for wallet balance purchase and linked wallet USDC payment
 const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedListing, listingId, quantity=1, useLinkedWallet, Cancel}) => {
