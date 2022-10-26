@@ -1530,7 +1530,7 @@ class RootStore {
     } catch(error) {
       this.Log(error, true);
 
-      if(OnCancel) {
+      if(error?.error === "popup_closed" && OnCancel) {
         OnCancel(error);
       } else {
         throw error;

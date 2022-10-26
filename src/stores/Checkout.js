@@ -514,7 +514,6 @@ class CheckoutStore {
 
     try {
       this.submittingOrder = true;
-
       email = email || this.rootStore.walletClient.UserInfo().email;
 
       const successPath = UrlJoin("/marketplace", marketplaceId, "store", sku, "purchase", confirmationId);
@@ -620,24 +619,21 @@ class CheckoutStore {
     } catch(error) {
       this.rootStore.Log(error, true);
 
+      const message = error?.uiMessage || "This item is out of stock";
+
       if([403, 409].includes(error.status)) {
-        this.PurchaseComplete({confirmationId, success: false, message: "Out of Stock"});
+        this.PurchaseComplete({confirmationId, success: false, message});
 
         throw {
           recoverable: false,
-          uiMessage: error.uiMessage || "This item is out of stock"
+          uiMessage: message
         };
       } else {
-        this.PurchaseComplete({confirmationId, success: false, message: "Purchase failed"});
-
-        if(typeof error.recoverable !== "undefined") {
-          throw error;
-        } else {
-          throw {
-            recoverable: true,
-            uiMessage: error.uiMessage || "Purchase failed"
-          };
-        }
+        this.PurchaseComplete({confirmationId, success: false, message});
+        throw {
+          recoverable: !!error?.recoverable,
+          uiMessage: message
+        };
       }
     } finally {
       this.submittingOrder = false;
