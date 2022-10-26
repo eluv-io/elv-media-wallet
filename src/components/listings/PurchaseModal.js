@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
 import {checkoutStore, cryptoStore, rootStore} from "Stores";
 import {ActiveListings} from "Components/listings/TransferTables";
-import {ButtonWithLoader, Copy, FormatPriceString} from "Components/common/UIComponents";
+import {ButtonWithLoader, Copy, FormatPriceString, Select} from "Components/common/UIComponents";
 import {Redirect, useRouteMatch} from "react-router-dom";
 import NFTCard from "Components/nft/NFTCard";
 import ImageIcon from "Components/common/ImageIcon";
@@ -75,6 +75,7 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, erro
   const [paymentType, setPaymentType] = useState(usdcOnly || (usdcAccepted && cryptoStore.usdcOnly) ? "linked-wallet" : "stripe");
   const [selectedSection, setSelectedSection] = useState(usdcOnly || (usdcAccepted && cryptoStore.usdcOnly) ? "crypto" : "card");
   const [email, setEmail] = useState(initialEmail);
+  const [selectedCountry, setSelectedCountry] = useState("");
   const [showUSDCOnlyMessage, setShowUSDCOnlyMessage] = useState(false);
 
   const wallet = cryptoStore.WalletFunctions("phantom");
@@ -210,11 +211,42 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, erro
             The seller has elected to only accept direct purchases with USDC via linked wallet. { cryptoStore.usdcConnected ? null : "Please connect your wallet to purchase this item, or select a different option from the list above." }
           </div> : null
       }
+      {
+        paymentType === "ebanx" ?
+          <>
+            <div className="purchase-modal__additional-fields">
+              <div className="purchase-modal__payment-message">
+                Please specify your country
+              </div>
+              <Select
+                value={selectedCountry}
+                onChange={value => setSelectedCountry(value)}
+                containerClassName="purchase-modal__country-select"
+                options={[
+                  ["", "Select your Country"],
+                  ["ar", "Argentina"],
+                  ["bo", "Bolivia"],
+                  ["br", "Brazil"],
+                  ["cl", "Chile"],
+                  ["co", "Colombia"],
+                  ["ec", "Ecuador"],
+                  ["sv", "El Salvador"],
+                  ["gt", "Guatemala"],
+                  ["mx", "Mexico"],
+                  ["pa", "Panama"],
+                  ["py", "Paraguay"],
+                  ["pe", "Peru"],
+                  ["uy", "Uruguay"]
+                ]}
+              />
+            </div>
+          </> : null
+      }
       { paymentType === "linked-wallet" ? <div className="purchase-modal__wallet-connect"><WalletConnect /></div> : null }
       <ButtonWithLoader
-        disabled={disabled || !connected || (requiresEmail && !ValidEmail(email))}
+        disabled={disabled || !connected || (paymentType === "ebanx" && !selectedCountry) || (requiresEmail && !ValidEmail(email))}
         className="action action-primary purchase-modal__payment-submit"
-        onClick={async () => await Continue(paymentType, email)}
+        onClick={async () => await Continue(paymentType, email, paymentType === "ebanx" ? { name: "Test", country_code: selectedCountry } : {})}
       >
         {
           externalPayment ?
@@ -478,7 +510,7 @@ const PurchasePayment = observer(({
   }, [purchaseStatus]);
 
 
-  const Continue = async (paymentType, email) => {
+  const Continue = async (paymentType, email, additionalParameters={}) => {
     if(paymentType === "wallet-balance") {
       setUseWalletBalance(true);
       return;
@@ -498,7 +530,8 @@ const PurchasePayment = observer(({
           marketplaceId: match.params.marketplaceId,
           listingId: selectedListingId,
           tenantId: selectedListing.details.TenantId,
-          email
+          email,
+          additionalParameters
         });
       } else {
         // Marketplace purchase
@@ -508,7 +541,8 @@ const PurchasePayment = observer(({
           marketplaceId: match.params.marketplaceId,
           sku: marketplaceItem.sku,
           quantity,
-          email
+          email,
+          additionalParameters
         });
       }
 

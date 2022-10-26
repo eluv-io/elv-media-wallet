@@ -15,7 +15,8 @@ const Flows = observer(() => {
 
   let parameters = {};
   if(match.params.parameters) {
-    parameters = JSON.parse(new TextDecoder().decode(Utils.FromB58(match.params.parameters)));
+    parameters = match.params.parameters.split(/[^A-Za-z0-9]/)[0];
+    parameters = JSON.parse(new TextDecoder().decode(Utils.FromB58(parameters)));
   }
 
   // Authenticate with auth parameter, if necessary
@@ -42,7 +43,7 @@ const Flows = observer(() => {
     rootStore.HandleFlow({
       history,
       flow: match.params.flow,
-      parameters: match.params.parameters,
+      parameters: match.params.parameters.split(/[^A-Za-z0-9]/)[0]
     });
   }, [loading]);
 

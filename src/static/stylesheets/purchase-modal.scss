@@ -31,6 +31,7 @@ $content-width: 475px;
   display: flex;
   flex-direction: column;
   height: max-content;
+  margin-bottom: 150px;
   position: relative;
 
   .card-container {
@@ -196,6 +197,28 @@ $content-width: 475px;
       margin-top: 5px;
       text-align: center;
     }
+  }
+
+  &__country-select {
+    height: 50px;
+
+    .styled-select {
+      &__button {
+        height: 100%;
+        justify-content: center;
+        text-align: center;
+      }
+
+      &__menu {
+        * {
+          justify-content: center;
+        }
+      }
+    }
+  }
+
+  &__additional-fields {
+    margin: 30px 0;
   }
 
   &__payment-message {
@@ -394,7 +417,9 @@ $content-width: 475px;
   @media screen and (max-width: $mobile-breakpoint) {
     border: 0;
     border-radius: 0;
+    margin-bottom: 0;
     min-height: 100vh;
+    padding-bottom: 200px;
 
     &__header {
       padding: 25px 0;

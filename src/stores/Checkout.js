@@ -377,7 +377,8 @@ class CheckoutStore {
     email,
     address,
     fromEmbed,
-    flowId
+    flowId,
+    additionalParameters={}
   }) {
     if(this.submittingOrder) { return; }
 
@@ -414,6 +415,7 @@ class CheckoutStore {
             listingId,
             confirmationId,
             email,
+            additionalParameters,
             address: this.rootStore.CurrentAddress()
           },
           OnComplete: () => {
@@ -461,7 +463,8 @@ class CheckoutStore {
         elv_addr: address,
         items: [{sku: listingId, quantity: 1}],
         success_url: successUrl,
-        cancel_url: cancelUrl
+        cancel_url: cancelUrl,
+        ...(additionalParameters || {})
       };
 
       if(EluvioConfiguration["purchase-mode"]) {
@@ -505,7 +508,8 @@ class CheckoutStore {
     email,
     address,
     fromEmbed,
-    flowId
+    flowId,
+    additionalParameters={}
   }) {
     if(this.submittingOrder) { return; }
 
@@ -542,6 +546,7 @@ class CheckoutStore {
             quantity,
             confirmationId,
             email,
+            additionalParameters,
             address: this.rootStore.CurrentAddress()
           },
           OnComplete: () => {
@@ -591,7 +596,8 @@ class CheckoutStore {
         elv_addr: address,
         items: [{sku, quantity}],
         success_url: successUrl,
-        cancel_url: cancelUrl
+        cancel_url: cancelUrl,
+        ...(additionalParameters || {})
       };
 
       if(EluvioConfiguration["purchase-mode"]) {
@@ -619,20 +625,18 @@ class CheckoutStore {
     } catch(error) {
       this.rootStore.Log(error, true);
 
-      const message = error?.uiMessage || "This item is out of stock";
-
       if([403, 409].includes(error.status)) {
         this.PurchaseComplete({confirmationId, success: false, message});
 
         throw {
           recoverable: false,
-          uiMessage: message
+          uiMessage: error?.uiMessage || "This item is out of stock"
         };
       } else {
         this.PurchaseComplete({confirmationId, success: false, message});
         throw {
           recoverable: !!error?.recoverable,
-          uiMessage: message
+          uiMessage: error?.uiMessage || "Purchase Failed"
         };
       }
     } finally {
@@ -669,6 +673,24 @@ class CheckoutStore {
         break;
 
       case "ebanx":
+        const redirectUrl = (yield this.client.utils.ResponseToJson(
+          this.client.authClient.MakeAuthServiceRequest({
+            method: "POST",
+            path: UrlJoin("as", "checkout", "ebanx"),
+            body: {
+              ...requestParams,
+              name: ""
+            },
+            headers: {
+              Authorization: `Bearer ${this.rootStore.authToken}`
+            }
+          })
+        )).redirect_url;
+
+        yield BeforeRedirect && BeforeRedirect();
+
+        window.location.href = UrlJoin(redirectUrl);
+
         break;
 
       case "coinbase":
