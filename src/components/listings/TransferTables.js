@@ -192,7 +192,7 @@ export const PendingPaymentsTable = observer(({icon, header, limit, className=""
                       { TimeDiff((transfer.created * 1000 + week - Date.now()) / 1000) }
                     </div>
                     <div className="transfer-table__table__cell">
-                      { FormatPriceString({USD: transfer.amount}) }
+                      { FormatPriceString(transfer.amount) }
                     </div>
                   </div>
                 )
@@ -272,9 +272,9 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ma
         mobileColumnWidths={[1, 1, 0, 1]}
         entries={
           entries.map(transfer => [
-            FormatPriceString({USD: transfer.amount + transfer.fee}),
-            FormatPriceString({USD: transfer.amount}),
-            FormatPriceString({USD: transfer.fee}),
+            FormatPriceString(transfer.amount + transfer.fee, {excludeAlternateCurrency: true}),
+            FormatPriceString(transfer.amount, {excludeAlternateCurrency: true}),
+            FormatPriceString(transfer.fee, {excludeAlternateCurrency: true}),
             `${Ago(transfer.created * 1000)} ago`
           ])
         }
@@ -302,7 +302,7 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ma
       entries={
         entries.map(transfer => [
           transfer.name,
-          <>{ FormatPriceString({USD: transfer.amount + transfer.royalty}) } { type === "sale" ? <em>({ FormatPriceString({USD: transfer.amount}) })</em> : null }</>,
+          <>{ FormatPriceString(transfer.amount + transfer.royalty, {excludeAlternateCurrency: true}) } { type === "sale" ? <em>({ FormatPriceString(transfer.amount, {excludeAlternateCurrency: true}) })</em> : null }</>,
           `${Ago(transfer.created * 1000) } ago`,
           MiddleEllipsis(type === "sale" ? transfer.buyer : transfer.addr, 14),
           transfer.processor,

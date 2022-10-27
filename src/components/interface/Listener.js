@@ -381,7 +381,7 @@ export const InitializeListener = (history) => {
           await rootStore.RequestPermission({
             origin: event.origin,
             requestor: data.requestor,
-            action: `List '${item?.metadata?.display_name || "NFT"}' for sale for ${FormatPriceString({"USD": data.params.price})}`
+            action: `List '${item?.metadata?.display_name || "NFT"}' for sale for ${FormatPriceString(data.params.price)}`
           });
 
           const listingId = await CreateListing(data);
@@ -398,7 +398,7 @@ export const InitializeListener = (history) => {
           await rootStore.RequestPermission({
             origin: event.origin,
             requestor: data.requestor,
-            action: `List '${listing?.metadata?.display_name || "NFT"}' for sale for ${FormatPriceString({"USD": data.params.price})}`
+            action: `List '${listing?.metadata?.display_name || "NFT"}' for sale for ${FormatPriceString(data.params.price)}`
           });
 
           data.params.listingId = listing.details.ListingId;
@@ -438,7 +438,7 @@ export const InitializeListener = (history) => {
             await rootStore.RequestPermission({
               origin: event.origin,
               requestor: data.requestor,
-              action: `Purchase '${listing?.metadata?.display_name || "NFT"}' with wallet balance for ${FormatPriceString({USD: listing.details.Price})}`
+              action: `Purchase '${listing?.metadata?.display_name || "NFT"}' with wallet balance for ${FormatPriceString(listing.details.Price)}`
             });
           }
 

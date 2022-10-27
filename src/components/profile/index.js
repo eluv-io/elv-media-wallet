@@ -23,7 +23,7 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSe
         Withdrawable Seller Balance
       </h2>
       <div className="profile-page__balance">
-        { FormatPriceString({USD: rootStore.withdrawableWalletBalance}) } USD
+        { FormatPriceString(rootStore.withdrawableWalletBalance, {excludeAlternateCurrency: true}) } USD
       </div>
       {
         !rootStore.userStripeId ?
@@ -174,7 +174,7 @@ const Profile = observer(() => {
           Total Seller Balance
         </h2>
         <div className="profile-page__balance">
-          { FormatPriceString({USD: rootStore.totalWalletBalance}) } { balancePresent ? "USD" : "" }
+          { FormatPriceString(rootStore.totalWalletBalance, {excludeAlternateCurrency: true}) } { balancePresent ? "USD" : "" }
         </div>
         <Link
           className="profile-page__transactions-link"

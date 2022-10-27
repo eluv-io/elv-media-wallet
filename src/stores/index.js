@@ -121,6 +121,7 @@ class RootStore {
     marketplaceDesktop: this.GetSessionStorage("background-image-marketplace"),
     marketplaceMobile: this.GetSessionStorage("background-image-marketplace-mobile"),
   };
+
   centerContent = false;
   centerItems = false;
 
@@ -835,6 +836,8 @@ class RootStore {
     this.marketplaces[marketplaceId] = yield this.walletClient.Marketplace({marketplaceParams: {marketplaceId}});
 
     yield this.checkoutStore.MarketplaceStock({tenantId: this.marketplaces[marketplaceId].tenant_id});
+    // TODO: detect currency
+    yield this.checkoutStore.SetCurrency({currency: "BRL"});
 
     if(marketplaceId === this.specifiedMarketplaceId) {
       this.InitializeAnalytics(this.marketplaces[marketplaceId]);

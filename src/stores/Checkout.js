@@ -12,7 +12,8 @@ const PUBLIC_KEYS = {
 };
 
 class CheckoutStore {
-  currency = "USD";
+  currency = "BRL";
+  exchangeRates = {};
 
   submittingOrder = false;
 
@@ -49,6 +50,15 @@ class CheckoutStore {
       return Utils.B58(UUIDParse(UUID()));
     }
   }
+
+  SetCurrency = flow(function * ({currency}) {
+    try {
+      this.exchangeRates[currency] = yield this.walletClient.ExchangeRate({currency: currency.toLowerCase()});
+      this.currency = currency;
+    } catch(error) {
+      this.Log(error, true);
+    }
+  });
 
   MarketplaceStock = flow(function * ({tenantId}) {
     try {
@@ -690,6 +700,8 @@ class CheckoutStore {
         yield BeforeRedirect && BeforeRedirect();
 
         window.location.href = UrlJoin(redirectUrl);
+
+        yield new Promise(resolve => setTimeout(resolve, 5000));
 
         break;
 

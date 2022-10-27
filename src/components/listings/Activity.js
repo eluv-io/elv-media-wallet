@@ -41,7 +41,7 @@ const Activity = observer(({mode="sales", icon, hideName, tableHeader, initialFi
           transfer.name,
           `${Ago(transfer.created * 1000)} ago`,
           transfer.token,
-          FormatPriceString({USD: transfer.price}),
+          FormatPriceString(transfer.price),
           MiddleEllipsis(transfer.buyer, 14),
           MiddleEllipsis(transfer.seller, 14)
         ],

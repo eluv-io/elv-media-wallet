@@ -551,12 +551,28 @@
   align-items: center;
   display: flex;
 
+  &__alternate {
+    font-size: 14px;
+    margin-left: 10px;
+    opacity: 0.85;
+  }
+
   &__icon {
     height: 20px;
     width: auto;
 
     &:not(:last-child) {
       margin-right: 5px;
+    }
+  }
+
+  &--vertical {
+    flex-wrap: wrap;
+    justify-content: center;
+
+    .formatted-price__alternate {
+      margin: 3px 0 0;
+      width: 100%;
     }
   }
 }

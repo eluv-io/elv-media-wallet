@@ -341,7 +341,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
             { nft.metadata.display_name } { quantity > 1 ? <div className="purchase-modal__quantity">&nbsp;x {quantity}</div> : "" }
           </div>
           <div className="purchase-modal__order-price">
-            { FormatPriceString({USD: total}) }
+            { FormatPriceString(total) }
           </div>
         </div>
         <div className="purchase-modal__order-line-item">
@@ -349,7 +349,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
             Service Fee
           </div>
           <div className="purchase-modal__order-price">
-            { FormatPriceString({USD: fee}) }
+            { FormatPriceString(fee) }
           </div>
         </div>
         <div className="purchase-modal__order-separator" />
@@ -358,7 +358,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
             Total
           </div>
           <div className="purchase-modal__order-price">
-            { FormatPriceString({USD: total + fee}) }
+            { FormatPriceString(total + fee) }
           </div>
         </div>
       </div>
@@ -368,7 +368,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
             Available { balanceName }
           </div>
           <div className="purchase-modal__order-price">
-            {FormatPriceString({USD: balanceAmount || 0})}
+            {FormatPriceString(balanceAmount || 0)}
           </div>
         </div>
         <div className="purchase-modal__order-line-item">
@@ -376,7 +376,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
             Current Purchase
           </div>
           <div className="purchase-modal__order-price">
-            {FormatPriceString({USD: total + fee})}
+            {FormatPriceString(total + fee)}
           </div>
         </div>
         <div className="purchase-modal__order-separator"/>
@@ -386,7 +386,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
           </div>
           <div className="purchase-modal__order-price">
             { balanceIcon }
-            {FormatPriceString({USD: balanceAmount - (total + fee)})}
+            {FormatPriceString(balanceAmount - (total + fee))}
           </div>
         </div>
       </div>
@@ -582,7 +582,7 @@ const PurchasePayment = observer(({
             <div className="purchase-modal__price-details">
               <QuantityInput quantity={quantity} setQuantity={setQuantity} maxQuantity={maxQuantity}/>
               <div className="purchase-modal__price-details__price">
-                {FormatPriceString(info.price, {quantity, includeCurrency: true})}
+                {FormatPriceString(info.price?.USD || 0, {quantity, includeCurrency: true})}
               </div>
             </div> : null) :
           <>
@@ -598,7 +598,7 @@ const PurchasePayment = observer(({
                         Highest Price
                       </div>
                       <div className="purchase-modal__stat__price">
-                        {FormatPriceString({USD: listingStats.max})}
+                        {FormatPriceString(listingStats.max)}
                       </div>
                     </div>
                     <div className="purchase-modal__stat">
@@ -606,7 +606,7 @@ const PurchasePayment = observer(({
                         Lowest Price
                       </div>
                       <div className="purchase-modal__stat__price">
-                        {FormatPriceString({USD: listingStats.min})}
+                        {FormatPriceString(listingStats.min)}
                       </div>
                     </div>
                   </div>
@@ -620,7 +620,7 @@ const PurchasePayment = observer(({
           </>
       }
       <PurchaseProviderSelection
-        price={FormatPriceString(info.price, {quantity})}
+        price={FormatPriceString(info.price?.USD || 0, {quantity, stringOnly: true})}
         errorMessage={errorMessage}
         usdcAccepted={selectedListing?.details?.USDCAccepted}
         usdcOnly={selectedListing?.details?.USDCOnly}

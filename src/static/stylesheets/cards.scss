@@ -215,6 +215,28 @@
     &__price {
       align-items: center;
       display: flex;
+
+      .formatted-price {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+
+        &__alternate {
+          margin: 5px 0 0;
+          text-align: left;
+          width: 100%;
+        }
+      }
+
+      // If the price is the only item (i.e. no status), it should be centered
+      &:last-child {
+        .formatted-price {
+          justify-content: center;
+
+          &__alternate {
+            text-align: center;
+          }
+        }
+      }
     }
   }
 

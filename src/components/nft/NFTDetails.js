@@ -500,7 +500,7 @@ const NFTTables = observer(({nftInfo}) => {
             }}
             CalculateRowValues={transfer => [
               `${Ago(transfer.created * 1000)} ago`,
-              FormatPriceString({USD: transfer.price}),
+              FormatPriceString(transfer.price),
               MiddleEllipsis(transfer.buyer, 14),
               MiddleEllipsis(transfer.seller, 14)
             ]}
@@ -529,7 +529,7 @@ const NFTTables = observer(({nftInfo}) => {
         CalculateRowValues={transfer => [
           `${Ago(transfer.created * 1000)} ago`,
           transfer.token,
-          FormatPriceString({USD: transfer.price}),
+          FormatPriceString(transfer.price),
           MiddleEllipsis(transfer.buyer, 14),
           MiddleEllipsis(transfer.seller, 14)
         ]}
@@ -621,7 +621,7 @@ const NFTActions = observer(({
           onLoginBlocked={ShowModal}
           onClick={ShowModal}
         >
-          Buy Now for {FormatPriceString({USD: nftInfo.nft.details.Price})}
+          Buy Now for {FormatPriceString(nftInfo.nft.details.Price, {stringOnly: true})}
         </LoginClickGate>
         {
           isInCheckout ?
@@ -636,7 +636,7 @@ const NFTActions = observer(({
     if(listingStatus.sale) {
       return (
         <h2 className="details-page__message">
-          This NFT was sold for { FormatPriceString({USD: listingStatus.sale.price}) } on { new Date(listingStatus.sale.created * 1000).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
+          This NFT was sold for { FormatPriceString(listingStatus.sale.price) } on { new Date(listingStatus.sale.created * 1000).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
         </h2>
       );
     } else if(listingStatus.removed) {

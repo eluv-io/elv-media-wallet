@@ -156,89 +156,120 @@ export const CopyableField = ({value, children, className="", ellipsis=true}) =>
   );
 };
 
-export const ItemPrice = (item, currency) => {
-  currency = Object.keys(item.price || {}).find(c => c.toLowerCase() === currency.toLowerCase());
-
-  if(!currency) {
-    return "";
-  }
-
-  return parseFloat(item.price[currency]);
-};
-
 export const FormatPriceString = (
-  priceList,
+  price,
   options= {
-    currency: "USD",
     quantity: 1,
     trimZeros: false,
     includeCurrency: false,
     useCurrencyIcon: false,
     includeUSDCIcon: false,
-    prependCurrency: false
+    prependCurrency: false,
+    excludeAlternateCurrency: false,
+    stringOnly: false,
+    vertical: false,
+    className: ""
   }
 ) => {
-  const currency = options?.currency || "USD";
-
-  if(typeof priceList !== "object") {
-    priceList = { [checkoutStore.currency]: priceList };
-  }
-
-  let price = ItemPrice({price: priceList}, currency);
+  price = parseFloat(price);
 
   if(typeof price !== "number" || isNaN(price)) { return; }
 
   price = price * (options.quantity || 1);
 
   const currentLocale = (navigator.languages && navigator.languages.length) ? navigator.languages[0] : navigator.language;
-  let formattedPrice = new Intl.NumberFormat(currentLocale || "en-US", { style: "currency", currency: currency}).format(price);
+  let formattedPrice = new Intl.NumberFormat(currentLocale || "en-US", { style: "currency", currency: "USD"}).format(price);
 
   if(options.trimZeros && formattedPrice.endsWith(".00")) {
     formattedPrice = formattedPrice.slice(0, -3);
   }
 
+  let alternatePrice, alternatePriceString;
+  if(!options.excludeAlternateCurrency && checkoutStore.currency !== "USD" && checkoutStore.exchangeRates[checkoutStore.currency]) {
+    alternatePrice = new Intl.NumberFormat(currentLocale || "en-US", { style: "currency", currency: checkoutStore.currency})
+      .format(price * checkoutStore.exchangeRates[checkoutStore.currency].rate);
+    alternatePrice =
+      options.includeCurrency ?
+        (options.prependCurrency ?
+          `(${checkoutStore.currency} ${alternatePrice})` :
+          `(${alternatePrice} ${checkoutStore.currency})`) :
+        `(${alternatePrice})`;
+
+    alternatePriceString = (
+      <div className="formatted-price__alternate">
+        { alternatePrice }
+      </div>
+    );
+  }
+
   const usdcIcon = options.includeUSDCIcon ? <ImageIcon icon={USDCIcon} className="formatted-price__icon" /> : null;
+
+  let priceString;
   if(options?.includeCurrency) {
     if(options?.useCurrencyIcon) {
       formattedPrice = <div className="formatted-price__value">{ formattedPrice }</div>;
       const icon = <ImageIcon icon={USDIcon} className="formatted-price__icon" />;
-      return (
-        <div className="formatted-price">
+      priceString = (
+        <div className={`formatted-price ${options.vertical ? "formatted-price--vertical" : ""} ${options.className || ""}`}>
           {
             options.prependCurrency ?
               <>{usdcIcon}{icon}{formattedPrice}</> :
               <>{formattedPrice}{usdcIcon}{icon}</>
           }
+          { alternatePriceString }
         </div>
       );
     } else {
       formattedPrice = (
-        <div className="formatted-price__value">
+        <div className={`formatted-price__value ${options.className || ""}`}>
           {
             options.prependCurrency ?
-              `${currency} ${formattedPrice}` :
-              `${formattedPrice} ${currency}`
+              `USD ${formattedPrice}` :
+              `${formattedPrice} USD`
           }
         </div>
       );
 
-      return (
-        <div className="formatted-price">
+      priceString = (
+        <div className={`formatted-price ${options.vertical ? "formatted-price--vertical" : ""} ${options.className || ""}`}>
           {options?.includeUSDCIcon ? usdcIcon : null}{formattedPrice}
+          { alternatePriceString }
         </div>
       );
     }
   } else if(options.includeUSDCIcon) {
-    formattedPrice = <div className="formatted-price__value">{ formattedPrice }</div>;
+    formattedPrice = <div className="formatted-price__value">{formattedPrice}</div>;
+
+    priceString = (
+      <div className={`formatted-price ${options.vertical ? "formatted-price--vertical" : ""} ${options.className || ""}`}>
+        {usdcIcon}{formattedPrice}
+        {alternatePriceString}
+      </div>
+    );
+  } else if(alternatePriceString) {
+    if(options.stringOnly) {
+      return `${formattedPrice} ${alternatePrice}`;
+    }
 
     return (
-      <div className="formatted-price">
-        {usdcIcon}{formattedPrice}
+      <div className={`formatted-price ${options.vertical ? "formatted-price--vertical" : ""}`}>
+        {formattedPrice}
+        {alternatePriceString}
       </div>
     );
   } else {
-    return formattedPrice;
+    if(options.stringOnly) {
+      return formattedPrice;
+    }
+
+    return (
+      <div className={`formatted-price ${options.vertical ? "formatted-price--vertical" : ""}`}>
+        { formattedPrice }
+      </div>
+    );
   }
+
+  return priceString;
 };
 
 export const RichText = ({richText, className=""}) => {

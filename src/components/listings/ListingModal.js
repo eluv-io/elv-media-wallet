@@ -77,7 +77,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
               {
                 priceFloor && parsedPrice < priceFloor ?
                   <div className="listing-modal__form__error">
-                    Minimum listing price is { FormatPriceString({USD: priceFloor}) }
+                    Minimum listing price is { FormatPriceString(priceFloor) }
                   </div> : null
               }
               {
@@ -137,7 +137,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                   }
                 }}
               >
-                List now for { FormatPriceString({USD: parsedPrice}) }
+                List now for { FormatPriceString(parsedPrice, {stringOnly: true}) }
               </ButtonWithLoader>
               {
                 nft.details.ListingId ?

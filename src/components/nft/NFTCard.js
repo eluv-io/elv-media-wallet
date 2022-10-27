@@ -51,7 +51,7 @@ const NFTCard = observer(({
 
   // Listing modal specifies price displayed on card
   const renderedPrice = typeof price !== "undefined" ?
-    FormatPriceString(price || {USD: price}, {includeCurrency: !usdcOnly, includeUSDCIcon: usdcAccepted, prependCurrency: true, useCurrencyIcon: false}) :
+    FormatPriceString(price?.USD || price, {includeCurrency: !usdcOnly, includeUSDCIcon: usdcAccepted, prependCurrency: true, useCurrencyIcon: false}) :
     info.renderedPrice;
 
   const description = (

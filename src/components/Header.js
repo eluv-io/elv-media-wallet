@@ -53,7 +53,7 @@ const Profile = observer(() => {
         <ImageIcon icon={WalletIcon} className="header__profile__balance__icon" />
         { rootStore.usdcDisabled ? null : <WalletHeader /> }
         <div className="header__profile__balance__amount">
-          { FormatPriceString({USD: rootStore.totalWalletBalance}) }
+          { FormatPriceString(rootStore.totalWalletBalance, {excludeAlternateCurrency: true}) }
           { rootStore.pendingWalletBalance ? <div className="header__profile__pending-indicator">*</div> : null}
         </div>
       </Link>

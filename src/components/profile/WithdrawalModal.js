@@ -76,16 +76,16 @@ export const WithdrawalModal = observer(({Close}) => {
           <h1 className="withdrawal-confirmation__header">Withdraw Funds</h1>
           <div className="withdrawal-confirmation__content">
             <div className="withdrawal-confirmation__message">
-              {FormatPriceString({USD: payout})} successfully transferred to your account
+              {FormatPriceString(payout)} successfully transferred to your account
             </div>
             <div className="withdrawal-confirmation__details">
               <div className="withdrawal-confirmation__detail">
                 <label>Total Payout</label>
-                <div>{FormatPriceString({USD: payout})}</div>
+                <div>{FormatPriceString(payout)}</div>
               </div>
               <div className="withdrawal-confirmation__detail">
                 <label>Remaining Withdrawable Funds</label>
-                <div>{FormatPriceString({USD: rootStore.withdrawableWalletBalance})}</div>
+                <div>{FormatPriceString(rootStore.withdrawableWalletBalance)}</div>
               </div>
             </div>
             <div className="withdrawal-confirmation__actions">
@@ -121,7 +121,7 @@ export const WithdrawalModal = observer(({Close}) => {
                   {
                     parsedAmount > rootStore.withdrawableWalletBalance ?
                       <div className="withdrawal-confirmation__input-error">
-                        Maximum withdrawable balance is {FormatPriceString({USD: rootStore.withdrawableWalletBalance})}
+                        Maximum withdrawable balance is {FormatPriceString(rootStore.withdrawableWalletBalance)}
                       </div> : null
                   }
                 </div>
@@ -130,24 +130,24 @@ export const WithdrawalModal = observer(({Close}) => {
           <div className="withdrawal-confirmation__details">
             <div className="withdrawal-confirmation__detail">
               <label>Available Funds</label>
-              <div>{FormatPriceString({USD: rootStore.withdrawableWalletBalance})}</div>
+              <div>{FormatPriceString(rootStore.withdrawableWalletBalance)}</div>
             </div>
             <div className="withdrawal-confirmation__detail">
               <label>Withdrawn Funds</label>
-              <div>{FormatPriceString({USD: parsedAmount})}</div>
+              <div>{FormatPriceString(parsedAmount)}</div>
             </div>
             <div className="withdrawal-confirmation__detail-separator" />
             <div className="withdrawal-confirmation__detail withdrawal-confirmation__detail-faded">
               <label>Processing Fee</label>
-              <div>{FormatPriceString({USD: (parsedAmount - payout)})}</div>
+              <div>{FormatPriceString((parsedAmount - payout))}</div>
             </div>
             <div className="withdrawal-confirmation__detail">
               <label>Total Payout</label>
-              <div>{FormatPriceString({USD: payout})}</div>
+              <div>{FormatPriceString(payout)}</div>
             </div>
             <div className="withdrawal-confirmation__detail">
               <label>Remaining Funds</label>
-              <div>{FormatPriceString({USD: rootStore.withdrawableWalletBalance - parsedAmount})}</div>
+              <div>{FormatPriceString(rootStore.withdrawableWalletBalance - parsedAmount)}</div>
             </div>
           </div>
           {
