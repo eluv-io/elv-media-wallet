@@ -84,6 +84,18 @@
       }
     }
 
+    .item-card__status__price {
+      &:last-child {
+        .formatted-price {
+          justify-content: center;
+
+          &__alternate {
+            text-align: center;
+          }
+        }
+      }
+    }
+
     .item-card__dates {
       justify-content: center;
     }
@@ -215,26 +227,17 @@
     &__price {
       align-items: center;
       display: flex;
+      width: 100%;
 
       .formatted-price {
         flex-wrap: wrap;
         justify-content: flex-start;
+        width: 100%;
 
         &__alternate {
           margin: 5px 0 0;
           text-align: left;
           width: 100%;
-        }
-      }
-
-      // If the price is the only item (i.e. no status), it should be centered
-      &:last-child {
-        .formatted-price {
-          justify-content: center;
-
-          &__alternate {
-            text-align: center;
-          }
         }
       }
     }
