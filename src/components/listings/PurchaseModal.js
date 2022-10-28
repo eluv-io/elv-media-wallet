@@ -244,7 +244,7 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, erro
       }
       { paymentType === "linked-wallet" ? <div className="purchase-modal__wallet-connect"><WalletConnect /></div> : null }
       <ButtonWithLoader
-        disabled={disabled || !connected || (paymentType === "ebanx" && !selectedCountry) || (requiresEmail && !ValidEmail(email))}
+        disabled={disabled || !rootStore.loggedIn || !connected || (paymentType === "ebanx" && !selectedCountry) || (requiresEmail && !ValidEmail(email))}
         className="action action-primary purchase-modal__payment-submit"
         onClick={async () => await Continue(paymentType, email, paymentType === "ebanx" ? { name: "Test", country_code: selectedCountry } : {})}
       >
@@ -264,9 +264,9 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, erro
         Back
       </button>
       {
-        errorMessage ?
+        errorMessage || !rootStore.loggedIn ?
           <div className="purchase-modal__error-message">
-            { errorMessage }
+            { errorMessage || "You must be logged in to complete this purchase." }
           </div> : null
       }
     </div>

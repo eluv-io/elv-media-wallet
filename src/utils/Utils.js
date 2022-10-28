@@ -312,7 +312,7 @@ export const NFTInfo = ({
 
   let renderedPrice;
   if(price) {
-    renderedPrice = FormatPriceString(price?.USD || listing?.details?.Price || 0, {includeCurrency: !usdcOnly, includeUSDCIcon: usdcAccepted, prependCurrency: true, useCurrencyIcon: false});
+    renderedPrice = FormatPriceString(price || listing?.details?.Price || 0, {includeCurrency: !usdcOnly, includeUSDCIcon: usdcAccepted, prependCurrency: true, useCurrencyIcon: false});
   }
 
   const offers = (nft?.metadata?.redeemable_offers || []).map(offer => {

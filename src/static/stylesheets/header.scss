@@ -14,6 +14,7 @@
 
   * {
     font-weight: 300;
+    transition: color 0.25s ease;
   }
 
   &--side-panel {
@@ -35,48 +36,119 @@
   }
 
   &__profile {
-    @include page-fade-in;
     align-items: center;
     display: flex;
-    font-size: 14px;
-    justify-content: flex-end;
-    max-width: 250px;
+    height: 100%;
+    padding: 15px 0;
     position: absolute;
     right: 0;
 
-    svg,
-    img {
-      height: 20px;
-      min-width: 20px;
-      width: 20px;
+    &__link {
+      height: 100%;
+
+      &.active {
+        svg {
+          * {
+            color: var(--color-text-highlight);
+          }
+        }
+      }
+
+      &:not(:last-child) {
+        margin-right: 25px;
+      }
+
+      svg {
+        height: 100%;
+      }
+    }
+  }
+
+  &__wallet-menu {
+    @include component;
+    @include page-fade-in(0.2s, ease-out);
+
+    height: max-content;
+    max-width: 450px;
+    padding: 20px;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 5px);
+    z-index: 10;
+
+    * {
+      text-align: center;
     }
 
-    &__user,
-    &__balance {
+    &__header {
+      font: var(--font-component-header);
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    &__section {
+      margin: 15px 0;
+    }
+
+    &__message {
+      color: var(--color-component-text-secondary);
+      font: var(--font-component-text);
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+
+    &__address-container {
       align-items: center;
-      background: var(--background-page-header-profile);
-      border-radius: 6px;
+      background: var(--color-component-bg-secondary);
       display: flex;
       height: 35px;
-      padding: 0 10px;
+      margin-top: 5px;
+      padding: 5px 10px;
     }
 
-    &__user {
-      margin-right: 10px;
+    &__address {
+      font: var(--font-component-misc);
+      font-size: 12px;
     }
 
-    &__balance {
-      align-items: center;
-      display: flex;
+    &__address-copy {
+      height: 100%;
+      margin-left: 10px;
 
-      &__icon {
-        margin-right: 8px;
+      svg {
+        height: 100%;
+        padding: 3px;
       }
     }
 
-    &__usdc {
-      align-items: center;
-      display: flex;
+    &__balance {
+      * {
+        justify-content: center;
+        text-align: center;
+      }
+
+      .formatted-price {
+        font-size: 20px;
+        font-weight: 300;
+      }
+    }
+
+    &__email {
+      font-size: 20px;
+      font-weight: 300;
+    }
+
+    &__actions {
+      margin-top: 30px;
+    }
+
+    .action-primary {
+      color: var(--color-button-primary-text);
+    }
+
+    .action {
+      margin-top: 10px;
+      width: 100%;
     }
   }
 }
@@ -106,7 +178,6 @@
     font: var(--font-header-links);
     height: 100%;
     justify-content: center;
-    transition: border 0.25s ease;
 
     &.active {
       color: var(--color-header-link-text-active);
@@ -119,10 +190,7 @@
   display: flex;
   height: 55px;
   justify-content: space-between;
-
-  * {
-    color: var(--color-page-header-text);
-  }
+  position: relative;
 
   &__logo-container {
     height: 100%;
@@ -169,7 +237,6 @@
   flex-direction: row;
   justify-content: flex-end;
   position: relative;
-  transition: height 0.15s ease;
   width: 100%;
 
   * {
@@ -260,10 +327,6 @@
         margin-right: 20px;
       }
     }
-
-    .header__profile {
-      position: relative;
-    }
   }
 
   &__navigation-link {
@@ -291,6 +354,7 @@
   }
 }
 
+
 .mobile-navigation {
   align-items: center;
   display: none;
@@ -299,6 +363,12 @@
   margin-left: 15px;
   min-width: 30px;
   padding-right: 25px;
+
+  &__modal {
+    .modal__content {
+      top: 0;
+    }
+  }
 
   &__menu-button {
     height: 100%;
@@ -322,11 +392,67 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    padding: 50px 0;
+    padding: 50px 25px 250px;
     width: 100vw;
 
     * {
       color: var(--color-text-primary);
+    }
+
+    &__header {
+      font-size: 28px;
+      margin-bottom: 30px;
+      text-transform: uppercase;
+    }
+
+    &__section {
+      margin: 15px 0;
+    }
+
+    &__message {
+      color: var(--color-component-text-secondary);
+      font: var(--font-component-text);
+      font-size: 20px;
+      margin-bottom: 5px;
+    }
+
+    &__address-container {
+      align-items: center;
+      display: flex;
+      height: 25px;
+      margin-top: 5px;
+    }
+
+    &__address {
+      font: var(--font-component-misc);
+      font-size: 12px;
+    }
+
+    &__address-copy {
+      height: 100%;
+      margin-left: 10px;
+
+      svg {
+        height: 100%;
+        padding: 3px;
+      }
+    }
+
+    &__balance {
+      * {
+        justify-content: flex-start;
+        text-align: left;
+      }
+
+      .formatted-price {
+        font-size: 20px;
+        font-weight: 300;
+      }
+    }
+
+    &__email {
+      font-size: 20px;
+      font-weight: 300;
     }
   }
 
@@ -338,7 +464,7 @@
     font-weight: normal;
     justify-content: flex-start;
     letter-spacing: 1px;
-    padding: 15px 0 15px 25px;
+    padding: 15px 0;
     text-align: left;
     text-transform: uppercase;
     white-space: nowrap;
@@ -359,9 +485,8 @@
 
   &__separator {
     border-bottom: var(--border-faint);
-    margin: 0 auto 10px;
-    padding: 10px 5px 0;
-    width: 85%;
+    padding: 10px 15px 0 0;
+    width: 95%;
   }
 }
 
@@ -393,20 +518,9 @@
       max-width: 200px;
     }
   }
-
-  .header__profile {
-    font-size: 12px;
-    padding-right: 50px;
-  }
 }
 
 @media screen and (max-width: $tablet-breakpoint) {
-  .header__profile {
-    max-width: unset;
-    position: relative;
-    width: 100%;
-  }
-
   .global-header--marketplace {
     .global-header__logo {
       padding: 0;
@@ -442,13 +556,20 @@
       display: none;
     }
   }
+
+  .header__profile {
+    font-size: 12px;
+    padding: 19px 50px 19px 0;
+
+    &__link {
+      &:not(:last-child) {
+        margin-right: 20px;
+      }
+    }
+  }
 }
 
 @media screen and (max-width: $mobile-breakpoint) {
-  .header__profile {
-    display: none;
-  }
-
   .subheader__header {
     font-size: 24px;
 

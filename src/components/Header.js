@@ -1,22 +1,82 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import {Link, NavLink, useLocation} from "react-router-dom";
-import {FormatPriceString} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import UrlJoin from "url-join";
 import Modal from "Components/common/Modal";
-import {WalletHeader} from "Components/crypto/WalletConnect";
+import {Copy, FormatPriceString} from "Components/common/UIComponents";
 
 import BackIcon from "Assets/icons/arrow-left-circle.svg";
 import EluvioLogo from "Assets/images/EluvioLogo.png";
 import MenuIcon from "Assets/icons/menu";
-import WalletIcon from "Assets/icons/wallet balance button icon.svg";
-import UserIcon from "Assets/icons/user.svg";
+import WalletIcon from "Assets/icons/wallet.svg";
+import UserIcon from "Assets/icons/profile.svg";
+import CopyIcon from "Assets/icons/copy.svg";
+
+const WalletMenu = observer(({marketplaceId, Hide}) => {
+  const userInfo = rootStore.walletClient.UserInfo();
+  const menuRef = useRef();
+
+  useEffect(() => {
+    if(!menuRef || !menuRef.current) { return; }
+
+    const onClickOutside = event => {
+      if(!menuRef?.current || !menuRef.current.contains(event.target)) {
+        Hide();
+      }
+    };
+
+    document.addEventListener("click", onClickOutside);
+
+    return () => document.removeEventListener("click", onClickOutside);
+  }, [menuRef]);
+
+  return (
+    <div className="header__wallet-menu" ref={menuRef}>
+      <h2 className="header__wallet-menu__header">Media Wallet</h2>
+      <div className="header__wallet-menu__section">
+        <div className="header__wallet-menu__message">My Eluvio Content Blockchain Address</div>
+        <div className="header__wallet-menu__address-container">
+          <div className="header__wallet-menu__address ellipsis">
+            { rootStore.CurrentAddress() }
+          </div>
+          <button onClick={() => Copy(rootStore.CurrentAddress())} className="header__wallet-menu__address-copy">
+            <ImageIcon alt="Copy Address" icon={CopyIcon} />
+          </button>
+        </div>
+      </div>
+
+      <div className="header__wallet-menu__section">
+        <div className="header__wallet-menu__message">My Seller Balance</div>
+        <div className="header__wallet-menu__balance">{ FormatPriceString(rootStore.totalWalletBalance, {includeCurrency: true, prependCurrency: true, excludeAlternateCurrency: true}) }</div>
+      </div>
+
+      <div className="header__wallet-menu__section">
+        <div className="header__wallet-menu__message">Signed in Via {userInfo.walletType === "Custodial" ? "Email" : userInfo.walletType}</div>
+        { userInfo.email ? <div className="header__wallet-menu__email">{userInfo.email}</div> : null }
+      </div>
+
+      <div className="header__wallet-menu__actions">
+        <Link
+          to={marketplaceId ? `/marketplace/${marketplaceId}/profile` : "/wallet/profile"}
+          onClick={Hide}
+          className="action"
+        >
+          Manage Media Wallet
+        </Link>
+        <button onClick={() => rootStore.SignOut()} className="action action-borderless action-transparent">
+          Sign Out
+        </button>
+      </div>
+    </div>
+  );
+});
 
 const Profile = observer(() => {
   const location = useLocation();
   const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
+  const [showWalletMenu, setShowWalletMenu] = useState(false);
 
   if((!rootStore.loginLoaded && !rootStore.loggedIn) || rootStore.authenticating) {
     return <div className="header__profile header__profile--placeholder" />;
@@ -36,32 +96,31 @@ const Profile = observer(() => {
     );
   }
 
-  const user = rootStore.walletClient.UserInfo() || {};
-
   return (
-    <div title={rootStore.userProfiles.me?.userName || user.email || user.address} className="header__profile">
-      <Link
-        to={marketplaceId ? `/marketplace/${marketplaceId}/users/me/items` : "/wallet/users/me/items"}
-        className="header__profile__user"
-      >
-        <ImageIcon icon={UserIcon} className="header__profile__user__icon" />
-      </Link>
-      <Link
-        to={marketplaceId ? `/marketplace/${marketplaceId}/profile` : "/wallet/profile"}
-        className="header__profile__balance"
-      >
-        <ImageIcon icon={WalletIcon} className="header__profile__balance__icon" />
-        { rootStore.usdcDisabled ? null : <WalletHeader /> }
-        <div className="header__profile__balance__amount">
-          { FormatPriceString(rootStore.totalWalletBalance, {excludeAlternateCurrency: true}) }
-          { rootStore.pendingWalletBalance ? <div className="header__profile__pending-indicator">*</div> : null}
-        </div>
-      </Link>
-    </div>
+    <>
+      <div className="header__profile">
+        <NavLink
+          isActive={(_, location) => rootStore.loggedIn && (location.pathname.includes("/users/me/") || location.pathname.includes(`/users/${rootStore.CurrentAddress()}`))}
+          to={marketplaceId ? `/marketplace/${marketplaceId}/users/me/items` : "/wallet/users/me/items"}
+          className="header__profile__link header__profile__user"
+        >
+          <ImageIcon alt="My Profile" icon={UserIcon} className="header__profile__user__icon" />
+        </NavLink>
+        <button
+          onClick={() => setShowWalletMenu(!showWalletMenu)}
+          className={`header__profile__link header__profile__balance ${showWalletMenu ? "active" : ""}`}
+        >
+          <ImageIcon alt="My Wallet" icon={WalletIcon} className="header__profile__balance__icon" />
+        </button>
+      </div>
+      { showWalletMenu ? <WalletMenu marketplaceId={marketplaceId} Hide={() => setShowWalletMenu(false)} /> : null }
+    </>
   );
 });
 
 const MobileNavigationMenu = observer(({marketplace, Close}) => {
+  const userInfo = rootStore.walletClient.UserInfo();
+
   let links;
   if(!marketplace) {
     links = [
@@ -98,6 +157,36 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
 
   return (
     <div className="mobile-navigation__menu">
+      <h2 className="mobile-navigation__menu__header">Media Wallet</h2>
+      {
+        !rootStore.loggedIn ? null :
+          <>
+            <div className="mobile-navigation__menu__account-info">
+              <div className="mobile-navigation__menu__section">
+                <div className="mobile-navigation__menu__message">Signed in Via {userInfo.walletType === "Custodial" ? "Email" : userInfo.walletType}</div>
+                { userInfo.email ? <div className="mobile-navigation__menu__email">{userInfo.email}</div> : null }
+              </div>
+              <div className="mobile-navigation__menu__section">
+                <div className="mobile-navigation__menu__message">My Eluvio Content Blockchain Address</div>
+                <div className="mobile-navigation__menu__address-container">
+                  <div className="mobile-navigation__menu__address ellipsis">
+                    { rootStore.CurrentAddress() }
+                  </div>
+                  <button onClick={() => Copy(rootStore.CurrentAddress())} className="mobile-navigation__menu__address-copy">
+                    <ImageIcon alt="Copy Address" icon={CopyIcon} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="mobile-navigation__menu__section">
+                <div className="mobile-navigation__menu__message">My Seller Balance</div>
+                <div className="mobile-navigation__menu__balance">{ FormatPriceString(rootStore.totalWalletBalance, {includeCurrency: true, prependCurrency: true, excludeAlternateCurrency: true}) }</div>
+              </div>
+            </div>
+            <div key="mobile-link-separator" className="mobile-navigation__separator" />
+          </>
+      }
+
       {
         links.map(({name, to, authed, global, separator, hidden}) => {
           if(hidden || (authed && !rootStore.loggedIn)) { return null; }
