@@ -20,19 +20,33 @@
 
 /* Heading Pro */
 @font-face {
-  font-family: "Heading Pro Double";
-  src: url("./Heading Pro/files/HeadingProDouble-Thin.woff") format("woff2"),
-  url("./Heading Pro/files/HeadingProDouble-ThinItalic.woff") format("woff2");
-  font-style: normal;
-  font-weight: 400;
+  font-family: "Heading Pro";
+  src: url("./Heading Pro/files/HeadingProDouble-ThinItalic.woff") format("woff2");
+  font-style: italic;
+  font-display: swap;
+  font-weight: 100 400;
 }
 
 @font-face {
-  font-family: "Heading Pro Medium";
-  src: url("./Heading Pro/files/HeadingProMedium-BlackItalic.woff") format("woff2"),
-  url("./Heading Pro/files/HeadingProMedium-Bold.woff") format("woff2");
-  font-style: normal;
-  font-weight: 400;
+  font-family: "Heading Pro";
+  src: url("./Heading Pro/files/HeadingProMedium-BlackItalic.woff") format("woff2");
+  font-style: italic;
+  font-display: swap;
+  font-weight: 500 900;
 }
 
+@font-face {
+  font-family: "Heading Pro";
+  src: url("./Heading Pro/files/HeadingProDouble-Thin.woff") format("woff2");
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 400;
+}
 
+@font-face {
+  font-family: "Heading Pro";
+  src: url("./Heading Pro/files/HeadingProMedium-Bold.woff") format("woff2");
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500 900;
+}

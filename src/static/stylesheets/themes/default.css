@@ -6,9 +6,9 @@ html {
   --color-text-highlight-rgb: 30, 94, 237;
 
   /* Fonts - Primary is for used headers, tertiary for buttons, prices and other details, secondary for all other text */
-  --font-family-primary: "Montserrat", "Helvetica Neue", Helvetica, sans-serif; /* Primary font should be accompanied with 'text-transform: uppercase' */
-  --font-family-secondary: "DM Sans", "Helvetica Neue", Helvetica, sans-serif;
-  --font-family-tertiary: "Inter", Helvetica, sans-serif;
+  --font-family-primary: "Heading Pro";
+  --font-family-secondary: "Heading Pro";
+  --font-family-tertiary: "Heading Pro", Helvetica, sans-serif;
   --font-default: normal normal normal 16px var(--font-family-secondary);
 
   --color-bg-primary: #FFFFFF;
