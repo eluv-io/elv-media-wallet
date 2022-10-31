@@ -73,7 +73,7 @@
     padding: 20px;
     position: absolute;
     right: 0;
-    top: calc(100% + 5px);
+    top: calc(100% + 20px);
     z-index: 10;
 
     * {
@@ -332,10 +332,7 @@
     &__link {
       font-size: 14px;
       margin: 0 !important; // sass-lint:disable-line no-important
-
-      &--with-profile {
-        padding-right: 100px;
-      }
+      padding-right: 100px;
     }
   }
 
@@ -351,7 +348,7 @@
     padding: 20px;
     position: absolute;
     right: 0;
-    top: calc(100% + 5px);
+    top: calc(100% + 20px);
     z-index: 10;
 
     &__link {

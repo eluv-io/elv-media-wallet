@@ -292,7 +292,6 @@ const GlobalHeader = observer(({marketplace}) => {
             <ImageIcon icon={EluvioLogo} title="Eluvio" className="global-header__logo" />
           </Link>
           <GlobalHeaderNavigation />
-          <Profile />
           <MobileNavigation marketplace={marketplace} />
         </div>
       </div>
@@ -390,18 +389,16 @@ const WalletNavigationMenu = observer(({marketplace, Hide}) => {
 const WalletNavigation = observer(({marketplace}) => {
   const [showMenu, setShowMenu] = useState(false);
 
-  const showProfile = rootStore.hideMarketplaceNavigation && (rootStore.hideGlobalNavigation || rootStore.hideGlobalNavigationInMarketplace && marketplace);
-  // TODO: Make configurable
   return (
     <>
       <nav className="subheader__navigation subheader__wallet-navigation">
         <button
-          className={`subheader__navigation-link subheader__wallet-navigation__link ${showProfile ? "subheader__wallet-navigation__link--with-profile" : ""} ${showMenu ? "active" : ""}`}
+          className={`subheader__navigation-link subheader__wallet-navigation__link ${showMenu ? "active" : ""}`}
           onClick={() => setShowMenu(!showMenu)}
         >
           My Wallet
         </button>
-        { showProfile ? <Profile /> : null }
+        <Profile />
       </nav>
       { showMenu ? <WalletNavigationMenu marketplace={marketplace} Hide={() => setShowMenu(false)} /> : null }
     </>
@@ -478,10 +475,6 @@ const SubHeader = observer(({marketplace}) => {
                     <ImageIcon icon={header_image.url} label={name || ""} className="subheader__header__image" />
                   </div> :
                   (!hide_name ? <h1 className="subheader__header">{`${name}`}</h1> : null)
-              }
-              {
-                hideGlobalNavigation ?
-                  <Profile marketplace={marketplace}/> : null
               }
               {
                 hideGlobalNavigation ?
