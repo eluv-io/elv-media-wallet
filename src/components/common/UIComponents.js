@@ -392,7 +392,7 @@ export const DebouncedInput = ({...props}) => {
   );
 };
 
-export const Select = ({label, value, options, placeholder, onChange, containerClassName="", buttonClassName="", menuClassName=""}) => {
+export const Select = ({label, value, activeValuePrefix, options, placeholder, onChange, containerClassName="", buttonClassName="", menuClassName=""}) => {
   // If only labels are provided, convert to array format
   if(!Array.isArray(options[0])) {
     options = options.map(option => [option, option]);
@@ -540,7 +540,7 @@ export const Select = ({label, value, options, placeholder, onChange, containerC
         }}
         onKeyDown={KeyboardControls}
       >
-        { currentIndex < 0 ? placeholder : options[currentIndex || 0][1] }
+        { currentIndex < 0 ? placeholder : `${activeValuePrefix || ""}${options[currentIndex || 0][1]}` }
         <div className="styled-select__button__icon-container">
           <ImageIcon icon={SelectIcon} className="styled-select__button__icon" />
         </div>

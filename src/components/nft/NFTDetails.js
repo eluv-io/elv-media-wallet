@@ -831,7 +831,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
     if(!tab) {
       setTab(nftInfo.hasAdditionalMedia && nftInfo.isOwned ? "Media" : nftInfo.hasOffers ? "Offers" : "Trading");
     }
-  }, [nft, listingStatus]);
+  }, [nft, listingStatus, checkoutStore.currency]);
 
   // Redirects
 

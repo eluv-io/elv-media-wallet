@@ -132,6 +132,7 @@ class RootStore {
   nftInfo = {};
   nftData = {};
   userProfiles = {};
+  userStats = {};
 
   viewedMedia = {};
 
@@ -1207,6 +1208,24 @@ class RootStore {
     });
 
     delete this.viewedMedia[key];
+  });
+
+  UserStats = flow(function * ({userAddress, marketplaceId}) {
+    userAddress = Utils.FormatAddress(userAddress);
+
+    try {
+      if(!this.userStats[userAddress] || (Date.now() - this.userStats[userAddress].retrievedAt) > 60000) {
+        this.userStats[userAddress] = yield this.walletClient.Leaderboard({
+          userAddress,
+          marketplaceParams: marketplaceId ? {marketplaceId: marketplaceId} : undefined
+        });
+        this.userStats[userAddress].retrievedAt = Date.now();
+      }
+    } catch(error) {
+      this.Log(error, true);
+    }
+
+    return this.userStats[userAddress];
   });
 
   InitializeAnalytics(marketplace) {

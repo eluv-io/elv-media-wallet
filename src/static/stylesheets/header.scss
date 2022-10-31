@@ -38,7 +38,7 @@
   &__profile {
     align-items: center;
     display: flex;
-    height: 100%;
+    height: 55px;
     padding: 15px 0;
     position: absolute;
     right: 0;
@@ -313,22 +313,6 @@
     width: 100%;
   }
 
-  &__navigation--personal {
-    align-items: center;
-    display: flex;
-    position: absolute;
-    right: 0;
-    width: max-content;
-
-    .subheader__navigation-link {
-      font-size: 12px;
-
-      &:not(:last-child) {
-        margin-right: 20px;
-      }
-    }
-  }
-
   &__navigation-link {
     align-items: flex-end;
     color: var(--color-header-link-text);
@@ -338,6 +322,66 @@
 
     &:not(:last-child) {
       margin-right: 20px;
+    }
+  }
+
+  &__wallet-navigation {
+    position: absolute;
+    right: 0;
+
+    &__link {
+      font-size: 14px;
+      margin: 0 !important; // sass-lint:disable-line no-important
+
+      &--with-profile {
+        padding-right: 100px;
+      }
+    }
+  }
+
+  &__wallet-navigation-menu {
+    @include component;
+    @include page-fade-in(0.2s, ease-out);
+
+    display: flex;
+    flex-direction: column;
+    height: max-content;
+    max-width: 450px;
+    min-width: 250px;
+    padding: 20px;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 5px);
+    z-index: 10;
+
+    &__link {
+      font-size: 18px;
+      margin-bottom: 15px;
+      text-align: left;
+
+      &.active {
+        color: var(--color-header-link-text-active);
+      }
+    }
+
+    &__separator {
+      background: var(--color-component-bg-secondary);
+      height: 1px;
+      margin: 10px 0 20px;
+      width: 100%;
+    }
+
+    &__header {
+      color: var(--color-component-text-highlight);
+      font-size: 18px;
+    }
+
+    &__currency-select {
+      margin-top: 10px;
+
+      .styled-select__button {
+        height: 40px;
+      }
     }
   }
 
@@ -401,7 +445,7 @@
 
     &__header {
       font-size: 28px;
-      margin-bottom: 30px;
+      margin-bottom: 10px;
       text-transform: uppercase;
     }
 
@@ -412,7 +456,7 @@
     &__message {
       color: var(--color-component-text-secondary);
       font: var(--font-component-text);
-      font-size: 20px;
+      font-size: 16px;
       margin-bottom: 5px;
     }
 
@@ -445,14 +489,24 @@
       }
 
       .formatted-price {
-        font-size: 20px;
+        font-size: 18px;
         font-weight: 300;
       }
     }
 
     &__email {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 300;
+    }
+
+    &__currency-select {
+      margin-bottom: 10px;
+      width: max-content;
+
+      .styled-select__button {
+        border: 0;
+        height: 50px;
+      }
     }
   }
 
@@ -532,8 +586,7 @@
     padding-right: 0;
   }
 
-  .global-header__navigation,
-  .subheader__navigation--personal {
+  .global-header__navigation {
     display: none;
   }
 
@@ -555,9 +608,14 @@
     &__logo-container {
       display: none;
     }
+
+    &__wallet-navigation {
+      display: none;
+    }
   }
 
   .header__profile {
+    display: none;
     font-size: 12px;
     padding: 19px 50px 19px 0;
 

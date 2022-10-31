@@ -16,6 +16,8 @@ import PlusIcon from "Assets/icons/plus.svg";
 import MinusIcon from "Assets/icons/minus.svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 import HelpIcon from "Assets/icons/help-circle.svg";
+import UpCaretIcon from "Assets/icons/up-caret.svg";
+import DownCaretIcon from "Assets/icons/down-caret.svg";
 
 import StripeLogo from "Assets/icons/stripe-logo.png";
 import EbanxLogo from "Assets/icons/ebanx-logo-1-L.png";
@@ -126,6 +128,7 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, erro
             }}
           >
             Credit/Debit Card
+            <ImageIcon icon={selectedSection === "card" ? UpCaretIcon : DownCaretIcon} className="purchase-modal__provider-options__header-icon"/>
           </button>
           <div className="purchase-modal__provider-options__options">
             <div className={`purchase-modal__provider-options__option-container ${paymentType === "stripe" ? "purchase-modal__provider-options__option-container--active" : ""}`}>
@@ -158,6 +161,7 @@ const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, erro
             }}
           >
             Crypto
+            <ImageIcon icon={selectedSection === "crypto" ? UpCaretIcon : DownCaretIcon} className="purchase-modal__provider-options__header-icon"/>
           </button>
           <div className="purchase-modal__provider-options__options">
             <div className={`purchase-modal__provider-options__option-container ${paymentType === "coinbase" ? "purchase-modal__provider-options__option-container--active" : ""}`}>

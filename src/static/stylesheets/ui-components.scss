@@ -526,6 +526,7 @@
     border-radius: var(--border-radius-input);
     max-height: 300px;
     overflow: auto;
+    overflow-x: hidden;
     position: absolute;
     top: calc(100% + 3px);
     width: 100%;

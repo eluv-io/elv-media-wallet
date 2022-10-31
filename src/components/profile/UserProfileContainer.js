@@ -104,9 +104,9 @@ const UserProfileContainer = observer(({children}) => {
 
         if(!marketplace?.branding?.hide_leaderboard) {
           setUserStats(
-            await rootStore.walletClient.Leaderboard({
+            await rootStore.UserStats({
               userAddress: profile.userAddress,
-              marketplaceParams: match.params.marketplaceId ? {marketplaceId: match.params.marketplaceId} : undefined
+              marketplaceId: match.params.marketplaceId
             })
           );
         }
