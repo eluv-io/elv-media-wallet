@@ -131,6 +131,7 @@ header,
     background: var(--background-page-header);
 
     .page-block__content {
+      max-width: unset;
       padding-bottom: 0;
       padding-top: 0;
     }

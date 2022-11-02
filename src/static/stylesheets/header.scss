@@ -178,9 +178,14 @@
     font: var(--font-header-links);
     height: 100%;
     justify-content: center;
+    min-width: 30px;
 
     &.active {
       color: var(--color-header-link-text-active);
+    }
+
+    svg {
+      height: 20px;
     }
   }
 }
@@ -203,16 +208,16 @@
     object-fit: contain;
   }
 
+  &__navigation {
+    gap: 50px; // sass-lint:disable-line no-misspelled-properties
+  }
+
   &__navigation-link {
     border-bottom: 2px solid transparent;
     font-size: 14px;
     font-weight: normal;
     letter-spacing: 0.07em;
     text-transform: uppercase;
-
-    &:not(:last-child) {
-      margin-right: 20px;
-    }
   }
 
   &--marketplace {
@@ -246,6 +251,18 @@
   &--marketplace {
     display: block;
     height: max-content;
+  }
+
+  &--wallet {
+    height: 90px;
+    //padding: 0;
+  }
+
+  &__header-text {
+    font-family: var(--font-family-primary);
+    font-size: 36px;
+    font-weight: 600;
+    text-transform: uppercase;
   }
 
   &__preview-indicator {
@@ -669,7 +686,17 @@
 
   .subheader-container {
     &:not(.subheader-container--marketplace) {
-      display: none;
+      .subheader,
+      .subheader__navigation-container {
+        height: max-content;
+        margin: 0;
+        min-height: 0;
+        padding: 0;
+      }
+
+      .subheader__header-text {
+        margin-top: 20px;
+      }
     }
   }
 

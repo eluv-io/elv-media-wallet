@@ -13,6 +13,7 @@ import MenuIcon from "Assets/icons/menu";
 import WalletIcon from "Assets/icons/wallet.svg";
 import UserIcon from "Assets/icons/profile.svg";
 import CopyIcon from "Assets/icons/copy.svg";
+import HomeIcon from "Assets/icons/home.svg";
 
 const WalletMenu = observer(({marketplaceId, Hide}) => {
   const userInfo = rootStore.walletClient.UserInfo();
@@ -153,7 +154,7 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
               onClick={Hide}
               isActive={IsActive("items")}
             >
-              {tabs.my_items || "My Wallet"}
+              {tabs.my_items || "My Items"}
             </NavLink>
             {
               hasCollections ?
@@ -255,7 +256,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
       { name: "My Listings", to: "/wallet/users/me/listings", authed: true },
       { name: "My Profile", to: "/wallet/profile", authed: true },
       { separator: true },
-      { name: "Discover Marketplaces", to: "/marketplaces" },
+      { name: "Discover Projects", to: "/marketplaces" },
       { name: "All Listings", to: "/wallet/listings" },
       { name: "Activity", to: "/wallet/activity" }
     ];
@@ -276,7 +277,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
       {name: "Activity", to: UrlJoin("/marketplace", marketplace.marketplaceId, "activity")},
       {name: "Leaderboard", to: UrlJoin("/marketplace", marketplace.marketplaceId, "leaderboard"), hidden: marketplace?.branding?.hide_leaderboard},
       {separator: true, global: true},
-      {name: "Discover Marketplaces", to: "/marketplaces", global: true},
+      {name: "Discover Projects", to: "/marketplaces", global: true},
       {name: "My Full Collection", to: "/wallet/users/me/items", authed: true, global: true},
       {name: "My Profile", to: UrlJoin("/marketplace", marketplace.marketplaceId, "profile"), authed: true}
     ];
@@ -394,8 +395,11 @@ const MobileNavigation = ({marketplace, className=""}) => {
 const GlobalHeaderNavigation = () => {
   return (
     <nav className="global-header__navigation global-header__navigation--global">
+      <Link className="global-header__navigation-link" to="/marketplaces">
+        <ImageIcon icon={HomeIcon} />
+      </Link>
       <NavLink className="global-header__navigation-link" to="/marketplaces">
-        Discover Marketplaces
+        Discover Projects
       </NavLink>
       <NavLink className="global-header__navigation-link" to="/wallet/listings">
         All Listings
@@ -465,6 +469,7 @@ const SubHeader = observer(({marketplace}) => {
       <div className={`page-block page-block--subheader ${rootStore.appBackground ? "page-block--custom-background" : ""} subheader-container`}>
         <div className="page-block__content subheader subheader--wallet">
           <div className="subheader__navigation-container">
+            { rootStore.headerText ? <h1 className="subheader__header-text">{ rootStore.headerText }</h1> : null }
             <ProfileNavigation />
           </div>
         </div>

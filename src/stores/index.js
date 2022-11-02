@@ -151,6 +151,8 @@ class RootStore {
 
   analyticsInitialized = false;
 
+  headerText;
+
   get specifiedMarketplace() {
     return this.marketplaces[this.specifiedMarketplaceId];
   }
@@ -218,6 +220,10 @@ class RootStore {
     this.ToggleDarkMode(this.darkMode);
 
     this.Initialize();
+  }
+
+  SetHeaderText(text) {
+    this.headerText = text;
   }
 
   Initialize = flow(function * () {
@@ -722,7 +728,7 @@ class RootStore {
       marketplaceMobile: marketplaceBackgroundMobile
     };
 
-    let options = { font: "Hevetica Neue" };
+    let options = { color_scheme: "Dark" };
     if(marketplace && marketplace !== "default") {
       options = {
         ...options,
