@@ -208,7 +208,9 @@
 
   &__banner-container {
     backface-visibility: hidden;
+    border-radius: 32px;
     height: 100%;
+    overflow: hidden;
     position: absolute;
     width: 100%;
 
