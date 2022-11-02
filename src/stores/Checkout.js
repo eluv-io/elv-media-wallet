@@ -467,7 +467,7 @@ class CheckoutStore {
       }
 
       let requestParams = {
-        currency: this.currency,
+        currency: "USD",
         email,
         client_reference_id: checkoutId,
         elv_addr: address,
@@ -600,7 +600,7 @@ class CheckoutStore {
       }
 
       let requestParams = {
-        currency: this.currency,
+        currency: "USD",
         email,
         client_reference_id: checkoutId,
         elv_addr: address,

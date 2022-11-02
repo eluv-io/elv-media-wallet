@@ -93,8 +93,8 @@
   &-large-logo-mode {
     .login-page__logo {
       margin-bottom: 20px;
-      max-height: 250px;
-      max-width: 350px;
+      max-height: 225px;
+      max-width: 325px;
       width: 100%;
     }
   }
@@ -171,12 +171,19 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 
     .login-page__logo {
       margin-bottom: 0;
-      padding: 0 5px 15px;
     }
+  }
+
+  &__title {
+    font-family: var(--font-family-tertiary);
+    font-size: 18px;
+    letter-spacing: 0.03em;
+    margin-bottom: 10px;
+    text-transform: uppercase;
   }
 
   &__login-button {
@@ -186,13 +193,17 @@
     height: 50px;
     justify-content: center;
     margin: 5px 0;
-    width: 220px;
+    max-width: 265px;
+    padding: 0;
+    position: relative;
+    width: 100%;
 
     img,
     svg {
-      height: 20px;
-      left: 20px;
+      height: 25px;
+      left: 15px;
       margin-right: 10px;
+      position: absolute;
     }
   }
 
@@ -206,17 +217,16 @@
     justify-content: center;
     letter-spacing: 0.07em;
     margin: 40px 0 25px;
-    text-transform: uppercase;
     user-select: none;
 
-    &__image {
-      height: 25px;
-      margin-top: 10px;
+    &__text {
+      font-family: var(--font-family-tertiary);
+      font-size: 14px;
+    }
 
-      * {
-        fill: var(--color-login-text-secondary);
-        stroke: var(--color-login-text-secondary);
-      }
+    &__image {
+      height: 15px;
+      margin-top: 10px;
     }
   }
 
@@ -234,6 +244,11 @@
     }
   }
 
+  &__actions-label {
+    font-size: 14px;
+    margin: 10px 0 5px;
+  }
+
   &__actions {
     align-items: center;
     display: flex;
@@ -241,6 +256,7 @@
     flex-grow: 1;
     justify-content: center;
     position: relative;
+    width: 100%;
 
     &--loading {
       & > * {
@@ -255,7 +271,7 @@
       align-items: center;
       display: flex;
       justify-content: center;
-      margin: 25px 0;
+      margin: 15px 0;
       width: 100%;
     }
 
@@ -283,27 +299,6 @@
       width: 100%;
       z-index: 1000;
     }
-  }
-
-  &__wallet-options-toggle {
-    align-items: center;
-    background: transparent;
-    border: 0;
-    color: var(--color-login-text-primary);
-    cursor: pointer;
-    display: flex;
-    font-size: 12px;
-
-    svg {
-      height: 25px;
-      margin-left: 5px;
-      padding-bottom: 5px;
-      width: 25px;
-    }
-  }
-
-  &__wallet-actions {
-    margin-top: 20px;
   }
 
   &__text-section {

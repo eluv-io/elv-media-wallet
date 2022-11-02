@@ -73,10 +73,136 @@ const WalletMenu = observer(({marketplaceId, Hide}) => {
   );
 });
 
-const Profile = observer(() => {
+const PreferencesMenu = observer(({marketplaceId, Hide}) => {
+  return (
+    <Modal className="subheader__preferences-menu-modal" Toggle={Hide}>
+      <div className="subheader__preferences-menu">
+        <div className="subheader__preferences-menu__label">
+          Set Marketplace Display Currency
+        </div>
+        <div className="subheader__preferences-menu__hint">
+          This is a conversion computed from USD
+        </div>
+        <Select
+          value={checkoutStore.currency}
+          onChange={currency => checkoutStore.SetCurrency({currency})}
+          activeValuePrefix="Display Currency: "
+          containerClassName="subheader__preferences-menu__currency-select"
+          options={[
+            ["USD", "United States Dollar"],
+            ["BRL", "Brazillian Real"]
+          ]}
+        />
+      </div>
+    </Modal>
+  );
+});
+
+const ProfileMenu = observer(({marketplaceId, Hide}) => {
+  const [showPreferencesMenu, setShowPreferencesMenu] = useState(false);
+
+  const fullMarketplace = marketplaceId ? rootStore.marketplaces[marketplaceId] : null;
+  const tabs = fullMarketplace?.branding?.tabs || {};
+  const hasCollections = fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0;
+
+  const menuRef = useRef();
+
+  const IsActive = (page="") => (_, location) => rootStore.loggedIn && (location.pathname.includes(`/users/me/${page}`) || location.pathname.includes(`/users/${rootStore.CurrentAddress()}/${page}`));
+
+  useEffect(() => {
+    if(!menuRef || !menuRef.current) { return; }
+
+    const onClickOutside = event => {
+      if(window._showPreferencesMenu) { return; }
+
+      if(!menuRef?.current || !menuRef.current.contains(event.target)) {
+        Hide();
+      }
+    };
+
+    document.addEventListener("click", onClickOutside);
+
+    return () => document.removeEventListener("click", onClickOutside);
+  }, [menuRef]);
+
+  useEffect(() => {
+    window._showPreferencesMenu = showPreferencesMenu;
+  }, [showPreferencesMenu]);
+
+  return (
+    <div className="subheader__profile-menu" ref={menuRef}>
+      {
+        !rootStore.loggedIn ?
+          <button className="subheader__profile-menu__link" onClick={() => rootStore.ShowLogin()}>
+            Log In
+          </button> :
+          <>
+            <Link
+              className="subheader__profile-menu__link"
+              to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me") : "/wallet/users/me"}
+              onClick={Hide}
+            >
+              My Profile
+            </Link>
+
+            <div className="subheader__profile-menu__separator" />
+
+            <NavLink
+              className="subheader__profile-menu__link"
+              to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "items") : "/wallet/users/me/items"}
+              onClick={Hide}
+              isActive={IsActive("items")}
+            >
+              {tabs.my_items || "My Wallet"}
+            </NavLink>
+            {
+              hasCollections ?
+                <NavLink
+                  className="subheader__profile-menu__link"
+                  to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "collections") : "/wallet/users/me/collections"}
+                  onClick={Hide}
+                  isActive={IsActive("collections")}
+                >
+                  My Collections
+                </NavLink> : null
+            }
+            <NavLink
+              className="subheader__profile-menu__link"
+              to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "listings") : "/wallet/users/me/listings"}
+              onClick={Hide}
+              isActive={IsActive("listings")}
+            >
+              My Listings
+            </NavLink>
+            <NavLink
+              className="subheader__profile-menu__link"
+              to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "activity") : "/wallet/users/me/activity"}
+              onClick={Hide}
+              isActive={IsActive("activity")}
+            >
+              My Activity
+            </NavLink>
+          </>
+      }
+
+      <div className="subheader__profile-menu__separator" />
+
+      <button
+        onClick={() => setShowPreferencesMenu(!showPreferencesMenu)}
+        className={`subheader__profile-menu__link subheader__profile-menu__link-secondary ${showPreferencesMenu ? "active" : ""}`}
+      >
+        Preferences
+      </button>
+      { showPreferencesMenu ? <PreferencesMenu marketplaceId={marketplaceId} Hide={() => setTimeout(() => setShowPreferencesMenu(false), 50)} /> : null }
+    </div>
+  );
+});
+
+const ProfileNavigation = observer(() => {
   const location = useLocation();
   const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
   const [showWalletMenu, setShowWalletMenu] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   if((!rootStore.loginLoaded && !rootStore.loggedIn) || rootStore.authenticating) {
     return <div className="header__profile header__profile--placeholder" />;
@@ -99,27 +225,28 @@ const Profile = observer(() => {
   return (
     <>
       <div className="header__profile">
-        <NavLink
-          isActive={(_, location) => rootStore.loggedIn && (location.pathname.includes("/users/me/") || location.pathname.includes(`/users/${rootStore.CurrentAddress()}`))}
-          to={marketplaceId ? `/marketplace/${marketplaceId}/users/me/items` : "/wallet/users/me/items"}
-          className="header__profile__link header__profile__user"
+        <button
+          className={`header__profile__link ${showProfileMenu ? "active" : ""}`}
+          onClick={() => setShowProfileMenu(!showProfileMenu)}
         >
           <ImageIcon alt="My Profile" icon={UserIcon} className="header__profile__user__icon" />
-        </NavLink>
+        </button>
         <button
           onClick={() => setShowWalletMenu(!showWalletMenu)}
-          className={`header__profile__link header__profile__balance ${showWalletMenu ? "active" : ""}`}
+          className={`header__profile__link ${showWalletMenu ? "active" : ""}`}
         >
           <ImageIcon alt="My Wallet" icon={WalletIcon} className="header__profile__balance__icon" />
         </button>
       </div>
       { showWalletMenu ? <WalletMenu marketplaceId={marketplaceId} Hide={() => setShowWalletMenu(false)} /> : null }
+      { showProfileMenu ? <ProfileMenu marketplaceId={marketplaceId} Hide={() => setShowProfileMenu(false)} /> : null }
     </>
   );
 });
 
 const MobileNavigationMenu = observer(({marketplace, Close}) => {
   const userInfo = rootStore.walletClient.UserInfo();
+  const [showPreferencesMenu, setShowPreferencesMenu] = useState(false);
 
   let links;
   if(!marketplace) {
@@ -186,16 +313,13 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
           </>
       }
 
-      <Select
-        value={checkoutStore.currency}
-        onChange={currency => checkoutStore.SetCurrency({currency})}
-        activeValuePrefix="Display Currency: "
-        containerClassName="mobile-navigation__menu__currency-select"
-        options={[
-          "USD",
-          "BRL"
-        ]}
-      />
+      <button
+        className="mobile-navigation__link"
+        onClick={() => setShowPreferencesMenu(true)}
+      >
+        Preferences
+      </button>
+
 
       <div key="mobile-link-separator" className="mobile-navigation__separator" />
 
@@ -238,6 +362,8 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
             Log Out
           </button>
       }
+
+      { showPreferencesMenu ? <PreferencesMenu marketplaceId={marketplace?.marketplaceId} Hide={() => setShowPreferencesMenu(false)} /> : null }
     </div>
   );
 });
@@ -299,112 +425,6 @@ const GlobalHeader = observer(({marketplace}) => {
   );
 });
 
-const WalletNavigationMenu = observer(({marketplace, Hide}) => {
-  const fullMarketplace = marketplace ? rootStore.marketplaces[marketplace.marketplaceId] : null;
-  const hasCollections = fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0;
-  const tabs = marketplace?.branding?.tabs || {};
-
-  const menuRef = useRef();
-
-  const IsActive = (page) => (_, location) => rootStore.loggedIn && (location.pathname.includes(`/users/me/${page}`) || location.pathname.includes(`/users/${rootStore.CurrentAddress()}/${page}`));
-
-  useEffect(() => {
-    if(!menuRef || !menuRef.current) { return; }
-
-    const onClickOutside = event => {
-      if(!menuRef?.current || !menuRef.current.contains(event.target)) {
-        Hide();
-      }
-    };
-
-    document.addEventListener("click", onClickOutside);
-
-    return () => document.removeEventListener("click", onClickOutside);
-  }, [menuRef]);
-
-  return (
-    <div className="subheader__wallet-navigation-menu" ref={menuRef}>
-      {
-        !rootStore.loggedIn ?
-          <button className="subheader__wallet-navigation-menu__link" onClick={() => rootStore.ShowLogin()}>
-            Log In
-          </button> :
-          <>
-            <NavLink
-              className="subheader__wallet-navigation-menu__link"
-              to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items") : "/wallet/users/me/items"}
-              onClick={Hide}
-              isActive={IsActive("items")}
-            >
-              {tabs.my_items || "My Wallet"}
-            </NavLink>
-            {
-              hasCollections ?
-                <NavLink
-                  className="subheader__wallet-navigation-menu__link"
-                  to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "collections") : "/wallet/users/me/collections"}
-                  onClick={Hide}
-                  isActive={IsActive("collections")}
-                >
-                  My Collections
-                </NavLink> : null
-            }
-            <NavLink
-              className="subheader__wallet-navigation-menu__link"
-              to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "listings") : "/wallet/users/me/listings"}
-              onClick={Hide}
-              isActive={IsActive("listings")}
-            >
-              My Listings
-            </NavLink>
-            <NavLink
-              className="subheader__wallet-navigation-menu__link"
-              to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "activity") : "/wallet/users/me/activity"}
-              onClick={Hide}
-              isActive={IsActive("activity")}
-            >
-              My Activity
-            </NavLink>
-          </>
-      }
-
-      <div className="subheader__wallet-navigation-menu__separator" />
-
-      <div className="subheader__wallet-navigation-menu__header">Preferences</div>
-      <Select
-        value={checkoutStore.currency}
-        onChange={currency => checkoutStore.SetCurrency({currency})}
-        activeValuePrefix="Display Currency: "
-        containerClassName="subheader__wallet-navigation-menu__currency-select"
-        options={[
-          "USD",
-          "BRL"
-        ]}
-      />
-    </div>
-  );
-
-});
-
-const WalletNavigation = observer(({marketplace}) => {
-  const [showMenu, setShowMenu] = useState(false);
-
-  return (
-    <>
-      <nav className="subheader__navigation subheader__wallet-navigation">
-        <button
-          className={`subheader__navigation-link subheader__wallet-navigation__link ${showMenu ? "active" : ""}`}
-          onClick={() => setShowMenu(!showMenu)}
-        >
-          My Wallet
-        </button>
-        <Profile />
-      </nav>
-      { showMenu ? <WalletNavigationMenu marketplace={marketplace} Hide={() => setShowMenu(false)} /> : null }
-    </>
-  );
-});
-
 const MarketplaceNavigation = observer(({marketplace}) => {
   const branding = marketplace.branding || {};
   const tabs = branding.tabs || {};
@@ -445,7 +465,7 @@ const SubHeader = observer(({marketplace}) => {
       <div className={`page-block page-block--subheader ${rootStore.appBackground ? "page-block--custom-background" : ""} subheader-container`}>
         <div className="page-block__content subheader subheader--wallet">
           <div className="subheader__navigation-container">
-            <WalletNavigation />
+            <ProfileNavigation />
           </div>
         </div>
       </div>
@@ -484,7 +504,7 @@ const SubHeader = observer(({marketplace}) => {
         }
         <div className="subheader__navigation-container">
           <MarketplaceNavigation marketplace={marketplace} />
-          <WalletNavigation marketplace={marketplace} />
+          <ProfileNavigation />
         </div>
         {
           rootStore.hideMarketplaceNavigation && (rootStore.hideGlobalNavigation || rootStore.hideGlobalNavigationInMarketplace && marketplace) ?

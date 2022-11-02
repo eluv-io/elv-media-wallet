@@ -52,6 +52,7 @@ html {
   --background-page-header-profile: var(--color-bg-secondary);
   --color-page-header-text: var(--color-text-primary);
   --color-header-link-text: var(--color-text-primary);
+  --color-header-link-text-secondary: var(--color-text-secondary);
   --color-header-link-text-active: var(--color-text-highlight);
 
   --background-marketplace-header: transparent;

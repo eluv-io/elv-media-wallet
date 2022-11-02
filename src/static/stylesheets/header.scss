@@ -336,7 +336,7 @@
     }
   }
 
-  &__wallet-navigation-menu {
+  &__profile-menu {
     @include component;
     @include page-fade-in(0.2s, ease-out);
 
@@ -353,10 +353,18 @@
 
     &__link {
       font-size: 18px;
-      margin-bottom: 15px;
       text-align: left;
 
-      &.active {
+      &:not(:last-child) {
+        margin-bottom: 15px;
+      }
+
+      &-secondary {
+        color: var(--color-header-link-text-secondary);
+      }
+
+      &.active,
+      &:hover {
         color: var(--color-header-link-text-active);
       }
     }
@@ -378,6 +386,80 @@
 
       .styled-select__button {
         height: 40px;
+      }
+    }
+  }
+
+
+  &__preferences-menu-modal {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+
+    .modal__content {
+      height: max-content;
+      max-width: 550px;
+      overflow: visible;
+    }
+  }
+
+  &__preferences-menu {
+    @include modal;
+    height: max-content;
+    overflow-y: visible;
+    padding: 25px 50px 35px;
+    width: 100%;
+
+    &__label,
+    &__hint {
+      margin-bottom: 15px;
+      text-align: center;
+      width: 100%;
+    }
+
+    &__label {
+      font-size: 20px;
+      font-weight: 500;
+    }
+
+    &__hint {
+      font-family: var(--font-family-tertiary);
+    }
+
+    &__currency-select {
+      margin-top: 20px;
+      width: 100%;
+
+      .styled-select__button {
+        border: 0;
+        height: 50px;
+      }
+    }
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    &__preferences-menu-modal {
+      .modal__content {
+        max-width: 95%;
+      }
+    }
+
+    &__preferences-menu {
+      padding: 20px 20px 30px;
+
+      &__label {
+        font-size: 16px;
+      }
+
+      &__hint {
+        font-size: 14px;
+      }
+
+      &__currency-select {
+        .styled-select__button,
+        li {
+          font-size: 14px;
+        }
       }
     }
   }
@@ -494,16 +576,6 @@
     &__email {
       font-size: 18px;
       font-weight: 300;
-    }
-
-    &__currency-select {
-      margin-bottom: 10px;
-      width: max-content;
-
-      .styled-select__button {
-        border: 0;
-        height: 50px;
-      }
     }
   }
 
