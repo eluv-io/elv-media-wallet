@@ -90,7 +90,9 @@
           justify-content: center;
 
           &__alternate {
+            margin: 0 0 0 5px;
             text-align: center;
+            width: max-content;
           }
         }
       }

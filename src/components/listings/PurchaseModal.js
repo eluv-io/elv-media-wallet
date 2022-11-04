@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
 import {checkoutStore, cryptoStore, rootStore} from "Stores";
 import {ActiveListings} from "Components/listings/TransferTables";
-import {ButtonWithLoader, Copy, FormatPriceString, Select} from "Components/common/UIComponents";
+import {ButtonWithLoader, FormatPriceString, Select} from "Components/common/UIComponents";
 import {Redirect, useRouteMatch} from "react-router-dom";
 import NFTCard from "Components/nft/NFTCard";
 import ImageIcon from "Components/common/ImageIcon";
@@ -11,20 +11,21 @@ import {roundToDown} from "round-to";
 import WalletConnect from "Components/crypto/WalletConnect";
 import {PageLoader} from "Components/common/Loaders";
 import {NFTInfo, ValidEmail} from "../../utils/Utils";
+import SupportedCountries from "../../utils/SupportedCountries";
+
+const allCountries = [
+  ...SupportedCountries.stripe,
+  ...SupportedCountries.ebanx
+]
+  .filter((country, index, self) => self.findIndex(otherCountry => country[0] === otherCountry[0]) === index)
+  .sort((a, b) => a[0] === "US" ? -1 : (a[1] < b[1] ? -1 : 1));
+
 
 import PlusIcon from "Assets/icons/plus.svg";
 import MinusIcon from "Assets/icons/minus.svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 import HelpIcon from "Assets/icons/help-circle.svg";
-import UpCaretIcon from "Assets/icons/up-caret.svg";
-import DownCaretIcon from "Assets/icons/down-caret.svg";
-
-import StripeLogo from "Assets/icons/stripe-logo.png";
-import EbanxLogo from "Assets/icons/ebanx-logo-1-L.png";
-import CoinbaseLogo from "Assets/icons/crypto/Coinbase Icon (16x16)(1).svg";
-import SolanaLogo from "Assets/icons/solana icon.svg";
-import PhantomLogo from "Assets/icons/crypto/phantom.png";
-
+import supportedCountries from "../../utils/SupportedCountries";
 
 const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
   if(maxQuantity <= 1) { return null; }
@@ -73,200 +74,261 @@ const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
 };
 
 const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, errorMessage, disabled, Continue, Cancel}) => {
-  const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.walletClient.UserInfo()?.email || "";
-  const [paymentType, setPaymentType] = useState(usdcOnly || (usdcAccepted && cryptoStore.usdcOnly) ? "linked-wallet" : "stripe");
-  const [selectedSection, setSelectedSection] = useState(usdcOnly || (usdcAccepted && cryptoStore.usdcOnly) ? "crypto" : "card");
-  const [email, setEmail] = useState(initialEmail);
-  const [selectedCountry, setSelectedCountry] = useState("");
+  const phantomWallet = cryptoStore.WalletFunctions("phantom");
+
+  // card, pix, crypto, wallet-balance
+  const [type, setType] = useState(usdcOnly ? "crypto" : "");
+  const [selectedMethod, setSelectedMethod] = useState(usdcOnly ? "linked-wallet" : "");
   const [showUSDCOnlyMessage, setShowUSDCOnlyMessage] = useState(false);
+  const [email, setEmail] = useState(rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.walletClient.UserInfo()?.email || "");
+  const [country, setCountry] = useState("");
+  const [phantomConnected, setPhantomConnected] = useState(cryptoStore.PhantomAddress() && phantomWallet.Connected());
 
-  const wallet = cryptoStore.WalletFunctions("phantom");
-  const connected = paymentType !== "linked-wallet" || cryptoStore.PhantomAddress() && wallet.Connected();
-
-  const requiresEmail = ["coinbase"].includes(paymentType);
-  const externalPayment = ["stripe", "ebanx", "coinbase"].includes(paymentType);
-
-  const solanaWallet = cryptoStore.WalletFunctions("phantom");
-  const solanaAccount = solanaWallet.ConnectedAccounts()[0];
-
-  return (
-    <div className="purchase-modal__payment-options">
-      {
-        !initialEmail && requiresEmail ?
-          <>
-            <div className="purchase-modal__payment-message">
-              Email
-            </div>
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              className="purchase-modal__email-input"
-              value={email}
-              onChange={event => setEmail(event.target.value)}
-            />
-          </>: null
-      }
-      <div className="purchase-modal__payment-message">
-        Buy with
-        {
-          usdcOnly ?
-            <button onClick={() => setShowUSDCOnlyMessage(!showUSDCOnlyMessage)}>
-              <ImageIcon icon={HelpIcon} label="Why is only linked wallet available?"/>
-            </button> : null
-        }
-      </div>
-
-
-      <div className="purchase-modal__provider-options">
-        <div className={`purchase-modal__provider-options__section ${selectedSection !== "card" ? "purchase-modal__provider-options__section--hidden" : ""}`}>
-          <button
-            className="purchase-modal__provider-options__header"
-            onClick={() => {
-              setSelectedSection("card");
-              setPaymentType("stripe");
-            }}
-          >
-            Credit/Debit Card
-            <ImageIcon icon={selectedSection === "card" ? UpCaretIcon : DownCaretIcon} className="purchase-modal__provider-options__header-icon"/>
-          </button>
-          <div className="purchase-modal__provider-options__options">
-            <div className={`purchase-modal__provider-options__option-container ${paymentType === "stripe" ? "purchase-modal__provider-options__option-container--active" : ""}`}>
-              <div className="purchase-modal__provider-options__option">
-                <ImageIcon icon={StripeLogo} label="Stripe" className="purchase-modal__provider-options__option__logo" />
-                <div className="purchase-modal__provider-options__option__text">
-                  Stripe
-                </div>
-              </div>
-              <button onClick={() => setPaymentType("stripe")} className="purchase-modal__provider-options__selected-indicator" />
-            </div>
-            <div className={`purchase-modal__provider-options__option-container ${paymentType === "ebanx" ? "purchase-modal__provider-options__option-container--active" : ""}`}>
-              <div className="purchase-modal__provider-options__option">
-                <ImageIcon icon={EbanxLogo} label="Stripe" className="purchase-modal__provider-options__option__logo" />
-                <div className="purchase-modal__provider-options__option__text">
-                  Ebanx
-                </div>
-              </div>
-              <button onClick={() => setPaymentType("ebanx")} className="purchase-modal__provider-options__selected-indicator" />
-            </div>
-          </div>
-        </div>
-
-        <div className={`purchase-modal__provider-options__section ${selectedSection !== "crypto" ? "purchase-modal__provider-options__section--hidden" : ""}`}>
-          <button
-            className="purchase-modal__provider-options__header"
-            onClick={() => {
-              setSelectedSection("crypto");
-              setPaymentType("coinbase");
-            }}
-          >
-            Crypto
-            <ImageIcon icon={selectedSection === "crypto" ? UpCaretIcon : DownCaretIcon} className="purchase-modal__provider-options__header-icon"/>
-          </button>
-          <div className="purchase-modal__provider-options__options">
-            <div className={`purchase-modal__provider-options__option-container ${paymentType === "coinbase" ? "purchase-modal__provider-options__option-container--active" : ""}`}>
-              <div className="purchase-modal__provider-options__option purchase-modal__provider-options__option--crypto">
-                <ImageIcon icon={CoinbaseLogo} label="Coinbase" className="purchase-modal__provider-options__option__logo" />
-                <div className="purchase-modal__provider-options__option__text">
-                  Coinbase
-                </div>
-              </div>
-              <button onClick={() => setPaymentType("coinbase")} className="purchase-modal__provider-options__selected-indicator" />
-            </div>
-            <div className={`purchase-modal__provider-options__option-container ${paymentType === "linked-wallet" ? "purchase-modal__provider-options__option-container--active" : ""}`}>
-              <div className="purchase-modal__provider-options__option purchase-modal__provider-options__option--crypto">
-                <ImageIcon icon={SolanaLogo} label="USDC on Solana" className="purchase-modal__provider-options__option__logo" />
-                <div className="purchase-modal__provider-options__option__text">
-                  USDC on Sol
-                </div>
-                <div className="purchase-modal__provider-options__option__crypto">
-                  <ImageIcon icon={PhantomLogo} label="Phantom" className="purchase-modal__provider-options__option__crypto__icon"/>
-                  {
-                    solanaAccount ?
-                      <button onClick={() => Copy(solanaAccount.link_acct)} className="purchase-modal__provider-options__option__crypto__account ellipsis">
-                        { solanaAccount.link_acct }
-                      </button> :
-                      <button onClick={() => solanaWallet.Connect()} className="purchase-modal__provider-options__option__crypto__account">
-                        { solanaAccount ? solanaAccount : "Link Wallet" }
-                      </button>
-                  }
-                </div>
-              </div>
-              <button onClick={() => setPaymentType("linked-wallet")} className="purchase-modal__provider-options__selected-indicator" />
-            </div>
-          </div>
-        </div>
-        <div className={`purchase-modal__provider-options__section ${selectedSection !== "wallet-balance" ? "purchase-modal__provider-options__section--hidden" : ""}`}>
-          <button
-            className="purchase-modal__provider-options__header"
-            onClick={() => {
-              setSelectedSection("wallet-balance");
-              setPaymentType("wallet-balance");
-            }}
-          >
-            Seller Balance
-          </button>
-        </div>
-      </div>
-
-      {
-        usdcOnly && showUSDCOnlyMessage ?
-          <div className="purchase-modal__help-message">
-            The seller has elected to only accept direct purchases with USDC via linked wallet. { cryptoStore.usdcConnected ? null : "Please connect your wallet to purchase this item, or select a different option from the list above." }
-          </div> : null
-      }
-      {
-        paymentType === "ebanx" ?
-          <>
+  let options;
+  switch(type) {
+    case "card":
+    case "pix":
+      options = (
+        <>
+          <div className="purchase-modal__payment-message">Buy with Credit Card</div>
+          <div className="purchase-modal__provider-options">
             <div className="purchase-modal__additional-fields">
               <div className="purchase-modal__payment-message">
-                Please specify your country
+                Please select your country
               </div>
               <Select
-                value={selectedCountry}
-                onChange={value => setSelectedCountry(value)}
+                value={country}
+                onChange={value => {
+                  setCountry(value);
+
+                  if(!value) {
+                    setSelectedMethod("");
+                  } else if(supportedCountries.stripe.find(country => country[0] === value)) {
+                    setSelectedMethod("stripe");
+                  } else {
+                    setSelectedMethod("ebanx");
+                  }
+                }}
                 containerClassName="purchase-modal__country-select"
                 options={[
                   ["", "Select your Country"],
-                  ["ar", "Argentina"],
-                  ["bo", "Bolivia"],
-                  ["br", "Brazil"],
-                  ["cl", "Chile"],
-                  ["co", "Colombia"],
-                  ["ec", "Ecuador"],
-                  ["sv", "El Salvador"],
-                  ["gt", "Guatemala"],
-                  ["mx", "Mexico"],
-                  ["pa", "Panama"],
-                  ["py", "Paraguay"],
-                  ["pe", "Peru"],
-                  ["uy", "Uruguay"]
+                  ...(type === "pix" ? SupportedCountries.ebanx : allCountries)
                 ]}
               />
             </div>
-          </> : null
-      }
-      { paymentType === "linked-wallet" ? <div className="purchase-modal__wallet-connect"><WalletConnect /></div> : null }
-      <ButtonWithLoader
-        disabled={disabled || !rootStore.loggedIn || !connected || (paymentType === "ebanx" && !selectedCountry) || (requiresEmail && !ValidEmail(email))}
-        className="action action-primary purchase-modal__payment-submit"
-        onClick={async () => await Continue(paymentType, email, paymentType === "ebanx" ? { name: "Test", country_code: selectedCountry } : {})}
-      >
-        {
-          externalPayment ?
-            price ?
-              `Buy Now for ${price}` :
-              "Buy Now" :
-            "Continue"
-        }
-      </ButtonWithLoader>
-      <button
-        className="action purchase-modal__payment-cancel"
-        onClick={() => Cancel()}
-        disabled={checkoutStore.submittingOrder}
-      >
-        Back
-      </button>
+          </div>
+          <ButtonWithLoader
+            disabled={disabled || !rootStore.loggedIn || !country}
+            className="action action-primary purchase-modal__payment-submit"
+            onClick={async () => {
+              await Continue({
+                paymentType: selectedMethod,
+                email,
+                additionalParameters: {
+                  country_code: country.toLowerCase(),
+                  payment_method: type === "pix" ? "pix" : "_creditcard"
+                }
+              });
+            }}
+          >
+            { `Buy now for ${price}` }
+          </ButtonWithLoader>
+          <button
+            className="action purchase-modal__payment-cancel"
+            onClick={() => {
+              setSelectedMethod("");
+              setType("");
+            }}
+            disabled={checkoutStore.submittingOrder}
+          >
+            Back
+          </button>
+        </>
+      );
+
+      break;
+
+    case "crypto":
+      options = (
+        <>
+          <div className="purchase-modal__payment-message">
+            Buy with Crypto
+            {
+              usdcOnly ?
+                <button onClick={() => setShowUSDCOnlyMessage(!showUSDCOnlyMessage)} className={`purchase-modal__help-button ${showUSDCOnlyMessage ? "active" : ""}`}>
+                  <ImageIcon icon={HelpIcon} label="Why is only linked wallet available?"/>
+                </button> : null
+            }
+          </div>
+          {
+            usdcOnly && showUSDCOnlyMessage ?
+              <div className="purchase-modal__help-message">
+                The seller has elected to only accept direct purchases with USDC via linked wallet. { cryptoStore.usdcConnected ? null : "Please connect your wallet to purchase this item, or select a different option from the list above." }
+              </div> : null
+          }
+          {
+            usdcOnly ? null :
+              <button
+                onClick={() => {
+                  setSelectedMethod("coinbase");
+                }}
+                className={`purchase-modal__provider-options__option ${selectedMethod === "coinbase" ? "active" : ""}`}
+              >
+                Coinbase
+              </button>
+          }
+          {
+            usdcAccepted ?
+              <button
+                onClick={() => {
+                  setSelectedMethod("linked-wallet");
+                }}
+                className={`purchase-modal__provider-options__option ${selectedMethod === "linked-wallet" ? "active" : ""}`}
+              >
+                USDC on Sol
+              </button> : null
+          }
+          {
+            selectedMethod === "linked-wallet" ?
+              <div className="purchase-modal__wallet-connect">
+                <WalletConnect onConnect={() => setPhantomConnected(true)} />
+              </div> : null
+          }
+          {
+            selectedMethod === "coinbase" ?
+              <>
+                <div className="purchase-modal__payment-message">
+                  Email
+                </div>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  className="purchase-modal__email-input"
+                  value={email}
+                  onChange={event => setEmail(event.target.value)}
+                />
+              </> : null
+          }
+          <ButtonWithLoader
+            disabled={
+              disabled ||
+              !rootStore.loggedIn ||
+              !selectedMethod ||
+              (selectedMethod === "coinbase" && !ValidEmail(email)) ||
+              (selectedMethod === "linked-wallet" && !(phantomConnected || phantomWallet.Connected()))
+            }
+            className="action action-primary purchase-modal__payment-submit"
+            onClick={async () => {
+              await Continue({paymentType: selectedMethod, email});
+            }}
+          >
+            {
+              selectedMethod === "coinbase" ?
+                `Buy now for ${price}` :
+                "Continue"
+            }
+          </ButtonWithLoader>
+          {
+            usdcOnly ? null :
+              <button
+                className="action purchase-modal__payment-cancel"
+                onClick={() => {
+                  setSelectedMethod("");
+                  setType("");
+                }}
+                disabled={checkoutStore.submittingOrder}
+              >
+                Back
+              </button>
+          }
+        </>
+      );
+
+      break;
+
+    case "wallet-balance":
+      options = (
+        <>
+          <div className="purchase-modal__payment-message">Buy with Wallet Balance</div>
+        </>
+      );
+
+      break;
+
+    default:
+      options = (
+        <>
+          <div className="purchase-modal__payment-message">Buy with</div>
+          <div className="purchase-modal__provider-options">
+            <button
+              onClick={() => {
+                setSelectedMethod("card");
+              }}
+              className={`purchase-modal__provider-options__option ${selectedMethod === "card" ? "active" : ""}`}
+            >
+              Credit Card
+            </button>
+            <button
+              onClick={() => {
+                setSelectedMethod("pix");
+              }}
+              className={`purchase-modal__provider-options__option ${selectedMethod === "pix" ? "active" : ""}`}
+            >
+              Pix
+            </button>
+            <button
+              onClick={() => {
+                setSelectedMethod("crypto");
+              }}
+              className={`purchase-modal__provider-options__option ${selectedMethod === "crypto" ? "active" : ""}`}
+            >
+              Crypto
+            </button>
+            <button
+              onClick={() => {
+                setSelectedMethod("wallet-balance");
+              }}
+              className={`purchase-modal__provider-options__option ${selectedMethod === "wallet-balance" ? "active" : ""}`}
+            >
+              Wallet Balance
+            </button>
+          </div>
+          <ButtonWithLoader
+            disabled={disabled || !rootStore.loggedIn || !selectedMethod}
+            className="action action-primary purchase-modal__payment-submit"
+            onClick={async () => {
+              if(selectedMethod === "wallet-balance") {
+                await Continue({paymentType: "wallet-balance"});
+              } else {
+                setType(selectedMethod);
+
+                if(selectedMethod === "crypto" && !usdcAccepted) {
+                  setSelectedMethod("coinbase");
+                } else {
+                  setSelectedMethod("");
+                }
+              }
+            }}
+          >
+            Continue
+          </ButtonWithLoader>
+          <button
+            className="action purchase-modal__payment-cancel"
+            onClick={() => Cancel()}
+            disabled={checkoutStore.submittingOrder}
+          >
+            Back
+          </button>
+        </>
+      );
+  }
+
+  return (
+    <div className="purchase-modal__payment-options">
+
+      { options }
+
       {
         errorMessage || !rootStore.loggedIn ?
           <div className="purchase-modal__error-message">
@@ -514,7 +576,7 @@ const PurchasePayment = observer(({
   }, [purchaseStatus]);
 
 
-  const Continue = async (paymentType, email, additionalParameters={}) => {
+  const Continue = async ({paymentType, email, additionalParameters={}}) => {
     if(paymentType === "wallet-balance") {
       setUseWalletBalance(true);
       return;
@@ -586,7 +648,7 @@ const PurchasePayment = observer(({
             <div className="purchase-modal__price-details">
               <QuantityInput quantity={quantity} setQuantity={setQuantity} maxQuantity={maxQuantity}/>
               <div className="purchase-modal__price-details__price">
-                {FormatPriceString(info.price?.USD || 0, {quantity, includeCurrency: true})}
+                {FormatPriceString(info.price || 0, {quantity, includeCurrency: true})}
               </div>
             </div> : null) :
           <>
@@ -624,7 +686,7 @@ const PurchasePayment = observer(({
           </>
       }
       <PurchaseProviderSelection
-        price={FormatPriceString(info.price?.USD || 0, {quantity, stringOnly: true})}
+        price={FormatPriceString(info.price || 0, {quantity, stringOnly: true})}
         errorMessage={errorMessage}
         usdcAccepted={selectedListing?.details?.USDCAccepted}
         usdcOnly={selectedListing?.details?.USDCOnly}

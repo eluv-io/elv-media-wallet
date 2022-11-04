@@ -9,7 +9,7 @@ import Modal from "Components/common/Modal";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 import HelpIcon from "Assets/icons/help-circle.svg";
 
-const WalletConnect = observer(({showPaymentPreference}) => {
+const WalletConnect = observer(({showPaymentPreference, onConnect}) => {
   const wallet = cryptoStore.WalletFunctions("phantom");
   const connectedAccount = wallet.ConnectedAccounts()[0];
   const incorrectAccount = connectedAccount && wallet.Address() && connectedAccount.link_acct !== wallet.Address();
@@ -57,6 +57,8 @@ const WalletConnect = observer(({showPaymentPreference}) => {
               setErrorMessage(undefined);
               await wallet.Connect();
               setConnected(true);
+
+              onConnect && onConnect();
             } catch(error) {
               rootStore.Log(error, true);
 
