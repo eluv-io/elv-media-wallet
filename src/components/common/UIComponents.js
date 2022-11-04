@@ -393,7 +393,7 @@ export const DebouncedInput = ({...props}) => {
   );
 };
 
-export const Select = ({label, value, activeValuePrefix, options, placeholder, onChange, containerClassName="", buttonClassName="", menuClassName=""}) => {
+export const Select = ({label, value, activeValuePrefix, options, placeholder, onChange, initialChange, containerClassName="", buttonClassName="", menuClassName=""}) => {
   // If only labels are provided, convert to array format
   if(!Array.isArray(options[0])) {
     options = options.map(option => [option, option]);
@@ -414,7 +414,7 @@ export const Select = ({label, value, activeValuePrefix, options, placeholder, o
   const ref = useRef();
 
   useEffect(() => {
-    onChange && onChange(value);
+    initialChange && onChange && onChange(value);
   }, []);
 
   useEffect(() => {

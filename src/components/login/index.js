@@ -229,9 +229,9 @@ const Form = observer(({userData, setUserData, customizationOptions, Authenticat
     <>
       <Logo customizationOptions={customizationOptions} />
       <h2 className="login-page__title">Media Wallet</h2>
-      <div className="login-page__actions-label">Sign In With</div>
       <div className={`login-page__actions ${loading ? "login-page__actions--loading" : ""}`}>
         { loading ? <div className="login-page__actions__loader"><Loader /></div> : null }
+        <div className="login-page__actions-label">Sign In With</div>
         {
           hasLoggedIn ?
             <>

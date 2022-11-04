@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
 import {checkoutStore, cryptoStore, rootStore} from "Stores";
 import {ActiveListings} from "Components/listings/TransferTables";
-import {ButtonWithLoader, FormatPriceString, Select} from "Components/common/UIComponents";
+import {ButtonWithLoader, FormatPriceString} from "Components/common/UIComponents";
 import {Redirect, useRouteMatch} from "react-router-dom";
 import NFTCard from "Components/nft/NFTCard";
 import ImageIcon from "Components/common/ImageIcon";
@@ -69,7 +69,7 @@ const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted
     Notes:
       - Country only needs collecting if ebanx is enabled
         - If ebanx is disabled but stripe is enabled, only one step needed for CC
-      - Pix is only available if ebanx is enabled (TODO: Figure out which countries accept pix)
+      - Pix is only available if ebanx is enabled
       - If usdcOnly is specified, go directly to crypto + linked wallet
   */
 
@@ -77,10 +77,11 @@ const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted
   const phantomWallet = cryptoStore.WalletFunctions("phantom");
 
   // card, pix, crypto, wallet-balance
+  const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.walletClient.UserInfo()?.email || "";
   const [type, setType] = useState(usdcOnly ? "crypto" : "");
   const [selectedMethod, setSelectedMethod] = useState(usdcOnly ? "linked-wallet" : "");
   const [showUSDCOnlyMessage, setShowUSDCOnlyMessage] = useState(false);
-  const [email, setEmail] = useState(rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.walletClient.UserInfo()?.email || "");
+  const [email, setEmail] = useState(initialEmail);
   const [country, setCountry] = useState("");
   const [phantomConnected, setPhantomConnected] = useState(cryptoStore.PhantomAddress() && phantomWallet.Connected());
 
@@ -89,15 +90,21 @@ const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted
   const pixEnabled = ebanxEnabled && paymentOptions?.ebanx?.pix_enabled;
   const coinbaseEnabled = paymentOptions?.coinbase?.enabled;
 
+  const UpdateCountry = (countryCode) => {
+    setCountry(countryCode);
+
+    if(countryCode === "other") {
+      setSelectedMethod("stripe");
+    } else {
+      setSelectedMethod("ebanx");
+    }
+  };
+
   let options;
   switch(type) {
     case "card":
-    case "pix":
-      let stripeAvailableCountries = [];
+      // Credit card selected, ebanx enabled - Must collect country
       let ebanxAvailableCountries = [];
-      if(stripeEnabled) {
-        stripeAvailableCountries = SupportedCountries.stripe;
-      }
 
       if(paymentOptions?.ebanx?.allowed_countries?.length > 0) {
         ebanxAvailableCountries = SupportedCountries.ebanx.filter(([code]) => paymentOptions.ebanx.allowed_countries.includes(code));
@@ -105,9 +112,10 @@ const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted
         ebanxAvailableCountries = SupportedCountries.ebanx;
       }
 
-      const allAvalableCountries = [...stripeAvailableCountries, ...ebanxAvailableCountries]
-        .filter((country, index, self) => self.findIndex(otherCountry => country[0] === otherCountry[0]) === index)
-        .sort((a, b) => a[0] === "US" ? -1 : (a[1] < b[1] ? -1 : 1));
+      // Unless ebanx is preferred, remove options where stripe is available
+      if(stripeEnabled && !paymentOptions?.ebanx?.preferred) {
+        ebanxAvailableCountries = ebanxAvailableCountries.filter(([code]) => !SupportedCountries.stripe.find(([otherCode]) => code === otherCode));
+      }
 
       options = (
         <>
@@ -119,25 +127,24 @@ const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted
               <div className="purchase-modal__payment-message">
                 Please select your country
               </div>
-              <Select
-                value={country}
-                onChange={value => {
-                  setCountry(value);
+              {
+                ebanxAvailableCountries.map(([code, name]) => (
+                  <button
+                    key={`country-select-${code}`}
+                    onClick={() => UpdateCountry(code)}
+                    className={`purchase-modal__provider-options__option ${country === code ? "active" : ""}`}
+                  >
+                    { name }
+                  </button>
+                ))
+              }
 
-                  if(!value) {
-                    setSelectedMethod("");
-                  } else if(stripeEnabled && stripeAvailableCountries.find(country => country[0] === value)) {
-                    setSelectedMethod("stripe");
-                  } else {
-                    setSelectedMethod("ebanx");
-                  }
-                }}
-                containerClassName="purchase-modal__country-select"
-                options={[
-                  ["", "Select your Country"],
-                  ...(type === "pix" ? [["BR", "Brazil"]] : allAvalableCountries)
-                ]}
-              />
+              <button
+                onClick={() => UpdateCountry("other")}
+                className={`purchase-modal__provider-options__option ${country === "other" ? "active" : ""}`}
+              >
+                All Other Countries
+              </button>
             </div>
           </div>
           <ButtonWithLoader
@@ -147,10 +154,12 @@ const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted
               await Continue({
                 paymentType: selectedMethod,
                 email,
-                additionalParameters: {
-                  country_code: country.toLowerCase(),
-                  payment_method: type === "pix" ? "pix" : "_creditcard"
-                }
+                additionalParameters: selectedMethod === "stripe" ?
+                  {} :
+                  {
+                    country_code: country.toLowerCase(),
+                    payment_method: "_creditcard"
+                  }
               });
             }}
           >
@@ -218,7 +227,7 @@ const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted
               </div> : null
           }
           {
-            selectedMethod === "coinbase" ?
+            selectedMethod === "coinbase" && !ValidEmail(initialEmail) ?
               <>
                 <div className="purchase-modal__payment-message">
                   Email
@@ -334,6 +343,16 @@ const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted
             onClick={async () => {
               if(stripeEnabled && !ebanxEnabled && selectedMethod === "card") {
                 await Continue({paymentType: "stripe"});
+              } else if(selectedMethod === "pix") {
+                await Continue({
+                  paymentType: "ebanx",
+                  additionalParameters: {
+                    country_code: "br",
+                    payment_method: "pix"
+                  }
+                });
+              } else if(selectedMethod === "crypto" && !usdcAccepted && ValidEmail(email)) {
+                await Continue({paymentType: "coinbase", email});
               } else if(selectedMethod === "wallet-balance") {
                 await Continue({paymentType: "wallet-balance"});
               } else {
@@ -348,7 +367,12 @@ const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted
             }}
           >
             {
-              stripeEnabled && !ebanxEnabled && selectedMethod === "card" ?
+              // Pix is only available in brazil
+              selectedMethod === "pix" ||
+              // Stripe doesn't need any additional info
+              (stripeEnabled && !ebanxEnabled && selectedMethod === "card") ||
+              // If coinbase is the only option and we already have the user's email, we can proceed
+              (selectedMethod === "crypto" && !usdcAccepted && ValidEmail(email)) ?
                 `Buy now for ${price}` :
                 "Continue"
             }
@@ -587,7 +611,7 @@ const PurchasePayment = observer(({
     listing: selectedListing
   });
 
-  const marketplacePaymentOptions = marketplace.payment_options || { stripe: { enabled: true }, coinbase: { enabled: true }, ebanx: { enabled: false }};
+  const marketplacePaymentOptions = marketplace?.payment_options || { stripe: { enabled: true }, coinbase: { enabled: true }, ebanx: { enabled: false }};
 
   const maxPerCheckout = marketplaceItem?.max_per_checkout || 25;
   const maxPerUser = (info.stock && info.stock.max_per_user && (info.stock.max_per_user - info.stock.current_user)) || 25;
