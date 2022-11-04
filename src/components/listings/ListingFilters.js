@@ -159,7 +159,7 @@ const FilterMultiSelect = ({label, values, options, optionLabelPrefix="", onChan
 };
 
 // Must separate out drop event attribute to separate control
-const AttributeFilters = ({attributes, dropAttributes, selectedFilterValues, setSelectedFilterValues}) => {
+const AttributeFilters = ({attributes, dropAttributes, rarityAttributes, selectedFilterValues, setSelectedFilterValues}) => {
   // Attribute name/value pairs are combined with delimiter - must convert to and from: { name, value } <=> name:|:value
   const SelectValueToAttributeFilter = value => ({ name: value.split(":|:")[0], value: value.split(":|:")[1] });
   const AttributeFilterToSelectValue = ({name, value}) => `${name}:|:${value}`;
@@ -174,10 +174,18 @@ const AttributeFilters = ({attributes, dropAttributes, selectedFilterValues, set
     .flat()
     .sort((a, b) => a[1] < b[1] ? -1 : 1);
 
+  const rarityAttributeOptions = (rarityAttributes || [])
+    .map(({name, values}) => values.map(value => [AttributeFilterToSelectValue({name, value}), `Rarity: ${value}`]))
+    .flat()
+    .sort((a, b) => a[1] < b[1] ? -1 : 1);
+
   let selectedAttributeValues = [];
   let selectedDropValues = [];
+  let selectedRarityValues = [];
   (selectedFilterValues.attributeFilters || []).forEach(filter => {
-    if(["drop", "drop event"].includes(filter.name.toLowerCase())) {
+    if(["rarity"].includes(filter.name.toLowerCase())) {
+      selectedRarityValues.push(AttributeFilterToSelectValue(filter));
+    } else if(["drop", "drop event"].includes(filter.name.toLowerCase())) {
       selectedDropValues.push(AttributeFilterToSelectValue(filter));
     } else {
       selectedAttributeValues.push(AttributeFilterToSelectValue(filter));
@@ -198,6 +206,17 @@ const AttributeFilters = ({attributes, dropAttributes, selectedFilterValues, set
       }
 
       {
+        rarityAttributeOptions.length > 0 ?
+          <FilterMultiSelect
+            label="Choose Rarity"
+            values={selectedRarityValues}
+            onChange={values => setSelectedFilterValues({...selectedFilterValues, attributeFilters: [...selectedAttributeValues, ...values].map(SelectValueToAttributeFilter)})}
+            placeholder="Choose Rarity"
+            options={rarityAttributeOptions}
+          /> : null
+      }
+
+      {
         attributeOptions.length > 0 ?
           <FilterMultiSelect
             label="Choose Attributes"
@@ -211,7 +230,7 @@ const AttributeFilters = ({attributes, dropAttributes, selectedFilterValues, set
   );
 };
 
-const FilterMenu = ({mode, filterValues, editions, attributes, dropAttributes, setFilterValues, Hide, ResetFilters}) => {
+const FilterMenu = ({mode, filterValues, editions, attributes, dropAttributes, rarityAttributes, setFilterValues, Hide, ResetFilters}) => {
   const match = useRouteMatch();
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId || filterValues.marketplaceId];
@@ -279,6 +298,7 @@ const FilterMenu = ({mode, filterValues, editions, attributes, dropAttributes, s
           <AttributeFilters
             attributes={attributes}
             dropAttributes={dropAttributes}
+            rarityAttributes={rarityAttributes}
             selectedFilterValues={selectedFilterValues}
             setSelectedFilterValues={setSelectedFilterValues}
           /> : null
@@ -370,6 +390,7 @@ export const ListingFilters = observer(({mode="listings", initialFilters, Update
   const [editions, setEditions] = useState([]);
   const [attributes, setAttributes] = useState([]);
   const [dropAttributes, setDropAttributes] = useState([]);
+  const [rarityAttributes, setRarityAttributes] = useState([]);
 
   const [filterOptions, setFilterOptions] = useState(initialFilter ? [ initialFilter ] : []);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
@@ -453,6 +474,7 @@ export const ListingFilters = observer(({mode="listings", initialFilters, Update
 
     setAttributes([]);
     setDropAttributes([]);
+    setRarityAttributes([]);
 
     if(mode === "listings") {
       rootStore.walletClient.ListingAttributes({marketplaceParams: filterValues.marketplaceId ? {marketplaceId: filterValues.marketplaceId} : undefined})
@@ -460,8 +482,9 @@ export const ListingFilters = observer(({mode="listings", initialFilters, Update
           attributes = (attributes || [])
             .sort((a, b) => a.name < b.name ? -1 : 1);
 
-          setAttributes(attributes.filter(attr => !["drop", "drop event"].includes(attr?.name?.toLowerCase())));
+          setAttributes(attributes.filter(attr => !["rarity", "drop", "drop event"].includes(attr?.name?.toLowerCase())));
           setDropAttributes(attributes.filter(attr => ["drop", "drop event"].includes(attr?.name?.toLowerCase())));
+          setRarityAttributes(attributes.filter(attr => ["rarity"].includes(attr?.name?.toLowerCase())));
         });
     }
   }, [filterValues.marketplaceId]);
@@ -580,6 +603,7 @@ export const ListingFilters = observer(({mode="listings", initialFilters, Update
               editions={editions}
               attributes={attributes}
               dropAttributes={dropAttributes}
+              rarityAttributes={rarityAttributes}
               setFilterValues={setFilterValues}
               Hide={() => setShowFilterMenu(false)}
               ResetFilters={ResetFilters}
