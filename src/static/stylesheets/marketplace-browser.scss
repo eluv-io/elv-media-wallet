@@ -186,14 +186,19 @@
   display: flex;
   min-width: 350px;
   overflow: visible;
-  perspective: 1000px;
   position: relative;
   width: 100%;
 
   &:hover,
   &--flipped {
-    .marketplace-card__content {
-      transform: rotateY(-180deg);
+    .marketplace-card__banner-container {
+      &--front {
+        opacity: 0;
+      }
+
+      &--back {
+        opacity: 1;
+      }
     }
   }
 
@@ -201,8 +206,6 @@
     height: 100%;
     position: relative;
     text-align: center;
-    transform-style: preserve-3d;
-    transition: transform 0.5s;
     width: 100%;
   }
 
@@ -213,9 +216,10 @@
     overflow: hidden;
     position: absolute;
     width: 100%;
+    transition: opacity 0.5s ease;
 
     &--back {
-      transform: rotateY(180deg);
+      opacity: 0;
     }
   }
 
