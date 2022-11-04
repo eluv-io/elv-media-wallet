@@ -199,7 +199,7 @@ const AttributeFilters = ({attributes, dropAttributes, rarityAttributes, selecte
           <FilterMultiSelect
             label="Choose Drops"
             values={selectedDropValues}
-            onChange={values => setSelectedFilterValues({...selectedFilterValues, attributeFilters: [...selectedAttributeValues, ...values].map(SelectValueToAttributeFilter)})}
+            onChange={values => setSelectedFilterValues({...selectedFilterValues, attributeFilters: [...selectedAttributeValues, ...selectedRarityValues, ...values].map(SelectValueToAttributeFilter)})}
             placeholder="Choose Drops"
             options={dropAttributeOptions}
           /> : null
@@ -210,7 +210,7 @@ const AttributeFilters = ({attributes, dropAttributes, rarityAttributes, selecte
           <FilterMultiSelect
             label="Choose Rarity"
             values={selectedRarityValues}
-            onChange={values => setSelectedFilterValues({...selectedFilterValues, attributeFilters: [...selectedAttributeValues, ...values].map(SelectValueToAttributeFilter)})}
+            onChange={values => setSelectedFilterValues({...selectedFilterValues, attributeFilters: [...selectedAttributeValues, ...selectedDropValues, ...values].map(SelectValueToAttributeFilter)})}
             placeholder="Choose Rarity"
             options={rarityAttributeOptions}
           /> : null
@@ -221,7 +221,7 @@ const AttributeFilters = ({attributes, dropAttributes, rarityAttributes, selecte
           <FilterMultiSelect
             label="Choose Attributes"
             values={selectedAttributeValues}
-            onChange={values => setSelectedFilterValues({...selectedFilterValues, attributeFilters: [...values, ...selectedDropValues].map(SelectValueToAttributeFilter)})}
+            onChange={values => setSelectedFilterValues({...selectedFilterValues, attributeFilters: [...values, ...selectedDropValues, ...selectedRarityValues].map(SelectValueToAttributeFilter)})}
             placeholder="Choose Attributes"
             options={attributeOptions}
           /> : null
