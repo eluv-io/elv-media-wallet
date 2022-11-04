@@ -84,8 +84,8 @@ html {
 
   /* Togglable/selectable options */
   --background-button-selection: transparent;
-  --color-button-selection-text: var(--color-text-secondary);
-  --border-button-selection: var(--border-faint);
+  --color-button-selection-text: var(--color-text-primary);
+  --border-button-selection: var(--border);
   --border-radius-button-selection: var(--border-radius);
 
   --background-button-selection-active: transparent;
