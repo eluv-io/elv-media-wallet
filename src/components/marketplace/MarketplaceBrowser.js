@@ -222,10 +222,6 @@ const MarketplaceBrowser = observer(() => {
 
   useEffect(() => {
     rootStore.ClearMarketplace();
-
-    rootStore.SetHeaderText("Discover Projects");
-
-    return () => rootStore.SetHeaderText("");
   }, []);
 
   return (

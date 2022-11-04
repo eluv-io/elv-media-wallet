@@ -77,7 +77,7 @@ class RootStore {
   loggedIn = false;
   externalWalletUser = false;
   disableCloseEvent = false;
-  darkMode = searchParams.has("dk") || this.GetSessionStorage("dark-mode");
+  darkMode = this.GetSessionStorage("dark-mode");
 
   availableMarketplaces = {};
   loginCustomization = {};
@@ -335,10 +335,6 @@ class RootStore {
 
         if(rootStore.specifiedMarketplaceId) {
           url.searchParams.set("mid", rootStore.specifiedMarketplaceId);
-        }
-
-        if(rootStore.darkMode) {
-          url.searchParams.set("dk", "");
         }
 
         // Metamask not available, link to download or open in app
@@ -1398,10 +1394,6 @@ class RootStore {
       url.searchParams.set("mid", this.specifiedMarketplaceHash);
     }
 
-    if(this.darkMode) {
-      url.searchParams.set("dk", "");
-    }
-
     if(this.loginOnly) {
       url.searchParams.set("lo", "");
     }
@@ -1485,15 +1477,11 @@ class RootStore {
     }
   };
 
-  FlowURL({type="flow", flow, parameters={}, darkMode}) {
+  FlowURL({type="flow", flow, parameters={}}) {
     const url = new URL(UrlJoin(window.location.origin, window.location.pathname));
     url.hash = UrlJoin("/", type, flow, Utils.B58(JSON.stringify(parameters)));
 
     url.searchParams.set("origin", window.location.origin);
-
-    if(darkMode) {
-      url.searchParams.set("dk", "");
-    }
 
     return url.toString();
   }

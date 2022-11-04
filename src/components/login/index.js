@@ -576,7 +576,9 @@ const Login = observer(({darkMode, Close}) => {
           // eslint-disable-next-line no-empty
         } catch(error) {}
 
-        rootStore.ToggleDarkMode(options.darkMode);
+        if(typeof options.darkMode !== "undefined") {
+          rootStore.ToggleDarkMode(options.darkMode);
+        }
 
         setUserData(initialUserData);
         setCustomizationOptions({...(options || {})});

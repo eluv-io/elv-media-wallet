@@ -69,8 +69,8 @@
     @include page-fade-in(0.2s, ease-out);
 
     height: max-content;
-    max-width: 450px;
-    padding: 20px;
+    max-width: 400px;
+    padding: 0 15px;
     position: absolute;
     right: 0;
     top: calc(100% + 20px);
@@ -82,19 +82,28 @@
 
     &__header {
       font: var(--font-component-header);
-      font-size: 24px;
-      margin-bottom: 20px;
+      font-size: 26px;
+      padding: 25px 0 15px;
     }
 
     &__section {
-      margin: 15px 0;
+      background: var(--color-component-bg-secondary);
+      margin-top: 10px;
+      padding: 25px;
+
+      .header__wallet-menu__section-header {
+        color: var(--color-component-text-highlight);
+      }
+    }
+
+    &__section-header {
+      font-size: 16px;
+      font-weight: 500;
     }
 
     &__message {
-      color: var(--color-component-text-secondary);
-      font: var(--font-component-text);
-      font-size: 16px;
-      margin-bottom: 5px;
+      font: var(--font-component-misc);
+      font-size: 12px;
     }
 
     &__address-container {
@@ -102,13 +111,13 @@
       background: var(--color-component-bg-secondary);
       display: flex;
       height: 35px;
-      margin-top: 5px;
+      margin: 15px 0;
       padding: 5px 10px;
     }
 
     &__address {
       font: var(--font-component-misc);
-      font-size: 12px;
+      font-size: 18px;
     }
 
     &__address-copy {
@@ -122,33 +131,32 @@
     }
 
     &__balance {
+      margin-top: 10px;
+
       * {
         justify-content: center;
         text-align: center;
       }
 
       .formatted-price {
-        font-size: 20px;
-        font-weight: 300;
+        * {
+          font: var(--font-component-misc);
+          font-size: 24px;
+          font-weight: 300;
+        }
       }
     }
 
-    &__email {
-      font-size: 20px;
-      font-weight: 300;
-    }
-
-    &__actions {
-      margin-top: 30px;
-    }
-
-    .action-primary {
-      color: var(--color-button-primary-text);
-    }
-
-    .action {
-      margin-top: 10px;
+    &__link {
+      display: block;
+      font-size: 18px;
+      font-weight: 500;
+      padding: 20px 0;
       width: 100%;
+
+      &:hover {
+        color: var(--color-text-highlight);
+      }
     }
   }
 }
@@ -361,13 +369,56 @@
     display: flex;
     flex-direction: column;
     height: max-content;
-    max-width: 450px;
+    max-width: 350px;
     min-width: 250px;
-    padding: 20px;
+    padding-top: 15px;
     position: absolute;
     right: 0;
     top: calc(100% + 20px);
     z-index: 10;
+
+    &__info {
+      font-size: 18px;
+      text-align: center;
+
+      svg,
+      img {
+        height: 23px;
+      }
+
+      &__account {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        padding: 7px 0 10px;
+        width: 100%;
+
+        svg,
+        img {
+          margin-right: 10px;
+        }
+      }
+
+      &__email,
+      &__address {
+        max-width: 60%;
+      }
+
+      &__address-copy {
+        height: 18px;
+
+        svg {
+          height: 100%;
+        }
+      }
+    }
+
+    &__links {
+      background: var(--color-component-bg-secondary);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 40px;
+    }
 
     &__link {
       font-size: 18px;
@@ -387,10 +438,22 @@
       }
     }
 
+    &__log-out-button {
+      font-size: 18px;
+      font-weight: 500;
+      padding: 20px 0;
+      width: 100%;
+
+      &:hover {
+        color: var(--color-text-highlight);
+      }
+    }
+
     &__separator {
-      background: var(--color-component-bg-secondary);
+      background: var(--color-component-text-secondary);
       height: 1px;
       margin: 10px 0 20px;
+      opacity: 0.5;
       width: 100%;
     }
 

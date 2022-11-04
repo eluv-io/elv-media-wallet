@@ -14,9 +14,10 @@ import WalletIcon from "Assets/icons/wallet.svg";
 import UserIcon from "Assets/icons/profile.svg";
 import CopyIcon from "Assets/icons/copy.svg";
 import HomeIcon from "Assets/icons/home.svg";
+import EmailIcon from "Assets/icons/email icon.svg";
+import MetamaskIcon from "Assets/icons/metamask fox.png";
 
 const WalletMenu = observer(({marketplaceId, Hide}) => {
-  const userInfo = rootStore.walletClient.UserInfo();
   const menuRef = useRef();
 
   useEffect(() => {
@@ -37,7 +38,7 @@ const WalletMenu = observer(({marketplaceId, Hide}) => {
     <div className="header__wallet-menu" ref={menuRef}>
       <h2 className="header__wallet-menu__header">Media Wallet</h2>
       <div className="header__wallet-menu__section">
-        <div className="header__wallet-menu__message">My Eluvio Content Blockchain Address</div>
+        <div className="header__wallet-menu__section-header">My Eluvio Content Blockchain Address</div>
         <div className="header__wallet-menu__address-container">
           <div className="header__wallet-menu__address ellipsis">
             { rootStore.CurrentAddress() }
@@ -46,30 +47,23 @@ const WalletMenu = observer(({marketplaceId, Hide}) => {
             <ImageIcon alt="Copy Address" icon={CopyIcon} />
           </button>
         </div>
+        <div className="header__wallet-menu__message">
+          Do not send funds to this address. This is an Eluvio Content Blockchain address and is not a payment address.
+        </div>
       </div>
 
       <div className="header__wallet-menu__section">
-        <div className="header__wallet-menu__message">My Seller Balance</div>
+        <div className="header__wallet-menu__section-header">My Seller Balance</div>
         <div className="header__wallet-menu__balance">{ FormatPriceString(rootStore.totalWalletBalance, {includeCurrency: true, prependCurrency: true, excludeAlternateCurrency: true}) }</div>
       </div>
 
-      <div className="header__wallet-menu__section">
-        <div className="header__wallet-menu__message">Signed in Via {userInfo.walletType === "Custodial" ? "Email" : userInfo.walletType}</div>
-        { userInfo.email ? <div className="header__wallet-menu__email">{userInfo.email}</div> : null }
-      </div>
-
-      <div className="header__wallet-menu__actions">
-        <Link
-          to={marketplaceId ? `/marketplace/${marketplaceId}/profile` : "/wallet/profile"}
-          onClick={Hide}
-          className="action"
-        >
-          Manage Media Wallet
-        </Link>
-        <button onClick={() => rootStore.SignOut()} className="action action-borderless action-transparent">
-          Sign Out
-        </button>
-      </div>
+      <Link
+        to={marketplaceId ? `/marketplace/${marketplaceId}/profile` : "/wallet/profile"}
+        onClick={Hide}
+        className="header__wallet-menu__link"
+      >
+        View Details
+      </Link>
     </div>
   );
 });
@@ -105,6 +99,7 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
   const fullMarketplace = marketplaceId ? rootStore.marketplaces[marketplaceId] : null;
   const tabs = fullMarketplace?.branding?.tabs || {};
   const hasCollections = fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0;
+  const userInfo = rootStore.walletClient.UserInfo();
 
   const menuRef = useRef();
 
@@ -132,67 +127,93 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
 
   return (
     <div className="subheader__profile-menu" ref={menuRef}>
-      {
-        !rootStore.loggedIn ?
-          <button className="subheader__profile-menu__link" onClick={() => rootStore.ShowLogin()}>
-            Log In
-          </button> :
-          <>
-            <Link
-              className="subheader__profile-menu__link"
-              to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me") : "/wallet/users/me"}
-              onClick={Hide}
-            >
-              My Profile
-            </Link>
+      <div className="subheader__profile-menu__info">
+        <div className="subheader__profile-menu__info__type">Signed in Via {userInfo.walletType === "Custodial" ? "Email" : userInfo.walletName}</div>
+        <div className="subheader__profile-menu__info__account">
+          {
+            userInfo.walletType === "Custodial" ?
+            <>
+              <ImageIcon icon={EmailIcon} />
+              <div className="subheader__profile-menu__info__email ellipsis">
+                { userInfo.email }
+              </div>
+            </> :
+            <>
+              <ImageIcon icon={MetamaskIcon} />
+              <div className="subheader__profile-menu__info__address ellipsis">
+                { userInfo.address }
+              </div>
+              <button onClick={() => Copy(userInfo.address)} className="subheader__profile-menu__info__address-copy">
+                <ImageIcon alt="Copy Address" icon={CopyIcon} />
+              </button>
+            </>
+          }
+        </div>
+      </div>
+      <div className="subheader__profile-menu__links">
+        <Link
+          className="subheader__profile-menu__link"
+          to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me") : "/wallet/users/me"}
+          onClick={Hide}
+        >
+          My Profile
+        </Link>
 
-            <div className="subheader__profile-menu__separator" />
+        <div className="subheader__profile-menu__separator" />
 
+        <NavLink
+          className="subheader__profile-menu__link"
+          to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "items") : "/wallet/users/me/items"}
+          onClick={Hide}
+          isActive={IsActive("items")}
+        >
+          {tabs.my_items || "My Items"}
+        </NavLink>
+        {
+          hasCollections ?
             <NavLink
               className="subheader__profile-menu__link"
-              to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "items") : "/wallet/users/me/items"}
+              to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "collections") : "/wallet/users/me/collections"}
               onClick={Hide}
-              isActive={IsActive("items")}
+              isActive={IsActive("collections")}
             >
-              {tabs.my_items || "My Items"}
-            </NavLink>
-            {
-              hasCollections ?
-                <NavLink
-                  className="subheader__profile-menu__link"
-                  to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "collections") : "/wallet/users/me/collections"}
-                  onClick={Hide}
-                  isActive={IsActive("collections")}
-                >
-                  My Collections
-                </NavLink> : null
-            }
-            <NavLink
-              className="subheader__profile-menu__link"
-              to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "listings") : "/wallet/users/me/listings"}
-              onClick={Hide}
-              isActive={IsActive("listings")}
-            >
-              My Listings
-            </NavLink>
-            <NavLink
-              className="subheader__profile-menu__link"
-              to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "activity") : "/wallet/users/me/activity"}
-              onClick={Hide}
-              isActive={IsActive("activity")}
-            >
-              My Activity
-            </NavLink>
-          </>
-      }
+              My Collections
+            </NavLink> : null
+        }
+        <NavLink
+          className="subheader__profile-menu__link"
+          to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "listings") : "/wallet/users/me/listings"}
+          onClick={Hide}
+          isActive={IsActive("listings")}
+        >
+          My Listings
+        </NavLink>
+        <NavLink
+          className="subheader__profile-menu__link"
+          to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "activity") : "/wallet/users/me/activity"}
+          onClick={Hide}
+          isActive={IsActive("activity")}
+        >
+          My Activity
+        </NavLink>
 
-      <div className="subheader__profile-menu__separator" />
+        <div className="subheader__profile-menu__separator" />
 
+        <button
+          onClick={() => setShowPreferencesMenu(!showPreferencesMenu)}
+          className={`subheader__profile-menu__link subheader__profile-menu__link-secondary ${showPreferencesMenu ? "active" : ""}`}
+        >
+          Preferences
+        </button>
+      </div>
       <button
-        onClick={() => setShowPreferencesMenu(!showPreferencesMenu)}
-        className={`subheader__profile-menu__link subheader__profile-menu__link-secondary ${showPreferencesMenu ? "active" : ""}`}
+        onClick={() => {
+          rootStore.SignOut();
+          Hide();
+        }}
+        className="subheader__profile-menu__log-out-button"
       >
-        Preferences
+        Sign Out
       </button>
       { showPreferencesMenu ? <PreferencesMenu marketplaceId={marketplaceId} Hide={() => setTimeout(() => setShowPreferencesMenu(false), 50)} /> : null }
     </div>
@@ -218,7 +239,7 @@ const ProfileNavigation = observer(() => {
 
     return (
       <button className="header__profile header__log-in" onClick={() => rootStore.ShowLogin()}>
-        Log In
+        Sign In
       </button>
     );
   }
@@ -351,7 +372,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
               rootStore.ShowLogin();
             }}
           >
-            Log In
+            Sign In
           </button> :
           <button
             className="mobile-navigation__link"
@@ -360,7 +381,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
               rootStore.SignOut();
             }}
           >
-            Log Out
+            Sign Out
           </button>
       }
 
