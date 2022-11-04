@@ -322,7 +322,7 @@ const FilterMenu = ({mode, filterValues, editions, attributes, dropAttributes, r
             optionLabelPrefix="Time: "
             value={selectedFilterValues.lastNDays}
             onChange={value => setSelectedFilterValues({...selectedFilterValues, lastNDays: value})}
-            options={[["", "All Time"], ["7", "Last 7 Days"], ["30", "Last 30 Days"]]}
+            options={[["", "All Time"], ["1", "Last 24 Hours"], ["7", "Last 7 Days"], ["30", "Last 30 Days"]]}
           />
       }
       {
