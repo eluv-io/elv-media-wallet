@@ -202,12 +202,7 @@
     text-align: center;
 
     .formatted-price {
-      flex-wrap: wrap;
       gap: 0 5px; // sass-lint:disable-line no-misspelled-properties
-
-      &__alternate {
-        margin: 0;
-      }
     }
 
     em {

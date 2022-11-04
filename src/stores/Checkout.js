@@ -12,7 +12,7 @@ const PUBLIC_KEYS = {
 };
 
 class CheckoutStore {
-  currency = "BRL";
+  currency = "USD";
   exchangeRates = {};
 
   submittingOrder = false;

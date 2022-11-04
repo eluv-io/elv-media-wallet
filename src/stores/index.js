@@ -766,6 +766,8 @@ class RootStore {
     this.marketplaceSlug = undefined;
     this.marketplaceId = undefined;
 
+    this.checkoutStore.SetCurrency({currency: "USD"});
+
     this.SetCustomizationOptions("default");
   }
 
@@ -792,6 +794,10 @@ class RootStore {
       }
 
       this.SetCustomizationOptions(marketplace);
+
+      if(marketplace?.default_display_currency) {
+        this.checkoutStore.SetCurrency({currency: marketplace?.default_display_currency});
+      }
 
       return marketplace.marketplaceHash;
     } else if(Object.keys(this.walletClient.availableMarketplaces) > 0) {

@@ -551,11 +551,13 @@
 .formatted-price {
   align-items: center;
   display: flex;
+  flex-wrap: wrap;
+  gap: 5px; // sass-lint:disable-line no-misspelled-properties
 
   &__alternate {
     font-size: 14px;
-    margin-left: 10px;
     opacity: 0.85;
+    width: max-content;
   }
 
   &__icon {
@@ -568,11 +570,9 @@
   }
 
   &--vertical {
-    flex-wrap: wrap;
     justify-content: center;
 
     .formatted-price__alternate {
-      margin: 3px 0 0;
       width: 100%;
     }
   }

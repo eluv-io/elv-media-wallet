@@ -6,6 +6,7 @@ import ImageIcon from "Components/common/ImageIcon";
 import UrlJoin from "url-join";
 import Modal from "Components/common/Modal";
 import {Copy, FormatPriceString, Select} from "Components/common/UIComponents";
+import CountryCodesList from "country-codes-list";
 
 import BackIcon from "Assets/icons/arrow-left-circle.svg";
 import EluvioLogo from "Assets/images/EluvioLogo.png";
@@ -16,6 +17,8 @@ import CopyIcon from "Assets/icons/copy.svg";
 import HomeIcon from "Assets/icons/home.svg";
 import EmailIcon from "Assets/icons/email icon.svg";
 import MetamaskIcon from "Assets/icons/metamask fox.png";
+
+const currencyMap = CountryCodesList.customList("currencyCode", "{currencyNameEn}");
 
 const WalletMenu = observer(({marketplaceId, Hide}) => {
   const menuRef = useRef();
@@ -68,7 +71,7 @@ const WalletMenu = observer(({marketplaceId, Hide}) => {
   );
 });
 
-const PreferencesMenu = observer(({marketplaceId, Hide}) => {
+const PreferencesMenu = observer(({availableDisplayCurrencies, Hide}) => {
   return (
     <Modal className="subheader__preferences-menu-modal" Toggle={Hide}>
       <div className="subheader__preferences-menu">
@@ -84,8 +87,8 @@ const PreferencesMenu = observer(({marketplaceId, Hide}) => {
           activeValuePrefix="Display Currency: "
           containerClassName="subheader__preferences-menu__currency-select"
           options={[
-            ["USD", "United States Dollar"],
-            ["BRL", "Brazillian Real"]
+            ["USD", "United States dollar"],
+            ...(availableDisplayCurrencies || []).map(code => [code, currencyMap[code]])
           ]}
         />
       </div>
@@ -100,6 +103,8 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
   const tabs = fullMarketplace?.branding?.tabs || {};
   const hasCollections = fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0;
   const userInfo = rootStore.walletClient.UserInfo();
+
+  const availableDisplayCurrencies = fullMarketplace?.display_currencies || [];
 
   const menuRef = useRef();
 
@@ -197,14 +202,19 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
           My Activity
         </NavLink>
 
-        <div className="subheader__profile-menu__separator" />
+        {
+          availableDisplayCurrencies.length > 0 ?
+            <>
+              <div className="subheader__profile-menu__separator"/>
 
-        <button
-          onClick={() => setShowPreferencesMenu(!showPreferencesMenu)}
-          className={`subheader__profile-menu__link subheader__profile-menu__link-secondary ${showPreferencesMenu ? "active" : ""}`}
-        >
-          Preferences
-        </button>
+              <button
+                onClick={() => setShowPreferencesMenu(!showPreferencesMenu)}
+                className={`subheader__profile-menu__link subheader__profile-menu__link-secondary ${showPreferencesMenu ? "active" : ""}`}
+              >
+                Preferences
+              </button>
+            </> : null
+        }
       </div>
       <button
         onClick={() => {
@@ -215,7 +225,13 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
       >
         Sign Out
       </button>
-      { showPreferencesMenu ? <PreferencesMenu marketplaceId={marketplaceId} Hide={() => setTimeout(() => setShowPreferencesMenu(false), 50)} /> : null }
+      {
+        showPreferencesMenu ?
+          <PreferencesMenu
+            availableDisplayCurrencies={availableDisplayCurrencies}
+            Hide={() => setShowPreferencesMenu(false)}
+          /> : null
+      }
     </div>
   );
 });

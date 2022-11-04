@@ -189,7 +189,8 @@ export const FormatPriceString = (
     alternatePrice = new Intl.NumberFormat(currentLocale || "en-US", { style: "currency", currency: checkoutStore.currency})
       .format(price * checkoutStore.exchangeRates[checkoutStore.currency].rate);
     alternatePrice =
-      options.includeCurrency ?
+      // Note: Some currency symbols include the currency code, so don't double it
+      options.includeCurrency && !alternatePrice.includes(checkoutStore.currency) ?
         (options.prependCurrency ?
           `(${checkoutStore.currency} ${alternatePrice})` :
           `(${alternatePrice} ${checkoutStore.currency})`) :
@@ -413,6 +414,10 @@ export const Select = ({label, value, activeValuePrefix, options, placeholder, o
   const ref = useRef();
 
   useEffect(() => {
+    onChange && onChange(value);
+  }, []);
+
+  useEffect(() => {
     const onClickOutside = event => {
       if(!ref.current || !ref.current.contains(event.target)) {
         setShowMenu(false);
@@ -423,7 +428,6 @@ export const Select = ({label, value, activeValuePrefix, options, placeholder, o
 
     return () => document.removeEventListener("click", onClickOutside);
   }, []);
-
 
   useEffect(() => {
     if(!showMenu || mouseIn) { return; }
