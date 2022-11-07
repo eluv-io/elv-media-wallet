@@ -121,7 +121,7 @@ export const ActiveListings = observer(({contractAddress, selectedListingId, sho
                     }
                   </>
               }
-              {FormatPriceString(listing.details.Price)}
+              {FormatPriceString(listing.details.Price, {vertical: true})}
             </>,
             MiddleEllipsis(listing.details.SellerAddress, 14)
           ]
