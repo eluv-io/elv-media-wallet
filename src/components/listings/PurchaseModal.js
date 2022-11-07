@@ -10,7 +10,7 @@ import ImageIcon from "Components/common/ImageIcon";
 import {roundToDown} from "round-to";
 import WalletConnect from "Components/crypto/WalletConnect";
 import {PageLoader} from "Components/common/Loaders";
-import {NFTInfo, ValidEmail} from "../../utils/Utils";
+import {NFTInfo, ScrollTo, ValidEmail} from "../../utils/Utils";
 import SupportedCountries from "../../utils/SupportedCountries";
 
 import PlusIcon from "Assets/icons/plus.svg";
@@ -775,8 +775,7 @@ const PurchaseModal = observer(({nft, item, initialListingId, type="marketplace"
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
-    const modal = document.getElementById("purchase-modal");
-    modal && modal.scrollTo(0, 0);
+    ScrollTo(0, document.getElementById("purchase-modal"));
   }, []);
 
   useEffect(() => {

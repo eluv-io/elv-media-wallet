@@ -580,3 +580,17 @@ export const QRCodeElement = ({content}) => {
   );
 };
 
+export const MenuLink = ({icon, children, className="", ...props}) => {
+  let Component = props.to ? NavLink :
+    props.href ? ({...args}) => <a {...args} /> :
+      ({...args}) => <button {...args} />;
+
+  return (
+    <Component className={`menu-link ${className}`} {...props}>
+      <ImageIcon className="menu-link__icon" icon={icon} />
+      <div className="menu-link__text">
+        { children }
+      </div>
+    </Component>
+  );
+};

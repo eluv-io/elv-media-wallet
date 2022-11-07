@@ -5,18 +5,28 @@ import {Link, NavLink, useLocation} from "react-router-dom";
 import ImageIcon from "Components/common/ImageIcon";
 import UrlJoin from "url-join";
 import Modal from "Components/common/Modal";
-import {Copy, FormatPriceString, Select} from "Components/common/UIComponents";
+import {Copy, FormatPriceString, MenuLink, Select} from "Components/common/UIComponents";
 import CountryCodesList from "country-codes-list";
 
 import BackIcon from "Assets/icons/arrow-left-circle.svg";
 import EluvioLogo from "Assets/images/EluvioLogo.png";
 import MenuIcon from "Assets/icons/menu";
-import WalletIcon from "Assets/icons/wallet.svg";
 import UserIcon from "Assets/icons/profile.svg";
 import CopyIcon from "Assets/icons/copy.svg";
 import HomeIcon from "Assets/icons/home.svg";
 import EmailIcon from "Assets/icons/email icon.svg";
 import MetamaskIcon from "Assets/icons/metamask fox.png";
+
+
+import ActivityIcon from "Assets/icons/header/Activity Icon.svg";
+import ItemsIcon from "Assets/icons/header/items icon.svg";
+import ListingsIcon from "Assets/icons/header/listings icon.svg";
+import ProjectsIcon from "Assets/icons/header/New Projects_Marketplaces icon.svg";
+import PreferencesIcon from "Assets/icons/header/Preferences icon.svg";
+import WalletIcon from "Assets/icons/header/wallet icon v2.svg";
+import ProfileIcon from "Assets/icons/header/profile icon v2.svg";
+import CollectionsIcon from "Assets/icons/header/Collections Icon 2.svg";
+
 
 const currencyMap = CountryCodesList.customList("currencyCode", "{currencyNameEn}");
 
@@ -156,64 +166,79 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
         </div>
       </div>
       <div className="subheader__profile-menu__links">
-        <Link
+        <MenuLink
+          icon={ProfileIcon}
           className="subheader__profile-menu__link"
           to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me") : "/wallet/users/me"}
           onClick={Hide}
         >
           My Profile
-        </Link>
+        </MenuLink>
 
         <div className="subheader__profile-menu__separator" />
 
-        <NavLink
+        <MenuLink
+          icon={ItemsIcon}
           className="subheader__profile-menu__link"
           to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "items") : "/wallet/users/me/items"}
           onClick={Hide}
           isActive={IsActive("items")}
         >
           {tabs.my_items || "My Items"}
-        </NavLink>
+        </MenuLink>
         {
           hasCollections ?
-            <NavLink
+            <MenuLink
+              icon={CollectionsIcon}
               className="subheader__profile-menu__link"
               to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "collections") : "/wallet/users/me/collections"}
               onClick={Hide}
               isActive={IsActive("collections")}
             >
               My Collections
-            </NavLink> : null
+            </MenuLink> : null
         }
-        <NavLink
+        <MenuLink
+          icon={ListingsIcon}
           className="subheader__profile-menu__link"
           to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "listings") : "/wallet/users/me/listings"}
           onClick={Hide}
           isActive={IsActive("listings")}
         >
           My Listings
-        </NavLink>
-        <NavLink
+        </MenuLink>
+        <MenuLink
+          icon={ActivityIcon}
           className="subheader__profile-menu__link"
           to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "activity") : "/wallet/users/me/activity"}
           onClick={Hide}
           isActive={IsActive("activity")}
         >
           My Activity
-        </NavLink>
+        </MenuLink>
 
         {
           availableDisplayCurrencies.length > 0 ?
+            <MenuLink
+              icon={PreferencesIcon}
+              onClick={() => setShowPreferencesMenu(!showPreferencesMenu)}
+              className={`subheader__profile-menu__link subheader__profile-menu__link-secondary ${showPreferencesMenu ? "active" : ""}`}
+            >
+              Preferences
+            </MenuLink> : null
+        }
+        {
+          rootStore.hideGlobalNavigation ? null :
             <>
               <div className="subheader__profile-menu__separator"/>
-
-              <button
-                onClick={() => setShowPreferencesMenu(!showPreferencesMenu)}
-                className={`subheader__profile-menu__link subheader__profile-menu__link-secondary ${showPreferencesMenu ? "active" : ""}`}
+              <MenuLink
+                icon={ProjectsIcon}
+                to="/marketplaces"
+                className="subheader__profile-menu__link subheader__profile-menu__link-secondary"
               >
-                Preferences
-              </button>
-            </> : null
+                Discover Projects
+              </MenuLink>
+            </>
         }
       </div>
       <button
@@ -283,124 +308,168 @@ const ProfileNavigation = observer(() => {
 });
 
 const MobileNavigationMenu = observer(({marketplace, Close}) => {
-  const userInfo = rootStore.walletClient.UserInfo();
+  const userInfo = rootStore.loggedIn ? rootStore.walletClient.UserInfo() : {};
   const [showPreferencesMenu, setShowPreferencesMenu] = useState(false);
+
+  const fullMarketplace = marketplace && rootStore.marketplaces[marketplace.marketplaceId];
+  const availableDisplayCurrencies = fullMarketplace?.display_currencies || [];
 
   let links;
   if(!marketplace) {
     links = [
-      { name: "My Items", to: "/wallet/users/me/items", authed: true },
-      { name: "My Listings", to: "/wallet/users/me/listings", authed: true },
-      { name: "My Profile", to: "/wallet/profile", authed: true },
-      { separator: true },
-      { name: "Discover Projects", to: "/marketplaces" },
-      { name: "All Listings", to: "/wallet/listings" },
-      { name: "Activity", to: "/wallet/activity" }
+      { name: "Profile", icon: ProfileIcon, to: "/wallet/users/me/items", authed: true },
+      { separator: true, authed: true },
+      { name: "Listings", icon: ListingsIcon, to: "/wallet/listings" },
+      { name: "Activity", icon: ActivityIcon, to: "/wallet/activity" }
     ];
   } else {
-    const fullMarketplace = rootStore.marketplaces[marketplace.marketplaceId];
     const tabs = fullMarketplace?.branding?.tabs || {};
 
     links = [
-      {name: tabs.my_items || "My Items", to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items"), authed: true},
+      {name: "Profile", icon: ProfileIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items"), authed: true},
+      { separator: true, authed: true },
+      {name: tabs.store || marketplace?.branding?.name || "Store", icon: EmailIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "store")},
       {
-        name: rootStore.loggedIn ? "My Collections" : "Collections",
+        name: "Collections",
+        icon: CollectionsIcon,
         to: UrlJoin("/marketplace", marketplace.marketplaceId, "collections"),
         hidden: !fullMarketplace || !fullMarketplace.collections || fullMarketplace.collections.length === 0
       },
-      {name: "My Listings", to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "listings"), authed: true},
-      {name: tabs.store || marketplace?.branding?.name || "Store", to: UrlJoin("/marketplace", marketplace.marketplaceId, "store")},
-      {name: tabs.listings || "Listings", to: UrlJoin("/marketplace", marketplace.marketplaceId, "listings")},
-      {name: "Activity", to: UrlJoin("/marketplace", marketplace.marketplaceId, "activity")},
-      {name: "Leaderboard", to: UrlJoin("/marketplace", marketplace.marketplaceId, "leaderboard"), hidden: marketplace?.branding?.hide_leaderboard},
-      {separator: true, global: true},
-      {name: "Discover Projects", to: "/marketplaces", global: true},
-      {name: "My Full Collection", to: "/wallet/users/me/items", authed: true, global: true},
-      {name: "My Profile", to: UrlJoin("/marketplace", marketplace.marketplaceId, "profile"), authed: true}
+      {name: tabs.listings || "Listings", icon: ListingsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "listings")},
+      {name: "Activity", icon: ActivityIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "activity")},
+      {name: "Leaderboard", icon: EmailIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "leaderboard"), hidden: marketplace?.branding?.hide_leaderboard}
     ];
   }
 
   return (
-    <div className="mobile-navigation__menu">
-      <h2 className="mobile-navigation__menu__header">Media Wallet</h2>
+    <div className="mobile-menu">
       {
-        !rootStore.loggedIn ? null :
-          <>
-            <div className="mobile-navigation__menu__account-info">
-              <div className="mobile-navigation__menu__section">
-                <div className="mobile-navigation__menu__message">Signed in Via {userInfo.walletType === "Custodial" ? "Email" : userInfo.walletType}</div>
-                { userInfo.email ? <div className="mobile-navigation__menu__email">{userInfo.email}</div> : null }
-              </div>
-              <div className="mobile-navigation__menu__section">
-                <div className="mobile-navigation__menu__message">My Eluvio Content Blockchain Address</div>
-                <div className="mobile-navigation__menu__address-container">
-                  <div className="mobile-navigation__menu__address ellipsis">
-                    { rootStore.CurrentAddress() }
-                  </div>
-                  <button onClick={() => Copy(rootStore.CurrentAddress())} className="mobile-navigation__menu__address-copy">
-                    <ImageIcon alt="Copy Address" icon={CopyIcon} />
-                  </button>
-                </div>
-              </div>
-
-              <div className="mobile-navigation__menu__section">
-                <div className="mobile-navigation__menu__message">My Seller Balance</div>
-                <div className="mobile-navigation__menu__balance">{ FormatPriceString(rootStore.totalWalletBalance, {includeCurrency: true, prependCurrency: true, excludeAlternateCurrency: true}) }</div>
-              </div>
+        rootStore.loggedIn ?
+          <div className="mobile-menu__account">
+            <div className="mobile-menu__account__type">Signed in Via {userInfo.walletType === "Custodial" ? "Email" : userInfo.walletName}</div>
+            <div className="mobile-menu__account__account">
+              {
+                userInfo.walletType === "Custodial" ?
+                  <>
+                    <ImageIcon icon={EmailIcon} className="mobile-menu__account__icon" />
+                    <div className="mobile-menu__account__email ellipsis">
+                      { userInfo.email }
+                    </div>
+                  </> :
+                  <>
+                    <ImageIcon icon={MetamaskIcon} className="mobile-menu__account__icon" />
+                    <div className="mobile-menu__account__address ellipsis">
+                      { userInfo.address }
+                    </div>
+                    <button onClick={() => Copy(userInfo.address)} className="mobile-menu__account__address-copy">
+                      <ImageIcon alt="Copy Address" icon={CopyIcon} />
+                    </button>
+                  </>
+              }
             </div>
-          </>
+          </div> :
+          <div className="mobile-menu__header">
+            Media Wallet
+          </div>
       }
+      <div className="mobile-menu__content">
+        {
+          rootStore.loggedIn ?
+            <>
+              {
+                userInfo.walletType === "Custodial" ?
+                  <div className="mobile-menu__section">
+                    <div className="mobile-menu__section-header">My Eluvio Content Blockchain Address</div>
+                    <div className="mobile-menu__address-container">
+                      <div className="mobile-menu__address ellipsis">
+                        {rootStore.CurrentAddress()}
+                      </div>
+                      <button onClick={() => Copy(rootStore.CurrentAddress())} className="mobile-menu__address-copy">
+                        <ImageIcon alt="Copy Address" icon={CopyIcon}/>
+                      </button>
+                    </div>
+                    <div className="mobile-menu__message">
+                      Do not send funds to this address. This is an Eluvio Content Blockchain address and is not a payment
+                      address.
+                    </div>
+                  </div> : null
+              }
 
+              <div className="mobile-menu__section">
+                <div className="mobile-menu__section-header">Seller Balance</div>
+                <div className="mobile-menu__balance">{ FormatPriceString(rootStore.totalWalletBalance, {includeCurrency: true, prependCurrency: true, excludeAlternateCurrency: true}) }</div>
+              </div>
+
+              <MenuLink
+                icon={WalletIcon}
+                to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "profile") : "/wallet/profile"}
+                className="mobile-menu__link"
+                onClick={Close}
+              >
+                View Details
+              </MenuLink>
+            </> : null
+        }
+        {
+          links.map(({name, icon, to, authed, global, separator, hidden}) => {
+            if(hidden || (authed && !rootStore.loggedIn)) { return null; }
+
+            if(global && rootStore.hideGlobalNavigation) { return null; }
+
+            if(separator) {
+              return <div key="mobile-link-separator" className="mobile-menu__separator" />;
+            }
+
+            return (
+              <MenuLink
+                icon={icon || EmailIcon}
+                to={to}
+                className="mobile-menu__link"
+                onClick={Close}
+                key={`mobile-link-${name}`}
+              >
+                { name }
+              </MenuLink>
+            );
+          })
+        }
+        {
+          availableDisplayCurrencies.length > 0 ?
+            <MenuLink
+              icon={PreferencesIcon}
+              onClick={() => setShowPreferencesMenu(!showPreferencesMenu)}
+              className={`mobile-menu__link ${showPreferencesMenu ? "active" : ""}`}
+            >
+              Preferences
+            </MenuLink> : null
+        }
+        {
+          rootStore.hideGlobalNavigation ? null :
+            <>
+              <div className="mobile-menu__separator" />
+              <MenuLink
+                icon={ProjectsIcon}
+                to="/marketplaces"
+                onClick={Close}
+                className="mobile-menu__link"
+              >
+                Discover Projects
+              </MenuLink>
+            </>
+        }
+      </div>
       <button
-        className="mobile-navigation__link"
-        onClick={() => setShowPreferencesMenu(true)}
+        className="mobile-menu__sign-in-button"
+        onClick={() => {
+          rootStore.loggedIn ?
+            rootStore.SignOut() :
+            rootStore.ShowLogin();
+
+          Close();
+        }}
       >
-        Preferences
+        { rootStore.loggedIn ? "Sign Out" : "Sign In"}
       </button>
-
-
-      <div key="mobile-link-separator" className="mobile-navigation__separator" />
-
-      {
-        links.map(({name, to, authed, global, separator, hidden}) => {
-          if(hidden || (authed && !rootStore.loggedIn)) { return null; }
-
-          if(global && rootStore.hideGlobalNavigation) { return null; }
-
-          if(separator) {
-            return <div key="mobile-link-separator" className="mobile-navigation__separator" />;
-          }
-
-          return (
-            <NavLink to={to} className="mobile-navigation__link" onClick={Close} key={`mobile-link-${name}`}>
-              <span>{ name }</span>
-            </NavLink>
-          );
-        })
-      }
-
-      {
-        !rootStore.loggedIn ?
-          <button
-            className="mobile-navigation__link"
-            onClick={() => {
-              Close();
-              rootStore.ShowLogin();
-            }}
-          >
-            Sign In
-          </button> :
-          <button
-            className="mobile-navigation__link"
-            onClick={() => {
-              Close();
-              rootStore.SignOut();
-            }}
-          >
-            Sign Out
-          </button>
-      }
-
       { showPreferencesMenu ? <PreferencesMenu marketplaceId={marketplace?.marketplaceId} Hide={() => setShowPreferencesMenu(false)} /> : null }
     </div>
   );

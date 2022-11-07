@@ -577,3 +577,15 @@
     }
   }
 }
+
+.menu-link {
+  align-items: center;
+  display: flex;
+  gap: 20px; // sass-lint:disable-line no-misspelled-properties
+
+  &__icon {
+    height: 25px;
+    object-fit: contain;
+    width: 25px;
+  }
+}

@@ -194,6 +194,7 @@
   &--flipped {
     .marketplace-card__content {
       transform: rotateY(-180deg);
+      transition-delay: 0.25s;
     }
   }
 
@@ -203,6 +204,7 @@
     text-align: center;
     transform-style: preserve-3d;
     transition: transform 0.75s;
+    transition-delay: 0s;
     width: 100%;
   }
 

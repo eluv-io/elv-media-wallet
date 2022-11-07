@@ -95,12 +95,12 @@ export const ValidEmail = email => {
     .test(email);
 };
 
-export const ScrollTo = (top=0) => {
+export const ScrollTo = (top=0, target) => {
   // Mobile has a bug that prevents scroll top from working
   if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-    window.scrollTo(0, top);
+    (target || window).scrollTo(0, top);
   } else {
-    window.scrollTo({top, behavior: "smooth"});
+    (target || window).scrollTo({top, behavior: "smooth"});
   }
 };
 
