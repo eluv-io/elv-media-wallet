@@ -570,11 +570,10 @@
   }
 
   &--vertical {
+    align-items: center;
+    flex-direction: column;
+    gap: 0; // sass-lint:disable-line no-misspelled-properties
     justify-content: center;
-
-    .formatted-price__alternate {
-      width: 100%;
-    }
   }
 }
 

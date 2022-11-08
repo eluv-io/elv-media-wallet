@@ -602,7 +602,8 @@
   @include component;
   @include page-fade-in(0.2s, ease-out);
 
-  height: 100%;
+  border: 0;
+  height: max-content;
   min-height: 100vh;
   padding: 45px 0;
 

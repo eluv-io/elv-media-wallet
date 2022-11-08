@@ -201,6 +201,9 @@ export const FormatPriceString = (
         { alternatePrice }
       </div>
     );
+  } else {
+    // Disable vertical if no alternate currency
+    options.vertical = false;
   }
 
   const usdcIcon = options.includeUSDCIcon ? <ImageIcon icon={USDCIcon} className="formatted-price__icon" /> : null;

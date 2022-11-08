@@ -498,7 +498,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
             Available { balanceName }
           </div>
           <div className="purchase-modal__order-price">
-            {FormatPriceString(balanceAmount || 0)}
+            {FormatPriceString(balanceAmount || 0, {vertical: true})}
           </div>
         </div>
         <div className="purchase-modal__order-line-item">
@@ -506,7 +506,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
             Current Purchase
           </div>
           <div className="purchase-modal__order-price">
-            {FormatPriceString(total + fee)}
+            {FormatPriceString(total + fee, {vertical: true})}
           </div>
         </div>
         <div className="purchase-modal__order-separator"/>
@@ -516,7 +516,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
           </div>
           <div className="purchase-modal__order-price">
             { balanceIcon }
-            {FormatPriceString(balanceAmount - (total + fee))}
+            {FormatPriceString(balanceAmount - (total + fee), {vertical: true})}
           </div>
         </div>
       </div>

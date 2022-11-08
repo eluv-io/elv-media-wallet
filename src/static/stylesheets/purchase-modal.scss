@@ -170,6 +170,10 @@ $content-width: 475px;
     align-items: center;
     display: flex;
 
+    .formatted-price {
+      width: max-content;
+    }
+
     img,
     svg {
       height: 20px;

@@ -203,7 +203,7 @@ export const PendingPaymentsTable = observer(({icon, header, limit, className=""
   );
 });
 
-export const UserTransferTable = observer(({userAddress, icon, header, limit, marketplaceId, type="sale"}) => {
+export const UserTransferTable = observer(({userAddress, icon, header, limit, marketplaceId, type="sale", className=""}) => {
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
 
@@ -258,6 +258,7 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ma
     // Withdrawals table
     return (
       <Table
+        className={className}
         loading={loading}
         headerIcon={icon}
         headerText={header}
@@ -282,17 +283,54 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ma
     );
   }
 
+  if(type === "sale") {
+    return (
+      <Table
+        className={className}
+        loading={loading}
+        pagingMode="none"
+        headerIcon={icon}
+        headerText={header}
+        columnHeaders={[
+          "Name",
+          "List Price",
+          "Payout",
+          "Time",
+          "Buyer",
+          "Purchase Method",
+          "Payment Status"
+        ]}
+        columnWidths={[1, 1, 1, "150px", 1, "150px", "150px"]}
+        tabletColumnWidths={[1, 1, 1, "150px", 0, "150px", "150px"]}
+        mobileColumnWidths={[1, 1, 1, 0, 0, 0, 0]}
+        entries={
+          entries.map(transfer => [
+            transfer.name,
+            FormatPriceString(transfer.amount + transfer.royalty, {vertical: true}),
+            FormatPriceString(transfer.amount, {vertical: true}),
+            `${Ago(transfer.created * 1000) } ago`,
+            MiddleEllipsis(transfer.buyer, 14),
+            transfer.processor,
+            transfer.pending ? "Pending" : "Available"
+          ])
+            .filter(field => field)
+        }
+      />
+    );
+  }
+
   return (
     <Table
+      className={className}
       loading={loading}
       pagingMode="none"
       headerIcon={icon}
       headerText={header}
       columnHeaders={[
         "Name",
-        `List Price ${ type === "sale" ? " (Payout)" : ""}`,
+        "List Price",
         "Time",
-        type === "sale" ? "Buyer" : "Seller",
+        "Seller",
         "Purchase Method",
         "Payment Status"
       ]}
@@ -302,9 +340,9 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ma
       entries={
         entries.map(transfer => [
           transfer.name,
-          <>{ FormatPriceString(transfer.amount + transfer.royalty, {excludeAlternateCurrency: true}) } { type === "sale" ? <em>({ FormatPriceString(transfer.amount, {excludeAlternateCurrency: true}) })</em> : null }</>,
+          FormatPriceString(transfer.amount + transfer.royalty),
           `${Ago(transfer.created * 1000) } ago`,
-          MiddleEllipsis(type === "sale" ? transfer.buyer : transfer.addr, 14),
+          MiddleEllipsis(transfer.addr, 14),
           transfer.processor,
           transfer.pending ? "Pending" : "Available"
         ])

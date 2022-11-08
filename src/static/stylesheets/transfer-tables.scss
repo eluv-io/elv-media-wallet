@@ -203,8 +203,10 @@
 
     .formatted-price {
       gap: 0 5px; // sass-lint:disable-line no-misspelled-properties
-      justify-content: center;
-      text-align: center;
+
+      &--vertical {
+        margin: 0 auto;
+      }
     }
 
     em {

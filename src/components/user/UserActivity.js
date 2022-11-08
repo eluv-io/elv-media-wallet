@@ -20,7 +20,7 @@ const UserActivity = observer(() => {
         header="Bought NFTs"
         type="purchase"
         marketplaceId={match.params.marketplaceId}
-        className="my-listings-transfer-history my-listings-bought"
+        className="user-transfer-table user-transfer-table--bought"
       />
       <UserTransferTable
         userAddress={userAddress}
@@ -28,7 +28,7 @@ const UserActivity = observer(() => {
         header="Sold NFTs"
         type="sale"
         marketplaceId={match.params.marketplaceId}
-        className="my-listings-transfer-history my-listings-sold"
+        className="user-transfer-table user-transfer-table--sold"
       />
 
       {
