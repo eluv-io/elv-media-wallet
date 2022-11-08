@@ -259,7 +259,6 @@ $search-height: 50px;
 }
 
 .stats {
-  //@include component;
   align-items: center;
   background: var(--background-table);
   box-shadow: var(--box-shadow-table);
@@ -312,6 +311,10 @@ $search-height: 50px;
     font-size: 22px;
     font-weight: normal;
     text-transform: uppercase;
+
+    .formatted-price {
+      justify-content: center;
+    }
   }
 
   @media screen and (max-width: $intermediate-breakpoint) {

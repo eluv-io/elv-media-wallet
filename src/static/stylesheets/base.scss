@@ -169,12 +169,6 @@ header,
     position: relative;
     width: 100%;
   }
-
-  @media screen and (max-width: $breakpoint) {
-    &__content {
-      padding-right: 40px;
-    }
-  }
 }
 
 html,
