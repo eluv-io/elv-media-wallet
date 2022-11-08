@@ -419,13 +419,13 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
             </> : null
         }
         {
-          links.map(({name, icon, to, authed, global, separator, hidden}) => {
+          links.map(({name, icon, to, authed, global, separator, hidden}, index) => {
             if(hidden || (authed && !rootStore.loggedIn)) { return null; }
 
             if(global && rootStore.hideGlobalNavigation) { return null; }
 
             if(separator) {
-              return <div key="mobile-link-separator" className="mobile-menu__separator" />;
+              return <div key={`mobile-link-separator-${index}`} className="mobile-menu__separator" />;
             }
 
             return (
@@ -478,7 +478,14 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
       >
         { rootStore.loggedIn ? "Sign Out" : "Sign In"}
       </button>
-      { showPreferencesMenu ? <PreferencesMenu marketplaceId={marketplace?.marketplaceId} Hide={() => setShowPreferencesMenu(false)} /> : null }
+      {
+        showPreferencesMenu ?
+          <PreferencesMenu
+            availableDisplayCurrencies={availableDisplayCurrencies}
+            marketplaceId={marketplace?.marketplaceId}
+            Hide={() => setShowPreferencesMenu(false)}
+          /> : null
+      }
     </div>
   );
 });
