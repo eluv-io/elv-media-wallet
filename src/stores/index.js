@@ -1777,7 +1777,6 @@ class RootStore {
       this.RemoveSessionStorage("dark-mode");
       themeContainer.innerHTML = "";
       themeContainer.dataset.theme = "default";
-      return;
     } else if(themeContainer.dataset.theme !== "dark") {
       this.SetSessionStorage("dark-mode", "true");
       import("Assets/stylesheets/themes/dark.theme.css")

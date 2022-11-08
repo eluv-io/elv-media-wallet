@@ -16,7 +16,7 @@ import EmailIcon from "Assets/icons/email icon.svg";
 import MetamaskIcon from "Assets/icons/metamask fox.png";
 
 
-import ActivityIcon from "Assets/icons/header/Activity Icon.svg";
+import ActivityIcon from "Assets/icons/header/Activity.svg";
 import ItemsIcon from "Assets/icons/header/items icon.svg";
 import ListingsIcon from "Assets/icons/header/listings icon.svg";
 import ProjectsIcon from "Assets/icons/header/New Projects_Marketplaces icon.svg";
@@ -24,7 +24,7 @@ import PreferencesIcon from "Assets/icons/header/Preferences icon.svg";
 import WalletIcon from "Assets/icons/header/wallet icon v2.svg";
 import ProfileIcon from "Assets/icons/header/profile icon v2.svg";
 import CollectionsIcon from "Assets/icons/header/Collections Icon 2.svg";
-import LeaderboardIcon from "Assets/icons/header/leaderboard Icon.svg";
+import LeaderboardIcon from "Assets/icons/header/Leaderboard.svg";
 
 
 const currencyMap = CountryCodesList.customList("currencyCode", "{currencyNameEn}");
@@ -282,7 +282,7 @@ const ProfileNavigation = observer(() => {
     }
 
     return (
-      <button className="header__profile header__log-in" onClick={() => rootStore.ShowLogin()}>
+      <button className="header__profile header__navigation-link header__profile__sign-in-button" onClick={() => rootStore.ShowLogin()}>
         Sign In
       </button>
     );
@@ -562,7 +562,7 @@ const MarketplaceHeader = observer(({marketplace}) => {
                   <div className="header__content__image-container">
                     <ImageIcon icon={header_image.url} label={name || ""} className="header__content__image" />
                   </div> :
-                  (!hide_name ? <h1 className="header__content__header">{`${name}`}</h1> : null)
+                  (hide_name || !name) ? null : <h1 className="header__content__header">{`${name}`}</h1>
               }
             </div>
         }

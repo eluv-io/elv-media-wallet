@@ -232,14 +232,26 @@ const MarketplaceBrowser = observer(() => {
             <MarketplaceFilters marketplaces={availableMarketplaces} SetFilters={setFilters} />
             <div className="marketplace-browser__marketplaces">
               {
-                filteredMarketplaces.map((marketplace, index) =>
+                rootStore.previewMarketplaceId ?
                   <MarketplaceCard
-                    key={`${marketplace.tenantSlug}-${marketplace.marketplaceSlug}`}
-                    marketplace={marketplace}
-                    setFlipped={() => setFlippedIndex(index)}
-                    flipped={index === flippedIndex}
-                  />
-                )
+                    marketplace={rootStore.allMarketplaces.find(({marketplaceId}) => marketplaceId === rootStore.previewMarketplaceId)}
+                    setFlipped={() => setFlippedIndex("preview")}
+                    flipped={flippedIndex === "preview"}
+                  /> : null
+              }
+
+              {
+                filteredMarketplaces.map((marketplace, index) => {
+                  if(marketplace.marketplaceId === rootStore.previewMarketplaceId) { return null; }
+                  return (
+                    <MarketplaceCard
+                      key={`${marketplace.tenantSlug}-${marketplace.marketplaceSlug}`}
+                      marketplace={marketplace}
+                      setFlipped={() => setFlippedIndex(index)}
+                      flipped={index === flippedIndex}
+                    />
+                  );
+                })
               }
               {
                 // Fill any empty spaces with dummy elements to keep the grid at 3 columns

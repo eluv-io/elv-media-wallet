@@ -16,6 +16,10 @@
     justify-content: center;
     position: relative;
 
+    &:empty {
+      display: none;
+    }
+
     &__header {
       font: var(--font-store-header);
       font-size: 42px;
@@ -130,6 +134,10 @@
     padding: 15px 0;
     position: absolute;
     right: 0;
+
+    &__sign-in-button {
+      font-size: 16px;
+    }
 
     &__link {
       height: 100%;
@@ -368,11 +376,14 @@
     align-items: center;
     display: flex;
     justify-content: center;
+    width: 100%;
 
     .modal__content {
       height: max-content;
       max-width: 550px;
       overflow: visible;
+      padding: 20px;
+      width: 100%;
     }
   }
 
@@ -406,6 +417,22 @@
       .styled-select__button {
         border: 0;
         height: 50px;
+      }
+    }
+
+    @media screen and (max-width: $mobile-breakpoint) {
+      padding-inline: 30px;
+
+      &__label {
+        font-size: 16px;
+      }
+
+      &__hint {
+        font-size: 14px;
+      }
+
+      .styled-select__button {
+        font-size: 12px;
       }
     }
   }

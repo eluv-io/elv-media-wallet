@@ -53,7 +53,10 @@ class CheckoutStore {
 
   SetCurrency = flow(function * ({currency}) {
     try {
-      this.exchangeRates[currency] = yield this.walletClient.ExchangeRate({currency: currency.toLowerCase()});
+      if(currency !== "USD") {
+        this.exchangeRates[currency] = yield this.walletClient.ExchangeRate({currency: currency.toLowerCase()});
+      }
+
       this.currency = currency;
     } catch(error) {
       this.Log(error, true);
