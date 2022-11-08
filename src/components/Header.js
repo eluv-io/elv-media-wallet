@@ -8,12 +8,10 @@ import Modal from "Components/common/Modal";
 import {Copy, FormatPriceString, MenuLink, Select} from "Components/common/UIComponents";
 import CountryCodesList from "country-codes-list";
 
-import BackIcon from "Assets/icons/arrow-left-circle.svg";
-import EluvioLogo from "Assets/images/EluvioLogo.png";
+import EluvioLogo from "Assets/icons/ELUVIO logo (updated nov 2).svg";
 import MenuIcon from "Assets/icons/menu";
 import UserIcon from "Assets/icons/profile.svg";
 import CopyIcon from "Assets/icons/copy.svg";
-import HomeIcon from "Assets/icons/home.svg";
 import EmailIcon from "Assets/icons/email icon.svg";
 import MetamaskIcon from "Assets/icons/metamask fox.png";
 
@@ -26,6 +24,7 @@ import PreferencesIcon from "Assets/icons/header/Preferences icon.svg";
 import WalletIcon from "Assets/icons/header/wallet icon v2.svg";
 import ProfileIcon from "Assets/icons/header/profile icon v2.svg";
 import CollectionsIcon from "Assets/icons/header/Collections Icon 2.svg";
+import LeaderboardIcon from "Assets/icons/header/leaderboard Icon.svg";
 
 
 const currencyMap = CountryCodesList.customList("currencyCode", "{currencyNameEn}");
@@ -81,21 +80,24 @@ const WalletMenu = observer(({marketplaceId, Hide}) => {
   );
 });
 
-const PreferencesMenu = observer(({availableDisplayCurrencies, Hide}) => {
+const PreferencesMenu = observer(({marketplaceId, availableDisplayCurrencies, Hide}) => {
   return (
-    <Modal className="subheader__preferences-menu-modal" Toggle={Hide}>
-      <div className="subheader__preferences-menu">
-        <div className="subheader__preferences-menu__label">
+    <Modal className="header__preferences-menu-modal" Toggle={Hide}>
+      <div className="header__preferences-menu">
+        <div className="header__preferences-menu__label">
           Set Marketplace Display Currency
         </div>
-        <div className="subheader__preferences-menu__hint">
+        <div className="header__preferences-menu__hint">
           This is a conversion computed from USD
         </div>
         <Select
           value={checkoutStore.currency}
-          onChange={currency => checkoutStore.SetCurrency({currency})}
+          onChange={currency => {
+            checkoutStore.SetCurrency({currency});
+            rootStore.SetLocalStorage(`preferred-currency-${marketplaceId}`, currency);
+          }}
           activeValuePrefix="Display Currency: "
-          containerClassName="subheader__preferences-menu__currency-select"
+          containerClassName="header__preferences-menu__currency-select"
           options={[
             ["USD", "United States dollar"],
             ...(availableDisplayCurrencies || []).map(code => [code, currencyMap[code]])
@@ -141,45 +143,45 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
   }, [showPreferencesMenu]);
 
   return (
-    <div className="subheader__profile-menu" ref={menuRef}>
-      <div className="subheader__profile-menu__info">
-        <div className="subheader__profile-menu__info__type">Signed in Via {userInfo.walletType === "Custodial" ? "Email" : userInfo.walletName}</div>
-        <div className="subheader__profile-menu__info__account">
+    <div className="header__profile-menu" ref={menuRef}>
+      <div className="header__profile-menu__info">
+        <div className="header__profile-menu__info__type">Signed in Via {userInfo.walletType === "Custodial" ? "Email" : userInfo.walletName}</div>
+        <div className="header__profile-menu__info__account">
           {
             userInfo.walletType === "Custodial" ?
             <>
               <ImageIcon icon={EmailIcon} />
-              <div className="subheader__profile-menu__info__email ellipsis">
+              <div className="header__profile-menu__info__email ellipsis">
                 { userInfo.email }
               </div>
             </> :
             <>
               <ImageIcon icon={MetamaskIcon} />
-              <div className="subheader__profile-menu__info__address ellipsis">
+              <div className="header__profile-menu__info__address ellipsis">
                 { userInfo.address }
               </div>
-              <button onClick={() => Copy(userInfo.address)} className="subheader__profile-menu__info__address-copy">
+              <button onClick={() => Copy(userInfo.address)} className="header__profile-menu__info__address-copy">
                 <ImageIcon alt="Copy Address" icon={CopyIcon} />
               </button>
             </>
           }
         </div>
       </div>
-      <div className="subheader__profile-menu__links">
+      <div className="header__profile-menu__links">
         <MenuLink
           icon={ProfileIcon}
-          className="subheader__profile-menu__link"
+          className="header__profile-menu__link"
           to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me") : "/wallet/users/me"}
           onClick={Hide}
         >
           My Profile
         </MenuLink>
 
-        <div className="subheader__profile-menu__separator" />
+        <div className="header__profile-menu__separator" />
 
         <MenuLink
           icon={ItemsIcon}
-          className="subheader__profile-menu__link"
+          className="header__profile-menu__link"
           to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "items") : "/wallet/users/me/items"}
           onClick={Hide}
           isActive={IsActive("items")}
@@ -190,7 +192,7 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
           hasCollections ?
             <MenuLink
               icon={CollectionsIcon}
-              className="subheader__profile-menu__link"
+              className="header__profile-menu__link"
               to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "collections") : "/wallet/users/me/collections"}
               onClick={Hide}
               isActive={IsActive("collections")}
@@ -200,7 +202,7 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
         }
         <MenuLink
           icon={ListingsIcon}
-          className="subheader__profile-menu__link"
+          className="header__profile-menu__link"
           to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "listings") : "/wallet/users/me/listings"}
           onClick={Hide}
           isActive={IsActive("listings")}
@@ -209,7 +211,7 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
         </MenuLink>
         <MenuLink
           icon={ActivityIcon}
-          className="subheader__profile-menu__link"
+          className="header__profile-menu__link"
           to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "activity") : "/wallet/users/me/activity"}
           onClick={Hide}
           isActive={IsActive("activity")}
@@ -222,19 +224,19 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
             <MenuLink
               icon={PreferencesIcon}
               onClick={() => setShowPreferencesMenu(!showPreferencesMenu)}
-              className={`subheader__profile-menu__link subheader__profile-menu__link-secondary ${showPreferencesMenu ? "active" : ""}`}
+              className={`header__profile-menu__link header__profile-menu__link-secondary ${showPreferencesMenu ? "active" : ""}`}
             >
               Preferences
             </MenuLink> : null
         }
         {
-          rootStore.hideGlobalNavigation ? null :
+          rootStore.hideGlobalNavigation || (marketplaceId && rootStore.hideGlobalNavigationInMarketplace)  ? null :
             <>
-              <div className="subheader__profile-menu__separator"/>
+              <div className="header__profile-menu__separator"/>
               <MenuLink
                 icon={ProjectsIcon}
                 to="/marketplaces"
-                className="subheader__profile-menu__link subheader__profile-menu__link-secondary"
+                className="header__profile-menu__link header__profile-menu__link-secondary"
               >
                 Discover Projects
               </MenuLink>
@@ -246,13 +248,14 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
           rootStore.SignOut();
           Hide();
         }}
-        className="subheader__profile-menu__log-out-button"
+        className="header__profile-menu__log-out-button"
       >
         Sign Out
       </button>
       {
         showPreferencesMenu ?
           <PreferencesMenu
+            marketplaceId={marketplaceId}
             availableDisplayCurrencies={availableDisplayCurrencies}
             Hide={() => setShowPreferencesMenu(false)}
           /> : null
@@ -320,24 +323,29 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
       { name: "Profile", icon: ProfileIcon, to: "/wallet/users/me/items", authed: true },
       { separator: true, authed: true },
       { name: "Listings", icon: ListingsIcon, to: "/wallet/listings" },
-      { name: "Activity", icon: ActivityIcon, to: "/wallet/activity" }
+      { name: "Activity", icon: ActivityIcon, to: "/wallet/activity" },
+      { separator: true, authed: true },
+      { name: "My Items", icon: ItemsIcon, to: UrlJoin("/wallet", "users", "me", "items"), authed: true },
+      { name: "My Listings", icon: ListingsIcon, to: UrlJoin("/wallet", "users", "me", "listings"), authed: true },
+      { name: "My Activity", icon: ActivityIcon, to: UrlJoin("/wallet", "users", "me", "activity"), authed: true },
     ];
   } else {
     const tabs = fullMarketplace?.branding?.tabs || {};
+    const hasCollections = !fullMarketplace || !fullMarketplace.collections || fullMarketplace.collections.length === 0;
 
     links = [
-      {name: "Profile", icon: ProfileIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items"), authed: true},
+      { name: "Profile", icon: ProfileIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items"), authed: true },
       { separator: true, authed: true },
-      {name: tabs.store || marketplace?.branding?.name || "Store", icon: EmailIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "store")},
-      {
-        name: "Collections",
-        icon: CollectionsIcon,
-        to: UrlJoin("/marketplace", marketplace.marketplaceId, "collections"),
-        hidden: !fullMarketplace || !fullMarketplace.collections || fullMarketplace.collections.length === 0
-      },
-      {name: tabs.listings || "Listings", icon: ListingsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "listings")},
-      {name: "Activity", icon: ActivityIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "activity")},
-      {name: "Leaderboard", icon: EmailIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "leaderboard"), hidden: marketplace?.branding?.hide_leaderboard}
+      { name: tabs.store || marketplace?.branding?.name || "Store", icon: EmailIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "store") },
+      { name: "Collections", icon: CollectionsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "collections"), hidden: !hasCollections },
+      { name: tabs.listings || "Listings", icon: ListingsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "listings") },
+      { name: "Activity", icon: ActivityIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "activity") },
+      { name: "Leaderboard", icon: LeaderboardIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "leaderboard"), hidden: marketplace?.branding?.hide_leaderboard },
+      { separator: true, authed: true },
+      { name: "My Items", icon: ItemsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items"), authed: true },
+      { name: "My Collections", icon: CollectionsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "collections"), authed: true, hidden: !hasCollections },
+      { name: "My Listings", icon: ListingsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "listings"), authed: true },
+      { name: "My Activity", icon: ActivityIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "activity"), authed: true },
     ];
   }
 
@@ -498,43 +506,6 @@ const MobileNavigation = ({marketplace, className=""}) => {
   );
 };
 
-const GlobalHeaderNavigation = () => {
-  return (
-    <nav className="global-header__navigation global-header__navigation--global">
-      <Link className="global-header__navigation-link" to="/marketplaces">
-        <ImageIcon icon={HomeIcon} />
-      </Link>
-      <NavLink className="global-header__navigation-link" to="/marketplaces">
-        Discover Projects
-      </NavLink>
-      <NavLink className="global-header__navigation-link" to="/wallet/listings">
-        All Listings
-      </NavLink>
-      <NavLink className="global-header__navigation-link" to="/wallet/activity">
-        All Activity
-      </NavLink>
-    </nav>
-  );
-};
-
-const GlobalHeader = observer(({marketplace}) => {
-  if(rootStore.hideGlobalNavigation || (rootStore.hideGlobalNavigationInMarketplace && marketplace)) { return null; }
-
-  return (
-    <div className="page-block page-block--global-header global-header-container">
-      <div className="page-block__content">
-        <div className={`global-header ${marketplace ? "global-header--marketplace" : ""}`}>
-          <Link to="/marketplaces" className="global-header__logo-container">
-            <ImageIcon icon={EluvioLogo} title="Eluvio" className="global-header__logo" />
-          </Link>
-          <GlobalHeaderNavigation />
-          <MobileNavigation marketplace={marketplace} />
-        </div>
-      </div>
-    </div>
-  );
-});
-
 const MarketplaceNavigation = observer(({marketplace}) => {
   const branding = marketplace.branding || {};
   const tabs = branding.tabs || {};
@@ -543,25 +514,25 @@ const MarketplaceNavigation = observer(({marketplace}) => {
   const hasCollections = fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0;
 
   return (
-    <nav className="subheader__navigation subheader__navigation--marketplace">
-      <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
+    <nav className="header__navigation header__navigation--marketplace">
+      <NavLink className="header__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
         { tabs.store || "Store" }
       </NavLink>
-      <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "listings")}>
+      <NavLink className="header__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "listings")}>
         { tabs.listings || "Listings" }
       </NavLink>
-      <NavLink className="subheader__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "activity")}>
+      <NavLink className="header__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "activity")}>
         Activity
       </NavLink>
       {
         hasCollections ?
-          <NavLink className="subheader__navigation-link no-mobile" to={UrlJoin("/marketplace", marketplace.marketplaceId, "collections")}>
+          <NavLink className="header__navigation-link no-mobile" to={UrlJoin("/marketplace", marketplace.marketplaceId, "collections")}>
             Collections
           </NavLink> : null
       }
       {
         rootStore.pageWidth >= 600 && !branding.hide_leaderboard ?
-          <NavLink className="subheader__navigation-link no-mobile" to={UrlJoin("/marketplace", marketplace.marketplaceId, "leaderboard")}>
+          <NavLink className="header__navigation-link no-mobile" to={UrlJoin("/marketplace", marketplace.marketplaceId, "leaderboard")}>
             Leaderboard
           </NavLink> : null
       }
@@ -569,61 +540,77 @@ const MarketplaceNavigation = observer(({marketplace}) => {
   );
 });
 
-const SubHeader = observer(({marketplace}) => {
-  if(!marketplace) {
-    return (
-      <div className={`page-block page-block--subheader ${rootStore.appBackground ? "page-block--custom-background" : ""} subheader-container`}>
-        <div className="page-block__content subheader subheader--wallet">
-          <div className="subheader__navigation-container">
-            { rootStore.headerText ? <h1 className="subheader__header-text">{ rootStore.headerText }</h1> : null }
-            <ProfileNavigation />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+const MarketplaceHeader = observer(({marketplace}) => {
   const { name, header_logo, header_image, hide_name, preview } = marketplace.branding || {};
   const logo = header_logo?.url;
 
-  const hideGlobalNavigation = rootStore.hideGlobalNavigation || (rootStore.hideGlobalNavigationInMarketplace && marketplace);
   return (
-    <div className={`page-block page-block--subheader ${rootStore.appBackground ? "page-block--custom-background" : ""} subheader-container subheader-container--marketplace`}>
-      <div className={`page-block__content subheader subheader--marketplace ${hide_name ? "subheader--marketplace--no-header" : ""}`}>
-        { preview ? <div className="subheader__preview-indicator">PREVIEW</div> : null }
+    <header className={`page-block page-block--header ${rootStore.appBackground ? "page-block--custom-background" : ""} header-container header-container--marketplace`}>
+      <div className={`page-block__content header header--marketplace ${hide_name ? "header--marketplace--no-header" : ""}`}>
+        { preview ? <div className="header__preview-indicator">PREVIEW</div> : null }
         {
           rootStore.hideMarketplaceNavigation ? null :
-            <div className="subheader__header-container">
+            <div className="header__content">
               {
                 logo ?
-                  <Link className="subheader__logo-container" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
-                    <ImageIcon icon={logo} label={name || ""} className="subheader__logo"/>
+                  <Link className="header__content__logo-container" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
+                    <ImageIcon icon={logo} label={name || ""} className="header__content__logo"/>
                   </Link> : null
               }
               {
                 header_image?.url ?
-                  <div className="subheader__header__image-container">
-                    <ImageIcon icon={header_image.url} label={name || ""} className="subheader__header__image" />
+                  <div className="header__content__image-container">
+                    <ImageIcon icon={header_image.url} label={name || ""} className="header__content__image" />
                   </div> :
-                  (!hide_name ? <h1 className="subheader__header">{`${name}`}</h1> : null)
-              }
-              {
-                hideGlobalNavigation ?
-                  <MobileNavigation marketplace={marketplace}/> : null
+                  (!hide_name ? <h1 className="header__content__header">{`${name}`}</h1> : null)
               }
             </div>
         }
-        <div className="subheader__navigation-container">
+        <div className={`header__navigation-container ${rootStore.hideMarketplaceNavigation ? "header__navigation-container--compact" : ""}`}>
           <MarketplaceNavigation marketplace={marketplace} />
           <ProfileNavigation />
+          <MobileNavigation marketplace={marketplace}/>
         </div>
-        {
-          rootStore.hideMarketplaceNavigation && (rootStore.hideGlobalNavigation || rootStore.hideGlobalNavigationInMarketplace && marketplace) ?
-            <MobileNavigation marketplace={marketplace} className="mobile-navigation--profile" /> :
-            null
-        }
       </div>
-    </div>
+    </header>
+  );
+});
+
+const GlobalHeader = observer(() => {
+  return (
+    <header className={`page-block page-block--header ${rootStore.appBackground ? "page-block--custom-background" : ""} header header--global`}>
+      <div className="page-block__content header header--wallet">
+        {
+          rootStore.hideMarketplaceNavigation ? null :
+            <div className="header__content">
+              <Link className="header__content__logo-container header__content__logo-container--global" to={"/marketplaces"}>
+                <ImageIcon icon={EluvioLogo} label={name || ""} className="header__content__logo"/>
+              </Link>
+              {
+                rootStore.headerText ?
+                  <div className="header__content">
+                    <h1 className="header__content__header">{rootStore.headerText}</h1>
+                  </div> : null
+              }
+            </div>
+        }
+        <div className="header__navigation-container header__navigation-container--compact">
+          <nav className="header__navigation">
+            <NavLink className="header__navigation-link" to="/marketplaces">
+              Discover Projects
+            </NavLink>
+            <NavLink className="header__navigation-link" to="/wallet/listings">
+              Listings
+            </NavLink>
+            <NavLink className="header__navigation-link" to="/wallet/activity">
+              Activity
+            </NavLink>
+          </nav>
+          <ProfileNavigation />
+          <MobileNavigation />
+        </div>
+      </div>
+    </header>
   );
 });
 
@@ -645,7 +632,7 @@ const Header = observer(() => {
     if(rootStore.navigationBreadcrumbs.length <= 2) { return null; }
 
     return (
-      <header className="header header--side-panel">
+      <header className="header-container header--side-panel">
         <NavLink
           className="header--side-panel__back-button"
           to={rootStore.navigationBreadcrumbs[rootStore.navigationBreadcrumbs.length - 2].path}
@@ -657,10 +644,9 @@ const Header = observer(() => {
   }
 
   return (
-    <header className="header">
-      <GlobalHeader marketplace={marketplace} />
-      <SubHeader marketplace={marketplace} />
-    </header>
+    marketplace ?
+      <MarketplaceHeader marketplace={marketplace} key={`header-${marketplaceId}`} /> :
+      <GlobalHeader />
   );
 });
 

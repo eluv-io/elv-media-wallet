@@ -9,7 +9,6 @@ import Confirm from "Components/common/Confirm";
 import {RichText} from "Components/common/UIComponents";
 
 import MetamaskIcon from "Assets/icons/metamask fox.png";
-import EmailIcon from "Assets/icons/email icon.svg";
 import EluvioLogo from "Assets/icons/ELUVIO logo (updated nov 2).svg";
 import EluvioPoweredByLogo from "Assets/icons/EluvioLogo2.svg";
 
@@ -203,8 +202,7 @@ const Form = observer(({userData, setUserData, customizationOptions, Authenticat
       disabled={requiredOptionsMissing}
       title={requiredOptionsMissing ? "Please accept the required options below" : undefined}
     >
-      <ImageIcon icon={EmailIcon} />
-      EMAIL
+      Sign In
     </button>
   );
 
@@ -228,10 +226,8 @@ const Form = observer(({userData, setUserData, customizationOptions, Authenticat
   return (
     <>
       <Logo customizationOptions={customizationOptions} />
-      <h2 className="login-page__title">Media Wallet</h2>
       <div className={`login-page__actions ${loading ? "login-page__actions--loading" : ""}`}>
         { loading ? <div className="login-page__actions__loader"><Loader /></div> : null }
-        <div className="login-page__actions-label">Sign In With</div>
         {
           hasLoggedIn ?
             <>

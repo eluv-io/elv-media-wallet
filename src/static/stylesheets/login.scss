@@ -171,19 +171,11 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-bottom: 50px;
 
     .login-page__logo {
       margin-bottom: 0;
     }
-  }
-
-  &__title {
-    font-family: var(--font-family-tertiary);
-    font-size: 18px;
-    letter-spacing: 0.03em;
-    margin-bottom: 10px;
-    text-transform: uppercase;
   }
 
   &__login-button {
@@ -242,11 +234,6 @@
     &.login-page__terms-button {
       border: 0;
     }
-  }
-
-  &__actions-label {
-    font-size: 14px;
-    margin: 10px 0 5px;
   }
 
   &__actions {

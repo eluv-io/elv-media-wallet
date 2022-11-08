@@ -845,8 +845,9 @@ class RootStore {
     this.marketplaces[marketplaceId] = yield this.walletClient.Marketplace({marketplaceParams: {marketplaceId}});
 
     yield this.checkoutStore.MarketplaceStock({tenantId: this.marketplaces[marketplaceId].tenant_id});
-    // TODO: detect currency
-    yield this.checkoutStore.SetCurrency({currency: "BRL"});
+
+    const defaultCurrency = this.GetLocalStorage(`preferred-currency-${marketplaceId}`) || this.marketplaces[marketplaceId].default_display_currency || "USD";
+    yield this.checkoutStore.SetCurrency({currency: defaultCurrency});
 
     if(marketplaceId === this.specifiedMarketplaceId) {
       this.InitializeAnalytics(this.marketplaces[marketplaceId]);

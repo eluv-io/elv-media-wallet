@@ -139,12 +139,15 @@ const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted
                 ))
               }
 
-              <button
-                onClick={() => UpdateCountry("other")}
-                className={`purchase-modal__provider-options__option ${country === "other" ? "active" : ""}`}
-              >
-                All Other Countries
-              </button>
+              {
+                stripeEnabled ?
+                  <button
+                    onClick={() => UpdateCountry("other")}
+                    className={`purchase-modal__provider-options__option ${country === "other" ? "active" : ""}`}
+                  >
+                    All Other Countries
+                  </button> : null
+              }
             </div>
           </div>
           <ButtonWithLoader

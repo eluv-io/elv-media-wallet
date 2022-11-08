@@ -340,7 +340,7 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ma
       entries={
         entries.map(transfer => [
           transfer.name,
-          FormatPriceString(transfer.amount + transfer.royalty),
+          FormatPriceString(transfer.amount + transfer.royalty, {vertical: true}),
           `${Ago(transfer.created * 1000) } ago`,
           MiddleEllipsis(transfer.addr, 14),
           transfer.processor,

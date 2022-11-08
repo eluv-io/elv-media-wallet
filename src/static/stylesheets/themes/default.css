@@ -44,8 +44,6 @@ html {
 
   /* Header */
   --font-header-links: normal normal 300 16px var(--font-family-secondary);
-  --font-header-profile: normal normal 300 14px var(--font-family-secondary);
-  --font-header-balance: normal normal normal 12px var(--font-family-tertiary);
   --font-store-header: normal normal 600 48px var(--font-family-primary);
 
   --background-page-header: #e6e6e6;
