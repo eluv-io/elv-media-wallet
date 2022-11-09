@@ -598,7 +598,7 @@ const MarketplaceHeader = observer(({marketplace}) => {
 
 const GlobalHeader = observer(() => {
   return (
-    <header className={`page-block page-block--header ${rootStore.appBackground ? "page-block--custom-background" : ""} header header--global`}>
+    <header className={`page-block page-block--header ${rootStore.appBackground ? "page-block--custom-background" : ""} header-container header-container--global`}>
       <div className="page-block__content header header--wallet">
         {
           rootStore.hideMarketplaceNavigation ? null :

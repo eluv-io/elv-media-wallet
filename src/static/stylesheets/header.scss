@@ -99,6 +99,20 @@
     }
   }
 
+  &--marketplace {
+
+    @media screen and (min-width: $mobile-breakpoint) {
+      .header__navigation {
+        margin: 0 auto;
+      }
+
+      .header__profile {
+        position: absolute;
+        right: 0;
+      }
+    }
+  }
+
   &__navigation {
     align-items: center;
     display: flex;
