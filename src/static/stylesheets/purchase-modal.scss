@@ -125,11 +125,15 @@ $content-width: 475px;
     }
 
     &__price {
-      color: var(--color-component-text-highlight);
-      font-size: 24px;
-      font-weight: 500;
       margin-top: 5px;
       text-align: center;
+
+      &,
+      * {
+        color: var(--color-component-text-highlight);
+        font-size: 24px;
+        font-weight: 500;
+      }
 
       .formatted-price {
         display: flex;

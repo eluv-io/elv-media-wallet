@@ -48,7 +48,7 @@ const WalletMenu = observer(({marketplaceId, Hide}) => {
   }, [menuRef]);
 
   return (
-    <div className="header__wallet-menu" ref={menuRef}>
+    <div className="header__menu header__wallet-menu" ref={menuRef}>
       <h2 className="header__wallet-menu__header">Media Wallet</h2>
       <div className="header__wallet-menu__section">
         <div className="header__wallet-menu__section-header">My Eluvio Content Blockchain Address</div>
@@ -144,7 +144,7 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
   }, [showPreferencesMenu]);
 
   return (
-    <div className="header__profile-menu" ref={menuRef}>
+    <div className="header__menu header__profile-menu" ref={menuRef}>
       <div className="header__profile-menu__info">
         <div className="header__profile-menu__info__type">Signed in Via {userInfo.walletType === "Custodial" ? "Email" : userInfo.walletName}</div>
         <div className="header__profile-menu__info__account">

@@ -79,7 +79,7 @@ const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted
   // card, pix, crypto, wallet-balance
   const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.walletClient.UserInfo()?.email || "";
   const [type, setType] = useState(usdcOnly ? "crypto" : "");
-  const [selectedMethod, setSelectedMethod] = useState(usdcOnly ? "linked-wallet" : "");
+  const [selectedMethod, setSelectedMethod] = useState(usdcOnly ? "linked-wallet" : "card");
   const [showUSDCOnlyMessage, setShowUSDCOnlyMessage] = useState(false);
   const [email, setEmail] = useState(initialEmail);
   const [country, setCountry] = useState("");

@@ -56,7 +56,7 @@ const Logo = ({customizationOptions}) => {
   } else {
     return (
       <div className="login-page__logo-container">
-        <ImageIcon icon={EluvioLogo} className="login-page__logo" title="Eluv.io" />
+        <ImageIcon icon={EluvioLogo} className="login-page__logo login-page__logo--default" title="Eluv.io" />
       </div>
     );
   }

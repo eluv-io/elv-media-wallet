@@ -204,6 +204,8 @@
 
     .formatted-price {
       gap: 0 5px; // sass-lint:disable-line no-misspelled-properties
+      margin: 0 auto;
+      width: max-content;
 
       &--vertical {
         margin: 0 auto;

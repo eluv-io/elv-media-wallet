@@ -306,11 +306,14 @@ $search-height: 50px;
   }
 
   &__value {
-    color: var(--color-component-text-primary);
-    font: var(--font-component-header);
-    font-size: 22px;
-    font-weight: normal;
-    text-transform: uppercase;
+    &,
+    * {
+      color: var(--color-component-text-primary);
+      font: var(--font-component-header);
+      font-size: 22px;
+      font-weight: normal;
+      text-transform: uppercase;
+    }
 
     .formatted-price {
       justify-content: center;
@@ -348,11 +351,17 @@ $search-height: 50px;
     grid-template-columns: repeat(auto-fit, minmax(50%, 1fr));
 
     &__label {
-      font-size: 12px;
+      &,
+      * {
+        font-size: 12px;
+      }
     }
 
     &__value {
-      font-size: 14px;
+      &,
+      * {
+        font-size: 14px;
+      }
     }
   }
 }

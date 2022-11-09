@@ -360,7 +360,7 @@ const NFTInfoMenu = observer(({nftInfo}) => {
   );
 });
 
-const NFTInfoSection = ({nftInfo, className=""}) => {
+const NFTInfoSection = observer(({nftInfo, className=""}) => {
   const match = useRouteMatch();
 
   let sideText = nftInfo.sideText;
@@ -465,7 +465,7 @@ const NFTInfoSection = ({nftInfo, className=""}) => {
       }
     </div>
   );
-};
+});
 
 const NFTTables = observer(({nftInfo}) => {
   const nft = nftInfo.nft;

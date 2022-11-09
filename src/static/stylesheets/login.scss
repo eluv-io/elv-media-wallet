@@ -158,12 +158,17 @@
   }
 
   &__logo {
-    fill: var(--color-login-text-primary);
     margin-bottom: 20px;
     object-fit: contain;
-
-    stroke: var(--color-login-text-primary);
     width: 220px;
+
+    &--default {
+      * {
+        color: var(--color-login-text-primary);
+        fill: var(--color-login-text-primary);
+        stroke: var(--color-login-text-primary);
+      }
+    }
   }
 
   &__logo-container {
