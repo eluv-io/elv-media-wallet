@@ -17,6 +17,7 @@ import MetamaskIcon from "Assets/icons/metamask fox.png";
 
 
 import ActivityIcon from "Assets/icons/header/Activity.svg";
+import StoreIcon from "Assets/icons/header/Store.svg";
 import ItemsIcon from "Assets/icons/header/items icon.svg";
 import ListingsIcon from "Assets/icons/header/listings icon.svg";
 import ProjectsIcon from "Assets/icons/header/New Projects_Marketplaces icon.svg";
@@ -282,9 +283,21 @@ const ProfileNavigation = observer(() => {
     }
 
     return (
-      <button className="header__profile header__navigation-link header__profile__sign-in-button" onClick={() => rootStore.ShowLogin()}>
-        Sign In
-      </button>
+      <div className="header__profile">
+        <button className="header__navigation-link header__profile__link header__profile__sign-in-button" onClick={() => rootStore.ShowLogin()}>
+          Sign In
+        </button>
+        {
+          marketplaceId && !(rootStore.hideGlobalNavigation || rootStore.hideGlobalNavigationInMarketplace)  ?
+            <NavLink
+              className="header__profile__link"
+              title = "Discover Projects"
+              to="/marketplaces"
+            >
+              <ImageIcon icon={ProjectsIcon} className="header__profile__link-icon" />
+            </NavLink> : null
+        }
+      </div>
     );
   }
 
@@ -336,7 +349,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
     links = [
       { name: "Profile", icon: ProfileIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items"), authed: true },
       { separator: true, authed: true },
-      { name: tabs.store || marketplace?.branding?.name || "Store", icon: EmailIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "store") },
+      { name: tabs.store || marketplace?.branding?.name || "Store", icon: StoreIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "store") },
       { name: "Collections", icon: CollectionsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "collections"), hidden: !hasCollections },
       { name: tabs.listings || "Listings", icon: ListingsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "listings") },
       { name: "Activity", icon: ActivityIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "activity") },
@@ -377,7 +390,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
             </div>
           </div> :
           <div className="mobile-menu__header">
-            Media Wallet
+            {  marketplace ? marketplace?.branding?.name || "Store" : "Media Wallet" }
           </div>
       }
       <div className="mobile-menu__content">
