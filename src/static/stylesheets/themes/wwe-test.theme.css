@@ -292,9 +292,6 @@ input:focus-visible,
   background: linear-gradient(90deg, rgba(122, 29, 240, 0) 0.22%, #18D5FF 49.07%, rgba(122, 29, 240, 0) 100%);
 }
 
-.header__menu {
-}
-
 /* Make table header not stick - does not work when background is transparent */
 .transfer-table__table__header.transfer-table__table__header {
   position: relative;
@@ -336,9 +333,29 @@ input:focus-visible,
   backdrop-filter: blur(20px);
 }
 
+.header__wallet-menu__section-header,
+.profile-page__section-header {
+  font-family: var(--font-family-tertiary);
+  color: var(--color-text-highlight);
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+.profile-page__balance * {
+  color: var(--color-component-text-primary);
+  font: var(--font-component-header);
+  font-size: 22px;
+  font-weight: normal;
+  text-transform: uppercase;
+}
+
 .header__menu,
 .mobile-menu {
   background: var(--neutral-4);
+}
+
+.purchase-modal__provider-options__option {
+  text-transform: uppercase;
 }
 
 @media screen and (max-width: 420px) {

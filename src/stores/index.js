@@ -1,6 +1,6 @@
 let testTheme = undefined;
 //testTheme = import("../static/stylesheets/themes/maskverse-test.theme.css");
-//testTheme = import("../static/stylesheets/themes/wwe-test.theme.css");
+testTheme = import("../static/stylesheets/themes/wwe-test.theme.css");
 //testTheme = import("../static/stylesheets/themes/lotr-test.theme.css");
 
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
