@@ -132,7 +132,7 @@ const Profile = observer(() => {
       { showWithdrawalModal ? <WithdrawalModal Close={() => setShowWithdrawalModal(false)} /> : null }
       <div className="profile-page__section profile-page__section-account">
         <h1 className="profile-page__header">Media Wallet</h1>
-        <h2 className="profile-page__section-header">
+        <h2 className="profile-page__address-header">
           Eluvio Content Blockchain Address
         </h2>
         <div className="profile-page__address">

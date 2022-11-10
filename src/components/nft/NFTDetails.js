@@ -552,7 +552,7 @@ const NFTActions = observer(({
   const match = useRouteMatch();
 
   const previewMode = match.params.marketplaceId === rootStore.previewMarketplaceId;
-
+  
   if(nftInfo.item) {
     return (
       <div className="details-page__actions">

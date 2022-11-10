@@ -16,7 +16,7 @@
   &__content {
     align-items: center;
     display: flex;
-    height: 100px;
+    height: 80px;
     justify-content: center;
     position: relative;
 
@@ -103,8 +103,18 @@
     }
   }
 
-  &--marketplace {
+  &--wallet {
+    .header__content {
+      height: 60px;
 
+      &__logo-container,
+      &__logo {
+        height: 40px;
+      }
+    }
+  }
+
+  &--marketplace {
     @media screen and (min-width: $mobile-breakpoint) {
       .header__navigation {
         margin: 0 auto;
@@ -125,7 +135,7 @@
 
   &__navigation-link {
     font: var(--font-header-links);
-    font-size: 20px;
+    font-size: 18px;
     transition: color 0.25s ease;
 
     &:hover,
