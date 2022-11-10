@@ -358,6 +358,10 @@ input:focus-visible,
   text-transform: uppercase;
 }
 
+.header__profile__sign-in-button {
+  display: none;
+}
+
 @media screen and (max-width: 420px) {
   .page-container .page-header {
     font-size: 45px;

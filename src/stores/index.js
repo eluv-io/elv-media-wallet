@@ -1476,14 +1476,6 @@ class RootStore {
     return false;
   });
 
-  RequestVerificationEmail = async () => {
-    try {
-      return true;
-    } catch(error) {
-      this.Log(error, true);
-    }
-  };
-
   FlowURL({type="flow", flow, parameters={}}) {
     const url = new URL(UrlJoin(window.location.origin, window.location.pathname));
     url.hash = UrlJoin("/", type, flow, Utils.B58(JSON.stringify(parameters)));
@@ -1673,12 +1665,14 @@ class RootStore {
     let key = `auth-${this.network}`;
 
     // TODO: Enable auth storage scoping later
-    if(this.authOrigin && false) {
-      try {
-        key = `${key}-${(new URL(this.authOrigin)).hostname}`;
-      // eslint-disable-next-line no-empty
-      } catch(error) {}
-    }
+    /*
+      if(this.authOrigin) {
+        try {
+          key = `${key}-${(new URL(this.authOrigin)).hostname}`;
+        // eslint-disable-next-line no-empty
+        } catch(error) {}
+      }
+     */
 
     return key;
   }

@@ -203,9 +203,26 @@ export const PendingPaymentsTable = observer(({icon, header, limit, className=""
   );
 });
 
-export const UserTransferTable = observer(({userAddress, icon, header, limit, marketplaceId, type="sale", className=""}) => {
+export const UserTransferTable = observer(({userAddress, icon, header, limit, type="sale", className=""}) => {
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
+
+  const Processor = record => {
+    let type = record.processor.split(":")[0];
+
+    switch(type) {
+      case "eluvio":
+        return "Wallet Balance";
+      case "stripe":
+        return "Credit Card";
+      case "solana":
+        return "USDC";
+      case "ebanx":
+        return record.processor.startsWith("ebanx:pix") ? "Pix" : "Credit Card";
+      default:
+        return "Crypto";
+    }
+  };
 
   const UpdateHistory = async () => {
     let entries = (await transferStore.UserPaymentsHistory(userAddress))
@@ -214,29 +231,12 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ma
         type:
           !entry.addr && (entry.processor || "").includes("stripe-payout") ?
             "withdrawal" : Utils.EqualAddress(entry.buyer, rootStore.CurrentAddress()) ? "purchase" : "sale",
-        processor:
-          (entry.processor || "").startsWith("eluvio") ? "Wallet Balance" :
-            (entry.processor || "").startsWith("stripe") ? "Credit Card" :
-              entry.processor?.startsWith("solana:p2p") ? "USDC" : "Crypto",
+        processor: Processor(entry),
         pending: !entry.processor?.startsWith("solana:p2p") && Date.now() < entry.created * 1000 + rootStore.salePendingDurationDays * 24 * 60 * 60 * 1000
       }))
       .filter(entry => entry.type === type)
       .filter(entry => entry.type === "withdrawal" || Utils.EqualAddress(rootStore.CurrentAddress(), type === "sale" ? entry.addr : entry.buyer))
       .sort((a, b) => a.created > b.created ? -1 : 1);
-
-    /*
-    if(marketplaceId) {
-      const marketplace = rootStore.marketplaces[marketplaceId];
-      // If marketplace filtered, exclude entries that aren't present in the marketplace
-      entries = entries.filter(entry =>
-        marketplace.items.find(item => Utils.EqualAddress(
-          entry.contract,
-          Utils.SafeTraverse(item, "nft_template", "nft", "address"),
-        ))
-      );
-    }
-
-     */
 
     if(limit) {
       entries = entries.slice(0, limit);

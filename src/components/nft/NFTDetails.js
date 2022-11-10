@@ -19,7 +19,7 @@ import Confirm from "Components/common/Confirm";
 import ListingModal from "Components/listings/ListingModal";
 import PurchaseModal from "Components/listings/PurchaseModal";
 import ListingStats from "Components/listings/ListingStats";
-import NFTTransfer from "Components/nft/NFTTransfer";
+//import NFTTransfer from "Components/nft/NFTTransfer";
 import ImageIcon from "Components/common/ImageIcon";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 import {LoginClickGate} from "Components/common/LoginGate";
@@ -269,7 +269,7 @@ const NFTContractSection = ({nftInfo, SetBurned, ShowTransferModal}) => {
             </ButtonWithLoader> : null
         }
       </div>
-      { false && nftInfo.isOwned && !nftInfo.listingId && !nftInfo.heldDate ? <NFTTransfer nft={nftInfo.nft} /> : null }
+      { /* nftInfo.isOwned && !nftInfo.listingId && !nftInfo.heldDate ? <NFTTransfer nft={nftInfo.nft} /> : null } */ }
     </ExpandableSection>
   );
 };
@@ -552,7 +552,7 @@ const NFTActions = observer(({
   const match = useRouteMatch();
 
   const previewMode = match.params.marketplaceId === rootStore.previewMarketplaceId;
-  
+
   if(nftInfo.item) {
     return (
       <div className="details-page__actions">
