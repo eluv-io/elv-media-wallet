@@ -15,7 +15,6 @@ import CopyIcon from "Assets/icons/copy.svg";
 import EmailIcon from "Assets/icons/email icon.svg";
 import MetamaskIcon from "Assets/icons/metamask fox.png";
 
-
 import ActivityIcon from "Assets/icons/header/Activity.svg";
 import StoreIcon from "Assets/icons/header/Store.svg";
 import ItemsIcon from "Assets/icons/header/items icon.svg";

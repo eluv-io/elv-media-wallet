@@ -154,6 +154,18 @@
     }
   }
 
+  @media screen and (max-width: 600px) {
+    &__navigation {
+      justify-content: space-around;
+      width: 100%;
+    }
+
+    .mobile-navigation {
+      margin-left: 30px;
+      position: relative;
+    }
+  }
+
   &__profile {
     align-items: center;
     display: flex;
