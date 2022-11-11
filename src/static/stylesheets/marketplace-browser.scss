@@ -214,6 +214,7 @@
     height: 100%;
     overflow: hidden;
     position: absolute;
+    transition: opacity 0.75s ease;
     width: 100%;
 
     &--back {
@@ -238,5 +239,36 @@
     position: absolute;
     right: 20px;
     z-index: 10;
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    &__banner-container--back {
+      opacity: 0;
+      transform: none;
+    }
+
+    &--flipped {
+      .marketplace-card__content {
+        transform: none;
+        transition-delay: 0s;
+      }
+
+      .marketplace-card__banner-container {
+        &--front {
+          opacity: 0;
+        }
+
+        &--back {
+          opacity: 1;
+        }
+      }
+    }
+
+    &:hover {
+      .marketplace-card__content {
+        transform: none;
+        transition-delay: 0s;
+      }
+    }
   }
 }

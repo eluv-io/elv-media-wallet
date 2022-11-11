@@ -55,10 +55,14 @@ $max-height-icon: 80vh;
     align-items: center;
     color: var(--color-feature-card-text-primary);
     display: flex;
-    font-size: 20px;
-    line-height: 1.5em;
     margin: 20px 0 10px;
     min-height: 50px;
+
+    &,
+    p {
+      font-size: 20px;
+      line-height: 1.5em;
+    }
   }
 
   &__price,
@@ -187,7 +191,10 @@ $max-height-icon: 80vh;
     }
 
     &__description {
-      font-size: 16px;
+      &,
+      p {
+        font-size: 16px;
+      }
     }
   }
 
@@ -201,7 +208,10 @@ $max-height-icon: 80vh;
     }
 
     &__description {
-      font-size: 14px;
+      &,
+      p {
+        font-size: 12px;
+      }
     }
 
     &__side-text {
