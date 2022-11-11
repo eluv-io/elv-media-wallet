@@ -117,7 +117,7 @@ const Profile = observer(() => {
 
         <div className="profile-page__account-info">
           <div className="profile-page__account-info__message">
-            { custodialWallet ? "Signed In As" : "Signed In Via" }
+            { custodialWallet ? "Signed In As" : "Signed In Via Metamask" }
           </div>
           <div className={`profile-page__account-info__account profile-page__account-info__account--${custodialWallet ? "custodial" : "external"}`}>
             {
@@ -175,7 +175,8 @@ const Profile = observer(() => {
               Connected Accounts
             </h2>
 
-            <WalletConnect showPaymentPreference/>
+            <WalletConnect type="phantom" showPaymentPreference />
+            <WalletConnect type="metamask" showPaymentPreference />
           </div>
       }
     </div>

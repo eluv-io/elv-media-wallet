@@ -64,7 +64,15 @@ const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
   );
 };
 
-const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted, usdcOnly, errorMessage, disabled, Continue, Cancel}) => {
+const PurchaseProviderSelection = observer(({
+  paymentOptions,
+  price,
+  usdcOptions={},
+  errorMessage,
+  disabled,
+  Continue,
+  Cancel
+}) => {
   /*
     Notes:
       - Country only needs collecting if ebanx is enabled
@@ -74,16 +82,21 @@ const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted
   */
 
 
+  const usdcAccepted = usdcOptions.SolUSDCAccepted || usdcOptions.EthUSDCAccepted;
+  const usdcOnly = usdcOptions.SolUSDCOnly || usdcOptions.EthUSDCOnly;
+
   const phantomWallet = cryptoStore.WalletFunctions("phantom");
+  const metamaskWallet = cryptoStore.WalletFunctions("metamask");
 
   // card, pix, crypto, wallet-balance
   const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.walletClient.UserInfo()?.email || "";
   const [type, setType] = useState(usdcOnly ? "crypto" : "");
-  const [selectedMethod, setSelectedMethod] = useState(usdcOnly ? "linked-wallet" : "card");
+  const [selectedMethod, setSelectedMethod] = useState(usdcOnly ? "linked-wallet-sol" : "card");
   const [showUSDCOnlyMessage, setShowUSDCOnlyMessage] = useState(false);
   const [email, setEmail] = useState(initialEmail);
   const [country, setCountry] = useState("");
   const [phantomConnected, setPhantomConnected] = useState(cryptoStore.PhantomAddress() && phantomWallet.Connected());
+  const [metamaskConnected, setMetamaskConnected] = useState(metamaskWallet.Connected());
 
   const stripeEnabled = paymentOptions?.stripe?.enabled;
   const ebanxEnabled = paymentOptions?.ebanx?.enabled;
@@ -209,20 +222,37 @@ const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted
               </button>
           }
           {
-            usdcAccepted ?
+            usdcOptions.SolUSDCAccepted ?
               <button
                 onClick={() => {
-                  setSelectedMethod("linked-wallet");
+                  setSelectedMethod("linked-wallet-sol");
                 }}
-                className={`purchase-modal__provider-options__option ${selectedMethod === "linked-wallet" ? "active" : ""}`}
+                className={`purchase-modal__provider-options__option ${selectedMethod === "linked-wallet-sol" ? "active" : ""}`}
               >
                 USDC on Sol
               </button> : null
           }
           {
-            selectedMethod === "linked-wallet" ?
+            usdcOptions.EthUSDCAccepted ?
+              <button
+                onClick={() => {
+                  setSelectedMethod("linked-wallet-eth");
+                }}
+                className={`purchase-modal__provider-options__option ${selectedMethod === "linked-wallet-eth" ? "active" : ""}`}
+              >
+                USDC on Eth
+              </button> : null
+          }
+          {
+            selectedMethod === "linked-wallet-sol" ?
               <div className="purchase-modal__wallet-connect">
-                <WalletConnect onConnect={() => setPhantomConnected(true)} />
+                <WalletConnect type="phantom" onConnect={() => setPhantomConnected(true)} />
+              </div> : null
+          }
+          {
+            selectedMethod === "linked-wallet-eth" ?
+              <div className="purchase-modal__wallet-connect">
+                <WalletConnect type="metamask" onConnect={() => setMetamaskConnected(true)} />
               </div> : null
           }
           {
@@ -247,7 +277,8 @@ const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted
               !rootStore.loggedIn ||
               !selectedMethod ||
               (selectedMethod === "coinbase" && !ValidEmail(email)) ||
-              (selectedMethod === "linked-wallet" && !(phantomConnected || phantomWallet.Connected()))
+              (selectedMethod === "linked-wallet-sol" && !(phantomConnected || phantomWallet.Connected())) ||
+              (selectedMethod === "linked-wallet-eth" && !(metamaskConnected || metamaskWallet.Connected()))
             }
             className="action action-primary purchase-modal__payment-submit"
             onClick={async () => {
@@ -402,7 +433,7 @@ const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted
 });
 
 // Confirmation page for wallet balance purchase and linked wallet USDC payment
-const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedListing, listingId, quantity=1, useLinkedWallet, Cancel}) => {
+const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedListing, listingId, quantity=1, linkedWallet, Cancel}) => {
   const match = useRouteMatch();
   const [errorMessage, setErrorMessage] = useState(undefined);
   const [failed, setFailed] = useState(false);
@@ -419,17 +450,31 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
 
   const total = info.price * quantity;
   const fee = Math.max(1, roundToDown(total * 0.05, 2));
-  const balanceAmount = useLinkedWallet ? cryptoStore.phantomUSDCBalance : rootStore.availableWalletBalance;
-  const balanceName = useLinkedWallet ? "USDC Balance" : "Wallet Balance";
-  const balanceIcon = useLinkedWallet ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC" /> : null;
+
+  let balanceAmount = rootStore.availableWalletBalance;
+  let balanceName = "Wallet Balance";
+  let balanceIcon;
+  if(linkedWallet === "linked-wallet-sol") {
+    balanceName = "USDC Balance (Sol)";
+    balanceAmount = cryptoStore.phantomUSDCBalance;
+    balanceIcon = <ImageIcon icon={USDCIcon} label="USDC" title="USDC" />;
+  } else if(linkedWallet === "linked-wallet-eth") {
+    balanceName = "USDC Balance (Eth)";
+    balanceAmount = cryptoStore.metamaskUSDCBalance;
+    balanceIcon = <ImageIcon icon={USDCIcon} label="USDC" title="USDC" />;
+  }
 
   const insufficientBalance = balanceAmount < total + fee;
 
   useEffect(() => {
-    if(useLinkedWallet) {
+    if(linkedWallet === "linked-wallet-sol") {
       cryptoStore.PhantomBalance();
+    } else if(linkedWallet === "linked-wallet-eth") {
+      cryptoStore.MetamaskBalance();
     }
+  }, [cryptoStore.metamaskAddress, cryptoStore.metamaskChainId, cryptoStore.phantomAddress]);
 
+  useEffect(() => {
     if(!info.stock || !marketplace) { return; }
 
     // If item has stock, periodically update
@@ -530,7 +575,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
               if(selectedListing) {
                 // Listing purchase
                 result = await checkoutStore.ListingCheckoutSubmit({
-                  provider: useLinkedWallet ? "linked-wallet" : "wallet-balance",
+                  provider: linkedWallet || "wallet-balance",
                   marketplaceId: match.params.marketplaceId,
                   listingId,
                   tenantId: selectedListing.details.TenantId
@@ -538,7 +583,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
               } else {
                 // Marketplace purchase
                 result = await checkoutStore.CheckoutSubmit({
-                  provider: useLinkedWallet ? "linked-wallet" : "wallet-balance",
+                  provider: linkedWallet || "wallet-balance",
                   tenantId: marketplace.tenant_id,
                   marketplaceId: match.params.marketplaceId,
                   sku: marketplaceItem.sku,
@@ -592,7 +637,7 @@ const PurchasePayment = observer(({
   quantity,
   setQuantity,
   setUseWalletBalance,
-  setUseLinkedWallet,
+  setLinkedWallet,
   SelectListing,
   Cancel
 }) => {
@@ -644,8 +689,8 @@ const PurchasePayment = observer(({
     if(paymentType === "wallet-balance") {
       setUseWalletBalance(true);
       return;
-    } else if(paymentType === "linked-wallet") {
-      setUseLinkedWallet(true);
+    } else if(["linked-wallet-sol", "linked-wallet-eth"].includes(paymentType)) {
+      setLinkedWallet(paymentType);
       return;
     }
 
@@ -753,8 +798,7 @@ const PurchasePayment = observer(({
         paymentOptions={marketplacePaymentOptions}
         price={FormatPriceString(info.price || 0, {quantity, stringOnly: true})}
         errorMessage={errorMessage}
-        usdcAccepted={selectedListing?.details?.USDCAccepted}
-        usdcOnly={selectedListing?.details?.USDCOnly}
+        usdcOptions={selectedListing?.details}
         disabled={(type === "listing" && !selectedListingId) || !info.available || info.outOfStock || failed}
         Continue={Continue}
         Cancel={Cancel}
@@ -767,7 +811,7 @@ let timeout;
 const PurchaseModal = observer(({nft, item, initialListingId, type="marketplace", Close}) => {
   const [loadKey, setLoadKey] = useState(0);
   const [useWalletBalance, setUseWalletBalance] = useState(false);
-  const [useLinkedWallet, setUseLinkedWallet] = useState(false);
+  const [linkedWallet, setLinkedWallet] = useState(undefined);
   const [selectedListing, setSelectedListing] = useState();
   const [selectedListingId, setSelectedListingId] = useState(type === "marketplace" ? "marketplace" : initialListingId);
   const [quantity, setQuantity] = useState(1);
@@ -794,13 +838,13 @@ const PurchaseModal = observer(({nft, item, initialListingId, type="marketplace"
   let content;
   if(type === "listing" && !selectedListing) {
     content = <PageLoader />;
-  } else if(useWalletBalance || useLinkedWallet) {
+  } else if(useWalletBalance || linkedWallet) {
     // Purchase confirmation screen - not used for stripe/coinbase checkout
     content = (
       <PurchaseBalanceConfirmation
         key={`listing-${loadKey}`}
         type={type}
-        useLinkedWallet={useLinkedWallet}
+        linkedWallet={linkedWallet}
         nft={nft}
         marketplaceItem={item}
         selectedListing={selectedListing}
@@ -808,7 +852,7 @@ const PurchaseModal = observer(({nft, item, initialListingId, type="marketplace"
         quantity={selectedListingId === "marketplace" ? quantity : 1}
         Cancel={() => {
           setUseWalletBalance(false);
-          setUseLinkedWallet(false);
+          setLinkedWallet(undefined);
         }}
       />
     );
@@ -830,7 +874,7 @@ const PurchaseModal = observer(({nft, item, initialListingId, type="marketplace"
         }}
         quantity={selectedListingId === "marketplace" ? quantity : 1}
         setQuantity={setQuantity}
-        setUseLinkedWallet={setUseLinkedWallet}
+        setLinkedWallet={setLinkedWallet}
         setUseWalletBalance={setUseWalletBalance}
         Cancel={() => Close()}
       />

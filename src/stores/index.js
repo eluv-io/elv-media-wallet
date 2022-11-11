@@ -358,6 +358,8 @@ class RootStore {
 
           return;
         }
+      } else if(externalWallet === "Metamask") {
+        //yield this.cryptoStore.ActivateEluvioChain();
       }
 
       this.authToken = undefined;
