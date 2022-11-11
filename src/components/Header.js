@@ -23,7 +23,7 @@ import ProjectsIcon from "Assets/icons/header/New Projects_Marketplaces icon.svg
 import PreferencesIcon from "Assets/icons/header/Preferences icon.svg";
 import WalletIcon from "Assets/icons/header/wallet icon v2.svg";
 import ProfileIcon from "Assets/icons/header/profile icon v2.svg";
-import CollectionsIcon from "Assets/icons/header/Collections Icon 2.svg";
+import CollectionsIcon from "Assets/icons/header/collections icon.svg";
 import LeaderboardIcon from "Assets/icons/header/Leaderboard.svg";
 
 
@@ -343,7 +343,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
     ];
   } else {
     const tabs = fullMarketplace?.branding?.tabs || {};
-    const hasCollections = !fullMarketplace || !fullMarketplace.collections || fullMarketplace.collections.length === 0;
+    const hasCollections = fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0;
 
     links = [
       { name: "Profile", icon: ProfileIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items"), authed: true },
