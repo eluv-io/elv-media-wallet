@@ -61,7 +61,7 @@ const CryptoDepositModal = observer(({type="metamask", Close}) => {
         <div className="crypto-deposit__summary">
           <label className="crypto-deposit__summary__label">Pending Deposit Estimate</label>
           <div className="crypto-deposit__summary__price">
-            { FormatPriceString({USD: amountUSD}) } USD
+            { FormatPriceString(amountUSD) } USD
           </div>
           <a href="https://google.com" rel="noopener" target="_blank" className="crypto-deposit__summary__link">
             View this transaction on etherscan

@@ -170,6 +170,14 @@
     }
   }
 
+  &-borderless {
+    border: 0;
+  }
+
+  &-transparent {
+    background: transparent;
+  }
+
   &:disabled {
     opacity: 0.5;
   }

@@ -5,7 +5,7 @@ import Modal from "Components/common/Modal";
 import {ButtonWithLoader, FormatPriceString, Select} from "Components/common/UIComponents";
 import {roundToUp} from "round-to";
 
-const supportedCountries = [["US","United States of America"], ["AR","Argentina"],["AU","Australia"],["AT","Austria"],["BE","Belgium"],["BO","Bolivia"],["BG","Bulgaria"],["CA","Canada"],["CL","Chile"],["CO","Colombia"],["CR","Costa Rica"],["HR","Croatia"],["CY","Cyprus"],["CZ","Czech Republic"],["DK","Denmark"],["DO","Dominican Republic"],["EG","Egypt"],["EE","Estonia"],["FI","Finland"],["FR","France"],["GM","Gambia"],["DE","Germany"],["GR","Greece"],["HK","Hong Kong"],["HU","Hungary"],["IS","Iceland"],["IN","India"],["ID","Indonesia"],["IE","Ireland"],["IL","Israel"],["IT","Italy"],["KE","Kenya"],["LV","Latvia"],["LI","Liechtenstein"],["LT","Lithuania"],["LU","Luxembourg"],["MT","Malta"],["MX","Mexico"],["NL","Netherlands"],["NZ","New Zealand"],["NO","Norway"],["PY", "Paraguay"],["PE","Peru"],["PH","Phillipines"],["PL","Poland"],["PT","Portugal"],["RO","Romania"],["SA","Saudi Arabia"],["RS","Serbia"],["SG","Singapore"],["SK","Slovakia"],["SI","Slovenia"],["ZA","South Africa"],["KR","South Korea"],["ES","Spain"],["SE","Sweden"],["CH","Switzerland"],["TH","Thailand"],["TT","Trinidad & Tobago"],["TR","Turkey"],["AE","United Arab Emirates"],["GB","United Kingdom"],["UY", "Uruguay"]];
+import SupportedCountries from "../../utils/SupportedCountries";
 
 export const WithdrawalSetupModal = observer(({Close}) => {
   const [errorMessage, setErrorMessage] = useState(undefined);
@@ -27,7 +27,7 @@ export const WithdrawalSetupModal = observer(({Close}) => {
             containerClassName="withdrawal-confirmation__country-select"
             options={[
               ["", "Select a Country"],
-              ...supportedCountries
+              ...SupportedCountries.stripe
             ]}
           />
           {
@@ -76,16 +76,16 @@ export const WithdrawalModal = observer(({Close}) => {
           <h1 className="withdrawal-confirmation__header">Withdraw Funds</h1>
           <div className="withdrawal-confirmation__content">
             <div className="withdrawal-confirmation__message">
-              {FormatPriceString({USD: payout})} successfully transferred to your account
+              {FormatPriceString(payout)} successfully transferred to your account
             </div>
             <div className="withdrawal-confirmation__details">
               <div className="withdrawal-confirmation__detail">
                 <label>Total Payout</label>
-                <div>{FormatPriceString({USD: payout})}</div>
+                <div>{FormatPriceString(payout)}</div>
               </div>
               <div className="withdrawal-confirmation__detail">
                 <label>Remaining Withdrawable Funds</label>
-                <div>{FormatPriceString({USD: rootStore.withdrawableWalletBalance})}</div>
+                <div>{FormatPriceString(rootStore.withdrawableWalletBalance)}</div>
               </div>
             </div>
             <div className="withdrawal-confirmation__actions">
@@ -121,7 +121,7 @@ export const WithdrawalModal = observer(({Close}) => {
                   {
                     parsedAmount > rootStore.withdrawableWalletBalance ?
                       <div className="withdrawal-confirmation__input-error">
-                        Maximum withdrawable balance is {FormatPriceString({USD: rootStore.withdrawableWalletBalance})}
+                        Maximum withdrawable balance is {FormatPriceString(rootStore.withdrawableWalletBalance)}
                       </div> : null
                   }
                 </div>
@@ -130,24 +130,24 @@ export const WithdrawalModal = observer(({Close}) => {
           <div className="withdrawal-confirmation__details">
             <div className="withdrawal-confirmation__detail">
               <label>Available Funds</label>
-              <div>{FormatPriceString({USD: rootStore.withdrawableWalletBalance})}</div>
+              <div>{FormatPriceString(rootStore.withdrawableWalletBalance)}</div>
             </div>
             <div className="withdrawal-confirmation__detail">
               <label>Withdrawn Funds</label>
-              <div>{FormatPriceString({USD: parsedAmount})}</div>
+              <div>{FormatPriceString(parsedAmount)}</div>
             </div>
             <div className="withdrawal-confirmation__detail-separator" />
             <div className="withdrawal-confirmation__detail withdrawal-confirmation__detail-faded">
               <label>Processing Fee</label>
-              <div>{FormatPriceString({USD: (parsedAmount - payout)})}</div>
+              <div>{FormatPriceString((parsedAmount - payout))}</div>
             </div>
             <div className="withdrawal-confirmation__detail">
               <label>Total Payout</label>
-              <div>{FormatPriceString({USD: payout})}</div>
+              <div>{FormatPriceString(payout)}</div>
             </div>
             <div className="withdrawal-confirmation__detail">
               <label>Remaining Funds</label>
-              <div>{FormatPriceString({USD: rootStore.withdrawableWalletBalance - parsedAmount})}</div>
+              <div>{FormatPriceString(rootStore.withdrawableWalletBalance - parsedAmount)}</div>
             </div>
           </div>
           {

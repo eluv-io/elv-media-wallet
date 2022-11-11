@@ -19,7 +19,7 @@ import Confirm from "Components/common/Confirm";
 import ListingModal from "Components/listings/ListingModal";
 import PurchaseModal from "Components/listings/PurchaseModal";
 import ListingStats from "Components/listings/ListingStats";
-import NFTTransfer from "Components/nft/NFTTransfer";
+//import NFTTransfer from "Components/nft/NFTTransfer";
 import ImageIcon from "Components/common/ImageIcon";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 import {LoginClickGate} from "Components/common/LoginGate";
@@ -269,7 +269,7 @@ const NFTContractSection = ({nftInfo, SetBurned, ShowTransferModal}) => {
             </ButtonWithLoader> : null
         }
       </div>
-      { false && nftInfo.isOwned && !nftInfo.listingId && !nftInfo.heldDate ? <NFTTransfer nft={nftInfo.nft} /> : null }
+      { /* nftInfo.isOwned && !nftInfo.listingId && !nftInfo.heldDate ? <NFTTransfer nft={nftInfo.nft} /> : null } */ }
     </ExpandableSection>
   );
 };
@@ -360,7 +360,7 @@ const NFTInfoMenu = observer(({nftInfo}) => {
   );
 });
 
-const NFTInfoSection = ({nftInfo, className=""}) => {
+const NFTInfoSection = observer(({nftInfo, className=""}) => {
   const match = useRouteMatch();
 
   let sideText = nftInfo.sideText;
@@ -465,7 +465,7 @@ const NFTInfoSection = ({nftInfo, className=""}) => {
       }
     </div>
   );
-};
+});
 
 const NFTTables = observer(({nftInfo}) => {
   const nft = nftInfo.nft;
@@ -500,7 +500,7 @@ const NFTTables = observer(({nftInfo}) => {
             }}
             CalculateRowValues={transfer => [
               `${Ago(transfer.created * 1000)} ago`,
-              FormatPriceString({USD: transfer.price}),
+              FormatPriceString(transfer.price),
               MiddleEllipsis(transfer.buyer, 14),
               MiddleEllipsis(transfer.seller, 14)
             ]}
@@ -529,7 +529,7 @@ const NFTTables = observer(({nftInfo}) => {
         CalculateRowValues={transfer => [
           `${Ago(transfer.created * 1000)} ago`,
           transfer.token,
-          FormatPriceString({USD: transfer.price}),
+          FormatPriceString(transfer.price),
           MiddleEllipsis(transfer.buyer, 14),
           MiddleEllipsis(transfer.seller, 14)
         ]}
@@ -621,7 +621,7 @@ const NFTActions = observer(({
           onLoginBlocked={ShowModal}
           onClick={ShowModal}
         >
-          Buy Now for {FormatPriceString({USD: nftInfo.nft.details.Price})}
+          Buy Now for {FormatPriceString(nftInfo.nft.details.Price, {stringOnly: true})}
         </LoginClickGate>
         {
           isInCheckout ?
@@ -636,7 +636,7 @@ const NFTActions = observer(({
     if(listingStatus.sale) {
       return (
         <h2 className="details-page__message">
-          This NFT was sold for { FormatPriceString({USD: listingStatus.sale.price}) } on { new Date(listingStatus.sale.created * 1000).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
+          This NFT was sold for { FormatPriceString(listingStatus.sale.price) } on { new Date(listingStatus.sale.created * 1000).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
         </h2>
       );
     } else if(listingStatus.removed) {
@@ -831,7 +831,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
     if(!tab) {
       setTab(nftInfo.hasAdditionalMedia && nftInfo.isOwned ? "Media" : nftInfo.hasOffers ? "Offers" : "Trading");
     }
-  }, [nft, listingStatus]);
+  }, [nft, listingStatus, checkoutStore.currency]);
 
   // Redirects
 

@@ -77,7 +77,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
               {
                 priceFloor && parsedPrice < priceFloor ?
                   <div className="listing-modal__form__error">
-                    Minimum listing price is { FormatPriceString({USD: priceFloor}) }
+                    Minimum listing price is { FormatPriceString(priceFloor) }
                   </div> : null
               }
               {
@@ -94,14 +94,15 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                   <>
                     <div className="listing-modal__detail listing-modal__detail-faded">
                       <label>Creator Royalty</label>
-                      <div>${royaltyFee.toFixed(2)}</div>
+                      {FormatPriceString(royaltyFee)}
                     </div>
                     <div className="listing-modal__detail listing-modal__detail--bold">
                       <label>Total Payout</label>
                       <div
                         className="listing-modal__payout"
                       >
-                        {cryptoStore.usdcConnected ? <ImageIcon icon={USDCIcon} title="USDC Available"/> : null} ${Math.max(0, payout).toFixed(2)}
+                        {cryptoStore.usdcConnected ? <ImageIcon icon={USDCIcon} title="USDC Available"/> : null}
+                        {FormatPriceString(Math.max(0, payout))}
                       </div>
                     </div>
                   </> : <Loader/>
@@ -137,7 +138,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                   }
                 }}
               >
-                List now for { FormatPriceString({USD: parsedPrice}) }
+                List now for { FormatPriceString(parsedPrice, {stringOnly: true}) }
               </ButtonWithLoader>
               {
                 nft.details.ListingId ?

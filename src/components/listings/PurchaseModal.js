@@ -10,13 +10,13 @@ import ImageIcon from "Components/common/ImageIcon";
 import {roundToDown} from "round-to";
 import WalletConnect from "Components/crypto/WalletConnect";
 import {PageLoader} from "Components/common/Loaders";
-import {NFTInfo, ValidEmail} from "../../utils/Utils";
+import {NFTInfo, ScrollTo, ValidEmail} from "../../utils/Utils";
+import SupportedCountries from "../../utils/SupportedCountries";
 
 import PlusIcon from "Assets/icons/plus.svg";
 import MinusIcon from "Assets/icons/minus.svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 import HelpIcon from "Assets/icons/help-circle.svg";
-
 
 const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
   if(maxQuantity <= 1) { return null; }
@@ -64,116 +64,347 @@ const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
   );
 };
 
-const PurchaseProviderSelection = observer(({price, usdcAccepted, usdcOnly, errorMessage, disabled, Continue, Cancel}) => {
+const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted, usdcOnly, errorMessage, disabled, Continue, Cancel}) => {
+  /*
+    Notes:
+      - Country only needs collecting if ebanx is enabled
+        - If ebanx is disabled but stripe is enabled, only one step needed for CC
+      - Pix is only available if ebanx is enabled
+      - If usdcOnly is specified, go directly to crypto + linked wallet
+  */
+
+
+  const phantomWallet = cryptoStore.WalletFunctions("phantom");
+
+  // card, pix, crypto, wallet-balance
   const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.walletClient.UserInfo()?.email || "";
-  const [paymentType, setPaymentType] = useState(usdcOnly || (usdcAccepted && cryptoStore.usdcOnly) ? "linked-wallet" : "stripe");
-  const [email, setEmail] = useState(initialEmail);
+  const [type, setType] = useState(usdcOnly ? "crypto" : "");
+  const [selectedMethod, setSelectedMethod] = useState(usdcOnly ? "linked-wallet" : "card");
   const [showUSDCOnlyMessage, setShowUSDCOnlyMessage] = useState(false);
+  const [email, setEmail] = useState(initialEmail);
+  const [country, setCountry] = useState("");
+  const [phantomConnected, setPhantomConnected] = useState(cryptoStore.PhantomAddress() && phantomWallet.Connected());
 
-  const wallet = cryptoStore.WalletFunctions("phantom");
-  const connected = paymentType !== "linked-wallet" || cryptoStore.PhantomAddress() && wallet.Connected();
+  const stripeEnabled = paymentOptions?.stripe?.enabled;
+  const ebanxEnabled = paymentOptions?.ebanx?.enabled;
+  const pixEnabled = ebanxEnabled && paymentOptions?.ebanx?.pix_enabled;
+  const coinbaseEnabled = paymentOptions?.coinbase?.enabled;
 
-  const requiresEmail = ["coinbase"].includes(paymentType);
-  const externalPayment = ["stripe", "coinbase"].includes(paymentType);
+  const UpdateCountry = (countryCode) => {
+    setCountry(countryCode);
+
+    if(countryCode === "other") {
+      setSelectedMethod("stripe");
+    } else {
+      setSelectedMethod("ebanx");
+    }
+  };
+
+  let options;
+  switch(type) {
+    case "card":
+      // Credit card selected, ebanx enabled - Must collect country
+      let ebanxAvailableCountries = [];
+
+      if(paymentOptions?.ebanx?.allowed_countries?.length > 0) {
+        ebanxAvailableCountries = SupportedCountries.ebanx.filter(([code]) => paymentOptions.ebanx.allowed_countries.includes(code));
+      } else {
+        ebanxAvailableCountries = SupportedCountries.ebanx;
+      }
+
+      // Unless ebanx is preferred, remove options where stripe is available
+      if(stripeEnabled && !paymentOptions?.ebanx?.preferred) {
+        ebanxAvailableCountries = ebanxAvailableCountries.filter(([code]) => !SupportedCountries.stripe.find(([otherCode]) => code === otherCode));
+      }
+
+      options = (
+        <>
+          <div className="purchase-modal__payment-message">
+            Buy with Credit Card
+          </div>
+          <div className="purchase-modal__provider-options">
+            <div className="purchase-modal__additional-fields">
+              <div className="purchase-modal__payment-message">
+                Please select your country
+              </div>
+              {
+                ebanxAvailableCountries.map(([code, name]) => (
+                  <button
+                    key={`country-select-${code}`}
+                    onClick={() => UpdateCountry(code)}
+                    className={`purchase-modal__provider-options__option ${country === code ? "active" : ""}`}
+                  >
+                    { name }
+                  </button>
+                ))
+              }
+
+              {
+                stripeEnabled ?
+                  <button
+                    onClick={() => UpdateCountry("other")}
+                    className={`purchase-modal__provider-options__option ${country === "other" ? "active" : ""}`}
+                  >
+                    All Other Countries
+                  </button> : null
+              }
+            </div>
+          </div>
+          <ButtonWithLoader
+            disabled={disabled || !rootStore.loggedIn || !country}
+            className="action action-primary purchase-modal__payment-submit"
+            onClick={async () => {
+              await Continue({
+                paymentType: selectedMethod,
+                email,
+                additionalParameters: selectedMethod === "stripe" ?
+                  {} :
+                  {
+                    country_code: country.toLowerCase(),
+                    payment_method: "_creditcard"
+                  }
+              });
+            }}
+          >
+            { `Buy now for ${price}` }
+          </ButtonWithLoader>
+          <button
+            className="action purchase-modal__payment-cancel"
+            onClick={() => {
+              setSelectedMethod("");
+              setType("");
+            }}
+            disabled={checkoutStore.submittingOrder}
+          >
+            Back
+          </button>
+        </>
+      );
+
+      break;
+
+    case "crypto":
+      options = (
+        <>
+          <div className="purchase-modal__payment-message">
+            Buy with Crypto
+            {
+              usdcOnly ?
+                <button onClick={() => setShowUSDCOnlyMessage(!showUSDCOnlyMessage)} className={`purchase-modal__help-button ${showUSDCOnlyMessage ? "active" : ""}`}>
+                  <ImageIcon icon={HelpIcon} label="Why is only linked wallet available?"/>
+                </button> : null
+            }
+          </div>
+          {
+            usdcOnly && showUSDCOnlyMessage ?
+              <div className="purchase-modal__help-message">
+                The seller has elected to only accept direct purchases with USDC via linked wallet. { cryptoStore.usdcConnected ? null : "Please connect your wallet to purchase this item, or select a different option from the list above." }
+              </div> : null
+          }
+          {
+            usdcOnly || !coinbaseEnabled ? null :
+              <button
+                onClick={() => {
+                  setSelectedMethod("coinbase");
+                }}
+                className={`purchase-modal__provider-options__option ${selectedMethod === "coinbase" ? "active" : ""}`}
+              >
+                Coinbase
+              </button>
+          }
+          {
+            usdcAccepted ?
+              <button
+                onClick={() => {
+                  setSelectedMethod("linked-wallet");
+                }}
+                className={`purchase-modal__provider-options__option ${selectedMethod === "linked-wallet" ? "active" : ""}`}
+              >
+                USDC on Sol
+              </button> : null
+          }
+          {
+            selectedMethod === "linked-wallet" ?
+              <div className="purchase-modal__wallet-connect">
+                <WalletConnect onConnect={() => setPhantomConnected(true)} />
+              </div> : null
+          }
+          {
+            selectedMethod === "coinbase" && !ValidEmail(initialEmail) ?
+              <>
+                <div className="purchase-modal__payment-message">
+                  Email
+                </div>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  className="purchase-modal__email-input"
+                  value={email}
+                  onChange={event => setEmail(event.target.value)}
+                />
+              </> : null
+          }
+          <ButtonWithLoader
+            disabled={
+              disabled ||
+              !rootStore.loggedIn ||
+              !selectedMethod ||
+              (selectedMethod === "coinbase" && !ValidEmail(email)) ||
+              (selectedMethod === "linked-wallet" && !(phantomConnected || phantomWallet.Connected()))
+            }
+            className="action action-primary purchase-modal__payment-submit"
+            onClick={async () => {
+              await Continue({paymentType: selectedMethod, email});
+            }}
+          >
+            {
+              selectedMethod === "coinbase" ?
+                `Buy now for ${price}` :
+                "Continue"
+            }
+          </ButtonWithLoader>
+          {
+            usdcOnly ? null :
+              <button
+                className="action purchase-modal__payment-cancel"
+                onClick={() => {
+                  setSelectedMethod("");
+                  setType("");
+                }}
+                disabled={checkoutStore.submittingOrder}
+              >
+                Back
+              </button>
+          }
+        </>
+      );
+
+      break;
+
+    case "wallet-balance":
+      options = (
+        <>
+          <div className="purchase-modal__payment-message">Buy with Wallet Balance</div>
+        </>
+      );
+
+      break;
+
+    default:
+      options = (
+        <>
+          <div className="purchase-modal__payment-message">Buy with</div>
+          <div className="purchase-modal__provider-options">
+            {
+              stripeEnabled || ebanxEnabled ?
+                <button
+                  onClick={() => {
+                    setSelectedMethod("card");
+                  }}
+                  className={`purchase-modal__provider-options__option ${selectedMethod === "card" ? "active" : ""}`}
+                >
+                  Credit Card
+                </button> : null
+            }
+            {
+              ebanxEnabled && pixEnabled ?
+                <button
+                  onClick={() => {
+                    setSelectedMethod("pix");
+                  }}
+                  className={`purchase-modal__provider-options__option ${selectedMethod === "pix" ? "active" : ""}`}
+                >
+                  Pix
+                </button> :
+                null
+            }
+            {
+              coinbaseEnabled || usdcAccepted ?
+                <button
+                  onClick={() => {
+                    setSelectedMethod("crypto");
+                  }}
+                  className={`purchase-modal__provider-options__option ${selectedMethod === "crypto" ? "active" : ""}`}
+                >
+                  Crypto
+                </button> :
+                null
+            }
+            <button
+              onClick={() => {
+                setSelectedMethod("wallet-balance");
+              }}
+              className={`purchase-modal__provider-options__option ${selectedMethod === "wallet-balance" ? "active" : ""}`}
+            >
+              Wallet Balance
+            </button>
+          </div>
+          <ButtonWithLoader
+            disabled={disabled || !rootStore.loggedIn || !selectedMethod}
+            className="action action-primary purchase-modal__payment-submit"
+            onClick={async () => {
+              if(stripeEnabled && !ebanxEnabled && selectedMethod === "card") {
+                await Continue({paymentType: "stripe"});
+              } else if(selectedMethod === "pix") {
+                await Continue({
+                  paymentType: "ebanx",
+                  additionalParameters: {
+                    country_code: "br",
+                    payment_method: "pix"
+                  }
+                });
+              } else if(selectedMethod === "crypto" && !usdcAccepted && ValidEmail(email)) {
+                await Continue({paymentType: "coinbase", email});
+              } else if(selectedMethod === "wallet-balance") {
+                await Continue({paymentType: "wallet-balance"});
+              } else {
+                setType(selectedMethod);
+
+                if(selectedMethod === "crypto" && !usdcAccepted) {
+                  setSelectedMethod("coinbase");
+                } else {
+                  setSelectedMethod("");
+                }
+              }
+            }}
+          >
+            {
+              // Pix is only available in brazil
+              selectedMethod === "pix" ||
+              // Stripe doesn't need any additional info
+              (stripeEnabled && !ebanxEnabled && selectedMethod === "card") ||
+              // If coinbase is the only option and we already have the user's email, we can proceed
+              (selectedMethod === "crypto" && !usdcAccepted && ValidEmail(email)) ?
+                `Buy now for ${price}` :
+                "Continue"
+            }
+          </ButtonWithLoader>
+          <button
+            className="action purchase-modal__payment-cancel"
+            onClick={() => Cancel()}
+            disabled={checkoutStore.submittingOrder}
+          >
+            Back
+          </button>
+        </>
+      );
+  }
 
   return (
     <div className="purchase-modal__payment-options">
+
+      { options }
+
       {
-        !initialEmail && requiresEmail ?
-          <>
-            <div className="purchase-modal__payment-message">
-              Email
-            </div>
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              className="purchase-modal__email-input"
-              value={email}
-              onChange={event => setEmail(event.target.value)}
-            />
-          </>: null
-      }
-      <div className="purchase-modal__payment-message">
-        Buy with
-        {
-          usdcOnly ?
-            <button onClick={() => setShowUSDCOnlyMessage(!showUSDCOnlyMessage)}>
-              <ImageIcon icon={HelpIcon} label="Why is only linked wallet available?"/>
-            </button> : null
-        }
-      </div>
-      <div className="purchase-modal__payment-selection-container">
-        {
-          usdcOnly ? null :
-            <>
-              <button
-                onClick={() => setPaymentType("stripe")}
-                className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-credit-card ${paymentType === "stripe" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
-              >
-                Credit Card
-              </button>
-              <button
-                onClick={() => setPaymentType("coinbase")}
-                className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-crypto ${paymentType === "coinbase" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
-              >
-                Crypto
-              </button>
-              <button
-                onClick={() => setPaymentType("wallet-balance")}
-                className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-wallet-balance ${paymentType === "wallet-balance" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
-              >
-                Wallet Balance
-              </button>
-            </>
-        }
-        {
-          usdcAccepted ?
-            <button
-              onClick={() => setPaymentType("linked-wallet")}
-              className={`action action-selection purchase-modal__payment-selection purchase-modal__payment-selection-linked-wallet ${paymentType === "linked-wallet" ? "action-selection--active purchase-modal__payment-selection--selected" : ""}`}
-            >
-              Linked Wallet
-            </button> : null
-        }
-      </div>
-      {
-        usdcOnly && showUSDCOnlyMessage ?
-          <div className="purchase-modal__help-message">
-            The seller has elected to only accept direct purchases with USDC via linked wallet. { cryptoStore.usdcConnected ? null : "Please connect your wallet to purchase this item, or select a different option from the list above." }
-          </div> : null
-      }
-      { paymentType === "linked-wallet" ? <div className="purchase-modal__wallet-connect"><WalletConnect /></div> : null }
-      <ButtonWithLoader
-        disabled={disabled || !connected || (requiresEmail && !ValidEmail(email))}
-        className="action action-primary purchase-modal__payment-submit"
-        onClick={async () => await Continue(paymentType, email)}
-      >
-        {
-          externalPayment ?
-            price ?
-              `Buy Now for ${price}` :
-              "Buy Now" :
-            "Continue"
-        }
-      </ButtonWithLoader>
-      <button
-        className="action purchase-modal__payment-cancel"
-        onClick={() => Cancel()}
-        disabled={checkoutStore.submittingOrder}
-      >
-        Back
-      </button>
-      {
-        errorMessage ?
+        errorMessage || !rootStore.loggedIn ?
           <div className="purchase-modal__error-message">
-            { errorMessage }
+            { errorMessage || "You must be logged in to complete this purchase." }
           </div> : null
       }
     </div>
   );
 });
-
 
 // Confirmation page for wallet balance purchase and linked wallet USDC payment
 const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedListing, listingId, quantity=1, useLinkedWallet, Cancel}) => {
@@ -243,7 +474,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
             { nft.metadata.display_name } { quantity > 1 ? <div className="purchase-modal__quantity">&nbsp;x {quantity}</div> : "" }
           </div>
           <div className="purchase-modal__order-price">
-            { FormatPriceString({USD: total}) }
+            { FormatPriceString(total) }
           </div>
         </div>
         <div className="purchase-modal__order-line-item">
@@ -251,7 +482,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
             Service Fee
           </div>
           <div className="purchase-modal__order-price">
-            { FormatPriceString({USD: fee}) }
+            { FormatPriceString(fee) }
           </div>
         </div>
         <div className="purchase-modal__order-separator" />
@@ -260,7 +491,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
             Total
           </div>
           <div className="purchase-modal__order-price">
-            { FormatPriceString({USD: total + fee}) }
+            { FormatPriceString(total + fee) }
           </div>
         </div>
       </div>
@@ -270,7 +501,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
             Available { balanceName }
           </div>
           <div className="purchase-modal__order-price">
-            {FormatPriceString({USD: balanceAmount || 0})}
+            {FormatPriceString(balanceAmount || 0, {vertical: true})}
           </div>
         </div>
         <div className="purchase-modal__order-line-item">
@@ -278,7 +509,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
             Current Purchase
           </div>
           <div className="purchase-modal__order-price">
-            {FormatPriceString({USD: total + fee})}
+            {FormatPriceString(total + fee, {vertical: true})}
           </div>
         </div>
         <div className="purchase-modal__order-separator"/>
@@ -288,7 +519,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
           </div>
           <div className="purchase-modal__order-price">
             { balanceIcon }
-            {FormatPriceString({USD: balanceAmount - (total + fee)})}
+            {FormatPriceString(balanceAmount - (total + fee), {vertical: true})}
           </div>
         </div>
       </div>
@@ -383,6 +614,8 @@ const PurchasePayment = observer(({
     listing: selectedListing
   });
 
+  const marketplacePaymentOptions = marketplace?.payment_options || { stripe: { enabled: true }, coinbase: { enabled: true }, ebanx: { enabled: false }};
+
   const maxPerCheckout = marketplaceItem?.max_per_checkout || 25;
   const maxPerUser = (info.stock && info.stock.max_per_user && (info.stock.max_per_user - info.stock.current_user)) || 25;
   const quantityAvailable = (info.stock && (info.stock.max - info.stock.minted)) || 25;
@@ -412,7 +645,7 @@ const PurchasePayment = observer(({
   }, [purchaseStatus]);
 
 
-  const Continue = async (paymentType, email) => {
+  const Continue = async ({paymentType, email, additionalParameters={}}) => {
     if(paymentType === "wallet-balance") {
       setUseWalletBalance(true);
       return;
@@ -432,7 +665,8 @@ const PurchasePayment = observer(({
           marketplaceId: match.params.marketplaceId,
           listingId: selectedListingId,
           tenantId: selectedListing.details.TenantId,
-          email
+          email,
+          additionalParameters
         });
       } else {
         // Marketplace purchase
@@ -442,7 +676,8 @@ const PurchasePayment = observer(({
           marketplaceId: match.params.marketplaceId,
           sku: marketplaceItem.sku,
           quantity,
-          email
+          email,
+          additionalParameters
         });
       }
 
@@ -482,7 +717,7 @@ const PurchasePayment = observer(({
             <div className="purchase-modal__price-details">
               <QuantityInput quantity={quantity} setQuantity={setQuantity} maxQuantity={maxQuantity}/>
               <div className="purchase-modal__price-details__price">
-                {FormatPriceString(info.price, {quantity, includeCurrency: true})}
+                {FormatPriceString(info.price || 0, {quantity, includeCurrency: true})}
               </div>
             </div> : null) :
           <>
@@ -498,7 +733,7 @@ const PurchasePayment = observer(({
                         Highest Price
                       </div>
                       <div className="purchase-modal__stat__price">
-                        {FormatPriceString({USD: listingStats.max})}
+                        {FormatPriceString(listingStats.max)}
                       </div>
                     </div>
                     <div className="purchase-modal__stat">
@@ -506,7 +741,7 @@ const PurchasePayment = observer(({
                         Lowest Price
                       </div>
                       <div className="purchase-modal__stat__price">
-                        {FormatPriceString({USD: listingStats.min})}
+                        {FormatPriceString(listingStats.min)}
                       </div>
                     </div>
                   </div>
@@ -520,7 +755,8 @@ const PurchasePayment = observer(({
           </>
       }
       <PurchaseProviderSelection
-        price={FormatPriceString(info.price, {quantity})}
+        paymentOptions={marketplacePaymentOptions}
+        price={FormatPriceString(info.price || 0, {quantity, stringOnly: true})}
         errorMessage={errorMessage}
         usdcAccepted={selectedListing?.details?.USDCAccepted}
         usdcOnly={selectedListing?.details?.USDCOnly}
@@ -542,8 +778,7 @@ const PurchaseModal = observer(({nft, item, initialListingId, type="marketplace"
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
-    const modal = document.getElementById("purchase-modal");
-    modal && modal.scrollTo(0, 0);
+    ScrollTo(0, document.getElementById("purchase-modal"));
   }, []);
 
   useEffect(() => {

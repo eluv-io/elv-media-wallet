@@ -43,7 +43,7 @@ const ListingStats = ({mode="listings", filterParams}) => {
           { mode === "listings" ? "Active Listing Value" : "Secondary Sales Volume" }
         </label>
         <div className="stats__value">
-          { FormatPriceString({USD: stats.volume || 0}) }
+          { FormatPriceString(stats.volume || 0, {vertical: true}) }
         </div>
       </div>
       <div className="stats__item">
@@ -51,7 +51,7 @@ const ListingStats = ({mode="listings", filterParams}) => {
           { mode === "listings" ? "Average Listing Price" : "Average Price" }
         </label>
         <div className="stats__value">
-          { FormatPriceString({USD: stats.avg || 0}) }
+          { FormatPriceString(stats.avg || 0, {vertical: true}) }
         </div>
       </div>
       <div className="stats__item">
@@ -59,7 +59,7 @@ const ListingStats = ({mode="listings", filterParams}) => {
           Highest Price
         </label>
         <div className="stats__value">
-          { FormatPriceString({USD: stats.max || 0}) }
+          { FormatPriceString(stats.max || 0, {vertical: true}) }
         </div>
       </div>
       <div className="stats__item">
@@ -67,7 +67,7 @@ const ListingStats = ({mode="listings", filterParams}) => {
           Lowest Price
         </label>
         <div className="stats__value">
-          { FormatPriceString({USD: stats.min || 0}) }
+          { FormatPriceString(stats.min || 0, {vertical: true}) }
         </div>
       </div>
     </div>

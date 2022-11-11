@@ -46,6 +46,7 @@
     font-size: 18px;
     justify-content: center;
     letter-spacing: 0.03em;
+    line-height: 1.4em;
     padding: 15px 10px 10px;
     text-align: center;
     text-transform: uppercase;
@@ -200,6 +201,16 @@
     overflow: hidden;
     padding: 10px 15px;
     text-align: center;
+
+    .formatted-price {
+      gap: 0 5px; // sass-lint:disable-line no-misspelled-properties
+      margin: 0 auto;
+      width: max-content;
+
+      &--vertical {
+        margin: 0 auto;
+      }
+    }
 
     em {
       margin-left: 5px;

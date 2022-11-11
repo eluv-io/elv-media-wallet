@@ -121,7 +121,7 @@ export const ActiveListings = observer(({contractAddress, selectedListingId, sho
                     }
                   </>
               }
-              {FormatPriceString(listing.details.Price)}
+              {FormatPriceString(listing.details.Price, {vertical: true})}
             </>,
             MiddleEllipsis(listing.details.SellerAddress, 14)
           ]
@@ -192,7 +192,7 @@ export const PendingPaymentsTable = observer(({icon, header, limit, className=""
                       { TimeDiff((transfer.created * 1000 + week - Date.now()) / 1000) }
                     </div>
                     <div className="transfer-table__table__cell">
-                      { FormatPriceString({USD: transfer.amount}) }
+                      { FormatPriceString(transfer.amount) }
                     </div>
                   </div>
                 )
@@ -203,9 +203,26 @@ export const PendingPaymentsTable = observer(({icon, header, limit, className=""
   );
 });
 
-export const UserTransferTable = observer(({userAddress, icon, header, limit, marketplaceId, type="sale"}) => {
+export const UserTransferTable = observer(({userAddress, icon, header, limit, type="sale", className=""}) => {
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
+
+  const Processor = record => {
+    let type = record.processor.split(":")[0];
+
+    switch(type) {
+      case "eluvio":
+        return "Wallet Balance";
+      case "stripe":
+        return "Credit Card";
+      case "solana":
+        return "USDC";
+      case "ebanx":
+        return record.processor.startsWith("ebanx:pix") ? "Pix" : "Credit Card";
+      default:
+        return "Crypto";
+    }
+  };
 
   const UpdateHistory = async () => {
     let entries = (await transferStore.UserPaymentsHistory(userAddress))
@@ -214,29 +231,12 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ma
         type:
           !entry.addr && (entry.processor || "").includes("stripe-payout") ?
             "withdrawal" : Utils.EqualAddress(entry.buyer, rootStore.CurrentAddress()) ? "purchase" : "sale",
-        processor:
-          (entry.processor || "").startsWith("eluvio") ? "Wallet Balance" :
-            (entry.processor || "").startsWith("stripe") ? "Credit Card" :
-              entry.processor?.startsWith("solana:p2p") ? "USDC" : "Crypto",
+        processor: Processor(entry),
         pending: !entry.processor?.startsWith("solana:p2p") && Date.now() < entry.created * 1000 + rootStore.salePendingDurationDays * 24 * 60 * 60 * 1000
       }))
       .filter(entry => entry.type === type)
       .filter(entry => entry.type === "withdrawal" || Utils.EqualAddress(rootStore.CurrentAddress(), type === "sale" ? entry.addr : entry.buyer))
       .sort((a, b) => a.created > b.created ? -1 : 1);
-
-    /*
-    if(marketplaceId) {
-      const marketplace = rootStore.marketplaces[marketplaceId];
-      // If marketplace filtered, exclude entries that aren't present in the marketplace
-      entries = entries.filter(entry =>
-        marketplace.items.find(item => Utils.EqualAddress(
-          entry.contract,
-          Utils.SafeTraverse(item, "nft_template", "nft", "address"),
-        ))
-      );
-    }
-
-     */
 
     if(limit) {
       entries = entries.slice(0, limit);
@@ -258,6 +258,7 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ma
     // Withdrawals table
     return (
       <Table
+        className={className}
         loading={loading}
         headerIcon={icon}
         headerText={header}
@@ -272,9 +273,9 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ma
         mobileColumnWidths={[1, 1, 0, 1]}
         entries={
           entries.map(transfer => [
-            FormatPriceString({USD: transfer.amount + transfer.fee}),
-            FormatPriceString({USD: transfer.amount}),
-            FormatPriceString({USD: transfer.fee}),
+            FormatPriceString(transfer.amount + transfer.fee, {excludeAlternateCurrency: true}),
+            FormatPriceString(transfer.amount, {excludeAlternateCurrency: true}),
+            FormatPriceString(transfer.fee, {excludeAlternateCurrency: true}),
             `${Ago(transfer.created * 1000)} ago`
           ])
         }
@@ -282,17 +283,54 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ma
     );
   }
 
+  if(type === "sale") {
+    return (
+      <Table
+        className={className}
+        loading={loading}
+        pagingMode="none"
+        headerIcon={icon}
+        headerText={header}
+        columnHeaders={[
+          "Name",
+          "List Price",
+          "Payout",
+          "Time",
+          "Buyer",
+          "Purchase Method",
+          "Payment Status"
+        ]}
+        columnWidths={[1, 1, 1, "150px", 1, "150px", "150px"]}
+        tabletColumnWidths={[1, 1, 1, "150px", 0, "150px", "150px"]}
+        mobileColumnWidths={[1, 1, 1, 0, 0, 0, 0]}
+        entries={
+          entries.map(transfer => [
+            transfer.name,
+            FormatPriceString(transfer.amount + transfer.royalty, {vertical: true}),
+            FormatPriceString(transfer.amount, {vertical: true}),
+            `${Ago(transfer.created * 1000) } ago`,
+            MiddleEllipsis(transfer.buyer, 14),
+            transfer.processor,
+            transfer.pending ? "Pending" : "Available"
+          ])
+            .filter(field => field)
+        }
+      />
+    );
+  }
+
   return (
     <Table
+      className={className}
       loading={loading}
       pagingMode="none"
       headerIcon={icon}
       headerText={header}
       columnHeaders={[
         "Name",
-        `List Price ${ type === "sale" ? " (Payout)" : ""}`,
+        "List Price",
         "Time",
-        type === "sale" ? "Buyer" : "Seller",
+        "Seller",
         "Purchase Method",
         "Payment Status"
       ]}
@@ -302,9 +340,9 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ma
       entries={
         entries.map(transfer => [
           transfer.name,
-          <>{ FormatPriceString({USD: transfer.amount + transfer.royalty}) } { type === "sale" ? <em>({ FormatPriceString({USD: transfer.amount}) })</em> : null }</>,
+          FormatPriceString(transfer.amount + transfer.royalty, {vertical: true}),
           `${Ago(transfer.created * 1000) } ago`,
-          MiddleEllipsis(type === "sale" ? transfer.buyer : transfer.addr, 14),
+          MiddleEllipsis(transfer.addr, 14),
           transfer.processor,
           transfer.pending ? "Pending" : "Available"
         ])

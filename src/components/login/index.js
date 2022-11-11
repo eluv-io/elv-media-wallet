@@ -8,11 +8,9 @@ import Modal from "Components/common/Modal";
 import Confirm from "Components/common/Confirm";
 import {RichText} from "Components/common/UIComponents";
 
-
-import UpCaretIcon from "Assets/icons/up-caret.svg";
-import DownCaretIcon from "Assets/icons/down-caret.svg";
 import MetamaskIcon from "Assets/icons/metamask fox.png";
-import EluvioLogo from "Assets/icons/logo.svg";
+import EluvioLogo from "Assets/icons/ELUVIO logo (updated nov 2).svg";
+import EluvioPoweredByLogo from "Assets/icons/EluvioLogo2.svg";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 const params = {
@@ -58,7 +56,7 @@ const Logo = ({customizationOptions}) => {
   } else {
     return (
       <div className="login-page__logo-container">
-        <ImageIcon icon={EluvioLogo} className="login-page__logo" title="Eluv.io" />
+        <ImageIcon icon={EluvioLogo} className="login-page__logo login-page__logo--default" title="Eluv.io" />
       </div>
     );
   }
@@ -70,7 +68,8 @@ const PoweredBy = ({customizationOptions}) => {
 
   return (
     <div className="login-page__tagline">
-      <ImageIcon icon={EluvioLogo} className="login-page__tagline__image" title="Eluv.io" />
+      <div className="login-page__tagline__text">powered by</div>
+      <ImageIcon icon={EluvioPoweredByLogo} className="login-page__tagline__image" title="Eluv.io" />
     </div>
   );
 };
@@ -160,8 +159,6 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
 
 // Logo, login buttons, terms and loading indicator
 const Form = observer(({userData, setUserData, customizationOptions, Authenticate}) => {
-  const [showWalletOptions, setShowWalletOptions] = useState(searchParams.has("swl"));
-
   let hasLoggedIn = false;
   try {
     hasLoggedIn = localStorage.getItem("hasLoggedIn");
@@ -188,7 +185,7 @@ const Form = observer(({userData, setUserData, customizationOptions, Authenticat
       disabled={requiredOptionsMissing}
       title={requiredOptionsMissing ? "Please accept the required options below" : undefined}
     >
-      Sign Up
+      SIGN UP
     </button>
   );
 
@@ -205,7 +202,7 @@ const Form = observer(({userData, setUserData, customizationOptions, Authenticat
       disabled={requiredOptionsMissing}
       title={requiredOptionsMissing ? "Please accept the required options below" : undefined}
     >
-      Log In
+      Sign In
     </button>
   );
 
@@ -222,7 +219,7 @@ const Form = observer(({userData, setUserData, customizationOptions, Authenticat
       title={requiredOptionsMissing ? "Please accept the required options below" : undefined}
     >
       <ImageIcon icon={MetamaskIcon} />
-      Metamask
+      Connect Metamask
     </button>
   );
 
@@ -245,20 +242,11 @@ const Form = observer(({userData, setUserData, customizationOptions, Authenticat
 
         <div className="login-page__actions__separator">
           <div className="login-page__actions__separator-line" />
-          <div className="login-page__actions__separator-text">or</div>
+          <div className="login-page__actions__separator-text">Or</div>
           <div className="login-page__actions__separator-line" />
         </div>
 
-        <button className="login-page__wallet-options-toggle" onClick={() => setShowWalletOptions(!showWalletOptions)}>
-          Sign In with 3rd Party Wallet <ImageIcon icon={showWalletOptions ? UpCaretIcon : DownCaretIcon} />
-        </button>
-
-        {
-          showWalletOptions ?
-            <div className="login-page__wallet-actions">
-              { metamaskButton }
-            </div> : null
-        }
+        { metamaskButton }
       </div>
       <PoweredBy customizationOptions={customizationOptions}/>
       <Terms customizationOptions={customizationOptions} userData={userData} setUserData={setUserData}/>
@@ -584,7 +572,9 @@ const Login = observer(({darkMode, Close}) => {
           // eslint-disable-next-line no-empty
         } catch(error) {}
 
-        rootStore.ToggleDarkMode(options.darkMode);
+        if(typeof options.darkMode !== "undefined") {
+          rootStore.ToggleDarkMode(options.darkMode);
+        }
 
         setUserData(initialUserData);
         setCustomizationOptions({...(options || {})});

@@ -41,13 +41,61 @@
     margin-top: 20px;
   }
 
-  &__section-header {
+  &__header {
     color: var(--color-component-text-highlight);
     font: var(--font-component-misc);
-    font-size: 20px;
+    font-size: 24px;
+    font-weight: 500;
     margin-bottom: 10px;
     text-align: center;
     text-transform: uppercase;
+  }
+
+  &__section-header {
+    color: var(--color-component-text-highlight);
+    font: var(--font-component-header);
+    font-size: 18px;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  &__account-info {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 20px;
+
+    svg {
+      height: 25px;
+    }
+
+    &__message {
+      color: var(--color-component-text-secondary);
+    }
+
+    &__account {
+      margin: 10px 0;
+
+      &--custodial {
+        align-items: center;
+        display: flex;
+        padding-right: 10px;
+
+        svg {
+          margin-right: 10px;
+        }
+      }
+
+      &--external {
+        margin-top: 10px;
+
+        svg,
+        img {
+          height: 60px;
+        }
+      }
+    }
   }
 
   &__balance {
@@ -58,6 +106,13 @@
     font-weight: 500;
     justify-content: center;
     text-transform: uppercase;
+  }
+
+  &__address-header {
+    color: var(--color-component-text-highlight);
+    margin-top: 20px;
+    text-align: center;
+    width: 100%;
   }
 
   &__address {
@@ -115,7 +170,7 @@
   }
 
   &__sign-out {
-    margin: 40px 0 0;
+    margin: 20px 0 0;
   }
 
   .action {

@@ -13,6 +13,7 @@ const PUBLIC_KEYS = {
 
 class CheckoutStore {
   currency = "USD";
+  exchangeRates = {};
 
   submittingOrder = false;
 
@@ -49,6 +50,18 @@ class CheckoutStore {
       return Utils.B58(UUIDParse(UUID()));
     }
   }
+
+  SetCurrency = flow(function * ({currency}) {
+    try {
+      if(currency !== "USD") {
+        this.exchangeRates[currency] = yield this.walletClient.ExchangeRate({currency: currency.toLowerCase()});
+      }
+
+      this.currency = currency;
+    } catch(error) {
+      this.Log(error, true);
+    }
+  });
 
   MarketplaceStock = flow(function * ({tenantId}) {
     try {
@@ -377,7 +390,8 @@ class CheckoutStore {
     email,
     address,
     fromEmbed,
-    flowId
+    flowId,
+    additionalParameters={}
   }) {
     if(this.submittingOrder) { return; }
 
@@ -414,6 +428,7 @@ class CheckoutStore {
             listingId,
             confirmationId,
             email,
+            additionalParameters,
             address: this.rootStore.CurrentAddress()
           },
           OnComplete: () => {
@@ -455,13 +470,14 @@ class CheckoutStore {
       }
 
       let requestParams = {
-        currency: this.currency,
+        currency: "USD",
         email,
         client_reference_id: checkoutId,
         elv_addr: address,
         items: [{sku: listingId, quantity: 1}],
         success_url: successUrl,
-        cancel_url: cancelUrl
+        cancel_url: cancelUrl,
+        ...(additionalParameters || {})
       };
 
       if(EluvioConfiguration["purchase-mode"]) {
@@ -505,7 +521,8 @@ class CheckoutStore {
     email,
     address,
     fromEmbed,
-    flowId
+    flowId,
+    additionalParameters={}
   }) {
     if(this.submittingOrder) { return; }
 
@@ -542,6 +559,7 @@ class CheckoutStore {
             quantity,
             confirmationId,
             email,
+            additionalParameters,
             address: this.rootStore.CurrentAddress()
           },
           OnComplete: () => {
@@ -585,13 +603,14 @@ class CheckoutStore {
       }
 
       let requestParams = {
-        currency: this.currency,
+        currency: "USD",
         email,
         client_reference_id: checkoutId,
         elv_addr: address,
         items: [{sku, quantity}],
         success_url: successUrl,
-        cancel_url: cancelUrl
+        cancel_url: cancelUrl,
+        ...(additionalParameters || {})
       };
 
       if(EluvioConfiguration["purchase-mode"]) {
@@ -619,20 +638,18 @@ class CheckoutStore {
     } catch(error) {
       this.rootStore.Log(error, true);
 
-      const message = error?.uiMessage || "This item is out of stock";
-
       if([403, 409].includes(error.status)) {
         this.PurchaseComplete({confirmationId, success: false, message});
 
         throw {
           recoverable: false,
-          uiMessage: message
+          uiMessage: error?.uiMessage || "This item is out of stock"
         };
       } else {
         this.PurchaseComplete({confirmationId, success: false, message});
         throw {
           recoverable: !!error?.recoverable,
-          uiMessage: message
+          uiMessage: error?.uiMessage || "Purchase Failed"
         };
       }
     } finally {
@@ -641,91 +658,127 @@ class CheckoutStore {
   });
 
   CheckoutRedirect = flow(function * ({provider, requestParams, confirmationId, BeforeRedirect}) {
-    if(provider === "stripe") {
-      const sessionId = (yield this.client.utils.ResponseToJson(
-        this.client.authClient.MakeAuthServiceRequest({
-          method: "POST",
-          path: UrlJoin("as", "checkout", "stripe"),
-          body: requestParams,
-          headers: {
-            Authorization: `Bearer ${this.rootStore.authToken}`
-          }
-        })
-      )).session_id;
+    switch(provider) {
+      case "stripe":
+        const sessionId = (yield this.client.utils.ResponseToJson(
+          this.client.authClient.MakeAuthServiceRequest({
+            method: "POST",
+            path: UrlJoin("as", "checkout", "stripe"),
+            body: requestParams,
+            headers: {
+              Authorization: `Bearer ${this.rootStore.authToken}`
+            }
+          })
+        )).session_id;
 
-      const stripeKey = EluvioConfiguration["purchase-mode"] && EluvioConfiguration["purchase-mode"] !== "production" ?
-        PUBLIC_KEYS.stripe.test :
-        PUBLIC_KEYS.stripe.production;
+        const stripeKey = EluvioConfiguration["purchase-mode"] && EluvioConfiguration["purchase-mode"] !== "production" ?
+          PUBLIC_KEYS.stripe.test :
+          PUBLIC_KEYS.stripe.production;
 
-      // Redirect to stripe
-      const {loadStripe} = yield import("@stripe/stripe-js/pure");
-      const stripe = yield loadStripe(stripeKey);
+        // Redirect to stripe
+        const {loadStripe} = yield import("@stripe/stripe-js/pure");
+        const stripe = yield loadStripe(stripeKey);
 
-      yield BeforeRedirect && BeforeRedirect();
+        yield BeforeRedirect && BeforeRedirect();
 
-      yield stripe.redirectToCheckout({sessionId});
-    } else if(provider === "coinbase") {
-      const chargeCode = (yield this.client.utils.ResponseToJson(
-        this.client.authClient.MakeAuthServiceRequest({
-          method: "POST",
-          path: UrlJoin("as", "checkout", "coinbase"),
-          body: requestParams,
-          headers: {
-            Authorization: `Bearer ${this.rootStore.authToken}`
-          }
-        })
-      )).charge_code;
+        yield stripe.redirectToCheckout({sessionId});
 
-      yield BeforeRedirect && BeforeRedirect();
+        break;
 
-      window.location.href = UrlJoin("https://commerce.coinbase.com/charges", chargeCode);
-    } else if(provider === "wallet-balance") {
-      yield this.client.authClient.MakeAuthServiceRequest({
-        method: "POST",
-        path: UrlJoin("as", "wlt", "mkt", "bal", "pay"),
-        body: requestParams,
-        headers: {
-          Authorization: `Bearer ${this.rootStore.authToken}`
+      case "ebanx":
+        const redirectUrl = (yield this.client.utils.ResponseToJson(
+          this.client.authClient.MakeAuthServiceRequest({
+            method: "POST",
+            path: UrlJoin("as", "checkout", "ebanx"),
+            body: {
+              ...requestParams,
+              name: ""
+            },
+            headers: {
+              Authorization: `Bearer ${this.rootStore.authToken}`
+            }
+          })
+        )).redirect_url;
+
+        yield BeforeRedirect && BeforeRedirect();
+
+        window.location.href = UrlJoin(redirectUrl);
+
+        yield new Promise(resolve => setTimeout(resolve, 5000));
+
+        break;
+
+      case "coinbase":
+        const chargeCode = (yield this.client.utils.ResponseToJson(
+          this.client.authClient.MakeAuthServiceRequest({
+            method: "POST",
+            path: UrlJoin("as", "checkout", "coinbase"),
+            body: requestParams,
+            headers: {
+              Authorization: `Bearer ${this.rootStore.authToken}`
+            }
+          })
+        )).charge_code;
+
+        yield BeforeRedirect && BeforeRedirect();
+
+        window.location.href = UrlJoin("https://commerce.coinbase.com/charges", chargeCode);
+
+        break;
+
+      case "linked-wallet":
+        if(!this.rootStore.embedded) {
+          yield this.rootStore.cryptoStore.PhantomBalance();
         }
-      });
 
-      yield BeforeRedirect && BeforeRedirect();
+        if(!(this.rootStore.cryptoStore.phantomBalance > 0)) {
+          throw {
+            recoverable: false,
+            uiMessage: "Solana account has insufficient balance to perform this transaction"
+          };
+        }
 
-      setTimeout(() => this.rootStore.GetWalletBalance(), 1000);
-    } else if(provider === "linked-wallet") {
-      if(!this.rootStore.embedded) {
-        yield this.rootStore.cryptoStore.PhantomBalance();
-      }
+        const response = (yield this.client.utils.ResponseToJson(
+          this.client.authClient.MakeAuthServiceRequest({
+            method: "POST",
+            path: UrlJoin("as", "checkout", "solana"),
+            body: requestParams,
+            headers: {
+              Authorization: `Bearer ${this.rootStore.authToken}`
+            }
+          })
+        ));
 
-      if(!(this.rootStore.cryptoStore.phantomBalance > 0)) {
-        throw {
-          recoverable: false,
-          uiMessage: "Solana account has insufficient balance to perform this transaction"
-        };
-      }
+        const signature = yield this.rootStore.cryptoStore.PurchasePhantom(response.params[0]);
 
-      const response = (yield this.client.utils.ResponseToJson(
-        this.client.authClient.MakeAuthServiceRequest({
+        this.solanaSignatures[confirmationId] = signature;
+
+        this.rootStore.SetSessionStorage("solana-signatures", JSON.stringify(this.solanaSignatures));
+
+        this.rootStore.Log("Purchase transaction signature: " + signature);
+
+        yield BeforeRedirect && BeforeRedirect();
+
+        break;
+
+      case "wallet-balance":
+        yield this.client.authClient.MakeAuthServiceRequest({
           method: "POST",
-          path: UrlJoin("as", "checkout", "solana"),
+          path: UrlJoin("as", "wlt", "mkt", "bal", "pay"),
           body: requestParams,
           headers: {
             Authorization: `Bearer ${this.rootStore.authToken}`
           }
-        })
-      ));
+        });
 
-      const signature = yield this.rootStore.cryptoStore.PurchasePhantom(response.params[0]);
+        yield BeforeRedirect && BeforeRedirect();
 
-      this.solanaSignatures[confirmationId] = signature;
+        setTimeout(() => this.rootStore.GetWalletBalance(), 1000);
 
-      this.rootStore.SetSessionStorage("solana-signatures", JSON.stringify(this.solanaSignatures));
+        break;
 
-      this.rootStore.Log("Purchase transaction signature: " + signature);
-
-      yield BeforeRedirect && BeforeRedirect();
-    } else {
-      throw Error("Invalid provider: " + provider);
+      default:
+        throw Error("Unknown payment provider: " + provider);
     }
   });
 }

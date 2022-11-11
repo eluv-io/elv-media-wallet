@@ -6,7 +6,7 @@ import PlayIcon from "Assets/icons/media/Play icon.svg";
 
 import {checkoutStore, rootStore} from "Stores";
 import UrlJoin from "url-join";
-import {FormatPriceString, ItemPrice} from "Components/common/UIComponents";
+import {FormatPriceString} from "Components/common/UIComponents";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {mediaTypes} from "@eluvio/elv-embed/src/Utils";
 
@@ -95,12 +95,12 @@ export const ValidEmail = email => {
     .test(email);
 };
 
-export const ScrollTo = (top=0) => {
+export const ScrollTo = (top=0, target) => {
   // Mobile has a bug that prevents scroll top from working
   if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-    window.scrollTo(0, top);
+    (target || window).scrollTo(0, top);
   } else {
-    window.scrollTo({top, behavior: "smooth"});
+    (target || window).scrollTo({top, behavior: "smooth"});
   }
 };
 
@@ -278,7 +278,7 @@ export const NFTInfo = ({
   const tenantId = (nft || listing)?.details?.TenantId;
   const ownerAddress = (nft || listing)?.details?.TokenOwner;
   const listingId = nft?.details?.ListingId;
-  const price = item ? ItemPrice(item, checkoutStore.currency) : listing?.details?.Price;
+  const price = item ? item?.price?.USD : listing?.details?.Price;
   const free = !price || item?.free;
   const usdcAccepted = listing?.details?.USDCAccepted;
   const usdcOnly = listing?.details?.USDCOnly;
@@ -312,7 +312,7 @@ export const NFTInfo = ({
 
   let renderedPrice;
   if(price) {
-    renderedPrice = FormatPriceString(price || {USD: listing.details.Price}, {includeCurrency: !usdcOnly, includeUSDCIcon: usdcAccepted, prependCurrency: true, useCurrencyIcon: false});
+    renderedPrice = FormatPriceString(price || listing?.details?.Price || 0, {includeCurrency: !usdcOnly, includeUSDCIcon: usdcAccepted, prependCurrency: true, useCurrencyIcon: false});
   }
 
   const offers = (nft?.metadata?.redeemable_offers || []).map(offer => {

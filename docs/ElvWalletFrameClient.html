@@ -244,7 +244,7 @@ const frameClient = await ElvWalletFrameClient.InitializePopup({
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line739">line 739</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line751">line 751</a>
         </li>
       </ul>
     </dd>
@@ -278,7 +278,7 @@ const frameClient = await ElvWalletFrameClient.InitializePopup({
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
     </a>
     <h4 class="name" id=".InitializeFrame">
-      <span class="type-signature">async, static </span>InitializeFrame<span class="signature">({<div class="block-param">requestor,</div><div class="block-param">walletAppUrl<span class="signature-attributes">optional</span>,</div><div class="block-param">target,</div><div class="block-param">tenantSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceHash<span class="signature-attributes">optional</span>,</div><div class="block-param">requireLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">loginOnly<span class="signature-attributes">optional</span>,</div><div class="block-param">captureLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">darkMode<span class="signature-attributes">optional</span></div>})</span><span class="type-signature"> &rarr;  Promise.&lt;<a href="ElvWalletFrameClient.html">ElvWalletFrameClient</a>></span>
+      <span class="type-signature">async, static </span>InitializeFrame<span class="signature">({<div class="block-param">requestor,</div><div class="block-param">walletAppUrl<span class="signature-attributes">optional</span>,</div><div class="block-param">target,</div><div class="block-param">tenantSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceId<span class="signature-attributes">optional</span>,</div><div class="block-param">previewMarketplaceId<span class="signature-attributes">optional</span>,</div><div class="block-param">requireLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">loginOnly<span class="signature-attributes">optional</span>,</div><div class="block-param">captureLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">darkMode<span class="signature-attributes">optional</span></div>})</span><span class="type-signature"> &rarr;  Promise.&lt;<a href="ElvWalletFrameClient.html">ElvWalletFrameClient</a>></span>
     </h4>
   </span>
 
@@ -558,7 +558,7 @@ and the target can be passed in either as an element directly, or by element ID.
     
       <tr>
         
-          <td class="name"><code>marketplaceHash</code></td>
+          <td class="name"><code>marketplaceId</code></td>
         
 
         <td class="type">
@@ -593,7 +593,50 @@ and the target can be passed in either as an element directly, or by element ID.
         
 
         <td class="description last">
-          <p>Specify a specific version of a your marketplace. Not necessary if marketplaceSlug is specified</p>
+          <p>Specify the ID of your marketplace. Not necessary if marketplaceSlug is specified</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>previewMarketplaceId</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+          <td class="attributes">
+            
+              &lt;optional><br>
+            
+
+            
+
+            
+          </td>
+        
+
+        
+          <td class="default">
+            
+          </td>
+        
+
+        <td class="description last">
+          <p>Specify the ID of a marketplace to show a preview for.</p>
           
         </td>
       </tr>
@@ -827,7 +870,7 @@ and the target can be passed in either as an element directly, or by element ID.
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line569">line 569</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line576">line 576</a>
         </li>
       </ul>
     </dd>
@@ -850,7 +893,7 @@ and the target can be passed in either as an element directly, or by element ID.
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
     </a>
     <h4 class="name" id=".InitializePopup">
-      <span class="type-signature">async, static </span>InitializePopup<span class="signature">({<div class="block-param">requestor,</div><div class="block-param">walletAppUrl<span class="signature-attributes">optional</span>,</div><div class="block-param">tenantSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceHash<span class="signature-attributes">optional</span>,</div><div class="block-param">requireLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">loginOnly<span class="signature-attributes">optional</span>,</div><div class="block-param">captureLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">darkMode<span class="signature-attributes">optional</span></div>})</span><span class="type-signature"> &rarr;  Promise.&lt;<a href="ElvWalletFrameClient.html">ElvWalletFrameClient</a>></span>
+      <span class="type-signature">async, static </span>InitializePopup<span class="signature">({<div class="block-param">requestor,</div><div class="block-param">walletAppUrl<span class="signature-attributes">optional</span>,</div><div class="block-param">tenantSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceSlug<span class="signature-attributes">optional</span>,</div><div class="block-param">marketplaceId<span class="signature-attributes">optional</span>,</div><div class="block-param">previewMarketplaceId<span class="signature-attributes">optional</span>,</div><div class="block-param">requireLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">loginOnly<span class="signature-attributes">optional</span>,</div><div class="block-param">captureLogin<span class="signature-attributes">optional</span>,</div><div class="block-param">darkMode<span class="signature-attributes">optional</span></div>})</span><span class="type-signature"> &rarr;  Promise.&lt;<a href="ElvWalletFrameClient.html">ElvWalletFrameClient</a>></span>
     </h4>
   </span>
 
@@ -1083,7 +1126,7 @@ and the target can be passed in either as an element directly, or by element ID.
     
       <tr>
         
-          <td class="name"><code>marketplaceHash</code></td>
+          <td class="name"><code>marketplaceId</code></td>
         
 
         <td class="type">
@@ -1118,7 +1161,50 @@ and the target can be passed in either as an element directly, or by element ID.
         
 
         <td class="description last">
-          <p>Specify a specific version of a your marketplace. Not necessary if marketplaceSlug is specified</p>
+          <p>Specify the ID of your marketplace. Not necessary if marketplaceSlug is specified</p>
+          
+        </td>
+      </tr>
+
+    
+      <tr>
+        
+          <td class="name"><code>previewMarketplaceId</code></td>
+        
+
+        <td class="type">
+          
+            
+    <span class="param-type">
+      string
+    </span>
+
+    
+
+
+          
+        </td>
+
+        
+          <td class="attributes">
+            
+              &lt;optional><br>
+            
+
+            
+
+            
+          </td>
+        
+
+        
+          <td class="default">
+            
+          </td>
+        
+
+        <td class="description last">
+          <p>Specify the ID of a marketplace to show a preview for.</p>
           
         </td>
       </tr>
@@ -1354,7 +1440,7 @@ and the target can be passed in either as an element directly, or by element ID.
     <dd class="tag-source">
       <ul class="dummy">
         <li>
-          <a href="index.js.html">index.js</a>, <a href="index.js.html#line476">line 476</a>
+          <a href="index.js.html">index.js</a>, <a href="index.js.html#line477">line 477</a>
         </li>
       </ul>
     </dd>

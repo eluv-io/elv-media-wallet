@@ -10,10 +10,10 @@ import {UserTransferTable} from "Components/listings/TransferTables";
 import {observer} from "mobx-react";
 import {WithdrawalModal, WithdrawalSetupModal} from "Components/profile/WithdrawalModal";
 import WalletConnect from "Components/crypto/WalletConnect";
-
-import MetamaskIcon from "Assets/icons/crypto/metamask fox.png";
 import ImageIcon from "Components/common/ImageIcon";
 
+import EmailIcon from "Assets/icons/email icon.svg";
+import MetamaskIcon from "Assets/icons/crypto/metamask fox.png";
 import WithdrawalsIcon from "Assets/icons/crypto/USD icon.svg";
 
 const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSetup}) => {
@@ -23,7 +23,7 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSe
         Withdrawable Seller Balance
       </h2>
       <div className="profile-page__balance">
-        { FormatPriceString({USD: rootStore.withdrawableWalletBalance}) } USD
+        { FormatPriceString(rootStore.withdrawableWalletBalance, {excludeAlternateCurrency: true, includeCurrency: true }) }
       </div>
       {
         !rootStore.userStripeId ?
@@ -99,6 +99,9 @@ const Profile = observer(() => {
   const [showWithdrawalSetup, setShowWithdrawalSetup] = useState(false);
   const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
 
+  const userInfo = rootStore.walletClient.UserInfo();
+  const custodialWallet = userInfo.walletType === "Custodial";
+
   useEffect(() => {
     rootStore.GetWalletBalance(true);
   }, [match.url]);
@@ -123,21 +126,14 @@ const Profile = observer(() => {
 
   const balancePresent = typeof rootStore.totalWalletBalance !== "undefined";
 
-  let walletMessage, walletIcon;
-  switch(rootStore.walletClient.UserInfo()?.walletName?.toLowerCase()) {
-    case "metamask":
-      walletIcon = MetamaskIcon;
-      walletMessage = "Signed in with Metamask";
-      break;
-  }
-
   return (
     <div className="page-container profile-page">
       { showWithdrawalSetup ? <WithdrawalSetupModal Close={() => setShowWithdrawalSetup(false)} /> : null }
       { showWithdrawalModal ? <WithdrawalModal Close={() => setShowWithdrawalModal(false)} /> : null }
       <div className="profile-page__section profile-page__section-account">
-        <h2 className="profile-page__section-header">
-          Media Wallet Address
+        <h1 className="profile-page__header">Media Wallet</h1>
+        <h2 className="profile-page__address-header">
+          Eluvio Content Blockchain Address
         </h2>
         <div className="profile-page__address">
           <CopyableField className="profile-page__address-field" value={rootStore.CurrentAddress()} ellipsis={false}>
@@ -148,13 +144,23 @@ const Profile = observer(() => {
           Do not send funds to this address.<br />This is an Eluvio Content Blockchain address and is not a payment address.
         </div>
 
-        {
-          walletMessage ?
-            <div className="profile-page__wallet-message">
-              <ImageIcon icon={walletIcon} />
-              { walletMessage }
-            </div> : null
-        }
+        <div className="profile-page__account-info">
+          <div className="profile-page__account-info__message">
+            { custodialWallet ? "Signed In As" : "Signed In Via" }
+          </div>
+          <div className={`profile-page__account-info__account profile-page__account-info__account--${custodialWallet ? "custodial" : "external"}`}>
+            {
+              custodialWallet ?
+                <>
+                  <ImageIcon className="profile-page__account-info__icon" icon={EmailIcon}/>
+                  <div className="profile-page__account-info__email">
+                    { userInfo.email }
+                  </div>
+                </> :
+                <ImageIcon className="profile-page__account-info__icon profile-page__account-info__icon--external" alt="Metamask" label="Metamask" icon={MetamaskIcon}/>
+            }
+          </div>
+        </div>
 
         <div className="profile-page__actions profile-page__sign-out">
           <ButtonWithLoader
@@ -174,7 +180,7 @@ const Profile = observer(() => {
           Total Seller Balance
         </h2>
         <div className="profile-page__balance">
-          { FormatPriceString({USD: rootStore.totalWalletBalance}) } { balancePresent ? "USD" : "" }
+          { FormatPriceString(rootStore.totalWalletBalance, {excludeAlternateCurrency: true, includeCurrency: true}) }
         </div>
         <Link
           className="profile-page__transactions-link"

@@ -526,6 +526,7 @@
     border-radius: var(--border-radius-input);
     max-height: 300px;
     overflow: auto;
+    overflow-x: hidden;
     position: absolute;
     top: calc(100% + 3px);
     width: 100%;
@@ -550,6 +551,14 @@
 .formatted-price {
   align-items: center;
   display: flex;
+  flex-wrap: wrap;
+  gap: 5px; // sass-lint:disable-line no-misspelled-properties
+
+  &__alternate {
+    font-size: 14px;
+    opacity: 0.85;
+    width: max-content;
+  }
 
   &__icon {
     height: 20px;
@@ -558,5 +567,24 @@
     &:not(:last-child) {
       margin-right: 5px;
     }
+  }
+
+  &--vertical {
+    align-items: center;
+    flex-direction: column;
+    gap: 0; // sass-lint:disable-line no-misspelled-properties
+    justify-content: center;
+  }
+}
+
+.menu-link {
+  align-items: center;
+  display: flex;
+  gap: 20px; // sass-lint:disable-line no-misspelled-properties
+
+  &__icon {
+    height: 25px;
+    object-fit: contain;
+    width: 25px;
   }
 }

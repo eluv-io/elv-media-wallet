@@ -156,89 +156,124 @@ export const CopyableField = ({value, children, className="", ellipsis=true}) =>
   );
 };
 
-export const ItemPrice = (item, currency) => {
-  currency = Object.keys(item.price || {}).find(c => c.toLowerCase() === currency.toLowerCase());
-
-  if(!currency) {
-    return "";
-  }
-
-  return parseFloat(item.price[currency]);
-};
-
 export const FormatPriceString = (
-  priceList,
+  price,
   options= {
-    currency: "USD",
     quantity: 1,
     trimZeros: false,
     includeCurrency: false,
     useCurrencyIcon: false,
     includeUSDCIcon: false,
-    prependCurrency: false
+    prependCurrency: false,
+    excludeAlternateCurrency: false,
+    stringOnly: false,
+    vertical: false,
+    className: ""
   }
 ) => {
-  const currency = options?.currency || "USD";
-
-  if(typeof priceList !== "object") {
-    priceList = { [checkoutStore.currency]: priceList };
-  }
-
-  let price = ItemPrice({price: priceList}, currency);
+  price = parseFloat(price);
 
   if(typeof price !== "number" || isNaN(price)) { return; }
 
   price = price * (options.quantity || 1);
 
   const currentLocale = (navigator.languages && navigator.languages.length) ? navigator.languages[0] : navigator.language;
-  let formattedPrice = new Intl.NumberFormat(currentLocale || "en-US", { style: "currency", currency: currency}).format(price);
+  let formattedPrice = new Intl.NumberFormat(currentLocale || "en-US", { style: "currency", currency: "USD"}).format(price);
 
   if(options.trimZeros && formattedPrice.endsWith(".00")) {
     formattedPrice = formattedPrice.slice(0, -3);
   }
 
+  let alternatePrice, alternatePriceString;
+  if(!options.excludeAlternateCurrency && checkoutStore.currency !== "USD" && checkoutStore.exchangeRates[checkoutStore.currency]) {
+    alternatePrice = new Intl.NumberFormat(currentLocale || "en-US", { style: "currency", currency: checkoutStore.currency})
+      .format(price * checkoutStore.exchangeRates[checkoutStore.currency].rate);
+    alternatePrice =
+      // Note: Some currency symbols include the currency code, so don't double it
+      options.includeCurrency && !alternatePrice.includes(checkoutStore.currency) ?
+        (options.prependCurrency ?
+          `(${checkoutStore.currency} ${alternatePrice})` :
+          `(${alternatePrice} ${checkoutStore.currency})`) :
+        `(${alternatePrice})`;
+
+    alternatePriceString = (
+      <div className="formatted-price__alternate">
+        { alternatePrice }
+      </div>
+    );
+  } else {
+    // Disable vertical if no alternate currency
+    options.vertical = false;
+  }
+
   const usdcIcon = options.includeUSDCIcon ? <ImageIcon icon={USDCIcon} className="formatted-price__icon" /> : null;
+
+  let priceString;
   if(options?.includeCurrency) {
     if(options?.useCurrencyIcon) {
       formattedPrice = <div className="formatted-price__value">{ formattedPrice }</div>;
       const icon = <ImageIcon icon={USDIcon} className="formatted-price__icon" />;
-      return (
-        <div className="formatted-price">
+      priceString = (
+        <div className={`formatted-price ${options.vertical ? "formatted-price--vertical" : ""} ${options.className || ""}`}>
           {
             options.prependCurrency ?
               <>{usdcIcon}{icon}{formattedPrice}</> :
               <>{formattedPrice}{usdcIcon}{icon}</>
           }
+          { alternatePriceString }
         </div>
       );
     } else {
       formattedPrice = (
-        <div className="formatted-price__value">
+        <div className={`formatted-price__value ${options.className || ""}`}>
           {
             options.prependCurrency ?
-              `${currency} ${formattedPrice}` :
-              `${formattedPrice} ${currency}`
+              `USD ${formattedPrice}` :
+              `${formattedPrice} USD`
           }
         </div>
       );
 
-      return (
-        <div className="formatted-price">
+      priceString = (
+        <div className={`formatted-price ${options.vertical ? "formatted-price--vertical" : ""} ${options.className || ""}`}>
           {options?.includeUSDCIcon ? usdcIcon : null}{formattedPrice}
+          { alternatePriceString }
         </div>
       );
     }
   } else if(options.includeUSDCIcon) {
-    formattedPrice = <div className="formatted-price__value">{ formattedPrice }</div>;
+    formattedPrice = <div className="formatted-price__value">{formattedPrice}</div>;
+
+    priceString = (
+      <div className={`formatted-price ${options.vertical ? "formatted-price--vertical" : ""} ${options.className || ""}`}>
+        {usdcIcon}{formattedPrice}
+        {alternatePriceString}
+      </div>
+    );
+  } else if(alternatePriceString) {
+    if(options.stringOnly) {
+      return `${formattedPrice} ${alternatePrice}`;
+    }
 
     return (
-      <div className="formatted-price">
-        {usdcIcon}{formattedPrice}
+      <div className={`formatted-price ${options.vertical ? "formatted-price--vertical" : ""}`}>
+        {formattedPrice}
+        {alternatePriceString}
       </div>
     );
   } else {
-    return formattedPrice;
+    if(options.stringOnly) {
+      return formattedPrice;
+    }
+
+    return (
+      <div className={`formatted-price ${options.vertical ? "formatted-price--vertical" : ""}`}>
+        { formattedPrice }
+      </div>
+    );
   }
+
+  return priceString;
 };
 
 export const RichText = ({richText, className=""}) => {
@@ -361,7 +396,7 @@ export const DebouncedInput = ({...props}) => {
   );
 };
 
-export const Select = ({label, value, options, placeholder, onChange, containerClassName="", buttonClassName="", menuClassName=""}) => {
+export const Select = ({label, value, activeValuePrefix, options, placeholder, onChange, initialChange, containerClassName="", buttonClassName="", menuClassName=""}) => {
   // If only labels are provided, convert to array format
   if(!Array.isArray(options[0])) {
     options = options.map(option => [option, option]);
@@ -382,6 +417,10 @@ export const Select = ({label, value, options, placeholder, onChange, containerC
   const ref = useRef();
 
   useEffect(() => {
+    initialChange && onChange && onChange(value);
+  }, []);
+
+  useEffect(() => {
     const onClickOutside = event => {
       if(!ref.current || !ref.current.contains(event.target)) {
         setShowMenu(false);
@@ -392,7 +431,6 @@ export const Select = ({label, value, options, placeholder, onChange, containerC
 
     return () => document.removeEventListener("click", onClickOutside);
   }, []);
-
 
   useEffect(() => {
     if(!showMenu || mouseIn) { return; }
@@ -509,7 +547,7 @@ export const Select = ({label, value, options, placeholder, onChange, containerC
         }}
         onKeyDown={KeyboardControls}
       >
-        { currentIndex < 0 ? placeholder : options[currentIndex || 0][1] }
+        { currentIndex < 0 ? placeholder : `${activeValuePrefix || ""}${options[currentIndex || 0][1]}` }
         <div className="styled-select__button__icon-container">
           <ImageIcon icon={SelectIcon} className="styled-select__button__icon" />
         </div>
@@ -545,3 +583,17 @@ export const QRCodeElement = ({content}) => {
   );
 };
 
+export const MenuLink = ({icon, children, className="", ...props}) => {
+  let Component = props.to ? NavLink :
+    props.href ? ({...args}) => <a {...args} /> :
+      ({...args}) => <button {...args} />;
+
+  return (
+    <Component className={`menu-link ${className}`} {...props}>
+      <ImageIcon className="menu-link__icon" icon={icon} />
+      <div className="menu-link__text">
+        { children }
+      </div>
+    </Component>
+  );
+};

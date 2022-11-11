@@ -31,6 +31,7 @@ $content-width: 475px;
   display: flex;
   flex-direction: column;
   height: max-content;
+  margin-bottom: 150px;
   position: relative;
 
   .card-container {
@@ -58,7 +59,7 @@ $content-width: 475px;
   &__content {
     margin: 0 auto;
     max-width: $content-width;
-    padding: 25px 35px 45px;
+    padding: 25px 45px 45px;
     width: 100%;
   }
 
@@ -124,11 +125,20 @@ $content-width: 475px;
     }
 
     &__price {
-      color: var(--color-component-text-highlight);
-      font-size: 24px;
-      font-weight: 500;
       margin-top: 5px;
       text-align: center;
+
+      &,
+      * {
+        color: var(--color-component-text-highlight);
+        font-size: 24px;
+        font-weight: 500;
+      }
+
+      .formatted-price {
+        display: flex;
+        flex-direction: column;
+      }
     }
   }
 
@@ -164,6 +174,10 @@ $content-width: 475px;
     align-items: center;
     display: flex;
 
+    .formatted-price {
+      width: max-content;
+    }
+
     img,
     svg {
       height: 20px;
@@ -198,6 +212,28 @@ $content-width: 475px;
     }
   }
 
+  &__country-select {
+    height: 50px;
+
+    .styled-select {
+      &__button {
+        height: 100%;
+        justify-content: center;
+        text-align: center;
+      }
+
+      &__menu {
+        * {
+          justify-content: center;
+        }
+      }
+    }
+  }
+
+  &__additional-fields {
+    margin: 30px 0;
+  }
+
   &__payment-message {
     align-items: center;
     color: var(--color-component-text-secondary);
@@ -212,10 +248,23 @@ $content-width: 475px;
     }
   }
 
+  &__help-button {
+    * {
+      transition: color 0.25s ease;
+    }
+
+    &.active {
+      * {
+        color: var(--color-component-text-highlight);
+      }
+    }
+  }
+
   &__help-message {
-    color: var(--color-component-text-secondary);
-    font-size: 14px;
-    text-align: center;
+    color: var(--color-component-text-highlight);
+    font-size: 12px;
+    margin-bottom: 20px;
+    text-align: left;
   }
 
   &__error-message {
@@ -228,42 +277,29 @@ $content-width: 475px;
     margin-top: 15px;
   }
 
-  &__payment-selection-container {
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 25px;
-  }
+  &__provider-options {
+    &__option {
+      align-items: center;
+      background: var(--background-button-selection);
+      border: var(--border-button-selection);
+      border-radius: var(--border-radius-button-selection);
+      color: var(--color-button-selection-text);
+      display: flex;
+      grid-template-columns: 1fr 1fr;
+      height: 50px;
 
-  &__payment-selection {
-    position: relative;
+      justify-content: center;
+      margin-bottom: 12px;
+      min-width: 200px;
+      width: 100%;
 
-    &:not(&--selected) {
-      color: var(--color-component-text-primary);
-
-      * {
-        color: var(--color-component-text-primary);
+      &.active {
+        background: var(--background-button-selection-active);
+        border: var(--border-button-selection-active);
+        border-radius: var(--border-radius-button-selection-active);
+        color: var(--color-button-selection-active-text);
       }
     }
-  }
-
-  &__payment-selection-icons {
-    display: flex;
-    height: 100%;
-    left: 0;
-    padding: 12px 8px;
-    position: absolute;
-    top: 0;
-
-    &-crypto {
-      padding: 9px 7px;
-    }
-  }
-
-  &__payment-selection-icon {
-    height: 100%;
-    min-width: 20px;
-    width: auto;
   }
 
   &__wallet-connect {
@@ -293,10 +329,16 @@ $content-width: 475px;
   @media screen and (max-width: $mobile-breakpoint) {
     border: 0;
     border-radius: 0;
+    margin-bottom: 0;
     min-height: 100vh;
+    padding-bottom: 200px;
 
     &__header {
       padding: 25px 0;
+    }
+
+    &__content {
+      padding-inline: 20px;
     }
   }
 }

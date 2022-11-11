@@ -77,7 +77,7 @@ class RootStore {
   loggedIn = false;
   externalWalletUser = false;
   disableCloseEvent = false;
-  darkMode = searchParams.has("dk") || this.GetSessionStorage("dark-mode");
+  darkMode = this.GetSessionStorage("dark-mode");
 
   availableMarketplaces = {};
   loginCustomization = {};
@@ -121,6 +121,7 @@ class RootStore {
     marketplaceDesktop: this.GetSessionStorage("background-image-marketplace"),
     marketplaceMobile: this.GetSessionStorage("background-image-marketplace-mobile"),
   };
+
   centerContent = false;
   centerItems = false;
 
@@ -131,6 +132,7 @@ class RootStore {
   nftInfo = {};
   nftData = {};
   userProfiles = {};
+  userStats = {};
 
   viewedMedia = {};
 
@@ -148,6 +150,8 @@ class RootStore {
   noItemsAvailable = false;
 
   analyticsInitialized = false;
+
+  headerText;
 
   get specifiedMarketplace() {
     return this.marketplaces[this.specifiedMarketplaceId];
@@ -216,6 +220,10 @@ class RootStore {
     this.ToggleDarkMode(this.darkMode);
 
     this.Initialize();
+  }
+
+  SetHeaderText(text) {
+    this.headerText = text;
   }
 
   Initialize = flow(function * () {
@@ -327,10 +335,6 @@ class RootStore {
 
         if(rootStore.specifiedMarketplaceId) {
           url.searchParams.set("mid", rootStore.specifiedMarketplaceId);
-        }
-
-        if(rootStore.darkMode) {
-          url.searchParams.set("dk", "");
         }
 
         // Metamask not available, link to download or open in app
@@ -720,7 +724,7 @@ class RootStore {
       marketplaceMobile: marketplaceBackgroundMobile
     };
 
-    let options = { font: "Hevetica Neue" };
+    let options = { color_scheme: "Dark" };
     if(marketplace && marketplace !== "default") {
       options = {
         ...options,
@@ -762,6 +766,8 @@ class RootStore {
     this.marketplaceSlug = undefined;
     this.marketplaceId = undefined;
 
+    this.checkoutStore.SetCurrency({currency: "USD"});
+
     this.SetCustomizationOptions("default");
   }
 
@@ -788,6 +794,10 @@ class RootStore {
       }
 
       this.SetCustomizationOptions(marketplace);
+
+      if(marketplace?.default_display_currency) {
+        this.checkoutStore.SetCurrency({currency: marketplace?.default_display_currency});
+      }
 
       return marketplace.marketplaceHash;
     } else if(Object.keys(this.walletClient.availableMarketplaces) > 0) {
@@ -835,6 +845,9 @@ class RootStore {
     this.marketplaces[marketplaceId] = yield this.walletClient.Marketplace({marketplaceParams: {marketplaceId}});
 
     yield this.checkoutStore.MarketplaceStock({tenantId: this.marketplaces[marketplaceId].tenant_id});
+
+    const defaultCurrency = this.GetLocalStorage(`preferred-currency-${marketplaceId}`) || this.marketplaces[marketplaceId].default_display_currency || "USD";
+    yield this.checkoutStore.SetCurrency({currency: defaultCurrency});
 
     if(marketplaceId === this.specifiedMarketplaceId) {
       this.InitializeAnalytics(this.marketplaces[marketplaceId]);
@@ -1206,6 +1219,24 @@ class RootStore {
     delete this.viewedMedia[key];
   });
 
+  UserStats = flow(function * ({userAddress, marketplaceId}) {
+    userAddress = Utils.FormatAddress(userAddress);
+
+    try {
+      if(!this.userStats[userAddress] || (Date.now() - this.userStats[userAddress].retrievedAt) > 60000) {
+        this.userStats[userAddress] = yield this.walletClient.Leaderboard({
+          userAddress,
+          marketplaceParams: marketplaceId ? {marketplaceId: marketplaceId} : undefined
+        });
+        this.userStats[userAddress].retrievedAt = Date.now();
+      }
+    } catch(error) {
+      this.Log(error, true);
+    }
+
+    return this.userStats[userAddress];
+  });
+
   InitializeAnalytics(marketplace) {
     (marketplace?.analytics_ids || []).forEach(analytics => {
       const ids = analytics.ids;
@@ -1370,10 +1401,6 @@ class RootStore {
       url.searchParams.set("mid", this.specifiedMarketplaceHash);
     }
 
-    if(this.darkMode) {
-      url.searchParams.set("dk", "");
-    }
-
     if(this.loginOnly) {
       url.searchParams.set("lo", "");
     }
@@ -1449,23 +1476,11 @@ class RootStore {
     return false;
   });
 
-  RequestVerificationEmail = async () => {
-    try {
-      return true;
-    } catch(error) {
-      this.Log(error, true);
-    }
-  };
-
-  FlowURL({type="flow", flow, parameters={}, darkMode}) {
+  FlowURL({type="flow", flow, parameters={}}) {
     const url = new URL(UrlJoin(window.location.origin, window.location.pathname));
     url.hash = UrlJoin("/", type, flow, Utils.B58(JSON.stringify(parameters)));
 
     url.searchParams.set("origin", window.location.origin);
-
-    if(darkMode) {
-      url.searchParams.set("dk", "");
-    }
 
     return url.toString();
   }
@@ -1650,12 +1665,14 @@ class RootStore {
     let key = `auth-${this.network}`;
 
     // TODO: Enable auth storage scoping later
-    if(this.authOrigin && false) {
-      try {
-        key = `${key}-${(new URL(this.authOrigin)).hostname}`;
-      // eslint-disable-next-line no-empty
-      } catch(error) {}
-    }
+    /*
+      if(this.authOrigin) {
+        try {
+          key = `${key}-${(new URL(this.authOrigin)).hostname}`;
+        // eslint-disable-next-line no-empty
+        } catch(error) {}
+      }
+     */
 
     return key;
   }
@@ -1754,7 +1771,6 @@ class RootStore {
       this.RemoveSessionStorage("dark-mode");
       themeContainer.innerHTML = "";
       themeContainer.dataset.theme = "default";
-      return;
     } else if(themeContainer.dataset.theme !== "dark") {
       this.SetSessionStorage("dark-mode", "true");
       import("Assets/stylesheets/themes/dark.theme.css")
