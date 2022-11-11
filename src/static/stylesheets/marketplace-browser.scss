@@ -196,6 +196,18 @@
       transform: rotateY(-180deg);
       transition-delay: 0.25s;
     }
+
+    .marketplace-card__banner-container {
+      &--front {
+        opacity: 0;
+        transition-delay: 0.25s;
+      }
+
+      &--back {
+        opacity: 1;
+        transition-delay: 0s;
+      }
+    }
   }
 
   &__content {
@@ -215,10 +227,18 @@
     overflow: hidden;
     position: absolute;
     transition: opacity 0.75s ease;
+    transition-delay: 0.25s;
     width: 100%;
 
+    &--front {
+      opacity: 1;
+      transition-delay: 0s;
+    }
+
     &--back {
+      opacity: 0;
       transform: rotateY(180deg);
+      transition-delay: 0.25s;
     }
   }
 
@@ -243,31 +263,18 @@
 
   @media screen and (max-width: $mobile-breakpoint) {
     &__banner-container--back {
-      opacity: 0;
       transform: none;
     }
 
     &--flipped {
       .marketplace-card__content {
         transform: none;
-        transition-delay: 0s;
-      }
-
-      .marketplace-card__banner-container {
-        &--front {
-          opacity: 0;
-        }
-
-        &--back {
-          opacity: 1;
-        }
       }
     }
 
     &:hover {
       .marketplace-card__content {
         transform: none;
-        transition-delay: 0s;
       }
     }
   }

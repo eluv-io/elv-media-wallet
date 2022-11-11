@@ -131,7 +131,7 @@ const MarketplaceCard = observer(({marketplace, flipped, setFlipped}) => {
   }
 
   const content = (
-    <div className="marketplace-card__content" title={branding.name}>
+    <div className="marketplace-card__content">
       <div className="marketplace-card__banner-container marketplace-card__banner-container--front">
         {
           branding.card_banner_front || branding.card_banner ?
