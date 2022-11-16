@@ -22,6 +22,7 @@ class CheckoutStore {
   purchaseStatus = {};
 
   solanaSignatures = {};
+  ethereumHashes = {};
 
   get client() {
     return this.rootStore.client;
@@ -770,9 +771,6 @@ class CheckoutStore {
         break;
 
       case "linked-wallet-eth":
-        /*
-          TODO: Check metamask balance
-
         if(!this.rootStore.embedded) {
           yield this.rootStore.cryptoStore.MetamaskBalance();
         }
@@ -784,32 +782,24 @@ class CheckoutStore {
           };
         }
 
-         */
-
         const ethereumCheckoutResponse = (yield this.client.utils.ResponseToJson(
           this.client.authClient.MakeAuthServiceRequest({
             method: "POST",
-            path: UrlJoin("as", "checkout", "ethereum"),
+            path: UrlJoin("as", "checkout", "eth"),
             body: requestParams,
             headers: {
               Authorization: `Bearer ${this.rootStore.authToken}`
             }
           })
         ));
-        console.log(ethereumCheckoutResponse);
 
-        /*
-        const signature = yield this.rootStore.cryptoStore.PurchaseMetamask(response.params[0]);
+        const hash = yield this.rootStore.cryptoStore.PurchaseMetamask(ethereumCheckoutResponse.params[0]);
 
-        this.solanaSignatures[confirmationId] = signature;
+        this.rootStore.Log("Purchase transaction hash: " + hash);
 
-        this.rootStore.SetSessionStorage("solana-signatures", JSON.stringify(this.solanaSignatures));
-
-        this.rootStore.Log("Purchase transaction signature: " + signature);
+        this.ethereumHashes[confirmationId] = hash;
 
         yield BeforeRedirect && BeforeRedirect();
-
-         */
 
         break;
 

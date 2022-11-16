@@ -64,7 +64,15 @@ const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
   );
 };
 
-const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted, usdcOnly, errorMessage, disabled, Continue, Cancel}) => {
+const PurchaseProviderSelection = observer(({
+  paymentOptions,
+  price,
+  usdcOptions={},
+  errorMessage,
+  disabled,
+  Continue,
+  Cancel
+}) => {
   /*
     Notes:
       - Country only needs collecting if ebanx is enabled
@@ -73,6 +81,9 @@ const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted
       - If usdcOnly is specified, go directly to crypto + linked wallet
   */
 
+
+  const usdcAccepted = usdcOptions.SolUSDCAccepted || usdcOptions.EthUSDCAccepted;
+  const usdcOnly = usdcOptions.SolUSDCOnly || usdcOptions.EthUSDCOnly;
 
   const phantomWallet = cryptoStore.WalletFunctions("phantom");
   const metamaskWallet = cryptoStore.WalletFunctions("metamask");
@@ -215,7 +226,7 @@ const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted
               </button>
           }
           {
-            usdcAccepted ?
+            usdcOptions.SolUSDCAccepted ?
               <button
                 onClick={() => {
                   setSelectedMethod("linked-wallet-sol");
@@ -226,7 +237,7 @@ const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted
               </button> : null
           }
           {
-            usdcAccepted ?
+            usdcOptions.EthUSDCAccepted ?
               <button
                 onClick={() => {
                   setSelectedMethod("linked-wallet-eth");
@@ -444,19 +455,31 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
 
   const total = info.price * quantity;
   const fee = Math.max(1, roundToDown(total * 0.05, 2));
-  // TODO: Eth USDC balance
-  const balanceAmount = linkedWallet ? cryptoStore.phantomUSDCBalance : rootStore.availableWalletBalance;
-  const balanceName = linkedWallet ? "USDC Balance" : "Wallet Balance";
-  const balanceIcon = linkedWallet ? <ImageIcon icon={USDCIcon} label="USDC" title="USDC" /> : null;
+
+  let balanceAmount = rootStore.availableWalletBalance;
+  let balanceName = "Wallet Balance";
+  let balanceIcon;
+  if(linkedWallet === "linked-wallet-sol") {
+    balanceName = "USDC Balance (Sol)";
+    balanceAmount = cryptoStore.phantomUSDCBalance;
+    balanceIcon = <ImageIcon icon={USDCIcon} label="USDC" title="USDC" />;
+  } else if(linkedWallet === "linked-wallet-eth") {
+    balanceName = "USDC Balance (Eth)";
+    balanceAmount = cryptoStore.metamaskUSDCBalance;
+    balanceIcon = <ImageIcon icon={USDCIcon} label="USDC" title="USDC" />;
+  }
 
   const insufficientBalance = balanceAmount < total + fee;
 
   useEffect(() => {
-    // TODO: Eth balance
-    if(linkedWallet) {
+    if(linkedWallet === "linked-wallet-sol") {
       cryptoStore.PhantomBalance();
+    } else if(linkedWallet === "linked-wallet-eth") {
+      cryptoStore.MetamaskBalance();
     }
+  }, [cryptoStore.metamaskAddress, cryptoStore.metamaskChainId, cryptoStore.phantomAddress]);
 
+  useEffect(() => {
     if(!info.stock || !marketplace) { return; }
 
     // If item has stock, periodically update
@@ -780,8 +803,7 @@ const PurchasePayment = observer(({
         paymentOptions={marketplacePaymentOptions}
         price={FormatPriceString(info.price || 0, {quantity, stringOnly: true})}
         errorMessage={errorMessage}
-        usdcAccepted={selectedListing?.details?.USDCAccepted}
-        usdcOnly={selectedListing?.details?.USDCOnly}
+        usdcOptions={selectedListing?.details}
         disabled={(type === "listing" && !selectedListingId) || !info.available || info.outOfStock || failed}
         Continue={Continue}
         Cancel={Cancel}

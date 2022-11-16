@@ -342,6 +342,7 @@ export const ListingPurchaseStatus = observer(() => {
   const match = useRouteMatch();
 
   const solanaSignature = checkoutStore.solanaSignatures[match.params.confirmationId];
+  const ethereumHash = checkoutStore.ethereumHashes[match.params.confirmationId];
 
   const [status, setStatus] = useState(undefined);
   const [awaitingSolanaTransaction, setAwaitingSolanaTransaction] = useState(solanaSignature);
@@ -390,8 +391,12 @@ export const ListingPurchaseStatus = observer(() => {
             "Back to My Collection"
         }
         intervalPeriod={awaitingSolanaTransaction ? 10000 : 10}
-        transactionLink={solanaSignature ? cryptoStore.SolanaTransactionLink(solanaSignature) : undefined}
-        transactionLinkText="View your transaction on Solana Explorer"
+        transactionLink={
+          solanaSignature && cryptoStore.SolanaTransactionLink(solanaSignature) ||
+          ethereumHash && cryptoStore.EthereumTransactionLink(ethereumHash) ||
+          null
+        }
+        transactionLinkText={`View your transaction on ${solanaSignature ? "Solana Explorer" : "Etherscan"}`}
       />
     );
   }

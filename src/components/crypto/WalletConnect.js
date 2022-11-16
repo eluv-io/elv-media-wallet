@@ -23,6 +23,12 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
     setPaymentPreference(connectedAccount?.preferred || false);
   }, [cryptoStore.metamaskAddress, cryptoStore.metamaskChainId, cryptoStore.phantomAddress, Object.keys(cryptoStore.connectedAccounts.sol)]);
 
+  useEffect(() => {
+    if(connected) {
+      wallet.Balance();
+    }
+  }, [connected]);
+
   const UpdatePaymentPreference = async (event) => {
     const preference = event.target.checked || false;
     try {
