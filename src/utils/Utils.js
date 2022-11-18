@@ -300,7 +300,7 @@ export const NFTInfo = ({
   const timeToExpired = item && item.expires_at ? new Date(item.expires_at).getTime() - Date.now() : Infinity;
   const available = !item || timeToAvailable <= 0 && timeToExpired > 0;
   const released = !item || !item.available_at || timeToAvailable <= 0;
-  const expired = item && item.expires_at && timeToExpired > 0;
+  const expired = item && item.expires_at && timeToExpired < 0;
   const maxOwned = stock && stock.max_per_user && stock.current_user >= stock.max_per_user;
   const marketplacePurchaseAvailable = item && !outOfStock && available && !unauthorized && !maxOwned;
   const hideAvailable = !available || (item && item.hide_available);
