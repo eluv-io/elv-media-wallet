@@ -229,7 +229,7 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
       .map(entry => ({
         ...entry,
         type:
-          !entry.addr && (entry.processor || "").includes("stripe-payout") ?
+          !entry.addr && (entry.processor?.includes("stripe-payout") || entry.processor?.includes("ebanx-payout")) ?
             "withdrawal" : Utils.EqualAddress(entry.buyer, rootStore.CurrentAddress()) ? "purchase" : "sale",
         processor: Processor(entry),
         pending: !entry.processor?.startsWith("solana:p2p") && Date.now() < entry.created * 1000 + rootStore.salePendingDurationDays * 24 * 60 * 60 * 1000

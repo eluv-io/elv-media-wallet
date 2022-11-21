@@ -42,6 +42,23 @@ export const SavedValue = (initialValue, initialDiscriminant) => {
   };
 };
 
+export const SearchParams = () => {
+  let params = {};
+  const urlParameters = (new URL(document.location)).searchParams;
+  // Some cases (ebanx) might blindly add search parameters to the end of the URL without considering the hash
+  const hashUrlParameters = new URLSearchParams("?" + window.location.hash.split(/[?&]/).slice(1).join("&"));
+
+  for(const [key, value] of urlParameters.entries()) {
+    params[key] = value;
+  }
+
+  for(const [key, value] of hashUrlParameters.entries()) {
+    params[key] = value;
+  }
+
+  return params;
+};
+
 export const MediaIcon = (media, circle=false) => {
   switch(media?.media_type) {
     case "Audio":

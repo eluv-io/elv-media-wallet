@@ -130,7 +130,7 @@
   &__navigation {
     align-items: center;
     display: flex;
-    gap: 30px; // sass-lint:disable-line no-misspelled-properties
+    gap: 30px;
   }
 
   &__navigation-link {
@@ -146,7 +146,7 @@
 
   @media screen and (max-width: $tablet-breakpoint) {
     &__navigation {
-      gap: 20px; // sass-lint:disable-line no-misspelled-properties
+      gap: 20px;
     }
 
     &__navigation-link {
@@ -169,7 +169,7 @@
   &__profile {
     align-items: center;
     display: flex;
-    gap: 30px; // sass-lint:disable-line no-misspelled-properties
+    gap: 30px;
     height: 55px;
     padding: 15px 0;
     position: absolute;
@@ -327,7 +327,7 @@
       &__account {
         align-items: center;
         display: flex;
-        gap: 20px; // sass-lint:disable-line no-misspelled-properties
+        gap: 20px;
         padding: 7px 20px 10px 30px;
         width: 100%;
       }
@@ -554,7 +554,7 @@
     &__account {
       align-items: center;
       display: flex;
-      gap: 20px; // sass-lint:disable-line no-misspelled-properties
+      gap: 20px;
     }
 
     &__address {
@@ -577,7 +577,7 @@
     background: var(--color-component-bg-primary);
     border-radius: 3px;
     display: flex;
-    gap: 20px; // sass-lint:disable-line no-misspelled-properties
+    gap: 20px;
     margin: 10px 0;
     padding: 10px;
   }

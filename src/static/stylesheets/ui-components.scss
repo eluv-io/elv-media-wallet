@@ -517,6 +517,10 @@
     &--active {
       border: var(--outline-input-focus);
     }
+
+    &:disabled {
+      opacity: 0.5;
+    }
   }
 
   &__menu {
@@ -552,7 +556,7 @@
   align-items: center;
   display: flex;
   flex-wrap: wrap;
-  gap: 5px; // sass-lint:disable-line no-misspelled-properties
+  gap: 5px;
 
   &__alternate {
     font-size: 14px;
@@ -572,7 +576,7 @@
   &--vertical {
     align-items: center;
     flex-direction: column;
-    gap: 0; // sass-lint:disable-line no-misspelled-properties
+    gap: 0;
     justify-content: center;
   }
 }
@@ -580,7 +584,7 @@
 .menu-link {
   align-items: center;
   display: flex;
-  gap: 20px; // sass-lint:disable-line no-misspelled-properties
+  gap: 20px;
 
   &__icon {
     height: 25px;

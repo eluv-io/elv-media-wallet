@@ -2,12 +2,14 @@ import React, {useState, useEffect} from "react";
 import EluvioPlayer, {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 import {observer} from "mobx-react";
 import {rootStore, checkoutStore, cryptoStore} from "Stores/index";
-import {Loader} from "Components/common/Loaders";
+import {Loader, PageLoader} from "Components/common/Loaders";
 import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import NFTCard from "Components/nft/NFTCard";
-import {LinkTargetHash, MobileOption} from "../../utils/Utils";
+import {LinkTargetHash, MobileOption, SearchParams} from "../../utils/Utils";
+
+const searchParams = SearchParams();
 
 let statusInterval;
 const MintingStatus = observer(({
@@ -26,17 +28,33 @@ const MintingStatus = observer(({
   transactionLinkText,
   intervalPeriod=10
 }) => {
+  const [initialStatusCheck, setInitialStatusCheck] = useState(false);
+  const [ebanxPaymentComplete, setEbanxPaymentComplete] = useState(false);
   const [status, setStatus] = useState(false);
   const [finished, setFinished] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const [videoInitialized, setVideoInitialized] = useState(false);
   const [revealVideoPlayer, setRevealVideoPlayer] = useState(undefined);
 
+  const awaitingPayment = searchParams.provider === "ebanx" && searchParams.method === "pix" && !ebanxPaymentComplete;
+
   const CheckStatus = async () => {
     try {
       const status = await Status();
 
       setStatus(status);
+
+      if(searchParams.provider === "ebanx" && searchParams.method === "pix" && !ebanxPaymentComplete && searchParams.hash) {
+        // Check ebanx payment status
+
+        const paymentStatus = await checkoutStore.EbanxPurchaseStatus(searchParams.hash);
+
+        if(paymentStatus.status !== "CO") {
+          return;
+        }
+
+        setEbanxPaymentComplete(true);
+      }
 
       if(status.status === "complete") {
         // If mint has items, ensure that items are available in the user's wallet
@@ -75,6 +93,8 @@ const MintingStatus = observer(({
     } catch(error) {
       rootStore.Log("Failed to check status:", true);
       rootStore.Log(error);
+    } finally {
+      setInitialStatusCheck(true);
     }
   };
 
@@ -111,6 +131,10 @@ const MintingStatus = observer(({
     return <Redirect to={redirect}/>;
   }
 
+  if(!initialStatusCheck) {
+    return <PageLoader />;
+  }
+
   if(status && status.status === "failed") {
     return (
       <div className="minting-status" key="minting-status-failed">
@@ -134,18 +158,24 @@ const MintingStatus = observer(({
     <div className={`minting-status ${videoHash ? "minting-status-video" : ""}`}>
       {
         hideText || finished ? null :
-          <div className="page-headers">
-            <div className="page-header">
-              {text ? text.header : (header || "Your items are being minted")}
+          awaitingPayment ?
+            <div className="page-headers">
+              <div className="page-header">
+                Awaiting Payment...
+              </div>
+            </div> :
+            <div className="page-headers">
+              <div className="page-header">
+                {text ? text.header : (header || "Your items are being minted")}
+              </div>
+              <div className="page-subheader">
+                {text ? text.subheader1 : (subheader || "This may take several minutes")}
+              </div>
             </div>
-            <div className="page-subheader">
-              {text ? text.subheader1 : (subheader || "This may take several minutes")}
-            </div>
-          </div>
       }
 
       {
-        videoHash ?
+        videoHash && !awaitingPayment ?
           <div className={`minting-status__video-container ${hideText ? "minting-status__video-container--large" : ""} ${finished ? "minting-status__video-container--hidden" : ""}`}>
             <Loader />
             <div
@@ -183,7 +213,7 @@ const MintingStatus = observer(({
       }
 
       {
-        revealVideoHash ?
+        revealVideoHash && !awaitingPayment ?
           <div className={`minting-status__video-container minting-status__video-container--large ${finished ? "" : "minting-status__video-container--hidden"}`}>
             <Loader />
             <div

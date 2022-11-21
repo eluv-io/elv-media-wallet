@@ -1,4 +1,3 @@
-// sass-lint:disable no-misspelled-properties
 // sass-lint:disable no-duplicate-properties
 // sass-lint:disable function-name-format
 
@@ -582,7 +581,6 @@
       grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
       grid-template-rows: max-content;
       max-height: 100%;
-      // sass-lint:disable no-misspelled-properties
       min-height: 100%;
       overflow-y: auto;
       overscroll-behavior: contain;

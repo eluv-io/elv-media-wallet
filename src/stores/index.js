@@ -1101,13 +1101,13 @@ class RootStore {
     return balances;
   });
 
-  WithdrawFunds = flow(function * (amount) {
+  WithdrawFunds = flow(function * ({provider, userInfo, amount}) {
     if(amount > this.withdrawableWalletBalance) {
       throw Error("Attempting to withdraw unavailable funds");
     }
 
-    yield Utils.ResponseToJson(
-      this.client.authClient.MakeAuthServiceRequest({
+    if(provider === "Stripe") {
+      yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "bal", "stripe"),
         method: "POST",
         body: {
@@ -1118,8 +1118,56 @@ class RootStore {
         headers: {
           Authorization: `Bearer ${this.authToken}`
         }
-      })
-    );
+      });
+    } else {
+      try {
+        yield this.client.authClient.MakeAuthServiceRequest({
+          path: UrlJoin("as", "wlt", "bal", "ebanx"),
+          method: "POST",
+          body: {
+            mode: EluvioConfiguration["purchase-mode"],
+            amount,
+            currency: "USD",
+            country: "br",
+            method: "pix",
+            payee: {
+              name: userInfo.name,
+              email: userInfo.email,
+              phone: userInfo.phone,
+              document_type: "cpf",
+              document: userInfo.cpf,
+              birthdate: userInfo.birthdate
+            }
+          },
+          headers: {
+            Authorization: `Bearer ${this.authToken}`
+          }
+        });
+      } catch(error) {
+        if(error?.body?.cause?.body) {
+          const body = JSON.parse(error.body.cause.body);
+          switch(body.status_code) {
+            case "HP-XB-05":
+            case "HP-CM-39":
+              // Invalid birthdate
+              throw { error, uiMessage: "Invalid birthdate. Please go back and update." };
+
+            case "HP-CM-40":
+              // Invalid CPF;
+              throw { error, uiMessage: "Invalid CPF number. Please go back and update." };
+
+            case "HP-CM-30":
+              // Not enough balance - No special message
+
+            // eslint-disable-next-line no-fallthrough
+            default:
+              throw error;
+          }
+        } else {
+          throw error;
+        }
+      }
+    }
 
     yield new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -1553,7 +1601,7 @@ class RootStore {
     }
   });
 
-  HandleFlow = flow(function * ({history, flow, parameters}) {
+  HandleFlow = flow(function * ({history, flow, parameters, urlParameters={}}) {
     if(parameters) {
       parameters = JSON.parse(new TextDecoder().decode(Utils.FromB58(parameters)));
     }
@@ -1586,7 +1634,20 @@ class RootStore {
           break;
 
         case "redirect":
-          history.push(parameters.to);
+          let [to, params] = parameters.to.split("?");
+          if(params) {
+            params = new URLSearchParams(params);
+
+            for(const [key, value] of params.entries()) {
+              urlParameters[key] = value;
+            }
+          }
+
+          if(Object.keys(urlParameters).length > 0) {
+            to = `${to}?${Object.keys(urlParameters).map(key => `${key}=${urlParameters[key]}`).join("&")}`;
+          }
+
+          history.push(to);
 
           break;
 
@@ -1657,6 +1718,7 @@ class RootStore {
           break;
       }
     } catch(error) {
+      this.Log(error, true);
       Respond({error: Utils.MakeClonable(error)});
     }
   });

@@ -155,6 +155,14 @@ class CheckoutStore {
     }
   }
 
+  EbanxPurchaseStatus = flow(function * (paymentHash) {
+    return yield Utils.ResponseToJson(
+      this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "checkout", "ebanx", paymentHash),
+      })
+    );
+  });
+
   OpenPack = flow(function * ({tenantId, contractAddress, tokenId}) {
     contractAddress = Utils.FormatAddress(contractAddress);
     const confirmationId = `${contractAddress}:${tokenId}`;
@@ -405,8 +413,8 @@ class CheckoutStore {
 
       const successPath =
         marketplaceId ?
-          UrlJoin("/marketplace", marketplaceId, "store", listingId, "purchase", confirmationId) :
-          UrlJoin("/wallet", "listings", listingId, "purchase", confirmationId);
+          UrlJoin("/marketplace", marketplaceId, "store", listingId, "purchase", confirmationId, `?provider=${provider}`) :
+          UrlJoin("/wallet", "listings", listingId, "purchase", confirmationId, `?provider=${provider}`);
 
       const cancelPath =
         marketplaceId ?
@@ -533,7 +541,7 @@ class CheckoutStore {
       this.submittingOrder = true;
       email = email || this.rootStore.walletClient.UserInfo().email;
 
-      const successPath = UrlJoin("/marketplace", marketplaceId, "store", sku, "purchase", confirmationId);
+      const successPath = UrlJoin("/marketplace", marketplaceId, "store", sku, "purchase", confirmationId, `?provider=${provider}`);
       const cancelPath = UrlJoin("/marketplace", marketplaceId, "store", sku);
 
       const item = this.rootStore.marketplaces[marketplaceId]?.items?.find(item => item.sku === sku);

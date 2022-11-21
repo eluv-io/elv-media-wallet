@@ -146,7 +146,6 @@
   &__tabbed-content {
     &__tabs {
       display: flex;
-      // sass-lint:disable no-misspelled-properties
       gap: 10px;
       justify-content: flex-start;
       margin: 5px 0 10px;

@@ -240,9 +240,7 @@
   }
 
   &__list {
-    // sass-lint:disable no-misspelled-properties
     gap: 20px;
-    // sass-lint:enable no-misspelled-properties
 
     .collection-card {
       width: calc(#{$breakpoint} / 3 - 40px);
@@ -255,7 +253,6 @@
 
       .collection-card {
         max-width: unset;
-        //max-width: calc(#{$breakpoint} / 3 - 100px);
         width: auto;
       }
     }

@@ -81,7 +81,7 @@
     &--none,
     &--infinite {
       max-height: 350px;
-      overscroll-behavior-y: contain; // sass-lint:disable-line no-misspelled-properties
+      overscroll-behavior-y: contain;
     }
   }
 
@@ -203,7 +203,7 @@
     text-align: center;
 
     .formatted-price {
-      gap: 0 5px; // sass-lint:disable-line no-misspelled-properties
+      gap: 0 5px;
       margin: 0 auto;
       width: max-content;
 

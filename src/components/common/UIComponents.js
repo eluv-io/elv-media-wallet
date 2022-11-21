@@ -396,7 +396,7 @@ export const DebouncedInput = ({...props}) => {
   );
 };
 
-export const Select = ({label, value, activeValuePrefix, options, placeholder, onChange, initialChange, containerClassName="", buttonClassName="", menuClassName=""}) => {
+export const Select = ({label, value, activeValuePrefix, options, placeholder, disabled, onChange, initialChange, containerClassName="", buttonClassName="", menuClassName=""}) => {
   // If only labels are provided, convert to array format
   if(!Array.isArray(options[0])) {
     options = options.map(option => [option, option]);
@@ -534,7 +534,7 @@ export const Select = ({label, value, activeValuePrefix, options, placeholder, o
         id={`styled-select-${idPrefix}-button`}
         className={`styled-select__button ${showMenu ? "styled-select__button--active" : ""} ${buttonClassName}`}
         ref={ref}
-        disabled={options.length === 0}
+        disabled={disabled || options.length === 0}
         aria-haspopup="listbox"
         aria-label={label}
         aria-activedescendant={showMenu ? `styled-select-${idPrefix}-${selectedIndex}` : ""}
@@ -597,3 +597,4 @@ export const MenuLink = ({icon, children, className="", ...props}) => {
     </Component>
   );
 };
+
