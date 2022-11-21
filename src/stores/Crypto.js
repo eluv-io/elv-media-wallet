@@ -10,6 +10,7 @@ import SolanaLogo from "Assets/icons/solana icon.svg";
 import {rootStore} from "./index";
 
 class CryptoStore {
+  eluvioChainId = EluvioConfiguration.network === "demo" ? "0xE934A" : "0xE93A9";
   ethereumChainId = EluvioConfiguration.network === "demo" ? "0x5" : "0x1";
 
   metamaskChainId = undefined;
@@ -50,6 +51,40 @@ class CryptoStore {
       setInterval(() => runInAction(async () => this.phantomAddress = this.PhantomAddress()), 5000);
     }
   }
+
+  ActivateEluvioChain = flow(function * () {
+    try {
+      yield window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{chainId: this.eluvioChainId}],
+      });
+    } catch(error) {
+      this.Log("Failed to switch to Eluvio network", "warn");
+      this.Log(error, "warn");
+      this.Log("Attempting to add Eluvio network", "warn");
+      yield window.ethereum.request({
+        method: "wallet_addEthereumChain",
+        params: [{
+          "chainId": this.eluvioChainId,
+          "chainName": EluvioConfiguration.network === "demo" ? "Eluvio Content Fabric (Demo)" : "Eluvio Content Fabric",
+          "rpcUrls": [
+            ...rootStore.client.ethereumURIs
+          ],
+          "nativeCurrency": {
+            "name": "ELV",
+            "symbol": "ELV",
+            "decimals": 18
+          },
+          "blockExplorerUrls": ["https://explorer.contentfabric.io"]
+        }],
+      });
+
+      yield window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{chainId: this.eluvioChainId}],
+      });
+    }
+  });
 
   SolanaConnection = flow(function * () {
     if(!this.solanaConnection) {
@@ -126,10 +161,10 @@ class CryptoStore {
     }
   });
 
-  RequestMetamaskAddress = flow(function * () {
+  RequestMetamaskAddress = flow(function * (useEluvioNetwork=false) {
     yield window.ethereum.request({
       method: "wallet_switchEthereumChain",
-      params: [{chainId: this.ethereumChainId}],
+      params: [{chainId: useEluvioNetwork ? this.eluvioChainId : this.ethereumChainId}],
     });
 
     const accounts = yield window.ethereum.request({ method: "eth_requestAccounts" });
@@ -579,7 +614,7 @@ class CryptoStore {
           link: "https://metamask.io",
           Address: () => window.ethereum?.selectedAddress || this.metamaskAddress,
           Balance: async () => await this.MetamaskBalance(),
-          RequestAddress: async () => await this.RequestMetamaskAddress(),
+          RequestAddress: async useEluvioNetwork => await this.RequestMetamaskAddress(useEluvioNetwork),
           Available: () => this.MetamaskAvailable(),
           Connected: () => this.MetamaskConnected(),
           Connect: async params => await this.ConnectMetamask(params),
