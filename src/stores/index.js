@@ -1553,7 +1553,7 @@ class RootStore {
     }
   });
 
-  HandleFlow = flow(function * ({history, flow, parameters}) {
+  HandleFlow = flow(function * ({history, flow, parameters, urlParameters={}}) {
     if(parameters) {
       parameters = JSON.parse(new TextDecoder().decode(Utils.FromB58(parameters)));
     }
@@ -1586,7 +1586,20 @@ class RootStore {
           break;
 
         case "redirect":
-          history.push(parameters.to);
+          let [to, params] = parameters.to.split("?");
+          if(params) {
+            params = new URLSearchParams(params);
+
+            for(const [key, value] of params.entries()) {
+              urlParameters[key] = value;
+            }
+          }
+
+          if(Object.keys(urlParameters).length > 0) {
+            to = `${to}?${Object.keys(urlParameters).map(key => `${key}=${urlParameters[key]}`).join("&")}`;
+          }
+
+          history.push(to);
 
           break;
 
@@ -1657,6 +1670,7 @@ class RootStore {
           break;
       }
     } catch(error) {
+      this.Log(error, true);
       Respond({error: Utils.MakeClonable(error)});
     }
   });
