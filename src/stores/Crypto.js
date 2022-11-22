@@ -59,9 +59,9 @@ class CryptoStore {
         params: [{chainId: this.eluvioChainId}],
       });
     } catch(error) {
-      this.Log("Failed to switch to Eluvio network", "warn");
-      this.Log(error, "warn");
-      this.Log("Attempting to add Eluvio network", "warn");
+      this.rootStore.Log("Failed to switch to Eluvio network", "warn");
+      this.rootStore.Log(error, "warn");
+      this.rootStore.Log("Attempting to add Eluvio network", "warn");
       yield window.ethereum.request({
         method: "wallet_addEthereumChain",
         params: [{
