@@ -376,11 +376,8 @@ class CryptoStore {
         return yield this.EmbeddedSign({provider: "metamask", purchaseSpec: spec});
       } else {
         const SendUSDCPayment = (yield import("../utils/USDCPaymentEth")).default;
-        const usdcContractAddress = this.rootStore.client.networkName === "main" ?
-          "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" :
-          "0x50b2C3c53669868b5763d8e5f6A199B9c4C86147";
 
-        return yield SendUSDCPayment({spec, usdcContractAddress});
+        return yield SendUSDCPayment({spec});
       }
     } catch(error) {
       this.rootStore.Log("Error completing Metamask purchase:", true);
