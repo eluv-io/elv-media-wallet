@@ -487,36 +487,22 @@ class CryptoStore {
 
     this.metamaskBalance = parseFloat(ethers.utils.formatEther(yield signer.getBalance()));
 
-    const abi = [{
-      "constant": true,
-      "inputs": [
-        {
-          "name": "_owner",
-          "type": "address"
-        }
-      ],
-      "name": "balanceOf",
-      "outputs": [
-        {
-          "name": "balance",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    }];
+    const abi = [{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"}];
 
     const usdcContractAddress = this.rootStore.client.networkName === "main" ?
       "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" :
       "0x50b2C3c53669868b5763d8e5f6A199B9c4C86147";
 
     const contract = new ethers.Contract(usdcContractAddress, abi, signer);
+    const decimals = yield contract.decimals();
+    const balance = yield contract.balanceOf(address);
+    const usdcBalance = parseFloat(balance.div(new ethers.utils.BigNumber(10).pow(decimals)))
 
-    this.metamaskUSDCBalance = parseFloat((yield contract.balanceOf(address)).toString());
+    this.metamaskUSDCBalance = usdcBalance;
 
     return {
       eth: this.metamaskBalance,
-      usdc: this.metamaskUSDCBalance
+      usdc: usdcBalance
     };
   });
 
