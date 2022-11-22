@@ -20,7 +20,7 @@ const SendPayment = async ({spec}) => {
   while(allowance.lt(total)) {
     // eslint-disable-next-line no-console
     console.warn(`Allowance: ${allowance.toString()}, Total: ${total.toString()}`);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 5000));
 
     allowance = new ethers.utils.BigNumber((await token.allowance(address, spec.program_id)).toString());
   }
