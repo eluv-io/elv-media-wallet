@@ -25,7 +25,6 @@ const SendPayment = async ({spec}) => {
     allowance = new ethers.utils.BigNumber((await token.allowance(address, spec.program_id)).toString());
   }
 
-
   const result = await escrow.createPayment(
     spec.payees,
     { paymentId: uuidParse(spec.reference_id), oracleId: spec.oracle },
