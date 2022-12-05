@@ -496,7 +496,7 @@ class CryptoStore {
     const contract = new ethers.Contract(usdcContractAddress, abi, signer);
     const decimals = yield contract.decimals();
     const balance = yield contract.balanceOf(address);
-    const usdcBalance = parseFloat(balance.div(new ethers.utils.BigNumber(10).pow(decimals)))
+    const usdcBalance = parseFloat(balance.div(new ethers.utils.BigNumber(10).pow(decimals)));
 
     this.metamaskUSDCBalance = usdcBalance;
 

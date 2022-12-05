@@ -7,7 +7,7 @@ import { render } from "react-dom";
 import { observer} from "mobx-react";
 
 import { rootStore } from "Stores/index.js";
-import Header from "Components/Header";
+import Header from "Components/header/Header";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 
