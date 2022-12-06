@@ -1,0 +1,41 @@
+.notification {
+  background: var(--color-component-bg-secondary);
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 25px 1fr;
+  padding: 10px 20px;
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__heading {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__header {
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  &__message {
+    color: var(--color-component-text-secondary);
+    font-size: 12px;
+  }
+
+  &__time {
+    color: var(--color-component-text-highlight);
+    font-size: 10px;
+  }
+
+  &__new-indicator {
+    background: var(--color-component-text-highlight);
+    border-radius: 100%;
+    height: 5px;
+    width: 5px;
+  }
+}

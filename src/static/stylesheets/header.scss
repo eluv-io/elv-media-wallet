@@ -209,6 +209,7 @@
     @include component;
     @include page-fade-in(0.2s, ease-out);
 
+    border: 0;
     height: max-content;
     max-width: 450px;
     padding: 0 15px;
@@ -301,10 +302,12 @@
     }
   }
 
-  &__profile-menu {
+  &__profile-menu,
+  &__notifications-menu {
     @include component;
     @include page-fade-in(0.2s, ease-out);
 
+    border: 0;
     display: flex;
     flex-direction: column;
     height: max-content;
@@ -397,11 +400,6 @@
       width: 100%;
     }
 
-    &__header {
-      color: var(--color-component-text-highlight);
-      font-size: 18px;
-    }
-
     &__currency-select {
       margin-top: 10px;
 
@@ -411,6 +409,25 @@
     }
   }
 
+
+  &__notifications-menu {
+    border: 0;
+    max-width: 450px;
+    padding: 0;
+
+    &__header {
+      font-size: 20px;
+      padding: 10px 20px;
+    }
+
+    &__list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+  }
 
   &__preferences-menu-modal {
     align-items: center;

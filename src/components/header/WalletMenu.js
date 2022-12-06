@@ -1,31 +1,16 @@
-import React, {useEffect, useRef} from "react";
+import React from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import {Copy, FormatPriceString} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import {Link} from "react-router-dom";
+import HeaderMenu from "Components/header/HeaderMenu";
 
 import CopyIcon from "Assets/icons/copy";
 
 const WalletMenu = observer(({marketplaceId, Hide}) => {
-  const menuRef = useRef();
-
-  useEffect(() => {
-    if(!menuRef || !menuRef.current) { return; }
-
-    const onClickOutside = event => {
-      if(!menuRef?.current || !menuRef.current.contains(event.target)) {
-        Hide();
-      }
-    };
-
-    document.addEventListener("click", onClickOutside);
-
-    return () => document.removeEventListener("click", onClickOutside);
-  }, [menuRef]);
-
   return (
-    <div className="header__menu header__wallet-menu" ref={menuRef}>
+    <HeaderMenu Hide={Hide} className="header__wallet-menu">
       <h2 className="header__wallet-menu__header">Media Wallet</h2>
       <div className="header__wallet-menu__section">
         <div className="header__wallet-menu__section-header">My Eluvio Content Blockchain Address</div>
@@ -54,7 +39,7 @@ const WalletMenu = observer(({marketplaceId, Hide}) => {
       >
         View Details
       </Link>
-    </div>
+    </HeaderMenu>
   );
 });
 

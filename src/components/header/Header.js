@@ -15,6 +15,7 @@ import MenuIcon from "Assets/icons/menu";
 import UserIcon from "Assets/icons/profile.svg";
 import ProjectsIcon from "Assets/icons/header/New Projects_Marketplaces icon.svg";
 import WalletIcon from "Assets/icons/header/wallet icon v2.svg";
+import NotificationsMenu from "Components/header/NotificationsMenu";
 
 
 const ProfileNavigation = observer(() => {
@@ -22,6 +23,7 @@ const ProfileNavigation = observer(() => {
   const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
   const [showWalletMenu, setShowWalletMenu] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
 
   if((!rootStore.loginLoaded && !rootStore.loggedIn) || rootStore.authenticating) {
     return <div className="header__profile header__profile--placeholder" />;
@@ -57,6 +59,12 @@ const ProfileNavigation = observer(() => {
     <>
       <div className="header__profile">
         <button
+          className={`header__profile__link ${showNotificationsMenu ? "active" : ""}`}
+          onClick={() => setShowNotificationsMenu(!showNotificationsMenu)}
+        >
+          <ImageIcon alt="Notifications" icon={ProjectsIcon} className="header__profile__user__icon" />
+        </button>
+        <button
           className={`header__profile__link ${showProfileMenu ? "active" : ""}`}
           onClick={() => setShowProfileMenu(!showProfileMenu)}
         >
@@ -71,6 +79,7 @@ const ProfileNavigation = observer(() => {
       </div>
       { showWalletMenu ? <WalletMenu marketplaceId={marketplaceId} Hide={() => setShowWalletMenu(false)} /> : null }
       { showProfileMenu ? <ProfileMenu marketplaceId={marketplaceId} Hide={() => setShowProfileMenu(false)} /> : null }
+      { showNotificationsMenu ? <NotificationsMenu marketplaceId={marketplaceId} Hide={() => setShowNotificationsMenu(false)} /> : null }
     </>
   );
 });

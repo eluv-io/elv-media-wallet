@@ -1,10 +1,11 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
 import {Copy, MenuLink} from "Components/common/UIComponents";
 import UrlJoin from "url-join";
 import PreferencesMenu from "Components/header/PreferencesMenu";
+import HeaderMenu from "Components/header/HeaderMenu";
 
 import EmailIcon from "Assets/icons/email icon";
 import MetamaskIcon from "Assets/icons/metamask fox";
@@ -27,32 +28,14 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
 
   const availableDisplayCurrencies = fullMarketplace?.display_currencies || [];
 
-  const menuRef = useRef();
-
   const IsActive = (page="") => (_, location) => rootStore.loggedIn && (location.pathname.includes(`/users/me/${page}`) || location.pathname.includes(`/users/${rootStore.CurrentAddress()}/${page}`));
-
-  useEffect(() => {
-    if(!menuRef || !menuRef.current) { return; }
-
-    const onClickOutside = event => {
-      if(window._showPreferencesMenu) { return; }
-
-      if(!menuRef?.current || !menuRef.current.contains(event.target)) {
-        Hide();
-      }
-    };
-
-    document.addEventListener("click", onClickOutside);
-
-    return () => document.removeEventListener("click", onClickOutside);
-  }, [menuRef]);
 
   useEffect(() => {
     window._showPreferencesMenu = showPreferencesMenu;
   }, [showPreferencesMenu]);
 
   return (
-    <div className="header__menu header__profile-menu" ref={menuRef}>
+    <HeaderMenu className="header__profile-menu" Hide={Hide}>
       <div className="header__profile-menu__info">
         <div className="header__profile-menu__info__type">Signed in Via {userInfo.walletType === "Custodial" ? "Email" : userInfo.walletName}</div>
         <div className="header__profile-menu__info__account">
@@ -169,7 +152,7 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
             Hide={() => setShowPreferencesMenu(false)}
           /> : null
       }
-    </div>
+    </HeaderMenu>
   );
 });
 
