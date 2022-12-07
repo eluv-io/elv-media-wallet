@@ -416,6 +416,7 @@
     padding: 0;
 
     &__header {
+      font: var(--font-component-header);
       font-size: 20px;
       padding: 10px 20px;
     }

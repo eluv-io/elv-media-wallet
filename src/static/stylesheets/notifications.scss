@@ -18,16 +18,19 @@
   }
 
   &__header {
-    font-size: 16px;
+    font: var(--font-component-header);
+    font-size: 14px;
     font-weight: 500;
   }
 
   &__message {
+    font: var(--font-component-text);
     color: var(--color-component-text-secondary);
     font-size: 12px;
   }
 
   &__time {
+    font: var(--font-component-misc);
     color: var(--color-component-text-highlight);
     font-size: 10px;
   }

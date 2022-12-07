@@ -40,7 +40,7 @@ const Notification = observer(({notification}) => {
     case "OFFER_DECLINED":
       icon = OfferDeclinedIcon;
       header = "Offer Declined";
-      message = `Your offer on '${notification.data.name}' for ${FormatPriceString(notification.data.price, {stringOnly: true})} has been declined.`;
+      message = `Your offer on '${notification.data.name}' for ${FormatPriceString(notification.data.price, {stringOnly: true})} was declined.`;
 
       break;
 
