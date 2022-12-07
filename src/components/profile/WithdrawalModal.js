@@ -215,6 +215,7 @@ const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
             </label>
             <input
               type="text"
+              placeholder="000.000.000-00"
               value={userInfo.cpf}
               onChange={event => setUserInfo({...userInfo, cpf: event.target.value})}
             />
