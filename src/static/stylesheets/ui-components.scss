@@ -592,3 +592,37 @@
     width: 25px;
   }
 }
+
+.fullscreen-image {
+  .modal__content {
+    max-height: 100vh !important;
+    max-width: 100vw !important;
+  }
+
+  &__image {
+    cursor: zoom-in;
+    @include page-fade-in(0.25s, linear);
+
+    &--hidden {
+      @include page-fade-out(0.25s, linear);
+    }
+  }
+
+  &__zoomed-image {
+    @include page-fade-in(0.25s, linear);
+    background-repeat: no-repeat;
+    cursor: zoom-out;
+    height: 100%;
+    left: 0;
+    object-fit: none;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+
+    &--hidden {
+      @include page-fade-out(0.25s, linear);
+      pointer-events: none;
+    }
+  }
+}

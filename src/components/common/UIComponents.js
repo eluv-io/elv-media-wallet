@@ -5,19 +5,19 @@ import {checkoutStore, rootStore} from "Stores";
 import {Loader} from "Components/common/Loaders";
 import ImageIcon from "Components/common/ImageIcon";
 import {v4 as UUID} from "uuid";
-
-import SelectIcon from "Assets/icons/select-icon.svg";
-import USDIcon from "Assets/icons/crypto/USD icon.svg";
-import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
-import CopyIcon from "Assets/icons/copy.svg";
-
-import PageBackIcon from "Assets/icons/pagination arrow back.svg";
-import PageForwardIcon from "Assets/icons/pagination arrow forward.svg";
 import {render} from "react-dom";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
 import QRCode from "qrcode";
 import {Link, NavLink} from "react-router-dom";
+import Modal from "Components/common/Modal";
+
+import SelectIcon from "Assets/icons/select-icon.svg";
+import USDIcon from "Assets/icons/crypto/USD icon.svg";
+import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
+import CopyIcon from "Assets/icons/copy.svg";
+import PageBackIcon from "Assets/icons/pagination arrow back.svg";
+import PageForwardIcon from "Assets/icons/pagination arrow forward.svg";
 
 export const PageControls = observer(({paging, maxSpread=15, hideIfOnePage, SetPage, className=""}) => {
   if(!paging || paging.total === 0) { return null; }
@@ -598,3 +598,84 @@ export const MenuLink = ({icon, children, className="", ...props}) => {
   );
 };
 
+
+export const FullScreenImage = observer(({className="", modalClassName="", magnification=3.0, Toggle, ...props}) => {
+  const imageRef = useRef();
+  const [zoom, setZoom] = useState(false);
+  const [initialZoom, setInitialZoom] = useState(false);
+  const [position, setPosition] = useState({top: 0, left: 0});
+
+  useEffect(() => setZoom(false), [props.src, rootStore.pageWidth]);
+
+  return (
+    <Modal Toggle={Toggle} className={`fullscreen-image ${modalClassName}`}>
+      <img
+        key={`fullscreen-image-${props.src}`}
+        ref={imageRef}
+        className={`fullscreen-image__image ${zoom ? "fullscreen-image__image--hidden" : ""} ${className}`}
+        onClick={event => {
+          const containerWidth = imageRef.current.getBoundingClientRect().width;
+          const containerHeight = imageRef.current.getBoundingClientRect().height;
+
+          let imageWidth = imageRef.current.naturalWidth;
+          let imageHeight = imageRef.current.naturalHeight;
+
+          let renderedImageWidth = imageWidth;
+          let renderedImageHeight = imageHeight;
+
+          const aspectRatio = imageWidth / imageHeight;
+
+          if(imageWidth > containerWidth && (containerWidth / imageWidth) * imageHeight < containerHeight) {
+            // Natural width wider than container AND if we scaled the image down to fit, the height would not exceed the container
+            renderedImageWidth = containerWidth;
+            renderedImageHeight = containerWidth / aspectRatio;
+          } else if(imageHeight > containerHeight) {
+            renderedImageHeight = containerHeight;
+            renderedImageWidth = containerHeight * aspectRatio;
+          }
+
+          const imageLeft = containerWidth / 2 - renderedImageWidth / 2;
+          const imageTop = containerHeight / 2 - renderedImageHeight / 2;
+
+          const relativeClientX = (event.clientX - imageLeft) / renderedImageWidth;
+          const relativeClientY = (event.clientY - imageTop) / renderedImageHeight;
+
+          let positionLeft = -1 * Math.max(0, Math.min(renderedImageWidth * magnification * relativeClientX - containerWidth / 2, renderedImageWidth * magnification - containerWidth));
+          if(renderedImageWidth * magnification < containerWidth) {
+            // Magnified width is not enough to fill container - center horizontally
+            positionLeft = containerWidth / 2 - (renderedImageWidth * magnification) / 2;
+          }
+
+          let positionTop = -1 * Math.max(0, Math.min(renderedImageHeight * magnification * relativeClientY - containerHeight / 2, renderedImageHeight * magnification - containerHeight));
+          if(renderedImageHeight * magnification < containerHeight) {
+            // Magnified height is not enough to fill container - center vertically
+            positionTop = containerHeight / 2 - (renderedImageHeight * magnification) / 2;
+          }
+
+          setPosition({
+            width: renderedImageWidth * magnification,
+            height: renderedImageHeight * magnification,
+            left: positionLeft,
+            top: positionTop
+          });
+
+          setZoom(true);
+          setInitialZoom(true);
+        }}
+        {...props}
+      />
+      <div
+        key={`fullscreen-image-zoomed-${props.src}`}
+        className={`fullscreen-image__zoomed-image ${!zoom ? "fullscreen-image__zoomed-image--hidden" : ""}`}
+        onClick={() => setZoom(false)}
+        style={{
+          display: initialZoom ? "block" : "none",
+          backgroundImage: `url("${props.src}")`,
+          backgroundPosition: `${position.left}px ${position.top}px`,
+          backgroundSize: `${position.width}px ${position.height}px`
+        }}
+        {...props}
+      />
+    </Modal>
+  );
+});

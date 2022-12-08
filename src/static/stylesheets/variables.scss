@@ -59,6 +59,6 @@ $action-height: 50px;
   animation: $duration fadein $animation;
 }
 
-@mixin page-fade-out {
-  animation: 0.5s fadeout ease-in;
+@mixin page-fade-out($duration: 0.5s, $animation: ease-in) {
+  animation: $duration fadeout $animation forwards;
 }

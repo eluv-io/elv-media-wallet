@@ -5,7 +5,7 @@ import {Initialize} from "@eluvio/elv-embed/src/Import";
 import {Link, useRouteMatch} from "react-router-dom";
 import {AvailableMedia, MediaImageUrl, MediaLinkPath} from "Components/nft/media/Utils";
 import ImageIcon from "Components/common/ImageIcon";
-import {QRCodeElement, RichText} from "Components/common/UIComponents";
+import {FullScreenImage, QRCodeElement, RichText} from "Components/common/UIComponents";
 import AlbumView from "Components/nft/media/Album";
 import Modal from "Components/common/Modal";
 import {MediaCollection} from "Components/nft/media/Browser";
@@ -141,10 +141,13 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
           </div>
           {
             showFullscreen ?
-              <Modal Toggle={() => setShowFullscreen(false)} className="nft-media__content__fullscreen-modal">
-                <img alt={mediaItem.mediaInfo.name} src={mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.imageUrl} className="nft-media__content__fullscreen-modal__image" />
-              </Modal> :
-              null
+              <FullScreenImage
+                Toggle={() => setShowFullscreen(false)}
+                modalClassName="nft-media__content__fullscreen-modal"
+                className="nft-media__content__fullscreen-modal__image"
+                alt={mediaItem.mediaInfo.name}
+                src={mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.imageUrl}
+              /> :null
           }
         </>
       );
