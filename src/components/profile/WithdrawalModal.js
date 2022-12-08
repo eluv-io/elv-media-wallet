@@ -324,7 +324,7 @@ const ProviderSelection = observer(({Continue, Cancel}) => {
           value={provider}
           onChange={value => setProvider(value)}
           containerClassName="withdrawal-confirmation__country-select"
-          options={["Stripe", "EBANX"]}
+          options={[["Stripe", "Stripe"], ["EBANX", "EBANX (Brazil Only)"]]}
         />
         <div className="withdrawal-confirmation__actions">
           <button className="action" onClick={() => Cancel()}>
