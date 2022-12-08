@@ -119,9 +119,6 @@ const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted
 
       options = (
         <>
-          <div className="purchase-modal__payment-message">
-            Buy with Credit Card
-          </div>
           <div className="purchase-modal__provider-options">
             <div className="purchase-modal__additional-fields">
               <div className="purchase-modal__payment-message">
@@ -187,7 +184,6 @@ const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted
       options = (
         <>
           <div className="purchase-modal__payment-message">
-            Buy with Crypto
             {
               usdcOnly ?
                 <button onClick={() => setShowUSDCOnlyMessage(!showUSDCOnlyMessage)} className={`purchase-modal__help-button ${showUSDCOnlyMessage ? "active" : ""}`}>
@@ -294,7 +290,6 @@ const PurchaseProviderSelection = observer(({paymentOptions, price, usdcAccepted
     default:
       options = (
         <>
-          <div className="purchase-modal__payment-message">Buy with</div>
           <div className="purchase-modal__provider-options">
             {
               stripeEnabled || ebanxEnabled ?

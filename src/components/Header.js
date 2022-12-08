@@ -81,6 +81,10 @@ const WalletMenu = observer(({marketplaceId, Hide}) => {
 });
 
 const PreferencesMenu = observer(({marketplaceId, availableDisplayCurrencies, Hide}) => {
+  if(!availableDisplayCurrencies.find(currency => currency.toUpperCase() === "USD")) {
+    availableDisplayCurrencies = ["USD", ...availableDisplayCurrencies];
+  }
+
   return (
     <Modal className="header__preferences-menu-modal" Toggle={Hide}>
       <div className="header__preferences-menu">
@@ -98,10 +102,7 @@ const PreferencesMenu = observer(({marketplaceId, availableDisplayCurrencies, Hi
           }}
           activeValuePrefix="Display Currency: "
           containerClassName="header__preferences-menu__currency-select"
-          options={[
-            ["USD", "United States dollar"],
-            ...(availableDisplayCurrencies || []).map(code => [code, currencyMap[code]])
-          ]}
+          options={(availableDisplayCurrencies || []).map(code => [code, currencyMap[code]])}
         />
       </div>
     </Modal>
@@ -220,7 +221,7 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
         </MenuLink>
 
         {
-          availableDisplayCurrencies.length > 0 ?
+          availableDisplayCurrencies.length > 1 ?
             <MenuLink
               icon={PreferencesIcon}
               onClick={() => setShowPreferencesMenu(!showPreferencesMenu)}
@@ -454,7 +455,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
           })
         }
         {
-          availableDisplayCurrencies.length > 0 ?
+          availableDisplayCurrencies.length > 1 ?
             <MenuLink
               icon={PreferencesIcon}
               onClick={() => setShowPreferencesMenu(!showPreferencesMenu)}
