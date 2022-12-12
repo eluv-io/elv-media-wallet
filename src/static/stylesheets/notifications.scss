@@ -1,9 +1,92 @@
+.notifications {
+  background: var(--color-component-bg-primary);
+  width: 100%;
+
+  &--page {
+    border: var(--border-component-secondary);
+    margin-inline: auto;
+    max-width: $tablet-breakpoint;
+
+    .notifications__list {
+      max-height: unset;
+    }
+
+    .notifications__link {
+      min-height: 80px;
+    }
+
+    .notifications__header {
+      padding: 20px;
+    }
+  }
+
+  &__header {
+    align-items: center;
+    display: flex;
+    font: var(--font-component-header);
+    font-size: 18px;
+    justify-content: space-between;
+    padding: 10px 20px;
+
+    &__filters {
+      align-items: center;
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    &__filter {
+      font-size: 11px;
+      height: 30px;
+      min-width: 90px;
+      text-transform: unset;
+    }
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    max-height: 500px;
+    overflow-y: auto;
+  }
+
+  &__link {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    max-height: 55px;
+    min-height: 55px;
+    width: 100%;
+  }
+}
+
 .notification {
   background: var(--color-component-bg-secondary);
   display: grid;
   gap: 20px;
-  grid-template-columns: 25px 1fr;
+  grid-template-columns: 23px 1fr;
   padding: 10px 20px;
+
+  * {
+    transition: color 0.15s ease;
+  }
+
+  &:hover {
+    .notification__header,
+    .notification__icon {
+      color: var(--color-component-text-highlight);
+
+      * {
+        color: var(--color-component-text-highlight);
+      }
+    }
+  }
+
+  &__icon {
+    height: 23px;
+    width: 23px;
+  }
 
   &__info {
     display: flex;
@@ -24,21 +107,22 @@
   }
 
   &__message {
-    font: var(--font-component-text);
     color: var(--color-component-text-secondary);
+    font: var(--font-component-text);
     font-size: 12px;
   }
 
   &__time {
-    font: var(--font-component-misc);
     color: var(--color-component-text-highlight);
+    font: var(--font-component-misc);
     font-size: 10px;
   }
 
-  &__new-indicator {
+  &__indicator {
     background: var(--color-component-text-highlight);
     border-radius: 100%;
-    height: 5px;
-    width: 5px;
+    box-shadow: var(--color-component-text-highlight) 0 0 1px;
+    height: 8px;
+    width: 8px;
   }
 }

@@ -234,6 +234,12 @@ const UserProfileContainer = observer(({children}) => {
                   Activity
                 </NavLink> : null
             }
+            {
+              currentUser ?
+                <NavLink to="notifications" className="header__navigation-link user__nav__link no-mobile">
+                  Notifications
+                </NavLink> : null
+            }
           </div>
         </div>
       </div>

@@ -19,7 +19,7 @@ import CopyIcon from "Assets/icons/copy";
 import WalletIcon from "Assets/icons/header/wallet icon v2";
 import PreferencesIcon from "Assets/icons/header/Preferences icon";
 import ProjectsIcon from "Assets/icons/header/New Projects_Marketplaces icon";
-
+import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
 
 const MobileNavigationMenu = observer(({marketplace, Close}) => {
   const userInfo = rootStore.loggedIn ? rootStore.walletClient.UserInfo() : {};
@@ -39,6 +39,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
       { name: "My Items", icon: ItemsIcon, to: UrlJoin("/wallet", "users", "me", "items"), authed: true },
       { name: "My Listings", icon: ListingsIcon, to: UrlJoin("/wallet", "users", "me", "listings"), authed: true },
       { name: "My Activity", icon: ActivityIcon, to: UrlJoin("/wallet", "users", "me", "activity"), authed: true },
+      { name: "Notifications", icon: NotificationsIcon, to: UrlJoin("/wallet", "users", "me", "notifications"), authed: true }
     ];
   } else {
     const tabs = fullMarketplace?.branding?.tabs || {};
@@ -57,6 +58,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
       { name: "My Collections", icon: CollectionsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "collections"), authed: true, hidden: !hasCollections },
       { name: "My Listings", icon: ListingsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "listings"), authed: true },
       { name: "My Activity", icon: ActivityIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "activity"), authed: true },
+      { name: "Notifications", icon: NotificationsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "notifications"), authed: true }
     ];
   }
 

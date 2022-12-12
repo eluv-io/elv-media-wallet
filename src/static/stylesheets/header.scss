@@ -181,6 +181,7 @@
 
     &__link {
       height: 100%;
+      position: relative;
 
       * {
         transition: color 0.25s ease;
@@ -198,6 +199,17 @@
       svg {
         height: 100%;
       }
+
+      &__indicator {
+        @include page-fade-in(0.15s, linear);
+        background: var(--color-text-highlight);
+        border-radius: 100%;
+        height: 8px;
+        position: absolute;
+        right: -8px;
+        top: -2px;
+        width: 8px;
+      }
     }
 
     @media screen and (max-width: $tablet-breakpoint) {
@@ -205,11 +217,14 @@
     }
   }
 
+  &__menu {
+    border: 1px solid var(--border-component-secondary);
+  }
+
   &__wallet-menu {
     @include component;
     @include page-fade-in(0.2s, ease-out);
 
-    border: 0;
     height: max-content;
     max-width: 450px;
     padding: 0 15px;
@@ -307,7 +322,6 @@
     @include component;
     @include page-fade-in(0.2s, ease-out);
 
-    border: 0;
     display: flex;
     flex-direction: column;
     height: max-content;
@@ -409,25 +423,10 @@
     }
   }
 
-
   &__notifications-menu {
-    border: 0;
     max-width: 450px;
     padding: 0;
-
-    &__header {
-      font: var(--font-component-header);
-      font-size: 20px;
-      padding: 10px 20px;
-    }
-
-    &__list {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      max-height: 500px;
-      overflow-y: auto;
-    }
+    width: 100%;
   }
 
   &__preferences-menu-modal {
@@ -499,6 +498,7 @@
 .mobile-navigation {
   align-items: center;
   display: none;
+  gap: 30px;
   height: 100%;
   justify-content: center;
   margin-left: 15px;
@@ -519,18 +519,30 @@
   }
 
   &__menu-button {
-    height: 100%;
-    padding: 10px 0;
+    height: 30px;
     width: 30px;
 
     svg {
-      height: 100%;
+      height: 30px;
       opacity: 0.5;
-      width: 100%;
+      width: 30px;
 
       * {
         color: var(--color-page-header-text);
       }
+    }
+  }
+
+  &__notifications-button {
+    height: 20px;
+    width: 20px;
+
+    .header__profile__link__indicator {
+      @include page-fade-in;
+      height: 5px;
+      opacity: 1;
+      right: -5px;
+      width: 5px;
     }
   }
 

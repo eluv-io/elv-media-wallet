@@ -8,6 +8,10 @@ import CountryCodesList from "country-codes-list";
 const currencyMap = CountryCodesList.customList("currencyCode", "{currencyNameEn}");
 
 const PreferencesMenu = observer(({marketplaceId, availableDisplayCurrencies, Hide}) => {
+  if(!availableDisplayCurrencies.find(currency => currency.toUpperCase() === "USD")) {
+    availableDisplayCurrencies = ["USD", ...availableDisplayCurrencies];
+  }
+
   return (
     <Modal className="header__preferences-menu-modal" Toggle={Hide}>
       <div className="header__preferences-menu">
@@ -25,10 +29,7 @@ const PreferencesMenu = observer(({marketplaceId, availableDisplayCurrencies, Hi
           }}
           activeValuePrefix="Display Currency: "
           containerClassName="header__preferences-menu__currency-select"
-          options={[
-            ["USD", "United States dollar"],
-            ...(availableDisplayCurrencies || []).map(code => [code, currencyMap[code]])
-          ]}
+          options={(availableDisplayCurrencies || []).map(code => [code, currencyMap[code]])}
         />
       </div>
     </Modal>

@@ -29,6 +29,7 @@ import UserActivity from "Components/user/UserActivity";
 import UserCollections from "Components/user/UserCollections";
 import {PageLoader} from "Components/common/Loaders";
 import NFTMedia from "Components/nft/media/index";
+import Notifications from "Components/header/NotificationsMenu";
 
 const GetMarketplace = (match) => {
   return rootStore.marketplaces[match.params.marketplaceId] || {};
@@ -57,6 +58,7 @@ const UserRoutes = ({includeMarketplaceRoutes}) => {
     { name: "Purchase Listing", path: "listings/:listingId/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
 
     { name: "Activity", path: "activity", includeUserProfile: true, Component: UserActivity },
+    { name: "Notifications", path: "notifications", Component: Notifications, includeUserProfile: true },
 
     { name: match => (GetMarketplace(match)?.storefront?.tabs?.my_items || "Items"), includeUserProfile: true, path: "items", Component: UserItems },
     { name: "Open Pack", path: "items/:contractId/:tokenId/open", Component: PackOpenStatus },

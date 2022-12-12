@@ -636,7 +636,7 @@ const NFTActions = observer(({
     if(listingStatus.sale) {
       return (
         <h2 className="details-page__message">
-          This NFT was sold for { FormatPriceString(listingStatus.sale.price) } on { new Date(listingStatus.sale.created * 1000).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
+          This NFT was sold for { FormatPriceString(listingStatus.sale.price, {stringOnly: true}) } on { new Date(listingStatus.sale.created * 1000).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
         </h2>
       );
     } else if(listingStatus.removed) {

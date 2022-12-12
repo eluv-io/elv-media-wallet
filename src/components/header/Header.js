@@ -9,13 +9,14 @@ import MobileNavigationMenu from "Components/header/MobileNavigationMenu";
 
 import WalletMenu from "Components/header/WalletMenu";
 import ProfileMenu from "Components/header/ProfileMenu";
+import {NotificationsMenu} from "Components/header/NotificationsMenu";
 
 import EluvioLogo from "Assets/icons/ELUVIO logo (updated nov 2).svg";
 import MenuIcon from "Assets/icons/menu";
 import UserIcon from "Assets/icons/profile.svg";
 import ProjectsIcon from "Assets/icons/header/New Projects_Marketplaces icon.svg";
 import WalletIcon from "Assets/icons/header/wallet icon v2.svg";
-import NotificationsMenu from "Components/header/NotificationsMenu";
+import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
 
 
 const ProfileNavigation = observer(() => {
@@ -59,10 +60,11 @@ const ProfileNavigation = observer(() => {
     <>
       <div className="header__profile">
         <button
-          className={`header__profile__link ${showNotificationsMenu ? "active" : ""}`}
+          className={`header__profile__link ${showNotificationsMenu || window.location.hash.endsWith("/notifications") ? "active" : ""}`}
           onClick={() => setShowNotificationsMenu(!showNotificationsMenu)}
         >
-          <ImageIcon alt="Notifications" icon={ProjectsIcon} className="header__profile__user__icon" />
+          <ImageIcon alt="Notifications" icon={NotificationsIcon} className="header__profile__user__icon" />
+          { rootStore.newNotifications ? <div className="header__profile__link__indicator" /> : null }
         </button>
         <button
           className={`header__profile__link ${showProfileMenu ? "active" : ""}`}
@@ -84,13 +86,20 @@ const ProfileNavigation = observer(() => {
   );
 });
 
-
-const MobileNavigation = ({marketplace, className=""}) => {
+const MobileNavigation = observer(({marketplace, className=""}) => {
   const [showMenu, setShowMenu] = useState(false);
+  const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
 
   return (
     <>
       <div className={`mobile-navigation ${className}`}>
+        <button
+          className={`header__profile__link mobile-navigation__notifications-button ${showNotificationsMenu || window.location.hash.endsWith("/notifications") ? "active" : ""}`}
+          onClick={() => setShowNotificationsMenu(!showNotificationsMenu)}
+        >
+          <ImageIcon alt="Notifications" icon={NotificationsIcon} className="header__profile__user__icon" />
+          { rootStore.newNotifications ? <div className="header__profile__link__indicator" /> : null }
+        </button>
         <button onClick={() => setShowMenu(!showMenu)} className="mobile-navigation__menu-button">
           <ImageIcon
             icon={MenuIcon}
@@ -104,9 +113,10 @@ const MobileNavigation = ({marketplace, className=""}) => {
             <MobileNavigationMenu marketplace={marketplace} Close={() => setShowMenu(false)} />
           </Modal> : null
       }
+      { showNotificationsMenu ? <NotificationsMenu marketplaceId={marketplace?.marketplaceId} Hide={() => setShowNotificationsMenu(false)} /> : null }
     </>
   );
-};
+});
 
 const MarketplaceNavigation = observer(({marketplace}) => {
   const branding = marketplace.branding || {};
