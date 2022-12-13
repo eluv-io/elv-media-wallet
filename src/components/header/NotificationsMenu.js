@@ -34,8 +34,10 @@ const Notification = observer(({notification, Hide}) => {
       icon = ListingSoldIcon;
       header = "Listing Sold";
       message = `Your '${notification.data.name}' has sold on the marketplace for ${FormatPriceString(notification.data.price, {stringOnly: true})}`;
-      link = UrlJoin("users", "me", "listings", notification.data.listing);
-      link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, link) : UrlJoin("/wallet", link);
+      if(notification.data.listing) {
+        link = UrlJoin("users", "me", "listings", notification.data.listing);
+        link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, link) : UrlJoin("/wallet", link);
+      }
 
       break;
 
@@ -153,7 +155,7 @@ const Notifications = observer(({marketplaceId, headerMenu, Hide}) => {
         }
       });
   }, [page]);
-
+  
   return (
     <div className={`notifications ${headerMenu ? "notifications--menu" : "notifications--page"}`}>
       <div className="notifications__header">
