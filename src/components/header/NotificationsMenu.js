@@ -26,8 +26,8 @@ const Notification = observer(({notification, Hide}) => {
   switch(notification.type) {
     case "__NO_NOTIFICATIONS":
       icon = OfferDeclinedIcon;
-      header = "No Notifications";
-      message = "You don't have any notifications";
+      header = "No New Notifications";
+      message = "You don't have any new notifications";
       break;
 
     case "LISTING_SOLD":
@@ -125,7 +125,7 @@ const Notifications = observer(({marketplaceId, headerMenu, Hide}) => {
   const [notifications, setNotifications] = useState([]);
   const [page, setPage] = useState(0);
   const [more, setMore] = useState(true);
-  const [onlyNew, setOnlyNew] = useState(false);
+  const [onlyNew, setOnlyNew] = useState(headerMenu);
 
   const filteredNotifications = notifications.filter(notification => !onlyNew || notification.new);
 
@@ -155,17 +155,17 @@ const Notifications = observer(({marketplaceId, headerMenu, Hide}) => {
         }
       });
   }, [page]);
-  
+
   return (
     <div className={`notifications ${headerMenu ? "notifications--menu" : "notifications--page"}`}>
       <div className="notifications__header">
         { headerMenu ? <div className="notifications__header__text">Notifications</div> : null }
         <div className="notifications__header__filters">
-          <button onClick={() => setOnlyNew(false)} className={`action action-selection notifications__header__filter ${onlyNew ? "" : "action-selection--active"}`}>
-            All
-          </button>
           <button onClick={() => setOnlyNew(true)} className={`action action-selection notifications__header__filter ${onlyNew ? "action-selection--active" : ""}`}>
             New
+          </button>
+          <button onClick={() => setOnlyNew(false)} className={`action action-selection notifications__header__filter ${onlyNew ? "" : "action-selection--active"}`}>
+            All
           </button>
         </div>
       </div>
