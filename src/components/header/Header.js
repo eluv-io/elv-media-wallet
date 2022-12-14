@@ -26,7 +26,7 @@ const ProfileNavigation = observer(() => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
 
-  if((!rootStore.loginLoaded && !rootStore.loggedIn) || rootStore.authenticating) {
+  if(!rootStore.loaded || rootStore.authenticating) {
     return <div className="header__profile header__profile--placeholder" />;
   }
 

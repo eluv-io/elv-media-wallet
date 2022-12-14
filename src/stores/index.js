@@ -3,6 +3,13 @@ let testTheme = undefined;
 //testTheme = import("../static/stylesheets/themes/wwe-test.theme.css");
 //testTheme = import("../static/stylesheets/themes/lotr-test.theme.css");
 
+window.sessionStorageAvailable = false;
+try {
+  sessionStorage.getItem("test");
+  window.sessionStorageAvailable = true;
+// eslint-disable-next-line no-empty
+} catch(error) {}
+
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";
 import {ElvWalletClient} from "@eluvio/elv-client-js";
@@ -41,6 +48,8 @@ try {
 class RootStore {
   appId = "eluvio-media-wallet";
 
+  auth0 = undefined;
+
   authOrigin = this.GetSessionStorage("auth-origin");
 
   salePendingDurationDays = 0;
@@ -72,12 +81,12 @@ class RootStore {
   loginOnly = window.loginOnly;
   requireLogin = searchParams.has("rl");
   capturedLogin = this.embedded && searchParams.has("cl");
-  showLogin = this.requireLogin || searchParams.get("action") === "login";
+  showLogin = this.requireLogin || searchParams.get("action") === "login" || searchParams.get("action") === "loginCallback";
 
   loggedIn = false;
   externalWalletUser = false;
   disableCloseEvent = false;
-  darkMode = this.GetSessionStorage("dark-mode");
+  darkMode = searchParams.has("lt") ? false : this.GetSessionStorage("dark-mode");
 
   loginCustomization = {};
 
@@ -89,7 +98,6 @@ class RootStore {
   auth0AccessToken = undefined;
 
   loaded = false;
-  loginLoaded = this.embedded;
   authenticating = false;
   client = undefined;
   walletClient = undefined;
@@ -241,6 +249,24 @@ class RootStore {
     try {
       this.loaded = false;
 
+      if(window.sessionStorageAvailable) {
+        // eslint-disable-next-line no-console
+        console.time("Auth0 Initial Load");
+
+        const {Auth0Client} = yield import("auth0-spa-js");
+
+        this.auth0 = new Auth0Client({
+          domain: EluvioConfiguration["auth0-domain"],
+          client_id: EluvioConfiguration["auth0-configuration-id"],
+          redirect_uri: UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""),
+          cacheLocation: "localstorage",
+          useRefreshTokens: true
+        });
+
+        // eslint-disable-next-line no-console
+        console.timeEnd("Auth0 Initial Load");
+      }
+
       // Login required
       if(searchParams.has("rl")) {
         this.requireLogin = true;
@@ -295,23 +321,20 @@ class RootStore {
         this.Log(error, true);
       }
 
-      let authenticationPromise;
       if(!this.inFlow && this.AuthInfo()) {
-        authenticationPromise = this.Authenticate(this.AuthInfo());
+        this.Log("Authenticating from saved session");
+        yield this.Authenticate(this.AuthInfo());
+      } else if(this.auth0) {
+        yield this.AuthenticateAuth0({});
       }
 
       const marketplace = decodeURIComponent(searchParams.get("mid")) || decodeURIComponent(searchParams.get("marketplace")) || this.GetSessionStorage("marketplace") || "";
-
 
       if(marketplace) {
         this.SetMarketplace({
           ...(this.ParseMarketplaceParameter(marketplace)),
           specified: true
         });
-      }
-
-      if(authenticationPromise) {
-        yield authenticationPromise;
       }
 
       this.SendEvent({event: EVENTS.LOADED});
@@ -327,6 +350,40 @@ class RootStore {
 
     return this.walletClient.UserAddress();
   }
+
+  AuthenticateAuth0 = flow(function * ({userData}={}) {
+    try {
+      // eslint-disable-next-line no-console
+      console.time("Auth0 Authentication");
+
+      // Check for existing Auth0 authentication status
+      yield this.auth0.checkSession();
+
+      if(yield this.auth0.isAuthenticated()) {
+        this.Log("Authenticating with Auth0 session");
+
+        const authInfo = yield this.auth0.getIdTokenClaims();
+
+        yield this.Authenticate({
+          idToken: authInfo.__raw,
+          user: {
+            name: authInfo.name,
+            email: authInfo.email,
+            verified: authInfo.email_verified,
+            userData
+          }
+        });
+      }
+    } catch(error) {
+      if(error?.message?.toLowerCase() !== "login required") {
+        this.Log("Error logging in with Auth0:", true);
+        this.Log(error, true);
+      }
+    }
+
+    // eslint-disable-next-line no-console
+    console.timeEnd("Auth0 Authentication");
+  })
 
   Authenticate = flow(function * ({idToken, clientAuthToken, clientSigningToken, externalWallet, walletName, user, saveAuthInfo=true, callback}) {
     if(this.authenticating) { return; }
@@ -440,7 +497,6 @@ class RootStore {
       }
 
       this.loggedIn = true;
-      this.loginLoaded = true;
       this.externalWalletUser = externalWallet || (walletName && walletName !== "Eluvio");
 
       this.RemoveLocalStorage("signed-out");
@@ -1483,12 +1539,12 @@ class RootStore {
 
     this.SendEvent({event: EVENTS.LOG_OUT, data: {address: this.CurrentAddress()}});
 
-    if(window.auth0) {
+    if(this.auth0) {
       try {
         this.disableCloseEvent = true;
 
         setTimeout(() => {
-          window.auth0.logout({
+          this.auth0.logout({
             returnTo: returnUrl || this.ReloadURL()
           });
         }, 100);
@@ -1503,14 +1559,16 @@ class RootStore {
     this.Reload();
   }
 
-  ReloadURL() {
+  ReloadURL(keepPath=false) {
     const url = new URL(UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""));
 
     if(this.appUUID) {
       url.searchParams.set("appUUID", this.appUUID);
     }
 
-    if(this.marketplaceId) {
+    if(keepPath) {
+      url.hash = window.location.hash;
+    } else if(this.marketplaceId) {
       url.hash = UrlJoin("/marketplace", this.marketplaceId, "store");
     }
 
@@ -1874,10 +1932,6 @@ class RootStore {
     };
 
     this.SetSessionStorage("navigation-info", JSON.stringify(this.navigationInfo));
-  }
-
-  SetLoginLoaded() {
-    this.loginLoaded = true;
   }
 
   ShowLogin({requireLogin=false, ignoreCapture=false}={}) {
