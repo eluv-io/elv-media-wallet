@@ -95,6 +95,7 @@
   &__navigation-container {
     align-items: center;
     display: flex;
+    gap: 20px;
     height: 100px;
     position: relative;
 
@@ -146,11 +147,11 @@
 
   @media screen and (max-width: $tablet-breakpoint) {
     &__navigation {
-      gap: 20px;
+      gap: 10px;
     }
 
     &__navigation-link {
-      font-size: 14px;
+      font-size: 12px;
     }
   }
 
@@ -161,7 +162,6 @@
     }
 
     .mobile-navigation {
-      margin-left: 30px;
       position: relative;
     }
   }
@@ -498,11 +498,9 @@
 .mobile-navigation {
   align-items: center;
   display: none;
-  gap: 30px;
+  gap: 15px;
   height: 100%;
   justify-content: center;
-  margin-left: 15px;
-  min-width: 30px;
   position: absolute;
   right: 0;
 

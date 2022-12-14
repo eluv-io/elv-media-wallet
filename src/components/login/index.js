@@ -343,7 +343,7 @@ const CustomConsentModal = ({customConsent}) => {
 };
 
 export const SaveCustomConsent = async (userData) => {
-  if(!rootStore.specifiedMarketplaceHash) { return; }
+  if(!rootStore.loggedIn || !rootStore.specifiedMarketplaceHash) { return; }
 
   const customizationMetadata = await rootStore.LoadLoginCustomization(rootStore.specifiedMarketplaceHash);
 
@@ -397,6 +397,8 @@ export const SaveCustomConsent = async (userData) => {
 };
 
 const AuthenticateAuth0 = async (userData) => {
+  if(rootStore.authenticating || rootStore.loggedIn) { return; }
+
   try {
     rootStore.Log("Parsing Auth0 parameters");
 
@@ -411,6 +413,10 @@ const AuthenticateAuth0 = async (userData) => {
     window.history.replaceState({}, document.title, `${window.location.pathname}${window.location.hash}`);
 
     await rootStore.AuthenticateAuth0({userData});
+
+    if(rootStore.loggedIn) {
+      SaveCustomConsent(userData);
+    }
   } catch(error){
     rootStore.Log("Auth0 authentication failed:", true);
     rootStore.Log(error, true);
@@ -439,7 +445,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
         // Authenticate with metamask
         await rootStore.Authenticate({externalWallet: "Metamask"});
       } else if(provider === "oauth") {
-        let auth0LoginParams = {};
+        let auth0LoginParams = { appState: {} };
 
         if(rootStore.darkMode) {
           auth0LoginParams.darkMode = true;
@@ -448,6 +454,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
         if(customizationOptions?.disable_third_party) {
           auth0LoginParams.disableThirdParty = true;
         }
+
         const callbackUrl = new URL(window.location.href);
         callbackUrl.pathname = callbackUrl.pathname.replace(/\/$/, "");
 
@@ -505,10 +512,9 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       returnURL.searchParams.delete("clear");
 
       setTimeout(() => rootStore.SignOut(returnURL.toString()), 1000);
-    } else if(rootStore.auth0 && params.isAuth0Callback) {
+    } else if(rootStore.loaded && !rootStore.loggedIn && rootStore.auth0 && params.isAuth0Callback) {
       // Returned from Auth0 callback - Authenticate
       AuthenticateAuth0(params.userData)
-        .then(() => SaveCustomConsent(params.userData))
         .finally(() => setAuth0Authenticating(false));
     } else if(rootStore.loaded && ["parent", "origin"].includes(params.source) && params.action === "login" && params.provider) {
       // Opened from frame - do appropriate login flow

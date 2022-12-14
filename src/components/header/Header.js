@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {rootStore} from "Stores";
+import {notificationStore, rootStore} from "Stores";
 import {Link, NavLink, useLocation} from "react-router-dom";
 import ImageIcon from "Components/common/ImageIcon";
 import UrlJoin from "url-join";
@@ -64,7 +64,7 @@ const ProfileNavigation = observer(() => {
           onClick={() => setShowNotificationsMenu(!showNotificationsMenu)}
         >
           <ImageIcon alt="Notifications" icon={NotificationsIcon} className="header__profile__user__icon" />
-          { rootStore.newNotifications ? <div className="header__profile__link__indicator" /> : null }
+          { notificationStore.newNotifications ? <div className="header__profile__link__indicator" /> : null }
         </button>
         <button
           className={`header__profile__link ${showProfileMenu ? "active" : ""}`}
@@ -98,7 +98,7 @@ const MobileNavigation = observer(({marketplace, className=""}) => {
           onClick={() => setShowNotificationsMenu(!showNotificationsMenu)}
         >
           <ImageIcon alt="Notifications" icon={NotificationsIcon} className="header__profile__user__icon" />
-          { rootStore.newNotifications ? <div className="header__profile__link__indicator" /> : null }
+          { notificationStore.newNotifications ? <div className="header__profile__link__indicator" /> : null }
         </button>
         <button onClick={() => setShowMenu(!showMenu)} className="mobile-navigation__menu-button">
           <ImageIcon

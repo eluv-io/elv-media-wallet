@@ -21,9 +21,10 @@ import EVENTS from "../../client/src/Events";
 
 import CheckoutStore from "Stores/Checkout";
 import TransferStore from "Stores/Transfer";
+import CryptoStore from "Stores/Crypto";
+import NotificationStore from "Stores/Notification";
 
 import NFTContractABI from "../static/abi/NFTContract";
-import CryptoStore from "Stores/Crypto";
 import {v4 as UUID} from "uuid";
 import ProfanityFilter from "bad-words";
 
@@ -160,14 +161,6 @@ class RootStore {
 
   headerText;
 
-  newNotifications = false;
-  notifications = [];
-  notificationMarker = { timestamp: 0, id: undefined };
-  supportedNotificationTypes = [
-    "LISTING_SOLD",
-    "TOKEN_UPDATED"
-  ];
-
   get specifiedMarketplace() {
     return this.marketplaces[this.specifiedMarketplaceId];
   }
@@ -220,6 +213,7 @@ class RootStore {
     this.checkoutStore = new CheckoutStore(this);
     this.transferStore = new TransferStore(this);
     this.cryptoStore = new CryptoStore(this);
+    this.notificationStore = new NotificationStore(this);
 
     if(this.appUUID) {
       this.SetSessionStorage(`app-uuid-${window.loginOnly}`, this.appUUID);
@@ -260,7 +254,8 @@ class RootStore {
           client_id: EluvioConfiguration["auth0-configuration-id"],
           redirect_uri: UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""),
           cacheLocation: "localstorage",
-          useRefreshTokens: true
+          useRefreshTokens: true,
+          useCookiesForTransactions: true
         });
 
         // eslint-disable-next-line no-console
@@ -325,6 +320,7 @@ class RootStore {
         this.Log("Authenticating from saved session");
         yield this.Authenticate(this.AuthInfo());
       } else if(this.auth0) {
+        // Attempt to re-auth with auth0. If 'code' is present in URL params, we are returning from Auth0 callback, let the login component handle it
         yield this.AuthenticateAuth0({});
       }
 
@@ -503,7 +499,7 @@ class RootStore {
 
       this.SendEvent({event: EVENTS.LOG_IN, data: { address }});
 
-      this.InitializeNotifications();
+      this.notificationStore.InitializeNotifications();
     } catch(error) {
       this.ClearAuthInfo();
       this.Log(error, true);
@@ -1356,60 +1352,6 @@ class RootStore {
     return this.userStats[userAddress];
   });
 
-  SetNotificationMarker = flow(function * ({id}) {
-    this.Log("Setting notification marker - " + id);
-
-    yield this.walletClient.SetProfileMetadata({
-      type: "app",
-      mode: "private",
-      appId: this.appId,
-      key: "notification-marker",
-      value: JSON.stringify({timestamp: Date.now() / 1000, id})
-    });
-
-    this.newNotifications = false;
-  });
-
-  FetchNotifications = flow(function * ({tenantId, offsetId, limit=10}) {
-    const notifications = yield this.walletClient.Notifications({tenantId, offsetId, limit, types: this.supportedNotificationTypes});
-
-    return notifications.map(notification => ({
-      ...notification,
-      new: notification.created > this.notificationMarker.timestamp
-    }));
-  });
-
-  InitializeNotifications = flow(function * () {
-    let notificationMarker = yield this.walletClient.ProfileMetadata({
-      type: "app",
-      mode: "private",
-      appId: this.appId,
-      key: "notification-marker"
-    });
-
-    if(notificationMarker) {
-      try {
-        this.notificationMarker = JSON.parse(notificationMarker);
-      // eslint-disable-next-line no-empty
-      } catch(error) {}
-    }
-
-    this.notifications = yield this.FetchNotifications({limit: 10});
-
-    if(this.notifications[0]?.new) {
-      this.newNotifications = true;
-    }
-
-    window.notificationSource = yield this.walletClient.AddNotificationListener({
-      onMessage: notification => {
-        runInAction(() => {
-          this.notifications = [{...notification, new: true}, ...this.notifications];
-          this.newNotifications = true;
-        });
-      }
-    });
-  });
-
   InitializeAnalytics(marketplace) {
     (marketplace?.analytics_ids || []).forEach(analytics => {
       const ids = analytics.ids;
@@ -2146,6 +2088,7 @@ export const rootStore = new RootStore();
 export const checkoutStore = rootStore.checkoutStore;
 export const transferStore = rootStore.transferStore;
 export const cryptoStore = rootStore.cryptoStore;
+export const notificationStore = rootStore.notificationStore;
 
 window.rootStore = rootStore;
 
