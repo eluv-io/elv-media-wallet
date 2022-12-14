@@ -432,9 +432,9 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
         marketplaceParams: marketplaceHash ? { marketplaceHash } : undefined,
         clearLogin: params.clearLogin || rootStore.GetLocalStorage("signed-out")
       });
-    } else {
-      await SaveCustomConsent(userData);
 
+      await SaveCustomConsent(userData);
+    } else {
       if(provider === "metamask") {
         // Authenticate with metamask
         await rootStore.Authenticate({externalWallet: "Metamask"});
@@ -508,6 +508,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
     } else if(rootStore.auth0 && params.isAuth0Callback) {
       // Returned from Auth0 callback - Authenticate
       AuthenticateAuth0(params.userData)
+        .then(() => SaveCustomConsent(params.userData))
         .finally(() => setAuth0Authenticating(false));
     } else if(rootStore.loaded && ["parent", "origin"].includes(params.source) && params.action === "login" && params.provider) {
       // Opened from frame - do appropriate login flow
