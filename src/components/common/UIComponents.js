@@ -599,21 +599,34 @@ export const MenuLink = ({icon, children, className="", ...props}) => {
 };
 
 
-export const FullScreenImage = observer(({className="", modalClassName="", magnification=3.0, Toggle, ...props}) => {
+export const FullScreenImage = observer(({className="", modalClassName="", magnification=2, Toggle, ...props}) => {
   const imageRef = useRef();
   const [zoom, setZoom] = useState(false);
   const [initialZoom, setInitialZoom] = useState(false);
+  const [dragStatus, setDragStatus] = useState({dragging: false, delta: 0, start: 0});
   const [position, setPosition] = useState({top: 0, left: 0});
 
   useEffect(() => setZoom(false), [props.src, rootStore.pageWidth]);
+
+  useEffect(() => {
+    const MouseOut = () => setDragStatus({...dragStatus, dragging: false});
+
+    document.addEventListener("mouseout", MouseOut);
+
+    return () => document.removeEventListener("mouseout", MouseOut);
+  });
+
+  const zoomable = rootStore.pageWidth > 800;
 
   return (
     <Modal Toggle={Toggle} className={`fullscreen-image ${modalClassName}`}>
       <img
         key={`fullscreen-image-${props.src}`}
         ref={imageRef}
-        className={`fullscreen-image__image ${zoom ? "fullscreen-image__image--hidden" : ""} ${className}`}
+        className={`fullscreen-image__image ${zoomable ? "fullscreen-image__image--zoomable" : ""} ${zoom ? "fullscreen-image__image--hidden" : ""} ${className}`}
         onClick={event => {
+          if(!zoomable) { return; }
+
           const containerWidth = imageRef.current.getBoundingClientRect().width;
           const containerHeight = imageRef.current.getBoundingClientRect().height;
 
@@ -666,8 +679,25 @@ export const FullScreenImage = observer(({className="", modalClassName="", magni
       />
       <div
         key={`fullscreen-image-zoomed-${props.src}`}
-        className={`fullscreen-image__zoomed-image ${!zoom ? "fullscreen-image__zoomed-image--hidden" : ""}`}
-        onClick={() => setZoom(false)}
+        className={`fullscreen-image__zoomed-image ${dragStatus.dragging ? "fullscreen-image__zoomed-image--dragging" : ""} ${!zoom ? "fullscreen-image__zoomed-image--hidden" : ""}`}
+        onClick={() => {
+          if(dragStatus.delta > 50 || Date.now() - dragStatus.start > 175) {
+            return;
+          }
+
+          setZoom(false);
+        }}
+        onMouseDown={() => {
+          setDragStatus({dragging: true, delta: 0, start: Date.now()});
+        }}
+        onMouseMove={event => {
+          if(!dragStatus.dragging) { return; }
+
+          setDragStatus({...dragStatus, delta: dragStatus.delta + Math.abs(event.movementX) + Math.abs(event.movementY)});
+          setPosition({left: position.left + event.movementX, top: position.top + event.movementY});
+        }}
+        onMouseUp={() => setDragStatus({...dragStatus, dragging: false})}
+        draggable
         style={{
           display: initialZoom ? "block" : "none",
           backgroundImage: `url("${props.src}")`,

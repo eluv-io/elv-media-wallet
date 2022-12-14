@@ -83,8 +83,15 @@
       position: relative;
       width: 100%;
 
-      &--frame {
+      &--frame,
+      &--ebook,
+      &--html {
         height: 100%;
+
+        .nft-media__content__target__fullscreen-button {
+          bottom: 5px;
+          right: 5px;
+        }
       }
 
       &--error {

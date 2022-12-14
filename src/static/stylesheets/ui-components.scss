@@ -601,7 +601,10 @@
 
   &__image {
     @include page-fade-in(0.25s, linear);
-    cursor: zoom-in;
+
+    &--zoomable {
+      cursor: zoom-in;
+    }
 
     &--hidden {
       @include page-fade-out(0.25s, linear);
@@ -623,6 +626,10 @@
     &--hidden {
       @include page-fade-out(0.25s, linear);
       pointer-events: none;
+    }
+
+    &--dragging {
+      cursor: move;
     }
   }
 }
