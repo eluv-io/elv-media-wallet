@@ -1573,7 +1573,7 @@ class RootStore {
     }
 
     if(this.specifiedMarketplaceId) {
-      url.searchParams.set("mid", this.specifiedMarketplaceHash);
+      url.searchParams.set("mid", this.specifiedMarketplaceHash || this.specifiedMarketplaceId);
     }
 
     if(this.loginOnly) {
