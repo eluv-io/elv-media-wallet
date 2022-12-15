@@ -51,7 +51,10 @@ const NotificationMenu = observer(({notification, parent, Hide}) => {
         {
           notificationStore.NotificationUnread(notification) ?
             <button
-              onClick={() => notificationStore.MarkNotificationRead(notification.id)}
+              onClick={() => {
+                notificationStore.MarkNotificationRead(notification.id);
+                Hide();
+              }}
               className="notification-menu__button"
             >
               <ImageIcon icon={CheckmarkIcon} className="notification-menu__button__icon"/>
@@ -284,7 +287,7 @@ const Notifications = observer(({marketplaceId, headerMenu, Hide}) => {
           {
             !loading && filteredNotifications.length === 0 ?
               <Notification notification={{type: "__NO_NOTIFICATIONS"}} Hide={Hide} /> :
-              filteredNotifications.map(notification => <Notification key={notification.created} notification={notification} Hide={Hide} />)
+              filteredNotifications.map(notification => <Notification key={notification.id} notification={notification} Hide={Hide} />)
           }
         </div>
         {

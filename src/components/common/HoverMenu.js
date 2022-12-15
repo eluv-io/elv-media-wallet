@@ -16,7 +16,7 @@ const HoverMenu = observer(({children, Hide, className="", ...props}) => {
       if(window.__activeMenues > menuIndex) { return; }
 
       if(menuRef?.current && !menuRef.current.contains(event.target)) {
-        Hide();
+        setTimeout(Hide, 50);
       }
     };
 
