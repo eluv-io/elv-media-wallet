@@ -4,13 +4,13 @@ import {rootStore} from "Stores";
 import {Copy, FormatPriceString} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import {Link} from "react-router-dom";
-import HeaderMenu from "Components/header/HeaderMenu";
+import HoverMenu from "Components/common/HoverMenu";
 
 import CopyIcon from "Assets/icons/copy";
 
 const WalletMenu = observer(({marketplaceId, Hide}) => {
   return (
-    <HeaderMenu Hide={Hide} className="header__wallet-menu">
+    <HoverMenu Hide={Hide} className="header__menu header__wallet-menu">
       <h2 className="header__wallet-menu__header">Media Wallet</h2>
       <div className="header__wallet-menu__section">
         <div className="header__wallet-menu__section-header">My Eluvio Content Blockchain Address</div>
@@ -39,7 +39,7 @@ const WalletMenu = observer(({marketplaceId, Hide}) => {
       >
         View Details
       </Link>
-    </HeaderMenu>
+    </HoverMenu>
   );
 });
 

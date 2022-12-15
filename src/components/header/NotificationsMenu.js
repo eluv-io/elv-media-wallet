@@ -1,7 +1,6 @@
 import React, {useEffect, useState, useRef} from "react";
 import {observer} from "mobx-react";
 import {rootStore, notificationStore} from "Stores";
-import HeaderMenu from "Components/header/HeaderMenu";
 import {FormatPriceString} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import {Ago} from "../../utils/Utils";
@@ -10,6 +9,7 @@ import UrlJoin from "url-join";
 import {Link, useRouteMatch} from "react-router-dom";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {createPortal} from "react-dom";
+import HoverMenu from "Components/common/HoverMenu";
 import PreferencesMenu from "Components/header/PreferencesMenu";
 
 import ListingSoldIcon from "Assets/icons/header/listings icon.svg";
@@ -24,26 +24,9 @@ import CheckmarkIcon from "Assets/icons/check.svg";
 
 const NotificationMenu = observer(({notification, parent, Hide}) => {
   const [disabling, setDisabling] = useState(false);
-  const menuRef = useRef();
 
   const containerBox = parent?.current?.closest(".notifications")?.getBoundingClientRect() || {};
   const parentBox = parent?.current?.getBoundingClientRect() || {};
-
-  useEffect(() => {
-    if(!menuRef || !menuRef.current) { return; }
-
-    const onClickOutside = event => {
-      if(window._showPreferencesMenu) { return; }
-
-      if(!menuRef?.current || !menuRef.current.contains(event.target)) {
-        Hide();
-      }
-    };
-
-    document.addEventListener("click", onClickOutside);
-
-    return () => document.removeEventListener("click", onClickOutside);
-  }, [menuRef]);
 
   useEffect(() => {
     if(!parent.current) { return; }
@@ -57,13 +40,13 @@ const NotificationMenu = observer(({notification, parent, Hide}) => {
 
   return (
     createPortal(
-      <div
+      <HoverMenu
+        Hide={Hide}
+        className="notification-menu"
         style={{
           top: parentBox.top - containerBox.top + parentBox.height / 2 - 10,
           left: parentBox.left - containerBox.left + parentBox.width - 200 - 30
         }}
-        className="notification-menu"
-        ref={menuRef}
       >
         {
           notificationStore.NotificationUnread(notification) ?
@@ -98,7 +81,7 @@ const NotificationMenu = observer(({notification, parent, Hide}) => {
             { disabling ? <Loader loader="inline" /> : null }
           </div>
         </button>
-      </div>,
+      </HoverMenu>,
       parent?.current?.closest(".notifications")
     )
   );
@@ -334,9 +317,9 @@ const Notifications = observer(({marketplaceId, headerMenu, Hide}) => {
 
 export const NotificationsMenu = observer(({marketplaceId, Hide}) => {
   return (
-    <HeaderMenu Hide={Hide} className="header__notifications-menu">
+    <HoverMenu Hide={Hide} className="header__menu header__notifications-menu">
       <Notifications headerMenu marketplaceId={marketplaceId} Hide={Hide} />
-    </HeaderMenu>
+    </HoverMenu>
   );
 });
 

@@ -5,7 +5,7 @@ import ImageIcon from "Components/common/ImageIcon";
 import {Copy, MenuLink} from "Components/common/UIComponents";
 import UrlJoin from "url-join";
 import PreferencesMenu from "Components/header/PreferencesMenu";
-import HeaderMenu from "Components/header/HeaderMenu";
+import HoverMenu from "Components/common/HoverMenu";
 
 import EmailIcon from "Assets/icons/email icon";
 import MetamaskIcon from "Assets/icons/metamask fox";
@@ -30,11 +30,11 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
   const IsActive = (page="") => (_, location) => rootStore.loggedIn && (location.pathname.includes(`/users/me/${page}`) || location.pathname.includes(`/users/${rootStore.CurrentAddress()}/${page}`));
 
   useEffect(() => {
-    window._showPreferencesMenu = showPreferencesMenu;
+    window.__headerSubmenuActive = showPreferencesMenu;
   }, [showPreferencesMenu]);
 
   return (
-    <HeaderMenu className="header__profile-menu" Hide={Hide}>
+    <HoverMenu className="header__menu header__profile-menu" Hide={Hide}>
       <div className="header__profile-menu__info">
         <div className="header__profile-menu__info__type">Signed in Via {userInfo.walletType === "Custodial" ? "Email" : userInfo.walletName}</div>
         <div className="header__profile-menu__info__account">
@@ -156,7 +156,7 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
             Hide={() => setShowPreferencesMenu(false)}
           /> : null
       }
-    </HeaderMenu>
+    </HoverMenu>
   );
 });
 
