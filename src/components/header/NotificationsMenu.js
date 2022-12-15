@@ -68,10 +68,7 @@ const NotificationMenu = observer(({notification, parent, Hide}) => {
         {
           notificationStore.NotificationUnread(notification) ?
             <button
-              onClick={() => {
-                notificationStore.MarkNotificationRead(notification.id);
-                Hide();
-              }}
+              onClick={() => notificationStore.MarkNotificationRead(notification.id)}
               className="notification-menu__button"
             >
               <ImageIcon icon={CheckmarkIcon} className="notification-menu__button__icon"/>

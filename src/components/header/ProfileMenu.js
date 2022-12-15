@@ -15,6 +15,7 @@ import ItemsIcon from "Assets/icons/header/items icon";
 import CollectionsIcon from "Assets/icons/header/collections icon";
 import ListingsIcon from "Assets/icons/header/listings icon";
 import ActivityIcon from "Assets/icons/header/Activity";
+import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
 import PreferencesIcon from "Assets/icons/header/Preferences icon";
 import ProjectsIcon from "Assets/icons/header/New Projects_Marketplaces icon";
 
@@ -107,6 +108,15 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
           isActive={IsActive("activity")}
         >
           My Activity
+        </MenuLink>
+        <MenuLink
+          icon={NotificationsIcon}
+          className="header__profile-menu__link"
+          to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "notifications") : "/wallet/users/me/notifications"}
+          onClick={Hide}
+          isActive={IsActive("activity")}
+        >
+          Notifications
         </MenuLink>
 
         <MenuLink

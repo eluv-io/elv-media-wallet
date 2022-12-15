@@ -105,6 +105,8 @@ class NotificationStore {
           this.activeNotificationTypes = Object.keys(this.supportedNotificationTypes).filter(type => !this.disabledNotificationTypes.includes(type));
           // eslint-disable-next-line no-empty
         } catch(error) {}
+      } else {
+        this.activeNotificationTypes = Object.keys(this.supportedNotificationTypes);
       }
 
       let notificationMarker = yield this.walletClient.ProfileMetadata({
@@ -138,6 +140,10 @@ class NotificationStore {
 
     this.notificationListener = yield this.walletClient.AddNotificationListener({
       onMessage: notification => {
+        if(!this.activeNotificationTypes.includes(notification.type)) {
+          return;
+        }
+
         runInAction(() => {
           this.notifications = [{...notification, new: true}, ...this.notifications];
           this.newNotifications = true;

@@ -176,7 +176,9 @@ const Profile = observer(() => {
             </h2>
 
             <WalletConnect type="phantom" showPaymentPreference />
-            <WalletConnect type="metamask" showPaymentPreference />
+            {
+              // <WalletConnect type="metamask" showPaymentPreference />
+            }
           </div>
       }
     </div>

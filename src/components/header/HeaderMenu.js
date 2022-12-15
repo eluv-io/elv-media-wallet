@@ -15,7 +15,7 @@ const HeaderMenu = observer(({children, Hide, className=""}) => {
       }
     };
 
-    document.addEventListener("click", onClickOutside);
+    document.addEventListener("click", onClickOutside, true);
 
     return () => document.removeEventListener("click", onClickOutside);
   }, [menuRef]);
