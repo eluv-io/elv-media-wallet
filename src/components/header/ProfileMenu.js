@@ -26,8 +26,6 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
   const hasCollections = fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0;
   const userInfo = rootStore.walletClient.UserInfo();
 
-  const availableDisplayCurrencies = fullMarketplace?.display_currencies || [];
-
   const IsActive = (page="") => (_, location) => rootStore.loggedIn && (location.pathname.includes(`/users/me/${page}`) || location.pathname.includes(`/users/${rootStore.CurrentAddress()}/${page}`));
 
   useEffect(() => {
@@ -111,16 +109,13 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
           My Activity
         </MenuLink>
 
-        {
-          availableDisplayCurrencies.length > 0 ?
-            <MenuLink
-              icon={PreferencesIcon}
-              onClick={() => setShowPreferencesMenu(!showPreferencesMenu)}
-              className={`header__profile-menu__link header__profile-menu__link-secondary ${showPreferencesMenu ? "active" : ""}`}
-            >
-              Preferences
-            </MenuLink> : null
-        }
+        <MenuLink
+          icon={PreferencesIcon}
+          onClick={() => setShowPreferencesMenu(!showPreferencesMenu)}
+          className={`header__profile-menu__link header__profile-menu__link-secondary ${showPreferencesMenu ? "active" : ""}`}
+        >
+          Preferences
+        </MenuLink>
         {
           rootStore.hideGlobalNavigation || (marketplaceId && rootStore.hideGlobalNavigationInMarketplace)  ? null :
             <>
@@ -148,7 +143,6 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
         showPreferencesMenu ?
           <PreferencesMenu
             marketplaceId={marketplaceId}
-            availableDisplayCurrencies={availableDisplayCurrencies}
             Hide={() => setShowPreferencesMenu(false)}
           /> : null
       }

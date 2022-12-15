@@ -297,6 +297,63 @@
   }
 }
 
+.switch-button {
+  border: 0;
+  border-radius: 60px;
+  cursor: pointer;
+  display: flex;
+  height: 30px;
+  padding: 0;
+  position: relative;
+  width: 60px;
+
+  input {
+    height: 0;
+    opacity: 0;
+    width: 0;
+  }
+
+  * {
+    transition: left 0.25s ease, color 0.25s ease, background-color 0.25s ease;
+  }
+
+  &__slider {
+    align-items: center;
+    background-color: var(--background-button-selection);
+    border: var(--border-button-selection);
+    border-radius: 50px;
+    cursor: pointer;
+    display: flex;
+    height: 100%;
+    padding: 0;
+    position: absolute;
+    width: 100%;
+
+    &__ball {
+      background-color: var(--color-button-selection-text);
+      border-radius: 50%;
+      content: "";
+      display: block;
+      height: 25px;
+      left: 1px;
+      position: absolute;
+      width: 25px;
+    }
+  }
+
+  &--active {
+    .switch-button__slider {
+      background-color: var(--background-button-selection-active);
+
+      &__ball {
+        background-color: var(--color-button-selection-active-text);
+        left: calc(100% - 26px);
+      }
+    }
+  }
+}
+
+
 .menu-button {
   border: 0;
   min-width: unset;

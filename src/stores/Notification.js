@@ -3,14 +3,24 @@ import {rootStore} from "./index";
 
 class NotificationStore {
   newNotifications = false;
+  notificationListener = undefined;
   notifications = [];
   notificationMarker = { timestamp: 0, id: undefined };
   supportedNotificationTypes = {
-    "LISTING_SOLD": "Listing Sold",
-    "TOKEN_UPDATED": "Token Updated"
+    "LISTING_SOLD": {
+      type: "LISTING_SOLD",
+      label: "Listing Sold",
+      description: "Notify me when one of my listed NFTs is sold"
+    },
+    "TOKEN_UPDATED": {
+      type: "TOKEN_UPDATED",
+      label: "Token Updated",
+      description: "Notify me when an NFT I own is updated (e.g. new media"
+    }
   };
-  activeNotificationTypes = [Object.keys(this.supportedNotificationTypes)];
+  activeNotificationTypes = [Object.keys(this.supportedNotificationTypes)].sort();
   disabledNotificationTypes = [];
+  readNotifications = {};
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -31,6 +41,14 @@ class NotificationStore {
     return this.rootStore.walletClient;
   }
 
+  NotificationUnread(notification) {
+    return notification.new && !this.readNotifications[notification.id];
+  }
+
+  SetNewNotifications() {
+    this.newNotifications = !!this.notifications.find(notification => this.NotificationUnread(notification));
+  }
+
   SetNotificationMarker = flow(function * ({id}) {
     this.Log("Setting notification marker - " + id);
 
@@ -46,54 +64,62 @@ class NotificationStore {
   });
 
   FetchNotifications = flow(function * ({tenantId, offsetId, limit=10}) {
-    const notifications = yield this.walletClient.Notifications({tenantId, offsetId, limit, types: this.activeNotificationTypes});
+    if(this.activeNotificationTypes.length === 0) {
+      return [];
+    }
+
+    const notifications = yield this.walletClient.Notifications({
+      tenantId,
+      offsetId,
+      limit,
+      types: this.activeNotificationTypes
+    });
 
     return notifications.map(notification => ({
       ...notification,
-      new: notification.created > this.notificationMarker.timestamp
+      new: !this.readNotifications[notification.id] && notification.created > this.notificationMarker.timestamp
     }));
   });
 
-  InitializeNotifications = flow(function * () {
-    if(window.notificationSource) {
-      window.notificationSource.close();
-    }
-
-    let disabledNotificationTypes = yield this.walletClient.ProfileMetadata({
-      type: "app",
-      mode: "private",
-      appId: this.appId,
-      key: "disabled-notification-types"
-    });
-
-    if(disabledNotificationTypes) {
-      try {
-        disabledNotificationTypes = JSON.parse(disabledNotificationTypes);
-
-        this.disabledNotificationTypes = disabledNotificationTypes;
-        this.activeNotificationTypes = Object.keys(this.supportedNotificationTypes).filter(type => !this.disabledNotificationTypes.includes(type));
-        // eslint-disable-next-line no-empty
-      } catch(error) {}
-    }
-
+  InitializeNotifications = flow(function * (initial=false) {
     if(this.activeNotificationTypes.length === 0) {
       // No supported notifications active
       this.notifications = [];
       return;
     }
 
-    let notificationMarker = yield this.walletClient.ProfileMetadata({
-      type: "app",
-      mode: "private",
-      appId: this.appId,
-      key: "notification-marker"
-    });
+    if(initial) {
+      // Only reload notification marker and disabled types on first load
+      let disabledNotificationTypes = yield this.walletClient.ProfileMetadata({
+        type: "app",
+        mode: "private",
+        appId: this.appId,
+        key: "disabled-notification-types"
+      });
 
-    if(notificationMarker) {
-      try {
-        this.notificationMarker = JSON.parse(notificationMarker);
+      if(disabledNotificationTypes) {
+        try {
+          disabledNotificationTypes = JSON.parse(disabledNotificationTypes);
+
+          this.disabledNotificationTypes = disabledNotificationTypes;
+          this.activeNotificationTypes = Object.keys(this.supportedNotificationTypes).filter(type => !this.disabledNotificationTypes.includes(type));
+          // eslint-disable-next-line no-empty
+        } catch(error) {}
+      }
+
+      let notificationMarker = yield this.walletClient.ProfileMetadata({
+        type: "app",
+        mode: "private",
+        appId: this.appId,
+        key: "notification-marker"
+      });
+
+      if(notificationMarker) {
+        try {
+          this.notificationMarker = JSON.parse(notificationMarker);
         // eslint-disable-next-line no-empty
-      } catch(error) {}
+        } catch(error) {}
+      }
     }
 
     this.notifications = yield this.FetchNotifications({limit: 10});
@@ -102,7 +128,15 @@ class NotificationStore {
       this.newNotifications = true;
     }
 
-    window.notificationSource = yield this.walletClient.AddNotificationListener({
+    if(this.notificationListener) {
+      try {
+        this.notificationListener.close();
+      } catch(error) {
+        this.Log(error, true);
+      }
+    }
+
+    this.notificationListener = yield this.walletClient.AddNotificationListener({
       onMessage: notification => {
         runInAction(() => {
           this.notifications = [{...notification, new: true}, ...this.notifications];
@@ -110,11 +144,19 @@ class NotificationStore {
         });
       }
     });
+
+    this.SetNewNotifications();
   });
+
+  MarkNotificationRead(notificationId) {
+    this.readNotifications[notificationId] = true;
+
+    this.SetNewNotifications();
+  }
 
   DisableNotificationType = flow(function * (notificationType) {
     this.disabledNotificationTypes = [ ...this.disabledNotificationTypes, notificationType ];
-    this.activeNotificationTypes = this.activeNotificationTypes.filter(type => !this.disabledNotificationTypes.includes(type));
+    this.activeNotificationTypes = this.activeNotificationTypes.filter(type => !this.disabledNotificationTypes.includes(type)).sort();
 
     yield rootStore.walletClient.SetProfileMetadata({
       type: "app",
@@ -124,12 +166,12 @@ class NotificationStore {
       value: JSON.stringify(this.disabledNotificationTypes)
     });
 
-    this.InitializeNotifications();
+    yield this.InitializeNotifications();
   });
 
   EnableNotificationType = flow(function * (notificationType) {
     this.disabledNotificationTypes = this.disabledNotificationTypes.filter(type => type !== notificationType);
-    this.activeNotificationTypes = [ ...this.activeNotificationTypes, notificationType ];
+    this.activeNotificationTypes = [ ...this.activeNotificationTypes, notificationType ].sort();
 
     yield rootStore.walletClient.SetProfileMetadata({
       type: "app",
@@ -139,7 +181,7 @@ class NotificationStore {
       value: JSON.stringify(this.disabledNotificationTypes)
     });
 
-    this.InitializeNotifications();
+    yield this.InitializeNotifications();
   });
 }
 

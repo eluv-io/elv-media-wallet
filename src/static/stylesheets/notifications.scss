@@ -1,7 +1,6 @@
 .notifications {
   background: var(--color-component-bg-primary);
   height: max-content;
-  overflow: hidden;
   position: relative;
   width: 100%;
 
@@ -30,6 +29,11 @@
     font-size: 18px;
     justify-content: space-between;
     padding: 10px 20px;
+
+    &__preferences-button {
+      color: var(--color-component-text-secondary);
+      font-size: 12px;
+    }
 
     &__filters {
       align-items: center;

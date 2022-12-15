@@ -437,10 +437,19 @@
 
     .modal__content {
       height: max-content;
-      max-width: 550px;
+      max-width: 800px;
       overflow: visible;
       padding: 20px;
       width: 100%;
+    }
+
+    @media screen and (max-width: $mobile-breakpoint) {
+      .modal__content {
+        max-width: unset;
+        min-height: 100%;
+        padding: 0;
+        top: 0;
+      }
     }
   }
 
@@ -448,27 +457,55 @@
     @include modal;
     height: max-content;
     overflow-y: visible;
-    padding: 25px 50px 35px;
+    padding: 25px 100px;
     width: 100%;
 
-    &__label,
-    &__hint {
-      margin-bottom: 15px;
+    &__header {
+      color: var(--color-component-text-secondary);
+      font-size: 20px;
+      margin-bottom: 30px;
       text-align: center;
-      width: 100%;
+    }
+
+    &__section {
+      margin-bottom: 60px;
     }
 
     &__label {
-      font-size: 20px;
-      font-weight: 500;
+      font-size: 24px;
+      text-align: center;
     }
 
     &__hint {
-      font-family: var(--font-family-tertiary);
+      color: var(--color-component-text-secondary);
+      font-size: 14px;
+      margin: 5px 0;
+      text-align: center;
+    }
+
+    &__option {
+      align-items: center;
+      border-bottom: var(--border-component-secondary);
+      display: flex;
+      gap: 20px;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 20px 0;
+
+      &__label {
+        font-size: 18px;
+      }
+
+      &__description {
+        color: var(--color-component-text-secondary);
+        font-size: 14px;
+      }
     }
 
     &__currency-select {
+      margin-inline: auto;
       margin-top: 20px;
+      max-width: 400px;
       width: 100%;
 
       .styled-select__button {
@@ -478,14 +515,27 @@
     }
 
     @media screen and (max-width: $mobile-breakpoint) {
+      border: 0;
+      min-height: 100vh;
       padding-inline: 30px;
+      padding-top: 50px;
 
-      &__label {
+      &__header {
         font-size: 16px;
       }
 
-      &__hint {
-        font-size: 14px;
+      &__label {
+        font-size: 20px;
+      }
+
+      &__option {
+        &__label {
+          font-size: 16px;
+        }
+
+        &__description {
+          font-size: 12px;
+        }
       }
 
       .styled-select__button {

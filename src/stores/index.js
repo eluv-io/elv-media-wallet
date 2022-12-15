@@ -499,7 +499,7 @@ class RootStore {
 
       this.SendEvent({event: EVENTS.LOG_IN, data: { address }});
 
-      this.notificationStore.InitializeNotifications();
+      this.notificationStore.InitializeNotifications(true);
     } catch(error) {
       this.ClearAuthInfo();
       this.Log(error, true);

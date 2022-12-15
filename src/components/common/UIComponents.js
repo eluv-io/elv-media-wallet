@@ -359,6 +359,16 @@ export const ButtonWithMenu = ({buttonProps, RenderMenu, className=""}) => {
   );
 };
 
+export const SwitchButton = ({value, onChange}) => {
+  return (
+    <button className={`switch-button ${value ? "switch-button--active" : ""}`} onClick={() => onChange(!value)}>
+      <div className="switch-button__slider">
+        <div className="switch-button__slider__ball" />
+      </div>
+    </button>
+  );
+};
+
 let debounceTimeout;
 export const DebouncedInput = ({...props}) => {
   const [inputValue, setInputValue] = useState(props.value);

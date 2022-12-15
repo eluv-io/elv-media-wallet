@@ -7,8 +7,10 @@ import ImageIcon from "Components/common/ImageIcon";
 import {Ago} from "../../utils/Utils";
 import {Loader} from "Components/common/Loaders";
 import UrlJoin from "url-join";
-import {Link} from "react-router-dom";
+import {Link, useRouteMatch} from "react-router-dom";
 import Utils from "@eluvio/elv-client-js/src/Utils";
+import {createPortal} from "react-dom";
+import PreferencesMenu from "Components/header/PreferencesMenu";
 
 import ListingSoldIcon from "Assets/icons/header/listings icon.svg";
 import TokenUpdatedIcon from "Assets/icons/plus.svg";
@@ -19,9 +21,8 @@ import OfferAcceptedIcon from "Assets/icons/header/offer icon.svg";
 import MenuIcon from "Assets/icons/more-horizontal.svg";
 import NotificationDisabledIcon from "Assets/icons/header/bell-off.svg";
 import CheckmarkIcon from "Assets/icons/check.svg";
-import {createPortal} from "react-dom";
 
-const NotificationMenu = observer(({type, typeLabel, parent, Hide}) => {
+const NotificationMenu = observer(({notification, parent, Hide}) => {
   const [disabling, setDisabling] = useState(false);
   const menuRef = useRef();
 
@@ -47,9 +48,11 @@ const NotificationMenu = observer(({type, typeLabel, parent, Hide}) => {
   useEffect(() => {
     if(!parent.current) { return; }
 
-    parent.current.closest(".notifications__list")?.addEventListener("scroll", Hide);
+    const list = parent.current.closest(".notifications__list");
 
-    return () => parent.current.closest(".notifications__list")?.removeEventListener("scroll", Hide);
+    list?.addEventListener("scroll", Hide);
+
+    return () => list?.removeEventListener("scroll", Hide);
   }, [parent]);
 
   return (
@@ -62,10 +65,19 @@ const NotificationMenu = observer(({type, typeLabel, parent, Hide}) => {
         className="notification-menu"
         ref={menuRef}
       >
-        <button className="notification-menu__button">
-          <ImageIcon icon={CheckmarkIcon} className="notification-menu__button__icon" />
-          <div className="notification-menu__button__text">Mark as read</div>
-        </button>
+        {
+          notificationStore.NotificationUnread(notification) ?
+            <button
+              onClick={() => {
+                notificationStore.MarkNotificationRead(notification.id);
+                Hide();
+              }}
+              className="notification-menu__button"
+            >
+              <ImageIcon icon={CheckmarkIcon} className="notification-menu__button__icon"/>
+              <div className="notification-menu__button__text">Mark as read</div>
+            </button> : null
+        }
         <button
           onClick={async () => {
             if(disabling) { return; }
@@ -73,7 +85,7 @@ const NotificationMenu = observer(({type, typeLabel, parent, Hide}) => {
             setDisabling(true);
 
             try {
-              await notificationStore.DisableNotificationType(type);
+              await notificationStore.DisableNotificationType(notification.type);
             } finally {
               setDisabling(false);
               Hide();
@@ -84,7 +96,7 @@ const NotificationMenu = observer(({type, typeLabel, parent, Hide}) => {
           <ImageIcon icon={NotificationDisabledIcon} className="notification-menu__button__icon" />
           <div className="notification-menu__button__text">
             <div className={`notification-menu__button__text-content ${disabling ? "notification-menu__button__text-content--loading" : ""}`}>
-              Turn off {typeLabel} notifications
+              Turn off {notificationStore.supportedNotificationTypes[notification.type]?.label || "these"} notifications
             </div>
             { disabling ? <Loader loader="inline" /> : null }
           </div>
@@ -103,7 +115,7 @@ const Notification = observer(({notification, Hide}) => {
 
   const marketplace = notification.tenant_id && rootStore.MarketplaceByTenantId({tenantId: notification.tenant_id});
 
-  let typeLabel, header, message, icon, link;
+  let header, message, icon, link;
   switch(notification.type) {
     case "__NO_NOTIFICATIONS":
       icon = OfferDeclinedIcon;
@@ -113,7 +125,6 @@ const Notification = observer(({notification, Hide}) => {
 
     case "LISTING_SOLD":
       icon = ListingSoldIcon;
-      typeLabel = "Listing Sold";
       header = "Listing Sold";
       message = `Your '${notification.data.name}' has sold on the marketplace for ${FormatPriceString(notification.data.price, {stringOnly: true})}`;
       if(notification.data.listing) {
@@ -125,7 +136,6 @@ const Notification = observer(({notification, Hide}) => {
 
     case "TOKEN_UPDATED":
       icon = TokenUpdatedIcon;
-      typeLabel = "Token Updated";
       header = "Updated Token";
       message = notification.data.message;
       const contractId = `ictr${Utils.AddressToHash(notification.data.contract)}`;
@@ -136,7 +146,6 @@ const Notification = observer(({notification, Hide}) => {
 
     case "OFFER_RECEIVED":
       icon = OfferReceivedIcon;
-      typeLabel = "Offer Received";
       header = "Offer Received";
       message = `You have received an offer of ${FormatPriceString(notification.data.price, {stringOnly: true})} on your '${notification.data.name}'.`;
 
@@ -144,7 +153,6 @@ const Notification = observer(({notification, Hide}) => {
 
     case "OFFER_ACCEPTED":
       icon = OfferAcceptedIcon;
-      typeLabel = "Offer Accepted";
       header = "Offer Accepted";
       message = `Your offer on '${notification.data.name}' for ${FormatPriceString(notification.data.price, {stringOnly: true})} has been accepted.`;
 
@@ -152,7 +160,6 @@ const Notification = observer(({notification, Hide}) => {
 
     case "OFFER_DECLINED":
       icon = OfferDeclinedIcon;
-      typeLabel = "Offer Declined";
       header = "Offer Declined";
       message = `Your offer on '${notification.data.name}' for ${FormatPriceString(notification.data.price, {stringOnly: true})} was declined.`;
 
@@ -160,7 +167,6 @@ const Notification = observer(({notification, Hide}) => {
 
     case "OFFER_EXPIRED":
       icon = OfferExpiredIcon;
-      typeLabel = "Offer Expired";
       header = "Offer Expired";
       message = `Your offer on '${notification.data.name}' for ${FormatPriceString(notification.data.price, {stringOnly: true})} has expired.`;
 
@@ -201,7 +207,7 @@ const Notification = observer(({notification, Hide}) => {
       </div>
       { notificationInfo }
       <div className="notification__actions">
-        { notification.new ? <div className="notification__indicator-container"><div className="notification__indicator" /></div> : null }
+        { notificationStore.NotificationUnread(notification) ? <div className="notification__indicator-container"><div className="notification__indicator" /></div> : null }
         {
           notification.type === "__NO_NOTIFICATIONS" ? null :
             <button
@@ -219,8 +225,7 @@ const Notification = observer(({notification, Hide}) => {
         {
           showMenu ?
             <NotificationMenu
-              type={notification.type}
-              typeLabel={typeLabel}
+              notification={notification}
               parent={ref}
               Hide={() => setShowMenu(false)}
             /> : null
@@ -232,14 +237,16 @@ const Notification = observer(({notification, Hide}) => {
 
 
 const Notifications = observer(({marketplaceId, headerMenu, Hide}) => {
+  const match = useRouteMatch();
   const perPage = 10;
   const [loading, setLoading] = useState(!headerMenu);
   const [notifications, setNotifications] = useState([]);
   const [page, setPage] = useState(0);
   const [more, setMore] = useState(true);
   const [onlyNew, setOnlyNew] = useState(headerMenu);
+  const [showPreferences, setShowPreferences] = useState(false);
 
-  const filteredNotifications = notifications.filter(notification => !onlyNew || notification.new);
+  const filteredNotifications = notifications.filter(notification => !onlyNew || notificationStore.NotificationUnread(notification));
 
   useEffect(() => {
     return () => notificationStore.SetNotificationMarker({id: notificationStore.notifications[0]?.id});
@@ -254,7 +261,7 @@ const Notifications = observer(({marketplaceId, headerMenu, Hide}) => {
 
   useEffect(() => {
     // Full page - load notifications locally
-    if(headerMenu) { return; }
+    if(headerMenu || page < 0) { return; }
 
     setLoading(true);
     notificationStore.FetchNotifications({limit: perPage, offsetId: notifications.slice(-1)[0]?.id})
@@ -268,49 +275,63 @@ const Notifications = observer(({marketplaceId, headerMenu, Hide}) => {
       });
   }, [page]);
 
+  useEffect(() => {
+    // Full page - whenever active notification types change, force reload
+    if(headerMenu) { return; }
+
+    setNotifications([]);
+    setMore(true);
+    setPage(-1);
+    setTimeout(() => setPage(1), 1);
+  }, [notificationStore.activeNotificationTypes]);
+
   return (
-    <div className={`notifications ${headerMenu ? "notifications--menu" : "notifications--page"}`}>
-      <div className="notifications__header">
-        { headerMenu ? <div className="notifications__header__text">Notifications</div> : null }
-        <div className="notifications__header__filters">
-          <button onClick={() => setOnlyNew(true)} className={`action action-selection notifications__header__filter ${onlyNew ? "action-selection--active" : ""}`}>
-            New
-          </button>
-          <button onClick={() => setOnlyNew(false)} className={`action action-selection notifications__header__filter ${onlyNew ? "" : "action-selection--active"}`}>
-            All
-          </button>
+    <>
+      <div className={`notifications ${headerMenu ? "notifications--menu" : "notifications--page"}`}>
+        <div className="notifications__header">
+          { headerMenu ? <div className="notifications__header__text">Notifications</div> : null }
+          <div className="notifications__header__filters">
+            <button onClick={() => setOnlyNew(true)} className={`action action-selection notifications__header__filter ${onlyNew ? "action-selection--active" : ""}`}>
+              New
+            </button>
+            <button onClick={() => setOnlyNew(false)} className={`action action-selection notifications__header__filter ${onlyNew ? "" : "action-selection--active"}`}>
+              All
+            </button>
+          </div>
+          { !headerMenu ? <button onClick={() => setShowPreferences(true)} className="notifications__header__preferences-button">Preferences</button> : null }
         </div>
-      </div>
-      <div className="notifications__list">
+        <div className="notifications__list">
+          {
+            !loading && filteredNotifications.length === 0 ?
+              <Notification notification={{type: "__NO_NOTIFICATIONS"}} Hide={Hide} /> :
+              filteredNotifications.map(notification => <Notification key={notification.created} notification={notification} Hide={Hide} />)
+          }
+        </div>
         {
-          !loading && filteredNotifications.length === 0 ?
-            <Notification notification={{type: "__NO_NOTIFICATIONS"}} Hide={Hide} /> :
-            filteredNotifications.map(notification => <Notification key={notification.created} notification={notification} Hide={Hide} />)
+          // Header menu - If more notifications, link to full page
+          headerMenu ? (
+            notificationStore.notifications.length > 0 ?
+              <Link
+                to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "notifications") : "/wallet/users/me/notifications"}
+                onClick={() => Hide()}
+                className="notifications__link"
+              >
+                View All
+              </Link> :
+              null
+          ) :
+            // Full page - show loading indicator / load more button
+            (
+              loading ?
+                <Loader className="notifications__link"/> :
+                more && notifications.length === filteredNotifications.length ?
+                  <button onClick={() => setPage(page + 1)} className="notifications__link">Load More</button> :
+                  null
+            )
         }
       </div>
-      {
-        // Header menu - If more notifications, link to full page
-        headerMenu ? (
-          notificationStore.notifications.length > 0 ?
-            <Link
-              to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "notifications") : "/wallet/users/me/notifications"}
-              onClick={() => Hide()}
-              className="notifications__link"
-            >
-              View All
-            </Link> :
-            null
-        ) :
-          // Full page - show loading indicator / load more button
-          (
-            loading ?
-              <Loader className="notifications__link"/> :
-              more && notifications.length === filteredNotifications.length ?
-                <button onClick={() => setPage(page + 1)} className="notifications__link">Load More</button> :
-                null
-          )
-      }
-    </div>
+      { showPreferences ? <PreferencesMenu marketplaceId={match.params.marketplaceId} Hide={() => setShowPreferences(false)} /> : null }
+    </>
   );
 });
 
