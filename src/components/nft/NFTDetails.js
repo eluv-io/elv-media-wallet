@@ -788,7 +788,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
 
   const LoadListingStatus = async () => {
     const status = await transferStore.CurrentNFTStatus({
-      listingId,
+      listingId: match.params.listingId,
       nft,
       contractAddress,
       tokenId
@@ -875,7 +875,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
   }
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  const listingId = nft?.details?.ListingId || match.params.listingId || listingStatus?.listing?.details?.ListingId;
+  const listingId = match.params.listingId || listingStatus?.listing?.details?.ListingId || nft?.details?.ListingId;
   const tokenId = match.params.tokenId || listingStatus?.listing?.details?.TokenIdStr;
   const isInCheckout = listingStatus?.listing?.details?.CheckoutLockedUntil && listingStatus?.listing.details.CheckoutLockedUntil > Date.now();
   const showModal = match.params.mode === "purchase" || match.params.mode === "list";
@@ -1148,6 +1148,7 @@ export const ListingDetails = observer(() => {
 
   return (
     <AsyncComponent
+      key={`listing-${match.params.listingId}`}
       loadingClassName="page-loader"
       Load={async () => {
         try {
