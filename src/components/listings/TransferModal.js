@@ -28,9 +28,9 @@ const TransferModal = observer(({nft, onTransferring, onTransferred, Close}) => 
       setError("");
 
       if(targetAddress) {
-        rootStore.walletClient.UserItemInfo({userAddress: targetAddress})
-          .then(items => {
-            if(Object.keys(items || {}).length === 0) {
+        rootStore.walletClient.UserItems({userAddress: targetAddress, limit: 1})
+          .then(({paging}) => {
+            if(paging.total <= 0) {
               setError("The target address does not currently own any items. Are you sure this is the right address?");
             }
           });

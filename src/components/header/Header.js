@@ -93,13 +93,16 @@ const MobileNavigation = observer(({marketplace, className=""}) => {
   return (
     <>
       <div className={`mobile-navigation ${className}`}>
-        <button
-          className={`header__profile__link mobile-navigation__notifications-button ${showNotificationsMenu || window.location.hash.endsWith("/notifications") ? "active" : ""}`}
-          onClick={() => setShowNotificationsMenu(!showNotificationsMenu)}
-        >
-          <ImageIcon alt="Notifications" icon={NotificationsIcon} className="header__profile__user__icon" />
-          { notificationStore.newNotifications ? <div className="header__profile__link__indicator" /> : null }
-        </button>
+        {
+          rootStore.loggedIn ?
+            <button
+              className={`header__profile__link mobile-navigation__notifications-button ${showNotificationsMenu || window.location.hash.endsWith("/notifications") ? "active" : ""}`}
+              onClick={() => setShowNotificationsMenu(!showNotificationsMenu)}
+            >
+              <ImageIcon alt="Notifications" icon={NotificationsIcon} className="header__profile__user__icon"/>
+              {notificationStore.newNotifications ? <div className="header__profile__link__indicator"/> : null}
+            </button> : null
+        }
         <button onClick={() => setShowMenu(!showMenu)} className="mobile-navigation__menu-button">
           <ImageIcon
             icon={MenuIcon}

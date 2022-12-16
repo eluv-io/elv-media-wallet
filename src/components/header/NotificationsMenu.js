@@ -121,9 +121,11 @@ const Notification = observer(({notification, Hide}) => {
       icon = TokenUpdatedIcon;
       header = "Updated Token";
       message = notification.data.message;
-      const contractId = `ictr${Utils.AddressToHash(notification.data.contract)}`;
-      link = UrlJoin("users", "me", "items", contractId, notification.data.token.toString());
-      link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, link) : UrlJoin("/wallet", link);
+      if(notification.data.contract && notification.data.token) {
+        const contractId = `ictr${Utils.AddressToHash(notification.data.contract)}`;
+        link = UrlJoin("users", "me", "items", contractId, notification.data.token.toString());
+        link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, link) : UrlJoin("/wallet", link);
+      }
 
       break;
 

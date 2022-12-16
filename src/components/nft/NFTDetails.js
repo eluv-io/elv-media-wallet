@@ -261,7 +261,6 @@ const NFTContractSection = ({nftInfo, SetBurned, ShowTransferModal}) => {
                 Confirm: async () => {
                   await rootStore.BurnNFT({nft: nftInfo.nft});
                   SetBurned(true);
-                  await rootStore.LoadNFTContractInfo();
                 }
               })}
             >

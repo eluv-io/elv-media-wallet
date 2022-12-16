@@ -64,9 +64,7 @@ const MintingStatus = observer(({
         }
 
         if(items.length > 0) {
-          await rootStore.LoadNFTContractInfo();
-
-          const firstItem = rootStore.NFTContractInfo({
+          const firstItem = await rootStore.LoadNFTData({
             contractAddress: items[0].token_addr,
             tokenId: items[0].token_id_str || items[0].token_id
           });
@@ -74,7 +72,7 @@ const MintingStatus = observer(({
           if(!firstItem) { return; }
 
           await Promise.all(
-            items.map(async ({token_addr, token_id_str}) =>
+            items.slice(1).map(async ({token_addr, token_id_str}) =>
               await rootStore.LoadNFTData({contractAddress: token_addr, tokenId: token_id_str})
             )
           );
@@ -492,12 +490,6 @@ export const ClaimMintingStatus = observer(() => {
     sku: match.params.sku
   });
 
-  useEffect(() => {
-    if(status) {
-      rootStore.LoadNFTContractInfo();
-    }
-  }, [status]);
-
   if(!status) {
     return (
       <MintingStatus
@@ -514,21 +506,6 @@ export const ClaimMintingStatus = observer(() => {
   }
 
   let items = status.extra.filter(item => item.token_addr && (item.token_id || item.token_id_str));
-  try {
-    if(!items || items.length === 0) {
-      const marketplaceItem = ((marketplace?.items || []).find(item => item.sku === match.params.sku)) || {};
-      const itemAddress = ((marketplaceItem.nft_template || {}).nft || {}).address;
-
-      if(itemAddress) {
-        items = Object.values(rootStore.nftInfo)
-          .filter(details => Utils.EqualAddress(itemAddress, details.ContractAddr))
-          .map(details => ({token_id: details.TokenIdStr, token_addr: details.ContractAddr}));
-      }
-    }
-  } catch(error) {
-    rootStore.Log("Failed to load backup mint result", true);
-    rootStore.Log(error, true);
-  }
 
   return (
     <MintResults
@@ -647,12 +624,6 @@ export const CollectionRedeemStatus = observer(() => {
   const hideText = collection.hide_text || collectionsInfo.hide_text;
 
   const Status = async () => await rootStore.CollectionRedemptionStatus({marketplaceId: marketplace.marketplaceId, confirmationId: match.params.confirmationId});
-
-  useEffect(() => {
-    if(status) {
-      rootStore.LoadNFTContractInfo();
-    }
-  }, [status]);
 
   if(!status) {
     return (

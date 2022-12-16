@@ -712,22 +712,6 @@ class RootStore {
     return yield this.UserProfile({userId: this.CurrentAddress(), force: true});
   });
 
-  // Get already loaded basic NFT contract info
-  NFTContractInfo({tokenId, contractAddress, contractId}) {
-    if(contractId) {
-      contractAddress = Utils.HashToAddress(contractId);
-    }
-
-    return this.nftInfo[`${contractAddress}-${tokenId}`];
-  }
-
-  // Load basic owned NFT contract info
-  LoadNFTContractInfo = flow(function * () {
-    if(!this.loggedIn || this.fromEmbed) { return; }
-
-    this.nftInfo = yield this.walletClient.UserItemInfo();
-  });
-
   // Get already loaded full NFT data
   NFTData({tokenId, contractAddress, contractId}) {
     if(contractId) {
