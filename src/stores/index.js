@@ -316,12 +316,14 @@ class RootStore {
         this.Log(error, true);
       }
 
-      if(!this.inFlow && this.AuthInfo()) {
-        this.Log("Authenticating from saved session");
-        yield this.Authenticate(this.AuthInfo());
-      } else if(this.auth0) {
-        // Attempt to re-auth with auth0. If 'code' is present in URL params, we are returning from Auth0 callback, let the login component handle it
-        yield this.AuthenticateAuth0({});
+      if(!this.inFlow) {
+        if(this.AuthInfo()) {
+          this.Log("Authenticating from saved session");
+          yield this.Authenticate(this.AuthInfo());
+        } else if(this.auth0) {
+          // Attempt to re-auth with auth0. If 'code' is present in URL params, we are returning from Auth0 callback, let the login component handle it
+          yield this.AuthenticateAuth0({});
+        }
       }
 
       const marketplace = decodeURIComponent(searchParams.get("mid")) || decodeURIComponent(searchParams.get("marketplace")) || this.GetSessionStorage("marketplace") || "";
