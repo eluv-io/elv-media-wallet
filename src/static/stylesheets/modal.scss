@@ -40,14 +40,21 @@
 }
 
 .modal__close-button {
+  border: 0;
   height: 35px;
   min-width: 0;
+  opacity: 0.25;
   padding: 8px;
   position: fixed;
   right: 50px;
   top: 35px;
+  transition: opacity 0.15s ease;
   width: 35px;
   z-index: 10002;
+
+  &:hover {
+    opacity: 1;
+  }
 
   svg {
     height: 100%;
