@@ -176,12 +176,33 @@
     }
 
     &__fullscreen-modal {
+      .loader {
+        position: absolute;
+      }
+
       .modal__content {
         height: 100%;
         max-height: 90vh;
         max-width: 90vw;
         overflow-y: hidden;
         width: 100%;
+      }
+
+      &__frame {
+        bottom: 0;
+        height: 100%;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 100%;
+
+        iframe {
+          border: 0;
+          height: 100%;
+          max-height: unset;
+          width: 100%;
+        }
       }
 
       &__image {

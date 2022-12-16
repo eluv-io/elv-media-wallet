@@ -130,12 +130,13 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
             showFullscreen ?
               <Modal Toggle={() => setShowFullscreen(false)} className="fullscreen-image nft-media__content__fullscreen-modal">
                 <PageLoader />
-                <iframe
-                  src={mediaItem.mediaInfo.embedUrl}
-                  allowFullScreen
-                  allow="accelerometer;autoplay;clipboard-write;encrypted-media;fullscreen;gyroscope;picture-in-picture"
-                  className="nft-media__content__target nft-media__content__target--frame"
-                />
+                <div className="nft-media__content__fullscreen-modal__frame">
+                  <iframe
+                    src={mediaItem.mediaInfo.embedUrl}
+                    allowFullScreen
+                    allow="accelerometer;autoplay;clipboard-write;encrypted-media;fullscreen;gyroscope;picture-in-picture"
+                  />
+                </div>
               </Modal> : null
           }
         </>
