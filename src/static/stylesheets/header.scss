@@ -95,6 +95,7 @@
   &__navigation-container {
     align-items: center;
     display: flex;
+    gap: 20px;
     height: 100px;
     position: relative;
 
@@ -130,7 +131,7 @@
   &__navigation {
     align-items: center;
     display: flex;
-    gap: 30px; // sass-lint:disable-line no-misspelled-properties
+    gap: 30px;
   }
 
   &__navigation-link {
@@ -146,11 +147,11 @@
 
   @media screen and (max-width: $tablet-breakpoint) {
     &__navigation {
-      gap: 20px; // sass-lint:disable-line no-misspelled-properties
+      gap: 10px;
     }
 
     &__navigation-link {
-      font-size: 14px;
+      font-size: 12px;
     }
   }
 
@@ -161,7 +162,6 @@
     }
 
     .mobile-navigation {
-      margin-left: 30px;
       position: relative;
     }
   }
@@ -169,7 +169,7 @@
   &__profile {
     align-items: center;
     display: flex;
-    gap: 30px; // sass-lint:disable-line no-misspelled-properties
+    gap: 30px;
     height: 55px;
     padding: 15px 0;
     position: absolute;
@@ -181,6 +181,7 @@
 
     &__link {
       height: 100%;
+      position: relative;
 
       * {
         transition: color 0.25s ease;
@@ -198,11 +199,26 @@
       svg {
         height: 100%;
       }
+
+      &__indicator {
+        @include page-fade-in(0.15s, linear);
+        background: var(--color-text-highlight);
+        border-radius: 100%;
+        height: 8px;
+        position: absolute;
+        right: -8px;
+        top: -2px;
+        width: 8px;
+      }
     }
 
     @media screen and (max-width: $tablet-breakpoint) {
       display: none;
     }
+  }
+
+  &__menu {
+    border: 1px solid var(--border-component-secondary);
   }
 
   &__wallet-menu {
@@ -301,7 +317,8 @@
     }
   }
 
-  &__profile-menu {
+  &__profile-menu,
+  &__notifications-menu {
     @include component;
     @include page-fade-in(0.2s, ease-out);
 
@@ -327,7 +344,7 @@
       &__account {
         align-items: center;
         display: flex;
-        gap: 20px; // sass-lint:disable-line no-misspelled-properties
+        gap: 20px;
         padding: 7px 20px 10px 30px;
         width: 100%;
       }
@@ -397,11 +414,6 @@
       width: 100%;
     }
 
-    &__header {
-      color: var(--color-component-text-highlight);
-      font-size: 18px;
-    }
-
     &__currency-select {
       margin-top: 10px;
 
@@ -411,6 +423,11 @@
     }
   }
 
+  &__notifications-menu {
+    max-width: 450px;
+    padding: 0;
+    width: 100%;
+  }
 
   &__preferences-menu-modal {
     align-items: center;
@@ -420,10 +437,19 @@
 
     .modal__content {
       height: max-content;
-      max-width: 550px;
+      max-width: 800px;
       overflow: visible;
       padding: 20px;
       width: 100%;
+    }
+
+    @media screen and (max-width: $mobile-breakpoint) {
+      .modal__content {
+        max-width: unset;
+        min-height: 100%;
+        padding: 0;
+        top: 0;
+      }
     }
   }
 
@@ -431,27 +457,55 @@
     @include modal;
     height: max-content;
     overflow-y: visible;
-    padding: 25px 50px 35px;
+    padding: 25px 100px;
     width: 100%;
 
-    &__label,
-    &__hint {
-      margin-bottom: 15px;
+    &__header {
+      color: var(--color-component-text-secondary);
+      font-size: 20px;
+      margin-bottom: 30px;
       text-align: center;
-      width: 100%;
+    }
+
+    &__section {
+      margin-bottom: 60px;
     }
 
     &__label {
-      font-size: 20px;
-      font-weight: 500;
+      font-size: 24px;
+      text-align: center;
     }
 
     &__hint {
-      font-family: var(--font-family-tertiary);
+      color: var(--color-component-text-secondary);
+      font-size: 14px;
+      margin: 5px 0;
+      text-align: center;
+    }
+
+    &__option {
+      align-items: center;
+      border-bottom: var(--border-component-secondary);
+      display: flex;
+      gap: 20px;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 20px 0;
+
+      &__label {
+        font-size: 18px;
+      }
+
+      &__description {
+        color: var(--color-component-text-secondary);
+        font-size: 14px;
+      }
     }
 
     &__currency-select {
+      margin-inline: auto;
       margin-top: 20px;
+      max-width: 400px;
       width: 100%;
 
       .styled-select__button {
@@ -461,14 +515,27 @@
     }
 
     @media screen and (max-width: $mobile-breakpoint) {
+      border: 0;
+      min-height: 100vh;
       padding-inline: 30px;
+      padding-top: 50px;
 
-      &__label {
+      &__header {
         font-size: 16px;
       }
 
-      &__hint {
-        font-size: 14px;
+      &__label {
+        font-size: 20px;
+      }
+
+      &__option {
+        &__label {
+          font-size: 16px;
+        }
+
+        &__description {
+          font-size: 12px;
+        }
       }
 
       .styled-select__button {
@@ -481,10 +548,9 @@
 .mobile-navigation {
   align-items: center;
   display: none;
+  gap: 15px;
   height: 100%;
   justify-content: center;
-  margin-left: 15px;
-  min-width: 30px;
   position: absolute;
   right: 0;
 
@@ -501,18 +567,30 @@
   }
 
   &__menu-button {
-    height: 100%;
-    padding: 10px 0;
+    height: 30px;
     width: 30px;
 
     svg {
-      height: 100%;
+      height: 30px;
       opacity: 0.5;
-      width: 100%;
+      width: 30px;
 
       * {
         color: var(--color-page-header-text);
       }
+    }
+  }
+
+  &__notifications-button {
+    height: 20px;
+    width: 20px;
+
+    .header__profile__link__indicator {
+      @include page-fade-in;
+      height: 5px;
+      opacity: 1;
+      right: -5px;
+      width: 5px;
     }
   }
 
@@ -554,7 +632,7 @@
     &__account {
       align-items: center;
       display: flex;
-      gap: 20px; // sass-lint:disable-line no-misspelled-properties
+      gap: 20px;
     }
 
     &__address {
@@ -577,7 +655,7 @@
     background: var(--color-component-bg-primary);
     border-radius: 3px;
     display: flex;
-    gap: 20px; // sass-lint:disable-line no-misspelled-properties
+    gap: 20px;
     margin: 10px 0;
     padding: 10px;
   }

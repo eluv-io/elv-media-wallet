@@ -1,10 +1,7 @@
 .card-list {
   display: flex;
   flex-wrap: wrap;
-  // sass-lint:disable no-misspelled-properties
   gap: 15px;
-  // sass-lint:enable no-misspelled-properties
-
 
   &--centered {
     justify-content: center;

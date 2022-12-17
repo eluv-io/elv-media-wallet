@@ -1,0 +1,253 @@
+.notifications {
+  background: var(--color-component-bg-primary);
+  height: max-content;
+  position: relative;
+  width: 100%;
+
+  &--page {
+    border: var(--border-component-secondary);
+    margin-inline: auto;
+    max-width: $tablet-breakpoint;
+
+    .notifications__list {
+      max-height: unset;
+    }
+
+    .notifications__link {
+      min-height: 80px;
+    }
+
+    .notifications__header {
+      padding: 20px;
+    }
+  }
+
+  &__header {
+    align-items: center;
+    display: flex;
+    font: var(--font-component-header);
+    font-size: 18px;
+    justify-content: space-between;
+    padding: 10px 20px;
+
+    &__preferences-button {
+      color: var(--color-component-text-secondary);
+      font-size: 12px;
+    }
+
+    &__filters {
+      align-items: center;
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    &__filter {
+      font-size: 11px;
+      height: 30px;
+      min-width: 90px;
+      padding: 0;
+      text-transform: unset;
+    }
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    max-height: min(500px, 60vh);
+    overflow-y: auto;
+  }
+
+  &__link {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    max-height: 55px;
+    min-height: 55px;
+    width: 100%;
+  }
+
+  @media screen and (max-width: $tablet-breakpoint) {
+    &__header {
+      font-size: 16px;
+
+      &__filters {
+        gap: 10px;
+      }
+
+      &__filter {
+        font-size: 10px;
+        min-width: 60px;
+      }
+    }
+  }
+}
+
+.notification {
+  background: var(--color-component-bg-secondary);
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 23px 1fr max-content;
+  padding: 10px 20px;
+
+  * {
+    transition: color 0.15s ease;
+  }
+
+  &:hover {
+    .notification__header,
+    .notification__icon {
+      color: var(--color-component-text-highlight);
+
+      * {
+        color: var(--color-component-text-highlight);
+      }
+    }
+  }
+
+  &__icon-container {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+  }
+
+  &__icon {
+    height: 23px;
+    width: 23px;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__heading {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__header {
+    font: var(--font-component-header);
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  &__message {
+    color: var(--color-component-text-secondary);
+    font: var(--font-component-text);
+    font-size: 12px;
+  }
+
+  &__time {
+    color: var(--color-component-text-highlight);
+    font: var(--font-component-misc);
+    font-size: 10px;
+  }
+
+  &__actions {
+    align-items: flex-start;
+    display: flex;
+    gap: 5px;
+    justify-content: flex-end;
+    position: relative;
+  }
+
+  &__indicator-container {
+    align-items: center;
+    display: flex;
+    height: 20px;
+    justify-content: center;
+  }
+
+  &__indicator {
+    background: var(--color-component-text-highlight);
+    border-radius: 100%;
+    box-shadow: var(--color-component-text-highlight) 0 0 1px;
+    height: 6px;
+    width: 6px;
+  }
+
+  &__menu-button {
+    height: 20px;
+    padding-inline: 10px;
+    width: 40px;
+
+    * {
+      color: var(--color-component-text-secondary);
+      transition: color 0.25s ease;
+    }
+
+    &.active,
+    &.focus-visible,
+    &:hover {
+      * {
+        color: var(--color-component-text-primary);
+      }
+    }
+  }
+}
+
+.notification-menu {
+  @include component;
+  @include page-fade-in(0.25s);
+  left: 1070px;
+  position: absolute;
+  top: 472px;
+  width: 200px;
+  z-index: 10;
+
+  &__button {
+    align-items: center;
+    background: var(--color-component-bg-primary);
+    border-radius: var(--border-radius-component);
+    display: flex;
+    font-size: 14px;
+    gap: 10px;
+    padding: 10px;
+    text-align: left;
+    text-transform: unset;
+    transition: background-color 0.25s ease;
+    width: 100%;
+
+    * {
+      color: var(--color-component-text-primary);
+      transition: color 0.25s ease;
+    }
+
+    &__icon {
+      height: 15px;
+      max-height: 15px;
+      max-width: 15px;
+      width: 15px;
+    }
+
+    &.focus-visible,
+    &:hover {
+      background: var(--color-component-bg-secondary);
+
+      * {
+        color: var(--color-component-text-highlight);
+      }
+    }
+
+    &__text {
+      position: relative;
+    }
+
+    &__text-content--loading {
+      opacity: 0;
+    }
+
+    .loader {
+      height: 100%;
+      left: 0;
+      position: absolute;
+      top: 0;
+      transform: scale(0.65);
+      width: 100%;
+    }
+  }
+}

@@ -16,3 +16,11 @@ rules:
   quotes:
   - 1
   - style: double
+  no-misspelled-properties:
+    - 1
+    - extra-properties:
+        - "aspect-ratio"
+        - "gap"
+        - "overscroll-behavior"
+        - "overscroll-behavior-y"
+        - "scroll-margin"

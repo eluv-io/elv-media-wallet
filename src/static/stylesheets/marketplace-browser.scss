@@ -54,7 +54,7 @@
     align-items: center;
     display: flex;
     flex-wrap: wrap;
-    gap: 12px; // sass-lint:disable-line no-misspelled-properties
+    gap: 12px;
 
     &__button {
       align-items: center;
@@ -181,7 +181,7 @@
 }
 
 .marketplace-card {
-  aspect-ratio: 1 / 1; // sass-lint:disable-line no-misspelled-properties
+  aspect-ratio: 1 / 1;
   border-radius: 32px;
   display: flex;
   min-width: 350px;

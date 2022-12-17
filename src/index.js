@@ -7,16 +7,9 @@ import { render } from "react-dom";
 import { observer} from "mobx-react";
 
 import { rootStore } from "Stores/index.js";
-import Header from "Components/Header";
+import Header from "Components/header/Header";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
-
-window.sessionStorageAvailable = false;
-try {
-  sessionStorage.getItem("test");
-  window.sessionStorageAvailable = true;
-// eslint-disable-next-line no-empty
-} catch(error) {}
 
 if(searchParams.has("n")) {
   rootStore.ToggleNavigation(false);
@@ -29,10 +22,9 @@ import {
   Route,
   Redirect, useRouteMatch
 } from "react-router-dom";
-import Login, {Auth0Authentication} from "Components/login/index";
+import Login from "Components/login/index";
 import ScrollToTop from "Components/common/ScrollToTop";
 import { InitializeListener } from "Components/interface/Listener";
-import {Auth0Provider, useAuth0} from "@auth0/auth0-react";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import {PageLoader} from "Components/common/Loaders";
 import Modal from "Components/common/Modal";
@@ -218,68 +210,37 @@ const App = observer(() => {
       }
     >
       <Routes />
-      { rootStore.loaded && !rootStore.loggedIn ? <Auth0Authentication /> : null }
       <DebugFooter />
     </div>
   );
 });
 
-const Auth0Initialization = ({children}) => {
-  window.auth0 = useAuth0();
-
-  return children;
-};
-
-const AuthWrapper = ({children}) => {
-  if(window.sessionStorageAvailable) {
-    return (
-      <Auth0Provider
-        domain={EluvioConfiguration["auth0-domain"]}
-        clientId={EluvioConfiguration["auth0-configuration-id"]}
-        redirectUri={UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, "")}
-        useRefreshTokens
-        cacheLocation="localstorage"
-        darkMode={rootStore.darkMode}
-      >
-        <Auth0Initialization>
-          {children}
-        </Auth0Initialization>
-      </Auth0Provider>
-    );
-  }
-
-  return children;
-};
-
 render(
-  <AuthWrapper>
-    <React.StrictMode>
-      <HashRouter>
-        <Switch>
-          { /* Handle various popup actions */ }
-          <Route path="/flow/:flow/:parameters">
-            <Flows />
-          </Route>
+  <React.StrictMode>
+    <HashRouter>
+      <Switch>
+        { /* Handle various popup actions */ }
+        <Route path="/flow/:flow/:parameters">
+          <Flows />
+        </Route>
 
-          <Route path="/action/:action/:parameters">
-            <Actions />
-          </Route>
+        <Route path="/action/:action/:parameters">
+          <Actions />
+        </Route>
 
-          <Route path="/login">
-            <div className="login-page-container">
-              <Login />
-              <Auth0Authentication />
-            </div>
-          </Route>
+        <Route path="/login">
+          <div className="login-page-container">
+            <Login />
+          </div>
+        </Route>
 
-          { /* All other routes */ }
-          <Route>
-            <App/>
-            <LoginModal />
-          </Route>
-        </Switch>
-      </HashRouter>
-    </React.StrictMode>
-  </AuthWrapper>,
+        { /* All other routes */ }
+        <Route>
+          <App/>
+          <LoginModal />
+        </Route>
+      </Switch>
+    </HashRouter>
+  </React.StrictMode>,
   document.getElementById("app")
 );

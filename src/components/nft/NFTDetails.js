@@ -261,7 +261,6 @@ const NFTContractSection = ({nftInfo, SetBurned, ShowTransferModal}) => {
                 Confirm: async () => {
                   await rootStore.BurnNFT({nft: nftInfo.nft});
                   SetBurned(true);
-                  await rootStore.LoadNFTContractInfo();
                 }
               })}
             >
@@ -636,7 +635,7 @@ const NFTActions = observer(({
     if(listingStatus.sale) {
       return (
         <h2 className="details-page__message">
-          This NFT was sold for { FormatPriceString(listingStatus.sale.price) } on { new Date(listingStatus.sale.created * 1000).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
+          This NFT was sold for { FormatPriceString(listingStatus.sale.price, {stringOnly: true}) } on { new Date(listingStatus.sale.created * 1000).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
         </h2>
       );
     } else if(listingStatus.removed) {
@@ -788,7 +787,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
 
   const LoadListingStatus = async () => {
     const status = await transferStore.CurrentNFTStatus({
-      listingId,
+      listingId: match.params.listingId,
       nft,
       contractAddress,
       tokenId
@@ -875,7 +874,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
   }
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  const listingId = nft?.details?.ListingId || match.params.listingId || listingStatus?.listing?.details?.ListingId;
+  const listingId = match.params.listingId || listingStatus?.listing?.details?.ListingId || nft?.details?.ListingId;
   const tokenId = match.params.tokenId || listingStatus?.listing?.details?.TokenIdStr;
   const isInCheckout = listingStatus?.listing?.details?.CheckoutLockedUntil && listingStatus?.listing.details.CheckoutLockedUntil > Date.now();
   const showModal = match.params.mode === "purchase" || match.params.mode === "list";
@@ -1148,6 +1147,7 @@ export const ListingDetails = observer(() => {
 
   return (
     <AsyncComponent
+      key={`listing-${match.params.listingId}`}
       loadingClassName="page-loader"
       Load={async () => {
         try {

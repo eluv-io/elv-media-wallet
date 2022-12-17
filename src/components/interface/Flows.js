@@ -5,6 +5,8 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 import {rootStore} from "Stores";
 import {LoginGate} from "Components/common/LoginGate";
 import {PageLoader} from "Components/common/Loaders";
+import {SearchParams} from "../../utils/Utils";
+
 
 // Flows are popups that do not require UI input (redirecting to purchase, etc)
 const Flows = observer(() => {
@@ -43,7 +45,8 @@ const Flows = observer(() => {
     rootStore.HandleFlow({
       history,
       flow: match.params.flow,
-      parameters: match.params.parameters.split(/[^A-Za-z0-9]/)[0]
+      parameters: match.params.parameters.split(/[^A-Za-z0-9]/)[0],
+      urlParameters: SearchParams()
     });
   }, [loading]);
 

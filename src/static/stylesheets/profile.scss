@@ -247,6 +247,10 @@
 
   &__content {
     padding: 20px 30px 40px;
+
+    .loader {
+      min-height: 200px;
+    }
   }
 
   &__message {
@@ -257,8 +261,6 @@
   }
 
   &__country-select {
-    //align-items: center;
-    //display: flex;
     height: $action-height;
     margin: 0 auto 30px;
     max-width: 410px;
@@ -273,7 +275,7 @@
     align-items: center;
     display: flex;
     justify-content: center;
-    margin-top: 10px;
+    margin-top: 40px;
   }
 
   .action {
@@ -286,10 +288,18 @@
   }
 
   &__input-error {
+    align-items: center;
     color: var(--color-text-error);
-    font-size: 10px;
+    display: flex;
+    font-size: 12px;
+    margin: 10px auto;
+    padding-left: 100px;
     text-align: center;
     width: 100%;
+
+    * {
+      color: var(--color-text-error);
+    }
   }
 
   &__inputs {
@@ -325,12 +335,8 @@
 
   &__price-input-label {
     font-weight: bold;
-    margin-left: 25px;
+    margin-left: 15px;
     text-align: center;
-  }
-
-  &__details {
-    padding: 10px 0 20px;
   }
 
   &__detail {
@@ -341,8 +347,8 @@
 
   &__detail-separator {
     border-bottom: var(--border-component-secondary);
-    margin-bottom: 15px;
-    padding-top: 15px;
+    margin-bottom: 25px;
+    padding-top: 25px;
     width: 100%;
   }
 
@@ -362,6 +368,40 @@
 
   .loader {
     height: $action-height;
+  }
+
+  &__amount-selection {
+    margin-bottom: 40px;
+  }
+
+  &__form {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .labelled-input {
+    align-items: center;
+    display: flex;
+    width: 100%;
+
+    label {
+      min-width: 100px;
+      width: 100px;
+    }
+
+    input {
+      max-width: unset;
+      width: 100%;
+    }
+
+    .styled-select,
+    .styled-select__button {
+      height: 50px;
+      width: 100%;
+    }
   }
 
   @media screen and (max-width: $mobile-breakpoint) {

@@ -8,7 +8,7 @@ import {
 import {ButtonWithLoader, CopyableField, FormatPriceString} from "Components/common/UIComponents";
 import {UserTransferTable} from "Components/listings/TransferTables";
 import {observer} from "mobx-react";
-import {WithdrawalModal, WithdrawalSetupModal} from "Components/profile/WithdrawalModal";
+import WithdrawalModal from "Components/profile/WithdrawalModal";
 import WalletConnect from "Components/crypto/WalletConnect";
 import ImageIcon from "Components/common/ImageIcon";
 
@@ -16,7 +16,7 @@ import EmailIcon from "Assets/icons/email icon.svg";
 import MetamaskIcon from "Assets/icons/crypto/metamask fox.png";
 import WithdrawalsIcon from "Assets/icons/crypto/USD icon.svg";
 
-const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSetup}) => {
+const WithdrawalDetails = observer(({setShowWithdrawalModal}) => {
   return (
     <div className="profile-page__section profile-page__section-balance profile-page__section-box">
       <h2 className="profile-page__section-header">
@@ -25,46 +25,20 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSe
       <div className="profile-page__balance">
         { FormatPriceString(rootStore.withdrawableWalletBalance, {excludeAlternateCurrency: true, includeCurrency: true }) }
       </div>
-      {
-        !rootStore.userStripeId ?
-          <div className="profile-page__withdrawal-setup-message">
-            Set up a Stripe Connect account to withdraw your funds
-          </div> : null
-      }
-      {
-        rootStore.userStripeId && !rootStore.userStripeEnabled ?
-          <div className="profile-page__withdrawal-setup-message">
-            Your Stripe account has been created, but is not ready to accept payments. Please finish setting up your account.
-          </div> : null
-      }
-      {
-        rootStore.userStripeId && rootStore.userStripeEnabled ?
-          <div className="profile-page__actions">
-            <ButtonWithLoader
-              disabled={!rootStore.userStripeEnabled || !rootStore.withdrawableWalletBalance || rootStore.withdrawableWalletBalance <= 0}
-              onClick={() => setShowWithdrawalModal(true)}
-              className="action profile-page__withdraw-button"
-            >
-              Withdraw Funds
-            </ButtonWithLoader>
-          </div> :
-          <div className="profile-page__actions">
-            <ButtonWithLoader
-              onClick={async () => await setShowWithdrawalSetup(true)}
-              className="action profile-page__onboard-button"
-            >
-              Set Up Withdrawal
-            </ButtonWithLoader>
-          </div>
-      }
-      {
-        rootStore.userStripeEnabled ?
-          <UserTransferTable
-            icon={WithdrawalsIcon}
-            header="Withdrawals"
-            type="withdrawal"
-          /> : null
-      }
+      <div className="profile-page__actions">
+        <ButtonWithLoader
+          disabled={rootStore.withdrawableWalletBalance < 1}
+          onClick={() => setShowWithdrawalModal(true)}
+          className="action profile-page__withdraw-button"
+        >
+          Withdraw Funds
+        </ButtonWithLoader>
+      </div>
+      <UserTransferTable
+        icon={WithdrawalsIcon}
+        header="Withdrawals"
+        type="withdrawal"
+      />
       {
         rootStore.userStripeId ?
           <>
@@ -81,7 +55,6 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal, setShowWithdrawalSe
             </div>
           </> : null
       }
-
       <div className="profile-page__message">
         Funds availability notice – A hold period will be imposed on amounts that accrue from the sale of an NFT. Account holders acknowledge that, during this hold period, a seller will be unable to withdraw the amounts attributable to such sale(s). The current hold period for withdrawing the balance is 15 days.
       </div>
@@ -96,7 +69,6 @@ const Profile = observer(() => {
   const match = useRouteMatch();
 
   const [statusInterval, setStatusInterval] = useState(undefined);
-  const [showWithdrawalSetup, setShowWithdrawalSetup] = useState(false);
   const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
 
   const userInfo = rootStore.walletClient.UserInfo();
@@ -128,7 +100,6 @@ const Profile = observer(() => {
 
   return (
     <div className="page-container profile-page">
-      { showWithdrawalSetup ? <WithdrawalSetupModal Close={() => setShowWithdrawalSetup(false)} /> : null }
       { showWithdrawalModal ? <WithdrawalModal Close={() => setShowWithdrawalModal(false)} /> : null }
       <div className="profile-page__section profile-page__section-account">
         <h1 className="profile-page__header">Media Wallet</h1>
@@ -146,7 +117,7 @@ const Profile = observer(() => {
 
         <div className="profile-page__account-info">
           <div className="profile-page__account-info__message">
-            { custodialWallet ? "Signed In As" : "Signed In Via" }
+            { custodialWallet ? "Signed In As" : "Signed In Via Metamask" }
           </div>
           <div className={`profile-page__account-info__account profile-page__account-info__account--${custodialWallet ? "custodial" : "external"}`}>
             {
@@ -194,18 +165,7 @@ const Profile = observer(() => {
         </Link>
       </div>
 
-      { balancePresent ?
-        <WithdrawalDetails
-          setShowWithdrawalModal={setShowWithdrawalModal}
-          setShowWithdrawalSetup={async () => {
-            if(rootStore.userStripeId) {
-              await rootStore.StripeOnboard();
-            } else {
-              setShowWithdrawalSetup(true);
-            }
-          }}
-        /> : null
-      }
+      { balancePresent ? <WithdrawalDetails setShowWithdrawalModal={setShowWithdrawalModal} /> : null }
 
       {
         rootStore.usdcDisabled ?
@@ -215,7 +175,10 @@ const Profile = observer(() => {
               Connected Accounts
             </h2>
 
-            <WalletConnect showPaymentPreference/>
+            <WalletConnect type="phantom" showPaymentPreference />
+            {
+              // <WalletConnect type="metamask" showPaymentPreference />
+            }
           </div>
       }
     </div>

@@ -297,6 +297,63 @@
   }
 }
 
+.switch-button {
+  border: 0;
+  border-radius: 60px;
+  cursor: pointer;
+  display: flex;
+  height: 30px;
+  padding: 0;
+  position: relative;
+  width: 60px;
+
+  input {
+    height: 0;
+    opacity: 0;
+    width: 0;
+  }
+
+  * {
+    transition: left 0.25s ease, color 0.25s ease, background-color 0.25s ease;
+  }
+
+  &__slider {
+    align-items: center;
+    background-color: var(--background-button-selection);
+    border: var(--border-button-selection);
+    border-radius: 50px;
+    cursor: pointer;
+    display: flex;
+    height: 100%;
+    padding: 0;
+    position: absolute;
+    width: 100%;
+
+    &__ball {
+      background-color: var(--color-button-selection-text);
+      border-radius: 50%;
+      content: "";
+      display: block;
+      height: 25px;
+      left: 1px;
+      position: absolute;
+      width: 25px;
+    }
+  }
+
+  &--active {
+    .switch-button__slider {
+      background-color: var(--background-button-selection-active);
+
+      &__ball {
+        background-color: var(--color-button-selection-active-text);
+        left: calc(100% - 26px);
+      }
+    }
+  }
+}
+
+
 .menu-button {
   border: 0;
   min-width: unset;
@@ -517,6 +574,10 @@
     &--active {
       border: var(--outline-input-focus);
     }
+
+    &:disabled {
+      opacity: 0.5;
+    }
   }
 
   &__menu {
@@ -552,10 +613,10 @@
   align-items: center;
   display: flex;
   flex-wrap: wrap;
-  gap: 5px; // sass-lint:disable-line no-misspelled-properties
+  gap: 5px;
 
   &__alternate {
-    font-size: 14px;
+    //font-size: 14px;
     opacity: 0.85;
     width: max-content;
   }
@@ -572,7 +633,7 @@
   &--vertical {
     align-items: center;
     flex-direction: column;
-    gap: 0; // sass-lint:disable-line no-misspelled-properties
+    gap: 0;
     justify-content: center;
   }
 }
@@ -580,11 +641,58 @@
 .menu-link {
   align-items: center;
   display: flex;
-  gap: 20px; // sass-lint:disable-line no-misspelled-properties
+  gap: 20px;
 
   &__icon {
     height: 25px;
     object-fit: contain;
     width: 25px;
+  }
+}
+
+.fullscreen-image {
+  .modal__close-button {
+    height: 20px;
+    padding: 3px;
+    width: 20px;
+  }
+
+  .modal__content {
+    max-height: 100vh !important; // sass-lint:disable-line no-important
+    max-width: 100vw !important; // sass-lint:disable-line no-important
+  }
+
+  &__image {
+    @include page-fade-in(0.25s, linear);
+
+    &--zoomable {
+      cursor: zoom-in;
+    }
+
+    &--hidden {
+      @include page-fade-out(0.25s, linear);
+    }
+  }
+
+  &__zoomed-image {
+    @include page-fade-in(0.25s, linear);
+    background-repeat: no-repeat;
+    cursor: zoom-out;
+    height: 100%;
+    left: 0;
+    object-fit: none;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+
+    &--hidden {
+      @include page-fade-out(0.25s, linear);
+      pointer-events: none;
+    }
+
+    &--dragging {
+      cursor: move;
+    }
   }
 }

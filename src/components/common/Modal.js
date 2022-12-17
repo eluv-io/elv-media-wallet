@@ -20,12 +20,14 @@ const Modal = observer(({children, Toggle, closable=true, noFade=false, id="", c
   };
 
   useEffect(() => {
+    window.__activeMenues += 1;
     document.addEventListener("keydown", Close);
     document.body.style.overflowY = "hidden";
 
     rootStore.AddActiveModal();
 
     return () => {
+      window.__activeMenues -= 1;
       document.removeEventListener("keydown", Close);
       document.body.style.overflowY = "scroll";
 

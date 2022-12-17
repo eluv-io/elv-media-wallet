@@ -14,6 +14,9 @@ import EluvioPoweredByLogo from "Assets/icons/EluvioLogo2.svg";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 const params = {
+  // If we've just come back from Auth0
+  isAuth0Callback: searchParams.has("code"),
+
   // Origin URL of the opener
   origin: searchParams.get("origin"),
   // Who opened the page (parent)
@@ -158,14 +161,21 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
 };
 
 // Logo, login buttons, terms and loading indicator
-const Form = observer(({userData, setUserData, customizationOptions, Authenticate}) => {
+const Form = observer(({authenticating, userData, setUserData, customizationOptions, LogIn}) => {
   let hasLoggedIn = false;
   try {
     hasLoggedIn = localStorage.getItem("hasLoggedIn");
     // eslint-disable-next-line no-empty
   } catch(error) {}
 
-  const loading = !rootStore.loaded || !customizationOptions || params.clearLogin || rootStore.authenticating || !rootStore.loginLoaded || rootStore.loggedIn || (params.source === "parent" && params.provider);
+  const loading =
+    !rootStore.loaded ||
+    !customizationOptions ||
+    params.clearLogin ||
+    authenticating ||
+    rootStore.authenticating ||
+    rootStore.loggedIn ||
+    (params.source === "parent" && params.provider);
 
   const requiredOptionsMissing =
     customizationOptions?.custom_consent?.type === "Checkboxes" &&
@@ -181,7 +191,7 @@ const Form = observer(({userData, setUserData, customizationOptions, Authenticat
         border: `0.75px solid ${customizationOptions?.sign_up_button?.border_color?.color}`
       }}
       autoFocus={!hasLoggedIn}
-      onClick={() => Authenticate({provider: "oauth", mode: "create"})}
+      onClick={() => LogIn({provider: "oauth", mode: "create"})}
       disabled={requiredOptionsMissing}
       title={requiredOptionsMissing ? "Please accept the required options below" : undefined}
     >
@@ -198,7 +208,7 @@ const Form = observer(({userData, setUserData, customizationOptions, Authenticat
       }}
       autoFocus={!!hasLoggedIn}
       className={`action ${hasLoggedIn ? "action-primary" : ""} login-page__login-button login-page__login-button-sign-in login-page__login-button-auth0`}
-      onClick={() => Authenticate({provider: "oauth", mode: "login"})}
+      onClick={() => LogIn({provider: "oauth", mode: "login"})}
       disabled={requiredOptionsMissing}
       title={requiredOptionsMissing ? "Please accept the required options below" : undefined}
     >
@@ -214,7 +224,7 @@ const Form = observer(({userData, setUserData, customizationOptions, Authenticat
         border: `0.75px solid ${customizationOptions?.wallet_button?.border_color?.color}`
       }}
       className="action login-page__login-button login-page__login-button-wallet"
-      onClick={() => Authenticate({provider: "metamask", mode: "login"})}
+      onClick={() => LogIn({provider: "metamask", mode: "login"})}
       disabled={requiredOptionsMissing}
       title={requiredOptionsMissing ? "Please accept the required options below" : undefined}
     >
@@ -333,7 +343,7 @@ const CustomConsentModal = ({customConsent}) => {
 };
 
 export const SaveCustomConsent = async (userData) => {
-  if(!rootStore.specifiedMarketplaceHash) { return; }
+  if(!rootStore.loggedIn || !rootStore.specifiedMarketplaceHash) { return; }
 
   const customizationMetadata = await rootStore.LoadLoginCustomization(rootStore.specifiedMarketplaceHash);
 
@@ -386,39 +396,38 @@ export const SaveCustomConsent = async (userData) => {
   }
 };
 
-// Automatic login when auth0 is authenticated
-export const Auth0Authentication = observer(() => {
-  if(!window.sessionStorageAvailable) { return; }
+const AuthenticateAuth0 = async (userData) => {
+  if(rootStore.authenticating || rootStore.loggedIn) { return; }
 
-  const LogIn = async () => {
-    await rootStore.Authenticate({
-      idToken: (await window.auth0.getIdTokenClaims()).__raw,
-      user: {
-        name: auth0?.user?.name,
-        email: auth0?.user?.email,
-        verified: auth0?.user?.email_verified,
-        userData: params.userData
-      },
-      callback: SaveCustomConsent
-    });
-  };
+  try {
+    rootStore.Log("Parsing Auth0 parameters");
 
-  useEffect(() => {
-    if(!window.auth0.isLoading) {
-      rootStore.SetLoginLoaded();
+    // eslint-disable-next-line no-console
+    console.time("Auth0 Parameter Parsing");
+
+    await rootStore.auth0.handleRedirectCallback();
+
+    // eslint-disable-next-line no-console
+    console.timeEnd("Auth0 Parameter Parsing");
+
+    window.history.replaceState({}, document.title, `${window.location.pathname}${window.location.hash}`);
+
+    await rootStore.AuthenticateAuth0({userData});
+
+    if(rootStore.loggedIn) {
+      SaveCustomConsent(userData);
     }
-
-    if(params.clearLogin || rootStore.authenticating || !rootStore.loaded || rootStore.loggedIn || window.auth0.isLoading || !window.auth0.isAuthenticated) { return; }
-
-    LogIn();
-  }, [rootStore.loaded, window.auth0.isLoading, window.auth0.isAuthenticated]);
-
-  return null;
-});
+  } catch(error){
+    rootStore.Log("Auth0 authentication failed:", true);
+    rootStore.Log(error, true);
+  }
+};
 
 const LoginComponent = observer(({customizationOptions, userData, setUserData, Close}) => {
+  const [auth0Authenticating, setAuth0Authenticating] = useState(params.isAuth0Callback);
+
   // Handle login button clicked - Initiate popup/login flow
-  const Authenticate = async ({provider, mode}) => {
+  const LogIn = async ({provider, mode}) => {
     if(rootStore.embedded) {
       const marketplaceHash = params.marketplace || customizationOptions.marketplaceHash;
       await rootStore.walletClient.LogIn({
@@ -429,13 +438,14 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
         marketplaceParams: marketplaceHash ? { marketplaceHash } : undefined,
         clearLogin: params.clearLogin || rootStore.GetLocalStorage("signed-out")
       });
+
+      await SaveCustomConsent(userData);
     } else {
       if(provider === "metamask") {
         // Authenticate with metamask
         await rootStore.Authenticate({externalWallet: "Metamask"});
-        await SaveCustomConsent(userData);
       } else if(provider === "oauth") {
-        let auth0LoginParams = {};
+        let auth0LoginParams = { appState: {} };
 
         if(rootStore.darkMode) {
           auth0LoginParams.darkMode = true;
@@ -447,7 +457,9 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
 
         const callbackUrl = new URL(window.location.href);
         callbackUrl.pathname = callbackUrl.pathname.replace(/\/$/, "");
+
         callbackUrl.searchParams.set("source", "oauth");
+        callbackUrl.searchParams.set("action", "loginCallback");
 
         if(rootStore.specifiedMarketplaceHash && !callbackUrl.searchParams.get("mid") && !callbackUrl.searchParams.get("marketplace")) {
           callbackUrl.searchParams.set("marketplace", rootStore.specifiedMarketplaceHash);
@@ -457,8 +469,8 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           callbackUrl.searchParams.set("data", Utils.B64(JSON.stringify(userData)));
         }
 
-        window.auth0.loginWithRedirect({
-          redirectUri: callbackUrl.toString(),
+        await rootStore.auth0.loginWithRedirect({
+          redirect_uri: callbackUrl.toString(),
           initialScreen: mode === "create" ? "signUp" : "login",
           ...auth0LoginParams
         });
@@ -500,9 +512,13 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       returnURL.searchParams.delete("clear");
 
       setTimeout(() => rootStore.SignOut(returnURL.toString()), 1000);
+    } else if(rootStore.loaded && !rootStore.loggedIn && rootStore.auth0 && params.isAuth0Callback) {
+      // Returned from Auth0 callback - Authenticate
+      AuthenticateAuth0(params.userData)
+        .finally(() => setAuth0Authenticating(false));
     } else if(rootStore.loaded && ["parent", "origin"].includes(params.source) && params.action === "login" && params.provider) {
       // Opened from frame - do appropriate login flow
-      Authenticate({provider: params.provider, mode: params.mode})
+      LogIn({provider: params.provider, mode: params.mode})
         .then(() => {
           if(params.provider !== "oauth") {
             if(params.response === "message") {
@@ -525,7 +541,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       <Background customizationOptions={customizationOptions} Close={Close} />
 
       <div className="login-page__login-box">
-        <Form userData={userData} setUserData={setUserData} Authenticate={Authenticate} customizationOptions={customizationOptions} />
+        <Form userData={userData} setUserData={setUserData} authenticating={auth0Authenticating} LogIn={LogIn} customizationOptions={customizationOptions} />
       </div>
     </div>
   );

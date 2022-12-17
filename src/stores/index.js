@@ -3,6 +3,13 @@ let testTheme = undefined;
 //testTheme = import("../static/stylesheets/themes/wwe-test.theme.css");
 //testTheme = import("../static/stylesheets/themes/lotr-test.theme.css");
 
+window.sessionStorageAvailable = false;
+try {
+  sessionStorage.getItem("test");
+  window.sessionStorageAvailable = true;
+// eslint-disable-next-line no-empty
+} catch(error) {}
+
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";
 import {ElvWalletClient} from "@eluvio/elv-client-js";
@@ -14,9 +21,10 @@ import EVENTS from "../../client/src/Events";
 
 import CheckoutStore from "Stores/Checkout";
 import TransferStore from "Stores/Transfer";
+import CryptoStore from "Stores/Crypto";
+import NotificationStore from "Stores/Notification";
 
 import NFTContractABI from "../static/abi/NFTContract";
-import CryptoStore from "Stores/Crypto";
 import {v4 as UUID} from "uuid";
 import ProfanityFilter from "bad-words";
 
@@ -40,6 +48,8 @@ try {
 
 class RootStore {
   appId = "eluvio-media-wallet";
+
+  auth0 = undefined;
 
   authOrigin = this.GetSessionStorage("auth-origin");
 
@@ -72,14 +82,13 @@ class RootStore {
   loginOnly = window.loginOnly;
   requireLogin = searchParams.has("rl");
   capturedLogin = this.embedded && searchParams.has("cl");
-  showLogin = this.requireLogin || searchParams.get("action") === "login";
+  showLogin = this.requireLogin || searchParams.get("action") === "login" || searchParams.get("action") === "loginCallback";
 
   loggedIn = false;
   externalWalletUser = false;
   disableCloseEvent = false;
-  darkMode = this.GetSessionStorage("dark-mode");
+  darkMode = searchParams.has("lt") ? false : this.GetSessionStorage("dark-mode");
 
-  availableMarketplaces = {};
   loginCustomization = {};
 
   marketplaceId = undefined;
@@ -90,7 +99,6 @@ class RootStore {
   auth0AccessToken = undefined;
 
   loaded = false;
-  loginLoaded = this.embedded;
   authenticating = false;
   client = undefined;
   walletClient = undefined;
@@ -179,6 +187,10 @@ class RootStore {
     ];
   }
 
+  MarketplaceByTenantId({tenantId}) {
+    return this.allMarketplaces.find(marketplace => marketplace.tenant_id === tenantId);
+  }
+
   Log(message="", error=false) {
     // eslint-disable-next-line no-console
     const logMethod = error === "warn" ? console.warn : error ? console.error : console.log;
@@ -201,6 +213,7 @@ class RootStore {
     this.checkoutStore = new CheckoutStore(this);
     this.transferStore = new TransferStore(this);
     this.cryptoStore = new CryptoStore(this);
+    this.notificationStore = new NotificationStore(this);
 
     if(this.appUUID) {
       this.SetSessionStorage(`app-uuid-${window.loginOnly}`, this.appUUID);
@@ -229,6 +242,25 @@ class RootStore {
   Initialize = flow(function * () {
     try {
       this.loaded = false;
+
+      if(window.sessionStorageAvailable) {
+        // eslint-disable-next-line no-console
+        console.time("Auth0 Initial Load");
+
+        const {Auth0Client} = yield import("auth0-spa-js");
+
+        this.auth0 = new Auth0Client({
+          domain: EluvioConfiguration["auth0-domain"],
+          client_id: EluvioConfiguration["auth0-configuration-id"],
+          redirect_uri: UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""),
+          cacheLocation: "localstorage",
+          useRefreshTokens: true,
+          useCookiesForTransactions: true
+        });
+
+        // eslint-disable-next-line no-console
+        console.timeEnd("Auth0 Initial Load");
+      }
 
       // Login required
       if(searchParams.has("rl")) {
@@ -284,23 +316,23 @@ class RootStore {
         this.Log(error, true);
       }
 
-      let authenticationPromise;
-      if(!this.inFlow && this.AuthInfo()) {
-        authenticationPromise = this.Authenticate(this.AuthInfo());
+      if(!this.inFlow) {
+        if(this.AuthInfo()) {
+          this.Log("Authenticating from saved session");
+          yield this.Authenticate(this.AuthInfo());
+        } else if(this.auth0) {
+          // Attempt to re-auth with auth0. If 'code' is present in URL params, we are returning from Auth0 callback, let the login component handle it
+          yield this.AuthenticateAuth0({});
+        }
       }
 
       const marketplace = decodeURIComponent(searchParams.get("mid")) || decodeURIComponent(searchParams.get("marketplace")) || this.GetSessionStorage("marketplace") || "";
-
 
       if(marketplace) {
         this.SetMarketplace({
           ...(this.ParseMarketplaceParameter(marketplace)),
           specified: true
         });
-      }
-
-      if(authenticationPromise) {
-        yield authenticationPromise;
       }
 
       this.SendEvent({event: EVENTS.LOADED});
@@ -316,6 +348,40 @@ class RootStore {
 
     return this.walletClient.UserAddress();
   }
+
+  AuthenticateAuth0 = flow(function * ({userData}={}) {
+    try {
+      // eslint-disable-next-line no-console
+      console.time("Auth0 Authentication");
+
+      // Check for existing Auth0 authentication status
+      yield this.auth0.checkSession();
+
+      if(yield this.auth0.isAuthenticated()) {
+        this.Log("Authenticating with Auth0 session");
+
+        const authInfo = yield this.auth0.getIdTokenClaims();
+
+        yield this.Authenticate({
+          idToken: authInfo.__raw,
+          user: {
+            name: authInfo.name,
+            email: authInfo.email,
+            verified: authInfo.email_verified,
+            userData
+          }
+        });
+      }
+    } catch(error) {
+      if(error?.message?.toLowerCase() !== "login required") {
+        this.Log("Error logging in with Auth0:", true);
+        this.Log(error, true);
+      }
+    }
+
+    // eslint-disable-next-line no-console
+    console.timeEnd("Auth0 Authentication");
+  })
 
   Authenticate = flow(function * ({idToken, clientAuthToken, clientSigningToken, externalWallet, walletName, user, saveAuthInfo=true, callback}) {
     if(this.authenticating) { return; }
@@ -358,6 +424,8 @@ class RootStore {
 
           return;
         }
+      } else if(externalWallet === "Metamask") {
+        //yield this.cryptoStore.ActivateEluvioChain();
       }
 
       this.authToken = undefined;
@@ -427,12 +495,13 @@ class RootStore {
       }
 
       this.loggedIn = true;
-      this.loginLoaded = true;
       this.externalWalletUser = externalWallet || (walletName && walletName !== "Eluvio");
 
       this.RemoveLocalStorage("signed-out");
 
       this.SendEvent({event: EVENTS.LOG_IN, data: { address }});
+
+      this.notificationStore.InitializeNotifications(true);
     } catch(error) {
       this.ClearAuthInfo();
       this.Log(error, true);
@@ -641,22 +710,6 @@ class RootStore {
 
     // Reload cache
     return yield this.UserProfile({userId: this.CurrentAddress(), force: true});
-  });
-
-  // Get already loaded basic NFT contract info
-  NFTContractInfo({tokenId, contractAddress, contractId}) {
-    if(contractId) {
-      contractAddress = Utils.HashToAddress(contractId);
-    }
-
-    return this.nftInfo[`${contractAddress}-${tokenId}`];
-  }
-
-  // Load basic owned NFT contract info
-  LoadNFTContractInfo = flow(function * () {
-    if(!this.loggedIn || this.fromEmbed) { return; }
-
-    this.nftInfo = yield this.walletClient.UserItemInfo();
   });
 
   // Get already loaded full NFT data
@@ -1101,13 +1154,13 @@ class RootStore {
     return balances;
   });
 
-  WithdrawFunds = flow(function * (amount) {
+  WithdrawFunds = flow(function * ({provider, userInfo, amount}) {
     if(amount > this.withdrawableWalletBalance) {
       throw Error("Attempting to withdraw unavailable funds");
     }
 
-    yield Utils.ResponseToJson(
-      this.client.authClient.MakeAuthServiceRequest({
+    if(provider === "Stripe") {
+      yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "bal", "stripe"),
         method: "POST",
         body: {
@@ -1118,8 +1171,56 @@ class RootStore {
         headers: {
           Authorization: `Bearer ${this.authToken}`
         }
-      })
-    );
+      });
+    } else {
+      try {
+        yield this.client.authClient.MakeAuthServiceRequest({
+          path: UrlJoin("as", "wlt", "bal", "ebanx"),
+          method: "POST",
+          body: {
+            mode: EluvioConfiguration["purchase-mode"],
+            amount,
+            currency: "USD",
+            country: "br",
+            method: "pix",
+            payee: {
+              name: userInfo.name,
+              email: userInfo.email,
+              phone: userInfo.phone,
+              document_type: "cpf",
+              document: userInfo.cpf,
+              birthdate: userInfo.birthdate
+            }
+          },
+          headers: {
+            Authorization: `Bearer ${this.authToken}`
+          }
+        });
+      } catch(error) {
+        if(error?.body?.cause?.body) {
+          const body = JSON.parse(error.body.cause.body);
+          switch(body.status_code) {
+            case "HP-XB-05":
+            case "HP-CM-39":
+              // Invalid birthdate
+              throw { error, uiMessage: "Invalid birthdate. Please go back and update." };
+
+            case "HP-CM-40":
+              // Invalid CPF;
+              throw { error, uiMessage: "Invalid CPF number. Please go back and update." };
+
+            case "HP-CM-30":
+              // Not enough balance - No special message
+
+            // eslint-disable-next-line no-fallthrough
+            default:
+              throw error;
+          }
+        } else {
+          throw error;
+        }
+      }
+    }
 
     yield new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -1366,12 +1467,12 @@ class RootStore {
 
     this.SendEvent({event: EVENTS.LOG_OUT, data: {address: this.CurrentAddress()}});
 
-    if(window.auth0) {
+    if(this.auth0) {
       try {
         this.disableCloseEvent = true;
 
         setTimeout(() => {
-          window.auth0.logout({
+          this.auth0.logout({
             returnTo: returnUrl || this.ReloadURL()
           });
         }, 100);
@@ -1386,19 +1487,21 @@ class RootStore {
     this.Reload();
   }
 
-  ReloadURL() {
+  ReloadURL(keepPath=false) {
     const url = new URL(UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""));
 
     if(this.appUUID) {
       url.searchParams.set("appUUID", this.appUUID);
     }
 
-    if(this.marketplaceId) {
+    if(keepPath) {
+      url.hash = window.location.hash;
+    } else if(this.marketplaceId) {
       url.hash = UrlJoin("/marketplace", this.marketplaceId, "store");
     }
 
     if(this.specifiedMarketplaceId) {
-      url.searchParams.set("mid", this.specifiedMarketplaceHash);
+      url.searchParams.set("mid", this.specifiedMarketplaceHash || this.specifiedMarketplaceId);
     }
 
     if(this.loginOnly) {
@@ -1553,7 +1656,7 @@ class RootStore {
     }
   });
 
-  HandleFlow = flow(function * ({history, flow, parameters}) {
+  HandleFlow = flow(function * ({history, flow, parameters, urlParameters={}}) {
     if(parameters) {
       parameters = JSON.parse(new TextDecoder().decode(Utils.FromB58(parameters)));
     }
@@ -1586,7 +1689,20 @@ class RootStore {
           break;
 
         case "redirect":
-          history.push(parameters.to);
+          let [to, params] = parameters.to.split("?");
+          if(params) {
+            params = new URLSearchParams(params);
+
+            for(const [key, value] of params.entries()) {
+              urlParameters[key] = value;
+            }
+          }
+
+          if(Object.keys(urlParameters).length > 0) {
+            to = `${to}?${Object.keys(urlParameters).map(key => `${key}=${urlParameters[key]}`).join("&")}`;
+          }
+
+          history.push(to);
 
           break;
 
@@ -1657,6 +1773,7 @@ class RootStore {
           break;
       }
     } catch(error) {
+      this.Log(error, true);
       Respond({error: Utils.MakeClonable(error)});
     }
   });
@@ -1743,10 +1860,6 @@ class RootStore {
     };
 
     this.SetSessionStorage("navigation-info", JSON.stringify(this.navigationInfo));
-  }
-
-  SetLoginLoaded() {
-    this.loginLoaded = true;
   }
 
   ShowLogin({requireLogin=false, ignoreCapture=false}={}) {
@@ -1961,6 +2074,7 @@ export const rootStore = new RootStore();
 export const checkoutStore = rootStore.checkoutStore;
 export const transferStore = rootStore.transferStore;
 export const cryptoStore = rootStore.cryptoStore;
+export const notificationStore = rootStore.notificationStore;
 
 window.rootStore = rootStore;
 

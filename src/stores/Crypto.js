@@ -10,8 +10,13 @@ import SolanaLogo from "Assets/icons/solana icon.svg";
 import {rootStore} from "./index";
 
 class CryptoStore {
+  eluvioChainId = EluvioConfiguration.network === "demo" ? "0xE934A" : "0xE93A9";
+  ethereumChainId = EluvioConfiguration.network === "demo" ? "0x5" : "0x1";
+
   metamaskChainId = undefined;
   metamaskAddress = undefined;
+  metamaskBalance = 0;
+  metamaskUSDCBalance = 0;
 
   phantomAddress = undefined;
   phantomBalance = 0;
@@ -24,13 +29,11 @@ class CryptoStore {
   };
 
   get usdcConnected() {
-    return Object.keys(this.connectedAccounts.sol || {}).length > 0;
+    return Object.keys(this.connectedAccounts.sol || {}).length > 0 || Object.keys(this.connectedAccounts.eth || {}).length > 0;
   }
 
   get usdcOnly() {
-    const connectedAccount = Object.values(this.connectedAccounts.sol || {})[0];
-
-    return connectedAccount?.preferred;
+    return Object.values(this.connectedAccounts.sol || {})[0]?.preferred || Object.values(this.connectedAccounts.eth || {})[0]?.preferred;
   }
 
   get client() {
@@ -49,6 +52,40 @@ class CryptoStore {
     }
   }
 
+  ActivateEluvioChain = flow(function * () {
+    try {
+      yield window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{chainId: this.eluvioChainId}],
+      });
+    } catch(error) {
+      this.rootStore.Log("Failed to switch to Eluvio network", "warn");
+      this.rootStore.Log(error, "warn");
+      this.rootStore.Log("Attempting to add Eluvio network", "warn");
+      yield window.ethereum.request({
+        method: "wallet_addEthereumChain",
+        params: [{
+          "chainId": this.eluvioChainId,
+          "chainName": EluvioConfiguration.network === "demo" ? "Eluvio Content Fabric (Demo)" : "Eluvio Content Fabric",
+          "rpcUrls": [
+            ...rootStore.client.ethereumURIs
+          ],
+          "nativeCurrency": {
+            "name": "ELV",
+            "symbol": "ELV",
+            "decimals": 18
+          },
+          "blockExplorerUrls": ["https://explorer.contentfabric.io"]
+        }],
+      });
+
+      yield window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{chainId: this.eluvioChainId}],
+      });
+    }
+  });
+
   SolanaConnection = flow(function * () {
     if(!this.solanaConnection) {
       const {Connection, clusterApiUrl} = yield import("@solana/web3.js");
@@ -65,6 +102,18 @@ class CryptoStore {
 
     return this.solanaConnection;
   });
+
+  EthereumTransactionLink(hash) {
+    const url = new URL(
+      this.rootStore.client.networkName === "main" ?
+        "https://etherscan.io" :
+        "https://goerli.etherscan.io"
+    );
+
+    url.pathname = UrlJoin("tx", hash);
+
+    return url.toString();
+  }
 
   SolanaTransactionLink(signature) {
     const url = new URL("https://explorer.solana.com");
@@ -112,10 +161,11 @@ class CryptoStore {
     }
   });
 
-  RequestMetamaskAddress = flow(function * () {
-    if(window.ethereum?.selectedAddress) {
-      return window.ethereum.selectedAddress;
-    }
+  RequestMetamaskAddress = flow(function * (useEluvioNetwork=false) {
+    yield window.ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{chainId: useEluvioNetwork ? this.eluvioChainId : this.ethereumChainId}],
+    });
 
     const accounts = yield window.ethereum.request({ method: "eth_requestAccounts" });
 
@@ -124,42 +174,45 @@ class CryptoStore {
     return this.metamaskAddress;
   });
 
-  ConnectMetamask = flow(function * () {
-    yield window.ethereum.request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: "0x1" }],
-    });
+  ConnectMetamask = flow(function * ({setPreferred=false, preferLinkedWalletPayment=false}={}) {
+    if(this.rootStore.embedded) {
+      this.phantomAddress = yield this.EmbeddedSign({provider: "metamask", connect: true, params: {setPreferred, preferLinkedWalletPayment}});
+    } else {
+      const address = yield this.RequestMetamaskAddress();
 
-    const address = yield this.RequestMetamaskAddress();
-
-    if(!address) { return; }
-
-    if(this.connectedAccounts.eth[address]) {
-      return;
-    } else if(Object.keys(this.connectedAccounts.eth).length > 0) {
-      throw Error("Incorrect account");
-    }
-
-    const message = `Eluvio link account - ${new Date().toISOString()}`;
-    let payload = {
-      tgt: "eth",
-      ace: address,
-      msg: message,
-      sig: yield this.SignMetamask(message, address)
-    };
-
-    if(!payload.sig) {
-      return;
-    }
-
-    yield this.client.authClient.MakeAuthServiceRequest({
-      path: UrlJoin("as", "wlt", "link"),
-      method: "POST",
-      body: payload,
-      headers: {
-        Authorization: `Bearer ${this.rootStore.authToken}`
+      if(!address) {
+        return;
       }
-    });
+
+      const connectedAccount = Object.values(this.connectedAccounts.eth)[0];
+      if(connectedAccount && (!setPreferred || connectedAccount.preferred === preferLinkedWalletPayment)) {
+        return;
+      } else if(connectedAccount && connectedAccount.link_acct !== address) {
+        throw Error("Incorrect account");
+      }
+
+      const message = `Eluvio link account - ${new Date().toISOString()}`;
+      let payload = {
+        tgt: "eth",
+        ace: address,
+        msg: message,
+        preferred: preferLinkedWalletPayment,
+        sig: yield this.SignMetamask(message, address)
+      };
+
+      if(!payload.sig) {
+        return;
+      }
+
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "link"),
+        method: "POST",
+        body: payload,
+        headers: {
+          Authorization: `Bearer ${this.rootStore.authToken}`
+        }
+      });
+    }
 
     yield this.LoadConnectedAccounts();
   });
@@ -208,6 +261,28 @@ class CryptoStore {
 
     yield this.LoadConnectedAccounts();
   });
+
+  DisconnectMetamask = flow(function * (address) {
+    if(!address) { return; }
+
+    const message = `Eluvio link account - ${new Date().toISOString()}`;
+    let payload = {
+      tgt: "eth",
+      ace: address,
+      msg: message
+    };
+
+    yield this.client.authClient.MakeAuthServiceRequest({
+      path: UrlJoin("as", "wlt", "link"),
+      method: "DELETE",
+      body: payload,
+      headers: {
+        Authorization: `Bearer ${this.rootStore.authToken}`
+      }
+    });
+
+    yield this.LoadConnectedAccounts();
+  })
 
   DisconnectPhantom = flow(function * (address) {
     if(!address) { return; }
@@ -295,12 +370,29 @@ class CryptoStore {
     }
   });
 
+  PurchaseMetamask = flow(function * (spec) {
+    try {
+      if(this.rootStore.embedded) {
+        return yield this.EmbeddedSign({provider: "metamask", purchaseSpec: spec});
+      } else {
+        const SendUSDCPayment = (yield import("../utils/USDCPaymentEth")).default;
+
+        return yield SendUSDCPayment({spec});
+      }
+    } catch(error) {
+      this.rootStore.Log("Error completing Metamask purchase:", true);
+      this.rootStore.Log(error, true);
+
+      throw error;
+    }
+  })
+
   PurchasePhantom = flow(function * (spec) {
     try {
       if(this.rootStore.embedded) {
         return yield this.EmbeddedSign({provider: "phantom", purchaseSpec: spec});
       } else {
-        const SendUSDCPayment = (yield import("../utils/USDCPayment")).default;
+        const SendUSDCPayment = (yield import("../utils/USDCPaymentSol")).default;
 
         yield this.ConnectPhantom();
 
@@ -311,7 +403,7 @@ class CryptoStore {
         });
       }
     } catch(error) {
-      this.rootStore.Log("Error signing Phantom message:", true);
+      this.rootStore.Log("Error completing Phantom purchase", true);
       this.rootStore.Log(error, true);
 
       throw error;
@@ -342,13 +434,15 @@ class CryptoStore {
       parameters
     });
 
-    if(result.address) {
-      this.phantomAddress = event.data.address;
-    }
+    if(provider === "phantom") {
+      if(result.address) {
+        this.phantomAddress = event.data.address;
+      }
 
-    if(result.balance) {
-      this.phantomBalance = event.data.balance?.sol || 0;
-      this.phantomUSDCBalance = event.data.balance?.usdc || 0;
+      if(result.balance) {
+        this.phantomBalance = event.data.balance?.sol || 0;
+        this.phantomUSDCBalance = event.data.balance?.usdc || 0;
+      }
     }
 
     return result.response;
@@ -361,7 +455,7 @@ class CryptoStore {
   MetamaskConnected() {
     if(!this.MetamaskAvailable()) { return false; }
 
-    return !!this.connectedAccounts.eth[window.ethereum?.selectedAddress] && window.ethereum.chainId === "0x1";
+    return !!this.connectedAccounts.eth[window.ethereum?.selectedAddress] && window.ethereum.chainId === this.ethereumChainId;
   }
 
   PhantomAvailable() {
@@ -386,6 +480,31 @@ class CryptoStore {
       (window.solana && this.rootStore.embedded && Object.keys(this.connectedAccounts.sol)[0])
     );
   }
+
+  MetamaskBalance = flow(function * () {
+    const address = yield this.RequestMetamaskAddress();
+    const signer = (new ethers.providers.Web3Provider(window.ethereum)).getSigner();
+
+    this.metamaskBalance = parseFloat(ethers.utils.formatEther(yield signer.getBalance()));
+
+    const abi = [{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"}];
+
+    const usdcContractAddress = this.rootStore.client.networkName === "main" ?
+      "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" :
+      "0x50b2C3c53669868b5763d8e5f6A199B9c4C86147";
+
+    const contract = new ethers.Contract(usdcContractAddress, abi, signer);
+    const decimals = yield contract.decimals();
+    const balance = yield contract.balanceOf(address);
+    const usdcBalance = parseFloat(balance.div(new ethers.utils.BigNumber(10).pow(decimals)));
+
+    this.metamaskUSDCBalance = usdcBalance;
+
+    return {
+      eth: this.metamaskBalance,
+      usdc: usdcBalance
+    };
+  });
 
   PhantomBalance = flow(function * () {
     const { PublicKey } = yield import("@solana/web3.js");
@@ -477,14 +596,16 @@ class CryptoStore {
           currencyName: "ETH",
           link: "https://metamask.io",
           Address: () => window.ethereum?.selectedAddress || this.metamaskAddress,
-          RequestAddress: async () => await this.RequestMetamaskAddress(),
+          Balance: async () => await this.MetamaskBalance(),
+          RequestAddress: async useEluvioNetwork => await this.RequestMetamaskAddress(useEluvioNetwork),
           Available: () => this.MetamaskAvailable(),
           Connected: () => this.MetamaskConnected(),
           Connect: async params => await this.ConnectMetamask(params),
           Connection: () => this.connectedAccounts.eth[Utils.FormatAddress(window.ethereum?.selectedAddress)],
           ConnectedAccounts: () => Object.values(this.connectedAccounts.eth),
           Sign: async (message, popup) => await this.SignMetamask(message, undefined, popup),
-          Disconnect: async () => {}
+          Purchase: async spec => await this.PurchaseMetamask(spec),
+          Disconnect: async address => await this.DisconnectMetamask(address)
         };
       case "phantom":
         return {
@@ -495,6 +616,7 @@ class CryptoStore {
           currencyName: "SOL",
           link: "https://phantom.app",
           Address: () => this.PhantomAddress(),
+          Balance: async () => await this.PhantomBalance(),
           RequestAddress: () => this.PhantomAddress(),
           Available: () => this.PhantomAvailable(),
           Connected: () => this.PhantomConnected(),
@@ -516,6 +638,7 @@ class CryptoStore {
       return [
         {name: "Ethereum Mainnet", network: "eth-mainnet", chainId: "0x1"},
         {name: "Ethereum Testnet (Rinkeby)", network: "eth-rinkeby", chainId: "0x4"},
+        {name: "Ethereum Testnet (Goerli)", network: "eth-rinkeby", chainId: "0x5"},
         {name: "Polygon Mainnet", network: "poly-mainnet", chainId: "0x89"},
         {name: "Polygon Testnet (Mumbai)", network: "poly-mumbai", chainId: "0x13881"}
       ];
@@ -528,10 +651,8 @@ class CryptoStore {
   }
 
   TransferNFT = flow(function * ({network, nft}) {
-    yield window.ethereum.enable();
-
-    const signer = (new ethers.providers.Web3Provider(window.ethereum)).getSigner();
     const address = yield this.RequestMetamaskAddress();
+    const signer = (new ethers.providers.Web3Provider(window.ethereum)).getSigner();
     const response = yield Utils.ResponseToJson(
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "act", nft.details.TenantId),

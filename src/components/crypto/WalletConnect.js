@@ -4,13 +4,12 @@ import {cryptoStore, rootStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
 import {ButtonWithLoader} from "Components/common/UIComponents";
 import Confirm from "Components/common/Confirm";
-import Modal from "Components/common/Modal";
 
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 import HelpIcon from "Assets/icons/help-circle.svg";
 
-const WalletConnect = observer(({showPaymentPreference, onConnect}) => {
-  const wallet = cryptoStore.WalletFunctions("phantom");
+const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnect}) => {
+  const wallet = cryptoStore.WalletFunctions(type);
   const connectedAccount = wallet.ConnectedAccounts()[0];
   const incorrectAccount = connectedAccount && wallet.Address() && connectedAccount.link_acct !== wallet.Address();
 
@@ -24,11 +23,17 @@ const WalletConnect = observer(({showPaymentPreference, onConnect}) => {
     setPaymentPreference(connectedAccount?.preferred || false);
   }, [cryptoStore.metamaskAddress, cryptoStore.metamaskChainId, cryptoStore.phantomAddress, Object.keys(cryptoStore.connectedAccounts.sol)]);
 
+  useEffect(() => {
+    if(connected) {
+      wallet.Balance();
+    }
+  }, [connected]);
+
   const UpdatePaymentPreference = async (event) => {
     const preference = event.target.checked || false;
     try {
       setErrorMessage(undefined);
-      await cryptoStore.ConnectPhantom({setPreferred: true, preferLinkedWalletPayment: event.target.checked});
+      await wallet.Connect({setPreferred: true, preferLinkedWalletPayment: preference});
 
       setPaymentPreference(preference);
     } catch(error){
@@ -36,7 +41,7 @@ const WalletConnect = observer(({showPaymentPreference, onConnect}) => {
       setPaymentPreference(!preference);
 
       if(error.message === "Incorrect account") {
-        setErrorMessage(`Incorrect Phantom account active. Please switch to ${connectedAccount.link_acct}.`);
+        setErrorMessage(`Incorrect ${wallet.name} account active. Please switch to ${connectedAccount.link_acct}.`);
       } else {
         setErrorMessage("Something went wrong when connecting your wallet. Please try again.");
       }
@@ -46,7 +51,8 @@ const WalletConnect = observer(({showPaymentPreference, onConnect}) => {
   const connectButton =
     connected && connectedAccount ?
       <div className="wallet-connect__linked">
-        <ImageIcon icon={wallet.logo} title="Phantom" /> Phantom Connected
+        <ImageIcon icon={wallet.logo} title={wallet.name} />
+        { `${wallet.name} Connected` }
       </div> :
       wallet.Available() ?
         <ButtonWithLoader
@@ -63,14 +69,15 @@ const WalletConnect = observer(({showPaymentPreference, onConnect}) => {
               rootStore.Log(error, true);
 
               if(error.status === 409) {
-                setErrorMessage("This Solana account is already connected to a different Eluvio wallet");
+                setErrorMessage(`This ${wallet.networkName} account is already connected to a different Eluvio wallet`);
               } else {
                 setErrorMessage("Something went wrong when connecting your wallet. Please try again.");
               }
             }
           }}
         >
-          <ImageIcon icon={wallet.logo} title="Phantom" /> Connect Phantom
+          <ImageIcon icon={wallet.logo} title={wallet.name} />
+          { `Connect ${wallet.name}` }
         </ButtonWithLoader> :
         <a target="_blank" rel="noopener" href={wallet.link} className="action wallet-connect__link-button wallet-connect__download-link">
           <ImageIcon icon={wallet.logo} title={wallet.name} />
@@ -81,7 +88,7 @@ const WalletConnect = observer(({showPaymentPreference, onConnect}) => {
     return (
       <div className="wallet-connect wallet-connect--connected">
         { connectButton }
-        { incorrectAccount ? <div className="wallet-connect__warning">Please select the account below in your Phantom extension to connect</div> : null }
+        { incorrectAccount ? <div className="wallet-connect__warning">Please select the account below in your { wallet.name } extension to connect</div> : null }
         <div className="wallet-connect__info" key={`wallet-connection-${connectedAccount.link_acct}`}>
           <div className="wallet-connect__connected-at">
             Linked { connectedAccount.connected_at }
@@ -134,11 +141,11 @@ const WalletConnect = observer(({showPaymentPreference, onConnect}) => {
   return (
     <>
       <div className="wallet-connect">
-        <h2 className="wallet-connect__header">Link Payment Wallet</h2>
+        <h2 className="wallet-connect__header">Link {wallet.networkName} Payment Wallet</h2>
         <div className="wallet-connect__section">
           <div className="wallet-connect__info">
             <div className="wallet-connect__message">
-              To buy and sell NFTs using <ImageIcon icon={USDCIcon} title="USDC" /> USDC with direct payment, link your Eluvio Media Wallet to your payment wallet.
+              To buy and sell NFTs using <ImageIcon icon={USDCIcon} title="USDC" /> USDC on {wallet.networkName} with direct payment, link your Eluvio Media Wallet to your payment wallet.
             </div>
             { connectButton}
           </div>
@@ -150,37 +157,6 @@ const WalletConnect = observer(({showPaymentPreference, onConnect}) => {
         </div>
       </div>
       { errorMessage ? <div className="wallet-connect__error-message">{ errorMessage }</div> : null }
-    </>
-  );
-});
-
-export const WalletHeader = observer(() => {
-  const [showMenu, setShowMenu] = useState(false);
-
-  const wallet = cryptoStore.WalletFunctions("phantom");
-
-  return (
-    <>
-      <button
-        onClick={event => {
-          event.preventDefault();
-          event.stopPropagation();
-          setShowMenu(!showMenu);
-        }}
-        className="header__profile__usdc"
-        title="Connect Phantom"
-      >
-        <ImageIcon
-          icon={wallet.logo}
-          label="Not Connected"
-          className={`header__profile__balance__icon ${!cryptoStore.usdcConnected ? "header__profile__balance__icon--disabled" : ""}`}
-        />
-
-      </button>
-
-      {
-        showMenu ? <Modal Toggle={() => setShowMenu(false)} className="wallet-connect-modal"><WalletConnect showPaymentPreference /></Modal> : null
-      }
     </>
   );
 });

@@ -106,10 +106,7 @@ const MarketplaceWrapper = observer(({children}) => {
         loadKey={`marketplace-${match.params.marketplaceId}-${rootStore.loggedIn}`}
         cacheSeconds={30}
         Load={async () => {
-          await Promise.all([
-            rootStore.LoadMarketplace(match.params.marketplaceId),
-            rootStore.LoadNFTContractInfo()
-          ]);
+          await rootStore.LoadMarketplace(match.params.marketplaceId);
 
           const passwordDigest = rootStore.marketplaces[match.params.marketplaceId]?.preview_password_digest;
           if(passwordDigest && (rootStore.walletClient.mode === "staging" || match.params.marketplaceId === rootStore.previewMarketplaceId)) {

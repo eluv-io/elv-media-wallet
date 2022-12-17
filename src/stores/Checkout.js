@@ -22,6 +22,7 @@ class CheckoutStore {
   purchaseStatus = {};
 
   solanaSignatures = {};
+  ethereumHashes = {};
 
   get client() {
     return this.rootStore.client;
@@ -154,6 +155,14 @@ class CheckoutStore {
       this.Log(error, true);
     }
   }
+
+  EbanxPurchaseStatus = flow(function * (paymentHash) {
+    return yield Utils.ResponseToJson(
+      this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "checkout", "ebanx", paymentHash),
+      })
+    );
+  });
 
   OpenPack = flow(function * ({tenantId, contractAddress, tokenId}) {
     contractAddress = Utils.FormatAddress(contractAddress);
@@ -395,8 +404,8 @@ class CheckoutStore {
   }) {
     if(this.submittingOrder) { return; }
 
-    const requiresPopup = this.rootStore.embedded && !["wallet-balance", "linked-wallet"].includes(provider);
-    confirmationId = confirmationId || (provider === "linked-wallet" ? this.ConfirmationId(true) : `T-${this.ConfirmationId()}`);
+    const requiresPopup = this.rootStore.embedded && !["wallet-balance", "linked-wallet-sol", "linked-wallet-eth"].includes(provider);
+    confirmationId = confirmationId || (["linked-wallet-sol", "linked-wallet-eth"].includes(provider) ? this.ConfirmationId(true) : `T-${this.ConfirmationId()}`);
 
     try {
       this.submittingOrder = true;
@@ -405,8 +414,8 @@ class CheckoutStore {
 
       const successPath =
         marketplaceId ?
-          UrlJoin("/marketplace", marketplaceId, "store", listingId, "purchase", confirmationId) :
-          UrlJoin("/wallet", "listings", listingId, "purchase", confirmationId);
+          UrlJoin("/marketplace", marketplaceId, "store", listingId, "purchase", confirmationId, `?provider=${provider}`) :
+          UrlJoin("/wallet", "listings", listingId, "purchase", confirmationId, `?provider=${provider}`);
 
       const cancelPath =
         marketplaceId ?
@@ -526,14 +535,14 @@ class CheckoutStore {
   }) {
     if(this.submittingOrder) { return; }
 
-    const requiresPopup = this.rootStore.embedded && !["wallet-balance", "linked-wallet"].includes(provider);
+    const requiresPopup = this.rootStore.embedded && !["wallet-balance", "linked-wallet-sol", "linked-wallet-eth"].includes(provider);
     confirmationId = confirmationId || `M-${this.ConfirmationId()}`;
 
     try {
       this.submittingOrder = true;
       email = email || this.rootStore.walletClient.UserInfo().email;
 
-      const successPath = UrlJoin("/marketplace", marketplaceId, "store", sku, "purchase", confirmationId);
+      const successPath = UrlJoin("/marketplace", marketplaceId, "store", sku, "purchase", confirmationId, `?provider=${provider}`);
       const cancelPath = UrlJoin("/marketplace", marketplaceId, "store", sku);
 
       const item = this.rootStore.marketplaces[marketplaceId]?.items?.find(item => item.sku === sku);
@@ -726,7 +735,7 @@ class CheckoutStore {
 
         break;
 
-      case "linked-wallet":
+      case "linked-wallet-sol":
         if(!this.rootStore.embedded) {
           yield this.rootStore.cryptoStore.PhantomBalance();
         }
@@ -738,7 +747,7 @@ class CheckoutStore {
           };
         }
 
-        const response = (yield this.client.utils.ResponseToJson(
+        const solanaCheckoutResponse = (yield this.client.utils.ResponseToJson(
           this.client.authClient.MakeAuthServiceRequest({
             method: "POST",
             path: UrlJoin("as", "checkout", "solana"),
@@ -749,13 +758,46 @@ class CheckoutStore {
           })
         ));
 
-        const signature = yield this.rootStore.cryptoStore.PurchasePhantom(response.params[0]);
+        const signature = yield this.rootStore.cryptoStore.PurchasePhantom(solanaCheckoutResponse.params[0]);
 
         this.solanaSignatures[confirmationId] = signature;
 
         this.rootStore.SetSessionStorage("solana-signatures", JSON.stringify(this.solanaSignatures));
 
         this.rootStore.Log("Purchase transaction signature: " + signature);
+
+        yield BeforeRedirect && BeforeRedirect();
+
+        break;
+
+      case "linked-wallet-eth":
+        if(!this.rootStore.embedded) {
+          yield this.rootStore.cryptoStore.MetamaskBalance();
+        }
+
+        if(!(this.rootStore.cryptoStore.metamaskBalance > 0)) {
+          throw {
+            recoverable: false,
+            uiMessage: "Ethereum account has insufficient balance to perform this transaction"
+          };
+        }
+
+        const ethereumCheckoutResponse = (yield this.client.utils.ResponseToJson(
+          this.client.authClient.MakeAuthServiceRequest({
+            method: "POST",
+            path: UrlJoin("as", "checkout", "eth"),
+            body: requestParams,
+            headers: {
+              Authorization: `Bearer ${this.rootStore.authToken}`
+            }
+          })
+        ));
+
+        const hash = yield this.rootStore.cryptoStore.PurchaseMetamask(ethereumCheckoutResponse.params[0]);
+
+        this.rootStore.Log("Purchase transaction hash: " + hash);
+
+        this.ethereumHashes[confirmationId] = hash;
 
         yield BeforeRedirect && BeforeRedirect();
 

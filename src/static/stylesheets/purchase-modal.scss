@@ -340,6 +340,12 @@ $content-width: 475px;
     &__content {
       padding-inline: 20px;
     }
+
+    &__price-details__price {
+      * {
+        font-size: 20px;
+      }
+    }
   }
 }
 
