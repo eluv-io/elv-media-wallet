@@ -59,7 +59,7 @@
     "react-markdown": "^5.0.3",
     "react-router-dom": "^5.2.0",
     "round-to": "^6.0.0",
-    "sanitize-html": "^2.5.1",
+    "sanitize-html": "2.7.0",
     "swiper": "^8.3.2",
     "urijs": "^1.19.11",
     "url-join": "^4.0.1"
