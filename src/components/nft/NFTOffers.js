@@ -32,6 +32,7 @@ const NFTOfferCodeModal = observer(({offer, Close}) => {
 const NFTOffers = observer(({nftInfo}) => {
   const match = useRouteMatch();
   const [showOfferCode, setShowOfferCode] = useState(undefined);
+  const [redeemed, setRedeemed] = useState(false);
 
   useEffect(() => {
     (nftInfo?.offers || []).forEach(offer => {
@@ -123,6 +124,19 @@ const NFTOffers = observer(({nftInfo}) => {
                                   tokenId: nftInfo.nft.details.TokenIdStr,
                                   offerId: offer.offer_id
                                 });
+
+                                let finished = false;
+                                while(!finished) {
+                                  await new Promise(resolve => setTimeout(resolve, 10000));
+
+                                  const status = await rootStore.OfferRedemptionStatus({
+                                    contractAddress: nftInfo.nft.details.ContractAddr,
+                                    tokenId: nftInfo.nft.details.TokenIdStr,
+                                    offerId: offer.offer_id
+                                  });
+
+                                  finished = status?.status === "complete";
+                                }
 
                                 await rootStore.LoadNFTData({
                                   contractAddress: nftInfo.nft.details.ContractAddr,

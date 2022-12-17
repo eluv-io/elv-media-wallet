@@ -352,6 +352,8 @@ class CheckoutStore {
           Authorization: `Bearer ${this.rootStore.authToken}`
         }
       });
+
+      return confirmationId;
     } catch(error) {
       this.PurchaseComplete({confirmationId, success: false, message: error.message});
       throw error;
