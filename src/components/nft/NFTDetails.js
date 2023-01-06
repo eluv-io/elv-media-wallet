@@ -45,6 +45,9 @@ import CopyIcon from "Assets/icons/copy.svg";
 import MediaIcon from "Assets/icons/media-icon.svg";
 import TradeIcon from "Assets/icons/Trading Icon.svg";
 import OffersIcon from "Assets/icons/Offers icon.svg";
+import PurchaseOffersIcon from "Assets/icons/Offers table icon.svg";
+import OfferModal from "../listings/OfferModal";
+import {OffersTable} from "../listings/TransferTables";
 
 let mediaPreviewEnabled = false;
 
@@ -359,7 +362,7 @@ const NFTInfoMenu = observer(({nftInfo}) => {
   );
 });
 
-const NFTInfoSection = observer(({nftInfo, className=""}) => {
+const NFTInfoSection = observer(({nftInfo, offerInfo, setShowOfferModal, className=""}) => {
   const match = useRouteMatch();
 
   let sideText = nftInfo.sideText;
@@ -438,7 +441,18 @@ const NFTInfoSection = observer(({nftInfo, className=""}) => {
                   {nftInfo.status}
                 </div> : null
             }
-          </div> : null
+
+            {
+              nftInfo.offerable && !nftInfo.isOwned ?
+                <button onClick={() => setShowOfferModal(true)} className="details-page__text-button details-page__nft-info__status__offer">
+                  { offerInfo?.id ? "Modify your Offer" : "Make an Offer" }
+                </button> : null
+            }
+          </div> :
+          nftInfo.offerable && !nftInfo.isOwned ?
+            <button onClick={() => setShowOfferModal(true)} className="details-page__text-button details-page__nft-info__status__offer">
+              { offerInfo?.id ? "Modify your Offer" : "Make an Offer" }
+            </button> : null
       }
       {
         ownerProfile ?
@@ -536,6 +550,34 @@ const NFTTables = observer(({nftInfo}) => {
     </div>
   );
 });
+
+const PurchaseOffersTables = observer(({nftInfo}) => {
+  const nft = nftInfo.nft;
+
+  return (
+    <div className="details-page__tables">
+      <ListingStats
+        mode="sales-stats"
+        filterParams={{contractAddress: nft.details.ContractAddr}}
+      />
+      {
+        nft?.details.TokenIdStr ?
+          <OffersTable
+            icon={PurchaseOffersIcon}
+            header="Active Offers for this token"
+            contractAddress={nft.details.ContractAddr}
+            tokenId={nft.details.TokenIdStr}
+          /> : null
+      }
+      <OffersTable
+        icon={PurchaseOffersIcon}
+        header={`Active offers for all '${nft.metadata.display_name}' tokens`}
+        contractAddress={nft.details.ContractAddr}
+      />
+    </div>
+  );
+});
+
 
 const NFTActions = observer(({
   nftInfo,
@@ -696,7 +738,7 @@ const NFTActions = observer(({
 });
 
 const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, showMediaSections, hideTables, tab, setTab}) => {
-  const anyTabs = nftInfo.hasOffers || showMediaSections;
+  const anyTabs = nftInfo.hasOffers || showMediaSections || nftInfo.offerable;
 
   if((!nft && !previewMedia) || !anyTabs) {
     return hideTables ? null : <NFTTables nftInfo={nftInfo} />;
@@ -705,13 +747,18 @@ const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, showMediaSection
   let tabs = [
     showMediaSections ? ["Media", MediaIcon] : "",
     nftInfo.hasOffers ? ["Offers", OffersIcon] : "",
-    hideTables ? "" : ["Trading", TradeIcon]
+    hideTables ? "" : ["Trading", TradeIcon],
+    nftInfo.offerable ? ["Purchase Offers", PurchaseOffersIcon] : ""
   ].filter(tab => tab);
 
   let activeContent;
   switch(tab) {
     case "Trading":
       activeContent = <NFTTables nftInfo={nftInfo} />;
+      break;
+
+    case "Purchase Offers":
+      activeContent = <PurchaseOffersTables nftInfo={nftInfo} />;
       break;
 
     case "Offers":
@@ -768,7 +815,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
   // Contract
   const [contractStats, setContractStats] = useState(undefined);
 
-  // Listing status
+  // Listing / Offer status
   const [listingStatus, setListingStatus] = useState(initialListingStatus);
 
   // Status
@@ -779,6 +826,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
   const [transferAddress, setTransferAddress] = useState(false);
 
   // Modals / Settings
+  const [showOfferModal, setShowOfferModal] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [previewMedia, setPreviewMedia] = useState(mediaPreviewEnabled);
 
@@ -815,6 +863,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
       return () => clearInterval(listingStatusInterval);
     }
   }, []);
+
 
   useEffect(() => {
     const nftInfo = NFTInfo({
@@ -905,6 +954,17 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
             />
       }
       {
+        showOfferModal ?
+          <OfferModal
+            nft={nft}
+            offer={listingStatus?.offer}
+            Close={() => {
+              LoadListingStatus();
+              setShowOfferModal(false);
+            }}
+          /> : null
+      }
+      {
         showTransferModal ?
           <TransferModal
             nft={nft}
@@ -949,7 +1009,12 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
                   </div>
                 </div>
 
-                <NFTInfoSection nftInfo={nftInfo} className="details-page__nft-info--mobile" />
+                <NFTInfoSection
+                  nftInfo={nftInfo}
+                  offerInfo={listingStatus?.offer}
+                  setShowOfferModal={setShowOfferModal}
+                  className="details-page__nft-info--mobile"
+                />
 
                 <NFTActions
                   nftInfo={nftInfo}
@@ -985,7 +1050,12 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
                 }
               </div>
               <div className="details-page__info">
-                <NFTInfoSection nftInfo={nftInfo} className="details-page__nft-info--default" />
+                <NFTInfoSection
+                  nftInfo={nftInfo}
+                  offerInfo={listingStatus?.offer}
+                  setShowOfferModal={setShowOfferModal}
+                  className="details-page__nft-info--default"
+                />
                 {
                   nftInfo.hasAdditionalMedia && (nftInfo.isOwned || previewMedia) ?
                     <ExpandableSection
@@ -1029,6 +1099,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
       <div className="page-block page-block--lower-content page-block--nft-content">
         <div className={`page-block__content ${showMediaSections ? "page-block__content--extra-wide" : ""}`}>
           <NFTTabbedContent
+            key={`tabbed-content-${listingStatus?.offer?.id}-${listingStatus?.offer?.price}`}
             nft={nft}
             nftInfo={nftInfo}
             showMediaSections={showMediaSections}

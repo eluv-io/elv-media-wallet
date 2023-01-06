@@ -5,6 +5,16 @@
   position: relative;
   width: 100%;
 
+  &__tables {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr;
+
+    .stats {
+      margin: 0;
+    }
+  }
+
   &__nft-info {
     margin-bottom: 40px;
     position: relative;
@@ -30,6 +40,14 @@
         font: var(--font-card-misc);
         font-size: 14px;
       }
+    }
+
+    &__status {
+      gap: 20px;
+    }
+
+    &__status__offer {
+      color: var(--color-text-highlight);
     }
 
     &__owner {

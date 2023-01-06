@@ -32,7 +32,6 @@ const NFTOfferCodeModal = observer(({offer, Close}) => {
 const NFTOffers = observer(({nftInfo}) => {
   const match = useRouteMatch();
   const [showOfferCode, setShowOfferCode] = useState(undefined);
-  const [redeemed, setRedeemed] = useState(false);
 
   useEffect(() => {
     (nftInfo?.offers || []).forEach(offer => {

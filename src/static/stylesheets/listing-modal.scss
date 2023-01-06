@@ -1,4 +1,5 @@
-.listing-modal-container {
+.listing-modal-container,
+.offer-modal-container {
   min-height: 100vh;
   overflow-y: auto;
 
@@ -16,7 +17,8 @@
 
 $content-width: 475px;
 
-.listing-modal {
+.listing-modal,
+.offer-modal {
   @include component;
   @include modal;
 
@@ -70,15 +72,16 @@ $content-width: 475px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin: 20px auto 30px;
+    margin: 20px auto 50px;
     max-width: $content-width;
     position: relative;
     width: 100%;
 
-    .listing-modal__form__error {
-      bottom: -25px;
+    .listing-modal__form__error,
+    .offer-modal__form__error {
       position: absolute;
       text-align: center;
+      top: 60px;
       width: 100%;
     }
   }
@@ -194,6 +197,37 @@ $content-width: 475px;
     }
   }
 
+  &__duration {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+
+    &__select-container,
+    &__date {
+      flex: 1 1 100%;
+    }
+
+    &__select,
+    &__select-container {
+      min-width: 0;
+    }
+
+    &__select {
+      height: 50px;
+    }
+
+    &__date {
+      align-items: center;
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+
+      svg {
+        height: 25px;
+      }
+    }
+  }
+
   &__payout {
     align-items: center;
     display: flex;
@@ -244,7 +278,8 @@ $content-width: 475px;
 }
 
 @media screen and (max-width: $mobile-breakpoint) {
-  .listing-modal-container {
+  .listing-modal-container,
+  .offer-modal {
     .modal__content {
       max-width: unset;
       min-height: 100%;
@@ -253,7 +288,8 @@ $content-width: 475px;
     }
   }
 
-  .listing-modal {
+  .listing-modal,
+  .offer-modal {
     border: 0;
     border-radius: 0;
     min-height: 100vh;

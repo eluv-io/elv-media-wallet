@@ -65,9 +65,30 @@ class TransferStore {
 
   /* Listings */
 
+  async ActiveOffer({contractAddress, tokenId}) {
+    try {
+      return (await this.rootStore.walletClient.MarketplaceOffers({
+        contractAddress,
+        tokenId,
+        statuses: ["ACTIVE"]
+      }))
+        .find(offer => Utils.EqualAddress(this.rootStore.CurrentAddress(), offer.buyer));
+    } catch(error) {
+      this.rootStore.Log(error, true);
+    }
+  }
+
   async CurrentNFTStatus({listingId, nft, contractAddress, contractId, tokenId}) {
     if(contractId) { contractAddress = Utils.HashToAddress(contractId); }
     contractAddress = Utils.FormatAddress(contractAddress || nft?.details?.ContractAddr);
+
+    let offer;
+    if(nft || (contractAddress && tokenId)) {
+      offer = await this.ActiveOffer({
+        contractAddress: contractAddress || nft?.details.ContractAddr,
+        tokenId: tokenId || nft?.details.TokenIdStr
+      });
+    }
 
     try {
       // Check first to see if NFT has sold if listing ID is known
@@ -78,10 +99,11 @@ class TransferStore {
           if(listingStatus) {
             contractAddress = Utils.FormatAddress(listingStatus.contract);
 
+
             if(listingStatus.action === "SOLD") {
-              return { sale: listingStatus };
+              return { sale: listingStatus, offer };
             } else if(listingStatus.action === "UNLISTED") {
-              return { removed: listingStatus };
+              return { removed: listingStatus, offer };
             }
           }
         // eslint-disable-next-line no-empty
@@ -103,18 +125,28 @@ class TransferStore {
       }
 
       if(listing) {
+        if(!offer) {
+          try {
+            offer = await this.ActiveOffer({
+              contractAddress: listing.details.ContractAddr,
+              tokenId: listing.details.TokenIdStr
+            });
+          // eslint-disable-next-line no-empty
+          } catch(error) {}
+        }
+
         // Listing is not expected or listing is found
-        return { listing };
+        return { listing, offer };
       }
 
       // Listing is expected, but NFT inaccessible and not listed - check if it was sold by us
       const lastTransfer = (await this.rootStore.walletClient.UserSales({contractAddress, tokenId}))[0];
 
       if(lastTransfer && Utils.EqualAddress(rootStore.CurrentAddress(), lastTransfer.seller)) {
-        return { sale: lastTransfer };
+        return { sale: lastTransfer, offer };
       }
 
-      return { listing: undefined };
+      return { listing: undefined, offer };
     } catch(error) {
       rootStore.Log(error);
 

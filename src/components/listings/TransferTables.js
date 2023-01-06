@@ -131,6 +131,86 @@ export const ActiveListings = observer(({contractAddress, selectedListingId, sho
   );
 });
 
+
+export const OffersTable = observer(({icon, header, contractAddress, tokenId, type="token", limit=10000, className=""}) => {
+  const [loading, setLoading] = useState(true);
+  const [entries, setEntries] = useState([]);
+
+  const UpdateHistory = async () => {
+    let entries = (await rootStore.walletClient.MarketplaceOffers({contractAddress, tokenId, statuses: ["ACTIVE"]}))
+      .sort((a, b) => a.created > b.created ? -1 : 1);
+
+    if(limit) {
+      entries = entries.slice(0, limit);
+    }
+
+    setEntries(entries);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    UpdateHistory();
+
+    let interval = setInterval(UpdateHistory, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className={`transfer-table purchase-offers-table ${className}`}>
+      <div className="transfer-table__header">
+        { icon ? <ImageIcon icon={icon} className="transfer-table__header__icon" /> : <div className="transfer-table__header__icon-placeholder" /> }
+        { header }
+      </div>
+      <div className="transfer-table__table">
+        <div className="transfer-table__table__header">
+          <div className="transfer-table__table__cell">Name</div>
+          <div className="transfer-table__table__cell">Token ID</div>
+          <div className="transfer-table__table__cell no-mobile">Time</div>
+          <div className="transfer-table__table__cell">Total Amount</div>
+          <div className="transfer-table__table__cell">Expiration</div>
+          <div className="transfer-table__table__cell no-mobile">From</div>
+          <div className="transfer-table__table__cell">Status</div>
+        </div>
+        <div className="transfer-table__content-rows">
+          {
+            loading ? <div className="transfer-table__loader"><Loader /></div> :
+              !entries || entries.length === 0 ?
+                <div className="transfer-table__empty">No Offers</div> :
+                entries.map(offer =>
+                  <div className="transfer-table__table__row" key={`transfer-table-row-${offer.id}`}>
+                    <div className="transfer-table__table__cell ellipsis">
+                      { "Need Name in API" }
+                    </div>
+                    <div className="transfer-table__table__cell ellipsis">
+                      { offer.token }
+                    </div>
+                    <div className="transfer-table__table__cell no-mobile">
+                      { Ago(offer.created) } ago
+                    </div>
+                    <div className="transfer-table__table__cell">
+                      { FormatPriceString(offer.price, {stringOnly: true}) }
+                    </div>
+                    <div className="transfer-table__table__cell">
+                      { TimeDiff((offer.expiration - Date.now()) / 1000) }
+                    </div>
+                    <div className="transfer-table__table__cell no-mobile ellipsis">
+                      <div className="ellipsis">
+                        { offer.buyer }
+                      </div>
+                    </div>
+                    <div className="transfer-table__table__cell">
+                      { offer.status }
+                    </div>
+                  </div>
+                )
+          }
+        </div>
+      </div>
+    </div>
+  );
+});
+
 export const PendingPaymentsTable = observer(({icon, header, limit, className=""}) => {
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);

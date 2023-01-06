@@ -323,6 +323,8 @@ export const NFTInfo = ({
   const marketplacePurchaseAvailable = item && !outOfStock && available && !unauthorized && !maxOwned;
   const hideAvailable = !available || (item && item.hide_available);
 
+  const offerable = nft?.details.TokenIdStr && !nft?.metadata?.test && !heldDate;
+
   let status;
   if(outOfStock) {
     status = "Sold Out!";
@@ -443,7 +445,8 @@ export const NFTInfo = ({
     unauthorized,
     outOfStock,
     isOwned,
-    heldDate
+    heldDate,
+    offerable
   };
 };
 
