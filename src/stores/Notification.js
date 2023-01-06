@@ -68,11 +68,13 @@ class NotificationStore {
       return [];
     }
 
+    console.log();
     const notifications = yield this.walletClient.Notifications({
       tenantId,
       offsetId,
       limit,
-      types: this.activeNotificationTypes
+      // TODO - Re-enable
+      //types: this.activeNotificationTypes
     });
 
     return notifications.map(notification => ({

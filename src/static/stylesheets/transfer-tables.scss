@@ -33,6 +33,38 @@
     }
   }
 
+  .offers-table {
+    &__actions {
+      align-items: center;
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      width: 100%;
+    }
+
+    &__action {
+      height: 20px;
+      width: 20px;
+
+      svg {
+        height: 100%;
+        width: 100%;
+      }
+    }
+  }
+
+  .offers-table__status--highlight {
+    &.offers-table__status--highlight {
+      color: var(--color-table-highlight-text);
+    }
+  }
+
+  .offers-table__status--dim {
+    &.offers-table__status--dim {
+      opacity: 0.5;
+    }
+  }
+
   &__page-controls {
     &:last-child {
       margin-bottom: 50px;

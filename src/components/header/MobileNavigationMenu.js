@@ -8,6 +8,7 @@ import {Copy, FormatPriceString, MenuLink} from "Components/common/UIComponents"
 
 import ProfileIcon from "Assets/icons/header/profile icon v2";
 import ListingsIcon from "Assets/icons/header/listings icon";
+import OffersIcon from "Assets/icons/Offers table icon.svg";
 import ActivityIcon from "Assets/icons/header/Activity";
 import ItemsIcon from "Assets/icons/header/items icon";
 import StoreIcon from "Assets/icons/header/Store";
@@ -38,6 +39,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
       { separator: true, authed: true },
       { name: "My Items", icon: ItemsIcon, to: UrlJoin("/wallet", "users", "me", "items"), authed: true },
       { name: "My Listings", icon: ListingsIcon, to: UrlJoin("/wallet", "users", "me", "listings"), authed: true },
+      { name: "My Offers", icon: OffersIcon, to: UrlJoin("/wallet", "users", "me", "offers"), authed: true },
       { name: "My Activity", icon: ActivityIcon, to: UrlJoin("/wallet", "users", "me", "activity"), authed: true },
       { name: "Notifications", icon: NotificationsIcon, to: UrlJoin("/wallet", "users", "me", "notifications"), authed: true }
     ];
@@ -52,11 +54,13 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
       { name: "Collections", icon: CollectionsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "collections"), hidden: !hasCollections },
       { name: tabs.listings || "Listings", icon: ListingsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "listings") },
       { name: "Activity", icon: ActivityIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "activity") },
+      { name: "Offers", icon: OffersIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "offers") },
       { name: "Leaderboard", icon: LeaderboardIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "leaderboard"), hidden: marketplace?.branding?.hide_leaderboard },
       { separator: true, authed: true },
       { name: "My Items", icon: ItemsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items"), authed: true },
       { name: "My Collections", icon: CollectionsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "collections"), authed: true, hidden: !hasCollections },
       { name: "My Listings", icon: ListingsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "listings"), authed: true },
+      { name: "My Offers", icon: OffersIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "offers"), authed: true },
       { name: "My Activity", icon: ActivityIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "activity"), authed: true },
       { name: "Notifications", icon: NotificationsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "notifications"), authed: true }
     ];

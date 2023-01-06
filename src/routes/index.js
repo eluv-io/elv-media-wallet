@@ -26,6 +26,7 @@ import UserProfileContainer from "Components/profile/UserProfileContainer";
 import Drop from "Components/event/Drop";
 import MarketplaceStorefront from "Components/marketplace/MarketplaceStorefront";
 import UserActivity from "Components/user/UserActivity";
+import UserOffers from "Components/user/UserOffers";
 import UserCollections from "Components/user/UserCollections";
 import {PageLoader} from "Components/common/Loaders";
 import NFTMedia from "Components/nft/media/index";
@@ -58,6 +59,7 @@ const UserRoutes = ({includeMarketplaceRoutes}) => {
     { name: "Purchase Listing", path: "listings/:listingId/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
 
     { name: "Activity", path: "activity", includeUserProfile: true, Component: UserActivity },
+    { name: "Offers", path: "offers", includeUserProfile: true, Component: UserOffers },
     { name: "Notifications", path: "notifications", Component: Notifications, includeUserProfile: true },
 
     { name: match => (GetMarketplace(match)?.storefront?.tabs?.my_items || "Items"), includeUserProfile: true, path: "items", Component: UserItems },

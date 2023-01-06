@@ -6,12 +6,18 @@ import {Loader} from "Components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import ImageIcon from "Components/common/ImageIcon";
 import {FormatPriceString} from "Components/common/UIComponents";
+import Table, {FilteredTable} from "Components/common/Table";
 
 import UpCaret from "Assets/icons/up-caret.svg";
 import DownCaret from "Assets/icons/down-caret.svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 import USDIcon from "Assets/icons/crypto/USD icon.svg";
-import Table, {FilteredTable} from "Components/common/Table";
+
+import CheckIcon from "Assets/icons/check.svg";
+import XIcon from "Assets/icons/x.svg";
+import EditIcon from "Assets/icons/edit listing icon.svg";
+import Confirm from "Components/common/Confirm";
+import OfferModal from "Components/listings/OfferModal";
 
 export const ActiveListings = observer(({contractAddress, selectedListingId, showSeller=false, Select}) => {
   const [initialListingId] = useState(selectedListingId);
@@ -132,13 +138,98 @@ export const ActiveListings = observer(({contractAddress, selectedListingId, sho
 });
 
 
-export const OffersTable = observer(({icon, header, contractAddress, tokenId, type="token", limit=10000, className=""}) => {
+const OffersTableActions = observer(({offer, setShowOfferModal, Reload}) => {
+  if(offer.status !== "ACTIVE") { return null; }
+
+  if(Utils.EqualAddress(offer.buyer, rootStore.CurrentAddress())) {
+    return (
+      <div className="offers-table__actions">
+        <button
+          onClick={async () => {
+            setShowOfferModal({
+              offer,
+              nft: await rootStore.LoadNFTData({
+                contractAddress: offer.contract,
+                tokenId: offer.token
+              })
+            });
+          }}
+          className="offers-table__action"
+        >
+          <ImageIcon icon={EditIcon} title="Edit Offer"/>
+        </button>
+      </div>
+    );
+  }
+
+  if(Utils.EqualAddress(offer.seller, rootStore.CurrentAddress())) {
+    return (
+      <div className="offers-table__actions">
+        <button
+          onClick={async () => {
+            await Confirm({
+              message: `Would you like to accept this offer of ${FormatPriceString(offer.price, {stringOnly: true})} for ${offer.name}?`,
+              Confirm: async () => {
+                await rootStore.walletClient.AcceptMarketplaceOffer({offerId: offer.id});
+
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                Reload();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+              }
+            });
+          }}
+          className="offers-table__action"
+        >
+          <ImageIcon icon={CheckIcon} title="Accept Offer"/>
+        </button>
+        <button
+          onClick={async () => {
+            await Confirm({
+              message: `Are you sure you want to decline this offer of ${FormatPriceString(offer.price, {stringOnly: true})} for ${offer.name}?`,
+              Confirm: async () => {
+                await rootStore.walletClient.RejectMarketplaceOffer({offerId: offer.id});
+
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                Reload();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+              }
+            });
+          }}
+          className="offers-table__action"
+        >
+          <ImageIcon icon={XIcon} title="Decline Offer"/>
+        </button>
+      </div>
+    );
+  }
+
+  return null;
+});
+
+export const OffersTable = observer(({
+  icon,
+  header,
+  limit,
+  contractAddress,
+  tokenId,
+  sellerAddress,
+  buyerAddress,
+  noActions=false,
+  className=""
+}) => {
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
+  const [loadKey, setLoadKey] = useState(0);
+  const [showOfferModal, setShowOfferModal] = useState(undefined);
 
   const UpdateHistory = async () => {
-    let entries = (await rootStore.walletClient.MarketplaceOffers({contractAddress, tokenId, statuses: ["ACTIVE"]}))
-      .sort((a, b) => a.created > b.created ? -1 : 1);
+    let entries = (await rootStore.walletClient.MarketplaceOffers({
+      sellerAddress,
+      buyerAddress,
+      contractAddress,
+      tokenId
+    }))
+      .sort((a, b) => a.updated > b.updated ? -1 : 1);
 
     if(limit) {
       entries = entries.slice(0, limit);
@@ -149,65 +240,80 @@ export const OffersTable = observer(({icon, header, contractAddress, tokenId, ty
   };
 
   useEffect(() => {
-    UpdateHistory();
-
-    let interval = setInterval(UpdateHistory, 30000);
+    let interval = setInterval(UpdateHistory, 60000);
 
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    UpdateHistory();
+  }, [loadKey]);
+
+  // Hide actions column if no entries have actions
+  noActions = noActions ||
+    !entries.find(offer =>
+      offer.status === "ACTIVE" &&
+      (
+        // Offer was made by us
+        Utils.EqualAddress(offer.buyer, rootStore.CurrentAddress()) ||
+        // Offer was received by us
+        Utils.EqualAddress(offer.seller, rootStore.CurrentAddress())
+      )
+    );
+
   return (
-    <div className={`transfer-table purchase-offers-table ${className}`}>
-      <div className="transfer-table__header">
-        { icon ? <ImageIcon icon={icon} className="transfer-table__header__icon" /> : <div className="transfer-table__header__icon-placeholder" /> }
-        { header }
-      </div>
-      <div className="transfer-table__table">
-        <div className="transfer-table__table__header">
-          <div className="transfer-table__table__cell">Name</div>
-          <div className="transfer-table__table__cell">Token ID</div>
-          <div className="transfer-table__table__cell no-mobile">Time</div>
-          <div className="transfer-table__table__cell">Total Amount</div>
-          <div className="transfer-table__table__cell">Expiration</div>
-          <div className="transfer-table__table__cell no-mobile">From</div>
-          <div className="transfer-table__table__cell">Status</div>
-        </div>
-        <div className="transfer-table__content-rows">
-          {
-            loading ? <div className="transfer-table__loader"><Loader /></div> :
-              !entries || entries.length === 0 ?
-                <div className="transfer-table__empty">No Offers</div> :
-                entries.map(offer =>
-                  <div className="transfer-table__table__row" key={`transfer-table-row-${offer.id}`}>
-                    <div className="transfer-table__table__cell ellipsis">
-                      { "Need Name in API" }
-                    </div>
-                    <div className="transfer-table__table__cell ellipsis">
-                      { offer.token }
-                    </div>
-                    <div className="transfer-table__table__cell no-mobile">
-                      { Ago(offer.created) } ago
-                    </div>
-                    <div className="transfer-table__table__cell">
-                      { FormatPriceString(offer.price, {stringOnly: true}) }
-                    </div>
-                    <div className="transfer-table__table__cell">
-                      { TimeDiff((offer.expiration - Date.now()) / 1000) }
-                    </div>
-                    <div className="transfer-table__table__cell no-mobile ellipsis">
-                      <div className="ellipsis">
-                        { offer.buyer }
-                      </div>
-                    </div>
-                    <div className="transfer-table__table__cell">
-                      { offer.status }
-                    </div>
-                  </div>
-                )
-          }
-        </div>
-      </div>
-    </div>
+    <>
+      <Table
+        className={`offers-table ${className}`}
+        loading={loading}
+        headerIcon={icon}
+        headerText={header}
+        pagingMode="none"
+        columnHeaders={[
+          "Name",
+          "Token ID",
+          "Time",
+          "Amount",
+          "Expiration",
+          "From",
+          "Status",
+          " "
+        ]}
+        columnWidths={[2, 1, 1, 1, 1, 1, 1, "75px"]}
+        tabletColumnWidths={[2, 1, 1, 1, 1, 0, 1, "75px"]}
+        mobileColumnWidths={[1, 0, 0, 1, 0, 0, 1, "75px"]}
+        entries={
+          entries.map(offer => {
+            return [
+              offer.name,
+              offer.token,
+              `${Ago(offer.updated)} ago`,
+              FormatPriceString(offer.price, {stringOnly: true}),
+              TimeDiff((offer.expiration - Date.now()) / 1000),
+              <div className="ellipsis">
+                {buyerAddress ? offer.seller : offer.buyer}
+              </div>,
+              <div
+                className={`offers-table__status ${["ACTIVE", "ACCEPTED"].includes(offer.status) ? "offers-table__status--highlight" : "offers-table__status--dim"}`}>
+                {offer.status}
+              </div>,
+              noActions ? null : <OffersTableActions offer={offer} setShowOfferModal={setShowOfferModal} Reload={() => setLoadKey(Math.random())} />
+            ];
+          })
+        }
+      />
+      {
+        showOfferModal ?
+          <OfferModal
+            nft={showOfferModal.nft}
+            offer={showOfferModal.offer}
+            Close={() => {
+              setShowOfferModal(undefined);
+              setLoadKey(Math.random());
+            }}
+          /> : null
+      }
+      </>
   );
 });
 

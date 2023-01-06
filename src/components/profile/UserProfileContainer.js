@@ -230,6 +230,12 @@ const UserProfileContainer = observer(({children}) => {
             </NavLink>
             {
               currentUser ?
+                <NavLink to="offers" className="header__navigation-link user__nav__link">
+                  Offers
+                </NavLink> : null
+            }
+            {
+              currentUser ?
                 <NavLink to="activity" className="header__navigation-link user__nav__link">
                   Activity
                 </NavLink> : null

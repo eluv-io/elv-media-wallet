@@ -14,6 +14,7 @@ import CopyIcon from "Assets/icons/copy";
 import ItemsIcon from "Assets/icons/header/items icon";
 import CollectionsIcon from "Assets/icons/header/collections icon";
 import ListingsIcon from "Assets/icons/header/listings icon";
+import OffersIcon from "Assets/icons/Offers table icon.svg";
 import ActivityIcon from "Assets/icons/header/Activity";
 import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
 import PreferencesIcon from "Assets/icons/header/Preferences icon";
@@ -99,6 +100,15 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
           isActive={IsActive("listings")}
         >
           My Listings
+        </MenuLink>
+        <MenuLink
+          icon={OffersIcon}
+          className="header__profile-menu__link"
+          to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "offers") : "/wallet/users/me/offers"}
+          onClick={Hide}
+          isActive={IsActive("offers")}
+        >
+          My Offers
         </MenuLink>
         <MenuLink
           icon={ActivityIcon}
