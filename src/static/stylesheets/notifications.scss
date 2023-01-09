@@ -177,14 +177,14 @@
 
     * {
       color: var(--color-component-text-secondary);
-      transition: color 0.25s ease;
+      transition: color 0.15s ease;
     }
 
     &.active,
     &.focus-visible,
     &:hover {
       * {
-        color: var(--color-component-text-primary);
+        color: var(--color-component-text-highlight);
       }
     }
   }
@@ -209,12 +209,12 @@
     padding: 10px;
     text-align: left;
     text-transform: unset;
-    transition: background-color 0.25s ease;
+    transition: background-color 0.15s ease;
     width: 100%;
 
     * {
       color: var(--color-component-text-primary);
-      transition: color 0.25s ease;
+      transition: color 0.15s ease;
     }
 
     &__icon {

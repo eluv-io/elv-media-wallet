@@ -7,17 +7,19 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 import ImageIcon from "Components/common/ImageIcon";
 import {FormatPriceString} from "Components/common/UIComponents";
 import Table, {FilteredTable} from "Components/common/Table";
+import UrlJoin from "url-join";
 
 import UpCaret from "Assets/icons/up-caret.svg";
 import DownCaret from "Assets/icons/down-caret.svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 import USDIcon from "Assets/icons/crypto/USD icon.svg";
 
-import CheckIcon from "Assets/icons/check.svg";
-import XIcon from "Assets/icons/x.svg";
+import AcceptIcon from "Assets/icons/thumbs up.svg";
+import RejectIcon from "Assets/icons/thumbs down.svg";
 import EditIcon from "Assets/icons/edit listing icon.svg";
 import Confirm from "Components/common/Confirm";
 import OfferModal from "Components/listings/OfferModal";
+import {useRouteMatch} from "react-router-dom";
 
 export const ActiveListings = observer(({contractAddress, selectedListingId, showSeller=false, Select}) => {
   const [initialListingId] = useState(selectedListingId);
@@ -145,7 +147,10 @@ const OffersTableActions = observer(({offer, setShowOfferModal, Reload}) => {
     return (
       <div className="offers-table__actions">
         <button
-          onClick={async () => {
+          onClick={async event => {
+            event.stopPropagation();
+            event.preventDefault();
+
             setShowOfferModal({
               offer,
               nft: await rootStore.LoadNFTData({
@@ -156,6 +161,7 @@ const OffersTableActions = observer(({offer, setShowOfferModal, Reload}) => {
           }}
           className="offers-table__action"
         >
+          <div className="offers-table__action__text">Edit</div>
           <ImageIcon icon={EditIcon} title="Edit Offer"/>
         </button>
       </div>
@@ -166,7 +172,10 @@ const OffersTableActions = observer(({offer, setShowOfferModal, Reload}) => {
     return (
       <div className="offers-table__actions">
         <button
-          onClick={async () => {
+          onClick={async event => {
+            event.stopPropagation();
+            event.preventDefault();
+
             await Confirm({
               message: `Would you like to accept this offer of ${FormatPriceString(offer.price, {stringOnly: true})} for ${offer.name}?`,
               Confirm: async () => {
@@ -180,10 +189,14 @@ const OffersTableActions = observer(({offer, setShowOfferModal, Reload}) => {
           }}
           className="offers-table__action"
         >
-          <ImageIcon icon={CheckIcon} title="Accept Offer"/>
+          <div className="offers-table__action__text">Accept</div>
+          <ImageIcon icon={AcceptIcon} title="Accept Offer"/>
         </button>
         <button
-          onClick={async () => {
+          onClick={async event => {
+            event.stopPropagation();
+            event.preventDefault();
+
             await Confirm({
               message: `Are you sure you want to decline this offer of ${FormatPriceString(offer.price, {stringOnly: true})} for ${offer.name}?`,
               Confirm: async () => {
@@ -197,7 +210,8 @@ const OffersTableActions = observer(({offer, setShowOfferModal, Reload}) => {
           }}
           className="offers-table__action"
         >
-          <ImageIcon icon={XIcon} title="Decline Offer"/>
+          <div className="offers-table__action__text">Decline</div>
+          <ImageIcon icon={RejectIcon} title="Decline Offer"/>
         </button>
       </div>
     );
@@ -215,20 +229,34 @@ export const OffersTable = observer(({
   sellerAddress,
   buyerAddress,
   noActions=false,
+  hideActionsColumn=false,
+  useWidth,
   className=""
 }) => {
+  const match = useRouteMatch();
+
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
   const [loadKey, setLoadKey] = useState(0);
   const [showOfferModal, setShowOfferModal] = useState(undefined);
 
   const UpdateHistory = async () => {
+    let statuses = [];
+    if(sellerAddress) {
+      statuses = ["ACTIVE", "ACCEPTED"];
+    }
+
     let entries = (await rootStore.walletClient.MarketplaceOffers({
       sellerAddress,
       buyerAddress,
       contractAddress,
-      tokenId
+      tokenId,
+      statuses
     }))
+      // Filter out offers that apply to all tokens. We don't deal with them yet.
+      .filter(offer => offer.token)
       .sort((a, b) => a.updated > b.updated ? -1 : 1);
 
     if(limit) {
@@ -269,6 +297,7 @@ export const OffersTable = observer(({
         headerIcon={icon}
         headerText={header}
         pagingMode="none"
+        useWidth={useWidth}
         columnHeaders={[
           "Name",
           "Token ID",
@@ -279,26 +308,57 @@ export const OffersTable = observer(({
           "Status",
           " "
         ]}
-        columnWidths={[2, 1, 1, 1, 1, 1, 1, "75px"]}
-        tabletColumnWidths={[2, 1, 1, 1, 1, 0, 1, "75px"]}
-        mobileColumnWidths={[1, 0, 0, 1, 0, 0, 1, "75px"]}
+        columnWidths={[2, 1, 1, 1, 1, 1, 1, hideActionsColumn ? 0 : "100px"]}
+        tabletColumnWidths={[2, 1, 1, 1, 1, 0, 1, hideActionsColumn ? 0 : "100px"]}
+        mobileColumnWidths={[1, 0, 0, 1, 0, 0, 1, hideActionsColumn ? 0 : "75px"]}
         entries={
           entries.map(offer => {
-            return [
-              offer.name,
-              offer.token,
-              `${Ago(offer.updated)} ago`,
-              FormatPriceString(offer.price, {stringOnly: true}),
-              TimeDiff((offer.expiration - Date.now()) / 1000),
-              <div className="ellipsis">
-                {buyerAddress ? offer.seller : offer.buyer}
-              </div>,
-              <div
-                className={`offers-table__status ${["ACTIVE", "ACCEPTED"].includes(offer.status) ? "offers-table__status--highlight" : "offers-table__status--dim"}`}>
-                {offer.status}
-              </div>,
-              noActions ? null : <OffersTableActions offer={offer} setShowOfferModal={setShowOfferModal} Reload={() => setLoadKey(Math.random())} />
-            ];
+            const seller = sellerAddress || offer.seller;
+            const useLink = seller && offer.contract && offer.token;
+
+            let path = useLink ?
+              UrlJoin(
+                "users",
+                Utils.EqualAddress(seller, rootStore.CurrentAddress()) ? "me" : Utils.FormatAddress(seller || Utils.nullAddress),
+                "items",
+                `ictr${Utils.AddressToHash(offer.contract)}`,
+                offer.token
+              ) : "";
+            path = marketplace ? UrlJoin("/marketplace", match.params.marketplaceId, path) : UrlJoin("/wallet", path);
+
+            if(offer.status !== "ACCEPTED") {
+              path = path + "?tab=Purchase Offers";
+            }
+
+            return {
+              link: useLink ? path: null,
+              columns: [
+                offer.name,
+                offer.token,
+                `${Ago(offer.updated)} ago`,
+                FormatPriceString(offer.price, {stringOnly: true}),
+                TimeDiff((offer.expiration - Date.now()) / 1000),
+                <div className="ellipsis">
+                  {Utils.FormatAddress(buyerAddress ? offer.seller : offer.buyer)}
+                </div>,
+                <div
+                  className={`offers-table__status ${["ACTIVE", "ACCEPTED"].includes(offer.status) ? "offers-table__status--highlight" : "offers-table__status--dim"}`}>
+                  {offer.status}
+                </div>,
+                noActions ?
+                  null :
+                  {
+                    className: "no-padding",
+                    content: (
+                      <OffersTableActions
+                        offer={offer}
+                        setShowOfferModal={setShowOfferModal}
+                        Reload={() => setLoadKey(Math.random())}
+                      />
+                    )
+                  }
+              ]
+            };
           })
         }
       />

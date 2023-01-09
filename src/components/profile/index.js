@@ -6,7 +6,7 @@ import {
   useRouteMatch
 } from "react-router-dom";
 import {ButtonWithLoader, CopyableField, FormatPriceString} from "Components/common/UIComponents";
-import {UserTransferTable} from "Components/listings/TransferTables";
+import {OffersTable, UserTransferTable} from "Components/listings/TransferTables";
 import {observer} from "mobx-react";
 import WithdrawalModal from "Components/profile/WithdrawalModal";
 import WalletConnect from "Components/crypto/WalletConnect";
@@ -15,6 +15,7 @@ import ImageIcon from "Components/common/ImageIcon";
 import EmailIcon from "Assets/icons/email icon.svg";
 import MetamaskIcon from "Assets/icons/crypto/metamask fox.png";
 import WithdrawalsIcon from "Assets/icons/crypto/USD icon.svg";
+import OffersIcon from "Assets/icons/Offers table icon.svg";
 
 const WithdrawalDetails = observer(({setShowWithdrawalModal}) => {
   return (
@@ -162,6 +163,35 @@ const Profile = observer(() => {
           }
         >
           View Full Transaction History
+        </Link>
+      </div>
+
+      <div className="profile-page__section profile-page__section-balance profile-page__section-box">
+        <h2 className="profile-page__section-header">
+          Locked Seller Balance
+        </h2>
+        <div className="profile-page__balance">
+          { FormatPriceString(rootStore.lockedWalletBalance, {excludeAlternateCurrency: true, includeCurrency: true }) }
+        </div>
+        <br />
+        <OffersTable
+          buyerAddress={rootStore.CurrentAddress()}
+          icon={OffersIcon}
+          header="Outstanding Offers"
+          statuses={["ACTIVE"]}
+          useWidth={600}
+          noActions
+          hideActionsColumn
+        />
+        <Link
+          className="profile-page__transactions-link"
+          to={
+            match.params.marketplaceId ?
+              UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "offers") :
+              "/wallet/users/me/offers"
+          }
+        >
+          View All Offers
         </Link>
       </div>
 

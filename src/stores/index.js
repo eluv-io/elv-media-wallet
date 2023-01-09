@@ -110,6 +110,7 @@ class RootStore {
   availableWalletBalance = undefined;
   pendingWalletBalance = undefined;
   totalWalletBalance = undefined;
+  lockedWalletBalance = undefined;
   usdcDisabled = false;
 
   specifiedMarketplaceId = this.GetSessionStorage("marketplace");
@@ -1152,6 +1153,7 @@ class RootStore {
     this.totalWalletBalance = balances.totalWalletBalance;
     this.availableWalletBalance = balances.availableWalletBalance;
     this.pendingWalletBalance = balances.pendingWalletBalance;
+    this.lockedWalletBalance = balances.lockedWalletBalance;
     this.withdrawableWalletBalance = balances.withdrawableWalletBalance;
     this.usdcBalance = balances.phantomUSDCBalance;
 

@@ -140,9 +140,7 @@ const Notification = observer(({notification, Hide}) => {
       header = "Offer Received";
       message = `You have received an offer of ${FormatPriceString(notification.data.price, {stringOnly: true})} on your '${notification.data.name}'.`;
 
-      if(notification.data.contract && notification.data.token) {
-        link = ItemLink({marketplace, contractAddress: notification.data.contract, tokenId: notification.data.token});
-      }
+      link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "offers") : "/wallet/users/me/offers";
 
       break;
 
@@ -162,12 +160,15 @@ const Notification = observer(({notification, Hide}) => {
       header = "Offer Declined";
       message = `Your offer on '${notification.data.name}' for ${FormatPriceString(notification.data.price, {stringOnly: true})} was declined.`;
 
+      link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "offers") : "/wallet/users/me/offers";
       break;
 
     case "OFFER_EXPIRED":
       icon = OfferExpiredIcon;
       header = "Offer Expired";
       message = `Your offer on '${notification.data.name}' for ${FormatPriceString(notification.data.price, {stringOnly: true})} has expired.`;
+
+      link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "offers") : "/wallet/users/me/offers";
 
       break;
 

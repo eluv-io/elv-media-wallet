@@ -15,7 +15,22 @@ class NotificationStore {
     "TOKEN_UPDATED": {
       type: "TOKEN_UPDATED",
       label: "Token Updated",
-      description: "Notify me when an NFT I own is updated (e.g. new media"
+      description: "Notify me when an NFT I own is updated (e.g. new media)"
+    },
+    "OFFER_RECEIVED": {
+      type: "OFFER_RECEIVED",
+      label: "Offer Received",
+      description: "Notify me when I receive a purchase offer for an NFT I own"
+    },
+    "OFFER_ACCEPTED": {
+      type: "OFFER_ACCEPTED",
+      label: "Offer Accepted",
+      description: "Notify me when a purchase offer I made was accepted"
+    },
+    "OFFER_DECLINED": {
+      type: "OFFER_DECLINED",
+      label: "Offer Declined",
+      description: "Notify me when a purchase offer I made was declined"
     }
   };
   activeNotificationTypes = [Object.keys(this.supportedNotificationTypes)].sort();
@@ -68,13 +83,11 @@ class NotificationStore {
       return [];
     }
 
-    console.log();
     const notifications = yield this.walletClient.Notifications({
       tenantId,
       offsetId,
       limit,
-      // TODO - Re-enable
-      //types: this.activeNotificationTypes
+      types: this.activeNotificationTypes
     });
 
     return notifications.map(notification => ({
