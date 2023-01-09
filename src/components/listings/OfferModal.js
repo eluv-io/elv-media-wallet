@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
 import Confirm from "Components/common/Confirm";
-import {ActiveListings} from "Components/listings/TransferTables";
+import {OffersTable} from "Components/listings/TransferTables";
 import {rootStore} from "Stores";
 import NFTCard from "Components/nft/NFTCard";
 import {ButtonWithLoader, FormatPriceString} from "Components/common/UIComponents";
@@ -64,12 +64,11 @@ const OfferModal = observer(({nft, offer, Close}) => {
           <div className="offer-modal__form offer-modal__inputs">
             <div className="offer-modal__active-listings">
               <h2 className="offer-modal__active-listings__header">Active Offers for this NFT</h2>
-              {
-                // TODO: Active offers table
-              }
-              <ActiveListings
+              <OffersTable
                 contractAddress={nft.details.ContractAddr}
-                offerId={offerId}
+                tokenId={nft.details.TokenIdStr}
+                statuses={["ACTIVE"]}
+                activeView
               />
             </div>
             <div className="offer-modal__form__inputs">

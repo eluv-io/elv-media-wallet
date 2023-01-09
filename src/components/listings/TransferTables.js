@@ -228,6 +228,8 @@ export const OffersTable = observer(({
   tokenId,
   sellerAddress,
   buyerAddress,
+  statuses,
+  activeView=false,
   noActions=false,
   hideActionsColumn=false,
   useWidth,
@@ -243,7 +245,6 @@ export const OffersTable = observer(({
   const [showOfferModal, setShowOfferModal] = useState(undefined);
 
   const UpdateHistory = async () => {
-    let statuses = [];
     if(sellerAddress) {
       statuses = ["ACTIVE", "ACCEPTED"];
     }
@@ -288,6 +289,29 @@ export const OffersTable = observer(({
         Utils.EqualAddress(offer.seller, rootStore.CurrentAddress())
       )
     );
+
+  if(activeView) {
+    return (
+      <Table
+        className={`offers-table ${className}`}
+        loading={loading}
+        pagingMode="none"
+        columnHeaders={[
+          "User",
+          "Price",
+        ]}
+        columnWidths={[1, 1]}
+        entries={
+          entries.map(offer => [
+            <div className="ellipsis">
+              { Utils.FormatAddress(offer.buyer) }
+            </div>,
+            FormatPriceString(offer.price, {stringOnly: true}),
+          ])
+        }
+      />
+    );
+  }
 
   return (
     <>
