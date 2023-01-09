@@ -556,12 +556,14 @@ const PurchaseOffersTables = observer(({nftInfo}) => {
             header="Active Offers for this token"
             contractAddress={nft.details.ContractAddr}
             tokenId={nft.details.TokenIdStr}
+            statuses={["ACTIVE"]}
           /> : null
       }
       <OffersTable
         icon={PurchaseOffersIcon}
         header={`Active offers for all '${nft.metadata.display_name}' tokens`}
         contractAddress={nft.details.ContractAddr}
+        statuses={["ACTIVE"]}
         noActions
       />
     </div>
