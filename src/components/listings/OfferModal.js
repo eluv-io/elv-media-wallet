@@ -8,6 +8,7 @@ import NFTCard from "Components/nft/NFTCard";
 import {ButtonWithLoader, FormatPriceString} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import {Select} from "../common/UIComponents";
+import {roundToDown} from "round-to";
 
 import USDIcon from "Assets/icons/crypto/USD icon.svg";
 import CalendarIcon from "Assets/icons/calendar.svg";
@@ -24,18 +25,28 @@ const OfferModal = observer(({nft, offer, Close}) => {
     offer?.price ? offer.price.toFixed(2) :
       nft.details.Price ? nft.details.Price.toFixed(2) : ""
   );
+
   const [errorMessage, setErrorMessage] = useState(undefined);
 
   const [priceFloor, setPriceFloor] = useState(0);
   const [offerDuration, setOfferDuration] = useState("7");
+  const [feeRate, setFeeRate] = useState(0.065);
 
   const offerId = offer?.id;
+
+  // If editing, add the current offer price to the available balance
+  // TODO: consider fee when API is changed
+  const availableBalance = rootStore.availableWalletBalance + (offer?.price || 0);
 
   useEffect(() => {
     rootStore.walletClient.TenantConfiguration({
       contractAddress: nft.details.ContractAddr
     })
       .then(config => {
+        if(config["nft-fee-percent"]) {
+          setFeeRate(parseFloat(config["nft-fee-percent"]) / 100);
+        }
+
         if(!config["min-list-price"]) { return; }
 
         const floor = parseFloat(config["min-list-price"]) || 0;
@@ -49,7 +60,8 @@ const OfferModal = observer(({nft, offer, Close}) => {
   }, []);
 
   const parsedPrice = isNaN(parseFloat(price)) ? 0 : parseFloat(price);
-  const insufficientBalance = rootStore.availableWalletBalance - parsedPrice < 0;
+  const fee = Math.max(1, roundToDown(parsedPrice * feeRate, 2));
+  const insufficientBalance = availableBalance - parsedPrice - fee < 0;
 
   return (
     <Modal
@@ -72,15 +84,17 @@ const OfferModal = observer(({nft, offer, Close}) => {
               />
             </div>
             <div className="offer-modal__form__inputs">
-              <input
-                placeholder="Set Offer Amount"
-                className={`offer-modal__form__price-input ${parsedPrice > 10000 ? "offer-modal__form__price-input-error" : ""}`}
-                value={price}
-                onChange={event => setPrice(event.target.value.replace(/[^\d.]/g, ""))}
-                onBlur={() => setPrice(parsedPrice.toFixed(2))}
-              />
-              <div className="offer-modal__form__price-input-label">
-                <ImageIcon icon={USDIcon} />
+              <div className="offer-modal__form__input-container">
+                <input
+                  placeholder="Set Offer Amount"
+                  className={`offer-modal__form__price-input ${parsedPrice > 10000 ? "offer-modal__form__price-input-error" : ""}`}
+                  value={price}
+                  onChange={event => setPrice(event.target.value.replace(/[^\d.]/g, ""))}
+                  onBlur={() => setPrice(parsedPrice.toFixed(2))}
+                />
+                <div className="offer-modal__form__price-input-label">
+                  <ImageIcon icon={USDIcon} />
+                </div>
               </div>
               {
                 priceFloor && parsedPrice < priceFloor ?
@@ -98,18 +112,6 @@ const OfferModal = observer(({nft, offer, Close}) => {
               }
             </div>
 
-            <div className="offer-modal__details">
-              <div className="offer-modal__detail offer-modal__detail-faded">
-                <label>Available Balance</label>
-                {FormatPriceString(rootStore.availableWalletBalance)}
-              </div>
-              <div className="offer-modal__detail offer-modal__detail--bold">
-                <label>Remaining Balance</label>
-                <div className="offer-modal__payout">
-                  {FormatPriceString(Math.max(0, rootStore.availableWalletBalance - parsedPrice))}
-                </div>
-              </div>
-            </div>
             <div className="offer-modal__duration">
               <Select
                 value={offerDuration}
@@ -129,6 +131,61 @@ const OfferModal = observer(({nft, offer, Close}) => {
                 <ImageIcon icon={CalendarIcon} label="Calendar" />
                 <div className="offer-modal__duration__target-date">
                   { ExpirationDate(offerDuration) }
+                </div>
+              </div>
+            </div>
+
+            <div className="offer-modal__order-details">
+              <div className="offer-modal__order-line-item">
+                <div className="offer-modal__order-label">
+                  { nft.metadata.display_name }
+                </div>
+                <div className="offer-modal__order-price">
+                  { FormatPriceString(parsedPrice) }
+                </div>
+              </div>
+              <div className="offer-modal__order-line-item">
+                <div className="offer-modal__order-label">
+                  Service Fee
+                </div>
+                <div className="offer-modal__order-price">
+                  { FormatPriceString(fee) }
+                </div>
+              </div>
+              <div className="offer-modal__order-separator" />
+              <div className="offer-modal__order-line-item">
+                <div className="offer-modal__order-label">
+                  Total
+                </div>
+                <div className="offer-modal__order-price">
+                  { FormatPriceString(parsedPrice + fee) }
+                </div>
+              </div>
+            </div>
+            <div className="offer-modal__order-details offer-modal__order-details-box">
+              <div className="offer-modal__order-line-item">
+                <div className="offer-modal__order-label">
+                  Available Balance
+                </div>
+                <div className="offer-modal__order-price">
+                  {FormatPriceString(availableBalance, {vertical: true})}
+                </div>
+              </div>
+              <div className="offer-modal__order-line-item">
+                <div className="offer-modal__order-label">
+                  Current Purchase
+                </div>
+                <div className="offer-modal__order-price">
+                  {FormatPriceString(parsedPrice + fee, {vertical: true})}
+                </div>
+              </div>
+              <div className="offer-modal__order-separator"/>
+              <div className="offer-modal__order-line-item">
+                <div className="offer-modal__order-label">
+                  Remaining Balance
+                </div>
+                <div className="offer-modal__order-price">
+                  {FormatPriceString(Math.max(0, availableBalance - parsedPrice - fee), {vertical: true})}
                 </div>
               </div>
             </div>

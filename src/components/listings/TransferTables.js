@@ -297,7 +297,7 @@ export const OffersTable = observer(({
         loading={loading}
         pagingMode="none"
         columnHeaders={[
-          "User",
+          "From",
           "Price",
         ]}
         columnWidths={[1, 1]}
@@ -326,7 +326,7 @@ export const OffersTable = observer(({
           "Name",
           "Token ID",
           "Time",
-          "Amount",
+          "Total Amount",
           "Expiration",
           "From",
           "Status",

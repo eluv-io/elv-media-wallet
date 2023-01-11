@@ -63,16 +63,18 @@ const ListingModal = observer(({nft, listingId, Close}) => {
               />
             </div>
             <div className="listing-modal__form__inputs">
-              <input
-                placeholder="Set Price"
-                className={`listing-modal__form__price-input ${parsedPrice > 10000 ? "listing-modal__form__price-input-error" : ""}`}
-                value={price}
-                onChange={event => setPrice(event.target.value.replace(/[^\d.]/g, ""))}
-                onBlur={() => setPrice(parsedPrice.toFixed(2))}
-              />
-              <div className="listing-modal__form__price-input-label">
-                { cryptoStore.usdcOnly ? null : <ImageIcon icon={USDIcon} /> }
-                { cryptoStore.usdcConnected ? <ImageIcon icon={USDCIcon} title="USDC Available" /> : null }
+              <div className="listing-modal__form__input-container">
+                <input
+                  placeholder="Set Price"
+                  className={`listing-modal__form__price-input ${parsedPrice > 10000 ? "listing-modal__form__price-input-error" : ""}`}
+                  value={price}
+                  onChange={event => setPrice(event.target.value.replace(/[^\d.]/g, ""))}
+                  onBlur={() => setPrice(parsedPrice.toFixed(2))}
+                />
+                <div className="listing-modal__form__price-input-label">
+                  { cryptoStore.usdcOnly ? null : <ImageIcon icon={USDIcon} /> }
+                  { cryptoStore.usdcConnected ? <ImageIcon icon={USDCIcon} title="USDC Available" /> : null }
+                </div>
               </div>
               {
                 priceFloor && parsedPrice < priceFloor ?
