@@ -182,6 +182,7 @@ const Profile = observer(() => {
           useWidth={600}
           noActions
           hideActionsColumn
+          showTotal
         />
         <Link
           className="profile-page__transactions-link"

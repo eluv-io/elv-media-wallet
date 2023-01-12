@@ -54,7 +54,6 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
       { name: "Collections", icon: CollectionsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "collections"), hidden: !hasCollections },
       { name: tabs.listings || "Listings", icon: ListingsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "listings") },
       { name: "Activity", icon: ActivityIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "activity") },
-      { name: "Offers", icon: OffersIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "offers") },
       { name: "Leaderboard", icon: LeaderboardIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "leaderboard"), hidden: marketplace?.branding?.hide_leaderboard },
       { separator: true, authed: true },
       { name: "My Items", icon: ItemsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items"), authed: true },

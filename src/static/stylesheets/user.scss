@@ -202,15 +202,12 @@
 
     &__nav {
       display: flex;
+      gap: 20px;
       justify-content: center;
       margin: 40px 0;
 
       &__link {
         font-size: 12px;
-
-        &:not(:last-child) {
-          margin-right: 20px;
-        }
       }
     }
   }

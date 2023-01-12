@@ -147,11 +147,11 @@
 
   @media screen and (max-width: $tablet-breakpoint) {
     &__navigation {
-      gap: 10px;
+      gap: 20px;
     }
 
     &__navigation-link {
-      font-size: 12px;
+      font-size: 14px;
     }
   }
 
@@ -159,6 +159,11 @@
     &__navigation {
       justify-content: space-around;
       width: 100%;
+    }
+
+
+    &__navigation-link {
+      font-size: 12px;
     }
 
     .mobile-navigation {

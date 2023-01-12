@@ -177,7 +177,28 @@ const OffersTableActions = observer(({offer, setShowOfferModal, Reload}) => {
             event.preventDefault();
 
             await Confirm({
-              message: `Would you like to accept this offer of ${FormatPriceString(offer.price, {stringOnly: true})} for ${offer.name}?`,
+              message: (
+                <div className="offers-table__accept-modal">
+                  <div className="offers-table__accept-modal__message">
+                    {`Would you like to accept this offer of ${FormatPriceString(offer.price, {stringOnly: true})}${offer.buyer_username ? ` from @${offer.buyer_username}` : ""}  for '${offer.name}'?`}
+                  </div>
+                  <div className="offers-table__accept-modal__breakdown">
+                    <div className="offers-table__accept-modal__line-item">
+                      <label>Offer</label>
+                      {FormatPriceString(offer.price, {excludeAlternateCurrency: true})}
+                    </div>
+                    <div className="offers-table__accept-modal__line-item">
+                      <label>Creator Royalty</label>
+                      {FormatPriceString(offer.royalty, {excludeAlternateCurrency: true})}
+                    </div>
+                    <div className="offers-table__accept-modal__separator" />
+                    <div className="offers-table__accept-modal__line-item ">
+                      <label>Total Payout</label>
+                      {FormatPriceString(Math.max(0, offer.payout_amount), {excludeAlternateCurrency: true})}
+                    </div>
+                  </div>
+                </div>
+              ),
               Confirm: async () => {
                 await rootStore.walletClient.AcceptMarketplaceOffer({offerId: offer.id});
 
@@ -198,7 +219,7 @@ const OffersTableActions = observer(({offer, setShowOfferModal, Reload}) => {
             event.preventDefault();
 
             await Confirm({
-              message: `Are you sure you want to decline this offer of ${FormatPriceString(offer.price, {stringOnly: true})} for ${offer.name}?`,
+              message: `Are you sure you want to decline this offer of ${FormatPriceString(offer.price, {stringOnly: true})}${offer.buyer_username ? ` from @${offer.buyer_username}` : ""}  for '${offer.name}'?`,
               Confirm: async () => {
                 await rootStore.walletClient.RejectMarketplaceOffer({offerId: offer.id});
 
@@ -232,6 +253,7 @@ export const OffersTable = observer(({
   activeView=false,
   noActions=false,
   hideActionsColumn=false,
+  showTotal=false,
   useWidth,
   className=""
 }) => {
@@ -297,17 +319,28 @@ export const OffersTable = observer(({
         loading={loading}
         pagingMode="none"
         columnHeaders={[
-          "From",
+          buyerAddress ? "To" : "From",
           "Price",
         ]}
         columnWidths={[1, 1]}
         entries={
-          entries.map(offer => [
-            <div className="ellipsis">
-              { Utils.FormatAddress(offer.buyer) }
-            </div>,
-            FormatPriceString(offer.price, {stringOnly: true}),
-          ])
+          entries.map(offer => {
+            let user, userName;
+            if(buyerAddress) {
+              userName = offer.seller_username ? `@${offer.seller_username}` : undefined;
+              user = userName || Utils.FormatAddress(offer.seller);
+            } else {
+              userName = offer.buyer_username ? `@${offer.buyer_username}` : undefined;
+              user = userName || Utils.FormatAddress(offer.buyer);
+            }
+
+            return [
+              <div className="ellipsis" title={`${userName ? userName + " " : ""}(${Utils.FormatAddress(offer.buyer)})`}>
+                { user }
+              </div>,
+              FormatPriceString(offer.price, {stringOnly: true})
+            ];
+          })
         }
       />
     );
@@ -326,15 +359,16 @@ export const OffersTable = observer(({
           "Name",
           "Token ID",
           "Time",
+          "Offer Price", // Only shown if 'showTotal' is specified
           "Total Amount",
           "Expiration",
-          "From",
+          buyerAddress ? "To" : "From",
           "Status",
           " "
         ]}
-        columnWidths={[2, 1, 1, 1, 1, 1, 1, hideActionsColumn ? 0 : "100px"]}
-        tabletColumnWidths={[2, 1, 1, 1, 1, 0, 1, hideActionsColumn ? 0 : "100px"]}
-        mobileColumnWidths={[1, 0, 0, 1, 0, 0, 1, hideActionsColumn ? 0 : "75px"]}
+        columnWidths={[2, 1, 1, showTotal ? 1 : 0, 1, 1, 1, 1, hideActionsColumn ? 0 : "100px"]}
+        tabletColumnWidths={[2, 1, 1, showTotal ? 1 : 0, 1, 1, 0, 1, hideActionsColumn ? 0 : "100px"]}
+        mobileColumnWidths={[1, 0, 0, showTotal ? 1 : 0, 1, 0, 0, 1, hideActionsColumn ? 0 : "75px"]}
         entries={
           entries.map(offer => {
             const seller = sellerAddress || offer.seller;
@@ -354,6 +388,15 @@ export const OffersTable = observer(({
               path = path + "?tab=Purchase Offers";
             }
 
+            let user, userName;
+            if(buyerAddress) {
+              userName = offer.seller_username ? `@${offer.seller_username}` : undefined;
+              user = userName || Utils.FormatAddress(offer.seller);
+            } else {
+              userName = offer.buyer_username ? `@${offer.buyer_username}` : undefined;
+              user = userName || Utils.FormatAddress(offer.buyer);
+            }
+
             return {
               link: useLink ? path: null,
               columns: [
@@ -361,9 +404,10 @@ export const OffersTable = observer(({
                 offer.token,
                 `${Ago(offer.updated)} ago`,
                 FormatPriceString(offer.price, {stringOnly: true}),
+                FormatPriceString(showTotal ? offer.price + offer.fee : offer.price, {stringOnly: true}),
                 TimeDiff((offer.expiration - Date.now()) / 1000),
-                <div className="ellipsis">
-                  {Utils.FormatAddress(buyerAddress ? offer.seller : offer.buyer)}
+                <div className="ellipsis" title={`${userName ? userName + " " : ""}(${Utils.FormatAddress(offer.buyer)})`}>
+                  { user }
                 </div>,
                 <div
                   className={`offers-table__status ${["ACTIVE", "ACCEPTED"].includes(offer.status) ? "offers-table__status--highlight" : "offers-table__status--dim"}`}>

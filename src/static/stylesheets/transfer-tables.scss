@@ -402,3 +402,32 @@
     }
   }
 }
+
+.offers-table__accept-modal {
+  &__breakdown {
+    background: var(--background-component-secondary);
+    border-radius: var(--border-radius-component);
+    margin: 30px auto 0;
+    max-width: 400px;
+    padding: 20px;
+  }
+
+  &__separator {
+    border-bottom: var(--border-modal-primary);
+    margin-bottom: 15px;
+    padding-top: 15px;
+    width: 100%;
+  }
+
+  &__line-item {
+    align-items: center;
+    display: flex;
+    font-size: 16px;
+    height: 30px;
+    justify-content: space-between;
+
+    &--bold {
+      font-weight: bold;
+    }
+  }
+}

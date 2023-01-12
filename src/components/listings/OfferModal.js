@@ -228,7 +228,7 @@ const OfferModal = observer(({nft, offer, Close}) => {
                       }
                     })}
                   >
-                    Cancel Offer
+                    Remove Offer
                   </button> : null
               }
               <button className="action offer-modal__action" onClick={() => Close()}>

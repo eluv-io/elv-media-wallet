@@ -559,6 +559,9 @@ const PurchaseOffersTables = observer(({nftInfo}) => {
             statuses={["ACTIVE"]}
           /> : null
       }
+      {
+        /*
+
       <OffersTable
         icon={PurchaseOffersIcon}
         header={`Active offers for all '${nft.metadata.display_name}' tokens`}
@@ -566,6 +569,9 @@ const PurchaseOffersTables = observer(({nftInfo}) => {
         statuses={["ACTIVE"]}
         noActions
       />
+
+         */
+      }
     </div>
   );
 });
