@@ -42,7 +42,7 @@ const WithdrawalConfirmation = observer(({payout, provider, Close}) => {
 });
 
 // Step 2/3 - Amount selection
-const Withdrawal = observer(({provider, userInfo, Continue, Cancel}) => {
+const Withdrawal = observer(({provider, userInfo, Continue, Cancel, Close}) => {
   const [amount, setAmount] = useState(parseFloat((rootStore.withdrawableWalletBalance || 0)).toFixed(2));
   const [errorMessage, setErrorMessage] = useState(undefined);
   const parsedAmount = isNaN(parseFloat(amount)) ? 0 : parseFloat(amount || 0);
@@ -112,8 +112,8 @@ const Withdrawal = observer(({provider, userInfo, Continue, Cancel}) => {
             </div> : null
         }
         <div className="withdrawal-confirmation__actions">
-          <button className="action" onClick={() => Cancel()}>
-            Back
+          <button className="action" onClick={() => (Cancel || Close)()}>
+            { Cancel ? "Back" : "Cancel" }
           </button>
           <ButtonWithLoader
             className="action action-primary"
@@ -362,11 +362,11 @@ const WithdrawalModal = observer(({Close}) => {
   if(!provider) {
     content = <ProviderSelection Continue={provider => setProvider(provider)} Cancel={Close} />;
   } else if(provider === "Stripe" && !rootStore.userStripeId) {
-    content = <StripeSetup Cancel={() => setProvider(undefined)} Close={Close} />;
+    content = <StripeSetup Cancel={() => ebanxAvailable ? setProvider(undefined) : Close()} Close={Close} />;
   } else if(provider === "EBANX" && !userInfoConfirmed) {
     content = <EbanxUserInfo userInfo={userInfo} setUserInfo={setUserInfo} Continue={() => setUserInfoConfirmed(true)} Cancel={() => setProvider(undefined)} />;
   } else if(!payout) {
-    content = <Withdrawal userInfo={userInfo} provider={provider} Continue={payout => setPayout(payout)} Cancel={() => provider === "EBANX" ? setUserInfoConfirmed(false) : setProvider(undefined)} />;
+    content = <Withdrawal userInfo={userInfo} provider={provider} Continue={payout => setPayout(payout)} Cancel={!ebanxAvailable ? undefined : () => provider === "EBANX" ? setUserInfoConfirmed(false) : setProvider(undefined)} Close={Close} />;
   } else {
     content = <WithdrawalConfirmation payout={payout} provider={provider} Close={Close} />;
   }
