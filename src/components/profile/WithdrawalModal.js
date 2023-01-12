@@ -8,6 +8,7 @@ import {roundToUp} from "round-to";
 import SupportedCountries from "../../utils/SupportedCountries";
 import {ValidEmail} from "../../utils/Utils";
 import {Loader} from "Components/common/Loaders";
+import {useRouteMatch} from "react-router-dom";
 
 const priceOptions = {excludeAlternateCurrency: true, stringOnly: true};
 
@@ -340,7 +341,12 @@ const ProviderSelection = observer(({Continue, Cancel}) => {
 });
 
 const WithdrawalModal = observer(({Close}) => {
-  const [provider, setProvider] = useState(undefined);
+  const match = useRouteMatch();
+
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+  const ebanxAvailable = marketplace?.payment_options?.ebanx?.enabled || false;
+
+  const [provider, setProvider] = useState(ebanxAvailable ? undefined : "Stripe");
   const [payout, setPayout] = useState(undefined);
   const [userInfo, setUserInfo] = useState({
     method: "PIX",
