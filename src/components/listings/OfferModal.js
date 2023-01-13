@@ -35,10 +35,15 @@ const OfferModal = observer(({nft, offer, Close}) => {
   const offerId = offer?.id;
 
   // If editing, add the current offer price to the available balance
-  // TODO: consider fee when API is changed
-  const availableBalance = rootStore.availableWalletBalance + (offer?.price || 0);
+  let availableBalance = rootStore.availableWalletBalance;
+  if(offer) {
+    // Use integers to avoid bad floating point rounding errors
+    availableBalance = (availableBalance * 100 + offer.price * 100 + offer.fee * 100) / 100;
+  }
 
   useEffect(() => {
+    rootStore.GetWalletBalance();
+
     rootStore.walletClient.TenantConfiguration({
       contractAddress: nft.details.ContractAddr
     })
@@ -204,6 +209,8 @@ const OfferModal = observer(({nft, offer, Close}) => {
                       expiresAt: Date.now() + parseInt(offerDuration) * 24 * 60 * 60 * 1000
                     });
 
+                    rootStore.GetWalletBalance();
+
                     Close();
                   } catch(error) {
                     rootStore.Log("Offer failed", true);
@@ -224,6 +231,7 @@ const OfferModal = observer(({nft, offer, Close}) => {
                       Confirm: async () => {
                         await rootStore.walletClient.RemoveMarketplaceOffer({offerId});
                         await new Promise(resolve => setTimeout(resolve, 1000));
+                        rootStore.GetWalletBalance();
                         Close({deleted: true});
                       }
                     })}

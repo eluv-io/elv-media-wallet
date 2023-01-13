@@ -366,10 +366,9 @@ export const NFTInfo = ({
       hidden = true;
     }
 
-    const state = nft?.details?.Offers?.find(offerDetails => offerDetails.id === offer.offer_id);
-
+    let state = nft?.details?.Offers?.find(offerDetails => offerDetails.id === offer.offer_id);
     if(state?.redeemer) {
-      state.redeemer = Utils.FormatAddress(state.redeemer);
+      state = { ...state, redeemer: Utils.FormatAddress(state.redeemer) };
     }
 
     return {

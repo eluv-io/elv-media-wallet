@@ -98,6 +98,12 @@ const ItemLink = ({contractAddress, tokenId, marketplace}) => {
   return link;
 };
 
+const OfferDeclineReasons = {
+  "listing-sold": "the listing was sold.",
+  "other-offer-accepted": "an alternative offer was accepted.",
+  "nft-transfer": "the item was transferred."
+};
+
 const Notification = observer(({notification, Hide}) => {
   const ref = useRef();
   const [showMenu, setShowMenu] = useState(false);
@@ -158,7 +164,12 @@ const Notification = observer(({notification, Hide}) => {
     case "OFFER_DECLINED":
       icon = OfferDeclinedIcon;
       header = "Offer Declined";
-      message = `Your offer on '${notification.data.name}' for ${FormatPriceString(notification.data.price, {stringOnly: true})} was declined.`;
+      message = `Your offer on '${notification.data.name}' for ${FormatPriceString(notification.data.price, {stringOnly: true})} was declined`;
+
+      const reason = OfferDeclineReasons[notification.data.reason];
+      if(reason) {
+        message = message + ` - ${reason}`;
+      }
 
       link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "offers") : "/wallet/users/me/offers";
       break;
