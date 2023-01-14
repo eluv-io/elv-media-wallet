@@ -11,6 +11,7 @@ import {observer} from "mobx-react";
 import WithdrawalModal from "Components/profile/WithdrawalModal";
 import WalletConnect from "Components/crypto/WalletConnect";
 import ImageIcon from "Components/common/ImageIcon";
+import DepositModal from "Components/profile/DepositModal";
 
 import EmailIcon from "Assets/icons/email icon.svg";
 import MetamaskIcon from "Assets/icons/crypto/metamask fox.png";
@@ -63,6 +64,48 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal}) => {
         For questions or concerns, please contact <a href={"mailto:payments@eluv.io"}>payments@eluv.io</a>
       </div>
     </div>
+  );
+});
+
+const BalanceDetails = observer(() => {
+  const match = useRouteMatch();
+
+  const [showDepositModal, setShowDepositModal] = useState(false);
+
+  return (
+    <>
+      <div className="profile-page__section profile-page__section-balance profile-page__section-box">
+        <h2 className="profile-page__section-header">
+          Total Seller Balance
+        </h2>
+        <div className="profile-page__balance">
+          { FormatPriceString(rootStore.totalWalletBalance, {excludeAlternateCurrency: true, includeCurrency: true}) }
+        </div>
+        <Link
+          className="profile-page__transactions-link"
+          to={
+            match.params.marketplaceId ?
+              UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "activity") :
+              "/wallet/users/me/activity"
+          }
+        >
+          View Transaction History
+        </Link>
+
+        <div className="profile-page__actions">
+          <button onClick={() => setShowDepositModal(true)} className="action profile-page__deposit-button">
+            Add Funds
+          </button>
+        </div>
+
+        <UserTransferTable
+          icon={WithdrawalsIcon}
+          header="Deposits"
+          type="deposits"
+        />
+      </div>
+      { showDepositModal ? <DepositModal Close={() => setShowDepositModal(false)} /> : null }
+    </>
   );
 });
 
@@ -147,24 +190,7 @@ const Profile = observer(() => {
         </div>
       </div>
 
-      <div className="profile-page__section profile-page__section-balance profile-page__section-box">
-        <h2 className="profile-page__section-header">
-          Total Seller Balance
-        </h2>
-        <div className="profile-page__balance">
-          { FormatPriceString(rootStore.totalWalletBalance, {excludeAlternateCurrency: true, includeCurrency: true}) }
-        </div>
-        <Link
-          className="profile-page__transactions-link"
-          to={
-            match.params.marketplaceId ?
-              UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "activity") :
-              "/wallet/users/me/activity"
-          }
-        >
-          View Full Transaction History
-        </Link>
-      </div>
+      <BalanceDetails />
 
       <div className="profile-page__section profile-page__section-balance profile-page__section-box">
         <h2 className="profile-page__section-header">

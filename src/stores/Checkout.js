@@ -825,6 +825,81 @@ class CheckoutStore {
         throw Error("Unknown payment provider: " + provider);
     }
   });
+
+  BalanceCheckoutSubmit = flow(function * ({provider, amount, email, marketplaceId, confirmationId, fromEmbed, flowId}) {
+    confirmationId = confirmationId || `B-${this.ConfirmationId()}`;
+
+    const successPath =
+      marketplaceId ?
+        UrlJoin("/marketplace", marketplaceId, "profile") :
+        UrlJoin("/wallet", "profile");
+
+    const cancelPath =
+      marketplaceId ?
+        UrlJoin("/marketplace", marketplaceId, "profile") :
+        UrlJoin("/wallet", "profile");
+
+    let successUrl, cancelUrl;
+    if(fromEmbed) {
+      successUrl = this.rootStore.FlowURL({flow: "respond", parameters: {flowId, response: {confirmationId, success: true}}});
+      cancelUrl = this.rootStore.FlowURL({flow: "respond", parameters: {flowId, response: {confirmationId, success: false}, error: "User cancelled checkout"}});
+    } else {
+      successUrl = this.rootStore.FlowURL({flow: "redirect", parameters: {to: successPath}});
+      cancelUrl = this.rootStore.FlowURL({flow: "redirect", parameters: {to: cancelPath}});
+    }
+
+    this.PurchaseInitiated({confirmationId, marketplaceId, price: amount, successPath});
+
+    if(this.rootStore.embedded) {
+      // Third party checkout doesn't work in iframe, open new window to initiate purchase
+      yield this.rootStore.Flow({
+        flow: "balance-purchase",
+        includeAuth: true,
+        parameters: {
+          provider,
+          marketplaceId,
+          confirmationId,
+          email,
+          amount
+        },
+        OnComplete: () => {
+          this.PurchaseComplete({confirmationId, success: true});
+        },
+        OnCancel: () => {
+          this.PurchaseComplete({confirmationId, success: false, message: "Purchase failed"});
+        }
+      });
+
+      return { confirmationId };
+    }
+
+    let requestParams = {
+      currency: "USD",
+      elv_addr: this.rootStore.CurrentAddress(),
+      email: email || this.rootStore.walletClient.UserInfo()?.email,
+      client_reference_id: confirmationId,
+      amount,
+      success_url: successUrl,
+      cancel_url: cancelUrl
+    };
+
+    if(EluvioConfiguration["purchase-mode"]) {
+      requestParams.mode = EluvioConfiguration["purchase-mode"];
+    }
+
+    const response = (yield this.client.utils.ResponseToJson(
+      this.client.authClient.MakeAuthServiceRequest({
+        method: "POST",
+        path: UrlJoin("as", "wlt", "bal", "checkout", "coinbase"),
+        body: requestParams,
+        headers: {
+          Authorization: `Bearer ${this.rootStore.authToken}`
+        }
+      })
+    ));
+
+    window.location.href = UrlJoin("https://commerce.coinbase.com/charges", response.charge_code);
+  });
 }
 
 export default CheckoutStore;

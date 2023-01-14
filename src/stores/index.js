@@ -1694,6 +1694,14 @@ class RootStore {
 
           break;
 
+        case "balance-purchase":
+          yield checkoutStore.BalanceCheckoutSubmit({
+            ...parameters,
+            fromEmbed: true
+          });
+
+          break;
+
         case "redirect":
           let [to, params] = parameters.to.split("?");
           if(params) {
