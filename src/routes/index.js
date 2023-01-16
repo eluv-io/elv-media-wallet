@@ -11,7 +11,8 @@ import {
   CollectionRedeemStatus,
   DropMintingStatus,
   PackOpenStatus,
-  PurchaseMintingStatus
+  PurchaseMintingStatus,
+  DepositStatus
 } from "Components/marketplace/MintingStatus";
 import UserListings from "Components/user/UserListings";
 import UserItems from "Components/user/UserItems";
@@ -89,7 +90,8 @@ const SharedRoutes = ({includeMarketplaceRoutes}) => {
 
     { name: "Purchase Listing", path: "listings/:listingId/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
 
-    { name: "Profile", path: "profile", Component: Profile, authed: true }
+    { name: "Profile", path: "profile", Component: Profile, authed: true },
+    { name: "Deposit Status", path: "profile/deposit/:confirmationId", Component: DepositStatus, authed: true }
   ]
     .map(route => ({ ...route, navigationKey: route.navigationKey || "shared" }));
 };

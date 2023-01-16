@@ -900,6 +900,14 @@ class CheckoutStore {
 
     window.location.href = UrlJoin("https://commerce.coinbase.com/charges", response.charge_code);
   });
+
+  DepositStatus = flow(function * ({confirmationId}) {
+    const rand = Math.random();
+    return {
+      status: rand > 0.5 ? "complete" : "",
+      amount: 10
+    };
+  });
 }
 
 export default CheckoutStore;

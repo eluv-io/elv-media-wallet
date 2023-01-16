@@ -17,6 +17,22 @@ import EmailIcon from "Assets/icons/email icon.svg";
 import MetamaskIcon from "Assets/icons/crypto/metamask fox.png";
 import WithdrawalsIcon from "Assets/icons/crypto/USD icon.svg";
 import OffersIcon from "Assets/icons/Offers table icon.svg";
+import DownCaret from "Assets/icons/down-caret.svg";
+import UpCaret from "Assets/icons/up-caret.svg";
+
+const ExpandableContent = ({text, children}) => {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <>
+      <button onClick={() => setExpanded(!expanded)} className={`profile-page__expand-button ${expanded ? "expanded" : "collapsed"}`}>
+        { expanded ? "Hide" : "View" } {text}
+        <ImageIcon icon={expanded ? UpCaret : DownCaret} className="profile-page__expand-button__icon" />
+      </button>
+      { expanded ? children : null }
+    </>
+  );
+};
 
 const WithdrawalDetails = observer(({setShowWithdrawalModal}) => {
   return (
@@ -36,11 +52,13 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal}) => {
           Withdraw Funds
         </ButtonWithLoader>
       </div>
-      <UserTransferTable
-        icon={WithdrawalsIcon}
-        header="Withdrawals"
-        type="withdrawal"
-      />
+      <ExpandableContent text="Withdrawals">
+        <UserTransferTable
+          icon={WithdrawalsIcon}
+          header="Withdrawals"
+          type="withdrawal"
+        />
+      </ExpandableContent>
       {
         rootStore.userStripeId ?
           <>
@@ -98,11 +116,13 @@ const BalanceDetails = observer(() => {
           </button>
         </div>
 
-        <UserTransferTable
-          icon={WithdrawalsIcon}
-          header="Deposits"
-          type="deposits"
-        />
+        <ExpandableContent text="Deposits">
+          <UserTransferTable
+            icon={WithdrawalsIcon}
+            header="Deposits"
+            type="deposit"
+          />
+        </ExpandableContent>
       </div>
       { showDepositModal ? <DepositModal Close={() => setShowDepositModal(false)} /> : null }
     </>

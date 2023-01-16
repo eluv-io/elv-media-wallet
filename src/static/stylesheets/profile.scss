@@ -207,6 +207,34 @@
     width: max-content;
   }
 
+  &__expand-button {
+    align-items: center;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin: 30px auto;
+    transition: color 0.1s ease;
+    user-select: none;
+
+    &.collapsed {
+      margin-bottom: 0;
+    }
+
+    &:hover,
+    &:focus-visible {
+      color: var(--color-text-highlight);
+
+      * {
+        color: var(--color-text-highlight);
+      }
+    }
+
+    &__icon {
+      height: 20px;
+      width: 20px;
+    }
+  }
+
   @media screen and (max-width: $mobile-breakpoint) {
     padding: 0;
 

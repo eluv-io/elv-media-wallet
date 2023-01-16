@@ -8,6 +8,7 @@ import UrlJoin from "url-join";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import NFTCard from "Components/nft/NFTCard";
 import {LinkTargetHash, MobileOption, SearchParams} from "../../utils/Utils";
+import {FormatPriceString} from "Components/common/UIComponents";
 
 const searchParams = SearchParams();
 
@@ -271,29 +272,34 @@ const MintResults = observer(({text, header, subheader, basePath, nftBasePath, i
         <div className="page-header">{ text ? text.header : header }</div>
         <div className="page-subheader">{ text ? text.subheader1 : subheader }</div>
       </div>
-      <div className="card-list card-list--centered">
-        {
-          items.map(({token_addr, token_id, token_id_str}, index) => {
-            token_id = token_id_str || token_id;
-            const nft = rootStore.NFTData({contractAddress: token_addr, tokenId: token_id});
+      {
+        !items || items.length === 0 ? null :
+          <div className="card-list card-list--centered">
+            {
+              items.map(({token_addr, token_id, token_id_str}, index) => {
+                token_id = token_id_str || token_id;
+                const nft = rootStore.NFTData({contractAddress: token_addr, tokenId: token_id});
 
-            if(!nft) { return null; }
+                if(!nft) {
+                  return null;
+                }
 
-            return (
-              <NFTCard
-                key={`mint-result-${token_addr}-${token_id}`}
-                nft={nft}
-                imageWidth={600}
-                link={UrlJoin(nftBasePath || basePath, nft.details.ContractId, nft.details.TokenIdStr)}
-                truncateDescription
-                style={{
-                  animationDelay: `${index + 0.5}s`
-                }}
-              />
-            );
-          })
-        }
-      </div>
+                return (
+                  <NFTCard
+                    key={`mint-result-${token_addr}-${token_id}`}
+                    nft={nft}
+                    imageWidth={600}
+                    link={UrlJoin(nftBasePath || basePath, nft.details.ContractId, nft.details.TokenIdStr)}
+                    truncateDescription
+                    style={{
+                      animationDelay: `${index + 0.5}s`
+                    }}
+                  />
+                );
+              })
+            }
+          </div>
+      }
       {
         rootStore.hideNavigation ? null :
 
@@ -665,6 +671,42 @@ export const CollectionRedeemStatus = observer(() => {
       basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
       nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items")}
       backText="Back to the Marketplace"
+    />
+  );
+});
+
+export const DepositStatus = observer(() => {
+  const match = useRouteMatch();
+  const [status, setStatus] = useState(undefined);
+
+  const Status = async () => await checkoutStore.DepositStatus({
+    confirmationId: match.params.confirmationId
+  });
+
+  const basePath = match.params.marketplaceId ?
+    UrlJoin("/marketplace", match.params.marketplaceId, "profile") :
+    "/wallet/profile";
+
+  if(status?.status !== "complete") {
+    return (
+      <MintingStatus
+        header="Awaiting Deposit"
+        subheader1="It may take up to 30 minutes to confirm your deposit"
+        subheader2="You can navigate away from this page if you don't want to wait. Your funds will be available in your wallet when the process is complete"
+        Status={Status}
+        OnFinish={({status}) => setStatus(status)}
+        basePath={basePath}
+        backText="Back to your profile"
+      />
+    );
+  }
+
+  return (
+    <MintResults
+      header="Deposit Successful"
+      subheader={`Thank you for your purchase! ${FormatPriceString(status.amount || 0, {stringOnly: true, excludeAlternateCurrency: true})} has been added to your wallet balance`}
+      basePath={basePath}
+      backText="Back to your profile"
     />
   );
 });

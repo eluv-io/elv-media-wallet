@@ -543,14 +543,16 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
       .map(entry => ({
         ...entry,
         type:
-          !entry.addr && (entry.processor?.includes("stripe-payout") || entry.processor?.includes("ebanx-payout")) ?
-            "withdrawal" : Utils.EqualAddress(entry.buyer, rootStore.CurrentAddress()) ? "purchase" : "sale",
+          entry.processor?.startsWith("eluvio") && entry.processor.includes("payin") ? "deposit" :
+            !entry.addr && (entry.processor?.includes("stripe-payout") || entry.processor?.includes("ebanx-payout")) ?
+              "withdrawal" : Utils.EqualAddress(entry.buyer, rootStore.CurrentAddress()) ? "purchase" : "sale",
         processor: Processor(entry),
         pending: !entry.processor?.startsWith("solana:p2p") && Date.now() < entry.created * 1000 + rootStore.salePendingDurationDays * 24 * 60 * 60 * 1000
       }))
       .filter(entry => entry.type === type)
-      .filter(entry => entry.type === "withdrawal" || Utils.EqualAddress(rootStore.CurrentAddress(), type === "sale" ? entry.addr : entry.buyer))
+      .filter(entry => ["deposit", "withdrawal"].includes(entry.type) || Utils.EqualAddress(rootStore.CurrentAddress(), type === "sale" ? entry.addr : entry.buyer))
       .sort((a, b) => a.created > b.created ? -1 : 1);
+
 
     if(limit) {
       entries = entries.slice(0, limit);
@@ -567,6 +569,30 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
 
     return () => clearInterval(interval);
   }, []);
+
+  if(type === "deposit") {
+    // Deposits table
+    return (
+      <Table
+        className={className}
+        loading={loading}
+        headerIcon={icon}
+        headerText={header}
+        pagingMode="none"
+        columnHeaders={[
+          "Amount",
+          "Time"
+        ]}
+        columnWidths={[1, 1]}
+        entries={
+          entries.map(transfer => [
+            FormatPriceString(transfer.amount + transfer.fee, {excludeAlternateCurrency: true}),
+            `${Ago(transfer.created * 1000)} ago`
+          ])
+        }
+      />
+    );
+  }
 
   if(type === "withdrawal") {
     // Withdrawals table
