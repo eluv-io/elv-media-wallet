@@ -34,6 +34,17 @@ const DepositModal = observer(({Close}) => {
             This is a secure payment method using Coinbase Commerce. ETH, BTC, BCH & USDC available.
           </div>
           <div className="deposit-form__inputs">
+            {
+              !ValidEmail(initialEmail) ?
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  className="deposit-form__input deposit-form__input--email"
+                  value={email}
+                  onChange={event => setEmail(event.target.value)}
+                /> : null
+            }
             <div className="deposit-form__input-container">
               <ImageIcon icon={USDIcon} className="deposit-form__input__icon" />
               <input
@@ -50,24 +61,13 @@ const DepositModal = observer(({Close}) => {
                   Maximum deposit is $1000.
                 </div> : null
             }
-
-            {
-              !ValidEmail(initialEmail) ?
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  className="purchase-modal__email-input"
-                  value={email}
-                  onChange={event => setEmail(event.target.value)}
-                /> : null
-            }
           </div>
           <div className="deposit-form__actions">
             <button className="action" onClick={() => setSelectedProvider(undefined)}>
               Cancel
             </button>
             <ButtonWithLoader
+              disabled={!ValidEmail(email)}
               onClick={async () => {
                 await checkoutStore.BalanceCheckoutSubmit({
                   marketplaceId: match.params.marketplaceId,

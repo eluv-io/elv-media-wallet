@@ -308,6 +308,8 @@
   &__inputs {
     align-items: center;
     display: flex;
+    flex-direction: column;
+    gap: 10px;
     justify-content: center;
     margin: 20px auto;
     max-width: 350px;
