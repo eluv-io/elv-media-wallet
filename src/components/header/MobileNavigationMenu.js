@@ -120,7 +120,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
               }
 
               <div className="mobile-menu__section">
-                <div className="mobile-menu__section-header">Seller Balance</div>
+                <div className="mobile-menu__section-header">Balance</div>
                 <div className="mobile-menu__balance">{ FormatPriceString(rootStore.totalWalletBalance, {includeCurrency: true, prependCurrency: true, excludeAlternateCurrency: true}) }</div>
               </div>
 

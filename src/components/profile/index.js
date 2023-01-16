@@ -38,7 +38,7 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal}) => {
   return (
     <div className="profile-page__section profile-page__section-balance profile-page__section-box">
       <h2 className="profile-page__section-header">
-        Withdrawable Seller Balance
+        Withdrawable Balance
       </h2>
       <div className="profile-page__balance">
         { FormatPriceString(rootStore.withdrawableWalletBalance, {excludeAlternateCurrency: true, includeCurrency: true }) }
@@ -94,7 +94,7 @@ const BalanceDetails = observer(() => {
     <>
       <div className="profile-page__section profile-page__section-balance profile-page__section-box">
         <h2 className="profile-page__section-header">
-          Total Seller Balance
+          Total Balance
         </h2>
         <div className="profile-page__balance">
           { FormatPriceString(rootStore.totalWalletBalance, {excludeAlternateCurrency: true, includeCurrency: true}) }
@@ -214,22 +214,24 @@ const Profile = observer(() => {
 
       <div className="profile-page__section profile-page__section-balance profile-page__section-box">
         <h2 className="profile-page__section-header">
-          Locked Seller Balance
+          Locked Balance
         </h2>
         <div className="profile-page__balance">
           { FormatPriceString(rootStore.lockedWalletBalance, {excludeAlternateCurrency: true, includeCurrency: true }) }
         </div>
         <br />
-        <OffersTable
-          buyerAddress={rootStore.CurrentAddress()}
-          icon={OffersIcon}
-          header="Outstanding Offers"
-          statuses={["ACTIVE"]}
-          useWidth={600}
-          noActions
-          hideActionsColumn
-          showTotal
-        />
+        <ExpandableContent text="Outstanding Offers">
+          <OffersTable
+            buyerAddress={rootStore.CurrentAddress()}
+            icon={OffersIcon}
+            header="Outstanding Offers"
+            statuses={["ACTIVE"]}
+            useWidth={600}
+            noActions
+            hideActionsColumn
+            showTotal
+          />
+        </ExpandableContent>
         <Link
           className="profile-page__transactions-link"
           to={
