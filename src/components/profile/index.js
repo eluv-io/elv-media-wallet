@@ -99,16 +99,6 @@ const BalanceDetails = observer(() => {
         <div className="profile-page__balance">
           { FormatPriceString(rootStore.totalWalletBalance, {excludeAlternateCurrency: true, includeCurrency: true}) }
         </div>
-        <Link
-          className="profile-page__transactions-link"
-          to={
-            match.params.marketplaceId ?
-              UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "activity") :
-              "/wallet/users/me/activity"
-          }
-        >
-          View Transaction History
-        </Link>
 
         <div className="profile-page__actions">
           <button onClick={() => setShowDepositModal(true)} className="action profile-page__deposit-button">
@@ -123,6 +113,17 @@ const BalanceDetails = observer(() => {
             type="deposit"
           />
         </ExpandableContent>
+
+        <Link
+          className="profile-page__transactions-link"
+          to={
+            match.params.marketplaceId ?
+              UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "activity") :
+              "/wallet/users/me/activity"
+          }
+        >
+          View Transaction History
+        </Link>
       </div>
       { showDepositModal ? <DepositModal Close={() => setShowDepositModal(false)} /> : null }
     </>
