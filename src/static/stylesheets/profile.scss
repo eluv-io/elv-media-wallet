@@ -284,10 +284,19 @@
   }
 
   &__message {
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 300;
     margin-bottom: 20px;
     text-align: center;
+
+    &--terms {
+      color: var(--color-text-secondary);
+      font-size: 12px;
+
+      a {
+        font-size: 12px;
+      }
+    }
   }
 
   &__select,

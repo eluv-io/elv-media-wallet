@@ -31,7 +31,10 @@ const DepositModal = observer(({Close}) => {
         </div>
         <div className="deposit-form__content">
           <div className="deposit-form__message">
-            This is a secure payment method using Coinbase Commerce. ETH, BTC, BCH & USDC available.
+            This is a secure payment method using Coinbase Commerce. Only ETH, BTC, BCH, USDC, and DAI via the Ethereum mainnet are supported.
+          </div>
+          <div className="deposit-form__message">
+            Please specify the amount you wish to deposit.
           </div>
           <div className="deposit-form__inputs">
             {
@@ -61,6 +64,9 @@ const DepositModal = observer(({Close}) => {
                   Maximum deposit is $1000.
                 </div> : null
             }
+          </div>
+          <div className="deposit-form__message deposit-form__message--terms">
+            Processing time varies depending on the network, and can take several minutes to complete. Standard network fees apply. Deposits are limited to $1000 per transaction and $10,000 per day, and are subject to the <a href="https://live.eluv.io/terms" target="_blank">Eluvio Terms and Conditions</a>. By clicking "Continue" you acknowledge that you have read and understood all of these terms and conditions.
           </div>
           <div className="deposit-form__actions">
             <button className="action" onClick={() => setSelectedProvider(undefined)}>
