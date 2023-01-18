@@ -553,7 +553,11 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
       }))
       .filter(entry => entry.type === type)
       .filter(entry => ["deposit", "withdrawal"].includes(entry.type) || Utils.EqualAddress(rootStore.CurrentAddress(), type === "sale" ? entry.addr : entry.buyer))
-      .filter(entry => entry.type !== "deposit" || entry.payment_status !== "new")
+      .filter(entry =>
+        entry.type !== "deposit" ||
+        !["new", "expired"].includes(entry.payment_status) ||
+        (entry.payment_status === "new" && Date.now() - (entry.created * 1000) < 90 * 60 * 1000)
+      )
       .sort((a, b) => a.created > b.created ? -1 : 1);
 
     if(limit) {
