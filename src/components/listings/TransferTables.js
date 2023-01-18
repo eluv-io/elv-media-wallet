@@ -169,6 +169,9 @@ const OffersTableActions = observer(({offer, setShowOfferModal, Reload}) => {
   }
 
   if(Utils.EqualAddress(offer.seller, rootStore.CurrentAddress())) {
+    // If buyer has no username, don't show address
+    const buyer = offer.buyer === offer.buyer_username ? undefined : offer.buyer_username;
+
     return (
       <div className="offers-table__actions">
         <button
@@ -180,7 +183,7 @@ const OffersTableActions = observer(({offer, setShowOfferModal, Reload}) => {
               message: (
                 <div className="offers-table__accept-modal">
                   <div className="offers-table__accept-modal__message">
-                    {`Would you like to accept this offer of ${FormatPriceString(offer.price, {stringOnly: true})}${offer.buyer_username ? ` from @${offer.buyer_username}` : ""}  for '${offer.name}'?`}
+                    {`Would you like to accept this offer of ${FormatPriceString(offer.price, {stringOnly: true})}${buyer ? ` from @${buyer}` : ""}  for '${offer.name}'?`}
                   </div>
                   <div className="offers-table__accept-modal__breakdown">
                     <div className="offers-table__accept-modal__line-item">
@@ -219,7 +222,7 @@ const OffersTableActions = observer(({offer, setShowOfferModal, Reload}) => {
             event.preventDefault();
 
             await Confirm({
-              message: `Are you sure you want to decline this offer of ${FormatPriceString(offer.price, {stringOnly: true})}${offer.buyer_username ? ` from @${offer.buyer_username}` : ""}  for '${offer.name}'?`,
+              message: `Are you sure you want to decline this offer of ${FormatPriceString(offer.price, {stringOnly: true})}${buyer ? ` from @${buyer}` : ""}  for '${offer.name}'?`,
               Confirm: async () => {
                 await rootStore.walletClient.RejectMarketplaceOffer({offerId: offer.id});
 
