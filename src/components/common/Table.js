@@ -27,6 +27,7 @@ const Table = observer(({
   tabletColumnWidths,
   mobileColumnWidths,
   hideOverflow,
+  useWidth,
   className=""
 }) => {
   columnHeaders = columnHeaders.filter(h => h);
@@ -35,9 +36,11 @@ const Table = observer(({
   tabletColumnWidths = tabletColumnWidths || columnWidths;
   mobileColumnWidths = mobileColumnWidths || tabletColumnWidths;
 
-  columnWidths = rootStore.pageWidth > 1250 ?
+  const width = useWidth || rootStore.pageWidth;
+
+  columnWidths = width > 1250 ?
     columnWidths :
-    rootStore.pageWidth > 850 ?
+    width > 850 ?
       tabletColumnWidths
       : mobileColumnWidths;
 
@@ -157,7 +160,9 @@ const Table = observer(({
                       const columns = row?.columns || row;
 
                       // Link complains if 'to' is blank, so use div instead
-                      const Component = link ? Link : props => onClick ? <button {...props} /> : <div {...props} />;
+                      const Component = link?.startsWith("https:") ? props => <a {...props} href={link} target="_blank" rel="noopener" /> :
+                        link ? Link :
+                          props => onClick ? <button {...props} /> : <div {...props} />;
 
                       return (
                         <Component
@@ -173,7 +178,7 @@ const Table = observer(({
                               !columnWidths[columnIndex] ?
                                 null :
                                 <div
-                                  className="transfer-table__table__cell"
+                                  className={`transfer-table__table__cell ${field?.className || ""}`}
                                   key={`table-cell-${rowIndex}-${columnIndex}`}
                                   style={
                                     hideOverflow ?
@@ -186,7 +191,7 @@ const Table = observer(({
                                       } : {}
                                   }
                                 >
-                                  {field}
+                                  {field?.content || field}
                                 </div>
                             )
                           }

@@ -32,7 +32,6 @@ const NFTOfferCodeModal = observer(({offer, Close}) => {
 const NFTOffers = observer(({nftInfo}) => {
   const match = useRouteMatch();
   const [showOfferCode, setShowOfferCode] = useState(undefined);
-  const [redeemed, setRedeemed] = useState(false);
 
   useEffect(() => {
     (nftInfo?.offers || []).forEach(offer => {
@@ -80,7 +79,7 @@ const NFTOffers = observer(({nftInfo}) => {
                         </div> : null
                     }
                     <div className="item-card__text">
-                      <div className="item-card__tag">Offer</div>
+                      <div className="item-card__tag">Redeemable Offer</div>
                       <div className="item-card__title">{offer.name}</div>
                       <RichText richText={offer.description} className="item-card__description" />
                       {

@@ -110,6 +110,7 @@ class RootStore {
   availableWalletBalance = undefined;
   pendingWalletBalance = undefined;
   totalWalletBalance = undefined;
+  lockedWalletBalance = undefined;
   usdcDisabled = false;
 
   specifiedMarketplaceId = this.GetSessionStorage("marketplace");
@@ -719,7 +720,12 @@ class RootStore {
     }
 
     const key = `${contractAddress}-${tokenId}`;
-    return this.nftData[key];
+    const { retrievedAt, nft } = this.nftData[key] || {};
+    return {
+      nft,
+      retrievedAt,
+      expired: Date.now() - (retrievedAt || 0) > 60000
+    };
   }
 
   // Load full NFT data
@@ -729,11 +735,15 @@ class RootStore {
     }
 
     const key = `${contractAddress}-${tokenId}`;
-    if(force || !this.nftData[key]) {
-      this.nftData[key] = yield this.walletClient.NFT({contractAddress, tokenId});
+    const { expired } = this.NFTData({contractAddress, contractId, tokenId});
+    if(force || expired) {
+      this.nftData[key] = {
+        retrievedAt: Date.now(),
+        nft: yield this.walletClient.NFT({contractAddress, tokenId})
+      };
     }
 
-    return this.nftData[key];
+    return this.nftData[key].nft;
   });
 
   SetCustomCSS(css="") {
@@ -1152,6 +1162,7 @@ class RootStore {
     this.totalWalletBalance = balances.totalWalletBalance;
     this.availableWalletBalance = balances.availableWalletBalance;
     this.pendingWalletBalance = balances.pendingWalletBalance;
+    this.lockedWalletBalance = balances.lockedWalletBalance;
     this.withdrawableWalletBalance = balances.withdrawableWalletBalance;
     this.usdcBalance = balances.phantomUSDCBalance;
 
@@ -1686,6 +1697,14 @@ class RootStore {
 
         case "listing-purchase":
           yield checkoutStore.ListingCheckoutSubmit({
+            ...parameters,
+            fromEmbed: true
+          });
+
+          break;
+
+        case "balance-purchase":
+          yield checkoutStore.BalanceCheckoutSubmit({
             ...parameters,
             fromEmbed: true
           });

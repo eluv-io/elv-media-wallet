@@ -8,6 +8,7 @@ import {Copy, FormatPriceString, MenuLink} from "Components/common/UIComponents"
 
 import ProfileIcon from "Assets/icons/header/profile icon v2";
 import ListingsIcon from "Assets/icons/header/listings icon";
+import OffersIcon from "Assets/icons/Offers table icon.svg";
 import ActivityIcon from "Assets/icons/header/Activity";
 import ItemsIcon from "Assets/icons/header/items icon";
 import StoreIcon from "Assets/icons/header/Store";
@@ -38,6 +39,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
       { separator: true, authed: true },
       { name: "My Items", icon: ItemsIcon, to: UrlJoin("/wallet", "users", "me", "items"), authed: true },
       { name: "My Listings", icon: ListingsIcon, to: UrlJoin("/wallet", "users", "me", "listings"), authed: true },
+      { name: "My Offers", icon: OffersIcon, to: UrlJoin("/wallet", "users", "me", "offers"), authed: true },
       { name: "My Activity", icon: ActivityIcon, to: UrlJoin("/wallet", "users", "me", "activity"), authed: true },
       { name: "Notifications", icon: NotificationsIcon, to: UrlJoin("/wallet", "users", "me", "notifications"), authed: true }
     ];
@@ -57,6 +59,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
       { name: "My Items", icon: ItemsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items"), authed: true },
       { name: "My Collections", icon: CollectionsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "collections"), authed: true, hidden: !hasCollections },
       { name: "My Listings", icon: ListingsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "listings"), authed: true },
+      { name: "My Offers", icon: OffersIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "offers"), authed: true },
       { name: "My Activity", icon: ActivityIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "activity"), authed: true },
       { name: "Notifications", icon: NotificationsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "notifications"), authed: true }
     ];
@@ -117,7 +120,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
               }
 
               <div className="mobile-menu__section">
-                <div className="mobile-menu__section-header">Seller Balance</div>
+                <div className="mobile-menu__section-header">Balance</div>
                 <div className="mobile-menu__balance">{ FormatPriceString(rootStore.totalWalletBalance, {includeCurrency: true, prependCurrency: true, excludeAlternateCurrency: true}) }</div>
               </div>
 

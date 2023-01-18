@@ -201,10 +201,38 @@
   &__transactions-link {
     display: block;
     font-size: 14px;
-    margin: 30px auto 0;
+    margin: 30px auto 10px;
     text-align: center;
     text-decoration: underline;
     width: max-content;
+  }
+
+  &__expand-button {
+    align-items: center;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin: 30px auto;
+    transition: color 0.1s ease;
+    user-select: none;
+
+    &.collapsed {
+      margin-bottom: 0;
+    }
+
+    &:hover,
+    &:focus-visible {
+      color: var(--color-text-highlight);
+
+      * {
+        color: var(--color-text-highlight);
+      }
+    }
+
+    &__icon {
+      height: 20px;
+      width: 20px;
+    }
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
@@ -220,6 +248,7 @@
 
 // Withdrawal Modal
 
+.deposit-modal,
 .withdrawal-modal {
   .modal__content {
     align-items: center;
@@ -231,6 +260,7 @@
 }
 
 .username-modal,
+.deposit-form,
 .withdrawal-confirmation {
   @include modal;
   max-width: 550px;
@@ -254,12 +284,22 @@
   }
 
   &__message {
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 300;
     margin-bottom: 20px;
     text-align: center;
+
+    &--terms {
+      color: var(--color-text-secondary);
+      font-size: 12px;
+
+      a {
+        font-size: 12px;
+      }
+    }
   }
 
+  &__select,
   &__country-select {
     height: $action-height;
     margin: 0 auto 30px;
@@ -305,17 +345,38 @@
   &__inputs {
     align-items: center;
     display: flex;
+    flex-direction: column;
+    gap: 10px;
     justify-content: center;
     margin: 20px auto;
     max-width: 350px;
     position: relative;
 
+    .deposit-form__input-error,
     .withdrawal-confirmation__input-error {
       bottom: -20px;
       position: absolute;
       text-align: left;
       width: 100%;
     }
+  }
+
+  &__input-container {
+    align-items: center;
+    display: flex;
+    position: relative;
+
+    input {
+      width: 100%;
+    }
+  }
+
+  &__input__icon {
+    height: 30px;
+    left: 10px;
+    position: absolute;
+    width: 30px;
+    z-index: 1000;
   }
 
   input,
@@ -326,6 +387,10 @@
       max-width: 290px;
       padding: 0 15px;
       width: 100%;
+    }
+
+    &.with-icon {
+      padding-left: 50px;
     }
 
     &-error {

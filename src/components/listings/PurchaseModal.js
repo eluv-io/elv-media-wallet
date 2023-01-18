@@ -438,6 +438,18 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
   const [errorMessage, setErrorMessage] = useState(undefined);
   const [failed, setFailed] = useState(false);
   const [confirmationId, setConfirmationId] = useState(undefined);
+  const [feeRate, setFeeRate] = useState(0.065);
+
+  useEffect(() => {
+    rootStore.walletClient.TenantConfiguration({
+      contractAddress: nft.details.ContractAddr
+    })
+      .then(config => {
+        if(config["nft-fee-percent"]) {
+          setFeeRate(parseFloat(config["nft-fee-percent"]) / 100);
+        }
+      });
+  }, []);
 
   const info = NFTInfo({
     nft,
@@ -449,7 +461,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
 
   const total = info.price * quantity;
-  const fee = Math.max(1, roundToDown(total * 0.05, 2));
+  const fee = Math.max(1, roundToDown(total * feeRate, 2));
 
   let balanceAmount = rootStore.availableWalletBalance;
   let balanceName = "Wallet Balance";
@@ -526,7 +538,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
           </div>
         </div>
         <div className="purchase-modal__order-separator" />
-        <div className="purchase-modal__order-line-item purchase-modal__order-line-item--bold">
+        <div className="purchase-modal__order-line-item">
           <div className="purchase-modal__order-label">
             Total
           </div>
@@ -553,7 +565,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
           </div>
         </div>
         <div className="purchase-modal__order-separator"/>
-        <div className="purchase-modal__order-line-item purchase-modal__order-line-item--bold">
+        <div className="purchase-modal__order-line-item">
           <div className="purchase-modal__order-label">
             Remaining { balanceName }
           </div>

@@ -90,6 +90,20 @@ const NotificationMenu = observer(({notification, parent, Hide}) => {
   );
 });
 
+const ItemLink = ({contractAddress, tokenId, marketplace}) => {
+  const contractId = `ictr${Utils.AddressToHash(contractAddress)}`;
+  let link = UrlJoin("users", "me", "items", contractId, tokenId.toString());
+  link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, link) : UrlJoin("/wallet", link);
+
+  return link;
+};
+
+const OfferDeclineReasons = {
+  "listing-sold": "the listing was sold.",
+  "other-offer-accepted": "an alternative offer was accepted.",
+  "nft-transfer": "the item was transferred."
+};
+
 const Notification = observer(({notification, Hide}) => {
   const ref = useRef();
   const [showMenu, setShowMenu] = useState(false);
@@ -122,9 +136,7 @@ const Notification = observer(({notification, Hide}) => {
       header = "Updated Token";
       message = notification.data.message;
       if(notification.data.contract && notification.data.token) {
-        const contractId = `ictr${Utils.AddressToHash(notification.data.contract)}`;
-        link = UrlJoin("users", "me", "items", contractId, notification.data.token.toString());
-        link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, link) : UrlJoin("/wallet", link);
+        link = ItemLink({marketplace, contractAddress: notification.data.contract, tokenId: notification.data.token});
       }
 
       break;
@@ -134,6 +146,8 @@ const Notification = observer(({notification, Hide}) => {
       header = "Offer Received";
       message = `You have received an offer of ${FormatPriceString(notification.data.price, {stringOnly: true})} on your '${notification.data.name}'.`;
 
+      link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "offers") : "/wallet/users/me/offers";
+
       break;
 
     case "OFFER_ACCEPTED":
@@ -141,19 +155,31 @@ const Notification = observer(({notification, Hide}) => {
       header = "Offer Accepted";
       message = `Your offer on '${notification.data.name}' for ${FormatPriceString(notification.data.price, {stringOnly: true})} has been accepted.`;
 
+      if(notification.data.contract && notification.data.token) {
+        link = ItemLink({marketplace, contractAddress: notification.data.contract, tokenId: notification.data.token});
+      }
+
       break;
 
     case "OFFER_DECLINED":
       icon = OfferDeclinedIcon;
       header = "Offer Declined";
-      message = `Your offer on '${notification.data.name}' for ${FormatPriceString(notification.data.price, {stringOnly: true})} was declined.`;
+      message = `Your offer on '${notification.data.name}' for ${FormatPriceString(notification.data.price, {stringOnly: true})} was declined`;
 
+      const reason = OfferDeclineReasons[notification.data.reason];
+      if(reason) {
+        message = message + ` - ${reason}`;
+      }
+
+      link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "offers") : "/wallet/users/me/offers";
       break;
 
     case "OFFER_EXPIRED":
       icon = OfferExpiredIcon;
       header = "Offer Expired";
       message = `Your offer on '${notification.data.name}' for ${FormatPriceString(notification.data.price, {stringOnly: true})} has expired.`;
+
+      link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "offers") : "/wallet/users/me/offers";
 
       break;
 

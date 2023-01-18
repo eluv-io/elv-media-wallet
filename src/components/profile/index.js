@@ -6,21 +6,39 @@ import {
   useRouteMatch
 } from "react-router-dom";
 import {ButtonWithLoader, CopyableField, FormatPriceString} from "Components/common/UIComponents";
-import {UserTransferTable} from "Components/listings/TransferTables";
+import {OffersTable, UserTransferTable} from "Components/listings/TransferTables";
 import {observer} from "mobx-react";
 import WithdrawalModal from "Components/profile/WithdrawalModal";
 import WalletConnect from "Components/crypto/WalletConnect";
 import ImageIcon from "Components/common/ImageIcon";
+import DepositModal from "Components/profile/DepositModal";
 
 import EmailIcon from "Assets/icons/email icon.svg";
 import MetamaskIcon from "Assets/icons/crypto/metamask fox.png";
 import WithdrawalsIcon from "Assets/icons/crypto/USD icon.svg";
+import OffersIcon from "Assets/icons/Offers table icon.svg";
+import DownCaret from "Assets/icons/down-caret.svg";
+import UpCaret from "Assets/icons/up-caret.svg";
+
+const ExpandableContent = ({text, children}) => {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <>
+      <button onClick={() => setExpanded(!expanded)} className={`profile-page__expand-button ${expanded ? "expanded" : "collapsed"}`}>
+        { expanded ? "Hide" : "View" } {text}
+        <ImageIcon icon={expanded ? UpCaret : DownCaret} className="profile-page__expand-button__icon" />
+      </button>
+      { expanded ? children : null }
+    </>
+  );
+};
 
 const WithdrawalDetails = observer(({setShowWithdrawalModal}) => {
   return (
     <div className="profile-page__section profile-page__section-balance profile-page__section-box">
       <h2 className="profile-page__section-header">
-        Withdrawable Seller Balance
+        Withdrawable Balance
       </h2>
       <div className="profile-page__balance">
         { FormatPriceString(rootStore.withdrawableWalletBalance, {excludeAlternateCurrency: true, includeCurrency: true }) }
@@ -34,11 +52,13 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal}) => {
           Withdraw Funds
         </ButtonWithLoader>
       </div>
-      <UserTransferTable
-        icon={WithdrawalsIcon}
-        header="Withdrawals"
-        type="withdrawal"
-      />
+      <ExpandableContent text="Withdrawals">
+        <UserTransferTable
+          icon={WithdrawalsIcon}
+          header="Withdrawals"
+          type="withdrawal"
+        />
+      </ExpandableContent>
       {
         rootStore.userStripeId ?
           <>
@@ -62,6 +82,51 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal}) => {
         For questions or concerns, please contact <a href={"mailto:payments@eluv.io"}>payments@eluv.io</a>
       </div>
     </div>
+  );
+});
+
+const BalanceDetails = observer(() => {
+  const match = useRouteMatch();
+
+  const [showDepositModal, setShowDepositModal] = useState(false);
+
+  return (
+    <>
+      <div className="profile-page__section profile-page__section-balance profile-page__section-box">
+        <h2 className="profile-page__section-header">
+          Total Balance
+        </h2>
+        <div className="profile-page__balance">
+          { FormatPriceString(rootStore.totalWalletBalance, {excludeAlternateCurrency: true, includeCurrency: true}) }
+        </div>
+
+        <div className="profile-page__actions">
+          <button onClick={() => setShowDepositModal(true)} className="action profile-page__deposit-button">
+            Add Funds
+          </button>
+        </div>
+
+        <ExpandableContent text="Deposits">
+          <UserTransferTable
+            icon={WithdrawalsIcon}
+            header="Deposits"
+            type="deposit"
+          />
+        </ExpandableContent>
+
+        <Link
+          className="profile-page__transactions-link"
+          to={
+            match.params.marketplaceId ?
+              UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "activity") :
+              "/wallet/users/me/activity"
+          }
+        >
+          View Transaction History
+        </Link>
+      </div>
+      { showDepositModal ? <DepositModal Close={() => setShowDepositModal(false)} /> : null }
+    </>
   );
 });
 
@@ -146,22 +211,37 @@ const Profile = observer(() => {
         </div>
       </div>
 
+      <BalanceDetails />
+
       <div className="profile-page__section profile-page__section-balance profile-page__section-box">
         <h2 className="profile-page__section-header">
-          Total Seller Balance
+          Locked Balance
         </h2>
         <div className="profile-page__balance">
-          { FormatPriceString(rootStore.totalWalletBalance, {excludeAlternateCurrency: true, includeCurrency: true}) }
+          { FormatPriceString(rootStore.lockedWalletBalance, {excludeAlternateCurrency: true, includeCurrency: true }) }
         </div>
+        <br />
+        <ExpandableContent text="Outstanding Offers">
+          <OffersTable
+            buyerAddress={rootStore.CurrentAddress()}
+            icon={OffersIcon}
+            header="Outstanding Offers"
+            statuses={["ACTIVE"]}
+            useWidth={600}
+            noActions
+            hideActionsColumn
+            showTotal
+          />
+        </ExpandableContent>
         <Link
           className="profile-page__transactions-link"
           to={
             match.params.marketplaceId ?
-              UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "activity") :
-              "/wallet/users/me/activity"
+              UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "offers") :
+              "/wallet/users/me/offers"
           }
         >
-          View Full Transaction History
+          View All Offers
         </Link>
       </div>
 
