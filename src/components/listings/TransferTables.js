@@ -553,11 +553,6 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
       }))
       .filter(entry => entry.type === type)
       .filter(entry => ["deposit", "withdrawal"].includes(entry.type) || Utils.EqualAddress(rootStore.CurrentAddress(), type === "sale" ? entry.addr : entry.buyer))
-      .filter(entry =>
-        entry.type !== "deposit" ||
-        !["new", "expired"].includes(entry.payment_status) ||
-        (entry.payment_status === "new" && Date.now() - (entry.created * 1000) < 90 * 60 * 1000)
-      )
       .sort((a, b) => a.created > b.created ? -1 : 1);
 
     if(limit) {
@@ -593,12 +588,15 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
         ]}
         columnWidths={[1, 1, 1, 1]}
         entries={
-          entries.map(transfer => [
-            FormatPriceString(transfer.amount + transfer.fee, {excludeAlternateCurrency: true}),
-            `${Ago(transfer.created * 1000)} ago`,
-            transfer.processor,
-            transfer.payment_status?.toUpperCase() || "Pending"
-          ])
+          entries.map(transfer => ({
+            link: transfer?.extra_json?.charge_code ? `https://commerce.coinbase.com/receipts/${transfer.extra_json?.charge_code}` : undefined,
+            columns: [
+              FormatPriceString(transfer.amount + transfer.fee, {excludeAlternateCurrency: true}),
+              `${Ago(transfer.created * 1000)} ago`,
+              transfer.processor,
+              transfer.payment_status?.toUpperCase() || "Pending"
+            ]
+          }))
         }
       />
     );

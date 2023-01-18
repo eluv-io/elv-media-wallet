@@ -160,7 +160,9 @@ const Table = observer(({
                       const columns = row?.columns || row;
 
                       // Link complains if 'to' is blank, so use div instead
-                      const Component = link ? Link : props => onClick ? <button {...props} /> : <div {...props} />;
+                      const Component = link?.startsWith("https:") ? props => <a {...props} href={link} target="_blank" rel="noopener" /> :
+                        link ? Link :
+                          props => onClick ? <button {...props} /> : <div {...props} />;
 
                       return (
                         <Component
