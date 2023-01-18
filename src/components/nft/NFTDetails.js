@@ -665,9 +665,14 @@ const NFTActions = observer(({
         </LoginClickGate>
         {
           nftInfo.offerable && !nftInfo.isOwned ?
-            <button onClick={() => ShowOfferModal()} className="details-page__listing-button action">
+            <LoginClickGate
+              Component={ButtonWithLoader}
+              disabled={isInCheckout}
+              className="details-page__listing-button action"
+              onClick={ShowOfferModal}
+            >
               { listingStatus?.offer?.id ? "Modify your Offer" : "Make an Offer" }
-            </button> : null
+            </LoginClickGate> : null
         }
         {
           isInCheckout ?
@@ -740,9 +745,14 @@ const NFTActions = observer(({
   } else if(listingStatus && nftInfo.offerable) {
     return (
       <div className="details-page__actions">
-        <button onClick={() => ShowOfferModal()} className="details-page__listing-button action action-primary">
+        <LoginClickGate
+          Component={ButtonWithLoader}
+          disabled={isInCheckout}
+          className="details-page__listing-button action action-primary"
+          onClick={ShowOfferModal}
+        >
           { listingStatus?.offer?.id ? "Modify your Offer" : "Make an Offer" }
-        </button>
+        </LoginClickGate>
       </div>
     );
   }
