@@ -533,6 +533,8 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
         return "USDC";
       case "ebanx":
         return record.processor.startsWith("ebanx:pix") ? "Pix" : "Credit Card";
+      case "coinbase-commerce":
+        return "Coinbase";
       default:
         return "Crypto";
     }
@@ -551,9 +553,9 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
       }))
       .filter(entry => entry.type === type)
       .filter(entry => ["deposit", "withdrawal"].includes(entry.type) || Utils.EqualAddress(rootStore.CurrentAddress(), type === "sale" ? entry.addr : entry.buyer))
+      .filter(entry => entry.type !== "deposit" || entry.payment_status !== "new")
       .sort((a, b) => a.created > b.created ? -1 : 1);
-
-
+    
     if(limit) {
       entries = entries.slice(0, limit);
     }
@@ -581,13 +583,17 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
         pagingMode="none"
         columnHeaders={[
           "Amount",
-          "Time"
+          "Time",
+          "Method",
+          "Status"
         ]}
-        columnWidths={[1, 1]}
+        columnWidths={[1, 1, 1, 1]}
         entries={
           entries.map(transfer => [
             FormatPriceString(transfer.amount + transfer.fee, {excludeAlternateCurrency: true}),
-            `${Ago(transfer.created * 1000)} ago`
+            `${Ago(transfer.created * 1000)} ago`,
+            transfer.processor,
+            transfer.payment_status === "complete" ? "Complete" : "Pending"
           ])
         }
       />

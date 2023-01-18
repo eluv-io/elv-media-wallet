@@ -1175,7 +1175,7 @@ export const MarketplaceItemDetails = observer(({Render}) => {
 export const MintedNFTDetails = observer(({Render}) => {
   const match = useRouteMatch();
 
-  const nft = rootStore.NFTData({
+  const {nft, expired} = rootStore.NFTData({
     contractId: match.params.contractId,
     tokenId: match.params.tokenId
   });
@@ -1189,7 +1189,7 @@ export const MintedNFTDetails = observer(({Render}) => {
   return (
     <AsyncComponent
       loadingClassName="page-loader"
-      loaded={!!nft}
+      loaded={!expired}
       Load={async () => {
         try {
           await rootStore.LoadNFTData({
@@ -1217,7 +1217,7 @@ export const ListingDetails = observer(() => {
   const [listingStatus, setListingStatus] = useState(undefined);
   const [unavailable, setUnavailable] = useState(false);
 
-  const nft = rootStore.NFTData({
+  const {nft, expired} = rootStore.NFTData({
     contractAddress: listingStatus?.listing?.details?.ContractAddr || (listingStatus?.sale || listingStatus?.removed)?.contract,
     tokenId: listingStatus?.listing?.details?.TokenIdStr || (listingStatus?.sale || listingStatus?.removed)?.token
   });
@@ -1234,11 +1234,13 @@ export const ListingDetails = observer(() => {
         try {
           const status = (await transferStore.CurrentNFTStatus({listingId: match.params.listingId})) || {};
 
-          // Load full nft in case listing is removed or sold
-          await rootStore.LoadNFTData({
-            contractAddress: status.listing?.details?.ContractAddr || (status.sale || status.removed).contract,
-            tokenId: status.listing?.details?.TokenIdStr || (status.sale || status.removed).token
-          });
+          if(expired) {
+            // Load full nft in case listing is removed or sold
+            await rootStore.LoadNFTData({
+              contractAddress: status.listing?.details?.ContractAddr || (status.sale || status.removed).contract,
+              tokenId: status.listing?.details?.TokenIdStr || (status.sale || status.removed).token
+            });
+          }
 
           setListingStatus(status);
         } catch(error) {

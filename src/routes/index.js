@@ -43,7 +43,7 @@ const GetItem = (match) => {
 };
 
 const GetNFT = (match) => {
-  return rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId}) || { metadata: {} };
+  return (rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId})).nft || { metadata: {} };
 };
 
 const UserMarketplaceRoutes = () => {

@@ -27,7 +27,8 @@ const MintingStatus = observer(({
   backText,
   transactionLink,
   transactionLinkText,
-  intervalPeriod=10
+  intervalPeriod=10,
+  noItems=false
 }) => {
   const [initialStatusCheck, setInitialStatusCheck] = useState(false);
   const [ebanxPaymentComplete, setEbanxPaymentComplete] = useState(false);
@@ -58,25 +59,29 @@ const MintingStatus = observer(({
       }
 
       if(status.status === "complete") {
-        // If mint has items, ensure that items are available in the user's wallet
-        let items = (status.extra || []).filter(item => item.token_addr && (item.token_id || item.token_id_str));
-        if(status.op === "nft-transfer") {
-          items = [{ token_addr: status.address, token_id_str: status.tokenId }];
-        }
+        if(!noItems) {
+          // If mint has items, ensure that items are available in the user's wallet
+          let items = (status.extra || []).filter(item => item.token_addr && (item.token_id || item.token_id_str));
+          if(status.op === "nft-transfer") {
+            items = [{token_addr: status.address, token_id_str: status.tokenId}];
+          }
 
-        if(items.length > 0) {
-          const firstItem = await rootStore.LoadNFTData({
-            contractAddress: items[0].token_addr,
-            tokenId: items[0].token_id_str || items[0].token_id
-          });
+          if(items.length > 0) {
+            const firstItem = await rootStore.LoadNFTData({
+              contractAddress: items[0].token_addr,
+              tokenId: items[0].token_id_str || items[0].token_id
+            });
 
-          if(!firstItem) { return; }
+            if(!firstItem) {
+              return;
+            }
 
-          await Promise.all(
-            items.slice(1).map(async ({token_addr, token_id_str}) =>
-              await rootStore.LoadNFTData({contractAddress: token_addr, tokenId: token_id_str})
-            )
-          );
+            await Promise.all(
+              items.slice(1).map(async ({token_addr, token_id_str}) =>
+                await rootStore.LoadNFTData({contractAddress: token_addr, tokenId: token_id_str})
+              )
+            );
+          }
         }
 
         if(!revealVideoHash) {
@@ -278,7 +283,7 @@ const MintResults = observer(({text, header, subheader, basePath, nftBasePath, i
             {
               items.map(({token_addr, token_id, token_id_str}, index) => {
                 token_id = token_id_str || token_id;
-                const nft = rootStore.NFTData({contractAddress: token_addr, tokenId: token_id});
+                const { nft } = rootStore.NFTData({contractAddress: token_addr, tokenId: token_id});
 
                 if(!nft) {
                   return null;
@@ -534,12 +539,12 @@ export const PackOpenStatus = observer(() => {
 
   // Set NFT in state so it doesn't change
   const [nft] = useState(
-    rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId}) ||
+    (rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId})).nft ||
     rootStore.GetSessionStorageJSON(key, true)
   );
 
   useEffect(() => {
-    const nftData = rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId});
+    const nftData = (rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId})).nft;
     if(nftData) {
       // Save pack info in case of refresh after burn
       rootStore.SetSessionStorage(`pack-${match.params.contractId}-${match.params.tokenId}`, rootStore.client.utils.B64(JSON.stringify(nftData)));
@@ -697,6 +702,8 @@ export const DepositStatus = observer(() => {
         OnFinish={({status}) => setStatus(status)}
         basePath={basePath}
         backText="Back to your profile"
+        intervalPeriod={30}
+        noItems
       />
     );
   }
@@ -704,7 +711,7 @@ export const DepositStatus = observer(() => {
   return (
     <MintResults
       header="Deposit Successful"
-      subheader={`Thank you for your purchase! ${FormatPriceString(status.amount || 0, {stringOnly: true, excludeAlternateCurrency: true})} has been added to your wallet balance`}
+      subheader={`Thank you for your purchase! ${FormatPriceString(status?.extra?.amount || 0, {stringOnly: true, excludeAlternateCurrency: true})} has been added to your wallet balance`}
       basePath={basePath}
       backText="Back to your profile"
     />

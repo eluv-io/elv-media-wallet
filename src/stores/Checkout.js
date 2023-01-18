@@ -831,8 +831,8 @@ class CheckoutStore {
 
     const successPath =
       marketplaceId ?
-        UrlJoin("/marketplace", marketplaceId, "profile") :
-        UrlJoin("/wallet", "profile");
+        UrlJoin("/marketplace", marketplaceId, "profile", "deposit", confirmationId) :
+        UrlJoin("/wallet", "profile", "deposit", confirmationId);
 
     const cancelPath =
       marketplaceId ?
@@ -902,11 +902,18 @@ class CheckoutStore {
   });
 
   DepositStatus = flow(function * ({confirmationId}) {
-    const rand = Math.random();
-    return {
-      status: rand > 0.5 ? "complete" : "",
-      amount: 10
-    };
+    return (yield this.client.utils.ResponseToJson(
+      this.client.authClient.MakeAuthServiceRequest({
+        method: "GET",
+        path: UrlJoin("as", "wlt", "bal", "checkout", "coinbase"),
+        queryParams: {
+          client_reference_id: confirmationId
+        },
+        headers: {
+          Authorization: `Bearer ${this.rootStore.authToken}`
+        }
+      })
+    ));
   });
 }
 

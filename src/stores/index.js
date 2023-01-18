@@ -720,7 +720,12 @@ class RootStore {
     }
 
     const key = `${contractAddress}-${tokenId}`;
-    return this.nftData[key];
+    const { retrievedAt, nft } = this.nftData[key] || {};
+    return {
+      nft,
+      retrievedAt,
+      expired: Date.now() - (retrievedAt || 0) > 60000
+    };
   }
 
   // Load full NFT data
@@ -730,11 +735,15 @@ class RootStore {
     }
 
     const key = `${contractAddress}-${tokenId}`;
-    if(force || !this.nftData[key]) {
-      this.nftData[key] = yield this.walletClient.NFT({contractAddress, tokenId});
+    const { expired } = this.NFTData({contractAddress, contractId, tokenId});
+    if(force || expired) {
+      this.nftData[key] = {
+        retrievedAt: Date.now(),
+        nft: yield this.walletClient.NFT({contractAddress, tokenId})
+      };
     }
 
-    return this.nftData[key];
+    return this.nftData[key].nft;
   });
 
   SetCustomCSS(css="") {
