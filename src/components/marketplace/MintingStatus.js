@@ -695,9 +695,17 @@ export const DepositStatus = observer(() => {
   if(status?.status !== "complete") {
     return (
       <MintingStatus
-        header="Awaiting Deposit"
-        subheader1="It may take up to 30 minutes to confirm your deposit"
-        subheader2="You can navigate away from this page if you don't want to wait. Your funds will be available in your wallet when the process is complete"
+        text={{
+          header: "Awaiting Deposit",
+          subheader1: "It may take up to 30 minutes to confirm your deposit",
+          subheader2: (
+            <>
+              You can navigate away from this page if you don't want to wait.
+              Your deposit will be available in your wallet when the process is complete.
+              Your deposit status can be viewed in your <Link to={basePath + "?deposits"}>profile</Link>.
+            </>
+          )
+        }}
         Status={Status}
         OnFinish={({status}) => setStatus(status)}
         basePath={basePath}

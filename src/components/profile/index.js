@@ -12,6 +12,7 @@ import WithdrawalModal from "Components/profile/WithdrawalModal";
 import WalletConnect from "Components/crypto/WalletConnect";
 import ImageIcon from "Components/common/ImageIcon";
 import DepositModal from "Components/profile/DepositModal";
+import {SearchParams} from "../../utils/Utils";
 
 import EmailIcon from "Assets/icons/email icon.svg";
 import MetamaskIcon from "Assets/icons/crypto/metamask fox.png";
@@ -20,8 +21,8 @@ import OffersIcon from "Assets/icons/Offers table icon.svg";
 import DownCaret from "Assets/icons/down-caret.svg";
 import UpCaret from "Assets/icons/up-caret.svg";
 
-const ExpandableContent = ({text, children}) => {
-  const [expanded, setExpanded] = useState(false);
+const ExpandableContent = ({text, initiallyOpen=false, children}) => {
+  const [expanded, setExpanded] = useState(initiallyOpen);
 
   return (
     <>
@@ -88,7 +89,7 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal}) => {
 const BalanceDetails = observer(() => {
   const match = useRouteMatch();
 
-  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showDepositModal, setShowDepositModal] = useState(Object.keys(SearchParams()).includes("add-funds"));
 
   return (
     <>
@@ -106,7 +107,7 @@ const BalanceDetails = observer(() => {
           </button>
         </div>
 
-        <ExpandableContent text="Deposits">
+        <ExpandableContent text="Deposits" initiallyOpen={Object.keys(SearchParams()).includes("deposits")}>
           <UserTransferTable
             icon={WithdrawalsIcon}
             header="Deposits"

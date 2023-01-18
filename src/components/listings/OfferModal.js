@@ -9,6 +9,8 @@ import {ButtonWithLoader, FormatPriceString} from "Components/common/UIComponent
 import ImageIcon from "Components/common/ImageIcon";
 import {Select} from "../common/UIComponents";
 import {roundToDown} from "round-to";
+import UrlJoin from "url-join";
+import {Link, useRouteMatch} from "react-router-dom";
 
 import USDIcon from "Assets/icons/crypto/USD icon.svg";
 import CalendarIcon from "Assets/icons/calendar.svg";
@@ -21,6 +23,8 @@ const ExpirationDate = duration => {
 };
 
 const OfferModal = observer(({nft, offer, Close}) => {
+  const match = useRouteMatch();
+
   const [price, setPrice] = useState(
     offer?.price ? offer.price.toFixed(2) :
       nft.details.Price ? nft.details.Price.toFixed(2) : ""
@@ -112,7 +116,8 @@ const OfferModal = observer(({nft, offer, Close}) => {
                     </div> :
                     insufficientBalance ?
                       <div className="offer-modal__form__error">
-                        You do not have enough balance to complete the transaction. Add funds to complete offer.
+                        You do not have enough balance to complete the transaction.
+                        <Link to={match.params.marketplaceId ? UrlJoin("/marketplace", match.params.marketplaceId, "profile?add-funds") : "/wallet/profile?add-funds"}>Add funds</Link> to complete offer.
                       </div> : null
               }
             </div>
