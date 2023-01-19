@@ -197,7 +197,7 @@ class CheckoutStore {
 
         const nftAddressBytes = ethers.utils.arrayify(contractAddress);
         const mintAddressBytes = ethers.utils.arrayify(mintHelperAddress);
-        const tokenIdBigInt = ethers.utils.bigNumberify(tokenId).toHexString();
+        const tokenIdBigInt = ethers.BigNumber.from(tokenId).toString();
 
         const hash = ethers.utils.keccak256(
           ethers.utils.solidityPack(
@@ -252,7 +252,7 @@ class CheckoutStore {
         const itemHashes = items.map(({addr, id}) => {
           const nftAddressBytes = ethers.utils.arrayify(addr);
           const mintAddressBytes = ethers.utils.arrayify(mintHelperAddress);
-          const tokenIdBigInt = ethers.utils.bigNumberify(id).toHexString();
+          const tokenIdBigInt = ethers.BigNumber.from(id).toString()
 
           return ethers.utils.keccak256(
             ethers.utils.solidityPack(
@@ -320,7 +320,7 @@ class CheckoutStore {
       if(this.walletClient.UserInfo().walletName === "Metamask") {
         const nftAddressBytes = ethers.utils.arrayify(contractAddress);
         const mintAddressBytes = ethers.utils.arrayify(mintHelperAddress);
-        const tokenIdBigInt = ethers.utils.bigNumberify(tokenId).toHexString();
+        const tokenIdBigInt = ethers.BigNumber.from(tokenId).toString();
 
         const offerHash = ethers.utils.keccak256(
           ethers.utils.solidityPack(
