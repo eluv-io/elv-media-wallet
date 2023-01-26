@@ -28,6 +28,8 @@ import NFTContractABI from "../static/abi/NFTContract";
 import {v4 as UUID} from "uuid";
 import ProfanityFilter from "bad-words";
 
+import LocalizationEN from "Assets/localizations/en_us.yml";
+
 // Force strict mode so mutations are only allowed within actions.
 configure({
   enforceActions: "always"
@@ -47,6 +49,8 @@ try {
 }
 
 class RootStore {
+  l10n = LocalizationEN;
+
   appId = "eluvio-media-wallet";
 
   auth0 = undefined;

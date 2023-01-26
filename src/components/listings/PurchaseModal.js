@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
 import {checkoutStore, cryptoStore, rootStore} from "Stores";
 import {ActiveListings} from "Components/listings/TransferTables";
-import {ButtonWithLoader, FormatPriceString} from "Components/common/UIComponents";
+import {ButtonWithLoader, FormatPriceString, LocalizeString} from "Components/common/UIComponents";
 import {Redirect, useRouteMatch} from "react-router-dom";
 import NFTCard from "Components/nft/NFTCard";
 import ImageIcon from "Components/common/ImageIcon";
@@ -134,7 +134,7 @@ const PurchaseProviderSelection = observer(({
           <div className="purchase-modal__provider-options">
             <div className="purchase-modal__additional-fields">
               <div className="purchase-modal__payment-message">
-                Please select your country
+                { rootStore.l10n.purchase.select_country }
               </div>
               {
                 ebanxAvailableCountries.map(([code, name]) => (
@@ -154,7 +154,7 @@ const PurchaseProviderSelection = observer(({
                     onClick={() => UpdateCountry("other")}
                     className={`purchase-modal__provider-options__option ${country === "other" ? "active" : ""}`}
                   >
-                    All Other Countries
+                    { rootStore.l10n.purchase.all_other_countries }
                   </button> : null
               }
             </div>
@@ -175,7 +175,7 @@ const PurchaseProviderSelection = observer(({
               });
             }}
           >
-            { `Buy now for ${price}` }
+            { LocalizeString(rootStore.l10n.actions.purchase.buy_now_for, {price}) }
           </ButtonWithLoader>
           <button
             className="action purchase-modal__payment-cancel"
@@ -185,7 +185,7 @@ const PurchaseProviderSelection = observer(({
             }}
             disabled={checkoutStore.submittingOrder}
           >
-            Back
+            { rootStore.l10n.actions.back }
           </button>
         </>
       );
@@ -278,8 +278,8 @@ const PurchaseProviderSelection = observer(({
           >
             {
               selectedMethod === "coinbase" ?
-                `Buy now for ${price}` :
-                "Continue"
+                LocalizeString(rootStore.l10n.actions.purchase.buy_now_for, {price}) :
+                rootStore.l10n.actions.continue
             }
           </ButtonWithLoader>
           {
@@ -292,7 +292,7 @@ const PurchaseProviderSelection = observer(({
                 }}
                 disabled={checkoutStore.submittingOrder}
               >
-                Back
+                { rootStore.l10n.actions.back }
               </button>
           }
         </>
@@ -303,7 +303,9 @@ const PurchaseProviderSelection = observer(({
     case "wallet-balance":
       options = (
         <>
-          <div className="purchase-modal__payment-message">Buy with Wallet Balance</div>
+          <div className="purchase-modal__payment-message">
+            { rootStore.l10n.purchase.buy_with_wallet_balance }
+          </div>
         </>
       );
 
@@ -321,7 +323,7 @@ const PurchaseProviderSelection = observer(({
                   }}
                   className={`purchase-modal__provider-options__option ${selectedMethod === "card" ? "active" : ""}`}
                 >
-                  Credit Card
+                  { rootStore.l10n.purchase.credit_card }
                 </button> : null
             }
             {
@@ -354,7 +356,7 @@ const PurchaseProviderSelection = observer(({
               }}
               className={`purchase-modal__provider-options__option ${selectedMethod === "wallet-balance" ? "active" : ""}`}
             >
-              Wallet Balance
+              { rootStore.l10n.purchase.wallet_balance }
             </button>
           </div>
           <ButtonWithLoader
@@ -393,8 +395,8 @@ const PurchaseProviderSelection = observer(({
               (stripeEnabled && !ebanxEnabled && selectedMethod === "card") ||
               // If coinbase is the only option and we already have the user's email, we can proceed
               (selectedMethod === "crypto" && !usdcAccepted && ValidEmail(email)) ?
-                `Buy now for ${price}` :
-                "Continue"
+                LocalizeString(rootStore.l10n.actions.purchase.buy_now_for, {price}) :
+                rootStore.l10n.actions.continue
             }
           </ButtonWithLoader>
           <button
@@ -402,7 +404,7 @@ const PurchaseProviderSelection = observer(({
             onClick={() => Cancel()}
             disabled={checkoutStore.submittingOrder}
           >
-            Back
+            { rootStore.l10n.actions.back }
           </button>
         </>
       );
@@ -455,7 +457,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
   const fee = Math.max(1, roundToDown(total * feeRate, 2));
 
   let balanceAmount = rootStore.availableWalletBalance;
-  let balanceName = "Wallet Balance";
+  let balanceName = rootStore.l10n.purchase.wallet_balance;
   let balanceIcon;
   if(linkedWallet === "linked-wallet-sol") {
     balanceName = "USDC Balance (Sol)";
@@ -522,7 +524,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
         </div>
         <div className="purchase-modal__order-line-item">
           <div className="purchase-modal__order-label">
-            Service Fee
+            { rootStore.l10n.purchase.service_fee }
           </div>
           <div className="purchase-modal__order-price">
             { FormatPriceString(fee) }
@@ -531,7 +533,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
         <div className="purchase-modal__order-separator" />
         <div className="purchase-modal__order-line-item">
           <div className="purchase-modal__order-label">
-            Total
+            { rootStore.l10n.purchase.total_amount }
           </div>
           <div className="purchase-modal__order-price">
             { FormatPriceString(total + fee) }
@@ -541,7 +543,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
       <div className="purchase-modal__order-details purchase-modal__order-details-box">
         <div className="purchase-modal__order-line-item">
           <div className="purchase-modal__order-label">
-            Available { balanceName }
+            { LocalizeString(rootStore.l10n.purchase.available_balance, {balanceType: balanceName})}
           </div>
           <div className="purchase-modal__order-price">
             {FormatPriceString(balanceAmount || 0, {vertical: true})}
@@ -549,7 +551,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
         </div>
         <div className="purchase-modal__order-line-item">
           <div className="purchase-modal__order-label">
-            Current Purchase
+            { rootStore.l10n.purchase.current_purchase_amount }
           </div>
           <div className="purchase-modal__order-price">
             {FormatPriceString(total + fee, {vertical: true})}
@@ -558,7 +560,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
         <div className="purchase-modal__order-separator"/>
         <div className="purchase-modal__order-line-item">
           <div className="purchase-modal__order-label">
-            Remaining { balanceName }
+            { LocalizeString(rootStore.l10n.purchase.remaining_balance, {balanceType: balanceName})}
           </div>
           <div className="purchase-modal__order-price">
             { balanceIcon }
@@ -609,10 +611,10 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
             }
           }}
         >
-          Buy Now
+          { rootStore.l10n.actions.purchase.buy_now }
         </ButtonWithLoader>
         <button className="action" onClick={() => Cancel()} disabled={checkoutStore.submittingOrder}>
-          Back
+          { rootStore.l10n.actions.back }
         </button>
       </div>
       {
@@ -768,12 +770,12 @@ const PurchasePayment = observer(({
               listingStats ?
                 <div className="purchase-modal__stats">
                   <div className="purchase-modal__stats__label">
-                    Buy from a Collector
+                    { rootStore.l10n.stats.listings.buy_from_collector }
                   </div>
                   <div className="purchase-modal__stats-list">
                     <div className="purchase-modal__stat">
                       <div className="purchase-modal__stat__label">
-                        Highest Price
+                        { rootStore.l10n.stats.listings.highest }
                       </div>
                       <div className="purchase-modal__stat__price">
                         {FormatPriceString(listingStats.max)}
@@ -781,7 +783,7 @@ const PurchasePayment = observer(({
                     </div>
                     <div className="purchase-modal__stat">
                       <div className="purchase-modal__stat__label">
-                        Lowest Price
+                        { rootStore.l10n.stats.listings.lowest }
                       </div>
                       <div className="purchase-modal__stat__price">
                         {FormatPriceString(listingStats.min)}
@@ -893,7 +895,7 @@ const PurchaseModal = observer(({nft, item, initialListingId, type="marketplace"
     >
       <div className="purchase-modal">
         <h1 className="purchase-modal__header">
-          Checkout
+          { rootStore.l10n.purchase.checkout }
         </h1>
         { content }
       </div>

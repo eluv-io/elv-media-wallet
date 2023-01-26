@@ -28,11 +28,12 @@ const ListingStats = ({mode="listings", filterParams}) => {
     );
   }
 
+  let labels = rootStore.l10n.stats[mode === "listings" ? "listings" : "sales"];
   return (
     <div className="stats">
       <div className="stats__item">
         <label className="stats__label">
-          { mode === "listings" ? "Active Listings" : "Total Secondary Sales" }
+          { labels.total }
         </label>
         <div className="stats__value">
           { stats.count || 0 }
@@ -40,7 +41,7 @@ const ListingStats = ({mode="listings", filterParams}) => {
       </div>
       <div className="stats__item">
         <label className="stats__label">
-          { mode === "listings" ? "Active Listing Value" : "Secondary Sales Volume" }
+          { labels.value }
         </label>
         <div className="stats__value">
           { FormatPriceString(stats.volume || 0, {vertical: true}) }
@@ -48,7 +49,7 @@ const ListingStats = ({mode="listings", filterParams}) => {
       </div>
       <div className="stats__item">
         <label className="stats__label">
-          { mode === "listings" ? "Average Listing Price" : "Average Price" }
+          { labels.average }
         </label>
         <div className="stats__value">
           { FormatPriceString(stats.avg || 0, {vertical: true}) }
@@ -56,7 +57,7 @@ const ListingStats = ({mode="listings", filterParams}) => {
       </div>
       <div className="stats__item">
         <label className="stats__label">
-          Highest Price
+          { labels.highest }
         </label>
         <div className="stats__value">
           { FormatPriceString(stats.max || 0, {vertical: true}) }
@@ -64,7 +65,7 @@ const ListingStats = ({mode="listings", filterParams}) => {
       </div>
       <div className="stats__item">
         <label className="stats__label">
-          Lowest Price
+          { labels.lowest }
         </label>
         <div className="stats__value">
           { FormatPriceString(stats.min || 0, {vertical: true}) }

@@ -12,7 +12,7 @@ import {
   FormatPriceString,
   ButtonWithMenu,
   Copy,
-  RichText
+  RichText, LocalizeString
 } from "Components/common/UIComponents";
 
 import Confirm from "Components/common/Confirm";
@@ -634,14 +634,14 @@ const NFTActions = observer(({
               disabled={nftInfo.outOfStock || nftInfo.maxOwned}
               className="action action-primary"
             >
-              {nftInfo.free ? "Claim Now" : "Buy Now"}
+              {nftInfo.free ? rootStore.l10n.actions.purchase.claim : rootStore.l10n.actions.purchase.buy_now}
             </LoginClickGate> : null
         }
         <Link
           className={`action ${!nftInfo.marketplacePurchaseAvailable ? "action-primary" : ""}`}
           to={UrlJoin("/marketplace", match.params.marketplaceId, "listings", `?filter=${encodeURIComponent(nftInfo.item.nftTemplateMetadata.display_name)}`)}
         >
-          View Listings
+          { rootStore.l10n.actions.view_listings }
         </Link>
         {
           previewMode && nftInfo.hasAdditionalMedia && !previewMedia ?
@@ -661,7 +661,7 @@ const NFTActions = observer(({
           onLoginBlocked={ShowModal}
           onClick={ShowModal}
         >
-          Buy Now for {FormatPriceString(nftInfo.nft.details.Price, {stringOnly: true})}
+          { LocalizeString(rootStore.l10n.actions.purchase.buy_now_for, {price: FormatPriceString(nftInfo.nft.details.Price, {stringOnly: true})}) }
         </LoginClickGate>
         {
           nftInfo.offerable && !nftInfo.isOwned ?
@@ -671,7 +671,7 @@ const NFTActions = observer(({
               className="details-page__listing-button action"
               onClick={ShowOfferModal}
             >
-              { listingStatus?.offer?.id ? "Modify your Offer" : "Make an Offer" }
+              { rootStore.l10n.actions.offers[listingStatus?.offer?.id ? "edit" : "create"] }
             </LoginClickGate> : null
         }
         {
@@ -708,7 +708,7 @@ const NFTActions = observer(({
               className="action action-primary details-page__listing-button"
               onClick={ShowModal}
             >
-              {nftInfo.listingId ? "Edit Listing" : "List for Sale"}
+              { rootStore.l10n.actions.listings[nftInfo.listingId ? "edit" : "create"] }
             </ButtonWithLoader>
         }
 
@@ -730,7 +730,7 @@ const NFTActions = observer(({
                 }
               })}
             >
-              { nftInfo.nft.metadata.pack_options.open_button_text || "Open Pack" }
+              { nftInfo.nft.metadata.pack_options.open_button_text || rootStore.l10n.actions.packs.open }
             </ButtonWithLoader> : null
         }
 
@@ -751,7 +751,7 @@ const NFTActions = observer(({
           className="details-page__listing-button action action-primary"
           onClick={ShowOfferModal}
         >
-          { listingStatus?.offer?.id ? "Modify your Offer" : "Make an Offer" }
+          { rootStore.l10n.actions.offers[listingStatus?.offer?.id ? "edit" : "create"] }
         </LoginClickGate>
       </div>
     );

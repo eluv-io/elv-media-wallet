@@ -113,7 +113,7 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
                   className="wallet-connect__payment-preference__checkbox"
                 />
                 <label htmlFor="payment-preference" className="wallet-connect__payment-preference__label">
-                  Accept only direct payment to this linked wallet for my listings
+                  { rootStore.l10n.connected_accounts.direct }
                 </label>
                 <button className="wallet-connect__payment-preference__help-button" onClick={() => setShowPaymentPreferenceInfo(!showPaymentPreferenceInfo)}>
                   <ImageIcon icon={HelpIcon} label="More Info"/>
@@ -123,14 +123,14 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
           {
             showPaymentPreferenceInfo ?
               <div className="wallet-connect__payment-preference-info">
-                Checking this option will limit your listings to purchase with USDC via linked wallet only. Payment will settle directly to your linked wallet address. If unchecked, your listings may also be purchased via credit card, coinbase, or wallet balance, and the proceeds will be credited to your Eluvio wallet balance, which is redeemable via Stripe.
+                { rootStore.l10n.connected_accounts.direct_info }
               </div> : null
           }
           <ButtonWithLoader
             className="wallet-connect__unlink-button"
             onClick={async () => await Confirm({message: "Are you sure you want to disconnect this account?", Confirm: async () => await wallet.Disconnect(connectedAccount.link_acct)})}
           >
-            Unlink Wallet
+            { rootStore.l10n.connected_accounts.unlink }
           </ButtonWithLoader>
         </div>
         { errorMessage ? <div className="wallet-connect__error-message">{ errorMessage }</div> : null }

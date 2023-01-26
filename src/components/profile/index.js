@@ -5,7 +5,7 @@ import {
   Link,
   useRouteMatch
 } from "react-router-dom";
-import {ButtonWithLoader, CopyableField, FormatPriceString} from "Components/common/UIComponents";
+import {ButtonWithLoader, CopyableField, FormatPriceString, RichText} from "Components/common/UIComponents";
 import {OffersTable, UserTransferTable} from "Components/listings/TransferTables";
 import {observer} from "mobx-react";
 import WithdrawalModal from "Components/profile/WithdrawalModal";
@@ -21,13 +21,13 @@ import OffersIcon from "Assets/icons/Offers table icon.svg";
 import DownCaret from "Assets/icons/down-caret.svg";
 import UpCaret from "Assets/icons/up-caret.svg";
 
-const ExpandableContent = ({text, initiallyOpen=false, children}) => {
+const ExpandableContent = ({textShow, textHide, initiallyOpen=false, children}) => {
   const [expanded, setExpanded] = useState(initiallyOpen);
 
   return (
     <>
       <button onClick={() => setExpanded(!expanded)} className={`profile-page__expand-button ${expanded ? "expanded" : "collapsed"}`}>
-        { expanded ? "Hide" : "View" } {text}
+        { expanded ? textHide : textShow }
         <ImageIcon icon={expanded ? UpCaret : DownCaret} className="profile-page__expand-button__icon" />
       </button>
       { expanded ? children : null }
@@ -39,7 +39,7 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal}) => {
   return (
     <div className="profile-page__section profile-page__section-balance profile-page__section-box">
       <h2 className="profile-page__section-header">
-        Withdrawable Balance
+        { rootStore.l10n.profile.balance.withdrawable }
       </h2>
       <div className="profile-page__balance">
         { FormatPriceString(rootStore.withdrawableWalletBalance, {excludeAlternateCurrency: true, includeCurrency: true }) }
@@ -50,10 +50,10 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal}) => {
           onClick={() => setShowWithdrawalModal(true)}
           className="action profile-page__withdraw-button"
         >
-          Withdraw Funds
+          { rootStore.l10n.profile.withdraw_funds }
         </ButtonWithLoader>
       </div>
-      <ExpandableContent text="Withdrawals">
+      <ExpandableContent textShow={rootStore.l10n.profile.view.withdrawals} textHide={rootStore.l10n.profile.hide.withdrawals}>
         <UserTransferTable
           icon={WithdrawalsIcon}
           header="Withdrawals"
@@ -68,20 +68,22 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal}) => {
                 className="action-link"
                 onClick={async () => await rootStore.StripeLogin()}
               >
-                View Stripe Dashboard
+                { rootStore.l10n.profile.view.stripe_dashboard }
               </button>
             </div>
             <div className="profile-page__message">
-              Payout is managed by Stripe. See the dashboard for processing status.
+              { rootStore.l10n.profile.payout_terms_stripe }
             </div>
           </> : null
       }
-      <div className="profile-page__message">
-        Funds availability notice – A hold period will be imposed on amounts that accrue from the sale of an NFT. Account holders acknowledge that, during this hold period, a seller will be unable to withdraw the amounts attributable to such sale(s). The current hold period for withdrawing the balance is 15 days.
-      </div>
-      <div className="profile-page__message">
-        For questions or concerns, please contact <a href={"mailto:payments@eluv.io"}>payments@eluv.io</a>
-      </div>
+      <RichText
+        className="profile-page__message"
+        richText={rootStore.l10n.profile.payout_terms}
+      />
+      <RichText
+        className="profile-page__message"
+        richText={rootStore.l10n.profile.payout_terms_contact}
+      />
     </div>
   );
 });
@@ -95,7 +97,7 @@ const BalanceDetails = observer(() => {
     <>
       <div className="profile-page__section profile-page__section-balance profile-page__section-box">
         <h2 className="profile-page__section-header">
-          Total Balance
+          { rootStore.l10n.profile.balance.total }
         </h2>
         <div className="profile-page__balance">
           { FormatPriceString(rootStore.totalWalletBalance, {excludeAlternateCurrency: true, includeCurrency: true}) }
@@ -103,11 +105,11 @@ const BalanceDetails = observer(() => {
 
         <div className="profile-page__actions">
           <button onClick={() => setShowDepositModal(true)} className="action profile-page__deposit-button">
-            Add Funds
+            { rootStore.l10n.profile.add_funds }
           </button>
         </div>
 
-        <ExpandableContent text="Deposits" initiallyOpen={Object.keys(SearchParams()).includes("deposits")}>
+        <ExpandableContent textShow={rootStore.l10n.profile.view.deposits} textHide={rootStore.l10n.profile.hide.deposits}>
           <UserTransferTable
             icon={WithdrawalsIcon}
             header="Deposits"
@@ -123,7 +125,7 @@ const BalanceDetails = observer(() => {
               "/wallet/users/me/activity"
           }
         >
-          View Transaction History
+          { rootStore.l10n.profile.view.transaction_history }
         </Link>
       </div>
       { showDepositModal ? <DepositModal Close={() => setShowDepositModal(false)} /> : null }
@@ -168,9 +170,9 @@ const Profile = observer(() => {
     <div className="page-container profile-page">
       { showWithdrawalModal ? <WithdrawalModal Close={() => setShowWithdrawalModal(false)} /> : null }
       <div className="profile-page__section profile-page__section-account">
-        <h1 className="profile-page__header">Media Wallet</h1>
+        <h1 className="profile-page__header">{ rootStore.l10n.profile.media_wallet }</h1>
         <h2 className="profile-page__address-header">
-          Eluvio Content Blockchain Address
+          { rootStore.l10n.profile.address }
         </h2>
         <div className="profile-page__address">
           <CopyableField className="profile-page__address-field" value={rootStore.CurrentAddress()} ellipsis={false}>
@@ -178,12 +180,12 @@ const Profile = observer(() => {
           </CopyableField>
         </div>
         <div className="profile-page__message">
-          Do not send funds to this address.<br />This is an Eluvio Content Blockchain address and is not a payment address.
+          { rootStore.l10n.profile.do_not_send_funds }
         </div>
 
         <div className="profile-page__account-info">
           <div className="profile-page__account-info__message">
-            { custodialWallet ? "Signed In As" : "Signed In Via Metamask" }
+            { custodialWallet ? rootStore.l10n.login.signed_in_as : `${rootStore.l10n.login.signed_in_via} MetaMask` }
           </div>
           <div className={`profile-page__account-info__account profile-page__account-info__account--${custodialWallet ? "custodial" : "external"}`}>
             {
@@ -207,7 +209,7 @@ const Profile = observer(() => {
             }}
             className="action profile-page__sign-out-button"
           >
-            Sign Out
+            { rootStore.l10n.login.sign_out }
           </ButtonWithLoader>
         </div>
       </div>
@@ -216,13 +218,13 @@ const Profile = observer(() => {
 
       <div className="profile-page__section profile-page__section-balance profile-page__section-box">
         <h2 className="profile-page__section-header">
-          Locked Balance
+          { rootStore.l10n.profile.balance.locked }
         </h2>
         <div className="profile-page__balance">
           { FormatPriceString(rootStore.lockedWalletBalance, {excludeAlternateCurrency: true, includeCurrency: true }) }
         </div>
         <br />
-        <ExpandableContent text="Outstanding Offers">
+        <ExpandableContent textShow={rootStore.l10n.profile.view.outstanding_offers} textHide={rootStore.l10n.profile.hide.outstanding_offers}>
           <OffersTable
             buyerAddress={rootStore.CurrentAddress()}
             icon={OffersIcon}
@@ -242,7 +244,7 @@ const Profile = observer(() => {
               "/wallet/users/me/offers"
           }
         >
-          View All Offers
+          { rootStore.l10n.profile.view.all_offers }
         </Link>
       </div>
 
@@ -253,7 +255,7 @@ const Profile = observer(() => {
           null :
           <div className="profile-page__section profile-page__section-wallet-connect">
             <h2 className="profile-page__section-header">
-              Connected Accounts
+              { rootStore.l10n.connected_accounts.connected_accounts }
             </h2>
 
             <WalletConnect type="phantom" showPaymentPreference />

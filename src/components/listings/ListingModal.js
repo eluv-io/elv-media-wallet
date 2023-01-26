@@ -5,7 +5,7 @@ import Confirm from "Components/common/Confirm";
 import {ActiveListings} from "Components/listings/TransferTables";
 import {cryptoStore, rootStore} from "Stores";
 import NFTCard from "Components/nft/NFTCard";
-import {ButtonWithLoader, FormatPriceString} from "Components/common/UIComponents";
+import {ButtonWithLoader, FormatPriceString, LocalizeString} from "Components/common/UIComponents";
 import {roundToDown, roundToUp} from "round-to";
 import ImageIcon from "Components/common/ImageIcon";
 import WalletConnect from "Components/crypto/WalletConnect";
@@ -95,11 +95,11 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                 royaltyRate ?
                   <>
                     <div className="listing-modal__detail listing-modal__detail-faded">
-                      <label>Creator Royalty</label>
+                      <label>{ rootStore.l10n.purchase.creator_royalty }</label>
                       {FormatPriceString(royaltyFee)}
                     </div>
                     <div className="listing-modal__detail listing-modal__detail--bold">
-                      <label>Total Payout</label>
+                      <label>{ rootStore.l10n.purchase.total_payout }</label>
                       <div
                         className="listing-modal__payout"
                       >
@@ -140,7 +140,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                   }
                 }}
               >
-                List now for { FormatPriceString(parsedPrice, {stringOnly: true}) }
+                { LocalizeString(rootStore.l10n.actions.listings.create_for, {price: FormatPriceString(parsedPrice, {stringOnly: true})})}
               </ButtonWithLoader>
               {
                 nft.details.ListingId ?
@@ -155,11 +155,11 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                       }
                     })}
                   >
-                    Remove Listing
+                    { rootStore.l10n.actions.listings.remove }
                   </button> : null
               }
               <button className="action listing-modal__action" onClick={() => Close()}>
-                Cancel
+                { rootStore.l10n.actions.cancel }
               </button>
             </div>
             {
@@ -170,7 +170,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
             }
 
             <div className="listing-modal__message">
-              Funds availability notice – A hold period will be imposed on amounts that accrue from the sale of an NFT. Account holders acknowledge that, during this hold period, a seller will be unable to withdraw the amounts attributable to such sale(s). The current hold period for withdrawing the balance is 15 days.
+              { rootStore.l10n.profile.payout_terms }
             </div>
           </div>
         </div>
