@@ -461,6 +461,7 @@
   &__preferences-menu {
     @include modal;
     height: max-content;
+    margin-bottom: 100px;
     overflow-y: visible;
     padding: 25px 100px;
     width: 100%;

@@ -51,7 +51,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
       Toggle={() => Close()}
     >
       <div className="listing-modal">
-        <h1 className="listing-modal__header">Sell your NFT</h1>
+        <h1 className="listing-modal__header">{ rootStore.l10n.purchase.sell_your_nft }</h1>
         <div className="listing-modal__content">
           <NFTCard nft={nft} price={{USD: parsedPrice}} usdcAccepted={cryptoStore.usdcConnected} usdcOnly={cryptoStore.usdcOnly} truncateDescription />
           <div className="listing-modal__form listing-modal__inputs">
@@ -79,13 +79,13 @@ const ListingModal = observer(({nft, listingId, Close}) => {
               {
                 priceFloor && parsedPrice < priceFloor ?
                   <div className="listing-modal__form__error">
-                    Minimum listing price is { FormatPriceString(priceFloor) }
+                    { LocalizeString(rootStore.l10n.purchase.min_listing_price, {price: FormatPriceString(priceFloor, {stringOnly: true, excludeAlternateCurrency: true})}) }
                   </div> : null
               }
               {
                 parsedPrice > 10000 ?
                   <div className="listing-modal__form__error">
-                    Maximum listing price is $10,000
+                    { LocalizeString(rootStore.l10n.purchase.max_listing_price, {price: "$10,000"}) }
                   </div> : null
               }
             </div>
@@ -136,7 +136,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                     rootStore.Log(error, true);
 
                     // TODO: Figure out what the error is
-                    setErrorMessage("Unable to list this NFT");
+                    setErrorMessage(rootStore.l10n.purchase.errors.listing_failed);
                   }
                 }}
               >
@@ -147,7 +147,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                   <button
                     className="action action-danger listing-modal__action listing-modal__action-delete"
                     onClick={async () => Confirm({
-                      message: "Are you sure you want to remove this listing?",
+                      message: rootStore.l10n.actions.listings.remove_confirm,
                       Confirm: async () => {
                         await rootStore.walletClient.RemoveListing({listingId: nft.details.ListingId});
                         await new Promise(resolve => setTimeout(resolve, 1000));

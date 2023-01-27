@@ -5,7 +5,7 @@ import Confirm from "Components/common/Confirm";
 import {OffersTable} from "Components/listings/TransferTables";
 import {rootStore} from "Stores";
 import NFTCard from "Components/nft/NFTCard";
-import {ButtonWithLoader, FormatPriceString} from "Components/common/UIComponents";
+import {ButtonWithLoader, FormatPriceString, LocalizeString} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import {Select} from "../common/UIComponents";
 import {roundToDown} from "round-to";
@@ -79,12 +79,12 @@ const OfferModal = observer(({nft, offer, Close}) => {
       Toggle={() => Close()}
     >
       <div className="offer-modal">
-        <h1 className="offer-modal__header">Make an Offer</h1>
+        <h1 className="offer-modal__header">{ rootStore.l10n.offers.make_an_offer }</h1>
         <div className="offer-modal__content">
           <NFTCard nft={nft} truncateDescription />
           <div className="offer-modal__form offer-modal__inputs">
             <div className="offer-modal__active-listings">
-              <h2 className="offer-modal__active-listings__header">Active Offers for this NFT</h2>
+              <h2 className="offer-modal__active-listings__header">{ rootStore.l10n.offers.active_offers }</h2>
               <OffersTable
                 contractAddress={nft.details.ContractAddr}
                 tokenId={nft.details.TokenIdStr}
@@ -108,16 +108,19 @@ const OfferModal = observer(({nft, offer, Close}) => {
               {
                 priceFloor && parsedPrice < priceFloor ?
                   <div className="offer-modal__form__error">
-                    Minimum offer price is { FormatPriceString(priceFloor, {stringOnly: true}) }
+                    { LocalizeString(rootStore.l10n.offers.min_offer_price, {price: FormatPriceString(priceFloor, {stringOnly: true, excludeAlternateCurrency: true})}) }
                   </div> :
                   parsedPrice > 10000 ?
                     <div className="offer-modal__form__error">
-                      Maximum offer price is $10,000
+                      { LocalizeString(rootStore.l10n.offers.max_offer_price, {price: "$10,000"}) }
                     </div> :
                     insufficientBalance ?
                       <div className="offer-modal__form__error">
                         You do not have enough balance to complete the transaction.
-                        <Link to={match.params.marketplaceId ? UrlJoin("/marketplace", match.params.marketplaceId, "profile?add-funds") : "/wallet/profile?add-funds"}>Add funds</Link> to complete offer.
+                        <Link to={match.params.marketplaceId ? UrlJoin("/marketplace", match.params.marketplaceId, "profile?add-funds") : "/wallet/profile?add-funds"}>
+                          Add funds
+                        </Link>
+                        to complete offer.
                       </div> : null
               }
             </div>
@@ -156,7 +159,7 @@ const OfferModal = observer(({nft, offer, Close}) => {
               </div>
               <div className="offer-modal__order-line-item">
                 <div className="offer-modal__order-label">
-                  Service Fee
+                  { rootStore.l10n.purchase.service_fee }
                 </div>
                 <div className="offer-modal__order-price">
                   { FormatPriceString(fee) }
@@ -165,7 +168,7 @@ const OfferModal = observer(({nft, offer, Close}) => {
               <div className="offer-modal__order-separator" />
               <div className="offer-modal__order-line-item">
                 <div className="offer-modal__order-label">
-                  Total
+                  { rootStore.l10n.purchase.total }
                 </div>
                 <div className="offer-modal__order-price">
                   { FormatPriceString(parsedPrice + fee) }
@@ -175,7 +178,7 @@ const OfferModal = observer(({nft, offer, Close}) => {
             <div className="offer-modal__order-details offer-modal__order-details-box">
               <div className="offer-modal__order-line-item">
                 <div className="offer-modal__order-label">
-                  Available Balance
+                  { LocalizeString(rootStore.l10n.purchase.available_balance, {balanceType: rootStore.l10n.purchase.wallet_balance}) }
                 </div>
                 <div className="offer-modal__order-price">
                   {FormatPriceString(availableBalance, {vertical: true})}
@@ -183,7 +186,7 @@ const OfferModal = observer(({nft, offer, Close}) => {
               </div>
               <div className="offer-modal__order-line-item">
                 <div className="offer-modal__order-label">
-                  Current Purchase
+                  { rootStore.l10n.purchase.current_purchase_amount }
                 </div>
                 <div className="offer-modal__order-price">
                   {FormatPriceString(parsedPrice + fee, {vertical: true})}
@@ -192,7 +195,7 @@ const OfferModal = observer(({nft, offer, Close}) => {
               <div className="offer-modal__order-separator"/>
               <div className="offer-modal__order-line-item">
                 <div className="offer-modal__order-label">
-                  Remaining Balance
+                  { LocalizeString(rootStore.l10n.purchase.remaining_balance, {balanceType: rootStore.l10n.purchase.wallet_balance}) }
                 </div>
                 <div className="offer-modal__order-price">
                   {FormatPriceString(Math.max(0, availableBalance - parsedPrice - fee), {vertical: true})}
@@ -221,18 +224,18 @@ const OfferModal = observer(({nft, offer, Close}) => {
                     rootStore.Log("Offer failed", true);
                     rootStore.Log(error, true);
 
-                    setErrorMessage("Unable to make this offer");
+                    setErrorMessage(rootStore.l10n.offers.errors.failed);
                   }
                 }}
               >
-                Confirm Offer for { FormatPriceString(parsedPrice, {stringOnly: true}) }
+                { LocalizeString(rootStore.l10n.actions.offers.confirm, { price: FormatPriceString(parsedPrice, {stringOnly: true}) }) }
               </ButtonWithLoader>
               {
                 offerId ?
                   <button
                     className="action action-danger offer-modal__action offer-modal__action-delete"
                     onClick={async () => Confirm({
-                      message: "Are you sure you want to cancel this offer?",
+                      message: rootStore.l10n.actions.offers.remove_confirm,
                       Confirm: async () => {
                         await rootStore.walletClient.RemoveMarketplaceOffer({offerId});
                         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -241,11 +244,11 @@ const OfferModal = observer(({nft, offer, Close}) => {
                       }
                     })}
                   >
-                    Remove Offer
+                    { rootStore.l10n.actions.offers.remove }
                   </button> : null
               }
               <button className="action offer-modal__action" onClick={() => Close()}>
-                Cancel
+                { rootStore.l10n.actions.cancel }
               </button>
             </div>
             {

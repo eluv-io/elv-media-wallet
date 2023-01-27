@@ -28,7 +28,7 @@ import NFTContractABI from "../static/abi/NFTContract";
 import {v4 as UUID} from "uuid";
 import ProfanityFilter from "bad-words";
 
-import LocalizationEN from "Assets/localizations/en_us.yml";
+import LocalizationEN from "Assets/localizations/en.yml";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
@@ -49,6 +49,7 @@ try {
 }
 
 class RootStore {
+  language = this.GetLocalStorage("lang") || "English";
   l10n = LocalizationEN;
 
   appId = "eluvio-media-wallet";
@@ -237,8 +238,49 @@ class RootStore {
 
     this.ToggleDarkMode(this.darkMode);
 
+    this.SetLanguage(this.language);
+
     this.Initialize();
   }
+
+  SetLanguage = flow(function * (language) {
+    if(language === "English") {
+      this.l10n = LocalizationEN;
+      this.language = "English";
+      this.RemoveLocalStorage("lang");
+      return;
+    }
+
+    let localization;
+    switch(language) {
+      case "Test":
+        localization = (yield import("Assets/localizations/test.yml")).default;
+        break;
+      default:
+        // Unknown language - set back to english
+        this.SetLanguage("English");
+        return;
+    }
+
+    const MergeLocalization = (l10n, en) => {
+      if(Array.isArray(en)) {
+        return en.map((entry, index) => MergeLocalization((l10n || [])[index], entry));
+      } else if(typeof l10n === "object") {
+        let newl10n = {};
+        Object.keys(en).forEach(key => newl10n[key] = MergeLocalization((l10n || {})[key], en[key]));
+
+        return newl10n;
+      } else {
+        return l10n || en;
+      }
+    };
+
+    // Merge non-english localizations with english to ensure defaults are set for all fields
+    this.l10n = MergeLocalization(localization, LocalizationEN);
+    this.language = language;
+
+    this.SetLocalStorage("lang", language);
+  });
 
   SetHeaderText(text) {
     this.headerText = text;

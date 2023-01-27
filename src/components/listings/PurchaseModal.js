@@ -494,7 +494,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
 
   useEffect(() => {
     if(purchaseStatus.status === "complete" && !purchaseStatus.success) {
-      setErrorMessage("Purchase failed");
+      setErrorMessage(rootStore.l10n.purchase.errors.failed);
     }
   }, [purchaseStatus]);
 
@@ -607,7 +607,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
                 setFailed(true);
               }
 
-              setErrorMessage(error.uiMessage || "Purchase failed");
+              setErrorMessage(error.uiMessage || rootStore.l10n.purchase.errors.failed);
             }
           }}
         >
@@ -685,7 +685,7 @@ const PurchasePayment = observer(({
 
   useEffect(() => {
     if(purchaseStatus.status === "complete" && !purchaseStatus.success) {
-      setErrorMessage("Purchase failed");
+      setErrorMessage(rootStore.l10n.purchase.errors.failed);
     }
   }, [purchaseStatus]);
 
@@ -739,7 +739,7 @@ const PurchasePayment = observer(({
         setFailed(true);
       }
 
-      setErrorMessage(error.uiMessage || "Purchase failed");
+      setErrorMessage(error.uiMessage || rootStore.l10n.purchase.errors.failed);
     }
   };
 

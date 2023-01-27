@@ -130,7 +130,7 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
             className="wallet-connect__unlink-button"
             onClick={async () => await Confirm({message: "Are you sure you want to disconnect this account?", Confirm: async () => await wallet.Disconnect(connectedAccount.link_acct)})}
           >
-            { rootStore.l10n.connected_accounts.unlink }
+            { rootStore.l10n.connected_accounts.unlink_wallet }
           </ButtonWithLoader>
         </div>
         { errorMessage ? <div className="wallet-connect__error-message">{ errorMessage }</div> : null }

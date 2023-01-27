@@ -4,7 +4,7 @@ import {Link} from "react-router-dom";
 import ImageIcon from "Components/common/ImageIcon";
 import {observer} from "mobx-react";
 import {Loader} from "Components/common/Loaders";
-import {PageControls} from "Components/common/UIComponents";
+import {LocalizeString, PageControls} from "Components/common/UIComponents";
 import {useInfiniteScroll} from "react-g-infinite-scroll";
 import ListingFilters from "Components/listings/ListingFilters";
 import ListingStats from "Components/listings/ListingStats";
@@ -81,13 +81,16 @@ const Table = observer(({
   if(paging && !hidePagingInfo) {
     pagingInfo = (
       <div className="transfer-table__pagination-message">
-        Showing
-        <div className="transfer-table__pagination-message--highlight">{pagingMode === "infinite" ? 1 : paging.start + 1}</div>
-        -
-        <div className="transfer-table__pagination-message--highlight">{Math.min(paging.total, paging.start + paging.limit)}</div>
-        of
-        <div className="transfer-table__pagination-message--highlight">{paging.total}</div>
-        results
+        {
+          LocalizeString(
+            rootStore.l10n.tables.pagination,
+            {
+              min: <div key="page-min" className="transfer-table__pagination-message--highlight">{pagingMode === "infinite" ? 1 : paging.start + 1}</div>,
+              max: <div key="page-max" className="transfer-table__pagination-message--highlight">{Math.min(paging.total, paging.start + paging.limit)}</div>,
+              total: <div key="page-total" className="transfer-table__pagination-message--highlight">{paging.total}</div>
+            }
+          )
+        }
       </div>
     );
   }

@@ -1,6 +1,7 @@
 import React from "react";
 import {observer} from "mobx-react";
 import {Link, useRouteMatch} from "react-router-dom";
+import {rootStore} from "Stores";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 
 import UrlJoin from "url-join";
@@ -63,7 +64,7 @@ const FeaturedItemCard = observer(({
   if(action === "Claim" || action === "Buy") {
     button = (
       <Link to={link} className="action action-primary">
-        { action === "Claim" ? "Claim Now" : "Buy Now" }
+        { rootStore.l10n.actions.purchase[action === "Claim" ? "claim" : "buy_now"] }
       </Link>
     );
   } else if(action === "Listings") {

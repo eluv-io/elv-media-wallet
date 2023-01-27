@@ -57,7 +57,7 @@ const NFTTraitsSection = ({nftInfo}) => {
   if(traits.length === 0) { return null; }
 
   return (
-    <ExpandableSection header="Properties" icon={TraitsIcon}>
+    <ExpandableSection header={rootStore.l10n.item_details.properties} icon={TraitsIcon}>
       <div className="traits">
         {traits.map(({name, value, rarity_percent}, index) =>
           <div className="trait" key={`trait-${index}`}>
@@ -101,26 +101,26 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
   const cap = contractStats?.cap || nft.details.Cap;
 
   return (
-    <ExpandableSection header="Details" icon={DetailsIcon}>
+    <ExpandableSection header={rootStore.l10n.item_details.details} icon={DetailsIcon}>
       { nft.metadata.rich_text ? <RichText richText={nft.metadata.rich_text} className="details-page__rich-text" /> : null }
       {
         nft.details.TokenUri ?
           <CopyableField value={nft.details.TokenUri}>
-            Token URI: <a href={nft.details.TokenUri} target="_blank">{ nft.details.TokenUri }</a>
+            { rootStore.l10n.item_details.token_url }: <a href={nft.details.TokenUri} target="_blank">{ nft.details.TokenUri }</a>
           </CopyableField>
           : null
       }
       {
         embedUrl ?
           <CopyableField value={embedUrl}>
-            Media URL: <a href={embedUrl} target="_blank">{ embedUrl }</a>
+            { rootStore.l10n.item_details.media_url }: <a href={embedUrl} target="_blank">{ embedUrl }</a>
           </CopyableField>
           : null
       }
       {
         nft.metadata.image ?
           <CopyableField value={nft.metadata.image}>
-            Image URL: <a href={nft.metadata.image} target="_blank">{ nft.metadata.image }</a>
+            { rootStore.l10n.item_details.image_url }: <a href={nft.metadata.image} target="_blank">{ nft.metadata.image }</a>
           </CopyableField>
           : null
       }
@@ -128,21 +128,21 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
       {
         nft.metadata.creator ?
           <div className="details-page__detail-field">
-            Creator: { nft.metadata.creator }
+            { rootStore.l10n.item_details.creator}: { nft.metadata.creator }
           </div>
           : null
       }
       {
         nft.metadata.edition_name ?
           <div className="details-page__detail-field">
-            Edition: { nft.metadata.edition_name }
+            { rootStore.l10n.item_details.edition }: { nft.metadata.edition_name }
           </div>
           : null
       }
       {
         nft.details.TokenIdStr ?
           <div className="details-page__detail-field">
-            Token ID: {nft.details.TokenIdStr}
+            { rootStore.l10n.item_details.token_id }: {nft.details.TokenIdStr}
           </div> : null
       }
       {
@@ -150,25 +150,25 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
         (nft.metadata?.id_format || "").includes("token_id") ?
           null :
           <div className="details-page__detail-field">
-            Token Ordinal: { nft.details.TokenOrdinal }
+            { rootStore.l10n.item_details.token_ordinal }: { nft.details.TokenOrdinal }
           </div>
       }
       {
         contractStats ?
           <>
             <div className="details-page__detail-field">
-              Number Minted: { contractStats.minted || 0 }
+              { rootStore.l10n.item_details.number_minted }: { contractStats.minted || 0 }
             </div>
             <div className="details-page__detail-field">
-              Number in Circulation: { contractStats.total_supply || 0 }
+              { rootStore.l10n.item_details.number_in_circulation }: { contractStats.total_supply || 0 }
             </div>
             <div className="details-page__detail-field">
-              Number Burned: { contractStats.burned || 0 }
+              { rootStore.l10n.item_details.number_burned }: { contractStats.burned || 0 }
             </div>
             {
               cap && cap < 10000000 ?
                 <div className="details-page__detail-field">
-                  Maximum Possible in Circulation: {contractStats.cap - contractStats.burned}
+                  { rootStore.l10n.item_details.max_possible }: {contractStats.cap - contractStats.burned}
                 </div> : null
             }
           </> : null
@@ -176,14 +176,14 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
       {
         cap && cap < 10000000 ?
           <div className="details-page__detail-field">
-            Cap: { contractStats?.cap || nft.details.Cap }
+            { rootStore.l10n.item_details.cap }: { contractStats?.cap || nft.details.Cap }
           </div>
           : null
       }
       {
         nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) ?
           <div className="details-page__detail-field">
-            Held Until { nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
+            { rootStore.l10n.item_details.held_until } { nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
           </div>
           : null
       }
@@ -206,7 +206,7 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
       }
       <br />
       <div>
-        { mintDate ? `Minted on the Eluvio Content Fabric on ${mintDate}` : "" }
+        { mintDate ? LocalizeString(rootStore.l10n.item_details.minted, {date: mintDate}) : "" }
       </div>
     </ExpandableSection>
   );
@@ -214,10 +214,10 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
 
 const NFTContractSection = ({nftInfo, SetBurned, ShowTransferModal}) => {
   return (
-    <ExpandableSection header="Contract" icon={ContractIcon} className="no-padding">
+    <ExpandableSection header={rootStore.l10n.item_details.contract} icon={ContractIcon} className="no-padding">
       <div className="expandable-section__content-row">
         <CopyableField value={nftInfo.nft.details.ContractAddr}>
-          Contract Address: { nftInfo.nft.details.ContractAddr }
+          { rootStore.l10n.item_details.contract_address }: { nftInfo.nft.details.ContractAddr }
         </CopyableField>
       </div>
       <div className="expandable-section__content-row">
@@ -228,7 +228,7 @@ const NFTContractSection = ({nftInfo, SetBurned, ShowTransferModal}) => {
       {
         nftInfo.heldDate ?
           <h3 className="expandable-section__details details-page__held-message">
-            This NFT is in a holding period until { nftInfo.heldDate }. You will not be able to transfer it until then.
+            { LocalizeString(rootStore.l10n.item_details.held_message, {heldDate: nftInfo.heldDate}) }
           </h3> : null
       }
       <div className="expandable-section__actions">
@@ -240,7 +240,7 @@ const NFTContractSection = ({nftInfo, SetBurned, ShowTransferModal}) => {
               className="action details-page-transfer-button"
               onClick={ShowTransferModal}
             >
-              Transfer NFT
+              { rootStore.l10n.actions.transfers.transfer }
             </button> : null
         }
         <a
@@ -253,7 +253,7 @@ const NFTContractSection = ({nftInfo, SetBurned, ShowTransferModal}) => {
           }
           rel="noopener"
         >
-          See More Info on Eluvio Lookout
+          { rootStore.l10n.item_details.lookout_link }
         </a>
         {
           nftInfo.isOwned && !nftInfo.listingId && rootStore.funds ?
@@ -321,14 +321,14 @@ const NFTInfoMenu = observer(({nftInfo}) => {
               nftImageUrl ?
                 <ButtonWithLoader onClick={async () => await rootStore.UpdateUserProfile({newProfileImageUrl: nftImageUrl.toString()})}>
                   <ImageIcon icon={PictureIcon} />
-                  Set as My Profile Image
+                  { rootStore.l10n.item_details.menu.set_as_profile }
                 </ButtonWithLoader> : null
             }
             {
               twitterUrl ?
                 <a href={twitterUrl.toString()} target="_blank" onClick={Close}>
                   <ImageIcon icon={TwitterIcon} />
-                  Share on Twitter
+                  { rootStore.l10n.item_details.menu.share_on_twitter }
                 </a> : null
             }
             {
@@ -340,7 +340,7 @@ const NFTInfoMenu = observer(({nftInfo}) => {
                   }}
                 >
                   <ImageIcon icon={CopyIcon}/>
-                  Copy { listingId ? "Listing" : "Item" } URL
+                  { rootStore.l10n.item_details.menu[listingId ? "copy_listing_url" : "copy_item_url"] }
                 </button> : null
             }
             {
@@ -352,7 +352,7 @@ const NFTInfoMenu = observer(({nftInfo}) => {
                   }}
                 >
                   <ImageIcon icon={CopyIcon}/>
-                  Copy Media URL
+                  { rootStore.l10n.item_details.menu.copy_media_url }
                 </button> : null
             }
           </>
@@ -484,13 +484,13 @@ const NFTTables = observer(({nftInfo}) => {
             mode="transfers"
             pagingMode="paginated"
             perPage={10}
-            headerText="Transaction history for this token"
+            headerText={rootStore.l10n.tables.token_history_single}
             headerIcon={TransactionIcon}
             columnHeaders={[
-              "Time",
-              "Total Amount",
-              "Buyer",
-              "Seller"
+              rootStore.l10n.tables.columns.time,
+              rootStore.l10n.tables.columns.total_amount,
+              rootStore.l10n.tables.columns.buyer,
+              rootStore.l10n.tables.columns.seller
             ]}
             columnWidths={[1, 1, 1, 1]}
             mobileColumnWidths={[1, 1, 0, 0]}
@@ -512,14 +512,14 @@ const NFTTables = observer(({nftInfo}) => {
         mode="sales"
         pagingMode="paginated"
         perPage={10}
-        headerText={`Secondary sales history for all '${nft.metadata.display_name}' tokens`}
+        headerText={LocalizeString(rootStore.l10n.tables.token_history_all, {name: nft.metadata.display_name})}
         headerIcon={TransactionIcon}
         columnHeaders={[
-          "Time",
-          "Token Id",
-          "Total Amount",
-          "Buyer",
-          "Seller"
+          rootStore.l10n.tables.columns.time,
+          rootStore.l10n.tables.columns.token_id,
+          rootStore.l10n.tables.columns.total_amount,
+          rootStore.l10n.tables.columns.buyer,
+          rootStore.l10n.tables.columns.seller
         ]}
         columnWidths={[1, 1, 1, 1, 1]}
         mobileColumnWidths={[1, 1, 1, 0, 0]}
@@ -553,7 +553,7 @@ const PurchaseOffersTables = observer(({nftInfo}) => {
         nft?.details.TokenIdStr ?
           <OffersTable
             icon={PurchaseOffersIcon}
-            header="Active Offers for this token"
+            header={rootStore.l10n.tables.active_offers}
             contractAddress={nft.details.ContractAddr}
             tokenId={nft.details.TokenIdStr}
             statuses={["ACTIVE"]}
@@ -718,7 +718,7 @@ const NFTActions = observer(({
               disabled={transferring}
               className="details-page__open-button"
               onClick={async () => Confirm({
-                message: `Are you sure you want to open '${nftInfo.nft.metadata.display_name}?'`,
+                message: LocalizeString(rootStore.l10n.actions.packs.open_confirm, {name: nftInfo.nft.metadata.display_name}),
                 Confirm: async () => {
                   await checkoutStore.OpenPack({
                     tenantId: nftInfo.nft.details.TenantId,
@@ -730,7 +730,7 @@ const NFTActions = observer(({
                 }
               })}
             >
-              { nftInfo.nft.metadata.pack_options.open_button_text || rootStore.l10n.actions.packs.open }
+              { nftInfo.nft.metadata.pack_options.open_button_text || LocalizeString(rootStore.l10n.actions.packs.open, {name: nftInfo.nft.metadata.display_name}) }
             </ButtonWithLoader> : null
         }
 
@@ -768,27 +768,27 @@ const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, showMediaSection
   }
 
   let tabs = [
-    showMediaSections ? ["Media", MediaIcon] : "",
-    nftInfo.hasOffers ? ["Redeemables", OffersIcon] : "",
-    hideTables ? "" : ["Trading", TradeIcon],
-    nftInfo.offerable ? ["Purchase Offers", PurchaseOffersIcon] : ""
+    showMediaSections ? [rootStore.l10n.item_details.media, MediaIcon] : "",
+    nftInfo.hasOffers ? [rootStore.l10n.item_details.redeemables, OffersIcon] : "",
+    hideTables ? "" : [rootStore.l10n.item_details.trading, TradeIcon],
+    nftInfo.offerable ? [rootStore.l10n.item_details.purchase_offers, PurchaseOffersIcon] : ""
   ].filter(tab => tab);
 
   let activeContent;
   switch(tab) {
-    case "Trading":
+    case rootStore.l10n.item_details.trading:
       activeContent = <NFTTables nftInfo={nftInfo} />;
       break;
 
-    case "Purchase Offers":
+    case rootStore.l10n.item_details.purchase_offers:
       activeContent = <PurchaseOffersTables nftInfo={nftInfo} />;
       break;
 
-    case "Redeemables":
+    case rootStore.l10n.item_details.redeemables:
       activeContent = <NFTOffers nftInfo={nftInfo} />;
       break;
 
-    case "Media":
+    case rootStore.l10n.item_details.media:
       activeContent = <NFTMediaContainer nftInfo={nftInfo} browserOnly />;
       break;
   }
@@ -900,7 +900,10 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
     setNFTInfo(nftInfo);
 
     if(!tab) {
-      setTab(nftInfo.hasAdditionalMedia && nftInfo.isOwned ? "Media" : nftInfo.hasOffers ? "Redeemables" : "Trading");
+      setTab(
+        nftInfo.hasAdditionalMedia && nftInfo.isOwned ? rootStore.l10n.item_details.media :
+          nftInfo.hasOffers ? rootStore.l10n.item_details.redeemables : rootStore.l10n.item_details.trading
+      );
     }
   }, [nft, listingStatus, checkoutStore.currency]);
 
@@ -1079,7 +1082,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
                 {
                   nftInfo.hasAdditionalMedia && (nftInfo.isOwned || previewMedia) ?
                     <ExpandableSection
-                      header="Media"
+                      header={rootStore.l10n.item_details.media}
                       toggleable={false}
                       icon={MediaIcon}
                       onClick={() => {

@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {rootStore, transferStore} from "Stores";
 import Modal from "Components/common/Modal";
 import NFTCard from "Components/nft/NFTCard";
-import {ButtonWithLoader} from "Components/common/UIComponents";
+import {ButtonWithLoader, LocalizeString} from "Components/common/UIComponents";
 import Confirm from "Components/common/Confirm";
 
 const TransferModal = observer(({nft, onTransferring, onTransferred, Close}) => {
@@ -19,10 +19,10 @@ const TransferModal = observer(({nft, onTransferring, onTransferred, Close}) => 
 
     if(invalid) {
       setAddressValid(false);
-      setError("Invalid target address");
+      setError(rootStore.l10n.transfers.errors.invalid_address);
     } else if(rootStore.client.utils.EqualAddress(rootStore.CurrentAddress(), targetAddress)) {
       setAddressValid(false);
-      setError("You may not transfer an NFT to yourself");
+      setError(rootStore.l10n.transfers.errors.no_self_transfer);
     } else {
       setAddressValid(true);
       setError("");
@@ -31,7 +31,7 @@ const TransferModal = observer(({nft, onTransferring, onTransferred, Close}) => 
         rootStore.walletClient.UserItems({userAddress: targetAddress, limit: 1})
           .then(({paging}) => {
             if(paging.total <= 0) {
-              setError("The target address does not currently own any items. Are you sure this is the right address?");
+              setError(rootStore.l10n.transfers.errors.address_warning);
             }
           });
       }
@@ -47,14 +47,14 @@ const TransferModal = observer(({nft, onTransferring, onTransferred, Close}) => 
     >
       <div className="listing-modal">
         <h1 className="listing-modal__header">
-          Transfer Your Item
+          { rootStore.l10n.transfers.header }
         </h1>
         <div className="listing-modal__content">
           <NFTCard nft={nft} truncateDescription />
           <div className="listing-modal__form__inputs">
             <div className="listing-modal__form__labelled-input">
               <label className="listing-modal__form__label">
-                Network
+                { rootStore.l10n.transfers.network }
               </label>
               <input
                 disabled
@@ -64,7 +64,7 @@ const TransferModal = observer(({nft, onTransferring, onTransferred, Close}) => 
             </div>
             <div className="listing-modal__form__labelled-input">
               <label className="listing-modal__form__label">
-                Target Address
+                { rootStore.l10n.transfers.target_address }
               </label>
               <input
                 placeholder="0x0000000000000000000000000000000000000000"
@@ -88,12 +88,12 @@ const TransferModal = observer(({nft, onTransferring, onTransferred, Close}) => 
           }
           <div className="listing-modal__actions actions">
             <ButtonWithLoader
-              disabled={!addressValid}
+              disabled={!targetAddress || !addressValid}
               className="action action-primary listing-modal__action"
               onClick={async () => {
                 let confirmed = false;
                 await Confirm({
-                  message: `Are you sure you want to transfer this NFT to ${targetAddress}?`,
+                  message: LocalizeString(rootStore.l10n.actions.transfers.transfer_confirm, {targetAddress}),
                   Confirm: () => { confirmed = true; }
                 });
 
@@ -103,27 +103,27 @@ const TransferModal = observer(({nft, onTransferring, onTransferred, Close}) => 
                   setTransferring(true);
                   onTransferring(true);
                   setError("");
-                  setMessage("Transferring NFT. This may take several minutes.");
+                  setMessage(rootStore.l10n.transfers.transferring);
 
                   await transferStore.TransferNFT({nft, targetAddress});
 
                   await onTransferred(targetAddress);
                 } catch(error) {
                   setMessage("");
-                  setError("Transfer failed");
+                  setError(rootStore.l10n.transfers.errors.failed);
                   setTransferring(false);
                   onTransferring(false);
                 }
               }}
             >
-              Transfer NFT
+              { rootStore.l10n.actions.transfers.transfer }
             </ButtonWithLoader>
             <button
               disabled={transferring}
               className="action listing-modal__action"
               onClick={() => Close()}
             >
-              Cancel
+              { rootStore.l10n.actions.cancel }
             </button>
           </div>
         </div>

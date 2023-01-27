@@ -21,13 +21,13 @@ const Leaderboard = observer(() => {
         }
       }}
       className="transfer-table--leaderboard"
-      headerText="Climb the Leaderboard"
+      headerText={rootStore.l10n.tables.leaderboard}
       headerIcon={LeaderboardIcon}
       columnHeaders={[
-        "Rank",
-        "Username",
-        "Address",
-        "Total Number of Collectibles",
+        rootStore.l10n.tables.columns.rank,
+        rootStore.l10n.tables.columns.username,
+        rootStore.l10n.tables.columns.address,
+        rootStore.l10n.tables.columns.total_collectibles,
       ]}
       CalculateRowValues={entry => ({
         columns: [

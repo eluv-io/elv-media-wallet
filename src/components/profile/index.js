@@ -56,7 +56,7 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal}) => {
       <ExpandableContent textShow={rootStore.l10n.profile.view.withdrawals} textHide={rootStore.l10n.profile.hide.withdrawals}>
         <UserTransferTable
           icon={WithdrawalsIcon}
-          header="Withdrawals"
+          header={rootStore.l10n.tables.withdrawals}
           type="withdrawal"
         />
       </ExpandableContent>
@@ -112,7 +112,7 @@ const BalanceDetails = observer(() => {
         <ExpandableContent textShow={rootStore.l10n.profile.view.deposits} textHide={rootStore.l10n.profile.hide.deposits}>
           <UserTransferTable
             icon={WithdrawalsIcon}
-            header="Deposits"
+            header={rootStore.l10n.tables.deposits}
             type="deposit"
           />
         </ExpandableContent>
@@ -228,7 +228,7 @@ const Profile = observer(() => {
           <OffersTable
             buyerAddress={rootStore.CurrentAddress()}
             icon={OffersIcon}
-            header="Outstanding Offers"
+            header={rootStore.l10n.tables.outstanding_offers}
             statuses={["ACTIVE"]}
             useWidth={600}
             noActions

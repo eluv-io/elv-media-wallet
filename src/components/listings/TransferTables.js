@@ -322,8 +322,8 @@ export const OffersTable = observer(({
         loading={loading}
         pagingMode="none"
         columnHeaders={[
-          buyerAddress ? "To" : "From",
-          "Price",
+          rootStore.l10n.tables.columns[buyerAddress ? "to" : "from"],
+          rootStore.l10n.tables.columns.price
         ]}
         columnWidths={[1, 1]}
         entries={
@@ -359,14 +359,13 @@ export const OffersTable = observer(({
         pagingMode="none"
         useWidth={useWidth}
         columnHeaders={[
-          "Name",
-          "Token ID",
-          "Time",
-          "Offer Price", // Only shown if 'showTotal' is specified
-          "Total Amount",
-          "Expiration",
-          buyerAddress ? "To" : "From",
-          "Status",
+          rootStore.l10n.tables.columns.name,
+          rootStore.l10n.tables.columns.token_id,
+          rootStore.l10n.tables.columns.time,
+          rootStore.l10n.tables.columns.offer_price,
+          rootStore.l10n.tables.columns.expiration,
+          rootStore.l10n.tables.columns[buyerAddress ? "to" : "from"],
+          rootStore.l10n.tables.columns.status,
           " "
         ]}
         columnWidths={[2, 1, 1, showTotal ? 1 : 0, 1, 1, 1, 1, hideActionsColumn ? 0 : "100px"]}
@@ -584,10 +583,10 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
         headerText={header}
         pagingMode="none"
         columnHeaders={[
-          "Amount",
-          "Time",
-          "Method",
-          "Status"
+          rootStore.l10n.tables.columns.amount,
+          rootStore.l10n.tables.columns.time,
+          rootStore.l10n.tables.columns.method,
+          rootStore.l10n.tables.columns.status
         ]}
         columnWidths={[1, 1, 1, 1]}
         entries={
@@ -615,10 +614,10 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
         headerText={header}
         pagingMode="none"
         columnHeaders={[
-          "Amount",
-          "Payout",
-          "Fee",
-          "Time"
+          rootStore.l10n.tables.columns.amount,
+          rootStore.l10n.tables.columns.payout,
+          rootStore.l10n.tables.columns.fee,
+          rootStore.l10n.tables.columns.time
         ]}
         columnWidths={[1, 1, 1, 1]}
         mobileColumnWidths={[1, 1, 0, 1]}
@@ -643,13 +642,13 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
         headerIcon={icon}
         headerText={header}
         columnHeaders={[
-          "Name",
-          "List Price",
-          "Payout",
-          "Time",
-          "Buyer",
-          "Purchase Method",
-          "Payment Status"
+          rootStore.l10n.tables.columns.name,
+          rootStore.l10n.tables.columns.list_price,
+          rootStore.l10n.tables.columns.payout,
+          rootStore.l10n.tables.columns.time,
+          rootStore.l10n.tables.columns.buyer,
+          rootStore.l10n.tables.columns.method,
+          rootStore.l10n.tables.columns.status
         ]}
         columnWidths={[1, 1, 1, "150px", 1, "150px", "150px"]}
         tabletColumnWidths={[1, 1, 1, "150px", 0, "150px", "150px"]}
@@ -678,12 +677,12 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
       headerIcon={icon}
       headerText={header}
       columnHeaders={[
-        "Name",
-        "List Price",
-        "Time",
-        "Seller",
-        "Purchase Method",
-        "Payment Status"
+        rootStore.l10n.tables.columns.name,
+        rootStore.l10n.tables.columns.list_price,
+        rootStore.l10n.tables.columns.time,
+        rootStore.l10n.tables.columns.seller,
+        rootStore.l10n.tables.columns.method,
+        rootStore.l10n.tables.columns.status,
       ]}
       columnWidths={[1, 1, "150px", 1, "150px", "150px"]}
       tabletColumnWidths={[1, 1, "150px", 0, "150px", "150px"]}

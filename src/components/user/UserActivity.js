@@ -17,7 +17,7 @@ const UserActivity = observer(() => {
       <UserTransferTable
         userAddress={userAddress}
         icon={PurchasesIcon}
-        header="Bought NFTs"
+        header={rootStore.l10n.tables.bought_nfts}
         type="purchase"
         marketplaceId={match.params.marketplaceId}
         className="user-transfer-table user-transfer-table--bought"
@@ -25,7 +25,7 @@ const UserActivity = observer(() => {
       <UserTransferTable
         userAddress={userAddress}
         icon={SalesIcon}
-        header="Sold NFTs"
+        header={rootStore.l10n.tables.sold_nfts}
         type="sale"
         marketplaceId={match.params.marketplaceId}
         className="user-transfer-table user-transfer-table--sold"

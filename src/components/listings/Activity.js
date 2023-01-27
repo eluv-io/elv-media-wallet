@@ -29,12 +29,12 @@ const Activity = observer(({mode="sales", icon, hideName, tableHeader, initialFi
       headerText={tableHeader}
       headerIcon={icon}
       columnHeaders={[
-        "Name",
-        "Time",
-        "Token ID",
-        "Total Amount",
-        "Buyer",
-        "Seller"
+        rootStore.l10n.tables.columns.name,
+        rootStore.l10n.tables.columns.time,
+        rootStore.l10n.tables.columns.token_id,
+        rootStore.l10n.tables.columns.total_amount,
+        rootStore.l10n.tables.columns.buyer,
+        rootStore.l10n.tables.columns.seller
       ]}
       CalculateRowValues={transfer => ({
         columns: [
@@ -58,7 +58,7 @@ const Activity = observer(({mode="sales", icon, hideName, tableHeader, initialFi
 });
 
 export const RecentSales = () => (
-  <Activity icon={SalesIcon} tableHeader="Recent Sales" />
+  <Activity icon={SalesIcon} tableHeader={rootStore.l10n.tables.activity} />
 );
 
 export default Activity;

@@ -157,9 +157,16 @@ export const CopyableField = ({value, children, className="", ellipsis=true}) =>
 };
 
 export const LocalizeString = (text, variables={}) => {
-  Object.keys(variables).forEach(name => text = text.replace(`{${name}}`, variables[name]));
-
-  return text;
+  return (
+    <>
+      {
+        text
+          .split(/{(\w+)}/)
+          .filter(s => s)
+          .map(token => variables[token] || token)
+      }
+    </>
+  );
 };
 
 export const FormatPriceString = (

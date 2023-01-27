@@ -1,0 +1,329 @@
+header:
+  activity: Activity
+  collections: Collections
+  discover_projects: Discover Projects
+  leaderboard: Leaderboard
+  listings: Listings
+  profile: Profile
+  store: Store
+  items: Items
+  offers: Offers
+  notifications: Notifications
+
+login:
+  sign_in: Sign In
+  sign_up: Sign Up
+  sign_out: Sign Out
+  signed_in_as: Signed In As
+  signed_in_via: Sign in Via
+  connect_metamask: Connect Metamask
+  terms: By creating an account or signing in, I agree to the [Eluvio Privacy Policy](https://live.eluv.io/privacy) and the [Eluvio Terms and Conditions](https://live.eluv.io/terms).
+
+navigation:
+  profile: My Profile
+  collections: My Collections
+  items: My Items
+  listings: My Listings
+  offers: My Offers
+  activity: My Activity
+  notifications: Notifications
+  preferences: Preferences
+  collectibles: Collectibles
+
+actions:
+  view_listings: View Listings
+  continue: Continue
+  back: Back
+  cancel: Cancel
+  packs:
+    open: Open {name}
+    open_confirm: Are you sure you want to open '{name}'?
+  purchase:
+    buy_now: Buy Now
+    buy_now_for: Buy Now For {price}
+    claim: Claim Now
+  listings:
+    create: List For Sale
+    create_for: List Now For {price}
+    edit: Edit Listing
+    remove: Remove Listing
+    remove_confirm: Are you sure you want to remove this listing?
+  offers:
+    create: Make an Offer
+    edit: Modify Your Offer
+    confirm: Confirm Offer For {price}
+    remove: Remove Offer
+    remove_confirm: Are you sure you want to cancel this offer?
+  transfers:
+    transfer: Transfer NFT
+    transfer_confirm: Are you sure you want to transfer this NFT to {targetAddress}?
+
+profile:
+  media_wallet: Media Wallet
+  address: Eluvio Content Blockchain Address
+  do_not_send_funds: Do not send funds to this address. This is an Eluvio Content Blockchain address and is not a payment address.
+  connected_accounts: Connected Accounts
+  add_funds: Add Funds
+  withdraw_funds: Withdraw Funds
+  view:
+    all_offers: View All Offers
+    deposits: View Deposits
+    details: View Details
+    outstanding_offers: View Outstanding Offers
+    stripe_dashboard: View Stripe Dashboard
+    transaction_history: View Transaction History
+    withdrawals: View Withdrawals
+  hide:
+    deposits: Hide Deposits
+    outstanding_offers: Hide Outstanding Offers
+    withdrawals: Hide Withdrawals
+  payout_terms: Funds availability notice – A hold period will be imposed on amounts that accrue from the sale of an NFT. Account holders acknowledge that, during this hold period, a seller will be unable to withdraw the amounts attributable to such sale(s). The current hold period for withdrawing the balance is 15 days.
+  payout_terms_stripe: Payout is managed by Stripe. See the dashboard for processing status.
+  payout_terms_contact: For questions or concerns, please contact [payments@eluv.io](mailto:payments@eluv.io)
+  balance:
+    total: Total Balance
+    locked: Locked Balance
+    withdrawable: Withdrawable Balance
+
+preferences:
+  preferences: Preferences
+  language: Language
+  display_currency: Display Currency
+  marketplace_display_currency: Marketplace Display Currency
+  currency_conversion: This is a conversion computed from USD
+  notifications:
+    listing_sold: Notify me when one of my listed NFTs is sold
+    token_updated: Notify me when an NFT I own is updated (e.g. new media)
+    offer_received: Notify me when I receive a purchase offer for an NFT I own
+    offer_accepted: Notify me when a purchase offer I made was accepted
+    offer_declined: Notify me when a purchase offer I made was declined
+    offer_expired: Notify me when a purchase offer I made has expired
+
+notifications:
+  notifications: Notifications
+  disable: Turn off {type} notifications
+  load_more: Load More
+  view_all: View All
+  new: New
+  all: All
+  no_new_notifications: No New Notifications
+  no_new_notifications_desc: You don't have any new notifications
+  listing_sold: Listing Sold
+  listing_sold_message: Your '{name}' has sold on the marketplace for {price}.
+  token_updated: Token Updated
+  offer_received: Offer Received
+  offer_received_message: You have received an offer of {price} on your '{name}'.`
+  offer_accepted: Offer Accepted
+  offer_accepted_message: Your offer on '{name}' for {price} has been accepted.
+  offer_declined: Offer Declined
+  offer_declined_message: Your offer on '{name}' for {price} has been declined.
+  offer_declined_reasons:
+    listing_sold: the listing was sold.
+    other_offer_accepted: an alternative offer was accepted.
+    nft_transfer: the item was transferred.
+  offer_expired: Offer Expired
+  offer_expired_message: Your offer on '{name}' for {price} has expired.
+
+connected_accounts:
+  connected_accounts: Connected Accounts
+  solana_address: Solana Wallet Address
+  direct: Accept only direct payment to this linked wallet for my listings
+  direct_info: Checking this option will limit your listings to purchase with USDC via linked wallet only. Payment will settle directly to your linked wallet address. If unchecked, your listings may also be purchased via credit card, coinbase, or wallet balance, and the proceeds will be credited to your Eluvio wallet balance, which is redeemable via Stripe.
+  link_wallet: Link Wallet
+  unlink_wallet: Unlink Wallet
+
+stats:
+  listings:
+    total: Active Listings
+    value: Active Listing Value
+    average: Average Listing Price
+    highest: Highest Price
+    lowest: Lowest Price
+    buy_from_collector: Buy From a Collector
+  sales:
+    total: Total Secondary Sales
+    value: Secondary Sales Volume
+    average: Average Price
+    highest: Highest Price
+    lowest: Lowest Price
+
+purchase:
+  service_fee: Service Fee
+  creator_royalty: Creator Royalty
+  total_payout: Total Payout
+  available_balance: Available {balanceType}
+  total_balance: Total {balanceType}
+  remaining_balance: Remaining {balanceType}
+  total_amount: Total
+  current_purchase_amount: Current Purchase
+  select_country: Please Select Your Country
+  all_other_countries: All Other Countries
+  buy_with_wallet_balance: Buy With Wallet Balance
+  credit_card: Credit Card
+  wallet_balance: Wallet Balance
+  checkout: Checkout
+  sell_your_nft: Sell Your NFT
+  min_listing_price: Minimum listing price is {price}
+  max_listing_price: Maximum listing price is {price}
+  errors:
+    failed: Purchase Failed
+    listing_unavailable: Listing is no longer available
+    insufficient_stock: Insufficient stock available for this purchase
+    out_of_stock: This item is out of stock
+    solana_insufficient_funds: Solana account has insufficient balance to perform this transaction
+    ethereum_insufficient_funds: Ethereum account has insufficient balance to perform this transaction
+    listing_failed: Unable to list this NFT
+
+offers:
+  make_an_offer: Make an Offer
+  active_offers: Active Offers for this NFT
+  min_offer_price: Minimum offer price is {price}
+  max_offer_price: Maximum offer price is {price}
+  errors:
+    failed: Unable to make this offer.
+
+transfers:
+  header: Transfer Your Item
+  network: Network
+  target_address: Target Address
+  transferring: Transferring NFT. This may take several minutes.
+  errors:
+    address_warning: The target address does not currently own any items. Are you sure this is the right address?
+    invalid_address: Invalid Target Address
+    no_self_transfer: You may not transfer an NFT to yourself
+    failed: Transfer Failed
+
+tables:
+  pagination: Showing {min} - {max} of {total} results
+  leaderboard: Climb the Leaderboard
+  activity: Recent Sales
+  token_history_single: Transaction History for this Token
+  token_history_all: Secondary Sales History for All '{name}' Tokens
+  active_offers: Active Offers for this Token
+  outstanding_offers: Outstanding Offers
+  offers_made: Offers Made
+  offers_received: Offers Received
+  withdrawals: Withdrawals
+  deposits: Deposits
+  bought_nfts: Bought NFTs
+  sold_nfts: Sold NFTs
+  columns:
+    address: Address
+    amount: Amount
+    buyer: Buyer
+    expiration: Expiration
+    fee: Fee
+    from: From
+    list_price: List Price
+    method: Method
+    name: Name
+    offer_price: Offer Price
+    payout: Payout
+    price: Price
+    rank: Rank
+    seller: Seller
+    status: Status
+    time: Time
+    to: To
+    token_id: Token ID
+    total_amount: Total Amount
+    total_collectibles: Total Collectibles
+    username: Username
+
+filters:
+  filters:
+    min: Min
+    max: Max
+    apply: Apply Filters
+    reset: Reset Filters
+    token_id: Token ID
+    price: Price
+    currency: Currency
+    any_currency: Any Currency
+    edition: Edition
+    choose_editions: Choose Editions
+    collection: Collection
+    choose_collections: Choose Collections
+    drop: Drop
+    choose_drops: Choose Drops
+    rarity: Rarity
+    choose_rarity: Choose Rarity
+    choose_attributes: Choose Attributes
+    marketplace: Marketplace
+    marketplaces: Marketplaces
+    all_marketplaces: All Marketplaces
+    time: Time
+    all_time: All Time
+    last_24_hours: Last 24 Hours
+    last_7_days: Last 7 Days
+    last_30_days: Last 30 Days
+  search: Search
+  sort:
+    sort: Sort
+    minted: Minted (Oldest to Newest)
+    minted_desc: Minted (Newest to Oldest)
+    name: Name (A-Z)
+    name_desc: Name (Z-A)
+    listed: Recently Listed
+    token_id: Token ID
+    ordinal: Ordinal
+    price: Price (Low to High)
+    price_desc: Price (High to Low)
+
+item_details:
+  properties: Properties
+  details: Details
+  contract: Contract
+  contract_address: Contract Address
+  media: Media
+  trading: Trading
+  purchase_offers: Purchase Offers
+  redeemables: Redeemables
+  held_message: This NFT is in a holding period until {heldDate}. You will not be able to transfer it until then.
+  lookout_link: See more info on Eluvio Lookout
+  token_url: Token URL
+  media_url: Media URL
+  image_url: Image URL
+  creator: Creator
+  edition: Edition
+  token_id: Token ID
+  token_ordinal: Token Ordinal
+  number_minted: Number Minted
+  number_in_circulation: Number in Circulation
+  number_burned: Number Burned
+  max_possible: Maximum Posible in Circulation
+  held_until: Held Until
+  cap: Cap
+  minted: Minted on the Eluvio Content Fabric on {date}
+  menu:
+    set_as_profile: Set as my Profile Image
+    copy_listing_url: Copy Listing URL
+    copy_item_url: Copy Item URL
+    copy_media_url: Copy Media URL
+    share_on_twitter: Share on Twitter
+
+status:
+  back_to_profile: Back to My Profile
+  back_to_marketplace: Back to the Marketplace
+  back_to_my_items: Back to My Items
+  back_to_collection: Back to My Collection
+  pack_opening: Your pack is opening
+  minting:
+    header: Your items are being minted
+    subheader1: This may take several minutes
+    subheader2: You can navigate away from this page if you don't want to wait. Your items will be available in your wallet when the process is complete.
+    success_header: Congratulations!
+    purchase: Thank you for your purchase!
+    received_item_single: You've received the following item
+    received_item_multiple: You've received the following items
+    submitting_solana: Submitting payment transaction to Solana
+    awaiting_payment: Awaiting Payment...
+    transferring: Your item is being transferred
+    view_transaction: View your transaction on {location}
+
+  deposits:
+    header: Awaiting Deposit
+    subheader1: It may take up to 30 minutes to confirm your deposit
+    subheader2: You can navigate away from this page if you don't want to wait. Your deposit will be available in your wallet when the process is complete. Your deposit status can be viewed in your profile
+    success_header: Deposit Successful
+    success_subheader: Thank you for your purchase! {amount} has been added to your wallet balance.
