@@ -299,7 +299,7 @@ const Notifications = observer(({marketplaceId, headerMenu, Hide}) => {
     <>
       <div className={`notifications ${headerMenu ? "notifications--menu" : "notifications--page"}`}>
         <div className="notifications__header">
-          { headerMenu ? <div className="notifications__header__text">Notifications</div> : null }
+          { headerMenu ? <div className="notifications__header__text">{ rootStore.l10n.notifications.notifications }</div> : null }
           <div className="notifications__header__filters">
             <button onClick={() => setOnlyNew(true)} className={`action action-selection notifications__header__filter ${onlyNew ? "action-selection--active" : ""}`}>
               { rootStore.l10n.notifications.new }
