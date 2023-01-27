@@ -13,7 +13,11 @@ const PUBLIC_KEYS = {
 
 class CheckoutStore {
   currency = "USD";
-  exchangeRates = {};
+  exchangeRates = {
+    USD: {
+      rate: 1
+    }
+  };
 
   submittingOrder = false;
 

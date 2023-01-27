@@ -3,10 +3,15 @@ import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
 import Confirm from "Components/common/Confirm";
 import {ActiveListings} from "Components/listings/TransferTables";
-import {cryptoStore, rootStore} from "Stores";
+import {checkoutStore, cryptoStore, rootStore} from "Stores";
 import NFTCard from "Components/nft/NFTCard";
-import {ButtonWithLoader, FormatPriceString, LocalizeString} from "Components/common/UIComponents";
-import {roundToDown, roundToUp} from "round-to";
+import {
+  ButtonWithLoader, ConvertCurrency,
+  FormatPriceString,
+  FromUSD,
+  LocalizeString,
+  ParseMoney
+} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import WalletConnect from "Components/crypto/WalletConnect";
 
@@ -15,34 +20,34 @@ import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 import {Loader} from "Components/common/Loaders";
 
 const ListingModal = observer(({nft, listingId, Close}) => {
-  const [price, setPrice] = useState(nft.details.Price ? nft.details.Price.toFixed(2) : "");
+  const [price, setPrice] = useState(nft.details.Price ? FromUSD(nft.details.Price, true) : "");
   const [errorMessage, setErrorMessage] = useState(undefined);
 
+  const priceCeiling = FromUSD(10000);
   const [priceFloor, setPriceFloor] = useState(0);
-  const [royaltyRate, setRoyaltyRate] = useState(undefined);
+  const [royaltyRate, setRoyaltyRate] = useState(0);
 
   useEffect(() => {
     rootStore.walletClient.TenantConfiguration({
       contractAddress: nft.details.ContractAddr
     })
       .then(config => {
-        setRoyaltyRate(parseFloat((config || {})["nft-royalty"] || 10) / 100);
+        setRoyaltyRate(parseFloat((config || {})["nft-royalty"] || 10));
 
         if(config["min-list-price"]) {
           const floor = parseFloat(config["min-list-price"]) || 0;
-          setPriceFloor(floor);
+          setPriceFloor(ConvertCurrency(floor, "USD", checkoutStore.currency));
 
-          const parsedPrice = isNaN(parseFloat(price)) ? 0 : parseFloat(price);
+          const parsedPrice = ParseMoney(price);
           if(parsedPrice < floor) {
-            setPrice(Math.max(parsedPrice, floor));
+            setPrice(Math.max(parsedPrice.toDecimal(), floor.toDecimal()).toString);
           }
         }
       });
   }, []);
 
-  const parsedPrice = isNaN(parseFloat(price)) ? 0 : parseFloat(price);
-  const payout = roundToUp(parsedPrice * (1 - royaltyRate), 2);
-  const royaltyFee = roundToDown(parsedPrice - payout, 2);
+  const parsedPrice = ParseMoney(price, checkoutStore.currency);
+  const [payout, royaltyFee] = parsedPrice.allocate([100 - royaltyRate, royaltyRate]);
 
   return (
     <Modal
@@ -53,10 +58,12 @@ const ListingModal = observer(({nft, listingId, Close}) => {
       <div className="listing-modal">
         <h1 className="listing-modal__header">{ rootStore.l10n.purchase.sell_your_nft }</h1>
         <div className="listing-modal__content">
-          <NFTCard nft={nft} price={{USD: parsedPrice}} usdcAccepted={cryptoStore.usdcConnected} usdcOnly={cryptoStore.usdcOnly} truncateDescription />
+          <NFTCard nft={nft} price={{USD: parsedPrice.toString()}} usdcAccepted={cryptoStore.usdcConnected} usdcOnly={cryptoStore.usdcOnly} truncateDescription />
           <div className="listing-modal__form listing-modal__inputs">
             <div className="listing-modal__active-listings">
-              <h2 className="listing-modal__active-listings__header">Active Listings for this NFT</h2>
+              <h2 className="listing-modal__active-listings__header">
+                { rootStore.l10n.tables.active_listings }
+              </h2>
               <ActiveListings
                 contractAddress={nft.details.ContractAddr}
                 selectedListingId={listingId}
@@ -69,23 +76,23 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                   className={`listing-modal__form__price-input ${parsedPrice > 10000 ? "listing-modal__form__price-input-error" : ""}`}
                   value={price}
                   onChange={event => setPrice(event.target.value.replace(/[^\d.]/g, ""))}
-                  onBlur={() => setPrice(parsedPrice.toFixed(2))}
+                  onBlur={() => setPrice(parsedPrice.toString())}
                 />
                 <div className="listing-modal__form__price-input-label">
-                  { cryptoStore.usdcOnly ? null : <ImageIcon icon={USDIcon} /> }
+                  { cryptoStore.usdcOnly || checkoutStore.currency !== "USD" ? null : <ImageIcon icon={USDIcon} /> }
                   { cryptoStore.usdcConnected ? <ImageIcon icon={USDCIcon} title="USDC Available" /> : null }
                 </div>
               </div>
               {
                 priceFloor && parsedPrice < priceFloor ?
                   <div className="listing-modal__form__error">
-                    { LocalizeString(rootStore.l10n.purchase.min_listing_price, {price: FormatPriceString(priceFloor, {stringOnly: true, excludeAlternateCurrency: true})}) }
+                    { LocalizeString(rootStore.l10n.purchase.min_listing_price, {price: FormatPriceString(priceFloor, {stringOnly: true, noConversion: true})}) }
                   </div> : null
               }
               {
-                parsedPrice > 10000 ?
+                parsedPrice > priceCeiling ?
                   <div className="listing-modal__form__error">
-                    { LocalizeString(rootStore.l10n.purchase.max_listing_price, {price: "$10,000"}) }
+                    { LocalizeString(rootStore.l10n.purchase.max_listing_price, {price: FormatPriceString(priceCeiling, {stringOnly: true, noConversion: true})}) }
                   </div> : null
               }
             </div>
@@ -96,15 +103,13 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                   <>
                     <div className="listing-modal__detail listing-modal__detail-faded">
                       <label>{ rootStore.l10n.purchase.creator_royalty }</label>
-                      {FormatPriceString(royaltyFee)}
+                      {FormatPriceString(royaltyFee, { noConversion: true })}
                     </div>
                     <div className="listing-modal__detail listing-modal__detail--bold">
                       <label>{ rootStore.l10n.purchase.total_payout }</label>
-                      <div
-                        className="listing-modal__payout"
-                      >
+                      <div className="listing-modal__payout">
                         {cryptoStore.usdcConnected ? <ImageIcon icon={USDCIcon} title="USDC Available"/> : null}
-                        {FormatPriceString(Math.max(0, payout))}
+                        {FormatPriceString(Math.max(0, payout), { noConversion: true })}
                       </div>
                     </div>
                   </> : <Loader/>
@@ -126,7 +131,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                     const listingId = await rootStore.walletClient.CreateListing({
                       contractAddress: nft.details.ContractAddr,
                       tokenId: nft.details.TokenIdStr,
-                      price: parsedPrice,
+                      price: ToUSD(parsedPrice),
                       listingId: nft.details.ListingId
                     });
 
@@ -140,7 +145,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                   }
                 }}
               >
-                { LocalizeString(rootStore.l10n.actions.listings.create_for, {price: FormatPriceString(parsedPrice, {stringOnly: true})})}
+                { LocalizeString(rootStore.l10n.actions.listings.create_for, {price: FormatPriceString(parsedPrice, {stringOnly: true, noConversion: true})})}
               </ButtonWithLoader>
               {
                 nft.details.ListingId ?

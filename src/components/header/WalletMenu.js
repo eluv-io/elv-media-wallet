@@ -29,7 +29,7 @@ const WalletMenu = observer(({marketplaceId, Hide}) => {
 
       <div className="header__wallet-menu__section">
         <div className="header__wallet-menu__section-header">{ rootStore.l10n.profile.balance.total }</div>
-        <div className="header__wallet-menu__balance">{ FormatPriceString(rootStore.totalWalletBalance, {includeCurrency: true, prependCurrency: true, excludeAlternateCurrency: true}) }</div>
+        <div className="header__wallet-menu__balance">{ FormatPriceString(rootStore.totalWalletBalance, {includeCurrency: true, prependCurrency: true}) }</div>
       </div>
 
       <Link

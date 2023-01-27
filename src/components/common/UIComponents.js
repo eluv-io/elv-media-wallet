@@ -11,6 +11,7 @@ import SanitizeHTML from "sanitize-html";
 import QRCode from "qrcode";
 import {Link, NavLink} from "react-router-dom";
 import Modal from "Components/common/Modal";
+import Money from "js-money";
 
 import SelectIcon from "Assets/icons/select-icon.svg";
 import USDIcon from "Assets/icons/crypto/USD icon.svg";
@@ -169,6 +170,41 @@ export const LocalizeString = (text, variables={}) => {
   );
 };
 
+export const ParseMoney = (amount, currency) => {
+  try {
+    return Money.fromDecimal(amount, currency || Money[checkoutStore.currency.toUpperCase()]);
+  } catch(error) {
+    return Money.fromDecimal(0, currency || Money[checkoutStore.currency.toUpperCase()]);
+  }
+};
+
+export const ConvertCurrency = (amount, originalCurrency, targetCurrency) => {
+  const rate = originalCurrency === "USD" ?
+    checkoutStore.exchangeRates[targetCurrency].rate :
+    1 / checkoutStore.exchangeRates[originalCurrency].rate;
+
+  amount = typeof amount === "object" ? amount : Money.fromDecimal(isNaN(parseFloat(amount)) ? 0 : parseFloat(amount), originalCurrency);
+
+  return Money.fromDecimal(amount.multiply(rate).toString(), targetCurrency, "ceil");
+};
+
+export const ToUSD = (amount, asString=false) => {
+  const result = ConvertCurrency(amount, checkoutStore.currency, "USD");
+
+  return asString ? result.toString() : result.toDecimal();
+};
+
+export const FromUSD = (amount, asString=false) => {
+  const result = ConvertCurrency(amount, "USD", checkoutStore.currency);
+
+  return asString ? result.toString() : result.toDecimal();
+};
+
+window.Money = Money;
+window.ToUSD = ToUSD;
+window.FromUSD = FromUSD;
+window.ConvertCurrency = ConvertCurrency;
+
 export const FormatPriceString = (
   price,
   options= {
@@ -179,8 +215,10 @@ export const FormatPriceString = (
     includeUSDCIcon: false,
     prependCurrency: false,
     excludeAlternateCurrency: false,
+    includePrimaryCurrency: false,
     stringOnly: false,
     vertical: false,
+    noConversion: false,
     className: ""
   }
 ) => {
@@ -200,23 +238,35 @@ export const FormatPriceString = (
   let alternatePrice, alternatePriceString;
   if(!options.excludeAlternateCurrency && checkoutStore.currency !== "USD" && checkoutStore.exchangeRates[checkoutStore.currency]) {
     alternatePrice = new Intl.NumberFormat(currentLocale || "en-US", { style: "currency", currency: checkoutStore.currency})
-      .format(price * checkoutStore.exchangeRates[checkoutStore.currency].rate);
+      .format(options.noConversion ? price : FromUSD(price));
     alternatePrice =
       // Note: Some currency symbols include the currency code, so don't double it
       options.includeCurrency && !alternatePrice.includes(checkoutStore.currency) ?
         (options.prependCurrency ?
-          `(${checkoutStore.currency} ${alternatePrice})` :
-          `(${alternatePrice} ${checkoutStore.currency})`) :
-        `(${alternatePrice})`;
+          `${checkoutStore.currency} ${alternatePrice}` :
+          `${alternatePrice} ${checkoutStore.currency}`) :
+        `${alternatePrice}`;
 
     alternatePriceString = (
       <div className="formatted-price__alternate">
-        { alternatePrice }
+        {alternatePrice}
       </div>
     );
   } else {
     // Disable vertical if no alternate currency
     options.vertical = false;
+  }
+
+  if(!options.includePrimaryCurrency && alternatePrice) {
+    if(options.stringOnly) {
+      return alternatePrice;
+    }
+
+    return (
+      <div className={`formatted-price ${options.vertical ? "formatted-price--vertical" : ""}`}>
+        { alternatePrice }
+      </div>
+    );
   }
 
   const usdcIcon = options.includeUSDCIcon ? <ImageIcon icon={USDCIcon} className="formatted-price__icon" /> : null;

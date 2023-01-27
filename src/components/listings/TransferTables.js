@@ -188,16 +188,16 @@ const OffersTableActions = observer(({offer, setShowOfferModal, Reload}) => {
                   <div className="offers-table__accept-modal__breakdown">
                     <div className="offers-table__accept-modal__line-item">
                       <label>Offer</label>
-                      {FormatPriceString(offer.price, {excludeAlternateCurrency: true})}
+                      {FormatPriceString(offer.price)}
                     </div>
                     <div className="offers-table__accept-modal__line-item">
                       <label>Creator Royalty</label>
-                      {FormatPriceString(offer.royalty, {excludeAlternateCurrency: true})}
+                      {FormatPriceString(offer.royalty)}
                     </div>
                     <div className="offers-table__accept-modal__separator" />
                     <div className="offers-table__accept-modal__line-item ">
                       <label>Total Payout</label>
-                      {FormatPriceString(Math.max(0, offer.payout_amount), {excludeAlternateCurrency: true})}
+                      {FormatPriceString(Math.max(0, offer.payout_amount))}
                     </div>
                   </div>
                 </div>
@@ -593,7 +593,7 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
           entries.map(transfer => ({
             link: transfer?.extra_json?.charge_code ? `https://commerce.coinbase.com/receipts/${transfer.extra_json?.charge_code}` : undefined,
             columns: [
-              FormatPriceString(transfer.amount + transfer.fee, {excludeAlternateCurrency: true}),
+              FormatPriceString(transfer.amount + transfer.fee),
               `${Ago(transfer.created * 1000)} ago`,
               transfer.processor,
               transfer.payment_status?.toUpperCase() || "Pending"
@@ -623,9 +623,9 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
         mobileColumnWidths={[1, 1, 0, 1]}
         entries={
           entries.map(transfer => [
-            FormatPriceString(transfer.amount + transfer.fee, {excludeAlternateCurrency: true}),
-            FormatPriceString(transfer.amount, {excludeAlternateCurrency: true}),
-            FormatPriceString(transfer.fee, {excludeAlternateCurrency: true}),
+            FormatPriceString(transfer.amount + transfer.fee),
+            FormatPriceString(transfer.amount),
+            FormatPriceString(transfer.fee),
             `${Ago(transfer.created * 1000)} ago`
           ])
         }

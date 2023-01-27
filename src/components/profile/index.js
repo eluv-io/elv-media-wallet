@@ -42,7 +42,7 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal}) => {
         { rootStore.l10n.profile.balance.withdrawable }
       </h2>
       <div className="profile-page__balance">
-        { FormatPriceString(rootStore.withdrawableWalletBalance, {excludeAlternateCurrency: true, includeCurrency: true }) }
+        { FormatPriceString(rootStore.withdrawableWalletBalance, {includeCurrency: true }) }
       </div>
       <div className="profile-page__actions">
         <ButtonWithLoader
@@ -100,7 +100,7 @@ const BalanceDetails = observer(() => {
           { rootStore.l10n.profile.balance.total }
         </h2>
         <div className="profile-page__balance">
-          { FormatPriceString(rootStore.totalWalletBalance, {excludeAlternateCurrency: true, includeCurrency: true}) }
+          { FormatPriceString(rootStore.totalWalletBalance, {includeCurrency: true}) }
         </div>
 
         <div className="profile-page__actions">
@@ -221,7 +221,7 @@ const Profile = observer(() => {
           { rootStore.l10n.profile.balance.locked }
         </h2>
         <div className="profile-page__balance">
-          { FormatPriceString(rootStore.lockedWalletBalance, {excludeAlternateCurrency: true, includeCurrency: true }) }
+          { FormatPriceString(rootStore.lockedWalletBalance, {includeCurrency: true }) }
         </div>
         <br />
         <ExpandableContent textShow={rootStore.l10n.profile.view.outstanding_offers} textHide={rootStore.l10n.profile.hide.outstanding_offers}>

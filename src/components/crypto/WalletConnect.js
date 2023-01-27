@@ -2,7 +2,7 @@ import React, {useState, useEffect} from "react";
 import {observer} from "mobx-react";
 import {cryptoStore, rootStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
-import {ButtonWithLoader} from "Components/common/UIComponents";
+import {ButtonWithLoader, LocalizeString} from "Components/common/UIComponents";
 import Confirm from "Components/common/Confirm";
 
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
@@ -41,9 +41,12 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
       setPaymentPreference(!preference);
 
       if(error.message === "Incorrect account") {
+        setErrorMessage(
+          LocalizeString(rootStore.l10n.connected_accounts.errors.incorrect_account, { walletName: wallet.name })
+        );
         setErrorMessage(`Incorrect ${wallet.name} account active. Please switch to ${connectedAccount.link_acct}.`);
       } else {
-        setErrorMessage("Something went wrong when connecting your wallet. Please try again.");
+        setErrorMessage(rootStore.l10n.connected_accounts.errors.general);
       }
     }
   };
@@ -52,7 +55,7 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
     connected && connectedAccount ?
       <div className="wallet-connect__linked">
         <ImageIcon icon={wallet.logo} title={wallet.name} />
-        { `${wallet.name} Connected` }
+        { LocalizeString(rootStore.l10n.connected_accounts.wallet_connected, { walletName: wallet.name }) }
       </div> :
       wallet.Available() ?
         <ButtonWithLoader
@@ -69,34 +72,36 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
               rootStore.Log(error, true);
 
               if(error.status === 409) {
-                setErrorMessage(`This ${wallet.networkName} account is already connected to a different Eluvio wallet`);
+                setErrorMessage(
+                  LocalizeString(rootStore.l10n.connected_accounts.errors.already_connected, { walletName: wallet.name })
+                );
               } else {
-                setErrorMessage("Something went wrong when connecting your wallet. Please try again.");
+                setErrorMessage(rootStore.l10n.connected_accounts.errors.general);
               }
             }
           }}
         >
           <ImageIcon icon={wallet.logo} title={wallet.name} />
-          { `Connect ${wallet.name}` }
+          { LocalizeString(rootStore.l10n.connected_accounts.connect_wallet, { walletName: wallet.name }) }
         </ButtonWithLoader> :
         <a target="_blank" rel="noopener" href={wallet.link} className="action wallet-connect__link-button wallet-connect__download-link">
           <ImageIcon icon={wallet.logo} title={wallet.name} />
-          Get { wallet.name }
+          { LocalizeString(rootStore.l10n.connected_accounts.get_wallet, { walletName: wallet.name }) }
         </a>;
 
   if(connectedAccount) {
     return (
       <div className="wallet-connect wallet-connect--connected">
         { connectButton }
-        { incorrectAccount ? <div className="wallet-connect__warning">Please select the account below in your { wallet.name } extension to connect</div> : null }
+        { incorrectAccount ? <div className="wallet-connect__warning">{LocalizeString(rootStore.l10n.connected_accounts.errors.incorrect_account, { walletName: wallet.name }) }</div> : null }
         <div className="wallet-connect__info" key={`wallet-connection-${connectedAccount.link_acct}`}>
           <div className="wallet-connect__connected-at">
-            Linked { connectedAccount.connected_at }
+            { LocalizeString(rootStore.l10n.connected_accounts.linked_at, { date: connectedAccount.connected_at }) }
           </div>
           <div className="wallet-connect__network-info">
             <div className="wallet-connect__network-name">
               <ImageIcon icon={wallet.currencyLogo} title={wallet.currencyName} />
-              { wallet.networkName } Wallet Address
+              { wallet.networkName } { rootStore.l10n.connected_accounts.wallet_address }
             </div>
             <div className="wallet-connect__network-address ellipsis" title={connectedAccount.link_acct}>
               { connectedAccount.link_acct }
@@ -128,7 +133,7 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
           }
           <ButtonWithLoader
             className="wallet-connect__unlink-button"
-            onClick={async () => await Confirm({message: "Are you sure you want to disconnect this account?", Confirm: async () => await wallet.Disconnect(connectedAccount.link_acct)})}
+            onClick={async () => await Confirm({message: rootStore.l10n.connected_accounts.unlink_wallet_confirm, Confirm: async () => await wallet.Disconnect(connectedAccount.link_acct)})}
           >
             { rootStore.l10n.connected_accounts.unlink_wallet }
           </ButtonWithLoader>
@@ -141,18 +146,18 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
   return (
     <>
       <div className="wallet-connect">
-        <h2 className="wallet-connect__header">Link {wallet.networkName} Payment Wallet</h2>
+        <h2 className="wallet-connect__header">{ LocalizeString(rootStore.l10n.connected_accounts.link_wallet_2, { networkName: wallet.networkName}) }</h2>
         <div className="wallet-connect__section">
           <div className="wallet-connect__info">
             <div className="wallet-connect__message">
-              To buy and sell NFTs using <ImageIcon icon={USDCIcon} title="USDC" /> USDC on {wallet.networkName} with direct payment, link your Eluvio Media Wallet to your payment wallet.
+              { LocalizeString(rootStore.l10n.connected_accounts.description, { usdcIcon: <ImageIcon key="usdc-icon" icon={USDCIcon} title="USDC" />, networkName: wallet.networkName }) }
             </div>
             { connectButton}
           </div>
         </div>
         <div className="wallet-connect__help-link">
           <a href="https://eluviolive.zendesk.com/hc/en-us/articles/5126073304081-How-do-I-link-my-Phantom-Wallet-" target="_blank" rel="noopener">
-            How do I link my Phantom Wallet?
+            { rootStore.l10n.connected_accounts.how_to_link }
           </a>
         </div>
       </div>

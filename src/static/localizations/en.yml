@@ -32,6 +32,7 @@ navigation:
 
 actions:
   view_listings: View Listings
+  confirm: Confirm
   continue: Continue
   back: Back
   cancel: Cancel
@@ -126,11 +127,24 @@ notifications:
 
 connected_accounts:
   connected_accounts: Connected Accounts
-  solana_address: Solana Wallet Address
+  wallet_address: Wallet Address
   direct: Accept only direct payment to this linked wallet for my listings
   direct_info: Checking this option will limit your listings to purchase with USDC via linked wallet only. Payment will settle directly to your linked wallet address. If unchecked, your listings may also be purchased via credit card, coinbase, or wallet balance, and the proceeds will be credited to your Eluvio wallet balance, which is redeemable via Stripe.
   link_wallet: Link Wallet
+  link_wallet_2: Link {networkName} Payment Wallet {t{est}
   unlink_wallet: Unlink Wallet
+  unlink_wallet_confirm: Are you sure you want to disconnect this account?
+  description: To buy and sell NFTs using {usdcIcon} USDC on {networkName} with direct payment, link your Eluvio Media Wallet to your payment wallet.
+  how_to_link: How do I link my Phantom Wallet?
+  get_wallet: Get {walletName}
+  connect_wallet: Connect {walletName}
+  wallet_connected: "{walletName} Connected"
+  linked_at: Linked {date}
+  errors:
+    general: Something went wrong when connecting your wallet. Please try again.
+    incorrect_account: Please select the account below in your {walletName} extension to connect
+    incorrect_account_2: Incorrect {walletName} account active. Please switch to {address}.
+    already_connected: This {walletName} account is already connected to a different Eluvio wallet
 
 stats:
   listings:
@@ -195,11 +209,13 @@ transfers:
 
 tables:
   pagination: Showing {min} - {max} of {total} results
+  no_results: No Results
   leaderboard: Climb the Leaderboard
   activity: Recent Sales
   token_history_single: Transaction History for this Token
   token_history_all: Secondary Sales History for All '{name}' Tokens
   active_offers: Active Offers for this Token
+  active_listings: Active Listings for this NFT
   outstanding_offers: Outstanding Offers
   offers_made: Offers Made
   offers_received: Offers Received
@@ -231,6 +247,10 @@ tables:
     username: Username
 
 filters:
+  all_filters: All Filters
+  search: Search
+  search_projects: Search Projects
+  search_projects_ext: Search projects, nft, media, ar experience apps
   filters:
     min: Min
     max: Max
@@ -257,7 +277,6 @@ filters:
     last_24_hours: Last 24 Hours
     last_7_days: Last 7 Days
     last_30_days: Last 30 Days
-  search: Search
   sort:
     sort: Sort
     minted: Minted (Oldest to Newest)

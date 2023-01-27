@@ -22,7 +22,7 @@ const Table = observer(({
   Update,
   scrollRef,
   loading,
-  emptyText="No Results",
+  emptyText,
   columnWidths=[],
   tabletColumnWidths,
   mobileColumnWidths,
@@ -153,7 +153,7 @@ const Table = observer(({
               <div className="transfer-table__content-rows">
                 {
                   !entries || entries.length === 0 ?
-                    <div className="transfer-table__empty">{ loading ? "" : emptyText }</div> :
+                    <div className="transfer-table__empty">{ loading ? "" : emptyText || rootStore.l10n.tables.no_results }</div> :
                     entries.map((row, rowIndex) => {
                       // Row may be defined as simple list, or { columns, ?link, ?onClick }
                       const link = row?.link;

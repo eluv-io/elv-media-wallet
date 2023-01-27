@@ -116,9 +116,9 @@ const FilteredView = ({
           LocalizeString(
             rootStore.l10n.tables.pagination,
             {
-              min: <div className="filtered-view__pagination-message--highlight">{pagingMode === "infinite" ? 1 : paging.start + 1}</div>,
-              max: <div className="filtered-view__pagination-message--highlight">{Math.min(paging.total, paging.start + paging.limit)}</div>,
-              total: <div className="filtered-view__pagination-message--highlight">{paging.total}</div>
+              min: <div key="page-min" className="filtered-view__pagination-message--highlight">{pagingMode === "infinite" ? 1 : paging.start + 1}</div>,
+              max: <div key="page-max" className="filtered-view__pagination-message--highlight">{Math.min(paging.total, paging.start + paging.limit)}</div>,
+              total: <div key="page-total" className="filtered-view__pagination-message--highlight">{paging.total}</div>
             }
           )
         }

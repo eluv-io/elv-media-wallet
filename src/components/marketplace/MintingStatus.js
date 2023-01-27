@@ -717,7 +717,7 @@ export const DepositStatus = observer(() => {
   return (
     <MintResults
       header={rootStore.l10n.status.deposits.success_header}
-      subheader={LocalizeString(rootStore.l10n.status.deposits.success_subheader, {amount: FormatPriceString(status?.extra?.amount || 0, {stringOnly: true, excludeAlternateCurrency: true})}) }
+      subheader={LocalizeString(rootStore.l10n.status.deposits.success_subheader, {amount: FormatPriceString(status?.extra?.amount || 0, {stringOnly: true})}) }
       basePath={basePath}
       backText={rootStore.l10n.status.back_to_profile}
     />

@@ -112,7 +112,7 @@ const MarketplaceFilters = observer(({marketplaces, SetFilters}) => {
         />
         <input
           value={filter}
-          placeholder={rootStore.pageWidth > 800 ? "Search projects, nft, media, ar experience apps" : "Search Projects"}
+          placeholder={rootStore.l10n.filters[rootStore.pageWidth > 800 ? "search_projects_ext" : "search_projects"]}
           onChange={event => setFilter(event.target.value)}
           className="marketplace-browser__search__input"
         />

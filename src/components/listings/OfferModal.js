@@ -108,7 +108,7 @@ const OfferModal = observer(({nft, offer, Close}) => {
               {
                 priceFloor && parsedPrice < priceFloor ?
                   <div className="offer-modal__form__error">
-                    { LocalizeString(rootStore.l10n.offers.min_offer_price, {price: FormatPriceString(priceFloor, {stringOnly: true, excludeAlternateCurrency: true})}) }
+                    { LocalizeString(rootStore.l10n.offers.min_offer_price, {price: FormatPriceString(priceFloor, {stringOnly: true})}) }
                   </div> :
                   parsedPrice > 10000 ?
                     <div className="offer-modal__form__error">

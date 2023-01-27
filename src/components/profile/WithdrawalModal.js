@@ -10,7 +10,7 @@ import {ValidEmail} from "../../utils/Utils";
 import {Loader} from "Components/common/Loaders";
 import {useRouteMatch} from "react-router-dom";
 
-const priceOptions = {excludeAlternateCurrency: true, stringOnly: true};
+const priceOptions = {stringOnly: true};
 
 // Step 3 - Confirmation
 const WithdrawalConfirmation = observer(({payout, provider, Close}) => {

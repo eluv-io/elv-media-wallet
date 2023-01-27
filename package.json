@@ -48,6 +48,7 @@
     "auth0-spa-js": "^1.6.5",
     "bad-words": "^3.0.4",
     "country-codes-list": "^1.6.8",
+    "js-money": "^0.6.3",
     "jsdoc": "^3.6.10",
     "mobx": "^6.3.3",
     "mobx-react": "^7.2.0",
