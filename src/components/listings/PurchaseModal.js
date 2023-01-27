@@ -235,6 +235,12 @@ const PurchaseProviderSelection = observer(({
               </button> : null
           }
           {
+            usdcOnly ?
+              <div className="purchase-modal__help-message">
+                The seller has elected to only accept direct purchases with USDC via linked wallet. { cryptoStore.usdcConnected ? null : "Please connect your wallet to purchase this item, or select a different option from the list above." }
+              </div> : null
+          }
+          {
             selectedMethod === "linked-wallet-sol" ?
               <div className="purchase-modal__wallet-connect">
                 <WalletConnect type="phantom" onConnect={() => setPhantomConnected(true)} />

@@ -69,7 +69,7 @@ const MarketplaceTags = ({tags, activeTags, setActiveTags}) => {
         >
           <ImageIcon icon={FilterIcon} />
           <div className="marketplace-browser__tags__button__text">
-            All Filters
+            { rootStore.l10n.filters.all_filters }
           </div>
         </button>
         {
