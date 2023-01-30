@@ -92,7 +92,6 @@ const PurchaseProviderSelection = observer(({
   const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.walletClient.UserInfo()?.email || "";
   const [type, setType] = useState(usdcOnly ? "crypto" : "");
   const [selectedMethod, setSelectedMethod] = useState(usdcOnly ? "linked-wallet-sol" : "card");
-  const [showUSDCOnlyMessage, setShowUSDCOnlyMessage] = useState(false);
   const [email, setEmail] = useState(initialEmail);
   const [country, setCountry] = useState("");
   const [phantomConnected, setPhantomConnected] = useState(cryptoStore.PhantomAddress() && phantomWallet.Connected());
@@ -196,20 +195,6 @@ const PurchaseProviderSelection = observer(({
     case "crypto":
       options = (
         <>
-          <div className="purchase-modal__payment-message">
-            {
-              usdcOnly ?
-                <button onClick={() => setShowUSDCOnlyMessage(!showUSDCOnlyMessage)} className={`purchase-modal__help-button ${showUSDCOnlyMessage ? "active" : ""}`}>
-                  <ImageIcon icon={HelpIcon} label="Why is only linked wallet available?"/>
-                </button> : null
-            }
-          </div>
-          {
-            usdcOnly && showUSDCOnlyMessage ?
-              <div className="purchase-modal__help-message">
-                The seller has elected to only accept direct purchases with USDC via linked wallet. { cryptoStore.usdcConnected ? null : "Please connect your wallet to purchase this item, or select a different option from the list above." }
-              </div> : null
-          }
           {
             usdcOnly || !coinbaseEnabled ? null :
               <button
@@ -231,6 +216,12 @@ const PurchaseProviderSelection = observer(({
               >
                 USDC on Sol
               </button> : null
+          }
+          {
+            usdcOnly ?
+              <div className="purchase-modal__help-message">
+                The seller has elected to only accept direct purchases with USDC via linked wallet. { cryptoStore.usdcConnected ? null : "Please connect your wallet to purchase this item, or select a different option from the list above." }
+              </div> : null
           }
           {
             usdcOptions.EthUSDCAccepted ?

@@ -169,6 +169,8 @@ const MarketplaceCollection = observer(() => {
                   collection.redeem_items.map((sku, index) => {
                     const item = marketplace.items.find(item => item.sku === sku);
 
+                    if(!item) { return null; }
+
                     return (
                       <MarketplaceItemCard
                         key={`marketplace-card-${index}`}

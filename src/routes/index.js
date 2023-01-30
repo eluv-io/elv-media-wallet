@@ -102,6 +102,7 @@ const MarketplaceRoutes = () => {
     { name: "Collections", path: "collections/:collectionSKU", Component: MarketplaceCollection },
     { name: match => (GetItem(match)?.name || "Item"), path: "collections/:collectionSKU/store/:sku/:mode?", noBlock: true, Component: MarketplaceItemDetails },
     { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "collections/:collectionSKU/owned/:contractId/:tokenId", noBlock: true, Component: MintedNFTDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "collections/:collectionSKU/owned/:contractId/:tokenId/:mode", noBlock: true, Component: MintedNFTDetails },
     { name: "Redeem Collection", path: "collections/:collectionSKU/redeem", Component: MarketplaceCollectionRedemption },
     { name: "Redeem Collection", path: "collections/:collectionSKU/redeem/:confirmationId/status", Component: CollectionRedeemStatus },
 

@@ -252,7 +252,7 @@ class CheckoutStore {
         const itemHashes = items.map(({addr, id}) => {
           const nftAddressBytes = ethers.utils.arrayify(addr);
           const mintAddressBytes = ethers.utils.arrayify(mintHelperAddress);
-          const tokenIdBigInt = ethers.BigNumber.from(id).toString()
+          const tokenIdBigInt = ethers.BigNumber.from(id).toString();
 
           return ethers.utils.keccak256(
             ethers.utils.solidityPack(
