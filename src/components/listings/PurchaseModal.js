@@ -16,7 +16,6 @@ import SupportedCountries from "../../utils/SupportedCountries";
 import PlusIcon from "Assets/icons/plus.svg";
 import MinusIcon from "Assets/icons/minus.svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
-import HelpIcon from "Assets/icons/help-circle.svg";
 
 const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
   if(maxQuantity <= 1) { return null; }

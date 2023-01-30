@@ -179,6 +179,7 @@ purchase:
   sell_your_nft: Sell Your NFT
   min_listing_price: Minimum listing price is {price}
   max_listing_price: Maximum listing price is {price}
+  conversion_note: All values are approximate based on current estimated USD exchange rates.
   errors:
     failed: Purchase Failed
     listing_unavailable: Listing is no longer available

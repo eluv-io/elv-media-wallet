@@ -104,7 +104,7 @@ $content-width: 475px;
     a {
       color: var(--color-text-error);
       font-size: 11px;
-      padding-left: 5px;
+      padding: 0 5px;
       text-decoration: underline;
     }
   }
@@ -334,6 +334,12 @@ $content-width: 475px;
       height: 20px;
       margin-right: 5px;
     }
+  }
+
+  &__order-note {
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    margin-top: 30px;
   }
 
   &__quantity {

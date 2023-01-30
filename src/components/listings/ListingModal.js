@@ -6,11 +6,12 @@ import {ActiveListings} from "Components/listings/TransferTables";
 import {checkoutStore, cryptoStore, rootStore} from "Stores";
 import NFTCard from "Components/nft/NFTCard";
 import {
-  ButtonWithLoader, ConvertCurrency,
+  ButtonWithLoader,
   FormatPriceString,
   FromUSD,
   LocalizeString,
-  ParseMoney
+  ParseMoney,
+  ToUSD
 } from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import WalletConnect from "Components/crypto/WalletConnect";
@@ -20,10 +21,10 @@ import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 import {Loader} from "Components/common/Loaders";
 
 const ListingModal = observer(({nft, listingId, Close}) => {
-  const [price, setPrice] = useState(nft.details.Price ? FromUSD(nft.details.Price, true) : "");
+  const [price, setPrice] = useState(nft.details.Price ? FromUSD(nft.details.Price).toString() : "");
   const [errorMessage, setErrorMessage] = useState(undefined);
 
-  const priceCeiling = FromUSD(10000);
+  const priceCeiling = FromUSD(10000).toDecimal();
   const [priceFloor, setPriceFloor] = useState(0);
   const [royaltyRate, setRoyaltyRate] = useState(0);
 
@@ -36,7 +37,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
 
         if(config["min-list-price"]) {
           const floor = parseFloat(config["min-list-price"]) || 0;
-          setPriceFloor(ConvertCurrency(floor, "USD", checkoutStore.currency));
+          setPriceFloor(FromUSD(floor).toDecimal());
 
           const parsedPrice = ParseMoney(price);
           if(parsedPrice < floor) {
@@ -47,6 +48,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
   }, []);
 
   const parsedPrice = ParseMoney(price, checkoutStore.currency);
+  const floatPrice = parsedPrice.toDecimal();
   const [payout, royaltyFee] = parsedPrice.allocate([100 - royaltyRate, royaltyRate]);
 
   return (
@@ -73,7 +75,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
               <div className="listing-modal__form__input-container">
                 <input
                   placeholder="Set Price"
-                  className={`listing-modal__form__price-input ${parsedPrice > 10000 ? "listing-modal__form__price-input-error" : ""}`}
+                  className={`listing-modal__form__price-input ${floatPrice > priceCeiling || floatPrice < priceFloor ? "listing-modal__form__price-input-error" : ""}`}
                   value={price}
                   onChange={event => setPrice(event.target.value.replace(/[^\d.]/g, ""))}
                   onBlur={() => setPrice(parsedPrice.toString())}
@@ -84,13 +86,13 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                 </div>
               </div>
               {
-                priceFloor && parsedPrice < priceFloor ?
+                priceFloor && floatPrice < priceFloor ?
                   <div className="listing-modal__form__error">
                     { LocalizeString(rootStore.l10n.purchase.min_listing_price, {price: FormatPriceString(priceFloor, {stringOnly: true, noConversion: true})}) }
                   </div> : null
               }
               {
-                parsedPrice > priceCeiling ?
+                floatPrice > priceCeiling ?
                   <div className="listing-modal__form__error">
                     { LocalizeString(rootStore.l10n.purchase.max_listing_price, {price: FormatPriceString(priceCeiling, {stringOnly: true, noConversion: true})}) }
                   </div> : null
