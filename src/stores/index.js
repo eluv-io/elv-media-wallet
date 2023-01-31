@@ -1204,6 +1204,7 @@ class RootStore {
               phone: userInfo.phone,
               document_type: "cpf",
               document: userInfo.cpf,
+              pix_key: userInfo.pix_key,
               birthdate: userInfo.birthdate
             }
           },

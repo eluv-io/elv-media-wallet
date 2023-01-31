@@ -150,6 +150,7 @@ const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
     userInfo.name &&
     userInfo.phone &&
     userInfo.cpf &&
+    userInfo.pix_key &&
     userInfo.birthdate &&
     isFinite(new Date(userInfo.birthdate));
 
@@ -219,6 +220,17 @@ const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
               placeholder="000.000.000-00"
               value={userInfo.cpf}
               onChange={event => setUserInfo({...userInfo, cpf: event.target.value})}
+            />
+          </div>
+          <div className="labelled-input">
+            <label htmlFor="email">
+              PIX Key
+            </label>
+            <input
+              type="text"
+              placeholder="Email, CPF, CNPJ, or Phone Number"
+              value={userInfo.pix_key}
+              onChange={event => setUserInfo({...userInfo, pix_key: event.target.value})}
             />
           </div>
         </div>
@@ -354,6 +366,7 @@ const WithdrawalModal = observer(({Close}) => {
     name: "",
     phone: "",
     cpf: "",
+    pix_key: "",
     birthdate: ""
   });
   const [userInfoConfirmed, setUserInfoConfirmed] = useState(false);
