@@ -49,7 +49,7 @@ try {
 }
 
 class RootStore {
-  language = this.GetLocalStorage("lang") || "English";
+  language = this.GetLocalStorage("lang");
   l10n = LocalizationEN;
 
   appId = "eluvio-media-wallet";
@@ -238,29 +238,38 @@ class RootStore {
 
     this.ToggleDarkMode(this.darkMode);
 
-    this.SetLanguage(this.language);
-
     this.Initialize();
   }
 
-  SetLanguage = flow(function * (language) {
-    if(language === "English") {
-      this.l10n = LocalizationEN;
-      this.language = "English";
-      this.RemoveLocalStorage("lang");
-      return;
+  SetLanguage = flow(function * (language, save=false) {
+    if(Array.isArray(language)) {
+      for(let i = 0; i < language.length; i++) {
+        if(yield this.SetLanguage(language[i], save)) {
+          return;
+        }
+      }
+
+      language = "en";
     }
 
-    let localization;
-    switch(language) {
-      case "Test":
-        localization = (yield import("Assets/localizations/test.yml")).default;
-        break;
-      default:
-        // Unknown language - set back to english
-        this.SetLanguage("English");
-        return;
+    language = language.toLowerCase();
+
+    if(language.startsWith("en")) {
+      this.l10n = LocalizationEN;
+      this.language = "en";
+      save ? this.SetLocalStorage("lang", "en") : this.RemoveLocalStorage("lang");
+      return true;
     }
+
+    // Find matching preference (including variants, e.g. pt-br === pt)
+    const availableLocalizations = ["pt-br", "test"];
+    language = availableLocalizations.find(key => key.startsWith(language) || language.startsWith("key"));
+
+    if(!language) {
+      return false;
+    }
+
+    const localization = (yield import(`Assets/localizations/${language}.yml`)).default;
 
     const MergeLocalization = (l10n, en) => {
       if(Array.isArray(en)) {
@@ -279,7 +288,11 @@ class RootStore {
     this.l10n = MergeLocalization(localization, LocalizationEN);
     this.language = language;
 
-    this.SetLocalStorage("lang", language);
+    if(save) {
+      this.SetLocalStorage("lang", language);
+    }
+
+    return true;
   });
 
   SetHeaderText(text) {
@@ -289,6 +302,7 @@ class RootStore {
   Initialize = flow(function * () {
     try {
       this.loaded = false;
+      this.SetLanguage(this.language || navigator.languages);
 
       if(window.sessionStorageAvailable) {
         // eslint-disable-next-line no-console
@@ -327,6 +341,7 @@ class RootStore {
         appId: this.appId,
         network: EluvioConfiguration.network,
         mode: EluvioConfiguration.mode,
+        localization: this.language === "en" ? undefined : this.language,
         previewMarketplaceId: (searchParams.get("preview") || (!this.embedded && this.GetSessionStorage("preview-marketplace")) || "").replaceAll("/", ""),
         storeAuthToken: false
       });

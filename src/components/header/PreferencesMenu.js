@@ -1,17 +1,33 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
 import {Select, SwitchButton} from "Components/common/UIComponents";
 import {checkoutStore, notificationStore, rootStore} from "Stores";
 import CountryCodesList from "country-codes-list";
+import LanguageCodes from "Assets/localizations/LanguageCodes";
 
 const currencyMap = CountryCodesList.customList("currencyCode", "{currencyNameEn}");
 
 const PreferencesMenu = observer(({marketplaceId, Hide}) => {
+  const [originalLanguage] = useState(rootStore.language);
+
+  useEffect(() => {
+    return () => {
+      if(rootStore.language !== originalLanguage) {
+        rootStore.Reload();
+      }
+    };
+  }, []);
+
   const marketplace = marketplaceId && rootStore.marketplaces[marketplaceId];
   let availableDisplayCurrencies = marketplace?.display_currencies || [];
   if(!availableDisplayCurrencies.find(currency => currency.toUpperCase() === "USD")) {
     availableDisplayCurrencies = ["USD", ...availableDisplayCurrencies];
+  }
+
+  let availableLocalizations = marketplace?.localizations?.map(key => [key.toLowerCase(), LanguageCodes[key.toLowerCase()]]) || [];
+  if(EluvioConfiguration["show-debug"]) {
+    availableLocalizations = [...availableLocalizations, ["test", "Test"]];
   }
 
   return (
@@ -75,18 +91,24 @@ const PreferencesMenu = observer(({marketplaceId, Hide}) => {
           />
         </div>
 
-        <div className="header__preferences-menu__section">
-          <div className="header__preferences-menu__label">
-            {rootStore.l10n.preferences.language}
-          </div>
-          <Select
-            value={rootStore.language}
-            onChange={language => rootStore.SetLanguage(language)}
-            activeValuePrefix={`${rootStore.l10n.preferences.language}: `}
-            containerClassName="header__preferences-menu__currency-select"
-            options={["English", "Test"]}
-          />
-        </div>
+        {
+          availableLocalizations.length === 0 ? null :
+            <div className="header__preferences-menu__section">
+              <div className="header__preferences-menu__label">
+                {rootStore.l10n.preferences.language}
+              </div>
+              <Select
+                value={rootStore.language}
+                onChange={language => rootStore.SetLanguage(language, true)}
+                activeValuePrefix={`${rootStore.l10n.preferences.language}: `}
+                containerClassName="header__preferences-menu__currency-select"
+                options={[
+                  ["en", "English"],
+                  ...availableLocalizations
+                ]}
+              />
+            </div>
+        }
       </div>
     </Modal>
   );
