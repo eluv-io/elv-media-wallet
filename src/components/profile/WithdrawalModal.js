@@ -150,6 +150,7 @@ const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
     userInfo.name &&
     userInfo.phone &&
     userInfo.cpf &&
+    userInfo.pix_key &&
     userInfo.birthdate &&
     isFinite(new Date(userInfo.birthdate));
 
@@ -160,7 +161,7 @@ const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
         <div className="withdrawal-confirmation__form">
           <div className="labelled-input">
             <label htmlFor="email">
-              Method
+              { rootStore.l10n.withdrawal.method }
             </label>
             <Select
               value={userInfo.method}
@@ -172,7 +173,7 @@ const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
           </div>
           <div className="labelled-input">
             <label htmlFor="email">
-              Email
+              { rootStore.l10n.withdrawal.email }
             </label>
             <input
               type="email"
@@ -182,7 +183,7 @@ const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
           </div>
           <div className="labelled-input">
             <label htmlFor="email">
-              Name
+              { rootStore.l10n.withdrawal.name }
             </label>
             <input
               type="text"
@@ -192,7 +193,7 @@ const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
           </div>
           <div className="labelled-input">
             <label htmlFor="email">
-              Phone
+              { rootStore.l10n.withdrawal.phone }
             </label>
             <input
               type="phone"
@@ -202,7 +203,7 @@ const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
           </div>
           <div className="labelled-input">
             <label htmlFor="email">
-              Birthdate
+              { rootStore.l10n.withdrawal.birthdate }
             </label>
             <input
               type="date"
@@ -212,7 +213,7 @@ const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
           </div>
           <div className="labelled-input">
             <label htmlFor="email">
-              CPF
+              { rootStore.l10n.withdrawal.cpf }
             </label>
             <input
               type="text"
@@ -221,13 +222,24 @@ const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
               onChange={event => setUserInfo({...userInfo, cpf: event.target.value})}
             />
           </div>
+          <div className="labelled-input">
+            <label htmlFor="email">
+              { rootStore.l10n.withdrawal.pix_key }
+            </label>
+            <input
+              type="text"
+              placeholder="Email, CPF, CNPJ, or Phone Number"
+              value={userInfo.pix_key}
+              onChange={event => setUserInfo({...userInfo, pix_key: event.target.value})}
+            />
+          </div>
         </div>
         <div className="withdrawal-confirmation__actions">
           <button className="action" onClick={() => Cancel()}>
-            Cancel
+            { rootStore.l10n.actions.cancel }
           </button>
           <button disabled={!valid} onClick={() => Continue()} className="action action-primary profile-page__onboard-button">
-            Continue
+            { rootStore.l10n.actions.continue }
           </button>
         </div>
       </div>
@@ -354,6 +366,7 @@ const WithdrawalModal = observer(({Close}) => {
     name: "",
     phone: "",
     cpf: "",
+    pix_key: "",
     birthdate: ""
   });
   const [userInfoConfirmed, setUserInfoConfirmed] = useState(false);
