@@ -4,7 +4,7 @@ import ListingStats from "Components/listings/ListingStats";
 import ListingFilters from "Components/listings/ListingFilters";
 import {useInfiniteScroll} from "react-g-infinite-scroll";
 import {rootStore} from "Stores";
-import {PageControls} from "Components/common/UIComponents";
+import {LocalizeString, PageControls} from "Components/common/UIComponents";
 import {SavedValue, ScrollTo} from "../../utils/Utils";
 
 const savedPage = SavedValue(1, "");
@@ -112,13 +112,16 @@ const FilteredView = ({
   if(paging && showPagingInfo) {
     pagingInfo = (
       <div className="filtered-view__pagination-message">
-        Showing
-        <div className="filtered-view__pagination-message--highlight">{pagingMode === "infinite" ? 1 : paging.start + 1}</div>
-        -
-        <div className="filtered-view__pagination-message--highlight">{Math.min(paging.total, paging.start + paging.limit)}</div>
-        of
-        <div className="filtered-view__pagination-message--highlight">{paging.total}</div>
-        results
+        {
+          LocalizeString(
+            rootStore.l10n.tables.pagination,
+            {
+              min: <div key="page-min" className="filtered-view__pagination-message--highlight">{pagingMode === "infinite" ? 1 : paging.start + 1}</div>,
+              max: <div key="page-max" className="filtered-view__pagination-message--highlight">{Math.min(paging.total, paging.start + paging.limit)}</div>,
+              total: <div key="page-total" className="filtered-view__pagination-message--highlight">{paging.total}</div>
+            }
+          )
+        }
       </div>
     );
   }

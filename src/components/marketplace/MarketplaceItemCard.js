@@ -1,7 +1,6 @@
 import React from "react";
 import {useRouteMatch} from "react-router-dom";
 import {MarketplaceImage} from "Components/common/Images";
-import UrlJoin from "url-join";
 import ItemCard from "Components/common/ItemCard";
 import FeaturedItemCard from "Components/common/FeaturedItemCard";
 import ImageIcon from "Components/common/ImageIcon";
@@ -14,7 +13,6 @@ const MarketplaceItemCard = ({
   marketplaceHash,
   to,
   item,
-  index,
   justification="Left",
   noLink,
   noStock,
@@ -99,7 +97,7 @@ const MarketplaceItemCard = ({
         <MarketplaceImage
           marketplaceHash={marketplaceHash}
           item={item}
-          path={UrlJoin("public", "asset_metadata", "info", "items", index.toString(), "image")}
+          url={item?.image?.url}
           showVideo={showVideo}
         />
       )}

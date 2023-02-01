@@ -13,7 +13,11 @@ const PUBLIC_KEYS = {
 
 class CheckoutStore {
   currency = "USD";
-  exchangeRates = {};
+  exchangeRates = {
+    USD: {
+      rate: 1
+    }
+  };
 
   submittingOrder = false;
 
@@ -460,7 +464,7 @@ class CheckoutStore {
         throw {
           status: 409,
           recoverable: false,
-          uiMessage: "Listing is no longer available"
+          uiMessage: this.rootStore.l10n.purchase.errors.listing_unavailable
         };
       }
 
@@ -514,7 +518,7 @@ class CheckoutStore {
       } else {
         throw {
           recoverable: true,
-          uiMessage: error.uiMessage || "Purchase failed"
+          uiMessage: error.uiMessage || this.rootStore.l10n.purchase.errors.failed
         };
       }
     } finally {
@@ -589,7 +593,7 @@ class CheckoutStore {
         throw {
           recoverable: true,
           message: `Quantity ${quantity} exceeds stock ${stock.max - stock.minted} for ${sku}`,
-          uiMessage: "Insufficient stock available for this purchase"
+          uiMessage: this.rootStore.l10n.purchase.errors.insufficient_stock
         };
       }
 
@@ -654,13 +658,13 @@ class CheckoutStore {
 
         throw {
           recoverable: false,
-          uiMessage: error?.uiMessage || "This item is out of stock"
+          uiMessage: error.uiMessage || this.rootStore.l10n.purchase.errors.out_of_stock
         };
       } else {
         this.PurchaseComplete({confirmationId, success: false, message});
         throw {
           recoverable: !!error?.recoverable,
-          uiMessage: error?.uiMessage || "Purchase Failed"
+          uiMessage: error?.uiMessage || this.rootStore.l10n.purchase.errors.failed
         };
       }
     } finally {
@@ -745,7 +749,7 @@ class CheckoutStore {
         if(!(this.rootStore.cryptoStore.phantomBalance > 0)) {
           throw {
             recoverable: false,
-            uiMessage: "Solana account has insufficient balance to perform this transaction"
+            uiMessage: this.rootStore.l10n.purchase.errors.solana_insufficient_funds
           };
         }
 
@@ -780,7 +784,7 @@ class CheckoutStore {
         if(!(this.rootStore.cryptoStore.metamaskBalance > 0)) {
           throw {
             recoverable: false,
-            uiMessage: "Ethereum account has insufficient balance to perform this transaction"
+            uiMessage: this.rootStore.l10n.purchase.errors.ethereum_insufficient_funds
           };
         }
 

@@ -121,7 +121,7 @@ const MarketplaceCollection = observer(() => {
                 className="marketplace__collection-header__icon"
                 marketplaceHash={marketplace.versionHash}
                 title={collection.name}
-                path={UrlJoin("public", "asset_metadata", "info", "collections", collection.collectionIndex.toString(), "collection_icon")}
+                url={collectionIcon?.url}
               /> : null
           }
           <div className="page-headers">
@@ -136,7 +136,7 @@ const MarketplaceCollection = observer(() => {
                   width="2000"
                   className="marketplace__collection-header__banner"
                   marketplaceHash={marketplace.versionHash}
-                  path={UrlJoin("public", "asset_metadata", "info", "collections", collection.collectionIndex.toString(), "collection_banner")}
+                  url={collection.collection_banner?.url}
                 />
               </div> : null
           }

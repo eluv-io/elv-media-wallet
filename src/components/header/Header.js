@@ -17,7 +17,7 @@ import UserIcon from "Assets/icons/profile.svg";
 import ProjectsIcon from "Assets/icons/header/New Projects_Marketplaces icon.svg";
 import WalletIcon from "Assets/icons/header/wallet icon v2.svg";
 import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
-
+import BackIcon from "Assets/icons/pagination arrow back.svg";
 
 const ProfileNavigation = observer(() => {
   const location = useLocation();
@@ -40,7 +40,7 @@ const ProfileNavigation = observer(() => {
     return (
       <div className="header__profile">
         <button className="header__navigation-link header__profile__link header__profile__sign-in-button" onClick={() => rootStore.ShowLogin()}>
-          Sign In
+          { rootStore.l10n.login.sign_in }
         </button>
         {
           marketplaceId && !(rootStore.hideGlobalNavigation || rootStore.hideGlobalNavigationInMarketplace)  ?
@@ -131,24 +131,24 @@ const MarketplaceNavigation = observer(({marketplace}) => {
   return (
     <nav className="header__navigation header__navigation--marketplace">
       <NavLink className="header__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
-        { tabs.store || "Store" }
+        { tabs.store || rootStore.l10n.header.store }
       </NavLink>
       <NavLink className="header__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "listings")}>
-        { tabs.listings || "Listings" }
+        { tabs.listings || rootStore.l10n.header.listings }
       </NavLink>
       <NavLink className="header__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "activity")}>
-        Activity
+        { rootStore.l10n.header.activity }
       </NavLink>
       {
         hasCollections ?
           <NavLink className="header__navigation-link no-mobile" to={UrlJoin("/marketplace", marketplace.marketplaceId, "collections")}>
-            Collections
+            { rootStore.l10n.header.collections }
           </NavLink> : null
       }
       {
         rootStore.pageWidth >= 600 && !branding.hide_leaderboard ?
           <NavLink className="header__navigation-link no-mobile" to={UrlJoin("/marketplace", marketplace.marketplaceId, "leaderboard")}>
-            Leaderboard
+            { rootStore.l10n.header.leaderboard }
           </NavLink> : null
       }
     </nav>
@@ -212,13 +212,13 @@ const GlobalHeader = observer(() => {
         <div className="header__navigation-container header__navigation-container--compact">
           <nav className="header__navigation">
             <NavLink className="header__navigation-link" to="/marketplaces">
-              Discover Projects
+              { rootStore.l10n.header.discover_projects }
             </NavLink>
             <NavLink className="header__navigation-link" to="/wallet/listings">
-              Listings
+              { rootStore.l10n.header.listings }
             </NavLink>
             <NavLink className="header__navigation-link" to="/wallet/activity">
-              Activity
+              { rootStore.l10n.header.activity }
             </NavLink>
           </nav>
           <ProfileNavigation />

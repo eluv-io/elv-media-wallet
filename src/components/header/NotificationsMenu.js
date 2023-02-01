@@ -1,7 +1,7 @@
 import React, {useEffect, useState, useRef} from "react";
 import {observer} from "mobx-react";
 import {rootStore, notificationStore} from "Stores";
-import {FormatPriceString} from "Components/common/UIComponents";
+import {FormatPriceString, LocalizeString} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import {Ago} from "../../utils/Utils";
 import {Loader} from "Components/common/Loaders";
@@ -79,7 +79,7 @@ const NotificationMenu = observer(({notification, parent, Hide}) => {
           <ImageIcon icon={NotificationDisabledIcon} className="notification-menu__button__icon" />
           <div className="notification-menu__button__text">
             <div className={`notification-menu__button__text-content ${disabling ? "notification-menu__button__text-content--loading" : ""}`}>
-              Turn off {notificationStore.supportedNotificationTypes[notification.type]?.label || "these"} notifications
+              { LocalizeString(rootStore.l10n.notifications.disable, {type: rootStore.l10n.notifications[notification.type.toLowerCase()] || "these"}) }
             </div>
             { disabling ? <Loader loader="inline" /> : null }
           </div>
@@ -98,12 +98,6 @@ const ItemLink = ({contractAddress, tokenId, marketplace}) => {
   return link;
 };
 
-const OfferDeclineReasons = {
-  "listing-sold": "the listing was sold.",
-  "other-offer-accepted": "an alternative offer was accepted.",
-  "nft-transfer": "the item was transferred."
-};
-
 const Notification = observer(({notification, Hide}) => {
   const ref = useRef();
   const [showMenu, setShowMenu] = useState(false);
@@ -112,18 +106,19 @@ const Notification = observer(({notification, Hide}) => {
 
   const marketplace = notification.tenant_id && rootStore.MarketplaceByTenantId({tenantId: notification.tenant_id});
 
+  const l10n = rootStore.l10n.notifications;
   let header, message, icon, link;
   switch(notification.type) {
     case "__NO_NOTIFICATIONS":
       icon = OfferDeclinedIcon;
-      header = "No New Notifications";
-      message = "You don't have any new notifications";
+      header = l10n.no_new_notifications;
+      message = l10n.no_new_notifications_desc;
       break;
 
     case "LISTING_SOLD":
       icon = ListingSoldIcon;
-      header = "Listing Sold";
-      message = `Your '${notification.data.name}' has sold on the marketplace for ${FormatPriceString(notification.data.price, {stringOnly: true})}`;
+      header = l10n.listing_sold;
+      message = LocalizeString(l10n.listing_sold_message, {name: notification.data.name, price: FormatPriceString(notification.data.price, {stringOnly: true})});
       if(notification.data.listing) {
         link = UrlJoin("users", "me", "listings", notification.data.listing);
         link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, link) : UrlJoin("/wallet", link);
@@ -133,7 +128,7 @@ const Notification = observer(({notification, Hide}) => {
 
     case "TOKEN_UPDATED":
       icon = TokenUpdatedIcon;
-      header = "Updated Token";
+      header = l10n.token_updated;
       message = notification.data.message;
       if(notification.data.contract && notification.data.token) {
         link = ItemLink({marketplace, contractAddress: notification.data.contract, tokenId: notification.data.token});
@@ -143,8 +138,8 @@ const Notification = observer(({notification, Hide}) => {
 
     case "OFFER_RECEIVED":
       icon = OfferReceivedIcon;
-      header = "Offer Received";
-      message = `You have received an offer of ${FormatPriceString(notification.data.price, {stringOnly: true})} on your '${notification.data.name}'.`;
+      header = l10n.offer_received;
+      message = LocalizeString(l10n.offer_received_message, {name: notification.data.name, price: FormatPriceString(notification.data.price, {stringOnly: true})});
 
       link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "offers") : "/wallet/users/me/offers";
 
@@ -152,8 +147,8 @@ const Notification = observer(({notification, Hide}) => {
 
     case "OFFER_ACCEPTED":
       icon = OfferAcceptedIcon;
-      header = "Offer Accepted";
-      message = `Your offer on '${notification.data.name}' for ${FormatPriceString(notification.data.price, {stringOnly: true})} has been accepted.`;
+      header = l10n.offer_accepted;
+      message = LocalizeString(l10n.offer_accepted_message, {name: notification.data.name, price: FormatPriceString(notification.data.price, {stringOnly: true})});
 
       if(notification.data.contract && notification.data.token) {
         link = ItemLink({marketplace, contractAddress: notification.data.contract, tokenId: notification.data.token});
@@ -163,12 +158,16 @@ const Notification = observer(({notification, Hide}) => {
 
     case "OFFER_DECLINED":
       icon = OfferDeclinedIcon;
-      header = "Offer Declined";
-      message = `Your offer on '${notification.data.name}' for ${FormatPriceString(notification.data.price, {stringOnly: true})} was declined`;
+      header = l10n.offer_declined;
+      message = LocalizeString(l10n.offer_declined_message, {name: notification.data.name, price: FormatPriceString(notification.data.price, {stringOnly: true})});
 
-      const reason = OfferDeclineReasons[notification.data.reason];
+      const reason = l10n.offer_declined_reasons[notification.data.reason?.replace("-", "_")];
       if(reason) {
-        message = message + ` - ${reason}`;
+        message = (
+          <>
+            { message } - { reason }
+          </>
+        );
       }
 
       link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "offers") : "/wallet/users/me/offers";
@@ -176,8 +175,8 @@ const Notification = observer(({notification, Hide}) => {
 
     case "OFFER_EXPIRED":
       icon = OfferExpiredIcon;
-      header = "Offer Expired";
-      message = `Your offer on '${notification.data.name}' for ${FormatPriceString(notification.data.price, {stringOnly: true})} has expired.`;
+      header = l10n.offer_expired;
+      message = LocalizeString(l10n.offer_expired_message, {name: notification.data.name, price: FormatPriceString(notification.data.price, {stringOnly: true})});
 
       link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "offers") : "/wallet/users/me/offers";
 
@@ -300,16 +299,16 @@ const Notifications = observer(({marketplaceId, headerMenu, Hide}) => {
     <>
       <div className={`notifications ${headerMenu ? "notifications--menu" : "notifications--page"}`}>
         <div className="notifications__header">
-          { headerMenu ? <div className="notifications__header__text">Notifications</div> : null }
+          { headerMenu ? <div className="notifications__header__text">{ rootStore.l10n.notifications.notifications }</div> : null }
           <div className="notifications__header__filters">
             <button onClick={() => setOnlyNew(true)} className={`action action-selection notifications__header__filter ${onlyNew ? "action-selection--active" : ""}`}>
-              New
+              { rootStore.l10n.notifications.new }
             </button>
             <button onClick={() => setOnlyNew(false)} className={`action action-selection notifications__header__filter ${onlyNew ? "" : "action-selection--active"}`}>
-              All
+              { rootStore.l10n.notifications.all }
             </button>
           </div>
-          { !headerMenu ? <button onClick={() => setShowPreferences(true)} className="notifications__header__preferences-button">Preferences</button> : null }
+          { !headerMenu ? <button onClick={() => setShowPreferences(true)} className="notifications__header__preferences-button">{ rootStore.l10n.preferences.preferences }</button> : null }
         </div>
         <div className="notifications__list">
           {
@@ -327,7 +326,7 @@ const Notifications = observer(({marketplaceId, headerMenu, Hide}) => {
                 onClick={() => Hide()}
                 className="notifications__link"
               >
-                View All
+                { rootStore.l10n.notifications.view_all }
               </Link> :
               null
           ) :
@@ -336,7 +335,7 @@ const Notifications = observer(({marketplaceId, headerMenu, Hide}) => {
               loading ?
                 <Loader className="notifications__link"/> :
                 more && notifications.length === filteredNotifications.length ?
-                  <button onClick={() => setPage(page + 1)} className="notifications__link">Load More</button> :
+                  <button onClick={() => setPage(page + 1)} className="notifications__link">{ rootStore.l10n.notifications.load_more}</button> :
                   null
             )
         }

@@ -1,0 +1,299 @@
+---
+# Landing Page > Header
+sign_in: "Sign In"                                                   #Link
+store: "Store"                                                         #Link
+my_wallet: "My Wallet"                                               #Link
+
+
+# Landing Page > Banner Buttons
+get_started: "Get Started"                                            #Button
+watch_trailer: "Watch_Trailer"                                        #Button
+
+# Landing Page > Footer
+support_faq: "Support FAQ"                                                   #Link
+credits_and_rating: "Credits and Rating"                                     #Link
+terms_and_conditions: "Terms & Conditions"                                     #Link
+eluvio_privacy_policy: "Eluvio_Privacy_Policy"                                #Link
+
+
+# Sign In Modal
+sign_in: "Sign In"
+sign_up: "Sign Up"
+connect_metamask: "Connect MetaMask"
+
+# Media Wallet Modal
+
+enter_the_code_shown_above: "Enter the code shown above"
+dont_remember_your_password: "Don't remember your password?"
+login: "LOG IN"                                                   #Button
+sign_up: "SIGN UP"                                                 #Button   
+
+
+# My Wallet > Header
+store: "Store"
+listings: "Listings"
+activity: "Activity"
+
+# My Wallet > tabs
+items: "Items"
+listings: "Listings"
+offers: "Offers"
+activity: "Activity"
+notifications: "Notifications"
+
+
+# My Wallet > Tabs
+Showing_results: "Showing 1 - 1 of 1 results"
+
+# My Wallet > Items > Filters
+sort_minted_newest_to_oldest: "Sort: Minted (Newest to Oldest)"
+sort_minted_oldest_to_newest: "Sort: Minted (Oldest to Newest)"
+sort_name_a-z: "Sort: Name (A-Z)"
+sort_name_z-a: "Sort: Name (Z-A)"
+
+
+# My Wallet > Listings
+active listings: "Active Listings"
+active listing value: "Active Listing Value"
+average listing price: "Average Listing Price"
+highest price: "Highest Price"
+lowest price: "Lowest Price"
+
+# My Wallet > Listings > Sort
+sort_recently_listed: "Sort: Recently Listed"
+sort_token_id: "Sort: Token ID"
+sort_ordinal: "Sort: Ordinal"
+sort_price_low_to_high: "Sort: Price (Low to High)"
+sort_price_high_to_low: "Sort: Price (High_to Low)"
+sort_name_a-z: "Sort: Name (A-Z)"
+sort_name_z-a: "Sort: Name (Z-A)"
+
+# My Wallet > Listings > Filters
+all_time: "All Time"
+time_last_24_hours: "Time: Last 24 Hours"
+time_last_7_days: "Time: Last 7 Days"
+time_last_30_days: "Time: Last 30 Days"
+any_currency: "Any Currency"
+currency_usdc: "Currency: USDC"
+price: "Price"
+min: "Min"
+max: "Max"
+token_id: "Token ID"
+apply_filters: "APPLY FILTERS"
+reset_filters: "RESET FILTERS"
+
+
+# My Wallet > Offers
+offers_received: "OFFERS RECEIVED"
+name: "NAME"
+token_id: "TOKEN ID"
+time: "TIME"
+total_amount: "TOTAL AMOUNT"
+expiration: "EXPIRATION"
+from: "FROM"
+status: "STATUS"
+no_results: "No Results"
+offers_made: "OFFERS MADE"
+
+
+# My Wallet > Activity
+bought_nfts: "BOUGHT NFTS"
+name: "NAME"
+lis_price: "LIST PRICE"
+time: "TIME"
+seller: "SELLER"
+purchase_method: "PURCHASE METHOD"
+payment_status: "PAYMENT STATUS"
+sold_nfts: "SOLD NFTS"
+
+# My Wallet > Activity > Footer
+activity_footer_1: "Funds availability notice – A hold period will be imposed on amounts that accrue from the sale of an NFT. Account holders acknowledge that, during this hold period, a seller will be unable to withdraw the amounts attributable to such sale(s). The current hold period for withdrawing the balance is 15 days."
+activity_footer_2: "For questions or concerns, please contact payments@eluv.io"
+
+
+# My Wallet > Notifications
+new: "New"
+all: "All"
+preferences: "Preferences"
+listing_sold: "Listing Sold"
+no_new_notifications: "No New Notifications"
+no_new: "You don't have any new notifications"
+view_all: "View All"
+sold_notification_message: "Your 'Miss Masky' has sold on the marketplace for $1.00"
+turnoff_notifications: "Turn off Listing Sold notifications"
+offer_declined: "Offer Declined"
+offer_declined_message: "Your offer on 'Miss Masky' for $44.00 was declined - the item was transferred."
+offer_declined_message_sold: "Your offer on 'Miss Masky' for $44.00 was declined - the listing was sold."
+offer_declined_message_altoffer_accepted: "Your offer on 'Miss Masky' for $44.00 was declined - and alternative offer was accepted"
+offer_accepted: "Offer Accepted"
+offer_accepted_message: "Your offer on 'Miss Masky' for $44.00 has been accepted."
+offer_received: "Offer Received"
+offer_received_message: "You have received an offer of $111.00 on your 'Miss Masky'."
+load_more: "Load More"
+
+
+
+
+###################################################################
+###################################################################
+# Missing some notification strings
+###################################################################
+###################################################################
+
+# Store > Store
+
+release_date: "RELEASE DATE"
+buy_now: "BUY NOW"
+view_listings: "VIEW LISTINGS"
+sold_out: "SOLD OUT"
+
+
+# Store > Listings (has same strings as below items:)
+# My Wallet > Listings
+# My Wallet > Listings > Sort
+# My Wallet > Listings > Filters
+
+# Store > Activity
+total_secondary_sales: "Total Secondary Sales"
+secondary_sales_volume: "Secondary Sales Volume"
+average_price: "Average Price"
+highest_price: "Highest Price"
+lowest_price: "Lowest Price"
+name: "NAME"
+time: "TIME"
+token_id: "TOKEN ID"
+total_amount: "TOTAL AMOUNT"
+buyer: "BUYER"
+seller: "SELLER"
+
+# Store > leaderboard
+climb_the_leaderboard: "CLIMB THE LEADERBOARD"
+rank: "RANK"
+username: "USERNAME"
+address: "ADDRESS"
+total: "TOTAL NUMBER OF COLLECTIBLES"
+
+
+# My Wallet > Profile
+
+signed_in: "Signed in Via Email"
+signed_in_metamask: "Signed in Via Metamask"
+my_profile: "My Profile"
+my_items: "My Items"
+my_listings: "My Listings"
+my_offers: "My Offers"
+my_activity: "My Activity"
+notifications: "Notifications"
+preferences: "Preferences"
+
+# My Wallet > Profile > Preferences
+listing_sold: "Listing Sold"
+listing_sold_subtitle: "Notify me when one of my listed NFTs is sold"
+token_updated: "Token Updated"
+token_updated_subtitle: Notify me when an NFT I own is updated (e.g. new media)
+offer_received_subtitle: "Notify me when I receive a purchase offer for an NFT I own"
+offer_accepted_subtitle: "Notify me when a purchase offer I made was accepted"
+offer_declined_subtitle: "Notify me when a purchase offer I made was declined"
+marketplace_display_currency: "Marketplace Display Currency"
+display_currency_tag: "This is a conversion computed from USD"
+display_currency: "Display Currency:"
+
+# My Wallet > Profile > Discover Projects
+discover_projects: "Discover Projects"
+
+# My Wallet > Media Wallet
+media_wallet: "Media Wallet"
+address: "My Elivio Content Blockchain Address"
+fund_transfer_notice: "Do not send funds to this address. This is an Eluvio Content Blockchain address and is not a payment address."
+my_balance: "My Balance"
+view_details: "View Details"
+total_balance: "Total Balance"
+add_funds: "ADD FUNDS"
+view_deposits: "View Deposits"
+hide_deposits: "Hide Deposits"
+deposits: "DEPOSITS"
+amount: "AMOUNT"
+time: "TIME"
+method: "METHOD"
+status: "STATUS"
+no_results: "No Results"
+hours_ago: "hours ago"
+wallet_balance: "Wallet Balance"
+deposit_status_complete: "COMPLETE"
+deposit_status_pending: "Pending" 
+view_transaction_history: "View Transaction History"
+locked_balance: "Locked Balance"
+view_outstanding_offers: "View Outstanding Offers"
+hide_outstanding_offers: "Hide Outstanding Offers"
+outstanding_offers: "OUTSTANDING OFFERS"
+name: "NAME"
+offer_price: "OFFER PRICE"
+total_amount: "TOTAL AMOUNT"
+status: "STATUS"
+view_all_offers: "View All Offers"
+withdrawable_balance: "Withdrawable Balance"
+withdraw_funds: "WITHDRAW FUNDS"
+withdrawals: "WITHDRAWALS"
+amount: "AMOUNT"
+payout: "PAYOUT"
+fee: "FEE"
+time: "TIME"
+fund_availability_notice: "Funds availability notice – A hold period will be imposed on amounts that accrue from the sale of an NFT. Account holders acknowledge that, during this hold period, a seller will be unable to withdraw the amounts attributable to such sale(s). The current hold period for withdrawing the balance is 15 days.
+For questions or concerns, please contact"
+
+
+# TRADE page or  buy/sell page 
+back_to_listings: "BACK TO LISTINGS"
+buy_now_for: "BUY NOW FOR $1,000,000"
+make_an_offer: "MAKE AN OFFER"
+properties: "Properties"
+details: "Details"
+details_edition: "Edition:"
+details_number_minted: "Number Minted:"
+details_number_in_circulation: "Number in Circulation: "
+details_number_burned: "Number Burned: "
+details_maximum_possible_in_circulation: "Maximum Possible in Circulation: "
+details_cap: Cap""
+contract: "Contract"
+see_more: "SEE MORE INFO ON ELUVIO LOOKOUT"
+trading: "TRADING"
+purchase_offers: "PURCHASE OFFERS"
+
+# TRADE page or  buy/sell page > Trading
+transaction_history_for_this_token: "TRANSACTION HISTORY FOR THIS TOKEN"
+time: "TIME"
+total_amount: "TOTAL AMOUNT"
+buyer: "BUYER"
+seller: "SELLER"
+token_id: "TOKEN ID"
+secondary_sales_history: "SECONDARY SALES HISTORY FOR ALL 'Miss Masky' TOKENS"
+
+# TRADE page or  buy/sell page > Purchase Offer
+
+active_offers: "ACTIVE OFFERS FOR THIS TOKEN"
+expiration: "EXPIRATION"
+status: "STATUS"
+
+
+# Purchase Flow
+buy_from_collector: "Buy from a collector"
+credit_card: "CREDIT CARD"
+crypto: "CRYPTO"
+wallet_balance: "WALLET BALANCE"
+back: "BACK"
+login_message: "You must be logged in to complete this purchase."
+service_fee: "Service Fee"
+Total: "Total"
+available_ballet_balance: "Available Wallet Balance"
+current_purchase: "Current Purchase"
+remaining_wallet_balance: "Remaining Wallet Balance"
+secondary_purchase_message_1: "YOUR ITEM IS BEING TRANSFERRED"
+secondary_purchase_message_2: "This may take several minutes"
+secondary_purchase_message_3: "You can navigate away from this page if you don't want to wait. Your items will be available in your wallet when the process is complete."
+after_secondary_purchase: "CONGRATULATIONS! Thank you for your purchase! You've received the following item:"
+primary_purchase_minting: "YOUR ITEMS ARE BEING MINTED This may take several minutes"
+back_to_marketplace: "BACK TO THE MARKETPLACE"
+
+# Make an offer
+expires_in: "Expires in 7 Days"   # 1, 3, 7, 14, 30 days
+confirm_offer: "CONFIRM OFFER FOR $$$"

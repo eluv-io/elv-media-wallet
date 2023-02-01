@@ -198,14 +198,14 @@ const UserProfileContainer = observer(({children}) => {
                     marketplace && !marketplace?.branding?.hide_leaderboard ?
                       <>
                         <div className="user__badge">
-                          <div className="user__badge__label">Leaderboard</div>
+                          <div className="user__badge__label">{ rootStore.l10n.header.leaderboard }</div>
                           <div className="user__badge__value">#{userStats.rank ? userStats.rank.toLocaleString() : ""}</div>
                         </div>
                         <div className="user__badges__separator" />
                       </> : null
                   }
                   <div className="user__badge">
-                    <div className="user__badge__label">Collectibles</div>
+                    <div className="user__badge__label">{ rootStore.l10n.navigation.collectibles }</div>
                     <div className="user__badge__value">{ (userStats.count || 0).toLocaleString() }</div>
                   </div>
                 </> : null
@@ -217,33 +217,33 @@ const UserProfileContainer = observer(({children}) => {
         <div className="page-block__content">
           <div className="header__navigation user__nav">
             <NavLink to="items" className="header__navigation-link user__nav__link">
-              Items
+              { rootStore.l10n.header.items }
             </NavLink>
             {
               marketplace?.collections && marketplace?.collections.length > 0 ?
                 <NavLink to="collections" className="header__navigation-link user__nav__link">
-                  Collections
+                  { rootStore.l10n.header.collections }
                 </NavLink> : null
             }
             <NavLink to="listings" className="header__navigation-link user__nav__link">
-              Listings
+              { rootStore.l10n.header.listings }
             </NavLink>
             {
               currentUser ?
                 <NavLink to="offers" className="header__navigation-link user__nav__link">
-                  Offers
+                  { rootStore.l10n.header.offers }
                 </NavLink> : null
             }
             {
               currentUser ?
                 <NavLink to="activity" className="header__navigation-link user__nav__link">
-                  Activity
+                  { rootStore.l10n.header.activity }
                 </NavLink> : null
             }
             {
               currentUser ?
                 <NavLink to="notifications" className="header__navigation-link user__nav__link no-mobile">
-                  Notifications
+                  { rootStore.l10n.header.notifications }
                 </NavLink> : null
             }
           </div>

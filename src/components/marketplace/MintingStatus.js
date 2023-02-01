@@ -8,7 +8,7 @@ import UrlJoin from "url-join";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import NFTCard from "Components/nft/NFTCard";
 import {LinkTargetHash, MobileOption, SearchParams} from "../../utils/Utils";
-import {FormatPriceString} from "Components/common/UIComponents";
+import {FormatPriceString, LocalizeString} from "Components/common/UIComponents";
 
 const searchParams = SearchParams();
 
@@ -165,15 +165,15 @@ const MintingStatus = observer(({
           awaitingPayment ?
             <div className="page-headers">
               <div className="page-header">
-                Awaiting Payment...
+                { rootStore.l10n.status.minting.awaiting_payment }
               </div>
             </div> :
             <div className="page-headers">
               <div className="page-header">
-                {text ? text.header : (header || "Your items are being minted")}
+                {text ? text.header : (header || rootStore.l10n.status.minting.header) }
               </div>
               <div className="page-subheader">
-                {text ? text.subheader1 : (subheader || "This may take several minutes")}
+                {text ? text.subheader1 : (subheader || rootStore.l10n.status.minting.subheader1)}
               </div>
             </div>
       }
@@ -261,7 +261,7 @@ const MintingStatus = observer(({
         rootStore.hideNavigation || hideText || finished || (text && !text.subheader2) ? null :
           <div className="minting-status__text">
             <h2 className="minting-status__navigation-message">
-              { text ? text.subheader2 : "You can navigate away from this page if you don't want to wait. Your items will be available in your wallet when the process is complete." }
+              { text ? text.subheader2 : rootStore.l10n.status.minting.subheader2 }
             </h2>
           </div>
       }
@@ -382,8 +382,8 @@ export const ListingPurchaseStatus = observer(() => {
         key={`minting-status-${awaitingSolanaTransaction}`}
         header={
           awaitingSolanaTransaction ?
-            "Submitting payment transaction to Solana" :
-            "Your item is being transferred"
+            rootStore.l10n.status.minting.submitting_solana :
+            rootStore.l10n.status.minting.transferring
         }
         Status={Status}
         OnFinish={({status}) => {
@@ -396,8 +396,8 @@ export const ListingPurchaseStatus = observer(() => {
         basePath={basePath}
         backText={
           inMarketplace ?
-            "Back to the Marketplace" :
-            "Back to My Collection"
+            rootStore.l10n.status.back_to_marketplace :
+            rootStore.l10n.status.back_to_collection
         }
         intervalPeriod={awaitingSolanaTransaction ? 10000 : 10}
         transactionLink={
@@ -405,7 +405,7 @@ export const ListingPurchaseStatus = observer(() => {
           ethereumHash && cryptoStore.EthereumTransactionLink(ethereumHash) ||
           null
         }
-        transactionLinkText={`View your transaction on ${solanaSignature ? "Solana Explorer" : "Etherscan"}`}
+        transactionLinkText={LocalizeString(rootStore.l10n.status.minting.view_transaction, {location: solanaSignature ? "Solana Explorer" : "Etherscan"})}
       />
     );
   }
@@ -414,8 +414,8 @@ export const ListingPurchaseStatus = observer(() => {
 
   return (
     <MintResults
-      header="Congratulations!"
-      subheader={`Thank you for your purchase! You've received the following ${items.length === 1 ? "item" : "items"}:`}
+      header={rootStore.l10n.status.minting.success_header}
+      subheader={`${rootStore.l10n.status.minting.purchase} ${rootStore.l10n.status.minting[items.length === 1 ? "received_item_single" : "received_item_multiple"]}`}
       items={items}
       basePath={basePath}
       nftBasePath={
@@ -425,8 +425,8 @@ export const ListingPurchaseStatus = observer(() => {
       }
       backText={
         inMarketplace ?
-          "Back to the Marketplace" :
-          "Back to My Items"
+          rootStore.l10n.status.back_to_marketplace :
+          rootStore.l10n.status.back_to_items
       }
     />
   );
@@ -461,7 +461,7 @@ export const PurchaseMintingStatus = observer(() => {
         Status={Status}
         OnFinish={({status}) => setStatus(status)}
         basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
-        backText="Back to the Marketplace"
+        backText={rootStore.l10n.status.back_to_marketplace}
         videoHash={videoHash}
         revealVideoHash={revealVideoHash}
         hideText={hideText}
@@ -473,12 +473,12 @@ export const PurchaseMintingStatus = observer(() => {
 
   return (
     <MintResults
-      header="Congratulations!"
-      subheader={`Thank you for your purchase! You've received the following ${items.length === 1 ? "item" : "items"}:`}
+      header={rootStore.l10n.status.minting.header}
+      subheader={`${rootStore.l10n.status.minting.purchase} ${rootStore.l10n.status.minting[items.length === 1 ? "received_item_single" : "received_item_multiple"]}`}
       items={items}
       basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
       nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items")}
-      backText="Back to the Marketplace"
+      backText={rootStore.l10n.status.back_to_marketplace}
     />
   );
 });
@@ -511,7 +511,7 @@ export const ClaimMintingStatus = observer(() => {
         Status={Status}
         OnFinish={({status}) => setStatus(status)}
         basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
-        backText="Back to the Marketplace"
+        backText={rootStore.l10n.status.back_to_marketplace}
       />
     );
   }
@@ -520,12 +520,12 @@ export const ClaimMintingStatus = observer(() => {
 
   return (
     <MintResults
-      header="Congratulations!"
-      subheader={`You've received the following ${items.length === 1 ? "item" : "items"}:`}
+      header={rootStore.l10n.status.minting.header}
+      subheader={rootStore.l10n.status.minting[items.length === 1 ? "received_item_single" : "received_item_multiple"]}
       items={items}
       basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
       nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items")}
-      backText="Back to the Marketplace"
+      backText={rootStore.l10n.status.back_to_marketplace}
     />
   );
 });
@@ -582,14 +582,14 @@ export const PackOpenStatus = observer(() => {
             subheader2: mintingText.minting_subheader2
           }
         }
-        header={"Your pack is opening"}
+        header={rootStore.l10n.status.pack_opening}
         Status={Status}
         OnFinish={({status}) => setStatus(status)}
         videoHash={videoHash}
         revealVideoHash={revealVideoHash}
         hideText={hideText}
         basePath={basePath}
-        backText="Back to My Items"
+        backText={rootStore.l10n.status.back_to_items}
       />
     );
   }
@@ -605,12 +605,12 @@ export const PackOpenStatus = observer(() => {
           subheader1: mintingText.reveal_subheader
         }
       }
-      header="Congratulations!"
-      subheader={`You've received the following ${items.length === 1 ? "item" : "items"}:`}
+      header={rootStore.l10n.status.minting.header}
+      subheader={rootStore.l10n.status.minting[items.length === 1 ? "received_item_single" : "received_item_multiple"]}
       items={items}
       basePath={basePath}
       nftBasePath={basePath}
-      backText="Back to My Items"
+      backText={rootStore.l10n.status.back_to_items}
     />
   );
 });
@@ -646,7 +646,7 @@ export const CollectionRedeemStatus = observer(() => {
         Status={Status}
         OnFinish={({status}) => setStatus(status)}
         basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
-        backText="Back to the Marketplace"
+        backText={rootStore.l10n.status.back_to_marketplace}
       />
     );
   }
@@ -670,12 +670,12 @@ export const CollectionRedeemStatus = observer(() => {
 
   return (
     <MintResults
-      header="Congratulations!"
-      subheader={`You've received the following ${items.length === 1 ? "item" : "items"}:`}
+      header={rootStore.l10n.status.minting.header}
+      subheader={rootStore.l10n.status.minting[items.length === 1 ? "received_item_single" : "received_item_multiple"]}
       items={items}
       basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
       nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items")}
-      backText="Back to the Marketplace"
+      backText={rootStore.l10n.status.back_to_marketplace}
     />
   );
 });
@@ -696,20 +696,18 @@ export const DepositStatus = observer(() => {
     return (
       <MintingStatus
         text={{
-          header: "Awaiting Deposit",
-          subheader1: "It may take up to 30 minutes to confirm your deposit",
+          header: rootStore.l10n.status.deposits.header,
+          subheader1: rootStore.l10n.status.deposits.subheader1,
           subheader2: (
-            <>
-              You can navigate away from this page if you don't want to wait.
-              Your deposit will be available in your wallet when the process is complete.
-              Your deposit status can be viewed in your <Link to={basePath + "?deposits"}>profile</Link>.
-            </>
+            <Link to={basePath + "?deposits"}>
+              { rootStore.l10n.status.deposits.subheader2 }
+            </Link>
           )
         }}
         Status={Status}
         OnFinish={({status}) => setStatus(status)}
         basePath={basePath}
-        backText="Back to your profile"
+        backText={rootStore.l10n.status.back_to_profile}
         intervalPeriod={30}
         noItems
       />
@@ -718,10 +716,10 @@ export const DepositStatus = observer(() => {
 
   return (
     <MintResults
-      header="Deposit Successful"
-      subheader={`Thank you for your purchase! ${FormatPriceString(status?.extra?.amount || 0, {stringOnly: true, excludeAlternateCurrency: true})} has been added to your wallet balance`}
+      header={rootStore.l10n.status.deposits.success_header}
+      subheader={LocalizeString(rootStore.l10n.status.deposits.success_subheader, {amount: FormatPriceString(status?.extra?.amount || 0, {stringOnly: true})}) }
       basePath={basePath}
-      backText="Back to your profile"
+      backText={rootStore.l10n.status.back_to_profile}
     />
   );
 });

@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {MarketplaceImage} from "Components/common/Images";
-import UrlJoin from "url-join";
 import MarketplaceItemCard from "Components/marketplace/MarketplaceItemCard";
 
 const FeaturedGallery = ({showIcons, marketplaceHash, items, selectedIndex, setSelectedIndex}) => {
@@ -97,7 +96,7 @@ const FeaturedGallery = ({showIcons, marketplaceHash, items, selectedIndex, setS
                     <MarketplaceImage
                       marketplaceHash={marketplaceHash}
                       item={item}
-                      path={UrlJoin("public", "asset_metadata", "info", "items", item.itemIndex.toString(), "image")}
+                      url={item?.image?.url}
                     />
                   </div>
                 </button>

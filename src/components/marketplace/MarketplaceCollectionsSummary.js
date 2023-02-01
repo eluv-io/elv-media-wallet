@@ -29,7 +29,7 @@ const CollectionCard = observer(({marketplace, collection}) => {
             className="collection-card__image"
             marketplaceHash={marketplace.versionHash}
             title={collection.name}
-            path={UrlJoin("public", "asset_metadata", "info", "collections", collection.collectionIndex.toString(), "collection_icon")}
+            url={collection?.collection_icon?.url}
           />
         </div>
       </div>
@@ -90,7 +90,7 @@ export const MarketplaceCollectionsSummary = observer(() => {
               rawImage
               className="marketplace__collection-header__icon"
               marketplaceHash={marketplace.versionHash}
-              path={UrlJoin("public", "asset_metadata", "info", "collections_info", "icon")}
+              url={collectionsInfo?.icon?.url}
             /> : null
         }
         <div className="page-headers">
@@ -105,7 +105,7 @@ export const MarketplaceCollectionsSummary = observer(() => {
                 width="2000"
                 className="marketplace__collection-header__banner"
                 marketplaceHash={marketplace.versionHash}
-                path={UrlJoin("public", "asset_metadata", "info", "collections_info", "banner")}
+                url={collectionsInfo?.banner?.url}
               />
             </div> : null
         }

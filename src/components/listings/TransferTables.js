@@ -188,16 +188,16 @@ const OffersTableActions = observer(({offer, setShowOfferModal, Reload}) => {
                   <div className="offers-table__accept-modal__breakdown">
                     <div className="offers-table__accept-modal__line-item">
                       <label>Offer</label>
-                      {FormatPriceString(offer.price, {excludeAlternateCurrency: true})}
+                      {FormatPriceString(offer.price)}
                     </div>
                     <div className="offers-table__accept-modal__line-item">
                       <label>Creator Royalty</label>
-                      {FormatPriceString(offer.royalty, {excludeAlternateCurrency: true})}
+                      {FormatPriceString(offer.royalty)}
                     </div>
                     <div className="offers-table__accept-modal__separator" />
                     <div className="offers-table__accept-modal__line-item ">
                       <label>Total Payout</label>
-                      {FormatPriceString(Math.max(0, offer.payout_amount), {excludeAlternateCurrency: true})}
+                      {FormatPriceString(Math.max(0, offer.payout_amount))}
                     </div>
                   </div>
                 </div>
@@ -322,8 +322,8 @@ export const OffersTable = observer(({
         loading={loading}
         pagingMode="none"
         columnHeaders={[
-          buyerAddress ? "To" : "From",
-          "Price",
+          rootStore.l10n.tables.columns[buyerAddress ? "to" : "from"],
+          rootStore.l10n.tables.columns.price
         ]}
         columnWidths={[1, 1]}
         entries={
@@ -359,14 +359,13 @@ export const OffersTable = observer(({
         pagingMode="none"
         useWidth={useWidth}
         columnHeaders={[
-          "Name",
-          "Token ID",
-          "Time",
-          "Offer Price", // Only shown if 'showTotal' is specified
-          "Total Amount",
-          "Expiration",
-          buyerAddress ? "To" : "From",
-          "Status",
+          rootStore.l10n.tables.columns.name,
+          rootStore.l10n.tables.columns.token_id,
+          rootStore.l10n.tables.columns.time,
+          rootStore.l10n.tables.columns.offer_price,
+          rootStore.l10n.tables.columns.expiration,
+          rootStore.l10n.tables.columns[buyerAddress ? "to" : "from"],
+          rootStore.l10n.tables.columns.status,
           " "
         ]}
         columnWidths={[2, 1, 1, showTotal ? 1 : 0, 1, 1, 1, 1, hideActionsColumn ? 0 : "100px"]}
@@ -584,17 +583,17 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
         headerText={header}
         pagingMode="none"
         columnHeaders={[
-          "Amount",
-          "Time",
-          "Method",
-          "Status"
+          rootStore.l10n.tables.columns.amount,
+          rootStore.l10n.tables.columns.time,
+          rootStore.l10n.tables.columns.method,
+          rootStore.l10n.tables.columns.status
         ]}
         columnWidths={[1, 1, 1, 1]}
         entries={
           entries.map(transfer => ({
             link: transfer?.extra_json?.charge_code ? `https://commerce.coinbase.com/receipts/${transfer.extra_json?.charge_code}` : undefined,
             columns: [
-              FormatPriceString(transfer.amount + transfer.fee, {excludeAlternateCurrency: true}),
+              FormatPriceString(transfer.amount + transfer.fee),
               `${Ago(transfer.created * 1000)} ago`,
               transfer.processor,
               transfer.payment_status?.toUpperCase() || "Pending"
@@ -615,18 +614,18 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
         headerText={header}
         pagingMode="none"
         columnHeaders={[
-          "Amount",
-          "Payout",
-          "Fee",
-          "Time"
+          rootStore.l10n.tables.columns.amount,
+          rootStore.l10n.tables.columns.payout,
+          rootStore.l10n.tables.columns.fee,
+          rootStore.l10n.tables.columns.time
         ]}
         columnWidths={[1, 1, 1, 1]}
         mobileColumnWidths={[1, 1, 0, 1]}
         entries={
           entries.map(transfer => [
-            FormatPriceString(transfer.amount + transfer.fee, {excludeAlternateCurrency: true}),
-            FormatPriceString(transfer.amount, {excludeAlternateCurrency: true}),
-            FormatPriceString(transfer.fee, {excludeAlternateCurrency: true}),
+            FormatPriceString(transfer.amount + transfer.fee),
+            FormatPriceString(transfer.amount),
+            FormatPriceString(transfer.fee),
             `${Ago(transfer.created * 1000)} ago`
           ])
         }
@@ -643,13 +642,13 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
         headerIcon={icon}
         headerText={header}
         columnHeaders={[
-          "Name",
-          "List Price",
-          "Payout",
-          "Time",
-          "Buyer",
-          "Purchase Method",
-          "Payment Status"
+          rootStore.l10n.tables.columns.name,
+          rootStore.l10n.tables.columns.list_price,
+          rootStore.l10n.tables.columns.payout,
+          rootStore.l10n.tables.columns.time,
+          rootStore.l10n.tables.columns.buyer,
+          rootStore.l10n.tables.columns.method,
+          rootStore.l10n.tables.columns.status
         ]}
         columnWidths={[1, 1, 1, "150px", 1, "150px", "150px"]}
         tabletColumnWidths={[1, 1, 1, "150px", 0, "150px", "150px"]}
@@ -678,12 +677,12 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
       headerIcon={icon}
       headerText={header}
       columnHeaders={[
-        "Name",
-        "List Price",
-        "Time",
-        "Seller",
-        "Purchase Method",
-        "Payment Status"
+        rootStore.l10n.tables.columns.name,
+        rootStore.l10n.tables.columns.list_price,
+        rootStore.l10n.tables.columns.time,
+        rootStore.l10n.tables.columns.seller,
+        rootStore.l10n.tables.columns.method,
+        rootStore.l10n.tables.columns.status,
       ]}
       columnWidths={[1, 1, "150px", 1, "150px", "150px"]}
       tabletColumnWidths={[1, 1, "150px", 0, "150px", "150px"]}
