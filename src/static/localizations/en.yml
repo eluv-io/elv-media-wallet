@@ -36,6 +36,7 @@ actions:
   continue: Continue
   back: Back
   cancel: Cancel
+  close: Close
   packs:
     open: Open {name}
     open_confirm: Are you sure you want to open '{name}'?
@@ -188,15 +189,6 @@ purchase:
     solana_insufficient_funds: Solana account has insufficient balance to perform this transaction
     ethereum_insufficient_funds: Ethereum account has insufficient balance to perform this transaction
     listing_failed: Unable to list this NFT
-
-withdrawal:
-  method: Method
-  email: Email
-  name: Name
-  phone: Phone
-  birthdate: Birthdate
-  cpf: CPF
-  pix_key: PIX key
 
 offers:
   make_an_offer: Make an Offer
@@ -356,3 +348,35 @@ status:
     subheader2: You can navigate away from this page if you don't want to wait. Your deposit will be available in your wallet when the process is complete. Your deposit status can be viewed in your profile
     success_header: Deposit Successful
     success_subheader: Thank you for your purchase! {amount} has been added to your wallet balance.
+
+withdrawal:
+  withdraw_funds: Withdraw Funds
+  select_provider: Please select a provider
+  select_country: Select a Country
+  select_country_to_continue: Please select your country to continue
+  method: Method
+  set_up_withdrawal: Set up withdrawal
+  set_up_withdrawal_stripe: Set up withdrawal with Stripe Connect
+  withdraw_via_ebanx: Withdraw Funds via EBANX
+  withdraw_via_stripe: Withdraw Funds via Stripe
+  max_withdrawable: Maximum withdrawable balance is {max}
+  available_funds: Available Funds
+  withdrawn_funds: Withdrawn Funds
+  processing_fee: Processing Fee
+  total_payout: Total Payout
+  remaining_funds: Remaining Funds
+  remaining_withdrawable_funds: Remaining Withdrawable Funds
+  successful_withdrawal: "{amount} successfully transferred to your account"
+  fields:
+    amount: Amount
+    email: Email
+    name: Name
+    phone: Phone
+    birthdate: Birthdate
+    cpf: CPF
+    pix_key: PIX key
+    pix_key_placeholder: Email, CPF, CNPJ, or Phone Number
+  errors:
+    general: Unable to withdraw funds. Please try again later.
+    setup: Unable to set up withdrawal. Please try again later.
+    stripe_not_set_up: Your Stripe account has been created, but is not ready to accept payments. Please finish setting up your account.
