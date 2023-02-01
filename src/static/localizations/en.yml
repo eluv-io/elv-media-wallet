@@ -189,6 +189,15 @@ purchase:
     ethereum_insufficient_funds: Ethereum account has insufficient balance to perform this transaction
     listing_failed: Unable to list this NFT
 
+withdrawal:
+  method: Method
+  email: Email
+  name: Name
+  phone: Phone
+  birthdate: Birthdate
+  cpf: CPF
+  pix_key: PIX key
+
 offers:
   make_an_offer: Make an Offer
   active_offers: Active Offers for this NFT
