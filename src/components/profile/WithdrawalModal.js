@@ -278,7 +278,7 @@ const StripeSetup = observer(({Cancel, Close}) => {
   return (
     <div className="withdrawal-confirmation">
       <div className="withdrawal-confirmation__header">
-        { rootStore.l10n.withdrawal.stripe.set_up_withdrawal }
+        { rootStore.l10n.withdrawal.set_up_withdrawal_stripe }
       </div>
       <div className="withdrawal-confirmation__content">
         <div className="withdrawal-confirmation__message">
