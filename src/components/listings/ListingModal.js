@@ -6,7 +6,7 @@ import {ActiveListings} from "Components/listings/TransferTables";
 import {checkoutStore, cryptoStore, rootStore} from "Stores";
 import NFTCard from "Components/nft/NFTCard";
 import {
-  ButtonWithLoader, 
+  ButtonWithLoader,
   FormatPriceString,
   FromUSD,
   LocalizeString,
@@ -147,7 +147,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                     const listingId = await rootStore.walletClient.CreateListing({
                       contractAddress: nft.details.ContractAddr,
                       tokenId: nft.details.TokenIdStr,
-                      price: ToUSD(inputPrice),
+                      price: ToUSD(inputPrice, "floor"),
                       listingId: nft.details.ListingId
                     });
 

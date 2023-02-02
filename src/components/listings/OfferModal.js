@@ -220,7 +220,7 @@ const OfferModal = observer(({nft, offer, Close}) => {
                       contractAddress: nft.details.ContractAddr,
                       tokenId: nft.details.TokenIdStr,
                       offerId,
-                      price: ToUSD(parsedPrice).toDecimal(),
+                      price: ToUSD(parsedPrice, "floor").toDecimal(),
                       expiresAt: Date.now() + parseInt(offerDuration) * 24 * 60 * 60 * 1000
                     });
 

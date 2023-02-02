@@ -182,7 +182,7 @@ export const ParseMoney = (amount, currency) => {
     if(isNaN(parseFloat(amount))) {
       amount = new Money(0, currency);
     } else {
-      amount = new Money(parseInt(parseFloat(amount) * (10 ** Currencies[currency]?.decimal_digits || 2)), currency);
+      amount = new Money(parseInt(Math.round(parseFloat(amount) * (10 ** Currencies[currency]?.decimal_digits || 2))), currency);
     }
   }
 
