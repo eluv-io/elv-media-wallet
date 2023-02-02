@@ -6,7 +6,7 @@ import {ActiveListings} from "Components/listings/TransferTables";
 import {checkoutStore, cryptoStore, rootStore} from "Stores";
 import NFTCard from "Components/nft/NFTCard";
 import {
-  ButtonWithLoader,
+  ButtonWithLoader, 
   FormatPriceString,
   FromUSD,
   LocalizeString,
@@ -47,7 +47,8 @@ const ListingModal = observer(({nft, listingId, Close}) => {
       });
   }, []);
 
-  const parsedPrice = ParseMoney(price, checkoutStore.currency);
+  const inputPrice = ParseMoney(price, checkoutStore.currency);
+  const parsedPrice = checkoutStore.currency === "USD" ? inputPrice : FromUSD(ToUSD(inputPrice, "floor"));
   const floatPrice = parsedPrice.toDecimal();
   const [payout, royaltyFee] = parsedPrice.allocate([100 - royaltyRate, royaltyRate]);
 
@@ -78,7 +79,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                   className={`listing-modal__form__price-input ${floatPrice > priceCeiling || floatPrice < priceFloor ? "listing-modal__form__price-input-error" : ""}`}
                   value={price}
                   onChange={event => setPrice(event.target.value.replace(/[^\d.]/g, ""))}
-                  onBlur={() => setPrice(parsedPrice.toString())}
+                  onBlur={() => setPrice(inputPrice.toString())}
                 />
                 <div className="listing-modal__form__price-input-label">
                   { cryptoStore.usdcOnly || checkoutStore.currency !== "USD" ? null : <ImageIcon icon={USDIcon} /> }
@@ -101,6 +102,13 @@ const ListingModal = observer(({nft, listingId, Close}) => {
 
             <div className="listing-modal__details">
               {
+                checkoutStore.currency === "USD" ? null :
+                  <div className="listing-modal__detail listing-modal__detail-faded">
+                    <label>{ rootStore.l10n.purchase.conversion_amount }</label>
+                    {FormatPriceString(parsedPrice, { noConversion: true })}
+                  </div>
+              }
+              {
                 royaltyRate ?
                   <>
                     <div className="listing-modal__detail listing-modal__detail-faded">
@@ -115,6 +123,12 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                       </div>
                     </div>
                   </> : <Loader/>
+              }
+              {
+                checkoutStore.currency === "USD" ? null :
+                  <div className="listing-modal__order-note">
+                    { rootStore.l10n.purchase.conversion_note }
+                  </div>
               }
             </div>
             {
@@ -133,7 +147,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                     const listingId = await rootStore.walletClient.CreateListing({
                       contractAddress: nft.details.ContractAddr,
                       tokenId: nft.details.TokenIdStr,
-                      price: ToUSD(parsedPrice),
+                      price: ToUSD(inputPrice),
                       listingId: nft.details.ListingId
                     });
 

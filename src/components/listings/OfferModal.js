@@ -46,7 +46,8 @@ const OfferModal = observer(({nft, offer, Close}) => {
     availableBalance = availableBalance.add(FromUSD(offer.price)).add(FromUSD(offer.fee));
   }
 
-  const parsedPrice = ParseMoney(price, checkoutStore.currency);
+  const inputPrice = ParseMoney(price, checkoutStore.currency);
+  const parsedPrice = checkoutStore.currency === "USD" ? inputPrice : FromUSD(ToUSD(inputPrice, "floor"));
   const floatPrice = parsedPrice.toDecimal();
   const fee = ParseMoney(Math.max(1, roundToDown(floatPrice * feeRate, 2)), checkoutStore.currency);
   const insufficientBalance = availableBalance - parsedPrice - fee < 0;
@@ -100,7 +101,7 @@ const OfferModal = observer(({nft, offer, Close}) => {
                   className={`offer-modal__form__price-input ${floatPrice > priceCeiling ? "offer-modal__form__price-input-error" : ""}`}
                   value={price}
                   onChange={event => setPrice(event.target.value.replace(/[^\d.]/g, ""))}
-                  onBlur={() => setPrice(parsedPrice.toString())}
+                  onBlur={() => setPrice(inputPrice.toString())}
                 />
                 <div className="offer-modal__form__price-input-label">
                   <ImageIcon icon={USDIcon} />
@@ -134,10 +135,10 @@ const OfferModal = observer(({nft, offer, Close}) => {
                 buttonClassName="offer-modal__duration__select"
                 options={[
                   ["1", rootStore.l10n.offers.expires_in_single],
-                  ["3", LocalizeString(rootStore.l10n.offers.expires_in, {number: 3})],
-                  ["7", LocalizeString(rootStore.l10n.offers.expires_in, {number: 7})],
-                  ["14", LocalizeString(rootStore.l10n.offers.expires_in, {number: 14})],
-                  ["30", LocalizeString(rootStore.l10n.offers.expires_in, {number: 30})],
+                  ["3", LocalizeString(rootStore.l10n.offers.expires_in, {number: 3}, {stringOnly: true})],
+                  ["7", LocalizeString(rootStore.l10n.offers.expires_in, {number: 7}, {stringOnly: true})],
+                  ["14", LocalizeString(rootStore.l10n.offers.expires_in, {number: 14}, {stringOnly: true})],
+                  ["30", LocalizeString(rootStore.l10n.offers.expires_in, {number: 30}, {stringOnly: true})],
                 ]}
               />
               <div className="offer-modal__duration__date">
@@ -151,7 +152,7 @@ const OfferModal = observer(({nft, offer, Close}) => {
             <div className="offer-modal__order-details">
               <div className="offer-modal__order-line-item">
                 <div className="offer-modal__order-label">
-                  { nft.metadata.display_name }
+                  { checkoutStore.currency === "USD" ? rootStore.l10n.offers.offer : rootStore.l10n.purchase.conversion_amount }
                 </div>
                 <div className="offer-modal__order-price">
                   { FormatPriceString(parsedPrice, {noConversion: true}) }
@@ -168,7 +169,7 @@ const OfferModal = observer(({nft, offer, Close}) => {
               <div className="offer-modal__order-separator" />
               <div className="offer-modal__order-line-item">
                 <div className="offer-modal__order-label">
-                  { rootStore.l10n.purchase.total }
+                  { rootStore.l10n.purchase.total_amount }
                 </div>
                 <div className="offer-modal__order-price">
                   { FormatPriceString(parsedPrice.add(fee), {noConversion: true}) }
@@ -201,13 +202,13 @@ const OfferModal = observer(({nft, offer, Close}) => {
                   {FormatPriceString(Math.max(0, availableBalance.subtract(parsedPrice).subtract(fee)), {vertical: true, noConversion: true})}
                 </div>
               </div>
-              {
-                checkoutStore.currency === "USD" ? null :
-                  <div className="offer-modal__order-note">
-                    { rootStore.l10n.purchase.conversion_note }
-                  </div>
-              }
             </div>
+            {
+              checkoutStore.currency === "USD" ? null :
+                <div className="offer-modal__order-note">
+                  { rootStore.l10n.purchase.conversion_note }
+                </div>
+            }
             <div className="offer-modal__actions">
               <ButtonWithLoader
                 disabled={!parsedPrice || parsedPrice.toDecimal() <= 0 || insufficientBalance || floatPrice > priceCeiling || (priceFloor && floatPrice < priceFloor)}

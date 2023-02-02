@@ -195,7 +195,8 @@ purchase:
   set_price: Set Price
   min_listing_price: Minimum listing price is {price}
   max_listing_price: Maximum listing price is {price}
-  conversion_note: All values are approximate based on current estimated USD exchange rates.
+  conversion_amount: USD Conversion
+  conversion_note: Actual values are based in USD. All displayed values are approximate based on current estimated USD exchange rates.
   errors:
     failed: Purchase Failed
     listing_unavailable: Listing is no longer available

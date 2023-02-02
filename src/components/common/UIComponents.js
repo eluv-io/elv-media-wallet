@@ -158,15 +158,19 @@ export const CopyableField = ({value, children, className="", ellipsis=true}) =>
   );
 };
 
-export const LocalizeString = (text, variables={}) => {
+export const LocalizeString = (text, variables={}, options={stringOnly: false}) => {
+  let result = text
+    .split(/{(\w+)}/)
+    .filter(s => s)
+    .map(token => variables[token] || token);
+
+  if(options.stringOnly) {
+    return result.join("");
+  }
+
   return (
     <>
-      {
-        text
-          .split(/{(\w+)}/)
-          .filter(s => s)
-          .map(token => variables[token] || token)
-      }
+      {result}
     </>
   );
 };
@@ -185,24 +189,26 @@ export const ParseMoney = (amount, currency) => {
   return amount;
 };
 
-export const ConvertCurrency = (amount, originalCurrency, targetCurrency) => {
+export const ConvertCurrency = (amount, originalCurrency, targetCurrency, rounder="floor") => {
   const rate = originalCurrency === "USD" ?
     checkoutStore.exchangeRates[targetCurrency].rate :
     1 / checkoutStore.exchangeRates[originalCurrency].rate;
 
   amount = ParseMoney(amount, originalCurrency);
 
-  return Money.fromDecimal(amount.multiply(rate).toString(), targetCurrency, "ceil");
+  return Money.fromDecimal(amount.multiply(rate, Math[rounder]).toString(), targetCurrency, rounder);
 };
 
-export const ToUSD = (amount) => {
-  return ConvertCurrency(amount, checkoutStore.currency, "USD");
+export const ToUSD = (amount, rounder="round") => {
+  return ConvertCurrency(amount, checkoutStore.currency, "USD", rounder);
 };
 
-export const FromUSD = (amount) => {
-  return ConvertCurrency(amount, "USD", checkoutStore.currency);
+export const FromUSD = (amount, rounder="round") => {
+  return ConvertCurrency(amount, "USD", checkoutStore.currency, rounder);
 };
 
+window.ToUSD = ToUSD;
+window.FromUSD = FromUSD;
 window.ParseMoney = ParseMoney;
 
 export const FormatPriceString = (

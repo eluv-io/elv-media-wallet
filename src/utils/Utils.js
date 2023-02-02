@@ -350,13 +350,13 @@ export const NFTInfo = ({
     let expired = false;
     let releaseDate, expirationDate;
     if(offer.available_at) {
-      releaseDate = new Date(offer.available_at).toLocaleDateString("en-US", dateFormat);
+      releaseDate = new Date(offer.available_at).toLocaleDateString(navigator.languages, dateFormat);
       released = Date.now() > new Date(offer.available_at).getTime();
     }
 
     if(offer.expires_at) {
       expired = Date.now() > new Date(offer.expires_at).getTime();
-      expirationDate = new Date(offer.expires_at).toLocaleDateString("en-US", dateFormat);
+      expirationDate = new Date(offer.expires_at).toLocaleDateString(navigator.languages, dateFormat);
     }
 
     let {hide, hide_if_unreleased, hide_if_expired} = (offer.visibility || {});
