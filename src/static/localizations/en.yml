@@ -64,6 +64,12 @@ actions:
     confirm: Confirm Offer For {price}
     remove: Remove Offer
     remove_confirm: Are you sure you want to cancel this offer?
+    accept: Accept
+    accept_offer: Accept Offer
+    accept_confirm: Would you like to accept this offer of {price} for {itemName}?
+    decline: Decline
+    decline_offer: Decline Offer
+    decline_confirm: Are you sure you want to decline this offer of {price} for {itemName}?
   transfers:
     transfer: Transfer NFT
     transfer_confirm: Are you sure you want to transfer this NFT to {targetAddress}?
@@ -200,6 +206,7 @@ purchase:
     listing_failed: Unable to list this NFT
 
 offers:
+  offer: Offer
   make_an_offer: Make an Offer
   active_offers: Active Offers for this NFT
   min_offer_price: Minimum offer price is {price}

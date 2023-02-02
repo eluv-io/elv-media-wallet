@@ -5,7 +5,7 @@ import {Ago, MiddleEllipsis, NFTDisplayToken, TimeDiff} from "../../utils/Utils"
 import {Loader} from "Components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import ImageIcon from "Components/common/ImageIcon";
-import {FormatPriceString} from "Components/common/UIComponents";
+import {FormatPriceString, LocalizeString} from "Components/common/UIComponents";
 import Table, {FilteredTable} from "Components/common/Table";
 import UrlJoin from "url-join";
 
@@ -183,20 +183,20 @@ const OffersTableActions = observer(({offer, setShowOfferModal, Reload}) => {
               message: (
                 <div className="offers-table__accept-modal">
                   <div className="offers-table__accept-modal__message">
-                    {`Would you like to accept this offer of ${FormatPriceString(offer.price, {stringOnly: true})}${buyer ? ` from @${buyer}` : ""}  for '${offer.name}'?`}
+                    { LocalizeString(rootStore.l10n.actions.offers.accept_confirm, {price: FormatPriceString(offer.price, {stringOnly: true}), itemName: offer.name}) }
                   </div>
                   <div className="offers-table__accept-modal__breakdown">
                     <div className="offers-table__accept-modal__line-item">
-                      <label>Offer</label>
+                      <label>{ rootStore.l10n.offers.offer}</label>
                       {FormatPriceString(offer.price)}
                     </div>
                     <div className="offers-table__accept-modal__line-item">
-                      <label>Creator Royalty</label>
+                      <label>{ rootStore.l10n.purchase.creator_royalty }</label>
                       {FormatPriceString(offer.royalty)}
                     </div>
                     <div className="offers-table__accept-modal__separator" />
                     <div className="offers-table__accept-modal__line-item ">
-                      <label>Total Payout</label>
+                      <label>{ rootStore.l10n.purchase.total_payout }</label>
                       {FormatPriceString(Math.max(0, offer.payout_amount))}
                     </div>
                   </div>
@@ -213,8 +213,8 @@ const OffersTableActions = observer(({offer, setShowOfferModal, Reload}) => {
           }}
           className="offers-table__action"
         >
-          <div className="offers-table__action__text">Accept</div>
-          <ImageIcon icon={AcceptIcon} title="Accept Offer"/>
+          <div className="offers-table__action__text">{ rootStore.l10n.actions.offers.accept}</div>
+          <ImageIcon icon={AcceptIcon} title={rootStore.l10n.actions.offers.accept_offer}/>
         </button>
         <button
           onClick={async event => {
@@ -222,7 +222,7 @@ const OffersTableActions = observer(({offer, setShowOfferModal, Reload}) => {
             event.preventDefault();
 
             await Confirm({
-              message: `Are you sure you want to decline this offer of ${FormatPriceString(offer.price, {stringOnly: true})}${buyer ? ` from @${buyer}` : ""}  for '${offer.name}'?`,
+              message: LocalizeString(rootStore.l10n.actions.offers.decline_confirm, {price: FormatPriceString(offer.price, {stringOnly: true}), itemName: offer.name}),
               Confirm: async () => {
                 await rootStore.walletClient.RejectMarketplaceOffer({offerId: offer.id});
 
@@ -234,8 +234,8 @@ const OffersTableActions = observer(({offer, setShowOfferModal, Reload}) => {
           }}
           className="offers-table__action"
         >
-          <div className="offers-table__action__text">Decline</div>
-          <ImageIcon icon={RejectIcon} title="Decline Offer"/>
+          <div className="offers-table__action__text">{rootStore.l10n.actions.offers.decline}</div>
+          <ImageIcon icon={RejectIcon} title={rootStore.l10n.actions.offers.decline_offer}/>
         </button>
       </div>
     );

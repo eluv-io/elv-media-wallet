@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import {observer} from "mobx-react";
 import {cryptoStore, rootStore} from "Stores";
 import Confirm from "Components/common/Confirm";
+import {LocalizeString} from "Components/common/UIComponents";
 
 const TransferSection = observer(({nft}) => {
   const heldDate = nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
@@ -110,7 +111,7 @@ const TransferSection = observer(({nft}) => {
                 disabled={heldMessage ||!cryptoStore.MetamaskAvailable() || cryptoStore.metamaskChainId !== chainId}
                 className="action details-page__transfer-button"
                 onClick={async () => await Confirm({
-                  message: `Are you sure you want to transfer this NFT to ${name}?`,
+                  message: LocalizeString(rootStore.l10n.actions.transfer.transfer_confirm, {targetAddress: name}),
                   Confirm: async () => {
                     try {
                       await cryptoStore.TransferNFT({network, nft});
