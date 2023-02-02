@@ -169,9 +169,6 @@ const OffersTableActions = observer(({offer, setShowOfferModal, Reload}) => {
   }
 
   if(Utils.EqualAddress(offer.seller, rootStore.CurrentAddress())) {
-    // If buyer has no username, don't show address
-    const buyer = offer.buyer === offer.buyer_username ? undefined : offer.buyer_username;
-
     return (
       <div className="offers-table__actions">
         <button
