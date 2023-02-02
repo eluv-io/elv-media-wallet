@@ -1010,7 +1010,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
                 <Link to={backPage.path} className="details-page__back-link">
                   <ImageIcon icon={BackIcon}/>
                   <div className="details-page__back-link__text ellipsis">
-                    Back to {backPage.name}
+                    { LocalizeString(rootStore.l10n.actions.back_to, {thing: backPage.name}) }
                   </div>
                 </Link> : null
             }

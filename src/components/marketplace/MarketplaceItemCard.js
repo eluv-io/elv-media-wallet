@@ -1,5 +1,6 @@
 import React from "react";
 import {useRouteMatch} from "react-router-dom";
+import {rootStore} from "Stores";
 import {MarketplaceImage} from "Components/common/Images";
 import ItemCard from "Components/common/ItemCard";
 import FeaturedItemCard from "Components/common/FeaturedItemCard";
@@ -43,19 +44,19 @@ const MarketplaceItemCard = ({
 
   let status, action, linkDisabled=noLink;
   if(info.expired) {
-    action = "Listings";
-    status = "Sale Ended";
+    action = rootStore.l10n.item_details.status.listings;
+    status = rootStore.l10n.item_details.status.sale_ended;
   } else if(info.unauthorized) {
-    status = item.permission_message || "Private Offering";
+    status = item.permission_message || rootStore.l10n.item_details.status.private_offering;
     linkDisabled = true;
   } else if(info.outOfStock) {
-    action = "Listings";
-    status = "Sold Out!";
+    action = rootStore.l10n.item_details.status.listings;
+    status = rootStore.l10n.item_details.status.sold_out;
   } else if(!info.released) {
     linkDisabled = true;
     status = "";
   } else {
-    action = info.free ? "Claim" : "Buy";
+    action = rootStore.l10n.item_details.status[info.free ? "claim": "buy"];
   }
 
   let CardComponent = ItemCard;
@@ -65,14 +66,14 @@ const MarketplaceItemCard = ({
 
     sideText = undefined;
     if(item.available_at) {
-      sideText = `Release Date: ${new Date(item.available_at).toLocaleDateString("en-US", {year: "numeric", month: "long", day: "numeric"}) }`;
+      sideText = `${rootStore.l10n.item_detais.status.release_date}: ${new Date(item.available_at).toLocaleDateString("en-US", {year: "numeric", month: "long", day: "numeric"}) }`;
     }
   }
 
   let priceText = "";
   if(!noPrice) {
     if(info.maxOwned) {
-      priceText = "Maximum owned!";
+      priceText = rootStore.l10n.item_details.status.max_owned;
     } else if(!info.free) {
       priceText = info.renderedPrice;
     }

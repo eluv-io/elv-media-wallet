@@ -363,6 +363,7 @@ export const OffersTable = observer(({
           rootStore.l10n.tables.columns.token_id,
           rootStore.l10n.tables.columns.time,
           rootStore.l10n.tables.columns.offer_price,
+          rootStore.l10n.tables.columns.total_amount,
           rootStore.l10n.tables.columns.expiration,
           rootStore.l10n.tables.columns[buyerAddress ? "to" : "from"],
           rootStore.l10n.tables.columns.status,

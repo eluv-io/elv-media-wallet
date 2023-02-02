@@ -7,6 +7,7 @@ import {UserTransferTable} from "Components/listings/TransferTables";
 import SalesIcon from "Assets/icons/misc/sales icon.svg";
 import PurchasesIcon from "Assets/icons/misc/purchases icon.svg";
 import Utils from "@eluvio/elv-client-js/src/Utils";
+import {RichText} from "Components/common/UIComponents";
 
 const UserActivity = observer(() => {
   const match = useRouteMatch();
@@ -34,14 +35,14 @@ const UserActivity = observer(() => {
       {
         Utils.EqualAddress(userAddress, rootStore.CurrentAddress()) ?
           <>
-            <div className="listings-page__message">
-              Funds availability notice – A hold period will be imposed on amounts that accrue from the sale of an NFT.
-              Account holders acknowledge that, during this hold period, a seller will be unable to withdraw the amounts
-              attributable to such sale(s). The current hold period for withdrawing the balance is 15 days.
-            </div>
-            <div className="listings-page__message">
-              For questions or concerns, please contact <a href={"mailto:payments@eluv.io"}>payments@eluv.io</a>
-            </div>
+            <RichText
+              className="listings-page__message"
+              richText={rootStore.l10n.profile.payout_terms}
+            />
+            <RichText
+              className="listings-page__message"
+              richText={rootStore.l10n.profile.payout_terms_contact}
+            />
           </> : null
       }
     </div>

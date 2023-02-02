@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
-import {ButtonWithLoader, QRCodeElement, RichText} from "Components/common/UIComponents";
+import {ButtonWithLoader, LocalizeString, QRCodeElement, RichText} from "Components/common/UIComponents";
 import {Link, useRouteMatch} from "react-router-dom";
 import {checkoutStore, rootStore} from "Stores";
 import Utils from "@eluvio/elv-client-js/src/Utils";
@@ -101,7 +101,7 @@ const NFTOffers = observer(({nftInfo}) => {
                               offer.expirationDate ?
                                 <div className="item-card__date">
                                   <div className="item-card__date__label">
-                                    Redemption Expires
+                                    { rootStore.l10n.redeemables.expires }
                                   </div>
                                   <div className="item-card__date__date">
                                     { offer.expirationDate }
@@ -144,7 +144,7 @@ const NFTOffers = observer(({nftInfo}) => {
                                 });
                               }}
                             >
-                              Redeem
+                              { rootStore.l10n.redeemables.redeem }
                             </ButtonWithLoader>
                           </div> : null
                       }
@@ -167,7 +167,7 @@ const NFTOffers = observer(({nftInfo}) => {
                                   }}
                                   className="action action-primary item-card__action"
                                 >
-                                  View Redemption Code
+                                  { rootStore.l10n.redeemables.view_redemption_code }
                                 </ButtonWithLoader>
                               </div> :
                               <Link
@@ -179,7 +179,7 @@ const NFTOffers = observer(({nftInfo}) => {
                                 className="redeemable-offer__redeemer"
                               >
                                 <div className="redeemable-offer__redeemer__name">
-                                  By { redeemerName ? `@${redeemerName}` : MiddleEllipsis(redeemer, 20) }
+                                  { LocalizeString(rootStore.l10n.redeemables.redeemed_by, {redeemer: redeemerName ? `@${redeemerName}` : MiddleEllipsis(redeemer, 20)}) }
                                 </div>
                                 { redeemerName ? <div className="redeemable-offer__redeemer__address">{ redeemer }</div> : null }
                               </Link>
@@ -195,7 +195,7 @@ const NFTOffers = observer(({nftInfo}) => {
                             }
                             rel="noopener"
                           >
-                            See More Info on Eluvio Lookout
+                            { rootStore.l10n.item_details.lookout_link }
                           </a>
                         </div> : null
                     }

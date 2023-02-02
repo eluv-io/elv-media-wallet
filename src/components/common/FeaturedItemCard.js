@@ -77,7 +77,7 @@ const FeaturedItemCard = observer(({
             UrlJoin("/wallet", `listings?filter=${encodeURIComponent(searchName)}`)
         }
       >
-        View Listings
+        { rootStore.l10n.actions.listings.view }
       </Link>
     );
   }

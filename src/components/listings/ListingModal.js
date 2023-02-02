@@ -74,7 +74,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
             <div className="listing-modal__form__inputs">
               <div className="listing-modal__form__input-container">
                 <input
-                  placeholder="Set Price"
+                  placeholder={rootStore.l10n.purchase.set_price}
                   className={`listing-modal__form__price-input ${floatPrice > priceCeiling || floatPrice < priceFloor ? "listing-modal__form__price-input-error" : ""}`}
                   value={price}
                   onChange={event => setPrice(event.target.value.replace(/[^\d.]/g, ""))}

@@ -17,7 +17,14 @@ login:
   signed_in_as: Signed In As
   signed_in_via: Sign in Via
   connect_metamask: Connect Metamask
+  powered_by: Powered by
+  select_all_options: Select All
+  accept: I Accept
   terms: By creating an account or signing in, I agree to the [Eluvio Privacy Policy](https://live.eluv.io/privacy) and the [Eluvio Terms and Conditions](https://live.eluv.io/terms).
+  email_consent: By checking this box, I give consent for my email address to be stored with my wallet address {tenantClause}. Eluvio may also send informational and marketing emails to this address.
+  email_consent_tenant_clause: and shared with {tenantName}
+  errors:
+    missing_required_options: Please accept the required options below
 
 navigation:
   profile: My Profile
@@ -31,10 +38,10 @@ navigation:
   collectibles: Collectibles
 
 actions:
-  view_listings: View Listings
   confirm: Confirm
   continue: Continue
   back: Back
+  back_to: Back to {thing}
   cancel: Cancel
   close: Close
   packs:
@@ -50,6 +57,7 @@ actions:
     edit: Edit Listing
     remove: Remove Listing
     remove_confirm: Are you sure you want to remove this listing?
+    view: View Listings
   offers:
     create: Make an Offer
     edit: Modify Your Offer
@@ -178,6 +186,7 @@ purchase:
   wallet_balance: Wallet Balance
   checkout: Checkout
   sell_your_nft: Sell Your NFT
+  set_price: Set Price
   min_listing_price: Minimum listing price is {price}
   max_listing_price: Maximum listing price is {price}
   conversion_note: All values are approximate based on current estimated USD exchange rates.
@@ -195,8 +204,17 @@ offers:
   active_offers: Active Offers for this NFT
   min_offer_price: Minimum offer price is {price}
   max_offer_price: Maximum offer price is {price}
+  expires_in_single: Expires in 1 Day
+  expires_in: Expires in {number} Days
+  set_offer_amount: Set Offer Amount
   errors:
     failed: Unable to make this offer.
+
+redeemables:
+  redeem: Redeem
+  expires: Redemption Expires
+  view_redemption_code: View Redemption Code
+  redeemed_by: By {redeemer}
 
 transfers:
   header: Transfer Your Item
@@ -208,6 +226,26 @@ transfers:
     invalid_address: Invalid Target Address
     no_self_transfer: You may not transfer an NFT to yourself
     failed: Transfer Failed
+
+collections:
+  collection: Collection
+  go_to_collection: Go to Collection
+  back_to_collection: Back to {collectionName}
+  back_to_collections: Back to {marketplaceName} Collections
+  collection_complete: Your collection is complete!
+  complete_to_redeem: Complete your collection to redeem the rewards below!
+  selected: Selected
+  redeem: Redeem
+  select_token: Select this Token
+  select_nfts: Select NFTs to Redeem
+  select_nfts_2: Select the NFTs you wish to trade in
+  select_nfts_3: Choose one NFT per collection slot
+  select_nfts_4: Please select one token to redeem for each item in the collection.
+  signature_warning: This operation requires one signature per redeemed token. Please check your Metamask browser extension and accept all pending signature requests.
+  redemption_warning: Clicking redeem will permanently burn the selected tokens and mint the reward tokens to your account. Your new NFTs will appear in your wallet when minting is complete. This operation cannot be reversed and burned tokens cannot be recovered.
+  redemption_confirmation: Are you sure you want to redeem this collection with the selected tokens? This action cannot be reversed.
+  errors:
+    listed_nft: You may not redeem a token while it is listed for sale.
 
 tables:
   pagination: Showing {min} - {max} of {total} results
@@ -316,16 +354,31 @@ item_details:
   held_until: Held Until
   cap: Cap
   minted: Minted on the Eluvio Content Fabric on {date}
+  status:
+    listings: Listings
+    sale_ended: Sale Ended
+    private_offering: Private Offering
+    sold_out: Sold Out!
+    claim: Claim
+    buy: Buy
+    max_owned: Maximum Owned!
+    release_date: Release Date
   menu:
     set_as_profile: Set as my Profile Image
     copy_listing_url: Copy Listing URL
     copy_item_url: Copy Item URL
     copy_media_url: Copy Media URL
     share_on_twitter: Share on Twitter
+  additional_media:
+    view_ar: View this AR experience on mobile
+    qr_code_instructions: Point your phone's camera at this QR code to view on mobile.
+    next: Next
+    previous: Previous
 
 status:
   back_to_profile: Back to My Profile
   back_to_marketplace: Back to the Marketplace
+  back_to_items: Back to Items
   back_to_my_items: Back to My Items
   back_to_collection: Back to My Collection
   pack_opening: Your pack is opening
@@ -380,3 +433,11 @@ withdrawal:
     general: Unable to withdraw funds. Please try again later.
     setup: Unable to set up withdrawal. Please try again later.
     stripe_not_set_up: Your Stripe account has been created, but is not ready to accept payments. Please finish setting up your account.
+
+deposits:
+  add_funds: Add Funds
+  select_provider: Please select a provider
+  supported_methods: This is a secure payment method using Coinbase Commerce. Only ETH, BTC, BCH, USDC, and DAI via the Ethereum mainnet are supported.
+  specify_amount: Please specify the amount you wish to deposit.
+  max_deposit: Maximum deposit is $1000.
+  terms: Processing time varies depending on the network, and can take several minutes to complete. Standard network fees apply. Deposits are limited to $1000 per transaction and $10,000 per day, and are subject to the [Eluvio Terms and Conditions](https://live.eluv.io/terms). By clicking "Continue" you acknowledge that you have read and understood all of these terms and conditions.

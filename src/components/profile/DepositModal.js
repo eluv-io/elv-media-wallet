@@ -1,9 +1,9 @@
 import React, {useState} from "react";
 import Modal from "Components/common/Modal";
 import {observer} from "mobx-react";
-import {ButtonWithLoader, Select} from "Components/common/UIComponents";
+import {ButtonWithLoader, RichText, Select} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
-import {checkoutStore} from "Stores";
+import {rootStore, checkoutStore} from "Stores";
 import {ValidEmail} from "../../utils/Utils";
 import {useRouteMatch} from "react-router-dom";
 
@@ -27,14 +27,14 @@ const DepositModal = observer(({Close}) => {
     content = (
       <div className="deposit-form">
         <div className="deposit-form__header">
-          Add Funds
+          { rootStore.l10n.deposits.add_funds }
         </div>
         <div className="deposit-form__content">
           <div className="deposit-form__message">
-            This is a secure payment method using Coinbase Commerce. Only ETH, BTC, BCH, USDC, and DAI via the Ethereum mainnet are supported.
+            { rootStore.l10n.deposits.supported_methods }
           </div>
           <div className="deposit-form__message">
-            Please specify the amount you wish to deposit.
+            { rootStore.l10n.deposits.specify_amount }
           </div>
           <div className="deposit-form__inputs">
             {
@@ -42,7 +42,7 @@ const DepositModal = observer(({Close}) => {
                 <input
                   type="email"
                   name="email"
-                  placeholder="Email"
+                  placeholder={rootStore.l10n.withdrawal.fields.email}
                   className="deposit-form__input deposit-form__input--email"
                   value={email}
                   onChange={event => setEmail(event.target.value)}
@@ -51,7 +51,7 @@ const DepositModal = observer(({Close}) => {
             <div className="deposit-form__input-container">
               <ImageIcon icon={USDIcon} className="deposit-form__input__icon" />
               <input
-                placeholder="Set Price"
+                placeholder={rootStore.l10n.purchase.set_price}
                 className={`deposit-form__input with-icon ${invalid ? "deposit-form__input-error" : ""}`}
                 value={amount}
                 onChange={event => setAmount(event.target.value.replace(/[^\d.]/g, ""))}
@@ -61,16 +61,17 @@ const DepositModal = observer(({Close}) => {
             {
               invalid ?
                 <div className="deposit-form__input__error">
-                  Maximum deposit is $1000.
+                  { rootStore.l10n.deposits.max_deposit }
                 </div> : null
             }
           </div>
-          <div className="deposit-form__message deposit-form__message--terms">
-            Processing time varies depending on the network, and can take several minutes to complete. Standard network fees apply. Deposits are limited to $1000 per transaction and $10,000 per day, and are subject to the <a href="https://live.eluv.io/terms" target="_blank">Eluvio Terms and Conditions</a>. By clicking "Continue" you acknowledge that you have read and understood all of these terms and conditions.
-          </div>
+          <RichText
+            className="deposit-form__message deposit-form__message--terms"
+            richText={rootStore.l10n.deposits.terms}
+          />
           <div className="deposit-form__actions">
             <button className="action" onClick={() => setSelectedProvider(undefined)}>
-              Cancel
+              { rootStore.l10n.actions.cancel }
             </button>
             <ButtonWithLoader
               disabled={!ValidEmail(email)}
@@ -86,7 +87,7 @@ const DepositModal = observer(({Close}) => {
               }}
               className="action action-primary"
             >
-              Continue
+              { rootStore.l10n.actions.continue }
             </ButtonWithLoader>
           </div>
         </div>
@@ -96,11 +97,11 @@ const DepositModal = observer(({Close}) => {
     content = (
       <div className="deposit-form">
         <div className="deposit-form__header">
-          Add Funds
+          { rootStore.l10n.deposits.add_funds }
         </div>
         <div className="deposit-form__content">
           <div className="deposit-form__message">
-            Please select a provider
+            { rootStore.l10n.deposits.select_provider }
           </div>
           <Select
             value={provider}
@@ -110,10 +111,10 @@ const DepositModal = observer(({Close}) => {
           />
           <div className="deposit-form__actions">
             <button className="action" onClick={() => Close()}>
-              Cancel
+              { rootStore.l10n.actions.cancel }
             </button>
             <button onClick={() => setSelectedProvider(provider)} className="action action-primary">
-              Continue
+              { rootStore.l10n.actions.continue }
             </button>
           </div>
         </div>

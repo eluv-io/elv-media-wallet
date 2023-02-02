@@ -5,7 +5,7 @@ import {Initialize} from "@eluvio/elv-embed/src/Import";
 import {Link, useRouteMatch} from "react-router-dom";
 import {AvailableMedia, MediaImageUrl, MediaLinkPath} from "Components/nft/media/Utils";
 import ImageIcon from "Components/common/ImageIcon";
-import {FullScreenImage, QRCodeElement, RichText} from "Components/common/UIComponents";
+import {FullScreenImage, LocalizeString, QRCodeElement, RichText} from "Components/common/UIComponents";
 import AlbumView from "Components/nft/media/Album";
 import Modal from "Components/common/Modal";
 import {MediaCollection} from "Components/nft/media/Browser";
@@ -26,13 +26,13 @@ const NFTActiveMediaQRCode = ({link, Close}) => {
     <Modal className="nft-media__qr-modal-container" closable Toggle={Close} >
       <div className="nft-media__qr-modal">
         <h1 className="nft-media__qr-modal__header">
-          View AR Experience on Mobile
+          { rootStore.l10n.item_details.additional_media.view_ar }
         </h1>
         <div className="nft-media__qr-modal__content">
           <QRCodeElement content={link} className="nft-media__qr-modal__qr-code" />
           <ImageIcon icon={ARPhoneIcon} className="nft-media__qr-modal__icon" />
           <div className="nft-media__qr-modal__text">
-            Point your phone's camera at this QR code to view on mobile.
+            { rootStore.l10n.item_details.additional_media.qr_code_instructions }
           </div>
         </div>
       </div>
@@ -235,7 +235,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
                 <Link to={match.url.split("/media")[0]} className="details-page__back-link">
                   <ImageIcon icon={BackIcon}/>
                   <div className="details-page__back-link__text ellipsis">
-                    Back to {backPage.name}
+                    { LocalizeString(rootStore.l10n.actions.back_to, {thing: backPage.name}) }
                   </div>
                 </Link> : null
             }
@@ -284,7 +284,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
               <Link to={`${match.url.split("/media")[0]}?tab=Media`} className="details-page__back-link">
                 <ImageIcon icon={BackIcon}/>
                 <div className="details-page__back-link__text ellipsis">
-                  Back to {backPage.name}
+                  { LocalizeString(rootStore.l10n.actions.back_to, {thing: backPage.name}) }
                 </div>
               </Link> : null
           }
@@ -310,7 +310,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
                     <ImageIcon icon={QRCodeIcon} />
                     <ImageIcon icon={ARPhoneIcon} />
                     <div className="nft-media__content__button__text">
-                      View this AR experience on mobile
+                      { rootStore.l10n.item_details.additional_media.view_ar }
                     </div>
                   </button> : null
               }
@@ -323,7 +323,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
                   >
                     <ImageIcon icon={LeftArrow} />
                     <div className="nft-media__content__button__text ellipsis">
-                      Previous{previous.mediaItem?.name ? `: ${previous.mediaItem.name}` : ""}
+                      {rootStore.l10n.item_details.additional_media.previous}{previous.mediaItem?.name ? `: ${previous.mediaItem.name}` : ""}
                     </div>
                   </Link> : null
               }
@@ -334,7 +334,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
                     className="nft-media__content__button nft-media__content__button--next"
                   >
                     <div className="nft-media__content__button__text ellipsis">
-                      Next{next.mediaItem?.name ? `: ${next.mediaItem.name}` : ""}
+                      {rootStore.l10n.item_details.additional_media.media.next}{next.mediaItem?.name ? `: ${next.mediaItem.name}` : ""}
                     </div>
                     <ImageIcon icon={RightArrow} />
                   </Link> : null

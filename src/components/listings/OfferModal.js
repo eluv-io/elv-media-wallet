@@ -96,7 +96,7 @@ const OfferModal = observer(({nft, offer, Close}) => {
             <div className="offer-modal__form__inputs">
               <div className="offer-modal__form__input-container">
                 <input
-                  placeholder="Set Offer Amount"
+                  placeholder={rootStore.l10n.offers.set_offer_amount}
                   className={`offer-modal__form__price-input ${floatPrice > priceCeiling ? "offer-modal__form__price-input-error" : ""}`}
                   value={price}
                   onChange={event => setPrice(event.target.value.replace(/[^\d.]/g, ""))}
@@ -130,15 +130,14 @@ const OfferModal = observer(({nft, offer, Close}) => {
               <Select
                 value={offerDuration}
                 onChange={duration => setOfferDuration(duration)}
-                activeValuePrefix="Expires in "
                 containerClassName="offer-modal__duration__select-container"
                 buttonClassName="offer-modal__duration__select"
                 options={[
-                  ["1", "1 Day"],
-                  ["3", "3 Days"],
-                  ["7", "7 Days"],
-                  ["14", "14 Days"],
-                  ["30", "30 Days"]
+                  ["1", rootStore.l10n.offers.expires_in_single],
+                  ["3", LocalizeString(rootStore.l10n.offers.expires_in, {number: 3})],
+                  ["7", LocalizeString(rootStore.l10n.offers.expires_in, {number: 7})],
+                  ["14", LocalizeString(rootStore.l10n.offers.expires_in, {number: 14})],
+                  ["30", LocalizeString(rootStore.l10n.offers.expires_in, {number: 30})],
                 ]}
               />
               <div className="offer-modal__duration__date">

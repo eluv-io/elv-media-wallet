@@ -51,7 +51,7 @@ const CollectionCard = observer(({marketplace, collection}) => {
             to={UrlJoin("/marketplace", match.params.marketplaceId, "collections", collection.sku)}
             className="action action-primary"
           >
-            Go to Collection
+            { rootStore.l10n.collections.go_to_collection }
           </Link>
         </div>
       </div>

@@ -1,399 +1,475 @@
 header:
-  activity: trhzsfst
-  collections: mkjlxkbegdy
-  discover_projects: zwjssuvg jmmmyysv
-  leaderboard: vvsziqozvqi
-  listings: hsswrscn
-  profile: nzfxhbv
-  store: pnkvx
-  items: uhojn
-  offers: crbgou
-  notifications: lluzsdtowcerv
+  activity: zaxwpfma
+  collections: wbazedcgwtx
+  discover_projects: qgloumlb psnohqom
+  leaderboard: bnwzlxbnrwi
+  listings: akzdlmxt
+  profile: eszswgc
+  store: bggaf
+  items: cnsld
+  offers: xpvtzm
+  notifications: mdnckjaocureq
 login:
-  sign_in: dfpe ba
-  sign_up: jclk he
-  sign_out: zyyh cbg
-  signed_in_as: plcmje sg gp
-  signed_in_via: azee eb xwj
-  connect_metamask: jimwvma yrdjinjx
+  sign_in: ybww og
+  sign_up: tlhe pt
+  sign_out: lyex bdz
+  signed_in_as: ohlaxx zp wc
+  signed_in_via: bibp du ptk
+  connect_metamask: bengtpe fcfsgaku
+  powered_by: mcjgeis yd
+  select_all_options: kmvzap dqi
+  accept: o rzftge
   terms: >-
-    oy twcfwfxc si yrpwsyc px xsfeguo hk, m awprc vz ngf [Eluvio Privacy
-    Policy](https://live.eluv.io/privacy) rzw dug [Eluvio Terms and
+    rk gdtaojdi lm xszurwn um uhprpsb gz, o toslc of sya [Eluvio Privacy
+    Policy](https://live.eluv.io/privacy) kgn vcv [Eluvio Terms and
     Conditions](https://live.eluv.io/terms).
+  email_consent: >-
+    hp pxzdeosi aail uie, c ylgl itddvwj xef er ggpre kpuvqgt nj gq jsiuto pfeg
+    xd qjzmnv xscgmxd {tenantClause}. eifhhz sxl vzxc ndwi wyumlzigadhjk yhu
+    gayyswxhi rmhbtu wv dtlq qkydjzy.
+  email_consent_tenant_clause: kbe oyxjcm jubu {tenantName}
+  errors:
+    missing_required_options: lwmfmj jnhkbs hxb svagmnqk ckwhcyp iedhp
 navigation:
-  profile: oa woxlvev
-  collections: rl rkbbryrmhxh
-  items: jj vqtza
-  listings: jj xxvtmdii
-  offers: fd smbzbm
-  activity: ma ldyjhmii
-  notifications: rgthkqdoithle
-  preferences: oipuglosact
-  collectibles: mjrjhomermbe
+  profile: xi sahhdbh
+  collections: sw gntxuniouco
+  items: at wahph
+  listings: xn wbzsovfj
+  offers: ep shyemv
+  activity: lw nbrzgnkk
+  notifications: xylqwzkfnwgke
+  preferences: qlxyljspscu
+  collectibles: zibapzclysxd
 actions:
-  view_listings: cdus atdolayc
-  confirm: fzeltqz
-  continue: xwxadtpe
-  back: xnzw
-  cancel: xjmxqr
-  close: dkbtl
+  confirm: ojtssvn
+  continue: nkayqrwz
+  back: udrw
+  back_to: adxs fj {thing}
+  cancel: ctkvcu
+  close: tjcyg
   packs:
-    open: uwqp {name}
-    open_confirm: mwc hif djic ksd firk uj unka '{name}'?
+    open: jjgu {name}
+    open_confirm: ohc qag scso wsu naow fa ptth '{name}'?
   purchase:
-    buy_now: xti rfp
-    buy_now_for: bsh muu cgq {price}
-    claim: erajy bbz
+    buy_now: qud lqk
+    buy_now_for: vxu vvh msd {price}
+    claim: isrvc uyr
   listings:
-    create: lgst pko aqcf
-    create_for: uziy fwg dtl {price}
-    edit: ckrq rribvef
-    remove: dhtoki ispucnr
-    remove_confirm: plf nhb jzdr qlx vqkr xt cipacp ckzq dvffrkd?
+    create: aeps pmw jddg
+    create_for: dmqz uaa dmu {price}
+    edit: nhrh hijsbxt
+    remove: ddxepd eburbdo
+    remove_confirm: zlw jlm ksru bfx uizp ro grvecf yvug yvpmsov?
+    view: bcbu lqlaqkox
   offers:
-    create: sblu ix nxioy
-    edit: ryxcvk vnqa orcvn
-    confirm: oeiyzbb whxmz lsh {price}
-    remove: dqxlaz xmoiv
-    remove_confirm: wzt oud qetx eup xqef uv jbotee zxwg jsyru?
+    create: mooh bw mubfe
+    edit: ddhcpp gttv jcupc
+    confirm: rcqjlmn rjtdu nml {price}
+    remove: myaqew uvsiv
+    remove_confirm: ggz nlm jysv cso cjxo sy aehgjw zhno wvllq?
   transfers:
-    transfer: ibztanvi ozt
-    transfer_confirm: qea tru enxd lqb bneq dm ocplqptu puwm iiw ag {targetAddress}?
+    transfer: zubpzadc onu
+    transfer_confirm: mdu uja qkxr igm tvyn hk wkygxgzg rwvm xys vh {targetAddress}?
 profile:
-  media_wallet: hsmzc grdhxl
-  address: opptkl skyscut llnjzumnhu pqtmoan
+  media_wallet: riouz earhkj
+  address: rmjhhw kngpkqh drkmwdszsz jnlmzou
   do_not_send_funds: >-
-    ic ucd edkq vqxud ow gyps agkscrt. jexq in my qzqliy srcuzbz zsngmwueuh
-    gqntkro hbn yx uau g mbxukwo jfusslh.
-  connected_accounts: dykatlzbf erfvegpa
-  add_funds: wmw kpqir
-  withdraw_funds: lzssdwdt eddvz
+    jv sio fkfq ciuuc od dfxd tjgmhjf. pfmt fg nb fyagym dkhsiji hipfbxogzm
+    voszlxh ceu ul cva c wwgpsjq dnzlmne.
+  connected_accounts: ercekpphp ywxohtss
+  add_funds: vaa budzn
+  withdraw_funds: dhsgaxsh wiojn
   view:
-    all_offers: jvbz elg enqsau
-    deposits: wyuf xyvdxepq
-    details: ceus woqgmhn
-    outstanding_offers: whca vldwlsyyidw sdvxcc
-    stripe_dashboard: xzyq valixf qjgdrxdjn
-    transaction_history: vyej gadmcvpkthc qwkgazm
-    withdrawals: unpr vtadxlbdgvc
+    all_offers: mndc buu knedyw
+    deposits: ptel miwtoysb
+    details: gskz rdvisgb
+    outstanding_offers: mvhl zsxzvcpnwsf eeqrqd
+    stripe_dashboard: gcph jrcvtw abaisnizb
+    transaction_history: efid bzpmdbykcvk oigwvjw
+    withdrawals: uxxs zgjbsxvhtru
   hide:
-    deposits: pxmu owbuzyds
-    outstanding_offers: vsnw jduqonpctle zqijez
-    withdrawals: lzde nhrpmcuhgbo
+    deposits: xpzn vqsjjdpi
+    outstanding_offers: qjec xxyklogtlgp nbnxof
+    withdrawals: rycn gmnldpymwag
   payout_terms: >-
-    tvexy dyzdbxnqohoe yjppzh – p biti jgkwjv uvjc vp gyesroh la bcqfbfw qtmk
-    bqmskf fern xii ptpj lr gb yzm. syuoxxj vxhumok xrigrrhqtgn ttsb, jdpjul
-    vrhi jkoj kxjuxn, e vbnnrb zumg rf chbdgx tu jphmcwaq hvq xjamtel
-    wlsgmigsuqbr ts umnu hufv(s). iuj eemzoey jqfz paevdh wdj yufiwadlzgm izd
-    sdvrxtm ec 15 bhaf.
-  payout_terms_stripe: qnqgbw cy ozbqebw ar bcybps. xdi dgw zjxeqwvch pwo phwsaqwvrv vwwgsn.
+    ppdtz gurwwpxtvxgj jkuasx – c ywlc qdtdne vzhn xn qchyisk kg nyurwye mycn
+    tunejs euuc vck oxuv vp nh bjf. kptvsii tyxbxhd ynxslfwbmmz epji, fcrkoq
+    uhem maqa mywisp, i azwfwm uned wm yofwlx xj bbmwffml scc kaovtim
+    ptvyhvgnkjfc ka eohk mseg(s). bsu ihedveb cbyj ygrwqq jym buzbbormlfj asw
+    voqhpxv nn 15 jyic.
+  payout_terms_stripe: tjfuvn ut yskbxwj cg wfywmb. mrs dvn wxtzxqycc onj xynyvmzell ujuguo.
   payout_terms_contact: >-
-    nyn lhtrlmxkl pg echkxkgz, ocjvsj ygtymct
+    nch zuldbhtfv tj dgfsspqy, bfldbz pzuivhi
     [payments@eluv.io](mailto:payments@eluv.io)
   balance:
-    total: kbkqk ftlsuyu
-    locked: aihbaq gzqrome
-    withdrawable: mhiqpuxhelav reasdoo
+    total: owrcz moosaeg
+    locked: rjqnii tcsvses
+    withdrawable: lnnfmwzonzqj mhstmys
 preferences:
-  preferences: xkqxjqeivws
-  language: tpbxlfun
-  display_currency: mjzwpjt isdlppkd
-  marketplace_display_currency: zgkancneknb gpccyyz pgrkwaco
-  currency_conversion: wprq sr d yggaqupaao bvgpolmg pods hmk
+  preferences: aiwpmjeiakj
+  language: xnejdxhn
+  display_currency: dqobmlf abavnsvl
+  marketplace_display_currency: vjjvkqjhxol apzwutc rnafyeeq
+  currency_conversion: qmac wv u klpwuhhoeb hndjbxac qcmh vvv
   notifications:
-    listing_sold: kwpjpf zf pjil jwu xx nw vyegde ptov um gvxd
-    token_updated: rjwnzi ed louj ie pmh d way zn omzrsla (e.g. new media)
-    offer_received: ofapzz qe qvvz k fcxegcf c qjwkcdsv vypnb nwy ay wst p jzk
-    offer_accepted: gmqwks zb jdwx o khifcghc qcnyf c joko jgd sndimype
-    offer_declined: gldwuz wx meae g doxbmkqw jqdoj i tqvk cfw zmoyfvde
-    offer_expired: isfzex pu htxp q jkayrqfb ufogh q khma iex tyqyfzm
+    listing_sold: rmxvfe dw isgc sbp ui fb yoxiiq jrdy wc ruaj
+    token_updated: bibmpa dy nwlr gc fjz r jji tj bsykaab (e.g. new media)
+    offer_received: nulsvp pw uobp a eitkrib j jiuqjqdx uwrjp yqn wk hur f snv
+    offer_accepted: nrpuit xs qypi q imogkpxn kgbmv a wapw olo uozfqekv
+    offer_declined: lmnedn pl tqip a dlttnkdk vcsgp i epfs vdj vuiibvyg
+    offer_expired: djdyvd yl ouwc v ntptihdi chbyg m uhna fum ylekbzq
 notifications:
-  notifications: dildzkghuqike
-  disable: idcp cnj {type} hntenrkpkoqbd
-  load_more: jkgb ovbu
-  view_all: omkk dzn
-  new: zhk
-  all: vbn
-  no_new_notifications: zv pfz gmiytsotmyuua
-  no_new_notifications_desc: vyk ysc'u hjgg gnq res wbgmwetcrjahj
-  listing_sold: tbtbpxp baok
-  listing_sold_message: nsyp '{name}' jei euou pj tnf bqoozrpcloz xnk {price}.
-  token_updated: ddlcm mwsqpra
-  offer_received: sfvqp suxbbygn
-  offer_received_message: bgt qhne soxgqrwy sm kakyx ne {price} he awpk '{name}'.`
-  offer_accepted: davwr qdsedpat
-  offer_accepted_message: cijp ijulo qa '{name}' iwd {price} mnx klqa xkogekyk.
-  offer_declined: oldjb vmbqlnhz
-  offer_declined_message: zcof lpdtf ub '{name}' okc {price} sol syfq cernwxgz.
+  notifications: lyvkzzjrspthn
+  disable: ckjw frq {type} koftdsdmymtja
+  load_more: vlsu hwqv
+  view_all: whae dvk
+  new: ntz
+  all: rof
+  no_new_notifications: ze dpm vnanjdotxdzqv
+  no_new_notifications_desc: pwd uuv'r gyyx xmt jpy sdeiphpqxwcft
+  listing_sold: wfqqqfg aluq
+  listing_sold_message: zkyz '{name}' imu zzui lz wul ycgpirnuzaz gnf {price}.
+  token_updated: azwqe hpxmhzn
+  offer_received: jvloh yfvzsibw
+  offer_received_message: xbf lzjq nltfjrmj fg esqnu sf {price} re tkas '{name}'.`
+  offer_accepted: xllhc wgvoagih
+  offer_accepted_message: nqit xvvtq pz '{name}' qke {price} hvo wfcx irunjmeb.
+  offer_declined: ibcwy rbbavxdh
+  offer_declined_message: kfcq losvp yi '{name}' hcw {price} hta lvyw ednqdikr.
   offer_declined_reasons:
-    listing_sold: hqs pwnwoyg xww vpju.
-    other_offer_accepted: ox mhbkkdpfafc livon bky vdhywmdh.
-    nft_transfer: tbt mwse idb tbfsedpipav.
-  offer_expired: qugeq tedmgfa
-  offer_expired_message: vjnx wttkh wi '{name}' xan {price} anw vsnptdn.
+    listing_sold: bws srozgwg rrm usfo.
+    other_offer_accepted: nm vchormlfuqz rnmgf kij swmtngqb.
+    nft_transfer: fai ybyg yts qmtqpuneemo.
+  offer_expired: kdoez ujnnano
+  offer_expired_message: uiwn gigyv em '{name}' unn {price} tmn xlxxkix.
 connected_accounts:
-  connected_accounts: mrcpbsskk ddmihmqw
-  wallet_address: ldimok kmocoyw
-  direct: mkdmkq zrpg vgrbdz ogtfcvb yd cgkd sdtngu dnodgw ntn du qwhrazfc
+  connected_accounts: yfuguweov uimgvuot
+  wallet_address: qwmfwi lnjxuma
+  direct: ynauxz wmqa rzmjqh pzakqju ce zvho habdla ozfafc jwi no ygjgeaxc
   direct_info: >-
-    czhdjcwx ezpo tbbxlq ghhk knwjf rkee dnjoqsrk on kjdvtjiy pnnp upib glc
-    ketapk uaglyj ynij. dxbgdcd fnhm xsrxjr wmllwifn ad zujj gklmxp fvufnn
-    ykmgggv. og qkiilwjrq, gpsu kgwulnbv dnt qgxv qx etqgzbuwv kxt hgttla urkc,
-    feqjuajl, gk kngmnk xawokvt, xto xpo xserudre dkyq ui krusbqyt oo suhj
-    hlpyuo hhtgue awpxrqf, khjjc ul hgweebuleh ibp dggcok.
-  link_wallet: fepj oghrgx
-  link_wallet_2: sxtz {networkName} ahbphll oxlofu {t{est}
-  unlink_wallet: jvuuxn uufwoa
-  unlink_wallet_confirm: efu iqo lmqf tvq fmnn rn qvpvfouhpc irle nraofnu?
+    whmvynjn wjcz vfefve uszt dfuyd tmoh dizkjrjc vz srwodvjn ebiq wxhg hos
+    vinyzs sesxqq fohq. kmvdwbe ufig srdcuw yuppqfcj bh vfqy qbgqrd odbzoi
+    owkynze. nr cvsypgbvn, gbcg ldauoqxs xcf bgxn mo bpcugphue iru ugrmle lprq,
+    uhnfgabx, my vnjyir uktmqpg, dvs qki iseynuqn sghv ov goroeing ro fcff
+    swcpjw ukicsx vsegpar, fiihg mr hwvooxqlie lia duqveg.
+  link_wallet: sbwn sicyof
+  link_wallet_2: jzsp {networkName} rkhrtkt zhxhyr {t{est}
+  unlink_wallet: rogspb szkxjk
+  unlink_wallet_confirm: zfs uay uzsi njd ppgd dh yqfilvfzbs dbtp cvobthw?
   description: >-
-    cr nbx ejk utco hptv zsokw {usdcIcon} awjx ky {networkName} astf rdazbs
-    plzbcii, hoat sxei wjdibs mswak pacpfz vy tuor qjdzmcr gzauwz.
-  how_to_link: klg pv w jrlv sk nkjubqd llbdkt?
-  get_wallet: zph {walletName}
-  connect_wallet: hkcaurn {walletName}
-  wallet_connected: '{walletName} bslxlwmyf'
-  linked_at: pssuun {date}
+    is frl cum hhba dkrp wtsnb {usdcIcon} fnxp vn {networkName} vlvm olttor
+    abdlsjn, eeei ejlx asjmdj fyvsk ehzydl vu uryw vnosqoa iqjlwb.
+  how_to_link: wed sx q shik sb kdnwpgz gegqed?
+  get_wallet: fvg {walletName}
+  connect_wallet: usmkqkz {walletName}
+  wallet_connected: '{walletName} iuwnxxuvb'
+  linked_at: kstosr {date}
   errors:
-    general: fovayzvnz hpag wjuog zsin ifsbsrxilq jyse hessnk. vqplrv jhm qjdeg.
-    incorrect_account: qmjwwd zcjisy wko swymnkz npjuk pk efye {walletName} qfijuvauc ec mosuqro
-    incorrect_account_2: sxfiohbdi {walletName} eviyoel bbxfva. gjmkul zzflwu ca {address}.
+    general: pvjfsktmm vuhn fdezb dirk rihcwkdqmh xxwe nnkljk. gxioyx gvl idogw.
+    incorrect_account: glvwkk xaykjj akc wpkxubb lczjh fx bfmx {walletName} xeeozzvej cz mpkvaxk
+    incorrect_account_2: wnzckjjft {walletName} yrvczos njkbol. bmhydt cfoqdh bo {address}.
     already_connected: >-
-      vzzk {walletName} jgiebry be zdjcdct ofompthon tf e irbcgvhpd vejbkn
-      dklagv
+      fgcr {walletName} brzwazm eh eagbalx upltxerht ax z olvjjgcty kxntjz
+      tdvjzk
 stats:
   listings:
-    total: btqysh qmlqtlmx
-    value: gmvimf mzfexgy cqqpr
-    average: slravnz mbfftgv dmmgo
-    highest: adcpjhn oundp
-    lowest: caoexm oyafa
-    buy_from_collector: wsv ywdw k jcnpivocp
+    total: dxqkzt xggnjafv
+    value: wvwfus mtngxpq eslwu
+    average: fmegszw nmzayhn kgkez
+    highest: cisucwf vmadv
+    lowest: lqbppy xtvfz
+    buy_from_collector: yxf vixu j lrkybjjjp
   sales:
-    total: pdbjn ewehsduof kqcbh
-    value: vgyvutzry gzwry zrurgn
-    average: qhvlefi vfmdz
-    highest: dwiruiw vcvlr
-    lowest: tfxlyo wrlsn
+    total: sexaz nqewsvwiw hwmby
+    value: opkkthokk faibx hkodfw
+    average: zyfidtm pqwzm
+    highest: hekeclr pslux
+    lowest: kzvufm rwvak
 purchase:
-  service_fee: edgizsx tky
-  creator_royalty: zrbewfx lgdiruj
-  total_payout: kmlpy bljkeh
-  available_balance: iwvcjrmjq {balanceType}
-  total_balance: qhosh {balanceType}
-  remaining_balance: mvxbwvdma {balanceType}
-  total_amount: fvwzc
-  current_purchase_amount: eiffigu jxeqrkgt
-  select_country: cmxwkg vqtvhm wike hnituou
-  all_other_countries: bij ufyxa xvlwjcbfx
-  buy_with_wallet_balance: koi abhv shikzm wypenmb
-  credit_card: ueofjb nksi
-  wallet_balance: xethzp wlvvykk
-  checkout: xkuomysv
-  sell_your_nft: hlqe bwgd slg
-  min_listing_price: quqatfj grdpkjd sgopm ic {price}
-  max_listing_price: wfkqeoi ziihglq pdokf qg {price}
-  conversion_note: iuz jkebuo omj igcqdaywote kdavf ve qbhutft vpgogtapw zkg qeqmkxnx oqyub.
+  service_fee: lubahfc vpd
+  creator_royalty: ijgpcgv jygjntd
+  total_payout: ktpcc zkjddx
+  available_balance: ibrncwjuq {balanceType}
+  total_balance: drsfj {balanceType}
+  remaining_balance: nchzgpzgl {balanceType}
+  total_amount: ogozt
+  current_purchase_amount: skivolt hqocodun
+  select_country: jkhmmm jydvbq sijk nktjmaz
+  all_other_countries: rdy llmkv nezcgwjxn
+  buy_with_wallet_balance: ste arlw wumeig nnuzmzv
+  credit_card: ekohfq uuun
+  wallet_balance: ajxbjo mjsmgms
+  checkout: hutrpoza
+  sell_your_nft: pblc gkrl uns
+  set_price: esm fynkc
+  min_listing_price: lewqchb dzvnxoh kebqk me {price}
+  max_listing_price: fccytzm twlfryq jkjem cc {price}
+  conversion_note: afr nhnnbn tpd wdqkllcetfn vtfrr hj ntxhthz adrlccpqq ktd asezthvm ggklr.
   errors:
-    failed: oqsqcufn gjiflc
-    listing_unavailable: akyscvn qy oa grwggt jfrwcrtha
-    insufficient_stock: bibptlevdflo supbw rwtatfwxt gir yjag dillvlww
-    out_of_stock: mhlm tgfb yy cbo ww juzxd
-    solana_insufficient_funds: fxlgjm mkihvou iho bhljtyytjdch bmdvlak nf bjxdvsc farq awtbdloficg
-    ethereum_insufficient_funds: xnajydlr aydckst tvb vrosctdzuswk kmfzesq og trzqsfx ncil mxjnuaabhut
-    listing_failed: sibwmw nz mbkw crak kiu
+    failed: xhqbotfi mketbr
+    listing_unavailable: rflchau od tg afkmkf hkfbxsdqk
+    insufficient_stock: oijywpbtcraz ewdbm yuzlthsan ltq gvyy iwdyghon
+    out_of_stock: bzli xzul ho bos ud zgzmn
+    solana_insufficient_funds: ocpbie qelvzud kpa yqtnueyxpvsp ezwallr zp rmbwcwv kfmx esxvmihgorv
+    ethereum_insufficient_funds: jlkzjffq nbuakpa uar nqwuqucsvrae ccohngu ce uvwsnlz uela uwecvilypkn
+    listing_failed: fscqdu vb jtai zaiu dvb
 offers:
-  make_an_offer: gtix ty ohdsj
-  active_offers: jpybue vuhoba dlc zkkd ghl
-  min_offer_price: rvtxstk nafqc dezfe wy {price}
-  max_offer_price: aombely xwkea ntkbe cc {price}
+  make_an_offer: bhxc dg ifqcb
+  active_offers: njctwj etywfm ohs ymfc txw
+  min_offer_price: ueqwfns zyahe rgcpr xx {price}
+  max_offer_price: hlbbxgx bqiwf chxbx bw {price}
+  expires_in_single: iklpius qc 1 wax
+  expires_in: yndyuez ts {number} ckwn
+  set_offer_amount: zck lhist iyppka
   errors:
-    failed: zkhltd wn eabr bzwg mmthn.
+    failed: kvmcgf sf yczn ilei vexpn.
+redeemables:
+  redeem: aitauq
+  expires: gjuwwapsxx ctlowcf
+  view_redemption_code: uxvp gizvyvzbnx iynd
+  redeemed_by: yt {redeemer}
 transfers:
-  header: muylykof oscx yqci
-  network: ajnivxy
-  target_address: huvaaq iatohvq
-  transferring: qigqbkexpold vah. bmnd qxy ivdb enkessl cydroim.
+  header: iedlgyto dvvt ksbx
+  network: pvnhvfa
+  target_address: lxvkkj pqkvmsb
+  transferring: ckzjspytjomx cfe. tlrt wcu wcsu iiljuvt grogxmp.
   errors:
     address_warning: >-
-      wjb eevktf znlldnb dlyu amo xrkookulx nei rox auylz. pyn wdf tkop ctty yy
-      lyq zyutl ftuylpk?
-    invalid_address: mbqdhmm cafnkt dakpnpg
-    no_self_transfer: fpp qif gwm bvdkkjtz ng xoq td kjhgqsju
-    failed: bamtjfnj qzuknh
-tables:
-  pagination: ilowmqg {min} - {max} kg {total} slvvuwd
-  no_results: qs kzkmpow
-  leaderboard: wrzto ljd ssxwxzqprhe
-  activity: nnazrz eploj
-  token_history_single: vnjdszpkzqw anuimtw axb auyz uztfu
-  token_history_all: pjesodbns blasf yynvyvk ciw jqm '{name}' lozcky
-  active_offers: yccvfl emixru vsm jbqu lrnnl
-  active_listings: bjsjan vqouuzvk cwy igdp xko
-  outstanding_offers: ehxnuohlmaq zkjvpm
-  offers_made: kjojdp sblk
-  offers_received: wapdel vstqeclc
-  withdrawals: ypknygetkkx
-  deposits: ztybrntp
-  bought_nfts: phztmu zftq
-  sold_nfts: hkfs wwms
-  columns:
-    address: rbmlcov
-    amount: wiqfva
-    buyer: vutto
-    expiration: adkkrrnvdv
-    fee: fsa
-    from: hids
-    list_price: mpro qlftb
-    method: adjijp
-    name: ledq
-    offer_price: mnkga qpnur
-    payout: cwmyts
-    price: clihx
-    rank: tvtd
-    seller: vwxqkl
-    status: rrbrbb
-    time: odsr
-    to: yn
-    token_id: uvgpw la
-    total_amount: pyjwt rkmrgq
-    total_collectibles: lilyq yqilijkynskh
-    username: llcmiedi
-filters:
-  all_filters: pga niacusz
-  search: bsoftv
-  search_projects: jiwnom ttaxkbhn
-  search_projects_ext: ulqjzt kpxvnwwm, ahf, nhupk, fh vttjznbnuc qdep
-  filters:
-    min: mdg
-    max: xja
-    apply: jjsyn pkipfjd
-    reset: ilqyn owyaldx
-    token_id: uwrem yr
-    price: jwidm
-    currency: ihvwclqx
-    any_currency: emn psttuflc
-    edition: pdqatfu
-    choose_editions: pbwhjf ahyqbmzl
-    collection: jxorbvrguj
-    choose_collections: fysisc zfbrsffjuqd
-    drop: iqvo
-    choose_drops: kqfvdm tsqba
-    rarity: sftluv
-    choose_rarity: bodmrd aydsuc
-    choose_attributes: mxpbzm oekitfsowm
-    marketplace: ziwtvfmkpka
-    marketplaces: carnhxebrpbp
-    all_marketplaces: mkl lkfhpwhzljwm
-    time: ocdc
-    all_time: iso avhc
-    last_24_hours: ppbh 24 saigj
-    last_7_days: fjpa 7 repk
-    last_30_days: xctj 30 tmxx
-  sort:
-    sort: hxtz
-    minted: xozjmp (Oldest to Newest)
-    minted_desc: mhfifb (Newest to Oldest)
-    name: ofrs (A-Z)
-    name_desc: gdjk (Z-A)
-    listed: xjubzyhz dbnwea
-    token_id: xbzkk hr
-    ordinal: hlbxwwz
-    price: wpfso (Low to High)
-    price_desc: smeed (High to Low)
-item_details:
-  properties: agstmunyxt
-  details: lmgekbf
-  contract: oksfygwa
-  contract_address: pqyvolag oabqicm
-  media: rbkun
-  trading: ugnrngq
-  purchase_offers: qpgcbuta tgcemw
-  redeemables: ezfjbolwyqd
-  held_message: >-
-    otgt ala rj tk g wsviyrx wwrial guscf {heldDate}. jbz bszj bva hj iqpe ow
-    ujdocfqu zu xvnny byed.
-  lookout_link: lfc fqel iisa hf jrjfda cuovkps
-  token_url: nidao hqo
-  media_url: yubeu scx
-  image_url: oedqq etd
-  creator: gegmhsm
-  edition: kwxzeqw
-  token_id: rwehi hu
-  token_ordinal: mlhsd ibouszq
-  number_minted: vjqxms ntsvmk
-  number_in_circulation: wxlknv ec otcqfpchesp
-  number_burned: fchjsa azfuso
-  max_possible: brojjlt ufivtxx tn kvaykdhxdec
-  held_until: whle krnqh
-  cap: wom
-  minted: hjxsfo xa wdk qmefxq grcddhr lyjoxc iz {date}
-  menu:
-    set_as_profile: qrq kf dk qxjrgga edbnl
-    copy_listing_url: uplg zfsnwbi edg
-    copy_item_url: oawt svwh dir
-    copy_media_url: mqtj tssyr mlp
-    share_on_twitter: cgaes ny wucummi
-status:
-  back_to_profile: guch bo rw kpnuybq
-  back_to_marketplace: kmcd st rgz pysiubhdxhq
-  back_to_my_items: oxyy qa fx kkwmd
-  back_to_collection: nush to og phqhoztxei
-  pack_opening: cmjy wktp wh bgcffwv
-  minting:
-    header: clsz kwkmk fis vivnc fxirpg
-    subheader1: iqnh wwq zieq msbcwaj xwgcbur
-    subheader2: >-
-      ity ldq flpnceee iyen zphn mswq pamw nh okc ksm'y fxxc oz lcfh. wuxw dzgkw
-      vovp tx pwcwiiqcf ja gfug afbjte qfqn opy icwafpa os rdeewblq.
-    success_header: itfizoabdomgtpk!
-    purchase: sweqe erc tyb cbvw juzybmla!
-    received_item_single: ywt'hc kiridfuz rwr unkolkggw tiix
-    received_item_multiple: ern'sp kezdlkvm aqr wtalabaaw kvija
-    submitting_solana: vuqrsiplaz riopgis fgknujdkzaw hf jmlnjs
-    awaiting_payment: jkggxxqb mfhhqha...
-    transferring: qcre pwar ia alljz xdrqtqiyjkq
-    view_transaction: nkhn kuzs ibhqdhnifsn gi {location}
-  deposits:
-    header: eyfuoscv wdyymsc
-    subheader1: ep eby rnld id bx 30 gpmpert so ewfzhsy qixn iavkomh
-    subheader2: >-
-      cfp qsf oienrwtx okcu tnzp zrva vcne lx yir mxw'l dpjs xj clfz. nrip
-      yhmxthi escn fi mawhvntzk wb illv bmmqmw reng lnm gcvuzed wh bkxqdlsw.
-      ofqu boczqzb pxwgiz fik pb jraohj xo zguh nqhvxgm
-    success_header: vmrffwv mbfjdgzhab
-    success_subheader: >-
-      waugo vie yjf psdl sdutgsab! {amount} vwl khyg ulfbk jp fhme exyvpz
-      mlchwhi.
-withdrawal:
-  withdraw_funds: xkkptsyr ryiqx
-  select_provider: ucqmru rwdpjq w bagfuius
-  select_country: kykdqb q zvbzcjw
-  select_country_to_continue: uxmfov qzocfh obtg wcaxhrg ec mhjkijyh
-  method: frimsw
-  set_up_withdrawal: apw ta kfgkremgua
-  set_up_withdrawal_stripe: ntb rd ivjehnxhvp tpws unczat ajxdcoy
-  withdraw_via_ebanx: ppfjxupt tqrzv tea btfec
-  withdraw_via_stripe: hejdywmb vpakl slq wvbiir
-  max_withdrawable: dwmjsfp mrupwbvnyxus krtoase nr {max}
-  available_funds: zgjhqxjbp yqrek
-  withdrawn_funds: tvksnagml zixgq
-  processing_fee: npttpvnbgo maf
-  total_payout: rcvjm smjoyd
-  remaining_funds: jqrqvrwmr iekwr
-  remaining_withdrawable_funds: bnooeptjw holetzseykpm slsiq
-  successful_withdrawal: '{amount} lkvkdjndhlsh abdrfavpdix ct fxqe jufujcp'
-  fields:
-    amount: ojqviy
-    email: zkqqp
-    name: lzda
-    phone: qzezq
-    birthdate: dsejruntx
-    cpf: uwl
-    pix_key: ixs kme
-    pix_key_placeholder: zkiih, bmj, kmky, cx jvrhp pikmbt
+      ddl ymzubr qhirxux vkhz myn nltectvmp xbw xko hitqn. rmq kuj xxui wekv wz
+      hhn uaphb svjkrho?
+    invalid_address: metkuak cxsdfz dqxzeyp
+    no_self_transfer: lst daq ozd rigvgnxq bg vnv fk ugwxdjif
+    failed: vktmlywq zpwsbg
+collections:
+  collection: tqxmuwbvyl
+  go_to_collection: xn by gmfnjeyemq
+  back_to_collection: ftgm fz {collectionName}
+  back_to_collections: cxqt vg {marketplaceName} vstduogekpz
+  collection_complete: slux ckgotxnwzf ge bzyygdqq!
+  complete_to_redeem: qanwvrrd maem cskodlvpgi sy tuytwq fia lodxkcm pzkop!
+  selected: svkegonh
+  redeem: hvefzz
+  select_token: ifagow bxbt essgw
+  select_nfts: eihhik imlu yl mvoxpx
+  select_nfts_2: cgawpi jvj fqdc brt ktkf lv hvktk uq
+  select_nfts_3: xraiep mbr gbr wjb sinaywnohj yxed
+  select_nfts_4: intpmi vyfhfz ypd kgxpw vr atlwmn lah nasv jcov oq rds appasmcvux.
+  signature_warning: >-
+    pmdc thwatpbci jntkjttl bdm rwtskqeuy mqo talksojp njisc. kubeoj kuyyy vmjp
+    hnbpzdsb unfemmo wkxmqdjyl twt zmflne sxu szqobxs ysmwcdldy ggesaqys.
+  redemption_warning: >-
+    rucybbrk qfbout qgeh dqrrcmkuugx krvy huj ptllouie ynkdvz nlf raas azv
+    xpdxtv mjxdyg gx rseu aluvkhj. esws igh nufp gbwl mbpxis om mxid svxtzl rkpg
+    hvyjtwm ik mewdhtuj. whye nyciwyadg xfqytk np mstyjqqi gol cqgofj yxvccm
+    uucace kl hzavcuovz.
+  redemption_confirmation: >-
+    iok ofv clne ede refd oe abgxjz zvul garfomajke wiae rfj ytrwhnha hsdfdb?
+    ouat eldbjn orjscq yx zuxgpoad.
   errors:
-    general: yzumme rn gajvrsmf bxhvu. abgsqj glb eoxsi znmej.
-    setup: xdtjkl qs fzb ik hxkumbibvq. sjutph fjk vrmha dbhir.
+    listed_nft: hap ypc mek dazcyo u ouqur jegbq sv oi bygots rvy npcy.
+tables:
+  pagination: vfobioc {min} - {max} fe {total} gtvcdxj
+  no_results: zz fnzalfa
+  leaderboard: kfyws qqg kofbkebnmwr
+  activity: whmzfk wiwzw
+  token_history_single: dulraxwoqkr veyqddr ois vigr khqyi
+  token_history_all: qjpbidlzu xvdiz cnamxev qdm rnb '{name}' jxslgu
+  active_offers: uhctvm ekgilu djp jfvr oaijt
+  active_listings: nihrcs eoxqyvnf inf eizv ogt
+  outstanding_offers: ipzgnohswit jbpuex
+  offers_made: zlnxgv dpyr
+  offers_received: srspzf xvurttfh
+  withdrawals: mcwjbakmbof
+  deposits: wlifbsxd
+  bought_nfts: woibgo odqo
+  sold_nfts: dvzj djlv
+  columns:
+    address: kpmxscs
+    amount: tugjer
+    buyer: mmnxz
+    expiration: ukyewagdfh
+    fee: qqm
+    from: ypbt
+    list_price: pprg evjei
+    method: zrgkyx
+    name: oaep
+    offer_price: cujlu mjvep
+    payout: iixpmt
+    price: cdysk
+    rank: dksj
+    seller: rynqhi
+    status: eupiza
+    time: txez
+    to: zi
+    token_id: ybhlj ul
+    total_amount: necvd eynqsn
+    total_collectibles: ctdfg vqhpqdpdglfr
+    username: lpoontlw
+filters:
+  all_filters: mfe muqxiib
+  search: udzphj
+  search_projects: kdmgan axveqhmr
+  search_projects_ext: vuiskk ceanlmud, apl, uqdbz, gt lmhuuwjacb pavg
+  filters:
+    min: sws
+    max: fhx
+    apply: udfnp djtohpx
+    reset: kdyua kpubeaa
+    token_id: mdnsy rf
+    price: pclst
+    currency: kighoncs
+    any_currency: gwd vxossbba
+    edition: vguwcls
+    choose_editions: mxjbqk kpdbpkvu
+    collection: olbheodrro
+    choose_collections: mscffa eydntrduykx
+    drop: wapg
+    choose_drops: jhhuun vnbgl
+    rarity: myxwkz
+    choose_rarity: socskl mzsong
+    choose_attributes: mivair ienwthliyd
+    marketplace: fyeberfayxb
+    marketplaces: yyffxlffiziz
+    all_marketplaces: flu zsagkyrlmolt
+    time: ynmz
+    all_time: dsz zqls
+    last_24_hours: naiq 24 ihezh
+    last_7_days: lwky 7 skjq
+    last_30_days: mkyd 30 nrpq
+  sort:
+    sort: xypo
+    minted: gqowlq (Oldest to Newest)
+    minted_desc: syrntp (Newest to Oldest)
+    name: ogrm (A-Z)
+    name_desc: ueuj (Z-A)
+    listed: hwhmyvvh qewfdg
+    token_id: rkbno ot
+    ordinal: jorfoih
+    price: zqdbt (Low to High)
+    price_desc: ldeug (High to Low)
+item_details:
+  properties: vrafguovyg
+  details: rsvzcvv
+  contract: yajmgvxu
+  contract_address: lsfqnacl racqyux
+  media: lzajv
+  trading: thzhmuy
+  purchase_offers: nokrrxfw udqwmi
+  redeemables: nttgjsynrzx
+  held_message: >-
+    nnhj cxt op oo q qkqjtrv fxqmbc cvlyv {heldDate}. cpj tdph wuo qn qqjs ei
+    jeifjnxp zt zbcsh eici.
+  lookout_link: zdl nbqm dvpv nt wtebrb nigfgle
+  token_url: bccbe pug
+  media_url: yneeb cxp
+  image_url: jwrjs rdd
+  creator: eeeecwm
+  edition: rntttrz
+  token_id: pojwj ex
+  token_ordinal: jeuvs rohonay
+  number_minted: cckihh tizflx
+  number_in_circulation: vpbrxi ns yxmslqorbub
+  number_burned: vxobur pmvqyc
+  max_possible: mcyfkpm syoqlxz va udhwtxvnryv
+  held_until: cldq rukjs
+  cap: qwb
+  minted: blwsyf nr ivk lrorve egtxepx dikazk rr {date}
+  status:
+    listings: tksmqswe
+    sale_ended: lyve akdcd
+    private_offering: uvkfizj fpsehgiu
+    sold_out: qqet tls!
+    claim: crzpa
+    buy: ngw
+    max_owned: zmitlvk fjjxj!
+    release_date: hgxcydq achi
+  menu:
+    set_as_profile: wzx mj qz gplooit iadjl
+    copy_listing_url: bfsm btvawcb pga
+    copy_item_url: ljis zkgc yev
+    copy_media_url: ryul arbye uxq
+    share_on_twitter: bziia xi aphgjul
+  additional_media:
+    view_ar: dpng wyrh ua aowsyccuff ep vuvmdf
+    next: imrf
+    previous: jazitrig
+status:
+  back_to_profile: qzjy yu gr tffscgy
+  back_to_marketplace: hach dz wlt hxvlbnhbjyo
+  back_to_items: ajgd os egufq
+  back_to_my_items: ovbr kb ta zphse
+  back_to_collection: kmch qk mg isdikaheuk
+  pack_opening: ekro sqqz pw gnnwpix
+  minting:
+    header: xskq rbbar jyb htuve iimnxn
+    subheader1: vvtx hbk mxbu kpklozy scbqgfl
+    subheader2: >-
+      mik jya fihrpnwu vrew fdek ltcp zmgl px kjb vrz'p swoe fw htxk. tpeu wtydy
+      pylw oq doaxsyita ed zwim hmlrom xabq mkq qloigsp xv jyexbgrv.
+    success_header: tnonryuwocecgyp!
+    purchase: vttro eqp jtl kzhy uswjimec!
+    received_item_single: xfh'sa srdvulwy cjc ceuuwnndp hyqm
+    received_item_multiple: civ'rd hybdevew stw dkmcqufsk dywqo
+    submitting_solana: xqzzvpyaqc rjdzfem cpcoffjmhkf jt bkkctj
+    awaiting_payment: jduxtpdp qcjnxbp...
+    transferring: gdiy zeuj nh jffpk euvsvnkdoqj
+    view_transaction: prsh fbdp daumssbropp lh {location}
+  deposits:
+    header: lwsrajlh rgnoboy
+    subheader1: el baw ppix mb bm 30 uyaoyph kw pawtglg isii hxnxazq
+    subheader2: >-
+      hty ngx rktecjqe pcuw hddu smhm ltsm xj gcy cmf'h ibxb yg tbif. fkdh
+      kspraaq sxwh on ekjffllmb pg xmwe ymcfvc jibl cxd dimroef hx rglnextf.
+      unlj rsllocj nrfanc vvk jt pafzwa fj lbjn uniljmb
+    success_header: ljqzbag ygolkcrfub
+    success_subheader: >-
+      razsd qnl gog sgdy xrjwyzgx! {amount} vzi kcdn puiyh pg fcdh ykkegi
+      sqysbgh.
+withdrawal:
+  withdraw_funds: puuraker jaief
+  select_provider: snjflc ceflhn n bhzlhaqh
+  select_country: vzkoua g rpklhlu
+  select_country_to_continue: nhvlci sxhujj znqm lhuaaig uh mjyugufn
+  method: zjvpot
+  set_up_withdrawal: way xe edigpgckva
+  set_up_withdrawal_stripe: tam fs pngnbjuedm bruh zcesqm sumvtko
+  withdraw_via_ebanx: isgrqchr favjv hpl gzovt
+  withdraw_via_stripe: etdglrpc rtyjq adn cvbbes
+  max_withdrawable: ivrgjxf gktmapopfrmf glqpyli kc {max}
+  available_funds: zawugvukh scdwy
+  withdrawn_funds: khnaamtzr dnlbj
+  processing_fee: zkpltmwyvk qzm
+  total_payout: pnjyb oapvmp
+  remaining_funds: bbrugeoxs iancv
+  remaining_withdrawable_funds: vaifkuoep vvardjmubqpu rphqo
+  successful_withdrawal: '{amount} chbmonsfjnfb tbyzshwmvhj ot xloa njqkgja'
+  fields:
+    amount: acoqly
+    email: fefrr
+    name: hsks
+    phone: syjee
+    birthdate: skqeydhyd
+    cpf: rzp
+    pix_key: tzc enn
+    pix_key_placeholder: uyjrk, bjp, voqm, jv tgyqg agjqfb
+  errors:
+    general: hynagq bu sexjqvjn pdhsp. fqheui suz mvgsg rnuye.
+    setup: ahgcrp lc jod mj iquzdlxhsc. rgmwan zxt plgqn hodaq.
     stripe_not_set_up: >-
-      qlxn ybxfkk squdkbt fko wban eiyusdo, omx wi dsf jkwuh nz nyqilq zexgpdxx.
-      dqtlho uocdrq immnpuz wb kqdt dfbuonm.
+      kkig srdcla qsqfxcj mlv tjlc bqtmpqi, mje nr xcx raors wt mypilh glpjsqap.
+      jxkafq qbwjju bcfqeqo lr askc rndjiuf.
+deposits:
+  add_funds: cec nnjxc
+  select_provider: yihday vmaayt o kdpyhrhw
+  supported_methods: >-
+    zavv hw d vgdibq zweuigm fefrgp jugzd horhugpg fmfhqpsa. gcvw cox, vnb, qkm,
+    joxp, cpq tzx wzh iyt ndvytinz adfhwtq jrs fmmqfidfm.
+  specify_amount: tyismu vbvjhtg bnp vxhqiq ryo gxti wr mipvojh.
+  max_deposit: atofodo nelaqtm ox $1000.
+  terms: >-
+    kmvyoglkka fhvg pjemmj mufvrvkye sf mdr lvkhuyq, rri weh qhxr uplbvlz
+    xddpaaw gr iptrhxyq. vvcpukbs ybckmzl zzsn xvwzx. uexnlbvk cag zkwmicr jr
+    $1000 srz cvinksfiyza ndw $10,000 evb gxs, pvs zbc rmjcbim ol yuk (Eluvio
+    Terms and Conditions)[https://live.eluv.io/terms]. pv qibvouai "bosmxzii"
+    rsl vbgpsqqnscf gszd yto faey zyvz zvp jasbvfgewh kmo gd nhecd qgkmw lmp
+    uyyvoudqdm.

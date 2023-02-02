@@ -35,9 +35,28 @@ const GenerateTest = (l10n) => {
   }
 };
 
+const FindMissing = (en, loc) => {
+  if(Array.isArray(en)) {
+    return en.map((item, index) => FindMissing(item, (loc || [])[index]));
+  } else if(en && typeof en === "object") {
+    let newl10n = {};
+    Object.keys(en).forEach(key => newl10n[key] = FindMissing(en[key], (loc || {})[key]));
+
+    return newl10n;
+  } else {
+    return loc || `<MISSING> -- ${en}`;
+  }
+};
+
 if(process.argv[2] === "test") {
   fs.writeFileSync(
     path.join(__dirname, "test.yml"),
     yaml.dump(GenerateTest(LocalizationEN))
   );
+} else if(process.argv[2] === "missing") {
+  let loc = yaml.load(fs.readFileSync(path.join(__dirname, `${process.argv[3]}.yml`), "UTF-8"));
+  loc = FindMissing(LocalizationEN, loc);
+
+  // eslint-disable-next-line no-console
+  console.log(yaml.dump(loc));
 }
