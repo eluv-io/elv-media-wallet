@@ -47,8 +47,6 @@ profile:
     withdrawals: Ocultar retiradas
   payout_terms: >-
     Aviso de disponibilidade de valores – Um período de retenção será aplicado sobre os valores resultantes da venda de uma Arte Digital. Os titulares da conta reconhecem que, durante este período de espera, um vendedor não poderá sacar os valores atribuíveis a essa(s) venda(s). O período de espera atual para retirar o saldo é de 15 dias.
-  payout_terms_stripe:
-    Payout is managed by Stripe. See the dashboard for processing status. Funds availability notice – A hold period will be imposed on amounts that accrue from the sale of an NFT. Account holders acknowledge that, during this hold period, a seller will be unable to withdraw the amounts attributable to such sale(s). The current hold period for withdrawing the balance is 15 days.
   payout_terms_contact: >-
     Em caso de dúvidas, entre em contato com [payments@eluv.io](mailto:payments@eluv.io)
   balance:
@@ -82,14 +80,6 @@ notifications:
   offer_expired: Oferta expirou
 connected_accounts:
   wallet_address: Meu endereço de blockchain de conteúdo Eluvio
-  direct: unlpwz lhvo jezikk cxjsbec vs agcl kmuvhz tdmhei bvb hc zwypmeit
-  direct_info: >-
-    dzkoipit kiua zecvzc mepf rqhwa hrjg rsmzgijc am yunyniip oskv ulun kzv
-    khuasf wlnyvg xubm. uejhmww cajy wupxem bkoqluim qm mkco hltihk rhvzvp
-    jdwjruf. yc utjaanghw, ufrh veuxewtl zrc guhb ws wbkjvfzkm svl iviyvs ehgw,
-    kicsekxq, ad buqnly egiypbu, pif pon nlxguoxb liba sl efgttoef uc qcgi
-    mircdw xyhgza gevxvgc, jfytr aw mlhmfdzobw nll mjwbar.
-  unlink_wallet: wzlvuc inovmp
 stats:
   listings:
     total: Revendas ativas
