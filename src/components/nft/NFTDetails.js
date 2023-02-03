@@ -641,7 +641,7 @@ const NFTActions = observer(({
           className={`action ${!nftInfo.marketplacePurchaseAvailable ? "action-primary" : ""}`}
           to={UrlJoin("/marketplace", match.params.marketplaceId, "listings", `?filter=${encodeURIComponent(nftInfo.item.nftTemplateMetadata.display_name)}`)}
         >
-          { rootStore.l10n.actions.view_listings }
+          { rootStore.l10n.actions.listings.view }
         </Link>
         {
           previewMode && nftInfo.hasAdditionalMedia && !previewMedia ?
@@ -677,7 +677,7 @@ const NFTActions = observer(({
         {
           isInCheckout ?
             <h3 className="details-page__transfer-details details-page__held-message">
-              This NFT is currently in the process of being purchased
+              { rootStore.l10n.purchase.errors.nft_being_purchased }
             </h3> : null
         }
       </div>
@@ -687,13 +687,28 @@ const NFTActions = observer(({
     if(listingStatus.sale) {
       return (
         <h2 className="details-page__message">
-          This NFT was sold for { FormatPriceString(listingStatus.sale.price, {stringOnly: true}) } on { new Date(listingStatus.sale.created * 1000).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
+          {
+            LocalizeString(
+              rootStore.l10n.purchase.errors.nft_sold,
+              {
+                price: FormatPriceString(listingStatus.sale.price, {stringOnly: true}),
+                date: new Date(listingStatus.sale.created * 1000).toLocaleString(navigator.languages, {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "numeric",
+                  minute: "numeric",
+                  second: "numeric"
+                })
+              }
+            )
+          }
         </h2>
       );
     } else if(listingStatus.removed) {
       return (
         <h2 className="details-page__message">
-          This listing has been removed
+          { rootStore.l10n.purchase.errors.listing_unavailable }
         </h2>
       );
     }
@@ -737,7 +752,7 @@ const NFTActions = observer(({
         {
           isInCheckout ?
             <h3 className="details-page__transfer-details details-page__held-message">
-              This NFT is currently in the process of being purchased
+              { rootStore.l10n.purchase.errors.nft_being_purchased }
             </h3> : null
         }
       </div>

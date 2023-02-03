@@ -205,6 +205,8 @@ purchase:
     solana_insufficient_funds: Solana account has insufficient balance to perform this transaction
     ethereum_insufficient_funds: Ethereum account has insufficient balance to perform this transaction
     listing_failed: Unable to list this NFT
+    nft_being_purchased: This NFT is currently in the process of being purchased
+    nft_sold: This NFT was sold for {price} on {date}
 
 offers:
   offer: Offer
