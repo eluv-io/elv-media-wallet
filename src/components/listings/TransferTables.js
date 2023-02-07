@@ -161,8 +161,8 @@ const OffersTableActions = observer(({offer, setShowOfferModal, Reload}) => {
           }}
           className="offers-table__action"
         >
-          <div className="offers-table__action__text">Edit</div>
-          <ImageIcon icon={EditIcon} title="Edit Offer"/>
+          <div className="offers-table__action__text">{rootStore.l10n.actions.offers.edit_offer}</div>
+          <ImageIcon icon={EditIcon} title={rootStore.l10n.actions.offers.edit_offer} />
         </button>
       </div>
     );
@@ -312,6 +312,21 @@ export const OffersTable = observer(({
       )
     );
 
+  const Status = (status="") => {
+    switch(status.toLowerCase()) {
+      case "active":
+        return rootStore.l10n.offers.status.active;
+      case "expired":
+        return rootStore.l10n.offers.status.expired;
+      case "declined":
+        return rootStore.l10n.offers.status.declined;
+      case "cancelled":
+        return rootStore.l10n.offers.status.cancelled;
+      default:
+        return rootStore.l10n.offers.status.invalid;
+    }
+  };
+
   if(activeView) {
     return (
       <Table
@@ -402,16 +417,15 @@ export const OffersTable = observer(({
               columns: [
                 offer.name,
                 offer.token,
-                `${Ago(offer.updated)} ago`,
+                `${Ago(offer.updated)}`,
                 FormatPriceString(offer.price, {stringOnly: true}),
                 FormatPriceString(showTotal ? offer.price + offer.fee : offer.price, {stringOnly: true}),
                 TimeDiff((offer.expiration - Date.now()) / 1000),
                 <div className="ellipsis" title={`${userName ? userName + " " : ""}(${Utils.FormatAddress(offer.buyer)})`}>
                   { user }
                 </div>,
-                <div
-                  className={`offers-table__status ${["ACTIVE", "ACCEPTED"].includes(offer.status) ? "offers-table__status--highlight" : "offers-table__status--dim"}`}>
-                  {offer.status}
+                <div className={`offers-table__status ${["ACTIVE", "ACCEPTED"].includes(offer.status) ? "offers-table__status--highlight" : "offers-table__status--dim"}`}>
+                  { Status(offer.status) }
                 </div>,
                 noActions ?
                   null :
@@ -500,7 +514,7 @@ export const PendingPaymentsTable = observer(({icon, header, limit, className=""
                       { transfer.name }
                     </div>
                     <div className="transfer-table__table__cell no-mobile">
-                      { Ago(transfer.created * 1000) } ago
+                      { Ago(transfer.created * 1000) }
                     </div>
                     <div className="transfer-table__table__cell no-mobile">
                       { TimeDiff((transfer.created * 1000 + week - Date.now()) / 1000) }
@@ -526,17 +540,17 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
 
     switch(type) {
       case "eluvio":
-        return "Wallet Balance";
+        return rootStore.l10n.purchase.purchase_methods.wallet_balance;
       case "stripe":
-        return "Credit Card";
+        return rootStore.l10n.purchase.purchase_methods.credit_card;
       case "solana":
-        return "USDC";
+        return rootStore.l10n.purchase.purchase_methods.usdc;
       case "ebanx":
-        return record.processor.startsWith("ebanx:pix") ? "Pix" : "Credit Card";
+        return rootStore.l10n.purchase.purchase_methods[record.processor.startsWith("ebanx:pix") ? "pix" : "credit_card"];
       case "coinbase-commerce":
         return "Coinbase";
       default:
-        return "Crypto";
+        return rootStore.l10n.purchase.purchase_methods.crypto;
     }
   };
 
@@ -592,7 +606,7 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
             link: transfer?.extra_json?.charge_code ? `https://commerce.coinbase.com/receipts/${transfer.extra_json?.charge_code}` : undefined,
             columns: [
               FormatPriceString(transfer.amount + transfer.fee),
-              `${Ago(transfer.created * 1000)} ago`,
+              `${Ago(transfer.created * 1000)}`,
               transfer.processor,
               transfer.payment_status?.toUpperCase() || "Pending"
             ]
@@ -624,7 +638,7 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
             FormatPriceString(transfer.amount + transfer.fee),
             FormatPriceString(transfer.amount),
             FormatPriceString(transfer.fee),
-            `${Ago(transfer.created * 1000)} ago`
+            `${Ago(transfer.created * 1000)}`
           ])
         }
       />
@@ -656,7 +670,7 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
             transfer.name,
             FormatPriceString(transfer.amount + transfer.royalty, {vertical: true}),
             FormatPriceString(transfer.amount, {vertical: true}),
-            `${Ago(transfer.created * 1000) } ago`,
+            `${Ago(transfer.created * 1000) }`,
             MiddleEllipsis(transfer.buyer, 14),
             transfer.processor,
             transfer.pending ? "Pending" : "Available"
@@ -689,7 +703,7 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
         entries.map(transfer => [
           transfer.name,
           FormatPriceString(transfer.amount + transfer.royalty, {vertical: true}),
-          `${Ago(transfer.created * 1000) } ago`,
+          `${Ago(transfer.created * 1000) }`,
           MiddleEllipsis(transfer.addr, 14),
           transfer.processor,
           transfer.pending ? "Pending" : "Available"

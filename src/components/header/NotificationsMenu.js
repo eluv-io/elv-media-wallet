@@ -198,7 +198,7 @@ const Notification = observer(({notification, Hide}) => {
         </h2>
       </div>
       <div className="notification__message">{ message }</div>
-      { notification.created ? <div className="notification__time">{ Ago(notification.created * 1000) } Ago</div> : null }
+      { notification.created ? <div className="notification__time">{ Ago(notification.created * 1000) }</div> : null }
     </>
   );
 

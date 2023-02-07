@@ -6,7 +6,7 @@ import PlayIcon from "Assets/icons/media/Play icon.svg";
 
 import {checkoutStore, rootStore} from "Stores";
 import UrlJoin from "url-join";
-import {FormatPriceString} from "Components/common/UIComponents";
+import {FormatPriceString, LocalizeString} from "Components/common/UIComponents";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {mediaTypes} from "@eluvio/elv-embed/src/Utils";
 
@@ -77,18 +77,19 @@ export const TimeDiff = (diffSeconds) => {
   let seconds = Math.ceil(Math.max(diffSeconds, 0) % 60);
 
   if(days) {
-    return `${days} ${days === 1 ? "day" : "days"} `;
+    return LocalizeString(rootStore.l10n.ago[days === 1 ? "day" : "days"], {days}, {stringOnly: true});
   }
 
   if(hours) {
-    return `${hours} ${hours === 1 ? "hour" : "hours"} `;
+    return LocalizeString(rootStore.l10n.ago[hours === 1 ? "hour" : "hours"], {hours}, {stringOnly: true});
   }
 
   if(minutes) {
-    return `${minutes} ${minutes === 1 ? "minute" : "minutes"} `;
+    return LocalizeString(rootStore.l10n.ago[minutes === 1 ? "minute" : "minutes"], {minutes}, {stringOnly: true});
   }
 
-  return `${seconds} ${seconds === 1 ? "second" : "seconds"} `;
+
+  return LocalizeString(rootStore.l10n.ago[seconds === 1 ? "second" : "seconds"], {seconds}, {stringOnly: true});
 };
 
 export const Ago = (time) => {

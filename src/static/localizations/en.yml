@@ -64,6 +64,7 @@ actions:
     confirm: Confirm Offer For {price}
     remove: Remove Offer
     remove_confirm: Are you sure you want to cancel this offer?
+    edit_offer: Edit
     accept: Accept
     accept_offer: Accept Offer
     accept_confirm: Would you like to accept this offer of {price} for {itemName}?
@@ -197,6 +198,15 @@ purchase:
   max_listing_price: Maximum listing price is {price}
   conversion_amount: USD Conversion
   conversion_note: Actual values are based in USD. All displayed values are approximate based on current estimated USD exchange rates.
+  purchase_methods:
+    credit_card: Credit Card
+    crypto: Crypto
+    usdc: USDC
+    solana_usdc: USDC via Solana
+    eth_usdc: USDC via Ethereum
+    pix: Pix
+    wallet_balance: Wallet Balance
+
   errors:
     failed: Purchase Failed
     listing_unavailable: Listing is no longer available
@@ -217,6 +227,12 @@ offers:
   expires_in_single: Expires in 1 Day
   expires_in: Expires in {number} Days
   set_offer_amount: Set Offer Amount
+  status:
+    active: Active
+    expired: Expired
+    declined: Declined
+    cancelled: Cancelled
+    invalid: Invalid
   errors:
     failed: Unable to make this offer.
 
@@ -451,3 +467,13 @@ deposits:
   specify_amount: Please specify the amount you wish to deposit.
   max_deposit: Maximum deposit is $1000.
   terms: Processing time varies depending on the network, and can take several minutes to complete. Standard network fees apply. Deposits are limited to $1000 per transaction and $10,000 per day, and are subject to the [Eluvio Terms and Conditions](https://live.eluv.io/terms). By clicking "Continue" you acknowledge that you have read and understood all of these terms and conditions.
+
+ago:
+  day: 1 day ago
+  days: "{days} days ago"
+  hour: 1 hour ago
+  hours: "{hours} hours ago"
+  minute: 1 minute ago
+  minutes: "{minutes} minutes ago"
+  second: 1 second ago
+  seconds: "{seconds} seconds ago"

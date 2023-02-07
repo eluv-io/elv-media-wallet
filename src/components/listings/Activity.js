@@ -39,7 +39,7 @@ const Activity = observer(({mode="sales", icon, hideName, tableHeader, initialFi
       CalculateRowValues={transfer => ({
         columns: [
           transfer.name,
-          `${Ago(transfer.created * 1000)} ago`,
+          Ago(transfer.created * 1000),
           transfer.token,
           FormatPriceString(transfer.price),
           MiddleEllipsis(transfer.buyer, 14),

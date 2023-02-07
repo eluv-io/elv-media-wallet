@@ -334,7 +334,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
                     className="nft-media__content__button nft-media__content__button--next"
                   >
                     <div className="nft-media__content__button__text ellipsis">
-                      {rootStore.l10n.item_details.additional_media.media.next}{next.mediaItem?.name ? `: ${next.mediaItem.name}` : ""}
+                      {rootStore.l10n.item_details.additional_media.next}{next.mediaItem?.name ? `: ${next.mediaItem.name}` : ""}
                     </div>
                     <ImageIcon icon={RightArrow} />
                   </Link> : null

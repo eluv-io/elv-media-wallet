@@ -501,7 +501,7 @@ const NFTTables = observer(({nftInfo}) => {
               tokenId: nft.details.TokenIdStr
             }}
             CalculateRowValues={transfer => [
-              `${Ago(transfer.created * 1000)} ago`,
+              `${Ago(transfer.created * 1000)}`,
               FormatPriceString(transfer.price),
               MiddleEllipsis(transfer.buyer, 14),
               MiddleEllipsis(transfer.seller, 14)
@@ -529,7 +529,7 @@ const NFTTables = observer(({nftInfo}) => {
           contractAddress: nft.details.ContractAddr
         }}
         CalculateRowValues={transfer => [
-          `${Ago(transfer.created * 1000)} ago`,
+          `${Ago(transfer.created * 1000)}`,
           transfer.token,
           FormatPriceString(transfer.price),
           MiddleEllipsis(transfer.buyer, 14),
@@ -1108,8 +1108,8 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
                         }
 
                         // Sectional media - switch to media tab and scroll down to media browser
-                        if(tab !== "Media") {
-                          setTab("Media");
+                        if(tab !== rootStore.l10n.item_details.media) {
+                          setTab(rootStore.l10n.item_details.media);
                         }
 
                         setTimeout(() => {
@@ -1117,7 +1117,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
                           if(target) {
                             ScrollTo(target.getBoundingClientRect().top + window.scrollY);
                           }
-                        }, tab !== "Media" ? 500 : 100);
+                        }, tab !== rootStore.l10n.item_details.media ? 500 : 100);
                       }}
                     /> : null
                 }
