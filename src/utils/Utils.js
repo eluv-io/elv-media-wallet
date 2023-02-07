@@ -70,32 +70,33 @@ export const MediaIcon = (media, circle=false) => {
   }
 };
 
-export const TimeDiff = (diffSeconds) => {
+export const TimeDiff = (diffSeconds, includeAgo) => {
   let days = Math.floor(Math.max(0, diffSeconds) / 60 / 60 / 24);
   let hours = Math.floor(Math.max(0, diffSeconds) / 60 / 60) % 24;
   let minutes = Math.floor(Math.max(0, diffSeconds) / 60 % 60);
   let seconds = Math.ceil(Math.max(diffSeconds, 0) % 60);
 
+  const loc = rootStore.l10n[includeAgo ? "ago" : "time"];
+
   if(days) {
-    return LocalizeString(rootStore.l10n.ago[days === 1 ? "day" : "days"], {days}, {stringOnly: true});
+    return LocalizeString(loc[days === 1 ? "day" : "days"], {days}, {stringOnly: true});
   }
 
   if(hours) {
-    return LocalizeString(rootStore.l10n.ago[hours === 1 ? "hour" : "hours"], {hours}, {stringOnly: true});
+    return LocalizeString(loc[hours === 1 ? "hour" : "hours"], {hours}, {stringOnly: true});
   }
 
   if(minutes) {
-    return LocalizeString(rootStore.l10n.ago[minutes === 1 ? "minute" : "minutes"], {minutes}, {stringOnly: true});
+    return LocalizeString(loc[minutes === 1 ? "minute" : "minutes"], {minutes}, {stringOnly: true});
   }
 
-
-  return LocalizeString(rootStore.l10n.ago[seconds === 1 ? "second" : "seconds"], {seconds}, {stringOnly: true});
+  return LocalizeString(loc[seconds === 1 ? "second" : "seconds"], {seconds}, {stringOnly: true});
 };
 
-export const Ago = (time) => {
+export const Ago = (time, includeAgo=true) => {
   let diffSeconds = Math.ceil((new Date() - new Date(time)) / 1000);
 
-  return TimeDiff(diffSeconds);
+  return TimeDiff(diffSeconds, includeAgo);
 };
 
 export const MiddleEllipsis = (str="", maxLength=8) => {

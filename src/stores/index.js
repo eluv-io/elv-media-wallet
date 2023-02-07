@@ -51,6 +51,7 @@ try {
 class RootStore {
   language = this.GetLocalStorage("lang");
   l10n = LocalizationEN;
+  uiLocalizations = ["pt-br"];
 
   appId = "eluvio-media-wallet";
 

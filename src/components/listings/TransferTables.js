@@ -412,15 +412,17 @@ export const OffersTable = observer(({
               user = userName || Utils.FormatAddress(offer.buyer);
             }
 
+            let expiration = offer.expiration - Date.now() > 0 ? TimeDiff((offer.expiration - Date.now()) / 1000) : Ago(offer.expiration);
+
             return {
               link: useLink ? path: null,
               columns: [
                 offer.name,
                 offer.token,
-                `${Ago(offer.updated)}`,
+                Ago(offer.updated),
                 FormatPriceString(offer.price, {stringOnly: true}),
                 FormatPriceString(showTotal ? offer.price + offer.fee : offer.price, {stringOnly: true}),
-                TimeDiff((offer.expiration - Date.now()) / 1000),
+                expiration,
                 <div className="ellipsis" title={`${userName ? userName + " " : ""}(${Utils.FormatAddress(offer.buyer)})`}>
                   { user }
                 </div>,
@@ -606,7 +608,7 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
             link: transfer?.extra_json?.charge_code ? `https://commerce.coinbase.com/receipts/${transfer.extra_json?.charge_code}` : undefined,
             columns: [
               FormatPriceString(transfer.amount + transfer.fee),
-              `${Ago(transfer.created * 1000)}`,
+              Ago(transfer.created * 1000),
               transfer.processor,
               transfer.payment_status?.toUpperCase() || "Pending"
             ]
@@ -638,7 +640,7 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
             FormatPriceString(transfer.amount + transfer.fee),
             FormatPriceString(transfer.amount),
             FormatPriceString(transfer.fee),
-            `${Ago(transfer.created * 1000)}`
+            Ago(transfer.created * 1000)
           ])
         }
       />
@@ -670,7 +672,7 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
             transfer.name,
             FormatPriceString(transfer.amount + transfer.royalty, {vertical: true}),
             FormatPriceString(transfer.amount, {vertical: true}),
-            `${Ago(transfer.created * 1000) }`,
+            Ago(transfer.created * 1000),
             MiddleEllipsis(transfer.buyer, 14),
             transfer.processor,
             transfer.pending ? "Pending" : "Available"
@@ -703,7 +705,7 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
         entries.map(transfer => [
           transfer.name,
           FormatPriceString(transfer.amount + transfer.royalty, {vertical: true}),
-          `${Ago(transfer.created * 1000) }`,
+          Ago(transfer.created * 1000),
           MiddleEllipsis(transfer.addr, 14),
           transfer.processor,
           transfer.pending ? "Pending" : "Available"

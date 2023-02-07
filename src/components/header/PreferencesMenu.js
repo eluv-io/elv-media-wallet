@@ -25,7 +25,11 @@ const PreferencesMenu = observer(({marketplaceId, Hide}) => {
     availableDisplayCurrencies = ["USD", ...availableDisplayCurrencies];
   }
 
-  let availableLocalizations = marketplace?.localizations?.map(key => [key.toLowerCase(), LanguageCodes[key.toLowerCase()]]) || [];
+  let availableLocalizations = [...(marketplace?.localizations || []), ...rootStore.uiLocalizations]
+    .filter((x, i, a) => a.indexOf(x) === i)
+    .map(key => [key.toLowerCase(), LanguageCodes[key.toLowerCase()]]) || []
+    .sort((a, b) => a[1] < b[1] ? -1 : 1);
+
   if(EluvioConfiguration["show-debug"]) {
     availableLocalizations = [...availableLocalizations, ["test", "Test"]];
   }
