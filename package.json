@@ -43,7 +43,7 @@
     "@eluvio/elv-paymentgate": "0.0.1",
     "@eluvio/elv-player-js": "^1.0.83",
     "@solana/spl-token": "^0.2.0",
-    "@solana/web3.js": "^1.66.2",
+    "@solana/web3.js": "1.66.2",
     "@stripe/stripe-js": "^1.17.1",
     "auth0-spa-js": "^1.6.5",
     "bad-words": "^3.0.4",
