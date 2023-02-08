@@ -6,12 +6,24 @@ header:
   listings: Revenda
   profile: perfil
   store: Loja
-  items: Itens
+  items: Items
   offers: Ofertas
   notifications: Notificações
 login:
+  sign_in: Entrar
+  sign_up: Criar conta
   sign_out: Sair
+  signed_in_as: Conectato como
   signed_in_via: Acesso via
+  connect_metamask: Associar carteira da Metamesk
+  powered_by: Powered by
+  select_all_options: Selecionar todos
+  accept: Aceitar
+  terms: Ao criar uma conta ou acessar com uma conta existente, eu concordo com a Política de privacidade da Eluvio (https://live.eluv.io/privacy) e com os Termos e Condições (https;//live.eluv.io/terms).
+  email_consent: Ao marcar esta caixa, eu dou consentimento para que meu endereço de e-mail seja armazenado com o endereço da minha carteira {tenant Clause}. A Eluvio também pode enviar e-mails informativos e de marketing para este endereço.
+  email_consent_tenant_clause: E compartilhado com {tenantName}
+  errors:
+    missing_required_options: Por favor, selecione os campos obrigatórios
 navigation:
   profile: Meu perfil
   collections: Minhas coleções
@@ -27,11 +39,17 @@ actions:
   purchase:
     buy_now: Adquira agora
     claim: Resgate agora
+  listings:
+    create: Disponibilizar para revenda
+  transfers:
+    transfer: Transferir Arte Digital
+    transfer_confirm: Você realmente quer transferir essa Arte Digital para {targetAddress}?
 profile:
   media_wallet: Carteira
   address: Meu endereço da Eluvio
   do_not_send_funds: >-
-    Não envie valores para este endereço. Este é um endereço interno da Eluvio e não deve ser usado para pagamentos
+    Não envie valores para este endereço. Este é um endereço interno da Eluvio e
+    não deve ser usado para pagamentos
   add_funds: Adicionar valores
   withdraw_funds: Valor disponível para retirada
   view:
@@ -46,9 +64,14 @@ profile:
     outstanding_offers: Ocultar ofertas pendentes
     withdrawals: Ocultar retiradas
   payout_terms: >-
-    Aviso de disponibilidade de valores – Um período de retenção será aplicado sobre os valores resultantes da venda de uma Arte Digital. Os titulares da conta reconhecem que, durante este período de espera, um vendedor não poderá sacar os valores atribuíveis a essa(s) venda(s). O período de espera atual para retirar o saldo é de 15 dias.
+    Aviso de disponibilidade de valores – Um período de retenção será aplicado
+    sobre os valores resultantes da venda de uma Arte Digital. Os titulares da
+    conta reconhecem que, durante este período de espera, um vendedor não poderá
+    sacar os valores atribuíveis a essa(s) venda(s). O período de espera atual
+    para retirar o saldo é de 15 dias.
   payout_terms_contact: >-
-    Em caso de dúvidas, entre em contato com [payments@eluv.io](mailto:payments@eluv.io)
+    Em caso de dúvidas, entre em contato com
+    [payments@eluv.io](mailto:payments@eluv.io)
   balance:
     total: Saldo total
     locked: Saldo bloqueado
@@ -76,7 +99,6 @@ notifications:
   offer_received: Oferta recebida
   offer_accepted: Oferta aceita
   offer_declined: Oferta negada
-  offer_declined_reasons:
   offer_expired: Oferta expirou
 connected_accounts:
   wallet_address: Meu endereço de blockchain de conteúdo Eluvio
@@ -87,6 +109,7 @@ stats:
     average: Preço médio
     highest: Preço mais alto
     lowest: Preço mais baixo
+    buy_from_collector: Comprar de um colecionador
   sales:
     total: Total de vendas secundárias
     value: Volume de vendas secundárias
@@ -94,10 +117,50 @@ stats:
     highest: Preço mais alto
     lowest: Preço mais baixo
 purchase:
+  service_fee: Taxa de serviço
+  creator_royalty: Royalties para o criador
+  total_payout: Pagamento total
+  available_balance: Saldo disponível {balanceType}
+  total_balance: Saldo total {balanceType}
+  remaining_balance: Saldo restante {balanceType}
   total_amount: montante total
+  current_purchase_amount: Valor da compra atual
+  select_country: Por favor, selecione o seu país
+  all_other_countries: Todos os países
+  buy_with_wallet_balance: Comprar com saldo da carteira
   credit_card: Cartão de crédito
+  wallet_balance: Saldo de carteira
   checkout: Confira
-
+  sell_your_nft: Venda sua Arte Digital
+  set_price: Definir preço
+  min_listing_price: O preço mínimo de revenda é {price}
+  max_listing_price: O preço máximo de revenda é {price}
+  conversion_amount: Conversão para dólar americano (USD)
+  conversion_note: Os valores são baseados no dólar americano (USD). Todos os valores exibidos são aproximados com base nas taxas de câmbio atuais.
+  purchase_methods:
+    credit_card: Cartão de crédito
+    wallet_balance: Saldo de carteira
+  errors:
+    failed: A compra falhou
+    listing_unavailable: A revenda não está mais disponível
+    insufficient_stock: Estoque insuficiente disponível para esta compra.
+    out_of_stock: Este item está fora do estoque
+    solana_insufficient_funds: A conta da Solana não possui saldo suficiente para realizar essa transação.
+    ethereum_insufficient_funds:  A conta da Ethereum não possui saldo suficiente para realizar essa transação.
+    listing_failed: Não é possível listar essa Arte Digital
+    nft_being_purchased: Essa Arte Digital está em processo de compra.
+    nft_sold: Essa Arte Digital foi vendida pelo preço de {price} na data {date}
+offers:
+  offer: Oferta
+  make_an_offer: Faça uma oferta
+  active_offers: Ofertas ativas para essa Arte Digital
+  min_offer_price: Preço mínimo da oferta é {price}
+  max_offer_price: Preço máximo da oferta é {price}
+  expires_in_single: Expira em 1 dia
+  expires_in: Expira em {number} dias
+  set_offer_amount: Definir valor da oferta
+  errors:
+    failed: Não é possível fazer essa oferta
 tables:
   pagination: Exibindo {min} - {max} De {total} Resultados
   no_results: sem resultados
@@ -115,8 +178,10 @@ tables:
   bought_nfts: Arte Digital adquirida
   sold_nfts: Arte Digital vendida
   columns:
+    address: Endereço
     amount: Volume tota
     buyer: Comprador
+    expiration: Vencimento
     fee: taxa
     from: De
     list_price: Preço de lista
@@ -131,9 +196,13 @@ tables:
     to: gd
     token_id: ID da Arte Digital
     total_amount: Volume total
+    total_collectibles: Total de colecionáveis
     username: Nome do usuário
 filters:
+  all_filters: Todos os filtros
   search: Buscar
+  search_projects: Pesquisar projetos
+  search_projects_ext: Pesquisar projetos, Artes Digitais, mídias e aplicativos de realidade aumentada
   filters:
     min: Min
     max: Max
@@ -144,8 +213,17 @@ filters:
     currency: Moeda
     any_currency: Qualquer moeda
     edition: Edição
+    choose_editions: Escolha as edições
     collection: coleção
     choose_collections: Escolha a coleção
+    drop: Drop
+    choose_drops: Escolha os drops
+    rarity: Raridade
+    choose_rarity: Escolha a raridade
+    choose_attributes: Escolha os atributos
+    marketplace: Marketplace
+    marketplaces: Marketplaces
+    all_marketplaces: Todas as marketplaces
     time: Horário
     all_time: Qualquer horário
     last_24_hours: Últimas 24 horas
@@ -153,6 +231,8 @@ filters:
     last_30_days: Últimos 30 dias
   sort:
     sort: Organizar por
+    minted: Mintados (do mais antigo para mais novo)
+    minted_desc: Mintados (do mais novo para mais antigo)
     name: Nome (A-Z)
     name_desc: Nome (Z-A)
     listed: Listados recentemente
@@ -161,18 +241,104 @@ filters:
     price: preço (baixo para alto)
     price_desc: preço (alto para baixo)
 item_details:
+  properties: Propriedades
   details: Detalhes
   contract: Contrato
-  contract_address: Contract Address
+  contract_address: Endereço de contato
+  media: Mídia
+  trading: Negociações
   purchase_offers: Ofertas de compra
+  redeemables: Resgatáveis
+  held_message:  Esta Arte Digital está em período de retenção até {heldDate}. Você não poderá transferi-lo até lá.
   lookout_link: Mais informações (Em inglês)
+  token_url: URL do Token
   media_url: Media URL
   image_url: Image URL
   creator: Criador
   edition: vukaofe
   token_id: Edição
+  token_ordinal: Token Ordinal
   number_minted: Quantidade criada
   number_in_circulation: Quantidade em circulação
   number_burned: Número queimado
   max_possible: Quantidade máxima possível de circulação
+  held_until: Retenção até
   cap: Limite
+  minted: Mintado na Content Fabric da Eluvio em {date}
+  status:
+    listings: Revendas
+    sale_ended: Venda encerrada
+    private_offering: Oferta privada
+    sold_out: Todos foram vendidos!
+    claim: Regastar
+    buy: Comprar
+    max_owned: Você já possui o máximo permitido!
+    release_date: Data de lançamento
+  menu:
+    set_as_profile: Configure como minha imagem do perfil
+    copy_listing_url: Copiar URL da revenda
+    copy_item_url: Copiar item da revenda
+    copy_media_url: Copiar URL da mídia
+    share_on_twitter: Compartilhar no Twitter
+status:
+  back_to_profile: Voltar para o Meu Perfil
+  back_to_items: Voltar para Itens
+  back_to_my_items: Voltar para os Meus Itens
+  back_to_collection: Voltar para Minha Coleção
+  pack_opening: Seu pack está abrindo
+  minting:
+    header: Seus itens estão sendo mintados
+    subheader1: Isto pode levar alguns minutos
+    subheader2: Você pode sair desta página se não quiser esperar. Seus itens estarão disponíveis em sua carteira quando o processo for concluído.
+    success_header: Parabéns!
+    purchase: Obrigado por sua compra!
+    received_item_single: Você recebeu o seguinte item
+    received_item_multiple: Você recebeu os seguintes itens
+    submitting_solana: Enviando transação de pagamento para Solana
+    awaiting_payment: Aguardando pagamento...
+    transferring: Seus itens estão sendo transferidos
+    view_transaction: Veja suas transações em {location}
+  deposits:
+    header: Aguardando depósito
+    subheader1: Pode demorar até 30 minutos para confirmar seu depósito
+    subheader2: Você pode sair desta página se não quiser esperar. Seu depósito estará disponível em sua carteira quando o processo for concluído. Seu status de depósito pode ser visualizado em seu perfil
+    success_header: Depósito realizado com sucesso
+    success_subheader: Obrigado por sua compra! {amount} foi adicionado no saldo da sua carteira
+withdrawal:
+  withdraw_funds: Sacar valor
+  select_provider: Por favor selecione o seu provedor
+  select_country: Selecione o País
+  select_country_to_continue: Por favor selecione o seu país para continuar
+  method: Metódo
+  set_up_withdrawal: Configurar saque
+  set_up_withdrawal_stripe: Configurar saque com o Stripe Connect
+  withdraw_via_ebanx: Sacar via Ebanx
+  withdraw_via_stripe: Sacar via Stripe
+  max_withdrawable: O saque máximo permitido é {max}
+  available_funds: Saldo disponível
+  withdrawn_funds: Valores retirados
+  processing_fee: Taxa de processamento
+  total_payout: Pagamento total
+  remaining_funds: Saldo restante
+  remaining_withdrawable_funds: Valor disponível para saque
+  successful_withdrawal: "{amount} foi transferido para sua conta com sucesso."
+  fields:
+    amount: Valor
+    email: Email
+    name: Nome
+    phone: Telefone
+    birthdate: Data de nascimento
+    cpf: CPF
+    pix_key: Chave do Pix
+    pix_key_placeholder: Email, CPF, CNPJ ou número de telefone.
+  errors:
+    general: Não é possível sacar o saldo da carteira. Por favor, tente novamente mais tarde.
+    setup: Não é possível configurar o saque. Por favor, tente novamente mais tarde.
+    stripe_not_set_up: Sua conta da Stripe foi criada, mas não está pronta para aceitar pagamentos. Por favor, conclua o processo de configuração.
+deposits:
+  add_funds: Adicionar créditos em sua carteira
+  select_provider: Por favor, selecione o seu provedor
+  supported_methods: Este é um método de pagamento seguro usando a Coinbase. Somente ETH, BTC, USDC e DAI via rede principal da Ethereum são suportados.
+  specify_amount: Por favor, especifique a quantia que você deseja depositar.
+  max_deposit: O depósito máximo é $1000.
+  terms: O tempo de processamento varia dependendo da rede e pode levar vários minutos para ser concluído. Aplicam-se taxas de rede padrão. Os depósitos são limitados a US$ 1.000 por transação e US$ 10.000 por dia e estão sujeitos aos [Termos e condições do Eluvio](https://live.eluv.io/terms). Ao clicar em "Continuar", você reconhece que leu e entendeu todos estes termos e condições.
