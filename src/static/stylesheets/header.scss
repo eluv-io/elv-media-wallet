@@ -467,17 +467,19 @@
     width: 100%;
 
     &__header {
-      color: var(--color-component-text-secondary);
-      font-size: 20px;
+      color: var(--color-component-text-highlight);
+      font-size: 32px;
       margin-bottom: 30px;
       text-align: center;
+      text-transform: uppercase;
     }
 
     &__section {
-      margin-bottom: 60px;
+      margin-bottom: 30px;
     }
 
     &__label {
+      color: var(--color-component-text-highlight);
       font-size: 24px;
       text-align: center;
     }
