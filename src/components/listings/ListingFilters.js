@@ -371,7 +371,7 @@ const FilterMenu = ({mode, filterValues, editions, attributes, dropAttributes, r
           { rootStore.l10n.filters.filters.apply }
         </button>
         <button className="action filters__menu__reset-button" onClick={() => ResetFilters()}>
-          { rootStore.l10n.filters.filters.apply }
+          { rootStore.l10n.filters.filters.reset }
         </button>
       </div>
     </div>

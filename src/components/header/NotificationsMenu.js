@@ -58,7 +58,9 @@ const NotificationMenu = observer(({notification, parent, Hide}) => {
               className="notification-menu__button"
             >
               <ImageIcon icon={CheckmarkIcon} className="notification-menu__button__icon"/>
-              <div className="notification-menu__button__text">Mark as read</div>
+              <div className="notification-menu__button__text">
+                { rootStore.l10n.notifications.mark_as_read }
+              </div>
             </button> : null
         }
         <button

@@ -121,6 +121,7 @@ notifications:
   disable: Turn off {type} notifications
   load_more: Load More
   view_all: View All
+  mark_as_read: Mark as read
   new: New
   all: All
   no_new_notifications: No New Notifications

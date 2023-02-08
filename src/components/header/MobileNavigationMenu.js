@@ -156,16 +156,13 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
             );
           })
         }
-        {
-          availableDisplayCurrencies.length > 0 ?
-            <MenuLink
-              icon={PreferencesIcon}
-              onClick={() => setShowPreferencesMenu(!showPreferencesMenu)}
-              className={`mobile-menu__link ${showPreferencesMenu ? "active" : ""}`}
-            >
-              { rootStore.l10n.navigation.preferences }
-            </MenuLink> : null
-        }
+        <MenuLink
+          icon={PreferencesIcon}
+          onClick={() => setShowPreferencesMenu(!showPreferencesMenu)}
+          className={`mobile-menu__link ${showPreferencesMenu ? "active" : ""}`}
+        >
+          { rootStore.l10n.navigation.preferences }
+        </MenuLink>
         {
           rootStore.hideGlobalNavigation ? null :
             <>
