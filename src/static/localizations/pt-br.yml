@@ -15,7 +15,7 @@ login:
   sign_out: Sair
   signed_in_as: Conectato como
   signed_in_via: Acesso via
-  connect_metamask: Associar carteira da Metamesk
+  connect_metamask: Associar carteira da Metamask
   powered_by: Powered by
   select_all_options: Selecionar todos
   accept: Aceitar
