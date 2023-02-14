@@ -188,7 +188,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
           Close();
         }}
       >
-        { rootStore.l10n.login[rootStore.loggedIn ? "sign_in" : "sign_out"] }
+        { rootStore.l10n.login[rootStore.loggedIn ? "sign_out" : "sign_in"] }
       </button>
       {
         showPreferencesMenu ?
