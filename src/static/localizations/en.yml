@@ -20,6 +20,7 @@ login:
   powered_by: Powered by
   select_all_options: Select All
   accept: I Accept
+  terms_and_conditions: Terms and Conditions
   terms: By creating an account or signing in, I agree to the [Eluvio Privacy Policy](https://live.eluv.io/privacy) and the [Eluvio Terms and Conditions](https://live.eluv.io/terms).
   email_consent: By checking this box, I give consent for my email address to be stored with my wallet address {tenantClause}. Eluvio may also send informational and marketing emails to this address.
   email_consent_tenant_clause: and shared with {tenantName}

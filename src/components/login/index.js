@@ -110,7 +110,7 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
               rel="noopener"
               className="login-page__terms-link"
             >
-              {customizationOptions.terms_document.link_text}
+              {customizationOptions.terms_document.link_text || rootStore.l10n.login.terms_and_conditions}
             </a>
           </div>: null
       }

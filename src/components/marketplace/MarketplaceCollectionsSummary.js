@@ -94,7 +94,7 @@ export const MarketplaceCollectionsSummary = observer(() => {
             /> : null
         }
         <div className="page-headers">
-          <div className="page-header">{ collectionsInfo.header || "Explore Collections" }</div>
+          <div className="page-header">{ collectionsInfo.header || rootStore.l10n.header.collections }</div>
           { collectionsInfo.subheader ? <div className="page-subheader">{ collectionsInfo.subheader }</div> : null }
         </div>
         {
