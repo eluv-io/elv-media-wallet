@@ -34,7 +34,7 @@ login:
 navigation:
   profile: Meu perfil
   collections: Minhas coleções
-  items: Minhas artes digitais
+  items: Meus ítens
   listings: Minha lista de revenda
   offers: Minhas ofertas
   activity: Minhas atividades
@@ -377,7 +377,7 @@ item_details:
   media_url: Media URL
   image_url: Image URL
   creator: Criador
-  edition: vukaofe
+  edition: Edição
   token_id: Edição
   token_ordinal: Token Ordinal
   number_minted: Quantidade criada
