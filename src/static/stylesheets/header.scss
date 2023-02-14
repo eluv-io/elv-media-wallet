@@ -10,11 +10,11 @@
 
 .header-padding {
   &--global {
-    height: 150px;
+    height: 160px;
   }
 
   &--marketplace {
-    height: 230px;
+    height: 240px;
   }
 
   &--compact {
@@ -92,6 +92,7 @@
     justify-content: center;
     position: relative;
     transition: height 0.35s ease;
+    margin-bottom: 10px;
 
     &:empty {
       display: none;
@@ -177,7 +178,6 @@
   &--global {
     .header__content {
       height: 60px;
-      margin-bottom: 5px;
     }
   }
 
