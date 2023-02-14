@@ -160,13 +160,13 @@ const MarketplaceHeader = observer(({marketplace, scrolled}) => {
   const { name, header_logo, header_image, hide_name, preview } = marketplace.branding || {};
   const logo = header_logo?.url;
   const compact = rootStore.hideMarketplaceNavigation;
-  const dark = ["dark", "custom"].includes(marketplace?.branding?.color_scheme?.toLowerCase());
+  const theme = marketplace?.branding?.color_scheme?.toLowerCase() || "light";
 
   return (
     <>
       <div className={`header-padding header-padding--marketplace ${compact ? "header-padding--compact" : ""}`} />
       <header className={`page-block page-block--header ${scrolled ? "header-container--scrolled" : ""} ${compact ? "header-container--compact" : ""} ${rootStore.appBackground ? "page-block--custom-background" : ""} header-container header-container--marketplace`}>
-        <div className={`header-container__background ${dark ? "header-container__background--dark" : ""}`} />
+        <div className={`header-container__background header-container__background--${theme} : ""}`} />
         <div className={`page-block__content header header--marketplace ${hide_name ? "header--marketplace--no-header" : ""}`}>
           { preview ? <div className="header__preview-indicator">PREVIEW</div> : null }
           {
