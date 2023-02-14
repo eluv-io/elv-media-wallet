@@ -46,7 +46,11 @@ html {
   --font-header-links: normal normal 300 16px var(--font-family-secondary);
   --font-store-header: normal normal 600 48px var(--font-family-primary);
 
-  --background-page-header: #e6e6e6;
+  --background-header-light: linear-gradient(180deg, rgba(246, 246, 246, 1) 0%, rgba(246, 246, 246, 0.85) 99%, transparent);
+  --background-header-dark: linear-gradient(180deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.55) 75%, transparent 100%);
+
+  --background-header: var(--background-header-dark);
+
   --background-page-header-profile: var(--color-bg-secondary);
   --color-page-header-text: var(--color-text-primary);
   --color-header-link-text: var(--color-text-primary);

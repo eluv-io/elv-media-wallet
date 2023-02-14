@@ -128,8 +128,6 @@ header,
   }
 
   &--global-header {
-    background: var(--background-page-header);
-
     .page-block__content {
       max-width: unset;
       padding-bottom: 0;
@@ -308,7 +306,7 @@ em {
 
   .page-block {
     &:last-child {
-      padding-bottom: 200px;
+      padding-bottom: 150px;
 
       &.page-block--footer {
         padding-bottom: 50px;

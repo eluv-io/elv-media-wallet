@@ -115,12 +115,38 @@ export const ValidEmail = email => {
 };
 
 export const ScrollTo = (top=0, target) => {
+  // Don't scroll to 0 by default, it will cause the header to un-minimize. Should only scroll to 0 if the page is already scrolled to 0.
+  if(!target) {
+    top = Math.max(top, Math.min(window.scrollY, 1));
+  }
+
   // Mobile has a bug that prevents scroll top from working
   if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
     (target || window).scrollTo(0, top);
   } else {
     (target || window).scrollTo({top, behavior: "smooth"});
   }
+};
+
+export const Debounce = (f, ms) => {
+  let lastUpdate = 0;
+  let timeout;
+
+  return (args) => {
+    const diff = performance.now() - lastUpdate;
+
+    if(diff > ms) {
+      lastUpdate = performance.now();
+      f(args);
+    } else {
+      clearTimeout(timeout);
+
+      timeout = setTimeout(() => {
+        lastUpdate = performance.now();
+        f(args);
+      }, ms - diff);
+    }
+  };
 };
 
 export const NFTDisplayToken = nft => {

@@ -10,6 +10,7 @@ import MobileNavigationMenu from "Components/header/MobileNavigationMenu";
 import WalletMenu from "Components/header/WalletMenu";
 import ProfileMenu from "Components/header/ProfileMenu";
 import {NotificationsMenu} from "Components/header/NotificationsMenu";
+import {Debounce} from "../../utils/Utils";
 
 import EluvioLogo from "Assets/icons/ELUVIO logo (updated nov 2).svg";
 import MenuIcon from "Assets/icons/menu";
@@ -155,84 +156,122 @@ const MarketplaceNavigation = observer(({marketplace}) => {
   );
 });
 
-const MarketplaceHeader = observer(({marketplace}) => {
+const MarketplaceHeader = observer(({marketplace, scrolled}) => {
   const { name, header_logo, header_image, hide_name, preview } = marketplace.branding || {};
   const logo = header_logo?.url;
+  const compact = rootStore.hideMarketplaceNavigation;
+  const dark = ["dark", "custom"].includes(marketplace?.branding?.color_scheme?.toLowerCase());
 
   return (
-    <header className={`page-block page-block--header ${rootStore.appBackground ? "page-block--custom-background" : ""} header-container header-container--marketplace`}>
-      <div className={`page-block__content header header--marketplace ${hide_name ? "header--marketplace--no-header" : ""}`}>
-        { preview ? <div className="header__preview-indicator">PREVIEW</div> : null }
-        {
-          rootStore.hideMarketplaceNavigation ? null :
-            <div className="header__content">
-              {
-                logo ?
-                  <Link className="header__content__logo-container" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
-                    <ImageIcon icon={logo} label={name || ""} className="header__content__logo"/>
-                  </Link> : null
-              }
-              {
-                header_image?.url ?
-                  <div className="header__content__image-container">
-                    <ImageIcon icon={header_image.url} label={name || ""} className="header__content__image" />
-                  </div> :
-                  (hide_name || !name) ? null : <h1 className="header__content__header">{`${name}`}</h1>
-              }
-            </div>
-        }
-        <div className={`header__navigation-container ${rootStore.hideMarketplaceNavigation ? "header__navigation-container--compact" : ""}`}>
-          <MarketplaceNavigation marketplace={marketplace} />
-          <ProfileNavigation />
-          <MobileNavigation marketplace={marketplace}/>
+    <>
+      <div className={`header-padding header-padding--marketplace ${compact ? "header-padding--compact" : ""}`} />
+      <header className={`page-block page-block--header ${scrolled ? "header-container--scrolled" : ""} ${compact ? "header-container--compact" : ""} ${rootStore.appBackground ? "page-block--custom-background" : ""} header-container header-container--marketplace`}>
+        <div className={`header-container__background ${dark ? "header-container__background--dark" : ""}`} />
+        <div className={`page-block__content header header--marketplace ${hide_name ? "header--marketplace--no-header" : ""}`}>
+          { preview ? <div className="header__preview-indicator">PREVIEW</div> : null }
+          {
+            rootStore.hideMarketplaceNavigation ? null :
+              <div className="header__content">
+                {
+                  logo ?
+                    <Link className="header__content__logo-container" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
+                      <ImageIcon icon={logo} label={name || ""} className="header__content__logo"/>
+                    </Link> : null
+                }
+                {
+                  header_image?.url ?
+                    <div className="header__content__image-container">
+                      <ImageIcon icon={header_image.url} label={name || ""} className="header__content__image" />
+                    </div> :
+                    (hide_name || !name) ? null : <h1 className="header__content__header">{`${name}`}</h1>
+                }
+              </div>
+          }
+          <div className={`header__navigation-container ${compact ? "header__navigation-container--compact" : ""}`}>
+            <MarketplaceNavigation marketplace={marketplace} />
+            <ProfileNavigation />
+            <MobileNavigation marketplace={marketplace}/>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </>
   );
 });
 
-const GlobalHeader = observer(() => {
+const GlobalHeader = observer(({scrolled}) => {
+  const compact = rootStore.hideMarketplaceNavigation;
+
   return (
-    <header className={`page-block page-block--header ${rootStore.appBackground ? "page-block--custom-background" : ""} header-container header-container--global`}>
-      <div className="page-block__content header header--wallet">
-        {
-          rootStore.hideMarketplaceNavigation ? null :
-            <div className="header__content">
-              <Link className="header__content__logo-container header__content__logo-container--global" to={"/marketplaces"}>
-                <ImageIcon icon={EluvioLogo} label={name || ""} className="header__content__logo"/>
-              </Link>
-              {
-                rootStore.headerText ?
-                  <div className="header__content">
-                    <h1 className="header__content__header">{rootStore.headerText}</h1>
-                  </div> : null
-              }
-            </div>
-        }
-        <div className="header__navigation-container header__navigation-container--compact">
-          <nav className="header__navigation">
-            <NavLink className="header__navigation-link" to="/marketplaces">
-              { rootStore.l10n.header.discover_projects }
-            </NavLink>
-            <NavLink className="header__navigation-link" to="/wallet/listings">
-              { rootStore.l10n.header.listings }
-            </NavLink>
-            <NavLink className="header__navigation-link" to="/wallet/activity">
-              { rootStore.l10n.header.activity }
-            </NavLink>
-          </nav>
-          <ProfileNavigation />
-          <MobileNavigation />
+    <>
+      <div className={`header-padding header-padding--global ${compact ? "header-padding--compact" : ""}`} />
+      <header className={`page-block page-block--header ${rootStore.appBackground ? "page-block--custom-background" : ""} ${scrolled ? "header-container--scrolled" : ""} ${compact ? "header-container--compact" : ""} header-container header-container--global`}>
+        <div className={`header-container__background ${rootStore.darkMode ? "header-container__background--dark" : ""}`} />
+        <div className="page-block__content header header--global">
+          {
+            compact ? null :
+              <div className="header__content">
+                <Link className="header__content__logo-container header__content__logo-container--global" to={"/marketplaces"}>
+                  <ImageIcon icon={EluvioLogo} label={name || ""} className="header__content__logo"/>
+                </Link>
+                {
+                  rootStore.headerText ?
+                    <div className="header__content">
+                      <h1 className="header__content__header">{rootStore.headerText}</h1>
+                    </div> : null
+                }
+              </div>
+          }
+          <div className="header__navigation-container header__navigation-container--compact">
+            <nav className="header__navigation">
+              <NavLink className="header__navigation-link" to="/marketplaces">
+                { rootStore.l10n.header.discover_projects }
+              </NavLink>
+              <NavLink className="header__navigation-link" to="/wallet/listings">
+                { rootStore.l10n.header.listings }
+              </NavLink>
+              <NavLink className="header__navigation-link" to="/wallet/activity">
+                { rootStore.l10n.header.activity }
+              </NavLink>
+            </nav>
+            <ProfileNavigation />
+            <MobileNavigation />
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </>
   );
 });
 
+let lastScrollPosition = window.scrollY;
 const Header = observer(() => {
   const location = useLocation();
   const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
   const marketplace = marketplaceId && rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === marketplaceId);
+
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    setScrolled(false);
+
+    const ScrollFade = Debounce(() => {
+      const scrollPosition = Math.ceil(window.scrollY);
+
+      const alreadyAtTop = Math.round(window.scrollY) <= 1 && Math.round(lastScrollPosition) <= 1;
+      const notAtTop = scrollPosition > 0;
+      const notScrollable = document.body.scrollHeight - window.innerHeight < 5;
+
+      // Don't change state if scroll hasn't changed or if page is not scrollable (e.g. loading)
+      if(alreadyAtTop || notScrollable) { return; }
+
+      setScrolled(notAtTop);
+
+      lastScrollPosition = window.scrollY;
+    }, 50);
+
+    document.addEventListener("scroll", ScrollFade);
+
+    return () => document.removeEventListener("scroll", ScrollFade);
+  }, [marketplaceId]);
 
   useEffect(() => {
     rootStore.GetWalletBalance();
@@ -260,8 +299,8 @@ const Header = observer(() => {
 
   return (
     marketplace ?
-      <MarketplaceHeader marketplace={marketplace} key={`header-${marketplaceId}`} /> :
-      <GlobalHeader />
+      <MarketplaceHeader marketplace={marketplace} scrolled={scrolled} key={`header-${marketplaceId}`} /> :
+      <GlobalHeader scrolled={scrolled} />
   );
 });
 

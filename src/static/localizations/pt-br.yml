@@ -21,8 +21,8 @@ login:
   accept: Aceitar
   terms: >-
     Ao criar uma conta ou acessar com uma conta existente, eu concordo com a
-    Política de privacidade da Eluvio (https://live.eluv.io/privacy) e com os
-    Termos e Condições (https;//live.eluv.io/terms).
+    [Política de privacidade da Eluvio](https://live.eluv.io/privacy) e com os
+    [Termos e Condições](https;//live.eluv.io/terms).
   email_consent: >-
     Ao marcar esta caixa, eu dou consentimento para que meu endereço de e-mail
     seja armazenado com o endereço da minha carteira {tenant Clause}. A Eluvio
@@ -51,7 +51,7 @@ actions:
     open: Abrir {name}
     open_confirm: Você realmente quer abrir `{name}´?
   purchase:
-    buy_now: Adquira agora
+    buy_now: Compre agora
     buy_now_for: Compre agora por {price}
     claim: Resgate agora
   listings:
