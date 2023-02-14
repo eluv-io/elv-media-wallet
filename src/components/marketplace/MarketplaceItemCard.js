@@ -44,19 +44,19 @@ const MarketplaceItemCard = ({
 
   let status, action, linkDisabled=noLink;
   if(info.expired) {
-    action = rootStore.l10n.item_details.status.listings;
+    action = "listings";
     status = rootStore.l10n.item_details.status.sale_ended;
   } else if(info.unauthorized) {
     status = item.permission_message || rootStore.l10n.item_details.status.private_offering;
     linkDisabled = true;
   } else if(info.outOfStock) {
-    action = rootStore.l10n.item_details.status.listings;
+    action = "listings";
     status = rootStore.l10n.item_details.status.sold_out;
   } else if(!info.released) {
     linkDisabled = true;
     status = "";
   } else {
-    action = rootStore.l10n.item_details.status[info.free ? "claim": "buy"];
+    action = info.free ? "claim" : "buy";
   }
 
   let CardComponent = ItemCard;
