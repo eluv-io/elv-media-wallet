@@ -26,7 +26,7 @@ login:
     [Termos e Condições](https;//live.eluv.io/terms).
   email_consent: >-
     Ao marcar esta caixa, eu dou consentimento para que meu endereço de e-mail
-    seja armazenado com o endereço da minha carteira {tenant Clause}. A Eluvio
+    seja armazenado com o endereço da minha carteira {tenantClause}. A Eluvio
     também pode enviar e-mails informativos e de marketing para este endereço.
   email_consent_tenant_clause: E compartilhado com {tenantName}
   errors:
@@ -351,8 +351,8 @@ filters:
     last_30_days: Últimos 30 dias
   sort:
     sort: Organizar por
-    minted: Mintados (do mais antigo para mais novo)
-    minted_desc: Mintados (do mais novo para mais antigo)
+    minted: Criados (do mais antigo para mais novo)
+    minted_desc: Criados (do mais novo para mais antigo)
     name: Nome (A-Z)
     name_desc: Nome (Z-A)
     listed: Listados recentemente
@@ -386,7 +386,7 @@ item_details:
   max_possible: Quantidade máxima possível de circulação
   held_until: Retenção até
   cap: Limite
-  minted: Mintado na Content Fabric da Eluvio em {date}
+  minted: Criado na Content Fabric da Eluvio em {date}
   status:
     listings: Revendas
     sale_ended: Venda encerrada
@@ -415,7 +415,7 @@ status:
   back_to_collection: Voltar para Minha Coleção
   pack_opening: Seu pack está abrindo
   minting:
-    header: Seus itens estão sendo mintados
+    header: Suas Artes Digitais estão sendo criadas
     subheader1: Isto pode levar alguns minutos
     subheader2: >-
       Você pode sair desta página se não quiser esperar. Seus itens estarão

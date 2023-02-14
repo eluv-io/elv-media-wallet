@@ -156,9 +156,7 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
               {
                 LocalizeString(
                   rootStore.l10n.login.email_consent,
-                  {
-                    tenantClause: !customizationOptions.tenant_name ? "" : LocalizeString(rootStore.l10n.login.email_consent_tenant_clause, { tenantName: customizationOptions.tenant_name })
-                  }
+                  { tenantClause: !customizationOptions.tenant_name ? "" : LocalizeString(rootStore.l10n.login.email_consent_tenant_clause, { tenantName: customizationOptions.tenant_name }) }
                 )
               }
             </label>
