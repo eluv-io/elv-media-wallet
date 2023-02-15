@@ -11,6 +11,22 @@ const Assert = (method, name, value) => {
 };
 
 /**
+ * Set the language for the wallet app. This will cause the wallet app to reload if the language is not currently the one specified.
+ *
+ * @methodGroup Miscellaneous
+ * @namedParam
+ * @param {string} languageCode
+ */
+exports.SetLanguage = async function ({languageCode}) {
+  return this.SendMessage({
+    action: "setLanguage",
+    params: {
+      languageCode
+    }
+  });
+};
+
+/**
  * Set the marketplace for the wallet.
  *
  * This will update the font, color scheme, bottom navigation and login customization to the settings of the marketplace specified.

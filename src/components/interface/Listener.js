@@ -805,6 +805,17 @@ export const InitializeListener = (history) => {
 
           return Respond({});
 
+        // client.SetLanguage
+        case "setLanguage":
+          const originalLanguage = rootStore.language;
+          await rootStore.SetLanguage(data.params.languageCode, true);
+
+          if(rootStore.language !== originalLanguage) {
+            await rootStore.Reload();
+          }
+
+          return Respond({});
+
         // client.Reload
         case "reload":
           rootStore.Reload();
