@@ -386,7 +386,7 @@ item_details:
   max_possible: Quantidade máxima possível de circulação
   held_until: Retenção até
   cap: Limite
-  minted: Criado na Content Fabric da Eluvio em {date}
+  minted: Criado em {date}
   status:
     listings: Revendas
     sale_ended: Venda encerrada
@@ -415,10 +415,10 @@ status:
   back_to_collection: Voltar para Minha Coleção
   pack_opening: Seu pack está abrindo
   minting:
-    header: Suas Artes Digitais estão sendo criadas
+    header: Sua Arte Digital está sendo criada
     subheader1: Isto pode levar alguns minutos
     subheader2: >-
-      Você pode sair desta página se não quiser esperar. Seus itens estarão
+      Você pode sair desta página se não quiser esperar. Suas Artes Digitais estarão
       disponíveis em sua carteira quando o processo for concluído.
     success_header: Parabéns!
     purchase: Obrigado por sua compra!
