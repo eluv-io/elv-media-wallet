@@ -152,6 +152,10 @@ module.exports = {
       {
         test: /\.(txt|bin|abi)$/i,
         loader: "raw-loader"
+      },
+      {
+        test: /\.ya?ml$/,
+        use: "yaml-loader"
       }
     ]
   }

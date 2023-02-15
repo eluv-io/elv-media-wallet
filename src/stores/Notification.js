@@ -6,34 +6,15 @@ class NotificationStore {
   notificationListener = undefined;
   notifications = [];
   notificationMarker = { timestamp: 0, id: undefined };
-  supportedNotificationTypes = {
-    "LISTING_SOLD": {
-      type: "LISTING_SOLD",
-      label: "Listing Sold",
-      description: "Notify me when one of my listed NFTs is sold"
-    },
-    "TOKEN_UPDATED": {
-      type: "TOKEN_UPDATED",
-      label: "Token Updated",
-      description: "Notify me when an NFT I own is updated (e.g. new media)"
-    },
-    "OFFER_RECEIVED": {
-      type: "OFFER_RECEIVED",
-      label: "Offer Received",
-      description: "Notify me when I receive a purchase offer for an NFT I own"
-    },
-    "OFFER_ACCEPTED": {
-      type: "OFFER_ACCEPTED",
-      label: "Offer Accepted",
-      description: "Notify me when a purchase offer I made was accepted"
-    },
-    "OFFER_DECLINED": {
-      type: "OFFER_DECLINED",
-      label: "Offer Declined",
-      description: "Notify me when a purchase offer I made was declined"
-    }
-  };
-  activeNotificationTypes = [Object.keys(this.supportedNotificationTypes)].sort();
+  supportedNotificationTypes = [
+    "LISTING_SOLD",
+    "TOKEN_UPDATED",
+    "OFFER_RECEIVED",
+    "OFFER_ACCEPTED",
+    "OFFER_DECLINED",
+    "OFFER_EXPIRED"
+  ]
+  activeNotificationTypes = [...this.supportedNotificationTypes].sort();
   disabledNotificationTypes = [];
   readNotifications = {};
 
@@ -117,11 +98,11 @@ class NotificationStore {
           disabledNotificationTypes = JSON.parse(disabledNotificationTypes);
 
           this.disabledNotificationTypes = disabledNotificationTypes;
-          this.activeNotificationTypes = Object.keys(this.supportedNotificationTypes).filter(type => !this.disabledNotificationTypes.includes(type));
+          this.activeNotificationTypes = [...this.supportedNotificationTypes].filter(type => !this.disabledNotificationTypes.includes(type));
           // eslint-disable-next-line no-empty
         } catch(error) {}
       } else {
-        this.activeNotificationTypes = Object.keys(this.supportedNotificationTypes);
+        this.activeNotificationTypes = [...this.supportedNotificationTypes];
       }
 
       let notificationMarker = yield this.walletClient.ProfileMetadata({

@@ -6,7 +6,7 @@ import PlayIcon from "Assets/icons/media/Play icon.svg";
 
 import {checkoutStore, rootStore} from "Stores";
 import UrlJoin from "url-join";
-import {FormatPriceString} from "Components/common/UIComponents";
+import {FormatPriceString, LocalizeString} from "Components/common/UIComponents";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {mediaTypes} from "@eluvio/elv-embed/src/Utils";
 
@@ -70,31 +70,33 @@ export const MediaIcon = (media, circle=false) => {
   }
 };
 
-export const TimeDiff = (diffSeconds) => {
+export const TimeDiff = (diffSeconds, includeAgo) => {
   let days = Math.floor(Math.max(0, diffSeconds) / 60 / 60 / 24);
   let hours = Math.floor(Math.max(0, diffSeconds) / 60 / 60) % 24;
   let minutes = Math.floor(Math.max(0, diffSeconds) / 60 % 60);
   let seconds = Math.ceil(Math.max(diffSeconds, 0) % 60);
 
+  const loc = rootStore.l10n[includeAgo ? "ago" : "time"];
+
   if(days) {
-    return `${days} ${days === 1 ? "day" : "days"} `;
+    return LocalizeString(loc[days === 1 ? "day" : "days"], {days}, {stringOnly: true});
   }
 
   if(hours) {
-    return `${hours} ${hours === 1 ? "hour" : "hours"} `;
+    return LocalizeString(loc[hours === 1 ? "hour" : "hours"], {hours}, {stringOnly: true});
   }
 
   if(minutes) {
-    return `${minutes} ${minutes === 1 ? "minute" : "minutes"} `;
+    return LocalizeString(loc[minutes === 1 ? "minute" : "minutes"], {minutes}, {stringOnly: true});
   }
 
-  return `${seconds} ${seconds === 1 ? "second" : "seconds"} `;
+  return LocalizeString(loc[seconds === 1 ? "second" : "seconds"], {seconds}, {stringOnly: true});
 };
 
-export const Ago = (time) => {
+export const Ago = (time, includeAgo=true) => {
   let diffSeconds = Math.ceil((new Date() - new Date(time)) / 1000);
 
-  return TimeDiff(diffSeconds);
+  return TimeDiff(diffSeconds, includeAgo);
 };
 
 export const MiddleEllipsis = (str="", maxLength=8) => {
@@ -113,12 +115,38 @@ export const ValidEmail = email => {
 };
 
 export const ScrollTo = (top=0, target) => {
+  // Don't scroll to 0 by default, it will cause the header to un-minimize. Should only scroll to 0 if the page is already scrolled to 0.
+  if(!target) {
+    top = Math.max(top, Math.min(window.scrollY, 1));
+  }
+
   // Mobile has a bug that prevents scroll top from working
   if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
     (target || window).scrollTo(0, top);
   } else {
     (target || window).scrollTo({top, behavior: "smooth"});
   }
+};
+
+export const Debounce = (f, ms) => {
+  let lastUpdate = 0;
+  let timeout;
+
+  return (args) => {
+    const diff = performance.now() - lastUpdate;
+
+    if(diff > ms) {
+      lastUpdate = performance.now();
+      f(args);
+    } else {
+      clearTimeout(timeout);
+
+      timeout = setTimeout(() => {
+        lastUpdate = performance.now();
+        f(args);
+      }, ms - diff);
+    }
+  };
 };
 
 export const NFTDisplayToken = nft => {
@@ -350,13 +378,13 @@ export const NFTInfo = ({
     let expired = false;
     let releaseDate, expirationDate;
     if(offer.available_at) {
-      releaseDate = new Date(offer.available_at).toLocaleDateString("en-US", dateFormat);
+      releaseDate = new Date(offer.available_at).toLocaleDateString(navigator.languages, dateFormat);
       released = Date.now() > new Date(offer.available_at).getTime();
     }
 
     if(offer.expires_at) {
       expired = Date.now() > new Date(offer.expires_at).getTime();
-      expirationDate = new Date(offer.expires_at).toLocaleDateString("en-US", dateFormat);
+      expirationDate = new Date(offer.expires_at).toLocaleDateString(navigator.languages, dateFormat);
     }
 
     let {hide, hide_if_unreleased, hide_if_expired} = (offer.visibility || {});

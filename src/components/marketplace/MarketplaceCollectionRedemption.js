@@ -6,7 +6,7 @@ import UrlJoin from "url-join";
 import ImageIcon from "Components/common/ImageIcon";
 
 import {PageLoader} from "Components/common/Loaders";
-import {ButtonWithLoader} from "Components/common/UIComponents";
+import {ButtonWithLoader, LocalizeString} from "Components/common/UIComponents";
 import ListingIcon from "Assets/icons/listings icon";
 
 import BackIcon from "Assets/icons/arrow-left";
@@ -71,7 +71,7 @@ const MarketplaceCollection = observer(() => {
                     className={`action collection-redemption__option__button ${selected ? "action-primary" : ""}`}
                     key={`redemption-option-${nft.details.TokenIdStr}`}
                     disabled={nft.details.ListingId}
-                    title={nft.details.ListingId ? "You may not redeem a token while it is listed for sale." : undefined}
+                    title={nft.details.ListingId ? rootStore.l10n.collections.errors.listed_nft : undefined}
                     onClick={() => {
                       if(selectedCards[slot.sku]?.contractAddress === nft.details.ContractAddr && selectedCards[slot.sku]?.tokenId === nft.details.TokenIdStr) {
                         setSelectedCards({
@@ -86,7 +86,7 @@ const MarketplaceCollection = observer(() => {
                       }
                     }}
                   >
-                    { selected ? "Selected" : "Select This Token"}
+                    { rootStore.l10n.collections[selected ? "selected" : "select_token"] }
                   </button>
                 </div>
               );
@@ -102,16 +102,16 @@ const MarketplaceCollection = observer(() => {
       <Link to={UrlJoin("/marketplace", match.params.marketplaceId, "collections", collection.sku)} className="details-page__back-link">
         <ImageIcon icon={BackIcon} />
         <div className="details-page__back-link__text ellipsis">
-          Back to { collection.name || collection.collection_header || "Collection" }
+          { LocalizeString(rootStore.l10n.collections.back_to_collection, { collectionName: collection.name || collection.collection_header || rootStore.l10n.collections.collection }) }
         </div>
       </Link>
       <div className="marketplace__section">
         <div className="page-headers collection-redemption__redeem__headers">
           <div className="page-header collection-redemption__redeem__header">
-            Select the NFTs you wish to trade in
+            { rootStore.l10n.collections.select_nfts_2 }
           </div>
           <div className="page-subheader collection-redemption__redeem__subheader">
-            Choose one NFT per collection slot
+            { rootStore.l10n.collections.select_nfts_3 }
           </div>
         </div>
         {
@@ -122,18 +122,18 @@ const MarketplaceCollection = observer(() => {
 
         <div className="collection-redemption__redeem">
           <div className="collection-redemption__redeem__message">
-            Clicking redeem will permanently burn the selected tokens and mint the reward tokens to your account. Your new NFTs will appear in your wallet when minting is complete. This operation cannot be reversed and burned tokens cannot be recovered.
+            { rootStore.l10n.collections.redemption_warning }
           </div>
           {
             allTokensSelected ? null :
               <div className="collection-redemption__redeem__message">
-                Please select one token to redeem for each item in the collection.
+                { rootStore.l10n.collections.select_nfts_4 }
               </div>
           }
           {
             rootStore.externalWalletUser && redeeming ?
               <div className="collection-redemption__redeem__external-wallet-message">
-                This operation requires one signature per redeemed token.<br />Please check your Metamask browser extension and accept all pending signature requests.
+                { rootStore.l10n.collections.signature_warning }
               </div> : null
           }
 
@@ -141,7 +141,7 @@ const MarketplaceCollection = observer(() => {
             className="action action-primary collection-redemption__redeem__button"
             disabled={!allTokensSelected}
             onClick={async () => await Confirm({
-              message: "Are you sure you want to redeem this collection with the selected tokens? This action cannot be reversed.",
+              message: rootStore.l10n.collections.redemption_confirmation,
               Confirm: async () => {
                 setRedeeming(true);
 
@@ -161,7 +161,7 @@ const MarketplaceCollection = observer(() => {
               }
             })}
           >
-            Redeem
+            { rootStore.l10n.collections.redeem }
           </ButtonWithLoader>
         </div>
       </div>

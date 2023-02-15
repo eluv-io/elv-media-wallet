@@ -11,32 +11,33 @@ import FilterIcon from "Assets/icons/filter icon.svg";
 import ClearIcon from "Assets/icons/x.svg";
 import {SavedValue} from "../../utils/Utils";
 
-const sortOptionsOwned = [
-  { key: "default", value: "newest", label: "Minted (Newest to Oldest)", desc: true},
-  { key: "default", value: "oldest", label: "Minted (Oldest to Newest)", desc: false},
-  { key: "meta/display_name", value: "display_name_asc", label: "Name (A-Z)", desc: false},
-  { key: "meta/display_name", value: "display_name_desc", label: "Name (Z-A)", desc: true}
-];
-
-const sortOptionsListings = [
-  { key: "created", value: "created", label: "Recently Listed", desc: true},
-  { key: "info/token_id", value: "token_id", label: "Token ID", desc: false},
-  { key: "info/ordinal", value: "ord", label: "Ordinal", desc: false},
-  { key: "price", value: "price_asc", label: "Price (Low to High)", desc: false},
-  { key: "price", value: "price_desc", label: "Price (High to Low)", desc: true},
-  { key: "/nft/display_name", value: "display_name_asc", label: "Name (A-Z)", desc: false},
-  { key: "/nft/display_name", value: "display_name_desc", label: "Name (Z-A)", desc: true}
-];
-
-const sortOptionsActivity = [
-  { key: "created", value: "created", label: "Recently Listed", desc: true},
-  { key: "price", value: "price_asc", label: "Price (Low to High)", desc: false},
-  { key: "price", value: "price_desc", label: "Price (High to Low)", desc: true},
-  { key: "name", value: "display_name_asc", label: "Name (A-Z)", desc: false},
-  { key: "name", value: "display_name_desc", label: "Name (Z-A)", desc: true}
-];
-
 const SortOptions = mode => {
+  const sortLabels = rootStore.l10n.filters.sort;
+  const sortOptionsOwned = [
+    { key: "default", value: "newest", label: sortLabels.minted_desc, desc: true},
+    { key: "default", value: "oldest", label: sortLabels.minted, desc: false},
+    { key: "meta/display_name", value: "display_name_asc", label: sortLabels.name, desc: false},
+    { key: "meta/display_name", value: "display_name_desc", label: sortLabels.name_desc, desc: true}
+  ];
+
+  const sortOptionsListings = [
+    { key: "created", value: "created", label: sortLabels.listed, desc: true},
+    { key: "info/token_id", value: "token_id", label: sortLabels.token_id, desc: false},
+    { key: "info/ordinal", value: "ord", label: sortLabels.ordinal, desc: false},
+    { key: "price", value: "price_asc", label: sortLabels.price, desc: false},
+    { key: "price", value: "price_desc", label: sortLabels.price_desc, desc: true},
+    { key: "/nft/display_name", value: "display_name_asc", label: sortLabels.name, desc: false},
+    { key: "/nft/display_name", value: "display_name_desc", label: sortLabels.name_desc, desc: true}
+  ];
+
+  const sortOptionsActivity = [
+    { key: "created", value: "created", label: sortLabels.listed, desc: true},
+    { key: "price", value: "price_asc", label: sortLabels.price, desc: false},
+    { key: "price", value: "price_desc", label: sortLabels.price_desc, desc: true},
+    { key: "name", value: "display_name_asc", label: sortLabels.name, desc: false},
+    { key: "name", value: "display_name_desc", label: sortLabels.name_desc, desc: true}
+  ];
+
   switch(mode) {
     case "owned":
       return sortOptionsOwned;
@@ -93,7 +94,7 @@ const RangeFilter = observer(({label, valueLabel, value, onChange, precision=0})
         <input
           value={min}
           onChange={event => setMin(FormatInput(event.target.value))}
-          placeholder="Min"
+          placeholder={rootStore.l10n.filters.filters.min}
           className="filters__range__input"
           onBlur={() => UpdateValues({min: parsedMin, max: parsedMax, preferMin: true})}
         />
@@ -101,7 +102,7 @@ const RangeFilter = observer(({label, valueLabel, value, onChange, precision=0})
         <input
           value={max}
           onChange={event => setMax(FormatInput(event.target.value))}
-          placeholder="Max"
+          placeholder={rootStore.l10n.filters.filters.max}
           className="filters__range__input"
           onBlur={() => UpdateValues({min: parsedMin, max: parsedMax})}
         />
@@ -170,12 +171,12 @@ const AttributeFilters = ({attributes, dropAttributes, rarityAttributes, selecte
     .sort((a, b) => a[1] < b[1] ? -1 : 1);
 
   const dropAttributeOptions = (dropAttributes || [])
-    .map(({name, values}) => values.map(value => [AttributeFilterToSelectValue({name, value}), `Drop: ${value}`]))
+    .map(({name, values}) => values.map(value => [AttributeFilterToSelectValue({name, value}), `${rootStore.l10n.filters.filters.drop}: ${value}`]))
     .flat()
     .sort((a, b) => a[1] < b[1] ? -1 : 1);
 
   const rarityAttributeOptions = (rarityAttributes || [])
-    .map(({name, values}) => values.map(value => [AttributeFilterToSelectValue({name, value}), `Rarity: ${value}`]))
+    .map(({name, values}) => values.map(value => [AttributeFilterToSelectValue({name, value}), `${rootStore.l10n.filters.filters.rarity}: ${value}`]))
     .flat()
     .sort((a, b) => a[1] < b[1] ? -1 : 1);
 
@@ -197,10 +198,10 @@ const AttributeFilters = ({attributes, dropAttributes, rarityAttributes, selecte
       {
         dropAttributeOptions.length > 0 ?
           <FilterMultiSelect
-            label="Choose Drops"
+            label={rootStore.l10n.filters.filters.choose_drops}
             values={selectedDropValues}
             onChange={values => setSelectedFilterValues({...selectedFilterValues, attributeFilters: [...selectedAttributeValues, ...selectedRarityValues, ...values].map(SelectValueToAttributeFilter)})}
-            placeholder="Choose Drops"
+            placeholder={rootStore.l10n.filters.filters.choose_drops}
             options={dropAttributeOptions}
           /> : null
       }
@@ -208,10 +209,10 @@ const AttributeFilters = ({attributes, dropAttributes, rarityAttributes, selecte
       {
         rarityAttributeOptions.length > 0 ?
           <FilterMultiSelect
-            label="Choose Rarity"
+            label={rootStore.l10n.filters.filters.choose_rarity}
             values={selectedRarityValues}
             onChange={values => setSelectedFilterValues({...selectedFilterValues, attributeFilters: [...selectedAttributeValues, ...selectedDropValues, ...values].map(SelectValueToAttributeFilter)})}
-            placeholder="Choose Rarity"
+            placeholder={rootStore.l10n.filters.filters.choose_rarity}
             options={rarityAttributeOptions}
           /> : null
       }
@@ -219,10 +220,10 @@ const AttributeFilters = ({attributes, dropAttributes, rarityAttributes, selecte
       {
         attributeOptions.length > 0 ?
           <FilterMultiSelect
-            label="Choose Attributes"
+            label={rootStore.l10n.filters.filters.choose_attributes}
             values={selectedAttributeValues}
             onChange={values => setSelectedFilterValues({...selectedFilterValues, attributeFilters: [...values, ...selectedDropValues, ...selectedRarityValues].map(SelectValueToAttributeFilter)})}
-            placeholder="Choose Attributes"
+            placeholder={rootStore.l10n.filters.filters.choose_attributes}
             options={attributeOptions}
           /> : null
       }
@@ -261,15 +262,14 @@ const FilterMenu = ({mode, filterValues, editions, attributes, dropAttributes, r
 
   return (
     <div className="filters__menu" ref={ref}>
-
       {
         !marketplace && availableMarketplaces.length > 0 ?
           <FilterSelect
-            label="Marketplaces"
-            optionLabelPrefix="Marketplace: "
+            label={rootStore.l10n.filters.filters.marketplaces}
+            optionLabelPrefix={`${rootStore.l10n.filters.filters.marketplace}: `}
             value={selectedFilterValues.marketplaceId}
             options={[
-              ["", "All Marketplaces"],
+              ["", rootStore.l10n.filters.filters.all_marketplaces],
               ...(availableMarketplaces
                 .map(marketplace => [marketplace.marketplaceId, marketplace.branding.name]))
             ]}
@@ -280,11 +280,11 @@ const FilterMenu = ({mode, filterValues, editions, attributes, dropAttributes, r
       {
         collections && collections.length > 0 ?
           <FilterMultiSelect
-            label="Choose Collections"
-            optionLabelPrefix="Collection: "
+            label={rootStore.l10n.filters.filters.choose_collections}
+            optionLabelPrefix={`${rootStore.l10n.filters.filters.collection}: `}
             values={selectedFilterValues.collectionIndexes}
             onChange={value => setSelectedFilterValues({...selectedFilterValues, collectionIndexes: value})}
-            placeholder="Choose Collections"
+            placeholder={rootStore.l10n.filters.filters.choose_collections}
             options={
               (collections.map((collection, index) =>
                 [index, collection.collection_header]
@@ -307,38 +307,43 @@ const FilterMenu = ({mode, filterValues, editions, attributes, dropAttributes, r
       {
         mode === "listings" && selectedFilterValues.filter && editions.length > 0 ?
           <FilterMultiSelect
-            label="Choose Edition"
-            optionLabelPrefix="Edition: "
+            label={rootStore.l10n.filters.filters.choose_editions}
+            optionLabelPrefix={`${rootStore.l10n.filters.filters.edition}: `}
             values={selectedFilterValues.editionFilters}
             onChange={value => setSelectedFilterValues({...selectedFilterValues, editionFilters: value})}
-            placeholder="Choose Editions"
+            placeholder={rootStore.l10n.filters.filters.choose_editions}
             options={editions}
           /> : null
       }
       {
         mode === "owned" ? null :
           <FilterSelect
-            label="Time"
-            optionLabelPrefix="Time: "
+            label={rootStore.l10n.filters.filters.time}
+            optionLabelPrefix={`${rootStore.l10n.filters.filters.time}: `}
             value={selectedFilterValues.lastNDays}
             onChange={value => setSelectedFilterValues({...selectedFilterValues, lastNDays: value})}
-            options={[["", "All Time"], ["1", "Last 24 Hours"], ["7", "Last 7 Days"], ["30", "Last 30 Days"]]}
+            options={[
+              ["", rootStore.l10n.filters.filters.all_time],
+              ["1", rootStore.l10n.filters.filters.last_24_hours],
+              ["7", rootStore.l10n.filters.filters.last_7_days],
+              ["30", rootStore.l10n.filters.filters.last_30_days]
+            ]}
           />
       }
       {
         mode === "listings" ?
           <FilterSelect
-            label="Currency"
-            optionLabelPrefix="Currency: "
+            label={rootStore.l10n.filters.filters.currency}
+            optionLabelPrefix={`${rootStore.l10n.filters.filters.currency}: `}
             value={selectedFilterValues.currency}
             onChange={value => setSelectedFilterValues({...selectedFilterValues, currency: value})}
-            options={[["", "Any Currency"], ["usdc", "USDC"]]}
+            options={[["", rootStore.l10n.filters.filters.any_currency], ["usdc", "USDC"]]}
           /> : null
       }
       {
         mode === "listings" ?
           <RangeFilter
-            label="Price"
+            label={rootStore.l10n.filters.filters.price}
             valueLabel="USD"
             value={selectedFilterValues.priceRange}
             onChange={priceRange => setSelectedFilterValues({...selectedFilterValues, priceRange})}
@@ -348,7 +353,7 @@ const FilterMenu = ({mode, filterValues, editions, attributes, dropAttributes, r
       {
         mode === "listings" ?
           <RangeFilter
-            label="Token ID"
+            label={rootStore.l10n.filters.filters.token_id}
             valueLabel="#"
             value={selectedFilterValues.tokenIdRange}
             onChange={tokenIdRange => setSelectedFilterValues({...selectedFilterValues, tokenIdRange})}
@@ -363,10 +368,10 @@ const FilterMenu = ({mode, filterValues, editions, attributes, dropAttributes, r
             Hide();
           }}
         >
-          Apply Filters
+          { rootStore.l10n.filters.filters.apply }
         </button>
         <button className="action filters__menu__reset-button" onClick={() => ResetFilters()}>
-          Reset Filters
+          { rootStore.l10n.filters.filters.reset }
         </button>
       </div>
     </div>
@@ -562,21 +567,21 @@ export const ListingFilters = observer(({mode="listings", initialFilters, Update
         <AutoComplete
           className="filters__search"
           key={`autocomplete-${filterOptionsLoaded}-${savedOptionsLoaded}-${renderIndex}`}
-          placeholder="Search"
+          placeholder={rootStore.l10n.filters.search}
           value={filterValues.filter}
           onChange={value => setFilterValues({...filterValues, filter: value, editionFilters: []})}
           onEnterPressed={async () => await Update(true)}
           options={filterOptions}
         />
         <ButtonWithLoader onClick={async () => await Update(true)} className="filters__search-button">
-          <ImageIcon icon={SearchIcon} label="Search" />
+          <ImageIcon icon={SearchIcon} label={rootStore.l10n.filters.search} />
         </ButtonWithLoader>
       </div>
       <div className="filters__controls">
         <FilterSelect
           className="filters__select filters__select--sort"
           label="Sort By"
-          optionLabelPrefix="Sort: "
+          optionLabelPrefix={`${rootStore.l10n.filters.sort.sort}: `}
           value={sortOptions.find(option => option.value === filterValues.sort).value}
           onChange={value => {
             const selectedSortOption = sortOptions.find(option => option.value === value);

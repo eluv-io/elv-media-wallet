@@ -50,7 +50,9 @@ const Footer = ({footerText, footerLinks=[]}) => {
           <div className="footer__separator" />
           { footerText ? <RichText className="markdown-document footer__text" richText={footerText}/> : null }
           <div className="footer__tagline">
-            <div className="footer__tagline__text">Powered by</div>
+            <div className="footer__tagline__text">
+              { rootStore.l10n.login.powered_by }
+            </div>
             <ImageIcon icon={EluvioLogo} className="footer__tagline__image" title="Powered by Eluv.io" />
           </div>
         </div>

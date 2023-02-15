@@ -28,6 +28,8 @@ import NFTContractABI from "../static/abi/NFTContract";
 import {v4 as UUID} from "uuid";
 import ProfanityFilter from "bad-words";
 
+import LocalizationEN from "Assets/localizations/en.yml";
+
 // Force strict mode so mutations are only allowed within actions.
 configure({
   enforceActions: "always"
@@ -47,6 +49,10 @@ try {
 }
 
 class RootStore {
+  language = this.GetLocalStorage("lang");
+  l10n = LocalizationEN;
+  uiLocalizations = ["pt-br"];
+
   appId = "eluvio-media-wallet";
 
   auth0 = undefined;
@@ -236,6 +242,60 @@ class RootStore {
     this.Initialize();
   }
 
+  SetLanguage = flow(function * (language, save=false) {
+    if(Array.isArray(language)) {
+      for(let i = 0; i < language.length; i++) {
+        if(yield this.SetLanguage(language[i], save)) {
+          return;
+        }
+      }
+
+      language = "en";
+    }
+
+    language = language.toLowerCase();
+
+    if(language.startsWith("en")) {
+      this.l10n = LocalizationEN;
+      this.language = "en";
+      save ? this.SetLocalStorage("lang", "en") : this.RemoveLocalStorage("lang");
+      return true;
+    }
+
+    // Find matching preference (including variants, e.g. pt-br === pt)
+    const availableLocalizations = ["pt-br", "test"];
+    language = availableLocalizations.find(key => key.startsWith(language) || language.startsWith("key"));
+
+    if(!language) {
+      return false;
+    }
+
+    const localization = (yield import(`Assets/localizations/${language}.yml`)).default;
+
+    const MergeLocalization = (l10n, en) => {
+      if(Array.isArray(en)) {
+        return en.map((entry, index) => MergeLocalization((l10n || [])[index], entry));
+      } else if(typeof l10n === "object") {
+        let newl10n = {};
+        Object.keys(en).forEach(key => newl10n[key] = MergeLocalization((l10n || {})[key], en[key]));
+
+        return newl10n;
+      } else {
+        return l10n || en;
+      }
+    };
+
+    // Merge non-english localizations with english to ensure defaults are set for all fields
+    this.l10n = MergeLocalization(localization, LocalizationEN);
+    this.language = language;
+
+    if(save) {
+      this.SetLocalStorage("lang", language);
+    }
+
+    return true;
+  });
+
   SetHeaderText(text) {
     this.headerText = text;
   }
@@ -243,6 +303,7 @@ class RootStore {
   Initialize = flow(function * () {
     try {
       this.loaded = false;
+      this.SetLanguage(this.language || navigator.languages);
 
       if(window.sessionStorageAvailable) {
         // eslint-disable-next-line no-console
@@ -281,6 +342,7 @@ class RootStore {
         appId: this.appId,
         network: EluvioConfiguration.network,
         mode: EluvioConfiguration.mode,
+        localization: this.language === "en" ? undefined : this.language,
         previewMarketplaceId: (searchParams.get("preview") || (!this.embedded && this.GetSessionStorage("preview-marketplace")) || "").replaceAll("/", ""),
         storeAuthToken: false
       });
@@ -1204,6 +1266,7 @@ class RootStore {
               phone: userInfo.phone,
               document_type: "cpf",
               document: userInfo.cpf,
+              pix_key: userInfo.pix_key,
               birthdate: userInfo.birthdate
             }
           },

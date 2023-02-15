@@ -224,6 +224,8 @@ $search-height: 50px;
 
     &__select-container,
     &__select {
+      font-size: 12px;
+      max-width: 100%;
       min-width: unset;
       width: 100%;
     }

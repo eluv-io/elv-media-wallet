@@ -148,7 +148,7 @@ class CryptoStore {
         connectedAccounts[link.link_type][address] = {
           ...link,
           link_acct: address,
-          connected_at: new Date(link.created * 1000).toLocaleTimeString(navigator.language || "en-US", {year: "numeric", month: "long", day: "numeric"})
+          connected_at: new Date(link.created * 1000).toLocaleTimeString(navigator.languages, {year: "numeric", month: "long", day: "numeric"})
         };
       }
 
@@ -496,7 +496,7 @@ class CryptoStore {
     const contract = new ethers.Contract(usdcContractAddress, abi, signer);
     const decimals = yield contract.decimals();
     const balance = yield contract.balanceOf(address);
-    const usdcBalance = parseFloat(balance.div(new ethers.utils.BigNumber(10).pow(decimals)));
+    const usdcBalance = parseFloat(balance.div(ethers.BigNumber.from(10).pow(decimals)));
 
     this.metamaskUSDCBalance = usdcBalance;
 

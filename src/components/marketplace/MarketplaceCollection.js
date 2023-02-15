@@ -12,6 +12,7 @@ import OwnedIcon from "Assets/icons/owned icon.svg";
 import {PageLoader} from "Components/common/Loaders";
 import BackIcon from "Assets/icons/arrow-left";
 import NFTCard from "Components/nft/NFTCard";
+import {LocalizeString} from "Components/common/UIComponents";
 
 const MarketplaceCollection = observer(() => {
   const match = useRouteMatch();
@@ -89,7 +90,7 @@ const MarketplaceCollection = observer(() => {
       to={UrlJoin(basePath, collection.sku, "redeem")}
       className="action action-primary marketplace__collection__redeem__button"
     >
-      Select NFTs to Redeem
+      { rootStore.l10n.collections.select_nfts }
     </Link>
   );
 
@@ -99,7 +100,7 @@ const MarketplaceCollection = observer(() => {
         disabled={true}
         className="action action-primary marketplace__collection__redeem__button"
       >
-        Select NFTs to Redeem
+        { rootStore.l10n.collections.select_nfts }
       </button>
     );
   }
@@ -109,7 +110,7 @@ const MarketplaceCollection = observer(() => {
       <Link to={basePath} className="details-page__back-link">
         <ImageIcon icon={BackIcon} />
         <div className="details-page__back-link__text ellipsis">
-          Back to { marketplace?.branding?.name || "Marketplace" } Collections
+          { LocalizeString(rootStore.l10n.collections.back_to_collections, { marketplaceName: marketplace?.branding?.name || "Marketplace" }) }
         </div>
       </Link>
       <div className="marketplace__section">
@@ -121,7 +122,7 @@ const MarketplaceCollection = observer(() => {
                 className="marketplace__collection-header__icon"
                 marketplaceHash={marketplace.versionHash}
                 title={collection.name}
-                path={UrlJoin("public", "asset_metadata", "info", "collections", collection.collectionIndex.toString(), "collection_icon")}
+                url={collectionIcon?.url}
               /> : null
           }
           <div className="page-headers">
@@ -136,7 +137,7 @@ const MarketplaceCollection = observer(() => {
                   width="2000"
                   className="marketplace__collection-header__banner"
                   marketplaceHash={marketplace.versionHash}
-                  path={UrlJoin("public", "asset_metadata", "info", "collections", collection.collectionIndex.toString(), "collection_banner")}
+                  url={collection.collection_banner?.url}
                 />
               </div> : null
           }
@@ -152,11 +153,7 @@ const MarketplaceCollection = observer(() => {
           collectionItems && collection.redeemable ?
             <div className="marketplace__collection__redeem">
               <div className="marketplace__collection__redeem__message">
-                {
-                  collectionCompleted ?
-                    "Your collection is complete!" :
-                    "Complete your collection to redeem the rewards below!"
-                }
+                { rootStore.l10n.collections[collectionCompleted ? "collection_complete" : "complete_to_redeem"] }
               </div>
               { redeemButton }
             </div> : null

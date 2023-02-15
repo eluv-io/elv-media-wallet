@@ -37,7 +37,7 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
   return (
     <HoverMenu className="header__menu header__profile-menu" Hide={Hide}>
       <div className="header__profile-menu__info">
-        <div className="header__profile-menu__info__type">Signed in Via {userInfo.walletType === "Custodial" ? "Email" : userInfo.walletName}</div>
+        <div className="header__profile-menu__info__type">{ rootStore.l10n.login.signed_in_via } {userInfo.walletType === "Custodial" ? "Email" : userInfo.walletName}</div>
         <div className="header__profile-menu__info__account">
           {
             userInfo.walletType === "Custodial" ?
@@ -66,7 +66,7 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
           to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me") : "/wallet/users/me"}
           onClick={Hide}
         >
-          My Profile
+          { rootStore.l10n.navigation.profile }
         </MenuLink>
 
         <div className="header__profile-menu__separator" />
@@ -78,7 +78,7 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
           onClick={Hide}
           isActive={IsActive("items")}
         >
-          {tabs.my_items || "My Items"}
+          {tabs.my_items || rootStore.l10n.navigation.items }
         </MenuLink>
         {
           hasCollections ?
@@ -89,7 +89,7 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
               onClick={Hide}
               isActive={IsActive("collections")}
             >
-              My Collections
+              { rootStore.l10n.navigation.collections }
             </MenuLink> : null
         }
         <MenuLink
@@ -99,7 +99,7 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
           onClick={Hide}
           isActive={IsActive("listings")}
         >
-          My Listings
+          { rootStore.l10n.navigation.listings }
         </MenuLink>
         <MenuLink
           icon={OffersIcon}
@@ -108,7 +108,7 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
           onClick={Hide}
           isActive={IsActive("offers")}
         >
-          My Offers
+          { rootStore.l10n.navigation.offers }
         </MenuLink>
         <MenuLink
           icon={ActivityIcon}
@@ -117,7 +117,7 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
           onClick={Hide}
           isActive={IsActive("activity")}
         >
-          My Activity
+          { rootStore.l10n.navigation.activity }
         </MenuLink>
         <MenuLink
           icon={NotificationsIcon}
@@ -126,7 +126,7 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
           onClick={Hide}
           isActive={IsActive("activity")}
         >
-          Notifications
+          { rootStore.l10n.navigation.notifications }
         </MenuLink>
 
         <MenuLink
@@ -134,7 +134,7 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
           onClick={() => setShowPreferencesMenu(!showPreferencesMenu)}
           className={`header__profile-menu__link header__profile-menu__link-secondary ${showPreferencesMenu ? "active" : ""}`}
         >
-          Preferences
+          { rootStore.l10n.navigation.preferences }
         </MenuLink>
         {
           rootStore.hideGlobalNavigation || (marketplaceId && rootStore.hideGlobalNavigationInMarketplace)  ? null :
@@ -145,7 +145,7 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
                 to="/marketplaces"
                 className="header__profile-menu__link header__profile-menu__link-secondary"
               >
-                Discover Projects
+                { rootStore.l10n.header.discover_projects }
               </MenuLink>
             </>
         }
@@ -157,7 +157,7 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
         }}
         className="header__profile-menu__log-out-button"
       >
-        Sign Out
+        { rootStore.l10n.login.sign_out }
       </button>
       {
         showPreferencesMenu ?

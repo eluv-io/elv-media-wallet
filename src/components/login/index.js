@@ -6,7 +6,7 @@ import {Loader} from "Components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import Modal from "Components/common/Modal";
 import Confirm from "Components/common/Confirm";
-import {RichText} from "Components/common/UIComponents";
+import {LocalizeString, RichText} from "Components/common/UIComponents";
 
 import MetamaskIcon from "Assets/icons/metamask fox.png";
 import EluvioLogo from "Assets/icons/ELUVIO logo (updated nov 2).svg";
@@ -71,7 +71,7 @@ const PoweredBy = ({customizationOptions}) => {
 
   return (
     <div className="login-page__tagline">
-      <div className="login-page__tagline__text">powered by</div>
+      <div className="login-page__tagline__text">{ rootStore.l10n.login.powered_by }</div>
       <ImageIcon icon={EluvioPoweredByLogo} className="login-page__tagline__image" title="Eluv.io" />
     </div>
   );
@@ -110,7 +110,7 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
               rel="noopener"
               className="login-page__terms-link"
             >
-              {customizationOptions.terms_document.link_text}
+              {customizationOptions.terms_document.link_text || rootStore.l10n.login.terms_and_conditions}
             </a>
           </div>: null
       }
@@ -132,9 +132,10 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
           ) : null
       }
 
-      <div className="login-page__terms login-page__eluvio-terms">
-        By creating an account or signing in, I agree to the <a href="https://live.eluv.io/privacy" target="_blank">Eluvio Privacy Policy</a> and the <a href="https://live.eluv.io/terms" target="_blank">Eluvio Terms and Conditions</a>.
-      </div>
+      <RichText
+        className="login-page__terms login-page__eluvio-terms"
+        richText={rootStore.l10n.login.terms}
+      />
 
       {
         // Allow the user to opt out of sharing email
@@ -152,7 +153,12 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
               className="login-page__consent-label"
               onClick={() => setUserData({...userData, share_email: !(userData || {}).share_email})}
             >
-              By checking this box, I give consent for my email address to be stored with my wallet address{ customizationOptions.tenant_name ? ` and shared with ${customizationOptions.tenant_name}` : "" }. Eluvio may also send informational and marketing emails to this address.
+              {
+                LocalizeString(
+                  rootStore.l10n.login.email_consent,
+                  { tenantClause: !customizationOptions.tenant_name ? "" : LocalizeString(rootStore.l10n.login.email_consent_tenant_clause, { tenantName: customizationOptions.tenant_name }) }
+                )
+              }
             </label>
           </div> : null
       }
@@ -193,9 +199,9 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
       autoFocus={!hasLoggedIn}
       onClick={() => LogIn({provider: "oauth", mode: "create"})}
       disabled={requiredOptionsMissing}
-      title={requiredOptionsMissing ? "Please accept the required options below" : undefined}
+      title={requiredOptionsMissing ? rootStore.l10n.login.errors.missing_required_options : undefined}
     >
-      SIGN UP
+      { rootStore.l10n.login.sign_up }
     </button>
   );
 
@@ -210,9 +216,9 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
       className={`action ${hasLoggedIn ? "action-primary" : ""} login-page__login-button login-page__login-button-sign-in login-page__login-button-auth0`}
       onClick={() => LogIn({provider: "oauth", mode: "login"})}
       disabled={requiredOptionsMissing}
-      title={requiredOptionsMissing ? "Please accept the required options below" : undefined}
+      title={requiredOptionsMissing ? rootStore.l10n.login.errors.missing_required_options : undefined}
     >
-      Sign In
+      { rootStore.l10n.login.sign_in }
     </button>
   );
 
@@ -226,10 +232,10 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
       className="action login-page__login-button login-page__login-button-wallet"
       onClick={() => LogIn({provider: "metamask", mode: "login"})}
       disabled={requiredOptionsMissing}
-      title={requiredOptionsMissing ? "Please accept the required options below" : undefined}
+      title={requiredOptionsMissing ? rootStore.l10n.login.errors.missing_required_options : undefined}
     >
       <ImageIcon icon={MetamaskIcon} />
-      Connect Metamask
+      { rootStore.l10n.login.connect_metamask }
     </button>
   );
 
@@ -322,7 +328,7 @@ const CustomConsentModal = ({customConsent}) => {
                     }}
                     className="custom-consent__option__label"
                   >
-                    Select All
+                    { rootStore.l10n.login.select_all_options }
                   </div>
                 </div> : null
             }
@@ -333,7 +339,7 @@ const CustomConsentModal = ({customConsent}) => {
               className="action action-primary"
               disabled={actionRequired}
             >
-              { customConsent.button_text || "I Accept" }
+              { customConsent.button_text || rootStore.l10n.login.accept }
             </button>
           </div>
         </div>

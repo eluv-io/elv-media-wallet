@@ -29,7 +29,7 @@ const CollectionCard = observer(({marketplace, collection}) => {
             className="collection-card__image"
             marketplaceHash={marketplace.versionHash}
             title={collection.name}
-            path={UrlJoin("public", "asset_metadata", "info", "collections", collection.collectionIndex.toString(), "collection_icon")}
+            url={collection?.collection_icon?.url}
           />
         </div>
       </div>
@@ -51,7 +51,7 @@ const CollectionCard = observer(({marketplace, collection}) => {
             to={UrlJoin("/marketplace", match.params.marketplaceId, "collections", collection.sku)}
             className="action action-primary"
           >
-            Go to Collection
+            { rootStore.l10n.collections.go_to_collection }
           </Link>
         </div>
       </div>
@@ -90,11 +90,11 @@ export const MarketplaceCollectionsSummary = observer(() => {
               rawImage
               className="marketplace__collection-header__icon"
               marketplaceHash={marketplace.versionHash}
-              path={UrlJoin("public", "asset_metadata", "info", "collections_info", "icon")}
+              url={collectionsInfo?.icon?.url}
             /> : null
         }
         <div className="page-headers">
-          <div className="page-header">{ collectionsInfo.header || "Explore Collections" }</div>
+          <div className="page-header">{ collectionsInfo.header || rootStore.l10n.header.collections }</div>
           { collectionsInfo.subheader ? <div className="page-subheader">{ collectionsInfo.subheader }</div> : null }
         </div>
         {
@@ -105,7 +105,7 @@ export const MarketplaceCollectionsSummary = observer(() => {
                 width="2000"
                 className="marketplace__collection-header__banner"
                 marketplaceHash={marketplace.versionHash}
-                path={UrlJoin("public", "asset_metadata", "info", "collections_info", "banner")}
+                url={collectionsInfo?.banner?.url}
               />
             </div> : null
         }

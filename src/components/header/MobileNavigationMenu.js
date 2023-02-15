@@ -32,36 +32,36 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
   let links;
   if(!marketplace) {
     links = [
-      { name: "Profile", icon: ProfileIcon, to: "/wallet/users/me/items", authed: true },
+      { name: rootStore.l10n.header.profile, icon: ProfileIcon, to: "/wallet/users/me/items", authed: true },
       { separator: true, authed: true },
-      { name: "Listings", icon: ListingsIcon, to: "/wallet/listings" },
-      { name: "Activity", icon: ActivityIcon, to: "/wallet/activity" },
+      { name: rootStore.l10n.header.listings, icon: ListingsIcon, to: "/wallet/listings" },
+      { name: rootStore.l10n.header.activity, icon: ActivityIcon, to: "/wallet/activity" },
       { separator: true, authed: true },
-      { name: "My Items", icon: ItemsIcon, to: UrlJoin("/wallet", "users", "me", "items"), authed: true },
-      { name: "My Listings", icon: ListingsIcon, to: UrlJoin("/wallet", "users", "me", "listings"), authed: true },
-      { name: "My Offers", icon: OffersIcon, to: UrlJoin("/wallet", "users", "me", "offers"), authed: true },
-      { name: "My Activity", icon: ActivityIcon, to: UrlJoin("/wallet", "users", "me", "activity"), authed: true },
-      { name: "Notifications", icon: NotificationsIcon, to: UrlJoin("/wallet", "users", "me", "notifications"), authed: true }
+      { name: rootStore.l10n.navigation.items, icon: ItemsIcon, to: UrlJoin("/wallet", "users", "me", "items"), authed: true },
+      { name: rootStore.l10n.navigation.listings, icon: ListingsIcon, to: UrlJoin("/wallet", "users", "me", "listings"), authed: true },
+      { name: rootStore.l10n.navigation.offers, icon: OffersIcon, to: UrlJoin("/wallet", "users", "me", "offers"), authed: true },
+      { name: rootStore.l10n.navigation.activity, icon: ActivityIcon, to: UrlJoin("/wallet", "users", "me", "activity"), authed: true },
+      { name: rootStore.l10n.navigation.notifications, icon: NotificationsIcon, to: UrlJoin("/wallet", "users", "me", "notifications"), authed: true }
     ];
   } else {
     const tabs = fullMarketplace?.branding?.tabs || {};
     const hasCollections = fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0;
 
     links = [
-      { name: "Profile", icon: ProfileIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items"), authed: true },
+      { name: rootStore.l10n.header.profile, icon: ProfileIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items"), authed: true },
       { separator: true, authed: true },
-      { name: tabs.store || marketplace?.branding?.name || "Store", icon: StoreIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "store") },
-      { name: "Collections", icon: CollectionsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "collections"), hidden: !hasCollections },
-      { name: tabs.listings || "Listings", icon: ListingsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "listings") },
-      { name: "Activity", icon: ActivityIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "activity") },
-      { name: "Leaderboard", icon: LeaderboardIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "leaderboard"), hidden: marketplace?.branding?.hide_leaderboard },
+      { name: tabs.store || marketplace?.branding?.name || rootStore.l10n.header.store, icon: StoreIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "store") },
+      { name: rootStore.l10n.header.collections, icon: CollectionsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "collections"), hidden: !hasCollections },
+      { name: tabs.listings || rootStore.l10n.header.listings, icon: ListingsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "listings") },
+      { name: rootStore.l10n.header.activity, icon: ActivityIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "activity") },
+      { name: rootStore.l10n.header.leaderboard, icon: LeaderboardIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "leaderboard"), hidden: marketplace?.branding?.hide_leaderboard },
       { separator: true, authed: true },
-      { name: "My Items", icon: ItemsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items"), authed: true },
-      { name: "My Collections", icon: CollectionsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "collections"), authed: true, hidden: !hasCollections },
-      { name: "My Listings", icon: ListingsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "listings"), authed: true },
-      { name: "My Offers", icon: OffersIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "offers"), authed: true },
-      { name: "My Activity", icon: ActivityIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "activity"), authed: true },
-      { name: "Notifications", icon: NotificationsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "notifications"), authed: true }
+      { name: rootStore.l10n.navigation.items, icon: ItemsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items"), authed: true },
+      { name: rootStore.l10n.navigation.collections, icon: CollectionsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "collections"), authed: true, hidden: !hasCollections },
+      { name: rootStore.l10n.navigation.listings, icon: ListingsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "listings"), authed: true },
+      { name: rootStore.l10n.navigation.offers, icon: OffersIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "offers"), authed: true },
+      { name: rootStore.l10n.navigation.activity, icon: ActivityIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "activity"), authed: true },
+      { name: rootStore.l10n.navigation.notifications, icon: NotificationsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "notifications"), authed: true }
     ];
   }
 
@@ -70,7 +70,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
       {
         rootStore.loggedIn ?
           <div className="mobile-menu__account">
-            <div className="mobile-menu__account__type">Signed in Via {userInfo.walletType === "Custodial" ? "Email" : userInfo.walletName}</div>
+            <div className="mobile-menu__account__type">{rootStore.l10n.login.signed_in_via} {userInfo.walletType === "Custodial" ? "Email" : userInfo.walletName}</div>
             <div className="mobile-menu__account__account">
               {
                 userInfo.walletType === "Custodial" ?
@@ -93,7 +93,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
             </div>
           </div> :
           <div className="mobile-menu__header">
-            {  marketplace ? marketplace?.branding?.name || "Store" : "Media Wallet" }
+            {  marketplace ? marketplace?.branding?.name || rootStore.l10n.header.store : rootStore.l10n.profile.media_wallet }
           </div>
       }
       <div className="mobile-menu__content">
@@ -103,7 +103,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
               {
                 userInfo.walletType === "Custodial" ?
                   <div className="mobile-menu__section">
-                    <div className="mobile-menu__section-header">My Eluvio Content Blockchain Address</div>
+                    <div className="mobile-menu__section-header">{ rootStore.l10n.profile.address }</div>
                     <div className="mobile-menu__address-container">
                       <div className="mobile-menu__address ellipsis">
                         {rootStore.CurrentAddress()}
@@ -113,15 +113,14 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
                       </button>
                     </div>
                     <div className="mobile-menu__message">
-                      Do not send funds to this address. This is an Eluvio Content Blockchain address and is not a payment
-                      address.
+                      { rootStore.l10n.profile.do_not_send_funds }
                     </div>
                   </div> : null
               }
 
               <div className="mobile-menu__section">
-                <div className="mobile-menu__section-header">Balance</div>
-                <div className="mobile-menu__balance">{ FormatPriceString(rootStore.totalWalletBalance, {includeCurrency: true, prependCurrency: true, excludeAlternateCurrency: true}) }</div>
+                <div className="mobile-menu__section-header">{ rootStore.l10n.profile.balance.total }</div>
+                <div className="mobile-menu__balance">{ FormatPriceString(rootStore.totalWalletBalance, {includeCurrency: true, prependCurrency: true}) }</div>
               </div>
 
               <MenuLink
@@ -130,7 +129,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
                 className="mobile-menu__link"
                 onClick={Close}
               >
-                View Details
+                { rootStore.l10n.profile.view.details }
               </MenuLink>
             </> : null
         }
@@ -157,16 +156,13 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
             );
           })
         }
-        {
-          availableDisplayCurrencies.length > 0 ?
-            <MenuLink
-              icon={PreferencesIcon}
-              onClick={() => setShowPreferencesMenu(!showPreferencesMenu)}
-              className={`mobile-menu__link ${showPreferencesMenu ? "active" : ""}`}
-            >
-              Preferences
-            </MenuLink> : null
-        }
+        <MenuLink
+          icon={PreferencesIcon}
+          onClick={() => setShowPreferencesMenu(!showPreferencesMenu)}
+          className={`mobile-menu__link ${showPreferencesMenu ? "active" : ""}`}
+        >
+          { rootStore.l10n.navigation.preferences }
+        </MenuLink>
         {
           rootStore.hideGlobalNavigation ? null :
             <>
@@ -177,7 +173,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
                 onClick={Close}
                 className="mobile-menu__link"
               >
-                Discover Projects
+                { rootStore.l10n.header.discover_projects }
               </MenuLink>
             </>
         }
@@ -192,7 +188,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
           Close();
         }}
       >
-        { rootStore.loggedIn ? "Sign Out" : "Sign In"}
+        { rootStore.l10n.login[rootStore.loggedIn ? "sign_out" : "sign_in"] }
       </button>
       {
         showPreferencesMenu ?

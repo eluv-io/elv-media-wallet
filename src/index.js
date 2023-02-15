@@ -42,7 +42,7 @@ const DebugFooter = observer(() => {
       <div className="debug-footer">
         <div>{ EluvioConfiguration.version }</div>
         <div>{ EluvioConfiguration.network === "demo" ? "Demo Network" : "Production Network" }</div>
-        <div>Deployed { new Date(EluvioConfiguration["deployed-at"] || Date.now()).toLocaleString(navigator.languages, {year: "numeric", month: "long", weekday: "long", hour: "numeric", minute: "numeric", second: "numeric" }) }</div>
+        <div>Deployed { new Date(EluvioConfiguration["deployed-at"] || Date.now()).toLocaleString("en-US", {year: "numeric", month: "long", weekday: "long", hour: "numeric", minute: "numeric", second: "numeric" }) }</div>
       </div>
       {
         rootStore.DEBUG_ERROR_MESSAGE ?

@@ -11,9 +11,9 @@ import CopyIcon from "Assets/icons/copy";
 const WalletMenu = observer(({marketplaceId, Hide}) => {
   return (
     <HoverMenu Hide={Hide} className="header__menu header__wallet-menu">
-      <h2 className="header__wallet-menu__header">Media Wallet</h2>
+      <h2 className="header__wallet-menu__header">{ rootStore.l10n.profile.media_wallet }</h2>
       <div className="header__wallet-menu__section">
-        <div className="header__wallet-menu__section-header">My Eluvio Content Blockchain Address</div>
+        <div className="header__wallet-menu__section-header">{ rootStore.l10n.profile.address }</div>
         <div className="header__wallet-menu__address-container">
           <div className="header__wallet-menu__address ellipsis">
             { rootStore.CurrentAddress() }
@@ -23,13 +23,13 @@ const WalletMenu = observer(({marketplaceId, Hide}) => {
           </button>
         </div>
         <div className="header__wallet-menu__message">
-          Do not send funds to this address. This is an Eluvio Content Blockchain address and is not a payment address.
+          { rootStore.l10n.profile.do_not_send_funds }
         </div>
       </div>
 
       <div className="header__wallet-menu__section">
-        <div className="header__wallet-menu__section-header">My Balance</div>
-        <div className="header__wallet-menu__balance">{ FormatPriceString(rootStore.totalWalletBalance, {includeCurrency: true, prependCurrency: true, excludeAlternateCurrency: true}) }</div>
+        <div className="header__wallet-menu__section-header">{ rootStore.l10n.profile.balance.total }</div>
+        <div className="header__wallet-menu__balance">{ FormatPriceString(rootStore.totalWalletBalance, {includeCurrency: true, prependCurrency: true}) }</div>
       </div>
 
       <Link
@@ -37,7 +37,7 @@ const WalletMenu = observer(({marketplaceId, Hide}) => {
         onClick={Hide}
         className="header__wallet-menu__link"
       >
-        View Details
+        { rootStore.l10n.profile.view.details }
       </Link>
     </HoverMenu>
   );

@@ -1,9 +1,11 @@
 import React, {useEffect, useRef, useState} from "react";
 import {render, unmountComponentAtNode} from "react-dom";
+import {rootStore} from "Stores";
 import Modal from "Components/common/Modal";
 import {Loader} from "Components/common/Loaders";
+import {observer} from "mobx-react";
 
-const ConfirmModal = ({message, Confirm, Close}) => {
+const ConfirmModal = observer(({message, Confirm, Close}) => {
   const [confirming, setConfirming] = useState(false);
   const ref = useRef(null);
 
@@ -26,7 +28,7 @@ const ConfirmModal = ({message, Confirm, Close}) => {
             confirming ? <Loader/> :
               <>
                 <button className="action action-secondary" onClick={Close} ref={ref} autoFocus>
-                  Cancel
+                  { rootStore.l10n.actions.cancel }
                 </button>
                 <button
                   className="action action-primary"
@@ -39,7 +41,7 @@ const ConfirmModal = ({message, Confirm, Close}) => {
                     }
                   }}
                 >
-                  Confirm
+                  { rootStore.l10n.actions.confirm }
                 </button>
               </>
           }
@@ -47,7 +49,7 @@ const ConfirmModal = ({message, Confirm, Close}) => {
       </div>
     </Modal>
   );
-};
+});
 
 const Confirm = async ({message, ModalComponent, Confirm, Close}) => {
   if(!ModalComponent) {

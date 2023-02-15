@@ -13,15 +13,15 @@ const UserOffers = observer(() => {
   return (
     <div className="listings-page">
       <OffersTable
+        header={rootStore.l10n.tables.offers_received}
         sellerAddress={userAddress}
         icon={OffersTableIcon}
-        header="Offers Received"
         className="user-transfer-table user-transfer-table--bought"
       />
       <OffersTable
+        header={rootStore.l10n.tables.offers_made}
         buyerAddress={userAddress}
         icon={OffersTableIcon}
-        header="Offers Made"
         className="user-transfer-table user-transfer-table--bought"
       />
     </div>

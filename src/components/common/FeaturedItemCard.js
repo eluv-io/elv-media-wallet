@@ -1,6 +1,7 @@
 import React from "react";
 import {observer} from "mobx-react";
 import {Link, useRouteMatch} from "react-router-dom";
+import {rootStore} from "Stores";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 
 import UrlJoin from "url-join";
@@ -60,13 +61,13 @@ const FeaturedItemCard = observer(({
   );
 
   let button;
-  if(action === "Claim" || action === "Buy") {
+  if(action === "claim" || action === "buy") {
     button = (
       <Link to={link} className="action action-primary">
-        { action === "Claim" ? "Claim Now" : "Buy Now" }
+        { rootStore.l10n.actions.purchase[action === "claim" ? "claim" : "buy_now"] }
       </Link>
     );
-  } else if(action === "Listings") {
+  } else if(action === "listings") {
     button = (
       <Link
         className="action action-primary"
@@ -76,7 +77,7 @@ const FeaturedItemCard = observer(({
             UrlJoin("/wallet", `listings?filter=${encodeURIComponent(searchName)}`)
         }
       >
-        View Listings
+        { rootStore.l10n.actions.listings.view }
       </Link>
     );
   }

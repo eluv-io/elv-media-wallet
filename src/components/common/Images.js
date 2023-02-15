@@ -119,7 +119,7 @@ export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVi
 });
 
 export const MarketplaceImage = ({marketplaceHash, item, title, path, url, icon, width="800", showVideo=false, templateImage=false, rawImage=false, className=""}) => {
-  if(!path || showVideo) {
+  if(!(path || url) || showVideo) {
     return (
       <NFTImage
         item={item}

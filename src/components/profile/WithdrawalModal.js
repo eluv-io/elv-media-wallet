@@ -2,7 +2,7 @@ import React, {useState, useEffect} from "react";
 import {rootStore} from "Stores";
 import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
-import {ButtonWithLoader, FormatPriceString, Select} from "Components/common/UIComponents";
+import {ButtonWithLoader, FormatPriceString, LocalizeString, Select} from "Components/common/UIComponents";
 import {roundToUp} from "round-to";
 
 import SupportedCountries from "../../utils/SupportedCountries";
@@ -10,30 +10,32 @@ import {ValidEmail} from "../../utils/Utils";
 import {Loader} from "Components/common/Loaders";
 import {useRouteMatch} from "react-router-dom";
 
-const priceOptions = {excludeAlternateCurrency: true, stringOnly: true};
+const priceOptions = {stringOnly: true};
 
 // Step 3 - Confirmation
 const WithdrawalConfirmation = observer(({payout, provider, Close}) => {
   return (
     <div className="withdrawal-confirmation">
-      <h1 className="withdrawal-confirmation__header">Withdraw Funds via {provider}</h1>
+      <h1 className="withdrawal-confirmation__header">
+        { rootStore.l10n.withdrawal[provider === "Stripe" ? "withdraw_via_stripe" : "withdraw_via_ebanx"] }
+      </h1>
       <div className="withdrawal-confirmation__content">
         <div className="withdrawal-confirmation__message">
-          {FormatPriceString(payout, priceOptions)} successfully transferred to your account
+          { LocalizeString(rootStore.l10n.withdrawal.successful_withdrawal, { amount: FormatPriceString(payout, priceOptions)}) }
         </div>
         <div className="withdrawal-confirmation__details">
           <div className="withdrawal-confirmation__detail">
-            <label>Total Payout</label>
+            <label>{ rootStore.l10n.withdrawal.total_payout }</label>
             <div>{FormatPriceString(payout, priceOptions)}</div>
           </div>
           <div className="withdrawal-confirmation__detail">
-            <label>Remaining Withdrawable Funds</label>
+            <label>{ rootStore.l10n.withdrawal.remaining_withdrawable_funds }</label>
             <div>{FormatPriceString(rootStore.withdrawableWalletBalance, priceOptions)}</div>
           </div>
         </div>
         <div className="withdrawal-confirmation__actions">
           <button className="action" onClick={() => Close()}>
-            OK
+            { rootStore.l10n.actions.close }
           </button>
         </div>
       </div>
@@ -52,11 +54,13 @@ const Withdrawal = observer(({provider, userInfo, Continue, Cancel, Close}) => {
 
   return (
     <div className="withdrawal-confirmation">
-      <h1 className="withdrawal-confirmation__header">Withdraw Funds via {provider}</h1>
+      <h1 className="withdrawal-confirmation__header">
+        { rootStore.l10n.withdrawal[provider === "Stripe" ? "withdraw_via_stripe" : "withdraw_via_ebanx"] }
+      </h1>
       <div className="withdrawal-confirmation__content">
         <div className="withdrawal-confirmation__amount-selection">
           <div className="labelled-input">
-            <label htmlFor="amount">Amount</label>
+            <label htmlFor="amount">{ rootStore.l10n.withdrawal.fields.amount }</label>
             <input
               name="amount"
               placeholder="Price"
@@ -72,37 +76,37 @@ const Withdrawal = observer(({provider, userInfo, Continue, Cancel, Close}) => {
           {
             parsedAmount > rootStore.withdrawableWalletBalance ?
               <div className="withdrawal-confirmation__input-error">
-                Maximum withdrawable balance is {FormatPriceString(rootStore.withdrawableWalletBalance, priceOptions)}
+                { LocalizeString(rootStore.l10n.withdrawal.maximum_withdrawable, { max: FormatPriceString(rootStore.withdrawableWalletBalance, priceOptions)}) }
               </div> : null
           }
         </div>
         <div className="withdrawal-confirmation__details">
           <div className="withdrawal-confirmation__detail">
-            <label>Available Funds</label>
+            <label>{ rootStore.l10n.withdrawal.available_funds }</label>
             <div>{FormatPriceString(rootStore.withdrawableWalletBalance, priceOptions)}</div>
           </div>
           <div className="withdrawal-confirmation__detail">
-            <label>Withdrawn Funds</label>
+            <label>{ rootStore.l10n.withdrawal.withdrawn_funds }</label>
             <div>{FormatPriceString(parsedAmount, priceOptions)}</div>
           </div>
           <div className="withdrawal-confirmation__detail-separator"/>
           <div className="withdrawal-confirmation__detail withdrawal-confirmation__detail-faded">
-            <label>Processing Fee</label>
+            <label>{ rootStore.l10n.withdrawal.processing_fee }</label>
             <div>{FormatPriceString((parsedAmount - payout), priceOptions)}</div>
           </div>
           <div className="withdrawal-confirmation__detail">
-            <label>Total Payout</label>
+            <label>{ rootStore.l10n.withdrawal.total_payout }</label>
             <div>{FormatPriceString(payout, priceOptions)}</div>
           </div>
           <div className="withdrawal-confirmation__detail">
-            <label>Remaining Funds</label>
+            <label>{ rootStore.l10n.withdrawal.remaining_funds }</label>
             <div>{FormatPriceString(rootStore.withdrawableWalletBalance - parsedAmount, priceOptions)}</div>
           </div>
         </div>
         {
           stripeInactive ?
             <div className="profile-page__withdrawal-setup-message">
-              Your Stripe account has been created, but is not ready to accept payments. Please finish setting up your account.
+              { rootStore.l10n.withdrawal.errors.stripe_not_set_up }
             </div> : null
         }
         {
@@ -113,7 +117,7 @@ const Withdrawal = observer(({provider, userInfo, Continue, Cancel, Close}) => {
         }
         <div className="withdrawal-confirmation__actions">
           <button className="action" onClick={() => (Cancel || Close)()}>
-            { Cancel ? "Back" : "Cancel" }
+            { rootStore.l10n.actions[Cancel ? "back" : "cancel"] }
           </button>
           <ButtonWithLoader
             className="action action-primary"
@@ -130,12 +134,12 @@ const Withdrawal = observer(({provider, userInfo, Continue, Cancel, Close}) => {
                 if(error?.uiMessage) {
                   setErrorMessage(error.uiMessage);
                 } else {
-                  setErrorMessage("Unable to withdraw funds. Please try again later.");
+                  setErrorMessage(rootStore.l10n.withdrawal.errors.general);
                 }
               }
             }}
           >
-            Withdraw Funds
+            { rootStore.l10n.withdrawal.withdraw_funds }
           </ButtonWithLoader>
         </div>
       </div>
@@ -150,17 +154,18 @@ const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
     userInfo.name &&
     userInfo.phone &&
     userInfo.cpf &&
+    userInfo.pix_key &&
     userInfo.birthdate &&
     isFinite(new Date(userInfo.birthdate));
 
   return (
     <div className="withdrawal-confirmation">
-      <h1 className="withdrawal-confirmation__header">Withdraw Funds via EBANX</h1>
+      <h1 className="withdrawal-confirmation__header">{ rootStore.l10n.withdrawal.withdraw_via_ebanx }</h1>
       <div className="withdrawal-confirmation__content">
         <div className="withdrawal-confirmation__form">
           <div className="labelled-input">
             <label htmlFor="email">
-              Method
+              { rootStore.l10n.withdrawal.method }
             </label>
             <Select
               value={userInfo.method}
@@ -172,7 +177,7 @@ const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
           </div>
           <div className="labelled-input">
             <label htmlFor="email">
-              Email
+              { rootStore.l10n.withdrawal.fields.email }
             </label>
             <input
               type="email"
@@ -182,7 +187,7 @@ const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
           </div>
           <div className="labelled-input">
             <label htmlFor="email">
-              Name
+              { rootStore.l10n.withdrawal.fields.name }
             </label>
             <input
               type="text"
@@ -192,7 +197,7 @@ const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
           </div>
           <div className="labelled-input">
             <label htmlFor="email">
-              Phone
+              { rootStore.l10n.withdrawal.fields.phone }
             </label>
             <input
               type="phone"
@@ -202,7 +207,7 @@ const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
           </div>
           <div className="labelled-input">
             <label htmlFor="email">
-              Birthdate
+              { rootStore.l10n.withdrawal.fields.birthdate }
             </label>
             <input
               type="date"
@@ -212,7 +217,7 @@ const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
           </div>
           <div className="labelled-input">
             <label htmlFor="email">
-              CPF
+              { rootStore.l10n.withdrawal.fields.cpf }
             </label>
             <input
               type="text"
@@ -221,13 +226,24 @@ const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
               onChange={event => setUserInfo({...userInfo, cpf: event.target.value})}
             />
           </div>
+          <div className="labelled-input">
+            <label htmlFor="email">
+              { rootStore.l10n.withdrawal.fields.pix_key }
+            </label>
+            <input
+              type="text"
+              placeholder={rootStore.l10n.withdrawal.fields.pix_key_placeholder}
+              value={userInfo.pix_key}
+              onChange={event => setUserInfo({...userInfo, pix_key: event.target.value})}
+            />
+          </div>
         </div>
         <div className="withdrawal-confirmation__actions">
           <button className="action" onClick={() => Cancel()}>
-            Cancel
+            { rootStore.l10n.actions.cancel }
           </button>
           <button disabled={!valid} onClick={() => Continue()} className="action action-primary profile-page__onboard-button">
-            Continue
+            { rootStore.l10n.actions.continue }
           </button>
         </div>
       </div>
@@ -250,7 +266,7 @@ const StripeSetup = observer(({Cancel, Close}) => {
     return (
       <div className="withdrawal-confirmation">
         <div className="withdrawal-confirmation__header">
-          Set up withdrawal with Stripe Connect
+          { rootStore.l10n.withdrawal.set_up_withdrawal_stripe }
         </div>
         <div className="withdrawal-confirmation__content">
           <Loader />
@@ -262,18 +278,18 @@ const StripeSetup = observer(({Cancel, Close}) => {
   return (
     <div className="withdrawal-confirmation">
       <div className="withdrawal-confirmation__header">
-        Set up withdrawal with Stripe Connect
+        { rootStore.l10n.withdrawal.set_up_withdrawal_stripe }
       </div>
       <div className="withdrawal-confirmation__content">
         <div className="withdrawal-confirmation__message">
-          Please select your country to continue
+          { rootStore.l10n.withdrawal.select_country }
         </div>
         <Select
           value={countryCode}
           onChange={value => setCountryCode(value)}
           containerClassName="withdrawal-confirmation__country-select"
           options={[
-            ["", "Select a Country"],
+            ["", rootStore.l10n.withdrawal.select_country],
             ...SupportedCountries.stripe
           ]}
         />
@@ -285,7 +301,7 @@ const StripeSetup = observer(({Cancel, Close}) => {
         }
         <div className="withdrawal-confirmation__actions">
           <button className="action" onClick={() => Cancel()}>
-            Cancel
+            { rootStore.l10n.actions.cancel }
           </button>
           <ButtonWithLoader
             disabled={!countryCode}
@@ -295,12 +311,12 @@ const StripeSetup = observer(({Cancel, Close}) => {
                 await new Promise(resolve => setTimeout(resolve, 3000));
                 Close();
               } catch(error) {
-                setErrorMessage("Unable to set up withdrawal. Please try again later.");
+                setErrorMessage(rootStore.l10n.withdrawal.errors.setup);
               }
             }}
             className="action action-primary profile-page__onboard-button"
           >
-            Set Up Withdrawal
+            { rootStore.l10n.withdrawal.set_up_withdrawal }
           </ButtonWithLoader>
         </div>
       </div>
@@ -315,11 +331,11 @@ const ProviderSelection = observer(({Continue, Cancel}) => {
   return (
     <div className="withdrawal-confirmation">
       <div className="withdrawal-confirmation__header">
-        Withdraw Funds
+        { rootStore.l10n.withdrawal.withdraw_funds }
       </div>
       <div className="withdrawal-confirmation__content">
         <div className="withdrawal-confirmation__message">
-          Please select a provider
+          { rootStore.l10n.withdrawal.select_provider }
         </div>
         <Select
           value={provider}
@@ -329,10 +345,10 @@ const ProviderSelection = observer(({Continue, Cancel}) => {
         />
         <div className="withdrawal-confirmation__actions">
           <button className="action" onClick={() => Cancel()}>
-            Cancel
+            { rootStore.l10n.actions.cancel }
           </button>
           <button onClick={() => Continue(provider)} className="action action-primary profile-page__onboard-button">
-            Continue
+            { rootStore.l10n.actions.continue }
           </button>
         </div>
       </div>
@@ -354,6 +370,7 @@ const WithdrawalModal = observer(({Close}) => {
     name: "",
     phone: "",
     cpf: "",
+    pix_key: "",
     birthdate: ""
   });
   const [userInfoConfirmed, setUserInfoConfirmed] = useState(false);
