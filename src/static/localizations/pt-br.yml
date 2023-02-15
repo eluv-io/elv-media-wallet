@@ -81,6 +81,7 @@ actions:
 profile:
   media_wallet: Carteira
   address: Meu endereço da Eluvio
+  set_profile_image: Você pode usar as imagens das suas Artes Digitais para definir a imagem do seu perfil!
   do_not_send_funds: >-
     Não envie valores para este endereço. Este é um endereço interno da Eluvio e
     não deve ser usado para pagamentos
@@ -296,7 +297,7 @@ tables:
   sold_nfts: Arte Digital vendida
   columns:
     address: Endereço
-    amount: Volume tota
+    amount: Volume total
     buyer: Comprador
     expiration: Vencimento
     fee: taxa
@@ -376,6 +377,8 @@ item_details:
   token_url: URL do Token
   media_url: Media URL
   image_url: Image URL
+  minted: Criados
+  available: Disponíveis
   creator: Criador
   edition: Edição
   token_id: Edição
@@ -386,7 +389,7 @@ item_details:
   max_possible: Quantidade máxima possível de circulação
   held_until: Retenção até
   cap: Limite
-  minted: Criado em {date}
+  minted_date: Criado em {date}
   status:
     listings: Revendas
     sale_ended: Venda encerrada

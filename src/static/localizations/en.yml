@@ -79,6 +79,7 @@ actions:
 profile:
   media_wallet: Media Wallet
   address: Eluvio Content Blockchain Address
+  set_profile_image: You can set your profile image from any of your owned NFTs!
   do_not_send_funds: Do not send funds to this address. This is an Eluvio Content Blockchain address and is not a payment address.
   connected_accounts: Connected Accounts
   add_funds: Add Funds
@@ -371,6 +372,8 @@ item_details:
   token_url: Token URL
   media_url: Media URL
   image_url: Image URL
+  minted: Minted
+  available: Available
   creator: Creator
   edition: Edition
   token_id: Token ID
@@ -381,7 +384,7 @@ item_details:
   max_possible: Maximum Posible in Circulation
   held_until: Held Until
   cap: Cap
-  minted: Minted on the Eluvio Content Fabric on {date}
+  minted_date: Minted on the Eluvio Content Fabric on {date}
   status:
     listings: Listings
     sale_ended: Sale Ended

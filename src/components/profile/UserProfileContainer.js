@@ -185,7 +185,7 @@ const UserProfileContainer = observer(({children}) => {
               {
                 currentUser && !userProfile.imageUrl ?
                   <div className="user__profile__message">
-                    You can set your profile image from any of your owned NFTs!
+                    { rootStore.l10n.profile.set_profile_image }
                   </div> : null
               }
             </div>

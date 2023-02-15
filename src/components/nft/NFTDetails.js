@@ -206,7 +206,7 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
       }
       <br />
       <div>
-        { mintDate ? LocalizeString(rootStore.l10n.item_details.minted, {date: mintDate}) : "" }
+        { mintDate ? LocalizeString(rootStore.l10n.item_details.minted_date, {date: mintDate}) : "" }
       </div>
     </ExpandableSection>
   );
@@ -367,10 +367,10 @@ const NFTInfoSection = observer(({nftInfo, className=""}) => {
 
   let sideText = nftInfo.sideText;
   if(nftInfo.stock) {
-    sideText = [`${nftInfo.stock.minted} Minted`];
+    sideText = [`${nftInfo.stock.minted} ${rootStore.l10n.item_details.minted}`];
 
     if(nftInfo.stock.max < 10000000) {
-      sideText.push(`${nftInfo.stock.max - nftInfo.stock.minted} Available`);
+      sideText.push(`${nftInfo.stock.max - nftInfo.stock.minted} ${rootStore.l10n.item_details.available}`);
     }
   }
 
