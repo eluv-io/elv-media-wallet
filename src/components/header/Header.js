@@ -243,6 +243,7 @@ const GlobalHeader = observer(({scrolled}) => {
 });
 
 let lastScrollPosition = window.scrollY;
+let initialMarketplaceScroll = false;
 const Header = observer(() => {
   const location = useLocation();
   const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
@@ -252,8 +253,19 @@ const Header = observer(() => {
 
   useEffect(() => {
     setScrolled(false);
+    initialMarketplaceScroll = false;
 
     const ScrollFade = Debounce(() => {
+      // When marketplace changes, reset header to full size until the page is actually scrolled down
+      if(!initialMarketplaceScroll && window.scrollY > lastScrollPosition) {
+        initialMarketplaceScroll = true;
+      }
+
+      if(!initialMarketplaceScroll) {
+        lastScrollPosition = window.scrollY;
+        return;
+      }
+
       const scrollPosition = Math.ceil(window.scrollY);
 
       const alreadyAtTop = Math.round(window.scrollY) <= 1 && Math.round(lastScrollPosition) <= 1;
