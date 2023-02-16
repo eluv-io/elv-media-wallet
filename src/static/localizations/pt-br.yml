@@ -295,6 +295,8 @@ tables:
   deposits: depósitos
   bought_nfts: Arte Digital adquirida
   sold_nfts: Arte Digital vendida
+  available: Disponível
+  pending: Pendente
   columns:
     address: Endereço
     amount: Volume total
@@ -378,6 +380,7 @@ item_details:
   media_url: Media URL
   image_url: Image URL
   minted: Criados
+  available_single: Disponível
   available: Disponíveis
   creator: Criador
   edition: Edição

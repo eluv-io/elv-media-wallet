@@ -292,6 +292,8 @@ tables:
   deposits: Deposits
   bought_nfts: Bought NFTs
   sold_nfts: Sold NFTs
+  pending: Pending
+  available: Available
   columns:
     address: Address
     amount: Amount
@@ -373,6 +375,7 @@ item_details:
   media_url: Media URL
   image_url: Image URL
   minted: Minted
+  available_single: Available
   available: Available
   creator: Creator
   edition: Edition

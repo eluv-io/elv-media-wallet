@@ -675,7 +675,7 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
             Ago(transfer.created * 1000),
             MiddleEllipsis(transfer.buyer, 14),
             transfer.processor,
-            transfer.pending ? "Pending" : "Available"
+            rootStore.l10n.tables[transfer.pending ? "pending" : "available"]
           ])
             .filter(field => field)
         }
@@ -708,7 +708,7 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
           Ago(transfer.created * 1000),
           MiddleEllipsis(transfer.addr, 14),
           transfer.processor,
-          transfer.pending ? "Pending" : "Available"
+          rootStore.l10n.tables[transfer.pending ? "pending" : "available"]
         ])
       }
     />

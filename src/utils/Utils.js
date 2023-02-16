@@ -418,7 +418,8 @@ export const NFTInfo = ({
 
   let sideText;
   if(item && !hideAvailable && !outOfStock && !expired && !unauthorized && stock && stock.max && stock.max < 10000000) {
-    sideText = `${stock.max - stock.minted} / ${stock.max} Available`;
+    const available = stock.max - stock.minted;
+    sideText = `${available} / ${stock.max} ${rootStore.l10n.item_details[available === 1 ? "available_single" : "available"]}`;
   } else if(!item && showToken) {
     sideText = NFTDisplayToken(nft);
   }

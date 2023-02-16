@@ -370,7 +370,8 @@ const NFTInfoSection = observer(({nftInfo, className=""}) => {
     sideText = [`${nftInfo.stock.minted} ${rootStore.l10n.item_details.minted}`];
 
     if(nftInfo.stock.max < 10000000) {
-      sideText.push(`${nftInfo.stock.max - nftInfo.stock.minted} ${rootStore.l10n.item_details.available}`);
+      const available = nftInfo.stock.max - nftInfo.stock.minted;
+      sideText.push(`${available} ${rootStore.l10n.item_details[available === 1 ? "available_single" : "available"]}`);
     }
   }
 
