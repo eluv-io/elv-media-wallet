@@ -158,7 +158,7 @@ export const CopyableField = ({value, children, className="", ellipsis=true}) =>
   );
 };
 
-export const LocalizeString = (text, variables={}, options={stringOnly: false}) => {
+export const LocalizeString = (text="", variables={}, options={stringOnly: false}) => {
   let result = text
     .split(/{(\w+)}/)
     .filter(s => s)

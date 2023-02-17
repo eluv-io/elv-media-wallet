@@ -76,7 +76,7 @@ const Withdrawal = observer(({provider, userInfo, Continue, Cancel, Close}) => {
           {
             parsedAmount > rootStore.withdrawableWalletBalance ?
               <div className="withdrawal-confirmation__input-error">
-                { LocalizeString(rootStore.l10n.withdrawal.maximum_withdrawable, { max: FormatPriceString(rootStore.withdrawableWalletBalance, priceOptions)}) }
+                { LocalizeString(rootStore.l10n.withdrawal.max_withdrawable, { max: FormatPriceString(rootStore.withdrawableWalletBalance, priceOptions)}) }
               </div> : null
           }
         </div>
