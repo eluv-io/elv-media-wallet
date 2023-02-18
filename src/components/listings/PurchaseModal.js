@@ -174,7 +174,7 @@ const PurchaseProviderSelection = observer(({
               });
             }}
           >
-            { LocalizeString(rootStore.l10n.actions.purchase[selectedMethod === "ebanx" ? "buy_now_for_ebanx" : "buy_now_for"], {price}) }
+            { LocalizeString(rootStore.l10n.actions.purchase[selectedMethod === "ebanx" ? "buy_now_for_pix_ebanx" : "buy_now_for"], {price}) }
           </ButtonWithLoader>
           <button
             className="action purchase-modal__payment-cancel"
@@ -400,7 +400,7 @@ const PurchaseProviderSelection = observer(({
               (stripeEnabled && !ebanxEnabled && selectedMethod === "card") ||
               // If coinbase is the only option and we already have the user's email, we can proceed
               (selectedMethod === "crypto" && !usdcAccepted && ValidEmail(email)) ?
-                LocalizeString(rootStore.l10n.actions.purchase.buy_now_for, {price}) :
+                LocalizeString(rootStore.l10n.actions.purchase[selectedMethod === "pix" ? "buy_now_for_pix_ebanx" : "buy_now_for"], {price}) :
                 rootStore.l10n.actions.continue
             }
           </ButtonWithLoader>

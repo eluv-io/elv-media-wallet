@@ -51,7 +51,7 @@ actions:
   purchase:
     buy_now: Buy Now
     buy_now_for: Buy Now For {price}
-    buy_now_for_ebanx: Buy Now For {price} + Taxes
+    buy_now_for_pix_ebanx: Buy Now For {price} + Taxes
     claim: Claim Now
   listings:
     create: List For Sale
