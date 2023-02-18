@@ -174,7 +174,7 @@ const PurchaseProviderSelection = observer(({
               });
             }}
           >
-            { LocalizeString(rootStore.l10n.actions.purchase.buy_now_for, {price}) }
+            { LocalizeString(rootStore.l10n.actions.purchase[selectedMethod === "ebanx" ? "buy_now_for_ebanx" : "buy_now_for"], {price}) }
           </ButtonWithLoader>
           <button
             className="action purchase-modal__payment-cancel"

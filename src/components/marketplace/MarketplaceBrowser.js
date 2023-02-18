@@ -126,7 +126,7 @@ const MarketplaceFilters = observer(({marketplaces, SetFilters}) => {
 const MarketplaceCard = observer(({marketplace, flipped, setFlipped}) => {
   const branding = (marketplace && marketplace.branding) || {};
 
-  if(!branding.name || !branding.show) {
+  if(!branding.show) {
     return null;
   }
 
@@ -136,12 +136,12 @@ const MarketplaceCard = observer(({marketplace, flipped, setFlipped}) => {
         {
           branding.card_banner_front || branding.card_banner ?
             <img
-              alt={branding.name}
+              alt={branding.name || ""}
               className="marketplace-card__banner"
               src={(branding.card_banner_front || branding.card_banner).url}
             /> :
             <div className="marketplace-card__banner-placeholder">
-              { branding.name }
+              { branding.name || "" }
             </div>
         }
       </div>
@@ -150,12 +150,12 @@ const MarketplaceCard = observer(({marketplace, flipped, setFlipped}) => {
         {
           branding.card_banner_back ?
             <img
-              alt={branding.name}
+              alt={branding.name || ""}
               className="marketplace-card__banner"
               src={branding.card_banner_back.url}
             /> :
             <div className="marketplace-card__banner-placeholder">
-              { branding.name }
+              { branding.name || "" }
             </div>
         }
       </div>
