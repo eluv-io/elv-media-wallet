@@ -394,6 +394,8 @@ item_details:
   held_until: Retenção até
   cap: Limite
   minted_date: Criado em {date}
+  rarity: Raridade
+  have_trait: "{rarity}% possuem essa característica"
   status:
     listings: Revendas
     sale_ended: Venda encerrada

@@ -128,18 +128,24 @@ const MarketplaceNavigation = observer(({marketplace}) => {
 
   const fullMarketplace = marketplace ? rootStore.marketplaces[marketplace.marketplaceId] : null;
   const hasCollections = fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0;
+  const secondaryDisabled = branding.disable_secondary_market;
 
   return (
     <nav className="header__navigation header__navigation--marketplace">
       <NavLink className="header__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
         { tabs.store || rootStore.l10n.header.store }
       </NavLink>
-      <NavLink className="header__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "listings")}>
-        { tabs.listings || rootStore.l10n.header.listings }
-      </NavLink>
-      <NavLink className="header__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "activity")}>
-        { rootStore.l10n.header.activity }
-      </NavLink>
+      {
+        secondaryDisabled ? null :
+          <>
+            <NavLink className="header__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "listings")}>
+              {tabs.listings || rootStore.l10n.header.listings}
+            </NavLink>
+            <NavLink className="header__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "activity")}>
+              {rootStore.l10n.header.activity}
+            </NavLink>
+          </>
+      }
       {
         hasCollections ?
           <NavLink className="header__navigation-link no-mobile" to={UrlJoin("/marketplace", marketplace.marketplaceId, "collections")}>

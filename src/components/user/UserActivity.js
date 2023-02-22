@@ -12,6 +12,8 @@ import {RichText} from "Components/common/UIComponents";
 const UserActivity = observer(() => {
   const match = useRouteMatch();
   const userAddress = rootStore.userProfiles[match.params.userId].userAddress;
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId] || rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === match.params.marketplaceId);
+  const secondaryDisabled = marketplace?.branding?.disable_secondary_market;
 
   return (
     <div className="listings-page">
@@ -23,17 +25,20 @@ const UserActivity = observer(() => {
         marketplaceId={match.params.marketplaceId}
         className="user-transfer-table user-transfer-table--bought"
       />
-      <UserTransferTable
-        userAddress={userAddress}
-        icon={SalesIcon}
-        header={rootStore.l10n.tables.sold_nfts}
-        type="sale"
-        marketplaceId={match.params.marketplaceId}
-        className="user-transfer-table user-transfer-table--sold"
-      />
+      {
+        secondaryDisabled ? null :
+          <UserTransferTable
+            userAddress={userAddress}
+            icon={SalesIcon}
+            header={rootStore.l10n.tables.sold_nfts}
+            type="sale"
+            marketplaceId={match.params.marketplaceId}
+            className="user-transfer-table user-transfer-table--sold"
+          />
+      }
 
       {
-        Utils.EqualAddress(userAddress, rootStore.CurrentAddress()) ?
+        !secondaryDisabled && Utils.EqualAddress(userAddress, rootStore.CurrentAddress()) ?
           <>
             <RichText
               className="listings-page__message"

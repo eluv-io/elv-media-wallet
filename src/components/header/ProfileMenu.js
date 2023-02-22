@@ -23,10 +23,12 @@ import ProjectsIcon from "Assets/icons/header/New Projects_Marketplaces icon";
 const ProfileMenu = observer(({marketplaceId, Hide}) => {
   const [showPreferencesMenu, setShowPreferencesMenu] = useState(false);
 
+  const marketplace = marketplaceId && rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === marketplaceId);
   const fullMarketplace = marketplaceId ? rootStore.marketplaces[marketplaceId] : null;
   const tabs = fullMarketplace?.branding?.tabs || {};
   const hasCollections = fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0;
   const userInfo = rootStore.walletClient.UserInfo();
+  const secondaryDisabled = (marketplace || fullMarketplace)?.branding?.disable_secondary_market;
 
   const IsActive = (page="") => (_, location) => rootStore.loggedIn && (location.pathname.includes(`/users/me/${page}`) || location.pathname.includes(`/users/${rootStore.CurrentAddress()}/${page}`));
 
@@ -92,33 +94,38 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
               { rootStore.l10n.navigation.collections }
             </MenuLink> : null
         }
-        <MenuLink
-          icon={ListingsIcon}
-          className="header__profile-menu__link"
-          to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "listings") : "/wallet/users/me/listings"}
-          onClick={Hide}
-          isActive={IsActive("listings")}
-        >
-          { rootStore.l10n.navigation.listings }
-        </MenuLink>
-        <MenuLink
-          icon={OffersIcon}
-          className="header__profile-menu__link"
-          to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "offers") : "/wallet/users/me/offers"}
-          onClick={Hide}
-          isActive={IsActive("offers")}
-        >
-          { rootStore.l10n.navigation.offers }
-        </MenuLink>
-        <MenuLink
-          icon={ActivityIcon}
-          className="header__profile-menu__link"
-          to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "activity") : "/wallet/users/me/activity"}
-          onClick={Hide}
-          isActive={IsActive("activity")}
-        >
-          { rootStore.l10n.navigation.activity }
-        </MenuLink>
+        {
+          secondaryDisabled ? null :
+            <>
+              <MenuLink
+                icon={ListingsIcon}
+                className="header__profile-menu__link"
+                to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "listings") : "/wallet/users/me/listings"}
+                onClick={Hide}
+                isActive={IsActive("listings")}
+              >
+                { rootStore.l10n.navigation.listings }
+              </MenuLink>
+              <MenuLink
+                icon={OffersIcon}
+                className="header__profile-menu__link"
+                to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "offers") : "/wallet/users/me/offers"}
+                onClick={Hide}
+                isActive={IsActive("offers")}
+              >
+                { rootStore.l10n.navigation.offers }
+              </MenuLink>
+              <MenuLink
+                icon={ActivityIcon}
+                className="header__profile-menu__link"
+                to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "activity") : "/wallet/users/me/activity"}
+                onClick={Hide}
+                isActive={IsActive("activity")}
+              >
+                { rootStore.l10n.navigation.activity }
+              </MenuLink>
+            </>
+        }
         <MenuLink
           icon={NotificationsIcon}
           className="header__profile-menu__link"

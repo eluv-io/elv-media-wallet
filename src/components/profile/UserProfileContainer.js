@@ -84,7 +84,8 @@ const UsernameModal = observer(({UpdateUsername, Close}) => {
 const UserProfileContainer = observer(({children}) => {
   const match = useRouteMatch();
 
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId] || rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === match.params.marketplaceId);
+  const secondaryDisabled = marketplace?.branding?.disable_secondary_market;
 
   const [userProfile, setUserProfile] = useState(undefined);
   const [userStats, setUserStats] = useState(undefined);
@@ -225,11 +226,15 @@ const UserProfileContainer = observer(({children}) => {
                   { rootStore.l10n.header.collections }
                 </NavLink> : null
             }
-            <NavLink to="listings" className="header__navigation-link user__nav__link">
-              { rootStore.l10n.header.listings }
-            </NavLink>
+
             {
-              currentUser ?
+              secondaryDisabled ? null :
+                <NavLink to="listings" className="header__navigation-link user__nav__link">
+                  { rootStore.l10n.header.listings }
+                </NavLink>
+            }
+            {
+              currentUser && !secondaryDisabled ?
                 <NavLink to="offers" className="header__navigation-link user__nav__link">
                   { rootStore.l10n.header.offers }
                 </NavLink> : null

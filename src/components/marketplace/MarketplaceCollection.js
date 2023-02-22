@@ -17,6 +17,7 @@ import {LocalizeString} from "Components/common/UIComponents";
 const MarketplaceCollection = observer(() => {
   const match = useRouteMatch();
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+  const secondaryDisabled = marketplace?.branding?.disable_secondary_market;
   const [collectionItems, setCollectionItems] = useState(undefined);
 
   if(!marketplace) { return null; }
@@ -71,7 +72,7 @@ const MarketplaceCollection = observer(() => {
         return (
           <ItemCard
             key={key}
-            link={UrlJoin("/marketplace", match.params.marketplaceId, `listings?filter=${encodeURIComponent(item.nftTemplateMetadata.display_name)}`)}
+            link={secondaryDisabled ? "" : UrlJoin("/marketplace", match.params.marketplaceId, `listings?filter=${encodeURIComponent(item.nftTemplateMetadata.display_name)}`)}
             image={<NFTImage nft={{metadata: item.nftTemplateMetadata}} width={600}/>}
             name={item.nftTemplateMetadata.display_name}
             description={item.nftTemplateMetadata.description}

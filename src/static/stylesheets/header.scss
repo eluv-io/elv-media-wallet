@@ -76,6 +76,12 @@
         }
       }
     }
+
+    @media screen and (max-width: $tablet-breakpoint) {
+      .header__content {
+        display: none;
+      }
+    }
   }
 
   &.header-container--compact {
@@ -231,7 +237,7 @@
 
   @media screen and (max-width: 600px) {
     &__navigation {
-      justify-content: space-around;
+      justify-content: flex-start;
       width: 100%;
     }
 

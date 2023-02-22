@@ -70,7 +70,7 @@ const NFTTraitsSection = ({nftInfo}) => {
             {
               rarity_percent ?
                 <div className="trait__rarity">
-                  {`${rarity_percent}% have this trait`}
+                  { LocalizeString(rootStore.l10n.item_details.have_trait, { rarity: rarity_percent }) }
                 </div> : null
             }
           </div>
@@ -584,6 +584,7 @@ const NFTActions = observer(({
   isInCheckout,
   transferring,
   previewMedia,
+  secondaryDisabled,
   ShowOfferModal,
   ShowModal,
   SetClaimed,
@@ -595,6 +596,8 @@ const NFTActions = observer(({
   const previewMode = match.params.marketplaceId === rootStore.previewMarketplaceId;
 
   if(nftInfo.item) {
+    // Item from store
+
     return (
       <div className="details-page__actions">
         {
@@ -638,12 +641,15 @@ const NFTActions = observer(({
               {nftInfo.free ? rootStore.l10n.actions.purchase.claim : rootStore.l10n.actions.purchase.buy_now}
             </LoginClickGate> : null
         }
-        <Link
-          className={`action ${!nftInfo.marketplacePurchaseAvailable ? "action-primary" : ""}`}
-          to={UrlJoin("/marketplace", match.params.marketplaceId, "listings", `?filter=${encodeURIComponent(nftInfo.item.nftTemplateMetadata.display_name)}`)}
-        >
-          { rootStore.l10n.actions.listings.view }
-        </Link>
+        {
+          secondaryDisabled ? null :
+            <Link
+              className={`action ${!nftInfo.marketplacePurchaseAvailable ? "action-primary" : ""}`}
+              to={UrlJoin("/marketplace", match.params.marketplaceId, "listings", `?filter=${encodeURIComponent(nftInfo.item.nftTemplateMetadata.display_name)}`)}
+            >
+              {rootStore.l10n.actions.listings.view}
+            </Link>
+        }
         {
           previewMode && nftInfo.hasAdditionalMedia && !previewMedia ?
             <button className="action" onClick={() => SetPreviewMedia(true)}>
@@ -653,6 +659,8 @@ const NFTActions = observer(({
       </div>
     );
   } else if(nftInfo.listingId && !nftInfo.isOwned) {
+    // Listing that is not owned
+
     return (
       <div className="details-page__actions">
         <LoginClickGate
@@ -665,7 +673,7 @@ const NFTActions = observer(({
           { LocalizeString(rootStore.l10n.actions.purchase.buy_now_for, {price: FormatPriceString(nftInfo.nft.details.Price, {stringOnly: true})}) }
         </LoginClickGate>
         {
-          nftInfo.offerable && !nftInfo.isOwned ?
+          nftInfo.offerable && !nftInfo.isOwned && !secondaryDisabled ?
             <LoginClickGate
               Component={ButtonWithLoader}
               disabled={isInCheckout}
@@ -685,6 +693,7 @@ const NFTActions = observer(({
     );
   } else if(match.params.listingId && (listingStatus?.sale || listingStatus?.removed)) {
     // Listing page, but listing must have been sold or deleted
+
     if(listingStatus.sale) {
       return (
         <h2 className="details-page__message">
@@ -714,10 +723,12 @@ const NFTActions = observer(({
       );
     }
   } else if(nftInfo.isOwned) {
+    // Owned NFT
+
     return (
       <div className="details-page__actions">
         {
-          nftInfo.heldDate ? null :
+          secondaryDisabled || nftInfo.heldDate ? null :
             <ButtonWithLoader
               title={nftInfo.nft?.metadata?.test ? "Test NFTs may not be listed for sale" : undefined}
               disabled={transferring || nftInfo.heldDate || isInCheckout || nftInfo.nft?.metadata?.test}
@@ -758,7 +769,9 @@ const NFTActions = observer(({
         }
       </div>
     );
-  } else if(listingStatus && nftInfo.offerable) {
+  } else if(listingStatus && nftInfo.offerable && !secondaryDisabled) {
+    // Not listed or owned but can be offered
+
     return (
       <div className="details-page__actions">
         <LoginClickGate
@@ -964,12 +977,13 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
     };
   }
 
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId] || rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === match.params.marketplaceId);
   const listingId = match.params.listingId || listingStatus?.listing?.details?.ListingId || nft?.details?.ListingId;
   const tokenId = match.params.tokenId || listingStatus?.listing?.details?.TokenIdStr;
   const isInCheckout = listingStatus?.listing?.details?.CheckoutLockedUntil && listingStatus?.listing.details.CheckoutLockedUntil > Date.now();
   const showModal = match.params.mode === "purchase" || match.params.mode === "list";
   const showMediaSections = (nftInfo.isOwned || previewMedia) && nftInfo.hasAdditionalMedia && nftInfo.additionalMedia.type !== "List";
+  const secondaryDisabled = marketplace?.branding?.disable_secondary_market;
 
   const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
   return (
@@ -1057,6 +1071,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
                 />
 
                 <NFTActions
+                  secondaryDisabled={secondaryDisabled}
                   nftInfo={nftInfo}
                   listingStatus={listingStatus}
                   isInCheckout={isInCheckout}

@@ -141,6 +141,8 @@ const Profile = observer(() => {
 
   const userInfo = rootStore.walletClient.UserInfo();
   const custodialWallet = userInfo.walletType === "Custodial";
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId] || rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === match.params.marketplaceId);
+  const secondaryDisabled = marketplace?.branding?.disable_secondary_market;
 
   useEffect(() => {
     rootStore.GetWalletBalance(true);
@@ -216,37 +218,40 @@ const Profile = observer(() => {
 
       <BalanceDetails />
 
-      <div className="profile-page__section profile-page__section-balance profile-page__section-box">
-        <h2 className="profile-page__section-header">
-          { rootStore.l10n.profile.balance.locked }
-        </h2>
-        <div className="profile-page__balance">
-          { FormatPriceString(rootStore.lockedWalletBalance, {includeCurrency: true }) }
-        </div>
-        <br />
-        <ExpandableContent textShow={rootStore.l10n.profile.view.outstanding_offers} textHide={rootStore.l10n.profile.hide.outstanding_offers}>
-          <OffersTable
-            buyerAddress={rootStore.CurrentAddress()}
-            icon={OffersIcon}
-            header={rootStore.l10n.tables.outstanding_offers}
-            statuses={["ACTIVE"]}
-            useWidth={600}
-            noActions
-            hideActionsColumn
-            showTotal
-          />
-        </ExpandableContent>
-        <Link
-          className="profile-page__transactions-link"
-          to={
-            match.params.marketplaceId ?
-              UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "offers") :
-              "/wallet/users/me/offers"
-          }
-        >
-          { rootStore.l10n.profile.view.all_offers }
-        </Link>
-      </div>
+      {
+        secondaryDisabled ? null :
+          <div className="profile-page__section profile-page__section-balance profile-page__section-box">
+            <h2 className="profile-page__section-header">
+              {rootStore.l10n.profile.balance.locked}
+            </h2>
+            <div className="profile-page__balance">
+              {FormatPriceString(rootStore.lockedWalletBalance, {includeCurrency: true})}
+            </div>
+            <br/>
+            <ExpandableContent textShow={rootStore.l10n.profile.view.outstanding_offers} textHide={rootStore.l10n.profile.hide.outstanding_offers}>
+              <OffersTable
+                buyerAddress={rootStore.CurrentAddress()}
+                icon={OffersIcon}
+                header={rootStore.l10n.tables.outstanding_offers}
+                statuses={["ACTIVE"]}
+                useWidth={600}
+                noActions
+                hideActionsColumn
+                showTotal
+              />
+            </ExpandableContent>
+            <Link
+              className="profile-page__transactions-link"
+              to={
+                match.params.marketplaceId ?
+                  UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "offers") :
+                  "/wallet/users/me/offers"
+              }
+            >
+              {rootStore.l10n.profile.view.all_offers}
+            </Link>
+          </div>
+      }
 
       { balancePresent ? <WithdrawalDetails setShowWithdrawalModal={setShowWithdrawalModal} /> : null }
 

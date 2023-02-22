@@ -389,6 +389,8 @@ item_details:
   held_until: Held Until
   cap: Cap
   minted_date: Minted on the Eluvio Content Fabric on {date}
+  rarity: Rarity
+  have_trait: "{rarity}% have this trait"
   status:
     listings: Listings
     sale_ended: Sale Ended
