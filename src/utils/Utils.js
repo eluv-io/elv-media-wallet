@@ -411,7 +411,7 @@ export const NFTInfo = ({
     };
   });
 
-  const hasOffers = offers.filter(offer => !offer.hidden).length > 0;
+  const hasRedeemables = offers.filter(offer => !offer.hidden).length > 0;
 
   const { additionalMedia, additionalMediaType, hasAdditionalMedia, watchedMediaIds } = FormatAdditionalMedia({nft, name, metadata: nft?.metadata, versionHash: nft?.details?.VersionHash});
   const mediaInfo = NFTMedia({nft, item, width: imageWidth});
@@ -451,7 +451,7 @@ export const NFTInfo = ({
     mediaInfo,
 
     // Offers
-    hasOffers,
+    hasRedeemables,
     offers,
 
     // Media

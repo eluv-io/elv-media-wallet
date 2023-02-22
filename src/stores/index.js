@@ -32,7 +32,7 @@ import LocalizationEN from "Assets/localizations/en.yml";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
-  enforceActions: "always"
+  enforceActions: "never"
 });
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
