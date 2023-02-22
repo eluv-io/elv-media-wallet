@@ -256,7 +256,7 @@ const Profile = observer(() => {
       { balancePresent ? <WithdrawalDetails setShowWithdrawalModal={setShowWithdrawalModal} /> : null }
 
       {
-        rootStore.usdcDisabled ?
+        rootStore.usdcDisabled || secondaryDisabled ?
           null :
           <div className="profile-page__section profile-page__section-wallet-connect">
             <h2 className="profile-page__section-header">

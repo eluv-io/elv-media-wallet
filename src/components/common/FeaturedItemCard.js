@@ -28,6 +28,9 @@ const FeaturedItemCard = observer(({
 }) => {
   const match = useRouteMatch();
 
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId] || rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === match.params.marketplaceId);
+  const secondaryDisabled = marketplace?.branding?.disable_secondary_market;
+
   if(sideText) {
     const [first, second] = sideText.toString().split(/[\/:]/);
 
@@ -67,7 +70,7 @@ const FeaturedItemCard = observer(({
         { rootStore.l10n.actions.purchase[action === "claim" ? "claim" : "buy_now"] }
       </Link>
     );
-  } else if(action === "listings") {
+  } else if(action === "listings" && !secondaryDisabled) {
     button = (
       <Link
         className="action action-primary"
