@@ -270,7 +270,15 @@ const MintingStatus = observer(({
   );
 });
 
-const MintResults = observer(({text, header, subheader, basePath, nftBasePath, items, backText}) => {
+const MintResults = observer(({skipReveal, text, header, subheader, basePath, nftBasePath, items, backText}) => {
+  if(skipReveal && items && items.length > 0) {
+    const { nft } = rootStore.NFTData({contractAddress: items[0].token_addr, tokenId: items[0].token_id_str || items[0].token_id});
+
+    if(!nft) { return; }
+
+    return <Redirect to={UrlJoin(nftBasePath || basePath, nft.details.ContractId, nft.details.TokenIdStr)} />;
+  }
+
   return (
     <div className="minting-status-results" key="minting-status-results-card-list">
       <div className="page-headers">
@@ -473,6 +481,7 @@ export const PurchaseMintingStatus = observer(() => {
 
   return (
     <MintResults
+      skipReveal={marketplace?.storefront?.skip_reveal}
       header={rootStore.l10n.status.minting.header}
       subheader={`${rootStore.l10n.status.minting.purchase} ${rootStore.l10n.status.minting[items.length === 1 ? "received_item_single" : "received_item_multiple"]}`}
       items={items}
@@ -520,6 +529,7 @@ export const ClaimMintingStatus = observer(() => {
 
   return (
     <MintResults
+      skipReveal={marketplace?.storefront?.skip_reveal}
       header={rootStore.l10n.status.minting.header}
       subheader={rootStore.l10n.status.minting[items.length === 1 ? "received_item_single" : "received_item_multiple"]}
       items={items}

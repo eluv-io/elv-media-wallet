@@ -10,7 +10,7 @@ window.client = undefined;
 
 let appUrl;
 if(window.location.hostname === "core.test.contentfabric.io") {
-  appUrl = "https://core.test.contentfabric.io/wallet";
+  appUrl = "https://wallet.demov3.contentfabric.io";
 } else {
   const url = new URL(window.location.origin);
   url.port = "8090";
@@ -18,10 +18,12 @@ if(window.location.hostname === "core.test.contentfabric.io") {
   appUrl = url.toString();
 }
 
+appUrl = "https://wallet.preview.contentfabric.io";
+
 const targetId = "wallet-target";
 
-let tenantSlug = "wwe";
-let marketplaceSlug = "a30fb02b-290a-457f-bf70-76111e4e0027";
+let tenantSlug = "cirkay";
+let marketplaceSlug = "20618563-fe41-4710-a1da-13b1d5536e1d";
 
 const SetResults = results => {
   document.getElementById("client-results").innerHTML = results ? JSON.stringify(results, null, 2) : "";

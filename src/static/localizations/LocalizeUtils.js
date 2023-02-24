@@ -13,7 +13,9 @@ const RandomizeString = (str) => {
         varActive = true;
       } else if([")", "}", "]"].includes(c)) {
         varActive = false;
-      } else if(!varActive && c.match(/[a-zA-Z]/)) {
+      } else if(!varActive && c.match(/[A-Z]/)) {
+        c = String.fromCharCode(0|Math.random()*26+65);
+      } else if(!varActive && c.match(/[a-z]/)) {
         c = String.fromCharCode(0|Math.random()*26+97);
       }
 

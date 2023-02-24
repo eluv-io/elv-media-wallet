@@ -74,6 +74,7 @@ const MarketplaceItemCard = ({
   if(!noPrice) {
     if(info.maxOwned) {
       priceText = rootStore.l10n.item_details.status.max_owned;
+      action = "";
     } else if(!info.free) {
       priceText = info.renderedPrice;
     }

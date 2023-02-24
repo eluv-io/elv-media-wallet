@@ -48,6 +48,7 @@ import OffersIcon from "Assets/icons/Offers icon.svg";
 import PurchaseOffersIcon from "Assets/icons/Offers table icon.svg";
 import OfferModal from "../listings/OfferModal";
 import {OffersTable} from "../listings/TransferTables";
+import {PageLoader} from "Components/common/Loaders";
 
 let mediaPreviewEnabled = false;
 
@@ -577,7 +578,6 @@ const PurchaseOffersTables = observer(({nftInfo}) => {
   );
 });
 
-
 const NFTActions = observer(({
   nftInfo,
   listingStatus,
@@ -587,7 +587,6 @@ const NFTActions = observer(({
   secondaryDisabled,
   ShowOfferModal,
   ShowModal,
-  SetClaimed,
   SetOpened,
   SetPreviewMedia
 }) => {
@@ -602,44 +601,13 @@ const NFTActions = observer(({
       <div className="details-page__actions">
         {
           nftInfo.marketplacePurchaseAvailable ?
-            <LoginClickGate
-              Component={ButtonWithLoader}
-              onLoginBlocked={() => {
-                if(!nftInfo.free) {
-                  ShowModal();
-                }
-              }}
-              onClick={async () => {
-                if(!nftInfo.free) {
-                  ShowModal();
-                } else {
-                  try {
-                    const status = await rootStore.ClaimStatus({
-                      marketplaceId: match.params.marketplaceId,
-                      sku: nftInfo.item.sku
-                    });
-
-                    if(status && status.status !== "none") {
-                      // Already claimed, go to status
-                      SetClaimed(true);
-                    } else if(await checkoutStore.ClaimSubmit({
-                      marketplaceId: match.params.marketplaceId,
-                      sku: nftInfo.item.sku
-                    })) {
-                      // Claim successful
-                      SetClaimed(true);
-                    }
-                  } catch(error) {
-                    rootStore.Log("Checkout failed", true);
-                    rootStore.Log(error);
-                  }
-                }
-              }}
+            <Link
+              to={UrlJoin(match.url, nftInfo.free ? "claim" : "purchase")}
               disabled={nftInfo.outOfStock || nftInfo.maxOwned}
               className="action action-primary"
             >
               {nftInfo.free ? rootStore.l10n.actions.purchase.claim : rootStore.l10n.actions.purchase.buy_now}
-            </LoginClickGate> : null
+            </Link> : null
         }
         {
           secondaryDisabled ? null :
@@ -929,7 +897,6 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
     }
   }, []);
 
-
   useEffect(() => {
     const nftInfo = NFTInfo({
       nft,
@@ -949,11 +916,45 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
     }
   }, [nft, listingStatus, checkoutStore.currency]);
 
+  useEffect(() => {
+    if(match.params.action !== "claim" || !rootStore.loggedIn || !nftInfo) { return; }
+
+    const Claim = async () => {
+      try {
+        const status = await rootStore.ClaimStatus({
+          marketplaceId: match.params.marketplaceId,
+          sku: nftInfo.item.sku
+        });
+
+        if(status && status.status !== "none") {
+          // Already claimed, go to status
+          setClaimed(true);
+        } else if(nftInfo.outOfStock || nftInfo.maxOwned) {
+          throw "Out of stock or max owned";
+        } else if(await checkoutStore.ClaimSubmit({
+          marketplaceId: match.params.marketplaceId,
+          sku: nftInfo.item.sku
+        })) {
+          // Claim successful
+          setClaimed(true);
+        }
+      } catch(error) {
+        rootStore.Log("Failed to claim", true);
+        rootStore.Log(error, true);
+
+        history.push(match.url.replace("/claim", ""));
+      }
+    };
+
+    // Automatic claim if url action is claim and claim is possible
+    Claim();
+  }, [nftInfo]);
+
   // Redirects
 
   // Marketplace item claimed
   if(claimed) {
-    return <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "store", item.sku, "claim")} />;
+    return <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "store", item.sku, "claim", "status")} />;
   }
 
   // Pack opened
@@ -970,7 +971,9 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
       <Redirect to={Path.dirname(Path.dirname(match.url))}/>;
   }
 
-  if(!nftInfo) { return; }
+  if(!nftInfo || match.params.action === "claim") {
+    return <PageLoader />;
+  }
 
   window.nftInfo = nftInfo;
 
@@ -994,7 +997,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
   const listingId = match.params.listingId || listingStatus?.listing?.details?.ListingId || nft?.details?.ListingId;
   const tokenId = match.params.tokenId || listingStatus?.listing?.details?.TokenIdStr;
   const isInCheckout = listingStatus?.listing?.details?.CheckoutLockedUntil && listingStatus?.listing.details.CheckoutLockedUntil > Date.now();
-  const showModal = match.params.mode === "purchase" || match.params.mode === "list";
+  const showModal = match.params.action === "purchase" || match.params.action === "list";
   const showMediaSections = (nftInfo.isOwned || previewMedia) && nftInfo.hasAdditionalMedia && nftInfo.additionalMedia.type !== "List";
   const secondaryDisabled = marketplace?.branding?.disable_secondary_market;
 
@@ -1003,7 +1006,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
     <>
       {
         !showModal ? null :
-          match.params.mode === "list" ?
+          match.params.action === "list" ?
             <ListingModal
               nft={listingStatus?.listing || nft}
               listingId={listingId}
@@ -1097,7 +1100,6 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
                     setTab(preview ? "Media" : "Trading");
                   }}
                   SetOpened={setOpened}
-                  SetClaimed={setClaimed}
                   ShowOfferModal={() => setShowOfferModal(true)}
                   ShowModal={async () => {
                     if(listingId) {
@@ -1108,7 +1110,9 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
                       }
                     }
 
-                    history.replace(UrlJoin(match.url, nftInfo.isOwned ? "list" : "purchase"));
+                    const action = nftInfo.isOwned ? "list" : (nftInfo.free ? "claim" : "purchase");
+
+                    history.push(UrlJoin(match.url, action));
                   }}
                 />
                 {

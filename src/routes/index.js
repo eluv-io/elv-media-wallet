@@ -56,7 +56,8 @@ const UserRoutes = ({includeMarketplaceRoutes}) => {
   return [
     ...(includeMarketplaceRoutes ? UserMarketplaceRoutes() : []),
     { name: "Listings", path: "listings", includeUserProfile: true, Component: UserListings },
-    { name: "Listing", path: "listings/:listingId/:mode?", noBlock: true, Component: ListingDetails },
+    { name: "Listing", path: "listings/:listingId", noBlock: true, Component: ListingDetails },
+    { name: "Listing", path: "listings/:listingId/:action", authed: true, noBlock: true, Component: ListingDetails },
     { name: "Purchase Listing", path: "listings/:listingId/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
 
     { name: "Activity", path: "activity", includeUserProfile: true, Component: UserActivity },
@@ -70,8 +71,10 @@ const UserRoutes = ({includeMarketplaceRoutes}) => {
     { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/media/:sectionId/:mediaIndex", noBlock: true, Component: NFTMedia },
     { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/media/:sectionId/:collectionId/:mediaIndex", noBlock: true, Component: NFTMedia },
 
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "listings/:contractId/:tokenId/:mode?", noBlock: true, Component: MintedNFTDetails },
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/:mode?", noBlock: true, Component: MintedNFTDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "listings/:contractId/:tokenId", noBlock: true, Component: MintedNFTDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "listings/:contractId/:tokenId/:action", authed: true, noBlock: true, Component: MintedNFTDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId", noBlock: true, Component: MintedNFTDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/:action", authed: true, noBlock: true, Component: MintedNFTDetails },
 
     { path: "/", includeUserProfile: true, redirect: "items" },
   ]
@@ -82,11 +85,13 @@ const SharedRoutes = ({includeMarketplaceRoutes}) => {
   return [
     ...UserRoutes({includeMarketplaceRoutes}),
 
-    { name: "Listing", path: "listings/:listingId/:mode?", noBlock: true, Component: ListingDetails },
+    { name: "Listing", path: "listings/:listingId", noBlock: true, Component: ListingDetails },
+    { name: "Listing", path: "listings/:listingId/:action", authed: true, noBlock: true, Component: ListingDetails },
     { name: "Listings", path: "listings", Component: Listings },
 
     { name: "Activity", path: "activity", Component: RecentSales },
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "activity/:contractId/:tokenId/:mode?", noBlock: true, Component: MintedNFTDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "activity/:contractId/:tokenId", noBlock: true, Component: MintedNFTDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "activity/:contractId/:tokenId/:action", authed: true, noBlock: true, Component: MintedNFTDetails },
 
     { name: "Purchase Listing", path: "listings/:listingId/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
 
@@ -100,21 +105,23 @@ const MarketplaceRoutes = () => {
   return [
     { name: "Collections", path: "collections", Component: MarketplaceCollectionsSummaryPage },
     { name: "Collections", path: "collections/:collectionSKU", Component: MarketplaceCollection },
-    { name: match => (GetItem(match)?.name || "Item"), path: "collections/:collectionSKU/store/:sku/:mode?", noBlock: true, Component: MarketplaceItemDetails },
+    { name: match => (GetItem(match)?.name || "Item"), path: "collections/:collectionSKU/store/:sku", noBlock: true, Component: MarketplaceItemDetails },
+    { name: match => (GetItem(match)?.name || "Item"), path: "collections/:collectionSKU/store/:sku/:action", authed: true, noBlock: true, Component: MarketplaceItemDetails },
     { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "collections/:collectionSKU/owned/:contractId/:tokenId", noBlock: true, Component: MintedNFTDetails },
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "collections/:collectionSKU/owned/:contractId/:tokenId/:mode", noBlock: true, Component: MintedNFTDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "collections/:collectionSKU/owned/:contractId/:tokenId/:action", authed: true, noBlock: true, Component: MintedNFTDetails },
     { name: "Redeem Collection", path: "collections/:collectionSKU/redeem", Component: MarketplaceCollectionRedemption },
     { name: "Redeem Collection", path: "collections/:collectionSKU/redeem/:confirmationId/status", Component: CollectionRedeemStatus },
 
     { name: "Drop Event", path: "events/:tenantSlug/:eventSlug/:dropId", Component: Drop, hideNavigation: true, authed: true, ignoreLoginCapture: true },
     { name: "Drop Status", path: "events/:tenantSlug/:eventSlug/:dropId/status", Component: DropMintingStatus, hideNavigation: true, authed: true },
 
-    { name: "Claim", path: "store/:sku/claim", Component: ClaimMintingStatus, authed: true },
+    { name: "Claim", path: "store/:sku/claim/status", Component: ClaimMintingStatus, authed: true },
     { name: "Purchase", path: "store/:sku/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
 
     { name: "Leaderboard", path: "leaderboard", Component: Leaderboard },
 
-    { name: match => (GetItem(match)?.name || "Item"), path: "store/:sku/:mode?", noBlock: true, Component: MarketplaceItemDetails },
+    { name: match => (GetItem(match)?.name || "Item"), path: "store/:sku", noBlock: true, Component: MarketplaceItemDetails },
+    { name: match => (GetItem(match)?.name || "Item"), path: "store/:sku/:action", authed: true, noBlock: true, Component: MarketplaceItemDetails },
     { name: match => (GetMarketplace(match)?.branding?.name || "Marketplace"), path: "store", noBlock: true, Component: MarketplaceStorefront },
 
     { name: match => (GetItem(match)?.name || "Item"), path: "store/:sku/media", noBlock: true, Component: NFTMedia },
