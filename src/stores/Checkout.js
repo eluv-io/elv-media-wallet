@@ -673,9 +673,9 @@ class CheckoutStore {
   });
 
   CheckoutRedirect = flow(function * ({provider, requestParams, confirmationId, BeforeRedirect}) {
-    if (provider === "stripe") {
-      provider = "circle"; // XXX - remove this line when we have a real circle button
-    }
+    // if (provider === "stripe") {
+    //   provider = "circle"; // XXX - remove this line when we have a real circle button
+    // }
     switch(provider) {
       case "stripe":
         const sessionId = (yield this.client.utils.ResponseToJson(
