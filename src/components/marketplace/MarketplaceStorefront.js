@@ -8,7 +8,7 @@ import ImageIcon from "Components/common/ImageIcon";
 import MarketplaceFeatured from "Components/marketplace/MarketplaceFeatured";
 import {MarketplaceCollectionsSummary} from "Components/marketplace/MarketplaceCollectionsSummary";
 import EluvioPlayer, {EluvioPlayerParameters} from "@eluvio/elv-player-js";
-import {LinkTargetHash} from "../../utils/Utils";
+import {LinkTargetHash, SetImageUrlDimensions} from "../../utils/Utils";
 import Modal from "Components/common/Modal";
 
 const MarketplaceVideo = ({videoLink, muted, className}) => {
@@ -58,13 +58,14 @@ const MarketplaceBannerContent = observer(({banner}) => {
     return <MarketplaceVideo muted={banner.video_muted} videoLink={banner.video} className="marketplace__banner__video" />;
   }
 
+  const image = (banner.image_mobile && rootStore.pageWidth <= 800 ? banner.image_mobile : banner.image)?.url;
+
+  if(!image) { return null; }
+
   return (
     <ImageIcon
       className="marketplace__banner__image"
-      icon={(
-        banner.image_mobile && rootStore.pageWidth <= 800 ?
-          banner.image_mobile : banner.image
-      ).url}
+      icon={image} //SetImageUrlDimensions({url: image, width: rootStore.pageWidth <= 800 ? "500" : "960"})}
     />
   );
 });

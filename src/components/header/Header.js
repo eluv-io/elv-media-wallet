@@ -10,7 +10,7 @@ import MobileNavigationMenu from "Components/header/MobileNavigationMenu";
 import WalletMenu from "Components/header/WalletMenu";
 import ProfileMenu from "Components/header/ProfileMenu";
 import {NotificationsMenu} from "Components/header/NotificationsMenu";
-import {Debounce} from "../../utils/Utils";
+import {Debounce, SetImageUrlDimensions} from "../../utils/Utils";
 
 import EluvioLogo from "Assets/icons/ELUVIO logo (updated nov 2).svg";
 import MenuIcon from "Assets/icons/menu";
@@ -164,7 +164,8 @@ const MarketplaceNavigation = observer(({marketplace}) => {
 
 const MarketplaceHeader = observer(({marketplace, scrolled}) => {
   const { name, header_logo, header_image, hide_name, preview } = marketplace.branding || {};
-  const logo = header_logo?.url;
+  const logo = header_logo?.url; //SetImageUrlDimensions({url: header_logo?.url, height: 80});
+  const headerImage = header_image?.url; //SetImageUrlDimensions({url: header_image?.url, height: 80});
   const compact = rootStore.hideMarketplaceNavigation;
   const theme = marketplace?.branding?.color_scheme?.toLowerCase() || "light";
 
@@ -185,9 +186,9 @@ const MarketplaceHeader = observer(({marketplace, scrolled}) => {
                     </Link> : null
                 }
                 {
-                  header_image?.url ?
+                  headerImage ?
                     <div className="header__content__image-container">
-                      <ImageIcon icon={header_image.url} label={name || ""} className="header__content__image" />
+                      <ImageIcon icon={headerImage} label={name || ""} className="header__content__image" />
                     </div> :
                     (hide_name || !name) ? null : <h1 className="header__content__header">{`${name}`}</h1>
                 }

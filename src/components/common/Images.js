@@ -33,7 +33,8 @@ export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVi
       url: media.embedUrl,
       playerOptions: {
         capLevelToPlayerSize: true,
-        playerCallback
+        playerCallback,
+        posterUrl: ""
       }
     }).then(player => setPlayer(player));
 

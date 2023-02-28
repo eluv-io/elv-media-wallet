@@ -30,6 +30,7 @@ import {PageLoader} from "Components/common/Loaders";
 import Modal from "Components/common/Modal";
 import Flows from "Components/interface/Flows";
 import Actions from "Components/interface/Actions";
+import {SetImageUrlDimensions} from "./utils/Utils";
 
 const WalletRoutes = lazy(() => import("Components/wallet/index"));
 const MarketplaceRoutes = lazy(() => import("Components/marketplace/index"));
@@ -176,7 +177,7 @@ const App = observer(() => {
 
     if(newBackgroundImageUrl !== currentBackgroundImageUrl) {
       if(backgroundImage) {
-        backgroundElement.style.background = `no-repeat top center / cover url("${backgroundImage}")`;
+        backgroundElement.style.background = `no-repeat top center / cover url("${SetImageUrlDimensions({url: backgroundImage, width: rootStore.pageWidth < 800 ? "800" : "1920"})}")`;
         document.querySelector("#app").style.background = "transparent";
         rootStore.SetSessionStorage("current-background", backgroundImage);
       } else {

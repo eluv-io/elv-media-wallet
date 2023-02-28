@@ -149,6 +149,19 @@ export const Debounce = (f, ms) => {
   };
 };
 
+export const SetImageUrlDimensions = ({url, height, width}) => {
+  if(!url) { return ""; }
+
+  url = new URL(url);
+  if(width) {
+    url.searchParams.set("width", width);
+  } else if(height) {
+    url.searchParams.set("height", height);
+  }
+
+  return url.toString();
+};
+
 export const NFTDisplayToken = nft => {
   try {
     if(!nft || !nft.details) {
