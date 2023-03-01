@@ -93,7 +93,7 @@ const CodeRedemption = observer(() => {
           isLoading={redeeming}
           onClick={RedeemOffer}
           title={rootStore.l10n.codes.redeem_offer}
-          className="code-redemption__button"
+          className="action action-primary code-redemption__button"
         >
           { rootStore.l10n.codes.redeem_offer }
         </ButtonWithLoader>
