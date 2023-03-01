@@ -32,6 +32,7 @@ import UserCollections from "Components/user/UserCollections";
 import {PageLoader} from "Components/common/Loaders";
 import NFTMedia from "Components/nft/media/index";
 import Notifications from "Components/header/NotificationsMenu";
+import CodeRedemption from "Components/marketplace/CodeRedemption";
 
 const GetMarketplace = (match) => {
   return rootStore.marketplaces[match.params.marketplaceId] || {};
@@ -103,6 +104,8 @@ const SharedRoutes = ({includeMarketplaceRoutes}) => {
 
 const MarketplaceRoutes = () => {
   return [
+    { name: "Offer Redemption", path: "code/:eventSlug/:offerId", Component: CodeRedemption },
+
     { name: "Collections", path: "collections", Component: MarketplaceCollectionsSummaryPage },
     { name: "Collections", path: "collections/:collectionSKU", Component: MarketplaceCollection },
     { name: match => (GetItem(match)?.name || "Item"), path: "collections/:collectionSKU/store/:sku", noBlock: true, Component: MarketplaceItemDetails },

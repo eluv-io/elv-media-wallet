@@ -496,6 +496,11 @@ deposits:
     sujeitos aos [Termos e condições do Eluvio](https://live.eluv.io/terms). Ao
     clicar em "Continuar", você reconhece que leu e entendeu todos estes termos
     e condições.
+codes:
+  redemption_code: Código de Resgate
+  redeem_offer: Resgate seu brinde
+  errors:
+    failed: Falha para resgatar o código
 time:
   day: 1 dia
   days: "{days} dias"

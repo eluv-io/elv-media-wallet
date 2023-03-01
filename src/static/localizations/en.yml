@@ -210,7 +210,6 @@ purchase:
     eth_usdc: USDC via Ethereum
     pix: Pix
     wallet_balance: Wallet Balance
-
   errors:
     failed: Purchase Failed
     listing_unavailable: Listing is no longer available
@@ -391,6 +390,7 @@ item_details:
   minted_date: Minted on the Eluvio Content Fabric on {date}
   rarity: Rarity
   have_trait: "{rarity}% have this trait"
+  go_to_item: Go to My Item
   status:
     listings: Listings
     sale_ended: Sale Ended
@@ -478,6 +478,12 @@ deposits:
   specify_amount: Please specify the amount you wish to deposit.
   max_deposit: Maximum deposit is $1000.
   terms: Processing time varies depending on the network, and can take several minutes to complete. Standard network fees apply. Deposits are limited to $1000 per transaction and $10,000 per day, and are subject to the [Eluvio Terms and Conditions](https://live.eluv.io/terms). By clicking "Continue" you acknowledge that you have read and understood all of these terms and conditions.
+
+codes:
+  redemption_code: Redemption Code
+  redeem_offer: Redeem Offer
+  errors:
+    failed: Failed to Redeem Code
 
 time:
   day: 1 day

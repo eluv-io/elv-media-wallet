@@ -585,6 +585,7 @@ const NFTActions = observer(({
   transferring,
   previewMedia,
   secondaryDisabled,
+  ownedItem,
   ShowOfferModal,
   ShowModal,
   SetOpened,
@@ -607,12 +608,22 @@ const NFTActions = observer(({
               className="action action-primary"
             >
               {nftInfo.free ? rootStore.l10n.actions.purchase.claim : rootStore.l10n.actions.purchase.buy_now}
-            </Link> : null
+            </Link> :
+            ownedItem ?
+              <>
+                <div className="details-page__actions__message">{ rootStore.l10n.item_details.status.max_owned }</div>
+                <Link
+                  to={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items", ownedItem.contractId, ownedItem.tokenId)}
+                  className="action action-primary"
+                >
+                  { rootStore.l10n.item_details.go_to_item }
+                </Link>
+              </> : null
         }
         {
           secondaryDisabled ? null :
             <Link
-              className={`action ${!nftInfo.marketplacePurchaseAvailable ? "action-primary" : ""}`}
+              className={`action ${!(nftInfo.marketplacePurchaseAvailable || ownedItem) ? "action-primary" : ""}`}
               to={UrlJoin("/marketplace", match.params.marketplaceId, "listings", `?filter=${encodeURIComponent(nftInfo.item.nftTemplateMetadata.display_name)}`)}
             >
               {rootStore.l10n.actions.listings.view}
@@ -851,6 +862,9 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
   // Listing / Offer status
   const [listingStatus, setListingStatus] = useState(initialListingStatus);
 
+  // Owned item
+  const [ownedItem, setOwnedItem] = useState(undefined);
+
   // Status
   const [opened, setOpened] = useState(false);
   const [claimed, setClaimed] = useState(false);
@@ -949,6 +963,18 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
     // Automatic claim if url action is claim and claim is possible
     Claim();
   }, [nftInfo]);
+
+  useEffect(() => {
+    if(!nftInfo || !nftInfo.item) { return; }
+
+    rootStore.walletClient.UserItems({
+      contractAddress: nftInfo?.nft?.details?.ContractAddr || nftInfo?.item?.address,
+      limit: 1
+    }).then(({results}) => {
+      setOwnedItem(results && results[0]);
+    });
+  }, [nftInfo]);
+
 
   // Redirects
 
@@ -1094,6 +1120,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
                   transferring={transferring}
                   transferAddress={transferAddress}
                   previewMedia={previewMedia}
+                  ownedItem={ownedItem}
                   SetPreviewMedia={preview => {
                     mediaPreviewEnabled = preview;
                     setPreviewMedia(preview);

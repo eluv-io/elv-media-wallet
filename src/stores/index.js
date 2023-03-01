@@ -12,7 +12,7 @@ try {
 
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";
-import {ElvWalletClient} from "@eluvio/elv-client-js";
+import {ElvClient, ElvWalletClient} from "@eluvio/elv-client-js";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import SanitizeHTML from "sanitize-html";
 
@@ -1414,6 +1414,28 @@ class RootStore {
     }
 
     return this.userStats[userAddress];
+  });
+
+  RedeemCode = flow(function * ({tenantId, ntpId, code}) {
+    // Create a new client to avoid messing with current client's authorization
+    const redemptionClient = yield ElvClient.FromNetworkName({networkName: this.client.networkName});
+
+    return yield redemptionClient.RedeemCode({
+      tenantId,
+      ntpId,
+      code,
+      includeNTPId: true
+    });
+  });
+
+  LoadEventOffer = flow(function * ({tenantSlug, eventSlug, offerId}) {
+    const mainSiteHash = yield this.client.LatestVersionHash({objectId: this.walletClient.mainSiteId});
+    const offers = (yield this.client.ContentObjectMetadata({
+      versionHash: mainSiteHash,
+      metadataSubtree: UrlJoin("public", "asset_metadata", "tenants", tenantSlug, "sites", eventSlug, "info", "offers")
+    })) || [];
+
+    return offers.find(offer => offer.id === offerId);
   });
 
   InitializeAnalytics(marketplace) {

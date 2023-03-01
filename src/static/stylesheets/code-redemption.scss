@@ -1,0 +1,35 @@
+.code-redemption {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  justify-content: center;
+  text-align: center;
+
+  &__input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 250px;
+  }
+
+  &__error {
+    color: var(--color-text-error);
+  }
+
+  &__input,
+  &__button {
+    width: 100%;
+  }
+
+  &__input {
+    font-size: 24px;
+    letter-spacing: 0.15em;
+    text-align: center;
+
+    &::placeholder {
+      font-size: 18px;
+      letter-spacing: 0.05em;
+    }
+  }
+}
