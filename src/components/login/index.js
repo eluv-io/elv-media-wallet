@@ -306,7 +306,7 @@ const CustomConsentModal = ({customConsent}) => {
               )
             }
             {
-              customConsent.options.length > 0 ?
+              customConsent.options.length > 1 ?
                 <div className="custom-consent__option">
                   <input
                     type="checkbox"
@@ -419,10 +419,6 @@ const AuthenticateAuth0 = async (userData) => {
     window.history.replaceState({}, document.title, `${window.location.pathname}${window.location.hash}`);
 
     await rootStore.AuthenticateAuth0({userData});
-
-    if(rootStore.loggedIn) {
-      SaveCustomConsent(userData);
-    }
   } catch(error){
     rootStore.Log("Auth0 authentication failed:", true);
     rootStore.Log(error, true);
@@ -431,6 +427,8 @@ const AuthenticateAuth0 = async (userData) => {
 
 const LoginComponent = observer(({customizationOptions, userData, setUserData, Close}) => {
   const [auth0Authenticating, setAuth0Authenticating] = useState(params.isAuth0Callback);
+  const [userDataSaved, setUserDataSaved] = useState(false);
+  const [savingUserData, setSavingUserData] = useState(false);
 
   // Handle login button clicked - Initiate popup/login flow
   const LogIn = async ({provider, mode}) => {
@@ -444,8 +442,6 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
         marketplaceParams: marketplaceHash ? { marketplaceHash } : undefined,
         clearLogin: params.clearLogin || rootStore.GetLocalStorage("signed-out")
       });
-
-      await SaveCustomConsent(userData);
     } else {
       if(provider === "metamask") {
         // Authenticate with metamask
@@ -518,6 +514,11 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       returnURL.searchParams.delete("clear");
 
       setTimeout(() => rootStore.SignOut(returnURL.toString()), 1000);
+    } else if(rootStore.loggedIn && !userDataSaved && !savingUserData) {
+      setSavingUserData(true);
+      SaveCustomConsent(userData)
+        .then(() => setUserDataSaved(true))
+        .finally(() => setSavingUserData(false));
     } else if(rootStore.loaded && !rootStore.loggedIn && rootStore.auth0 && params.isAuth0Callback) {
       // Returned from Auth0 callback - Authenticate
       AuthenticateAuth0(params.userData)
@@ -534,13 +535,13 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
             }
           }
         });
-    } else if(rootStore.loggedIn && params.response === "message") {
+    } else if(!auth0Authenticating && rootStore.loggedIn && params.response === "message") {
       // Opened from frame and logged in, respond with auth info
       Respond();
-    } else if(rootStore.loggedIn && params.response === "redirect") {
+    } else if(!auth0Authenticating && rootStore.loggedIn && params.response === "redirect") {
       Redirect();
     }
-  }, [rootStore.loaded, rootStore.loggedIn]);
+  }, [rootStore.loaded, rootStore.loggedIn, userDataSaved]);
 
   return (
     <div className={`login-page ${rootStore.darkMode ? "login-page--dark" : ""} ${customizationOptions?.large_logo_mode ? "login-page-large-logo-mode" : ""}`}>

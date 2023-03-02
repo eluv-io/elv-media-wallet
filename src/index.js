@@ -155,10 +155,9 @@ const Routes = observer(() => {
 
 
 const App = observer(() => {
-  const history = useHistory();
   const [hasBackgroundImage, setHasBackgroundImage] = useState(false);
 
-  useEffect(() => InitializeListener(history), []);
+  useEffect(() => InitializeListener(), []);
 
   useEffect(() => {
     if(!rootStore.loaded) { return; }
@@ -188,6 +187,17 @@ const App = observer(() => {
 
     setHasBackgroundImage(!!backgroundImage);
   }, [rootStore.loaded, rootStore.appBackground, rootStore.pageWidth, rootStore.navigationInfo]);
+
+  useEffect(() => {
+    const route = rootStore.routeChange;
+    if(route) {
+      rootStore.SetRouteChange(undefined);
+    }
+  }, [rootStore.routeChange]);
+
+  if(rootStore.routeChange) {
+    return <Redirect to={rootStore.routeChange} />;
+  }
 
   if(rootStore.loginOnly) {
     return <Redirect to="/login" />;

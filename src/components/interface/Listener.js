@@ -158,7 +158,7 @@ const CreateListing = async data => {
 
 
 let listenerInitialized = false;
-export const InitializeListener = (history) => {
+export const InitializeListener = () => {
   if(listenerInitialized) { return; }
 
   listenerInitialized = true;
@@ -747,7 +747,7 @@ export const InitializeListener = (history) => {
             route = "/login";
           } else if(data.params.path) {
             // Direct path
-            history.push(data.params.path);
+            rootStore.SetRouteChange(data.params.path);
 
             route = data.params.path;
           } else {
@@ -782,7 +782,7 @@ export const InitializeListener = (history) => {
               });
             }
 
-            history.push(route);
+            rootStore.SetRouteChange(route);
           }
 
           return Respond({response: route});

@@ -167,6 +167,7 @@ class RootStore {
   analyticsInitialized = false;
 
   headerText;
+  routeChange;
 
   get specifiedMarketplace() {
     return this.marketplaces[this.specifiedMarketplaceId];
@@ -2167,6 +2168,10 @@ class RootStore {
         });
       }
     }, 250);
+  }
+
+  SetRouteChange(route) {
+    this.routeChange = route;
   }
 
   SetDebugMessage(message) {
