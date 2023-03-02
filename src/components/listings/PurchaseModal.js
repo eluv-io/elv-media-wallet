@@ -337,15 +337,6 @@ const PurchaseProviderSelection = observer(({
         <>
           <div className="purchase-modal__provider-options">
             {
-              circleEnabled ?
-                <button
-                  onClick={() => {
-                    setSelectedMethod("circle");
-                  }}
-                  className={`purchase-modal__provider-options__option ${selectedMethod === "circle" ? "active" : ""}`}
-                >Circle USDC</button> : null
-            }
-            {
               stripeEnabled || ebanxEnabled ?
                 <button
                   onClick={() => {
@@ -355,6 +346,15 @@ const PurchaseProviderSelection = observer(({
                 >
                   { rootStore.l10n.purchase.credit_card }
                 </button> : null
+            }
+            {
+              circleEnabled ?
+                <button
+                  onClick={() => {
+                    setSelectedMethod("circle");
+                  }}
+                  className={`purchase-modal__provider-options__option ${selectedMethod === "circle" ? "active" : ""}`}
+                >Circle USDC</button> : null
             }
             {
               ebanxEnabled && pixEnabled ?
