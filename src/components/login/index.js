@@ -118,7 +118,7 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
       {
         customizationOptions?.custom_consent?.type === "Checkboxes" && customizationOptions.custom_consent.enabled ?
           customizationOptions.custom_consent.options.map((option, index) =>
-            <div className="login-page__consent" key={`option-${index}`}>
+            <div className={`login-page__consent ${option.required ? "login-page__consent--required" : ""}`} key={`option-${index}`}>
               <input
                 name="consent"
                 type="checkbox"
