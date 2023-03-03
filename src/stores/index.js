@@ -116,6 +116,13 @@ class RootStore {
   availableWalletBalance = undefined;
   pendingWalletBalance = undefined;
   totalWalletBalance = undefined;
+  tokenBalance = undefined;
+  combinedBalance = undefined;
+  tokenValue = undefined;
+  tokenContract = undefined;
+  tokenDecimals = undefined;
+  tokenSymbol = undefined;
+
   lockedWalletBalance = undefined;
   usdcDisabled = false;
 
@@ -1222,6 +1229,12 @@ class RootStore {
     this.userStripeId = balances.userStripeId;
     this.userStripeEnabled = balances.userStripeEnabled;
     this.totalWalletBalance = balances.totalWalletBalance;
+    this.tokenBalance = balances.tokenBalance;
+    this.combinedBalance = balances.combinedBalance;
+    this.tokenValue = balances.tokenValue;
+    this.tokenContract = balances.tokenContract;
+    this.tokenDecimals = balances.tokenDecimals;
+    this.tokenSymbol = balances.tokenSymbol;
     this.availableWalletBalance = balances.availableWalletBalance;
     this.pendingWalletBalance = balances.pendingWalletBalance;
     this.lockedWalletBalance = balances.lockedWalletBalance;
