@@ -98,6 +98,7 @@ const PurchaseProviderSelection = observer(({
 
   const stripeEnabled = paymentOptions?.stripe?.enabled;
   const ebanxEnabled = paymentOptions?.ebanx?.enabled;
+  const circleEnabled = true; // paymentOptions?.circle?.enabled;
   const pixEnabled = ebanxEnabled && paymentOptions?.ebanx?.pix_enabled;
   const coinbaseEnabled = paymentOptions?.coinbase?.enabled;
 
@@ -316,6 +317,17 @@ const PurchaseProviderSelection = observer(({
 
       break;
 
+    case "circle":
+      options = (
+        <>
+          <div className="purchase-modal__payment-message">
+           Buy with Circle USDC
+          </div>
+        </>
+      );
+
+      break;
+
     default:
       options = (
         <>
@@ -330,6 +342,15 @@ const PurchaseProviderSelection = observer(({
                 >
                   { rootStore.l10n.purchase.credit_card }
                 </button> : null
+            }
+            {
+              circleEnabled ?
+                <button
+                  onClick={() => {
+                    setSelectedMethod("circle");
+                  }}
+                  className={`purchase-modal__provider-options__option ${selectedMethod === "circle" ? "active" : ""}`}
+                >Circle USDC</button> : null
             }
             {
               ebanxEnabled && pixEnabled ?
@@ -368,7 +389,9 @@ const PurchaseProviderSelection = observer(({
             disabled={disabled || !rootStore.loggedIn || !selectedMethod}
             className="action action-primary purchase-modal__payment-submit"
             onClick={async () => {
-              if(stripeEnabled && !ebanxEnabled && selectedMethod === "card") {
+              if(circleEnabled && selectedMethod === "circle") {
+                await Continue({paymentType: "circle"});
+              } else if(stripeEnabled && !ebanxEnabled && selectedMethod === "card") {
                 await Continue({paymentType: "stripe"});
               } else if(selectedMethod === "pix") {
                 await Continue({
@@ -395,6 +418,7 @@ const PurchaseProviderSelection = observer(({
           >
             {
               // Pix is only available in brazil
+              selectedMethod === "circle" ||
               selectedMethod === "pix" ||
               // Stripe doesn't need any additional info
               (stripeEnabled && !ebanxEnabled && selectedMethod === "card") ||
@@ -664,7 +688,7 @@ const PurchasePayment = observer(({
     listing: selectedListing
   });
 
-  const marketplacePaymentOptions = marketplace?.payment_options || { stripe: { enabled: true }, coinbase: { enabled: true }, ebanx: { enabled: false }};
+  const marketplacePaymentOptions = marketplace?.payment_options || { stripe: { enabled: true }, coinbase: { enabled: true }, ebanx: { enabled: false }, circle: { enabled: false }};
 
   const maxPerCheckout = marketplaceItem?.max_per_checkout || 25;
   const maxPerUser = (info.stock && info.stock.max_per_user && (info.stock.max_per_user - info.stock.current_user)) || 25;
@@ -719,6 +743,7 @@ const PurchasePayment = observer(({
           additionalParameters
         });
       } else {
+        rootStore.Log("Checkout paymentType",  paymentType);
         // Marketplace purchase
         result = await checkoutStore.CheckoutSubmit({
           provider: paymentType,

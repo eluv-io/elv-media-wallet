@@ -700,6 +700,28 @@ class CheckoutStore {
 
         break;
 
+      case "circle":
+        const cRedirectUrl = (yield this.client.utils.ResponseToJson(
+          this.client.authClient.MakeAuthServiceRequest({
+            method: "POST",
+            path: UrlJoin("as", "checkout", "circle"),
+            body: {
+              ...requestParams,
+              name: ""
+            },
+            headers: {
+              Authorization: `Bearer ${this.rootStore.authToken}`
+            }
+          })
+        )).redirect_url;
+
+        yield BeforeRedirect && BeforeRedirect();
+
+        window.location.href = UrlJoin(cRedirectUrl);
+
+        yield new Promise(resolve => setTimeout(resolve, 5000));
+        break;
+
       case "ebanx":
         const redirectUrl = (yield this.client.utils.ResponseToJson(
           this.client.authClient.MakeAuthServiceRequest({
