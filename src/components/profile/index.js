@@ -145,13 +145,16 @@ const TokenBalance = observer(() => {
           { rootStore.l10n.profile.balance.token_balance }
         </h2>
         <div className="profile-page__balance">
-          { FormatPriceString(rootStore.totalWalletBalance, {includeCurrency: false}) }
+          { rootStore.tokenBalance }
         </div>
 
+        <div className="profile-page__balance">
+          { FormatPriceString(rootStore.tokenValue, {includeCurrency: yes}) }
+        </div>
 
-
-
-
+        <div className="profile-page__balance">
+          { FormatPriceString(rootStore.combinedBalance, {includeCurrency: yes}) }
+        </div>
       </div>
       { showDepositModal ? <DepositModal Close={() => setShowDepositModal(false)} /> : null }
     </>
