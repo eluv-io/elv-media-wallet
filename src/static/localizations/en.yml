@@ -101,6 +101,7 @@ profile:
     total: Total Balance
     locked: Locked Balance
     withdrawable: Withdrawable Balance
+    token_balance: Token Balance
 
 preferences:
   preferences: Preferences

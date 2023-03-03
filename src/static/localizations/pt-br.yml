@@ -76,6 +76,7 @@ profile:
     total: Saldo total
     locked: Saldo bloqueado
     withdrawable: Saldo disponível para retirada
+    token_balance: Saldo de token
 preferences:
   preferences: Preferências
   language: Língua
