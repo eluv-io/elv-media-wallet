@@ -610,6 +610,7 @@ class RootStore {
             }
           }),
           metadataSubtree: UrlJoin("public", "asset_metadata", "info"),
+          localizationSubtree: this.language ? UrlJoin("public", "asset_metadata", "localizations", this.language, "info") : "",
           select: [
             "branding",
             "login_customization",

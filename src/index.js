@@ -16,7 +16,6 @@ if(searchParams.has("n")) {
 }
 
 import {
-  useHistory,
   HashRouter,
   Switch,
   Route,
