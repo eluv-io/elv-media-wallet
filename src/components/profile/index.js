@@ -133,6 +133,34 @@ const BalanceDetails = observer(() => {
   );
 });
 
+const TokenBalance = observer(() => {
+  const match = useRouteMatch();
+
+  const [showDepositModal, setShowDepositModal] = useState(Object.keys(SearchParams()).includes("add-funds"));
+
+  return (
+    <>
+      <div className="profile-page__section profile-page__section-balance profile-page__section-box">
+        <h2 className="profile-page__section-header">
+          { rootStore.l10n.profile.balance.token_balance }
+        </h2>
+        <div className="profile-page__balance">
+          { FormatPriceString(rootStore.totalWalletBalance, {includeCurrency: false}) }
+        </div>
+
+
+
+
+
+      </div>
+      { showDepositModal ? <DepositModal Close={() => setShowDepositModal(false)} /> : null }
+    </>
+  );
+});
+
+
+
+
 const Profile = observer(() => {
   const match = useRouteMatch();
 
@@ -215,6 +243,8 @@ const Profile = observer(() => {
       </div>
 
       <BalanceDetails />
+
+      <TokenBalance />
 
       <div className="profile-page__section profile-page__section-balance profile-page__section-box">
         <h2 className="profile-page__section-header">
