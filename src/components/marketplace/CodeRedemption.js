@@ -13,11 +13,14 @@ const initialCode = (SearchParams().code);
 
 const CodeRedemption = observer(() => {
   const match = useRouteMatch();
+
+  const previouslyRedeemed = rootStore.GetLocalStorage(`${match.params.offerId}-code`);
+
   const [offer, setOffer] = useState(undefined);
   const [code, setCode] = useState(initialCode || "");
   const [error, setError] = useState(undefined);
   const [redeeming, setRedeeming] = useState(false);
-  const [redeemed, setRedeemed] = useState(false);
+  const [redeemed, setRedeemed] = useState(previouslyRedeemed);
 
   const marketplace = rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === match.params.marketplaceId);
 
@@ -32,6 +35,7 @@ const CodeRedemption = observer(() => {
         code
       });
 
+      rootStore.SetLocalStorage(`${match.params.offerId}-code`, code);
       setRedeemed(true);
     } catch(error) {
       // eslint-disable-next-line no-console
