@@ -707,6 +707,7 @@ class CheckoutStore {
             path: UrlJoin("as", "checkout", "circle"),
             body: {
               ...requestParams,
+              theme: ((!this.rootStore.darkMode) ? "light" : "dark" ) || "dark",
               name: ""
             },
             headers: {
