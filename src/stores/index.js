@@ -400,9 +400,16 @@ class RootStore {
       }
 
       this.SendEvent({event: EVENTS.LOADED});
+    } catch(error) {
+      this.Log("Initialization failed:", true);
+      this.Log(error, true);
     } finally {
       if(this.walletClient) {
         this.loaded = true;
+      } else {
+        // Retry
+        yield new Promise(resolve => setTimeout(resolve, 1000));
+        this.Initialize();
       }
     }
   });
