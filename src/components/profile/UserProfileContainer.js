@@ -164,6 +164,17 @@ const UserProfileContainer = observer(({children}) => {
                       </div> : null
                 }
                 {
+                  (userProfile.badges || []).map(({image, text}) =>
+                    <ImageIcon
+                      icon={image}
+                      title={text}
+                      label={text}
+                      key={`badge-${text}`}
+                      className="user__profile__badge"
+                    />
+                  )
+                }
+                {
                   currentUser ?
                     <button onClick={() => setShowUsernameModal(!showUsernameModal)} className="action user__profile__name__edit-button">
                       <ImageIcon

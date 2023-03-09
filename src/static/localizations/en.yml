@@ -485,6 +485,10 @@ codes:
   errors:
     failed: Failed to Redeem Code
 
+voting:
+  vote: Vote for this item in {title}
+  revoke: Revoke vote for this item in {title}
+
 time:
   day: 1 day
   days: "{days} days"

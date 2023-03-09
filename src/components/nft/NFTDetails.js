@@ -578,6 +578,50 @@ const PurchaseOffersTables = observer(({nftInfo}) => {
   );
 });
 
+const VotingButtons = observer(({sku}) => {
+  const match = useRouteMatch();
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId] || rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === match.params.marketplaceId);
+
+  if(!marketplace || !sku) { return null; }
+
+  const votingEvents = marketplace.voting_events
+    // Ongoing only
+    .filter(({start_date, end_date}) =>
+      (!start_date || new Date(start_date) <= new Date()) &&
+      (!end_date || new Date(end_date) >= new Date())
+    )
+    // Includes this item
+    .filter(({type, items}) => type === "all" || items?.includes(sku));
+
+  useEffect(() => {
+    votingEvents.forEach(({id}) =>
+      rootStore.UpdateVoteStatus({tenantId: marketplace.tenant_id, votingEventId: id})
+    );
+  }, []);
+
+  return (
+    votingEvents.map(({id, title}) => {
+      const status = rootStore.voteStatus[id] || {};
+      const hasVoted = (status.user_votes || []).find(vote => vote === sku);
+
+      return (
+        <ButtonWithLoader
+          onClick={async () => {
+            if(hasVoted) {
+              await rootStore.RevokeVote({tenantId: marketplace.tenant_id, votingEventId: id, sku});
+            } else {
+              await rootStore.CastVote({tenantId: marketplace.tenant_id, votingEventId: id, sku});
+            }
+          }}
+          className={`action ${hasVoted ? "" : "action-danger"}`}
+        >
+          { LocalizeString(rootStore.l10n.voting[hasVoted ? "revoke" : "vote"], {title}) }
+        </ButtonWithLoader>
+      );
+    })
+  );
+});
+
 const NFTActions = observer(({
   nftInfo,
   listingStatus,
@@ -629,6 +673,7 @@ const NFTActions = observer(({
               {rootStore.l10n.actions.listings.view}
             </Link>
         }
+        <VotingButtons sku={nftInfo.item.sku} />
         {
           previewMode && nftInfo.hasAdditionalMedia && !previewMedia ?
             <button className="action" onClick={() => SetPreviewMedia(true)}>

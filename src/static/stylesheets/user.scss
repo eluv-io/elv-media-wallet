@@ -46,12 +46,13 @@
       font: var(--font-component-header);
       font-size: 24px;
       margin-bottom: 10px;
+      gap: 10px;
+      flex-wrap: wrap;
 
       &__edit-button {
         align-items: center;
         display: flex;
         height: 30px;
-        margin-left: 10px;
         min-height: 30px;
         min-width: 30px;
         padding: 6px;
@@ -62,6 +63,12 @@
           width: 100%;
         }
       }
+    }
+
+    &__badge {
+      max-height: 30px;
+      max-width: 30px;
+      object-fit: contain;
     }
 
     &__address-container {

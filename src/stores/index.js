@@ -148,6 +148,7 @@ class RootStore {
   nftData = {};
   userProfiles = {};
   userStats = {};
+  voteStatus = {};
 
   viewedMedia = {};
 
@@ -408,7 +409,7 @@ class RootStore {
         this.loaded = true;
       } else {
         // Retry
-        yield new Promise(resolve => setTimeout(resolve, 1000));
+        yield new Promise(resolve => setTimeout(resolve, 5000));
         this.Initialize();
       }
     }
@@ -782,6 +783,18 @@ class RootStore {
 
     // Reload cache
     return yield this.UserProfile({userId: this.CurrentAddress(), force: true});
+  });
+
+  UpdateVoteStatus = flow(function * ({tenantId, votingEventId}) {
+    this.voteStatus[votingEventId] = yield this.walletClient.VoteStatus({tenantId, votingEventId});
+  });
+
+  CastVote = flow(function * ({tenantId, votingEventId, sku}) {
+    this.voteStatus[votingEventId] = (yield this.walletClient.CastVote({tenantId, votingEventId, sku})).totals;
+  });
+
+  RevokeVote = flow(function * ({tenantId, votingEventId, sku}) {
+    this.voteStatus[votingEventId] = (yield this.walletClient.RevokeVote({tenantId, votingEventId, sku})).totals;
   });
 
   // Get already loaded full NFT data
