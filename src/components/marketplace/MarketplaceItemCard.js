@@ -53,8 +53,12 @@ const MarketplaceItemCard = ({
     action = "listings";
     status = rootStore.l10n.item_details.status.sold_out;
   } else if(!info.released) {
-    linkDisabled = true;
-    status = "";
+    if(item.viewable_if_unreleased) {
+      action = "view";
+    } else {
+      linkDisabled = true;
+      status = "";
+    }
   } else if(!item.for_sale && item.viewable) {
     action = "view";
   } else {
