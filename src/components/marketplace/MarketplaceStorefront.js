@@ -92,7 +92,7 @@ const MarketplaceBanners = ({marketplace}) => {
             const item = marketplace.items.find(item => item.sku === banner.sku);
 
             let link;
-            if(item && item.for_sale && (!item.available_at || Date.now() - new Date(item.available_at).getTime() > 0) && (!item.expires_at || Date.now() - new Date(item.expires_at).getTime() < 0)) {
+            if(item && (item.for_sale && !item.viewable) && (!item.available_at || Date.now() - new Date(item.available_at).getTime() > 0) && (!item.expires_at || Date.now() - new Date(item.expires_at).getTime() < 0)) {
               link = UrlJoin("/marketplace", marketplace.marketplaceId, "store", banner.sku);
             }
 
@@ -146,7 +146,7 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
       // Authorization
       if(
         !item ||
-        !item.for_sale ||
+        (!item.for_sale && !item.viewable) ||
         (item.requires_permissions && !item.authorized && !item.show_if_unauthorized) ||
         (item.type === "nft" && (!item.nft_template || item.nft_template["/"]))
       ) {

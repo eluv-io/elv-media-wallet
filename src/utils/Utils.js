@@ -361,7 +361,7 @@ export const NFTInfo = ({
   const released = !item || !item.available_at || timeToAvailable <= 0;
   const expired = item && item.expires_at && timeToExpired < 0;
   const maxOwned = stock && stock.max_per_user && stock.current_user >= stock.max_per_user;
-  const marketplacePurchaseAvailable = item && !outOfStock && available && !unauthorized && !maxOwned;
+  const marketplacePurchaseAvailable = item && item.for_sale && !outOfStock && available && !unauthorized && !maxOwned;
   const hideAvailable = !available || (item && item.hide_available);
 
   const offerable = nft?.details.TokenIdStr && !nft?.metadata?.test && !heldDate;

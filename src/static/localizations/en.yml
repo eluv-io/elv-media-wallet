@@ -53,6 +53,7 @@ actions:
     buy_now_for: Buy Now For {price}
     buy_now_for_pix_ebanx: Buy Now For {price} + Taxes
     claim: Claim Now
+    view: View Details
   listings:
     create: List For Sale
     create_for: List Now For {price}
@@ -484,6 +485,16 @@ codes:
   redeem_offer: Redeem Offer
   errors:
     failed: Failed to Redeem Code
+
+voting:
+  voting: Voting
+  vote: Vote for this entry
+  revoke: Remove vote for this entry
+  vote_with_title: Vote for this entry in {title}
+  revoke_with_title: Remove vote for this entry in {title}
+  voting_window: "Voting Window: {startDate} - {endDate}"
+  total_votes: "Total votes for this entry: {votes}"
+  voted: You have voted for this entry
 
 time:
   day: 1 day
