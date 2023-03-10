@@ -848,7 +848,6 @@
     border: 0;
     border-radius: var(--border-radius-nft-media-featured);
     display: flex;
-    max-width: $breakpoint;
     overflow: hidden;
     padding: 30px 50px 30px 30px;
     position: relative;
@@ -919,6 +918,7 @@
     &__actions {
       display: flex;
       flex-direction: column;
+      margin-top: 20px;
     }
 
     &__button {
