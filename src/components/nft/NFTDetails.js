@@ -31,6 +31,9 @@ import {Ago, MiddleEllipsis, NFTInfo, ScrollTo} from "../../utils/Utils";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import NFTOffers from "Components/nft/NFTOffers";
 import {NFTMediaContainer} from "Components/nft/media/index";
+import OfferModal from "../listings/OfferModal";
+import {OffersTable} from "../listings/TransferTables";
+import {PageLoader} from "Components/common/Loaders";
 
 import UserIcon from "Assets/icons/user.svg";
 import TransactionIcon from "Assets/icons/transaction history icon.svg";
@@ -46,11 +49,100 @@ import MediaIcon from "Assets/icons/media-icon.svg";
 import TradeIcon from "Assets/icons/Trading Icon.svg";
 import OffersIcon from "Assets/icons/Offers icon.svg";
 import PurchaseOffersIcon from "Assets/icons/Offers table icon.svg";
-import OfferModal from "../listings/OfferModal";
-import {OffersTable} from "../listings/TransferTables";
-import {PageLoader} from "Components/common/Loaders";
+import VotingIcon from "Assets/icons/Voting Icon.svg";
 
 let mediaPreviewEnabled = false;
+
+const NFTVotingSection = observer(({votingEvents, sku}) => {
+  if(!votingEvents || !sku) { return null; }
+
+  return (
+    <ExpandableSection
+      header={rootStore.l10n.voting.voting}
+      icon={VotingIcon}
+    >
+      {
+        votingEvents.map(({id, title, description, start_date, end_date}) => {
+          const status = rootStore.voteStatus[id] || {};
+          const hasVoted = (status.user_votes || []).find(vote => vote === sku);
+          const totalVotes = status?.current_tally?.[sku] || 0;
+
+          return (
+            <div className="details-page__voting-details" key={`voting-event-details-${id}`}>
+              { title ? <h2 className="details-page__voting-details__title">{title}</h2> : null }
+              { description ? <RichText richText={description} className="details-page__voting-details__text details-page__voting-details__description" /> : null }
+              <div className="details-page__voting-details__text">
+                {
+                  LocalizeString(
+                    rootStore.l10n.voting.voting_window,
+                    {
+                      startDate: start_date ? new Date(start_date).toLocaleDateString(navigator.languages, {year: "numeric", "month": "long", day: "numeric"}) : "",
+                      endDate: end_date ? new Date(end_date).toLocaleDateString(navigator.languages, {year: "numeric", "month": "long", day: "numeric"}) : ""
+                    }
+                  )
+                }
+              </div>
+              <div className="details-page__voting-details__text">
+                { LocalizeString(rootStore.l10n.voting.total_votes, { votes: totalVotes }) }
+              </div>
+              <div className="details-page__voting-details__text">
+                { hasVoted ? rootStore.l10n.voting.voted : null }
+              </div>
+            </div>
+          );
+        })
+      }
+    </ExpandableSection>
+  );
+});
+
+const VotingButtons = observer(({sku, votingEvents}) => {
+  const match = useRouteMatch();
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId] || rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === match.params.marketplaceId);
+
+  if(!marketplace || !sku || !votingEvents) { return null; }
+
+  return (
+    votingEvents
+      .filter(({ongoing}) => ongoing)
+      .map(({id, title}) => {
+        const status = rootStore.voteStatus[id] || {};
+        const hasVoted = (status.user_votes || []).find(vote => vote === sku);
+        const totalVotes = status?.current_tally?.[sku];
+
+        const l10nKey = `${hasVoted ? "revoke" : "vote"}${title ? "_with_title" : ""}`;
+
+        return (
+          <ButtonWithLoader
+            key={`voting-button-${id}`}
+            onClick={async () => {
+              if(!rootStore.loggedIn) {
+                rootStore.ShowLogin();
+              } else if(hasVoted) {
+                await rootStore.RevokeVote({tenantId: marketplace.tenant_id, votingEventId: id, sku});
+              } else {
+                await rootStore.CastVote({tenantId: marketplace.tenant_id, votingEventId: id, sku});
+              }
+            }}
+            className={`action ${hasVoted ? "" : "action-danger"} details-page__voting-button`}
+          >
+            <div className="details-page__voting-button__text">
+              { LocalizeString(rootStore.l10n.voting[l10nKey], {title}) }
+            </div>
+            {
+              !rootStore.loggedIn ? null :
+                <div className="details-page__voting-button__status">
+                  <ImageIcon icon={VotingIcon} label="Current Tally" className="details-page__voting-button__icon"/>
+                  <div className="details-page__voting-button__total">
+                    { totalVotes || 0 }
+                  </div>
+                </div>
+            }
+          </ButtonWithLoader>
+        );
+      })
+  );
+});
 
 const NFTTraitsSection = ({nftInfo}) => {
   const traits = nftInfo.nft?.metadata?.attributes || [];
@@ -561,19 +653,6 @@ const PurchaseOffersTables = observer(({nftInfo}) => {
             statuses={["ACTIVE"]}
           /> : null
       }
-      {
-        /*
-
-      <OffersTable
-        icon={PurchaseOffersIcon}
-        header={`Active offers for all '${nft.metadata.display_name}' tokens`}
-        contractAddress={nft.details.ContractAddr}
-        statuses={["ACTIVE"]}
-        noActions
-      />
-
-         */
-      }
     </div>
   );
 });
@@ -586,6 +665,7 @@ const NFTActions = observer(({
   previewMedia,
   secondaryDisabled,
   ownedItem,
+  votingEvents,
   ShowOfferModal,
   ShowModal,
   SetOpened,
@@ -629,6 +709,7 @@ const NFTActions = observer(({
               {rootStore.l10n.actions.listings.view}
             </Link>
         }
+        { votingEvents ? <VotingButtons sku={nftInfo.item.sku} votingEvents={votingEvents} /> : null }
         {
           previewMode && nftInfo.hasAdditionalMedia && !previewMedia ?
             <button className="action" onClick={() => SetPreviewMedia(true)}>
@@ -965,7 +1046,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
   }, [nftInfo]);
 
   useEffect(() => {
-    if(!nftInfo || !nftInfo.item) { return; }
+    if(!rootStore.loggedIn || !nftInfo || !nftInfo.item) { return; }
 
     rootStore.walletClient.UserItems({
       contractAddress: nftInfo?.nft?.details?.ContractAddr || nftInfo?.item?.address,
@@ -975,6 +1056,55 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
     });
   }, [nftInfo]);
 
+  window.nftInfo = nftInfo;
+
+  // Misc
+  if(listingStatus?.listing) {
+    nft = {
+      ...(nft || {}),
+      ...listingStatus.listing,
+      details: {
+        ...(nft?.details || {}),
+        ...listingStatus.listing.details
+      },
+      metadata: {
+        ...(nft?.metadata || {}),
+        ...listingStatus.listing.metadata
+      }
+    };
+  }
+
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId] || rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === match.params.marketplaceId);
+  const listingId = match.params.listingId || listingStatus?.listing?.details?.ListingId || nft?.details?.ListingId;
+  const tokenId = match.params.tokenId || listingStatus?.listing?.details?.TokenIdStr;
+  const isInCheckout = listingStatus?.listing?.details?.CheckoutLockedUntil && listingStatus?.listing.details.CheckoutLockedUntil > Date.now();
+  const showModal = match.params.action === "purchase" || match.params.action === "list";
+  const showMediaSections = (nftInfo?.isOwned || previewMedia) && nftInfo?.hasAdditionalMedia && nftInfo?.additionalMedia?.type !== "List";
+  const secondaryDisabled = marketplace?.branding?.disable_secondary_market;
+
+  let votingEvents;
+  if(marketplace && nftInfo?.item) {
+    const events = marketplace.voting_events
+      // Hide not started
+      .filter(({start_date}) => (!start_date || new Date(start_date) <= new Date()))
+      // Includes this item
+      .filter(({type, items}) => type === "all" || items?.includes(nftInfo.item.sku))
+      .map(event => ({
+        ...event,
+        // Mark if this event is currently ongoing
+        ongoing: (!event.end_date || new Date(event.end_date) >= new Date())
+      }));
+
+    votingEvents = events.length > 0 ? events : undefined;
+  }
+
+  useEffect(() => {
+    if(!rootStore.loggedIn || !marketplace || !votingEvents) { return; }
+
+    votingEvents.forEach(({id}) =>
+      rootStore.UpdateVoteStatus({tenantId: marketplace.tenant_id, votingEventId: id})
+    );
+  }, []);
 
   // Redirects
 
@@ -1000,32 +1130,6 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
   if(!nftInfo || match.params.action === "claim") {
     return <PageLoader />;
   }
-
-  window.nftInfo = nftInfo;
-
-  // Misc
-  if(listingStatus?.listing) {
-    nft = {
-      ...(nft || {}),
-      ...listingStatus.listing,
-      details: {
-        ...(nft?.details || {}),
-        ...listingStatus.listing.details
-      },
-      metadata: {
-        ...(nft?.metadata || {}),
-        ...listingStatus.listing.metadata
-      }
-    };
-  }
-
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId] || rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === match.params.marketplaceId);
-  const listingId = match.params.listingId || listingStatus?.listing?.details?.ListingId || nft?.details?.ListingId;
-  const tokenId = match.params.tokenId || listingStatus?.listing?.details?.TokenIdStr;
-  const isInCheckout = listingStatus?.listing?.details?.CheckoutLockedUntil && listingStatus?.listing.details.CheckoutLockedUntil > Date.now();
-  const showModal = match.params.action === "purchase" || match.params.action === "list";
-  const showMediaSections = (nftInfo.isOwned || previewMedia) && nftInfo.hasAdditionalMedia && nftInfo.additionalMedia.type !== "List";
-  const secondaryDisabled = marketplace?.branding?.disable_secondary_market;
 
   const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
   return (
@@ -1121,6 +1225,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
                   transferAddress={transferAddress}
                   previewMedia={previewMedia}
                   ownedItem={ownedItem}
+                  votingEvents={votingEvents}
                   SetPreviewMedia={preview => {
                     mediaPreviewEnabled = preview;
                     setPreviewMedia(preview);
@@ -1189,6 +1294,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
                 }
                 <NFTDetailsSection nftInfo={nftInfo} contractStats={contractStats} />
                 <NFTContractSection nftInfo={nftInfo} SetBurned={setBurned} ShowTransferModal={() => setShowTransferModal(true)} />
+                { votingEvents ? <NFTVotingSection votingEvents={votingEvents} sku={nftInfo.item.sku} /> : null }
               </div>
             </div>
           </div>

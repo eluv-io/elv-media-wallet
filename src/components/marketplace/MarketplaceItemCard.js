@@ -55,6 +55,8 @@ const MarketplaceItemCard = ({
   } else if(!info.released) {
     linkDisabled = true;
     status = "";
+  } else if(!item.for_sale && item.viewable) {
+    action = "view";
   } else {
     action = info.free ? "claim" : "buy";
   }

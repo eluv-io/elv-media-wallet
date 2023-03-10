@@ -56,6 +56,7 @@ actions:
     buy_now_for: Compre agora por {price}
     buy_now_for_pix_ebanx: Compre agora por {price} + Taxas
     claim: Resgate agora
+    view: Ver Detalhes
   listings:
     create: Colocar para venda
     create_for: Colocar para venda agora {price}
@@ -395,7 +396,8 @@ item_details:
   cap: Limite
   minted_date: Criado em {date}
   rarity: Raridade
-  have_trait: "{rarity}% possuem essa característica"
+  have_trait: '{rarity}% possuem essa característica'
+  go_to_item: Ir para íten
   status:
     listings: Revendas
     sale_ended: Venda encerrada
@@ -501,6 +503,15 @@ codes:
   redeem_offer: Resgate seu brinde
   errors:
     failed: Falha para resgatar o código
+voting:
+  voting: Votação
+  vote: Vote nesta entrada
+  revoke: Remover votação para esta entrada
+  vote_with_title: Vote nesta entrada no {title}
+  revoke_with_title: Remover voto para esta entrada no {title}
+  voting_window: 'Janela de votação: {startDate} - {endDate}'
+  total_votes: 'Total de votos para esta entrada: {votes}'
+  voted: <MISSING> -- You have voted for this entry
 time:
   day: 1 dia
   days: "{days} dias"

@@ -191,25 +191,41 @@ const UserProfileContainer = observer(({children}) => {
               }
             </div>
           </div>
-          <div className="user__badges">
+          <div className="user__stats-container">
+            {
+              userProfile.badges?.length > 0 ?
+                <div className="user__badges">
+                  {
+                    userProfile.badges.map(({image, text}) =>
+                      <ImageIcon
+                        icon={image}
+                        title={text}
+                        label={text}
+                        key={`badge-${text}`}
+                        className="user__badge"
+                      />
+                    )
+                  }
+                </div> : null
+            }
             {
               userStats ?
-                <>
+                <div className="user__stats-list">
                   {
                     marketplace && !marketplace?.branding?.hide_leaderboard ?
                       <>
-                        <div className="user__badge">
-                          <div className="user__badge__label">{ rootStore.l10n.header.leaderboard }</div>
-                          <div className="user__badge__value">#{userStats.rank ? userStats.rank.toLocaleString() : ""}</div>
+                        <div className="user__stats">
+                          <div className="user__stats__label">{ rootStore.l10n.header.leaderboard }</div>
+                          <div className="user__stats__value">#{userStats.rank ? userStats.rank.toLocaleString() : ""}</div>
                         </div>
-                        <div className="user__badges__separator" />
+                        <div className="user__stats__separator" />
                       </> : null
                   }
-                  <div className="user__badge">
-                    <div className="user__badge__label">{ rootStore.l10n.navigation.collectibles }</div>
-                    <div className="user__badge__value">{ (userStats.count || 0).toLocaleString() }</div>
+                  <div className="user__stats">
+                    <div className="user__stats__label">{ rootStore.l10n.navigation.collectibles }</div>
+                    <div className="user__stats__value">{ (userStats.count || 0).toLocaleString() }</div>
                   </div>
-                </> : null
+                </div> : null
             }
           </div>
         </div>

@@ -64,7 +64,13 @@ const FeaturedItemCard = observer(({
   );
 
   let button;
-  if(action === "claim" || action === "buy") {
+  if(action === "view") {
+    button = (
+      <Link to={link} className="action action-primary">
+        { rootStore.l10n.actions.purchase.view }
+      </Link>
+    );
+  } else if(action === "claim" || action === "buy") {
     button = (
       <Link to={link} className="action action-primary">
         { rootStore.l10n.actions.purchase[action === "claim" ? "claim" : "buy_now"] }
