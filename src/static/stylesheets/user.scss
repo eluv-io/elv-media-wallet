@@ -43,11 +43,11 @@
     &__name {
       align-items: center;
       display: flex;
+      flex-wrap: wrap;
       font: var(--font-component-header);
       font-size: 24px;
-      margin-bottom: 10px;
       gap: 10px;
-      flex-wrap: wrap;
+      margin-bottom: 10px;
 
       &__edit-button {
         align-items: center;
@@ -63,12 +63,6 @@
           width: 100%;
         }
       }
-    }
-
-    &__badge {
-      max-height: 30px;
-      max-width: 30px;
-      object-fit: contain;
     }
 
     &__address-container {
@@ -124,19 +118,37 @@
   &__badges {
     align-items: center;
     display: flex;
-    height: 60px;
-    width: max-content;
-
-    &__separator {
-      background: var(--color-component-bg-highlight);
-      height: 100%;
-      margin: 0 25px;
-      width: 3px;
-    }
+    gap: 10px;
+    justify-content: center;
   }
 
   &__badge {
+    max-height: 50px;
+    max-width: 50px;
+    object-fit: cover;
+  }
+
+  &__stats-container,
+  &__stats-list {
+    align-items: center;
+    display: flex;
+    gap: 30px;
+    width: max-content;
+  }
+
+  &__stats-container {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  &__stats {
     text-align: center;
+
+    &__separator {
+      background: var(--color-component-bg-highlight);
+      height: 60px;
+      width: 3px;
+    }
 
     &__label {
       color: var(--color-component-text-secondary);
@@ -203,7 +215,7 @@
       }
     }
 
-    &__badges {
+    &__stats-container {
       margin-top: 30px;
     }
 
