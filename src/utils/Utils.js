@@ -502,10 +502,15 @@ export const NFTMedia = ({nft, item, width}) => {
   let embedUrl, imageUrl;
   if(item?.video) {
     embedUrl = new URL("https://embed.v3.contentfabric.io");
-    embedUrl.searchParams.set("m", "");
     embedUrl.searchParams.set("vid", LinkTargetHash(item.video));
-    embedUrl.searchParams.set("ap", "");
-    embedUrl.searchParams.set("lp", "");
+
+    if(item.video_has_audio) {
+      embedUrl.searchParams.set("ct", "h");
+    } else {
+      embedUrl.searchParams.set("m", "");
+      embedUrl.searchParams.set("ap", "");
+      embedUrl.searchParams.set("lp", "");
+    }
   } else if(nft?.metadata?.embed_url && nft.metadata.playable) {
     embedUrl = new URL(nft.metadata.embed_url);
 

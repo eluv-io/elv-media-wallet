@@ -1083,7 +1083,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
   const secondaryDisabled = marketplace?.branding?.disable_secondary_market;
 
   let votingEvents;
-  if(marketplace && nftInfo?.item) {
+  if(marketplace && marketplace.voting_events && nftInfo?.item) {
     const events = marketplace.voting_events
       // Hide not started
       .filter(({start_date}) => (!start_date || new Date(start_date) <= new Date()))
