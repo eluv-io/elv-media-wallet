@@ -1104,7 +1104,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
     votingEvents.forEach(({id}) =>
       rootStore.UpdateVoteStatus({tenantId: marketplace.tenant_id, votingEventId: id})
     );
-  }, []);
+  }, [!!votingEvents]);
 
   // Redirects
 

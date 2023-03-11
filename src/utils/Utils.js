@@ -575,6 +575,10 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
   }
 
   switch(mediaType) {
+    case "link":
+      mediaLink = selectedMedia.link;
+      break;
+
     case "gallery":
       embedUrl.searchParams.set("vid", versionHash);
       embedUrl.searchParams.set("ln", Utils.B64(selectedMediaPath));
