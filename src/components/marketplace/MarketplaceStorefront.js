@@ -65,7 +65,7 @@ const MarketplaceBannerContent = observer(({banner}) => {
   return (
     <ImageIcon
       className="marketplace__banner__image"
-      icon={SetImageUrlDimensions({url: image, width: rootStore.pageWidth <= 800 ? "500" : "960"})}
+      icon={SetImageUrlDimensions({url: image, width: rootStore.pageWidth <= 800 ? "1000" : "2000"})}
     />
   );
 });

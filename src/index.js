@@ -175,7 +175,7 @@ const App = observer(() => {
 
     if(newBackgroundImageUrl !== currentBackgroundImageUrl) {
       if(backgroundImage) {
-        backgroundElement.style.background = `no-repeat top center / cover url("${SetImageUrlDimensions({url: backgroundImage, width: rootStore.pageWidth < 800 ? "800" : "1920"})}")`;
+        backgroundElement.style.background = `no-repeat top center / cover url("${SetImageUrlDimensions({url: backgroundImage, width: rootStore.pageWidth < 800 ? "1000" : "2500"})}")`;
         document.querySelector("#app").style.background = "transparent";
         rootStore.SetSessionStorage("current-background", backgroundImage);
       } else {
