@@ -63,9 +63,9 @@ const NFTVotingSection = observer(({votingEvents, sku}) => {
     >
       {
         votingEvents.map(({id, title, description, start_date, end_date}) => {
-          const status = rootStore.voteStatus[id] || {};
-          const hasVoted = (status.user_votes || []).find(vote => vote === sku);
-          const totalVotes = status?.current_tally?.[sku] || 0;
+          const status = rootStore.voteStatus[id];
+          const hasVoted = (status?.user_votes || []).find(vote => vote === sku);
+          const totalVotes = status?.current_tally?.[sku];
 
           return (
             <div className="details-page__voting-details" key={`voting-event-details-${id}`}>
@@ -83,10 +83,10 @@ const NFTVotingSection = observer(({votingEvents, sku}) => {
                 }
               </div>
               {
-                rootStore.loggedIn ?
+                typeof totalVotes === "undefined" ? null :
                   <div className="details-page__voting-details__text">
                     {LocalizeString(rootStore.l10n.voting.total_votes, {votes: totalVotes})}
-                  </div> : null
+                  </div>
               }
               {
                 hasVoted ?
@@ -112,9 +112,14 @@ const VotingButtons = observer(({sku, votingEvents}) => {
     votingEvents
       .filter(({ongoing}) => ongoing)
       .map(({id, title}) => {
-        const status = rootStore.voteStatus[id] || {};
+        const status = rootStore.voteStatus[id];
+
+        if(!status) {
+          return null;
+        }
+
         const hasVoted = (status.user_votes || []).find(vote => vote === sku);
-        const totalVotes = status?.current_tally?.[sku] || (rootStore.loggedIn ? 0 : "");
+        const totalVotes = status?.current_tally?.[sku];
 
         const l10nKey = `${hasVoted ? "revoke" : "vote"}${title ? "_with_title" : ""}`;
 
@@ -136,7 +141,7 @@ const VotingButtons = observer(({sku, votingEvents}) => {
               { LocalizeString(rootStore.l10n.voting[l10nKey], {title}) }
             </div>
             {
-              !rootStore.loggedIn ? null :
+              typeof totalVotes === "undefined" ? null :
                 <div className="details-page__voting-button__status">
                   <ImageIcon icon={VotingIcon} label="Current Tally" className="details-page__voting-button__icon"/>
                   <div className="details-page__voting-button__total">
@@ -1105,7 +1110,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
   }
 
   useEffect(() => {
-    if(!rootStore.loggedIn || !marketplace || !votingEvents) { return; }
+    if(!marketplace || !votingEvents) { return; }
 
     votingEvents.forEach(({id}) =>
       rootStore.UpdateVoteStatus({tenantId: marketplace.tenant_id, votingEventId: id})
