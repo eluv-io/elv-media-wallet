@@ -108,7 +108,7 @@ const VotingButtons = observer(({sku, votingEvents}) => {
       .map(({id, title}) => {
         const status = rootStore.voteStatus[id] || {};
         const hasVoted = (status.user_votes || []).find(vote => vote === sku);
-        const totalVotes = status?.current_tally?.[sku];
+        const totalVotes = status?.current_tally?.[sku] || (rootStore.loggedIn ? 0 : "");
 
         const l10nKey = `${hasVoted ? "revoke" : "vote"}${title ? "_with_title" : ""}`;
 
@@ -134,7 +134,7 @@ const VotingButtons = observer(({sku, votingEvents}) => {
                 <div className="details-page__voting-button__status">
                   <ImageIcon icon={VotingIcon} label="Current Tally" className="details-page__voting-button__icon"/>
                   <div className="details-page__voting-button__total">
-                    { totalVotes || 0 }
+                    { totalVotes }
                   </div>
                 </div>
             }
