@@ -82,12 +82,18 @@ const NFTVotingSection = observer(({votingEvents, sku}) => {
                   )
                 }
               </div>
-              <div className="details-page__voting-details__text">
-                { LocalizeString(rootStore.l10n.voting.total_votes, { votes: totalVotes }) }
-              </div>
-              <div className="details-page__voting-details__text">
-                { hasVoted ? rootStore.l10n.voting.voted : null }
-              </div>
+              {
+                rootStore.loggedIn ?
+                  <div className="details-page__voting-details__text">
+                    {LocalizeString(rootStore.l10n.voting.total_votes, {votes: totalVotes})}
+                  </div> : null
+              }
+              {
+                hasVoted ?
+                  <div className="details-page__voting-details__text">
+                    {hasVoted ? rootStore.l10n.voting.voted : null}
+                  </div> : null
+              }
             </div>
           );
         })
