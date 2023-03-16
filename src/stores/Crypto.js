@@ -577,12 +577,19 @@ class CryptoStore {
   }
 
   RegisterMetamaskHandlers() {
-    if(!window.ethereum) { return; }
+    try {
+      if(!this.MetamaskAvailable()) {
+        return;
+      }
 
-    this.UpdateMetamaskInfo();
+      this.UpdateMetamaskInfo();
 
-    window.ethereum.on("accountsChanged", () => this.UpdateMetamaskInfo());
-    window.ethereum.on("chainChanged", () => this.UpdateMetamaskInfo());
+      window.ethereum?.on("accountsChanged", () => this.UpdateMetamaskInfo());
+      window.ethereum?.on("chainChanged", () => this.UpdateMetamaskInfo());
+    } catch(error) {
+      this.rootStore.Log("Failed to initialize metamask handlers");
+      this.rootStore.Log(error, true);
+    }
   }
 
   WalletFunctions(type) {
