@@ -499,6 +499,7 @@ export const NFTMedia = ({nft, item, width}) => {
     });
   }
 
+  let mediaType = "image";
   let embedUrl, imageUrl;
   if(item?.video) {
     embedUrl = new URL("https://embed.v3.contentfabric.io");
@@ -507,6 +508,7 @@ export const NFTMedia = ({nft, item, width}) => {
     if(item.video_has_audio) {
       embedUrl.searchParams.set("ct", "h");
     } else {
+      embedUrl.searchParams.delete("ct");
       embedUrl.searchParams.set("m", "");
       embedUrl.searchParams.set("ap", "");
       embedUrl.searchParams.set("lp", "");
@@ -517,6 +519,7 @@ export const NFTMedia = ({nft, item, width}) => {
     if(nft.metadata.has_audio) {
       embedUrl.searchParams.set("ct", "h");
     } else {
+      embedUrl.searchParams.delete("ct");
       embedUrl.searchParams.set("m", "");
       embedUrl.searchParams.set("ap", "");
       embedUrl.searchParams.set("lp", "");
@@ -531,9 +534,18 @@ export const NFTMedia = ({nft, item, width}) => {
     if(item?.requires_permissions && rootStore.authToken) {
       embedUrl.searchParams.set("ath", rootStore.authToken);
     }
+
+    mediaType = nft?.metadata?.media_type === "Audio" ? "audio" : "video";
   }
 
-  if(item?.image) {
+  if(nft?.metadata?.media_type === "Image" && nft.metadata.media) {
+    imageUrl = nft.metadata.media.url;
+
+    if(embedUrl) {
+      embedUrl.searchParams.set("type", "Image");
+      embedUrl.searchParams.set("murl", btoa(nft.metadata.media.url));
+    }
+  } else if(item?.image) {
     imageUrl = typeof item.image === "string" ? item.image : item.image.url;
   } else {
     imageUrl = item?.nftTemplateMetadata?.image || nft?.metadata?.image;
@@ -547,7 +559,8 @@ export const NFTMedia = ({nft, item, width}) => {
 
   return {
     embedUrl,
-    imageUrl
+    imageUrl,
+    mediaType
   };
 };
 
