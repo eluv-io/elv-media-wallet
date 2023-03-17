@@ -577,6 +577,17 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
   switch(mediaType) {
     case "link":
       mediaLink = selectedMedia.link;
+
+      if(selectedMedia.authorized_link) {
+        try {
+          mediaLink = new URL(mediaLink);
+          mediaLink.searchParams.set("authorization", rootStore.authToken);
+          mediaLink = mediaLink.toString();
+        } catch(error) {
+          rootStore.Log(error);
+        }
+      }
+
       break;
 
     case "gallery":
