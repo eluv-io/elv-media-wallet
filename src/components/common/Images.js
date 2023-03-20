@@ -55,7 +55,7 @@ export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVi
       alt={nft?.metadata?.display_name}
     />;
 
-  if(media?.embedUrl && showVideo && (!isFrameContent || isOwned)) {
+  if(media.mediaType !== "image" && media?.embedUrl && showVideo && (!isFrameContent || isOwned)) {
     const content = isFrameContent ? image : <div ref={element => setTargetElement(element)} className="item-card__image-video-embed__frame"/>;
 
     return (
