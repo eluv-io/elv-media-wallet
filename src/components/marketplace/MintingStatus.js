@@ -271,7 +271,8 @@ const MintingStatus = observer(({
 });
 
 const MintResults = observer(({skipReveal, text, header, subheader, basePath, nftBasePath, items, backText}) => {
-  if(skipReveal && items && items.length > 0) {
+  // Only skip if there is one item
+  if(skipReveal && items && items.length === 1) {
     const { nft } = rootStore.NFTData({contractAddress: items[0].token_addr, tokenId: items[0].token_id_str || items[0].token_id});
 
     if(!nft) { return; }
