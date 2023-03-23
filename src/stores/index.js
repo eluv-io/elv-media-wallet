@@ -170,6 +170,8 @@ class RootStore {
   headerText;
   routeChange;
 
+  shortURLs = {};
+
   get specifiedMarketplace() {
     return this.marketplaces[this.specifiedMarketplaceId];
   }
@@ -1608,6 +1610,19 @@ class RootStore {
 
     this.Reload();
   }
+
+  CreateShortURL = flow(function * (url) {
+    // Normalize URL
+    url = new URL(url).toString();
+
+    if(!this.shortURLs[url]) {
+      const { url_mapping } = yield (yield fetch("https://elv.lv/tiny/create", { method: "POST", body: url })).json();
+
+      this.shortURLs[url] = url_mapping.shortened_url;
+    }
+
+    return this.shortURLs[url];
+  });
 
   ReloadURL(keepPath=false) {
     const url = new URL(UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""));

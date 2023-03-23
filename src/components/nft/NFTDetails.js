@@ -33,7 +33,7 @@ import NFTOffers from "Components/nft/NFTOffers";
 import {NFTMediaContainer} from "Components/nft/media/index";
 import OfferModal from "../listings/OfferModal";
 import {OffersTable} from "../listings/TransferTables";
-import {PageLoader} from "Components/common/Loaders";
+import {Loader, PageLoader} from "Components/common/Loaders";
 
 import UserIcon from "Assets/icons/user.svg";
 import TransactionIcon from "Assets/icons/transaction history icon.svg";
@@ -383,12 +383,10 @@ const NFTContractSection = ({nftInfo, SetBurned, ShowTransferModal}) => {
 const NFTInfoMenu = observer(({nftInfo}) => {
   const match = useRouteMatch();
 
-  let nftImageUrl;
-  if(nftInfo.isOwned && rootStore.userProfiles.me?.imageUrl?.toString() !== nftInfo?.mediaInfo.imageUrl?.toString()) {
-    nftImageUrl = nftInfo?.mediaInfo?.imageUrl;
-  }
-
   const listingId = match.params.listingId || nftInfo.listingId;
+  const ownerAddress = nftInfo.ownerAddress;
+  const ownerProfile = ownerAddress ? rootStore.userProfiles[Utils.FormatAddress(ownerAddress)] : undefined;
+
   let shareUrl;
   if(listingId) {
     shareUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
@@ -398,13 +396,45 @@ const NFTInfoMenu = observer(({nftInfo}) => {
   } else if(match.params.marketplaceId && match.params.sku) {
     shareUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
     shareUrl.hash = UrlJoin("/marketplace", match.params.marketplaceId, "store", match.params.sku);
+  } else if(ownerProfile) {
+    shareUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
+    shareUrl.hash = match.params.marketplaceId ?
+      UrlJoin("/marketplace", match.params.marketplaceId, "users", ownerProfile.userAddress, "items", match.params.contractId, match.params.tokenId) :
+      UrlJoin("/wallet", "users", ownerProfile.userAddress, "items", match.params.contractId, match.params.tokenId);
   }
 
-  let twitterUrl;
-  if(shareUrl) {
-    twitterUrl = new URL("https://twitter.com/share");
-    twitterUrl.searchParams.set("url", shareUrl);
+  const [urls, setURLs] = useState(undefined);
+  const InitializeURLs = async () => {
+    if(!shareUrl) {
+      setURLs({});
+
+      return;
+    }
+
+    let mediaUrl;
+    if(nftInfo.mediaInfo && !nftInfo.mediaInfo.requiresPermissions) {
+      mediaUrl = nftInfo.mediaInfo.mediaLink || nftInfo.mediaInfo.embedUrl || nftInfo.mediaInfo.imageUrl;
+    }
+
+    const [shortUrl, shortMediaUrl] = await Promise.all([
+      rootStore.CreateShortURL(shareUrl),
+      mediaUrl ? rootStore.CreateShortURL(mediaUrl) : undefined
+    ]);
+
+    let twitterUrl = new URL("https://twitter.com/share");
+    twitterUrl.searchParams.set("url", shortUrl);
     twitterUrl.searchParams.set("text", `${nftInfo.name}\n\n`);
+
+    setURLs({
+      shareUrl: shortUrl,
+      twitterUrl,
+      mediaUrl: shortMediaUrl
+    });
+  };
+
+  let nftImageUrl;
+  if(nftInfo.isOwned && rootStore.userProfiles.me?.imageUrl?.toString() !== nftInfo?.mediaInfo.imageUrl?.toString()) {
+    nftImageUrl = nftInfo?.mediaInfo?.imageUrl;
   }
 
   if(!nftImageUrl && !shareUrl && !(nftInfo.mediaInfo && !nftInfo.mediaInfo.requiresPermissions)) {
@@ -419,48 +449,56 @@ const NFTInfoMenu = observer(({nftInfo}) => {
           className: "details-page__nft-info__menu-button",
           children: <ImageIcon icon={ShareIcon} />
         }}
-        RenderMenu={Close => (
-          <>
-            {
-              nftImageUrl ?
-                <ButtonWithLoader onClick={async () => await rootStore.UpdateUserProfile({newProfileImageUrl: nftImageUrl.toString()})}>
-                  <ImageIcon icon={PictureIcon} />
-                  { rootStore.l10n.item_details.menu.set_as_profile }
-                </ButtonWithLoader> : null
-            }
-            {
-              twitterUrl ?
-                <a href={twitterUrl.toString()} target="_blank" onClick={Close}>
-                  <ImageIcon icon={TwitterIcon} />
-                  { rootStore.l10n.item_details.menu.share_on_twitter }
-                </a> : null
-            }
-            {
-              shareUrl ?
-                <button
-                  onClick={() => {
-                    Copy(shareUrl);
-                    Close();
-                  }}
-                >
-                  <ImageIcon icon={CopyIcon}/>
-                  { rootStore.l10n.item_details.menu[listingId ? "copy_listing_url" : "copy_item_url"] }
-                </button> : null
-            }
-            {
-              nftInfo.mediaInfo && !nftInfo.mediaInfo.requiresPermissions ?
-                <button
-                  onClick={() => {
-                    Copy(nftInfo.mediaInfo.mediaLink || nftInfo.mediaInfo.embedUrl || nftInfo.mediaInfo.imageUrl);
-                    Close();
-                  }}
-                >
-                  <ImageIcon icon={CopyIcon}/>
-                  { rootStore.l10n.item_details.menu.copy_media_url }
-                </button> : null
-            }
-          </>
-        )}
+        RenderMenu={Close => {
+          if(!urls) {
+            InitializeURLs();
+            return <Loader/>;
+          }
+
+          return (
+            <>
+              {
+                nftImageUrl ?
+                  <ButtonWithLoader
+                    onClick={async () => await rootStore.UpdateUserProfile({newProfileImageUrl: nftImageUrl.toString()})}>
+                    <ImageIcon icon={PictureIcon}/>
+                    {rootStore.l10n.item_details.menu.set_as_profile}
+                  </ButtonWithLoader> : null
+              }
+              {
+                urls.twitterUrl ?
+                  <a href={urls.twitterUrl.toString()} target="_blank" onClick={Close}>
+                    <ImageIcon icon={TwitterIcon}/>
+                    {rootStore.l10n.item_details.menu.share_on_twitter}
+                  </a> : null
+              }
+              {
+                urls.shareUrl ?
+                  <button
+                    onClick={() => {
+                      Copy(urls.shareUrl);
+                      Close();
+                    }}
+                  >
+                    <ImageIcon icon={CopyIcon}/>
+                    {rootStore.l10n.item_details.menu[listingId ? "copy_listing_url" : "copy_item_url"]}
+                  </button> : null
+              }
+              {
+                urls.mediaUrl ?
+                  <button
+                    onClick={() => {
+                      Copy(urls.mediaUrl);
+                      Close();
+                    }}
+                  >
+                    <ImageIcon icon={CopyIcon}/>
+                    {rootStore.l10n.item_details.menu.copy_media_url}
+                  </button> : null
+              }
+            </>
+          );
+        }}
       />
     </div>
   );
