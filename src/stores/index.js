@@ -1254,11 +1254,43 @@ class RootStore {
   });
 
   WithdrawFunds = flow(function * ({provider, userInfo, amount}) {
+    console.log("WithdrawFunds", provider, userInfo, amount);
+
     if(amount > this.withdrawableWalletBalance) {
       throw Error("Attempting to withdraw unavailable funds");
     }
 
-    if(provider === "Stripe") {
+    if(provider === "Circle") {
+      const setup = yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "setup", "circle"),
+        method: "POST",
+        body: {
+          address: userInfo.address,
+          chain: "ETH",
+        },
+        headers: {
+          Authorization: `Bearer ${this.authToken}`,
+          Accept: "application/json",
+        }
+      });
+      console.log("circle setup response", setup);
+      // TODO parse the above to get id
+      const id = "ac46d076-8f6b-5f90-8ddc-af4488474ff"; // setup.body.id;
+
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "bal", "circle"),
+        method: "POST",
+        body: {
+          id: id,
+          amount: amount,
+          currency: "USD",
+        },
+        headers: {
+          Authorization: `Bearer ${this.authToken}`,
+          Accept: "application/json",
+        }
+      });
+    } else if(provider === "Stripe") {
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "bal", "stripe"),
         method: "POST",

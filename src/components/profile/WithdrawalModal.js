@@ -55,7 +55,7 @@ const Withdrawal = observer(({provider, userInfo, Continue, Cancel, Close}) => {
   return (
     <div className="withdrawal-confirmation">
       <h1 className="withdrawal-confirmation__header">
-        { rootStore.l10n.withdrawal[provider === "Stripe" ? "withdraw_via_stripe" : "withdraw_via_ebanx"] }
+        { provider === "Circle" ? "Withdraw via Circle" : rootStore.l10n.withdrawal[provider === "Stripe" ? "withdraw_via_stripe" : "withdraw_via_ebanx"] }
       </h1>
       <div className="withdrawal-confirmation__content">
         <div className="withdrawal-confirmation__amount-selection">
@@ -147,6 +147,7 @@ const Withdrawal = observer(({provider, userInfo, Continue, Cancel, Close}) => {
   );
 });
 
+
 // Ebanx, Step 2
 const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
   let valid =
@@ -235,6 +236,40 @@ const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
               placeholder={rootStore.l10n.withdrawal.fields.pix_key_placeholder}
               value={userInfo.pix_key}
               onChange={event => setUserInfo({...userInfo, pix_key: event.target.value})}
+            />
+          </div>
+        </div>
+        <div className="withdrawal-confirmation__actions">
+          <button className="action" onClick={() => Cancel()}>
+            { rootStore.l10n.actions.cancel }
+          </button>
+          <button disabled={!valid} onClick={() => Continue()} className="action action-primary profile-page__onboard-button">
+            { rootStore.l10n.actions.continue }
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Circle, Step 2
+const CircleUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
+  let valid = userInfo.address;
+
+  return (
+    <div className="withdrawal-confirmation">
+      <h1 className="withdrawal-confirmation__header">{ "Withdraw via Circle USDC" }</h1>
+      <div className="withdrawal-confirmation__content">
+        <div className="withdrawal-confirmation__form">
+          <div className="labelled-input">
+            <label htmlFor="email">
+              { "Address" }
+            </label>
+            <input
+              type="text"
+              placeholder={"0x0000..."}
+              value={userInfo.address}
+              onChange={event => setUserInfo({...userInfo, address: event.target.value})}
             />
           </div>
         </div>
@@ -341,7 +376,7 @@ const ProviderSelection = observer(({Continue, Cancel}) => {
           value={provider}
           onChange={value => setProvider(value)}
           containerClassName="withdrawal-confirmation__country-select"
-          options={[["Stripe", "Stripe"], ["EBANX", "EBANX (Brazil Only)"]]}
+          options={[["Stripe", "Stripe"], ["EBANX", "EBANX (Brazil Only)"], ["Circle", "Circle USDC"]]}
         />
         <div className="withdrawal-confirmation__actions">
           <button className="action" onClick={() => Cancel()}>
@@ -361,8 +396,10 @@ const WithdrawalModal = observer(({Close}) => {
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const ebanxAvailable = marketplace?.payment_options?.ebanx?.enabled || false;
+  const circleAvailable = true; // marketplace?.payment_options?.circle?.enabled || false;
+  console.log("marketplace", marketplace?.payment_options);
 
-  const [provider, setProvider] = useState(ebanxAvailable ? undefined : "Stripe");
+  const [provider, setProvider] = useState(ebanxAvailable || circleAvailable ? undefined : "Stripe");
   const [payout, setPayout] = useState(undefined);
   const [userInfo, setUserInfo] = useState({
     method: "PIX",
@@ -382,6 +419,8 @@ const WithdrawalModal = observer(({Close}) => {
     content = <StripeSetup Cancel={() => ebanxAvailable ? setProvider(undefined) : Close()} Close={Close} />;
   } else if(provider === "EBANX" && !userInfoConfirmed) {
     content = <EbanxUserInfo userInfo={userInfo} setUserInfo={setUserInfo} Continue={() => setUserInfoConfirmed(true)} Cancel={() => setProvider(undefined)} />;
+  } else if(provider === "Circle" && !userInfoConfirmed) {
+    content = <CircleUserInfo userInfo={userInfo} setUserInfo={setUserInfo} Continue={() => setUserInfoConfirmed(true)} Cancel={() => setProvider(undefined)} />;
   } else if(!payout) {
     content = <Withdrawal userInfo={userInfo} provider={provider} Continue={payout => setPayout(payout)} Cancel={!ebanxAvailable ? undefined : () => provider === "EBANX" ? setUserInfoConfirmed(false) : setProvider(undefined)} Close={Close} />;
   } else {
