@@ -1261,7 +1261,7 @@ class RootStore {
     }
 
     if(provider === "Circle") {
-      const setup = yield this.client.authClient.MakeAuthServiceRequest({
+      const setup = yield Utils.ResponseToJson(this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "setup", "circle"),
         method: "POST",
         body: {
@@ -1272,10 +1272,12 @@ class RootStore {
           Authorization: `Bearer ${this.authToken}`,
           Accept: "application/json",
         }
-      });
-      console.log("circle setup response", setup);
-      // TODO parse the above to get id
-      const id = "282c39b4-d712-52f1-8cf4-c5bdde207754"; // setup.body.id;
+      }));
+      window.console.log("circle setup response", setup);
+
+      // TODO: this will be pending.  need to separate these steps.
+      const id = setup.id;
+      //const id = "282c39b4-d712-52f1-8cf4-c5bdde207754";
 
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "bal", "circle"),
