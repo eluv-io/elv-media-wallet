@@ -1250,34 +1250,25 @@ class RootStore {
     this.withdrawableWalletBalance = balances.withdrawableWalletBalance;
     this.usdcBalance = balances.phantomUSDCBalance;
 
+    window.console.log("GetWalletBal circle 'address'", this.cryptoStore.CircleAddress());
+
     return balances;
   });
 
   WithdrawFunds = flow(function * ({provider, userInfo, amount}) {
-    console.log("WithdrawFunds", provider, userInfo, amount);
+    window.console.log("WithdrawFunds", provider, userInfo, amount);
 
     if(amount > this.withdrawableWalletBalance) {
       throw Error("Attempting to withdraw unavailable funds");
     }
 
     if(provider === "Circle") {
-      const setup = yield Utils.ResponseToJson(this.client.authClient.MakeAuthServiceRequest({
-        path: UrlJoin("as", "wlt", "setup", "circle"),
-        method: "POST",
-        body: {
-          address: userInfo.address,
-          chain: "ETH",
-        },
-        headers: {
-          Authorization: `Bearer ${this.authToken}`,
-          Accept: "application/json",
-        }
-      }));
-      window.console.log("circle setup response", setup);
+      if(!this.cryptoStore.CircleAddress()) {
+        throw Error("Need to connect Circle account first");
+      }
 
-      // TODO: this will be pending.  need to separate these steps.
-      const id = setup.id;
-      //const id = "282c39b4-d712-52f1-8cf4-c5bdde207754";
+      window.console.log("withdraw funds", window.ConnectedAccounts);
+      const id = this.cryptoStore.CircleAddress();
 
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "bal", "circle"),

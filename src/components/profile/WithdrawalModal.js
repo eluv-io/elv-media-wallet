@@ -397,7 +397,7 @@ const WithdrawalModal = observer(({Close}) => {
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const ebanxAvailable = marketplace?.payment_options?.ebanx?.enabled || false;
   const circleAvailable = true; // marketplace?.payment_options?.circle?.enabled || false;
-  console.log("marketplace", marketplace?.payment_options);
+  //console.log("marketplace", marketplace?.payment_options);
 
   const [provider, setProvider] = useState(ebanxAvailable || circleAvailable ? undefined : "Stripe");
   const [payout, setPayout] = useState(undefined);

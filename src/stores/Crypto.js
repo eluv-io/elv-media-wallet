@@ -7,6 +7,8 @@ import MetamaskLogo from "Assets/icons/crypto/metamask fox.png";
 import PhantomLogo from "Assets/icons/crypto/phantom.png";
 import EthereumLogo from "Assets/icons/ethereum-eth-logo.svg";
 import SolanaLogo from "Assets/icons/solana icon.svg";
+import USDCLogo from "Assets/icons/crypto/ethereum logo blue.png";
+import USDCCurrencyLogo from "Assets/icons/crypto/USDC-icon.svg";
 import {rootStore} from "./index";
 
 class CryptoStore {
@@ -129,7 +131,7 @@ class CryptoStore {
 
   LoadConnectedAccounts = flow(function * () {
     try {
-      let { links } = yield Utils.ResponseToJson(
+      let resp = yield Utils.ResponseToJson(
         this.client.authClient.MakeAuthServiceRequest({
           path: UrlJoin("as", "wlt", "mkt", "info"),
           method: "GET",
@@ -138,12 +140,16 @@ class CryptoStore {
           }
         })
       );
+      window.console.log("Connected accounts:", resp);
+      let { links } = resp;
 
       links = (links || []).filter(link => link.link_type);
 
-      let connectedAccounts = { eth: {}, sol: {} };
+      let connectedAccounts = { eth: {}, sol: {}, circle_acct: {}};
       for(const link of (links || [])) {
         const address = link.link_type === "eth" ? Utils.FormatAddress(link.link_acct) : link.link_acct;
+
+        if(!connectedAccounts[link.link_type]) connectedAccounts[link.link_type] = {};
 
         connectedAccounts[link.link_type][address] = {
           ...link,
@@ -153,6 +159,7 @@ class CryptoStore {
       }
 
       this.connectedAccounts = connectedAccounts;
+      window.console.log("this.connectedAccounts:", this.connectedAccounts);
 
       this.PhantomBalance();
     } catch(error) {
@@ -260,6 +267,29 @@ class CryptoStore {
     }
 
     yield this.LoadConnectedAccounts();
+  });
+
+  ConnectCircle = flow(function * () {
+    window.console.log("circle setup", this.rootStore.walletClient.UserInfo());
+    let address = this.rootStore.walletClient.UserInfo().address;
+
+    const setup = yield Utils.ResponseToJson(this.client.authClient.MakeAuthServiceRequest({
+      path: UrlJoin("as", "wlt", "setup", "circle"),
+      method: "POST",
+      body: {
+        address: address,
+        chain: "ETH",
+      },
+      headers: {
+        Authorization: `Bearer ${this.rootStore.authToken}`,
+        Accept: "application/json",
+      }
+    }));
+    window.console.log("circle setup response", setup);
+
+    setTimeout(() => this.LoadConnectedAccounts(), 3000);
+    yield this.LoadConnectedAccounts();
+    //yield new Promise(resolve => setTimeout(this.LoadConnectedAccounts(), 3000));
   });
 
   DisconnectMetamask = flow(function * (address) {
@@ -481,6 +511,18 @@ class CryptoStore {
     );
   }
 
+  CircleAvailable() {
+    return true;
+  }
+
+  CircleConnected() {
+    return this.CircleAddress() && !!this.connectedAccounts.circle_acct[this.CircleAddress()];
+  }
+
+  CircleAddress() {
+    return Object.keys(this.connectedAccounts.circle_acct)[0];
+  }
+
   MetamaskBalance = flow(function * () {
     const address = yield this.RequestMetamaskAddress();
     const signer = (new ethers.providers.Web3Provider(window.ethereum)).getSigner();
@@ -540,6 +582,13 @@ class CryptoStore {
     return {
       sol: this.phantomBalance,
       usdc: this.phantomUSDCBalance
+    };
+  });
+
+  CircleBalance = flow(function * () {
+    let usdcBalance = "123.45";
+    return {
+      usdc: usdcBalance
     };
   });
 
@@ -610,6 +659,26 @@ class CryptoStore {
           Connect: async params => await this.ConnectMetamask(params),
           Connection: () => this.connectedAccounts.eth[Utils.FormatAddress(window.ethereum?.selectedAddress)],
           ConnectedAccounts: () => Object.values(this.connectedAccounts.eth),
+          Sign: async (message, popup) => await this.SignMetamask(message, undefined, popup),
+          Purchase: async spec => await this.PurchaseMetamask(spec),
+          Disconnect: async address => await this.DisconnectMetamask(address)
+        };
+      case "circle_acct":
+        return {
+          name: "Circle USDC",
+          logo: USDCLogo,
+          networkName: "Circle USDC",
+          currencyLogo: USDCCurrencyLogo,
+          currencyName: "USDC",
+          link: "https://live.eluv.io/",
+          Address: () => this.CircleAddress(),
+          Balance: async () => await this.CircleBalance(),
+          RequestAddress: () => this.CircleAddress(),
+          Available: () => this.CircleAvailable(),
+          Connected: () => this.CircleConnected(),
+          Connect: async params => await this.ConnectCircle(params),
+          Connection: () => this.connectedAccounts.circle_acct[this.CircleAddress()],
+          ConnectedAccounts: () => Object.values(this.connectedAccounts.circle_acct),
           Sign: async (message, popup) => await this.SignMetamask(message, undefined, popup),
           Purchase: async spec => await this.PurchaseMetamask(spec),
           Disconnect: async address => await this.DisconnectMetamask(address)

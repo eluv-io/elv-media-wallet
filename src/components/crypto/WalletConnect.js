@@ -143,6 +143,11 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
     );
   }
 
+  if(type == "circle_acct") {
+    rootStore.l10n.connected_accounts.description =
+      "To accept direct balance payout using {usdcIcon} USDC on {networkName}, link your Eluvio Media Wallet to your payment wallet.";
+  }
+
   return (
     <>
       <div className="wallet-connect">
@@ -155,11 +160,14 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
             { connectButton}
           </div>
         </div>
-        <div className="wallet-connect__help-link">
-          <a href="https://eluviolive.zendesk.com/hc/en-us/articles/5126073304081-How-do-I-link-my-Phantom-Wallet-" target="_blank" rel="noopener">
-            { rootStore.l10n.connected_accounts.how_to_link }
-          </a>
-        </div>
+        {
+          (type != "circle_acct") ?
+            <div className="wallet-connect__help-link">
+              <a href="https://eluviolive.zendesk.com/hc/en-us/articles/5126073304081-How-do-I-link-my-Phantom-Wallet-" target="_blank" rel="noopener">
+                { rootStore.l10n.connected_accounts.how_to_link }
+              </a>
+            </div> : null
+        }
       </div>
       { errorMessage ? <div className="wallet-connect__error-message">{ errorMessage }</div> : null }
     </>
