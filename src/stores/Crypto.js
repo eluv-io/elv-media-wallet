@@ -271,7 +271,8 @@ class CryptoStore {
 
   ConnectCircle = flow(function * () {
     window.console.log("circle setup", this.rootStore.walletClient.UserInfo());
-    let address = this.rootStore.walletClient.UserInfo().address;
+    //let address = this.rootStore.walletClient.UserInfo().address;
+    let address = window.circleAddress;
 
     const setup = yield Utils.ResponseToJson(this.client.authClient.MakeAuthServiceRequest({
       path: UrlJoin("as", "wlt", "setup", "circle"),
@@ -287,9 +288,9 @@ class CryptoStore {
     }));
     window.console.log("circle setup response", setup);
 
-    setTimeout(() => this.LoadConnectedAccounts(), 3000);
+    setTimeout(() => this.LoadConnectedAccounts(), 2000);
     yield this.LoadConnectedAccounts();
-    //yield new Promise(resolve => setTimeout(this.LoadConnectedAccounts(), 3000));
+    //yield new Promise(resolve => setTimeout(this.LoadConnectedAccounts(), 2000));
   });
 
   DisconnectMetamask = flow(function * (address) {

@@ -419,8 +419,8 @@ const WithdrawalModal = observer(({Close}) => {
     content = <StripeSetup Cancel={() => ebanxAvailable ? setProvider(undefined) : Close()} Close={Close} />;
   } else if(provider === "EBANX" && !userInfoConfirmed) {
     content = <EbanxUserInfo userInfo={userInfo} setUserInfo={setUserInfo} Continue={() => setUserInfoConfirmed(true)} Cancel={() => setProvider(undefined)} />;
-  } else if(provider === "Circle" && !userInfoConfirmed) {
-    content = <CircleUserInfo userInfo={userInfo} setUserInfo={setUserInfo} Continue={() => setUserInfoConfirmed(true)} Cancel={() => setProvider(undefined)} />;
+  // } else if(provider === "Circle" && !userInfoConfirmed) {
+  //   content = <CircleUserInfo userInfo={userInfo} setUserInfo={setUserInfo} Continue={() => setUserInfoConfirmed(true)} Cancel={() => setProvider(undefined)} />;
   } else if(!payout) {
     content = <Withdrawal userInfo={userInfo} provider={provider} Continue={payout => setPayout(payout)} Cancel={!ebanxAvailable ? undefined : () => provider === "EBANX" ? setUserInfoConfirmed(false) : setProvider(undefined)} Close={Close} />;
   } else {
