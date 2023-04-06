@@ -8,6 +8,7 @@ import Modal from "Components/common/Modal";
 
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 import HelpIcon from "Assets/icons/help-circle.svg";
+import Crypto from "Stores/Crypto";
 
 const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnect}) => {
   const wallet = cryptoStore.WalletFunctions(type);
@@ -156,7 +157,18 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
               { wallet.networkName } { rootStore.l10n.connected_accounts.wallet_address }
             </div>
             <div className="wallet-connect__network-address ellipsis" title={connectedAccount.link_acct}>
-              { connectedAccount.link_acct }
+              {
+                type === "circle_acct" ?
+                  <div>
+                    <div className="wallet-connect__help-link">
+                      { "account: " + rootStore.cryptoStore.CircleAddress() }
+                    </div>
+                    <div className="wallet-connect__help-link">
+                      address:&nbsp;<a href= {"https://goerli.etherscan.io/address/" + rootStore.cryptoStore.CircleLinkedAddress()}  target="_blank" rel="noopener">
+                        {rootStore.cryptoStore.CircleLinkedAddress()}</a>
+                    </div>
+                  </div> : connectedAccount.link_acct
+              }
             </div>
           </div>
           {

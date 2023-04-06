@@ -1250,7 +1250,7 @@ class RootStore {
     this.withdrawableWalletBalance = balances.withdrawableWalletBalance;
     this.usdcBalance = balances.phantomUSDCBalance;
 
-    window.console.log("GetWalletBal circle 'address'", this.cryptoStore.CircleAddress());
+    window.console.log("GetWalletBal circle acct/address", this.cryptoStore.CircleAddress(), this.cryptoStore.CircleLinkedAddress());
 
     return balances;
   });

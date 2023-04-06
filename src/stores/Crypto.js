@@ -513,7 +513,7 @@ class CryptoStore {
   }
 
   CircleAvailable() {
-    return true;
+    return true; // XXX
   }
 
   CircleConnected() {
@@ -521,7 +521,17 @@ class CryptoStore {
   }
 
   CircleAddress() {
+    return this.CircleAccountId();
+  }
+
+  CircleAccountId() {
     return Object.keys(this.connectedAccounts.circle_acct)[0];
+  }
+
+  CircleLinkedAddress() {
+    const key = this.CircleAccountId();
+    //window.console.log("CircleLinkedAddress", this.connectedAccounts.circle_acct[key]);
+    return this.connectedAccounts.circle_acct[key]["linked_addr"];
   }
 
   MetamaskBalance = flow(function * () {
@@ -680,9 +690,9 @@ class CryptoStore {
           Connect: async params => await this.ConnectCircle(params),
           Connection: () => this.connectedAccounts.circle_acct[this.CircleAddress()],
           ConnectedAccounts: () => Object.values(this.connectedAccounts.circle_acct),
-          Sign: async (message, popup) => await this.SignMetamask(message, undefined, popup),
-          Purchase: async spec => await this.PurchaseMetamask(spec),
-          Disconnect: async address => await this.DisconnectMetamask(address)
+          Sign: undefined,
+          Purchase: undefined,
+          Disconnect: undefined,
         };
       case "phantom":
         return {
