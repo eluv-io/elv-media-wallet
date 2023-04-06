@@ -288,9 +288,9 @@ class CryptoStore {
     }));
     window.console.log("circle setup response", setup);
 
-    setTimeout(() => this.LoadConnectedAccounts(), 2000);
+    setTimeout(() => this.LoadConnectedAccounts(), 3000);
     yield this.LoadConnectedAccounts();
-    //yield new Promise(resolve => setTimeout(this.LoadConnectedAccounts(), 2000));
+    //yield new Promise(resolve => setTimeout(this.LoadConnectedAccounts(), 3000));
   });
 
   DisconnectMetamask = flow(function * (address) {
