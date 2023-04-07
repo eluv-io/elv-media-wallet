@@ -161,11 +161,11 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
                 type === "circle_acct" ?
                   <div>
                     <div className="wallet-connect__help-link">
-                      { "account: " + rootStore.cryptoStore.CircleAddress() }
-                    </div>
-                    <div className="wallet-connect__help-link">
-                      address:&nbsp;<a href= {"https://goerli.etherscan.io/token/0x07865c6e87b9f70255377e024ace6630c1eaa37f?a=" + rootStore.cryptoStore.CircleLinkedAddress()}  target="_blank" rel="noopener">
+                      <a href= {"https://goerli.etherscan.io/token/0x07865c6e87b9f70255377e024ace6630c1eaa37f?a=" + rootStore.cryptoStore.CircleLinkedAddress()}  target="_blank" rel="noopener">
                         {rootStore.cryptoStore.CircleLinkedAddress()}</a>
+                    </div>
+                    <div className="wallet-connect__connected-at">
+                      { "Account ID: " + rootStore.cryptoStore.CircleAddress() }
                     </div>
                   </div> : connectedAccount.link_acct
               }
