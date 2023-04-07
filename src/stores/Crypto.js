@@ -678,7 +678,7 @@ class CryptoStore {
         return {
           name: "Circle USDC",
           logo: USDCLogo,
-          networkName: "Circle USDC",
+          networkName: "Ethereum",
           currencyLogo: USDCCurrencyLogo,
           currencyName: "USDC",
           link: "https://live.eluv.io/",
