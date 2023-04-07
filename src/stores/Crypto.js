@@ -676,9 +676,9 @@ class CryptoStore {
         };
       case "circle_acct":
         return {
-          name: "Circle USDC",
+          name: "USDC",
           logo: USDCLogo,
-          networkName: "Ethereum",
+          networkName: "USDC",
           currencyLogo: USDCCurrencyLogo,
           currencyName: "USDC",
           link: "https://live.eluv.io/",
