@@ -262,7 +262,11 @@
   }
 
   // Switch to no-flip fade on mobile and all safari (bug in safari re. backface-visibility
-  @media screen and (max-width: $mobile-breakpoint), not all and (min-resolution:.001dpcm) {
+  @media screen and (max-width: $mobile-breakpoint), not all and (min-resolution: .001dpcm) {
+    height: 100%;
+    min-height: 300px;
+    min-width: 300px;
+
     &__banner-container--back {
       transform: none;
     }

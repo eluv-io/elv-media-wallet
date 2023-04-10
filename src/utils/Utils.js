@@ -507,6 +507,9 @@ export const NFTMedia = ({nft, item, width}) => {
 
     if(item.video_has_audio) {
       embedUrl.searchParams.set("ct", "h");
+      embedUrl.searchParams.delete("m");
+      embedUrl.searchParams.delete("ap");
+      embedUrl.searchParams.delete("lp");
     } else {
       embedUrl.searchParams.delete("ct");
       embedUrl.searchParams.set("m", "");
@@ -518,6 +521,9 @@ export const NFTMedia = ({nft, item, width}) => {
 
     if(nft.metadata.has_audio) {
       embedUrl.searchParams.set("ct", "h");
+      embedUrl.searchParams.delete("m");
+      embedUrl.searchParams.delete("ap");
+      embedUrl.searchParams.delete("lp");
     } else {
       embedUrl.searchParams.delete("ct");
       embedUrl.searchParams.set("m", "");
