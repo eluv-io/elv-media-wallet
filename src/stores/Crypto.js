@@ -274,23 +274,32 @@ class CryptoStore {
     //let address = this.rootStore.walletClient.UserInfo().address;
     let address = window.circleAddress;
 
-    const setup = yield Utils.ResponseToJson(this.client.authClient.MakeAuthServiceRequest({
-      path: UrlJoin("as", "wlt", "setup", "circle"),
-      method: "POST",
-      body: {
-        address: address,
-        chain: "ETH",
-      },
-      headers: {
-        Authorization: `Bearer ${this.rootStore.authToken}`,
-        Accept: "application/json",
-      }
-    }));
-    window.console.log("circle setup response", setup);
+    try { 
+      const setup = yield Utils.ResponseToJson(this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "setup", "circle"),
+        method: "POST",
+        body: {
+          address: address,
+          chain: "ETH",
+        },
+        headers: {
+          Authorization: `Bearer ${this.rootStore.authToken}`,
+          Accept: "application/json",
+        }
+      }));
+      window.console.log("circle setup response", setup);
 
-    setTimeout(() => this.LoadConnectedAccounts(), 3000);
-    yield this.LoadConnectedAccounts();
-    //yield new Promise(resolve => setTimeout(this.LoadConnectedAccounts(), 3000));
+      if (setup?.enabled) {
+        setTimeout(() => this.LoadConnectedAccounts(), 3000);
+        yield this.LoadConnectedAccounts();
+        //yield new Promise(resolve => setTimeout(this.LoadConnectedAccounts(), 3000));
+      } 
+      // TODO: set some kind of status, error message if !setup?.enabled
+    } catch (err) {
+      this.rootStore.Log("Error setuping up Circle ", true);
+
+      throw err;
+    }
   });
 
   DisconnectMetamask = flow(function * (address) {

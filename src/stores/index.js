@@ -1272,19 +1272,24 @@ class RootStore {
       window.console.log("withdraw funds", window.ConnectedAccounts);
       const id = this.cryptoStore.CircleAddress();
 
-      yield this.client.authClient.MakeAuthServiceRequest({
-        path: UrlJoin("as", "wlt", "bal", "circle"),
-        method: "POST",
-        body: {
-          id: id,
-          amount: amount,
-          currency: "USD",
-        },
-        headers: {
-          Authorization: `Bearer ${this.authToken}`,
-          Accept: "application/json",
-        }
-      });
+      try {
+        yield this.client.authClient.MakeAuthServiceRequest({
+          path: UrlJoin("as", "wlt", "bal", "circle"),
+          method: "POST",
+          body: {
+            id: id,
+            amount: amount,
+            currency: "USD",
+          },
+          headers: {
+            Authorization: `Bearer ${this.authToken}`,
+            Accept: "application/json",
+          }
+        });
+      } catch(error) {
+        window.console.log("circle withdraw funds error", error);
+        throw error;
+      }
     } else if(provider === "Stripe") {
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "bal", "stripe"),
