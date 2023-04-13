@@ -531,7 +531,7 @@ class CryptoStore {
   CircleLinkedAddress() {
     const key = this.CircleAccountId();
     //window.console.log("CircleLinkedAddress", this.connectedAccounts.circle_acct[key]);
-    return this.connectedAccounts.circle_acct[key]["linked_addr"];
+    return this.connectedAccounts.circle_acct[key] ? this.connectedAccounts.circle_acct[key]["linked_addr"] : "";
   }
 
   MetamaskBalance = flow(function * () {
