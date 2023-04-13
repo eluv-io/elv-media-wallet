@@ -289,12 +289,9 @@ class CryptoStore {
       }));
       window.console.log("circle setup response", setup);
 
-      if (setup?.enabled) {
-        setTimeout(() => this.LoadConnectedAccounts(), 3000);
-        yield this.LoadConnectedAccounts();
-        //yield new Promise(resolve => setTimeout(this.LoadConnectedAccounts(), 3000));
-      } 
-      // TODO: set some kind of status, error message if !setup?.enabled
+      setTimeout(() => this.LoadConnectedAccounts(), 3000);
+      yield this.LoadConnectedAccounts();
+      //yield new Promise(resolve => setTimeout(this.LoadConnectedAccounts(), 3000));
     } catch (err) {
       this.rootStore.Log("Error setuping up Circle ", true);
 
