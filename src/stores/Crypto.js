@@ -734,7 +734,7 @@ class CryptoStore {
       return [
         {name: "Ethereum Mainnet", network: "eth-mainnet", chainId: "0x1"},
         {name: "Ethereum Testnet (Rinkeby)", network: "eth-rinkeby", chainId: "0x4"},
-        {name: "Ethereum Testnet (Goerli)", network: "eth-rinkeby", chainId: "0x5"},
+        {name: "Ethereum Testnet (Goerli)", network: "eth-goerli", chainId: "0x5"},
         {name: "Polygon Mainnet", network: "poly-mainnet", chainId: "0x89"},
         {name: "Polygon Testnet (Mumbai)", network: "poly-mumbai", chainId: "0x13881"}
       ];
