@@ -1252,14 +1252,10 @@ class RootStore {
     this.withdrawableWalletBalance = balances.withdrawableWalletBalance;
     this.usdcBalance = balances.phantomUSDCBalance;
 
-    window.console.log("GetWalletBal circle acct/address", this.cryptoStore.CircleAddress(), this.cryptoStore.CircleLinkedAddress());
-
     return balances;
   });
 
   WithdrawFunds = flow(function * ({provider, userInfo, amount}) {
-    window.console.log("WithdrawFunds", provider, userInfo, amount);
-
     if(amount > this.withdrawableWalletBalance) {
       throw Error("Attempting to withdraw unavailable funds");
     }
@@ -1268,8 +1264,6 @@ class RootStore {
       if(!this.cryptoStore.CircleAddress()) {
         throw Error("Need to connect Circle account first");
       }
-
-      window.console.log("withdraw funds", window.ConnectedAccounts);
       const id = this.cryptoStore.CircleAddress();
 
       try {
@@ -1287,7 +1281,6 @@ class RootStore {
           }
         });
       } catch(error) {
-        window.console.log("circle withdraw funds error", error);
         throw error;
       }
     } else if(provider === "Stripe") {
