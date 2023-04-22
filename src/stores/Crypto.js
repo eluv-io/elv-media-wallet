@@ -140,7 +140,6 @@ class CryptoStore {
           }
         })
       );
-      window.console.log("Connected accounts:", resp);
       let { links } = resp;
 
       links = (links || []).filter(link => link.link_type);
@@ -159,7 +158,6 @@ class CryptoStore {
       }
 
       this.connectedAccounts = connectedAccounts;
-      window.console.log("this.connectedAccounts:", this.connectedAccounts);
 
       this.PhantomBalance();
     } catch(error) {
@@ -271,10 +269,11 @@ class CryptoStore {
 
   ConnectCircle = flow(function * () {
     window.console.log("circle setup", this.rootStore.walletClient.UserInfo());
+    // TODO: use something like:
     //let address = this.rootStore.walletClient.UserInfo().address;
     let address = window.circleAddress;
 
-    try { 
+    try {
       const setup = yield Utils.ResponseToJson(this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "setup", "circle"),
         method: "POST",
@@ -289,9 +288,9 @@ class CryptoStore {
       }));
       window.console.log("circle setup response", setup);
 
+      // account for webhook confirmation delay for circle
       setTimeout(() => this.LoadConnectedAccounts(), 3000);
       yield this.LoadConnectedAccounts();
-      //yield new Promise(resolve => setTimeout(this.LoadConnectedAccounts(), 3000));
     } catch (err) {
       this.rootStore.Log("Error setuping up Circle ", true);
 
@@ -519,7 +518,7 @@ class CryptoStore {
   }
 
   CircleAvailable() {
-    return true; // XXX
+    return this.CircleLinkedAddress() !== "";
   }
 
   CircleConnected() {
@@ -536,7 +535,6 @@ class CryptoStore {
 
   CircleLinkedAddress() {
     const key = this.CircleAccountId();
-    //window.console.log("CircleLinkedAddress", this.connectedAccounts.circle_acct[key]);
     return this.connectedAccounts.circle_acct[key] ? this.connectedAccounts.circle_acct[key]["linked_addr"] : "";
   }
 
@@ -603,10 +601,7 @@ class CryptoStore {
   });
 
   CircleBalance = flow(function * () {
-    let usdcBalance = "123.45";
-    return {
-      usdc: usdcBalance
-    };
+    yield {usdc: undefined};
   });
 
   PhantomPurchaseStatus = flow(function * (confirmationId) {
@@ -687,7 +682,7 @@ class CryptoStore {
           networkName: "USDC",
           currencyLogo: USDCCurrencyLogo,
           currencyName: "USDC",
-          link: "https://live.eluv.io/",
+          link: "https://circle.io/",
           Address: () => this.CircleAddress(),
           Balance: async () => await this.CircleBalance(),
           RequestAddress: () => this.CircleAddress(),

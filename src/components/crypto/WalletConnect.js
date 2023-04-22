@@ -8,7 +8,6 @@ import Modal from "Components/common/Modal";
 
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 import HelpIcon from "Assets/icons/help-circle.svg";
-import Crypto from "Stores/Crypto";
 
 const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnect}) => {
   const wallet = cryptoStore.WalletFunctions(type);
@@ -31,24 +30,19 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
     }
   }, [connected]);
 
-  const Cancel = () => {
+  const circleClose = () => {
     setErrorMessage(undefined);
   };
-  const Close = () => {
-    setErrorMessage(undefined);
-  };
-  const Continue = async () => {
-    window.console.log("window.circleAddress", window.circleAddress);
+  const circleContinue = async () => {
     setErrorMessage(undefined);
     await wallet.Connect({setPreferred: false});
   };
   const setCircleAddress = async ({address}) => {
-    window.console.log("address", address);
     window.circleAddress = address;
   };
 
   const modalCircleAddress =
-    <Modal className="withdrawal-modal" Toggle={Close} >
+    <Modal className="withdrawal-modal" Toggle={circleClose} >
       <div className="withdrawal-confirmation">
         <h1 className="withdrawal-confirmation__header">{ "Set Circle USDC Payment Wallet" }</h1>
         <div className="withdrawal-confirmation__content">
@@ -65,10 +59,10 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
             </div>
           </div>
           <div className="withdrawal-confirmation__actions">
-            <button className="action" onClick={() => Cancel()}>
+            <button className="action" onClick={() => circleClose()}>
               { rootStore.l10n.actions.cancel }
             </button>
-            <button onClick={() => Continue()} className="action action-primary profile-page__onboard-button">
+            <button onClick={() => circleContinue()} className="action action-primary profile-page__onboard-button">
               { rootStore.l10n.actions.continue }
             </button>
           </div>
@@ -90,7 +84,7 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
 
       if(error.message === "Incorrect account") {
         setErrorMessage(
-          LocalizeString(rootStore.l10n.connected_accounts.errors.incorrect_account, {walletName: wallet.name})
+          LocalizeString(rootStore.l10n.connected_accounts.errors.incorrect_account, { walletName: wallet.name })
         );
         setErrorMessage(`Incorrect ${wallet.name} account active. Please switch to ${connectedAccount.link_acct}.`);
       } else {
@@ -113,6 +107,7 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
             try {
               setErrorMessage(undefined);
 
+              // TODO: this is not the right way to do this
               if (type === "circle_acct") {
                 setErrorMessage(modalCircleAddress);
               } else {
