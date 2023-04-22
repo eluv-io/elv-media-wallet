@@ -743,7 +743,6 @@ const PurchasePayment = observer(({
           additionalParameters
         });
       } else {
-        rootStore.Log("Checkout paymentType",  paymentType);
         // Marketplace purchase
         result = await checkoutStore.CheckoutSubmit({
           provider: paymentType,

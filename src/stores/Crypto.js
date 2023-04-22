@@ -140,7 +140,6 @@ class CryptoStore {
           }
         })
       );
-      window.console.log("Connected accounts:", resp);
       let { links } = resp;
 
       links = (links || []).filter(link => link.link_type);
@@ -159,7 +158,6 @@ class CryptoStore {
       }
 
       this.connectedAccounts = connectedAccounts;
-      window.console.log("this.connectedAccounts:", this.connectedAccounts);
 
       this.PhantomBalance();
     } catch(error) {
@@ -270,12 +268,10 @@ class CryptoStore {
   });
 
   ConnectCircle = flow(function * () {
-    window.console.log("circle setup", this.rootStore.walletClient.UserInfo());
-    //let address = this.rootStore.walletClient.UserInfo().address;
-    let address = window.circleAddress;
+    let address = window.circleAddress; // TODO: don't use window, let address = this.rootStore.walletClient.UserInfo().address;
 
     try {
-      const setup = yield Utils.ResponseToJson(this.client.authClient.MakeAuthServiceRequest({
+      yield Utils.ResponseToJson(this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "setup", "circle"),
         method: "POST",
         body: {
@@ -287,11 +283,10 @@ class CryptoStore {
           Accept: "application/json",
         }
       }));
-      window.console.log("circle setup response", setup);
 
+      // allow circle webhook to complete
       setTimeout(() => this.LoadConnectedAccounts(), 3000);
       yield this.LoadConnectedAccounts();
-      //yield new Promise(resolve => setTimeout(this.LoadConnectedAccounts(), 3000));
     } catch (err) {
       this.rootStore.Log("Error setuping up Circle ", true);
 
@@ -558,7 +553,6 @@ class CryptoStore {
 
   CircleLinkedAddress() {
     const key = this.CircleAccountId();
-    //window.console.log("CircleLinkedAddress", this.connectedAccounts.circle_acct[key]);
     return this.connectedAccounts.circle_acct[key] ? this.connectedAccounts.circle_acct[key]["linked_addr"] : "";
   }
 
