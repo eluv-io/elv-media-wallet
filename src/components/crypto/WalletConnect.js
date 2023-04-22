@@ -37,12 +37,10 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
     setErrorMessage(undefined);
   };
   const Continue = async () => {
-    window.console.log("window.circleAddress", window.circleAddress);
     setErrorMessage(undefined);
     await wallet.Connect({setPreferred: false});
   };
   const setCircleAddress = async ({address}) => {
-    window.console.log("address", address);
     window.circleAddress = address;
   };
 

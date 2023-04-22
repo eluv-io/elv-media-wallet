@@ -252,40 +252,6 @@ const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
   );
 };
 
-// Circle, Step 2
-const CircleUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
-  let valid = userInfo.address;
-
-  return (
-    <div className="withdrawal-confirmation">
-      <h1 className="withdrawal-confirmation__header">{ "Withdraw via Circle USDC" }</h1>
-      <div className="withdrawal-confirmation__content">
-        <div className="withdrawal-confirmation__form">
-          <div className="labelled-input">
-            <label htmlFor="email">
-              { "Address" }
-            </label>
-            <input
-              type="text"
-              placeholder={"0x0000..."}
-              value={userInfo.address}
-              onChange={event => setUserInfo({...userInfo, address: event.target.value})}
-            />
-          </div>
-        </div>
-        <div className="withdrawal-confirmation__actions">
-          <button className="action" onClick={() => Cancel()}>
-            { rootStore.l10n.actions.cancel }
-          </button>
-          <button disabled={!valid} onClick={() => Continue()} className="action action-primary profile-page__onboard-button">
-            { rootStore.l10n.actions.continue }
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 // Stripe, Step 2 if not set up
 const StripeSetup = observer(({Cancel, Close}) => {
   const [balanceLoaded, setBalanceLoaded] = useState(false);
@@ -397,7 +363,6 @@ const WithdrawalModal = observer(({Close}) => {
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const ebanxAvailable = marketplace?.payment_options?.ebanx?.enabled || false;
   const circleAvailable = true; // marketplace?.payment_options?.circle?.enabled || false;
-  //console.log("marketplace", marketplace?.payment_options);
 
   const [provider, setProvider] = useState(ebanxAvailable || circleAvailable ? undefined : "Stripe");
   const [payout, setPayout] = useState(undefined);
@@ -419,8 +384,6 @@ const WithdrawalModal = observer(({Close}) => {
     content = <StripeSetup Cancel={() => ebanxAvailable ? setProvider(undefined) : Close()} Close={Close} />;
   } else if(provider === "EBANX" && !userInfoConfirmed) {
     content = <EbanxUserInfo userInfo={userInfo} setUserInfo={setUserInfo} Continue={() => setUserInfoConfirmed(true)} Cancel={() => setProvider(undefined)} />;
-  // } else if(provider === "Circle" && !userInfoConfirmed) {
-  //   content = <CircleUserInfo userInfo={userInfo} setUserInfo={setUserInfo} Continue={() => setUserInfoConfirmed(true)} Cancel={() => setProvider(undefined)} />;
   } else if(!payout) {
     content = <Withdrawal userInfo={userInfo} provider={provider} Continue={payout => setPayout(payout)} Cancel={!ebanxAvailable ? undefined : () => provider === "EBANX" ? setUserInfoConfirmed(false) : setProvider(undefined)} Close={Close} />;
   } else {
