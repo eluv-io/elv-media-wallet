@@ -87,7 +87,7 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
 
       if(error.message === "Incorrect account") {
         setErrorMessage(
-          LocalizeString(rootStore.l10n.connected_accounts.errors.incorrect_account, {walletName: wallet.name})
+          LocalizeString(rootStore.l10n.connected_accounts.errors.incorrect_account, { walletName: wallet.name })
         );
         setErrorMessage(`Incorrect ${wallet.name} account active. Please switch to ${connectedAccount.link_acct}.`);
       } else {
