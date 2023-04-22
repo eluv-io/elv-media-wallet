@@ -417,8 +417,8 @@ const PurchaseProviderSelection = observer(({
             }}
           >
             {
-              selectedMethod === "circle" ||
               // Pix is only available in brazil
+              selectedMethod === "circle" ||
               selectedMethod === "pix" ||
               // Stripe doesn't need any additional info
               (stripeEnabled && !ebanxEnabled && selectedMethod === "card") ||
@@ -688,8 +688,7 @@ const PurchasePayment = observer(({
     listing: selectedListing
   });
 
-  const marketplacePaymentOptions = marketplace?.payment_options ||
-    { stripe: { enabled: true }, coinbase: { enabled: true }, ebanx: { enabled: false }, circle: { enabled: false }};
+  const marketplacePaymentOptions = marketplace?.payment_options || { stripe: { enabled: true }, coinbase: { enabled: true }, ebanx: { enabled: false }, circle: { enabled: false }};
 
   const maxPerCheckout = marketplaceItem?.max_per_checkout || 25;
   const maxPerUser = (info.stock && info.stock.max_per_user && (info.stock.max_per_user - info.stock.current_user)) || 25;
@@ -744,6 +743,7 @@ const PurchasePayment = observer(({
           additionalParameters
         });
       } else {
+        rootStore.Log("Checkout paymentType",  paymentType);
         // Marketplace purchase
         result = await checkoutStore.CheckoutSubmit({
           provider: paymentType,

@@ -267,7 +267,7 @@ const Profile = observer(() => {
             {
               // <WalletConnect type="metamask" showPaymentPreference />
             }
-            { rootStore.userCircleEnabled ? <WalletConnect type="circle_acct" showPaymentPreference={false} /> : null }
+            <WalletConnect type="circle_acct" showPaymentPreference={false} />
           </div>
       }
     </div>

@@ -112,7 +112,6 @@ class RootStore {
 
   userStripeId = undefined;
   userStripeEnabled = false;
-  userCircleEnabled = false;
   withdrawableWalletBalance = undefined;
   availableWalletBalance = undefined;
   pendingWalletBalance = undefined;
@@ -1246,13 +1245,14 @@ class RootStore {
 
     this.userStripeId = balances.userStripeId;
     this.userStripeEnabled = balances.userStripeEnabled;
-    this.userCircleEnabled = this.cryptoStore.CircleLinkedAddress() !== "";
     this.totalWalletBalance = balances.totalWalletBalance;
     this.availableWalletBalance = balances.availableWalletBalance;
     this.pendingWalletBalance = balances.pendingWalletBalance;
     this.lockedWalletBalance = balances.lockedWalletBalance;
     this.withdrawableWalletBalance = balances.withdrawableWalletBalance;
     this.usdcBalance = balances.phantomUSDCBalance;
+
+    window.console.log("GetWalletBal circle acct/address", this.cryptoStore.CircleAddress(), this.cryptoStore.CircleLinkedAddress());
 
     return balances;
   });
