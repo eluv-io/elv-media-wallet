@@ -274,7 +274,7 @@ class CryptoStore {
     //let address = this.rootStore.walletClient.UserInfo().address;
     let address = window.circleAddress;
 
-    try { 
+    try {
       const setup = yield Utils.ResponseToJson(this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "setup", "circle"),
         method: "POST",
@@ -305,6 +305,28 @@ class CryptoStore {
     const message = `Eluvio link account - ${new Date().toISOString()}`;
     let payload = {
       tgt: "eth",
+      ace: address,
+      msg: message
+    };
+
+    yield this.client.authClient.MakeAuthServiceRequest({
+      path: UrlJoin("as", "wlt", "link"),
+      method: "DELETE",
+      body: payload,
+      headers: {
+        Authorization: `Bearer ${this.rootStore.authToken}`
+      }
+    });
+
+    yield this.LoadConnectedAccounts();
+  })
+
+  DisconnectCircle = flow(function * (address) {
+    if(!address) { return; }
+
+    const message = `Eluvio link account - ${new Date().toISOString()}`;
+    let payload = {
+      tgt: "circle_acct",
       ace: address,
       msg: message
     };
@@ -698,7 +720,7 @@ class CryptoStore {
           ConnectedAccounts: () => Object.values(this.connectedAccounts.circle_acct),
           Sign: undefined,
           Purchase: undefined,
-          Disconnect: undefined,
+          Disconnect: async address => await this.DisconnectCircle(address)
         };
       case "phantom":
         return {

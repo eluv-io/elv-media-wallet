@@ -8,7 +8,6 @@ import Modal from "Components/common/Modal";
 
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 import HelpIcon from "Assets/icons/help-circle.svg";
-import Crypto from "Stores/Crypto";
 
 const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnect}) => {
   const wallet = cryptoStore.WalletFunctions(type);
