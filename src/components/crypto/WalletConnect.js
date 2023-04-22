@@ -111,6 +111,7 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
               setErrorMessage(undefined);
 
               if (type === "circle_acct") {
+                // TODO: use a better way to call the modal
                 setErrorMessage(modalCircleAddress);
               } else {
                 await wallet.Connect();

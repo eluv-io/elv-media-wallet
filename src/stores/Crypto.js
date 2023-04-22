@@ -131,7 +131,7 @@ class CryptoStore {
 
   LoadConnectedAccounts = flow(function * () {
     try {
-      let resp = yield Utils.ResponseToJson(
+      let { links } = yield Utils.ResponseToJson(
         this.client.authClient.MakeAuthServiceRequest({
           path: UrlJoin("as", "wlt", "mkt", "info"),
           method: "GET",
@@ -140,7 +140,6 @@ class CryptoStore {
           }
         })
       );
-      let { links } = resp;
 
       links = (links || []).filter(link => link.link_type);
 

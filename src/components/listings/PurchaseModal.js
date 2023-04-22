@@ -417,8 +417,8 @@ const PurchaseProviderSelection = observer(({
             }}
           >
             {
-              // Pix is only available in brazil
               selectedMethod === "circle" ||
+              // Pix is only available in brazil
               selectedMethod === "pix" ||
               // Stripe doesn't need any additional info
               (stripeEnabled && !ebanxEnabled && selectedMethod === "card") ||
