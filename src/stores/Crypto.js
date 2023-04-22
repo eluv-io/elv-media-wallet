@@ -704,7 +704,7 @@ class CryptoStore {
           networkName: "USDC",
           currencyLogo: USDCCurrencyLogo,
           currencyName: "USDC",
-          link: "https://live.eluv.io/",
+          link: "https://circle.io/",
           Address: () => this.CircleAddress(),
           Balance: async () => await this.CircleBalance(),
           RequestAddress: () => this.CircleAddress(),

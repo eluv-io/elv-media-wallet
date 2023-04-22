@@ -1246,7 +1246,7 @@ class RootStore {
 
     this.userStripeId = balances.userStripeId;
     this.userStripeEnabled = balances.userStripeEnabled;
-    this.userCircleEnabled = true; // TODO: get this from marketplace?.payment_options?.circle
+    this.userCircleEnabled = this.cryptoStore.CircleLinkedAddress() !== "";
     this.totalWalletBalance = balances.totalWalletBalance;
     this.availableWalletBalance = balances.availableWalletBalance;
     this.pendingWalletBalance = balances.pendingWalletBalance;
