@@ -320,28 +320,6 @@ class CryptoStore {
     yield this.LoadConnectedAccounts();
   })
 
-  DisconnectCircle = flow(function * (address) {
-    if(!address) { return; }
-
-    const message = `Eluvio link account - ${new Date().toISOString()}`;
-    let payload = {
-      tgt: "circle_acct",
-      ace: address,
-      msg: message
-    };
-
-    yield this.client.authClient.MakeAuthServiceRequest({
-      path: UrlJoin("as", "wlt", "link"),
-      method: "DELETE",
-      body: payload,
-      headers: {
-        Authorization: `Bearer ${this.rootStore.authToken}`
-      }
-    });
-
-    yield this.LoadConnectedAccounts();
-  })
-
   DisconnectPhantom = flow(function * (address) {
     if(!address) { return; }
 
@@ -715,7 +693,7 @@ class CryptoStore {
           ConnectedAccounts: () => Object.values(this.connectedAccounts.circle_acct),
           Sign: undefined,
           Purchase: undefined,
-          Disconnect: async address => await this.DisconnectCircle(address)
+          Disconnect: undefined,
         };
       case "phantom":
         return {
