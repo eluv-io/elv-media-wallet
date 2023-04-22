@@ -157,7 +157,7 @@ connected_accounts:
   direct: Aceitar apenas pagamentos para carteiras diretamente associadas com minha conta.
   direct_info: Marcar esta opção limitará suas listagens para comprar apenas com USDC por meio de carteira vinculada. O pagamento será liquidado diretamente no endereço da sua carteira vinculada. Se desmarcado, suas listagens também podem ser compradas por cartão de crédito, coinbase ou saldo da carteira, e os rendimentos serão creditados no saldo da carteira Eluvio, que pode ser resgatado via Stripe.
   link_wallet: Carteira associada.
-  link_wallet_2: Conectar {networkName} carteira de pagamento {t{est}
+  link_wallet_2: Conectar {networkName} carteira de pagamento
   unlink_wallet: Desconectar carteira
   unlink_wallet_confirm: Você realmente quer desconectar essa conta?
   description: Para comprar ou vender Artes Digitais usando {usdcIcon} USDC na {networkName} com sua carteira, conecte sua carteira da Eluvio com sua carteira de pagamento.
