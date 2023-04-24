@@ -535,7 +535,7 @@ class CryptoStore {
   }
 
   CircleAvailable() {
-    return true; // XXX
+    return window.circleEnabled; // XXX comes from PurchaseModal.js
   }
 
   CircleConnected() {
