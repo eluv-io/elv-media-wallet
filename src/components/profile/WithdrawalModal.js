@@ -329,6 +329,12 @@ const StripeSetup = observer(({Cancel, Close}) => {
 const ProviderSelection = observer(({Continue, Cancel}) => {
   const [provider, setProvider] = useState("Stripe");
 
+  const match = useRouteMatch();
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+  let options = marketplace?.payment_options?.circle?.enabled
+    ? [["Stripe", "Stripe"], ["EBANX", "EBANX (Brazil Only)"], ["Circle", "Circle USDC"]]
+    : [["Stripe", "Stripe"], ["EBANX", "EBANX (Brazil Only)"]];
+
   return (
     <div className="withdrawal-confirmation">
       <div className="withdrawal-confirmation__header">
@@ -342,7 +348,7 @@ const ProviderSelection = observer(({Continue, Cancel}) => {
           value={provider}
           onChange={value => setProvider(value)}
           containerClassName="withdrawal-confirmation__country-select"
-          options={[["Stripe", "Stripe"], ["EBANX", "EBANX (Brazil Only)"], ["Circle", "Circle USDC"]]}
+          options={options}
         />
         <div className="withdrawal-confirmation__actions">
           <button className="action" onClick={() => Cancel()}>
@@ -362,7 +368,7 @@ const WithdrawalModal = observer(({Close}) => {
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const ebanxAvailable = marketplace?.payment_options?.ebanx?.enabled || false;
-  const circleAvailable = true; // marketplace?.payment_options?.circle?.enabled || false;
+  const circleAvailable = marketplace?.payment_options?.circle?.enabled || false;
 
   const [provider, setProvider] = useState(ebanxAvailable || circleAvailable ? undefined : "Stripe");
   const [payout, setPayout] = useState(undefined);
