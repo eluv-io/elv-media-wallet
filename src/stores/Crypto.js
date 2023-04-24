@@ -267,7 +267,7 @@ class CryptoStore {
   });
 
   ConnectCircle = flow(function * () {
-    let address = window.circleAddress; // TODO: don't use window, let address = this.rootStore.walletClient.UserInfo().address;
+    let address = window.circleAddress; // TODO: don't use window for the global
 
     try {
       yield Utils.ResponseToJson(this.client.authClient.MakeAuthServiceRequest({

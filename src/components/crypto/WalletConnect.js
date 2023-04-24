@@ -41,7 +41,7 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
     await wallet.Connect({setPreferred: false});
   };
   const setCircleAddress = async ({address}) => {
-    window.circleAddress = address;
+    window.circleAddress = address; // TODO: don't use window for the global
   };
 
   const modalCircleAddress =
