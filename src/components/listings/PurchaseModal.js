@@ -98,7 +98,7 @@ const PurchaseProviderSelection = observer(({
 
   const stripeEnabled = paymentOptions?.stripe?.enabled;
   const ebanxEnabled = paymentOptions?.ebanx?.enabled;
-  const circleEnabled = true; // paymentOptions?.circle?.enabled;
+  const circleEnabled = paymentOptions?.circle?.enabled;
   const pixEnabled = ebanxEnabled && paymentOptions?.ebanx?.pix_enabled;
   const coinbaseEnabled = paymentOptions?.coinbase?.enabled;
 
