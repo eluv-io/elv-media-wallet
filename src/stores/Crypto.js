@@ -617,13 +617,6 @@ class CryptoStore {
     };
   });
 
-  CircleBalance = flow(function * () {
-    let usdcBalance = "123.45";
-    return {
-      usdc: usdcBalance
-    };
-  });
-
   PhantomPurchaseStatus = flow(function * (confirmationId) {
     try {
       const signature = this.rootStore.checkoutStore.solanaSignatures[confirmationId];
@@ -704,15 +697,15 @@ class CryptoStore {
           currencyName: "USDC",
           link: "https://live.eluv.io/",
           Address: () => this.CircleAddress(),
-          Balance: async () => await this.CircleBalance(),
+          Balance: async () => () => {},
           RequestAddress: () => this.CircleAddress(),
           Available: () => this.CircleAvailable(),
           Connected: () => this.CircleConnected(),
           Connect: async params => await this.ConnectCircle(params),
           Connection: () => this.connectedAccounts.circle_acct[this.CircleAddress()],
           ConnectedAccounts: () => Object.values(this.connectedAccounts.circle_acct),
-          Sign: undefined,
-          Purchase: undefined,
+          Sign: () => {},
+          Purchase: () => {},
           Disconnect: async address => await this.DisconnectCircle(address)
         };
       case "phantom":
