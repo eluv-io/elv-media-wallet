@@ -110,7 +110,7 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
             try {
               setErrorMessage(undefined);
 
-              if (type === "circle_acct") {
+              if(type === "circle_acct") {
                 // TODO: use a better way to call the modal
                 setErrorMessage(modalCircleAddress);
               } else {
@@ -159,8 +159,14 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
                 type === "circle_acct" ?
                   <div>
                     <div className="wallet-connect__help-link">
-                      <a href= {"https://goerli.etherscan.io/token/0x07865c6e87b9f70255377e024ace6630c1eaa37f?a=" + rootStore.cryptoStore.CircleLinkedAddress()}  target="_blank" rel="noopener">
-                        {rootStore.cryptoStore.CircleLinkedAddress()}</a>
+                      { rootStore.client.networkName === "main" ?
+                        <a href= {"https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48?a=" + rootStore.cryptoStore.CircleLinkedAddress()}  target="_blank" rel="noopener">
+                          {rootStore.cryptoStore.CircleLinkedAddress()}
+                        </a> :
+                        <a href= {"https://goerli.etherscan.io/token/0x07865c6e87b9f70255377e024ace6630c1eaa37f?a=" + rootStore.cryptoStore.CircleLinkedAddress()}  target="_blank" rel="noopener">
+                          {rootStore.cryptoStore.CircleLinkedAddress()}
+                        </a>
+                      }
                     </div>
                     <div className="wallet-connect__connected-at">
                       { "Account ID: " + rootStore.cryptoStore.CircleAddress() }
