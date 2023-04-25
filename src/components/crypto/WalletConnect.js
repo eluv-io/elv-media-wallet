@@ -5,6 +5,7 @@ import ImageIcon from "Components/common/ImageIcon";
 import {ButtonWithLoader, LocalizeString} from "Components/common/UIComponents";
 import Confirm from "Components/common/Confirm";
 import Modal from "Components/common/Modal";
+import USDCBlockExplorerUrl from "../../utils/USDCExplorer";
 
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 import HelpIcon from "Assets/icons/help-circle.svg";
@@ -159,14 +160,9 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
                 type === "circle_acct" ?
                   <div>
                     <div className="wallet-connect__help-link">
-                      { rootStore.client.networkName === "main" ?
-                        <a href= {"https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48?a=" + rootStore.cryptoStore.CircleLinkedAddress()}  target="_blank" rel="noopener">
-                          {rootStore.cryptoStore.CircleLinkedAddress()}
-                        </a> :
-                        <a href= {"https://goerli.etherscan.io/token/0x07865c6e87b9f70255377e024ace6630c1eaa37f?a=" + rootStore.cryptoStore.CircleLinkedAddress()}  target="_blank" rel="noopener">
-                          {rootStore.cryptoStore.CircleLinkedAddress()}
-                        </a>
-                      }
+                      <a href= {USDCBlockExplorerUrl(rootStore.cryptoStore.CircleLinkedAddress())}  target="_blank" rel="noopener">
+                        {rootStore.cryptoStore.CircleLinkedAddress()}
+                      </a>
                     </div>
                     <div className="wallet-connect__connected-at">
                       { "Account ID: " + rootStore.cryptoStore.CircleAddress() }
