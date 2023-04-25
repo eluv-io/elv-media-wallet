@@ -52,7 +52,7 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
   const modalCircleAddress =
     <Modal className="withdrawal-modal" Toggle={Close} >
       <div className="withdrawal-confirmation">
-        <h1 className="withdrawal-confirmation__header">{ "Set Circle USDC Payment Wallet" }</h1>
+        <h1 className="withdrawal-confirmation__header">{ "Set USDC Payment Wallet Address" }</h1>
         <div className="withdrawal-confirmation__content">
           <div className="withdrawal-confirmation__form">
             <div className="labelled-input">
