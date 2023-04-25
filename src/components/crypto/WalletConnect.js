@@ -39,7 +39,11 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
   };
   const Continue = async () => {
     setErrorMessage(undefined);
-    await wallet.Connect({setPreferred: false});
+    try {
+      await wallet.Connect({setPreferred: false});
+    } catch(e) {
+      rootStore.Log(e, true);
+    }
   };
   const setCircleAddress = async ({address}) => {
     window.circleAddress = address; // TODO: don't use window for the global
