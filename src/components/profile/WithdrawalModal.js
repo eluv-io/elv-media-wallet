@@ -17,7 +17,7 @@ const WithdrawalConfirmation = observer(({payout, provider, Close}) => {
   return (
     <div className="withdrawal-confirmation">
       <h1 className="withdrawal-confirmation__header">
-        { provider === "Circle" ? "Withdraw to Circle USDC" : rootStore.l10n.withdrawal[provider === "Stripe" ? "withdraw_via_stripe" : "withdraw_via_ebanx"] }
+        { provider === "Circle" ? "Withdraw to USDC" : rootStore.l10n.withdrawal[provider === "Stripe" ? "withdraw_via_stripe" : "withdraw_via_ebanx"] }
       </h1>
       <div className="withdrawal-confirmation__content">
         <div className="withdrawal-confirmation__message">
