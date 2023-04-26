@@ -102,8 +102,6 @@ const PurchaseProviderSelection = observer(({
   const pixEnabled = ebanxEnabled && paymentOptions?.ebanx?.pix_enabled;
   const coinbaseEnabled = paymentOptions?.coinbase?.enabled;
 
-  window.circleEnabled = !!circleEnabled; // XXX need proper way to pass between this asn stores/Crypto.js
-
   const UpdateCountry = (countryCode) => {
     setCountry(countryCode);
 

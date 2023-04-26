@@ -10,6 +10,9 @@ import SolanaLogo from "Assets/icons/solana icon.svg";
 import USDCLogo from "Assets/icons/crypto/ethereum logo blue.png";
 import USDCCurrencyLogo from "Assets/icons/crypto/USDC-icon.svg";
 import {rootStore} from "./index";
+import {useRouteMatch} from "react-router-dom";
+import {useState} from "react";
+import {NFTInfo} from "../utils/Utils";
 
 class CryptoStore {
   eluvioChainId = EluvioConfiguration.network === "demo" ? "0xE934A" : "0xE93A9";
@@ -535,7 +538,9 @@ class CryptoStore {
   }
 
   CircleAvailable() {
-    return window.circleEnabled || true; // XXX comes from PurchaseModal.js
+    const match = useRouteMatch();
+    const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+    return marketplace?.payment_options?.circle?.enabled || false;
   }
 
   CircleConnected() {
