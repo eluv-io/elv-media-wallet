@@ -1261,28 +1261,24 @@ class RootStore {
     }
 
     if(provider === "Circle") {
-      if(!this.cryptoStore.CircleAddress()) {
-        throw Error("Need to connect Circle account first");
+      const circleId = this.cryptoStore.CircleAccountId();
+      if(!circleId) {
+        throw Error("Circle account not connected");
       }
-      const id = this.cryptoStore.CircleAddress();
 
-      try {
-        yield this.client.authClient.MakeAuthServiceRequest({
-          path: UrlJoin("as", "wlt", "bal", "circle"),
-          method: "POST",
-          body: {
-            id: id,
-            amount: amount,
-            currency: "USD",
-          },
-          headers: {
-            Authorization: `Bearer ${this.authToken}`,
-            Accept: "application/json",
-          }
-        });
-      } catch(error) {
-        throw error;
-      }
+      yield this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "bal", "circle"),
+        method: "POST",
+        body: {
+          id: circleId,
+          amount: amount,
+          currency: "USD",
+        },
+        headers: {
+          Authorization: `Bearer ${this.authToken}`,
+          Accept: "application/json",
+        }
+      });
     } else if(provider === "Stripe") {
       yield this.client.authClient.MakeAuthServiceRequest({
         path: UrlJoin("as", "wlt", "bal", "stripe"),

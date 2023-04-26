@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from "react";
-import {rootStore} from "Stores";
+import {cryptoStore, rootStore} from "Stores";
 import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
 import {ButtonWithLoader, FormatPriceString, LocalizeString, Select} from "Components/common/UIComponents";
@@ -17,7 +17,7 @@ const WithdrawalConfirmation = observer(({payout, provider, Close}) => {
   return (
     <div className="withdrawal-confirmation">
       <h1 className="withdrawal-confirmation__header">
-        { provider === "Circle" ? "Withdraw to USDC" : rootStore.l10n.withdrawal[provider === "Stripe" ? "withdraw_via_stripe" : "withdraw_via_ebanx"] }
+        { rootStore.l10n.withdrawal[`withdraw_via_${provider.toLowerCase()}`] }
       </h1>
       <div className="withdrawal-confirmation__content">
         <div className="withdrawal-confirmation__message">
@@ -55,7 +55,7 @@ const Withdrawal = observer(({provider, userInfo, Continue, Cancel, Close}) => {
   return (
     <div className="withdrawal-confirmation">
       <h1 className="withdrawal-confirmation__header">
-        { provider === "Circle" ? "Withdraw via Circle" : rootStore.l10n.withdrawal[provider === "Stripe" ? "withdraw_via_stripe" : "withdraw_via_ebanx"] }
+        { rootStore.l10n.withdrawal[`withdraw_via_${provider.toLowerCase()}`] }
       </h1>
       <div className="withdrawal-confirmation__content">
         <div className="withdrawal-confirmation__amount-selection">
@@ -181,46 +181,51 @@ const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
               { rootStore.l10n.withdrawal.fields.email }
             </label>
             <input
+              name="email"
               type="email"
               value={userInfo.email}
               onChange={event => setUserInfo({...userInfo, email: event.target.value})}
             />
           </div>
           <div className="labelled-input">
-            <label htmlFor="email">
+            <label htmlFor="name">
               { rootStore.l10n.withdrawal.fields.name }
             </label>
             <input
+              name="name"
               type="text"
               value={userInfo.name}
               onChange={event => setUserInfo({...userInfo, name: event.target.value})}
             />
           </div>
           <div className="labelled-input">
-            <label htmlFor="email">
+            <label htmlFor="phone">
               { rootStore.l10n.withdrawal.fields.phone }
             </label>
             <input
+              name="phone"
               type="phone"
               value={userInfo.phone}
               onChange={event => setUserInfo({...userInfo, phone: event.target.value})}
             />
           </div>
           <div className="labelled-input">
-            <label htmlFor="email">
+            <label htmlFor="birthdate">
               { rootStore.l10n.withdrawal.fields.birthdate }
             </label>
             <input
+              name="birthdate"
               type="date"
               value={userInfo.birthdate}
               onChange={event => setUserInfo({...userInfo, birthdate: event.target.value})}
             />
           </div>
           <div className="labelled-input">
-            <label htmlFor="email">
+            <label htmlFor="cpf">
               { rootStore.l10n.withdrawal.fields.cpf }
             </label>
             <input
+              name="cpf"
               type="text"
               placeholder="000.000.000-00"
               value={userInfo.cpf}
@@ -228,10 +233,11 @@ const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
             />
           </div>
           <div className="labelled-input">
-            <label htmlFor="email">
+            <label htmlFor="pix_key">
               { rootStore.l10n.withdrawal.fields.pix_key }
             </label>
             <input
+              name="pix_key"
               type="text"
               placeholder={rootStore.l10n.withdrawal.fields.pix_key_placeholder}
               value={userInfo.pix_key}
@@ -312,12 +318,157 @@ const StripeSetup = observer(({Cancel, Close}) => {
                 await new Promise(resolve => setTimeout(resolve, 3000));
                 Close();
               } catch(error) {
+                rootStore.Log(error, true);
                 setErrorMessage(rootStore.l10n.withdrawal.errors.setup);
               }
             }}
             className="action action-primary profile-page__onboard-button"
           >
             { rootStore.l10n.withdrawal.set_up_withdrawal }
+          </ButtonWithLoader>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+// Circle, Step 2 - Link account
+const CircleSetup = observer(({Continue, Cancel}) => {
+  const [accountLoaded, setAccountLoaded] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(undefined);
+  const [address, setAddress] = useState("");
+  const [chain, setChain] = useState("");
+  const [connected, setConnected] = useState(false);
+
+  useEffect(() => {
+    cryptoStore.LoadConnectedAccounts()
+      .then(() => {
+        setConnected(cryptoStore.CircleConnected());
+        setAccountLoaded(true);
+      });
+  }, []);
+
+  if(!accountLoaded) {
+    return (
+      <div className="withdrawal-confirmation">
+        <div className="withdrawal-confirmation__header">
+          { rootStore.l10n.withdrawal.set_up_withdrawal_circle }
+        </div>
+        <div className="withdrawal-confirmation__content">
+          <Loader />
+        </div>
+      </div>
+    );
+  }
+
+  if(!connected) {
+    return (
+      <div className="withdrawal-confirmation">
+        <div className="withdrawal-confirmation__header">
+          { rootStore.l10n.withdrawal.set_up_withdrawal_circle }
+        </div>
+        <div className="withdrawal-confirmation__content">
+          <div className="withdrawal-confirmation__form">
+            <div className="labelled-input">
+              <label htmlFor="chain">
+                { rootStore.l10n.withdrawal.fields.chain }
+              </label>
+              <Select
+                value={chain}
+                onChange={value => setChain(value)}
+                containerClassName="withdrawal-confirmation__form__select"
+                options={[
+                  ["", rootStore.l10n.withdrawal.select_chain],
+                  ...cryptoStore.CircleSupportedChains()
+                ]}
+              />
+            </div>
+            <div className="labelled-input">
+              <label htmlFor="address">
+                { rootStore.l10n.withdrawal.fields.address }
+              </label>
+              <input
+                className="labelled-input__input--address"
+                type="address"
+                value={address}
+                onChange={event => setAddress(event.target.value)}
+              />
+            </div>
+          </div>
+          {
+            errorMessage ?
+              <div className="withdrawal-confirmation__error">
+                { errorMessage }
+              </div> : null
+          }
+          <div className="withdrawal-confirmation__actions">
+            <button className="action" onClick={() => Cancel()}>
+              { rootStore.l10n.actions.cancel }
+            </button>
+            <ButtonWithLoader
+              disabled={!chain || !address}
+              onClick={async () => {
+                try {
+                  await cryptoStore.ConnectCircle({address, chain});
+                  await new Promise(resolve => setTimeout(resolve, 3000));
+                  setConnected(true);
+                } catch(error) {
+                  rootStore.Log(error, true);
+                  setErrorMessage(rootStore.l10n.withdrawal.errors.setup);
+                }
+              }}
+              className="action action-primary profile-page__onboard-button"
+            >
+              { rootStore.l10n.withdrawal.connect_circle_usdc }
+            </ButtonWithLoader>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="withdrawal-confirmation">
+      <div className="withdrawal-confirmation__header">
+        { rootStore.l10n.withdrawal.set_up_withdrawal_circle }
+      </div>
+      <div className="withdrawal-confirmation__content">
+        <div className="withdrawal-confirmation__message">
+          { rootStore.l10n.withdrawal.circle_usdc_withdrawal_message }
+        </div>
+        <div className="withdrawal-confirmation__account-details">
+          <div className="withdrawal-confirmation__account-detail">
+            <label>{ rootStore.l10n.withdrawal.circle_account.chain }</label>
+            <div>{ cryptoStore.CircleChain() }</div>
+          </div>
+          <div className="withdrawal-confirmation__account-detail">
+            <label>{ rootStore.l10n.withdrawal.circle_account.address }</label>
+            <div className="withdrawal-confirmation__account-detail__address ellipsis">{ cryptoStore.CircleAddress() }</div>
+          </div>
+          <div className="withdrawal-confirmation__account-detail">
+            <label>{ rootStore.l10n.withdrawal.circle_account.account_id }</label>
+            <div className="withdrawal-confirmation__account-detail__address ellipsis">{ cryptoStore.CircleAccountId() }</div>
+          </div>
+        </div>
+        <div className="withdrawal-confirmation__actions">
+          <button
+            disabled={!connected}
+            onClick={() => setConnected(false)}
+            className="action action-danger"
+          >
+            { rootStore.l10n.withdrawal.change_account }
+          </button>
+        </div>
+        <div className="withdrawal-confirmation__actions">
+          <button className="action" onClick={() => Cancel()}>
+            { rootStore.l10n.actions.cancel }
+          </button>
+          <ButtonWithLoader
+            disabled={!connected}
+            onClick={Continue}
+            className="action action-primary"
+          >
+            { rootStore.l10n.actions.continue }
           </ButtonWithLoader>
         </div>
       </div>
@@ -368,9 +519,8 @@ const WithdrawalModal = observer(({Close}) => {
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const ebanxAvailable = marketplace?.payment_options?.ebanx?.enabled || false;
-  const circleAvailable = marketplace?.payment_options?.circle?.enabled || false;
 
-  const [provider, setProvider] = useState(ebanxAvailable || circleAvailable ? undefined : "Stripe");
+  const [provider, setProvider] = useState(undefined);
   const [payout, setPayout] = useState(undefined);
   const [userInfo, setUserInfo] = useState({
     method: "PIX",
@@ -385,7 +535,9 @@ const WithdrawalModal = observer(({Close}) => {
 
   let content;
   if(!provider) {
-    content = <ProviderSelection Continue={provider => setProvider(provider)} Cancel={Close} />;
+    content = <ProviderSelection Continue={provider => setProvider(provider)} Cancel={Close}/>;
+  } else if(provider === "Circle" && !userInfoConfirmed) {
+    content = <CircleSetup Cancel={() => setProvider(undefined)} Continue={() => setUserInfoConfirmed(true)} />;
   } else if(provider === "Stripe" && !rootStore.userStripeId) {
     content = <StripeSetup Cancel={() => ebanxAvailable ? setProvider(undefined) : Close()} Close={Close} />;
   } else if(provider === "EBANX" && !userInfoConfirmed) {

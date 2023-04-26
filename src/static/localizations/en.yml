@@ -194,6 +194,7 @@ purchase:
   select_country: Please Select Your Country
   all_other_countries: All Other Countries
   buy_with_wallet_balance: Buy With Wallet Balance
+  buy_with_circle_usdc: Buy With Circle USDC
   credit_card: Credit Card
   wallet_balance: Wallet Balance
   checkout: Checkout
@@ -204,6 +205,7 @@ purchase:
   conversion_amount: USD Conversion
   conversion_note: Actual values are based in USD. All displayed values are approximate based on current estimated USD exchange rates.
   purchase_methods:
+    circle_usdc: Circle USDC
     credit_card: Credit Card
     crypto: Crypto
     usdc: USDC
@@ -444,12 +446,18 @@ withdrawal:
   withdraw_funds: Withdraw Funds
   select_provider: Please select a provider
   select_country: Select a Country
+  select_chain: Select a Chain
   select_country_to_continue: Please select your country to continue
   method: Method
   set_up_withdrawal: Set up withdrawal
   set_up_withdrawal_stripe: Set up withdrawal with Stripe Connect
+  set_up_withdrawal_circle: Set up withdrawal with Circle USDC
+  connect_circle_usdc: Connect Circle USDC
   withdraw_via_ebanx: Withdraw Funds via EBANX
   withdraw_via_stripe: Withdraw Funds via Stripe
+  withdraw_via_circle: Withdraw Funds via Circle USDC
+  circle_usdc_withdrawal_message: Funds will be transferred to the following account
+  change_account: Change Account
   max_withdrawable: Maximum withdrawable balance is {max}
   available_funds: Available Funds
   withdrawn_funds: Withdrawn Funds
@@ -458,6 +466,11 @@ withdrawal:
   remaining_funds: Remaining Funds
   remaining_withdrawable_funds: Remaining Withdrawable Funds
   successful_withdrawal: "{amount} successfully transferred to your account"
+  circle_account:
+    connected: Connected to Circle USDC
+    account_id: Account ID
+    address: Address
+    chain: Chain
   fields:
     amount: Amount
     email: Email
@@ -467,6 +480,8 @@ withdrawal:
     cpf: CPF
     pix_key: PIX key
     pix_key_placeholder: Email, CPF, CNPJ, or Phone Number
+    chain: Chain
+    address: Address
   errors:
     general: Unable to withdraw funds. Please try again later.
     setup: Unable to set up withdrawal. Please try again later.

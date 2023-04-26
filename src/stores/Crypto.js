@@ -9,10 +9,6 @@ import EthereumLogo from "Assets/icons/ethereum-eth-logo.svg";
 import SolanaLogo from "Assets/icons/solana icon.svg";
 import USDCLogo from "Assets/icons/crypto/ethereum logo blue.png";
 import USDCCurrencyLogo from "Assets/icons/crypto/USDC-icon.svg";
-import {rootStore} from "./index";
-import {useRouteMatch} from "react-router-dom";
-import {useState} from "react";
-import {NFTInfo} from "../utils/Utils";
 
 class CryptoStore {
   eluvioChainId = EluvioConfiguration.network === "demo" ? "0xE934A" : "0xE93A9";
@@ -30,7 +26,8 @@ class CryptoStore {
   transferredNFTs = {};
   connectedAccounts = {
     eth: {},
-    sol: {}
+    sol: {},
+    circle_acct: {}
   };
 
   get usdcConnected() {
@@ -73,7 +70,7 @@ class CryptoStore {
           "chainId": this.eluvioChainId,
           "chainName": EluvioConfiguration.network === "demo" ? "Eluvio Content Fabric (Demo)" : "Eluvio Content Fabric",
           "rpcUrls": [
-            ...rootStore.client.ethereumURIs
+            ...this.rootStore.client.ethereumURIs
           ],
           "nativeCurrency": {
             "name": "ELV",
@@ -269,31 +266,23 @@ class CryptoStore {
     yield this.LoadConnectedAccounts();
   });
 
-  ConnectCircle = flow(function * () {
-    let address = window.circleAddress; // TODO: don't use window for the global
+  ConnectCircle = flow(function * ({address, chain}) {
+    yield Utils.ResponseToJson(this.client.authClient.MakeAuthServiceRequest({
+      path: UrlJoin("as", "wlt", "setup", "circle"),
+      method: "POST",
+      body: {
+        address,
+        chain
+      },
+      headers: {
+        Authorization: `Bearer ${this.rootStore.authToken}`,
+        Accept: "application/json",
+      }
+    }));
 
-    try {
-      yield Utils.ResponseToJson(this.client.authClient.MakeAuthServiceRequest({
-        path: UrlJoin("as", "wlt", "setup", "circle"),
-        method: "POST",
-        body: {
-          address: address,
-          chain: "ETH",
-        },
-        headers: {
-          Authorization: `Bearer ${this.rootStore.authToken}`,
-          Accept: "application/json",
-        }
-      }));
-
-      // allow circle webhook to complete
-      setTimeout(() => this.LoadConnectedAccounts(), 3000);
-      yield this.LoadConnectedAccounts();
-    } catch (err) {
-      this.rootStore.Log("Error setuping up Circle ", true);
-
-      throw err;
-    }
+    // Allow circle webhook to complete
+    setTimeout(() => this.LoadConnectedAccounts(), 3000);
+    yield this.LoadConnectedAccounts();
   });
 
   DisconnectMetamask = flow(function * (address) {
@@ -538,26 +527,42 @@ class CryptoStore {
   }
 
   CircleAvailable() {
-    const match = useRouteMatch();
-    const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-    return marketplace?.payment_options?.circle?.enabled || false;
+    return true;
   }
 
   CircleConnected() {
-    return this.CircleAddress() && !!this.connectedAccounts.circle_acct[this.CircleAddress()];
+    return !!this.CircleAddress();
+  }
+
+  CircleAccountInfo() {
+    return this.connectedAccounts.circle_acct[this.CircleAccountId()];
   }
 
   CircleAddress() {
-    return this.CircleAccountId();
+    return this.CircleAccountInfo()?.linked_addr;
+  }
+
+  CircleChain() {
+    return this.CircleAccountInfo()?.linked_chain;
   }
 
   CircleAccountId() {
     return Object.keys(this.connectedAccounts.circle_acct)[0];
   }
 
-  CircleLinkedAddress() {
-    const key = this.CircleAccountId();
-    return this.connectedAccounts.circle_acct[key] ? this.connectedAccounts.circle_acct[key]["linked_addr"] : "";
+  CircleSupportedChains() {
+    return [
+      ["ALGO", "Algorand"],
+      ["AVAX", "Avalanche"],
+      ["BTC", "Bitcoin"],
+      ["ETH", "Ethereum"],
+      ["FLOW", "Flow"],
+      ["HBAR", "Hedera"],
+      ["MATIC", "Polygon"],
+      ["SOL", "Solana"],
+      ["XLM", "Stellar"],
+      ["TRX", "Tron"]
+    ];
   }
 
   MetamaskBalance = flow(function * () {
@@ -693,7 +698,7 @@ class CryptoStore {
           Purchase: async spec => await this.PurchaseMetamask(spec),
           Disconnect: async address => await this.DisconnectMetamask(address)
         };
-      case "circle_acct":
+      case "circle":
         return {
           name: "USDC",
           logo: USDCLogo,
@@ -701,6 +706,7 @@ class CryptoStore {
           currencyLogo: USDCCurrencyLogo,
           currencyName: "USDC",
           link: "",
+          Info: () => this.CircleAccountInfo(),
           Address: () => this.CircleAddress(),
           Balance: () => {},
           RequestAddress: () => this.CircleAddress(),

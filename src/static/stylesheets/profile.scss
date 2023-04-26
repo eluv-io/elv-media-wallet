@@ -253,6 +253,7 @@
   .modal__content {
     align-items: center;
     display: flex;
+    height: 100%;
     justify-content: center;
     overflow-y: hidden;
   }
@@ -276,6 +277,7 @@
 
   &__content {
     padding: 20px 30px 40px;
+    position: relative;
 
     .loader {
       min-height: 200px;
@@ -310,13 +312,6 @@
     }
   }
 
-  &__actions {
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    margin-top: 40px;
-  }
-
   .action {
     max-width: 200px;
     width: 100%;
@@ -324,6 +319,13 @@
     &:not(:last-child) {
       margin-right: 10px;
     }
+  }
+
+  &__actions {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
   }
 
   &__input-error {
@@ -422,6 +424,19 @@
     }
   }
 
+  &__account-detail {
+    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    min-height: 30px;
+
+    &__address {
+      font-size: 12px;
+      max-width: 100%;
+      overflow: hidden;
+    }
+  }
+
   &__error {
     color: var(--color-text-error);
     font-size: 12px;
@@ -459,6 +474,10 @@
     input {
       max-width: unset;
       width: 100%;
+
+      &.labelled-input__input--address {
+        font-size: 14px;
+      }
     }
 
     .styled-select,

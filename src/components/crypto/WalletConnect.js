@@ -4,8 +4,6 @@ import {cryptoStore, rootStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
 import {ButtonWithLoader, LocalizeString} from "Components/common/UIComponents";
 import Confirm from "Components/common/Confirm";
-import Modal from "Components/common/Modal";
-import USDCBlockExplorerUrl from "../../utils/USDCExplorer";
 
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 import HelpIcon from "Assets/icons/help-circle.svg";
@@ -30,54 +28,6 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
       wallet.Balance();
     }
   }, [connected]);
-
-  const Cancel = () => {
-    setErrorMessage(undefined);
-  };
-  const Close = () => {
-    setErrorMessage(undefined);
-  };
-  const Continue = async () => {
-    setErrorMessage(undefined);
-    try {
-      await wallet.Connect({setPreferred: false});
-    } catch(e) {
-      rootStore.Log(e, true);
-    }
-  };
-  const setCircleAddress = async ({address}) => {
-    window.circleAddress = address; // TODO: don't use window for the global
-  };
-
-  const modalCircleAddress =
-    <Modal className="withdrawal-modal" Toggle={Close} >
-      <div className="withdrawal-confirmation">
-        <h1 className="withdrawal-confirmation__header">{ "Set USDC Payment Wallet Address" }</h1>
-        <div className="withdrawal-confirmation__content">
-          <div className="withdrawal-confirmation__form">
-            <div className="labelled-input">
-              <label htmlFor="email">
-                { "Address" }
-              </label>
-              <input
-                type="text"
-                placeholder={"0x0000..."}
-                onChange={event => setCircleAddress({address: event.target.value})}
-              />
-            </div>
-          </div>
-          <div className="withdrawal-confirmation__actions">
-            <button className="action" onClick={() => Cancel()}>
-              { rootStore.l10n.actions.cancel }
-            </button>
-            <button onClick={() => Continue()} className="action action-primary profile-page__onboard-button">
-              { rootStore.l10n.actions.continue }
-            </button>
-          </div>
-        </div>
-      </div>
-    </Modal>;
-
 
   const UpdatePaymentPreference = async (event) => {
     const preference = event.target.checked || false;
@@ -114,16 +64,10 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
           onClick={async () => {
             try {
               setErrorMessage(undefined);
+              await wallet.Connect();
+              setConnected(true);
 
-              if(type === "circle_acct") {
-                // TODO: use a better way to call the modal
-                setErrorMessage(modalCircleAddress);
-              } else {
-                await wallet.Connect();
-                setConnected(true);
-                onConnect && onConnect();
-              }
-
+              onConnect && onConnect();
             } catch(error) {
               rootStore.Log(error, true);
 
@@ -160,19 +104,7 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
               { wallet.networkName } { rootStore.l10n.connected_accounts.wallet_address }
             </div>
             <div className="wallet-connect__network-address ellipsis" title={connectedAccount.link_acct}>
-              {
-                type === "circle_acct" ?
-                  <div>
-                    <div className="wallet-connect__help-link">
-                      <a href= {USDCBlockExplorerUrl(rootStore.cryptoStore.CircleLinkedAddress())}  target="_blank" rel="noopener">
-                        {rootStore.cryptoStore.CircleLinkedAddress()}
-                      </a>
-                    </div>
-                    <div className="wallet-connect__connected-at">
-                      { "Account ID: " + rootStore.cryptoStore.CircleAddress() }
-                    </div>
-                  </div> : connectedAccount.link_acct
-              }
+              { connectedAccount.link_acct }
             </div>
           </div>
           {
@@ -211,11 +143,6 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
     );
   }
 
-  if(type == "circle_acct") {
-    rootStore.l10n.connected_accounts.description =
-      "To accept direct balance payout using {usdcIcon} USDC on {networkName}, link your Eluvio Media Wallet to your payment wallet.";
-  }
-
   return (
     <>
       <div className="wallet-connect">
@@ -228,14 +155,11 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
             { connectButton}
           </div>
         </div>
-        {
-          (type != "circle_acct") ?
-            <div className="wallet-connect__help-link">
-              <a href="https://eluviolive.zendesk.com/hc/en-us/articles/5126073304081-How-do-I-link-my-Phantom-Wallet-" target="_blank" rel="noopener">
-                { rootStore.l10n.connected_accounts.how_to_link }
-              </a>
-            </div> : null
-        }
+        <div className="wallet-connect__help-link">
+          <a href="https://eluviolive.zendesk.com/hc/en-us/articles/5126073304081-How-do-I-link-my-Phantom-Wallet-" target="_blank" rel="noopener">
+            { rootStore.l10n.connected_accounts.how_to_link }
+          </a>
+        </div>
       </div>
       { errorMessage ? <div className="wallet-connect__error-message">{ errorMessage }</div> : null }
     </>

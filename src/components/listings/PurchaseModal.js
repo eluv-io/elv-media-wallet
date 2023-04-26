@@ -321,7 +321,7 @@ const PurchaseProviderSelection = observer(({
       options = (
         <>
           <div className="purchase-modal__payment-message">
-           Buy with Circle USDC
+            { rootStore.l10n.purchase.buy_with_circle_usdc }
           </div>
         </>
       );
@@ -350,7 +350,9 @@ const PurchaseProviderSelection = observer(({
                     setSelectedMethod("circle");
                   }}
                   className={`purchase-modal__provider-options__option ${selectedMethod === "circle" ? "active" : ""}`}
-                >Circle USDC</button> : null
+                >
+                  { rootStore.l10n.purchase.purchase_methods.circle_usdc }
+                </button> : null
             }
             {
               ebanxEnabled && pixEnabled ?
@@ -360,7 +362,7 @@ const PurchaseProviderSelection = observer(({
                   }}
                   className={`purchase-modal__provider-options__option ${selectedMethod === "pix" ? "active" : ""}`}
                 >
-                  Pix
+                  { rootStore.l10n.purchase.purchase_methods.pix }
                 </button> :
                 null
             }
@@ -372,7 +374,7 @@ const PurchaseProviderSelection = observer(({
                   }}
                   className={`purchase-modal__provider-options__option ${selectedMethod === "crypto" ? "active" : ""}`}
                 >
-                  Crypto
+                  { rootStore.l10n.purchase.purchase_methods.crypto }
                 </button> :
                 null
             }

@@ -267,7 +267,6 @@ const Profile = observer(() => {
             {
               // <WalletConnect type="metamask" showPaymentPreference />
             }
-            <WalletConnect type="circle_acct" showPaymentPreference={false} />
           </div>
       }
     </div>
