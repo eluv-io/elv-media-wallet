@@ -535,7 +535,7 @@ class CryptoStore {
   }
 
   CircleAvailable() {
-    return window.circleEnabled; // XXX comes from PurchaseModal.js
+    return window.circleEnabled || true; // XXX comes from PurchaseModal.js
   }
 
   CircleConnected() {
@@ -695,17 +695,17 @@ class CryptoStore {
           networkName: "USDC",
           currencyLogo: USDCCurrencyLogo,
           currencyName: "USDC",
-          link: "https://www.circle.com/en/usdc",
+          link: "",
           Address: () => this.CircleAddress(),
-          Balance: async () => () => {},
+          Balance: () => {},
           RequestAddress: () => this.CircleAddress(),
           Available: () => this.CircleAvailable(),
           Connected: () => this.CircleConnected(),
           Connect: async params => await this.ConnectCircle(params),
           Connection: () => this.connectedAccounts.circle_acct[this.CircleAddress()],
           ConnectedAccounts: () => Object.values(this.connectedAccounts.circle_acct),
-          Sign: () => {},
-          Purchase: () => {},
+          Sign: undefined,
+          Purchase: undefined,
           Disconnect: async address => await this.DisconnectCircle(address)
         };
       case "phantom":
