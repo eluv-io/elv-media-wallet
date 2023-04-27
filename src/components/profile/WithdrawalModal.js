@@ -408,6 +408,8 @@ const CircleSetup = observer(({Continue, Cancel}) => {
             <ButtonWithLoader
               disabled={!chain || !address}
               onClick={async () => {
+                const prevAddress = cryptoStore.CircleAddress();
+                const prevChain = cryptoStore.CircleChain();
                 try {
                   await cryptoStore.DisconnectCircle(cryptoStore.CircleAccountId());
                   setConnected(false);
@@ -417,6 +419,15 @@ const CircleSetup = observer(({Continue, Cancel}) => {
                 } catch(error) {
                   rootStore.Log(error, true);
                   setErrorMessage(rootStore.l10n.withdrawal.errors.setup);
+                  if(!connected) {
+                    try {
+                      rootStore.log("repair circle acct back to old settings", {address: prevAddress, chain: prevChain});
+                      await cryptoStore.ConnectCircle({address: prevAddress, chain: prevChain});
+                      await new Promise(resolve => setTimeout(resolve, 500));
+                    } catch(err) {
+                      rootStore.Log(err, true);
+                    }
+                  }
                 }
               }}
               className="action action-primary profile-page__onboard-button"

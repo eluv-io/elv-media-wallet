@@ -213,6 +213,11 @@ class RootStore {
     logMethod(message);
   }
 
+  log(...object) {
+    window.console.log(object);
+  }
+
+
   constructor() {
     makeAutoObservable(this);
 
