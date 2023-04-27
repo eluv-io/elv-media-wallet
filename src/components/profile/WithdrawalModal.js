@@ -409,6 +409,8 @@ const CircleSetup = observer(({Continue, Cancel}) => {
               disabled={!chain || !address}
               onClick={async () => {
                 try {
+                  await cryptoStore.DisconnectCircle(cryptoStore.CircleAccountId());
+                  setConnected(false);
                   await cryptoStore.ConnectCircle({address, chain});
                   await new Promise(resolve => setTimeout(resolve, 3000));
                   setConnected(true);
