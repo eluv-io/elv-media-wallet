@@ -217,7 +217,6 @@ class RootStore {
     window.console.log(object);
   }
 
-
   constructor() {
     makeAutoObservable(this);
 
