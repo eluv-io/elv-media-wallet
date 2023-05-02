@@ -134,7 +134,7 @@
     flex-direction: column;
     max-width: 400px;
     min-height: 500px;
-    padding: 60px 30px 30px;
+    padding: 40px 30px 30px;
     position: relative;
     width: 100%;
   }
@@ -158,9 +158,10 @@
   }
 
   &__logo {
-    margin-bottom: 20px;
+    max-height: 175px;
+    max-width: 225px;
     object-fit: contain;
-    width: 220px;
+    width: 100%;
 
     &--default {
       * {
@@ -176,7 +177,9 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-bottom: 50px;
+    margin-bottom: 35px;
+    min-height: 100px;
+    width: 100%;
 
     .login-page__logo {
       margin-bottom: 0;
@@ -360,7 +363,7 @@
 
     p,
     a {
-      font-size: 11px;
+      font-size: 10px;
       margin: 0;
     }
 
