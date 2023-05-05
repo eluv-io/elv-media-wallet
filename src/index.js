@@ -15,6 +15,14 @@ if(searchParams.has("n")) {
   rootStore.ToggleNavigation(false);
 }
 
+if(searchParams.has("_path")) {
+  const url = new URL(window.location.href);
+  url.hash = url.searchParams.get("_path");
+  url.searchParams.delete("_path");
+
+  window.location = url.toString();
+}
+
 import {
   HashRouter,
   Switch,

@@ -112,6 +112,8 @@ class RootStore {
 
   userStripeId = undefined;
   userStripeEnabled = false;
+  userPersonaId = undefined;
+  userPersonaVerified = false;
   withdrawableWalletBalance = undefined;
   availableWalletBalance = undefined;
   pendingWalletBalance = undefined;
@@ -211,10 +213,6 @@ class RootStore {
     }
 
     logMethod(message);
-  }
-
-  log(...object) {
-    window.console.log(object);
   }
 
   constructor() {
@@ -1259,6 +1257,35 @@ class RootStore {
     return balances;
   });
 
+  PersonaStatus = flow(function * () {
+    const status = yield Utils.ResponseToJson(
+      this.client.authClient.MakeAuthServiceRequest({
+        path: UrlJoin("as", "wlt", "setup", "kyc/"),
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${this.authToken}`
+        }
+      })
+    );
+
+    this.userPersonaId = status?.inquiry_id;
+    this.userPersonaVerified = !!status?.kyc_passed;
+
+    return status;
+  });
+
+  ConnectPersona = flow(function * ({onConnect, onCancel}) {
+    yield this.Flow({
+      flow: "persona-connect",
+      includeAuth: true,
+      OnComplete: () => {
+        this.userPersonaId = "asd123";
+        onConnect && onConnect(this.userPersonaId);
+      },
+      OnCancel: onCancel
+    });
+  });
+
   WithdrawFunds = flow(function * ({provider, userInfo, amount}) {
     if(amount > this.withdrawableWalletBalance) {
       throw Error("Attempting to withdraw unavailable funds");
@@ -1739,9 +1766,15 @@ class RootStore {
     return false;
   });
 
-  FlowURL({type="flow", flow, parameters={}}) {
+  FlowURL({type="flow", flow, usePathParameter, parameters={}}) {
     const url = new URL(UrlJoin(window.location.origin, window.location.pathname));
-    url.hash = UrlJoin("/", type, flow, Utils.B58(JSON.stringify(parameters)));
+
+    const path = UrlJoin("/", type, flow, Utils.B58(JSON.stringify(parameters)));
+    if(usePathParameter) {
+      url.searchParams.set("_path", path);
+    } else {
+      url.hash = path;
+    }
 
     url.searchParams.set("origin", window.location.origin);
 
@@ -1933,6 +1966,25 @@ class RootStore {
 
           window.location.href = loginResponse.login_url;
 
+          break;
+
+        case "persona-connect":
+          const { uri } = yield Utils.ResponseToJson(
+            this.client.authClient.MakeAuthServiceRequest({
+              path: UrlJoin("as", "wlt", "setup", "kyc"),
+              method: "POST",
+              body: {
+                op: "start",
+                language: this.language,
+                redirect: this.FlowURL({type: "flow", flow: "respond", usePathParameter: true, parameters: { flowId: parameters.flowId, success: true }})
+              },
+              headers: {
+                Authorization: `Bearer ${this.authToken}`
+              }
+            })
+          );
+
+          window.location.href = uri;
           break;
 
         default:

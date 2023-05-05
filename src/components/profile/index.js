@@ -46,7 +46,8 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal}) => {
       </div>
       <div className="profile-page__actions">
         <ButtonWithLoader
-          disabled={rootStore.withdrawableWalletBalance < 1}
+          // TODO: Re-enable
+          //disabled={rootStore.withdrawableWalletBalance < 1}
           onClick={() => setShowWithdrawalModal(true)}
           className="action profile-page__withdraw-button"
         >

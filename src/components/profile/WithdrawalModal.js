@@ -8,11 +8,10 @@ import {roundToUp} from "round-to";
 import SupportedCountries from "../../utils/SupportedCountries";
 import {ValidEmail} from "../../utils/Utils";
 import {Loader} from "Components/common/Loaders";
-import {useRouteMatch} from "react-router-dom";
 
 const priceOptions = {stringOnly: true};
 
-// Step 3 - Confirmation
+// Confirmation
 const WithdrawalConfirmation = observer(({payout, provider, Close}) => {
   return (
     <div className="withdrawal-confirmation">
@@ -43,7 +42,7 @@ const WithdrawalConfirmation = observer(({payout, provider, Close}) => {
   );
 });
 
-// Step 2/3 - Amount selection
+// Amount selection
 const Withdrawal = observer(({provider, userInfo, Continue, Cancel, Close}) => {
   const [amount, setAmount] = useState(parseFloat((rootStore.withdrawableWalletBalance || 0)).toFixed(2));
   const [errorMessage, setErrorMessage] = useState(undefined);
@@ -247,7 +246,7 @@ const EbanxUserInfo = ({userInfo, setUserInfo, Continue, Cancel}) => {
         </div>
         <div className="withdrawal-confirmation__actions">
           <button className="action" onClick={() => Cancel()}>
-            { rootStore.l10n.actions.cancel }
+            { rootStore.l10n.actions.back }
           </button>
           <button disabled={!valid} onClick={() => Continue()} className="action action-primary profile-page__onboard-button">
             { rootStore.l10n.actions.continue }
@@ -308,7 +307,7 @@ const StripeSetup = observer(({Cancel, Close}) => {
         }
         <div className="withdrawal-confirmation__actions">
           <button className="action" onClick={() => Cancel()}>
-            { rootStore.l10n.actions.cancel }
+            { rootStore.l10n.actions.back }
           </button>
           <ButtonWithLoader
             disabled={!countryCode}
@@ -331,6 +330,76 @@ const StripeSetup = observer(({Cancel, Close}) => {
     </div>
   );
 });
+
+// Circle, Step 3 - KYC
+const PersonaSetup = observer(({Continue, Cancel}) => {
+  const [accountLoaded, setAccountLoaded] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(undefined);
+
+  useEffect(() => {
+    rootStore.PersonaStatus()
+      .then(({kyc_passed}) => {
+        if(kyc_passed) {
+          Continue();
+        } else {
+          setAccountLoaded(true);
+        }
+      });
+  }, []);
+
+  if(!accountLoaded) {
+    return (
+      <div className="withdrawal-confirmation">
+        <div className="withdrawal-confirmation__header">
+          { rootStore.l10n.withdrawal.set_up_withdrawal_circle }
+        </div>
+        <div className="withdrawal-confirmation__content">
+          <Loader />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="withdrawal-confirmation">
+      <div className="withdrawal-confirmation__header">
+        { rootStore.l10n.withdrawal.set_up_persona_kyc }
+      </div>
+      <div className="withdrawal-confirmation__content">
+        <div className="withdrawal-confirmation__message">
+          { rootStore.l10n.withdrawal.confirm_identity_message }
+        </div>
+        {
+          errorMessage ?
+            <div className="withdrawal-confirmation__error">
+              { errorMessage }
+            </div> : null
+        }
+        <div className="withdrawal-confirmation__actions">
+          <button className="action" onClick={() => Cancel()}>
+            { rootStore.l10n.actions.back }
+          </button>
+          <ButtonWithLoader
+            className="action action-primary"
+            onClick={async () => {
+              try {
+                await rootStore.ConnectPersona({
+                  onConnect: () => Continue(),
+                  onCancel: () => {}
+                });
+              } catch(error) {
+                setErrorMessage(error.toString());
+              }
+            }}
+          >
+            {rootStore.l10n.withdrawal.confirm_identity}
+          </ButtonWithLoader>
+        </div>
+      </div>
+    </div>
+  );
+});
+
 
 // Circle, Step 2 - Link account
 const CircleSetup = observer(({Continue, Cancel}) => {
@@ -421,7 +490,8 @@ const CircleSetup = observer(({Continue, Cancel}) => {
                   setErrorMessage(rootStore.l10n.withdrawal.errors.setup);
                   if(!connected) {
                     try {
-                      rootStore.log("repair circle acct back to old settings", {address: prevAddress, chain: prevChain});
+                      rootStore.Log("repair circle acct back to old settings", true);
+                      rootStore.Log({address: prevAddress, chain: prevChain}, true);
                       await cryptoStore.ConnectCircle({address: prevAddress, chain: prevChain});
                       await new Promise(resolve => setTimeout(resolve, 500));
                     } catch(err) {
@@ -474,7 +544,7 @@ const CircleSetup = observer(({Continue, Cancel}) => {
         </div>
         <div className="withdrawal-confirmation__actions">
           <button className="action" onClick={() => Cancel()}>
-            { rootStore.l10n.actions.cancel }
+            { rootStore.l10n.actions.back }
           </button>
           <ButtonWithLoader
             disabled={!connected}
@@ -493,12 +563,6 @@ const CircleSetup = observer(({Continue, Cancel}) => {
 const ProviderSelection = observer(({Continue, Cancel}) => {
   const [provider, setProvider] = useState("Stripe");
 
-  const match = useRouteMatch();
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  let options = marketplace?.payment_options?.circle?.enabled
-    ? [["Stripe", "Stripe"], ["EBANX", "EBANX (Brazil Only)"], ["Circle", "Circle USDC"]]
-    : [["Stripe", "Stripe"], ["EBANX", "EBANX (Brazil Only)"]];
-
   return (
     <div className="withdrawal-confirmation">
       <div className="withdrawal-confirmation__header">
@@ -512,7 +576,13 @@ const ProviderSelection = observer(({Continue, Cancel}) => {
           value={provider}
           onChange={value => setProvider(value)}
           containerClassName="withdrawal-confirmation__country-select"
-          options={options}
+          options={
+            [
+              ["Stripe", "Stripe"],
+              ["EBANX", "EBANX (Brazil Only)"],
+              ["Circle", "Circle USDC"]
+            ]
+          }
         />
         <div className="withdrawal-confirmation__actions">
           <button className="action" onClick={() => Cancel()}>
@@ -528,11 +598,6 @@ const ProviderSelection = observer(({Continue, Cancel}) => {
 });
 
 const WithdrawalModal = observer(({Close}) => {
-  const match = useRouteMatch();
-
-  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  const ebanxAvailable = marketplace?.payment_options?.ebanx?.enabled || false;
-
   const [provider, setProvider] = useState(undefined);
   const [payout, setPayout] = useState(undefined);
   const [userInfo, setUserInfo] = useState({
@@ -544,19 +609,23 @@ const WithdrawalModal = observer(({Close}) => {
     pix_key: "",
     birthdate: ""
   });
+
   const [userInfoConfirmed, setUserInfoConfirmed] = useState(false);
+  const [kycConfirmed, setKYCConfirmed] = useState(false);
 
   let content;
   if(!provider) {
     content = <ProviderSelection Continue={provider => setProvider(provider)} Cancel={Close}/>;
   } else if(provider === "Circle" && !userInfoConfirmed) {
     content = <CircleSetup Cancel={() => setProvider(undefined)} Continue={() => setUserInfoConfirmed(true)} />;
+  } else if(provider === "Circle" && !kycConfirmed) {
+    content = <PersonaSetup Cancel={() => setUserInfoConfirmed(false)} Continue={() => setKYCConfirmed(true)} />;
   } else if(provider === "Stripe" && !rootStore.userStripeId) {
-    content = <StripeSetup Cancel={() => ebanxAvailable ? setProvider(undefined) : Close()} Close={Close} />;
+    content = <StripeSetup Cancel={() => setProvider(undefined)} Close={Close} />;
   } else if(provider === "EBANX" && !userInfoConfirmed) {
     content = <EbanxUserInfo userInfo={userInfo} setUserInfo={setUserInfo} Continue={() => setUserInfoConfirmed(true)} Cancel={() => setProvider(undefined)} />;
   } else if(!payout) {
-    content = <Withdrawal userInfo={userInfo} provider={provider} Continue={payout => setPayout(payout)} Cancel={!ebanxAvailable ? undefined : () => provider === "EBANX" ? setUserInfoConfirmed(false) : setProvider(undefined)} Close={Close} />;
+    content = <Withdrawal userInfo={userInfo} provider={provider} Continue={payout => setPayout(payout)} Cancel={() => provider === "EBANX" ? setUserInfoConfirmed(false) : setProvider(undefined)} Close={Close} />;
   } else {
     content = <WithdrawalConfirmation payout={payout} provider={provider} Close={Close} />;
   }

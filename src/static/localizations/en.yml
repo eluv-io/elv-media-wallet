@@ -452,6 +452,7 @@ withdrawal:
   set_up_withdrawal: Set up withdrawal
   set_up_withdrawal_stripe: Set up withdrawal with Stripe Connect
   set_up_withdrawal_circle: Set up withdrawal with Circle USDC
+  set_up_persona_kyc: Confirm your Identity
   connect_circle_usdc: Connect Circle USDC
   withdraw_via_ebanx: Withdraw Funds via EBANX
   withdraw_via_stripe: Withdraw Funds via Stripe
@@ -466,6 +467,8 @@ withdrawal:
   remaining_funds: Remaining Funds
   remaining_withdrawable_funds: Remaining Withdrawable Funds
   successful_withdrawal: "{amount} successfully transferred to your account"
+  confirm_identity: Confirm Identity
+  confirm_identity_message: Before withdrawing your funds, you must confirm your identity
   circle_account:
     connected: Connected to Circle USDC
     account_id: Account ID
