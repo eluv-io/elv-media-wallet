@@ -928,12 +928,13 @@ class CheckoutStore {
       })
     ));
 
+    rootStore.Log("checkout response: " + JSON.stringify(response));
     switch(provider) {
       case "coinbase":
         window.location.href = UrlJoin("https://commerce.coinbase.com/charges", response.charge_code);
         break;
+
       case "stripe":
-        rootStore.Log("Stripe checkout response: " + JSON.stringify(response));
         const stripeKey = EluvioConfiguration["purchase-mode"] && EluvioConfiguration["purchase-mode"] !== "production" ?
           PUBLIC_KEYS.stripe.test :
           PUBLIC_KEYS.stripe.production;
@@ -941,8 +942,12 @@ class CheckoutStore {
         const stripe = yield loadStripe(stripeKey);
         //yield BeforeRedirect && BeforeRedirect();
         yield stripe.redirectToCheckout({sessionId: response.session_id});
-
         break;
+
+      case "circle":
+        window.location.href = response.redirect_url;
+        break;
+
       default:
         throw Error("Unknown payment provider: " + provider);
     }

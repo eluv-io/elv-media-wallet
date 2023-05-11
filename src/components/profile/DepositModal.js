@@ -107,7 +107,7 @@ const DepositModal = observer(({Close}) => {
             value={provider}
             onChange={value => setProvider(value)}
             containerClassName="deposit-form__select"
-            options={[["coinbase", "Coinbase Commerce"], ["stripe", "Stripe"]]}
+            options={[["coinbase", "Coinbase Commerce"], ["stripe", "Stripe"], ["circle", "Circle"]]}
           />
           <div className="deposit-form__actions">
             <button className="action" onClick={() => Close()}>
