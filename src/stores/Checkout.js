@@ -3,6 +3,7 @@ import {parse as UUIDParse, v4 as UUID} from "uuid";
 import {makeAutoObservable, flow, runInAction} from "mobx";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {ethers} from "ethers";
+import React from "react";
 
 const PUBLIC_KEYS = {
   stripe: {
@@ -914,10 +915,12 @@ class CheckoutStore {
       requestParams.mode = EluvioConfiguration["purchase-mode"];
     }
 
+    rootStore.Log("Balance checkout request provider: " + provider);
+    this.rootStore.SetLocalStorage("top-up-provider", provider);
     const response = (yield this.client.utils.ResponseToJson(
       this.client.authClient.MakeAuthServiceRequest({
         method: "POST",
-        path: UrlJoin("as", "wlt", "bal", "checkout", "coinbase"),
+        path: UrlJoin("as", "wlt", "bal", "checkout", provider),
         body: requestParams,
         headers: {
           Authorization: `Bearer ${this.rootStore.authToken}`
@@ -925,14 +928,33 @@ class CheckoutStore {
       })
     ));
 
-    window.location.href = UrlJoin("https://commerce.coinbase.com/charges", response.charge_code);
+    switch(provider) {
+      case "coinbase":
+        window.location.href = UrlJoin("https://commerce.coinbase.com/charges", response.charge_code);
+        break;
+      case "stripe":
+        rootStore.Log("Stripe checkout response: " + JSON.stringify(response));
+        const stripeKey = EluvioConfiguration["purchase-mode"] && EluvioConfiguration["purchase-mode"] !== "production" ?
+          PUBLIC_KEYS.stripe.test :
+          PUBLIC_KEYS.stripe.production;
+        const {loadStripe} = yield import("@stripe/stripe-js/pure");
+        const stripe = yield loadStripe(stripeKey);
+        //yield BeforeRedirect && BeforeRedirect();
+        yield stripe.redirectToCheckout({sessionId: response.session_id});
+
+        break;
+      default:
+        throw Error("Unknown payment provider: " + provider);
+    }
   });
 
   DepositStatus = flow(function * ({confirmationId}) {
+    const provider = rootStore.GetLocalStorage("top-up-provider");
+    rootStore.Log("Deposit status request confirmationId: " + confirmationId + ", provider: " + provider);
     return (yield this.client.utils.ResponseToJson(
       this.client.authClient.MakeAuthServiceRequest({
         method: "GET",
-        path: UrlJoin("as", "wlt", "bal", "checkout", "coinbase"),
+        path: UrlJoin("as", "wlt", "bal", "checkout", provider),
         queryParams: {
           client_reference_id: confirmationId
         },
