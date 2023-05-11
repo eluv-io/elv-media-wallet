@@ -915,7 +915,6 @@ class CheckoutStore {
       requestParams.mode = EluvioConfiguration["purchase-mode"];
     }
 
-    rootStore.Log("Balance checkout request provider: " + provider);
     this.rootStore.SetLocalStorage("top-up-provider", provider);
     const response = (yield this.client.utils.ResponseToJson(
       this.client.authClient.MakeAuthServiceRequest({
@@ -940,7 +939,6 @@ class CheckoutStore {
           PUBLIC_KEYS.stripe.production;
         const {loadStripe} = yield import("@stripe/stripe-js/pure");
         const stripe = yield loadStripe(stripeKey);
-        //yield BeforeRedirect && BeforeRedirect();
         yield stripe.redirectToCheckout({sessionId: response.session_id});
         break;
 
