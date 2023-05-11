@@ -14,7 +14,7 @@ const DepositModal = observer(({Close}) => {
 
   const [amount, setAmount] = useState("50.00");
   const [selectedProvider, setSelectedProvider] = useState(undefined);
-  const [provider, setProvider] = useState("Coinbase Commerce");
+  const [provider, setProvider] = useState("coinbase");
 
   const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.walletClient.UserInfo()?.email || "";
   const [email, setEmail] = useState(initialEmail);
@@ -80,7 +80,7 @@ const DepositModal = observer(({Close}) => {
                   marketplaceId: match.params.marketplaceId,
                   amount: parsedAmount,
                   email,
-                  provider: selectedProvider
+                  provider: selectedProvider,
                 });
 
                 await new Promise(resolve => setTimeout(resolve, 1000));
@@ -107,7 +107,7 @@ const DepositModal = observer(({Close}) => {
             value={provider}
             onChange={value => setProvider(value)}
             containerClassName="deposit-form__select"
-            options={["Coinbase Commerce"]}
+            options={[["coinbase", "Coinbase Commerce"], ["stripe", "Stripe"], ["circle", "Circle"]]}
           />
           <div className="deposit-form__actions">
             <button className="action" onClick={() => Close()}>
