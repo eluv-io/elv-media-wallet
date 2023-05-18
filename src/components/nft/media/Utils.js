@@ -1,21 +1,25 @@
 import UrlJoin from "url-join";
 
-export const MediaLinkPath = ({match, sectionId, collectionId, mediaIndex}) => {
+export const MediaLinkPath = ({match, sectionId, collectionId, mediaIndex, autoplay}) => {
   let path = match.url.split("/media")[0];
 
   if(sectionId === "list") {
-    return UrlJoin(path, "media", "list", mediaIndex.toString());
+    path = UrlJoin(path, "media", "list", mediaIndex.toString());
   } else if(sectionId === "featured") {
-    return UrlJoin(path, "media", "featured", mediaIndex.toString());
+    path = UrlJoin(path, "media", "featured", mediaIndex.toString());
+  } else {
+    path = UrlJoin(path, "media", sectionId, collectionId, mediaIndex.toString());
   }
 
-  return UrlJoin(path, "media", sectionId, collectionId, mediaIndex.toString());
+  if(autoplay) {
+    path = path + "?ap=1";
+  }
+
+  return path;
 };
 
-export const NavigateToMedia = ({match, history, sectionId, collectionId, mediaIndex}) => {
-  const path = MediaLinkPath({match, sectionId, collectionId, mediaIndex});
-
-  history.push(path);
+export const NavigateToMedia = ({match, history, sectionId, collectionId, mediaIndex, autoplay}) => {
+  history.push(MediaLinkPath({match, sectionId, collectionId, mediaIndex, autoplay}));
 };
 
 export const MediaImageUrl = ({mediaItem, maxWidth}) => {

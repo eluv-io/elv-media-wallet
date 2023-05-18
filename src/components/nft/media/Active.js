@@ -2,14 +2,15 @@ import React, {useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import {Initialize} from "@eluvio/elv-embed/src/Import";
-import {Link, useRouteMatch} from "react-router-dom";
-import {AvailableMedia, MediaImageUrl, MediaLinkPath} from "Components/nft/media/Utils";
+import {Link, useHistory, useRouteMatch} from "react-router-dom";
+import {AvailableMedia, MediaImageUrl, MediaLinkPath, NavigateToMedia} from "Components/nft/media/Utils";
 import ImageIcon from "Components/common/ImageIcon";
 import {FullScreenImage, LocalizeString, QRCodeElement, RichText} from "Components/common/UIComponents";
 import AlbumView from "Components/nft/media/Album";
 import Modal from "Components/common/Modal";
 import {MediaCollection} from "Components/nft/media/Browser";
-import {ScrollTo} from "../../../utils/Utils";
+import {ScrollTo, SearchParams} from "../../../utils/Utils";
+import {PageLoader} from "Components/common/Loaders";
 
 import BackIcon from "Assets/icons/arrow-left";
 import LeftArrow from "Assets/icons/left-arrow";
@@ -18,8 +19,7 @@ import MediaErrorIcon from "Assets/icons/media-error-icon.svg";
 import QRCodeIcon from "Assets/icons/QR Code Icon.svg";
 import ARPhoneIcon from "Assets/icons/AR Phone Icon.svg";
 import FullscreenIcon from "Assets/icons/full screen.svg";
-import {PageLoader} from "Components/common/Loaders";
-
+import PlayIcon from "Assets/icons/media/play";
 
 const NFTActiveMediaQRCode = ({link, Close}) => {
   return (
@@ -172,8 +172,11 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
 
 const NFTActiveMedia = observer(({nftInfo}) => {
   const match = useRouteMatch();
+  const history = useHistory();
   const [videoElement, setVideoElement] = useState(undefined);
   const [showQRModal, setShowQRModal] = useState(false);
+  const [autoplay, setAutoplay] = useState(false);
+  const [ended, setEnded] = useState(false);
 
   const mediaIndex = parseInt(match.params.mediaIndex);
 
@@ -188,13 +191,32 @@ const NFTActiveMedia = observer(({nftInfo}) => {
   const current = availableMediaList[currentListIndex];
   const next = availableMediaList[currentListIndex + 1];
 
+  const autoplayableNext = next?.sectionId === current.sectionId && next.collectionId === current.collectionId;
+
   useEffect(() => {
     setVideoElement(undefined);
+    setEnded(false);
+    setAutoplay(autoplay || !!(SearchParams()["ap"]));
+
     const target = document.querySelector("#top-scroll-target");
     if(target) {
       ScrollTo(target.getBoundingClientRect().top + window.scrollY);
     }
   }, [match.params.sectionId, match.params.collectionId, match.params.mediaIndex]);
+
+  useEffect(() => {
+    if(!videoElement) { return; }
+
+    videoElement.addEventListener("ended", () => setEnded(true));
+    videoElement.addEventListener("playing", () => setEnded(false));
+    videoElement.addEventListener("seeking", () => setEnded(false));
+  }, [videoElement]);
+
+  useEffect(() => {
+    if(ended && autoplay && autoplayableNext) {
+      NavigateToMedia({match, history, sectionId: next.sectionId, collectionId: next.collectionId, mediaIndex: next.mediaIndex});
+    }
+  }, [ended]);
 
   if(!current) { return null; }
 
@@ -217,7 +239,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
   const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
 
   const textContent = (
-    <div className="nft-media-album__content__text">
+    <div className="nft-media-album__content__info">
       <div className="nft-media-album__content__name">{currentMediaItem.name || ""}</div>
       { currentMediaItem.description && currentMediaItem.subtitle_1 ? <div className="nft-media-album__content__subtitle-1">{ currentMediaItem.subtitle_1 }</div> : null }
       { currentMediaItem.description && currentMediaItem.subtitle_2 ? <div className="nft-media-album__content__subtitle-2">{ currentMediaItem.subtitle_2 }</div> : null }
@@ -254,7 +276,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
                     />
                   </div>
                 </div>
-                <div className={`nft-media-album__text-container nft-media-album__text-container--mobile nft-media-album__content__text ${currentMediaItem.description ? "nft-media-album__text-container--description" : ""}`}>
+                <div className={`nft-media-album__text-container nft-media-album__text-container--mobile nft-media-album__content__info ${currentMediaItem.description ? "nft-media-album__text-container--description" : ""}`}>
                   { textContent }
                 </div>
                 <AlbumView
@@ -300,44 +322,61 @@ const NFTActiveMedia = observer(({nftInfo}) => {
                 SetVideoElement={setVideoElement}
               />
             </div>
-            <div className="nft-media__content__text">
-              <div className="nft-media__content__name">{currentMediaItem.name || ""}</div>
-              <div className="nft-media__content__subtitle-1">{currentMediaItem.subtitle_1 || ""}</div>
-              <div className="nft-media__content__subtitle-2">{currentMediaItem.subtitle_2 || ""}</div>
-              {
-                currentMediaItem.mediaInfo.mediaType === "html" ?
-                  <button onClick={() => setShowQRModal(!showQRModal)} className="nft-media__content__button nft-media__content__button--qr">
-                    <ImageIcon icon={QRCodeIcon} />
-                    <ImageIcon icon={ARPhoneIcon} />
-                    <div className="nft-media__content__button__text">
-                      { rootStore.l10n.item_details.additional_media.view_ar }
-                    </div>
-                  </button> : null
-              }
-              { currentMediaItem.description ? <RichText richText={currentMediaItem.description} className="nft-media__content__description" /> : null }
+            <div className="nft-media__content__info">
               {
                 previous ?
-                  <Link
-                    to={MediaLinkPath({match, sectionId: previous.sectionId, collectionId: previous.collectionId, mediaIndex: previous.mediaIndex})}
-                    className="nft-media__content__button nft-media__content__button--previous"
-                  >
-                    <ImageIcon icon={LeftArrow} />
-                    <div className="nft-media__content__button__text ellipsis">
-                      {rootStore.l10n.item_details.additional_media.previous}{previous.mediaItem?.name ? `: ${previous.mediaItem.name}` : ""}
-                    </div>
-                  </Link> : null
+                  <div className="nft-media__content__button-container nft-media__content__button-container--left">
+                    <Link
+                      to={MediaLinkPath({match, sectionId: previous.sectionId, collectionId: previous.collectionId, mediaIndex: previous.mediaIndex})}
+                      className="nft-media__content__button nft-media__content__button--previous"
+                    >
+                      <ImageIcon icon={LeftArrow} />
+                      <div className="nft-media__content__button__text ellipsis">
+                        {rootStore.l10n.item_details.additional_media.previous}{previous.mediaItem?.name ? `: ${previous.mediaItem.name}` : ""}
+                      </div>
+                    </Link>
+                  </div> : null
               }
+              <div className="nft-media__content__text">
+                <div className="nft-media__content__name">{currentMediaItem.name || ""}</div>
+                <div className="nft-media__content__subtitle-1">{currentMediaItem.subtitle_1 || ""}</div>
+                <div className="nft-media__content__subtitle-2">{currentMediaItem.subtitle_2 || ""}</div>
+                { currentMediaItem.description ? <RichText richText={currentMediaItem.description} className="nft-media__content__description" /> : null }
+                {
+                  currentMediaItem.mediaInfo.mediaType === "html" ?
+                    <button onClick={() => setShowQRModal(!showQRModal)} className="nft-media__content__button nft-media__content__button--qr">
+                      <ImageIcon icon={QRCodeIcon} />
+                      <ImageIcon icon={ARPhoneIcon} />
+                      <div className="nft-media__content__button__text">
+                        { rootStore.l10n.item_details.additional_media.view_ar }
+                      </div>
+                    </button> : null
+                }
+              </div>
               {
                 next ?
-                  <Link
-                    to={MediaLinkPath({match, sectionId: next.sectionId, collectionId: next.collectionId, mediaIndex: next.mediaIndex})}
-                    className="nft-media__content__button nft-media__content__button--next"
-                  >
-                    <div className="nft-media__content__button__text ellipsis">
-                      {rootStore.l10n.item_details.additional_media.next}{next.mediaItem?.name ? `: ${next.mediaItem.name}` : ""}
-                    </div>
-                    <ImageIcon icon={RightArrow} />
-                  </Link> : null
+                  <div className="nft-media__content__button-container nft-media__content__button-container--right">
+                    { autoplayableNext ?
+                      <button
+                        onClick={() => setAutoplay(!autoplay)}
+                        className={`nft-media__content__button nft-media__content__button--autoplay ${autoplay ? "nft-media__content__button--autoplay--active" : ""}`}
+                      >
+                        <ImageIcon icon={PlayIcon}/>
+                        <div className="nft-media__content__button__text">
+                          {rootStore.l10n.item_details.additional_media.play_all}
+                        </div>
+                      </button> : null
+                    }
+                    <Link
+                      to={MediaLinkPath({match, sectionId: next.sectionId, collectionId: next.collectionId, mediaIndex: next.mediaIndex})}
+                      className="nft-media__content__button nft-media__content__button--next"
+                    >
+                      <div className="nft-media__content__button__text ellipsis">
+                        {rootStore.l10n.item_details.additional_media.next}{next.mediaItem?.name ? `: ${next.mediaItem.name}` : ""}
+                      </div>
+                      <ImageIcon icon={RightArrow} />
+                    </Link>
+                  </div> : null
               }
             </div>
           </div>

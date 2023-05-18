@@ -412,6 +412,7 @@ item_details:
     qr_code_instructions: Point your phone's camera at this QR code to view on mobile.
     next: Next
     previous: Previous
+    play_all: Play All
 
 status:
   back_to_profile: Back to My Profile

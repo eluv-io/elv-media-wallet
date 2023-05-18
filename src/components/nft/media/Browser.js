@@ -8,12 +8,12 @@ import {Swiper, SwiperSlide} from "swiper/react";
 import ItemIcon from "Assets/icons/image";
 import {MediaImageUrl, MediaLinkPath} from "Components/nft/media/Utils";
 
-
 import LockedIcon from "Assets/icons/Lock icon";
-import PlayIcon from "Assets/icons/media/Play icon";
+import PlayCircleIcon from "Assets/icons/media/Play icon";
 import RightArrow from "Assets/icons/right-arrow";
 import UnlockedIcon from "Assets/icons/unlock icon";
 import LeftArrow from "Assets/icons/left-arrow";
+import PlayIcon from "Assets/icons/media/play.svg";
 
 const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
   const match = useRouteMatch();
@@ -108,6 +108,13 @@ export const MediaCollection = observer(({nftInfo, sectionId, collection, single
         <div className="nft-media-browser__collection__header-text ellipsis">
           { collection.name }
         </div>
+        <NavLink
+          to={MediaLinkPath({match, sectionId, collectionId: collection.id, mediaIndex: 0, autoplay: true})}
+          className="nft-media-browser__collection__header__button"
+        >
+          <ImageIcon icon={PlayIcon} />
+          { rootStore.l10n.item_details.additional_media.play_all }
+        </NavLink>
       </div>
       <div className="nft-media-browser__collection__content">
         <button className={`nft-media-browser__carousel__arrow nft-media-browser__carousel__arrow--previous ${previousArrowClass}`}>
@@ -165,7 +172,7 @@ export const MediaCollection = observer(({nftInfo, sectionId, collection, single
                     {
                       locked ?
                         <ImageIcon icon={LockedIcon} className="nft-media-browser__item__name__icon" /> :
-                        itemActive ? <ImageIcon icon={PlayIcon} className="nft-media-browser__item__name__icon" /> : null
+                        itemActive ? <ImageIcon icon={PlayCircleIcon} className="nft-media-browser__item__name__icon" /> : null
                     }
                     <div className="nft-media-browser__item__name__text ellipsis">
                       { mediaItem.name }
