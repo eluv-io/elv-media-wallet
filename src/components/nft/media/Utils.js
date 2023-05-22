@@ -67,7 +67,8 @@ export const AvailableMedia = ({additionalMedia, sectionId, collectionId, mediaI
               mediaIndex: mIndex,
               mediaId: mediaItem.id,
               mediaItem,
-              listIndex
+              listIndex,
+              showAutoplay: collection.show_autoplay
             };
 
             if(sectionId === section.id && collectionId === collection.id && mediaIndex === mIndex) {

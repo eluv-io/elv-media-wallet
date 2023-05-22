@@ -108,13 +108,16 @@ export const MediaCollection = observer(({nftInfo, sectionId, collection, single
         <div className="nft-media-browser__collection__header-text ellipsis">
           { collection.name }
         </div>
-        <NavLink
-          to={MediaLinkPath({match, sectionId, collectionId: collection.id, mediaIndex: 0, autoplay: true})}
-          className="nft-media-browser__collection__header__button"
-        >
-          <ImageIcon icon={PlayIcon} />
-          { rootStore.l10n.item_details.additional_media.play_all }
-        </NavLink>
+        {
+          collection.show_autoplay ?
+            <NavLink
+              to={MediaLinkPath({match, sectionId, collectionId: collection.id, mediaIndex: 0, autoplay: true})}
+              className="nft-media-browser__collection__header__button"
+            >
+              <ImageIcon icon={PlayIcon}/>
+              { rootStore.l10n.item_details.additional_media.play_all }
+            </NavLink> : null
+        }
       </div>
       <div className="nft-media-browser__collection__content">
         <button className={`nft-media-browser__carousel__arrow nft-media-browser__carousel__arrow--previous ${previousArrowClass}`}>

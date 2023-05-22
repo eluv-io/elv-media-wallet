@@ -483,7 +483,7 @@ export const PurchaseMintingStatus = observer(() => {
   return (
     <MintResults
       skipReveal={marketplace?.storefront?.skip_reveal}
-      header={rootStore.l10n.status.minting.header}
+      header={rootStore.l10n.status.minting.success_header}
       subheader={`${rootStore.l10n.status.minting.purchase} ${rootStore.l10n.status.minting[items.length === 1 ? "received_item_single" : "received_item_multiple"]}`}
       items={items}
       basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
@@ -531,7 +531,7 @@ export const ClaimMintingStatus = observer(() => {
   return (
     <MintResults
       skipReveal={marketplace?.storefront?.skip_reveal}
-      header={rootStore.l10n.status.minting.header}
+      header={rootStore.l10n.status.minting.success_header}
       subheader={rootStore.l10n.status.minting[items.length === 1 ? "received_item_single" : "received_item_multiple"]}
       items={items}
       basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
@@ -616,7 +616,7 @@ export const PackOpenStatus = observer(() => {
           subheader1: mintingText.reveal_subheader
         }
       }
-      header={rootStore.l10n.status.minting.header}
+      header={rootStore.l10n.status.minting.success_header}
       subheader={rootStore.l10n.status.minting[items.length === 1 ? "received_item_single" : "received_item_multiple"]}
       items={items}
       basePath={basePath}
@@ -681,7 +681,7 @@ export const CollectionRedeemStatus = observer(() => {
 
   return (
     <MintResults
-      header={rootStore.l10n.status.minting.header}
+      header={rootStore.l10n.status.minting.success_header}
       subheader={rootStore.l10n.status.minting[items.length === 1 ? "received_item_single" : "received_item_multiple"]}
       items={items}
       basePath={UrlJoin("/marketplace", match.params.marketplaceId)}

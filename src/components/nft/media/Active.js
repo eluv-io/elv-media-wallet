@@ -191,7 +191,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
   const current = availableMediaList[currentListIndex];
   const next = availableMediaList[currentListIndex + 1];
 
-  const autoplayableNext = next?.sectionId === current.sectionId && next.collectionId === current.collectionId;
+  const autoplayableNext = current.showAutoplay && next?.sectionId === current.sectionId && next.collectionId === current.collectionId;
 
   useEffect(() => {
     setVideoElement(undefined);
@@ -214,7 +214,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
 
   useEffect(() => {
     if(ended && autoplay && autoplayableNext) {
-      NavigateToMedia({match, history, sectionId: next.sectionId, collectionId: next.collectionId, mediaIndex: next.mediaIndex});
+      NavigateToMedia({match, history, sectionId: next.sectionId, collectionId: next.collectionId, mediaIndex: next.mediaIndex, autoplay: true});
     }
   }, [ended]);
 
