@@ -126,13 +126,18 @@ const NFTOffers = observer(({nftInfo}) => {
 
                                 let finished = false;
                                 while(!finished) {
-                                  await new Promise(resolve => setTimeout(resolve, 10000));
+                                  await new Promise(resolve => setTimeout(resolve, 5000));
 
-                                  const status = await rootStore.OfferRedemptionStatus({
+                                  const status = await rootStore.RedeemableOfferStatus({
+                                    tenantId: nftInfo.tenantId,
                                     contractAddress: nftInfo.nft.details.ContractAddr,
                                     tokenId: nftInfo.nft.details.TokenIdStr,
                                     offerId: offer.offer_id
                                   });
+
+                                  if(status?.status === "failed") {
+                                    throw Error(status);
+                                  }
 
                                   finished = status?.status === "complete";
                                 }

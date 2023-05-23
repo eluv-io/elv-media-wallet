@@ -341,7 +341,7 @@ class CheckoutStore {
         client_reference_id: confirmationId,
         tok_addr: contractAddress,
         tok_id: tokenId,
-        offerId: offerId,
+        offerId: offerId
       };
 
       if(signedHash){

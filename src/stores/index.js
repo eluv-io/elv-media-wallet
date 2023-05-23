@@ -1210,8 +1210,8 @@ class RootStore {
     return yield this.walletClient.CollectionRedemptionStatus({marketplaceParams: { marketplaceId }, confirmationId});
   });
 
-  OfferRedemptionStatus = flow(function * ({tenantId, confirmationId, contractAddress, tokenId, offerId}) {
-    return yield this.walletClient.OfferRedemptionStatus({tenantId, confirmationId, contractAddress, tokenId, offerId});
+  RedeemableOfferStatus = flow(function * ({tenantId, contractAddress, tokenId, offerId}) {
+    return yield this.walletClient.RedeemableOfferStatus({tenantId, contractAddress, tokenId, offerId});
   });
 
   LoadDrop = flow(function * ({tenantSlug, eventSlug, dropId}) {
