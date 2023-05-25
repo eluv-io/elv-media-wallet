@@ -9,21 +9,18 @@ import {ElvWalletFrameClient} from "../client/src/index";
 window.client = undefined;
 
 let appUrl;
-if(window.location.hostname === "core.test.contentfabric.io") {
-  appUrl = "https://wallet.demov3.contentfabric.io";
-} else {
-  const url = new URL(window.location.origin);
-  url.port = "8090";
+const url = new URL(window.location.origin);
+url.port = "8090";
 
-  appUrl = url.toString();
-}
+appUrl = url.toString();
 
-appUrl = "https://wallet.preview.contentfabric.io";
+//appUrl = "https://wallet.preview.contentfabric.io";
+//appUrl = "https://wallet.demov3.contentfabric.io";
 
 const targetId = "wallet-target";
 
-let tenantSlug = "cirkay";
-let marketplaceSlug = "20618563-fe41-4710-a1da-13b1d5536e1d";
+let tenantSlug = "";
+let marketplaceSlug = "";
 
 const SetResults = results => {
   document.getElementById("client-results").innerHTML = results ? JSON.stringify(results, null, 2) : "";
