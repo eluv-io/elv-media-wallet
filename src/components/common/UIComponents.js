@@ -108,23 +108,17 @@ export const ExpandableSection = ({header, icon, children, expanded=false, toggl
   );
 };
 
-export const PossibleButton = ({isButton, onClick, ...args}) => {
-  if(isButton) {
-    return <button onClick={onClick} {...args} />;
-  }
-
-  return <div {...args} />;
-};
-
-export const Linkish = ({to, href, useNavLink, ...args}) => {
+export const Linkish = ({to, href, useNavLink, onClick, ...args}) => {
   if(to) {
     if(useNavLink) {
-      return  <NavLink to={to} {...args} />;
+      return <NavLink to={to} {...args} />;
     } else {
-      return  <Link to={to} {...args} />;
+      return <Link to={to} {...args} />;
     }
   } else if(href) {
     return <a href={href} {...args} />;
+  } else if(onClick) {
+    return <button onClick={onClick} {...args} />;
   }
 
   return <div {...args} />;
@@ -600,7 +594,7 @@ export const Select = ({label, value, activeValuePrefix, options, placeholder, d
   );
 };
 
-export const QRCodeElement = ({content}) => {
+export const QRCodeElement = ({content, className=""}) => {
   let options = { errorCorrectionLevel: "M", margin: 1 };
 
   if(rootStore.pageWidth < 600) {
@@ -608,8 +602,9 @@ export const QRCodeElement = ({content}) => {
   }
 
   return (
-    <div className="qr-code">
+    <div className={`qr-code ${className}`}>
       <canvas
+        style={{height: "100%", width: "100%"}}
         ref={element => {
           if(!element) { return; }
 

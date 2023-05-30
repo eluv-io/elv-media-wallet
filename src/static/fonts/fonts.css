@@ -8,14 +8,30 @@
   font-weight: 400;
 }
 
-
 /* Albertus */
 @font-face {
   font-family: "Albertus MT Std";
   src: url("./Albertus/files/AlbertusMT.otf") format("opentype"),
-  url("./Albertus/files/AlbertusMTStd.otf") format("opentype"),
-  url("./Albertus/files/AlbertusMTStdLight.otf") format("opentype"),
-  url("./Albertus/files/AlbertusMTStdItalic.otf") format("opentype");
+    url("./Albertus/files/AlbertusMTStd.otf") format("opentype");
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400 900;
+}
+/* Albertus */
+@font-face {
+  font-family: "Albertus MT Std";
+  src: url("./Albertus/files/AlbertusMTStdLight.otf") format("opentype");
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 300;
+}
+/* Albertus */
+@font-face {
+  font-family: "Albertus MT Std";
+  src: url("./Albertus/files/AlbertusMTStdItalic.otf") format("opentype");
+  font-style: italic;
+  font-display: swap;
+  font-weight: 100 900;
 }
 
 /* Heading Pro */

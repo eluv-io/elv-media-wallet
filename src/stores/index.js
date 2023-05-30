@@ -1624,6 +1624,12 @@ class RootStore {
     return this.shortURLs[url];
   });
 
+  LookoutURL(transaction) {
+    return this.network === "main" ?
+      `https://explorer.contentfabric.io/tx/${transaction}` :
+      `https://lookout.qluv.io/tx/${transaction}`;
+  }
+
   ReloadURL(keepPath=false) {
     const url = new URL(UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""));
 

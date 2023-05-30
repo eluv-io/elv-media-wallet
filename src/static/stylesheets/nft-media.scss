@@ -880,7 +880,7 @@
   &__featured {
     display: grid;
     grid-gap: 15px;
-    grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
     margin: 30px 0;
     max-width: $large-breakpoint;
     min-width: 100%;
@@ -888,6 +888,7 @@
   }
 
   &__featured-item {
+    align-items: center;
     background: var(--background-nft-media-featured);
     border: 0;
     border-radius: var(--border-radius-nft-media-featured);
@@ -895,6 +896,7 @@
     overflow: hidden;
     padding: 30px 50px 30px 30px;
     position: relative;
+    text-align: center;
     width: 100%;
 
     * {
@@ -926,27 +928,32 @@
       display: flex;
       flex: 1 1 100%;
       flex-direction: column;
-      justify-content: center;
+      height: max-content;
+      justify-content: space-around;
     }
 
     &__name {
       color: var(--color-nft-media-text-primary);
       font-size: 26px;
-      margin-top: 5px;
+      margin: 10px 0;
     }
 
     &__subtitle-1 {
       color: var(--color-nft-media-text-secondary);
       font-size: 16px;
       font-weight: 500;
-      margin-top: 5px;
       text-transform: uppercase;
     }
 
     &__subtitle-2 {
       color: var(--color-nft-media-text-highlight);
-      font-size: 12px;
+      font-size: 14px;
+      font-weight: 300;
       text-transform: uppercase;
+
+      &--faded {
+        color: var(--color-nft-media-text-secondary);
+      }
     }
 
     &__description {
@@ -957,6 +964,30 @@
       * {
         color: var(--color-nft-media-text-secondary);
       }
+    }
+
+    &__cta {
+      color: var(--color-nft-media-text-highlight);
+      font-size: 18px;
+      margin: 10px 0;
+      text-decoration: underline;
+      text-transform: uppercase;
+    }
+
+    &__date-container {
+      margin-top: 10px;
+    }
+
+    &__date-header {
+      color: var(--color-nft-media-text-highlight);
+      font-size: 12px;
+      font-weight: 300;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    &__date {
+      font-size: 20px;
     }
 
     &__actions {
@@ -1339,8 +1370,12 @@
 
       &__image-container,
       &__content {
-        margin: 0 0 30px;
+        margin: 0;
         text-align: center;
+      }
+
+      &__content {
+        margin: 10px 0 0;
       }
     }
 

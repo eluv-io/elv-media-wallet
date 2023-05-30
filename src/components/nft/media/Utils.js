@@ -23,7 +23,7 @@ export const NavigateToMedia = ({match, history, sectionId, collectionId, mediaI
 };
 
 export const MediaImageUrl = ({mediaItem, maxWidth}) => {
-  let imageUrl = mediaItem.image || (mediaItem.media_type === "Image" && mediaItem.media_file?.url);
+  let imageUrl = mediaItem.image?.url || mediaItem.image || (mediaItem.media_type === "Image" && mediaItem.media_file?.url);
 
   if(imageUrl && maxWidth){
     imageUrl = new URL(imageUrl);
