@@ -50,7 +50,7 @@
 
 <a class="button" href="index.html">Back</a>
 <div class="source-container">
-  <pre class="prettyprint source linenums"><code>const {ElvWalletClient, Utils} = require("@eluvio/elv-client-js");
+  <pre class="prettyprint source linenums"><code>const {ElvWalletClient, Utils} = require("@eluvio/elv-client-js/src/walletClient/index");
 const EVENTS = require("./Events");
 
 const UUID = () => {
@@ -813,7 +813,6 @@ const frameClient = await ElvWalletFrameClient.InitializePopup({
     });
   }
 }
-
 
 /**
  * `client.EVENTS` contains event keys for the AddEventListener and RemoveEventListener methods
