@@ -66,7 +66,7 @@ const CodeRedemption = observer(() => {
   if(!offer) {
     return <PageLoader />;
   } else if(redeemed) {
-    return <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "store", offer.sku)} />;
+    return <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "store", offer.sku || "")} />;
   }
 
   return (

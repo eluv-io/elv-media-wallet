@@ -912,7 +912,7 @@ const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, showMediaSection
 
   let tabs = [
     mediaTab ? [rootStore.l10n.item_details.media, MediaIcon] : "",
-    redeemablesTab ? [rootStore.l10n.item_details.redeemables, OffersIcon] : "",
+    redeemablesTab ? [rootStore.l10n.item_details.rewards, OffersIcon] : "",
     tradingTab ? [rootStore.l10n.item_details.trading, TradeIcon] : "",
     offersTab ? [rootStore.l10n.item_details.purchase_offers, PurchaseOffersIcon] : ""
   ].filter(tab => tab);
@@ -931,7 +931,7 @@ const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, showMediaSection
       activeContent = <PurchaseOffersTables nftInfo={nftInfo} />;
       break;
 
-    case rootStore.l10n.item_details.redeemables:
+    case rootStore.l10n.item_details.rewards:
       activeContent = <NFTOffers nftInfo={nftInfo} />;
       break;
 
@@ -1055,7 +1055,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
     if(!tab) {
       setTab(
         nftInfo.hasAdditionalMedia && nftInfo.isOwned ? rootStore.l10n.item_details.media :
-          nftInfo.hasRedeemables ? rootStore.l10n.item_details.redeemables : rootStore.l10n.item_details.trading
+          nftInfo.hasRedeemables ? rootStore.l10n.item_details.rewards : rootStore.l10n.item_details.trading
       );
     }
   }, [nft, listingStatus, checkoutStore.currency]);

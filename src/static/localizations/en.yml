@@ -241,10 +241,26 @@ offers:
     failed: Unable to make this offer.
 
 redeemables:
-  redeem: Redeem
-  expires: Redemption Expires
+  reward: Reward
+  redeem: Redeem Now
+  redeem_reward: Redeem Reward
+  reward_redeemed: Reward Redeemed
+  claim_reward: Claim Your Reward
+  reward_valid: Offer Valid
+  reward_expires: Offer Expires
+  expires: Expires
+  available: Available
   view_redemption_code: View Redemption Code
   redeemed_by: By {redeemer}
+  view_redemption: View Redemption
+  view_transaction: View the Transaction
+  successfully_redeemed: Successfully Redeemed
+  code: Code
+  redeemed_message: To access your reward, scan the QR code below or visit the URL and enter the code.
+  redeemed_by_previous: This reward has been redeemed by a previous owner.
+  redeeming: Redemption Transaction in Progress
+  redeeming_subheader: This may take several minutes
+  redeeming_footer: You can navigate away from this page if you don't want to wait. Your reward will be available in your wallet when the process is complete.
 
 transfers:
   header: Transfer Your Item
@@ -370,6 +386,9 @@ item_details:
   trading: Trading
   purchase_offers: Purchase Offers
   redeemables: Redeemables
+  rewards: Rewards
+  reward: Reward
+  reward_redeemed: Reward Redeemed
   held_message: This NFT is in a holding period until {heldDate}. You will not be able to transfer it until then.
   lookout_link: See more info on Eluvio Lookout
   token_url: Token URL
@@ -412,6 +431,7 @@ item_details:
     qr_code_instructions: Point your phone's camera at this QR code to view on mobile.
     next: Next
     previous: Previous
+    play_all: Play All
 
 status:
   back_to_profile: Back to My Profile

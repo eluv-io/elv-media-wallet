@@ -203,6 +203,12 @@ export const InitializeListener = () => {
 
       let marketplace, listing, item, status, balance, price, tags;
       switch(data.action) {
+        // wallet client proxy
+        case "walletClientProxy":
+          return Respond({
+            response: toJS(await rootStore.walletClient[data.params.methodName](...(data.params.params || {})))
+          });
+
         // client.LogIn
         case "login":
           if(rootStore.AuthInfo()?.clientAuthToken === data.params.clientAuthToken) {

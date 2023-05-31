@@ -1,3 +1,4 @@
+const {ElvWalletClient, Utils} = require("@eluvio/elv-client-js/src/walletClient/index");
 const EVENTS = require("./Events");
 
 const UUID = () => {
@@ -70,6 +71,16 @@ const LOG_LEVELS = {
  * This page contains documentation for client setup, navigation and other management.
  <br /><br />
  * <a href="./module-ElvWalletFrameClient_Methods.html">For details on retrieving information from and performing actions in the wallet, see the wallet client methods page.</a>
+ * ### Wallet Client Proxy
+ *
+ * Most methods available in the [Eluvio Wallet Client](https://eluv-io.github.io/elv-client-js/wallet-client/index.html) are also available via proxy in the frame client. Simply access them through `walletFrameClient.walletClient`. Certain methods, such as those that generate signatures, are not available.
+ <br /><br />
+ * ```javascript
+ * await walletFrameClient.walletClient.UserItems({
+ *   start: 50,
+ *   limit: 10
+ * });
+ * ```
  */
 class ElvWalletFrameClient {
   Throw(error) {
@@ -114,7 +125,7 @@ class ElvWalletFrameClient {
   /**
    * This constructor should not be used. Please use <a href="#.InitializePopup">InitializeFrame</a> or <a href="#.InitializePopup">InitializePopup</a> instead.
    *
-<pre><code>
+```javascript
 import { ElvWalletFrameClient } from "@eluvio/elv-wallet-frame-client";
 
 // Initialize in iframe at target element
@@ -129,7 +140,7 @@ const frameClient = await ElvWalletFrameClient.InitializePopup({
  requestor: "My App",
  walletAppUrl: "https://wallet.contentfabric.io",
 });
-</code></pre>
+```
    * @constructor
    */
   constructor({
@@ -167,6 +178,20 @@ const frameClient = await ElvWalletFrameClient.InitializePopup({
 
     // Ensure client is destroyed when target window closes
     this.AddEventListener(this.EVENTS.CLOSE, () => this.Destroy());
+
+    // Initialize wallet client proxy
+    this.walletClient = {};
+    ElvWalletClient.AllowedMethods().forEach(methodName =>
+      this.walletClient[methodName] = async (...args) => {
+        return await this.SendMessage({
+          action: "walletClientProxy",
+          params: {
+            methodName,
+            params: Utils.MakeClonable(args)
+          }
+        });
+      }
+    );
   }
 
   EventHandler(event) {

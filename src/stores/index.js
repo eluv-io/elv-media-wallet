@@ -1210,8 +1210,8 @@ class RootStore {
     return yield this.walletClient.CollectionRedemptionStatus({marketplaceParams: { marketplaceId }, confirmationId});
   });
 
-  OfferRedemptionStatus = flow(function * ({tenantId, confirmationId, contractAddress, tokenId, offerId}) {
-    return yield this.walletClient.OfferRedemptionStatus({tenantId, confirmationId, contractAddress, tokenId, offerId});
+  RedeemableOfferStatus = flow(function * ({tenantId, contractAddress, tokenId, offerId}) {
+    return yield this.walletClient.RedeemableOfferStatus({tenantId, contractAddress, tokenId, offerId});
   });
 
   LoadDrop = flow(function * ({tenantSlug, eventSlug, dropId}) {
@@ -1623,6 +1623,12 @@ class RootStore {
 
     return this.shortURLs[url];
   });
+
+  LookoutURL(transaction) {
+    return this.network === "main" ?
+      `https://explorer.contentfabric.io/tx/${transaction}` :
+      `https://lookout.qluv.io/tx/${transaction}`;
+  }
 
   ReloadURL(keepPath=false) {
     const url = new URL(UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""));

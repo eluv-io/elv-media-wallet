@@ -376,7 +376,7 @@ export const NFTInfo = ({
     renderedPrice = FormatPriceString(price || listing?.details?.Price || 0, {includeCurrency: !usdcOnly, includeUSDCIcon: usdcAccepted, prependCurrency: true, useCurrencyIcon: false});
   }
 
-  const offers = (nft?.metadata?.redeemable_offers || []).map(offer => {
+  const redeemables = (nft?.metadata?.redeemable_offers || []).map(offer => {
     let imageUrl;
     if(offer.image && offer.image.url) {
       imageUrl = new URL(offer.image.url);
@@ -414,6 +414,7 @@ export const NFTInfo = ({
 
     return {
       ...offer,
+      featured: offer.visibility.featured,
       state,
       imageUrl,
       released,
@@ -424,7 +425,8 @@ export const NFTInfo = ({
     };
   });
 
-  const hasRedeemables = offers.filter(offer => !offer.hidden).length > 0;
+  const hasRedeemables = redeemables.filter(offer => !offer.hidden).length > 0;
+  const hasFeaturedRedeemables = redeemables.filter(offer => !offer.hidden && offer.featured).length > 0;
 
   const { additionalMedia, additionalMediaType, hasAdditionalMedia, watchedMediaIds } = FormatAdditionalMedia({nft, name, metadata: nft?.metadata, versionHash: nft?.details?.VersionHash});
   const mediaInfo = NFTMedia({nft, item, width: imageWidth});
@@ -465,7 +467,8 @@ export const NFTInfo = ({
 
     // Offers
     hasRedeemables,
-    offers,
+    hasFeaturedRedeemables,
+    redeemables,//: [...redeemables, ...redeemables, ...redeemables, ...redeemables, ...redeemables, ...redeemables, ...redeemables],
 
     // Media
     hasAdditionalMedia,
