@@ -1,7 +1,7 @@
 import React, {useEffect} from "react";
 import {observer} from "mobx-react";
 import {useState} from "react";
-import {ButtonWithLoader, RichText} from "Components/common/UIComponents";
+import {ButtonWithLoader, LocalizeString, RichText} from "Components/common/UIComponents";
 import {useRouteMatch} from "react-router";
 import {rootStore} from "Stores";
 import {PageLoader} from "Components/common/Loaders";
@@ -40,6 +40,21 @@ const CodeRedemption = observer(() => {
     } catch(error) {
       // eslint-disable-next-line no-console
       console.error(error);
+
+      try {
+        if(error.body && error.body.includes("not yet valid")) {
+          const releaseDate = new Date(parseInt(error.body.match(/.+VAT: (\d+)/)[1]));
+          setError(
+            LocalizeString(
+              rootStore.l10n.codes.errors.not_yet_valid,
+              { date: releaseDate.toLocaleDateString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric"}) }
+            )
+          );
+          return;
+        }
+      // eslint-disable-next-line no-empty
+      } catch(error) {}
+
       setError(rootStore.l10n.codes.errors.failed);
     } finally {
       setRedeeming(false);
