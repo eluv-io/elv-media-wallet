@@ -19,6 +19,7 @@ const MarketplaceItemCard = ({
   noStock,
   noPrice,
   showVideo=false,
+  countdown,
   className="",
   cardClassName=""
 }) => {
@@ -122,6 +123,7 @@ const MarketplaceItemCard = ({
       action={action}
       variant={variant}
       disabled={unavailable}
+      countdown={countdown}
       className={`${className} item-card--marketplace`}
       cardClassName={`${cardClassName}`}
     />

@@ -1,0 +1,159 @@
+@font-face {
+  font-family: 'PlacardNext-Bold';
+  font-style: normal;
+  font-weight: bold;
+  font-display: swap;
+  src: url("https://main.net955305.contentfabric.io/s/main/q/hq__DQbAX3Miau26siLLLgbEsbvncGtX5K9yvxDBvqeFSpUtqqW6tmrbtRwYNcEMy5vPxcGt3rXPbW/files/fonts/PlacardNext-Bold.otf") format("opentype");
+}
+
+@font-face {
+  font-family: 'PlacardNext-WideLight';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url("https://main.net955305.contentfabric.io/s/main/q/hq__DQbAX3Miau26siLLLgbEsbvncGtX5K9yvxDBvqeFSpUtqqW6tmrbtRwYNcEMy5vPxcGt3rXPbW/files/fonts/PlacardNext-WideLight.otf") format("opentype");
+}
+
+@font-face {
+  font-family: 'PlacardNext-WideMedium';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("https://main.net955305.contentfabric.io/s/main/q/hq__DQbAX3Miau26siLLLgbEsbvncGtX5K9yvxDBvqeFSpUtqqW6tmrbtRwYNcEMy5vPxcGt3rXPbW/files/fonts/PlacardNext-WideMedium.otf") format("opentype");
+}
+
+@font-face {
+  font-family: 'PlacardNext-WideBold';
+  font-style: normal;
+  font-weight: bold;
+  font-display: swap;
+  src: url("https://main.net955305.contentfabric.io/s/main/q/hq__DQbAX3Miau26siLLLgbEsbvncGtX5K9yvxDBvqeFSpUtqqW6tmrbtRwYNcEMy5vPxcGt3rXPbW/files/fonts/PlacardNext-WideBold.otf") format("opentype");
+}
+
+:root {
+
+  /* Fonts */
+  --font-family-primary: "PlacardNext-Bold", sans-serif; /* Primary font should be accompanied with 'text-transform: uppercase' */
+  --font-family-secondary: "PlacardNext-WideLight", sans-serif;
+  --font-family-tertiary: "PlacardNext-WideBold", sans-serif;
+  --font-default: normal normal normal 16px var(--font-family-secondary);
+
+  /* General */
+  --color-bg-primary: #254B7095;
+  --color-bg-secondary: #31608E;
+
+  --color-page-bg: #000000;
+
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #A0A0A0;
+
+  --color-text-highlight: #f0b740;
+  --color-text-highlight-rgb: 240, 183, 64;
+
+  --color-highlight-container-bg: #0043a4;
+
+  --color-loader: rgba(255, 255, 255, 0.5);
+
+  --border: 1px solid #444444;
+  --border-faint: 1px solid #333333;
+
+
+  --border-color: #444444;
+  --border-color-faint: #333333;
+
+  --box-shadow: none;
+
+
+  /* Header */
+  --background-page-header: var(--color-bg-primary);
+  --background-page-header-profile: var(--color-bg-secondary);
+
+  --background-input: var(--color-bg-primary);
+  --color-input-bg-solid: var(--color-bg-primary);
+
+  --background-button-primary: #990000;
+  --background-button-secondary: #000000;
+
+  --border-button-secondary: 1px solid var(--background-button-secondary);
+
+  /* Cards */
+  --background-card: #132855;
+
+  --background-component-primary: var(--color-bg-primary);
+  --background-table: var(--color-bg-primary);
+  --background-table-header-row: var(--color-bg-secondary);
+  --color-table-odd-row-bg: var(--color-bg-primary);
+  --color-table-even-row-bg: var(--color-bg-secondary);
+
+  --border-radius-feature-card: 0px;
+
+  /* User Profile */
+  --color-user-profile-bg-primary: var(--color-bg-primary);
+  --color-user-profile-bg-secondary: var(--color-bg-secondary);
+}
+
+.featured-item__icon {
+  padding: 0px;
+}
+
+.header__navigation-link:hover, .header__navigation-link.active {
+  color: #f0b740;
+}
+
+.marketplace__section {
+  background-color: #254B7095;
+}
+
+/* WB default login */
+
+.login-page * {
+  font-family: 'Montserrat', sans-serif!important;
+  color: white;
+}
+.login-page__logo {
+  max-height: 100px;
+}
+.login-page__login-button-sign-in {
+  background: #0043a4;
+  font-weight: 600;
+}
+.login-page__login-button-create, .login-page__login-button-wallet {
+  background: #000;
+  font-weight: 600;
+}
+.login-page__login-button-sign-in:focus-visible, .login-page__login-button-create:focus-visible {
+  box-shadow: none;
+  outline: none;
+}
+.login-page__login-button-sign-in:hover, .login-page__login-button-create:hover {
+  color: white;
+}
+.login-page__terms a, .login-page__consent a {
+  color: white;
+  text-decoration: underline;
+}
+.login-page__consent-label a {
+  color: white!important;
+}
+.login-page .login-page__tagline {
+  margin: 25px 0 25px;
+}
+.login-page .login-page__tagline__text {
+  font-family: 'Montserrat', sans-serif;
+}
+
+.marketplace__countdown-header {
+  color: #fed122;
+}
+
+.marketplace__countdown-border {
+  padding: 0;
+  background: transparent;
+}
+
+.marketplace__countdown {
+  border: 0;
+  border-radius: 100px;
+}
+
+

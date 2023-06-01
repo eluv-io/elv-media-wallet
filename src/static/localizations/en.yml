@@ -516,6 +516,16 @@ voting:
   total_votes: "Total votes for this entry: {votes}"
   voted: You have voted for this entry
 
+time_units:
+  day: day
+  days: days
+  hour: hour
+  hours: hours
+  minute: minute
+  minutes: minutes
+  second: second
+  seconds: seconds
+
 time:
   day: 1 day
   days: "{days} days"
