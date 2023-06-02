@@ -13,7 +13,7 @@ import Modal from "Components/common/Modal";
 import Countdown from "Components/common/Countdown";
 import {RichText} from "Components/common/UIComponents";
 
-const MarketplaceVideo = ({videoLink, muted, className}) => {
+const MarketplaceVideo = ({videoLink, muted, autoplay, className}) => {
   const targetRef = useRef();
 
   useEffect(() => {
@@ -35,7 +35,7 @@ const MarketplaceVideo = ({videoLink, muted, className}) => {
         playerOptions: {
           watermark: EluvioPlayerParameters.watermark.OFF,
           muted: muted ? EluvioPlayerParameters.muted.ON : EluvioPlayerParameters.muted.OFF,
-          autoplay: muted ? EluvioPlayerParameters.autoplay.ON : EluvioPlayerParameters.autoplay.OFF,
+          autoplay: autoplay || muted ? EluvioPlayerParameters.autoplay.ON : EluvioPlayerParameters.autoplay.OFF,
           controls: muted ? EluvioPlayerParameters.controls.OFF : EluvioPlayerParameters.controls.AUTO_HIDE,
           loop: muted ? EluvioPlayerParameters.loop.ON : EluvioPlayerParameters.loop.OFF
         }
@@ -123,7 +123,7 @@ const MarketplaceBanners = ({marketplace}) => {
       {
         videoModal ?
           <Modal className="marketplace__banner__video-modal" Toggle={() => setVideoModal(undefined)}>
-            <MarketplaceVideo videoLink={videoModal} className="marketplace__banner__video-modal__video" />
+            <MarketplaceVideo autoplay videoLink={videoModal} className="marketplace__banner__video-modal__video" />
           </Modal> :
           null
       }

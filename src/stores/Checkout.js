@@ -305,7 +305,6 @@ class CheckoutStore {
   })
 
   RedeemOffer = flow(function * ({tenantId, contractAddress, tokenId, offerId}) {
-    offerId = offerId?.toString();
     const confirmationId = this.ConfirmationId();
 
     try {
@@ -346,7 +345,7 @@ class CheckoutStore {
         client_reference_id: confirmationId,
         tok_addr: contractAddress,
         tok_id: tokenId,
-        offerId: offerId
+        offer_id: offerId
       };
 
       if(signedHash){
