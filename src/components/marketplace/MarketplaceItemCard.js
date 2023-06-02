@@ -5,9 +5,9 @@ import {MarketplaceImage} from "Components/common/Images";
 import ItemCard from "Components/common/ItemCard";
 import FeaturedItemCard from "Components/common/FeaturedItemCard";
 import ImageIcon from "Components/common/ImageIcon";
+import {NFTInfo} from "../../utils/Utils";
 
 import TestIcon from "Assets/icons/alert-circle";
-import {NFTInfo} from "../../utils/Utils";
 
 const MarketplaceItemCard = ({
   type="Standard",
@@ -18,6 +18,7 @@ const MarketplaceItemCard = ({
   noLink,
   noStock,
   noPrice,
+  showCta=false,
   showVideo=false,
   countdown,
   className="",
@@ -43,7 +44,7 @@ const MarketplaceItemCard = ({
 
   const variant = item.nftTemplateMetadata.style;
 
-  let status, action, linkDisabled=noLink;
+  let status, action, cta, linkDisabled=noLink;
   if(info.expired) {
     action = "listings";
     status = rootStore.l10n.item_details.status.sale_ended;
@@ -64,6 +65,7 @@ const MarketplaceItemCard = ({
     action = "view";
   } else {
     action = info.free ? "claim" : "buy";
+    cta = rootStore.l10n.actions.purchase[info.free ? "claim" : "buy_now"];
   }
 
   let CardComponent = ItemCard;
@@ -82,7 +84,7 @@ const MarketplaceItemCard = ({
     if(info.maxOwned) {
       priceText = rootStore.l10n.item_details.status.max_owned;
       action = "";
-    } else if(!info.free) {
+    } else if(!info.free && item.for_sale) {
       priceText = info.renderedPrice;
     }
   }
@@ -118,6 +120,7 @@ const MarketplaceItemCard = ({
       price={priceText}
       sideText={sideText}
       status={status}
+      cta={showCta ? cta : undefined}
       justification={justification}
       fullDescription={type === "Detail"}
       action={action}

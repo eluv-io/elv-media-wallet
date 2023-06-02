@@ -937,6 +937,7 @@
       flex-direction: column;
       height: max-content;
       justify-content: space-around;
+      overflow: hidden;
     }
 
     &__name {
@@ -998,8 +999,10 @@
     }
 
     &__actions {
+      align-items: center;
       display: flex;
       flex-direction: column;
+      justify-content: center;
       margin-top: 20px;
     }
 

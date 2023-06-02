@@ -224,6 +224,7 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
                   item={item}
                   index={item.itemIndex}
                   showVideo={item.play_on_storefront}
+                  showCta={marketplace.storefront.show_card_cta}
                   key={`marketplace-item-${sectionIndex}-${item.sku}-${index}-${loadKey}`}
                 />
               )
