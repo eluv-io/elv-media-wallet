@@ -17,6 +17,7 @@ const ItemCard = observer(({
   description,
   price,
   status,
+  cta,
   sideText,
   onClick,
   actions,
@@ -97,7 +98,7 @@ const ItemCard = observer(({
             /> : description
         }
         {
-          price || status ?
+          price || status || cta?
             <div className="item-card__status">
               {
                 price ?
@@ -109,7 +110,13 @@ const ItemCard = observer(({
                 status ?
                   <div className="item-card__status__text">
                     {status}
-                  </div> : null
+                  </div> :
+                  cta ?
+                    <div className="item-card__status__cta-container">
+                      <div className="action action-primary item-card__status__cta">
+                        {cta}
+                      </div>
+                    </div>: null
               }
             </div> : null
         }

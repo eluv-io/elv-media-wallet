@@ -473,44 +473,6 @@
     }
   }
 
-  &__offer-code-modal-container {
-    .modal__content {
-      align-items: center;
-      display: flex;
-      height: max-content;
-      justify-content: center;
-      max-width: 100%;
-      overflow-y: hidden;
-      width: max-content;
-    }
-  }
-
-  &__offer-code-modal {
-    @include modal;
-    width: 100%;
-
-    &__header {
-      border-bottom: var(--border-component-primary);
-      font: var(--font-component-header);
-      font-size: 20px;
-      font-weight: 300;
-      padding: 15px 25px;
-      text-align: center;
-    }
-
-    .qr-code {
-      align-items: center;
-      display: flex;
-      justify-content: center;
-      padding: 30px;
-    }
-
-    .qr-code,
-    .qr-code__canvas {
-      width: 100%;
-    }
-  }
-
   &__voting-button {
     height: max-content;
     min-height: 50px;
@@ -602,15 +564,29 @@
     }
 
     &__tabbed-content {
+      &__tabs {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
       &__tab {
         flex: 1 1 100%;
         font-size: 12px;
-        max-width: 175px;
+        height: 30px;
+        max-width: 150px;
         min-width: unset;
 
         svg {
           display: none;
         }
+      }
+    }
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    &__tabbed-content {
+      &__tab {
+        max-width: unset;
       }
     }
   }
@@ -680,12 +656,201 @@
   }
 }
 
+.redeemable-offers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.redeemable-offer,
+.redeemable-offer-modal {
+  .modal__content {
+    height: max-content;
+    max-height: unset;
+    max-width: 550px;
+    overflow-y: hidden;
+    padding-bottom: 5vh;
+    padding-right: 8px;
+    top: 5vh;
+    width: 100%;
+  }
+
+  &__container {
+    @include component;
+    padding: 20px 0;
+  }
+
+  &__content {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 10px 75px 30px;
+    width: 100%;
+  }
+
+  &__header {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    font: var(--font-component-header);
+    font-size: 32px;
+    justify-content: space-between;
+    padding: 30px;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  &__subheader,
+  &__footer {
+    color: var(--color-component-text-secondary);
+    opacity: 0.8;
+    text-align: center;
+  }
+
+  &__loader {
+    height: 400px;
+  }
+
+  &__image-container {
+    margin: 10px 0;
+    max-width: 325px;
+    width: 100%;
+  }
+
+  &__image,
+  canvas {
+    border-radius: var(--border-radius-component);
+    // sass-lint:disable no-important
+    height: auto !important;
+    overflow: hidden;
+    width: 100% !important;
+  }
+
+  &__video {
+    .eluvio-player,
+    video {
+      background: transparent;
+    }
+  }
+
+  &__name {
+    font-size: 26px;
+    margin-top: 10px;
+  }
+
+  &__description {
+    font-weight: 300;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  &__message {
+    align-items: center;
+  }
+
+  &__redeem-message {
+    font-size: 20px;
+    margin-bottom: 30px;
+  }
+
+  &__code-header {
+    font-size: 14px;
+    margin-top: 50px;
+    text-transform: uppercase;
+  }
+
+  &__code {
+    color: var(--color-component-text-highlight);
+    font-size: 32px;
+    margin-top: 10px;
+  }
+
+  &__link {
+    max-width: 300px;
+    text-decoration: underline;
+  }
+
+  &__cta {
+    color: var(--color-component-text-highlight);
+    font-size: 20px;
+    text-decoration: underline;
+    text-transform: uppercase;
+  }
+
+  &__date-container {
+    margin-top: 20px;
+  }
+
+  &__date-header {
+    color: var(--color-component-text-highlight);
+    font-size: 14px;
+    font-weight: 300;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  &__date {
+    font-size: 20px;
+    font-weight: 300;
+    margin-bottom: 30px;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
+  &__lookout-url {
+    color: var(--color-component-text-highlight);
+    margin-top: 20px;
+  }
 
 
+  @media screen and (max-width: $mobile-breakpoint) {
+    .modal__content {
+      border: 0;
+      max-width: unset;
+      min-height: 100%;
+      padding: 0;
+      top: 0;
+    }
 
+    &__container {
+      border: 0;
+    }
 
+    &__content {
+      padding-inline: 25px;
+    }
+  }
+}
 
+.redeemable-offer {
+  @include component;
+  align-items: center;
+  display: flex;
+  flex: 1 1 100%;
+  flex-direction: column;
+  justify-content: center;
+  max-width: calc(#{$extra-large-breakpoint} / 3 - 30px);
+  padding: 0 30px 30px;
+  width: 100%;
 
+  &__header {
+    color: var(--color-component-text-highlight);
+    font-size: 26px;
+    padding-left: 0;
+    padding-right: 0;
+  }
 
-
-
+  &--redeemed {
+    *:not(.redeemable-offer__cta) {
+      color: var(--color-component-text-secondary);
+      opacity: 0.8;
+    }
+  }
+}

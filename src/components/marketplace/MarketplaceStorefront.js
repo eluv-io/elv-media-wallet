@@ -10,6 +10,8 @@ import {MarketplaceCollectionsSummary} from "Components/marketplace/MarketplaceC
 import EluvioPlayer, {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 import {LinkTargetHash, SetImageUrlDimensions} from "../../utils/Utils";
 import Modal from "Components/common/Modal";
+import Countdown from "Components/common/Countdown";
+import {RichText} from "Components/common/UIComponents";
 
 const MarketplaceVideo = ({videoLink, muted, className}) => {
   const targetRef = useRef();
@@ -199,33 +201,53 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
           items={items}
           justification={section.featured_view_justification}
           showGallery={section.show_carousel_gallery}
+          countdown={section.show_countdown ? section.countdown : undefined}
         />
       );
     } else {
       renderedItems = (
-        <div className={`card-list card-list--marketplace ${rootStore.centerContent ? "card-list--centered" : ""}`}>
+        <>
           {
-            items.map((item, index) =>
-              <MarketplaceItemCard
-                marketplaceHash={marketplace.versionHash}
-                item={item}
-                index={item.itemIndex}
-                showVideo={item.play_on_storefront}
-                key={`marketplace-item-${sectionIndex}-${item.sku}-${index}-${loadKey}`}
-              />
-            )
+            section.show_countdown ?
+              <div className="marketplace__countdown-container">
+                { section.countdown.header ? <h2 className="marketplace__countdown-header">{section.countdown.header}</h2> : null }
+                <div className="marketplace__countdown-border">
+                  <Countdown time={section.countdown.date} showSeconds className="marketplace__countdown"/>
+                </div>
+              </div> : null
           }
-        </div>
+          <div className={`card-list card-list--marketplace ${rootStore.centerContent ? "card-list--centered" : ""}`}>
+            {
+              items.map((item, index) =>
+                <MarketplaceItemCard
+                  marketplaceHash={marketplace.versionHash}
+                  item={item}
+                  index={item.itemIndex}
+                  showVideo={item.play_on_storefront}
+                  showCta={marketplace.storefront.show_card_cta}
+                  key={`marketplace-item-${sectionIndex}-${item.sku}-${index}-${loadKey}`}
+                />
+              )
+            }
+          </div>
+        </>
       );
     }
 
     return (
-      <div className="marketplace__section marketplace__section--no-margin" key={`marketplace-section-${sectionIndex}-${loadKey}`}>
+      <div className="marketplace__section" key={`marketplace-section-${sectionIndex}-${loadKey}`}>
         <div className="page-headers">
           { section.section_header ? <h1 className="page-header">{section.section_header}</h1> : null }
           { section.section_subheader ? <h2 className="page-subheader">{section.section_subheader}</h2> : null }
+          { section.section_header_rich_text ? <RichText richText={section.section_header_rich_text} className="markdown-document marketplace__section__header--rich-text" /> : null }
         </div>
         { renderedItems }
+        {
+          section.section_footer ?
+            <div className="page-headers">
+              <RichText richText={section.section_footer} className="markdown-document marketplace__section__footer" />
+            </div> : null
+        }
       </div>
     );
   })).filter(section => section);

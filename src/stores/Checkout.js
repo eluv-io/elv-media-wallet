@@ -4,6 +4,7 @@ import {makeAutoObservable, flow, runInAction} from "mobx";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {ethers} from "ethers";
 import React from "react";
+import {rootStore} from "./index";
 
 const PUBLIC_KEYS = {
   stripe: {
@@ -28,6 +29,8 @@ class CheckoutStore {
 
   solanaSignatures = {};
   ethereumHashes = {};
+  redeemableOfferStatus = {};
+  redeemedOffers = {};
 
   get client() {
     return this.rootStore.client;
@@ -302,6 +305,7 @@ class CheckoutStore {
   })
 
   RedeemOffer = flow(function * ({tenantId, contractAddress, tokenId, offerId}) {
+    offerId = offerId?.toString();
     const confirmationId = this.ConfirmationId();
 
     try {
@@ -342,7 +346,7 @@ class CheckoutStore {
         client_reference_id: confirmationId,
         tok_addr: contractAddress,
         tok_id: tokenId,
-        offerId: offerId,
+        offerId: offerId
       };
 
       if(signedHash){
@@ -358,12 +362,48 @@ class CheckoutStore {
         }
       });
 
+      this.redeemedOffers[`${contractAddress}-${tokenId}-${offerId}`] = true;
+
+      this.RedeemableOfferStatus({tenantId, contractAddress, tokenId, offerId});
+
+      let statusInterval;
+      statusInterval = setInterval(() => {
+        runInAction(async () => {
+          const status = await this.RedeemableOfferStatus({tenantId, contractAddress, tokenId, offerId});
+
+          if(status?.status === "complete" || status?.status === "failed") {
+            clearInterval(statusInterval);
+
+            this.rootStore.LoadNFTData({
+              contractAddress,
+              tokenId,
+              force: true
+            });
+          }
+        });
+      }, 7500);
+
       return confirmationId;
     } catch(error) {
       this.PurchaseComplete({confirmationId, success: false, message: error.message});
       throw error;
     }
   })
+
+  RedeemableOfferStatus = flow(function * ({tenantId, contractAddress, tokenId, offerId}) {
+    offerId = offerId?.toString();
+
+    const status = yield rootStore.RedeemableOfferStatus({
+      tenantId: tenantId,
+      contractAddress,
+      tokenId,
+      offerId
+    });
+
+    this.redeemableOfferStatus[`${contractAddress}-${tokenId}-${offerId}`] = status;
+
+    return status;
+  });
 
   ClaimSubmit = flow(function * ({marketplaceId, sku, email}) {
     try {

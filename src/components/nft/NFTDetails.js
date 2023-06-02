@@ -29,7 +29,7 @@ import {MarketplaceImage, NFTImage} from "Components/common/Images";
 import AsyncComponent from "Components/common/AsyncComponent";
 import {Ago, MiddleEllipsis, NFTInfo, ScrollTo, SearchParams} from "../../utils/Utils";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-import NFTOffers from "Components/nft/NFTOffers";
+import NFTRedeemableOffers from "Components/nft/NFTRedeemableOffers";
 import {NFTMediaContainer} from "Components/nft/media/index";
 import OfferModal from "../listings/OfferModal";
 import {OffersTable} from "../listings/TransferTables";
@@ -912,7 +912,7 @@ const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, showMediaSection
 
   let tabs = [
     mediaTab ? [rootStore.l10n.item_details.media, MediaIcon] : "",
-    redeemablesTab ? [rootStore.l10n.item_details.redeemables, OffersIcon] : "",
+    redeemablesTab ? [rootStore.l10n.item_details.rewards, OffersIcon] : "",
     tradingTab ? [rootStore.l10n.item_details.trading, TradeIcon] : "",
     offersTab ? [rootStore.l10n.item_details.purchase_offers, PurchaseOffersIcon] : ""
   ].filter(tab => tab);
@@ -931,8 +931,8 @@ const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, showMediaSection
       activeContent = <PurchaseOffersTables nftInfo={nftInfo} />;
       break;
 
-    case rootStore.l10n.item_details.redeemables:
-      activeContent = <NFTOffers nftInfo={nftInfo} />;
+    case rootStore.l10n.item_details.rewards:
+      activeContent = <NFTRedeemableOffers nftInfo={nftInfo} />;
       break;
 
     case rootStore.l10n.item_details.media:
@@ -1055,7 +1055,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
     if(!tab) {
       setTab(
         nftInfo.hasAdditionalMedia && nftInfo.isOwned ? rootStore.l10n.item_details.media :
-          nftInfo.hasRedeemables ? rootStore.l10n.item_details.redeemables : rootStore.l10n.item_details.trading
+          nftInfo.hasRedeemables ? rootStore.l10n.item_details.rewards : rootStore.l10n.item_details.trading
       );
     }
   }, [nft, listingStatus, checkoutStore.currency]);

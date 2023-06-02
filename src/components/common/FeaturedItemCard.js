@@ -6,6 +6,7 @@ import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 
 import UrlJoin from "url-join";
 import {RichText} from "Components/common/UIComponents";
+import Countdown from "Components/common/Countdown";
 
 const FeaturedItemCard = observer(({
   link,
@@ -24,6 +25,7 @@ const FeaturedItemCard = observer(({
   onClick,
   variant,
   disabled,
+  countdown,
   className="",
 }) => {
   const match = useRouteMatch();
@@ -104,6 +106,15 @@ const FeaturedItemCard = observer(({
             <h2 className="featured-item__edition">
               { subtitle1 }
             </h2> : null
+        }
+        {
+          countdown ?
+            <div className="marketplace__countdown-container">
+              { countdown.header ? <h2 className="marketplace__countdown-header">{countdown.header}</h2> : null }
+              <div className="marketplace__countdown-border">
+                <Countdown time={countdown.date} showSeconds className="marketplace__countdown marketplace__countdown--standard"/>
+              </div>
+            </div> : null
         }
         {
           descriptionRichText ?

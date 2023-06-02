@@ -60,5 +60,14 @@ const walletFrameClient = await ElvWalletFrameClient.InitializePopup({
 });
 ```
 
+#### Wallet Client Proxy
 
+Most methods available in the [Eluvio Wallet Client](https://eluv-io.github.io/elv-client-js/wallet-client/index.html) are also available via proxy in the frame client. Simply access them through `walletFrameClient.walletClient`. Certain methods, such as those that generate signatures, are not available.
 
+```javascript
+await walletFrameClient.walletClient.UserItems({
+  start: 50,
+  limit: 10
+});
+
+```
