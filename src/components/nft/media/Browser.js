@@ -14,7 +14,7 @@ import RightArrow from "Assets/icons/right-arrow";
 import UnlockedIcon from "Assets/icons/unlock icon";
 import LeftArrow from "Assets/icons/left-arrow";
 import PlayIcon from "Assets/icons/media/play.svg";
-import {NFTRedeemableOfferModal} from "Components/nft/NFTOffers";
+import {NFTRedeemableOfferModal, NFTRedeemableOfferVideo} from "Components/nft/NFTRedeemableOffers";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 
 const FeaturedRedeemableDate = ({header, date}) => {
@@ -57,9 +57,13 @@ const FeaturedRedeemable = observer(({nftInfo, offer}) => {
         className="nft-media-browser__featured-item"
       >
         {
-          offer.image ?
+          offer.image || offer.animation ?
             <div className="nft-media-browser__featured-item__image-container">
-              <img src={offer.image.url} alt={offer.name} className="nft-media-browser__featured-item__image"/>
+              {
+                offer.animation ?
+                  <NFTRedeemableOfferVideo videoLink={offer.animation} className="nft-media-browser__featured-item__image nft-media-browser__featured-item__video"/> :
+                  <img src={offer.image.url} alt={offer.name} className="nft-media-browser__featured-item__image"/>
+              }
             </div> : null
         }
         <div className="nft-media-browser__featured-item__content">

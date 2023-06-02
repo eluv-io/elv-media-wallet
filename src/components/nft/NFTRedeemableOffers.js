@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
 import {ButtonWithLoader, QRCodeElement, RichText} from "Components/common/UIComponents";
@@ -6,6 +6,49 @@ import {checkoutStore, rootStore} from "Stores";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import ImageIcon from "Components/common/ImageIcon";
 import {Loader} from "Components/common/Loaders";
+import EluvioPlayer, {EluvioPlayerParameters} from "@eluvio/elv-player-js";
+import {LinkTargetHash} from "../../utils/Utils";
+
+export const NFTRedeemableOfferVideo = ({posterUrl, videoLink, className=""}) => {
+  const targetRef = useRef();
+
+  useEffect(() => {
+    if(!targetRef || !targetRef.current) { return; }
+
+    const playerPromise = new EluvioPlayer(
+      targetRef.current,
+      {
+        clientOptions: {
+          network: rootStore.walletClient.network === "main" ?
+            EluvioPlayerParameters.networks.MAIN : EluvioPlayerParameters.networks.DEMO,
+          client: rootStore.client
+        },
+        sourceOptions: {
+          playoutParameters: {
+            versionHash: LinkTargetHash(videoLink)
+          }
+        },
+        playerOptions: {
+          posterUrl,
+          watermark: EluvioPlayerParameters.watermark.OFF,
+          muted: EluvioPlayerParameters.muted.ON,
+          autoplay: EluvioPlayerParameters.autoplay.ON,
+          controls: EluvioPlayerParameters.controls.OFF,
+          loop: EluvioPlayerParameters.loop.ON
+        }
+      }
+    );
+
+    return async () => {
+      if(!playerPromise) { return; }
+
+      const player = await playerPromise;
+      player.Destroy();
+    };
+  }, [targetRef]);
+
+  return <div className={className} ref={targetRef} />;
+};
 
 export const NFTRedeemableOfferModal = observer(({nftInfo, offerId, Close}) => {
   const offerKey = `${nftInfo.nft.details.ContractAddr}-${nftInfo.nft.details.TokenIdStr}-${offerId}`;
@@ -212,9 +255,13 @@ export const NFTRedeemableOfferModal = observer(({nftInfo, offerId, Close}) => {
         </div>
         <div className="redeemable-offer-modal__content">
           {
-            offer.image ?
+            offer.image || offer.animation ?
               <div className="redeemable-offer-modal__image-container">
-                <ImageIcon label={offer.name} icon={offer.image.url} className="redeemable-offer-modal__image" />
+                {
+                  offer.animation ?
+                    <NFTRedeemableOfferVideo videoLink={offer.animation} className="redeemable-offer-modal__image redeemable-offer-modal__video"/> :
+                    <ImageIcon label={offer.name} icon={offer.image.url} className="redeemable-offer-modal__image"/>
+                }
               </div> : null
           }
 
@@ -275,7 +322,7 @@ export const NFTRedeemableOfferModal = observer(({nftInfo, offerId, Close}) => {
 });
 
 
-const NFTOffers = observer(({nftInfo}) => {
+const NFTRedeemableOffers = observer(({nftInfo}) => {
   const [modalInfo, setModalInfo] = useState(undefined);
 
   useEffect(() => {
@@ -342,9 +389,16 @@ const NFTOffers = observer(({nftInfo}) => {
                 <div className="redeemable-offer__header">
                   { rootStore.l10n.redeemables[redeemer ? "reward_redeemed" : "reward"] }
                 </div>
-                <div className="redeemable-offer__image-container">
-                  <ImageIcon icon={offer.image?.url} alt={offer.name} />
-                </div>
+                {
+                  offer.image || offer.animation ?
+                    <div className="redeemable-offer__image-container">
+                      {
+                        offer.animation ?
+                          <NFTRedeemableOfferVideo videoLink={offer.animation} className="redeemable-offer__image redeemable-offer__video"/> :
+                          <ImageIcon label={offer.name} icon={offer.image.url} className="redeemable-offer__image"/>
+                      }
+                    </div> : null
+                }
                 <div className="redeemable-offer__name">
                   { offer.name }
                 </div>
@@ -359,4 +413,4 @@ const NFTOffers = observer(({nftInfo}) => {
   );
 });
 
-export default NFTOffers;
+export default NFTRedeemableOffers;

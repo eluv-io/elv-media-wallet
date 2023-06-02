@@ -924,6 +924,13 @@
       width: 100%;
     }
 
+    &__video {
+      .eluvio-player,
+      video {
+        background: transparent;
+      }
+    }
+
     &__content {
       display: flex;
       flex: 1 1 100%;

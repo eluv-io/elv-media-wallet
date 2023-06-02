@@ -721,10 +721,18 @@
 
   &__image,
   canvas {
-    // sass-lint:disable no-important
     border-radius: var(--border-radius-component);
+    // sass-lint:disable no-important
     height: auto !important;
+    overflow: hidden;
     width: 100% !important;
+  }
+
+  &__video {
+    .eluvio-player,
+    video {
+      background: transparent;
+    }
   }
 
   &__name {

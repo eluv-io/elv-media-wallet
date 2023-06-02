@@ -29,7 +29,7 @@ import {MarketplaceImage, NFTImage} from "Components/common/Images";
 import AsyncComponent from "Components/common/AsyncComponent";
 import {Ago, MiddleEllipsis, NFTInfo, ScrollTo, SearchParams} from "../../utils/Utils";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-import NFTOffers from "Components/nft/NFTOffers";
+import NFTRedeemableOffers from "Components/nft/NFTRedeemableOffers";
 import {NFTMediaContainer} from "Components/nft/media/index";
 import OfferModal from "../listings/OfferModal";
 import {OffersTable} from "../listings/TransferTables";
@@ -932,7 +932,7 @@ const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, showMediaSection
       break;
 
     case rootStore.l10n.item_details.rewards:
-      activeContent = <NFTOffers nftInfo={nftInfo} />;
+      activeContent = <NFTRedeemableOffers nftInfo={nftInfo} />;
       break;
 
     case rootStore.l10n.item_details.media:
