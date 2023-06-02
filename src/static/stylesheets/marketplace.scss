@@ -191,11 +191,6 @@
     margin-bottom: 10px;
   }
 
-  .countdown__unit-container {
-    max-height: 40px;
-    padding: 0 10px;
-  }
-
   &__countdown {
     align-items: center;
     background: var(--background-card);
@@ -208,7 +203,7 @@
     user-select: none;
 
     .countdown__unit-container {
-      max-height: 40px;
+      max-height: 43px;
       padding: 0 10px;
     }
 
