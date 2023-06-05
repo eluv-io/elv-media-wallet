@@ -203,6 +203,7 @@
     height: 25px;
     justify-content: center;
     padding: 5px;
+    transition: opacity 0.5s ease;
     width: 35px;
 
     svg {
@@ -212,6 +213,10 @@
       * {
         color: var(--color-button-secondary-text);
       }
+    }
+
+    &--active {
+      opacity: 0.5;
     }
   }
 }

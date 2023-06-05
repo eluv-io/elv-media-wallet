@@ -246,8 +246,9 @@ redeemables:
   redeem_reward: Redeem Reward
   reward_redeemed: Reward Redeemed
   claim_reward: Claim Your Reward
-  reward_valid: Offer Valid
-  reward_expires: Offer Expires
+  view_details: View Details
+  reward_valid: Reward Valid
+  reward_expires: Reward Expires
   expires: Expires
   available: Available
   view_redemption_code: View Redemption Code

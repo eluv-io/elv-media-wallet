@@ -283,6 +283,7 @@ export const NFTRedeemableOfferModal = observer(({nftInfo, offerId, Close}) => {
           }
           <div className="redeemable-offer-modal__actions">
             <ButtonWithLoader
+              disabled={!offer.released || offer.expired}
               onClick={async () => await checkoutStore.RedeemOffer({
                 tenantId: nftInfo.tenantId,
                 contractAddress: nftInfo.nft.details.ContractAddr,
@@ -344,14 +345,14 @@ const NFTRedeemableOffers = observer(({nftInfo}) => {
             const redeemer = offer.state?.redeemer;
             const isRedeemer = Utils.EqualAddress(redeemer, rootStore.CurrentAddress());
 
-            const disabled = (redeemer && !isRedeemer) || !offer.released || offer.expired;
+            const disabled = (redeemer && !isRedeemer);
 
             let details;
             if(!redeemer || isRedeemer) {
               details = (
                 <>
                   <div className="redeemable-offer__cta">
-                    { rootStore.l10n.redeemables[redeemer ? "view_redemption" : "claim_reward"] }
+                    { rootStore.l10n.redeemables[redeemer ? "view_redemption" : (offer.released && !offer.expired ? "claim_reward" : "view_details")] }
                   </div>
                   {
                     offer.releaseDate || offer.expirationDate ?
@@ -360,8 +361,9 @@ const NFTRedeemableOffers = observer(({nftInfo}) => {
                           { rootStore.l10n.redeemables[offer.releaseDate ? "reward_valid" : "reward_expires"] }
                         </div>
                         <div className="redeemable-offer__date">
-                          { offer.releaseDate ? offer.releaseDate + " - " : "" }
-                          { offer.expirationDate }
+                          { offer.releaseDate || "" }
+                          { offer.releaseDate && offer.expirationDate ? " - " : "" }
+                          { offer.expirationDate || "" }
                         </div>
                       </div> : null
                   }

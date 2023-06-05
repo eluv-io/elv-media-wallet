@@ -17,25 +17,12 @@ import PlayIcon from "Assets/icons/media/play.svg";
 import {NFTRedeemableOfferModal, NFTRedeemableOfferVideo} from "Components/nft/NFTRedeemableOffers";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 
-const FeaturedRedeemableDate = ({header, date}) => {
-  return (
-    <div className="nft-media-browser__featured-item__date-container">
-      <div className="nft-media-browser__featured-item__date-header">
-        { header }
-      </div>
-      <div className="nft-media-browser__featured-item__date">
-        { date }
-      </div>
-    </div>
-  );
-};
-
 const FeaturedRedeemable = observer(({nftInfo, offer}) => {
   const [showOfferModal, setShowOfferModal] = useState(false);
 
   const redeemer = offer.state?.redeemer;
   const isRedeemer = Utils.EqualAddress(redeemer, rootStore.CurrentAddress());
-  const disabled = (redeemer && !isRedeemer) || !offer.released || offer.expired;
+  const disabled = (redeemer && !isRedeemer);
 
   if(offer.hidden) {
     return null;
@@ -71,13 +58,22 @@ const FeaturedRedeemable = observer(({nftInfo, offer}) => {
             { rootStore.l10n.item_details[redeemer ? "reward_redeemed" : "reward"] }
           </div>
           <div className="nft-media-browser__featured-item__name">{offer.name}</div>
-          { disabled ? null : <div className="nft-media-browser__featured-item__cta">{ rootStore.l10n.redeemables[redeemer ? "view_redemption" : "claim_reward"] }</div> }
           {
-            !redeemer && offer.releaseDate && !offer.released ?
-              <FeaturedRedeemableDate header={rootStore.l10n.redeemables.available} date={offer.releaseDate}/> :
-              !redeemer && offer.expirationDate ?
-                <FeaturedRedeemableDate header={rootStore.l10n.redeemables.expires} date={offer.expirationDate}/> :
-                null
+            !disabled ?
+              <div className="nft-media-browser__featured-item__cta">
+                { rootStore.l10n.redeemables[redeemer ? "view_redemption" : (!offer.released || offer.expired ? "view_details" : "claim_reward")] }
+              </div> : null
+          }
+          {
+            !redeemer && (offer.releaseDate || offer.expirationDate) ?
+              <div className="nft-media-browser__featured-item__date-container">
+                <div className="nft-media-browser__featured-item__date-header">
+                  { rootStore.l10n.redeemables[offer.releaseDate && !offer.released ? "reward_valid" : "reward_expires"] }
+                </div>
+                <div className="nft-media-browser__featured-item__date">
+                  { offer.releaseDate && !offer.released ? offer.releaseDate : offer.expirationDate }
+                </div>
+              </div> : null
           }
         </div>
       </button>

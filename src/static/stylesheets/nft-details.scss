@@ -729,8 +729,10 @@
   }
 
   &__video {
-    .eluvio-player,
-    video {
+    min-height: 325px;
+
+    video,
+    .eluvio-player {
       background: transparent;
     }
   }
@@ -738,6 +740,7 @@
   &__name {
     font-size: 26px;
     margin-top: 10px;
+    text-align: center;
   }
 
   &__description {

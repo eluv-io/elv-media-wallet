@@ -140,12 +140,24 @@ export const Copy = async (value) => {
 };
 
 export const CopyableField = ({value, children, className="", ellipsis=true}) => {
+  const [copied, setCopied] = useState(false);
+
   return (
-    <div className={`copyable-field ${className}`} onClick={() => Copy(value)}>
+    <div
+      className={`copyable-field ${className}`}
+      onClick={() => {
+        if(copied) { return; }
+
+        Copy(value);
+
+        setCopied(true);
+        setTimeout(() => setCopied(false), 600);
+      }}
+    >
       <div className={`copyable-field__content ${ellipsis ? "ellipsis" : ""}`}>
         { children }
       </div>
-      <button className="copyable-field__button" title="Copy to Clipboard">
+      <button className={`copyable-field__button ${copied ? "copyable-field__button--active" : ""}`} title="Copy to Clipboard">
         <SVG src={CopyIcon} alt="Copy" />
       </button>
     </div>
