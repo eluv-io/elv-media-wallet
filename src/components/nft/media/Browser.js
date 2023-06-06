@@ -7,6 +7,9 @@ import ImageIcon from "Components/common/ImageIcon";
 import {Swiper, SwiperSlide} from "swiper/react";
 import ItemIcon from "Assets/icons/image";
 import {MediaImageUrl, MediaLinkPath} from "Components/nft/media/Utils";
+import {NFTRedeemableOfferModal} from "Components/nft/NFTRedeemableOffers";
+import Utils from "@eluvio/elv-client-js/src/Utils";
+import Video from "Components/common/Video";
 
 import LockedIcon from "Assets/icons/Lock icon";
 import PlayCircleIcon from "Assets/icons/media/Play icon";
@@ -14,8 +17,6 @@ import RightArrow from "Assets/icons/right-arrow";
 import UnlockedIcon from "Assets/icons/unlock icon";
 import LeftArrow from "Assets/icons/left-arrow";
 import PlayIcon from "Assets/icons/media/play.svg";
-import {NFTRedeemableOfferModal, NFTRedeemableOfferVideo} from "Components/nft/NFTRedeemableOffers";
-import Utils from "@eluvio/elv-client-js/src/Utils";
 
 const FeaturedRedeemable = observer(({nftInfo, offer}) => {
   const [showOfferModal, setShowOfferModal] = useState(false);
@@ -48,7 +49,7 @@ const FeaturedRedeemable = observer(({nftInfo, offer}) => {
             <div className="nft-media-browser__featured-item__image-container">
               {
                 offer.animation ?
-                  <NFTRedeemableOfferVideo videoLink={offer.animation} className="nft-media-browser__featured-item__image nft-media-browser__featured-item__video"/> :
+                  <Video videoLink={offer.animation} className="nft-media-browser__featured-item__image nft-media-browser__featured-item__video"/> :
                   <img src={offer.image.url} alt={offer.name} className="nft-media-browser__featured-item__image"/>
               }
             </div> : null
@@ -116,9 +117,13 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
         /> : null
       }
       {
-        imageUrl ?
+        imageUrl || itemDetails.animation ?
           <div className="nft-media-browser__featured-item__image-container">
-            <img src={imageUrl} alt={name || mediaItem.name} className="nft-media-browser__featured-item__image"/>
+            {
+              itemDetails.animation ?
+                <Video videoLink={itemDetails.animation} className="nft-media-browser__featured-item__image nft-media-browser__featured-item__video"/> :
+                <img src={imageUrl} alt={name || mediaItem.name} className="nft-media-browser__featured-item__image"/>
+            }
           </div> : null
       }
       <div className="nft-media-browser__featured-item__content">
