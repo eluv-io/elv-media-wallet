@@ -111,12 +111,12 @@ export const ExpandableSection = ({header, icon, children, expanded=false, toggl
 export const Linkish = ({to, href, useNavLink, onClick, ...args}) => {
   if(to) {
     if(useNavLink) {
-      return <NavLink to={to} {...args} />;
+      return <NavLink to={to} onClick={onClick} {...args} />;
     } else {
-      return <Link to={to} {...args} />;
+      return <Link to={to} onClick={onClick} {...args} />;
     }
   } else if(href) {
-    return <a href={href} {...args} />;
+    return <a href={href} onClick={onClick} {...args} />;
   } else if(onClick) {
     return <button onClick={onClick} {...args} />;
   }

@@ -81,7 +81,7 @@ const FeaturedRedeemable = observer(({nftInfo, offer}) => {
   );
 });
 
-const FeaturedMediaItem = ({mediaItem, mediaIndex,  locked, Unlock}) => {
+const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
   const match = useRouteMatch();
 
   let imageUrl = MediaImageUrl({mediaItem, maxWidth: 600});
@@ -106,7 +106,7 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex,  locked, Unlock}) => {
   return (
     <Linkish
       {...(hasButton ? {} : linkParams)}
-      className="nft-media-browser__featured-item"
+      className={`nft-media-browser__featured-item ${locked ? "nft-media-browser__featured-item--locked" : ""}`}
     >
       {itemDetails.background_image ?
         <img
@@ -260,13 +260,13 @@ export const MediaCollection = observer(({nftInfo, sectionId, collection, single
   );
 });
 
-const MediaSection = ({nftInfo, section, locked}) => {
+const MediaSection = ({nftInfo, section, locked, lockable}) => {
   const match = useRouteMatch();
 
   return (
     <div className={`nft-media-browser__section ${match.params.sectionId === section.id ? "nft-media-browser__section--active" : ""} ${locked ? "nft-media-browser__section--locked" : ""}`}>
       <div className="nft-media-browser__section__header">
-        <ImageIcon icon={locked ? LockedIcon : UnlockedIcon} className="nft-media-browser__section__header-icon" />
+        { lockable ? <ImageIcon icon={locked ? LockedIcon : UnlockedIcon} className="nft-media-browser__section__header-icon" /> : null }
         <div className="nft-media-browser__section__header-text ellipsis">
           { section.name }
         </div>
@@ -288,6 +288,7 @@ const NFTMediaBrowser = observer(({nftInfo}) => {
     return null;
   }
 
+  const lockable = !!(nftInfo.additionalMedia.featured_media || []).find(mediaItem => mediaItem.required);
   const lockedFeaturedMedia = (nftInfo.additionalMedia.featured_media || [])
     .filter(mediaItem => mediaItem.required && !rootStore.MediaViewed({nft: nftInfo.nft, mediaId: mediaItem.id, preview: !nftInfo.nft.details.TokenIdStr}));
   const unlockedFeaturedMedia = (nftInfo.additionalMedia.featured_media || [])
@@ -319,7 +320,18 @@ const NFTMediaBrowser = observer(({nftInfo}) => {
             }
           </div> : null
       }
-      { nftInfo.additionalMedia.sections.map(section => <MediaSection key={`section-${section.id}`} nftInfo={nftInfo} section={section} locked={lockedFeaturedMedia.length > 0} Unlock={Unlock} />) }
+      {
+        nftInfo.additionalMedia.sections.map(section =>
+          <MediaSection
+            key={`section-${section.id}`}
+            nftInfo={nftInfo}
+            section={section}
+            lockable={lockable}
+            locked={lockedFeaturedMedia.length > 0}
+            Unlock={Unlock}
+          />
+        )
+      }
     </div>
   );
 });
