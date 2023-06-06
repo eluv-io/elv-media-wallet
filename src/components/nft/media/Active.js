@@ -230,7 +230,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
       ...currentMediaItem.locked_state,
       mediaInfo: {
         mediaType: "image",
-        imageUrl: MediaImageUrl({mediaItem: currentMediaItem})
+        imageUrl: MediaImageUrl({mediaItem: currentMediaItem.locked_state}) || MediaImageUrl({mediaItem: currentMediaItem})
       }
     };
   }
