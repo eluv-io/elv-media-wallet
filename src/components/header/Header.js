@@ -122,7 +122,7 @@ const MobileNavigation = observer(({marketplace, className=""}) => {
   );
 });
 
-const MarketplaceNavigation = observer(({marketplace}) => {
+const MarketplaceNavigation = observer(({marketplace, compact}) => {
   const branding = marketplace.branding || {};
   const tabs = branding.tabs || {};
 
@@ -130,9 +130,9 @@ const MarketplaceNavigation = observer(({marketplace}) => {
   const hasCollections = fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0;
   const secondaryDisabled = branding.disable_secondary_market;
 
-  if(secondaryDisabled && !hasCollections && (rootStore.pageWidth < 600 || branding.hide_leaderboard)) {
-    // Only store link would be shown, just hide the whole thing
-    return null;
+  if(!compact && secondaryDisabled && !hasCollections && (rootStore.pageWidth < 600 || branding.hide_leaderboard)) {
+    // Only store link would be shown on non-profile pages, hide it instead
+    return <nav className="header__navigation header__navigation--marketplace" />;
   }
 
   return (
@@ -200,7 +200,7 @@ const MarketplaceHeader = observer(({marketplace, scrolled}) => {
               </div>
           }
           <div className={`header__navigation-container ${compact ? "header__navigation-container--compact" : ""}`}>
-            <MarketplaceNavigation marketplace={marketplace} />
+            <MarketplaceNavigation marketplace={marketplace} compact={compact} />
             <ProfileNavigation />
             <MobileNavigation marketplace={marketplace}/>
           </div>
