@@ -13,8 +13,6 @@
 
   &--single-list {
     min-height: calc(100vh - 400px);
-    #{--elv-gallery-min-height}: 400px;
-    #{--elv-gallery-max-height}: calc(100vh - 500px);
 
     .nft-media {
       &__content {
@@ -37,48 +35,51 @@
     font-size: 12px;
   }
 
+  .eluvio-player,
+  .eluvio-player__video {
+    height: 100%;
+    max-height: 100%;
+    width: auto;
+  }
+
   &__content {
     height: 100%;
     padding-top: 50px;
     position: relative;
 
+    &__target-container,
+    &__target,
+    &__target__image,
+    .-elv-embed {
+      height: var(--elv-gallery-max-height);
+      max-height: var(--elv-gallery-max-height);
+      min-height: var(--elv-gallery-min-height);
+      width: 100%;
+    }
+
     &__target-container {
       align-items: center;
       display: flex;
       grid-area: target;
-      height: var(--elv-gallery-max-height);
+      height: 100%;
       justify-content: center;
       margin-inline: auto;
-      max-height: var(--elv-gallery-max-height);
       max-width: 100%;
-      min-height: var(--elv-gallery-min-height);
       position: relative;
       width: 100%;
-
-      .elv-gallery,
-      .-elv-player-target,
-      .-elv-embed {
-        height: var(--elv-gallery-max-height);
-        width: 100%;
-      }
-
-      .-elv-player-target,
-      video {
-        height: 100%;
-        width: auto;
-      }
 
       .eluvio-player,
       video {
         background: transparent;
+        height: 100%;
+        width: auto;
       }
     }
 
     &__target {
       border: 0;
       border-radius: var(--border-radius-nft-media);
-      max-height: var(--elv-gallery-max-height);
-      max-width: calc(MAX(#{var(--elv-gallery-min-height)}, #{var(--elv-gallery-max-height)}) * 16 / 9);
+      height: 100%;
       object-fit: contain;
       position: relative;
       width: 100%;
@@ -86,7 +87,7 @@
       &--frame,
       &--ebook,
       &--html {
-        height: 100%;
+        height: var(--elv-gallery-max-height);
 
         .nft-media__content__target__fullscreen-button {
           bottom: 5px;
@@ -101,7 +102,6 @@
         flex-direction: column;
         height: 100%;
         justify-content: center;
-        min-height: var(--elv-gallery-min-height);
         overflow: hidden;
         position: relative;
         width: 100%;
@@ -117,8 +117,6 @@
 
       &__image {
         height: 100%;
-        max-height: var(--elv-gallery-max-height);
-        max-width: calc(MAX(#{var(--elv-gallery-min-height)}, #{var(--elv-gallery-max-height)}) * 16 / 9);
         object-fit: contain;
         width: 100%;
       }
@@ -422,17 +420,26 @@
   }
 
   @media screen and (max-width: $tablet-breakpoint) {
-    #{--elv-gallery-min-height}: 75vh;
-    #{--elv-gallery-max-height}: 75vh;
-    min-height: unset;
+    min-height: max-content;
 
-    &--single-list {
-      #{--elv-gallery-min-height}: 200px;
-      #{--elv-gallery-max-height}: 50vh;
+    &__target-container,
+    &__target,
+    .-elv-embed {
+      height: max-content;
     }
 
-    iframe {
-      min-height: var(--elv-gallery-max-height);
+    .eluvio-player,
+    .eluvio-player__video,
+    .-elv-target {
+      height: auto;
+      width: 100%;
+    }
+
+    .-elv-embed {
+      .-elv-target {
+        height: auto;
+        width: 100%;
+      }
     }
 
     &__content {
@@ -465,31 +472,11 @@
         min-height: calc(100vw * 9 / 16);
         padding: 0;
         width: 100%;
-
-        &--gallery,
-        &--html,
-        &--ebook {
-          min-height: var(--elv-gallery-min-height);
-        }
-
-        .elv-gallery {
-          min-height: var(--elv-gallery-min-height);
-        }
-      }
-
-
-      .elv-gallery,
-      .-elv-player-target,
-      .-elv-embed {
-        height: auto;
-        min-height: calc((100vw - 65px) * 9 / 16);
-        width: 100%;
       }
 
       .-elv-player-target,
       video {
         height: auto;
-        min-height: calc((100vw - 65px) * 9 / 16);
         width: 100%;
       }
 
@@ -520,6 +507,14 @@
         font-size: 14px;
         max-width: unset;
       }
+    }
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    &__target-container,
+    &__target,
+    .-elv-embed {
+      min-height: unset;
     }
   }
 }
