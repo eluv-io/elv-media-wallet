@@ -130,6 +130,11 @@ const MarketplaceNavigation = observer(({marketplace}) => {
   const hasCollections = fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0;
   const secondaryDisabled = branding.disable_secondary_market;
 
+  if(secondaryDisabled && !hasCollections && (rootStore.pageWidth < 600 || branding.hide_leaderboard)) {
+    // Only store link would be shown, just hide the whole thing
+    return null;
+  }
+
   return (
     <nav className="header__navigation header__navigation--marketplace">
       <NavLink className="header__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
