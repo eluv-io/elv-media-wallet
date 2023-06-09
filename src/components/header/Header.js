@@ -11,6 +11,7 @@ import WalletMenu from "Components/header/WalletMenu";
 import ProfileMenu from "Components/header/ProfileMenu";
 import {NotificationsMenu} from "Components/header/NotificationsMenu";
 import {Debounce, SetImageUrlDimensions} from "../../utils/Utils";
+import MenuButton from "Components/common/MenuButton";
 
 import EluvioLogo from "Assets/icons/ELUVIO logo (updated nov 2).svg";
 import MenuIcon from "Assets/icons/menu";
@@ -122,6 +123,35 @@ const MobileNavigation = observer(({marketplace, className=""}) => {
   );
 });
 
+const StoreLink = observer(({marketplace}) => {
+  const marketplaces = (marketplace.branding.additional_marketplaces || [])
+    .map(({tenant_slug, marketplace_slug}) => rootStore.allMarketplaces.find(m => m.tenantSlug === tenant_slug && m.marketplaceSlug === marketplace_slug))
+    .filter(m => m);
+
+  if(marketplaces.length === 0) {
+    return (
+      <NavLink className="header__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
+        { marketplace.branding.tabs?.store || rootStore.l10n.header.store }
+      </NavLink>
+    );
+  }
+
+  return (
+    <MenuButton
+      className="header__navigation-link header__navigation-link--menu"
+      items={
+        [marketplace, ...marketplaces].map(marketplace => ({
+          to: UrlJoin("/marketplace", marketplace.marketplaceId, "store"),
+          useNavLink: true,
+          label: marketplace.branding.name
+        }))
+      }
+    >
+      { marketplace.branding.tabs?.stores || rootStore.l10n.header.stores }
+    </MenuButton>
+  );
+});
+
 const MarketplaceNavigation = observer(({marketplace, compact}) => {
   const branding = marketplace.branding || {};
   const tabs = branding.tabs || {};
@@ -137,9 +167,7 @@ const MarketplaceNavigation = observer(({marketplace, compact}) => {
 
   return (
     <nav className="header__navigation header__navigation--marketplace">
-      <NavLink className="header__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
-        { tabs.store || rootStore.l10n.header.store }
-      </NavLink>
+      <StoreLink marketplace={marketplace} />
       {
         secondaryDisabled ? null :
           <>

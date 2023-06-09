@@ -105,6 +105,7 @@ const MarketplaceWrapper = observer(({children}) => {
     return (
       <AsyncComponent
         // Store info is cleared when logged in
+        key={`marketplace-${match.params.marketplaceId}-${rootStore.loggedIn}`}
         loadKey={`marketplace-${match.params.marketplaceId}-${rootStore.loggedIn}`}
         cacheSeconds={30}
         Load={async () => {

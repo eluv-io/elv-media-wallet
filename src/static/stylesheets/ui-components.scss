@@ -362,110 +362,6 @@
   }
 }
 
-
-.menu-button {
-  border: 0;
-  min-width: unset;
-  padding: 0;
-  position: relative;
-  z-index: 1;
-
-  * {
-    transition: background 0.1s linear, color 0.1s linear, border 0.1s linear;
-  }
-
-  &--active {
-    .menu-button__button {
-      background: var(--background-button-primary);
-      border: var(--border-button-primary);
-      color: var(--color-button-primary-text);
-
-      svg {
-        * {
-          color: var(--color-button-primary-text);
-        }
-      }
-    }
-  }
-
-  &__button {
-    align-items: center;
-    border: var(--border-button-secondary);
-    border-radius: var(--border-radius-button-secondary);
-    display: flex;
-    height: 100%;
-    justify-content: center;
-    padding: 6px;
-    width: 100%;
-  }
-
-  svg {
-    height: 100%;
-    width: 100%;
-  }
-
-  &__menu {
-    @include component;
-    @include page-fade-in(0.15s);
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-width: 120px;
-    position: absolute;
-    right: 0;
-    top: calc(100% + 5px);
-    width: max-content;
-
-    & > * {
-      align-items: center;
-      background: var(--color-input-bg-solid);
-      border: 0;
-      color: var(--color-input-text);
-      display: flex;
-      font-size: 14px;
-      height: 45px;
-      justify-content: flex-start;
-      min-height: 40px;
-      padding: 0 20px;
-      text-transform: initial;
-      width: 100%;
-
-      svg {
-        * {
-          color: var(--color-input-text);
-        }
-      }
-
-      .lds-ellipsis__element {
-        background: var(--color-input-text);
-      }
-
-      &:hover,
-      &:active {
-        background: var(--color-input-highlight-bg);
-        color: var(--color-input-highlight-text);
-
-        svg {
-          * {
-            color: var(--color-input-highlight-text);
-          }
-        }
-
-        .lds-ellipsis__element {
-          background: var(--color-input-highlight-text);
-        }
-      }
-    }
-
-    svg {
-      height: 20px;
-      margin-right: 15px;
-      width: auto;
-    }
-  }
-}
-
 .autocomplete {
   align-items: center;
   display: flex;
@@ -703,5 +599,37 @@
     &--dragging {
       cursor: move;
     }
+  }
+}
+
+.menu-button {
+  cursor: pointer;
+  display: inline-block;
+  height: 100%;
+  position: relative;
+
+  &__options {
+    border-radius: 0 0 5px 5px;
+    left: 0;
+    padding: 10px 25px;
+    position: absolute;
+    top: 100%;
+    width: max-content;
+    z-index: 999;
+  }
+
+  &__option {
+    display: flex;
+    width: 100%;
+  }
+
+  &__button {
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    height: 100%;
+    padding: 0;
+    text-align: left;
+    width: 100%;
   }
 }

@@ -224,6 +224,25 @@
     &.active {
       color: var(--color-header-link-text-active);
     }
+
+    &--menu {
+      .menu-button__options {
+        @include page-fade-in(0.1s);
+        background: var(--background-component-primary);
+        border: var(--border-component-primary);
+        border-radius: var(--border-radius-component);
+        margin-top: 10px;
+      }
+
+      .menu-button__button {
+        padding: 15px 0;
+
+        &:hover,
+        &.active {
+          color: var(--color-header-link-text-active);
+        }
+      }
+    }
   }
 
   @media screen and (max-width: $tablet-breakpoint) {

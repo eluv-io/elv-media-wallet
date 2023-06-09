@@ -251,20 +251,20 @@ const MarketplaceStorefront = observer(() => {
 
   let marketplace = rootStore.marketplaces[match.params.marketplaceId];
 
-  if(!marketplace) { return null; }
-
   useEffect(() => {
-    if(marketplace.analyticsInitialized) {
+    if(marketplace && marketplace.analyticsInitialized) {
       checkoutStore.AnalyticsEvent({
         marketplace,
         analytics: marketplace?.storefront_page_view_analytics,
         eventName: "Storefront Page View"
       });
     }
-  }, []);
+  }, [marketplace]);
+
+  if(!marketplace) { return null; }
 
   return (
-    <div className="page-block page-block--main-content page-block--storefront">
+    <div key={`marketplace-${match.params.marketplaceId}`} className="page-block page-block--main-content page-block--storefront">
       <div className="page-block__content">
         <MarketplaceBanners marketplace={marketplace} />
         <MarketplaceStorefrontSections marketplace={marketplace} />

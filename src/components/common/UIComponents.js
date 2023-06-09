@@ -383,10 +383,10 @@ export const ButtonWithMenu = ({buttonProps, RenderMenu, className=""}) => {
   }, []);
 
   return (
-    <div className={`menu-button ${showMenu ? "menu-button--active" : ""} ${className}`} ref={ref}>
+    <div className={`action-menu ${showMenu ? "action-menu--active" : ""} ${className}`} ref={ref}>
       <button
         {...buttonProps}
-        className={`menu-button__button ${buttonProps?.className || ""}`}
+        className={`action-menu__button ${buttonProps?.className || ""}`}
         onClick={() => {
           setShowMenu(!showMenu);
 
@@ -397,7 +397,7 @@ export const ButtonWithMenu = ({buttonProps, RenderMenu, className=""}) => {
       />
       {
         showMenu ?
-          <div className="menu-button__menu">
+          <div className="action-menu__menu">
             { RenderMenu(() => setShowMenu(false)) }
           </div> : null
       }
