@@ -430,7 +430,18 @@ class RootStore {
       console.time("Auth0 Authentication");
 
       // Check for existing Auth0 authentication status
-      yield this.auth0.checkSession();
+      // Note: auth0.checkSession hangs sometimes without throwing an error - if it takes longer than 5 seconds, abort.
+      yield new Promise(async (resolve, reject) => {
+        const timeout = setTimeout(() => reject("Auth0 checkSession timeout"), 5000);
+        // eslint-disable-next-line no-console
+        console.time("auth0.checkSession");
+        await this.auth0.checkSession();
+        // eslint-disable-next-line no-console
+        console.timeEnd("auth0.checkSession");
+        clearTimeout(timeout);
+
+        resolve();
+      });
 
       if(yield this.auth0.isAuthenticated()) {
         this.Log("Authenticating with Auth0 session");
