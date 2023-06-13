@@ -42,7 +42,9 @@ textarea {
 
 a,
 button {
-  cursor: pointer;
+  &:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
 button {

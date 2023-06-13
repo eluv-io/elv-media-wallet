@@ -239,20 +239,23 @@ export const NFTRedeemableOfferModal = observer(({nftInfo, offerId, Close}) => {
                 </div>
               </> : null
           }
-          <div className="redeemable-offer-modal__actions">
-            <ButtonWithLoader
-              disabled={!offer.released || offer.expired}
-              onClick={async () => await checkoutStore.RedeemOffer({
-                tenantId: nftInfo.tenantId,
-                contractAddress: nftInfo.nft.details.ContractAddr,
-                tokenId: nftInfo.nft.details.TokenIdStr,
-                offerId: offer.offer_id
-              })}
-              className="redeemable-offer-modal__action"
-            >
-              { rootStore.l10n.redeemables.redeem }
-            </ButtonWithLoader>
-          </div>
+          {
+            nftInfo.isOwned ?
+              <div className="redeemable-offer-modal__actions">
+                <ButtonWithLoader
+                  disabled={!offer.released || offer.expired}
+                  onClick={async () => await checkoutStore.RedeemOffer({
+                    tenantId: nftInfo.tenantId,
+                    contractAddress: nftInfo.nft.details.ContractAddr,
+                    tokenId: nftInfo.nft.details.TokenIdStr,
+                    offerId: offer.offer_id
+                  })}
+                  className="redeemable-offer-modal__action"
+                >
+                  {rootStore.l10n.redeemables.redeem}
+                </ButtonWithLoader>
+              </div> : null
+          }
           {
             redeemer ?
               <a
@@ -303,15 +306,18 @@ const NFTRedeemableOffers = observer(({nftInfo}) => {
             const redeemer = offer.state?.redeemer;
             const isRedeemer = Utils.EqualAddress(redeemer, rootStore.CurrentAddress());
 
-            const disabled = (redeemer && !isRedeemer);
+            const disabled = !nftInfo.isOwned || (redeemer && !isRedeemer);
 
             let details;
             if(!redeemer || isRedeemer) {
               details = (
                 <>
-                  <div className="redeemable-offer__cta">
-                    { rootStore.l10n.redeemables[redeemer ? "view_redemption" : (offer.released && !offer.expired ? "claim_reward" : "view_details")] }
-                  </div>
+                  {
+                    nftInfo.isOwned ?
+                      <div className="redeemable-offer__cta">
+                        {rootStore.l10n.redeemables[redeemer ? "view_redemption" : (offer.released && !offer.expired ? "claim_reward" : "view_details")]}
+                      </div> : null
+                  }
                   {
                     offer.releaseDate || offer.expirationDate ?
                       <div className="redeemable-offer__date-container">

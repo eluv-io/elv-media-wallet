@@ -4,7 +4,6 @@
   border: var(--border-button-secondary);
   border-radius: var(--border-radius-button-secondary);
   color: var(--color-button-secondary-text);
-  cursor: pointer;
   display: flex;
   font: var(--font-button);
   height: $action-height;
@@ -15,6 +14,10 @@
   text-transform: uppercase;
   transition: background-color 0.15s ease;
   user-select: none;
+
+  &:not(:disabled) {
+    cursor: pointer;
+  }
 
   &:hover {
     color: var(--color-button-secondary-text);
