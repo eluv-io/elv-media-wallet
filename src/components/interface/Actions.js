@@ -23,6 +23,7 @@ const PurchaseAction = observer(({parameters}) => {
   useEffect(() => {
     rootStore.SetNavigationInfo({
       ...rootStore.navigationInfo,
+      navigationKey: marketplaceId ? "marketplace" : "shared",
       locationType: marketplaceId && !parameters.listingId ? "marketplace" : "shared"
     });
 
