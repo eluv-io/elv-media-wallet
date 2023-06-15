@@ -112,6 +112,11 @@ const Routes = observer(() => {
       <ScrollToTop>
         <ErrorBoundary className="page-container wallet-page">
           <Switch>
+            { /* Handle various UI based popup/redirect flows - Marketplace view */ }
+            <Route path="/action/:action/marketplace/:marketplaceId/:parameters">
+              <Actions />
+            </Route>
+
             <Route exact path="/marketplaces/redirect/:tenantSlug/:marketplaceSlug/:location?">
               <MarketplaceSlugRedirect />
             </Route>
@@ -237,11 +242,12 @@ render(
     <HashRouter>
       <Switch>
         { /* Handle various popup actions */ }
-        <Route path="/flow/:flow/:parameters">
+        <Route exact path="/flow/:flow/:parameters">
           <Flows />
         </Route>
 
-        <Route path="/action/:action/:parameters">
+        { /* Handle various UI based popup/redirect flows - Generic view */ }
+        <Route exact path="/action/:action/:parameters">
           <Actions />
         </Route>
 

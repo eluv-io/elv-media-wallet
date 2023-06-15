@@ -1738,13 +1738,8 @@ class RootStore {
     return false;
   });
 
-  FlowURL({type="flow", flow, parameters={}}) {
-    const url = new URL(UrlJoin(window.location.origin, window.location.pathname));
-    url.hash = UrlJoin("/", type, flow, Utils.B58(JSON.stringify(parameters)));
-
-    url.searchParams.set("origin", window.location.origin);
-
-    return url.toString();
+  FlowURL({type="flow", flow, marketplaceId, parameters={}}) {
+    return this.walletClient.FlowURL({type, flow, marketplaceId, parameters});
   }
 
   // Flows are popups that do not require UI input (redirecting to purchase, etc)
@@ -1856,20 +1851,24 @@ class RootStore {
           break;
 
         case "redirect":
-          let [to, params] = parameters.to.split("?");
-          if(params) {
-            params = new URLSearchParams(params);
+          if(parameters.url) {
+            window.location.href = parameters.url;
+          } else {
+            let [to, params] = parameters.to.split("?");
+            if(params) {
+              params = new URLSearchParams(params);
 
-            for(const [key, value] of params.entries()) {
-              urlParameters[key] = value;
+              for(const [key, value] of params.entries()) {
+                urlParameters[key] = value;
+              }
             }
-          }
 
-          if(Object.keys(urlParameters).length > 0) {
-            to = `${to}?${Object.keys(urlParameters).map(key => `${key}=${urlParameters[key]}`).join("&")}`;
-          }
+            if(Object.keys(urlParameters).length > 0) {
+              to = `${to}?${Object.keys(urlParameters).map(key => `${key}=${urlParameters[key]}`).join("&")}`;
+            }
 
-          history.push(to);
+            history.push(to);
+          }
 
           break;
 

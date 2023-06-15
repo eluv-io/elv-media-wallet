@@ -108,13 +108,14 @@ class CheckoutStore {
     this.rootStore.SetLocalStorage("purchase-status", JSON.stringify(this.purchaseStatus));
   }
 
-  async PurchaseComplete({confirmationId, success, message}) {
+  async PurchaseComplete({confirmationId, success, successUrl, message}) {
     this.submittingOrder = false;
 
     this.purchaseStatus[confirmationId] = {
       ...this.purchaseStatus[confirmationId],
       status: "complete",
       success,
+      successUrl,
       failed: !success,
       message
     };
@@ -445,7 +446,9 @@ class CheckoutStore {
     address,
     fromEmbed,
     flowId,
-    additionalParameters={}
+    additionalParameters={},
+    successUrl,
+    cancelUrl
   }) {
     if(this.submittingOrder) { return; }
 
@@ -459,7 +462,7 @@ class CheckoutStore {
 
       const successPath =
         marketplaceId ?
-          UrlJoin("/marketplace", marketplaceId, "store", listingId, "purchase", confirmationId, `?provider=${provider}`) :
+          UrlJoin("/marketplace", marketplaceId, "listings", listingId, "purchase", confirmationId, `?provider=${provider}`) :
           UrlJoin("/wallet", "listings", listingId, "purchase", confirmationId, `?provider=${provider}`);
 
       const cancelPath =
@@ -509,13 +512,26 @@ class CheckoutStore {
 
       const checkoutId = `nft-marketplace:${confirmationId}`;
 
-      let successUrl, cancelUrl;
+      let customSuccessUrl;
+      // Append confirmation ID to custom success URL and convert to redirect flow url
+      if(successUrl) {
+        successUrl = new URL(successUrl);
+        successUrl.searchParams.set("confirmationId", confirmationId);
+        customSuccessUrl = successUrl.toString();
+        successUrl = this.rootStore.FlowURL({flow: "redirect", parameters: {url: customSuccessUrl}});
+      }
+
+      // Convert custom success URL to redirect flow url
+      if(cancelUrl) {
+        cancelUrl = this.rootStore.FlowURL({flow: "redirect", parameters: {url: cancelUrl.toString()}});
+      }
+
       if(fromEmbed) {
         successUrl = this.rootStore.FlowURL({flow: "respond", parameters: {flowId, response: {confirmationId, success: true}}});
         cancelUrl = this.rootStore.FlowURL({flow: "respond", parameters: {flowId, response: {confirmationId, success: false}, error: "User cancelled checkout"}});
       } else {
-        successUrl = this.rootStore.FlowURL({flow: "redirect", parameters: {to: successPath}});
-        cancelUrl = this.rootStore.FlowURL({flow: "redirect", parameters: {to: cancelPath}});
+        successUrl = successUrl || this.rootStore.FlowURL({flow: "redirect", parameters: {to: successPath}});
+        cancelUrl = cancelUrl || this.rootStore.FlowURL({flow: "redirect", parameters: {to: cancelPath}});
       }
 
       address = address || this.rootStore.CurrentAddress();
@@ -546,7 +562,7 @@ class CheckoutStore {
 
       this.PurchaseComplete({confirmationId, success: true, successPath});
 
-      return { confirmationId, successPath };
+      return { confirmationId, successPath, successUrl: customSuccessUrl };
     } catch(error) {
       this.rootStore.Log(error, true);
 
@@ -576,7 +592,9 @@ class CheckoutStore {
     address,
     fromEmbed,
     flowId,
-    additionalParameters={}
+    additionalParameters={},
+    successUrl,
+    cancelUrl
   }) {
     if(this.submittingOrder) { return; }
 
@@ -638,13 +656,26 @@ class CheckoutStore {
 
       const checkoutId = `${marketplaceId}:${confirmationId}`;
 
-      let successUrl, cancelUrl;
+      let customSuccessUrl;
+      // Append confirmation ID to custom success URL and convert to redirect flow url
+      if(successUrl) {
+        successUrl = new URL(successUrl);
+        successUrl.searchParams.set("confirmationId", confirmationId);
+        customSuccessUrl = successUrl.toString();
+        successUrl = this.rootStore.FlowURL({flow: "redirect", parameters: {url: customSuccessUrl}});
+      }
+
+      // Convert custom success URL to redirect flow url
+      if(cancelUrl) {
+        cancelUrl = this.rootStore.FlowURL({flow: "redirect", parameters: {url: cancelUrl.toString()}});
+      }
+
       if(fromEmbed) {
         successUrl = this.rootStore.FlowURL({flow: "respond", parameters: {flowId, response: {confirmationId, success: true}}});
         cancelUrl = this.rootStore.FlowURL({flow: "respond", parameters: {flowId, response: {confirmationId, success: false}, error: "User cancelled checkout"}});
       } else {
-        successUrl = this.rootStore.FlowURL({flow: "redirect", parameters: {to: successPath}});
-        cancelUrl = this.rootStore.FlowURL({flow: "redirect", parameters: {to: cancelPath}});
+        successUrl = successUrl || this.rootStore.FlowURL({flow: "redirect", parameters: {to: successPath}});
+        cancelUrl = cancelUrl || this.rootStore.FlowURL({flow: "redirect", parameters: {to: cancelPath}});
       }
 
       address = address || this.rootStore.CurrentAddress();
@@ -686,9 +717,9 @@ class CheckoutStore {
         }
       });
 
-      this.PurchaseComplete({confirmationId, success: true, successPath});
+      this.PurchaseComplete({confirmationId, success: true, successPath, successUrl: customSuccessUrl});
 
-      return { confirmationId, successPath };
+      return { confirmationId, successPath};
     } catch(error) {
       this.rootStore.Log(error, true);
 
