@@ -163,10 +163,17 @@ const App = observer(() => {
 
     const backgroundElement = document.querySelector("#app-background");
 
+    // Marketplace background image - All pages within marketplace
     let backgroundImage = (rootStore.pageWidth < 800 && rootStore.appBackground.mobile) || rootStore.appBackground.desktop || "";
 
+    // Storefront background image - All pages except user profile, unless overridden by tenant
     if(rootStore.navigationInfo.navigationKey === "marketplace") {
       backgroundImage = (rootStore.pageWidth < 800 && rootStore.appBackground.marketplaceMobile) || rootStore.appBackground.marketplaceDesktop || backgroundImage;
+    }
+
+    // Tenant background image - Non-storefront pages
+    if(rootStore.appBackground.useTenantStyling && rootStore.navigationInfo.locationType !== "marketplace") {
+      backgroundImage = (rootStore.pageWidth < 800 && rootStore.appBackground.tenantMobile) || rootStore.appBackground.tenantDesktop || backgroundImage;
     }
 
     const currentBackground = backgroundElement.style.backgroundImage || "";

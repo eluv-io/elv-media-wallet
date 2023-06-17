@@ -95,7 +95,7 @@ const MarketplaceWrapper = observer(({children}) => {
     } else {
       rootStore.ClearMarketplace();
     }
-  }, [match.url, rootStore.marketplaces[match.params.marketplaceId]]);
+  }, [match.url, rootStore.marketplaces[match.params.marketplaceId], rootStore.navigationInfo.locationType]);
 
   if(!rootStore.loaded) {
     return <PageLoader />;

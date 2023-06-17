@@ -79,7 +79,7 @@ const UserRoutes = ({includeMarketplaceRoutes}) => {
 
     { path: "/", includeUserProfile: true, redirect: "items" },
   ]
-    .map(route => ({ ...route, navigationKey: "user", loadUser: true, path: UrlJoin("users", ":userId", route.path) }));
+    .map(route => ({ ...route, navigationKey: "user", locationType: "user", loadUser: true, path: UrlJoin("users", ":userId", route.path) }));
 };
 
 const SharedRoutes = ({includeMarketplaceRoutes}) => {
@@ -93,13 +93,13 @@ const SharedRoutes = ({includeMarketplaceRoutes}) => {
     { name: "Activity", path: "activity", Component: RecentSales },
     { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "activity/:contractId/:tokenId", noBlock: true, Component: MintedNFTDetails },
     { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "activity/:contractId/:tokenId/:action", authed: true, noBlock: true, Component: MintedNFTDetails },
+    { name: "Leaderboard", path: "leaderboard", Component: Leaderboard },
 
     { name: "Purchase Listing", path: "listings/:listingId/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
-
     { name: "Profile", path: "profile", Component: Profile, authed: true },
     { name: "Deposit Status", path: "profile/deposit/:confirmationId", Component: DepositStatus, authed: true }
   ]
-    .map(route => ({ ...route, navigationKey: route.navigationKey || "shared" }));
+    .map(route => ({ ...route, navigationKey: route.navigationKey || "shared", locationType: "shared"}));
 };
 
 const MarketplaceRoutes = () => {
@@ -121,8 +121,6 @@ const MarketplaceRoutes = () => {
     { name: "Claim", path: "store/:sku/claim/status", Component: ClaimMintingStatus, authed: true },
     { name: "Purchase", path: "store/:sku/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
 
-    { name: "Leaderboard", path: "leaderboard", Component: Leaderboard },
-
     { name: match => (GetItem(match)?.name || "Item"), path: "store/:sku", noBlock: true, Component: MarketplaceItemDetails },
     { name: match => (GetItem(match)?.name || "Item"), path: "store/:sku/:action", authed: true, noBlock: true, Component: MarketplaceItemDetails },
     { name: match => (GetMarketplace(match)?.branding?.name || "Marketplace"), path: "store", noBlock: true, Component: MarketplaceStorefront },
@@ -132,7 +130,7 @@ const MarketplaceRoutes = () => {
     { name: match => (GetItem(match)?.name || "Item"), path: "store/:sku/media/:sectionId/:collectionId/:mediaIndex", noBlock: true, Component: NFTMedia },
 
     { path: "/", redirect: "/store" }
-  ].map(route => ({ ...route, navigationKey: "marketplace" }));
+  ].map(route => ({ ...route, navigationKey: "marketplace", locationType: "marketplace" }));
 };
 
 const UserRouteWrapper = observer(({children}) => {
@@ -217,6 +215,7 @@ const RouteWrapper = observer(({routes, children}) => {
 
     rootStore.SetNavigationInfo({
       navigationKey,
+      locationType: currentRoute.locationType,
       marketplaceId: match.params.marketplaceId,
       url: match.url,
       path: match.path,
@@ -235,7 +234,6 @@ const RouteWrapper = observer(({routes, children}) => {
 const GlobalWrapper = observer(({routes, children}) => {
   const match = useRouteMatch();
 
-  window.routes = routes;
   const currentRoute = routes.find(route => match.path === route.path);
 
   if(currentRoute?.redirect) {
