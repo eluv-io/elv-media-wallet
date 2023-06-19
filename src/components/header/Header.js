@@ -289,6 +289,10 @@ const Header = observer(() => {
   const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
   const marketplace = marketplaceId && rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === marketplaceId);
 
+  if(location.pathname.startsWith("/action")) {
+    return null;
+  }
+
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
