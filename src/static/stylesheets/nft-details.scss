@@ -729,7 +729,7 @@
   }
 
   &__video {
-    min-height: 325px;
+    margin: 30px 0;
 
     video,
     .eluvio-player {
@@ -756,6 +756,7 @@
   &__redeem-message {
     font-size: 20px;
     margin-bottom: 30px;
+    text-align: center;
   }
 
   &__code-header {

@@ -41,7 +41,7 @@
     "@eluvio/elv-client-js": "^4.0.31",
     "@eluvio/elv-embed": "git+https://github.com/eluv-io/elv-embed.git",
     "@eluvio/elv-paymentgate": "0.0.1",
-    "@eluvio/elv-player-js": "^1.0.83",
+    "@eluvio/elv-player-js": "^1.0.109",
     "@solana/spl-token": "^0.2.0",
     "@solana/web3.js": "1.66.2",
     "@stripe/stripe-js": "^1.17.1",
