@@ -79,6 +79,9 @@ actions:
     transfer: Transfer NFT
     transfer_confirm: Are you sure you want to transfer this NFT to {targetAddress}?
 
+errors:
+  general: We're sorry, something went wrong.
+
 profile:
   media_wallet: Media Wallet
   address: Eluvio Content Blockchain Address

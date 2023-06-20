@@ -9,23 +9,25 @@ import {PageLoader} from "Components/common/Loaders";
 
 
 const listingId = "b24e5837-2396-41f6-9104-b7a434ab006f";
-const sku = "5P4nJK7Mhpzw94X92aNK64";
+const sku = "V8JDLMBaKb2mJDQCKEfcMW";
+
+
+let network = "main";
+let mode = "production";
+let marketplaceParams = {
+  tenantSlug: "globo",
+  marketplaceSlug: "773b6e36-2739-4b08-9ca7-bd2eea5fe1cf"
+};
 
 /*
-let network = "main";
-let mode = "staging";
-let marketplaceParams = {
-  tenantSlug: "bcl",
-  marketplaceSlug: "maskverse-marketplace"
-};
- */
-
 let network = "demo";
 let mode = "staging";
 let marketplaceParams = {
   tenantSlug: "bcl-live",
   marketplaceSlug: "masked-singer-marketplace"
 };
+
+ */
 
 // Use locally running wallet app if running from local IP
 let walletAppUrl;

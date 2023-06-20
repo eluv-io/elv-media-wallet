@@ -40,7 +40,7 @@ class ErrorBoundaryClass extends React.Component {
 
       return (
         <div className={`error-section ${this.props.className || ""}`}>
-          We're sorry, something went wrong
+          { rootStore.l10n.errors.general }
         </div>
       );
     }
