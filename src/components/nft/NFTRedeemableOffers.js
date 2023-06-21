@@ -72,8 +72,8 @@ const RedemptionStatus = observer(({offer, offerKey, setRedemptionFinished}) => 
   );
 });
 
-const RedemptionResults = observer(({offer, offerData}) => {
-  if(!offerData) {
+const RedemptionResults = observer(({offer, offerData, showPopupNotice}) => {
+  if(!offerData || !offerData.code) {
     // Waiting for offer data to load, show loader
     return (
       <div className="redeemable-offer-modal__container">
@@ -82,6 +82,12 @@ const RedemptionResults = observer(({offer, offerData}) => {
         </div>
         <div className="redeemable-offer-modal__content">
           <Loader className="redeemable-offer-modal__loader"/>
+          {
+            showPopupNotice ?
+              <div className="redeemable-offer-modal__message">
+                { rootStore.l10n.redeemables.popup_notice }
+              </div> : null
+          }
         </div>
       </div>
     );
@@ -246,6 +252,7 @@ export const NFTRedeemableOfferModal = observer(({nftInfo, offerId, Close}) => {
   const isRedeemer = Utils.EqualAddress(redeemer, rootStore.CurrentAddress());
 
   const [offerData, setOfferData] = useState(undefined);
+  const [showPopupNotice, setShowPopupNotice] = useState(false);
   const [redemptionFinished, setRedemptionFinished] = useState(isRedeemer);
 
   if(!offer) {
@@ -302,11 +309,25 @@ export const NFTRedeemableOfferModal = observer(({nftInfo, offerId, Close}) => {
         });
       })
       .catch(async error => {
-        rootStore.Log(error, true);
-        setOfferData({
-          type: "default",
-          code: await rootStore.GenerateOfferCodeData({nftInfo, offer})
-        });
+        try {
+          if(!rootStore.walletClient.CanSign()) {
+            setShowPopupNotice(true);
+          }
+
+          const offerData = await rootStore.GenerateOfferCodeData({nftInfo, offer});
+
+          rootStore.Log(error, true);
+          setOfferData({
+            type: "default",
+            code: offerData
+          });
+        } catch(error) {
+          setOfferData({
+            type: "default",
+            code: undefined,
+            error
+          });
+        }
       });
     // Load offer data
   }, [redeemer, redemptionStatus, offer]);
@@ -314,7 +335,7 @@ export const NFTRedeemableOfferModal = observer(({nftInfo, offerId, Close}) => {
   let content;
   if(redemptionFinished) {
     // Redemption complete and current user is redeemer
-    content = <RedemptionResults offer={offer} offerData={offerData} />;
+    content = <RedemptionResults offer={offer} offerData={offerData} showPopupNotice={showPopupNotice} />;
   } else if(redemptionStarted) {
     // Redemption in progress
     content = <RedemptionStatus offer={offer} offerKey={offerKey} setRedemptionFinished={setRedemptionFinished} />;

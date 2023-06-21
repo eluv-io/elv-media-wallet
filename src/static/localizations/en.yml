@@ -266,6 +266,7 @@ redeemables:
   redeeming: Redemption Transaction in Progress
   redeeming_subheader: This may take several minutes
   redeeming_footer: You can navigate away from this page if you don't want to wait. Your reward will be available in your wallet when the process is complete.
+  popup_notice: "Note: This redemption requires a signature. Please check the pop-up to sign the results."
 
 transfers:
   header: Transfer Your Item
