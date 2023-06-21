@@ -11,6 +11,7 @@ import WalletMenu from "Components/header/WalletMenu";
 import ProfileMenu from "Components/header/ProfileMenu";
 import {NotificationsMenu} from "Components/header/NotificationsMenu";
 import {Debounce, SetImageUrlDimensions} from "../../utils/Utils";
+import MenuButton from "Components/common/MenuButton";
 
 import EluvioLogo from "Assets/icons/ELUVIO logo (updated nov 2).svg";
 import MenuIcon from "Assets/icons/menu";
@@ -122,7 +123,36 @@ const MobileNavigation = observer(({marketplace, className=""}) => {
   );
 });
 
-const MarketplaceNavigation = observer(({marketplace}) => {
+const StoreLink = observer(({marketplace}) => {
+  const marketplaces = (marketplace.branding.additional_marketplaces || [])
+    .map(({tenant_slug, marketplace_slug}) => rootStore.allMarketplaces.find(m => m.tenantSlug === tenant_slug && m.marketplaceSlug === marketplace_slug))
+    .filter(m => m);
+
+  if(marketplaces.length === 0) {
+    return (
+      <NavLink className="header__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
+        { marketplace.branding.tabs?.store || rootStore.l10n.header.store }
+      </NavLink>
+    );
+  }
+
+  return (
+    <MenuButton
+      className="header__navigation-link header__navigation-link--menu"
+      items={
+        [marketplace, ...marketplaces].map(marketplace => ({
+          to: UrlJoin("/marketplace", marketplace.marketplaceId, "store"),
+          useNavLink: true,
+          label: marketplace.branding.name
+        }))
+      }
+    >
+      { marketplace.branding.tabs?.stores || rootStore.l10n.header.stores }
+    </MenuButton>
+  );
+});
+
+const MarketplaceNavigation = observer(({marketplace, compact}) => {
   const branding = marketplace.branding || {};
   const tabs = branding.tabs || {};
 
@@ -130,11 +160,14 @@ const MarketplaceNavigation = observer(({marketplace}) => {
   const hasCollections = fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0;
   const secondaryDisabled = branding.disable_secondary_market;
 
+  if(!compact && secondaryDisabled && !hasCollections && (rootStore.pageWidth < 600 || branding.hide_leaderboard)) {
+    // Only store link would be shown on non-profile pages, hide it instead
+    return <nav className="header__navigation header__navigation--marketplace" />;
+  }
+
   return (
     <nav className="header__navigation header__navigation--marketplace">
-      <NavLink className="header__navigation-link" to={UrlJoin("/marketplace", marketplace.marketplaceId, "store")}>
-        { tabs.store || rootStore.l10n.header.store }
-      </NavLink>
+      <StoreLink marketplace={marketplace} />
       {
         secondaryDisabled ? null :
           <>
@@ -195,7 +228,7 @@ const MarketplaceHeader = observer(({marketplace, scrolled}) => {
               </div>
           }
           <div className={`header__navigation-container ${compact ? "header__navigation-container--compact" : ""}`}>
-            <MarketplaceNavigation marketplace={marketplace} />
+            <MarketplaceNavigation marketplace={marketplace} compact={compact} />
             <ProfileNavigation />
             <MobileNavigation marketplace={marketplace}/>
           </div>
@@ -255,6 +288,10 @@ const Header = observer(() => {
   const location = useLocation();
   const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
   const marketplace = marketplaceId && rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === marketplaceId);
+
+  if(location.pathname.startsWith("/action")) {
+    return null;
+  }
 
   const [scrolled, setScrolled] = useState(false);
 

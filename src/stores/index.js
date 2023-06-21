@@ -131,14 +131,11 @@ class RootStore {
   hideGlobalNavigationInMarketplace = searchParams.has("hgm") || this.GetSessionStorage("hide-global-navigation-in-marketplace");
   hideNavigation = searchParams.has("hn") || this.loginOnly;
   hideMarketplaceNavigation = false;
+  navigationInfo = this.GetSessionStorageJSON("navigation-info") || {};
+  navigationBreadcrumbs = [];
   sidePanelMode = false;
 
-  appBackground = {
-    desktop: this.GetSessionStorage("background-image"),
-    mobile: this.GetSessionStorage("background-image-mobile"),
-    marketplaceDesktop: this.GetSessionStorage("background-image-marketplace"),
-    marketplaceMobile: this.GetSessionStorage("background-image-marketplace-mobile"),
-  };
+  appBackground = this.GetSessionStorageJSON("app-background", true) || {};
 
   centerContent = false;
   centerItems = false;
@@ -161,10 +158,6 @@ class RootStore {
   marketplaceFilters = [];
 
   EVENTS = EVENTS;
-
-  navigationInfo = this.GetSessionStorageJSON("navigation-info") || {};
-
-  navigationBreadcrumbs = [];
 
   noItemsAvailable = false;
 
@@ -432,7 +425,18 @@ class RootStore {
       console.time("Auth0 Authentication");
 
       // Check for existing Auth0 authentication status
-      yield this.auth0.checkSession();
+      // Note: auth0.checkSession hangs sometimes without throwing an error - if it takes longer than 5 seconds, abort.
+      yield new Promise(async (resolve, reject) => {
+        const timeout = setTimeout(() => reject("Auth0 checkSession timeout"), 5000);
+        // eslint-disable-next-line no-console
+        console.time("auth0.checkSession");
+        await this.auth0.checkSession();
+        // eslint-disable-next-line no-console
+        console.timeEnd("auth0.checkSession");
+        clearTimeout(timeout);
+
+        resolve();
+      });
 
       if(yield this.auth0.isAuthenticated()) {
         this.Log("Authenticating with Auth0 session");
@@ -852,11 +856,14 @@ class RootStore {
   }
 
   SetCustomizationOptions(marketplace) {
-    if(marketplace !== "default" && this.currentCustomization === (marketplace && marketplace.marketplaceId)) {
+    const useTenantStyling = marketplace?.branding?.use_tenant_styling && this.navigationInfo.locationType !== "marketplace";
+    const customizationKey = marketplace === "default" ? "global" : `${marketplace.marketplaceId}-${useTenantStyling ? "tenant" : "marketplace"}`;
+
+    if(marketplace !== "default" && customizationKey === this.currentCustomization) {
       return;
     }
 
-    this.currentCustomization = marketplace && marketplace.marketplaceId;
+    this.currentCustomization = customizationKey;
 
     const desktopBackground = marketplace?.branding?.background?.url || "";
     const mobileBackground = marketplace?.branding?.background_mobile?.url || "";
@@ -864,17 +871,20 @@ class RootStore {
     const marketplaceBackground = marketplace?.storefront?.background?.url || "";
     const marketplaceBackgroundMobile = marketplace?.storefront?.background_mobile?.url || "";
 
-    this.SetSessionStorage("background-image", desktopBackground);
-    this.SetSessionStorage("background-image-mobile", mobileBackground);
-    this.SetSessionStorage("background-image-marketplace", marketplaceBackground);
-    this.SetSessionStorage("background-image-marketplace-mobile", marketplaceBackgroundMobile);
+    const tenantBackground = marketplace?.tenantBranding?.background?.url || "";
+    const tenantBackgroundMobile = marketplace?.tenantBranding?.background_mobile?.url || "";
 
     this.appBackground = {
       desktop: desktopBackground,
       mobile: mobileBackground,
       marketplaceDesktop: marketplaceBackground,
-      marketplaceMobile: marketplaceBackgroundMobile
+      marketplaceMobile: marketplaceBackgroundMobile,
+      tenantDesktop: tenantBackground,
+      tenantMobile: tenantBackgroundMobile,
+      useTenantStyling: marketplace?.branding?.use_tenant_styling || false
     };
+
+    this.SetSessionStorage("app-background", Utils.B64(JSON.stringify(this.appBackground)));
 
     let options = { color_scheme: "Dark" };
     if(marketplace && marketplace !== "default") {
@@ -906,8 +916,13 @@ class RootStore {
     }
 
     if(options.color_scheme === "Custom") {
-      this.walletClient.MarketplaceCSS({marketplaceParams: {marketplaceId: marketplace.marketplaceId}})
-        .then(css => this.SetCustomCSS(css));
+      if(useTenantStyling) {
+        this.walletClient.TenantCSS({tenantSlug: marketplace.tenant_slug || marketplace.tenantSlug})
+          .then(css => this.SetCustomCSS(css));
+      } else {
+        this.walletClient.MarketplaceCSS({marketplaceParams: {marketplaceId: marketplace.marketplaceId}})
+          .then(css => this.SetCustomCSS(css));
+      }
     } else {
       this.SetCustomCSS("");
     }
@@ -1773,19 +1788,8 @@ class RootStore {
     return false;
   });
 
-  FlowURL({type="flow", flow, usePathParameter, parameters={}}) {
-    const url = new URL(UrlJoin(window.location.origin, window.location.pathname));
-
-    const path = UrlJoin("/", type, flow, Utils.B58(JSON.stringify(parameters)));
-    if(usePathParameter) {
-      url.searchParams.set("_path", path);
-    } else {
-      url.hash = path;
-    }
-
-    url.searchParams.set("origin", window.location.origin);
-
-    return url.toString();
+  FlowURL({type="flow", flow, marketplaceId, parameters={}}) {
+    return this.walletClient.FlowURL({type, flow, marketplaceId, parameters});
   }
 
   // Flows are popups that do not require UI input (redirecting to purchase, etc)
@@ -1897,20 +1901,24 @@ class RootStore {
           break;
 
         case "redirect":
-          let [to, params] = parameters.to.split("?");
-          if(params) {
-            params = new URLSearchParams(params);
+          if(parameters.url) {
+            window.location.href = parameters.url;
+          } else {
+            let [to, params] = parameters.to.split("?");
+            if(params) {
+              params = new URLSearchParams(params);
 
-            for(const [key, value] of params.entries()) {
-              urlParameters[key] = value;
+              for(const [key, value] of params.entries()) {
+                urlParameters[key] = value;
+              }
             }
-          }
 
-          if(Object.keys(urlParameters).length > 0) {
-            to = `${to}?${Object.keys(urlParameters).map(key => `${key}=${urlParameters[key]}`).join("&")}`;
-          }
+            if(Object.keys(urlParameters).length > 0) {
+              to = `${to}?${Object.keys(urlParameters).map(key => `${key}=${urlParameters[key]}`).join("&")}`;
+            }
 
-          history.push(to);
+            history.push(to);
+          }
 
           break;
 
@@ -2076,12 +2084,13 @@ class RootStore {
     this.authInfo = authInfo;
   }
 
-  SetNavigationInfo({navigationKey, path, url, marketplaceId, breadcrumbs=[]}) {
+  SetNavigationInfo({navigationKey, locationType, path, url, marketplaceId, breadcrumbs=[]}) {
     this.navigationBreadcrumbs = breadcrumbs;
 
     this.navigationInfo = {
-      marketplaceId,
       navigationKey,
+      locationType,
+      marketplaceId,
       path,
       url
     };

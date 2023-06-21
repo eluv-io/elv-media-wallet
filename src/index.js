@@ -120,6 +120,11 @@ const Routes = observer(() => {
       <ScrollToTop>
         <ErrorBoundary className="page-container wallet-page">
           <Switch>
+            { /* Handle various UI based popup/redirect flows - Marketplace view */ }
+            <Route path="/action/:action/marketplace/:marketplaceId/:parameters">
+              <Actions />
+            </Route>
+
             <Route exact path="/marketplaces/redirect/:tenantSlug/:marketplaceSlug/:location?">
               <MarketplaceSlugRedirect />
             </Route>
@@ -171,10 +176,17 @@ const App = observer(() => {
 
     const backgroundElement = document.querySelector("#app-background");
 
+    // Marketplace background image - All pages within marketplace
     let backgroundImage = (rootStore.pageWidth < 800 && rootStore.appBackground.mobile) || rootStore.appBackground.desktop || "";
 
+    // Storefront background image - All pages except user profile, unless overridden by tenant
     if(rootStore.navigationInfo.navigationKey === "marketplace") {
       backgroundImage = (rootStore.pageWidth < 800 && rootStore.appBackground.marketplaceMobile) || rootStore.appBackground.marketplaceDesktop || backgroundImage;
+    }
+
+    // Tenant background image - Non-storefront pages
+    if(rootStore.appBackground.useTenantStyling && rootStore.navigationInfo.locationType !== "marketplace") {
+      backgroundImage = (rootStore.pageWidth < 800 && rootStore.appBackground.tenantMobile) || rootStore.appBackground.tenantDesktop || backgroundImage;
     }
 
     const currentBackground = backgroundElement.style.backgroundImage || "";
@@ -238,11 +250,12 @@ render(
     <HashRouter>
       <Switch>
         { /* Handle various popup actions */ }
-        <Route path="/flow/:flow/:parameters">
+        <Route exact path="/flow/:flow/:parameters">
           <Flows />
         </Route>
 
-        <Route path="/action/:action/:parameters">
+        { /* Handle various UI based popup/redirect flows - Generic view */ }
+        <Route exact path="/action/:action/:parameters">
           <Actions />
         </Route>
 

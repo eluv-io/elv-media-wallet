@@ -30,17 +30,43 @@
   src: url("https://main.net955305.contentfabric.io/s/main/q/hq__DQbAX3Miau26siLLLgbEsbvncGtX5K9yvxDBvqeFSpUtqqW6tmrbtRwYNcEMy5vPxcGt3rXPbW/files/fonts/PlacardNext-WideBold.otf") format("opentype");
 }
 
+@font-face {
+  font-family: 'PlacardNext-Wide';
+  font-style: normal;
+  font-weight: bold;
+  font-display: swap;
+  src: url("https://main.net955305.contentfabric.io/s/main/q/hq__DQbAX3Miau26siLLLgbEsbvncGtX5K9yvxDBvqeFSpUtqqW6tmrbtRwYNcEMy5vPxcGt3rXPbW/files/fonts/PlacardNext-Wide.otf") format("opentype");
+}
+@font-face {
+  font-family: 'PlacardNext-WideMedium';
+  font-style: normal;
+  font-weight: bold;
+  font-display: swap;
+  src: url("https://main.net955305.contentfabric.io/s/main/q/hq__DQbAX3Miau26siLLLgbEsbvncGtX5K9yvxDBvqeFSpUtqqW6tmrbtRwYNcEMy5vPxcGt3rXPbW/files/fonts/PlacardNext-WideMedium.otf") format("opentype");
+}
+
+
 :root {
 
   /* Fonts */
-  --font-family-primary: "PlacardNext-Bold", sans-serif; /* Primary font should be accompanied with 'text-transform: uppercase' */
+  --font-family-primary: "PlacardNext-Bold", sans-serif;
   --font-family-secondary: "PlacardNext-WideLight", sans-serif;
   --font-family-tertiary: "PlacardNext-WideBold", sans-serif;
   --font-default: normal normal normal 16px var(--font-family-secondary);
 
+  /* Fonts */
+  /* --font-family-primary: "PlacardNext-Wide", sans-serif;
+  --font-family-secondary: "PlacardNext-WideBold", sans-serif;
+  --font-family-tertiary: "PlacardNext-WideMedium", sans-serif;
+  --font-default: normal normal normal 16px var(--font-family-secondary); */
+
+  --font-button: normal normal normal 20px var(--font-family-tertiary);
+
   /* General */
   --color-bg-primary: #254B7095;
   --color-bg-secondary: #31608E;
+
+  --color-input-bg-solid: #254B70;
 
   --color-page-bg: #000000;
 
@@ -50,58 +76,155 @@
   --color-text-highlight: #f0b740;
   --color-text-highlight-rgb: 240, 183, 64;
 
-  --color-highlight-container-bg: #0043a4;
+  --color-highlight-container-bg: #f0b740;
+  --color-bg-highlight: #f0b740;
 
   --color-loader: rgba(255, 255, 255, 0.5);
 
-  --border: 1px solid #444444;
-  --border-faint: 1px solid #333333;
+  --border-color: #182C5D;
+  --border-color-faint: #000;
 
-
-  --border-color: #444444;
-  --border-color-faint: #333333;
+  --border: 1px solid var(--border-color);
+  --border-faint: 1px solid var(--border-color-faint);
 
   --box-shadow: none;
+  --box-shadow-input-focus: 0 0 7px var(--color-highlight-container-bg);
+  --outline-input-focus: 1px solid var(--color-highlight-container-bg);
 
 
   /* Header */
-  --background-page-header: var(--color-bg-primary);
+  --background-page-header: var(--color-input-bg-solid);
   --background-page-header-profile: var(--color-bg-secondary);
 
-  --background-input: var(--color-bg-primary);
-  --color-input-bg-solid: var(--color-bg-primary);
+  --background-input: #254B70;
 
   --background-button-primary: #990000;
   --background-button-secondary: #000000;
 
-  --border-button-secondary: 1px solid var(--background-button-secondary);
+  --border-button-primary: 4px solid var(--background-button-primary);
+  --color-button-primary-text: var(--color-text-highlight);
+  --border-button-secondary: 4px solid var(--background-button-secondary);
 
   /* Cards */
-  --background-card: #132855;
+  --background-card: #182C5D;
 
   --background-component-primary: var(--color-bg-primary);
-  --background-table: var(--color-bg-primary);
+  --background-table: var(--color-input-bg-solid);
   --background-table-header-row: var(--color-bg-secondary);
-  --color-table-odd-row-bg: var(--color-bg-primary);
+  --color-table-odd-row-bg: var(--color-input-bg-solid);
   --color-table-even-row-bg: var(--color-bg-secondary);
 
   --border-radius-feature-card: 0px;
 
   /* User Profile */
-  --color-user-profile-bg-primary: var(--color-bg-primary);
+  --color-user-profile-bg-primary: var(--color-input-bg-solid);
   --color-user-profile-bg-secondary: var(--color-bg-secondary);
+
+  /* Log In */
+  --background-login-box: #1c1c1c;
+  --border-login-box: 1px solid #444444;
+  --border-radius-login-box: #454545;
 }
 
+.page-headers {
+  margin-bottom: 0px;
+}
+.header__navigation-link {
+  font-family: 'PlacardNext-Wide';
+}
+
+.markdown-document h1, .markdown-document h2, .markdown-document h3, .markdown-document h4, .markdown-document h5, .markdown-document p {
+  margin: 0.4em 0;
+}
+.markdown-document strong {
+  font-family: var(--font-family-primary)!important;
+}
+.markdown-document h1 {
+  font-family: var(--font-family-secondary);
+}
+.markdown-document h2, .markdown-document h2 strong {
+  color: #66ccff;
+  font-family: 'PlacardNext-Wide';
+}
+/* .markdown-document.marketplace__section__footer h2 {
+  color: #66ccff;
+  font-family: 'PlacardNext-WideLight';
+} */
+.markdown-document h3, .markdown-document h4 {
+  color: #fff;
+  font-family: 'PlacardNext-WideMedium';
+}
+
+.marketplace__countdown-header {
+  color: #f0b740;
+  font-size: 25px;
+  font-family: 'PlacardNext-WideMedium';
+}
+.marketplace__countdown-border {
+  background: transparent;
+}
+.marketplace__countdown {
+  border-radius: 50px;
+}
+
+/* .card-list--marketplace {
+  padding-left: 30px;
+  padding-right: 30px;
+ } */
+.card-list--marketplace .card-container {
+  max-width: 350px;
+}
+
+.item-card {
+  padding: 0;
+}
+.item-card__text {
+  padding: 0 20px 20px;
+}
+.item-card.media-card {
+  border-radius: 0px;
+  padding: 0px;
+}
+.item-card__title {
+  color: #66ccff;
+  text-transform: none;
+}
+.item-card__description {
+  color: #f0b740;
+}
+.card-container {
+  background: transparent;
+}
+/* .card-list .card-container {
+  flex: none;
+} */
+
+.featured-item__text {
+  align-items: center;
+}
+.featured-item__description {
+  text-align: center;
+  margin: 0px;
+}
 .featured-item__icon {
   padding: 0px;
 }
-
+.marketplace__countdown-border {
+  margin-bottom: 20px;
+}
 .header__navigation-link:hover, .header__navigation-link.active {
   color: #f0b740;
 }
 
 .marketplace__section {
   background-color: #254B7095;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border-radius: 20px;
+}
+
+.footer__modal__content--rich-text {
+  padding: 20px 50px 20px;
 }
 
 /* WB default login */
@@ -116,6 +239,7 @@
 .login-page__login-button-sign-in {
   background: #0043a4;
   font-weight: 600;
+  border: 1px solid #0043a4;
 }
 .login-page__login-button-create, .login-page__login-button-wallet {
   background: #000;
@@ -142,18 +266,9 @@
   font-family: 'Montserrat', sans-serif;
 }
 
-.marketplace__countdown-header {
-  color: #fed122;
+.markdown-document p {
+  font-size: 13px;
 }
-
-.marketplace__countdown-border {
-  padding: 0;
-  background: transparent;
+.footer__tagline {
+  padding-top: 20px;
 }
-
-.marketplace__countdown {
-  border: 0;
-  border-radius: 100px;
-}
-
-

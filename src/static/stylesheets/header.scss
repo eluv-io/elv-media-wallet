@@ -14,7 +14,7 @@
   }
 
   &--marketplace {
-    height: 250px;
+    height: 200px;
   }
 
   &--compact {
@@ -181,7 +181,7 @@
     align-items: center;
     display: flex;
     gap: 20px;
-    height: 100px;
+    height: 60px;
     position: relative;
     transition: height 0.35s ease;
 
@@ -223,6 +223,25 @@
     &:hover,
     &.active {
       color: var(--color-header-link-text-active);
+    }
+
+    &--menu {
+      .menu-button__options {
+        @include page-fade-in(0.1s);
+        background: var(--background-component-primary);
+        border: var(--border-component-primary);
+        border-radius: var(--border-radius-component);
+        margin-top: 10px;
+      }
+
+      .menu-button__button {
+        padding: 15px 0;
+
+        &:hover,
+        &.active {
+          color: var(--color-header-link-text-active);
+        }
+      }
     }
   }
 
@@ -762,15 +781,16 @@
 
   &__address {
     font: var(--font-component-misc);
-    font-size: 14px;
-  }
+    min-height: unset;
+    width: 100%;
 
-  &__address-copy {
-    height: 18px;
-    width: 18px;
+    .copyable-field__content {
+      color: var(--color-component-text-primary);
+    }
 
-    svg {
-      height: 100%;
+    .copyable-field__button {
+      background: transparent;
+      transition: opacity 0.5s ease;
     }
   }
 

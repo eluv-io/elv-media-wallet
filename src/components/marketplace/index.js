@@ -95,7 +95,7 @@ const MarketplaceWrapper = observer(({children}) => {
     } else {
       rootStore.ClearMarketplace();
     }
-  }, [match.url, rootStore.marketplaces[match.params.marketplaceId]]);
+  }, [match.url, rootStore.marketplaces[match.params.marketplaceId], rootStore.navigationInfo.locationType]);
 
   if(!rootStore.loaded) {
     return <PageLoader />;
@@ -105,6 +105,7 @@ const MarketplaceWrapper = observer(({children}) => {
     return (
       <AsyncComponent
         // Store info is cleared when logged in
+        key={`marketplace-${match.params.marketplaceId}-${rootStore.loggedIn}`}
         loadKey={`marketplace-${match.params.marketplaceId}-${rootStore.loggedIn}`}
         cacheSeconds={30}
         Load={async () => {

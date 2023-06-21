@@ -17,6 +17,7 @@ export const NFTMediaContainer = observer(({nftInfo, nft, item, browserOnly}) =>
   if(!nftInfo) {
     nftInfo = NFTInfo({nft, item});
   }
+
   window.nftInfo = nftInfo;
 
   useEffect(() => {

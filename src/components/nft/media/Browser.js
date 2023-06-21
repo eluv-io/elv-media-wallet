@@ -7,6 +7,9 @@ import ImageIcon from "Components/common/ImageIcon";
 import {Swiper, SwiperSlide} from "swiper/react";
 import ItemIcon from "Assets/icons/image";
 import {MediaImageUrl, MediaLinkPath} from "Components/nft/media/Utils";
+import {NFTRedeemableOfferModal} from "Components/nft/NFTRedeemableOffers";
+import Utils from "@eluvio/elv-client-js/src/Utils";
+import Video from "Components/common/Video";
 
 import LockedIcon from "Assets/icons/Lock icon";
 import PlayCircleIcon from "Assets/icons/media/Play icon";
@@ -14,28 +17,13 @@ import RightArrow from "Assets/icons/right-arrow";
 import UnlockedIcon from "Assets/icons/unlock icon";
 import LeftArrow from "Assets/icons/left-arrow";
 import PlayIcon from "Assets/icons/media/play.svg";
-import {NFTRedeemableOfferModal, NFTRedeemableOfferVideo} from "Components/nft/NFTRedeemableOffers";
-import Utils from "@eluvio/elv-client-js/src/Utils";
-
-const FeaturedRedeemableDate = ({header, date}) => {
-  return (
-    <div className="nft-media-browser__featured-item__date-container">
-      <div className="nft-media-browser__featured-item__date-header">
-        { header }
-      </div>
-      <div className="nft-media-browser__featured-item__date">
-        { date }
-      </div>
-    </div>
-  );
-};
 
 const FeaturedRedeemable = observer(({nftInfo, offer}) => {
   const [showOfferModal, setShowOfferModal] = useState(false);
 
   const redeemer = offer.state?.redeemer;
   const isRedeemer = Utils.EqualAddress(redeemer, rootStore.CurrentAddress());
-  const disabled = (redeemer && !isRedeemer) || !offer.released || offer.expired;
+  const disabled = (redeemer && !isRedeemer);
 
   if(offer.hidden) {
     return null;
@@ -61,7 +49,7 @@ const FeaturedRedeemable = observer(({nftInfo, offer}) => {
             <div className="nft-media-browser__featured-item__image-container">
               {
                 offer.animation ?
-                  <NFTRedeemableOfferVideo videoLink={offer.animation} className="nft-media-browser__featured-item__image nft-media-browser__featured-item__video"/> :
+                  <Video videoLink={offer.animation} className="nft-media-browser__featured-item__image nft-media-browser__featured-item__video"/> :
                   <img src={offer.image.url} alt={offer.name} className="nft-media-browser__featured-item__image"/>
               }
             </div> : null
@@ -71,13 +59,22 @@ const FeaturedRedeemable = observer(({nftInfo, offer}) => {
             { rootStore.l10n.item_details[redeemer ? "reward_redeemed" : "reward"] }
           </div>
           <div className="nft-media-browser__featured-item__name">{offer.name}</div>
-          { disabled ? null : <div className="nft-media-browser__featured-item__cta">{ rootStore.l10n.redeemables[redeemer ? "view_redemption" : "claim_reward"] }</div> }
           {
-            !redeemer && offer.releaseDate && !offer.released ?
-              <FeaturedRedeemableDate header={rootStore.l10n.redeemables.available} date={offer.releaseDate}/> :
-              !redeemer && offer.expirationDate ?
-                <FeaturedRedeemableDate header={rootStore.l10n.redeemables.expires} date={offer.expirationDate}/> :
-                null
+            !disabled ?
+              <div className="nft-media-browser__featured-item__cta">
+                { rootStore.l10n.redeemables[redeemer ? "view_redemption" : (!offer.released || offer.expired ? "view_details" : "claim_reward")] }
+              </div> : null
+          }
+          {
+            !redeemer && (offer.releaseDate || offer.expirationDate) ?
+              <div className="nft-media-browser__featured-item__date-container">
+                <div className="nft-media-browser__featured-item__date-header">
+                  { rootStore.l10n.redeemables[offer.releaseDate && !offer.released ? "reward_valid" : "reward_expires"] }
+                </div>
+                <div className="nft-media-browser__featured-item__date">
+                  { offer.releaseDate && !offer.released ? offer.releaseDate : offer.expirationDate }
+                </div>
+              </div> : null
           }
         </div>
       </button>
@@ -85,7 +82,7 @@ const FeaturedRedeemable = observer(({nftInfo, offer}) => {
   );
 });
 
-const FeaturedMediaItem = ({mediaItem, mediaIndex,  locked, Unlock}) => {
+const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
   const match = useRouteMatch();
 
   let imageUrl = MediaImageUrl({mediaItem, maxWidth: 600});
@@ -110,7 +107,7 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex,  locked, Unlock}) => {
   return (
     <Linkish
       {...(hasButton ? {} : linkParams)}
-      className="nft-media-browser__featured-item"
+      className={`nft-media-browser__featured-item ${locked ? "nft-media-browser__featured-item--locked" : ""}`}
     >
       {itemDetails.background_image ?
         <img
@@ -120,9 +117,13 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex,  locked, Unlock}) => {
         /> : null
       }
       {
-        imageUrl ?
+        imageUrl || itemDetails.animation ?
           <div className="nft-media-browser__featured-item__image-container">
-            <img src={imageUrl} alt={name || mediaItem.name} className="nft-media-browser__featured-item__image"/>
+            {
+              itemDetails.animation ?
+                <Video videoLink={itemDetails.animation} className="nft-media-browser__featured-item__image nft-media-browser__featured-item__video"/> :
+                <img src={imageUrl} alt={name || mediaItem.name} className="nft-media-browser__featured-item__image"/>
+            }
           </div> : null
       }
       <div className="nft-media-browser__featured-item__content">
@@ -264,13 +265,13 @@ export const MediaCollection = observer(({nftInfo, sectionId, collection, single
   );
 });
 
-const MediaSection = ({nftInfo, section, locked}) => {
+const MediaSection = ({nftInfo, section, locked, lockable}) => {
   const match = useRouteMatch();
 
   return (
     <div className={`nft-media-browser__section ${match.params.sectionId === section.id ? "nft-media-browser__section--active" : ""} ${locked ? "nft-media-browser__section--locked" : ""}`}>
       <div className="nft-media-browser__section__header">
-        <ImageIcon icon={locked ? LockedIcon : UnlockedIcon} className="nft-media-browser__section__header-icon" />
+        { lockable ? <ImageIcon icon={locked ? LockedIcon : UnlockedIcon} className="nft-media-browser__section__header-icon" /> : null }
         <div className="nft-media-browser__section__header-text ellipsis">
           { section.name }
         </div>
@@ -292,6 +293,7 @@ const NFTMediaBrowser = observer(({nftInfo}) => {
     return null;
   }
 
+  const lockable = !!(nftInfo.additionalMedia.featured_media || []).find(mediaItem => mediaItem.required);
   const lockedFeaturedMedia = (nftInfo.additionalMedia.featured_media || [])
     .filter(mediaItem => mediaItem.required && !rootStore.MediaViewed({nft: nftInfo.nft, mediaId: mediaItem.id, preview: !nftInfo.nft.details.TokenIdStr}));
   const unlockedFeaturedMedia = (nftInfo.additionalMedia.featured_media || [])
@@ -323,7 +325,18 @@ const NFTMediaBrowser = observer(({nftInfo}) => {
             }
           </div> : null
       }
-      { nftInfo.additionalMedia.sections.map(section => <MediaSection key={`section-${section.id}`} nftInfo={nftInfo} section={section} locked={lockedFeaturedMedia.length > 0} Unlock={Unlock} />) }
+      {
+        nftInfo.additionalMedia.sections.map(section =>
+          <MediaSection
+            key={`section-${section.id}`}
+            nftInfo={nftInfo}
+            section={section}
+            lockable={lockable}
+            locked={lockedFeaturedMedia.length > 0}
+            Unlock={Unlock}
+          />
+        )
+      }
     </div>
   );
 });

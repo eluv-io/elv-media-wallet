@@ -4,7 +4,7 @@ import React, {useState} from "react";
 import PreferencesMenu from "Components/header/PreferencesMenu";
 import UrlJoin from "url-join";
 import ImageIcon from "Components/common/ImageIcon";
-import {Copy, FormatPriceString, MenuLink} from "Components/common/UIComponents";
+import {CopyableField, FormatPriceString, MenuLink} from "Components/common/UIComponents";
 
 import ProfileIcon from "Assets/icons/header/profile icon v2";
 import ListingsIcon from "Assets/icons/header/listings icon";
@@ -16,7 +16,6 @@ import CollectionsIcon from "Assets/icons/header/collections icon";
 import LeaderboardIcon from "Assets/icons/header/Leaderboard";
 import EmailIcon from "Assets/icons/email icon";
 import MetamaskIcon from "Assets/icons/metamask fox";
-import CopyIcon from "Assets/icons/copy";
 import WalletIcon from "Assets/icons/header/wallet icon v2";
 import PreferencesIcon from "Assets/icons/header/Preferences icon";
 import ProjectsIcon from "Assets/icons/header/New Projects_Marketplaces icon";
@@ -83,12 +82,9 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
                   </> :
                   <>
                     <ImageIcon icon={MetamaskIcon} className="mobile-menu__account__icon" />
-                    <div className="mobile-menu__account__address ellipsis">
+                    <CopyableField value={userInfo.address}>
                       { userInfo.address }
-                    </div>
-                    <button onClick={() => Copy(userInfo.address)} className="mobile-menu__account__address-copy">
-                      <ImageIcon alt="Copy Address" icon={CopyIcon} />
-                    </button>
+                    </CopyableField>
                   </>
               }
             </div>
@@ -106,12 +102,9 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
                   <div className="mobile-menu__section">
                     <div className="mobile-menu__section-header">{ rootStore.l10n.profile.address }</div>
                     <div className="mobile-menu__address-container">
-                      <div className="mobile-menu__address ellipsis">
-                        {rootStore.CurrentAddress()}
-                      </div>
-                      <button onClick={() => Copy(rootStore.CurrentAddress())} className="mobile-menu__address-copy">
-                        <ImageIcon alt="Copy Address" icon={CopyIcon}/>
-                      </button>
+                      <CopyableField value={userInfo.address} className="mobile-menu__address">
+                        { userInfo.address }
+                      </CopyableField>
                     </div>
                     <div className="mobile-menu__message">
                       { rootStore.l10n.profile.do_not_send_funds }

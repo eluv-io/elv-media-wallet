@@ -6,6 +6,7 @@ header:
   listings: Listings
   profile: Profile
   store: Store
+  stores: Stores
   items: Items
   offers: Offers
   notifications: Notifications
@@ -77,6 +78,9 @@ actions:
   transfers:
     transfer: Transfer NFT
     transfer_confirm: Are you sure you want to transfer this NFT to {targetAddress}?
+
+errors:
+  general: We're sorry, something went wrong.
 
 profile:
   media_wallet: Media Wallet
@@ -248,8 +252,9 @@ redeemables:
   redeem_reward: Redeem Reward
   reward_redeemed: Reward Redeemed
   claim_reward: Claim Your Reward
-  reward_valid: Offer Valid
-  reward_expires: Offer Expires
+  view_details: View Details
+  reward_valid: Reward Valid
+  reward_expires: Reward Expires
   expires: Expires
   available: Available
   view_redemption_code: View Redemption Code
@@ -263,6 +268,7 @@ redeemables:
   redeeming: Redemption Transaction in Progress
   redeeming_subheader: This may take several minutes
   redeeming_footer: You can navigate away from this page if you don't want to wait. Your reward will be available in your wallet when the process is complete.
+  popup_notice: "Note: This redemption requires a signature. Please check the pop-up to sign the results."
 
 transfers:
   header: Transfer Your Item

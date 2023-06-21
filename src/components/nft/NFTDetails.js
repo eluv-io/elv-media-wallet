@@ -444,9 +444,9 @@ const NFTInfoMenu = observer(({nftInfo}) => {
   return (
     <div className="details-page__nft-info__buttons">
       <ButtonWithMenu
-        className="action details-page__nft-info__menu-button-container"
+        className="action details-page__nft-info__action-menu-container"
         buttonProps={{
-          className: "details-page__nft-info__menu-button",
+          className: "details-page__nft-info__action-menu",
           children: <ImageIcon icon={ShareIcon} />
         }}
         RenderMenu={Close => {

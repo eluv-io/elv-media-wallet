@@ -111,12 +111,12 @@ export const ExpandableSection = ({header, icon, children, expanded=false, toggl
 export const Linkish = ({to, href, useNavLink, onClick, ...args}) => {
   if(to) {
     if(useNavLink) {
-      return <NavLink to={to} {...args} />;
+      return <NavLink to={to} onClick={onClick} {...args} />;
     } else {
-      return <Link to={to} {...args} />;
+      return <Link to={to} onClick={onClick} {...args} />;
     }
   } else if(href) {
-    return <a href={href} {...args} />;
+    return <a href={href} onClick={onClick} {...args} />;
   } else if(onClick) {
     return <button onClick={onClick} {...args} />;
   }
@@ -139,15 +139,34 @@ export const Copy = async (value) => {
   }
 };
 
+export const CopyButton = ({value, className=""}) => {
+  const [copied, setCopied] = useState(false);
+
+  return (
+    <button
+      onClick={() => {
+        if(copied) { return; }
+
+        Copy(value);
+
+        setCopied(true);
+        setTimeout(() => setCopied(false), 600);
+      }}
+      className={`copy-button ${copied ? "copy-button--active" : ""} ${className}`}
+      title="Copy to Clipboard"
+    >
+      <SVG src={CopyIcon} alt="Copy" />
+    </button>
+  );
+};
+
 export const CopyableField = ({value, children, className="", ellipsis=true}) => {
   return (
-    <div className={`copyable-field ${className}`} onClick={() => Copy(value)}>
+    <div className={`copyable-field ${className}`}>
       <div className={`copyable-field__content ${ellipsis ? "ellipsis" : ""}`}>
         { children }
       </div>
-      <button className="copyable-field__button" title="Copy to Clipboard">
-        <SVG src={CopyIcon} alt="Copy" />
-      </button>
+      <CopyButton value={value} className="copyable-field__button" />
     </div>
   );
 };
@@ -364,10 +383,10 @@ export const ButtonWithMenu = ({buttonProps, RenderMenu, className=""}) => {
   }, []);
 
   return (
-    <div className={`menu-button ${showMenu ? "menu-button--active" : ""} ${className}`} ref={ref}>
+    <div className={`action-menu ${showMenu ? "action-menu--active" : ""} ${className}`} ref={ref}>
       <button
         {...buttonProps}
-        className={`menu-button__button ${buttonProps?.className || ""}`}
+        className={`action-menu__button ${buttonProps?.className || ""}`}
         onClick={() => {
           setShowMenu(!showMenu);
 
@@ -378,7 +397,7 @@ export const ButtonWithMenu = ({buttonProps, RenderMenu, className=""}) => {
       />
       {
         showMenu ?
-          <div className="menu-button__menu">
+          <div className="action-menu__menu">
             { RenderMenu(() => setShowMenu(false)) }
           </div> : null
       }

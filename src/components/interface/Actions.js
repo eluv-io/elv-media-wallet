@@ -3,10 +3,11 @@ import {useRouteMatch} from "react-router-dom";
 import React, {useEffect, useState} from "react";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {rootStore} from "Stores";
+import {PageLoader} from "Components/common/Loaders";
 
 import SignaturePopup from "Components/interface/SignaturePopup";
 import ConsentPopup from "Components/interface/ConsentPopup";
-import {PageLoader} from "Components/common/Loaders";
+import PurchaseAction from "Components/interface/PurchaseAction";
 
 // Actions are popups that present UI (signing, accepting permissions, etc.)
 const Actions = observer(() => {
@@ -25,11 +26,10 @@ const Actions = observer(() => {
 
     if(!rootStore.client) { return; }
 
-    if(rootStore.loggedIn || rootStore.authenticating) {
+    if(rootStore.loggedIn) {
+      setLoading(false);
       return;
-    }
-
-    if(parameters.auth) {
+    } else if(parameters.auth) {
       rootStore.Authenticate({clientAuthToken: parameters.auth, saveAuthInfo: false})
         .then(() => setLoading(false));
     } else if(parameters.logIn) {
@@ -62,6 +62,9 @@ const Actions = observer(() => {
 
     case "consent":
       return <ConsentPopup parameters={parameters} Respond={Respond} />;
+
+    case "purchase":
+      return <PurchaseAction parameters={parameters} />;
   }
 });
 

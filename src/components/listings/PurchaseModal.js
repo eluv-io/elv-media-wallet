@@ -432,7 +432,7 @@ const PurchaseProviderSelection = observer(({
           </ButtonWithLoader>
           <button
             className="action purchase-modal__payment-cancel"
-            onClick={() => Cancel()}
+            onClick={Cancel}
             disabled={checkoutStore.submittingOrder}
           >
             { rootStore.l10n.actions.back }
@@ -457,10 +457,20 @@ const PurchaseProviderSelection = observer(({
 });
 
 // Confirmation page for wallet balance purchase and linked wallet USDC payment
-const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedListing, listingId, quantity=1, linkedWallet, Cancel}) => {
+const PurchaseBalanceConfirmation = observer(({
+  nft,
+  marketplaceItem,
+  selectedListing,
+  listingId,
+  quantity=1,
+  linkedWallet,
+  customConfirmationId,
+  successUrl,
+  cancelUrl,
+  Cancel
+}) => {
   const match = useRouteMatch();
   const [errorMessage, setErrorMessage] = useState(undefined);
-  const [failed, setFailed] = useState(false);
   const [confirmationId, setConfirmationId] = useState(undefined);
   const [feeRate, setFeeRate] = useState(0.065);
 
@@ -529,9 +539,12 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
     }
   }, [purchaseStatus]);
 
-
   if(purchaseStatus.status === "complete" && purchaseStatus.success) {
-    return <Redirect to={purchaseStatus.successPath} />;
+    if(purchaseStatus.successUrl) {
+      window.location.href = purchaseStatus.successUrl;
+    } else {
+      return <Redirect to={purchaseStatus.successPath}/>;
+    }
   }
 
   return (
@@ -601,7 +614,7 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
       </div>
       <div className="purchase-modal__actions purchase-wallet-balance-actions">
         <ButtonWithLoader
-          disabled={!info.available || info.outOfStock || insufficientBalance || failed}
+          disabled={!info.available || info.outOfStock || insufficientBalance}
           className="action action-primary"
           onClick={async () => {
             try {
@@ -611,19 +624,25 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
               if(selectedListing) {
                 // Listing purchase
                 result = await checkoutStore.ListingCheckoutSubmit({
+                  confirmationId: customConfirmationId,
                   provider: linkedWallet || "wallet-balance",
                   marketplaceId: match.params.marketplaceId,
                   listingId,
-                  tenantId: selectedListing.details.TenantId
+                  tenantId: selectedListing.details.TenantId,
+                  successUrl,
+                  cancelUrl
                 });
               } else {
                 // Marketplace purchase
                 result = await checkoutStore.CheckoutSubmit({
+                  confirmationId: customConfirmationId,
                   provider: linkedWallet || "wallet-balance",
                   tenantId: marketplace.tenant_id,
                   marketplaceId: match.params.marketplaceId,
                   sku: marketplaceItem.sku,
                   quantity,
+                  successUrl,
+                  cancelUrl
                 });
               }
 
@@ -634,17 +653,13 @@ const PurchaseBalanceConfirmation = observer(({nft, marketplaceItem, selectedLis
               rootStore.Log("Checkout failed", true);
               rootStore.Log(error, true);
 
-              if(!error.recoverable) {
-                setFailed(true);
-              }
-
               setErrorMessage(error.uiMessage || rootStore.l10n.purchase.errors.failed);
             }
           }}
         >
           { rootStore.l10n.actions.purchase.buy_now }
         </ButtonWithLoader>
-        <button className="action" onClick={() => Cancel()} disabled={checkoutStore.submittingOrder}>
+        <button className="action" onClick={Cancel} disabled={checkoutStore.submittingOrder}>
           { rootStore.l10n.actions.back }
         </button>
       </div>
@@ -674,13 +689,15 @@ const PurchasePayment = observer(({
   setQuantity,
   setUseWalletBalance,
   setLinkedWallet,
+  customConfirmationId,
+  successUrl,
+  cancelUrl,
   SelectListing,
   Cancel
 }) => {
   const match = useRouteMatch();
   const [confirmationId, setConfirmationId] = useState(undefined);
   const [errorMessage, setErrorMessage] = useState(undefined);
-  const [failed, setFailed] = useState(false);
   const [listingStats, setListingStats] = useState(undefined);
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
@@ -737,22 +754,28 @@ const PurchasePayment = observer(({
       if(selectedListing) {
         // Listing purchase
         result = await checkoutStore.ListingCheckoutSubmit({
+          confirmationId: customConfirmationId,
           provider: paymentType,
           marketplaceId: match.params.marketplaceId,
           listingId: selectedListingId,
           tenantId: selectedListing.details.TenantId,
           email,
+          successUrl,
+          cancelUrl,
           additionalParameters
         });
       } else {
         // Marketplace purchase
         result = await checkoutStore.CheckoutSubmit({
+          confirmationId: customConfirmationId,
           provider: paymentType,
           tenantId: marketplace.tenant_id,
           marketplaceId: match.params.marketplaceId,
           sku: marketplaceItem.sku,
           quantity,
           email,
+          successUrl,
+          cancelUrl,
           additionalParameters
         });
       }
@@ -765,17 +788,16 @@ const PurchasePayment = observer(({
     } catch(error) {
       rootStore.Log("Checkout failed", true);
       rootStore.Log(error, true);
-
-      if(!error.recoverable) {
-        setFailed(true);
-      }
-
       setErrorMessage(error.uiMessage || rootStore.l10n.purchase.errors.failed);
     }
   };
 
   if(purchaseStatus.status === "complete" && purchaseStatus.success) {
-    return <Redirect to={purchaseStatus.successPath} />;
+    if(purchaseStatus.successUrl) {
+      window.location.href = purchaseStatus.successUrl;
+    } else {
+      return <Redirect to={purchaseStatus.successPath}/>;
+    }
   }
 
   return (
@@ -835,7 +857,7 @@ const PurchasePayment = observer(({
         price={FormatPriceString(info.price || 0, {quantity, stringOnly: true})}
         errorMessage={errorMessage}
         usdcOptions={selectedListing?.details}
-        disabled={(type === "listing" && !selectedListingId) || !info.available || info.outOfStock || failed}
+        disabled={(type === "listing" && !selectedListingId) || !info.available || info.outOfStock}
         Continue={Continue}
         Cancel={Cancel}
       />
@@ -844,7 +866,17 @@ const PurchasePayment = observer(({
 });
 
 let timeout;
-const PurchaseModal = observer(({nft, item, initialListingId, type="marketplace", Close}) => {
+const PurchaseModal = observer(({
+  nft,
+  item,
+  initialListingId,
+  type="marketplace",
+  confirmationId,
+  successUrl,
+  cancelUrl,
+  Close,
+  closeable=true
+}) => {
   const [loadKey, setLoadKey] = useState(0);
   const [useWalletBalance, setUseWalletBalance] = useState(false);
   const [linkedWallet, setLinkedWallet] = useState(undefined);
@@ -879,6 +911,7 @@ const PurchaseModal = observer(({nft, item, initialListingId, type="marketplace"
     content = (
       <PurchaseBalanceConfirmation
         key={`listing-${loadKey}`}
+        customConfirmationId={confirmationId}
         type={type}
         linkedWallet={linkedWallet}
         nft={nft}
@@ -886,6 +919,8 @@ const PurchaseModal = observer(({nft, item, initialListingId, type="marketplace"
         selectedListing={selectedListing}
         listingId={selectedListingId === "marketplace" ? undefined : selectedListingId}
         quantity={selectedListingId === "marketplace" ? quantity : 1}
+        successUrl={successUrl}
+        cancelUrl={cancelUrl}
         Cancel={() => {
           setUseWalletBalance(false);
           setLinkedWallet(undefined);
@@ -896,10 +931,13 @@ const PurchaseModal = observer(({nft, item, initialListingId, type="marketplace"
     content = (
       <PurchasePayment
         key={`listing-${loadKey}`}
+        customConfirmationId={confirmationId}
         type={type}
         nft={nft}
         marketplaceItem={item}
         initialListingId={initialListingId}
+        successUrl={successUrl}
+        cancelUrl={cancelUrl}
         selectedListingId={selectedListingId === "marketplace" ? undefined : selectedListingId}
         selectedListing={selectedListing}
         SelectListing={(listingId, listing) => {
@@ -912,7 +950,7 @@ const PurchaseModal = observer(({nft, item, initialListingId, type="marketplace"
         setQuantity={setQuantity}
         setLinkedWallet={setLinkedWallet}
         setUseWalletBalance={setUseWalletBalance}
-        Cancel={() => Close()}
+        Cancel={Close}
       />
     );
   }
@@ -921,8 +959,8 @@ const PurchaseModal = observer(({nft, item, initialListingId, type="marketplace"
     <Modal
       id="purchase-modal"
       className="purchase-modal-container"
-      closable={!checkoutStore.submittingOrder}
-      Toggle={() => Close()}
+      closable={closeable && !checkoutStore.submittingOrder}
+      Toggle={closeable ? Close : undefined}
     >
       <div className="purchase-modal">
         <h1 className="purchase-modal__header">

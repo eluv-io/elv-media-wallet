@@ -112,7 +112,7 @@
       width: max-content;
     }
 
-    .menu-button {
+    .action-menu {
       height: 35px;
       width: 35px;
     }
@@ -687,6 +687,7 @@
     flex-direction: column;
     justify-content: center;
     padding: 10px 75px 30px;
+    text-align: center;
     width: 100%;
   }
 
@@ -729,8 +730,10 @@
   }
 
   &__video {
-    .eluvio-player,
-    video {
+    margin: 30px 0;
+
+    video,
+    .eluvio-player {
       background: transparent;
     }
   }
@@ -738,6 +741,7 @@
   &__name {
     font-size: 26px;
     margin-top: 10px;
+    text-align: center;
   }
 
   &__description {
@@ -753,6 +757,7 @@
   &__redeem-message {
     font-size: 20px;
     margin-bottom: 30px;
+    text-align: center;
   }
 
   &__code-header {
@@ -835,7 +840,6 @@
   display: flex;
   flex: 1 1 100%;
   flex-direction: column;
-  justify-content: center;
   max-width: calc(#{$extra-large-breakpoint} / 3 - 30px);
   padding: 0 30px 30px;
   width: 100%;

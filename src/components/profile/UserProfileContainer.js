@@ -1,9 +1,8 @@
 import React, {useEffect, useState} from "react";
 import {NavLink, Redirect, useRouteMatch} from "react-router-dom";
 import {rootStore} from "Stores";
-import {ButtonWithLoader, Copy, DebouncedInput} from "Components/common/UIComponents";
+import {ButtonWithLoader, CopyButton, DebouncedInput} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
-import CopyIcon from "Assets/icons/copy";
 import {observer} from "mobx-react";
 import {PageLoader} from "Components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
@@ -179,9 +178,7 @@ const UserProfileContainer = observer(({children}) => {
                     { userProfile.userAddress }
                   </div>
                 </div>
-                <button onClick={() => Copy(userProfile.userAddress)} className="user__profile__address-copy">
-                  <ImageIcon icon={CopyIcon} alt="copy" />
-                </button>
+                <CopyButton value={userProfile.userAddress} className="user__profile__address-copy" />
               </div>
               {
                 currentUser && !userProfile.imageUrl ?

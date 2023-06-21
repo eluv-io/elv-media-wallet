@@ -64,6 +64,8 @@
     }
 
     .page-headers {
+      padding: 0 20px;
+
       &:empty {
         margin: 0;
       }
@@ -215,7 +217,7 @@
     .countdown__value {
       font-size: 28px;
       font-weight: 600;
-      margin-bottom: 5px;
+      height: 100%;
     }
 
     .countdown__unit {

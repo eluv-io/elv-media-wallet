@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from "react";
+import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import {checkoutStore, rootStore} from "Stores";
@@ -7,57 +7,30 @@ import MarketplaceItemCard from "Components/marketplace/MarketplaceItemCard";
 import ImageIcon from "Components/common/ImageIcon";
 import MarketplaceFeatured from "Components/marketplace/MarketplaceFeatured";
 import {MarketplaceCollectionsSummary} from "Components/marketplace/MarketplaceCollectionsSummary";
-import EluvioPlayer, {EluvioPlayerParameters} from "@eluvio/elv-player-js";
-import {LinkTargetHash, SetImageUrlDimensions} from "../../utils/Utils";
+import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
+import {SetImageUrlDimensions} from "../../utils/Utils";
 import Modal from "Components/common/Modal";
 import Countdown from "Components/common/Countdown";
 import {RichText} from "Components/common/UIComponents";
+import Video from "Components/common/Video";
 
-const MarketplaceVideo = ({videoLink, muted, autoplay, className}) => {
-  const targetRef = useRef();
-
-  useEffect(() => {
-    if(!targetRef || !targetRef.current) { return; }
-
-    const playerPromise = new EluvioPlayer(
-      targetRef.current,
-      {
-        clientOptions: {
-          network: rootStore.walletClient.network === "main" ?
-            EluvioPlayerParameters.networks.MAIN : EluvioPlayerParameters.networks.DEMO,
-          client: rootStore.client
-        },
-        sourceOptions: {
-          playoutParameters: {
-            versionHash: LinkTargetHash(videoLink)
-          }
-        },
-        playerOptions: {
-          watermark: EluvioPlayerParameters.watermark.OFF,
-          muted: muted ? EluvioPlayerParameters.muted.ON : EluvioPlayerParameters.muted.OFF,
-          autoplay: autoplay || muted ? EluvioPlayerParameters.autoplay.ON : EluvioPlayerParameters.autoplay.OFF,
-          controls: muted ? EluvioPlayerParameters.controls.OFF : EluvioPlayerParameters.controls.AUTO_HIDE,
-          loop: muted ? EluvioPlayerParameters.loop.ON : EluvioPlayerParameters.loop.OFF
-        }
-      }
-    );
-
-    return async () => {
-      if(!playerPromise) { return; }
-
-      const player = await playerPromise;
-      player.Destroy();
-    };
-  }, [targetRef]);
-
-  return <div className={className} ref={targetRef} />;
-};
 
 const MarketplaceBannerContent = observer(({banner}) => {
   if(!banner) { return null; }
 
   if(banner.video) {
-    return <MarketplaceVideo muted={banner.video_muted} videoLink={banner.video} className="marketplace__banner__video" />;
+    return (
+      <Video
+        videoLink={banner.video}
+        className="marketplace__banner__video"
+        playerOptions={{
+          muted: banner.video_muted ? EluvioPlayerParameters.muted.ON : EluvioPlayerParameters.muted.OFF,
+          autoplay: banner.video_muted ? EluvioPlayerParameters.autoplay.ON : EluvioPlayerParameters.autoplay.OFF,
+          controls: banner.video_muted ? EluvioPlayerParameters.controls.OFF : EluvioPlayerParameters.controls.AUTO_HIDE,
+          loop: banner.video_muted ? EluvioPlayerParameters.loop.ON : EluvioPlayerParameters.loop.OFF
+        }}
+      />
+    );
   }
 
   const image = (banner.image_mobile && rootStore.pageWidth <= 800 ? banner.image_mobile : banner.image)?.url;
@@ -123,7 +96,16 @@ const MarketplaceBanners = ({marketplace}) => {
       {
         videoModal ?
           <Modal className="marketplace__banner__video-modal" Toggle={() => setVideoModal(undefined)}>
-            <MarketplaceVideo autoplay videoLink={videoModal} className="marketplace__banner__video-modal__video" />
+            <Video
+              videoLink={videoModal}
+              className="marketplace__banner__video-modal__video"
+              playerOptions={{
+                muted: EluvioPlayerParameters.muted.OFF,
+                autoplay: EluvioPlayerParameters.autoplay.ON,
+                controls: EluvioPlayerParameters.controls.AUTO_HIDE,
+                loop: EluvioPlayerParameters.loop.OFF
+              }}
+            />
           </Modal> :
           null
       }
@@ -269,20 +251,20 @@ const MarketplaceStorefront = observer(() => {
 
   let marketplace = rootStore.marketplaces[match.params.marketplaceId];
 
-  if(!marketplace) { return null; }
-
   useEffect(() => {
-    if(marketplace.analyticsInitialized) {
+    if(marketplace && marketplace.analyticsInitialized) {
       checkoutStore.AnalyticsEvent({
         marketplace,
         analytics: marketplace?.storefront_page_view_analytics,
         eventName: "Storefront Page View"
       });
     }
-  }, []);
+  }, [marketplace]);
+
+  if(!marketplace) { return null; }
 
   return (
-    <div className="page-block page-block--main-content page-block--storefront">
+    <div key={`marketplace-${match.params.marketplaceId}`} className="page-block page-block--main-content page-block--storefront">
       <div className="page-block__content">
         <MarketplaceBanners marketplace={marketplace} />
         <MarketplaceStorefrontSections marketplace={marketplace} />
