@@ -597,6 +597,10 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
   }
 
   switch(mediaType) {
+    case "embedded webpage":
+      mediaLink = selectedMedia.link;
+      break;
+
     case "link":
       mediaLink = selectedMedia.link;
 
@@ -776,4 +780,38 @@ export const ActionPopup = async ({url, onMessage, onCancel}) => {
       );
     });
   });
+};
+
+export const IsFullscreen = () => {
+  const fullscreenElement = (document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+
+  // Ignore fullscreen video case - player will handle that case
+  return fullscreenElement && !fullscreenElement.classList.contains("eluvio-player");
+};
+
+export const ToggleFullscreen = (target) => {
+  if(IsFullscreen()) {
+    if(document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if(document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if(document.mozCancelFullScreen) {
+      document.mozCancelFullScreen();
+    } else if(document.msExitFullscreen) {
+      document.msExitFullscreen();
+    }
+  } else {
+    if(target.requestFullscreen) {
+      target.requestFullscreen({navigationUI: "hide"});
+    } else if(target.mozRequestFullScreen) {
+      target.mozRequestFullScreen({navigationUI: "hide"});
+    } else if(target.webkitRequestFullscreen) {
+      target.webkitRequestFullscreen({navigationUI: "hide"});
+    } else if(target.msRequestFullscreen) {
+      target.msRequestFullscreen({navigationUI: "hide"});
+    } else {
+      // iPhone - Use native fullscreen on video element only
+      target.querySelector("img, video, iframe").webkitEnterFullScreen();
+    }
+  }
 };

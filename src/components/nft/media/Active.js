@@ -9,8 +9,7 @@ import {FullScreenImage, LocalizeString, QRCodeElement, RichText} from "Componen
 import AlbumView from "Components/nft/media/Album";
 import Modal from "Components/common/Modal";
 import {MediaCollection} from "Components/nft/media/Browser";
-import {ScrollTo, SearchParams} from "../../../utils/Utils";
-import {PageLoader} from "Components/common/Loaders";
+import {ScrollTo, SearchParams, ToggleFullscreen} from "../../../utils/Utils";
 
 import BackIcon from "Assets/icons/arrow-left";
 import LeftArrow from "Assets/icons/left-arrow";
@@ -19,6 +18,7 @@ import MediaErrorIcon from "Assets/icons/media-error-icon.svg";
 import QRCodeIcon from "Assets/icons/QR Code Icon.svg";
 import ARPhoneIcon from "Assets/icons/AR Phone Icon.svg";
 import FullscreenIcon from "Assets/icons/full screen.svg";
+import MinimizeIcon from "Assets/icons/minimize.svg";
 import PlayIcon from "Assets/icons/media/play";
 
 const NFTActiveMediaQRCode = ({link, Close}) => {
@@ -97,6 +97,14 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
     };
   }, [targetRef]);
 
+  useEffect(() => {
+    const UpdateFullscreen =  () => setShowFullscreen(!!document.fullscreenElement);
+
+    document.addEventListener("fullscreenchange", UpdateFullscreen);
+
+    return () => document.removeEventListener("fullscreenchange", UpdateFullscreen);
+  }, []);
+
   if(error) {
     return (
       <div className="nft-media__content__target nft-media__content__target--error">
@@ -123,6 +131,7 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
         </div>
       );
 
+    case "embedded webpage":
     case "html":
     case "ebook":
       return (
@@ -132,25 +141,15 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
               src={mediaItem.mediaInfo.mediaType === "ebook" ? mediaItem.mediaInfo.embedUrl : mediaItem.mediaInfo.mediaLink}
               allowFullScreen
               allow="accelerometer;autoplay;clipboard-write;encrypted-media;fullscreen;gyroscope;picture-in-picture"
-              className="nft-media__content__target nft-media__content__target--frame"
+              className={`nft-media__content__target nft-media__content__target--frame ${showFullscreen ? "nft-media__content__target--fullscreen" : ""}`}
             />
-            <button onClick={() => setShowFullscreen(!showFullscreen)} className="nft-media__content__target__fullscreen-button">
-              <ImageIcon icon={FullscreenIcon} alt="Toggle Full Screen" />
+            <button
+              onClick={() => ToggleFullscreen(document.querySelector(".nft-media__content__target"))}
+              className="nft-media__content__target__fullscreen-button"
+            >
+              <ImageIcon icon={showFullscreen ? MinimizeIcon : FullscreenIcon} alt="Toggle Full Screen" />
             </button>
           </div>
-          {
-            showFullscreen ?
-              <Modal Toggle={() => setShowFullscreen(false)} className="fullscreen-image nft-media__content__fullscreen-modal">
-                <PageLoader />
-                <div className="nft-media__content__fullscreen-modal__frame">
-                  <iframe
-                    src={mediaItem.mediaInfo.embedUrl}
-                    allowFullScreen
-                    allow="accelerometer;autoplay;clipboard-write;encrypted-media;fullscreen;gyroscope;picture-in-picture"
-                  />
-                </div>
-              </Modal> : null
-          }
         </>
       );
 
@@ -160,7 +159,7 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
           <div className="nft-media__content__target">
             <img alt={mediaItem.mediaInfo.name} src={mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.imageUrl} className="nft-media__content__target__image" />
             <button onClick={() => setShowFullscreen(!showFullscreen)} className="nft-media__content__target__fullscreen-button">
-              <ImageIcon icon={FullscreenIcon} alt="Toggle Full Screen" />
+              <ImageIcon icon={showFullscreen ? MinimizeIcon : FullscreenIcon} alt="Toggle Full Screen" />
             </button>
           </div>
           {
@@ -171,7 +170,7 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
                 className="nft-media__content__fullscreen-modal__image"
                 alt={mediaItem.mediaInfo.name}
                 src={mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.imageUrl}
-              /> :null
+              /> : null
           }
         </>
       );
