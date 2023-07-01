@@ -227,7 +227,7 @@ const RedeemableInfo = observer(({offer, nftInfo}) => {
             </div> : null
         }
         {
-          offer.state.redeemer ?
+          offer.state?.redeemer ?
             <a
               className="redeemable-offer-modal__lookout-url"
               target="_blank"
