@@ -372,7 +372,7 @@ export const NFTInfo = ({
   const secondaryReleased = !nft?.metadata?.secondary_resale_available_at  || timeToSecondaryAvailable <= 0;
   const secondaryReleaseDate = nft?.metadata?.secondary_resale_available_at ? new Date(nft.metadata.secondary_resale_available_at).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) : undefined;
   const secondaryExpirationDate = nft?.metadata?.secondary_resale_expires_at ? new Date(nft.metadata.secondary_resale_expires_at).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) : undefined;
-  const offerable = secondaryAvailable && nft?.details.TokenIdStr && !nft?.metadata?.test && !heldDate;
+  const offerable = nft?.details.TokenIdStr && !nft?.metadata?.test && !heldDate;
 
   let status;
   if(outOfStock) {
