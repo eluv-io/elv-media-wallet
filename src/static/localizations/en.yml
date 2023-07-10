@@ -396,6 +396,8 @@ item_details:
   reward: Reward
   reward_redeemed: Reward Redeemed
   held_message: This NFT is in a holding period until {heldDate}. You will not be able to transfer it until then.
+  secondary_unreleased: Secondary trading for this NFT will be available on {heldDate}.
+  secondary_expired: Secondary trading for this NFT ended on {heldDate}.
   lookout_link: See more info on Eluvio Lookout
   token_url: Token URL
   media_url: Media URL

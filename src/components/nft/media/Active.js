@@ -249,12 +249,17 @@ const NFTActiveMedia = observer(({nftInfo}) => {
   const albumView = current.display === "Album";
   const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
 
+  const description = currentMediaItem.description ?
+    <RichText richText={currentMediaItem.description} className="nft-media-album__content__description" /> :
+    currentMediaItem.description_text ? <div className="nft-media-album__content__description">{ currentMediaItem.description_text }</div> :
+      null;
+
   const textContent = (
     <div className="nft-media-album__content__info">
       <div className="nft-media-album__content__name">{currentMediaItem.name || ""}</div>
-      { currentMediaItem.description && currentMediaItem.subtitle_1 ? <div className="nft-media-album__content__subtitle-1">{ currentMediaItem.subtitle_1 }</div> : null }
-      { currentMediaItem.description && currentMediaItem.subtitle_2 ? <div className="nft-media-album__content__subtitle-2">{ currentMediaItem.subtitle_2 }</div> : null }
-      { currentMediaItem.description ? <RichText richText={currentMediaItem.description} className="nft-media-album__content__description" /> : null }
+      { description && currentMediaItem.subtitle_1 ? <div className="nft-media-album__content__subtitle-1">{ currentMediaItem.subtitle_1 }</div> : null }
+      { description && currentMediaItem.subtitle_2 ? <div className="nft-media-album__content__subtitle-2">{ currentMediaItem.subtitle_2 }</div> : null }
+      { description }
     </div>
   );
 

@@ -330,9 +330,15 @@ const NFTContractSection = ({nftInfo, SetBurned, ShowTransferModal}) => {
         </CopyableField>
       </div>
       {
-        nftInfo.heldDate ?
+        nftInfo.heldDate || !nftInfo.secondaryReleased ?
           <h3 className="expandable-section__details details-page__held-message">
-            { LocalizeString(rootStore.l10n.item_details.held_message, {heldDate: nftInfo.heldDate}) }
+            { LocalizeString(rootStore.l10n.item_details[nftInfo.heldDate ? "held_message" : "secondary_unreleased"], {heldDate: nftInfo.heldDate || nftInfo.secondaryReleaseDate}) }
+          </h3> : null
+      }
+      {
+        nftInfo.secondaryReleased && !nftInfo.secondaryAvailable ?
+          <h3 className="expandable-section__details details-page__held-message">
+            { LocalizeString(rootStore.l10n.item_details.secondary_expired, {heldDate: nftInfo.secondaryExpirationDate}) }
           </h3> : null
       }
       <div className="expandable-section__actions">
@@ -837,7 +843,7 @@ const NFTActions = observer(({
     return (
       <div className="details-page__actions">
         {
-          secondaryDisabled || nftInfo.heldDate ? null :
+          secondaryDisabled || nftInfo.heldDate || !nftInfo.secondaryAvailable ? null :
             <ButtonWithLoader
               title={nftInfo.nft?.metadata?.test ? "Test NFTs may not be listed for sale" : undefined}
               disabled={transferring || nftInfo.heldDate || isInCheckout || nftInfo.nft?.metadata?.test}

@@ -107,7 +107,11 @@ const RedemptionResults = observer(({offer, offerData, showPopupNotice}) => {
           <div className="redeemable-offer-modal__name">
             {offer.name}
           </div>
-          <RichText className="markdown-document redeemable-offer-modal__description" richText={offer.description}/>
+          {
+            offer.description ?
+              <RichText className="markdown-document redeemable-offer-modal__description" richText={offer.description}/> :
+              <div className="redeemable-offer-modal__description">{offer.description_text}</div>
+          }
           {
             offer.expirationDate ?
               <>
@@ -196,7 +200,11 @@ const RedeemableInfo = observer(({offer, nftInfo}) => {
         <div className="redeemable-offer-modal__name">
           { offer.name }
         </div>
-        <RichText className="markdown-document redeemable-offer-modal__description" richText={offer.description} />
+        {
+          offer.description ?
+            <RichText className="markdown-document redeemable-offer-modal__description" richText={offer.description}/> :
+            <div className="redeemable-offer-modal__description">{ offer.description_text }</div>
+        }
         {
           offer.expirationDate ?
             <>
@@ -452,7 +460,11 @@ const NFTRedeemableOffers = observer(({nftInfo}) => {
                 <div className="redeemable-offer__name">
                   { offer.name }
                 </div>
-                <RichText richText={offer.description} className="markdown-document redeemable-offer__description" />
+                {
+                  offer.description ?
+                    <RichText richText={offer.description} className="markdown-document redeemable-offer__description"/> :
+                    <div className="redeemable-offer__description">{ offer.description_text }</div>
+                }
                 { details }
               </button>
             );

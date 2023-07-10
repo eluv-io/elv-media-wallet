@@ -366,7 +366,13 @@ export const NFTInfo = ({
   const marketplacePurchaseAvailable = item && item.for_sale && !outOfStock && available && !unauthorized && !maxOwned;
   const hideAvailable = !available || (item && item.hide_available);
 
-  const offerable = nft?.details.TokenIdStr && !nft?.metadata?.test && !heldDate;
+  const timeToSecondaryAvailable = nft?.metadata?.secondary_resale_available_at ? new Date(nft.metadata.secondary_resale_available_at).getTime() - Date.now() : 0;
+  const timeToSecondaryExpired = nft?.metadata?.secondary_resale_expires_at ? new Date(nft.metadata.secondary_resale_expires_at).getTime() - Date.now() : Infinity;
+  const secondaryAvailable = timeToSecondaryAvailable <= 0 && timeToSecondaryExpired > 0;
+  const secondaryReleased = !nft?.metadata?.secondary_resale_available_at  || timeToSecondaryAvailable <= 0;
+  const secondaryReleaseDate = nft?.metadata?.secondary_resale_available_at ? new Date(nft.metadata.secondary_resale_available_at).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) : undefined;
+  const secondaryExpirationDate = nft?.metadata?.secondary_resale_expires_at ? new Date(nft.metadata.secondary_resale_expires_at).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) : undefined;
+  const offerable = secondaryAvailable && nft?.details.TokenIdStr && !nft?.metadata?.test && !heldDate;
 
   let status;
   if(outOfStock) {
@@ -412,7 +418,7 @@ export const NFTInfo = ({
     let state = nft?.details?.Offers?.find(offerDetails => offerDetails.id === offer.offer_id);
 
     if(!state) {
-      rootStore.Log(`Redeemable offer ${offer.name} (${offer.offer_id}) has no corresponding offer in NFT details`);
+      rootStore.Log(`Redeemable offer ${offer.name} (${offer.offer_id}) has no corresponding offer in NFT details`, "warn");
     }
 
     if(state?.redeemer) {
@@ -496,8 +502,16 @@ export const NFTInfo = ({
     unauthorized,
     outOfStock,
     isOwned,
+
+    // Secondary market status
     heldDate,
-    offerable
+    offerable,
+    secondaryAvailable,
+    secondaryReleased,
+    secondaryReleaseDate,
+    secondaryExpirationDate,
+    timeToSecondaryAvailable,
+    timeToSecondaryExpired
   };
 };
 
