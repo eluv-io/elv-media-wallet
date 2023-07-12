@@ -135,11 +135,13 @@ const AuthSection = ({walletClient, frameClient, loginMode, callbackUrl}) => {
         passcode: codeLoginInfo.passcode
       });
 
+      const { addr, token } = JSON.parse(response.payload);
+
       if(!response) { return; }
 
       clearInterval(loginCheckInterval);
 
-      await walletClient.SetAuthorization({fabricToken: response.payload});
+      await walletClient.SetAuthorization({fabricToken: token, address: addr});
 
       setLoggedIn(true);
     }, 1000);
