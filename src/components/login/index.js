@@ -514,7 +514,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
   useEffect(() => {
     // TODO - REMOVE
     if(rootStore.walletClient) {
-      this.walletClient.client.AuthHttpClient.uris = ["https://host-154-14-192-66.contentfabric.io/as"];
+      rootStore.walletClient.client.AuthHttpClient.uris = ["https://host-154-14-192-66.contentfabric.io/as"];
     }
     // TODO - REMOVE
 
