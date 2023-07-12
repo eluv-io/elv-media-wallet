@@ -512,12 +512,6 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
 
   // Handle login event, popup flow, and auth0 logout
   useEffect(() => {
-    // TODO - REMOVE
-    if(rootStore.walletClient) {
-      rootStore.walletClient.client.AuthHttpClient.uris = ["https://host-154-14-192-66.contentfabric.io/as"];
-    }
-    // TODO - REMOVE
-
     const Respond = () => {
       const origin = params.origin || window.location.origin;
 
