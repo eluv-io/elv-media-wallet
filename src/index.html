@@ -29,13 +29,6 @@
 
       if(backgroundImage) {
         document.querySelector("#app-background").style.background = "no-repeat top center / cover url(\"" + backgroundImage + "\")";
-      } else {
-        const darkMode = sessionStorage.getItem("dark-mode")
-
-        // If light mode specified, set light body color ASAP
-        if(darkMode) {
-          document.body.style.backgroundColor = "#000000";
-        }
       }
 
       if(sessionStorage.getItem("custom-css")) {

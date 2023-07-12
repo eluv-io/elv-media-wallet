@@ -94,7 +94,7 @@ class RootStore {
   loggedIn = false;
   externalWalletUser = false;
   disableCloseEvent = false;
-  darkMode = searchParams.has("lt") ? false : this.GetSessionStorage("dark-mode");
+  darkMode = !searchParams.has("lt");
 
   loginCustomization = {};
 
@@ -359,6 +359,7 @@ class RootStore {
         this.walletClient.client.authServiceURIs = [authdURI];
         this.walletClient.client.AuthHttpClient.uris = [authdURI];
       }
+      //this.walletClient.client.AuthHttpClient.uris = ["https://host-154-14-192-66.contentfabric.io/as"];
 
       this.previewMarketplaceId = this.walletClient.previewMarketplaceId;
       this.previewMarketplaceHash = this.walletClient.previewMarketplaceHash;

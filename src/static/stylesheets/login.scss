@@ -385,6 +385,34 @@
     margin: 0 20px 0 5px;
   }
 
+  &__login-code {
+    color: var(--color-component-text-secondary);
+    font-size: 16px;
+    font-weight: 300;
+    margin-top: 20px;
+  }
+
+  &__code-message {
+    align-items: center;
+    color: var(--color-component-text-highlight);
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    font-size: 24px;
+    height: 100%;
+    justify-content: center;
+    padding: 50px 0;
+
+    &__icon {
+      background: var(--color-component-bg-highlight);
+      border-radius: 100%;
+      height: 75px;
+      margin-bottom: 20px;
+      padding: 15px;
+      width: 75px;
+    }
+  }
+
   @media screen and (max-width: 600px) {
     padding: 0;
 
