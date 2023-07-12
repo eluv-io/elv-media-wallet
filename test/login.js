@@ -29,8 +29,8 @@ let marketplaceParams = {
 let walletAppUrl;
 if(window.location.hostname === "core.test.contentfabric.io") {
   walletAppUrl = network === "demo" ?
-    "https://core.test.contentfabric.io/wallet-demo" :
-    "https://core.test.contentfabric.io/wallet";
+    "https://wallet.demov3.contentfabric.io" :
+    "https://wallet.preview.contentfabric.io"
 } else {
   const url = new URL(window.location.origin);
   url.port = "8090";
