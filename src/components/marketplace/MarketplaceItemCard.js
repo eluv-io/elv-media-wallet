@@ -18,6 +18,7 @@ const MarketplaceItemCard = ({
   noLink,
   noStock,
   noPrice,
+  imageOnly=false,
   showCta=false,
   showVideo=false,
   countdown,
@@ -90,6 +91,16 @@ const MarketplaceItemCard = ({
   }
 
   const unavailable = info.outOfStock || info.expired || info.unauthorized;
+
+  if(imageOnly) {
+    info.name = "";
+    info.subtitle1 = "";
+    info.subtitle2 = "";
+    description = "";
+    priceText = "";
+    status = "";
+    sideText = "";
+  }
 
   return (
     <CardComponent

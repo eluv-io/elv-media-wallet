@@ -1,106 +1,51 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Link, Redirect} from "react-router-dom";
 import {rootStore} from "Stores";
 import UrlJoin from "url-join";
 import ImageIcon from "Components/common/ImageIcon";
 
-import FilterIcon from "Assets/icons/filter icon.svg";
 import SearchIcon from "Assets/icons/search.svg";
-import CloseIcon from "Assets/icons/x.svg";
-import CheckIcon from "Assets/icons/check.svg";
 
-const MarketplaceTagMenu = ({tags, activeTags, setActiveTags, Hide}) => {
-  const menuRef = useRef();
+import FilmIcon from "Assets/icons/icon_film.svg";
+import MusicIcon from "Assets/icons/icon_music.svg";
+import SoftwareIcon from "Assets/icons/icon_software.svg";
+import TVIcon from "Assets/icons/icon_tv.svg";
 
-  useEffect(() => {
-    if(!menuRef || !menuRef.current) { return; }
-
-    const onClickOutside = event => {
-      if(!menuRef?.current || !menuRef.current.contains(event.target)) {
-        Hide();
-      }
-    };
-
-    document.addEventListener("click", onClickOutside);
-
-    return () => document.removeEventListener("click", onClickOutside);
-  }, [menuRef]);
+const MarketplaceTags = ({activeTag, setActiveTag}) => {
+  const tags = [
+    [rootStore.l10n.filters.marketplace_tags.all, ""],
+    [rootStore.l10n.filters.marketplace_tags.film, "film", FilmIcon],
+    [rootStore.l10n.filters.marketplace_tags.music, "music", MusicIcon],
+    [rootStore.l10n.filters.marketplace_tags.software, "software", SoftwareIcon],
+    [rootStore.l10n.filters.marketplace_tags.tv, "tv", TVIcon],
+  ];
 
   return (
-    <div className="marketplace-browser__tag-menu" ref={menuRef}>
-      {
-        tags.map(tag =>
-          <button
-            key={`tag-${tag}`}
-            className="marketplace-browser__tag-menu__tag"
-            onClick={() => {
-              if(activeTags.includes(tag)) {
-                setActiveTags(activeTags.filter(activeTag => activeTag !== tag));
-              } else {
-                setActiveTags([...activeTags, tag]);
-              }
-            }}
-          >
-            {
-              activeTags.includes(tag) ?
-                <ImageIcon icon={CheckIcon} className="marketplace-browser__tag-menu__tag__icon" /> :
-                <div className="marketplace-browser__tag-menu__tag__icon marketplace-browser__tag-menu__tag__icon--placeholder" />
-            }
-            <div className="marketplace-browser__tag-menu__tag__text">
-              { tag }
-            </div>
-          </button>
-        )
-      }
+    <div className="marketplace-browser__tags">
+      {tags.map(([label, value, icon]) =>
+        <button
+          key={`tag-${value}`}
+          onClick={() => setActiveTag(value)}
+          className={`marketplace-browser__tag ${value === activeTag ? "marketplace-browser__tag--active" : ""}`}
+        >
+          { icon ? <ImageIcon icon={icon} className="marketplace-browser__tag-icon" /> : null }
+          <div className="marketplace-browser__tag-text">
+            {label}
+          </div>
+        </button>
+      )}
     </div>
   );
 };
 
-const MarketplaceTags = ({tags, activeTags, setActiveTags}) => {
-  const [showMenu, setShowMenu] = useState(false);
-
-  return (
-    <>
-      <div className="marketplace-browser__tags">
-        <button
-          onClick={() => setShowMenu(!showMenu)}
-          className={`marketplace-browser__tags__button ${showMenu ? "active" : ""}`}
-        >
-          <ImageIcon icon={FilterIcon} />
-          <div className="marketplace-browser__tags__button__text">
-            { rootStore.l10n.filters.all_filters }
-          </div>
-        </button>
-        {
-          activeTags.map(tag =>
-            <button
-              key={`filter-button-${tag}`}
-              className="marketplace-browser__active-tag"
-              onClick={() => setActiveTags(activeTags.filter(activeTag => activeTag !== tag))}
-            >
-              <div className="marketplace-browser__active-tag__text">{ tag }</div>
-              <ImageIcon icon={CloseIcon} className="marketplace-browser__active-tag__icon" />
-            </button>
-          )
-        }
-      </div>
-      { showMenu ? <MarketplaceTagMenu tags={tags} activeTags={activeTags} setActiveTags={setActiveTags} Hide={() => setShowMenu(false)} /> : null }
-    </>
-  );
-};
-
-const MarketplaceFilters = observer(({marketplaces, SetFilters}) => {
-  const [activeTags, setActiveTags] = useState([]);
+const MarketplaceFilters = observer(({SetFilters}) => {
+  const [activeTag, setActiveTag] = useState(undefined);
   const [filter, setFilter] = useState("");
 
-  let tags = [ ...new Set(marketplaces.map(marketplace => marketplace.branding && marketplace.branding.tags || []).flat()) ].sort();
-
-  marketplaces.map(m => m?.branding?.tags);
-
   useEffect(() => {
-    SetFilters({activeTags, filter});
-  }, [activeTags, filter]);
+    SetFilters({activeTags: activeTag ? [activeTag] : [], filter});
+  }, [activeTag, filter]);
 
   return (
     <div className="marketplace-browser__filters">
@@ -118,7 +63,7 @@ const MarketplaceFilters = observer(({marketplaces, SetFilters}) => {
         />
       </div>
       <div className="marketplace-browser__separator" />
-      <MarketplaceTags tags={tags} activeTags={activeTags} setActiveTags={setActiveTags} />
+      <MarketplaceTags activeTag={activeTag} setActiveTag={setActiveTag} />
     </div>
   );
 });
@@ -229,7 +174,7 @@ const MarketplaceBrowser = observer(() => {
       <div className="page-block__content">
         <div className="marketplace-browser">
           <div className="content content--no-background">
-            <MarketplaceFilters marketplaces={availableMarketplaces} SetFilters={setFilters} />
+            <MarketplaceFilters SetFilters={setFilters} />
             <div className="marketplace-browser__marketplaces">
               {
                 rootStore.previewMarketplaceId ?

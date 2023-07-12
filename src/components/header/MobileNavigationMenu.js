@@ -18,7 +18,7 @@ import EmailIcon from "Assets/icons/email icon";
 import MetamaskIcon from "Assets/icons/metamask fox";
 import WalletIcon from "Assets/icons/header/wallet icon v2";
 import PreferencesIcon from "Assets/icons/header/Preferences icon";
-import ProjectsIcon from "Assets/icons/header/New Projects_Marketplaces icon";
+import DiscoverIcon from "Assets/icons/discover.svg";
 import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
 
 const MobileNavigationMenu = observer(({marketplace, Close}) => {
@@ -162,7 +162,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
             <>
               <div className="mobile-menu__separator" />
               <MenuLink
-                icon={ProjectsIcon}
+                icon={DiscoverIcon}
                 to="/marketplaces"
                 onClick={Close}
                 className="mobile-menu__link"

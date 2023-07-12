@@ -40,6 +40,14 @@ const MarketplaceCollection = observer(() => {
       const key = `item-card-${sku}-${entryIndex}`;
       const ownedItem = ownedItems[0];
 
+      if(item && !purchaseableItem) {
+        const unreleased = item && item.available_at && new Date(item.available_at).getTime() > Date.now();
+
+        if(unreleased) {
+          purchaseableItem = {item, index: item.index, unreleased: true};
+        }
+      }
+
       if(item && ownedItem) {
         return (
           <NFTCard
@@ -56,6 +64,7 @@ const MarketplaceCollection = observer(() => {
         return (
           <MarketplaceItemCard
             key={key}
+            imageOnly={purchaseableItem.unreleased}
             to={UrlJoin(basePath, collection.sku, "store", purchaseableItem.item.sku)}
             marketplaceHash={marketplace.versionHash}
             item={purchaseableItem.item}

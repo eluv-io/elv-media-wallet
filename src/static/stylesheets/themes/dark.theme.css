@@ -33,6 +33,10 @@
 
   --background-button-secondary: #000000;
 
+  --header-signin-button-bg: #FFFFFF;
+  --header-signin-button-text: #000000;
+  --header-signin-button-border: 1px solid #FFFFFF;
+
   /* Cards */
   --background-card: var(--color-bg-primary);
 

@@ -13,10 +13,11 @@ import {NotificationsMenu} from "Components/header/NotificationsMenu";
 import {Debounce, SetImageUrlDimensions} from "../../utils/Utils";
 import MenuButton from "Components/common/MenuButton";
 
-import EluvioLogo from "Assets/icons/ELUVIO logo (updated nov 2).svg";
+import EluvioE from "Assets/images/ELUV.IO-E-Icon.png";
+import EluvioLogo from "Assets/images/Eluv.io.svg";
 import MenuIcon from "Assets/icons/menu";
 import UserIcon from "Assets/icons/profile.svg";
-import ProjectsIcon from "Assets/icons/header/New Projects_Marketplaces icon.svg";
+import DiscoverIcon from "Assets/icons/discover.svg";
 import WalletIcon from "Assets/icons/header/wallet icon v2.svg";
 import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
 import BackIcon from "Assets/icons/pagination arrow back.svg";
@@ -41,7 +42,13 @@ const ProfileNavigation = observer(() => {
 
     return (
       <div className="header__profile">
-        <button className="header__navigation-link header__profile__link header__profile__sign-in-button" onClick={() => rootStore.ShowLogin()}>
+        {
+          marketplaceId ? null :
+            <div className="header__profile__label">
+              {rootStore.l10n.header.media_wallet}
+            </div>
+        }
+        <button className="action action-primary header__profile__sign-in-button" onClick={() => rootStore.ShowLogin()}>
           { rootStore.l10n.login.sign_in }
         </button>
         {
@@ -51,7 +58,7 @@ const ProfileNavigation = observer(() => {
               title = "Discover Projects"
               to="/marketplaces"
             >
-              <ImageIcon icon={ProjectsIcon} className="header__profile__link-icon" />
+              <ImageIcon icon={DiscoverIcon} className="header__profile__link-icon" />
             </NavLink> : null
         }
       </div>
@@ -251,7 +258,8 @@ const GlobalHeader = observer(({scrolled}) => {
             compact ? null :
               <div className="header__content">
                 <Link className="header__content__logo-container header__content__logo-container--global" to={"/marketplaces"}>
-                  <ImageIcon icon={EluvioLogo} label={name || ""} className="header__content__logo"/>
+                  <ImageIcon icon={EluvioE} className="header__content__logo header__content__logo--e" />
+                  <ImageIcon icon={EluvioLogo} label={name || ""} className="header__content__logo header__content__logo--text"/>
                 </Link>
                 {
                   rootStore.headerText ?
