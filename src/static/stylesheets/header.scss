@@ -60,6 +60,13 @@
         &__header {
           font-size: 32px;
         }
+
+
+        &__logo {
+          &--text {
+            padding: 3px 0;
+          }
+        }
       }
 
       &__navigation-container {
@@ -83,6 +90,20 @@
         margin: 0;
         opacity: 0;
         padding: 0;
+      }
+    }
+  }
+
+  &--global {
+    .header__navigation-link {
+      border-bottom: 1px solid transparent;
+      padding-bottom: 2px;
+      transition: color 0.25s ease, border 0.25s ease;
+
+      &:hover,
+      &.active {
+        border-bottom: 1px solid var(--color-text-primary);
+        color: var(--color-text-primary);
       }
     }
   }
@@ -119,6 +140,8 @@
     }
 
     &__logo-container {
+      align-items: center;
+      display: flex;
       height: 100%;
       left: 0;
       max-width: 200px;
@@ -148,6 +171,15 @@
       max-height: 100%;
       max-width: 100%;
       object-fit: contain;
+    }
+
+    &__logo {
+      transition: padding 0.35s ease;
+
+      &--text {
+        margin-left: 20px;
+        padding: 15px 0;
+      }
     }
 
     @media screen and (max-width: $breakpoint) {
@@ -284,7 +316,17 @@
     right: 0;
 
     &__sign-in-button {
-      font-size: 16px;
+      background: var(--header-signin-button-bg);
+      border: var(--header-signin-button-border);
+      color: var(--header-signin-button-text);
+      height: 40px;
+      min-width: unset;
+      padding: 0 20px;
+      text-transform: unset;
+
+      &:hover {
+        color: var(--header-signin-button-text);
+      }
     }
 
     &__link {

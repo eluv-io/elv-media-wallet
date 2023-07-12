@@ -10,6 +10,7 @@ header:
   items: Items
   offers: Offers
   notifications: Notifications
+  media_wallet: Media Wallet
 
 login:
   sign_in: Sign In
@@ -346,7 +347,13 @@ filters:
   all_filters: All Filters
   search: Search
   search_projects: Search Projects
-  search_projects_ext: Search projects, nft, media, ar experience apps
+  search_projects_ext: Video, Music, Audio, E-book and App
+  marketplace_tags:
+    all: All
+    film: Film
+    music: Music
+    software: Software
+    tv: TV
   filters:
     min: Min
     max: Max

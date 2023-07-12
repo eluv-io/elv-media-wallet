@@ -18,7 +18,7 @@ import OffersIcon from "Assets/icons/Offers table icon.svg";
 import ActivityIcon from "Assets/icons/header/Activity";
 import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
 import PreferencesIcon from "Assets/icons/header/Preferences icon";
-import ProjectsIcon from "Assets/icons/header/New Projects_Marketplaces icon";
+import DiscoverIcon from "Assets/icons/discover.svg";
 
 const ProfileMenu = observer(({marketplaceId, Hide}) => {
   const [showPreferencesMenu, setShowPreferencesMenu] = useState(false);
@@ -148,7 +148,7 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
             <>
               <div className="header__profile-menu__separator"/>
               <MenuLink
-                icon={ProjectsIcon}
+                icon={DiscoverIcon}
                 to="/marketplaces"
                 className="header__profile-menu__link header__profile-menu__link-secondary"
               >

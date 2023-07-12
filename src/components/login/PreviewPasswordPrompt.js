@@ -15,6 +15,8 @@ const PreviewPasswordPromptComponent = ({marketplaceId, digest, Confirm}) => {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  Confirm();
+
   const Submit = async (password) => {
     setError(false);
 
