@@ -345,8 +345,6 @@ class RootStore {
         storeAuthToken: false
       });
 
-      this.walletClient.client.AuthHttpClient.uris = ["https://host-154-14-192-66.contentfabric.io/as"];
-
       this.previewMarketplaceId = this.walletClient.previewMarketplaceId;
       this.previewMarketplaceHash = this.walletClient.previewMarketplaceHash;
 
