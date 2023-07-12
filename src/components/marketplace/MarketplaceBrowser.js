@@ -27,7 +27,7 @@ const MarketplaceTags = ({activeTag, setActiveTag}) => {
         <button
           key={`tag-${value}`}
           onClick={() => setActiveTag(value)}
-          className={`marketplace-browser__tag ${value === activeTag ? "marketplace-browser__tag--active" : ""}`}
+          className={`marketplace-browser__tag ${value === (activeTag || "") ? "marketplace-browser__tag--active" : ""}`}
         >
           { icon ? <ImageIcon icon={icon} className="marketplace-browser__tag-icon" /> : null }
           <div className="marketplace-browser__tag-text">
