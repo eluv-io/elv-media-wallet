@@ -220,7 +220,7 @@ export const MediaCollection = observer(({nftInfo, sectionId, collection, single
             nextEl: "." + nextArrowClass
           }}
           slidesPerView="auto"
-          slidesPerGroup={3}
+          slidesPerGroup={rootStore.pageWidth > 1000 ? 3 : 1}
           lazy={{
             enabled: true,
             loadPrevNext: true,
