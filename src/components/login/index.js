@@ -10,8 +10,8 @@ import {LocalizeString, RichText} from "Components/common/UIComponents";
 
 import MetamaskIcon from "Assets/icons/metamask fox.png";
 import EluvioE from "Assets/images/ELUV.IO-E-Icon.png";
-import EluvioLogo from "Assets/images/Eluv.io.svg";
-import EluvioPoweredByLogo from "Assets/icons/EluvioLogo2.svg";
+import MediaWalletLogo from "Assets/images/Media Wallet Text Linear.svg";
+import EluvioPoweredByLogo from "Assets/images/Eluvio_logo.svg";
 import CheckIcon from "Assets/icons/check.svg";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
@@ -66,7 +66,7 @@ const Logo = ({customizationOptions}) => {
     return (
       <div className="login-page__logo-container login-page__logo-container--default">
         <ImageIcon icon={EluvioE} className="login-page__logo login-page__logo--default login-page__logo--icon" title="Eluv.io" />
-        <ImageIcon icon={EluvioLogo} className="login-page__logo login-page__logo--default login-page__logo--text" title="Eluv.io" />
+        <ImageIcon icon={MediaWalletLogo} className="login-page__logo login-page__logo--default login-page__logo--text" title="Eluv.io" />
       </div>
     );
   }

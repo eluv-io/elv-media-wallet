@@ -165,13 +165,11 @@
 
     &--default {
       margin-top: 20px;
-      height: 60px;
-      justify-content: center;
-      width: max-content;
+      max-width: 250px;
     }
 
     &--icon {
-      margin-right: 20px;
+      height: 125px;
     }
 
     &--text {
@@ -191,10 +189,6 @@
 
     .login-page__logo {
       margin-bottom: 0;
-    }
-
-    &--default {
-      flex-direction: unset;
     }
   }
 
