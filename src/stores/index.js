@@ -346,7 +346,7 @@ class RootStore {
       });
 
       // Internal feature - allow setting of authd node via query param for testing
-      const authdURI = searchParams.get("authd") || this.GetSessionStorage("authd-uri");
+      let authdURI = searchParams.get("authd") || this.GetSessionStorage("authd-uri");
       if(authdURI) {
         this.Log("Setting authd URI: " + authdURI, "warn");
         this.SetSessionStorage("authd-uri", authdURI);
