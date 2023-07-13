@@ -345,6 +345,15 @@ class RootStore {
         storeAuthToken: false
       });
 
+      // Internal feature - allow setting of authd node via query param for testing
+      const authdURI = searchParams.get("authd") || this.GetSessionStorage("authd-uri");
+      if(authdURI) {
+        this.Log("Setting authd URI: " + authdURI, "warn");
+        this.SetSessionStorage("authd-uri", authdURI);
+        this.walletClient.client.authServiceURIs = [authdURI];
+        this.walletClient.client.AuthHttpClient.uris = [authdURI];
+      }
+
       this.previewMarketplaceId = this.walletClient.previewMarketplaceId;
       this.previewMarketplaceHash = this.walletClient.previewMarketplaceHash;
 
