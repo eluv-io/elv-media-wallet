@@ -164,11 +164,19 @@
     width: 100%;
 
     &--default {
-      * {
-        color: var(--color-login-text-primary);
-        fill: var(--color-login-text-primary);
-        stroke: var(--color-login-text-primary);
-      }
+      margin-top: 20px;
+      height: 60px;
+      justify-content: center;
+      width: max-content;
+    }
+
+    &--icon {
+      margin-right: 20px;
+    }
+
+    &--text {
+      padding: 10px 0;
+      color: var(--color-login-text-primary);
     }
   }
 
@@ -183,6 +191,10 @@
 
     .login-page__logo {
       margin-bottom: 0;
+    }
+
+    &--default {
+      flex-direction: unset;
     }
   }
 
