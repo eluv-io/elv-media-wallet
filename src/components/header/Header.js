@@ -14,7 +14,7 @@ import {Debounce, SetImageUrlDimensions} from "../../utils/Utils";
 import MenuButton from "Components/common/MenuButton";
 
 import EluvioE from "Assets/images/ELUV.IO-E-Icon.png";
-import EluvioLogo from "Assets/images/Eluv.io.svg";
+import EluvioLogo from "Assets/images/Eluvio_logo.svg";
 import MenuIcon from "Assets/icons/menu";
 import UserIcon from "Assets/icons/profile.svg";
 import DiscoverIcon from "Assets/icons/discover.svg";
