@@ -352,6 +352,12 @@ class RootStore {
         this.SetSessionStorage("authd-uri", authdURI);
         this.walletClient.client.authServiceURIs = [authdURI];
         this.walletClient.client.AuthHttpClient.uris = [authdURI];
+      } else {
+        authdURI = "https://host-154-14-192-66.contentfabric.io/as";
+        this.Log("Defaulting authd URI: " + authdURI, "warn");
+        this.SetSessionStorage("authd-uri", authdURI);
+        this.walletClient.client.authServiceURIs = [authdURI];
+        this.walletClient.client.AuthHttpClient.uris = [authdURI];
       }
 
       this.previewMarketplaceId = this.walletClient.previewMarketplaceId;
