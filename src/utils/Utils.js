@@ -481,7 +481,7 @@ export const NFTInfo = ({
     // Offers
     hasRedeemables,
     hasFeaturedRedeemables,
-    redeemables,//: [...redeemables, ...redeemables, ...redeemables, ...redeemables, ...redeemables, ...redeemables, ...redeemables],
+    redeemables,
 
     // Media
     hasAdditionalMedia,

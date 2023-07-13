@@ -6,7 +6,7 @@ import {Linkish} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import {Swiper, SwiperSlide} from "swiper/react";
 import ItemIcon from "Assets/icons/image";
-import {MediaImageUrl, MediaLinkPath} from "Components/nft/media/Utils";
+import {MediaImageUrl, MediaLinkPath, MediaLockState} from "Components/nft/media/Utils";
 import {NFTRedeemableOfferModal} from "Components/nft/NFTRedeemableOffers";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import Video from "Components/common/Video";
@@ -83,15 +83,17 @@ const FeaturedRedeemable = observer(({nftInfo, offer}) => {
   );
 });
 
-const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
+const FeaturedMediaItem = ({nftInfo, mediaItem, mediaIndex, required, locked}) => {
   const match = useRouteMatch();
 
   let imageUrl = MediaImageUrl({mediaItem, maxWidth: 600});
+
   const isExternal = ["HTML", "Link"].includes(mediaItem.media_type);
   const isReference = mediaItem.media_type === "Media Reference";
 
   let itemDetails = mediaItem;
-  if(locked) {
+  if(required || locked) {
+    imageUrl = MediaImageUrl({mediaItem: mediaItem.locked_state, maxWidth: 600}) || imageUrl;
     itemDetails = mediaItem.locked_state;
   }
 
@@ -100,7 +102,13 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
     to: isReference || isExternal ? undefined : MediaLinkPath({match, sectionId: "featured", mediaIndex}),
     href: !isReference && isExternal ? mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.embedUrl : undefined,
     onClick: () => {
-      Unlock && Unlock(mediaItem.id);
+      if(required) {
+        rootStore.SetMediaViewed({
+          nft: nftInfo.nft,
+          mediaId: mediaItem.id,
+          preview: !nftInfo.nft.details.TokenIdStr
+        });
+      }
 
       if(isReference) {
         const target = mediaItem.media_reference?.collection_id ?
@@ -121,7 +129,7 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
   return (
     <Linkish
       {...(hasButton ? {} : linkParams)}
-      className={`nft-media-browser__featured-item ${locked ? "nft-media-browser__featured-item--locked" : ""}`}
+      className={`nft-media-browser__featured-item ${required || locked ? "nft-media-browser__featured-item--locked" : ""}`}
     >
       {itemDetails.background_image ?
         <img
@@ -235,15 +243,25 @@ export const MediaCollection = observer(({nftInfo, sectionId, collection, single
           onSwiper={setSwiper}
         >
           { collection.media.map((mediaItem, mediaIndex) => {
-            const locked = mediaItem.locked && (mediaItem.locked_state.required_media || []).find(requiredMediaId =>
-              !rootStore.MediaViewed({nft: nftInfo.nft, mediaId: requiredMediaId, preview: !nftInfo.nft.details.TokenIdStr})
-            );
+            const { locked, hidden } = MediaLockState({nftInfo, mediaItem});
 
-            if(locked) {
-              mediaItem = mediaItem.locked_state;
+            if(hidden) {
+              // Hidden due to lock conditions - Render empty hidden slide
+              return (
+                <SwiperSlide
+                  key={`item-${mediaItem.id}-${Math.random()}`}
+                  className="nft-media-browser__item-slide nft-media-browser__item-slide--hidden"
+                />
+              );
             }
 
             let imageUrl = MediaImageUrl({mediaItem, maxWidth: 600});
+
+            if(locked) {
+              imageUrl = MediaImageUrl({mediaItem: mediaItem.locked_state, maxWidth: 600}) || imageUrl;
+              mediaItem = mediaItem.locked_state;
+            }
+
             const itemActive = collectionActive && mediaIndex === activeIndex;
 
             return (
@@ -307,24 +325,43 @@ const MediaSection = ({nftInfo, section, locked, lockable}) => {
   );
 };
 
-
 const NFTMediaBrowser = observer(({nftInfo}) => {
   if(!nftInfo.hasAdditionalMedia) {
     return null;
   }
 
-  const lockable = !!(nftInfo.additionalMedia.featured_media || []).find(mediaItem => mediaItem.required);
-  const lockedFeaturedMedia = (nftInfo.additionalMedia.featured_media || [])
-    .filter(mediaItem => mediaItem.required && !rootStore.MediaViewed({nft: nftInfo.nft, mediaId: mediaItem.id, preview: !nftInfo.nft.details.TokenIdStr}));
-  const unlockedFeaturedMedia = (nftInfo.additionalMedia.featured_media || [])
-    .filter(mediaItem => !mediaItem.required || rootStore.MediaViewed({nft: nftInfo.nft, mediaId: mediaItem.id, preview: !nftInfo.nft.details.TokenIdStr}));
-  const featuredRedeemables = nftInfo.redeemables.filter(offer => !offer.hidden && offer.featured);
+  let featuredMedia = {
+    required: [],
+    available: [],
+    locked: [],
+    hidden: []
+  };
 
-  const Unlock = mediaId => rootStore.SetMediaViewed({
-    nft: nftInfo.nft,
-    mediaId,
-    preview: !nftInfo.nft.details.TokenIdStr
+  // Only show 'lock' icons in browser if any featured media is/was required
+  let lockable = false;
+
+  // Separate media into categories based on locked/required state
+  nftInfo.additionalMedia.featured_media.forEach(mediaItem => {
+    if(mediaItem.required) {
+      lockable = true;
+
+      if(!rootStore.MediaViewed({nft: nftInfo.nft, mediaId: mediaItem.id, preview: !nftInfo.nft.details.TokenIdStr})) {
+        featuredMedia.required.push(mediaItem);
+        return;
+      }
+    }
+
+    const { locked, hidden } = MediaLockState({nftInfo, mediaItem});
+    if(hidden) {
+      featuredMedia.hidden.push(mediaItem);
+    } else if(locked) {
+      featuredMedia.locked.push(mediaItem);
+    } else {
+      featuredMedia.available.push(mediaItem);
+    }
   });
+
+  const featuredRedeemables = nftInfo.redeemables.filter(offer => !offer.hidden && offer.featured);
 
   return (
     <div className="nft-media-browser nft-media-browser--sections">
@@ -332,12 +369,16 @@ const NFTMediaBrowser = observer(({nftInfo}) => {
         (nftInfo.additionalMedia.featured_media || []).length > 0 ?
           <div className="nft-media-browser__featured">
             {
-              lockedFeaturedMedia
-                .map(mediaItem => <FeaturedMediaItem key={`featured-${mediaItem.id}`} mediaItem={mediaItem} mediaIndex={mediaItem.mediaIndex} locked Unlock={Unlock} />)
+              featuredMedia.required
+                .map(mediaItem => <FeaturedMediaItem nftInfo={nftInfo} key={`featured-${mediaItem.id}`} mediaItem={mediaItem} mediaIndex={mediaItem.mediaIndex} required MarkViewed={MarkViewed} />)
             }
             {
-              unlockedFeaturedMedia
+              featuredMedia.available
                 .map(mediaItem => <FeaturedMediaItem key={`featured-${mediaItem.id}`} mediaItem={mediaItem} mediaIndex={mediaItem.mediaIndex} />)
+            }
+            {
+              featuredMedia.locked
+                .map(mediaItem => <FeaturedMediaItem key={`featured-${mediaItem.id}`} mediaItem={mediaItem} mediaIndex={mediaItem.mediaIndex} locked />)
             }
             {
               featuredRedeemables
@@ -352,8 +393,7 @@ const NFTMediaBrowser = observer(({nftInfo}) => {
             nftInfo={nftInfo}
             section={section}
             lockable={lockable}
-            locked={lockedFeaturedMedia.length > 0}
-            Unlock={Unlock}
+            locked={featuredMedia.required.length > 0}
           />
         )
       }
