@@ -370,7 +370,7 @@ const NFTMediaBrowser = observer(({nftInfo}) => {
           <div className="nft-media-browser__featured">
             {
               featuredMedia.required
-                .map(mediaItem => <FeaturedMediaItem nftInfo={nftInfo} key={`featured-${mediaItem.id}`} mediaItem={mediaItem} mediaIndex={mediaItem.mediaIndex} required MarkViewed={MarkViewed} />)
+                .map(mediaItem => <FeaturedMediaItem nftInfo={nftInfo} key={`featured-${mediaItem.id}`} mediaItem={mediaItem} mediaIndex={mediaItem.mediaIndex} required />)
             }
             {
               featuredMedia.available
