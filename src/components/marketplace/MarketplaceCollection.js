@@ -125,16 +125,6 @@ const MarketplaceCollection = observer(() => {
       </Link>
       <div className="marketplace__section">
         <div className="marketplace__collection-header">
-          {
-            collectionIcon ?
-              <MarketplaceImage
-                rawImage
-                className="marketplace__collection-header__icon"
-                marketplaceHash={marketplace.versionHash}
-                title={collection.name}
-                url={collectionIcon?.url}
-              /> : null
-          }
           <div className="page-headers">
             { collection.collection_header ? <div className="page-header">{ collection.collection_header}</div> : null }
             { collection.collection_subheader ? <div className="page-subheader">{ collection.collection_subheader}</div> : null }
