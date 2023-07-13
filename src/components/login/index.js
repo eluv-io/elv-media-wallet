@@ -10,6 +10,7 @@ import {LocalizeString, RichText} from "Components/common/UIComponents";
 
 import MetamaskIcon from "Assets/icons/metamask fox.png";
 import EluvioE from "Assets/images/ELUV.IO-E-Icon.png";
+import EluvioLogo from "Assets/images/Eluvio_logo.svg";
 import MediaWalletLogo from "Assets/images/Media Wallet Text Linear.svg";
 import EluvioPoweredByLogo from "Assets/images/Eluvio_logo.svg";
 import CheckIcon from "Assets/icons/check.svg";
