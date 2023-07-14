@@ -40,14 +40,6 @@ const MarketplaceCollection = observer(() => {
       const key = `item-card-${sku}-${entryIndex}`;
       const ownedItem = ownedItems[0];
 
-      if(item && !purchaseableItem) {
-        const unreleased = item && item.available_at && new Date(item.available_at).getTime() > Date.now();
-
-        if(unreleased) {
-          purchaseableItem = {item, index: item.index, unreleased: true};
-        }
-      }
-
       if(item && ownedItem) {
         return (
           <NFTCard
@@ -92,7 +84,6 @@ const MarketplaceCollection = observer(() => {
       }
     });
 
-  const collectionIcon = collection.collection_icon;
   const collectionCompleted = collectionItems && !collectionItems.find(slot => (slot.ownedItems || []).length === 0);
 
   let redeemButton = (
