@@ -72,7 +72,7 @@ export const MarketplaceCollectionsSummary = observer(() => {
       .then(() => setLoading(false));
   }, [marketplace]);
 
-  if(!marketplace || !collectionsInfo.show_on_storefront) { return null; }
+  if(!marketplace) { return null; }
 
   if(rootStore.marketplaceFilters.length > 0 || !marketplace?.collections || marketplace.collections.length === 0) { return null; }
 
