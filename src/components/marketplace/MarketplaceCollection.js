@@ -40,6 +40,14 @@ const MarketplaceCollection = observer(() => {
       const key = `item-card-${sku}-${entryIndex}`;
       const ownedItem = ownedItems[0];
 
+      if(item && !purchaseableItem) {
+        const unreleased = item && item.available_at && new Date(item.available_at).getTime() > Date.now();
+
+        if(unreleased) {
+          purchaseableItem = {item, index: item.index, unreleased: true};
+        }
+      }
+
       if(item && ownedItem) {
         return (
           <NFTCard
@@ -56,6 +64,7 @@ const MarketplaceCollection = observer(() => {
         return (
           <MarketplaceItemCard
             key={key}
+            imageOnly={purchaseableItem.unreleased}
             to={UrlJoin(basePath, collection.sku, "store", purchaseableItem.item.sku)}
             marketplaceHash={marketplace.versionHash}
             item={purchaseableItem.item}
@@ -116,16 +125,6 @@ const MarketplaceCollection = observer(() => {
       </Link>
       <div className="marketplace__section">
         <div className="marketplace__collection-header">
-          {
-            collectionIcon ?
-              <MarketplaceImage
-                rawImage
-                className="marketplace__collection-header__icon"
-                marketplaceHash={marketplace.versionHash}
-                title={collection.name}
-                url={collectionIcon?.url}
-              /> : null
-          }
           <div className="page-headers">
             { collection.collection_header ? <div className="page-header">{ collection.collection_header}</div> : null }
             { collection.collection_subheader ? <div className="page-subheader">{ collection.collection_subheader}</div> : null }

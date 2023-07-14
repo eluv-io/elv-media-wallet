@@ -13,7 +13,7 @@ const RedemptionStatus = observer(({offer, offerKey, setRedemptionFinished}) => 
   const redemptionStatus = checkoutStore.redeemableOfferStatus[offerKey];
   const { redeem_animation, redeem_animation_loop, require_redeem_animation } = offer;
 
-  const [videoEnded, setVideoEnded] = useState(!require_redeem_animation);
+  const [videoEnded, setVideoEnded] = useState(!require_redeem_animation || !redeem_animation);
 
   useEffect(() => {
     if(redemptionStatus?.status === "complete" && videoEnded) {

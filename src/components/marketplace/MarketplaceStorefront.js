@@ -268,7 +268,7 @@ const MarketplaceStorefront = observer(() => {
       <div className="page-block__content">
         <MarketplaceBanners marketplace={marketplace} />
         <MarketplaceStorefrontSections marketplace={marketplace} />
-        <MarketplaceCollectionsSummary marketplace={marketplace} />
+        { marketplace?.collections_info?.show_on_storefront ? <MarketplaceCollectionsSummary marketplace={marketplace} /> : null }
       </div>
     </div>
   );

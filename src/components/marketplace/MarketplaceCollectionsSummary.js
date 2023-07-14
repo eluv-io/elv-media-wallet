@@ -63,8 +63,7 @@ export const MarketplaceCollectionsSummary = observer(() => {
   const match = useRouteMatch();
   const [loading, setLoading] = useState(true);
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-
-  if(!marketplace) { return; }
+  const collectionsInfo = marketplace?.collections_info || {};
 
   useEffect(() => {
     if(!marketplace) { return; }
@@ -73,13 +72,13 @@ export const MarketplaceCollectionsSummary = observer(() => {
       .then(() => setLoading(false));
   }, [marketplace]);
 
+  if(!marketplace) { return null; }
+
   if(rootStore.marketplaceFilters.length > 0 || !marketplace?.collections || marketplace.collections.length === 0) { return null; }
 
   if(loading) {
     return <PageLoader />;
   }
-
-  const collectionsInfo = marketplace.collections_info || {};
 
   return (
     <div className="marketplace__section collections-summary">
