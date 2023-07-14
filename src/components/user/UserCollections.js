@@ -55,6 +55,7 @@ const UserCollection = observer(({collectionSKU}) => {
           <MarketplaceItemCard
             key={key}
             noLink
+            imageOnly={purchaseableItem.unreleased}
             marketplaceHash={marketplace.versionHash}
             item={purchaseableItem.item}
             index={purchaseableItem.index}
