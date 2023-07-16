@@ -70,6 +70,14 @@
       }
     }
 
+    .item-card__description {
+      li {
+        margin: 0 auto;
+        max-width: 100%;
+        width: max-content;
+      }
+    }
+
     .item-card__status__price,
     .item-card__status__text {
       &:first-child {

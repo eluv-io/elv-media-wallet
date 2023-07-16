@@ -95,7 +95,7 @@ const FeaturedItemCard = observer(({
 
   const cardContents = (
     <>
-      { justification === "Left" ? icon : null }
+      { justification === "Left" || justification === "Center" ? icon : null }
       <div className="featured-item__text">
         { sideText ? sideText : null }
         <h2 className="featured-item__title">
@@ -154,7 +154,12 @@ const FeaturedItemCard = observer(({
   return (
     <div
       onClick={onClick}
-      className={`featured-item ${disabled ? "featured-item--disabled" : ""} ${justification === "Right" ? "featured-item--right-just" : ""} ${className}`}
+      className={[
+        "featured-item",
+        disabled ? "featured-item--disabled" : "",
+        `featured-item--${(justification || "left").toLowerCase()}-just`,
+        className
+      ].join(" ")}
     >
       { cardContents }
     </div>
