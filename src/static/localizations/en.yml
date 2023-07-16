@@ -421,7 +421,7 @@ item_details:
   number_minted: Number Minted
   number_in_circulation: Number in Circulation
   number_burned: Number Burned
-  max_possible: Maximum Posible in Circulation
+  max_possible: Maximum Possible in Circulation
   held_until: Held Until
   cap: Cap
   minted_date: Minted on the Eluvio Content Fabric on {date}
