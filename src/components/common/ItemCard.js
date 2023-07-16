@@ -16,6 +16,7 @@ const ItemCard = observer(({
   subtitle2,
   description,
   descriptionRichText,
+  showRichTextDescription,
   price,
   status,
   cta,
@@ -90,7 +91,7 @@ const ItemCard = observer(({
             </h2> : null
         }
         {
-          descriptionRichText ?
+          showRichTextDescription && descriptionRichText ?
             <RichText className="markdown-document item-card__description" richText={descriptionRichText} /> :
             typeof description === "string" ?
               <ResponsiveEllipsis
