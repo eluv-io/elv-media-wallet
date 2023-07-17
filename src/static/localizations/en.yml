@@ -449,6 +449,8 @@ item_details:
     next: Next
     previous: Previous
     play_all: Play All
+    errors:
+      default: This media is no longer available
 
 status:
   back_to_profile: Back to My Profile
