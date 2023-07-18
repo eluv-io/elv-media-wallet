@@ -397,7 +397,7 @@ item_details:
   minted_date: Criado em {date}
   rarity: Raridade
   have_trait: '{rarity}% possuem essa característica'
-  go_to_item: Ir para íten
+  go_to_item: Ir para o item
   status:
     listings: Revendas
     sale_ended: Venda encerrada

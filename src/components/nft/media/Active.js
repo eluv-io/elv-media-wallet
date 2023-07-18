@@ -112,7 +112,7 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
         <ImageIcon icon={mediaItem.mediaInfo.imageUrl} className="nft-media__content__target__error-image" />
         <div className="nft-media__content__target__error-cover" />
         <div className="nft-media__content__target__error-message">
-          This media is no longer available
+          { error?.permission_message || rootStore.l10n.item_details.additional_media.errors.default }
         </div>
       </div>
     );

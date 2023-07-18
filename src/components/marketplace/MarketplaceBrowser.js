@@ -150,7 +150,7 @@ const MarketplaceBrowser = observer(() => {
   let filteredMarketplaces = availableMarketplaces;
   if(filters.activeTags && filters.activeTags.length > 0) {
     filteredMarketplaces = filteredMarketplaces.filter(marketplace =>
-      marketplace && marketplace.branding && (marketplace.branding.tags || []).find(tag => filters.activeTags.includes(tag))
+      marketplace && marketplace.branding && (marketplace.branding.tags || []).find(tag => filters.activeTags.includes(tag.toLowerCase()))
     );
   }
 

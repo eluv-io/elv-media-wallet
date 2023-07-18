@@ -179,7 +179,7 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
     if(section.type === "Featured" && rootStore.pageWidth > 700) {
       renderedItems = (
         <MarketplaceFeatured
-          marketplaceHash={marketplace.versionHash}
+          marketplace={marketplace}
           items={items}
           justification={section.featured_view_justification}
           showGallery={section.show_carousel_gallery}
@@ -206,6 +206,7 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
                   item={item}
                   index={item.itemIndex}
                   showVideo={item.play_on_storefront}
+                  showRichTextDescription={marketplace.storefront.show_rich_text_descriptions}
                   showCta={marketplace.storefront.show_card_cta}
                   key={`marketplace-item-${sectionIndex}-${item.sku}-${index}-${loadKey}`}
                 />
@@ -268,7 +269,7 @@ const MarketplaceStorefront = observer(() => {
       <div className="page-block__content">
         <MarketplaceBanners marketplace={marketplace} />
         <MarketplaceStorefrontSections marketplace={marketplace} />
-        <MarketplaceCollectionsSummary marketplace={marketplace} />
+        { marketplace?.collections_info?.show_on_storefront ? <MarketplaceCollectionsSummary marketplace={marketplace} /> : null }
       </div>
     </div>
   );

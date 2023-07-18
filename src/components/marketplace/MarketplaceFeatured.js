@@ -167,7 +167,7 @@ const FeaturedGallery = ({showIcons, marketplaceHash, items, selectedIndex, setS
   );
 };
 
-const MarketplaceFeatured = observer(({marketplaceHash, items, justification, countdown, showGallery}) => {
+const MarketplaceFeatured = observer(({marketplace, items, justification, countdown, showGallery}) => {
   const [featuredItemIndex, setFeaturedItemIndex] = useState(0);
 
   return (
@@ -176,15 +176,17 @@ const MarketplaceFeatured = observer(({marketplaceHash, items, justification, co
         key={`featured-item-${featuredItemIndex}`}
         type="Featured"
         justification={justification}
-        marketplaceHash={marketplaceHash}
+        marketplaceHash={marketplace.versionHash}
         item={items[featuredItemIndex]}
         index={items[featuredItemIndex].itemIndex}
         showVideo={items[featuredItemIndex].play_on_storefront}
+        showRichTextDescription={marketplace.storefront.show_rich_text_descriptions}
+        showCta={marketplace.storefront.show_card_cta}
         countdown={countdown}
       />
       <FeaturedGallery
         showIcons={showGallery}
-        marketplaceHash={marketplaceHash}
+        marketplaceHash={marketplace.versionHash}
         items={items}
         selectedIndex={featuredItemIndex}
         setSelectedIndex={setFeaturedItemIndex}

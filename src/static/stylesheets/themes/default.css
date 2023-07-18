@@ -43,6 +43,10 @@ html {
   --color-lower-page-bg: var(--color-page-bg);
 
   /* Header */
+  --background-header-notification: rgba(0, 0, 0, 0.75);
+  --color-header-notification: #FFFFFF;
+  --color-header-notification-link: var(--color-component-text-highlight);
+
   --font-header-links: normal normal 300 16px var(--font-family-secondary);
   --font-store-header: normal normal 600 48px var(--font-family-primary);
 

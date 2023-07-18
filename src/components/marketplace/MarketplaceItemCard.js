@@ -19,6 +19,7 @@ const MarketplaceItemCard = ({
   noStock,
   noPrice,
   imageOnly=false,
+  showRichTextDescription=false,
   showCta=false,
   showVideo=false,
   countdown,
@@ -131,6 +132,7 @@ const MarketplaceItemCard = ({
       price={priceText}
       sideText={sideText}
       status={status}
+      showRichTextDescription={showRichTextDescription}
       cta={showCta ? cta : undefined}
       justification={justification}
       fullDescription={type === "Detail"}

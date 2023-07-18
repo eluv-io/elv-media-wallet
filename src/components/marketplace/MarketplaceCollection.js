@@ -92,7 +92,6 @@ const MarketplaceCollection = observer(() => {
       }
     });
 
-  const collectionIcon = collection.collection_icon;
   const collectionCompleted = collectionItems && !collectionItems.find(slot => (slot.ownedItems || []).length === 0);
 
   let redeemButton = (
