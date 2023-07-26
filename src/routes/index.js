@@ -78,7 +78,6 @@ const UserRoutes = ({includeMarketplaceRoutes}) => {
     { name: "Notifications", path: "notifications", Component: Notifications, includeUserProfile: true },
 
     { name: match => (GetMarketplace(match)?.storefront?.tabs?.my_items || "Items"), includeUserProfile: true, path: "items", Component: UserItems },
-    { name: "Open Pack", path: "items/:contractId/:tokenId/open", Component: PackOpenStatus },
 
     ...TokenRoutes("items"),
     ...TokenRoutes("listings"),
