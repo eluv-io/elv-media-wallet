@@ -400,7 +400,7 @@ const FilterMenu = ({mode, filterValues, editions, attributes, dropAttributes, r
             label={rootStore.l10n.filters.filters.time}
             optionLabelPrefix={`${rootStore.l10n.filters.filters.time}: `}
             value={selectedFilterValues.lastNDays}
-            onChange={value => setSelectedFilterValues({...selectedFilterValues, lastNDays: value})}
+            onChange={value => setSelectedFilterValues({...selectedFilterValues, lastNDays: value, startTime: undefined, endTime: undefined})}
             options={[
               ["", rootStore.l10n.filters.filters.all_time],
               ["1", rootStore.l10n.filters.filters.last_24_hours],
