@@ -127,7 +127,7 @@ const DateToMillis = (iso) => {
   }
 };
 
-const DateFilter = observer(({label, value, onChange}) => {
+const DateRange = observer(({label, value, onChange}) => {
   const day = 24 * 60 * 60 * 1000;
   const [startTime, setStartTime] = useState(DateToISO(value.startTime));
   const [endTime, setEndTime] = useState(DateToISO(value.endTime));
@@ -412,7 +412,7 @@ const FilterMenu = ({mode, filterValues, editions, attributes, dropAttributes, r
       }
       {
         selectedFilterValues.lastNDays === "custom" ?
-          <DateFilter
+          <DateRange
             label={rootStore.l10n.filters.filters.date}
             optionLabelPrefix={`${rootStore.l10n.filters.filters.date}: `}
             value={{startTime: selectedFilterValues.startTime, endTime: selectedFilterValues.endTime}}

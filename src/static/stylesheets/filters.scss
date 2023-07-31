@@ -191,6 +191,7 @@ $search-height: 50px;
 
   &__range-container {
     margin-top: 30px;
+    width: 100%;
   }
 
   &__range {
@@ -198,6 +199,7 @@ $search-height: 50px;
     display: flex;
     justify-content: flex-start;
     padding: 15px 0 0 10px;
+    width: 100%;
 
     &--no-label {
       padding-left: 0;
@@ -219,8 +221,10 @@ $search-height: 50px;
 
     input {
       background: var(--color-component-bg-primary);
+      flex-grow: 1;
       height: 45px;
       position: relative;
+      width: 100%;
     }
   }
 
