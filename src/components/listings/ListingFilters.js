@@ -98,13 +98,82 @@ const RangeFilter = observer(({label, valueLabel, value, onChange, precision=0})
           className="filters__range__input"
           onBlur={() => UpdateValues({min: parsedMin, max: parsedMax, preferMin: true})}
         />
-        <div className="filters__range__separator">to</div>
+        <div className="filters__range__separator">{rootStore.l10n.filters.filters.to}</div>
         <input
           value={max}
           onChange={event => setMax(FormatInput(event.target.value))}
           placeholder={rootStore.l10n.filters.filters.max}
           className="filters__range__input"
           onBlur={() => UpdateValues({min: parsedMin, max: parsedMax})}
+        />
+      </div>
+    </div>
+  );
+});
+
+const DateToISO = (millis) => {
+  try {
+    return millis ? new Date(millis).toISOString() : "";
+  } catch(error) {
+    return "";
+  }
+};
+
+const DateToMillis = (iso) => {
+  try {
+    return iso ? new Date(iso).getTime() : undefined;
+  } catch(error) {
+    return undefined;
+  }
+};
+
+const DateFilter = observer(({label, value, onChange}) => {
+  const day = 24 * 60 * 60 * 1000;
+  const [startTime, setStartTime] = useState(DateToISO(value.startTime));
+  const [endTime, setEndTime] = useState(DateToISO(value.endTime));
+
+  useEffect(() => {
+    setStartTime(DateToISO(value.startTime));
+    setEndTime(DateToISO(value.endTime));
+  }, [value]);
+
+  const UpdateValues = ({startTime, endTime, preferStart}) => {
+    startTime = DateToMillis(startTime);
+    endTime = DateToMillis(endTime);
+
+    if(startTime >= endTime && startTime && endTime) {
+      if(preferStart) {
+        endTime = startTime + day;
+        setEndTime(DateToISO(endTime));
+      } else {
+        startTime = endTime - day;
+        setStartTime(DateToISO(startTime));
+      }
+    }
+
+    onChange({startTime, endTime});
+  };
+
+  return (
+    <div className="filters__range-container">
+      <label className="filters__range-container__label">{ label }</label>
+      <div className="filters__range filters__range--no-label">
+        <input
+          type="date"
+          value={startTime.split("T")[0] || ""}
+          onChange={event => setStartTime(DateToISO(event.target.value))}
+          placeholder={rootStore.l10n.filters.filters.start_date}
+          className="filters__range__input"
+          onBlur={() => UpdateValues({startTime, endTime, preferStart: true})}
+        />
+        <div className="filters__range__separator">{rootStore.l10n.filters.filters.to}</div>
+        <input
+          type="date"
+          value={endTime.split("T")[0] || ""}
+          onChange={event => setEndTime(DateToISO(event.target.value))}
+          placeholder={rootStore.l10n.filters.filters.end_date}
+          className="filters__range__input"
+          onBlur={() => UpdateValues({startTime, endTime})}
         />
       </div>
     </div>
@@ -316,6 +385,16 @@ const FilterMenu = ({mode, filterValues, editions, attributes, dropAttributes, r
           /> : null
       }
       {
+        mode === "listings" ?
+          <FilterSelect
+            label={rootStore.l10n.filters.filters.currency}
+            optionLabelPrefix={`${rootStore.l10n.filters.filters.currency}: `}
+            value={selectedFilterValues.currency}
+            onChange={value => setSelectedFilterValues({...selectedFilterValues, currency: value})}
+            options={[["", rootStore.l10n.filters.filters.any_currency], ["usdc", "USDC"]]}
+          /> : null
+      }
+      {
         mode === "owned" ? null :
           <FilterSelect
             label={rootStore.l10n.filters.filters.time}
@@ -326,18 +405,18 @@ const FilterMenu = ({mode, filterValues, editions, attributes, dropAttributes, r
               ["", rootStore.l10n.filters.filters.all_time],
               ["1", rootStore.l10n.filters.filters.last_24_hours],
               ["7", rootStore.l10n.filters.filters.last_7_days],
-              ["30", rootStore.l10n.filters.filters.last_30_days]
+              ["30", rootStore.l10n.filters.filters.last_30_days],
+              ["custom", rootStore.l10n.filters.filters.custom]
             ]}
           />
       }
       {
-        mode === "listings" ?
-          <FilterSelect
-            label={rootStore.l10n.filters.filters.currency}
-            optionLabelPrefix={`${rootStore.l10n.filters.filters.currency}: `}
-            value={selectedFilterValues.currency}
-            onChange={value => setSelectedFilterValues({...selectedFilterValues, currency: value})}
-            options={[["", rootStore.l10n.filters.filters.any_currency], ["usdc", "USDC"]]}
+        selectedFilterValues.lastNDays === "custom" ?
+          <DateFilter
+            label={rootStore.l10n.filters.filters.date}
+            optionLabelPrefix={`${rootStore.l10n.filters.filters.date}: `}
+            value={{startTime: selectedFilterValues.startTime, endTime: selectedFilterValues.endTime}}
+            onChange={({startTime, endTime}) => setSelectedFilterValues({...selectedFilterValues, startTime, endTime})}
           /> : null
       }
       {
@@ -406,6 +485,8 @@ export const ListingFilters = observer(({mode="listings", initialFilters, Update
     sortBy: initialOption.key,
     sortDesc: initialOption.desc,
     collectionIndexes: [],
+    startTime: undefined,
+    endTime: undefined,
     lastNDays: -1,
     filter: "",
     editionFilters: [],

@@ -357,6 +357,9 @@ filters:
   filters:
     min: Min
     max: Max
+    start_date: Start Date
+    end_date: End Date
+    to: to
     apply: Apply Filters
     reset: Reset Filters
     token_id: Token ID
@@ -376,10 +379,12 @@ filters:
     marketplaces: Marketplaces
     all_marketplaces: All Marketplaces
     time: Time
+    date: Date Range
     all_time: All Time
     last_24_hours: Last 24 Hours
     last_7_days: Last 7 Days
     last_30_days: Last 30 Days
+    custom: Custom
   sort:
     sort: Sort
     minted: Minted (Oldest to Newest)

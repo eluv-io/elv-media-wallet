@@ -199,19 +199,27 @@ $search-height: 50px;
     justify-content: flex-start;
     padding: 15px 0 0 10px;
 
+    &--no-label {
+      padding-left: 0;
+    }
+
     * {
       text-align: center;
     }
 
     &__label {
       color: var(--color-component-text-secondary);
+      margin-right: 10px;
       width: 125px;
+    }
+
+    &__separator {
+      margin: 0 10px;
     }
 
     input {
       background: var(--color-component-bg-primary);
       height: 45px;
-      margin: 0 10px;
     }
   }
 
@@ -256,6 +264,12 @@ $search-height: 50px;
 
     &__menu {
       width: 100%;
+    }
+
+    &__range {
+      input {
+        font-size: 12px;
+      }
     }
   }
 }
