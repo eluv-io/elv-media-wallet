@@ -55,9 +55,9 @@ const UserMarketplaceRoutes = () => {
 
 const TokenRoutes = basePath => {
   return [
+    { name: "Open Pack", path: UrlJoin(basePath, "/:contractId/:tokenId/open"), authed: true, Component: PackOpenStatus },
     { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: UrlJoin(basePath, "/:contractId/:tokenId"), noBlock: true, Component: MintedNFTDetails },
     { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: UrlJoin(basePath, "/:contractId/:tokenId/:action"), authed: true, noBlock: true, Component: MintedNFTDetails },
-    { name: "Open Pack", path: UrlJoin(basePath, "/:contractId/:tokenId/open"), Component: PackOpenStatus },
 
     { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: UrlJoin(basePath, "/:contractId/:tokenId/media"), noBlock: true, Component: NFTMedia },
     { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: UrlJoin(basePath, "/:contractId/:tokenId/media/:sectionId/:mediaIndex"), noBlock: true, Component: NFTMedia },
