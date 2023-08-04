@@ -13,7 +13,7 @@ const RedemptionStatus = observer(({offer, offerKey, setRedemptionFinished}) => 
   const redemptionStatus = checkoutStore.redeemableOfferStatus[offerKey];
   const { redeem_animation, redeem_animation_loop, require_redeem_animation } = offer;
 
-  const [videoEnded, setVideoEnded] = useState(!require_redeem_animation);
+  const [videoEnded, setVideoEnded] = useState(!require_redeem_animation || !redeem_animation);
 
   useEffect(() => {
     if(redemptionStatus?.status === "complete" && videoEnded) {
@@ -107,7 +107,11 @@ const RedemptionResults = observer(({offer, offerData, showPopupNotice}) => {
           <div className="redeemable-offer-modal__name">
             {offer.name}
           </div>
-          <RichText className="markdown-document redeemable-offer-modal__description" richText={offer.description}/>
+          {
+            offer.description ?
+              <RichText className="markdown-document redeemable-offer-modal__description" richText={offer.description}/> :
+              <div className="redeemable-offer-modal__description">{offer.description_text}</div>
+          }
           {
             offer.expirationDate ?
               <>
@@ -196,7 +200,11 @@ const RedeemableInfo = observer(({offer, nftInfo}) => {
         <div className="redeemable-offer-modal__name">
           { offer.name }
         </div>
-        <RichText className="markdown-document redeemable-offer-modal__description" richText={offer.description} />
+        {
+          offer.description ?
+            <RichText className="markdown-document redeemable-offer-modal__description" richText={offer.description}/> :
+            <div className="redeemable-offer-modal__description">{ offer.description_text }</div>
+        }
         {
           offer.expirationDate ?
             <>
@@ -227,7 +235,7 @@ const RedeemableInfo = observer(({offer, nftInfo}) => {
             </div> : null
         }
         {
-          offer.state.redeemer ?
+          offer.state?.redeemer ?
             <a
               className="redeemable-offer-modal__lookout-url"
               target="_blank"
@@ -287,8 +295,8 @@ export const NFTRedeemableOfferModal = observer(({nftInfo, offerId, Close}) => {
 
     const transactionId =
       offer?.state?.transaction ||
-      nftInfo?.nft?.details?.Offers?.[parseInt(offerId)]?.transaction ||
-      redemptionStatus?.extra?.[6];
+      redemptionStatus?.extra?.[6] ||
+      nftInfo?.nft?.details?.Offers?.find(offer => offer?.id?.toString() === offerId.toString())?.transaction;
 
     if(!transactionId) {
       // Transaction not determinable - reload nft
@@ -452,7 +460,11 @@ const NFTRedeemableOffers = observer(({nftInfo}) => {
                 <div className="redeemable-offer__name">
                   { offer.name }
                 </div>
-                <RichText richText={offer.description} className="markdown-document redeemable-offer__description" />
+                {
+                  offer.description ?
+                    <RichText richText={offer.description} className="markdown-document redeemable-offer__description"/> :
+                    <div className="redeemable-offer__description">{ offer.description_text }</div>
+                }
                 { details }
               </button>
             );

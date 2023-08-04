@@ -9,8 +9,11 @@ import Confirm from "Components/common/Confirm";
 import {LocalizeString, RichText} from "Components/common/UIComponents";
 
 import MetamaskIcon from "Assets/icons/metamask fox.png";
-import EluvioLogo from "Assets/icons/ELUVIO logo (updated nov 2).svg";
-import EluvioPoweredByLogo from "Assets/icons/EluvioLogo2.svg";
+import EluvioE from "Assets/images/ELUV.IO-E-Icon.png";
+import EluvioLogo from "Assets/images/Eluvio_logo.svg";
+import MediaWalletLogo from "Assets/images/Media Wallet Text Linear.svg";
+import EluvioPoweredByLogo from "Assets/images/Eluvio_logo.svg";
+import CheckIcon from "Assets/icons/check.svg";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 const params = {
@@ -27,10 +30,12 @@ const params = {
   provider: searchParams.get("provider"),
   // What login mode should be used (create, login)
   mode: searchParams.get("mode"),
-  // How should the page respond with login credentials (message, redirect)
+  // How should the page respond with login credentials (message, redirect, code)
   response: searchParams.get("response"),
   // Where should the page redirect to with login credentials
   redirect: searchParams.get("redirect"),
+  // Response code to fill out for code login
+  loginCode: searchParams.get("elvid"),
   // Should Auth0 credentials be cleared before login?
   clearLogin: searchParams.has("clear"),
   // Marketplace
@@ -38,6 +43,8 @@ const params = {
   // User data to pass to custodial sign-in
   userData: searchParams.has("data") ? JSON.parse(Utils.FromB64(searchParams.get("data"))) : { share_email: true }
 };
+
+window.params = params;
 
 // COMPONENTS
 
@@ -58,8 +65,9 @@ const Logo = ({customizationOptions}) => {
     );
   } else {
     return (
-      <div className="login-page__logo-container">
-        <ImageIcon icon={EluvioLogo} className="login-page__logo login-page__logo--default" title="Eluv.io" />
+      <div className="login-page__logo-container login-page__logo-container--default">
+        <ImageIcon icon={EluvioE} className="login-page__logo login-page__logo--default login-page__logo--icon" title="Eluv.io" />
+        <ImageIcon icon={MediaWalletLogo} className="login-page__logo login-page__logo--default login-page__logo--text" title="Eluv.io" />
       </div>
     );
   }
@@ -167,14 +175,15 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
 };
 
 // Logo, login buttons, terms and loading indicator
-const Form = observer(({authenticating, userData, setUserData, customizationOptions, LogIn}) => {
+const Form = observer(({authenticating, userData, setUserData, customizationOptions, loading, codeAuthSet, LogIn}) => {
   let hasLoggedIn = false;
   try {
     hasLoggedIn = localStorage.getItem("hasLoggedIn");
     // eslint-disable-next-line no-empty
   } catch(error) {}
 
-  const loading =
+  loading =
+    loading ||
     !rootStore.loaded ||
     !customizationOptions ||
     params.clearLogin ||
@@ -239,6 +248,21 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
     </button>
   );
 
+  if(codeAuthSet) {
+    return (
+      <>
+        <Logo customizationOptions={customizationOptions} />
+        <div className="login-page__code-message">
+          <ImageIcon icon={CheckIcon} className="login-page__code-message__icon" />
+          <div className="login-page__code-message__text">
+            { rootStore.l10n.login.code_auth_success }
+          </div>
+        </div>
+        <PoweredBy customizationOptions={customizationOptions}/>
+      </>
+    );
+  }
+
   return (
     <>
       <Logo customizationOptions={customizationOptions} />
@@ -264,8 +288,15 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
 
         { metamaskButton }
       </div>
+      {
+        params.loginCode && !loading ?
+          <div className="login-page__login-code">
+            { LocalizeString(rootStore.l10n.login.login_code, { code: params.loginCode }) }
+          </div> : null
+      }
+
       <PoweredBy customizationOptions={customizationOptions}/>
-      <Terms customizationOptions={customizationOptions} userData={userData} setUserData={setUserData}/>
+      { loading ? null : <Terms customizationOptions={customizationOptions} userData={userData} setUserData={setUserData}/> }
     </>
   );
 });
@@ -429,6 +460,8 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
   const [auth0Authenticating, setAuth0Authenticating] = useState(params.isAuth0Callback);
   const [userDataSaved, setUserDataSaved] = useState(false);
   const [savingUserData, setSavingUserData] = useState(false);
+  const [settingCodeAuth, setSettingCodeAuth] = useState(false);
+  const [codeAuthSet, setCodeAuthSet] = useState(false);
 
   // Handle login button clicked - Initiate popup/login flow
   const LogIn = async ({provider, mode}) => {
@@ -507,6 +540,23 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       window.location = redirectUrl;
     };
 
+    const SetCodeAuth = async () => {
+      try {
+        setSettingCodeAuth(true);
+
+        await rootStore.walletClient.SetCodeAuth({
+          code: params.loginCode,
+          address: rootStore.walletClient.UserAddress(),
+          type: rootStore.externalWalletUser ? rootStore.walletClient.__authorization.walletName.toLowerCase() : "custodial",
+          authToken: rootStore.walletClient.AuthToken()
+        });
+
+        setCodeAuthSet(true);
+      } finally {
+        setSettingCodeAuth(false);
+      }
+    };
+
     if(params.clearLogin) {
       const returnURL = new URL(window.location.href);
       returnURL.pathname = returnURL.pathname.replace(/\/$/, "");
@@ -525,7 +575,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       // Returned from Auth0 callback - Authenticate
       AuthenticateAuth0(params.userData)
         .finally(() => setAuth0Authenticating(false));
-    } else if(rootStore.loaded && ["parent", "origin"].includes(params.source) && params.action === "login" && params.provider) {
+    } else if(rootStore.loaded && !rootStore.loggedIn && ["parent", "origin", "code"].includes(params.source) && params.action === "login" && params.provider && !settingCodeAuth && !codeAuthSet) {
       // Opened from frame - do appropriate login flow
       LogIn({provider: params.provider, mode: params.mode})
         .then(() => {
@@ -534,6 +584,8 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
               Respond();
             } else if(params.response === "redirect") {
               Redirect();
+            } else if(params.response === "code") {
+              SetCodeAuth();
             }
           }
         });
@@ -542,15 +594,25 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       Respond();
     } else if(userDataSaved && !auth0Authenticating && rootStore.loggedIn && params.response === "redirect") {
       Redirect();
+    } else if(!settingCodeAuth && userDataSaved && !auth0Authenticating && rootStore.loggedIn && params.response === "code") {
+      SetCodeAuth();
     }
-  }, [rootStore.loaded, rootStore.loggedIn, userDataSaved, auth0Authenticating]);
+  }, [rootStore.loaded, rootStore.loggedIn, userDataSaved, savingUserData, auth0Authenticating]);
 
   return (
     <div className={`login-page ${rootStore.darkMode ? "login-page--dark" : ""} ${customizationOptions?.large_logo_mode ? "login-page-large-logo-mode" : ""}`}>
       <Background customizationOptions={customizationOptions} Close={Close} />
 
       <div className="login-page__login-box">
-        <Form userData={userData} setUserData={setUserData} authenticating={auth0Authenticating} LogIn={LogIn} customizationOptions={customizationOptions} />
+        <Form
+          userData={userData}
+          setUserData={setUserData}
+          authenticating={auth0Authenticating}
+          loading={settingCodeAuth || savingUserData}
+          codeAuthSet={codeAuthSet}
+          LogIn={LogIn}
+          customizationOptions={customizationOptions}
+        />
       </div>
     </div>
   );

@@ -6,6 +6,8 @@ import React, {useEffect, useState} from "react";
 import {render} from "react-dom";
 import {ElvWalletClient} from "@eluvio/elv-client-js/src/walletClient";
 import {ElvWalletFrameClient} from "../client/src/index";
+import {rootStore} from "Stores";
+import QRCode from "qrcode";
 
 /*
 let network = "main";
@@ -27,8 +29,8 @@ let marketplaceParams = {
 let walletAppUrl;
 if(window.location.hostname === "core.test.contentfabric.io") {
   walletAppUrl = network === "demo" ?
-    "https://core.test.contentfabric.io/wallet-demo" :
-    "https://core.test.contentfabric.io/wallet";
+    "https://wallet.demov3.contentfabric.io" :
+    "https://wallet.preview.contentfabric.io"
 } else {
   const url = new URL(window.location.origin);
   url.port = "8090";
@@ -38,8 +40,37 @@ if(window.location.hostname === "core.test.contentfabric.io") {
 
 const searchParams = new URLSearchParams(window.location.search);
 
-const AuthSection = ({walletClient, frameClient, callbackUrl}) => {
+export const QRCodeElement = ({content, className=""}) => {
+  let options = { errorCorrectionLevel: "M", margin: 1 };
+
+  if(rootStore.pageWidth < 600) {
+    options.width = rootStore.pageWidth - 100;
+  }
+
+  return (
+    <div className={`qr-code ${className}`}>
+      <canvas
+        style={{height: "100%", width: "100%"}}
+        ref={element => {
+          if(!element) { return; }
+
+          QRCode.toCanvas(
+            element,
+            typeof content === "object" ? JSON.stringify(content) : content,
+            options,
+            error => error && rootStore.Log(error, true)
+          );
+        }}
+        className="qr-code__canvas"
+      />
+    </div>
+  );
+};
+
+
+const AuthSection = ({walletClient, frameClient, loginMode, callbackUrl}) => {
   const [loggedIn, setLoggedIn] = useState(walletClient.loggedIn);
+  const [codeLoginInfo, setCodeLoginInfo] = useState(undefined);
 
   const LogIn = async ({method}) => {
     await walletClient.LogIn({
@@ -57,8 +88,16 @@ const AuthSection = ({walletClient, frameClient, callbackUrl}) => {
   const LogOut = async () => {
     await walletClient.LogOut();
 
+    setCodeLoginInfo(undefined);
     setLoggedIn(false);
   };
+
+  useEffect(() => {
+    if(loginMode !== "code" || !walletClient || loggedIn) { return; }
+
+    walletClient.GenerateCodeAuth()
+      .then(info => setCodeLoginInfo(info));
+  }, [walletClient, loggedIn]);
 
   // When user requests login in the frame or signs out in the frame, handle it in the wallet client
   useEffect(() => {
@@ -86,6 +125,54 @@ const AuthSection = ({walletClient, frameClient, callbackUrl}) => {
       frameClient.LogOut();
     }
   }, [loggedIn, frameClient]);
+
+  useEffect(() => {
+    if(!codeLoginInfo || !walletClient) { return; }
+
+    const loginCheckInterval = setInterval(async () => {
+      const response = await walletClient.GetCodeAuth({
+        code: codeLoginInfo.code,
+        passcode: codeLoginInfo.passcode
+      });
+
+      const { addr, token } = JSON.parse(response.payload);
+
+      if(!response) { return; }
+
+      clearInterval(loginCheckInterval);
+
+      await walletClient.SetAuthorization({fabricToken: token, address: addr});
+
+      setLoggedIn(true);
+    }, 1000);
+
+    return () => clearInterval(loginCheckInterval);
+  }, [codeLoginInfo, walletClient]);
+
+  if(loginMode === "code" && !loggedIn) {
+    if(!codeLoginInfo) { return null; }
+
+    return (
+      <>
+        <div className="section">
+          <h2>Log In with Metamask</h2>
+          <div className="button-row">
+            <a href={codeLoginInfo.metamask_url} target="_blank" className="qr-link">
+              <QRCodeElement content={codeLoginInfo.metamask_url}/>
+            </a>
+          </div>
+        </div>
+        <div className="section">
+          <h2>Log In with Browser</h2>
+          <div className="button-row">
+            <a href={codeLoginInfo.url} target="_blank" className="qr-link">
+              <QRCodeElement content={codeLoginInfo.url}/>
+            </a>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   if(!loggedIn) {
     return (
@@ -136,10 +223,12 @@ const App = () => {
         network,
         mode
       })
-        .then(client => {
+        .then(async client => {
           if(walletAppUrl) {
             client.appUrl = walletAppUrl.toString();
           }
+
+          client.client.AuthHttpClient.uris = ["https://host-154-14-192-66.contentfabric.io/as"];
 
           window.walletClient = client;
 
@@ -147,7 +236,7 @@ const App = () => {
         });
     }
 
-    if(loginMode !== "client") {
+    if(["frame", "frame-and-client"].includes(loginMode)) {
       ElvWalletFrameClient.InitializeFrame({
         walletAppUrl: walletAppUrl ? walletAppUrl.toString() : undefined,
         requestor: "Eluvio Login Test",
@@ -183,8 +272,12 @@ const App = () => {
       use = "Use this method if you only want to use the Eluvio Wallet Client.";
       clients = <><code>walletClient</code> is available in the browser console</>;
       break;
-  }
 
+    case "code":
+      description = "Login is handled by generating a URL to allow the user to log in to the Eluvio Media Wallet on another device. The URL can be used in a QR code to allow login via mobile devices.";
+      use = "Use this method for cases where login is not possible on the device, such as a TV based app";
+      clients = <><code>walletClient</code> is available in the browser console</>;
+  }
 
   return (
     <div className="page-container">
@@ -204,6 +297,7 @@ const App = () => {
           <option value="frame">Login Mode: Frame Only</option>
           <option value="frame-and-client">Login Mode: Client and Frame</option>
           <option value="client">Login Mode: Client Only</option>
+          <option value="code">Login Mode: QR Code</option>
         </select>
       </div>
 
@@ -219,7 +313,13 @@ const App = () => {
 
       {
         loginMode !== "frame" && walletClient ?
-          <AuthSection walletClient={walletClient} frameClient={frameClient} callbackUrl={callbackUrl.toString()}/> :
+          <AuthSection
+            key={`auth-${loginMode}`}
+            walletClient={walletClient}
+            frameClient={frameClient}
+            loginMode={loginMode}
+            callbackUrl={callbackUrl.toString()}
+          /> :
           null
       }
 

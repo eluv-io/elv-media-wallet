@@ -145,6 +145,8 @@ class CryptoStore {
 
       let connectedAccounts = { eth: {}, sol: {}, circle_acct: {}};
       for(const link of (links || [])) {
+        if(!connectedAccounts[link.link_type]) { continue; }
+
         const address = link.link_type === "eth" ? Utils.FormatAddress(link.link_acct) : link.link_acct;
 
         if(!connectedAccounts[link.link_type]) connectedAccounts[link.link_type] = {};
@@ -521,7 +523,7 @@ class CryptoStore {
 
   PhantomAddress() {
     return (
-      (window.solana && window.solana._publicKey && window.solana._publicKey.toString()) ||
+      (window.solana && (window.solana._publicKey || window.solana.publicKey)?.toString()) ||
       (window.solana && this.rootStore.embedded && Object.keys(this.connectedAccounts.sol)[0])
     );
   }

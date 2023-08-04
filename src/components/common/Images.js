@@ -11,6 +11,7 @@ import Modal from "Components/common/Modal";
 import {NFTMedia} from "../../utils/Utils";
 
 import FullscreenIcon from "Assets/icons/full screen.svg";
+import MinimizeIcon from "Assets/icons/minimize.svg";
 import ExternalLinkIcon from "Assets/icons/external-link.svg";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 
@@ -74,7 +75,7 @@ export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVi
             {
               allowFullscreen && !isFrameContent ?
                 <button className="item-card__image-container__action item-card__image-container__action--full-screen" onClick={() => setFullscreen(true)} title="Fullscreen">
-                  <ImageIcon icon={FullscreenIcon} label="Enlarge Image"/>
+                  <ImageIcon icon={fullscreen ? MinimizeIcon : FullscreenIcon} label="Enlarge Image"/>
                 </button> : null
             }
           </div>
@@ -103,7 +104,7 @@ export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVi
                   </a> : null
               }
               <button className="item-card__image-container__action item-card__image-container__action--full-screen" onClick={() => setFullscreen(true)} title="Fullscreen">
-                <ImageIcon icon={FullscreenIcon} label="Enlarge Image"/>
+                <ImageIcon icon={fullscreen ? MinimizeIcon : FullscreenIcon} label="Enlarge Image"/>
               </button>
             </div> : null
         }

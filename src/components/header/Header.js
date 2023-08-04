@@ -12,14 +12,46 @@ import ProfileMenu from "Components/header/ProfileMenu";
 import {NotificationsMenu} from "Components/header/NotificationsMenu";
 import {Debounce, SetImageUrlDimensions} from "../../utils/Utils";
 import MenuButton from "Components/common/MenuButton";
+import Crypto from "crypto";
+import {RichText} from "Components/common/UIComponents";
 
-import EluvioLogo from "Assets/icons/ELUVIO logo (updated nov 2).svg";
+import EluvioE from "Assets/images/ELUV.IO-E-Icon.png";
+import EluvioLogo from "Assets/images/Eluvio_logo.svg";
 import MenuIcon from "Assets/icons/menu";
 import UserIcon from "Assets/icons/profile.svg";
-import ProjectsIcon from "Assets/icons/header/New Projects_Marketplaces icon.svg";
+import DiscoverIcon from "Assets/icons/discover.svg";
 import WalletIcon from "Assets/icons/header/wallet icon v2.svg";
 import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
 import BackIcon from "Assets/icons/pagination arrow back.svg";
+import XIcon from "Assets/icons/x";
+
+const NotificationBanner = observer(({marketplace}) => {
+  const notification = marketplace?.branding?.notification || {};
+  const notificationHash = Crypto.createHash("SHA1", (notification.header || "") + (notification.text || "")).update("string").digest("hex");
+  const notificationDismissed = rootStore.GetLocalStorage(`notification-dismissed-${marketplace.marketplaceId}`) === notificationHash;
+
+  const [active, setActive] = useState(notification.active && !notificationDismissed);
+
+  if(!active) {
+    return null;
+  }
+
+  return (
+    <div className="notification-banner">
+      <h2>{ notification.header }</h2>
+      <RichText richText={notification.text} className="notification-banner__text" />
+      <button
+        onClick={() => {
+          rootStore.SetLocalStorage(`notification-dismissed-${marketplace.marketplaceId}`, notificationHash);
+          setActive(false);
+        }}
+        className="notification-banner__close-button"
+      >
+        <ImageIcon icon={XIcon} title="Dismiss" className="notification-banner__close-icon" />
+      </button>
+    </div>
+  );
+});
 
 const ProfileNavigation = observer(() => {
   const location = useLocation();
@@ -41,7 +73,13 @@ const ProfileNavigation = observer(() => {
 
     return (
       <div className="header__profile">
-        <button className="header__navigation-link header__profile__link header__profile__sign-in-button" onClick={() => rootStore.ShowLogin()}>
+        {
+          marketplaceId ? null :
+            <div className="header__profile__label">
+              {rootStore.l10n.header.media_wallet}
+            </div>
+        }
+        <button className="action action-primary header__profile__sign-in-button" onClick={() => rootStore.ShowLogin()}>
           { rootStore.l10n.login.sign_in }
         </button>
         {
@@ -51,7 +89,7 @@ const ProfileNavigation = observer(() => {
               title = "Discover Projects"
               to="/marketplaces"
             >
-              <ImageIcon icon={ProjectsIcon} className="header__profile__link-icon" />
+              <ImageIcon icon={DiscoverIcon} className="header__profile__link-icon" />
             </NavLink> : null
         }
       </div>
@@ -204,6 +242,7 @@ const MarketplaceHeader = observer(({marketplace, scrolled}) => {
 
   return (
     <>
+      <NotificationBanner marketplace={marketplace} />
       <div className={`header-padding header-padding--marketplace ${compact ? "header-padding--compact" : ""}`} />
       <header className={`page-block page-block--header ${scrolled ? "header-container--scrolled" : ""} ${compact ? "header-container--compact" : ""} ${rootStore.appBackground ? "page-block--custom-background" : ""} header-container header-container--marketplace`}>
         <div className={`header-container__background header-container__background--${theme} : ""}`} />
@@ -251,7 +290,8 @@ const GlobalHeader = observer(({scrolled}) => {
             compact ? null :
               <div className="header__content">
                 <Link className="header__content__logo-container header__content__logo-container--global" to={"/marketplaces"}>
-                  <ImageIcon icon={EluvioLogo} label={name || ""} className="header__content__logo"/>
+                  <ImageIcon icon={EluvioE} className="header__content__logo header__content__logo--e" />
+                  <ImageIcon icon={EluvioLogo} label={name || ""} className="header__content__logo header__content__logo--text"/>
                 </Link>
                 {
                   rootStore.headerText ?

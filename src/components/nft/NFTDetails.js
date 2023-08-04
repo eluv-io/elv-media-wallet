@@ -330,9 +330,15 @@ const NFTContractSection = ({nftInfo, SetBurned, ShowTransferModal}) => {
         </CopyableField>
       </div>
       {
-        nftInfo.heldDate ?
+        nftInfo.heldDate || !nftInfo.secondaryReleased ?
           <h3 className="expandable-section__details details-page__held-message">
-            { LocalizeString(rootStore.l10n.item_details.held_message, {heldDate: nftInfo.heldDate}) }
+            { LocalizeString(rootStore.l10n.item_details[nftInfo.heldDate ? "held_message" : "secondary_unreleased"], {heldDate: nftInfo.heldDate || nftInfo.secondaryReleaseDate}) }
+          </h3> : null
+      }
+      {
+        nftInfo.secondaryReleased && !nftInfo.secondaryAvailable ?
+          <h3 className="expandable-section__details details-page__held-message">
+            { LocalizeString(rootStore.l10n.item_details.secondary_expired, {heldDate: nftInfo.secondaryExpirationDate}) }
           </h3> : null
       }
       <div className="expandable-section__actions">
@@ -740,12 +746,12 @@ const NFTActions = observer(({
             </Link> :
             ownedItem ?
               <>
-                <div className="details-page__actions__message">{ rootStore.l10n.item_details.status.max_owned }</div>
+                <div className="details-page__actions__message">{rootStore.l10n.item_details.status.max_owned}</div>
                 <Link
                   to={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items", ownedItem.contractId, ownedItem.tokenId)}
                   className="action action-primary"
                 >
-                  { rootStore.l10n.item_details.go_to_item }
+                  {rootStore.l10n.item_details.go_to_item}
                 </Link>
               </> : null
         }
@@ -758,7 +764,7 @@ const NFTActions = observer(({
               {rootStore.l10n.actions.listings.view}
             </Link>
         }
-        { votingEvents ? <VotingButtons sku={nftInfo.item.sku} votingEvents={votingEvents} /> : null }
+        {votingEvents ? <VotingButtons sku={nftInfo.item.sku} votingEvents={votingEvents}/> : null}
         {
           previewMode && nftInfo.hasAdditionalMedia && !previewMedia ?
             <button className="action" onClick={() => SetPreviewMedia(true)}>
@@ -767,6 +773,8 @@ const NFTActions = observer(({
         }
       </div>
     );
+  } else if(!nftInfo.listingStatusLoaded) {
+    return null;
   } else if(nftInfo.listingId && !nftInfo.isOwned) {
     // Listing that is not owned
 
@@ -782,7 +790,8 @@ const NFTActions = observer(({
           { LocalizeString(rootStore.l10n.actions.purchase.buy_now_for, {price: FormatPriceString(nftInfo.nft.details.Price, {stringOnly: true})}) }
         </LoginClickGate>
         {
-          nftInfo.offerable && !nftInfo.isOwned && !secondaryDisabled ?
+          // Offers available if offerable, not owned, and either secondary trading not restricted or offer currently exists for this nft
+          listingStatus?.offer?.id || (nftInfo.offerable && !nftInfo.isOwned && !secondaryDisabled && nftInfo.secondaryAvailable) ?
             <LoginClickGate
               Component={ButtonWithLoader}
               disabled={isInCheckout}
@@ -833,11 +842,11 @@ const NFTActions = observer(({
     }
   } else if(nftInfo.isOwned) {
     // Owned NFT
-
     return (
       <div className="details-page__actions">
         {
-          secondaryDisabled || nftInfo.heldDate ? null :
+          // Listings available if not held or secondary restricted, or if already listed
+          secondaryDisabled || nftInfo.heldDate || !(nftInfo.secondaryAvailable || nftInfo?.nft?.details?.ListingId) ? null :
             <ButtonWithLoader
               title={nftInfo.nft?.metadata?.test ? "Test NFTs may not be listed for sale" : undefined}
               disabled={transferring || nftInfo.heldDate || isInCheckout || nftInfo.nft?.metadata?.test}
@@ -878,7 +887,7 @@ const NFTActions = observer(({
         }
       </div>
     );
-  } else if(listingStatus && nftInfo.offerable && !secondaryDisabled) {
+  } else if(listingStatus && listingStatus?.offer?.id || (nftInfo.offerable && !secondaryDisabled && nftInfo.secondaryAvailable)) {
     // Not listed or owned but can be offered
 
     return (
@@ -979,18 +988,21 @@ const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, showMediaSection
   );
 });
 
+// Cache listing status to preserve initial state between page loads (e.g. opening listing or purchase modals)
+const listingStatusCache = {};
+
 const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStats}) => {
   const match = useRouteMatch();
   const history = useHistory();
 
-  const [nftInfo, setNFTInfo] = useState(undefined);
+  const [nftInfo, setNFTInfo] = useState();
   const [tab, setTab] = useState(new URLSearchParams(window.location.hash.split("?")[1]).get("tab"));
 
   // Contract
   const [contractStats, setContractStats] = useState(undefined);
 
   // Listing / Offer status
-  const [listingStatus, setListingStatus] = useState(initialListingStatus);
+  const [listingStatus, setListingStatus] = useState(initialListingStatus || listingStatusCache[`${nft?.details?.ContractAddr}-${nft?.details?.TokenIdStr}`]);
 
   // Owned item
   const [ownedItem, setOwnedItem] = useState(undefined);
@@ -1019,6 +1031,8 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
     });
 
     setListingStatus(status);
+
+    listingStatusCache[`${nft?.details?.ContractAddr}-${nft?.details?.TokenIdStr}`] = listingStatus;
 
     return status;
   };
@@ -1049,6 +1063,8 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
       showToken: true,
       allowFullscreen: true
     });
+
+    nftInfo.listingStatusLoaded = !!listingStatus;
 
     setNFTInfo(nftInfo);
 

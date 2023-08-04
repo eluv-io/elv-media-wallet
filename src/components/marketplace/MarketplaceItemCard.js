@@ -18,6 +18,8 @@ const MarketplaceItemCard = ({
   noLink,
   noStock,
   noPrice,
+  imageOnly=false,
+  showRichTextDescription=false,
   showCta=false,
   showVideo=false,
   countdown,
@@ -91,6 +93,16 @@ const MarketplaceItemCard = ({
 
   const unavailable = info.outOfStock || info.expired || info.unauthorized;
 
+  if(imageOnly) {
+    info.name = "";
+    info.subtitle1 = "";
+    info.subtitle2 = "";
+    description = "";
+    priceText = "";
+    status = "";
+    sideText = "";
+  }
+
   return (
     <CardComponent
       info={info}
@@ -120,6 +132,7 @@ const MarketplaceItemCard = ({
       price={priceText}
       sideText={sideText}
       status={status}
+      showRichTextDescription={showRichTextDescription}
       cta={showCta ? cta : undefined}
       justification={justification}
       fullDescription={type === "Detail"}

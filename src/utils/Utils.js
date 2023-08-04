@@ -118,13 +118,15 @@ export const ScrollTo = (top=0, target) => {
   // Don't scroll to 0 by default, it will cause the header to un-minimize. Should only scroll to 0 if the page is already scrolled to 0.
   if(!target) {
     top = Math.max(top, Math.min(window.scrollY, 1));
+  } else {
+    top = target.getBoundingClientRect().top + window.scrollY + top;
   }
 
   // Mobile has a bug that prevents scroll top from working
   if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-    (target || window).scrollTo(0, top);
+    window.scrollTo(0, top);
   } else {
-    (target || window).scrollTo({top, behavior: "smooth"});
+    window.scrollTo({top, behavior: "smooth"});
   }
 };
 
@@ -364,6 +366,12 @@ export const NFTInfo = ({
   const marketplacePurchaseAvailable = item && item.for_sale && !outOfStock && available && !unauthorized && !maxOwned;
   const hideAvailable = !available || (item && item.hide_available);
 
+  const timeToSecondaryAvailable = nft?.metadata?.secondary_resale_available_at ? new Date(nft.metadata.secondary_resale_available_at).getTime() - Date.now() : 0;
+  const timeToSecondaryExpired = nft?.metadata?.secondary_resale_expires_at ? new Date(nft.metadata.secondary_resale_expires_at).getTime() - Date.now() : Infinity;
+  const secondaryAvailable = timeToSecondaryAvailable <= 0 && timeToSecondaryExpired > 0;
+  const secondaryReleased = !nft?.metadata?.secondary_resale_available_at  || timeToSecondaryAvailable <= 0;
+  const secondaryReleaseDate = nft?.metadata?.secondary_resale_available_at ? new Date(nft.metadata.secondary_resale_available_at).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) : undefined;
+  const secondaryExpirationDate = nft?.metadata?.secondary_resale_expires_at ? new Date(nft.metadata.secondary_resale_expires_at).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) : undefined;
   const offerable = nft?.details.TokenIdStr && !nft?.metadata?.test && !heldDate;
 
   let status;
@@ -408,6 +416,11 @@ export const NFTInfo = ({
     }
 
     let state = nft?.details?.Offers?.find(offerDetails => offerDetails.id === offer.offer_id);
+
+    if(!state) {
+      rootStore.Log(`Redeemable offer ${offer.name} (${offer.offer_id}) has no corresponding offer in NFT details`, "warn");
+    }
+
     if(state?.redeemer) {
       state = { ...state, redeemer: Utils.FormatAddress(state.redeemer) };
     }
@@ -489,8 +502,16 @@ export const NFTInfo = ({
     unauthorized,
     outOfStock,
     isOwned,
+
+    // Secondary market status
     heldDate,
-    offerable
+    offerable,
+    secondaryAvailable,
+    secondaryReleased,
+    secondaryReleaseDate,
+    secondaryExpirationDate,
+    timeToSecondaryAvailable,
+    timeToSecondaryExpired
   };
 };
 
@@ -597,6 +618,10 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
   }
 
   switch(mediaType) {
+    case "embedded webpage":
+      mediaLink = selectedMedia.link;
+      break;
+
     case "link":
       mediaLink = selectedMedia.link;
 
@@ -776,4 +801,38 @@ export const ActionPopup = async ({url, onMessage, onCancel}) => {
       );
     });
   });
+};
+
+export const IsFullscreen = () => {
+  const fullscreenElement = (document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+
+  // Ignore fullscreen video case - player will handle that case
+  return fullscreenElement && !fullscreenElement.classList.contains("eluvio-player");
+};
+
+export const ToggleFullscreen = (target) => {
+  if(IsFullscreen()) {
+    if(document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if(document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if(document.mozCancelFullScreen) {
+      document.mozCancelFullScreen();
+    } else if(document.msExitFullscreen) {
+      document.msExitFullscreen();
+    }
+  } else {
+    if(target.requestFullscreen) {
+      target.requestFullscreen({navigationUI: "hide"});
+    } else if(target.mozRequestFullScreen) {
+      target.mozRequestFullScreen({navigationUI: "hide"});
+    } else if(target.webkitRequestFullscreen) {
+      target.webkitRequestFullscreen({navigationUI: "hide"});
+    } else if(target.msRequestFullscreen) {
+      target.msRequestFullscreen({navigationUI: "hide"});
+    } else {
+      // iPhone - Use native fullscreen on video element only
+      target.querySelector("img, video, iframe").webkitEnterFullScreen();
+    }
+  }
 };

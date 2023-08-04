@@ -17,6 +17,7 @@ import RightArrow from "Assets/icons/right-arrow";
 import UnlockedIcon from "Assets/icons/unlock icon";
 import LeftArrow from "Assets/icons/left-arrow";
 import PlayIcon from "Assets/icons/media/play.svg";
+import {ScrollTo} from "../../../utils/Utils";
 
 const FeaturedRedeemable = observer(({nftInfo, offer}) => {
   const [showOfferModal, setShowOfferModal] = useState(false);
@@ -87,6 +88,7 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
 
   let imageUrl = MediaImageUrl({mediaItem, maxWidth: 600});
   const isExternal = ["HTML", "Link"].includes(mediaItem.media_type);
+  const isReference = mediaItem.media_type === "Media Reference";
 
   let itemDetails = mediaItem;
   if(locked) {
@@ -95,9 +97,21 @@ const FeaturedMediaItem = ({mediaItem, mediaIndex, locked, Unlock}) => {
 
   const hasButton = itemDetails.button_text || itemDetails.button_image;
   const linkParams = {
-    to: isExternal ? undefined : MediaLinkPath({match, sectionId: "featured", mediaIndex}),
-    href: isExternal ? mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.embedUrl : undefined,
-    onClick: () => Unlock && Unlock(mediaItem.id),
+    to: isReference || isExternal ? undefined : MediaLinkPath({match, sectionId: "featured", mediaIndex}),
+    href: !isReference && isExternal ? mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.embedUrl : undefined,
+    onClick: () => {
+      Unlock && Unlock(mediaItem.id);
+
+      if(isReference) {
+        const target = mediaItem.media_reference?.collection_id ?
+          document.querySelector(`#nft-media-collection-${mediaItem.media_reference.collection_id}`) :
+          document.querySelector(`#nft-media-section-${mediaItem.media_reference.section_id}`);
+
+        if(target) {
+          ScrollTo(-100, target);
+        }
+      }
+    },
     target: isExternal ? "_blank" : undefined,
     disabled: !!mediaItem.disabled,
     rel: "noopener",
@@ -174,7 +188,10 @@ export const MediaCollection = observer(({nftInfo, sectionId, collection, single
   }, [swiper, activeIndex]);
 
   return (
-    <div className={`nft-media-browser__collection ${collectionActive ? "nft-media-browser__collection--active" : ""} ${collection.display === "Album" ? "nft-media-browser__collection--album" : ""}`}>
+    <div
+      id={`nft-media-collection-${collection.id}`}
+      className={`nft-media-browser__collection ${collectionActive ? "nft-media-browser__collection--active" : ""} ${collection.display === "Album" ? "nft-media-browser__collection--album" : ""}`}
+    >
       <div className="nft-media-browser__collection__header">
         <div className="nft-media-browser__collection__header-text ellipsis">
           { collection.name }
@@ -203,7 +220,7 @@ export const MediaCollection = observer(({nftInfo, sectionId, collection, single
             nextEl: "." + nextArrowClass
           }}
           slidesPerView="auto"
-          slidesPerGroup={3}
+          slidesPerGroup={rootStore.pageWidth > 1000 ? 3 : 1}
           lazy={{
             enabled: true,
             loadPrevNext: true,
@@ -269,7 +286,10 @@ const MediaSection = ({nftInfo, section, locked, lockable}) => {
   const match = useRouteMatch();
 
   return (
-    <div className={`nft-media-browser__section ${match.params.sectionId === section.id ? "nft-media-browser__section--active" : ""} ${locked ? "nft-media-browser__section--locked" : ""}`}>
+    <div
+      id={`nft-media-section-${section.id}`}
+      className={`nft-media-browser__section ${match.params.sectionId === section.id ? "nft-media-browser__section--active" : ""} ${locked ? "nft-media-browser__section--locked" : ""}`}
+    >
       <div className="nft-media-browser__section__header">
         { lockable ? <ImageIcon icon={locked ? LockedIcon : UnlockedIcon} className="nft-media-browser__section__header-icon" /> : null }
         <div className="nft-media-browser__section__header-text ellipsis">

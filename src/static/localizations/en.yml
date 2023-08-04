@@ -10,6 +10,7 @@ header:
   items: Items
   offers: Offers
   notifications: Notifications
+  media_wallet: Media Wallet
 
 login:
   sign_in: Sign In
@@ -25,6 +26,8 @@ login:
   terms: By creating an account or signing in, I agree to the [Eluvio Privacy Policy](https://live.eluv.io/privacy) and the [Eluvio Terms and Conditions](https://live.eluv.io/terms).
   email_consent: By checking this box, I give consent for my email address to be stored with my wallet address {tenantClause}. Eluvio may also send informational and marketing emails to this address.
   email_consent_tenant_clause: and shared with {tenantName}
+  login_code: "Code: {code}"
+  code_auth_success: Sign in successful!
   errors:
     missing_required_options: Please accept the required options below
 
@@ -346,10 +349,19 @@ filters:
   all_filters: All Filters
   search: Search
   search_projects: Search Projects
-  search_projects_ext: Search projects, nft, media, ar experience apps
+  search_projects_ext: Video, Music, Audio, E-book and App
+  marketplace_tags:
+    all: All
+    film: Film
+    music: Music
+    software: Software
+    tv: TV
   filters:
     min: Min
     max: Max
+    start_date: Start Date
+    end_date: End Date
+    to: to
     apply: Apply Filters
     reset: Reset Filters
     token_id: Token ID
@@ -369,10 +381,12 @@ filters:
     marketplaces: Marketplaces
     all_marketplaces: All Marketplaces
     time: Time
+    date: Date Range
     all_time: All Time
     last_24_hours: Last 24 Hours
     last_7_days: Last 7 Days
     last_30_days: Last 30 Days
+    custom: Custom
   sort:
     sort: Sort
     minted: Minted (Oldest to Newest)
@@ -398,6 +412,8 @@ item_details:
   reward: Reward
   reward_redeemed: Reward Redeemed
   held_message: This NFT is in a holding period until {heldDate}. You will not be able to transfer it until then.
+  secondary_unreleased: Secondary trading for this NFT will be available on {heldDate}.
+  secondary_expired: Secondary trading for this NFT ended on {heldDate}.
   lookout_link: See more info on Eluvio Lookout
   token_url: Token URL
   media_url: Media URL
@@ -412,7 +428,7 @@ item_details:
   number_minted: Number Minted
   number_in_circulation: Number in Circulation
   number_burned: Number Burned
-  max_possible: Maximum Posible in Circulation
+  max_possible: Maximum Possible in Circulation
   held_until: Held Until
   cap: Cap
   minted_date: Minted on the Eluvio Content Fabric on {date}
@@ -440,6 +456,8 @@ item_details:
     next: Next
     previous: Previous
     play_all: Play All
+    errors:
+      default: This media is no longer available
 
 status:
   back_to_profile: Back to My Profile

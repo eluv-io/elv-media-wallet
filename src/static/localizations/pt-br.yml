@@ -55,7 +55,7 @@ actions:
     buy_now: Compre agora
     buy_now_for: Compre agora por {price}
     buy_now_for_pix_ebanx: Compre agora por {price} + Taxas
-    claim: Resgate agora
+    claim: Resgate Grátis
     view: Ver Detalhes
   listings:
     create: Colocar para venda
@@ -397,7 +397,7 @@ item_details:
   minted_date: Criado em {date}
   rarity: Raridade
   have_trait: '{rarity}% possuem essa característica'
-  go_to_item: Ir para íten
+  go_to_item: Ir para o item
   status:
     listings: Revendas
     sale_ended: Venda encerrada

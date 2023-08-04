@@ -95,6 +95,11 @@
         }
       }
 
+      &--fullscreen {
+        height: 100%;
+        max-height: unset;
+      }
+
       &--error {
         align-items: center;
         background: $black;
@@ -123,14 +128,17 @@
 
       &__fullscreen-button {
         // sass-lint:disable no-color-literals
+        align-items: center;
         background: rgba(0, 0, 0, 0.35);
         border-radius: 3px;
-        bottom: 0;
+        bottom: 5px;
+        display: flex;
         height: 25px;
+        justify-content: center;
         opacity: 0.5;
         padding: 4px;
         position: absolute;
-        right: 0;
+        right: 5px;
         width: 25px;
 
         svg {
@@ -140,7 +148,6 @@
 
         * {
           color: $white;
-          stroke-width: 3px;
         }
       }
 

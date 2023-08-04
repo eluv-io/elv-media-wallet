@@ -2,7 +2,7 @@ import React from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import {Link} from "react-router-dom";
-import {ButtonWithLoader} from "Components/common/UIComponents";
+import {ButtonWithLoader, RichText} from "Components/common/UIComponents";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 
 // General card component
@@ -15,6 +15,8 @@ const ItemCard = observer(({
   subtitle1,
   subtitle2,
   description,
+  descriptionRichText,
+  showRichTextDescription,
   price,
   status,
   cta,
@@ -89,13 +91,15 @@ const ItemCard = observer(({
             </h2> : null
         }
         {
-          typeof description === "string" ?
-            <ResponsiveEllipsis
-              component="h2"
-              className="item-card__description"
-              text={description || ""}
-              maxLine="4"
-            /> : description
+          showRichTextDescription && descriptionRichText ?
+            <RichText className="markdown-document item-card__description" richText={descriptionRichText} /> :
+            typeof description === "string" ?
+              <ResponsiveEllipsis
+                component="h2"
+                className="item-card__description"
+                text={description || ""}
+                maxLine="4"
+              /> : description
         }
         {
           price || status || cta?
