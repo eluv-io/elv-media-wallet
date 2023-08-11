@@ -32,7 +32,9 @@ module.exports = {
   output: {
     path: Path.resolve(__dirname, "dist"),
     //filename: "index.js",
-    chunkFilename: "[name].[contenthash].bundle.js"
+    chunkFilename: "[id].[hash].bundle.js",
+    asyncChunks: true,
+    clean: true
   },
   devServer: {
     client: {
@@ -68,6 +70,10 @@ module.exports = {
   mode: "development",
   devtool: "eval-source-map",
   plugins,
+  externals: {
+    crypto: "crypto",
+    stream: "stream"
+  },
   resolve: {
     alias: {
       Assets: Path.resolve(__dirname, "src/static"),
@@ -78,10 +84,6 @@ module.exports = {
       "bn.js": Path.resolve(Path.join(__dirname, "node_modules", "bn.js"))
     },
     extensions: [".js", ".jsx", ".mjs", ".scss", ".png", ".svg"],
-    fallback: {
-      "crypto": require.resolve("crypto-browserify"),
-      "stream": require.resolve("stream-browserify")
-    }
   },
   module: {
     rules: [
