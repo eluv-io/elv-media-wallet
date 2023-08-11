@@ -25,7 +25,6 @@ module.exports = {
     path: Path.resolve(__dirname, "dist"),
     //filename: "index.js",
     chunkFilename: "[id].[contenthash].bundle.js",
-    asyncChunks: true,
     clean: true
   },
   devServer: {
@@ -44,6 +43,10 @@ module.exports = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Headers": "Content-Type, Accept",
       "Access-Control-Allow-Methods": "POST"
+    },
+    // This is to allow configuration.js to be accessed
+    static: {
+      directory: __dirname
     }
   },
   optimization: {
