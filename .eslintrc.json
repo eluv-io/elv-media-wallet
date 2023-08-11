@@ -10,7 +10,7 @@
       "modules": true,
       "legacyDecorators": true
     },
-    "ecmaVersion": 2024,
+    "ecmaVersion": "latest",
     "sourceType": "module"
   },
   "plugins": [
