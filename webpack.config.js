@@ -23,8 +23,7 @@ module.exports = {
   target: "web",
   output: {
     path: Path.resolve(__dirname, "dist"),
-    //filename: "index.js",
-    chunkFilename: "[id].[contenthash].bundle.js",
+    chunkFilename: "[name].[contenthash].bundle.js",
     clean: true
   },
   devServer: {
