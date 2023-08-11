@@ -14,7 +14,7 @@ class TransferStore {
     collectionIndexes: [],
     limit: 50,
     start: 0
-  }
+  };
 
   loadCache = {};
 

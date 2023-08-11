@@ -433,6 +433,7 @@ class RootStore {
 
       // Check for existing Auth0 authentication status
       // Note: auth0.checkSession hangs sometimes without throwing an error - if it takes longer than 5 seconds, abort.
+      // eslint-disable-next-line no-async-promise-executor
       yield new Promise(async (resolve, reject) => {
         const timeout = setTimeout(() => reject("Auth0 checkSession timeout"), 5000);
         // eslint-disable-next-line no-console
@@ -469,7 +470,7 @@ class RootStore {
 
     // eslint-disable-next-line no-console
     console.timeEnd("Auth0 Authentication");
-  })
+  });
 
   Authenticate = flow(function * ({idToken, clientAuthToken, clientSigningToken, externalWallet, walletName, user, saveAuthInfo=true, callback}) {
     if(this.authenticating) { return; }
@@ -1045,6 +1046,7 @@ class RootStore {
       }
 
       if(!this.marketplaceOwnedCache[userAddress]?.[marketplace.tenant_id]) {
+        // eslint-disable-next-line no-async-promise-executor
         let promise = new Promise(async resolve => {
           let ownedItems = {};
 

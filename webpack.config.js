@@ -31,18 +31,20 @@ module.exports = {
   target: "web",
   output: {
     path: Path.resolve(__dirname, "dist"),
-    filename: "index.js",
-    chunkFilename: "[name].[contenthash].bundle.js"
+    //filename: "index.js",
+    //chunkFilename: "[name].[contenthash].bundle.js"
   },
   devServer: {
-    public: "elv-test.io",
+    client: {
+      webSocketURL: "auto://elv-test.io/ws"
+    },
     https: {
       key: fs.readFileSync("./https/private.key"),
       cert: fs.readFileSync("./https/dev.local.crt"),
       ca: fs.readFileSync("./https/private.pem")
     },
-    disableHostCheck: true,
-    inline: true,
+    historyApiFallback: true,
+    allowedHosts: "all",
     port: 8090,
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -63,9 +65,6 @@ module.exports = {
       chunks: "all"
     }
   },
-  node: {
-    fs: "empty"
-  },
   mode: "development",
   devtool: "eval-source-map",
   plugins,
@@ -78,7 +77,11 @@ module.exports = {
       // Force webpack to use *one* copy of bn.js instead of 8
       "bn.js": Path.resolve(Path.join(__dirname, "node_modules", "bn.js"))
     },
-    extensions: [".js", ".jsx", ".mjs", ".scss", ".png", ".svg"]
+    extensions: [".js", ".jsx", ".mjs", ".scss", ".png", ".svg"],
+    fallback: {
+      "crypto": require.resolve("crypto-browserify"),
+      "stream": require.resolve("stream-browserify")
+    }
   },
   module: {
     rules: [
@@ -87,18 +90,8 @@ module.exports = {
         exclude: /\.(theme|font)\.(css|scss)$/i,
         use: [
           "style-loader",
-          {
-            loader: "css-loader",
-            options: {
-              importLoaders: 2
-            }
-          },
-          {
-            loader: "postcss-loader",
-            options: {
-              plugins: () => [autoprefixer({})]
-            }
-          },
+          "css-loader",
+          "postcss-loader",
           "sass-loader"
         ]
       },
@@ -107,12 +100,7 @@ module.exports = {
         loader: "raw-loader"
       },
       {
-        test: /\.mjs$/,
-        include: /node_modules/,
-        type: "javascript/auto"
-      },
-      {
-        test: /\.(js|mjs)$/,
+        test: /\.(js|mjs|jsx)$/,
         exclude: /node_modules\/(?!@eluvio\/elv-embed)/,
         loader: "babel-loader",
         options: {

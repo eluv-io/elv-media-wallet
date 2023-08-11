@@ -58,6 +58,7 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
 
     if(!targetRef || !targetRef.current) { return; }
 
+    // eslint-disable-next-line no-async-promise-executor
     const playerPromise = new Promise(async resolve =>
       Initialize({
         client: rootStore.client,
