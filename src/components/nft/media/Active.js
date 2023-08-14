@@ -21,6 +21,35 @@ import FullscreenIcon from "Assets/icons/full screen.svg";
 import MinimizeIcon from "Assets/icons/minimize.svg";
 import PlayIcon from "Assets/icons/media/play";
 
+const iframePermissions = {
+  allow: [
+    "accelerometer",
+    "autoplay",
+    "clipboard-read",
+    "clipboard-write",
+    "encrypted-media *",
+    "fullscreen",
+    "gyroscope",
+    "picture-in-picture",
+    "camera",
+    "microphone"
+  ].join(";"),
+  sandbox: [
+    "allow-same-origin",
+    "allow-downloads",
+    "allow-scripts",
+    "allow-forms",
+    "allow-modals",
+    "allow-pointer-lock",
+    "allow-orientation-lock",
+    "allow-popups",
+    "allow-popups-to-escape-sandbox",
+    "allow-presentation",
+    "allow-downloads-without-user-activation",
+    "allow-storage-access-by-user-activation"
+  ].join(" ")
+};
+
 const NFTActiveMediaQRCode = ({link, Close}) => {
   return (
     <Modal className="nft-media__qr-modal-container" closable Toggle={Close} >
@@ -58,6 +87,7 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
 
     if(!targetRef || !targetRef.current) { return; }
 
+    // eslint-disable-next-line no-async-promise-executor
     const playerPromise = new Promise(async resolve =>
       Initialize({
         client: rootStore.client,
@@ -125,7 +155,8 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
           <iframe
             src={mediaItem.mediaInfo.embedUrl}
             allowFullScreen
-            allow="accelerometer;autoplay;clipboard-write;encrypted-media;fullscreen;gyroscope;picture-in-picture;camera;microphone"
+            allow={iframePermissions.allow}
+            sandbox={iframePermissions.sandbox}
             className="nft-media__content__target nft-media__content__target--frame"
           />
         </div>
@@ -140,7 +171,8 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
             <iframe
               src={mediaItem.mediaInfo.mediaType === "ebook" ? mediaItem.mediaInfo.embedUrl : mediaItem.mediaInfo.mediaLink}
               allowFullScreen
-              allow="accelerometer;autoplay;clipboard-write;encrypted-media;fullscreen;gyroscope;picture-in-picture;camera;microphone"
+              allow={iframePermissions.allow}
+              sandbox={iframePermissions.sandbox}
               className={`nft-media__content__target nft-media__content__target--frame ${showFullscreen ? "nft-media__content__target--fullscreen" : ""}`}
             />
             <button

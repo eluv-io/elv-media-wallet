@@ -1,25 +1,17 @@
-const webpack = require("webpack");
 const Path = require("path");
-const autoprefixer = require("autoprefixer");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
-const HtmlWebpackInlineSourcePlugin = require("html-webpack-inline-source-plugin");
 const fs = require("fs");
 
 let plugins = [
   new HtmlWebpackPlugin({
     title: "Eluvio Media Wallet",
     template: Path.join(__dirname, "src", "index.html"),
-    cache: false,
     filename: "index.html",
-    favicon: "./src/static/icons/favicon.png"
-  }),
-  new CopyWebpackPlugin([{
-    from: Path.join(__dirname, "configuration.js"),
-    to: Path.join(__dirname, "dist", "configuration.js")
-  }]),
+    favicon: "./src/static/icons/favicon.png",
+    inject: "body"
+  })
 ];
 
 if(process.env.ANALYZE_BUNDLE) {
@@ -31,23 +23,29 @@ module.exports = {
   target: "web",
   output: {
     path: Path.resolve(__dirname, "dist"),
-    filename: "index.js",
-    chunkFilename: "[name].[contenthash].bundle.js"
+    chunkFilename: "[name].[contenthash].bundle.js",
+    clean: true
   },
   devServer: {
-    public: "elv-test.io",
+    client: {
+      webSocketURL: "auto://elv-test.io/ws"
+    },
     https: {
       key: fs.readFileSync("./https/private.key"),
       cert: fs.readFileSync("./https/dev.local.crt"),
       ca: fs.readFileSync("./https/private.pem")
     },
-    disableHostCheck: true,
-    inline: true,
+    historyApiFallback: true,
+    allowedHosts: "all",
     port: 8090,
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Headers": "Content-Type, Accept",
       "Access-Control-Allow-Methods": "POST"
+    },
+    // This is to allow configuration.js to be accessed
+    static: {
+      directory: __dirname
     }
   },
   optimization: {
@@ -63,12 +61,13 @@ module.exports = {
       chunks: "all"
     }
   },
-  node: {
-    fs: "empty"
-  },
   mode: "development",
   devtool: "eval-source-map",
   plugins,
+  externals: {
+    crypto: "crypto",
+    stream: "stream"
+  },
   resolve: {
     alias: {
       Assets: Path.resolve(__dirname, "src/static"),
@@ -78,7 +77,7 @@ module.exports = {
       // Force webpack to use *one* copy of bn.js instead of 8
       "bn.js": Path.resolve(Path.join(__dirname, "node_modules", "bn.js"))
     },
-    extensions: [".js", ".jsx", ".mjs", ".scss", ".png", ".svg"]
+    extensions: [".js", ".jsx", ".mjs", ".scss", ".png", ".svg"],
   },
   module: {
     rules: [
@@ -87,18 +86,8 @@ module.exports = {
         exclude: /\.(theme|font)\.(css|scss)$/i,
         use: [
           "style-loader",
-          {
-            loader: "css-loader",
-            options: {
-              importLoaders: 2
-            }
-          },
-          {
-            loader: "postcss-loader",
-            options: {
-              plugins: () => [autoprefixer({})]
-            }
-          },
+          "css-loader",
+          "postcss-loader",
           "sass-loader"
         ]
       },
@@ -107,12 +96,7 @@ module.exports = {
         loader: "raw-loader"
       },
       {
-        test: /\.mjs$/,
-        include: /node_modules/,
-        type: "javascript/auto"
-      },
-      {
-        test: /\.(js|mjs)$/,
+        test: /\.(js|mjs|jsx)$/,
         exclude: /node_modules\/(?!@eluvio\/elv-embed)/,
         loader: "babel-loader",
         options: {
