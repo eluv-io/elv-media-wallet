@@ -12,7 +12,6 @@ import ProfileMenu from "Components/header/ProfileMenu";
 import {NotificationsMenu} from "Components/header/NotificationsMenu";
 import {Debounce, SetImageUrlDimensions} from "../../utils/Utils";
 import MenuButton from "Components/common/MenuButton";
-import Crypto from "crypto";
 import {RichText} from "Components/common/UIComponents";
 
 import EluvioE from "Assets/images/ELUV.IO-E-Icon.png";
@@ -26,11 +25,27 @@ import BackIcon from "Assets/icons/pagination arrow back.svg";
 import XIcon from "Assets/icons/x";
 
 const NotificationBanner = observer(({marketplace}) => {
-  const notification = marketplace?.branding?.notification || {};
-  const notificationHash = Crypto.createHash("SHA1", (notification.header || "") + (notification.text || "")).update("string").digest("hex");
-  const notificationDismissed = rootStore.GetLocalStorage(`notification-dismissed-${marketplace.marketplaceId}`) === notificationHash;
+  const [notificationHash, setNotificationHash] = useState(undefined);
+  const [active, setActive] = useState(false);
 
-  const [active, setActive] = useState(notification.active && !notificationDismissed);
+  const notification = marketplace?.branding?.notification || {};
+  const savedHash = rootStore.GetLocalStorage(`notification-dismissed-${marketplace.marketplaceId}`);
+
+  useEffect(() => {
+    if(!notification || !notification.active) { return; }
+
+    crypto.subtle.digest("SHA-1", new TextEncoder("utf-8").encode(
+      (notification.header || "") + (notification.text || "")
+    ))
+      .then(digest => {
+        const hash = Array.from(new Uint8Array(digest))
+          .map(v => v.toString(16).padStart(2, "0"))
+          .join("");
+
+        setNotificationHash(hash);
+        setActive(hash !== savedHash);
+      });
+  }, [notification]);
 
   if(!active) {
     return null;

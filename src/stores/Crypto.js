@@ -307,7 +307,7 @@ class CryptoStore {
     });
 
     yield this.LoadConnectedAccounts();
-  })
+  });
 
   DisconnectCircle = flow(function * (address) {
     if(!address) { return; }
@@ -351,7 +351,7 @@ class CryptoStore {
     });
 
     yield this.LoadConnectedAccounts();
-  })
+  });
 
   SignMetamask = flow(function * (message, address, popup) {
     try {
@@ -432,7 +432,7 @@ class CryptoStore {
 
       throw error;
     }
-  })
+  });
 
   PurchasePhantom = flow(function * (spec) {
     try {
@@ -455,7 +455,7 @@ class CryptoStore {
 
       throw error;
     }
-  })
+  });
 
   EmbeddedSign = flow(function * ({provider, connect, purchaseSpec, message, params, popup}) {
     let parameters = {

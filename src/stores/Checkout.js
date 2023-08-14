@@ -303,7 +303,7 @@ class CheckoutStore {
       this.PurchaseComplete({confirmationId, success: false, message: error.message});
       throw error;
     }
-  })
+  });
 
   RedeemOffer = flow(function * ({tenantId, contractAddress, tokenId, offerId}) {
     const confirmationId = this.ConfirmationId();
@@ -388,7 +388,7 @@ class CheckoutStore {
       this.PurchaseComplete({confirmationId, success: false, message: error.message});
       throw error;
     }
-  })
+  });
 
   RedeemableOfferStatus = flow(function * ({tenantId, contractAddress, tokenId, offerId}) {
     offerId = offerId?.toString();

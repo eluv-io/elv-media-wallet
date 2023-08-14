@@ -348,7 +348,7 @@ export const NFTInfo = ({
   const outOfStock = stock && stock.max && stock.minted >= stock.max;
   const unauthorized = item && item.requires_permissions && !item.authorized;
 
-  const variant = (item?.nftTemplateMetadata || nft?.metadata).style;
+  const variant = (item?.nftTemplateMetadata || nft?.metadata)?.style;
 
   const name = item?.name || nft.metadata.display_name;
   const subtitle1 = item?.subtitle || nft.metadata.edition_name;

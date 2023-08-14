@@ -457,7 +457,7 @@ export const OffersTable = observer(({
             }}
           /> : null
       }
-      </>
+    </>
   );
 });
 
