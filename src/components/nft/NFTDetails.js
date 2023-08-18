@@ -43,6 +43,7 @@ import TraitsIcon from "Assets/icons/properties icon.svg";
 import BackIcon from "Assets/icons/arrow-left.svg";
 import ShareIcon from "Assets/icons/share icon.svg";
 import TwitterIcon from "Assets/icons/twitter.svg";
+import WhatsAppIcon from "Assets/icons/whatsapp.svg";
 import PictureIcon from "Assets/icons/image.svg";
 import CopyIcon from "Assets/icons/copy.svg";
 import MediaIcon from "Assets/icons/media-icon.svg";
@@ -431,9 +432,14 @@ const NFTInfoMenu = observer(({nftInfo}) => {
     twitterUrl.searchParams.set("url", shortUrl);
     twitterUrl.searchParams.set("text", `${nftInfo.name}\n\n`);
 
+    let whatsAppUrl = new URL("https://wa.me");
+    whatsAppUrl.searchParams.set("url", shortUrl);
+    whatsAppUrl.searchParams.set("text", `${nftInfo.name}\n\n${shortUrl}`);
+
     setURLs({
       shareUrl: shortUrl,
       twitterUrl,
+      whatsAppUrl,
       mediaUrl: shortMediaUrl
     });
   };
@@ -476,6 +482,13 @@ const NFTInfoMenu = observer(({nftInfo}) => {
                   <a href={urls.twitterUrl.toString()} target="_blank" onClick={Close}>
                     <ImageIcon icon={TwitterIcon}/>
                     {rootStore.l10n.item_details.menu.share_on_twitter}
+                  </a> : null
+              }
+              {
+                urls.whatsAppUrl ?
+                  <a href={urls.whatsAppUrl.toString()} target="_blank" onClick={Close}>
+                    <ImageIcon icon={WhatsAppIcon} />
+                    {rootStore.l10n.item_details.menu.share_on_whatsapp}
                   </a> : null
               }
               {
