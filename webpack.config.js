@@ -113,6 +113,14 @@ module.exports = {
       },
       {
         test: /\.(gif|png|jpe?g|otf|woff2?|ttf)$/i,
+        include: [ Path.resolve(__dirname, "src/static/public")],
+        type: "asset/inline",
+        generator: {
+          filename: "public/[name][ext]"
+        }
+      },
+      {
+        test: /\.(gif|png|jpe?g|otf|woff2?|ttf)$/i,
         type: "asset/resource",
       },
       {
