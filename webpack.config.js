@@ -27,6 +27,7 @@ module.exports = {
     clean: true
   },
   devServer: {
+    hot: true,
     client: {
       webSocketURL: "auto://elv-test.io/ws"
     },
@@ -82,6 +83,10 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.(theme|font)\.(css|scss)$/i,
+        type: "asset/source"
+      },
+      {
         test: /\.(css|scss)$/,
         exclude: /\.(theme|font)\.(css|scss)$/i,
         use: [
@@ -90,10 +95,6 @@ module.exports = {
           "postcss-loader",
           "sass-loader"
         ]
-      },
-      {
-        test: /\.(theme|font)\.(css|scss)$/i,
-        loader: "raw-loader"
       },
       {
         test: /\.(js|mjs|jsx)$/,
@@ -111,21 +112,12 @@ module.exports = {
         loader: "svg-inline-loader"
       },
       {
-        test: /\.(otf|woff2?|ttf)$/i,
-        loader: "file-loader",
-      },
-      {
-        test: /\.(gif|png|jpe?g)$/i,
-        use: [
-          "file-loader",
-          {
-            loader: "image-webpack-loader"
-          },
-        ],
+        test: /\.(gif|png|jpe?g|otf|woff2?|ttf)$/i,
+        type: "asset/resource",
       },
       {
         test: /\.(txt|bin|abi)$/i,
-        loader: "raw-loader"
+        type: "asset/source"
       },
       {
         test: /\.ya?ml$/,
