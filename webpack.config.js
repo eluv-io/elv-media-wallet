@@ -18,6 +18,8 @@ if(process.env.ANALYZE_BUNDLE) {
   plugins.push(new BundleAnalyzerPlugin());
 }
 
+let did=0;
+
 module.exports = {
   entry: "./src/index.js",
   target: "web",
@@ -25,7 +27,10 @@ module.exports = {
     path: Path.resolve(__dirname, "dist"),
     chunkFilename: "[name].bundle.js",
     clean: true,
-    filename: 'randomname.js'
+    filename: (pathData) => {
+      did = did+1;
+      return did + ".js"
+    },
   },
   devServer: {
     hot: true,
