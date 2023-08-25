@@ -16,7 +16,7 @@ exports.ping = functions.https.onRequest((req, res) => {
   functions.logger.info("headers dumper", {host: req.hostname});
   let body = "";
   for(const [key, value] of Object.entries(req.headers)) {
-    body = body + "\tmeta property=\"" + key + "\" content=\"" + value + "\"<br/>\n";
+    body = body + "\t header=\"" + key + "\" val=\"" + value + "\"<br/>\n";
   }
 
   res.status(200).send(`<!DOCTYPE html>
