@@ -271,23 +271,32 @@ exports.create_previewable_link = functions.https.onRequest(async (req, res) => 
   let title = "Eluvio: The Content Blockchain";
   let description = "Web3 native content storage, streaming, distribution, and tokenization";
   let image = "https://live.eluv.io/logo-color.png";
-
-  const urlParams = new URLSearchParams(req.url);
-  const og = urlParams.get('og')
-  functions.logger.info("getting og", originalHost, "from", req.url);
-
-  // Parse metadata
-  const tags = JSON.parse(atob(og));
-  functions.logger.info("tags", tags);
   let meta = "";
-  const elems = Object.keys(tags).map(tagName => `<meta property="${tagName}" content="${tags[tagName]}" />`)
-  elems.forEach((element) => meta = meta + "\n        " + m);
 
-  // Inject metadata
-  title = tags["og:title"];
-  description = tags["og:description"];
-  image = tags["og:image"];
+  let og = req.query.og;
+  functions.logger.info("got og", og, "from", req.url);
 
+  if(og) {
+    // parse metadata
+    const tags = JSON.parse(atob(og));
+    functions.logger.info("tags", tags);
+
+    // allow other og: items generically
+    const knownKeys = ["og:title", "og:image", "og:description"];
+    Object.keys(tags).forEach((key) => {
+      if(!knownKeys.includes(key)) {
+        functions.logger.info("custom key " + key);
+        const elem = `<meta property="${key}" content="${tags[key]}" />`;
+        meta = meta + "\n        " + elem;
+      }
+    });
+
+    title = tags["og:title"];
+    description = tags["og:description"];
+    image = tags["og:image"];
+  }
+
+  // inject metadata
   html = html.replace(/@@TITLE@@/g, title);
   html = html.replace(/@@DESCRIPTION@@/g, description);
   html = html.replace(/@@IMAGE@@/g, image);
