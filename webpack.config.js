@@ -25,7 +25,7 @@ module.exports = {
     path: Path.resolve(__dirname, "dist"),
     chunkFilename: "[name].bundle.js",
     clean: true,
-    filename: 'index.js'
+    filename: 'idx.js'
   },
   devServer: {
     hot: true,
