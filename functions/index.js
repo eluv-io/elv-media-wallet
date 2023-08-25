@@ -140,22 +140,6 @@ const getFabricApi = async (network) => {
 };
 
 
-// health check and header dump utility
-exports.ping = functions.https.onRequest((req, res) => {
-  functions.logger.info("headers dumper", {host: req.hostname});
-  let meta = "";
-  let body = "";
-  for(const [key, value] of Object.entries(req.headers)) {
-    meta = meta + "\t<meta property=\"og:" + key + "\" content=\"" + value + "\" />\n";
-    body = body + "\tmeta property=\"og:" + key + "\" content=\"" + value + "\"<br/>\n";
-  }
-
-  res.status(200).send(`<!DOCTYPE html>
-    <html> <head> <title>cloud functions headers test</title> ${meta} </head>
-    <body> ${req.hostname} / ${req.url} / ${req.href} / ${req.referrer} / ${req.originalUrl} / ${req.path}<br/>
-      ${body} </body> </html>`);
-});
-
 // load and return elv-live data for this network/mode
 exports.load_elv_live_data = functions.https.onRequest(async (req, res) => {
   try {
