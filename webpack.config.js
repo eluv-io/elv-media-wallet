@@ -18,7 +18,7 @@ if(process.env.ANALYZE_BUNDLE) {
   plugins.push(new BundleAnalyzerPlugin());
 }
 
-let did=0;
+let sequential_filename = 0;
 
 module.exports = {
   entry: "./src/index.js",
@@ -28,8 +28,8 @@ module.exports = {
     chunkFilename: "[name].bundle.js",
     clean: true,
     filename: (pathData) => {
-      did = did+1;
-      return did + ".js"
+      sequential_filename = sequential_filename + 1;
+      return sequential_filename + ".js"
     },
   },
   devServer: {
