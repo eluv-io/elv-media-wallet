@@ -1,7 +1,6 @@
 const Path = require("path");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const TerserPlugin = require("terser-webpack-plugin");
 const fs = require("fs");
 
 let plugins = [
@@ -18,19 +17,16 @@ if(process.env.ANALYZE_BUNDLE) {
   plugins.push(new BundleAnalyzerPlugin());
 }
 
-let sequential_filename = 0;
-
 module.exports = {
-  entry: "./src/index.js",
+  entry: {
+    main: Path.resolve(__dirname, "src/index.js")
+  },
   target: "web",
   output: {
     path: Path.resolve(__dirname, "dist"),
-    chunkFilename: "[name].bundle.js",
     clean: true,
-    filename: (pathData) => {
-      sequential_filename = sequential_filename + 1;
-      return sequential_filename + ".js"
-    },
+    filename: "main.js",
+    chunkFilename: "bundle.[id].[chunkhash].js"
   },
   devServer: {
     hot: true,
@@ -53,19 +49,6 @@ module.exports = {
     // This is to allow configuration.js to be accessed
     static: {
       directory: __dirname
-    }
-  },
-  optimization: {
-    minimizer: [
-      new TerserPlugin({
-        terserOptions: {
-          keep_classnames: true,
-          keep_fnames: true
-        }
-      })
-    ],
-    splitChunks: {
-      chunks: "all"
     }
   },
   mode: "development",
