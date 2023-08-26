@@ -18,9 +18,7 @@ if(process.env.ANALYZE_BUNDLE) {
 }
 
 module.exports = {
-  entry: {
-    main: Path.resolve(__dirname, "src/index.js")
-  },
+  entry: Path.resolve(__dirname, "src/index.js"),
   target: "web",
   output: {
     path: Path.resolve(__dirname, "dist"),
