@@ -79,8 +79,6 @@ exports.create_previewable_link = functions.https.onRequest(async (req, res) => 
 
 //
 // Firebase cloud function definitions for elv-live rewrite support
-// docs: https://firebase.google.com/docs/functions/
-// logs: https://console.cloud.google.com/logs/query
 //
 
 const MaxCacheAge = 1000 * 60 * 5; // 5 min in millis
