@@ -848,7 +848,6 @@ class RootStore {
   });
 
   SetCustomCSS(css="") {
-    console.log(new Error("Set custom CSS " + css));
     css = SanitizeHTML(css);
     const cssTag = document.getElementById("_custom-css");
     if(cssTag) {

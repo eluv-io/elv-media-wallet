@@ -52,7 +52,6 @@
     "bad-words": "^3.0.4",
     "country-codes-list": "^1.6.8",
     "ethers": "^5.7.2",
-    "firebase-functions": "^4.4.1",
     "js-money": "^0.6.3",
     "jsdoc": "^3.6.10",
     "mobx": "^6.3.3",
