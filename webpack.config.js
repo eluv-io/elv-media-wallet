@@ -7,7 +7,7 @@ let plugins = [
   new HtmlWebpackPlugin({
     title: "Eluvio Media Wallet",
     template: Path.join(__dirname, "src", "index.html"),
-    filename: "index.html",
+    filename: "index-rewritten.html",
     favicon: "./src/static/icons/favicon.png",
     inject: "body"
   })
