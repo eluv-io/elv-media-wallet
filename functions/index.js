@@ -37,41 +37,49 @@ exports.ping = functions.https.onRequest((req, res) => {
 
 // create index.html with metadata based on url path
 exports.create_previewable_link = functions.https.onRequest(async (req, res) => {
-  let html = fs.readFileSync(Path.resolve(__dirname, "./index-template-wallet.html")).toString();
-
-  let title = "Eluvio: The Content Blockchain";
-  let description = "Web3 native content storage, streaming, distribution, and tokenization";
-  let image = "https://live.eluv.io/logo-color.png";
+  let html = fs.readFileSync(Path.resolve(__dirname, "./index-template.html")).toString();
   let meta = "";
 
+  functions.logger.error(req);
   let og = req.query.og;
+
   functions.logger.info("got og", og, "from", req.url);
 
-  if(og) {
-    // parse metadata
+  if(!og) {
+    res.status(200).send(html);
+    return;
+  }
+
+  try {
     const tags = JSON.parse(atob(og));
     functions.logger.info("tags", tags);
 
-    // allow other og: items generically
-    const knownKeys = ["og:title", "og:image", "og:description"];
     Object.keys(tags).forEach((key) => {
-      if(!knownKeys.includes(key)) {
-        functions.logger.info("custom key " + key);
-        const elem = `<meta property="${key}" content="${tags[key]}" />`;
-        meta = meta + "\n        " + elem;
+      meta += `\n<meta property="${key}" content="${tags[key]}" />`;
+
+      // Copy certain fields into corresponding twitter fields
+      switch(key) {
+        case "og:title":
+          meta += `\n<meta property="twitter:title" content="${tags[key]}" />`;
+          break;
+        case "og:description":
+          meta += `\n<meta property="twitter:description" content="${tags[key]}" />`;
+          break;
+        case "og:image":
+          meta += `\n<meta property="twitter:image" content="${tags[key]}" />`;
+          break;
+        case "og:image:alt":
+          meta += `\n<meta property="twitter:image:alt" content="${tags[key]}" />`;
+          break;
       }
     });
 
-    title = tags["og:title"];
-    description = tags["og:description"];
-    image = tags["og:image"];
+    // Inject metadata
+    html = html.replace(/@@META@@/g, meta);
+  } catch(error) {
+    functions.logger.error("Error parsing OG tags:");
+    functions.logger.error(error);
   }
-
-  // inject metadata
-  html = html.replace(/@@TITLE@@/g, title);
-  html = html.replace(/@@DESCRIPTION@@/g, description);
-  html = html.replace(/@@IMAGE@@/g, image);
-  html = html.replace(/@@META@@/g, meta);
 
   res.status(200).send(html);
 });
