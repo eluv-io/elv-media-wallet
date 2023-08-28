@@ -416,12 +416,11 @@ const NFTInfoMenu = observer(({nftInfo}) => {
       JSON.stringify({
         "og:title": nftInfo.name,
         "og:description": nftInfo.item?.description || nftInfo.nft.metadata.description,
-        "og:image": SetImageUrlDimensions({url: nftInfo?.item?.url || nftInfo.nft.metadata.image, width: 600}),
+        "og:image": SetImageUrlDimensions({url: nftInfo?.item?.url || nftInfo.nft.metadata.image, width: 400}),
         "og:image:alt": nftInfo.name
       })
     )
   );
-
 
   const [urls, setURLs] = useState(undefined);
   const InitializeURLs = async () => {
