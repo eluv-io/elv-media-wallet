@@ -7,8 +7,7 @@ let plugins = [
   new HtmlWebpackPlugin({
     title: "Eluvio Media Wallet",
     template: Path.join(__dirname, "src", "index.html"),
-    // Need index.html locally, but when not when deployed for function rewrite to work properly
-    filename: process.env.WEBPACK_SERVE ? "index.html" : "index-rewritten.html",
+    filename: "index.html",
     favicon: "./src/static/icons/favicon.png",
     inject: "body"
   })
