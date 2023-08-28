@@ -16,3 +16,6 @@ test/dist/
 
 scratch/
 !.keep
+firebase-debug*
+firestore-debug*
+ui-debug*

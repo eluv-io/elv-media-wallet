@@ -968,11 +968,12 @@ class RootStore {
         }
       }
 
-      this.SetCustomizationOptions(marketplace);
-
       if(marketplace?.default_display_currency) {
         this.checkoutStore.SetCurrency({currency: marketplace?.default_display_currency});
       }
+
+      // Give locationType time to settle if path changed
+      setTimeout(() => this.SetCustomizationOptions(marketplace), 100);
 
       return marketplace.marketplaceHash;
     } else if(Object.keys(this.walletClient.availableMarketplaces) > 0) {

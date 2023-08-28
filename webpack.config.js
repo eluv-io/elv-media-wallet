@@ -1,14 +1,14 @@
 const Path = require("path");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const TerserPlugin = require("terser-webpack-plugin");
 const fs = require("fs");
 
 let plugins = [
   new HtmlWebpackPlugin({
     title: "Eluvio Media Wallet",
     template: Path.join(__dirname, "src", "index.html"),
-    filename: "index.html",
+    // Need index.html locally, but when not when deployed for function rewrite to work properly
+    filename: process.env.WEBPACK_SERVE ? "index.html" : "index-rewritten.html",
     favicon: "./src/static/icons/favicon.png",
     inject: "body"
   })
@@ -19,14 +19,16 @@ if(process.env.ANALYZE_BUNDLE) {
 }
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: Path.resolve(__dirname, "src/index.js"),
   target: "web",
   output: {
     path: Path.resolve(__dirname, "dist"),
-    chunkFilename: "[name].[contenthash].bundle.js",
-    clean: true
+    clean: true,
+    filename: "main.js",
+    chunkFilename: "bundle.[id].[chunkhash].js"
   },
   devServer: {
+    hot: true,
     client: {
       webSocketURL: "auto://elv-test.io/ws"
     },
@@ -46,19 +48,6 @@ module.exports = {
     // This is to allow configuration.js to be accessed
     static: {
       directory: __dirname
-    }
-  },
-  optimization: {
-    minimizer: [
-      new TerserPlugin({
-        terserOptions: {
-          keep_classnames: true,
-          keep_fnames: true
-        }
-      })
-    ],
-    splitChunks: {
-      chunks: "all"
     }
   },
   mode: "development",
@@ -82,6 +71,10 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.(theme|font)\.(css|scss)$/i,
+        type: "asset/source"
+      },
+      {
         test: /\.(css|scss)$/,
         exclude: /\.(theme|font)\.(css|scss)$/i,
         use: [
@@ -90,10 +83,6 @@ module.exports = {
           "postcss-loader",
           "sass-loader"
         ]
-      },
-      {
-        test: /\.(theme|font)\.(css|scss)$/i,
-        loader: "raw-loader"
       },
       {
         test: /\.(js|mjs|jsx)$/,
@@ -111,21 +100,20 @@ module.exports = {
         loader: "svg-inline-loader"
       },
       {
-        test: /\.(otf|woff2?|ttf)$/i,
-        loader: "file-loader",
+        test: /\.(gif|png|jpe?g|otf|woff2?|ttf)$/i,
+        include: [ Path.resolve(__dirname, "src/static/public")],
+        type: "asset/inline",
+        generator: {
+          filename: "public/[name][ext]"
+        }
       },
       {
-        test: /\.(gif|png|jpe?g)$/i,
-        use: [
-          "file-loader",
-          {
-            loader: "image-webpack-loader"
-          },
-        ],
+        test: /\.(gif|png|jpe?g|otf|woff2?|ttf)$/i,
+        type: "asset/resource",
       },
       {
         test: /\.(txt|bin|abi)$/i,
-        loader: "raw-loader"
+        type: "asset/source"
       },
       {
         test: /\.ya?ml$/,
