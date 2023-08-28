@@ -416,7 +416,8 @@ const NFTInfoMenu = observer(({nftInfo}) => {
       JSON.stringify({
         "og:title": nftInfo.name,
         "og:description": nftInfo.item?.description || nftInfo.nft.metadata.description,
-        "og:image": nftInfo?.item?.url || nftInfo.nft.metadata.image
+        "og:image": nftInfo?.item?.url || nftInfo.nft.metadata.image,
+        "og:image:alt": nftInfo.name
       })
     )
   );
