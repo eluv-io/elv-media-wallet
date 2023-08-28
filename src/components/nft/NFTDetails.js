@@ -416,7 +416,7 @@ const NFTInfoMenu = observer(({nftInfo}) => {
       JSON.stringify({
         "og:title": nftInfo.name,
         "og:description": nftInfo.item?.description || nftInfo.nft.metadata.description,
-        "og:image": "https://host-76-74-28-235.contentfabric.io/s/demov3/q/hq__4ShdnM1MCWk6yj5qPjkJphWHwG642MeMbKTtM8ructYjeoZwfz7gjtusC3q2K5T9ESb3qt5Xax/files/Caminandes%20Square.png?header-referer=https%3A%2F%2Fwallet.demov3.contentfabric.io%2F&redirected=true&width=300",
+        "og:image": SetImageUrlDimensions({url: nftInfo?.item?.url || nftInfo.nft.metadata.image, width: 400}),
         "og:image:alt": nftInfo.name
       })
     )
