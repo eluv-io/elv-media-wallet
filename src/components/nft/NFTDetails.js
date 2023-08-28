@@ -27,7 +27,7 @@ import TransferModal from "Components/listings/TransferModal";
 import {FilteredTable} from "Components/common/Table";
 import {MarketplaceImage, NFTImage} from "Components/common/Images";
 import AsyncComponent from "Components/common/AsyncComponent";
-import {Ago, MiddleEllipsis, NFTInfo, ScrollTo, SearchParams} from "../../utils/Utils";
+import {Ago, MiddleEllipsis, NFTInfo, ScrollTo, SearchParams, SetImageUrlDimensions} from "../../utils/Utils";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import NFTRedeemableOffers from "Components/nft/NFTRedeemableOffers";
 import {NFTMediaContainer} from "Components/nft/media/index";
@@ -416,7 +416,7 @@ const NFTInfoMenu = observer(({nftInfo}) => {
       JSON.stringify({
         "og:title": nftInfo.name,
         "og:description": nftInfo.item?.description || nftInfo.nft.metadata.description,
-        "og:image": nftInfo?.item?.url || nftInfo.nft.metadata.image,
+        "og:image": SetImageUrlDimensions({url: nftInfo?.item?.url || nftInfo.nft.metadata.image, width: 600}),
         "og:image:alt": nftInfo.name
       })
     )
