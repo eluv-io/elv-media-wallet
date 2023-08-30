@@ -410,17 +410,19 @@ const NFTInfoMenu = observer(({nftInfo}) => {
       UrlJoin("/wallet", "users", ownerProfile.userAddress, "items", match.params.contractId, match.params.tokenId);
   }
 
-  shareUrl.searchParams.set(
-    "og",
-    rootStore.client.utils.B64(
-      JSON.stringify({
-        "og:title": nftInfo.name,
-        "og:description": nftInfo.item?.description || nftInfo.nft.metadata.description,
-        "og:image": SetImageUrlDimensions({url: nftInfo?.item?.url || nftInfo.nft.metadata.image, width: 400}),
-        "og:image:alt": nftInfo.name
-      })
-    )
-  );
+  if(shareUrl) {
+    shareUrl.searchParams.set(
+      "og",
+      rootStore.client.utils.B64(
+        JSON.stringify({
+          "og:title": nftInfo.name,
+          "og:description": nftInfo.item?.description || nftInfo.nft.metadata.description,
+          "og:image": SetImageUrlDimensions({url: nftInfo?.item?.url || nftInfo.nft.metadata.image, width: 400}),
+          "og:image:alt": nftInfo.name
+        })
+      )
+    );
+  }
 
   const [urls, setURLs] = useState(undefined);
   const InitializeURLs = async () => {
