@@ -127,7 +127,6 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
       } catch(error) {
         console.log(error);
       }
-      player?.Destroy();
     };
   }, [targetRef]);
 
