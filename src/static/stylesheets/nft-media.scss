@@ -1247,8 +1247,8 @@
     width: var(--nft-media-carousel-height);
 
     &--wide {
-      max-width: calc(#{var(--nft-media-carousel-height)} * 1.5);
-      width: calc(#{var(--nft-media-carousel-height)} * 1.5);
+      max-width: calc(#{var(--nft-media-carousel-height)} * 16/9);
+      width: calc(#{var(--nft-media-carousel-height)} * 16/9);
     }
 
     &--tall {
