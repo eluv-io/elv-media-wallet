@@ -7,8 +7,7 @@ let plugins = [
   new HtmlWebpackPlugin({
     title: "Eluvio Media Wallet",
     template: Path.join(__dirname, "src", "index.html"),
-    // Need index.html locally, but when not when deployed for function rewrite to work properly
-    filename: process.env.WEBPACK_SERVE ? "index.html" : "index-rewritten.html",
+    filename: "index.html",
     favicon: "./src/static/icons/favicon.png",
     inject: "body"
   })
@@ -25,6 +24,7 @@ module.exports = {
     path: Path.resolve(__dirname, "dist"),
     clean: true,
     filename: "main.js",
+    publicPath: process.env.ASSET_PATH,
     chunkFilename: "bundle.[id].[chunkhash].js"
   },
   devServer: {
@@ -47,7 +47,8 @@ module.exports = {
     },
     // This is to allow configuration.js to be accessed
     static: {
-      directory: __dirname
+      directory: Path.resolve(__dirname, "./config"),
+      publicPath: "/"
     }
   },
   mode: "development",
@@ -79,7 +80,12 @@ module.exports = {
         exclude: /\.(theme|font)\.(css|scss)$/i,
         use: [
           "style-loader",
-          "css-loader",
+          {
+            loader: "css-loader",
+            options: {
+              importLoaders: 2
+            }
+          },
           "postcss-loader",
           "sass-loader"
         ]

@@ -1247,8 +1247,8 @@
     width: var(--nft-media-carousel-height);
 
     &--wide {
-      max-width: calc(#{var(--nft-media-carousel-height)} * 1.5);
-      width: calc(#{var(--nft-media-carousel-height)} * 1.5);
+      max-width: calc(#{var(--nft-media-carousel-height)} * 16/9);
+      width: calc(#{var(--nft-media-carousel-height)} * 16/9);
     }
 
     &--tall {
@@ -1461,7 +1461,8 @@
 
 
 .media-controls {
-  $controls-background-color: rgba(0, 0, 0, 0.7);
+  $controls-background-color: rgba(0, 0, 0, 1);
+  $controls-selected-color: rgba(75, 75, 75, 1);
   $controls-foreground-color: #fff;
   backdrop-filter: blur(20px);
   background: $controls-background-color;
@@ -1499,6 +1500,10 @@
 
     &:not(:last-child) {
       margin-right: 10px;
+    }
+
+    &:disabled {
+      opacity: 0.5;
     }
 
     &--play-pause {
@@ -1563,7 +1568,7 @@
     }
 
     &--active {
-      background: $controls-background-color;
+      background: $controls-selected-color;
     }
 
     svg {
