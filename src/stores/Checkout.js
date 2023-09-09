@@ -703,6 +703,130 @@ class CheckoutStore {
         requestParams.mode = EluvioConfiguration["purchase-mode"];
       }
 
+      const Nonce = async ({contractAddr, ownerAddr}) => {
+        const abi = await fetch("../src/static/abi/ElvToken.abi")
+          .then(resp => {
+            return resp.text();
+          });
+
+        let res = await this.client.CallContractMethod({
+          contractAddress: contractAddr,
+          abi: JSON.parse(abi),
+          methodName: "nonces",
+          methodArgs: [ownerAddr],
+          formatArguments: true,
+        });
+
+        window.console.log("nonce", res);
+        return res.toNumber();
+      };
+
+      const SignPermit = async () => {
+        let from = this.rootStore.walletClient.UserAddress();
+        let accounts;
+        let nonce;
+        let amount = "21300000"; // XXX
+        const chainId = "955210";
+        const contract = "0x899fC7bddc2d9a095e8444F118032f1aE231A9B5";
+        const tok = "ELVD Test Token";
+
+        let popup;
+        if(this.rootStore.embedded && this.rootStore.walletClient.UserInfo().walletName.toLowerCase() === "metamask") {
+          // Create popup before calling async config method to avoid popup blocker
+          popup = window.open("about:blank");
+        }
+
+        try {
+          accounts = await window.ethereum.request({
+            method: "eth_requestAccounts",
+          });
+          from = accounts[0];
+          nonce = await Nonce({contractAddr: contract, ownerAddr: from});
+        } catch(err) {
+          window.console.error(err);
+        }
+
+        const domain = {
+          name: tok,
+          version: "1",
+          chainId,
+          verifyingContract: contract,
+        };
+
+        const EIP712Domain = [
+          { name: "name", type: "string" },
+          { name: "version", type: "string" },
+          { name: "chainId", type: "uint256" },
+          { name: "verifyingContract", type: "address" },
+        ];
+
+        const permit = {
+          owner: from,
+          spender: "0xb48406b4f2c14a7e02ad55d7323f7286bdcb28f8",
+          value: amount,
+          nonce: nonce,
+          deadline: 20000000000,
+        };
+
+        const Permit = [
+          { name: "owner", type: "address" },
+          { name: "spender", type: "address" },
+          { name: "value", type: "uint256" },
+          { name: "nonce", type: "uint256" },
+          { name: "deadline", type: "uint256" },
+        ];
+
+        const splitSig = (sig) => {
+          const pureSig = sig.replace("0x", "");
+
+          const _r = Buffer.from(pureSig.substring(0, 64), "hex");
+          const _s = Buffer.from(pureSig.substring(64, 128), "hex");
+          const _v = Buffer.from(
+            parseInt(pureSig.substring(128, 130), 16).toString(),
+          );
+
+          return { _r, _s, _v };
+        };
+
+        let sign;
+        let r;
+        let s;
+        let v;
+
+        const msgParams = {
+          types: {EIP712Domain, Permit,},
+          primaryType: "Permit",
+          domain,
+          message: permit,
+        };
+
+        try {
+          window.console.log({
+            "arg1 to eth_signTypedData_v4 (accounts[0])": accounts[0],
+            "arg2 to eth_signTypedData_v4 (JSON.stringify(msgParams))": JSON.stringify(msgParams),
+            "msgParams": msgParams});
+          sign = await window.ethereum.request({
+            method: "eth_signTypedData_v4",
+            params: [accounts[0], JSON.stringify(msgParams)],
+          });
+          const { _r, _s, _v } = splitSig(sign);
+          r = `0x${_r.toString("hex")}`;
+          s = `0x${_s.toString("hex")}`;
+          v = _v.toString();
+
+          window.console.log({ sign, r, s, v });
+          requestParams.sig_hex = sign;
+
+        } catch(err) {
+          window.console.error(err);
+        }
+      };
+
+      // if metamask, call SignPermit and add sig_hex to requestParams
+      if(this.rootStore.walletClient.UserInfo().walletName.toLowerCase() === "metamask") {
+        yield SignPermit();
+      }
+
       yield this.CheckoutRedirect({
         provider,
         requestParams,
