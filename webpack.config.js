@@ -55,8 +55,7 @@ module.exports = {
   devtool: "eval-source-map",
   plugins,
   externals: {
-    crypto: "crypto",
-    stream: "stream"
+    crypto: "crypto"
   },
   resolve: {
     alias: {
@@ -66,6 +65,10 @@ module.exports = {
       Stores: Path.resolve(__dirname, "src/stores"),
       // Force webpack to use *one* copy of bn.js instead of 8
       "bn.js": Path.resolve(Path.join(__dirname, "node_modules", "bn.js"))
+    },
+    fallback: {
+      stream: require.resolve("stream-browserify"),
+      url: require.resolve("url")
     },
     extensions: [".js", ".jsx", ".mjs", ".scss", ".png", ".svg"],
   },

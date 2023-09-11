@@ -192,6 +192,10 @@ class RootStore {
     ];
   }
 
+  get isMetamaskUser() {
+    return this?.walletClient.UserInfo()?.walletName.toLowerCase() === "metamask";
+  }
+
   MarketplaceByTenantId({tenantId}) {
     return this.allMarketplaces.find(marketplace => marketplace.tenant_id === tenantId);
   }
@@ -1855,21 +1859,30 @@ class RootStore {
       });
     };
 
+    let response;
     try {
       switch(flow) {
         case "purchase":
-          yield checkoutStore.CheckoutSubmit({
+          response = yield checkoutStore.CheckoutSubmit({
             ...parameters,
             fromEmbed: true
           });
+
+          if(parameters.provider === "wallet-balance") {
+            Respond({response});
+          }
 
           break;
 
         case "listing-purchase":
-          yield checkoutStore.ListingCheckoutSubmit({
+          response = yield checkoutStore.ListingCheckoutSubmit({
             ...parameters,
             fromEmbed: true
           });
+
+          if(parameters.provider === "wallet-balance") {
+            Respond({response});
+          }
 
           break;
 

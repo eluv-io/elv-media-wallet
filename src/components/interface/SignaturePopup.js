@@ -51,6 +51,7 @@ const Sign = async (params, Respond, SetMessage) => {
     const wallet = cryptoStore.WalletFunctions(params.provider);
     const address = await wallet.RequestAddress();
 
+    console.log("HERE");
     if(params.action === "connect") {
       SetMessage(<h1>Connecting wallet...</h1>, true);
       await wallet.Connect(params.params);
@@ -58,6 +59,7 @@ const Sign = async (params, Respond, SetMessage) => {
 
       Respond({response: {address: address, balance}});
     } else if(params.action === "message") {
+      console.log(params);
       SetMessage(<h1>Awaiting message signature...</h1>, true);
 
       if(Array.isArray(params.message)) {
@@ -71,7 +73,7 @@ const Sign = async (params, Respond, SetMessage) => {
         );
       }
 
-      Respond({response: {address: address, response: await wallet.Sign(params.message)}});
+      Respond({response: {address: address, response: await wallet.Sign(params.message, undefined, params.method)}});
     } else if(params.action === "purchase") {
       SetMessage(<h1>Awaiting purchase transaction...</h1>, true);
 
@@ -102,6 +104,7 @@ const Sign = async (params, Respond, SetMessage) => {
 const SignaturePopup = observer(({parameters, Respond}) => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  console.log("SIG POPUP");
 
   useEffect(() => {
     Sign(
