@@ -250,8 +250,8 @@ const MarketplaceNavigation = observer(({marketplace, compact}) => {
 
 const MarketplaceHeader = observer(({marketplace, scrolled}) => {
   const { name, header_logo, header_image, hide_name, preview } = marketplace.branding || {};
-  const logo = SetImageUrlDimensions({url: header_logo?.url, height: 150});
-  const headerImage = SetImageUrlDimensions({url: header_image?.url, height: 150});
+  const logo = SetImageUrlDimensions({url: header_logo?.url, height: 500});
+  const headerImage = SetImageUrlDimensions({url: header_image?.url, height: 500});
   const compact = rootStore.hideMarketplaceNavigation;
   const theme = marketplace?.branding?.color_scheme?.toLowerCase() || "light";
 
