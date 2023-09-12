@@ -243,7 +243,7 @@ export const MediaCollection = observer(({nftInfo, sectionId, collection, single
               mediaItem = mediaItem.locked_state;
             }
 
-            let imageUrl = MediaImageUrl({mediaItem, maxWidth: 600});
+            let imageUrl = MediaImageUrl({mediaItem, maxWidth: 400});
             const itemActive = collectionActive && mediaIndex === activeIndex;
 
             return (

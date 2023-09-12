@@ -122,8 +122,11 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
     return async () => {
       if(!playerPromise) { return; }
 
-      const player = await playerPromise;
-      player.Destroy();
+      try {
+        (await playerPromise)?.Destroy();
+      } catch(error) {
+        console.log(error);
+      }
     };
   }, [targetRef]);
 
