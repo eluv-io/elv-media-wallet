@@ -431,7 +431,7 @@ item_details:
   max_possible: Maximum Possible in Circulation
   held_until: Held Until
   cap: Cap
-  minted_date: Minted on the Eluvio Content Fabric on {date}
+  minted_date: Created on {date}
   rarity: Rarity
   have_trait: "{rarity}% have this trait"
   go_to_item: Go to My Item

@@ -54,6 +54,32 @@ class CryptoStore {
     }
   }
 
+  async SignAllowanceMetamask(amount) {
+    const allowResponse = (await this.client.utils.ResponseToJson(
+      this.client.authClient.MakeAuthServiceRequest({
+        method: "POST",
+        path: UrlJoin("as", "wlt", "bal", "allow"),
+        body: {
+          currency: "USD",
+          amount
+        },
+        headers: {
+          Authorization: `Bearer ${this.rootStore.authToken}`
+        }
+      })
+    ));
+
+    return {
+      sig_hex: await this.rootStore.cryptoStore.SignMetamask(
+        this.client.utils.FromB64(allowResponse.message_params),
+        this.rootStore.CurrentAddress(),
+        undefined,
+        "eth_signTypedData_v4"
+      ),
+      duration: allowResponse.duration
+    };
+  }
+
   ActivateEluvioChain = flow(function * () {
     try {
       yield window.ethereum.request({
@@ -167,12 +193,7 @@ class CryptoStore {
     }
   });
 
-  RequestMetamaskAddress = flow(function * (useEluvioNetwork=false) {
-    yield window.ethereum.request({
-      method: "wallet_switchEthereumChain",
-      params: [{chainId: useEluvioNetwork ? this.eluvioChainId : this.ethereumChainId}],
-    });
-
+  RequestMetamaskAddress = flow(function * () {
     const accounts = yield window.ethereum.request({ method: "eth_requestAccounts" });
 
     this.metamaskAddress = accounts[0];
@@ -353,23 +374,63 @@ class CryptoStore {
     yield this.LoadConnectedAccounts();
   });
 
-  SignMetamask = flow(function * (message, address, popup) {
+  SignMetamask = flow(function * (message, address, popup, method="personal_sign") {
     try {
       if(this.rootStore.embedded) {
-        return yield this.EmbeddedSign({popup, provider: "metamask", message});
+        return yield this.EmbeddedSign({popup, provider: "metamask", message, method});
       } else if(Array.isArray(message)) {
         let signatures = [];
         for(let i = 0; i < message.length; i++) {
-          signatures[i] = yield this.SignMetamask(message[i], address);
+          signatures[i] = yield this.SignMetamask(message[i], address, undefined, method);
         }
 
         return signatures;
       } else {
-        const address = yield this.RequestMetamaskAddress();
-        return yield window.ethereum?.request({
-          method: "personal_sign",
-          params: [message, address, ""],
-        });
+        address = address || (yield this.RequestMetamaskAddress());
+
+        if(method === "personal_sign") {
+          return yield window.ethereum?.request({
+            method: "personal_sign",
+            params: [message, address, ""],
+          });
+        } else {
+          let chainId = JSON.parse(message).domain.chainId;
+          chainId = `0x${parseInt(chainId).toString(16)}`;
+
+          try {
+            yield window.ethereum.request({
+              method: "wallet_switchEthereumChain",
+              params: [{chainId}],
+            });
+          } catch(error) {
+            yield window.ethereum.request({
+              method: "wallet_addEthereumChain",
+              params: [{
+                "chainId": chainId,
+                "chainName": EluvioConfiguration.network === "demo" ? "Eluvio Content Fabric (Demo)" : "Eluvio Content Fabric",
+                "rpcUrls": [
+                  ...rootStore.client.ethereumURIs
+                ],
+                "nativeCurrency": {
+                  "name": "ELV",
+                  "symbol": "ELV",
+                  "decimals": 18
+                },
+                "blockExplorerUrls": ["https://explorer.contentfabric.io"]
+              }],
+            });
+
+            yield window.ethereum.request({
+              method: "wallet_switchEthereumChain",
+              params: [{chainId}],
+            });
+          }
+
+          return yield window.ethereum?.request({
+            method,
+            params: [address, message],
+          });
+        }
       }
     } catch(error) {
       this.rootStore.Log("Error signing Metamask message:", true);
@@ -457,10 +518,11 @@ class CryptoStore {
     }
   });
 
-  EmbeddedSign = flow(function * ({provider, connect, purchaseSpec, message, params, popup}) {
+  EmbeddedSign = flow(function * ({provider, connect, purchaseSpec, message, params, method, popup}) {
     let parameters = {
       provider,
-      params
+      params,
+      method
     };
 
     if(connect) {
@@ -690,13 +752,13 @@ class CryptoStore {
           link: "https://metamask.io",
           Address: () => window.ethereum?.selectedAddress || this.metamaskAddress,
           Balance: async () => await this.MetamaskBalance(),
-          RequestAddress: async useEluvioNetwork => await this.RequestMetamaskAddress(useEluvioNetwork),
+          RequestAddress: async () => await this.RequestMetamaskAddress(),
           Available: () => this.MetamaskAvailable(),
           Connected: () => this.MetamaskConnected(),
           Connect: async params => await this.ConnectMetamask(params),
           Connection: () => this.connectedAccounts.eth[Utils.FormatAddress(window.ethereum?.selectedAddress)],
           ConnectedAccounts: () => Object.values(this.connectedAccounts.eth),
-          Sign: async (message, popup) => await this.SignMetamask(message, undefined, popup),
+          Sign: async (message, popup, method) => await this.SignMetamask(message, undefined, popup, method),
           Purchase: async spec => await this.PurchaseMetamask(spec),
           Disconnect: async address => await this.DisconnectMetamask(address)
         };

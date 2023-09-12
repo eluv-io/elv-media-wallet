@@ -441,6 +441,7 @@ class CheckoutStore {
     provider="stripe",
     marketplaceId,
     listingId,
+    totalPrice,
     tenantId,
     confirmationId,
     email,
@@ -453,7 +454,11 @@ class CheckoutStore {
   }) {
     if(this.submittingOrder) { return; }
 
-    const requiresPopup = this.rootStore.embedded && !["wallet-balance", "linked-wallet-sol", "linked-wallet-eth"].includes(provider);
+    const requiresPopup =
+      this.rootStore.embedded &&
+      (!["linked-wallet-sol", "linked-wallet-eth"].includes(provider) ||
+        provider === "wallet-balance" && this.rootStore.isMetamaskUser);
+
     confirmationId = confirmationId || (["linked-wallet-sol", "linked-wallet-eth"].includes(provider) ? this.ConfirmationId(true) : `T-${this.ConfirmationId()}`);
 
     try {
@@ -484,6 +489,7 @@ class CheckoutStore {
             tenantId,
             marketplaceId,
             listingId,
+            totalPrice,
             confirmationId,
             email,
             additionalParameters,
@@ -558,7 +564,8 @@ class CheckoutStore {
       yield this.CheckoutRedirect({
         provider,
         requestParams,
-        confirmationId
+        confirmationId,
+        totalPrice
       });
 
       this.PurchaseComplete({confirmationId, success: true, successPath});
@@ -587,6 +594,7 @@ class CheckoutStore {
     tenantId,
     marketplaceId,
     sku,
+    totalPrice,
     quantity=1,
     confirmationId,
     email,
@@ -599,7 +607,11 @@ class CheckoutStore {
   }) {
     if(this.submittingOrder) { return; }
 
-    const requiresPopup = this.rootStore.embedded && !["wallet-balance", "linked-wallet-sol", "linked-wallet-eth"].includes(provider);
+    const requiresPopup =
+      this.rootStore.embedded &&
+      (!["linked-wallet-sol", "linked-wallet-eth"].includes(provider) ||
+        provider === "wallet-balance" && this.rootStore.isMetamaskUser);
+
     confirmationId = confirmationId || `M-${this.ConfirmationId()}`;
 
     try {
@@ -629,6 +641,7 @@ class CheckoutStore {
             tenantId,
             marketplaceId,
             sku,
+            totalPrice,
             quantity,
             confirmationId,
             email,
@@ -704,6 +717,7 @@ class CheckoutStore {
       }
 
       yield this.CheckoutRedirect({
+        totalPrice,
         provider,
         requestParams,
         confirmationId,
@@ -720,19 +734,19 @@ class CheckoutStore {
 
       this.PurchaseComplete({confirmationId, success: true, successPath, successUrl: customSuccessUrl});
 
-      return { confirmationId, successPath};
+      return { confirmationId, successPath };
     } catch(error) {
       this.rootStore.Log(error, true);
 
       if([403, 409].includes(error.status)) {
-        this.PurchaseComplete({confirmationId, success: false, message});
+        this.PurchaseComplete({confirmationId, success: false, message: error?.uiMessage || this.rootStore.l10n.purchase.errors.out_of_stock});
 
         throw {
           recoverable: false,
           uiMessage: error.uiMessage || this.rootStore.l10n.purchase.errors.out_of_stock
         };
       } else {
-        this.PurchaseComplete({confirmationId, success: false, message});
+        this.PurchaseComplete({confirmationId, success: false, message: error?.uiMessage || this.rootStore.l10n.purchase.errors.failed});
         throw {
           recoverable: !!error?.recoverable,
           uiMessage: error?.uiMessage || this.rootStore.l10n.purchase.errors.failed
@@ -743,7 +757,7 @@ class CheckoutStore {
     }
   });
 
-  CheckoutRedirect = flow(function * ({provider, requestParams, confirmationId, BeforeRedirect}) {
+  CheckoutRedirect = flow(function * ({totalPrice, provider, requestParams, confirmationId, BeforeRedirect}) {
     switch(provider) {
       case "stripe":
         const sessionId = (yield this.client.utils.ResponseToJson(
@@ -904,6 +918,13 @@ class CheckoutStore {
         break;
 
       case "wallet-balance":
+        if(this.rootStore.isMetamaskUser) {
+          requestParams = {
+            ...requestParams,
+            ...(yield this.rootStore.cryptoStore.SignAllowanceMetamask(totalPrice))
+          };
+        }
+
         yield this.client.authClient.MakeAuthServiceRequest({
           method: "POST",
           path: UrlJoin("as", "wlt", "mkt", "bal", "pay"),

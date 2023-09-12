@@ -628,6 +628,7 @@ const PurchaseBalanceConfirmation = observer(({
                   provider: linkedWallet || "wallet-balance",
                   marketplaceId: match.params.marketplaceId,
                   listingId,
+                  totalPrice: total + fee,
                   tenantId: selectedListing.details.TenantId,
                   successUrl,
                   cancelUrl
@@ -640,6 +641,7 @@ const PurchaseBalanceConfirmation = observer(({
                   tenantId: marketplace.tenant_id,
                   marketplaceId: match.params.marketplaceId,
                   sku: marketplaceItem.sku,
+                  totalPrice: total + fee,
                   quantity,
                   successUrl,
                   cancelUrl
