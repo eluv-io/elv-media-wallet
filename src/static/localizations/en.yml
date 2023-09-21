@@ -357,6 +357,9 @@ filters:
   filters:
     min: Min
     max: Max
+    start_date: Start Date
+    end_date: End Date
+    to: to
     apply: Apply Filters
     reset: Reset Filters
     token_id: Token ID
@@ -376,10 +379,12 @@ filters:
     marketplaces: Marketplaces
     all_marketplaces: All Marketplaces
     time: Time
+    date: Date Range
     all_time: All Time
     last_24_hours: Last 24 Hours
     last_7_days: Last 7 Days
     last_30_days: Last 30 Days
+    custom: Custom
   sort:
     sort: Sort
     minted: Minted (Oldest to Newest)
@@ -421,7 +426,7 @@ item_details:
   number_minted: Number Minted
   number_in_circulation: Number in Circulation
   number_burned: Number Burned
-  max_possible: Maximum Posible in Circulation
+  max_possible: Maximum Possible in Circulation
   held_until: Held Until
   cap: Cap
   minted_date: Minted on the Eluvio Content Fabric on {date}
@@ -443,12 +448,15 @@ item_details:
     copy_item_url: Copy Item URL
     copy_media_url: Copy Media URL
     share_on_twitter: Share on Twitter
+    share_on_whatsapp: Share on WhatsApp
   additional_media:
     view_ar: View this AR experience on mobile
     qr_code_instructions: Point your phone's camera at this QR code to view on mobile.
     next: Next
     previous: Previous
     play_all: Play All
+    errors:
+      default: This media is no longer available
 
 status:
   back_to_profile: Back to My Profile

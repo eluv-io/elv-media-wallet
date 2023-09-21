@@ -1,25 +1,16 @@
-const webpack = require("webpack");
 const Path = require("path");
-const autoprefixer = require("autoprefixer");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const TerserPlugin = require("terser-webpack-plugin");
-const HtmlWebpackInlineSourcePlugin = require("html-webpack-inline-source-plugin");
 const fs = require("fs");
 
 let plugins = [
   new HtmlWebpackPlugin({
     title: "Eluvio Media Wallet",
     template: Path.join(__dirname, "src", "index.html"),
-    cache: false,
     filename: "index.html",
-    favicon: "./src/static/icons/favicon.png"
-  }),
-  new CopyWebpackPlugin([{
-    from: Path.join(__dirname, "configuration.js"),
-    to: Path.join(__dirname, "dist", "configuration.js")
-  }]),
+    favicon: "./src/static/icons/favicon.png",
+    inject: "body"
+  })
 ];
 
 if(process.env.ANALYZE_BUNDLE) {
@@ -27,48 +18,45 @@ if(process.env.ANALYZE_BUNDLE) {
 }
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: Path.resolve(__dirname, "src/index.js"),
   target: "web",
   output: {
     path: Path.resolve(__dirname, "dist"),
-    filename: "index.js",
-    chunkFilename: "[name].[contenthash].bundle.js"
+    clean: true,
+    filename: "main.js",
+    publicPath: process.env.ASSET_PATH,
+    chunkFilename: "bundle.[id].[chunkhash].js"
   },
   devServer: {
-    public: "elv-test.io",
+    hot: true,
+    client: {
+      webSocketURL: "auto://elv-test.io/ws"
+    },
     https: {
       key: fs.readFileSync("./https/private.key"),
       cert: fs.readFileSync("./https/dev.local.crt"),
       ca: fs.readFileSync("./https/private.pem")
     },
-    disableHostCheck: true,
-    inline: true,
+    historyApiFallback: true,
+    allowedHosts: "all",
     port: 8090,
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Headers": "Content-Type, Accept",
       "Access-Control-Allow-Methods": "POST"
+    },
+    // This is to allow configuration.js to be accessed
+    static: {
+      directory: Path.resolve(__dirname, "./config"),
+      publicPath: "/"
     }
-  },
-  optimization: {
-    minimizer: [
-      new TerserPlugin({
-        terserOptions: {
-          keep_classnames: true,
-          keep_fnames: true
-        }
-      })
-    ],
-    splitChunks: {
-      chunks: "all"
-    }
-  },
-  node: {
-    fs: "empty"
   },
   mode: "development",
   devtool: "eval-source-map",
   plugins,
+  externals: {
+    crypto: "crypto"
+  },
   resolve: {
     alias: {
       Assets: Path.resolve(__dirname, "src/static"),
@@ -78,10 +66,18 @@ module.exports = {
       // Force webpack to use *one* copy of bn.js instead of 8
       "bn.js": Path.resolve(Path.join(__dirname, "node_modules", "bn.js"))
     },
-    extensions: [".js", ".jsx", ".mjs", ".scss", ".png", ".svg"]
+    fallback: {
+      stream: require.resolve("stream-browserify"),
+      url: require.resolve("url")
+    },
+    extensions: [".js", ".jsx", ".mjs", ".scss", ".png", ".svg"],
   },
   module: {
     rules: [
+      {
+        test: /\.(theme|font)\.(css|scss)$/i,
+        type: "asset/source"
+      },
       {
         test: /\.(css|scss)$/,
         exclude: /\.(theme|font)\.(css|scss)$/i,
@@ -93,26 +89,12 @@ module.exports = {
               importLoaders: 2
             }
           },
-          {
-            loader: "postcss-loader",
-            options: {
-              plugins: () => [autoprefixer({})]
-            }
-          },
+          "postcss-loader",
           "sass-loader"
         ]
       },
       {
-        test: /\.(theme|font)\.(css|scss)$/i,
-        loader: "raw-loader"
-      },
-      {
-        test: /\.mjs$/,
-        include: /node_modules/,
-        type: "javascript/auto"
-      },
-      {
-        test: /\.(js|mjs)$/,
+        test: /\.(js|mjs|jsx)$/,
         exclude: /node_modules\/(?!@eluvio\/elv-embed)/,
         loader: "babel-loader",
         options: {
@@ -127,21 +109,20 @@ module.exports = {
         loader: "svg-inline-loader"
       },
       {
-        test: /\.(otf|woff2?|ttf)$/i,
-        loader: "file-loader",
+        test: /\.(gif|png|jpe?g|otf|woff2?|ttf)$/i,
+        include: [ Path.resolve(__dirname, "src/static/public")],
+        type: "asset/inline",
+        generator: {
+          filename: "public/[name][ext]"
+        }
       },
       {
-        test: /\.(gif|png|jpe?g)$/i,
-        use: [
-          "file-loader",
-          {
-            loader: "image-webpack-loader"
-          },
-        ],
+        test: /\.(gif|png|jpe?g|otf|woff2?|ttf)$/i,
+        type: "asset/resource",
       },
       {
         test: /\.(txt|bin|abi)$/i,
-        loader: "raw-loader"
+        type: "asset/source"
       },
       {
         test: /\.ya?ml$/,

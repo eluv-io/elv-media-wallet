@@ -295,8 +295,8 @@ export const NFTRedeemableOfferModal = observer(({nftInfo, offerId, Close}) => {
 
     const transactionId =
       offer?.state?.transaction ||
-      nftInfo?.nft?.details?.Offers?.[parseInt(offerId)]?.transaction ||
-      redemptionStatus?.extra?.[6];
+      redemptionStatus?.extra?.[6] ||
+      nftInfo?.nft?.details?.Offers?.find(offer => offer?.id?.toString() === offerId.toString())?.transaction;
 
     if(!transactionId) {
       // Transaction not determinable - reload nft

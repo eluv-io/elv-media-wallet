@@ -241,8 +241,8 @@ const MintingStatus = observer(({
                       },
                       playerOptions: {
                         watermark: EluvioPlayerParameters.watermark.OFF,
-                        muted: EluvioPlayerParameters.muted.OFF,
-                        autoplay: EluvioPlayerParameters.autoplay.OFF,
+                        muted: EluvioPlayerParameters.muted.OFF_IF_POSSIBLE,
+                        autoplay: EluvioPlayerParameters.autoplay.ON,
                         controls: EluvioPlayerParameters.controls.OFF_WITH_VOLUME_TOGGLE,
                         loop: EluvioPlayerParameters.loop.OFF,
                         playerCallback: ({videoElement}) => {

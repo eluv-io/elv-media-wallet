@@ -44,8 +44,21 @@ class Id {
   }
 }
 
-const SandboxPermissions = () => {
-  return [
+const iframePermissions = {
+  allow: [
+    "accelerometer",
+    "autoplay",
+    "clipboard-read",
+    "clipboard-write",
+    "encrypted-media *",
+    "fullscreen",
+    "gyroscope",
+    "picture-in-picture",
+    "camera",
+    "microphone"
+  ].join(";"),
+  sandbox: [
+    "allow-same-origin",
     "allow-downloads",
     "allow-scripts",
     "allow-forms",
@@ -55,10 +68,9 @@ const SandboxPermissions = () => {
     "allow-popups",
     "allow-popups-to-escape-sandbox",
     "allow-presentation",
-    "allow-same-origin",
     "allow-downloads-without-user-activation",
     "allow-storage-access-by-user-activation"
-  ].join(" ");
+  ].join(" ")
 };
 
 const LOG_LEVELS = {
@@ -633,9 +645,9 @@ const frameClient = await ElvWalletFrameClient.InitializePopup({
     }
 
     target.classList.add("-elv-media-wallet-frame");
-    target.sandbox = SandboxPermissions();
+    target.sandbox = iframePermissions.sandbox;
     target.setAttribute("allowFullScreen", "");
-    target.allow = "encrypted-media *; autoplay; fullscreen; clipboard-read; clipboard-write";
+    target.allow = iframePermissions.allow;
     target.title = "Eluvio Media Wallet";
 
     walletAppUrl = new URL(walletAppUrl);

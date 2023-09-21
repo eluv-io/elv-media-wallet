@@ -69,7 +69,7 @@ const Footer = ({footerText, footerLinks=[]}) => {
                 <img
                   src={visibleItem.image?.url}
                   className="footer__modal__content footer__modal__content--image"
-                  alt={visibleItem.image_alt_text}
+                  alt={visibleItem.image_alt_text || visibleItem.image_alt}
                 /> :
                 visibleItem.content_rich_text ?
                   <div className="footer__modal__content footer__modal__content--rich-text">

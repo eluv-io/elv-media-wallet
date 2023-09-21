@@ -12,6 +12,7 @@ import ProfileMenu from "Components/header/ProfileMenu";
 import {NotificationsMenu} from "Components/header/NotificationsMenu";
 import {Debounce, SetImageUrlDimensions} from "../../utils/Utils";
 import MenuButton from "Components/common/MenuButton";
+import {RichText} from "Components/common/UIComponents";
 
 import EluvioE from "Assets/images/ELUV.IO-E-Icon.png";
 import EluvioLogo from "Assets/images/Eluvio_logo.svg";
@@ -21,6 +22,51 @@ import DiscoverIcon from "Assets/icons/discover.svg";
 import WalletIcon from "Assets/icons/header/wallet icon v2.svg";
 import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
 import BackIcon from "Assets/icons/pagination arrow back.svg";
+import XIcon from "Assets/icons/x";
+
+const NotificationBanner = observer(({marketplace}) => {
+  const [notificationHash, setNotificationHash] = useState(undefined);
+  const [active, setActive] = useState(false);
+
+  const notification = marketplace?.branding?.notification || {};
+  const savedHash = rootStore.GetLocalStorage(`notification-dismissed-${marketplace.marketplaceId}`);
+
+  useEffect(() => {
+    if(!notification || !notification.active) { return; }
+
+    crypto.subtle.digest("SHA-1", new TextEncoder("utf-8").encode(
+      (notification.header || "") + (notification.text || "")
+    ))
+      .then(digest => {
+        const hash = Array.from(new Uint8Array(digest))
+          .map(v => v.toString(16).padStart(2, "0"))
+          .join("");
+
+        setNotificationHash(hash);
+        setActive(hash !== savedHash);
+      });
+  }, [notification]);
+
+  if(!active) {
+    return null;
+  }
+
+  return (
+    <div className="notification-banner">
+      <h2>{ notification.header }</h2>
+      <RichText richText={notification.text} className="notification-banner__text" />
+      <button
+        onClick={() => {
+          rootStore.SetLocalStorage(`notification-dismissed-${marketplace.marketplaceId}`, notificationHash);
+          setActive(false);
+        }}
+        className="notification-banner__close-button"
+      >
+        <ImageIcon icon={XIcon} title="Dismiss" className="notification-banner__close-icon" />
+      </button>
+    </div>
+  );
+});
 
 const ProfileNavigation = observer(() => {
   const location = useLocation();
@@ -204,13 +250,14 @@ const MarketplaceNavigation = observer(({marketplace, compact}) => {
 
 const MarketplaceHeader = observer(({marketplace, scrolled}) => {
   const { name, header_logo, header_image, hide_name, preview } = marketplace.branding || {};
-  const logo = SetImageUrlDimensions({url: header_logo?.url, height: 150});
-  const headerImage = SetImageUrlDimensions({url: header_image?.url, height: 150});
+  const logo = SetImageUrlDimensions({url: header_logo?.url, height: 500});
+  const headerImage = SetImageUrlDimensions({url: header_image?.url, height: 500});
   const compact = rootStore.hideMarketplaceNavigation;
   const theme = marketplace?.branding?.color_scheme?.toLowerCase() || "light";
 
   return (
     <>
+      <NotificationBanner marketplace={marketplace} />
       <div className={`header-padding header-padding--marketplace ${compact ? "header-padding--compact" : ""}`} />
       <header className={`page-block page-block--header ${scrolled ? "header-container--scrolled" : ""} ${compact ? "header-container--compact" : ""} ${rootStore.appBackground ? "page-block--custom-background" : ""} header-container header-container--marketplace`}>
         <div className={`header-container__background header-container__background--${theme} : ""}`} />

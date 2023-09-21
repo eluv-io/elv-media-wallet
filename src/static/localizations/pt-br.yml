@@ -55,7 +55,7 @@ actions:
     buy_now: Compre agora
     buy_now_for: Compre agora por {price}
     buy_now_for_pix_ebanx: Compre agora por {price} + Taxas
-    claim: Resgate agora
+    claim: Resgate Grátis
     view: Ver Detalhes
   listings:
     create: Colocar para venda

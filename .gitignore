@@ -8,6 +8,7 @@ client/node_modules/
 client/test/node_modules/
 
 /configuration.js
+/config/configuration.js
 
 deploy.sh
 
@@ -16,3 +17,6 @@ test/dist/
 
 scratch/
 !.keep
+firebase-debug*
+firestore-debug*
+ui-debug*
