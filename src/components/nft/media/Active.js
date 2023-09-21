@@ -2,8 +2,14 @@ import React, {useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import {Initialize} from "@eluvio/elv-embed/src/Import";
-import {Link, useHistory, useRouteMatch} from "react-router-dom";
-import {AvailableMedia, MediaImageUrl, MediaLinkPath, NavigateToMedia} from "Components/nft/media/Utils";
+import {Redirect, Link, useHistory, useRouteMatch} from "react-router-dom";
+import {
+  AvailableMedia,
+  MediaImageUrl,
+  MediaLinkPath,
+  MediaLockState,
+  NavigateToMedia
+} from "Components/nft/media/Utils";
 import ImageIcon from "Components/common/ImageIcon";
 import {FullScreenImage, LocalizeString, QRCodeElement, RichText} from "Components/common/UIComponents";
 import AlbumView from "Components/nft/media/Album";
@@ -227,6 +233,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
   const mediaIndex = parseInt(match.params.mediaIndex);
 
   const { availableMediaList, currentListIndex } = AvailableMedia({
+    nftInfo,
     additionalMedia: nftInfo.additionalMedia,
     sectionId: match.params.sectionId,
     collectionId: match.params.collectionId,
@@ -267,9 +274,12 @@ const NFTActiveMedia = observer(({nftInfo}) => {
   if(!current) { return null; }
 
   let currentMediaItem = current.mediaItem;
-  const locked = currentMediaItem.locked && (currentMediaItem.locked_state.required_media || []).find(requiredMediaId =>
-    !rootStore.MediaViewed({nft: nftInfo.nft, mediaId: requiredMediaId, preview: !nftInfo.nft.details.TokenIdStr})
-  );
+  const { locked, hidden } = MediaLockState({nftInfo, mediaItem: currentMediaItem});
+
+  if(hidden) {
+    // Item is hidden, should not be here
+    return <Redirect to={match.url.split("/media")[0]} />;
+  }
 
   if(locked) {
     currentMediaItem = {

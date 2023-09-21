@@ -1255,6 +1255,10 @@
       max-width: calc(#{var(--nft-media-carousel-height)} * 0.75);
       width: calc(#{var(--nft-media-carousel-height)} * 0.75);
     }
+
+    &--hidden {
+      display: none;
+    }
   }
 
   &__item {
