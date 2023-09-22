@@ -279,20 +279,20 @@ offers:
 redeemables:
   reward: Credenciamento
   redeem: Resgatar
-  redeem_reward: Resgate Aqui
+  redeem_reward: Resgate
   reward_redeemed: Resgate Completo
   claim_reward: Resgate Seu Benefício
   view_details: Veja os Detalhes
-  reward_valid: Benefício Válido
+  reward_valid: Validade do Benefício
   reward_expires: Benefício Expira Em
   expires: O Resgate Expirou
   available: Disponível
   view_redemption_code: Veja o código de resgate
   redeemed_by: Pelo {redeemer}
-  view_redemption: Veja Resgate
+  view_redemption: Acesse Aqui
   view_transaction: Veja a transação> -- View the Transaction
   successfully_redeemed: Resgate bem Sucedido
-  code: Código
+  code: Código de Resgate
   redeemed_message: >-
     Acesse o link do formulário de credenciamento e insira o código de validação no campo indicado. Tanto o link quanto o código não devem ser compartilhados.
   redeemed_by_previous: Esse resgate foi feito pelo dono anterior
