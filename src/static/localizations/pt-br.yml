@@ -6,9 +6,11 @@ header:
   listings: Revenda
   profile: Perfil
   store: Loja
+  stores: Lojas
   items: Itens
   offers: Ofertas
   notifications: Notificações
+  media_wallet: Mídia na Carteira
 login:
   sign_in: Entrar
   sign_up: Criar conta
@@ -23,12 +25,15 @@ login:
   terms: >-
     Ao criar uma conta ou acessar com uma conta existente, eu concordo com a
     [Política de privacidade da Eluvio](https://live.eluv.io/privacy) e com os
-    [Termos e Condições](https://main.net955305.contentfabric.io/s/main/qlibs/ilib2B5mehRgjsu4Ym2YDUKVRX1KnxE6/q/iq__XN3pP97ynYXQnHU2MysCCvev6dQ/files/Eluvio%20End%20User%20Agreement_%28pt_BR%29.html).
+    [Termos e
+    Condições](https://main.net955305.contentfabric.io/s/main/qlibs/ilib2B5mehRgjsu4Ym2YDUKVRX1KnxE6/q/iq__XN3pP97ynYXQnHU2MysCCvev6dQ/files/Eluvio%20End%20User%20Agreement_%28pt_BR%29.html).
   email_consent: >-
     Ao marcar esta caixa, eu dou consentimento para que meu endereço de e-mail
     seja armazenado com o endereço da minha carteira {tenantClause}. A Eluvio
     também pode enviar e-mails informativos e de marketing para este endereço.
   email_consent_tenant_clause: E compartilhado com {tenantName}
+  login_code: 'Código: {code}'
+  code_auth_success: Cadastro bem Sucedido
   errors:
     missing_required_options: Por favor, selecione os campos obrigatórios
 navigation:
@@ -80,10 +85,14 @@ actions:
   transfers:
     transfer: Transferir Arte Digital
     transfer_confirm: Você realmente quer transferir essa Arte Digital para {targetAddress}?
+errors:
+  general: Desculpe, deu algo errado
 profile:
   media_wallet: Carteira
   address: Meu endereço da Eluvio
-  set_profile_image: Você pode usar as imagens das suas Artes Digitais para definir a imagem do seu perfil!
+  set_profile_image: >-
+    Você pode usar as imagens das suas Artes Digitais para definir a imagem do
+    seu perfil!
   do_not_send_funds: >-
     Não envie valores para este endereço. Este é um endereço interno da Eluvio e
     não deve ser usado para pagamentos
@@ -102,13 +111,18 @@ profile:
     deposits: Ocultar depósitos
     outstanding_offers: Ocultar ofertas pendentes
     withdrawals: Ocultar retiradas
-  payout_terms: Aviso de disponibilidade de valores – Um período de retenção será aplicado
+  payout_terms: >-
+    Aviso de disponibilidade de valores – Um período de retenção será aplicado
     sobre os valores resultantes da venda de uma Arte Digital. Os titulares da
     conta reconhecem que, durante este período de espera, um vendedor não poderá
     sacar os valores atribuíveis a essa(s) venda(s). O período de espera atual
     para retirar o saldo é de 15 dias.
-  payout_terms_stripe: O pagamento é gerenciado pela Stripe. Acompanhe o processo pelo dashboard da Stripe.
-  payout_terms_contact: Em caso de dúvidas, entre em contato com payments@eluv.io](mailto:payments@eluv.io)
+  payout_terms_stripe: >-
+    O pagamento é gerenciado pela Stripe. Acompanhe o processo pelo dashboard da
+    Stripe.
+  payout_terms_contact: >-
+    Em caso de dúvidas, entre em contato com
+    payments@eluv.io](mailto:payments@eluv.io)
   balance:
     total: Saldo total
     locked: Saldo bloqueado
@@ -154,22 +168,37 @@ notifications:
 connected_accounts:
   connected_accounts: Contas conectadas
   wallet_address: Meu endereço de blockchain de conteúdo Eluvio
-  direct: Aceitar apenas pagamentos para carteiras diretamente associadas com minha conta.
-  direct_info: Marcar esta opção limitará suas listagens para comprar apenas com USDC por meio de carteira vinculada. O pagamento será liquidado diretamente no endereço da sua carteira vinculada. Se desmarcado, suas listagens também podem ser compradas por cartão de crédito, coinbase ou saldo da carteira, e os rendimentos serão creditados no saldo da carteira Eluvio, que pode ser resgatado via Stripe.
+  direct: >-
+    Aceitar apenas pagamentos para carteiras diretamente associadas com minha
+    conta.
+  direct_info: >-
+    Marcar esta opção limitará suas listagens para comprar apenas com USDC por
+    meio de carteira vinculada. O pagamento será liquidado diretamente no
+    endereço da sua carteira vinculada. Se desmarcado, suas listagens também
+    podem ser compradas por cartão de crédito, coinbase ou saldo da carteira, e
+    os rendimentos serão creditados no saldo da carteira Eluvio, que pode ser
+    resgatado via Stripe.
   link_wallet: Carteira associada.
   link_wallet_2: Conectar {networkName} carteira de pagamento {t{est}
   unlink_wallet: Desconectar carteira
   unlink_wallet_confirm: Você realmente quer desconectar essa conta?
-  description: Para comprar ou vender Artes Digitais usando {usdcIcon} USDC na {networkName} com sua carteira, conecte sua carteira da Eluvio com sua carteira de pagamento.
+  description: >-
+    Para comprar ou vender Artes Digitais usando {usdcIcon} USDC na
+    {networkName} com sua carteira, conecte sua carteira da Eluvio com sua
+    carteira de pagamento.
   how_to_link: Como eu conecto minha carteira da Phantom?
   get_wallet: Conectar {walletName}
   connect_wallet: Conectar {walletName}
-  wallet_connected: "{walletName} Conectada"
+  wallet_connected: '{walletName} Conectada'
   linked_at: Conectada em {date}
   errors:
-    general: Alguma coisa deu errado quando tentamos conectar com sua carteira. Por favor, tente novamente.
+    general: >-
+      Alguma coisa deu errado quando tentamos conectar com sua carteira. Por
+      favor, tente novamente.
     incorrect_account: Por favor, selecione a conta abaixo em sua carteira {walletName}.
-    incorrect_account_2: A conta ativa está incorreta {walletName}. Por favor, troque para {address}.
+    incorrect_account_2: >-
+      A conta ativa está incorreta {walletName}. Por favor, troque para
+      {address}.
     already_connected: Esta conta{walletName} já está conectada a uma outra carteira da Eluvio.
 stats:
   listings:
@@ -248,17 +277,40 @@ offers:
   errors:
     failed: Não é possível fazer essa oferta
 redeemables:
+  reward: Credenciamento
   redeem: Resgatar
-  expires: O resgate expirou
-  view_redemption_code: Veja o código de resgate.
+  redeem_reward: Resgate Aqui
+  reward_redeemed: Resgate Completo
+  claim_reward: Resgate Seu Benefício
+  view_details: Veja os Detalhes
+  reward_valid: Benefício Válido
+  reward_expires: Benefício Expira Em
+  expires: O Resgate Expirou
+  available: Disponível
+  view_redemption_code: Veja o código de resgate
   redeemed_by: Pelo {redeemer}
+  view_redemption: Veja Resgate
+  view_transaction: Veja a transação> -- View the Transaction
+  successfully_redeemed: Resgate bem Sucedido
+  code: Código
+  redeemed_message: >-
+    Acesse o link do formulário de credenciamento e insira o código de validação no campo indicado. Tanto o link quanto o código não devem ser compartilhados.
+  redeemed_by_previous: Esse resgate foi feito pelo dono anterior
+  redeeming: Processando seu Resgate
+  redeeming_subheader: Isso pode demorar alguns minutos
+  redeeming_footer: >-
+    Você pode sair dessa página se não quiser esperar, seu benefício estará disponível na sua carteira quando o processo estiver completo.
+  popup_notice: >-
+    Atenção: Esse resgate precisa de uma assinatura. Por favor, veja o pop-up para assinar os resultados
 transfers:
   header: Transferir seu item
   network: Rede
   target_address: Endereço de destino
   transferring: Transferindo Arte Digital. Isso pode demorar alguns segundos.
   errors:
-    address_warning: O endereço de destino não possui nenhum item atualmente. Esse é realmente o endereço correto?
+    address_warning: >-
+      O endereço de destino não possui nenhum item atualmente. Esse é realmente
+      o endereço correto?
     invalid_address: Endereço de destino inválido.
     no_self_transfer: Você não pode transferir uma Arte Digital para você mesmo.
     failed: A transferência falhou.
@@ -276,9 +328,19 @@ collections:
   select_nfts_2: Selecione as Artes Digitais que você deseja negociar
   select_nfts_3: Escolha uma Arte Digital por espaço da coleção
   select_nfts_4: Por favor, selecione um token para resgatar para cada item da coleção.
-  signature_warning: Esta operação requer uma assinatura por token resgatado. Por favor, verifique a extensão da Metamesk em seu navegador e aceite todas as requisições de assinatura pendentes.
-  redemption_warning: Clicar em resgatar queimará (Burning) permanentemente os tokens selecionados e cunhará (Minting) os tokens de recompensa em sua conta. Suas Artes Digitais novas aparecerão em sua carteira quando a cunhagem for concluída. Esta operação não pode ser revertida e os tokens queimados não podem ser recuperados.
-  redemption_confirmation: Você realmente quer resgatar essa coleção com os itens selecionados? Essa ação não poderá ser revertida.
+  signature_warning: >-
+    Esta operação requer uma assinatura por token resgatado. Por favor,
+    verifique a extensão da Metamesk em seu navegador e aceite todas as
+    requisições de assinatura pendentes.
+  redemption_warning: >-
+    Clicar em resgatar queimará (Burning) permanentemente os tokens selecionados
+    e cunhará (Minting) os tokens de recompensa em sua conta. Suas Artes
+    Digitais novas aparecerão em sua carteira quando a cunhagem for concluída.
+    Esta operação não pode ser revertida e os tokens queimados não podem ser
+    recuperados.
+  redemption_confirmation: >-
+    Você realmente quer resgatar essa coleção com os itens selecionados? Essa
+    ação não poderá ser revertida.
   errors:
     listed_nft: Você não pode resgatar um token enquanto ele estiver listado para venda.
 tables:
@@ -297,8 +359,8 @@ tables:
   deposits: depósitos
   bought_nfts: Arte Digital adquirida
   sold_nfts: Arte Digital vendida
-  available: Disponível
   pending: Pendente
+  available: Disponível
   columns:
     address: Endereço
     amount: Volume total
@@ -328,6 +390,12 @@ filters:
   search_projects_ext: >-
     Pesquisar projetos, Artes Digitais, mídias e aplicativos de realidade
     aumentada
+  marketplace_tags:
+    all: Todos
+    film: Filme
+    music: Música
+    software: Software
+    tv: TV
   filters:
     min: Min
     max: Max
@@ -374,9 +442,14 @@ item_details:
   trading: Negociações
   purchase_offers: Ofertas de compra
   redeemables: Resgatáveis
+  rewards: Benefícios
+  reward: Benefício
+  reward_redeemed: Benefício Resgatado
   held_message: >-
     Esta Arte Digital está em período de retenção até {heldDate}. Você não
     poderá transferi-lo até lá.
+  secondary_unreleased: Mercado secundário para esse NFT estará disponível em {heldDate}
+  secondary_expired: Mercado secundário para esse NFT termina em {heldDate}
   lookout_link: Mais informações (Em inglês)
   token_url: URL do Token
   media_url: Media URL
@@ -418,6 +491,9 @@ item_details:
     qr_code_instructions: Aponte a câmera do seu smartphone para esse QR code para acessar.
     next: Próximo
     previous: Anterior
+    play_all: Play
+    errors:
+      default: Essa mídia não está mais disponível
 status:
   back_to_profile: Voltar para o Meu Perfil
   back_to_marketplace: Voltar para a Marketplace
@@ -429,8 +505,8 @@ status:
     header: Sua Arte Digital está sendo criada
     subheader1: Isto pode levar alguns minutos
     subheader2: >-
-      Você pode sair desta página se não quiser esperar. Suas Artes Digitais estarão
-      disponíveis em sua carteira quando o processo for concluído.
+      Você pode sair desta página se não quiser esperar. Suas Artes Digitais
+      estarão disponíveis em sua carteira quando o processo for concluído.
     success_header: Parabéns!
     purchase: Obrigado por sua compra!
     received_item_single: Você recebeu o seguinte item
@@ -503,6 +579,7 @@ codes:
   redeem_offer: Resgate seu brinde
   errors:
     failed: Falha para resgatar o código
+    not_yet_valid: Esse código não está disponível até {date}
 voting:
   voting: Votação
   vote: Vote nesta entrada
@@ -511,23 +588,32 @@ voting:
   revoke_with_title: Remover voto para esta entrada no {title}
   voting_window: 'Janela de votação: {startDate} - {endDate}'
   total_votes: 'Total de votos para esta entrada: {votes}'
-  voted: <MISSING> -- You have voted for this entry
+  voted: Você já votou para entrada
+time_units:
+  day: dia
+  days: dias
+  hour: hora
+  hours: horas
+  minute: minuto
+  minutes: minutos
+  second: segundo
+  seconds: segundos
 time:
   day: 1 dia
-  days: "{days} dias"
+  days: '{days} dias'
   hour: 1 hora
-  hours: "{hours} horas"
+  hours: '{hours} horas'
   minute: 1 minuto
-  minutes: "{minutes} minutos"
+  minutes: '{minutes} minutos'
   second: 1 segundo
-  seconds: "{seconds} segundos"
+  seconds: '{seconds} segundos'
 ago:
   day: 1 dia atrás
-  days: "{days} dias atrás"
+  days: '{days} dias atrás'
   hour: 1 hora atrás
-  hours: "{hours} horas atrás"
+  hours: '{hours} horas atrás'
   minute: 1 minuto atrás
-  minutes: "{minutes} minutos atrás"
+  minutes: '{minutes} minutos atrás'
   second: 1 segundo atrás
-  seconds: "{seconds} segundos atrás"
+  seconds: '{seconds} segundos atrás'
 
