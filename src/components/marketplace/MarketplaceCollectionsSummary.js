@@ -66,10 +66,11 @@ export const MarketplaceCollectionsSummary = observer(() => {
   const collectionsInfo = marketplace?.collections_info || {};
 
   useEffect(() => {
-    if(!marketplace || !collectionsInfo.show_on_storefront) { return; }
+    if(!marketplace) { return; }
 
     rootStore.MarketplaceOwnedItems({marketplace})
-      .then(() => setLoading(false));
+      .then(() => setLoading(false))
+      .catch(error => rootStore.Log(error, true));
   }, [marketplace]);
 
   if(!marketplace) { return null; }
