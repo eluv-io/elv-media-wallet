@@ -515,6 +515,7 @@ export const NFTInfo = ({
   };
 };
 
+// Primary NFT media
 export const NFTMedia = ({nft, item, width}) => {
   if(nft && ["HTML", "Ebook"].includes(nft.metadata.media_type)) {
     return NFTMediaInfo({
@@ -594,6 +595,7 @@ export const NFTMedia = ({nft, item, width}) => {
   };
 };
 
+// Additional media
 export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requiresPermissions, watchedMediaIds=[], width}) => {
   let embedUrl = new URL("https://embed.v3.contentfabric.io");
   let imageUrl, mediaLink, mediaType, viewRecordKey, recordView=false, useFrame=false;
@@ -684,6 +686,7 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
 
     case "audio":
     case "video":
+    case "live video":
     default:
       // Fall back to image if video is not set properly for some reason
       if(!selectedMedia.media_link) {
