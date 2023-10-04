@@ -943,7 +943,7 @@ const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, showMediaSection
 
   const mediaTab = showMediaSections;
   const redeemablesTab = nftInfo.hasRedeemables;
-  const tradingTab = !secondaryDisabled && !hideTables;
+  const tradingTab = !nft?.metadata?.test && !nftInfo.heldDate && !secondaryDisabled && !hideTables;
   const offersTab = !secondaryDisabled && nftInfo.offerable;
 
   let tabs = [
