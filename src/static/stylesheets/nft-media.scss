@@ -88,11 +88,6 @@
       &--ebook,
       &--html {
         height: var(--elv-gallery-max-height);
-
-        .nft-media__content__target__fullscreen-button {
-          bottom: 5px;
-          right: 5px;
-        }
       }
 
       &--fullscreen {
@@ -126,29 +121,22 @@
         width: 100%;
       }
 
-      &__fullscreen-button {
-        // sass-lint:disable no-color-literals
+      &__actions {
         align-items: center;
-        background: rgba(0, 0, 0, 0.35);
-        border-radius: 3px;
-        bottom: 5px;
         display: flex;
+        gap: 5px;
+        justify-content: flex-end;
+        margin-top: 5px;
+      }
+
+      &__button {
+        // sass-lint:disable no-color-literals
+        background: rgba(0, 0, 0, 0.35);
+        border: 0;
+        border-radius: 3px;
         height: 25px;
-        justify-content: center;
-        opacity: 0.5;
         padding: 4px;
-        position: absolute;
-        right: 5px;
         width: 25px;
-
-        svg {
-          height: 100%;
-          width: 100%;
-        }
-
-        * {
-          color: $white;
-        }
       }
 
       &__error-icon {
@@ -303,7 +291,7 @@
       display: flex;
       grid-area: text;
       justify-content: center;
-      margin-top: 15px;
+      margin-top: 50px;
       min-height: 75px;
       position: relative;
     }
@@ -380,7 +368,7 @@
 
   @media screen and (min-width: $tablet-breakpoint) {
     &__content__info {
-      margin-top: 40px;
+      margin-top: 50px;
     }
 
     &__content__button {
@@ -1466,8 +1454,8 @@
 
 .media-controls {
   $controls-background-color: rgba(0, 0, 0, 1);
-  $controls-selected-color: rgba(75, 75, 75, 1);
   $controls-foreground-color: #fff;
+  $controls-selected-color: rgba(75, 75, 75, 1);
   backdrop-filter: blur(20px);
   background: $controls-background-color;
   bottom: 0;

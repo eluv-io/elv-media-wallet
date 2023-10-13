@@ -777,6 +777,37 @@ export const LinkTargetHash = (link) => {
   }
 };
 
+export const StaticFabricUrl = ({libraryId, objectId, versionHash, path="", authToken, resolve=true, width}) => {
+  let url = new URL(
+    rootStore.network === "main" ?
+      "https://main.net955305.contentfabric.io" :
+      "https://demov3.net955210.contentfabric.io"
+  );
+
+  let urlPath = UrlJoin("s", rootStore.network);
+  if(authToken) {
+    urlPath = UrlJoin("t", authToken);
+  }
+
+  if(versionHash) {
+    urlPath = UrlJoin(urlPath, "q", writeToken || versionHash, path);
+  } else {
+    urlPath = UrlJoin(urlPath, "qlibs", libraryId, "q", writeToken || objectId, path);
+  }
+
+  url.pathname = urlPath;
+
+  if(resolve) {
+    url.searchParams.set("resolve", "true");
+  }
+
+  if(width) {
+    url.searchParams.set("width", width);
+  }
+
+  return url.toString();
+};
+
 export const ActionPopup = async ({url, onMessage, onCancel}) => {
   await new Promise(resolve => {
     const newWindow = window.open(url);

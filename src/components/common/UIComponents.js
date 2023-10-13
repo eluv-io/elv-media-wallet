@@ -382,6 +382,14 @@ export const ButtonWithMenu = ({buttonProps, RenderMenu, className=""}) => {
     return () => document.removeEventListener("click", onClickOutside);
   }, []);
 
+  let topMenu = false;
+  if(ref?.current) {
+    const buttonPosition = ref?.current?.getBoundingClientRect();
+    if((window.innerHeight - buttonPosition.top) / window.innerHeight < 0.5) {
+      topMenu = true;
+    }
+  }
+
   return (
     <div className={`action-menu ${showMenu ? "action-menu--active" : ""} ${className}`} ref={ref}>
       <button
@@ -397,7 +405,7 @@ export const ButtonWithMenu = ({buttonProps, RenderMenu, className=""}) => {
       />
       {
         showMenu ?
-          <div className="action-menu__menu">
+          <div className={`action-menu__menu ${topMenu ? "action-menu__menu--top" : ""}`}>
             { RenderMenu(() => setShowMenu(false)) }
           </div> : null
       }
