@@ -49,6 +49,7 @@ actions:
   back_to: Back to {thing}
   cancel: Cancel
   close: Close
+  share: Share
   packs:
     open: Open {name}
     open_confirm: Are you sure you want to open '{name}'?

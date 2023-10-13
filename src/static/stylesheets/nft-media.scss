@@ -60,6 +60,7 @@
     &__target-container {
       align-items: center;
       display: flex;
+      flex-direction: column;
       grid-area: target;
       height: 100%;
       justify-content: center;
@@ -124,23 +125,42 @@
       &__actions {
         align-items: center;
         display: flex;
-        gap: 5px;
+        gap: 15px;
+        height: 40px;
         justify-content: flex-end;
-        margin-top: 5px;
+        margin-top: 15px;
+        width: 100%;
 
         &:empty {
           display: none;
         }
       }
 
-      &__button {
+      &__fullscreen-button {
         // sass-lint:disable no-color-literals
         background: rgba(0, 0, 0, 0.35);
         border: 0;
         border-radius: 3px;
         height: 25px;
-        padding: 4px;
+        opacity: 0.8;
         width: 25px;
+      }
+
+      &__share-button {
+        align-items: center;
+        display: flex;
+        font-size: 14px;
+        font-weight: 300;
+        gap: 10px;
+        height: 40px;
+        justify-content: center;
+        min-width: unset;
+        padding: 10px 20px;
+        width: max-content;
+
+        svg {
+          width: auto;
+        }
       }
 
       &__error-icon {
@@ -295,7 +315,7 @@
       display: flex;
       grid-area: text;
       justify-content: center;
-      margin-top: 50px;
+      margin-top: 15px;
       min-height: 75px;
       position: relative;
     }
@@ -372,7 +392,7 @@
 
   @media screen and (min-width: $tablet-breakpoint) {
     &__content__info {
-      margin-top: 50px;
+      margin-top: 15px;
     }
 
     &__content__button {

@@ -131,7 +131,6 @@ const NFTActiveMediaShare = observer(({nftInfo, mediaItem}) => {
     if(mediaItem.mediaInfo.mediaType === "image") {
       mediaUrl = mediaItem.mediaInfo.imageUrl;
     } else {
-      console.log(mediaItem.mediaInfo);
       const embedUrl = new URL(mediaItem.mediaInfo.embedUrl?.toString());
       embedUrl.searchParams.delete("ath");
       embedUrl.searchParams.delete("vrk");
@@ -171,8 +170,13 @@ const NFTActiveMediaShare = observer(({nftInfo, mediaItem}) => {
     <ButtonWithMenu
       className="nft-media__content__target__share-button-container"
       buttonProps={{
-        className: "nft-media__content__target__button nft-media__content__target__share-button",
-        children: <ImageIcon icon={ShareIcon} />
+        className: "action nft-media__content__target__button nft-media__content__target__share-button",
+        children: (
+          <>
+            <ImageIcon icon={ShareIcon} />
+            { rootStore.l10n.actions.share }
+          </>
+        )
       }}
       RenderMenu={Close => {
         if(!urls) {
@@ -235,9 +239,41 @@ const NFTActiveMediaShare = observer(({nftInfo, mediaItem}) => {
   );
 });
 
-const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) => {
+const NFTActiveMediaActions = observer(({nftInfo, mediaItem, showFullscreen, setShowFullscreen}) => {
+  if(!mediaItem.mediaInfo) { return null; }
+
+  const fullscreenable = ["embedded webpage", "html", "ebook", "image"].includes(mediaItem.mediaInfo.mediaType);
+  const shareable = !mediaItem.mediaInfo.requires_permissions;
+
+  if(!fullscreenable && !shareable) {
+    return null;
+  }
+
+  return (
+    <div className="nft-media__content__target__actions">
+      {
+        !shareable ? null :
+          <NFTActiveMediaShare nftInfo={nftInfo} mediaItem={mediaItem} />
+      }
+      {
+        !fullscreenable ? null :
+          <button
+            onClick={() => {
+              mediaItem.mediaInfo.mediaType === "image" ?
+                setShowFullscreen(!showFullscreen) :
+                ToggleFullscreen(document.querySelector(".nft-media__content__target"));
+            }}
+            className="nft-media__content__target__button nft-media__content__target__fullscreen-button"
+          >
+            <ImageIcon icon={showFullscreen ? MinimizeIcon : FullscreenIcon} alt="Toggle Full Screen"/>
+          </button>
+      }
+    </div>
+  );
+});
+
+const NFTActiveMediaContent = observer(({nftInfo, mediaItem, showFullscreen, setShowFullscreen, SetVideoElement}) => {
   const [error, setError] = useState(false);
-  const [showFullscreen, setShowFullscreen] = useState(false);
   const targetRef = useRef();
 
   if(!mediaItem.mediaInfo) { return null; }
@@ -317,29 +353,6 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
     );
   }
 
-  const fullscreenable = ["embedded webpage", "html", "ebook", "image"].includes(mediaItem.mediaInfo.mediaType);
-  let actions = (
-    <div className="nft-media__content__target__actions">
-      {
-        mediaItem.mediaInfo.requires_permissions ? null :
-          <NFTActiveMediaShare nftInfo={nftInfo} mediaItem={mediaItem} />
-      }
-      {
-        !fullscreenable ? null :
-          <button
-            onClick={() => {
-              mediaItem.mediaInfo.mediaType === "image" ?
-                setShowFullscreen(!showFullscreen) :
-                ToggleFullscreen(document.querySelector(".nft-media__content__target"));
-            }}
-            className="nft-media__content__target__button nft-media__content__target__fullscreen-button"
-          >
-            <ImageIcon icon={showFullscreen ? MinimizeIcon : FullscreenIcon} alt="Toggle Full Screen"/>
-          </button>
-      }
-    </div>
-  );
-
   switch(mediaItem.mediaInfo.mediaType) {
     case "gallery":
       return (
@@ -351,7 +364,6 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
             sandbox={iframePermissions.sandbox}
             className="nft-media__content__target nft-media__content__target--frame"
           />
-          { actions }
         </div>
       );
 
@@ -359,18 +371,15 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
     case "html":
     case "ebook":
       return (
-        <>
-          <div className={`nft-media__content__target nft-media__content__target--${mediaItem.mediaInfo.mediaType}`}>
-            <iframe
-              src={mediaItem.mediaInfo.mediaType === "ebook" ? mediaItem.mediaInfo.embedUrl : mediaItem.mediaInfo.mediaLink}
-              allowFullScreen
-              allow={iframePermissions.allow}
-              sandbox={iframePermissions.sandbox}
-              className={`nft-media__content__target nft-media__content__target--frame ${showFullscreen ? "nft-media__content__target--fullscreen" : ""}`}
-            />
-            { actions }
-          </div>
-        </>
+        <div className={`nft-media__content__target nft-media__content__target--${mediaItem.mediaInfo.mediaType}`}>
+          <iframe
+            src={mediaItem.mediaInfo.mediaType === "ebook" ? mediaItem.mediaInfo.embedUrl : mediaItem.mediaInfo.mediaLink}
+            allowFullScreen
+            allow={iframePermissions.allow}
+            sandbox={iframePermissions.sandbox}
+            className={`nft-media__content__target nft-media__content__target--frame ${showFullscreen ? "nft-media__content__target--fullscreen" : ""}`}
+          />
+        </div>
       );
 
     case "image":
@@ -378,7 +387,6 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
         <>
           <div className="nft-media__content__target">
             <img alt={mediaItem.mediaInfo.name} src={mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.imageUrl} className="nft-media__content__target__image" />
-            { actions }
           </div>
           {
             showFullscreen ?
@@ -394,13 +402,7 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
       );
 
     default:
-      return (
-        <div className="nft-media__content__target-box">
-          <div className="nft-media__content__target" ref={targetRef} />
-          { actions }
-        </div>
-      );
-
+      return <div className="nft-media__content__target" ref={targetRef} />;
   }
 });
 
@@ -411,6 +413,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
   const [showQRModal, setShowQRModal] = useState(false);
   const [autoplay, setAutoplay] = useState(false);
   const [ended, setEnded] = useState(false);
+  const [showFullscreen, setShowFullscreen] = useState(false);
 
   const mediaIndex = parseInt(match.params.mediaIndex);
 
@@ -431,6 +434,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
   useEffect(() => {
     setVideoElement(undefined);
     setEnded(false);
+    setShowFullscreen(false);
     setAutoplay(autoplay || !!(SearchParams()["ap"]));
   }, [match.params.sectionId, match.params.collectionId, match.params.mediaIndex]);
 
@@ -510,6 +514,8 @@ const NFTActiveMedia = observer(({nftInfo}) => {
                       collectionIndex={current.collectionIndex}
                       sectionIndex={current.sectionIndex}
                       mediaIndex={mediaIndex}
+                      showFullscreen={showFullscreen}
+                      setShowFullscreen={setShowFullscreen}
                       SetVideoElement={setVideoElement}
                     />
                   </div>
@@ -557,9 +563,12 @@ const NFTActiveMedia = observer(({nftInfo}) => {
                 collectionIndex={current.collectionIndex}
                 sectionIndex={current.sectionIndex}
                 mediaIndex={mediaIndex}
+                showFullscreen={showFullscreen}
+                setShowFullscreen={setShowFullscreen}
                 SetVideoElement={setVideoElement}
               />
             </div>
+            <NFTActiveMediaActions nftInfo={nftInfo} mediaItem={currentMediaItem} showFullscreen={showFullscreen} setShowFullscreen={setShowFullscreen} />
             <div className="nft-media__content__info">
               {
                 previous ?
