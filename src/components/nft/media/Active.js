@@ -22,7 +22,7 @@ import {
 import AlbumView from "Components/nft/media/Album";
 import Modal from "Components/common/Modal";
 import {MediaCollection} from "Components/nft/media/Browser";
-import {ScrollTo, SearchParams, SetImageUrlDimensions, ToggleFullscreen} from "../../../utils/Utils";
+import {SearchParams, SetImageUrlDimensions, ToggleFullscreen} from "../../../utils/Utils";
 
 import BackIcon from "Assets/icons/arrow-left";
 import LeftArrow from "Assets/icons/left-arrow";
@@ -432,11 +432,6 @@ const NFTActiveMedia = observer(({nftInfo}) => {
     setVideoElement(undefined);
     setEnded(false);
     setAutoplay(autoplay || !!(SearchParams()["ap"]));
-
-    const target = document.querySelector("#top-scroll-target");
-    if(target) {
-      ScrollTo(target.getBoundingClientRect().top + window.scrollY);
-    }
   }, [match.params.sectionId, match.params.collectionId, match.params.mediaIndex]);
 
   useEffect(() => {

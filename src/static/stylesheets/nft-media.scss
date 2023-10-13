@@ -127,6 +127,10 @@
         gap: 5px;
         justify-content: flex-end;
         margin-top: 5px;
+
+        &:empty {
+          display: none;
+        }
       }
 
       &__button {
