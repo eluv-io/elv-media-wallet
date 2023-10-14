@@ -708,6 +708,18 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
         embedUrl.searchParams.set("off", selectedMedia.offerings.map(o => (o || "").toString().trim()).join(","));
       }
 
+      if(selectedMedia.embed_url_parameters) {
+        try {
+          Object.keys(selectedMedia.embed_url_parameters).map(key =>
+            embedUrl.searchParams.set(key, selectedMedia.embed_url_parameters[key])
+          );
+        } catch(error) {
+          rootStore.Log(`Unable to parse embed URL parameters for ${selectedMedia.name}:`, true);
+          rootStore.Log(selectedMedia.embed_url_parameters);
+          rootStore.Log(error, true);
+        }
+      }
+
       break;
   }
 

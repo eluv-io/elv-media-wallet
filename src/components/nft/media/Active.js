@@ -38,7 +38,7 @@ import UrlJoin from "url-join";
 import ShareIcon from "Assets/icons/share icon";
 import {Loader} from "Components/common/Loaders";
 import PictureIcon from "Assets/icons/image";
-import TwitterIcon from "Assets/icons/twitter";
+import TwitterIcon from "Assets/icons/X logo.svg";
 import WhatsAppIcon from "Assets/icons/whatsapp";
 import CopyIcon from "Assets/icons/copy";
 

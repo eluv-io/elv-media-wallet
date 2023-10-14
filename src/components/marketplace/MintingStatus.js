@@ -140,6 +140,8 @@ const MintingStatus = observer(({
   }
 
   if(status && status.status === "failed") {
+    rootStore.Log("Minting failed:", true);
+    rootStore.Log(status);
     return (
       <div className="minting-status" key="minting-status-failed">
         <div className="minting-status__text">
