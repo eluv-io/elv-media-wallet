@@ -91,6 +91,7 @@ const NFTActiveMediaQRCode = ({link, Close}) => {
 };
 
 const NFTActiveMediaShare = observer(({nftInfo, mediaItem}) => {
+  const [urls, setURLs] = useState(undefined);
   const match = useRouteMatch();
 
   if(mediaItem.requires_permissions) {
@@ -100,7 +101,6 @@ const NFTActiveMediaShare = observer(({nftInfo, mediaItem}) => {
   const ownerAddress = nftInfo.ownerAddress;
   const ownerProfile = ownerAddress ? rootStore.userProfiles[Utils.FormatAddress(ownerAddress)] : undefined;
 
-  const [urls, setURLs] = useState(undefined);
   const InitializeURLs = async () => {
     let itemUrl;
     if(match.params.marketplaceId && match.params.sku) {
@@ -253,7 +253,7 @@ const NFTActiveMediaActions = observer(({nftInfo, mediaItem, showFullscreen, set
     <div className="nft-media__content__target__actions">
       {
         !shareable ? null :
-          <NFTActiveMediaShare nftInfo={nftInfo} mediaItem={mediaItem} />
+          <NFTActiveMediaShare key={`media-share-${mediaItem.id}`} nftInfo={nftInfo} mediaItem={mediaItem} />
       }
       {
         !fullscreenable ? null :

@@ -3,6 +3,7 @@ let testTheme = undefined;
 //testTheme = import("../static/stylesheets/themes/wwe-test.theme.css");
 //testTheme = import("../static/stylesheets/themes/lotr-test.theme.css");
 //testTheme = import("../static/stylesheets/themes/superman-test.theme.css");
+//testTheme = import("../static/stylesheets/themes/uefa-test.theme.scss");
 
 window.sessionStorageAvailable = false;
 try {
