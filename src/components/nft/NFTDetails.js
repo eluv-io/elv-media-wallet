@@ -394,6 +394,10 @@ const NFTInfoMenu = observer(({nftInfo}) => {
   const ownerAddress = nftInfo.ownerAddress;
   const ownerProfile = ownerAddress ? rootStore.userProfiles[Utils.FormatAddress(ownerAddress)] : undefined;
 
+  if(nftInfo.nft.metadata.hide_share) {
+    return null;
+  }
+
   let shareUrl;
   if(listingId) {
     shareUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));

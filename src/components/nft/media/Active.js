@@ -94,7 +94,7 @@ const NFTActiveMediaShare = observer(({nftInfo, mediaItem}) => {
   const [urls, setURLs] = useState(undefined);
   const match = useRouteMatch();
 
-  if(mediaItem.requires_permissions) {
+  if(mediaItem.requires_permissions || nftInfo.nft?.metadata?.hide_share || mediaItem.hide_share) {
     return null;
   }
 
