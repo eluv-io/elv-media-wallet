@@ -42,7 +42,7 @@ import ContractIcon from "Assets/icons/Contract icon.svg";
 import TraitsIcon from "Assets/icons/properties icon.svg";
 import BackIcon from "Assets/icons/arrow-left.svg";
 import ShareIcon from "Assets/icons/share icon.svg";
-import TwitterIcon from "Assets/icons/twitter.svg";
+import TwitterIcon from "Assets/icons/X logo.svg";
 import WhatsAppIcon from "Assets/icons/whatsapp.svg";
 import PictureIcon from "Assets/icons/image.svg";
 import CopyIcon from "Assets/icons/copy.svg";
@@ -393,6 +393,10 @@ const NFTInfoMenu = observer(({nftInfo}) => {
   const listingId = match.params.listingId || nftInfo.listingId;
   const ownerAddress = nftInfo.ownerAddress;
   const ownerProfile = ownerAddress ? rootStore.userProfiles[Utils.FormatAddress(ownerAddress)] : undefined;
+
+  if(nftInfo.nft.metadata.hide_share) {
+    return null;
+  }
 
   let shareUrl;
   if(listingId) {
@@ -943,7 +947,7 @@ const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, showMediaSection
 
   const mediaTab = showMediaSections;
   const redeemablesTab = nftInfo.hasRedeemables;
-  const tradingTab = !secondaryDisabled && !hideTables;
+  const tradingTab = !nft?.metadata?.test && !nftInfo.heldDate && !secondaryDisabled && !hideTables;
   const offersTab = !secondaryDisabled && nftInfo.offerable;
 
   let tabs = [

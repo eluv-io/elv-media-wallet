@@ -515,6 +515,7 @@ export const NFTInfo = ({
   };
 };
 
+// Primary NFT media
 export const NFTMedia = ({nft, item, width}) => {
   if(nft && ["HTML", "Ebook"].includes(nft.metadata.media_type)) {
     return NFTMediaInfo({
@@ -594,6 +595,7 @@ export const NFTMedia = ({nft, item, width}) => {
   };
 };
 
+// Additional media
 export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requiresPermissions, watchedMediaIds=[], width}) => {
   let embedUrl = new URL("https://embed.v3.contentfabric.io");
   let imageUrl, mediaLink, mediaType, viewRecordKey, recordView=false, useFrame=false;
@@ -684,6 +686,7 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
 
     case "audio":
     case "video":
+    case "live video":
     default:
       // Fall back to image if video is not set properly for some reason
       if(!selectedMedia.media_link) {
@@ -703,6 +706,18 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
 
       if(selectedMedia.offerings?.length > 0) {
         embedUrl.searchParams.set("off", selectedMedia.offerings.map(o => (o || "").toString().trim()).join(","));
+      }
+
+      if(selectedMedia.embed_url_parameters) {
+        try {
+          Object.keys(selectedMedia.embed_url_parameters).map(key =>
+            embedUrl.searchParams.set(key, selectedMedia.embed_url_parameters[key])
+          );
+        } catch(error) {
+          rootStore.Log(`Unable to parse embed URL parameters for ${selectedMedia.name}:`, true);
+          rootStore.Log(selectedMedia.embed_url_parameters);
+          rootStore.Log(error, true);
+        }
       }
 
       break;
@@ -772,6 +787,37 @@ export const LinkTargetHash = (link) => {
   if(link["."] && link["."].container) {
     return link["."].container;
   }
+};
+
+export const StaticFabricUrl = ({libraryId, objectId, versionHash, path="", authToken, resolve=true, width}) => {
+  let url = new URL(
+    rootStore.network === "main" ?
+      "https://main.net955305.contentfabric.io" :
+      "https://demov3.net955210.contentfabric.io"
+  );
+
+  let urlPath = UrlJoin("s", rootStore.network);
+  if(authToken) {
+    urlPath = UrlJoin("t", authToken);
+  }
+
+  if(versionHash) {
+    urlPath = UrlJoin(urlPath, "q", writeToken || versionHash, path);
+  } else {
+    urlPath = UrlJoin(urlPath, "qlibs", libraryId, "q", writeToken || objectId, path);
+  }
+
+  url.pathname = urlPath;
+
+  if(resolve) {
+    url.searchParams.set("resolve", "true");
+  }
+
+  if(width) {
+    url.searchParams.set("width", width);
+  }
+
+  return url.toString();
 };
 
 export const ActionPopup = async ({url, onMessage, onCancel}) => {

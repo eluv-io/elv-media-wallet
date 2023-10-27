@@ -204,7 +204,7 @@
   min-width: unset;
   padding: 0;
   position: relative;
-  z-index: 1;
+  z-index: 10;
 
   * {
     transition: background 0.1s linear, color 0.1s linear, border 0.1s linear;
@@ -235,6 +235,10 @@
     width: 100%;
   }
 
+  &__loader {
+    transform: scale(0.5);
+  }
+
   svg {
     height: 100%;
     width: 100%;
@@ -252,6 +256,11 @@
     right: 0;
     top: calc(100% + 5px);
     width: max-content;
+
+    &--top {
+      bottom: calc(100% + 5px);
+      top: unset;
+    }
 
     & > * {
       align-items: center;

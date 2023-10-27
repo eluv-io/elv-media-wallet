@@ -11,11 +11,18 @@ import {
   NavigateToMedia
 } from "Components/nft/media/Utils";
 import ImageIcon from "Components/common/ImageIcon";
-import {FullScreenImage, LocalizeString, QRCodeElement, RichText} from "Components/common/UIComponents";
+import {
+  ButtonWithLoader,
+  ButtonWithMenu, Copy,
+  FullScreenImage,
+  LocalizeString,
+  QRCodeElement,
+  RichText
+} from "Components/common/UIComponents";
 import AlbumView from "Components/nft/media/Album";
 import Modal from "Components/common/Modal";
 import {MediaCollection} from "Components/nft/media/Browser";
-import {ScrollTo, SearchParams, ToggleFullscreen} from "../../../utils/Utils";
+import {SearchParams, SetImageUrlDimensions, ToggleFullscreen} from "../../../utils/Utils";
 
 import BackIcon from "Assets/icons/arrow-left";
 import LeftArrow from "Assets/icons/left-arrow";
@@ -26,6 +33,14 @@ import ARPhoneIcon from "Assets/icons/AR Phone Icon.svg";
 import FullscreenIcon from "Assets/icons/full screen.svg";
 import MinimizeIcon from "Assets/icons/minimize.svg";
 import PlayIcon from "Assets/icons/media/play";
+import Utils from "@eluvio/elv-client-js/src/Utils";
+import UrlJoin from "url-join";
+import ShareIcon from "Assets/icons/share icon";
+import {Loader} from "Components/common/Loaders";
+import PictureIcon from "Assets/icons/image";
+import TwitterIcon from "Assets/icons/X logo.svg";
+import WhatsAppIcon from "Assets/icons/whatsapp";
+import CopyIcon from "Assets/icons/copy";
 
 const iframePermissions = {
   allow: [
@@ -75,9 +90,190 @@ const NFTActiveMediaQRCode = ({link, Close}) => {
   );
 };
 
-const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) => {
+const NFTActiveMediaShare = observer(({nftInfo, mediaItem}) => {
+  const [urls, setURLs] = useState(undefined);
+  const match = useRouteMatch();
+
+  if(mediaItem.requires_permissions || nftInfo.nft?.metadata?.hide_share || mediaItem.hide_share) {
+    return null;
+  }
+
+  const ownerAddress = nftInfo.ownerAddress;
+  const ownerProfile = ownerAddress ? rootStore.userProfiles[Utils.FormatAddress(ownerAddress)] : undefined;
+
+  const InitializeURLs = async () => {
+    let itemUrl;
+    if(match.params.marketplaceId && match.params.sku) {
+      itemUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
+      itemUrl.hash = UrlJoin("/marketplace", match.params.marketplaceId, "store", match.params.sku);
+    } else if(ownerProfile) {
+      itemUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
+      itemUrl.hash = match.params.marketplaceId ?
+        UrlJoin("/marketplace", match.params.marketplaceId, "users", ownerProfile.userAddress, "items", match.params.contractId, match.params.tokenId) :
+        UrlJoin("/wallet", "users", ownerProfile.userAddress, "items", match.params.contractId, match.params.tokenId);
+    }
+
+    if(itemUrl) {
+      itemUrl.searchParams.set(
+        "og",
+        rootStore.client.utils.B64(
+          JSON.stringify({
+            "og:title": nftInfo.name,
+            "og:description": nftInfo.item?.description || nftInfo.nft.metadata.description,
+            "og:image": SetImageUrlDimensions({url: nftInfo?.item?.url || nftInfo.nft.metadata.image, width: 400}),
+            "og:image:alt": nftInfo.name
+          })
+        )
+      );
+    }
+
+    let mediaUrl;
+    if(mediaItem.mediaInfo.mediaType === "image") {
+      mediaUrl = mediaItem.mediaInfo.imageUrl;
+    } else {
+      const embedUrl = new URL(mediaItem.mediaInfo.embedUrl?.toString());
+      embedUrl.searchParams.delete("ath");
+      embedUrl.searchParams.delete("vrk");
+      mediaUrl = embedUrl.toString();
+    }
+
+    if(!itemUrl || !mediaUrl) {
+      setURLs({});
+
+      return;
+    }
+
+    const [shortItemUrl, shortMediaUrl] = await Promise.all([
+      rootStore.CreateShortURL(itemUrl),
+      mediaUrl ? rootStore.CreateShortURL(mediaUrl) : undefined
+    ]);
+
+    let twitterUrl = new URL("https://twitter.com/share");
+    twitterUrl.searchParams.set("url", shortMediaUrl);
+    twitterUrl.searchParams.set("text", `${nftInfo.name} - ${mediaItem.name}\n\n`);
+
+    console.log(twitterUrl);
+    let whatsAppUrl = new URL("https://wa.me");
+    whatsAppUrl.searchParams.set("url", shortMediaUrl);
+    whatsAppUrl.searchParams.set("text", `${nftInfo.name} - ${mediaItem.name}\n\n${shortMediaUrl}`);
+
+    setURLs({
+      shortItemUrl: shortItemUrl,
+      mediaUrl,
+      twitterUrl,
+      whatsAppUrl,
+      shortMediaUrl
+    });
+  };
+
+  return (
+    <ButtonWithMenu
+      className="nft-media__content__target__share-button-container"
+      buttonProps={{
+        className: "action nft-media__content__target__button nft-media__content__target__share-button",
+        children: (
+          <>
+            <ImageIcon icon={ShareIcon} />
+            { rootStore.l10n.actions.share }
+          </>
+        )
+      }}
+      RenderMenu={Close => {
+        if(!urls) {
+          InitializeURLs();
+          return <Loader className="action-menu__loader" />;
+        }
+
+        return (
+          <>
+            {
+              mediaItem.mediaInfo.mediaType === "image" && urls.mediaUrl ?
+                <ButtonWithLoader
+                  onClick={async () => await rootStore.UpdateUserProfile({newProfileImageUrl: urls.mediaUrl.toString()})}>
+                  <ImageIcon icon={PictureIcon}/>
+                  {rootStore.l10n.item_details.menu.set_as_profile}
+                </ButtonWithLoader> : null
+            }
+            {
+              urls.twitterUrl ?
+                <a href={urls.twitterUrl.toString()} target="_blank" onClick={Close}>
+                  <ImageIcon icon={TwitterIcon}/>
+                  {rootStore.l10n.item_details.menu.share_on_twitter}
+                </a> : null
+            }
+            {
+              urls.whatsAppUrl ?
+                <a href={urls.whatsAppUrl.toString()} target="_blank" onClick={Close}>
+                  <ImageIcon icon={WhatsAppIcon} />
+                  {rootStore.l10n.item_details.menu.share_on_whatsapp}
+                </a> : null
+            }
+            {
+              urls.shortItemUrl ?
+                <button
+                  onClick={() => {
+                    Copy(urls.shortItemUrl);
+                    Close();
+                  }}
+                >
+                  <ImageIcon icon={CopyIcon}/>
+                  { rootStore.l10n.item_details.menu.copy_item_url }
+                </button> : null
+            }
+            {
+              urls.shortMediaUrl ?
+                <button
+                  onClick={() => {
+                    Copy(urls.shortMediaUrl);
+                    Close();
+                  }}
+                >
+                  <ImageIcon icon={CopyIcon}/>
+                  {rootStore.l10n.item_details.menu.copy_media_url}
+                </button> : null
+            }
+          </>
+        );
+      }}
+    />
+  );
+});
+
+const NFTActiveMediaActions = observer(({nftInfo, mediaItem, showFullscreen, setShowFullscreen}) => {
+  if(!mediaItem.mediaInfo) { return null; }
+
+  const fullscreenable = ["embedded webpage", "html", "ebook", "image"].includes(mediaItem.mediaInfo.mediaType);
+  const shareable = !mediaItem.mediaInfo.requires_permissions;
+
+  if(!fullscreenable && !shareable) {
+    return null;
+  }
+
+  return (
+    <div className="nft-media__content__target__actions">
+      {
+        !shareable ? null :
+          <NFTActiveMediaShare key={`media-share-${mediaItem.id}`} nftInfo={nftInfo} mediaItem={mediaItem} />
+      }
+      {
+        !fullscreenable ? null :
+          <button
+            onClick={() => {
+              mediaItem.mediaInfo.mediaType === "image" ?
+                setShowFullscreen(!showFullscreen) :
+                ToggleFullscreen(document.querySelector(".nft-media__content__target"));
+            }}
+            className="nft-media__content__target__button nft-media__content__target__fullscreen-button"
+          >
+            <ImageIcon icon={showFullscreen ? MinimizeIcon : FullscreenIcon} alt="Toggle Full Screen"/>
+          </button>
+      }
+    </div>
+  );
+});
+
+const NFTActiveMediaContent = observer(({nftInfo, mediaItem, showFullscreen, setShowFullscreen, SetVideoElement}) => {
   const [error, setError] = useState(false);
-  const [showFullscreen, setShowFullscreen] = useState(false);
   const targetRef = useRef();
 
   if(!mediaItem.mediaInfo) { return null; }
@@ -175,23 +371,15 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
     case "html":
     case "ebook":
       return (
-        <>
-          <div className={`nft-media__content__target nft-media__content__target--${mediaItem.mediaInfo.mediaType}`}>
-            <iframe
-              src={mediaItem.mediaInfo.mediaType === "ebook" ? mediaItem.mediaInfo.embedUrl : mediaItem.mediaInfo.mediaLink}
-              allowFullScreen
-              allow={iframePermissions.allow}
-              sandbox={iframePermissions.sandbox}
-              className={`nft-media__content__target nft-media__content__target--frame ${showFullscreen ? "nft-media__content__target--fullscreen" : ""}`}
-            />
-            <button
-              onClick={() => ToggleFullscreen(document.querySelector(".nft-media__content__target"))}
-              className="nft-media__content__target__fullscreen-button"
-            >
-              <ImageIcon icon={showFullscreen ? MinimizeIcon : FullscreenIcon} alt="Toggle Full Screen" />
-            </button>
-          </div>
-        </>
+        <div className={`nft-media__content__target nft-media__content__target--${mediaItem.mediaInfo.mediaType}`}>
+          <iframe
+            src={mediaItem.mediaInfo.mediaType === "ebook" ? mediaItem.mediaInfo.embedUrl : mediaItem.mediaInfo.mediaLink}
+            allowFullScreen
+            allow={iframePermissions.allow}
+            sandbox={iframePermissions.sandbox}
+            className={`nft-media__content__target nft-media__content__target--frame ${showFullscreen ? "nft-media__content__target--fullscreen" : ""}`}
+          />
+        </div>
       );
 
     case "image":
@@ -199,9 +387,6 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
         <>
           <div className="nft-media__content__target">
             <img alt={mediaItem.mediaInfo.name} src={mediaItem.mediaInfo.mediaLink || mediaItem.mediaInfo.imageUrl} className="nft-media__content__target__image" />
-            <button onClick={() => setShowFullscreen(!showFullscreen)} className="nft-media__content__target__fullscreen-button">
-              <ImageIcon icon={showFullscreen ? MinimizeIcon : FullscreenIcon} alt="Toggle Full Screen" />
-            </button>
           </div>
           {
             showFullscreen ?
@@ -218,7 +403,6 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, SetVideoElement}) =
 
     default:
       return <div className="nft-media__content__target" ref={targetRef} />;
-
   }
 });
 
@@ -229,6 +413,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
   const [showQRModal, setShowQRModal] = useState(false);
   const [autoplay, setAutoplay] = useState(false);
   const [ended, setEnded] = useState(false);
+  const [showFullscreen, setShowFullscreen] = useState(false);
 
   const mediaIndex = parseInt(match.params.mediaIndex);
 
@@ -249,12 +434,8 @@ const NFTActiveMedia = observer(({nftInfo}) => {
   useEffect(() => {
     setVideoElement(undefined);
     setEnded(false);
+    setShowFullscreen(false);
     setAutoplay(autoplay || !!(SearchParams()["ap"]));
-
-    const target = document.querySelector("#top-scroll-target");
-    if(target) {
-      ScrollTo(target.getBoundingClientRect().top + window.scrollY);
-    }
   }, [match.params.sectionId, match.params.collectionId, match.params.mediaIndex]);
 
   useEffect(() => {
@@ -333,6 +514,8 @@ const NFTActiveMedia = observer(({nftInfo}) => {
                       collectionIndex={current.collectionIndex}
                       sectionIndex={current.sectionIndex}
                       mediaIndex={mediaIndex}
+                      showFullscreen={showFullscreen}
+                      setShowFullscreen={setShowFullscreen}
                       SetVideoElement={setVideoElement}
                     />
                   </div>
@@ -380,9 +563,12 @@ const NFTActiveMedia = observer(({nftInfo}) => {
                 collectionIndex={current.collectionIndex}
                 sectionIndex={current.sectionIndex}
                 mediaIndex={mediaIndex}
+                showFullscreen={showFullscreen}
+                setShowFullscreen={setShowFullscreen}
                 SetVideoElement={setVideoElement}
               />
             </div>
+            <NFTActiveMediaActions nftInfo={nftInfo} mediaItem={currentMediaItem} showFullscreen={showFullscreen} setShowFullscreen={setShowFullscreen} />
             <div className="nft-media__content__info">
               {
                 previous ?
