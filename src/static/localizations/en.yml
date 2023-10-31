@@ -242,6 +242,7 @@ offers:
   status:
     active: Active
     expired: Expired
+    accepted: Accepted
     declined: Declined
     cancelled: Cancelled
     invalid: Invalid
