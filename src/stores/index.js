@@ -70,7 +70,7 @@ class RootStore {
   network = EluvioConfiguration.network;
 
   embedded = window.top !== window.self || searchParams.has("e");
-  inFlow = (window.location.hash.startsWith("#/flow/") || window.location.hash.startsWith("#/action/")) && !window.location.hash.includes("redirect");
+  inFlow = (window.location.pathname.startsWith("#/flow/") || window.location.pathname.startsWith("#/action/")) && !window.location.pathname.includes("redirect");
 
   storageSupported = storageSupported;
 
@@ -233,12 +233,13 @@ class RootStore {
 
     this.resizeHandler.observe(document.body);
 
-
-    window.addEventListener("hashchange", () => this.SendEvent({event: EVENTS.ROUTE_CHANGE, data: UrlJoin("/", window.location.hash.replace("#", ""))}));
-
     this.ToggleDarkMode(this.darkMode);
 
     this.Initialize();
+  }
+
+  RouteChange(pathname) {
+    this.SendEvent({event: EVENTS.ROUTE_CHANGE, data: pathname});
   }
 
   SetLanguage = flow(function * (language, save=false) {
@@ -1643,9 +1644,14 @@ class RootStore {
       try {
         this.disableCloseEvent = true;
 
+        // Auth0 has a specific whitelisted path for login/logout urls - rely on hash redirect
+        returnUrl = new URL(returnUrl || this.ReloadURL());
+        returnUrl.hash = returnUrl.pathname;
+        returnUrl.pathname = "";
+
         setTimeout(() => {
           this.auth0.logout({
-            returnTo: returnUrl || this.ReloadURL()
+            returnTo: returnUrl.toString()
           });
         }, 100);
 
@@ -1686,9 +1692,9 @@ class RootStore {
     }
 
     if(keepPath) {
-      url.hash = window.location.hash;
+      url.pathname = window.location.pathname;
     } else if(this.marketplaceId) {
-      url.hash = UrlJoin("/marketplace", this.marketplaceId, "store");
+      url.pathname = UrlJoin("/marketplace", this.marketplaceId, "store");
     }
 
     if(this.specifiedMarketplaceId) {

@@ -490,7 +490,8 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
         }
 
         const callbackUrl = new URL(window.location.href);
-        callbackUrl.pathname = callbackUrl.pathname.replace(/\/$/, "");
+        callbackUrl.pathname = "";
+        callbackUrl.hash = window.location.pathname;
 
         callbackUrl.searchParams.set("source", "oauth");
         callbackUrl.searchParams.set("action", "loginCallback");

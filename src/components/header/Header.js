@@ -115,7 +115,7 @@ const ProfileNavigation = observer(() => {
     <>
       <div className="header__profile">
         <button
-          className={`header__profile__link ${showNotificationsMenu || window.location.hash.endsWith("/notifications") ? "active" : ""}`}
+          className={`header__profile__link ${showNotificationsMenu || window.location.pathname.endsWith("/notifications") ? "active" : ""}`}
           onClick={() => setShowNotificationsMenu(!showNotificationsMenu)}
         >
           <ImageIcon alt="Notifications" icon={NotificationsIcon} className="header__profile__user__icon" />
@@ -151,7 +151,7 @@ const MobileNavigation = observer(({marketplace, className=""}) => {
         {
           rootStore.loggedIn ?
             <button
-              className={`header__profile__link mobile-navigation__notifications-button ${showNotificationsMenu || window.location.hash.endsWith("/notifications") ? "active" : ""}`}
+              className={`header__profile__link mobile-navigation__notifications-button ${showNotificationsMenu || window.location.pathname.endsWith("/notifications") ? "active" : ""}`}
               onClick={() => setShowNotificationsMenu(!showNotificationsMenu)}
             >
               <ImageIcon alt="Notifications" icon={NotificationsIcon} className="header__profile__user__icon"/>

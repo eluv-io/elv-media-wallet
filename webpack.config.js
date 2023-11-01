@@ -18,13 +18,13 @@ if(process.env.ANALYZE_BUNDLE) {
 }
 
 module.exports = {
-  entry: Path.resolve(__dirname, "src/index.js"),
+  entry: process.env.ENTRY ? Path.resolve(__dirname, process.env.ENTRY) : Path.resolve(__dirname, "src/index.js"),
   target: "web",
   output: {
     path: Path.resolve(__dirname, "dist"),
+    publicPath: "/",
     clean: true,
     filename: "main.js",
-    publicPath: process.env.ASSET_PATH,
     chunkFilename: "bundle.[id].[chunkhash].js"
   },
   devServer: {

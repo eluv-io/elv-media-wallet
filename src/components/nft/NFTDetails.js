@@ -401,15 +401,15 @@ const NFTInfoMenu = observer(({nftInfo}) => {
   let shareUrl;
   if(listingId) {
     shareUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
-    shareUrl.hash = match.params.marketplaceId ?
+    shareUrl.pathname = match.params.marketplaceId ?
       UrlJoin("/marketplace", match.params.marketplaceId, "listings", listingId) :
       UrlJoin("/wallet", "listings", listingId);
   } else if(match.params.marketplaceId && match.params.sku) {
     shareUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
-    shareUrl.hash = UrlJoin("/marketplace", match.params.marketplaceId, "store", match.params.sku);
+    shareUrl.pathname = UrlJoin("/marketplace", match.params.marketplaceId, "store", match.params.sku);
   } else if(ownerProfile) {
     shareUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
-    shareUrl.hash = match.params.marketplaceId ?
+    shareUrl.pathname = match.params.marketplaceId ?
       UrlJoin("/marketplace", match.params.marketplaceId, "users", ownerProfile.userAddress, "items", match.params.contractId, match.params.tokenId) :
       UrlJoin("/wallet", "users", ownerProfile.userAddress, "items", match.params.contractId, match.params.tokenId);
   }
@@ -1027,7 +1027,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
   const history = useHistory();
 
   const [nftInfo, setNFTInfo] = useState();
-  const [tab, setTab] = useState(new URLSearchParams(window.location.hash.split("?")[1]).get("tab"));
+  const [tab, setTab] = useState(SearchParams()["tab"]);
 
   // Contract
   const [contractStats, setContractStats] = useState(undefined);

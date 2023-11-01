@@ -105,10 +105,10 @@ const NFTActiveMediaShare = observer(({nftInfo, mediaItem}) => {
     let itemUrl;
     if(match.params.marketplaceId && match.params.sku) {
       itemUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
-      itemUrl.hash = UrlJoin("/marketplace", match.params.marketplaceId, "store", match.params.sku);
+      itemUrl.pathname = UrlJoin("/marketplace", match.params.marketplaceId, "store", match.params.sku);
     } else if(ownerProfile) {
       itemUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
-      itemUrl.hash = match.params.marketplaceId ?
+      itemUrl.pathname = match.params.marketplaceId ?
         UrlJoin("/marketplace", match.params.marketplaceId, "users", ownerProfile.userAddress, "items", match.params.contractId, match.params.tokenId) :
         UrlJoin("/wallet", "users", ownerProfile.userAddress, "items", match.params.contractId, match.params.tokenId);
     }

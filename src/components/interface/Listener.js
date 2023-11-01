@@ -738,7 +738,7 @@ export const InitializeListener = () => {
 
         // client.CurrentPath
         case "currentPath":
-          const pathname = UrlJoin("/", window.location.hash.replace("#", ""));
+          const pathname = UrlJoin("/", window.location.pathname);
 
           return Respond({response: pathname});
 
