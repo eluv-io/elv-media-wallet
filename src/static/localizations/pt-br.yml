@@ -272,6 +272,7 @@ offers:
   status:
     active: Ativo
     expired: Expirou
+    accepted: Aceito
     declined: Recusado
     cancelled: Cancelado
     invalid: Inválido

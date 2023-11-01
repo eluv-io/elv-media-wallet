@@ -318,6 +318,8 @@ export const OffersTable = observer(({
         return rootStore.l10n.offers.status.active;
       case "expired":
         return rootStore.l10n.offers.status.expired;
+      case "accepted":
+        return rootStore.l10n.offers.status.accepted;
       case "declined":
         return rootStore.l10n.offers.status.declined;
       case "cancelled":
