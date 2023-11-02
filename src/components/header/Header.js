@@ -370,13 +370,15 @@ const Header = observer(() => {
       const alreadyAtTop = Math.round(window.scrollY) <= 1 && Math.round(lastScrollPosition) <= 1;
       const notAtTop = scrollPosition > 0;
       const notScrollable = document.body.scrollHeight - window.innerHeight < 5;
-
-      // Don't change state if scroll hasn't changed or if page is not scrollable (e.g. loading)
-      if(alreadyAtTop || notScrollable) { return; }
-
-      setScrolled(notAtTop);
+      const largeJump = lastScrollPosition - scrollPosition > 100;
 
       lastScrollPosition = window.scrollY;
+
+      // Don't change state if scroll hasn't changed or if page is not scrollable (e.g. loading) or if there was
+      // a large jump (probably due to page transition)
+      if(alreadyAtTop || notScrollable || largeJump) { return; }
+
+      setScrolled(notAtTop);
     }, 50);
 
     document.addEventListener("scroll", ScrollFade);

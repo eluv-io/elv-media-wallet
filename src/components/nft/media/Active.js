@@ -152,7 +152,6 @@ const NFTActiveMediaShare = observer(({nftInfo, mediaItem}) => {
     twitterUrl.searchParams.set("url", shortMediaUrl);
     twitterUrl.searchParams.set("text", `${nftInfo.name} - ${mediaItem.name}\n\n`);
 
-    console.log(twitterUrl);
     let whatsAppUrl = new URL("https://wa.me");
     whatsAppUrl.searchParams.set("url", shortMediaUrl);
     whatsAppUrl.searchParams.set("text", `${nftInfo.name} - ${mediaItem.name}\n\n${shortMediaUrl}`);

@@ -279,7 +279,7 @@ const MintResults = observer(({skipReveal, text, header, subheader, basePath, nf
 
     if(!nft) { return; }
 
-    return <Redirect to={UrlJoin(nftBasePath || basePath, nft.details.ContractId, nft.details.TokenIdStr)} />;
+    return <Redirect to={UrlJoin(nftBasePath || basePath, nft.details.ContractId, nft.details.TokenIdStr, nft.metadata.minting_results_page === "media" ? "media" : "")} />;
   }
 
   return (
