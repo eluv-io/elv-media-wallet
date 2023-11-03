@@ -28,13 +28,6 @@
     "fix-js": "npm run lint-js -- --fix",
     "fix-scss": "sass-lint-auto-fix -c .scss-lint.yml"
   },
-  "pre-commit": {
-    "run": [
-      "lint",
-      "build",
-      "add-build"
-    ]
-  },
   "browser": {
     "crypto": false,
     "stream": false

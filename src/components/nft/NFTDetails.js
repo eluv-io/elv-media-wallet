@@ -1507,6 +1507,44 @@ export const MintedNFTDetails = observer(({Render}) => {
   );
 });
 
+export const MintedNFTRedirect = observer(() => {
+  const match = useRouteMatch();
+  const [tokenId, setTokenId] = useState(undefined);
+  const [notFound, setNotFound] = useState(false);
+
+  return (
+    <AsyncComponent
+      key={`nft-redirect-${match.params.contractId}`}
+      loadingClassName="page-loader"
+      Load={async () => {
+        try {
+          const {userAddress} = await rootStore.UserProfile({userId: match.params.userId});
+
+          const firstOwnedItem = (await rootStore.walletClient.UserItems({
+            contractAddress: rootStore.client.utils.HashToAddress(match.params.contractId),
+            userAddress: userAddress,
+            limit: 1
+          }))?.results?.[0];
+
+          if(firstOwnedItem) {
+            setTokenId(firstOwnedItem.details.TokenIdStr)
+          } else {
+            setNotFound(true);
+          }
+        } catch(error) {
+          rootStore.Log(error, true);
+          setNotFound(true);
+        }
+      }}
+      render={() =>
+        tokenId ? <Redirect to={UrlJoin(match.url, tokenId)} /> :
+          notFound ? <Redirect to={Path.dirname(match.url)} /> :
+            null
+      }
+    />
+  );
+});
+
 // Listing
 export const ListingDetails = observer(() => {
   const match = useRouteMatch();

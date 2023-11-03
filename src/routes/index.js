@@ -3,7 +3,7 @@ import {rootStore} from "Stores";
 import Profile from "Components/profile";
 import Leaderboard from "Components/marketplace/Leaderboard";
 import UrlJoin from "url-join";
-import {ListingDetails, MarketplaceItemDetails, MintedNFTDetails} from "Components/nft/NFTDetails";
+import {ListingDetails, MarketplaceItemDetails, MintedNFTDetails, MintedNFTRedirect} from "Components/nft/NFTDetails";
 import Listings from "Components/listings/Listings";
 import {RecentSales} from "Components/listings/Activity";
 import {
@@ -56,6 +56,7 @@ const UserMarketplaceRoutes = () => {
 const TokenRoutes = basePath => {
   return [
     { name: "Open Pack", path: UrlJoin(basePath, "/:contractId/:tokenId/open"), authed: true, Component: PackOpenStatus },
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId"), noBlock: true, Component: MintedNFTRedirect },
     { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId/:tokenId"), noBlock: true, Component: MintedNFTDetails },
 
     { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId/:tokenId/media"), noBlock: true, Component: NFTMedia },
