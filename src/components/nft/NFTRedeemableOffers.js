@@ -78,7 +78,7 @@ const RedemptionResults = observer(({offer, offerData, showPopupNotice}) => {
     return (
       <div className="redeemable-offer-modal__container">
         <div className="redeemable-offer-modal__header">
-          {rootStore.l10n.redeemables.successfully_redeemed}
+          {offer.results_header || rootStore.l10n.redeemables.successfully_redeemed}
         </div>
         <div className="redeemable-offer-modal__content">
           <Loader className="redeemable-offer-modal__loader"/>
@@ -96,9 +96,12 @@ const RedemptionResults = observer(({offer, offerData, showPopupNotice}) => {
     return (
       <div className="redeemable-offer-modal__container">
         <div className="redeemable-offer-modal__header">
-          {rootStore.l10n.redeemables.successfully_redeemed}
+          {offer.results_header || rootStore.l10n.redeemables.successfully_redeemed}
         </div>
         <div className="redeemable-offer-modal__content">
+          <div className="redeemable-offer-modal__redeem-message">
+            {offer.results_message || rootStore.l10n.redeemables.redeemed_message}
+          </div>
           <div className="redeemable-offer-modal__image-container">
             <QRCodeElement content={JSON.stringify(offerData.code)} className="redeemable-offer-modal__image"/>
           </div>
@@ -143,11 +146,11 @@ const RedemptionResults = observer(({offer, offerData, showPopupNotice}) => {
     return (
       <div className="redeemable-offer-modal__container">
         <div className="redeemable-offer-modal__header">
-          {rootStore.l10n.redeemables.successfully_redeemed}
+          {offer.results_header || rootStore.l10n.redeemables.successfully_redeemed}
         </div>
         <div className="redeemable-offer-modal__content">
           <div className="redeemable-offer-modal__redeem-message">
-            {rootStore.l10n.redeemables.redeemed_message}
+            {offer.results_message || rootStore.l10n.redeemables.redeemed_message}
           </div>
           {
             offerData.url ?

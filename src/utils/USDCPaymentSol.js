@@ -4,7 +4,7 @@ import {
   Transaction
 } from "@solana/web3.js";
 import { setupCreatePaymentIxns } from "@eluvio/elv-paymentgate/lib/paymentgate";
-import { getAssociatedTokenAddress } from "@solana/spl-token/lib/esm/state/mint.mjs";
+import {getAssociatedTokenAddress} from "@solana/spl-token";
 
 /*
 spec = {

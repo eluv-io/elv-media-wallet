@@ -12,7 +12,6 @@ import MetamaskIcon from "Assets/icons/metamask fox.png";
 import EluvioE from "Assets/images/ELUV.IO-E-Icon.png";
 import EluvioLogo from "Assets/images/Eluvio_logo.svg";
 import MediaWalletLogo from "Assets/images/Media Wallet Text Linear.svg";
-import EluvioPoweredByLogo from "Assets/images/Eluvio_logo.svg";
 import CheckIcon from "Assets/icons/check.svg";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
@@ -80,7 +79,7 @@ const PoweredBy = ({customizationOptions}) => {
   return (
     <div className="login-page__tagline">
       <div className="login-page__tagline__text">{ rootStore.l10n.login.powered_by }</div>
-      <ImageIcon icon={EluvioPoweredByLogo} className="login-page__tagline__image" title="Eluv.io" />
+      <ImageIcon icon={EluvioLogo} className="login-page__tagline__image" title="Eluv.io" />
     </div>
   );
 };

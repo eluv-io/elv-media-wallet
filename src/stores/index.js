@@ -3,6 +3,7 @@ let testTheme = undefined;
 //testTheme = import("../static/stylesheets/themes/wwe-test.theme.css");
 //testTheme = import("../static/stylesheets/themes/lotr-test.theme.css");
 //testTheme = import("../static/stylesheets/themes/superman-test.theme.css");
+//testTheme = import("../static/stylesheets/themes/uefa-test.theme.scss");
 
 window.sessionStorageAvailable = false;
 try {
@@ -439,6 +440,7 @@ class RootStore {
 
       // Check for existing Auth0 authentication status
       // Note: auth0.checkSession hangs sometimes without throwing an error - if it takes longer than 5 seconds, abort.
+      // eslint-disable-next-line no-async-promise-executor
       yield new Promise(async (resolve, reject) => {
         const timeout = setTimeout(() => reject("Auth0 checkSession timeout"), 5000);
         // eslint-disable-next-line no-console
@@ -475,7 +477,7 @@ class RootStore {
 
     // eslint-disable-next-line no-console
     console.timeEnd("Auth0 Authentication");
-  })
+  });
 
   Authenticate = flow(function * ({idToken, clientAuthToken, clientSigningToken, externalWallet, walletName, user, saveAuthInfo=true, callback}) {
     if(this.authenticating) { return; }
@@ -973,11 +975,12 @@ class RootStore {
         }
       }
 
-      this.SetCustomizationOptions(marketplace);
-
       if(marketplace?.default_display_currency) {
         this.checkoutStore.SetCurrency({currency: marketplace?.default_display_currency});
       }
+
+      // Give locationType time to settle if path changed
+      setTimeout(() => this.SetCustomizationOptions(marketplace), 100);
 
       return marketplace.marketplaceHash;
     } else if(Object.keys(this.walletClient.availableMarketplaces) > 0) {
@@ -1051,6 +1054,7 @@ class RootStore {
       }
 
       if(!this.marketplaceOwnedCache[userAddress]?.[marketplace.tenant_id]) {
+        // eslint-disable-next-line no-async-promise-executor
         let promise = new Promise(async resolve => {
           let ownedItems = {};
 

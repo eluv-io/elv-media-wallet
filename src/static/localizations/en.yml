@@ -49,6 +49,7 @@ actions:
   back_to: Back to {thing}
   cancel: Cancel
   close: Close
+  share: Share
   packs:
     open: Open {name}
     open_confirm: Are you sure you want to open '{name}'?
@@ -241,6 +242,7 @@ offers:
   status:
     active: Active
     expired: Expired
+    accepted: Accepted
     declined: Declined
     cancelled: Cancelled
     invalid: Invalid
@@ -357,6 +359,9 @@ filters:
   filters:
     min: Min
     max: Max
+    start_date: Start Date
+    end_date: End Date
+    to: to
     apply: Apply Filters
     reset: Reset Filters
     token_id: Token ID
@@ -376,10 +381,12 @@ filters:
     marketplaces: Marketplaces
     all_marketplaces: All Marketplaces
     time: Time
+    date: Date Range
     all_time: All Time
     last_24_hours: Last 24 Hours
     last_7_days: Last 7 Days
     last_30_days: Last 30 Days
+    custom: Custom
   sort:
     sort: Sort
     minted: Minted (Oldest to Newest)
@@ -442,7 +449,8 @@ item_details:
     copy_listing_url: Copy Listing URL
     copy_item_url: Copy Item URL
     copy_media_url: Copy Media URL
-    share_on_twitter: Share on Twitter
+    share_on_twitter: Share on X
+    share_on_whatsapp: Share on WhatsApp
   additional_media:
     view_ar: View this AR experience on mobile
     qr_code_instructions: Point your phone's camera at this QR code to view on mobile.

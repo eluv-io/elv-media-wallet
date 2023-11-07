@@ -53,6 +53,18 @@ const UserMarketplaceRoutes = () => {
   ];
 };
 
+const TokenRoutes = basePath => {
+  return [
+    { name: "Open Pack", path: UrlJoin(basePath, "/:contractId/:tokenId/open"), authed: true, Component: PackOpenStatus },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: UrlJoin(basePath, "/:contractId/:tokenId"), noBlock: true, Component: MintedNFTDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: UrlJoin(basePath, "/:contractId/:tokenId/:action"), authed: true, noBlock: true, Component: MintedNFTDetails },
+
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: UrlJoin(basePath, "/:contractId/:tokenId/media"), noBlock: true, Component: NFTMedia },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: UrlJoin(basePath, "/:contractId/:tokenId/media/:sectionId/:mediaIndex"), noBlock: true, Component: NFTMedia },
+    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: UrlJoin(basePath, "/:contractId/:tokenId/media/:sectionId/:collectionId/:mediaIndex"), noBlock: true, Component: NFTMedia },
+  ];
+};
+
 const UserRoutes = ({includeMarketplaceRoutes}) => {
   return [
     ...(includeMarketplaceRoutes ? UserMarketplaceRoutes() : []),
@@ -66,16 +78,9 @@ const UserRoutes = ({includeMarketplaceRoutes}) => {
     { name: "Notifications", path: "notifications", Component: Notifications, includeUserProfile: true },
 
     { name: match => (GetMarketplace(match)?.storefront?.tabs?.my_items || "Items"), includeUserProfile: true, path: "items", Component: UserItems },
-    { name: "Open Pack", path: "items/:contractId/:tokenId/open", Component: PackOpenStatus },
 
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/media", noBlock: true, Component: NFTMedia },
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/media/:sectionId/:mediaIndex", noBlock: true, Component: NFTMedia },
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/media/:sectionId/:collectionId/:mediaIndex", noBlock: true, Component: NFTMedia },
-
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "listings/:contractId/:tokenId", noBlock: true, Component: MintedNFTDetails },
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "listings/:contractId/:tokenId/:action", authed: true, noBlock: true, Component: MintedNFTDetails },
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId", noBlock: true, Component: MintedNFTDetails },
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "items/:contractId/:tokenId/:action", authed: true, noBlock: true, Component: MintedNFTDetails },
+    ...TokenRoutes("items"),
+    ...TokenRoutes("listings"),
 
     { path: "/", includeUserProfile: true, redirect: "items" },
   ]
@@ -110,10 +115,11 @@ const MarketplaceRoutes = () => {
     { name: "Collections", path: "collections/:collectionSKU", Component: MarketplaceCollection },
     { name: match => (GetItem(match)?.name || "Item"), path: "collections/:collectionSKU/store/:sku", noBlock: true, Component: MarketplaceItemDetails },
     { name: match => (GetItem(match)?.name || "Item"), path: "collections/:collectionSKU/store/:sku/:action", authed: true, noBlock: true, Component: MarketplaceItemDetails },
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "collections/:collectionSKU/owned/:contractId/:tokenId", noBlock: true, Component: MintedNFTDetails },
-    { name: match => (GetNFT(match)?.metadata?.display_name || "NFT"), path: "collections/:collectionSKU/owned/:contractId/:tokenId/:action", authed: true, noBlock: true, Component: MintedNFTDetails },
+
     { name: "Redeem Collection", path: "collections/:collectionSKU/redeem", Component: MarketplaceCollectionRedemption },
     { name: "Redeem Collection", path: "collections/:collectionSKU/redeem/:confirmationId/status", Component: CollectionRedeemStatus },
+
+    ...TokenRoutes("collections/:collectionSKU/owned"),
 
     { name: "Drop Event", path: "events/:tenantSlug/:eventSlug/:dropId", Component: Drop, hideNavigation: true, authed: true, ignoreLoginCapture: true },
     { name: "Drop Status", path: "events/:tenantSlug/:eventSlug/:dropId/status", Component: DropMintingStatus, hideNavigation: true, authed: true },

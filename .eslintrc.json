@@ -4,14 +4,13 @@
     "es6": true
   },
   "extends": "eslint:recommended",
-  "parser": "babel-eslint",
   "parserOptions": {
     "ecmaFeatures": {
       "jsx": true,
       "modules": true,
       "legacyDecorators": true
     },
-    "ecmaVersion": 2018,
+    "ecmaVersion": "latest",
     "sourceType": "module"
   },
   "plugins": [

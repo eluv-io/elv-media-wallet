@@ -191,6 +191,7 @@ $search-height: 50px;
 
   &__range-container {
     margin-top: 30px;
+    width: 100%;
   }
 
   &__range {
@@ -198,6 +199,11 @@ $search-height: 50px;
     display: flex;
     justify-content: flex-start;
     padding: 15px 0 0 10px;
+    width: 100%;
+
+    &--no-label {
+      padding-left: 0;
+    }
 
     * {
       text-align: center;
@@ -205,13 +211,20 @@ $search-height: 50px;
 
     &__label {
       color: var(--color-component-text-secondary);
+      margin-right: 10px;
       width: 125px;
+    }
+
+    &__separator {
+      margin: 0 10px;
     }
 
     input {
       background: var(--color-component-bg-primary);
+      flex-grow: 1;
       height: 45px;
-      margin: 0 10px;
+      position: relative;
+      width: 100%;
     }
   }
 
@@ -256,6 +269,12 @@ $search-height: 50px;
 
     &__menu {
       width: 100%;
+    }
+
+    &__range {
+      input {
+        font-size: 12px;
+      }
     }
   }
 }
