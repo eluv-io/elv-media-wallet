@@ -95,7 +95,6 @@ module.exports = {
       },
       {
         test: /\.(js|mjs|jsx)$/,
-        exclude: /node_modules\/(?!@eluvio\/elv-embed)/,
         loader: "babel-loader",
         options: {
           presets: [

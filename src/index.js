@@ -117,6 +117,7 @@ const Routes = observer(() => {
   return (
     <>
       <Header />
+      <div id="top-scroll-target" />
       <ScrollToTop>
         <ErrorBoundary className="page-container wallet-page">
           <Switch>

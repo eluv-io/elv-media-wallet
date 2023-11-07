@@ -69,7 +69,8 @@ export const MarketplaceCollectionsSummary = observer(() => {
     if(!marketplace) { return; }
 
     rootStore.MarketplaceOwnedItems({marketplace})
-      .then(() => setLoading(false));
+      .then(() => setLoading(false))
+      .catch(error => rootStore.Log(error, true));
   }, [marketplace]);
 
   if(!marketplace) { return null; }
