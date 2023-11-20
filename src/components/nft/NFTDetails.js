@@ -401,15 +401,15 @@ const NFTInfoMenu = observer(({nftInfo}) => {
   let shareUrl;
   if(listingId) {
     shareUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
-    shareUrl.hash = match.params.marketplaceId ?
+    shareUrl.pathname = match.params.marketplaceId ?
       UrlJoin("/marketplace", match.params.marketplaceId, "listings", listingId) :
       UrlJoin("/wallet", "listings", listingId);
   } else if(match.params.marketplaceId && match.params.sku) {
     shareUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
-    shareUrl.hash = UrlJoin("/marketplace", match.params.marketplaceId, "store", match.params.sku);
+    shareUrl.pathname = UrlJoin("/marketplace", match.params.marketplaceId, "store", match.params.sku);
   } else if(ownerProfile) {
     shareUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
-    shareUrl.hash = match.params.marketplaceId ?
+    shareUrl.pathname = match.params.marketplaceId ?
       UrlJoin("/marketplace", match.params.marketplaceId, "users", ownerProfile.userAddress, "items", match.params.contractId, match.params.tokenId) :
       UrlJoin("/wallet", "users", ownerProfile.userAddress, "items", match.params.contractId, match.params.tokenId);
   }
@@ -1027,7 +1027,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
   const history = useHistory();
 
   const [nftInfo, setNFTInfo] = useState();
-  const [tab, setTab] = useState(new URLSearchParams(window.location.hash.split("?")[1]).get("tab"));
+  const [tab, setTab] = useState(SearchParams()["tab"]);
 
   // Contract
   const [contractStats, setContractStats] = useState(undefined);
@@ -1502,6 +1502,44 @@ export const MintedNFTDetails = observer(({Render}) => {
         Render ?
           Render({nft}) :
           <NFTDetails nft={nft} />
+      }
+    />
+  );
+});
+
+export const MintedNFTRedirect = observer(() => {
+  const match = useRouteMatch();
+  const [tokenId, setTokenId] = useState(undefined);
+  const [notFound, setNotFound] = useState(false);
+
+  return (
+    <AsyncComponent
+      key={`nft-redirect-${match.params.contractId}`}
+      loadingClassName="page-loader"
+      Load={async () => {
+        try {
+          const {userAddress} = await rootStore.UserProfile({userId: match.params.userId});
+
+          const firstOwnedItem = (await rootStore.walletClient.UserItems({
+            contractAddress: rootStore.client.utils.HashToAddress(match.params.contractId),
+            userAddress: userAddress,
+            limit: 1
+          }))?.results?.[0];
+
+          if(firstOwnedItem) {
+            setTokenId(firstOwnedItem.details.TokenIdStr)
+          } else {
+            setNotFound(true);
+          }
+        } catch(error) {
+          rootStore.Log(error, true);
+          setNotFound(true);
+        }
+      }}
+      render={() =>
+        tokenId ? <Redirect to={UrlJoin(match.url, tokenId)} /> :
+          notFound ? <Redirect to={Path.dirname(match.url)} /> :
+            null
       }
     />
   );

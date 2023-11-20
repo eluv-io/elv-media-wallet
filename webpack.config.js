@@ -8,7 +8,7 @@ let plugins = [
     title: "Eluvio Media Wallet",
     template: Path.join(__dirname, "src", "index.html"),
     filename: "index.html",
-    favicon: "./src/static/icons/favicon.png",
+    favicon: Path.join(__dirname, "src", "static", "icons", "favicon.png"),
     inject: "body"
   })
 ];
@@ -18,13 +18,13 @@ if(process.env.ANALYZE_BUNDLE) {
 }
 
 module.exports = {
-  entry: Path.resolve(__dirname, "src/index.js"),
+  entry: process.env.ENTRY ? Path.resolve(__dirname, process.env.ENTRY) : Path.resolve(__dirname, "src/index.js"),
   target: "web",
   output: {
     path: Path.resolve(__dirname, "dist"),
+    publicPath: "/",
     clean: true,
     filename: "main.js",
-    publicPath: process.env.ASSET_PATH,
     chunkFilename: "bundle.[id].[chunkhash].js"
   },
   devServer: {

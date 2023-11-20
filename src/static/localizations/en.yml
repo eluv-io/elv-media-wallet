@@ -400,6 +400,8 @@ filters:
     price_desc: Price (High to Low)
 
 item_details:
+  item: Item
+  marketplace: Marketplace
   properties: Properties
   details: Details
   contract: Contract

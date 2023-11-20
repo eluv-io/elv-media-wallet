@@ -9,15 +9,15 @@
     "bump-version": "npm --git-tag-version --no-commit-hooks version patch",
     "serve": "webpack-dev-server --hot --port 8090 --host=0.0.0.0",
     "serve-https": "webpack-dev-server --https --hot --port 8090 --host=0.0.0.0",
-    "serve-frame-test": "webpack-dev-server --entry ./test/frame.js --https --hot --port 8091 --host=0.0.0.0",
-    "serve-client-test": "webpack-dev-server --entry ./test/client.js --https --hot --port 8092 --host=0.0.0.0",
-    "serve-login-test": "webpack-dev-server --entry ./test/login.js --https --hot --port 8093 --host=0.0.0.0",
+    "serve-frame-test": "ENTRY=test/frame.js webpack-dev-server --https --hot --port 8091 --host=0.0.0.0",
+    "serve-client-test": "ENTRY=test/client.js webpack-dev-server --https --hot --port 8092 --host=0.0.0.0",
+    "serve-login-test": "ENTRY=test/login.js webpack-dev-server --https --hot --port 8093 --host=0.0.0.0",
     "build": "node ./node_modules/webpack-cli/bin/cli.js --mode=production --devtool false",
     "build-all": "npm run build-test-l10n && npm run build && npm run build-client-test && npm run build-frame-test && npm run build-login-test && npm run build-docs",
     "build-analyze": "ANALYZE_BUNDLE=true npm run build-app",
-    "build-frame-test": "node ./node_modules/webpack-cli/bin/cli.js --mode=production --entry ./test/frame.js --output-path ./test/dist/test-frame --devtool false",
-    "build-client-test": "node ./node_modules/webpack-cli/bin/cli.js --mode=production --entry ./test/client.js --output-path ./test/dist/test-client --devtool false",
-    "build-login-test": "node ./node_modules/webpack-cli/bin/cli.js --mode=production --entry ./test/login.js --output-path ./test/dist/test-login --devtool false",
+    "build-frame-test": "ENTRY=test/frame.js node ./node_modules/webpack-cli/bin/cli.js --mode=production --output-path ./dist/_test/frame --devtool false",
+    "build-client-test": "ENTRY=test/client.js node ./node_modules/webpack-cli/bin/cli.js --mode=production --output-path ./dist/_test/client --devtool false",
+    "build-login-test": "ENTRY=test/login.js node ./node_modules/webpack-cli/bin/cli.js --mode=production --output-path ./dist/_test/login --devtool false",
     "build-docs": "rm -rf ./docs/* && ./node_modules/.bin/jsdoc --configure ./.jsdoc.json --readme README.md",
     "build-test-l10n": "node src/static/localizations/LocalizeUtils.js test",
     "add-build": "COMMIT=`git rev-parse HEAD` ; echo $COMMIT > dist/version.txt ; git add dist",
@@ -27,13 +27,6 @@
     "lint-scss": "./node_modules/sass-lint/bin/sass-lint.js -c .scss-lint.yml -v -q",
     "fix-js": "npm run lint-js -- --fix",
     "fix-scss": "sass-lint-auto-fix -c .scss-lint.yml"
-  },
-  "pre-commit": {
-    "run": [
-      "lint",
-      "build",
-      "add-build"
-    ]
   },
   "browser": {
     "crypto": false,

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {useRouteMatch} from "react-router-dom";
+import {Link, useRouteMatch} from "react-router-dom";
 import {NFTInfo} from "../../../utils/Utils";
 import {MarketplaceItemDetails, MintedNFTDetails} from "Components/nft/NFTDetails";
 import SwiperCore, {Lazy, Navigation, Keyboard} from "swiper";
@@ -9,6 +9,9 @@ SwiperCore.use([Lazy, Navigation, Keyboard]);
 import {rootStore} from "Stores";
 import NFTMediaBrowser from "Components/nft/media/Browser";
 import NFTActiveMedia from "Components/nft/media/Active";
+import ImageIcon from "Components/common/ImageIcon";
+import BackIcon from "Assets/icons/arrow-left";
+import {LocalizeString} from "Components/common/UIComponents";
 
 export const NFTMediaContainer = observer(({nftInfo, nft, item, browserOnly}) => {
   const match = useRouteMatch();
@@ -45,13 +48,33 @@ export const NFTMediaContainer = observer(({nftInfo, nft, item, browserOnly}) =>
     return <NFTMediaBrowser nftInfo={nftInfo} />;
   }
 
+  const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
+
   return (
     <div className="nft-media-page">
-      <NFTActiveMedia nftInfo={nftInfo} key={`nft-media-${match.params.sectionIndex}-${match.params.collectionIndex}`} />
+      {
+        !match.params.mediaIndex ? null :
+          <NFTActiveMedia
+            nftInfo={nftInfo}
+            key={`nft-media-${match.params.sectionIndex}-${match.params.collectionIndex}`}
+          />
+      }
       {
         nftInfo.additionalMedia.isSingleList || nftInfo.additionalMedia.isSingleAlbum ? null :
           <div className="page-block page-block--lower-content page-block--media-browser">
             <div className="page-block__content page-block__content--extra-wide">
+              {
+                typeof match.params.mediaIndex !== "undefined" ? null :
+                  <Link
+                    to={match.url.split("/media")[0]}
+                    className="details-page__back-link nft-media-browser__back-link"
+                  >
+                    <ImageIcon icon={BackIcon}/>
+                    <div className="details-page__back-link__text ellipsis">
+                      {LocalizeString(rootStore.l10n.actions.back_to, {thing: backPage.name})}
+                    </div>
+                  </Link>
+              }
               <NFTMediaBrowser nftInfo={nftInfo} />
             </div>
           </div>
