@@ -18,11 +18,11 @@
   }
 
   input {
-    background: var(--background-input);
-    border: var(--border-input);
-    border-radius: var(--border-radius-input);
+    background: var(--color-login-input-background);
+    border: var(--border-login-input);
+    border-radius: var(--border-radius-login-input);
     box-shadow: var(--box-shadow-input);
-    color: var(--color-bg-primary);
+    color: var(--color-login-input-text);
     font: var(--font-input);
     height: 50px;
 
@@ -32,8 +32,8 @@
 
     &[type="checkbox"] {
       appearance: none;
-      border: var(--border-input);
-      border-radius: var(--border-radius-input);
+      border: var(--border-login-input);
+      border-radius: var(--border-radius-login-input);
       cursor: pointer;
       max-height: 18px;
       max-width: 18px;
@@ -45,7 +45,7 @@
         &::after {
           align-items: center;
           background-color: transparent;
-          color: var(--color-input-text);
+          color: var(--color-login-input-text);
           content: "✓";
           display: flex;
           font-size: 12px;
@@ -78,6 +78,62 @@
     .modal__content {
       padding: 0;
     }
+  }
+}
+
+.ory-login {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0 auto 20px;
+  max-width: 265px;
+
+  &__title {
+    font-size: 18px;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  &__message {
+    color: var(--color-login-text-secondary);
+    font-size: 14px;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  &__form {
+    display: grid;
+    gap: 10px;
+  }
+
+  button,
+  input {
+    max-width: 265px;
+    text-align: center;
+
+    &:not(.ory-login__secondary-button) {
+      margin: 0;
+      width: 100%;
+    }
+  }
+
+  input {
+    padding: 0 20px;
+  }
+
+  &__secondary-button {
+    color: var(--color-login-text-highlight);
+    font-size: 14px;
+    margin: 5px auto 0;
+    width: max-content;
+  }
+
+  &__error-message {
+    color: var(--color-text-error);
+    font-size: 12px;
+    margin-top: 20px;
+    text-align: center;
+    white-space: pre-wrap;
   }
 }
 
@@ -137,24 +193,6 @@
     padding: 40px 30px 30px;
     position: relative;
     width: 100%;
-  }
-
-  .labelled-field {
-    display: flex;
-    flex-direction: column;
-    margin: 10px 0;
-
-    label {
-      font-size: 14px;
-      font-weight: 500;
-      letter-spacing: 0.03em;
-      margin-bottom: 8px;
-    }
-
-    input {
-      height: 40px;
-      padding: 5px 10px;
-    }
   }
 
   &__logo {

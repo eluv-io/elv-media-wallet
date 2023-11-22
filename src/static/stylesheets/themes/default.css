@@ -288,6 +288,11 @@ html {
   --color-login-text-primary: var(--color-component-text-primary);
   --color-login-text-secondary: var(--color-component-text-secondary);
   --color-login-text-highlight: var(--color-component-text-highlight);
+  --color-login-input-background: var(--color-bg-primary);
+  --color-login-input-text: var(--color-component-text-primary);
+  --border-login-input: var(--border);
+  --border-radius-login-input: var(--border-radius);
+
   --border-login-box: var(--border);
   --border-radius-login-box: var(--border-radius);
   --box-shadow-login-box: var(--box-shadow);

@@ -13,6 +13,9 @@ import EluvioE from "Assets/images/ELUV.IO-E-Icon.png";
 import EluvioLogo from "Assets/images/Eluvio_logo.svg";
 import MediaWalletLogo from "Assets/images/Media Wallet Text Linear.svg";
 import CheckIcon from "Assets/icons/check.svg";
+import OryLogin from "Components/login/OryLogin";
+
+const useOry = true;
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 const params = {
@@ -258,6 +261,24 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
           </div>
         </div>
         <PoweredBy customizationOptions={customizationOptions}/>
+      </>
+    );
+  }
+
+  if(useOry) {
+    return (
+      <>
+        <Logo customizationOptions={customizationOptions} />
+        <OryLogin userData={userData} />
+        {
+          params.loginCode && !loading ?
+            <div className="login-page__login-code">
+              { LocalizeString(rootStore.l10n.login.login_code, { code: params.loginCode }) }
+            </div> : null
+        }
+
+        <PoweredBy customizationOptions={customizationOptions}/>
+        { loading ? null : <Terms customizationOptions={customizationOptions} userData={userData} setUserData={setUserData}/> }
       </>
     );
   }

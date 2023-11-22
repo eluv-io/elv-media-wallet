@@ -58,6 +58,7 @@ class RootStore {
   appId = "eluvio-media-wallet";
 
   auth0 = undefined;
+  oryClient = undefined;
 
   authOrigin = this.GetSessionStorage("auth-origin");
 
@@ -306,6 +307,19 @@ class RootStore {
       this.SetLanguage(this.language || navigator.languages);
 
       if(window.sessionStorageAvailable) {
+        // Initialize Ory client
+        const {Configuration, FrontendApi} = yield import("@ory/client");
+        this.oryClient = new FrontendApi(
+          new Configuration({
+            basePath: EluvioConfiguration.ory_configuration.url,
+            // we always want to include the cookies in each request
+            // cookies are used for sessions and CSRF protection
+            baseOptions: {
+              withCredentials: true
+            }
+          })
+        );
+
         // eslint-disable-next-line no-console
         console.time("Auth0 Initial Load");
 
@@ -346,6 +360,8 @@ class RootStore {
         previewMarketplaceId: (searchParams.get("preview") || (!this.embedded && this.GetSessionStorage("preview-marketplace")) || "").replaceAll("/", ""),
         storeAuthToken: false
       });
+
+      this.walletClient.client.authServiceURIs = ["https://wlt.stg.svc.eluv.io"];
 
       // Internal feature - allow setting of authd node via query param for testing
       const authdURI = searchParams.get("authd") || this.GetSessionStorage("authd-uri");
@@ -427,6 +443,19 @@ class RootStore {
 
     return this.walletClient.UserAddress();
   }
+
+  AuthenticateOry = flow(function * ({userData}={}) {
+    try {
+      const response = yield this.oryClient.toSession({tokenizeAs: EluvioConfiguration.ory_configuration.jwt_template});
+      console.log(response);
+      const email = response.data.identity.traits.email;
+      const jwtToken = response.data.tokenized;
+      console.log(email, jwtToken);
+    } catch(error) {
+      this.Log("Error logging in with Ory:", true);
+      this.Log(error);
+    }
+  });
 
   AuthenticateAuth0 = flow(function * ({userData}={}) {
     try {
