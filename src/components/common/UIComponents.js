@@ -192,14 +192,15 @@ export const AnnotatedField = ({text, referenceImages, className=""}) => {
   let result = text
     .split(/{(\w+)}/)
     .filter(s => s)
-    .map(token =>
+    .map((token, index) =>
       typeof referenceImages[token] !== "undefined" ?
         <img
+          key={`img-${index}`}
           src={referenceImages[token].image.url}
-          alt={referenceImages[token].alt_text}
+          alt={referenceImages[token].alt_text || ""}
           className="annotated-field__image"
         /> :
-        <div className="annotated-field__text">{token}</div>
+        <div key={`text-${index}`} className="annotated-field__text">{token}</div>
     );
 
   return (

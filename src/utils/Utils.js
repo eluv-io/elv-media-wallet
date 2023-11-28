@@ -773,6 +773,34 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
   };
 };
 
+export const LiveMediaInfo = mediaItem => {
+  if(mediaItem.media_type !== "Live Video") {
+    return {
+      isLive: false
+    };
+  }
+
+  try {
+    let startTime = mediaItem.start_time && new Date(mediaItem.start_time);
+    let endTime = mediaItem.end_time && new Date(mediaItem.end_time);
+
+    let isLive = (!startTime || new Date() > startTime) && (!endTime || new Date < endTime);
+
+    return {
+      startTime,
+      endTime,
+      isLive
+    };
+  } catch(error) {
+    rootStore.Log(`Error parsing start/end time in media item ${mediaItem.name}`);
+    rootStore.Log(error);
+  }
+
+  return {
+    isLive: false
+  };
+};
+
 export const MobileOption = (width, desktop, mobile) => {
   return (width < 850 && mobile) || desktop || "";
 };

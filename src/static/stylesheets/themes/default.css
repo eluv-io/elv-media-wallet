@@ -268,6 +268,8 @@ html {
   --box-shadow-nft-media-album-content: 0px 0 8px rgba(0, 0, 0, 0.1);
   --box-shadow-nft-media-album-list: 0px 0 8px rgba(0, 0, 0, 0.1);
 
+  --background-nft-media-live-indicator: #FF0000;
+
   /* Modals */
   --background-modal-overlay: rgba(0, 0, 0, 0.75);
   --background-modal-primary: var(--background-content);

@@ -23,7 +23,7 @@ import {
 import AlbumView from "Components/nft/media/Album";
 import Modal from "Components/common/Modal";
 import {MediaCollection} from "Components/nft/media/Browser";
-import {SearchParams, SetImageUrlDimensions, ToggleFullscreen} from "../../../utils/Utils";
+import {LiveMediaInfo, SearchParams, SetImageUrlDimensions, ToggleFullscreen} from "../../../utils/Utils";
 
 import BackIcon from "Assets/icons/arrow-left";
 import LeftArrow from "Assets/icons/left-arrow";
@@ -472,10 +472,12 @@ const NFTActiveMedia = observer(({nftInfo}) => {
     };
   }
 
+  window.currentMediaItem = currentMediaItem;
+
   const albumView = current.display === "Album";
   const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
 
-  const description = currentMediaItem.description ?
+  let description = currentMediaItem.description ?
     <RichText richText={currentMediaItem.description} className="nft-media-album__content__description" /> :
     currentMediaItem.description_text ? <div className="nft-media-album__content__description">{ currentMediaItem.description_text }</div> :
       null;
@@ -562,6 +564,22 @@ const NFTActiveMedia = observer(({nftInfo}) => {
                 </div>
               </Link> : null
           }
+          <div className="nft-media__title-container">
+            <h1 className="nft-media__title">
+              {
+                currentMediaItem.annotated_title ?
+                  <AnnotatedField
+                    text={currentMediaItem.annotated_title}
+                    referenceImages={nftInfo.referenceImages}
+                    className="nft-media__annotated-title"
+                  /> :
+                  currentMediaItem.name || ""
+              }
+              { LiveMediaInfo(currentMediaItem).isLive ? <div className="nft-media__live-indicator">LIVE</div> : null }
+            </h1>
+            { currentMediaItem.subtitle_1 ? <div className="nft-media__subtitle">{currentMediaItem.subtitle_1 || ""}</div> : null }
+            { currentMediaItem.subtitle_2 ? <div className="nft-media__subtitle2">{currentMediaItem.subtitle_2 || ""}</div> : null }
+          </div>
           <div className="nft-media__content">
             <div className={`nft-media__content__target-container nft-media__content__target-container--${currentMediaItem?.mediaInfo?.mediaType?.toLowerCase() || "video"}`}>
               <NFTActiveMediaContent
@@ -593,18 +611,13 @@ const NFTActiveMedia = observer(({nftInfo}) => {
                   </div> : null
               }
               <div className="nft-media__content__text">
-                {
-                  currentMediaItem.annotated_title ?
-                    <AnnotatedField
-                      text={currentMediaItem.annotated_title}
-                      referenceImages={nftInfo.referenceImages}
-                      className="nft-media__content__name nft-media__annotated-title"
-                    /> :
-                    <div className="nft-media__content__name">{currentMediaItem.name || ""}</div>
+                { currentMediaItem.description ?
+                  <RichText richText={currentMediaItem.description} className="nft-media__content__description" /> :
+                  currentMediaItem.description_text ?
+                    <div className="nft-media__content__description">
+                      { currentMediaItem.description_text }
+                    </div> : null
                 }
-                <div className="nft-media__content__subtitle-1">{currentMediaItem.subtitle_1 || ""}</div>
-                <div className="nft-media__content__subtitle-2">{currentMediaItem.subtitle_2 || ""}</div>
-                { currentMediaItem.description ? <RichText richText={currentMediaItem.description} className="nft-media__content__description" /> : null }
                 {
                   currentMediaItem.mediaInfo.mediaType === "html" ?
                     <button onClick={() => setShowQRModal(!showQRModal)} className="nft-media__content__button nft-media__content__button--qr">
