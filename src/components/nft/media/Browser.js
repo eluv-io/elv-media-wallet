@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import {NavLink, useRouteMatch} from "react-router-dom";
-import {Linkish} from "Components/common/UIComponents";
+import {AnnotatedField, Linkish} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import {Swiper, SwiperSlide} from "swiper/react";
 import ItemIcon from "Assets/icons/image";
@@ -283,9 +283,17 @@ export const MediaCollection = observer(({nftInfo, sectionId, collection, single
                         <ImageIcon icon={LockedIcon} className="nft-media-browser__item__name__icon" /> :
                         itemActive ? <ImageIcon icon={PlayCircleIcon} className="nft-media-browser__item__name__icon" /> : null
                     }
-                    <div className="nft-media-browser__item__name__text ellipsis">
-                      { mediaItem.name }
-                    </div>
+                    {
+                      mediaItem.annotated_title ?
+                        <AnnotatedField
+                          text={mediaItem.annotated_title}
+                          referenceImages={nftInfo.referenceImages}
+                          className="nft-media-browser__item__name__text nft-media__annotated-title"
+                        /> :
+                        <div className="nft-media-browser__item__name__text ellipsis">
+                          {mediaItem.name}
+                        </div>
+                    }
                   </div>
                 </NavLink>
               </SwiperSlide>

@@ -1527,7 +1527,7 @@ export const MintedNFTRedirect = observer(() => {
           }))?.results?.[0];
 
           if(firstOwnedItem) {
-            setTokenId(firstOwnedItem.details.TokenIdStr)
+            setTokenId(firstOwnedItem.details.TokenIdStr);
           } else {
             setNotFound(true);
           }

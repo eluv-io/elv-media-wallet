@@ -341,6 +341,16 @@
       font: var(--font-nft-media-header);
       font-size: 20px;
       font-weight: 500;
+
+      &.annotated-field {
+        justify-content: center;
+      }
+
+      .annotated-field__text {
+        font: var(--font-nft-media-header);
+        font-size: 20px;
+        font-weight: 500;
+      }
     }
 
     &__subtitle-1 {

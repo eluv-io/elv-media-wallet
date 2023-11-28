@@ -374,6 +374,13 @@ export const NFTInfo = ({
   const secondaryExpirationDate = nft?.metadata?.secondary_resale_expires_at ? new Date(nft.metadata.secondary_resale_expires_at).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) : undefined;
   const offerable = nft?.details.TokenIdStr && !nft?.metadata?.test && !heldDate;
 
+  let referenceImages = {};
+  (nft?.metadata?.reference_images || []).map(referenceImage => {
+    referenceImages[referenceImage.image_id] = {...referenceImage};
+    referenceImage[referenceImage.id] = referenceImage[referenceImage.image_id];
+  });
+
+
   let status;
   if(outOfStock) {
     status = "Sold Out!";
@@ -477,6 +484,7 @@ export const NFTInfo = ({
 
     // Media
     mediaInfo,
+    referenceImages,
 
     // Offers
     hasRedeemables,

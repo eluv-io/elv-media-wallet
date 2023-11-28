@@ -12,6 +12,7 @@ import {
 } from "Components/nft/media/Utils";
 import ImageIcon from "Components/common/ImageIcon";
 import {
+  AnnotatedField,
   ButtonWithLoader,
   ButtonWithMenu, Copy,
   FullScreenImage,
@@ -481,7 +482,15 @@ const NFTActiveMedia = observer(({nftInfo}) => {
 
   const textContent = (
     <div className="nft-media-album__content__info">
-      <div className="nft-media-album__content__name">{currentMediaItem.name || ""}</div>
+      {
+        currentMediaItem.annotated_title ?
+          <AnnotatedField
+            text={currentMediaItem.annotated_title}
+            referenceImages={nftInfo.referenceImages}
+            className="nft-media-album__content__name nft-media__annotated-title"
+          /> :
+          <div className="nft-media-album__content__name">{currentMediaItem.name || ""}</div>
+      }
       { description && currentMediaItem.subtitle_1 ? <div className="nft-media-album__content__subtitle-1">{ currentMediaItem.subtitle_1 }</div> : null }
       { description && currentMediaItem.subtitle_2 ? <div className="nft-media-album__content__subtitle-2">{ currentMediaItem.subtitle_2 }</div> : null }
       { description }
@@ -584,7 +593,15 @@ const NFTActiveMedia = observer(({nftInfo}) => {
                   </div> : null
               }
               <div className="nft-media__content__text">
-                <div className="nft-media__content__name">{currentMediaItem.name || ""}</div>
+                {
+                  currentMediaItem.annotated_title ?
+                    <AnnotatedField
+                      text={currentMediaItem.annotated_title}
+                      referenceImages={nftInfo.referenceImages}
+                      className="nft-media__content__name nft-media__annotated-title"
+                    /> :
+                    <div className="nft-media__content__name">{currentMediaItem.name || ""}</div>
+                }
                 <div className="nft-media__content__subtitle-1">{currentMediaItem.subtitle_1 || ""}</div>
                 <div className="nft-media__content__subtitle-2">{currentMediaItem.subtitle_2 || ""}</div>
                 { currentMediaItem.description ? <RichText richText={currentMediaItem.description} className="nft-media__content__description" /> : null }
