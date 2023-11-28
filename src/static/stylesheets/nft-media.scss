@@ -511,6 +511,24 @@
       }
     }
 
+    &__title {
+      flex-wrap: wrap;
+      font-size: 18px;
+
+      .annotated-field {
+        flex-wrap: wrap;
+      }
+
+      .annotated-field__text {
+        font-size: 14px;
+      }
+    }
+
+    &__subtitle,
+    &__subtitle2 {
+      font-size: 12px;
+    }
+
     &__content {
       &__button--qr {
         display: none;
@@ -1528,6 +1546,10 @@
         * {
           font-size: 10px;
         }
+      }
+
+      &__subtitle {
+        font-size: 10px;
       }
     }
   }

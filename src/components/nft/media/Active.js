@@ -553,7 +553,7 @@ const NFTActiveMedia = observer(({nftInfo}) => {
   return (
     <div className="page-block page-block--main-content">
       { showQRModal ? <NFTActiveMediaQRCode link={currentMediaItem.mediaInfo.mediaLink} Close={() => setShowQRModal(false)} /> : null }
-      <div className={`page-block__content ${nftInfo.additionalMedia.isSingleList ? "" : "page-block__content--extra-wide"}`}>
+      <div key={`nft-media-active-${mediaIndex}`} className={`page-block__content ${nftInfo.additionalMedia.isSingleList ? "" : "page-block__content--extra-wide"}`}>
         <div className={`nft-media ${nftInfo.additionalMedia.isSingleList ? "nft-media--single-list" : ""}`}>
           {
             backPage ?
