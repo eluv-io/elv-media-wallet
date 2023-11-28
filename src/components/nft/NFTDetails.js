@@ -1146,7 +1146,8 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
 
     rootStore.walletClient.UserItems({
       contractAddress: nftInfo?.nft?.details?.ContractAddr || nftInfo?.item?.address,
-      limit: 1
+      limit: 1,
+      sortDesc: true
     }).then(({results}) => {
       setOwnedItem(results && results[0]);
     });
@@ -1223,10 +1224,11 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
       <Redirect to={Path.dirname(Path.dirname(match.url))}/>;
   }
 
-  if(ownedItem && SearchParams()["redirect"] === "owned") {
+  if(ownedItem && ["owned", "owned-media"].includes(SearchParams()["redirect"])) {
+    const mediaPage = SearchParams()["redirect"] === "owned-media";
     return match.params.marketplaceId ?
-      <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items", ownedItem.contractId, ownedItem.tokenId)} /> :
-      <Redirect to={UrlJoin("/wallet", "users", "me", "items", ownedItem.contractId, ownedItem.tokenId)} />;
+      <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items", ownedItem.contractId, ownedItem.tokenId, mediaPage ? "media" : "")} /> :
+      <Redirect to={UrlJoin("/wallet", "users", "me", "items", ownedItem.contractId, ownedItem.tokenId, mediaPage ? "media" : "")} />;
   }
 
   if(!nftInfo || match.params.action === "claim") {
@@ -1368,23 +1370,12 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
                       toggleable={false}
                       icon={MediaIcon}
                       onClick={() => {
-                        // Single list - clicking navigates to media page
+                        // Navigate to media page
                         if(nftInfo.additionalMedia.type === "List") {
                           history.push(UrlJoin(match.url, "media", "list", "0"));
-                          return;
+                        } else {
+                          history.push(UrlJoin(match.url, "media"));
                         }
-
-                        // Sectional media - switch to media tab and scroll down to media browser
-                        if(tab !== rootStore.l10n.item_details.media) {
-                          setTab(rootStore.l10n.item_details.media);
-                        }
-
-                        setTimeout(() => {
-                          const target = document.querySelector(".page-block--nft-content");
-                          if(target) {
-                            ScrollTo(target.getBoundingClientRect().top + window.scrollY);
-                          }
-                        }, tab !== rootStore.l10n.item_details.media ? 500 : 100);
                       }}
                     /> : null
                 }
