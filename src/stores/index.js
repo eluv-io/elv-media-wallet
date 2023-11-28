@@ -451,6 +451,17 @@ class RootStore {
       const email = response.data.identity.traits.email;
       const jwtToken = response.data.tokenized;
       console.log(email, jwtToken);
+
+      yield this.Authenticate({
+        idToken: jwtToken,
+        user: {
+          name: email,
+          email,
+          // TODO: check verification
+          verified: true,
+          userData
+        }
+      });
     } catch(error) {
       this.Log("Error logging in with Ory:", true);
       this.Log(error);
