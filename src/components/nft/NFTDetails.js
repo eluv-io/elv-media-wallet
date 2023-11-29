@@ -1291,7 +1291,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
             Close={() => setShowTransferModal(false)}
           /> : null
       }
-      <div className="page-block page-block--nft">
+      <div className={`page-block page-block--nft ${nftInfo.isOwned ? "page-block--nft-owned" : item ? "page-block--nft-item" : ""}`}>
         <div className="page-block__content">
           <div key={match.url} className="details-page">
             {
