@@ -788,6 +788,11 @@ export const InitializeListener = () => {
               });
             }
 
+            const searchParams = data.params?.params?.searchParams;
+            if(searchParams && Object.keys(searchParams).length > 0) {
+              route += "?" + Object.keys(searchParams).map(key => `${key}=${searchParams[key]}`).join("&");
+            }
+
             rootStore.SetRouteChange(route);
           }
 

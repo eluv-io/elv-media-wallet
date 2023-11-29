@@ -320,7 +320,7 @@ const frameClient = await ElvWalletFrameClient.InitializePopup({
    * @methodGroup Navigation
    * @namedParams
    * @param {string=} page - A named app path
-   * @param {Object=} params - URL parameters for the specified path, e.g. { tokenId: <token-id> } for an 'item' page.
+   * @param {Object=} params - Parameters for the specified path, e.g. { tokenId: <token-id> } for an 'item' page.
    * @param {string=} path - An absolute app path
    * @param {boolean=} loginRequired - If login was specified, this parameter will control whether the login prompt is dismissible
    * @param {Array<string>=} marketplaceFilters - A list of filters to limit items shown in the marketplace store page

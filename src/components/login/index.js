@@ -82,7 +82,12 @@ const PoweredBy = ({customizationOptions}) => {
   return (
     <div className="login-page__tagline">
       <div className="login-page__tagline__text">{ rootStore.l10n.login.powered_by }</div>
-      <ImageIcon icon={EluvioLogo} className="login-page__tagline__image" title="Eluv.io" />
+      {
+        customizationOptions.powered_by_logo ?
+          <ImageIcon icon={customizationOptions.powered_by_logo.url} className="login-page__tagline__image login-page__tagline__image--custom" alt={customizationOptions.powered_by_logo_alt_text || ""} /> :
+          <ImageIcon icon={EluvioLogo} className="login-page__tagline__image" title="Eluv.io" />
+      }
+
     </div>
   );
 };

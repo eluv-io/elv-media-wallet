@@ -574,8 +574,7 @@ class RootStore {
         const tokens = yield this.walletClient.AuthenticateOAuth({
           idToken,
           email: user?.email,
-          // TODO: Re-enable
-          //tenantId,
+          tenantId,
           shareEmail: user?.userData?.share_email,
           // TODO: Change
           signerURIs: ["https://wlt.stg.svc.eluv.io"]

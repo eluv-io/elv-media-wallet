@@ -274,6 +274,11 @@
     &__image {
       height: 15px;
       margin-top: 10px;
+      object-fit: contain;
+
+      &--custom {
+        height: 40px;
+      }
     }
   }
 
