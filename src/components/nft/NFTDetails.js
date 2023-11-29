@@ -1036,6 +1036,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
   const [listingStatus, setListingStatus] = useState(initialListingStatus || listingStatusCache[`${nft?.details?.ContractAddr}-${nft?.details?.TokenIdStr}`]);
 
   // Owned item
+  const [ownedItemLoading, setOwnedItemLoading] = useState(!!item);
   const [ownedItem, setOwnedItem] = useState(undefined);
 
   // Status
@@ -1148,9 +1149,13 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
       contractAddress: nftInfo?.nft?.details?.ContractAddr || nftInfo?.item?.address,
       limit: 1,
       sortDesc: true
-    }).then(({results}) => {
-      setOwnedItem(results && results[0]);
-    });
+    })
+      .then(({results}) => {
+        setOwnedItem(results && results[0]);
+      })
+      .finally(() => {
+        setOwnedItemLoading(false);
+      });
   }, [nftInfo]);
 
   window.nftInfo = nftInfo;
@@ -1224,11 +1229,15 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
       <Redirect to={Path.dirname(Path.dirname(match.url))}/>;
   }
 
-  if(ownedItem && ["owned", "owned-media"].includes(SearchParams()["redirect"])) {
-    const mediaPage = SearchParams()["redirect"] === "owned-media";
-    return match.params.marketplaceId ?
-      <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items", ownedItem.contractId, ownedItem.tokenId, mediaPage ? "media" : "")} /> :
-      <Redirect to={UrlJoin("/wallet", "users", "me", "items", ownedItem.contractId, ownedItem.tokenId, mediaPage ? "media" : "")} />;
+  if(["owned", "owned-media"].includes(SearchParams()["redirect"])) {
+    if(ownedItemLoading) {
+      return <PageLoader />;
+    } else if(ownedItem) {
+      const mediaPage = SearchParams()["redirect"] === "owned-media";
+      return match.params.marketplaceId ?
+        <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items", ownedItem.contractId, ownedItem.tokenId, mediaPage ? "media" : "")}/> :
+        <Redirect to={UrlJoin("/wallet", "users", "me", "items", ownedItem.contractId, ownedItem.tokenId, mediaPage ? "media" : "")}/>;
+    }
   }
 
   if(!nftInfo || match.params.action === "claim") {
