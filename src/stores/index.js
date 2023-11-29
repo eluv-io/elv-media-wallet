@@ -703,6 +703,10 @@ class RootStore {
         metadata.log_in_button = undefined;
       }
 
+      if(metadata.tenant_id) {
+        metadata.tenantConfig = yield this.walletClient.TenantConfiguration({tenantId: metadata.tenant_id});
+      }
+
       this.loginCustomization[marketplaceId] = metadata;
     }
 

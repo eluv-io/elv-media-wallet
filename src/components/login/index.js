@@ -15,8 +15,6 @@ import MediaWalletLogo from "Assets/images/Media Wallet Text Linear.svg";
 import CheckIcon from "Assets/icons/check.svg";
 import OryLogin from "Components/login/OryLogin";
 
-const useOry = true;
-
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 const params = {
   // If we've just come back from Auth0
@@ -270,7 +268,7 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
     );
   }
 
-  if(useOry) {
+  if(customizationOptions?.tenantConfig?.["open-id"]?.["issuer-url"]) {
     return (
       <>
         <Logo customizationOptions={customizationOptions} />
