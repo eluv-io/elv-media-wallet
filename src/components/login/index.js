@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
-import {Loader} from "Components/common/Loaders";
+import {Loader, PageLoader} from "Components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import Modal from "Components/common/Modal";
 import Confirm from "Components/common/Confirm";
@@ -619,6 +619,24 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       SetCodeAuth();
     }
   }, [rootStore.loaded, rootStore.loggedIn, userDataSaved, savingUserData, auth0Authenticating]);
+
+
+  const loading =
+    !rootStore.loaded ||
+    !customizationOptions ||
+    params.clearLogin ||
+    rootStore.loggedIn ||
+    (params.source === "parent" && params.provider);
+
+
+  if(loading) {
+    return (
+      <div className={`login-page ${rootStore.darkMode ? "login-page--dark" : ""} ${customizationOptions?.large_logo_mode ? "login-page-large-logo-mode" : ""}`}>
+        <Background customizationOptions={customizationOptions} Close={Close} />
+        <PageLoader />
+      </div>
+    );
+  }
 
   return (
     <div className={`login-page ${rootStore.darkMode ? "login-page--dark" : ""} ${customizationOptions?.large_logo_mode ? "login-page-large-logo-mode" : ""}`}>
