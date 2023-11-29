@@ -361,7 +361,8 @@ class RootStore {
         storeAuthToken: false
       });
 
-      this.walletClient.client.authServiceURIs = ["https://wlt.stg.svc.eluv.io"];
+      // TODO: Remove
+      this.walletClient.client.remoteSignerURIs = ["https://wlt.stg.svc.eluv.io"];
 
       // Internal feature - allow setting of authd node via query param for testing
       const authdURI = searchParams.get("authd") || this.GetSessionStorage("authd-uri");
@@ -447,10 +448,8 @@ class RootStore {
   AuthenticateOry = flow(function * ({userData}={}) {
     try {
       const response = yield this.oryClient.toSession({tokenizeAs: EluvioConfiguration.ory_configuration.jwt_template});
-      console.log(response);
       const email = response.data.identity.traits.email;
       const jwtToken = response.data.tokenized;
-      console.log(email, jwtToken);
 
       yield this.Authenticate({
         idToken: jwtToken,
@@ -1669,7 +1668,7 @@ class RootStore {
     marketplace.analyticsInitialized = true;
   }
 
-  SignOut(returnUrl) {
+  SignOut = flow(function * (returnUrl) {
     this.ClearAuthInfo();
 
     if(this.embedded) {
@@ -1679,6 +1678,15 @@ class RootStore {
     this.walletClient?.LogOut();
 
     this.SendEvent({event: EVENTS.LOG_OUT, data: {address: this.CurrentAddress()}});
+
+    if(this.oryClient) {
+      try {
+        const response = yield rootStore.oryClient.createBrowserLogoutFlow();
+        yield rootStore.oryClient.updateLogoutFlow({token: response.data.logout_token});
+      } catch(error) {
+        console.log(error);
+      }
+    }
 
     if(this.auth0) {
       try {
@@ -1703,7 +1711,7 @@ class RootStore {
     }
 
     this.Reload();
-  }
+  });
 
   CreateShortURL = flow(function * (url) {
     // Normalize URL
@@ -1735,6 +1743,8 @@ class RootStore {
       url.pathname = window.location.pathname;
     } else if(this.marketplaceId) {
       url.pathname = UrlJoin("/marketplace", this.marketplaceId, "store");
+    } else {
+      url.pathname = "/";
     }
 
     if(this.specifiedMarketplaceId) {

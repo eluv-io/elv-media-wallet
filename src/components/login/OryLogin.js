@@ -50,17 +50,13 @@ const OryLogin = observer(({userData}) => {
       setFlows({});
       setFlowType("login");
     } catch(error) {
-      console.log(error);
+      rootStore.Log(error);
     } finally {
       setLoading(false);
     }
   };
 
   const flow = flows[flowType];
-
-  window.flow = flow;
-
-  console.log(JSON.stringify(flow?.ui, null, 2));
 
   if(!flow || loading) {
     return (
@@ -210,7 +206,6 @@ const OryLogin = observer(({userData}) => {
             delete attributes.node_type;
 
             let label = attributes.title || node.meta?.label?.text || attributes.label || node.attributes.name;
-            console.log(attributes.title, node.meta?.label, attributes.label, node.attributes.name);
             if(["identifier", "traits.email"].includes(attributes.name) && attributes.type !== "hidden") {
               label = "Email";
               attributes.type = "email";
@@ -223,12 +218,11 @@ const OryLogin = observer(({userData}) => {
             }
 
             attributes.placeholder = label;
-            console.log(attributes.name);
 
             if(nodeType === "submit" && attributes.value) {
               // recovery code resend button
               if(
-                node.meta.label?.id === 1070007 || // TODO: remove this once everyone has migrated to the fix (https://github.com/ory/kratos/pull/3067)
+                node.meta.label?.id === 1070007 ||
                 node.meta.label?.id === 1070008
               ) {
                 attributes.formNoValidate = true;
