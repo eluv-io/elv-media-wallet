@@ -361,9 +361,6 @@ class RootStore {
         storeAuthToken: false
       });
 
-      // TODO: Remove
-      this.walletClient.client.remoteSignerURIs = ["https://wlt.stg.svc.eluv.io"];
-
       // Internal feature - allow setting of authd node via query param for testing
       const authdURI = searchParams.get("authd") || this.GetSessionStorage("authd-uri");
       if(authdURI) {
@@ -578,7 +575,9 @@ class RootStore {
           idToken,
           email: user?.email,
           tenantId,
-          shareEmail: user?.userData?.share_email
+          shareEmail: user?.userData?.share_email,
+          // TODO: Change
+          signerURIs: ["https://wlt.stg.svc.eluv.io"]
         });
 
         clientAuthToken = tokens.authToken;
