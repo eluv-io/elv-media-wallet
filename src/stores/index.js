@@ -666,6 +666,15 @@ class RootStore {
     }
 
     if(!this.loginCustomization[marketplaceId]) {
+      const localStorageKey = `customization-${marketplaceId}`;
+      const fromLocalStorage = this.GetLocalStorageJSON(localStorageKey, true);
+
+      if(fromLocalStorage && fromLocalStorage.marketplaceHash === marketplaceHash) {
+        this.loginCustomization[localStorageKey] = fromLocalStorage;
+
+        return this.loginCustomization[localStorageKey];
+      }
+
       let metadata = (
         yield (yield Client()).ContentObjectMetadata({
           versionHash: yield this.walletClient.LatestMarketplaceHash({
@@ -708,6 +717,11 @@ class RootStore {
       }
 
       this.loginCustomization[marketplaceId] = metadata;
+
+      this.SetLocalStorage(
+        localStorageKey,
+        Utils.B64(JSON.stringify(metadata))
+      );
     }
 
     return this.loginCustomization[marketplaceId];

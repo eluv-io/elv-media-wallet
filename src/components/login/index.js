@@ -41,7 +41,8 @@ const params = {
   // Marketplace
   marketplace: searchParams.get("marketplace"),
   // User data to pass to custodial sign-in
-  userData: searchParams.has("data") ? JSON.parse(Utils.FromB64(searchParams.get("data"))) : { share_email: true }
+  userData: searchParams.has("data") ? JSON.parse(Utils.FromB64(searchParams.get("data"))) : { share_email: true },
+  useOry: searchParams.has("ory")
 };
 
 window.params = params;
@@ -180,7 +181,7 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
 };
 
 // Logo, login buttons, terms and loading indicator
-const Form = observer(({authenticating, userData, setUserData, customizationOptions, loading, codeAuthSet, LogIn}) => {
+const Form = observer(({authenticating, userData, setUserData, customizationOptions, loading, codeAuthSet, useOry, LogIn}) => {
   let hasLoggedIn = false;
   try {
     hasLoggedIn = localStorage.getItem("hasLoggedIn");
@@ -268,7 +269,7 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
     );
   }
 
-  if(customizationOptions?.tenantConfig?.["open-id"]?.["issuer-url"]) {
+  if(useOry) {
     return (
       <>
         <Logo customizationOptions={customizationOptions} />
@@ -281,7 +282,7 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
         }
 
         <PoweredBy customizationOptions={customizationOptions}/>
-        { loading ? null : <Terms customizationOptions={customizationOptions} userData={userData} setUserData={setUserData}/> }
+        <Terms customizationOptions={customizationOptions} userData={userData} setUserData={setUserData}/>
       </>
     );
   }
@@ -319,7 +320,7 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
       }
 
       <PoweredBy customizationOptions={customizationOptions}/>
-      { loading ? null : <Terms customizationOptions={customizationOptions} userData={userData} setUserData={setUserData}/> }
+      <Terms customizationOptions={customizationOptions} userData={userData} setUserData={setUserData}/>
     </>
   );
 });
@@ -485,6 +486,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
   const [savingUserData, setSavingUserData] = useState(false);
   const [settingCodeAuth, setSettingCodeAuth] = useState(false);
   const [codeAuthSet, setCodeAuthSet] = useState(false);
+  const useOry = params.useOry || customizationOptions?.tenantConfig?.["open-id"]?.["issuer-url"];
 
   // Handle login button clicked - Initiate popup/login flow
   const LogIn = async ({provider, mode}) => {
@@ -581,7 +583,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       }
     };
 
-    if(params.clearLogin) {
+    if(params.clearLogin && !useOry) {
       const returnURL = new URL(window.location.href);
       returnURL.pathname = returnURL.pathname.replace(/\/$/, "");
       returnURL.hash = window.location.hash;
@@ -623,14 +625,11 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
     }
   }, [rootStore.loaded, rootStore.loggedIn, userDataSaved, savingUserData, auth0Authenticating]);
 
-
   const loading =
     !rootStore.loaded ||
     !customizationOptions ||
     params.clearLogin ||
-    rootStore.loggedIn ||
     (params.source === "parent" && params.provider);
-
 
   if(loading) {
     return (
@@ -654,6 +653,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           codeAuthSet={codeAuthSet}
           LogIn={LogIn}
           customizationOptions={customizationOptions}
+          useOry
         />
       </div>
     </div>
