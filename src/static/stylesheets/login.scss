@@ -111,10 +111,12 @@
     box-shadow: var(--box-shadow-input);
     color: var(--color-login-input-text);
     font: var(--font-input);
+    font-size: 18px;
     height: 50px;
 
     &::placeholder {
       color: var(--color-input-text-placeholder);
+      font-size: 16px;
     }
 
     &[type="checkbox"] {
@@ -222,7 +224,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-bottom: 35px;
+    margin-bottom: 25px;
     min-height: 100px;
     width: 100%;
 
@@ -273,11 +275,11 @@
 
     &__image {
       height: 15px;
-      margin-top: 10px;
+      margin-top: 5px;
       object-fit: contain;
 
       &--custom {
-        height: 40px;
+        height: 30px;
       }
     }
   }

@@ -108,6 +108,9 @@
 .nft-media-browser__collection, .nft-media-browser__section, .nft-media-browser__section__content  {
   background: rgba(0, 0, 0, 0);
 }
+.nft-media-browser__section__header {
+  padding-top: 0;
+}
 
 /* Add margin top profile page */
 .page-container {
