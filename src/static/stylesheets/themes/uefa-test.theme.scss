@@ -1,7 +1,36 @@
-/*UEFA*/
+/* UEFA */
+
+@font-face {
+  font-family: 'UEFAEuro-Bold';
+  font-style: normal;
+  font-weight: bold;
+  font-display: swap;
+  src: url("https://main.net955305.contentfabric.io/s/main/q/hq__AjHrfaZZ8RGxWPjoVV1iRxD64C3NF6Uyb2TTiovxQeHNLp32z3VYhV9Bn6RsQQB212AuhW44ot/files/fonts/UEFAEuro-Bold.ttf") format("truetype");
+}
+@font-face {
+  font-family: 'UEFAEuro-Book';
+  font-style: normal;
+  font-weight: normal;
+  font-display: swap;
+  src: url("https://main.net955305.contentfabric.io/s/main/q/hq__AjHrfaZZ8RGxWPjoVV1iRxD64C3NF6Uyb2TTiovxQeHNLp32z3VYhV9Bn6RsQQB212AuhW44ot/files/fonts/UEFAEuro-Book.ttf") format("truetype");
+}
+@font-face {
+  font-family: 'UEFAEuro-MediumNarrow';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("https://main.net955305.contentfabric.io/s/main/q/hq__AjHrfaZZ8RGxWPjoVV1iRxD64C3NF6Uyb2TTiovxQeHNLp32z3VYhV9Bn6RsQQB212AuhW44ot/files/fonts/UEFAEuro-MediumNarrow.ttf") format("truetype");
+}
 
 :root {
-  /* General */
+  --font-family-primary: 'UEFAEuro-Bold', sans-serif!important;
+  --font-family-secondary: 'UEFAEuro-Book', sans-serif!important;
+  --font-family-tertiary: 'UEFAEuro-MediumNarrow', monospace!important;
+
+  --font-nft-media-text: normal bolder bold 18px var(--font-family-secondary);
+  --font-button: normal normal normal 18px var(--font-family-primary);
+  --font-input: normal normal normal 18px var(--font-family-tertiary);
+
   --color-bg-primary: #090909;
   --color-bg-secondary: #242424;
 
@@ -10,109 +39,154 @@
   --color-text-primary: #FFFFFF;
   --color-text-secondary: #A0A0A0;
 
+  --color-button-primary-text: var(--color-text-primary);
+
+  --color-login-text-primary: var(--color-text-primary);
+  --color-login-text-secondary: var(--color-text-primary);
+
+  --border-input: 1px solid #ccc;
+
+  /*login*/
+  --background-login: rgba(0, 0, 0, 0.5);
+  --border-login-box: 1px solid var(--background-login-box);
+  --color-login-input-background: #fff;
+  --border-login-input: 1px solid #fff;
+  --border-radius-login-input: 10px;
+  --background-login-box: #143CDB;
+  --color-login-input-text: #171717;
+
   --color-text-highlight: #FFFFFF;
-  --color-text-highlight-rgb: 154, 192, 243;
 
-  --color-loader: rgba(255, 255, 255, 0.5);
+  /* color of claim now button bg */
+  --background-button-primary: #2D61E4;
 
-  --border: 1px solid #444444;
-  --border-faint: 1px solid #333333;
+  /* border around featured item on storefront (transparent) */
+  --border-color-faint: #d2d2d200;
 
-  --border-color: #444444;
-  --border-color-faint: #333333;
-
-  --box-shadow: none;
-
-  /* Header */
-  --background-page-header: var(--color-bg-primary);
-  --background-page-header-profile: var(--color-bg-secondary);
-
-  --background-input: var(--color-bg-primary);
-  --color-input-bg-solid: var(--color-bg-primary);
-  --color-input-highlight-bg: #F0C261;
-
-  --background-button-primary: #F0C261;
-  --color-button-primary-text: #000000;
-  --border-button-primary: 1px solid #F0C261;
-
-  --background-button-secondary: #000000;
-
-  --header-signin-button-bg: #FFFFFF;
-  --header-signin-button-text: #000000;
-  --header-signin-button-border: 1px solid #FFFFFF;
-
-  /* Cards */
-  --background-card: var(--color-bg-primary);
-
-  --background-component-primary: var(--color-bg-primary);
-  --background-table: var(--color-bg-primary);
-  --background-table-header-row: var(--color-bg-secondary);
-  --color-table-odd-row-bg: var(--color-bg-primary);
-  --color-table-even-row-bg: var(--color-bg-secondary);
-
-  /* User Profile */
-  --color-user-profile-bg-primary: var(--color-bg-primary);
-  --color-user-profile-bg-secondary: var(--color-bg-secondary);
-
-  /*Log In Box*/
-  --background-login-box: #01BA5D;
-  --color-login-text-primary: #fff;
-  --color-login-text-secondary: #fff;
+  --color-loader: rgba(255, 255, 255, 0.6);
 }
 
-.nft-media-page {
-  margin-top: 50px;
+
+/* space between featured items on storefront */
+.marketplace__section {
+  padding: 0px 0;
+}
+.featured-item {
+  padding: 0px;
+  min-height: 0px;
 }
 
-.login-page__eluvio-terms {
-  padding-top: 0px;
-}
-.login-page__tagline {
-  margin: 25px 0 25px;
-}
-.login-page__terms a, .login-page__consent a {
-  color: white;
-  text-decoration: underline;
-}
-.login-page__text-section {
-  color: white;
+/* width of featured item padded border */
+.featured-item__icon {
+  padding: 0px;
 }
 
-.header__content {
-  height: 150px;
+/* color of details dropdown */
+.expandable-section {
+  background: #091620;
+  border: #01BA5D;
 }
-.header-padding--compact {
-  height: 190px;
+
+
+/* weight of claim now button */
+.action {
+  font-weight: 650;
 }
-.header-container--compact {
-  padding-top: 120px;
+
+/* width of store item drilldown image padding */
+.item-card.media-card {
+  padding: 0px
 }
-.header-container--compact.header-container--scrolled {
+
+/* Hide main NFT card */
+.page-block--nft-owned {
+  display: none;
+}
+.page-block .page-block--lower-content .page-block--nft-content {
+  margin-top: 100px;
+}
+.nft-media-browser__collection, .nft-media-browser__section, .nft-media-browser__section__content  {
+  background: rgba(0, 0, 0, 0);
+}
+
+/* Add margin top profile page */
+.page-container {
+  margin-top: 130px;
+}
+
+/* remove black gradient at top of storefront when scrolled */
+.header-container.header-container--scrolled .header-container__background {
+  opacity: 0;
+}
+.nft-media-browser__section__header {
   padding-top: 30px;
 }
-.header-container.header-container--scrolled .header__content {
-  height: 150px;
-}
-.marketplace__section {
-  padding: 0;
-}
-.page-container .marketplace-page {
-  margin-top: 80px;
-}
-.page-block--nft {
-  padding-top: 50px;
+.header-container {
+  margin-top: 160px;
+  position: absolute;
 }
 
-
-.featured-item {
-  min-height: 600px!important;
+/* Remove All from nav */
+.header__navigation-link {
+  display: none;
 }
 
-@media screen and (max-width: 850px) {
-  .header-container--compact {
-    padding-top: 30px;
-  }
-  .header-padding--compact {
-    height: 50px!important;
-  }
+/* Remove preferences from dropdown */
+.header__profile-menu__link-secondary, .header__notifications-menu__link-secondary {
+  display: none;
+}
+/* Remove dropdown menu separator */
+.header__profile-menu__separator, .header__notifications-menu__separator {
+  display: none;
+}
+/* remove wallet icon from profile header */
+.image-icon.header__profile__balance__icon {
+  display: none;
+}
+
+/* Remove space between additional media header "Live" and "Upcoming" */
+.nft-media-browser__collection__header {
+  display: none;
+}
+.nft-media {
+  min-height: 0;
+  padding-top: 15px;
+}
+.action.action-with-loader.filters__search-button {
+  background: rgba(0,0,0,0)!important;
+}
+
+/* Login modal style */
+.ory-login__title {
+  display: none;
+}
+.action-with-loader {
+  background-color: #00BA5E!important;
+  border: 1px solid #00BA5E!important;
+  border-radius: 10px;
+}
+.action-with-loader__content {
+  font: var(--font-button);
+}
+.action.login-page__login-button {
+  background-color: #697F87;
+  border: 1px solid #697F87;
+  border-radius: 10px;
+}
+.ory-login__secondary-button {
+  text-decoration: underline;
+}
+.action-with-loader__content {
+  font-weight: bolder;
+}
+/* .action.login-page__login-button {
+  display: none;
+} */
+/*Hide Eluvio terms and conditions */
+.login-page__eluvio-terms {
+  display: none;
+}
+.login-page__tagline {
+  margin-top: 10px!important;
+  margin-bottom: 10px!important;
 }
