@@ -2,7 +2,8 @@
 // sass-lint:disable function-name-format
 
 .nft-media {
-  #{--elv-gallery-max-height}: calc(100vh - 350px);
+  // On extra large screens, prevent the video element from getting too tall, otherwise the player controls will become separated from the video content
+  #{--elv-gallery-max-height}: MIN(CALC(#{$extra-large-breakpoint} * 9 / 16 - 27px), calc(100vh - 400px));
   #{--elv-gallery-min-height}: 500px;
   min-height: 100vh;
   padding-top: 50px;
