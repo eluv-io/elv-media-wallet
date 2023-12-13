@@ -450,6 +450,8 @@ class RootStore {
 
       yield this.Authenticate({
         idToken: jwtToken,
+        // TODO: Change
+        signerURIs: ["https://wlt.stg.svc.eluv.io"],
         user: {
           name: email,
           email,
@@ -510,7 +512,7 @@ class RootStore {
     console.timeEnd("Auth0 Authentication");
   });
 
-  Authenticate = flow(function * ({idToken, clientAuthToken, clientSigningToken, externalWallet, walletName, user, saveAuthInfo=true, callback}) {
+  Authenticate = flow(function * ({idToken, clientAuthToken, clientSigningToken, externalWallet, walletName, user, saveAuthInfo=true, signerURIs, callback}) {
     if(this.authenticating) { return; }
 
     try {
@@ -576,8 +578,7 @@ class RootStore {
           email: user?.email,
           tenantId,
           shareEmail: user?.userData?.share_email,
-          // TODO: Change
-          signerURIs: ["https://wlt.stg.svc.eluv.io"]
+          signerURIs
         });
 
         clientAuthToken = tokens.authToken;
