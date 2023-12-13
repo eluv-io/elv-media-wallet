@@ -653,7 +653,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           codeAuthSet={codeAuthSet}
           LogIn={LogIn}
           customizationOptions={customizationOptions}
-          useOry
+          useOry={useOry}
         />
       </div>
     </div>
