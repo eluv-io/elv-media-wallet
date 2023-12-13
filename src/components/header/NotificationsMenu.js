@@ -184,6 +184,15 @@ const Notification = observer(({notification, Hide}) => {
 
       break;
 
+    case "GIFT_RECEIVED":
+      icon = OfferExpiredIcon;
+      header = l10n.gift_received;
+      message = LocalizeString(l10n.gift_received_message, {sender: "Someone"});
+
+      link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "offers") : "/wallet/users/me/offers";
+
+      break;
+
     default:
       valid = false;
 

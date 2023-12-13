@@ -362,13 +362,13 @@ export const RichText = ({richText, className=""}) => {
   );
 };
 
-export const ButtonWithLoader = ({children, className="", onClick, isLoading, ...props}) => {
+export const ButtonWithLoader = ({children, className="", onClick, isLoading, action=true, ...props}) => {
   const [loading, setLoading] = useState(false);
 
   return (
     <button
       {...props}
-      className={`action action-with-loader ${loading || isLoading ? "action-with-loader--loading": ""} ${className}`}
+      className={`${action ? "action" : ""} action-with-loader ${loading || isLoading ? "action-with-loader--loading": ""} ${className}`}
       onClick={async event => {
         if(loading) { return; }
 

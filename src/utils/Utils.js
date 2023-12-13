@@ -364,6 +364,7 @@ export const NFTInfo = ({
   const expired = item && item.expires_at && timeToExpired < 0;
   const maxOwned = stock && stock.max_per_user && stock.current_user >= stock.max_per_user;
   const marketplacePurchaseAvailable = item && item.for_sale && !outOfStock && available && !unauthorized && !maxOwned;
+  const marketplaceGiftAvailable = item && item.for_sale && item.allow_gift_purchase && !item.free && !outOfStock && available && !unauthorized;
   const hideAvailable = !available || (item && item.hide_available);
 
   const timeToSecondaryAvailable = nft?.metadata?.secondary_resale_available_at ? new Date(nft.metadata.secondary_resale_available_at).getTime() - Date.now() : 0;
@@ -501,6 +502,7 @@ export const NFTInfo = ({
     stock,
     status,
     marketplacePurchaseAvailable,
+    marketplaceGiftAvailable,
     available,
     timeToAvailable,
     timeToExpired,
@@ -577,15 +579,15 @@ export const NFTMedia = ({nft, item, width}) => {
     mediaType = nft?.metadata?.media_type === "Audio" ? "audio" : "video";
   }
 
-  if(nft?.metadata?.media_type === "Image" && nft.metadata.media) {
+  if(item?.image) {
+    imageUrl = typeof item.image === "string" ? item.image : item.image.url;
+  } else if(nft?.metadata?.media_type === "Image" && nft.metadata.media) {
     imageUrl = nft.metadata.media.url;
 
     if(embedUrl) {
       embedUrl.searchParams.set("type", "Image");
       embedUrl.searchParams.set("murl", btoa(nft.metadata.media.url));
     }
-  } else if(item?.image) {
-    imageUrl = typeof item.image === "string" ? item.image : item.image.url;
   } else {
     imageUrl = item?.nftTemplateMetadata?.image || nft?.metadata?.image;
   }

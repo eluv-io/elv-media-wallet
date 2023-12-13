@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
-import {Copy, MenuLink} from "Components/common/UIComponents";
+import {ButtonWithLoader, Copy, MenuLink} from "Components/common/UIComponents";
 import UrlJoin from "url-join";
 import PreferencesMenu from "Components/header/PreferencesMenu";
 import HoverMenu from "Components/common/HoverMenu";
@@ -157,15 +157,16 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
             </>
         }
       </div>
-      <button
-        onClick={() => {
-          rootStore.SignOut();
+      <ButtonWithLoader
+        action={false}
+        onClick={async () => {
+          await rootStore.SignOut();
           Hide();
         }}
         className="header__profile-menu__log-out-button"
       >
         { rootStore.l10n.login.sign_out }
-      </button>
+      </ButtonWithLoader>
       {
         showPreferencesMenu ?
           <PreferencesMenu

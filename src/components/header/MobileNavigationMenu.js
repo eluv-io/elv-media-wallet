@@ -4,7 +4,7 @@ import React, {useState} from "react";
 import PreferencesMenu from "Components/header/PreferencesMenu";
 import UrlJoin from "url-join";
 import ImageIcon from "Components/common/ImageIcon";
-import {CopyableField, FormatPriceString, MenuLink} from "Components/common/UIComponents";
+import {ButtonWithLoader, CopyableField, FormatPriceString, MenuLink} from "Components/common/UIComponents";
 
 import ProfileIcon from "Assets/icons/header/profile icon v2";
 import ListingsIcon from "Assets/icons/header/listings icon";
@@ -172,18 +172,19 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
             </>
         }
       </div>
-      <button
+      <ButtonWithLoader
+        action={false}
         className="mobile-menu__sign-in-button"
-        onClick={() => {
+        onClick={async () => {
           rootStore.loggedIn ?
-            rootStore.SignOut() :
+            await rootStore.SignOut() :
             rootStore.ShowLogin();
 
           Close();
         }}
       >
         { rootStore.l10n.login[rootStore.loggedIn ? "sign_out" : "sign_in"] }
-      </button>
+      </ButtonWithLoader>
       {
         showPreferencesMenu ?
           <PreferencesMenu

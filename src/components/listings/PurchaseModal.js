@@ -66,6 +66,7 @@ const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
 const PurchaseProviderSelection = observer(({
   paymentOptions,
   price,
+  isGift,
   usdcOptions={},
   errorMessage,
   disabled,
@@ -111,7 +112,7 @@ const PurchaseProviderSelection = observer(({
     }
   };
 
-  let options;
+  let options, actions;
   switch(type) {
     case "card":
       // Credit card selected, ebanx enabled - Must collect country
@@ -129,38 +130,41 @@ const PurchaseProviderSelection = observer(({
       }
 
       options = (
-        <>
-          <div className="purchase-modal__provider-options">
-            <div className="purchase-modal__additional-fields">
-              <div className="purchase-modal__payment-message">
-                { rootStore.l10n.purchase.select_country }
-              </div>
-              {
-                ebanxAvailableCountries.map(([code, name]) => (
-                  <button
-                    key={`country-select-${code}`}
-                    onClick={() => UpdateCountry(code)}
-                    className={`purchase-modal__provider-options__option ${country === code ? "active" : ""}`}
-                  >
-                    { name }
-                  </button>
-                ))
-              }
-
-              {
-                stripeEnabled ?
-                  <button
-                    onClick={() => UpdateCountry("other")}
-                    className={`purchase-modal__provider-options__option ${country === "other" ? "active" : ""}`}
-                  >
-                    { rootStore.l10n.purchase.all_other_countries }
-                  </button> : null
-              }
+        <div className="purchase-modal__provider-options">
+          <div className="purchase-modal__additional-fields">
+            <div className="purchase-modal__payment-message">
+              { rootStore.l10n.purchase.select_country }
             </div>
+            {
+              ebanxAvailableCountries.map(([code, name]) => (
+                <button
+                  key={`country-select-${code}`}
+                  onClick={() => UpdateCountry(code)}
+                  className={`purchase-modal__provider-options__option ${country === code ? "active" : ""}`}
+                >
+                  { name }
+                </button>
+              ))
+            }
+
+            {
+              stripeEnabled ?
+                <button
+                  onClick={() => UpdateCountry("other")}
+                  className={`purchase-modal__provider-options__option ${country === "other" ? "active" : ""}`}
+                >
+                  { rootStore.l10n.purchase.all_other_countries }
+                </button> : null
+            }
           </div>
+        </div>
+      );
+
+      actions = (
+        <>
           <ButtonWithLoader
             disabled={disabled || !rootStore.loggedIn || !country}
-            className="action action-primary purchase-modal__payment-submit"
+            className={`action ${isGift ? "action-primary-variant" : "action-primary"} purchase-modal__payment-submit`}
             onClick={async () => {
               await Continue({
                 paymentType: selectedMethod,
@@ -193,7 +197,10 @@ const PurchaseProviderSelection = observer(({
 
     case "crypto":
       options = (
-        <>
+        <div className="purchase-modal__provider-options">
+          <div className="purchase-modal__payment-message">
+            { rootStore.l10n.purchase.payment }
+          </div>
           {
             usdcOnly || !coinbaseEnabled ? null :
               <button
@@ -258,6 +265,7 @@ const PurchaseProviderSelection = observer(({
                   Email
                 </div>
                 <input
+                  required
                   type="email"
                   name="email"
                   placeholder="Email"
@@ -267,6 +275,11 @@ const PurchaseProviderSelection = observer(({
                 />
               </> : null
           }
+        </div>
+      );
+
+      actions = (
+        <>
           <ButtonWithLoader
             disabled={
               disabled ||
@@ -276,7 +289,7 @@ const PurchaseProviderSelection = observer(({
               (selectedMethod === "linked-wallet-sol" && !(phantomConnected || phantomWallet.Connected())) ||
               (selectedMethod === "linked-wallet-eth" && !(metamaskConnected || metamaskWallet.Connected()))
             }
-            className="action action-primary purchase-modal__payment-submit"
+            className={`action ${isGift ? "action-primary-variant" : "action-primary"} purchase-modal__payment-submit`}
             onClick={async () => {
               await Continue({paymentType: selectedMethod, email});
             }}
@@ -318,55 +331,61 @@ const PurchaseProviderSelection = observer(({
 
     default:
       options = (
-        <>
-          <div className="purchase-modal__provider-options">
-            {
-              stripeEnabled || ebanxEnabled ?
-                <button
-                  onClick={() => {
-                    setSelectedMethod("card");
-                  }}
-                  className={`purchase-modal__provider-options__option ${selectedMethod === "card" ? "active" : ""}`}
-                >
-                  { rootStore.l10n.purchase.credit_card }
-                </button> : null
-            }
-            {
-              ebanxEnabled && pixEnabled ?
-                <button
-                  onClick={() => {
-                    setSelectedMethod("pix");
-                  }}
-                  className={`purchase-modal__provider-options__option ${selectedMethod === "pix" ? "active" : ""}`}
-                >
-                  Pix
-                </button> :
-                null
-            }
-            {
-              coinbaseEnabled || usdcAccepted ?
-                <button
-                  onClick={() => {
-                    setSelectedMethod("crypto");
-                  }}
-                  className={`purchase-modal__provider-options__option ${selectedMethod === "crypto" ? "active" : ""}`}
-                >
-                  Crypto
-                </button> :
-                null
-            }
-            <button
-              onClick={() => {
-                setSelectedMethod("wallet-balance");
-              }}
-              className={`purchase-modal__provider-options__option ${selectedMethod === "wallet-balance" ? "active" : ""}`}
-            >
-              { rootStore.l10n.purchase.wallet_balance }
-            </button>
+        <div className="purchase-modal__provider-options">
+          <div className="purchase-modal__payment-message">
+            { rootStore.l10n.purchase.payment }
           </div>
+          {
+            stripeEnabled || ebanxEnabled ?
+              <button
+                onClick={() => {
+                  setSelectedMethod("card");
+                }}
+                className={`purchase-modal__provider-options__option ${selectedMethod === "card" ? "active" : ""}`}
+              >
+                { rootStore.l10n.purchase.credit_card }
+              </button> : null
+          }
+          {
+            ebanxEnabled && pixEnabled ?
+              <button
+                onClick={() => {
+                  setSelectedMethod("pix");
+                }}
+                className={`purchase-modal__provider-options__option ${selectedMethod === "pix" ? "active" : ""}`}
+              >
+                Pix
+              </button> :
+              null
+          }
+          {
+            coinbaseEnabled || usdcAccepted ?
+              <button
+                onClick={() => {
+                  setSelectedMethod("crypto");
+                }}
+                className={`purchase-modal__provider-options__option ${selectedMethod === "crypto" ? "active" : ""}`}
+              >
+                Crypto
+              </button> :
+              null
+          }
+          <button
+            onClick={() => {
+              setSelectedMethod("wallet-balance");
+            }}
+            className={`purchase-modal__provider-options__option ${selectedMethod === "wallet-balance" ? "active" : ""}`}
+          >
+            { rootStore.l10n.purchase.wallet_balance }
+          </button>
+        </div>
+      );
+
+      actions = (
+        <>
           <ButtonWithLoader
             disabled={disabled || !rootStore.loggedIn || !selectedMethod}
-            className="action action-primary purchase-modal__payment-submit"
+            className={`action ${isGift ? "action-primary-variant" : "action-primary"} purchase-modal__payment-submit`}
             onClick={async () => {
               if(stripeEnabled && !ebanxEnabled && selectedMethod === "card") {
                 await Continue({paymentType: "stripe"});
@@ -416,25 +435,29 @@ const PurchaseProviderSelection = observer(({
   }
 
   return (
-    <div className="purchase-modal__payment-options">
-
-      { options }
-
+    <>
+      <div className="purchase-modal__content">
+        { options }
+      </div>
+      <div className="purchase-modal__actions">
+        { actions }
+      </div>
       {
         errorMessage || !rootStore.loggedIn ?
           <div className="purchase-modal__error-message">
             { errorMessage || "You must be logged in to complete this purchase." }
           </div> : null
       }
-    </div>
+    </>
   );
 });
 
 // Confirmation page for wallet balance purchase and linked wallet USDC payment
 const PurchaseBalanceConfirmation = observer(({
-  nft,
-  marketplaceItem,
+  itemInfo,
   selectedListing,
+  isGift=false,
+  giftInfo,
   listingId,
   quantity=1,
   linkedWallet,
@@ -450,7 +473,7 @@ const PurchaseBalanceConfirmation = observer(({
 
   useEffect(() => {
     rootStore.walletClient.TenantConfiguration({
-      contractAddress: nft.details.ContractAddr
+      contractAddress: itemInfo.nft.details.ContractAddr
     })
       .then(config => {
         if(config["nft-fee-percent"]) {
@@ -459,16 +482,10 @@ const PurchaseBalanceConfirmation = observer(({
       });
   }, []);
 
-  const info = NFTInfo({
-    nft,
-    item: marketplaceItem,
-    listing: selectedListing
-  });
-
   const purchaseStatus = confirmationId && checkoutStore.purchaseStatus[confirmationId] || {};
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
 
-  const total = info.price * quantity;
+  const total = itemInfo.price * quantity;
   const fee = Math.max(1, roundToDown(total * feeRate, 2));
 
   let balanceAmount = rootStore.availableWalletBalance;
@@ -495,7 +512,7 @@ const PurchaseBalanceConfirmation = observer(({
   }, [cryptoStore.metamaskAddress, cryptoStore.metamaskChainId, cryptoStore.phantomAddress]);
 
   useEffect(() => {
-    if(!info.stock || !marketplace) { return; }
+    if(!itemInfo.stock || !marketplace) { return; }
 
     // If item has stock, periodically update
     const stockCheck = setInterval(() => {
@@ -522,74 +539,68 @@ const PurchaseBalanceConfirmation = observer(({
   }
 
   return (
-    <div className="purchase-modal__content">
-      <NFTCard
-        nft={nft}
-        item={marketplaceItem}
-        selectedListing={selectedListing}
-        hideToken={!selectedListing}
-        hideAvailable={!info.available || (marketplaceItem && marketplaceItem.hide_available)}
-        truncateDescription
-      />
-      <div className="purchase-modal__order-details">
-        <div className="purchase-modal__order-line-item">
-          <div className="purchase-modal__order-label">
-            { nft.metadata.display_name } { quantity > 1 ? <div className="purchase-modal__quantity">&nbsp;x {quantity}</div> : "" }
+    <>
+      <div className="purchase-modal__content">
+        <div className="purchase-modal__order-details">
+          <div className="purchase-modal__order-line-item">
+            <div className="purchase-modal__order-label">
+              { itemInfo.nft.metadata.display_name } { quantity > 1 ? <div className="purchase-modal__quantity">&nbsp;x {quantity}</div> : "" }
+            </div>
+            <div className="purchase-modal__order-price">
+              { FormatPriceString(total) }
+            </div>
           </div>
-          <div className="purchase-modal__order-price">
-            { FormatPriceString(total) }
+          <div className="purchase-modal__order-line-item">
+            <div className="purchase-modal__order-label">
+              { rootStore.l10n.purchase.service_fee }
+            </div>
+            <div className="purchase-modal__order-price">
+              { FormatPriceString(fee) }
+            </div>
           </div>
-        </div>
-        <div className="purchase-modal__order-line-item">
-          <div className="purchase-modal__order-label">
-            { rootStore.l10n.purchase.service_fee }
-          </div>
-          <div className="purchase-modal__order-price">
-            { FormatPriceString(fee) }
-          </div>
-        </div>
-        <div className="purchase-modal__order-separator" />
-        <div className="purchase-modal__order-line-item">
-          <div className="purchase-modal__order-label">
-            { rootStore.l10n.purchase.total_amount }
-          </div>
-          <div className="purchase-modal__order-price">
-            { FormatPriceString(total + fee) }
+          <div className="purchase-modal__order-separator" />
+          <div className="purchase-modal__order-line-item">
+            <div className="purchase-modal__order-label">
+              { rootStore.l10n.purchase.total_amount }
+            </div>
+            <div className="purchase-modal__order-price">
+              { FormatPriceString(total + fee) }
+            </div>
           </div>
         </div>
-      </div>
-      <div className="purchase-modal__order-details purchase-modal__order-details-box">
-        <div className="purchase-modal__order-line-item">
-          <div className="purchase-modal__order-label">
-            { LocalizeString(rootStore.l10n.purchase.available_balance, {balanceType: balanceName})}
+        <div className="purchase-modal__order-details purchase-modal__order-details-box">
+          <div className="purchase-modal__order-line-item">
+            <div className="purchase-modal__order-label">
+              { LocalizeString(rootStore.l10n.purchase.available_balance, {balanceType: balanceName})}
+            </div>
+            <div className="purchase-modal__order-price">
+              {FormatPriceString(balanceAmount || 0, {vertical: true})}
+            </div>
           </div>
-          <div className="purchase-modal__order-price">
-            {FormatPriceString(balanceAmount || 0, {vertical: true})}
+          <div className="purchase-modal__order-line-item">
+            <div className="purchase-modal__order-label">
+              { rootStore.l10n.purchase.current_purchase_amount }
+            </div>
+            <div className="purchase-modal__order-price">
+              {FormatPriceString(total + fee, {vertical: true})}
+            </div>
           </div>
-        </div>
-        <div className="purchase-modal__order-line-item">
-          <div className="purchase-modal__order-label">
-            { rootStore.l10n.purchase.current_purchase_amount }
-          </div>
-          <div className="purchase-modal__order-price">
-            {FormatPriceString(total + fee, {vertical: true})}
-          </div>
-        </div>
-        <div className="purchase-modal__order-separator"/>
-        <div className="purchase-modal__order-line-item">
-          <div className="purchase-modal__order-label">
-            { LocalizeString(rootStore.l10n.purchase.remaining_balance, {balanceType: balanceName})}
-          </div>
-          <div className="purchase-modal__order-price">
-            { balanceIcon }
-            {FormatPriceString(balanceAmount - (total + fee), {vertical: true})}
+          <div className="purchase-modal__order-separator"/>
+          <div className="purchase-modal__order-line-item">
+            <div className="purchase-modal__order-label">
+              { LocalizeString(rootStore.l10n.purchase.remaining_balance, {balanceType: balanceName})}
+            </div>
+            <div className="purchase-modal__order-price">
+              { balanceIcon }
+              {FormatPriceString(balanceAmount - (total + fee), {vertical: true})}
+            </div>
           </div>
         </div>
       </div>
       <div className="purchase-modal__actions purchase-wallet-balance-actions">
         <ButtonWithLoader
-          disabled={!info.available || info.outOfStock || insufficientBalance}
-          className="action action-primary"
+          disabled={!itemInfo.available || itemInfo.outOfStock || insufficientBalance}
+          className={`action ${isGift ? "action-primary-variant" : "action-primary"}`}
           onClick={async () => {
             try {
               setErrorMessage(undefined);
@@ -613,8 +624,10 @@ const PurchaseBalanceConfirmation = observer(({
                   provider: linkedWallet || "wallet-balance",
                   tenantId: marketplace.tenant_id,
                   marketplaceId: match.params.marketplaceId,
-                  sku: marketplaceItem.sku,
+                  sku: itemInfo.item.sku,
                   quantity,
+                  isGift,
+                  giftInfo,
                   successUrl,
                   cancelUrl
                 });
@@ -638,79 +651,49 @@ const PurchaseBalanceConfirmation = observer(({
         </button>
       </div>
       {
-        errorMessage || !info.available || info.outOfStock || insufficientBalance ?
+        errorMessage || !itemInfo.available || itemInfo.outOfStock || insufficientBalance ?
           <div className="purchase-modal__error-message">
             {
               errorMessage ? errorMessage :
-                info.outOfStock ? "This item is out of stock" :
-                  !info.available ? "This item is no longer available" :
+                itemInfo.outOfStock ? "This item is out of stock" :
+                  !itemInfo.available ? "This item is no longer available" :
                     `Insufficient ${balanceName}`
             }
           </div> : null
       }
-    </div>
+    </>
   );
 });
 
 const PurchasePayment = observer(({
   type="marketplace",
-  nft,
-  marketplaceItem,
-  initialListingId,
+  itemInfo,
   selectedListingId,
   selectedListing,
   quantity,
-  setQuantity,
+  isGift=false,
+  giftInfo,
   setUseWalletBalance,
   setLinkedWallet,
   customConfirmationId,
   successUrl,
   cancelUrl,
-  SelectListing,
   Cancel
 }) => {
   const match = useRouteMatch();
   const [confirmationId, setConfirmationId] = useState(undefined);
   const [errorMessage, setErrorMessage] = useState(undefined);
-  const [listingStats, setListingStats] = useState(undefined);
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  const info = NFTInfo({
-    nft,
-    item: marketplaceItem,
-    listing: selectedListing
-  });
-
   const marketplacePaymentOptions = marketplace?.payment_options || { stripe: { enabled: true }, coinbase: { enabled: true }, ebanx: { enabled: false }};
 
-  const maxPerCheckout = marketplaceItem?.max_per_checkout || 25;
-  const maxPerUser = (info.stock && info.stock.max_per_user && (info.stock.max_per_user - info.stock.current_user)) || 25;
-  const quantityAvailable = (info.stock && (info.stock.max - info.stock.minted)) || 25;
-
-  const maxQuantity = Math.max(1, Math.min(maxPerCheckout, Math.min(maxPerUser, quantityAvailable)));
-
   const purchaseStatus = confirmationId && checkoutStore.purchaseStatus[confirmationId] || {};
-
-  useEffect(() => {
-    if(type === "listing") {
-      rootStore.walletClient.ListingStats({contractAddress: nft.details.ContractAddr})
-        .then(stats => setListingStats(stats));
-    }
-
-    if(!info.stock || !marketplace) { return; }
-
-    // If item has stock, periodically update
-    const stockCheck = setInterval(() => checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id}), 10000);
-
-    return () => clearInterval(stockCheck);
-  }, []);
 
   useEffect(() => {
     if(purchaseStatus.status === "complete" && !purchaseStatus.success) {
       setErrorMessage(rootStore.l10n.purchase.errors.failed);
     }
   }, [purchaseStatus]);
-
 
   const Continue = async ({paymentType, email, additionalParameters={}}) => {
     if(paymentType === "wallet-balance") {
@@ -745,9 +728,11 @@ const PurchasePayment = observer(({
           provider: paymentType,
           tenantId: marketplace.tenant_id,
           marketplaceId: match.params.marketplaceId,
-          sku: marketplaceItem.sku,
+          sku: itemInfo.item.sku,
           quantity,
           email,
+          isGift,
+          giftInfo,
           successUrl,
           cancelUrl,
           additionalParameters
@@ -776,66 +761,114 @@ const PurchasePayment = observer(({
 
   return (
     <div className="purchase-modal__content">
-      <NFTCard
-        nft={nft}
-        item={marketplaceItem}
-        selectedListing={selectedListing}
-        hideToken={!selectedListing}
-        truncateDescription
-      />
-      {
-        type === "marketplace" ?
-          (maxQuantity > 1 ?
-            <div className="purchase-modal__price-details">
-              <QuantityInput quantity={quantity} setQuantity={setQuantity} maxQuantity={maxQuantity}/>
-              <div className="purchase-modal__price-details__price">
-                {FormatPriceString(info.price || 0, {quantity, includeCurrency: true})}
-              </div>
-            </div> : null) :
-          <>
-            {
-              listingStats ?
-                <div className="purchase-modal__stats">
-                  <div className="purchase-modal__stats__label">
-                    { rootStore.l10n.stats.listings.buy_from_collector }
-                  </div>
-                  <div className="purchase-modal__stats-list">
-                    <div className="purchase-modal__stat">
-                      <div className="purchase-modal__stat__label">
-                        { rootStore.l10n.stats.listings.highest }
-                      </div>
-                      <div className="purchase-modal__stat__price">
-                        {FormatPriceString(listingStats.max)}
-                      </div>
-                    </div>
-                    <div className="purchase-modal__stat">
-                      <div className="purchase-modal__stat__label">
-                        { rootStore.l10n.stats.listings.lowest }
-                      </div>
-                      <div className="purchase-modal__stat__price">
-                        {FormatPriceString(listingStats.min)}
-                      </div>
-                    </div>
-                  </div>
-                </div> : null
-            }
-            <ActiveListings
-              selectedListingId={selectedListingId || initialListingId}
-              contractAddress={nft.details.ContractAddr}
-              Select={SelectListing}
-            />
-          </>
-      }
       <PurchaseProviderSelection
+        isGift={isGift}
         paymentOptions={marketplacePaymentOptions}
-        price={FormatPriceString(info.price || 0, {quantity, stringOnly: true})}
+        price={FormatPriceString(itemInfo.price || 0, {quantity, stringOnly: true})}
         errorMessage={errorMessage}
         usdcOptions={selectedListing?.details}
-        disabled={(type === "listing" && !selectedListingId) || !info.available || info.outOfStock}
+        disabled={(type === "listing" && !selectedListingId) || !itemInfo.available || itemInfo.outOfStock}
         Continue={Continue}
         Cancel={Cancel}
       />
     </div>
+  );
+});
+
+const PurchaseGiftInfo = observer(({giftInfo, setGiftInfo, Cancel}) => {
+  const [recipientError, setRecipientError] = useState(undefined);
+  const maxMessageLength = 200;
+  const valid =
+    giftInfo.gifterName &&
+    giftInfo.recipient &&
+    (ValidEmail(giftInfo.recipient) || rootStore.client.utils.ValidAddress(giftInfo.recipient));
+
+  const Submit = () => {
+    if(!valid) { return; }
+
+    setGiftInfo({...giftInfo, confirmed: true});
+  };
+
+  return (
+    <>
+      <div className="purchase-modal__content">
+        <div className="purchase-modal__gift-form">
+          <h2 className="purchase-modal__gift-form__title">{ rootStore.l10n.purchase.gift_options.title}</h2>
+          <input
+            required
+            autoFocus
+            value={giftInfo.gifterName}
+            onChange={event => setGiftInfo({...giftInfo, gifterName: event.target.value})}
+            placeholder={rootStore.l10n.purchase.gift_options.gifter_name}
+            onKeyDown={event => event.key === "Enter" ? Submit() : undefined}
+            className="purchase-modal__gift-form__input"
+          />
+          <div>
+            <input
+              required
+              value={giftInfo.recipient}
+              onFocus={() => setRecipientError(undefined)}
+              onBlur={() => {
+                if(giftInfo.recipient && !ValidEmail(giftInfo.recipient) && !rootStore.client.utils.ValidAddress(giftInfo.recipient)) {
+                  setRecipientError(LocalizeString(rootStore.l10n.purchase.gift_options.errors.invalid_recipient, {recipient: giftInfo.recipient}));
+                }
+              }}
+              onChange={event => {
+                const value = event.target.value;
+                let recipientEmail, recipientAddress;
+
+                if(ValidEmail(value)) {
+                  recipientEmail = value;
+                } else if(rootStore.client.utils.ValidAddress(value)) {
+                  recipientAddress = value;
+                }
+
+                setGiftInfo({
+                  ...giftInfo,
+                  recipient: event.target.value,
+                  recipientEmail,
+                  recipientAddress
+                });
+              }}
+              placeholder={rootStore.l10n.purchase.gift_options.recipient}
+              onKeyDown={event => event.key === "Enter" ? Submit() : undefined}
+              className={`purchase-modal__gift-form__input ${giftInfo.recipient.startsWith("0") ? "purchase-modal__gift-form__input--recipient-address" : ""}`}
+            />
+            { recipientError ? <div className="purchase-modal__gift-form__note purchase-modal__gift-form__note--error">{recipientError}</div> : null }
+            <div className="purchase-modal__gift-form__note">
+              * { rootStore.l10n.purchase.gift_options.recipient_note}
+            </div>
+            <div className="purchase-modal__gift-form__note">
+              * { rootStore.l10n.purchase.gift_options.recipient_note2}
+            </div>
+          </div>
+          <div>
+            <textarea
+              maxLength={maxMessageLength}
+              value={giftInfo.message}
+              onChange={event => setGiftInfo({...giftInfo, message: event.target.value})}
+              placeholder={rootStore.l10n.purchase.gift_options.message}
+              className="purchase-modal__gift-form__input"
+            />
+            <div className="purchase-modal__gift-form__note">
+              { LocalizeString(rootStore.l10n.purchase.gift_options.message_characters_remaining, {remaining: maxMessageLength - giftInfo.message.length}) }
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="purchase-modal__actions">
+        <button
+          disabled={!valid}
+          className="action action-primary-variant"
+          onClick={Submit}
+        >
+          { rootStore.l10n.actions.purchase.next_step }
+        </button>
+        <button className="action" onClick={Cancel} disabled={checkoutStore.submittingOrder}>
+          { rootStore.l10n.actions.back }
+        </button>
+      </div>
+    </>
   );
 });
 
@@ -845,18 +878,61 @@ const PurchaseModal = observer(({
   item,
   initialListingId,
   type="marketplace",
+  isGift=false,
   confirmationId,
   successUrl,
   cancelUrl,
   Close,
   closeable=true
 }) => {
+  const match = useRouteMatch();
   const [loadKey, setLoadKey] = useState(0);
   const [useWalletBalance, setUseWalletBalance] = useState(false);
   const [linkedWallet, setLinkedWallet] = useState(undefined);
   const [selectedListing, setSelectedListing] = useState();
   const [selectedListingId, setSelectedListingId] = useState(type === "marketplace" ? "marketplace" : initialListingId);
   const [quantity, setQuantity] = useState(1);
+  const [giftInfo, setGiftInfo] = useState({
+    gifterName: "",
+    recipient: "",
+    message: "",
+    confirmed: false
+  });
+
+  const [listingStats, setListingStats] = useState(undefined);
+  if(isGift && item.use_custom_gift_presentation) {
+    item = {
+      ...item,
+      ...(item.gift_presentation || {})
+    };
+  }
+  const itemInfo = NFTInfo({
+    nft,
+    item,
+    listing: selectedListing
+  });
+
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+  const maxPerCheckout = item?.max_per_checkout || 25;
+  const maxPerUser = (itemInfo.stock && itemInfo.stock.max_per_user && (itemInfo.stock.max_per_user - itemInfo.stock.current_user)) || 25;
+  const quantityAvailable = (itemInfo.stock && (itemInfo.stock.max - itemInfo.stock.minted)) || 25;
+  const maxQuantity = Math.max(1, Math.min(maxPerCheckout, Math.min(maxPerUser, quantityAvailable)));
+
+
+  useEffect(() => {
+    if(type === "listing") {
+      rootStore.walletClient.ListingStats({contractAddress: nft.details.ContractAddr})
+        .then(stats => setListingStats(stats));
+    }
+
+    if(!itemInfo.stock || !marketplace) { return; }
+
+    // If item has stock, periodically update
+    const stockCheck = setInterval(() => checkoutStore.MarketplaceStock({tenantId: marketplace.tenant_id}), 10000);
+
+    return () => clearInterval(stockCheck);
+  }, []);
+
 
   useEffect(() => {
     ScrollTo(0, document.getElementById("purchase-modal"));
@@ -877,20 +953,33 @@ const PurchaseModal = observer(({
     }, Math.min(timeToExpired + 1000, 24 * 60 * 60 * 1000));
   }
 
-  let content;
-  if(type === "listing" && !selectedListing) {
+  let content, contentKey;
+  if(isGift && !giftInfo.confirmed) {
+    contentKey = "gift";
+    content = (
+      <PurchaseGiftInfo
+        itemInfo={itemInfo}
+        giftInfo={giftInfo}
+        setGiftInfo={setGiftInfo}
+        Cancel={Close}
+      />
+    );
+  } else if(type === "listing" && !selectedListing) {
+    contentKey = "loading";
     content = <PageLoader />;
   } else if(useWalletBalance || linkedWallet) {
     // Purchase confirmation screen - not used for stripe/coinbase checkout
+    contentKey = "balance";
     content = (
       <PurchaseBalanceConfirmation
         key={`listing-${loadKey}`}
         customConfirmationId={confirmationId}
         type={type}
         linkedWallet={linkedWallet}
-        nft={nft}
-        marketplaceItem={item}
+        itemInfo={itemInfo}
         selectedListing={selectedListing}
+        isGift={isGift}
+        giftInfo={giftInfo}
         listingId={selectedListingId === "marketplace" ? undefined : selectedListingId}
         quantity={selectedListingId === "marketplace" ? quantity : 1}
         successUrl={successUrl}
@@ -902,29 +991,24 @@ const PurchaseModal = observer(({
       />
     );
   } else {
+    contentKey = "payment";
     content = (
       <PurchasePayment
         key={`listing-${loadKey}`}
         customConfirmationId={confirmationId}
         type={type}
-        nft={nft}
-        marketplaceItem={item}
+        itemInfo={itemInfo}
+        isGift={isGift}
+        giftInfo={giftInfo}
         initialListingId={initialListingId}
         successUrl={successUrl}
         cancelUrl={cancelUrl}
         selectedListingId={selectedListingId === "marketplace" ? undefined : selectedListingId}
         selectedListing={selectedListing}
-        SelectListing={(listingId, listing) => {
-          if(listingId) {
-            setSelectedListingId(listingId);
-            setSelectedListing(listing);
-          }
-        }}
         quantity={selectedListingId === "marketplace" ? quantity : 1}
-        setQuantity={setQuantity}
         setLinkedWallet={setLinkedWallet}
         setUseWalletBalance={setUseWalletBalance}
-        Cancel={Close}
+        Cancel={isGift ? () => setGiftInfo({...giftInfo, confirmed: false}) : Close}
       />
     );
   }
@@ -938,9 +1022,71 @@ const PurchaseModal = observer(({
     >
       <div className="purchase-modal">
         <h1 className="purchase-modal__header">
-          { rootStore.l10n.purchase.checkout }
+          { rootStore.l10n.purchase[isGift ? "checkout_gift" : "checkout"] }
         </h1>
-        { content }
+        <div className="purchase-modal__sections">
+          <div className="purchase-modal__section purchase-modal__section--left">
+            <NFTCard
+              nft={nft}
+              item={item}
+              selectedListing={selectedListing}
+              hideToken={!selectedListing}
+              hideAvailable={!itemInfo.available || (item?.hide_available)}
+              truncateDescription
+            />
+            {
+              type === "marketplace" ?
+                (maxQuantity > 1 ?
+                  <div className="purchase-modal__price-details">
+                    <QuantityInput quantity={quantity} setQuantity={setQuantity} maxQuantity={maxQuantity}/>
+                    <div className="purchase-modal__price-details__price">
+                      {FormatPriceString(itemInfo.price || 0, {quantity, includeCurrency: true})}
+                    </div>
+                  </div> : null) :
+                <>
+                  {
+                    listingStats ?
+                      <div className="purchase-modal__stats">
+                        <div className="purchase-modal__stats__label">
+                          { rootStore.l10n.stats.listings.buy_from_collector }
+                        </div>
+                        <div className="purchase-modal__stats-list">
+                          <div className="purchase-modal__stat">
+                            <div className="purchase-modal__stat__label">
+                              { rootStore.l10n.stats.listings.highest }
+                            </div>
+                            <div className="purchase-modal__stat__price">
+                              {FormatPriceString(listingStats.max)}
+                            </div>
+                          </div>
+                          <div className="purchase-modal__stat">
+                            <div className="purchase-modal__stat__label">
+                              { rootStore.l10n.stats.listings.lowest }
+                            </div>
+                            <div className="purchase-modal__stat__price">
+                              {FormatPriceString(listingStats.min)}
+                            </div>
+                          </div>
+                        </div>
+                      </div> : null
+                  }
+                  <ActiveListings
+                    selectedListingId={selectedListingId || initialListingId}
+                    contractAddress={nft.details.ContractAddr}
+                    Select={(listingId, listing) => {
+                      if(listingId) {
+                        setSelectedListingId(listingId);
+                        setSelectedListing(listing);
+                      }
+                    }}
+                  />
+                </>
+            }
+          </div>
+          <div key={`right-section-${contentKey}`} className="purchase-modal__section purchase-modal__section--right">
+            { content }
+          </div>
+        </div>
       </div>
     </Modal>
   );

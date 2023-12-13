@@ -82,6 +82,11 @@ html {
   --border-button-primary: 1px solid var(--color-highlight-container-bg);
   --border-radius-button-primary: var(--border-radius);
 
+  --background-button-primary-variant: red; /* var(--background-button-primary); */
+  --color-button-primary-variant-text: var(--color-button-primary-text);
+  --border-button-primary-variant: var(--border-button-primary);
+  --border-radius-button-primary-variant: var(--border-radius-button-primary);
+
   --background-button-secondary: var(--color-bg-primary);
   --color-button-secondary-text: var(--color-text-primary);
   --border-button-secondary: var(--border);

@@ -7,8 +7,10 @@ import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import NFTCard from "Components/nft/NFTCard";
-import {LinkTargetHash, MobileOption, SearchParams} from "../../utils/Utils";
+import {LinkTargetHash, MobileOption, ScrollTo, SearchParams} from "../../utils/Utils";
 import {FormatPriceString, LocalizeString} from "Components/common/UIComponents";
+import ItemCard from "Components/common/ItemCard";
+import {NFTImage} from "Components/common/Images";
 
 const searchParams = SearchParams();
 
@@ -487,6 +489,164 @@ export const PurchaseMintingStatus = observer(() => {
       skipReveal={marketplace?.storefront?.skip_reveal}
       header={rootStore.l10n.status.minting.success_header}
       subheader={`${rootStore.l10n.status.minting.purchase} ${rootStore.l10n.status.minting[items.length === 1 ? "received_item_single" : "received_item_multiple"]}`}
+      items={items}
+      basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
+      nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items")}
+      backText={rootStore.l10n.status.back_to_marketplace}
+    />
+  );
+});
+
+export const GiftPurchaseMintingStatus = observer(() => {
+  const match = useRouteMatch();
+  const [status, setStatus] = useState(undefined);
+
+  const Status = async () => await rootStore.PurchaseStatus({
+    marketplaceId: match.params.marketplaceId,
+    confirmationId: match.params.confirmationId
+  });
+
+  if(status?.status !== "complete") {
+    return (
+      <MintingStatus
+        intervalPeriod={3}
+        Status={Status}
+        OnFinish={({status}) => setStatus(status)}
+        basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
+        backText={rootStore.l10n.status.back_to_marketplace}
+        hideText
+      />
+    );
+  }
+
+  return (
+    <div className="minting-status-results" key="minting-status-results-card-list">
+      <div className="page-headers">
+        <div className="page-header">{ rootStore.l10n.status.minting.gift_purchase_1 }</div>
+        <div className="page-subheader">{ rootStore.l10n.status.minting.gift_purchase_2 }</div>
+      </div>
+      <div className="minting-status-results__actions">
+        <Link to={UrlJoin("/marketplace", match.params.marketplaceId)} className="action action-primary minting-status-results__back-button">
+          { rootStore.l10n.status.back_to_marketplace }
+        </Link>
+      </div>
+    </div>
+  );
+});
+
+export const GiftRedemptionStatus = observer(() => {
+  const match = useRouteMatch();
+  const [status, setStatus] = useState(undefined);
+  const [redeemed, setRedeemed] = useState(undefined);
+
+  useEffect(() => {
+    if(!rootStore.loggedIn) { return; }
+
+    const code = SearchParams()["otp_code"];
+
+    if(!code) {
+      console.log("NO CODE FOUND");
+    }
+
+    // TODO: Record claimed gift codes in the user profile meta so that we know where to go if the user comes here again
+    checkoutStore.GiftClaimSubmit({
+      marketplaceId: match.params.marketplaceId,
+      sku: match.params.sku,
+      confirmationId: match.params.confirmationId,
+      code
+    })
+      .then(console.log);
+  }, []);
+
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+  const giftOptions = marketplace?.storefront?.gift_options;
+  let animation, revealAnimation, skipReveal;
+  if(giftOptions?.custom_redemption_settings) {
+    animation = MobileOption(rootStore.pageWidth, giftOptions.redeem_animation, giftOptions.redeem_animation_mobile);
+    revealAnimation = MobileOption(rootStore.pageWidth, giftOptions.reveal_animation, giftOptions.reveal_animation_mobile);
+    skipReveal = giftOptions.skip_reveal;
+  } else {
+    animation = MobileOption(rootStore.pageWidth, marketplace?.storefront?.purchase_animation, marketplace?.storefront?.purchase_animation_mobile);
+    revealAnimation = MobileOption(rootStore.pageWidth, marketplace?.storefront?.reveal_animation, marketplace?.storefront?.reveal_animation_mobile);
+    skipReveal = marketplace?.storefront?.skip_reveal;
+  }
+
+  const videoHash = LinkTargetHash(animation);
+  const revealVideoHash = LinkTargetHash(revealAnimation);
+
+  const hideText = marketplace?.storefront?.hide_text;
+
+  const Status = async () => await rootStore.ClaimStatus({
+    marketplaceId: match.params.marketplaceId,
+    sku: match.params.sku
+  });
+
+  let item = marketplace?.items?.find(item => item.sku === match.params.sku);
+
+  if(!item) {
+    return <PageLoader />;
+  }
+
+  if(item.use_custom_gift_presentation) {
+    item = {
+      ...item,
+      ...(item.gift_presentation || {})
+    };
+  }
+
+  if(!redeemed && item?.gift_presentation?.open_on_claim) {
+    return (
+      <div className="minting-status minting-status--gift-redemption">
+        <ItemCard
+          name={item.name}
+          subtitle1={item.subtitle}
+          description={item.description}
+          truncateDescription={false}
+          className="minting-status__gift-card"
+          image={
+            <NFTImage
+              item={item}
+              showVideo
+            />
+          }
+          actions={[
+            {
+              label: "Claim",
+              className: "action action-primary",
+              onClick: () => {
+                // TODO: Initiate claim
+                setRedeemed(true);
+                setTimeout(() => ScrollTo(0), 100);
+              }
+            }
+          ]}
+        />
+      </div>
+    );
+  }
+
+  if(!status) {
+    return (
+      <MintingStatus
+        key={`status-${videoHash}`}
+        videoHash={videoHash}
+        revealVideoHash={revealVideoHash}
+        hideText={hideText}
+        Status={Status}
+        OnFinish={({status}) => setStatus(status)}
+        basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
+        backText={rootStore.l10n.status.back_to_marketplace}
+      />
+    );
+  }
+
+  let items = status.extra.filter(item => item.token_addr && (item.token_id || item.token_id_str));
+
+  return (
+    <MintResults
+      skipReveal={skipReveal}
+      header={rootStore.l10n.status.minting.success_header}
+      subheader={rootStore.l10n.status.minting[items.length === 1 ? "received_item_single" : "received_item_multiple"]}
       items={items}
       basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
       nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items")}

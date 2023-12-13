@@ -37,6 +37,7 @@ a {
 
 a,
 input,
+textarea,
 button,
 .styled-select__button {
   font-size: 16px;
@@ -238,6 +239,7 @@ select {
   }
 }
 
+textarea,
 input {
   background: var(--background-input);
   border: var(--border-input);

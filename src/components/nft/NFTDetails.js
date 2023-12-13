@@ -767,6 +767,16 @@ const NFTActions = observer(({
     return (
       <div className="details-page__actions">
         {
+          !nftInfo.marketplaceGiftAvailable ? null :
+            <Link
+              to={UrlJoin(match.url, "purchase-gift")}
+              disabled={nftInfo.outOfStock || nftInfo.maxOwned}
+              className="action action-primary-variant"
+            >
+              { rootStore.l10n.actions.purchase.buy_gift }
+            </Link>
+        }
+        {
           nftInfo.marketplacePurchaseAvailable ?
             <Link
               to={UrlJoin(match.url, nftInfo.free ? "claim" : "purchase")}
@@ -795,7 +805,7 @@ const NFTActions = observer(({
               {rootStore.l10n.actions.listings.view}
             </Link>
         }
-        {votingEvents ? <VotingButtons sku={nftInfo.item.sku} votingEvents={votingEvents}/> : null}
+        { votingEvents ? <VotingButtons sku={nftInfo.item.sku} votingEvents={votingEvents}/> : null}
         {
           previewMode && nftInfo.hasAdditionalMedia && !previewMedia ?
             <button className="action" onClick={() => SetPreviewMedia(true)}>
@@ -1022,7 +1032,7 @@ const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, showMediaSection
 // Cache listing status to preserve initial state between page loads (e.g. opening listing or purchase modals)
 const listingStatusCache = {};
 
-const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStats}) => {
+const NFTDetails = observer(({nft, initialListingStatus, item, giftItem, hideSecondaryStats}) => {
   const match = useRouteMatch();
   const history = useHistory();
 
@@ -1180,7 +1190,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
   const listingId = match.params.listingId || listingStatus?.listing?.details?.ListingId || nft?.details?.ListingId;
   const tokenId = match.params.tokenId || listingStatus?.listing?.details?.TokenIdStr;
   const isInCheckout = listingStatus?.listing?.details?.CheckoutLockedUntil && listingStatus?.listing.details.CheckoutLockedUntil > Date.now();
-  const showModal = match.params.action === "purchase" || match.params.action === "list";
+  const showModal = ["purchase", "purchase-gift", "list"].includes(match.params.action);
   const showMediaSections = (nftInfo?.isOwned || previewMedia) && nftInfo?.hasAdditionalMedia && nftInfo?.additionalMedia?.type !== "List";
   const secondaryDisabled = marketplace?.branding?.disable_secondary_market;
 
@@ -1260,8 +1270,9 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
             /> :
             <PurchaseModal
               type={match.params.sku ? "marketplace" : "listing"}
+              isGift={match.params.action === "purchase-gift"}
               nft={nftInfo.nft}
-              item={item}
+              item={giftItem || item}
               initialListingId={listingId}
               Close={() => {
                 history.replace(match.url.split("/").slice(0, -1).join("/"));
@@ -1448,8 +1459,9 @@ export const MarketplaceItemDetails = observer(({Render}) => {
   const match = useRouteMatch();
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  const itemIndex = marketplace.items.findIndex(item => item.sku === match.params.sku);
-  const item = marketplace.items[itemIndex];
+  const item = marketplace.items.find(item => item.sku === match.params.sku);
+  const giftItem = marketplace.items.find(otherItem => otherItem.sku === item.gift_sku);
+
 
   useEffect(() => {
     if(!item.use_analytics) { return; }
@@ -1464,7 +1476,7 @@ export const MarketplaceItemDetails = observer(({Render}) => {
   return (
     Render ?
       Render({item}) :
-      <NFTDetails item={item} hideSecondaryStats={marketplace?.branding?.hide_secondary_in_store} />
+      <NFTDetails item={item} giftItem={giftItem} hideSecondaryStats={marketplace?.branding?.hide_secondary_in_store} />
   );
 });
 

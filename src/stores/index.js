@@ -122,6 +122,8 @@ class RootStore {
   lockedWalletBalance = undefined;
   usdcDisabled = false;
 
+  liveAppUrl = searchParams.get("lurl") || this.GetSessionStorage("live-url");
+
   specifiedMarketplaceId = this.GetSessionStorage("marketplace");
   specifiedMarketplaceHash = undefined;
   previewMarketplaceId = this.GetSessionStorage("preview-marketplace");
@@ -177,6 +179,8 @@ class RootStore {
   }
 
   get allMarketplaces() {
+    if(!this.walletClient) { return []; }
+
     let marketplaces = Object.values(this.walletClient.availableMarketplacesById);
 
     marketplaces = marketplaces.sort((a, b) =>
@@ -224,6 +228,10 @@ class RootStore {
 
     if(this.appUUID) {
       this.SetSessionStorage(`app-uuid-${window.loginOnly}`, this.appUUID);
+    }
+
+    if(this.liveAppUrl) {
+      this.SetSessionStorage("live-url", this.liveAppUrl);
     }
 
     this.resizeHandler = new ResizeObserver(elements => {
@@ -922,8 +930,12 @@ class RootStore {
     this.SetSessionStorage("custom-css", Utils.B64(css));
   }
 
-  SetCustomizationOptions(marketplace) {
-    const useTenantStyling = marketplace?.branding?.use_tenant_styling && this.navigationInfo.locationType !== "marketplace";
+  SetCustomizationOptions(marketplace, disableTenantStyling=false) {
+    const useTenantStyling =
+      !disableTenantStyling &&
+      marketplace?.branding?.use_tenant_styling &&
+      this.navigationInfo.locationType !== "marketplace" &&
+      !window.location.pathname.startsWith("/login");
     const customizationKey = marketplace === "default" ? "global" : `${marketplace.marketplaceId}-${useTenantStyling ? "tenant" : "marketplace"}`;
 
     if(marketplace !== "default" && customizationKey === this.currentCustomization) {
@@ -1005,7 +1017,9 @@ class RootStore {
     this.SetCustomizationOptions("default");
   }
 
-  SetMarketplace({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, specified=false}) {
+  SetMarketplace({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, specified=false, disableTenantStyling=false}) {
+    if(!this.walletClient) { return; }
+
     const marketplace = this.allMarketplaces.find(marketplace =>
       (marketplaceId && Utils.EqualHash(marketplaceId, marketplace.marketplaceId)) ||
       (marketplaceSlug && marketplace.tenantSlug === tenantSlug && marketplace.marketplaceSlug === marketplaceSlug) ||
@@ -1032,7 +1046,7 @@ class RootStore {
       }
 
       // Give locationType time to settle if path changed
-      setTimeout(() => this.SetCustomizationOptions(marketplace), 100);
+      setTimeout(() => this.SetCustomizationOptions(marketplace, disableTenantStyling), 100);
 
       return marketplace.marketplaceHash;
     } else if(Object.keys(this.walletClient.availableMarketplaces) > 0) {
@@ -1693,10 +1707,6 @@ class RootStore {
       this.SetLocalStorage("signed-out", "true");
     }
 
-    this.walletClient?.LogOut();
-
-    this.SendEvent({event: EVENTS.LOG_OUT, data: {address: this.CurrentAddress()}});
-
     if(this.oryClient) {
       try {
         const response = yield rootStore.oryClient.createBrowserLogoutFlow();
@@ -1705,6 +1715,10 @@ class RootStore {
         console.log(error);
       }
     }
+
+    this.walletClient?.LogOut();
+
+    this.SendEvent({event: EVENTS.LOG_OUT, data: {address: this.CurrentAddress()}});
 
     if(this.auth0) {
       try {
@@ -1956,6 +1970,7 @@ class RootStore {
 
           break;
 
+        case "gift":
         case "redirect":
           if(parameters.url) {
             window.location.href = parameters.url;

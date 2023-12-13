@@ -127,6 +127,14 @@
     }
   }
 
+  &__gift-card {
+    max-width: 400px;
+
+    .action {
+      width: 100%;
+    }
+  }
+
   @media screen and (max-width: $mobile-breakpoint) {
     &__video-container {
       width: 100vw;

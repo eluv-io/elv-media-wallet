@@ -4,12 +4,18 @@
   .modal__content {
     height: max-content;
     max-height: unset;
-    max-width: 550px;
+    max-width: 950px;
     overflow-y: hidden;
     padding-bottom: 5vh;
     padding-right: 8px;
     top: 5vh;
     width: 100%;
+  }
+
+  @media screen and (max-width: $intermediate-breakpoint) {
+    .modal__content {
+      max-width: $mobile-breakpoint;
+    }
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
@@ -22,7 +28,7 @@
   }
 }
 
-$content-width: 475px;
+$content-width: 1075px;
 
 .purchase-modal {
   @include component;
@@ -46,7 +52,6 @@ $content-width: 475px;
 
   &__header {
     align-items: center;
-    border-bottom: var(--border-component-secondary);
     display: flex;
     flex-direction: column;
     font: var(--font-component-header);
@@ -55,19 +60,30 @@ $content-width: 475px;
     text-transform: uppercase;
   }
 
-  &__content {
-    margin: 0 auto;
-    max-width: $content-width;
-    padding: 25px 45px 45px;
-    width: 100%;
+  &__sections {
+    display: grid;
+    gap: 75px;
+    grid-template-columns: 1fr 1fr;
+    padding: 35px 75px 75px;
+
+    @media screen and (max-width: $intermediate-breakpoint) {
+      grid-gap: 25px;
+      grid-template-columns: 1fr;
+    }
   }
 
-  .transfer-table {
-    margin: 0 0 30px;
+  &__section--right {
+    @include page-fade-in(0.5s, ease-in);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
 
-    .transfer-table__table {
-      max-height: 275px;
-    }
+  &__content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: center;
   }
 
   &__actions {
@@ -84,6 +100,14 @@ $content-width: 475px;
 
     & + .action {
       margin-top: 10px;
+    }
+  }
+
+  .transfer-table {
+    margin: 0 0 30px;
+
+    .transfer-table__table {
+      max-height: 175px;
     }
   }
 
@@ -143,7 +167,7 @@ $content-width: 475px;
 
   &__order-details {
     border-radius: var(--border-radius-component);
-    margin: 30px 0;
+    margin: 15px 0;
 
     &-box {
       background: var(--background-component-secondary);
@@ -237,8 +261,11 @@ $content-width: 475px;
     align-items: center;
     color: var(--color-component-text-secondary);
     display: flex;
+    font-size: 20px;
     font-weight: 300;
-    margin-bottom: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+    text-align: center;
 
     button {
       height: 20px;
@@ -323,6 +350,50 @@ $content-width: 475px;
 
   .wallet-connect {
     max-width: 100%;
+  }
+
+  &__gift-form {
+    display: grid;
+    grid-gap: 20px;
+
+    &__title {
+      font-size: 24px;
+      text-align: center;
+    }
+
+    &__input {
+      font-size: 20px;
+      padding: 15px;
+      width: 100%;
+
+      &--recipient-address {
+        font-size: 14px;
+      }
+
+      &::placeholder {
+        font-size: 18px;
+      }
+    }
+
+    textarea {
+      font-size: 16px;
+      min-height: 150px;
+      word-wrap: break-word;
+    }
+
+    &__note {
+      color: var(--color-component-text-secondary);
+      font-size: 12px;
+      margin: 7px 0 10px 15px;
+
+      &--error {
+        color: var(--color-text-error);
+      }
+    }
+
+    .purchase-modal__actions {
+      margin-top: 10px;
+    }
   }
 
   @media screen and (max-width: $mobile-breakpoint) {

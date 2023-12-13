@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
-import {Initialize} from "@eluvio/elv-embed/src/Import";
+import {Initialize as InitializeEmbed} from "@eluvio/elv-embed/src/Import";
 import {Redirect, Link, useHistory, useRouteMatch} from "react-router-dom";
 import {
   AvailableMedia,
@@ -290,8 +290,8 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, showFullscreen, set
     if(!targetRef || !targetRef.current) { return; }
 
     // eslint-disable-next-line no-async-promise-executor
-    const playerPromise = new Promise(async resolve =>
-      Initialize({
+    const playerPromise = new Promise(resolve =>
+      InitializeEmbed({
         client: rootStore.client,
         target: targetRef.current,
         url: mediaItem.mediaInfo.embedUrl,

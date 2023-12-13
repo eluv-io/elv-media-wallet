@@ -16,6 +16,7 @@ import CheckIcon from "Assets/icons/check.svg";
 import OryLogin from "Components/login/OryLogin";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
+const useOry = searchParams.has("ory") || true;
 const params = {
   // If we've just come back from Auth0
   isAuth0Callback: searchParams.has("code"),
@@ -37,12 +38,13 @@ const params = {
   // Response code to fill out for code login
   loginCode: searchParams.get("elvid"),
   // Should Auth0 credentials be cleared before login?
-  clearLogin: searchParams.has("clear"),
+  clearLogin: !useOry && searchParams.has("clear"),
   // Marketplace
   marketplace: searchParams.get("marketplace"),
   // User data to pass to custodial sign-in
   userData: searchParams.has("data") ? JSON.parse(Utils.FromB64(searchParams.get("data"))) : { share_email: true },
-  useOry: searchParams.has("ory")
+  // TODO: Remove hardcoded enable
+  useOry
 };
 
 window.params = params;
@@ -660,7 +662,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
   );
 });
 
-const Login = observer(({darkMode, Close}) => {
+const Login = observer(({Close}) => {
   const [customizationOptions, setCustomizationOptions] = useState(undefined);
   const [userData, setUserData] = useState(params.userData || {});
 
@@ -701,16 +703,24 @@ const Login = observer(({darkMode, Close}) => {
           // eslint-disable-next-line no-empty
         } catch(error) {}
 
-        if(typeof options.darkMode !== "undefined") {
-          rootStore.ToggleDarkMode(options.darkMode);
-        }
-
         setUserData(initialUserData);
         setCustomizationOptions({...(options || {})});
       });
   }, [rootStore.specifiedMarketplaceHash]);
 
-  darkMode = customizationOptions && typeof customizationOptions.darkMode === "boolean" ? customizationOptions.darkMode : darkMode;
+  useEffect(() => {
+    if(!rootStore.loaded) { return; }
+
+    // Ensure correct marketplace styling is used when login is visible
+    const originalMarketplaceId = rootStore.marketplaceId;
+    rootStore.SetMarketplace({marketplaceId: rootStore.specifiedMarketplaceId, disableTenantStyling: true});
+
+    return () => {
+      originalMarketplaceId ?
+        rootStore.SetMarketplace({marketplaceId: originalMarketplaceId}) :
+        rootStore.ClearMarketplace();
+    };
+  }, [rootStore.loaded]);
 
   // User data such as consent - save to localstorage
   const SaveUserData = (data) => {
@@ -728,7 +738,6 @@ const Login = observer(({darkMode, Close}) => {
       customizationOptions={customizationOptions}
       userData={userData}
       setUserData={SaveUserData}
-      darkMode={darkMode}
       Close={() => Close && Close()}
     />
   );
