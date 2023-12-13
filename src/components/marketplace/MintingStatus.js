@@ -628,6 +628,7 @@ export const GiftRedemptionStatus = observer(() => {
   if(!status) {
     return (
       <MintingStatus
+        header={rootStore.l10n.status.minting.gift_claim_header}
         key={`status-${videoHash}`}
         videoHash={videoHash}
         revealVideoHash={revealVideoHash}

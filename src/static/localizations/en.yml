@@ -512,6 +512,7 @@ status:
     awaiting_payment: Awaiting Payment...
     transferring: Your item is being transferred
     view_transaction: View your transaction on {location}
+    gift_claim_header: Your gift is being transferred to your account!
     gift_purchase_1: Thank you for your purchase!
     gift_purchase_2: The recipient(s) of your gift have been notified
 
