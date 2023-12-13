@@ -221,7 +221,7 @@ const MintingStatus = observer(({
       }
 
       {
-        revealVideoHash && !awaitingPayment ?
+        finished && revealVideoHash && !awaitingPayment ?
           <div className={`minting-status__video-container minting-status__video-container--large ${finished ? "" : "minting-status__video-container--hidden"}`}>
             <Loader />
             <div
