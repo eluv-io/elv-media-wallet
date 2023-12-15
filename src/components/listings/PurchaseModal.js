@@ -88,6 +88,8 @@ const PurchaseProviderSelection = observer(({
   const phantomWallet = cryptoStore.WalletFunctions("phantom");
   const metamaskWallet = cryptoStore.WalletFunctions("metamask");
 
+  const loginRequired = !rootStore.loggedIn && !isGift;
+
   // card, pix, crypto, wallet-balance
   const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.walletClient.UserInfo()?.email || "";
   const [type, setType] = useState(usdcOnly ? "crypto" : "");
@@ -163,7 +165,7 @@ const PurchaseProviderSelection = observer(({
       actions = (
         <>
           <ButtonWithLoader
-            disabled={disabled || !rootStore.loggedIn || !country}
+            disabled={disabled || loginRequired || !country}
             className={`action ${isGift ? "action-primary-variant" : "action-primary"} purchase-modal__payment-submit`}
             onClick={async () => {
               await Continue({
@@ -261,15 +263,15 @@ const PurchaseProviderSelection = observer(({
           {
             selectedMethod === "coinbase" && !ValidEmail(initialEmail) ?
               <>
-                <div className="purchase-modal__payment-message">
-                  Email
+                <div className="purchase-modal__payment-message" style={{marginTop: 50}}>
+                  Please enter your email for payment receipt
                 </div>
                 <input
                   required
                   type="email"
                   name="email"
                   placeholder="Email"
-                  className="purchase-modal__email-input"
+                  className="purchase-modal__input"
                   value={email}
                   onChange={event => setEmail(event.target.value)}
                 />
@@ -283,7 +285,7 @@ const PurchaseProviderSelection = observer(({
           <ButtonWithLoader
             disabled={
               disabled ||
-              !rootStore.loggedIn ||
+              loginRequired ||
               !selectedMethod ||
               (selectedMethod === "coinbase" && !ValidEmail(email)) ||
               (selectedMethod === "linked-wallet-sol" && !(phantomConnected || phantomWallet.Connected())) ||
@@ -370,21 +372,24 @@ const PurchaseProviderSelection = observer(({
               </button> :
               null
           }
-          <button
-            onClick={() => {
-              setSelectedMethod("wallet-balance");
-            }}
-            className={`purchase-modal__provider-options__option ${selectedMethod === "wallet-balance" ? "active" : ""}`}
-          >
-            { rootStore.l10n.purchase.wallet_balance }
-          </button>
+          {
+            !rootStore.loggedIn ? null :
+              <button
+                onClick={() => {
+                  setSelectedMethod("wallet-balance");
+                }}
+                className={`purchase-modal__provider-options__option ${selectedMethod === "wallet-balance" ? "active" : ""}`}
+              >
+                {rootStore.l10n.purchase.wallet_balance}
+              </button>
+          }
         </div>
       );
 
       actions = (
         <>
           <ButtonWithLoader
-            disabled={disabled || !rootStore.loggedIn || !selectedMethod}
+            disabled={disabled || loginRequired || !selectedMethod}
             className={`action ${isGift ? "action-primary-variant" : "action-primary"} purchase-modal__payment-submit`}
             onClick={async () => {
               if(stripeEnabled && !ebanxEnabled && selectedMethod === "card") {
@@ -443,9 +448,9 @@ const PurchaseProviderSelection = observer(({
         { actions }
       </div>
       {
-        errorMessage || !rootStore.loggedIn ?
+        errorMessage || loginRequired ?
           <div className="purchase-modal__error-message">
-            { errorMessage || "You must be logged in to complete this purchase." }
+            { errorMessage || rootStore.l10n.purchase.errors.login_required }
           </div> : null
       }
     </>
@@ -801,7 +806,7 @@ const PurchaseGiftInfo = observer(({giftInfo, setGiftInfo, Cancel}) => {
             onChange={event => setGiftInfo({...giftInfo, gifterName: event.target.value})}
             placeholder={rootStore.l10n.purchase.gift_options.gifter_name}
             onKeyDown={event => event.key === "Enter" ? Submit() : undefined}
-            className="purchase-modal__gift-form__input"
+            className="purchase-modal__input"
           />
           <div>
             <input
@@ -832,7 +837,7 @@ const PurchaseGiftInfo = observer(({giftInfo, setGiftInfo, Cancel}) => {
               }}
               placeholder={rootStore.l10n.purchase.gift_options.recipient}
               onKeyDown={event => event.key === "Enter" ? Submit() : undefined}
-              className={`purchase-modal__gift-form__input ${giftInfo.recipient.startsWith("0") ? "purchase-modal__gift-form__input--recipient-address" : ""}`}
+              className={`purchase-modal__input ${giftInfo.recipient.startsWith("0") ? "purchase-modal__input--recipient-address" : ""}`}
             />
             { recipientError ? <div className="purchase-modal__gift-form__note purchase-modal__gift-form__note--error">{recipientError}</div> : null }
             <div className="purchase-modal__gift-form__note">
@@ -848,7 +853,7 @@ const PurchaseGiftInfo = observer(({giftInfo, setGiftInfo, Cancel}) => {
               value={giftInfo.message}
               onChange={event => setGiftInfo({...giftInfo, message: event.target.value})}
               placeholder={rootStore.l10n.purchase.gift_options.message}
-              className="purchase-modal__gift-form__input"
+              className="purchase-modal__input"
             />
             <div className="purchase-modal__gift-form__note">
               { LocalizeString(rootStore.l10n.purchase.gift_options.message_characters_remaining, {remaining: maxMessageLength - giftInfo.message.length}) }

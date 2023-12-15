@@ -63,9 +63,9 @@ const MintingStatus = observer(({
       if(status.status === "complete") {
         if(!noItems) {
           // If mint has items, ensure that items are available in the user's wallet
-          let items = (status.extra || []).filter(item => item.token_addr && (item.token_id || item.token_id_str));
+          let items = status.items || (status.extra || []).filter(item => item.token_addr && (item.token_id || item.token_id_str));
           if(status.op === "nft-transfer") {
-            items = [{token_addr: status.address, token_id_str: status.tokenId}];
+            items = status.items || [{token_addr: status.address, token_id_str: status.tokenId}];
           }
 
           if(items.length > 0) {
@@ -508,7 +508,7 @@ export const GiftPurchaseMintingStatus = observer(() => {
     confirmationId: match.params.confirmationId
   });
 
-  if(status?.status !== "complete") {
+  if(status?.status !== "complete" && rootStore.loggedIn) {
     return (
       <MintingStatus
         text={{
@@ -519,7 +519,6 @@ export const GiftPurchaseMintingStatus = observer(() => {
         OnFinish={({status}) => setStatus(status)}
         basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
         backText={rootStore.l10n.status.back_to_marketplace}
-        hideText
       />
     );
   }
@@ -564,29 +563,34 @@ export const GiftRedemptionStatus = observer(() => {
 
   const hideText = marketplace?.storefront?.hide_text;
 
+  const Status = async () => await rootStore.GiftClaimStatus({
+    marketplaceId: match.params.marketplaceId,
+    confirmationId: match.params.confirmationId
+  });
+
   const Claim = async () => {
     try {
-      const response = await checkoutStore.GiftClaimSubmit({
+      await checkoutStore.GiftClaimSubmit({
         marketplaceId: match.params.marketplaceId,
         sku: match.params.sku,
         confirmationId: match.params.confirmationId,
         code
       });
-
-      console.log(response);
     } catch(error) {
       if(error?.status === 400) {
+        const claimStatus = await Status();
+
+        if(["complete", "pending"].includes(claimStatus?.status)) {
+          // Gift was claimed by this user, and recently enough for status to be present
+          return;
+        }
+
         setError(rootStore.l10n.status.minting.errors.gift_already_claimed);
       } else {
         setError(rootStore.l10n.status.minting.errors.misc);
       }
     }
   };
-
-  const Status = async () => await rootStore.GiftClaimStatus({
-    marketplaceId: match.params.marketplaceId,
-    confirmationId: match.params.confirmationId
-  });
 
   let item = marketplace?.items?.find(item => item.sku === match.params.sku);
 
@@ -679,14 +683,12 @@ export const GiftRedemptionStatus = observer(() => {
     );
   }
 
-  let items = status.extra.filter(item => item.token_addr && (item.token_id || item.token_id_str));
-
   return (
     <MintResults
       skipReveal={skipReveal}
       header={rootStore.l10n.status.minting.success_header}
-      subheader={rootStore.l10n.status.minting[items.length === 1 ? "received_item_single" : "received_item_multiple"]}
-      items={items}
+      subheader={rootStore.l10n.status.minting[status.items.length === 1 ? "received_item_single" : "received_item_multiple"]}
+      items={status.items}
       basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
       nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items")}
       backText={rootStore.l10n.status.back_to_marketplace}

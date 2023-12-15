@@ -1718,7 +1718,7 @@ class RootStore {
         const response = yield rootStore.oryClient.createBrowserLogoutFlow();
         yield rootStore.oryClient.updateLogoutFlow({token: response.data.logout_token});
       } catch(error) {
-        console.log(error);
+        this.Log(error, true);
       }
     }
 
@@ -1884,7 +1884,7 @@ class RootStore {
 
       parameters.flowId = flowId;
 
-      if(includeAuth || (!this.storageSupported && this.AuthInfo())) {
+      if((this.loggedIn && includeAuth) || (!this.storageSupported && this.AuthInfo())) {
         parameters.auth = this.AuthInfo().clientAuthToken;
       }
 

@@ -327,6 +327,7 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, showFullscreen, set
       try {
         (await playerPromise)?.Destroy();
       } catch(error) {
+        // eslint-disable-next-line no-console
         console.log(error);
       }
     };

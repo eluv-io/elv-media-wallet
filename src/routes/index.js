@@ -132,7 +132,8 @@ const MarketplaceRoutes = () => {
     { name: "Purchase", path: "store/:sku/gift/:confirmationId/:code?", Component: GiftRedemptionStatus, authed: true },
 
     { name: match => (GetItem(match)?.name || rootStore.l10n.item_details.item), path: "store/:sku", noBlock: true, Component: MarketplaceItemDetails },
-    { name: match => (GetItem(match)?.name || rootStore.l10n.item_details.item), path: "store/:sku/:action", authed: true, noBlock: true, Component: MarketplaceItemDetails },
+    // TODO: (Re-enable when unauthed gift purchase works) Gift purchase doesn't require auth
+    { name: match => (GetItem(match)?.name || rootStore.l10n.item_details.item), path: "store/:sku/:action", authed: match => true || match.params.action !== "purchase-gift", noBlock: true, Component: MarketplaceItemDetails },
     { name: match => (GetMarketplace(match)?.branding?.name || rootStore.l10n.item_details.marketplace), path: "store", noBlock: true, Component: MarketplaceStorefront },
 
     { name: match => (GetItem(match)?.name || rootStore.l10n.item_details.item), path: "store/:sku/media", noBlock: true, Component: NFTMedia },
@@ -323,7 +324,7 @@ const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
 
           if(authed) {
             result = (
-              <LoginGate ignoreCapture={ignoreLoginCapture} to="/marketplaces">
+              <LoginGate Condition={typeof authed === "function" ? authed : undefined} ignoreCapture={ignoreLoginCapture} to="/marketplaces">
                 { result }
               </LoginGate>
             );

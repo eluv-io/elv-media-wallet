@@ -34,6 +34,12 @@ module.exports = {
     filename: "main.js",
     chunkFilename: "bundle.[id].[chunkhash].js"
   },
+  snapshot: {
+    managedPaths: [],
+  },
+  watchOptions: {
+    followSymlinks: true,
+  },
   devServer: {
     hot: true,
     client: {

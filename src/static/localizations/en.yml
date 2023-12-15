@@ -260,6 +260,7 @@ purchase:
     listing_failed: Unable to list this NFT
     nft_being_purchased: This NFT is currently in the process of being purchased
     nft_sold: This NFT was sold for {price} on {date}
+    login_required: You must be logged in to complete this purchase.
 
 offers:
   offer: Offer

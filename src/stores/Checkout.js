@@ -629,7 +629,7 @@ class CheckoutStore {
 
     try {
       this.submittingOrder = true;
-      email = email || this.rootStore.walletClient.UserInfo().email;
+      email = email || this.rootStore.walletClient.UserInfo()?.email;
 
       const successPath = UrlJoin("/marketplace", marketplaceId, "store", sku, isGift ? "purchase-gift" : "purchase", confirmationId, `?provider=${provider}`);
       const cancelPath = UrlJoin("/marketplace", marketplaceId, "store", sku);
@@ -705,7 +705,7 @@ class CheckoutStore {
         this.rootStore.SetAccountEmail(address, email);
       }
 
-      if(!address) {
+      if(!address && !isGift) {
         throw Error("Unable to determine address for current user");
       }
 
@@ -747,8 +747,6 @@ class CheckoutStore {
           message: giftInfo.message,
           wallet_claim_page_url_prefix: redemptionUrl
         };
-
-        console.log(requestParams);
       }
 
       if(EluvioConfiguration["purchase-mode"]) {
