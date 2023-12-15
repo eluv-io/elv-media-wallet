@@ -129,7 +129,7 @@ const MarketplaceRoutes = () => {
     { name: "Claim", path: "store/:sku/claim/status", Component: ClaimMintingStatus, authed: true },
     { name: "Purchase", path: "store/:sku/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
     { name: "Purchase", path: "store/:sku/purchase-gift/:confirmationId", Component: GiftPurchaseMintingStatus, authed: true },
-    { name: "Purchase", path: "store/:sku/gift/:confirmationId", Component: GiftRedemptionStatus, authed: true },
+    { name: "Purchase", path: "store/:sku/gift/:confirmationId/:code?", Component: GiftRedemptionStatus, authed: true },
 
     { name: match => (GetItem(match)?.name || rootStore.l10n.item_details.item), path: "store/:sku", noBlock: true, Component: MarketplaceItemDetails },
     { name: match => (GetItem(match)?.name || rootStore.l10n.item_details.item), path: "store/:sku/:action", authed: true, noBlock: true, Component: MarketplaceItemDetails },

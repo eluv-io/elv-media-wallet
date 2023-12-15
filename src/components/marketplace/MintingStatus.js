@@ -105,6 +105,8 @@ const MintingStatus = observer(({
   };
 
   useEffect(() => {
+    setTimeout(() => ScrollTo(0), 200);
+
     CheckStatus();
 
     statusInterval = setInterval(CheckStatus, intervalPeriod * 1000);
@@ -509,6 +511,9 @@ export const GiftPurchaseMintingStatus = observer(() => {
   if(status?.status !== "complete") {
     return (
       <MintingStatus
+        text={{
+          header: rootStore.l10n.status.minting.confirming_purchase
+        }}
         intervalPeriod={3}
         Status={Status}
         OnFinish={({status}) => setStatus(status)}
@@ -538,25 +543,8 @@ export const GiftRedemptionStatus = observer(() => {
   const match = useRouteMatch();
   const [status, setStatus] = useState(undefined);
   const [redeemed, setRedeemed] = useState(undefined);
-
-  useEffect(() => {
-    if(!rootStore.loggedIn) { return; }
-
-    const code = SearchParams()["otp_code"];
-
-    if(!code) {
-      console.log("NO CODE FOUND");
-    }
-
-    // TODO: Record claimed gift codes in the user profile meta so that we know where to go if the user comes here again
-    checkoutStore.GiftClaimSubmit({
-      marketplaceId: match.params.marketplaceId,
-      sku: match.params.sku,
-      confirmationId: match.params.confirmationId,
-      code
-    })
-      .then(console.log);
-  }, []);
+  const [error, setError] = useState(undefined);
+  const code = match.params.code || SearchParams()["otp_code"];
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
   const giftOptions = marketplace?.storefront?.gift_options;
@@ -576,15 +564,64 @@ export const GiftRedemptionStatus = observer(() => {
 
   const hideText = marketplace?.storefront?.hide_text;
 
-  const Status = async () => await rootStore.ClaimStatus({
+  const Claim = async () => {
+    try {
+      const response = await checkoutStore.GiftClaimSubmit({
+        marketplaceId: match.params.marketplaceId,
+        sku: match.params.sku,
+        confirmationId: match.params.confirmationId,
+        code
+      });
+
+      console.log(response);
+    } catch(error) {
+      if(error?.status === 400) {
+        setError(rootStore.l10n.status.minting.errors.gift_already_claimed);
+      } else {
+        setError(rootStore.l10n.status.minting.errors.misc);
+      }
+    }
+  };
+
+  const Status = async () => await rootStore.GiftClaimStatus({
     marketplaceId: match.params.marketplaceId,
-    sku: match.params.sku
+    confirmationId: match.params.confirmationId
   });
 
   let item = marketplace?.items?.find(item => item.sku === match.params.sku);
 
+  useEffect(() => {
+    if(!rootStore.loggedIn || !item) { return; }
+
+    if(!code) {
+      setError(rootStore.l10n.status.minting.errors.gift_code_not_found);
+    }
+
+    if(item?.gift_presentation?.open_on_claim) {
+      // Redemption action will be done when the user manually clicks claim
+      return;
+    }
+
+    Claim();
+  }, [item]);
+
   if(!item) {
     return <PageLoader />;
+  }
+
+  if(error) {
+    return (
+      <div className="minting-status-results" key="minting-status-results-card-list">
+        <div className="page-headers">
+          <div className="page-header">{ error }</div>
+        </div>
+        <div className="minting-status-results__actions">
+          <Link to={UrlJoin("/marketplace", match.params.marketplaceId)} className="action action-primary minting-status-results__back-button">
+            { rootStore.l10n.status.back_to_marketplace }
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   if(item.use_custom_gift_presentation) {
@@ -613,8 +650,9 @@ export const GiftRedemptionStatus = observer(() => {
             {
               label: "Claim",
               className: "action action-primary",
-              onClick: () => {
-                // TODO: Initiate claim
+              onClick: async () => {
+                await Claim();
+
                 setRedeemed(true);
                 setTimeout(() => ScrollTo(0), 100);
               }

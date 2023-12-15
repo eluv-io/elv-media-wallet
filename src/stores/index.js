@@ -1,3 +1,5 @@
+import {SearchParams} from "../utils/Utils";
+
 let testTheme = undefined;
 //testTheme = import("../static/stylesheets/themes/maskverse-test.theme.css");
 //testTheme = import("../static/stylesheets/themes/wwe-test.theme.css");
@@ -1318,6 +1320,10 @@ class RootStore {
     return yield this.walletClient.ClaimStatus({marketplaceParams: { marketplaceId }, sku});
   });
 
+  GiftClaimStatus = flow(function * ({marketplaceId, confirmationId}) {
+    return yield this.walletClient.GiftClaimStatus({marketplaceParams: { marketplaceId }, confirmationId});
+  });
+
   PackOpenStatus = flow(function * ({contractId, contractAddress, tokenId}) {
     if(contractId) {
       contractAddress = Utils.HashToAddress(contractId);
@@ -1971,6 +1977,11 @@ class RootStore {
           break;
 
         case "gift":
+          // Take the code from the URL params and add it to the redirect path because Auth0 will eat the params on login
+          parameters.to = UrlJoin(parameters.to, SearchParams()["otp_code"] || "");
+
+          // Fall through to redirect
+        // eslint-disable-next-line no-fallthrough
         case "redirect":
           if(parameters.url) {
             window.location.href = parameters.url;

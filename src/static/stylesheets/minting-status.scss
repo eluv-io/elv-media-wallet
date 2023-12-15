@@ -28,7 +28,7 @@
 
   .page-subheader {
     font: var(--font-store-subheading);
-    margin-top: 10px;
+    margin: 10px 0;
   }
 
   .action {
@@ -83,7 +83,7 @@
     align-items: center;
     display: flex;
     justify-content: center;
-    margin: 20px 0;
+    margin-bottom: 20px;
     position: relative;
     width: 100%;
 

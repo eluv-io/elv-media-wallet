@@ -1,7 +1,10 @@
 const Path = require("path");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 const fs = require("fs");
+
+const isDevelopment = process.env.NODE_ENV !== "production";
 
 let plugins = [
   new HtmlWebpackPlugin({
@@ -12,6 +15,10 @@ let plugins = [
     inject: "body"
   })
 ];
+
+if(isDevelopment) {
+  plugins.push(new ReactRefreshWebpackPlugin());
+}
 
 if(process.env.ANALYZE_BUNDLE) {
   plugins.push(new BundleAnalyzerPlugin());
@@ -97,6 +104,7 @@ module.exports = {
         test: /\.(js|mjs|jsx)$/,
         loader: "babel-loader",
         options: {
+          plugins: [isDevelopment && require.resolve("react-refresh/babel")].filter(Boolean),
           presets: [
             "@babel/preset-env",
             "@babel/preset-react",
