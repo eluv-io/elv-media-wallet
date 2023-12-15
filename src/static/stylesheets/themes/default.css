@@ -14,6 +14,7 @@ html {
   --color-bg-primary: #FFFFFF;
   --color-bg-secondary: #EDEDED;
   --color-bg-highlight: #2D61E4;
+  --color-bg-highlight2: #7f2de4;
 
   --color-text-primary: #000;
   --color-text-secondary: #333;
@@ -82,9 +83,9 @@ html {
   --border-button-primary: 1px solid var(--color-highlight-container-bg);
   --border-radius-button-primary: var(--border-radius);
 
-  --background-button-primary-variant: red; /* var(--background-button-primary); */
+  --background-button-primary-variant: var(--color-bg-highlight2);
   --color-button-primary-variant-text: var(--color-button-primary-text);
-  --border-button-primary-variant: var(--border-button-primary);
+  --border-button-primary-variant: 1px solid var(--background-button-primary-variant);
   --border-radius-button-primary-variant: var(--border-radius-button-primary);
 
   --background-button-secondary: var(--color-bg-primary);
