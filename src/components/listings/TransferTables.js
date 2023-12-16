@@ -771,7 +771,7 @@ export const UserGiftsHistory = observer(({icon, header, limit, received=false, 
             link: record.status !== "claimed" && record.wallet_claim_page_url ? UrlJoin("/flow", record.wallet_claim_page_url.split("/flow")[1]) : undefined,
             columns: [
               record.description,
-              rootStore.userProfiles[record.sender_addr]?.userName || MiddleEllipsis(record.sender_addr, 14),
+              rootStore.userProfiles[record.sender_addr]?.userName || record.sender_name || MiddleEllipsis(record.sender_addr, 14),
               Ago(record.created),
               rootStore.l10n.tables[record.status === "claimed" ? "claimed" : "unclaimed"],
               record.source === "publisher" ? "Publisher" : record.source
