@@ -6,7 +6,7 @@ import {Redirect, useRouteMatch} from "react-router-dom";
 // Show only login page until logged in
 export const LoginGate = observer(({children, ignoreCapture, loader, Condition}) => {
   const match = useRouteMatch();
-  const skip = !Condition || !Condition(match);
+  const skip = Condition && !Condition(match);
 
   useEffect(() => {
     if(skip) { return; }

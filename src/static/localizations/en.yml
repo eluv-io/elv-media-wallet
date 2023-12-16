@@ -10,6 +10,7 @@ header:
   items: Items
   offers: Offers
   notifications: Notifications
+  gifts: Gifts
   media_wallet: Media Wallet
 
 login:
@@ -54,6 +55,7 @@ navigation:
   offers: My Offers
   activity: My Activity
   notifications: Notifications
+  gifts: Gifts
   preferences: Preferences
   collectibles: Collectibles
 
@@ -354,6 +356,10 @@ tables:
   sold_nfts: Sold NFTs
   pending: Pending
   available: Available
+  gifts_received: Gifts Received
+  gifts_given: Gifts Given
+  claimed: Claimed
+  unclaimed: Unclaimed
   columns:
     address: Address
     amount: Amount
@@ -376,6 +382,9 @@ tables:
     total_amount: Total Amount
     total_collectibles: Total Collectibles
     username: Username
+    giver: Giver
+    recipient: Recipient
+    source: Source
 
 filters:
   all_filters: All Filters

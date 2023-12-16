@@ -4,8 +4,8 @@ import {MarketplaceImage} from "Components/common/Images";
 import MarketplaceItemCard from "Components/marketplace/MarketplaceItemCard";
 import {ScrollTo} from "../../utils/Utils";
 
-const FeaturedGallery = ({showIcons, marketplaceHash, items, selectedIndex, setSelectedIndex}) => {
-  const width = showIcons ? 5 : 1;
+const FeaturedGallery = observer(({showIcons, marketplaceHash, items, selectedIndex, setSelectedIndex}) => {
+  const width = showIcons ? rootStore.pageWidth > 1200 ? 5 : 3 : 1;
   const [range, setRange] = useState([0, width]);
   const [dragging, setDragging] = useState(false);
   const [snap, setSnap] = useState(0);
@@ -170,7 +170,7 @@ const FeaturedGallery = ({showIcons, marketplaceHash, items, selectedIndex, setS
       }
     </div>
   );
-};
+});
 
 const MarketplaceFeatured = observer(({marketplace, items, justification, countdown, showGallery}) => {
   const [featuredItemIndex, setFeaturedItemIndex] = useState(0);

@@ -18,6 +18,7 @@ import OfferReceivedIcon from "Assets/icons/header/offer icon.svg";
 import OfferDeclinedIcon from "Assets/icons/x.svg";
 import OfferExpiredIcon from "Assets/icons/minus.svg";
 import OfferAcceptedIcon from "Assets/icons/header/offer icon.svg";
+import GiftIcon from "Assets/icons/gift.svg";
 import MenuIcon from "Assets/icons/more-horizontal.svg";
 import NotificationDisabledIcon from "Assets/icons/header/bell-off.svg";
 import CheckmarkIcon from "Assets/icons/check.svg";
@@ -185,7 +186,7 @@ const Notification = observer(({notification, Hide}) => {
       break;
 
     case "GIFT_RECEIVED":
-      icon = OfferExpiredIcon;
+      icon = GiftIcon;
       header = l10n.gift_received;
       message = LocalizeString(l10n.gift_received_message, {sender: "Someone"});
 
