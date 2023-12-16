@@ -188,9 +188,9 @@ const Notification = observer(({notification, Hide}) => {
     case "GIFT_RECEIVED":
       icon = GiftIcon;
       header = l10n.gift_received;
-      message = LocalizeString(l10n.gift_received_message, {sender: "Someone"});
+      message = LocalizeString(l10n.gift_received_message, {sender: notification?.data?.reason?.split("from ")[1] || "Someone"});
 
-      link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "offers") : "/wallet/users/me/offers";
+      link = notification.data.wallet_claim_url ? UrlJoin("/flow", notification.data.wallet_claim_url.split("/flow")[1]) : undefined;
 
       break;
 

@@ -767,13 +767,16 @@ export const UserGiftsHistory = observer(({icon, header, limit, received=false, 
         columnWidths={[1, 1, "150px", "150px", 1]}
         tabletColumnWidths={[1, 1, "150px", "150px"]}
         entries={
-          entries.map(record => [
-            record.description,
-            rootStore.userProfiles[record.sender_addr]?.userName || MiddleEllipsis(record.sender_addr, 14),
-            Ago(record.created),
-            rootStore.l10n.tables[record.status === "claimed" ? "claimed" : "unclaimed"],
-            record.source === "publisher" ? "Publisher" : record.source
-          ])
+          entries.map(record => ({
+            link: record.status !== "claimed" && record.wallet_claim_page_url ? UrlJoin("/flow", record.wallet_claim_page_url.split("/flow")[1]) : undefined,
+            columns: [
+              record.description,
+              rootStore.userProfiles[record.sender_addr]?.userName || MiddleEllipsis(record.sender_addr, 14),
+              Ago(record.created),
+              rootStore.l10n.tables[record.status === "claimed" ? "claimed" : "unclaimed"],
+              record.source === "publisher" ? "Publisher" : record.source
+            ]
+          }))
         }
       />
     );
