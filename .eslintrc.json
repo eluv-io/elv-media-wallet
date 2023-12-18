@@ -17,6 +17,7 @@
     "react"
   ],
   "rules": {
+    "no-console": "error",
     "no-misspelled-properties": "off",
     "no-case-declarations": "off",
     "no-undef": "off",

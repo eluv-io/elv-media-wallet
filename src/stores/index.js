@@ -1,3 +1,5 @@
+import {SearchParams} from "../utils/Utils";
+
 let testTheme = undefined;
 //testTheme = import("../static/stylesheets/themes/maskverse-test.theme.css");
 //testTheme = import("../static/stylesheets/themes/wwe-test.theme.css");
@@ -58,6 +60,7 @@ class RootStore {
   appId = "eluvio-media-wallet";
 
   auth0 = undefined;
+  oryClient = undefined;
 
   authOrigin = this.GetSessionStorage("auth-origin");
 
@@ -70,7 +73,7 @@ class RootStore {
   network = EluvioConfiguration.network;
 
   embedded = window.top !== window.self || searchParams.has("e");
-  inFlow = (window.location.hash.startsWith("#/flow/") || window.location.hash.startsWith("#/action/")) && !window.location.hash.includes("redirect");
+  inFlow = (window.location.pathname.startsWith("#/flow/") || window.location.pathname.startsWith("#/action/")) && !window.location.pathname.includes("redirect");
 
   storageSupported = storageSupported;
 
@@ -120,6 +123,8 @@ class RootStore {
   totalWalletBalance = undefined;
   lockedWalletBalance = undefined;
   usdcDisabled = false;
+
+  liveAppUrl = searchParams.get("lurl") || this.GetSessionStorage("live-url");
 
   specifiedMarketplaceId = this.GetSessionStorage("marketplace");
   specifiedMarketplaceHash = undefined;
@@ -176,6 +181,8 @@ class RootStore {
   }
 
   get allMarketplaces() {
+    if(!this.walletClient) { return []; }
+
     let marketplaces = Object.values(this.walletClient.availableMarketplacesById);
 
     marketplaces = marketplaces.sort((a, b) =>
@@ -225,6 +232,10 @@ class RootStore {
       this.SetSessionStorage(`app-uuid-${window.loginOnly}`, this.appUUID);
     }
 
+    if(this.liveAppUrl) {
+      this.SetSessionStorage("live-url", this.liveAppUrl);
+    }
+
     this.resizeHandler = new ResizeObserver(elements => {
       const {width, height} = elements[0].contentRect;
 
@@ -233,12 +244,13 @@ class RootStore {
 
     this.resizeHandler.observe(document.body);
 
-
-    window.addEventListener("hashchange", () => this.SendEvent({event: EVENTS.ROUTE_CHANGE, data: UrlJoin("/", window.location.hash.replace("#", ""))}));
-
     this.ToggleDarkMode(this.darkMode);
 
     this.Initialize();
+  }
+
+  RouteChange(pathname) {
+    this.SendEvent({event: EVENTS.ROUTE_CHANGE, data: pathname});
   }
 
   SetLanguage = flow(function * (language, save=false) {
@@ -305,6 +317,19 @@ class RootStore {
       this.SetLanguage(this.language || navigator.languages);
 
       if(window.sessionStorageAvailable) {
+        // Initialize Ory client
+        const {Configuration, FrontendApi} = yield import("@ory/client");
+        this.oryClient = new FrontendApi(
+          new Configuration({
+            basePath: EluvioConfiguration.ory_configuration.url,
+            // we always want to include the cookies in each request
+            // cookies are used for sessions and CSRF protection
+            baseOptions: {
+              withCredentials: true
+            }
+          })
+        );
+
         // eslint-disable-next-line no-console
         console.time("Auth0 Initial Load");
 
@@ -433,6 +458,30 @@ class RootStore {
     return this.walletClient.UserAddress();
   }
 
+  AuthenticateOry = flow(function * ({userData}={}) {
+    try {
+      const response = yield this.oryClient.toSession({tokenizeAs: EluvioConfiguration.ory_configuration.jwt_template});
+      const email = response.data.identity.traits.email;
+      const jwtToken = response.data.tokenized;
+
+      yield this.Authenticate({
+        idToken: jwtToken,
+        // TODO: Change
+        signerURIs: ["https://wlt.stg.svc.eluv.io"],
+        user: {
+          name: email,
+          email,
+          // TODO: check verification
+          verified: true,
+          userData
+        }
+      });
+    } catch(error) {
+      this.Log("Error logging in with Ory:", true);
+      this.Log(error);
+    }
+  });
+
   AuthenticateAuth0 = flow(function * ({userData}={}) {
     try {
       // eslint-disable-next-line no-console
@@ -479,7 +528,7 @@ class RootStore {
     console.timeEnd("Auth0 Authentication");
   });
 
-  Authenticate = flow(function * ({idToken, clientAuthToken, clientSigningToken, externalWallet, walletName, user, saveAuthInfo=true, callback}) {
+  Authenticate = flow(function * ({idToken, clientAuthToken, clientSigningToken, externalWallet, walletName, user, saveAuthInfo=true, signerURIs, callback}) {
     if(this.authenticating) { return; }
 
     try {
@@ -544,7 +593,8 @@ class RootStore {
           idToken,
           email: user?.email,
           tenantId,
-          shareEmail: user?.userData?.share_email
+          shareEmail: user?.userData?.share_email,
+          signerURIs
         });
 
         clientAuthToken = tokens.authToken;
@@ -633,6 +683,15 @@ class RootStore {
     }
 
     if(!this.loginCustomization[marketplaceId]) {
+      const localStorageKey = `customization-${marketplaceId}`;
+      const fromLocalStorage = this.GetLocalStorageJSON(localStorageKey, true);
+
+      if(fromLocalStorage && fromLocalStorage.marketplaceHash === marketplaceHash) {
+        this.loginCustomization[localStorageKey] = fromLocalStorage;
+
+        return this.loginCustomization[localStorageKey];
+      }
+
       let metadata = (
         yield (yield Client()).ContentObjectMetadata({
           versionHash: yield this.walletClient.LatestMarketplaceHash({
@@ -670,7 +729,16 @@ class RootStore {
         metadata.log_in_button = undefined;
       }
 
+      if(metadata.tenant_id) {
+        metadata.tenantConfig = yield this.walletClient.TenantConfiguration({tenantId: metadata.tenant_id});
+      }
+
       this.loginCustomization[marketplaceId] = metadata;
+
+      this.SetLocalStorage(
+        localStorageKey,
+        Utils.B64(JSON.stringify(metadata))
+      );
     }
 
     return this.loginCustomization[marketplaceId];
@@ -870,8 +938,12 @@ class RootStore {
     this.SetSessionStorage("custom-css", Utils.B64(css));
   }
 
-  SetCustomizationOptions(marketplace) {
-    const useTenantStyling = marketplace?.branding?.use_tenant_styling && this.navigationInfo.locationType !== "marketplace";
+  SetCustomizationOptions(marketplace, disableTenantStyling=false) {
+    const useTenantStyling =
+      !disableTenantStyling &&
+      marketplace?.branding?.use_tenant_styling &&
+      this.navigationInfo.locationType !== "marketplace" &&
+      !window.location.pathname.startsWith("/login");
     const customizationKey = marketplace === "default" ? "global" : `${marketplace.marketplaceId}-${useTenantStyling ? "tenant" : "marketplace"}`;
 
     if(marketplace !== "default" && customizationKey === this.currentCustomization) {
@@ -953,7 +1025,9 @@ class RootStore {
     this.SetCustomizationOptions("default");
   }
 
-  SetMarketplace({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, specified=false}) {
+  SetMarketplace({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, specified=false, disableTenantStyling=false}) {
+    if(!this.walletClient) { return; }
+
     const marketplace = this.allMarketplaces.find(marketplace =>
       (marketplaceId && Utils.EqualHash(marketplaceId, marketplace.marketplaceId)) ||
       (marketplaceSlug && marketplace.tenantSlug === tenantSlug && marketplace.marketplaceSlug === marketplaceSlug) ||
@@ -980,7 +1054,7 @@ class RootStore {
       }
 
       // Give locationType time to settle if path changed
-      setTimeout(() => this.SetCustomizationOptions(marketplace), 100);
+      setTimeout(() => this.SetCustomizationOptions(marketplace, disableTenantStyling), 100);
 
       return marketplace.marketplaceHash;
     } else if(Object.keys(this.walletClient.availableMarketplaces) > 0) {
@@ -1250,6 +1324,10 @@ class RootStore {
 
   ClaimStatus = flow(function * ({marketplaceId, sku}) {
     return yield this.walletClient.ClaimStatus({marketplaceParams: { marketplaceId }, sku});
+  });
+
+  GiftClaimStatus = flow(function * ({marketplaceId, confirmationId}) {
+    return yield this.walletClient.GiftClaimStatus({marketplaceParams: { marketplaceId }, confirmationId});
   });
 
   PackOpenStatus = flow(function * ({contractId, contractAddress, tokenId}) {
@@ -1634,11 +1712,20 @@ class RootStore {
     marketplace.analyticsInitialized = true;
   }
 
-  SignOut(returnUrl) {
+  SignOut = flow(function * (returnUrl) {
     this.ClearAuthInfo();
 
     if(this.embedded) {
       this.SetLocalStorage("signed-out", "true");
+    }
+
+    if(this.oryClient) {
+      try {
+        const response = yield rootStore.oryClient.createBrowserLogoutFlow();
+        yield rootStore.oryClient.updateLogoutFlow({token: response.data.logout_token});
+      } catch(error) {
+        this.Log(error, true);
+      }
     }
 
     this.walletClient?.LogOut();
@@ -1649,9 +1736,14 @@ class RootStore {
       try {
         this.disableCloseEvent = true;
 
+        // Auth0 has a specific whitelisted path for login/logout urls - rely on hash redirect
+        returnUrl = new URL(returnUrl || this.ReloadURL());
+        returnUrl.hash = returnUrl.pathname;
+        returnUrl.pathname = "";
+
         setTimeout(() => {
           this.auth0.logout({
-            returnTo: returnUrl || this.ReloadURL()
+            returnTo: returnUrl.toString()
           });
         }, 100);
 
@@ -1663,7 +1755,7 @@ class RootStore {
     }
 
     this.Reload();
-  }
+  });
 
   CreateShortURL = flow(function * (url) {
     // Normalize URL
@@ -1692,9 +1784,11 @@ class RootStore {
     }
 
     if(keepPath) {
-      url.hash = window.location.hash;
+      url.pathname = window.location.pathname;
     } else if(this.marketplaceId) {
-      url.hash = UrlJoin("/marketplace", this.marketplaceId, "store");
+      url.pathname = UrlJoin("/marketplace", this.marketplaceId, "store");
+    } else {
+      url.pathname = "/";
     }
 
     if(this.specifiedMarketplaceId) {
@@ -1796,7 +1890,7 @@ class RootStore {
 
       parameters.flowId = flowId;
 
-      if(includeAuth || (!this.storageSupported && this.AuthInfo())) {
+      if((this.loggedIn && includeAuth) || (!this.storageSupported && this.AuthInfo())) {
         parameters.auth = this.AuthInfo().clientAuthToken;
       }
 
@@ -1888,6 +1982,12 @@ class RootStore {
 
           break;
 
+        case "gift":
+          // Take the code from the URL params and add it to the redirect path because Auth0 will eat the params on login
+          parameters.to = UrlJoin(parameters.to, SearchParams()["otp_code"] || "");
+
+          // Fall through to redirect
+        // eslint-disable-next-line no-fallthrough
         case "redirect":
           if(parameters.url) {
             window.location.href = parameters.url;

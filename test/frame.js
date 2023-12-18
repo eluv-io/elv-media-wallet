@@ -139,7 +139,7 @@ const App = () => {
   }, [client]);
 
   const currentUrl = new URL(appUrl);
-  currentUrl.hash = currentRoute;
+  currentUrl.pathname = currentRoute;
 
   return (
     <div className="page-container">

@@ -23,20 +23,18 @@ const Flows = observer(() => {
 
   // Authenticate with auth parameter, if necessary
   useEffect(() => {
-    if(!rootStore.client) { return; }
-
-    if(!parameters.auth) {
-      setLoading(false);
+    if(!rootStore.client || rootStore.authenticating) {
       return;
     }
 
-    if(rootStore.loggedIn || rootStore.authenticating) {
+    if(!parameters.auth || rootStore.loggedIn) {
+      setLoading(false);
       return;
     }
 
     rootStore.Authenticate({clientAuthToken: parameters.auth, saveAuthInfo: false})
       .then(() => setLoading(false));
-  }, [rootStore.client]);
+  }, [rootStore.client, rootStore.loggedIn]);
 
   // When finished handling authentication, handle flow
   useEffect(() => {

@@ -401,15 +401,15 @@ const NFTInfoMenu = observer(({nftInfo}) => {
   let shareUrl;
   if(listingId) {
     shareUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
-    shareUrl.hash = match.params.marketplaceId ?
+    shareUrl.pathname = match.params.marketplaceId ?
       UrlJoin("/marketplace", match.params.marketplaceId, "listings", listingId) :
       UrlJoin("/wallet", "listings", listingId);
   } else if(match.params.marketplaceId && match.params.sku) {
     shareUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
-    shareUrl.hash = UrlJoin("/marketplace", match.params.marketplaceId, "store", match.params.sku);
+    shareUrl.pathname = UrlJoin("/marketplace", match.params.marketplaceId, "store", match.params.sku);
   } else if(ownerProfile) {
     shareUrl = new URL(UrlJoin(window.location.origin, window.location.pathname));
-    shareUrl.hash = match.params.marketplaceId ?
+    shareUrl.pathname = match.params.marketplaceId ?
       UrlJoin("/marketplace", match.params.marketplaceId, "users", ownerProfile.userAddress, "items", match.params.contractId, match.params.tokenId) :
       UrlJoin("/wallet", "users", ownerProfile.userAddress, "items", match.params.contractId, match.params.tokenId);
   }
@@ -767,6 +767,16 @@ const NFTActions = observer(({
     return (
       <div className="details-page__actions">
         {
+          !nftInfo.marketplaceGiftAvailable ? null :
+            <Link
+              to={UrlJoin(match.url, "purchase-gift")}
+              disabled={nftInfo.outOfStock || nftInfo.maxOwned}
+              className="action action-primary-variant"
+            >
+              { rootStore.l10n.actions.purchase.buy_gift }
+            </Link>
+        }
+        {
           nftInfo.marketplacePurchaseAvailable ?
             <Link
               to={UrlJoin(match.url, nftInfo.free ? "claim" : "purchase")}
@@ -795,7 +805,7 @@ const NFTActions = observer(({
               {rootStore.l10n.actions.listings.view}
             </Link>
         }
-        {votingEvents ? <VotingButtons sku={nftInfo.item.sku} votingEvents={votingEvents}/> : null}
+        { votingEvents ? <VotingButtons sku={nftInfo.item.sku} votingEvents={votingEvents}/> : null}
         {
           previewMode && nftInfo.hasAdditionalMedia && !previewMedia ?
             <button className="action" onClick={() => SetPreviewMedia(true)}>
@@ -1022,12 +1032,12 @@ const NFTTabbedContent = observer(({nft, nftInfo, previewMedia, showMediaSection
 // Cache listing status to preserve initial state between page loads (e.g. opening listing or purchase modals)
 const listingStatusCache = {};
 
-const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStats}) => {
+const NFTDetails = observer(({nft, initialListingStatus, item, giftItem, hideSecondaryStats}) => {
   const match = useRouteMatch();
   const history = useHistory();
 
   const [nftInfo, setNFTInfo] = useState();
-  const [tab, setTab] = useState(new URLSearchParams(window.location.hash.split("?")[1]).get("tab"));
+  const [tab, setTab] = useState(SearchParams()["tab"]);
 
   // Contract
   const [contractStats, setContractStats] = useState(undefined);
@@ -1036,6 +1046,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
   const [listingStatus, setListingStatus] = useState(initialListingStatus || listingStatusCache[`${nft?.details?.ContractAddr}-${nft?.details?.TokenIdStr}`]);
 
   // Owned item
+  const [ownedItemLoading, setOwnedItemLoading] = useState(!!item);
   const [ownedItem, setOwnedItem] = useState(undefined);
 
   // Status
@@ -1146,10 +1157,15 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
 
     rootStore.walletClient.UserItems({
       contractAddress: nftInfo?.nft?.details?.ContractAddr || nftInfo?.item?.address,
-      limit: 1
-    }).then(({results}) => {
-      setOwnedItem(results && results[0]);
-    });
+      limit: 1,
+      sortDesc: true
+    })
+      .then(({results}) => {
+        setOwnedItem(results && results[0]);
+      })
+      .finally(() => {
+        setOwnedItemLoading(false);
+      });
   }, [nftInfo]);
 
   window.nftInfo = nftInfo;
@@ -1174,7 +1190,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
   const listingId = match.params.listingId || listingStatus?.listing?.details?.ListingId || nft?.details?.ListingId;
   const tokenId = match.params.tokenId || listingStatus?.listing?.details?.TokenIdStr;
   const isInCheckout = listingStatus?.listing?.details?.CheckoutLockedUntil && listingStatus?.listing.details.CheckoutLockedUntil > Date.now();
-  const showModal = match.params.action === "purchase" || match.params.action === "list";
+  const showModal = ["purchase", "purchase-gift", "list"].includes(match.params.action);
   const showMediaSections = (nftInfo?.isOwned || previewMedia) && nftInfo?.hasAdditionalMedia && nftInfo?.additionalMedia?.type !== "List";
   const secondaryDisabled = marketplace?.branding?.disable_secondary_market;
 
@@ -1223,10 +1239,15 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
       <Redirect to={Path.dirname(Path.dirname(match.url))}/>;
   }
 
-  if(ownedItem && SearchParams()["redirect"] === "owned") {
-    return match.params.marketplaceId ?
-      <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items", ownedItem.contractId, ownedItem.tokenId)} /> :
-      <Redirect to={UrlJoin("/wallet", "users", "me", "items", ownedItem.contractId, ownedItem.tokenId)} />;
+  if(["owned", "owned-media"].includes(SearchParams()["redirect"])) {
+    if(ownedItemLoading) {
+      return <PageLoader />;
+    } else if(ownedItem) {
+      const mediaPage = SearchParams()["redirect"] === "owned-media";
+      return match.params.marketplaceId ?
+        <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items", ownedItem.contractId, ownedItem.tokenId, mediaPage ? "media" : "")}/> :
+        <Redirect to={UrlJoin("/wallet", "users", "me", "items", ownedItem.contractId, ownedItem.tokenId, mediaPage ? "media" : "")}/>;
+    }
   }
 
   if(!nftInfo || match.params.action === "claim") {
@@ -1249,8 +1270,9 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
             /> :
             <PurchaseModal
               type={match.params.sku ? "marketplace" : "listing"}
+              isGift={match.params.action === "purchase-gift"}
               nft={nftInfo.nft}
-              item={item}
+              item={giftItem || item}
               initialListingId={listingId}
               Close={() => {
                 history.replace(match.url.split("/").slice(0, -1).join("/"));
@@ -1280,7 +1302,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
             Close={() => setShowTransferModal(false)}
           /> : null
       }
-      <div className="page-block page-block--nft">
+      <div className={`page-block page-block--nft ${nftInfo.isOwned ? "page-block--nft-owned" : item ? "page-block--nft-item" : ""}`}>
         <div className="page-block__content">
           <div key={match.url} className="details-page">
             {
@@ -1368,23 +1390,12 @@ const NFTDetails = observer(({nft, initialListingStatus, item, hideSecondaryStat
                       toggleable={false}
                       icon={MediaIcon}
                       onClick={() => {
-                        // Single list - clicking navigates to media page
+                        // Navigate to media page
                         if(nftInfo.additionalMedia.type === "List") {
                           history.push(UrlJoin(match.url, "media", "list", "0"));
-                          return;
+                        } else {
+                          history.push(UrlJoin(match.url, "media"));
                         }
-
-                        // Sectional media - switch to media tab and scroll down to media browser
-                        if(tab !== rootStore.l10n.item_details.media) {
-                          setTab(rootStore.l10n.item_details.media);
-                        }
-
-                        setTimeout(() => {
-                          const target = document.querySelector(".page-block--nft-content");
-                          if(target) {
-                            ScrollTo(target.getBoundingClientRect().top + window.scrollY);
-                          }
-                        }, tab !== rootStore.l10n.item_details.media ? 500 : 100);
                       }}
                     /> : null
                 }
@@ -1448,8 +1459,9 @@ export const MarketplaceItemDetails = observer(({Render}) => {
   const match = useRouteMatch();
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  const itemIndex = marketplace.items.findIndex(item => item.sku === match.params.sku);
-  const item = marketplace.items[itemIndex];
+  const item = marketplace.items.find(item => item.sku === match.params.sku);
+  const giftItem = marketplace.items.find(otherItem => otherItem.sku === item.gift_sku);
+
 
   useEffect(() => {
     if(!item.use_analytics) { return; }
@@ -1464,7 +1476,7 @@ export const MarketplaceItemDetails = observer(({Render}) => {
   return (
     Render ?
       Render({item}) :
-      <NFTDetails item={item} hideSecondaryStats={marketplace?.branding?.hide_secondary_in_store} />
+      <NFTDetails item={item} giftItem={giftItem} hideSecondaryStats={marketplace?.branding?.hide_secondary_in_store} />
   );
 });
 
@@ -1502,6 +1514,44 @@ export const MintedNFTDetails = observer(({Render}) => {
         Render ?
           Render({nft}) :
           <NFTDetails nft={nft} />
+      }
+    />
+  );
+});
+
+export const MintedNFTRedirect = observer(() => {
+  const match = useRouteMatch();
+  const [tokenId, setTokenId] = useState(undefined);
+  const [notFound, setNotFound] = useState(false);
+
+  return (
+    <AsyncComponent
+      key={`nft-redirect-${match.params.contractId}`}
+      loadingClassName="page-loader"
+      Load={async () => {
+        try {
+          const {userAddress} = await rootStore.UserProfile({userId: match.params.userId});
+
+          const firstOwnedItem = (await rootStore.walletClient.UserItems({
+            contractAddress: rootStore.client.utils.HashToAddress(match.params.contractId),
+            userAddress: userAddress,
+            limit: 1
+          }))?.results?.[0];
+
+          if(firstOwnedItem) {
+            setTokenId(firstOwnedItem.details.TokenIdStr);
+          } else {
+            setNotFound(true);
+          }
+        } catch(error) {
+          rootStore.Log(error, true);
+          setNotFound(true);
+        }
+      }}
+      render={() =>
+        tokenId ? <Redirect to={UrlJoin(match.url, tokenId)} /> :
+          notFound ? <Redirect to={Path.dirname(match.url)} /> :
+            null
       }
     />
   );

@@ -10,7 +10,6 @@ class ScrollToTop extends React.Component {
       await new Promise(resolve => setTimeout(resolve, 50));
       const target = document.querySelector("#top-scroll-target");
 
-      console.log(target, (target.getBoundingClientRect().top + window.scrollY - 50));
       if(target) {
         ScrollTo(Math.max(0, (target.getBoundingClientRect().top + window.scrollY - 50)));
       } else {

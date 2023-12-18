@@ -14,6 +14,7 @@ html {
   --color-bg-primary: #FFFFFF;
   --color-bg-secondary: #EDEDED;
   --color-bg-highlight: #2D61E4;
+  --color-bg-highlight2: #7f2de4;
 
   --color-text-primary: #000;
   --color-text-secondary: #333;
@@ -81,6 +82,11 @@ html {
   --color-button-primary-text: var(--color-highlight-container-text);
   --border-button-primary: 1px solid var(--color-highlight-container-bg);
   --border-radius-button-primary: var(--border-radius);
+
+  --background-button-primary-variant: var(--color-bg-highlight2);
+  --color-button-primary-variant-text: var(--color-button-primary-text);
+  --border-button-primary-variant: 1px solid var(--background-button-primary-variant);
+  --border-radius-button-primary-variant: var(--border-radius-button-primary);
 
   --background-button-secondary: var(--color-bg-primary);
   --color-button-secondary-text: var(--color-text-primary);
@@ -268,6 +274,8 @@ html {
   --box-shadow-nft-media-album-content: 0px 0 8px rgba(0, 0, 0, 0.1);
   --box-shadow-nft-media-album-list: 0px 0 8px rgba(0, 0, 0, 0.1);
 
+  --background-nft-media-live-indicator: #FF0000;
+
   /* Modals */
   --background-modal-overlay: rgba(0, 0, 0, 0.75);
   --background-modal-primary: var(--background-content);
@@ -286,6 +294,11 @@ html {
   --color-login-text-primary: var(--color-component-text-primary);
   --color-login-text-secondary: var(--color-component-text-secondary);
   --color-login-text-highlight: var(--color-component-text-highlight);
+  --color-login-input-background: var(--color-bg-primary);
+  --color-login-input-text: var(--color-component-text-primary);
+  --border-login-input: var(--border);
+  --border-radius-login-input: var(--border-radius);
+
   --border-login-box: var(--border);
   --border-radius-login-box: var(--border-radius);
   --box-shadow-login-box: var(--box-shadow);

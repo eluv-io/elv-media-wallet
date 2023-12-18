@@ -4,7 +4,7 @@ import React, {useState} from "react";
 import PreferencesMenu from "Components/header/PreferencesMenu";
 import UrlJoin from "url-join";
 import ImageIcon from "Components/common/ImageIcon";
-import {CopyableField, FormatPriceString, MenuLink} from "Components/common/UIComponents";
+import {ButtonWithLoader, CopyableField, FormatPriceString, MenuLink} from "Components/common/UIComponents";
 
 import ProfileIcon from "Assets/icons/header/profile icon v2";
 import ListingsIcon from "Assets/icons/header/listings icon";
@@ -20,6 +20,7 @@ import WalletIcon from "Assets/icons/header/wallet icon v2";
 import PreferencesIcon from "Assets/icons/header/Preferences icon";
 import DiscoverIcon from "Assets/icons/discover.svg";
 import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
+import GiftIcon from "Assets/icons/gift.svg";
 
 const MobileNavigationMenu = observer(({marketplace, Close}) => {
   const userInfo = rootStore.loggedIn ? rootStore.walletClient.UserInfo() : {};
@@ -41,6 +42,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
       { name: rootStore.l10n.navigation.listings, icon: ListingsIcon, to: UrlJoin("/wallet", "users", "me", "listings"), authed: true },
       { name: rootStore.l10n.navigation.offers, icon: OffersIcon, to: UrlJoin("/wallet", "users", "me", "offers"), authed: true },
       { name: rootStore.l10n.navigation.activity, icon: ActivityIcon, to: UrlJoin("/wallet", "users", "me", "activity"), authed: true },
+      { name: rootStore.l10n.navigation.gifts, icon: GiftIcon, to: UrlJoin("/wallet", "users", "me", "gifts"), authed: true },
       { name: rootStore.l10n.navigation.notifications, icon: NotificationsIcon, to: UrlJoin("/wallet", "users", "me", "notifications"), authed: true }
     ];
   } else {
@@ -61,6 +63,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
       { name: rootStore.l10n.navigation.listings, icon: ListingsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "listings"), authed: true, hidden: secondaryDisabled },
       { name: rootStore.l10n.navigation.offers, icon: OffersIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "offers"), authed: true, hidden: secondaryDisabled },
       { name: rootStore.l10n.navigation.activity, icon: ActivityIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "activity"), authed: true },
+      { name: rootStore.l10n.navigation.gifts, icon: GiftIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "gifts"), authed: true },
       { name: rootStore.l10n.navigation.notifications, icon: NotificationsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "notifications"), authed: true }
     ];
   }
@@ -172,18 +175,19 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
             </>
         }
       </div>
-      <button
+      <ButtonWithLoader
+        action={false}
         className="mobile-menu__sign-in-button"
-        onClick={() => {
+        onClick={async () => {
           rootStore.loggedIn ?
-            rootStore.SignOut() :
+            await rootStore.SignOut() :
             rootStore.ShowLogin();
 
           Close();
         }}
       >
         { rootStore.l10n.login[rootStore.loggedIn ? "sign_out" : "sign_in"] }
-      </button>
+      </ButtonWithLoader>
       {
         showPreferencesMenu ?
           <PreferencesMenu

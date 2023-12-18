@@ -174,6 +174,30 @@ class TransferStore {
 
     return yield this.loadCache.paymentsHistory.promise;
   });
+
+  UserGiftsHistory = flow(function * ({received=true}) {
+    const cacheKey = received ? "giftsReceived" : "giftsGiven";
+    if(!this.loadCache[cacheKey] || Date.now() - this.loadCache[cacheKey].retrievedAt > 10000) {
+      this.loadCache[cacheKey] = {
+        retrievedAt: Date.now(),
+        promise: (async () => {
+          const response = await Utils.ResponseToJson(
+            this.client.authClient.MakeAuthServiceRequest({
+              path: UrlJoin("as", "wlt", "gifts", received ? "received" : "given"),
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${this.rootStore.authToken}`
+              }
+            })
+          );
+
+          return response?.gifts || [];
+        })()
+      };
+    }
+
+    return yield this.loadCache[cacheKey].promise;
+  });
 }
 
 export default TransferStore;

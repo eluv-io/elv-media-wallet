@@ -37,6 +37,10 @@ const PreviewPasswordPromptComponent = ({marketplaceId, digest, Confirm}) => {
   }, [ref]);
 
   useEffect(() => {
+    if(window.location.hostname === "localhost") {
+      Confirm();
+    }
+
     const savedPassword = rootStore.GetLocalStorage(`preview-password-${marketplaceId}`);
     if(savedPassword) {
       setPassword(savedPassword);

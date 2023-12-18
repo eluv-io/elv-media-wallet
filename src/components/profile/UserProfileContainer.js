@@ -10,6 +10,7 @@ import Modal from "Components/common/Modal";
 
 import UserIcon from "Assets/icons/user.svg";
 import EditIcon from "Assets/icons/edit listing icon.svg";
+import {LoginGate} from "Components/common/LoginGate";
 
 const UsernameModal = observer(({UpdateUsername, Close}) => {
   const userProfile = rootStore.userProfiles[rootStore.CurrentAddress()];
@@ -100,6 +101,8 @@ const UserProfileContainer = observer(({children}) => {
 
     rootStore.UserProfile({userId: match.params.userId})
       .then(async profile => {
+        if(!profile) { return; }
+
         setUserProfile(profile);
 
         if(!marketplace?.branding?.hide_leaderboard) {
@@ -112,6 +115,10 @@ const UserProfileContainer = observer(({children}) => {
         }
       });
   }, [match.params.userId]);
+
+  if(match.params.userId === "me" && !rootStore.loggedIn) {
+    return <LoginGate />;
+  }
 
   if(!userProfile) {
     return <PageLoader />;
@@ -262,6 +269,12 @@ const UserProfileContainer = observer(({children}) => {
               currentUser ?
                 <NavLink to="notifications" className="header__navigation-link user__nav__link no-mobile">
                   { rootStore.l10n.header.notifications }
+                </NavLink> : null
+            }
+            {
+              currentUser ?
+                <NavLink to="gifts" className="header__navigation-link user__nav__link no-mobile">
+                  { rootStore.l10n.header.gifts }
                 </NavLink> : null
             }
           </div>

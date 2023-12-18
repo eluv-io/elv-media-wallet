@@ -120,7 +120,7 @@
   &__info {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 3px;
   }
 
   &__heading {
@@ -186,6 +186,12 @@
       * {
         color: var(--color-component-text-highlight);
       }
+    }
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    &__info {
+      gap: 7px;
     }
   }
 }

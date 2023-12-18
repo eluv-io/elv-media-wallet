@@ -738,7 +738,7 @@ export const InitializeListener = () => {
 
         // client.CurrentPath
         case "currentPath":
-          const pathname = UrlJoin("/", window.location.hash.replace("#", ""));
+          const pathname = UrlJoin("/", window.location.pathname);
 
           return Respond({response: pathname});
 
@@ -786,6 +786,11 @@ export const InitializeListener = () => {
               Object.keys(params).forEach(key => {
                 route = route.replace(`:${key}`, params[key]);
               });
+            }
+
+            const searchParams = data.params?.params?.searchParams;
+            if(searchParams && Object.keys(searchParams).length > 0) {
+              route += "?" + Object.keys(searchParams).map(key => `${key}=${searchParams[key]}`).join("&");
             }
 
             rootStore.SetRouteChange(route);
