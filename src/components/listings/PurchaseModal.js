@@ -843,9 +843,6 @@ const PurchaseGiftInfo = observer(({giftInfo, setGiftInfo, Cancel}) => {
             <div className="purchase-modal__gift-form__note">
               * { rootStore.l10n.purchase.gift_options.recipient_note}
             </div>
-            <div className="purchase-modal__gift-form__note">
-              * { rootStore.l10n.purchase.gift_options.recipient_note2}
-            </div>
           </div>
           <div>
             <textarea

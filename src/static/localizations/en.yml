@@ -239,7 +239,6 @@ purchase:
     gifter_name: Your Name
     recipient: Recipient's Email or Wallet Address
     recipient_note: Eluvio Wallet address not required
-    recipient_note2: You can add multiple recipients, separated by a comma or a space. Each recipient will receive their own gift.
     message: Gift Message
     message_characters_remaining: "{remaining} characters remaining"
     errors:
@@ -359,7 +358,8 @@ tables:
   gifts_received: Gifts Received
   gifts_given: Gifts Given
   claimed: Claimed
-  unclaimed: Unclaimed
+  unclaimed: Not claimed
+  sent: Sent
   columns:
     address: Address
     amount: Amount

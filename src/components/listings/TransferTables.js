@@ -764,8 +764,9 @@ export const UserGiftsHistory = observer(({icon, header, limit, received=false, 
           rootStore.l10n.tables.columns.status,
           rootStore.l10n.tables.columns.source
         ]}
-        columnWidths={[1, 1, "150px", "150px", 1]}
-        tabletColumnWidths={[1, 1, "150px", "150px"]}
+        columnWidths={[1, 1, 1, 1, 1]}
+        tabletColumnWidths={[1, 1, 1, 1]}
+        mobileColumnWidths={[1, 1, 0, 1]}
         entries={
           entries.map(record => ({
             link: record.status !== "claimed" && record.wallet_claim_page_url ? UrlJoin("/flow", record.wallet_claim_page_url.split("/flow")[1]) : undefined,
@@ -796,14 +797,15 @@ export const UserGiftsHistory = observer(({icon, header, limit, received=false, 
         rootStore.l10n.tables.columns.status,
         rootStore.l10n.tables.columns.source
       ]}
-      columnWidths={[1, 1, "150px", "150px", 1]}
-      tabletColumnWidths={[1, 1, "150px", "150px"]}
+      columnWidths={[1, 1, 1, 1, 1]}
+      tabletColumnWidths={[1, 1, 1, 1]}
+      mobileColumnWidths={[1, 1, 0, 1]}
       entries={
         entries.map(record => [
           record.description,
           rootStore.userProfiles[record.claimer_addr]?.userName || record.recipient_email || MiddleEllipsis(record.claimer_addr, 14),
           Ago(record.created),
-          rootStore.l10n.tables[record.status === "claimed" ? "claimed" : "unclaimed"],
+          rootStore.l10n.tables[record.status === "claimed" ? "claimed" : "sent"],
           record.source === "publisher" ? "Publisher" : record.source
         ])
       }
