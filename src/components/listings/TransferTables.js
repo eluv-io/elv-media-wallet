@@ -19,7 +19,7 @@ import RejectIcon from "Assets/icons/thumbs down.svg";
 import EditIcon from "Assets/icons/edit listing icon.svg";
 import Confirm from "Components/common/Confirm";
 import OfferModal from "Components/listings/OfferModal";
-import {useRouteMatch} from "react-router-dom";
+import {Link, useRouteMatch} from "react-router-dom";
 
 export const ActiveListings = observer(({contractAddress, selectedListingId, showSeller=false, Select}) => {
   const [initialListingId] = useState(selectedListingId);
@@ -768,16 +768,21 @@ export const UserGiftsHistory = observer(({icon, header, limit, received=false, 
         tabletColumnWidths={[1, 1, 1, 1]}
         mobileColumnWidths={[1, 1, 0, 1]}
         entries={
-          entries.map(record => ({
-            link: record.status !== "claimed" && record.wallet_claim_page_url ? UrlJoin("/flow", record.wallet_claim_page_url.split("/flow")[1]) : undefined,
-            columns: [
-              record.description,
-              rootStore.userProfiles[record.sender_addr]?.userName || record.sender_name || MiddleEllipsis(record.sender_addr, 14),
-              Ago(record.created),
-              rootStore.l10n.tables[record.status === "claimed" ? "claimed" : "unclaimed"],
-              record.source === "publisher" ? "Publisher" : record.source
-            ]
-          }))
+          entries.map(record => [
+            record.description,
+            rootStore.userProfiles[record.sender_addr]?.userName || record.sender_name || MiddleEllipsis(record.sender_addr, 14),
+            Ago(record.created),
+            <>
+              <div className="gifts-table__status" style={{marginRight: "10px"}}>{ rootStore.l10n.tables[record.status === "claimed" ? "claimed" : "unclaimed"] }</div>
+              {
+                record.status === "claimed" || !record.wallet_claim_page_url ? null :
+                  <Link className="action action--compact" to={UrlJoin("/flow", record.wallet_claim_page_url.split("/flow")[1])}>
+                    { rootStore.l10n.tables.claim }
+                  </Link>
+              }
+            </>,
+            record.source === "publisher" ? "Publisher" : record.source
+          ])
         }
       />
     );

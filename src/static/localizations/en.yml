@@ -357,6 +357,7 @@ tables:
   available: Available
   gifts_received: Gifts Received
   gifts_given: Gifts Given
+  claim: Claim
   claimed: Claimed
   unclaimed: Not claimed
   sent: Sent
@@ -530,7 +531,7 @@ status:
     errors:
       gift_code_not_found: Gift code not found
       gift_already_claimed: This gift has already been claimed
-      misc: Something went wrong
+      misc: Transfer Failed
 
   deposits:
     header: Awaiting Deposit
