@@ -373,11 +373,6 @@ class RootStore {
 
       // Internal feature - allow setting of authd node via query param for testing
       let authdURI = searchParams.get("authd") || this.GetSessionStorage("authd-uri");
-      // TODO: REMOVE
-      if(this.network === "main") {
-        //authdURI = "https://host-154-14-192-66.contentfabric.io/as";
-      }
-
       if(authdURI) {
         this.Log("Setting authd URI: " + authdURI, "warn");
         this.SetSessionStorage("authd-uri", authdURI);
