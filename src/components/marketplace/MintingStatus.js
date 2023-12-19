@@ -501,7 +501,7 @@ export const PurchaseMintingStatus = observer(() => {
 
 export const GiftPurchaseMintingStatus = observer(() => {
   const match = useRouteMatch();
-  const [status, setStatus] = useState(undefined);
+  const [status, setStatus] = useState(!rootStore.loggedIn ? {status: "complete"} : undefined);
 
   const Status = async () => await rootStore.PurchaseStatus({
     marketplaceId: match.params.marketplaceId,

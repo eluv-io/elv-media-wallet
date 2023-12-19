@@ -130,12 +130,11 @@ const MarketplaceRoutes = () => {
 
     { name: "Claim", path: "store/:sku/claim/status", Component: ClaimMintingStatus, authed: true },
     { name: "Purchase", path: "store/:sku/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
-    { name: "Purchase", path: "store/:sku/purchase-gift/:confirmationId", Component: GiftPurchaseMintingStatus, authed: true },
+    { name: "Purchase", path: "store/:sku/purchase-gift/:confirmationId", Component: GiftPurchaseMintingStatus },
     { name: "Purchase", path: "store/:sku/gift/:confirmationId/:code?", Component: GiftRedemptionStatus, authed: true },
 
     { name: match => (GetItem(match)?.name || rootStore.l10n.item_details.item), path: "store/:sku", noBlock: true, Component: MarketplaceItemDetails },
-    // TODO: (Re-enable when unauthed gift purchase works) Gift purchase doesn't require auth
-    { name: match => (GetItem(match)?.name || rootStore.l10n.item_details.item), path: "store/:sku/:action", authed: match => true || match.params.action !== "purchase-gift", noBlock: true, Component: MarketplaceItemDetails },
+    { name: match => (GetItem(match)?.name || rootStore.l10n.item_details.item), path: "store/:sku/:action", authed: match => match.params.action !== "purchase-gift", noBlock: true, Component: MarketplaceItemDetails },
     { name: match => (GetMarketplace(match)?.branding?.name || rootStore.l10n.item_details.marketplace), path: "store", noBlock: true, Component: MarketplaceStorefront },
 
     { name: match => (GetItem(match)?.name || rootStore.l10n.item_details.item), path: "store/:sku/media", noBlock: true, Component: NFTMedia },

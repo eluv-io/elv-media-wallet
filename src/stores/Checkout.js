@@ -725,7 +725,7 @@ class CheckoutStore {
         currency: "USD",
         email,
         client_reference_id: checkoutId,
-        elv_addr: address,
+        elv_addr: address || (isGift && this.client.utils.nullAddress),
         items: [{sku, quantity}],
         success_url: successUrl,
         cancel_url: cancelUrl,
