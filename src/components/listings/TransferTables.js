@@ -1,11 +1,11 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {rootStore, transferStore} from "Stores";
+import {checkoutStore, rootStore, transferStore} from "Stores";
 import {Ago, MiddleEllipsis, NFTDisplayToken, TimeDiff} from "../../utils/Utils";
 import {Loader} from "Components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import ImageIcon from "Components/common/ImageIcon";
-import {FormatPriceString, LocalizeString} from "Components/common/UIComponents";
+import {ButtonWithLoader, FormatPriceString, LocalizeString} from "Components/common/UIComponents";
 import Table, {FilteredTable} from "Components/common/Table";
 import UrlJoin from "url-join";
 
@@ -805,7 +805,15 @@ export const UserGiftsHistory = observer(({icon, header, limit, received=false, 
           record.description,
           rootStore.userProfiles[record.claimer_addr]?.userName || record.recipient_email || MiddleEllipsis(record.claimer_addr, 14),
           Ago(record.created),
-          rootStore.l10n.tables[record.status === "claimed" ? "claimed" : "sent"],
+          <>
+            <div className="gifts-table__status" style={{marginRight: "10px"}}>{ rootStore.l10n.tables[record.status === "claimed" ? "claimed" : "sent"] }</div>
+            {
+              record.status === "claimed" ? null :
+                <ButtonWithLoader className="action--compact" onClick={async () => await checkoutStore.SendGiftReminder({giftId: record.id})}>
+                  { rootStore.l10n.tables.remind }
+                </ButtonWithLoader>
+            }
+          </>,
           record.source === "publisher" ? "Publisher" : record.source
         ])
       }

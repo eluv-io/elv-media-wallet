@@ -44,7 +44,8 @@ module.exports = (env) => {
     devServer: {
       hot: true,
       client: {
-        webSocketURL: "auto://elv-test.io/ws"
+        webSocketURL: "auto://elv-test.io/ws",
+        overlay: false
       },
       https: {
         key: fs.readFileSync("./https/private.key"),

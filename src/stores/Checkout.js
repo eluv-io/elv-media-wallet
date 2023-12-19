@@ -404,6 +404,18 @@ class CheckoutStore {
     return status;
   });
 
+  SendGiftReminder = flow(function * ({giftId}) {
+    return yield Utils.ResponseToJson(
+      this.client.authClient.MakeAuthServiceRequest({
+        method: "POST",
+        path: UrlJoin("as", "wlt", "gifts", "remind", giftId),
+        headers: {
+          Authorization: `Bearer ${this.rootStore.authToken}`
+        }
+      })
+    );
+  });
+
   GiftClaimSubmit = flow(function * ({marketplaceId, sku, confirmationId, code}) {
     try {
       this.submittingOrder = true;

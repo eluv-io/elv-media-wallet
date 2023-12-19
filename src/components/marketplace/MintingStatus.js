@@ -508,6 +508,7 @@ export const GiftPurchaseMintingStatus = observer(() => {
     confirmationId: match.params.confirmationId
   });
 
+  // TODO: When pending status is in, complete once we get pending status
   if(status?.status !== "complete" && rootStore.loggedIn) {
     return (
       <MintingStatus
@@ -568,7 +569,7 @@ export const GiftRedemptionStatus = observer(() => {
     confirmationId: match.params.confirmationId
   });
 
-  const Claim = async () => {
+  const Claim = async ({attempt=1}={}) => {
     try {
       await checkoutStore.GiftClaimSubmit({
         marketplaceId: match.params.marketplaceId,
@@ -577,7 +578,21 @@ export const GiftRedemptionStatus = observer(() => {
         code
       });
     } catch(error) {
+      rootStore.Log(error, true);
       if(error?.status === 400) {
+        if(error?.body?.error?.includes("gift tokens not found")) {
+          // May not be minted yet
+
+          if(attempt > 3) {
+            setError(rootStore.l10n.status.minting.errors.misc);
+          } else {
+            await new Promise(resolve => setTimeout(resolve, 15000));
+            Claim({attempt: attempt + 1});
+          }
+
+          return;
+        }
+
         const claimStatus = await Status();
 
         if(["complete", "pending"].includes(claimStatus?.status)) {

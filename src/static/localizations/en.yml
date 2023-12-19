@@ -360,6 +360,7 @@ tables:
   claimed: Claimed
   unclaimed: Not claimed
   sent: Sent
+  remind: Remind
   columns:
     address: Address
     amount: Amount
