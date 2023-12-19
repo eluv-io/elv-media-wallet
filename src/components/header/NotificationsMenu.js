@@ -190,7 +190,7 @@ const Notification = observer(({notification, Hide}) => {
       header = l10n.gift_received;
       message = LocalizeString(l10n.gift_received_message, {sender: notification?.data?.reason?.split("from ")[1] || "Someone"});
 
-      link = notification.data.wallet_claim_url ? UrlJoin("/flow", notification.data.wallet_claim_url.split("/flow")[1]) : undefined;
+      link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "gifts") : "/wallet/users/me/gifts";
 
       break;
 

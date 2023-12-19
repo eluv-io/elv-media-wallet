@@ -595,8 +595,11 @@ export const GiftRedemptionStatus = observer(() => {
 
         const claimStatus = await Status();
 
-        if(["complete", "pending"].includes(claimStatus?.status)) {
-          // Gift was claimed by this user, and recently enough for status to be present
+        if(claimStatus?.status === "failed") {
+          setError(rootStore.l10n.status.minting.errors.misc);
+          return;
+        } else if(!["complete", "pending"].includes(claimStatus?.status)) {
+          // Gift was claimed by this user recently enough for status to be present, and the status is OK
           return;
         }
 
