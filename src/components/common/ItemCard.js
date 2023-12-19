@@ -15,6 +15,7 @@ const ItemCard = observer(({
   subtitle1,
   subtitle2,
   description,
+  truncateDescription=true,
   descriptionRichText,
   showRichTextDescription,
   price,
@@ -93,13 +94,17 @@ const ItemCard = observer(({
         {
           showRichTextDescription && descriptionRichText ?
             <RichText className="markdown-document item-card__description" richText={descriptionRichText} /> :
-            typeof description === "string" ?
-              <ResponsiveEllipsis
-                component="h2"
-                className="item-card__description"
-                text={description || ""}
-                maxLine="4"
-              /> : description
+            typeof description !== "string" ? description :
+              truncateDescription ?
+                <ResponsiveEllipsis
+                  component="h2"
+                  className="item-card__description"
+                  text={description || ""}
+                  maxLine="4"
+                /> :
+                <div className="item-card__description">
+                  { description }
+                </div>
         }
         {
           price || status || cta?

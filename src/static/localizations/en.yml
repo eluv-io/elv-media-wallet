@@ -10,6 +10,7 @@ header:
   items: Items
   offers: Offers
   notifications: Notifications
+  gifts: Gifts
   media_wallet: Media Wallet
 
 login:
@@ -30,6 +31,21 @@ login:
   code_auth_success: Sign in successful!
   errors:
     missing_required_options: Please accept the required options below
+  ory:
+    actions:
+      registration: Sign Up
+      recovery: Forgot Password?
+      back_to_sign_in: Back to Sign In
+    refresh: Confirm Your Identify
+    aal2: Two-Factor Authentication
+    registration: Register Your Account
+    recovery: Recover Your Account
+    verification: Verify Your Account
+    errors:
+      invalid_credentials: Invalid Credentials
+      invalid_verification_code: Invalid Verification Code
+      invalid_email: Invalid Email
+
 
 navigation:
   profile: My Profile
@@ -39,6 +55,7 @@ navigation:
   offers: My Offers
   activity: My Activity
   notifications: Notifications
+  gifts: Gifts
   preferences: Preferences
   collectibles: Collectibles
 
@@ -55,10 +72,12 @@ actions:
     open_confirm: Are you sure you want to open '{name}'?
   purchase:
     buy_now: Buy Now
+    buy_gift: Buy Now as a Gift
     buy_now_for: Buy Now For {price}
     buy_now_for_pix_ebanx: Buy Now For {price} + Taxes
     claim: Claim Now
     view: View Details
+    next_step: Next Step
   listings:
     create: List For Sale
     create_for: List Now For {price}
@@ -153,6 +172,8 @@ notifications:
     nft_transfer: the item was transferred.
   offer_expired: Offer Expired
   offer_expired_message: Your offer on '{name}' for {price} has expired.
+  gift_received: Gift Received
+  gift_received_message: You've received a gift from {sender}!
 
 connected_accounts:
   connected_accounts: Connected Accounts
@@ -200,17 +221,28 @@ purchase:
   total_amount: Total
   current_purchase_amount: Current Purchase
   select_country: Please Select Your Country
+  payment: Payment
   all_other_countries: All Other Countries
   buy_with_wallet_balance: Buy With Wallet Balance
   credit_card: Credit Card
   wallet_balance: Wallet Balance
   checkout: Checkout
+  checkout_gift: Checkout - Buy as a Gift
   sell_your_nft: Sell Your NFT
   set_price: Set Price
   min_listing_price: Minimum listing price is {price}
   max_listing_price: Maximum listing price is {price}
   conversion_amount: USD Conversion
   conversion_note: Actual values are based in USD. All displayed values are approximate based on current estimated USD exchange rates.
+  gift_options:
+    title: Fill In Gift Details (Required)
+    gifter_name: Your Name
+    recipient: Recipient's Email or Wallet Address
+    recipient_note: Eluvio Wallet address not required
+    message: Gift Message
+    message_characters_remaining: "{remaining} characters remaining"
+    errors:
+      invalid_recipient: "Invalid recipient: {recipient}"
   purchase_methods:
     credit_card: Credit Card
     crypto: Crypto
@@ -229,6 +261,7 @@ purchase:
     listing_failed: Unable to list this NFT
     nft_being_purchased: This NFT is currently in the process of being purchased
     nft_sold: This NFT was sold for {price} on {date}
+    login_required: You must be logged in to complete this purchase.
 
 offers:
   offer: Offer
@@ -322,6 +355,12 @@ tables:
   sold_nfts: Sold NFTs
   pending: Pending
   available: Available
+  gifts_received: Gifts Received
+  gifts_given: Gifts Given
+  claimed: Claimed
+  unclaimed: Not claimed
+  sent: Sent
+  remind: Remind
   columns:
     address: Address
     amount: Amount
@@ -344,6 +383,9 @@ tables:
     total_amount: Total Amount
     total_collectibles: Total Collectibles
     username: Username
+    giver: Giver
+    recipient: Recipient
+    source: Source
 
 filters:
   all_filters: All Filters
@@ -481,6 +523,14 @@ status:
     awaiting_payment: Awaiting Payment...
     transferring: Your item is being transferred
     view_transaction: View your transaction on {location}
+    confirming_purchase: Confirming Purchase
+    gift_claim_header: Your gift is being transferred to your account!
+    gift_purchase_1: Thank you for your purchase!
+    gift_purchase_2: The recipient(s) of your gift have been notified
+    errors:
+      gift_code_not_found: Gift code not found
+      gift_already_claimed: This gift has already been claimed
+      misc: Something went wrong
 
   deposits:
     header: Awaiting Deposit

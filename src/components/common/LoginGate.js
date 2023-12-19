@@ -1,17 +1,22 @@
 import React, {useEffect} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
-import {Redirect} from "react-router-dom";
+import {Redirect, useRouteMatch} from "react-router-dom";
 
 // Show only login page until logged in
-export const LoginGate = observer(({children, ignoreCapture, loader}) => {
+export const LoginGate = observer(({children, ignoreCapture, loader, Condition}) => {
+  const match = useRouteMatch();
+  const skip = Condition && !Condition(match);
+
   useEffect(() => {
+    if(skip) { return; }
+
     rootStore.ShowLogin({requireLogin: true, ignoreCapture});
 
     return () => rootStore.HideLogin();
   }, [rootStore.showLogin]);
 
-  if(!rootStore.loggedIn) { return loader || null; }
+  if(!rootStore.loggedIn && !skip) { return loader || null; }
 
   return children;
 });

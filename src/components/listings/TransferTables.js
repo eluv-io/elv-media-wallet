@@ -1,11 +1,11 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {rootStore, transferStore} from "Stores";
+import {checkoutStore, rootStore, transferStore} from "Stores";
 import {Ago, MiddleEllipsis, NFTDisplayToken, TimeDiff} from "../../utils/Utils";
 import {Loader} from "Components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import ImageIcon from "Components/common/ImageIcon";
-import {FormatPriceString, LocalizeString} from "Components/common/UIComponents";
+import {ButtonWithLoader, FormatPriceString, LocalizeString} from "Components/common/UIComponents";
 import Table, {FilteredTable} from "Components/common/Table";
 import UrlJoin from "url-join";
 
@@ -711,6 +711,110 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
           MiddleEllipsis(transfer.addr, 14),
           transfer.processor,
           rootStore.l10n.tables[transfer.pending ? "pending" : "available"]
+        ])
+      }
+    />
+  );
+});
+
+export const UserGiftsHistory = observer(({icon, header, limit, received=false, className=""}) => {
+  const [entries, setEntries] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const UpdateHistory = async () => {
+    let entries = (await transferStore.UserGiftsHistory({received}))
+      .sort((a, b) => a.created > b.created ? -1 : 1);
+
+    let users = entries
+      .map(entry => entry.sender_addr || entry.claimer_addr)
+      .filter((value, index, array) => array.indexOf(value) === index);
+
+    await Promise.all(
+      users.map(async address => await rootStore.UserProfile({userId: address}))
+    );
+
+    if(limit) {
+      entries = entries.slice(0, limit);
+    }
+
+    setEntries(entries);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    UpdateHistory();
+
+    let interval = setInterval(UpdateHistory, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  if(received) {
+    return (
+      <Table
+        className={className}
+        loading={loading}
+        pagingMode="none"
+        headerIcon={icon}
+        headerText={header}
+        columnHeaders={[
+          rootStore.l10n.tables.columns.name,
+          rootStore.l10n.tables.columns.giver,
+          rootStore.l10n.tables.columns.time,
+          rootStore.l10n.tables.columns.status,
+          rootStore.l10n.tables.columns.source
+        ]}
+        columnWidths={[1, 1, 1, 1, 1]}
+        tabletColumnWidths={[1, 1, 1, 1]}
+        mobileColumnWidths={[1, 1, 0, 1]}
+        entries={
+          entries.map(record => ({
+            link: record.status !== "claimed" && record.wallet_claim_page_url ? UrlJoin("/flow", record.wallet_claim_page_url.split("/flow")[1]) : undefined,
+            columns: [
+              record.description,
+              rootStore.userProfiles[record.sender_addr]?.userName || record.sender_name || MiddleEllipsis(record.sender_addr, 14),
+              Ago(record.created),
+              rootStore.l10n.tables[record.status === "claimed" ? "claimed" : "unclaimed"],
+              record.source === "publisher" ? "Publisher" : record.source
+            ]
+          }))
+        }
+      />
+    );
+  }
+
+  return (
+    <Table
+      className={className}
+      loading={loading}
+      pagingMode="none"
+      headerIcon={icon}
+      headerText={header}
+      columnHeaders={[
+        rootStore.l10n.tables.columns.name,
+        rootStore.l10n.tables.columns.recipient,
+        rootStore.l10n.tables.columns.time,
+        rootStore.l10n.tables.columns.status,
+        rootStore.l10n.tables.columns.source
+      ]}
+      columnWidths={[1, 1, 1, 1, 1]}
+      tabletColumnWidths={[1, 1, 1, 1]}
+      mobileColumnWidths={[1, 1, 0, 1]}
+      entries={
+        entries.map(record => [
+          record.description,
+          rootStore.userProfiles[record.claimer_addr]?.userName || record.recipient_email || MiddleEllipsis(record.claimer_addr, 14),
+          Ago(record.created),
+          <>
+            <div className="gifts-table__status" style={{marginRight: "10px"}}>{ rootStore.l10n.tables[record.status === "claimed" ? "claimed" : "sent"] }</div>
+            {
+              record.status === "claimed" ? null :
+                <ButtonWithLoader className="action--compact" onClick={async () => await checkoutStore.SendGiftReminder({giftId: record.id})}>
+                  { rootStore.l10n.tables.remind }
+                </ButtonWithLoader>
+            }
+          </>,
+          record.source === "publisher" ? "Publisher" : record.source
         ])
       }
     />

@@ -12,7 +12,8 @@ class NotificationStore {
     "OFFER_RECEIVED",
     "OFFER_ACCEPTED",
     "OFFER_DECLINED",
-    "OFFER_EXPIRED"
+    "OFFER_EXPIRED",
+    "GIFT_RECEIVED"
   ];
   activeNotificationTypes = [...this.supportedNotificationTypes].sort();
   disabledNotificationTypes = [];

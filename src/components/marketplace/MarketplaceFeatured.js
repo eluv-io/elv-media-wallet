@@ -2,9 +2,10 @@ import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {MarketplaceImage} from "Components/common/Images";
 import MarketplaceItemCard from "Components/marketplace/MarketplaceItemCard";
+import {ScrollTo} from "../../utils/Utils";
 
-const FeaturedGallery = ({showIcons, marketplaceHash, items, selectedIndex, setSelectedIndex}) => {
-  const width = showIcons ? 4 : 1;
+const FeaturedGallery = observer(({showIcons, marketplaceHash, items, selectedIndex, setSelectedIndex}) => {
+  const width = showIcons ? rootStore.pageWidth > 1200 ? 5 : 3 : 1;
   const [range, setRange] = useState([0, width]);
   const [dragging, setDragging] = useState(false);
   const [snap, setSnap] = useState(0);
@@ -90,7 +91,11 @@ const FeaturedGallery = ({showIcons, marketplaceHash, items, selectedIndex, setS
                   aria-label={item.name || item.nftTemplateMetadata.display_name}
                   key={`feature-gallery-${item.itemIndex}`}
                   className={`feature-gallery__icon-container ${index === (selectedIndex - range[0]) ? "feature-gallery__icon-container--selected" : ""} ${item.nftTemplateMetadata.style ? `feature-gallery__icon-container--variant-${item.nftTemplateMetadata.style}` : ""}`}
-                  onClick={() => setSelectedIndex(range[0] + index)}
+                  onClick={event => {
+                    setSelectedIndex(range[0] + index);
+                    const container = event.currentTarget.closest(".feature-container");
+                    setTimeout(() => ScrollTo(0, container, 200), 200);
+                  }}
                 >
                   <div className="feature-gallery__icon">
                     <MarketplaceImage
@@ -165,7 +170,7 @@ const FeaturedGallery = ({showIcons, marketplaceHash, items, selectedIndex, setS
       }
     </div>
   );
-};
+});
 
 const MarketplaceFeatured = observer(({marketplace, items, justification, countdown, showGallery}) => {
   const [featuredItemIndex, setFeaturedItemIndex] = useState(0);

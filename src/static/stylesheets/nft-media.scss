@@ -2,9 +2,11 @@
 // sass-lint:disable function-name-format
 
 .nft-media {
-  #{--elv-gallery-max-height}: calc(100vh - 300px);
+  // On extra large screens, prevent the video element from getting too tall, otherwise the player controls will become separated from the video content
+  #{--elv-gallery-max-height}: MIN(CALC(#{$extra-large-breakpoint} * 9 / 16 - 27px), calc(100vh - 400px));
   #{--elv-gallery-min-height}: 500px;
   min-height: 100vh;
+  padding-top: 50px;
   position: relative;
 
   * {
@@ -31,6 +33,52 @@
     }
   }
 
+  &__title-container {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 10px 0 20px;
+    width: 100%;
+  }
+
+  &__title {
+    align-items: center;
+    display: flex;
+    font: var(--font-nft-media-header);
+    font-size: 24px;
+    font-weight: 500;
+    gap: 15px;
+    justify-content: center;
+
+    .annotated-field {
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .annotated-field__text {
+      font: var(--font-nft-media-header);
+      font-size: 24px;
+      font-weight: 500;
+    }
+  }
+
+  &__live-indicator {
+    background: var(--background-nft-media-live-indicator);
+    border-radius: 3px;
+    font-family: Inter, serif;
+    font-weight: 400;
+    padding: 2px 8px;
+  }
+
+  &__subtitle,
+  &__subtitle2 {
+    color: var(--color-nft-media-text-secondary);
+    font-size: 14px;
+    margin-top: 5px;
+    white-space: pre-wrap;
+  }
+
   .details-page__back-link__text {
     font-size: 12px;
   }
@@ -44,7 +92,6 @@
 
   &__content {
     height: 100%;
-    padding-top: 50px;
     position: relative;
 
     &__target-container,
@@ -69,11 +116,14 @@
       position: relative;
       width: 100%;
 
-      .eluvio-player,
-      video {
-        background: transparent;
-        height: 100%;
-        width: auto;
+      &.nft-media__content__target-container {
+        .-elv-target,
+        .eluvio-player,
+        video {
+          background: transparent;
+          height: 100%;
+          width: auto;
+        }
       }
     }
 
@@ -357,6 +407,7 @@
       font-size: 16px;
       margin: 10px auto 0;
       max-width: 800px;
+      text-align: center;
       width: 100%;
 
       * {
@@ -459,6 +510,24 @@
         height: auto;
         width: 100%;
       }
+    }
+
+    &__title {
+      font-size: 18px;
+      text-align: center;
+
+      .annotated-field {
+        flex-wrap: wrap;
+      }
+
+      .annotated-field__text {
+        font-size: 14px;
+      }
+    }
+
+    &__subtitle,
+    &__subtitle2 {
+      font-size: 12px;
     }
 
     &__content {
@@ -1224,6 +1293,10 @@
     position: relative;
     width: 100%;
 
+    &--with-subtitles {
+      height: calc(var(--nft-media-carousel-height) + 65px);
+    }
+
     &__arrow {
       height: max-content;
       margin-bottom: 20px;
@@ -1302,6 +1375,7 @@
       border-radius: 12px;
       height: 100%;
       overflow: hidden;
+      position: relative;
       width: 100%;
     }
 
@@ -1310,6 +1384,12 @@
       object-fit: cover;
       object-position: center;
       width: 100%;
+    }
+
+    .nft-media__live-indicator {
+      bottom: 10px;
+      position: absolute;
+      right: 10px;
     }
 
     &__name {
@@ -1324,14 +1404,22 @@
       }
 
       svg {
-        height: 20px;
+        height: 15px;
         margin-right: 5px;
-        width: 20px;
+        width: 15px;
 
         circle {
           fill: transparent;
         }
       }
+    }
+
+    &__subtitle {
+      color: var(--color-nft-media-text-secondary);
+      font: var(--font-nft-media-text);
+      font-size: 12px;
+      margin-top: 5px;
+      white-space: pre-wrap;
     }
   }
 
@@ -1460,6 +1548,10 @@
           font-size: 10px;
         }
       }
+
+      &__subtitle {
+        font-size: 10px;
+      }
     }
   }
 }
@@ -1474,6 +1566,15 @@
 
     &__item {
       &__name {
+        justify-content: center;
+        text-align: center;
+
+        .annotated-field {
+          justify-content: center;
+        }
+      }
+
+      &__subtitle {
         text-align: center;
       }
     }

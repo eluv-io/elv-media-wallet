@@ -404,6 +404,42 @@ class CheckoutStore {
     return status;
   });
 
+  SendGiftReminder = flow(function * ({giftId}) {
+    return yield Utils.ResponseToJson(
+      this.client.authClient.MakeAuthServiceRequest({
+        method: "POST",
+        path: UrlJoin("as", "wlt", "gifts", "remind", giftId),
+        headers: {
+          Authorization: `Bearer ${this.rootStore.authToken}`
+        }
+      })
+    );
+  });
+
+  GiftClaimSubmit = flow(function * ({marketplaceId, sku, confirmationId, code}) {
+    try {
+      this.submittingOrder = true;
+
+      const tenantId = this.rootStore.marketplaces[marketplaceId].tenant_id;
+
+      this.PurchaseInitiated({confirmationId, tenantId, marketplaceId, sku});
+
+      const response = yield this.rootStore.walletClient.ClaimGift({code});
+
+      this.PurchaseComplete({confirmationId, success: true});
+
+      return response;
+    } catch(error) {
+      this.rootStore.Log(error, true);
+
+      this.PurchaseComplete({confirmationId, success: false, message: "Gift Claim Failed"});
+
+      throw error;
+    } finally {
+      this.submittingOrder = false;
+    }
+  });
+
   ClaimSubmit = flow(function * ({marketplaceId, sku, email}) {
     try {
       this.submittingOrder = true;
@@ -590,6 +626,8 @@ class CheckoutStore {
     confirmationId,
     email,
     address,
+    isGift,
+    giftInfo,
     fromEmbed,
     flowId,
     additionalParameters={},
@@ -603,22 +641,14 @@ class CheckoutStore {
 
     try {
       this.submittingOrder = true;
-      email = email || this.rootStore.walletClient.UserInfo().email;
+      email = email || this.rootStore.walletClient.UserInfo()?.email;
 
-      const successPath = UrlJoin("/marketplace", marketplaceId, "store", sku, "purchase", confirmationId, `?provider=${provider}`);
+      const successPath = UrlJoin("/marketplace", marketplaceId, "store", sku, isGift ? "purchase-gift" : "purchase", confirmationId, `?provider=${provider}`);
       const cancelPath = UrlJoin("/marketplace", marketplaceId, "store", sku);
-
-      const item = this.rootStore.marketplaces[marketplaceId]?.items?.find(item => item.sku === sku);
 
       this.PurchaseInitiated({confirmationId, tenantId, marketplaceId, sku, price: item?.price?.USD, quantity, successPath});
 
       if(requiresPopup) {
-        this.AnalyticsEvent({
-          marketplace: this.rootStore.marketplaces[marketplaceId],
-          analytics: item?.purchase_analytics,
-          eventName: "Item Purchase"
-        });
-
         // Third party checkout doesn't work in iframe, open new window to initiate purchase
         yield this.rootStore.Flow({
           flow: "purchase",
@@ -631,6 +661,8 @@ class CheckoutStore {
             quantity,
             confirmationId,
             email,
+            isGift,
+            giftInfo,
             additionalParameters,
             address: this.rootStore.CurrentAddress()
           },
@@ -644,6 +676,8 @@ class CheckoutStore {
 
         return { confirmationId };
       }
+
+      let item = this.rootStore.marketplaces[marketplaceId]?.items?.find(item => item.sku === sku);
 
       const stock = (yield this.MarketplaceStock({tenantId}) || {})[sku];
       if(stock && (stock.max - stock.minted) < quantity) {
@@ -683,7 +717,7 @@ class CheckoutStore {
         this.rootStore.SetAccountEmail(address, email);
       }
 
-      if(!address) {
+      if(!address && !isGift) {
         throw Error("Unable to determine address for current user");
       }
 
@@ -697,6 +731,35 @@ class CheckoutStore {
         cancel_url: cancelUrl,
         ...(additionalParameters || {})
       };
+
+      if(isGift) {
+        let redemptionUrl = new URL(
+          this.rootStore.FlowURL({
+            flow: "gift",
+            parameters: {
+              to: UrlJoin("/marketplace", marketplaceId, "store", sku, "gift", confirmationId),
+            }
+          })
+        );
+
+        redemptionUrl.searchParams.delete("origin");
+
+        // Provide link to redemption within live
+        if(rootStore.liveAppUrl) {
+          const redemptionPath = redemptionUrl.pathname;
+          redemptionUrl = new URL(rootStore.liveAppUrl);
+          redemptionUrl.pathname = UrlJoin(redemptionUrl.pathname, "wallet", redemptionPath);
+        }
+
+        requestParams.gift_info = {
+          sender_name: giftInfo.gifterName,
+          recipient_name: giftInfo.recipientName,
+          recipient_email: giftInfo.recipientEmail,
+          recipient_addr: giftInfo.recipientAddress,
+          message: giftInfo.message,
+          wallet_claim_page_url_prefix: redemptionUrl
+        };
+      }
 
       if(EluvioConfiguration["purchase-mode"]) {
         requestParams.mode = EluvioConfiguration["purchase-mode"];
@@ -719,7 +782,7 @@ class CheckoutStore {
 
       this.PurchaseComplete({confirmationId, success: true, successPath, successUrl: customSuccessUrl});
 
-      return { confirmationId, successPath};
+      return { confirmationId, successPath };
     } catch(error) {
       this.rootStore.Log(error, true);
 

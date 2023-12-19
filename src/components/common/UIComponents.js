@@ -188,6 +188,28 @@ export const LocalizeString = (text="", variables={}, options={stringOnly: false
   );
 };
 
+export const AnnotatedField = ({text, referenceImages, className=""}) => {
+  let result = text
+    .split(/{(\w+)}/)
+    .filter(s => s)
+    .map((token, index) =>
+      typeof referenceImages[token] !== "undefined" ?
+        <img
+          key={`img-${index}`}
+          src={referenceImages[token].image.url}
+          alt={referenceImages[token].alt_text || ""}
+          className="annotated-field__image"
+        /> :
+        <div key={`text-${index}`} className="annotated-field__text">{token}</div>
+    );
+
+  return (
+    <div className={`annotated-field ${className}`}>
+      {result}
+    </div>
+  );
+};
+
 export const ParseMoney = (amount, currency) => {
   currency = currency.toUpperCase();
 
@@ -340,13 +362,13 @@ export const RichText = ({richText, className=""}) => {
   );
 };
 
-export const ButtonWithLoader = ({children, className="", onClick, isLoading, ...props}) => {
+export const ButtonWithLoader = ({children, className="", onClick, isLoading, action=true, ...props}) => {
   const [loading, setLoading] = useState(false);
 
   return (
     <button
       {...props}
-      className={`action action-with-loader ${loading || isLoading ? "action-with-loader--loading": ""} ${className}`}
+      className={`${action ? "action" : ""} action-with-loader ${loading || isLoading ? "action-with-loader--loading": ""} ${className}`}
       onClick={async event => {
         if(loading) { return; }
 

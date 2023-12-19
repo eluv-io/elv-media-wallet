@@ -18,6 +18,7 @@ import OfferReceivedIcon from "Assets/icons/header/offer icon.svg";
 import OfferDeclinedIcon from "Assets/icons/x.svg";
 import OfferExpiredIcon from "Assets/icons/minus.svg";
 import OfferAcceptedIcon from "Assets/icons/header/offer icon.svg";
+import GiftIcon from "Assets/icons/gift.svg";
 import MenuIcon from "Assets/icons/more-horizontal.svg";
 import NotificationDisabledIcon from "Assets/icons/header/bell-off.svg";
 import CheckmarkIcon from "Assets/icons/check.svg";
@@ -181,6 +182,15 @@ const Notification = observer(({notification, Hide}) => {
       message = LocalizeString(l10n.offer_expired_message, {name: notification.data.name, price: FormatPriceString(notification.data.price, {stringOnly: true})});
 
       link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "offers") : "/wallet/users/me/offers";
+
+      break;
+
+    case "GIFT_RECEIVED":
+      icon = GiftIcon;
+      header = l10n.gift_received;
+      message = LocalizeString(l10n.gift_received_message, {sender: notification?.data?.reason?.split("from ")[1] || "Someone"});
+
+      link = notification.data.wallet_claim_url ? UrlJoin("/flow", notification.data.wallet_claim_url.split("/flow")[1]) : undefined;
 
       break;
 

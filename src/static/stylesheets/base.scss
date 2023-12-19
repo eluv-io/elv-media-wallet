@@ -37,6 +37,7 @@ a {
 
 a,
 input,
+textarea,
 button,
 .styled-select__button {
   font-size: 16px;
@@ -238,6 +239,7 @@ select {
   }
 }
 
+textarea,
 input {
   background: var(--background-input);
   border: var(--border-input);
@@ -517,4 +519,28 @@ em {
   position: fixed;
   right: 10000px;
   user-select: none;
+}
+
+.annotated-field {
+  align-items: center;
+  display: flex;
+  gap: 5px;
+  overflow: hidden;
+
+  &__image {
+    height: 30px;
+    object-fit: contain;
+    width: 30px;
+  }
+
+  &__text {
+    white-space: nowrap;
+  }
+
+  @media screen and (max-width: $tablet-breakpoint) {
+    &__image {
+      height: 20px;
+      width: 20px;
+    }
+  }
 }

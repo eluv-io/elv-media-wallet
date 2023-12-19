@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import {NavLink, useRouteMatch} from "react-router-dom";
-import {Linkish} from "Components/common/UIComponents";
+import {AnnotatedField, Linkish} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import {Swiper, SwiperSlide} from "swiper/react";
 import ItemIcon from "Assets/icons/image";
@@ -12,12 +12,11 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 import Video from "Components/common/Video";
 
 import LockedIcon from "Assets/icons/Lock icon";
-import PlayCircleIcon from "Assets/icons/media/Play icon";
 import RightArrow from "Assets/icons/right-arrow";
 import UnlockedIcon from "Assets/icons/unlock icon";
 import LeftArrow from "Assets/icons/left-arrow";
 import PlayIcon from "Assets/icons/media/play.svg";
-import {ScrollTo} from "../../../utils/Utils";
+import {LiveMediaInfo, ScrollTo} from "../../../utils/Utils";
 
 const FeaturedRedeemable = observer(({nftInfo, offer}) => {
   const [showOfferModal, setShowOfferModal] = useState(false);
@@ -178,6 +177,7 @@ export const MediaCollection = observer(({nftInfo, sectionId, collection, single
 
   const collectionActive = singleCollection || (match.params.sectionId === sectionId && match.params.collectionId === collection.id);
   const activeIndex = collectionActive ? parseInt(match.params.mediaIndex) : undefined;
+  const anySubtitles = collection.media.find(mediaItem => !!mediaItem.subtitle_1);
 
   const previousArrowClass = `swiper-arrow-${sectionId}-${collection.id}--previous`;
   const nextArrowClass = `swiper-arrow-${sectionId}-${collection.id}--next`;
@@ -221,7 +221,7 @@ export const MediaCollection = observer(({nftInfo, sectionId, collection, single
         </button>
         <Swiper
           threshold={5}
-          className="nft-media-browser__carousel"
+          className={`nft-media-browser__carousel ${anySubtitles ? "nft-media-browser__carousel--with-subtitles" : ""}`}
           keyboard
           navigation={{
             prevEl: "." + previousArrowClass,
@@ -275,17 +275,34 @@ export const MediaCollection = observer(({nftInfo, sectionId, collection, single
                 >
                   <div className="nft-media-browser__item__image-container">
                     <ImageIcon icon={imageUrl || ItemIcon} className="nft-media-browser__item__image" />
+                    { LiveMediaInfo(mediaItem).isLive ? <div className="nft-media__live-indicator">LIVE</div> : null }
                   </div>
 
-                  <div className="nft-media-browser__item__name">
-                    {
-                      locked ?
-                        <ImageIcon icon={LockedIcon} className="nft-media-browser__item__name__icon" /> :
-                        itemActive ? <ImageIcon icon={PlayCircleIcon} className="nft-media-browser__item__name__icon" /> : null
-                    }
-                    <div className="nft-media-browser__item__name__text ellipsis">
-                      { mediaItem.name }
+                  <div className="nft-media-browser__item__text-container">
+                    <div className="nft-media-browser__item__name">
+                      {
+                        locked ?
+                          <ImageIcon icon={LockedIcon} className="nft-media-browser__item__name__icon" /> :
+                          itemActive ? <ImageIcon icon={PlayIcon} className="nft-media-browser__item__name__icon" /> : null
+                      }
+                      {
+                        mediaItem.annotated_title ?
+                          <AnnotatedField
+                            text={mediaItem.annotated_title}
+                            referenceImages={nftInfo.referenceImages}
+                            className="nft-media-browser__item__name__text nft-media__annotated-title"
+                          /> :
+                          <div className="nft-media-browser__item__name__text ellipsis">
+                            {mediaItem.name}
+                          </div>
+                      }
                     </div>
+                    {
+                      mediaItem.subtitle_1 ?
+                        <div className="nft-media-browser__item__subtitle ellipsis">
+                          { mediaItem.subtitle_1 }
+                        </div> : null
+                    }
                   </div>
                 </NavLink>
               </SwiperSlide>

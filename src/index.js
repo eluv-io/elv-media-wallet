@@ -14,6 +14,7 @@ import {
   Redirect, useRouteMatch, BrowserRouter, useHistory
 } from "react-router-dom";
 import Login from "Components/login/index";
+import OryLogin from "Components/login/OryLogin";
 import ScrollToTop from "Components/common/ScrollToTop";
 import { InitializeListener } from "Components/interface/Listener";
 import {ErrorBoundary} from "Components/common/ErrorBoundary";
@@ -88,7 +89,6 @@ const LoginModal = observer(() => {
       className="login-modal"
       closeable={!rootStore.loginOnly && (!rootStore.requireLogin || rootStore.loggedIn)}
       Toggle={rootStore.requireLogin ? undefined : () => rootStore.HideLogin()}
-      //noFade={rootStore.requireLogin}
     >
       <Login key="login-main" Close={rootStore.requireLogin ? undefined : () => rootStore.HideLogin()} />
     </Modal>
@@ -273,6 +273,12 @@ render(
         <Route path="/login">
           <div className="login-page-container">
             <Login />
+          </div>
+        </Route>
+
+        <Route path="/ory_login">
+          <div className="login-page-container">
+            <OryLogin />
           </div>
         </Route>
 

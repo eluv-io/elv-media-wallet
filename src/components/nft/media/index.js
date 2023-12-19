@@ -67,7 +67,7 @@ export const NFTMediaContainer = observer(({nftInfo, nft, item, browserOnly}) =>
                 typeof match.params.mediaIndex !== "undefined" ? null :
                   <Link
                     to={match.url.split("/media")[0]}
-                    className="details-page__back-link nft-media-browser__back-link"
+                    className={`details-page__back-link nft-media-browser__back-link ${!match.params.mediaIndex ? "details-page__back-link--relative" : ""}`}
                   >
                     <ImageIcon icon={BackIcon}/>
                     <div className="details-page__back-link__text ellipsis">

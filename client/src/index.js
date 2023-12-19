@@ -320,7 +320,7 @@ const frameClient = await ElvWalletFrameClient.InitializePopup({
    * @methodGroup Navigation
    * @namedParams
    * @param {string=} page - A named app path
-   * @param {Object=} params - URL parameters for the specified path, e.g. { tokenId: <token-id> } for an 'item' page.
+   * @param {Object=} params - Parameters for the specified path, e.g. { tokenId: <token-id> } for an 'item' page.
    * @param {string=} path - An absolute app path
    * @param {boolean=} loginRequired - If login was specified, this parameter will control whether the login prompt is dismissible
    * @param {Array<string>=} marketplaceFilters - A list of filters to limit items shown in the marketplace store page
@@ -488,44 +488,20 @@ const frameClient = await ElvWalletFrameClient.InitializePopup({
     });
   }
 
-  /**
-   * Initialize the media wallet in a new window.
-   *
-   * Calling client.Destroy() will close the popup.
-   *
-   * @methodGroup Constructor
-   * @namedParams
-   * @param {string} requestor - The name of your application. This field is used in permission prompts, e.g.
-   <br />
-   <br />
-   `<requestor> is requesting to perform <action>`
-   * @param {string=} walletAppUrl=https://wallet.contentfabric.io - The URL of the Eluvio Media Wallet app
-   * @param {string=} tenantSlug - Specify the URL slug of your tenant. Required if specifying marketplaceSlug
-   * @param {string=} marketplaceSlug - Specify the URL slug of your marketplace
-   * @param {string=} marketplaceId - Specify the ID of your marketplace. Not necessary if marketplaceSlug is specified
-   * @param {string=} previewMarketplaceId - Specify the ID of a marketplace to show a preview for.
-   * @param {boolean=} requireLogin=false - If specified, users will be required to log in before accessing any page in the app
-   * @param {boolean=} loginOnly=false - If specified, only the login flow will be shown. Be sure to register an event listener for the `LOG_IN` event. `client.Destroy()` can be used to close the popup after login. Note that once this mode is activated, it cannot be deactivated - you must re-initialize the popup/frame.
-   * @param {boolean=} captureLogin=false - If specified, the parent frame will be responsible for handling login requests. When the user attempts to log in, the LOG_IN_REQUESTED event will be fired.
-   * @param {boolean=} darkMode=false - Specify whether the app should be in dark mode
-   *
-   * @returns {Promise<ElvWalletFrameClient>} - The ElvWalletFrameClient initialized to communicate with the media wallet app in the new window.
-   */
-  static async InitializePopup({
-    requestor,
-    walletAppUrl="https://wallet.contentfabric.io",
+  static InitializeWalletUrl({
+    appUUID,
+    walletAppUrl,
     tenantSlug,
     marketplaceSlug,
     marketplaceId,
     marketplaceHash,
+    requireLogin,
+    loginOnly,
+    captureLogin,
+    darkMode,
     previewMarketplaceId,
-    requireLogin=false,
-    loginOnly=false,
-    captureLogin=false,
-    darkMode=false
+    liveUrl
   }) {
-    const appUUID = UUID();
-
     walletAppUrl = new URL(walletAppUrl);
 
     walletAppUrl.searchParams.set("appUUID", appUUID);
@@ -562,12 +538,73 @@ const frameClient = await ElvWalletFrameClient.InitializePopup({
       walletAppUrl.searchParams.set("preview", previewMarketplaceId);
     }
 
+    if(liveUrl) {
+      walletAppUrl.searchParams.set("lurl", liveUrl);
+    }
+
+    return walletAppUrl.toString();
+  }
+
+  /**
+   * Initialize the media wallet in a new window.
+   *
+   * Calling client.Destroy() will close the popup.
+   *
+   * @methodGroup Constructor
+   * @namedParams
+   * @param {string} requestor - The name of your application. This field is used in permission prompts, e.g.
+   <br />
+   <br />
+   `<requestor> is requesting to perform <action>`
+   * @param {string=} walletAppUrl=https://wallet.contentfabric.io - The URL of the Eluvio Media Wallet app
+   * @param {string=} tenantSlug - Specify the URL slug of your tenant. Required if specifying marketplaceSlug
+   * @param {string=} marketplaceSlug - Specify the URL slug of your marketplace
+   * @param {string=} marketplaceId - Specify the ID of your marketplace. Not necessary if marketplaceSlug is specified
+   * @param {string=} previewMarketplaceId - Specify the ID of a marketplace to show a preview for.
+   * @param {boolean=} requireLogin=false - If specified, users will be required to log in before accessing any page in the app
+   * @param {boolean=} loginOnly=false - If specified, only the login flow will be shown. Be sure to register an event listener for the `LOG_IN` event. `client.Destroy()` can be used to close the popup after login. Note that once this mode is activated, it cannot be deactivated - you must re-initialize the popup/frame.
+   * @param {boolean=} captureLogin=false - If specified, the parent frame will be responsible for handling login requests. When the user attempts to log in, the LOG_IN_REQUESTED event will be fired.
+   * @param {boolean=} darkMode=false - Specify whether the app should be in dark mode
+   *
+   * @returns {Promise<ElvWalletFrameClient>} - The ElvWalletFrameClient initialized to communicate with the media wallet app in the new window.
+   */
+  static async InitializePopup({
+    requestor,
+    walletAppUrl="https://wallet.contentfabric.io",
+    tenantSlug,
+    marketplaceSlug,
+    marketplaceId,
+    marketplaceHash,
+    previewMarketplaceId,
+    requireLogin=false,
+    loginOnly=false,
+    captureLogin=false,
+    darkMode=false,
+    liveUrl
+  }) {
+    const appUUID = UUID();
+
+    walletAppUrl = ElvWalletFrameClient.InitializeWalletUrl({
+      appUUID,
+      walletAppUrl,
+      tenantSlug,
+      marketplaceSlug,
+      marketplaceId,
+      marketplaceHash,
+      previewMarketplaceId,
+      requireLogin,
+      loginOnly,
+      captureLogin,
+      darkMode,
+      liveUrl
+    });
+
     const target = Popup({url: walletAppUrl.toString(), title: "Eluvio Media Wallet", w: 400, h: 700});
 
     const client = new ElvWalletFrameClient({
       appUUID,
       requestor,
-      walletAppUrl: walletAppUrl.toString(),
+      walletAppUrl,
       target,
       Close: () => target.close()
     });
@@ -622,7 +659,8 @@ const frameClient = await ElvWalletFrameClient.InitializePopup({
     requireLogin=false,
     loginOnly=false,
     captureLogin=false,
-    darkMode=false
+    darkMode=false,
+    liveUrl
   }) {
     const appUUID = UUID();
 
@@ -650,41 +688,22 @@ const frameClient = await ElvWalletFrameClient.InitializePopup({
     target.allow = iframePermissions.allow;
     target.title = "Eluvio Media Wallet";
 
+    walletAppUrl = ElvWalletFrameClient.InitializeWalletUrl({
+      appUUID,
+      walletAppUrl,
+      tenantSlug,
+      marketplaceSlug,
+      marketplaceId,
+      marketplaceHash,
+      previewMarketplaceId,
+      requireLogin,
+      loginOnly,
+      captureLogin,
+      darkMode,
+      liveUrl
+    });
+
     walletAppUrl = new URL(walletAppUrl);
-
-    walletAppUrl.searchParams.set("appUUID", appUUID);
-
-    walletAppUrl.searchParams.set("origin", window.location.origin);
-
-    if(marketplaceSlug) {
-      walletAppUrl.searchParams.set("mid", `${tenantSlug}/${marketplaceSlug}`);
-    } else if(marketplaceId || marketplaceHash) {
-      walletAppUrl.searchParams.set("mid", marketplaceHash || marketplaceId);
-    }
-
-    if(walletAppUrl.searchParams.has("mid") && !walletAppUrl.hash) {
-      walletAppUrl.hash = `#/marketplaces/redirect/${tenantSlug}/${marketplaceSlug}/store`;
-    }
-
-    if(requireLogin){
-      walletAppUrl.searchParams.set("rl", "");
-    }
-
-    if(loginOnly) {
-      walletAppUrl.searchParams.set("lo", "");
-    }
-
-    if(captureLogin) {
-      walletAppUrl.searchParams.set("cl", "");
-    }
-
-    if(darkMode) {
-      walletAppUrl.searchParams.set("dk", "");
-    }
-
-    if(previewMarketplaceId) {
-      walletAppUrl.searchParams.set("preview", previewMarketplaceId);
-    }
 
     const client = new ElvWalletFrameClient({
       appUUID,

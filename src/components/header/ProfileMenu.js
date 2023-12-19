@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
-import {Copy, MenuLink} from "Components/common/UIComponents";
+import {ButtonWithLoader, Copy, MenuLink} from "Components/common/UIComponents";
 import UrlJoin from "url-join";
 import PreferencesMenu from "Components/header/PreferencesMenu";
 import HoverMenu from "Components/common/HoverMenu";
@@ -17,6 +17,7 @@ import ListingsIcon from "Assets/icons/header/listings icon";
 import OffersIcon from "Assets/icons/Offers table icon.svg";
 import ActivityIcon from "Assets/icons/header/Activity";
 import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
+import GiftIcon from "Assets/icons/gift.svg";
 import PreferencesIcon from "Assets/icons/header/Preferences icon";
 import DiscoverIcon from "Assets/icons/discover.svg";
 
@@ -127,11 +128,21 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
             </>
         }
         <MenuLink
+          icon={GiftIcon}
+          className="header__profile-menu__link"
+          to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "gifts") : "/wallet/users/me/gifts"}
+          onClick={Hide}
+          isActive={IsActive("gifts")}
+        >
+          { rootStore.l10n.navigation.gifts }
+        </MenuLink>
+
+        <MenuLink
           icon={NotificationsIcon}
           className="header__profile-menu__link"
           to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "notifications") : "/wallet/users/me/notifications"}
           onClick={Hide}
-          isActive={IsActive("activity")}
+          isActive={IsActive("notifications")}
         >
           { rootStore.l10n.navigation.notifications }
         </MenuLink>
@@ -157,15 +168,16 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
             </>
         }
       </div>
-      <button
-        onClick={() => {
-          rootStore.SignOut();
+      <ButtonWithLoader
+        action={false}
+        onClick={async () => {
+          await rootStore.SignOut();
           Hide();
         }}
         className="header__profile-menu__log-out-button"
       >
         { rootStore.l10n.login.sign_out }
-      </button>
+      </ButtonWithLoader>
       {
         showPreferencesMenu ?
           <PreferencesMenu

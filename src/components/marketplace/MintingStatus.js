@@ -7,8 +7,10 @@ import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import NFTCard from "Components/nft/NFTCard";
-import {LinkTargetHash, MobileOption, SearchParams} from "../../utils/Utils";
+import {LinkTargetHash, MobileOption, ScrollTo, SearchParams} from "../../utils/Utils";
 import {FormatPriceString, LocalizeString} from "Components/common/UIComponents";
+import ItemCard from "Components/common/ItemCard";
+import {NFTImage} from "Components/common/Images";
 
 const searchParams = SearchParams();
 
@@ -61,9 +63,9 @@ const MintingStatus = observer(({
       if(status.status === "complete") {
         if(!noItems) {
           // If mint has items, ensure that items are available in the user's wallet
-          let items = (status.extra || []).filter(item => item.token_addr && (item.token_id || item.token_id_str));
+          let items = status.items || (status.extra || []).filter(item => item.token_addr && (item.token_id || item.token_id_str));
           if(status.op === "nft-transfer") {
-            items = [{token_addr: status.address, token_id_str: status.tokenId}];
+            items = status.items || [{token_addr: status.address, token_id_str: status.tokenId}];
           }
 
           if(items.length > 0) {
@@ -103,6 +105,8 @@ const MintingStatus = observer(({
   };
 
   useEffect(() => {
+    setTimeout(() => ScrollTo(0), 200);
+
     CheckStatus();
 
     statusInterval = setInterval(CheckStatus, intervalPeriod * 1000);
@@ -219,7 +223,7 @@ const MintingStatus = observer(({
       }
 
       {
-        revealVideoHash && !awaitingPayment ?
+        finished && revealVideoHash && !awaitingPayment ?
           <div className={`minting-status__video-container minting-status__video-container--large ${finished ? "" : "minting-status__video-container--hidden"}`}>
             <Loader />
             <div
@@ -488,6 +492,218 @@ export const PurchaseMintingStatus = observer(() => {
       header={rootStore.l10n.status.minting.success_header}
       subheader={`${rootStore.l10n.status.minting.purchase} ${rootStore.l10n.status.minting[items.length === 1 ? "received_item_single" : "received_item_multiple"]}`}
       items={items}
+      basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
+      nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items")}
+      backText={rootStore.l10n.status.back_to_marketplace}
+    />
+  );
+});
+
+export const GiftPurchaseMintingStatus = observer(() => {
+  const match = useRouteMatch();
+  const [status, setStatus] = useState(undefined);
+
+  const Status = async () => await rootStore.PurchaseStatus({
+    marketplaceId: match.params.marketplaceId,
+    confirmationId: match.params.confirmationId
+  });
+
+  // TODO: When pending status is in, complete once we get pending status
+  if(status?.status !== "complete" && rootStore.loggedIn) {
+    return (
+      <MintingStatus
+        text={{
+          header: rootStore.l10n.status.minting.confirming_purchase
+        }}
+        intervalPeriod={3}
+        Status={Status}
+        OnFinish={({status}) => setStatus(status)}
+        basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
+        backText={rootStore.l10n.status.back_to_marketplace}
+      />
+    );
+  }
+
+  return (
+    <div className="minting-status-results" key="minting-status-results-card-list">
+      <div className="page-headers">
+        <div className="page-header">{ rootStore.l10n.status.minting.gift_purchase_1 }</div>
+        <div className="page-subheader">{ rootStore.l10n.status.minting.gift_purchase_2 }</div>
+      </div>
+      <div className="minting-status-results__actions">
+        <Link to={UrlJoin("/marketplace", match.params.marketplaceId)} className="action action-primary minting-status-results__back-button">
+          { rootStore.l10n.status.back_to_marketplace }
+        </Link>
+      </div>
+    </div>
+  );
+});
+
+export const GiftRedemptionStatus = observer(() => {
+  const match = useRouteMatch();
+  const [status, setStatus] = useState(undefined);
+  const [redeemed, setRedeemed] = useState(undefined);
+  const [error, setError] = useState(undefined);
+  const code = match.params.code || SearchParams()["otp_code"];
+
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+  const giftOptions = marketplace?.storefront?.gift_options;
+  let animation, revealAnimation, skipReveal;
+  if(giftOptions?.custom_redemption_settings) {
+    animation = MobileOption(rootStore.pageWidth, giftOptions.redeem_animation, giftOptions.redeem_animation_mobile);
+    revealAnimation = MobileOption(rootStore.pageWidth, giftOptions.reveal_animation, giftOptions.reveal_animation_mobile);
+    skipReveal = giftOptions.skip_reveal;
+  } else {
+    animation = MobileOption(rootStore.pageWidth, marketplace?.storefront?.purchase_animation, marketplace?.storefront?.purchase_animation_mobile);
+    revealAnimation = MobileOption(rootStore.pageWidth, marketplace?.storefront?.reveal_animation, marketplace?.storefront?.reveal_animation_mobile);
+    skipReveal = marketplace?.storefront?.skip_reveal;
+  }
+
+  const videoHash = LinkTargetHash(animation);
+  const revealVideoHash = LinkTargetHash(revealAnimation);
+
+  const hideText = marketplace?.storefront?.hide_text;
+
+  const Status = async () => await rootStore.GiftClaimStatus({
+    marketplaceId: match.params.marketplaceId,
+    confirmationId: match.params.confirmationId
+  });
+
+  const Claim = async ({attempt=1}={}) => {
+    try {
+      await checkoutStore.GiftClaimSubmit({
+        marketplaceId: match.params.marketplaceId,
+        sku: match.params.sku,
+        confirmationId: match.params.confirmationId,
+        code
+      });
+    } catch(error) {
+      rootStore.Log(error, true);
+      if(error?.status === 400) {
+        if(error?.body?.error?.includes("gift tokens not found")) {
+          // May not be minted yet
+
+          if(attempt > 3) {
+            setError(rootStore.l10n.status.minting.errors.misc);
+          } else {
+            await new Promise(resolve => setTimeout(resolve, 15000));
+            Claim({attempt: attempt + 1});
+          }
+
+          return;
+        }
+
+        const claimStatus = await Status();
+
+        if(["complete", "pending"].includes(claimStatus?.status)) {
+          // Gift was claimed by this user, and recently enough for status to be present
+          return;
+        }
+
+        setError(rootStore.l10n.status.minting.errors.gift_already_claimed);
+      } else {
+        setError(rootStore.l10n.status.minting.errors.misc);
+      }
+    }
+  };
+
+  let item = marketplace?.items?.find(item => item.sku === match.params.sku);
+
+  useEffect(() => {
+    if(!rootStore.loggedIn || !item) { return; }
+
+    if(!code) {
+      setError(rootStore.l10n.status.minting.errors.gift_code_not_found);
+    }
+
+    if(item?.gift_presentation?.open_on_claim) {
+      // Redemption action will be done when the user manually clicks claim
+      return;
+    }
+
+    Claim();
+  }, [item]);
+
+  if(!item) {
+    return <PageLoader />;
+  }
+
+  if(error) {
+    return (
+      <div className="minting-status-results" key="minting-status-results-card-list">
+        <div className="page-headers">
+          <div className="page-header">{ error }</div>
+        </div>
+        <div className="minting-status-results__actions">
+          <Link to={UrlJoin("/marketplace", match.params.marketplaceId)} className="action action-primary minting-status-results__back-button">
+            { rootStore.l10n.status.back_to_marketplace }
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if(item.use_custom_gift_presentation) {
+    item = {
+      ...item,
+      ...(item.gift_presentation || {})
+    };
+  }
+
+  if(!redeemed && item?.gift_presentation?.open_on_claim) {
+    return (
+      <div className="minting-status minting-status--gift-redemption">
+        <ItemCard
+          name={item.name}
+          subtitle1={item.subtitle}
+          description={item.description}
+          truncateDescription={false}
+          className="minting-status__gift-card"
+          image={
+            <NFTImage
+              item={item}
+              showVideo
+            />
+          }
+          actions={[
+            {
+              label: "Claim",
+              className: "action action-primary",
+              onClick: async () => {
+                await Claim();
+
+                setRedeemed(true);
+                setTimeout(() => ScrollTo(0), 100);
+              }
+            }
+          ]}
+        />
+      </div>
+    );
+  }
+
+  if(!status) {
+    return (
+      <MintingStatus
+        header={rootStore.l10n.status.minting.gift_claim_header}
+        key={`status-${videoHash}`}
+        videoHash={videoHash}
+        revealVideoHash={revealVideoHash}
+        hideText={hideText}
+        Status={Status}
+        OnFinish={({status}) => setStatus(status)}
+        basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
+        backText={rootStore.l10n.status.back_to_marketplace}
+      />
+    );
+  }
+
+  return (
+    <MintResults
+      skipReveal={skipReveal}
+      header={rootStore.l10n.status.minting.success_header}
+      subheader={rootStore.l10n.status.minting[status.items.length === 1 ? "received_item_single" : "received_item_multiple"]}
+      items={status.items}
       basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
       nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items")}
       backText={rootStore.l10n.status.back_to_marketplace}

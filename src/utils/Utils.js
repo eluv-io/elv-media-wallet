@@ -364,6 +364,7 @@ export const NFTInfo = ({
   const expired = item && item.expires_at && timeToExpired < 0;
   const maxOwned = stock && stock.max_per_user && stock.current_user >= stock.max_per_user;
   const marketplacePurchaseAvailable = item && item.for_sale && !outOfStock && available && !unauthorized && !maxOwned;
+  const marketplaceGiftAvailable = item && item.for_sale && item.allow_gift_purchase && !item.free && !outOfStock && available && !unauthorized;
   const hideAvailable = !available || (item && item.hide_available);
 
   const timeToSecondaryAvailable = nft?.metadata?.secondary_resale_available_at ? new Date(nft.metadata.secondary_resale_available_at).getTime() - Date.now() : 0;
@@ -373,6 +374,13 @@ export const NFTInfo = ({
   const secondaryReleaseDate = nft?.metadata?.secondary_resale_available_at ? new Date(nft.metadata.secondary_resale_available_at).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) : undefined;
   const secondaryExpirationDate = nft?.metadata?.secondary_resale_expires_at ? new Date(nft.metadata.secondary_resale_expires_at).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) : undefined;
   const offerable = nft?.details.TokenIdStr && !nft?.metadata?.test && !heldDate;
+
+  let referenceImages = {};
+  (nft?.metadata?.reference_images || []).map(referenceImage => {
+    referenceImages[referenceImage.image_id] = {...referenceImage};
+    referenceImage[referenceImage.id] = referenceImage[referenceImage.image_id];
+  });
+
 
   let status;
   if(outOfStock) {
@@ -477,6 +485,7 @@ export const NFTInfo = ({
 
     // Media
     mediaInfo,
+    referenceImages,
 
     // Offers
     hasRedeemables,
@@ -493,6 +502,7 @@ export const NFTInfo = ({
     stock,
     status,
     marketplacePurchaseAvailable,
+    marketplaceGiftAvailable,
     available,
     timeToAvailable,
     timeToExpired,
@@ -569,15 +579,15 @@ export const NFTMedia = ({nft, item, width}) => {
     mediaType = nft?.metadata?.media_type === "Audio" ? "audio" : "video";
   }
 
-  if(nft?.metadata?.media_type === "Image" && nft.metadata.media) {
+  if(item?.image) {
+    imageUrl = typeof item.image === "string" ? item.image : item.image.url;
+  } else if(nft?.metadata?.media_type === "Image" && nft.metadata.media) {
     imageUrl = nft.metadata.media.url;
 
     if(embedUrl) {
       embedUrl.searchParams.set("type", "Image");
       embedUrl.searchParams.set("murl", btoa(nft.metadata.media.url));
     }
-  } else if(item?.image) {
-    imageUrl = typeof item.image === "string" ? item.image : item.image.url;
   } else {
     imageUrl = item?.nftTemplateMetadata?.image || nft?.metadata?.image;
   }
@@ -762,6 +772,34 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
     requiresPermissions,
     recordView,
     useFrame
+  };
+};
+
+export const LiveMediaInfo = mediaItem => {
+  if(mediaItem.media_type !== "Live Video") {
+    return {
+      isLive: false
+    };
+  }
+
+  try {
+    let startTime = mediaItem.start_time && new Date(mediaItem.start_time);
+    let endTime = mediaItem.end_time && new Date(mediaItem.end_time);
+
+    let isLive = (!startTime || new Date() > startTime) && (!endTime || new Date < endTime);
+
+    return {
+      startTime,
+      endTime,
+      isLive
+    };
+  } catch(error) {
+    rootStore.Log(`Error parsing start/end time in media item ${mediaItem.name}`);
+    rootStore.Log(error);
+  }
+
+  return {
+    isLive: false
   };
 };
 

@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
-import {Loader} from "Components/common/Loaders";
+import {Loader, PageLoader} from "Components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import Modal from "Components/common/Modal";
 import Confirm from "Components/common/Confirm";
@@ -13,8 +13,10 @@ import EluvioE from "Assets/images/ELUV.IO-E-Icon.png";
 import EluvioLogo from "Assets/images/Eluvio_logo.svg";
 import MediaWalletLogo from "Assets/images/Media Wallet Text Linear.svg";
 import CheckIcon from "Assets/icons/check.svg";
+import OryLogin from "Components/login/OryLogin";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
+const useOry = searchParams.has("ory");// || true;
 const params = {
   // If we've just come back from Auth0
   isAuth0Callback: searchParams.has("code"),
@@ -36,11 +38,12 @@ const params = {
   // Response code to fill out for code login
   loginCode: searchParams.get("elvid"),
   // Should Auth0 credentials be cleared before login?
-  clearLogin: searchParams.has("clear"),
+  clearLogin: !useOry && searchParams.has("clear"),
   // Marketplace
   marketplace: searchParams.get("marketplace"),
   // User data to pass to custodial sign-in
-  userData: searchParams.has("data") ? JSON.parse(Utils.FromB64(searchParams.get("data"))) : { share_email: true }
+  userData: searchParams.has("data") ? JSON.parse(Utils.FromB64(searchParams.get("data"))) : { share_email: true },
+  useOry
 };
 
 window.params = params;
@@ -79,7 +82,12 @@ const PoweredBy = ({customizationOptions}) => {
   return (
     <div className="login-page__tagline">
       <div className="login-page__tagline__text">{ rootStore.l10n.login.powered_by }</div>
-      <ImageIcon icon={EluvioLogo} className="login-page__tagline__image" title="Eluv.io" />
+      {
+        customizationOptions.powered_by_logo ?
+          <ImageIcon icon={customizationOptions.powered_by_logo.url} className="login-page__tagline__image login-page__tagline__image--custom" alt={customizationOptions.powered_by_logo_alt_text || ""} /> :
+          <ImageIcon icon={EluvioLogo} className="login-page__tagline__image" title="Eluv.io" />
+      }
+
     </div>
   );
 };
@@ -174,7 +182,7 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
 };
 
 // Logo, login buttons, terms and loading indicator
-const Form = observer(({authenticating, userData, setUserData, customizationOptions, loading, codeAuthSet, LogIn}) => {
+const Form = observer(({authenticating, userData, setUserData, customizationOptions, loading, codeAuthSet, useOry, LogIn}) => {
   let hasLoggedIn = false;
   try {
     hasLoggedIn = localStorage.getItem("hasLoggedIn");
@@ -262,6 +270,24 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
     );
   }
 
+  if(useOry) {
+    return (
+      <>
+        <Logo customizationOptions={customizationOptions} />
+        <OryLogin userData={userData} />
+        {
+          params.loginCode && !loading ?
+            <div className="login-page__login-code">
+              { LocalizeString(rootStore.l10n.login.login_code, { code: params.loginCode }) }
+            </div> : null
+        }
+
+        <PoweredBy customizationOptions={customizationOptions}/>
+        <Terms customizationOptions={customizationOptions} userData={userData} setUserData={setUserData}/>
+      </>
+    );
+  }
+
   return (
     <>
       <Logo customizationOptions={customizationOptions} />
@@ -295,7 +321,7 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
       }
 
       <PoweredBy customizationOptions={customizationOptions}/>
-      { loading ? null : <Terms customizationOptions={customizationOptions} userData={userData} setUserData={setUserData}/> }
+      <Terms customizationOptions={customizationOptions} userData={userData} setUserData={setUserData}/>
     </>
   );
 });
@@ -461,6 +487,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
   const [savingUserData, setSavingUserData] = useState(false);
   const [settingCodeAuth, setSettingCodeAuth] = useState(false);
   const [codeAuthSet, setCodeAuthSet] = useState(false);
+  const useOry = params.useOry || customizationOptions?.tenantConfig?.["open-id"]?.["issuer-url"];
 
   // Handle login button clicked - Initiate popup/login flow
   const LogIn = async ({provider, mode}) => {
@@ -557,7 +584,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       }
     };
 
-    if(params.clearLogin) {
+    if(params.clearLogin && !useOry) {
       const returnURL = new URL(window.location.href);
       returnURL.pathname = returnURL.pathname.replace(/\/$/, "");
       returnURL.hash = window.location.hash;
@@ -599,6 +626,21 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
     }
   }, [rootStore.loaded, rootStore.loggedIn, userDataSaved, savingUserData, auth0Authenticating]);
 
+  const loading =
+    !rootStore.loaded ||
+    !customizationOptions ||
+    params.clearLogin ||
+    (params.source === "parent" && params.provider);
+
+  if(loading) {
+    return (
+      <div className={`login-page ${rootStore.darkMode ? "login-page--dark" : ""} ${customizationOptions?.large_logo_mode ? "login-page-large-logo-mode" : ""}`}>
+        <Background customizationOptions={customizationOptions} Close={Close} />
+        <PageLoader />
+      </div>
+    );
+  }
+
   return (
     <div className={`login-page ${rootStore.darkMode ? "login-page--dark" : ""} ${customizationOptions?.large_logo_mode ? "login-page-large-logo-mode" : ""}`}>
       <Background customizationOptions={customizationOptions} Close={Close} />
@@ -612,13 +654,14 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           codeAuthSet={codeAuthSet}
           LogIn={LogIn}
           customizationOptions={customizationOptions}
+          useOry={useOry}
         />
       </div>
     </div>
   );
 });
 
-const Login = observer(({darkMode, Close}) => {
+const Login = observer(({Close}) => {
   const [customizationOptions, setCustomizationOptions] = useState(undefined);
   const [userData, setUserData] = useState(params.userData || {});
 
@@ -659,16 +702,24 @@ const Login = observer(({darkMode, Close}) => {
           // eslint-disable-next-line no-empty
         } catch(error) {}
 
-        if(typeof options.darkMode !== "undefined") {
-          rootStore.ToggleDarkMode(options.darkMode);
-        }
-
         setUserData(initialUserData);
         setCustomizationOptions({...(options || {})});
       });
   }, [rootStore.specifiedMarketplaceHash]);
 
-  darkMode = customizationOptions && typeof customizationOptions.darkMode === "boolean" ? customizationOptions.darkMode : darkMode;
+  useEffect(() => {
+    if(!rootStore.loaded) { return; }
+
+    // Ensure correct marketplace styling is used when login is visible
+    const originalMarketplaceId = rootStore.marketplaceId;
+    rootStore.SetMarketplace({marketplaceId: rootStore.specifiedMarketplaceId, disableTenantStyling: true});
+
+    return () => {
+      originalMarketplaceId ?
+        rootStore.SetMarketplace({marketplaceId: originalMarketplaceId}) :
+        rootStore.ClearMarketplace();
+    };
+  }, [rootStore.loaded]);
 
   // User data such as consent - save to localstorage
   const SaveUserData = (data) => {
@@ -686,7 +737,6 @@ const Login = observer(({darkMode, Close}) => {
       customizationOptions={customizationOptions}
       userData={userData}
       setUserData={SaveUserData}
-      darkMode={darkMode}
       Close={() => Close && Close()}
     />
   );
