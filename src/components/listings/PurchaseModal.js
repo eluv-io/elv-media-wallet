@@ -17,6 +17,14 @@ import PlusIcon from "Assets/icons/plus.svg";
 import MinusIcon from "Assets/icons/minus.svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 
+const ScrollTopOnMount = ({children}) => {
+  useEffect(() => {
+    setTimeout(() => ScrollTo(0, undefined, document.querySelector(".purchase-modal-container")), 50);
+  }, []);
+
+  return children;
+};
+
 const QuantityInput = ({quantity, setQuantity, maxQuantity}) => {
   if(maxQuantity <= 1) { return null; }
 
@@ -920,7 +928,6 @@ const PurchaseModal = observer(({
   const quantityAvailable = (itemInfo.stock && (itemInfo.stock.max - itemInfo.stock.minted)) || 25;
   const maxQuantity = Math.max(1, Math.min(maxPerCheckout, Math.min(maxPerUser, quantityAvailable)));
 
-
   useEffect(() => {
     if(type === "listing") {
       rootStore.walletClient.ListingStats({contractAddress: nft.details.ContractAddr})
@@ -934,7 +941,6 @@ const PurchaseModal = observer(({
 
     return () => clearInterval(stockCheck);
   }, []);
-
 
   useEffect(() => {
     ScrollTo(0, document.getElementById("purchase-modal"));
@@ -1028,14 +1034,16 @@ const PurchaseModal = observer(({
         </h1>
         <div className="purchase-modal__sections">
           <div className="purchase-modal__section purchase-modal__section--left">
-            <NFTCard
-              nft={nft}
-              item={item}
-              selectedListing={selectedListing}
-              hideToken={!selectedListing}
-              hideAvailable={!itemInfo.available || (item?.hide_available)}
-              truncateDescription
-            />
+            <div className="purchase-modal__item-card">
+              <NFTCard
+                nft={nft}
+                item={item}
+                selectedListing={selectedListing}
+                hideToken={!selectedListing}
+                hideAvailable={!itemInfo.available || (item?.hide_available)}
+                truncateDescription
+              />
+            </div>
             {
               type === "marketplace" ?
                 (maxQuantity > 1 ?
@@ -1086,7 +1094,9 @@ const PurchaseModal = observer(({
             }
           </div>
           <div key={`right-section-${contentKey}`} className="purchase-modal__section purchase-modal__section--right">
-            { content }
+            <ScrollTopOnMount key={`scroll-top-${contentKey}`}>
+              { content }
+            </ScrollTopOnMount>
           </div>
         </div>
       </div>
