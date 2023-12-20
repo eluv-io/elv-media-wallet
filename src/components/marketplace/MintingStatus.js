@@ -583,10 +583,10 @@ export const GiftRedemptionStatus = observer(() => {
         if(error?.body?.error?.includes("gift tokens not found")) {
           // May not be minted yet
 
-          if(attempt > 3) {
+          if(attempt > 4) {
             setError(rootStore.l10n.status.minting.errors.misc);
           } else {
-            await new Promise(resolve => setTimeout(resolve, 15000));
+            await new Promise(resolve => setTimeout(resolve, 30000));
             Claim({attempt: attempt + 1});
           }
 
