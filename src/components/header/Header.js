@@ -337,8 +337,7 @@ const GlobalHeader = observer(({scrolled}) => {
   );
 });
 
-let lastScrollPosition = window.scrollY;
-let initialMarketplaceScroll = false;
+let lastPageHeight = document.querySelector("body").scrollHeight;
 const Header = observer(() => {
   const location = useLocation();
   const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
@@ -352,33 +351,21 @@ const Header = observer(() => {
 
   useEffect(() => {
     setScrolled(false);
-    initialMarketplaceScroll = false;
-
+    
+    // Handle scroll change and whether the header should be expanded or contracted
     const ScrollFade = Debounce(() => {
-      // When marketplace changes, reset header to full size until the page is actually scrolled down
-      if(!initialMarketplaceScroll && window.scrollY > lastScrollPosition) {
-        initialMarketplaceScroll = true;
+      const newPageHeight = document.querySelector("body").scrollHeight;
+      const scrollPosition = window.scrollY;
+      try {
+        if(newPageHeight !== lastPageHeight) {
+          // Page height changed - probably scrolled due to content change, ignore
+          return;
+        }
+
+        setScrolled(scrollPosition > 0);
+      } finally {
+        lastPageHeight = newPageHeight;
       }
-
-      if(!initialMarketplaceScroll) {
-        lastScrollPosition = window.scrollY;
-        return;
-      }
-
-      const scrollPosition = Math.ceil(window.scrollY);
-
-      const alreadyAtTop = Math.round(window.scrollY) <= 1 && Math.round(lastScrollPosition) <= 1;
-      const notAtTop = scrollPosition > 0;
-      const notScrollable = document.body.scrollHeight - window.innerHeight < 5;
-      const largeJump = lastScrollPosition - scrollPosition > 100;
-
-      lastScrollPosition = window.scrollY;
-
-      // Don't change state if scroll hasn't changed or if page is not scrollable (e.g. loading) or if there was
-      // a large jump (probably due to page transition)
-      if(alreadyAtTop || notScrollable || largeJump) { return; }
-
-      setScrolled(notAtTop);
     }, 50);
 
     document.addEventListener("scroll", ScrollFade);
