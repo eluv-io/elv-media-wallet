@@ -40,7 +40,7 @@
     "@eluvio/elv-player-js": "^1.0.117",
     "@ory/client": "^1.4.2",
     "@ory/elements": "^0.1.0-beta.12",
-    "@solana/spl-token": "^0.3.8",
+    "@solana/spl-token": "0.3.8",
     "@solana/web3.js": "1.66.2",
     "@stripe/stripe-js": "^1.17.1",
     "auth0-spa-js": "^1.6.5",
