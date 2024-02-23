@@ -513,7 +513,7 @@ status:
   back_to_collection: Back to My Collection
   pack_opening: Your pack is opening
   minting:
-    header: Your items are being minted
+    header: Your items are being prepared
     subheader1: This may take several minutes
     subheader2: You can navigate away from this page if you don't want to wait. Your items will be available in your wallet when the process is complete.
     success_header: Congratulations!

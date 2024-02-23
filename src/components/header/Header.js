@@ -351,7 +351,7 @@ const Header = observer(() => {
 
   useEffect(() => {
     setScrolled(false);
-    
+
     // Handle scroll change and whether the header should be expanded or contracted
     const ScrollFade = Debounce(() => {
       const newPageHeight = document.querySelector("body").scrollHeight;
