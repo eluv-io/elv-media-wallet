@@ -349,7 +349,7 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, showFullscreen, set
     return () => document.removeEventListener("fullscreenchange", UpdateFullscreen);
   }, []);
 
-  if(!liveInfo.started || !isAvailable) {
+  if(!liveInfo.started) {
     return (
       <div className="nft-media__content__target nft-media__content__target--error">
         <ImageIcon icon={ClockIcon} className="nft-media__content__target__error-icon" />
@@ -358,15 +358,12 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, showFullscreen, set
         <div className="nft-media__content__target__error-message">
           { rootStore.l10n.item_details.additional_media.errors.not_started }
         </div>
-        {
-          liveInfo.started ? null :
-            <Countdown
-              time={liveInfo.startTime}
-              showSeconds
-              OnEnded={() => setIsAvailable(true)}
-              className="marketplace__countdown nft-media__content__target__countdown"
-            />
-        }
+        <Countdown
+          time={liveInfo.startTime}
+          showSeconds
+          OnEnded={() => setIsAvailable(true)}
+          className="marketplace__countdown nft-media__content__target__countdown"
+        />
       </div>
     );
   }

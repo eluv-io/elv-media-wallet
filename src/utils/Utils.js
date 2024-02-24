@@ -799,8 +799,8 @@ export const LiveMediaInfo = mediaItem => {
       startTime,
       endTime,
       isLive,
-      started: new Date() > startTime,
-      ended: new Date() > endTime
+      started: !startTime || new Date() > startTime,
+      ended: !!endTime && new Date() > endTime
     };
   } catch(error) {
     rootStore.Log(`Error parsing start/end time in media item ${mediaItem.name}`);

@@ -503,7 +503,7 @@ item_details:
     previous: Previous
     play_all: Play All
     errors:
-      default: This media is no longer available
+      default: This media is not available
       not_started: This live content has not yet started
       ended: This live content has ended
 
