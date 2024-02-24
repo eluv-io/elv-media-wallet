@@ -1046,7 +1046,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, giftItem, hideSec
   const [listingStatus, setListingStatus] = useState(initialListingStatus || listingStatusCache[`${nft?.details?.ContractAddr}-${nft?.details?.TokenIdStr}`]);
 
   // Owned item
-  const [ownedItemLoading, setOwnedItemLoading] = useState(!!item);
+  const [ownedItemLoading, setOwnedItemLoading] = useState(rootStore.loggedIn && !!item);
   const [ownedItem, setOwnedItem] = useState(undefined);
 
   // Status
