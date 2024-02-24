@@ -1367,18 +1367,23 @@ class RootStore {
   GetWalletBalance = flow(function * (checkOnboard=false) {
     if(!this.loggedIn) { return; }
 
-    const balances = yield this.walletClient.UserWalletBalance(checkOnboard);
+    try {
+      const balances = yield this.walletClient.UserWalletBalance(checkOnboard);
 
-    this.userStripeId = balances.userStripeId;
-    this.userStripeEnabled = balances.userStripeEnabled;
-    this.totalWalletBalance = balances.totalWalletBalance;
-    this.availableWalletBalance = balances.availableWalletBalance;
-    this.pendingWalletBalance = balances.pendingWalletBalance;
-    this.lockedWalletBalance = balances.lockedWalletBalance;
-    this.withdrawableWalletBalance = balances.withdrawableWalletBalance;
-    this.usdcBalance = balances.phantomUSDCBalance;
+      this.userStripeId = balances.userStripeId;
+      this.userStripeEnabled = balances.userStripeEnabled;
+      this.totalWalletBalance = balances.totalWalletBalance;
+      this.availableWalletBalance = balances.availableWalletBalance;
+      this.pendingWalletBalance = balances.pendingWalletBalance;
+      this.lockedWalletBalance = balances.lockedWalletBalance;
+      this.withdrawableWalletBalance = balances.withdrawableWalletBalance;
+      this.usdcBalance = balances.phantomUSDCBalance;
 
-    return balances;
+      return balances;
+    } catch(error) {
+      this.Log("Failed to load balance", true);
+      this.Log(error, true);
+    }
   });
 
   WithdrawFunds = flow(function * ({provider, userInfo, amount}) {

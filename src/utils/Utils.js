@@ -610,7 +610,7 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
   let embedUrl = new URL("https://embed.v3.contentfabric.io");
   let imageUrl, mediaLink, mediaType, viewRecordKey, recordView=false, useFrame=false;
 
-  const versionHash = item ? item.nftTemplateHash : nft?.details?.VersionHash;
+  let versionHash = item ? item.nftTemplateHash : nft?.details?.VersionHash;
 
   if(!selectedMedia) {
     selectedMedia = {
@@ -710,7 +710,14 @@ export const NFTMediaInfo = ({nft, item, selectedMedia, selectedMediaPath, requi
         break;
       }
 
-      embedUrl.searchParams.set("vid", LinkTargetHash(selectedMedia.media_link) || versionHash);
+      versionHash = LinkTargetHash(selectedMedia.media_link) || versionHash;
+
+      if(mediaType === "live video") {
+        embedUrl.searchParams.set("oid", Utils.DecodeVersionHash(versionHash).objectId);
+      } else {
+        embedUrl.searchParams.set("vid", versionHash);
+      }
+
       embedUrl.searchParams.set("ct", "h");
       embedUrl.searchParams.set("ap", "");
 
@@ -791,7 +798,9 @@ export const LiveMediaInfo = mediaItem => {
     return {
       startTime,
       endTime,
-      isLive
+      isLive,
+      started: new Date() > startTime,
+      ended: new Date() > endTime
     };
   } catch(error) {
     rootStore.Log(`Error parsing start/end time in media item ${mediaItem.name}`);

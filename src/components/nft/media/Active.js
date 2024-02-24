@@ -42,6 +42,8 @@ import PictureIcon from "Assets/icons/image";
 import TwitterIcon from "Assets/icons/X logo.svg";
 import WhatsAppIcon from "Assets/icons/whatsapp";
 import CopyIcon from "Assets/icons/copy";
+import ClockIcon from "Assets/icons/clock.svg";
+import Countdown from "Components/common/Countdown";
 
 const iframePermissions = {
   allow: [
@@ -273,6 +275,12 @@ const NFTActiveMediaActions = observer(({nftInfo, mediaItem, showFullscreen, set
 });
 
 const NFTActiveMediaContent = observer(({nftInfo, mediaItem, showFullscreen, setShowFullscreen, SetVideoElement}) => {
+  const liveInfo = LiveMediaInfo(mediaItem);
+  const [isAvailable, setIsAvailable] = useState(
+    mediaItem.mediaInfo.mediaType !== "live video" ||
+    liveInfo?.started
+  );
+
   const [error, setError] = useState(false);
   const targetRef = useRef();
 
@@ -287,7 +295,7 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, showFullscreen, set
       });
     }
 
-    if(!targetRef || !targetRef.current) { return; }
+    if(!isAvailable || !targetRef || !targetRef.current) { return; }
 
     // eslint-disable-next-line no-async-promise-executor
     const playerPromise = new Promise(resolve =>
@@ -331,7 +339,7 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, showFullscreen, set
         console.log(error);
       }
     };
-  }, [targetRef]);
+  }, [targetRef, isAvailable]);
 
   useEffect(() => {
     const UpdateFullscreen =  () => setShowFullscreen(!!document.fullscreenElement);
@@ -341,6 +349,29 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, showFullscreen, set
     return () => document.removeEventListener("fullscreenchange", UpdateFullscreen);
   }, []);
 
+  if(!liveInfo.started || !isAvailable) {
+    return (
+      <div className="nft-media__content__target nft-media__content__target--error">
+        <ImageIcon icon={ClockIcon} className="nft-media__content__target__error-icon" />
+        <ImageIcon icon={mediaItem.mediaInfo.imageUrl} className="nft-media__content__target__error-image" />
+        <div className="nft-media__content__target__error-cover" />
+        <div className="nft-media__content__target__error-message">
+          { rootStore.l10n.item_details.additional_media.errors.not_started }
+        </div>
+        {
+          liveInfo.started ? null :
+            <Countdown
+              time={liveInfo.startTime}
+              showSeconds
+              OnEnded={() => setIsAvailable(true)}
+              className="marketplace__countdown nft-media__content__target__countdown"
+            />
+        }
+      </div>
+    );
+  }
+
+
   if(error) {
     return (
       <div className="nft-media__content__target nft-media__content__target--error">
@@ -348,7 +379,12 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, showFullscreen, set
         <ImageIcon icon={mediaItem.mediaInfo.imageUrl} className="nft-media__content__target__error-image" />
         <div className="nft-media__content__target__error-cover" />
         <div className="nft-media__content__target__error-message">
-          { error?.permission_message || rootStore.l10n.item_details.additional_media.errors.default }
+          {
+            error?.permission_message ||
+            liveInfo.ended ?
+              rootStore.l10n.item_details.additional_media.errors.ended :
+              rootStore.l10n.item_details.additional_media.errors.default
+          }
         </div>
       </div>
     );

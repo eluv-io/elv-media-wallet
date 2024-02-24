@@ -509,40 +509,46 @@ class CryptoStore {
   });
 
   PhantomBalance = flow(function * () {
-    const { PublicKey } = yield import("@solana/web3.js");
-
-    let publicKey = Object.keys(this.connectedAccounts.sol)[0];
-
-    if(!publicKey) {
-      this.phantomBalance = 0;
-      this.phantomUSDCBalance = 0;
-      return;
-    }
-
-    publicKey = new PublicKey(publicKey);
-
-    let token;
-    if(this.rootStore.client.networkName === "main") {
-      token = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
-    } else {
-      token = new PublicKey("8uZyvyKSAxgRLMCxdrcRCppYEgokH2xBLrXshL6wCzJ4");
-    }
-
-    const connection = yield this.SolanaConnection();
-
-    this.phantomBalance = yield connection.getBalance(publicKey, "confirmed");
-
     try {
-      const tokenBalances = yield connection.getTokenAccountsByOwner(publicKey, {mint: token}, "confirmed");
-      const tokenKey = tokenBalances.value[0].pubkey;
-      this.phantomUSDCBalance = (yield connection.getTokenAccountBalance(tokenKey, "confirmed")).value.uiAmount;
-    // eslint-disable-next-line no-empty
-    } catch(error) {}
+      const {PublicKey} = yield import("@solana/web3.js");
 
-    return {
-      sol: this.phantomBalance,
-      usdc: this.phantomUSDCBalance
-    };
+      let publicKey = Object.keys(this.connectedAccounts.sol)[0];
+
+      if(!publicKey) {
+        this.phantomBalance = 0;
+        this.phantomUSDCBalance = 0;
+        return;
+      }
+
+      publicKey = new PublicKey(publicKey);
+
+      let token;
+      if(this.rootStore.client.networkName === "main") {
+        token = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+      } else {
+        token = new PublicKey("8uZyvyKSAxgRLMCxdrcRCppYEgokH2xBLrXshL6wCzJ4");
+      }
+
+      const connection = yield this.SolanaConnection();
+
+      this.phantomBalance = yield connection.getBalance(publicKey, "confirmed");
+
+      try {
+        const tokenBalances = yield connection.getTokenAccountsByOwner(publicKey, {mint: token}, "confirmed");
+        const tokenKey = tokenBalances.value[0].pubkey;
+        this.phantomUSDCBalance = (yield connection.getTokenAccountBalance(tokenKey, "confirmed")).value.uiAmount;
+        // eslint-disable-next-line no-empty
+      } catch(error) {
+      }
+
+      return {
+        sol: this.phantomBalance,
+        usdc: this.phantomUSDCBalance
+      };
+    } catch(error) {
+      this.rootStore.Log("Failed to retrieve phantom balance", true);
+      this.rootStore.Log(error, true);
+    }
   });
 
   PhantomPurchaseStatus = flow(function * (confirmationId) {
