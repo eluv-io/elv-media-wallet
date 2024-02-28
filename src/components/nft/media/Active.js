@@ -349,7 +349,7 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, showFullscreen, set
     return () => document.removeEventListener("fullscreenchange", UpdateFullscreen);
   }, []);
 
-  if(!liveInfo.started) {
+  if(!isAvailable && !liveInfo.started) {
     return (
       <div className="nft-media__content__target nft-media__content__target--error">
         <ImageIcon icon={ClockIcon} className="nft-media__content__target__error-icon" />
