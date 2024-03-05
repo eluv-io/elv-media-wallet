@@ -35,6 +35,12 @@ import Notifications from "Components/header/NotificationsMenu";
 import CodeRedemption from "Components/marketplace/CodeRedemption";
 import UserGifts from "Components/user/UserGifts";
 
+import MediaPropertyPage from "Components/properties/MediaPropertyPage";
+
+const GetProperty = (match) => {
+  return rootStore.mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId});
+};
+
 const GetMarketplace = (match) => {
   return rootStore.marketplaces[match.params.marketplaceId] || {};
 };
@@ -46,6 +52,12 @@ const GetItem = (match) => {
 
 const GetNFT = (match) => {
   return (rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId})).nft || { metadata: {} };
+};
+
+const PropertyRoutes = (basePath="") => {
+  return [
+    { name: match => GetProperty(match)?.metadata?.page_title || rootStore.l10n.media_properties.media_property, path: UrlJoin(basePath, ":mediaPropertySlugOrId/:pageSlugOrId?"), Component: MediaPropertyPage }
+  ].map(route => ({...route, noBlock: true}));
 };
 
 const UserMarketplaceRoutes = () => {
@@ -283,6 +295,13 @@ const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
 
       break;
 
+    case "property":
+      routes = [
+        ...PropertyRoutes()
+      ];
+
+      break;
+
     default:
       throw Error("Invalid route list: " + routeList);
   }
@@ -302,7 +321,7 @@ const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
           if(Wrapper) {
             result = (
               <Wrapper>
-                { result }
+                {result}
               </Wrapper>
             );
           }
@@ -310,7 +329,7 @@ const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
           if(includeUserProfile) {
             result = (
               <UserProfileContainer>
-                { result }
+                {result}
               </UserProfileContainer>
             );
           }
@@ -318,7 +337,7 @@ const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
           if(loadUser) {
             result = (
               <UserRouteWrapper>
-                { result }
+                {result}
               </UserRouteWrapper>
             );
           }

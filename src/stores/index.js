@@ -27,6 +27,7 @@ import CheckoutStore from "Stores/Checkout";
 import TransferStore from "Stores/Transfer";
 import CryptoStore from "Stores/Crypto";
 import NotificationStore from "Stores/Notification";
+import MediaPropertyStore from "Stores/MediaProperty";
 
 import NFTContractABI from "../static/abi/NFTContract";
 import {v4 as UUID} from "uuid";
@@ -227,6 +228,7 @@ class RootStore {
     this.transferStore = new TransferStore(this);
     this.cryptoStore = new CryptoStore(this);
     this.notificationStore = new NotificationStore(this);
+    this.mediaPropertyStore = new MediaPropertyStore(this);
 
     if(this.appUUID) {
       this.SetSessionStorage(`app-uuid-${window.loginOnly}`, this.appUUID);
@@ -2383,6 +2385,7 @@ export const checkoutStore = rootStore.checkoutStore;
 export const transferStore = rootStore.transferStore;
 export const cryptoStore = rootStore.cryptoStore;
 export const notificationStore = rootStore.notificationStore;
+export const mediaPropertyStore = rootStore.mediaPropertyStore;
 
 window.rootStore = rootStore;
 

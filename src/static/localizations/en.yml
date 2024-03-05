@@ -628,3 +628,8 @@ ago:
   minutes: "{minutes} minutes ago"
   second: 1 second ago
   seconds: "{seconds} seconds ago"
+
+
+media_properties:
+  media_properties: Media Properties
+  media_property: Media Property

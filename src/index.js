@@ -23,6 +23,7 @@ import Modal from "Components/common/Modal";
 import Flows from "Components/interface/Flows";
 import Actions from "Components/interface/Actions";
 import {SearchParams, SetImageUrlDimensions} from "./utils/Utils";
+import PropertyRoutes from "Components/properties";
 
 const searchParams = SearchParams();
 
@@ -140,6 +141,11 @@ const Routes = observer(() => {
             <Route path="/marketplace">
               <Suspense fallback={<PageLoader />}>
                 <MarketplaceRoutes />
+              </Suspense>
+            </Route>
+            <Route path="/properties">
+              <Suspense fallback={<PageLoader />}>
+                <PropertyRoutes />
               </Suspense>
             </Route>
             <Route path="/profile">

@@ -1,0 +1,114 @@
+.page {
+  display: flex;
+  background-color: black;
+  height: max-content;
+}
+
+.page-background {
+  &__image,
+  &__gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    max-height: 100vh;
+    object-position: center;
+    object-fit: cover;
+  }
+
+  &__gradient {
+    background: linear-gradient(rgba(0, 0, 0, 0.35) 80%, black);
+  }
+}
+
+.page-header {
+  width: 100vw;
+  min-height: 75vh;
+  position: relative;
+
+  &__content {
+    position: relative;
+    z-index: 1;
+    max-width: 800px;
+    width: 100%;
+    min-height: 100%;
+    height: max-content;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 150px;
+
+    /* Only apply page content position if wide enough */
+    @media screen and (min-width: 801px) {
+      &--left {
+        padding-right: 0;
+      }
+
+      &--right {
+        position: absolute;
+        right: 0;
+        padding-left: 0;
+
+        .page-header__logo {
+          align-self: flex-end;
+        }
+      }
+
+      &--center {
+        margin: 0 auto;
+        align-items: center;
+        padding-inline: 75px;
+
+        .page-header__logo {
+          align-self: center;
+        }
+      }
+    }
+  }
+
+  &__logo {
+    max-width: 100%;
+    max-height: 400px;
+    align-self: flex-start;
+
+    & + * {
+      margin-top: 30px;
+    }
+  }
+
+  &__title {
+    margin-bottom: 10px;
+    width: 100%;
+  }
+
+  @media screen and (max-width: 1200px) {
+    &__content {
+      padding: 75px;
+    }
+  }
+
+  @media screen and (max-width: 800px) {
+    &__content {
+      align-items: center;
+      padding: 20px;
+    }
+
+    &__logo {
+      align-self: center;
+      max-height: 300px;
+      max-width: 300px;
+      padding-inline: 25px;
+    }
+
+    &__title {
+      text-align: center;
+    }
+
+    &__description {
+      * {
+        text-align: center;
+      }
+    }
+  }
+}
