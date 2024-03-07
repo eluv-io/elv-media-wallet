@@ -28,6 +28,10 @@ export const ScaledText = observer(({
   maxPxMobile=32,
   ...props
 }) => {
+  children = children.toString();
+  minPxMobile = Math.min(minPx, minPxMobile);
+  maxPxMobile = Math.min(maxPx, maxPxMobile);
+
   if(rootStore.pageWidth < 800) {
     minPx = minPxMobile;
     maxPx = maxPxMobile;
@@ -40,7 +44,7 @@ export const ScaledText = observer(({
     setElementWidth(ref?.current.getBoundingClientRect().width || 100);
   }, [ref, rootStore.pageWidth]);
 
-  const pxPerChar = elementWidth * 2 / children.length;
+  const pxPerChar = elementWidth * 1.5 / children.length;
   const fontSize = `${Math.min(maxPx, Math.max(minPx, pxPerChar))}px`;
 
   return (

@@ -1,0 +1,125 @@
+.section {
+  --max-card-width: 410px;
+  font-size: 16px;
+
+  &__title {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+  }
+
+  &__content--grid {
+    display: flex;
+    flex-wrap: wrap;
+    //display: grid;
+    //grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 25px;
+  }
+
+  &__content--portrait {
+    --max-card-width: calc(300px / 0.375);
+  }
+
+  &__content--square {
+    --max-card-width: calc(300px / 0.5625);
+  }
+}
+
+.section-card {
+  flex: 1 1 100%;
+  max-width: var(--max-card-width);
+
+  &__image-container {
+    background: linear-gradient(65deg, #555, transparent, #333);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  &__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  &--landscape {
+    .section-card__image-container {
+      aspect-ratio: 16/9;
+    }
+  }
+
+  &--square {
+    max-width: calc(var(--max-card-width) * 0.5625);
+
+    .section-card__image-container {
+      aspect-ratio: 1;
+    }
+  }
+
+  &--portrait {
+    max-width: calc(var(--max-card-width) * 0.375);
+
+    .section-card__image-container {
+      aspect-ratio: 2/3;
+    }
+
+    .section-card__indicator {
+      font-size: 12px;
+    }
+  }
+
+  &__indicator {
+    position: absolute;
+    z-index: 2;
+    bottom: 15px;
+    right: 15px;
+    text-align: center;
+    user-select: none;
+  }
+
+  &__live-indicator {
+    padding: 3px 8px;
+    border-radius: 5px;
+    background-color: #F00;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  &__upcoming-indicator {
+    background: rgba(39, 39, 39, 0.8);
+    border-radius: 5px;
+    padding: 5px 10px;
+  }
+
+  &__text {
+    margin-top: 10px;
+  }
+
+  &__headers {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    color: #A5A6A8;
+    font-size: 14px;
+    height: 20px;
+  }
+
+  &__title,
+  &__subtitle {
+    display: block;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  &__title {
+    height: 30px;
+  }
+
+  &__subtitle {
+    color: #818590;
+    height: 20px;
+  }
+}

@@ -6,6 +6,7 @@ import {Redirect, useRouteMatch} from "react-router-dom";
 import PageStyles from "Assets/stylesheets/media_properties/property-page.module.scss";
 import {SetImageUrlDimensions} from "../../utils/Utils";
 import {Description, ScaledText} from "Components/properties/Common";
+import MediaPropertySection from "Components/properties/MediaPropertySection";
 
 const S = (...classes) => classes.map(c => PageStyles[c] || "").join(" ");
 
@@ -73,9 +74,19 @@ const MediaPropertyPage = observer(() => {
   }
 
   return (
-    <div className={PageStyles["page"]}>
+    <div className={S("page")}>
       <PageBackground page={page} />
       <PageHeader page={page} />
+      <div className={S("page-sections")}>
+        {
+          page.layout.sections.map(sectionId =>
+            <MediaPropertySection
+              key={`section-${sectionId}`}
+              sectionId={sectionId}
+            />
+          )
+        }
+      </div>
     </div>
   );
 });
