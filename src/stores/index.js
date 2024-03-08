@@ -204,6 +204,31 @@ class RootStore {
     return this.allMarketplaces.find(marketplace => marketplace.tenant_id === tenantId);
   }
 
+  error(...args) {
+    if(typeof args[0] === "string") {
+      args[0] = `Eluvio Media Wallet | ${args[0]}`;
+    }
+    // eslint-disable-next-line no-console
+    console.error(...args);
+  }
+
+  warn(...args) {
+    if(typeof args[0] === "string") {
+      args[0] = `Eluvio Media Wallet | ${args[0]}`;
+    }
+    // eslint-disable-next-line no-console
+    console.warn(...args);
+  }
+
+  log(...args) {
+    if(typeof args[0] === "string") {
+      args[0] = `Eluvio Media Wallet | ${args[0]}`;
+    }
+
+    // eslint-disable-next-line no-console
+    console.log(...args);
+  }
+
   Log(message="", error=false) {
     // eslint-disable-next-line no-console
     const logMethod = error === "warn" ? console.warn : error ? console.error : console.log;
@@ -452,6 +477,7 @@ class RootStore {
     return this.walletClient.UserAddress();
   }
 
+  // HERE's ORY
   AuthenticateOry = flow(function * ({userData}={}) {
     try {
       const response = yield this.oryClient.toSession({tokenizeAs: EluvioConfiguration.ory_configuration.jwt_template});
@@ -1250,6 +1276,40 @@ class RootStore {
 
     return purchaseableItems;
   }
+
+  EntitlementClaim = flow(function * ({entitlementSignature, userInfo}) {
+    rootStore.log("EntitlementClaim", entitlementSignature, userInfo);
+    const decode = yield DecodeSignedMessageJSON({signedMessage: entitlementSignature});
+    decode?.obj && rootStore.log("EntitlementClaim obj: " + JSON.stringify(decode.obj));
+    const {tenant_id, marketplace_id, items, user, purchase_id} = decode?.obj;
+    const sku = items && items.length > 1 && items[0].sku;
+
+    const tok = this.walletClient.AuthToken();
+    const url = this.walletClient.network === "main"
+      ? `"https://host-76-74-28-232.contentfabric.io/as/wlt/act/${tenant_id}`
+      : `https://host-76-74-28-227.contentfabric.io/as/wlt/act/${tenant_id}`;
+    const options = {
+      method: "POST",
+      headers: {"Authorization": "Bearer " + tok},
+      body: JSON.stringify({"op":"nft-claim-entitlement", "signature": entitlementSignature}),
+    };
+    rootStore.log("goToWallet options", options);
+
+    let resp = "";
+    yield fetch(url, options)
+      .then(response => response.json())
+      .then(data => {
+        rootStore.log("Ok:", data);
+        resp = JSON.stringify(data);
+      })
+      .catch(error => {
+        rootStore.error("Error:", error);
+        resp = JSON.stringify(error);
+      });
+
+    rootStore.log("goToWallet resp", resp);
+    return resp;
+  });
 
   GenerateOfferCodeData = flow(function * ({nftInfo, offer}) {
     const key = `offer-code-data-${nftInfo.nft.details.ContractAddr}-${nftInfo.nft.details.TokenIdStr}-${offer.offer_id}`;
@@ -2386,3 +2446,27 @@ export const notificationStore = rootStore.notificationStore;
 
 window.rootStore = rootStore;
 
+// Decode a signed JSON message
+const DecodeSignedMessageJSON = async ({
+  signedMessage
+}) => {
+  const type = signedMessage.slice(0,4);
+  let res = {};
+  switch(type) {
+    case "mje_":
+      const msgBytes = Utils.FromB58(signedMessage.slice(4));
+      const signature = msgBytes.slice(0, 65);
+      const msg = msgBytes.slice(65);
+      const obj = JSON.parse(msg);
+      res = {
+        type: type,
+        obj: obj,
+        signature: "0x" + signature.toString("hex")
+      };
+      break;
+    default:
+      throw new Error(`Bad message type: ${type}`);
+  }
+
+  return res;
+};
