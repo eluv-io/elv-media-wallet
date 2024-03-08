@@ -1288,8 +1288,8 @@ class RootStore {
     // don't do this, is undefined: const url = this.walletClient.authServiceURIs[0] + "/as/wlt/act/" + tenant_id;
     //rootStore.log("EntitlementClaim authServiceURIs", this.walletClient.authServiceURIs);
     const url = this.walletClient.network === "main"
-      ? "https://host-76-74-28-232.contentfabric.io/as/wlt/act/${tenant_id}"
-      : "https://host-76-74-28-227.contentfabric.io/as/wlt/act/${tenant_id}";
+      ? "https://host-76-74-28-232.contentfabric.io/as/wlt/act/" + tenant_id
+      : "https://host-76-74-28-227.contentfabric.io/as/wlt/act/" + tenant_id;
     rootStore.log("EntitlementClaim url", url);
     const options = {
       method: "POST",
