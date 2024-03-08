@@ -178,7 +178,8 @@ class MediaPropertyStore {
           use_media_settings: true,
           display: {}
         })
-      );
+      )
+      .sort((a, b) => a.display.catalog_title > b.display.catalog_title ? -1 : 1);
   });
 
   LoadMediaProperty = flow(function * ({mediaPropertySlugOrId, force=false}) {

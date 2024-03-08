@@ -314,7 +314,7 @@ const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
         routes.map(({path, exact, authed, loadUser, includeUserProfile, ignoreLoginCapture, Component}) => {
           let result = (
             <GlobalWrapper routes={[...routes]}>
-              { Component ? <Component key={`component-${path}`} /> : null }
+              { Component ? <Component key={`component-${path}-${location.pathname}`} /> : null }
             </GlobalWrapper>
           );
 

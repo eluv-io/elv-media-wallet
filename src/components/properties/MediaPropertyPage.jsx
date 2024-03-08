@@ -5,7 +5,7 @@ import {Redirect, useRouteMatch} from "react-router-dom";
 
 import PageStyles from "Assets/stylesheets/media_properties/property-page.module.scss";
 import {SetImageUrlDimensions} from "../../utils/Utils";
-import {Description, ScaledText} from "Components/properties/Common";
+import {Description, LazyImage, ScaledText} from "Components/properties/Common";
 import MediaPropertySection from "Components/properties/MediaPropertySection";
 
 const S = (...classes) => classes.map(c => PageStyles[c] || "").join(" ");
@@ -18,7 +18,9 @@ const PageHeader = observer(({page}) => {
       <div className={S("page-header__content", `page-header__content--${layout.position?.toLowerCase() || "left"}`)}>
         {
           !layout.logo?.url ? null :
-            <img
+            <LazyImage
+              loaderHeight={200}
+              loaderWidth={400}
               alt={layout.logo_alt || page.title || "Logo"}
               src={SetImageUrlDimensions({url: layout.logo.url, width: 1000})}
               className={PageStyles["page-header__logo"]}
@@ -53,8 +55,10 @@ const PageBackground = observer(({page}) => {
   return (
     !backgroundImage ? null :
       <>
-        <img
+        <LazyImage
           alt="Background Image"
+          loaderWidth="100%"
+          loaderHeight="100vh"
           src={SetImageUrlDimensions({url: backgroundImage, width: backgroundImageScale})}
           className={S("page-background__image")}
         />

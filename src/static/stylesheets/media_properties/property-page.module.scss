@@ -3,14 +3,10 @@
   height: max-content;
   min-height: 100vh;
   max-width: 100%;
-  padding: 75px;
-
-  @media screen and (max-width: 1200px) {
-    padding: 75px;
-  }
+  padding: 75px 75px 300px;
 
   @media screen and (max-width: 800px) {
-    padding: 20px;
+    padding: 20px 20px 300px;
   }
 }
 
@@ -111,4 +107,5 @@
   position: relative;
   display: grid;
   gap: 50px;
+  width: 100%;
 }

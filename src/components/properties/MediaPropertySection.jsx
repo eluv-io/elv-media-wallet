@@ -1,79 +1,104 @@
+import SectionStyles from "Assets/stylesheets/media_properties/property-section.module.scss";
+
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {useRouteMatch} from "react-router-dom";
-import {mediaPropertyStore} from "Stores";
-import SectionStyles from "Assets/stylesheets/media_properties/property-section.module.scss";
-import {SetImageUrlDimensions} from "../../utils/Utils";
-import {ScaledText} from "Components/properties/Common";
-import {MediaItemScheduleInfo} from "../../utils/MediaPropertyUtils";
+import {mediaPropertyStore, rootStore} from "Stores";
+import SectionCard from "Components/properties/MediaPropertySectionCard";
+
+import SwiperCore, {Lazy} from "swiper";
+import {Swiper, SwiperSlide} from "swiper/react";
+SwiperCore.use([Lazy]);
+
+import RightArrow from "Assets/icons/right-arrow";
+import LeftArrow from "Assets/icons/left-arrow";
+import ImageIcon from "Components/common/ImageIcon";
+
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 
-const SectionCard = observer(({sectionItem, aspectRatio, textDisplay="title"}) => {
-  if(!sectionItem.display) {
-    mediaPropertyStore.Log("Invalid section item", true);
-    mediaPropertyStore.Log(sectionItem);
-    return null;
-  }
+const SectionContentCarousel = observer(({section, sectionContent}) => {
+  const [swiper, setSwiper] = useState(undefined);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [imageDimensions, setImageDimensions] = useState({width: 400, height: 400});
+  const slidesPerPage =
+    // If aspect ratio is consistent, we can have arrows navigate an exact page at a time
+    section.display.aspect_ratio ?
+      Math.floor((swiper?.width || rootStore.pageWidth - 200) / imageDimensions.width) :
+      rootStore.pageWidth > 1400 ? 3 : rootStore.pageWidth > 1000 ? 2 : 1;
 
-  aspectRatio = aspectRatio?.toLowerCase() || "";
-
-  const aspectRatioPreference =
-    (sectionItem.mediaItem?.type === "media" && sectionItem.mediaItem.media_type === "Video") ?
-      ["landscape", "square", "portrait"] :
-      ["square", "landscape", "portrait"];
-
-  const imageAspectRatio =
-    [aspectRatio, ...aspectRatioPreference].find(ratio => sectionItem.display[`thumbnail_image_${ratio}`]);
-  const imageUrl = SetImageUrlDimensions({url: sectionItem.display[`thumbnail_image_${imageAspectRatio}`]?.url, width: 600});
-
-  const scheduleInfo = MediaItemScheduleInfo(sectionItem.mediaItem);
+  window.swiper = swiper;
 
   return (
-    <div className={S("section-card", `section-card--${aspectRatio || imageAspectRatio}`)}>
-      <div className={S("section-card__image-container")}>
-        { !imageUrl ? null : <img src={imageUrl} alt={sectionItem.display.title} className={S("section-card__image")} /> }
-        {
-          // Schedule indicator
-          !scheduleInfo.isLiveContent || scheduleInfo.ended ? null :
-            scheduleInfo.currentlyLive ?
-              <div className={S("section-card__indicator", "section-card__live-indicator")}>
-                { mediaPropertyStore.rootStore.l10n.media_properties.media.live }
-              </div> :
-              <div className={S("section-card__indicator", "section-card__upcoming-indicator")}>
-                <div>{ mediaPropertyStore.rootStore.l10n.media_properties.media.upcoming}</div>
-                <div>{ scheduleInfo.displayStartDate } at { scheduleInfo.displayStartTime }</div>
-              </div>
-        }
-      </div>
+    <Swiper
+      className={S("section__content", "section__content--carousel", `section__content--${section.display.aspect_ratio?.toLowerCase()}`)}
+      threshold={5}
+      navigation={false}
+      slidesPerView="auto"
+      slidesPerGroup={1}
+      lazy={{
+        enabled: true,
+        loadPrevNext: true,
+        loadOnTransitionStart: true
+      }}
+      observer
+      observeParents
+      speed={1000}
+      parallax
+      updateOnWindowResize
+      spaceBetween={rootStore.pageWidth > 800 ? 20 : 10}
+      onSwiper={swiper => {
+        setActiveIndex(swiper.activeIndex);
+        setSwiper(swiper);
+        swiper.on("activeIndexChange", () => setActiveIndex(swiper.activeIndex));
+      }}
+    >
+      <button
+        disabled={activeIndex === 0}
+        style={{height: imageDimensions.height + 10}}
+        onClick={() => swiper?.slideTo(Math.max(0, swiper.activeIndex - slidesPerPage))}
+        className={S("section__carousel-arrow", "section__carousel-arrow--previous")}
+      >
+        <div className={S("section__carousel-arrow-background")} />
+        <ImageIcon label="Previous Page" icon={LeftArrow} />
+      </button>
       {
-        // Text
-        textDisplay === "none" ? null :
-          <div className={S("section-card__text")}>
-            { textDisplay !== "all" || (sectionItem.display.headers || []).length === 0 ? null :
-              <div className={S("section-card__headers")}>
-                { sectionItem.display.headers?.map(header =>
-                  <div className={S("section-card__header")}>
-                    <div className={S("section-card__headers")}>
-                      {header}
-                    </div>
-                  </div>
-                )}
-              </div>
-            }
-            {
-              !sectionItem.display.title ? null :
-                <ScaledText Tag="h3" maxPx={20} minPx={12} className={S("section-card__title")}>
-                  { sectionItem.display.title }
-                </ScaledText>
-            }
-            {
-              !["all", "titles"].includes(textDisplay) || !sectionItem.display.subtitle ? null :
-                <ScaledText maxPx={18} minPx={12} className={S("section-card__subtitle")}>
-                  { sectionItem.display.subtitle }
-                </ScaledText>
-            }
-          </div>
+        sectionContent.map((sectionItem, index) =>
+          <SwiperSlide key={`section-slide-${sectionItem.id}`} className={S("section-card-slide", "section-card")}>
+            <SectionCard
+              setImageDimensions={index === 0 && setImageDimensions}
+              sectionItem={sectionItem}
+              textDisplay={section.display.content_display_text}
+              aspectRatio={section.display.aspect_ratio}
+            />
+          </SwiperSlide>
+        )
+      }
+      <button
+        disabled={activeIndex + slidesPerPage >= sectionContent.length - 1}
+        style={{height: imageDimensions.height + 10}}
+        onClick={() => swiper?.slideTo(Math.min(sectionContent.length - 1, swiper.activeIndex + slidesPerPage))}
+        className={S("section__carousel-arrow", "section__carousel-arrow--next")}
+      >
+        <div className={S("section__carousel-arrow-background")} />
+        <ImageIcon label="Next Page" icon={RightArrow} />
+      </button>
+    </Swiper>
+  );
+});
+
+const SectionContentGrid = observer(({section, sectionContent}) => {
+  return (
+    <div className={S("section__content", "section__content--grid", `section__content--${section.display.aspect_ratio?.toLowerCase()}`)}>
+      {
+        sectionContent.map(sectionItem =>
+          <SectionCard
+            key={`section-item-${sectionItem.id}`}
+            sectionItem={sectionItem}
+            textDisplay={section.display.content_display_text}
+            aspectRatio={section.display.aspect_ratio}
+          />
+        )
       }
     </div>
   );
@@ -98,24 +123,23 @@ const MediaPropertySection = observer(({sectionId}) => {
     return null;
   }
 
+  let ContentComponent;
+  switch(section.display.display_format?.toLowerCase()) {
+    case "carousel":
+      ContentComponent = SectionContentCarousel;
+      break;
+    default:
+      ContentComponent = SectionContentGrid;
+      break;
+  }
+
   return (
     <div className={S("section")}>
       {
         !section.display.title ? null :
           <h2 className={S("section__title")}>{section.display.title}</h2>
       }
-      <div className={S("section__content", "section__content--grid", `section__content--${section.display.aspect_ratio?.toLowerCase()}`)}>
-        {
-          sectionContent.map(sectionItem =>
-            <SectionCard
-              key={`section-item-${sectionItem.id}`}
-              sectionItem={sectionItem}
-              textDisplay={section.display.content_display_text}
-              aspectRatio={section.display.aspect_ratio}
-            />
-          )
-        }
-      </div>
+      <ContentComponent section={section} sectionContent={sectionContent} />
     </div>
   );
 });
