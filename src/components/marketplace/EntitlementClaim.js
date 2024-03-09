@@ -36,9 +36,10 @@ const EntitlementClaim = observer(() => {
       });
   }, [rootStore.loggedIn]);
 
-  // if(redeemed) {
-  //   return <Redirect to={UrlJoin(location.pathname, "status")}  />;
-  // }
+  if(redeemed) {
+    const newPath = location.pathname.replace(signature, "");
+    return <Redirect to={UrlJoin(newPath, "status")}  />;
+  }
 
   return (
     <LoginGate loader={<PageLoader />}>
