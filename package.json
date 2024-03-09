@@ -32,9 +32,9 @@
     "crypto": false,
     "stream": false
   },
+  "//": "@eluvio/elv-client-js:file://Users/todd/git/elv-client-js",
   "dependencies": {
     "@eluvio/crypto": "^1.1.1",
-    "//": "@eluvio/elv-client-js:file://Users/todd/git/elv-client-js",
     "@eluvio/elv-client-js": "github:eluv-io/elv-client-js#add-entitlement-to-media-wallet",
     "@eluvio/elv-embed": "git+https://github.com/eluv-io/elv-embed.git",
     "@eluvio/elv-paymentgate": "^1.0.0",
