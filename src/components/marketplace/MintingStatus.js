@@ -795,7 +795,7 @@ export const EntitlementMintingStatus = observer(() => {
     );
   }
 
-  let items = status.extra.filter(item => item.token_addr && (item.token_id || item.token_id_str));
+  let items = status.extra?.filter(item => item.token_addr && (item.token_id || item.token_id_str));
 
   return (
     <MintResults
