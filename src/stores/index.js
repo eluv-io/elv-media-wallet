@@ -426,11 +426,14 @@ class RootStore {
         noAuth: true
       });
 
+      let parsed;
       try {
         const auth = searchParams.get("auth");
-
+        // XXX this is a big hack
         if(auth) {
-          this.SetAuthInfo(JSON.parse(Utils.FromB64(auth)));
+          parsed = JSON.parse(Utils.FromB64(auth));
+          rootStore.log("Auth from parameter", parsed);
+          //this.SetAuthInfo(parsed);
         }
       } catch(error) {
         this.Log("Failed to load auth from parameter", true);
@@ -438,9 +441,20 @@ class RootStore {
       }
 
       if(!this.inFlow) {
-        if(this.AuthInfo()) {
+        //if(this.AuthInfo()) {
+        if(parsed) {
           this.Log("Authenticating from saved session");
-          yield this.Authenticate(this.AuthInfo());
+          //yield this.Authenticate(this.AuthInfo());
+
+          yield this.Authenticate({
+            idToken: parsed.idToken,
+            signerURIs: ["https://wlt.stg.svc.eluv.io"],
+            user: {
+              name: parsed.user,
+              verified: true,
+            }
+          });
+
         } else if(this.auth0) {
           // Attempt to re-auth with auth0. If 'code' is present in URL params, we are returning from Auth0 callback, let the login component handle it
           yield this.AuthenticateAuth0({});
@@ -477,13 +491,14 @@ class RootStore {
     return this.walletClient.UserAddress();
   }
 
-  // XXX HERE's ORY
   AuthenticateOry = flow(function * ({userData}={}) {
+    rootStore.log("Authenticating with Ory", "userData", "userData");
     try {
       const response = yield this.oryClient.toSession({tokenizeAs: EluvioConfiguration.ory_configuration.jwt_template});
       const email = response.data.identity.traits.email;
       const jwtToken = response.data.tokenized;
 
+      rootStore.log("Ory response", response.data, jwtToken, email);
       yield this.Authenticate({
         idToken: jwtToken,
         // TODO: Change
@@ -2195,7 +2210,10 @@ class RootStore {
   }
 
   SetAuthInfo({clientAuthToken, clientSigningToken, save=true}) {
-    const { expiresAt } = JSON.parse(Utils.FromB58(clientAuthToken));
+    // const parsed = JSON.parse(Utils.FromB58(clientAuthToken));
+    // rootStore.log("SetAuthInfo parsed", parsed);
+    // const { expiresAt } = parsed;
+    const expiresAt = Date.now() + (24 * 60 * 60 * 1000);
 
     const authInfo = {
       clientSigningToken,
