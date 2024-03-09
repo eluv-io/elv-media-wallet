@@ -1,17 +1,10 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {Link, Redirect, useRouteMatch} from "react-router-dom";
-import {checkoutStore, rootStore} from "Stores";
+import { Redirect, useRouteMatch} from "react-router-dom";
+import { rootStore} from "Stores";
 import UrlJoin from "url-join";
-import ImageIcon from "Components/common/ImageIcon";
 
 import {PageLoader} from "Components/common/Loaders";
-import {ButtonWithLoader, LocalizeString} from "Components/common/UIComponents";
-import ListingIcon from "Assets/icons/listings icon";
-
-import BackIcon from "Assets/icons/arrow-left";
-import Confirm from "Components/common/Confirm";
-import NFTCard from "Components/nft/NFTCard";
 import {LoginGate} from "Components/common/LoginGate";
 
 const EntitlementClaim = observer(() => {
