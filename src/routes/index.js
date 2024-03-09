@@ -12,7 +12,7 @@ import {
   DropMintingStatus,
   PackOpenStatus,
   PurchaseMintingStatus,
-  DepositStatus, GiftRedemptionStatus, GiftPurchaseMintingStatus,
+  DepositStatus, GiftRedemptionStatus, GiftPurchaseMintingStatus, EntitlementMintingStatus,
 } from "Components/marketplace/MintingStatus";
 import UserListings from "Components/user/UserListings";
 import UserItems from "Components/user/UserItems";
@@ -124,7 +124,9 @@ const MarketplaceRoutes = () => {
     { name: "Redeem Collection", path: "collections/:collectionSKU/redeem", Component: MarketplaceCollectionRedemption },
     { name: "Redeem Collection", path: "collections/:collectionSKU/redeem/:confirmationId/status", Component: CollectionRedeemStatus },
 
+    // XXX rename to store/:sku/entitle/:signature
     { name: "Redeem Entitlement", path: "store/:sku/claim/:signature", Component: EntitlementClaim },
+    { name: "Redeem Entitlement", path: "store/:sku/entitle/status/:purchaseId", Component: EntitlementMintingStatus },
 
     ...TokenRoutes("collections/:collectionSKU/owned"),
 

@@ -1318,7 +1318,8 @@ class RootStore {
       .then(response => response.json())
       .then(data => {
         rootStore.log("Ok:", data);
-        resp = JSON.stringify(data);
+        // get 123 from "nft-claim-entitlement:iq__D3N77Nw1ATwZvasBNnjAQWeVLWV:5MmuT4t6RoJtrT9h1yTnos:123:dup_8tTXKSML"
+        resp = data.op?.split(":")[3];
       })
       .catch(error => {
         rootStore.error("Error:", error);
@@ -1396,6 +1397,10 @@ class RootStore {
 
   ClaimStatus = flow(function * ({marketplaceId, sku}) {
     return yield this.walletClient.ClaimStatus({marketplaceParams: { marketplaceId }, sku});
+  });
+
+  EntitlementClaimStatus = flow(function * ({marketplaceId, purchaseId}) {
+    return yield this.walletClient.EntitlementClaimStatus({marketplaceParams: { marketplaceId }, purchaseId});
   });
 
   GiftClaimStatus = flow(function * ({marketplaceId, confirmationId}) {
