@@ -801,7 +801,7 @@ export const EntitlementMintingStatus = observer(() => {
     <MintResults
       skipReveal={marketplace?.storefront?.skip_reveal}
       header={rootStore.l10n.status.minting.success_header}
-      subheader={rootStore.l10n.status.minting[items.length === 1 ? "received_item_single" : "received_item_multiple"]}
+      subheader={rootStore.l10n.status.minting["received_item_single"]}
       items={items}
       basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
       nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items")}

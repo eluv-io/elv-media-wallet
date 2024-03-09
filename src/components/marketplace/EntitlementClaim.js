@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import { Redirect, useRouteMatch} from "react-router-dom";
-import { rootStore} from "Stores";
+import { rootStore } from "Stores";
 import UrlJoin from "url-join";
 
 import {PageLoader} from "Components/common/Loaders";
