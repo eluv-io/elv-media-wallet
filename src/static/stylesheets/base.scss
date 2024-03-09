@@ -57,6 +57,10 @@ button,
   }
 }
 
+img {
+  font-size: 0;
+}
+
 div {
   &[role="button"] {
     &:focus-visible {

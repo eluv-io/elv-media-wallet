@@ -633,6 +633,8 @@ ago:
 media_properties:
   media_properties: Media Properties
   media_property: Media Property
+  sections:
+    view_all: View All
   media:
     live: Live
     upcoming: UPCOMING

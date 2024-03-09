@@ -30,6 +30,45 @@ class MediaPropertyStore {
     return this.mediaProperties[mediaPropertySlugOrId];
   }
 
+  MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId}) {
+    const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
+
+    const sectionId = mediaProperty.metadata.slug_map.sections[sectionSlugOrId]?.section_id || sectionSlugOrId;
+
+    let section = mediaProperty.metadata.sections[sectionId];
+
+    if(section) {
+      section.mediaPropertyId = mediaProperty.mediaPropertyId;
+      return section;
+    } else if(!section && sectionId.startsWith("mlst")) {
+      // Media list specified - treat as section with expanded list
+      const mediaList = this.media[sectionId];
+
+      if(!mediaList) { return; }
+
+      return {
+        mediaPropertyId: mediaProperty.mediaPropertyId,
+        id: sectionId,
+        label: `Media List ${mediaList.label} as Section`,
+        type: "manual",
+        display: {
+          content_display_text: "titles",
+          display_format: "grid",
+          title: mediaList.title
+        },
+        content: [{
+          label: `Media List ${mediaList.label}`,
+          type: "media",
+          media_id: sectionId,
+          media_type: "list",
+          expand: true,
+          use_media_settings: true,
+          display: {}
+        }]
+      };
+    }
+  }
+
   ResolveSectionItem(sectionItem) {
     // If section item should use media
     let mediaItem;
@@ -46,15 +85,10 @@ class MediaPropertyStore {
     };
   }
 
-  MediaPropertySectionContent = flow(function * ({mediaPropertyId, sectionId}) {
-    const mediaProperty = this.mediaProperties[mediaPropertyId];
-
-    if(!mediaProperty) { return []; }
-
-    const section = mediaProperty.metadata.sections[sectionId];
+  MediaPropertySectionContent = flow(function * ({mediaPropertySlugOrId, sectionSlugOrId}) {
+    const section = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId});
 
     if(!section) { return []; }
-
 
     if(section.type === "manual") {
       // Manual Section
@@ -92,7 +126,7 @@ class MediaPropertyStore {
     // Automatic filter
     let mediaCatalogIds = section.select.media_catalog ?
       [ section.select.media_catalog ] :
-      mediaProperty.metadata.media_catalogs || [];
+      this.MediaProperty({mediaPropertySlugOrId})?.metadata?.media_catalogs || [];
 
     return (
       yield this.FilteredMedia({mediaCatalogIds, select: section.select})

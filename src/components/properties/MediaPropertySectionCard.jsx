@@ -1,4 +1,4 @@
-import SectionStyles from "Assets/stylesheets/media_properties/property-section.module";
+import SectionCardStyles from "Assets/stylesheets/media_properties/property-section-card.module";
 
 import React, {useEffect, useRef} from "react";
 import {observer} from "mobx-react";
@@ -8,7 +8,19 @@ import {LazyImage, ScaledText} from "Components/properties/Common";
 import {NavLink} from "react-router-dom";
 import UrlJoin from "url-join";
 
-const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
+const S = (...classes) => classes.map(c => SectionCardStyles[c] || "").join(" ");
+
+const SectionCardLink = sectionItem => {
+  switch(sectionItem.type) {
+    case "media":
+      if(sectionItem.media_type === "list") {
+        return UrlJoin(location.pathname, "s", sectionItem.media_id);
+      }
+      break;
+  }
+
+  return location.pathname;
+};
 
 const SectionCard = observer(({
   sectionItem,
@@ -44,7 +56,11 @@ const SectionCard = observer(({
   const scheduleInfo = MediaItemScheduleInfo(sectionItem.mediaItem);
 
   return (
-    <NavLink aria-label={sectionItem.display.title} to={UrlJoin(location.pathname, "other-page")} className={S("section-card", `section-card--${aspectRatio || imageAspectRatio}`)}>
+    <NavLink
+      aria-label={sectionItem.display.title}
+      to={SectionCardLink(sectionItem) || ""}
+      className={S("section-card", `section-card--${aspectRatio || imageAspectRatio}`)}
+    >
       <div ref={imageContainerRef} className={S("section-card__image-container")}>
         { !imageUrl ? null :
           <LazyImage

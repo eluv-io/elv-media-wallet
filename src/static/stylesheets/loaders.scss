@@ -12,6 +12,22 @@
   width: 100%;
 }
 
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  animation: spin 1.5s ease infinite;
+  aspect-ratio: 1;
+  border: 6px solid rgba(#FFF, 30%);
+  border-radius: 100%;
+  border-top-color: #FFF;
+  display: inline-block;
+  height: 50px;
+  width: 50px;
+}
+
+
 // Ball spinner
 
 .lds-default {

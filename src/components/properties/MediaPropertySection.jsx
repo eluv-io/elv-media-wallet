@@ -2,9 +2,10 @@ import SectionStyles from "Assets/stylesheets/media_properties/property-section.
 
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {useRouteMatch} from "react-router-dom";
+import {NavLink, Redirect, useRouteMatch} from "react-router-dom";
 import {mediaPropertyStore, rootStore} from "Stores";
 import SectionCard from "Components/properties/MediaPropertySectionCard";
+import UrlJoin from "url-join";
 
 import SwiperCore, {Lazy} from "swiper";
 import {Swiper, SwiperSlide} from "swiper/react";
@@ -13,6 +14,7 @@ SwiperCore.use([Lazy]);
 import RightArrow from "Assets/icons/right-arrow";
 import LeftArrow from "Assets/icons/left-arrow";
 import ImageIcon from "Components/common/ImageIcon";
+import {PageContainer} from "Components/properties/Common";
 
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
@@ -64,7 +66,7 @@ const SectionContentCarousel = observer(({section, sectionContent}) => {
       </button>
       {
         sectionContent.map((sectionItem, index) =>
-          <SwiperSlide key={`section-slide-${sectionItem.id}`} className={S("section-card-slide", "section-card")}>
+          <SwiperSlide key={`section-slide-${sectionItem.id}`} className={S("section-card-slide")}>
             <SectionCard
               setImageDimensions={index === 0 && setImageDimensions}
               sectionItem={sectionItem}
@@ -104,27 +106,30 @@ const SectionContentGrid = observer(({section, sectionContent}) => {
   );
 });
 
-const MediaPropertySection = observer(({sectionId}) => {
+export const MediaPropertySection = observer(({sectionId, isSectionPage}) => {
   const match = useRouteMatch();
-  const mediaProperty = mediaPropertyStore.MediaProperty(match.params);
+  const section = mediaPropertyStore.MediaPropertySection({
+    mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
+    sectionSlugOrId: sectionId || match.params.sectionSlugOrId
+  });
   const [sectionContent, setSectionContent] = useState([]);
 
   useEffect(() => {
+    if(!section) { return; }
+
     mediaPropertyStore.MediaPropertySectionContent({
-      mediaPropertyId: mediaProperty.mediaPropertyId,
-      sectionId
+      mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
+      sectionSlugOrId: sectionId || match.params.sectionSlugOrId
     })
       .then(content => setSectionContent(content));
-  }, [match.params, sectionId]);
-
-  const section = mediaProperty.metadata.sections[sectionId];
+  }, [match.params, section]);
 
   if(!section) {
     return null;
   }
 
   let ContentComponent;
-  switch(section.display.display_format?.toLowerCase()) {
+  switch((isSectionPage && "grid") || section.display.display_format?.toLowerCase()) {
     case "carousel":
       ContentComponent = SectionContentCarousel;
       break;
@@ -133,15 +138,51 @@ const MediaPropertySection = observer(({sectionId}) => {
       break;
   }
 
+  const showAllLink = !isSectionPage && sectionContent.length > parseInt(section.display.display_limit || 10);
+
   return (
     <div className={S("section")}>
       {
-        !section.display.title ? null :
-          <h2 className={S("section__title")}>{section.display.title}</h2>
+        !showAllLink && !section.display.title ? null :
+          <div className={S("section__title-container")}>
+            {
+              !section.display.title ? null :
+                <h2 className={S("section__title")}>
+                  {section.display.title}
+                </h2>
+            }
+            {
+              !showAllLink ? null :
+                <NavLink to={UrlJoin(location.pathname, "s", section.slug || sectionId)} className={S("section__title-link")}>
+                  <div>
+                    { rootStore.l10n.media_properties.sections.view_all }
+                  </div>
+                  <ImageIcon icon={RightArrow} />
+                </NavLink>
+            }
+          </div>
       }
       <ContentComponent section={section} sectionContent={sectionContent} />
     </div>
   );
 });
 
-export default MediaPropertySection;
+const MediaPropertySectionPage = observer(() => {
+  const match = useRouteMatch();
+
+  const section = mediaPropertyStore.MediaPropertySection(match.params);
+
+  const backPath = UrlJoin("/properties", match.params.mediaPropertySlugOrId, match.params.pageSlugOrId || "");
+
+  if(!section) {
+    return <Redirect to={backPath} />;
+  }
+
+  return (
+    <PageContainer backPath={backPath}>
+      <MediaPropertySection sectionId={section.id} isSectionPage />
+    </PageContainer>
+  );
+});
+
+export default MediaPropertySectionPage;

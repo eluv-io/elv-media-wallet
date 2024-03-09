@@ -1,6 +1,6 @@
 import React from "react";
 
-const LoaderComponentDefault = () => {
+const LoaderComponentDefault2 = () => {
   return (
     <div className="lds-default">
       {
@@ -11,6 +11,13 @@ const LoaderComponentDefault = () => {
     </div>
   );
 };
+
+export const LoaderComponentDefault = ({className=""}) => (
+  <div className={`spinner ${className}`}>
+    <div className="spinner-inner" />
+  </div>
+);
+
 
 const InlineLoaderComponent = () => {
   return (
@@ -32,6 +39,8 @@ const LoaderComponent = ({loader}) => {
       return <LoaderComponentDefault />;
   }
 };
+
+
 
 export const PageLoader = ({loader="default"}) => {
   return (

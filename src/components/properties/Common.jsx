@@ -5,8 +5,28 @@ import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import SanitizeHTML from "sanitize-html";
 import {SetImageUrlDimensions} from "../../utils/Utils";
+import {NavLink} from "react-router-dom";
+
+import ArrowLeft from "Assets/icons/arrow-left.svg";
+import ImageIcon from "Components/common/ImageIcon";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
+
+export const PageContainer = ({backPath, children}) => {
+  return (
+    <div className={S("page-container")}>
+      {
+        !backPath ? null :
+          <NavLink to={backPath} className={S("page-container__back-link")}>
+            <ImageIcon icon={ArrowLeft} />
+            <div>Back</div>
+          </NavLink>
+      }
+
+      { children }
+    </div>
+  );
+};
 
 export const RichText = ({richText, baseFontSize=16, ...props}) => {
   return (
@@ -25,6 +45,10 @@ export const RichText = ({richText, baseFontSize=16, ...props}) => {
 export const LazyImage = observer(({src, width, loaderHeight, loaderWidth, ...props}) => {
   const [loaded, setLoaded] = useState(false);
 
+  useEffect(() => {
+    setLoaded(false);
+  }, [src]);
+
   if(width) {
     src = SetImageUrlDimensions({url: src, width});
   }
@@ -35,23 +59,42 @@ export const LazyImage = observer(({src, width, loaderHeight, loaderWidth, ...pr
 
   return (
     <>
+      <img
+        {...props}
+        className={S("lazy-image__loader-image")}
+        loading="lazy"
+        src={src}
+        key={props.key ? `${props.key}--img` : undefined}
+        onLoad={() => setLoaded(true)}
+      />
       <div
         {...props}
         style={{...(props.style || {}), width: loaderWidth, height: loaderHeight}}
         key={props.key ? `${props.key}--placeholder` : undefined}
         className={[S("lazy-image__background"), props.className || ""].join(" ")}
       />
-      <img
-        {...props}
-        loading="lazy"
-        src={src}
-        key={props.key ? `${props.key}--img` : undefined}
-        style={{display: "block", width: 0, height: 0, opacity: 0}}
-        onLoad={() => setLoaded(true)}
-      />
     </>
   );
 });
+
+const textWidthCanvasContext = document.createElement("canvas").getContext("2d");
+const FitFontSize = ({element, text, min, max}) => {
+  const styles = getComputedStyle(element);
+  const elementWidth = element.getBoundingClientRect().width;
+
+  let fontSize = min;
+  while(fontSize < max) {
+    textWidthCanvasContext.font = `${styles.fontWeight} ${fontSize + 1}px ${styles.fontFamily}`;
+
+    if(textWidthCanvasContext.measureText(text).width >= elementWidth) {
+      return `${fontSize}px`;
+    }
+
+    fontSize += 1;
+  }
+
+  return `${fontSize}px`;
+};
 
 export const ScaledText = observer(({
   Tag="div",
@@ -62,28 +105,25 @@ export const ScaledText = observer(({
   maxPxMobile=32,
   ...props
 }) => {
-  children = children.toString();
-  minPxMobile = Math.min(minPx, minPxMobile);
-  maxPxMobile = Math.min(maxPx, maxPxMobile);
+  const text = children.toString();
 
   if(rootStore.pageWidth < 800) {
-    minPx = minPxMobile;
-    maxPx = maxPxMobile;
+    minPx = Math.min(minPx, minPxMobile);
+    maxPx = Math.min(maxPx, maxPxMobile);
   }
 
   const ref = useRef();
-  const [elementWidth, setElementWidth] = useState(100);
+  const [fontSize, setFontSize] = useState(maxPx);
 
   useEffect(() => {
-    setElementWidth(ref?.current.getBoundingClientRect().width || 100);
-  }, [ref, rootStore.pageWidth]);
+    if(!ref?.current) { return; }
 
-  const pxPerChar = elementWidth * 1.5 / children.length;
-  const fontSize = `${Math.min(maxPx, Math.max(minPx, pxPerChar))}px`;
+    setFontSize(FitFontSize({element: ref.current, text: children, min: minPx, max: maxPx}));
+  }, [ref, text, rootStore.pageWidth]);
 
   return (
     <Tag {...props} ref={ref} style={{fontSize, ...(props.style || {})}}>
-      {children}
+      { text }
     </Tag>
   );
 });
