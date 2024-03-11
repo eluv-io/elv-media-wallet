@@ -1,6 +1,7 @@
 @import "./variables";
 
 .page-container {
+  @include page-fade-in(0.25s, ease-out, 0.1s);
   background-color: black;
   height: max-content;
   min-height: 100vh;

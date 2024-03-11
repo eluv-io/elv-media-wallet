@@ -1,23 +1,10 @@
 import React from "react";
 
-const LoaderComponentDefault2 = () => {
-  return (
-    <div className="lds-default">
-      {
-        [...new Array(12)].map((_, i) =>
-          <div className="lds-default__element" key={`loader-${i}`}/>
-        )
-      }
-    </div>
-  );
-};
-
 export const LoaderComponentDefault = ({className=""}) => (
   <div className={`spinner ${className}`}>
     <div className="spinner-inner" />
   </div>
 );
-
 
 const InlineLoaderComponent = () => {
   return (

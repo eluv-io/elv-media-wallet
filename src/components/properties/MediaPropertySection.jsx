@@ -141,7 +141,7 @@ export const MediaPropertySection = observer(({sectionId, isSectionPage}) => {
   const showAllLink = !isSectionPage && sectionContent.length > parseInt(section.display.display_limit || 10);
 
   return (
-    <div className={S("section")}>
+    <div className={S("section", isSectionPage && "section--page")}>
       {
         !showAllLink && !section.display.title ? null :
           <div className={S("section__title-container")}>

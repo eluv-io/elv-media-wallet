@@ -4,3 +4,13 @@
   --property-text-faded: #818590;
   --property-text-highlight: #92a2da;
 }
+
+@mixin page-fade-in($duration: 0.5s, $animation: ease-out, $delay: 0s) {
+  opacity: 0;
+  animation: $duration fadein $animation $delay forwards;
+}
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
