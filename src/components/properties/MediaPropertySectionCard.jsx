@@ -3,8 +3,8 @@ import SectionCardStyles from "Assets/stylesheets/media_properties/property-sect
 import React, {useEffect, useRef} from "react";
 import {observer} from "mobx-react";
 import {mediaPropertyStore} from "Stores";
-import {MediaItemScheduleInfo} from "../../utils/MediaPropertyUtils";
-import {LazyImage, ScaledText} from "Components/properties/Common";
+import {MediaItemImageUrl, MediaItemScheduleInfo} from "../../utils/MediaPropertyUtils";
+import {LoaderImage, ScaledText} from "Components/properties/Common";
 import {NavLink} from "react-router-dom";
 import UrlJoin from "url-join";
 
@@ -14,7 +14,9 @@ const SectionCardLink = sectionItem => {
   switch(sectionItem.type) {
     case "media":
       if(sectionItem.media_type === "list") {
-        return UrlJoin(location.pathname, "s", sectionItem.media_id);
+        return UrlJoin("/", location.pathname, "s", sectionItem.media_id);
+      } else if(sectionItem.media_type === "media") {
+        return UrlJoin("/", location.pathname, "m", sectionItem.media_id);
       }
       break;
   }
@@ -44,15 +46,7 @@ const SectionCard = observer(({
 
   aspectRatio = aspectRatio?.toLowerCase() || "";
 
-  const aspectRatioPreference =
-    (sectionItem.mediaItem?.type === "media" && sectionItem.mediaItem.media_type === "Video") ?
-      ["landscape", "square", "portrait"] :
-      ["square", "landscape", "portrait"];
-
-  const imageAspectRatio =
-    [aspectRatio, ...aspectRatioPreference].find(ratio => sectionItem.display[`thumbnail_image_${ratio}`]);
-  const imageUrl = sectionItem.display[`thumbnail_image_${imageAspectRatio}`]?.url;
-
+  const {imageUrl, imageAspectRatio} = MediaItemImageUrl({mediaItem: sectionItem.mediaItem || sectionItem, display: sectionItem.display, aspectRatio});
   const scheduleInfo = MediaItemScheduleInfo(sectionItem.mediaItem);
 
   return (
@@ -63,7 +57,7 @@ const SectionCard = observer(({
     >
       <div ref={imageContainerRef} className={S("section-card__image-container")}>
         { !imageUrl ? null :
-          <LazyImage
+          <LoaderImage
             src={imageUrl}
             alt={sectionItem.display.title}
             width={600}

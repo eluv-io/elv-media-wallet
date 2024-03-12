@@ -122,7 +122,7 @@ export const MediaPropertySection = observer(({sectionId, isSectionPage}) => {
       sectionSlugOrId: sectionId || match.params.sectionSlugOrId
     })
       .then(content => setSectionContent(content));
-  }, [match.params, section]);
+  }, [match.params, sectionId]);
 
   if(!section) {
     return null;

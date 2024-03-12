@@ -35,7 +35,7 @@ const PropertyWrapper = observer(({children}) => {
 
 const PropertyRoutes = observer(() => {
   return (
-    <div className="page-container marketplace-page">
+    <div className="page-container property-page">
       <Switch>
         <RenderRoutes
           basePath="/properties"

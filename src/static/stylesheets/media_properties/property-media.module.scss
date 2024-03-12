@@ -1,0 +1,142 @@
+@import "./variables";
+
+.media-page {
+  @include page-fade-in(0.5s, ease-out, 0.5s);
+  background-color: var(--property-background);
+  height: max-content;
+  min-height: 100vh;
+  max-width: 100%;
+  position: relative;
+
+  &__back-link {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    font-size: 1em;
+    gap: 10px;
+    width: max-content;
+    padding: 5px 10px;
+    border-radius: 5px;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+    background: rgba(0,0,0, 0.15);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+
+    &--visible,
+    &:hover {
+      opacity: 1;
+    }
+
+    * {
+      color: var(--property-text-secondary);
+    }
+
+    svg {
+      height: 13px;
+    }
+  }
+}
+
+.media-container,
+.media {
+  height: max-content;
+  max-height: 100vh;
+  width: 100%;
+}
+
+.video {
+  height: auto;
+  max-height: 100vh;
+
+  @media screen and (max-width: 1000px) {
+    min-height: 50vh;
+  }
+}
+
+.media {
+  &__error {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding-bottom: 100px;
+  }
+
+  &__countdown {
+    margin-top: 30px;
+    z-index: 1;
+  }
+
+  &__error-icon {
+    height: 50px;
+    margin-bottom: 10px;
+    width: 50px;
+    z-index: 1;
+  }
+
+  &__error-message {
+    z-index: 1;
+  }
+
+  &__error-cover,
+  &__error-image {
+    bottom: 0;
+    height: 100%;
+    left: 0;
+    object-fit: cover;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100%;
+    filter: blur(5px);
+  }
+
+  &__error-cover {
+    // sass-lint:disable no-color-literals
+    background: rgba(0, 0, 0, 0.5);
+  }
+}
+
+.media-info {
+  padding: 30px 50px 200px;
+  background: var(--property-background);
+}
+
+.media-text {
+  &__title {
+    font-size: 1.7em;
+  }
+
+  &__subtitle {
+    font-size: 0.9em;
+    color: var(--property-text-faded);
+  }
+
+  &__description-block {
+    display: grid;
+    gap: 15px;
+
+    &:not(:empty) {
+      margin-top: 30px;
+    }
+  }
+
+  &__headers {
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  &__description {
+    white-space: pre-wrap;
+    max-width: 1000px;
+    font-size: 0.9em;
+  }
+}

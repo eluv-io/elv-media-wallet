@@ -335,6 +335,7 @@ em {
   }
 
   .page-loader {
+    flex-grow: 1;
     min-height: 75vh;
     width: 100%;
   }

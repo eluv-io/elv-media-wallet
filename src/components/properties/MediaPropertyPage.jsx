@@ -1,11 +1,11 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {mediaPropertyStore} from "Stores";
 import {Redirect, useRouteMatch} from "react-router-dom";
 
 import PageStyles from "Assets/stylesheets/media_properties/property-page.module.scss";
 import {SetImageUrlDimensions} from "../../utils/Utils";
-import {Description, LazyImage, PageContainer, ScaledText} from "Components/properties/Common";
+import {Description, LoaderImage, PageContainer, ScaledText} from "Components/properties/Common";
 import {MediaPropertySection} from "Components/properties/MediaPropertySection";
 
 const S = (...classes) => classes.map(c => PageStyles[c] || "").join(" ");
@@ -18,7 +18,8 @@ const PageHeader = observer(({page}) => {
       <div className={S("page-header__content", `page-header__content--${layout.position?.toLowerCase() || "left"}`)}>
         {
           !layout.logo?.url ? null :
-            <LazyImage
+            <LoaderImage
+              lazy={false}
               loaderHeight={200}
               loaderWidth={400}
               alt={layout.logo_alt || page.title || "Logo"}
@@ -50,12 +51,18 @@ const PageBackground = observer(({page}) => {
   const layout = page.layout;
   const backgroundImage = (pageWidth <= 800 && layout.background_image_mobile?.url) || layout.background_image?.url;
   // Limit size of background image based on screen size
-  const [backgroundImageScale] = useState(pageWidth > 3000 ? 3840 : pageWidth > 2000 ? 2560 : 1920);
+  const [backgroundImageScale] = useState(mediaPropertyStore.rootStore.fullscreenImageWidth);
+
+  useEffect(() => {
+    const image = new Image();
+    image.src = backgroundImage;
+  }, []);
 
   return (
     !backgroundImage ? null :
       <>
-        <LazyImage
+        <LoaderImage
+          lazy={false}
           alt="Background Image"
           loaderWidth="100%"
           loaderHeight="100vh"

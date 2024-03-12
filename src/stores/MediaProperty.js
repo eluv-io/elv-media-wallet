@@ -30,6 +30,14 @@ class MediaPropertyStore {
     return this.mediaProperties[mediaPropertySlugOrId];
   }
 
+  MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId="main"}) {
+    const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
+
+    const pageId = mediaProperty.metadata.slug_map.pages[pageSlugOrId]?.page_id || pageSlugOrId;
+
+    return mediaProperty.pages[pageId];
+  }
+
   MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId}) {
     const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
 
@@ -38,7 +46,7 @@ class MediaPropertyStore {
     let section = mediaProperty.metadata.sections[sectionId];
 
     if(section) {
-      section.mediaPropertyId = mediaProperty.mediaPropertyId;
+      //section.mediaPropertyId = mediaProperty.mediaPropertyId;
       return section;
     } else if(!section && sectionId.startsWith("mlst")) {
       // Media list specified - treat as section with expanded list
@@ -67,6 +75,11 @@ class MediaPropertyStore {
         }]
       };
     }
+  }
+
+  MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId}) {
+    // TODO: Media slugs
+    return this.media[mediaItemSlugOrId];
   }
 
   ResolveSectionItem(sectionItem) {

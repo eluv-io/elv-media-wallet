@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from "react";
-import EluvioPlayer, {EluvioPlayerParameters} from "@eluvio/elv-player-js";
+import {InitializeEluvioPlayer, EluvioPlayerParameters} from "@eluvio/elv-player-js";
 import {observer} from "mobx-react";
 import {rootStore, checkoutStore, cryptoStore} from "Stores/index";
 import {Loader, PageLoader} from "Components/common/Loaders";
@@ -194,7 +194,7 @@ const MintingStatus = observer(({
                 if(!element || videoInitialized) { return; }
 
                 setVideoInitialized(true);
-                new EluvioPlayer(
+                InitializeEluvioPlayer(
                   element,
                   {
                     clientOptions: {

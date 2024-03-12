@@ -1,3 +1,5 @@
+import {SetImageUrlDimensions} from "./Utils";
+
 export const MediaItemScheduleInfo = mediaItem => {
   const isLiveVideoType =
     mediaItem &&
@@ -41,4 +43,26 @@ export const MediaItemScheduleInfo = mediaItem => {
       isLiveContent: false
     };
   }
+};
+
+export const MediaItemImageUrl = ({mediaItem, display, aspectRatio, width}) => {
+  aspectRatio = aspectRatio?.toLowerCase();
+  const aspectRatioPreference =
+    (mediaItem?.type === "media" && mediaItem.media_type === "Video") ?
+      ["landscape", "square", "portrait"] :
+      ["square", "landscape", "portrait"];
+
+  const imageAspectRatio =
+    [aspectRatio, ...aspectRatioPreference].find(ratio => display[`thumbnail_image_${ratio}`]);
+
+  let imageUrl = display[`thumbnail_image_${imageAspectRatio}`]?.url;
+
+  if(width) {
+    imageUrl = SetImageUrlDimensions({url: imageUrl, width});
+  }
+
+  return {
+    imageUrl,
+    imageAspectRatio
+  };
 };

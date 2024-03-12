@@ -27,8 +27,6 @@ const LoaderComponent = ({loader}) => {
   }
 };
 
-
-
 export const PageLoader = ({loader="default"}) => {
   return (
     <div className="loader page-loader page-container">

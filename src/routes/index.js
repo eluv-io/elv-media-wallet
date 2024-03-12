@@ -37,6 +37,7 @@ import UserGifts from "Components/user/UserGifts";
 
 import MediaPropertyPage from "Components/properties/MediaPropertyPage";
 import MediaPropertySectionPage from "Components/properties/MediaPropertySection";
+import MediaPropertyMediaPage from "Components/properties/MediaPropertyMediaPage";
 
 const GetProperty = (match) => {
   return rootStore.mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId});
@@ -58,7 +59,9 @@ const GetNFT = (match) => {
 const PropertyRoutes = (basePath="") => {
   return [
     { name: match => GetProperty(match)?.metadata?.page_title || rootStore.l10n.media_properties.media_property, path: UrlJoin(basePath, ":mediaPropertySlugOrId/:pageSlugOrId?"), Component: MediaPropertyPage },
-    { name: match => GetProperty(match)?.metadata?.page_title || rootStore.l10n.media_properties.media_property, path: UrlJoin(basePath, ":mediaPropertySlugOrId/:pageSlugOrId?/s/:sectionSlugOrId"), Component: MediaPropertySectionPage }
+    { name: match => GetProperty(match)?.metadata?.page_title || rootStore.l10n.media_properties.media_property, path: UrlJoin(basePath, ":mediaPropertySlugOrId/:pageSlugOrId?/m/:mediaItemSlugOrId"), Component: MediaPropertyMediaPage },
+    { name: match => GetProperty(match)?.metadata?.page_title || rootStore.l10n.media_properties.media_property, path: UrlJoin(basePath, ":mediaPropertySlugOrId/:pageSlugOrId?/s/:sectionSlugOrId"), Component: MediaPropertySectionPage },
+    { name: match => GetProperty(match)?.metadata?.page_title || rootStore.l10n.media_properties.media_property, path: UrlJoin(basePath, ":mediaPropertySlugOrId/:pageSlugOrId?/s/:sectionSlugOrId/m/:mediaItemSlugOrId"), Component: MediaPropertyMediaPage }
   ].map(route => ({...route, noBlock: true}));
 };
 

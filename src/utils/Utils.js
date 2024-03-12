@@ -126,7 +126,7 @@ export const ScrollTo = (top=0, target, container) => {
   if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
     (container || window).scrollTo(0, top);
   } else {
-    (container || window).scrollTo({top, behavior: "smooth"});
+    (container || window).scrollTo({top});
   }
 };
 

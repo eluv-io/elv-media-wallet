@@ -2,7 +2,7 @@
 
 .page-container {
   @include page-fade-in(0.25s, ease-out, 0.1s);
-  background-color: black;
+  background-color: var(--property-background);
   height: max-content;
   min-height: 100vh;
   max-width: 100%;
@@ -53,6 +53,42 @@
     height: 0;
     opacity: 0;
     user-select: none;
+  }
+}
+
+.countdown {
+  align-items: center;
+  background: var(--property-background-secondary);
+  border: 0;
+  border-radius: 3px;
+  display: flex;
+  justify-content: center;
+  padding: 0 20px;
+  user-select: none;
+  color: var(--property-text-primary);
+
+  .countdown__unit-container {
+    max-height: 43px;
+    padding: 0 10px;
+  }
+
+  .countdown__unit,
+  .countdown__value {
+    text-align: center;
+  }
+
+  .countdown__value {
+    font-size: 28px;
+    font-weight: 600;
+    height: 100%;
+  }
+
+  .countdown__unit {
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 7px;
+    min-width: 55px;
+    text-transform: uppercase;
   }
 }
 

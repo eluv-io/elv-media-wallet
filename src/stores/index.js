@@ -86,6 +86,7 @@ class RootStore {
 
   pageWidth = window.innerWidth;
   pageHeight = window.innerHeight;
+  fullscreenImageWidth = window.innerWidth > 3000 ? 3840 : window.innerWidth > 2000 ? 2560 : 1920;
 
   activeModals = 0;
 
@@ -2352,6 +2353,8 @@ class RootStore {
       runInAction(() => {
         this.pageWidth = width;
         this.pageHeight = height;
+
+        this.fullscreenImageWidth = width > 3000 ? 3840 : width > 2000 ? 2560 : 1920;
       });
 
       const bodyScrollVisible = document.body.getBoundingClientRect().height > window.innerHeight;

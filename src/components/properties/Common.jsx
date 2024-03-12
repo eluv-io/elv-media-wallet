@@ -42,7 +42,7 @@ export const RichText = ({richText, baseFontSize=16, ...props}) => {
   );
 };
 
-export const LazyImage = observer(({src, width, loaderHeight, loaderWidth, ...props}) => {
+export const LoaderImage = observer(({src, width, loaderHeight, loaderWidth, lazy=true, ...props}) => {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -54,7 +54,7 @@ export const LazyImage = observer(({src, width, loaderHeight, loaderWidth, ...pr
   }
 
   if(loaded) {
-    return <img loading="lazy" src={src} {...props} />;
+    return <img src={src} {...props} />;
   }
 
   return (
@@ -62,7 +62,7 @@ export const LazyImage = observer(({src, width, loaderHeight, loaderWidth, ...pr
       <img
         {...props}
         className={S("lazy-image__loader-image")}
-        loading="lazy"
+        loading={lazy ? "lazy" : "eager"}
         src={src}
         key={props.key ? `${props.key}--img` : undefined}
         onLoad={() => setLoaded(true)}

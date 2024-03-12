@@ -18,7 +18,7 @@ module.exports = (env) => {
   ];
 
   if(isDevelopment) {
-    plugins.push(new ReactRefreshWebpackPlugin());
+    plugins.push(new ReactRefreshWebpackPlugin({overlay: false}));
   }
 
   if(process.env.ANALYZE_BUNDLE) {

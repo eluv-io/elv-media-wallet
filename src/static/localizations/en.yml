@@ -638,3 +638,7 @@ media_properties:
   media:
     live: Live
     upcoming: UPCOMING
+    errors:
+      default: This media is not available
+      not_started: This live content has not yet started
+      ended: This live content has ended
