@@ -12,7 +12,6 @@ const EntitlementClaim = observer(() => {
   const signature = match.params.signature;
   const [redeemed, setRedeemed] = useState(undefined);
   const [purchaseId, setPurchaseId] = useState(undefined);
-  rootStore.Log("EntitlementClaim " + match.params.marketplaceId + " " + match.params.sku);
 
   useEffect(() => {
     if(!rootStore.loggedIn) { return; }
@@ -20,20 +19,17 @@ const EntitlementClaim = observer(() => {
     rootStore.checkoutStore.EntitlementClaim({ entitlementSignature: signature })
       .then((resp) => {
         setRedeemed(true);
-        rootStore.log("EntitlementClaim resp", resp);
+        rootStore.log("EntitlementClaim response", resp);
         setPurchaseId(resp);
       })
       .catch(error => {
-        rootStore.Log("EntitlementClaim error: " + error);
-        rootStore.Log(error, true);
+        rootStore.error("EntitlementClaim error", error);
         setRedeemed(false);
       });
   }, [rootStore.loggedIn]);
 
-  rootStore.log("EntitlementClaim", "redeemed", redeemed, "purchaseId", purchaseId);
   if(redeemed && purchaseId) {
-    const newPath = location.pathname.replace(signature, "")
-      .replace("claim", "entitle");
+    const newPath = location.pathname.replace(signature, "").replace("claim", "entitle");
     return <Redirect to={UrlJoin(newPath, "status", purchaseId)}  />;
   }
 

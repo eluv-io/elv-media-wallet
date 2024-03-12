@@ -212,14 +212,6 @@ class RootStore {
     console.error(...args);
   }
 
-  warn(...args) {
-    if(typeof args[0] === "string") {
-      args[0] = `Eluvio Media Wallet | ${args[0]}`;
-    }
-    // eslint-disable-next-line no-console
-    console.warn(...args);
-  }
-
   log(...args) {
     if(typeof args[0] === "string") {
       args[0] = `Eluvio Media Wallet | ${args[0]}`;
@@ -426,35 +418,32 @@ class RootStore {
         noAuth: true
       });
 
-      let parsed;
+      let authParameter;
       try {
         const auth = searchParams.get("auth");
-        // XXX this is a big hack
         if(auth) {
-          parsed = JSON.parse(Utils.FromB64(auth));
-          rootStore.log("Auth from parameter", parsed);
-          //this.SetAuthInfo(parsed);
+          const parsedAuth = JSON.parse(Utils.FromB64(auth));
+          if(parsedAuth.idToken && !parsedAuth.clientAuthToken && !parsedAuth.clientSigningToken) {
+            authParameter = {
+              idToken: parsedAuth.idToken,
+              signerURIs: ["https://wlt.stg.svc.eluv.io"],
+              user: {
+                name: parsedAuth.user,
+                verified: true,
+              }
+            };
+            rootStore.log("Auth from parameter", authParameter);
+          } else {
+            this.SetAuthInfo(parsedAuth);
+          }
         }
       } catch(error) {
-        this.Log("Failed to load auth from parameter", true);
-        this.Log(error, true);
+        rootStore.error("Failed to load auth from parameter", error);
       }
 
       if(!this.inFlow) {
-        //if(this.AuthInfo()) {
-        if(parsed) {
-          this.Log("Authenticating from saved session");
-          //yield this.Authenticate(this.AuthInfo());
-
-          yield this.Authenticate({
-            idToken: parsed.idToken,
-            signerURIs: ["https://wlt.stg.svc.eluv.io"],
-            user: {
-              name: parsed.user,
-              verified: true,
-            }
-          });
-
+        if(authParameter || this.AuthInfo()) {
+          yield this.Authenticate(authParameter || this.AuthInfo());
         } else if(this.auth0) {
           // Attempt to re-auth with auth0. If 'code' is present in URL params, we are returning from Auth0 callback, let the login component handle it
           yield this.AuthenticateAuth0({});

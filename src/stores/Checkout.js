@@ -475,25 +475,26 @@ class CheckoutStore {
   });
 
   EntitlementClaim = flow(function * ({entitlementSignature}) {
-    rootStore.log("EntitlementClaim", entitlementSignature);
     const decode = yield DecodeSignedMessageJSON({signedMessage: entitlementSignature});
     decode?.message && rootStore.log("EntitlementClaim msg", decode.message);
     const tenant_id = decode?.message?.tenant_id;
 
     const tok = this.walletClient.AuthToken();
-    // don't do this, is undefined: const url = this.walletClient.authServiceURIs[0] + "/as/wlt/act/" + tenant_id;
-    rootStore.log("EntitlementClaim authServiceURIs", this.walletClient.authServiceURIs);
-    const url = this.walletClient.network === "main"
-      ? "https://host-76-74-28-232.contentfabric.io/as/wlt/act/" + tenant_id
-      : "http://localhost:8080/as/wlt/act/" + tenant_id;
-    //: "https://host-76-74-28-227.contentfabric.io/as/wlt/act/" + tenant_id;
-    rootStore.log("EntitlementClaim url", url);
+    let baseUrl;
+    if(this.walletClient.authServiceURIs && this.walletClient.authServiceURIs.length > 0) {
+      baseUrl = this.walletClient.authServiceURIs[0];
+    } else {
+      // not sure why this isn't defined
+      baseUrl = this.walletClient.network === "main" ? "https://host-76-74-28-232.contentfabric.io/as"
+        : "https://host-76-74-28-227.contentfabric.io/as";
+      //: "http://localhost:8080/as";
+    }
+    const url = baseUrl + "/wlt/act/" + tenant_id;
     const options = {
       method: "POST",
       headers: {"Authorization": "Bearer " + tok},
       body: JSON.stringify({"op":"nft-claim-entitlement", "signature": entitlementSignature}),
     };
-    rootStore.log("goToWallet options", options);
 
     let resp = "";
     yield fetch(url, options)
@@ -508,7 +509,7 @@ class CheckoutStore {
         resp = JSON.stringify(error);
       });
 
-    rootStore.log("goToWallet resp", resp);
+    rootStore.log("EntitlementClaim", "options", options, "resp", resp);
     return resp;
   });
 
