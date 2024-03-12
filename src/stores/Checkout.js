@@ -474,8 +474,8 @@ class CheckoutStore {
     }
   });
 
-  EntitlementClaim = flow(function * ({entitlementSignature, userInfo}) {
-    rootStore.log("EntitlementClaim", entitlementSignature, userInfo);
+  EntitlementClaim = flow(function * ({entitlementSignature}) {
+    rootStore.log("EntitlementClaim", entitlementSignature);
     const decode = yield DecodeSignedMessageJSON({signedMessage: entitlementSignature});
     decode?.message && rootStore.log("EntitlementClaim msg", decode.message);
     const tenant_id = decode?.message?.tenant_id;
