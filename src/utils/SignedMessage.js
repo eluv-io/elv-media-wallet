@@ -1,21 +1,11 @@
-import React, {useEffect, useState} from "react";
-import {observer} from "mobx-react";
-import {Link, Redirect, useRouteMatch} from "react-router-dom";
-import {checkoutStore, rootStore} from "Stores";
-import UrlJoin from "url-join";
-import ImageIcon from "Components/common/ImageIcon";
-
-import {PageLoader} from "Components/common/Loaders";
-import {ButtonWithLoader, LocalizeString} from "Components/common/UIComponents";
-import ListingIcon from "Assets/icons/listings icon";
-
-import BackIcon from "Assets/icons/arrow-left";
-import Confirm from "Components/common/Confirm";
-import NFTCard from "Components/nft/NFTCard";
-import {LoginGate} from "Components/common/LoginGate";
-
-const { ElvClient } = require("@eluvio/elv-client-js");
 const Utils = require("@eluvio/elv-client-js/src/Utils");
+
+//
+//
+// this will move to elv-client-js via https://github.com/eluv-io/elv-client-js/pull/267
+//
+//
+
 
 // Create a signed JSON message
 const CreateSignedMessageJSON = async ({
@@ -50,9 +40,9 @@ const DecodeSignedMessageJSON = async ({
       const obj = JSON.parse(msg);
       res = {
         type: type,
-        obj: obj,
-        signature: "0x" + signature.toString("hex")
-      }
+        message: obj,
+        signature: "0x" + signature.toString("hex"),
+      };
       break;
     default:
       throw new Error(`Bad message type: ${type}`);
@@ -61,7 +51,7 @@ const DecodeSignedMessageJSON = async ({
   return res;
 };
 
-export default {
+export {
   CreateSignedMessageJSON,
-  DecodeSignedMessageJSON
-}
+  DecodeSignedMessageJSON,
+};

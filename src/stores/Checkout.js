@@ -4,6 +4,7 @@ import {makeAutoObservable, flow, runInAction} from "mobx";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {ethers} from "ethers";
 import {rootStore} from "./index";
+import {DecodeSignedMessageJSON} from "../utils/SignedMessage";
 
 const PUBLIC_KEYS = {
   stripe: {
@@ -470,6 +471,44 @@ class CheckoutStore {
     } finally {
       this.submittingOrder = false;
     }
+  });
+
+  EntitlementClaim = flow(function * ({entitlementSignature, userInfo}) {
+    rootStore.log("EntitlementClaim", entitlementSignature, userInfo);
+    const decode = yield DecodeSignedMessageJSON({signedMessage: entitlementSignature});
+    decode?.obj && rootStore.log("EntitlementClaim obj: " + JSON.stringify(decode.obj));
+    const tenant_id = decode?.obj?.tenant_id;
+
+    const tok = this.walletClient.AuthToken();
+    // don't do this, is undefined: const url = this.walletClient.authServiceURIs[0] + "/as/wlt/act/" + tenant_id;
+    rootStore.log("EntitlementClaim authServiceURIs", this.walletClient.authServiceURIs);
+    const url = this.walletClient.network === "main"
+      ? "https://host-76-74-28-232.contentfabric.io/as/wlt/act/" + tenant_id
+      : "http://localhost:8080/as/wlt/act/" + tenant_id;
+    //: "https://host-76-74-28-227.contentfabric.io/as/wlt/act/" + tenant_id;
+    rootStore.log("EntitlementClaim url", url);
+    const options = {
+      method: "POST",
+      headers: {"Authorization": "Bearer " + tok},
+      body: JSON.stringify({"op":"nft-claim-entitlement", "signature": entitlementSignature}),
+    };
+    rootStore.log("goToWallet options", options);
+
+    let resp = "";
+    yield fetch(url, options)
+      .then(response => response.json())
+      .then(data => {
+        rootStore.log("Ok:", data);
+        // get pid_123 from "nft-claim-entitlement:iq__...:sku...:pid_123[:dup_8tTXKSML]"
+        resp = data.op?.split(":")[3];
+      })
+      .catch(error => {
+        rootStore.error("Error:", error);
+        resp = JSON.stringify(error);
+      });
+
+    rootStore.log("goToWallet resp", resp);
+    return resp;
   });
 
   ListingCheckoutSubmit = flow(function * ({

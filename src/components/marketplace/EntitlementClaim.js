@@ -17,7 +17,7 @@ const EntitlementClaim = observer(() => {
   useEffect(() => {
     if(!rootStore.loggedIn) { return; }
 
-    rootStore.EntitlementClaim({ entitlementSignature: signature, userInfo: "userInfo"})
+    rootStore.checkoutStore.EntitlementClaim({ entitlementSignature: signature, userInfo: "userInfo"})
       .then((resp) => {
         setRedeemed(true);
         rootStore.log("EntitlementClaim resp", resp);

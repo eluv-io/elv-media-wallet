@@ -1292,44 +1292,6 @@ class RootStore {
     return purchaseableItems;
   }
 
-  EntitlementClaim = flow(function * ({entitlementSignature, userInfo}) {
-    rootStore.log("EntitlementClaim", entitlementSignature, userInfo);
-    const decode = yield DecodeSignedMessageJSON({signedMessage: entitlementSignature});
-    decode?.obj && rootStore.log("EntitlementClaim obj: " + JSON.stringify(decode.obj));
-    const {tenant_id, marketplace_id, items, user, purchase_id} = decode?.obj;
-    const sku = items && items.length > 1 && items[0].sku;
-
-    const tok = this.walletClient.AuthToken();
-    // don't do this, is undefined: const url = this.walletClient.authServiceURIs[0] + "/as/wlt/act/" + tenant_id;
-    //rootStore.log("EntitlementClaim authServiceURIs", this.walletClient.authServiceURIs);
-    const url = this.walletClient.network === "main"
-      ? "https://host-76-74-28-232.contentfabric.io/as/wlt/act/" + tenant_id
-      : "https://host-76-74-28-227.contentfabric.io/as/wlt/act/" + tenant_id;
-    rootStore.log("EntitlementClaim url", url);
-    const options = {
-      method: "POST",
-      headers: {"Authorization": "Bearer " + tok},
-      body: JSON.stringify({"op":"nft-claim-entitlement", "signature": entitlementSignature}),
-    };
-    rootStore.log("goToWallet options", options);
-
-    let resp = "";
-    yield fetch(url, options)
-      .then(response => response.json())
-      .then(data => {
-        rootStore.log("Ok:", data);
-        // get 123 from "nft-claim-entitlement:iq__D3N77Nw1ATwZvasBNnjAQWeVLWV:5MmuT4t6RoJtrT9h1yTnos:123:dup_8tTXKSML"
-        resp = data.op?.split(":")[3];
-      })
-      .catch(error => {
-        rootStore.error("Error:", error);
-        resp = JSON.stringify(error);
-      });
-
-    rootStore.log("goToWallet resp", resp);
-    return resp;
-  });
-
   GenerateOfferCodeData = flow(function * ({nftInfo, offer}) {
     const key = `offer-code-data-${nftInfo.nft.details.ContractAddr}-${nftInfo.nft.details.TokenIdStr}-${offer.offer_id}`;
 
@@ -2215,9 +2177,6 @@ class RootStore {
   }
 
   SetAuthInfo({clientAuthToken, clientSigningToken, save=true}) {
-    // const parsed = JSON.parse(Utils.FromB58(clientAuthToken));
-    // rootStore.log("SetAuthInfo parsed", parsed);
-    // const { expiresAt } = parsed;
     const expiresAt = Date.now() + (24 * 60 * 60 * 1000);
 
     const authInfo = {
@@ -2471,28 +2430,3 @@ export const cryptoStore = rootStore.cryptoStore;
 export const notificationStore = rootStore.notificationStore;
 
 window.rootStore = rootStore;
-
-// Decode a signed JSON message
-const DecodeSignedMessageJSON = async ({
-  signedMessage
-}) => {
-  const type = signedMessage.slice(0,4);
-  let res = {};
-  switch(type) {
-    case "mje_":
-      const msgBytes = Utils.FromB58(signedMessage.slice(4));
-      const signature = msgBytes.slice(0, 65);
-      const msg = msgBytes.slice(65);
-      const obj = JSON.parse(msg);
-      res = {
-        type: type,
-        obj: obj,
-        signature: "0x" + signature.toString("hex")
-      };
-      break;
-    default:
-      throw new Error(`Bad message type: ${type}`);
-  }
-
-  return res;
-};
