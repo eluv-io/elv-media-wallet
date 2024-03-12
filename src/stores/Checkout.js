@@ -4,7 +4,6 @@ import {makeAutoObservable, flow, runInAction} from "mobx";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {ethers} from "ethers";
 import {rootStore} from "./index";
-import {DecodeSignedMessageJSON} from "../utils/SignedMessage";
 
 const PUBLIC_KEYS = {
   stripe: {
@@ -475,7 +474,7 @@ class CheckoutStore {
   });
 
   EntitlementClaim = flow(function * ({entitlementSignature}) {
-    const decode = yield DecodeSignedMessageJSON({signedMessage: entitlementSignature});
+    const decode = yield this.client.DecodeSignedMessageJSON({signedMessage: entitlementSignature});
     decode?.message && rootStore.log("EntitlementClaim msg", decode.message);
     const tenant_id = decode?.message?.tenant_id;
 
