@@ -357,6 +357,7 @@ class CheckoutStore {
         path: UrlJoin("as", "wlt", "act", tenantId),
         method: "POST",
         body: params,
+        //queryParams: {dry_run: "true"},
         headers: {
           Authorization: `Bearer ${this.rootStore.authToken}`
         }
@@ -476,8 +477,8 @@ class CheckoutStore {
   EntitlementClaim = flow(function * ({entitlementSignature, userInfo}) {
     rootStore.log("EntitlementClaim", entitlementSignature, userInfo);
     const decode = yield DecodeSignedMessageJSON({signedMessage: entitlementSignature});
-    decode?.obj && rootStore.log("EntitlementClaim obj: " + JSON.stringify(decode.obj));
-    const tenant_id = decode?.obj?.tenant_id;
+    decode?.message && rootStore.log("EntitlementClaim msg", decode.message);
+    const tenant_id = decode?.message?.tenant_id;
 
     const tok = this.walletClient.AuthToken();
     // don't do this, is undefined: const url = this.walletClient.authServiceURIs[0] + "/as/wlt/act/" + tenant_id;
