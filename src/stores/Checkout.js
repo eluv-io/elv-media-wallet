@@ -479,8 +479,7 @@ class CheckoutStore {
     const tenant_id = decode?.message?.tenant_id;
 
     const tok = this.walletClient.AuthToken();
-    let baseUrl = this.walletClient.client.authServiceURIs[0];
-    const url = baseUrl + "/wlt/act/" + tenant_id;
+    const url = UrlJoin(this.walletClient.client.authServiceURIs[0], "wlt", "act", tenant_id);
     const options = {
       method: "POST",
       headers: {"Authorization": "Bearer " + tok},
