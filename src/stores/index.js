@@ -216,7 +216,6 @@ class RootStore {
     if(typeof args[0] === "string") {
       args[0] = `Eluvio Media Wallet | ${args[0]}`;
     }
-
     // eslint-disable-next-line no-console
     console.log(...args);
   }
@@ -481,13 +480,11 @@ class RootStore {
   }
 
   AuthenticateOry = flow(function * ({userData}={}) {
-    rootStore.log("Authenticating with Ory", "userData", "userData");
     try {
       const response = yield this.oryClient.toSession({tokenizeAs: EluvioConfiguration.ory_configuration.jwt_template});
       const email = response.data.identity.traits.email;
       const jwtToken = response.data.tokenized;
 
-      rootStore.log("Ory response", response.data, jwtToken, email);
       yield this.Authenticate({
         idToken: jwtToken,
         // TODO: Change
