@@ -124,8 +124,7 @@ const MarketplaceRoutes = () => {
     { name: "Redeem Collection", path: "collections/:collectionSKU/redeem", Component: MarketplaceCollectionRedemption },
     { name: "Redeem Collection", path: "collections/:collectionSKU/redeem/:confirmationId/status", Component: CollectionRedeemStatus },
 
-    // XXX rename to store/:sku/entitle/:signature
-    { name: "Redeem Entitlement", path: "store/:sku/claim/:signature", Component: EntitlementClaim },
+    { name: "Redeem Entitlement", path: "store/:sku/entitle/:signature", Component: EntitlementClaim },
     { name: "Redeem Entitlement", path: "store/:sku/entitle/status/:purchaseId", Component: EntitlementMintingStatus },
 
     ...TokenRoutes("collections/:collectionSKU/owned"),
