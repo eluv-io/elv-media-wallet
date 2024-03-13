@@ -500,7 +500,7 @@ class CheckoutStore {
         resp = JSON.stringify(error);
       });
 
-    rootStore.log("EntitlementClaim", "options", options, "resp", resp);
+    rootStore.log("EntitlementClaim", "url", url, "options", options, "resp", resp);
     return resp;
   });
 
