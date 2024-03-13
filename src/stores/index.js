@@ -2166,7 +2166,7 @@ class RootStore {
   }
 
   SetAuthInfo({clientAuthToken, clientSigningToken, save=true}) {
-    const expiresAt = Date.now() + (24 * 60 * 60 * 1000);
+    const { expiresAt } = JSON.parse(Utils.FromB58(clientAuthToken));
 
     const authInfo = {
       clientSigningToken,
@@ -2419,3 +2419,4 @@ export const cryptoStore = rootStore.cryptoStore;
 export const notificationStore = rootStore.notificationStore;
 
 window.rootStore = rootStore;
+
