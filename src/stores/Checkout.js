@@ -479,15 +479,7 @@ class CheckoutStore {
     const tenant_id = decode?.message?.tenant_id;
 
     const tok = this.walletClient.AuthToken();
-    let baseUrl;
-    if(this.walletClient.authServiceURIs && this.walletClient.authServiceURIs.length > 0) {
-      baseUrl = this.walletClient.authServiceURIs[0];
-    } else {
-      // not sure why this isn't defined
-      baseUrl = this.walletClient.network === "main" ? "https://host-76-74-28-232.contentfabric.io/as"
-        : "https://host-76-74-28-227.contentfabric.io/as";
-      //: "http://localhost:8080/as";
-    }
+    let baseUrl = this.walletClient.client.authServiceURIs[0];
     const url = baseUrl + "/wlt/act/" + tenant_id;
     const options = {
       method: "POST",
