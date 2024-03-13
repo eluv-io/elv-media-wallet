@@ -795,9 +795,8 @@ export const EntitlementMintingStatus = observer(() => {
     );
   }
 
-  console.log("Entitlement status:", status);
   let items = status.items; // status?.filter(item => item.token_addr && (item.token_id || item.token_id_str));
-  console.log("Entitlement items:", items);
+  rootStore.log("Entitlement status, items:", status, items);
 
   return (
     <MintResults
