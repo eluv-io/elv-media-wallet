@@ -356,7 +356,6 @@ class CheckoutStore {
         path: UrlJoin("as", "wlt", "act", tenantId),
         method: "POST",
         body: params,
-        //queryParams: {dry_run: "true"},
         headers: {
           Authorization: `Bearer ${this.rootStore.authToken}`
         }
