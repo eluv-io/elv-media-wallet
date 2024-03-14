@@ -475,32 +475,24 @@ class CheckoutStore {
 
   EntitlementClaim = flow(function * ({entitlementSignature}) {
     const decode = yield this.client.DecodeSignedMessageJSON({signedMessage: entitlementSignature});
-    decode?.message && rootStore.log("EntitlementClaim msg", decode.message);
-    const tenant_id = decode?.message?.tenant_id;
+    decode?.message && rootStore.log("EntitlementClaim", "decoded msg", decode.message);
 
-    const tok = this.walletClient.AuthToken();
-    const url = UrlJoin(this.walletClient.client.authServiceURIs[0], "wlt", "act", tenant_id);
-    const options = {
+    const tenantId = decode?.message?.tenant_id;
+    const body=  {"op":"nft-claim-entitlement", "signature": entitlementSignature};
+
+    const data = (yield this.client.utils.ResponseToJson(this.client.authClient.MakeAuthServiceRequest({
+      path: UrlJoin("as", "wlt", "act", tenantId),
       method: "POST",
-      headers: {"Authorization": "Bearer " + tok},
-      body: JSON.stringify({"op":"nft-claim-entitlement", "signature": entitlementSignature}),
-    };
+      body: body,
+      headers: {
+        Authorization: `Bearer ${this.walletClient.AuthToken()}`
+      }
+    })));
+    rootStore.log("EntitlementClaim", "response", data);
 
-    let resp = "";
-    yield fetch(url, options)
-      .then(response => response.json())
-      .then(data => {
-        rootStore.log("Ok:", data);
-        // get pid_123 from "nft-claim-entitlement:iq__...:sku...:pid_123[:dup_8tTXKSML]"
-        resp = data.op?.split(":")[3];
-      })
-      .catch(error => {
-        rootStore.error("Error:", error);
-        resp = JSON.stringify(error);
-      });
-
-    rootStore.log("EntitlementClaim", "url", url, "options", options, "resp", resp);
-    return resp;
+    // get pid_123 from "nft-claim-entitlement:iq__...:sku...:pid_123[:dup_8tTXKSML]"
+    const splits = data?.op?.split(":");
+    return splits?.length > 3 ? splits[3] : "";
   });
 
   ListingCheckoutSubmit = flow(function * ({
