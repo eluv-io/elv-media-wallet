@@ -474,7 +474,6 @@ class CheckoutStore {
 
   EntitlementClaim = flow(function * ({entitlementSignature}) {
     const decode = yield this.client.DecodeSignedMessageJSON({signedMessage: entitlementSignature});
-    decode?.message && rootStore.log("EntitlementClaim", "decoded msg", decode.message);
 
     const tenantId = decode?.message?.tenant_id;
     const body =  {"op": "nft-claim-entitlement", "signature": entitlementSignature};
@@ -487,9 +486,7 @@ class CheckoutStore {
         Authorization: `Bearer ${this.walletClient.AuthToken()}`
       }
     })));
-    rootStore.log("EntitlementClaim", "response", data);
 
-    // get pid_123 from "nft-claim-entitlement:iq__...:sku...:pid_123[:dup_8tTXKSML]"
     const splits = data?.op?.split(":");
     return splits?.length > 3 ? splits[3] : "";
   });
