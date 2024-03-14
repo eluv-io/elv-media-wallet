@@ -19,11 +19,10 @@ const EntitlementClaim = observer(() => {
     rootStore.checkoutStore.EntitlementClaim({ entitlementSignature: signature })
       .then((resp) => {
         setRedeemed(true);
-        rootStore.log("EntitlementClaim response purchaseId", resp);
         setPurchaseId(resp);
       })
       .catch(error => {
-        rootStore.error("EntitlementClaim error", error);
+        rootStore.Log(`EntitlementClaim error ${error}`, true);
         setRedeemed(false);
       });
   }, [rootStore.loggedIn]);
