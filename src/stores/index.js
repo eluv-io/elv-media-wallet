@@ -204,22 +204,6 @@ class RootStore {
     return this.allMarketplaces.find(marketplace => marketplace.tenant_id === tenantId);
   }
 
-  error(...args) {
-    if(typeof args[0] === "string") {
-      args[0] = `Eluvio Media Wallet | ${args[0]}`;
-    }
-    // eslint-disable-next-line no-console
-    console.error(...args);
-  }
-
-  log(...args) {
-    if(typeof args[0] === "string") {
-      args[0] = `Eluvio Media Wallet | ${args[0]}`;
-    }
-    // eslint-disable-next-line no-console
-    console.log(...args);
-  }
-
   Log(message="", error=false) {
     // eslint-disable-next-line no-console
     const logMethod = error === "warn" ? console.warn : error ? console.error : console.log;
