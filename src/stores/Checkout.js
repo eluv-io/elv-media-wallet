@@ -478,7 +478,7 @@ class CheckoutStore {
     decode?.message && rootStore.log("EntitlementClaim", "decoded msg", decode.message);
 
     const tenantId = decode?.message?.tenant_id;
-    const body =  {"op":"nft-claim-entitlement", "signature": entitlementSignature};
+    const body =  {"op": "nft-claim-entitlement", "signature": entitlementSignature};
 
     const data = (yield this.client.utils.ResponseToJson(this.client.authClient.MakeAuthServiceRequest({
       path: UrlJoin("as", "wlt", "act", tenantId),
