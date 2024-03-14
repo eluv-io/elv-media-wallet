@@ -420,7 +420,8 @@ class RootStore {
           }
         }
       } catch(error) {
-        rootStore.error("Failed to load auth from parameter", error);
+        this.Log("Failed to load auth from parameter", true);
+        this.Log(error, true);
       }
 
       if(!this.inFlow) {
