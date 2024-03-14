@@ -415,7 +415,6 @@ class RootStore {
                 verified: true,
               }
             };
-            rootStore.log("Auth from parameter", authParameter);
           } else {
             this.SetAuthInfo(parsedAuth);
           }
