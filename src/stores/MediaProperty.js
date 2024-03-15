@@ -38,36 +38,34 @@ class MediaPropertyStore {
     return mediaProperty.pages[pageId];
   }
 
-  MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId}) {
+  MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId, mediaListSlugOrId}) {
     const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
 
-    const sectionId = mediaProperty.metadata.slug_map.sections[sectionSlugOrId]?.section_id || sectionSlugOrId;
-
-    let section = mediaProperty.metadata.sections[sectionId];
-
-    if(section) {
-      //section.mediaPropertyId = mediaProperty.mediaPropertyId;
-      return section;
-    } else if(!section && sectionId.startsWith("mlst")) {
+    if(sectionSlugOrId) {
+      const sectionId = mediaProperty.metadata.slug_map.sections[sectionSlugOrId]?.section_id || sectionSlugOrId;
+      return mediaProperty.metadata.sections[sectionId];
+    } else {
       // Media list specified - treat as section with expanded list
-      const mediaList = this.media[sectionId];
+      // TODO: Look up list by slug
+      const mediaListId = mediaListSlugOrId;
+      const mediaList = this.media[mediaListId];
 
       if(!mediaList) { return; }
 
       return {
         mediaPropertyId: mediaProperty.mediaPropertyId,
-        id: sectionId,
+        id: mediaListId,
         label: `Media List ${mediaList.label} as Section`,
         type: "manual",
         display: {
           content_display_text: "titles",
           display_format: "grid",
-          title: mediaList.title
+          ...mediaList
         },
         content: [{
           label: `Media List ${mediaList.label}`,
           type: "media",
-          media_id: sectionId,
+          media_id: mediaListId,
           media_type: "list",
           expand: true,
           use_media_settings: true,
@@ -98,8 +96,8 @@ class MediaPropertyStore {
     };
   }
 
-  MediaPropertySectionContent = flow(function * ({mediaPropertySlugOrId, sectionSlugOrId}) {
-    const section = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId});
+  MediaPropertySectionContent = flow(function * ({mediaPropertySlugOrId, sectionSlugOrId, mediaListSlugOrId}) {
+    const section = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId, mediaListSlugOrId});
 
     if(!section) { return []; }
 

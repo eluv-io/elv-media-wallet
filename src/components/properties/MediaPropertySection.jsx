@@ -4,7 +4,7 @@ import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {NavLink, Redirect, useRouteMatch} from "react-router-dom";
 import {mediaPropertyStore, rootStore} from "Stores";
-import SectionCard from "Components/properties/MediaPropertySectionCard";
+import {MediaCardVertical} from "Components/properties/MediaCards";
 import UrlJoin from "url-join";
 
 import SwiperCore, {Lazy} from "swiper";
@@ -14,7 +14,7 @@ SwiperCore.use([Lazy]);
 import RightArrow from "Assets/icons/right-arrow";
 import LeftArrow from "Assets/icons/left-arrow";
 import ImageIcon from "Components/common/ImageIcon";
-import {PageContainer} from "Components/properties/Common";
+import {PageBackground, PageContainer, PageHeader} from "Components/properties/Common";
 
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
@@ -66,8 +66,8 @@ const SectionContentCarousel = observer(({section, sectionContent}) => {
       </button>
       {
         sectionContent.map((sectionItem, index) =>
-          <SwiperSlide key={`section-slide-${sectionItem.id}`} className={S("section-card-slide")}>
-            <SectionCard
+          <SwiperSlide key={`section-slide-${sectionItem.id}`} className={S("section-slide")}>
+            <MediaCardVertical
               setImageDimensions={index === 0 && setImageDimensions}
               sectionItem={sectionItem}
               textDisplay={section.display.content_display_text}
@@ -94,10 +94,10 @@ const SectionContentGrid = observer(({section, sectionContent}) => {
     <div className={S("section__content", "section__content--grid", `section__content--${section.display.aspect_ratio?.toLowerCase()}`)}>
       {
         sectionContent.map(sectionItem =>
-          <SectionCard
+          <MediaCardVertical
             key={`section-item-${sectionItem.id}`}
             sectionItem={sectionItem}
-            textDisplay={section.display.content_display_text}
+            textDisplay={"all" || section.display.content_display_text}
             aspectRatio={section.display.aspect_ratio}
           />
         )
@@ -106,11 +106,12 @@ const SectionContentGrid = observer(({section, sectionContent}) => {
   );
 });
 
-export const MediaPropertySection = observer(({sectionId, isSectionPage}) => {
+export const MediaPropertySection = observer(({sectionId, mediaListId, isSectionPage}) => {
   const match = useRouteMatch();
   const section = mediaPropertyStore.MediaPropertySection({
     mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
-    sectionSlugOrId: sectionId || match.params.sectionSlugOrId
+    sectionSlugOrId: sectionId || match.params.sectionSlugOrId,
+    mediaListSlugOrId: mediaListId || match.params.mediaListSlugOrId
   });
   const [sectionContent, setSectionContent] = useState([]);
 
@@ -119,10 +120,11 @@ export const MediaPropertySection = observer(({sectionId, isSectionPage}) => {
 
     mediaPropertyStore.MediaPropertySectionContent({
       mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
-      sectionSlugOrId: sectionId || match.params.sectionSlugOrId
+      sectionSlugOrId: sectionId || match.params.sectionSlugOrId,
+      mediaListSlugOrId: mediaListId || match.params.mediaListSlugOrId
     })
       .then(content => setSectionContent(content));
-  }, [match.params, sectionId]);
+  }, [match.params, sectionId, mediaListId]);
 
   if(!section) {
     return null;
@@ -138,7 +140,15 @@ export const MediaPropertySection = observer(({sectionId, isSectionPage}) => {
       break;
   }
 
-  const showAllLink = !isSectionPage && sectionContent.length > parseInt(section.display.display_limit || 10);
+  if(isSectionPage) {
+    return (
+      <div className={S("section", "section--page")}>
+        <ContentComponent section={section} sectionContent={sectionContent} />
+      </div>
+    );
+  }
+
+  const showAllLink = sectionContent.length > parseInt(section.display.display_limit || 10);
 
   return (
     <div className={S("section", isSectionPage && "section--page")}>
@@ -180,7 +190,13 @@ const MediaPropertySectionPage = observer(() => {
 
   return (
     <PageContainer backPath={backPath}>
-      <MediaPropertySection sectionId={section.id} isSectionPage />
+      <PageBackground display={section.display} />
+      <PageHeader display={section.display} className={S("section__page-header")} />
+      <MediaPropertySection
+        sectionId={match.params.sectionSlugOrId ? section.id : undefined}
+        mediaListId={match.params.mediaListSlugOrId ? section.id : undefined}
+        isSectionPage
+      />
     </PageContainer>
   );
 });

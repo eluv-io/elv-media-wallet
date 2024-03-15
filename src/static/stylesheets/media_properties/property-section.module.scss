@@ -6,18 +6,10 @@
   width: 100%;
   max-width: 100%;
   overflow: hidden;
+  position: relative;
 
-  &--page {
-    .section__title {
-      width: 100%;
-      text-align: center;
-      font-size: 32px;
-      margin-bottom: 30px;
-    }
-
-    .section__content--grid {
-      justify-content: center;
-    }
+  &__page-header {
+    margin-bottom: 50px;
   }
 
   &__title-container {
@@ -170,6 +162,6 @@
   }
 }
 
-.section-card-slide {
+.section-slide {
   width: max-content;
 }

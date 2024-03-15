@@ -477,6 +477,10 @@
     }
 
     &--active {
+      border-radius: var(--border-radius-input) var(--border-radius-input) 0 0;
+    }
+
+    &:focus-visible {
       border: var(--outline-input-focus);
     }
 
@@ -489,12 +493,12 @@
     @include page-fade-in(0.25s, ease);
     background: var(--color-input-bg-solid);
     border: var(--border-input);
-    border-radius: var(--border-radius-input);
+    border-radius: 0 0 var(--border-radius-input) var(--border-radius-input);
     max-height: 300px;
     overflow: auto;
     overflow-x: hidden;
     position: absolute;
-    top: calc(100% + 3px);
+    top: calc(100% + 1px);
     width: 100%;
     z-index: 2;
 

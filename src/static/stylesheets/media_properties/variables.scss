@@ -1,12 +1,17 @@
 :root {
   --property-text-primary: #FFF;
-  --property-text-secondary: #EEE;
+  --property-text-secondary: #CCC;
   --property-text-headers: #A5A6A8;
   --property-text-faded: #818590;
   --property-text-highlight: #92a2da;
 
   --property-background: #000;
   --property-background-secondary: #1a1a1a;
+
+  --property-card-background: rgba(80, 80, 80, 0.25);
+  --property-card-background-active: rgba(80, 80, 80, 0.5);
+  --property-card-background-solid: #141414;
+  --property-card-background-solid-active: #343434;
 }
 
 @mixin page-fade-in($duration: 0.5s, $animation: ease-out, $delay: 0s) {

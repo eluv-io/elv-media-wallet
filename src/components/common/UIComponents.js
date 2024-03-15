@@ -530,7 +530,7 @@ export const Select = ({label, value, activeValuePrefix, options, placeholder, d
   }, [selectedIndex, showMenu]);
 
   useEffect(() => {
-    const optionIndex = options.findIndex(option => option[1].toLowerCase().startsWith(filter.toLowerCase()));
+    const optionIndex = options.findIndex(option => (option[2] || option[1])?.toString()?.toLowerCase().startsWith(filter.toLowerCase()));
 
     if(optionIndex >= 0) {
       setSelectedIndex(optionIndex);
@@ -614,6 +614,13 @@ export const Select = ({label, value, activeValuePrefix, options, placeholder, d
     );
   }
 
+  let activeLabel = currentIndex < 0 ? placeholder :
+    options?.[currentIndex || 0]?.[1];
+
+  if(!activeLabel || typeof activeLabel !== "object") {
+    activeLabel = `${activeValuePrefix || ""}${activeLabel}`;
+  }
+
   return (
     <div className={`styled-select ${containerClassName}`}>
       <button
@@ -633,7 +640,7 @@ export const Select = ({label, value, activeValuePrefix, options, placeholder, d
         }}
         onKeyDown={KeyboardControls}
       >
-        { currentIndex < 0 ? placeholder : `${activeValuePrefix || ""}${options[currentIndex || 0][1]}` }
+        { activeLabel }
         <div className="styled-select__button__icon-container">
           <ImageIcon icon={SelectIcon} className="styled-select__button__icon" />
         </div>
