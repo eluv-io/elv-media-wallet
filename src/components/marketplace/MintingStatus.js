@@ -762,6 +762,53 @@ export const ClaimMintingStatus = observer(() => {
   );
 });
 
+export const EntitlementMintingStatus = observer(() => {
+  const match = useRouteMatch();
+  const [status, setStatus] = useState(undefined);
+
+  const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+  const animation = MobileOption(rootStore.pageWidth, marketplace?.storefront?.purchase_animation, marketplace?.storefront?.purchase_animation_mobile);
+  const videoHash = LinkTargetHash(animation);
+
+  const revealAnimation = MobileOption(rootStore.pageWidth, marketplace?.storefront?.reveal_animation, marketplace?.storefront?.reveal_animation_mobile);
+  const revealVideoHash = LinkTargetHash(revealAnimation);
+
+  const hideText = marketplace?.storefront?.hide_text;
+
+  const Status = async () => await rootStore.EntitlementClaimStatus({
+    marketplaceId: match.params.marketplaceId,
+    purchaseId: match.params.purchaseId
+  });
+
+  if(!status) {
+    return (
+      <MintingStatus
+        key={`status-${videoHash}`}
+        videoHash={videoHash}
+        revealVideoHash={revealVideoHash}
+        hideText={hideText}
+        Status={Status}
+        OnFinish={({status}) => setStatus(status)}
+        basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
+        backText={rootStore.l10n.status.back_to_marketplace}
+      />
+    );
+  }
+
+  let items = status.items;
+  return (
+    <MintResults
+      skipReveal={marketplace?.storefront?.skip_reveal}
+      header={rootStore.l10n.status.minting.success_header}
+      subheader={rootStore.l10n.status.minting["received_item_single"]}
+      items={items}
+      basePath={UrlJoin("/marketplace", match.params.marketplaceId)}
+      nftBasePath={UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items")}
+      backText={rootStore.l10n.status.back_to_marketplace}
+    />
+  );
+});
+
 export const PackOpenStatus = observer(() => {
   const [status, setStatus] = useState(undefined);
 
