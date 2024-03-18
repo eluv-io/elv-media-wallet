@@ -11,7 +11,7 @@ import {Select} from "Components/common/UIComponents";
 
 const S = (...classes) => classes.map(c => MediaCollectionStyles[c] || "").join(" ");
 
-const MediaCollectionLists = observer(({mediaCollection, activeListId, setActiveListId}) => {
+const MediaCollectionLists = observer(({mediaCollection, activeListId, setActiveListId, navContext}) => {
   const match = useRouteMatch();
   const [mediaLists, setMediaLists] = useState([]);
 
@@ -59,7 +59,7 @@ const MediaCollectionLists = observer(({mediaCollection, activeListId, setActive
       {
         (mediaLists || []).map(mediaList =>
           <NavLink
-            to={match.url + `?l=${mediaList.id}`}
+            to={match.url + `?l=${mediaList.id}${navContext ? `&ctx=${navContext}` : ""}`}
             onClick={() => setActiveListId(mediaList.id)}
             key={`media-list-${mediaList.id}`}
             className={S("media-collection__list", mediaList.id === activeListId ? "media-collection__list--active" : "")}
@@ -77,7 +77,7 @@ const MediaCollectionLists = observer(({mediaCollection, activeListId, setActive
   );
 });
 
-const MediaCollectionMedia = observer(({mediaListId}) => {
+const MediaCollectionMedia = observer(({mediaListId, navContext}) => {
   const match = useRouteMatch();
   const [media, setMedia] = useState([]);
 
@@ -107,6 +107,7 @@ const MediaCollectionMedia = observer(({mediaListId}) => {
             key={`media-item-${mediaItem.id}`}
             mediaItem={mediaItem}
             textDisplay="titles"
+            navContext={navContext}
             className={S("media-collection__media-card")}
           />
         )
@@ -126,7 +127,12 @@ const MediaPropertyCollectionPage = observer(() => {
     mediaItemSlugOrId: match.params.mediaCollectionSlugOrId
   });
 
-  const backPath = UrlJoin("/properties", match.params.mediaPropertySlugOrId, match.params.pageSlugOrId || "");
+  const section = mediaPropertyStore.MediaPropertySection(match.params);
+
+  const navContext = new URLSearchParams(location.search).get("ctx");
+  const backPath = navContext === "s" && match.params.sectionSlugOrId ?
+    UrlJoin("/properties", match.params.mediaPropertySlugOrId, match.params.pageSlugOrId || "", "s", match.params.sectionSlugOrId) :
+    UrlJoin("/properties", match.params.mediaPropertySlugOrId, match.params.pageSlugOrId || "", `?ctx=${section.sectionId || section.id}`);
 
   useEffect(() => {
     if(!activeListId) {
@@ -139,12 +145,12 @@ const MediaPropertyCollectionPage = observer(() => {
   }
 
   return (
-    <PageContainer backPath={backPath}>
+    <PageContainer backPath={backPath} className={S("media-collection__page-container")}>
       <PageBackground display={mediaCollection} />
       <PageHeader display={mediaCollection} className={S("media-collection__page-header")} />
       <div className={S("media-collection__content")}>
-        <MediaCollectionLists mediaCollection={mediaCollection} activeListId={activeListId} setActiveListId={setActiveListId} />
-        <MediaCollectionMedia mediaListId={activeListId} key={`media-${activeListId}`} />
+        <MediaCollectionLists mediaCollection={mediaCollection} activeListId={activeListId} setActiveListId={setActiveListId} navContext={navContext} />
+        <MediaCollectionMedia mediaListId={activeListId} key={`media-${activeListId}`} navContext={navContext} />
       </div>
     </PageContainer>
   );

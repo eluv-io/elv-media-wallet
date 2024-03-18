@@ -35,14 +35,14 @@ class MediaPropertyStore {
 
     const pageId = mediaProperty.metadata.slug_map.pages[pageSlugOrId]?.page_id || pageSlugOrId;
 
-    return mediaProperty.pages[pageId];
+    return mediaProperty.metadata.pages[pageId];
   }
 
   MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId, mediaListSlugOrId}) {
     const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
+    const sectionId = mediaProperty.metadata.slug_map.sections[sectionSlugOrId]?.section_id || sectionSlugOrId;
 
-    if(sectionSlugOrId) {
-      const sectionId = mediaProperty.metadata.slug_map.sections[sectionSlugOrId]?.section_id || sectionSlugOrId;
+    if(!mediaListSlugOrId) {
       return mediaProperty.metadata.sections[sectionId];
     } else {
       // Media list specified - treat as section with expanded list
@@ -53,8 +53,11 @@ class MediaPropertyStore {
       if(!mediaList) { return; }
 
       return {
+        sectionId,
+        mediaListId,
         mediaPropertyId: mediaProperty.mediaPropertyId,
         id: mediaListId,
+        isMediaList: true,
         label: `Media List ${mediaList.label} as Section`,
         type: "manual",
         display: {
@@ -80,7 +83,7 @@ class MediaPropertyStore {
     return this.media[mediaItemSlugOrId];
   }
 
-  ResolveSectionItem(sectionItem) {
+  ResolveSectionItem({sectionId, sectionItem}) {
     // If section item should use media
     let mediaItem;
     if(sectionItem.type === "media") {
@@ -89,6 +92,7 @@ class MediaPropertyStore {
 
     return {
       ...sectionItem,
+      sectionId,
       mediaItem,
       display: {
         ...((sectionItem.use_media_settings && mediaItem) || sectionItem.display)
@@ -106,7 +110,7 @@ class MediaPropertyStore {
       return (
         section.content.map(sectionItem => {
           if(!sectionItem.expand || sectionItem.type !== "media") {
-            return this.ResolveSectionItem(sectionItem);
+            return this.ResolveSectionItem({sectionId: section.id, sectionItem});
           }
 
           // Expanded collection or list
@@ -117,14 +121,17 @@ class MediaPropertyStore {
           return (
             (mediaItem.type === "collection" ? mediaItem.media_lists : mediaItem.media).map(subMediaItemId =>
               this.ResolveSectionItem({
-                isExpandedMediaItem: true,
-                expand: false,
-                id: subMediaItemId,
-                media_id: subMediaItemId,
-                media_type: mediaItem.type === "collection" ? "list" : "media",
-                type: "media",
-                use_media_settings: true,
-                display: {}
+                sectionId: section.id,
+                sectionItem: {
+                  isExpandedMediaItem: true,
+                  expand: false,
+                  id: subMediaItemId,
+                  media_id: subMediaItemId,
+                  media_type: mediaItem.type === "collection" ? "list" : "media",
+                  type: "media",
+                  use_media_settings: true,
+                  display: {}
+                }
               })
             )
           );
@@ -140,12 +147,12 @@ class MediaPropertyStore {
       this.MediaProperty({mediaPropertySlugOrId})?.metadata?.media_catalogs || [];
 
     return (
-      yield this.FilteredMedia({mediaCatalogIds, select: section.select})
+      yield this.FilteredMedia({sectionId: section.id, mediaCatalogIds, select: section.select})
     )
       .sort((a, b) => a.catalog_title < b.catalog_title ? -1 : 1);
   });
 
-  FilteredMedia = flow(function * ({mediaCatalogIds=[], select}) {
+  FilteredMedia = flow(function * ({sectionId, mediaCatalogIds=[], select}) {
     const now = new Date();
     return Object.values(this.media).filter(mediaItem => {
       // Media catalog
@@ -214,14 +221,17 @@ class MediaPropertyStore {
     })
       .map(mediaItem =>
         this.ResolveSectionItem({
-          isAutomaticContent: true,
-          expand: false,
-          id: mediaItem.id,
-          media_id: mediaItem.id,
-          media_type: mediaItem.type === "collection" ? "list" : "media",
-          type: "media",
-          use_media_settings: true,
-          display: {}
+          sectionId,
+          sectionItem: {
+            isAutomaticContent: true,
+            expand: false,
+            id: mediaItem.id,
+            media_id: mediaItem.id,
+            media_type: mediaItem.type === "collection" ? "list" : "media",
+            type: "media",
+            use_media_settings: true,
+            display: {}
+          }
         })
       )
       .sort((a, b) => a.display.catalog_title > b.display.catalog_title ? -1 : 1);

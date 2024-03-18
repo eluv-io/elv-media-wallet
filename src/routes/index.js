@@ -57,14 +57,27 @@ const GetNFT = (match) => {
   return (rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId})).nft || { metadata: {} };
 };
 
-const PropertyRoutes = (basePath="") => {
+const PropertyMediaRoutes = (basePath="") => {
+  const GetPropertyPageTitle = match => GetProperty(match)?.metadata?.page_title || rootStore.l10n.media_properties.media_property;
   return [
-    { name: match => GetProperty(match)?.metadata?.page_title || rootStore.l10n.media_properties.media_property, path: UrlJoin(basePath, ":mediaPropertySlugOrId/:pageSlugOrId?"), Component: MediaPropertyPage },
-    { name: match => GetProperty(match)?.metadata?.page_title || rootStore.l10n.media_properties.media_property, path: UrlJoin(basePath, ":mediaPropertySlugOrId/:pageSlugOrId?/s/:sectionSlugOrId"), Component: MediaPropertySectionPage },
-    { name: match => GetProperty(match)?.metadata?.page_title || rootStore.l10n.media_properties.media_property, path: UrlJoin(basePath, ":mediaPropertySlugOrId/:pageSlugOrId?/l/:mediaListSlugOrId"), Component: MediaPropertySectionPage },
-    { name: match => GetProperty(match)?.metadata?.page_title || rootStore.l10n.media_properties.media_property, path: UrlJoin(basePath, ":mediaPropertySlugOrId/:pageSlugOrId?/c/:mediaCollectionSlugOrId"), Component: MediaPropertyCollectionPage },
-    { name: match => GetProperty(match)?.metadata?.page_title || rootStore.l10n.media_properties.media_property, path: UrlJoin(basePath, ":mediaPropertySlugOrId/:pageSlugOrId?/s/:sectionSlugOrId/m/:mediaItemSlugOrId"), Component: MediaPropertyMediaPage },
-    { name: match => GetProperty(match)?.metadata?.page_title || rootStore.l10n.media_properties.media_property, path: UrlJoin(basePath, ":mediaPropertySlugOrId/:pageSlugOrId?/m/:mediaItemSlugOrId"), Component: MediaPropertyMediaPage }
+    { name: GetPropertyPageTitle, path: UrlJoin(basePath, "c/:mediaCollectionSlugOrId"), Component: MediaPropertyCollectionPage },
+    { name: GetPropertyPageTitle, path: UrlJoin(basePath, "c/:mediaCollectionSlugOrId/l/:mediaListSlugOrId"), Component: MediaPropertyCollectionPage },
+    { name: GetPropertyPageTitle, path: UrlJoin(basePath, "l/:mediaListSlugOrId"), Component: MediaPropertySectionPage },
+    { name: GetPropertyPageTitle, path: UrlJoin(basePath, "m/:mediaItemSlugOrId"), Component: MediaPropertyMediaPage },
+    { name: GetPropertyPageTitle, path: UrlJoin(basePath, "l/:mediaListSlugOrId/m/:mediaItemSlugOrId"), Component: MediaPropertyMediaPage },
+    { name: GetPropertyPageTitle, path: UrlJoin(basePath, "c/:mediaCollectionSlugOrId/l/:mediaListSlugOrId/m/:mediaItemSlugOrId"), Component: MediaPropertyMediaPage },
+  ].map(route => ({...route, noBlock: true}));
+};
+
+const PropertyRoutes = (basePath="") => {
+  const GetPropertyPageTitle = match => GetProperty(match)?.metadata?.page_title || rootStore.l10n.media_properties.media_property;
+  return [
+    { name: GetPropertyPageTitle, path: UrlJoin(basePath, ":mediaPropertySlugOrId/:pageSlugOrId?"), Component: MediaPropertyPage },
+    { name: GetPropertyPageTitle, path: UrlJoin(basePath, ":mediaPropertySlugOrId/:pageSlugOrId?/s/:sectionSlugOrId"), Component: MediaPropertySectionPage },
+    // Media without section
+    ...PropertyMediaRoutes(UrlJoin(basePath, ":mediaPropertySlugOrId/:pageSlugOrId?")),
+    // Media within section
+    ...PropertyMediaRoutes(UrlJoin(basePath, ":mediaPropertySlugOrId/:pageSlugOrId?/s/:sectionSlugOrId"))
   ].map(route => ({...route, noBlock: true}));
 };
 

@@ -19,7 +19,7 @@ import {PageBackground, PageContainer, PageHeader} from "Components/properties/C
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 
-const SectionContentCarousel = observer(({section, sectionContent}) => {
+const SectionContentCarousel = observer(({section, sectionContent, navContext}) => {
   const [swiper, setSwiper] = useState(undefined);
   const [activeIndex, setActiveIndex] = useState(0);
   const [imageDimensions, setImageDimensions] = useState({width: 400, height: 400});
@@ -72,6 +72,7 @@ const SectionContentCarousel = observer(({section, sectionContent}) => {
               sectionItem={sectionItem}
               textDisplay={section.display.content_display_text}
               aspectRatio={section.display.aspect_ratio}
+              navContext={navContext}
             />
           </SwiperSlide>
         )
@@ -89,7 +90,7 @@ const SectionContentCarousel = observer(({section, sectionContent}) => {
   );
 });
 
-const SectionContentGrid = observer(({section, sectionContent}) => {
+const SectionContentGrid = observer(({section, sectionContent, navContext}) => {
   return (
     <div className={S("section__content", "section__content--grid", `section__content--${section.display.aspect_ratio?.toLowerCase()}`)}>
       {
@@ -97,8 +98,9 @@ const SectionContentGrid = observer(({section, sectionContent}) => {
           <MediaCardVertical
             key={`section-item-${sectionItem.id}`}
             sectionItem={sectionItem}
-            textDisplay={"all" || section.display.content_display_text}
+            textDisplay={section.display.content_display_text}
             aspectRatio={section.display.aspect_ratio}
+            navContext={navContext}
           />
         )
       }
@@ -107,12 +109,14 @@ const SectionContentGrid = observer(({section, sectionContent}) => {
 });
 
 export const MediaPropertySection = observer(({sectionId, mediaListId, isSectionPage}) => {
+  const navContext = new URLSearchParams(location.search).get("ctx");
   const match = useRouteMatch();
   const section = mediaPropertyStore.MediaPropertySection({
     mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
     sectionSlugOrId: sectionId || match.params.sectionSlugOrId,
     mediaListSlugOrId: mediaListId || match.params.mediaListSlugOrId
   });
+
   const [sectionContent, setSectionContent] = useState([]);
 
   useEffect(() => {
@@ -143,7 +147,11 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
   if(isSectionPage) {
     return (
       <div className={S("section", "section--page")}>
-        <ContentComponent section={section} sectionContent={sectionContent} />
+        <ContentComponent
+          section={section}
+          sectionContent={sectionContent}
+          navContext="s"
+        />
       </div>
     );
   }
@@ -151,7 +159,14 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
   const showAllLink = sectionContent.length > parseInt(section.display.display_limit || 10);
 
   return (
-    <div className={S("section", isSectionPage && "section--page")}>
+    <div
+      ref={element => {
+        if(!element || navContext !== sectionId) { return; }
+
+        setTimeout(() => element.scrollIntoView(), 250);
+      }}
+      className={S("section", isSectionPage && "section--page")}
+    >
       {
         !showAllLink && !section.display.title ? null :
           <div className={S("section__title-container")}>
@@ -172,7 +187,10 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
             }
           </div>
       }
-      <ContentComponent section={section} sectionContent={sectionContent} />
+      <ContentComponent
+        section={section}
+        sectionContent={sectionContent}
+      />
     </div>
   );
 });
@@ -182,7 +200,10 @@ const MediaPropertySectionPage = observer(() => {
 
   const section = mediaPropertyStore.MediaPropertySection(match.params);
 
-  const backPath = UrlJoin("/properties", match.params.mediaPropertySlugOrId, match.params.pageSlugOrId || "");
+  const navContext = new URLSearchParams(location.search).get("ctx");
+  const backPath = navContext === "s" && match.params.sectionSlugOrId ?
+    UrlJoin("/properties", match.params.mediaPropertySlugOrId, match.params.pageSlugOrId || "", "s", match.params.sectionSlugOrId) :
+    UrlJoin("/properties", match.params.mediaPropertySlugOrId, match.params.pageSlugOrId || "", `?ctx=${section.sectionId || section.id}`);
 
   if(!section) {
     return <Redirect to={backPath} />;
@@ -193,8 +214,8 @@ const MediaPropertySectionPage = observer(() => {
       <PageBackground display={section.display} />
       <PageHeader display={section.display} className={S("section__page-header")} />
       <MediaPropertySection
-        sectionId={match.params.sectionSlugOrId ? section.id : undefined}
-        mediaListId={match.params.mediaListSlugOrId ? section.id : undefined}
+        sectionId={section.sectionId || section.id}
+        mediaListId={section.mediaListId}
         isSectionPage
       />
     </PageContainer>

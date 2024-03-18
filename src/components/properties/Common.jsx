@@ -9,14 +9,13 @@ import {NavLink} from "react-router-dom";
 
 import ArrowLeft from "Assets/icons/arrow-left.svg";
 import ImageIcon from "Components/common/ImageIcon";
-import PageStyles from "Assets/stylesheets/media_properties/property-page.module";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
 
-export const PageContainer = ({backPath, children}) => {
+export const PageContainer = ({backPath, children, className}) => {
   return (
-    <div className={S("page-container")}>
+    <div className={[S("page-container"), className].join(" ")}>
       {
         !backPath ? null :
           <NavLink to={backPath} className={S("page-container__back-link")}>
@@ -30,7 +29,7 @@ export const PageContainer = ({backPath, children}) => {
   );
 };
 
-export const PageBackground = observer(({display, className=""}) => {
+export const PageBackground = observer(({display}) => {
   const pageWidth = mediaPropertyStore.rootStore.pageWidth;
   const backgroundImage = (pageWidth <= 800 && display.background_image_mobile?.url) || display.background_image?.url;
   // Limit size of background image based on screen size
@@ -162,7 +161,7 @@ export const ScaledText = observer(({
   maxPxMobile=32,
   ...props
 }) => {
-  const text = children.toString();
+  const text = children?.toString() || "";
 
   if(rootStore.pageWidth < 800) {
     minPx = Math.min(minPx, minPxMobile);

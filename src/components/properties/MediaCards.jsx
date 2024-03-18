@@ -10,22 +10,40 @@ import UrlJoin from "url-join";
 
 const S = (...classes) => classes.map(c => MediaCardStyles[c] || "").join(" ");
 
-const MediaCardLink = ({match, sectionItem, mediaItem}) => {
+const MediaCardLink = ({match, sectionItem, mediaItem, navContext}) => {
   mediaItem = mediaItem || sectionItem.mediaItem;
 
+  let linkPath = match.url;
   if(mediaItem || sectionItem?.type === "media") {
     const mediaId = mediaItem?.id || sectionItem.media_id;
 
+    let basePath = match.url;
+
+    //navContext = match.params.sectionSlugOrId || sectionItem.sectionId;
+    if(!match.params.sectionSlugOrId && sectionItem.sectionId) {
+      basePath = UrlJoin(basePath, "s", sectionItem.sectionId);
+    }
+
     if((mediaItem?.type || sectionItem.media_type) === "collection") {
-      return UrlJoin("/", location.pathname, "c", mediaId);
+      linkPath = UrlJoin(basePath, "c", mediaId);
     } else if((mediaItem?.type || sectionItem.media_type) === "list") {
-      return UrlJoin("/", location.pathname, "l", mediaId);
+      linkPath = UrlJoin(basePath, "l", mediaId);
     } else if((mediaItem?.type || sectionItem.media_type) === "media") {
-      return UrlJoin("/properties", match.params.mediaPropertySlugOrId, match.params.pageSlugOrId || "", "m", mediaId);
+      const listParam = new URLSearchParams(location.search).get("l");
+
+      if(listParam) {
+        basePath = UrlJoin(basePath, "l", listParam);
+      }
+
+      linkPath = UrlJoin(basePath, "m", mediaId);
     }
   }
 
-  return location.pathname;
+  if(navContext) {
+    linkPath += `?ctx=${navContext}`;
+  }
+
+  return linkPath;
 };
 
 export const MediaCardVertical = observer(({
@@ -34,6 +52,7 @@ export const MediaCardVertical = observer(({
   aspectRatio,
   textDisplay="title",
   setImageDimensions,
+  navContext,
   className=""
 }) => {
   const match = useRouteMatch();
@@ -61,7 +80,7 @@ export const MediaCardVertical = observer(({
   return (
     <NavLink
       aria-label={display.title}
-      to={MediaCardLink({match, sectionItem, mediaItem}) || ""}
+      to={MediaCardLink({match, sectionItem, mediaItem, navContext}) || ""}
       className={[S("media-card-vertical", `media-card-vertical--${aspectRatio || imageAspectRatio}`), className].join(" ")}
     >
       <div ref={imageContainerRef} className={S("media-card-vertical__image-container")}>
@@ -125,6 +144,7 @@ export const MediaCardHorizontal = observer(({
   aspectRatio,
   textDisplay="title",
   setImageDimensions,
+  navContext,
   className=""
 }) => {
   const match = useRouteMatch();
@@ -152,7 +172,7 @@ export const MediaCardHorizontal = observer(({
   return (
     <NavLink
       aria-label={display.title}
-      to={MediaCardLink({match, sectionItem, mediaItem}) || ""}
+      to={MediaCardLink({match, sectionItem, mediaItem, navContext}) || ""}
       className={[S("media-card-horizontal", `media-card-horizontal--${aspectRatio || imageAspectRatio}`), className].join(" ")}
     >
       <div ref={imageContainerRef} className={S("media-card-horizontal__image-container")}>

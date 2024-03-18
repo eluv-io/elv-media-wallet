@@ -24,10 +24,10 @@ const MediaPropertyPage = observer(() => {
   }
 
   return (
-    <PageContainer>
+    <PageContainer className={S("page__container")}>
       <PageBackground display={page.layout} />
       <PageHeader display={page.layout} maxHeaderSize={70} descriptionBaseFontSize={18} />
-      <div className={S("page-sections")}>
+      <div className={S("page__sections")}>
         {
           page.layout.sections.map(sectionId =>
             <MediaPropertySection

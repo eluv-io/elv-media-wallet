@@ -4,18 +4,19 @@ import React, {useEffect, useState, useRef} from "react";
 import {observer} from "mobx-react";
 import {NavLink, Redirect, useRouteMatch} from "react-router-dom";
 import {mediaPropertyStore, rootStore} from "Stores";
-
-import SwiperCore, {Lazy} from "swiper";
-SwiperCore.use([Lazy]);
-
+import UrlJoin from "url-join";
 import {LinkTargetHash, SetImageUrlDimensions} from "../../utils/Utils";
 import {InitializeEluvioPlayer, EluvioPlayerParameters} from "@eluvio/elv-player-js";
 import ImageIcon from "Components/common/ImageIcon";
-import ClockIcon from "Assets/icons/clock";
 import Countdown from "./Countdown";
-import MediaErrorIcon from "Assets/icons/media-error-icon";
 import {MediaItemImageUrl, MediaItemScheduleInfo} from "../../utils/MediaPropertyUtils";
+
+import ClockIcon from "Assets/icons/clock";
 import ArrowLeft from "Assets/icons/arrow-left";
+import MediaErrorIcon from "Assets/icons/media-error-icon";
+
+import SwiperCore, {Lazy} from "swiper";
+SwiperCore.use([Lazy]);
 
 
 const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
@@ -154,7 +155,33 @@ const MediaPropertyMediaPage = observer(() => {
 
   const mediaItem = mediaPropertyStore.MediaPropertyMediaItem(match.params);
 
-  const backPath = "/" + location.pathname.replace(/^\//, "").split("/").slice(0, -2).join("/");
+  const context = new URLSearchParams(location.search).get("ctx");
+  let backPath = UrlJoin("/properties", match.params.mediaPropertySlugOrId, match.params.mediaPageSlugOrId || "");
+  if(!match.params.mediaCollectionSlugOrId && !match.params.mediaListSlugOrId) {
+    if(match.params.sectionSlugOrId) {
+      if(context === "s") {
+        // Go back to section page
+        backPath = UrlJoin(backPath, "s", match.params.sectionSlugOrId);
+      } else {
+        // Don't go back to section page, but add context to scroll to the proper section
+        backPath += match.params.sectionSlugOrId ? `?ctx=${match.params.sectionSlugOrId}` : "";
+      }
+    }
+  } else {
+    if(match.params.sectionSlugOrId) {
+      backPath = UrlJoin(backPath, "s", match.params.sectionSlugOrId);
+    }
+
+    if(match.params.mediaCollectionSlugOrId) {
+      backPath = UrlJoin(backPath, "c", match.params.mediaCollectionSlugOrId, `?l=${match.params.mediaListSlugOrId}`);
+    } else if(match.params.mediaListSlugOrId) {
+      backPath = UrlJoin(backPath, "l", match.params.mediaListSlugOrId);
+    }
+  }
+
+  if(context) {
+    backPath += backPath.includes("?") ? `&ctx=${context}` : `?ctx=${context}`;
+  }
 
   if(!mediaItem) {
     return <Redirect to={backPath} />;

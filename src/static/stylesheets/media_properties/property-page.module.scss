@@ -1,8 +1,15 @@
-.page-sections {
-  margin-top: 200px;
-  position: relative;
-  display: grid;
-  gap: 50px;
-  width: 100%;
-  padding-bottom: 300px;
+.page {
+  &__container {
+    &.page__container {
+      padding: 75px 75px 150px;
+    }
+  }
+
+  &__sections {
+    margin-top: 150px;
+    position: relative;
+    display: grid;
+    gap: 30px;
+    width: 100%;
+  }
 }
