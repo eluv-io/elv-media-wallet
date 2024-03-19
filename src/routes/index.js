@@ -78,7 +78,7 @@ const PropertyRoutes = (basePath="") => {
     ...PropertyMediaRoutes(UrlJoin(basePath, ":mediaPropertySlugOrId/:pageSlugOrId?")),
     // Media within section
     ...PropertyMediaRoutes(UrlJoin(basePath, ":mediaPropertySlugOrId/:pageSlugOrId?/s/:sectionSlugOrId"))
-  ].map(route => ({...route, noBlock: true}));
+  ].map(route => ({...route, noBlock: true, clearMarketplace: true}));
 };
 
 const UserMarketplaceRoutes = () => {

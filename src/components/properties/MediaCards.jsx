@@ -37,6 +37,20 @@ const MediaCardLink = ({match, sectionItem, mediaItem, navContext}) => {
 
       linkPath = UrlJoin(basePath, "m", mediaId);
     }
+  } else if(sectionItem?.type === "page_link") {
+    const page = mediaPropertyStore.MediaPropertyPage({...match.params, pageSlugOrId: sectionItem.page_id});
+
+    if(page) {
+      const pageSlugOrId = page?.slug || sectionItem.page_id;
+      linkPath = UrlJoin("/properties", match.params.mediaPropertySlugOrId, pageSlugOrId === "main" ? "" : pageSlugOrId);
+    }
+  } else if(sectionItem?.type === "marketplace_link") {
+    const marketplaceId = sectionItem.marketplace?.marketplace_id;
+
+    if(marketplaceId) {
+      const sku = sectionItem.marketplace_sku || "";
+      linkPath = UrlJoin("/marketplace", marketplaceId, "store", sku);
+    }
   }
 
   if(navContext) {

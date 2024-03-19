@@ -9,7 +9,15 @@
     margin-top: 150px;
     position: relative;
     display: grid;
-    gap: 30px;
+    gap: 50px;
     width: 100%;
+  }
+
+  @media screen and (max-width: 800px) {
+    &__container {
+      &.page__container {
+        padding: 50px 30px 150px;
+      }
+    }
   }
 }

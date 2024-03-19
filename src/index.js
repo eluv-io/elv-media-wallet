@@ -161,7 +161,6 @@ const Routes = observer(() => {
   );
 });
 
-
 const App = observer(() => {
   const history = useHistory();
 

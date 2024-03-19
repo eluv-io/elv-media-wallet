@@ -46,6 +46,8 @@ export const MediaItemScheduleInfo = mediaItem => {
 };
 
 export const MediaItemImageUrl = ({mediaItem, display, aspectRatio, width}) => {
+  display = display || mediaItem;
+
   aspectRatio = aspectRatio?.toLowerCase();
   const aspectRatioPreference =
     (mediaItem?.type === "media" && mediaItem.media_type === "Video") ?

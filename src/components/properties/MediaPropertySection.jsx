@@ -16,7 +16,6 @@ import LeftArrow from "Assets/icons/left-arrow";
 import ImageIcon from "Components/common/ImageIcon";
 import {PageBackground, PageContainer, PageHeader} from "Components/properties/Common";
 
-
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 
 const SectionContentCarousel = observer(({section, sectionContent, navContext}) => {
@@ -91,8 +90,16 @@ const SectionContentCarousel = observer(({section, sectionContent, navContext}) 
 });
 
 const SectionContentGrid = observer(({section, sectionContent, navContext}) => {
+  console.log(section.label, section.display);
   return (
-    <div className={S("section__content", "section__content--grid", `section__content--${section.display.aspect_ratio?.toLowerCase()}`)}>
+    <div
+      className={S(
+        "section__content",
+        "section__content--grid",
+        `section__content--${section.display.aspect_ratio?.toLowerCase()}`,
+        `section__content--${section.display.justification || "left"}`
+      )}
+    >
       {
         sectionContent.map(sectionItem =>
           <MediaCardVertical

@@ -16,6 +16,7 @@ import ArrowLeft from "Assets/icons/arrow-left";
 import MediaErrorIcon from "Assets/icons/media-error-icon";
 
 import SwiperCore, {Lazy} from "swiper";
+import {LoaderImage} from "Components/properties/Common";
 SwiperCore.use([Lazy]);
 
 
@@ -149,6 +150,29 @@ const MediaVideo = observer(({mediaItem, setControlsVisible}) => {
   );
 });
 
+const Media = observer(({mediaItem, setControlsVisible}) => {
+  if(!mediaItem) { return <div className={S("media")} />; }
+
+  if(mediaItem.media_type === "Video") {
+    return <MediaVideo mediaItem={mediaItem} setControlsVisible={setControlsVisible} />
+  } else if(mediaItem.media_type === "Image") {
+    const imageUrl = mediaItem.image?.url || MediaItemImageUrl({mediaItem, aspectRatio: mediaItem.image_aspect_ratio})?.imageUrl;
+
+    return (
+      <div className={S("media", "image")}>
+        <LoaderImage
+          src={imageUrl}
+          lazy={false}
+          loaderHeight="100%"
+          loaderWidth="100%"
+          className={S("media__image")}
+        />
+      </div>
+    );
+
+  }
+});
+
 const MediaPropertyMediaPage = observer(() => {
   const match = useRouteMatch();
   const [controlsVisible, setControlsVisible] = useState(true);
@@ -196,7 +220,7 @@ const MediaPropertyMediaPage = observer(() => {
         <div>Back</div>
       </NavLink>
       <div className={S("media-container")}>
-        <MediaVideo mediaItem={mediaItem} setControlsVisible={setControlsVisible} />
+        <Media mediaItem={mediaItem} setControlsVisible={setControlsVisible} />
       </div>
       <div className={S("media-info")}>
         <div className={S("media-text")}>
