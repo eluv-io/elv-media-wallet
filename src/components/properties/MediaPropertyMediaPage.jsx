@@ -5,123 +5,22 @@ import {observer} from "mobx-react";
 import {NavLink, Redirect, useRouteMatch} from "react-router-dom";
 import {mediaPropertyStore, rootStore} from "Stores";
 import UrlJoin from "url-join";
-import {LinkTargetHash, SetImageUrlDimensions} from "../../utils/Utils";
-import {InitializeEluvioPlayer, EluvioPlayerParameters} from "@eluvio/elv-player-js";
 import ImageIcon from "Components/common/ImageIcon";
 import Countdown from "./Countdown";
 import {MediaItemImageUrl, MediaItemScheduleInfo} from "../../utils/MediaPropertyUtils";
+import {Carousel, Description, LoaderImage} from "Components/properties/Common";
+import Video from "./Video";
 
 import ClockIcon from "Assets/icons/clock";
 import ArrowLeft from "Assets/icons/arrow-left";
 import MediaErrorIcon from "Assets/icons/media-error-icon";
-import {Carousel, Description, LoaderImage} from "Components/properties/Common";
+import {SetImageUrlDimensions} from "../../utils/Utils";
+
 
 const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 
 
-const Video = observer(({
-  objectId,
-  versionHash,
-  link,
-  contentInfo={},
-  playerOptions={},
-  posterImage,
-  callback,
-  errorCallback,
-  className=""
-}) => {
-  const [contentHash, setContentHash] = useState(undefined);
-  const [videoDimensions, setVideoDimensions] = useState(undefined);
-  const [player, setPlayer] = useState(undefined);
-  const targetRef = useRef();
-
-  useEffect(() => {
-    if(link) {
-      versionHash = LinkTargetHash(link);
-    }
-
-    mediaPropertyStore.client.LatestVersionHash({versionHash, objectId})
-      .then(setContentHash);
-  }, [objectId, versionHash, link]);
-
-  useEffect(() => {
-    if(!targetRef || !targetRef.current || !contentHash) { return; }
-
-    if(player) {
-      try {
-        player.Destroy();
-        setPlayer(undefined);
-      } catch(error) {
-        // eslint-disable-next-line no-console
-        console.log(error);
-      }
-    }
-
-    // eslint-disable-next-line no-async-promise-executor
-    InitializeEluvioPlayer(
-      targetRef.current,
-      {
-        clientOptions: {
-          client: mediaPropertyStore.client
-        },
-        sourceOptions: {
-          contentInfo: {
-            ...contentInfo,
-            posterImage
-          },
-          playoutParameters: {
-            versionHash: contentHash
-          },
-        },
-        playerOptions: {
-          muted: true,
-          ui: EluvioPlayerParameters.ui.WEB,
-          appName: mediaPropertyStore.rootStore.appId,
-          backgroundColor: "black",
-          autoplay: EluvioPlayerParameters.autoplay.ON,
-          watermark: EluvioPlayerParameters.watermark.OFF,
-          errorCallback,
-          ...playerOptions
-        }
-      }
-    ).then(player => {
-      window.player = player;
-      setPlayer(player);
-
-      player.controls.RegisterVideoEventListener("canplay", event => {
-        setVideoDimensions({width: event.target.videoWidth, height: event.target.videoHeight});
-      });
-
-      if(callback) {
-        callback(player);
-      }
-    });
-  }, [targetRef, contentHash]);
-
-  useEffect(() => {
-    return () => {
-      if(!player) { return; }
-
-      try {
-        player.Destroy();
-        window.player = undefined;
-      } catch(error) {
-        // eslint-disable-next-line no-console
-        console.log(error);
-      }
-    };
-  }, [player]);
-
-
-  return (
-    <div
-      className={[S("video"), className].join(" ")}
-      style={{aspectRatio: `${videoDimensions?.width || 16} / ${videoDimensions?.height || 9}`}}
-    >
-      <div ref={targetRef} />
-    </div>
-  );
-});
+/* Video */
 
 const MediaVideo = observer(({mediaItem, setControlsVisible}) => {
   const [scheduleInfo, setScheduleInfo] = useState(MediaItemScheduleInfo(mediaItem));
@@ -182,10 +81,13 @@ const MediaVideo = observer(({mediaItem, setControlsVisible}) => {
         })
       }}
       errorCallback={() => setError("Something went wrong")}
-      className={S("media")}
+      className={S("media", "video")}
     />
   );
 });
+
+
+/* Gallery */
 
 const GalleryContent = observer(({galleryItem}) => {
   if(galleryItem.video) {
@@ -294,12 +196,16 @@ const MediaGallery = observer(({mediaItem}) => {
 const Media = observer(({mediaItem, setControlsVisible}) => {
   if(!mediaItem) { return <div className={S("media")} />; }
 
+  console.log(mediaItem);
   if(mediaItem.media_type === "Video") {
-    return <MediaVideo mediaItem={mediaItem} setControlsVisible={setControlsVisible}/>
+    return <MediaVideo mediaItem={mediaItem} setControlsVisible={setControlsVisible}/>;
   } else if(mediaItem.media_type === "Gallery") {
     return <MediaGallery mediaItem={mediaItem} />;
   } else if(mediaItem.media_type === "Image") {
-    const imageUrl = mediaItem.image?.url || MediaItemImageUrl({mediaItem, aspectRatio: mediaItem.image_aspect_ratio})?.imageUrl;
+    const imageUrl = mediaItem.image?.url || MediaItemImageUrl({
+      mediaItem,
+      aspectRatio: mediaItem.image_aspect_ratio
+    })?.imageUrl;
 
     return (
       <div className={S("media", "image")}>
@@ -312,7 +218,49 @@ const Media = observer(({mediaItem, setControlsVisible}) => {
         />
       </div>
     );
+  } else if(["Ebook", "HTML"].includes(mediaItem.media_type)) {
+    let url = mediaItem.media_file?.url;
 
+    if(!url) {
+      return null;
+    }
+
+    if(mediaItem.media_type === "Ebook") {
+      const mediaUrl = new URL(url);
+      url = new URL("https://embed.v3.contentfabric.io");
+      url.searchParams.set("p", "");
+      url.searchParams.set("net", mediaPropertyStore.client.networkName === "main" ? "main" : "demo");
+      url.searchParams.set("mt", "b");
+      url.searchParams.set("murl", mediaPropertyStore.client.utils.B64(mediaUrl.toString()));
+    } else {
+      url = new URL(url);
+      mediaItem.parameters?.forEach(({name, value}) =>
+        url.searchParams.set(name, value)
+      );
+    }
+
+    return (
+      <div className={S("media", "html")}>
+        <iframe
+          src={url.toString()}
+          allow="encrypted-media *"
+          allowFullScreen
+          sandbox={[
+            "allow-downloads",
+            "allow-scripts",
+            "allow-forms",
+            "allow-modals",
+            "allow-pointer-lock",
+            "allow-orientation-lock",
+            "allow-popups",
+            "allow-presentation",
+            "allow-same-origin",
+            "allow-downloads-without-user-activation"
+          ].join(" ")}
+          className={S("html__frame")}
+        />
+      </div>
+    );
   } else {
     return (
       <div className={S("media", "unknown")} />

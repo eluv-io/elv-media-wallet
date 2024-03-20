@@ -51,11 +51,6 @@
   z-index: 1;
 }
 
-.video {
-  height: auto;
-  max-width: 100vw;
-}
-
 .media {
   box-shadow: 0 0 30px var(--property-background);
   height: 100vh;
@@ -292,5 +287,17 @@
     &__description {
       font-size: 0.7em;
     }
+  }
+}
+
+.html {
+  padding-top: 50px;
+  padding-bottom: 10px;
+
+  &__frame {
+    border: 0;
+    height: 100%;
+    width: 100%;
+    background-color: white;
   }
 }
