@@ -6,91 +6,43 @@ import {NavLink, Redirect, useRouteMatch} from "react-router-dom";
 import {mediaPropertyStore, rootStore} from "Stores";
 import {MediaCardVertical} from "Components/properties/MediaCards";
 import UrlJoin from "url-join";
-
-import SwiperCore, {Lazy} from "swiper";
-import {Swiper, SwiperSlide} from "swiper/react";
-SwiperCore.use([Lazy]);
+import ImageIcon from "Components/common/ImageIcon";
+import {Carousel, PageBackground, PageContainer, PageHeader} from "Components/properties/Common";
 
 import RightArrow from "Assets/icons/right-arrow";
-import LeftArrow from "Assets/icons/left-arrow";
-import ImageIcon from "Components/common/ImageIcon";
-import {PageBackground, PageContainer, PageHeader} from "Components/properties/Common";
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 
 const SectionContentCarousel = observer(({section, sectionContent, navContext}) => {
-  const [swiper, setSwiper] = useState(undefined);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [imageDimensions, setImageDimensions] = useState({width: 400, height: 400});
-  const slidesPerPage =
-    // If aspect ratio is consistent, we can have arrows navigate an exact page at a time
-    section.display.aspect_ratio ?
-      Math.floor((swiper?.width || rootStore.pageWidth - 200) / imageDimensions.width) :
-      rootStore.pageWidth > 1400 ? 3 : rootStore.pageWidth > 1000 ? 2 : 1;
-
-  window.swiper = swiper;
-
   return (
-    <Swiper
+    <Carousel
       className={S("section__content", "section__content--carousel", `section__content--${section.display.aspect_ratio?.toLowerCase()}`)}
-      threshold={5}
-      navigation={false}
-      slidesPerView="auto"
-      slidesPerGroup={1}
-      lazy={{
-        enabled: true,
-        loadPrevNext: true,
-        loadOnTransitionStart: true
-      }}
-      observer
-      observeParents
-      speed={1000}
-      parallax
-      updateOnWindowResize
-      spaceBetween={rootStore.pageWidth > 800 ? 20 : 10}
-      onSwiper={swiper => {
-        setActiveIndex(swiper.activeIndex);
-        setSwiper(swiper);
-        swiper.on("activeIndexChange", () => setActiveIndex(swiper.activeIndex));
-      }}
-    >
-      <button
-        disabled={activeIndex === 0}
-        style={{height: imageDimensions.height + 10}}
-        onClick={() => swiper?.slideTo(Math.max(0, swiper.activeIndex - slidesPerPage))}
-        className={S("section__carousel-arrow", "section__carousel-arrow--previous")}
-      >
-        <div className={S("section__carousel-arrow-background")} />
-        <ImageIcon label="Previous Page" icon={LeftArrow} />
-      </button>
-      {
-        sectionContent.map((sectionItem, index) =>
-          <SwiperSlide key={`section-slide-${sectionItem.id}`} className={S("section-slide")}>
-            <MediaCardVertical
-              setImageDimensions={index === 0 && setImageDimensions}
-              sectionItem={sectionItem}
-              textDisplay={section.display.content_display_text}
-              aspectRatio={section.display.aspect_ratio}
-              navContext={navContext}
-            />
-          </SwiperSlide>
-        )
+      slidesPerPage={({imageDimensions, swiper}) =>
+        // If aspect ratio is consistent, we can have arrows navigate an exact page at a time
+        section.display.aspect_ratio ?
+          Math.floor((swiper?.width || rootStore.pageWidth - 200) / imageDimensions.width) :
+          rootStore.pageWidth > 1400 ? 3 : rootStore.pageWidth > 1000 ? 2 : 1
       }
-      <button
-        disabled={activeIndex + slidesPerPage >= sectionContent.length - 1}
-        style={{height: imageDimensions.height + 10}}
-        onClick={() => swiper?.slideTo(Math.min(sectionContent.length - 1, swiper.activeIndex + slidesPerPage))}
-        className={S("section__carousel-arrow", "section__carousel-arrow--next")}
-      >
-        <div className={S("section__carousel-arrow-background")} />
-        <ImageIcon label="Next Page" icon={RightArrow} />
-      </button>
-    </Swiper>
+      swiperOptions={{
+        spaceBetween: rootStore.pageWidth > 800 ? 20 : 10
+      }}
+      initialImageDimensions={{height: 400, width: 400}}
+      content={sectionContent}
+      RenderSlide={({item, setImageDimensions}) =>
+        <MediaCardVertical
+          key={`media-card-${item.id}`}
+          setImageDimensions={setImageDimensions}
+          sectionItem={item}
+          textDisplay={section.display.content_display_text}
+          aspectRatio={section.display.aspect_ratio}
+          navContext={navContext}
+        />
+      }
+    />
   );
 });
 
 const SectionContentGrid = observer(({section, sectionContent, navContext}) => {
-  console.log(section.label, section.display);
   return (
     <div
       className={S(
@@ -170,7 +122,15 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
       ref={element => {
         if(!element || navContext !== sectionId) { return; }
 
-        setTimeout(() => element.scrollIntoView(), 250);
+        // Remove context from url
+        const url = new URL(location.href);
+        url.searchParams.delete("ctx");
+        history.replaceState(undefined, undefined, url);
+
+        setTimeout(() => {
+          // Scroll to section
+          element.scrollIntoView();
+        }, 250);
       }}
       className={S("section", isSectionPage && "section--page")}
     >

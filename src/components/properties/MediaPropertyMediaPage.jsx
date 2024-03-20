@@ -14,38 +14,51 @@ import {MediaItemImageUrl, MediaItemScheduleInfo} from "../../utils/MediaPropert
 import ClockIcon from "Assets/icons/clock";
 import ArrowLeft from "Assets/icons/arrow-left";
 import MediaErrorIcon from "Assets/icons/media-error-icon";
-
-import SwiperCore, {Lazy} from "swiper";
-import {LoaderImage} from "Components/properties/Common";
-SwiperCore.use([Lazy]);
-
+import {Carousel, Description, LoaderImage} from "Components/properties/Common";
 
 const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 
-const MediaVideo = observer(({mediaItem, setControlsVisible}) => {
-  const [scheduleInfo, setScheduleInfo] = useState(MediaItemScheduleInfo(mediaItem));
+
+const Video = observer(({
+  objectId,
+  versionHash,
+  link,
+  contentInfo={},
+  playerOptions={},
+  posterImage,
+  callback,
+  errorCallback,
+  className=""
+}) => {
   const [contentHash, setContentHash] = useState(undefined);
-  const [error, setError] = useState();
   const [videoDimensions, setVideoDimensions] = useState(undefined);
+  const [player, setPlayer] = useState(undefined);
   const targetRef = useRef();
 
-  const {imageUrl} = MediaItemImageUrl({mediaItem, display: mediaItem, aspectRatio: "square", width: 400});
-
   useEffect(() => {
-    const linkHash = LinkTargetHash(mediaItem.media_link);
-    mediaPropertyStore.client.LatestVersionHash({versionHash: linkHash})
+    if(link) {
+      versionHash = LinkTargetHash(link);
+    }
+
+    mediaPropertyStore.client.LatestVersionHash({versionHash, objectId})
       .then(setContentHash);
-  }, [mediaItem?.id]);
+  }, [objectId, versionHash, link]);
 
   useEffect(() => {
-    if(
-      (scheduleInfo.isLiveContent && !scheduleInfo.started) ||
-      !targetRef || !targetRef.current ||
-      !contentHash
-    ) { return; }
+    if(!targetRef || !targetRef.current || !contentHash) { return; }
+
+    if(player) {
+      try {
+        player.Destroy();
+        setPlayer(undefined);
+      } catch(error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      }
+    }
 
     // eslint-disable-next-line no-async-promise-executor
-    const playerPromise = InitializeEluvioPlayer(
+    InitializeEluvioPlayer(
       targetRef.current,
       {
         clientOptions: {
@@ -53,16 +66,8 @@ const MediaVideo = observer(({mediaItem, setControlsVisible}) => {
         },
         sourceOptions: {
           contentInfo: {
-            /*
-            title: display.title,
-            description: display.subtitle,
-            image: imageUrl,
-            headers: display.headers,
-             */
-            posterImage: SetImageUrlDimensions({
-              url: mediaItem.poster_image?.url,
-              width: mediaPropertyStore.rootStore.fullpageImageWidth
-            })
+            ...contentInfo,
+            posterImage
           },
           playoutParameters: {
             versionHash: contentHash
@@ -75,31 +80,54 @@ const MediaVideo = observer(({mediaItem, setControlsVisible}) => {
           backgroundColor: "black",
           autoplay: EluvioPlayerParameters.autoplay.ON,
           watermark: EluvioPlayerParameters.watermark.OFF,
-          playerProfile: EluvioPlayerParameters.playerProfile[scheduleInfo.isLiveContent ? "LOW_LATENCY" : "DEFAULT"],
-          errorCallback: () => setError("Something went wrong")
+          errorCallback,
+          ...playerOptions
         }
       }
-    )
-      .then(player => {
-        window.player = player;
-        player.controls.RegisterVideoEventListener("canplay", event => {
-          setVideoDimensions({width: event.target.videoWidth, height: event.target.videoHeight});
-        });
+    ).then(player => {
+      window.player = player;
+      setPlayer(player);
 
-        player.controls.RegisterSettingsListener(() => setControlsVisible(player.controls.IsVisible()));
+      player.controls.RegisterVideoEventListener("canplay", event => {
+        setVideoDimensions({width: event.target.videoWidth, height: event.target.videoHeight});
       });
 
-    return async () => {
-      if(!playerPromise) { return; }
+      if(callback) {
+        callback(player);
+      }
+    });
+  }, [targetRef, contentHash]);
+
+  useEffect(() => {
+    return () => {
+      if(!player) { return; }
 
       try {
-        (await playerPromise)?.Destroy();
+        player.Destroy();
+        window.player = undefined;
       } catch(error) {
         // eslint-disable-next-line no-console
         console.log(error);
       }
     };
-  }, [targetRef, contentHash, scheduleInfo, mediaItem?.id]);
+  }, [player]);
+
+
+  return (
+    <div
+      className={[S("video"), className].join(" ")}
+      style={{aspectRatio: `${videoDimensions?.width || 16} / ${videoDimensions?.height || 9}`}}
+    >
+      <div ref={targetRef} />
+    </div>
+  );
+});
+
+const MediaVideo = observer(({mediaItem, setControlsVisible}) => {
+  const [scheduleInfo, setScheduleInfo] = useState(MediaItemScheduleInfo(mediaItem));
+  const [error, setError] = useState();
+
+  const {imageUrl} = MediaItemImageUrl({mediaItem, display: mediaItem, aspectRatio: "square", width: 400});
 
   if(scheduleInfo.isLiveContent && !scheduleInfo.started) {
     return (
@@ -141,20 +169,135 @@ const MediaVideo = observer(({mediaItem, setControlsVisible}) => {
   }
 
   return (
-    <div
-      className={S("media", "video")}
-      style={{aspectRatio: `${videoDimensions?.width || 16} / ${videoDimensions?.height || 9}`}}
-    >
-      <div ref={targetRef} />
+    <Video
+      link={mediaItem.media_link}
+      callback={player => player.controls.RegisterSettingsListener(() => setControlsVisible(player.controls.IsVisible()))}
+      playerOptions={{
+        playerProfile: EluvioPlayerParameters.playerProfile[scheduleInfo.isLiveContent ? "LOW_LATENCY" : "DEFAULT"]
+      }}
+      posterImage={{
+        posterImage: SetImageUrlDimensions({
+          url: mediaItem.poster_image?.url,
+          width: mediaPropertyStore.rootStore.fullpageImageWidth
+        })
+      }}
+      errorCallback={() => setError("Something went wrong")}
+      className={S("media")}
+    />
+  );
+});
+
+const GalleryContent = observer(({galleryItem}) => {
+  if(galleryItem.video) {
+    return (
+      <Video
+        link={galleryItem.video}
+        posterImage={{
+          posterImage: SetImageUrlDimensions({
+            url: galleryItem.poster_image?.url,
+            width: mediaPropertyStore.rootStore.fullpageImageWidth
+          })
+        }}
+        className={S("gallery__video")}
+      />
+    );
+  }
+
+  return (
+    <LoaderImage
+      loaderHeight="100%"
+      src={galleryItem.image?.url || galleryItem.thumbnail?.url}
+      lazy={false}
+      alt={galleryItem.title || ""}
+      loaderAspectRatio={
+        galleryItem.thumbnail_aspect_ratio === "Portrait" ? "2 / 3" :
+          galleryItem.thumbnail_aspect_ratio === "Landscape" ? "16 / 9" : "1"
+      }
+      className={S("gallery__image")}
+    />
+  );
+});
+
+const MediaGallery = observer(({mediaItem}) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [contentHeight, setContentHeight] = useState("100vh");
+  const textRef = useRef();
+  const carouselRef = useRef();
+
+  useEffect(() => {
+    const CalcContentHeight = () => `calc(100vh - 60px - ${carouselRef?.current?.getBoundingClientRect?.().height || 0}px - ${textRef?.current?.getBoundingClientRect?.().height || 0}px)`;
+    setContentHeight(CalcContentHeight());
+    setTimeout(() => {
+      setContentHeight(CalcContentHeight());
+    }, 15);
+  }, [textRef, carouselRef, activeIndex]);
+
+  if(!mediaItem || !mediaItem.gallery) { return null; }
+
+  const activeItem = mediaItem.gallery[activeIndex];
+
+  if(!activeItem) { return null; }
+
+  return (
+    <div className={S("media", "gallery")}>
+      <div key={`gallery-content-${activeItem.id}`} style={{height: contentHeight}} className={S("gallery__content")}>
+        <GalleryContent galleryItem={activeItem} />
+      </div>
+      <div key={`gallery-text-${activeItem.id}`} ref={textRef} className={S("gallery__text")}>
+        {
+          !activeItem.title ? null :
+            <h1 className={S("gallery__title")}>{ activeItem.title }</h1>
+        }
+        {
+          !activeItem.subtitle ? null :
+            <h2 className={S("gallery__subtitle")}>{ activeItem.subtitle }</h2>
+        }
+        {
+          !activeItem.description ? null :
+            <div className={S("gallery__description-block")}>
+              <div className={S("gallery__description-placeholder")} />
+              <Description expandable maxLines={3} description={activeItem.description} className={S("gallery__description")} />
+            </div>
+        }
+      </div>
+      <div ref={carouselRef} className={S("gallery__carousel-container")}>
+        <Carousel
+          className={S("gallery__carousel")}
+          swiperOptions={{spaceBetween: 5}}
+          content={mediaItem.gallery}
+          UpdateActiveIndex={setActiveIndex}
+          RenderSlide={({item, index, Select}) =>
+            <button
+              key={`slide-${item.id}`}
+              onClick={Select}
+              className={S("gallery__carousel-slide", `gallery__carousel-slide--${item.thumbnail_aspect_ratio?.toLowerCase() || "square"}`)}
+            >
+              <LoaderImage
+                key={`gallery-item-${item.id}`}
+                src={item.thumbnail?.url}
+                alt={item.title || ""}
+                loaderAspectRatio={
+                  item.thumbnail_aspect_ratio === "Portrait" ? "2 / 3" :
+                    item.thumbnail_aspect_ratio === "Landscape" ? "16 / 9" : "1"
+                }
+                className={S("gallery__carousel-image", index === activeIndex ? "gallery__carousel-image--active" : "")}
+              />
+            </button>
+          }
+        />
+      </div>
     </div>
   );
 });
+
 
 const Media = observer(({mediaItem, setControlsVisible}) => {
   if(!mediaItem) { return <div className={S("media")} />; }
 
   if(mediaItem.media_type === "Video") {
-    return <MediaVideo mediaItem={mediaItem} setControlsVisible={setControlsVisible} />
+    return <MediaVideo mediaItem={mediaItem} setControlsVisible={setControlsVisible}/>
+  } else if(mediaItem.media_type === "Gallery") {
+    return <MediaGallery mediaItem={mediaItem} />;
   } else if(mediaItem.media_type === "Image") {
     const imageUrl = mediaItem.image?.url || MediaItemImageUrl({mediaItem, aspectRatio: mediaItem.image_aspect_ratio})?.imageUrl;
 
@@ -170,6 +313,10 @@ const Media = observer(({mediaItem, setControlsVisible}) => {
       </div>
     );
 
+  } else {
+    return (
+      <div className={S("media", "unknown")} />
+    );
   }
 });
 

@@ -131,6 +131,10 @@
 
 .description {
   white-space: pre-wrap;
+
+  &--expandable {
+    cursor: pointer;
+  }
 }
 
 .lazy-image {
@@ -316,6 +320,82 @@
 
   @media screen and (max-width: 1000px) {
     font-size: 14px;
+  }
+}
+
+.carousel {
+  max-width: 100%;
+  position: relative;
+
+  &:hover {
+    .carousel__arrow {
+      &:not(:disabled) {
+        opacity: 1;
+      }
+    }
+  }
+
+  &__slide {
+    width: max-content;
+    height: max-content;
+  }
+
+  &__arrow {
+    opacity: 0;
+    padding: 0 15px;
+    position: absolute;
+    transition: opacity 0.25s ease-out;
+    width: max-content;
+    display: block;
+    z-index: 1;
+    height: 100%;
+    top: 0;
+    font-size: 1.5em;
+    font-weight: 400;
+
+    &:disabled {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    svg {
+      height: 24px;
+      stroke-width: 2px;
+      z-index: 1;
+      position: relative;
+    }
+
+    &--previous {
+      left: 0;
+      padding-right: 20px;
+
+      .carousel__arrow-background{
+        background: linear-gradient(90deg, rgba(0,0,0,0.75) 20%, transparent);
+      }
+    }
+
+    &--next {
+      right: 0;
+      padding-left: 20px;
+
+      .carousel__arrow-background{
+        background: linear-gradient(90deg, transparent, rgba(0,0,0,0.75));
+      }
+    }
+
+    &.swiper-button-disabled {
+      cursor: auto;
+      opacity: 0;
+    }
+  }
+
+  &__arrow-background {
+    position: absolute;
+    inset: 0 0 0 0;
+    height: 100%;
+    width: 100%;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
   }
 }
 

@@ -10,6 +10,10 @@ import {NavLink} from "react-router-dom";
 import ArrowLeft from "Assets/icons/arrow-left.svg";
 import ImageIcon from "Components/common/ImageIcon";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
+import {Swiper, SwiperSlide} from "swiper/react";
+
+import LeftArrow from "Assets/icons/left-arrow";
+import RightArrow from "Assets/icons/right-arrow";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
 
@@ -96,7 +100,7 @@ export const RichText = ({richText, baseFontSize=16, ...props}) => {
   );
 };
 
-export const LoaderImage = observer(({src, width, loaderHeight, loaderWidth, lazy=true, ...props}) => {
+export const LoaderImage = observer(({src, width, loaderHeight, loaderWidth, loaderAspectRatio, lazy=true, ...props}) => {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -125,7 +129,12 @@ export const LoaderImage = observer(({src, width, loaderHeight, loaderWidth, laz
       />
       <div
         {...props}
-        style={{...(props.style || {}), width: loaderWidth, height: loaderHeight}}
+        style={{
+          ...(props.style || {}),
+          ...(loaderWidth ? {width: loaderWidth} : {}),
+          ...(loaderHeight ? {height: loaderHeight} : {}),
+          ...(loaderAspectRatio ? {aspectRatio: loaderAspectRatio} : {})
+        }}
         key={props.key ? `${props.key}--placeholder` : undefined}
         className={[S("lazy-image__background"), props.className || ""].join(" ")}
       />
@@ -186,7 +195,16 @@ export const ScaledText = observer(({
   );
 });
 
-export const Description = ({description, descriptionRichText, baseFontSize=18, maxLines, ...props}) => {
+export const Description = ({
+  description,
+  descriptionRichText,
+  baseFontSize=18,
+  maxLines,
+  expandable=false,
+  ...props
+}) => {
+  const [expanded, setExpanded] = useState(false);
+
   if(descriptionRichText) {
     return <RichText richText={descriptionRichText} baseFontSize={baseFontSize} {...props} />;
   }
@@ -194,13 +212,23 @@ export const Description = ({description, descriptionRichText, baseFontSize=18, 
   if(!description) { return null; }
 
   if(maxLines) {
-    return (
+    let content = (
       <ResponsiveEllipsis
-        className={props.className || ""}
+        className={[S("description", expandable ? "description--expandable" : ""), props.className || ""].join(" ")}
         text={description}
-        maxLine={maxLines.toString()}
+        maxLine={expanded ? "999" : maxLines.toString()}
       />
     );
+
+    if(expandable){
+      return (
+        <button aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>
+          { content }
+        </button>
+      );
+    } else {
+      return content;
+    }
   }
 
   return (
@@ -209,3 +237,96 @@ export const Description = ({description, descriptionRichText, baseFontSize=18, 
     </div>
   );
 };
+
+
+export const Carousel = observer(({
+  content,
+  //slidesPerPage=1,
+  swiperOptions={},
+  UpdateActiveIndex,
+  RenderSlide,
+  initialImageDimensions,
+  className=""
+}) => {
+  const [swiper, setSwiper] = useState(undefined);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeSwiperSlide, setActiveSwiperSlide] = useState(0);
+  const [imageDimensions, setImageDimensions] = useState(initialImageDimensions);
+  // todo: swiper figure out slides per page auto?
+
+  useEffect(() => {
+    UpdateActiveIndex && UpdateActiveIndex(activeIndex);
+  }, [activeIndex]);
+
+  /*
+  if(typeof slidesPerPage === "function") {
+    slidesPerPage = slidesPerPage({imageDimensions, swiper});
+  }
+
+   */
+
+  window.swiper=swiper;
+
+  const slidesPerPage = swiper?.slidesPerViewDynamic() - 1 || 1;
+  console.log(activeSwiperSlide, slidesPerPage, content.length);
+
+  return (
+    <Swiper
+      className={[S("carousel"), className].join(" ")}
+      threshold={5}
+      slidesPerView="auto"
+      //slidesPerGroup={1}
+      lazy={{
+        enabled: true,
+        loadPrevNext: true,
+        loadOnTransitionStart: true
+      }}
+      observer
+      observeParents
+      speed={1000}
+      parallax
+      updateOnWindowResize
+      {...swiperOptions}
+      onSwiper={swiper => {
+        setSwiper(swiper);
+        setActiveSwiperSlide(swiper.activeIndex);
+        swiper.on("activeIndexChange", () => setActiveSwiperSlide(swiper.activeIndex));
+      }}
+    >
+      <button
+        disabled={activeSwiperSlide === 0}
+        style={{height: (imageDimensions?.height + 10) || "100%"}}
+        onClick={() => swiper?.slideTo(Math.max(0, swiper.activeIndex - slidesPerPage))}
+        className={S("carousel__arrow", "carousel__arrow--previous")}
+      >
+        <div className={S("carousel__arrow-background")} />
+        <ImageIcon label="Previous Page" icon={LeftArrow} />
+      </button>
+      {
+        content.map((item, index) =>
+          <SwiperSlide key={`slide-${index}`} className={S("carousel__slide")}>
+            {
+              RenderSlide({
+                item,
+                index,
+                activeIndex,
+                setActiveIndex,
+                Select: () => setActiveIndex(index),
+                setImageDimensions: index === 0 && setImageDimensions
+              })
+            }
+          </SwiperSlide>
+        )
+      }
+      <button
+        disabled={activeSwiperSlide + slidesPerPage >= content.length - 1}
+        style={{height: (imageDimensions?.height + 10) || "100%"}}
+        onClick={() => swiper?.slideTo(Math.min(content.length - 1, swiper.activeIndex + slidesPerPage))}
+        className={S("carousel__arrow", "carousel__arrow--next")}
+      >
+        <div className={S("carousel__arrow-background")} />
+        <ImageIcon label="Next Page" icon={RightArrow} />
+      </button>
+    </Swiper>
+  );
+});

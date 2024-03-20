@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {mediaPropertyStore, rootStore} from "Stores/index";
 import {Switch, useRouteMatch} from "react-router-dom";
 import {observer} from "mobx-react";
@@ -10,6 +10,10 @@ const PropertyWrapper = observer(({children}) => {
   const match = useRouteMatch();
 
   const mediaPropertySlugOrId = match.params.mediaPropertySlugOrId;
+
+  useEffect(() => {
+    rootStore.ClearMarketplace();
+  }, []);
 
   if(!rootStore.loaded) {
     return <PageLoader />;

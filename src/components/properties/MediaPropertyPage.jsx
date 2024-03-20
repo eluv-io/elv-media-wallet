@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {observer} from "mobx-react";
 import {mediaPropertyStore} from "Stores";
 import {Redirect, useRouteMatch} from "react-router-dom";

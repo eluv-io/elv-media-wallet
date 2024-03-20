@@ -43,13 +43,17 @@
 .media-container,
 .media {
   height: max-content;
-  max-height: 100vh;
   width: 100%;
 }
 
 .media-container {
   position: relative;
   z-index: 1;
+}
+
+.video {
+  height: auto;
+  max-width: 100vw;
 }
 
 .media {
@@ -59,6 +63,7 @@
 
   &.video {
     height: auto;
+    max-width: 100vw;
 
     @media screen and (max-width: 1000px) {
       min-height: 50vh;
@@ -154,5 +159,138 @@
     white-space: pre-wrap;
     max-width: 1000px;
     font-size: 0.9em;
+  }
+}
+
+.gallery {
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 30px 0 30px;
+  height: max-content;
+  max-height: unset;
+
+  &__content {
+    display: flex;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    max-width: 100vw;
+    min-height: 40vh;
+  }
+
+  &__image,
+  &__video {
+    @include page-fade-in(0.35s);
+    height: 100%;
+    width: auto;
+    object-fit: contain;
+  }
+
+  &__text {
+    padding: 30px;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+    text-align: center;
+    height: max-content;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  &__content,
+  &__text {
+    @include page-fade-in(1s);
+  }
+
+  &__title {
+    font-size: 1.5em;
+  }
+
+  &__subtitle {
+    font-size: 0.9em;
+    color: var(--property-text-faded);
+  }
+
+  &__description-block {
+    height: max-content;
+    min-height: 5em;
+  }
+
+  &__description {
+    margin-top: 15px;
+    white-space: pre-wrap;
+    max-width: 1000px;
+    font-size: 0.9em;
+  }
+
+  &__carousel-container {
+    height: max-content;
+    padding: 0 20px;
+    //max-width: 1000px;
+    width: max-content;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  &__carousel {
+    width: 100%;
+    height: 150px;
+    min-height: 150px;
+  }
+
+  &__carousel-slide {
+    height: 150px;
+    border-radius: 5px;
+
+    &--landscape {
+      aspect-ratio: 16/9;
+    }
+
+    &--square {
+      aspect-ratio: 1;
+    }
+
+    &--portrait {
+      aspect-ratio: 2/3;
+    }
+  }
+
+  &__carousel-image {
+    height: 100%;
+    width: auto;
+    object-fit: contain;
+    opacity: 0.5;
+    transition: opacity 0.35s ease;
+
+    &--active,
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  @media screen and (max-width: 800px) {
+    padding-top: 60px;
+
+    &__video {
+      width: 100%;
+      height: auto;
+    }
+
+    &__title {
+      font-size: 1.2em;
+    }
+
+    &__subtitle {
+      font-size: 0.7em;
+    }
+
+    &__description {
+      font-size: 0.7em;
+    }
   }
 }

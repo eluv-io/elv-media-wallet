@@ -35,7 +35,7 @@
   "dependencies": {
     "@eluvio/crypto": "^1.1.1",
     "@eluvio/elv-client-js": "^4.0.75",
-    "@eluvio/elv-embed": "git+https://github.com/eluv-io/elv-embed.git",
+    "@eluvio/elv-embed": "git+https://github.com/eluv-io/elv-embed.git#player-update",
     "@eluvio/elv-paymentgate": "^1.0.0",
     "@eluvio/elv-player-js": "git+https://github.com/eluv-io/elv-player-js.git#ui-rewrite",
     "@ory/client": "^1.4.2",
@@ -56,7 +56,7 @@
     "react-dom": "^16.14.0",
     "react-g-infinite-scroll": "0.0.1",
     "react-inlinesvg": "^2.3.0",
-    "react-lines-ellipsis": "^0.15.0",
+    "react-lines-ellipsis": "^0.15.4",
     "react-markdown": "^5.0.3",
     "react-router-dom": "^5.2.0",
     "round-to": "^6.0.0",
