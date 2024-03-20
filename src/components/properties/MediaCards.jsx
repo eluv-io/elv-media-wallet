@@ -95,6 +95,9 @@ export const MediaCardVertical = observer(({
   const {imageUrl, imageAspectRatio} = MediaItemImageUrl({mediaItem: mediaItem || sectionItem?.mediaItem || sectionItem, display: display, aspectRatio});
   const scheduleInfo = MediaItemScheduleInfo(mediaItem || sectionItem.mediaItem);
 
+  let textScale = (aspectRatio || imageAspectRatio) === "landscape" ? 1 : 0.85;
+  textScale *= mediaPropertyStore.rootStore.pageWidth < 800 ? 0.85 : 1;
+
   return (
     <NavLink
       aria-label={display.title}
@@ -140,13 +143,13 @@ export const MediaCardVertical = observer(({
             }
             {
               !display.title ? null :
-                <ScaledText Tag="h3" maxPx={20} minPx={12} className={S("media-card-vertical__title")}>
+                <ScaledText Tag="h3" maxPx={20 * textScale} minPx={16 * textScale} className={S("media-card-vertical__title")}>
                   { display.title }
                 </ScaledText>
             }
             {
               !["all", "titles"].includes(textDisplay) || !display.subtitle ? null :
-                <ScaledText maxPx={18} minPx={12} className={S("media-card-vertical__subtitle")}>
+                <ScaledText maxPx={16 * textScale} minPx={12 * textScale} className={S("media-card-vertical__subtitle")}>
                   { display.subtitle }
                 </ScaledText>
             }

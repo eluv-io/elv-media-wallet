@@ -2,12 +2,12 @@
   display: block;
   flex: 1 1 100%;
   max-width: var(--max-card-width);
-  padding: 5px 0 0;
-  transition: padding 0.25s ease-out;
+
 
   &:hover {
-    padding: 0 0 5px;
-    transition-delay: 0.2s;
+    .media-card-vertical__image {
+      padding: 0;
+    }
   }
 
   &__image-container {
@@ -21,13 +21,15 @@
     height: 100%;
     object-fit: cover;
     object-position: center;
+    padding: 4px;
+    transition: padding 0.2s ease;
   }
 
   &--landscape {
     width: var(--max-card-width);
     max-width: var(--max-card-width);
 
-    .media-card-vertical__image-container {
+    .media-card-vertical__image {
       aspect-ratio: 16/9;
     }
   }
@@ -36,7 +38,7 @@
     width: calc(var(--max-card-width) * 0.5625);
     max-width: calc(var(--max-card-width) * 0.5625);
 
-    .media-card-vertical__image-container {
+    .media-card-vertical__image {
       aspect-ratio: 1;
     }
   }
@@ -45,7 +47,7 @@
     width: calc(var(--max-card-width) * 0.375);
     max-width: calc(var(--max-card-width) * 0.375);
 
-    .media-card-vertical__image-container {
+    .media-card-vertical__image {
       aspect-ratio: 2/3;
     }
 
@@ -83,29 +85,37 @@
 
   &__headers {
     display: flex;
-    align-items: center;
-    gap: 20px;
+    align-items: flex-end;
+    gap: 1.5em;
     color: var(--property-text-headers);
-    font-size: 14px;
-    height: 20px;
+    font-size: 12px;
+    height: max-content;
+    margin-bottom: 2px;
   }
 
   &__title,
   &__subtitle {
     position: relative;
     width: 100%;
+  }
+
+  &__title {
+    min-height: 1.6em;
+    height: max-content;
+  }
+
+  &__subtitle {
+    color: var(--property-text-faded);
+    min-height: 1.4em;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
   }
 
-  &__title {
-    min-height: 30px;
-  }
-
-  &__subtitle {
-    color: var(--property-text-faded);
-    min-height: 20px;
+  @media screen and (max-width: 800px) {
+    &__image {
+      padding: 0;
+    }
   }
 }
 

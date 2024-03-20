@@ -69,10 +69,23 @@
 
 
   @media screen and (max-width: 800px) {
-    --max-card-width: 200px;
+    --max-card-width: 275px;
+
+    &__title-container {
+      flex-direction: column;
+      gap: 0;
+      justify-content: flex-start;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
 
     &__title {
       font-size: 1.3em;
+    }
+
+    &__title-link {
+      font-size: 0.8em;
+      min-width: max-content;
     }
 
     &__content--portrait {
@@ -84,7 +97,7 @@
     }
 
     &__content--grid {
-      gap: 25px 5px;
+      gap: 10px;
     }
   }
 }

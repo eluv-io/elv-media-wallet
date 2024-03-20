@@ -41,7 +41,11 @@
   }
 
   @media screen and (max-width: 800px) {
-    padding: 20px 20px 300px;
+    padding: 75px 20px 300px;
+
+    &__back-link {
+      left: 20px;
+    }
   }
 }
 
