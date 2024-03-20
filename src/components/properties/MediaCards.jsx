@@ -44,6 +44,10 @@ const MediaCardLink = ({match, sectionItem, mediaItem, navContext}) => {
       const pageSlugOrId = page?.slug || sectionItem.page_id;
       linkPath = UrlJoin("/properties", match.params.mediaPropertySlugOrId, pageSlugOrId === "main" ? "" : pageSlugOrId);
     }
+  } else if(sectionItem?.type === "property_link") {
+    linkPath = UrlJoin("/properties", sectionItem.property_id, sectionItem.property_page_id || "");
+  } else if(sectionItem?.type === "subproperty_link") {
+    linkPath = UrlJoin("/properties", match.params.mediaPropertySlugOrId, match.params.pageSlugOrId || "", "p", sectionItem.subproperty_id, sectionItem.subproperty_page_id || "");
   } else if(sectionItem?.type === "marketplace_link") {
     const marketplaceId = sectionItem.marketplace?.marketplace_id;
 

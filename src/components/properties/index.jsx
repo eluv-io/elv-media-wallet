@@ -10,6 +10,7 @@ const PropertyWrapper = observer(({children}) => {
   const match = useRouteMatch();
 
   const mediaPropertySlugOrId = match.params.mediaPropertySlugOrId;
+  console.log(match);
 
   useEffect(() => {
     rootStore.ClearMarketplace();

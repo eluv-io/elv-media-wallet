@@ -2,6 +2,7 @@ import React, {useEffect} from "react";
 import {observer} from "mobx-react";
 import {mediaPropertyStore} from "Stores";
 import {Redirect, useRouteMatch} from "react-router-dom";
+import UrlJoin from "url-join";
 
 import PageStyles from "Assets/stylesheets/media_properties/property-page.module.scss";
 import {
@@ -23,8 +24,15 @@ const MediaPropertyPage = observer(() => {
     return <Redirect to="/" />;
   }
 
+  console.log(match.params);
   return (
-    <PageContainer className={S("page__container")}>
+    <PageContainer
+      backPath={
+        !match.params.parentMediaPropertySlugOrId ? null :
+          UrlJoin("/properties", match.params.parentMediaPropertySlugOrId, match.params.parentPageSlugOrId || "")
+      }
+      className={S("page__container")}
+    >
       <PageBackground display={page.layout} />
       <PageHeader display={page.layout} maxHeaderSize={70} descriptionBaseFontSize={18} />
       <div className={S("page__sections")}>

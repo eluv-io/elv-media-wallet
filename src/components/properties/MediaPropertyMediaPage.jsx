@@ -10,12 +10,12 @@ import Countdown from "./Countdown";
 import {MediaItemImageUrl, MediaItemScheduleInfo} from "../../utils/MediaPropertyUtils";
 import {Carousel, Description, LoaderImage} from "Components/properties/Common";
 import Video from "./Video";
+import {SetImageUrlDimensions} from "../../utils/Utils";
+import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 
 import ClockIcon from "Assets/icons/clock";
 import ArrowLeft from "Assets/icons/arrow-left";
 import MediaErrorIcon from "Assets/icons/media-error-icon";
-import {SetImageUrlDimensions} from "../../utils/Utils";
-
 
 const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 
@@ -196,7 +196,6 @@ const MediaGallery = observer(({mediaItem}) => {
 const Media = observer(({mediaItem, setControlsVisible}) => {
   if(!mediaItem) { return <div className={S("media")} />; }
 
-  console.log(mediaItem);
   if(mediaItem.media_type === "Video") {
     return <MediaVideo mediaItem={mediaItem} setControlsVisible={setControlsVisible}/>;
   } else if(mediaItem.media_type === "Gallery") {

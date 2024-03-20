@@ -71,13 +71,29 @@ const PropertyMediaRoutes = (basePath="") => {
 
 const PropertyRoutes = (basePath="") => {
   const GetPropertyPageTitle = match => GetProperty(match)?.metadata?.page_title || rootStore.l10n.media_properties.media_property;
+
+  // All possible permutations of property or parent property/subproperty with or without page slug/id
+  const prefixPaths = [
+    ":mediaPropertySlugOrId",
+    ":mediaPropertySlugOrId/:pageSlugOrId",
+    ":parentMediaPropertySlugOrId/p/:mediaPropertySlugOrId",
+    ":parentMediaPropertySlugOrId/:parentPageSlugOrId/p/:mediaPropertySlugOrId",
+    ":parentMediaPropertySlugOrId/p/:mediaPropertySlugOrId/:pageSlugOrId",
+    ":parentMediaPropertySlugOrId/:parentPageSlugOrId/p/:mediaPropertySlugOrId/:pageSlugOrId"
+  ];
+
   return [
-    { name: GetPropertyPageTitle, path: UrlJoin(basePath, ":mediaPropertySlugOrId/:pageSlugOrId?"), Component: MediaPropertyPage },
-    { name: GetPropertyPageTitle, path: UrlJoin(basePath, ":mediaPropertySlugOrId/:pageSlugOrId?/s/:sectionSlugOrId"), Component: MediaPropertySectionPage },
-    // Media without section
-    ...PropertyMediaRoutes(UrlJoin(basePath, ":mediaPropertySlugOrId/:pageSlugOrId?")),
     // Media within section
-    ...PropertyMediaRoutes(UrlJoin(basePath, ":mediaPropertySlugOrId/:pageSlugOrId?/s/:sectionSlugOrId"))
+    ...((prefixPaths.map(path => PropertyMediaRoutes(UrlJoin(basePath, path, "s/:sectionSlugOrId"))).flat())),
+
+    // Media without section
+    ...((prefixPaths.map(path => PropertyMediaRoutes(UrlJoin(basePath, path))).flat())),
+
+    // Section pages
+    ...(prefixPaths.map(path => ({ name: GetPropertyPageTitle, path: UrlJoin(basePath, path, "s/:sectionSlugOrId"), Component: MediaPropertySectionPage }))),
+
+
+    ...(prefixPaths.map(path => ({ name: GetPropertyPageTitle, path: UrlJoin(basePath, path), Component: MediaPropertyPage }))),
   ].map(route => ({...route, noBlock: true, clearMarketplace: true}));
 };
 

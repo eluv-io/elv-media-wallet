@@ -6,22 +6,33 @@
   height: max-content;
   min-height: 100vh;
   max-width: 100%;
-  padding: 40px 75px 150px;
+  padding: 75px 75px 150px;
   position: relative;
 
   &__back-link {
+    position: absolute;
     display: flex;
     align-items: center;
-    font-size: 1.2em;
+    font-size: 1em;
     gap: 10px;
-    margin-bottom: 30px;
     width: max-content;
+    padding: 5px 10px;
+    border-radius: 5px;
+    top: 20px;
+    left: 75px;
+    z-index: 10;
+    background: rgba(100,100,100, 0.35);
+    opacity: 0.5;
+    transition: opacity 0.5s ease, background-color 0.5s ease;
 
-    position: relative;
-    z-index: 1;
+    &--visible {
+      opacity: 1;
+    }
 
-    * {
-      color: var(--property-text-faded);
+    &:hover,
+    &:focus-visible {
+      opacity: 1;
+      background: rgba(100,100,100, 0.5);
     }
 
     svg {
@@ -77,6 +88,7 @@
       &--right {
         position: absolute;
         right: 0;
+        text-align: right;
 
         .page-header__logo {
           align-self: flex-end;

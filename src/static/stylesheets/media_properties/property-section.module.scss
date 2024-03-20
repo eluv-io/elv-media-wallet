@@ -50,7 +50,7 @@
   &__content--grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 50px 25px;
+    gap: 25px 10px;
     width: max-content;
     max-width: 100%;
   }
@@ -84,7 +84,7 @@
     }
 
     &__content--grid {
-      gap: 25px 10px;
+      gap: 25px 5px;
     }
   }
 }

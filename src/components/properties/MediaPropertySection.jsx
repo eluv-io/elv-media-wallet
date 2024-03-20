@@ -24,7 +24,7 @@ const SectionContentCarousel = observer(({section, sectionContent, navContext}) 
           rootStore.pageWidth > 1400 ? 3 : rootStore.pageWidth > 1000 ? 2 : 1
       }
       swiperOptions={{
-        spaceBetween: rootStore.pageWidth > 800 ? 20 : 10
+        spaceBetween: 10
       }}
       initialImageDimensions={{height: 400, width: 400}}
       content={sectionContent}
@@ -125,7 +125,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
         // Remove context from url
         const url = new URL(location.href);
         url.searchParams.delete("ctx");
-        history.replaceState(undefined, undefined, url);
+        //history.replaceState(undefined, undefined, url);
 
         setTimeout(() => {
           // Scroll to section

@@ -268,7 +268,6 @@ export const Carousel = observer(({
   window.swiper=swiper;
 
   const slidesPerPage = swiper?.slidesPerViewDynamic() - 1 || 1;
-  console.log(activeSwiperSlide, slidesPerPage, content.length);
 
   return (
     <Swiper
