@@ -24,7 +24,6 @@ const MediaPropertyPage = observer(() => {
     return <Redirect to="/" />;
   }
 
-  console.log(match.params);
   return (
     <PageContainer
       backPath={

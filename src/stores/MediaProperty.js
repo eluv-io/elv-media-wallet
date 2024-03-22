@@ -217,6 +217,13 @@ class MediaPropertyStore {
         return false;
       }
 
+      // Attributes
+      for(const attributeId of (select.attributes || [])) {
+        if(mediaItem?.attributes?.[attributeId] !== select.attribute_values[attributeId]) {
+          return false;
+        }
+      }
+
       return true;
     })
       .map(mediaItem =>
