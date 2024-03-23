@@ -5,12 +5,12 @@ import {observer} from "mobx-react";
 import AsyncComponent from "Components/common/AsyncComponent";
 import {PageLoader} from "Components/common/Loaders";
 import RenderRoutes from "Routes";
+import MediaPropertyHeader from "Components/properties/MediaPropertyHeader";
 
 const PropertyWrapper = observer(({children}) => {
   const match = useRouteMatch();
 
   const mediaPropertySlugOrId = match.params.mediaPropertySlugOrId;
-  console.log(match);
 
   useEffect(() => {
     rootStore.ClearMarketplace();
@@ -41,6 +41,7 @@ const PropertyWrapper = observer(({children}) => {
 const PropertyRoutes = observer(() => {
   return (
     <div className="page-container property-page">
+      <MediaPropertyHeader />
       <Switch>
         <RenderRoutes
           basePath="/properties"

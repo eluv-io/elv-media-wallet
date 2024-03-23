@@ -49,4 +49,6 @@
   /* User Profile */
   --color-user-profile-bg-primary: var(--color-bg-primary);
   --color-user-profile-bg-secondary: var(--color-bg-secondary);
+
+  --background-login: rgba(0, 0, 0, 0.25);
 }

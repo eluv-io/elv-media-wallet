@@ -5,7 +5,7 @@ import {observer} from "mobx-react";
 import {mediaPropertyStore} from "Stores";
 import {MediaItemImageUrl, MediaItemScheduleInfo} from "../../utils/MediaPropertyUtils";
 import {Description, LoaderImage, ScaledText} from "Components/properties/Common";
-import {NavLink, useRouteMatch} from "react-router-dom";
+import {Link, useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 
 const S = (...classes) => classes.map(c => MediaCardStyles[c] || "").join(" ");
@@ -20,7 +20,7 @@ const MediaCardLink = ({match, sectionItem, mediaItem, navContext}) => {
     let basePath = match.url;
 
     //navContext = match.params.sectionSlugOrId || sectionItem.sectionId;
-    if(!match.params.sectionSlugOrId && sectionItem.sectionId) {
+    if(!match.params.sectionSlugOrId && sectionItem?.sectionId) {
       basePath = UrlJoin(basePath, "s", sectionItem.sectionId);
     }
 
@@ -95,11 +95,11 @@ export const MediaCardVertical = observer(({
   const {imageUrl, imageAspectRatio} = MediaItemImageUrl({mediaItem: mediaItem || sectionItem?.mediaItem || sectionItem, display: display, aspectRatio});
   const scheduleInfo = MediaItemScheduleInfo(mediaItem || sectionItem.mediaItem);
 
-  let textScale = (aspectRatio || imageAspectRatio) === "landscape" ? 1 : 0.85;
-  textScale *= mediaPropertyStore.rootStore.pageWidth < 800 ? 0.85 : 1;
+  let textScale = (aspectRatio || imageAspectRatio) === "landscape" ? 1 : 0.8;
+  textScale *= mediaPropertyStore.rootStore.pageWidth < 800 ? 0.8 : 1;
 
   return (
-    <NavLink
+    <Link
       aria-label={display.title}
       to={MediaCardLink({match, sectionItem, mediaItem, navContext}) || ""}
       className={[S("media-card-vertical", `media-card-vertical--${aspectRatio || imageAspectRatio}`), className].join(" ")}
@@ -143,7 +143,7 @@ export const MediaCardVertical = observer(({
             }
             {
               !display.title ? null :
-                <ScaledText Tag="h3" maxPx={20 * textScale} minPx={16 * textScale} className={S("media-card-vertical__title")}>
+                <ScaledText Tag="h3" maxPx={22 * textScale} minPx={16 * textScale} className={S("media-card-vertical__title")}>
                   { display.title }
                 </ScaledText>
             }
@@ -155,7 +155,7 @@ export const MediaCardVertical = observer(({
             }
           </div>
       }
-    </NavLink>
+    </Link>
   );
 });
 
@@ -191,7 +191,7 @@ export const MediaCardHorizontal = observer(({
   const scheduleInfo = MediaItemScheduleInfo(mediaItem || sectionItem.mediaItem);
 
   return (
-    <NavLink
+    <Link
       aria-label={display.title}
       to={MediaCardLink({match, sectionItem, mediaItem, navContext}) || ""}
       className={[S("media-card-horizontal", `media-card-horizontal--${aspectRatio || imageAspectRatio}`), className].join(" ")}
@@ -252,6 +252,6 @@ export const MediaCardHorizontal = observer(({
             />
           </div>
       }
-    </NavLink>
+    </Link>
   );
 });

@@ -295,6 +295,10 @@ const RouteWrapper = observer(({routes, children}) => {
 const GlobalWrapper = observer(({routes, children}) => {
   const match = useRouteMatch();
 
+  useEffect(() => {
+    rootStore.SetRouteParams(match.params);
+  }, [match.params]);
+
   const currentRoute = routes.find(route => match.path === route.path);
 
   if(currentRoute?.redirect) {
@@ -355,19 +359,19 @@ const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
             </GlobalWrapper>
           );
 
-          if(Wrapper) {
-            result = (
-              <Wrapper>
-                {result}
-              </Wrapper>
-            );
-          }
-
           if(includeUserProfile) {
             result = (
               <UserProfileContainer>
                 {result}
               </UserProfileContainer>
+            );
+          }
+
+          if(Wrapper) {
+            result = (
+              <Wrapper>
+                {result}
+              </Wrapper>
             );
           }
 

@@ -9,6 +9,7 @@ import PreviewPasswordPrompt from "Components/login/PreviewPasswordPrompt";
 import Modal from "Components/common/Modal";
 import {RichText} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
+import Header from "Components/header/Header";
 
 import EluvioLogo from "Assets/icons/EluvioLogo2.svg";
 
@@ -136,6 +137,7 @@ const MarketplaceWrapper = observer(({children}) => {
 const Marketplace = observer(() => {
   return (
     <div className="page-container marketplace-page">
+      <Header key="marketplace-header" />
       <Switch>
         <RenderRoutes
           basePath="/marketplace/:marketplaceId"

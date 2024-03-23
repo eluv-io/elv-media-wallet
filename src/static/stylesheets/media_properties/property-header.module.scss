@@ -1,0 +1,151 @@
+@import "./variables";
+.header {
+  position: sticky;
+  top: 0;
+  background: linear-gradient(180deg, #1C1D20 0%, #000 100%);
+  height: var(--property-header-height);
+  width: 100%;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 50px 10px;
+  gap: 50px;
+
+  &:not(&--media) {
+    box-shadow: 0 0 30px black;
+  }
+
+  @media screen and (max-width: 800px) {
+    padding: 0 20px 3px;
+
+    .logo-container {
+      display: none;
+    }
+  }
+}
+
+.logo-container {
+  height: 70%;
+  width: auto;
+  max-width: 200px;
+  min-width: 100px;
+}
+
+.logo {
+  height: 100%;
+  object-fit: contain;
+}
+
+
+.links {
+  display: flex;
+  position: relative;
+  height: 100%;
+  width: 150px;
+  align-items: center;
+
+  :global(.header__profile) {
+    position: relative;
+  }
+
+  :global(.header__notifications-menu) {
+    width: 450px;
+  }
+}
+
+.sign-in {
+  background: var(--header-signin-button-bg);
+  color: var(--header-signin-button-text);
+  border: var(--header-signin-button-border);
+  width: 100px;
+  height: 45px;
+  border-radius: 10px;
+  font-size: 1.15em;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Search */
+
+.search-container {
+  flex: 1 1 0;
+  max-width: 800px;
+}
+
+.search {
+  &__input {
+    border-radius: 33px;
+
+    &::placeholder {
+      font-size: 1.15em;
+      color: var(--property-text-secondary);
+    }
+  }
+
+  &__input,
+  &__option {
+    height: 45px;
+    padding: 0 30px;
+    color: var(--property-text-primary);
+    font-size: 1.15em;
+  }
+
+  &__option {
+    &:hover {
+      &:where(:not([data-combobox-selected], [data-combobox-disabled])) {
+        background-color: var(--property-search-button-background);
+      }
+    }
+  }
+
+  &__dropdown {
+    border-radius: 10px;
+    overflow: hidden;
+
+    * {
+      overscroll-behavior: none;
+    }
+  }
+
+  &__input,
+  &__dropdown {
+    background-color: var(--property-search-background);
+  }
+
+  &__submit {
+    position: absolute;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    border-radius: 0 33px 33px 0;
+    background-color: var(--property-search-button-background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 13px;
+
+    svg {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+
+  @media screen and (max-width: 800px) {
+    &__input,
+    &__option {
+      padding: 0 15px;
+      font-size: 1.15em;
+    }
+
+    &__input {
+      height: 30px;
+    }
+
+    &__submit {
+      width: 70px;
+      padding: 8px;
+    }
+  }
+}

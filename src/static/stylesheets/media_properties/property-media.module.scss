@@ -4,7 +4,7 @@
   @include page-fade-in(0.5s, ease-out, 0.5s);
   background-color: var(--property-background-secondary);
   height: max-content;
-  min-height: 100vh;
+  min-height: var(--property-full-content-height);
   max-width: 100%;
   position: relative;
 
@@ -52,9 +52,9 @@
 }
 
 .media {
-  box-shadow: 0 0 30px var(--property-background);
-  height: 100vh;
-  max-height: 100vh;
+  box-shadow: 0 0 30px black;
+  height: var(--property-full-content-height);
+  max-height: var(--property-full-content-height);
   background: var(--property-background);
 
   &.video {
@@ -75,7 +75,7 @@
 
   &__error {
     width: 100%;
-    height: 100vh;
+    height: var(--property-full-content-height);
     position: relative;
     z-index: 1;
     display: flex;
@@ -121,16 +121,17 @@
 }
 
 .media-info {
+  position: relative;
   padding: 30px 50px 200px;
 }
 
 .media-text {
   &__title {
-    font-size: 1.7em;
+    font-size: 1.8em;
   }
 
   &__subtitle {
-    font-size: 0.9em;
+    font-size: 1em;
     color: var(--property-text-faded);
   }
 
@@ -145,6 +146,7 @@
 
   &__headers {
     font-weight: 600;
+    font-size: 1em;
     display: flex;
     align-items: center;
     gap: 20px;
@@ -153,7 +155,8 @@
   &__description {
     white-space: pre-wrap;
     max-width: 1000px;
-    font-size: 0.9em;
+    font-size: 1em;
+    text-align: left;
   }
 }
 
@@ -162,7 +165,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: var(--property-full-content-height);
   padding: 30px 0 30px;
   height: max-content;
   max-height: unset;

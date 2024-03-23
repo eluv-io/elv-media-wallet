@@ -3,9 +3,10 @@ import {observer} from "mobx-react";
 import {Link, useRouteMatch} from "react-router-dom";
 import {NFTInfo} from "../../../utils/Utils";
 import {MarketplaceItemDetails, MintedNFTDetails} from "Components/nft/NFTDetails";
-import SwiperCore, {Lazy, Navigation, Keyboard} from "swiper";
+import SwiperCore from "swiper";
+import {Navigation, Keyboard} from "swiper/modules";
 
-SwiperCore.use([Lazy, Navigation, Keyboard]);
+SwiperCore.use([Navigation, Keyboard]);
 import {rootStore} from "Stores";
 import NFTMediaBrowser from "Components/nft/media/Browser";
 import NFTActiveMedia from "Components/nft/media/Active";

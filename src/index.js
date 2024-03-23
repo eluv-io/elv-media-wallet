@@ -1,13 +1,15 @@
 import "Assets/fonts/fonts.css";
+import "@mantine/core/styles.css";
 import "Assets/stylesheets/app.scss";
 
 import React, {lazy, Suspense, useEffect, useState} from "react";
 import UrlJoin from "url-join";
-import { render } from "react-dom";
+import { createRoot } from "react-dom/client";
 import { observer} from "mobx-react";
+import {MantineProvider} from "@mantine/core";
+import MantineTheme from "./MantineTheme";
 
 import { rootStore } from "Stores/index.js";
-import Header from "Components/header/Header";
 import {
   Switch,
   Route,
@@ -107,7 +109,6 @@ const Routes = observer(() => {
 
   return (
     <>
-      <Header />
       <ScrollToTop>
         <ErrorBoundary className="page-container wallet-page">
           <Switch>
@@ -260,39 +261,41 @@ if(window.location.hash?.startsWith("#/")) {
   history.replaceState("", document.title, path);
 }
 
-render(
+const root = createRoot(document.getElementById("app"));
+root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Switch>
-        { /* Handle various popup actions */ }
-        <Route exact path="/flow/:flow/:parameters">
-          <Flows />
-        </Route>
+    <MantineProvider theme={MantineTheme} defaultColorScheme="dark" withCssVariables>
+      <BrowserRouter>
+        <Switch>
+          { /* Handle various popup actions */ }
+          <Route exact path="/flow/:flow/:parameters">
+            <Flows />
+          </Route>
 
-        { /* Handle various UI based popup/redirect flows - Generic view */ }
-        <Route exact path="/action/:action/:parameters">
-          <Actions />
-        </Route>
+          { /* Handle various UI based popup/redirect flows - Generic view */ }
+          <Route exact path="/action/:action/:parameters">
+            <Actions />
+          </Route>
 
-        <Route path="/login">
-          <div className="login-page-container">
-            <Login />
-          </div>
-        </Route>
+          <Route path="/login">
+            <div className="login-page-container">
+              <Login />
+            </div>
+          </Route>
 
-        <Route path="/ory_login">
-          <div className="login-page-container">
-            <OryLogin />
-          </div>
-        </Route>
+          <Route path="/ory_login">
+            <div className="login-page-container">
+              <OryLogin />
+            </div>
+          </Route>
 
-        { /* All other routes */ }
-        <Route>
-          <App/>
-          <LoginModal />
-        </Route>
-      </Switch>
-    </BrowserRouter>
-  </React.StrictMode>,
-  document.getElementById("app")
+          { /* All other routes */ }
+          <Route>
+            <App/>
+            <LoginModal />
+          </Route>
+        </Switch>
+      </BrowserRouter>
+    </MantineProvider>
+  </React.StrictMode>
 );

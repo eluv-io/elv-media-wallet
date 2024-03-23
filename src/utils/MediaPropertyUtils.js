@@ -1,4 +1,13 @@
 import {SetImageUrlDimensions} from "./Utils";
+import UrlJoin from "url-join";
+
+export const MediaPropertyBasePath = params => {
+  if(!params.mediaPropertySlugOrId) { return "/"; }
+
+  return params.parentMediaPropertySlugOrId ?
+    UrlJoin("/properties", params.parentMediaPropertySlugOrId, params.parentPageSlugOrId || "", "p", params.mediaPropertySlugOrId) :
+    UrlJoin("/properties", params.mediaPropertySlugOrId);
+};
 
 export const MediaItemScheduleInfo = mediaItem => {
   const isLiveVideoType =

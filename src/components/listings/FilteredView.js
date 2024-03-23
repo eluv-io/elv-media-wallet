@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from "react";
 import {PageLoader} from "Components/common/Loaders";
 import ListingStats from "Components/listings/ListingStats";
 import ListingFilters from "Components/listings/ListingFilters";
-import {useInfiniteScroll} from "react-g-infinite-scroll";
+//import {useInfiniteScroll} from "react-g-infinite-scroll";
 import {rootStore} from "Stores";
 import {LocalizeString, PageControls} from "Components/common/UIComponents";
 import {SavedValue, ScrollTo} from "../../utils/Utils";
@@ -90,6 +90,7 @@ const FilteredView = ({
   }, [filters]);
 
   let scrollRef;
+  /*
   if(pagingMode === "infinite") {
     scrollRef = useInfiniteScroll({
       expectRef,
@@ -106,6 +107,8 @@ const FilteredView = ({
       ignoreScroll: loading || (entries && entries.length === 0) || (paging && entries.length === paging.total)
     });
   }
+
+   */
 
   // Pagination info
   let pagingInfo = null;

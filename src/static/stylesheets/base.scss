@@ -117,6 +117,7 @@ header,
 }
 
 .page-block {
+  @include page-fade-in(0.25s);
   background-color: var(--color-page-bg);
   display: flex;
   height: max-content;

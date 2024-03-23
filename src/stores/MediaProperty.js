@@ -1,8 +1,10 @@
 import {makeAutoObservable, flow} from "mobx";
+import MiniSearch from "minisearch";
 
 class MediaPropertyStore {
   mediaProperties = {};
   media = {};
+  searchIndexes = {};
   tags = [];
 
   constructor(rootStore) {
@@ -24,6 +26,48 @@ class MediaPropertyStore {
 
   get walletClient() {
     return this.rootStore.walletClient;
+  }
+
+  async SearchMedia({mediaPropertySlugOrId, query}) {
+    const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
+
+    if(!mediaProperty) {
+      return [];
+    }
+
+    const mediaPropertyId = mediaProperty.mediaPropertyId;
+
+
+    let results = (this.searchIndexes[mediaPropertyId].autoSuggest(query) || [{suggestion: query}])
+      .map(({suggestion}) =>
+        this.searchIndexes[mediaPropertyId].search(suggestion)
+      )
+      .flat();
+
+    results = results.sort((a, b) => {
+      const diff = a.score - b.score;
+
+      // Sort by score
+      if(Math.abs(diff) > 0.5) {
+        return diff > 0;
+      // Approximately same score, prioritize collections/lists
+      } else if(a.category !== b.category) {
+        if(a.category === "collection") {
+          return -1;
+        } else if(b.category === "collection") {
+          return 1;
+        } else if(a.category === "list") {
+          return -1;
+        }
+
+        return 1;
+      // Sort by catalog title
+      } else {
+        return a.catalog_title > b.catalog_title;
+      }
+    });
+
+    return results;
   }
 
   MediaProperty({mediaPropertySlugOrId}) {
@@ -245,7 +289,7 @@ class MediaPropertyStore {
   });
 
   LoadMediaProperty = flow(function * ({mediaPropertySlugOrId, force=false}) {
-    const mediaPropertyId = mediaPropertySlugOrId;
+    const mediaPropertyId = this.MediaProperty({mediaPropertySlugOrId})?.mediaPropertyId || mediaPropertySlugOrId;
     if(!this.mediaProperties[mediaPropertyId] || force) {
       const versionHash = yield this.client.LatestVersionHash({objectId: mediaPropertyId});
       const metadata = yield this.client.ContentObjectMetadata({
@@ -259,6 +303,24 @@ class MediaPropertyStore {
           await this.LoadMediaCatalog({mediaCatalogId})
         )
       );
+
+      const indexableMedia = Object.values(this.media)
+        .filter(mediaItem => metadata.media_catalogs.includes(mediaItem.media_catalog_id))
+        .map(mediaItem => ({
+          id: mediaItem.id,
+          title: mediaItem.title || "",
+          catalog_title: mediaItem.catalog_title || "",
+          category: mediaItem.type
+        }));
+
+      const searchIndex = new MiniSearch({
+        fields: ["title", "catalog_title"],
+        storeFields: ["id", "title", "catalog_title", "category"]
+      });
+      searchIndex.addAll(indexableMedia);
+
+      this.searchIndexes[mediaPropertyId] = searchIndex;
+
 
       // Start loading associated marketplaces but don't block on it
       (metadata.associated_marketplaces || []).map(({marketplace_id}) =>

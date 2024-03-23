@@ -1,4 +1,7 @@
 :root {
+  --property-header-height: 80px;
+  --property-full-content-height: calc(100vh - var(--property-header-height));
+
   --property-text-primary: #FFF;
   --property-text-secondary: #CCC;
   --property-text-headers: #A5A6A8;
@@ -12,6 +15,13 @@
   --property-card-background-active: rgba(80, 80, 80, 0.5);
   --property-card-background-solid: #141414;
   --property-card-background-solid-active: #343434;
+
+  --property-search-background: #202023;
+  --property-search-button-background: #38383C;
+
+  @media screen and (max-width: 800px) {
+    --property-header-height: 65px;
+  }
 }
 
 @mixin page-fade-in($duration: 0.5s, $animation: ease-out, $delay: 0s) {

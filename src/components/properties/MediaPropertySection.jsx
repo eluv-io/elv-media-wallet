@@ -2,7 +2,7 @@ import SectionStyles from "Assets/stylesheets/media_properties/property-section.
 
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {NavLink, Redirect, useRouteMatch} from "react-router-dom";
+import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import {mediaPropertyStore, rootStore} from "Stores";
 import {MediaCardVertical} from "Components/properties/MediaCards";
 import UrlJoin from "url-join";
@@ -145,12 +145,12 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
             }
             {
               !showAllLink ? null :
-                <NavLink to={UrlJoin(location.pathname, "s", section.slug || sectionId)} className={S("section__title-link")}>
+                <Link to={UrlJoin(location.pathname, "s", section.slug || sectionId)} className={S("section__title-link")}>
                   <div>
                     { rootStore.l10n.media_properties.sections.view_all }
                   </div>
                   <ImageIcon icon={RightArrow} />
-                </NavLink>
+                </Link>
             }
           </div>
       }

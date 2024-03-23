@@ -68,7 +68,7 @@ const NotificationBanner = observer(({marketplace}) => {
   );
 });
 
-const ProfileNavigation = observer(() => {
+export const ProfileNavigation = observer(() => {
   const location = useLocation();
   const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
   const [showWalletMenu, setShowWalletMenu] = useState(false);
@@ -339,7 +339,6 @@ const GlobalHeader = observer(({scrolled}) => {
 
 let lastPageHeight = document.querySelector("body").scrollHeight;
 const Header = observer(() => {
-  return null;
   const location = useLocation();
   const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
   const marketplace = marketplaceId && rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === marketplaceId);

@@ -5,7 +5,7 @@ import ImageIcon from "Components/common/ImageIcon";
 import {observer} from "mobx-react";
 import {Loader} from "Components/common/Loaders";
 import {LocalizeString, PageControls} from "Components/common/UIComponents";
-import {useInfiniteScroll} from "react-g-infinite-scroll";
+//import {useInfiniteScroll} from "react-g-infinite-scroll";
 import ListingFilters from "Components/listings/ListingFilters";
 import ListingStats from "Components/listings/ListingStats";
 import {SavedValue, ScrollTo} from "../../utils/Utils";
@@ -58,6 +58,7 @@ const Table = observer(({
 
   // Set up infinite scroll
   const [lastUpdate, setLastUpdate] = useState(0);
+  /*
   if(pagingMode === "infinite" && !scrollRef) {
     scrollRef = useInfiniteScroll({
       expectRef: true,
@@ -74,6 +75,8 @@ const Table = observer(({
       ignoreScroll: entries.length === 0 || !paging || loading || paging.start + paging.limit > paging.total
     });
   }
+
+   */
 
   // Pagination info
   const tableRef = useRef();

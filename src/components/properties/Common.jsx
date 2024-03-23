@@ -5,7 +5,7 @@ import {observer} from "mobx-react";
 import {mediaPropertyStore, rootStore} from "Stores";
 import SanitizeHTML from "sanitize-html";
 import {SetImageUrlDimensions} from "../../utils/Utils";
-import {NavLink} from "react-router-dom";
+import {Link} from "react-router-dom";
 
 import ArrowLeft from "Assets/icons/arrow-left.svg";
 import ImageIcon from "Components/common/ImageIcon";
@@ -22,10 +22,10 @@ export const PageContainer = ({backPath, children, className}) => {
     <div className={[S("page-container"), className].join(" ")}>
       {
         !backPath ? null :
-          <NavLink to={backPath} className={S("page-container__back-link")}>
+          <Link to={backPath} className={S("page-container__back-link")}>
             <ImageIcon icon={ArrowLeft} />
             <div>Back</div>
-          </NavLink>
+          </Link>
       }
 
       { children }
@@ -51,7 +51,7 @@ export const PageBackground = observer(({display}) => {
           lazy={false}
           alt="Background Image"
           loaderWidth="100%"
-          loaderHeight="100vh"
+          loaderHeight="var(--property-full-content-height"
           src={SetImageUrlDimensions({url: backgroundImage, width: backgroundImageScale})}
           className={S("page-background__image")}
         />
@@ -127,17 +127,19 @@ export const LoaderImage = observer(({src, width, loaderHeight, loaderWidth, loa
         src={src}
         onLoad={() => setLoaded(true)}
       />
-      <div
-        {...props}
-        style={{
-          ...(props.style || {}),
-          ...(loaderWidth ? {width: loaderWidth} : {}),
-          ...(loaderHeight ? {height: loaderHeight} : {}),
-          ...(loaderAspectRatio ? {aspectRatio: loaderAspectRatio} : {})
-        }}
-        key={props.key ? `${props.key}--placeholder` : undefined}
-        className={[S("lazy-image__background"), props.className || ""].join(" ")}
-      />
+      <div className={S("lazy-image")}>
+        <div
+          {...props}
+          style={{
+            ...(props.style || {}),
+            ...(loaderWidth ? {width: loaderWidth} : {}),
+            ...(loaderHeight ? {height: loaderHeight} : {}),
+            ...(loaderAspectRatio ? {aspectRatio: loaderAspectRatio} : {})
+          }}
+          key={props.key ? `${props.key}--placeholder` : undefined}
+          className={[S("lazy-image__background"), props.className || ""].join(" ")}
+        />
+      </div>
     </>
   );
 });
@@ -241,7 +243,6 @@ export const Description = ({
 
 export const Carousel = observer(({
   content,
-  //slidesPerPage=1,
   swiperOptions={},
   UpdateActiveIndex,
   RenderSlide,
@@ -258,23 +259,17 @@ export const Carousel = observer(({
     UpdateActiveIndex && UpdateActiveIndex(activeIndex);
   }, [activeIndex]);
 
-  /*
-  if(typeof slidesPerPage === "function") {
-    slidesPerPage = slidesPerPage({imageDimensions, swiper});
-  }
-
-   */
-
-  window.swiper=swiper;
-
-  const slidesPerPage = swiper?.slidesPerViewDynamic() - 1 || 1;
+  let slidesPerPage = 1;
+  try {
+    slidesPerPage = swiper?.slidesPerViewDynamic() - 1 || 1;
+  // eslint-disable-next-line no-empty
+  } catch(error) {}
 
   return (
     <Swiper
       className={[S("carousel"), className].join(" ")}
       threshold={5}
       slidesPerView="auto"
-      //slidesPerGroup={1}
       lazy={{
         enabled: true,
         loadPrevNext: true,

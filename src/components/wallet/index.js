@@ -11,6 +11,7 @@ import {rootStore} from "Stores/index";
 import UrlJoin from "url-join";
 import RenderRoutes from "Routes";
 import MarketplaceBrowser from "Components/marketplace/MarketplaceBrowser";
+import Header from "Components/header/Header";
 
 const WalletWrapper = ({children}) => {
   useEffect(() => {
@@ -26,14 +27,18 @@ const Wallet = observer(() => {
   }
 
   return (
-    <div className="page-container error-page">
+    <div className="page-container">
+      <Header key="header" />
+
       <Switch>
         <Route path="/wallet" exact>
           <Redirect to="/marketplaces" />
         </Route>
 
         <Route path="/marketplaces" exact>
-          <MarketplaceBrowser />
+          <WalletWrapper>
+            <MarketplaceBrowser />
+          </WalletWrapper>
         </Route>
 
         <RenderRoutes

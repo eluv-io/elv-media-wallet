@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
-import {render, unmountComponentAtNode} from "react-dom";
+import {createRoot} from "react-dom/client";
 import {rootStore} from "Stores";
 import Modal from "Components/common/Modal";
 import {Loader} from "Components/common/Loaders";
@@ -58,10 +58,15 @@ const Confirm = async ({message, ModalComponent, Confirm, Close}) => {
 
   return await new Promise(resolve => {
     const targetId = "-elv-confirm-target";
+    const target = document.createElement("div");
+    target.id = targetId;
+    document.getElementById("app").appendChild(target);
+
+    const root = createRoot(target);
 
     const RemoveModal = () => {
       const target = document.getElementById(targetId);
-      unmountComponentAtNode(target);
+      root.unmount();
       target.parentNode.removeChild(target);
     };
 
@@ -87,13 +92,8 @@ const Confirm = async ({message, ModalComponent, Confirm, Close}) => {
       }
     };
 
-    const target = document.createElement("div");
-    target.id = targetId;
-    document.getElementById("app").appendChild(target);
-
-    render(
-      <ModalComponent message={message} Confirm={HandleConfirm} Close={HandleClose} />,
-      target
+    root.render(
+      <ModalComponent message={message} Confirm={HandleConfirm} Close={HandleClose} />
     );
   });
 };

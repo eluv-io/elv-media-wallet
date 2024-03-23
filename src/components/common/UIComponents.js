@@ -5,7 +5,7 @@ import {checkoutStore, rootStore} from "Stores";
 import {Loader} from "Components/common/Loaders";
 import ImageIcon from "Components/common/ImageIcon";
 import {v4 as UUID} from "uuid";
-import {render} from "react-dom";
+import {createRoot} from "react-dom/client";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
 import QRCode from "qrcode";
@@ -345,20 +345,27 @@ export const FormatPriceString = (
 window.FormatPriceString = FormatPriceString;
 
 export const RichText = ({richText, className=""}) => {
-  return (
-    <div
-      className={`rich-text ${className}`}
-      ref={element => {
-        if(!element) { return; }
+  const ref = useRef();
+  const [root, setRoot] = useState(undefined);
 
-        render(
-          <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
-            { SanitizeHTML(richText) }
-          </ReactMarkdown>,
-          element
-        );
-      }}
-    />
+  useEffect(() => {
+    if(!ref || !ref.current || root) { return; }
+
+    setRoot(createRoot(ref.current));
+  }, [ref]);
+
+  useEffect(() => {
+    if(!root) { return; }
+
+    root.render(
+      <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
+        { SanitizeHTML(richText) }
+      </ReactMarkdown>
+    );
+  }, [root]);
+
+  return (
+    <div className={`rich-text ${className}`} ref={ref} />
   );
 };
 

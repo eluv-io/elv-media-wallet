@@ -150,6 +150,8 @@ class RootStore {
   staticToken = undefined;
   basePublicUrl = undefined;
 
+  routeParams = {};
+
   nftInfo = {};
   nftData = {};
   userProfiles = {};
@@ -2368,6 +2370,10 @@ class RootStore {
         });
       }
     }, 250);
+  }
+
+  SetRouteParams(params) {
+    this.routeParams = params || {};
   }
 
   SetRouteChange(route) {

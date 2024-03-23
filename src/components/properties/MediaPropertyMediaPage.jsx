@@ -2,7 +2,7 @@ import MediaStyles from "Assets/stylesheets/media_properties/property-media.modu
 
 import React, {useEffect, useState, useRef} from "react";
 import {observer} from "mobx-react";
-import {NavLink, Redirect, useRouteMatch} from "react-router-dom";
+import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import {mediaPropertyStore, rootStore} from "Stores";
 import UrlJoin from "url-join";
 import ImageIcon from "Components/common/ImageIcon";
@@ -122,12 +122,12 @@ const GalleryContent = observer(({galleryItem}) => {
 
 const MediaGallery = observer(({mediaItem}) => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [contentHeight, setContentHeight] = useState("100vh");
+  const [contentHeight, setContentHeight] = useState("var(--property-full-content-height)");
   const textRef = useRef();
   const carouselRef = useRef();
 
   useEffect(() => {
-    const CalcContentHeight = () => `calc(100vh - 60px - ${carouselRef?.current?.getBoundingClientRect?.().height || 0}px - ${textRef?.current?.getBoundingClientRect?.().height || 0}px)`;
+    const CalcContentHeight = () => `calc(var(--property-full-content-height) - 60px - ${carouselRef?.current?.getBoundingClientRect?.().height || 0}px - ${textRef?.current?.getBoundingClientRect?.().height || 0}px)`;
     setContentHeight(CalcContentHeight());
     setTimeout(() => {
       setContentHeight(CalcContentHeight());
@@ -309,15 +309,21 @@ const MediaPropertyMediaPage = observer(() => {
 
   return (
     <div className={S("media-page")}>
-      <NavLink to={backPath} className={S("media-page__back-link", controlsVisible ? "media-page__back-link--visible" : "")}>
+      <Link to={backPath} className={S("media-page__back-link", controlsVisible ? "media-page__back-link--visible" : "")}>
         <ImageIcon icon={ArrowLeft} />
         <div>Back</div>
-      </NavLink>
+      </Link>
       <div className={S("media-container")}>
         <Media mediaItem={mediaItem} setControlsVisible={setControlsVisible} />
       </div>
       <div className={S("media-info")}>
         <div className={S("media-text")}>
+          {
+            (display.headers || []).length === 0 ? null :
+              <div className={S("media-text__headers")}>
+                { display.headers.map((header, index) => <div key={`header-${index}`} className={S("media-text__header")}>{ header }</div>) }
+              </div>
+          }
           {
             !display.title ? null :
               <h1 className={S("media-text__title")}>{ display.title }</h1>
@@ -328,14 +334,8 @@ const MediaPropertyMediaPage = observer(() => {
           }
           <div className={S("media-text__description-block")}>
             {
-              (display.headers || []).length === 0 ? null :
-                <div className={S("media-text__headers")}>
-                  { display.headers.map((header, index) => <div key={`header-${index}`} className={S("media-text__header")}>{ header }</div>) }
-                </div>
-            }
-            {
               !display.description ? null :
-                <div className={S("media-text__description")}>{ display.description }</div>
+                <Description expandable description={display.description} maxLines="3" className={S("media-text__description")} />
             }
           </div>
         </div>

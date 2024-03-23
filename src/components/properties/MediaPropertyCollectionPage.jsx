@@ -2,7 +2,7 @@ import MediaCollectionStyles from "Assets/stylesheets/media_properties/property-
 
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {NavLink, Redirect, useRouteMatch} from "react-router-dom";
+import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import {mediaPropertyStore} from "Stores";
 import UrlJoin from "url-join";
 import {PageBackground, PageContainer, PageHeader, ScaledText} from "Components/properties/Common";
@@ -58,7 +58,7 @@ const MediaCollectionLists = observer(({mediaCollection, activeListId, setActive
     <div className={S("media-collection__list-container")}>
       {
         (mediaLists || []).map(mediaList =>
-          <NavLink
+          <Link
             to={match.url + `?l=${mediaList.id}${navContext ? `&ctx=${navContext}` : ""}`}
             onClick={() => setActiveListId(mediaList.id)}
             key={`media-list-${mediaList.id}`}
@@ -70,7 +70,7 @@ const MediaCollectionLists = observer(({mediaCollection, activeListId, setActive
             <ScaledText maxPx={12} minPx={12} className={S("media-collection__list-subtitle")}>
               { mediaList.subtitle }
             </ScaledText>
-          </NavLink>
+          </Link>
         )
       }
     </div>
@@ -132,7 +132,7 @@ const MediaPropertyCollectionPage = observer(() => {
   const navContext = new URLSearchParams(location.search).get("ctx");
   const backPath = navContext === "s" && match.params.sectionSlugOrId ?
     UrlJoin("/properties", match.params.mediaPropertySlugOrId, match.params.pageSlugOrId || "", "s", match.params.sectionSlugOrId) :
-    UrlJoin("/properties", match.params.mediaPropertySlugOrId, match.params.pageSlugOrId || "", `?ctx=${section.sectionId || section.id}`);
+    UrlJoin("/properties", match.params.mediaPropertySlugOrId, match.params.pageSlugOrId || "", section ? `?ctx=${section.sectionId || section.id}` : "");
 
   useEffect(() => {
     if(!activeListId) {

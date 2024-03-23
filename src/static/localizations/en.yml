@@ -633,6 +633,9 @@ ago:
 media_properties:
   media_properties: Media Properties
   media_property: Media Property
+  header:
+    search: Search
+    filter: Filter
   sections:
     view_all: View All
   media:
