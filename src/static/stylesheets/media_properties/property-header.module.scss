@@ -1,5 +1,6 @@
 @import "./variables";
 .header {
+  @include page-fade-in(0.25s);
   position: sticky;
   top: 0;
   background: linear-gradient(180deg, #1C1D20 0%, #000 100%);

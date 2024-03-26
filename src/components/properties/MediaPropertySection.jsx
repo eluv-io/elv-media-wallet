@@ -156,7 +156,11 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
       }
       <ContentComponent
         section={section}
-        sectionContent={sectionContent}
+        sectionContent={
+          section.display.display_limit ?
+            sectionContent.slice(0, section.display.display_limit) :
+            sectionContent
+        }
       />
     </div>
   );
