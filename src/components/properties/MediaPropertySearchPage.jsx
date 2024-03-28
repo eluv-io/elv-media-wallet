@@ -9,7 +9,7 @@ import {
   PageContainer
 } from "Components/properties/Common";
 import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
-import {MediaCardVertical} from "Components/properties/MediaCards";
+import MediaCard from "Components/properties/MediaCards";
 import {LocalizeString} from "Components/common/UIComponents";
 
 const S = (...classes) => classes.map(c => PageStyles[c] || SectionStyles[c] || "").join(" ");
@@ -31,8 +31,6 @@ const MediaPropertySearchPage = observer(() => {
     return <Redirect to={MediaPropertyBasePath(match.params)} />;
   }
 
-  console.log(searchResults);
-
   return (
     <PageContainer
       backPath={location.pathname.replace(/\/search$/, "")}
@@ -50,7 +48,8 @@ const MediaPropertySearchPage = observer(() => {
               if(!mediaItem) { return null; }
 
               return (
-                <MediaCardVertical
+                <MediaCard
+                  format="vertical"
                   key={`search-result-${query}-${result.id}`}
                   mediaItem={mediaItem}
                   textDisplay="titles"

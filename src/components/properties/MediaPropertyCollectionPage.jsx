@@ -6,7 +6,7 @@ import {Link, Redirect, useHistory, useRouteMatch} from "react-router-dom";
 import {mediaPropertyStore} from "Stores";
 import UrlJoin from "url-join";
 import {PageBackground, PageContainer, PageHeader, ScaledText} from "Components/properties/Common";
-import {MediaCardHorizontal} from "Components/properties/MediaCards";
+import MediaCard from "Components/properties/MediaCards";
 import {Select} from "Components/common/UIComponents";
 
 const S = (...classes) => classes.map(c => MediaCollectionStyles[c] || "").join(" ");
@@ -103,7 +103,8 @@ const MediaCollectionMedia = observer(({mediaListId, navContext}) => {
     <div className={S("media-collection__media-container")}>
       {
         (media || []).map(mediaItem =>
-          <MediaCardHorizontal
+          <MediaCard
+            format="horizontal"
             key={`media-item-${mediaItem.id}`}
             mediaItem={mediaItem}
             textDisplay="titles"

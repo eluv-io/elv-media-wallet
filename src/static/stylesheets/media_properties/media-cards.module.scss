@@ -1,8 +1,13 @@
+.media-card-banner {
+  display: block;
+  flex: 1 0 100%;
+  max-width: unset;
+}
+
 .media-card-vertical {
   display: block;
   flex: 1 1 100%;
   max-width: var(--max-card-width);
-
 
   &:hover {
     .media-card-vertical__image {
@@ -80,6 +85,7 @@
 
   &__text {
     margin-top: 10px;
+    padding-inline: 4px;
   }
 
   &__headers {

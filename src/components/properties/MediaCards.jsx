@@ -65,45 +65,101 @@ const MediaCardLink = ({match, sectionItem, mediaItem, navContext}) => {
   return linkPath;
 };
 
-export const MediaCardVertical = observer(({
-  sectionItem,
-  mediaItem,
-  aspectRatio,
-  textDisplay="title",
-  setImageDimensions,
-  navContext,
+const MediaCardBanner = observer(({
+  display,
+  imageContainerRef,
+  imageUrl,
+  scheduleInfo,
+  textDisplay,
+  linkPath="",
   className=""
 }) => {
-  const match = useRouteMatch();
-  const display = sectionItem?.display || mediaItem;
+  return (
+    <Link
+      aria-label={display.title}
+      to={linkPath}
+      className={[S("media-card-banner"), className].join(" ")}
+    >
+      <div ref={imageContainerRef} className={S("media-card-banner__image-container")}>
+        { !imageUrl ? null :
+          <LoaderImage
+            src={imageUrl}
+            alt={display.title}
+            width="10000"
 
-  const imageContainerRef = useRef();
+            className={S("media-card-banner__image")}
+          />
+        }
+        {
+          // Schedule indicator
+          !scheduleInfo.isLiveContent || scheduleInfo.ended ? null :
+            scheduleInfo.currentlyLive ?
+              <div className={S("media-card-banner__indicator", "media-card-banner__live-indicator")}>
+                { mediaPropertyStore.rootStore.l10n.media_properties.media.live }
+              </div> :
+              <div className={S("media-card-banner__indicator", "media-card-banner__upcoming-indicator")}>
+                <div>{ mediaPropertyStore.rootStore.l10n.media_properties.media.upcoming}</div>
+                <div>{ scheduleInfo.displayStartDate } at { scheduleInfo.displayStartTime }</div>
+              </div>
+        }
+      </div>
+      {
+        // Text
+        textDisplay === "none" ? null :
+          <div className={S("media-card-banner__text")}>
+            { textDisplay !== "all" || (display.headers || []).length === 0 ? null :
+              <div className={S("media-card-banner__headers")}>
+                { display.headers?.map((header, index) =>
+                  <div className={S("media-card-banner__header")} key={`header-${index}`}>
+                    <div className={S("media-card-banner__headers")}>
+                      {header}
+                    </div>
+                  </div>
+                )}
+              </div>
+            }
+            {
+              !display.title ? null :
+                <ScaledText Tag="h3" maxPx={20} minPx={12} maxPxMobile={18} className={S("media-card-banner__title")}>
+                  { display.title }
+                </ScaledText>
+            }
+            {
+              !["all", "titles"].includes(textDisplay) || !display.subtitle ? null :
+                <ScaledText maxPx={12} maxPxMobile={11} minPx={10} className={S("media-card-banner__subtitle")}>
+                  { display.subtitle }
+                </ScaledText>
+            }
+            <Description
+              description={display.description}
+              maxLines={textDisplay === "all" ? 2 : 3}
+              className={S("media-card-banner__description")}
+            />
+          </div>
+      }
+    </Link>
+  );
+});
 
-  useEffect(() => {
-    if(!setImageDimensions || !imageContainerRef?.current) { return; }
 
-    setImageDimensions(imageContainerRef.current.getBoundingClientRect());
-  }, [imageContainerRef, mediaPropertyStore.rootStore.pageWidth]);
-
-  if(!display) {
-    mediaPropertyStore.Log("Invalid section item", true);
-    mediaPropertyStore.Log(sectionItem);
-    return null;
-  }
-
-  aspectRatio = aspectRatio?.toLowerCase() || "";
-
-  const {imageUrl, imageAspectRatio} = MediaItemImageUrl({mediaItem: mediaItem || sectionItem?.mediaItem || sectionItem, display: display, aspectRatio});
-  const scheduleInfo = MediaItemScheduleInfo(mediaItem || sectionItem?.mediaItem);
-
-  let textScale = (aspectRatio || imageAspectRatio) === "landscape" ? 1 : 0.8;
+const MediaCardVertical = observer(({
+  display,
+  imageContainerRef,
+  imageUrl,
+  scheduleInfo,
+  textDisplay,
+  aspectRatio,
+  linkPath="",
+  className=""
+}) => {
+  let textScale = (aspectRatio) === "landscape" ? 1 : 0.8;
   textScale *= mediaPropertyStore.rootStore.pageWidth < 800 ? 0.8 : 1;
 
   return (
     <Link
       aria-label={display.title}
-      to={MediaCardLink({match, sectionItem, mediaItem, navContext}) || ""}
-      className={[S("media-card-vertical", `media-card-vertical--${aspectRatio || imageAspectRatio}`), className].join(" ")}
+      to={linkPath}
+      className={[S("media-card-vertical", `media-card-vertical--${aspectRatio}`), className].join(" ")}
     >
       <div ref={imageContainerRef} className={S("media-card-vertical__image-container")}>
         { !imageUrl ? null :
@@ -160,42 +216,21 @@ export const MediaCardVertical = observer(({
   );
 });
 
-export const MediaCardHorizontal = observer(({
-  sectionItem,
-  mediaItem,
+const MediaCardHorizontal = observer(({
+  display,
+  imageContainerRef,
+  imageUrl,
+  scheduleInfo,
+  textDisplay,
   aspectRatio,
-  textDisplay="title",
-  setImageDimensions,
-  navContext,
+  linkPath="",
   className=""
 }) => {
-  const match = useRouteMatch();
-  const display = sectionItem?.display || mediaItem;
-
-  const imageContainerRef = useRef();
-
-  useEffect(() => {
-    if(!setImageDimensions || !imageContainerRef?.current) { return; }
-
-    setImageDimensions(imageContainerRef.current.getBoundingClientRect());
-  }, [imageContainerRef, mediaPropertyStore.rootStore.pageWidth]);
-
-  if(!display) {
-    mediaPropertyStore.Log("Invalid section item", true);
-    mediaPropertyStore.Log(sectionItem);
-    return null;
-  }
-
-  aspectRatio = aspectRatio?.toLowerCase() || "";
-
-  const {imageUrl, imageAspectRatio} = MediaItemImageUrl({mediaItem: mediaItem || sectionItem?.mediaItem || sectionItem, display: display, aspectRatio});
-  const scheduleInfo = MediaItemScheduleInfo(mediaItem || sectionItem.mediaItem);
-
   return (
     <Link
       aria-label={display.title}
-      to={MediaCardLink({match, sectionItem, mediaItem, navContext}) || ""}
-      className={[S("media-card-horizontal", `media-card-horizontal--${aspectRatio || imageAspectRatio}`), className].join(" ")}
+      to={linkPath}
+      className={[S("media-card-horizontal", `media-card-horizontal--${aspectRatio}`), className].join(" ")}
     >
       <div ref={imageContainerRef} className={S("media-card-horizontal__image-container")}>
         { !imageUrl ? null :
@@ -256,3 +291,73 @@ export const MediaCardHorizontal = observer(({
     </Link>
   );
 });
+
+
+const MediaCard = observer(({
+  format="vertical",
+  sectionItem,
+  mediaItem,
+  aspectRatio,
+  textDisplay="title",
+  setImageDimensions,
+  navContext,
+  className=""
+}) => {
+  const match = useRouteMatch();
+  const display = sectionItem?.display || mediaItem;
+
+  const imageContainerRef = useRef();
+
+  useEffect(() => {
+    if(!setImageDimensions || !imageContainerRef?.current) { return; }
+
+    setImageDimensions(imageContainerRef.current.getBoundingClientRect());
+  }, [imageContainerRef, mediaPropertyStore.rootStore.pageWidth]);
+
+  if(!display) {
+    mediaPropertyStore.Log("Invalid section item", true);
+    mediaPropertyStore.Log(sectionItem);
+    return null;
+  }
+
+  aspectRatio = aspectRatio?.toLowerCase() || "";
+  let {imageUrl, imageAspectRatio} = MediaItemImageUrl({
+    mediaItem: mediaItem || sectionItem?.mediaItem || sectionItem,
+    display,
+    aspectRatio
+  });
+
+  if(format === "banner") {
+    imageUrl =
+      (mediaPropertyStore.rootStore.pageWidth < 800 && sectionItem?.banner_image_mobile?.url) ||
+      sectionItem?.banner_image?.url ||
+      imageUrl;
+  }
+
+  const scheduleInfo = MediaItemScheduleInfo(mediaItem || sectionItem.mediaItem);
+
+  const linkPath = MediaCardLink({match, sectionItem, mediaItem, navContext}) || "";
+
+  let args = {
+    display,
+    imageUrl,
+    textDisplay,
+    linkPath,
+    scheduleInfo,
+    imageContainerRef,
+    aspectRatio: aspectRatio || imageAspectRatio,
+    className
+  };
+
+  switch(format) {
+    case "horizontal":
+      return <MediaCardHorizontal {...args} />;
+    case "vertical":
+      return <MediaCardVertical {...args} />;
+    case "banner":
+      return <MediaCardBanner {...args} />;
+
+  }
+});
+
+export default MediaCard;
