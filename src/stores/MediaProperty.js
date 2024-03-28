@@ -37,19 +37,23 @@ class MediaPropertyStore {
 
     const mediaPropertyId = mediaProperty.mediaPropertyId;
 
+    let suggestions = this.searchIndexes[mediaPropertyId].autoSuggest(query);
+    if(suggestions.length === 0) {
+      suggestions = [{suggestion: query}];
+    }
 
-    let results = (this.searchIndexes[mediaPropertyId].autoSuggest(query) || [{suggestion: query}])
-      .map(({suggestion}) =>
-        this.searchIndexes[mediaPropertyId].search(suggestion)
-      )
-      .flat();
+    let results = suggestions
+      .map(({suggestion}) => this.searchIndexes[mediaPropertyId].search(suggestion))
+      .flat()
+      .filter((value, index, array) => array.findIndex(({id}) => id === value.id) === index);
+
 
     results = results.sort((a, b) => {
       const diff = a.score - b.score;
 
       // Sort by score
-      if(Math.abs(diff) > 0.5) {
-        return diff > 0;
+      if(Math.abs(diff) > 0.25) {
+        return diff > 0 ? -1 : 1;
       // Approximately same score, prioritize collections/lists
       } else if(a.category !== b.category) {
         if(a.category === "collection") {
@@ -63,7 +67,7 @@ class MediaPropertyStore {
         return 1;
       // Sort by catalog title
       } else {
-        return a.catalog_title > b.catalog_title;
+        return a.catalog_title > b.catalog_title ? 1 : -1;
       }
     });
 

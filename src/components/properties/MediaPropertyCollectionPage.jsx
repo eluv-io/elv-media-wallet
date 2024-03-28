@@ -2,7 +2,7 @@ import MediaCollectionStyles from "Assets/stylesheets/media_properties/property-
 
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {Link, Redirect, useRouteMatch} from "react-router-dom";
+import {Link, Redirect, useHistory, useRouteMatch} from "react-router-dom";
 import {mediaPropertyStore} from "Stores";
 import UrlJoin from "url-join";
 import {PageBackground, PageContainer, PageHeader, ScaledText} from "Components/properties/Common";
@@ -108,6 +108,7 @@ const MediaCollectionMedia = observer(({mediaListId, navContext}) => {
             mediaItem={mediaItem}
             textDisplay="titles"
             navContext={navContext}
+            params={{mediaListSlugOrId: mediaListId}}
             className={S("media-collection__media-card")}
           />
         )
@@ -118,6 +119,7 @@ const MediaCollectionMedia = observer(({mediaListId, navContext}) => {
 
 const MediaPropertyCollectionPage = observer(() => {
   const url = new URL(window.location.href);
+  const history = useHistory();
 
   const match = useRouteMatch();
   const [activeListId, setActiveListId] = useState(url.searchParams.get("l"));
@@ -136,7 +138,13 @@ const MediaPropertyCollectionPage = observer(() => {
 
   useEffect(() => {
     if(!activeListId) {
-      setActiveListId(mediaCollection?.media_lists?.[0]);
+      const listId = mediaCollection?.media_lists?.[0];
+      if(listId) {
+        setActiveListId(listId);
+        const url = new URL(window.location.href);
+        url.searchParams.set("l", listId);
+        history.replace(url.pathname + url.search);
+      }
     }
   }, [mediaCollection, activeListId]);
 

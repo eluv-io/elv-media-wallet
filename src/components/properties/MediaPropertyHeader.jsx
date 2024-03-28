@@ -18,7 +18,8 @@ const S = (...classes) => classes.map(c => HeaderStyles[c] || "").join(" ");
 const SearchBar = observer(() => {
   const [searchOptions, setSearchOptions] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(new URLSearchParams(location.search).get("q") || "");
+  const [lastSelectedAt, setLastSelectedAt] = useState(undefined);
   const [debouncedQuery] = useDebouncedValue(query, 250);
   const searchRef = useRef();
   const history = useHistory();
@@ -40,7 +41,15 @@ const SearchBar = observer(() => {
     }
   }, [debouncedQuery]);
 
+  useEffect(() => {
+    // Clear search on page change unless page change was result of search
+    if(Date.now() - lastSelectedAt > 1000) {
+      setQuery("");
+    }
+  }, [rootStore.routeParams]);
+
   const Select = (selectedTitle) => {
+    setLastSelectedAt(Date.now());
     const matchingResults = searchResults.filter(result => result.title?.toLowerCase() === selectedTitle?.toLowerCase());
 
     const basePath = MediaPropertyBasePath(rootStore.routeParams);
@@ -51,6 +60,9 @@ const SearchBar = observer(() => {
       history.push(UrlJoin(basePath, type, id));
     } else {
       // No results or ambiguous match - Go to search page
+      const params = new URLSearchParams();
+      params.set("q", query);
+      history.push(UrlJoin(basePath, "search", "?" + params.toString()));
     }
 
     searchRef?.current.blur();
@@ -61,6 +73,17 @@ const SearchBar = observer(() => {
       ref={searchRef}
       value={query}
       onChange={setQuery}
+      onKeyDown={event => {
+        if(event.key !== "Enter") { return; }
+
+        // Enter key pressed - will fire if a dropdown item is selected, so need to wait and see if the path changed
+        const originalPath = location.pathname;
+        setTimeout(() => {
+          if(location.pathname === originalPath) {
+            Select(query);
+          }
+        }, 250);
+      }}
       placeholder={searchOptions[0]?.title || mediaPropertyStore.rootStore.l10n.media_properties.header.search}
       data={searchOptions}
       limit={50}
@@ -96,6 +119,8 @@ const HeaderLinks = observer(() => {
 
 const MediaPropertyHeader = observer(() => {
   const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
+
+  if(!mediaProperty) { return null; }
 
   return (
     <div className={S("header", rootStore.routeParams.mediaItemSlugOrId ? "header--media" : "")}>

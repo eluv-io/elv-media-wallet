@@ -13,11 +13,12 @@ const S = (...classes) => classes.map(c => MediaCardStyles[c] || "").join(" ");
 const MediaCardLink = ({match, sectionItem, mediaItem, navContext}) => {
   mediaItem = mediaItem || sectionItem.mediaItem;
 
+  // TODO: Rewrite so it's not relative to current path
   let linkPath = match.url;
   if(mediaItem || sectionItem?.type === "media") {
-    const mediaId = mediaItem?.id || sectionItem.media_id;
+    const mediaId = mediaItem?.id || sectionItem?.media_id;
 
-    let basePath = match.url;
+    let basePath = match.url.replace(/\/search/, "");
 
     //navContext = match.params.sectionSlugOrId || sectionItem.sectionId;
     if(!match.params.sectionSlugOrId && sectionItem?.sectionId) {
@@ -93,7 +94,7 @@ export const MediaCardVertical = observer(({
   aspectRatio = aspectRatio?.toLowerCase() || "";
 
   const {imageUrl, imageAspectRatio} = MediaItemImageUrl({mediaItem: mediaItem || sectionItem?.mediaItem || sectionItem, display: display, aspectRatio});
-  const scheduleInfo = MediaItemScheduleInfo(mediaItem || sectionItem.mediaItem);
+  const scheduleInfo = MediaItemScheduleInfo(mediaItem || sectionItem?.mediaItem);
 
   let textScale = (aspectRatio || imageAspectRatio) === "landscape" ? 1 : 0.8;
   textScale *= mediaPropertyStore.rootStore.pageWidth < 800 ? 0.8 : 1;

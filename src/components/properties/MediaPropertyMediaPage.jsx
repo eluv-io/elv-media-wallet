@@ -22,7 +22,7 @@ const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 
 /* Video */
 
-const MediaVideo = observer(({mediaItem, setControlsVisible}) => {
+const MediaVideo = observer(({mediaItem, display, setControlsVisible}) => {
   const [scheduleInfo, setScheduleInfo] = useState(MediaItemScheduleInfo(mediaItem));
   const [error, setError] = useState();
 
@@ -71,7 +71,13 @@ const MediaVideo = observer(({mediaItem, setControlsVisible}) => {
     <Video
       link={mediaItem.media_link}
       callback={player => player.controls.RegisterSettingsListener(() => setControlsVisible(player.controls.IsVisible()))}
+      contentInfo={{
+        title: display.title,
+        subtitle: display.subtitle,
+        headers: display.headers
+      }}
       playerOptions={{
+        title: EluvioPlayerParameters.title.FULLSCREEN_ONLY,
         playerProfile: EluvioPlayerParameters.playerProfile[scheduleInfo.isLiveContent ? "LOW_LATENCY" : "DEFAULT"]
       }}
       posterImage={{
@@ -193,11 +199,11 @@ const MediaGallery = observer(({mediaItem}) => {
 });
 
 
-const Media = observer(({mediaItem, setControlsVisible}) => {
+const Media = observer(({mediaItem, display, setControlsVisible}) => {
   if(!mediaItem) { return <div className={S("media")} />; }
 
   if(mediaItem.media_type === "Video") {
-    return <MediaVideo mediaItem={mediaItem} setControlsVisible={setControlsVisible}/>;
+    return <MediaVideo mediaItem={mediaItem} display={display} setControlsVisible={setControlsVisible}/>;
   } else if(mediaItem.media_type === "Gallery") {
     return <MediaGallery mediaItem={mediaItem} />;
   } else if(mediaItem.media_type === "Image") {
@@ -267,6 +273,32 @@ const Media = observer(({mediaItem, setControlsVisible}) => {
   }
 });
 
+const MediaDescription = observer(({display}) => {
+  const [expanded, setExpanded] = useState(false);
+
+  if(!display.description && !display.description_rich_text) {
+    return null;
+  }
+
+  return (
+    <div
+      role={expanded ? "" : "button"}
+      onClick={() => !expanded && setExpanded(true)}
+      className={S("media-text__description-container", `media-text__description-container--${expanded ? "expanded" : "contracted"}`)}
+    >
+      <Description
+        description={display.description}
+        descriptionRichText={display.description_rich_text}
+        className={S("media-text__description")}
+      />
+      { expanded ? null : <div className={S("media-text__description-overlay")} /> }
+      <button onClick={() => setExpanded(!expanded)} className={S("media-text__description-toggle")}>
+        { mediaPropertyStore.rootStore.l10n.media_properties.media.description[expanded ? "hide" : "show"] }
+      </button>
+    </div>
+  );
+});
+
 const MediaPropertyMediaPage = observer(() => {
   const match = useRouteMatch();
   const [controlsVisible, setControlsVisible] = useState(true);
@@ -314,7 +346,7 @@ const MediaPropertyMediaPage = observer(() => {
         <div>Back</div>
       </Link>
       <div className={S("media-container")}>
-        <Media mediaItem={mediaItem} setControlsVisible={setControlsVisible} />
+        <Media mediaItem={mediaItem} display={display} setControlsVisible={setControlsVisible} />
       </div>
       <div className={S("media-info")}>
         <div className={S("media-text")}>
@@ -332,12 +364,7 @@ const MediaPropertyMediaPage = observer(() => {
             !display.subtitle ? null :
               <h2 className={S("media-text__subtitle")}>{ display.subtitle }</h2>
           }
-          <div className={S("media-text__description-block")}>
-            {
-              !display.description ? null :
-                <Description expandable description={display.description} maxLines="3" className={S("media-text__description")} />
-            }
-          </div>
+          <MediaDescription display={display} />
         </div>
       </div>
     </div>

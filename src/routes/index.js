@@ -39,6 +39,7 @@ import MediaPropertyPage from "Components/properties/MediaPropertyPage";
 import MediaPropertySectionPage from "Components/properties/MediaPropertySection";
 import MediaPropertyMediaPage from "Components/properties/MediaPropertyMediaPage";
 import MediaPropertyCollectionPage from "Components/properties/MediaPropertyCollectionPage";
+import MediaPropertySearchPage from "Components/properties/MediaPropertySearchPage";
 
 const GetProperty = (match) => {
   return rootStore.mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId});
@@ -60,13 +61,13 @@ const GetNFT = (match) => {
 const PropertyMediaRoutes = (basePath="") => {
   const GetPropertyPageTitle = match => GetProperty(match)?.metadata?.page_title || rootStore.l10n.media_properties.media_property;
   return [
-    { name: GetPropertyPageTitle, path: UrlJoin(basePath, "c/:mediaCollectionSlugOrId"), Component: MediaPropertyCollectionPage },
-    { name: GetPropertyPageTitle, path: UrlJoin(basePath, "c/:mediaCollectionSlugOrId/l/:mediaListSlugOrId"), Component: MediaPropertyCollectionPage },
-    { name: GetPropertyPageTitle, path: UrlJoin(basePath, "l/:mediaListSlugOrId"), Component: MediaPropertySectionPage },
-    { name: GetPropertyPageTitle, path: UrlJoin(basePath, "m/:mediaItemSlugOrId"), Component: MediaPropertyMediaPage },
-    { name: GetPropertyPageTitle, path: UrlJoin(basePath, "l/:mediaListSlugOrId/m/:mediaItemSlugOrId"), Component: MediaPropertyMediaPage },
-    { name: GetPropertyPageTitle, path: UrlJoin(basePath, "c/:mediaCollectionSlugOrId/l/:mediaListSlugOrId/m/:mediaItemSlugOrId"), Component: MediaPropertyMediaPage },
-  ].map(route => ({...route, noBlock: true}));
+    { path: UrlJoin(basePath, "c/:mediaCollectionSlugOrId"), Component: MediaPropertyCollectionPage },
+    { path: UrlJoin(basePath, "c/:mediaCollectionSlugOrId/l/:mediaListSlugOrId"), Component: MediaPropertyCollectionPage },
+    { path: UrlJoin(basePath, "l/:mediaListSlugOrId"), Component: MediaPropertySectionPage },
+    { path: UrlJoin(basePath, "m/:mediaItemSlugOrId"), Component: MediaPropertyMediaPage },
+    { path: UrlJoin(basePath, "l/:mediaListSlugOrId/m/:mediaItemSlugOrId"), Component: MediaPropertyMediaPage },
+    { path: UrlJoin(basePath, "c/:mediaCollectionSlugOrId/l/:mediaListSlugOrId/m/:mediaItemSlugOrId"), Component: MediaPropertyMediaPage },
+  ].map(route => ({...route, name: GetPropertyPageTitle, noBlock: true}));
 };
 
 const PropertyRoutes = (basePath="") => {
@@ -83,6 +84,11 @@ const PropertyRoutes = (basePath="") => {
   ];
 
   return [
+    // Search
+    ...((prefixPaths.map(path => [
+      { path: UrlJoin(basePath, path, "search"), Component: MediaPropertySearchPage},
+    ])).flat()),
+
     // Media within section
     ...((prefixPaths.map(path => PropertyMediaRoutes(UrlJoin(basePath, path, "s/:sectionSlugOrId"))).flat())),
 
@@ -268,6 +274,8 @@ const RouteWrapper = observer(({routes, children}) => {
           path: route.path
         };
       });
+
+    document.title = breadcrumbs.slice(-1)[0]?.name || "Eluvio Media Wallet";
 
     let navigationKey = currentRoute.navigationKey;
     if(navigationKey === "shared") {
