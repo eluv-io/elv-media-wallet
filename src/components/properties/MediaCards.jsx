@@ -1,12 +1,14 @@
 import MediaCardStyles from "Assets/stylesheets/media_properties/media-cards.module.scss";
 
-import React, {useEffect, useRef} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {mediaPropertyStore} from "Stores";
 import {MediaItemImageUrl, MediaItemScheduleInfo} from "../../utils/MediaPropertyUtils";
 import {Description, LoaderImage, ScaledText} from "Components/properties/Common";
-import {Link, useRouteMatch} from "react-router-dom";
+import {useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
+import {Linkish} from "Components/common/UIComponents";
+import MediaPropertyPurchaseModal from "Components/properties/MediaPropertyPurchaseModal";
 
 const S = (...classes) => classes.map(c => MediaCardStyles[c] || "").join(" ");
 
@@ -72,11 +74,13 @@ const MediaCardBanner = observer(({
   scheduleInfo,
   textDisplay,
   linkPath="",
+  onClick,
   className=""
 }) => {
   return (
-    <Link
+    <Linkish
       aria-label={display.title}
+      onClick={onClick}
       to={linkPath}
       className={[S("media-card-banner"), className].join(" ")}
     >
@@ -137,7 +141,7 @@ const MediaCardBanner = observer(({
             />
           </div>
       }
-    </Link>
+    </Linkish>
   );
 });
 
@@ -150,15 +154,17 @@ const MediaCardVertical = observer(({
   textDisplay,
   aspectRatio,
   linkPath="",
+  onClick,
   className=""
 }) => {
   let textScale = (aspectRatio) === "landscape" ? 1 : 0.8;
   textScale *= mediaPropertyStore.rootStore.pageWidth < 800 ? 0.8 : 1;
 
   return (
-    <Link
+    <Linkish
       aria-label={display.title}
       to={linkPath}
+      onClick={onClick}
       className={[S("media-card-vertical", `media-card-vertical--${aspectRatio}`), className].join(" ")}
     >
       <div ref={imageContainerRef} className={S("media-card-vertical__image-container")}>
@@ -212,7 +218,7 @@ const MediaCardVertical = observer(({
             }
           </div>
       }
-    </Link>
+    </Linkish>
   );
 });
 
@@ -224,12 +230,14 @@ const MediaCardHorizontal = observer(({
   textDisplay,
   aspectRatio,
   linkPath="",
+  onClick,
   className=""
 }) => {
   return (
-    <Link
+    <Linkish
       aria-label={display.title}
       to={linkPath}
+      onClick={onClick}
       className={[S("media-card-horizontal", `media-card-horizontal--${aspectRatio}`), className].join(" ")}
     >
       <div ref={imageContainerRef} className={S("media-card-horizontal__image-container")}>
@@ -288,7 +296,7 @@ const MediaCardHorizontal = observer(({
             />
           </div>
       }
-    </Link>
+    </Linkish>
   );
 });
 
@@ -301,12 +309,13 @@ const MediaCard = observer(({
   textDisplay="title",
   setImageDimensions,
   navContext,
+  onClick,
   className=""
 }) => {
   const match = useRouteMatch();
   const display = sectionItem?.display || mediaItem;
-
   const imageContainerRef = useRef();
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
 
   useEffect(() => {
     if(!setImageDimensions || !imageContainerRef?.current) { return; }
@@ -336,28 +345,53 @@ const MediaCard = observer(({
 
   const scheduleInfo = MediaItemScheduleInfo(mediaItem || sectionItem.mediaItem);
 
-  const linkPath = MediaCardLink({match, sectionItem, mediaItem, navContext}) || "";
+  let linkPath = MediaCardLink({match, sectionItem, mediaItem, navContext}) || "";
+
+  if(sectionItem?.type === "item_purchase") {
+    linkPath = undefined;
+
+    const originalOnClick = onClick;
+    onClick = () => {
+      originalOnClick && originalOnClick();
+
+      setShowPurchaseModal(true);
+    };
+  }
 
   let args = {
     display,
     imageUrl,
     textDisplay,
     linkPath,
+    onClick,
     scheduleInfo,
     imageContainerRef,
     aspectRatio: aspectRatio || imageAspectRatio,
     className
   };
 
+  let card;
   switch(format) {
     case "horizontal":
-      return <MediaCardHorizontal {...args} />;
+      card = <MediaCardHorizontal {...args} />;
+      break;
     case "vertical":
-      return <MediaCardVertical {...args} />;
+      card = <MediaCardVertical {...args} />;
+      break;
     case "banner":
-      return <MediaCardBanner {...args} />;
-
+      card =<MediaCardBanner {...args} />;
+      break;
   }
+
+  return (
+    <>
+      { card }
+      {
+        !showPurchaseModal ? null :
+          <MediaPropertyPurchaseModal sectionItem={sectionItem} Close={() => setShowPurchaseModal(false)} />
+      }
+    </>
+  );
 });
 
 export default MediaCard;

@@ -212,9 +212,12 @@ stats:
     lowest: Lowest Price
 
 purchase:
+  price: Price
   service_fee: Service Fee
   creator_royalty: Creator Royalty
   total_payout: Total Payout
+  available_wallet_balance: Available Wallet Balance
+  remaining_wallet_balance: Remaining Wallet Balance
   available_balance: Available {balanceType}
   total_balance: Total {balanceType}
   remaining_balance: Remaining {balanceType}
@@ -234,6 +237,7 @@ purchase:
   max_listing_price: Maximum listing price is {price}
   conversion_amount: USD Conversion
   conversion_note: Actual values are based in USD. All displayed values are approximate based on current estimated USD exchange rates.
+  email: Email
   gift_options:
     title: Fill In Gift Details (Required)
     gifter_name: Your Name
@@ -256,6 +260,7 @@ purchase:
     listing_unavailable: Listing is no longer available
     insufficient_stock: Insufficient stock available for this purchase
     out_of_stock: This item is out of stock
+    insufficient_funds: Insufficient wallet balance
     solana_insufficient_funds: Solana account has insufficient balance to perform this transaction
     ethereum_insufficient_funds: Ethereum account has insufficient balance to perform this transaction
     listing_failed: Unable to list this NFT
@@ -640,6 +645,8 @@ media_properties:
     view_all: View All
   search:
     title: "Search results for \"{query}\""
+  purchase:
+    select: Buy {title} for {price}
   media:
     live: Live
     upcoming: UPCOMING
