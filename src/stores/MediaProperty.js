@@ -267,7 +267,7 @@ class MediaPropertyStore {
 
       // Attributes
       for(const attributeId of (select.attributes || [])) {
-        if(mediaItem?.attributes?.[attributeId]?.includes(select.attribute_values[attributeId])) {
+        if(!mediaItem?.attributes?.[attributeId]?.includes(select.attribute_values[attributeId])) {
           return false;
         }
       }
