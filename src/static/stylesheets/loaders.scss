@@ -17,11 +17,14 @@
 }
 
 .spinner {
+  --spinner-width: 6px;
+  --spinner-color: #FFF;
+  --spinner-color-background: #666;
   animation: spin 1.5s ease infinite;
   aspect-ratio: 1;
-  border: 6px solid rgba(#FFF, 30%);
+  border: var(--spinner-width) solid var(--spinner-color-background);
   border-radius: 100%;
-  border-top-color: #FFF;
+  border-top-color: var(--spinner-color);
   display: inline-block;
   height: 50px;
   width: 50px;

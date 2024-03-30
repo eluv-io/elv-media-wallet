@@ -14,6 +14,7 @@ const S = (...classes) => classes.map(c => MediaCardStyles[c] || "").join(" ");
 
 const MediaCardLink = ({match, sectionItem, mediaItem, navContext}) => {
   mediaItem = mediaItem || sectionItem.mediaItem;
+  let params = new URLSearchParams();
 
   // TODO: Rewrite so it's not relative to current path
   let linkPath = match.url;
@@ -40,6 +41,18 @@ const MediaCardLink = ({match, sectionItem, mediaItem, navContext}) => {
 
       linkPath = UrlJoin(basePath, "m", mediaId);
     }
+  } else if(sectionItem?.type === "item_purchase") {
+    // Preserve params
+    linkPath = match.url;
+    params = new URLSearchParams(location.search);
+    params.set(
+      "p",
+      mediaPropertyStore.client.utils.B58(JSON.stringify({
+        type: "purchase",
+        sectionSlugOrId: match.params.sectionSlugOrId,
+        sectionItemId: sectionItem.id
+      }))
+    );
   } else if(sectionItem?.type === "page_link") {
     const page = mediaPropertyStore.MediaPropertyPage({...match.params, pageSlugOrId: sectionItem.page_id});
 
@@ -61,10 +74,10 @@ const MediaCardLink = ({match, sectionItem, mediaItem, navContext}) => {
   }
 
   if(navContext) {
-    linkPath += `?ctx=${navContext}`;
+    params.set("ctx", navContext);
   }
 
-  return linkPath;
+  return linkPath + (params.size > 0 ? `?${params.toString()}` : "");
 };
 
 const MediaCardBanner = observer(({
@@ -89,8 +102,7 @@ const MediaCardBanner = observer(({
           <LoaderImage
             src={imageUrl}
             alt={display.title}
-            width="10000"
-
+            width={mediaPropertyStore.rootStore.fullscreenImageWidth}
             className={S("media-card-banner__image")}
           />
         }
@@ -315,7 +327,6 @@ const MediaCard = observer(({
   const match = useRouteMatch();
   const display = sectionItem?.display || mediaItem;
   const imageContainerRef = useRef();
-  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
 
   useEffect(() => {
     if(!setImageDimensions || !imageContainerRef?.current) { return; }
@@ -347,17 +358,6 @@ const MediaCard = observer(({
 
   let linkPath = MediaCardLink({match, sectionItem, mediaItem, navContext}) || "";
 
-  if(sectionItem?.type === "item_purchase") {
-    linkPath = undefined;
-
-    const originalOnClick = onClick;
-    onClick = () => {
-      originalOnClick && originalOnClick();
-
-      setShowPurchaseModal(true);
-    };
-  }
-
   let args = {
     display,
     imageUrl,
@@ -386,10 +386,6 @@ const MediaCard = observer(({
   return (
     <>
       { card }
-      {
-        !showPurchaseModal ? null :
-          <MediaPropertyPurchaseModal sectionItem={sectionItem} Close={() => setShowPurchaseModal(false)} />
-      }
     </>
   );
 });

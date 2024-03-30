@@ -387,7 +387,7 @@ export const ButtonWithLoader = ({children, className="", onClick, isLoading, ac
         }
       }}
     >
-      { loading || isLoading ? <Loader loader="inline" className="action-with-loader__loader" /> : null }
+      { loading || isLoading ? <Loader className="action-with-loader__loader" /> : null }
       <div className="action-with-loader__content">
         { children }
       </div>

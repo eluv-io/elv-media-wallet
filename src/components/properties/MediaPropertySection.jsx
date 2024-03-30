@@ -10,6 +10,7 @@ import ImageIcon from "Components/common/ImageIcon";
 import {Carousel, PageBackground, PageContainer, PageHeader} from "Components/properties/Common";
 
 import RightArrow from "Assets/icons/right-arrow";
+import MediaPropertyPurchaseModal from "Components/properties/MediaPropertyPurchaseModal";
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 
@@ -120,9 +121,9 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
   }
 
   let ContentComponent;
-  switch((isSectionPage && "grid") || section.display.display_format?.toLowerCase()) {
+  switch(section.display.display_format?.toLowerCase()) {
     case "carousel":
-      ContentComponent = SectionContentCarousel;
+      ContentComponent = isSectionPage ? SectionContentGrid : SectionContentCarousel;
       break;
     case "banner":
       ContentComponent = SectionContentBanner;
@@ -226,6 +227,7 @@ const MediaPropertySectionPage = observer(() => {
         mediaListId={section.mediaListId}
         isSectionPage
       />
+      <MediaPropertyPurchaseModal />
     </PageContainer>
   );
 });

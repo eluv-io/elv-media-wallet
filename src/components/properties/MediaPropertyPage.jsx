@@ -11,6 +11,7 @@ import {
   PageHeader
 } from "Components/properties/Common";
 import {MediaPropertySection} from "Components/properties/MediaPropertySection";
+import MediaPropertyPurchaseModal from "Components/properties/MediaPropertyPurchaseModal";
 
 const S = (...classes) => classes.map(c => PageStyles[c] || "").join(" ");
 
@@ -32,6 +33,7 @@ const MediaPropertyPage = observer(() => {
       }
       className={S("page__container")}
     >
+      <MediaPropertyPurchaseModal />
       <PageBackground display={page.layout} />
       <PageHeader display={page.layout} maxHeaderSize={70} descriptionBaseFontSize={18} />
       <div className={S("page__sections")}>

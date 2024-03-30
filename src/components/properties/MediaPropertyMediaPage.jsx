@@ -100,12 +100,10 @@ const GalleryContent = observer(({galleryItem}) => {
     return (
       <Video
         link={galleryItem.video}
-        posterImage={{
-          posterImage: SetImageUrlDimensions({
-            url: galleryItem.poster_image?.url,
-            width: mediaPropertyStore.rootStore.fullpageImageWidth
-          })
-        }}
+        posterImage={SetImageUrlDimensions({
+          url: galleryItem.poster_image?.url,
+          width: mediaPropertyStore.rootStore.fullpageImageWidth
+        })}
         className={S("gallery__video")}
       />
     );
