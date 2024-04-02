@@ -183,6 +183,7 @@ const MediaGallery = observer(({mediaItem}) => {
               className={S("gallery__carousel-slide")}
             >
               <LoaderImage
+                width={400}
                 key={`gallery-item-${item.id}`}
                 src={item.thumbnail?.url}
                 alt={item.title || ""}

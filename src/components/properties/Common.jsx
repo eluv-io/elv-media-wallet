@@ -245,6 +245,7 @@ export const Carousel = observer(({
   UpdateActiveIndex,
   RenderSlide,
   initialImageDimensions,
+  lazy=true,
   className=""
 }) => {
   const [swiper, setSwiper] = useState(undefined);
@@ -269,7 +270,7 @@ export const Carousel = observer(({
       threshold={5}
       slidesPerView="auto"
       lazy={{
-        enabled: true,
+        enabled: lazy,
         loadPrevNext: true,
         loadOnTransitionStart: true
       }}
