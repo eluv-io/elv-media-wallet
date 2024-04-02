@@ -127,19 +127,17 @@ export const LoaderImage = observer(({src, width, loaderHeight, loaderWidth, loa
         src={src}
         onLoad={() => setLoaded(true)}
       />
-      <div className={S("lazy-image")}>
-        <div
-          {...props}
-          style={{
-            ...(props.style || {}),
-            ...(loaderWidth ? {width: loaderWidth} : {}),
-            ...(loaderHeight ? {height: loaderHeight} : {}),
-            ...(loaderAspectRatio ? {aspectRatio: loaderAspectRatio} : {})
-          }}
-          key={props.key ? `${props.key}--placeholder` : undefined}
-          className={[S("lazy-image__background"), props.className || ""].join(" ")}
-        />
-      </div>
+      <div
+        {...props}
+        style={{
+          ...(props.style || {}),
+          ...(loaderWidth ? {width: loaderWidth} : {}),
+          ...(loaderHeight ? {height: loaderHeight} : {}),
+          ...(loaderAspectRatio ? {aspectRatio: loaderAspectRatio} : {})
+        }}
+        key={props.key ? `${props.key}--placeholder` : undefined}
+        className={[S("lazy-image__background"), props.className || ""].join(" ")}
+      />
     </>
   );
 });
@@ -191,7 +189,7 @@ export const ScaledText = observer(({
   if(!text) { return null; }
 
   return (
-    <Tag {...props} ref={ref} style={{fontSize, ...(props.style || {})}}>
+    <Tag {...props} ref={ref} style={{fontSize, wordBreak: "break-word", ...(props.style || {})}}>
       { text }
     </Tag>
   );

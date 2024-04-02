@@ -1,14 +1,17 @@
 import MediaCardStyles from "Assets/stylesheets/media_properties/media-cards.module.scss";
 
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef} from "react";
 import {observer} from "mobx-react";
 import {mediaPropertyStore} from "Stores";
-import {MediaItemImageUrl, MediaItemScheduleInfo} from "../../utils/MediaPropertyUtils";
+import {
+  MediaItemImageUrl,
+  MediaItemMediaUrl,
+  MediaItemScheduleInfo
+} from "../../utils/MediaPropertyUtils";
 import {Description, LoaderImage, ScaledText} from "Components/properties/Common";
 import {useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 import {Linkish} from "Components/common/UIComponents";
-import MediaPropertyPurchaseModal from "Components/properties/MediaPropertyPurchaseModal";
 
 const S = (...classes) => classes.map(c => MediaCardStyles[c] || "").join(" ");
 
@@ -18,6 +21,7 @@ const MediaCardLink = ({match, sectionItem, mediaItem, navContext}) => {
 
   // TODO: Rewrite so it's not relative to current path
   let linkPath = match.url;
+  let url;
   if(mediaItem || sectionItem?.type === "media") {
     const mediaId = mediaItem?.id || sectionItem?.media_id;
 
@@ -40,6 +44,8 @@ const MediaCardLink = ({match, sectionItem, mediaItem, navContext}) => {
       }
 
       linkPath = UrlJoin(basePath, "m", mediaId);
+
+      url = mediaItem?.media_type === "HTML" && MediaItemMediaUrl(mediaItem);
     }
   } else if(sectionItem?.type === "item_purchase") {
     // Preserve params
@@ -77,7 +83,10 @@ const MediaCardLink = ({match, sectionItem, mediaItem, navContext}) => {
     params.set("ctx", navContext);
   }
 
-  return linkPath + (params.size > 0 ? `?${params.toString()}` : "");
+  return {
+    linkPath: linkPath + (params.size > 0 ? `?${params.toString()}` : ""),
+    url
+  };
 };
 
 const MediaCardBanner = observer(({
@@ -87,6 +96,7 @@ const MediaCardBanner = observer(({
   scheduleInfo,
   textDisplay,
   linkPath="",
+  url,
   onClick,
   className=""
 }) => {
@@ -95,6 +105,7 @@ const MediaCardBanner = observer(({
       aria-label={display.title}
       onClick={onClick}
       to={linkPath}
+      href={url}
       className={[S("media-card-banner"), className].join(" ")}
     >
       <div ref={imageContainerRef} className={S("media-card-banner__image-container")}>
@@ -166,16 +177,18 @@ const MediaCardVertical = observer(({
   textDisplay,
   aspectRatio,
   linkPath="",
+  url,
   onClick,
   className=""
 }) => {
-  let textScale = (aspectRatio) === "landscape" ? 1 : 0.8;
+  let textScale = (aspectRatio) === "landscape" ? 1 : 0.9;
   textScale *= mediaPropertyStore.rootStore.pageWidth < 800 ? 0.8 : 1;
 
   return (
     <Linkish
       aria-label={display.title}
       to={linkPath}
+      href={url}
       onClick={onClick}
       className={[S("media-card-vertical", `media-card-vertical--${aspectRatio}`), className].join(" ")}
     >
@@ -218,7 +231,7 @@ const MediaCardVertical = observer(({
             }
             {
               !display.title ? null :
-                <ScaledText Tag="h3" maxPx={22 * textScale} minPx={16 * textScale} className={S("media-card-vertical__title")}>
+                <ScaledText Tag="h3" maxPx={20 * textScale} minPx={16 * textScale} className={S("media-card-vertical__title")}>
                   { display.title }
                 </ScaledText>
             }
@@ -242,6 +255,7 @@ const MediaCardHorizontal = observer(({
   textDisplay,
   aspectRatio,
   linkPath="",
+  url,
   onClick,
   className=""
 }) => {
@@ -249,6 +263,7 @@ const MediaCardHorizontal = observer(({
     <Linkish
       aria-label={display.title}
       to={linkPath}
+      href={url}
       onClick={onClick}
       className={[S("media-card-horizontal", `media-card-horizontal--${aspectRatio}`), className].join(" ")}
     >
@@ -356,13 +371,14 @@ const MediaCard = observer(({
 
   const scheduleInfo = MediaItemScheduleInfo(mediaItem || sectionItem.mediaItem);
 
-  let linkPath = MediaCardLink({match, sectionItem, mediaItem, navContext}) || "";
+  let {linkPath, url} = MediaCardLink({match, sectionItem, mediaItem, navContext}) || "";
 
   let args = {
     display,
     imageUrl,
     textDisplay,
     linkPath,
+    url,
     onClick,
     scheduleInfo,
     imageContainerRef,

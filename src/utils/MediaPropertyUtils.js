@@ -1,5 +1,6 @@
-import {SetImageUrlDimensions} from "./Utils";
+import {SetImageUrlDimensions, StaticFabricUrl} from "./Utils";
 import UrlJoin from "url-join";
+import {mediaPropertyStore, rootStore} from "Stores";
 
 export const MediaPropertyBasePath = params => {
   if(!params.mediaPropertySlugOrId) { return "/"; }
@@ -7,6 +8,58 @@ export const MediaPropertyBasePath = params => {
   return params.parentMediaPropertySlugOrId ?
     UrlJoin("/properties", params.parentMediaPropertySlugOrId, params.parentPageSlugOrId || "", "p", params.mediaPropertySlugOrId) :
     UrlJoin("/properties", params.mediaPropertySlugOrId);
+};
+
+export const MediaItemMediaUrl = mediaItem => {
+  // TODO: Handle media type link
+  if(!["Ebook", "HTML"].includes(mediaItem.media_type)) { return;  }
+
+  const requiresPermissions = true;
+
+  let url = mediaItem.media_file?.url;
+
+  if(!url) {
+    return null;
+  }
+
+  if(mediaItem.media_type === "Ebook") {
+    const mediaUrl = new URL(url);
+    url = new URL("https://embed.v3.contentfabric.io");
+    url.searchParams.set("p", "");
+    url.searchParams.set("net", mediaPropertyStore.client.networkName === "main" ? "main" : "demo");
+    url.searchParams.set("mt", "b");
+    url.searchParams.set("murl", mediaPropertyStore.client.utils.B64(mediaUrl.toString()));
+  } else {
+    let linkHash, linkPath;
+    if(mediaItem.media_file["/"].startsWith("./")) {
+      linkHash = mediaPropertyStore.mediaCatalogs[mediaItem.media_catalog_id]?.versionHash;
+      linkPath = mediaItem.media_file["/"].replace("./", "");
+    } else {
+      linkHash = mediaItem.media_file["/"].split("/")[2];
+      linkPath = mediaItem.media_file["/"].split("/").slice(3).join("/");
+    }
+
+    if(linkHash && linkPath) {
+      url = new URL(
+        StaticFabricUrl({
+          versionHash: linkHash,
+          path: linkPath
+        })
+      );
+    } else {
+      url = new URL(url);
+    }
+
+    mediaItem.parameters?.forEach(({name, value}) =>
+      url.searchParams.set(name, value)
+    );
+
+    if(requiresPermissions && rootStore.authToken) {
+      url.searchParams.set("authorization", rootStore.authToken);
+    }
+  }
+
+  return url.toString();
 };
 
 export const MediaItemScheduleInfo = mediaItem => {

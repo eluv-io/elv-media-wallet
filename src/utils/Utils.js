@@ -836,7 +836,7 @@ export const LinkTargetHash = (link) => {
   }
 };
 
-export const StaticFabricUrl = ({libraryId, objectId, versionHash, path="", authToken, resolve=true, width}) => {
+export const StaticFabricUrl = ({libraryId, objectId, versionHash, writeToken, path="", authToken, resolve=true, width}) => {
   let url = new URL(
     rootStore.network === "main" ?
       "https://main.net955305.contentfabric.io" :

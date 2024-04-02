@@ -3,6 +3,7 @@
   flex: 1 0 100%;
   max-width: unset;
   width: 100%;
+  word-break: break-word;
 
   &__image-container,
   &__image {
@@ -11,6 +12,7 @@
 }
 
 .media-card-vertical {
+  word-break: break-word;
   display: block;
   flex: 1 1 100%;
   max-width: var(--max-card-width);
@@ -132,6 +134,7 @@
 }
 
 .media-card-horizontal {
+  word-break: break-word;
   display: flex;
   gap: 20px;
   align-items: center;

@@ -154,9 +154,8 @@
 }
 
 .lazy-image {
-  @include page-fade-in(0.5s);
-
   &__background {
+    @include page-fade-in(0.5s);
     overflow: hidden;
     background: linear-gradient(-55deg, #ffffff, #617d91, #354b54, #000000);
     background-size: 1000% 1000%;

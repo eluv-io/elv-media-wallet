@@ -3,6 +3,7 @@ import MiniSearch from "minisearch";
 
 class MediaPropertyStore {
   mediaProperties = {};
+  mediaCatalogs = {};
   media = {};
   searchIndexes = {};
   tags = [];
@@ -359,6 +360,10 @@ class MediaPropertyStore {
       ],
       produceLinkUrls: true
     });
+
+    this.mediaCatalogs[mediaCatalogId] = {
+      versionHash
+    };
 
     this.media = {
       ...this.media,

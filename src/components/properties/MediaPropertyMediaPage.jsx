@@ -7,7 +7,11 @@ import {mediaPropertyStore, rootStore} from "Stores";
 import UrlJoin from "url-join";
 import ImageIcon from "Components/common/ImageIcon";
 import Countdown from "./Countdown";
-import {MediaItemImageUrl, MediaItemScheduleInfo} from "../../utils/MediaPropertyUtils";
+import {
+  MediaItemImageUrl,
+  MediaItemMediaUrl,
+  MediaItemScheduleInfo
+} from "../../utils/MediaPropertyUtils";
 import {Carousel, Description, LoaderImage} from "Components/properties/Common";
 import Video from "./Video";
 import {SetImageUrlDimensions} from "../../utils/Utils";
@@ -176,7 +180,7 @@ const MediaGallery = observer(({mediaItem}) => {
             <button
               key={`slide-${item.id}`}
               onClick={Select}
-              className={S("gallery__carousel-slide", `gallery__carousel-slide--${item.thumbnail_aspect_ratio?.toLowerCase() || "square"}`)}
+              className={S("gallery__carousel-slide")}
             >
               <LoaderImage
                 key={`gallery-item-${item.id}`}
@@ -222,26 +226,7 @@ const Media = observer(({mediaItem, display, setControlsVisible}) => {
       </div>
     );
   } else if(["Ebook", "HTML"].includes(mediaItem.media_type)) {
-    let url = mediaItem.media_file?.url;
-
-    if(!url) {
-      return null;
-    }
-
-    if(mediaItem.media_type === "Ebook") {
-      const mediaUrl = new URL(url);
-      url = new URL("https://embed.v3.contentfabric.io");
-      url.searchParams.set("p", "");
-      url.searchParams.set("net", mediaPropertyStore.client.networkName === "main" ? "main" : "demo");
-      url.searchParams.set("mt", "b");
-      url.searchParams.set("murl", mediaPropertyStore.client.utils.B64(mediaUrl.toString()));
-    } else {
-      url = new URL(url);
-      mediaItem.parameters?.forEach(({name, value}) =>
-        url.searchParams.set(name, value)
-      );
-    }
-
+    const url = MediaItemMediaUrl(mediaItem);
     return (
       <div className={S("media", "html")}>
         <iframe
