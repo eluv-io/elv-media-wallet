@@ -219,12 +219,23 @@ class MediaPropertyStore {
         return false;
       }
 
+      const scheduleFiltersActive =
+        select.content_type === "media" &&
+        (select.media_types.length === 0 || (select.media_types.length === 1 && select.media_types[0] === "Video"));
+
+      if(
+        scheduleFiltersActive &&
+        select.date &&
+        (!mediaItem.date || mediaItem.date.split("T")[0] !== select.date.split("T")[0])
+      ) {
+        return false;
+      }
+
       // Schedule filter
       // Only videos can be filtered by schedule
       if(
-        select.schedule &&
-        select.content_type === "media" &&
-        (select.media_types.length === 0 || (select.media_types.length === 1 && select.media_types[0] === "Video"))
+        scheduleFiltersActive &&
+        select.schedule
       ) {
         if(!mediaItem.live_video || mediaItem.media_type !== "Video" || !mediaItem.start_time) {
           return false;
