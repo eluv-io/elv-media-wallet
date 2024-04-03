@@ -102,7 +102,7 @@ export const RichText = ({richText, baseFontSize=16, ...props}) => {
 
 export const LoaderImage = observer(({src, width, loaderHeight, loaderWidth, loaderAspectRatio, lazy=true, delay=0, ...props}) => {
   const [loaded, setLoaded] = useState(false);
-  
+
 
   useEffect(() => {
     setLoaded(false);

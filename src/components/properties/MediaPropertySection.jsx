@@ -90,7 +90,6 @@ const SectionContentCarousel = observer(({section, sectionContent, navContext}) 
 
 const SectionContentGrid = observer(({section, sectionContent, navContext}) => {
   const aspectRatio = section.display.aspect_ratio?.toLowerCase();
-  sectionContent = sectionContent.slice(0, 3);
   return (
     <div
       style={
