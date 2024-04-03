@@ -100,8 +100,9 @@ export const RichText = ({richText, baseFontSize=16, ...props}) => {
   );
 };
 
-export const LoaderImage = observer(({src, width, loaderHeight, loaderWidth, loaderAspectRatio, lazy=true, ...props}) => {
+export const LoaderImage = observer(({src, width, loaderHeight, loaderWidth, loaderAspectRatio, lazy=true, delay=0, ...props}) => {
   const [loaded, setLoaded] = useState(false);
+  
 
   useEffect(() => {
     setLoaded(false);
@@ -122,10 +123,10 @@ export const LoaderImage = observer(({src, width, loaderHeight, loaderWidth, loa
       <img
         {...props}
         key={`img-${src}-${props.key || ""}`}
-        className={S("lazy-image__loader-image")}
+        className={S("lazy-image__loader-image") + " " + props.className}
         loading={lazy ? "lazy" : "eager"}
         src={src}
-        onLoad={() => setLoaded(true)}
+        onLoad={() => setTimeout(() => setLoaded(true), delay)}
       />
       <div
         {...props}
@@ -245,7 +246,6 @@ export const Carousel = observer(({
   UpdateActiveIndex,
   RenderSlide,
   initialImageDimensions,
-  lazy=true,
   className=""
 }) => {
   const [swiper, setSwiper] = useState(undefined);
@@ -269,11 +269,6 @@ export const Carousel = observer(({
       className={[S("carousel"), className].join(" ")}
       threshold={5}
       slidesPerView="auto"
-      lazy={{
-        enabled: lazy,
-        loadPrevNext: true,
-        loadOnTransitionStart: true
-      }}
       observer
       observeParents
       speed={1000}

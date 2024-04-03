@@ -14,6 +14,25 @@ import MediaPropertyPurchaseModal from "Components/properties/MediaPropertyPurch
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 
+const GridContentColumns = ({contentLength, aspectRatio, pageWidth}) => {
+  let columns = 2;
+  if(pageWidth >= 1920) {
+    columns = 5;
+  } else if(pageWidth >= 1600) {
+    columns = 4;
+  } else if(pageWidth >= 1200) {
+    columns = 4;
+  } else if(pageWidth >= 800) {
+    columns = 3;
+  }
+
+  if(pageWidth > 600 && aspectRatio !== "landscape") {
+    columns += 1;
+  }
+
+  return `repeat(${Math.min(columns, contentLength)}, minmax(0, 1fr))`;
+};
+
 const SectionContentBanner = observer(({section, sectionContent, navContext}) => {
   return (
     <div className={S("section__content", "section__content--banner", `section__content--${section.display.justification || "left"}`)}>
@@ -55,6 +74,7 @@ const SectionContentCarousel = observer(({section, sectionContent, navContext}) 
       content={sectionContent}
       RenderSlide={({item, setImageDimensions}) =>
         <MediaCard
+          fixedSize={!section.display.aspect_ratio}
           format="vertical"
           key={`media-card-${item.id}`}
           setImageDimensions={setImageDimensions}
@@ -69,18 +89,27 @@ const SectionContentCarousel = observer(({section, sectionContent, navContext}) 
 });
 
 const SectionContentGrid = observer(({section, sectionContent, navContext}) => {
+  const aspectRatio = section.display.aspect_ratio?.toLowerCase();
+  sectionContent = sectionContent.slice(0, 3);
   return (
     <div
+      style={
+        !aspectRatio ? {} :
+          { gridTemplateColumns: GridContentColumns({contentLength: sectionContent.length, aspectRatio, pageWidth: rootStore.pageWidth}) }
+      }
       className={S(
         "section__content",
         "section__content--grid",
-        `section__content--${section.display.aspect_ratio?.toLowerCase()}`,
+        aspectRatio ?
+          `section__content--${aspectRatio}` :
+          "section__content--flex",
         `section__content--${section.display.justification || "left"}`
       )}
     >
       {
         sectionContent.map(sectionItem =>
           <MediaCard
+            fixedSize={!section.display.aspect_ratio}
             format="vertical"
             key={`section-item-${sectionItem.id}`}
             sectionItem={sectionItem}

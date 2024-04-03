@@ -113,6 +113,7 @@ const MediaCardBanner = observer(({
           <LoaderImage
             src={imageUrl}
             alt={display.title}
+            loaderAspectRatio={10}
             width={mediaPropertyStore.rootStore.fullscreenImageWidth}
             className={S("media-card-banner__image")}
           />
@@ -178,6 +179,7 @@ const MediaCardVertical = observer(({
   aspectRatio,
   linkPath="",
   url,
+  fixedSize,
   onClick,
   className=""
 }) => {
@@ -190,13 +192,14 @@ const MediaCardVertical = observer(({
       to={linkPath}
       href={url}
       onClick={onClick}
-      className={[S("media-card-vertical", `media-card-vertical--${aspectRatio}`), className].join(" ")}
+      className={[S("media-card-vertical", `media-card-vertical--${aspectRatio}`, fixedSize ? "media-card-vertical--fixed-size" : ""), className].join(" ")}
     >
       <div ref={imageContainerRef} className={S("media-card-vertical__image-container")}>
         { !imageUrl ? null :
           <LoaderImage
             src={imageUrl}
             alt={display.title}
+            loaderWidth={fixedSize ? undefined : `var(--max-card-width-${aspectRatio?.toLowerCase()})`}
             width={600}
             className={S("media-card-vertical__image")}
           />
@@ -336,6 +339,7 @@ const MediaCard = observer(({
   textDisplay="title",
   setImageDimensions,
   navContext,
+  fixedSize,
   onClick,
   className=""
 }) => {
@@ -347,7 +351,7 @@ const MediaCard = observer(({
     if(!setImageDimensions || !imageContainerRef?.current) { return; }
 
     setImageDimensions(imageContainerRef.current.getBoundingClientRect());
-  }, [imageContainerRef, mediaPropertyStore.rootStore.pageWidth]);
+  }, [imageContainerRef, mediaPropertyStore.rootStore.pageWidth, mediaPropertyStore.rootStore.pageHeight]);
 
   if(!display) {
     mediaPropertyStore.Log("Invalid section item", true);
@@ -382,6 +386,7 @@ const MediaCard = observer(({
     onClick,
     scheduleInfo,
     imageContainerRef,
+    fixedSize,
     aspectRatio: aspectRatio || imageAspectRatio,
     className
   };

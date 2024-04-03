@@ -1,13 +1,13 @@
 @import "./variables";
 
 .section {
-  --max-card-width: 410px;
   font-size: 16px;
   width: 100%;
   max-width: 100%;
   overflow: hidden;
   position: relative;
   padding-top: 20px;
+  --max-card-width: 450px;
 
   &--center {
     * {
@@ -75,38 +75,34 @@
     width: 100%;
 
     &--grid {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
       gap: 25px 10px;
       max-width: 100%;
+      width: max-content;
 
       &.section__content--center {
-        justify-content: center;
+        margin-inline: auto;
       }
 
       &.section__content--right {
-        justify-content: flex-end;
+        margin-left: auto;
       }
+    }
+
+    /* Mixed aspect ratio grid */
+    &--flex {
+      display: flex;
+      flex-wrap: wrap;
     }
 
     &--banner {
       display: grid;
       gap: 30px;
     }
-
-    &--portrait {
-      --max-card-width: calc(285px / 0.375);
-    }
-
-    &--square {
-      --max-card-width: calc(285px / 0.5625);
-    }
   }
 
-
-
   @media screen and (max-width: 800px) {
-    --max-card-width: 275px;
+    --max-card-width: 350px;
 
     &--center {
       .section__title-container {
@@ -133,14 +129,6 @@
     &__title-link {
       font-size: 0.8em;
       min-width: max-content;
-    }
-
-    &__content--portrait {
-      --max-card-width: calc(150px / 0.375);
-    }
-
-    &__content--square {
-      --max-card-width: calc(150px / 0.5625);
     }
 
     &__content--grid {

@@ -12,16 +12,12 @@
 }
 
 .media-card-vertical {
+  --max-card-width-square: calc(var(--max-card-width) - 100px);
+  --max-card-width-portrait: calc(var(--max-card-width) - 100px);
   word-break: break-word;
   display: block;
   flex: 1 1 100%;
-  max-width: var(--max-card-width);
-
-  &:hover {
-    .media-card-vertical__image {
-      padding: 0;
-    }
-  }
+  max-width: min(90vw, var(--max-card-width));
 
   &__image-container {
     overflow: hidden;
@@ -33,39 +29,6 @@
     height: 100%;
     object-fit: cover;
     object-position: center;
-    padding: 4px;
-    transition: padding 0.2s ease;
-  }
-
-  &--landscape {
-    width: var(--max-card-width);
-    max-width: var(--max-card-width);
-
-    .media-card-vertical__image {
-      aspect-ratio: 16/9;
-    }
-  }
-
-  &--square {
-    width: calc(var(--max-card-width) * 0.5625);
-    max-width: calc(var(--max-card-width) * 0.5625);
-
-    .media-card-vertical__image {
-      aspect-ratio: 1;
-    }
-  }
-
-  &--portrait {
-    width: calc(var(--max-card-width) * 0.375);
-    max-width: calc(var(--max-card-width) * 0.375);
-
-    .media-card-vertical__image {
-      aspect-ratio: 2/3;
-    }
-
-    .media-card-vertical__indicator {
-      font-size: 12px;
-    }
   }
 
   &__indicator {
@@ -124,6 +87,57 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+  }
+
+  &--landscape {
+    max-width: min(90vw, var(--max-card-width));
+
+    .media-card-vertical__image {
+      aspect-ratio: 16/9;
+    }
+  }
+
+  &--square {
+    max-width: min(90vw, var(--max-card-width-square));
+
+    .media-card-vertical__image {
+      aspect-ratio: 1;
+    }
+  }
+
+  &--portrait {
+    max-width: min(90vw, var(--max-card-width-portrait));
+
+    .media-card-vertical__image {
+      aspect-ratio: 2/3;
+    }
+
+    .media-card-vertical__indicator {
+      font-size: 12px;
+    }
+  }
+
+  &--fixed-size {
+    max-width: min(90vw, var(--max-card-width));
+
+    &.media-card-vertical--landscape {
+      width: var(--max-card-width);
+      max-width: min(90vw, var(--max-card-width));
+    }
+
+    &.media-card-vertical--square {
+      width: calc(var(--max-card-width) * 0.5625);
+      max-width: min(90vw, calc(var(--max-card-width) * 0.5625));
+    }
+
+    &.media-card-vertical--portrait {
+      width: calc(var(--max-card-width) * 0.375);
+      max-width: min(90vw, calc(var(--max-card-width) * 0.375));
+
+      .media-card-vertical__indicator {
+        font-size: 12px;
+      }
+    }
   }
 
   @media screen and (max-width: 800px) {
