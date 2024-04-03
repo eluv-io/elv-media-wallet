@@ -12,6 +12,7 @@
 }
 
 .media-card-vertical {
+  --max-card-width-landscape: var(--max-card-width);
   --max-card-width-square: calc(var(--max-card-width) - 100px);
   --max-card-width-portrait: calc(var(--max-card-width) - 100px);
   word-break: break-word;
@@ -117,7 +118,23 @@
     }
   }
 
-  &--fixed-size {
+  /* Fixed size, e.g. carousel with set aspect ratio */
+  &--size-fixed {
+    &.media-card-vertical--landscape {
+      width: var(--max-card-width);
+    }
+
+    &.media-card-vertical--square {
+      width: var(--max-card-width-square);
+    }
+
+    &.media-card-vertical--portrait {
+      width: var(--max-card-width-portrait);
+    }
+  }
+
+  /* Fixed size, potentially mixed with other aspect ratios - scale with based on aspect ratio to match height */
+  &--size-mixed {
     max-width: min(90vw, var(--max-card-width));
 
     &.media-card-vertical--landscape {

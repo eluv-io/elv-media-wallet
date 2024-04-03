@@ -102,8 +102,7 @@ export const RichText = ({richText, baseFontSize=16, ...props}) => {
 
 export const LoaderImage = observer(({src, width, loaderHeight, loaderWidth, loaderAspectRatio, lazy=true, delay=0, ...props}) => {
   const [loaded, setLoaded] = useState(false);
-
-
+  
   useEffect(() => {
     setLoaded(false);
   }, [src]);
@@ -128,8 +127,10 @@ export const LoaderImage = observer(({src, width, loaderHeight, loaderWidth, loa
         src={src}
         onLoad={() => setTimeout(() => setLoaded(true), delay)}
       />
-      <div
+      <img
         {...props}
+        alt="Loading Indicator"
+        src={undefined}
         style={{
           ...(props.style || {}),
           ...(loaderWidth ? {width: loaderWidth} : {}),

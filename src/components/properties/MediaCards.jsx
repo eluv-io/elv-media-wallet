@@ -179,7 +179,7 @@ const MediaCardVertical = observer(({
   aspectRatio,
   linkPath="",
   url,
-  fixedSize,
+  size,
   onClick,
   className=""
 }) => {
@@ -192,14 +192,22 @@ const MediaCardVertical = observer(({
       to={linkPath}
       href={url}
       onClick={onClick}
-      className={[S("media-card-vertical", `media-card-vertical--${aspectRatio}`, fixedSize ? "media-card-vertical--fixed-size" : ""), className].join(" ")}
+      className={[
+        S(
+          "media-card-vertical",
+          `media-card-vertical--${aspectRatio}`,
+          size === "fixed" ? "media-card-vertical--size-fixed" : "",
+          size === "mixed" ? "media-card-vertical--size-mixed" : "",
+        ),
+        className
+      ].join(" ")}
     >
       <div ref={imageContainerRef} className={S("media-card-vertical__image-container")}>
         { !imageUrl ? null :
           <LoaderImage
             src={imageUrl}
             alt={display.title}
-            loaderWidth={fixedSize ? undefined : `var(--max-card-width-${aspectRatio?.toLowerCase()})`}
+            loaderWidth={size ? undefined : `var(--max-card-width-${aspectRatio?.toLowerCase()})`}
             width={600}
             className={S("media-card-vertical__image")}
           />
@@ -339,7 +347,7 @@ const MediaCard = observer(({
   textDisplay="title",
   setImageDimensions,
   navContext,
-  fixedSize,
+  size,
   onClick,
   className=""
 }) => {
@@ -386,7 +394,7 @@ const MediaCard = observer(({
     onClick,
     scheduleInfo,
     imageContainerRef,
-    fixedSize,
+    size,
     aspectRatio: aspectRatio || imageAspectRatio,
     className
   };

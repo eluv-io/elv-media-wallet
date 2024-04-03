@@ -74,7 +74,7 @@ const SectionContentCarousel = observer(({section, sectionContent, navContext}) 
       content={sectionContent}
       RenderSlide={({item, setImageDimensions}) =>
         <MediaCard
-          fixedSize={!section.display.aspect_ratio}
+          size={section.display.aspect_ratio ? "fixed" : "mixed"}
           format="vertical"
           key={`media-card-${item.id}`}
           setImageDimensions={setImageDimensions}
@@ -108,7 +108,7 @@ const SectionContentGrid = observer(({section, sectionContent, navContext}) => {
       {
         sectionContent.map(sectionItem =>
           <MediaCard
-            fixedSize={!section.display.aspect_ratio}
+            size={!section.display.aspect_ratio ? "mixed" : ""}
             format="vertical"
             key={`section-item-${sectionItem.id}`}
             sectionItem={sectionItem}
