@@ -370,7 +370,7 @@ export const RichText = ({richText, className=""}) => {
 };
 
 export const ButtonWithLoader = ({children, className="", onClick, isLoading, action=true, ...props}) => {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   return (
     <button
