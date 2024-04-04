@@ -647,6 +647,12 @@ media_properties:
     title: "Search results for \"{query}\""
   purchase:
     select: Buy {title} for {price}
+  purchase_status:
+    pending:
+      finalizing: Finalizing Purchase
+      info: This should take less than a minute...
+    failed: Purchase failed
+    complete: Purchase Complete!
   media:
     live: Live
     upcoming: UPCOMING

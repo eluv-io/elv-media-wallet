@@ -129,10 +129,15 @@
     &__title-link {
       font-size: 0.8em;
       min-width: max-content;
+      margin: 0;
     }
 
     &__content--grid {
       gap: 10px;
     }
+  }
+
+  @media screen and (max-width: 600px) {
+    --max-card-width: 350px;
   }
 }

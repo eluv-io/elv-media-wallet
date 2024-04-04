@@ -4,13 +4,19 @@
   @include page-fade-in(0.25s, ease-out, 0.1s);
   background-color: var(--property-background);
   height: max-content;
-  min-height: 100vh;
+  min-height: var(--property-full-content-height);
   max-width: 100%;
-  padding: 75px 75px 150px;
+  padding: 25px 25px 150px;
   position: relative;
 
+  &__links {
+    display: block;
+    margin-bottom: 20px;
+    z-index: 1;
+    position: relative;
+  }
+
   &__back-link {
-    position: absolute;
     display: flex;
     align-items: center;
     font-size: 1em;
@@ -18,9 +24,6 @@
     width: max-content;
     padding: 5px 10px;
     border-radius: 5px;
-    top: 20px;
-    left: 75px;
-    z-index: 10;
     background: rgba(100,100,100, 0.35);
     opacity: 0.5;
     transition: opacity 0.5s ease, background-color 0.5s ease;
@@ -41,7 +44,8 @@
   }
 
   @media screen and (max-width: 800px) {
-    padding: 75px 20px 300px;
+    //padding: 75px 20px 300px;
+    padding-inline: 15px;
 
     &__back-link {
       left: 20px;
@@ -59,7 +63,7 @@
     left: 0;
     height: 100%;
     width: 100%;
-    max-height: 100vh;
+    max-height: var(--property-full-content-height);
     object-position: center;
     object-fit: cover;
   }

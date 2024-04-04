@@ -135,7 +135,7 @@ const MediaGallery = observer(({mediaItem}) => {
   const carouselRef = useRef();
 
   useEffect(() => {
-    const CalcContentHeight = () => `calc(var(--property-full-content-height) - 60px - ${carouselRef?.current?.getBoundingClientRect?.().height || 0}px - ${textRef?.current?.getBoundingClientRect?.().height || 0}px)`;
+    const CalcContentHeight = () => `calc(var(--property-full-content-height) - 80px - ${carouselRef?.current?.getBoundingClientRect?.().height || 0}px - ${textRef?.current?.getBoundingClientRect?.().height || 0}px)`;
     setContentHeight(CalcContentHeight());
     setTimeout(() => {
       setContentHeight(CalcContentHeight());
@@ -259,6 +259,19 @@ const Media = observer(({mediaItem, display, setControlsVisible}) => {
 
 const MediaDescription = observer(({display}) => {
   const [expanded, setExpanded] = useState(false);
+  const [showToggle, setShowToggle] = useState(false);
+  const descriptionRef = useRef();
+
+  useEffect(() => {
+    setTimeout(() =>
+      setShowToggle(
+        expanded ||
+        (descriptionRef &&
+          descriptionRef.current &&
+          descriptionRef.current.getBoundingClientRect().height < descriptionRef.current?.firstChild?.getBoundingClientRect()?.height)
+      ), 100);
+
+  }, [descriptionRef, expanded]);
 
   if(!display.description && !display.description_rich_text) {
     return null;
@@ -266,9 +279,10 @@ const MediaDescription = observer(({display}) => {
 
   return (
     <div
+      ref={descriptionRef}
       role={expanded ? "" : "button"}
-      onClick={() => !expanded && setExpanded(true)}
-      className={S("media-text__description-container", `media-text__description-container--${expanded ? "expanded" : "contracted"}`)}
+      onClick={() => showToggle && !expanded && setExpanded(true)}
+      className={S("media-text__description-container", showToggle ? "media-text__description-container--toggleable" : "", `media-text__description-container--${expanded ? "expanded" : "contracted"}`)}
     >
       <Description
         description={display.description}
@@ -276,9 +290,12 @@ const MediaDescription = observer(({display}) => {
         className={S("media-text__description")}
       />
       { expanded ? null : <div className={S("media-text__description-overlay")} /> }
-      <button onClick={() => setExpanded(!expanded)} className={S("media-text__description-toggle")}>
-        { mediaPropertyStore.rootStore.l10n.media_properties.media.description[expanded ? "hide" : "show"] }
-      </button>
+      {
+        !showToggle ? null :
+          <button onClick={() => setExpanded(!expanded)} className={S("media-text__description-toggle")}>
+            {mediaPropertyStore.rootStore.l10n.media_properties.media.description[expanded ? "hide" : "show"]}
+          </button>
+      }
     </div>
   );
 });

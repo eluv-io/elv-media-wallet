@@ -1,6 +1,10 @@
 .page-loader {
   height: 100%;
   min-height: 75vh;
+
+  .spinner {
+    height: 50px;
+  }
 }
 
 .page-loader,
@@ -17,7 +21,7 @@
 }
 
 .spinner {
-  --spinner-width: 6px;
+  --spinner-width: 5px;
   --spinner-color: #FFF;
   --spinner-color-background: #666;
   animation: spin 1.5s ease infinite;
@@ -26,8 +30,9 @@
   border-radius: 100%;
   border-top-color: var(--spinner-color);
   display: inline-block;
-  height: 50px;
-  width: 50px;
+  height: 100%;
+  max-height: 50px;
+  min-height: 30px;
 }
 
 

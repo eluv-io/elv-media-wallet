@@ -183,10 +183,15 @@
     }
 
     &__loader {
+      padding: 10px 0;
       height: 100%;
       position: absolute;
       top: 0;
       width: 100%;
+
+      .spinner {
+        --spinner-width: 4px;
+      }
     }
 
     .lds-default,

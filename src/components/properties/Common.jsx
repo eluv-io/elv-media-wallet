@@ -22,10 +22,12 @@ export const PageContainer = ({backPath, children, className}) => {
     <div className={[S("page-container"), className].join(" ")}>
       {
         !backPath ? null :
-          <Link to={backPath} className={S("page-container__back-link")}>
-            <ImageIcon icon={ArrowLeft} />
-            <div>Back</div>
-          </Link>
+          <div className={S("page-container__links")}>
+            <Link to={backPath} className={S("page-container__back-link")}>
+              <ImageIcon icon={ArrowLeft} />
+              <div>Back</div>
+            </Link>
+          </div>
       }
 
       { children }
@@ -102,7 +104,7 @@ export const RichText = ({richText, baseFontSize=16, ...props}) => {
 
 export const LoaderImage = observer(({src, width, loaderHeight, loaderWidth, loaderAspectRatio, lazy=true, delay=0, ...props}) => {
   const [loaded, setLoaded] = useState(false);
-  
+
   useEffect(() => {
     setLoaded(false);
   }, [src]);

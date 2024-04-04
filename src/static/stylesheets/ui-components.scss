@@ -494,6 +494,7 @@
     background: var(--color-input-bg-solid);
     border: var(--border-input);
     border-radius: 0 0 var(--border-radius-input) var(--border-radius-input);
+    box-shadow: 0 10px 5px rgba(0, 0, 0, 0.9);
     max-height: 300px;
     overflow: auto;
     overflow-x: hidden;

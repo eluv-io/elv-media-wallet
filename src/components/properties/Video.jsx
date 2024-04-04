@@ -63,7 +63,7 @@ const Video = observer(({
           },
         },
         playerOptions: {
-          //muted: true,
+          muted: true,
           ui: EluvioPlayerParameters.ui.WEB,
           appName: mediaPropertyStore.rootStore.appId,
           backgroundColor: "black",

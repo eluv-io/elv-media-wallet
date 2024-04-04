@@ -86,6 +86,7 @@ class RootStore {
 
   pageWidth = window.innerWidth;
   pageHeight = window.innerHeight;
+  originalViewportHeight = window.innerHeight;
   fullscreenImageWidth = window.innerWidth > 3000 ? 3840 : window.innerWidth > 2000 ? 2560 : 1920;
 
   activeModals = 0;
@@ -248,6 +249,20 @@ class RootStore {
     });
 
     this.resizeHandler.observe(document.body);
+
+    // Viewport height changes for mobile as URL bar adjusts. Size based on initial height instead of css VH
+    const SetVH = () =>
+      document.documentElement.style.setProperty("--vh", `${window.innerHeight * 0.01}px`);
+
+    SetVH();
+
+    window.addEventListener("resize", () => {
+      // Only update VH if height has changed significantly enough (e.g. phone rotated)
+      if(Math.abs(window.innerHeight - this.originalViewportHeight) > 200) {
+        SetVH();
+        this.originalViewportHeight = window.innerHeight;
+      }
+    });
 
     this.ToggleDarkMode(this.darkMode);
 

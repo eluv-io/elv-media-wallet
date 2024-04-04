@@ -1,9 +1,5 @@
 .page {
-  &__container {
-    &.page__container {
-      padding: 75px 75px 150px;
-    }
-  }
+  padding-inline: 75px;
 
   &__sections {
     margin-top: 150px;
@@ -14,17 +10,6 @@
   }
 
   @media screen and (max-width: 800px) {
-    &__container {
-      &.page__container {
-        padding: 50px 15px 150px;
-      }
-    }
-  }
-}
-
-.search {
-  &__title {
-    font-size: 2em;
-    font-weight: 600;
+    padding-inline: 25px;
   }
 }

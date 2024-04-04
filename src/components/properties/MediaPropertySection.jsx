@@ -11,6 +11,7 @@ import {Carousel, PageBackground, PageContainer, PageHeader} from "Components/pr
 
 import RightArrow from "Assets/icons/right-arrow";
 import MediaPropertyPurchaseModal from "Components/properties/MediaPropertyPurchaseModal";
+import {ScrollTo} from "../../utils/Utils";
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 
@@ -187,7 +188,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
 
         setTimeout(() => {
           // Scroll to section
-          element.scrollIntoView();
+          ScrollTo(-75, element);
         }, 250);
       }}
       className={S("section", `section--${section.display.justification || "left"}`)}

@@ -7,10 +7,13 @@ import {Modal, TextInput} from "@mantine/core";
 import {Loader} from "Components/common/Loaders";
 import {NFTInfo, ValidEmail} from "../../utils/Utils";
 import {Description, ScaledText} from "Components/properties/Common";
-import {ButtonWithLoader, LocalizeString} from "Components/common/UIComponents";
+import {LocalizeString} from "Components/common/UIComponents";
 import SupportedCountries from "../../utils/SupportedCountries";
 import {roundToDown} from "round-to";
 import {useHistory, useRouteMatch} from "react-router-dom";
+import ImageIcon from "Components/common/ImageIcon";
+
+import XIcon from "Assets/icons/x.svg";
 
 const S = (...classes) => classes.map(c => PurchaseModalStyles[c] || "").join(" ");
 
@@ -74,7 +77,7 @@ const Items = observer(({sectionItem, Select}) => {
           <Item
             item={item}
             Actions={({item, itemInfo}) =>
-              <button onClick={() => Select(item.id)} className={S("payment__button", "payment__select")}>
+              <button onClick={() => Select(item.id)} className={S("payment__button", "payment__submit")}>
                 <ScaledText maxPx={18} minPx={10}>
                   {
                     LocalizeString(
@@ -140,6 +143,11 @@ const Purchase = async ({item, paymentMethod, history}) => {
 
   if(!marketplace) { throw Error("Marketplace not found"); }
 
+  const successUrl = new URL(location.href);
+  const params = PurchaseParams();
+  params.itemId = item.id;
+  successUrl.searchParams.set("p", rootStore.client.utils.B58(JSON.stringify(params)));
+
   const cancelUrl = new URL(location.href);
   cancelUrl.searchParams.delete("p");
 
@@ -149,16 +157,13 @@ const Purchase = async ({item, paymentMethod, history}) => {
     marketplaceId: item.marketplace.marketplace_id,
     sku: item.marketplace_sku,
     quantity: 1,
-    successUrl: location.href,
+    successUrl,
     cancelUrl
   });
 
   if(paymentMethod.provider === "wallet-balance") {
-    const urlParams = new URLSearchParams(location.search);
-    let statusPath = location.pathname;
-    urlParams.set("confirmationId", result.confirmationId);
-    statusPath = statusPath + (urlParams.size > 0 ? `?${urlParams.toString()}` : "");
-    history.push(statusPath);
+    successUrl.searchParams.set("confirmationId", result.confirmationId);
+    history.push(successUrl.pathname + successUrl.search);
   }
 };
 
@@ -168,7 +173,7 @@ const Payment = observer(({item, Back}) => {
   const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.walletClient.UserInfo()?.email || "";
   const [paymentMethod, setPaymentMethod] = useState({type: undefined, country: undefined, email: initialEmail, initialEmail});
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState(undefined);
+  const [errorMessage, setErrorMessage] = useState(undefined);
 
   const marketplace = rootStore.marketplaces[item.marketplace?.marketplace_id];
   const marketplaceItem = marketplace?.items?.find(({sku}) => sku === item.marketplace_sku);
@@ -281,7 +286,7 @@ const Payment = observer(({item, Back}) => {
         <>
           <button
             onClick={() => setPaymentMethod({...paymentMethod, type: "card", provider: !ebanxEnabled ? "stripe" : undefined})}
-            className={S("payment__option", paymentMethod.type === "card" ? "payment__option--active" : "")}
+            className={S("payment__button", paymentMethod.type === "card" ? "payment__button--active" : "")}
           >
             { rootStore.l10n.purchase.purchase_methods.credit_card }
           </button>
@@ -289,7 +294,7 @@ const Payment = observer(({item, Back}) => {
             !coinbaseEnabled ? null :
               <button
                 onClick={() => setPaymentMethod({...paymentMethod, type: "crypto", provider: "coinbase"})}
-                className={S("payment__option", paymentMethod.type === "crypto" ? "payment__option--active" : "")}
+                className={S("payment__button", paymentMethod.type === "crypto" ? "payment__button--active" : "")}
               >
                 {rootStore.l10n.purchase.purchase_methods.crypto}
               </button>
@@ -298,14 +303,14 @@ const Payment = observer(({item, Back}) => {
             !pixEnabled ? null :
               <button
                 onClick={() => setPaymentMethod({...paymentMethod, type: "pix", provider: "pix"})}
-                className={S("payment__option", paymentMethod.type === "pix" ? "payment__option--active" : "")}
+                className={S("payment__button", paymentMethod.type === "pix" ? "payment__obutton-active" : "")}
               >
                 {rootStore.l10n.purchase.purchase_methods.pix}
               </button>
           }
           <button
             onClick={() => setPaymentMethod({...paymentMethod, type: "balance", provider: "wallet-balance"})}
-            className={S("payment__option", paymentMethod.type === "balance" ? "payment__option--active" : "")}
+            className={S("payment__button", paymentMethod.type === "balance" ? "payment__button--active" : "")}
           >
             { rootStore.l10n.purchase.purchase_methods.wallet_balance }
           </button>
@@ -318,22 +323,32 @@ const Payment = observer(({item, Back}) => {
         { options }
         <br />
         {
+          !errorMessage ? null :
+            <div className={S("payment__message", "payment__error")}>
+              { errorMessage }
+            </div>
+        }
+        {
           !canPurchase ? null :
             <button
               disabled={!canPurchase}
               onClick={async () => {
-                setError(undefined);
+                setErrorMessage(undefined);
                 setSubmitting(true);
 
                 try {
-                  await Purchase({item, paymentMethod, history});
+                  await Purchase({
+                    item,
+                    paymentMethod,
+                    history
+                  });
                 } catch(error) {
-                  setError(error);
+                  setErrorMessage(error?.uiMessage || rootStore.l10n.purchase.errors.failed);
                 } finally {
                   setSubmitting(false);
                 }
               }}
-              className={S("payment__button", "payment__select")}
+              className={S("payment__button", "payment__submit")}
             >
               {
                 submitting ?
@@ -384,43 +399,66 @@ const MediaPropertyPurchaseStatus = observer(({item, confirmationId, Close}) => 
     return () => clearInterval(statusInterval);
   }, []);
 
-  let content;
+  let content, actions;
+  let loading = true;
   if(!status) {
     content = null;
   } else if(status.status === "failed") {
+    loading = false;
     content = (
-      <div className={S("status__error")}>
-        Failed
+      <div className={S("status__message", "status__error")}>
+        { rootStore.l10n.media_properties.purchase_status.failed }
       </div>
     );
   } else if(status.status === "complete") {
+    loading = false;
     content = (
-      <div className={S("status__message")}>
-        Complete
-      </div>
+      <>
+        <div className={S("status__message")}>
+          { rootStore.l10n.media_properties.purchase_status.complete }
+        </div>
+      </>
+    );
+
+    actions = (
+      <button onClick={Close} className={S("payment__button", "payment__submit")}>
+        { rootStore.l10n.actions.close }
+      </button>
     );
   } else {
+
     content = (
-      <div className={S("status__message")}>
-        Pending
-      </div>
+      <>
+        <div className={S("status__message")}>
+          { rootStore.l10n.media_properties.purchase_status.pending.finalizing }
+        </div>
+        <div className={S("status__message", "status__message--info")}>
+          { rootStore.l10n.media_properties.purchase_status.pending.info }
+        </div>
+      </>
     );
   }
 
   return (
     <Item item={item}>
-      { content }
+      <div className={S("status")} key={`status-${status?.status}`}>
+        { !loading ? null : <Loader className={S("loader", "status__loader")} /> }
+        { content }
+        { actions }
+      </div>
     </Item>
   );
 });
 
-const MediaPropertyPurchaseModalContent = observer(({sectionItem, confirmationId, Close}) => {
+const MediaPropertyPurchaseModalContent = observer(({sectionItem, itemId, confirmationId, Close}) => {
   const [loaded, setLoaded] = useState(false);
-  const [selectedItemId, setSelectedItemId] = useState(undefined);
-  const selectedItem = selectedItemId && sectionItem.items.find(item => item.id === selectedItemId);
+  const [selectedItemId, setSelectedItemId] = useState(itemId);
+  const selectedItem = selectedItemId && sectionItem?.items.find(item => item.id === selectedItemId);
 
   useEffect(() => {
     setLoaded(false);
+
+    if(!sectionItem) { return; }
 
     rootStore.GetWalletBalance();
 
@@ -434,6 +472,8 @@ const MediaPropertyPurchaseModalContent = observer(({sectionItem, confirmationId
   }, [sectionItem]);
 
   useEffect(() => {
+    if(!sectionItem) { return; }
+
     const tenantIds = sectionItem.items.map(item =>
       rootStore.marketplaces[item?.marketplace?.marketplace_id]?.tenant_id
     )
@@ -449,7 +489,7 @@ const MediaPropertyPurchaseModalContent = observer(({sectionItem, confirmationId
   }, [loaded]);
 
   let content, key;
-  if(!loaded) {
+  if(!loaded || !sectionItem) {
     key = 0;
     content = <Loader className={S("loader")}/>;
   } else if(selectedItemId) {
@@ -524,26 +564,42 @@ const MediaPropertyPurchaseModal = () => {
   urlParams.delete("confirmationId");
   backPath = backPath + (urlParams.size > 0 ? `?${urlParams.toString()}` : "");
 
+  const Close = () => history.push(backPath);
+
+
   return (
     <Modal
       size="auto"
       centered
+      withCloseButton={false}
       opened={!!purchaseSectionItem}
-      withCloseButton={rootStore.pageWidth < 600}
-      onClose={() => history.push(backPath)}
-      transitionProps={{ transition: "fade", duration: 250, timingFunction: "linear" }}
+      onClose={params.confirmationId ? () => {} : Close}
+      transitionProps={{ transition: "fade", duration: 0}}
       classNames={{
         root: S("purchase-modal"),
         overlay: S("purchase-modal__overlay"),
         body: S("purchase-modal__content"),
+        inner: S("purchase-modal__inner"),
+        content: S("purchase-modal__container"),
       }}
     >
       {
-        !purchaseSectionItem ? null :
+        params.confirmationId ? null :
+          <button
+            aria-label="Close"
+            onClick={Close}
+            className={S("purchase-modal__close")}
+          >
+            <ImageIcon icon={XIcon}/>
+          </button>
+      }
+      {
+        !purchaseSectionItem || !params.sectionItemId ? null :
           <MediaPropertyPurchaseModalContent
             sectionItem={purchaseSectionItem}
+            itemId={params.itemId}
             confirmationId={params.confirmationId}
-            Close={() => history.push(backPath)}
+            Close={Close}
           />
       }
     </Modal>
