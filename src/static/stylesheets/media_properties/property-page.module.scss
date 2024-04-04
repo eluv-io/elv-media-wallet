@@ -1,5 +1,7 @@
 .page {
-  padding-inline: 75px;
+  &.page {
+    padding-inline: 75px;
+  }
 
   &__sections {
     margin-top: 150px;
@@ -9,11 +11,9 @@
     width: 100%;
   }
 
-  .page-container {
-    padding-inline: 75px;
-  }
-
   @media screen and (max-width: 800px) {
-    padding-inline: 25px;
+    &.page {
+      padding-inline: 25px;
+    }
   }
 }

@@ -31,7 +31,7 @@ const MediaPropertyPage = observer(() => {
         !match.params.parentMediaPropertySlugOrId ? null :
           UrlJoin("/properties", match.params.parentMediaPropertySlugOrId, match.params.parentPageSlugOrId || "")
       }
-      className={S("page", "page__container")}
+      className={S("page")}
     >
       <MediaPropertyPurchaseModal />
       <PageBackground display={page.layout} />
