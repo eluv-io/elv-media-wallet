@@ -5,9 +5,98 @@ import {mediaPropertyStore, rootStore} from "Stores";
 export const MediaPropertyBasePath = params => {
   if(!params.mediaPropertySlugOrId) { return "/"; }
 
-  return params.parentMediaPropertySlugOrId ?
-    UrlJoin("/properties", params.parentMediaPropertySlugOrId, params.parentPageSlugOrId || "", "p", params.mediaPropertySlugOrId) :
-    UrlJoin("/properties", params.mediaPropertySlugOrId);
+  let path = params.parentMediaPropertySlugOrId ?
+    UrlJoin("/p", params.parentMediaPropertySlugOrId, params.parentPageSlugOrId || "", "p", params.mediaPropertySlugOrId) :
+    UrlJoin("/p", params.mediaPropertySlugOrId);
+
+  if(params.contractId) {
+    path = UrlJoin("/m", params.contractId, params.tokenId, path);
+  }
+
+  return path;
+};
+
+export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) => {
+  let linkPath = MediaPropertyBasePath(match.params);
+
+  mediaItem = mediaItem || sectionItem.mediaItem;
+  let params = new URLSearchParams();
+
+  if(match.params.sectionSlugOrId) {
+    linkPath = UrlJoin(linkPath, "s", match.params.sectionSlugOrId);
+  }
+
+  let url;
+  if(mediaItem || sectionItem?.type === "media") {
+    if(match.params.mediaCollectionSlugOrId) {
+      linkPath = UrlJoin(linkPath, "c", match.params.mediaCollectionSlugOrId);
+    }
+
+    if(match.params.mediaListSlugOrId) {
+      linkPath = UrlJoin(linkPath, "l", match.params.mediaListSlugOrId);
+    }
+
+    const mediaId = mediaItem?.id || sectionItem?.media_id;
+
+    if((mediaItem?.type || sectionItem.media_type) === "collection") {
+      linkPath = UrlJoin(linkPath, "c", mediaId);
+    } else if((mediaItem?.type || sectionItem.media_type) === "list") {
+      linkPath = UrlJoin(linkPath, "l", mediaId);
+    } else if((mediaItem?.type || sectionItem.media_type) === "media") {
+      const listParam = new URLSearchParams(location.search).get("l");
+
+      if(listParam) {
+        linkPath = UrlJoin(linkPath, "l", listParam);
+      }
+
+      linkPath = UrlJoin(linkPath, "m", mediaId);
+
+      url = mediaItem?.media_type === "HTML" && MediaItemMediaUrl(mediaItem);
+    }
+  } else if(sectionItem?.type === "item_purchase") {
+    // Preserve params
+    params = new URLSearchParams(location.search);
+    params.set(
+      "p",
+      mediaPropertyStore.client.utils.B58(JSON.stringify({
+        type: "purchase",
+        sectionSlugOrId: match.params.sectionSlugOrId,
+        sectionItemId: sectionItem.id
+      }))
+    );
+  } else if(sectionItem?.type === "page_link") {
+    const page = mediaPropertyStore.MediaPropertyPage({...match.params, pageSlugOrId: sectionItem.page_id});
+
+    if(page) {
+      const pageSlugOrId = page?.slug || sectionItem.page_id;
+      linkPath = UrlJoin(linkPath, pageSlugOrId === "main" ? "" : pageSlugOrId);
+    }
+  } else if(sectionItem?.type === "property_link") {
+    linkPath = MediaPropertyBasePath({mediaPropertySlugOrId: sectionItem.property_id, pageSlugOrId: sectionItem.property_page_id});
+  } else if(sectionItem?.type === "subproperty_link") {
+    linkPath = MediaPropertyBasePath({
+      parentMediaPropertySlugOrId: match.params.parentMediaPropertySlugOrId || match.params.mediaPropertySlugOrId,
+      parentPageId: typeof match.params.parentPageSlugOrId !== "undefined" ? match.params.parentPageSlugOrId : match.params.pageSlugOrId,
+      mediaPropertySlugOrId: sectionItem.subproperty_id,
+      pageSlugOrId: sectionItem.subproperty_page_id
+    });
+  } else if(sectionItem?.type === "marketplace_link") {
+    const marketplaceId = sectionItem.marketplace?.marketplace_id;
+
+    if(marketplaceId) {
+      const sku = sectionItem.marketplace_sku || "";
+      linkPath = UrlJoin("/marketplace", marketplaceId, "store", sku);
+    }
+  }
+
+  if(navContext) {
+    params.set("ctx", navContext);
+  }
+
+  return {
+    linkPath: linkPath + (params.size > 0 ? `?${params.toString()}` : ""),
+    url
+  };
 };
 
 export const MediaItemMediaUrl = mediaItem => {
@@ -60,6 +149,41 @@ export const MediaItemMediaUrl = mediaItem => {
   }
 
   return url.toString();
+};
+
+export const MediaPropertyMediaBackPath = ({match, navContext}) => {
+  const path = location.pathname;
+  let pathComponents = path.replace(/^\//, "").split("/");
+  let params = new URLSearchParams();
+
+  const currentNavContext = new URLSearchParams(location.search).get("ctx");
+
+  if(navContext) {
+    params.set("ctx", navContext);
+  }
+
+  if(match.params.mediaItemSlugOrId) {
+    pathComponents = pathComponents.slice(0, -2);
+
+    if(match.params.mediaCollectionSlugOrId && match.params.mediaListSlugOrId) {
+      pathComponents = pathComponents.slice(0, -2);
+      params.set("l", match.params.mediaListSlugOrId);
+    } else if(match.params.sectionSlugOrId && currentNavContext !== "s") {
+      // Only go back to section page if we got there from here
+      pathComponents = pathComponents.slice(0, -2);
+    }
+  } else if(match.params.mediaListSlugOrId || match.params.mediaCollectionSlugOrId || match.params.sectionSlugOrId) {
+    pathComponents = pathComponents.slice(0, -2);
+
+    if(match.params.sectionSlugOrId && currentNavContext !== "s") {
+      // Only go back to section page if we got there from here
+      pathComponents = pathComponents.slice(0, -2);
+    }
+  } else {
+    pathComponents = pathComponents.slice(0, -1);
+  }
+
+  return "/" + pathComponents.join("/") + (params.size > 0 ? `?${params.toString()}` : "");
 };
 
 export const MediaItemScheduleInfo = mediaItem => {

@@ -199,10 +199,14 @@ export const NFTDisplayToken = nft => {
 };
 
 const FormatAdditionalMedia = ({nft, name, metadata={}}) => {
-  let additionalMedia, additionalMediaType, hasAdditionalMedia;
+  let additionalMedia, additionalMediaType, hasAdditionalMedia, hasBundledProperty, bundledPropertyId;
   let watchedMediaIds = [];
 
-  if(metadata?.additional_media_type === "Sections") {
+  if(metadata?.additional_media_type === "property") {
+    additionalMediaType = "property";
+    bundledPropertyId = metadata.bundled_property_id;
+    hasBundledProperty = !!bundledPropertyId;
+  } else if(metadata?.additional_media_type === "Sections") {
     additionalMediaType = "Sections";
     additionalMedia = { ...(metadata?.additional_media_sections || {}) };
     hasAdditionalMedia = additionalMedia.featured_media?.length > 0 ||
@@ -301,6 +305,8 @@ const FormatAdditionalMedia = ({nft, name, metadata={}}) => {
     additionalMedia,
     additionalMediaType,
     hasAdditionalMedia,
+    hasBundledProperty,
+    bundledPropertyId,
     watchedMediaIds
   };
 };
@@ -449,8 +455,8 @@ export const NFTInfo = ({
   const hasRedeemables = redeemables.filter(offer => !offer.hidden).length > 0;
   const hasFeaturedRedeemables = redeemables.filter(offer => !offer.hidden && offer.featured).length > 0;
 
-  const { additionalMedia, additionalMediaType, hasAdditionalMedia, watchedMediaIds } = FormatAdditionalMedia({nft, name, metadata: nft?.metadata, versionHash: nft?.details?.VersionHash});
   const mediaInfo = NFTMedia({nft, item, width: imageWidth});
+  const additionalMediaInfo = FormatAdditionalMedia({nft, name, metadata: nft?.metadata, versionHash: nft?.details?.VersionHash});
 
   let sideText;
   if(item && !hideAvailable && !outOfStock && !expired && !unauthorized && stock && stock.max && stock.max < 10000000) {
@@ -492,11 +498,8 @@ export const NFTInfo = ({
     hasFeaturedRedeemables,
     redeemables,
 
-    // Media
-    hasAdditionalMedia,
-    additionalMediaType,
-    additionalMedia,
-    watchedMediaIds,
+    // Additional Media
+    ...additionalMediaInfo,
 
     // Status
     stock,

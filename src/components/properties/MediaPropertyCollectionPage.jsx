@@ -8,6 +8,7 @@ import UrlJoin from "url-join";
 import {PageBackground, PageContainer, PageHeader, ScaledText} from "Components/properties/Common";
 import MediaCard from "Components/properties/MediaCards";
 import {Select} from "Components/common/UIComponents";
+import {MediaPropertyMediaBackPath} from "../../utils/MediaPropertyUtils";
 
 const S = (...classes) => classes.map(c => MediaCollectionStyles[c] || "").join(" ");
 
@@ -130,12 +131,8 @@ const MediaPropertyCollectionPage = observer(() => {
     mediaItemSlugOrId: match.params.mediaCollectionSlugOrId
   });
 
-  const section = mediaPropertyStore.MediaPropertySection(match.params);
-
   const navContext = new URLSearchParams(location.search).get("ctx");
-  const backPath = navContext === "s" && match.params.sectionSlugOrId ?
-    UrlJoin("/properties", match.params.mediaPropertySlugOrId, match.params.pageSlugOrId || "", "s", match.params.sectionSlugOrId) :
-    UrlJoin("/properties", match.params.mediaPropertySlugOrId, match.params.pageSlugOrId || "", section ? `?ctx=${section.sectionId || section.id}` : "");
+  const backPath = MediaPropertyMediaBackPath({match, navContext});
 
   useEffect(() => {
     if(!activeListId) {

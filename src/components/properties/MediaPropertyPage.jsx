@@ -25,12 +25,16 @@ const MediaPropertyPage = observer(() => {
     return <Redirect to="/" />;
   }
 
+  let backPath;
+  if(match.params.parentMediaPropertySlugOrId) {
+    backPath = UrlJoin("/p", match.params.parentMediaPropertySlugOrId, match.params.parentPageSlugOrId || "");
+  } else if(match.params.contractId) {
+    backPath = UrlJoin("/wallet/users/me/items", match.params.contractId, match.params.tokenId);
+  }
+
   return (
     <PageContainer
-      backPath={
-        !match.params.parentMediaPropertySlugOrId ? null :
-          UrlJoin("/properties", match.params.parentMediaPropertySlugOrId, match.params.parentPageSlugOrId || "")
-      }
+      backPath={backPath}
       className={S("page")}
     >
       <MediaPropertyPurchaseModal />

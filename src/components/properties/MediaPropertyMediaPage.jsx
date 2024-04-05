@@ -10,7 +10,7 @@ import Countdown from "./Countdown";
 import {
   MediaItemImageUrl,
   MediaItemMediaUrl,
-  MediaItemScheduleInfo
+  MediaItemScheduleInfo, MediaPropertyMediaBackPath
 } from "../../utils/MediaPropertyUtils";
 import {Carousel, Description, LoaderImage} from "Components/properties/Common";
 import Video from "./Video";
@@ -307,32 +307,7 @@ const MediaPropertyMediaPage = observer(() => {
   const mediaItem = mediaPropertyStore.MediaPropertyMediaItem(match.params);
 
   const context = new URLSearchParams(location.search).get("ctx");
-  let backPath = UrlJoin("/properties", match.params.mediaPropertySlugOrId, match.params.mediaPageSlugOrId || "");
-  if(!match.params.mediaCollectionSlugOrId && !match.params.mediaListSlugOrId) {
-    if(match.params.sectionSlugOrId) {
-      if(context === "s") {
-        // Go back to section page
-        backPath = UrlJoin(backPath, "s", match.params.sectionSlugOrId);
-      } else {
-        // Don't go back to section page, but add context to scroll to the proper section
-        backPath += match.params.sectionSlugOrId ? `?ctx=${match.params.sectionSlugOrId}` : "";
-      }
-    }
-  } else {
-    if(match.params.sectionSlugOrId) {
-      backPath = UrlJoin(backPath, "s", match.params.sectionSlugOrId);
-    }
-
-    if(match.params.mediaCollectionSlugOrId) {
-      backPath = UrlJoin(backPath, "c", match.params.mediaCollectionSlugOrId, `?l=${match.params.mediaListSlugOrId}`);
-    } else if(match.params.mediaListSlugOrId) {
-      backPath = UrlJoin(backPath, "l", match.params.mediaListSlugOrId);
-    }
-  }
-
-  if(context) {
-    backPath += backPath.includes("?") ? `&ctx=${context}` : `?ctx=${context}`;
-  }
+  let backPath = MediaPropertyMediaBackPath({match, navContext: context});
 
   if(!mediaItem) {
     return <Redirect to={backPath} />;

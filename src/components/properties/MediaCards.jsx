@@ -5,89 +5,14 @@ import {observer} from "mobx-react";
 import {mediaPropertyStore} from "Stores";
 import {
   MediaItemImageUrl,
-  MediaItemMediaUrl,
-  MediaItemScheduleInfo
+  MediaItemScheduleInfo, MediaPropertyLink
 } from "../../utils/MediaPropertyUtils";
 import {Description, LoaderImage, ScaledText} from "Components/properties/Common";
 import {useRouteMatch} from "react-router-dom";
-import UrlJoin from "url-join";
 import {Linkish} from "Components/common/UIComponents";
 
 const S = (...classes) => classes.map(c => MediaCardStyles[c] || "").join(" ");
 
-const MediaCardLink = ({match, sectionItem, mediaItem, navContext}) => {
-  mediaItem = mediaItem || sectionItem.mediaItem;
-  let params = new URLSearchParams();
-
-  // TODO: Rewrite so it's not relative to current path
-  let linkPath = match.url;
-  let url;
-  if(mediaItem || sectionItem?.type === "media") {
-    const mediaId = mediaItem?.id || sectionItem?.media_id;
-
-    let basePath = match.url.replace(/\/search/, "");
-
-    //navContext = match.params.sectionSlugOrId || sectionItem.sectionId;
-    if(!match.params.sectionSlugOrId && sectionItem?.sectionId) {
-      basePath = UrlJoin(basePath, "s", sectionItem.sectionId);
-    }
-
-    if((mediaItem?.type || sectionItem.media_type) === "collection") {
-      linkPath = UrlJoin(basePath, "c", mediaId);
-    } else if((mediaItem?.type || sectionItem.media_type) === "list") {
-      linkPath = UrlJoin(basePath, "l", mediaId);
-    } else if((mediaItem?.type || sectionItem.media_type) === "media") {
-      const listParam = new URLSearchParams(location.search).get("l");
-
-      if(listParam) {
-        basePath = UrlJoin(basePath, "l", listParam);
-      }
-
-      linkPath = UrlJoin(basePath, "m", mediaId);
-
-      url = mediaItem?.media_type === "HTML" && MediaItemMediaUrl(mediaItem);
-    }
-  } else if(sectionItem?.type === "item_purchase") {
-    // Preserve params
-    linkPath = match.url;
-    params = new URLSearchParams(location.search);
-    params.set(
-      "p",
-      mediaPropertyStore.client.utils.B58(JSON.stringify({
-        type: "purchase",
-        sectionSlugOrId: match.params.sectionSlugOrId,
-        sectionItemId: sectionItem.id
-      }))
-    );
-  } else if(sectionItem?.type === "page_link") {
-    const page = mediaPropertyStore.MediaPropertyPage({...match.params, pageSlugOrId: sectionItem.page_id});
-
-    if(page) {
-      const pageSlugOrId = page?.slug || sectionItem.page_id;
-      linkPath = UrlJoin("/properties", match.params.mediaPropertySlugOrId, pageSlugOrId === "main" ? "" : pageSlugOrId);
-    }
-  } else if(sectionItem?.type === "property_link") {
-    linkPath = UrlJoin("/properties", sectionItem.property_id, sectionItem.property_page_id || "");
-  } else if(sectionItem?.type === "subproperty_link") {
-    linkPath = UrlJoin("/properties", match.params.mediaPropertySlugOrId, match.params.pageSlugOrId || "", "p", sectionItem.subproperty_id, sectionItem.subproperty_page_id || "");
-  } else if(sectionItem?.type === "marketplace_link") {
-    const marketplaceId = sectionItem.marketplace?.marketplace_id;
-
-    if(marketplaceId) {
-      const sku = sectionItem.marketplace_sku || "";
-      linkPath = UrlJoin("/marketplace", marketplaceId, "store", sku);
-    }
-  }
-
-  if(navContext) {
-    params.set("ctx", navContext);
-  }
-
-  return {
-    linkPath: linkPath + (params.size > 0 ? `?${params.toString()}` : ""),
-    url
-  };
-};
 
 const MediaCardBanner = observer(({
   display,
@@ -383,7 +308,7 @@ const MediaCard = observer(({
 
   const scheduleInfo = MediaItemScheduleInfo(mediaItem || sectionItem.mediaItem);
 
-  let {linkPath, url} = MediaCardLink({match, sectionItem, mediaItem, navContext}) || "";
+  let {linkPath, url} = MediaPropertyLink({match, sectionItem, mediaItem, navContext}) || "";
 
   let args = {
     display,

@@ -25,7 +25,7 @@ import Modal from "Components/common/Modal";
 import Flows from "Components/interface/Flows";
 import Actions from "Components/interface/Actions";
 import {SearchParams, SetImageUrlDimensions} from "./utils/Utils";
-import PropertyRoutes from "Components/properties";
+import {PropertyRoutes, BundledPropertyRoutes} from "Components/properties";
 
 const searchParams = SearchParams();
 
@@ -144,9 +144,14 @@ const Routes = observer(() => {
                 <MarketplaceRoutes />
               </Suspense>
             </Route>
-            <Route path="/properties">
+            <Route path="/p">
               <Suspense fallback={<PageLoader />}>
                 <PropertyRoutes />
+              </Suspense>
+            </Route>
+            <Route path="/m">
+              <Suspense fallback={<PageLoader />}>
+                <BundledPropertyRoutes />
               </Suspense>
             </Route>
             <Route path="/profile">

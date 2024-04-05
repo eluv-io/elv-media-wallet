@@ -103,6 +103,10 @@ const PropertyRoutes = (basePath="") => {
   ].map(route => ({...route, noBlock: true, clearMarketplace: true}));
 };
 
+const BundledPropertyRoutes = (basePath="") => {
+  return PropertyRoutes(UrlJoin(basePath, "/:contractId/:tokenId/p"));
+};
+
 const UserMarketplaceRoutes = () => {
   return [
     { name: "Collections", path: "collections", includeUserProfile: true, Component: UserCollections }
@@ -119,7 +123,7 @@ const TokenRoutes = basePath => {
     { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId/:tokenId/media/:sectionId/:mediaIndex"), noBlock: true, Component: NFTMedia },
     { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId/:tokenId/media/:sectionId/:collectionId/:mediaIndex"), noBlock: true, Component: NFTMedia },
 
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId/:tokenId/:action"), authed: true, noBlock: true, Component: MintedNFTDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId/:tokenId/:action"), authed: true, noBlock: true, Component: MintedNFTDetails }
   ];
 };
 
@@ -347,6 +351,13 @@ const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
     case "property":
       routes = [
         ...PropertyRoutes()
+      ];
+
+      break;
+
+    case "bundledProperty":
+      routes = [
+        ...BundledPropertyRoutes()
       ];
 
       break;

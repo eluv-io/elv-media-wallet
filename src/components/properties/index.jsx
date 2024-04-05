@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {mediaPropertyStore, rootStore} from "Stores/index";
 import {Switch, useRouteMatch} from "react-router-dom";
 import {observer} from "mobx-react";
@@ -9,14 +9,24 @@ import MediaPropertyHeader from "Components/properties/MediaPropertyHeader";
 
 const PropertyWrapper = observer(({children}) => {
   const match = useRouteMatch();
+  const [itemLoaded, setItemLoaded] = useState(!match.params.contractId);
 
   const mediaPropertySlugOrId = match.params.mediaPropertySlugOrId;
 
   useEffect(() => {
     rootStore.ClearMarketplace();
+
+    if(match.params.contractId) {
+      console.log("Loading item")
+      rootStore.LoadNFTData({
+        contractId: match.params.contractId,
+        tokenId: match.params.tokenId
+      })
+        .then(() => setItemLoaded(true));
+    }
   }, []);
 
-  if(!rootStore.loaded) {
+  if(!rootStore.loaded || !itemLoaded) {
     return <PageLoader />;
   }
 
@@ -38,13 +48,13 @@ const PropertyWrapper = observer(({children}) => {
   return children;
 });
 
-const PropertyRoutes = observer(() => {
+export const PropertyRoutes = observer(() => {
   return (
     <div className="page-container property-page">
       <MediaPropertyHeader />
       <Switch>
         <RenderRoutes
-          basePath="/properties"
+          basePath="/p"
           routeList="property"
           Wrapper={PropertyWrapper}
         />
@@ -53,4 +63,17 @@ const PropertyRoutes = observer(() => {
   );
 });
 
-export default PropertyRoutes;
+export const BundledPropertyRoutes = observer(() => {
+  return (
+    <div className="page-container property-page">
+      <MediaPropertyHeader />
+      <Switch>
+        <RenderRoutes
+          basePath="/m"
+          routeList="bundledProperty"
+          Wrapper={PropertyWrapper}
+        />
+      </Switch>
+    </div>
+  );
+});

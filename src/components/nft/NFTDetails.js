@@ -1384,14 +1384,16 @@ const NFTDetails = observer(({nft, initialListingStatus, item, giftItem, hideSec
                   className="details-page__nft-info--default"
                 />
                 {
-                  nftInfo.hasAdditionalMedia && (nftInfo.isOwned || previewMedia) ?
+                  (nftInfo.hasBundledProperty || nftInfo.hasAdditionalMedia) && (nftInfo.isOwned || previewMedia) ?
                     <ExpandableSection
                       header={rootStore.l10n.item_details.media}
                       toggleable={false}
                       icon={MediaIcon}
                       onClick={() => {
                         // Navigate to media page
-                        if(nftInfo.additionalMedia.type === "List") {
+                        if(nftInfo.hasBundledProperty) {
+                          history.push(UrlJoin("/m", match.params.contractId, match.params.tokenId, "p", nftInfo.bundledPropertyId));
+                        } else if(nftInfo.additionalMedia.type === "List") {
                           history.push(UrlJoin(match.url, "media", "list", "0"));
                         } else {
                           history.push(UrlJoin(match.url, "media"));

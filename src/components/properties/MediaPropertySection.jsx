@@ -12,6 +12,7 @@ import {Carousel, PageBackground, PageContainer, PageHeader} from "Components/pr
 import RightArrow from "Assets/icons/right-arrow";
 import MediaPropertyPurchaseModal from "Components/properties/MediaPropertyPurchaseModal";
 import {ScrollTo} from "../../utils/Utils";
+import {MediaPropertyMediaBackPath} from "../../utils/MediaPropertyUtils";
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 
@@ -238,10 +239,10 @@ const MediaPropertySectionPage = observer(() => {
 
   const section = mediaPropertyStore.MediaPropertySection(match.params);
 
+  console.log(section);
+
   const navContext = new URLSearchParams(location.search).get("ctx");
-  const backPath = navContext === "s" && match.params.sectionSlugOrId ?
-    UrlJoin("/properties", match.params.mediaPropertySlugOrId, match.params.pageSlugOrId || "", "s", match.params.sectionSlugOrId) :
-    UrlJoin("/properties", match.params.mediaPropertySlugOrId, match.params.pageSlugOrId || "", `?ctx=${section.sectionId || section.id}`);
+  const backPath = MediaPropertyMediaBackPath({match, navContext: (section?.isMediaList && navContext) || section?.sectionId || section?.id});
 
   if(!section) {
     return <Redirect to={backPath} />;
