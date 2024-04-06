@@ -171,7 +171,6 @@
 .copyable-field {
   align-items: center;
   display: flex;
-  justify-content: space-between;
   max-width: 100%;
   min-height: 40px;
 
@@ -186,23 +185,14 @@
     }
   }
 
-  a {
-    color: var(--color-component-text-highlight);
-
-    &:hover {
-      color: var(--color-component-text-highlight);
-    }
-  }
-
   &__button {
     align-items: center;
-    background: var(--background-button-secondary);
     border-radius: 8px;
     cursor: pointer;
     display: flex;
     height: 25px;
     justify-content: center;
-    padding: 5px;
+    padding: 3px;
     transition: opacity 0.5s ease;
     width: 35px;
 

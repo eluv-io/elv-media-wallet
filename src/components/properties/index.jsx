@@ -17,7 +17,6 @@ const PropertyWrapper = observer(({children}) => {
     rootStore.ClearMarketplace();
 
     if(match.params.contractId) {
-      console.log("Loading item")
       rootStore.LoadNFTData({
         contractId: match.params.contractId,
         tokenId: match.params.tokenId

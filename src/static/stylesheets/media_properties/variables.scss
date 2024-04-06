@@ -22,6 +22,14 @@
   --property-search-background: #202023;
   --property-search-button-background: #38383C;
 
+  --property-button-background: #FFF;
+  --property-button-text: #000;
+  --property-button-outline-text: #FFF;
+  --property-button-outline-border: #555;
+
+  --property-button-option-background-hover: #555;
+  --property-button-option-text: #FFF;
+
   @media screen and (max-width: 800px) {
     --property-header-height: 65px;
   }

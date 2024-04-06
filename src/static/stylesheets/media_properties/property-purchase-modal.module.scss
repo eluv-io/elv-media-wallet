@@ -1,64 +1,4 @@
 @import "variables";
-.purchase-modal {
-  &__overlay {
-    @include page-fade-in(0.25s);
-    backdrop-filter: blur(3px);
-  }
-
-  &__inner {
-    padding: 0;
-    width: 100%;
-  }
-
-  &__container {
-    @include page-fade-in(0.25s);
-    background-color: var(--property-background-secondary);
-  }
-
-  &__content {
-    position: relative;
-    width: 100%;
-    max-width: max-content;
-    background-color: var(--property-background-secondary);
-
-    &:empty {
-      display: none;
-    }
-  }
-
-  &__close {
-    height: 25px;
-    width: 25px;
-    position: fixed;
-    right: 15px;
-    top: 15px;
-    cursor: pointer;
-    z-index: 1;
-    display: none;
-    filter: drop-shadow(0 0 2px #000);
-
-    * {
-      color: var(--property-text-secondary);
-    }
-  }
-
-  @media screen and (max-width: 600px) {
-    &__container {
-      max-height: var(--property-full-page-height);
-      height: 100%;
-      width: 100%;
-    }
-
-    &__content {
-      padding-top: 25px;
-      max-width: unset;
-    }
-
-    &__close {
-      display: block;
-    }
-  }
-}
 
 .loader {
   width: 100%;
@@ -78,6 +18,17 @@
     min-width: 100%;
     width: 100%;
   }
+}
+
+.button {
+  @include page-fade-in(0.5s);
+  width: 100%;
+}
+
+.actions {
+  margin-top: 15px;
+  display: grid;
+  gap: 10px;
 }
 
 .items {
@@ -135,77 +86,6 @@
 
   &__error {
     color: #CC0000;
-  }
-
-  &__option,
-  &__button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    min-height: 50px;
-    border-radius: 5px;
-    margin-top: 15px;
-    font-weight: 500;
-    padding-inline: 10px;
-    transition: background-color 0.2s ease, border 0.2s ease, color 0.2s ease;
-
-    &:disabled {
-      opacity: 0;
-      height: 0;
-      max-height: 0;
-      min-height: unset;
-    }
-  }
-
-  &__option {
-    border: 1px solid #CCC;
-
-    &:not(&--active) {
-      &:hover,
-      &:focus-visible {
-        background-color: #555;
-      }
-    }
-
-    &--active {
-      border: 1px solid #FFF;
-      background-color: #FFF;
-      color: #000;
-    }
-  }
-
-  &__button {
-    border: 1px solid #FFF;
-
-    &:hover,
-    &:focus-visible,
-    &--active {
-      border: 1px solid #FFF;
-      background-color: #FFF;
-      color: #000;
-    }
-  }
-
-  &__button-loader {
-    height: 30px;
-
-    :global(.spinner) {
-      --spinner-width: 4px;
-      --spinner-color: var(--property-text-faded);
-      --spinner-color-background: var(--property-text-secondary);
-    }
-  }
-
-  &__submit {
-    @include page-fade-in(0.5s);
-
-    background-color: #FFF;
-    color: #000;
-
-    * {
-      color: #000;
-    }
   }
 }
 

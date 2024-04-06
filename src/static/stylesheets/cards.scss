@@ -379,6 +379,7 @@
       right: 8px;
       top: 12px;
       width: auto;
+      z-index: 10;
 
       &::after {
         background: $black;

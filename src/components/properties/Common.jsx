@@ -6,6 +6,7 @@ import {mediaPropertyStore, rootStore} from "Stores";
 import SanitizeHTML from "sanitize-html";
 import {SetImageUrlDimensions} from "../../utils/Utils";
 import {Link} from "react-router-dom";
+import {Modal as MantineModal} from "@mantine/core";
 
 import ArrowLeft from "Assets/icons/arrow-left.svg";
 import ImageIcon from "Components/common/ImageIcon";
@@ -14,8 +15,20 @@ import {Swiper, SwiperSlide} from "swiper/react";
 
 import LeftArrow from "Assets/icons/left-arrow";
 import RightArrow from "Assets/icons/right-arrow";
+import {Loader} from "Components/common/Loaders";
+import {Linkish} from "Components/common/UIComponents";
+import XIcon from "Assets/icons/x";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
+
+export const BackLink = ({backPath, onClick, className=""}) => {
+  return (
+    <Linkish to={backPath} onClick={onClick} className={[S("back-link"), className].join(" ")}>
+      <ImageIcon icon={ArrowLeft} />
+      <div>Back</div>
+    </Linkish>
+  );
+};
 
 export const PageContainer = ({backPath, children, className}) => {
   return (
@@ -23,10 +36,7 @@ export const PageContainer = ({backPath, children, className}) => {
       {
         !backPath ? null :
           <div className={S("page-container__links")}>
-            <Link to={backPath} className={S("page-container__back-link")}>
-              <ImageIcon icon={ArrowLeft} />
-              <div>Back</div>
-            </Link>
+            <BackLink backPath={backPath} />
           </div>
       }
 
@@ -62,7 +72,7 @@ export const PageBackground = observer(({display}) => {
   );
 });
 
-export const PageHeader = observer(({display, maxHeaderSize=36, descriptionBaseFontSize=16, className=""}) => {
+export const PageHeader = observer(({display, maxHeaderSize=36, children, className=""}) => {
   return (
     <div className={S("page-header")}>
       <div className={[S("page-header__content", `page-header__content--${display.position?.toLowerCase() || "left"}`), className].join(" ")}>
@@ -80,22 +90,18 @@ export const PageHeader = observer(({display, maxHeaderSize=36, descriptionBaseF
         <Description
           description={display.description}
           descriptionRichText={display.description_rich_text}
-          baseFontSize={descriptionBaseFontSize}
           className={S("page-header__description")}
         />
       </div>
+      { children }
     </div>
   );
 });
 
-export const RichText = ({richText, baseFontSize=16, ...props}) => {
+export const RichText = ({richText, ...props}) => {
   return (
     <div
       {...props}
-      style={{
-        fontSize: baseFontSize,
-        ...(props.style || {})
-      }}
       className={[S("rich-text"), props.className || ""].join(" ")}
       dangerouslySetInnerHTML={{__html: SanitizeHTML(richText)}}
     />
@@ -202,7 +208,6 @@ export const ScaledText = observer(({
 export const Description = ({
   description,
   descriptionRichText,
-  baseFontSize=18,
   maxLines,
   expandable=false,
   ...props
@@ -210,7 +215,7 @@ export const Description = ({
   const [expanded, setExpanded] = useState(false);
 
   if(descriptionRichText) {
-    return <RichText richText={descriptionRichText} baseFontSize={baseFontSize} {...props} />;
+    return <RichText richText={descriptionRichText} {...props} />;
   }
 
   if(!description) { return null; }
@@ -321,3 +326,54 @@ export const Carousel = observer(({
     </Swiper>
   );
 });
+
+export const Modal = observer(({...args}) => {
+  const showCloseButton = typeof args.withCloseButton === "undefined" ?
+    rootStore.pageWidth < 600 : args.withCloseButton;
+
+  return (
+    <MantineModal
+      {...args}
+      withCloseButton={false}
+      classNames={{
+        root: S("modal"),
+        overlay: S("modal__overlay"),
+        inner: S("modal__inner"),
+        content: S("modal__container"),
+        header: S("modal__header"),
+        body: S("modal__content")
+      }}
+    >
+      {
+        !showCloseButton ? null :
+          <button
+            aria-label="Close"
+            onClick={() => args.onClose && args.onClose()}
+            className={S("modal__close")}
+          >
+            <ImageIcon icon={XIcon}/>
+          </button>
+      }
+      { args.children }
+    </MantineModal>
+  );
+});
+
+export const Button = ({variant="primary", active, loading, ...props}) => {
+  return (
+    <Linkish
+      {...props}
+      className={[S("button", variant ? `button--${variant}` : "", active ? "button--active" : ""), props.className || ""].join(" ")}
+    >
+      {
+        !loading ? props.children :
+          <>
+            <Loader className={S("button__loader")}/>
+            <div className={S("button__loading-content")}>
+              { props.children }
+            </div>
+          </>
+      }
+    </Linkish>
+  );
+};

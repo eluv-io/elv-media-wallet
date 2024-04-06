@@ -75,6 +75,7 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
     linkPath = MediaPropertyBasePath({mediaPropertySlugOrId: sectionItem.property_id, pageSlugOrId: sectionItem.property_page_id});
   } else if(sectionItem?.type === "subproperty_link") {
     linkPath = MediaPropertyBasePath({
+      ...match.params,
       parentMediaPropertySlugOrId: match.params.parentMediaPropertySlugOrId || match.params.mediaPropertySlugOrId,
       parentPageId: typeof match.params.parentPageSlugOrId !== "undefined" ? match.params.parentPageSlugOrId : match.params.pageSlugOrId,
       mediaPropertySlugOrId: sectionItem.subproperty_id,

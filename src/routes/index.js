@@ -40,6 +40,7 @@ import MediaPropertySectionPage from "Components/properties/MediaPropertySection
 import MediaPropertyMediaPage from "Components/properties/MediaPropertyMediaPage";
 import MediaPropertyCollectionPage from "Components/properties/MediaPropertyCollectionPage";
 import MediaPropertySearchPage from "Components/properties/MediaPropertySearchPage";
+import ItemDetailsPage from "Components/properties/ItemDetailsPage";
 
 const GetProperty = (match) => {
   return rootStore.mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId});
@@ -70,7 +71,7 @@ const PropertyMediaRoutes = (basePath="") => {
   ].map(route => ({...route, name: GetPropertyPageTitle, noBlock: true}));
 };
 
-const PropertyRoutes = (basePath="") => {
+const PropertyRoutes = (basePath="", additionalRoutes=[]) => {
   const GetPropertyPageTitle = match => GetProperty(match)?.metadata?.page_title || rootStore.l10n.media_properties.media_property;
 
   // All possible permutations of property or parent property/subproperty with or without page slug/id
@@ -98,13 +99,24 @@ const PropertyRoutes = (basePath="") => {
     // Section pages
     ...(prefixPaths.map(path => ({ name: GetPropertyPageTitle, path: UrlJoin(basePath, path, "s/:sectionSlugOrId"), Component: MediaPropertySectionPage }))),
 
+    // Additional routes (item details)
+    ...additionalRoutes.map(route => [
+      ...prefixPaths.map(path =>
+        ({...route, name: route.name || GetPropertyPageTitle, path: UrlJoin(basePath, path, route.path)})
+      )
+    ]).flat(),
 
     ...(prefixPaths.map(path => ({ name: GetPropertyPageTitle, path: UrlJoin(basePath, path), Component: MediaPropertyPage }))),
   ].map(route => ({...route, noBlock: true, clearMarketplace: true}));
 };
 
 const BundledPropertyRoutes = (basePath="") => {
-  return PropertyRoutes(UrlJoin(basePath, "/:contractId/:tokenId/p"));
+  return PropertyRoutes(
+    UrlJoin(basePath, "/:contractId/:tokenId/p"),
+    [
+      { path: "/details", Component: ItemDetailsPage },
+    ]
+  );
 };
 
 const UserMarketplaceRoutes = () => {

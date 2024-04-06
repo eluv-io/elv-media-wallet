@@ -4,7 +4,6 @@ import React, {useEffect, useState, useRef} from "react";
 import {observer} from "mobx-react";
 import {Link, Redirect, useRouteMatch} from "react-router-dom";
 import {mediaPropertyStore, rootStore} from "Stores";
-import UrlJoin from "url-join";
 import ImageIcon from "Components/common/ImageIcon";
 import Countdown from "./Countdown";
 import {

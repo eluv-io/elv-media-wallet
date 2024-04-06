@@ -454,6 +454,7 @@ item_details:
   details: Details
   contract: Contract
   contract_address: Contract Address
+  version_hash: Content Hash
   media: Media
   trading: Trading
   purchase_offers: Purchase Offers
@@ -653,6 +654,14 @@ media_properties:
       info: This should take less than a minute...
     failed: Purchase failed
     complete: Purchase Complete!
+  page:
+    actions:
+      item_details: Details
+  item_details:
+    pages:
+      description: Description
+      mint_info: Mint Info
+      contract: Contract & Version
   media:
     live: Live
     upcoming: UPCOMING
