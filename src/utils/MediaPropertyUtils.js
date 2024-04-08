@@ -51,7 +51,7 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
 
       linkPath = UrlJoin(linkPath, "m", mediaId);
 
-      url = mediaItem?.media_type === "HTML" && MediaItemMediaUrl(mediaItem);
+      url = ["Link", "HTML"].includes(mediaItem?.media_type) && MediaItemMediaUrl(mediaItem);
     }
   } else if(sectionItem?.type === "item_purchase") {
     // Preserve params
@@ -101,7 +101,10 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
 };
 
 export const MediaItemMediaUrl = mediaItem => {
-  // TODO: Handle media type link
+  if(mediaItem.media_type === "Link") {
+    return mediaItem.url;
+  }
+
   if(!["Ebook", "HTML"].includes(mediaItem.media_type)) { return;  }
 
   const requiresPermissions = true;

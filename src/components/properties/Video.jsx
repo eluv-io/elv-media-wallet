@@ -14,6 +14,7 @@ const Video = observer(({
   link,
   contentInfo={},
   playerOptions={},
+  playoutParameters={},
   posterImage,
   callback,
   errorCallback,
@@ -59,7 +60,8 @@ const Video = observer(({
             posterImage
           },
           playoutParameters: {
-            versionHash: contentHash
+            ...playoutParameters,
+            versionHash: contentHash,
           },
         },
         playerOptions: {

@@ -70,10 +70,15 @@ const MediaVideo = observer(({mediaItem, display, setControlsVisible}) => {
     );
   }
 
+  console.log(display)
   return (
     <Video
       link={mediaItem.media_link}
       callback={player => player.controls.RegisterSettingsListener(() => setControlsVisible(player.controls.IsVisible()))}
+      playoutParameters={
+        display.live_video || !display.clip ? {} :
+          { clipStart: display.clip_start_time, clipEnd: display.clip_end_time }
+      }
       contentInfo={{
         title: display.title,
         subtitle: display.subtitle,
