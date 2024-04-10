@@ -125,7 +125,7 @@ const SectionContentGrid = observer(({section, sectionContent, navContext}) => {
 });
 
 export const MediaPropertySection = observer(({sectionId, mediaListId, isSectionPage}) => {
-  const navContext = new URLSearchParams(location.search).get("ctx");
+  let navContext = new URLSearchParams(location.search).get("ctx");
   const match = useRouteMatch();
   const section = mediaPropertyStore.MediaPropertySection({
     mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
@@ -140,13 +140,28 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
 
     mediaPropertyStore.MediaPropertySectionContent({
       mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
-      sectionSlugOrId: sectionId || match.params.sectionSlugOrId,
+      pageSlugOrId: match.params.pageSlugOrId,
+      sectionSlugOrId: !mediaListId && sectionId || match.params.sectionSlugOrId || navContext,
       mediaListSlugOrId: mediaListId || match.params.mediaListSlugOrId
     })
       .then(content => setSectionContent(content));
   }, [match.params, sectionId, mediaListId]);
 
   if(!section) {
+    return null;
+  }
+
+  let sectionPermissions = mediaPropertyStore.ResolvePermission({
+    ...match.params,
+    sectionSlugOrId: !mediaListId && sectionId || match.params.sectionSlugOrId || navContext,
+    mediaListSlugOrId: mediaListId || match.params.mediaListSlugOrId
+  });
+
+  if(
+    sectionContent.length === 0 ||
+    sectionPermissions.authorized === false &&
+    sectionPermissions.behavior === mediaPropertyStore.PERMISSION_BEHAVIORS.HIDE
+  ) {
     return null;
   }
 
@@ -175,7 +190,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
     );
   }
 
-  const showAllLink = sectionContent.length > parseInt(section.display.display_limit || 10);
+  const showAllLink = sectionContent.length > parseInt(section.display.display_limit || 5);
 
   return (
     <div
@@ -190,7 +205,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
         setTimeout(() => {
           // Scroll to section
           ScrollTo(-75, element);
-        }, 250);
+        }, 150);
       }}
       className={S("section", `section--${section.display.justification || "left"}`)}
     >
@@ -223,6 +238,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
           </>
       }
       <ContentComponent
+        navContext={sectionId}
         section={section}
         sectionContent={
           section.display.display_limit ?
@@ -238,8 +254,6 @@ const MediaPropertySectionPage = observer(() => {
   const match = useRouteMatch();
 
   const section = mediaPropertyStore.MediaPropertySection(match.params);
-
-  console.log(section);
 
   const navContext = new URLSearchParams(location.search).get("ctx");
   const backPath = MediaPropertyMediaBackPath({match, navContext: (section?.isMediaList && navContext) || section?.sectionId || section?.id});

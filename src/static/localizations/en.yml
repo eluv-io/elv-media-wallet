@@ -672,3 +672,4 @@ media_properties:
       default: This media is not available
       not_started: This live content has not yet started
       ended: This live content has ended
+      unauthorized: You do not have permission to view this content

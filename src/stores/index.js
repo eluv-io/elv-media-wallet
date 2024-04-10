@@ -256,12 +256,16 @@ class RootStore {
 
     SetVH();
 
+    let resizeTimeout;
     window.addEventListener("resize", () => {
-      // Only update VH if height has changed significantly enough (e.g. phone rotated)
-      if(Math.abs(window.innerHeight - this.originalViewportHeight) > 200) {
-        SetVH();
-        this.originalViewportHeight = window.innerHeight;
-      }
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        // Only update VH if height has changed significantly enough (e.g. phone rotated)
+        if(Math.abs(window.innerHeight - this.originalViewportHeight) > 200) {
+          SetVH();
+          this.originalViewportHeight = window.innerHeight;
+        }
+      }, 100);
     });
 
     this.ToggleDarkMode(this.darkMode);

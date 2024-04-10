@@ -176,13 +176,15 @@ export const MediaPropertyMediaBackPath = ({match, navContext}) => {
       // Only go back to section page if we got there from here
       pathComponents = pathComponents.slice(0, -2);
     }
-  } else if(match.params.mediaListSlugOrId || match.params.mediaCollectionSlugOrId || match.params.sectionSlugOrId) {
+  } else if(match.params.mediaListSlugOrId || match.params.mediaCollectionSlugOrId) {
     pathComponents = pathComponents.slice(0, -2);
 
     if(match.params.sectionSlugOrId && currentNavContext !== "s") {
       // Only go back to section page if we got there from here
       pathComponents = pathComponents.slice(0, -2);
     }
+  } else if(match.params.sectionSlugOrId) {
+    pathComponents = pathComponents.slice(0, -2);
   } else {
     pathComponents = pathComponents.slice(0, -1);
   }
@@ -245,7 +247,7 @@ export const MediaItemImageUrl = ({mediaItem, display, aspectRatio, width}) => {
       ["square", "landscape", "portrait"];
 
   const imageAspectRatio =
-    [aspectRatio, ...aspectRatioPreference].find(ratio => display[`thumbnail_image_${ratio}`]);
+    [aspectRatio, ...aspectRatioPreference].find(ratio => display[`thumbnail_image_${ratio}`]) || aspectRatioPreference[0];
 
   let imageUrl = display[`thumbnail_image_${imageAspectRatio}`]?.url;
 

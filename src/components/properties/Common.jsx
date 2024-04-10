@@ -108,14 +108,16 @@ export const RichText = ({richText, ...props}) => {
   );
 };
 
-export const LoaderImage = observer(({src, width, loaderHeight, loaderWidth, loaderAspectRatio, lazy=true, delay=0, ...props}) => {
+export const LoaderImage = observer(({src, width, loaderHeight, loaderWidth, loaderAspectRatio, lazy=true, showWithoutSource=false, delay=0, ...props}) => {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     setLoaded(false);
   }, [src]);
 
-  if(!src) { return null; }
+  if(!src && !showWithoutSource) {
+    return null;
+  }
 
   if(width) {
     src = SetImageUrlDimensions({url: src, width});
@@ -127,14 +129,17 @@ export const LoaderImage = observer(({src, width, loaderHeight, loaderWidth, loa
 
   return (
     <>
-      <img
-        {...props}
-        key={`img-${src}-${props.key || ""}`}
-        className={S("lazy-image__loader-image") + " " + props.className}
-        loading={lazy ? "lazy" : "eager"}
-        src={src}
-        onLoad={() => setTimeout(() => setLoaded(true), delay)}
-      />
+      {
+        !src ? null :
+          <img
+            {...props}
+            key={`img-${src}-${props.key || ""}`}
+            className={S("lazy-image__loader-image") + " " + props.className}
+            loading={lazy ? "lazy" : "eager"}
+            src={src}
+            onLoad={() => setTimeout(() => setLoaded(true), delay)}
+          />
+      }
       <img
         {...props}
         alt="Loading Indicator"

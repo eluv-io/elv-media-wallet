@@ -1,20 +1,27 @@
-import {makeAutoObservable, flow} from "mobx";
+import {makeAutoObservable, flow, runInAction} from "mobx";
 import MiniSearch from "minisearch";
 
 class MediaPropertyStore {
   mediaProperties = {};
   mediaCatalogs = {};
   media = {};
+  permissionItems = {};
   searchIndexes = {};
   tags = [];
+
+  PERMISSION_BEHAVIORS = {
+    HIDE: "hide",
+    DISABLE: "disable",
+    SHOW_PURCHASE: "show_purchase",
+    SHOW_IF_UNAUTHORIZED: "show_if_unauthorized",
+    SHOW_ALTERNATE_PAGE: "show_alternate_page"
+  };
 
   constructor(rootStore) {
     makeAutoObservable(this);
 
     this.rootStore = rootStore;
     this.Log = this.rootStore.Log;
-
-    this.loadedMediaCatalogs = {};
   }
 
   get appId() {
@@ -47,7 +54,6 @@ class MediaPropertyStore {
       .map(({suggestion}) => this.searchIndexes[mediaPropertyId].search(suggestion))
       .flat()
       .filter((value, index, array) => array.findIndex(({id}) => id === value.id) === index);
-
 
     results = results.sort((a, b) => {
       const diff = a.score - b.score;
@@ -149,14 +155,25 @@ class MediaPropertyStore {
     };
   }
 
-  MediaPropertySectionContent = flow(function * ({mediaPropertySlugOrId, sectionSlugOrId, mediaListSlugOrId}) {
+  MediaPropertySectionContent = flow(function * ({mediaPropertySlugOrId, pageSlugOrId, sectionSlugOrId, mediaListSlugOrId}) {
     const section = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId, mediaListSlugOrId});
 
     if(!section) { return []; }
 
-    if(section.type === "manual") {
+    let content = [];
+    if(section.type === "automatic") {
+      // Automatic filter
+      let mediaCatalogIds = section.select.media_catalog ?
+        [section.select.media_catalog] :
+        this.MediaProperty({mediaPropertySlugOrId})?.metadata?.media_catalogs || [];
+
+      content = (
+        yield this.FilteredMedia({sectionId: section.id, mediaCatalogIds, select: section.select})
+      )
+        .sort((a, b) => a.catalog_title < b.catalog_title ? -1 : 1);
+    } else {
       // Manual Section
-      return (
+      content = (
         section.content.map(sectionItem => {
           if(!sectionItem.expand || sectionItem.type !== "media") {
             return this.ResolveSectionItem({sectionId: section.id, sectionItem});
@@ -190,15 +207,19 @@ class MediaPropertyStore {
       );
     }
 
-    // Automatic filter
-    let mediaCatalogIds = section.select.media_catalog ?
-      [ section.select.media_catalog ] :
-      this.MediaProperty({mediaPropertySlugOrId})?.metadata?.media_catalogs || [];
-
-    return (
-      yield this.FilteredMedia({sectionId: section.id, mediaCatalogIds, select: section.select})
-    )
-      .sort((a, b) => a.catalog_title < b.catalog_title ? -1 : 1);
+    return content
+      .map(sectionItem => ({
+        ...sectionItem,
+        permissions: this.ResolvePermission({
+          mediaPropertySlugOrId,
+          pageSlugOrId,
+          sectionSlugOrId,
+          sectionItemId: sectionItem.id,
+          mediaListSlugOrId,
+          mediaItemSlugOrId: sectionItem.mediaItem?.id
+        })
+      }))
+      .filter(sectionItem => sectionItem.permissions.authorized || !sectionItem.permissions.hide);
   });
 
   FilteredMedia = flow(function * ({sectionId, mediaCatalogIds=[], select}) {
@@ -304,9 +325,96 @@ class MediaPropertyStore {
       .sort((a, b) => a.display.catalog_title > b.display.catalog_title ? -1 : 1);
   });
 
+  ResolvePermission({
+    mediaPropertySlugOrId,
+    pageSlugOrId,
+    sectionSlugOrId,
+    sectionItemId,
+    mediaCollectionSlugOrId,
+    mediaListSlugOrId,
+    mediaItemSlugOrId
+  }) {
+    // Resolve permissions from top down
+    let authorized = true;
+    let behavior = this.PERMISSION_BEHAVIORS.HIDE;
+    let cause;
+
+    const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
+    behavior = mediaProperty?.permissions?.behavior || behavior;
+
+    const page = this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId: pageSlugOrId || "main"});
+
+    if(behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE && page.id !== mediaProperty.permissions.alternate_page_id) {
+      authorized = !!mediaProperty.permissions?.permission_item_ids?.find(permissionItemId => this.permissionItems[permissionItemId]?.authorized);
+
+      // Alternate page redirect
+      if(!authorized) {
+        return {
+          authorized: false,
+          behavior: this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE,
+          cause: "Property alternate page redirect",
+          alternatePageId: mediaProperty.permissions.alternate_page_id
+        };
+      }
+    }
+
+    behavior = page.permissions?.behavior || behavior;
+
+    if(sectionSlugOrId) {
+      const section = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId});
+
+      if(section) {
+        behavior = section.permissions?.behavior || behavior;
+        authorized = section.authorized;
+        cause = !authorized && "Section permissions";
+
+        if(authorized && sectionItemId) {
+          const sectionItem = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId})?.content
+            ?.find(sectionItem => sectionItem.id === sectionItemId);
+
+          if(sectionItem) {
+            behavior = sectionItem?.permissions?.behavior || behavior;
+            authorized = sectionItem.authorized;
+
+            cause = cause || !authorized && "Section item permissions";
+          }
+        }
+      }
+    }
+
+    if(authorized && mediaCollectionSlugOrId) {
+      authorized = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId: mediaCollectionSlugOrId})?.authorized || false;
+      cause = !authorized && "Media collection permissions";
+    }
+
+    if(authorized && mediaListSlugOrId) {
+      authorized = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId: mediaListSlugOrId})?.authorized || false;
+      cause = !authorized && "Media list permissions";
+    }
+
+    if(authorized && mediaItemSlugOrId) {
+      authorized = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId})?.authorized || false;
+      cause = !authorized && "Media permissions";
+    }
+
+    if(behavior === this.PERMISSION_BEHAVIORS.SHOW_IF_UNAUTHORIZED) {
+      authorized = !authorized;
+      behavior = this.PERMISSION_BEHAVIORS.HIDE;
+    }
+
+    return {
+      authorized,
+      behavior,
+      hide: !authorized && (!behavior || behavior === this.PERMISSION_BEHAVIORS.HIDE),
+      disable: !authorized && behavior === this.PERMISSION_BEHAVIORS.DISABLE,
+      cause: cause || ""
+    };
+  }
+
   LoadMediaProperty = flow(function * ({mediaPropertySlugOrId, force=false}) {
     const mediaPropertyId = this.MediaProperty({mediaPropertySlugOrId})?.mediaPropertyId || mediaPropertySlugOrId;
     if(!this.mediaProperties[mediaPropertyId] || force) {
+
       const versionHash = yield this.client.LatestVersionHash({objectId: mediaPropertyId});
       const metadata = yield this.client.ContentObjectMetadata({
         versionHash,
@@ -316,7 +424,13 @@ class MediaPropertyStore {
 
       yield Promise.all(
         (metadata.media_catalogs || []).map(async mediaCatalogId =>
-          await this.LoadMediaCatalog({mediaCatalogId})
+          await this.LoadMediaCatalog({mediaCatalogId, force})
+        )
+      );
+
+      yield Promise.all(
+        (metadata.permission_sets || []).map(async permissionSetId =>
+          await this.LoadPermissionSet({permissionSetId, force})
         )
       );
 
@@ -337,10 +451,40 @@ class MediaPropertyStore {
 
       this.searchIndexes[mediaPropertyId] = searchIndex;
 
+      // Resolve authorized state of sections and section items
+
+      const ResolveSectionPermission = (sectionItem) => {
+        let sectionAuthorized = true;
+        if(sectionItem.permissions?.permission_item_ids?.length > 0) {
+          sectionAuthorized = !!sectionItem.permissions.permission_item_ids.find(permissionItemId =>
+            this.permissionItems[permissionItemId].authorized
+          );
+        }
+
+        return sectionAuthorized;
+      };
+
+      const sections = metadata.sections || {};
+      Object.keys(sections).forEach(sectionId => {
+        const section = metadata.sections[sectionId];
+        metadata.sections[sectionId].authorized = ResolveSectionPermission(section);
+
+        if(metadata.sections[sectionId].type === "manual") {
+          section.content?.forEach((sectionItem, index) => {
+            let authorized = ResolveSectionPermission(sectionItem);
+
+            if(authorized && sectionItem.type === "media") {
+              authorized = this.media[sectionItem.media_id]?.authorized || false;
+            }
+
+            metadata.sections[sectionId].content[index].authorized = authorized;
+          });
+        }
+      });
 
       // Start loading associated marketplaces but don't block on it
       (metadata.associated_marketplaces || []).map(({marketplace_id}) =>
-        this.rootStore.LoadMarketplace(marketplace_id)
+        this.LoadMarketplace({marketplaceId: marketplace_id, force})
       );
 
       this.mediaProperties[mediaPropertyId] = {
@@ -354,41 +498,142 @@ class MediaPropertyStore {
     return this.mediaProperties[mediaPropertyId];
   });
 
-  LoadMediaCatalog = flow(function * ({mediaCatalogId, force}) {
-    if(this.loadedMediaCatalogs[mediaCatalogId] && !force) {
-      return;
+  // Ensure the specified load method is called only once unless forced
+  LoadResource({key, id, force, Load}) {
+    key = `load${key}`;
+
+    this[key] = this[key] || {};
+
+    if(force || !this[key][id]) {
+      this[key][id] = Load();
     }
 
-    const versionHash = yield this.client.LatestVersionHash({objectId: mediaCatalogId});
-    const metadata = yield this.client.ContentObjectMetadata({
-      versionHash,
-      metadataSubtree: "/public/asset_metadata/info",
-      select: [
-        "media",
-        "media_collections",
-        "media_lists",
-        "tags"
-      ],
-      produceLinkUrls: true
+    return this[key][id];
+  }
+
+  LoadMediaCatalog = flow(function * ({mediaCatalogId, force}) {
+    yield this.LoadResource({
+      key: "MediaCatalog",
+      id: mediaCatalogId,
+      force,
+      Load: async () => {
+        const versionHash = await this.client.LatestVersionHash({objectId: mediaCatalogId});
+        const metadata = await this.client.ContentObjectMetadata({
+          versionHash,
+          metadataSubtree: "/public/asset_metadata/info",
+          select: [
+            "permission_sets",
+            "media",
+            "media_collections",
+            "media_lists",
+            "tags"
+          ],
+          produceLinkUrls: true
+        });
+
+        await Promise.all(
+          (metadata.permission_sets || []).map(async permissionSetId =>
+            await this.LoadPermissionSet({permissionSetId})
+          )
+        );
+
+        const IsAuthorized = mediaItem =>
+          mediaItem.public ||
+          !!mediaItem.permissions?.find(({permission_item_id}) => this.permissionItems[permission_item_id]?.authorized);
+
+        runInAction(() => {
+          this.mediaCatalogs[mediaCatalogId] = {
+            versionHash
+          };
+
+          const media = {
+            ...(metadata.media || {}),
+            ...(metadata.media_lists || {}),
+            ...(metadata.media_collections || {}),
+          };
+
+          Object.keys(media).forEach(mediaId =>
+            media[mediaId].authorized = IsAuthorized(media[mediaId])
+          );
+
+          this.media = {
+            ...this.media,
+            ...media
+          };
+
+          this.tags = [
+            ...this.tags,
+            ...(metadata.tags || [])
+          ].sort();
+        });
+      }
     });
+  });
 
-    this.mediaCatalogs[mediaCatalogId] = {
-      versionHash
-    };
+  LoadPermissionSet = flow(function * ({permissionSetId, force}) {
+    yield this.LoadResource({
+      key: "PermissionSet",
+      force,
+      id: permissionSetId,
+      Load: async () => {
+        const versionHash = await this.client.LatestVersionHash({objectId: permissionSetId});
+        const permissionItems = (await this.client.ContentObjectMetadata({
+          versionHash,
+          metadataSubtree: "/public/asset_metadata/info/permission_items",
+          produceLinkUrls: true
+        })) || {};
 
-    this.media = {
-      ...this.media,
-      ...(metadata.media || {}),
-      ...(metadata.media_lists || {}),
-      ...(metadata.media_collections || {}),
-    };
+        if(this.rootStore.loggedIn) {
+          await Promise.all(
+            Object.keys(permissionItems).map(async permissionItemId => {
+              const permissionItem = permissionItems[permissionItemId];
+              if(!permissionItem?.marketplace?.marketplace_id) {
+                return;
+              }
 
-    this.tags = [
-      ...this.tags,
-      ...(metadata.tags || [])
-    ].sort();
+              await this.LoadMarketplace({marketplaceId: permissionItem.marketplace.marketplace_id});
 
-    this.loadedMediaCatalogs[mediaCatalogId] = true;
+              const marketplaceItem = this.rootStore.marketplaces[permissionItem.marketplace.marketplace_id]?.items
+                ?.find(item => item.sku === permissionItem.marketplace_sku);
+
+              const contractAddress = marketplaceItem?.nftTemplateMetadata?.address;
+
+
+              if(!contractAddress) {
+                return;
+              }
+
+              const ownedItem = (await rootStore.walletClient.UserItems({
+                userAddress: this.rootStore.CurrentAddress(),
+                contractAddress,
+                limit: 1
+              })).results?.[0];
+
+              if(ownedItem) {
+                permissionItems[permissionItemId].authorized = true;
+                permissionItems[permissionItemId].ownedItem = ownedItem;
+              }
+            })
+          );
+        }
+
+        runInAction(() => {
+          this.permissionItems = {
+            ...this.permissionItems,
+            ...permissionItems
+          };
+        });
+      }
+    });
+  });
+
+  LoadMarketplace = flow(function * ({marketplaceId, force}) {
+    yield this.LoadResource({
+      key: "Marketplace",
+      id: marketplaceId,
+      force,
+      Load: async () => this.rootStore.LoadMarketplace(marketplaceId)
+    });
   });
 }
 

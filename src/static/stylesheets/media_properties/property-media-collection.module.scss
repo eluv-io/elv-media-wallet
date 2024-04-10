@@ -29,6 +29,7 @@
     --color-input-highlight-bg: var(--property-card-background-solid);
     --color-input-bg-solid: var(--property-card-background-solid);
     --color-input-highlight-text: red;
+    max-width: 800px;
 
     * {
       transition: background-color 0.25s ease;
@@ -64,6 +65,11 @@
     &--active {
       opacity: 1;
     }
+
+    &--disabled {
+      opacity: 0.5!important;
+      pointer-events: none;
+    }
   }
 
   &__list-select-title,
@@ -84,6 +90,12 @@
 
     &--active {
       background: var(--property-card-background-active);
+    }
+
+    &--disabled {
+      opacity: 0.5;
+      pointer-events: none;
+      user-select: none;
     }
   }
 

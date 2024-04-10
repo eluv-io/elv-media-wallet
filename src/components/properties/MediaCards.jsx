@@ -36,6 +36,7 @@ const MediaCardBanner = observer(({
       <div ref={imageContainerRef} className={S("media-card-banner__image-container")}>
         { !imageUrl ? null :
           <LoaderImage
+            showWithoutSource
             src={imageUrl}
             alt={display.title}
             loaderAspectRatio={10}
@@ -128,15 +129,14 @@ const MediaCardVertical = observer(({
       ].join(" ")}
     >
       <div ref={imageContainerRef} className={S("media-card-vertical__image-container")}>
-        { !imageUrl ? null :
-          <LoaderImage
-            src={imageUrl}
-            alt={display.title}
-            loaderWidth={size ? undefined : `var(--max-card-width-${aspectRatio?.toLowerCase()})`}
-            width={600}
-            className={S("media-card-vertical__image")}
-          />
-        }
+        <LoaderImage
+          src={imageUrl}
+          alt={display.title}
+          loaderWidth={size ? undefined : `var(--max-card-width-${aspectRatio?.toLowerCase()})`}
+          width={600}
+          showWithoutSource
+          className={S("media-card-vertical__image")}
+        />
         {
           // Schedule indicator
           !scheduleInfo.isLiveContent || scheduleInfo.ended ? null :
@@ -265,6 +265,7 @@ const MediaCardHorizontal = observer(({
 
 
 const MediaCard = observer(({
+  disabled,
   format="vertical",
   sectionItem,
   mediaItem,
@@ -308,7 +309,14 @@ const MediaCard = observer(({
 
   const scheduleInfo = MediaItemScheduleInfo(mediaItem || sectionItem.mediaItem);
 
-  let {linkPath, url} = MediaPropertyLink({match, sectionItem, mediaItem, navContext}) || "";
+  disabled = disabled || sectionItem?.permissions?.disable;
+
+  let linkPath, url;
+  if(!disabled) {
+    const linkInfo = MediaPropertyLink({match, sectionItem, mediaItem, navContext}) || "";
+    linkPath = linkInfo.linkPath;
+    url = linkInfo.url;
+  }
 
   let args = {
     display,
@@ -320,8 +328,9 @@ const MediaCard = observer(({
     scheduleInfo,
     imageContainerRef,
     size,
+    disabled,
     aspectRatio: aspectRatio || imageAspectRatio,
-    className
+    className: [disabled ? S("media-card--disabled") : "", className].join(" ")
   };
 
   let card;

@@ -26,6 +26,15 @@ const MediaCollectionLists = observer(({mediaCollection, activeListId, setActive
           })
         )
         .filter(list => list)
+        .map(mediaList => ({
+          ...mediaList,
+          permissions: mediaPropertyStore.ResolvePermission({
+            ...match.params,
+            mediaListSlugOrId: mediaList.id,
+            sectionSlugOrId: match.params.sectionSlugOrId || navContext
+          })
+        }))
+        .filter(mediaItem => !mediaItem.permissions?.hide)
     );
   }, [match.params.mediaCollectionSlugOrId]);
 
@@ -37,7 +46,13 @@ const MediaCollectionLists = observer(({mediaCollection, activeListId, setActive
           options={(mediaLists || []).map(mediaList =>
             [
               mediaList.id,
-              <div className={S("media-collection__list-select-option", mediaList.id === activeListId ? "media-collection__list-select-option--active" : "")}>
+              <div
+                className={S(
+                  "media-collection__list-select-option",
+                  mediaList.id === activeListId ? "media-collection__list-select-option--active" : "",
+                  mediaList.permissions?.disable ? "media-collection__list-select-option--disabled" : ""
+                )}
+              >
                 <ScaledText maxPx={16} minPx={12} className={S("media-collection__list-select-title")}>
                   { mediaList.title }
                 </ScaledText>
@@ -63,7 +78,7 @@ const MediaCollectionLists = observer(({mediaCollection, activeListId, setActive
             to={match.url + `?l=${mediaList.id}${navContext ? `&ctx=${navContext}` : ""}`}
             onClick={() => setActiveListId(mediaList.id)}
             key={`media-list-${mediaList.id}`}
-            className={S("media-collection__list", mediaList.id === activeListId ? "media-collection__list--active" : "")}
+            className={S("media-collection__list", mediaList.id === activeListId ? "media-collection__list--active" : "", mediaList.permissions?.disable ? "media-collection__list--disabled" : "")}
           >
             <ScaledText maxPx={18} minPx={12} className={S("media-collection__list-title")}>
               { mediaList.title }
@@ -97,6 +112,15 @@ const MediaCollectionMedia = observer(({mediaListId, navContext}) => {
           })
         )
         .filter(mediaItem => mediaItem)
+        .map(mediaItem => ({
+          ...mediaItem,
+          permissions: mediaPropertyStore.ResolvePermission({
+            ...match.params,
+            mediaItemSlugOrId: mediaItem.id,
+            sectionSlugOrId: match.params.sectionSlugOrId || navContext
+          })
+        }))
+        .filter(mediaItem => !mediaItem.permissions?.hide)
     );
   }, [match.params.mediaCollectionSlugOrId]);
 
@@ -105,6 +129,7 @@ const MediaCollectionMedia = observer(({mediaListId, navContext}) => {
       {
         (media || []).map(mediaItem =>
           <MediaCard
+            disabled={mediaItem.permissions?.disable}
             format="horizontal"
             key={`media-item-${mediaItem.id}`}
             mediaItem={mediaItem}

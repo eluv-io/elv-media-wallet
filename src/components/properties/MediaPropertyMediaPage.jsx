@@ -70,7 +70,6 @@ const MediaVideo = observer(({mediaItem, display, setControlsVisible}) => {
     );
   }
 
-  console.log(display)
   return (
     <Video
       link={mediaItem.media_link}
@@ -80,9 +79,7 @@ const MediaVideo = observer(({mediaItem, display, setControlsVisible}) => {
           { clipStart: display.clip_start_time, clipEnd: display.clip_end_time }
       }
       contentInfo={{
-        title: display.title,
-        subtitle: display.subtitle,
-        headers: display.headers
+        title: display.title
       }}
       playerOptions={{
         title: EluvioPlayerParameters.title.FULLSCREEN_ONLY,
@@ -272,7 +269,7 @@ const MediaDescription = observer(({display}) => {
         expanded ||
         (descriptionRef &&
           descriptionRef.current &&
-          descriptionRef.current.getBoundingClientRect().height < descriptionRef.current?.firstChild?.getBoundingClientRect()?.height)
+          descriptionRef.current.getBoundingClientRect().height - 20 < descriptionRef.current?.firstChild?.getBoundingClientRect()?.height)
       ), 100);
 
   }, [descriptionRef, expanded]);
@@ -319,13 +316,37 @@ const MediaPropertyMediaPage = observer(() => {
 
   const display = mediaItem.override_settings_when_viewed ? mediaItem.viewed_settings : mediaItem;
 
+  const permissions = mediaPropertyStore.ResolvePermission({
+    ...match.params,
+    sectionSlugOrId: match.params.sectionSlugOrId || context
+  });
+
+  if(!permissions.authorized) {
+    const {imageUrl} = MediaItemImageUrl({mediaItem, display: mediaItem, aspectRatio: "landscape", width: mediaPropertyStore.rootStore.fullScreenImageWidth});
+    return (
+      <div className={S("media-page")}>
+        <Link to={backPath} className={S("media-page__back-link", controlsVisible ? "media-page__back-link--visible" : "")}>
+          <ImageIcon icon={ArrowLeft} />
+          <div>Back</div>
+        </Link>
+        <div className={S("media__error")}>
+          <ImageIcon icon={imageUrl} className={S("media__error-image")} />
+          <div className={S("media__error-cover")} />
+          <div className={S("media__error-message")}>
+            { rootStore.l10n.media_properties.media.errors.unauthorized }
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={S("media-page")}>
-      <Link to={backPath} className={S("media-page__back-link", controlsVisible ? "media-page__back-link--visible" : "")}>
-        <ImageIcon icon={ArrowLeft} />
-        <div>Back</div>
-      </Link>
       <div className={S("media-container")}>
+        <Link to={backPath} className={S("media-page__back-link", controlsVisible ? "media-page__back-link--visible" : "")}>
+          <ImageIcon icon={ArrowLeft} />
+          <div>Back</div>
+        </Link>
         <Media mediaItem={mediaItem} display={display} setControlsVisible={setControlsVisible} />
       </div>
       <div className={S("media-info")}>

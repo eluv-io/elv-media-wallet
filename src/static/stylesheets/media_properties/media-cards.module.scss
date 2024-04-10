@@ -1,3 +1,10 @@
+.media-card {
+  &--disabled {
+    opacity: 0.5!important;
+    user-select: none;
+  }
+}
+
 .media-card-banner {
   display: block;
   flex: 1 0 100%;
