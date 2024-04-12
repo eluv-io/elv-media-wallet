@@ -88,6 +88,13 @@ class MediaPropertyStore {
   MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId="main"}) {
     const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
 
+    if(!mediaProperty) { return; }
+
+    // Show alternate page if not authorized option
+    if(mediaProperty.permissions?.showAlternatePage) {
+      pageSlugOrId = mediaProperty.permissions.alternatePageId || pageSlugOrId;
+    }
+
     const pageId = mediaProperty.metadata.slug_map.pages[pageSlugOrId]?.page_id || pageSlugOrId;
 
     return mediaProperty.metadata.pages[pageId];
@@ -349,9 +356,6 @@ class MediaPropertyStore {
 
     const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
     behavior = mediaProperty?.metadata?.permissions?.behavior || behavior;
-    // propertyAuthorized = !!mediaProperty?.metadata?.permissions?.permission_item_ids?.find(permissionItemId => this.permissionItems[permissionItemId]?.authorized);
-
-    // TODO: Alternate page / purchase gate property
 
     const page = this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId: pageSlugOrId || "main"});
     behavior = page.permissions?.behavior || behavior;
@@ -424,83 +428,113 @@ class MediaPropertyStore {
 
   LoadMediaProperty = flow(function * ({mediaPropertySlugOrId, force=false}) {
     const mediaPropertyId = this.MediaProperty({mediaPropertySlugOrId})?.mediaPropertyId || mediaPropertySlugOrId;
-    if(!this.mediaProperties[mediaPropertyId] || force) {
-      const versionHash = yield this.client.LatestVersionHash({objectId: mediaPropertyId});
-      const metadata = yield this.client.ContentObjectMetadata({
-        versionHash,
-        metadataSubtree: "/public/asset_metadata/info",
-        produceLinkUrls: true
-      });
 
-      yield Promise.all(
-        (metadata.permission_sets || []).map(async permissionSetId =>
-          await this.LoadPermissionSet({permissionSetId, force})
-        )
-      );
-
-      yield Promise.all(
-        (metadata.media_catalogs || []).map(async mediaCatalogId =>
-          await this.LoadMediaCatalog({mediaCatalogId, force})
-        )
-      );
-
-      const indexableMedia = Object.values(this.media)
-        .filter(mediaItem => mediaItem.authorized || mediaItem.permissions?.length > 0)
-        .filter(mediaItem => metadata.media_catalogs.includes(mediaItem.media_catalog_id))
-        .map(mediaItem => ({
-          id: mediaItem.id,
-          title: mediaItem.title || "",
-          catalog_title: mediaItem.catalog_title || "",
-          category: mediaItem.type
-        }));
-
-      const searchIndex = new MiniSearch({
-        fields: ["title", "catalog_title"],
-        storeFields: ["id", "title", "catalog_title", "category"]
-      });
-      searchIndex.addAll(indexableMedia);
-
-      this.searchIndexes[mediaPropertyId] = searchIndex;
-
-      // Resolve authorized state of sections and section items
-
-      const ResolveSectionPermission = (sectionItem) => {
-        let sectionAuthorized = true;
-        if(sectionItem.permissions?.permission_item_ids?.length > 0) {
-          sectionAuthorized = !!sectionItem.permissions.permission_item_ids.find(permissionItemId =>
-            this.permissionItems[permissionItemId].authorized
-          );
-        }
-
-        return sectionAuthorized;
-      };
-
-      const sections = metadata.sections || {};
-      Object.keys(sections).forEach(sectionId => {
-        const section = metadata.sections[sectionId];
-        metadata.sections[sectionId].authorized = ResolveSectionPermission(section);
-
-        if(metadata.sections[sectionId].type === "manual") {
-          section.content?.forEach((sectionItem, index) => {
-            metadata.sections[sectionId].content[index].authorized = ResolveSectionPermission(sectionItem);
-          });
-        }
-      });
-
-      // Start loading associated marketplaces but don't block on it
-      (metadata.associated_marketplaces || []).map(({marketplace_id}) =>
-        this.LoadMarketplace({marketplaceId: marketplace_id, force})
-      );
-
-      this.mediaProperties[mediaPropertyId] = {
-        mediaPropertyHash: versionHash,
-        mediaPropertyId: mediaPropertyId,
-        mediaPropertySlug: metadata.slug,
-        metadata
-      };
+    const mediaProperty = this.mediaProperties[mediaPropertyId];
+    if(mediaProperty && !this.client.utils.EqualAddress(mediaProperty.accountAddress, this.rootStore.CurrentAddress())) {
+      force = true;
     }
 
-    return this.mediaProperties[mediaPropertyId];
+    yield this.LoadResource({
+      key: "MediaProperty",
+      id: mediaPropertyId,
+      force,
+      Load: async () => {
+        const versionHash = await this.client.LatestVersionHash({objectId: mediaPropertyId});
+        const metadata = await this.client.ContentObjectMetadata({
+          versionHash,
+          metadataSubtree: "/public/asset_metadata/info",
+          produceLinkUrls: true
+        });
+
+        await Promise.all(
+          (metadata.permission_sets || []).map(async permissionSetId =>
+            await this.LoadPermissionSet({permissionSetId, force})
+          )
+        );
+
+        await Promise.all(
+          (metadata.media_catalogs || []).map(async mediaCatalogId =>
+            await this.LoadMediaCatalog({mediaCatalogId, force})
+          )
+        );
+
+        const indexableMedia = Object.values(this.media)
+          .filter(mediaItem => mediaItem.authorized || mediaItem.permissions?.length > 0)
+          .filter(mediaItem => metadata.media_catalogs.includes(mediaItem.media_catalog_id))
+          .map(mediaItem => ({
+            id: mediaItem.id,
+            title: mediaItem.title || "",
+            catalog_title: mediaItem.catalog_title || "",
+            category: mediaItem.type
+          }));
+
+        const searchIndex = new MiniSearch({
+          fields: ["title", "catalog_title"],
+          storeFields: ["id", "title", "catalog_title", "category"]
+        });
+        searchIndex.addAll(indexableMedia);
+
+        this.searchIndexes[mediaPropertyId] = searchIndex;
+
+        // Resolve authorized state of sections and section items
+
+        const ResolveSectionPermission = (sectionItem) => {
+          let sectionAuthorized = true;
+          if(sectionItem.permissions?.permission_item_ids?.length > 0) {
+            sectionAuthorized = !!sectionItem.permissions.permission_item_ids.find(permissionItemId =>
+              this.permissionItems[permissionItemId].authorized
+            );
+          }
+
+          return sectionAuthorized;
+        };
+
+        const sections = metadata.sections || {};
+        Object.keys(sections).forEach(sectionId => {
+          const section = metadata.sections[sectionId];
+          metadata.sections[sectionId].authorized = ResolveSectionPermission(section);
+
+          if(metadata.sections[sectionId].type === "manual") {
+            section.content?.forEach((sectionItem, index) => {
+              metadata.sections[sectionId].content[index].authorized = ResolveSectionPermission(sectionItem);
+            });
+          }
+        });
+
+        // Start loading associated marketplaces but don't block on it
+        (metadata.associated_marketplaces || []).map(({marketplace_id}) =>
+          this.LoadMarketplace({marketplaceId: marketplace_id, force})
+        );
+
+        let permissions = {authorized: true};
+        if(metadata.permissions?.property_permissions?.length > 0) {
+          const authorized = metadata.permissions.property_permissions.find(permissionItemId =>
+            this.permissionItems[permissionItemId].authorized
+          );
+
+          if(!authorized) {
+            permissions = {
+              authorized: false,
+              behavior: metadata.permissions.property_permissions_behavior,
+              showAlternatePage: metadata.permissions.property_permissions_behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE,
+              alternatePageId: metadata.permissions.alternate_page_id,
+              purchaseGate: metadata.permissions.property_permissions_behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE,
+              permissionItemIds: metadata.permissions.property_permissions,
+              cause: "Property permissions"
+            };
+          }
+        }
+
+        this.mediaProperties[mediaPropertyId] = {
+          accountAddress: this.rootStore.CurrentAddress(),
+          mediaPropertyHash: versionHash,
+          mediaPropertyId: mediaPropertyId,
+          mediaPropertySlug: metadata.slug,
+          permissions,
+          metadata
+        };
+      }
+    });
   });
 
   // Ensure the specified load method is called only once unless forced

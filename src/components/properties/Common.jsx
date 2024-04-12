@@ -407,6 +407,8 @@ export const PurchaseGate = ({permissions, backPath, children}) => {
   const url = new URL(location.href);
 
   useEffect(() => {
+    if(!permissions) { return; }
+
     if(!permissions.authorized && permissions.purchaseGate && !url.searchParams.get("p")) {
       // Not authorized and purchase gated - set purchase modal parameters
       url.searchParams.set("p", MediaPropertyPurchaseParams({

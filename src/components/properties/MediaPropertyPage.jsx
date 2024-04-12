@@ -57,9 +57,7 @@ const Actions = observer(() => {
 
 const MediaPropertyPage = observer(() => {
   const match = useRouteMatch();
-  const mediaProperty = mediaPropertyStore.MediaProperty(match.params);
-  const pageId = mediaProperty.metadata.slug_map.pages[(match.params.pageSlugOrId || "main")]?.page_id || match.params.pageSlugOrId;
-  const page = mediaProperty.metadata.pages[pageId];
+  const page = mediaPropertyStore.MediaPropertyPage(match.params);
 
   if(!page) {
     return <Redirect to="/" />;

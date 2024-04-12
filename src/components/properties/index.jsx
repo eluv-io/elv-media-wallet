@@ -1,16 +1,19 @@
 import React, {useEffect, useState} from "react";
 import {mediaPropertyStore, rootStore} from "Stores/index";
-import {Switch, useRouteMatch} from "react-router-dom";
+import {Redirect, Switch, useRouteMatch} from "react-router-dom";
 import {observer} from "mobx-react";
 import AsyncComponent from "Components/common/AsyncComponent";
 import {PageLoader} from "Components/common/Loaders";
 import RenderRoutes from "Routes";
 import MediaPropertyHeader from "Components/properties/MediaPropertyHeader";
 import MediaPropertyPurchaseModal from "Components/properties/MediaPropertyPurchaseModal";
+import {LoginGate} from "Components/common/LoginGate";
+import {PurchaseGate} from "Components/properties/Common";
 
 const PropertyWrapper = observer(({children}) => {
   const match = useRouteMatch();
   const [itemLoaded, setItemLoaded] = useState(!match.params.contractId);
+  const [redirect, setRedirect] = useState(false);
 
   const mediaPropertySlugOrId = match.params.mediaPropertySlugOrId;
 
@@ -22,7 +25,14 @@ const PropertyWrapper = observer(({children}) => {
         contractId: match.params.contractId,
         tokenId: match.params.tokenId
       })
-        .then(() => setItemLoaded(true));
+        .then(data => {
+          // Redirect if trying to view a bundle you don't own
+          setRedirect(
+            !data ||
+            !rootStore.client.utils.EqualAddress(data?.details?.TokenOwner, rootStore.CurrentAddress())
+          );
+          setItemLoaded(true);
+        });
     }
   }, []);
 
@@ -30,7 +40,13 @@ const PropertyWrapper = observer(({children}) => {
     return <PageLoader />;
   }
 
+  if(redirect) {
+    return <Redirect to="/wallet/users/me/items" />;
+  }
+
   if(mediaPropertySlugOrId) {
+    const mediaProperty = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId});
+
     return (
       <AsyncComponent
         // Store info is cleared when logged in
@@ -40,7 +56,9 @@ const PropertyWrapper = observer(({children}) => {
         Load={async () => await mediaPropertyStore.LoadMediaProperty({mediaPropertySlugOrId})}
         loadingClassName="page-loader content"
       >
-        { children }
+        <PurchaseGate permissions={mediaProperty?.permissions} backPath="/">
+          { children }
+        </PurchaseGate>
         <MediaPropertyPurchaseModal />
       </AsyncComponent>
     );
@@ -66,15 +84,17 @@ export const PropertyRoutes = observer(() => {
 
 export const BundledPropertyRoutes = observer(() => {
   return (
-    <div className="page-container property-page">
-      <MediaPropertyHeader />
-      <Switch>
-        <RenderRoutes
-          basePath="/m"
-          routeList="bundledProperty"
-          Wrapper={PropertyWrapper}
-        />
-      </Switch>
-    </div>
+    <LoginGate backPath="/">
+      <div className="page-container property-page">
+        <MediaPropertyHeader />
+        <Switch>
+          <RenderRoutes
+            basePath="/m"
+            routeList="bundledProperty"
+            Wrapper={PropertyWrapper}
+          />
+        </Switch>
+      </div>
+    </LoginGate>
   );
 });

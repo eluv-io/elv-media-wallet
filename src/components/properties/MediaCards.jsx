@@ -297,7 +297,8 @@ const MediaCard = observer(({
   let {imageUrl, imageAspectRatio} = MediaItemImageUrl({
     mediaItem: mediaItem || sectionItem?.mediaItem || sectionItem,
     display,
-    aspectRatio
+    aspectRatio,
+    width: 600
   });
 
   if(format === "banner") {

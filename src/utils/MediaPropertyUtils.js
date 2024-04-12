@@ -111,7 +111,8 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
       successPath: linkPath
     }));
 
-    linkPath = MediaPropertyBasePath(match.params) + `?${params.toString()}`;
+    linkPath = match.url + `?${params.toString()}`;
+    url = undefined;
   }
 
   return {
