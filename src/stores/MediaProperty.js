@@ -339,6 +339,16 @@ class MediaPropertyStore {
       .sort((a, b) => a.display.catalog_title > b.display.catalog_title ? -1 : 1);
   });
 
+  PermissionItem({permissionItemId}) {
+    const permissionItem = this.permissionItems[permissionItemId];
+
+    if(!permissionItem) {
+      this.Log(`Unable to find permission item ${permissionItemId}`, true);
+    }
+
+    return permissionItem;
+  }
+
   ResolvePermission({
     mediaPropertySlugOrId,
     pageSlugOrId,
@@ -482,7 +492,7 @@ class MediaPropertyStore {
           let sectionAuthorized = true;
           if(sectionItem.permissions?.permission_item_ids?.length > 0) {
             sectionAuthorized = !!sectionItem.permissions.permission_item_ids.find(permissionItemId =>
-              this.permissionItems[permissionItemId].authorized
+              this.PermissionItem({permissionItemId})?.authorized
             );
           }
 
@@ -509,7 +519,7 @@ class MediaPropertyStore {
         let permissions = {authorized: true};
         if(metadata.permissions?.property_permissions?.length > 0) {
           const authorized = metadata.permissions.property_permissions.find(permissionItemId =>
-            this.permissionItems[permissionItemId].authorized
+            this.PermissionItem({permissionItemId}).authorized
           );
 
           if(!authorized) {
@@ -583,7 +593,7 @@ class MediaPropertyStore {
 
         const IsAuthorized = mediaItem =>
           mediaItem.public ||
-          !!mediaItem.permissions?.find(({permission_item_id}) => this.permissionItems[permission_item_id]?.authorized);
+          !!mediaItem.permissions?.find(({permission_item_id}) => this.PermissionItem({permissionItemId: permission_item_id})?.authorized);
 
         runInAction(() => {
           this.mediaCatalogs[mediaCatalogId] = {

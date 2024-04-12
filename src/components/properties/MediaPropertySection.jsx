@@ -177,7 +177,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
           <ContentComponent
             section={section}
             sectionContent={sectionContent}
-            navContext="s"
+            navContext={!mediaListId ? "s" : navContext}
           />
         </div>
       </LoginGate>

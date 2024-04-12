@@ -37,6 +37,18 @@
       height: 13px;
     }
   }
+
+  &--full {
+    .media {
+      max-height: var(--property-full-content-height);
+    }
+  }
+
+  &--extended {
+    .media {
+      max-height: calc(var(--property-full-content-height) - 125px);
+    }
+  }
 }
 
 .media-container,
@@ -126,7 +138,7 @@
 
 .media-info {
   position: relative;
-  padding: 30px 75px 200px 30px;
+  padding: 25px 75px 200px 30px;
 
   @media screen and (max-width: 800px) {
     padding: 20px 15px 200px;

@@ -343,8 +343,11 @@ const MediaPropertyMediaPage = observer(() => {
       </div>
     );
   } else {
+    const hasText = !!(display.title || display.subtitle || display.headers.length > 0);
+    const hasDescription = !!(display.description_rich_text || display.description);
+
     content = (
-      <div className={S("media-page")}>
+      <div className={S("media-page", !hasText && !hasDescription ? "media-page--full" : !hasDescription ? "media-page--extended" : "")}>
         <div className={S("media-container")}>
           <Link to={backPath} className={S("media-page__back-link", controlsVisible ? "media-page__back-link--visible" : "")}>
             <ImageIcon icon={ArrowLeft} />
@@ -352,25 +355,30 @@ const MediaPropertyMediaPage = observer(() => {
           </Link>
           <Media mediaItem={mediaItem} display={display} setControlsVisible={setControlsVisible} />
         </div>
-        <div className={S("media-info")}>
-          <div className={S("media-text")}>
-            {
-              (display.headers || []).length === 0 ? null :
-                <div className={S("media-text__headers")}>
-                  { display.headers.map((header, index) => <div key={`header-${index}`} className={S("media-text__header")}>{ header }</div>) }
-                </div>
-            }
-            {
-              !display.title ? null :
-                <h1 className={S("media-text__title")}>{ display.title }</h1>
-            }
-            {
-              !display.subtitle ? null :
-                <h2 className={S("media-text__subtitle")}>{ display.subtitle }</h2>
-            }
-            <MediaDescription display={display} />
-          </div>
-        </div>
+        {
+          !hasText && !hasDescription ? null :
+            <div className={S("media-info")}>
+              <div className={S("media-text")}>
+                {
+                  (display.headers || []).length === 0 ? null :
+                    <div className={S("media-text__headers")}>
+                      {display.headers.map((header, index) =>
+                        <div key={`header-${index}`} className={S("media-text__header")}>{header}</div>
+                      )}
+                    </div>
+                }
+                {
+                  !display.title ? null :
+                    <h1 className={S("media-text__title")}>{display.title}</h1>
+                }
+                {
+                  !display.subtitle ? null :
+                    <h2 className={S("media-text__subtitle")}>{display.subtitle}</h2>
+                }
+                <MediaDescription display={display}/>
+              </div>
+            </div>
+        }
       </div>
     );
   }

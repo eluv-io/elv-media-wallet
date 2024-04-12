@@ -568,7 +568,7 @@ const MediaPropertyPurchaseModal = () => {
     if(params.permissionItemIds) {
       setPurchaseItems(
         params.permissionItemIds
-          .map(permissionItemId => mediaPropertyStore.permissionItems[permissionItemId])
+          .map(permissionItemId => mediaPropertyStore.PermissionItem({permissionItemId}))
           .filter(item => item)
       );
     } else if(params.sectionItemId) {
