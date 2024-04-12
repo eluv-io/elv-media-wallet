@@ -1807,7 +1807,7 @@ class RootStore {
       url.searchParams.set("appUUID", this.appUUID);
     }
 
-    if(keepPath) {
+    if(keepPath || window.location.pathname.startsWith("/p/") || window.location.pathname.startsWith("/m/")) {
       url.pathname = window.location.pathname;
     } else if(this.marketplaceId) {
       url.pathname = UrlJoin("/marketplace", this.marketplaceId, "store");
