@@ -55,6 +55,27 @@ const Actions = observer(() => {
   );
 });
 
+export const MediaPropertyPageContent = observer(({isMediaPage, className=""}) => {
+  const match = useRouteMatch();
+  const page = mediaPropertyStore.MediaPropertyPage(match.params);
+
+  if(!page) { return null; }
+
+  return (
+    <div className={[S("page__sections"), className].join(" ")}>
+      {
+        page.layout.sections.map(sectionId =>
+          <MediaPropertySection
+            key={`section-${sectionId}`}
+            sectionId={sectionId}
+            isMediaPage={isMediaPage}
+          />
+        )
+      }
+    </div>
+  );
+});
+
 const MediaPropertyPage = observer(() => {
   const match = useRouteMatch();
   const page = mediaPropertyStore.MediaPropertyPage(match.params);
@@ -88,16 +109,7 @@ const MediaPropertyPage = observer(() => {
       >
         <Actions />
       </PageHeader>
-      <div className={S("page__sections")}>
-        {
-          page.layout.sections.map(sectionId =>
-            <MediaPropertySection
-              key={`section-${sectionId}`}
-              sectionId={sectionId}
-            />
-          )
-        }
-      </div>
+      <MediaPropertyPageContent />
     </PageContainer>
   );
 });

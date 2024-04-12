@@ -343,7 +343,7 @@ const MediaCard = observer(({
       card = <MediaCardVertical {...args} />;
       break;
     case "banner":
-      card =<MediaCardBanner {...args} />;
+      card = <MediaCardBanner {...args} />;
       break;
   }
 

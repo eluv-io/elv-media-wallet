@@ -124,13 +124,16 @@ const SectionContentGrid = observer(({section, sectionContent, navContext}) => {
   );
 });
 
-export const MediaPropertySection = observer(({sectionId, mediaListId, isSectionPage}) => {
-  let navContext = new URLSearchParams(location.search).get("ctx");
+export const MediaPropertySection = observer(({sectionId, mediaListId, isSectionPage, isMediaPage}) => {
   const match = useRouteMatch();
+  let navContext = new URLSearchParams(location.search).get("ctx");
+
+  const mediaListSlugOrId = mediaListId || (isSectionPage && match.params.mediaListSlugOrId);
+
   const section = mediaPropertyStore.MediaPropertySection({
     mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
     sectionSlugOrId: sectionId || match.params.sectionSlugOrId,
-    mediaListSlugOrId: mediaListId || match.params.mediaListSlugOrId
+    mediaListSlugOrId
   });
 
   const [sectionContent, setSectionContent] = useState([]);
@@ -142,7 +145,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
       mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
       pageSlugOrId: match.params.pageSlugOrId,
       sectionSlugOrId: !mediaListId && sectionId || match.params.sectionSlugOrId || navContext,
-      mediaListSlugOrId: mediaListId || match.params.mediaListSlugOrId
+      mediaListSlugOrId
     })
       .then(content => setSectionContent(content));
   }, [match.params, sectionId, mediaListId]);
@@ -154,7 +157,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
   let sectionPermissions = mediaPropertyStore.ResolvePermission({
     ...match.params,
     sectionSlugOrId: !mediaListId && sectionId || match.params.sectionSlugOrId || navContext,
-    mediaListSlugOrId: mediaListId || match.params.mediaListSlugOrId
+    mediaListSlugOrId
   });
 
   let ContentComponent;
@@ -197,7 +200,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
   return (
     <div
       ref={element => {
-        if(!element || navContext !== sectionId) { return; }
+        if(isMediaPage || !element || navContext !== sectionId) { return; }
 
         // Remove context from url
         const url = new URL(location.href);

@@ -12,26 +12,9 @@ import SupportedCountries from "../../utils/SupportedCountries";
 import {roundToDown} from "round-to";
 import {useHistory, useRouteMatch} from "react-router-dom";
 import {LoginGate} from "Components/common/LoginGate";
+import {MediaPropertyPurchaseParams} from "../../utils/MediaPropertyUtils";
 
 const S = (...classes) => classes.map(c => PurchaseModalStyles[c] || "").join(" ");
-
-const PurchaseParams = () => {
-  const urlParams = new URLSearchParams(location.search);
-
-  let params = {};
-  if(urlParams.has("p")) {
-    try {
-      params = JSON.parse(rootStore.client.utils.FromB58ToStr(urlParams.get("p")));
-    } catch(error) {
-      rootStore.Log("Failed to parse URL params", true);
-      rootStore.Log(error, true);
-    }
-  }
-
-  params.confirmationId = urlParams.get("confirmationId");
-
-  return params;
-};
 
 const Item = observer(({item, children, Actions}) => {
   const marketplace = rootStore.marketplaces[item.marketplace?.marketplace_id];
@@ -143,7 +126,7 @@ const Purchase = async ({item, paymentMethod, history}) => {
   if(!marketplace) { throw Error("Marketplace not found"); }
 
   const successUrl = new URL(location.href);
-  const params = PurchaseParams();
+  const params = MediaPropertyPurchaseParams() || {};
   params.itemId = item.id;
   successUrl.searchParams.set("p", rootStore.client.utils.B58(JSON.stringify(params)));
 
@@ -352,6 +335,7 @@ const Payment = observer(({item, Back}) => {
                       history
                     });
                   } catch(error) {
+                    rootStore.Log(error, true);
                     setErrorMessage(error?.uiMessage || rootStore.l10n.purchase.errors.failed);
                   } finally {
                     setSubmitting(false);
@@ -557,7 +541,7 @@ const MediaPropertyPurchaseModal = () => {
   const history = useHistory();
   const match = useRouteMatch();
   const [purchaseItems, setPurchaseItems] = useState([]);
-  const params = PurchaseParams();
+  const params = MediaPropertyPurchaseParams() || {};
 
   useEffect(() => {
     if(!params || params.type !== "purchase") {

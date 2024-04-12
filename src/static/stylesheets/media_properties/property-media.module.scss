@@ -49,6 +49,11 @@
       max-height: calc(var(--property-full-content-height) - 125px);
     }
   }
+
+  &__additional-content {
+    padding: 30px;
+    margin-top: 30px;
+  }
 }
 
 .media-container,
@@ -138,7 +143,7 @@
 
 .media-info {
   position: relative;
-  padding: 25px 75px 200px 30px;
+  padding: 25px 75px 25px 30px;
 
   @media screen and (max-width: 800px) {
     padding: 20px 15px 200px;

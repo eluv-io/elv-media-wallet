@@ -7,7 +7,7 @@ import SanitizeHTML from "sanitize-html";
 import {SetImageUrlDimensions} from "../../utils/Utils";
 import {useHistory} from "react-router-dom";
 import {Modal as MantineModal} from "@mantine/core";
-import {MediaPropertyPurchaseParams} from "../../utils/MediaPropertyUtils";
+import {CreateMediaPropertyPurchaseParams, MediaPropertyPurchaseParams} from "../../utils/MediaPropertyUtils";
 import ImageIcon from "Components/common/ImageIcon";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 import {Swiper, SwiperSlide} from "swiper/react";
@@ -405,19 +405,21 @@ export const Button = ({variant="primary", active, loading, ...props}) => {
 export const PurchaseGate = ({permissions, backPath, children}) => {
   const history = useHistory();
   const url = new URL(location.href);
+  const params = MediaPropertyPurchaseParams();
 
   useEffect(() => {
     if(!permissions) { return; }
 
-    if(!permissions.authorized && permissions.purchaseGate && !url.searchParams.get("p")) {
+    if(!permissions.authorized && permissions.purchaseGate && (!params || !params?.gate)) {
       // Not authorized and purchase gated - set purchase modal parameters
-      url.searchParams.set("p", MediaPropertyPurchaseParams({
+      url.searchParams.set("p", CreateMediaPropertyPurchaseParams({
+        gate: true,
         permissionItemIds: permissions.permissionItemIds,
         successPath: location.pathname,
         cancelPath: backPath
       }));
       history.replace(url.pathname + url.search);
-    } else if(permissions.authorized && url.searchParams.get("p") && !url.searchParams.get("confirmationId")) {
+    } else if(params && params.gate && !params.confirmationId && permissions.authorized) {
       // Authorized and not on a purchase confirmation page, make sure purchase modal is hidden
       url.searchParams.delete("p");
       url.searchParams.delete("confirmationId");

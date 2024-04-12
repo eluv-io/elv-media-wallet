@@ -16,9 +16,10 @@ export const MediaPropertyBasePath = params => {
   return path;
 };
 
-export const MediaPropertyPurchaseParams = ({permissionItemIds, sectionSlugOrId, sectionItemId, successPath, cancelPath}) => {
+export const CreateMediaPropertyPurchaseParams = ({gate, permissionItemIds, sectionSlugOrId, sectionItemId, successPath, cancelPath}) => {
   return (
     mediaPropertyStore.client.utils.B58(JSON.stringify({
+      gate: !!gate,
       type: "purchase",
       sectionSlugOrId,
       sectionItemId,
@@ -27,6 +28,26 @@ export const MediaPropertyPurchaseParams = ({permissionItemIds, sectionSlugOrId,
       successPath
     }))
   );
+};
+
+export const MediaPropertyPurchaseParams = () => {
+  const urlParams = new URLSearchParams(location.search);
+
+  let params = {};
+  if(urlParams.has("p")) {
+    try {
+      params = JSON.parse(rootStore.client.utils.FromB58ToStr(urlParams.get("p")));
+    } catch(error) {
+      rootStore.Log("Failed to parse URL params", true);
+      rootStore.Log(error, true);
+    }
+  }
+
+  if(urlParams.has("confirmationId")) {
+    params.confirmationId = urlParams.get("confirmationId");
+  }
+
+  return Object.keys(params).length === 0 ? undefined : params;
 };
 
 export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) => {
@@ -67,9 +88,10 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
       url = ["Link", "HTML"].includes(mediaItem?.media_type) && MediaItemMediaUrl(mediaItem);
     }
   } else if(sectionItem?.type === "item_purchase") {
+    linkPath = match.url;
     // Preserve params
     params = new URLSearchParams(location.search);
-    params.set("p", MediaPropertyPurchaseParams({sectionSlugOrId: match.params.sectionSlugOrId, sectionItemId: sectionItem.id}));
+    params.set("p", CreateMediaPropertyPurchaseParams({sectionSlugOrId: match.params.sectionSlugOrId, sectionItemId: sectionItem.id}));
   } else if(sectionItem?.type === "page_link") {
     const page = mediaPropertyStore.MediaPropertyPage({...match.params, pageSlugOrId: sectionItem.page_id});
 
@@ -106,7 +128,8 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
   const permissions = mediaItem?.resolvedPermissions || sectionItem?.resolvedPermissions || {};
   if(!permissions.authorized && permissions.purchaseGate) {
     params = new URLSearchParams(location.search);
-    params.set("p", MediaPropertyPurchaseParams({
+    params.set("p", CreateMediaPropertyPurchaseParams({
+      gate: true,
       permissionItemIds: permissions.permissionItemIds,
       successPath: linkPath
     }));

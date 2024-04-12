@@ -19,6 +19,7 @@ import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 import ClockIcon from "Assets/icons/clock";
 import ArrowLeft from "Assets/icons/arrow-left";
 import MediaErrorIcon from "Assets/icons/media-error-icon";
+import {MediaPropertyPageContent} from "Components/properties/MediaPropertyPage";
 
 const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 
@@ -386,6 +387,7 @@ const MediaPropertyMediaPage = observer(() => {
   return (
     <PurchaseGate permissions={permissions} backPath={MediaPropertyBasePath(match.params)}>
       { content }
+      <MediaPropertyPageContent isMediaPage className={S("media-page__additional-content")} />
     </PurchaseGate>
   );
 });
