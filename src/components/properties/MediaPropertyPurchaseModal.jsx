@@ -580,7 +580,15 @@ const MediaPropertyPurchaseModal = () => {
         const matchingItem = section.content?.find(sectionItem => sectionItem.id === params.sectionItemId);
 
         if(matchingItem) {
-          setPurchaseItems(matchingItem.items || []);
+          setPurchaseItems(
+            (matchingItem.items || [])
+              .map(item =>
+                item.permission_item_id ?
+                  mediaPropertyStore.permissionItems[item.permission_item_id] :
+                  item
+              )
+              .filter(item => item)
+          );
         }
       }
     }

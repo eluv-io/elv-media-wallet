@@ -1220,6 +1220,11 @@ const NFTDetails = observer(({nft, initialListingStatus, item, giftItem, hideSec
 
   // Redirects
 
+  // Owned item has bundled media - navigate to property page
+  if(nftInfo?.hasBundledProperty && nftInfo?.isOwned) {
+    return <Redirect to={UrlJoin("/m", match.params.contractId, match.params.tokenId, "p", nftInfo.bundledPropertyId)} />;
+  }
+
   // Marketplace item claimed
   if(claimed) {
     return <Redirect to={UrlJoin("/marketplace", match.params.marketplaceId, "store", item.sku, "claim", "status")} />;
