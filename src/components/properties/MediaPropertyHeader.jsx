@@ -125,7 +125,7 @@ const MediaPropertyHeader = observer(() => {
   return (
     <div className={S("header", rootStore.routeParams.mediaItemSlugOrId ? "header--media" : "")}>
       <Link
-        to={MediaPropertyBasePath(rootStore.routeParams)}
+        to={MediaPropertyBasePath(rootStore.routeParams, {includePage: false})}
         className={S("logo-container")}
       >
         <ImageIcon icon={mediaProperty?.metadata.header_logo?.url} className={S("logo")} />

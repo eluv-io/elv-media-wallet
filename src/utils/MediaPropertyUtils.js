@@ -2,12 +2,12 @@ import {SetImageUrlDimensions, StaticFabricUrl} from "./Utils";
 import UrlJoin from "url-join";
 import {mediaPropertyStore, rootStore} from "Stores";
 
-export const MediaPropertyBasePath = params => {
+export const MediaPropertyBasePath = (params, {includePage=true}={}) => {
   if(!params.mediaPropertySlugOrId) { return "/"; }
 
   let path = params.parentMediaPropertySlugOrId ?
-    UrlJoin("/p", params.parentMediaPropertySlugOrId, params.parentPageSlugOrId || "", "p", params.mediaPropertySlugOrId) :
-    UrlJoin("/p", params.mediaPropertySlugOrId);
+    UrlJoin("/p", params.parentMediaPropertySlugOrId, params.parentPageSlugOrId || "", "p", params.mediaPropertySlugOrId, (includePage && params.pageSlugOrId) || "") :
+    UrlJoin("/p", params.mediaPropertySlugOrId, (includePage && params.pageSlugOrId) || "");
 
   if(params.contractId) {
     path = UrlJoin("/m", params.contractId, params.tokenId, path);
