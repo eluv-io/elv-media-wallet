@@ -273,7 +273,6 @@ const ItemDetailsPage = observer(() => {
   }
 
   const nftInfo = NFTInfo({nft, showToken: true});
-  console.log(nftInfo);
 
   return (
     <PageContainer

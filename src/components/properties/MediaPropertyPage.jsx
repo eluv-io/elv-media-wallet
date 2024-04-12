@@ -83,7 +83,6 @@ const MediaPropertyPage = observer(() => {
       backPath={backPath}
       className={S("page")}
     >
-      <MediaPropertyPurchaseModal />
       <PageBackground display={page.layout} />
       <PageHeader
         display={page.layout}

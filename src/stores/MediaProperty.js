@@ -160,7 +160,7 @@ class MediaPropertyStore {
 
     if(!section) { return []; }
 
-    let content = [];
+    let content;
     if(section.type === "automatic") {
       // Automatic filter
       let mediaCatalogIds = section.select.media_catalog ?
@@ -170,7 +170,14 @@ class MediaPropertyStore {
       content = (
         yield this.FilteredMedia({sectionId: section.id, mediaCatalogIds, select: section.select})
       )
-        .sort((a, b) => a.catalog_title < b.catalog_title ? -1 : 1);
+        .sort((a, b) => {
+          if(a.live_video && b.live_video) {
+            // Sort live content by start time
+            return a.start_time < b.start_time ? -1 : 1;
+          } else {
+            return a.catalog_title < b.catalog_title ? -1 : 1;
+          }
+        });
     } else {
       // Manual Section
       content = (
@@ -210,7 +217,7 @@ class MediaPropertyStore {
     return content
       .map(sectionItem => ({
         ...sectionItem,
-        permissions: this.ResolvePermission({
+        resolvedPermissions: this.ResolvePermission({
           mediaPropertySlugOrId,
           pageSlugOrId,
           sectionSlugOrId,
@@ -219,7 +226,7 @@ class MediaPropertyStore {
           mediaItemSlugOrId: sectionItem.mediaItem?.id
         })
       }))
-      .filter(sectionItem => sectionItem.permissions.authorized || !sectionItem.permissions.hide);
+      .filter(sectionItem => sectionItem.resolvedPermissions.authorized || !sectionItem.resolvedPermissions.hide);
   });
 
   FilteredMedia = flow(function * ({sectionId, mediaCatalogIds=[], select}) {
@@ -338,26 +345,15 @@ class MediaPropertyStore {
     let authorized = true;
     let behavior = this.PERMISSION_BEHAVIORS.HIDE;
     let cause;
+    let permissionItemIds;
 
     const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
-    behavior = mediaProperty?.permissions?.behavior || behavior;
+    behavior = mediaProperty?.metadata?.permissions?.behavior || behavior;
+    // propertyAuthorized = !!mediaProperty?.metadata?.permissions?.permission_item_ids?.find(permissionItemId => this.permissionItems[permissionItemId]?.authorized);
+
+    // TODO: Alternate page / purchase gate property
 
     const page = this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId: pageSlugOrId || "main"});
-
-    if(behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE && page.id !== mediaProperty.permissions.alternate_page_id) {
-      authorized = !!mediaProperty.permissions?.permission_item_ids?.find(permissionItemId => this.permissionItems[permissionItemId]?.authorized);
-
-      // Alternate page redirect
-      if(!authorized) {
-        return {
-          authorized: false,
-          behavior: this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE,
-          cause: "Property alternate page redirect",
-          alternatePageId: mediaProperty.permissions.alternate_page_id
-        };
-      }
-    }
-
     behavior = page.permissions?.behavior || behavior;
 
     if(sectionSlugOrId) {
@@ -367,13 +363,15 @@ class MediaPropertyStore {
         behavior = section.permissions?.behavior || behavior;
         authorized = section.authorized;
         cause = !authorized && "Section permissions";
+        permissionItemIds = section.permissions?.permission_item_ids || [];
 
         if(authorized && sectionItemId) {
           const sectionItem = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId})?.content
             ?.find(sectionItem => sectionItem.id === sectionItemId);
 
           if(sectionItem) {
-            behavior = sectionItem?.permissions?.behavior || behavior;
+            behavior = sectionItem.permissions?.behavior || behavior;
+            permissionItemIds = sectionItem.permissions?.permission_item_ids || [];
             authorized = sectionItem.authorized;
 
             cause = cause || !authorized && "Section item permissions";
@@ -383,17 +381,23 @@ class MediaPropertyStore {
     }
 
     if(authorized && mediaCollectionSlugOrId) {
-      authorized = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId: mediaCollectionSlugOrId})?.authorized || false;
+      const mediaCollection = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId: mediaCollectionSlugOrId});
+      authorized = mediaCollection?.authorized || false;
+      permissionItemIds = mediaCollection.permissions?.map(permission => permission.permission_item_id) || [];
       cause = !authorized && "Media collection permissions";
     }
 
     if(authorized && mediaListSlugOrId) {
-      authorized = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId: mediaListSlugOrId})?.authorized || false;
+      const mediaList = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId: mediaListSlugOrId});
+      authorized = mediaList?.authorized || false;
+      permissionItemIds = mediaList.permissions?.map(permission => permission.permission_item_id) || [];
       cause = !authorized && "Media list permissions";
     }
 
     if(authorized && mediaItemSlugOrId) {
-      authorized = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId})?.authorized || false;
+      const mediaItem = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId});
+      authorized = mediaItem?.authorized || false;
+      permissionItemIds = mediaItem.permissions?.map(permission => permission.permission_item_id) || [];
       cause = !authorized && "Media permissions";
     }
 
@@ -402,11 +406,18 @@ class MediaPropertyStore {
       behavior = this.PERMISSION_BEHAVIORS.HIDE;
     }
 
+    permissionItemIds = permissionItemIds || [];
+
+    const purchaseGate = !authorized && behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE;
+
     return {
       authorized,
       behavior,
-      hide: !authorized && (!behavior || behavior === this.PERMISSION_BEHAVIORS.HIDE),
+      // Hide by default, or if behavior is hide, or if no purchasable permissions are available
+      hide: !authorized && (!behavior || behavior === this.PERMISSION_BEHAVIORS.HIDE || (purchaseGate && permissionItemIds.length === 0)),
       disable: !authorized && behavior === this.PERMISSION_BEHAVIORS.DISABLE,
+      purchaseGate: purchaseGate && permissionItemIds.length > 0,
+      permissionItemIds,
       cause: cause || ""
     };
   }
@@ -414,7 +425,6 @@ class MediaPropertyStore {
   LoadMediaProperty = flow(function * ({mediaPropertySlugOrId, force=false}) {
     const mediaPropertyId = this.MediaProperty({mediaPropertySlugOrId})?.mediaPropertyId || mediaPropertySlugOrId;
     if(!this.mediaProperties[mediaPropertyId] || force) {
-
       const versionHash = yield this.client.LatestVersionHash({objectId: mediaPropertyId});
       const metadata = yield this.client.ContentObjectMetadata({
         versionHash,
@@ -423,18 +433,19 @@ class MediaPropertyStore {
       });
 
       yield Promise.all(
-        (metadata.media_catalogs || []).map(async mediaCatalogId =>
-          await this.LoadMediaCatalog({mediaCatalogId, force})
-        )
-      );
-
-      yield Promise.all(
         (metadata.permission_sets || []).map(async permissionSetId =>
           await this.LoadPermissionSet({permissionSetId, force})
         )
       );
 
+      yield Promise.all(
+        (metadata.media_catalogs || []).map(async mediaCatalogId =>
+          await this.LoadMediaCatalog({mediaCatalogId, force})
+        )
+      );
+
       const indexableMedia = Object.values(this.media)
+        .filter(mediaItem => mediaItem.authorized || mediaItem.permissions?.length > 0)
         .filter(mediaItem => metadata.media_catalogs.includes(mediaItem.media_catalog_id))
         .map(mediaItem => ({
           id: mediaItem.id,
@@ -471,13 +482,7 @@ class MediaPropertyStore {
 
         if(metadata.sections[sectionId].type === "manual") {
           section.content?.forEach((sectionItem, index) => {
-            let authorized = ResolveSectionPermission(sectionItem);
-
-            if(authorized && sectionItem.type === "media") {
-              authorized = this.media[sectionItem.media_id]?.authorized || false;
-            }
-
-            metadata.sections[sectionId].content[index].authorized = authorized;
+            metadata.sections[sectionId].content[index].authorized = ResolveSectionPermission(sectionItem);
           });
         }
       });
@@ -499,8 +504,13 @@ class MediaPropertyStore {
   });
 
   // Ensure the specified load method is called only once unless forced
-  LoadResource({key, id, force, Load}) {
+  LoadResource = flow(function * ({key, id, force, Load}) {
     key = `load${key}`;
+
+    if(force) {
+      // Force - drop all loaded content
+      this[key] = {};
+    }
 
     this[key] = this[key] || {};
 
@@ -508,8 +518,8 @@ class MediaPropertyStore {
       this[key][id] = Load();
     }
 
-    return this[key][id];
-  }
+    return yield this[key][id];
+  });
 
   LoadMediaCatalog = flow(function * ({mediaCatalogId, force}) {
     yield this.LoadResource({

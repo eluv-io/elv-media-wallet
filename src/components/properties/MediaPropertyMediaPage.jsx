@@ -9,9 +9,9 @@ import Countdown from "./Countdown";
 import {
   MediaItemImageUrl,
   MediaItemMediaUrl,
-  MediaItemScheduleInfo, MediaPropertyMediaBackPath
+  MediaItemScheduleInfo, MediaPropertyBasePath, MediaPropertyMediaBackPath
 } from "../../utils/MediaPropertyUtils";
-import {Carousel, Description, LoaderImage} from "Components/properties/Common";
+import {Carousel, Description, LoaderImage, PurchaseGate} from "Components/properties/Common";
 import Video from "./Video";
 import {SetImageUrlDimensions} from "../../utils/Utils";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
@@ -321,9 +321,10 @@ const MediaPropertyMediaPage = observer(() => {
     sectionSlugOrId: match.params.sectionSlugOrId || context
   });
 
+  let content;
   if(!permissions.authorized) {
     const {imageUrl} = MediaItemImageUrl({mediaItem, display: mediaItem, aspectRatio: "landscape", width: mediaPropertyStore.rootStore.fullScreenImageWidth});
-    return (
+    content = (
       <div className={S("media-page")}>
         <Link to={backPath} className={S("media-page__back-link", controlsVisible ? "media-page__back-link--visible" : "")}>
           <ImageIcon icon={ArrowLeft} />
@@ -332,8 +333,42 @@ const MediaPropertyMediaPage = observer(() => {
         <div className={S("media__error")}>
           <ImageIcon icon={imageUrl} className={S("media__error-image")} />
           <div className={S("media__error-cover")} />
-          <div className={S("media__error-message")}>
-            { rootStore.l10n.media_properties.media.errors.unauthorized }
+          {
+            permissions.purchaseGate ? null :
+              <div className={S("media__error-message")}>
+                {rootStore.l10n.media_properties.media.errors.unauthorized}
+              </div>
+          }
+        </div>
+      </div>
+    );
+  } else {
+    content = (
+      <div className={S("media-page")}>
+        <div className={S("media-container")}>
+          <Link to={backPath} className={S("media-page__back-link", controlsVisible ? "media-page__back-link--visible" : "")}>
+            <ImageIcon icon={ArrowLeft} />
+            <div>Back</div>
+          </Link>
+          <Media mediaItem={mediaItem} display={display} setControlsVisible={setControlsVisible} />
+        </div>
+        <div className={S("media-info")}>
+          <div className={S("media-text")}>
+            {
+              (display.headers || []).length === 0 ? null :
+                <div className={S("media-text__headers")}>
+                  { display.headers.map((header, index) => <div key={`header-${index}`} className={S("media-text__header")}>{ header }</div>) }
+                </div>
+            }
+            {
+              !display.title ? null :
+                <h1 className={S("media-text__title")}>{ display.title }</h1>
+            }
+            {
+              !display.subtitle ? null :
+                <h2 className={S("media-text__subtitle")}>{ display.subtitle }</h2>
+            }
+            <MediaDescription display={display} />
           </div>
         </div>
       </div>
@@ -341,34 +376,9 @@ const MediaPropertyMediaPage = observer(() => {
   }
 
   return (
-    <div className={S("media-page")}>
-      <div className={S("media-container")}>
-        <Link to={backPath} className={S("media-page__back-link", controlsVisible ? "media-page__back-link--visible" : "")}>
-          <ImageIcon icon={ArrowLeft} />
-          <div>Back</div>
-        </Link>
-        <Media mediaItem={mediaItem} display={display} setControlsVisible={setControlsVisible} />
-      </div>
-      <div className={S("media-info")}>
-        <div className={S("media-text")}>
-          {
-            (display.headers || []).length === 0 ? null :
-              <div className={S("media-text__headers")}>
-                { display.headers.map((header, index) => <div key={`header-${index}`} className={S("media-text__header")}>{ header }</div>) }
-              </div>
-          }
-          {
-            !display.title ? null :
-              <h1 className={S("media-text__title")}>{ display.title }</h1>
-          }
-          {
-            !display.subtitle ? null :
-              <h2 className={S("media-text__subtitle")}>{ display.subtitle }</h2>
-          }
-          <MediaDescription display={display} />
-        </div>
-      </div>
-    </div>
+    <PurchaseGate permissions={permissions} backPath={MediaPropertyBasePath(match.params)}>
+      { content }
+    </PurchaseGate>
   );
 });
 

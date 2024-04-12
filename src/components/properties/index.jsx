@@ -6,6 +6,7 @@ import AsyncComponent from "Components/common/AsyncComponent";
 import {PageLoader} from "Components/common/Loaders";
 import RenderRoutes from "Routes";
 import MediaPropertyHeader from "Components/properties/MediaPropertyHeader";
+import MediaPropertyPurchaseModal from "Components/properties/MediaPropertyPurchaseModal";
 
 const PropertyWrapper = observer(({children}) => {
   const match = useRouteMatch();
@@ -40,6 +41,7 @@ const PropertyWrapper = observer(({children}) => {
         loadingClassName="page-loader content"
       >
         { children }
+        <MediaPropertyPurchaseModal />
       </AsyncComponent>
     );
   }

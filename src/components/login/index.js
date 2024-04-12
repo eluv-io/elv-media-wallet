@@ -472,7 +472,29 @@ const AuthenticateAuth0 = async (userData) => {
     // eslint-disable-next-line no-console
     console.timeEnd("Auth0 Parameter Parsing");
 
-    window.history.replaceState({}, document.title, `${window.location.pathname}${window.location.hash}`);
+    // Remove login related params from url
+    const paramKeys = [
+      "code",
+      "origin",
+      "source",
+      "action",
+      "provider",
+      "mode",
+      "response",
+      "redirect",
+      "elvid",
+      "clear",
+      "marketplace",
+      "mid",
+      "data",
+      "code",
+      "state"
+    ];
+
+    const url = new URL(window.location.href);
+    paramKeys.forEach(key => url.searchParams.delete(key));
+
+    window.history.replaceState({}, document.title, url.toString());
 
     await rootStore.AuthenticateAuth0({userData});
   } catch(error){

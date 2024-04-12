@@ -4,11 +4,11 @@ import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Link, Redirect, useHistory, useRouteMatch} from "react-router-dom";
 import {mediaPropertyStore} from "Stores";
-import UrlJoin from "url-join";
 import {PageBackground, PageContainer, PageHeader, ScaledText} from "Components/properties/Common";
 import MediaCard from "Components/properties/MediaCards";
 import {Select} from "Components/common/UIComponents";
-import {MediaPropertyMediaBackPath} from "../../utils/MediaPropertyUtils";
+import {MediaPropertyBasePath, MediaPropertyMediaBackPath} from "../../utils/MediaPropertyUtils";
+import {LoginGate} from "Components/common/LoginGate";
 
 const S = (...classes) => classes.map(c => MediaCollectionStyles[c] || "").join(" ");
 
@@ -171,6 +171,10 @@ const MediaPropertyCollectionPage = observer(() => {
     }
   }, [mediaCollection, activeListId]);
 
+  const permissions = mediaPropertyStore.ResolvePermission({
+    ...match.params,
+  });
+
   if(!mediaCollection) {
     return <Redirect to={backPath} />;
   }
@@ -179,10 +183,12 @@ const MediaPropertyCollectionPage = observer(() => {
     <PageContainer backPath={backPath} className={S("media-collection__page-container")}>
       <PageBackground display={mediaCollection} />
       <PageHeader display={mediaCollection} className={S("media-collection__page-header")} />
-      <div className={S("media-collection__content")}>
-        <MediaCollectionLists mediaCollection={mediaCollection} activeListId={activeListId} setActiveListId={setActiveListId} navContext={navContext} />
-        <MediaCollectionMedia mediaListId={activeListId} key={`media-${activeListId}`} navContext={navContext} />
-      </div>
+      <LoginGate backPath={MediaPropertyBasePath(match.params)} Condition={() => !permissions.authorized}>
+        <div className={S("media-collection__content")}>
+          <MediaCollectionLists mediaCollection={mediaCollection} activeListId={activeListId} setActiveListId={setActiveListId} navContext={navContext} />
+          <MediaCollectionMedia mediaListId={activeListId} key={`media-${activeListId}`} navContext={navContext} />
+        </div>
+      </LoginGate>
     </PageContainer>
   );
 });

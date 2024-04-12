@@ -95,6 +95,7 @@ class RootStore {
 
   loginOnly = window.loginOnly;
   requireLogin = searchParams.has("rl");
+  loginBackPath;
   capturedLogin = this.embedded && searchParams.has("cl");
   showLogin = this.requireLogin || searchParams.get("action") === "login" || searchParams.get("action") === "loginCallback";
 
@@ -2190,13 +2191,14 @@ class RootStore {
     this.SetSessionStorage("navigation-info", JSON.stringify(this.navigationInfo));
   }
 
-  ShowLogin({requireLogin=false, ignoreCapture=false}={}) {
+  ShowLogin({requireLogin=false, backPath, ignoreCapture=false}={}) {
     if(this.capturedLogin && !ignoreCapture) {
       if(this.loggedIn) { return; }
 
       this.SendEvent({event: EVENTS.LOG_IN_REQUESTED});
     } else {
       this.requireLogin = requireLogin;
+      this.loginBackPath = backPath;
       this.showLogin = true;
     }
   }
@@ -2204,6 +2206,7 @@ class RootStore {
   HideLogin() {
     this.showLogin = false;
     this.requireLogin = false;
+    this.loginBackPath = undefined;
   }
 
   ToggleDarkMode(enabled) {

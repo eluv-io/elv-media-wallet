@@ -5,19 +5,19 @@ import {observer} from "mobx-react";
 import {mediaPropertyStore, rootStore} from "Stores";
 import SanitizeHTML from "sanitize-html";
 import {SetImageUrlDimensions} from "../../utils/Utils";
-import {Link} from "react-router-dom";
+import {useHistory} from "react-router-dom";
 import {Modal as MantineModal} from "@mantine/core";
-
-import ArrowLeft from "Assets/icons/arrow-left.svg";
+import {MediaPropertyPurchaseParams} from "../../utils/MediaPropertyUtils";
 import ImageIcon from "Components/common/ImageIcon";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 import {Swiper, SwiperSlide} from "swiper/react";
+import {Loader} from "Components/common/Loaders";
+import {Linkish} from "Components/common/UIComponents";
 
 import LeftArrow from "Assets/icons/left-arrow";
 import RightArrow from "Assets/icons/right-arrow";
-import {Loader} from "Components/common/Loaders";
-import {Linkish} from "Components/common/UIComponents";
 import XIcon from "Assets/icons/x";
+import ArrowLeft from "Assets/icons/arrow-left.svg";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
 
@@ -340,6 +340,7 @@ export const Modal = observer(({...args}) => {
     <MantineModal
       {...args}
       withCloseButton={false}
+      transitionProps={args.transitionProps || {duration: 0}}
       classNames={{
         root: S("modal"),
         overlay: S("modal__overlay"),
@@ -365,13 +366,31 @@ export const Modal = observer(({...args}) => {
 });
 
 export const Button = ({variant="primary", active, loading, ...props}) => {
+  const [isLoading, setIsLoading] = useState(loading);
+
+  useEffect(() => {
+    setIsLoading(loading);
+  }, [loading]);
+
   return (
     <Linkish
       {...props}
+      onClick={
+        !props.onClick ? undefined :
+          async () => {
+            try {
+              setIsLoading(true);
+
+              await props.onClick();
+            } finally {
+              setIsLoading(loading);
+            }
+          }
+      }
       className={[S("button", variant ? `button--${variant}` : "", active ? "button--active" : ""), props.className || ""].join(" ")}
     >
       {
-        !loading ? props.children :
+        !isLoading ? props.children :
           <>
             <Loader className={S("button__loader")}/>
             <div className={S("button__loading-content")}>
@@ -381,4 +400,28 @@ export const Button = ({variant="primary", active, loading, ...props}) => {
       }
     </Linkish>
   );
+};
+
+export const PurchaseGate = ({permissions, backPath, children}) => {
+  const history = useHistory();
+  const url = new URL(location.href);
+
+  useEffect(() => {
+    if(!permissions.authorized && permissions.purchaseGate && !url.searchParams.get("p")) {
+      // Not authorized and purchase gated - set purchase modal parameters
+      url.searchParams.set("p", MediaPropertyPurchaseParams({
+        permissionItemIds: permissions.permissionItemIds,
+        successPath: location.pathname,
+        cancelPath: backPath
+      }));
+      history.replace(url.pathname + url.search);
+    } else if(permissions.authorized && url.searchParams.get("p") && !url.searchParams.get("confirmationId")) {
+      // Authorized and not on a purchase confirmation page, make sure purchase modal is hidden
+      url.searchParams.delete("p");
+      url.searchParams.delete("confirmationId");
+      history.replace(url.pathname + url.search);
+    }
+  }, [permissions]);
+
+  return children;
 };

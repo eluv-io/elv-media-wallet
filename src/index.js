@@ -85,15 +85,28 @@ const MarketplaceSlugRedirect = observer(() => {
 });
 
 const LoginModal = observer(() => {
+  const history = useHistory();
+
   if(!rootStore.showLogin || rootStore.loggedIn) { return null; }
+
+  const closable = !rootStore.loginOnly && (!!rootStore.loginBackPath || !rootStore.requireLogin || rootStore.loggedIn);
+  const Close = () => {
+    if(!closable) { return; }
+
+    if(rootStore.loginBackPath) {
+      history.push(rootStore.loginBackPath);
+    }
+
+    rootStore.HideLogin();
+  };
 
   return (
     <Modal
       className="login-modal"
-      closeable={!rootStore.loginOnly && (!rootStore.requireLogin || rootStore.loggedIn)}
-      Toggle={rootStore.requireLogin ? undefined : () => rootStore.HideLogin()}
+      closeable={closable}
+      Toggle={Close}
     >
-      <Login key="login-main" Close={rootStore.requireLogin ? undefined : () => rootStore.HideLogin()} />
+      <Login key="login-main" Close={Close} />
     </Modal>
   );
 });

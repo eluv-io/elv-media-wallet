@@ -11,6 +11,7 @@ import {LocalizeString} from "Components/common/UIComponents";
 import SupportedCountries from "../../utils/SupportedCountries";
 import {roundToDown} from "round-to";
 import {useHistory, useRouteMatch} from "react-router-dom";
+import {LoginGate} from "Components/common/LoginGate";
 
 const S = (...classes) => classes.map(c => PurchaseModalStyles[c] || "").join(" ");
 
@@ -66,12 +67,13 @@ const Item = observer(({item, children, Actions}) => {
   );
 });
 
-const Items = observer(({sectionItem, Select}) => {
+const Items = observer(({items, Select}) => {
   return (
     <div className={S("items")}>
       {
-        sectionItem.items?.map(item => (
+        items?.map(item => (
           <Item
+            key={`item-${item?.id}`}
             item={item}
             Actions={({item, itemInfo}) =>
               <Button onClick={() => Select(item.id)} className={S("button")}>
@@ -386,7 +388,9 @@ const Payment = observer(({item, Back}) => {
 });
 
 const MediaPropertyPurchaseStatus = observer(({item, confirmationId, Close}) => {
+  const match = useRouteMatch();
   const [status, setStatus] = useState();
+
   useEffect(() => {
     if(!item || !item.marketplace || !item.marketplace.marketplace_id) { return; }
 
@@ -415,6 +419,12 @@ const MediaPropertyPurchaseStatus = observer(({item, confirmationId, Close}) => 
         { rootStore.l10n.media_properties.purchase_status.failed }
       </div>
     );
+
+    actions = (
+      <Button onClick={Close} className={S("button")}>
+        { rootStore.l10n.actions.close }
+      </Button>
+    );
   } else if(status.status === "complete") {
     loading = false;
     content = (
@@ -426,12 +436,25 @@ const MediaPropertyPurchaseStatus = observer(({item, confirmationId, Close}) => 
     );
 
     actions = (
-      <Button onClick={Close} className={S("button")}>
+      <Button
+        onClick={async () => {
+          try {
+            await mediaPropertyStore.LoadMediaProperty({
+              mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
+              force: true
+            });
+          } catch(error) {
+            mediaPropertyStore.Log(error, true);
+          }
+
+          Close(true);
+        }}
+        className={S("button")}
+      >
         { rootStore.l10n.actions.close }
       </Button>
     );
   } else {
-
     content = (
       <>
         <div className={S("status__message")}>
@@ -455,31 +478,27 @@ const MediaPropertyPurchaseStatus = observer(({item, confirmationId, Close}) => 
   );
 });
 
-const MediaPropertyPurchaseModalContent = observer(({sectionItem, itemId, confirmationId, Close}) => {
+const MediaPropertyPurchaseModalContent = observer(({items, itemId, confirmationId, Close}) => {
   const [loaded, setLoaded] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(itemId);
-  const selectedItem = selectedItemId && sectionItem?.items.find(item => item.id === selectedItemId);
+  const selectedItem = selectedItemId && items.find(item => item.id === selectedItemId);
 
   useEffect(() => {
     setLoaded(false);
 
-    if(!sectionItem) { return; }
-
     rootStore.GetWalletBalance();
 
     Promise.all(
-      sectionItem.items?.map(async item =>
+      items?.map(async item =>
         await rootStore.LoadMarketplace(item.marketplace?.marketplace_id)
       )
     ).then(() => {
       setLoaded(true);
     });
-  }, [sectionItem]);
+  }, [items]);
 
   useEffect(() => {
-    if(!sectionItem) { return; }
-
-    const tenantIds = sectionItem.items.map(item =>
+    const tenantIds = items?.map(item =>
       rootStore.marketplaces[item?.marketplace?.marketplace_id]?.tenant_id
     )
       .filter((tenantId, index, array) => tenantId && array.indexOf(tenantId) === index);
@@ -494,7 +513,7 @@ const MediaPropertyPurchaseModalContent = observer(({sectionItem, itemId, confir
   }, [loaded]);
 
   let content, key;
-  if(!loaded || !sectionItem) {
+  if(!loaded || (items || []).length === 0) {
     key = 0;
     content = <Loader className={S("loader")}/>;
   } else if(selectedItemId) {
@@ -522,7 +541,7 @@ const MediaPropertyPurchaseModalContent = observer(({sectionItem, itemId, confir
     key = 1;
     content = (
       <div className="purchase">
-        <Items sectionItem={sectionItem} Select={setSelectedItemId} />
+        <Items items={items} Select={setSelectedItemId} />
       </div>
     );
   }
@@ -537,59 +556,72 @@ const MediaPropertyPurchaseModalContent = observer(({sectionItem, itemId, confir
 const MediaPropertyPurchaseModal = () => {
   const history = useHistory();
   const match = useRouteMatch();
-  const [purchaseSectionItem, setPurchaseSectionItem] = useState(undefined);
+  const [purchaseItems, setPurchaseItems] = useState([]);
   const params = PurchaseParams();
 
   useEffect(() => {
-    setPurchaseSectionItem(undefined);
-
-    if(!params || params.type !== "purchase" || !params.sectionItemId) {
+    if(!params || params.type !== "purchase") {
+      setPurchaseItems([]);
       return;
     }
 
-    const sections = params.sectionSlugOrId ?
-      [mediaPropertyStore.MediaPropertySection({...match.params, sectionSlugOrId: params.sectionSlugOrId})] :
-      Object.values(mediaPropertyStore.MediaProperty({...match.params}).metadata.sections || {});
+    if(params.permissionItemIds) {
+      setPurchaseItems(
+        params.permissionItemIds
+          .map(permissionItemId => mediaPropertyStore.permissionItems[permissionItemId])
+          .filter(item => item)
+      );
+    } else if(params.sectionItemId) {
+      const sections = params.sectionSlugOrId ?
+        [mediaPropertyStore.MediaPropertySection({...match.params, sectionSlugOrId: params.sectionSlugOrId})] :
+        Object.values(mediaPropertyStore.MediaProperty({...match.params}).metadata.sections || {});
 
-    for(const section of sections) {
-      const matchingItem = section.content?.find(sectionItem => sectionItem.id === params.sectionItemId);
+      for(const section of sections) {
+        const matchingItem = section.content?.find(sectionItem => sectionItem.id === params.sectionItemId);
 
-      if(matchingItem) {
-        setPurchaseSectionItem({...matchingItem, sectionId: section.id});
-        return;
+        if(matchingItem) {
+          setPurchaseItems(matchingItem.items || []);
+        }
       }
     }
   }, [location.search]);
 
-
   const urlParams = new URLSearchParams(location.search);
 
-  let backPath = match.url;
+  let backPath = params.cancelPath || match.url;
   urlParams.delete("p");
   urlParams.delete("confirmationId");
+
   backPath = backPath + (urlParams.size > 0 ? `?${urlParams.toString()}` : "");
 
   const Close = () => history.push(backPath);
 
   return (
-    <Modal
-      size="auto"
-      centered
-      opened={!!purchaseSectionItem}
-      onClose={params.confirmationId ? () => {} : Close}
-      transitionProps={{duration: 0}}
-      withCloseButton={rootStore.pageWidth < 800 && !params.confirmationId}
-    >
-      {
-        !purchaseSectionItem || !params.sectionItemId ? null :
-          <MediaPropertyPurchaseModalContent
-            sectionItem={purchaseSectionItem}
-            itemId={params.itemId}
-            confirmationId={params.confirmationId}
-            Close={Close}
-          />
-      }
-    </Modal>
+    <LoginGate backPath={backPath} Condition={() => (purchaseItems || []).length > 0}>
+      <Modal
+        size="auto"
+        centered
+        opened={(purchaseItems || []).length > 0}
+        onClose={params.confirmationId ? () => {} : Close}
+        withCloseButton={rootStore.pageWidth < 800 && !params.confirmationId}
+      >
+        {
+          (purchaseItems || []).length === 0 ? null :
+            <MediaPropertyPurchaseModalContent
+              items={purchaseItems}
+              itemId={params.itemId}
+              confirmationId={params.confirmationId}
+              Close={success => {
+                if(success && params.successPath) {
+                  history.push(params.successPath);
+                } else {
+                  Close();
+                }
+              }}
+            />
+        }
+      </Modal>
+    </LoginGate>
   );
 };
 

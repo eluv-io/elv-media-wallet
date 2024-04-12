@@ -10,9 +10,9 @@ import ImageIcon from "Components/common/ImageIcon";
 import {Carousel, PageBackground, PageContainer, PageHeader} from "Components/properties/Common";
 
 import RightArrow from "Assets/icons/right-arrow";
-import MediaPropertyPurchaseModal from "Components/properties/MediaPropertyPurchaseModal";
 import {ScrollTo} from "../../utils/Utils";
-import {MediaPropertyMediaBackPath} from "../../utils/MediaPropertyUtils";
+import {MediaPropertyBasePath, MediaPropertyMediaBackPath} from "../../utils/MediaPropertyUtils";
+import {LoginGate} from "Components/common/LoginGate";
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 
@@ -157,14 +157,6 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
     mediaListSlugOrId: mediaListId || match.params.mediaListSlugOrId
   });
 
-  if(
-    sectionContent.length === 0 ||
-    sectionPermissions.authorized === false &&
-    sectionPermissions.behavior === mediaPropertyStore.PERMISSION_BEHAVIORS.HIDE
-  ) {
-    return null;
-  }
-
   let ContentComponent;
   switch(section.display.display_format?.toLowerCase()) {
     case "carousel":
@@ -180,14 +172,24 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
 
   if(isSectionPage) {
     return (
-      <div className={S("section", "section--page")}>
-        <ContentComponent
-          section={section}
-          sectionContent={sectionContent}
-          navContext="s"
-        />
-      </div>
+      <LoginGate backPath={MediaPropertyBasePath(match.params)} Condition={() => !sectionPermissions.authorized}>
+        <div className={S("section", "section--page")}>
+          <ContentComponent
+            section={section}
+            sectionContent={sectionContent}
+            navContext="s"
+          />
+        </div>
+      </LoginGate>
     );
+  }
+
+  if(
+    sectionContent.length === 0 ||
+    sectionPermissions.authorized === false &&
+    sectionPermissions.behavior === mediaPropertyStore.PERMISSION_BEHAVIORS.HIDE
+  ) {
+    return null;
   }
 
   const showAllLink = sectionContent.length > parseInt(section.display.display_limit || 5);
@@ -271,7 +273,6 @@ const MediaPropertySectionPage = observer(() => {
         mediaListId={section.mediaListId}
         isSectionPage
       />
-      <MediaPropertyPurchaseModal />
     </PageContainer>
   );
 });

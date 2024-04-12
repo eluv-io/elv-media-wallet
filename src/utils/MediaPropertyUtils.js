@@ -16,6 +16,19 @@ export const MediaPropertyBasePath = params => {
   return path;
 };
 
+export const MediaPropertyPurchaseParams = ({permissionItemIds, sectionSlugOrId, sectionItemId, successPath, cancelPath}) => {
+  return (
+    mediaPropertyStore.client.utils.B58(JSON.stringify({
+      type: "purchase",
+      sectionSlugOrId,
+      sectionItemId,
+      permissionItemIds,
+      cancelPath,
+      successPath
+    }))
+  );
+};
+
 export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) => {
   let linkPath = MediaPropertyBasePath(match.params);
 
@@ -56,14 +69,7 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
   } else if(sectionItem?.type === "item_purchase") {
     // Preserve params
     params = new URLSearchParams(location.search);
-    params.set(
-      "p",
-      mediaPropertyStore.client.utils.B58(JSON.stringify({
-        type: "purchase",
-        sectionSlugOrId: match.params.sectionSlugOrId,
-        sectionItemId: sectionItem.id
-      }))
-    );
+    params.set("p", MediaPropertyPurchaseParams({sectionSlugOrId: match.params.sectionSlugOrId, sectionItemId: sectionItem.id}));
   } else if(sectionItem?.type === "page_link") {
     const page = mediaPropertyStore.MediaPropertyPage({...match.params, pageSlugOrId: sectionItem.page_id});
 
@@ -94,8 +100,22 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
     params.set("ctx", navContext);
   }
 
+  linkPath = linkPath + (params.size > 0 ? `?${params.toString()}` : "");
+
+  // Purchase gate - include intended path to go to after successful purchase
+  const permissions = mediaItem?.resolvedPermissions || sectionItem?.resolvedPermissions || {};
+  if(!permissions.authorized && permissions.purchaseGate) {
+    params = new URLSearchParams(location.search);
+    params.set("p", MediaPropertyPurchaseParams({
+      permissionItemIds: permissions.permissionItemIds,
+      successPath: linkPath
+    }));
+
+    linkPath = MediaPropertyBasePath(match.params) + `?${params.toString()}`;
+  }
+
   return {
-    linkPath: linkPath + (params.size > 0 ? `?${params.toString()}` : ""),
+    linkPath,
     url
   };
 };

@@ -309,7 +309,7 @@ const MediaCard = observer(({
 
   const scheduleInfo = MediaItemScheduleInfo(mediaItem || sectionItem.mediaItem);
 
-  disabled = disabled || sectionItem?.permissions?.disable;
+  disabled = disabled || sectionItem?.resolvedPermissions?.disable;
 
   let linkPath, url;
   if(!disabled) {
