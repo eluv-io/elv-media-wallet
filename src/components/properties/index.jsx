@@ -18,7 +18,11 @@ const PropertyWrapper = observer(({children}) => {
   const mediaPropertySlugOrId = match.params.mediaPropertySlugOrId;
 
   useEffect(() => {
-    rootStore.ClearMarketplace();
+    if(rootStore.specifiedMarketplaceId) {
+      rootStore.SetMarketplace({marketplaceId: rootStore.specifiedMarketplaceId, specified: true});
+    } else {
+      rootStore.ClearMarketplace();
+    }
 
     if(match.params.contractId) {
       rootStore.LoadNFTData({

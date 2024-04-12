@@ -8,7 +8,7 @@ import {
 
 import {rootStore} from "Stores/index";
 
-import UrlJoin from "url-join";
+//import UrlJoin from "url-join";
 import RenderRoutes from "Routes";
 import MarketplaceBrowser from "Components/marketplace/MarketplaceBrowser";
 import Header from "Components/header/Header";
@@ -23,7 +23,7 @@ const WalletWrapper = ({children}) => {
 
 const Wallet = observer(() => {
   if(rootStore.hideGlobalNavigation && rootStore.specifiedMarketplaceId) {
-    return <Redirect to={UrlJoin("/marketplace", rootStore.specifiedMarketplaceId, "store")} />;
+    //return <Redirect to={UrlJoin("/marketplace", rootStore.specifiedMarketplaceId, "store")} />;
   }
 
   return (
