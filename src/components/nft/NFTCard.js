@@ -1,7 +1,6 @@
 import React from "react";
 import {NFTImage} from "Components/common/Images";
 import {observer} from "mobx-react";
-import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 import {NFTInfo} from "../../utils/Utils";
 import {FormatPriceString} from "Components/common/UIComponents";
 import ItemCard from "Components/common/ItemCard";
@@ -19,10 +18,7 @@ const NFTCard = observer(({
   showVideo,
   hideToken,
   allowFullscreen,
-  truncateDescription,
-  playerCallback,
-  className="",
-  cardClassName="",
+  playerCallback
 }) => {
   const info = NFTInfo({
     nft,
@@ -32,50 +28,22 @@ const NFTCard = observer(({
     showToken: !hideToken
   });
 
-  let sideText;
-  if(info.sideText) {
-    sideText = (
-      <div className="item-card__side-text">
-        <div className="item-card__side-text__primary">
-          {info.sideText[0]}
-        </div>
-        {
-          info.sideText[1] ?
-            <div className="item-card__side-text__secondary">
-              { ` / ${info.sideText[1]}`}
-            </div> : null
-        }
-      </div>
-    );
-  }
-
   // Listing modal specifies price displayed on card
   const renderedPrice = typeof price !== "undefined" ?
     FormatPriceString(price?.USD || price, {includeCurrency: !usdcOnly, includeUSDCIcon: usdcAccepted, prependCurrency: true, useCurrencyIcon: false}) :
     info.renderedPrice;
 
-  const description = (
-    <ResponsiveEllipsis
-      component="div"
-      className="item-card__description"
-      text={info.nft.metadata.description}
-      maxLine={truncateDescription ? 3 : 100}
-    />
-  );
-
   return (
     <ItemCard
+      collectionName={info.collectionName}
+      collectionImage={info.collectionImage}
       link={link}
       name={info.name}
       subtitle1={info.subtitle1}
       subtitle2={info.subtitle2}
-      description={description}
-      sideText={sideText}
+      sideText={info.sideText}
       price={renderedPrice}
       status={info.status}
-      variant={info.variant}
-      className={className}
-      cardClassName={cardClassName}
       badges={badges}
       image={
         <NFTImage

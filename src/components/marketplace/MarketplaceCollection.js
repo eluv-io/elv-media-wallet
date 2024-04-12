@@ -48,7 +48,7 @@ const MarketplaceCollection = observer(() => {
             hideToken
             link={UrlJoin(basePath, collection.sku, "owned", ownedItem.nft.details.ContractId, ownedItem.nft.details.TokenIdStr)}
             imageWidth={600}
-            badges={<ImageIcon icon={OwnedIcon} title="You own this item" alt="Listing Icon" className="item-card__badge"/>}
+            badges={[<ImageIcon key="badge-owned" icon={OwnedIcon} title="You own this item" alt="Listing Icon" className="item-card__badge"/>]}
             className="marketplace__collection__card marketplace__collection__card--owned"
           />
         );

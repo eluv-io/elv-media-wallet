@@ -438,19 +438,8 @@ em {
     margin: auto;
   }
 
-  .page-block {
-    &__content {
-      max-width: $breakpoint;
-      width: $breakpoint;
-
-      &--wide {
-        max-width: $large-breakpoint;
-      }
-
-      &--extra-wide {
-        max-width: $extra-large-breakpoint;
-      }
-    }
+  .page-block__content {
+    max-width: $extra-large-breakpoint;
   }
 }
 
@@ -504,6 +493,10 @@ em {
     .content-subheader {
       font-size: 12px;
     }
+  }
+
+  .page-block__content {
+    padding-inline: 15px;
   }
 
   .page-block__content--extra-wide {

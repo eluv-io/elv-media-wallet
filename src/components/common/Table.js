@@ -133,7 +133,7 @@ const Table = observer(({
         {
           (!paging && pagingMode !== "none") ?
             <div className={`transfer-table__table transfer-table__table--${pagingMode}`} ref={scrollRef}>
-              <Loader />
+              <Loader className="transfer-table__loader" />
             </div> :
             <div className={`transfer-table__table transfer-table__table--${pagingMode}`} ref={scrollRef}>
               <div className="transfer-table__table__header" style={{gridTemplateColumns}}>

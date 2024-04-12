@@ -107,15 +107,16 @@ const MarketplaceItemCard = ({
     <CardComponent
       info={info}
       link={linkDisabled ? undefined : (to || `${match.url}/${item.sku}`)}
-      badges={
+      badges={[
         item.nftTemplateMetadata.test ?
           <ImageIcon
+            key="badge-test"
             icon={TestIcon}
             title="This is a test NFT"
             alt="Test NFT"
             className="item-card__badge item-card__badge--test"
           /> : null
-      }
+      ].filter(badge => badge)}
       image={(
         <MarketplaceImage
           marketplaceHash={marketplaceHash}

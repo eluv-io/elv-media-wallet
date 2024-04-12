@@ -40,7 +40,7 @@ const UserItems = observer(() => {
     <FilteredView
       mode="owned"
       hideStats
-      perPage={9}
+      perPage={12}
       showPagingInfo
       topPagination
       scrollOnPageChange
@@ -62,29 +62,24 @@ const UserItems = observer(() => {
                     nft={nft}
                     selectedListing={listing}
                     imageWidth={600}
-                    truncateDescription
-                    badges={
-                      <>
-                        {
-                          listing ?
-                            <ImageIcon
-                              icon={ListingIcon}
-                              title="This NFT is listed for sale"
-                              alt="Listing Icon"
-                              className="item-card__badge"
-                            /> : null
-                        }
-                        {
-                          nft.metadata.test ?
-                            <ImageIcon
-                              icon={TestIcon}
-                              title="This is a test NFT"
-                              alt="Test NFT"
-                              className="item-card__badge item-card__badge--test"
-                            /> : null
-                        }
-                      </>
-                    }
+                    badges={[
+                      !listing ? null :
+                        <ImageIcon
+                          key="badge-listing"
+                          icon={ListingIcon}
+                          title="This NFT is listed for sale"
+                          alt="Listing Icon"
+                          className="item-card__badge"
+                        />,
+                      !nft.metadata.test ? null :
+                        <ImageIcon
+                          key="badge-test"
+                          icon={TestIcon}
+                          title="This is a test NFT"
+                          alt="Test NFT"
+                          className="item-card__badge item-card__badge--test"
+                        />
+                    ].filter(badge => badge)}
                   />
                 );
               })

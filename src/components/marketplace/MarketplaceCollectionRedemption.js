@@ -57,15 +57,16 @@ const MarketplaceCollection = observer(() => {
                     key={`nft-card-${nft.details.ContractId}-${nft.details.TokenIdStr}`}
                     nft={nft}
                     imageWidth={600}
-                    badges={
+                    badges={[
                       nft.details.ListingId ?
                         <ImageIcon
+                          key="badge-listed"
                           icon={ListingIcon}
                           title="This NFT is listed for sale"
                           alt="Listing Icon"
                           className="item-card__badge"
                         /> : null
-                    }
+                    ].filter(badge => badge)}
                   />
                   <button
                     className={`action collection-redemption__option__button ${selected ? "action-primary" : ""}`}

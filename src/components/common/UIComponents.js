@@ -108,17 +108,19 @@ export const ExpandableSection = ({header, icon, children, expanded=false, toggl
   );
 };
 
-export const Linkish = ({to, href, target="_blank", rel="noopener", useNavLink, onClick, ...args}) => {
-  if(href) {
-    return <a href={href} target={target} rel={rel} onClick={onClick} {...args} />;
-  } else if(to) {
-    if(useNavLink) {
-      return <NavLink to={to} onClick={onClick} {...args} />;
-    } else {
-      return <Link to={to} onClick={onClick} {...args} />;
+export const Linkish = ({to, href, target="_blank", rel="noopener", useNavLink, onClick, disabled, ...args}) => {
+  if(!disabled) {
+    if(href) {
+      return <a href={href} target={target} rel={rel} onClick={onClick} {...args} />;
+    } else if(to) {
+      if(useNavLink) {
+        return <NavLink to={to} onClick={onClick} {...args} />;
+      } else {
+        return <Link to={to} onClick={onClick} {...args} />;
+      }
+    } else if(onClick) {
+      return <button onClick={onClick} {...args} />;
     }
-  } else if(onClick) {
-    return <button onClick={onClick} {...args} />;
   }
 
   return <div {...args} />;

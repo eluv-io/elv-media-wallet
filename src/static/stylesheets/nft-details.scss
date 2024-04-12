@@ -1,5 +1,6 @@
 .details-page {
-  max-width: 100%;
+  margin: 0 auto;
+  max-width: $breakpoint;
   overflow: visible;
   padding: 40px 0 15px;
   position: relative;

@@ -1,7 +1,7 @@
 .card-list {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
 
   &--centered {
     justify-content: center;
@@ -18,31 +18,10 @@
     min-width: 250px;
   }
 
-  @media screen and (max-width: $breakpoint) {
-    &:not(&--centered) {
-      display: grid;
-      grid-gap: 10px;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-      height: min-content;
-      justify-content: center;
-
-      .card-container {
-        max-width: unset;
-      }
-    }
-  }
-
-  @media screen and (max-width: $mobile-breakpoint) {
-    grid-gap: 20px;
-
-    &:not(&--centered) {
-      grid-gap: 20px;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    }
-
-    .card-container {
-      min-width: 300px;
-    }
+  @media screen and (max-width: 800px) {
+    justify-items: center;
+    margin: 0 auto;
+    max-width: 350px;
   }
 }
 
@@ -353,7 +332,7 @@
 
     &--test {
       * {
-        color: var(--color-text-error);
+        color: var(--color-text-error) !important;
       }
     }
 

@@ -18,18 +18,12 @@ const Listing = memo(({url, listing}) => (
     nft={listing}
     selectedListing={listing}
     truncateDescription
-    badges={
-      <>
-        {
-          Utils.EqualAddress(rootStore.CurrentAddress(), listing.details.SellerAddress) ?
-            <ImageIcon icon={ListingIcon} title="This is your listing" alt="Listing Icon" className="item-card__badge"/> : null
-        }
-        {
-          listing.details.USDCOnly ?
-            <ImageIcon icon={LinkedIcon} title="This listing may only be purchased with a linked wallet" alt="Linked Wallet Icon" className="item-card__badge"/> : null
-        }
-      </>
-    }
+    badges={[
+      Utils.EqualAddress(rootStore.CurrentAddress(), listing.details.SellerAddress) ?
+        <ImageIcon key="badge-owned" icon={ListingIcon} title="This is your listing" alt="Listing Icon" className="item-card__badge"/> : null,
+      listing.details.USDCOnly ?
+        <ImageIcon key="badge-usdc" icon={LinkedIcon} title="This listing may only be purchased with a linked wallet" alt="Linked Wallet Icon" className="item-card__badge"/> : null
+    ].filter(badge => badge)}
   />
 ));
 
@@ -42,7 +36,7 @@ const Listings = observer(({initialFilters}) => {
       pagingMode="paginated"
       topPagination
       showPagingInfo
-      perPage={9}
+      perPage={12}
       scrollOnPageChange
       initialFilters={initialFilters}
       Render={({entries}) => (
