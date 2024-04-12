@@ -136,6 +136,12 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
 
     linkPath = match.url + `?${params.toString()}`;
     url = undefined;
+  } else if(!permissions.authorized && permissions.showAlternatePage) {
+    linkPath = MediaPropertyBasePath({
+      ...match.params,
+      pageSlugOrId: permissions.alternatePageId
+    });
+    url = undefined;
   }
 
   return {

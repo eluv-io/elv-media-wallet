@@ -370,6 +370,8 @@ class MediaPropertyStore {
     const page = this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId: pageSlugOrId || "main"});
     behavior = page.permissions?.behavior || behavior;
 
+    let alternatePageId = mediaProperty.permissions?.alternate_page_id;
+
     if(sectionSlugOrId) {
       const section = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId});
 
@@ -378,6 +380,7 @@ class MediaPropertyStore {
         authorized = section.authorized;
         cause = !authorized && "Section permissions";
         permissionItemIds = section.permissions?.permission_item_ids || [];
+        alternatePageId = section.permissions?.alternate_page_id || alternatePageId;
 
         if(authorized && sectionItemId) {
           const sectionItem = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId})?.content
@@ -387,8 +390,8 @@ class MediaPropertyStore {
             behavior = sectionItem.permissions?.behavior || behavior;
             permissionItemIds = sectionItem.permissions?.permission_item_ids || [];
             authorized = sectionItem.authorized;
-
             cause = cause || !authorized && "Section item permissions";
+            alternatePageId = sectionItem.permissions?.alternate_page_id || alternatePageId;
           }
         }
       }
@@ -424,6 +427,11 @@ class MediaPropertyStore {
 
     const purchaseGate = !authorized && behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE;
 
+    const showAlternatePage = behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE;
+    if(showAlternatePage) {
+      alternatePageId = this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId: alternatePageId})?.slug || alternatePageId;
+    }
+
     return {
       authorized,
       behavior,
@@ -431,6 +439,8 @@ class MediaPropertyStore {
       hide: !authorized && (!behavior || behavior === this.PERMISSION_BEHAVIORS.HIDE || (purchaseGate && permissionItemIds.length === 0)),
       disable: !authorized && behavior === this.PERMISSION_BEHAVIORS.DISABLE,
       purchaseGate: purchaseGate && permissionItemIds.length > 0,
+      showAlternatePage,
+      alternatePageId,
       permissionItemIds,
       cause: cause || ""
     };
