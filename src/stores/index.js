@@ -152,6 +152,7 @@ class RootStore {
   staticToken = undefined;
   basePublicUrl = undefined;
 
+  route = location.pathname;
   routeParams = {};
 
   nftInfo = {};
@@ -2395,6 +2396,7 @@ class RootStore {
   }
 
   SetRouteParams(params) {
+    this.route = location.pathname;
     this.routeParams = params || {};
   }
 

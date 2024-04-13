@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {
   Switch,
   Route,
-  Redirect,
+  Redirect, useRouteMatch,
 } from "react-router-dom";
 
 import {rootStore} from "Stores/index";
@@ -17,6 +17,17 @@ const WalletWrapper = ({children}) => {
   useEffect(() => {
     rootStore.ClearMarketplace();
   }, []);
+
+  return children;
+};
+
+const GlobalWrapper = ({children}) => {
+  const match = useRouteMatch();
+
+  useEffect(() => {
+    rootStore.ClearMarketplace();
+    rootStore.SetRouteParams(match.params);
+  }, [match.params]);
 
   return children;
 };
@@ -36,15 +47,15 @@ const Wallet = observer(() => {
         </Route>
 
         <Route path="/marketplaces" exact>
-          <WalletWrapper>
+          <GlobalWrapper>
             <MarketplaceBrowser />
-          </WalletWrapper>
+          </GlobalWrapper>
         </Route>
 
         <Route path="/" exact>
-          <WalletWrapper>
+          <GlobalWrapper>
             <MediaPropertiesBrowser />
-          </WalletWrapper>
+          </GlobalWrapper>
         </Route>
 
         <RenderRoutes

@@ -14,8 +14,7 @@ import {Debounce, SetImageUrlDimensions} from "../../utils/Utils";
 import MenuButton from "Components/common/MenuButton";
 import {RichText} from "Components/common/UIComponents";
 
-import EluvioE from "Assets/images/ELUV.IO-E-Icon.png";
-import EluvioLogo from "Assets/images/Eluvio_logo.svg";
+import EluvioE from "Assets/images/Eluvio-E-Icon-no-fill-color 2 3.svg";
 import MenuIcon from "Assets/icons/menu";
 import UserIcon from "Assets/icons/profile.svg";
 import DiscoverIcon from "Assets/icons/discover.svg";
@@ -304,9 +303,16 @@ const GlobalHeader = observer(({scrolled}) => {
           {
             compact ? null :
               <div className="header__content">
-                <Link className="header__content__logo-container header__content__logo-container--global" to={"/marketplaces"}>
+                <Link className="header__content__logo-container header__content__logo-container--global" to={"/"}>
                   <ImageIcon icon={EluvioE} className="header__content__logo header__content__logo--e" />
-                  <ImageIcon icon={EluvioLogo} label={name || ""} className="header__content__logo header__content__logo--text"/>
+                  <div className="header__content__text">
+                    <div className="header__content__title">
+                      Media wallet
+                    </div>
+                    <div className="header__content__subtitle">
+                      Enabled by the Content Fabric
+                    </div>
+                  </div>
                 </Link>
                 {
                   rootStore.headerText ?
@@ -318,15 +324,20 @@ const GlobalHeader = observer(({scrolled}) => {
           }
           <div className="header__navigation-container header__navigation-container--compact">
             <nav className="header__navigation">
-              <NavLink className="header__navigation-link" to="/marketplaces">
-                { rootStore.l10n.header.discover_projects }
-              </NavLink>
-              <NavLink className="header__navigation-link" to="/wallet/listings">
-                { rootStore.l10n.header.listings }
-              </NavLink>
-              <NavLink className="header__navigation-link" to="/wallet/activity">
-                { rootStore.l10n.header.activity }
-              </NavLink>
+              {
+                rootStore.route === "/" ? null :
+                  <>
+                    <NavLink className="header__navigation-link" to="/marketplaces">
+                      {rootStore.l10n.header.discover_projects}
+                    </NavLink>
+                    <NavLink className="header__navigation-link" to="/wallet/listings">
+                      {rootStore.l10n.header.listings}
+                    </NavLink>
+                    <NavLink className="header__navigation-link" to="/wallet/activity">
+                      {rootStore.l10n.header.activity}
+                    </NavLink>
+                  </>
+              }
             </nav>
             <ProfileNavigation />
             <MobileNavigation />

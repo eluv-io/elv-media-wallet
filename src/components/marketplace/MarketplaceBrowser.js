@@ -13,6 +13,7 @@ import SoftwareIcon from "Assets/icons/icon_software.svg";
 import TVIcon from "Assets/icons/icon_tv.svg";
 import {PageLoader} from "Components/common/Loaders";
 import {Linkish} from "Components/common/UIComponents";
+import {SetImageUrlDimensions} from "../../utils/Utils";
 
 const MarketplaceTags = ({activeTag, setActiveTag}) => {
   const tags = [
@@ -242,7 +243,7 @@ export const MediaPropertiesBrowser = observer(() => {
 
               return (
                 <Linkish href={url.toString()} target="_blank" className="media-property-card">
-                  <img className="media-property-card__image" src={mediaProperty.image?.url} alt={mediaProperty.title || ""} />
+                  <img className="media-property-card__image" src={SetImageUrlDimensions({url: mediaProperty.image?.url, width: 600})} alt={mediaProperty.title || ""} />
                 </Linkish>
               );
             })

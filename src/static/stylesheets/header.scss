@@ -80,6 +80,10 @@
       &--global {
         .header__content {
           height: 25px;
+
+          &__logo-container {
+            opacity: 0;
+          }
         }
       }
     }
@@ -142,19 +146,11 @@
     &__logo-container {
       align-items: center;
       display: flex;
-      height: 100%;
+      gap: 20px;
+      height: 80px;
       left: 0;
-      max-width: 200px;
       position: absolute;
-
-      &--global {
-        svg {
-          * {
-            color: var(--color-text-primary);
-            fill: var(--color-text-primary);
-          }
-        }
-      }
+      transition: opacity 0.15s ease;
     }
 
     &__image-container {
@@ -182,6 +178,17 @@
       }
     }
 
+    &__title {
+      font-size: 36px;
+      font-weight: 500;
+    }
+
+    &__subtitle {
+      font-size: 16px;
+      font-weight: 600;
+      opacity: 0.5;
+    }
+
     @media screen and (max-width: $breakpoint) {
       &__header {
         font-size: 36px;
@@ -192,6 +199,7 @@
       &__logo-container {
         &--global {
           display: flex;
+          gap: 10px;
           justify-content: center;
           max-width: 100%;
           width: 100%;
@@ -205,6 +213,18 @@
       &__header {
         font-size: 24px;
         padding-inline: 0;
+      }
+
+      &__title {
+        font-size: 26px;
+      }
+
+      &__subtitle {
+        font-size: 12px;
+      }
+
+      &__logo {
+        padding: 10px;
       }
     }
   }
