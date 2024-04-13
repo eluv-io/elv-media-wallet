@@ -4,6 +4,8 @@
   }
 
   .actions {
+    display: flex;
+    align-items: center;
     margin-top: 30px;
   }
 
@@ -24,6 +26,10 @@
   @media screen and (max-width: 800px) {
     &.page {
       padding-inline: 25px;
+    }
+
+    .actions {
+      justify-content: center;
     }
   }
 }

@@ -94,7 +94,7 @@ const MediaPropertyPage = observer(() => {
       pageSlugOrId: match.params.parentPageSlugOrId,
     });
   } else if(match.params.contractId) {
-    backPath = UrlJoin("/wallet/users/me/items", match.params.contractId, match.params.tokenId);
+    backPath = UrlJoin("/wallet/users/me/items");
   }
 
   return (

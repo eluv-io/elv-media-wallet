@@ -11,7 +11,7 @@ import {Autocomplete} from "@mantine/core";
 import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
 
 import SearchIcon from "Assets/icons/search.svg";
-import {ProfileNavigation} from "Components/header/Header";
+import {MobileNavigation, ProfileNavigation} from "Components/header/Header";
 
 const S = (...classes) => classes.map(c => HeaderStyles[c] || "").join(" ");
 
@@ -94,7 +94,7 @@ const SearchBar = observer(() => {
           <ImageIcon alt="search" icon={SearchIcon} />
         </button>
       }
-      rightSectionWidth={75}
+      rightSectionWidth={rootStore.pageWidth > 800 ? 75 : 50}
       classNames={{
         root: S("search"),
         input: S("search__input"),
@@ -113,7 +113,12 @@ const HeaderLinks = observer(() => {
       </button>
     );
   } else {
-    return <ProfileNavigation />;
+    return (
+      <>
+        <ProfileNavigation />
+        <MobileNavigation />
+      </>
+    );
   }
 });
 

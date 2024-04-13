@@ -19,6 +19,7 @@
 
   @media screen and (max-width: 800px) {
     padding: 0 20px 3px;
+    gap: 20px;
 
     .logo-container {
       display: none;
@@ -52,6 +53,10 @@
 
   :global(.header__notifications-menu) {
     width: 450px;
+  }
+
+  @media screen and (max-width: 800px) {
+    width: 65px;
   }
 }
 
@@ -145,7 +150,6 @@
     }
 
     &__submit {
-      width: 70px;
       padding: 8px;
     }
   }

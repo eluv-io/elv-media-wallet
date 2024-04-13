@@ -140,7 +140,7 @@ export const ProfileNavigation = observer(() => {
   );
 });
 
-const MobileNavigation = observer(({marketplace, className=""}) => {
+export const MobileNavigation = observer(({marketplace, className=""}) => {
   const [showMenu, setShowMenu] = useState(false);
   const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
 
@@ -307,7 +307,7 @@ const GlobalHeader = observer(({scrolled}) => {
                   <ImageIcon icon={EluvioE} className="header__content__logo header__content__logo--e" />
                   <div className="header__content__text">
                     <div className="header__content__title">
-                      Media wallet
+                      Media Wallet
                     </div>
                     <div className="header__content__subtitle">
                       Enabled by the Content Fabric
