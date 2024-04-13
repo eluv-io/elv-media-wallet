@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Link, Redirect} from "react-router-dom";
-import {rootStore} from "Stores";
+import {mediaPropertyStore, rootStore} from "Stores";
 import UrlJoin from "url-join";
 import ImageIcon from "Components/common/ImageIcon";
 
@@ -11,6 +11,8 @@ import FilmIcon from "Assets/icons/icon_film.svg";
 import MusicIcon from "Assets/icons/icon_music.svg";
 import SoftwareIcon from "Assets/icons/icon_software.svg";
 import TVIcon from "Assets/icons/icon_tv.svg";
+import {PageLoader} from "Components/common/Loaders";
+import {Linkish} from "Components/common/UIComponents";
 
 const MarketplaceTags = ({activeTag, setActiveTag}) => {
   const tags = [
@@ -205,6 +207,46 @@ const MarketplaceBrowser = observer(() => {
               }
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+export const MediaPropertiesBrowser = observer(() => {
+  const [mediaProperties, setMediaProperties] = useState(undefined);
+
+  useEffect(() => {
+    mediaPropertyStore.LoadMediaProperties()
+      .then(setMediaProperties);
+  }, []);
+
+  if(!mediaProperties) {
+    return <PageLoader />;
+  }
+
+  return (
+    <div className="page-block page-block--marketplace-browser">
+      <div className="page-block__content">
+        <div className="media-property-browser">
+          {
+            mediaProperties.map(mediaProperty => {
+              const url = new URL(window.location.origin);
+              url.pathname = mediaProperty.subPropertyId ?
+                UrlJoin("/p", mediaProperty.propertyId, "/p", mediaProperty.subPropertyId) :
+                UrlJoin("/p", mediaProperty.propertyId);
+
+              if(mediaProperty.marketplaceId) {
+                url.searchParams.set("mid", mediaProperty.marketplaceId);
+              }
+
+              return (
+                <Linkish href={url.toString()} target="_blank" className="media-property-card">
+                  <img className="media-property-card__image" src={mediaProperty.image?.url} alt={mediaProperty.title || ""} />
+                </Linkish>
+              );
+            })
+          }
         </div>
       </div>
     </div>

@@ -446,6 +446,59 @@ class MediaPropertyStore {
     };
   }
 
+  LoadMediaProperties = flow(function * () {
+    return yield this.LoadResource({
+      key: "MediaProperties",
+      id: "media-properties",
+      Load: async () => {
+        const properties = [
+          {propertyId: "iq__2vo9ruJ2ZPc8imK7GNG3NVP51x3g", marketplaceId: "iq__2Utm3HfQ2dVWquyGPWvrPXtgpy8v"},
+          {propertyId: "iq__46rbdnidu71Hs54iS9gREsGLwZXj", marketplaceId: "iq__2nDj1bBBkRtN7VnX1zzpHYpoCd7V"},
+          {propertyId: "iq__3iCRaVZ2YsxBWuHeBu6rAB8zNs4d", marketplaceId: "iq__2nDj1bBBkRtN7VnX1zzpHYpoCd7V"},
+          {propertyId: "iq__SgJvnK6sW1exHXwWR8GfGnAg6NS", marketplaceId: "iq__3YdURECX5V1rhE84vREnXfavwn5s"},
+          {propertyId: "iq__SgJvnK6sW1exHXwWR8GfGnAg6NS", subPropertyId: "iq__kbhfTxt1c1CgT9zptFyCUhyqAkq", marketplaceId: "iq__mEA97ZQwAjaabEJvRJtrCfdxraG" },
+          {propertyId: "iq__SgJvnK6sW1exHXwWR8GfGnAg6NS", subPropertyId: "iq__4XrUn6Z7g1yioEJnvpiKZ5aYfiK8", marketplaceId: "iq__3oCrYs3goRxY16JEFr4JqbeEJU6c" },
+          {propertyId: "iq__SgJvnK6sW1exHXwWR8GfGnAg6NS", subPropertyId: "iq__D4VkWm51vGyXWK4wVMyi1MN3ii6", marketplaceId: "iq__3YdURECX5V1rhE84vREnXfavwn5s" },
+          {propertyId: "iq__3pJZ5CzhEwEZQ5K997fuRHV21J1F"},
+          {propertyId: "iq__fZJu14zfZLF4nVMxDE59voRaubJ"},
+          {propertyId: "iq__zaX95x1MsLx7o7V9ECREVpbMAMx"},
+          {propertyId: "iq__3KBXsWvinwFLjUNugBebsApFDPjV"},
+          {propertyId: "iq__2yWBgqX6ZT2gyXos8m1VTqW3Crf9"},
+        ];
+
+        const LoadPropertyInfo = async ({propertyId, subPropertyId, marketplaceId}) => {
+          const meta = await this.client.ContentObjectMetadata({
+            libraryId: await this.client.ContentObjectLibraryId({objectId: subPropertyId || propertyId}),
+            objectId: subPropertyId || propertyId,
+            metadataSubtree: "/public/asset_metadata/info",
+            produceLinkUrls: true,
+            select: [
+              "image",
+              "title"
+            ]
+          });
+
+          return {
+            ...meta,
+            propertyId,
+            subPropertyId,
+            marketplaceId
+          };
+        };
+
+        return await Promise.all(
+          properties.map(async (params) =>
+            await this.LoadResource({
+              key: "BasicMediaProperty",
+              id: params.subPropertyId || params.propertyId,
+              Load: async () => await LoadPropertyInfo(params)
+            })
+          )
+        );
+      }
+    });
+  });
+
   LoadMediaProperty = flow(function * ({mediaPropertySlugOrId, force=false}) {
     const mediaPropertyId = this.MediaProperty({mediaPropertySlugOrId})?.mediaPropertyId || mediaPropertySlugOrId;
 

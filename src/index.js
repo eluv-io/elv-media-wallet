@@ -171,7 +171,9 @@ const Routes = observer(() => {
               <Redirect to="/wallet/profile" />
             </Route>
             <Route path="/">
-              <Redirect to="/marketplaces" />
+              <Suspense fallback={<PageLoader />}>
+                <WalletRoutes />
+              </Suspense>
             </Route>
           </Switch>
         </ErrorBoundary>

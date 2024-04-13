@@ -10,7 +10,7 @@ import {rootStore} from "Stores/index";
 
 //import UrlJoin from "url-join";
 import RenderRoutes from "Routes";
-import MarketplaceBrowser from "Components/marketplace/MarketplaceBrowser";
+import MarketplaceBrowser, {MediaPropertiesBrowser} from "Components/marketplace/MarketplaceBrowser";
 import Header from "Components/header/Header";
 
 const WalletWrapper = ({children}) => {
@@ -38,6 +38,12 @@ const Wallet = observer(() => {
         <Route path="/marketplaces" exact>
           <WalletWrapper>
             <MarketplaceBrowser />
+          </WalletWrapper>
+        </Route>
+
+        <Route path="/" exact>
+          <WalletWrapper>
+            <MediaPropertiesBrowser />
           </WalletWrapper>
         </Route>
 
