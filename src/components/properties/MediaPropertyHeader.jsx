@@ -122,10 +122,19 @@ const MediaPropertyHeader = observer(() => {
 
   if(!mediaProperty) { return null; }
 
+  let basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: false});
+
+  if(basePath === location.pathname && rootStore.routeParams.parentMediaPropertySlugOrId) {
+    basePath = MediaPropertyBasePath({
+      mediaPropertySlugOrId: rootStore.routeParams.parentMediaPropertySlugOrId,
+      pageSlugOrId: rootStore.routeParams.parentPageSlugOrId
+    });
+  }
+
   return (
     <div className={S("header", rootStore.routeParams.mediaItemSlugOrId ? "header--media" : "")}>
       <Link
-        to={MediaPropertyBasePath(rootStore.routeParams, {includePage: false})}
+        to={basePath}
         className={S("logo-container")}
       >
         <ImageIcon icon={mediaProperty?.metadata.header_logo?.url} className={S("logo")} />
