@@ -124,7 +124,7 @@ const MediaPropertyHeader = observer(() => {
 
   let basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: false});
 
-  if(basePath === location.pathname && rootStore.routeParams.parentMediaPropertySlugOrId) {
+  if((basePath === location.pathname || UrlJoin(basePath, "/main") === location.pathname) && rootStore.routeParams.parentMediaPropertySlugOrId) {
     basePath = MediaPropertyBasePath({
       mediaPropertySlugOrId: rootStore.routeParams.parentMediaPropertySlugOrId,
       pageSlugOrId: rootStore.routeParams.parentPageSlugOrId
