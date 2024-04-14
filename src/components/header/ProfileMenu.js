@@ -160,7 +160,7 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
               <div className="header__profile-menu__separator"/>
               <MenuLink
                 icon={DiscoverIcon}
-                to="/marketplaces"
+                to="/"
                 className="header__profile-menu__link header__profile-menu__link-secondary"
               >
                 { rootStore.l10n.header.discover_projects }

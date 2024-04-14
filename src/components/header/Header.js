@@ -101,7 +101,7 @@ export const ProfileNavigation = observer(() => {
             <NavLink
               className="header__profile__link"
               title = "Discover Projects"
-              to="/marketplaces"
+              to="/"
             >
               <ImageIcon icon={DiscoverIcon} className="header__profile__link-icon" />
             </NavLink> : null

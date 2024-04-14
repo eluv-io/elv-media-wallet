@@ -43,7 +43,7 @@ const Wallet = observer(() => {
 
       <Switch>
         <Route path="/wallet" exact>
-          <Redirect to="/marketplaces" />
+          <Redirect to="/" />
         </Route>
 
         <Route path="/marketplaces" exact>

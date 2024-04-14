@@ -166,7 +166,7 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
               <div className="mobile-menu__separator" />
               <MenuLink
                 icon={DiscoverIcon}
-                to="/marketplaces"
+                to="/"
                 onClick={Close}
                 className="mobile-menu__link"
               >

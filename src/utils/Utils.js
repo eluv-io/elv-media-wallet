@@ -360,7 +360,7 @@ export const NFTInfo = ({
   const subtitle1 = item?.subtitle || nft.metadata.edition_name;
   const subtitle2 = undefined;
   const collectionName = nft?.metadata?.collection_name;
-  const collectionImage = nft?.metadata?.collection_image?.url;
+  const collectionImage = nft?.metadata?.collection_image;
 
   const isOwned = nft?.details?.TokenOwner && Utils.EqualAddress(nft.details.TokenOwner, rootStore.CurrentAddress());
   const heldDate = nft?.details?.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
