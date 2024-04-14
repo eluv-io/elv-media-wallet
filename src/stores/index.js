@@ -1035,10 +1035,16 @@ class RootStore {
     }
   }
 
-  ClearMarketplace() {
+  ClearMarketplace(clearSpecified=false) {
     this.tenantSlug = undefined;
     this.marketplaceSlug = undefined;
     this.marketplaceId = undefined;
+
+    if(clearSpecified) {
+      this.specifiedMarketplaceId = undefined;
+      this.specifiedMarketplaceHash = undefined;
+      this.RemoveSessionStorage("marketplace");
+    }
 
     this.checkoutStore.SetCurrency({currency: "USD"});
 

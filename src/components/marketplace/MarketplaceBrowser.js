@@ -232,17 +232,22 @@ export const MediaPropertiesBrowser = observer(() => {
         <div className="media-property-browser">
           {
             mediaProperties.map(mediaProperty => {
-              const url = new URL(window.location.origin);
-              url.pathname = mediaProperty.subPropertyId ?
+              const path = mediaProperty.subPropertyId ?
                 UrlJoin("/p", mediaProperty.propertyId, "/p", mediaProperty.subPropertyId) :
                 UrlJoin("/p", mediaProperty.propertyId);
 
-              if(mediaProperty.marketplaceId) {
-                url.searchParams.set("mid", mediaProperty.marketplaceId);
-              }
-
               return (
-                <Linkish href={url.toString()} target="_blank" className="media-property-card">
+                <Linkish
+                  to={path}
+                  onClick={() => {
+                    if(mediaProperty.marketplaceId) {
+                      rootStore.SetMarketplace({marketplaceId: mediaProperty.marketplaceId, specified: true});
+                    } else {
+                      rootStore.ClearMarketplace(true);
+                    }
+                  }}
+                  className="media-property-card"
+                >
                   <img className="media-property-card__image" src={SetImageUrlDimensions({url: mediaProperty.image?.url, width: 600})} alt={mediaProperty.title || ""} />
                 </Linkish>
               );
