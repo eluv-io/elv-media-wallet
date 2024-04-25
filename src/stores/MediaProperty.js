@@ -178,11 +178,11 @@ class MediaPropertyStore {
         yield this.FilteredMedia({sectionId: section.id, mediaCatalogIds, select: section.select})
       )
         .sort((a, b) => {
-          if(a.live_video && b.live_video) {
+          if(a.display.live_video && b.display.live_video) {
             // Sort live content by start time
-            return a.start_time < b.start_time ? -1 : 1;
+            return a.display.start_time < b.display.start_time ? -1 : 1;
           } else {
-            return a.catalog_title < b.catalog_title ? -1 : 1;
+            return (a.display.catalog_title || a.display.title) < (b.display.catalog_title || b.display.title) ? -1 : 1;
           }
         });
     } else {
@@ -301,7 +301,7 @@ class MediaPropertyStore {
             break;
 
           case "period":
-            if(!afterStartLimit || !!beforeEndLimit) { return false; }
+            if(!afterStartLimit || !beforeEndLimit) { return false; }
 
             break;
         }
