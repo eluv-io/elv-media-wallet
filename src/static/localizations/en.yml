@@ -2,6 +2,7 @@ header:
   activity: Activity
   collections: Collections
   discover_projects: Discover Projects
+  discover: Discover
   leaderboard: Leaderboard
   listings: Listings
   profile: Profile
@@ -12,6 +13,10 @@ header:
   notifications: Notifications
   gifts: Gifts
   media_wallet: Media Wallet
+  title: Media Wallet
+  subtitle: Enabled by the Content Fabric
+  my_items: My Items
+  details: Wallet Details
 
 login:
   sign_in: Sign In
@@ -56,6 +61,7 @@ navigation:
   activity: My Activity
   notifications: Notifications
   gifts: Gifts
+  wallet_details: Wallet Details
   preferences: Preferences
   collectibles: Collectibles
 
@@ -99,20 +105,24 @@ actions:
     decline_offer: Decline Offer
     decline_confirm: Are you sure you want to decline this offer of {price} for {itemName}?
   transfers:
-    transfer: Transfer NFT
-    transfer_confirm: Are you sure you want to transfer this NFT to {targetAddress}?
+    transfer: Transfer Item
+    transfer_confirm: Are you sure you want to transfer this item to {targetAddress}?
 
 errors:
   general: We're sorry, something went wrong.
 
 profile:
   media_wallet: Media Wallet
+  media_wallet_details: Media Wallet Details
   address: Eluvio Content Blockchain Address
-  set_profile_image: You can set your profile image from any of your owned NFTs!
+  set_profile_image: You can set your profile image from any of your owned items!
+  set_username: Set Your Username
   do_not_send_funds: Do not send funds to this address. This is an Eluvio Content Blockchain address and is not a payment address.
   connected_accounts: Connected Accounts
   add_funds: Add Funds
   withdraw_funds: Withdraw Funds
+  advanced_details: Advanced Details
+  hide_advanced_details: Hide Advanced Details
   view:
     all_offers: View All Offers
     deposits: View Deposits
@@ -125,7 +135,7 @@ profile:
     deposits: Hide Deposits
     outstanding_offers: Hide Outstanding Offers
     withdrawals: Hide Withdrawals
-  payout_terms: Funds availability notice – A hold period will be imposed on amounts that accrue from the sale of an NFT. Account holders acknowledge that, during this hold period, a seller will be unable to withdraw the amounts attributable to such sale(s). The current hold period for withdrawing the balance is 15 days.
+  payout_terms: Funds availability notice – A hold period will be imposed on amounts that accrue from the sale of an item. Account holders acknowledge that, during this hold period, a seller will be unable to withdraw the amounts attributable to such sale(s). The current hold period for withdrawing the balance is 15 days.
   payout_terms_stripe: Payout is managed by Stripe. See the dashboard for processing status.
   payout_terms_contact: For questions or concerns, please contact [payments@eluv.io](mailto:payments@eluv.io)
   balance:
@@ -140,9 +150,9 @@ preferences:
   marketplace_display_currency: Marketplace Display Currency
   currency_conversion: This is a conversion computed from USD
   notifications:
-    listing_sold: Notify me when one of my listed NFTs is sold
-    token_updated: Notify me when an NFT I own is updated (e.g. new media)
-    offer_received: Notify me when I receive a purchase offer for an NFT I own
+    listing_sold: Notify me when one of my listed items is sold
+    token_updated: Notify me when an item I own is updated (e.g. new media)
+    offer_received: Notify me when I receive a purchase offer for an item I own
     offer_accepted: Notify me when a purchase offer I made was accepted
     offer_declined: Notify me when a purchase offer I made was declined
     offer_expired: Notify me when a purchase offer I made has expired
@@ -184,7 +194,7 @@ connected_accounts:
   link_wallet_2: Link {networkName} Payment Wallet {t{est}
   unlink_wallet: Unlink Wallet
   unlink_wallet_confirm: Are you sure you want to disconnect this account?
-  description: To buy and sell NFTs using {usdcIcon} USDC on {networkName} with direct payment, link your Eluvio Media Wallet to your payment wallet.
+  description: To buy and sell items using {usdcIcon} USDC on {networkName} with direct payment, link your Eluvio Media Wallet to your payment wallet.
   how_to_link: How do I link my Phantom Wallet?
   get_wallet: Get {walletName}
   connect_wallet: Connect {walletName}
@@ -231,7 +241,7 @@ purchase:
   wallet_balance: Wallet Balance
   checkout: Checkout
   checkout_gift: Checkout - Buy as a Gift
-  sell_your_nft: Sell Your NFT
+  sell_your_nft: Sell Your Item
   set_price: Set Price
   min_listing_price: Minimum listing price is {price}
   max_listing_price: Maximum listing price is {price}
@@ -263,15 +273,15 @@ purchase:
     insufficient_funds: Insufficient wallet balance
     solana_insufficient_funds: Solana account has insufficient balance to perform this transaction
     ethereum_insufficient_funds: Ethereum account has insufficient balance to perform this transaction
-    listing_failed: Unable to list this NFT
-    nft_being_purchased: This NFT is currently in the process of being purchased
-    nft_sold: This NFT was sold for {price} on {date}
+    listing_failed: Unable to list this Item
+    nft_being_purchased: This item is currently in the process of being purchased
+    nft_sold: This item was sold for {price} on {date}
     login_required: You must be logged in to complete this purchase.
 
 offers:
   offer: Offer
   make_an_offer: Make an Offer
-  active_offers: Active Offers for this NFT
+  active_offers: Active Offers for this item
   min_offer_price: Minimum offer price is {price}
   max_offer_price: Maximum offer price is {price}
   expires_in_single: Expires in 1 Day
@@ -315,11 +325,11 @@ transfers:
   header: Transfer Your Item
   network: Network
   target_address: Target Address
-  transferring: Transferring NFT. This may take several minutes.
+  transferring: Transferring item. This may take several minutes.
   errors:
     address_warning: The target address does not currently own any items. Are you sure this is the right address?
     invalid_address: Invalid Target Address
-    no_self_transfer: You may not transfer an NFT to yourself
+    no_self_transfer: You may not transfer an item to yourself
     failed: Transfer Failed
 
 collections:
@@ -332,12 +342,12 @@ collections:
   selected: Selected
   redeem: Redeem
   select_token: Select this Token
-  select_nfts: Select NFTs to Redeem
-  select_nfts_2: Select the NFTs you wish to trade in
-  select_nfts_3: Choose one NFT per collection slot
+  select_nfts: Select items to Redeem
+  select_nfts_2: Select the items you wish to trade in
+  select_nfts_3: Choose one item per collection slot
   select_nfts_4: Please select one token to redeem for each item in the collection.
   signature_warning: This operation requires one signature per redeemed token. Please check your Metamask browser extension and accept all pending signature requests.
-  redemption_warning: Clicking redeem will permanently burn the selected tokens and mint the reward tokens to your account. Your new NFTs will appear in your wallet when minting is complete. This operation cannot be reversed and burned tokens cannot be recovered.
+  redemption_warning: Clicking redeem will permanently burn the selected tokens and mint the reward tokens to your account. Your new items will appear in your wallet when minting is complete. This operation cannot be reversed and burned tokens cannot be recovered.
   redemption_confirmation: Are you sure you want to redeem this collection with the selected tokens? This action cannot be reversed.
   errors:
     listed_nft: You may not redeem a token while it is listed for sale.
@@ -350,14 +360,14 @@ tables:
   token_history_single: Transaction History for this Token
   token_history_all: Secondary Sales History for All '{name}' Tokens
   active_offers: Active Offers for this Token
-  active_listings: Active Listings for this NFT
+  active_listings: Active Listings for this item
   outstanding_offers: Outstanding Offers
   offers_made: Offers Made
   offers_received: Offers Received
   withdrawals: Withdrawals
   deposits: Deposits
-  bought_nfts: Bought NFTs
-  sold_nfts: Sold NFTs
+  bought_nfts: Bought Items
+  sold_nfts: Sold Items
   pending: Pending
   available: Available
   gifts_received: Gifts Received
@@ -462,9 +472,9 @@ item_details:
   rewards: Rewards
   reward: Reward
   reward_redeemed: Reward Redeemed
-  held_message: This NFT is in a holding period until {heldDate}. You will not be able to transfer it until then.
-  secondary_unreleased: Secondary trading for this NFT will be available on {heldDate}.
-  secondary_expired: Secondary trading for this NFT ended on {heldDate}.
+  held_message: This item is in a holding period until {heldDate}. You will not be able to transfer it until then.
+  secondary_unreleased: Secondary trading for this item will be available on {heldDate}.
+  secondary_expired: Secondary trading for this item ended on {heldDate}.
   lookout_link: See more info on Eluvio Lookout
   token_url: Token URL
   media_url: Media URL

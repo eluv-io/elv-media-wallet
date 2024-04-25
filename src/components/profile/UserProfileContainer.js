@@ -1,3 +1,5 @@
+import UserProfileStyles from "Assets/stylesheets/user.module.scss";
+
 import React, {useEffect, useState} from "react";
 import {NavLink, Redirect, useRouteMatch} from "react-router-dom";
 import {rootStore} from "Stores";
@@ -7,10 +9,13 @@ import {observer} from "mobx-react";
 import {PageLoader} from "Components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import Modal from "Components/common/Modal";
+import {LoginGate} from "Components/common/LoginGate";
 
 import UserIcon from "Assets/icons/user.svg";
 import EditIcon from "Assets/icons/edit listing icon.svg";
-import {LoginGate} from "Components/common/LoginGate";
+import ProfileBackground from "Assets/images/BG-Profile.jpg";
+
+const S = (...classes) => classes.map(c => UserProfileStyles[c] || "").join(" ");
 
 const UsernameModal = observer(({UpdateUsername, Close}) => {
   const userProfile = rootStore.userProfiles[rootStore.CurrentAddress()];
@@ -88,7 +93,6 @@ const UserProfileContainer = observer(({children}) => {
   const secondaryDisabled = marketplace?.branding?.disable_secondary_market;
 
   const [userProfile, setUserProfile] = useState(undefined);
-  const [userStats, setUserStats] = useState(undefined);
   const [showUsernameModal, setShowUsernameModal] = useState(false);
   const [usernameUpdated, setUsernameUpdated] = useState(false);
 
@@ -97,22 +101,12 @@ const UserProfileContainer = observer(({children}) => {
   useEffect(() => {
     setUsernameUpdated(false);
     setUserProfile(undefined);
-    setUserStats(undefined);
 
     rootStore.UserProfile({userId: match.params.userId})
       .then(async profile => {
         if(!profile) { return; }
 
         setUserProfile(profile);
-
-        if(!marketplace?.branding?.hide_leaderboard) {
-          setUserStats(
-            await rootStore.UserStats({
-              userAddress: profile.userAddress,
-              marketplaceId: match.params.marketplaceId
-            })
-          );
-        }
       });
   }, [match.params.userId]);
 
@@ -131,154 +125,115 @@ const UserProfileContainer = observer(({children}) => {
 
   return (
     <>
-      <div className="page-block page-block--user-profile">
-        <div className="page-block__content user">
-          {
-            showUsernameModal ?
-              <UsernameModal
-                UpdateUsername={async (userName) => {
-                  setUserProfile(
-                    await rootStore.UpdateUserProfile({
-                      newUserName: userName
-                    })
-                  );
+      {
+        !showUsernameModal ? null :
+          <UsernameModal
+            UpdateUsername={async (userName) => {
+              setUserProfile(
+                await rootStore.UpdateUserProfile({
+                  newUserName: userName
+                })
+              );
 
-                  setShowUsernameModal(false);
-                  setUsernameUpdated(true);
-                }}
-                Close={() => setShowUsernameModal(false)}
-              /> : null
-          }
-          <div className="user__profile">
-            <div className="user__profile__image-container">
-              <ImageIcon
-                icon={rootStore.ProfileImageUrl(userProfile.imageUrl, 800) || UserIcon}
-                alternateIcon={UserIcon}
-                className="user__profile__image"
-              />
-            </div>
-            <div className="user__profile__details">
-              <div className="user__profile__name">
-                {
-                  userProfile.userName ?
-                    <div className="user__profile__name__text ellipsis">
-                      {`@${userProfile.userName}`}
-                    </div> :
-                    currentUser ?
-                      <div className="user__profile__name__text ellipsis">
-                        Set Your Username
-                      </div> : null
-                }
-                {
-                  currentUser ?
-                    <button onClick={() => setShowUsernameModal(!showUsernameModal)} className="action user__profile__name__edit-button">
-                      <ImageIcon
-                        icon={EditIcon}
-                        title="Set Username"
-                      />
-                    </button> : null
-                }
-              </div>
-              <div className="user__profile__address-container">
-                <div className="user__profile__address">
-                  <div className="ellipsis">
-                    { userProfile.userAddress }
-                  </div>
-                </div>
-                <CopyButton value={userProfile.userAddress} className="user__profile__address-copy" />
-              </div>
+              setShowUsernameModal(false);
+              setUsernameUpdated(true);
+            }}
+            Close={() => setShowUsernameModal(false)}
+          />
+      }
+      <div className={S("profile-container")}>
+        <img src={ProfileBackground} alt="Background" className={S("profile-container__background")} />
+        <div className={S("profile-container__gradient")} />
+        <div className={S("profile")}>
+          <div className={S("profile__image-container")}>
+            <ImageIcon
+              label="Profile Image"
+              icon={rootStore.ProfileImageUrl(userProfile.imageUrl, 800) || UserIcon}
+              alternateIcon={UserIcon}
+              className={S("profile__image")}
+            />
+          </div>
+          <div className={S("profile__details")}>
+            <div className={S("profile__name-container")}>
               {
-                currentUser && !userProfile.imageUrl ?
-                  <div className="user__profile__message">
-                    { rootStore.l10n.profile.set_profile_image }
-                  </div> : null
+                userProfile.userName ?
+                  <div className={S("profile__name")}>
+                    {`@${userProfile.userName}`}
+                  </div> :
+                  currentUser ?
+                    <div className={S("profile__username-hint")}>
+                      { rootStore.l10n.profile.set_username }
+                    </div> : null
+              }
+              {
+                currentUser ?
+                  <button onClick={() => setShowUsernameModal(!showUsernameModal)} className={S("profile__edit")}>
+                    <ImageIcon
+                      icon={EditIcon}
+                      title="Set Username"
+                    />
+                  </button> : null
               }
             </div>
-          </div>
-          <div className="user__stats-container">
+            <div className={S("profile__address-container")}>
+              <div className={S("profile__address")}>
+                { userProfile.userAddress }
+              </div>
+              <CopyButton
+                value={userProfile.userAddress}
+                className={S("profile__address-copy")}
+              />
+            </div>
             {
-              userProfile.badges?.length > 0 ?
-                <div className="user__badges">
-                  {
-                    userProfile.badges.map(({image, text}) =>
-                      <ImageIcon
-                        icon={image}
-                        title={text}
-                        label={text}
-                        key={`badge-${text}`}
-                        className="user__badge"
-                      />
-                    )
-                  }
-                </div> : null
-            }
-            {
-              userStats ?
-                <div className="user__stats-list">
-                  {
-                    marketplace && !marketplace?.branding?.hide_leaderboard ?
-                      <>
-                        <div className="user__stats">
-                          <div className="user__stats__label">{ rootStore.l10n.header.leaderboard }</div>
-                          <div className="user__stats__value">#{userStats.rank ? userStats.rank.toLocaleString() : ""}</div>
-                        </div>
-                        <div className="user__stats__separator" />
-                      </> : null
-                  }
-                  <div className="user__stats">
-                    <div className="user__stats__label">{ rootStore.l10n.navigation.collectibles }</div>
-                    <div className="user__stats__value">{ (userStats.count || 0).toLocaleString() }</div>
-                  </div>
+              currentUser && !userProfile.imageUrl ?
+                <div className={S("profile__image-hint")}>
+                  { rootStore.l10n.profile.set_profile_image }
                 </div> : null
             }
           </div>
         </div>
-      </div>
-      <div className="page-block page-block--user-profile-nav user__content">
-        <div className="page-block__content">
-          <div className="header__navigation user__nav">
-            <NavLink to="items" className="header__navigation-link user__nav__link">
-              { rootStore.l10n.header.items }
-            </NavLink>
-            {
-              marketplace?.collections && marketplace?.collections.length > 0 ?
-                <NavLink to="collections" className="header__navigation-link user__nav__link">
-                  { rootStore.l10n.header.collections }
-                </NavLink> : null
-            }
+        <nav className={S("nav")}>
+          <NavLink to="items" className={S("nav__link")}>
+            { rootStore.l10n.header.items }
+          </NavLink>
+          {
+            marketplace?.collections && marketplace?.collections.length > 0 ?
+              <NavLink to="collections" className={S("nav__link")}>
+                { rootStore.l10n.header.collections }
+              </NavLink> : null
+          }
 
-            {
-              secondaryDisabled ? null :
-                <NavLink to="listings" className="header__navigation-link user__nav__link">
-                  { rootStore.l10n.header.listings }
-                </NavLink>
-            }
-            {
-              currentUser && !secondaryDisabled ?
-                <NavLink to="offers" className="header__navigation-link user__nav__link">
-                  { rootStore.l10n.header.offers }
-                </NavLink> : null
-            }
-            {
-              currentUser ?
-                <NavLink to="activity" className="header__navigation-link user__nav__link">
-                  { rootStore.l10n.header.activity }
-                </NavLink> : null
-            }
-            {
-              currentUser ?
-                <NavLink to="notifications" className="header__navigation-link user__nav__link no-mobile">
-                  { rootStore.l10n.header.notifications }
-                </NavLink> : null
-            }
-            {
-              currentUser ?
-                <NavLink to="gifts" className="header__navigation-link user__nav__link no-mobile">
-                  { rootStore.l10n.header.gifts }
-                </NavLink> : null
-            }
-          </div>
-        </div>
+          {
+            secondaryDisabled ? null :
+              <NavLink to="listings" className={S("nav__link")}>
+                { rootStore.l10n.header.listings }
+              </NavLink>
+          }
+          {
+            currentUser ?
+              <NavLink to="activity" className={S("nav__link")}>
+                { rootStore.l10n.header.activity }
+              </NavLink> : null
+          }
+          {
+            currentUser ?
+              <NavLink to="notifications" className={[S("nav__link"), "no-mobile"].join(" ")}>
+                { rootStore.l10n.header.notifications }
+              </NavLink> : null
+          }
+          {
+            currentUser ?
+              <NavLink to="gifts" className={[S("nav__link"), "no-mobile"].join(" ")}>
+                { rootStore.l10n.header.gifts }
+              </NavLink> : null
+          }
+          {
+            currentUser ?
+              <NavLink to="details" className={[S("nav__link"), "no-mobile"].join(" ")}>
+                { rootStore.l10n.header.details }
+              </NavLink> : null
+          }
+        </nav>
       </div>
       { children }
     </>

@@ -180,13 +180,13 @@ const DateRange = observer(({label, value, onChange}) => {
   );
 });
 
-const FilterSelect = observer(({label, value, options, optionLabelPrefix="", onChange, placeholder}) => {
+const FilterSelect = observer(({label, value, options, optionLabelPrefix="", onChange, placeholder, className=""}) => {
   return (
     <Select
       label={label}
       value={value}
       onChange={value => onChange(value)}
-      containerClassName="filters__select-container"
+      containerClassName={`filters__select-container ${className}`}
       buttonClassName={`filters__select ${placeholder && (placeholder[0] || "").toString() === (value || "").toString() ? "filters__select-placeholder" : ""}`}
       options={options.map(options => [options[0], options[0] === "" ? options[1] : `${optionLabelPrefix}${options[1]}`])}
       placeholder={placeholder}
@@ -660,7 +660,7 @@ export const ListingFilters = observer(({mode="listings", initialFilters, Update
       </div>
       <div className="filters__controls">
         <FilterSelect
-          className="filters__select filters__select--sort"
+          className="filters__select-container--main"
           label="Sort By"
           optionLabelPrefix={`${rootStore.l10n.filters.sort.sort}: `}
           value={sortOptions.find(option => option.value === filterValues.sort).value}

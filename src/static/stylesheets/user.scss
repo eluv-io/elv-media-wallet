@@ -257,5 +257,9 @@
     min-height: 30px;
     text-align: center;
     width: 100%;
+
+    &:empty {
+      display: none;
+    }
   }
 }

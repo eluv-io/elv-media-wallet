@@ -1789,16 +1789,20 @@ class RootStore {
   });
 
   CreateShortURL = flow(function * (url) {
-    // Normalize URL
-    url = new URL(url).toString();
+    try {
+      // Normalize URL
+      url = new URL(url).toString();
 
-    if(!this.shortURLs[url]) {
-      const { url_mapping } = yield (yield fetch("https://elv.lv/tiny/create", { method: "POST", body: url })).json();
+      if(!this.shortURLs[url]) {
+        const {url_mapping} = yield (yield fetch("https://elv.lv/tiny/create", {method: "POST", body: url})).json();
 
-      this.shortURLs[url] = url_mapping.shortened_url;
+        this.shortURLs[url] = url_mapping.shortened_url;
+      }
+
+      return this.shortURLs[url];
+    } catch(error) {
+      this.Log(error, true);
     }
-
-    return this.shortURLs[url];
   });
 
   LookoutURL(transaction) {

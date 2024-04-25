@@ -14,19 +14,18 @@ import ImageIcon from "Components/common/ImageIcon";
 import DepositModal from "Components/profile/DepositModal";
 import {SearchParams} from "../../utils/Utils";
 
-import EmailIcon from "Assets/icons/email icon.svg";
 import MetamaskIcon from "Assets/icons/crypto/metamask fox.png";
 import WithdrawalsIcon from "Assets/icons/crypto/USD icon.svg";
 import OffersIcon from "Assets/icons/Offers table icon.svg";
 import DownCaret from "Assets/icons/down-caret.svg";
 import UpCaret from "Assets/icons/up-caret.svg";
 
-const ExpandableContent = ({textShow, textHide, initiallyOpen=false, children}) => {
+const ExpandableContent = ({textShow, textHide, initiallyOpen=false, children, className=""}) => {
   const [expanded, setExpanded] = useState(initiallyOpen);
 
   return (
     <>
-      <button onClick={() => setExpanded(!expanded)} className={`profile-page__expand-button ${expanded ? "expanded" : "collapsed"}`}>
+      <button onClick={() => setExpanded(!expanded)} className={`profile-page__expand-button ${expanded ? "expanded" : "collapsed"} ${className}`}>
         { expanded ? textHide : textShow }
         <ImageIcon icon={expanded ? UpCaret : DownCaret} className="profile-page__expand-button__icon" />
       </button>
@@ -171,104 +170,117 @@ const Profile = observer(() => {
   return (
     <div className="page-container profile-page">
       { showWithdrawalModal ? <WithdrawalModal Close={() => setShowWithdrawalModal(false)} /> : null }
-      <div className="profile-page__section profile-page__section-account">
-        <h1 className="profile-page__header">{ rootStore.l10n.profile.media_wallet }</h1>
-        <h2 className="profile-page__address-header">
-          { rootStore.l10n.profile.address }
-        </h2>
-        <div className="profile-page__address">
-          <CopyableField className="profile-page__address-field" value={rootStore.CurrentAddress()} ellipsis={false}>
-            { rootStore.CurrentAddress() }
-          </CopyableField>
-        </div>
-        <div className="profile-page__message">
-          { rootStore.l10n.profile.do_not_send_funds }
-        </div>
+      <div className="profile-page__section-container">
+        <div className="profile-page__section profile-page__section-account">
+          <h1 className="profile-page__header">{ rootStore.l10n.profile.media_wallet_details }</h1>
+          <div className="profile-page__section-content">
+            <h2 className="profile-page__address-header">
+              { rootStore.l10n.profile.address }
+            </h2>
+            <div className="profile-page__address">
+              <CopyableField className="profile-page__address-field" value={rootStore.CurrentAddress()} ellipsis={false}>
+                { rootStore.CurrentAddress() }
+              </CopyableField>
+            </div>
+            <div className="profile-page__message">
+              { rootStore.l10n.profile.do_not_send_funds }
+            </div>
 
-        <div className="profile-page__account-info">
-          <div className="profile-page__account-info__message">
-            { custodialWallet ? rootStore.l10n.login.signed_in_as : `${rootStore.l10n.login.signed_in_via} MetaMask` }
-          </div>
-          <div className={`profile-page__account-info__account profile-page__account-info__account--${custodialWallet ? "custodial" : "external"}`}>
-            {
-              custodialWallet ?
-                <>
-                  <ImageIcon className="profile-page__account-info__icon" icon={EmailIcon}/>
-                  <div className="profile-page__account-info__email">
-                    { userInfo.email }
-                  </div>
-                </> :
-                <ImageIcon className="profile-page__account-info__icon profile-page__account-info__icon--external" alt="Metamask" label="Metamask" icon={MetamaskIcon}/>
-            }
-          </div>
-        </div>
+            <div className="profile-page__account-info">
+              <div className="profile-page__account-info__message">
+                { custodialWallet ? rootStore.l10n.login.signed_in_as : `${rootStore.l10n.login.signed_in_via} MetaMask` }
+              </div>
+              <div className={`profile-page__account-info__account profile-page__account-info__account--${custodialWallet ? "custodial" : "external"}`}>
+                {
+                  custodialWallet ?
+                    <>
+                      <div className="profile-page__account-info__email">
+                        { userInfo.email }
+                      </div>
+                    </> :
+                    <ImageIcon className="profile-page__account-info__icon profile-page__account-info__icon--external" alt="Metamask" label="Metamask" icon={MetamaskIcon}/>
+                }
+              </div>
+            </div>
 
-        <div className="profile-page__actions profile-page__sign-out">
-          <ButtonWithLoader
-            onClick={async () => {
-              rootStore.SignOut();
-              await new Promise(resolve => setTimeout(resolve, 1000));
-            }}
-            className="action profile-page__sign-out-button"
-          >
-            { rootStore.l10n.login.sign_out }
-          </ButtonWithLoader>
+            <div className="profile-page__actions profile-page__sign-out">
+              <ButtonWithLoader
+                onClick={async () => {
+                  rootStore.SignOut();
+                  await new Promise(resolve => setTimeout(resolve, 1000));
+                }}
+                className="action profile-page__sign-out-button"
+              >
+                { rootStore.l10n.login.sign_out }
+              </ButtonWithLoader>
+            </div>
+          </div>
         </div>
       </div>
 
-      <BalanceDetails />
+      <ExpandableContent
+        textShow={rootStore.l10n.profile.advanced_details}
+        textHide={rootStore.l10n.profile.advanced_details}
+        className="profile-page__advanced-toggle"
+      >
+        <div className="profile-page__section-container">
+          <BalanceDetails />
 
-      {
-        secondaryDisabled ? null :
-          <div className="profile-page__section profile-page__section-balance profile-page__section-box">
-            <h2 className="profile-page__section-header">
-              {rootStore.l10n.profile.balance.locked}
-            </h2>
-            <div className="profile-page__balance">
-              {FormatPriceString(rootStore.lockedWalletBalance, {includeCurrency: true})}
+          {
+            secondaryDisabled ? null :
+              <div className="profile-page__section profile-page__section-balance profile-page__section-box">
+                <h2 className="profile-page__section-header">
+                  {rootStore.l10n.profile.balance.locked}
+                </h2>
+                <div className="profile-page__balance">
+                  {FormatPriceString(rootStore.lockedWalletBalance, {includeCurrency: true})}
+                </div>
+                <br/>
+                <ExpandableContent textShow={rootStore.l10n.profile.view.outstanding_offers} textHide={rootStore.l10n.profile.hide.outstanding_offers}>
+                  <OffersTable
+                    buyerAddress={rootStore.CurrentAddress()}
+                    icon={OffersIcon}
+                    header={rootStore.l10n.tables.outstanding_offers}
+                    statuses={["ACTIVE"]}
+                    useWidth={600}
+                    noActions
+                    hideActionsColumn
+                    showTotal
+                  />
+                </ExpandableContent>
+                <Link
+                  className="profile-page__transactions-link"
+                  to={
+                    match.params.marketplaceId ?
+                      UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "offers") :
+                      "/wallet/users/me/offers"
+                  }
+                >
+                  {rootStore.l10n.profile.view.all_offers}
+                </Link>
+              </div>
+          }
+
+          { balancePresent ? <WithdrawalDetails setShowWithdrawalModal={setShowWithdrawalModal} /> : null }
+        </div>
+
+        {
+          rootStore.usdcDisabled || secondaryDisabled ?
+            null :
+            <div className="profile-page__section-container" style={{marginTop: 20}}>
+              <div className="profile-page__section profile-page__section-wallet-connect">
+                <h2 className="profile-page__section-header">
+                  { rootStore.l10n.connected_accounts.connected_accounts }
+                </h2>
+
+                <WalletConnect type="phantom" showPaymentPreference />
+                {
+                  // <WalletConnect type="metamask" showPaymentPreference />
+                }
+              </div>
             </div>
-            <br/>
-            <ExpandableContent textShow={rootStore.l10n.profile.view.outstanding_offers} textHide={rootStore.l10n.profile.hide.outstanding_offers}>
-              <OffersTable
-                buyerAddress={rootStore.CurrentAddress()}
-                icon={OffersIcon}
-                header={rootStore.l10n.tables.outstanding_offers}
-                statuses={["ACTIVE"]}
-                useWidth={600}
-                noActions
-                hideActionsColumn
-                showTotal
-              />
-            </ExpandableContent>
-            <Link
-              className="profile-page__transactions-link"
-              to={
-                match.params.marketplaceId ?
-                  UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "offers") :
-                  "/wallet/users/me/offers"
-              }
-            >
-              {rootStore.l10n.profile.view.all_offers}
-            </Link>
-          </div>
-      }
-
-      { balancePresent ? <WithdrawalDetails setShowWithdrawalModal={setShowWithdrawalModal} /> : null }
-
-      {
-        rootStore.usdcDisabled || secondaryDisabled ?
-          null :
-          <div className="profile-page__section profile-page__section-wallet-connect">
-            <h2 className="profile-page__section-header">
-              { rootStore.l10n.connected_accounts.connected_accounts }
-            </h2>
-
-            <WalletConnect type="phantom" showPaymentPreference />
-            {
-              // <WalletConnect type="metamask" showPaymentPreference />
-            }
-          </div>
-      }
+        }
+      </ExpandableContent>
     </div>
   );
 });

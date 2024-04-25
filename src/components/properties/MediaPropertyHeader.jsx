@@ -11,7 +11,7 @@ import {Autocomplete} from "@mantine/core";
 import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
 
 import SearchIcon from "Assets/icons/search.svg";
-import {MobileNavigation, ProfileNavigation} from "Components/header/Header";
+import {MobileNavigation, ProfileNavigation} from "Components/header/Header2";
 
 const S = (...classes) => classes.map(c => HeaderStyles[c] || "").join(" ");
 

@@ -378,13 +378,19 @@
   }
 
   &__input {
-    border: var(--border-input);
-    border-radius: var(--border-radius-input);
+    background-color: transparent;
+    border: 0;
     height: 35px;
     overflow: hidden;
     padding: 0 15px;
     text-overflow: ellipsis;
+    transition: background-color 0.25s ease;
     white-space: nowrap;
+
+    &:active,
+    &:focus-visible {
+      background-color: var(--background-input);
+    }
   }
 
   &__options {

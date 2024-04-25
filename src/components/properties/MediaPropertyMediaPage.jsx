@@ -361,16 +361,16 @@ const MediaPropertyMediaPage = observer(() => {
             <div className={S("media-info")}>
               <div className={S("media-text")}>
                 {
+                  !display.title ? null :
+                    <h1 className={S("media-text__title")}>{display.title}</h1>
+                }
+                {
                   (display.headers || []).length === 0 ? null :
                     <div className={S("media-text__headers")}>
                       {display.headers.map((header, index) =>
                         <div key={`header-${index}`} className={S("media-text__header")}>{header}</div>
                       )}
                     </div>
-                }
-                {
-                  !display.title ? null :
-                    <h1 className={S("media-text__title")}>{display.title}</h1>
                 }
                 {
                   !display.subtitle ? null :

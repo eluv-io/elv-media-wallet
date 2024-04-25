@@ -349,7 +349,7 @@ const GlobalHeader = observer(({scrolled}) => {
 });
 
 let lastPageHeight = document.querySelector("body").scrollHeight;
-const Header = observer(() => {
+const Header2 = observer(() => {
   const location = useLocation();
   const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
   const marketplace = marketplaceId && rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === marketplaceId);
@@ -415,4 +415,4 @@ const Header = observer(() => {
   );
 });
 
-export default Header;
+export default Header2;

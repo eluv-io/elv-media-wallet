@@ -47,6 +47,7 @@ const Video = observer(({
       }
     }
 
+    console.log("INITIALIZE PLAYER")
     // eslint-disable-next-line no-async-promise-executor
     InitializeEluvioPlayer(
       targetRef.current,
@@ -79,9 +80,13 @@ const Video = observer(({
       window.player = player;
       setPlayer(player);
 
+      /*
       player.controls.RegisterVideoEventListener("canplay", event => {
+        console.log("CANPLAY")
         setVideoDimensions({width: event.target.videoWidth, height: event.target.videoHeight});
       });
+
+       */
 
       if(callback) {
         callback(player);

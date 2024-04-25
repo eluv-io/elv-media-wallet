@@ -25,6 +25,21 @@ $search-height: 50px;
   &__select {
     height: $controls-height;
     min-width: 300px;
+
+    .styled-select__menu {
+      //border: 0;
+    }
+  }
+
+  &__select-container--main {
+    .styled-select__button {
+      border: 0;
+      transition: background-color 0.15s ease;
+
+      &:not(&--active) {
+        background-color: transparent;
+      }
+    }
   }
 
   &__select-container {
@@ -36,8 +51,8 @@ $search-height: 50px;
 
   &__menu-button {
     align-items: center;
-    background: var(--background-input);
-    border: var(--border-input);
+    //background: var(--background-input);
+    border: 1px solid transparent;
     border-radius: var(--border-radius-input);
     box-shadow: var(--box-shadow-input);
     display: flex;
@@ -46,6 +61,7 @@ $search-height: 50px;
     margin-left: 10px;
     min-width: $controls-height;
     padding: 10px;
+    transition: border 0.15s ease, background-color 0.15s ease;
 
     svg {
       height: 20px;
@@ -53,11 +69,20 @@ $search-height: 50px;
     }
 
     &--active {
+      background: var(--background-input);
       border: var(--outline-input-focus);
     }
   }
 
   .autocomplete {
+    &__input {
+      padding-left: 65px;
+
+      &::placeholder {
+        color: #fff;
+      }
+    }
+
     &__options {
       top: calc(#{$search-height} + 3px);
     }
@@ -68,7 +93,7 @@ $search-height: 50px;
 
     &__clear-button {
       padding: 12px;
-      right: 50px;
+      right: 0;
     }
   }
 
@@ -101,10 +126,10 @@ $search-height: 50px;
     background: transparent;
     border: 0;
     height: 100%;
+    left: 0;
     min-width: 65px;
-    padding: 10px;
+    padding: 12px;
     position: absolute;
-    right: 0;
     width: 65px;
   }
 

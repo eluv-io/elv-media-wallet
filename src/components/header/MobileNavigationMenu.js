@@ -8,7 +8,6 @@ import {ButtonWithLoader, CopyableField, FormatPriceString, MenuLink} from "Comp
 
 import ProfileIcon from "Assets/icons/header/profile icon v2";
 import ListingsIcon from "Assets/icons/header/listings icon";
-import OffersIcon from "Assets/icons/Offers table icon.svg";
 import ActivityIcon from "Assets/icons/header/Activity";
 import ItemsIcon from "Assets/icons/header/items icon";
 import StoreIcon from "Assets/icons/header/Store";
@@ -40,10 +39,10 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
       { separator: true, authed: true },
       { name: rootStore.l10n.navigation.items, icon: ItemsIcon, to: UrlJoin("/wallet", "users", "me", "items"), authed: true },
       { name: rootStore.l10n.navigation.listings, icon: ListingsIcon, to: UrlJoin("/wallet", "users", "me", "listings"), authed: true },
-      { name: rootStore.l10n.navigation.offers, icon: OffersIcon, to: UrlJoin("/wallet", "users", "me", "offers"), authed: true },
       { name: rootStore.l10n.navigation.activity, icon: ActivityIcon, to: UrlJoin("/wallet", "users", "me", "activity"), authed: true },
       { name: rootStore.l10n.navigation.gifts, icon: GiftIcon, to: UrlJoin("/wallet", "users", "me", "gifts"), authed: true },
-      { name: rootStore.l10n.navigation.notifications, icon: NotificationsIcon, to: UrlJoin("/wallet", "users", "me", "notifications"), authed: true }
+      { name: rootStore.l10n.navigation.notifications, icon: NotificationsIcon, to: UrlJoin("/wallet", "users", "me", "notifications"), authed: true },
+      { name: rootStore.l10n.navigation.wallet_details, icon: WalletIcon, to: UrlJoin("/wallet", "users", "me", "details"), authed: true }
     ];
   } else {
     const tabs = fullMarketplace?.branding?.tabs || {};
@@ -61,10 +60,10 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
       { name: rootStore.l10n.navigation.items, icon: ItemsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "items"), authed: true },
       { name: rootStore.l10n.navigation.collections, icon: CollectionsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "collections"), authed: true, hidden: !hasCollections },
       { name: rootStore.l10n.navigation.listings, icon: ListingsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "listings"), authed: true, hidden: secondaryDisabled },
-      { name: rootStore.l10n.navigation.offers, icon: OffersIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "offers"), authed: true, hidden: secondaryDisabled },
       { name: rootStore.l10n.navigation.activity, icon: ActivityIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "activity"), authed: true },
       { name: rootStore.l10n.navigation.gifts, icon: GiftIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "gifts"), authed: true },
-      { name: rootStore.l10n.navigation.notifications, icon: NotificationsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "notifications"), authed: true }
+      { name: rootStore.l10n.navigation.notifications, icon: NotificationsIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "notifications"), authed: true },
+      { name: rootStore.l10n.navigation.wallet_details, icon: WalletIcon, to: UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "details"), authed: true },
     ];
   }
 
@@ -119,15 +118,6 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
                 <div className="mobile-menu__section-header">{ rootStore.l10n.profile.balance.total }</div>
                 <div className="mobile-menu__balance">{ FormatPriceString(rootStore.totalWalletBalance, {includeCurrency: true, prependCurrency: true}) }</div>
               </div>
-
-              <MenuLink
-                icon={WalletIcon}
-                to={marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "profile") : "/wallet/profile"}
-                className="mobile-menu__link"
-                onClick={Close}
-              >
-                { rootStore.l10n.profile.view.details }
-              </MenuLink>
             </> : null
         }
         {

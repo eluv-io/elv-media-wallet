@@ -14,12 +14,12 @@ import CopyIcon from "Assets/icons/copy";
 import ItemsIcon from "Assets/icons/header/items icon";
 import CollectionsIcon from "Assets/icons/header/collections icon";
 import ListingsIcon from "Assets/icons/header/listings icon";
-import OffersIcon from "Assets/icons/Offers table icon.svg";
 import ActivityIcon from "Assets/icons/header/Activity";
 import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
 import GiftIcon from "Assets/icons/gift.svg";
 import PreferencesIcon from "Assets/icons/header/Preferences icon";
 import DiscoverIcon from "Assets/icons/discover.svg";
+import WalletIcon from "Assets/icons/wallet.svg";
 
 const ProfileMenu = observer(({marketplaceId, Hide}) => {
   const [showPreferencesMenu, setShowPreferencesMenu] = useState(false);
@@ -108,15 +108,6 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
                 { rootStore.l10n.navigation.listings }
               </MenuLink>
               <MenuLink
-                icon={OffersIcon}
-                className="header__profile-menu__link"
-                to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "offers") : "/wallet/users/me/offers"}
-                onClick={Hide}
-                isActive={IsActive("offers")}
-              >
-                { rootStore.l10n.navigation.offers }
-              </MenuLink>
-              <MenuLink
                 icon={ActivityIcon}
                 className="header__profile-menu__link"
                 to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "activity") : "/wallet/users/me/activity"}
@@ -147,6 +138,15 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
           { rootStore.l10n.navigation.notifications }
         </MenuLink>
 
+        <MenuLink
+          icon={WalletIcon}
+          className="header__profile-menu__link"
+          to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "details") : "/wallet/users/me/details"}
+          onClick={Hide}
+          isActive={IsActive("details")}
+        >
+          { rootStore.l10n.navigation.wallet_details }
+        </MenuLink>
         <MenuLink
           icon={PreferencesIcon}
           onClick={() => setShowPreferencesMenu(!showPreferencesMenu)}

@@ -41,7 +41,7 @@
 
   &__indicator {
     position: absolute;
-    z-index: 2;
+    z-index: 1;
     bottom: 15px;
     right: 15px;
     text-align: center;
@@ -85,7 +85,7 @@
 
   &__title {
     min-height: 1.6em;
-    font-weight: 500;
+    font-weight: 700;
     height: max-content;
   }
 
