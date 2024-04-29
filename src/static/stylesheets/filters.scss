@@ -25,10 +25,6 @@ $search-height: 50px;
   &__select {
     height: $controls-height;
     min-width: 300px;
-
-    .styled-select__menu {
-      //border: 0;
-    }
   }
 
   &__select-container--main {
@@ -51,7 +47,6 @@ $search-height: 50px;
 
   &__menu-button {
     align-items: center;
-    //background: var(--background-input);
     border: 1px solid transparent;
     border-radius: var(--border-radius-input);
     box-shadow: var(--box-shadow-input);
@@ -135,6 +130,7 @@ $search-height: 50px;
 
   &__menu {
     @include page-fade-in(0.5s, ease);
+
     background: var(--color-input-bg-solid);
     border: var(--border-input);
     border-radius: var(--border-radius-input);
@@ -329,7 +325,7 @@ $search-height: 50px;
     width: 100%;
 
     &:not(:last-child) {
-      // sass-lint:disable no-color-literals
+      /* stylelint-disable no-color-literals */
       border-right: var(--border-component-secondary);
     }
   }
@@ -375,7 +371,7 @@ $search-height: 50px;
       padding: 10px 0;
 
       &:not(:last-child) {
-        // sass-lint:disable no-important
+        /* stylelint-disable no-important */
         border: 0 !important;
       }
     }

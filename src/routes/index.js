@@ -58,6 +58,50 @@ const GetNFT = (match) => {
   return (rootStore.NFTData({contractId: match.params.contractId, tokenId: match.params.tokenId})).nft || { metadata: {} };
 };
 
+const UserMarketplaceRoutes = () => {
+  return [
+    { name: "Collections", path: "collections", includeUserProfile: true, Component: UserCollections }
+  ];
+};
+
+const TokenRoutes = basePath => {
+  return [
+    { name: "Open Pack", path: UrlJoin(basePath, "/:contractId/:tokenId/open"), authed: true, Component: PackOpenStatus },
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId"), noBreadcrumb: true, noBlock: true, Component: MintedNFTRedirect },
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId/:tokenId"), noBlock: true, Component: MintedNFTDetails },
+
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId/:tokenId/media"), noBlock: true, Component: NFTMedia },
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId/:tokenId/media/:sectionId/:mediaIndex"), noBlock: true, Component: NFTMedia },
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId/:tokenId/media/:sectionId/:collectionId/:mediaIndex"), noBlock: true, Component: NFTMedia },
+
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId/:tokenId/:action"), authed: true, noBlock: true, Component: MintedNFTDetails }
+  ];
+};
+
+const UserRoutes = ({includeMarketplaceRoutes}={}) => {
+  return [
+    ...(includeMarketplaceRoutes ? UserMarketplaceRoutes() : []),
+    { name: "Listings", path: "listings", includeUserProfile: true, Component: UserListings },
+    { name: "Listing", path: "listings/:listingId", noBlock: true, Component: ListingDetails },
+    { name: "Listing", path: "listings/:listingId/:action", authed: true, noBlock: true, Component: ListingDetails },
+    { name: "Purchase Listing", path: "listings/:listingId/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
+
+    { name: "Activity", path: "activity", includeUserProfile: true, Component: UserActivity },
+    { name: "Notifications", path: "notifications", Component: Notifications, includeUserProfile: true, authed: true },
+    { name: "Gifts", path: "gifts", Component: UserGifts, includeUserProfile: true, authed: true },
+    { name: "Details", path: "details", Component: Profile, includeUserProfile: true, authed: true },
+
+    { name: "Items", includeUserProfile: match => match.params.userId !== "me", path: "items", Component: UserItems },
+
+    ...TokenRoutes("items"),
+    ...TokenRoutes("listings"),
+
+    { path: "/", includeUserProfile: true, redirect: "items" },
+  ]
+    .map(route => ({ ...route, navigationKey: "user", locationType: "user", loadUser: true, path: UrlJoin("users", ":userId", route.path) }));
+};
+
+
 const PropertyMediaRoutes = (basePath="") => {
   const GetPropertyPageTitle = match => GetProperty(match)?.metadata?.page_title || rootStore.l10n.media_properties.media_property;
   return [
@@ -105,8 +149,15 @@ const PropertyRoutes = (basePath="", additionalRoutes=[]) => {
       )
     ]).flat(),
 
+    // User routes
+    ...UserRoutes().map(route => [
+      ...(prefixPaths.map(path =>
+        ({...route, path: UrlJoin(basePath, path, route.path), includePageBlock: true})
+      ))
+    ]).flat(),
+
     ...(prefixPaths.map(path => ({ name: GetPropertyPageTitle, path: UrlJoin(basePath, path), Component: MediaPropertyPage }))),
-  ].map(route => ({...route, noBlock: true, clearMarketplace: true}));
+  ].map(route => ({...route, noBlock: !route.includePageBlock, clearMarketplace: true}));
 };
 
 const BundledPropertyRoutes = (basePath="") => {
@@ -116,49 +167,6 @@ const BundledPropertyRoutes = (basePath="") => {
       { path: "/details", Component: ItemDetailsPage },
     ]
   );
-};
-
-const UserMarketplaceRoutes = () => {
-  return [
-    { name: "Collections", path: "collections", includeUserProfile: true, Component: UserCollections }
-  ];
-};
-
-const TokenRoutes = basePath => {
-  return [
-    { name: "Open Pack", path: UrlJoin(basePath, "/:contractId/:tokenId/open"), authed: true, Component: PackOpenStatus },
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId"), noBreadcrumb: true, noBlock: true, Component: MintedNFTRedirect },
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId/:tokenId"), noBlock: true, Component: MintedNFTDetails },
-
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId/:tokenId/media"), noBlock: true, Component: NFTMedia },
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId/:tokenId/media/:sectionId/:mediaIndex"), noBlock: true, Component: NFTMedia },
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId/:tokenId/media/:sectionId/:collectionId/:mediaIndex"), noBlock: true, Component: NFTMedia },
-
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId/:tokenId/:action"), authed: true, noBlock: true, Component: MintedNFTDetails }
-  ];
-};
-
-const UserRoutes = ({includeMarketplaceRoutes}) => {
-  return [
-    ...(includeMarketplaceRoutes ? UserMarketplaceRoutes() : []),
-    { name: "Listings", path: "listings", includeUserProfile: true, Component: UserListings },
-    { name: "Listing", path: "listings/:listingId", noBlock: true, Component: ListingDetails },
-    { name: "Listing", path: "listings/:listingId/:action", authed: true, noBlock: true, Component: ListingDetails },
-    { name: "Purchase Listing", path: "listings/:listingId/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
-
-    { name: "Activity", path: "activity", includeUserProfile: true, Component: UserActivity },
-    { name: "Notifications", path: "notifications", Component: Notifications, includeUserProfile: true, authed: true },
-    { name: "Gifts", path: "gifts", Component: UserGifts, includeUserProfile: true, authed: true },
-    { name: "Details", path: "details", Component: Profile, includeUserProfile: true, authed: true },
-
-    { name: match => (GetMarketplace(match)?.storefront?.tabs?.my_items || "Items"), includeUserProfile: true, path: "items", Component: UserItems },
-
-    ...TokenRoutes("items"),
-    ...TokenRoutes("listings"),
-
-    { path: "/", includeUserProfile: true, redirect: "items" },
-  ]
-    .map(route => ({ ...route, navigationKey: "user", locationType: "user", loadUser: true, path: UrlJoin("users", ":userId", route.path) }));
 };
 
 const SharedRoutes = ({includeMarketplaceRoutes}) => {
@@ -306,6 +314,8 @@ const RouteWrapper = observer(({routes, children}) => {
       breadcrumbs
     });
 
+    rootStore.SetRouteParams(match.params);
+
     if(currentRoute?.hideNavigation) {
       rootStore.ToggleNavigation(false);
       return () => rootStore.ToggleNavigation(true);
@@ -317,10 +327,6 @@ const RouteWrapper = observer(({routes, children}) => {
 
 const GlobalWrapper = observer(({routes, children}) => {
   const match = useRouteMatch();
-
-  useEffect(() => {
-    rootStore.SetRouteParams(match.params);
-  }, [match.params]);
 
   const currentRoute = routes.find(route => match.path === route.path);
 
@@ -391,7 +397,7 @@ const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
 
           if(includeUserProfile) {
             result = (
-              <UserProfileContainer>
+              <UserProfileContainer includeUserProfile={includeUserProfile}>
                 {result}
               </UserProfileContainer>
             );

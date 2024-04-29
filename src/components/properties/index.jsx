@@ -1,3 +1,5 @@
+import PropertyStyles from "Assets/stylesheets/media_properties/property-page.module.scss";
+
 import React, {useEffect, useState} from "react";
 import {mediaPropertyStore, rootStore} from "Stores/index";
 import {Redirect, Switch, useRouteMatch} from "react-router-dom";
@@ -61,7 +63,9 @@ const PropertyWrapper = observer(({children}) => {
         loadingClassName="page-loader content"
       >
         <PurchaseGate permissions={mediaProperty?.permissions} backPath="/">
-          { children }
+          <div className={PropertyStyles["property"]}>
+            { children }
+          </div>
         </PurchaseGate>
         <MediaPropertyPurchaseModal />
       </AsyncComponent>

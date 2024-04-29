@@ -43,7 +43,7 @@ const TransferSection = observer(({nft}) => {
         { notMetamask ? <h3 className="details-page__transfer-details">{ notMetaMaskMessage }</h3> : "" }
 
         <div className="details-page__transfer-buttons">
-          <a href={url.toString()} target="_blank" className="button details-page__transfer-button details-page__transfer-link">
+          <a href={url.toString()} target="_blank" className="button details-page__transfer-button details-page__transfer-link" rel="noreferrer">
             Open Full Wallet to Transfer
           </a>
         </div>
@@ -62,7 +62,7 @@ const TransferSection = observer(({nft}) => {
             Transfer request to { transferInfo.network.name } succeeded
           </h3>
 
-          <a className="button details-page__transfer-details__opensea-button" target="_blank" href={transferInfo.openSeaLink} rel="noopener">Find it on OpenSea</a>
+          <a className="button details-page__transfer-details__opensea-button" target="_blank" href={transferInfo.openSeaLink} rel="noopener noreferrer">Find it on OpenSea</a>
 
           <h3 className="details-page__transfer-details__hash">
             Hash: { transferInfo.hash }

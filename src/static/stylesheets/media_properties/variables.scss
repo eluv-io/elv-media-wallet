@@ -2,42 +2,36 @@
   --property-header-height: 80px;
   --property-full-page-height: calc(var(--vh, 1vh) * 100);
   --property-full-content-height: calc(var(--property-full-page-height) - var(--property-header-height) - 5px);
-
   --property-text-primary: #FFF;
   --property-text-secondary: #CCC;
   --property-text-headers: #A5A6A8;
   --property-text-faded: #818590;
   --property-text-highlight: #92a2da;
-
-  --property-background: #131313;
-  --property-background-secondary: #1a1a1a;
+  --property-background: #000;
+  --property-background-secondary: #232323;
   --property-background-tertiary: #333;
   --property-border-color: #333;
-
-  --property-card-background: rgba(80, 80, 80, 0.25);
-  --property-card-background-active: rgba(80, 80, 80, 0.5);
+  --property-card-background: rgb(80 80 80 / 25%);
+  --property-card-background-active: rgb(80 80 80 / 50%);
   --property-card-background-solid: #141414;
   --property-card-background-solid-active: #343434;
-
   --property-search-background: #202023;
   --property-search-button-background: #38383C;
-
   --property-button-background: #FFF;
   --property-button-text: #000;
   --property-button-outline-text: #FFF;
   --property-button-outline-border: #555;
-
   --property-button-option-background-hover: #555;
   --property-button-option-text: #FFF;
 
-  @media screen and (max-width: 800px) {
+  @media screen and (width <= 800px) {
     --property-header-height: 65px;
   }
 }
 
 @mixin page-fade-in($duration: 0.5s, $animation: ease-out, $delay: 0s) {
-  opacity: 0;
   animation: $duration fadein $animation $delay forwards;
+  opacity: 0;
 }
 
 @keyframes fadein {

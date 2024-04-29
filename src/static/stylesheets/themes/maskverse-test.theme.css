@@ -6,38 +6,28 @@
   --purple-1: #420647;
 
   /* Dark theme */
+
   /* General */
   --color-bg-primary: #090909;
   --color-bg-secondary: #242424;
   --color-bg-highlight: var(--pink-2);
-
-  --color-page-bg: #000000;
-
-  --color-text-primary: #FFFFFF;
+  --color-page-bg: #000;
+  --color-text-primary: #FFF;
   --color-text-secondary: #E8E8E8;
-
-  --color-text-background-highlight: #000000;
-
-  --color-loader: rgba(255, 255, 255, 0.5);
-
-
-  --border-color: #333333;
+  --color-text-background-highlight: #000;
+  --color-loader: rgb(255 255 255 / 50%);
+  --border-color: #333;
   --border-color-faint: #2A2A2A;
-
   --border: 1px solid var(--border-color);
   --border-faint: 1px solid var(--border-color-faint);
-
   --box-shadow: none;
 
 
   /* Header */
   --background-page-header: var(--color-bg-primary);
-
   --background-input: var(--color-bg-primary);
   --color-input-bg-solid: var(--color-bg-primary);
-
-  --background-button-secondary: #000000;
-
+  --background-button-secondary: #000;
   --background-component-primary: var(--color-bg-primary);
   --color-component-bg-highlight: var(--pink-1);
   --background-table: var(--color-bg-primary);
@@ -54,16 +44,12 @@
 
   --color-text-highlight: var(--pink-1);
   --color-text-highlight-rgb: var(--pink-1-rgb);
-
   --background-card: var(--purple-1);
   --border-background-card: linear-gradient(180deg, #CA33FF 0%, #FF1895 57.81%, #ED21FF 76.56%, #BC02FF 100%);
   --border-width-card: 2px;
-
-  --box-shadow-feature-card: 0 0 12px rgba(237, 33, 255, 0.44);
+  --box-shadow-feature-card: 0 0 12px rgb(237 33 255 / 44%);
   --border-background-feature-card-selected: linear-gradient(180deg, #CA33FF 0%, #FF1895 0.81%, #ED21FF 76.56%, #BC02FF 100%);
-
   --color-featured-item-slider-handle: var(--pink-1);
-
-  --background-collection-component: linear-gradient(264.96deg, rgba(202, 51, 255, 0.3) 0.81%, rgba(255, 24, 149, 0.3) 57.8%, rgba(237, 33, 255, 0.3) 76.28%, rgba(188, 2, 255, 0.3) 99.38%);
-  --box-shadow-collection-reward-card: 0 0 8px rgba(255, 24, 149, 1);
+  --background-collection-component: linear-gradient(264.96deg, rgb(202 51 255 / 30%) 0.81%, rgb(255 24 149 / 30%) 57.8%, rgb(237 33 255 / 30%) 76.28%, rgb(188 2 255 / 30%) 99.38%);
+  --box-shadow-collection-reward-card: 0 0 8px rgb(255 24 149 / 100%);
 }

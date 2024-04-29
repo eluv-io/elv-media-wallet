@@ -1,10 +1,10 @@
-// sass-lint:disable no-vendor-prefixes, no-color-literals, force-pseudo-nesting
+/* stylelint-disable no-vendor-prefixes, no-color-literals, force-pseudo-nesting */
 
 @import "variables";
 
 * {
-  -webkit-overflow-scrolling: touch;
   font-family: var(--font-family-secondary);
+  -webkit-overflow-scrolling: touch;
 
   ::-webkit-scrollbar {
     opacity: 1;
@@ -75,13 +75,12 @@ pre {
 }
 
 body {
-  -webkit-overflow-scrolling: touch;
   background-color: var(--color-bg-primary);
   box-sizing: border-box;
   color: var(--color-text-primary);
   font-family: var(--font-family-secondary);
-  overflow-x: hidden;
-  overflow-y: scroll;
+  overflow: hidden scroll;
+  -webkit-overflow-scrolling: touch;
   position: absolute;
   transition: background-color 1000ms linear;
 }
@@ -100,7 +99,7 @@ body,
 header,
 .navigation,
 .marketplace {
-  // sass-lint:disable no-important
+  /* stylelint-disable no-important */
   transition: color 0.5s, border 0.5s, box-shadow 0.5s, background-color 0.5s !important;
 }
 
@@ -118,6 +117,7 @@ header,
 
 .page-block {
   @include page-fade-in(0.25s);
+
   background-color: var(--color-page-bg);
   display: flex;
   height: max-content;
@@ -287,8 +287,7 @@ input {
     }
   }
 
-  // Not possible to set the color of the calendar button icon on date fields - just make it invisible
-  // sass-lint:disable-next-line no-vendor-prefixes
+  /* Not possible to set the color of the calendar button icon on date fields - just make it invisible */
   &::-webkit-calendar-picker-indicator {
     cursor: pointer;
     height: 100%;
@@ -433,7 +432,7 @@ em {
   z-index: 100;
 }
 
-// Large
+/* Large */
 @media screen and (min-width: $breakpoint) {
   .app-container {
     margin: auto;
@@ -444,7 +443,7 @@ em {
   }
 }
 
-// Mid
+/* Medium */
 @media screen and (max-width: $breakpoint) {
   .page-block {
     &__content {
@@ -471,7 +470,7 @@ em {
   }
 }
 
-// Small
+/* Small */
 @media screen and (max-width: $mobile-breakpoint) {
   .no-mobile {
     display: none !important;
@@ -514,7 +513,7 @@ em {
   z-index: 1;
 }
 
-// sass-lint:disable class-name-format
+/* stylelint-disable class-name-format */
 .LinesEllipsis-canvas {
   opacity: 0;
   position: fixed;

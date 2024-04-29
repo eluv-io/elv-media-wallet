@@ -702,6 +702,7 @@
 
   &__container {
     @include component;
+
     padding: 20px 0;
   }
 
@@ -747,7 +748,8 @@
   &__image,
   canvas {
     border-radius: var(--border-radius-component);
-    // sass-lint:disable no-important
+
+    /* stylelint-disable no-important */
     height: auto !important;
     overflow: hidden;
     width: 100% !important;
@@ -860,6 +862,7 @@
 
 .redeemable-offer {
   @include component;
+
   align-items: center;
   display: flex;
   flex: 1 1 100%;

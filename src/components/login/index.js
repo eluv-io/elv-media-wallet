@@ -122,7 +122,7 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
             <a
               href={customizationOptions.terms_document.terms_document.url}
               target="_blank"
-              rel="noopener"
+              rel="noopener noreferrer"
               className="login-page__terms-link"
             >
               {customizationOptions.terms_document.link_text || rootStore.l10n.login.terms_and_conditions}

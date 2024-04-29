@@ -1,23 +1,35 @@
 .profile-container {
+  --header-height: 80px;
+
   align-items: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  margin-top: -80px;
-  padding: 160px 0 30px;
+  padding: 150px 0 60px;
   position: relative;
+
+  /* Global header is transparent background must go to top of page */
+  &:not(.profile-container--property) {
+    margin-top: calc(-1 * var(--header-height));
+    padding-top: 230px;
+  }
 
   &__background,
   &__gradient {
     height: 100%;
-    inset: 0 0 0 0;
+    inset: 0;
     object-fit: cover;
+    object-position: top;
     position: absolute;
     width: 100%;
   }
 
+  &__background--custom {
+    height: 100vh;
+  }
+
   &__gradient {
-    background: linear-gradient(180deg, transparent 33%, #000000);
+    background: linear-gradient(rgb(0 0 0 / 35%) 50%, #000);
   }
 }
 
@@ -27,8 +39,14 @@
   gap: 30px;
   position: relative;
 
+  &__content {
+    background-color: #000;
+    position: relative;
+    z-index: 1;
+  }
+
   &__image-container {
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgb(0 0 0 / 60%);
     border-radius: 100%;
     height: 150px;
     min-height: 150px;
@@ -68,7 +86,7 @@
 
   &__address-container {
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgb(0 0 0 / 60%);
     border-radius: 4px;
     display: flex;
     gap: 15px;
@@ -111,7 +129,7 @@
   }
 }
 
-@media screen and (max-width: 850px) {
+@media screen and (width <= 850px) {
   .profile-container {
     padding-top: 120px;
   }

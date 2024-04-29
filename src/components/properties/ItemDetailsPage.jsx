@@ -99,7 +99,7 @@ const MintPage = observer(({nftInfo, contractStats}) => {
                 { rootStore.l10n.item_details.media_url }
               </div>
               <CopyableField value={embedUrl}>
-                <a href={embedUrl} target="_blank" className={[S("details__copy-value"), "ellipsis"].join(" ")}>
+                <a href={embedUrl} target="_blank" className={[S("details__copy-value"), "ellipsis"].join(" ")} rel="noreferrer">
                   { embedUrl }
                 </a>
               </CopyableField>
@@ -107,16 +107,27 @@ const MintPage = observer(({nftInfo, contractStats}) => {
         }
         {
           !nft.metadata.image ? null :
-            <div className={S("details__copy-field")}>
-              <div className={S("details__copy-field-title")}>
-                { rootStore.l10n.item_details.image_url }
+            <>
+              <div className={S("details__copy-field")}>
+                <div className={S("details__copy-field-title")}>
+                  { rootStore.l10n.item_details.image_url }
+                </div>
+                <CopyableField value={embedUrl}>
+                  <a href={embedUrl} target="_blank" className={[S("details__copy-value"), "ellipsis"].join(" ")} rel="noreferrer">
+                    { nft.metadata.image }
+                  </a>
+                </CopyableField>
+                {
+                  rootStore.userProfiles.me?.imageUrl === nft.metadata.image ? null :
+                    <Button
+                      variant="outline"
+                      onClick={async () => await rootStore.UpdateUserProfile({newProfileImageUrl: nft.metadata.image})}
+                    >
+                      {rootStore.l10n.item_details.menu.set_as_profile}
+                    </Button>
+                }
               </div>
-              <CopyableField value={embedUrl}>
-                <a href={embedUrl} target="_blank" className={[S("details__copy-value"), "ellipsis"].join(" ")}>
-                  { nft.metadata.image }
-                </a>
-              </CopyableField>
-            </div>
+            </>
         }
 
         <div className={S("details__details")}>
@@ -192,7 +203,7 @@ const MintPage = observer(({nftInfo, contractStats}) => {
                 <a
                   href={nft.metadata.terms_document.terms_document.url}
                   target="_blank"
-                  rel="noopener"
+                  rel="noopener noreferrer"
                   className={S("details__terms")}
                 >
                   {nft.metadata.terms_document.link_text}

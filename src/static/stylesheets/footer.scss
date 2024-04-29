@@ -78,6 +78,7 @@
 
       &--rich-text {
         @include component;
+
         max-width: $tablet-breakpoint;
         padding: 20px 50px 50px;
         width: 100%;

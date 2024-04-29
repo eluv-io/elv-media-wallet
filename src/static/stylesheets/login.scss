@@ -22,8 +22,8 @@
     width: 100%;
   }
 
-  @media screen and (max-width: 600px) {
-    // sass-lint:disable no-vendor-prefixes
+  @media screen and (width <= 600px) {
+    /* stylelint-disable no-vendor-prefixes */
     &::-webkit-scrollbar {
       width: 0;
     }
@@ -464,7 +464,7 @@
     }
   }
 
-  @media screen and (max-width: 600px) {
+  @media screen and (width <= 600px) {
     padding: 0;
 
     &__background {
@@ -502,6 +502,7 @@
 
 .custom-consent {
   @include modal;
+
   max-width: 900px;
 
   &__header {

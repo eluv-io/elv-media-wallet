@@ -56,7 +56,8 @@
 
       &__text {
         align-items: center;
-        color: var(--color-table-highlight-text) !important; // sass-lint:disable-line no-important
+        /* stylelint-disable-next-line declaration-no-important */
+        color: var(--color-table-highlight-text) !important;
         display: flex;
         font-size: 10px;
         height: max-content;
@@ -226,7 +227,7 @@
     }
 
     &-initial {
-      // Specificity to override nth-child color above
+      /* Specificity to override nth-child color above */
       &:nth-child(n) {
         div {
           color: var(--color-table-highlight-text);
@@ -235,7 +236,7 @@
     }
 
     &-selected {
-      // Specificity to override nth-child color above
+      /* Specificity to override nth-child color above */
       &:nth-child(n) {
         background-color: var(--color-table-selected-row-bg);
         border: var(--border-table-row-selected);

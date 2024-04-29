@@ -1,25 +1,27 @@
 @import "./variables";
+
 .header {
   @include page-fade-in(0.25s);
+
+  align-items: center;
+  background: linear-gradient(180deg, #1C1D20 0%, #000 100%);
+  display: flex;
+  gap: 50px;
+  height: var(--property-header-height);
+  justify-content: space-between;
+  padding: 0 50px 10px;
   position: sticky;
   top: 0;
-  background: linear-gradient(180deg, #1C1D20 0%, #000 100%);
-  height: var(--property-header-height);
   width: 100%;
   z-index: 2;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 50px 10px;
-  gap: 50px;
 
   &:not(&--media) {
     box-shadow: 0 0 30px black;
   }
 
-  @media screen and (max-width: 800px) {
-    padding: 0 20px 3px;
+  @media screen and (width <= 800px) {
     gap: 20px;
+    padding: 0 20px 3px;
 
     .logo-container {
       display: none;
@@ -29,9 +31,9 @@
 
 .logo-container {
   height: 70%;
-  width: auto;
   max-width: 200px;
   min-width: 100px;
+  width: auto;
 }
 
 .logo {
@@ -41,11 +43,12 @@
 
 
 .links {
-  display: flex;
-  position: relative;
-  height: 100%;
-  width: 150px;
   align-items: center;
+  display: flex;
+  height: 100%;
+  justify-content: flex-end;
+  position: relative;
+  width: 150px;
 
   :global(.header__profile) {
     position: relative;
@@ -55,21 +58,21 @@
     width: 450px;
   }
 
-  @media screen and (max-width: 800px) {
+  @media screen and (width <= 800px) {
     width: 65px;
   }
 }
 
 .sign-in {
   background: var(--header-signin-button-bg);
-  color: var(--header-signin-button-text);
   border: var(--header-signin-button-border);
-  width: 100px;
-  height: 45px;
   border-radius: 10px;
+  color: var(--header-signin-button-text);
   font-size: 1.15em;
   font-weight: 600;
+  height: 45px;
   text-transform: uppercase;
+  width: 100px;
 }
 
 /* Search */
@@ -84,17 +87,17 @@
     border-radius: 33px;
 
     &::placeholder {
-      font-size: 1.15em;
       color: var(--property-text-secondary);
+      font-size: 1.15em;
     }
   }
 
   &__input,
   &__option {
-    height: 45px;
-    padding: 0 30px;
     color: var(--property-text-primary);
     font-size: 1.15em;
+    height: 45px;
+    padding: 0 30px;
   }
 
   &__option {
@@ -120,29 +123,29 @@
   }
 
   &__submit {
-    position: absolute;
-    right: 0;
-    height: 100%;
-    width: 100%;
-    border-radius: 0 33px 33px 0;
-    background-color: var(--property-search-button-background);
-    display: flex;
     align-items: center;
+    background-color: var(--property-search-button-background);
+    border-radius: 0 33px 33px 0;
+    display: flex;
+    height: 100%;
     justify-content: center;
     padding: 13px;
+    position: absolute;
+    right: 0;
+    width: 100%;
 
     svg {
-      width: 100%;
       height: 100%;
+      width: 100%;
     }
   }
 
 
-  @media screen and (max-width: 800px) {
+  @media screen and (width <= 800px) {
     &__input,
     &__option {
-      padding: 0 15px;
       font-size: 1.15em;
+      padding: 0 15px;
     }
 
     &__input {

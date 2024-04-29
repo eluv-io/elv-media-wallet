@@ -20,29 +20,42 @@ import PreferencesIcon from "Assets/icons/header/Preferences icon";
 import DiscoverIcon from "Assets/icons/discover.svg";
 import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
 import GiftIcon from "Assets/icons/gift.svg";
+import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
 
 const MobileNavigationMenu = observer(({marketplace, Close}) => {
   const userInfo = rootStore.loggedIn ? rootStore.walletClient.UserInfo() : {};
   const [showPreferencesMenu, setShowPreferencesMenu] = useState(false);
 
-  const fullMarketplace = marketplace && rootStore.marketplaces[marketplace.marketplaceId];
+  const fullMarketplace = marketplace && rootStore.marketplaces[rootStore.routeParams.marketplaceId];
   const availableDisplayCurrencies = fullMarketplace?.display_currencies || [];
   const secondaryDisabled = (marketplace || fullMarketplace)?.branding?.disable_secondary_market;
+
+  let basePath = "/wallet";
+  if(rootStore.routeParams.marketplaceId) {
+    basePath = UrlJoin("/marketplace", rootStore.routeParams.marketplaceId);
+  } else if(rootStore.routeParams.mediaPropertySlugOrId) {
+    basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: true});
+  }
 
   let links;
   if(!marketplace) {
     links = [
-      { name: rootStore.l10n.header.profile, icon: ProfileIcon, to: "/wallet/users/me/items", authed: true },
-      { separator: true, authed: true },
-      { name: rootStore.l10n.header.listings, icon: ListingsIcon, to: "/wallet/listings" },
-      { name: rootStore.l10n.header.activity, icon: ActivityIcon, to: "/wallet/activity" },
-      { separator: true, authed: true },
-      { name: rootStore.l10n.navigation.items, icon: ItemsIcon, to: UrlJoin("/wallet", "users", "me", "items"), authed: true },
-      { name: rootStore.l10n.navigation.listings, icon: ListingsIcon, to: UrlJoin("/wallet", "users", "me", "listings"), authed: true },
-      { name: rootStore.l10n.navigation.activity, icon: ActivityIcon, to: UrlJoin("/wallet", "users", "me", "activity"), authed: true },
-      { name: rootStore.l10n.navigation.gifts, icon: GiftIcon, to: UrlJoin("/wallet", "users", "me", "gifts"), authed: true },
-      { name: rootStore.l10n.navigation.notifications, icon: NotificationsIcon, to: UrlJoin("/wallet", "users", "me", "notifications"), authed: true },
-      { name: rootStore.l10n.navigation.wallet_details, icon: WalletIcon, to: UrlJoin("/wallet", "users", "me", "details"), authed: true }
+      { name: rootStore.l10n.header.profile, icon: ProfileIcon, to: UrlJoin(basePath, "/users/me/items"), authed: true },
+      ...(
+        rootStore.routeParams.mediaPropertySlugOrId ? [] :
+          [
+            { separator: true, authed: true },
+            { name: rootStore.l10n.header.listings, icon: ListingsIcon, to: "/wallet/listings" },
+            { name: rootStore.l10n.header.activity, icon: ActivityIcon, to: "/wallet/activity" },
+            { separator: true, authed: true },
+          ]
+      ),
+      { name: rootStore.l10n.navigation.items, icon: ItemsIcon, to: UrlJoin(basePath, "users", "me", "items"), authed: true },
+      { name: rootStore.l10n.navigation.listings, icon: ListingsIcon, to: UrlJoin(basePath, "users", "me", "listings"), authed: true },
+      { name: rootStore.l10n.navigation.activity, icon: ActivityIcon, to: UrlJoin(basePath, "users", "me", "activity"), authed: true },
+      { name: rootStore.l10n.navigation.gifts, icon: GiftIcon, to: UrlJoin(basePath, "users", "me", "gifts"), authed: true },
+      { name: rootStore.l10n.navigation.notifications, icon: NotificationsIcon, to: UrlJoin(basePath, "users", "me", "notifications"), authed: true },
+      { name: rootStore.l10n.navigation.wallet_details, icon: WalletIcon, to: UrlJoin(basePath, "users", "me", "details"), authed: true }
     ];
   } else {
     const tabs = fullMarketplace?.branding?.tabs || {};
@@ -182,7 +195,6 @@ const MobileNavigationMenu = observer(({marketplace, Close}) => {
         showPreferencesMenu ?
           <PreferencesMenu
             availableDisplayCurrencies={availableDisplayCurrencies}
-            marketplaceId={marketplace?.marketplaceId}
             Hide={() => setShowPreferencesMenu(false)}
           /> : null
       }

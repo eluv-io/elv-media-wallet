@@ -86,8 +86,9 @@ const UsernameModal = observer(({UpdateUsername, Close}) => {
   );
 });
 
-const UserProfileContainer = observer(({children}) => {
+const UserProfileContainer = observer(({includeUserProfile, children}) => {
   const match = useRouteMatch();
+  includeUserProfile = typeof includeUserProfile === "function" ? includeUserProfile(match) : includeUserProfile;
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId] || rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === match.params.marketplaceId);
   const secondaryDisabled = marketplace?.branding?.disable_secondary_market;
@@ -110,8 +111,26 @@ const UserProfileContainer = observer(({children}) => {
       });
   }, [match.params.userId]);
 
+  let backgroundImage = ProfileBackground;
+  if(rootStore.routeParams.mediaPropertySlugOrId) {
+    const page = rootStore.mediaPropertyStore.MediaPropertyPage({
+      ...rootStore.routeParams
+    });
+
+    if(page) {
+      backgroundImage =
+        (rootStore.pageWidth <= 800 && page.layout?.background_image_mobile?.url) ||
+        page.layout?.background_image?.url ||
+        backgroundImage;
+    }
+  }
+
   if(match.params.userId === "me" && !rootStore.loggedIn) {
     return <LoginGate />;
+  }
+
+  if(!includeUserProfile) {
+    return children;
   }
 
   if(!userProfile) {
@@ -141,8 +160,8 @@ const UserProfileContainer = observer(({children}) => {
             Close={() => setShowUsernameModal(false)}
           />
       }
-      <div className={S("profile-container")}>
-        <img src={ProfileBackground} alt="Background" className={S("profile-container__background")} />
+      <div className={S("profile-container", rootStore.routeParams.mediaPropertySlugOrId ? "profile-container--property" : "")}>
+        <img src={backgroundImage} alt="Background" className={S("profile-container__background", backgroundImage !== ProfileBackground ? "profile-container__background--custom" : "")} />
         <div className={S("profile-container__gradient")} />
         <div className={S("profile")}>
           <div className={S("profile__image-container")}>
@@ -193,9 +212,18 @@ const UserProfileContainer = observer(({children}) => {
           </div>
         </div>
         <nav className={S("nav")}>
-          <NavLink to="items" className={S("nav__link")}>
-            { rootStore.l10n.header.items }
-          </NavLink>
+          {
+            currentUser ? null :
+              <NavLink to="items" className={S("nav__link")}>
+                {rootStore.l10n.header.items}
+              </NavLink>
+          }
+          {
+            currentUser ?
+              <NavLink to="details" className={[S("nav__link"), "no-mobile"].join(" ")}>
+                { rootStore.l10n.header.details }
+              </NavLink> : null
+          }
           {
             marketplace?.collections && marketplace?.collections.length > 0 ?
               <NavLink to="collections" className={S("nav__link")}>
@@ -227,15 +255,11 @@ const UserProfileContainer = observer(({children}) => {
                 { rootStore.l10n.header.gifts }
               </NavLink> : null
           }
-          {
-            currentUser ?
-              <NavLink to="details" className={[S("nav__link"), "no-mobile"].join(" ")}>
-                { rootStore.l10n.header.details }
-              </NavLink> : null
-          }
         </nav>
       </div>
-      { children }
+      <div className={S("profile__content")}>
+        { children }
+      </div>
     </>
   );
 });

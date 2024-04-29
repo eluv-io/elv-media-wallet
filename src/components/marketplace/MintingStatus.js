@@ -271,7 +271,7 @@ const MintingStatus = observer(({
             </h2>
           </div>
       }
-      { transactionLink ? <a href={transactionLink} target="_blank" rel="noopener" className="minting-status__transaction-link">{ transactionLinkText }</a> : null }
+      { transactionLink ? <a href={transactionLink} target="_blank" rel="noopener noreferrer" className="minting-status__transaction-link">{ transactionLinkText }</a> : null }
     </div>
   );
 });

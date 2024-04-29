@@ -648,7 +648,7 @@ export const ListingFilters = observer(({mode="listings", initialFilters, Update
         <AutoComplete
           className="filters__search"
           key={`autocomplete-${filterOptionsLoaded}-${savedOptionsLoaded}-${renderIndex}`}
-          placeholder={rootStore.l10n.filters.search}
+          placeholder={rootStore.l10n.filters.filter}
           value={filterValues.filter}
           onChange={value => setFilterValues({...filterValues, filter: value, editionFilters: []})}
           onEnterPressed={async () => await Update(true)}

@@ -22,7 +22,7 @@ const Footer = ({footerText, footerLinks=[]}) => {
 
   const links = footerLinks.map((footerItem, index) => {
     if(footerItem.url) {
-      return <a target="_blank" key={`footer-link-${index}`} className="footer__item" rel="noopener" href={footerItem.url}>{footerItem.text}</a>;
+      return <a target="_blank" key={`footer-link-${index}`} className="footer__item" rel="noopener noreferrer" href={footerItem.url}>{footerItem.text}</a>;
     } else if(footerItem.content_rich_text || footerItem.content_html || footerItem.image) {
       return (
         <button

@@ -34,7 +34,6 @@ const Listings = observer(({initialFilters}) => {
     <FilteredView
       mode="listings"
       pagingMode="paginated"
-      topPagination
       showPagingInfo
       perPage={12}
       scrollOnPageChange

@@ -68,7 +68,7 @@ export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVi
           <div className="item-card__image-container__actions">
             {
               !media.requiresPermissions && !hideEmbedLink ?
-                <a href={media.embedUrl} target="_blank" className="item-card__image-container__action" title="Open Media in New Tab">
+                <a href={media.embedUrl} target="_blank" className="item-card__image-container__action" title="Open Media in New Tab" rel="noreferrer">
                   <ImageIcon icon={ExternalLinkIcon} label="Open Media"/>
                 </a> : null
             }
@@ -99,7 +99,7 @@ export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVi
             <div className="item-card__image-container__actions">
               {
                 media.mediaLink && !media.requiresPermissions ?
-                  <a href={media.mediaLink} target="_blank" className="item-card__image-container__action" title="Open Media in New Tab">
+                  <a href={media.mediaLink} target="_blank" className="item-card__image-container__action" title="Open Media in New Tab" rel="noreferrer">
                     <ImageIcon icon={ExternalLinkIcon} label="Open Media"/>
                   </a> : null
               }

@@ -2,11 +2,12 @@
 
 .section {
   font-size: 16px;
-  width: 100%;
   max-width: 100%;
   overflow: hidden;
-  position: relative;
   padding-top: 20px;
+  position: relative;
+  width: 100%;
+
   --max-card-width: 450px;
 
   &--center {
@@ -34,8 +35,8 @@
   }
 
   &__title-container {
-    display: flex;
     align-items: center;
+    display: flex;
     gap: 30px;
   }
 
@@ -48,8 +49,8 @@
   }
 
   &__title-link {
-    display: flex;
     align-items: center;
+    display: flex;
     gap: 10px;
     margin-top: 5px;
     text-transform: uppercase;
@@ -101,7 +102,7 @@
     }
   }
 
-  @media screen and (max-width: 800px) {
+  @media screen and (width <= 800px) {
     --max-card-width: 350px;
 
     &--center {
@@ -117,9 +118,9 @@
     }
 
     &__title-container {
+      align-items: flex-start;
       flex-direction: column;
       gap: 0;
-      align-items: flex-start;
     }
 
     &__title {
@@ -128,8 +129,8 @@
 
     &__title-link {
       font-size: 0.8em;
-      min-width: max-content;
       margin: 0;
+      min-width: max-content;
     }
 
     &__content--grid {
@@ -137,7 +138,7 @@
     }
   }
 
-  @media screen and (max-width: 600px) {
+  @media screen and (width <= 600px) {
     --max-card-width: 350px;
   }
 }

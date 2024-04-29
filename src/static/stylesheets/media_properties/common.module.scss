@@ -3,6 +3,7 @@
 .modal {
   &__overlay {
     @include page-fade-in(0.25s);
+
     backdrop-filter: blur(3px);
   }
 
@@ -13,13 +14,14 @@
 
   &__container {
     @include page-fade-in(0.25s);
+
     background-color: var(--property-background-secondary);
   }
 
   &__content {
+    background-color: var(--property-background-secondary);
     position: relative;
     width: 100%;
-    background-color: var(--property-background-secondary);
 
     &:empty {
       display: none;
@@ -31,31 +33,31 @@
   }
 
   &__close {
+    cursor: pointer;
+    display: none;
+    filter: drop-shadow(0 0 2px #000);
     height: 25px;
-    width: 25px;
     position: fixed;
     right: 15px;
     top: 15px;
-    cursor: pointer;
+    width: 25px;
     z-index: 1;
-    display: none;
-    filter: drop-shadow(0 0 2px #000);
 
     * {
       color: var(--property-text-secondary);
     }
   }
 
-  @media screen and (max-width: 600px) {
+  @media screen and (width <= 600px) {
     &__container {
-      max-height: var(--property-full-page-height);
       height: 100%;
+      max-height: var(--property-full-page-height);
       width: 100%;
     }
 
     &__content {
-      padding-top: 25px;
       max-width: unset;
+      padding-top: 25px;
     }
 
     &__close {
@@ -65,17 +67,17 @@
 }
 
 .back-link {
-  display: flex;
   align-items: center;
+  background: rgb(100 100 100 / 35%);
+  border-radius: 5px;
+  display: flex;
   font-size: 1em;
   gap: 10px;
-  width: max-content;
-  padding: 5px 10px;
-  border-radius: 5px;
-  background: rgba(100,100,100, 0.35);
-  opacity: 0.5;
   height: max-content;
+  opacity: 0.5;
+  padding: 5px 10px;
   transition: opacity 0.5s ease, background-color 0.5s ease;
+  width: max-content;
 
   &--visible {
     opacity: 1;
@@ -83,15 +85,15 @@
 
   &:hover,
   &:focus-visible {
+    background: rgb(100 100 100 / 50%);
     opacity: 1;
-    background: rgba(100,100,100, 0.5);
   }
 
   svg {
     height: 13px;
   }
 
-  @media screen and (max-width: 800px) {
+  @media screen and (width <= 800px) {
     &__back-link {
       left: 20px;
     }
@@ -100,23 +102,22 @@
 
 .page-container {
   @include page-fade-in(0.25s, ease-out, 0.1s);
+
   background-color: var(--property-background);
   height: max-content;
-  min-height: var(--property-full-content-height);
   max-width: 100%;
+  min-height: var(--property-full-content-height);
   padding: 25px 25px 100px;
   position: relative;
 
   &__links {
     display: block;
     margin-bottom: 30px;
-    z-index: 1;
     position: relative;
+    z-index: 1;
   }
 
-
-  @media screen and (max-width: 800px) {
-    //padding: 75px 20px 300px;
+  @media screen and (width <= 800px) {
     padding-inline: 15px;
   }
 }
@@ -126,14 +127,14 @@
 
   &__image,
   &__gradient {
+    height: 100%;
+    left: 0;
+    max-height: var(--property-full-content-height);
+    object-fit: cover;
+    object-position: center;
     position: absolute;
     top: 0;
-    left: 0;
-    height: 100%;
     width: 100%;
-    max-height: var(--property-full-content-height);
-    object-position: center;
-    object-fit: cover;
   }
 
   &__image {
@@ -141,26 +142,25 @@
   }
 
   &__gradient {
-    background: linear-gradient(rgba(0, 0, 0, 0.35) 70%, var(--property-background));
+    background: linear-gradient(rgb(0 0 0 / 35%) 70%, var(--property-background));
   }
 }
 
 .page-header {
-  width: 100%;
   height: max-content;
   position: relative;
+  width: 100%;
 
   &__content {
-    position: relative;
-    max-width: 800px;
-    width: 100%;
-    height: max-content;
     display: flex;
     flex-direction: column;
+    height: max-content;
+    max-width: 800px;
+    position: relative;
+    width: 100%;
 
     /* Only apply page content position if wide enough */
-    @media screen and (min-width: 801px) {
-
+    @media screen and (width >= 801px) {
       &--right {
         position: absolute;
         right: 0;
@@ -172,8 +172,8 @@
       }
 
       &--center {
-        margin: 0 auto;
         align-items: center;
+        margin: 0 auto;
 
         .page-header__logo {
           align-self: center;
@@ -183,10 +183,10 @@
   }
 
   &__logo {
-    max-width: 100%;
-    max-height: 250px;
     align-self: flex-start;
     margin-bottom: 30px;
+    max-height: 250px;
+    max-width: 100%;
   }
 
   &__title {
@@ -198,7 +198,7 @@
     font-size: 16px;
   }
 
-  @media screen and (max-width: 800px) {
+  @media screen and (width <= 800px) {
     &__content {
       align-items: center;
     }
@@ -232,23 +232,31 @@
 
 .lazy-image {
   &__background {
-    overflow: hidden;
-    background: linear-gradient(-55deg, #ffffff, #617d91, #354b54, #000000);
-    background-size: 1000% 1000%;
-    animation: gradient 15s ease infinite;
-    opacity: 0.5;
+    /* stylelint-disable-next-line no-important */
+    animation: gradient 15s ease infinite!important;
+    background: linear-gradient(-55deg, #fff, #617d91, #354b54, #000);
+    /* stylelint-disable-next-line no-important */
+    background-size: 1000% 1000%!important;
     display: block;
+    opacity: 0;
+    overflow: hidden;
+
+    &--visible {
+      /* stylelint-disable-next-line no-important */
+      opacity: 0.5!important;
+    }
   }
 
   &__loader-image {
     display: block;
+    /* stylelint-disable-next-line no-important */
+    height: 1px!important;
+    /* stylelint-disable-next-line no-important */
+    opacity: 0!important;
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 1px;
-    height: 1px;
-    opacity: 0;
     user-select: none;
+    /* stylelint-disable-next-line no-important */
+    width: 1px!important;
   }
 }
 
@@ -257,11 +265,11 @@
   background: var(--property-background-secondary);
   border: 0;
   border-radius: 3px;
+  color: var(--property-text-primary);
   display: flex;
   justify-content: center;
   padding: 0 20px;
   user-select: none;
-  color: var(--property-text-primary);
 
   .countdown__unit-container {
     max-height: 43px;
@@ -292,9 +300,11 @@
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
@@ -305,9 +315,11 @@
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
@@ -368,7 +380,7 @@
   }
 
   a {
-    // sass-lint:disable no-important
+    /* stylelint-disable-next-line no-important */
     color: var(--color-text-highlight) !important;
 
     * {
@@ -376,7 +388,7 @@
     }
 
     &:hover {
-      // sass-lint:disable no-important
+      /* stylelint-disable-next-line no-important */
       color: var(--color-text-highlight) !important;
 
       * {
@@ -412,7 +424,7 @@
     margin-left: 1em;
   }
 
-  @media screen and (max-width: 1000px) {
+  @media screen and (width <= 1000px) {
     font-size: 14px;
   }
 }
@@ -430,22 +442,22 @@
   }
 
   &__slide {
-    width: max-content;
     height: max-content;
+    width: max-content;
   }
 
   &__arrow {
+    display: block;
+    font-size: 1.5em;
+    font-weight: 400;
+    height: 100%;
     opacity: 0;
     padding: 0 15px;
     position: absolute;
+    top: 0;
     transition: opacity 0.25s ease-out;
     width: max-content;
-    display: block;
     z-index: 1;
-    height: 100%;
-    top: 0;
-    font-size: 1.5em;
-    font-weight: 400;
 
     &:disabled {
       opacity: 0;
@@ -454,9 +466,9 @@
 
     svg {
       height: 24px;
+      position: relative;
       stroke-width: 2px;
       z-index: 1;
-      position: relative;
     }
 
     &--previous {
@@ -464,16 +476,16 @@
       padding-right: 20px;
 
       .carousel__arrow-background{
-        background: linear-gradient(90deg, rgba(0,0,0,0.75) 20%, transparent);
+        background: linear-gradient(90deg, rgb(0 0 0 / 75%) 20%, transparent);
       }
     }
 
     &--next {
-      right: 0;
       padding-left: 20px;
+      right: 0;
 
       .carousel__arrow-background{
-        background: linear-gradient(90deg, transparent, rgba(0,0,0,0.75));
+        background: linear-gradient(90deg, transparent, rgb(0 0 0 / 75%));
       }
     }
 
@@ -484,12 +496,12 @@
   }
 
   &__arrow-background {
-    position: absolute;
-    inset: 0 0 0 0;
     height: 100%;
-    width: 100%;
-    transition: opacity 0.25s ease;
+    inset: 0;
     pointer-events: none;
+    position: absolute;
+    transition: opacity 0.25s ease;
+    width: 100%;
   }
 }
 
@@ -499,27 +511,27 @@
 }
 
 .button {
-  display: flex;
   align-items: center;
+  border-radius: 5px;
+  display: flex;
+  font-weight: 500;
   justify-content: center;
   min-height: 50px;
-  border-radius: 5px;
-  font-weight: 500;
   padding-inline: 20px;
-  transition: background-color 0.2s ease, border 0.2s ease, color 0.1s ease;
   position: relative;
+  transition: background-color 0.2s ease, border 0.2s ease, color 0.1s ease;
   width: max-content;
 
   &:disabled {
-    opacity: 0;
     height: 0;
     max-height: 0;
     min-height: unset;
+    opacity: 0;
   }
 
   &--primary {
-    border: 1px solid var(--property-button-background);
     background-color: var(--property-button-background);
+    border: 1px solid var(--property-button-background);
     color: var(--property-button-text);
 
     * {
@@ -548,8 +560,8 @@
     &:hover,
     &:focus-visible,
     .button--active {
-      border: 1px solid var(--property-button-background);
       background-color: var(--property-button-background);
+      border: 1px solid var(--property-button-background);
       color: var(--property-button-text);
 
       * {
@@ -574,8 +586,8 @@
     }
 
     &.button--active {
-      border: 1px solid var(--property-button-background);
       background-color: var(--property-button-background);
+      border: 1px solid var(--property-button-background);
       color: var(--property-button-text);
 
       * {
@@ -585,8 +597,8 @@
   }
 
   &__loader {
-    position: absolute;
     height: 30px;
+    position: absolute;
 
     :global(.spinner) {
       --spinner-width: 4px;

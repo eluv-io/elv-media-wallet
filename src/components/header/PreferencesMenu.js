@@ -8,7 +8,7 @@ import LanguageCodes from "Assets/localizations/LanguageCodes";
 
 const currencyMap = CountryCodesList.customList("currencyCode", "{currencyNameEn}");
 
-const PreferencesMenu = observer(({marketplaceId, Hide}) => {
+const PreferencesMenu = observer(({Hide}) => {
   const [originalLanguage] = useState(rootStore.language);
 
   useEffect(() => {
@@ -19,7 +19,7 @@ const PreferencesMenu = observer(({marketplaceId, Hide}) => {
     };
   }, []);
 
-  const marketplace = marketplaceId && rootStore.marketplaces[marketplaceId];
+  const marketplace = rootStore.marketplaces[rootStore.routeParams.marketplaceId];
   let availableDisplayCurrencies = marketplace?.display_currencies || [];
   if(!availableDisplayCurrencies.find(currency => currency.toUpperCase() === "USD")) {
     availableDisplayCurrencies = ["USD", ...availableDisplayCurrencies];
@@ -87,7 +87,7 @@ const PreferencesMenu = observer(({marketplaceId, Hide}) => {
             value={checkoutStore.currency}
             onChange={currency => {
               checkoutStore.SetCurrency({currency});
-              rootStore.SetLocalStorage(`preferred-currency-${marketplaceId}`, currency);
+              rootStore.SetLocalStorage(`preferred-currency-${rootStore.routeParams.marketplaceId}`, currency);
             }}
             activeValuePrefix={`${rootStore.l10n.preferences.display_currency}: `}
             containerClassName="header__preferences-menu__currency-select"

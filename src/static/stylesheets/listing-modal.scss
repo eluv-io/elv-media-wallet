@@ -47,6 +47,7 @@ $content-width: 475px;
 
   &__active-listings {
     @include component;
+
     background: transparent;
     border: 0;
     margin: 50px auto;

@@ -18,7 +18,7 @@
     min-width: 250px;
   }
 
-  @media screen and (max-width: 800px) {
+  @media screen and (width <= 800px) {
     justify-items: center;
     margin: 0 auto;
     max-width: 350px;
@@ -341,7 +341,6 @@
     }
   }
 
-  // Image
   &__image-container {
     margin-bottom: 15px;
     overflow: hidden;
@@ -485,7 +484,6 @@
   &--redeemed {
     .item-card__image,
     .item-card__text {
-
       &:not(.redeemable-offer__redeem-info) {
         opacity: 0.75;
       }

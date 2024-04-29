@@ -33,6 +33,7 @@ $content-width: 1075px;
 .purchase-modal {
   @include component;
   @include modal;
+
   display: flex;
   flex-direction: column;
   height: max-content;
@@ -74,6 +75,7 @@ $content-width: 1075px;
 
   &__section--right {
     @include page-fade-in(0.5s, ease-in);
+
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -313,7 +315,6 @@ $content-width: 1075px;
       display: flex;
       grid-template-columns: 1fr 1fr;
       height: 50px;
-
       justify-content: center;
       margin-bottom: 12px;
       min-width: 200px;
@@ -393,7 +394,7 @@ $content-width: 1075px;
 
     &__item-card {
       .card-container {
-        // Make the card as small as it will allow for less vertical space
+        /* Make the card as small as it will allow for less vertical space */
         width: 0;
       }
     }
@@ -468,13 +469,11 @@ $content-width: 1075px;
     min-width: 50px;
     text-align: center;
 
-    // sass-lint:disable no-vendor-prefixes
+    /* stylelint-disable no-vendor-prefixes */
     &::-webkit-outer-spin-button,
     &::-webkit-inner-spin-button {
       appearance: none;
       margin: 0;
     }
-
-    // sass-lint:enable no-vendor-prefixes
   }
 }

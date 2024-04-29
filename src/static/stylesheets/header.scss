@@ -1,4 +1,4 @@
-@keyframes PlaceholderGradient {
+@keyframes placeholder-gradient {
   0% {
     background-position: 0 0;
   }
@@ -280,6 +280,7 @@
     &--menu {
       .menu-button__options {
         @include page-fade-in(0.1s);
+
         background: var(--background-component-primary);
         border: var(--border-component-primary);
         border-radius: var(--border-radius-component);
@@ -311,7 +312,7 @@
     }
   }
 
-  @media screen and (max-width: 600px) {
+  @media screen and (width <= 600px) {
     &__navigation {
       justify-content: flex-start;
       width: 100%;
@@ -374,6 +375,7 @@
 
       &__indicator {
         @include page-fade-in(0.15s, linear);
+
         background: var(--color-text-highlight);
         border-radius: 100%;
         height: 8px;
@@ -635,6 +637,7 @@
 
   &__preferences-menu {
     @include modal;
+
     height: max-content;
     margin-bottom: 100px;
     overflow-y: visible;
@@ -770,6 +773,7 @@
 
     .header__profile__link__indicator {
       @include page-fade-in;
+
       height: 5px;
       opacity: 1;
       right: -5px;
@@ -968,7 +972,7 @@
     width: 20px;
   }
 
-  @media screen and (max-width: 800px) {
+  @media screen and (width <= 800px) {
     padding: 20px 60px 20px 20px;
 
     &__close-button {

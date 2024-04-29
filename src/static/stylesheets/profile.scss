@@ -294,7 +294,7 @@
   }
 }
 
-// Withdrawal Modal
+/* Withdrawal Modal */
 
 .deposit-modal,
 .withdrawal-modal {
@@ -310,6 +310,7 @@
 .deposit-form,
 .withdrawal-confirmation {
   @include modal;
+
   max-width: 550px;
   width: 100%;
 
@@ -527,6 +528,7 @@
 
 .accept-popup {
   @include component;
+
   border: 0;
 
   &,
@@ -541,6 +543,7 @@
 
   &__box {
     @include component;
+
     max-width: 400px;
     padding: 30px;
   }

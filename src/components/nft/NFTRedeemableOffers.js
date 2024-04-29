@@ -133,7 +133,7 @@ const RedemptionResults = observer(({offer, offerData, showPopupNotice}) => {
                 className="redeemable-offer-modal__lookout-url"
                 target="_blank"
                 href={rootStore.LookoutURL(offer.state.transaction)}
-                rel="noopener"
+                rel="noopener noreferrer"
               >
                 {rootStore.l10n.redeemables.view_transaction}
               </a> : null
@@ -158,7 +158,7 @@ const RedemptionResults = observer(({offer, offerData, showPopupNotice}) => {
                 <div className="redeemable-offer-modal__image-container">
                   <QRCodeElement content={offerData.url} className="redeemable-offer-modal__image"/>
                 </div>
-                <a href={offerData.url} target="_blank" className="ellipsis redeemable-offer-modal__link">
+                <a href={offerData.url} target="_blank" className="ellipsis redeemable-offer-modal__link" rel="noreferrer">
                   {offerData.url}
                 </a>
               </> : null
@@ -243,7 +243,7 @@ const RedeemableInfo = observer(({offer, nftInfo}) => {
               className="redeemable-offer-modal__lookout-url"
               target="_blank"
               href={rootStore.LookoutURL(offer.state.transaction)}
-              rel="noopener"
+              rel="noopener noreferrer"
             >
               { rootStore.l10n.redeemables.view_transaction }
             </a> : null
@@ -433,7 +433,7 @@ const NFTRedeemableOffers = observer(({nftInfo}) => {
                 <div className="redeemable-offer__message">
                   { rootStore.l10n.redeemables.redeemed_by_previous }
                   &nbsp;
-                  <a href={rootStore.LookoutURL(offer.state?.transaction)} rel="noopener" target="_blank" className="redeemable-offer__link">
+                  <a href={rootStore.LookoutURL(offer.state?.transaction)} rel="noopener noreferrer" target="_blank" className="redeemable-offer__link">
                     { rootStore.l10n.redeemables.view_transaction }
                   </a>
                 </div>

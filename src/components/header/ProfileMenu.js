@@ -12,30 +12,29 @@ import MetamaskIcon from "Assets/icons/metamask fox";
 import ProfileIcon from "Assets/icons/header/profile icon v2";
 import CopyIcon from "Assets/icons/copy";
 import ItemsIcon from "Assets/icons/header/items icon";
-import CollectionsIcon from "Assets/icons/header/collections icon";
-import ListingsIcon from "Assets/icons/header/listings icon";
-import ActivityIcon from "Assets/icons/header/Activity";
-import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
-import GiftIcon from "Assets/icons/gift.svg";
-import PreferencesIcon from "Assets/icons/header/Preferences icon";
 import DiscoverIcon from "Assets/icons/discover.svg";
-import WalletIcon from "Assets/icons/wallet.svg";
+import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
 
-const ProfileMenu = observer(({marketplaceId, Hide}) => {
+const ProfileMenu = observer(({Hide}) => {
   const [showPreferencesMenu, setShowPreferencesMenu] = useState(false);
 
-  const marketplace = marketplaceId && rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === marketplaceId);
+  const marketplaceId = rootStore.routeParams.marketplaceId;
   const fullMarketplace = marketplaceId ? rootStore.marketplaces[marketplaceId] : null;
   const tabs = fullMarketplace?.branding?.tabs || {};
-  const hasCollections = fullMarketplace && fullMarketplace.collections && fullMarketplace.collections.length > 0;
   const userInfo = rootStore.walletClient.UserInfo();
-  const secondaryDisabled = (marketplace || fullMarketplace)?.branding?.disable_secondary_market;
 
   const IsActive = (page="") => (_, location) => rootStore.loggedIn && (location.pathname.includes(`/users/me/${page}`) || location.pathname.includes(`/users/${rootStore.CurrentAddress()}/${page}`));
 
   useEffect(() => {
     window.__headerSubmenuActive = showPreferencesMenu;
   }, [showPreferencesMenu]);
+
+  let basePath = "/wallet";
+  if(marketplaceId) {
+    basePath = UrlJoin("/marketplace", marketplaceId);
+  } else if(rootStore.routeParams.mediaPropertySlugOrId) {
+    basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: true});
+  }
 
   return (
     <HoverMenu className="header__menu header__profile-menu" Hide={Hide}>
@@ -64,96 +63,25 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
       </div>
       <div className="header__profile-menu__links">
         <MenuLink
-          icon={ProfileIcon}
-          className="header__profile-menu__link"
-          to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me") : "/wallet/users/me"}
-          onClick={Hide}
-        >
-          { rootStore.l10n.navigation.profile }
-        </MenuLink>
-
-        <div className="header__profile-menu__separator" />
-
-        <MenuLink
           icon={ItemsIcon}
           className="header__profile-menu__link"
-          to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "items") : "/wallet/users/me/items"}
+          to={UrlJoin(basePath, "users", "me", "items")}
           onClick={Hide}
           isActive={IsActive("items")}
         >
           {tabs.my_items || rootStore.l10n.navigation.items }
         </MenuLink>
-        {
-          hasCollections ?
-            <MenuLink
-              icon={CollectionsIcon}
-              className="header__profile-menu__link"
-              to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "collections") : "/wallet/users/me/collections"}
-              onClick={Hide}
-              isActive={IsActive("collections")}
-            >
-              { rootStore.l10n.navigation.collections }
-            </MenuLink> : null
-        }
-        {
-          secondaryDisabled ? null :
-            <>
-              <MenuLink
-                icon={ListingsIcon}
-                className="header__profile-menu__link"
-                to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "listings") : "/wallet/users/me/listings"}
-                onClick={Hide}
-                isActive={IsActive("listings")}
-              >
-                { rootStore.l10n.navigation.listings }
-              </MenuLink>
-              <MenuLink
-                icon={ActivityIcon}
-                className="header__profile-menu__link"
-                to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "activity") : "/wallet/users/me/activity"}
-                onClick={Hide}
-                isActive={IsActive("activity")}
-              >
-                { rootStore.l10n.navigation.activity }
-              </MenuLink>
-            </>
-        }
-        <MenuLink
-          icon={GiftIcon}
-          className="header__profile-menu__link"
-          to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "gifts") : "/wallet/users/me/gifts"}
-          onClick={Hide}
-          isActive={IsActive("gifts")}
-        >
-          { rootStore.l10n.navigation.gifts }
-        </MenuLink>
+
 
         <MenuLink
-          icon={NotificationsIcon}
+          icon={ProfileIcon}
           className="header__profile-menu__link"
-          to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "notifications") : "/wallet/users/me/notifications"}
+          to={UrlJoin(basePath, "users", "me", "details")}
           onClick={Hide}
-          isActive={IsActive("notifications")}
         >
-          { rootStore.l10n.navigation.notifications }
+          { rootStore.l10n.navigation.profile }
         </MenuLink>
 
-        <MenuLink
-          icon={WalletIcon}
-          className="header__profile-menu__link"
-          to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "details") : "/wallet/users/me/details"}
-          onClick={Hide}
-          isActive={IsActive("details")}
-        >
-          { rootStore.l10n.navigation.wallet_details }
-        </MenuLink>
-        <MenuLink
-          icon={PreferencesIcon}
-          onClick={() => setShowPreferencesMenu(!showPreferencesMenu)}
-          className={`header__profile-menu__link header__profile-menu__link-secondary ${showPreferencesMenu ? "active" : ""}`}
-        >
-          { rootStore.l10n.navigation.preferences }
-        </MenuLink>
         {
           rootStore.hideGlobalNavigation || (marketplaceId && rootStore.hideGlobalNavigationInMarketplace)  ? null :
             <>
@@ -161,9 +89,10 @@ const ProfileMenu = observer(({marketplaceId, Hide}) => {
               <MenuLink
                 icon={DiscoverIcon}
                 to="/"
+                exact
                 className="header__profile-menu__link header__profile-menu__link-secondary"
               >
-                { rootStore.l10n.header.discover_projects }
+                { rootStore.l10n.header.discover }
               </MenuLink>
             </>
         }

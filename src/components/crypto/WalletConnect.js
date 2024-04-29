@@ -84,7 +84,7 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
           <ImageIcon icon={wallet.logo} title={wallet.name} />
           { LocalizeString(rootStore.l10n.connected_accounts.connect_wallet, { walletName: wallet.name }) }
         </ButtonWithLoader> :
-        <a target="_blank" rel="noopener" href={wallet.link} className="action wallet-connect__link-button wallet-connect__download-link">
+        <a target="_blank" rel="noopener noreferrer" href={wallet.link} className="action wallet-connect__link-button wallet-connect__download-link">
           <ImageIcon icon={wallet.logo} title={wallet.name} />
           { LocalizeString(rootStore.l10n.connected_accounts.get_wallet, { walletName: wallet.name }) }
         </a>;
@@ -156,7 +156,7 @@ const WalletConnect = observer(({type="phantom", showPaymentPreference, onConnec
           </div>
         </div>
         <div className="wallet-connect__help-link">
-          <a href="https://eluviolive.zendesk.com/hc/en-us/articles/5126073304081-How-do-I-link-my-Phantom-Wallet-" target="_blank" rel="noopener">
+          <a href="https://eluviolive.zendesk.com/hc/en-us/articles/5126073304081-How-do-I-link-my-Phantom-Wallet-" target="_blank" rel="noopener noreferrer">
             { rootStore.l10n.connected_accounts.how_to_link }
           </a>
         </div>

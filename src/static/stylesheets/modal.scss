@@ -9,7 +9,6 @@
   margin: auto;
   max-height: 100vh;
   overflow-y: auto;
-
   position: fixed;
   top: 0;
   width: 100vw;
@@ -32,8 +31,7 @@
 .modal__content {
   max-height: 90vh;
   max-width: 85vw;
-  overflow-x: hidden;
-  overflow-y: scroll;
+  overflow: hidden scroll;
   position: absolute;
   width: 1200px;
   z-index: 10001;
@@ -64,12 +62,11 @@
 
 @media only screen and (max-width: $tablet-breakpoint) {
   .modal {
-    // sass-lint:disable no-vendor-prefixes
-    -webkit-overflow-scrolling: touch;
-    // sass-lint:enable no-vendor-prefixes
     height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden auto;
+
+    /* stylelint-disable no-vendor-prefixes */
+    -webkit-overflow-scrolling: touch;
   }
 
   .modal__content {
@@ -85,8 +82,8 @@
   }
 }
 
-// Deal with very tall frame
-@media screen and (min-height: 1800px) {
+/* Deal with very tall frame */
+@media screen and (height >= 1800px) {
   .modal {
     align-items: flex-start;
     padding-top: 300px;

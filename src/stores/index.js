@@ -57,6 +57,7 @@ class RootStore {
   language = this.GetLocalStorage("lang");
   l10n = LocalizationEN;
   uiLocalizations = ["pt-br"];
+  domainProperty = this.GetSessionStorage("domain-property");
 
   appId = "eluvio-media-wallet";
 
@@ -396,6 +397,30 @@ class RootStore {
         previewMarketplaceId: (searchParams.get("preview") || (!this.embedded && this.GetSessionStorage("preview-marketplace")) || "").replaceAll("/", ""),
         storeAuthToken: false
       });
+
+      // Load domain map
+      if(!location.hostname.includes("contentfabric.io")) {
+        let domainMapping = yield this.walletClient.client.ContentObjectMetadata({
+          libraryId: this.walletClient.mainSiteLibraryId,
+          objectId: this.walletClient.mainSiteId,
+          metadataSubtree: "public/asset_metadata/info/domain_map"
+        });
+
+        domainMapping.push(
+          {
+            domain: "localhost",
+            property_slug: "iq__2vo9ruJ2ZPc8imK7GNG3NVP51x3g"
+          }
+        );
+
+        this.domainProperty = domainMapping
+          .find(map => map.domain === location.hostname)
+          ?.property_slug;
+
+        if(this.domainProperty) {
+          this.SetSessionStorage("domainProperty", this.domainProperty);
+        }
+      }
 
       // Internal feature - allow setting of authd node via query param for testing
       let authdURI = searchParams.get("authd") || this.GetSessionStorage("authd-uri");
@@ -2403,6 +2428,18 @@ class RootStore {
         });
       }
     }, 250);
+  }
+
+  ParsedRouteParams() {
+    // eslint-disable-next-line no-unused-vars
+    let [_, property, __, subproperty] = location.pathname.split(/\/p\/([^\/]+)/);
+    const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
+
+    return {
+      mediaPropertySlugOrId: subproperty || property,
+      parentMediaPropertySlugOrId: subproperty ? property : "",
+      marketplaceId
+    };
   }
 
   SetRouteParams(params) {

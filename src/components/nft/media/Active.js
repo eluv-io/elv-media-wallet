@@ -198,14 +198,14 @@ const NFTActiveMediaShare = observer(({nftInfo, mediaItem}) => {
             }
             {
               urls.twitterUrl ?
-                <a href={urls.twitterUrl.toString()} target="_blank" onClick={Close}>
+                <a href={urls.twitterUrl.toString()} target="_blank" onClick={Close} rel="noreferrer">
                   <ImageIcon icon={TwitterIcon}/>
                   {rootStore.l10n.item_details.menu.share_on_twitter}
                 </a> : null
             }
             {
               urls.whatsAppUrl ?
-                <a href={urls.whatsAppUrl.toString()} target="_blank" onClick={Close}>
+                <a href={urls.whatsAppUrl.toString()} target="_blank" onClick={Close} rel="noreferrer">
                   <ImageIcon icon={WhatsAppIcon} />
                   {rootStore.l10n.item_details.menu.share_on_whatsapp}
                 </a> : null
@@ -297,7 +297,7 @@ const NFTActiveMediaContent = observer(({nftInfo, mediaItem, showFullscreen, set
 
     if(!isAvailable || !targetRef || !targetRef.current) { return; }
 
-    // eslint-disable-next-line no-async-promise-executor
+     
     const playerPromise = new Promise(resolve =>
       InitializeEmbed({
         client: rootStore.client,

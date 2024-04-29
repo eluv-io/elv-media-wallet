@@ -1,3 +1,9 @@
+@import "variables";
+
+.property {
+  background-color: var(--property-background);
+}
+
 .page {
   background-color: var(--property-background);
 
@@ -6,25 +12,25 @@
   }
 
   .actions {
-    display: flex;
     align-items: center;
+    display: flex;
     margin-top: 30px;
   }
 
   .button {
-    padding-inline: 30px;
     font-size: 20px;
+    padding-inline: 30px;
   }
 
   &__sections {
-    margin-top: 150px;
-    position: relative;
     display: grid;
     gap: 50px;
+    margin-top: 150px;
+    position: relative;
     width: 100%;
   }
 
-  @media screen and (max-width: 800px) {
+  @media screen and (width <= 800px) {
     &.page {
       padding-inline: 25px;
     }

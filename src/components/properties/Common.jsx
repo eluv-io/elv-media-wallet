@@ -110,9 +110,13 @@ export const RichText = ({richText, ...props}) => {
 
 export const LoaderImage = observer(({src, width, loaderHeight, loaderWidth, loaderAspectRatio, lazy=true, showWithoutSource=false, delay=0, ...props}) => {
   const [loaded, setLoaded] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
 
   useEffect(() => {
     setLoaded(false);
+    setShowLoader(false);
+
+    setTimeout(() => setShowLoader(true), 500);
   }, [src]);
 
   if(!src && !showWithoutSource) {
@@ -151,7 +155,7 @@ export const LoaderImage = observer(({src, width, loaderHeight, loaderWidth, loa
           ...(loaderAspectRatio ? {aspectRatio: loaderAspectRatio} : {})
         }}
         key={props.key ? `${props.key}--placeholder` : undefined}
-        className={[S("lazy-image__background"), props.className || ""].join(" ")}
+        className={[S("lazy-image__background", showLoader ? "lazy-image__background--visible" : ""), props.className || ""].join(" ")}
       />
     </>
   );

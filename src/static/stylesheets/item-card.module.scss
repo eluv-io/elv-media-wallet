@@ -2,25 +2,26 @@
 .item-card-container {
   border: 1.275px solid #454545;
   border-radius: 10px;
-  overflow: hidden;
-  min-width: 350px;
   max-width: 500px;
+  min-width: 350px;
+  overflow: hidden;
   width: 100%;
 }
 
 .item-card {
   --card-color-text: #fff;
   --card-color-text-dimmed: #7a7a7a;
-  height: 100%;
-  padding: 20px 30px 30px;
+
   background: radial-gradient(98.64% 29.9% at 50% -2.68%, #525151 0%, #000 100%);
   display: flex;
   flex-direction: column;
+  height: 100%;
+  padding: 20px 30px 30px;
 
   &__header {
-    height: 40px;
-    display: flex;
     align-items: center;
+    display: flex;
+    height: 40px;
     justify-content: space-between;
 
     * {
@@ -30,10 +31,10 @@
   }
 
   &__collection {
-    height: 100%;
-    display: flex;
     align-items: center;
+    display: flex;
     gap: 10px;
+    height: 100%;
   }
 
   &__collection-image {
@@ -42,28 +43,28 @@
   }
 
   &__top-right {
-    font-size: 0.7em;
-    height: 100%;
-    display: flex;
     align-items: center;
+    display: flex;
+    font-size: 0.7em;
+    gap: 10px;
+    height: 100%;
+    justify-content: flex-end;
     min-width: 100px;
     text-align: right;
-    justify-content: flex-end;
-    gap: 10px;
 
     & > div {
-      height: 100%;
-      display: flex;
       align-items: center;
+      display: flex;
+      height: 100%;
     }
   }
 
   &__image {
     aspect-ratio: 1;
+    margin: 20px 0;
+    min-width: 100%;
     overflow: hidden;
     width: 100%;
-    min-width: 100%;
-    margin: 20px 0;
 
     img {
       aspect-ratio: 1;
@@ -72,16 +73,16 @@
   }
 
   &__text {
-    text-align: center;
-    display: grid;
-    gap: 5px;
-    flex-grow: 1;
     align-content: start;
+    display: grid;
+    flex-grow: 1;
+    gap: 5px;
+    text-align: center;
   }
 
   &__title {
-    font-size: 1.6em;
     color: var(--card-color-text);
+    font-size: 1.6em;
   }
 
   &__subtitle {
@@ -90,8 +91,8 @@
   }
 
   &__status {
+    font-size: 0.9em;
     margin-top: 30px;
     text-align: center;
-    font-size: 0.9em;
   }
 }

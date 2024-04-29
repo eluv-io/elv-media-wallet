@@ -6,22 +6,22 @@
 }
 
 .item-details {
-  max-width: 1200px;
-  margin: 0 auto;
   display: grid;
   gap: 50px;
   grid-template-columns: min(500px, 35vw) 1fr;
+  margin: 0 auto;
   margin-top: 30px;
+  max-width: 1200px;
 
   &__back {
-    margin-top: 20px;
     margin-left: 20px;
+    margin-top: 20px;
   }
 
-  @media screen and (max-width: 800px) {
+  @media screen and (width <= 800px) {
+    gap: 20px;
     grid-template-columns: 1fr;
     justify-items: center;
-    gap: 20px;
 
     &__back {
       margin-left: 0;
@@ -30,34 +30,34 @@
 }
 
 .image-container {
-  max-width: 500px;
   aspect-ratio: 1;
-  width: 100%;
   background-color: #000;
+  max-width: 500px;
+  width: 100%;
 }
 
 .pages {
-  display: flex;
   align-items: center;
+  display: flex;
   gap: 30px;
   margin-bottom: 30px;
 
-  @media screen and (max-width: 800px) {
-    justify-content: center;
+  @media screen and (width <= 800px) {
     gap: 20px;
+    justify-content: center;
   }
 
-  @media screen and (max-width: 600px) {
+  @media screen and (width <= 600px) {
     gap: 0;
     justify-content: space-between;
   }
 }
 
 .page-button {
+  color: var(--property-text-faded);
   font-size: 1.4em;
   font-weight: 500;
   transition: color 0.25s ease;
-  color: var(--property-text-faded);
 
   &--active,
   &:hover,
@@ -65,7 +65,7 @@
     color: var(--property-text);
   }
 
-  @media screen and (max-width: 800px) {
+  @media screen and (width <= 800px) {
     font-size: 1.1em;
   }
 }
@@ -75,8 +75,8 @@
 }
 
 .details-container {
-  width: 100%;
   padding: 20px 0;
+  width: 100%;
 }
 
 .details {
@@ -90,13 +90,13 @@
   }
 
   &__subtitle {
-    display: flex;
     align-items: center;
-    gap: 30px;
+    display: flex;
     font-size: 1.5em;
     font-weight: 500;
-    text-transform: uppercase;
+    gap: 30px;
     margin-bottom: 10px;
+    text-transform: uppercase;
 
     * {
       color: var(--property-text-faded);
@@ -104,8 +104,8 @@
   }
 
   &__token {
-    display: flex;
     align-items: center;
+    display: flex;
     gap: 5px;
   }
 
@@ -115,10 +115,10 @@
   }
 
   &__copy-field {
-    max-width: 450px;
-    padding: 10px 0;
     border-bottom: 2px solid var(--property-border-color);
     margin-bottom: 10px;
+    max-width: 450px;
+    padding: 10px 0;
   }
 
   &__copy-field-title {
@@ -127,10 +127,10 @@
   }
 
   &__copy-value {
-    max-width: 100%;
+    display: block;
     font-size: 1.2em;
     font-weight: 500;
-    display: block;
+    max-width: 100%;
   }
 
   &__details {
@@ -146,7 +146,7 @@
     margin-top: 30px;
   }
 
-  @media screen and (max-width: 800px) {
+  @media screen and (width <= 800px) {
     font-size: 12px;
 
     &__description {
@@ -154,8 +154,8 @@
     }
 
     &__copy-field {
-      width: 100%;
       max-width: 80vw;
+      width: 100%;
     }
 
     &__actions {

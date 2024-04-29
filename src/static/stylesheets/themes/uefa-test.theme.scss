@@ -1,24 +1,26 @@
 /* UEFA */
 
 @font-face {
-  font-family: 'UEFAEuro-Bold';
+  font-display: swap;
+  font-family: UEFAEuro-Bold;
   font-style: normal;
   font-weight: bold;
-  font-display: swap;
   src: url("https://main.net955305.contentfabric.io/s/main/q/hq__AjHrfaZZ8RGxWPjoVV1iRxD64C3NF6Uyb2TTiovxQeHNLp32z3VYhV9Bn6RsQQB212AuhW44ot/files/fonts/UEFAEuro-Bold.ttf") format("truetype");
 }
+
 @font-face {
-  font-family: 'UEFAEuro-Book';
+  font-display: swap;
+  font-family: UEFAEuro-Book;
   font-style: normal;
   font-weight: normal;
-  font-display: swap;
   src: url("https://main.net955305.contentfabric.io/s/main/q/hq__AjHrfaZZ8RGxWPjoVV1iRxD64C3NF6Uyb2TTiovxQeHNLp32z3VYhV9Bn6RsQQB212AuhW44ot/files/fonts/UEFAEuro-Book.ttf") format("truetype");
 }
+
 @font-face {
-  font-family: 'UEFAEuro-MediumNarrow';
+  font-display: swap;
+  font-family: UEFAEuro-MediumNarrow;
   font-style: normal;
   font-weight: 500;
-  font-display: swap;
   src: url("https://main.net955305.contentfabric.io/s/main/q/hq__AjHrfaZZ8RGxWPjoVV1iRxD64C3NF6Uyb2TTiovxQeHNLp32z3VYhV9Bn6RsQQB212AuhW44ot/files/fonts/UEFAEuro-MediumNarrow.ttf") format("truetype");
 }
 
@@ -26,59 +28,51 @@
   --font-family-primary: 'UEFAEuro-Bold', sans-serif!important;
   --font-family-secondary: 'UEFAEuro-Book', sans-serif!important;
   --font-family-tertiary: 'UEFAEuro-MediumNarrow', monospace!important;
-
   --font-nft-media-text: normal bolder bold 18px var(--font-family-secondary);
   --font-button: normal normal normal 18px var(--font-family-primary);
   --font-input: normal normal normal 18px var(--font-family-tertiary);
-
   --color-bg-primary: #090909;
   --color-bg-secondary: #242424;
-
   --color-page-bg: #100f15;
-
-  --color-text-primary: #FFFFFF;
+  --color-text-primary: #FFF;
   --color-text-secondary: #A0A0A0;
-
   --color-button-primary-text: var(--color-text-primary);
-
   --color-login-text-primary: var(--color-text-primary);
   --color-login-text-secondary: var(--color-text-primary);
-
   --border-input: 1px solid #ccc;
 
-  /*login*/
-  --background-login: rgba(0, 0, 0, 0.5);
+  /* login */
+  --background-login: rgb(0 0 0 / 50%);
   --border-login-box: 1px solid var(--background-login-box);
   --color-login-input-background: #fff;
   --border-login-input: 1px solid #fff;
   --border-radius-login-input: 10px;
   --background-login-box: #143CDB;
   --color-login-input-text: #171717;
-
-  --color-text-highlight: #FFFFFF;
+  --color-text-highlight: #FFF;
 
   /* color of claim now button bg */
   --background-button-primary: #2D61E4;
 
   /* border around featured item on storefront (transparent) */
   --border-color-faint: #d2d2d200;
-
-  --color-loader: rgba(255, 255, 255, 0.6);
+  --color-loader: rgb(255 255 255 / 60%);
 }
 
 
 /* space between featured items on storefront */
 .marketplace__section {
-  padding: 0px 0;
+  padding: 0;
 }
+
 .featured-item {
-  padding: 0px;
-  min-height: 0px;
+  min-height: 0;
+  padding: 0;
 }
 
 /* width of featured item padded border */
 .featured-item__icon {
-  padding: 0px;
+  padding: 0;
 }
 
 /* color of details dropdown */
@@ -95,19 +89,22 @@
 
 /* width of store item drilldown image padding */
 .item-card.media-card {
-  padding: 0px
+  padding: 0
 }
 
 /* Hide main NFT card */
 .page-block--nft-owned {
   display: none;
 }
+
 .page-block .page-block--lower-content .page-block--nft-content {
   margin-top: 100px;
 }
+
 .nft-media-browser__collection, .nft-media-browser__section, .nft-media-browser__section__content  {
-  background: rgba(0, 0, 0, 0);
+  background: rgb(0 0 0 / 0%);
 }
+
 .nft-media-browser__section__header {
   padding-top: 0;
 }
@@ -121,9 +118,11 @@
 .header-container.header-container--scrolled .header-container__background {
   opacity: 0;
 }
+
 .nft-media-browser__section__header {
   padding-top: 30px;
 }
+
 .header-container {
   margin-top: 160px;
   position: absolute;
@@ -138,10 +137,12 @@
 .header__profile-menu__link-secondary, .header__notifications-menu__link-secondary {
   display: none;
 }
+
 /* Remove dropdown menu separator */
 .header__profile-menu__separator, .header__notifications-menu__separator {
   display: none;
 }
+
 /* remove wallet icon from profile header */
 .image-icon.header__profile__balance__icon {
   display: none;
@@ -151,45 +152,55 @@
 .nft-media-browser__collection__header {
   display: none;
 }
+
 .nft-media {
   min-height: 0;
   padding-top: 15px;
 }
+
 .action.action-with-loader.filters__search-button {
-  background: rgba(0,0,0,0)!important;
+  background: rgb(0 0 0 / 0%)!important;
 }
 
 /* Login modal style */
 .ory-login__title {
   display: none;
 }
+
 .action-with-loader {
   background-color: #00BA5E!important;
   border: 1px solid #00BA5E!important;
   border-radius: 10px;
 }
+
 .action-with-loader__content {
   font: var(--font-button);
 }
+
 .action.login-page__login-button {
   background-color: #697F87;
   border: 1px solid #697F87;
   border-radius: 10px;
 }
+
 .ory-login__secondary-button {
   text-decoration: underline;
 }
+
 .action-with-loader__content {
   font-weight: bolder;
 }
+
 /* .action.login-page__login-button {
   display: none;
 } */
-/*Hide Eluvio terms and conditions */
+
+/* Hide Eluvio terms and conditions */
 .login-page__eluvio-terms {
   display: none;
 }
+
 .login-page__tagline {
-  margin-top: 10px!important;
   margin-bottom: 10px!important;
+  margin-top: 10px!important;
 }

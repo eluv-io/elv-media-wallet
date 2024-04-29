@@ -42,7 +42,6 @@ const UserItems = observer(() => {
       hideStats
       perPage={12}
       showPagingInfo
-      topPagination
       scrollOnPageChange
       initialFilters={{ userAddress }}
       Render={({entries}) =>

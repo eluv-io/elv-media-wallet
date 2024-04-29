@@ -1,8 +1,8 @@
-// sass-lint:disable no-duplicate-properties
-// sass-lint:disable function-name-format
+/* stylelint-disable no-duplicate-properties */
+/* stylelint-disable function-name-format */
 
 .nft-media {
-  // On extra large screens, prevent the video element from getting too tall, otherwise the player controls will become separated from the video content
+  /* On extra large screens, prevent the video element from getting too tall, otherwise the player controls will become  separated from the video content */
   #{--elv-gallery-max-height}: MIN(CALC(#{$extra-large-breakpoint} * 9 / 16 - 27px), calc(100vh - 400px));
   #{--elv-gallery-min-height}: 500px;
   min-height: 100vh;
@@ -187,7 +187,7 @@
       }
 
       &__fullscreen-button {
-        // sass-lint:disable no-color-literals
+        /* stylelint-disable-next-line no-color-literals */
         background-color: transparent;
         border: 0;
         border-radius: 3px;
@@ -230,19 +230,16 @@
 
       &__error-cover,
       &__error-image {
-        bottom: 0;
         height: 100%;
-        left: 0;
+        inset: 0;
         object-fit: cover;
         position: absolute;
-        right: 0;
-        top: 0;
         width: 100%;
       }
 
       &__error-cover {
-        // sass-lint:disable no-color-literals
-        background: rgba(0, 0, 0, 0.7);
+        /* stylelint-disable-next-line no-color-literals */
+        background: rgb(0 0 0 / 70%);
       }
     }
 
@@ -260,12 +257,9 @@
       }
 
       &__frame {
-        bottom: 0;
         height: 100%;
-        left: 0;
+        inset: 0;
         position: absolute;
-        right: 0;
-        top: 0;
         width: 100%;
 
         iframe {
@@ -544,10 +538,6 @@
       }
 
       &__button {
-        &--qr {
-          display: none;
-        }
-
         &--next,
         &--previous,
         &--autoplay {
@@ -787,13 +777,14 @@
         width: 100%;
 
         &--fallback {
-          // sass-lint:disable no-color-literals
+          /* stylelint-disable no-color-literals */
           background: radial-gradient(ellipse at top, #333, $black);
         }
       }
 
       &__selected-indicator {
         @include page-fade-in(0.25s);
+
         bottom: 8px;
         height: 20px;
         position: absolute;
@@ -1151,16 +1142,13 @@
     }
 
     &__background-image {
-      bottom: 0;
       display: flex;
       height: 100%;
-      left: 0;
+      inset: 0;
       max-height: 100%;
       max-width: 100%;
       object-fit: cover;
       position: absolute;
-      right: 0;
-      top: 0;
       width: 100%;
     }
   }
@@ -1341,8 +1329,8 @@
     width: var(--nft-media-carousel-height);
 
     &--wide {
-      max-width: calc(#{var(--nft-media-carousel-height)} * 16/9);
-      width: calc(#{var(--nft-media-carousel-height)} * 16/9);
+      max-width: calc(#{var(--nft-media-carousel-height)} * 16 / 9);
+      width: calc(#{var(--nft-media-carousel-height)} * 16 / 9);
     }
 
     &--tall {
@@ -1587,9 +1575,10 @@
 
 
 .media-controls {
-  $controls-background-color: rgba(0, 0, 0, 1);
+  $controls-background-color: rgb(0 0 0 / 100%);
   $controls-foreground-color: #fff;
-  $controls-selected-color: rgba(75, 75, 75, 1);
+  $controls-selected-color: rgb(75 75 75 / 100%);
+
   backdrop-filter: blur(20px);
   background: $controls-background-color;
   bottom: 0;
@@ -1726,6 +1715,7 @@
 
 .nft-media__qr-modal {
   @include modal;
+
   backdrop-filter: blur(20px);
   background: var(--background-nft-media-qr-modal);
   width: 550px;

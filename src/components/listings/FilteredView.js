@@ -182,7 +182,7 @@ const FilteredView = ({
               setPage(page);
 
               if(scrollOnPageChange && containerRef.current) {
-                ScrollTo(containerRef.current.getBoundingClientRect().top + window.scrollY);
+                ScrollTo(containerRef.current.getBoundingClientRect().top + window.scrollY - 100);
               }
             }}
           /> : null

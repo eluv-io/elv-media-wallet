@@ -1,7 +1,8 @@
-$wallet-connect-background: rgba(0, 0, 0, 0.25);
+$wallet-connect-background: rgb(0 0 0 / 25%);
 
 .signature-popup {
   @include component;
+
   align-items: center;
   background: transparent;
   border: 0;
@@ -16,6 +17,7 @@ $wallet-connect-background: rgba(0, 0, 0, 0.25);
 
   &__content {
     @include component;
+
     align-items: center;
     display: flex;
     flex-direction: column;
@@ -100,7 +102,8 @@ $wallet-connect-background: rgba(0, 0, 0, 0.25);
     flex-direction: column;
     height: max-content;
     justify-content: flex-end;
-    // sass-lint:disable function-name-format
+
+    /* stylelint-disable-next-line function-name-format */
     margin: 60px MAX(5vw, calc((100vw - #{$breakpoint}) / 2)) 0 0;
     min-height: unset;
     overflow-y: auto;
@@ -129,9 +132,10 @@ $wallet-connect-background: rgba(0, 0, 0, 0.25);
 .wallet-connect {
   @include component;
   @include page-fade-in;
+
   box-shadow: none;
-  // sass-lint:disable function-name-format
-  max-width: MIN(90vw, 500px);
+  /* stylelint-disable-next-line function-name-format */
+  max-width: min(90vw, 500px);
   padding: 25px 15px 15px;
   top: 60px;
   width: 100%;

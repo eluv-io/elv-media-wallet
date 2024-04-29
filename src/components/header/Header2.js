@@ -7,7 +7,6 @@ import UrlJoin from "url-join";
 import Modal from "Components/common/Modal";
 import MobileNavigationMenu from "Components/header/MobileNavigationMenu";
 
-import WalletMenu from "Components/header/WalletMenu";
 import ProfileMenu from "Components/header/ProfileMenu";
 import {NotificationsMenu} from "Components/header/NotificationsMenu";
 import {Debounce, SetImageUrlDimensions} from "../../utils/Utils";
@@ -18,7 +17,6 @@ import EluvioE from "Assets/images/Eluvio-E-Icon-no-fill-color 2 3.svg";
 import MenuIcon from "Assets/icons/menu";
 import UserIcon from "Assets/icons/profile.svg";
 import DiscoverIcon from "Assets/icons/discover.svg";
-import WalletIcon from "Assets/icons/header/wallet icon v2.svg";
 import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
 import BackIcon from "Assets/icons/pagination arrow back.svg";
 import XIcon from "Assets/icons/x";
@@ -68,9 +66,7 @@ const NotificationBanner = observer(({marketplace}) => {
 });
 
 export const ProfileNavigation = observer(() => {
-  const location = useLocation();
-  const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
-  const [showWalletMenu, setShowWalletMenu] = useState(false);
+  const {marketplaceId} = rootStore.ParsedRouteParams();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
 
@@ -126,16 +122,9 @@ export const ProfileNavigation = observer(() => {
         >
           <ImageIcon alt="My Profile" icon={UserIcon} className="header__profile__user__icon" />
         </button>
-        <button
-          onClick={() => setShowWalletMenu(!showWalletMenu)}
-          className={`header__profile__link ${showWalletMenu ? "active" : ""}`}
-        >
-          <ImageIcon alt="My Wallet" icon={WalletIcon} className="header__profile__balance__icon" />
-        </button>
       </div>
-      { showWalletMenu ? <WalletMenu marketplaceId={marketplaceId} Hide={() => setShowWalletMenu(false)} /> : null }
-      { showProfileMenu ? <ProfileMenu marketplaceId={marketplaceId} Hide={() => setShowProfileMenu(false)} /> : null }
-      { showNotificationsMenu ? <NotificationsMenu marketplaceId={marketplaceId} Hide={() => setShowNotificationsMenu(false)} /> : null }
+      { showProfileMenu ? <ProfileMenu Hide={() => setShowProfileMenu(false)} /> : null }
+      { showNotificationsMenu ? <NotificationsMenu Hide={() => setShowNotificationsMenu(false)} /> : null }
     </>
   );
 });
@@ -351,7 +340,7 @@ const GlobalHeader = observer(({scrolled}) => {
 let lastPageHeight = document.querySelector("body").scrollHeight;
 const Header2 = observer(() => {
   const location = useLocation();
-  const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
+  const {marketplaceId} = rootStore.ParsedRouteParams();
   const marketplace = marketplaceId && rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === marketplaceId);
 
   if(location.pathname.startsWith("/action")) {

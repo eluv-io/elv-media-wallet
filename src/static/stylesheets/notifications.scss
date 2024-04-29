@@ -199,6 +199,7 @@
 .notification-menu {
   @include component;
   @include page-fade-in(0.25s);
+
   left: 1070px;
   position: absolute;
   top: 472px;

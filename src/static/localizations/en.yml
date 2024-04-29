@@ -405,6 +405,7 @@ tables:
 
 filters:
   all_filters: All Filters
+  filter: Filter
   search: Search
   search_projects: Search Projects
   search_projects_ext: Video, Music, Audio, E-book and App
@@ -447,8 +448,8 @@ filters:
     custom: Custom
   sort:
     sort: Sort
-    minted: Minted (Oldest to Newest)
-    minted_desc: Minted (Newest to Oldest)
+    minted: Oldest
+    minted_desc: Newest
     name: Name (A-Z)
     name_desc: Name (Z-A)
     listed: Recently Listed

@@ -1,68 +1,70 @@
 /* Compacta */
 @font-face {
   font-family: "Compacta Black BT";
+  font-style: normal;
+  font-weight: 400;
   src: url("./Compacta/files/CompactaBlackBT.woff2") format("woff2"),
   url("./Compacta/files/CompactaBlackBT.woff") format("woff"),
   url("./Compacta/files/CompactaBlackBT.ttf") format("truetype");
-  font-style: normal;
-  font-weight: 400;
 }
 
 /* Albertus */
 @font-face {
+  font-display: swap;
   font-family: "Albertus MT Std";
+  font-style: normal;
+  font-weight: 400 900;
   src: url("./Albertus/files/AlbertusMT.otf") format("opentype"),
     url("./Albertus/files/AlbertusMTStd.otf") format("opentype");
-  font-style: normal;
-  font-display: swap;
-  font-weight: 400 900;
 }
+
 /* Albertus */
 @font-face {
-  font-family: "Albertus MT Std";
-  src: url("./Albertus/files/AlbertusMTStdLight.otf") format("opentype");
-  font-style: normal;
   font-display: swap;
+  font-family: "Albertus MT Std";
+  font-style: normal;
   font-weight: 100 300;
+  src: url("./Albertus/files/AlbertusMTStdLight.otf") format("opentype");
 }
+
 /* Albertus */
 @font-face {
-  font-family: "Albertus MT Std";
-  src: url("./Albertus/files/AlbertusMTStdItalic.otf") format("opentype");
-  font-style: italic;
   font-display: swap;
+  font-family: "Albertus MT Std";
+  font-style: italic;
   font-weight: 100 900;
+  src: url("./Albertus/files/AlbertusMTStdItalic.otf") format("opentype");
 }
 
 /* Heading Pro */
 @font-face {
+  font-display: swap;
   font-family: "Heading Pro";
+  font-style: italic;
+  font-weight: 100 400;
   src: url("./Heading Pro/files/HeadingProDouble-ThinItalic.woff") format("woff2");
-  font-style: italic;
-  font-display: swap;
-  font-weight: 100 400;
 }
 
 @font-face {
+  font-display: swap;
   font-family: "Heading Pro";
+  font-style: italic;
+  font-weight: 500 900;
   src: url("./Heading Pro/files/HeadingProMedium-BlackItalic.woff") format("woff2");
-  font-style: italic;
-  font-display: swap;
-  font-weight: 500 900;
 }
 
 @font-face {
-  font-family: "Heading Pro";
-  src: url("./Heading Pro/files/HeadingProDouble-Thin.woff") format("woff2");
-  font-style: normal;
   font-display: swap;
+  font-family: "Heading Pro";
+  font-style: normal;
   font-weight: 100 400;
+  src: url("./Heading Pro/files/HeadingProDouble-Thin.woff") format("woff2");
 }
 
 @font-face {
-  font-family: "Heading Pro";
-  src: url("./Heading Pro/files/HeadingProMedium-Bold.woff") format("woff2");
-  font-style: normal;
   font-display: swap;
+  font-family: "Heading Pro";
+  font-style: normal;
   font-weight: 500 900;
+  src: url("./Heading Pro/files/HeadingProMedium-Bold.woff") format("woff2");
 }

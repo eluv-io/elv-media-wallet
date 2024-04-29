@@ -73,6 +73,7 @@
 
     &__address {
       @include component;
+
       align-items: center;
       background: var(--color-user-profile-bg-secondary);
       border: 0;
@@ -89,6 +90,7 @@
 
     &__address-copy {
       @include component;
+
       align-items: center;
       background: var(--color-user-profile-bg-secondary);
       border: 0;

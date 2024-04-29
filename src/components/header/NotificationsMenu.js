@@ -11,6 +11,7 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 import {createPortal} from "react-dom";
 import HoverMenu from "Components/common/HoverMenu";
 import PreferencesMenu from "Components/header/PreferencesMenu";
+import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
 
 import ListingSoldIcon from "Assets/icons/header/listings icon.svg";
 import TokenUpdatedIcon from "Assets/icons/plus.svg";
@@ -93,21 +94,18 @@ const NotificationMenu = observer(({notification, parent, Hide}) => {
   );
 });
 
-const ItemLink = ({contractAddress, tokenId, marketplace}) => {
-  const contractId = `ictr${Utils.AddressToHash(contractAddress)}`;
-  let link = UrlJoin("users", "me", "items", contractId, tokenId.toString());
-  link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, link) : UrlJoin("/wallet", link);
-
-  return link;
-};
-
 const Notification = observer(({notification, Hide}) => {
   const ref = useRef();
   const [showMenu, setShowMenu] = useState(false);
 
   let valid = true;
 
-  const marketplace = notification.tenant_id && rootStore.MarketplaceByTenantId({tenantId: notification.tenant_id});
+  let basePath = "/wallet";
+  if(rootStore.routeParams.marketplaceId) {
+    basePath = UrlJoin("/marketplace", rootStore.routeParams.marketplaceId);
+  } else if(rootStore.routeParams.mediaPropertySlugOrId) {
+    basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: true});
+  }
 
   const l10n = rootStore.l10n.notifications;
   let header, message, icon, link;
@@ -123,8 +121,7 @@ const Notification = observer(({notification, Hide}) => {
       header = l10n.listing_sold;
       message = LocalizeString(l10n.listing_sold_message, {name: notification.data.name, price: FormatPriceString(notification.data.price, {stringOnly: true})});
       if(notification.data.listing) {
-        link = UrlJoin("users", "me", "listings", notification.data.listing);
-        link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, link) : UrlJoin("/wallet", link);
+        link = UrlJoin(basePath, "users", "me", "listings", notification.data.listing);
       }
 
       break;
@@ -134,7 +131,8 @@ const Notification = observer(({notification, Hide}) => {
       header = l10n.token_updated;
       message = notification.data.message;
       if(notification.data.contract && notification.data.token) {
-        link = ItemLink({marketplace, contractAddress: notification.data.contract, tokenId: notification.data.token});
+        const contractId = `ictr${Utils.AddressToHash(notification.data.contract)}`;
+        link = UrlJoin(basePath, "users", "me", "items", contractId, notification.data.token.toString());
       }
 
       break;
@@ -144,7 +142,7 @@ const Notification = observer(({notification, Hide}) => {
       header = l10n.offer_received;
       message = LocalizeString(l10n.offer_received_message, {name: notification.data.name, price: FormatPriceString(notification.data.price, {stringOnly: true})});
 
-      link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "offers") : "/wallet/users/me/offers";
+      link = UrlJoin(basePath, "users", "me", "offers");
 
       break;
 
@@ -154,7 +152,8 @@ const Notification = observer(({notification, Hide}) => {
       message = LocalizeString(l10n.offer_accepted_message, {name: notification.data.name, price: FormatPriceString(notification.data.price, {stringOnly: true})});
 
       if(notification.data.contract && notification.data.token) {
-        link = ItemLink({marketplace, contractAddress: notification.data.contract, tokenId: notification.data.token});
+        const contractId = `ictr${Utils.AddressToHash(notification.data.contract)}`;
+        link = UrlJoin(basePath, "users", "me", "items", contractId, notification.data.token.toString());
       }
 
       break;
@@ -173,7 +172,7 @@ const Notification = observer(({notification, Hide}) => {
         );
       }
 
-      link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "offers") : "/wallet/users/me/offers";
+      link = UrlJoin(basePath, "users", "me", "offers");
       break;
 
     case "OFFER_EXPIRED":
@@ -181,7 +180,7 @@ const Notification = observer(({notification, Hide}) => {
       header = l10n.offer_expired;
       message = LocalizeString(l10n.offer_expired_message, {name: notification.data.name, price: FormatPriceString(notification.data.price, {stringOnly: true})});
 
-      link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "offers") : "/wallet/users/me/offers";
+      link = UrlJoin(basePath, "users", "me", "offers");
 
       break;
 
@@ -189,8 +188,7 @@ const Notification = observer(({notification, Hide}) => {
       icon = GiftIcon;
       header = l10n.gift_received;
       message = LocalizeString(l10n.gift_received_message, {sender: notification?.data?.reason?.split("from ")[1] || "Someone"});
-
-      link = marketplace ? UrlJoin("/marketplace", marketplace.marketplaceId, "users", "me", "gifts") : "/wallet/users/me/gifts";
+      link = UrlJoin(basePath, "users", "me", "gifts");
 
       break;
 
@@ -258,8 +256,7 @@ const Notification = observer(({notification, Hide}) => {
 });
 
 
-const Notifications = observer(({marketplaceId, headerMenu, Hide}) => {
-  const match = useRouteMatch();
+const Notifications = observer(({headerMenu, Hide}) => {
   const perPage = 10;
   const [loading, setLoading] = useState(!headerMenu);
   const [notifications, setNotifications] = useState([]);
@@ -269,6 +266,13 @@ const Notifications = observer(({marketplaceId, headerMenu, Hide}) => {
   const [showPreferences, setShowPreferences] = useState(false);
 
   const filteredNotifications = notifications.filter(notification => !onlyNew || notificationStore.NotificationUnread(notification));
+
+  let basePath = "/wallet";
+  if(rootStore.routeParams.marketplaceId) {
+    basePath = UrlJoin("/marketplace", rootStore.routeParams.marketplaceId);
+  } else if(rootStore.routeParams.mediaPropertySlugOrId) {
+    basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: true});
+  }
 
   useEffect(() => {
     return () => notificationStore.SetNotificationMarker({id: notificationStore.notifications[0]?.id});
@@ -334,7 +338,7 @@ const Notifications = observer(({marketplaceId, headerMenu, Hide}) => {
           headerMenu ? (
             notificationStore.notifications.length > 0 ?
               <Link
-                to={marketplaceId ? UrlJoin("/marketplace", marketplaceId, "users", "me", "notifications") : "/wallet/users/me/notifications"}
+                to={UrlJoin(basePath, "users", "me", "notifications")}
                 onClick={() => Hide()}
                 className="notifications__link"
               >
@@ -352,15 +356,15 @@ const Notifications = observer(({marketplaceId, headerMenu, Hide}) => {
             )
         }
       </div>
-      { showPreferences ? <PreferencesMenu marketplaceId={match.params.marketplaceId} Hide={() => setShowPreferences(false)} /> : null }
+      { showPreferences ? <PreferencesMenu Hide={() => setShowPreferences(false)} /> : null }
     </>
   );
 });
 
-export const NotificationsMenu = observer(({marketplaceId, Hide}) => {
+export const NotificationsMenu = observer(({Hide}) => {
   return (
     <HoverMenu Hide={Hide} className="header__menu header__notifications-menu">
-      <Notifications headerMenu marketplaceId={marketplaceId} Hide={Hide} />
+      <Notifications headerMenu Hide={Hide} />
     </HoverMenu>
   );
 });

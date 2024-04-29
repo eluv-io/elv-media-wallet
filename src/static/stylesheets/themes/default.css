@@ -1,42 +1,33 @@
 html {
   /* General */
-  --color-text-background-highlight: #FFFFFF;
+  --color-text-background-highlight: #FFF;
   --color-text-background-highlight-rgb: 255, 255, 255;
   --color-text-highlight: #2D61E4;
   --color-text-highlight-rgb: 30, 94, 237;
 
   /* Fonts - Primary is for used headers, tertiary for buttons, prices and other details, secondary for all other text */
-  --font-family-primary: "Inter", "Montserrat", "Helvetica Neue", Helvetica, sans-serif; /* Primary font should be accompanied with 'text-transform: uppercase' */
-  --font-family-secondary: "Inter", "DM Sans", "Helvetica Neue", Helvetica, sans-serif;
-  --font-family-tertiary: "Inter", Helvetica, sans-serif;
+  --font-family-primary: "Inter", "Montserrat", "Helvetica Neue", helvetica, sans-serif; /* Primary font should be accompanied with 'text-transform: uppercase' */
+  --font-family-secondary: "Inter", "DM Sans", "Helvetica Neue", helvetica, sans-serif;
+  --font-family-tertiary: "Inter", helvetica, sans-serif;
   --font-default: normal normal normal 16px var(--font-family-secondary);
-
-  --color-bg-primary: #FFFFFF;
+  --color-bg-primary: #FFF;
   --color-bg-secondary: #EDEDED;
   --color-bg-highlight: #2D61E4;
   --color-bg-highlight2: #7f2de4;
-
   --color-text-primary: #000;
   --color-text-secondary: #333;
   --color-text-error: #f00;
-
   --color-highlight-container-bg: var(--color-bg-highlight);
   --color-highlight-container-text: #fff;
-
-  --color-loader: rgba(0, 0, 0, 0.5);
-
+  --color-loader: rgb(0 0 0 / 50%);
   --border-color: #ccc;
   --border: 1px solid var(--border-color);
-
   --border-color-faint: #D2D2D2;
   --border-faint: 1px solid var(--border-color-faint);
-
   --border-color-highlight: var(--color-bg-highlight);
   --border-highlight: 1px solid var(--border-color-highlight);
-
   --border-radius: 4px;
-
-  --box-shadow: 0px 0 4px rgba(0, 0, 0, 0.1);
+  --box-shadow: 0px 0 4px rgb(0 0 0 / 10%);
 
   /* Page */
   --background-content: var(--color-page-bg);
@@ -44,27 +35,21 @@ html {
   --color-lower-page-bg: var(--color-page-bg);
 
   /* Header */
-  --background-header-notification: rgba(0, 0, 0, 0.75);
-  --color-header-notification: #FFFFFF;
+  --background-header-notification: rgb(0 0 0 / 75%);
+  --color-header-notification: #FFF;
   --color-header-notification-link: var(--color-component-text-highlight);
-
   --font-header-links: normal normal 300 16px var(--font-family-secondary);
   --font-store-header: normal normal 600 48px var(--font-family-primary);
-
-  --background-header-light: linear-gradient(180deg, rgba(246, 246, 246, 1) 0%, rgba(246, 246, 246, 0.85) 99%, transparent);
-  --background-header-dark: linear-gradient(180deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.65) 75%, transparent 100%);
-
+  --background-header-light: linear-gradient(180deg, rgb(246 246 246 / 100%) 0%, rgb(246 246 246 / 85%) 99%, transparent);
+  --background-header-dark: linear-gradient(180deg, rgb(0 0 0 / 100%) 0%, rgb(0 0 0 / 65%) 75%, transparent 100%);
   --background-header: var(--background-header-dark);
-
   --background-page-header-profile: var(--color-bg-secondary);
   --color-page-header-text: var(--color-text-primary);
   --color-header-link-text: var(--color-text-primary);
   --color-header-link-text-secondary: var(--color-text-secondary);
   --color-header-link-text-active: var(--color-text-highlight);
-
   --background-marketplace-header: transparent;
   --color-marketplace-header-text: var(--color-text-primary);
-
   --header-signin-button-bg: var(--background-button-primary);
   --header-signin-button-text: var(--color-button-primary-text);
   --header-signin-button-border: 1px solid var(--border-button-primary);
@@ -77,22 +62,18 @@ html {
   /* Buttons */
   --font-button: normal normal normal 14px var(--font-family-tertiary);
   --font-button-selection: var(--font-button);
-
   --background-button-primary: var(--color-highlight-container-bg);
   --color-button-primary-text: var(--color-highlight-container-text);
   --border-button-primary: 1px solid var(--color-highlight-container-bg);
   --border-radius-button-primary: var(--border-radius);
-
   --background-button-primary-variant: var(--color-bg-highlight2);
   --color-button-primary-variant-text: var(--color-button-primary-text);
   --border-button-primary-variant: 1px solid var(--background-button-primary-variant);
   --border-radius-button-primary-variant: var(--border-radius-button-primary);
-
   --background-button-secondary: var(--color-bg-primary);
   --color-button-secondary-text: var(--color-text-primary);
   --border-button-secondary: var(--border);
   --border-radius-button-secondary: var(--border-radius);
-
   --background-button-danger: #333;
   --color-button-danger-text: var(--color-highlight-container-text);
   --border-button-danger: 1px solid #333;
@@ -103,7 +84,6 @@ html {
   --color-button-selection-text: var(--color-text-primary);
   --border-button-selection: var(--border);
   --border-radius-button-selection: var(--border-radius);
-
   --background-button-selection-active: transparent;
   --color-button-selection-active-text: var(--color-text-highlight);
   --border-button-selection-active: var(--border-highlight);
@@ -111,7 +91,6 @@ html {
 
   /* Inputs */
   --font-input: var(--font-default);
-
   --background-input: var(--color-bg-primary);
   --color-input-bg-solid: var(--color-bg-primary);
   --color-input-hover-bg: var(--color-bg-secondary);
@@ -121,7 +100,6 @@ html {
   --color-input-highlight-text: var(--color-highlight-container-text);
   --border-input: var(--border);
   --border-radius-input: var(--border-radius);
-
   --box-shadow-input: var(--box-shadow);
   --box-shadow-input-focus: 0 0 7px var(--color-bg-highlight);
   --outline-input-focus: 1px solid var(--color-bg-highlight);
@@ -130,7 +108,6 @@ html {
   --font-card-title: normal normal 500 20px var(--font-family-primary);
   --font-card-text: normal normal normal 16px var(--font-family-secondary);
   --font-card-misc: normal normal normal 14px var(--font-family-tertiary);
-
   --background-card: var(--color-bg-primary);
   --color-card-bg: var(--color-bg-primary);
   --color-card-text-primary: var(--color-text-primary);
@@ -143,10 +120,8 @@ html {
   --border-background-card: var(--border-color-faint);
   --border-width-card: 1px;
   --border-radius-card: 5px;
-
   --color-card-stock-available: #f00;
   --color-card-stock-unavailable: #555;
-
   --color-card-badge-bg: var(--color-card-bg);
   --color-card-badge: var(--color-text-primary);
   --border-radius-card-badge: 6px;
@@ -155,30 +130,24 @@ html {
   --font-feature-card-title: normal normal bold 32px var(--font-family-primary);
   --font-feature-card-text: normal normal normal 20px var(--font-family-secondary);
   --font-feature-card-misc: normal normal normal 16px var(--font-family-tertiary);
-
   --background-feature-card: var(--background-card);
   --background-featured-item: transparent;
-
   --color-feature-card-text-primary: var(--color-text-primary);
   --color-feature-card-text-secondary: var(--color-text-secondary);
   --color-feature-card-text-highlight: var(--color-text-highlight);
   --box-shadow-feature-card: var(--box-shadow-card);
-
   --border-background-feature-card: var(--border-background-card);
   --border-background-featured-item: transparent;
   --border-width-feature-card: var(--border-width-card);
   --border-width-featured-item: 2px;
   --border-radius-feature-card: 25px;
   --border-radius-featured-item: 10px;
-
   --color-button-feature-card-bg: transparent;
   --color-button-feature-card-text: var(--color-button-secondary-text);
   --border-button-feature-card: 0;
   --border-radius-button-feature-card: var(--border-radius);
-
   --border-background-feature-card-selected: var(--border-color-highlight);
   --box-shadow-feature-card-selected: 0 0 10px var(--color-bg-highlight);
-
   --color-featured-item-slider: var(--color-bg-secondary);
   --color-featured-item-slider-handle: var(--color-bg-highlight);
 
@@ -194,7 +163,6 @@ html {
   /* Tables */
   --font-table-header: normal normal 500 16px var(--font-family-tertiary);
   --font-table: var(--font-default);
-
   --background-table: var(--color-bg-primary);
   --background-table-header-row: var(--color-bg-highlight);
   --color-table-header-row-text: var(--color-text-background-highlight);
@@ -205,14 +173,11 @@ html {
   --color-table-selected-row-bg: inherit;
   --color-table-selected-row-text: var(--color-text-highlight);
   --color-table-highlight-text: var(--color-text-highlight);
-
   --border-table-row-selected: 2px solid var(--color-bg-highlight);
-
   --border-table-primary: var(--border);
   --border-table-secondary: var(--border-faint);
   --border-radius-table: var(--border-radius);
   --box-shadow-table: var(--box-shadow);
-
   --color-table-badge-active-bg: var(--color-highlight-container-bg);
   --color-table-badge-active-text: var(--color-highlight-container-text);
   --color-table-badge-inactive-bg: #555;
@@ -223,7 +188,6 @@ html {
   --font-component-header: normal normal 500 24px var(--font-family-primary);
   --font-component-text: normal normal normal 16px var(--font-family-secondary);
   --font-component-misc: normal normal normal 16px var(--font-family-tertiary);
-
   --background-component-primary: var(--color-bg-primary);
   --background-component-secondary: var(--color-bg-secondary);
   --color-component-bg-primary: var(--color-bg-primary);
@@ -243,7 +207,6 @@ html {
   --font-nft-media-header: normal normal 500 24px var(--font-family-primary);
   --font-nft-media-text: normal normal normal 16px var(--font-family-secondary);
   --font-nft-media-misc: normal normal normal 16px var(--font-family-tertiary);
-
   --background-nft-media-featured: var(--color-bg-primary);
   --background-nft-media-featured-button: var(--background-button-primary);
   --background-nft-media-primary: var(--color-bg-primary);
@@ -271,18 +234,16 @@ html {
   --border-radius-nft-media-featured-button: var(--border-radius-button-primary);
   --border-radius-nft-media-album-content: 10px;
   --border-width-nft-media-album-content: 30px;
-  --box-shadow-nft-media-album-content: 0px 0 8px rgba(0, 0, 0, 0.1);
-  --box-shadow-nft-media-album-list: 0px 0 8px rgba(0, 0, 0, 0.1);
-
-  --background-nft-media-live-indicator: #FF0000;
+  --box-shadow-nft-media-album-content: 0px 0 8px rgb(0 0 0 / 10%);
+  --box-shadow-nft-media-album-list: 0px 0 8px rgb(0 0 0 / 10%);
+  --background-nft-media-live-indicator: #F00;
 
   /* Modals */
-  --background-modal-overlay: rgba(0, 0, 0, 0.75);
+  --background-modal-overlay: rgb(0 0 0 / 75%);
   --background-modal-primary: var(--background-content);
   --border-modal-primary: var(--border);
   --border-modal-secondary: var(--border-faint);
   --border-radius-modal: var(--border-radius);
-
   --color-button-modal-close-bg: var(--color-bg-primary);
   --color-button-modal-close-text: var(--color-text-primary);
   --border-button-modal-close: 1px solid var(--color-text-primary);
@@ -298,7 +259,6 @@ html {
   --color-login-input-text: var(--color-component-text-primary);
   --border-login-input: var(--border);
   --border-radius-login-input: var(--border-radius);
-
   --border-login-box: var(--border);
   --border-radius-login-box: var(--border-radius);
   --box-shadow-login-box: var(--box-shadow);

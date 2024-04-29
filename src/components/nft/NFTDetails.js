@@ -211,21 +211,21 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
       {
         nft.details.TokenUri ?
           <CopyableField value={nft.details.TokenUri}>
-            { rootStore.l10n.item_details.token_url }: <a href={nft.details.TokenUri} target="_blank">{ nft.details.TokenUri }</a>
+            { rootStore.l10n.item_details.token_url }: <a href={nft.details.TokenUri} target="_blank" rel="noreferrer">{ nft.details.TokenUri }</a>
           </CopyableField>
           : null
       }
       {
         embedUrl ?
           <CopyableField value={embedUrl}>
-            { rootStore.l10n.item_details.media_url }: <a href={embedUrl} target="_blank">{ embedUrl }</a>
+            { rootStore.l10n.item_details.media_url }: <a href={embedUrl} target="_blank" rel="noreferrer">{ embedUrl }</a>
           </CopyableField>
           : null
       }
       {
         nft.metadata.image ?
           <CopyableField value={nft.metadata.image}>
-            { rootStore.l10n.item_details.image_url }: <a href={nft.metadata.image} target="_blank">{ nft.metadata.image }</a>
+            { rootStore.l10n.item_details.image_url }: <a href={nft.metadata.image} target="_blank" rel="noreferrer">{ nft.metadata.image }</a>
           </CopyableField>
           : null
       }
@@ -302,7 +302,7 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
             <a
               href={nft.metadata.terms_document.terms_document.url}
               target="_blank"
-              rel="noopener"
+              rel="noopener noreferrer"
               className="details-page__terms-link"
             >
               {nft.metadata.terms_document.link_text}
@@ -362,7 +362,7 @@ const NFTContractSection = ({nftInfo, SetBurned, ShowTransferModal}) => {
               `https://explorer.contentfabric.io/address/${nftInfo.nft.details.ContractAddr}/transactions` :
               `https://lookout.qluv.io/address/${nftInfo.nft.details.ContractAddr}/transactions`
           }
-          rel="noopener"
+          rel="noopener noreferrer"
         >
           { rootStore.l10n.item_details.lookout_link }
         </a>
@@ -497,14 +497,14 @@ const NFTInfoMenu = observer(({nftInfo}) => {
               }
               {
                 urls.twitterUrl ?
-                  <a href={urls.twitterUrl.toString()} target="_blank" onClick={Close}>
+                  <a href={urls.twitterUrl.toString()} target="_blank" onClick={Close} rel="noreferrer">
                     <ImageIcon icon={TwitterIcon}/>
                     {rootStore.l10n.item_details.menu.share_on_twitter}
                   </a> : null
               }
               {
                 urls.whatsAppUrl ?
-                  <a href={urls.whatsAppUrl.toString()} target="_blank" onClick={Close}>
+                  <a href={urls.whatsAppUrl.toString()} target="_blank" onClick={Close} rel="noreferrer">
                     <ImageIcon icon={WhatsAppIcon} />
                     {rootStore.l10n.item_details.menu.share_on_whatsapp}
                   </a> : null

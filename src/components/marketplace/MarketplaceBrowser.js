@@ -14,6 +14,7 @@ import TVIcon from "Assets/icons/icon_tv.svg";
 import {PageLoader} from "Components/common/Loaders";
 import {Linkish} from "Components/common/UIComponents";
 import {SetImageUrlDimensions} from "../../utils/Utils";
+import {LoaderImage} from "Components/properties/Common";
 
 const MarketplaceTags = ({activeTag, setActiveTag}) => {
   const tags = [
@@ -238,6 +239,7 @@ export const MediaPropertiesBrowser = observer(() => {
 
               return (
                 <Linkish
+                  key={`property-link-${path}`}
                   to={path}
                   onClick={() => {
                     if(mediaProperty.marketplaceId) {
@@ -248,7 +250,12 @@ export const MediaPropertiesBrowser = observer(() => {
                   }}
                   className="media-property-card"
                 >
-                  <img className="media-property-card__image" src={SetImageUrlDimensions({url: mediaProperty.image?.url, width: 600})} alt={mediaProperty.title || ""} />
+                  <LoaderImage
+                    className="media-property-card__image"
+                    src={SetImageUrlDimensions({url: mediaProperty.image?.url, width: 600})}
+                    loaderAspectRatio={3/4}
+                    alt={mediaProperty.title || ""}
+                  />
                 </Linkish>
               );
             })

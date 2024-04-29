@@ -70,7 +70,7 @@ const Links = observer(({marketplaceId}) => {
 let lastPageHeight = document.querySelector("body").scrollHeight;
 const Header = observer(() => {
   const [scrolled, setScrolled] = useState(false);
-  const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
+  const {marketplaceId} = rootStore.ParsedRouteParams();
 
   useEffect(() => {
     setScrolled(false);

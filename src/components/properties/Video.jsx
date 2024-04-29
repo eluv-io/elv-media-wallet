@@ -47,8 +47,7 @@ const Video = observer(({
       }
     }
 
-    console.log("INITIALIZE PLAYER")
-    // eslint-disable-next-line no-async-promise-executor
+     
     InitializeEluvioPlayer(
       targetRef.current,
       {
