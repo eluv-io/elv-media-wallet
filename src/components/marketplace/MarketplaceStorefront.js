@@ -59,7 +59,8 @@ const MarketplaceBanners = ({marketplace}) => {
 
           if(banner.link) {
             return (
-              <a href={banner.link} rel="noopener" target="_blank" {...attrs}>
+              // eslint-disable-next-line react/jsx-key
+              <a href={banner.link} rel="noreferrer" target="_blank" {...attrs}>
                 {bannerContent}
               </a>
             );
@@ -73,6 +74,7 @@ const MarketplaceBanners = ({marketplace}) => {
 
             if(link) {
               return (
+                // eslint-disable-next-line react/jsx-key
                 <Link to={link} {...attrs}>
                   {bannerContent}
                 </Link>
@@ -80,6 +82,7 @@ const MarketplaceBanners = ({marketplace}) => {
             }
           } else if(banner.modal_video) {
             return (
+              // eslint-disable-next-line react/jsx-key
               <button {...attrs} onClick={() => setVideoModal(banner.modal_video)}>
                 {bannerContent}
               </button>
@@ -87,6 +90,7 @@ const MarketplaceBanners = ({marketplace}) => {
           }
 
           return (
+            // eslint-disable-next-line react/jsx-key
             <div {...attrs}>
               {bannerContent}
             </div>

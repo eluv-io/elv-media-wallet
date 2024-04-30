@@ -17,7 +17,7 @@ const Home = observer(({marketplaceId}) => {
   const marketplace = marketplaceId && rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === marketplaceId);
 
   if(marketplace) {
-    const { name, header_logo, hide_name, preview } = marketplace.branding || {};
+    const { name, header_logo, hide_name } = marketplace.branding || {};
     const logo = SetImageUrlDimensions({url: header_logo?.url, height: 500});
 
     return (

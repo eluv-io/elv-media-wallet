@@ -352,7 +352,7 @@ export const OffersTable = observer(({
             }
 
             return [
-              <div className="ellipsis" title={`${userName ? userName + " " : ""}(${Utils.FormatAddress(offer.buyer)})`}>
+              <div key={`offer-${offer.id}`} className="ellipsis" title={`${userName ? userName + " " : ""}(${Utils.FormatAddress(offer.buyer)})`}>
                 { user }
               </div>,
               FormatPriceString(offer.price, {stringOnly: true})
@@ -425,10 +425,10 @@ export const OffersTable = observer(({
                 FormatPriceString(offer.price, {stringOnly: true}),
                 FormatPriceString(showTotal ? offer.price + offer.fee : offer.price, {stringOnly: true}),
                 expiration,
-                <div className="ellipsis" title={`${userName ? userName + " " : ""}(${Utils.FormatAddress(offer.buyer)})`}>
+                <div key={`user-${offer.id}`} className="ellipsis" title={`${userName ? userName + " " : ""}(${Utils.FormatAddress(offer.buyer)})`}>
                   { user }
                 </div>,
-                <div className={`offers-table__status ${["ACTIVE", "ACCEPTED"].includes(offer.status) ? "offers-table__status--highlight" : "offers-table__status--dim"}`}>
+                <div key={`status-${offer.id}`} className={`offers-table__status ${["ACTIVE", "ACCEPTED"].includes(offer.status) ? "offers-table__status--highlight" : "offers-table__status--dim"}`}>
                   { Status(offer.status) }
                 </div>,
                 noActions ?

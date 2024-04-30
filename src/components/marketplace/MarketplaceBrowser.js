@@ -125,7 +125,7 @@ const MarketplaceCard = observer(({marketplace, flipped, setFlipped}) => {
 
   if(branding.external_link) {
     return (
-      <a rel="noopener" target="_blank" href={branding.external_link} {...containerOptions} >
+      <a rel="noreferrer" target="_blank" href={branding.external_link} {...containerOptions} >
         { content }
         { branding.preview ? <div className="marketplace-card__notice">PREVIEW</div> : null }
       </a>

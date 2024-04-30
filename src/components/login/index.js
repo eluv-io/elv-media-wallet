@@ -334,8 +334,11 @@ const CustomConsentModal = ({customConsent}) => {
     initialSelections[key] = !!initially_checked
   );
 
+  // eslint-disable-next-line react/display-name
   return ({Confirm}) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const [selections, setSelections] = useState({...initialSelections});
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const [renderKey, setRenderKey] = useState(0);
 
     const anyRequired = !!customConsent.options.find(option => option.required);

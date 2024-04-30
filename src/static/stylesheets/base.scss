@@ -124,6 +124,10 @@ header,
   justify-content: center;
   width: 100%;
 
+  &--storefront {
+    max-width: 1200px;
+  }
+
   &--custom-background {
     background-color: transparent;
   }

@@ -47,6 +47,7 @@ const MediaCollectionLists = observer(({mediaCollection, activeListId, setActive
             [
               mediaList.id,
               <div
+                key={`media-list-${mediaList.id}`}
                 className={S(
                   "media-collection__list-select-option",
                   mediaList.id === activeListId ? "media-collection__list-select-option--active" : "",

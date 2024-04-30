@@ -12,7 +12,6 @@ import {
   PageHeader
 } from "Components/properties/Common";
 import {MediaPropertySection} from "Components/properties/MediaPropertySection";
-import MediaPropertyPurchaseModal from "Components/properties/MediaPropertyPurchaseModal";
 import {NFTInfo} from "../../utils/Utils";
 import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
 

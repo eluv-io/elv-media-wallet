@@ -2433,8 +2433,8 @@ class RootStore {
 
   ParsedRouteParams() {
     // eslint-disable-next-line no-unused-vars
-    let [_, property, __, subproperty] = location.pathname.split(/\/p\/([^\/]+)/);
-    const marketplaceId = (location.pathname.match(/\/marketplace\/([^\/]+)/) || [])[1];
+    let [_, property, __, subproperty] = location.pathname.split(/\/p\/([^/]+)/);
+    const marketplaceId = (location.pathname.match(/\/marketplace\/([^/]+)/) || [])[1];
 
     return {
       mediaPropertySlugOrId: subproperty || property,

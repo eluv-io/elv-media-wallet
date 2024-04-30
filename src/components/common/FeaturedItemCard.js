@@ -34,7 +34,7 @@ const FeaturedItemCard = observer(({
   const secondaryDisabled = marketplace?.branding?.disable_secondary_market;
 
   if(sideText) {
-    const [first, second] = sideText.toString().split(/[\/:]/);
+    const [first, second] = sideText.toString().split(/[/:]/);
 
     sideText = (
       <div className="featured-item__side-text">

@@ -36,6 +36,22 @@ class MediaPropertyStore {
     return this.rootStore.walletClient;
   }
 
+  GetMediaPropertyAttributes({mediaPropertySlugOrId}) {
+    const associatedCatalogIds = this.MediaProperty({mediaPropertySlugOrId})?.metadata.media_catalogs || [];
+
+    let attributes = {};
+    associatedCatalogIds.map(mediaCatalogId =>
+      Object.keys(this.mediaCatalogs[mediaCatalogId]?.attributes || {})
+        .forEach(attributeId =>
+          attributes[attributeId] = {
+            ...this.mediaCatalogs[mediaCatalogId].attributes[attributeId]
+          }
+        )
+    );
+
+    return attributes;
+  }
+
   async SearchMedia({mediaPropertySlugOrId, query}) {
     const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
 
@@ -45,15 +61,33 @@ class MediaPropertyStore {
 
     const mediaPropertyId = mediaProperty.mediaPropertyId;
 
-    let suggestions = this.searchIndexes[mediaPropertyId].autoSuggest(query);
-    if(suggestions.length === 0) {
-      suggestions = [{suggestion: query}];
-    }
+    let results;
+    if(query) {
+      let suggestions = this.searchIndexes[mediaPropertyId].autoSuggest(query);
+      if(suggestions.length === 0) {
+        suggestions = [{suggestion: query}];
+      }
 
-    let results = suggestions
-      .map(({suggestion}) => this.searchIndexes[mediaPropertyId].search(suggestion))
-      .flat()
-      .filter((value, index, array) => array.findIndex(({id}) => id === value.id) === index);
+      results = suggestions
+        .map(({suggestion}) => this.searchIndexes[mediaPropertyId].search(suggestion))
+        .flat()
+        .filter((value, index, array) => array.findIndex(({id}) => id === value.id) === index);
+    } else {
+      // All content
+      const associatedCatalogIds = mediaProperty.metadata.media_catalogs || [];
+      results = Object.values(this.media)
+        .filter(mediaItem =>
+          //(mediaItem.authorized || mediaItem.public) &&
+          associatedCatalogIds.includes(mediaItem.media_catalog_id)
+        )
+        .map(mediaItem => ({
+          id: mediaItem.id,
+          catalog_title: mediaItem.catalog_title,
+          title: mediaItem.title,
+          score: 1.0,
+          category: mediaItem.type
+        }));
+    }
 
     results = results.sort((a, b) => {
       const diff = a.score - b.score;
@@ -643,6 +677,7 @@ class MediaPropertyStore {
             "media",
             "media_collections",
             "media_lists",
+            "attributes",
             "tags"
           ],
           produceLinkUrls: true
@@ -660,7 +695,9 @@ class MediaPropertyStore {
 
         runInAction(() => {
           this.mediaCatalogs[mediaCatalogId] = {
-            versionHash
+            versionHash,
+            tags: metadata.tags || [],
+            attributes: metadata.attributes || []
           };
 
           const media = {

@@ -28,7 +28,7 @@ const FilteredView = ({
   const [filters, setFilters] = useState(hideFilters ? initialFilters : undefined);
   const [paging, setPaging] = useState(undefined);
   const [page, setPage] = useState(1);
-  const [lastUpdate, setLastUpdate] = useState(0);
+  //const [lastUpdate, setLastUpdate] = useState(0);
   const [loadKey, setLoadKey] = useState(1);
   const containerRef = useRef();
 

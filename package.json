@@ -21,7 +21,7 @@
     "build-docs": "rm -rf ./docs/* && ./node_modules/.bin/jsdoc --configure ./.jsdoc.json --readme README.md",
     "build-test-l10n": "node src/static/localizatcions/LocalizeUtils.js test",
     "add-build": "COMMIT=`git rev-parse HEAD` ; echo $COMMIT > dist/version.txt ; git add dist",
-    "lint": "npm-run-all -s lint-js-fix lint-scss-fix",
+    "lint": "npm-run-all -s -c lint-js-fix lint-scss-fix",
     "lint-js": "eslint ./src ./client/src --ext js,jsx --report-unused-disable-directives",
     "lint-js-fix": "eslint ./src ./client/src --fix --ext js,jsx --report-unused-disable-directives",
     "lint-scss": "npx stylelint \"src/**/*.{css,scss}\"",

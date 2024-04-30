@@ -167,7 +167,7 @@ const MediaCardVertical = observer(({
             }
             {
               !display.title ? null :
-                <ScaledText Tag="h3" maxPx={24 * textScale} minPx={16 * textScale} className={S("media-card-vertical__title")}>
+                <ScaledText Tag="h3" maxPx={22 * textScale} minPx={16 * textScale} className={S("media-card-vertical__title")}>
                   { display.title }
                 </ScaledText>
             }

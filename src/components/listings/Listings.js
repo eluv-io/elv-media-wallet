@@ -11,6 +11,7 @@ import ListingIcon from "Assets/icons/listings icon";
 import LinkedIcon from "Assets/icons/linked wallet icon (r).svg";
 import NFTCard from "Components/nft/NFTCard";
 
+// eslint-disable-next-line react/display-name
 const Listing = memo(({url, listing}) => (
   <NFTCard
     link={UrlJoin(url, listing.details.ListingId)}

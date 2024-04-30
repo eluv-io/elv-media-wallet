@@ -57,7 +57,7 @@ const Table = observer(({
     .join(" ");
 
   // Set up infinite scroll
-  const [lastUpdate, setLastUpdate] = useState(0);
+  //const [lastUpdate, setLastUpdate] = useState(0);
   /*
   if(pagingMode === "infinite" && !scrollRef) {
     scrollRef = useInfiniteScroll({
