@@ -129,7 +129,7 @@ export const ProfileNavigation = observer(() => {
   );
 });
 
-export const MobileNavigation = observer(({marketplace, className=""}) => {
+export const MobileNavigation = observer(({className=""}) => {
   const [showMenu, setShowMenu] = useState(false);
   const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
 
@@ -156,10 +156,10 @@ export const MobileNavigation = observer(({marketplace, className=""}) => {
       {
         showMenu ?
           <Modal className="mobile-navigation__modal" Toggle={() => setShowMenu(false)}>
-            <MobileNavigationMenu marketplace={marketplace} Close={() => setShowMenu(false)} />
+            <MobileNavigationMenu Close={() => setShowMenu(false)} />
           </Modal> : null
       }
-      { showNotificationsMenu ? <NotificationsMenu marketplaceId={marketplace?.marketplaceId} Hide={() => setShowNotificationsMenu(false)} /> : null }
+      { showNotificationsMenu ? <NotificationsMenu Hide={() => setShowNotificationsMenu(false)} /> : null }
     </>
   );
 });

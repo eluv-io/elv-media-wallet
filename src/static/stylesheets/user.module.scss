@@ -166,7 +166,12 @@
   }
 
   .nav {
+    flex-wrap: wrap;
     gap: 30px;
+    justify-content: center;
+    overflow: hidden;
+    padding-inline: 20px;
+    width: 100%;
 
     &__link {
       font-size: 14px;

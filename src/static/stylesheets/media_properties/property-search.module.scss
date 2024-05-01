@@ -1,11 +1,14 @@
+@import "variables";
+
 .search {
   background-color: var(--property-background-secondary);
   padding-inline: 75px;
 
   &__content {
+    @include page-fade-in;
+
     display: grid;
     gap: 75px;
-    margin-top: 10px;
   }
 
   &__title {
@@ -20,24 +23,38 @@
     --max-card-width: 350px;
   }
 
-  &__primary-attributes {
-    width: 100%;
+  &__attributes {
+    margin-bottom: 30px;
+    width: max-content;
   }
 
-  &__primary-attribute {
+  &__attribute--primary {
     background-color: #414141;
     border: 1px solid transparent;
     border-radius: 5px;
+    min-width: 65px;
     padding: 10px;
     transition: border 0.25s ease;
+    user-select: none;
     white-space: nowrap;
 
-    &--active {
+    &.search__attribute--active {
       border: 1px solid white;
     }
   }
 
-  &__primary-attribute-slide {
+  &__attribute--category {
+    color: var(--property-text-faded);
+    font-size: 1.2em;
+    font-weight: 600;
+    transition: color 0.25s ease;
+
+    &.search__attribute--active {
+      color: var(--property-text-primary);
+    }
+  }
+
+  &__attribute-slide {
     height: max-content;
     width: max-content;
 

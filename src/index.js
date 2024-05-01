@@ -1,5 +1,6 @@
 import "Assets/fonts/fonts.css";
 import "@mantine/core/styles.css";
+import "@mantine/dates/styles.css";
 import "Assets/stylesheets/app.scss";
 
 import React, {lazy, Suspense, useEffect, useState} from "react";

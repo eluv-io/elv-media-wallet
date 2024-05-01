@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {mediaPropertyStore} from "Stores";
-import {useRouteMatch} from "react-router-dom";
+import {useHistory, useRouteMatch} from "react-router-dom";
 
 import PageStyles from "Assets/stylesheets/media_properties/property-page.module.scss";
 import SectionStyles from "Assets/stylesheets/media_properties/property-section.module.scss";
@@ -41,34 +41,62 @@ const ResultsGroup = observer(({label, results}) => {
   );
 });
 
-const PrimaryAttributeSelection = observer(({primaryAttributeOptions, attributeFilter, setAttributeFilter}) => {
-  if(!primaryAttributeOptions || primaryAttributeOptions.length === 0) { return null; }
+const AttributeSelection = observer(({attributeKey, variant="primary"}) => {
+  const match = useRouteMatch();
+
+  const attributeOptions = attributeKey &&
+  attributeKey === "__media-type" ?
+    ["Video", "Gallery", "Image", "Ebook"] :
+    mediaPropertyStore.GetMediaPropertyAttributes(match.params)[attributeKey]?.tags;
+
+  if(!attributeKey || !attributeOptions || attributeOptions.length === 0) { return null; }
+
+  const selected = attributeKey === "__media-type" ?
+    (mediaPropertyStore.searchOptions.mediaType || "") :
+    mediaPropertyStore.searchOptions.attributes[attributeKey] || "";
 
   return (
     <Swiper
       threshold={0}
-      spaceBetween={10}
+      spaceBetween={variant === "category" ? 30 : 10}
       observer
       observeParents
       slidesPerView="auto"
-      className={S("search__primary-attributes")}
+      className={S("search__attributes", `search__attributes--${variant}`)}
     >
-      <SwiperSlide className={S("search__primary-attribute-slide")}>
+      <SwiperSlide className={S("search__attribute-slide")}>
         <button
-          onClick={() => setAttributeFilter("")}
-          className={S("search__primary-attribute", !attributeFilter ? "search__primary-attribute--active" : "")}
+          onClick={() => {
+            if(attributeKey === "__media-type") {
+              mediaPropertyStore.SetSearchOption({field: "mediaType", value: null});
+            } else {
+              const updatedAttributes = {...(mediaPropertyStore.searchOptions.attributes || {})};
+              delete updatedAttributes[attributeKey];
+              mediaPropertyStore.SetSearchOption({field: "attributes", value: updatedAttributes});
+            }
+          }}
+          className={S("search__attribute", `search__attribute--${variant}`, !selected ? "search__attribute--active" : "")}
         >
           All
         </button>
       </SwiperSlide>
       {
-        primaryAttributeOptions.map(attribute =>
-          <SwiperSlide key={`attribute-${attribute}`} className={S("search__primary-attribute-slide")}>
+        attributeOptions.map(attribute =>
+          <SwiperSlide key={`attribute-${attribute}`} className={S("search__attribute-slide")}>
             <button
-              onClick={() => setAttributeFilter(attribute)}
-              className={S("search__primary-attribute", attributeFilter === attribute ? "search__primary-attribute--active" : "")}
+              onClick={() => {
+                if(attributeKey === "__media-type"){
+                  mediaPropertyStore.SetSearchOption({field: "mediaType", value: attribute});
+                } else {
+                  mediaPropertyStore.SetSearchOption({
+                    field: "attributes",
+                    value: {...mediaPropertyStore.searchOptions.attributes, [attributeKey]: attribute}
+                  });
+                }
+              }}
+              className={S("search__attribute", `search__attribute--${variant}`, selected === attribute ? "search__attribute--active" : "")}
             >
-              {attribute}
+              { attribute }
             </button>
           </SwiperSlide>
         )
@@ -79,16 +107,18 @@ const PrimaryAttributeSelection = observer(({primaryAttributeOptions, attributeF
 
 const MediaPropertySearchPage = observer(() => {
   const [searchResults, setSearchResults] = useState(undefined);
-  const [attributeFilter, setAttributeFilter] = useState(undefined);
+  const history = useHistory();
   const match = useRouteMatch();
   const mediaProperty = mediaPropertyStore.MediaProperty(match.params);
-  const query = new URLSearchParams(location.search).get("q") || "";
-  const categoryAttribute = mediaProperty?.metadata?.search?.category_attribute;
+  const query = mediaPropertyStore.searchOptions.query;
   const primaryAttribute = mediaProperty?.metadata?.search?.primary_attribute;
-  const primaryAttributeOptions = primaryAttribute &&
-      primaryAttribute === "__media-type" ?
-        ["Video", "Gallery", "Image", "Ebook"] :
-        mediaPropertyStore.GetMediaPropertyAttributes(match.params)[primaryAttribute]?.tags;
+  const categoryAttribute = mediaProperty?.metadata?.search?.category_attribute;
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.query);
+    params.set("q", mediaPropertyStore.searchOptions.query);
+    history.replace(location.pathname + "?" + params.toString());
+  }, [mediaPropertyStore.searchOptions.query]);
 
   useEffect(() => {
     mediaPropertyStore.SearchMedia({...match.params, query})
@@ -98,30 +128,9 @@ const MediaPropertySearchPage = observer(() => {
         };
 
         results
-          .map(result => {
-            const mediaItem = mediaPropertyStore.media[result.id];
-
-            if(!mediaItem) { return; }
-
-            return {
-              ...result,
-              mediaItem
-            };
-          })
-          .filter(result => {
-            if(!result) { return false; }
-
-            if(primaryAttribute && attributeFilter) {
-              return primaryAttribute === "__media-type" ?
-                result.mediaItem.media_type === attributeFilter :
-                result.mediaItem.attributes?.[primaryAttribute]?.includes(attributeFilter);
-            }
-
-            return true;
-          })
           .forEach(result => {
             const categories = categoryAttribute === "__media-type"?
-              [result.mediaItem.media_type || ""] :
+              [result.mediaItem.media_type || "__other"] :
               result.mediaItem.attributes?.[categoryAttribute];
 
             if(!categories || !Array.isArray(categories)) {
@@ -139,7 +148,7 @@ const MediaPropertySearchPage = observer(() => {
 
         setSearchResults(groupedResults);
       });
-  }, [query, attributeFilter]);
+  }, [query, JSON.stringify(mediaPropertyStore.searchOptions)]);
 
   if(!searchResults) {
     return null;
@@ -150,12 +159,15 @@ const MediaPropertySearchPage = observer(() => {
       backPath={location.pathname.replace(/\/search$/, "")}
       className={S("search")}
     >
-      <PrimaryAttributeSelection
-        primaryAttributeOptions={primaryAttributeOptions}
-        attributeFilter={attributeFilter}
-        setAttributeFilter={setAttributeFilter}
-      />
-      <div key={`search-results-${query}`} className={S("search__content")}>
+      {
+        !categoryAttribute ? null :
+          <AttributeSelection attributeKey={categoryAttribute} variant="category"/>
+      }
+      {
+        !primaryAttribute ? null :
+          <AttributeSelection attributeKey={primaryAttribute} variant="primary"/>
+      }
+      <div key={`search-results-${JSON.stringify(mediaPropertyStore.searchOptions)}`} className={S("search__content")}>
         {
           Object.keys(searchResults || {}).map(attribute => {
             if(attribute === "__other") { return null; }

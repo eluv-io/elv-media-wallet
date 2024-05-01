@@ -6,9 +6,9 @@ import {rootStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
 import {Debounce, SetImageUrlDimensions} from "../../utils/Utils";
 import UrlJoin from "url-join";
+import {MobileNavigation, ProfileNavigation} from "Components/header/Header2";
 
 import EluvioE from "Assets/images/Eluvio-E-Icon-no-fill-color 2 3.svg";
-import {MobileNavigation, ProfileNavigation} from "Components/header/Header2";
 
 
 const S = (...classes) => classes.map(c => HeaderStyles[c] || "").join(" ");

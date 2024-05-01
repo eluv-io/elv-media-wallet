@@ -7,6 +7,15 @@ class MediaPropertyStore {
   media = {};
   permissionItems = {};
   searchIndexes = {};
+  searchOptions = {
+    query: new URLSearchParams(location.search).get("q") || "",
+    attributes: {},
+    tags: [],
+    tagSelect: {},
+    mediaType: undefined,
+    startTime: undefined,
+    endTime: undefined
+  };
   tags = [];
 
   PERMISSION_BEHAVIORS = {
@@ -52,6 +61,22 @@ class MediaPropertyStore {
     return attributes;
   }
 
+  SetSearchOption({field, value}) {
+    this.searchOptions[field] = value;
+  }
+
+  ClearSearchOptions() {
+    this.searchOptions = {
+      query: "",
+      attributes: {},
+      tags: [],
+      tagSelect: {},
+      mediaType: null,
+      startTime: null,
+      endTime: null
+    };
+  }
+
   async SearchMedia({mediaPropertySlugOrId, query}) {
     const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
 
@@ -68,16 +93,21 @@ class MediaPropertyStore {
         suggestions = [{suggestion: query}];
       }
 
+      // TODO: Integrate category attr
       results = suggestions
         .map(({suggestion}) => this.searchIndexes[mediaPropertyId].search(suggestion))
         .flat()
-        .filter((value, index, array) => array.findIndex(({id}) => id === value.id) === index);
+        .filter((value, index, array) => array.findIndex(({id}) => id === value.id) === index)
+        .map(result => ({
+          ...result,
+          mediaItem: this.media[result.id]
+        }));
     } else {
       // All content
       const associatedCatalogIds = mediaProperty.metadata.media_catalogs || [];
       results = Object.values(this.media)
         .filter(mediaItem =>
-          //(mediaItem.authorized || mediaItem.public) &&
+          (mediaItem.authorized || mediaItem.public) &&
           associatedCatalogIds.includes(mediaItem.media_catalog_id)
         )
         .map(mediaItem => ({
@@ -85,8 +115,36 @@ class MediaPropertyStore {
           catalog_title: mediaItem.catalog_title,
           title: mediaItem.title,
           score: 1.0,
-          category: mediaItem.type
+          category: mediaItem.type,
+          mediaItem
         }));
+    }
+
+    // Filter
+    const hasDateFilter = !!(this.searchOptions.startTime || this.searchOptions.endTime);
+    let select = {
+      attributes: Object.keys(this.searchOptions.attributes).filter(key => !!this.searchOptions.attributes[key]),
+      attribute_values: this.searchOptions.attributes,
+      tags: [
+        ...Object.values(this.searchOptions.tagSelect).filter(tag => tag)
+      ],
+      content_type: this.searchOptions.mediaType || hasDateFilter ? "media" : undefined,
+      media_types: this.searchOptions.mediaType ? [this.searchOptions.mediaType] : (hasDateFilter ? ["Video"] : []) || [],
+      schedule: hasDateFilter ? "period" : undefined,
+      start_time: this.searchOptions.startTime,
+      end_time: this.searchOptions.endTime
+    };
+
+    results = await this.FilteredMedia({
+      media: results,
+      select
+    });
+
+    // Arbitrary tags filtered separately because they should be match any, not all
+    if(this.searchOptions.tags.length > 0) {
+      results = results.filter(result =>
+        result.mediaItem.tags.find(tag => this.searchOptions.tags.includes(tag))
+      );
     }
 
     results = results.sort((a, b) => {
@@ -209,8 +267,27 @@ class MediaPropertyStore {
         this.MediaProperty({mediaPropertySlugOrId})?.metadata?.media_catalogs || [];
 
       content = (
-        yield this.FilteredMedia({sectionId: section.id, mediaCatalogIds, select: section.select})
+        yield this.FilteredMedia({
+          media: Object.values(this.media),
+          mediaCatalogIds,
+          select: section.select
+        })
       )
+        .map(mediaItem =>
+          this.ResolveSectionItem({
+            sectionId: section.id,
+            sectionItem: {
+              isAutomaticContent: true,
+              expand: false,
+              id: mediaItem.id,
+              media_id: mediaItem.id,
+              media_type: mediaItem.type === "collection" ? "list" : "media",
+              type: "media",
+              use_media_settings: true,
+              display: {}
+            }
+          })
+        )
         .sort((a, b) => {
           if(a.display.live_video && b.display.live_video) {
             // Sort live content by start time
@@ -270,7 +347,96 @@ class MediaPropertyStore {
       .filter(sectionItem => sectionItem.resolvedPermissions.authorized || !sectionItem.resolvedPermissions.hide);
   });
 
-  FilteredMedia = flow(function * ({sectionId, mediaCatalogIds=[], select}) {
+  FilteredMedia = flow(function * ({media, mediaCatalogIds, select}) {
+    const now = new Date();
+    return media.filter(mediaItem => {
+      mediaItem = mediaItem?.mediaItem || mediaItem;
+
+      // Media catalog
+      if(mediaCatalogIds && mediaCatalogIds.length > 0 && !mediaCatalogIds.includes(mediaItem.media_catalog_id)) {
+        return false;
+      }
+
+      // Content type
+      if(select.content_type && select.content_type !== mediaItem.type) {
+        return false;
+      }
+
+      // Media type
+      if(select.content_type === "media" && select.media_types?.length > 0 && !select.media_types.includes(mediaItem.media_type)) {
+        return false;
+      }
+
+      const scheduleFiltersActive =
+        select.content_type === "media" &&
+        (select.media_types.length === 0 || (select.media_types.length === 1 && select.media_types[0] === "Video"));
+
+      if(
+        scheduleFiltersActive &&
+        select.date &&
+        (!mediaItem.date || mediaItem.date.split("T")[0] !== select.date.split("T")[0])
+      ) {
+        return false;
+      }
+
+      // Schedule filter
+      // Only videos can be filtered by schedule
+      if(
+        scheduleFiltersActive &&
+        select.schedule
+      ) {
+        if(!mediaItem.live_video || mediaItem.media_type !== "Video" || !mediaItem.start_time) {
+          return false;
+        }
+
+        const startTime = new Date(mediaItem.start_time);
+        const endTime = mediaItem.end_time && new Date(mediaItem.end_time);
+
+        const started = startTime < now;
+        const ended = endTime < now;
+        const afterStartLimit = !select.start_time || new Date(select.start_time) < startTime;
+        const beforeEndLimit = !select.end_time || new Date(select.end_time) > startTime;
+
+        switch(select.schedule) {
+          case "live":
+            if(!started || ended) { return false; }
+
+            break;
+
+          case "upcoming":
+            if(started || !beforeEndLimit) { return false; }
+
+            break;
+
+          case "past":
+            if(!ended || !afterStartLimit) { return false; }
+
+            break;
+
+          case "period":
+            if(!afterStartLimit || !beforeEndLimit) { return false; }
+
+            break;
+        }
+      }
+
+      // Tags
+      if(select.tags?.length > 0 && select.tags.find(tag => !mediaItem.tags.includes(tag))) {
+        return false;
+      }
+
+      // Attributes
+      for(const attributeId of (select.attributes || [])) {
+        if(!mediaItem?.attributes?.[attributeId]?.includes(select.attribute_values[attributeId])) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  });
+
+  FilteredMedia2 = flow(function * ({sectionId, mediaCatalogIds=[], select}) {
     const now = new Date();
     return Object.values(this.media).filter(mediaItem => {
       // Media catalog

@@ -14,6 +14,7 @@ import {LoginGate} from "Components/common/LoginGate";
 import UserIcon from "Assets/icons/user.svg";
 import EditIcon from "Assets/icons/edit listing icon.svg";
 import ProfileBackground from "Assets/images/BG-Profile.jpg";
+import PreferencesMenu from "Components/header/PreferencesMenu";
 
 const S = (...classes) => classes.map(c => UserProfileStyles[c] || "").join(" ");
 
@@ -92,16 +93,17 @@ const UserProfileContainer = observer(({includeUserProfile, children}) => {
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId] || rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === match.params.marketplaceId);
   const secondaryDisabled = marketplace?.branding?.disable_secondary_market;
+  const availableDisplayCurrencies = marketplace?.display_currencies || [];
 
-  const [userProfile, setUserProfile] = useState(undefined);
+  const [userProfile, setUserProfile] = useState(rootStore.userProfiles[match.params.userId]);
   const [showUsernameModal, setShowUsernameModal] = useState(false);
   const [usernameUpdated, setUsernameUpdated] = useState(false);
+  const [showPreferencesMenu, setShowPreferencesMenu] = useState(false);
 
   const currentUser = Utils.EqualAddress(userProfile?.userAddress, rootStore.CurrentAddress());
 
   useEffect(() => {
     setUsernameUpdated(false);
-    setUserProfile(undefined);
 
     rootStore.UserProfile({userId: match.params.userId})
       .then(async profile => {
@@ -159,6 +161,13 @@ const UserProfileContainer = observer(({includeUserProfile, children}) => {
             }}
             Close={() => setShowUsernameModal(false)}
           />
+      }
+      {
+        showPreferencesMenu ?
+          <PreferencesMenu
+            availableDisplayCurrencies={availableDisplayCurrencies}
+            Hide={() => setShowPreferencesMenu(false)}
+          /> : null
       }
       <div className={S("profile-container", rootStore.routeParams.mediaPropertySlugOrId ? "profile-container--property" : "")}>
         <img src={backgroundImage} alt="Background" className={S("profile-container__background", backgroundImage !== ProfileBackground ? "profile-container__background--custom" : "")} />
@@ -220,7 +229,7 @@ const UserProfileContainer = observer(({includeUserProfile, children}) => {
           }
           {
             currentUser ?
-              <NavLink to="details" className={[S("nav__link"), "no-mobile"].join(" ")}>
+              <NavLink to="details" className={S("nav__link")}>
                 { rootStore.l10n.header.details }
               </NavLink> : null
           }
@@ -245,15 +254,21 @@ const UserProfileContainer = observer(({includeUserProfile, children}) => {
           }
           {
             currentUser ?
-              <NavLink to="notifications" className={[S("nav__link"), "no-mobile"].join(" ")}>
+              <NavLink to="gifts" className={S("nav__link")}>
+                { rootStore.l10n.header.gifts }
+              </NavLink> : null
+          }
+          {
+            currentUser ?
+              <NavLink to="notifications" className={S("nav__link")}>
                 { rootStore.l10n.header.notifications }
               </NavLink> : null
           }
           {
             currentUser ?
-              <NavLink to="gifts" className={[S("nav__link"), "no-mobile"].join(" ")}>
-                { rootStore.l10n.header.gifts }
-              </NavLink> : null
+              <button onClick={() => setShowPreferencesMenu(true)} className={S("nav__link")}>
+                { rootStore.l10n.header.preferences }
+              </button> : null
           }
         </nav>
       </div>

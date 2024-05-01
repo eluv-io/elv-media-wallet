@@ -407,13 +407,6 @@ class RootStore {
           metadataSubtree: "public/asset_metadata/info/domain_map"
         });
 
-        domainMapping.push(
-          {
-            domain: "localhost",
-            property_slug: "iq__2vo9ruJ2ZPc8imK7GNG3NVP51x3g"
-          }
-        );
-
         this.domainProperty = domainMapping
           .find(map => map.domain === location.hostname)
           ?.property_slug;

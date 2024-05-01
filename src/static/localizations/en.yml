@@ -17,6 +17,7 @@ header:
   subtitle: Enabled by the Content Fabric
   my_items: My Items
   details: Wallet Details
+  preferences: Preferences
 
 login:
   sign_in: Sign In
