@@ -241,34 +241,34 @@ const UserProfileContainer = observer(({includeUserProfile, children}) => {
           }
 
           {
-            secondaryDisabled ? null :
+            true || secondaryDisabled ? null :
               <NavLink to="listings" className={S("nav__link")}>
                 { rootStore.l10n.header.listings }
               </NavLink>
           }
           {
-            currentUser ?
+            true || !currentUser ? null :
               <NavLink to="activity" className={S("nav__link")}>
                 { rootStore.l10n.header.activity }
-              </NavLink> : null
+              </NavLink>
           }
           {
-            currentUser ?
+            true || !currentUser ? null :
               <NavLink to="gifts" className={S("nav__link")}>
                 { rootStore.l10n.header.gifts }
-              </NavLink> : null
+              </NavLink>
           }
           {
-            currentUser ?
+            !currentUser ? null :
               <NavLink to="notifications" className={S("nav__link")}>
                 { rootStore.l10n.header.notifications }
-              </NavLink> : null
+              </NavLink>
           }
           {
-            currentUser ?
+            true || !currentUser ? null :
               <button onClick={() => setShowPreferencesMenu(true)} className={S("nav__link")}>
                 { rootStore.l10n.header.preferences }
-              </button> : null
+              </button>
           }
         </nav>
       </div>
