@@ -349,6 +349,10 @@ class RootStore {
         const {Configuration, FrontendApi} = yield import("@ory/client");
         this.oryClient = new FrontendApi(
           new Configuration({
+            features: {
+              kratos_feature_flags_use_continue_with_transitions: true,
+              use_continue_with_transitions: true
+            },
             basePath: EluvioConfiguration.ory_configuration.url,
             // we always want to include the cookies in each request
             // cookies are used for sessions and CSRF protection

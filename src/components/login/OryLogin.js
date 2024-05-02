@@ -6,10 +6,28 @@ import {Loader} from "Components/common/Loaders";
 import {ButtonWithLoader} from "Components/common/UIComponents";
 import {ValidEmail} from "../../utils/Utils";
 
+// Settings form has other stuff in it, build password form manually
+const PasswordResetForm = ({OrySubmit, nodes}) => {
+  const csrfToken = nodes.find(node => node.attributes.name === "csrf_token").attributes.value;
+
+  return (
+    <>
+      <input name="csrf_token" type="hidden" required value={csrfToken} />
+      <input name="password" type="password" required autoComplete="new-password" placeholder="Password" />
+      <input name="password_confirmation" type="password" required  placeholder="Password Confirmation" />
+      <input name="method" type="hidden" placeholder="Save" value="password" />
+      <ButtonWithLoader onClick={OrySubmit} type="submit" className="action action-primary login-page__login-button">
+        { rootStore.l10n.login.ory.actions.update_password }
+      </ButtonWithLoader>
+    </>
+  );
+};
+
 const OryLogin = observer(({userData}) => {
   const [flowType, setFlowType] = useState("login");
   const [flows, setFlows] = useState({});
   const [loading, setLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState(undefined);
   const [errorMessage, setErrorMessage] = useState(undefined);
   const formRef = useRef();
 
@@ -17,6 +35,7 @@ const OryLogin = observer(({userData}) => {
     if(!rootStore.oryClient) { return; }
 
     setErrorMessage(undefined);
+    setStatusMessage(undefined);
 
     const existingFlow = flows[flowType];
 
@@ -32,11 +51,15 @@ const OryLogin = observer(({userData}) => {
           .then(({data}) => setFlows({...flows, [flowType]: data}));
         break;
       case "recovery":
-        rootStore.oryClient.createBrowserRecoveryFlow()
+        rootStore.oryClient.createBrowserRecoveryFlow({ returnTo: location.href })
           .then(({data}) => setFlows({...flows, [flowType]: data}));
         break;
       case "verification":
         rootStore.oryClient.createBrowserVerificationFlow()
+          .then(({data}) => setFlows({...flows, [flowType]: data}));
+        break;
+      case "settings":
+        rootStore.oryClient.createBrowserSettingsFlow()
           .then(({data}) => setFlows({...flows, [flowType]: data}));
         break;
     }
@@ -100,7 +123,13 @@ const OryLogin = observer(({userData}) => {
     title = rootStore.l10n.login.ory.registration;
 
     additionalContent.push(
-      <button key="back-link" onClick={() => setFlowType("login")} className="ory-login__secondary-button">
+      <button
+        key="back-link"
+        onClick={() => {
+          setFlowType("login");
+        }}
+        className="ory-login__secondary-button"
+      >
         {rootStore.l10n.login.ory.actions.back_to_sign_in}
       </button>
     );
@@ -108,26 +137,42 @@ const OryLogin = observer(({userData}) => {
     title = rootStore.l10n.login.ory.recovery;
 
     additionalContent.push(
-      <button key="back-link" onClick={() => setFlowType("login")} className="ory-login__secondary-button">
+      <button
+        key="back-link"
+        onClick={() => {
+          setFlowType("login");
+        }}
+        className="ory-login__secondary-button"
+      >
         {rootStore.l10n.login.ory.actions.back_to_sign_in}
       </button>
     );
   } else if(flowType === "verification") {
     title = rootStore.l10n.login.ory.verification;
+  } else if(flowType === "settings") {
+    title = rootStore.l10n.login.ory.update_password;
   }
 
-  const OrySubmit = async event => {
+  const OrySubmit = async (event, additionalData={}) => {
     event.preventDefault();
+    setErrorMessage(undefined);
+    setStatusMessage(undefined);
 
     try {
       const formData = new FormData(formRef.current);
-      const body = Object.fromEntries(formData);
+      const body = { ...Object.fromEntries(formData), ...additionalData };
+
       let response;
 
       const email = body.email || body.identifier || body["traits.email"];
 
       if(email && !ValidEmail(email)) {
         setErrorMessage(rootStore.l10n.login.ory.errors.invalid_email);
+        return;
+      }
+
+      if("password_confirmation" in body && body.password !== body.password_confirmation) {
+        setErrorMessage(rootStore.l10n.login.ory.errors.invalid_password_confirmation);
         return;
       }
 
@@ -144,14 +189,41 @@ const OryLogin = observer(({userData}) => {
           // Todo: redirect to settings page or something? https://github.com/ory/kratos/discussions/2959
           response = await rootStore.oryClient.updateRecoveryFlow({flow: flow.id, updateRecoveryFlowBody: body});
           setFlows({...flows, [flowType]: response.data});
+
+          if(response.data.state === "passed_challenge") {
+            setFlowType("settings");
+          }
+
           break;
         case "verification":
           // Todo: redirect to settings page or something? https://github.com/ory/kratos/discussions/2959
           response = await rootStore.oryClient.updateVerificationFlow({flow: flow.id, updateVerificationFlowBody: body});
           setFlows({...flows, [flowType]: response.data});
           break;
+        case "settings":
+          // Todo: redirect to settings page or something? https://github.com/ory/kratos/discussions/2959
+          response = await rootStore.oryClient.updateSettingsFlow({flow: flow.id, updateSettingsFlowBody: body});
+
+          if(response.data.state === "success") {
+            setStatusMessage(rootStore.l10n.login.ory.messages.password_updated);
+            await rootStore.AuthenticateOry({userData});
+          }
+
+          setFlows({...flows, [flowType]: response.data});
+          break;
       }
     } catch(error) {
+      rootStore.Log(error, true);
+      const errors = error?.response.data?.ui?.messages
+        ?.map(message => message.text)
+        ?.filter(message => message)
+        ?.join("\n");
+
+      if(errors) {
+        setErrorMessage(errors);
+        return;
+      }
+
       const fieldErrors = error.response.data?.ui?.nodes
         ?.map(node =>
           node.messages
@@ -163,7 +235,7 @@ const OryLogin = observer(({userData}) => {
         ?.join("\n");
 
       if(fieldErrors) {
-        setErrorMessage(fieldErrors + "\n" + fieldErrors);
+        setErrorMessage(fieldErrors);
         return;
       }
 
@@ -184,84 +256,90 @@ const OryLogin = observer(({userData}) => {
     }
   };
 
+  const messages = [
+    ...(flow?.ui?.messages || []),
+    statusMessage
+  ].filter(m => m);
+
   return (
     <div className="ory-login">
       { title ? <h2 className="ory-login__title">{title}</h2> : null }
       {
-        (flow.ui.messages || []).map(message =>
-          <div key={`message-${message.id}`} className="ory-login__message">{ message.text }</div>
+        messages.map(message =>
+          <div key={`message-${message.id || message}`} className="ory-login__message">{ message.text || message }</div>
         )
       }
       <form
-        key={`form-${flowType}`}
+        key={`form-${flowType}-${flow.state}`}
         ref={formRef}
         className="ory-login__form"
       >
         {
-          flow.ui.nodes.map(node => {
-            let attributes = {
-              ...node.attributes
-            };
-            const nodeType = attributes.type === "submit" ? "submit" : attributes.node_type;
-            delete attributes.node_type;
+          flowType === "settings" ?
+            <PasswordResetForm nodes={flow.ui.nodes} OrySubmit={OrySubmit} /> :
+            flow.ui.nodes.map(node => {
+              let attributes = {
+                ...node.attributes
+              };
+              const nodeType = attributes.type === "submit" ? "submit" : attributes.node_type;
+              delete attributes.node_type;
 
-            let label = attributes.title || node.meta?.label?.text || attributes.label || node.attributes.name;
-            if(["identifier", "traits.email"].includes(attributes.name) && attributes.type !== "hidden") {
-              label = "Email";
-              attributes.type = "email";
-              delete attributes.value;
-            }
+              let label = attributes.title || node.meta?.label?.text || attributes.label || node.attributes.name;
+              if(["identifier", "traits.email"].includes(attributes.name) && attributes.type !== "hidden") {
+                label = "Email";
+                attributes.type = "email";
+                delete attributes.value;
+              }
 
-            if(attributes.autocomplete) {
-              attributes.autoComplete = attributes.autocomplete;
-              delete attributes.autocomplete;
-            }
+              if(attributes.autocomplete) {
+                attributes.autoComplete = attributes.autocomplete;
+                delete attributes.autocomplete;
+              }
 
-            attributes.placeholder = label;
+              attributes.placeholder = label;
+              const key = node?.meta?.label?.id || attributes.name;
 
-            if(nodeType === "submit" && attributes.value) {
-              // recovery code resend button
-              if(
-                node.meta.label?.id === 1070007 ||
-                node.meta.label?.id === 1070008
-              ) {
-                attributes.formNoValidate = true;
+              if(nodeType === "submit" && attributes.value) {
+                // recovery code resend button
+                if(
+                  node.meta.label?.id === 1070007 ||
+                  node.meta.label?.id === 1070008
+                ) {
+                  attributes.formNoValidate = true;
+
+                  return [
+                    <ButtonWithLoader onClick={async event => await OrySubmit(event, {email: attributes.value})} key={`button-${key}`} formNoValidate type="submit" className="action login-page__login-button">
+                      { node.meta.label.text }
+                    </ButtonWithLoader>
+                  ];
+                }
 
                 return [
-                  <input key={`input-${attributes.name}`} {...attributes} type="hidden" />,
-                  <ButtonWithLoader onClick={OrySubmit} key={`button-${attributes.name}`} formNoValidate type="submit" className="action login-page__login-button">
+                  <input key={`input-${key}`} {...attributes} type="hidden" />,
+                  <ButtonWithLoader onClick={OrySubmit} key={`button-${attributes.name}`} type="submit" className="action action-primary login-page__login-button">
                     { node.meta.label.text }
                   </ButtonWithLoader>
                 ];
               }
 
-              return [
-                <input key={`input-${attributes.name}`} {...attributes} type="hidden" />,
-                <ButtonWithLoader onClick={OrySubmit} key={`button-${attributes.name}`} type="submit" className="action action-primary login-page__login-button">
-                  { node.meta.label.text }
-                </ButtonWithLoader>
-              ];
-            }
-
-            switch(nodeType) {
-              case "button":
-              case "submit":
-                return (
-                  <button key={`button-${attributes.name}`} {...attributes}>
-                    { node.meta.label.text }
-                  </button>
-                );
-              default:
-                return (
-                  <input key={`inputs-${attributes.name}`} {...attributes} />
-                );
-            }
-          })
+              switch(nodeType) {
+                case "button":
+                case "submit":
+                  return (
+                    <button key={`button-${key}`} {...attributes}>
+                      { node.meta.label.text }
+                    </button>
+                  );
+                default:
+                  return (
+                    <input key={`inputs-${key}`} {...attributes} />
+                  );
+              }
+            })
         }
         { additionalContent }
-
-        { errorMessage ? <div className="ory-login__error-message">{ errorMessage }</div> : null }
       </form>
+      { errorMessage ? <div className="ory-login__error-message">{ errorMessage }</div> : null }
     </div>
   );
 });

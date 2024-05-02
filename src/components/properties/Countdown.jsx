@@ -91,43 +91,26 @@ const Countdown = observer(({time, showSeconds=false, Render, OnEnded, className
     return Render(countdown);
   }
 
+  let components = [];
+  if(countdown.days) {
+    components.push(`${countdown.days} ${countdown.daysUnit}`);
+  }
+
+  if(countdown.hours || countdown.days) {
+    components.push(`${countdown.hours} ${countdown.hoursUnit}`);
+  }
+
+  if(countdown.minutes || countdown.hours || countdown.days) {
+    components.push(`${countdown.minutes} ${countdown.minutesUnit}`);
+  }
+
+  if(showSeconds) {
+    components.push(`${countdown.seconds} ${countdown.secondsUnit}`);
+  }
+
   return (
     <div className={`${S("countdown")} ${className}`}>
-      <div className={S("countdown__unit-container")}>
-        <div className={S("countdown__value")}>
-          { countdown.days }
-        </div>
-        <div className={S("countdown__unit")}>
-          { countdown.daysUnit }
-        </div>
-      </div>
-      <div className={S("countdown__unit-container")}>
-        <div className={S("countdown__value")}>
-          { countdown.hours }
-        </div>
-        <div className={S("countdown__unit")}>
-          { countdown.hoursUnit }
-        </div>
-      </div>
-      <div className={S("countdown__unit-container")}>
-        <div className={S("countdown__value")}>
-          { countdown.minutes }
-        </div>
-        <div className={S("countdown__unit")}>
-          { countdown.minutesUnit }
-        </div>
-      </div>
-      {
-        showSeconds ?
-          <div className={S("countdown__unit-container")}>
-            <div className={S("countdown__value")}>
-              { countdown.seconds }
-            </div>
-            <div className={S("countdown__unit")}>
-              { countdown.secondsUnit }
-            </div>
-          </div> : null
-      }
+      { components.join(", ")}
     </div>
   );
 });

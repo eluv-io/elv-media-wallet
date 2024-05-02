@@ -42,15 +42,20 @@ login:
       registration: Sign Up
       recovery: Forgot Password?
       back_to_sign_in: Back to Sign In
+      update_password: Update Password
     refresh: Confirm Your Identify
     aal2: Two-Factor Authentication
     registration: Register Your Account
     recovery: Recover Your Account
     verification: Verify Your Account
+    update_password: Change Password
+    messages:
+      password_updated: Password updated successfully!
     errors:
       invalid_credentials: Invalid Credentials
       invalid_verification_code: Invalid Verification Code
       invalid_email: Invalid Email
+      invalid_password_confirmation: Password confirmation must match password
 
 
 navigation:

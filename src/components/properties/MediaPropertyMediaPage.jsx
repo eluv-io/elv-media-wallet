@@ -16,7 +16,6 @@ import Video from "./Video";
 import {SetImageUrlDimensions} from "../../utils/Utils";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 
-import ClockIcon from "Assets/icons/clock";
 import ArrowLeft from "Assets/icons/arrow-left";
 import MediaErrorIcon from "Assets/icons/media-error-icon";
 import {MediaPropertyPageContent} from "Components/properties/MediaPropertyPage";
@@ -29,21 +28,41 @@ const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 const MediaVideo = observer(({mediaItem, display, setControlsVisible}) => {
   const [scheduleInfo, setScheduleInfo] = useState(MediaItemScheduleInfo(mediaItem));
   const [error, setError] = useState();
-
-  const {imageUrl} = MediaItemImageUrl({mediaItem, display: mediaItem, aspectRatio: "square", width: 400});
+  const icons = (display.icons || []).filter(({icon}) => !!icon?.url);
+  const {imageUrl} = MediaItemImageUrl({mediaItem, display: mediaItem, aspectRatio: "square", width: rootStore.fullscreenImageWidth});
 
   if(scheduleInfo.isLiveContent && !scheduleInfo.started) {
     return (
-      <div className={S("media__error")}>
-        <ImageIcon icon={ClockIcon} className={S("media__error-icon")} />
+      <div className={S("media__error", "media__error--countdown")}>
+
         <ImageIcon icon={imageUrl} className={S("media__error-image")} />
         <div className={S("media__error-cover")} />
-        <div className={S("media__error-message")}>
-          { rootStore.l10n.media_properties.media.errors.not_started }
+        {
+          icons.length === 0 ? null :
+            <div className={S("media__error-content-icons")}>
+              {icons.map(({icon, alt_text}, index) =>
+                <img
+                  key={`icon-${index}`}
+                  src={icon.url}
+                  alt={alt_text}
+                  className={S("media__error-content-icon")}
+                />
+              )}
+            </div>
+        }
+        {
+          (display.headers || []).length === 0 ? null :
+            <div className={S("media__error-headers")}>
+              {display.headers.map((header, index) =>
+                <div key={`header-${index}`} className={S("media__error-header")}>{header}</div>
+              )}
+            </div>
+        }
+        <div className={S("media__error-title")}>
+          { display.title }
         </div>
         <Countdown
           time={scheduleInfo.startTime}
-          showSeconds
           OnEnded={() => setScheduleInfo(MediaItemScheduleInfo(mediaItem))}
           className={S("media__countdown")}
         />
@@ -84,7 +103,7 @@ const MediaVideo = observer(({mediaItem, display, setControlsVisible}) => {
       }}
       playerOptions={{
         title: EluvioPlayerParameters.title.FULLSCREEN_ONLY,
-        playerProfile: EluvioPlayerParameters.playerProfile[scheduleInfo.isLiveContent ? "LOW_LATENCY" : "DEFAULT"]
+        playerProfile: EluvioPlayerParameters.playerProfile[mediaItem.player_profile || (scheduleInfo.isLiveContent ? "LOW_LATENCY" : "DEFAULT")]
       }}
       posterImage={{
         posterImage: SetImageUrlDimensions({
@@ -346,6 +365,7 @@ const MediaPropertyMediaPage = observer(() => {
   } else {
     const hasText = !!(display.title || display.subtitle || display.headers.length > 0);
     const hasDescription = !!(display.description_rich_text || display.description);
+    const icons = (display.icons || []).filter(({icon}) => !!icon?.url);
 
     content = (
       <div className={S("media-page", !hasText && !hasDescription ? "media-page--full" : !hasDescription ? "media-page--extended" : "")}>
@@ -362,7 +382,22 @@ const MediaPropertyMediaPage = observer(() => {
               <div className={S("media-text")}>
                 {
                   !display.title ? null :
-                    <h1 className={S("media-text__title")}>{display.title}</h1>
+                    <h1 className={S("media-text__title")}>
+                      {
+                        icons.length === 0 ? null :
+                          <div className={S("media-text__icons")}>
+                            {icons.map(({icon, alt_text}, index) =>
+                              <img
+                                key={`icon-${index}`}
+                                src={icon.url}
+                                alt={alt_text}
+                                className={S("media-text__icon")}
+                              />
+                            )}
+                          </div>
+                      }
+                      {display.title}
+                    </h1>
                 }
                 {
                   (display.headers || []).length === 0 ? null :

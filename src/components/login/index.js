@@ -43,7 +43,7 @@ const params = {
   marketplace: searchParams.get("marketplace"),
   // User data to pass to custodial sign-in
   userData: searchParams.has("data") ? JSON.parse(Utils.FromB64(searchParams.get("data"))) : { share_email: true },
-  useOry
+  useOry: true
 };
 
 window.params = params;

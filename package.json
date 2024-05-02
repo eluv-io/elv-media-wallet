@@ -40,7 +40,7 @@
     "@mantine/core": "^7.6.2",
     "@mantine/dates": "^7.6.2",
     "@mantine/hooks": "^7.6.2",
-    "@ory/client": "^1.4.2",
+    "@ory/client": "^1.9.0",
     "@ory/elements": "^0.1.0-beta.12",
     "@solana/spl-token": "0.3.8",
     "@solana/web3.js": "1.66.2",
