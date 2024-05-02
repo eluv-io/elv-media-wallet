@@ -34,6 +34,7 @@
   }
 
   &__image {
+    border-radius: 14px;
     height: 100%;
     object-fit: cover;
     object-position: center;
@@ -69,13 +70,13 @@
   }
 
   &__headers {
-    align-items: flex-end;
     color: var(--property-text-headers);
-    display: flex;
     font-size: 0.9em;
-    gap: 1.5em;
-    height: max-content;
+    gap: 1.3em;
     margin-bottom: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: pre;
   }
 
   &__title,

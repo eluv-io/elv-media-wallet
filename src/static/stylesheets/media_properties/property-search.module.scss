@@ -25,25 +25,9 @@
 
   &__attributes {
     margin-bottom: 30px;
-    width: max-content;
   }
 
   &__attribute--primary {
-    background-color: #414141;
-    border: 1px solid transparent;
-    border-radius: 5px;
-    min-width: 65px;
-    padding: 10px;
-    transition: border 0.25s ease;
-    user-select: none;
-    white-space: nowrap;
-
-    &.search__attribute--active {
-      border: 1px solid white;
-    }
-  }
-
-  &__attribute--category {
     color: var(--property-text-faded);
     font-size: 1.2em;
     font-weight: 600;
@@ -54,8 +38,23 @@
     }
   }
 
+  &__attribute--secondary {
+    background-color: #414141;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    min-width: 65px;
+    padding: 10px;
+    transition: border 0.25s ease;
+    white-space: nowrap;
+
+    &.search__attribute--active {
+      border: 1px solid white;
+    }
+  }
+
   &__attribute-slide {
     height: max-content;
+    user-select: none;
     width: max-content;
 
     &:global(.swiper-slide) {

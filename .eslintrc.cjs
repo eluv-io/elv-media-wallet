@@ -15,7 +15,6 @@ module.exports = {
   settings: { react: { version: '18.2' } },
   plugins: ['react-refresh'],
   rules: {
-
     "react-hooks/exhaustive-deps": 0,
     "react/jsx-uses-react": "error",
     "react/jsx-uses-vars": "error",

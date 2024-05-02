@@ -156,13 +156,7 @@ const MediaCardVertical = observer(({
           <div className={S("media-card-vertical__text")}>
             { textDisplay !== "all" || (display.headers || []).length === 0 ? null :
               <div className={S("media-card-vertical__headers")}>
-                { display.headers?.map((header, index) =>
-                  <div className={S("media-card-vertical__header")} key={`header-${index}`}>
-                    <div className={S("media-card-vertical__headers")}>
-                      {header}
-                    </div>
-                  </div>
-                )}
+                { display.headers.join("     ") }
               </div>
             }
             {

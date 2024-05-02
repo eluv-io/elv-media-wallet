@@ -15,7 +15,12 @@ import {Swiper, SwiperSlide} from "swiper/react";
 
 const S = (...classes) => classes.map(c => SearchStyles[c] || PageStyles[c] || SectionStyles[c] || "").join(" ");
 
-const ResultsGroup = observer(({label, results}) => {
+const ResultsGroup = observer(({groupBy, label, results}) => {
+  if(label && groupBy === "__date") {
+    const currentLocale = (navigator.languages && navigator.languages.length) ? navigator.languages[0] : navigator.language;
+    label = new Date(label).toLocaleDateString(currentLocale, { weekday:"long", year: "numeric", month: "long", day:"numeric"});
+  }
+
   return (
     <div className={S("section", "section--page", "search__group")}>
       {
@@ -32,7 +37,7 @@ const ResultsGroup = observer(({label, results}) => {
               format="vertical"
               key={`search-result-${result.id}`}
               mediaItem={result.mediaItem}
-              textDisplay="title"
+              textDisplay="all"
             />
           )
         }
@@ -58,7 +63,7 @@ const AttributeSelection = observer(({attributeKey, variant="primary"}) => {
   return (
     <Swiper
       threshold={0}
-      spaceBetween={variant === "category" ? 30 : 10}
+      spaceBetween={variant === "primary" ? 30 : 10}
       observer
       observeParents
       slidesPerView="auto"
@@ -111,8 +116,11 @@ const MediaPropertySearchPage = observer(() => {
   const match = useRouteMatch();
   const mediaProperty = mediaPropertyStore.MediaProperty(match.params);
   const query = mediaPropertyStore.searchOptions.query;
-  const primaryAttribute = mediaProperty?.metadata?.search?.primary_attribute;
-  const categoryAttribute = mediaProperty?.metadata?.search?.category_attribute;
+  let {
+    primary_filter,
+    secondary_filter,
+    group_by
+  } = mediaProperty?.metadata?.search || {};
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.query);
@@ -123,17 +131,24 @@ const MediaPropertySearchPage = observer(() => {
   useEffect(() => {
     mediaPropertyStore.SearchMedia({...match.params, query})
       .then(results => {
-        let groupedResults = {
-          __other: []
-        };
+        let groupedResults = {};
 
         results
           .forEach(result => {
-            const categories = categoryAttribute === "__media-type"?
-              [result.mediaItem.media_type || "__other"] :
-              result.mediaItem.attributes?.[categoryAttribute];
+            let categories;
+            if(group_by === "__media-type") {
+              categories = [result.mediaItem.media_type || "__other"];
+            } else if(group_by === "__date") {
+              categories = [result.mediaItem.canonical_date || "__other"];
+            } else {
+              categories = result.mediaItem.attributes?.[group_by];
+            }
 
             if(!categories || !Array.isArray(categories)) {
+              if(!groupedResults.__other) {
+                groupedResults.__other = [];
+              }
+
               groupedResults.__other.push(result);
             } else {
               categories.forEach(category => {
@@ -154,18 +169,20 @@ const MediaPropertySearchPage = observer(() => {
     return null;
   }
 
+  window.searchResults = searchResults;
+
   return (
     <PageContainer
       backPath={location.pathname.replace(/\/search$/, "")}
       className={S("search")}
     >
       {
-        !categoryAttribute ? null :
-          <AttributeSelection attributeKey={categoryAttribute} variant="category"/>
+        !primary_filter ? null :
+          <AttributeSelection attributeKey={primary_filter} variant="primary"/>
       }
       {
-        !primaryAttribute ? null :
-          <AttributeSelection attributeKey={primaryAttribute} variant="primary"/>
+        !secondary_filter ? null :
+          <AttributeSelection attributeKey={secondary_filter} variant="secondary"/>
       }
       <div key={`search-results-${JSON.stringify(mediaPropertyStore.searchOptions)}`} className={S("search__content")}>
         {
@@ -175,14 +192,15 @@ const MediaPropertySearchPage = observer(() => {
             return (
               <ResultsGroup
                 key={`results-${attribute}`}
-                label={Object.keys(searchResults || {}).length > 1 && searchResults.__other.length > 0 ? attribute : ""}
+                groupBy={group_by}
+                label={Object.keys(searchResults).length > 1 ? attribute : ""}
                 results={searchResults[attribute]}
               />
             );
           })
         }
         {
-          searchResults.__other.length === 0 ? null :
+          !searchResults.__other ? null :
             <ResultsGroup
               label={Object.keys(searchResults || {}).length > 1 ? "Other" : ""}
               results={searchResults.__other}

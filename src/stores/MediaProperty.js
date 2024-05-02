@@ -374,7 +374,7 @@ class MediaPropertyStore {
       if(
         scheduleFiltersActive &&
         select.date &&
-        (!mediaItem.date || mediaItem.date.split("T")[0] !== select.date.split("T")[0])
+        (!mediaItem.date || mediaItem.date("T")[0] !== select.date.split("T")[0])
       ) {
         return false;
       }
@@ -872,9 +872,12 @@ class MediaPropertyStore {
             ...(metadata.media_collections || {}),
           };
 
-          Object.keys(media).forEach(mediaId =>
-            media[mediaId].authorized = IsAuthorized(media[mediaId])
-          );
+          Object.keys(media).forEach(mediaId => {
+            media[mediaId].authorized = IsAuthorized(media[mediaId]);
+            if(media[mediaId].date) {
+              media[mediaId].canonical_date = media[mediaId].date.split("T")[0];
+            }
+          });
 
           this.media = {
             ...this.media,

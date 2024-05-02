@@ -16,6 +16,7 @@
   &__page,
   &__ellipsis {
     border-radius: 100%;
+    color: var(--color-text-secondary);
     cursor: pointer;
     font-size: 14px;
     height: 2em;
@@ -24,8 +25,7 @@
     width: 2em;
 
     &--current {
-      background: var(--color-component-bg-highlight);
-      color: var(--color-text-background-highlight);
+      color: var(--color-text-highlight);
     }
 
     &:not(&--current) {
@@ -51,6 +51,10 @@
     svg {
       * {
         stroke-width: 1.5px;
+      }
+
+      circle {
+        display: none;
       }
     }
   }

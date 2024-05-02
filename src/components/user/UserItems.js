@@ -44,6 +44,7 @@ const UserItems = observer(() => {
       showPagingInfo
       scrollOnPageChange
       initialFilters={{ userAddress }}
+      topPagination
       Render={({entries}) =>
         entries.length === 0 ? null :
           <div className="card-list">

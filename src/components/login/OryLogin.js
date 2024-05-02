@@ -51,7 +51,7 @@ const OryLogin = observer(({userData}) => {
           .then(({data}) => setFlows({...flows, [flowType]: data}));
         break;
       case "recovery":
-        rootStore.oryClient.createBrowserRecoveryFlow({ returnTo: location.href })
+        rootStore.oryClient.createBrowserRecoveryFlow()
           .then(({data}) => setFlows({...flows, [flowType]: data}));
         break;
       case "verification":

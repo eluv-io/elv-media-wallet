@@ -14,6 +14,7 @@ import FullscreenIcon from "Assets/icons/full screen.svg";
 import MinimizeIcon from "Assets/icons/minimize.svg";
 import ExternalLinkIcon from "Assets/icons/external-link.svg";
 import Utils from "@eluvio/elv-client-js/src/Utils";
+import {LoaderImage} from "Components/properties/Common";
 
 // TODO: Video in fullscreen
 
@@ -45,8 +46,10 @@ export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVi
   const isOwned = Utils.EqualAddress(nft?.details?.TokenOwner, rootStore.CurrentAddress());
 
   const image = media?.imageUrl ?
-    <img
+    <LoaderImage
       src={media.imageUrl.toString()}
+      showWithoutSource
+      loaderAspectRatio={1}
       className={`item-card__image ${className}`}
       alt={nft?.metadata?.display_name}
     /> :
