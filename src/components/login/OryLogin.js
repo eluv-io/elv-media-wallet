@@ -261,6 +261,8 @@ const OryLogin = observer(({userData}) => {
     statusMessage
   ].filter(m => m);
 
+  rootStore.Log(flow)
+
   return (
     <div className="ory-login">
       { title ? <h2 className="ory-login__title">{title}</h2> : null }

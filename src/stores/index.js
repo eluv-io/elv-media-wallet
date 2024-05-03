@@ -54,7 +54,7 @@ try {
 }
 
 
-if(["ris.euro2024.com", "ris-uefa.mw.app"].includes(location.hostname)) {
+if(["ris.euro2024.com", "ris-uefa.mw.app", "localhost"].includes(location.hostname)) {
   sessionStorage.setItem("marketplace", "iq__2Utm3HfQ2dVWquyGPWvrPXtgpy8v");
 
   if(location.hostname === "ris.euro2024.com") {
@@ -242,7 +242,6 @@ class RootStore {
   }
 
   constructor() {
-    console.log("SP", this.specifiedMarketplaceId);
     makeAutoObservable(this);
 
     if(searchParams.get("origin")) {
