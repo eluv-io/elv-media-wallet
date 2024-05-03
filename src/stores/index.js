@@ -132,7 +132,7 @@ class RootStore {
   liveAppUrl = searchParams.get("lurl") || this.GetSessionStorage("live-url");
 
   // TODO: Remove
-  specifiedMarketplaceId = this.GetSessionStorage("marketplace") || (location.hostname === "ris-uefa.mw.app" && "iq__2Utm3HfQ2dVWquyGPWvrPXtgpy8v");
+  specifiedMarketplaceId = this.GetSessionStorage("marketplace") || (location.hostname === "ris-uefa.dev.mw.app" && "iq__2Utm3HfQ2dVWquyGPWvrPXtgpy8v");
   specifiedMarketplaceHash = undefined;
   previewMarketplaceId = this.GetSessionStorage("preview-marketplace");
   previewMarketplaceHash = undefined;
