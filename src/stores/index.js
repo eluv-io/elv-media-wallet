@@ -53,6 +53,24 @@ try {
   storageSupported = false;
 }
 
+
+if(["ris.euro2024.com", "ris-uefa.mw.app"].includes(location.hostname)) {
+  sessionStorage.setItem("marketplace", "iq__2Utm3HfQ2dVWquyGPWvrPXtgpy8v");
+
+  if(location.hostname === "ris.euro2024.com") {
+    EluvioConfiguration.ory_configuration = {
+      "url": "https://auth.mw.app",
+      "jwt_template": "jwt_uefa_template1"
+    };
+  } else {
+    EluvioConfiguration.ory_configuration = {
+      "url": "auth.euro2024.com",
+      "jwt_template": "jwt_uefa_template1"
+    };
+  }
+}
+
+
 class RootStore {
   language = this.GetLocalStorage("lang");
   l10n = LocalizationEN;
@@ -131,8 +149,7 @@ class RootStore {
 
   liveAppUrl = searchParams.get("lurl") || this.GetSessionStorage("live-url");
 
-  // TODO: Remove
-  specifiedMarketplaceId = this.GetSessionStorage("marketplace") || (location.hostname === "ris-uefa.mw.app" && "iq__2Utm3HfQ2dVWquyGPWvrPXtgpy8v");
+  specifiedMarketplaceId = this.GetSessionStorage("marketplace");
   specifiedMarketplaceHash = undefined;
   previewMarketplaceId = this.GetSessionStorage("preview-marketplace");
   previewMarketplaceHash = undefined;
@@ -225,6 +242,7 @@ class RootStore {
   }
 
   constructor() {
+    console.log("SP", this.specifiedMarketplaceId);
     makeAutoObservable(this);
 
     if(searchParams.get("origin")) {
