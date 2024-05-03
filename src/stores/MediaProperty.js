@@ -374,7 +374,7 @@ class MediaPropertyStore {
       if(
         scheduleFiltersActive &&
         select.date &&
-        (!mediaItem.date || mediaItem.date("T")[0] !== select.date.split("T")[0])
+        (!mediaItem.date || mediaItem.date.split("T")[0] !== select.date.split("T")[0])
       ) {
         return false;
       }

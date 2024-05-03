@@ -16,23 +16,25 @@ import {LoginGate} from "Components/common/LoginGate";
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 
-const GridContentColumns = ({contentLength, aspectRatio, pageWidth}) => {
-  let columns = 2;
+const GridContentColumns = ({contentLength, aspectRatio, justification, pageWidth}) => {
+  let columns = 1;
   if(pageWidth >= 1920) {
     columns = 5;
   } else if(pageWidth >= 1600) {
     columns = 4;
   } else if(pageWidth >= 1200) {
     columns = 4;
-  } else if(pageWidth >= 800) {
+  } else if(pageWidth >= 900) {
     columns = 3;
+  } else if(pageWidth >= 600) {
+    columns = 2;
   }
 
   if(pageWidth > 600 && aspectRatio !== "landscape") {
     columns += 1;
   }
 
-  return `repeat(${Math.min(columns, contentLength)}, minmax(0, 1fr))`;
+  return `repeat(${justification === "center" ? Math.min(columns, contentLength) : columns}, minmax(0, 1fr))`;
 };
 
 const SectionContentBanner = observer(({section, sectionContent, navContext}) => {
@@ -96,7 +98,15 @@ const SectionContentGrid = observer(({section, sectionContent, navContext}) => {
     <div
       style={
         !aspectRatio ? {} :
-          { gridTemplateColumns: GridContentColumns({contentLength: sectionContent.length, aspectRatio, pageWidth: rootStore.pageWidth}) }
+          {
+            gridTemplateColumns:
+              GridContentColumns({
+                contentLength: sectionContent.length,
+                aspectRatio,
+                pageWidth: rootStore.pageWidth,
+                justification: section.display.justification
+              })
+          }
       }
       className={S(
         "section__content",
@@ -117,6 +127,47 @@ const SectionContentGrid = observer(({section, sectionContent, navContext}) => {
             textDisplay={section.display.content_display_text}
             aspectRatio={section.display.aspect_ratio}
             navContext={navContext}
+          />
+        )
+      }
+    </div>
+  );
+});
+
+export const MediaGrid = observer(({content, aspectRatio, textDisplay="all", justification="left", className=""}) => {
+  aspectRatio = aspectRatio?.toLowerCase();
+
+  return (
+    <div
+      style={
+        !aspectRatio ? {} :
+          {
+            gridTemplateColumns: GridContentColumns({
+              contentLength: content.length,
+              aspectRatio,
+              pageWidth: rootStore.pageWidth,
+              justification
+            })
+          }
+      }
+      className={[S(
+        "section__content",
+        "section__content--grid",
+        aspectRatio ?
+          `section__content--${aspectRatio}` :
+          "section__content--flex",
+        `section__content--${justification}`
+      ), className].join(" ")}
+    >
+      {
+        content.map(mediaItem =>
+          <MediaCard
+            size={!aspectRatio ? "mixed" : ""}
+            format="vertical"
+            key={`section-item-${mediaItem.id}`}
+            mediaItem={mediaItem}
+            textDisplay={textDisplay}
+            aspectRatio={aspectRatio}
           />
         )
       }

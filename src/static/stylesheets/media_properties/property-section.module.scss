@@ -2,15 +2,19 @@
 
 .section {
   font-size: 16px;
-  max-width: 100%;
   overflow: hidden;
-  padding-top: 20px;
   position: relative;
   width: 100%;
 
   --max-card-width: 450px;
 
+  & + .section {
+    margin-top: 20px;
+  }
+
   &--center {
+    max-width: 100%;
+
     * {
       text-align: center;
     }
@@ -21,6 +25,8 @@
   }
 
   &--right {
+    margin-left: auto;
+
     * {
       text-align: right;
     }
@@ -28,10 +34,6 @@
     .section__title-container {
       justify-content: flex-end;
     }
-  }
-
-  &__page-header {
-    margin-bottom: 50px;
   }
 
   &__title-container {
@@ -98,7 +100,7 @@
 
     &--banner {
       display: grid;
-      gap: 30px;
+      gap: 50px;
     }
   }
 

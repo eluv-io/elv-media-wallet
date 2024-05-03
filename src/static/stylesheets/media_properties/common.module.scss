@@ -112,13 +112,16 @@
 
   &__links {
     display: block;
-    margin-bottom: 30px;
     position: relative;
     z-index: 1;
   }
 
   @media screen and (width <= 800px) {
     padding-inline: 15px;
+
+    &__links {
+      margin-bottom: 20px;
+    }
   }
 }
 
@@ -148,6 +151,7 @@
 
 .page-header {
   height: max-content;
+  margin-top: 20px;
   position: relative;
   width: 100%;
 
@@ -238,6 +242,7 @@
     /* stylelint-disable-next-line no-important */
     background-size: 1000% 1000%!important;
     display: block;
+    max-width: 100%;
     opacity: 0;
     overflow: hidden;
 

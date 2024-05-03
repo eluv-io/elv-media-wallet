@@ -197,6 +197,7 @@
     align-items: center;
     display: flex;
     font-size: 1.8em;
+    font-weight: 600;
   }
 
   &__icons {
@@ -216,6 +217,7 @@
   &__subtitle {
     color: var(--property-text-faded);
     font-size: 1em;
+    font-weight: 500;
   }
 
   &__headers {

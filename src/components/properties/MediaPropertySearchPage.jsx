@@ -10,8 +10,9 @@ import SearchStyles from "Assets/stylesheets/media_properties/property-search.mo
 import {
   PageContainer
 } from "Components/properties/Common";
-import MediaCard from "Components/properties/MediaCards";
 import {Swiper, SwiperSlide} from "swiper/react";
+import {MediaGrid} from "Components/properties/MediaPropertySection";
+import {MediaItemImageUrl} from "../../utils/MediaPropertyUtils";
 
 const S = (...classes) => classes.map(c => SearchStyles[c] || PageStyles[c] || SectionStyles[c] || "").join(" ");
 
@@ -21,6 +22,23 @@ const ResultsGroup = observer(({groupBy, label, results}) => {
     label = new Date(label).toLocaleDateString(currentLocale, { weekday:"long", year: "numeric", month: "long", day:"numeric"});
   }
 
+  let aspectRatio;
+  results.forEach(result => {
+    if(aspectRatio === "mixed") { return; }
+
+    let {imageAspectRatio} = MediaItemImageUrl({
+      mediaItem: result.mediaItem
+    });
+
+    if(!aspectRatio) {
+      aspectRatio = imageAspectRatio;
+    } else if(aspectRatio !== imageAspectRatio) {
+      aspectRatio = "mixed";
+    } else {
+      aspectRatio = imageAspectRatio;
+    }
+  });
+
   return (
     <div className={S("section", "section--page", "search__group")}>
       {
@@ -29,19 +47,11 @@ const ResultsGroup = observer(({groupBy, label, results}) => {
             { label }
           </h2>
       }
-      <div className={S("section__content", "section__content--grid", "section__content--flex", "search__results")}>
-        {
-          results.map(result =>
-            <MediaCard
-              size="mixed"
-              format="vertical"
-              key={`search-result-${result.id}`}
-              mediaItem={result.mediaItem}
-              textDisplay="all"
-            />
-          )
-        }
-      </div>
+      <MediaGrid
+        content={results.map(result => result.mediaItem)}
+        aspectRatio={aspectRatio === "mixed" ? undefined : aspectRatio}
+        className={S("search__results")}
+      />
     </div>
   );
 });
@@ -63,7 +73,7 @@ const AttributeSelection = observer(({attributeKey, variant="primary"}) => {
   return (
     <Swiper
       threshold={0}
-      spaceBetween={variant === "primary" ? 30 : 10}
+      spaceBetween={variant === "primary" ? 10 : 30}
       observer
       observeParents
       slidesPerView="auto"
@@ -169,7 +179,10 @@ const MediaPropertySearchPage = observer(() => {
     return null;
   }
 
-  window.searchResults = searchResults;
+  let groups = Object.keys(searchResults || {}).filter(attr => attr !== "__other");
+  if(group_by === "__date") {
+    groups = groups.sort();
+  }
 
   return (
     <PageContainer
@@ -186,18 +199,14 @@ const MediaPropertySearchPage = observer(() => {
       }
       <div key={`search-results-${JSON.stringify(mediaPropertyStore.searchOptions)}`} className={S("search__content")}>
         {
-          Object.keys(searchResults || {}).map(attribute => {
-            if(attribute === "__other") { return null; }
-
-            return (
-              <ResultsGroup
-                key={`results-${attribute}`}
-                groupBy={group_by}
-                label={Object.keys(searchResults).length > 1 ? attribute : ""}
-                results={searchResults[attribute]}
-              />
-            );
-          })
+          groups.map(attribute =>
+            <ResultsGroup
+              key={`results-${attribute}`}
+              groupBy={group_by}
+              label={Object.keys(searchResults).length > 1 ? attribute : ""}
+              results={searchResults[attribute]}
+            />
+          )
         }
         {
           !searchResults.__other ? null :

@@ -144,21 +144,23 @@
 
   /* Fixed size, potentially mixed with other aspect ratios - scale with based on aspect ratio to match height */
   &--size-mixed {
-    max-width: min(90vw, var(--max-card-width));
+    --mixed-card-width: calc(var(--max-card-width) * 1.25);
+
+    max-width: min(90vw, var(--mixed-card-width));
 
     &.media-card-vertical--landscape {
-      max-width: min(90vw, var(--max-card-width));
-      width: var(--max-card-width);
+      max-width: min(90vw, var(--mixed-card-width));
+      width: var(--mixed-card-width);
     }
 
     &.media-card-vertical--square {
-      max-width: min(90vw, calc(var(--max-card-width) * 0.5625));
-      width: calc(var(--max-card-width) * 0.5625);
+      max-width: min(90vw, calc(var(--mixed-card-width) * 0.5625));
+      width: calc(var(--mixed-card-width) * 0.5625);
     }
 
     &.media-card-vertical--portrait {
-      max-width: min(90vw, calc(var(--max-card-width) * 0.375));
-      width: calc(var(--max-card-width) * 0.375);
+      max-width: min(90vw, calc(var(--mixed-card-width) * 0.375));
+      width: calc(var(--mixed-card-width) * 0.375);
 
       .media-card-vertical__indicator {
         font-size: 12px;

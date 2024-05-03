@@ -25,20 +25,10 @@
 
   &__attributes {
     margin-bottom: 30px;
+    max-width: max-content;
   }
 
   &__attribute--primary {
-    color: var(--property-text-faded);
-    font-size: 1.2em;
-    font-weight: 600;
-    transition: color 0.25s ease;
-
-    &.search__attribute--active {
-      color: var(--property-text-primary);
-    }
-  }
-
-  &__attribute--secondary {
     background-color: #414141;
     border: 1px solid transparent;
     border-radius: 5px;
@@ -49,6 +39,17 @@
 
     &.search__attribute--active {
       border: 1px solid white;
+    }
+  }
+
+  &__attribute--secondary {
+    color: var(--property-text-faded);
+    font-size: 1.2em;
+    font-weight: 600;
+    transition: color 0.25s ease;
+
+    &.search__attribute--active {
+      color: var(--property-text-primary);
     }
   }
 

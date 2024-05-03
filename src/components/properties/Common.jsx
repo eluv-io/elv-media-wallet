@@ -144,10 +144,8 @@ export const LoaderImage = observer(({src, width, loaderHeight, loaderWidth, loa
             onLoad={() => setTimeout(() => setLoaded(true), delay)}
           />
       }
-      <img
+      <object
         {...props}
-        alt="Loading Indicator"
-        src={undefined}
         style={{
           ...(props.style || {}),
           ...(loaderWidth ? {width: loaderWidth} : {}),
