@@ -335,6 +335,7 @@
     height: 55px;
     position: absolute;
     right: 0;
+    width: max-content;
 
     &__sign-in-button {
       background: var(--header-signin-button-bg);

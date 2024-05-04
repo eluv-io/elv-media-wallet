@@ -26,6 +26,91 @@ const PasswordResetForm = ({OrySubmit, nodes}) => {
   );
 };
 
+const SubmitVerificationCode = async ({flows, setFlows, setFlowType, setErrorMessage}) => {
+  if(submitting) { return; }
+
+  submitting = true;
+
+  try {
+    const createResponse = await rootStore.oryClient.getVerificationFlow({id: searchParams.get("flow")});
+
+    if(searchParams.has("code")) {
+      try {
+        const updateResponse = await rootStore.oryClient.updateVerificationFlow({
+          flow: searchParams.get("flow"),
+          updateVerificationFlowBody: {
+            code: searchParams.get("code"),
+            method: "code"
+          }
+        });
+
+        // Code redemption succeeded
+        setFlowType("verification");
+        setFlows({...flows, verification: updateResponse.data});
+        return true;
+      } catch(error) {
+        // Code redemption failed
+        rootStore.Log(error, true);
+        setFlows({...flows, verification: createResponse.data});
+        setFlowType("verification");
+        setTimeout(() => setErrorMessage(rootStore.l10n.login.ory.errors.invalid_verification_code), 250);
+      }
+    } else {
+      // Flow initialized
+      setFlowType("verification");
+      setFlows({...flows, verification: createResponse.data});
+    }
+  } catch(error) {
+    // Flow initialization failed
+    rootStore.Log(error, true);
+    setFlowType("login");
+  } finally {
+    submitting = false;
+  }
+};
+
+const SubmitRecoveryCode = async ({flows, setFlows, setFlowType, setErrorMessage}) => {
+  if(submitting) { return; }
+
+  submitting = true;
+
+  try {
+    const createResponse = await rootStore.oryClient.getRecoveryFlow({id: searchParams.get("flow")});
+
+    if(searchParams.has("code")) {
+      try {
+        const updateResponse = await rootStore.oryClient.updateRecoveryFlow({
+          flow: searchParams.get("flow"),
+          updateRecoveryFlowBody: {
+            code: searchParams.get("code"),
+            method: "code"
+          }
+        });
+
+        // Code redemption succeeded
+        setFlowType(updateResponse.data.state === "passed_challenge" ? "settings" : "recovery");
+        setFlows({...flows, recovery: updateResponse.data});
+      } catch(error) {
+        rootStore.Log(error, true);
+        // Code redemption failed
+        setFlows({...flows, recovery: createResponse.data});
+        setFlowType("recovery");
+        setTimeout(() => setErrorMessage(rootStore.l10n.login.ory.errors.invalid_verification_code), 250);
+      }
+    } else {
+      // Flow initialized
+      setFlowType("recovery");
+      setFlows({...flows, recovery: createResponse.data});
+    }
+  } catch(error) {
+    rootStore.Log(error, true);
+    // Flow initialization failed
+    setFlowType("login");
+  } finally {
+    submitting = false;
+  }
+};
+
 let submitting = false;
 const OryLogin = observer(({userData}) => {
   const [flowType, setFlowType] = useState(searchParams.has("flow") ? "initializeFlow" : "login");
@@ -33,47 +118,10 @@ const OryLogin = observer(({userData}) => {
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState(undefined);
   const [errorMessage, setErrorMessage] = useState(undefined);
+  const [verificationSucceeded, setVerificationSucceeded] = useState(false);
   const formRef = useRef();
 
-  const SubmitRecoveryCode = async () => {
-    if(submitting) { return; }
-
-    submitting = true;
-
-    try {
-      const createResponse = await rootStore.oryClient.getRecoveryFlow({id: searchParams.get("flow")});
-
-      if(searchParams.has("code")) {
-        try {
-          const updateResponse = await rootStore.oryClient.updateRecoveryFlow({
-            flow: searchParams.get("flow"),
-            updateRecoveryFlowBody: {
-              code: searchParams.get("code"),
-              method: "code"
-            }
-          });
-
-          // Code redemption succeeded
-          setFlowType(updateResponse.data.state === "passed_challenge" ? "settings" : "recovery");
-          setFlows({...flows, recovery: updateResponse.data});
-        } catch(error) {
-          // Code redemption failed
-          setFlows({...flows, recovery: createResponse.data});
-          setFlowType("recovery");
-          setTimeout(() => setErrorMessage(rootStore.l10n.login.ory.errors.invalid_verification_code), 250);
-        }
-      } else {
-        // Flow initialized
-        setFlowType("recovery");
-        setFlows({...flows, recovery: createResponse.data});
-      }
-    } catch(error) {
-      // Flow initialization failed
-      setFlowType("login");
-    } finally {
-      submitting = false;
-    }
-  };
+  const verificationRequired = location.pathname.endsWith("/verification") && searchParams.has("flow");
 
   useEffect(() => {
     if(!rootStore.oryClient) { return; }
@@ -89,14 +137,15 @@ const OryLogin = observer(({userData}) => {
       case "initializeFlow":
         // Recovery flow - try and submit code
         if(location.pathname.endsWith("/login") && !flows.recovery) {
-          SubmitRecoveryCode();
+          SubmitRecoveryCode({flows, setFlows, setFlowType, setErrorMessage});
           break;
-        } else if(location.pathname.endsWith("/verification") && !flows.verificaton) {
-          rootStore.oryClient.getVerificationFlow({id: searchParams.get("flow")})
-            .then(({data}) => {
-              setFlows({...flows, verification: data});
-              setFlowType("verification");
-            });
+        } else if(verificationRequired) {
+          if(!rootStore.loggedIn) {
+            setFlowType("login");
+          } else {
+            SubmitVerificationCode({flows, setFlows, setFlowType, setErrorMessage})
+              .then(result => setVerificationSucceeded(!!result));
+          }
           break;
         } else {
           setFlowType("login");
@@ -115,10 +164,6 @@ const OryLogin = observer(({userData}) => {
         rootStore.oryClient.createBrowserRecoveryFlow()
           .then(({data}) => setFlows({...flows, [flowType]: data}));
         break;
-      case "verification":
-        rootStore.oryClient.createBrowserVerificationFlow()
-          .then(({data}) => setFlows({...flows, [flowType]: data}));
-        break;
       case "settings":
         rootStore.oryClient.createBrowserSettingsFlow()
           .then(({data}) => setFlows({...flows, [flowType]: data}));
@@ -126,7 +171,10 @@ const OryLogin = observer(({userData}) => {
     }
   }, [rootStore.oryClient, flowType]);
 
-  if(rootStore.loggedIn && ["/login", "/verification"].includes(location.pathname)) {
+  if(
+    (rootStore.loggedIn && ["/login"].includes(location.pathname)) ||
+    (verificationRequired && verificationSucceeded)
+  ) {
     return <Redirect to="/" />;
   }
 
@@ -249,6 +297,11 @@ const OryLogin = observer(({userData}) => {
         case "login":
           await rootStore.oryClient.updateLoginFlow({flow: flow.id, updateLoginFlowBody: body});
           await rootStore.AuthenticateOry({userData});
+
+          if(verificationRequired) {
+            setFlowType("initializeFlow");
+          }
+
           break;
         case "registration":
           await rootStore.oryClient.updateRegistrationFlow({flow: flow.id, updateRegistrationFlowBody: body});
@@ -266,6 +319,7 @@ const OryLogin = observer(({userData}) => {
         case "verification":
           response = await rootStore.oryClient.updateVerificationFlow({flow: flow.id, updateVerificationFlowBody: body});
           setFlows({...flows, [flowType]: response.data});
+          setVerificationSucceeded(response.data.state === "passed_challenge");
           break;
         case "settings":
           response = await rootStore.oryClient.updateSettingsFlow({flow: flow.id, updateSettingsFlowBody: body});

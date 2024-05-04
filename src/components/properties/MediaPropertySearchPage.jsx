@@ -19,7 +19,11 @@ const S = (...classes) => classes.map(c => SearchStyles[c] || PageStyles[c] || S
 const ResultsGroup = observer(({groupBy, label, results}) => {
   if(label && groupBy === "__date") {
     const currentLocale = (navigator.languages && navigator.languages.length) ? navigator.languages[0] : navigator.language;
-    label = new Date(label).toLocaleDateString(currentLocale, { weekday:"long", year: "numeric", month: "long", day:"numeric"});
+    const date = new Date(label);
+    const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+
+    label = new Date(date.getTime() + userTimezoneOffset)
+      .toLocaleDateString(currentLocale, { weekday:"long", year: "numeric", month: "long", day:"numeric"});
   }
 
   let aspectRatio;
