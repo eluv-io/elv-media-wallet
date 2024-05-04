@@ -5,6 +5,9 @@ import {Loader} from "Components/common/Loaders";
 
 import {ButtonWithLoader} from "Components/common/UIComponents";
 import {ValidEmail} from "../../utils/Utils";
+import {Redirect} from "react-router-dom";
+
+const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
 
 // Settings form has other stuff in it, build password form manually
 const PasswordResetForm = ({OrySubmit, nodes}) => {
@@ -23,13 +26,54 @@ const PasswordResetForm = ({OrySubmit, nodes}) => {
   );
 };
 
+let submitting = false;
 const OryLogin = observer(({userData}) => {
-  const [flowType, setFlowType] = useState("login");
+  const [flowType, setFlowType] = useState(searchParams.has("flow") ? "initializeFlow" : "login");
   const [flows, setFlows] = useState({});
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState(undefined);
   const [errorMessage, setErrorMessage] = useState(undefined);
   const formRef = useRef();
+
+  const SubmitRecoveryCode = async () => {
+    if(submitting) { return; }
+
+    submitting = true;
+
+    try {
+      const createResponse = await rootStore.oryClient.getRecoveryFlow({id: searchParams.get("flow")});
+
+      if(searchParams.has("code")) {
+        try {
+          const updateResponse = await rootStore.oryClient.updateRecoveryFlow({
+            flow: searchParams.get("flow"),
+            updateRecoveryFlowBody: {
+              code: searchParams.get("code"),
+              method: "code"
+            }
+          });
+
+          // Code redemption succeeded
+          setFlowType(updateResponse.data.state === "passed_challenge" ? "settings" : "recovery");
+          setFlows({...flows, recovery: updateResponse.data});
+        } catch(error) {
+          // Code redemption failed
+          setFlows({...flows, recovery: createResponse.data});
+          setFlowType("recovery");
+          setTimeout(() => setErrorMessage(rootStore.l10n.login.ory.errors.invalid_verification_code), 250);
+        }
+      } else {
+        // Flow initialized
+        setFlowType("recovery");
+        setFlows({...flows, recovery: createResponse.data});
+      }
+    } catch(error) {
+      // Flow initialization failed
+      setFlowType("login");
+    } finally {
+      submitting = false;
+    }
+  };
 
   useEffect(() => {
     if(!rootStore.oryClient) { return; }
@@ -42,12 +86,29 @@ const OryLogin = observer(({userData}) => {
     if(existingFlow) { return; }
 
     switch(flowType) {
+      case "initializeFlow":
+        // Recovery flow - try and submit code
+        if(location.pathname.endsWith("/login") && !flows.recovery) {
+          SubmitRecoveryCode();
+          break;
+        } else if(location.pathname.endsWith("/verification") && !flows.verificaton) {
+          rootStore.oryClient.getVerificationFlow({id: searchParams.get("flow")})
+            .then(({data}) => {
+              setFlows({...flows, verification: data});
+              setFlowType("verification");
+            });
+          break;
+        } else {
+          setFlowType("login");
+        }
+
+        break;
       case "login":
         rootStore.oryClient.createBrowserLoginFlow({refresh: true})
           .then(({data}) => setFlows({...flows, [flowType]: data}));
         break;
       case "registration":
-        rootStore.oryClient.createBrowserRegistrationFlow()
+        rootStore.oryClient.createBrowserRegistrationFlow({returnTo: location.pathname === "/login" ? location.origin : location.href})
           .then(({data}) => setFlows({...flows, [flowType]: data}));
         break;
       case "recovery":
@@ -63,7 +124,11 @@ const OryLogin = observer(({userData}) => {
           .then(({data}) => setFlows({...flows, [flowType]: data}));
         break;
     }
-  }, [rootStore.oryClient, flowType, flows]);
+  }, [rootStore.oryClient, flowType]);
+
+  if(rootStore.loggedIn && ["/login", "/verification"].includes(location.pathname)) {
+    return <Redirect to="/" />;
+  }
 
   const LogOut = async () => {
     try {
@@ -101,11 +166,15 @@ const OryLogin = observer(({userData}) => {
     }
 
     if(!flow.refresh && flow.requested_aal !== "aal2") {
-      additionalContent.push(
-        <button key="registration-link" onClick={() => setFlowType("registration")} className="action login-page__login-button">
-          {rootStore.l10n.login.ory.actions.registration}
-        </button>
-      );
+      // TODO: Remove
+      if(!["ris.euro2024.com", "ris-uefa.mw.app"].includes(location.hostname)) {
+        additionalContent.push(
+          <button key="registration-link" onClick={() => setFlowType("registration")}
+                  className="action login-page__login-button">
+            {rootStore.l10n.login.ory.actions.registration}
+          </button>
+        );
+      }
 
       additionalContent.push(
         <button key="recovery-link" onClick={() => setFlowType("recovery")} className="ory-login__secondary-button">
@@ -186,7 +255,6 @@ const OryLogin = observer(({userData}) => {
           await rootStore.AuthenticateOry({userData});
           break;
         case "recovery":
-          // Todo: redirect to settings page or something? https://github.com/ory/kratos/discussions/2959
           response = await rootStore.oryClient.updateRecoveryFlow({flow: flow.id, updateRecoveryFlowBody: body});
           setFlows({...flows, [flowType]: response.data});
 
@@ -196,12 +264,10 @@ const OryLogin = observer(({userData}) => {
 
           break;
         case "verification":
-          // Todo: redirect to settings page or something? https://github.com/ory/kratos/discussions/2959
           response = await rootStore.oryClient.updateVerificationFlow({flow: flow.id, updateVerificationFlowBody: body});
           setFlows({...flows, [flowType]: response.data});
           break;
         case "settings":
-          // Todo: redirect to settings page or something? https://github.com/ory/kratos/discussions/2959
           response = await rootStore.oryClient.updateSettingsFlow({flow: flow.id, updateSettingsFlowBody: body});
 
           if(response.data.state === "success") {
@@ -260,8 +326,6 @@ const OryLogin = observer(({userData}) => {
     ...(flow?.ui?.messages || []),
     statusMessage
   ].filter(m => m);
-
-  rootStore.Log(flow)
 
   return (
     <div className="ory-login">

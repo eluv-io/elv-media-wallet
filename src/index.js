@@ -304,6 +304,12 @@ root.render(
             </div>
           </Route>
 
+          <Route path="/verification">
+            <div className="login-page-container">
+              <Login />
+            </div>
+          </Route>
+
           <Route path="/ory_login">
             <div className="login-page-container">
               <OryLogin />

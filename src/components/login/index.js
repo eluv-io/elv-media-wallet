@@ -16,7 +16,7 @@ import CheckIcon from "Assets/icons/check.svg";
 import OryLogin from "Components/login/OryLogin";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
-const useOry = searchParams.has("ory");// || true;
+const useOry = searchParams.has("ory") || !!searchParams.has("flow");
 const params = {
   // If we've just come back from Auth0
   isAuth0Callback: searchParams.has("code"),
@@ -43,6 +43,7 @@ const params = {
   marketplace: searchParams.get("marketplace"),
   // User data to pass to custodial sign-in
   userData: searchParams.has("data") ? JSON.parse(Utils.FromB64(searchParams.get("data"))) : { share_email: true },
+  oryFlow: searchParams.get("flow"),
   useOry
 };
 
@@ -623,7 +624,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           setUserDataSaved(true);
           setSavingUserData(false);
         });
-    } else if(rootStore.loaded && !rootStore.loggedIn && rootStore.auth0 && params.isAuth0Callback) {
+    } else if(!useOry && rootStore.loaded && !rootStore.loggedIn && rootStore.auth0 && params.isAuth0Callback) {
       // Returned from Auth0 callback - Authenticate
       AuthenticateAuth0(params.userData)
         .finally(() => setAuth0Authenticating(false));
