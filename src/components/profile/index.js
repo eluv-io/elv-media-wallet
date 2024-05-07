@@ -19,6 +19,7 @@ import WithdrawalsIcon from "Assets/icons/crypto/USD icon.svg";
 import OffersIcon from "Assets/icons/Offers table icon.svg";
 import DownCaret from "Assets/icons/down-caret.svg";
 import UpCaret from "Assets/icons/up-caret.svg";
+import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
 
 const ExpandableContent = ({textShow, textHide, initiallyOpen=false, children, className=""}) => {
   const [expanded, setExpanded] = useState(initiallyOpen);
@@ -87,9 +88,7 @@ const WithdrawalDetails = observer(({setShowWithdrawalModal}) => {
   );
 });
 
-const BalanceDetails = observer(() => {
-  const match = useRouteMatch();
-
+const BalanceDetails = observer(({basePath}) => {
   const [showDepositModal, setShowDepositModal] = useState(Object.keys(SearchParams()).includes("add-funds"));
 
   return (
@@ -118,11 +117,7 @@ const BalanceDetails = observer(() => {
 
         <Link
           className="profile-page__transactions-link"
-          to={
-            match.params.marketplaceId ?
-              UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "activity") :
-              "/wallet/users/me/activity"
-          }
+          to={UrlJoin(basePath, "users", "me", "activity")}
         >
           { rootStore.l10n.profile.view.transaction_history }
         </Link>
@@ -166,6 +161,13 @@ const Profile = observer(() => {
   }, [statusInterval, rootStore.userStripeId, rootStore.userStripeEnabled]);
 
   const balancePresent = typeof rootStore.totalWalletBalance !== "undefined";
+
+  let basePath = "/wallet";
+  if(match.params.marketplaceId) {
+    basePath = UrlJoin("/marketplace", match.params.marketplaceId);
+  } else if(rootStore.routeParams.mediaPropertySlugOrId) {
+    basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: true});
+  }
 
   return (
     <div className="page-container profile-page">
@@ -224,7 +226,7 @@ const Profile = observer(() => {
         className="profile-page__advanced-toggle"
       >
         <div className="profile-page__section-container">
-          <BalanceDetails />
+          <BalanceDetails basePath={basePath} />
 
           {
             secondaryDisabled ? null :
@@ -250,11 +252,7 @@ const Profile = observer(() => {
                 </ExpandableContent>
                 <Link
                   className="profile-page__transactions-link"
-                  to={
-                    match.params.marketplaceId ?
-                      UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "offers") :
-                      "/wallet/users/me/offers"
-                  }
+                  to={UrlJoin(basePath, "users", "me", "activity")}
                 >
                   {rootStore.l10n.profile.view.all_offers}
                 </Link>

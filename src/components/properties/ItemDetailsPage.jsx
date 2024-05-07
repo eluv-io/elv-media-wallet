@@ -93,7 +93,7 @@ const MintPage = observer(({nftInfo, contractStats}) => {
     <div className={S("page")}>
       <div className={S("details")}>
         {
-          !embedUrl ? null :
+          !nftInfo.metadata?.playable || !embedUrl ? null :
             <div className={S("details__copy-field")}>
               <div className={S("details__copy-field-title")}>
                 { rootStore.l10n.item_details.media_url }
@@ -112,8 +112,8 @@ const MintPage = observer(({nftInfo, contractStats}) => {
                 <div className={S("details__copy-field-title")}>
                   { rootStore.l10n.item_details.image_url }
                 </div>
-                <CopyableField value={embedUrl}>
-                  <a href={embedUrl} target="_blank" className={[S("details__copy-value"), "ellipsis"].join(" ")} rel="noreferrer">
+                <CopyableField value={nft.metadata.image}>
+                  <a href={nft.metadata.image} target="_blank" className={[S("details__copy-value"), "ellipsis"].join(" ")} rel="noreferrer">
                     { nft.metadata.image }
                   </a>
                 </CopyableField>
