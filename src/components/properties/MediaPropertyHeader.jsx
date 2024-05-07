@@ -149,6 +149,7 @@ const AdvancedSearchField = observer(({
               clearable
               value={mediaPropertyStore.searchOptions.endTime}
               placeholder="End Date"
+              defaultDate={mediaPropertyStore.searchOptions.startTime}
               onChange={date => {
                 mediaPropertyStore.SetSearchOption({
                   ...rootStore.routeParams,

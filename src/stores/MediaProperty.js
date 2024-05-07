@@ -63,6 +63,22 @@ class MediaPropertyStore {
 
   SetSearchOption({field, value}) {
     this.searchOptions[field] = value;
+
+    if(
+      field === "startTime" &&
+      this.searchOptions.endTime &&
+      this.searchOptions.startTime > this.searchOptions.endTime
+    ) {
+      // Start time before end time
+      this.searchOptions.endTime = new Date(this.searchOptions.startTime.getTime() + 24 * 60 * 60 * 1000);
+    } else if(
+      field === "endTime" &&
+      this.searchOptions.startTime &&
+      this.searchOptions.endTime < this.searchOptions.startTime
+    ) {
+      // End time before start time
+      this.searchOptions.startTime = new Date(this.searchOptions.endTime.getTime() - 24 * 60 * 60 * 1000);
+    }
   }
 
   ClearSearchOptions() {
@@ -132,7 +148,7 @@ class MediaPropertyStore {
       media_types: this.searchOptions.mediaType ? [this.searchOptions.mediaType] : (hasDateFilter ? ["Video"] : []) || [],
       schedule: hasDateFilter ? "period" : undefined,
       start_time: this.searchOptions.startTime,
-      end_time: this.searchOptions.endTime
+      end_time: this.searchOptions.endTime ? new Date(this.searchOptions.endTime.getTime() + 24 * 60 * 60 * 1000) : undefined
     };
 
     results = await this.FilteredMedia({
