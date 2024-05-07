@@ -24,7 +24,7 @@ login:
   sign_up: Sign Up
   sign_out: Sign Out
   signed_in_as: Signed In As
-  signed_in_via: Sign in Via
+  signed_in_via: Signed in Via
   connect_metamask: Connect Metamask
   powered_by: Powered by
   select_all_options: Select All

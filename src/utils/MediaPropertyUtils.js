@@ -216,7 +216,9 @@ export const MediaPropertyMediaBackPath = ({match, navContext}) => {
     params.set("ctx", navContext);
   }
 
-  if(match.params.mediaItemSlugOrId) {
+  if(currentNavContext === "search") {
+    pathComponents = UrlJoin(MediaPropertyBasePath(rootStore.routeParams), "search").replace(/^\//, "").split("/");
+  } else if(match.params.mediaItemSlugOrId) {
     pathComponents = pathComponents.slice(0, -2);
 
     if(match.params.mediaCollectionSlugOrId && match.params.mediaListSlugOrId) {

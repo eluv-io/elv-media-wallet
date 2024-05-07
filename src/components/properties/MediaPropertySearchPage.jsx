@@ -55,6 +55,7 @@ const ResultsGroup = observer(({groupBy, label, results}) => {
         content={results.map(result => result.mediaItem)}
         aspectRatio={aspectRatio === "mixed" ? undefined : aspectRatio}
         className={S("search__results")}
+        navContext="search"
       />
     </div>
   );

@@ -806,7 +806,8 @@
   }
 
   &__account {
-    padding: 10px 30px 30px;
+    padding: 10px 30px;
+    text-align: center;
 
     &__type {
       font-size: 20px;
@@ -821,6 +822,7 @@
       align-items: center;
       display: flex;
       gap: 20px;
+      justify-content: center;
     }
 
     &__address {

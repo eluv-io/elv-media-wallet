@@ -55,6 +55,11 @@
     margin-top: 0;
     padding: 30px;
   }
+
+  @media screen and (width <= 800px) {
+    height: max-content;
+    min-height: unset;
+  }
 }
 
 .media-container,
@@ -162,7 +167,9 @@
   &__error-content-icons {
     align-items: center;
     display: flex;
+    flex-wrap: wrap;
     gap: 50px;
+    justify-content: center;
     margin-bottom: 30px;
     position: relative;
   }
@@ -177,6 +184,37 @@
   @media screen and (width <= 800px) {
     margin-top: 50px;
     min-height: unset;
+
+    &__error {
+      padding-inline: 20px;
+    }
+
+    &__error--countdown {
+      gap: 20px;
+    }
+
+    &__error-content-icons {
+      margin: 125px 0 10px;
+    }
+
+    &__error-content-icon {
+      height: 120px;
+      min-width: 120px;
+      width: 120px;
+    }
+
+    &__error-headers {
+      flex-direction: column;
+      font-size: 0.9em;
+      gap: 10px;
+      min-width: 250px;
+      padding: 20px;
+    }
+
+    &__countdown {
+      font-size: 1.2em;
+      text-align: center;
+    }
   }
 }
 
@@ -185,7 +223,7 @@
   position: relative;
 
   @media screen and (width <= 800px) {
-    padding: 20px 15px 200px;
+    padding: 20px 15px 50px;
   }
 }
 
@@ -210,6 +248,7 @@
   &__icon {
     border-radius: 100%;
     height: 40px;
+    min-width: 40px;
     overflow: hidden;
     width: 40px;
   }
@@ -285,6 +324,12 @@
     font-size: 1.1em;
     height: 100%;
     padding: 0;
+  }
+
+  @media screen and (width <= 800px) {
+    &__title {
+      font-size: 1.4em;
+    }
   }
 }
 

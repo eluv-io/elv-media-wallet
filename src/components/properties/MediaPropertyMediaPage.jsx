@@ -34,14 +34,13 @@ const MediaVideo = observer(({mediaItem, display, setControlsVisible}) => {
   if(scheduleInfo.isLiveContent && !scheduleInfo.started) {
     return (
       <div className={S("media__error", "media__error--countdown")}>
-
-        <ImageIcon icon={imageUrl} className={S("media__error-image")} />
+        <LoaderImage src={imageUrl} className={S("media__error-image")} />
         <div className={S("media__error-cover")} />
         {
           icons.length === 0 ? null :
             <div className={S("media__error-content-icons")}>
               {icons.map(({icon, alt_text}, index) =>
-                <img
+                <LoaderImage
                   key={`icon-${index}`}
                   src={icon.url}
                   alt={alt_text}
@@ -343,7 +342,7 @@ const MediaPropertyMediaPage = observer(() => {
 
   let content;
   if(!permissions.authorized) {
-    const {imageUrl} = MediaItemImageUrl({mediaItem, display: mediaItem, aspectRatio: "landscape", width: mediaPropertyStore.rootStore.fullScreenImageWidth});
+    const {imageUrl} = MediaItemImageUrl({mediaItem, display: mediaItem, aspectRatio: rootStore.pageWidth > 800 ? "landscape" : "portrait", width: mediaPropertyStore.rootStore.fullScreenImageWidth});
     content = (
       <div className={S("media-page")}>
         <Link to={backPath} className={S("media-page__back-link", controlsVisible ? "media-page__back-link--visible" : "")}>

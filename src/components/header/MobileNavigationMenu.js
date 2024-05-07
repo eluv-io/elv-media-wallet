@@ -3,7 +3,7 @@ import {rootStore} from "Stores";
 import React from "react";
 import UrlJoin from "url-join";
 import ImageIcon from "Components/common/ImageIcon";
-import {ButtonWithLoader, CopyableField, FormatPriceString, MenuLink} from "Components/common/UIComponents";
+import {ButtonWithLoader, CopyableField, MenuLink} from "Components/common/UIComponents";
 
 import ProfileIcon from "Assets/icons/header/profile icon v2";
 import ListingsIcon from "Assets/icons/header/listings icon";
@@ -94,30 +94,6 @@ const MobileNavigationMenu = observer(({Close}) => {
           </div>
       }
       <div className="mobile-menu__content">
-        {
-          rootStore.loggedIn ?
-            <>
-              {
-                userInfo.walletType === "Custodial" ?
-                  <div className="mobile-menu__section">
-                    <div className="mobile-menu__section-header">{ rootStore.l10n.profile.address }</div>
-                    <div className="mobile-menu__address-container">
-                      <CopyableField value={userInfo.address} className="mobile-menu__address">
-                        { userInfo.address }
-                      </CopyableField>
-                    </div>
-                    <div className="mobile-menu__message">
-                      { rootStore.l10n.profile.do_not_send_funds }
-                    </div>
-                  </div> : null
-              }
-
-              <div className="mobile-menu__section">
-                <div className="mobile-menu__section-header">{ rootStore.l10n.profile.balance.total }</div>
-                <div className="mobile-menu__balance">{ FormatPriceString(rootStore.totalWalletBalance, {includeCurrency: true, prependCurrency: true}) }</div>
-              </div>
-            </> : null
-        }
         {
           links.map(({name, icon, to, authed, global, separator, hidden}, index) => {
             if(hidden || (authed && !rootStore.loggedIn)) { return null; }

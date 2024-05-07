@@ -66,5 +66,17 @@
 
   @media screen and (width <= 800px) {
     padding-inline: 25px;
+
+    &__title {
+      font-size: 1.3em;
+    }
+
+    &__attribute--primary {
+      font-size: 0.8em;
+    }
+
+    &__attribute--secondary {
+      font-size: 1em;
+    }
   }
 }

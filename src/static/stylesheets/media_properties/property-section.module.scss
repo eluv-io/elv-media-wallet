@@ -8,6 +8,7 @@
 
   --max-card-width: 450px;
 
+
   & + .section {
     margin-top: 20px;
   }
@@ -110,6 +111,11 @@
 
   @media screen and (width <= 800px) {
     --max-card-width: 350px;
+
+    &--grid {
+      margin-inline: auto;
+      width: max-content;
+    }
 
     &--center {
       .section__title-container {

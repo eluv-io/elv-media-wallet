@@ -1,7 +1,7 @@
 :root {
   --property-header-height: 80px;
   --property-full-page-height: calc(var(--vh, 1vh) * 100);
-  --property-full-content-height: calc(var(--property-full-page-height) - var(--property-header-height) - 5px);
+  --property-full-content-height: calc(var(--property-full-page-height) - var(--property-header-height) - 0px);
   --property-text-primary: #FFF;
   --property-text-secondary: #CCC;
   --property-text-headers: #A5A6A8;

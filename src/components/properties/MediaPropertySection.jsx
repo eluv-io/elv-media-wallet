@@ -134,7 +134,7 @@ const SectionContentGrid = observer(({section, sectionContent, navContext}) => {
   );
 });
 
-export const MediaGrid = observer(({content, aspectRatio, textDisplay="all", justification="left", className=""}) => {
+export const MediaGrid = observer(({content, aspectRatio, textDisplay="all", justification="left", className="", navContext}) => {
   aspectRatio = aspectRatio?.toLowerCase();
 
   return (
@@ -168,6 +168,7 @@ export const MediaGrid = observer(({content, aspectRatio, textDisplay="all", jus
             mediaItem={mediaItem}
             textDisplay={textDisplay}
             aspectRatio={aspectRatio}
+            navContext={navContext}
           />
         )
       }
@@ -263,7 +264,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
           ScrollTo(-75, element);
         }, 150);
       }}
-      className={S("section", `section--${section.display.justification || "left"}`)}
+      className={S("section", `section--${section.display?.display_format || "grid"}`, `section--${section.display.justification || "left"}`)}
     >
       {
         !showAllLink && !section.display.title ? null :
