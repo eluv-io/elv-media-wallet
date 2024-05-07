@@ -172,6 +172,10 @@
     &__image {
       padding: 0;
     }
+
+    &--size-mixed {
+      --mixed-card-width: 275px;
+    }
   }
 }
 

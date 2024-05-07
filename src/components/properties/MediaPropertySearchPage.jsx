@@ -12,7 +12,7 @@ import {
 } from "Components/properties/Common";
 import {Swiper, SwiperSlide} from "swiper/react";
 import {MediaGrid} from "Components/properties/MediaPropertySection";
-import {MediaItemImageUrl} from "../../utils/MediaPropertyUtils";
+import {MediaItemImageUrl, MediaItemScheduleInfo} from "../../utils/MediaPropertyUtils";
 
 const S = (...classes) => classes.map(c => SearchStyles[c] || PageStyles[c] || SectionStyles[c] || "").join(" ");
 
@@ -145,9 +145,23 @@ const MediaPropertySearchPage = observer(() => {
   useEffect(() => {
     mediaPropertyStore.SearchMedia({...match.params, query})
       .then(results => {
+        const today = new Date().toISOString().split("T")[0];
         let groupedResults = {};
 
         results
+          .filter(result => {
+            if(group_by !== "__date") { return; }
+
+            const {isLiveContent, ended} = MediaItemScheduleInfo(result.mediaItem);
+
+            if(isLiveContent) {
+              return !ended;
+            } else if(result.mediaItem.canonical_date) {
+              return today <= result.mediaItem.canonical_date;
+            }
+
+            return true;
+          })
           .forEach(result => {
             let categories;
             if(group_by === "__media-type") {

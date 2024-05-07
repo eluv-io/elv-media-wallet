@@ -11,6 +11,7 @@ import {CreateMediaPropertyPurchaseParams, MediaPropertyPurchaseParams} from "..
 import ImageIcon from "Components/common/ImageIcon";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
 import {Swiper, SwiperSlide} from "swiper/react";
+import {A11y} from "swiper/modules";
 import {Loader} from "Components/common/Loaders";
 import {Linkish} from "Components/common/UIComponents";
 
@@ -255,6 +256,17 @@ export const Description = ({
 };
 
 
+const SlideVisible = slide => {
+  if(!slide) { return; }
+
+  const carouselDimensions = slide.closest(".swiper").getBoundingClientRect();
+  const slideDimensions = slide.getBoundingClientRect();
+  return (
+    slideDimensions.x + 3 >= carouselDimensions.x &&
+    slideDimensions.x + slideDimensions.width - 3 <= carouselDimensions.x + carouselDimensions.width
+  );
+};
+
 export const Carousel = observer(({
   content,
   swiperOptions={},
@@ -267,11 +279,28 @@ export const Carousel = observer(({
   const [activeIndex, setActiveIndex] = useState(0);
   const [activeSwiperSlide, setActiveSwiperSlide] = useState(0);
   const [imageDimensions, setImageDimensions] = useState(initialImageDimensions);
-  // todo: swiper figure out slides per page auto?
+  const firstSlide = useRef();
+  const lastSlide = useRef();
+  const [firstSlideVisible, setFirstSlideVisible] = useState(false);
+  const [lastSlideVisible, setLastSlideVisible] = useState(false);
+
+  const SetSlideVisibility = () => {
+    setFirstSlideVisible(SlideVisible(firstSlide?.current));
+    setLastSlideVisible(SlideVisible(lastSlide?.current));
+
+    setTimeout(() => {
+      setFirstSlideVisible(SlideVisible(firstSlide?.current));
+      setLastSlideVisible(SlideVisible(lastSlide?.current));
+    }, 1000);
+  };
 
   useEffect(() => {
     UpdateActiveIndex && UpdateActiveIndex(activeIndex);
   }, [activeIndex]);
+
+  useEffect(() => {
+    SetSlideVisibility();
+  }, [lastSlide, activeSwiperSlide, rootStore.pageWidth]);
 
   let slidesPerPage = 1;
   try {
@@ -282,6 +311,7 @@ export const Carousel = observer(({
   return (
     <Swiper
       className={[S("carousel"), className].join(" ")}
+      modules={[A11y]}
       threshold={5}
       slidesPerView="auto"
       observer
@@ -297,17 +327,27 @@ export const Carousel = observer(({
       }}
     >
       <button
-        disabled={activeSwiperSlide === 0}
+        disabled={firstSlideVisible}
         style={{height: (imageDimensions?.height + 10) || "100%"}}
-        onClick={() => swiper?.slideTo(Math.max(0, swiper.activeIndex - slidesPerPage))}
+        onClick={() => {
+          swiper?.slideTo(Math.max(0, swiper.activeIndex - slidesPerPage));
+          SetSlideVisibility();
+        }}
         className={S("carousel__arrow", "carousel__arrow--previous")}
       >
-        <div className={S("carousel__arrow-background")} />
         <ImageIcon label="Previous Page" icon={LeftArrow} />
       </button>
       {
         content.map((item, index) =>
-          <SwiperSlide key={`slide-${index}`} className={S("carousel__slide")}>
+          <SwiperSlide
+            key={`slide-${index}`}
+            ref={
+              index === 0 ? firstSlide :
+                index === content.length - 1 ? lastSlide :
+                  undefined
+            }
+            className={S("carousel__slide", index === content.length - 1 ? "carousel__slide--last" : "")}
+          >
             {
               RenderSlide({
                 item,
@@ -322,12 +362,14 @@ export const Carousel = observer(({
         )
       }
       <button
-        disabled={activeSwiperSlide + slidesPerPage >= content.length - 1}
+        disabled={lastSlideVisible}
         style={{height: (imageDimensions?.height + 10) || "100%"}}
-        onClick={() => swiper?.slideTo(Math.min(content.length - 1, swiper.activeIndex + slidesPerPage))}
+        onClick={() => {
+          SetSlideVisibility();
+          swiper?.slideTo(Math.min(content.length - 1, swiper.activeIndex + slidesPerPage));
+        }}
         className={S("carousel__arrow", "carousel__arrow--next")}
       >
-        <div className={S("carousel__arrow-background")} />
         <ImageIcon label="Next Page" icon={RightArrow} />
       </button>
     </Swiper>

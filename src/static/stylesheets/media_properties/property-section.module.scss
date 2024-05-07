@@ -92,6 +92,10 @@
       }
     }
 
+    &--carousel {
+      --max-card-width: 400px;
+    }
+
     /* Mixed aspect ratio grid */
     &--flex {
       display: flex;
@@ -136,7 +140,12 @@
     }
 
     &__content--grid {
-      gap: 10px;
+      gap: 30px 10px;
+      justify-content: center;
+    }
+
+    &__content--carousel {
+      --max-card-width: 275px;
     }
   }
 

@@ -417,6 +417,10 @@
   &__slide {
     height: max-content;
     width: max-content;
+
+    &--last {
+      margin-right: 50px;
+    }
   }
 
   &__arrow {
@@ -438,6 +442,7 @@
     }
 
     svg {
+      filter: drop-shadow(1px 1px 3px black);
       height: 24px;
       position: relative;
       stroke-width: 2px;
@@ -447,34 +452,23 @@
     &--previous {
       left: 0;
       padding-right: 20px;
-
-      .carousel__arrow-background{
-        background: linear-gradient(90deg, rgb(0 0 0 / 75%) 20%, transparent);
-      }
     }
 
     &--next {
       padding-left: 20px;
       right: 0;
-
-      .carousel__arrow-background{
-        background: linear-gradient(90deg, transparent, rgb(0 0 0 / 75%));
-      }
     }
 
     &.swiper-button-disabled {
       cursor: auto;
       opacity: 0;
-    }
-  }
+    }  }
 
-  &__arrow-background {
-    height: 100%;
-    inset: 0;
-    pointer-events: none;
-    position: absolute;
-    transition: opacity 0.25s ease;
-    width: 100%;
+
+  @media screen and (width <= 800px) {
+    &__arrow {
+      opacity: 1;
+    }
   }
 }
 
