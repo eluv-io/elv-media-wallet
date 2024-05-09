@@ -205,7 +205,7 @@ const Header = observer(() => {
             <div className={S("back-link-container")}>
               <Linkish
                 to={rootStore.ResolvedBackPath()}
-                style={{paddingRight: "2px"}}
+                style={{paddingRight: "3px"}}
                 className={S("button")}
               >
                 <ImageIcon icon={LeftArrowIcon} label="Go Back"/>

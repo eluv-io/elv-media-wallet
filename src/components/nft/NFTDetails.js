@@ -40,7 +40,6 @@ import TransactionIcon from "Assets/icons/transaction history icon.svg";
 import DetailsIcon from "Assets/icons/Details icon.svg";
 import ContractIcon from "Assets/icons/Contract icon.svg";
 import TraitsIcon from "Assets/icons/properties icon.svg";
-import BackIcon from "Assets/icons/arrow-left.svg";
 import ShareIcon from "Assets/icons/share icon.svg";
 import TwitterIcon from "Assets/icons/X logo.svg";
 import WhatsAppIcon from "Assets/icons/whatsapp.svg";
@@ -1259,7 +1258,6 @@ const NFTDetails = observer(({nft, initialListingStatus, item, giftItem, hideSec
     return <PageLoader />;
   }
 
-  const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
   return (
     <>
       {
@@ -1310,15 +1308,6 @@ const NFTDetails = observer(({nft, initialListingStatus, item, giftItem, hideSec
       <div className={`page-block page-block--nft ${nftInfo.isOwned ? "page-block--nft-owned" : item ? "page-block--nft-item" : ""}`}>
         <div className="page-block__content">
           <div key={match.url} className="details-page">
-            {
-              backPage ?
-                <Link to={backPage.path} className="details-page__back-link">
-                  <ImageIcon icon={BackIcon}/>
-                  <div className="details-page__back-link__text ellipsis">
-                    { LocalizeString(rootStore.l10n.actions.back_to, {thing: backPage.name}) }
-                  </div>
-                </Link> : null
-            }
             <div className="details-page__main-content">
               <div className="details-page__content-container">
                 <div className={`card-container ${nftInfo.variant ? `card-container--variant-${nftInfo.variant}` : ""}`}>
