@@ -74,6 +74,19 @@ const SubmitRecoveryCode = async ({flows, setFlows, setFlowType, setErrorMessage
 
   submitting = true;
 
+  const RecoveryFailed = async () => {
+    // Code redemption failed
+    const newFlow = await rootStore.oryClient.createBrowserRecoveryFlow();
+
+    setFlows({
+      ...flows,
+      recovery: newFlow.data
+    });
+    setFlowType("recovery");
+
+    setTimeout(() => setErrorMessage(rootStore.l10n.login.ory.errors.invalid_recovery_email), 250);
+  };
+
   try {
     const createResponse = await rootStore.oryClient.getRecoveryFlow({id: searchParams.get("flow")});
 
@@ -92,10 +105,7 @@ const SubmitRecoveryCode = async ({flows, setFlows, setFlowType, setErrorMessage
         setFlows({...flows, recovery: updateResponse.data});
       } catch(error) {
         rootStore.Log(error, true);
-        // Code redemption failed
-        setFlows({...flows, recovery: createResponse.data});
-        setFlowType("recovery");
-        setTimeout(() => setErrorMessage(rootStore.l10n.login.ory.errors.invalid_verification_code), 250);
+        await RecoveryFailed();
       }
     } else {
       // Flow initialized
@@ -103,9 +113,9 @@ const SubmitRecoveryCode = async ({flows, setFlows, setFlowType, setErrorMessage
       setFlows({...flows, recovery: createResponse.data});
     }
   } catch(error) {
-    rootStore.Log(error, true);
     // Flow initialization failed
-    setFlowType("login");
+    rootStore.Log(error, true);
+    await RecoveryFailed();
   } finally {
     submitting = false;
   }
@@ -258,6 +268,10 @@ const OryLogin = observer(({userData}) => {
         key="back-link"
         onClick={() => {
           setFlowType("login");
+          setFlows({
+            ...flows,
+            recovery: undefined
+          });
         }}
         className="ory-login__secondary-button"
       >
