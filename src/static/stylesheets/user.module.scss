@@ -11,7 +11,7 @@
   /* Global header is transparent background must go to top of page */
   &:not(.profile-container--property) {
     margin-top: calc(-1 * var(--header-height));
-    padding-top: 230px;
+    padding-top: 175px;
   }
 
   &__background,

@@ -90,6 +90,7 @@ const ProfileMenu = observer(({Hide}) => {
                 icon={DiscoverIcon}
                 to="/"
                 exact
+                onClick={Hide}
                 className="header__profile-menu__link header__profile-menu__link-secondary"
               >
                 { rootStore.l10n.header.discover }

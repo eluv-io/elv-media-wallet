@@ -9,12 +9,20 @@ import UrlJoin from "url-join";
 import {useDebouncedValue} from "@mantine/hooks";
 import {Autocomplete, Checkbox, Drawer, Group, Select, TextInput} from "@mantine/core";
 import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
-
-import SearchIcon from "Assets/icons/search.svg";
-import {MobileNavigation, ProfileNavigation} from "Components/header/Header2";
 import {Linkish} from "Components/common/UIComponents";
 import {DatePickerInput} from "@mantine/dates";
 import {Button} from "Components/properties/Common";
+import ProfileMenu from "Components/header/ProfileMenu";
+import {NotificationsMenu} from "Components/header/NotificationsMenu";
+import MobileNavigationMenu from "Components/header/MobileNavigationMenu";
+
+import SearchIcon from "Assets/icons/search.svg";
+import LeftArrowIcon from "Assets/icons/left-arrow.svg";
+import XIcon from "Assets/icons/x.svg";
+import MobileMenuIcon from "Assets/icons/menu.svg";
+import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
+import UserIcon from "Assets/icons/profile.svg";
+
 
 const S = (...classes) => classes.map(c => HeaderStyles[c] || "").join(" ");
 
@@ -203,7 +211,6 @@ const AdvancedSearch = observer(() => {
   return (
     <>
       <Linkish
-        to={location.pathname === searchPath ? undefined : searchPath}
         className={S("search__filter")}
         onClick={() => setShow(true)}
       >
@@ -235,7 +242,11 @@ const AdvancedSearch = observer(() => {
           }
         </div>
         <Group wrap="noWrap" grow className={S("filter__actions")}>
-          <Button className={S("filter__action", "filter__action--primary")} onClick={() => setShow(false)}>
+          <Button
+            to={location.pathname === searchPath ? undefined : searchPath}
+            className={S("filter__action", "filter__action--primary")}
+            onClick={() => setShow(false)}
+          >
             Done
           </Button>
           <Button variant="outline" onClick={() => mediaPropertyStore.ClearSearchOptions()} className={S("filter__action")}>
@@ -308,6 +319,10 @@ const SearchBar = observer(() => {
 
   return (
     <div className={S("search-container")}>
+      {
+        rootStore.pageWidth > 800 ? null :
+          <ImageIcon icon={SearchIcon} className={S("search-container__icon")} />
+      }
       <Autocomplete
         ref={searchRef}
         value={query}
@@ -329,9 +344,10 @@ const SearchBar = observer(() => {
         onOptionSubmit={Select}
         role="search"
         rightSection={
-          <button className={S("search__submit")} onClick={() => Select(query)} aria-label="Submit">
-            <ImageIcon alt="search" icon={SearchIcon} />
-          </button>
+          rootStore.pageWidth < 800 ? null :
+            <button className={S("search__submit")} onClick={() => Select(query)} aria-label="Submit">
+              <ImageIcon alt="search" icon={SearchIcon} />
+            </button>
         }
         rightSectionWidth={rootStore.pageWidth > 800 ? 75 : 50}
         classNames={{
@@ -347,6 +363,10 @@ const SearchBar = observer(() => {
 });
 
 const HeaderLinks = observer(() => {
+  const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
+  const [showUserProfileMenu, setShowUserProfileMenu] = useState(false);
+  const [showMobileNavigationMenu, setShowMobileNavigationMenu] = useState(false);
+
   if(!rootStore.loggedIn) {
     return (
       <button onClick={() => rootStore.ShowLogin()} className={S("sign-in")}>
@@ -356,17 +376,69 @@ const HeaderLinks = observer(() => {
   } else {
     return (
       <>
-        <ProfileNavigation />
-        <MobileNavigation />
+        { !showNotificationsMenu ? null : <NotificationsMenu Hide={() => setShowNotificationsMenu(false)} /> }
+        { !showUserProfileMenu ? null : <ProfileMenu Hide={() => setShowUserProfileMenu(false)} /> }
+        { !showMobileNavigationMenu ? null : <MobileNavigationMenu Close={() => setShowMobileNavigationMenu(false)} /> }
+        <button className={S("button", showNotificationsMenu ? "button--active" : "")} onClick={() => setShowNotificationsMenu(!showNotificationsMenu)}>
+          <ImageIcon icon={NotificationsIcon} label={showNotificationsMenu ? "Hide Notifications" : "Show Notifications"} />
+        </button>
+        {
+          rootStore.pageWidth > 800 ?
+            <button className={S("button", showUserProfileMenu ? "button--active" : "")} onClick={() => setShowUserProfileMenu(!showUserProfileMenu)}>
+              <ImageIcon icon={UserIcon} label="Show Profile Menu" />
+            </button> :
+            <button className={S("button", showMobileNavigationMenu ? "button--active" : "")} onClick={() => setShowMobileNavigationMenu(true)}>
+              <ImageIcon icon={MobileMenuIcon} label="Show Navigation Menu" />
+            </button>
+        }
       </>
     );
   }
+});
+
+const MediaPropertyMobileHeader = observer(() => {
+  const [showSearchBar, setShowSearchBar] = useState(false);
+
+  if(showSearchBar) {
+    return (
+      <div key="header-search" className={S("header-mobile", "header-mobile--search", rootStore.routeParams.mediaItemSlugOrId ? "header-mobile--media" : "")}>
+        <SearchBar />
+        <button className={S("button")} onClick={() => setShowSearchBar(false)}>
+          <ImageIcon icon={XIcon} label="Cancel Search" />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div key="header" className={S("header-mobile", rootStore.routeParams.mediaItemSlugOrId ? "header-mobile--media" : "")}>
+      <div className={S("header-mobile__controls", "header-mobile__left-controls")}>
+        {
+          !rootStore.backPath ? null :
+            <Linkish style={{paddingRight: "2px"}} className={S("button")} to={rootStore.ResolvedBackPath()}>
+              <ImageIcon icon={LeftArrowIcon} label="Go Back" />
+            </Linkish>
+        }
+        <button className={S("button")} onClick={() => setShowSearchBar(true)}>
+          <ImageIcon icon={SearchIcon} label="Search" />
+        </button>
+      </div>
+      <div className={S("links")}>
+        <HeaderLinks />
+      </div>
+    </div>
+  );
 });
 
 const MediaPropertyHeader = observer(() => {
   const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
 
   if(!mediaProperty) { return null; }
+
+  if(rootStore.pageWidth < 800) {
+    return <MediaPropertyMobileHeader />;
+  }
+
 
   let basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: false});
 
@@ -379,12 +451,20 @@ const MediaPropertyHeader = observer(() => {
 
   return (
     <div className={S("header", rootStore.routeParams.mediaItemSlugOrId ? "header--media" : "")}>
-      <Link
-        to={basePath}
-        className={S("logo-container")}
-      >
-        <ImageIcon icon={mediaProperty?.metadata.header_logo?.url} className={S("logo")} />
-      </Link>
+      <div className={S("nav")}>
+        {
+          !rootStore.backPath ? null :
+            <Linkish style={{paddingRight: "2px"}} className={S("button")} to={rootStore.ResolvedBackPath()}>
+              <ImageIcon icon={LeftArrowIcon} label="Go Back" />
+            </Linkish>
+        }
+        <Link
+          to={basePath}
+          className={S("logo-container")}
+        >
+          <ImageIcon icon={mediaProperty?.metadata.header_logo?.url} className={S("logo")} />
+        </Link>
+      </div>
       <SearchBar />
       <div className={S("links")}>
         <HeaderLinks />

@@ -173,6 +173,7 @@ class RootStore {
 
   route = location.pathname;
   routeParams = {};
+  backPath = undefined;
 
   nftInfo = {};
   nftData = {};
@@ -2460,6 +2461,59 @@ class RootStore {
   SetRouteParams(params) {
     this.route = location.pathname;
     this.routeParams = params || {};
+  }
+
+  ResolvedBackPath() {
+    let context = new URLSearchParams(location.search).get("ctx");
+
+    let [path, query] = (this.backPath || "").split("?");
+
+    if(!path && !query) { return; }
+
+    if(context === "s") {
+      if(!path.includes("/s/:sectionSlugOrId") && location.pathname.includes("/s/:sectionSlugOrId/")) {
+        path = UrlJoin(path, "/s/:sectionSlugOrId");
+      } else if(!path.includes("/s/:sectionSlugOrId")) {
+        context = undefined;
+      }
+    } else if(context === "search") {
+      if(!location.pathname.endsWith("/search")) {
+        path = UrlJoin(path, "/search");
+      } else {
+        context = undefined;
+      }
+    }
+
+    path = path
+      .split(/[/?]/)
+      .map(segment =>
+        (segment.startsWith(":") && this.routeParams[segment.replace(":", "")]) ||
+        segment
+      )
+      .join("/");
+
+    const params = new URLSearchParams(query);
+    for(const [key, value] of params.entries()) {
+      params.set(
+        key,
+        (value.startsWith(":") && this.routeParams[value.replace(":", "")]) ||
+        value
+      );
+    }
+
+    if(context) {
+      params.set("ctx", context);
+    }
+
+    if(params.size > 0) {
+      path += `?${params.toString()}`;
+    }
+
+    return path;
+  }
+
+  SetBackPath(backPath) {
+    this.backPath = backPath;
   }
 
   SetRouteChange(route) {

@@ -204,10 +204,7 @@ const MediaPropertySearchPage = observer(() => {
   }
 
   return (
-    <PageContainer
-      backPath={location.pathname.replace(/\/search$/, "")}
-      className={S("search")}
-    >
+    <PageContainer className={S("search")}>
       {
         !primary_filter ? null :
           <AttributeSelection attributeKey={primary_filter} variant="primary"/>

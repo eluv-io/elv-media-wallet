@@ -13,7 +13,6 @@ import {
 } from "Components/properties/Common";
 import {MediaPropertySection} from "Components/properties/MediaPropertySection";
 import {NFTInfo} from "../../utils/Utils";
-import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
 
 const S = (...classes) => classes.map(c => PageStyles[c] || "").join(" ");
 
@@ -83,24 +82,8 @@ const MediaPropertyPage = observer(() => {
     return <Redirect to="/" />;
   }
 
-  let backPath;
-  if(match.params.parentMediaPropertySlugOrId) {
-    backPath = MediaPropertyBasePath({
-      ...match.params,
-      parentMediaPropertySlugOrId: undefined,
-      parentPageSlugOrId: undefined,
-      mediaPropertySlugOrId: match.params.parentMediaPropertySlugOrId,
-      pageSlugOrId: match.params.parentPageSlugOrId,
-    });
-  } else if(match.params.contractId) {
-    backPath = UrlJoin("/wallet/users/me/items");
-  }
-
   return (
-    <PageContainer
-      backPath={backPath}
-      className={S("page")}
-    >
+    <PageContainer className={S("page")}>
       <PageBackground display={page.layout} />
       <PageHeader
         display={page.layout}

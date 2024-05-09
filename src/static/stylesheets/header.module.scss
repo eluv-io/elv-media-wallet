@@ -1,3 +1,5 @@
+@import "./variables";
+
 .header,
 .header-placeholder {
   height: 80px;
@@ -5,7 +7,7 @@
 
 .header {
   display: flex;
-  justify-content: space-between;
+  gap: 20px;
   padding: 15px 50px;
   position: fixed;
   top: 0;
@@ -29,8 +31,15 @@
 
 .home,
 .links,
-.icons {
+.user-links,
+.back-link-container {
   position: relative;
+}
+
+.back-link-container {
+  align-items: center;
+  display: flex;
+  width: max-content;
 }
 
 .home {
@@ -67,6 +76,7 @@
 .links {
   align-items: center;
   display: flex;
+  flex-grow: 1;
   gap: 30px;
   height: 100%;
   justify-content: center;
@@ -86,16 +96,130 @@
   }
 }
 
-.icons {
+.user-links {
   align-items: center;
   display: flex;
+  gap: 10px;
   justify-content: flex-end;
+  position: relative;
   width: 300px;
+}
+
+.button {
+  @include page-fade-in;
+
+  align-items: center;
+  background-color: #424242;
+  border: 1px solid transparent;
+  border-radius: 100%;
+  display: flex;
+  height: 35px;
+  justify-content: center;
+  min-width: 35px;
+  transition: background-color 0.25s ease, border 0.25s ease;
+  width: 35px;
+
+  &:hover,
+  &:focus-visible,
+  &--active {
+    background-color: #525252;
+  }
+
+  &:focus-visible,
+  &--active {
+    border: 1px solid #67676a;
+  }
+
+  svg {
+    height: 45%;
+    width: 45%;
+  }
+}
+
+.sign-in {
+  background: var(--header-signin-button-bg);
+  border: var(--header-signin-button-border);
+  border-radius: 10px;
+  color: var(--header-signin-button-text);
+  font-weight: 600;
+  height: 45px;
+  text-transform: uppercase;
+  width: 100px;
+
+  @media screen and (width <= 800px) {
+    font-size: 0.9em;
+    height: 36px;
+  }
+}
+
+.notification-banner {
+  align-items: center;
+  background: rgb(0 0 0 / 90%);
+  border-bottom: 1px solid #323232;
+  border-top: 1px solid #323232;
+  color: var(--color-header-notification);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 16px;
+  gap: 20px;
+  min-width: 100%;
+  padding: 10px 110px 15px 75px;
+  position: fixed;
+  top: 100px;
+  width: 100%;
+  z-index: 2;
+
+  * {
+    color: var(--color-header-notification);
+  }
+
+  h2 {
+    font-size: 20px;
+    max-width: 100%;
+  }
+
+  &__text {
+    max-width: 100%;
+
+    * {
+      max-width: 100%;
+    }
+
+    a {
+      color: var(--color-header-notification-link);
+      text-decoration: underline;
+    }
+  }
+
+  &__close-button {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    padding: 5px;
+    position: absolute;
+    right: 75px;
+    top: 12px;
+  }
+
+  &__close-icon {
+    height: 20px;
+    stroke-width: 3px;
+    width: 20px;
+  }
+
+  @media screen and (width <= 800px) {
+    padding: 20px 60px 20px 20px;
+
+    &__close-button {
+      right: 20px;
+    }
+  }
 }
 
 @media screen and (width <= 1200px) {
   .home,
-  .icons {
+  .user-links {
+    flex-grow: 1;
     width: max-content;
   }
 
@@ -104,7 +228,7 @@
   }
 }
 
-@media screen and (width <= 850px) {
+@media screen and (width <= 800px) {
   .header {
     padding: 20px;
   }
@@ -117,5 +241,11 @@
     &__subtitle {
       font-size: 10px;
     }
+  }
+
+  .notification-banner {
+    border-bottom: 0;
+    bottom: 0;
+    top: unset;
   }
 }

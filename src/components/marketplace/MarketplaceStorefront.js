@@ -12,7 +12,7 @@ import {SetImageUrlDimensions} from "../../utils/Utils";
 import Modal from "Components/common/Modal";
 import Countdown from "Components/common/Countdown";
 import {RichText} from "Components/common/UIComponents";
-import Video from "Components/common/Video";
+import Video from "Components/properties/Video";
 
 
 const MarketplaceBannerContent = observer(({banner}) => {
@@ -21,7 +21,7 @@ const MarketplaceBannerContent = observer(({banner}) => {
   if(banner.video) {
     return (
       <Video
-        videoLink={banner.video}
+        link={banner.video}
         className="marketplace__banner__video"
         playerOptions={{
           muted: banner.video_muted ? EluvioPlayerParameters.muted.ON : EluvioPlayerParameters.muted.OFF,
@@ -101,7 +101,7 @@ const MarketplaceBanners = ({marketplace}) => {
         videoModal ?
           <Modal className="marketplace__banner__video-modal" Toggle={() => setVideoModal(undefined)}>
             <Video
-              videoLink={videoModal}
+              link={videoModal}
               className="marketplace__banner__video-modal__video"
               playerOptions={{
                 muted: EluvioPlayerParameters.muted.OFF,

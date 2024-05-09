@@ -67,23 +67,24 @@ const UserMarketplaceRoutes = () => {
 const TokenRoutes = basePath => {
   return [
     { name: "Open Pack", path: UrlJoin(basePath, "/:contractId/:tokenId/open"), authed: true, Component: PackOpenStatus },
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId"), noBreadcrumb: true, noBlock: true, Component: MintedNFTRedirect },
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId/:tokenId"), noBlock: true, Component: MintedNFTDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId", noBreadcrumb: true, noBlock: true, Component: MintedNFTRedirect },
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId/:tokenId", noBlock: true, Component: MintedNFTDetails },
 
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId/:tokenId/media"), noBlock: true, Component: NFTMedia },
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId/:tokenId/media/:sectionId/:mediaIndex"), noBlock: true, Component: NFTMedia },
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId/:tokenId/media/:sectionId/:collectionId/:mediaIndex"), noBlock: true, Component: NFTMedia },
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId/:tokenId/media", noBlock: true, Component: NFTMedia, backPath: "/:contractId/:tokenId" },
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId/:tokenId/media/:sectionId/:mediaIndex", backPath: "/:contractId/:tokenId", noBlock: true, Component: NFTMedia },
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId/:tokenId/media/:sectionId/:collectionId/:mediaIndex", backPath: "/:contractId/:tokenId", noBlock: true, Component: NFTMedia },
 
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: UrlJoin(basePath, "/:contractId/:tokenId/:action"), authed: true, noBlock: true, Component: MintedNFTDetails }
-  ];
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId/:tokenId/:action", backPath: "/:contractId/:tokenId", authed: true, noBlock: true, Component: MintedNFTDetails }
+  ]
+    .map(route => ({...route, path: UrlJoin(basePath, route.path), backPath: route.backPath ? UrlJoin(basePath, route.backPath) : basePath }));
 };
 
 const UserRoutes = ({includeMarketplaceRoutes}={}) => {
   return [
     ...(includeMarketplaceRoutes ? UserMarketplaceRoutes() : []),
     { name: "Listings", path: "listings", includeUserProfile: true, Component: UserListings },
-    { name: "Listing", path: "listings/:listingId", noBlock: true, Component: ListingDetails },
-    { name: "Listing", path: "listings/:listingId/:action", authed: true, noBlock: true, Component: ListingDetails },
+    { name: "Listing", path: "listings/:listingId", backPath: "listings", noBlock: true, Component: ListingDetails },
+    { name: "Listing", path: "listings/:listingId/:action", backPath: "listings/:listingId", authed: true, noBlock: true, Component: ListingDetails },
     { name: "Purchase Listing", path: "listings/:listingId/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
 
     { name: "Activity", path: "activity", includeUserProfile: true, Component: UserActivity },
@@ -98,7 +99,14 @@ const UserRoutes = ({includeMarketplaceRoutes}={}) => {
 
     { path: "/", includeUserProfile: true, redirect: "items" },
   ]
-    .map(route => ({ ...route, navigationKey: "user", locationType: "user", loadUser: true, path: UrlJoin("users", ":userId", route.path) }));
+    .map(route => ({
+      ...route,
+      navigationKey: "user",
+      locationType: "user",
+      loadUser: true,
+      path: UrlJoin("users", ":userId", route.path),
+      backPath: route.backPath && UrlJoin("users", ":userId", route.backPath)
+    }));
 };
 
 
@@ -109,28 +117,30 @@ const PropertyMediaRoutes = (basePath="") => {
     { path: UrlJoin(basePath, "c/:mediaCollectionSlugOrId/l/:mediaListSlugOrId"), Component: MediaPropertyCollectionPage },
     { path: UrlJoin(basePath, "l/:mediaListSlugOrId"), Component: MediaPropertySectionPage },
     { path: UrlJoin(basePath, "m/:mediaItemSlugOrId"), Component: MediaPropertyMediaPage },
-    { path: UrlJoin(basePath, "l/:mediaListSlugOrId/m/:mediaItemSlugOrId"), Component: MediaPropertyMediaPage },
-    { path: UrlJoin(basePath, "c/:mediaCollectionSlugOrId/l/:mediaListSlugOrId/m/:mediaItemSlugOrId"), Component: MediaPropertyMediaPage },
-  ].map(route => ({...route, name: GetPropertyPageTitle, noBlock: true}));
+    { path: UrlJoin(basePath, "l/:mediaListSlugOrId/m/:mediaItemSlugOrId"), Component: MediaPropertyMediaPage, backPath: "l/:mediaListSlugOrId" },
+    { path: UrlJoin(basePath, "c/:mediaCollectionSlugOrId/l/:mediaListSlugOrId/m/:mediaItemSlugOrId"), Component: MediaPropertyMediaPage, backPath: "c/:mediaCollectionSlugOrId?l=:mediaListSlugOrId" },
+  ].map(route => ({...route, name: GetPropertyPageTitle, backPath: route.backPath ? UrlJoin(basePath, route.backPath) : basePath, noBlock: true}));
 };
 
 const PropertyRoutes = (basePath="", additionalRoutes=[]) => {
   const GetPropertyPageTitle = match => GetProperty(match)?.metadata?.page_title || rootStore.l10n.media_properties.media_property;
 
   // All possible permutations of property or parent property/subproperty with or without page slug/id
-  const prefixPaths = [
-    ":mediaPropertySlugOrId",
-    ":mediaPropertySlugOrId/:pageSlugOrId",
-    ":parentMediaPropertySlugOrId/p/:mediaPropertySlugOrId",
-    ":parentMediaPropertySlugOrId/:parentPageSlugOrId/p/:mediaPropertySlugOrId",
-    ":parentMediaPropertySlugOrId/p/:mediaPropertySlugOrId/:pageSlugOrId",
-    ":parentMediaPropertySlugOrId/:parentPageSlugOrId/p/:mediaPropertySlugOrId/:pageSlugOrId"
+  const propertyPaths = [
+    { path: ":mediaPropertySlugOrId"},
+    { path: ":mediaPropertySlugOrId/:pageSlugOrId", backPath: ":mediaPropertySlugOrId" },
+    { path: ":parentMediaPropertySlugOrId/p/:mediaPropertySlugOrId", backPath: ":parentMediaPropertySlugOrId" },
+    { path: ":parentMediaPropertySlugOrId/:parentPageSlugOrId/p/:mediaPropertySlugOrId", backPath: ":parentMediaPropertySlugOrId/:parentPageSlugOrId" },
+    { path: ":parentMediaPropertySlugOrId/p/:mediaPropertySlugOrId/:pageSlugOrId", backPath: ":parentMediaPropertySlugOrId/p/:mediaPropertySlugOrId/" },
+    { path: ":parentMediaPropertySlugOrId/:parentPageSlugOrId/p/:mediaPropertySlugOrId/:pageSlugOrId", backPath: ":parentMediaPropertySlugOrId/:parentPageSlugOrId/p/:mediaPropertySlugOrId" }
   ];
+
+  const prefixPaths = propertyPaths.map(({path}) => path);
 
   return [
     // Search
     ...((prefixPaths.map(path => [
-      { path: UrlJoin(basePath, path, "search"), Component: MediaPropertySearchPage},
+      { path: UrlJoin(basePath, path, "search"), Component: MediaPropertySearchPage, backPath: UrlJoin(basePath, path) },
     ])).flat()),
 
     // Media within section
@@ -140,23 +150,43 @@ const PropertyRoutes = (basePath="", additionalRoutes=[]) => {
     ...((prefixPaths.map(path => PropertyMediaRoutes(UrlJoin(basePath, path))).flat())),
 
     // Section pages
-    ...(prefixPaths.map(path => ({ name: GetPropertyPageTitle, path: UrlJoin(basePath, path, "s/:sectionSlugOrId"), Component: MediaPropertySectionPage }))),
+    ...(prefixPaths.map(path => ({
+      name: GetPropertyPageTitle,
+      path: UrlJoin(basePath, path, "s/:sectionSlugOrId"),
+      backPath: UrlJoin(basePath, path),
+      Component: MediaPropertySectionPage
+    }))),
 
     // Additional routes (item details)
     ...additionalRoutes.map(route => [
       ...prefixPaths.map(path =>
-        ({...route, name: route.name || GetPropertyPageTitle, path: UrlJoin(basePath, path, route.path)})
+        ({
+          ...route,
+          name: route.name || GetPropertyPageTitle,
+          path: UrlJoin(basePath, path, route.path),
+          backPath: UrlJoin(basePath, path)
+        })
       )
     ]).flat(),
 
     // User routes
     ...UserRoutes().map(route => [
       ...(prefixPaths.map(path =>
-        ({...route, path: UrlJoin(basePath, path, route.path), includePageBlock: true})
+        ({
+          ...route,
+          path: UrlJoin(basePath, path, route.path),
+          includePageBlock: true,
+          backPath: UrlJoin(basePath, path, route.backPath || "")
+        })
       ))
     ]).flat(),
 
-    ...(prefixPaths.map(path => ({ name: GetPropertyPageTitle, path: UrlJoin(basePath, path), Component: MediaPropertyPage }))),
+    ...(propertyPaths.map(({path, backPath}) => ({
+      name: GetPropertyPageTitle,
+      path: UrlJoin(basePath, path),
+      backPath: backPath,
+      Component: MediaPropertyPage
+    }))),
   ].map(route => ({...route, noBlock: !route.includePageBlock, clearMarketplace: true}));
 };
 
@@ -173,20 +203,25 @@ const SharedRoutes = ({includeMarketplaceRoutes}) => {
   return [
     ...UserRoutes({includeMarketplaceRoutes}),
 
-    { name: "Listing", path: "listings/:listingId", noBlock: true, Component: ListingDetails },
-    { name: "Listing", path: "listings/:listingId/:action", authed: true, noBlock: true, Component: ListingDetails },
+    { name: "Listing", path: "listings/:listingId", backPath: "listings", noBlock: true, Component: ListingDetails },
+    { name: "Listing", path: "listings/:listingId/:action", backPath: "listings/:listingId", authed: true, noBlock: true, Component: ListingDetails },
     { name: "Listings", path: "listings", Component: Listings },
 
     { name: "Activity", path: "activity", Component: RecentSales },
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "activity/:contractId/:tokenId", noBlock: true, Component: MintedNFTDetails },
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "activity/:contractId/:tokenId/:action", authed: true, noBlock: true, Component: MintedNFTDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "activity/:contractId/:tokenId", backPath: "activity", noBlock: true, Component: MintedNFTDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "activity/:contractId/:tokenId/:action", backPath: "activity/:contractId/:tokenId", authed: true, noBlock: true, Component: MintedNFTDetails },
     { name: "Leaderboard", path: "leaderboard", Component: Leaderboard },
 
-    { name: "Purchase Listing", path: "listings/:listingId/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
+    { name: "Purchase Listing", path: "listings/:listingId/purchase/:confirmationId", backPath: "/listings", Component: PurchaseMintingStatus, authed: true },
     { name: "Profile", path: "profile", Component: Profile, authed: true },
     { name: "Deposit Status", path: "profile/deposit/:confirmationId", Component: DepositStatus, authed: true }
   ]
-    .map(route => ({ ...route, navigationKey: route.navigationKey || "shared", locationType: "shared"}));
+    .map(route => ({
+      ...route,
+      backPath: route.backPath || (includeMarketplaceRoutes ? "store" : undefined),
+      navigationKey: route.navigationKey || "shared",
+      locationType: "shared"
+    }));
 };
 
 const MarketplaceRoutes = () => {
@@ -194,12 +229,12 @@ const MarketplaceRoutes = () => {
     { name: "Offer Redemption", path: "code/:eventSlug/:offerId", Component: CodeRedemption },
 
     { name: "Collections", path: "collections", Component: MarketplaceCollectionsSummaryPage },
-    { name: "Collections", path: "collections/:collectionSKU", Component: MarketplaceCollection },
-    { name: match => (GetItem(match)?.name || "Item"), path: "collections/:collectionSKU/store/:sku", noBlock: true, Component: MarketplaceItemDetails },
-    { name: match => (GetItem(match)?.name || "Item"), path: "collections/:collectionSKU/store/:sku/:action", authed: true, noBlock: true, Component: MarketplaceItemDetails },
+    { name: "Collections", path: "collections/:collectionSKU", backPath: "collections", Component: MarketplaceCollection },
+    { name: match => (GetItem(match)?.name || "Item"), path: "collections/:collectionSKU/store/:sku", backPath: "collections/:collectionSKU/store", noBlock: true, Component: MarketplaceItemDetails },
+    { name: match => (GetItem(match)?.name || "Item"), path: "collections/:collectionSKU/store/:sku/:action", backPath: "collections/:collectionSKU/store/:sku", authed: true, noBlock: true, Component: MarketplaceItemDetails },
 
-    { name: "Redeem Collection", path: "collections/:collectionSKU/redeem", Component: MarketplaceCollectionRedemption },
-    { name: "Redeem Collection", path: "collections/:collectionSKU/redeem/:confirmationId/status", Component: CollectionRedeemStatus },
+    { name: "Redeem Collection", path: "collections/:collectionSKU/redeem", backPath: "collections", Component: MarketplaceCollectionRedemption },
+    { name: "Redeem Collection", path: "collections/:collectionSKU/redeem/:confirmationId/status", backPath: "collections", Component: CollectionRedeemStatus },
 
     ...TokenRoutes("collections/:collectionSKU/owned"),
 
@@ -220,7 +255,12 @@ const MarketplaceRoutes = () => {
     { name: match => (GetItem(match)?.name || rootStore.l10n.item_details.item), path: "store/:sku/media/:sectionId/:collectionId/:mediaIndex", noBlock: true, Component: NFTMedia },
 
     { path: "/", redirect: "/store" }
-  ].map(route => ({ ...route, navigationKey: "marketplace", locationType: "marketplace" }));
+  ].map(route => ({
+    ...route,
+    navigationKey: "marketplace",
+    locationType: "marketplace",
+    backPath: route.backPath || route.path !== "store" && "store"
+  }));
 };
 
 const UserRouteWrapper = observer(({children}) => {
@@ -315,6 +355,7 @@ const RouteWrapper = observer(({routes, children}) => {
     });
 
     rootStore.SetRouteParams(match.params);
+    rootStore.SetBackPath(currentRoute.backPath);
 
     if(currentRoute?.hideNavigation) {
       rootStore.ToggleNavigation(false);
@@ -383,7 +424,11 @@ const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
       throw Error("Invalid route list: " + routeList);
   }
 
-  routes = routes.map(route => ({ ...route, path: UrlJoin(basePath, route.path) }));
+  routes = routes.map(route => ({
+    ...route,
+    path: UrlJoin(basePath, route.path),
+    backPath: route.backPath ? UrlJoin(basePath, route.backPath) : undefined
+  }));
 
   return (
     <Switch>

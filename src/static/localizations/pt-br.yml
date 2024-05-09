@@ -180,7 +180,7 @@ connected_accounts:
     os rendimentos serão creditados no saldo da carteira Eluvio, que pode ser
     resgatado via Stripe.
   link_wallet: Carteira associada.
-  link_wallet_2: Conectar {networkName} carteira de pagamento {t{est}
+  link_wallet_2: Conectar {networkName} carteira de pagamento
   unlink_wallet: Desconectar carteira
   unlink_wallet_confirm: Você realmente quer desconectar essa conta?
   description: >-

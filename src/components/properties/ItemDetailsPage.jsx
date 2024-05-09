@@ -8,7 +8,6 @@ import {NFTInfo} from "../../utils/Utils";
 import {Button, Description, PageContainer} from "Components/properties/Common";
 import {NFTImage} from "Components/common/Images";
 import {CopyableField, LocalizeString} from "Components/common/UIComponents";
-import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
 
 const S = (...classes) => classes.map(c => ItemDetailStyles[c] || "").join(" ");
 
@@ -286,10 +285,7 @@ const ItemDetailsPage = observer(() => {
   const nftInfo = NFTInfo({nft, showToken: true});
 
   return (
-    <PageContainer
-      backPath={MediaPropertyBasePath(match.params)}
-      className={S("item-details-page")}
-    >
+    <PageContainer className={S("item-details-page")}>
       <div className={S("item-details")}>
         <div className={S("image-container")}>
           <NFTImage nft={nft} showVideo={true} className="image" />

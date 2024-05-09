@@ -18,29 +18,12 @@ import {Linkish} from "Components/common/UIComponents";
 import LeftArrow from "Assets/icons/left-arrow";
 import RightArrow from "Assets/icons/right-arrow";
 import XIcon from "Assets/icons/x";
-import ArrowLeft from "Assets/icons/arrow-left.svg";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
 
-export const BackLink = ({backPath, onClick, className=""}) => {
-  return (
-    <Linkish to={backPath} onClick={onClick} className={[S("back-link"), className].join(" ")}>
-      <ImageIcon icon={ArrowLeft} />
-      <div>Back</div>
-    </Linkish>
-  );
-};
-
-export const PageContainer = ({backPath, children, className}) => {
+export const PageContainer = ({children, className}) => {
   return (
     <div className={[S("page-container"), className].join(" ")}>
-      {
-        !backPath ? null :
-          <div className={S("page-container__links")}>
-            <BackLink backPath={backPath} />
-          </div>
-      }
-
       { children }
     </div>
   );
@@ -362,7 +345,7 @@ export const Carousel = observer(({
         )
       }
       <button
-        disabled={lastSlideVisible}
+        disabled={lastSlideVisible || content.length === 1}
         style={{height: (imageDimensions?.height + 10) || "100%"}}
         onClick={() => {
           SetSlideVisibility();
@@ -460,7 +443,7 @@ export const PurchaseGate = ({permissions, backPath, children}) => {
         gate: true,
         permissionItemIds: permissions.permissionItemIds,
         successPath: location.pathname,
-        cancelPath: backPath
+        cancelPath: backPath || rootStore.ResolvedBackPath()
       }));
       history.replace(url.pathname + url.search);
     } else if(params && params.gate && !params.confirmationId && permissions.authorized) {

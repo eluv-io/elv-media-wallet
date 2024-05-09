@@ -3,14 +3,15 @@ import MediaCollectionStyles from "Assets/stylesheets/media_properties/property-
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Link, Redirect, useHistory, useRouteMatch} from "react-router-dom";
-import {mediaPropertyStore} from "Stores";
+import {mediaPropertyStore, rootStore} from "Stores";
 import {PageBackground, PageContainer, PageHeader, ScaledText} from "Components/properties/Common";
 import MediaCard from "Components/properties/MediaCards";
 import {Select} from "Components/common/UIComponents";
-import {MediaPropertyBasePath, MediaPropertyMediaBackPath} from "../../utils/MediaPropertyUtils";
 import {LoginGate} from "Components/common/LoginGate";
 
 const S = (...classes) => classes.map(c => MediaCollectionStyles[c] || "").join(" ");
+
+// TODO: Fix list parameter
 
 const MediaCollectionLists = observer(({mediaCollection, activeListId, setActiveListId, navContext}) => {
   const match = useRouteMatch();
@@ -158,7 +159,6 @@ const MediaPropertyCollectionPage = observer(() => {
   });
 
   const navContext = new URLSearchParams(location.search).get("ctx");
-  const backPath = MediaPropertyMediaBackPath({match, navContext});
 
   useEffect(() => {
     if(!activeListId) {
@@ -177,14 +177,14 @@ const MediaPropertyCollectionPage = observer(() => {
   });
 
   if(!mediaCollection) {
-    return <Redirect to={backPath} />;
+    return <Redirect to={rootStore.ResolvedBackPath()} />;
   }
 
   return (
-    <PageContainer backPath={backPath} className={S("media-collection__page-container")}>
+    <PageContainer className={S("media-collection__page-container")}>
       <PageBackground display={mediaCollection} />
       <PageHeader display={mediaCollection} className={S("media-collection__page-header")} />
-      <LoginGate backPath={MediaPropertyBasePath(match.params)} Condition={() => !permissions.authorized}>
+      <LoginGate backPath={rootStore.ResolvedBackPath()} Condition={() => !permissions.authorized}>
         <div className={S("media-collection__content")}>
           <MediaCollectionLists mediaCollection={mediaCollection} activeListId={activeListId} setActiveListId={setActiveListId} navContext={navContext} />
           <MediaCollectionMedia mediaListId={activeListId} key={`media-${activeListId}`} navContext={navContext} />

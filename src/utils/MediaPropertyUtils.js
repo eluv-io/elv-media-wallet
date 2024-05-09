@@ -205,43 +205,43 @@ export const MediaItemMediaUrl = mediaItem => {
   return url.toString();
 };
 
-export const MediaPropertyMediaBackPath = ({match, navContext}) => {
+export const MediaPropertyMediaBackPath = ({params, navContext}) => {
   const path = location.pathname;
   let pathComponents = path.replace(/^\//, "").split("/");
-  let params = new URLSearchParams();
+  let urlParams = new URLSearchParams();
 
   const currentNavContext = new URLSearchParams(location.search).get("ctx");
 
   if(navContext) {
-    params.set("ctx", navContext);
+    urlParams.set("ctx", navContext);
   }
 
   if(currentNavContext === "search") {
     pathComponents = UrlJoin(MediaPropertyBasePath(rootStore.routeParams), "search").replace(/^\//, "").split("/");
-  } else if(match.params.mediaItemSlugOrId) {
+  } else if(params.mediaItemSlugOrId) {
     pathComponents = pathComponents.slice(0, -2);
 
-    if(match.params.mediaCollectionSlugOrId && match.params.mediaListSlugOrId) {
+    if(params.mediaCollectionSlugOrId && params.mediaListSlugOrId) {
       pathComponents = pathComponents.slice(0, -2);
-      params.set("l", match.params.mediaListSlugOrId);
-    } else if(match.params.sectionSlugOrId && currentNavContext !== "s") {
+      urlParams.set("l", params.mediaListSlugOrId);
+    } else if(params.sectionSlugOrId && currentNavContext !== "s") {
       // Only go back to section page if we got there from here
       pathComponents = pathComponents.slice(0, -2);
     }
-  } else if(match.params.mediaListSlugOrId || match.params.mediaCollectionSlugOrId) {
+  } else if(params.mediaListSlugOrId || params.mediaCollectionSlugOrId) {
     pathComponents = pathComponents.slice(0, -2);
 
-    if(match.params.sectionSlugOrId && currentNavContext !== "s") {
+    if(params.sectionSlugOrId && currentNavContext !== "s") {
       // Only go back to section page if we got there from here
       pathComponents = pathComponents.slice(0, -2);
     }
-  } else if(match.params.sectionSlugOrId) {
+  } else if(params.sectionSlugOrId) {
     pathComponents = pathComponents.slice(0, -2);
   } else {
     pathComponents = pathComponents.slice(0, -1);
   }
 
-  return "/" + pathComponents.join("/") + (params.size > 0 ? `?${params.toString()}` : "");
+  return "/" + pathComponents.join("/") + (urlParams.size > 0 ? `?${urlParams.toString()}` : "");
 };
 
 export const MediaItemScheduleInfo = mediaItem => {

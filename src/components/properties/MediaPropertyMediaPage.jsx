@@ -2,21 +2,20 @@ import MediaStyles from "Assets/stylesheets/media_properties/property-media.modu
 
 import React, {useEffect, useState, useRef} from "react";
 import {observer} from "mobx-react";
-import {Link, Redirect, useRouteMatch} from "react-router-dom";
+import { Redirect, useRouteMatch} from "react-router-dom";
 import {mediaPropertyStore, rootStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
 import Countdown from "./Countdown";
 import {
   MediaItemImageUrl,
   MediaItemMediaUrl,
-  MediaItemScheduleInfo, MediaPropertyBasePath, MediaPropertyMediaBackPath
+  MediaItemScheduleInfo
 } from "../../utils/MediaPropertyUtils";
 import {Carousel, Description, LoaderImage, PurchaseGate} from "Components/properties/Common";
 import Video from "./Video";
 import {SetImageUrlDimensions} from "../../utils/Utils";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 
-import ArrowLeft from "Assets/icons/arrow-left";
 import MediaErrorIcon from "Assets/icons/media-error-icon";
 import {MediaPropertyPageContent} from "Components/properties/MediaPropertyPage";
 
@@ -25,7 +24,7 @@ const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 
 /* Video */
 
-const MediaVideo = observer(({mediaItem, display, setControlsVisible}) => {
+const MediaVideo = observer(({mediaItem, display}) => {
   const [scheduleInfo, setScheduleInfo] = useState(MediaItemScheduleInfo(mediaItem));
   const [error, setError] = useState();
   const icons = (display.icons || []).filter(({icon}) => !!icon?.url);
@@ -92,7 +91,6 @@ const MediaVideo = observer(({mediaItem, display, setControlsVisible}) => {
   return (
     <Video
       link={mediaItem.media_link}
-      callback={player => player.controls.RegisterSettingsListener(() => setControlsVisible(player.controls.IsVisible()))}
       playoutParameters={
         display.live_video || !display.clip ? {} :
           { clipStart: display.clip_start_time, clipEnd: display.clip_end_time }
@@ -222,11 +220,11 @@ const MediaGallery = observer(({mediaItem}) => {
 });
 
 
-const Media = observer(({mediaItem, display, setControlsVisible}) => {
+const Media = observer(({mediaItem, display}) => {
   if(!mediaItem) { return <div className={S("media")} />; }
 
   if(mediaItem.media_type === "Video") {
-    return <MediaVideo mediaItem={mediaItem} display={display} setControlsVisible={setControlsVisible}/>;
+    return <MediaVideo mediaItem={mediaItem} display={display} />;
   } else if(mediaItem.media_type === "Gallery") {
     return <MediaGallery mediaItem={mediaItem} />;
   } else if(mediaItem.media_type === "Image") {
@@ -322,15 +320,13 @@ const MediaDescription = observer(({display}) => {
 
 const MediaPropertyMediaPage = observer(() => {
   const match = useRouteMatch();
-  const [controlsVisible, setControlsVisible] = useState(true);
 
   const mediaItem = mediaPropertyStore.MediaPropertyMediaItem(match.params);
 
   const context = new URLSearchParams(location.search).get("ctx");
-  let backPath = MediaPropertyMediaBackPath({match, navContext: context});
 
   if(!mediaItem) {
-    return <Redirect to={backPath} />;
+    return <Redirect to={rootStore.ResolvedBackPath()} />;
   }
 
   const display = mediaItem.override_settings_when_viewed ? mediaItem.viewed_settings : mediaItem;
@@ -345,10 +341,6 @@ const MediaPropertyMediaPage = observer(() => {
     const {imageUrl} = MediaItemImageUrl({mediaItem, display: mediaItem, aspectRatio: rootStore.pageWidth > 800 ? "landscape" : "portrait", width: mediaPropertyStore.rootStore.fullScreenImageWidth});
     content = (
       <div className={S("media-page")}>
-        <Link to={backPath} className={S("media-page__back-link", controlsVisible ? "media-page__back-link--visible" : "")}>
-          <ImageIcon icon={ArrowLeft} />
-          <div>Back</div>
-        </Link>
         <div className={S("media__error")}>
           <ImageIcon icon={imageUrl} className={S("media__error-image")} />
           <div className={S("media__error-cover")} />
@@ -369,11 +361,7 @@ const MediaPropertyMediaPage = observer(() => {
     content = (
       <div className={S("media-page", !hasText && !hasDescription ? "media-page--full" : !hasDescription ? "media-page--extended" : "")}>
         <div className={S("media-container")}>
-          <Link to={backPath} className={S("media-page__back-link", controlsVisible ? "media-page__back-link--visible" : "")}>
-            <ImageIcon icon={ArrowLeft} />
-            <div>Back</div>
-          </Link>
-          <Media mediaItem={mediaItem} display={display} setControlsVisible={setControlsVisible} />
+          <Media mediaItem={mediaItem} display={display} />
         </div>
         {
           !hasText && !hasDescription ? null :
@@ -419,7 +407,7 @@ const MediaPropertyMediaPage = observer(() => {
   }
 
   return (
-    <PurchaseGate permissions={permissions} backPath={MediaPropertyBasePath(match.params)}>
+    <PurchaseGate permissions={permissions}>
       { content }
       <MediaPropertyPageContent isMediaPage className={S("media-page__additional-content")} />
     </PurchaseGate>

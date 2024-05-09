@@ -2,7 +2,7 @@ import SectionStyles from "Assets/stylesheets/media_properties/property-section.
 
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {Link, Redirect, useRouteMatch} from "react-router-dom";
+import {Link, Redirect, useHistory, useRouteMatch} from "react-router-dom";
 import {mediaPropertyStore, rootStore} from "Stores";
 import MediaCard from "Components/properties/MediaCards";
 import UrlJoin from "url-join";
@@ -11,8 +11,8 @@ import {Carousel, PageBackground, PageContainer, PageHeader} from "Components/pr
 
 import RightArrow from "Assets/icons/right-arrow";
 import {ScrollTo} from "../../utils/Utils";
-import {MediaPropertyBasePath, MediaPropertyMediaBackPath} from "../../utils/MediaPropertyUtils";
 import {LoginGate} from "Components/common/LoginGate";
+import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 
@@ -178,6 +178,7 @@ export const MediaGrid = observer(({content, aspectRatio, textDisplay="all", jus
 
 export const MediaPropertySection = observer(({sectionId, mediaListId, isSectionPage, isMediaPage}) => {
   const match = useRouteMatch();
+  const history = useHistory();
   let navContext = new URLSearchParams(location.search).get("ctx");
 
   const mediaListSlugOrId = mediaListId || (isSectionPage && match.params.mediaListSlugOrId);
@@ -201,6 +202,15 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
     })
       .then(content => setSectionContent(content));
   }, [match.params, sectionId, mediaListId]);
+
+  useEffect(() => {
+    // For a section page, ensure ctx is set
+    if(!isSectionPage) { return; }
+
+    const params = new URLSearchParams(window.location.query);
+    params.set("ctx", match.params.sectionSlugOrId);
+    history.replace(location.pathname + "?" + params.toString());
+  }, []);
 
   if(!section) {
     return null;
@@ -227,7 +237,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
 
   if(isSectionPage) {
     return (
-      <LoginGate backPath={MediaPropertyBasePath(match.params)} Condition={() => !sectionPermissions.authorized}>
+      <LoginGate backPath={rootStore.ResolvedBackPath()} Condition={() => !sectionPermissions.authorized}>
         <div className={S("section", "section--page")}>
           <ContentComponent
             section={section}
@@ -278,7 +288,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
               }
               {
                 !showAllLink ? null :
-                  <Link to={UrlJoin(location.pathname, "s", section.slug || sectionId)} className={S("section__title-link")}>
+                  <Link to={UrlJoin(MediaPropertyBasePath(match.params), "s", section.slug || sectionId)} className={S("section__title-link")}>
                     <div>
                       { rootStore.l10n.media_properties.sections.view_all }
                     </div>
@@ -312,15 +322,12 @@ const MediaPropertySectionPage = observer(() => {
 
   const section = mediaPropertyStore.MediaPropertySection(match.params);
 
-  const navContext = new URLSearchParams(location.search).get("ctx");
-  const backPath = MediaPropertyMediaBackPath({match, navContext: (section?.isMediaList && navContext) || section?.sectionId || section?.id});
-
   if(!section) {
     return <Redirect to={backPath} />;
   }
 
   return (
-    <PageContainer backPath={backPath}>
+    <PageContainer>
       <PageBackground display={section.display} />
       <PageHeader display={section.display} className={S("section__page-header")} />
       <MediaPropertySection

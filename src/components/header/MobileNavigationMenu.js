@@ -17,6 +17,7 @@ import MetamaskIcon from "Assets/icons/metamask fox";
 import DiscoverIcon from "Assets/icons/discover.svg";
 import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
 import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
+import Modal from "Components/common/Modal";
 
 const MobileNavigationMenu = observer(({Close}) => {
   const userInfo = rootStore.loggedIn ? rootStore.walletClient.UserInfo() : {};
@@ -66,86 +67,88 @@ const MobileNavigationMenu = observer(({Close}) => {
   }
 
   return (
-    <div className="mobile-menu">
-      {
-        rootStore.loggedIn ?
-          <div className="mobile-menu__account">
-            <div className="mobile-menu__account__type">{rootStore.l10n.login.signed_in_via} {userInfo.walletType === "Custodial" ? "Email" : userInfo.walletName}</div>
-            <div className="mobile-menu__account__account">
-              {
-                userInfo.walletType === "Custodial" ?
-                  <>
-                    <ImageIcon icon={EmailIcon} className="mobile-menu__account__icon" />
-                    <div className="mobile-menu__account__email ellipsis">
-                      { userInfo.email }
-                    </div>
-                  </> :
-                  <>
-                    <ImageIcon icon={MetamaskIcon} className="mobile-menu__account__icon" />
-                    <CopyableField value={userInfo.address}>
-                      { userInfo.address }
-                    </CopyableField>
-                  </>
-              }
-            </div>
-          </div> :
-          <div className="mobile-menu__header">
-            {  marketplace ? marketplace?.branding?.name || rootStore.l10n.header.store : rootStore.l10n.profile.media_wallet }
-          </div>
-      }
-      <div className="mobile-menu__content">
+    <Modal className="mobile-navigation__modal" Toggle={() => Close()}>
+      <div className="mobile-menu">
         {
-          links.map(({name, icon, to, authed, global, separator, hidden}, index) => {
-            if(hidden || (authed && !rootStore.loggedIn)) { return null; }
-
-            if(global && rootStore.hideGlobalNavigation) { return null; }
-
-            if(separator) {
-              return <div key={`mobile-link-separator-${index}`} className="mobile-menu__separator" />;
-            }
-
-            return (
-              <MenuLink
-                icon={icon || EmailIcon}
-                to={to}
-                className="mobile-menu__link"
-                onClick={Close}
-                key={`mobile-link-${name}`}
-              >
-                { name }
-              </MenuLink>
-            );
-          })
-        }
-        {
-          rootStore.hideGlobalNavigation ? null :
-            <>
-              <div className="mobile-menu__separator" />
-              <MenuLink
-                icon={DiscoverIcon}
-                to="/"
-                onClick={Close}
-                className="mobile-menu__link"
-              >
-                { rootStore.l10n.header.discover_projects }
-              </MenuLink>
-            </>
-        }
-      </div>
-      <ButtonWithLoader
-        action={false}
-        className="mobile-menu__sign-in-button"
-        onClick={async () => {
           rootStore.loggedIn ?
-            await rootStore.SignOut() :
-            rootStore.ShowLogin();
+            <div className="mobile-menu__account">
+              <div className="mobile-menu__account__type">{rootStore.l10n.login.signed_in_via} {userInfo.walletType === "Custodial" ? "Email" : userInfo.walletName}</div>
+              <div className="mobile-menu__account__account">
+                {
+                  userInfo.walletType === "Custodial" ?
+                    <>
+                      <ImageIcon icon={EmailIcon} className="mobile-menu__account__icon" />
+                      <div className="mobile-menu__account__email ellipsis">
+                        { userInfo.email }
+                      </div>
+                    </> :
+                    <>
+                      <ImageIcon icon={MetamaskIcon} className="mobile-menu__account__icon" />
+                      <CopyableField value={userInfo.address}>
+                        { userInfo.address }
+                      </CopyableField>
+                    </>
+                }
+              </div>
+            </div> :
+            <div className="mobile-menu__header">
+              {  marketplace ? marketplace?.branding?.name || rootStore.l10n.header.store : rootStore.l10n.profile.media_wallet }
+            </div>
+        }
+        <div className="mobile-menu__content">
+          {
+            links.map(({name, icon, to, authed, global, separator, hidden}, index) => {
+              if(hidden || (authed && !rootStore.loggedIn)) { return null; }
 
-          Close();
-        }}
-      >
-        { rootStore.l10n.login[rootStore.loggedIn ? "sign_out" : "sign_in"] }
-      </ButtonWithLoader>
-    </div>
+              if(global && rootStore.hideGlobalNavigation) { return null; }
+
+              if(separator) {
+                return <div key={`mobile-link-separator-${index}`} className="mobile-menu__separator" />;
+              }
+
+              return (
+                <MenuLink
+                  icon={icon || EmailIcon}
+                  to={to}
+                  className="mobile-menu__link"
+                  onClick={Close}
+                  key={`mobile-link-${name}`}
+                >
+                  { name }
+                </MenuLink>
+              );
+            })
+          }
+          {
+            rootStore.hideGlobalNavigation ? null :
+              <>
+                <div className="mobile-menu__separator" />
+                <MenuLink
+                  icon={DiscoverIcon}
+                  to="/"
+                  onClick={Close}
+                  className="mobile-menu__link"
+                >
+                  { rootStore.l10n.header.discover_projects }
+                </MenuLink>
+              </>
+          }
+        </div>
+        <ButtonWithLoader
+          action={false}
+          className="mobile-menu__sign-in-button"
+          onClick={async () => {
+            rootStore.loggedIn ?
+              await rootStore.SignOut() :
+              rootStore.ShowLogin();
+
+            Close();
+          }}
+        >
+          { rootStore.l10n.login[rootStore.loggedIn ? "sign_out" : "sign_in"] }
+        </ButtonWithLoader>
+      </div>
+    </Modal>
   );
 });
 

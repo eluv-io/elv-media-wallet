@@ -29,6 +29,13 @@
   }
 }
 
+.nav {
+  align-items: center;
+  display: flex;
+  gap: 20px;
+  height: 100%;
+}
+
 .logo-container {
   height: 70%;
   max-width: 200px;
@@ -45,10 +52,10 @@
 .links {
   align-items: center;
   display: flex;
+  gap: 10px;
   height: 100%;
   justify-content: flex-end;
   position: relative;
-  width: 150px;
 
   :global(.header__profile) {
     position: relative;
@@ -57,9 +64,36 @@
   :global(.header__notifications-menu) {
     width: 450px;
   }
+}
 
-  @media screen and (width <= 800px) {
-    width: 75px;
+.button {
+  @include page-fade-in;
+
+  align-items: center;
+  background-color: var(--property-search-button-background);
+  border: 1px solid transparent;
+  border-radius: 100%;
+  display: flex;
+  height: 35px;
+  justify-content: center;
+  min-width: 35px;
+  transition: background-color 0.25s ease, border 0.25s ease;
+  width: 35px;
+
+  &:hover,
+  &:focus-visible,
+  &--active {
+    background-color: #525252;
+  }
+
+  &:focus-visible,
+  &--active {
+    border: 1px solid #67676a;
+  }
+
+  svg {
+    height: 40%;
+    width: 40%;
   }
 }
 
@@ -87,13 +121,26 @@
   flex: 1 1 0;
   gap: 20px;
   max-width: 800px;
+  position: relative;
+
+  &__icon {
+    height: 15px;
+    left: 10px;
+    position: absolute;
+    width: 15px;
+    z-index: 1;
+  }
+
+  @media screen and (width <= 800px) {
+    gap: 10px;
+  }
 }
 
 .search {
   flex: 1 1 0;
 
   &__filter {
-    background-color: #202023;
+    background-color: var(--property-search-button-background);
     border: 1px solid #67676a;
     border-radius: 10px;
     font-weight: 500;
@@ -164,31 +211,31 @@
   @media screen and (width <= 800px) {
     &__input,
     &__option {
-      font-size: 1.15em;
+      font-size: 0.8em;
       padding: 0 15px;
     }
 
     &__input {
+      border: 0;
       height: 30px;
-    }
-
-    &__submit {
-      padding: 8px;
+      padding-left: 35px;
     }
 
     &__filter {
       align-items: center;
+      border: 0;
+      border-radius: 15px;
       display: flex;
       font-size: 0.9em;
       height: 36px;
       justify-content: center;
-      width: 75px;
     }
   }
 }
 
 .filter {
   border-left: 1px solid #67676a;
+  padding-bottom: 50px;
 
   &,
   &__header {
@@ -260,5 +307,36 @@
 
   @media screen and (width <= 500px) {
     border: 0;
+  }
+}
+
+
+/* Mobile header */
+
+.header-mobile {
+  align-items: center;
+  background-color: black;
+  display: flex;
+  gap: 10px;
+  height: 60px;
+  justify-content: space-between;
+  padding-inline: 15px;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 2;
+
+  &:not(&--media) {
+    box-shadow: 0 0 10px black;
+  }
+
+  & > * {
+    @include page-fade-in(1s);
+  }
+
+  &__controls {
+    align-items: center;
+    display: flex;
+    gap: 10px;
   }
 }
