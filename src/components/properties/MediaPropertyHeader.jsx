@@ -258,7 +258,7 @@ const AdvancedSearch = observer(() => {
   );
 });
 
-const SearchBar = observer(() => {
+const SearchBar = observer(({autoFocus}) => {
   const [queryOptions, setQueryOptions] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [query, setQuery] = useState(new URLSearchParams(location.search).get("q") || "");
@@ -325,6 +325,7 @@ const SearchBar = observer(() => {
       }
       <Autocomplete
         ref={searchRef}
+        autoFocus={autoFocus}
         value={query}
         onChange={setQuery}
         onKeyDown={event => {
@@ -402,7 +403,7 @@ const MediaPropertyMobileHeader = observer(() => {
   if(showSearchBar) {
     return (
       <div key="header-search" className={S("header-mobile", "header-mobile--search", rootStore.routeParams.mediaItemSlugOrId ? "header-mobile--media" : "")}>
-        <SearchBar />
+        <SearchBar autoFocus />
         <button className={S("button")} onClick={() => setShowSearchBar(false)}>
           <ImageIcon icon={XIcon} label="Cancel Search" />
         </button>

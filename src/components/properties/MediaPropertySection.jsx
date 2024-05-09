@@ -26,11 +26,11 @@ const GridContentColumns = ({contentLength, aspectRatio, justification, pageWidt
     columns = 4;
   } else if(pageWidth >= 900) {
     columns = 3;
-  } else if(pageWidth >= 600) {
+  } else if(pageWidth >= 750) {
     columns = 2;
   }
 
-  if(pageWidth > 600 && aspectRatio !== "landscape") {
+  if(pageWidth > 800 && aspectRatio !== "landscape") {
     columns += 1;
   }
 
