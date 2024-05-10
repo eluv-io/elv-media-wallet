@@ -102,7 +102,7 @@ const Home = observer(({marketplaceId}) => {
 });
 
 const Links = observer(({marketplaceId}) => {
-  if(!rootStore.loggedIn) { return null; }
+  if(!rootStore.loggedIn) { return <div className={S("links")} />; }
 
   const basePath = marketplaceId ?
     UrlJoin("/marketplace", marketplaceId, "/users/me") :
