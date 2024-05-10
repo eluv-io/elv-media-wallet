@@ -223,7 +223,7 @@
   position: relative;
 
   @media screen and (width <= 800px) {
-    padding: 20px 15px 50px;
+    padding: 20px 15px 0;
   }
 }
 
@@ -236,6 +236,7 @@
     display: flex;
     font-size: 1.8em;
     font-weight: 600;
+    margin-bottom: 10px;
   }
 
   &__icons {
@@ -265,6 +266,10 @@
     font-size: 1em;
     font-weight: 600;
     gap: 20px;
+
+    * {
+      color: var(--property-text-faded);
+    }
   }
 
   &__description-container {
@@ -327,8 +332,20 @@
   }
 
   @media screen and (width <= 800px) {
+    padding-bottom: 0;
+
     &__title {
-      font-size: 1.4em;
+      font-size: 1.3em;
+    }
+
+    &__icons {
+      margin-right: 10px;
+    }
+
+    &__icon {
+      height: 30px;
+      min-width: 30px;
+      width: 30px;
     }
   }
 }

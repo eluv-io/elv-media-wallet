@@ -186,7 +186,7 @@ const AutoComplete = ({
 
           setSelectedOption(matchingOptions[newOptionIndex]);
         }}
-        className="autocomplete__input"
+        className={`autocomplete__input ${showSuggestions ? "autocomplete__input--with-options" : ""}`}
       />
       <div
         id={`${id}-options`}

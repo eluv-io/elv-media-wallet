@@ -4,7 +4,8 @@ $search-height: 50px;
 .filters {
   display: flex;
   justify-content: center;
-  margin-bottom: 10px;
+  margin-bottom: 30px;
+  padding-bottom: 10px;
   width: 100%;
 
   &__controls {
@@ -25,17 +26,6 @@ $search-height: 50px;
   &__select {
     height: $controls-height;
     min-width: 300px;
-  }
-
-  &__select-container--main {
-    .styled-select__button {
-      border: 0;
-      transition: background-color 0.15s ease;
-
-      &:not(&--active) {
-        background-color: transparent;
-      }
-    }
   }
 
   &__select-container {
@@ -76,10 +66,6 @@ $search-height: 50px;
       &::placeholder {
         color: #fff;
       }
-    }
-
-    &__options {
-      top: calc(#{$search-height} + 3px);
     }
 
     &__option {
@@ -126,6 +112,14 @@ $search-height: 50px;
     padding: 12px;
     position: absolute;
     width: 65px;
+  }
+
+  &__search-border {
+    background: linear-gradient(90deg, #292929, #000);
+    bottom: -10px;
+    height: 1px;
+    position: absolute;
+    width: 100%;
   }
 
   &__menu {
@@ -264,6 +258,10 @@ $search-height: 50px;
       width: 100%;
     }
 
+    &__search-container {
+      margin-bottom: 10px;
+    }
+
     &__search {
       input {
         font-size: 16px;
@@ -275,17 +273,21 @@ $search-height: 50px;
     }
 
     &__search-button {
-      height: 50%;
-      min-width: 35px;
+      height: 25px;
+      min-width: 25px;
       padding: 0;
-      right: 5px;
-      width: 35px;
+      left: 8px;
+      width: 25px;
     }
 
     .autocomplete__clear-button {
       height: 50%;
       padding: 0;
-      right: 40px;
+      right: 10px;
+    }
+
+    .autocomplete__input {
+      padding-inline: 50px;
     }
 
     &__menu {

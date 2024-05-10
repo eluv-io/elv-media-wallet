@@ -46,7 +46,6 @@ const MobileNavigationMenu = observer(({Close}) => {
           ]
       ),
       { name: rootStore.l10n.header.profile, icon: ProfileIcon, to: UrlJoin(basePath, "/users/me/details"), authed: true },
-      { name: rootStore.l10n.navigation.notifications, icon: NotificationsIcon, to: UrlJoin(basePath, "users", "me", "notifications"), authed: true },
     ];
   } else {
     const tabs = marketplace?.branding?.tabs || {};

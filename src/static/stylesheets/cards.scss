@@ -23,6 +23,10 @@
     margin: 0 auto;
     max-width: 350px;
   }
+
+  @media screen and (width <= 600px) {
+    grid-template-columns: repeat(auto-fill, minmax(325px, 1fr));
+  }
 }
 
 .card-container {

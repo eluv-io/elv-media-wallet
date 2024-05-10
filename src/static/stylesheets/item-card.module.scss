@@ -6,6 +6,10 @@
   min-width: 350px;
   overflow: hidden;
   width: 100%;
+
+  @media screen and (width <= 600px) {
+    min-width: 325px;
+  }
 }
 
 .item-card {

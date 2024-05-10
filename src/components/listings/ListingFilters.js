@@ -5,8 +5,6 @@ import {rootStore} from "Stores";
 import AutoComplete from "Components/common/AutoComplete";
 import {ButtonWithLoader, Select} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
-
-import SearchIcon from "Assets/icons/search.svg";
 import FilterIcon from "Assets/icons/filter icon.svg";
 import ClearIcon from "Assets/icons/x.svg";
 import {SavedValue} from "../../utils/Utils";
@@ -181,6 +179,8 @@ const DateRange = observer(({label, value, onChange}) => {
 });
 
 const FilterSelect = observer(({label, value, options, optionLabelPrefix="", onChange, placeholder, className=""}) => {
+
+
   return (
     <Select
       label={label}
@@ -648,15 +648,16 @@ export const ListingFilters = observer(({mode="listings", initialFilters, Update
         <AutoComplete
           className="filters__search"
           key={`autocomplete-${filterOptionsLoaded}-${savedOptionsLoaded}-${renderIndex}`}
-          placeholder={rootStore.l10n.filters.filter}
+          placeholder={rootStore.l10n.filters.filter_placeholder}
           value={filterValues.filter}
           onChange={value => setFilterValues({...filterValues, filter: value, editionFilters: []})}
           onEnterPressed={async () => await Update(true)}
           options={filterOptions}
         />
         <ButtonWithLoader onClick={async () => await Update(true)} className="filters__search-button">
-          <ImageIcon icon={SearchIcon} label={rootStore.l10n.filters.search} />
+          <ImageIcon icon={FilterIcon} label={rootStore.l10n.filters.search} />
         </ButtonWithLoader>
+        <div className="filters__search-border" />
       </div>
       <div className="filters__controls">
         <FilterSelect

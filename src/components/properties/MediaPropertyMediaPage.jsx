@@ -25,15 +25,22 @@ const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 /* Video */
 
 const MediaVideo = observer(({mediaItem, display}) => {
+  const match = useRouteMatch();
   const [scheduleInfo, setScheduleInfo] = useState(MediaItemScheduleInfo(mediaItem));
   const [error, setError] = useState();
   const icons = (display.icons || []).filter(({icon}) => !!icon?.url);
+  const page = mediaPropertyStore.MediaPropertyPage(match.params);
+  const backgroundImage = SetImageUrlDimensions({
+    url: (rootStore.pageWidth <= 800 && page?.layout?.background_image_mobile?.url) || page?.layout?.background_image?.url,
+    width: rootStore.fullscreenImageWidth
+  });
   const {imageUrl} = MediaItemImageUrl({mediaItem, display: mediaItem, aspectRatio: "square", width: rootStore.fullscreenImageWidth});
 
   if(scheduleInfo.isLiveContent && !scheduleInfo.started) {
+    // Upcoming
     return (
       <div className={S("media__error", "media__error--countdown")}>
-        <LoaderImage src={imageUrl} className={S("media__error-image")} />
+        <LoaderImage src={backgroundImage || imageUrl} className={S("media__error-image")} />
         <div className={S("media__error-cover")} />
         {
           icons.length === 0 ? null :

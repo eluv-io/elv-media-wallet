@@ -54,7 +54,7 @@ login:
     errors:
       invalid_credentials: Invalid Credentials
       invalid_verification_code: Invalid Verification Code
-      invalid_recovery_email: This recovery code is no longer valid. Please enter your email above to request a new code.
+      invalid_recovery_email: The link you used is no longer valid. Please enter your email address to obtain a recovery code.
       invalid_email: Invalid Email
       invalid_password_confirmation: Password confirmation must match password
 
@@ -413,6 +413,7 @@ tables:
 filters:
   all_filters: All Filters
   filter: Filter
+  filter_placeholder: Type to Filter
   search: Search
   search_projects: Search Projects
   search_projects_ext: Video, Music, Audio, E-book and App

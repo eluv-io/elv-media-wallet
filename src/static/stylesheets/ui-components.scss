@@ -15,37 +15,40 @@
   &__button,
   &__page,
   &__ellipsis {
-    border-radius: 100%;
-    color: var(--color-text-secondary);
+    align-items: center;
+    border: 1px solid #18181b;
+    border-radius: 5px;
+    color: #747578;
     cursor: pointer;
+    display: flex;
     font-size: 14px;
-    height: 2em;
+    height: 40px;
+    justify-content: center;
     margin: 0 5px;
     text-align: center;
-    width: 2em;
+    transition: border 0.25s ease, color 0.25s ease;
+    width: 40px;
 
+    * {
+      color: #747579;
+      transition: color 0.25s ease;
+    }
+
+    &:hover,
+    &:focus-visible,
     &--current {
-      color: var(--color-text-highlight);
+      border: 1px solid #a6a6a6;
+      color: #fff;
+
+      * {
+        color: #fff;
+      }
     }
 
     &:not(&--current) {
       &:disabled {
         opacity: 0.2;
       }
-    }
-
-    &--previous {
-      margin-right: 10px;
-    }
-
-    &--next {
-      margin-left: 10px;
-    }
-
-    &--next,
-    &--previous {
-      height: 2.5em;
-      width: 2.5em;
     }
 
     svg {
@@ -60,8 +63,8 @@
   }
 
   &__ellipsis {
+    border: 0;
     cursor: default;
-    height: auto;
     user-select: none;
   }
 
@@ -359,6 +362,10 @@
 }
 
 .autocomplete {
+  --autocomplete-background: #000;
+  --autocomplete-background-active: #4c4c4c;
+  --autocomplete-border: #4c4c4c;
+
   align-items: center;
   display: flex;
   position: relative;
@@ -378,35 +385,45 @@
       width: auto;
 
       * {
-        color: var(--color-input-text);
+        color: #FFF;
       }
     }
   }
 
   &__input {
     background-color: transparent;
-    border: 0;
+    border: 1px solid transparent;
+    border-radius: 10px;
     height: 35px;
     overflow: hidden;
     padding: 0 15px;
     text-overflow: ellipsis;
-    transition: background-color 0.25s ease;
+    transition: background-color 0.25s ease, border 0.25s ease;
     white-space: nowrap;
 
     &:active,
     &:focus-visible {
-      background-color: var(--background-input);
+      border: 1px solid var(--autocomplete-border);
+      box-shadow: none;
+    }
+
+    &--with-options {
+      border-bottom: 1px solid transparent!important;
+      border-radius: 10px 10px 0 0;
     }
   }
 
   &__options {
-    background: var(--color-input-bg-solid);
-    border: var(--border-input);
+    background: var(--autocomplete-background);
+    border: 1px solid var(--autocomplete-border);
+    border-radius: 0 0 10px 10px;
+    border-top: 0;
     max-height: 200px;
     opacity: 1;
     overflow-y: auto;
+    overscroll-behavior-y: none;
     position: absolute;
-    top: 38px;
+    top: calc(100%);
     width: 100%;
     z-index: 1;
 
@@ -424,14 +441,13 @@
 
     &:not(.autocomplete__option-selected) {
       &:hover {
-        background-color: var(--color-input-hover-bg);
+        background-color: var(--autocomplete-background-active);
       }
     }
   }
 
   &__option-selected {
-    background-color: var(--color-input-highlight-bg);
-    color: var(--color-input-highlight-text);
+    background-color: var(--autocomplete-background-active);
   }
 }
 
@@ -439,15 +455,20 @@
   display: block;
   position: relative;
 
+  --select-background: #000;
+  --select-background-active: #4c4c4c;
+  --select-border: #4c4c4c;
+
   * {
     font: var(--font-input);
+    font-weight: 600;
   }
 
   &__button {
     align-items: center;
-    background: var(--background-input);
-    border: var(--border-input);
-    border-radius: var(--border-radius-input);
+    background: var(--select-background);
+    border: 1px solid var(--select-border);
+    border-radius: 10px;
     cursor: pointer;
     display: block;
     overflow: hidden;
@@ -460,7 +481,7 @@
     width: 100%;
 
     * {
-      color: var(--color-input-text);
+      color: #FFF;
     }
 
     &__icon-container {
@@ -479,11 +500,8 @@
     }
 
     &--active {
-      border-radius: var(--border-radius-input) var(--border-radius-input) 0 0;
-    }
-
-    &:focus-visible {
-      border: var(--outline-input-focus);
+      border-bottom: 1px solid transparent;
+      border-radius: 10px 10px 0 0;
     }
 
     &:disabled {
@@ -492,17 +510,16 @@
   }
 
   &__menu {
-    @include page-fade-in(0.25s, ease);
-
-    background: var(--color-input-bg-solid);
-    border: var(--border-input);
-    border-radius: 0 0 var(--border-radius-input) var(--border-radius-input);
+    background: var(--select-background);
+    border: 1px solid var(--select-border);
+    border-radius: 0 0 10px 10px;
+    border-top: 0;
     box-shadow: 0 10px 5px rgb(0 0 0 / 90%);
     max-height: 300px;
     overflow: auto;
     overflow-x: hidden;
     position: absolute;
-    top: calc(100% + 1px);
+    top: calc(100% - 1px);
     width: 100%;
     z-index: 2;
 
@@ -515,8 +532,8 @@
       width: 100%;
 
       &--selected {
-        background: var(--color-input-highlight-bg);
-        color: var(--color-input-highlight-text);
+        background: var(--select-background-active);
+        color: #FFF;
       }
     }
   }
