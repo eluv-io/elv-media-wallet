@@ -16,7 +16,7 @@ import CheckIcon from "Assets/icons/check.svg";
 import OryLogin from "Components/login/OryLogin";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
-const useOry = searchParams.has("ory") || !!searchParams.has("flow");
+const useOry = true || searchParams.has("ory") || !!searchParams.has("flow");
 const params = {
   // If we've just come back from Auth0
   isAuth0Callback: searchParams.has("code"),

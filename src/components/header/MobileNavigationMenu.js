@@ -36,6 +36,7 @@ const MobileNavigationMenu = observer(({Close}) => {
   if(!marketplace) {
     links = [
       { name: rootStore.l10n.navigation.items, icon: ItemsIcon, to: UrlJoin(basePath, "users", "me", "items"), authed: true },
+      /*
       ...(
         rootStore.routeParams.mediaPropertySlugOrId ? [] :
           [
@@ -45,6 +46,8 @@ const MobileNavigationMenu = observer(({Close}) => {
             { separator: true, authed: true },
           ]
       ),
+
+       */
       { name: rootStore.l10n.header.profile, icon: ProfileIcon, to: UrlJoin(basePath, "/users/me/details"), authed: true },
     ];
   } else {

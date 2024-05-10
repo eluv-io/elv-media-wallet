@@ -83,7 +83,7 @@ const MediaPropertyPage = observer(() => {
   }
 
   return (
-    <PageContainer className={S("page")}>
+    <PageContainer className={S("page", "property-page")}>
       <PageBackground display={page.layout} />
       <PageHeader
         display={page.layout}

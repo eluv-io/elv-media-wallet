@@ -136,6 +136,8 @@ class MediaPropertyStore {
         }));
     }
 
+    results = results.filter(({mediaItem}) => mediaItem?.authorized || mediaItem?.public);
+
     // Filter
     const hasDateFilter = !!(this.searchOptions.startTime || this.searchOptions.endTime);
     let select = {

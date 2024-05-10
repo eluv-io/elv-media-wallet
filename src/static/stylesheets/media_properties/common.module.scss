@@ -212,16 +212,9 @@
       max-height: 200px;
     }
 
-    &__title {
-      text-align: center;
-    }
-
     &__description {
       font-size: 14px;
-
-      * {
-        text-align: center;
-      }
+      text-align: left;
     }
   }
 }
@@ -301,10 +294,14 @@
 
 .rich-text {
   display: grid;
+  font-size: 16px;
   gap: 0.8em;
 
   h1,
-  h2 {
+  h2,
+  h3,
+  h4,
+  h5 {
     font-weight: 600;
   }
 
@@ -326,7 +323,7 @@
   }
 
   h3 {
-    font-size: 1.5em;
+    font-size: 1.6em;
   }
 
   h4 {
@@ -334,11 +331,11 @@
   }
 
   h5 {
-    font-size: 1.1em;
+    font-size: 1.2em;
   }
 
   p {
-    font-size: 1em;
+    font-size: 1.2em;
   }
 
   strong {
@@ -404,6 +401,24 @@
 
   @media screen and (width <= 1000px) {
     font-size: 14px;
+
+    h1 {
+      font-size: 2.5em;
+    }
+
+    h2 {
+      font-size: 1.6em;
+    }
+
+    h3 {
+      font-size: 1.4em;
+    }
+
+    h4,
+    h5,
+    p {
+      font-size: 1.1em;
+    }
   }
 }
 
