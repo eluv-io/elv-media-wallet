@@ -1,19 +1,21 @@
+import HeaderMenuStyles from "Assets/stylesheets/header-menus.module.scss";
+
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
-import {ButtonWithLoader, Copy, MenuLink} from "Components/common/UIComponents";
+import {ButtonWithLoader, Linkish} from "Components/common/UIComponents";
 import UrlJoin from "url-join";
 import PreferencesMenu from "Components/header/PreferencesMenu";
 import HoverMenu from "Components/common/HoverMenu";
 
-import EmailIcon from "Assets/icons/email icon";
-import MetamaskIcon from "Assets/icons/metamask fox";
 import ProfileIcon from "Assets/icons/header/profile icon v2";
-import CopyIcon from "Assets/icons/copy";
 import ItemsIcon from "Assets/icons/header/items icon";
 import DiscoverIcon from "Assets/icons/discover.svg";
 import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
+
+
+const S = (...classes) => classes.map(c => HeaderMenuStyles[c] || "").join(" ");
 
 const ProfileMenu = observer(({Hide}) => {
   const [showPreferencesMenu, setShowPreferencesMenu] = useState(false);
@@ -22,8 +24,6 @@ const ProfileMenu = observer(({Hide}) => {
   const fullMarketplace = marketplaceId ? rootStore.marketplaces[marketplaceId] : null;
   const tabs = fullMarketplace?.branding?.tabs || {};
   const userInfo = rootStore.walletClient.UserInfo();
-
-  const IsActive = (page="") => (_, location) => rootStore.loggedIn && (location.pathname.includes(`/users/me/${page}`) || location.pathname.includes(`/users/${rootStore.CurrentAddress()}/${page}`));
 
   useEffect(() => {
     window.__headerSubmenuActive = showPreferencesMenu;
@@ -37,77 +37,61 @@ const ProfileMenu = observer(({Hide}) => {
   }
 
   return (
-    <HoverMenu className="header__menu header__profile-menu" Hide={Hide}>
-      <div className="header__profile-menu__info">
-        <div className="header__profile-menu__info__type">{ rootStore.l10n.login.signed_in_via } {userInfo.walletType === "Custodial" ? "Email" : userInfo.walletName}</div>
-        <div className="header__profile-menu__info__account">
-          {
-            userInfo.walletType === "Custodial" ?
-              <>
-                <ImageIcon icon={EmailIcon} />
-                <div className="header__profile-menu__info__email ellipsis">
-                  { userInfo.email }
-                </div>
-              </> :
-              <>
-                <ImageIcon icon={MetamaskIcon} />
-                <div className="header__profile-menu__info__address ellipsis">
-                  { userInfo.address }
-                </div>
-                <button onClick={() => Copy(userInfo.address)} className="header__profile-menu__info__address-copy">
-                  <ImageIcon alt="Copy Address" icon={CopyIcon} />
-                </button>
-              </>
-          }
+    <HoverMenu className={S("header-menu", "profile-menu")} Hide={Hide}>
+      <div className={S("profile-menu__user")}>
+        <div className={S("profile-menu__user-method")}>
+          { rootStore.l10n.login.signed_in }
+        </div>
+        <div className={S("profile-menu__user-address")}>
+          { userInfo.email || userInfo.address }
         </div>
       </div>
-      <div className="header__profile-menu__links">
-        <MenuLink
-          icon={ItemsIcon}
-          className="header__profile-menu__link"
+      <div className={S("profile-menu__links")}>
+        <Linkish
           to={UrlJoin(basePath, "users", "me", "items")}
           onClick={Hide}
-          isActive={IsActive("items")}
+          className={S("profile-menu__link")}
         >
+          <ImageIcon icon={ItemsIcon} label="Items" />
           {tabs.my_items || rootStore.l10n.navigation.items }
-        </MenuLink>
-
-
-        <MenuLink
-          icon={ProfileIcon}
-          className="header__profile-menu__link"
+        </Linkish>
+        <Linkish
           to={UrlJoin(basePath, "users", "me", "details")}
           onClick={Hide}
+          className={S("profile-menu__link")}
         >
+          <ImageIcon icon={ProfileIcon} label="Items" />
           { rootStore.l10n.navigation.profile }
-        </MenuLink>
+        </Linkish>
 
         {
-          rootStore.hideGlobalNavigation || (marketplaceId && rootStore.hideGlobalNavigationInMarketplace)  ? null :
+          rootStore.hideGlobalNavigation ||
+          (marketplaceId && rootStore.hideGlobalNavigationInMarketplace) ? null :
             <>
-              <div className="header__profile-menu__separator"/>
-              <MenuLink
-                icon={DiscoverIcon}
+              <div className={S("profile-menu__separator")} />
+              <Linkish
                 to="/"
-                exact
                 onClick={Hide}
-                className="header__profile-menu__link header__profile-menu__link-secondary"
+                className={S("profile-menu__link")}
               >
+                <ImageIcon icon={DiscoverIcon} label="Items"/>
                 { rootStore.l10n.header.discover }
-              </MenuLink>
+              </Linkish>
             </>
         }
       </div>
-      <ButtonWithLoader
-        action={false}
-        onClick={async () => {
-          await rootStore.SignOut();
-          Hide();
-        }}
-        className="header__profile-menu__log-out-button"
-      >
-        { rootStore.l10n.login.sign_out }
-      </ButtonWithLoader>
+      <div className={S("header-menu__actions")}>
+        <ButtonWithLoader
+          action={false}
+          onClick={async () => {
+            await rootStore.SignOut();
+            Hide();
+          }}
+          className={S("header-menu__action")}
+        >
+          { rootStore.l10n.login.sign_out }
+        </ButtonWithLoader>
+      </div>
       {
         showPreferencesMenu ?
           <PreferencesMenu

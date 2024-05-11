@@ -14,14 +14,12 @@ import {DatePickerInput} from "@mantine/dates";
 import {Button} from "Components/properties/Common";
 import ProfileMenu from "Components/header/ProfileMenu";
 import {NotificationsMenu} from "Components/header/NotificationsMenu";
-import MobileNavigationMenu from "Components/header/MobileNavigationMenu";
 
 import SearchIcon from "Assets/icons/search.svg";
 import LeftArrowIcon from "Assets/icons/left-arrow.svg";
 import XIcon from "Assets/icons/x.svg";
-import MobileMenuIcon from "Assets/icons/menu.svg";
+import MenuIcon from "Assets/icons/menu.svg";
 import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
-import UserIcon from "Assets/icons/profile.svg";
 
 
 const S = (...classes) => classes.map(c => HeaderStyles[c] || "").join(" ");
@@ -366,7 +364,6 @@ const SearchBar = observer(({autoFocus}) => {
 const HeaderLinks = observer(() => {
   const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
   const [showUserProfileMenu, setShowUserProfileMenu] = useState(false);
-  const [showMobileNavigationMenu, setShowMobileNavigationMenu] = useState(false);
 
   if(!rootStore.loggedIn) {
     return (
@@ -379,19 +376,14 @@ const HeaderLinks = observer(() => {
       <>
         { !showNotificationsMenu ? null : <NotificationsMenu Hide={() => setShowNotificationsMenu(false)} /> }
         { !showUserProfileMenu ? null : <ProfileMenu Hide={() => setShowUserProfileMenu(false)} /> }
-        { !showMobileNavigationMenu ? null : <MobileNavigationMenu Close={() => setShowMobileNavigationMenu(false)} /> }
         <button className={S("button", showNotificationsMenu ? "button--active" : "")} onClick={() => setShowNotificationsMenu(!showNotificationsMenu)}>
-          <ImageIcon icon={NotificationsIcon} label={showNotificationsMenu ? "Hide Notifications" : "Show Notifications"} />
+          <ImageIcon icon={NotificationsIcon} label="Show Notifications" className={S("button__icon")} />
+          <ImageIcon icon={XIcon} label="Hide Notifications" className={S("button__icon-close")} />
         </button>
-        {
-          rootStore.pageWidth > 800 ?
-            <button className={S("button", showUserProfileMenu ? "button--active" : "")} onClick={() => setShowUserProfileMenu(!showUserProfileMenu)}>
-              <ImageIcon icon={UserIcon} label="Show Profile Menu" />
-            </button> :
-            <button className={S("button", showMobileNavigationMenu ? "button--active" : "")} onClick={() => setShowMobileNavigationMenu(true)}>
-              <ImageIcon icon={MobileMenuIcon} label="Show Navigation Menu" />
-            </button>
-        }
+        <button className={S("button", showUserProfileMenu ? "button--active" : "")} onClick={() => setShowUserProfileMenu(!showUserProfileMenu)}>
+          <ImageIcon icon={MenuIcon} label="Show Profile Menu" className={S("button__icon")} />
+          <ImageIcon icon={XIcon} label="Hide Profile Menu" className={S("button__icon-close")} />
+        </button>
       </>
     );
   }
@@ -405,7 +397,7 @@ const MediaPropertyMobileHeader = observer(() => {
       <div key="header-search" className={S("header-mobile", "header-mobile--search", rootStore.routeParams.mediaItemSlugOrId ? "header-mobile--media" : "")}>
         <SearchBar autoFocus />
         <button className={S("button")} onClick={() => setShowSearchBar(false)}>
-          <ImageIcon icon={XIcon} label="Cancel Search" />
+          <ImageIcon icon={XIcon} label="Cancel Search" className={S("button__icon")} />
         </button>
       </div>
     );
@@ -417,11 +409,11 @@ const MediaPropertyMobileHeader = observer(() => {
         {
           !rootStore.backPath ? null :
             <Linkish style={{paddingRight: "2px"}} className={S("button")} to={rootStore.ResolvedBackPath()}>
-              <ImageIcon icon={LeftArrowIcon} label="Go Back" />
+              <ImageIcon icon={LeftArrowIcon} label="Go Back" className={S("button__icon")} />
             </Linkish>
         }
         <button className={S("button")} onClick={() => setShowSearchBar(true)}>
-          <ImageIcon icon={SearchIcon} label="Search" />
+          <ImageIcon icon={SearchIcon} label="Search" className={S("button__icon")} />
         </button>
       </div>
       <div className={S("links")}>
@@ -456,7 +448,7 @@ const MediaPropertyHeader = observer(() => {
         {
           !rootStore.backPath ? null :
             <Linkish style={{paddingRight: "2px"}} className={S("button")} to={rootStore.ResolvedBackPath()}>
-              <ImageIcon icon={LeftArrowIcon} label="Go Back" />
+              <ImageIcon icon={LeftArrowIcon} label="Go Back" className={S("button__icon")} />
             </Linkish>
         }
         <Link

@@ -3,10 +3,12 @@ import {observer} from "mobx-react";
 
 window.__activeMenues = 0;
 
-const HoverMenu = observer(({children, Hide, className="", ...props}) => {
+const HoverMenu = observer(({children, Hide, className="", setRef, ...props}) => {
   const menuRef = useRef();
 
   useEffect(() => {
+    setRef && setRef(menuRef);
+
     if(!menuRef || !menuRef.current) { return; }
 
     window.__activeMenues += 1;

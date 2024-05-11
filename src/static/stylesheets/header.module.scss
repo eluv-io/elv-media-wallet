@@ -99,7 +99,7 @@
 .user-links {
   align-items: center;
   display: flex;
-  gap: 10px;
+  gap: 15px;
   justify-content: flex-end;
   position: relative;
   width: 300px;
@@ -116,6 +116,7 @@
   height: 35px;
   justify-content: center;
   min-width: 35px;
+  position: relative;
   transition: background-color 0.25s ease, border 0.25s ease;
   width: 35px;
 
@@ -130,9 +131,27 @@
     border: 1px solid #67676a;
   }
 
-  svg {
-    height: 45%;
-    width: 45%;
+  &__icon,
+  &__icon-close {
+    height: 50%;
+    position: absolute;
+    transition: opacity 0.1s ease;
+    width: 50%;
+  }
+
+  &__icon-close {
+    opacity: 0;
+    stroke-width: 3px;
+  }
+
+  &--active {
+    .button__icon {
+      opacity: 0;
+    }
+
+    .button__icon-close {
+      opacity: 1;
+    }
   }
 }
 
@@ -149,6 +168,35 @@
   @media screen and (width <= 800px) {
     font-size: 0.9em;
     height: 36px;
+  }
+}
+
+
+@media screen and (width <= 1200px) {
+  .home,
+  .user-links {
+    flex-grow: 1;
+    width: max-content;
+  }
+
+  .links {
+    display: none;
+  }
+}
+
+@media screen and (width <= 800px) {
+  .header {
+    padding: 20px;
+  }
+
+  .home {
+    &__title {
+      font-size: 18px;
+    }
+
+    &__subtitle {
+      font-size: 10px;
+    }
   }
 }
 
@@ -208,44 +256,13 @@
   }
 
   @media screen and (width <= 800px) {
+    border-bottom: 0;
+    bottom: 0;
     padding: 20px 60px 20px 20px;
+    top: unset;
 
     &__close-button {
       right: 20px;
     }
-  }
-}
-
-@media screen and (width <= 1200px) {
-  .home,
-  .user-links {
-    flex-grow: 1;
-    width: max-content;
-  }
-
-  .links {
-    display: none;
-  }
-}
-
-@media screen and (width <= 800px) {
-  .header {
-    padding: 20px;
-  }
-
-  .home {
-    &__title {
-      font-size: 18px;
-    }
-
-    &__subtitle {
-      font-size: 10px;
-    }
-  }
-
-  .notification-banner {
-    border-bottom: 0;
-    bottom: 0;
-    top: unset;
   }
 }

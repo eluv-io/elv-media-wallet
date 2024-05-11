@@ -1,10 +1,12 @@
+import HeaderMenuStyles from "Assets/stylesheets/header-menus.module.scss";
+import NotificationStyles from "Assets/stylesheets/notifications.module.scss";
+
 import React, {useEffect, useState, useRef} from "react";
 import {observer} from "mobx-react";
 import {rootStore, notificationStore} from "Stores";
-import {FormatPriceString, LocalizeString} from "Components/common/UIComponents";
+import {ButtonWithLoader, FormatPriceString, Linkish, LocalizeString} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import {Ago} from "../../utils/Utils";
-import {Loader} from "Components/common/Loaders";
 import UrlJoin from "url-join";
 import {Link} from "react-router-dom";
 import Utils from "@eluvio/elv-client-js/src/Utils";
@@ -24,48 +26,58 @@ import MenuIcon from "Assets/icons/more-horizontal.svg";
 import NotificationDisabledIcon from "Assets/icons/header/bell-off.svg";
 import CheckmarkIcon from "Assets/icons/check.svg";
 
+const S = (...classes) => classes.map(c => HeaderMenuStyles[c] || NotificationStyles[c] || "").join(" ");
+
 const NotificationMenu = observer(({notification, parent, Hide}) => {
   const [disabling, setDisabling] = useState(false);
 
-  const containerBox = parent?.current?.closest(".notifications")?.getBoundingClientRect() || {};
-  const parentBox = parent?.current?.getBoundingClientRect() || {};
+  const [ref, setRef] = useState(undefined);
+  const menuBox = ref?.current?.getBoundingClientRect();
+  const parentBox = parent?.current?.getBoundingClientRect();
 
   useEffect(() => {
     if(!parent.current) { return; }
 
-    const list = parent.current.closest(".notifications__list");
+    document.addEventListener("scroll", Hide);
+    parent.current.parentElement.addEventListener("scroll", Hide);
 
-    list?.addEventListener("scroll", Hide);
-
-    return () => list?.removeEventListener("scroll", Hide);
+    return () => {
+      document.removeEventListener("scroll", Hide);
+      parent?.current && parent.current.parentElement.removeEventListener("scroll", Hide);
+    };
   }, [parent]);
+
 
   return (
     createPortal(
       <HoverMenu
         Hide={Hide}
-        className="notification-menu"
-        style={{
-          top: parentBox.top - containerBox.top + parentBox.height / 2 - 10,
-          left: parentBox.left - containerBox.left + parentBox.width - 200 - 30
-        }}
+        setRef={setRef}
+        className={S("notification__menu")}
+        style={
+          !menuBox || !parentBox ? null :
+            {
+              left: parentBox.left + parentBox.width - menuBox.width - 50,
+              top: parentBox.top - document.body.getBoundingClientRect().top + document.body.scrollTop + 55
+            }
+        }
       >
         {
-          notificationStore.NotificationUnread(notification) ?
+          !notificationStore.NotificationUnread(notification) ? null :
             <button
               onClick={() => {
                 notificationStore.MarkNotificationRead(notification.id);
                 Hide();
               }}
-              className="notification-menu__button"
+              className={S("notification__menu__button")}
             >
-              <ImageIcon icon={CheckmarkIcon} className="notification-menu__button__icon"/>
-              <div className="notification-menu__button__text">
+              <ImageIcon icon={CheckmarkIcon} className={S("notification__menu__button-icon")}/>
+              <div className={S("notification__menu__button-text")}>
                 { rootStore.l10n.notifications.mark_as_read }
               </div>
-            </button> : null
+            </button>
         }
-        <button
+        <ButtonWithLoader
           onClick={async () => {
             if(disabling) { return; }
 
@@ -78,18 +90,16 @@ const NotificationMenu = observer(({notification, parent, Hide}) => {
               Hide();
             }
           }}
-          className="notification-menu__button"
+          className={S("notification__menu__button")}
         >
-          <ImageIcon icon={NotificationDisabledIcon} className="notification-menu__button__icon" />
-          <div className="notification-menu__button__text">
-            <div className={`notification-menu__button__text-content ${disabling ? "notification-menu__button__text-content--loading" : ""}`}>
-              { LocalizeString(rootStore.l10n.notifications.disable, {type: rootStore.l10n.notifications[notification.type.toLowerCase()] || "these"}) }
-            </div>
-            { disabling ? <Loader loader="inline" /> : null }
+          <ImageIcon icon={NotificationDisabledIcon} className={S("notification__menu__button-icon")}/>
+
+          <div className={S("notification__menu__button-text")}>
+            { LocalizeString(rootStore.l10n.notifications.disable, {type: rootStore.l10n.notifications[notification.type.toLowerCase()] || "these"}) }
           </div>
-        </button>
+        </ButtonWithLoader>
       </HoverMenu>,
-      parent?.current?.closest(".notifications")
+      document.body
     )
   );
 });
@@ -200,34 +210,26 @@ const Notification = observer(({notification, Hide}) => {
 
   if(!valid) { return null; }
 
-  let notificationInfo = (
-    <>
-      <div className="notification__heading">
-        <h2 className="notification__header">
-          { header }
-        </h2>
-      </div>
-      <div className="notification__message">{ message }</div>
-      { notification.created ? <div className="notification__time">{ Ago(notification.created * 1000) }</div> : null }
-    </>
-  );
-
-  notificationInfo = link ?
-    <Link to={link} onClick={Hide} className="notification__info">
-      { notificationInfo }
-    </Link> :
-    <div className="notification__info">
-      { notificationInfo }
-    </div>;
-
   return (
-    <div className="notification" ref={ref}>
-      <div className="notification__icon-container">
-        <ImageIcon icon={icon} className="notification__icon" label={header} />
+    <div className={S("notification")} ref={ref}>
+      <div className={S("notification__icon-container")}>
+        <ImageIcon icon={icon} className={S("notification__icon")} label={header} />
       </div>
-      { notificationInfo }
-      <div className="notification__actions">
-        { notificationStore.NotificationUnread(notification) ? <div className="notification__indicator-container"><div className="notification__indicator" /></div> : null }
+      <Linkish to={link} onClick={Hide} className={S("notification__info")}>
+        <div className={S("notification__header")}>
+          { header }
+        </div>
+        <div className={S("notification__message")}>{ message }</div>
+        {
+          !notification.created ? null :
+            <div className={S("notification__time")}>{Ago(notification.created * 1000)}</div>
+        }
+      </Linkish>
+      <div className={S("notification__actions")}>
+        {
+          !notificationStore.NotificationUnread(notification) ? null :
+            <div className={S("notification__indicator")}/>
+        }
         {
           notification.type === "__NO_NOTIFICATIONS" ? null :
             <button
@@ -237,7 +239,7 @@ const Notification = observer(({notification, Hide}) => {
 
                 setShowMenu(!showMenu);
               }}
-              className={`notification__menu-button ${showMenu ? "active" : ""}`}
+              className={S("notification__menu-button",showMenu ? "notification__menu-button--active" : "")}
             >
               <ImageIcon icon={MenuIcon} label="Options"/>
             </button>
@@ -256,38 +258,23 @@ const Notification = observer(({notification, Hide}) => {
 });
 
 
-const Notifications = observer(({headerMenu, Hide}) => {
+const Notifications = observer(({Hide}) => {
   const perPage = 10;
-  const [loading, setLoading] = useState(!headerMenu);
+  const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState([]);
   const [page, setPage] = useState(0);
-  const [more, setMore] = useState(true);
-  const [onlyNew, setOnlyNew] = useState(headerMenu);
+  const [more, setMore] = useState(false);
+  const [onlyNew, setOnlyNew] = useState(true);
   const [showPreferences, setShowPreferences] = useState(false);
 
   const filteredNotifications = notifications.filter(notification => !onlyNew || notificationStore.NotificationUnread(notification));
-
-  let basePath = "/wallet";
-  if(rootStore.routeParams.marketplaceId) {
-    basePath = UrlJoin("/marketplace", rootStore.routeParams.marketplaceId);
-  } else if(rootStore.routeParams.mediaPropertySlugOrId) {
-    basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: true});
-  }
 
   useEffect(() => {
     return () => notificationStore.SetNotificationMarker({id: notificationStore.notifications[0]?.id});
   }, []);
 
   useEffect(() => {
-    // Header menu - Only show rootStore.notifications
-    if(!headerMenu) { return; }
-
-    setNotifications(notificationStore.notifications);
-  }, [notificationStore.notifications]);
-
-  useEffect(() => {
-    // Full page - load notifications locally
-    if(headerMenu || page < 0) { return; }
+    if(page < 0) { return; }
 
     setLoading(true);
     notificationStore.FetchNotifications({limit: perPage, offsetId: notifications.slice(-1)[0]?.id})
@@ -303,8 +290,6 @@ const Notifications = observer(({headerMenu, Hide}) => {
 
   useEffect(() => {
     // Full page - whenever active notification types change, force reload
-    if(headerMenu) { return; }
-
     setNotifications([]);
     setMore(true);
     setPage(-1);
@@ -313,48 +298,48 @@ const Notifications = observer(({headerMenu, Hide}) => {
 
   return (
     <>
-      <div className={`notifications ${headerMenu ? "notifications--menu" : "notifications--page"}`}>
-        <div className="notifications__header">
-          { headerMenu ? <div className="notifications__header__text">{ rootStore.l10n.notifications.notifications }</div> : null }
-          <div className="notifications__header__filters">
-            <button onClick={() => setOnlyNew(true)} className={`action action-selection notifications__header__filter ${onlyNew ? "action-selection--active" : ""}`}>
+      <div className={S("notifications")}>
+        <div className={S("notifications__header")}>
+          <div className={S("notifications__actions")}>
+            <button
+              onClick={() => setOnlyNew(true)}
+              className={S("notifications__action", onlyNew ? "notifications__action--active" : "")}
+            >
               { rootStore.l10n.notifications.new }
             </button>
-            <button onClick={() => setOnlyNew(false)} className={`action action-selection notifications__header__filter ${onlyNew ? "" : "action-selection--active"}`}>
+            <button
+              onClick={() => setOnlyNew(false)}
+              className={S("notifications__action", !onlyNew ? "notifications__action--active" : "")}
+            >
               { rootStore.l10n.notifications.all }
             </button>
           </div>
-          { !headerMenu ? <button onClick={() => setShowPreferences(true)} className="notifications__header__preferences-button">{ rootStore.l10n.preferences.preferences }</button> : null }
+          <div className={S("notifications__actions")}>
+            <button onClick={() => setShowPreferences(true)} className={S("notifications__action")}>
+              { rootStore.l10n.preferences.preferences }
+            </button>
+          </div>
         </div>
-        <div className="notifications__list">
+        <div className={S("notifications__list")}>
           {
-            !loading && filteredNotifications.length === 0 ?
+            filteredNotifications.length === 0 ?
               <Notification notification={{type: "__NO_NOTIFICATIONS"}} Hide={Hide} /> :
               filteredNotifications.map(notification => <Notification key={notification.id} notification={notification} Hide={Hide} />)
           }
         </div>
-        {
-          // Header menu - If more notifications, link to full page
-          headerMenu ? (
-            notificationStore.notifications.length > 0 ?
-              <Link
-                to={UrlJoin(basePath, "users", "me", "notifications")}
-                onClick={() => Hide()}
-                className="notifications__link"
+        <div className={S("notifications__actions", "notifications__actions--centered")}>
+          {
+            !more || notifications.length !== filteredNotifications.length ? null :
+              <ButtonWithLoader
+                disabled={!more || notifications.length !== filteredNotifications.length}
+                isLoading={loading}
+                onClick={() => setPage(page + 1)}
+                className={S("notifications__action")}
               >
-                { rootStore.l10n.notifications.view_all }
-              </Link> :
-              null
-          ) :
-            // Full page - show loading indicator / load more button
-            (
-              loading ?
-                <Loader className="notifications__link"/> :
-                more && notifications.length === filteredNotifications.length ?
-                  <button onClick={() => setPage(page + 1)} className="notifications__link">{ rootStore.l10n.notifications.load_more}</button> :
-                  null
-            )
-        }
+                {rootStore.l10n.notifications.load_more}
+              </ButtonWithLoader>
+          }
+        </div>
       </div>
       { showPreferences ? <PreferencesMenu Hide={() => setShowPreferences(false)} /> : null }
     </>
@@ -362,9 +347,63 @@ const Notifications = observer(({headerMenu, Hide}) => {
 });
 
 export const NotificationsMenu = observer(({Hide}) => {
+  const [notifications, setNotifications] = useState([]);
+  const [onlyNew, setOnlyNew] = useState(true);
+
+  useEffect(() => {
+    setNotifications(notificationStore.notifications);
+  }, [notificationStore.notifications]);
+
+  const filteredNotifications = notifications.filter(notification => !onlyNew || notificationStore.NotificationUnread(notification));
+
+  let basePath = "/wallet";
+  if(rootStore.routeParams.marketplaceId) {
+    basePath = UrlJoin("/marketplace", rootStore.routeParams.marketplaceId);
+  } else if(rootStore.routeParams.mediaPropertySlugOrId) {
+    basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: true});
+  }
+
+  useEffect(() => {
+    return () => notificationStore.SetNotificationMarker({id: notificationStore.notifications[0]?.id});
+  }, []);
+
   return (
-    <HoverMenu Hide={Hide} className="header__menu header__notifications-menu">
-      <Notifications headerMenu Hide={Hide} />
+    <HoverMenu Hide={Hide} className={S("header-menu", "notifications-menu")}>
+      <div className={S("notifications-menu__header")}>
+        <h2 className={S("notifications-menu__header-text")}>
+          { rootStore.l10n.notifications.notifications }
+        </h2>
+        <div className={S("notifications-menu__toggles")}>
+          <button
+            onClick={() => setOnlyNew(true)}
+            className={S("notifications-menu__toggle", onlyNew ? "notifications-menu__toggle--active" : "")}
+          >
+            { rootStore.l10n.notifications.new }
+          </button>
+          <button
+            onClick={() => setOnlyNew(false)}
+            className={S("notifications-menu__toggle", !onlyNew ? "notifications-menu__toggle--active" : "")}
+          >
+            { rootStore.l10n.notifications.all }
+          </button>
+        </div>
+      </div>
+      <div className={S("notifications-menu__notifications")}>
+        {
+          filteredNotifications.length === 0 ?
+            <Notification notification={{type: "__NO_NOTIFICATIONS"}} Hide={Hide} /> :
+            filteredNotifications.map(notification => <Notification key={notification.id} notification={notification} Hide={Hide} />)
+        }
+      </div>
+      <div className={S("header-menu__actions", "notifications-menu__actions")}>
+        <Link
+          to={UrlJoin(basePath, "users", "me", "notifications")}
+          onClick={() => Hide()}
+          className={S("header-menu__action")}
+        >
+          { rootStore.l10n.notifications.view_all }
+        </Link>
+      </div>
     </HoverMenu>
   );
 });

@@ -10,11 +10,9 @@ import ProfileMenu from "Components/header/ProfileMenu";
 
 import EluvioE from "Assets/images/Eluvio-E-Icon-no-fill-color 2 3.svg";
 import {NotificationsMenu} from "Components/header/NotificationsMenu";
-import MobileNavigationMenu from "Components/header/MobileNavigationMenu";
 import NotificationsIcon from "Assets/icons/header/Notification Icon";
-import MobileMenuIcon from "Assets/icons/menu";
+import MenuIcon from "Assets/icons/menu";
 import DiscoverIcon from "Assets/icons/discover";
-import UserIcon from "Assets/icons/profile.svg";
 import LeftArrowIcon from "Assets/icons/left-arrow.svg";
 import XIcon from "Assets/icons/x";
 
@@ -123,7 +121,6 @@ const Links = observer(({marketplaceId}) => {
 const UserLinks = observer(() => {
   const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
   const [showUserProfileMenu, setShowUserProfileMenu] = useState(false);
-  const [showMobileNavigationMenu, setShowMobileNavigationMenu] = useState(false);
 
   if(!rootStore.loggedIn) {
     return (
@@ -148,19 +145,15 @@ const UserLinks = observer(() => {
       <div className={S("user-links")}>
         { !showUserProfileMenu ? null : <ProfileMenu Hide={() => setShowUserProfileMenu(false)} /> }
         { !showNotificationsMenu ? null : <NotificationsMenu Hide={() => setShowNotificationsMenu(false)} /> }
-        { !showMobileNavigationMenu ? null : <MobileNavigationMenu Close={() => setShowMobileNavigationMenu(false)} /> }
+
         <button className={S("button", showNotificationsMenu ? "button--active" : "")} onClick={() => setShowNotificationsMenu(!showNotificationsMenu)}>
-          <ImageIcon icon={NotificationsIcon} label={showNotificationsMenu ? "Hide Notifications" : "Show Notifications"} />
+          <ImageIcon icon={NotificationsIcon} label="Show Notifications" className={S("button__icon")} />
+          <ImageIcon icon={XIcon} label="Hide Notifications" className={S("button__icon-close")} />
         </button>
-        {
-          rootStore.pageWidth > 800 ?
-            <button className={S("button", showUserProfileMenu ? "button--active" : "")} onClick={() => setShowUserProfileMenu(!showUserProfileMenu)}>
-              <ImageIcon icon={UserIcon} label="Show Profile Menu" />
-            </button> :
-            <button className={S("button", showMobileNavigationMenu ? "button--active" : "")} onClick={() => setShowMobileNavigationMenu(true)}>
-              <ImageIcon icon={MobileMenuIcon} label="Show Navigation Menu" />
-            </button>
-        }
+        <button className={S("button", showUserProfileMenu ? "button--active" : "")} onClick={() => setShowUserProfileMenu(!showUserProfileMenu)}>
+          <ImageIcon icon={MenuIcon} label="Show Profile Menu" className={S("button__icon")} />
+          <ImageIcon icon={XIcon} label="Hide Profile Menu" className={S("button__icon-close")} />
+        </button>
       </div>
     );
   }
