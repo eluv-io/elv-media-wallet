@@ -209,6 +209,7 @@ const AdvancedSearch = observer(() => {
   return (
     <>
       <Linkish
+        to={UrlJoin(MediaPropertyBasePath(rootStore.routeParams), "search")}
         className={S("search__filter")}
         onClick={() => setShow(true)}
       >

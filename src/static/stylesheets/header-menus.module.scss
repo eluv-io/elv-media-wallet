@@ -39,7 +39,6 @@
 }
 
 .profile-menu {
-  //background: var(--menu);
   font-weight: 500;
   padding: 20px 30px;
 
@@ -118,10 +117,10 @@
   &__notifications {
     background-color: #000;
     display: grid;
-    gap: 3px;
+    gap: 2px;
     max-height: 400px;
     overflow-y: auto;
-    padding: 3px 0;
+    padding: 2px 0;
     position: relative;
   }
 

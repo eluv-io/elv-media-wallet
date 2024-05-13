@@ -41,8 +41,8 @@ const PropertyWrapper = observer(({children}) => {
         });
     }
   }, []);
-
-  if(!rootStore.loaded || !itemLoaded) {
+  
+  if(!rootStore.loaded  || rootStore.authenticating || !itemLoaded) {
     return <PageLoader />;
   }
 

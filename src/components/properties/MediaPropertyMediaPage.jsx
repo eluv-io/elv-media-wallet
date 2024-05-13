@@ -325,11 +325,53 @@ const MediaDescription = observer(({display}) => {
   );
 });
 
+const MediaDetails = observer(({hideText, display}) => {
+  const icons = (display.icons || []).filter(({icon}) => !!icon?.url);
+
+  return (
+    <div className={S("media-info")}>
+      <div className={S("media-text")}>
+        {
+          hideText || !display.title ? null :
+            <h1 className={S("media-text__title")}>
+              {
+                icons.length === 0 ? null :
+                  <div className={S("media-text__icons")}>
+                    {icons.map(({icon, alt_text}, index) =>
+                      <img
+                        key={`icon-${index}`}
+                        src={icon.url}
+                        alt={alt_text}
+                        className={S("media-text__icon")}
+                      />
+                    )}
+                  </div>
+              }
+              {display.title}
+            </h1>
+        }
+        {
+          hideText || (display.headers || []).length === 0 ? null :
+            <div className={S("media-text__headers")}>
+              {display.headers.map((header, index) =>
+                <div key={`header-${index}`} className={S("media-text__header")}>{header}</div>
+              )}
+            </div>
+        }
+        {
+          hideText || !display.subtitle ? null :
+            <h2 className={S("media-text__subtitle")}>{display.subtitle}</h2>
+        }
+        <MediaDescription display={display}/>
+      </div>
+    </div>
+  );
+});
+
 const MediaPropertyMediaPage = observer(() => {
   const match = useRouteMatch();
 
   const mediaItem = mediaPropertyStore.MediaPropertyMediaItem(match.params);
-
   const context = new URLSearchParams(location.search).get("ctx");
 
   if(!mediaItem) {
@@ -337,6 +379,10 @@ const MediaPropertyMediaPage = observer(() => {
   }
 
   const display = mediaItem.override_settings_when_viewed ? mediaItem.viewed_settings : mediaItem;
+  const scheduleInfo = MediaItemScheduleInfo(mediaItem);
+  const isUpcoming = scheduleInfo?.isLiveContent && !scheduleInfo?.started;
+  const hasText = !isUpcoming && !!(display.title || display.subtitle || display.headers.length > 0);
+  const hasDescription = !!(display.description_rich_text || display.description);
 
   const permissions = mediaPropertyStore.ResolvePermission({
     ...match.params,
@@ -361,10 +407,6 @@ const MediaPropertyMediaPage = observer(() => {
       </div>
     );
   } else {
-    const hasText = !!(display.title || display.subtitle || display.headers.length > 0);
-    const hasDescription = !!(display.description_rich_text || display.description);
-    const icons = (display.icons || []).filter(({icon}) => !!icon?.url);
-
     content = (
       <div className={S("media-page", !hasText && !hasDescription ? "media-page--full" : !hasDescription ? "media-page--extended" : "")}>
         <div className={S("media-container")}>
@@ -372,42 +414,7 @@ const MediaPropertyMediaPage = observer(() => {
         </div>
         {
           !hasText && !hasDescription ? null :
-            <div className={S("media-info")}>
-              <div className={S("media-text")}>
-                {
-                  !display.title ? null :
-                    <h1 className={S("media-text__title")}>
-                      {
-                        icons.length === 0 ? null :
-                          <div className={S("media-text__icons")}>
-                            {icons.map(({icon, alt_text}, index) =>
-                              <img
-                                key={`icon-${index}`}
-                                src={icon.url}
-                                alt={alt_text}
-                                className={S("media-text__icon")}
-                              />
-                            )}
-                          </div>
-                      }
-                      {display.title}
-                    </h1>
-                }
-                {
-                  (display.headers || []).length === 0 ? null :
-                    <div className={S("media-text__headers")}>
-                      {display.headers.map((header, index) =>
-                        <div key={`header-${index}`} className={S("media-text__header")}>{header}</div>
-                      )}
-                    </div>
-                }
-                {
-                  !display.subtitle ? null :
-                    <h2 className={S("media-text__subtitle")}>{display.subtitle}</h2>
-                }
-                <MediaDescription display={display}/>
-              </div>
-            </div>
+            <MediaDetails display={display} hideText={isUpcoming}/>
         }
       </div>
     );
