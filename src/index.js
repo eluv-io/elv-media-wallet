@@ -160,7 +160,7 @@ const Routes = observer(() => {
             </Route>
             <Route path="/p">
               <Suspense fallback={<PageLoader />}>
-                <PropertyRoutes />
+                <PropertyRoutes basePath="/p" />
               </Suspense>
             </Route>
             <Route path="/m">
@@ -171,9 +171,14 @@ const Routes = observer(() => {
             <Route path="/profile">
               <Redirect to="/wallet/profile" />
             </Route>
-            <Route path="/">
+            <Route path="/" exact>
               <Suspense fallback={<PageLoader />}>
                 <WalletRoutes />
+              </Suspense>
+            </Route>
+            <Route path="*">
+              <Suspense fallback={<PageLoader />}>
+                <PropertyRoutes basePath="/" />
               </Suspense>
             </Route>
           </Switch>

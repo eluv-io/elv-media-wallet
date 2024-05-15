@@ -32,7 +32,7 @@ const GlobalWrapper = ({children}) => {
 
 
   if(rootStore.domainProperty && match.url === "/") {
-    return <Redirect to={UrlJoin("/p", rootStore.domainProperty)} />;
+    return <Redirect to={UrlJoin("/", rootStore.domainProperty)} />;
   }
 
   return children;

@@ -34,6 +34,7 @@ import {v4 as UUID} from "uuid";
 import ProfanityFilter from "bad-words";
 
 import LocalizationEN from "Assets/localizations/en.yml";
+import {MediaPropertyBasePath} from "../utils/MediaPropertyUtils";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
@@ -72,6 +73,7 @@ if(["ris.euro2024.com", "ris-uefa.mw.app"].includes(location.hostname)) {
 
 
 class RootStore {
+  preferredLocale = navigator.language;
   language = this.GetLocalStorage("lang");
   l10n = LocalizationEN;
   uiLocalizations = ["pt-br"];
@@ -248,6 +250,11 @@ class RootStore {
     if(searchParams.get("origin")) {
       this.authOrigin = searchParams.get("origin");
       this.SetSessionStorage("auth-origin", searchParams.get("origin"));
+    }
+
+    this.preferredLocale = navigator.languages?.[0] || navigator.language;
+    if(!this.preferredLocale.includes("-")) {
+      this.preferredLocale = navigator.languages?.find(language => language.startsWith(`${this.preferredLocale}-`)) || this.preferredLocale;
     }
 
     this.checkoutStore = new CheckoutStore(this);
@@ -1859,8 +1866,12 @@ class RootStore {
       url.searchParams.set("appUUID", this.appUUID);
     }
 
-    if(keepPath || window.location.pathname.startsWith("/p/") || window.location.pathname.startsWith("/m/")) {
+    if(keepPath || this.routeParams.mediaPropertySlugOrId && !window.location.pathname.startsWith("/m")) {
       url.pathname = window.location.pathname;
+
+      if(this.routeParams.userId === "me") {
+        url.pathname = MediaPropertyBasePath(rootStore.routeParams);
+      }
     } else if(this.marketplaceId) {
       url.pathname = UrlJoin("/marketplace", this.marketplaceId, "store");
     } else {

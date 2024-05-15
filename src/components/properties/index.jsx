@@ -41,7 +41,7 @@ const PropertyWrapper = observer(({children}) => {
         });
     }
   }, []);
-  
+
   if(!rootStore.loaded  || rootStore.authenticating || !itemLoaded) {
     return <PageLoader />;
   }
@@ -75,13 +75,13 @@ const PropertyWrapper = observer(({children}) => {
   return children;
 });
 
-export const PropertyRoutes = observer(() => {
+export const PropertyRoutes = observer(({basePath}) => {
   return (
     <div className="page-container property-page">
       <MediaPropertyHeader />
       <Switch>
         <RenderRoutes
-          basePath="/p"
+          basePath={basePath}
           routeList="property"
           Wrapper={PropertyWrapper}
         />

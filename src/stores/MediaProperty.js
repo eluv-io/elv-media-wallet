@@ -1,5 +1,6 @@
 import {makeAutoObservable, flow, runInAction} from "mobx";
 import MiniSearch from "minisearch";
+import {MediaItemScheduleInfo} from "../utils/MediaPropertyUtils";
 
 class MediaPropertyStore {
   mediaProperties = {};
@@ -189,6 +190,54 @@ class MediaPropertyStore {
     });
 
     return results;
+  }
+
+  GroupContent({content, groupBy}) {
+    const today = new Date().toISOString().split("T")[0];
+
+    let groupedResults = {};
+    content
+      .filter(result => {
+        if(groupBy !== "__date") { return; }
+
+        const {isLiveContent, ended} = MediaItemScheduleInfo(result.mediaItem);
+
+        if(isLiveContent) {
+          return !ended;
+        } else if(result.mediaItem.canonical_date) {
+          return today <= result.mediaItem.canonical_date;
+        }
+
+        return true;
+      })
+      .forEach(result => {
+        let categories;
+        if(groupBy === "__media-type") {
+          categories = [result.mediaItem.media_type || "__other"];
+        } else if(groupBy === "__date") {
+          categories = [result.mediaItem.canonical_date || "__other"];
+        } else {
+          categories = result.mediaItem.attributes?.[groupBy];
+        }
+
+        if(!categories || !Array.isArray(categories)) {
+          if(!groupedResults.__other) {
+            groupedResults.__other = [];
+          }
+
+          groupedResults.__other.push(result);
+        } else {
+          categories.forEach(category => {
+            if(!groupedResults[category]) {
+              groupedResults[category] = [];
+            }
+
+            groupedResults[category].push(result);
+          });
+        }
+      });
+
+    return groupedResults;
   }
 
   MediaProperty({mediaPropertySlugOrId}) {

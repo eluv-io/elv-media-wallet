@@ -53,6 +53,13 @@
     font-size: 16px;
   }
 
+  &__user-address {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 275px;
+  }
+
   &__links {
     display: block;
   }

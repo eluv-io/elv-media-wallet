@@ -23,7 +23,7 @@ const ResultsGroup = observer(({groupBy, label, results}) => {
     const userTimezoneOffset = date.getTimezoneOffset() * 60000;
 
     label = new Date(date.getTime() + userTimezoneOffset)
-      .toLocaleDateString(currentLocale, { weekday:"long", year: "numeric", month: "long", day:"numeric"});
+      .toLocaleDateString(currentLocale, { weekday:"long", year: "numeric", month: "long", day: "numeric"});
   }
 
   let aspectRatio;
@@ -145,53 +145,7 @@ const MediaPropertySearchPage = observer(() => {
 
   useEffect(() => {
     mediaPropertyStore.SearchMedia({...match.params, query})
-      .then(results => {
-        const today = new Date().toISOString().split("T")[0];
-        let groupedResults = {};
-
-        results
-          .filter(result => {
-            if(group_by !== "__date") { return; }
-
-            const {isLiveContent, ended} = MediaItemScheduleInfo(result.mediaItem);
-
-            if(isLiveContent) {
-              return !ended;
-            } else if(result.mediaItem.canonical_date) {
-              return today <= result.mediaItem.canonical_date;
-            }
-
-            return true;
-          })
-          .forEach(result => {
-            let categories;
-            if(group_by === "__media-type") {
-              categories = [result.mediaItem.media_type || "__other"];
-            } else if(group_by === "__date") {
-              categories = [result.mediaItem.canonical_date || "__other"];
-            } else {
-              categories = result.mediaItem.attributes?.[group_by];
-            }
-
-            if(!categories || !Array.isArray(categories)) {
-              if(!groupedResults.__other) {
-                groupedResults.__other = [];
-              }
-
-              groupedResults.__other.push(result);
-            } else {
-              categories.forEach(category => {
-                if(!groupedResults[category]) {
-                  groupedResults[category] = [];
-                }
-
-                groupedResults[category].push(result);
-              });
-            }
-          });
-
-        setSearchResults(groupedResults);
-      });
+      .then(results => setSearchResults(mediaPropertyStore.GroupContent({content: results, groupBy: group_by})));
   }, [query, JSON.stringify(mediaPropertyStore.searchOptions)]);
 
   if(!searchResults) {

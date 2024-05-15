@@ -234,8 +234,8 @@ export const MediaPropertiesBrowser = observer(() => {
           {
             mediaProperties.map(mediaProperty => {
               const path = mediaProperty.subPropertyId ?
-                UrlJoin("/p", mediaProperty.propertyId, "/p", mediaProperty.subPropertyId) :
-                UrlJoin("/p", mediaProperty.propertyId);
+                UrlJoin("/", mediaProperty.propertyId, "/p", mediaProperty.subPropertyId) :
+                UrlJoin("/", mediaProperty.propertyId);
 
               return (
                 <Linkish
