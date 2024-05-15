@@ -5,7 +5,7 @@ import Confirm from "Components/common/Confirm";
 import {LocalizeString} from "Components/common/UIComponents";
 
 const TransferSection = observer(({nft}) => {
-  const heldDate = nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
+  const heldDate = nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(rootStore.preferredLocale, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
   const notMetamask = !cryptoStore.MetamaskAvailable() && window.ethereum;
   const notMetaMaskMessage = "Other browser extensions like Coinbase may be preventing the wallet from accessing MetaMask. Please disable them and refresh the page.";
 

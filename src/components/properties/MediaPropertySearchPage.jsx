@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {mediaPropertyStore} from "Stores";
+import {mediaPropertyStore, rootStore} from "Stores";
 import {useHistory, useRouteMatch} from "react-router-dom";
 
 import PageStyles from "Assets/stylesheets/media_properties/property-page.module.scss";
@@ -12,18 +12,17 @@ import {
 } from "Components/properties/Common";
 import {Swiper, SwiperSlide} from "swiper/react";
 import {MediaGrid} from "Components/properties/MediaPropertySection";
-import {MediaItemImageUrl, MediaItemScheduleInfo} from "../../utils/MediaPropertyUtils";
+import {MediaItemImageUrl} from "../../utils/MediaPropertyUtils";
 
 const S = (...classes) => classes.map(c => SearchStyles[c] || PageStyles[c] || SectionStyles[c] || "").join(" ");
 
 const ResultsGroup = observer(({groupBy, label, results}) => {
   if(label && groupBy === "__date") {
-    const currentLocale = (navigator.languages && navigator.languages.length) ? navigator.languages[0] : navigator.language;
     const date = new Date(label);
     const userTimezoneOffset = date.getTimezoneOffset() * 60000;
 
     label = new Date(date.getTime() + userTimezoneOffset)
-      .toLocaleDateString(currentLocale, { weekday:"long", year: "numeric", month: "long", day: "numeric"});
+      .toLocaleDateString(rootStore.preferredLocale, { weekday:"long", year: "numeric", month: "long", day: "numeric"});
   }
 
   let aspectRatio;

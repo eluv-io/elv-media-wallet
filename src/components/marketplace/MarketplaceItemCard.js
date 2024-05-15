@@ -77,7 +77,7 @@ const MarketplaceItemCard = ({
 
     sideText = undefined;
     if(item.available_at) {
-      sideText = `${rootStore.l10n.item_details.status.release_date}: ${new Date(item.available_at).toLocaleDateString(navigator.languages, {year: "numeric", month: "long", day: "numeric"}) }`;
+      sideText = `${rootStore.l10n.item_details.status.release_date}: ${new Date(item.available_at).toLocaleDateString(rootStore.preferredLocale, {year: "numeric", month: "long", day: "numeric"}) }`;
     }
   }
 

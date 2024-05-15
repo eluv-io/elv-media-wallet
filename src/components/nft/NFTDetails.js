@@ -76,8 +76,8 @@ const NFTVotingSection = observer(({votingEvents, sku}) => {
                   LocalizeString(
                     rootStore.l10n.voting.voting_window,
                     {
-                      startDate: start_date ? new Date(start_date).toLocaleDateString(navigator.languages, {year: "numeric", "month": "long", day: "numeric"}) : "",
-                      endDate: end_date ? new Date(end_date).toLocaleDateString(navigator.languages, {year: "numeric", "month": "long", day: "numeric"}) : ""
+                      startDate: start_date ? new Date(start_date).toLocaleDateString(rootStore.preferredLocale, {year: "numeric", "month": "long", day: "numeric"}) : "",
+                      endDate: end_date ? new Date(end_date).toLocaleDateString(rootStore.preferredLocale, {year: "numeric", "month": "long", day: "numeric"}) : ""
                     }
                   )
                 }
@@ -287,7 +287,7 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
       {
         nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) ?
           <div className="details-page__detail-field">
-            { rootStore.l10n.item_details.held_until } { nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
+            { rootStore.l10n.item_details.held_until } { nft.details.TokenHoldDate.toLocaleString(rootStore.preferredLocale, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
           </div>
           : null
       }
@@ -860,7 +860,7 @@ const NFTActions = observer(({
               rootStore.l10n.purchase.errors.nft_sold,
               {
                 price: FormatPriceString(listingStatus.sale.price, {stringOnly: true}),
-                date: new Date(listingStatus.sale.created * 1000).toLocaleString(navigator.languages, {
+                date: new Date(listingStatus.sale.created * 1000).toLocaleString(rootStore.preferredLocale, {
                   year: "numeric",
                   month: "long",
                   day: "numeric",

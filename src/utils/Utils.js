@@ -363,7 +363,7 @@ export const NFTInfo = ({
   const collectionImage = nft?.metadata?.collection_image;
 
   const isOwned = nft?.details?.TokenOwner && Utils.EqualAddress(nft.details.TokenOwner, rootStore.CurrentAddress());
-  const heldDate = nft?.details?.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
+  const heldDate = nft?.details?.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(rootStore.preferredLocale, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
 
   const timeToAvailable = item && item.available_at ? new Date(item.available_at).getTime() - Date.now() : 0;
   const timeToExpired = item && item.expires_at ? new Date(item.expires_at).getTime() - Date.now() : Infinity;
@@ -379,8 +379,8 @@ export const NFTInfo = ({
   const timeToSecondaryExpired = nft?.metadata?.secondary_resale_expires_at ? new Date(nft.metadata.secondary_resale_expires_at).getTime() - Date.now() : Infinity;
   const secondaryAvailable = timeToSecondaryAvailable <= 0 && timeToSecondaryExpired > 0;
   const secondaryReleased = !nft?.metadata?.secondary_resale_available_at  || timeToSecondaryAvailable <= 0;
-  const secondaryReleaseDate = nft?.metadata?.secondary_resale_available_at ? new Date(nft.metadata.secondary_resale_available_at).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) : undefined;
-  const secondaryExpirationDate = nft?.metadata?.secondary_resale_expires_at ? new Date(nft.metadata.secondary_resale_expires_at).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) : undefined;
+  const secondaryReleaseDate = nft?.metadata?.secondary_resale_available_at ? new Date(nft.metadata.secondary_resale_available_at).toLocaleString(rootStore.preferredLocale, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) : undefined;
+  const secondaryExpirationDate = nft?.metadata?.secondary_resale_expires_at ? new Date(nft.metadata.secondary_resale_expires_at).toLocaleString(rootStore.preferredLocale, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) : undefined;
   const offerable = nft?.details.TokenIdStr && !nft?.metadata?.test && !heldDate;
 
   let referenceImages = {};
@@ -415,13 +415,13 @@ export const NFTInfo = ({
     let expired = false;
     let releaseDate, expirationDate;
     if(offer.available_at) {
-      releaseDate = new Date(offer.available_at).toLocaleDateString(navigator.languages, dateFormat);
+      releaseDate = new Date(offer.available_at).toLocaleDateString(rootStore.preferredLocale, dateFormat);
       released = Date.now() > new Date(offer.available_at).getTime();
     }
 
     if(offer.expires_at) {
       expired = Date.now() > new Date(offer.expires_at).getTime();
-      expirationDate = new Date(offer.expires_at).toLocaleDateString(navigator.languages, dateFormat);
+      expirationDate = new Date(offer.expires_at).toLocaleDateString(rootStore.preferredLocale, dateFormat);
     }
 
     let {hide, hide_if_unreleased, hide_if_expired} = (offer.visibility || {});

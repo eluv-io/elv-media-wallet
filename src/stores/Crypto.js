@@ -150,7 +150,7 @@ class CryptoStore {
         connectedAccounts[link.link_type][address] = {
           ...link,
           link_acct: address,
-          connected_at: new Date(link.created * 1000).toLocaleTimeString(navigator.languages, {year: "numeric", month: "long", day: "numeric"})
+          connected_at: new Date(link.created * 1000).toLocaleTimeString(rootStore.preferredLocale, {year: "numeric", month: "long", day: "numeric"})
         };
       }
 

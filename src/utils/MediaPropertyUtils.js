@@ -263,9 +263,8 @@ export const MediaItemScheduleInfo = mediaItem => {
     const endTime = !!mediaItem.end_time && new Date(mediaItem.end_time);
     const started = !startTime || now > startTime;
     const ended = !!endTime && now > endTime;
-    const currentLocale = (navigator.languages && navigator.languages.length) ? navigator.languages[0] : navigator.language;
-    const displayStartDate = startTime?.toLocaleDateString(currentLocale, {day: "numeric", month: "numeric"}).replace(/0(\d)/g, "$1");
-    const displayStartTime = startTime?.toLocaleTimeString(currentLocale, {hour: "numeric", minute: "numeric"}).replace(/^0(\d)/, "$1");
+    const displayStartDate = startTime?.toLocaleDateString(rootStore.preferredLocale, {day: "numeric", month: "numeric"}).replace(/0(\d)/g, "$1");
+    const displayStartTime = startTime?.toLocaleTimeString(rootStore.preferredLocale, {hour: "numeric", minute: "numeric"}).replace(/^0(\d)/, "$1");
 
     return {
       startTime,

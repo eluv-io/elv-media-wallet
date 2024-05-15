@@ -188,7 +188,7 @@ const MintPage = observer(({nftInfo, contractStats}) => {
           {
             nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) ?
               <div className={S("details__detail")}>
-                { rootStore.l10n.item_details.held_until } { nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
+                { rootStore.l10n.item_details.held_until } { nft.details.TokenHoldDate.toLocaleString(rootStore.preferredLocale, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
               </div>
               : null
           }

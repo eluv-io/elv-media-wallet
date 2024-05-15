@@ -54,10 +54,10 @@
   }
 
   &__user-address {
+    max-width: 275px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 275px;
   }
 
   &__links {

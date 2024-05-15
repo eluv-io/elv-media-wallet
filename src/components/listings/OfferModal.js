@@ -19,7 +19,7 @@ const DateOrdinal = date => date + (date > 0 ? ["th", "st", "nd", "rd"][(date > 
 const ExpirationDate = duration => {
   const date = new Date(Date.now() + parseInt(duration) * 24 * 60 * 60 * 1000);
 
-  return `${date.toLocaleString("default", { month: "long" })} ${DateOrdinal(date.getDate())}`;
+  return `${date.toLocaleString(rootStore.preferredLocale, { month: "long" })} ${DateOrdinal(date.getDate())}`;
 };
 
 const OfferModal = observer(({nft, offer, Close}) => {
