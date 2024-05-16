@@ -30,7 +30,7 @@ const GridContentColumns = ({aspectRatio, pageWidth}) => {
     columns = 2;
   }
 
-  if(pageWidth > 800 && aspectRatio?.toLowerCase() !== "landscape") {
+  if(pageWidth > 600 && aspectRatio?.toLowerCase() !== "landscape") {
     columns += 1;
   }
 
@@ -258,8 +258,8 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
 
   const showAllLink = sectionContent.length > parseInt(section.display.display_limit || 5);
 
-  let displayLimit = section.display.display_limit;
-  if(ContentComponent === SectionContentGrid && section.display.display_limit_type === "rows") {
+  let displayLimit = section.display?.display_limit;
+  if(ContentComponent === SectionContentGrid && section.display?.aspect_ratio && section.display?.display_limit_type === "rows") {
     // Limit to a certain number of rows - calculate items per row based on page width
     const columns = GridContentColumns({
       aspectRatio: section.display.aspect_ratio,
