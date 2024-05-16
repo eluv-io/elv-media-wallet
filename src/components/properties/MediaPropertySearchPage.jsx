@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {mediaPropertyStore, rootStore} from "Stores";
+import {mediaPropertyStore} from "Stores";
 import {useHistory, useRouteMatch} from "react-router-dom";
 
 import PageStyles from "Assets/stylesheets/media_properties/property-page.module.scss";
@@ -8,121 +8,12 @@ import SectionStyles from "Assets/stylesheets/media_properties/property-section.
 import SearchStyles from "Assets/stylesheets/media_properties/property-search.module.scss";
 
 import {
+  AttributeFilter,
   PageContainer
 } from "Components/properties/Common";
-import {Swiper, SwiperSlide} from "swiper/react";
-import {MediaGrid} from "Components/properties/MediaPropertySection";
-import {MediaItemImageUrl} from "../../utils/MediaPropertyUtils";
+import {SectionResultsGroup} from "Components/properties/MediaPropertySection";
 
 const S = (...classes) => classes.map(c => SearchStyles[c] || PageStyles[c] || SectionStyles[c] || "").join(" ");
-
-const ResultsGroup = observer(({groupBy, label, results}) => {
-  if(label && groupBy === "__date") {
-    const date = new Date(label);
-    const userTimezoneOffset = date.getTimezoneOffset() * 60000;
-
-    label = new Date(date.getTime() + userTimezoneOffset)
-      .toLocaleDateString(rootStore.preferredLocale, { weekday:"long", year: "numeric", month: "long", day: "numeric"});
-  }
-
-  let aspectRatio;
-  results.forEach(result => {
-    if(aspectRatio === "mixed") { return; }
-
-    let {imageAspectRatio} = MediaItemImageUrl({
-      mediaItem: result.mediaItem
-    });
-
-    if(!aspectRatio) {
-      aspectRatio = imageAspectRatio;
-    } else if(aspectRatio !== imageAspectRatio) {
-      aspectRatio = "mixed";
-    } else {
-      aspectRatio = imageAspectRatio;
-    }
-  });
-
-  return (
-    <div className={S("section", "section--page", "search__group")}>
-      {
-        !label ? null :
-          <h2 className={S("search__title")}>
-            { label }
-          </h2>
-      }
-      <MediaGrid
-        content={results.map(result => result.mediaItem)}
-        aspectRatio={aspectRatio === "mixed" ? undefined : aspectRatio}
-        className={S("search__results")}
-        navContext="search"
-      />
-    </div>
-  );
-});
-
-const AttributeSelection = observer(({attributeKey, variant="primary"}) => {
-  const match = useRouteMatch();
-
-  const attributeOptions = attributeKey &&
-  attributeKey === "__media-type" ?
-    ["Video", "Gallery", "Image", "Ebook"] :
-    mediaPropertyStore.GetMediaPropertyAttributes(match.params)[attributeKey]?.tags;
-
-  if(!attributeKey || !attributeOptions || attributeOptions.length === 0) { return null; }
-
-  const selected = attributeKey === "__media-type" ?
-    (mediaPropertyStore.searchOptions.mediaType || "") :
-    mediaPropertyStore.searchOptions.attributes[attributeKey] || "";
-
-  return (
-    <Swiper
-      threshold={0}
-      spaceBetween={variant === "primary" ? 10 : 30}
-      observer
-      observeParents
-      slidesPerView="auto"
-      className={S("search__attributes", `search__attributes--${variant}`)}
-    >
-      <SwiperSlide className={S("search__attribute-slide")}>
-        <button
-          onClick={() => {
-            if(attributeKey === "__media-type") {
-              mediaPropertyStore.SetSearchOption({field: "mediaType", value: null});
-            } else {
-              const updatedAttributes = {...(mediaPropertyStore.searchOptions.attributes || {})};
-              delete updatedAttributes[attributeKey];
-              mediaPropertyStore.SetSearchOption({field: "attributes", value: updatedAttributes});
-            }
-          }}
-          className={S("search__attribute", `search__attribute--${variant}`, !selected ? "search__attribute--active" : "")}
-        >
-          All
-        </button>
-      </SwiperSlide>
-      {
-        attributeOptions.map(attribute =>
-          <SwiperSlide key={`attribute-${attribute}`} className={S("search__attribute-slide")}>
-            <button
-              onClick={() => {
-                if(attributeKey === "__media-type"){
-                  mediaPropertyStore.SetSearchOption({field: "mediaType", value: attribute});
-                } else {
-                  mediaPropertyStore.SetSearchOption({
-                    field: "attributes",
-                    value: {...mediaPropertyStore.searchOptions.attributes, [attributeKey]: attribute}
-                  });
-                }
-              }}
-              className={S("search__attribute", `search__attribute--${variant}`, selected === attribute ? "search__attribute--active" : "")}
-            >
-              { attribute }
-            </button>
-          </SwiperSlide>
-        )
-      }
-    </Swiper>
-  );
-});
 
 const MediaPropertySearchPage = observer(() => {
   const [searchResults, setSearchResults] = useState(undefined);
@@ -160,28 +51,40 @@ const MediaPropertySearchPage = observer(() => {
     <PageContainer className={S("search")}>
       {
         !primary_filter ? null :
-          <AttributeSelection attributeKey={primary_filter} variant="primary"/>
+          <AttributeFilter
+            attributeKey={primary_filter}
+            variant="primary"
+            options={mediaPropertyStore.searchOptions}
+            setOption={args => mediaPropertyStore.SetSearchOption(args)}
+          />
       }
       {
         !secondary_filter ? null :
-          <AttributeSelection attributeKey={secondary_filter} variant="secondary"/>
+          <AttributeFilter
+            attributeKey={secondary_filter}
+            variant="secondary"
+            options={mediaPropertyStore.searchOptions}
+            setOption={args => mediaPropertyStore.SetSearchOption(args)}
+          />
       }
       <div key={`search-results-${JSON.stringify(mediaPropertyStore.searchOptions)}`} className={S("search__content")}>
         {
           groups.map(attribute =>
-            <ResultsGroup
+            <SectionResultsGroup
               key={`results-${attribute}`}
               groupBy={group_by}
               label={Object.keys(searchResults).length > 1 ? attribute : ""}
               results={searchResults[attribute]}
+              navContext="search"
             />
           )
         }
         {
           !searchResults.__other ? null :
-            <ResultsGroup
+            <SectionResultsGroup
               label={Object.keys(searchResults || {}).length > 1 ? "Other" : ""}
               results={searchResults.__other}
+              navContext="search"
             />
         }
       </div>

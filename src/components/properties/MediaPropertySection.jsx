@@ -7,16 +7,16 @@ import {mediaPropertyStore, rootStore} from "Stores";
 import MediaCard from "Components/properties/MediaCards";
 import UrlJoin from "url-join";
 import ImageIcon from "Components/common/ImageIcon";
-import {Carousel, PageBackground, PageContainer, PageHeader} from "Components/properties/Common";
+import {AttributeFilter, Carousel, PageBackground, PageContainer, PageHeader} from "Components/properties/Common";
 
 import RightArrow from "Assets/icons/right-arrow";
 import {ScrollTo} from "../../utils/Utils";
 import {LoginGate} from "Components/common/LoginGate";
-import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
+import {MediaItemImageUrl, MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 
-const GridContentColumns = ({contentLength, aspectRatio, justification, pageWidth}) => {
+const GridContentColumns = ({aspectRatio, pageWidth}) => {
   let columns = 1;
   if(pageWidth >= 1920) {
     columns = 5;
@@ -26,16 +26,67 @@ const GridContentColumns = ({contentLength, aspectRatio, justification, pageWidt
     columns = 4;
   } else if(pageWidth >= 900) {
     columns = 3;
-  } else if(pageWidth >= 750) {
+  } else if(pageWidth >= 800) {
     columns = 2;
   }
 
-  if(pageWidth > 800 && aspectRatio !== "landscape") {
+  if(pageWidth > 800 && aspectRatio?.toLowerCase() !== "landscape") {
     columns += 1;
   }
 
-  return `repeat(${justification === "center" ? Math.min(columns, contentLength) : columns}, minmax(0, 1fr))`;
+  return columns;
 };
+
+export const MediaGrid = observer(({
+  content,
+  isSectionContent=false,
+  aspectRatio,
+  textDisplay="all",
+  justification="left",
+  className="",
+  navContext
+}) => {
+  aspectRatio = aspectRatio?.toLowerCase();
+
+  const columns = GridContentColumns({
+    aspectRatio,
+    pageWidth: rootStore.pageWidth,
+  });
+
+  return (
+    <div
+      style={
+        !aspectRatio ? {} :
+          {
+            gridTemplateColumns: `repeat(${justification === "center" ? Math.min(columns, content.length) : columns}, minmax(0, 1fr))`
+          }
+      }
+      className={[S(
+        "section__content",
+        "section__content--grid",
+        aspectRatio ?
+          `section__content--${aspectRatio}` :
+          "section__content--flex",
+        `section__content--${justification || "left"}`
+      ), className].join(" ")}
+    >
+      {
+        content.map(item =>
+          <MediaCard
+            size={!aspectRatio ? "mixed" : ""}
+            format="vertical"
+            key={`section-item-${item.id}`}
+            sectionItem={isSectionContent ? item : undefined}
+            mediaItem={isSectionContent ? undefined : item}
+            textDisplay={textDisplay}
+            aspectRatio={aspectRatio}
+            navContext={navContext}
+          />
+        )
+      }
+    </div>
+  );
+});
 
 const SectionContentBanner = observer(({section, sectionContent, navContext}) => {
   return (
@@ -94,102 +145,72 @@ const SectionContentCarousel = observer(({section, sectionContent, navContext}) 
 
 const SectionContentGrid = observer(({section, sectionContent, navContext}) => {
   const aspectRatio = section.display.aspect_ratio?.toLowerCase();
+
   return (
-    <div
-      style={
-        !aspectRatio ? {} :
-          {
-            gridTemplateColumns:
-              GridContentColumns({
-                contentLength: sectionContent.length,
-                aspectRatio,
-                pageWidth: rootStore.pageWidth,
-                justification: section.display.justification
-              })
-          }
-      }
-      className={S(
-        "section__content",
-        "section__content--grid",
-        aspectRatio ?
-          `section__content--${aspectRatio}` :
-          "section__content--flex",
-        `section__content--${section.display.justification || "left"}`
-      )}
-    >
+    <MediaGrid
+      content={sectionContent}
+      isSectionContent
+      aspectRatio={aspectRatio}
+      textDisplay={section.display.content_display_text}
+      justification={section.display.justification}
+      navContext={navContext}
+    />
+  );
+});
+
+export const SectionResultsGroup = observer(({groupBy, label, results, navContext}) => {
+  if(label && groupBy === "__date") {
+    const date = new Date(label);
+    const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+
+    label = new Date(date.getTime() + userTimezoneOffset)
+      .toLocaleDateString(rootStore.preferredLocale, { weekday:"long", year: "numeric", month: "long", day: "numeric"});
+  }
+
+  let aspectRatio;
+  results.forEach(result => {
+    if(aspectRatio === "mixed") { return; }
+
+    let {imageAspectRatio} = MediaItemImageUrl({
+      mediaItem: result.mediaItem
+    });
+
+    if(!aspectRatio) {
+      aspectRatio = imageAspectRatio;
+    } else if(aspectRatio !== imageAspectRatio) {
+      aspectRatio = "mixed";
+    } else {
+      aspectRatio = imageAspectRatio;
+    }
+  });
+
+  return (
+    <div className={S("section", "section--page", "section__group")}>
       {
-        sectionContent.map(sectionItem =>
-          <MediaCard
-            size={!section.display.aspect_ratio ? "mixed" : ""}
-            format="vertical"
-            key={`section-item-${sectionItem.id}`}
-            sectionItem={sectionItem}
-            textDisplay={section.display.content_display_text}
-            aspectRatio={section.display.aspect_ratio}
-            navContext={navContext}
-          />
-        )
+        !label ? null :
+          <h2 className={S("section__group-title")}>
+            { label }
+          </h2>
       }
+      <MediaGrid
+        content={results.map(result => result.mediaItem)}
+        aspectRatio={aspectRatio === "mixed" ? undefined : aspectRatio}
+        navContext={navContext}
+      />
     </div>
   );
 });
 
-export const MediaGrid = observer(({content, aspectRatio, textDisplay="all", justification="left", className="", navContext}) => {
-  aspectRatio = aspectRatio?.toLowerCase();
-
-  return (
-    <div
-      style={
-        !aspectRatio ? {} :
-          {
-            gridTemplateColumns: GridContentColumns({
-              contentLength: content.length,
-              aspectRatio,
-              pageWidth: rootStore.pageWidth,
-              justification
-            })
-          }
-      }
-      className={[S(
-        "section__content",
-        "section__content--grid",
-        aspectRatio ?
-          `section__content--${aspectRatio}` :
-          "section__content--flex",
-        `section__content--${justification}`
-      ), className].join(" ")}
-    >
-      {
-        content.map(mediaItem =>
-          <MediaCard
-            size={!aspectRatio ? "mixed" : ""}
-            format="vertical"
-            key={`section-item-${mediaItem.id}`}
-            mediaItem={mediaItem}
-            textDisplay={textDisplay}
-            aspectRatio={aspectRatio}
-            navContext={navContext}
-          />
-        )
-      }
-    </div>
-  );
-});
-
-export const MediaPropertySection = observer(({sectionId, mediaListId, isSectionPage, isMediaPage}) => {
+export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPage, filterOptions}) => {
   const match = useRouteMatch();
-  const history = useHistory();
   let navContext = new URLSearchParams(location.search).get("ctx");
-
-  const mediaListSlugOrId = mediaListId || (isSectionPage && match.params.mediaListSlugOrId);
+  const [sectionContent, setSectionContent] = useState([]);
 
   const section = mediaPropertyStore.MediaPropertySection({
     mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
-    sectionSlugOrId: sectionId || match.params.sectionSlugOrId,
-    mediaListSlugOrId
+    sectionSlugOrId: sectionId,
+    mediaListSlugOrId: mediaListId
   });
-
-  const [sectionContent, setSectionContent] = useState([]);
 
   useEffect(() => {
     if(!section) { return; }
@@ -197,20 +218,12 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
     mediaPropertyStore.MediaPropertySectionContent({
       mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
       pageSlugOrId: match.params.pageSlugOrId,
-      sectionSlugOrId: !mediaListId && sectionId || match.params.sectionSlugOrId || navContext,
-      mediaListSlugOrId
+      sectionSlugOrId: mediaListId || sectionId,
+      mediaListSlugOrId: mediaListId,
+      filterOptions
     })
       .then(content => setSectionContent(content));
-  }, [match.params, sectionId, mediaListId]);
-
-  useEffect(() => {
-    // For a section page, ensure ctx is set
-    if(!isSectionPage) { return; }
-
-    const params = new URLSearchParams(window.location.query);
-    params.set("ctx", match.params.sectionSlugOrId);
-    history.replace(location.pathname + "?" + params.toString());
-  }, []);
+  }, [match.params, sectionId, mediaListId, filterOptions]);
 
   if(!section) {
     return null;
@@ -218,14 +231,14 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
 
   let sectionPermissions = mediaPropertyStore.ResolvePermission({
     ...match.params,
-    sectionSlugOrId: !mediaListId && sectionId || match.params.sectionSlugOrId || navContext,
-    mediaListSlugOrId
+    sectionSlugOrId: !mediaListId && sectionId,
+    mediaListSlugOrId: mediaListId
   });
 
   let ContentComponent;
   switch(section.display.display_format?.toLowerCase()) {
     case "carousel":
-      ContentComponent = isSectionPage ? SectionContentGrid : SectionContentCarousel;
+      ContentComponent = SectionContentCarousel;
       break;
     case "banner":
       ContentComponent = SectionContentBanner;
@@ -233,20 +246,6 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
     default:
       ContentComponent = SectionContentGrid;
       break;
-  }
-
-  if(isSectionPage) {
-    return (
-      <LoginGate backPath={rootStore.ResolvedBackPath()} Condition={() => !sectionPermissions.authorized}>
-        <div className={S("section", "section--page")}>
-          <ContentComponent
-            section={section}
-            sectionContent={sectionContent}
-            navContext={!mediaListId ? "s" : navContext}
-          />
-        </div>
-      </LoginGate>
-    );
   }
 
   if(
@@ -258,6 +257,17 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
   }
 
   const showAllLink = sectionContent.length > parseInt(section.display.display_limit || 5);
+
+  let displayLimit = section.display.display_limit;
+  if(section.display.display_limit_type === "rows") {
+    // Limit to a certain number of rows - calculate items per row based on page width
+    const columns = GridContentColumns({
+      aspectRatio: section.display.aspect_ratio,
+      pageWidth: rootStore.pageWidth,
+    });
+
+    displayLimit = columns * displayLimit;
+  }
 
   return (
     <div
@@ -308,8 +318,8 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
         navContext={sectionId}
         section={section}
         sectionContent={
-          section.display.display_limit ?
-            sectionContent.slice(0, section.display.display_limit) :
+          displayLimit ?
+            sectionContent.slice(0, displayLimit) :
             sectionContent
         }
       />
@@ -319,22 +329,134 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isSection
 
 const MediaPropertySectionPage = observer(() => {
   const match = useRouteMatch();
+  const history = useHistory();
 
-  const section = mediaPropertyStore.MediaPropertySection(match.params);
+  const [sectionContent, setSectionContent] = useState([]);
+  const [groupedSectionContent, setGroupedSectionContent] = useState({});
+  const [filterOptions, setFilterOptions] = useState({
+    attributes: {},
+    mediaType: undefined
+  });
+
+  let navContext = new URLSearchParams(location.search).get("ctx");
+
+  const section = mediaPropertyStore.MediaPropertySection({...match.params});
+
+  useEffect(() => {
+    if(!section) { return; }
+
+    mediaPropertyStore.MediaPropertySectionContent({
+      ...match.params,
+      filterOptions
+    })
+      .then(content => {
+        setSectionContent(content);
+
+        if(section.group_by) {
+          setGroupedSectionContent(
+            mediaPropertyStore.GroupContent({
+              content,
+              groupBy: section.group_by,
+              excludePast: false
+            })
+          );
+        }
+      });
+  }, [match.params, filterOptions]);
+
+  useEffect(() => {
+    // Ensure ctx is set
+    if(!match.params.sectionSlugOrId) { return; }
+
+    const params = new URLSearchParams(window.location.query);
+    params.set("ctx", match.params.sectionSlugOrId);
+    history.replace(location.pathname + "?" + params.toString());
+  }, []);
 
   if(!section) {
     return <Redirect to={backPath} />;
   }
 
+  let sectionPermissions = mediaPropertyStore.ResolvePermission({...match.params});
+
+  let ContentComponent;
+  switch(section.display.display_format?.toLowerCase()) {
+    case "banner":
+      ContentComponent = SectionContentBanner;
+      break;
+    default:
+      ContentComponent = SectionContentGrid;
+      break;
+  }
+
+  let sectionItems;
+  if(section.group_by) {
+    let groups = Object.keys(groupedSectionContent || {}).filter(attr => attr !== "__other");
+    if(section.group_by === "__date") {
+      groups = groups.sort();
+    }
+
+    sectionItems = (
+      <div className={S("section__groups")}>
+        {
+          groups.map(attribute =>
+            <SectionResultsGroup
+              key={`results-${attribute}`}
+              groupBy={section.group_by}
+              label={Object.keys(groupedSectionContent).length > 1 ? attribute : ""}
+              results={groupedSectionContent[attribute]}
+              navContext="search"
+            />
+          )
+        }
+        {
+          !groupedSectionContent.__other ? null :
+            <SectionResultsGroup
+              label={Object.keys(groupedSectionContent || {}).length > 1 ? "Other" : ""}
+              results={groupedSectionContent.__other}
+              navContext="search"
+            />
+        }
+      </div>
+    );
+  } else {
+    sectionItems = (
+      <div className={S("section", "section--page")}>
+        <ContentComponent
+          section={section}
+          sectionContent={sectionContent}
+          navContext={!match.params.mediaListSlugOrId ? "s" : navContext}
+          key={`content-${JSON.stringify(filterOptions)}`}
+        />
+      </div>
+    );
+  }
+
   return (
-    <PageContainer>
+    <PageContainer className={S("page", "section-page")}>
       <PageBackground display={section.display} />
+      {
+        !section.primary_filter ? null :
+          <AttributeFilter
+            attributeKey={section.primary_filter}
+            variant="primary"
+            options={filterOptions}
+            setOption={({field, value}) => setFilterOptions({...filterOptions, [field]: value})}
+          />
+      }
+      {
+        !section.secondary_filter ? null :
+          <AttributeFilter
+            attributeKey={section.secondary_filter}
+            variant="secondary"
+            options={filterOptions}
+            setOption={({field, value}) => setFilterOptions({...filterOptions, [field]: value})}
+          />
+      }
       <PageHeader display={section.display} className={S("section__page-header")} />
-      <MediaPropertySection
-        sectionId={section.sectionId || section.id}
-        mediaListId={section.mediaListId}
-        isSectionPage
-      />
+      <LoginGate backPath={rootStore.ResolvedBackPath()} Condition={() => !sectionPermissions.authorized}>
+        {sectionItems}
+      </LoginGate>
     </PageContainer>
   );
 });

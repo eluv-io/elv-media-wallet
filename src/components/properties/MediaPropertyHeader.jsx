@@ -20,6 +20,7 @@ import LeftArrowIcon from "Assets/icons/left-arrow.svg";
 import XIcon from "Assets/icons/x.svg";
 import MenuIcon from "Assets/icons/menu.svg";
 import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
+import {SetImageUrlDimensions} from "../../utils/Utils";
 
 
 const S = (...classes) => classes.map(c => HeaderStyles[c] || "").join(" ");
@@ -456,7 +457,7 @@ const MediaPropertyHeader = observer(() => {
           to={basePath}
           className={S("logo-container")}
         >
-          <ImageIcon icon={mediaProperty?.metadata.header_logo?.url} className={S("logo")} />
+          <ImageIcon icon={SetImageUrlDimensions({url: mediaProperty?.metadata.header_logo?.url, width: 300})} className={S("logo")} />
         </Link>
       </div>
       <SearchBar />

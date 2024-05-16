@@ -1,5 +1,11 @@
 @import "./variables";
 
+.section-page {
+  &.page {
+    padding-inline: 75px;
+  }
+}
+
 .section {
   font-size: 16px;
   overflow: hidden;
@@ -10,6 +16,12 @@
 
   & + .section {
     margin-top: 20px;
+  }
+
+  &--page {
+    .section__content--grid {
+      width: 100%;
+    }
   }
 
   &--center {
@@ -75,7 +87,24 @@
     }
   }
 
+  &__groups {
+    display: grid;
+    gap: 50px;
+  }
+
+  &__group {
+    --max-card-width: 350px;
+  }
+
+  &__group-title {
+    font-size: 1.5em;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
   &__content {
+    @include page-fade-in;
+
     margin-top: 10px;
     width: 100%;
 
@@ -164,6 +193,10 @@
 
     &__content--carousel {
       --max-card-width: 275px;
+    }
+
+    &__group-title {
+      text-align: center;
     }
   }
 

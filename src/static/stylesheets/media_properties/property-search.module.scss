@@ -8,13 +8,7 @@
     @include page-fade-in;
 
     display: grid;
-    gap: 75px;
-  }
-
-  &__title {
-    font-size: 1.5em;
-    font-weight: 600;
-    margin-bottom: 20px;
+    gap: 50px;
   }
 
   &__results {
@@ -23,53 +17,8 @@
     --max-card-width: 350px;
   }
 
-  &__attributes {
-    margin-bottom: 30px;
-    max-width: max-content;
-  }
-
-  &__attribute--primary {
-    background-color: #414141;
-    border: 1px solid transparent;
-    border-radius: 5px;
-    min-width: 65px;
-    padding: 10px;
-    transition: border 0.25s ease;
-    white-space: nowrap;
-
-    &.search__attribute--active {
-      border: 1px solid white;
-    }
-  }
-
-  &__attribute--secondary {
-    color: var(--property-text-faded);
-    font-size: 1.2em;
-    font-weight: 600;
-    transition: color 0.25s ease;
-
-    &.search__attribute--active {
-      color: var(--property-text-primary);
-    }
-  }
-
-  &__attribute-slide {
-    height: max-content;
-    user-select: none;
-    width: max-content;
-
-    &:global(.swiper-slide) {
-      height: min-content;
-      width: max-content!important;
-    }
-  }
-
   @media screen and (width <= 800px) {
     padding-inline: 25px;
-
-    &__title {
-      font-size: 1.3em;
-    }
 
     &__attribute--primary {
       font-size: 0.8em;
