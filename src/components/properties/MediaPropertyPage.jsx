@@ -21,6 +21,18 @@ const Actions = observer(() => {
 
   let actions = [];
 
+  if(!rootStore.loggedIn) {
+    actions.push(
+      <Button
+        key="cta-sign-in"
+        onClick={() => rootStore.ShowLogin()}
+        className={S("button", "button--sign-in")}
+      >
+        { rootStore.l10n.login.sign_in }
+      </Button>
+    );
+  }
+
   if(match.params.contractId) {
     const {nft} = rootStore.NFTData({
       contractId: match.params.contractId,
@@ -35,7 +47,7 @@ const Actions = observer(() => {
       actions.push(
         <Button
           to={UrlJoin(location.pathname, "/details")}
-          key="item-details"
+          key="cta-item-details"
           className={S("button")}
         >
           { rootStore.l10n.media_properties.page.actions.item_details}

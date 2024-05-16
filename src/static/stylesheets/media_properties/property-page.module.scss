@@ -14,12 +14,23 @@
   .actions {
     align-items: center;
     display: flex;
+    gap: 20px;
     margin-top: 30px;
   }
 
   .button {
-    font-size: 20px;
-    padding-inline: 30px;
+    border-radius: 10px;
+    font-size: 1.2em;
+    font-weight: 600;
+    height: 55px;
+    padding-inline: 40px;
+    text-transform: uppercase;
+
+    &--sign-in {
+      background: var(--header-signin-button-bg);
+      border: var(--header-signin-button-border);
+      color: var(--header-signin-button-text);
+    }
   }
 
   &__sections {
@@ -41,6 +52,11 @@
 
     &__sections {
       margin-top: 50px;
+    }
+
+    .button {
+      font-size: 0.9em;
+      height: 36px;
     }
   }
 }

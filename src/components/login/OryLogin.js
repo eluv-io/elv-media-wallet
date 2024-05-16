@@ -194,7 +194,8 @@ const OryLogin = observer(({userData}) => {
       const response = await rootStore.oryClient.createBrowserLogoutFlow();
       await rootStore.oryClient.updateLogoutFlow({token: response.data.logout_token});
       setFlows({});
-      setFlowType("login");
+      setFlowType("reset");
+      setTimeout(() => setFlowType("login"), 250);
     } catch(error) {
       rootStore.Log(error);
     } finally {
@@ -235,7 +236,14 @@ const OryLogin = observer(({userData}) => {
       }
 
       additionalContent.push(
-        <button key="recovery-link" onClick={() => setFlowType("recovery")} className="ory-login__secondary-button">
+        <button
+          key="recovery-link"
+          onClick={() => {
+            setFlowType("recovery");
+            setTimeout(() => setStatusMessage(rootStore.l10n.login.ory.messages.recovery_prompt), 250);
+          }}
+          className="ory-login__secondary-button"
+        >
           { rootStore.l10n.login.ory.actions.recovery }
         </button>
       );

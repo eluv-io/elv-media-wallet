@@ -391,7 +391,7 @@ const HeaderLinks = observer(() => {
   }
 });
 
-const MediaPropertyMobileHeader = observer(() => {
+const MediaPropertyMobileHeader = observer(({logo, basePath, searchDisabled}) => {
   const [showSearchBar, setShowSearchBar] = useState(false);
 
   if(showSearchBar) {
@@ -414,9 +414,18 @@ const MediaPropertyMobileHeader = observer(() => {
               <ImageIcon icon={LeftArrowIcon} label="Go Back" className={S("button__icon")} />
             </Linkish>
         }
-        <button className={S("button")} onClick={() => setShowSearchBar(true)}>
-          <ImageIcon icon={SearchIcon} label="Search" className={S("button__icon")} />
-        </button>
+        {
+          searchDisabled ?
+            <Link
+              to={basePath}
+              className={S("logo-container")}
+            >
+              <ImageIcon icon={logo} className={S("logo")} />
+            </Link> :
+            <button className={S("button")} onClick={() => setShowSearchBar(true)}>
+              <ImageIcon icon={SearchIcon} label="Search" className={S("button__icon")}/>
+            </button>
+        }
       </div>
       <div className={S("links")}>
         <HeaderLinks />
@@ -430,11 +439,9 @@ const MediaPropertyHeader = observer(() => {
 
   if(!mediaProperty) { return null; }
 
-  if(rootStore.pageWidth < 800) {
-    return <MediaPropertyMobileHeader />;
-  }
+  const searchDisabled = !rootStore.loggedIn && mediaProperty.metadata?.search?.hide_if_unauthenticated;
 
-
+  const logo = SetImageUrlDimensions({url: mediaProperty?.metadata.header_logo?.url, width: 300});
   let basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: false});
 
   if((basePath === location.pathname || UrlJoin(basePath, "/main") === location.pathname) && rootStore.routeParams.parentMediaPropertySlugOrId) {
@@ -442,6 +449,16 @@ const MediaPropertyHeader = observer(() => {
       mediaPropertySlugOrId: rootStore.routeParams.parentMediaPropertySlugOrId,
       pageSlugOrId: rootStore.routeParams.parentPageSlugOrId
     });
+  }
+
+  if(rootStore.pageWidth < 800) {
+    return (
+      <MediaPropertyMobileHeader
+        logo={logo}
+        basePath={basePath}
+        searchDisabled={searchDisabled}
+      />
+    );
   }
 
   return (
@@ -457,10 +474,14 @@ const MediaPropertyHeader = observer(() => {
           to={basePath}
           className={S("logo-container")}
         >
-          <ImageIcon icon={SetImageUrlDimensions({url: mediaProperty?.metadata.header_logo?.url, width: 300})} className={S("logo")} />
+          <ImageIcon icon={logo} className={S("logo")} />
         </Link>
       </div>
-      <SearchBar />
+      {
+        searchDisabled ?
+          <div className={S("search-container--placeholder")} /> :
+          <SearchBar/>
+      }
       <div className={S("links")}>
         <HeaderLinks />
       </div>

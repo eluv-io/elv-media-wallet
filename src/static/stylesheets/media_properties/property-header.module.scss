@@ -357,5 +357,11 @@
     align-items: center;
     display: flex;
     gap: 10px;
+    height: 100%;
+  }
+
+  .logo-container {
+    height: 70%;
+    min-width: unset;
   }
 }

@@ -51,6 +51,7 @@ login:
     verification: Verify Your Account
     update_password: Change Password
     messages:
+      recovery_prompt: Please enter the email address associated with your account to request a password change
       password_updated: Password updated successfully!
     errors:
       invalid_credentials: Invalid Credentials

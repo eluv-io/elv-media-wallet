@@ -73,7 +73,7 @@ if(["ris.euro2024.com", "ris-uefa.mw.app"].includes(location.hostname)) {
 
 
 class RootStore {
-  preferredLocale = navigator.language;
+  preferredLocale = Intl.DateTimeFormat()?.resolvedOptions?.()?.locale || navigator.language;
   language = this.GetLocalStorage("lang");
   l10n = LocalizationEN;
   uiLocalizations = ["pt-br"];
@@ -252,7 +252,6 @@ class RootStore {
       this.SetSessionStorage("auth-origin", searchParams.get("origin"));
     }
 
-    this.preferredLocale = navigator.languages?.[0] || navigator.language;
     if(!this.preferredLocale.includes("-")) {
       this.preferredLocale = navigator.languages?.find(language => language.startsWith(`${this.preferredLocale}-`)) || this.preferredLocale;
     }
