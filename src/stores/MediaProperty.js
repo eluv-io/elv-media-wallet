@@ -198,7 +198,7 @@ class MediaPropertyStore {
     let groupedResults = {};
     content
       .filter(result => {
-        if(groupBy !== "__date") { return; }
+        if(groupBy !== "__date") { return true; }
 
         const {isLiveContent, ended} = MediaItemScheduleInfo(result.mediaItem);
 
