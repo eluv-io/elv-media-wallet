@@ -187,10 +187,11 @@
       padding: 10px 0;
       position: absolute;
       top: 0;
-      width: 100%;
 
       .spinner {
         --spinner-width: 4px;
+        height: 30px;
+        width: 30px;
       }
     }
 
