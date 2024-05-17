@@ -48,6 +48,7 @@
 
     .actions {
       justify-content: center;
+      margin-top: 50px;
     }
 
     &__sections {
@@ -55,8 +56,10 @@
     }
 
     .button {
+      flex: 1 1 100%;
       font-size: 0.9em;
       height: 36px;
+      max-width: 450px;
     }
   }
 }
