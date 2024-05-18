@@ -1810,7 +1810,7 @@ class RootStore {
 
     this.SendEvent({event: EVENTS.LOG_OUT, data: {address: this.CurrentAddress()}});
 
-    if(this.auth0) {
+    if(this.auth0 && (yield this.auth0.isAuthenticated())) {
       try {
         this.disableCloseEvent = true;
 
