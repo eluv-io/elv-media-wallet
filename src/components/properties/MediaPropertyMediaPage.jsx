@@ -109,12 +109,12 @@ const MediaVideo = observer(({mediaItem, display}) => {
         title: EluvioPlayerParameters.title.FULLSCREEN_ONLY,
         playerProfile: EluvioPlayerParameters.playerProfile[mediaItem.player_profile || (scheduleInfo.isLiveContent ? "LOW_LATENCY" : "DEFAULT")]
       }}
-      posterImage={{
-        posterImage: SetImageUrlDimensions({
+      posterImage={
+        SetImageUrlDimensions({
           url: mediaItem.poster_image?.url,
           width: mediaPropertyStore.rootStore.fullpageImageWidth
         })
-      }}
+      }
       errorCallback={() => setError("Something went wrong")}
       className={S("media", "video")}
     />

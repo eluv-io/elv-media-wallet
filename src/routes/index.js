@@ -111,7 +111,7 @@ const UserRoutes = ({includeMarketplaceRoutes}={}) => {
 
 
 const PropertyMediaRoutes = (basePath="") => {
-  const GetPropertyPageTitle = match => GetProperty(match)?.metadata?.page_title || rootStore.l10n.media_properties.media_property;
+  const GetPropertyPageTitle = match => GetProperty(match)?.metadata?.meta_tags?.title || GetProperty(match)?.metadata?.page_title;
   return [
     { path: UrlJoin(basePath, "c/:mediaCollectionSlugOrId"), Component: MediaPropertyCollectionPage },
     { path: UrlJoin(basePath, "c/:mediaCollectionSlugOrId/l/:mediaListSlugOrId"), Component: MediaPropertyCollectionPage },
@@ -123,7 +123,7 @@ const PropertyMediaRoutes = (basePath="") => {
 };
 
 const PropertyRoutes = (basePath="", additionalRoutes=[]) => {
-  const GetPropertyPageTitle = match => GetProperty(match)?.metadata?.page_title || rootStore.l10n.media_properties.media_property;
+  const GetPropertyPageTitle = match => GetProperty(match)?.metadata?.meta_tags?.title || GetProperty(match)?.metadata?.page_title;
 
   // All possible permutations of property or parent property/subproperty with or without page slug/id
   const propertyPaths = [
@@ -338,7 +338,10 @@ const RouteWrapper = observer(({routes, children}) => {
         };
       });
 
-    document.title = breadcrumbs.slice(-1)[0]?.name || "Eluvio Media Wallet";
+    const title = breadcrumbs.slice(-1)[0]?.name;
+    if(title) {
+      document.title = title;
+    }
 
     let navigationKey = currentRoute.navigationKey;
     if(navigationKey === "shared") {

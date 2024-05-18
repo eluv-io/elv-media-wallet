@@ -60,7 +60,7 @@ if(["ris.euro2024.com", "ris-uefa.mw.app"].includes(location.hostname)) {
 
   if(location.hostname === "ris.euro2024.com") {
     EluvioConfiguration.ory_configuration = {
-      "url": "auth.euro2024.com",
+      "url": "https://auth.euro2024.com",
       "jwt_template": "jwt_uefa_template1"
     };
   } else {

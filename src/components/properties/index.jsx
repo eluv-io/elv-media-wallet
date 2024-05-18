@@ -59,7 +59,16 @@ const PropertyWrapper = observer(({children}) => {
         cacheSeconds={60}
         key={`property-${mediaPropertySlugOrId}-${rootStore.loggedIn}`}
         loadKey={`property-${mediaPropertySlugOrId}-${rootStore.loggedIn}`}
-        Load={async () => await mediaPropertyStore.LoadMediaProperty({mediaPropertySlugOrId})}
+        Load={async () => {
+          await mediaPropertyStore.LoadMediaProperty({mediaPropertySlugOrId});
+
+          const property = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId});
+
+          const title = property?.metadata?.meta_tags?.title || property?.metadata?.page_title;
+          if(title) {
+            document.title = title;
+          }
+        }}
         loadingClassName="page-loader content"
       >
         <PurchaseGate permissions={mediaProperty?.permissions} backPath="/">
