@@ -557,7 +557,7 @@ class RootStore {
       this.Log("Error logging in with Ory:", true);
       this.Log(error);
 
-      if(error?.status === 400) {
+      if([400, 503].includes(parseInt(error?.status))) {
         throw { uiMessage: this.l10n.login.errors.too_many_logins };
       }
     }
@@ -604,7 +604,7 @@ class RootStore {
         this.Log(error, true);
       }
 
-      if(error?.status === 400) {
+      if([400, 503].includes(parseInt(error?.status))) {
         throw { uiMessage: this.l10n.login.errors.too_many_logins };
       }
     } finally {
