@@ -167,9 +167,8 @@ const OryLogin = observer(({userData}) => {
           .then(({data}) => setFlows({...flows, [flowType]: data}));
         break;
       case "registration":
-        const returnUrl = new URL(location.pathname === "/login" ? location.origin : location.href);
-        returnUrl.hash = returnUrl.pathname;
-        returnUrl.pathname = "";
+        let returnUrl = new URL(location.pathname === "/login" ? location.origin : location.href);
+        returnUrl = returnUrl.origin + `?${returnUrl.searchParams.toString()}` + `#${returnUrl.pathname}`;
         rootStore.oryClient.createBrowserRegistrationFlow({returnTo: returnUrl.toString()})
           .then(({data}) => setFlows({...flows, [flowType]: data}));
         break;
