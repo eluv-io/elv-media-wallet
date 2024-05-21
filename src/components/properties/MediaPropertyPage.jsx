@@ -4,7 +4,6 @@ import React from "react";
 import {observer} from "mobx-react";
 import {mediaPropertyStore, rootStore} from "Stores";
 import {Redirect, useRouteMatch} from "react-router-dom";
-import UrlJoin from "url-join";
 import {
   Button,
   PageBackground,
@@ -12,13 +11,10 @@ import {
   PageHeader
 } from "Components/properties/Common";
 import {MediaPropertySection} from "Components/properties/MediaPropertySection";
-import {NFTInfo} from "../../utils/Utils";
 
 const S = (...classes) => classes.map(c => PageStyles[c] || "").join(" ");
 
 const Actions = observer(() => {
-  const match = useRouteMatch();
-
   let actions = [];
 
   if(!rootStore.loggedIn) {
@@ -28,35 +24,9 @@ const Actions = observer(() => {
         onClick={() => rootStore.ShowLogin()}
         className={S("button", "button--sign-in")}
       >
-        { rootStore.l10n.login.sign_in }
+        {rootStore.l10n.login.sign_in}
       </Button>
     );
-  }
-
-  if(match.params.contractId) {
-    /*
-    const {nft} = rootStore.NFTData({
-      contractId: match.params.contractId,
-      tokenId: match.params.tokenId
-    });
-
-    if(!nft) { return; }
-
-    const nftInfo = NFTInfo({nft});
-
-    if(nftInfo.isOwned) {
-      actions.push(
-        <Button
-          to={UrlJoin(location.pathname, "/details")}
-          key="cta-item-details"
-          className={S("button")}
-        >
-          { rootStore.l10n.media_properties.page.actions.item_details}
-        </Button>
-      );
-    }
-
-     */
   }
 
   if(actions.length === 0) { return null; }

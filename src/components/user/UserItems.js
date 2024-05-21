@@ -58,8 +58,11 @@ const UserItems = observer(() => {
                   <NFTCard
                     key={`nft-card-${nft.details.ContractId}-${nft.details.TokenIdStr}`}
                     link={UrlJoin(match.url, nft.details.ContractId, nft.details.TokenIdStr)}
+                    detailsLink={
+                      !rootStore.client.utils.EqualAddress(nft.details.TokenOwner, rootStore.CurrentAddress()) ? null :
+                        UrlJoin(match.url, nft.details.ContractId, nft.details.TokenIdStr) + "?page=details"
+                    }
                     nft={nft}
-                    selectedListing={listing}
                     imageWidth={600}
                     badges={[
                       !listing ? null :

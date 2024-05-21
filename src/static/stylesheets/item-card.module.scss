@@ -63,6 +63,18 @@
     }
   }
 
+  &__details-link {
+    * {
+      transition: color 0.25s ease;
+    }
+
+    &:hover {
+      * {
+        color: white;
+      }
+    }
+  }
+
   &__image {
     aspect-ratio: 1;
     margin: 20px 0;

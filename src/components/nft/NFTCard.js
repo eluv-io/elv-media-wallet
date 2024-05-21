@@ -13,12 +13,13 @@ const NFTCard = observer(({
   usdcAccepted,
   usdcOnly,
   link,
+  detailsLink,
   badges,
   imageWidth,
   showVideo,
   hideToken,
   allowFullscreen,
-  playerCallback
+  playerCallback,
 }) => {
   const info = NFTInfo({
     nft,
@@ -38,6 +39,7 @@ const NFTCard = observer(({
       collectionName={info.collectionName}
       collectionImage={info.collectionImage}
       link={link}
+      detailsLink={detailsLink}
       name={info.name}
       subtitle1={info.subtitle1}
       subtitle2={info.subtitle2}

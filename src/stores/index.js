@@ -1835,7 +1835,7 @@ class RootStore {
         this.disableCloseEvent = true;
 
         // Auth0 has a specific whitelisted path for login/logout urls - rely on hash redirect
-        returnUrl = new URL(returnUrl || this.ReloadURL());
+        returnUrl = new URL(returnUrl || this.ReloadURL({signOut: true}));
         returnUrl.hash = returnUrl.pathname;
         returnUrl.pathname = "";
 
@@ -1852,7 +1852,7 @@ class RootStore {
       }
     }
 
-    this.Reload();
+    this.Reload(returnUrl.toString());
   });
 
   CreateShortURL = flow(function * (url) {
@@ -1878,23 +1878,23 @@ class RootStore {
       `https://lookout.qluv.io/tx/${transaction}`;
   }
 
-  ReloadURL(keepPath=false) {
+  ReloadURL({signOut}={}) {
     const url = new URL(UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""));
 
     if(this.appUUID) {
       url.searchParams.set("appUUID", this.appUUID);
     }
 
-    if(keepPath || this.routeParams.mediaPropertySlugOrId && !window.location.pathname.startsWith("/m")) {
-      url.pathname = window.location.pathname;
+    url.pathname = window.location.pathname;
 
-      if(this.routeParams.userId === "me") {
+    if(signOut) {
+      if(this.routeParams.mediaPropertySlugOrId && !window.location.pathname.startsWith("/m")) {
         url.pathname = MediaPropertyBasePath(rootStore.routeParams);
+      } else if(this.marketplaceId) {
+        url.pathname = UrlJoin("/marketplace", this.marketplaceId, "store");
+      } else {
+        url.pathname = "/";
       }
-    } else if(this.marketplaceId) {
-      url.pathname = UrlJoin("/marketplace", this.marketplaceId, "store");
-    } else {
-      url.pathname = "/";
     }
 
     if(this.specifiedMarketplaceId) {
@@ -1912,9 +1912,9 @@ class RootStore {
     return url.toString();
   }
 
-  Reload() {
+  Reload(returnUrl) {
     this.disableCloseEvent = true;
-    window.location.href = this.ReloadURL();
+    window.location.href = returnUrl || this.ReloadURL();
     window.location.reload();
   }
 

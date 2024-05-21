@@ -19,6 +19,7 @@ const ItemCard = observer(({
   status,
   sideText,
   link,
+  detailsLink,
   onClick,
   disabled
 }) => {
@@ -43,7 +44,10 @@ const ItemCard = observer(({
               { collectionName || "" }
             </div>
           </div>
-          <div className={S("item-card__top-right")}>
+          <Linkish
+            to={detailsLink}
+            className={S("item-card__top-right", detailsLink ? "item-card__details-link" : "")}
+          >
             {
               price ? <div className={S("item-card__price")}>{price}</div> :
                 sideText ? <div className={S("item-card__token")}>{sideText}</div> :
@@ -53,7 +57,7 @@ const ItemCard = observer(({
               !badges ? null :
                 <div className={S("item-card__badges")}>{badges}</div>
             }
-          </div>
+          </Linkish>
         </div>
         <div className={S("item-card__image")}>
           { image }
