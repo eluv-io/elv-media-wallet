@@ -34,6 +34,7 @@ const Actions = observer(() => {
   }
 
   if(match.params.contractId) {
+    /*
     const {nft} = rootStore.NFTData({
       contractId: match.params.contractId,
       tokenId: match.params.tokenId
@@ -54,6 +55,8 @@ const Actions = observer(() => {
         </Button>
       );
     }
+
+     */
   }
 
   if(actions.length === 0) { return null; }

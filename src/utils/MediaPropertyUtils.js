@@ -10,7 +10,7 @@ export const MediaPropertyBasePath = (params, {includePage=true}={}) => {
     UrlJoin("/", params.mediaPropertySlugOrId, (includePage && params.pageSlugOrId) || "");
 
   if(params.contractId) {
-    path = UrlJoin("/m", params.contractId, params.tokenId, path);
+    path = UrlJoin("/m", params.contractId, params.tokenId, "p", path);
   }
 
   return path;
