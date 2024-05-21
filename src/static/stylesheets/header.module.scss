@@ -40,6 +40,12 @@
   align-items: center;
   display: flex;
   width: max-content;
+
+  svg {
+    padding-right: 2px;
+    height: 50%;
+    width: 50%;
+  }
 }
 
 .home {
