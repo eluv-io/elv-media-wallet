@@ -183,7 +183,7 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
 };
 
 // Logo, login buttons, terms and loading indicator
-const Form = observer(({authenticating, userData, setUserData, customizationOptions, loading, codeAuthSet, useOry, LogIn}) => {
+const Form = observer(({authenticating, userData, setUserData, customizationOptions, loading, codeAuthSet, useOry, errorMessage, LogIn}) => {
   let hasLoggedIn = false;
   try {
     hasLoggedIn = localStorage.getItem("hasLoggedIn");
@@ -319,6 +319,11 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
           <div className="login-page__login-code">
             { LocalizeString(rootStore.l10n.login.login_code, { code: params.loginCode }) }
           </div> : null
+      }
+
+      {
+        !errorMessage ? null :
+          <div className="login-page__error-message">{errorMessage}</div>
       }
 
       <PoweredBy customizationOptions={customizationOptions}/>
@@ -504,6 +509,10 @@ const AuthenticateAuth0 = async (userData) => {
   } catch(error){
     rootStore.Log("Auth0 authentication failed:", true);
     rootStore.Log(error, true);
+
+    if(error.uiMessage) {
+      throw error;
+    }
   }
 };
 
@@ -513,10 +522,13 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
   const [savingUserData, setSavingUserData] = useState(false);
   const [settingCodeAuth, setSettingCodeAuth] = useState(false);
   const [codeAuthSet, setCodeAuthSet] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(undefined);
   const useOry = params.useOry || customizationOptions?.tenantConfig?.["open-id"]?.["issuer-url"];
 
   // Handle login button clicked - Initiate popup/login flow
   const LogIn = async ({provider, mode}) => {
+    setErrorMessage(undefined);
+
     if(rootStore.embedded) {
       const marketplaceHash = params.marketplace || customizationOptions.marketplaceHash;
       await rootStore.walletClient.LogIn({
@@ -627,6 +639,11 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
     } else if(!useOry && rootStore.loaded && !rootStore.loggedIn && rootStore.auth0 && params.isAuth0Callback) {
       // Returned from Auth0 callback - Authenticate
       AuthenticateAuth0(params.userData)
+        .catch(error => {
+          if(error?.uiMessage) {
+            setErrorMessage(error?.uiMessage);
+          }
+        })
         .finally(() => setAuth0Authenticating(false));
     } else if(rootStore.loaded && !rootStore.loggedIn && ["parent", "origin", "code"].includes(params.source) && params.action === "login" && params.provider && !settingCodeAuth && !codeAuthSet) {
       // Opened from frame - do appropriate login flow
@@ -680,6 +697,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           codeAuthSet={codeAuthSet}
           LogIn={LogIn}
           customizationOptions={customizationOptions}
+          errorMessage={errorMessage}
           useOry={useOry}
         />
       </div>

@@ -162,6 +162,14 @@
     }
   }
 
+  &__error-message {
+    color: #FFF;
+    font-size: 14px;
+    margin: 20px 0;
+    text-align: center;
+    white-space: pre-wrap;
+  }
+
   &__background {
     backdrop-filter: blur(3px);
     background: var(--background-login);

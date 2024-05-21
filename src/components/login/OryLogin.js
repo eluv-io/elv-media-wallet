@@ -356,6 +356,12 @@ const OryLogin = observer(({userData}) => {
       }
     } catch(error) {
       rootStore.Log(error, true);
+
+      if(error.uiMessage) {
+        setErrorMessage(error.uiMessage);
+        return;
+      }
+
       const errors = error?.response.data?.ui?.messages
         ?.map(message => message.text)
         ?.filter(message => message)

@@ -38,6 +38,7 @@ login:
   code_auth_success: Sign in successful!
   errors:
     missing_required_options: Please accept the required options below
+    too_many_logins: This account has been accessed from too many devices. Please wait 24 hours and try again.
   ory:
     actions:
       registration: Sign Up

@@ -30,7 +30,7 @@ import NotificationStore from "Stores/Notification";
 import MediaPropertyStore from "Stores/MediaProperty";
 
 import NFTContractABI from "../static/abi/NFTContract";
-import {v4 as UUID} from "uuid";
+import {v4 as UUID, parse as ParseUUID} from "uuid";
 import ProfanityFilter from "bad-words";
 
 import LocalizationEN from "Assets/localizations/en.yml";
@@ -113,6 +113,8 @@ class RootStore {
   activeModals = 0;
 
   authInfo = undefined;
+  authNonce;
+  useLocalAuth;
 
   loginOnly = window.loginOnly;
   requireLogin = searchParams.has("rl");
@@ -261,6 +263,14 @@ class RootStore {
     this.cryptoStore = new CryptoStore(this);
     this.notificationStore = new NotificationStore(this);
     this.mediaPropertyStore = new MediaPropertyStore(this);
+
+    this.authNonce = this.GetLocalStorage("auth-nonce") || Utils.B58(ParseUUID(UUID()));
+    this.SetLocalStorage("auth-nonce", this.authNonce);
+
+    this.useLocalAuth = this.GetSessionStorage("local-auth") || searchParams.has("la");
+    if(this.useLocalAuth) {
+      this.SetSessionStorage("local-auth", "true");
+    }
 
     if(this.appUUID) {
       this.SetSessionStorage(`app-uuid-${window.loginOnly}`, this.appUUID);
@@ -546,6 +556,10 @@ class RootStore {
     } catch(error) {
       this.Log("Error logging in with Ory:", true);
       this.Log(error);
+
+      if(error?.status === 400) {
+        throw { uiMessage: this.l10n.login.errors.too_many_logins };
+      }
     }
   });
 
@@ -589,10 +603,14 @@ class RootStore {
         this.Log("Error logging in with Auth0:", true);
         this.Log(error, true);
       }
-    }
 
-    // eslint-disable-next-line no-console
-    console.timeEnd("Auth0 Authentication");
+      if(error?.status === 400) {
+        throw { uiMessage: this.l10n.login.errors.too_many_logins };
+      }
+    } finally {
+      // eslint-disable-next-line no-console
+      console.timeEnd("Auth0 Authentication");
+    }
   });
 
   Authenticate = flow(function * ({idToken, clientAuthToken, clientSigningToken, externalWallet, walletName, user, saveAuthInfo=true, signerURIs, callback}) {
@@ -661,7 +679,9 @@ class RootStore {
           email: user?.email,
           tenantId,
           shareEmail: user?.userData?.share_email,
-          signerURIs
+          signerURIs,
+          nonce: this.authNonce,
+          createRemoteToken: !this.useLocalAuth
         });
 
         clientAuthToken = tokens.authToken;
