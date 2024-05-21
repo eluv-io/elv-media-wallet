@@ -1852,7 +1852,7 @@ class RootStore {
       }
     }
 
-    this.Reload(returnUrl.toString());
+    this.Reload(returnUrl || this.ReloadURL({signOut: true}));
   });
 
   CreateShortURL = flow(function * (url) {
