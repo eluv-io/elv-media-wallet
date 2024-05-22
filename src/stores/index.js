@@ -1915,7 +1915,6 @@ class RootStore {
   Reload(returnUrl) {
     this.disableCloseEvent = true;
     window.location.href = returnUrl || this.ReloadURL();
-    window.location.reload();
   }
 
   RequestPermission = flow(function * ({origin, requestor, action}) {
