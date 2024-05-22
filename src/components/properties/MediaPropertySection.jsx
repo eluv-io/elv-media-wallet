@@ -405,7 +405,7 @@ const MediaPropertySectionPage = observer(() => {
               groupBy={section.group_by}
               label={Object.keys(groupedSectionContent).length > 1 ? attribute : ""}
               results={groupedSectionContent[attribute]}
-              navContext="search"
+              navContext="s"
             />
           )
         }
@@ -414,7 +414,7 @@ const MediaPropertySectionPage = observer(() => {
             <SectionResultsGroup
               label={Object.keys(groupedSectionContent || {}).length > 1 ? "Other" : ""}
               results={groupedSectionContent.__other}
-              navContext="search"
+              navContext="s"
             />
         }
       </div>
