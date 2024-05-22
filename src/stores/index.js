@@ -1890,7 +1890,7 @@ class RootStore {
     if(signOut) {
       if(this.routeParams.mediaPropertySlugOrId && !window.location.pathname.startsWith("/m")) {
         url.pathname = MediaPropertyBasePath(rootStore.routeParams);
-      } else if(this.marketplaceId) {
+      } else if(this.routeParams.marketplaceId) {
         url.pathname = UrlJoin("/marketplace", this.marketplaceId, "store");
       } else {
         url.pathname = "/";
