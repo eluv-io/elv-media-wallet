@@ -19,7 +19,7 @@ const PasswordResetForm = ({OrySubmit, nodes}) => {
       <input name="password" type="password" required autoComplete="new-password" placeholder="Password" />
       <input name="password_confirmation" type="password" required  placeholder="Password Confirmation" />
       <input name="method" type="hidden" placeholder="Save" value="password" />
-      <ButtonWithLoader onClick={OrySubmit} type="submit" className="action action-primary login-page__login-button">
+      <ButtonWithLoader onClick={OrySubmit} type="submit" action={false} className="login-page__button login-page__button--primary">
         { rootStore.l10n.login.ory.actions.update_password }
       </ButtonWithLoader>
     </>
@@ -32,13 +32,13 @@ const LoginLimitedForm = observer(({Submit, Cancel}) => {
       <div className="ory-login__message">
         { rootStore.l10n.login.ory.messages.login_limited }
       </div>
-      <ButtonWithLoader onClick={Submit} type="submit" className="action action-primary login-page__login-button">
+      <ButtonWithLoader onClick={Submit} type="submit" action={false} className="login-page__button login-page__button--primary">
         { rootStore.l10n.login.ory.actions.proceed }
       </ButtonWithLoader>
       <button
         key="back-link"
         onClick={Cancel}
-        className="ory-login__secondary-button"
+        className="login-page__button login-page__button--link"
       >
         {rootStore.l10n.login.ory.actions.back_to_sign_in}
       </button>
@@ -248,8 +248,11 @@ const OryLogin = observer(({userData}) => {
       // TODO: Remove
       if(!["ris.euro2024.com", "ris-uefa.mw.app"].includes(location.hostname)) {
         additionalContent.push(
-          <button key="registration-link" onClick={() => setFlowType("registration")}
-                  className="action login-page__login-button">
+          <button
+            key="registration-link"
+            onClick={() => setFlowType("registration")}
+            className="login-page__button login-page__button--secondary"
+          >
             {rootStore.l10n.login.ory.actions.registration}
           </button>
         );
@@ -262,14 +265,14 @@ const OryLogin = observer(({userData}) => {
             setFlowType("recovery");
             setTimeout(() => setStatusMessage(rootStore.l10n.login.ory.messages.recovery_prompt), 250);
           }}
-          className="ory-login__secondary-button"
+          className="login-page__button login-page__button--link"
         >
           { rootStore.l10n.login.ory.actions.recovery }
         </button>
       );
     } else {
       additionalContent.push(
-        <button key="sign-out-link" onClick={LogOut} className="ory-login__secondary-button">
+        <button key="sign-out-link" onClick={LogOut} className="login-page__button login-page__button--link">
           {rootStore.l10n.login.sign_out}
         </button>
       );
@@ -283,7 +286,7 @@ const OryLogin = observer(({userData}) => {
         onClick={() => {
           setFlowType("login");
         }}
-        className="ory-login__secondary-button"
+        className="login-page__button login-page__button--link"
       >
         {rootStore.l10n.login.ory.actions.back_to_sign_in}
       </button>
@@ -301,7 +304,7 @@ const OryLogin = observer(({userData}) => {
             recovery: undefined
           });
         }}
-        className="ory-login__secondary-button"
+        className="login-page__button login-page__button--link"
       >
         {rootStore.l10n.login.ory.actions.back_to_sign_in}
       </button>
@@ -440,7 +443,6 @@ const OryLogin = observer(({userData}) => {
 
   return (
     <div className="ory-login">
-      { title ? <h2 className="ory-login__title">{title}</h2> : null }
       {
         messages.map(message =>
           <div key={`message-${message.id || message}`} className="ory-login__message">{ message.text || message }</div>
@@ -490,7 +492,14 @@ const OryLogin = observer(({userData}) => {
                     attributes.formNoValidate = true;
 
                     return [
-                      <ButtonWithLoader onClick={async event => await OrySubmit(event, {email: attributes.value})} key={`button-${key}`} formNoValidate type="submit" className="action login-page__login-button">
+                      <ButtonWithLoader
+                        onClick={async event => await OrySubmit(event, {email: attributes.value})}
+                        key={`button-${key}`}
+                        formNoValidate
+                        type="submit"
+                        action={false}
+                        className="login-page__button login-page__button--link"
+                      >
                         { node.meta.label.text }
                       </ButtonWithLoader>
                     ];
@@ -498,7 +507,13 @@ const OryLogin = observer(({userData}) => {
 
                   return [
                     <input key={`input-${key}`} {...attributes} type="hidden" />,
-                    <ButtonWithLoader onClick={OrySubmit} key={`button-${attributes.name}`} type="submit" className="action action-primary login-page__login-button">
+                    <ButtonWithLoader
+                      onClick={OrySubmit}
+                      key={`button-${attributes.name}`}
+                      type="submit"
+                      action={false}
+                      className="login-page__button login-page__button--primary"
+                    >
                       { node.meta.label.text }
                     </ButtonWithLoader>
                   ];

@@ -9,10 +9,6 @@
   background: var(--background-modal-overlay);
   overflow-y: hidden;
 
-  * {
-    font-family: var(--font-family-secondary);
-  }
-
   .modal__content {
     height: 100vh;
     max-height: 100vh;
@@ -53,7 +49,7 @@
   }
 
   &__message {
-    color: var(--color-login-text-secondary);
+    color: var(--login-text-secondary--color);
     font-size: 14px;
     margin-bottom: 10px;
     text-align: center;
@@ -64,26 +60,13 @@
     gap: 10px;
   }
 
-  button,
   input {
     max-width: 265px;
     text-align: center;
-
-    &:not(.ory-login__secondary-button) {
-      margin: 0;
-      width: 100%;
-    }
   }
 
   input {
     padding: 0 20px;
-  }
-
-  &__secondary-button {
-    color: var(--color-login-text-highlight);
-    font-size: 14px;
-    margin: 5px auto 0;
-    width: max-content;
   }
 
   &__error-message {
@@ -96,37 +79,56 @@
 }
 
 .login-page {
+  --login-box--background: #090909;
+  --login-box--color: #FFFFFF;
+  --login-box--border-color: #444444;
+  --login-box--border-radius: 4px;
+
+  --login-action-primary--background: #2d61e4;
+  --login-action-primary--color: #FFFFFF;
+  --login-action-primary--border-color: #2d61e4;
+  --login-action-primary--border-radius: 4px;
+
+  --login-action-secondary--background: #000000;
+  --login-action-secondary--color: #FFFFFF;
+  --login-action-secondary--border-color: #444444;
+  --login-action-secondary--border-radius: 4px;
+
+  --login-input--background: #090909;
+  --login-input--color: #FFFFFF;
+  --login-input--border-color: #444444;
+  --login-input--border-radius: 4px;
+
+  --login-text-primary--color: #FFFFFF;
+  --login-text-secondary--color: #A0A0A0;
+  --login-text-link--color: #9AC0F3;
+
   align-items: center;
   display: flex;
   height: max-content;
   justify-content: center;
   margin: 0;
   min-height: 100%;
-  padding: 100px 30px;
-
-  .action {
-    font: var(--font-button);
-  }
+  padding: 100px 30px 75px;
 
   input {
-    background: var(--color-login-input-background);
-    border: var(--border-login-input);
-    border-radius: var(--border-radius-login-input);
-    box-shadow: var(--box-shadow-input);
-    color: var(--color-login-input-text);
-    font: var(--font-input);
+    background: var(--login-input--background);
+    border: 1px solid var(--login-input--border-color);
+    border-radius: var(--login-input--border-radius);
+    color: var(--login-input--color);
     font-size: 18px;
     height: 50px;
 
     &::placeholder {
-      color: var(--color-input-text-placeholder);
+      color: var(--login-input--color);
+      opacity: 0.5;
       font-size: 16px;
     }
 
     &[type="checkbox"] {
       appearance: none;
-      border: var(--border-login-input);
-      border-radius: var(--border-radius-login-input);
+      border: 1px solid var(--login-input--border-color);
+      border-radius: 4px;
       cursor: pointer;
       max-height: 18px;
       max-width: 18px;
@@ -138,7 +140,7 @@
         &::after {
           align-items: center;
           background-color: transparent;
-          color: var(--color-login-input-text);
+          color: var(--login-input--color);
           content: "✓";
           display: flex;
           font-size: 12px;
@@ -153,15 +155,6 @@
     }
   }
 
-  &-large-logo-mode {
-    .login-page__logo {
-      margin-bottom: 20px;
-      max-height: 225px;
-      max-width: 325px;
-      width: 100%;
-    }
-  }
-
   &__error-message {
     color: #FFF;
     font-size: 14px;
@@ -172,7 +165,6 @@
 
   &__background {
     backdrop-filter: blur(3px);
-    background: var(--background-login);
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -192,10 +184,10 @@
 
   &__login-box {
     align-items: center;
-    background: var(--background-login-box);
-    border: var(--border-login-box);
-    border-radius: var(--border-radius-login-box);
-    color: var(--color-login-text-primary);
+    background: var(--login-box--background);
+    border: 1px solid var(--login-box--border-color);
+    border-radius: var(--login-box--border-radius);
+    color: var(--login-box--color);
     display: flex;
     flex-direction: column;
     max-width: 400px;
@@ -206,8 +198,8 @@
   }
 
   &__logo {
-    max-height: 175px;
-    max-width: 225px;
+    max-height: 275px;
+    max-width: 250px;
     object-fit: contain;
     width: 100%;
 
@@ -221,7 +213,7 @@
     }
 
     &--text {
-      color: var(--color-login-text-primary);
+      color: var(--login-text-primary--color);
       padding: 10px 0;
     }
   }
@@ -240,13 +232,12 @@
     }
   }
 
-  &__login-button {
+  &__button {
     align-items: center;
     display: flex;
     font-size: 16px;
     height: max-content;
     justify-content: center;
-    margin: 5px 0;
     max-width: 265px;
     min-height: 50px;
     padding: 10px 50px;
@@ -261,23 +252,52 @@
       margin-right: 10px;
       position: absolute;
     }
+
+    &--primary {
+      background-color: var(--login-action-primary--background);
+      color: var(--login-action-primary--color);
+      border: 1px solid var(--login-action-primary--border-color);
+      border-radius: var(--login-action-primary--border-radius);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    &--secondary {
+      background-color: var(--login-action-secondary--background);
+      color: var(--login-action-secondary--color);
+      border: 1px solid var(--login-action-secondary--border-color);
+      border-radius: var(--login-action-secondary--border-radius);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    &--link {
+      min-height: 20px;
+      color: var(--login-text-link--color);
+      font-size: 14px;
+      text-decoration: underline;
+    }
+
+    &--metamask {
+      font-size: 14px;
+    }
   }
 
   .login-page__tagline {
     align-items: center;
-    color: var(--color-login-text-secondary);
+    color: var(--login-text-secondary--color);
     display: flex;
     flex-direction: column;
     font-size: 10px;
     font-weight: 300;
     justify-content: center;
     letter-spacing: 0.07em;
-    margin: 40px 0 25px;
+    margin: 25px 0;
     user-select: none;
 
     &__text {
-      font-family: var(--font-family-tertiary);
       font-size: 14px;
+      font-weight: 600;
     }
 
     &__image {
@@ -313,6 +333,7 @@
     justify-content: center;
     position: relative;
     width: 100%;
+    gap: 10px;
 
     &--loading {
       & > * {
@@ -332,7 +353,7 @@
     }
 
     &__separator-line {
-      border-bottom: var(--border-login-box);
+      border-bottom: 1px solid var(--login-box--border-color);
       flex: 1 1 100%;
       height: 3px;
       max-width: 100px;
@@ -367,7 +388,7 @@
     margin-top: 20px;
 
     * {
-      color: var(--color-login-text-secondary);
+      color: var(--login-text-secondary--color);
       font-size: 10px;
     }
   }
@@ -385,7 +406,7 @@
     }
 
     a {
-      color: var(--color-login-text-highlight);
+      color: var(--login-text-link--color);
     }
   }
 
@@ -438,7 +459,7 @@
 
   &__consent-required-indicator {
     align-items: center;
-    color: var(--color-component-text-highlight);
+    color: var(--login-text-link--color);
     display: flex;
     font-size: 14px;
     justify-content: center;
@@ -446,7 +467,7 @@
   }
 
   &__login-code {
-    color: var(--color-component-text-secondary);
+    color: var(--login-text-secondary--color);
     font-size: 16px;
     font-weight: 300;
     margin-top: 20px;
@@ -462,12 +483,12 @@
     padding: 20px 0 40px;
 
     &__text {
-      color: var(--color-component-text-highlight);
+      color: var(--login-text-link--color);
       font-size: 20px;
     }
 
     &__icon {
-      background: var(--color-component-bg-highlight);
+      background: var(--login-text-link--color);
       border-radius: 100%;
       height: 50px;
       margin-bottom: 20px;
@@ -490,6 +511,7 @@
       min-height: 100vh;
       padding: 125px 20px 100px;
       width: 100%;
+      border-radius: 0;
     }
 
     &__terms-modal {
@@ -518,7 +540,6 @@
   max-width: 900px;
 
   &__header {
-    font: var(--font-component-text);
     font-size: 24px;
     padding: 25px;
     text-align: center;
@@ -542,7 +563,7 @@
       cursor: pointer;
 
       a {
-        color: var(--color-component-text-highlight);
+        color: var(--login-text-link--color);
       }
     }
 

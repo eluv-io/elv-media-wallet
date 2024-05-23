@@ -49,6 +49,47 @@ const params = {
 
 window.params = params;
 
+const ParseDomainCustomization = ({styling}) => {
+  let styles = {};
+  const SetVars = (prefix, option) => {
+    if(CSS.supports("color", option.background_color)) {
+      styles[`${prefix}--background`] = option.background_color;
+    }
+    if(CSS.supports("color", option.text_color)) {
+      styles[`${prefix}--color`] = option.text_color;
+    }
+    if(CSS.supports("color", option.border_color)) {
+      styles[`${prefix}--border-color`] = option.border_color;
+    }
+    if(typeof option.border_radius === "number" && option.border_radius >= 0) {
+      styles[`${prefix}--border-radius`] = `${option.border_radius}px`;
+    }
+  };
+
+  SetVars("--login-box", styling.login_box);
+  SetVars("--login-action-primary", styling.sign_in_button);
+  SetVars("--login-action-secondary", styling.sign_up_button);
+  SetVars("--login-input", styling.inputs);
+
+  if(CSS.supports("color", styling.primary_text_color)) {
+    styles["--login-text-primary--color"] = styling.primary_text_color;
+  }
+  if(CSS.supports("color", styling.secondary_text_color)) {
+    styles["--login-text-secondary--color"] = styling.secondary_text_color;
+  }
+  if(CSS.supports("color", styling.link_color)) {
+    styles["--login-text-link--color"] = styling.link_color;
+  }
+
+  return {
+    styles,
+    logo: styling.logo,
+    powered_by_logo: styling.powered_by_logo,
+    background: styling.background_image_desktop,
+    background_mobile: styling.background_image_mobile,
+  };
+};
+
 // COMPONENTS
 
 // Top logo
@@ -99,7 +140,7 @@ const Background = observer(({customizationOptions, Close}) => {
     let backgroundUrl = customizationOptions?.background?.url;
     let mobileBackgroundUrl = customizationOptions?.background_mobile?.url;
 
-    if(window.innerWidth > 800) {
+    if(rootStore.pageWidth > 1000) {
       return <div className="login-page__background" style={{backgroundImage: `url("${backgroundUrl || mobileBackgroundUrl}")`}} onClick={Close}/>;
     } else {
       return <div className="login-page__background" style={{backgroundImage: `url("${mobileBackgroundUrl || backgroundUrl}")`}} onClick={Close}/>;
@@ -148,10 +189,13 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
           ) : null
       }
 
-      <RichText
-        className="login-page__terms login-page__eluvio-terms"
-        richText={rootStore.l10n.login.terms}
-      />
+      {
+        rootStore.domainProperty ? null :
+        <RichText
+          className="login-page__terms login-page__eluvio-terms"
+          richText={rootStore.l10n.login.terms}
+        />
+      }
 
       {
         // Allow the user to opt out of sharing email
@@ -207,12 +251,7 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
 
   const signUpButton = (
     <button
-      className={`action ${hasLoggedIn ? "" : "action-primary"} login-page__login-button login-page__login-button-create login-page__login-button-auth0`}
-      style={{
-        color: customizationOptions?.sign_up_button?.text_color?.color,
-        backgroundColor: customizationOptions?.sign_up_button?.background_color?.color,
-        border: `0.75px solid ${customizationOptions?.sign_up_button?.border_color?.color}`
-      }}
+      className={`login-page__button ${hasLoggedIn ? "login-page__button--secondary" : "login-page__button--primary"} login-page__login-button login-page__login-button-create login-page__login-button-auth0`}
       autoFocus={!hasLoggedIn}
       onClick={() => LogIn({provider: "oauth", mode: "create"})}
       disabled={requiredOptionsMissing}
@@ -224,13 +263,8 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
 
   const logInButton = (
     <button
-      style={{
-        color: customizationOptions?.log_in_button?.text_color?.color,
-        backgroundColor: customizationOptions?.log_in_button?.background_color?.color,
-        border: `0.75px solid ${customizationOptions?.log_in_button?.border_color?.color}`
-      }}
       autoFocus={!!hasLoggedIn}
-      className={`action ${hasLoggedIn ? "action-primary" : ""} login-page__login-button login-page__login-button-sign-in login-page__login-button-auth0`}
+      className={`login-page__button ${hasLoggedIn ? "login-page__button--primary" : "login-page__button--secondary"} login-page__login-button login-page__login-button-sign-in login-page__login-button-auth0`}
       onClick={() => LogIn({provider: "oauth", mode: "login"})}
       disabled={requiredOptionsMissing}
       title={requiredOptionsMissing ? rootStore.l10n.login.errors.missing_required_options : undefined}
@@ -241,12 +275,7 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
 
   const metamaskButton = (
     <button
-      style={{
-        color: customizationOptions?.wallet_button?.text_color?.color,
-        backgroundColor: customizationOptions?.wallet_button?.background_color?.color,
-        border: `0.75px solid ${customizationOptions?.wallet_button?.border_color?.color}`
-      }}
-      className="action login-page__login-button login-page__login-button-wallet"
+      className="login-page__button login-page__button--secondary login-page__button--metamask"
       onClick={() => LogIn({provider: "metamask", mode: "login"})}
       disabled={requiredOptionsMissing}
       title={requiredOptionsMissing ? rootStore.l10n.login.errors.missing_required_options : undefined}
@@ -401,7 +430,7 @@ const CustomConsentModal = ({customConsent}) => {
           <div className="custom-consent__actions">
             <button
               onClick={() => Confirm(selections)}
-              className="action action-primary"
+              className="login-page__button login-page__button--primary"
               disabled={actionRequired}
             >
               { customConsent.button_text || rootStore.l10n.login.accept }
@@ -677,7 +706,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
 
   if(loading) {
     return (
-      <div className={`login-page ${rootStore.darkMode ? "login-page--dark" : ""} ${customizationOptions?.large_logo_mode ? "login-page-large-logo-mode" : ""}`}>
+      <div className={`login-page ${rootStore.darkMode ? "login-page--dark" : ""}`}>
         <Background customizationOptions={customizationOptions} Close={Close} />
         <PageLoader />
       </div>
@@ -685,7 +714,10 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
   }
 
   return (
-    <div className={`login-page ${rootStore.darkMode ? "login-page--dark" : ""} ${customizationOptions?.large_logo_mode ? "login-page-large-logo-mode" : ""}`}>
+    <div
+      style={customizationOptions.styles}
+      className={`login-page ${rootStore.darkMode ? "login-page--dark" : ""}`}
+    >
       <Background customizationOptions={customizationOptions} Close={Close} />
 
       <div className="login-page__login-box">
@@ -722,7 +754,13 @@ const Login = observer(({Close}) => {
 
     rootStore.LoadLoginCustomization(marketplaceHash)
       .then(options => {
-        const userDataKey = `login-data-${options?.marketplaceId || "default"}`;
+        const userDataKey = `login-data-${options?.marketplaceId || options.mediaPropertyId || "default"}`;
+
+        if(options.mediaPropertyId) {
+          options = ParseDomainCustomization(options);
+        }
+
+        console.log(options);
 
         // Load initial user data from localstorage, if present
         let initialUserData = {

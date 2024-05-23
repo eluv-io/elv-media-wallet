@@ -129,6 +129,7 @@ class RootStore {
   darkMode = !searchParams.has("lt");
 
   loginCustomization = {};
+  domainCustomization = {};
 
   marketplaceId = undefined;
   marketplaceHashes = {};
@@ -439,7 +440,7 @@ class RootStore {
       });
 
       // Load domain map
-      if(!location.hostname.includes("contentfabric.io")) {
+      if(!["localhost", "contentfabric.io"].includes(location.hostname)) {
         let domainMapping = yield this.walletClient.client.ContentObjectMetadata({
           libraryId: this.walletClient.mainSiteLibraryId,
           objectId: this.walletClient.mainSiteId,
@@ -764,6 +765,24 @@ class RootStore {
     }
   });
 
+  LoadDomainCustomization = flow(function * () {
+    if(!this.domainProperty) { return; }
+
+    yield this.mediaPropertyStore.LoadMediaProperty({
+      mediaPropertySlugOrId: this.domainProperty
+    });
+
+    const property = this.mediaPropertyStore.MediaProperty({
+      mediaPropertySlugOrId: this.domainProperty
+    });
+
+    return {
+      mediaPropertyId: this.domainProperty,
+      tenant: property.metadata?.tenant,
+      styling: property.metadata?.login?.styling
+    };
+  });
+
   LoadLoginCustomization = flow(function * (marketplaceHash) {
     // Client may not be initialized yet but may not be needed
     const Client = async () => {
@@ -773,6 +792,10 @@ class RootStore {
 
       return this.client;
     };
+
+    if(this.domainProperty) {
+      return yield this.LoadDomainCustomization();
+    }
 
     let marketplaceId;
     if(marketplaceHash) {
