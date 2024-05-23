@@ -628,7 +628,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       returnURL.hash = window.location.hash;
       returnURL.searchParams.delete("clear");
 
-      setTimeout(() => rootStore.SignOut(returnURL.toString()), 1000);
+      setTimeout(() => rootStore.SignOut({returnUrl: returnURL.toString()}), 1000);
     } else if(rootStore.loggedIn && !userDataSaved && !savingUserData) {
       setSavingUserData(true);
       SaveCustomConsent(userData)

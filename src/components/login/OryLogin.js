@@ -26,6 +26,26 @@ const PasswordResetForm = ({OrySubmit, nodes}) => {
   );
 };
 
+const LoginLimitedForm = observer(({Submit, Cancel}) => {
+  return (
+    <>
+      <div className="ory-login__message">
+        { rootStore.l10n.login.ory.messages.login_limited }
+      </div>
+      <ButtonWithLoader onClick={Submit} type="submit" className="action action-primary login-page__login-button">
+        { rootStore.l10n.login.ory.actions.proceed }
+      </ButtonWithLoader>
+      <button
+        key="back-link"
+        onClick={Cancel}
+        className="ory-login__secondary-button"
+      >
+        {rootStore.l10n.login.ory.actions.back_to_sign_in}
+      </button>
+    </>
+  );
+});
+
 const SubmitVerificationCode = async ({flows, setFlows, setFlowType, setErrorMessage}) => {
   if(submitting) { return; }
 
@@ -325,6 +345,14 @@ const OryLogin = observer(({userData}) => {
           }
 
           break;
+        case "login_limited":
+          await rootStore.AuthenticateOry({userData, force: true});
+
+          if(verificationRequired) {
+            setFlowType("initializeFlow");
+          }
+
+          break;
         case "registration":
           await rootStore.oryClient.updateRegistrationFlow({flow: flow.id, updateRegistrationFlowBody: body});
           await rootStore.AuthenticateOry({userData});
@@ -355,12 +383,13 @@ const OryLogin = observer(({userData}) => {
           break;
       }
     } catch(error) {
-      rootStore.Log(error, true);
-
-      if(error.uiMessage) {
-        setErrorMessage(error.uiMessage);
+      if(error.login_limited) {
+        setFlows({...flows, login_limited: {}});
+        setFlowType("login_limited");
         return;
       }
+
+      rootStore.Log(error, true);
 
       const errors = error?.response.data?.ui?.messages
         ?.map(message => message.text)
@@ -423,67 +452,72 @@ const OryLogin = observer(({userData}) => {
         className="ory-login__form"
       >
         {
-          flowType === "settings" ?
-            <PasswordResetForm nodes={flow.ui.nodes} OrySubmit={OrySubmit} /> :
-            flow.ui.nodes.map(node => {
-              let attributes = {
-                ...node.attributes
-              };
-              const nodeType = attributes.type === "submit" ? "submit" : attributes.node_type;
-              delete attributes.node_type;
+          flowType === "login_limited" ?
+            <LoginLimitedForm
+              Submit={OrySubmit}
+              Cancel={LogOut}
+            /> :
+            flowType === "settings" ?
+              <PasswordResetForm nodes={flow.ui.nodes} OrySubmit={OrySubmit} /> :
+              flow.ui.nodes.map(node => {
+                let attributes = {
+                  ...node.attributes
+                };
+                const nodeType = attributes.type === "submit" ? "submit" : attributes.node_type;
+                delete attributes.node_type;
 
-              let label = attributes.title || node.meta?.label?.text || attributes.label || node.attributes.name;
-              if(["identifier", "traits.email"].includes(attributes.name) && attributes.type !== "hidden") {
-                label = "Email";
-                attributes.type = "email";
-                delete attributes.value;
-              }
+                let label = attributes.title || node.meta?.label?.text || attributes.label || node.attributes.name;
+                if(["identifier", "traits.email"].includes(attributes.name) && attributes.type !== "hidden") {
+                  label = "Email";
+                  attributes.type = "email";
+                  delete attributes.value;
+                }
 
-              if(attributes.autocomplete) {
-                attributes.autoComplete = attributes.autocomplete;
-                delete attributes.autocomplete;
-              }
+                if(attributes.autocomplete) {
+                  attributes.autoComplete = attributes.autocomplete;
+                  delete attributes.autocomplete;
+                }
 
-              attributes.placeholder = label;
-              const key = node?.meta?.label?.id || attributes.name;
+                attributes.placeholder = label;
+                const key = node?.meta?.label?.id || attributes.name;
 
-              if(nodeType === "submit" && attributes.value) {
-                // recovery code resend button
-                if(
-                  node.meta.label?.id === 1070007 ||
-                  node.meta.label?.id === 1070008
-                ) {
-                  attributes.formNoValidate = true;
+                if(nodeType === "submit" && attributes.value) {
+                  // recovery code resend button
+                  if(
+                    node.meta.label?.id === 1070007 ||
+                    node.meta.label?.id === 1070008
+                  ) {
+                    attributes.formNoValidate = true;
+
+                    return [
+                      <ButtonWithLoader onClick={async event => await OrySubmit(event, {email: attributes.value})} key={`button-${key}`} formNoValidate type="submit" className="action login-page__login-button">
+                        { node.meta.label.text }
+                      </ButtonWithLoader>
+                    ];
+                  }
 
                   return [
-                    <ButtonWithLoader onClick={async event => await OrySubmit(event, {email: attributes.value})} key={`button-${key}`} formNoValidate type="submit" className="action login-page__login-button">
+                    <input key={`input-${key}`} {...attributes} type="hidden" />,
+                    <ButtonWithLoader onClick={OrySubmit} key={`button-${attributes.name}`} type="submit" className="action action-primary login-page__login-button">
                       { node.meta.label.text }
                     </ButtonWithLoader>
                   ];
                 }
 
-                return [
-                  <input key={`input-${key}`} {...attributes} type="hidden" />,
-                  <ButtonWithLoader onClick={OrySubmit} key={`button-${attributes.name}`} type="submit" className="action action-primary login-page__login-button">
-                    { node.meta.label.text }
-                  </ButtonWithLoader>
-                ];
-              }
-
-              switch(nodeType) {
-                case "button":
-                case "submit":
-                  return (
-                    <button key={`button-${key}`} {...attributes}>
-                      { node.meta.label.text }
-                    </button>
-                  );
-                default:
-                  return (
-                    <input key={`inputs-${key}`} {...attributes} />
-                  );
-              }
-            })
+                switch(nodeType) {
+                  case "button":
+                  case "submit":
+                    return (
+                      <button key={`button-${key}`} {...attributes}>
+                        { node.meta.label.text }
+                      </button>
+                    );
+                  default:
+                    return (
+                      <input key={`inputs-${key}`} {...attributes} />
+                    );
+                }
+              })
         }
         { additionalContent }
       </form>

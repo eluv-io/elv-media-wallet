@@ -77,6 +77,7 @@ class RootStore {
   language = this.GetLocalStorage("lang");
   l10n = LocalizationEN;
   uiLocalizations = ["pt-br"];
+  alertNotification = this.GetSessionStorage("alert-notification");
   domainProperty = this.GetSessionStorage("domain-property");
 
   appId = "eluvio-media-wallet";
@@ -535,14 +536,16 @@ class RootStore {
     return this.walletClient.UserAddress();
   }
 
-  AuthenticateOry = flow(function * ({userData}={}) {
+  AuthenticateOry = flow(function * ({userData, force=false}={}) {
+    let email, jwtToken;
     try {
       const response = yield this.oryClient.toSession({tokenizeAs: EluvioConfiguration.ory_configuration.jwt_template});
-      const email = response.data.identity.traits.email;
-      const jwtToken = response.data.tokenized;
+      email = response.data.identity.traits.email;
+      jwtToken = response.data.tokenized;
 
       yield this.Authenticate({
         idToken: jwtToken,
+        force,
         // TODO: Change
         signerURIs: ["https://wlt.stg.svc.eluv.io"],
         user: {
@@ -557,8 +560,8 @@ class RootStore {
       this.Log("Error logging in with Ory:", true);
       this.Log(error);
 
-      if([400, 503].includes(parseInt(error?.status))) {
-        throw { uiMessage: this.l10n.login.errors.too_many_logins };
+      if([400, 403, 503].includes(parseInt(error?.status))) {
+        throw { login_limited: true };
       }
     }
   });
@@ -604,7 +607,7 @@ class RootStore {
         this.Log(error, true);
       }
 
-      if([400, 503].includes(parseInt(error?.status))) {
+      if([400, 403, 503].includes(parseInt(error?.status))) {
         throw { uiMessage: this.l10n.login.errors.too_many_logins };
       }
     } finally {
@@ -613,7 +616,7 @@ class RootStore {
     }
   });
 
-  Authenticate = flow(function * ({idToken, clientAuthToken, clientSigningToken, externalWallet, walletName, user, saveAuthInfo=true, signerURIs, callback}) {
+  Authenticate = flow(function * ({idToken, clientAuthToken, clientSigningToken, externalWallet, walletName, user, saveAuthInfo=true, signerURIs, force=false, callback}) {
     if(this.authenticating) { return; }
 
     try {
@@ -681,7 +684,8 @@ class RootStore {
           shareEmail: user?.userData?.share_email,
           signerURIs,
           nonce: this.authNonce,
-          createRemoteToken: !this.useLocalAuth
+          createRemoteToken: !this.useLocalAuth,
+          force
         });
 
         clientAuthToken = tokens.authToken;
@@ -735,6 +739,22 @@ class RootStore {
       this.SendEvent({event: EVENTS.LOG_IN, data: { address }});
 
       this.notificationStore.InitializeNotifications(true);
+
+
+      // Periodically check to ensure the token has not been revoked
+      const CheckTokenStatus = async () => {
+        // Ensure token is still OK
+        if(!(await this.walletClient.TokenStatus())) {
+          this.SignOut({force: true});
+          return;
+        }
+      };
+
+      CheckTokenStatus();
+
+      setInterval(() => {
+        CheckTokenStatus();
+      }, 60000);
     } catch(error) {
       this.ClearAuthInfo();
       this.Log(error, true);
@@ -1810,7 +1830,7 @@ class RootStore {
     marketplace.analyticsInitialized = true;
   }
 
-  SignOut = flow(function * (returnUrl) {
+  SignOut = flow(function * ({returnUrl, force=false}={}) {
     this.ClearAuthInfo();
 
     if(this.embedded) {
@@ -1826,9 +1846,13 @@ class RootStore {
       }
     }
 
-    this.walletClient?.LogOut();
+    yield this.walletClient?.LogOut();
 
     this.SendEvent({event: EVENTS.LOG_OUT, data: {address: this.CurrentAddress()}});
+
+    if(force) {
+      this.SetAlertNotification(this.l10n.login.errors.forced_logout);
+    }
 
     if(this.auth0 && (yield this.auth0.isAuthenticated())) {
       try {
@@ -2547,6 +2571,16 @@ class RootStore {
 
   SetRouteChange(route) {
     this.routeChange = route;
+  }
+
+  SetAlertNotification(message) {
+    if(!message) {
+      this.alertNotification = undefined;
+      this.RemoveSessionStorage("alert-notification");
+    } else {
+      this.alertNotification = message;
+      this.SetSessionStorage("alert-notification", message);
+    }
   }
 
   SetDebugMessage(message) {

@@ -27,6 +27,9 @@ import Flows from "Components/interface/Flows";
 import Actions from "Components/interface/Actions";
 import {SearchParams, SetImageUrlDimensions} from "./utils/Utils";
 import {PropertyRoutes, BundledPropertyRoutes} from "Components/properties";
+import ImageIcon from "Components/common/ImageIcon";
+
+import XIcon from "Assets/icons/x.svg";
 
 const searchParams = SearchParams();
 
@@ -109,6 +112,21 @@ const LoginModal = observer(() => {
     >
       <Login key="login-main" Close={Close} />
     </Modal>
+  );
+});
+
+const AlertNotification = observer(() => {
+  if(!rootStore.alertNotification) { return null; }
+
+  return (
+    <div className="alert-notification">
+      <div className="alert-notification__message">
+        { rootStore.alertNotification }
+      </div>
+      <button onClick={() => rootStore.SetAlertNotification("")} className="alert-notification__close">
+        <ImageIcon icon={XIcon} />
+      </button>
+    </div>
   );
 });
 
@@ -269,6 +287,7 @@ const App = observer(() => {
         .join(" ")
       }
     >
+      <AlertNotification />
       <Routes />
       <DebugFooter />
     </div>
