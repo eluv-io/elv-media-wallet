@@ -620,6 +620,7 @@ class RootStore {
     if(this.authenticating) { return; }
 
     try {
+      this.SetAlertNotification(undefined);
       this.authenticating = true;
       this.loggedIn = false;
 
