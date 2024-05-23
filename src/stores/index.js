@@ -744,9 +744,10 @@ class RootStore {
       // Periodically check to ensure the token has not been revoked
       const CheckTokenStatus = async () => {
         // Ensure token is still OK
-        if(!(await this.walletClient.TokenStatus())) {
-          this.SignOut({force: true});
-          return;
+        if(this.loggedIn && this.GetLocalStorage("signed-out")) {
+          this.SignOut({message: this.l10n.login.errors.logged_out});
+        } else if(!(await this.walletClient.TokenStatus())) {
+          this.SignOut({message: this.l10n.login.errors.forced_logout});
         }
       };
 
@@ -1830,12 +1831,10 @@ class RootStore {
     marketplace.analyticsInitialized = true;
   }
 
-  SignOut = flow(function * ({returnUrl, force=false}={}) {
+  SignOut = flow(function * ({returnUrl, message}={}) {
     this.ClearAuthInfo();
 
-    if(this.embedded) {
-      this.SetLocalStorage("signed-out", "true");
-    }
+    this.SetLocalStorage("signed-out", "true");
 
     if(this.oryClient) {
       try {
@@ -1850,8 +1849,8 @@ class RootStore {
 
     this.SendEvent({event: EVENTS.LOG_OUT, data: {address: this.CurrentAddress()}});
 
-    if(force) {
-      this.SetAlertNotification(this.l10n.login.errors.forced_logout);
+    if(message) {
+      this.SetAlertNotification(message);
     }
 
     if(this.auth0 && (yield this.auth0.isAuthenticated())) {

@@ -44,7 +44,7 @@ const params = {
   // User data to pass to custodial sign-in
   userData: searchParams.has("data") ? JSON.parse(Utils.FromB64(searchParams.get("data"))) : { share_email: true },
   oryFlow: searchParams.get("flow"),
-  useOry
+  useOry: true
 };
 
 window.params = params;

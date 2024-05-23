@@ -40,6 +40,7 @@ login:
     missing_required_options: Please accept the required options below
     too_many_logins: This account has been accessed from too many devices. Please wait 24 hours and try again.
     forced_logout: You have been signed out because this account has been accessed from another device.
+    logged_out: You have been signed out
   ory:
     actions:
       registration: Sign Up
