@@ -744,10 +744,7 @@ class RootStore {
 
       // Periodically check to ensure the token has not been revoked
       const CheckTokenStatus = async () => {
-        // Ensure token is still OK
-        if(this.loggedIn && this.GetLocalStorage("signed-out")) {
-          this.SignOut({message: this.l10n.login.errors.logged_out});
-        } else if(!(await this.walletClient.TokenStatus())) {
+        if(!(await this.walletClient.TokenStatus())) {
           this.SignOut({message: this.l10n.login.errors.forced_logout});
         }
       };
