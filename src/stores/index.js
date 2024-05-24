@@ -78,7 +78,7 @@ class RootStore {
   l10n = LocalizationEN;
   uiLocalizations = ["pt-br"];
   alertNotification = this.GetSessionStorage("alert-notification");
-  domainProperty = this.GetSessionStorage("domain-property");
+  domainProperty = this.GetSessionStorage("domain-property") || searchParams.get("pid");
 
   appId = "eluvio-media-wallet";
 
@@ -129,7 +129,6 @@ class RootStore {
   darkMode = !searchParams.has("lt");
 
   loginCustomization = {};
-  domainCustomization = {};
 
   marketplaceId = undefined;
   marketplaceHashes = {};
@@ -440,7 +439,7 @@ class RootStore {
       });
 
       // Load domain map
-      if(!["localhost", "contentfabric.io"].includes(location.hostname)) {
+      if(!this.domainProperty && !["localhost", "contentfabric.io"].includes(location.hostname)) {
         let domainMapping = yield this.walletClient.client.ContentObjectMetadata({
           libraryId: this.walletClient.mainSiteLibraryId,
           objectId: this.walletClient.mainSiteId,
@@ -450,10 +449,6 @@ class RootStore {
         this.domainProperty = domainMapping
           .find(map => map.domain === location.hostname)
           ?.property_slug;
-
-        if(this.domainProperty) {
-          this.SetSessionStorage("domainProperty", this.domainProperty);
-        }
       }
 
       // Internal feature - allow setting of authd node via query param for testing
@@ -485,6 +480,11 @@ class RootStore {
         },
         noAuth: true
       });
+
+      if(this.domainProperty) {
+        this.SetSessionStorage("domain-property", this.domainProperty);
+        yield this.SetDomainCustomization();
+      }
 
       try {
         const auth = searchParams.get("auth");
@@ -548,7 +548,11 @@ class RootStore {
         idToken: jwtToken,
         force,
         // TODO: Change
-        signerURIs: ["https://wlt.stg.svc.eluv.io"],
+        signerURIs: [
+          this.network === "demo" ?
+            "https://wlt.dv3.svc.eluv.io" :
+            "https://wlt.stg.svc.eluv.io"
+        ],
         user: {
           name: email,
           email,
@@ -684,6 +688,7 @@ class RootStore {
           email: user?.email,
           tenantId,
           shareEmail: user?.userData?.share_email,
+          extraData: user?.userData || {},
           signerURIs,
           nonce: this.authNonce,
           createRemoteToken: !this.useLocalAuth,
@@ -765,8 +770,40 @@ class RootStore {
     }
   });
 
+
+  SetDomainCustomization = flow(function * () {
+    const options = yield this.LoadDomainCustomization();
+
+    if(!options) { return; }
+
+    this.domainSettings = options;
+
+    let css = [];
+    if(options.styling?.font === "custom") {
+      if(options.styling.custom_font_declaration) {
+        if(options.styling.custom_font_definition) {
+          css.push(options.styling.custom_font_definition);
+        }
+
+        css.push(":root {");
+        css.push(`--font-family-primary: ${options.styling.custom_font_declaration}, sans-serif;`);
+        css.push(`--font-family-secondary: ${options.styling.custom_font_declaration}, sans-serif;`);
+        css.push(`--font-family-tertiary: ${options.styling.custom_font_declaration}, sans-serif;`);
+        css.push("}");
+        css.push(`* { font-family: ${options.styling.custom_font_declaration}, sans-serif; }`);
+      }
+    }
+
+    this.SetCustomCSS(css.join("\n"), "_domain-css");
+  });
+
   LoadDomainCustomization = flow(function * () {
     if(!this.domainProperty) { return; }
+
+    // Client may not be initialized yet
+    while(!this.client) {
+      yield new Promise(resolve => setTimeout(resolve, 100));
+    }
 
     yield this.mediaPropertyStore.LoadMediaProperty({
       mediaPropertySlugOrId: this.domainProperty
@@ -779,7 +816,9 @@ class RootStore {
     return {
       mediaPropertyId: this.domainProperty,
       tenant: property.metadata?.tenant,
-      styling: property.metadata?.login?.styling
+      login: property.metadata?.login,
+      styling: property.metadata.styling,
+      settings: property.metadata.domain
     };
   });
 
@@ -1051,9 +1090,9 @@ class RootStore {
     return this.nftData[key].nft;
   });
 
-  SetCustomCSS(css="") {
+  SetCustomCSS(css="", tag="_custom-css") {
     css = SanitizeHTML(css);
-    const cssTag = document.getElementById("_custom-css");
+    const cssTag = document.getElementById(tag);
     if(cssTag) {
       if(testTheme) {
         testTheme.then(theme => {
@@ -1161,7 +1200,7 @@ class RootStore {
   }
 
   SetMarketplace({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, specified=false, disableTenantStyling=false}) {
-    if(!this.walletClient) { return; }
+    if(!this.walletClient || this.domainProperty) { return; }
 
     const marketplace = this.allMarketplaces.find(marketplace =>
       (marketplaceId && Utils.EqualHash(marketplaceId, marketplace.marketplaceId)) ||
@@ -2234,7 +2273,6 @@ class RootStore {
   AuthStorageKey() {
     let key = `auth-${this.network}`;
 
-    // TODO: Enable auth storage scoping later
     /*
       if(this.authOrigin) {
         try {
@@ -2536,10 +2574,15 @@ class RootStore {
     this.routeParams = params || {};
   }
 
-  ResolvedBackPath() {
+  SetBackPath(backPath) {
+    if(!backPath) {
+      this.backPath = undefined;
+      return;
+    }
+
     let context = new URLSearchParams(location.search).get("ctx");
 
-    let [path, query] = (this.backPath || "").split("?");
+    let [path, query] = (backPath || "").split("?");
 
     if(!path && !query) { return; }
 
@@ -2582,11 +2625,7 @@ class RootStore {
       path += `?${params.toString()}`;
     }
 
-    return path;
-  }
-
-  SetBackPath(backPath) {
-    this.backPath = backPath;
+    this.backPath = path;
   }
 
   SetRouteChange(route) {

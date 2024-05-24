@@ -11,8 +11,6 @@ import {LoginGate} from "Components/common/LoginGate";
 
 const S = (...classes) => classes.map(c => MediaCollectionStyles[c] || "").join(" ");
 
-// TODO: Fix list parameter
-
 const MediaCollectionLists = observer(({mediaCollection, activeListId, setActiveListId, navContext}) => {
   const match = useRouteMatch();
   const [mediaLists, setMediaLists] = useState([]);
@@ -177,14 +175,14 @@ const MediaPropertyCollectionPage = observer(() => {
   });
 
   if(!mediaCollection) {
-    return <Redirect to={rootStore.ResolvedBackPath()} />;
+    return <Redirect to={rootStore.backPath} />;
   }
 
   return (
     <PageContainer className={S("media-collection__page-container")}>
       <PageBackground display={mediaCollection} />
       <PageHeader display={mediaCollection} className={S("media-collection__page-header")} />
-      <LoginGate backPath={rootStore.ResolvedBackPath()} Condition={() => !permissions.authorized}>
+      <LoginGate backPath={rootStore.backPath} Condition={() => !permissions.authorized}>
         <div className={S("media-collection__content")}>
           <MediaCollectionLists mediaCollection={mediaCollection} activeListId={activeListId} setActiveListId={setActiveListId} navContext={navContext} />
           <MediaCollectionMedia mediaListId={activeListId} key={`media-${activeListId}`} navContext={navContext} />

@@ -672,12 +672,15 @@
 
     &__option {
       align-items: center;
-      border-bottom: var(--border-component-secondary);
       display: flex;
       gap: 20px;
       justify-content: space-between;
       margin-bottom: 20px;
       padding: 20px 0;
+
+      &:not(:last-child) {
+        border-bottom: var(--border-component-secondary);
+      }
 
       &__label {
         font-size: 18px;

@@ -767,7 +767,7 @@ class CryptoStore {
       response.v,
       ethers.utils.arrayify("0x" + response.r),
       ethers.utils.arrayify("0x" + response.s),
-      {gasPrice: ethers.utils.parseUnits("100", "gwei"), gasLimit: 1000000} // TODO: Why is this necessary?
+      {gasPrice: ethers.utils.parseUnits("100", "gwei"), gasLimit: 1000000}
     );
 
     let openSeaLink;

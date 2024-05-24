@@ -161,7 +161,6 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
         rootStore.Log(item, true);
       }
 
-      // TODO: Check release date
       // Available check - must happen after timeout setup
       if(!item.show_if_unreleased && item.available_at && Date.now() - new Date(item.available_at).getTime() < 0) {
         return null;

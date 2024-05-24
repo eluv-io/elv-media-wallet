@@ -16,8 +16,6 @@ import ExternalLinkIcon from "Assets/icons/external-link.svg";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {LoaderImage} from "Components/properties/Common";
 
-// TODO: Video in fullscreen
-
 export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVideo=false, allowFullscreen=false, className="", playerCallback}) => {
   const [player, setPlayer] = useState(undefined);
   const [targetElement, setTargetElement] = useState(undefined);

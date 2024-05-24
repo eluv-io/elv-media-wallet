@@ -197,7 +197,7 @@ const Header = observer(() => {
           !rootStore.backPath ? null :
             <div className={S("back-link-container")}>
               <Linkish
-                to={rootStore.ResolvedBackPath()}
+                to={rootStore.backPath}
                 style={{paddingRight: "3px"}}
                 className={S("button")}
               >

@@ -514,7 +514,7 @@ export const PurchaseGate = ({permissions, backPath, children}) => {
         gate: true,
         permissionItemIds: permissions.permissionItemIds,
         successPath: location.pathname,
-        cancelPath: backPath || rootStore.ResolvedBackPath()
+        cancelPath: backPath || rootStore.backPath
       }));
       history.replace(url.pathname + url.search);
     } else if(params && params.gate && !params.confirmationId && permissions.authorized) {

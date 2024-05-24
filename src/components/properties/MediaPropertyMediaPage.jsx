@@ -114,7 +114,7 @@ const MediaVideo = observer(({mediaItem, display}) => {
       posterImage={
         SetImageUrlDimensions({
           url: mediaItem.poster_image?.url,
-          width: mediaPropertyStore.rootStore.fullpageImageWidth
+          width: mediaPropertyStore.rootStore.fullscreenImageWidth
         })
       }
       errorCallback={() => setError("Something went wrong")}
@@ -133,7 +133,7 @@ const GalleryContent = observer(({galleryItem}) => {
         link={galleryItem.video}
         posterImage={SetImageUrlDimensions({
           url: galleryItem.poster_image?.url,
-          width: mediaPropertyStore.rootStore.fullpageImageWidth
+          width: mediaPropertyStore.rootStore.fullscreenImageWidth
         })}
         className={S("gallery__video")}
       />
@@ -377,7 +377,7 @@ const MediaPropertyMediaPage = observer(() => {
   const context = new URLSearchParams(location.search).get("ctx");
 
   if(!mediaItem) {
-    return <Redirect to={rootStore.ResolvedBackPath()} />;
+    return <Redirect to={rootStore.backPath} />;
   }
 
   const display = mediaItem.override_settings_when_viewed ? mediaItem.viewed_settings : mediaItem;
@@ -393,7 +393,7 @@ const MediaPropertyMediaPage = observer(() => {
 
   let content;
   if(!permissions.authorized) {
-    const {imageUrl} = MediaItemImageUrl({mediaItem, display: mediaItem, aspectRatio: rootStore.pageWidth > 800 ? "landscape" : "portrait", width: mediaPropertyStore.rootStore.fullScreenImageWidth});
+    const {imageUrl} = MediaItemImageUrl({mediaItem, display: mediaItem, aspectRatio: rootStore.pageWidth > 800 ? "landscape" : "portrait", width: mediaPropertyStore.rootStore.fullscreenImageWidth});
     content = (
       <div className={S("media-page")}>
         <div className={S("media__error")}>

@@ -62,11 +62,8 @@
 
   input {
     max-width: 265px;
-    text-align: center;
-  }
-
-  input {
     padding: 0 20px;
+    text-align: center;
   }
 
   &__error-message {
@@ -80,26 +77,22 @@
 
 .login-page {
   --login-box--background: #090909;
-  --login-box--color: #FFFFFF;
-  --login-box--border-color: #444444;
+  --login-box--color: #FFF;
+  --login-box--border-color: #444;
   --login-box--border-radius: 4px;
-
   --login-action-primary--background: #2d61e4;
-  --login-action-primary--color: #FFFFFF;
+  --login-action-primary--color: #FFF;
   --login-action-primary--border-color: #2d61e4;
   --login-action-primary--border-radius: 4px;
-
-  --login-action-secondary--background: #000000;
-  --login-action-secondary--color: #FFFFFF;
-  --login-action-secondary--border-color: #444444;
+  --login-action-secondary--background: #000;
+  --login-action-secondary--color: #FFF;
+  --login-action-secondary--border-color: #444;
   --login-action-secondary--border-radius: 4px;
-
   --login-input--background: #090909;
-  --login-input--color: #FFFFFF;
-  --login-input--border-color: #444444;
+  --login-input--color: #FFF;
+  --login-input--border-color: #444;
   --login-input--border-radius: 4px;
-
-  --login-text-primary--color: #FFFFFF;
+  --login-text-primary--color: #FFF;
   --login-text-secondary--color: #A0A0A0;
   --login-text-link--color: #9AC0F3;
 
@@ -111,6 +104,10 @@
   min-height: 100%;
   padding: 100px 30px 75px;
 
+  .page-container {
+    background-color: transparent;
+  }
+
   input {
     background: var(--login-input--background);
     border: 1px solid var(--login-input--border-color);
@@ -121,8 +118,8 @@
 
     &::placeholder {
       color: var(--login-input--color);
-      opacity: 0.5;
       font-size: 16px;
+      opacity: 0.5;
     }
 
     &[type="checkbox"] {
@@ -255,26 +252,26 @@
 
     &--primary {
       background-color: var(--login-action-primary--background);
-      color: var(--login-action-primary--color);
       border: 1px solid var(--login-action-primary--border-color);
       border-radius: var(--login-action-primary--border-radius);
+      color: var(--login-action-primary--color);
       font-weight: 600;
       text-transform: uppercase;
     }
 
     &--secondary {
       background-color: var(--login-action-secondary--background);
-      color: var(--login-action-secondary--color);
       border: 1px solid var(--login-action-secondary--border-color);
       border-radius: var(--login-action-secondary--border-radius);
+      color: var(--login-action-secondary--color);
       font-weight: 600;
       text-transform: uppercase;
     }
 
     &--link {
-      min-height: 20px;
       color: var(--login-text-link--color);
       font-size: 14px;
+      min-height: 20px;
       text-decoration: underline;
     }
 
@@ -330,10 +327,10 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    gap: 10px;
     justify-content: center;
     position: relative;
     width: 100%;
-    gap: 10px;
 
     &--loading {
       & > * {
@@ -389,6 +386,11 @@
 
     * {
       color: var(--login-text-secondary--color);
+    }
+  }
+
+  &__terms {
+    &.login-page__terms {
       font-size: 10px;
     }
   }
@@ -403,6 +405,10 @@
     &-label {
       cursor: pointer;
       font-weight: normal;
+
+      &.login-page__consent-label {
+        font-size: 12px;
+      }
     }
 
     a {
@@ -426,6 +432,7 @@
     align-items: center;
     display: flex;
     justify-content: center;
+    margin-bottom: 20px;
     padding-top: 10px;
     position: relative;
     width: 100%;
@@ -506,12 +513,12 @@
 
     &__login-box {
       border: 0;
+      border-radius: 0;
       height: 100%;
       max-width: unset;
       min-height: 100vh;
       padding: 125px 20px 100px;
       width: 100%;
-      border-radius: 0;
     }
 
     &__terms-modal {

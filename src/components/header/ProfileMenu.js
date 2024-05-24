@@ -65,6 +65,7 @@ const ProfileMenu = observer(({Hide}) => {
         </Linkish>
 
         {
+          rootStore.domainProperty ||
           rootStore.hideGlobalNavigation ||
           (marketplaceId && rootStore.hideGlobalNavigationInMarketplace) ? null :
             <>

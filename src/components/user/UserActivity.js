@@ -14,22 +14,27 @@ const UserActivity = observer(() => {
   const match = useRouteMatch();
   const userAddress = rootStore.userProfiles[match.params.userId].userAddress;
   const marketplace = rootStore.marketplaces[match.params.marketplaceId] || rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === match.params.marketplaceId);
-  const secondaryDisabled = marketplace?.branding?.disable_secondary_market;
+  const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false || marketplace?.branding?.disable_secondary_market;
 
   return (
     <div className="listings-page">
-      <OffersTable
-        header={rootStore.l10n.tables.offers_received}
-        sellerAddress={userAddress}
-        icon={OffersTableIcon}
-        className="user-transfer-table user-transfer-table--bought"
-      />
-      <OffersTable
-        header={rootStore.l10n.tables.offers_made}
-        buyerAddress={userAddress}
-        icon={OffersTableIcon}
-        className="user-transfer-table user-transfer-table--bought"
-      />
+      {
+        secondaryDisabled ? null :
+          <>
+            <OffersTable
+              header={rootStore.l10n.tables.offers_received}
+              sellerAddress={userAddress}
+              icon={OffersTableIcon}
+              className="user-transfer-table user-transfer-table--bought"
+            />
+            <OffersTable
+              header={rootStore.l10n.tables.offers_made}
+              buyerAddress={userAddress}
+              icon={OffersTableIcon}
+              className="user-transfer-table user-transfer-table--bought"
+            />
+          </>
+      }
       <UserTransferTable
         userAddress={userAddress}
         icon={PurchasesIcon}

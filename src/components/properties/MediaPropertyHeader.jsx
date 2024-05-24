@@ -410,7 +410,7 @@ const MediaPropertyMobileHeader = observer(({logo, basePath, searchDisabled}) =>
       <div className={S("header-mobile__controls", "header-mobile__left-controls")}>
         {
           !rootStore.backPath ? null :
-            <Linkish style={{paddingRight: "2px"}} className={S("button")} to={rootStore.ResolvedBackPath()}>
+            <Linkish style={{paddingRight: "2px"}} className={S("button")} to={rootStore.backPath}>
               <ImageIcon icon={LeftArrowIcon} label="Go Back" className={S("button__icon")} />
             </Linkish>
         }
@@ -466,7 +466,7 @@ const MediaPropertyHeader = observer(() => {
       <div className={S("nav")}>
         {
           !rootStore.backPath ? null :
-            <Linkish style={{paddingRight: "2px"}} className={S("button")} to={rootStore.ResolvedBackPath()}>
+            <Linkish style={{paddingRight: "2px"}} className={S("button")} to={rootStore.backPath}>
               <ImageIcon icon={LeftArrowIcon} label="Go Back" className={S("button__icon")} />
             </Linkish>
         }

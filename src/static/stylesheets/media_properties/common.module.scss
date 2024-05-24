@@ -317,6 +317,10 @@
   h5,
   p {
     line-height: 1.3em;
+
+    * {
+      font-size: 1em;
+    }
   }
 
   h1 {
@@ -357,24 +361,6 @@
 
   s {
     text-decoration: line-through;
-  }
-
-  a {
-    /* stylelint-disable-next-line no-important */
-    color: var(--color-text-highlight) !important;
-
-    * {
-      color: var(--color-text-highlight) !important;
-    }
-
-    &:hover {
-      /* stylelint-disable-next-line no-important */
-      color: var(--color-text-highlight) !important;
-
-      * {
-        color: var(--color-text-highlight) !important;
-      }
-    }
   }
 
   blockquote {

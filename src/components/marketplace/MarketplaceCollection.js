@@ -17,7 +17,7 @@ import {LocalizeString} from "Components/common/UIComponents";
 const MarketplaceCollection = observer(() => {
   const match = useRouteMatch();
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  const secondaryDisabled = marketplace?.branding?.disable_secondary_market;
+  const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false || marketplace?.branding?.disable_secondary_market;
   const [collectionItems, setCollectionItems] = useState(undefined);
 
   if(!marketplace) { return null; }

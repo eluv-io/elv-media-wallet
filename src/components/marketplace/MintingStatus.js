@@ -508,7 +508,6 @@ export const GiftPurchaseMintingStatus = observer(() => {
     confirmationId: match.params.confirmationId
   });
 
-  // TODO: When pending status is in, complete once we get pending status
   if(status?.status !== "complete" && rootStore.loggedIn) {
     return (
       <MintingStatus

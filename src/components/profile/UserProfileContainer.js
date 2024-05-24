@@ -92,7 +92,7 @@ const UserProfileContainer = observer(({includeUserProfile, children}) => {
   includeUserProfile = typeof includeUserProfile === "function" ? includeUserProfile(match) : includeUserProfile;
 
   const marketplace = rootStore.marketplaces[match.params.marketplaceId] || rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === match.params.marketplaceId);
-  const secondaryDisabled = marketplace?.branding?.disable_secondary_market;
+  const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false || marketplace?.branding?.disable_secondary_market;
   const availableDisplayCurrencies = marketplace?.display_currencies || [];
 
   const [userProfile, setUserProfile] = useState(rootStore.userProfiles[match.params.userId]);
@@ -241,19 +241,19 @@ const UserProfileContainer = observer(({includeUserProfile, children}) => {
           }
 
           {
-            true || secondaryDisabled ? null :
+            secondaryDisabled ? null :
               <NavLink to="listings" className={S("nav__link")}>
                 { rootStore.l10n.header.listings }
               </NavLink>
           }
           {
-            true || !currentUser ? null :
+            !currentUser || rootStore.domainSettings?.settings?.features?.activity === false ? null :
               <NavLink to="activity" className={S("nav__link")}>
                 { rootStore.l10n.header.activity }
               </NavLink>
           }
           {
-            true || !currentUser ? null :
+            !currentUser || rootStore.domainSettings?.settings?.features?.gifting === false ? null :
               <NavLink to="gifts" className={S("nav__link")}>
                 { rootStore.l10n.header.gifts }
               </NavLink>
@@ -263,12 +263,6 @@ const UserProfileContainer = observer(({includeUserProfile, children}) => {
               <NavLink to="notifications" className={S("nav__link")}>
                 { rootStore.l10n.header.notifications }
               </NavLink>
-          }
-          {
-            true || !currentUser ? null :
-              <button onClick={() => setShowPreferencesMenu(true)} className={S("nav__link")}>
-                { rootStore.l10n.header.preferences }
-              </button>
           }
         </nav>
       </div>

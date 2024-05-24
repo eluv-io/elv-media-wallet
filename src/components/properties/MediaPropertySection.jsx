@@ -477,7 +477,7 @@ const MediaPropertySectionPage = observer(() => {
           />
       }
       <PageHeader display={section.display} className={S("section__page-header")} />
-      <LoginGate backPath={rootStore.ResolvedBackPath()} Condition={() => !sectionPermissions.authorized}>
+      <LoginGate backPath={rootStore.backPath} Condition={() => !sectionPermissions.authorized}>
         {sectionItems}
       </LoginGate>
     </PageContainer>

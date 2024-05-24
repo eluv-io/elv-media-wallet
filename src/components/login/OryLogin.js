@@ -142,7 +142,7 @@ const SubmitRecoveryCode = async ({flows, setFlows, setFlowType, setErrorMessage
 };
 
 let submitting = false;
-const OryLogin = observer(({userData}) => {
+const OryLogin = observer(({customizationOptions, userData}) => {
   const [flowType, setFlowType] = useState(searchParams.has("flow") ? "initializeFlow" : "login");
   const [flows, setFlows] = useState({});
   const [loading, setLoading] = useState(false);
@@ -246,7 +246,7 @@ const OryLogin = observer(({userData}) => {
 
     if(!flow.refresh && flow.requested_aal !== "aal2") {
       // TODO: Remove
-      if(!["ris.euro2024.com", "ris-uefa.mw.app"].includes(location.hostname)) {
+      if(!customizationOptions.disable_registration) {
         additionalContent.push(
           <button
             key="registration-link"
@@ -449,6 +449,7 @@ const OryLogin = observer(({userData}) => {
         )
       }
       <form
+        title={title}
         key={`form-${flowType}-${flow.state}`}
         ref={formRef}
         className="ory-login__form"

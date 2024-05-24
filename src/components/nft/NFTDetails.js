@@ -1191,7 +1191,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, giftItem, hideSec
   const isInCheckout = listingStatus?.listing?.details?.CheckoutLockedUntil && listingStatus?.listing.details.CheckoutLockedUntil > Date.now();
   const showModal = ["purchase", "purchase-gift", "list"].includes(match.params.action);
   const showMediaSections = (nftInfo?.isOwned || previewMedia) && nftInfo?.hasAdditionalMedia && nftInfo?.additionalMedia?.type !== "List";
-  const secondaryDisabled = marketplace?.branding?.disable_secondary_market;
+  const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false || marketplace?.branding?.disable_secondary_market;
 
   let votingEvents;
   if(marketplace && marketplace.voting_events && nftInfo?.item) {

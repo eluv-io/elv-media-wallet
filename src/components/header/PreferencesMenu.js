@@ -1,3 +1,5 @@
+/* eslint no-unused-vars: 0 */
+
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import Modal from "Components/common/Modal";
@@ -76,42 +78,48 @@ const PreferencesMenu = observer(({Hide}) => {
           }
         </div>
 
-        <div className="header__preferences-menu__section">
-          <div className="header__preferences-menu__label">
-            { rootStore.l10n.preferences.marketplace_display_currency }
-          </div>
-          <div className="header__preferences-menu__hint">
-            { rootStore.l10n.preferences.currency_conversion }
-          </div>
-          <Select
-            value={checkoutStore.currency}
-            onChange={currency => {
-              checkoutStore.SetCurrency({currency});
-              rootStore.SetLocalStorage(`preferred-currency-${rootStore.routeParams.marketplaceId}`, currency);
-            }}
-            activeValuePrefix={`${rootStore.l10n.preferences.display_currency}: `}
-            containerClassName="header__preferences-menu__currency-select"
-            options={(availableDisplayCurrencies || []).map(code => [code, currencyMap[code]])}
-          />
-        </div>
-
         {
-          availableLocalizations.length === 0 ? null :
-            <div className="header__preferences-menu__section">
-              <div className="header__preferences-menu__label">
-                {rootStore.l10n.preferences.language}
-              </div>
-              <Select
-                value={rootStore.language}
-                onChange={language => rootStore.SetLanguage(language, true)}
-                activeValuePrefix={`${rootStore.l10n.preferences.language}: `}
-                containerClassName="header__preferences-menu__currency-select"
-                options={[
-                  ["en", "English"],
-                  ...availableLocalizations
-                ]}
-              />
+
+          /*
+          <div className="header__preferences-menu__section">
+            <div className="header__preferences-menu__label">
+              { rootStore.l10n.preferences.marketplace_display_currency }
             </div>
+            <div className="header__preferences-menu__hint">
+              { rootStore.l10n.preferences.currency_conversion }
+            </div>
+            <Select
+              value={checkoutStore.currency}
+              onChange={currency => {
+                checkoutStore.SetCurrency({currency});
+                rootStore.SetLocalStorage(`preferred-currency-${rootStore.routeParams.marketplaceId}`, currency);
+              }}
+              activeValuePrefix={`${rootStore.l10n.preferences.display_currency}: `}
+              containerClassName="header__preferences-menu__currency-select"
+              options={(availableDisplayCurrencies || []).map(code => [code, currencyMap[code]])}
+            />
+          </div>
+
+          {
+            availableLocalizations.length === 0 ? null :
+              <div className="header__preferences-menu__section">
+                <div className="header__preferences-menu__label">
+                  {rootStore.l10n.preferences.language}
+                </div>
+                <Select
+                  value={rootStore.language}
+                  onChange={language => rootStore.SetLanguage(language, true)}
+                  activeValuePrefix={`${rootStore.l10n.preferences.language}: `}
+                  containerClassName="header__preferences-menu__currency-select"
+                  options={[
+                    ["en", "English"],
+                    ...availableLocalizations
+                  ]}
+                />
+              </div>
+          }
+
+           */
         }
       </div>
     </Modal>

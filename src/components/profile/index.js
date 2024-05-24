@@ -136,7 +136,7 @@ const Profile = observer(() => {
   const userInfo = rootStore.walletClient.UserInfo();
   const custodialWallet = userInfo.walletType === "Custodial";
   const marketplace = rootStore.marketplaces[match.params.marketplaceId] || rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === match.params.marketplaceId);
-  const secondaryDisabled = marketplace?.branding?.disable_secondary_market;
+  const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false || marketplace?.branding?.disable_secondary_market;
 
   useEffect(() => {
     rootStore.GetWalletBalance(true);

@@ -2,7 +2,7 @@ import PageStyles from "Assets/stylesheets/media_properties/property-page.module
 
 import React from "react";
 import {observer} from "mobx-react";
-import {mediaPropertyStore, rootStore} from "Stores";
+import {mediaPropertyStore} from "Stores";
 import {Redirect, useRouteMatch} from "react-router-dom";
 import {
   Button,
