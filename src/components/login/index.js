@@ -101,7 +101,7 @@ const ParseDomainCustomization = ({styling, terms, consent, settings}) => {
       enabled: consent?.consent_options?.length > 0,
       options: consent?.consent_options
     },
-    use_ory: settings?.provider !== "ory",
+    use_ory: settings?.provider === "ory",
     disable_registration: settings?.disable_registration || false
   };
 };
