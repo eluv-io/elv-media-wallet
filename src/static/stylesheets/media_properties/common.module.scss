@@ -243,6 +243,7 @@
     max-width: 100%;
     opacity: 0;
     overflow: hidden;
+    backdrop-filter: blur(20px);
 
     &--visible {
       /* stylelint-disable-next-line no-important */

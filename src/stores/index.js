@@ -757,11 +757,13 @@ class RootStore {
         }
       };
 
-      CheckTokenStatus();
-
-      setInterval(() => {
+      if(!this.useLocalAuth) {
         CheckTokenStatus();
-      }, 60000);
+
+        setInterval(() => {
+          CheckTokenStatus();
+        }, 60000);
+      }
     } catch(error) {
       this.ClearAuthInfo();
       this.Log(error, true);

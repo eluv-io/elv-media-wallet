@@ -222,6 +222,10 @@ $max-height-icon-centered: 50vh;
     position: absolute;
     top: 12px;
     z-index: 1;
+
+    &:empty {
+      display: none;
+    }
   }
 
   .item-card__image-container {
