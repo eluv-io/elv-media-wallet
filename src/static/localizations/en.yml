@@ -31,7 +31,7 @@ login:
   select_all_options: Select All
   accept: I Accept
   terms_and_conditions: Terms and Conditions
-  terms: By creating an account or signing in, I agree to the [Eluvio Privacy Policy](https://live.eluv.io/privacy) and the [Eluvio Terms and Conditions](https://live.eluv.io/terms).
+  terms: '<p>By creating an account or signing in, I agree to the <a target="_blank" href="https://live.eluv.io/privacy">Eluvio Privacy Policy</a> and the <a target="_blank" href="https://live.eluv.io/terms">Eluvio Terms and Conditions</a>.</p>'
   email_consent: By checking this box, I give consent for my email address to be stored with my wallet address {tenantClause}. Eluvio may also send informational and marketing emails to this address.
   email_consent_tenant_clause: and shared with {tenantName}
   login_code: "Code: {code}"
@@ -40,6 +40,7 @@ login:
     missing_required_options: Please accept the required options below
     too_many_logins: This account has been accessed from too many devices. Please wait 24 hours and try again.
     forced_logout: You have been signed out because another session using this account has logged you out.
+    session_expired: Your session has expired. Please sign in again.
   ory:
     actions:
       registration: Sign Up

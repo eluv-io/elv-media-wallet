@@ -76,6 +76,7 @@
 }
 
 .login-page {
+  --login-font-family: "Inter", "Montserrat", "Helvetica Neue", helvetica, sans-serif; /* Primary font should be accompanied with 'text-transform: uppercase' */;
   --login-box--background: #090909;
   --login-box--color: #FFF;
   --login-box--border-color: #444;
@@ -103,6 +104,10 @@
   margin: 0;
   min-height: 100%;
   padding: 100px 30px 75px;
+
+  * {
+    font-family: var(--login-font-family);
+  }
 
   .page-container {
     background-color: transparent;

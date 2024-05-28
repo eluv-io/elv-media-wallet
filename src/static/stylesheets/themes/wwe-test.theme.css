@@ -347,7 +347,7 @@ input:focus-visible,
   display: none;
 }
 
-@media screen and (width <= 420px) {
+@media screen and (max-width: 420px) {
   .page-container .page-header {
     font-size: 45px;
   }
@@ -357,7 +357,7 @@ input:focus-visible,
   font-size: 44px;
 }
 
-@media screen and (width <= 1000px) {
+@media screen and (max-width: 1000px) {
   .featured-item__title {
     font-size: 24px;
   }

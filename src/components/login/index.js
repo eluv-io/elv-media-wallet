@@ -51,7 +51,7 @@ const params = {
 
 window.params = params;
 
-const ParseDomainCustomization = ({styling, terms, consent, settings}) => {
+const ParseDomainCustomization = ({styling, terms, consent, settings}, font) => {
   let styles = {};
   const SetVars = (prefix, option) => {
     if(CSS.supports("color", option.background_color)) {
@@ -81,6 +81,10 @@ const ParseDomainCustomization = ({styling, terms, consent, settings}) => {
   }
   if(CSS.supports("color", styling.link_color)) {
     styles["--login-text-link--color"] = styling.link_color;
+  }
+
+  if(font) {
+    styles["--login-font-family"] = font;
   }
 
   return {
@@ -779,7 +783,7 @@ const Login = observer(({Close}) => {
         const userDataKey = `login-data-${options?.marketplaceId || options.mediaPropertyId || "default"}`;
 
         if(options.mediaPropertyId) {
-          options = ParseDomainCustomization(options?.login);
+          options = ParseDomainCustomization(options?.login, options.font);
         }
 
         // Load initial user data from localstorage, if present

@@ -22,6 +22,8 @@ const PropertyWrapper = observer(({children}) => {
   useEffect(() => {
     if(rootStore.specifiedMarketplaceId) {
       rootStore.SetMarketplace({marketplaceId: rootStore.specifiedMarketplaceId, specified: true});
+    } else if(match.params.mediaPropertySlugOrId) {
+      rootStore.SetPropertyCustomization(match.params.mediaPropertySlugOrId);
     } else {
       rootStore.ClearMarketplace();
     }

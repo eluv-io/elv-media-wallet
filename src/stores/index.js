@@ -750,7 +750,9 @@ class RootStore {
 
       // Periodically check to ensure the token has not been revoked
       const CheckTokenStatus = async () => {
-        if(!(await this.walletClient.TokenStatus())) {
+        if(!this.AuthInfo(10 * 60 * 1000)) {
+          this.SignOut({message: this.l10n.login.errors.session_expired});
+        } else if(!(await this.walletClient.TokenStatus())) {
           this.SignOut({message: this.l10n.login.errors.forced_logout});
         }
       };
@@ -772,11 +774,19 @@ class RootStore {
 
 
   SetDomainCustomization = flow(function * () {
-    const options = yield this.LoadDomainCustomization();
+    const options = yield this.LoadPropertyCustomization();
 
     if(!options) { return; }
 
     this.domainSettings = options;
+
+    this.SetPropertyCustomization(this.domainProperty);
+  });
+
+  SetPropertyCustomization = flow(function * (mediaPropertySlugOrId) {
+    const options = yield this.LoadPropertyCustomization(mediaPropertySlugOrId);
+
+    if(!options) { return; }
 
     let css = [];
     if(options.styling?.font === "custom") {
@@ -794,11 +804,11 @@ class RootStore {
       }
     }
 
-    this.SetCustomCSS(css.join("\n"), "_domain-css");
+    this.SetCustomCSS(css.join("\n"));
   });
 
-  LoadDomainCustomization = flow(function * () {
-    if(!this.domainProperty) { return; }
+  LoadPropertyCustomization = flow(function * (mediaPropertySlugOrId) {
+    if(!mediaPropertySlugOrId) { return; }
 
     // Client may not be initialized yet
     while(!this.client) {
@@ -806,11 +816,11 @@ class RootStore {
     }
 
     yield this.mediaPropertyStore.LoadMediaProperty({
-      mediaPropertySlugOrId: this.domainProperty
+      mediaPropertySlugOrId
     });
 
     const property = this.mediaPropertyStore.MediaProperty({
-      mediaPropertySlugOrId: this.domainProperty
+      mediaPropertySlugOrId
     });
 
     return {
@@ -818,7 +828,8 @@ class RootStore {
       tenant: property.metadata?.tenant,
       login: property.metadata?.login,
       styling: property.metadata.styling,
-      settings: property.metadata.domain
+      settings: property.metadata.domain,
+      font: property.metadata.styling?.font === "custom" && property.metadata.styling.custom_font_declaration
     };
   });
 
@@ -833,7 +844,7 @@ class RootStore {
     };
 
     if(this.domainProperty) {
-      return yield this.LoadDomainCustomization();
+      return yield this.LoadPropertyCustomization(this.domainProperty);
     }
 
     let marketplaceId;
@@ -1107,6 +1118,10 @@ class RootStore {
   }
 
   SetCustomizationOptions(marketplace, disableTenantStyling=false) {
+    if(this.routeParams.mediaPropertySlugOrId) {
+      this.SetPropertyCustomization(this.routeParams.mediaPropertySlugOrId);
+    }
+
     const useTenantStyling =
       !disableTenantStyling &&
       marketplace?.branding?.use_tenant_styling &&
@@ -2285,7 +2300,7 @@ class RootStore {
     return key;
   }
 
-  AuthInfo() {
+  AuthInfo(expirationBuffer=6 * 60 * 60 * 1000) {
     try {
       if(this.authInfo) {
         return this.authInfo;
@@ -2297,8 +2312,6 @@ class RootStore {
         let { clientAuthToken, clientSigningToken, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
 
         // Expire tokens early so they don't stop working while in use
-        const expirationBuffer = 6 * 60 * 60 * 1000;
-
         if(expiresAt - Date.now() < expirationBuffer) {
           this.ClearAuthInfo();
           this.Log("Authorization expired", "warn");
