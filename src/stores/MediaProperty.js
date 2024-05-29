@@ -679,11 +679,6 @@ class MediaPropertyStore {
   LoadMediaProperty = flow(function * ({mediaPropertySlugOrId, force=false}) {
     const mediaPropertyId = this.MediaProperty({mediaPropertySlugOrId})?.mediaPropertyId || mediaPropertySlugOrId;
 
-    const mediaProperty = this.mediaProperties[mediaPropertyId];
-    if(mediaProperty && !this.client.utils.EqualAddress(mediaProperty.accountAddress, this.rootStore.CurrentAddress())) {
-      force = true;
-    }
-
     yield this.LoadResource({
       key: "MediaProperty",
       id: mediaPropertyId,
@@ -789,7 +784,7 @@ class MediaPropertyStore {
 
   // Ensure the specified load method is called only once unless forced
   LoadResource = flow(function * ({key, id, force, Load}) {
-    key = `load${key}`;
+    key = `load${key}-${this.rootStore.CurrentAddress() || "anonymous"}`;
 
     if(force) {
       // Force - drop all loaded content
