@@ -481,7 +481,7 @@ export const Button = ({variant="primary", active, loading, ...props}) => {
             }
           }
       }
-      className={[S("button", variant ? `button--${variant}` : "", active ? "button--active" : ""), props.className || ""].join(" ")}
+      className={[S("button", variant ? `button--${variant}` : "", active ? "button--active" : "", props.disabled ? "button--disabled" : ""), props.className || ""].join(" ")}
     >
       {
         !isLoading ? props.children :

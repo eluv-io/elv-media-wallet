@@ -2,69 +2,200 @@ import ItemDetailStyles from "Assets/stylesheets/media_properties/item-details-m
 
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {useRouteMatch} from "react-router-dom";
-import {rootStore} from "Stores";
+import {Redirect, useRouteMatch} from "react-router-dom";
+import {rootStore, transferStore} from "Stores";
 import {NFTInfo} from "../../utils/Utils";
 import {Button, Description, PageContainer} from "Components/properties/Common";
 import {NFTImage} from "Components/common/Images";
 import {CopyableField, LocalizeString} from "Components/common/UIComponents";
+import Confirm from "Components/common/Confirm";
+import {Modal, TextInput} from "@mantine/core";
 
 const S = (...classes) => classes.map(c => ItemDetailStyles[c] || "").join(" ");
 
-const ContractPage = observer(({nftInfo}) => {
-  return (
-    <div className={S("page")}>
-      <div className={S("details")}>
-        <div className={S("details__copy-field")}>
-          <div className={S("details__copy-field-title")}>
-            { rootStore.l10n.item_details.contract_address }
-          </div>
-          <CopyableField value={nftInfo.nft.details.ContractAddr}>
-            <div className={[S("details__copy-value"), "ellipsis"].join(" ")}>
-              { nftInfo.nft.details.ContractAddr }
-            </div>
-          </CopyableField>
-        </div>
-        <div className={S("details__copy-field")}>
-          <div className={S("details__copy-field-title")}>
-            { rootStore.l10n.item_details.version_hash }
-          </div>
-          <CopyableField value={nftInfo.nft.details.VersionHash}>
-            <div className={[S("details__copy-value"), "ellipsis"].join(" ")}>
-              { nftInfo.nft.details.VersionHash }
-            </div>
-          </CopyableField>
-        </div>
-        <div className={S("details__actions")}>
-          <Button
-            variant="outline"
-            target="_blank"
-            href={
-              rootStore.walletClient.network === "main" ?
-                `https://explorer.contentfabric.io/address/${nftInfo.nft.details.ContractAddr}/transactions` :
-                `https://lookout.qluv.io/address/${nftInfo.nft.details.ContractAddr}/transactions`
+const TransferModal = ({nft, SetTransferred, Close}) => {
+  const [targetAddress, setTargetAddress] = useState("");
+  const [addressValid, setAddressValid] = useState(true);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    setError("");
+    setMessage("");
+
+    const invalid = targetAddress &&
+      (!rootStore.client.utils.ValidAddress(targetAddress) || rootStore.client.utils.EqualAddress(rootStore.client.utils.nullAddress, targetAddress));
+
+    if(invalid) {
+      setAddressValid(false);
+      setError(rootStore.l10n.transfers.errors.invalid_address);
+    } else if(rootStore.client.utils.EqualAddress(rootStore.CurrentAddress(), targetAddress)) {
+      setAddressValid(false);
+      setError(rootStore.l10n.transfers.errors.no_self_transfer);
+    } else {
+      setAddressValid(true);
+      setError("");
+
+      if(targetAddress) {
+        rootStore.walletClient.UserItems({userAddress: targetAddress, limit: 1})
+          .then(({paging}) => {
+            if(paging.total <= 0) {
+              setMessage(rootStore.l10n.transfers.errors.address_warning);
             }
-            rel="noopener"
+          });
+      }
+    }
+  }, [targetAddress]);
+
+  return (
+    <Modal
+      size="auto"
+      centered
+      opened
+      onClose={Close}
+      title="Transfer Item"
+    >
+      <div className={S("transfer-form")}>
+        <TextInput
+          label="Recipient Address"
+          value={targetAddress}
+          onChange={event => setTargetAddress(event.target.value)}
+          error={error}
+        />
+        {
+          !message ? null :
+            <div className={S("transfer-form__message")}>
+              { message }
+            </div>
+        }
+        <div className={S("transfer-form__actions")}>
+          <Button
+            disabled={!addressValid}
+            variant="primary"
+            onClick={async () => {
+              try {
+                await transferStore.TransferNFT({nft, targetAddress});
+                SetTransferred();
+                Close();
+              } catch(error) {
+                setError("Transfer failed");
+              }
+            }}
+            className={S("transfer-form__action")}
           >
-            { rootStore.l10n.item_details.lookout_link }
+            Transfer
+          </Button>
+          <Button variant="outline" onClick={Close} className={S("transfer-form__action")}>
+            Cancel
           </Button>
         </div>
-        <div className={S("details__details")}>
-          {
-            nftInfo.heldDate || !nftInfo.secondaryReleased ?
-              <h3 className={S("details__detail")}>
-                { LocalizeString(rootStore.l10n.item_details[nftInfo.heldDate ? "held_message" : "secondary_unreleased"], {heldDate: nftInfo.heldDate || nftInfo.secondaryReleaseDate}) }
-              </h3> : null
-          }
-          {
-            nftInfo.secondaryReleased && !nftInfo.secondaryAvailable ?
-              <h3 className={S("details__detail")}>
-                { LocalizeString(rootStore.l10n.item_details.secondary_expired, {heldDate: nftInfo.secondaryExpirationDate}) }
-              </h3> : null
-          }
+      </div>
+    </Modal>
+  );
+};
+
+const ContractPage = observer(({nftInfo}) => {
+  const [burned, setBurned] = useState(false);
+  const [showTransfer, setShowTransfer] = useState(false);
+
+  if(burned) {
+    return <Redirect to="/" />;
+  }
+
+  return (
+    <>
+      {
+        !showTransfer ? null :
+          <TransferModal
+            nft={nftInfo.nft}
+            SetTransferred={() => setBurned(true)}
+            Close={() => setShowTransfer(false)}
+          />
+      }
+      <div className={S("page")}>
+        <div className={S("details")}>
+          <div className={S("details__copy-field")}>
+            <div className={S("details__copy-field-title")}>
+              { rootStore.l10n.item_details.contract_address }
+            </div>
+            <CopyableField value={nftInfo.nft.details.ContractAddr}>
+              <div className={[S("details__copy-value"), "ellipsis"].join(" ")}>
+                { nftInfo.nft.details.ContractAddr }
+              </div>
+            </CopyableField>
+          </div>
+          <div className={S("details__copy-field")}>
+            <div className={S("details__copy-field-title")}>
+              { rootStore.l10n.item_details.version_hash }
+            </div>
+            <CopyableField value={nftInfo.nft.details.VersionHash}>
+              <div className={[S("details__copy-value"), "ellipsis"].join(" ")}>
+                { nftInfo.nft.details.VersionHash }
+              </div>
+            </CopyableField>
+          </div>
+          <div className={S("details__actions")}>
+            <Button
+              className={S("details__action")}
+              variant="outline"
+              target="_blank"
+              href={
+                rootStore.walletClient.network === "main" ?
+                  `https://explorer.contentfabric.io/address/${nftInfo.nft.details.ContractAddr}/transactions` :
+                  `https://lookout.qluv.io/address/${nftInfo.nft.details.ContractAddr}/transactions`
+              }
+              rel="noopener"
+            >
+              { rootStore.l10n.item_details.lookout_link }
+            </Button>
+
+            {
+              !nftInfo.isOwned || nftInfo.listingId || nftInfo.heldDate ? null :
+                <Button
+                  className={S("details__action")}
+                  variant="outline"
+                  disabled={nftInfo.nft?.metadata?.test}
+                  title={nftInfo.nft?.metadata?.test ? "Test items may not be transferred" : ""}
+                  onClick={() => setShowTransfer(true)}
+                >
+                  { rootStore.l10n.actions.transfers.transfer }
+                </Button>
+            }
+
+            {
+              !nftInfo.isOwned || nftInfo.listingId || !rootStore.funds ? null :
+                <Button
+                  className={S("details__action")}
+                  variant="outline"
+                  onClick={async () => await Confirm({
+                    message: "Are you sure you want to permanently burn this item? This cannot be undone.",
+                    Confirm: async () => {
+                      await rootStore.BurnNFT({nft: nftInfo.nft});
+                      setBurned(true);
+                    }
+                  })}
+                >
+                  Burn Item
+                </Button>
+            }
+          </div>
+          <div className={S("details__details")}>
+            {
+              nftInfo.heldDate || !nftInfo.secondaryReleased ?
+                <h3 className={S("details__detail")}>
+                  { LocalizeString(rootStore.l10n.item_details[nftInfo.heldDate ? "held_message" : "secondary_unreleased"], {heldDate: nftInfo.heldDate || nftInfo.secondaryReleaseDate}) }
+                </h3> : null
+            }
+            {
+              nftInfo.secondaryReleased && !nftInfo.secondaryAvailable ?
+                <h3 className={S("details__detail")}>
+                  { LocalizeString(rootStore.l10n.item_details.secondary_expired, {heldDate: nftInfo.secondaryExpirationDate}) }
+                </h3> : null
+            }
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 });
 

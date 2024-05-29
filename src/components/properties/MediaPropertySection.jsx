@@ -184,6 +184,29 @@ export const SectionResultsGroup = observer(({groupBy, label, results, navContex
     }
   });
 
+  // Sort results by start time
+  if(groupBy === "__date") {
+    results = results.sort((a, b) => {
+      if(a?.mediaItem?.start_time) {
+        if(b?.mediaItem?.start_time) {
+          if(a.mediaItem.start_time !== b.mediaItem.start_time) {
+            return a.mediaItem.start_time < b.mediaItem.start_time ? -1 : 1;
+          } else {
+            // Equal start times - sort by catalog title
+            return a.catalog_title > b.catalog_title ? -1 : 1;
+          }
+        } else {
+          return -1;
+        }
+      } else if(b?.mediaItem?.start_time) {
+        return 1;
+      } else {
+        // No start times - sort by catalog title
+        return a.catalog_title > b.catalog_title ? 1 : -1;
+      }
+    });
+  }
+
   return (
     <div className={S("section", "section--page", "section__group")}>
       {

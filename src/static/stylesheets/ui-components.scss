@@ -235,8 +235,7 @@
 }
 
 .confirm {
-  @include modal;
-
+  background: #000;
   max-width: 550px;
   overflow-y: hidden;
   padding: 50px 30px;

@@ -504,6 +504,7 @@
 .button {
   align-items: center;
   border-radius: 5px;
+  cursor: pointer;
   display: flex;
   font-weight: 500;
   justify-content: center;
@@ -511,13 +512,10 @@
   padding-inline: 20px;
   position: relative;
   transition: background-color 0.2s ease, border 0.2s ease, color 0.1s ease;
-  width: max-content;
 
+  &--disabled,
   &:disabled {
-    height: 0;
-    max-height: 0;
-    min-height: unset;
-    opacity: 0;
+    opacity: 0.5;
   }
 
   &--primary {
