@@ -33,10 +33,10 @@
   },
   "dependencies": {
     "@eluvio/crypto": "^1.1.1",
-    "@eluvio/elv-client-js": "git+https://github.com/eluv-io/elv-client-js.git#develop",
+    "@eluvio/elv-client-js": "^4.0.86",
     "@eluvio/elv-embed": "git+https://github.com/eluv-io/elv-embed.git#player-update",
     "@eluvio/elv-paymentgate": "^1.0.0",
-    "@eluvio/elv-player-js": "git+https://github.com/eluv-io/elv-player-js.git#ui-rewrite",
+    "@eluvio/elv-player-js": "^2.0.2",
     "@mantine/core": "^7.6.2",
     "@mantine/dates": "^7.6.2",
     "@mantine/hooks": "^7.6.2",

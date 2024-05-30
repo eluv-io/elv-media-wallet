@@ -6,21 +6,18 @@ import {observer} from "mobx-react";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
 
-const Countdown = observer(({time, showSeconds=false, Render, OnEnded, className=""}) => {
+const Countdown = observer(({displayTime, time, showSeconds=false, Render, OnEnded, className=""}) => {
   const [countdown, setCountdown] = useState({diff: 0, countdown: ""});
-  const [loop, setLoop] = useState(undefined);
 
   useEffect(() => {
-    if(loop) { return; }
-
     let lastDiff, ended;
-    setLoop(setInterval(() => {
-      let diffSeconds = Math.ceil((new Date(time) - new Date()) / 1000);
-
-      if(!ended && diffSeconds <= 0 && OnEnded) {
+    const countdownInterval = setInterval(() => {
+      if(!ended && new Date() > time && OnEnded) {
         ended = true;
         OnEnded();
       }
+
+      let diffSeconds = Math.ceil((new Date(displayTime || time) - new Date()) / 1000);
 
       if(diffSeconds === lastDiff) { return; }
       lastDiff = diffSeconds;
@@ -70,7 +67,7 @@ const Countdown = observer(({time, showSeconds=false, Render, OnEnded, className
         countdownString += `${minutes} ${status.minutesUnit} `;
       }
 
-      if(showSeconds && seconds > 0 || (days === 0 && hours === 0 && minutes === 0 && seconds > 0)) {
+      if((showSeconds && seconds > 0) || (days === 0 && hours === 0 && minutes === 0 && seconds > 0)) {
         countdownString += ` ${seconds} ${status.secondsUnit}`;
       }
 
@@ -78,12 +75,11 @@ const Countdown = observer(({time, showSeconds=false, Render, OnEnded, className
         ...status,
         countdown: countdownString
       });
-    }, 100));
+    }, 100);
 
     // Stop interval on unmount
     return () => {
-      setLoop(undefined);
-      clearInterval(loop);
+      clearInterval(countdownInterval);
     };
   }, []);
 
@@ -104,7 +100,7 @@ const Countdown = observer(({time, showSeconds=false, Render, OnEnded, className
     components.push(`${countdown.minutes} ${countdown.minutesUnit}`);
   }
 
-  if(showSeconds) {
+  if(showSeconds || (countdown.days === 0 && countdown.hours === 0 && countdown.minutes === 0 && countdown.seconds > 0)) {
     components.push(`${countdown.seconds} ${countdown.secondsUnit}`);
   }
 

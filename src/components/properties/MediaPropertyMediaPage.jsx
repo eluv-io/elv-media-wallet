@@ -67,7 +67,8 @@ const MediaVideo = observer(({mediaItem, display}) => {
           { display.title }
         </div>
         <Countdown
-          time={scheduleInfo.startTime}
+          displayTime={scheduleInfo.startTime}
+          time={scheduleInfo.streamStartTime}
           OnEnded={() => setScheduleInfo(MediaItemScheduleInfo(mediaItem))}
           className={S("media__countdown")}
         />
