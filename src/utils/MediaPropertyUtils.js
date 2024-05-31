@@ -1,4 +1,4 @@
-import {SetImageUrlDimensions, StaticFabricUrl} from "./Utils";
+import {LinkTargetHash, SetImageUrlDimensions, StaticFabricUrl} from "./Utils";
 import UrlJoin from "url-join";
 import {mediaPropertyStore, rootStore} from "Stores";
 
@@ -288,6 +288,26 @@ export const MediaItemScheduleInfo = mediaItem => {
       isLiveContent: false
     };
   }
+};
+
+export const MediaItemLivePreviewImageUrl = async ({mediaItem, width}) => {
+  if(!MediaItemScheduleInfo(mediaItem)?.currentlyLive) {
+    return;
+  }
+
+  const nonce = Date.now();
+  const linkHash = LinkTargetHash(mediaItem.media_link);
+
+  const versionHash = await mediaPropertyStore.client.LatestVersionHash({versionHash: linkHash});
+
+  // TODO: Support offering(s)
+  const url = new URL(await mediaPropertyStore.client.Rep({
+    versionHash,
+    rep: "frame/default/video",
+    queryParams: width ? {width, nonce} : {nonce}
+  }));
+
+  return url.toString();
 };
 
 export const MediaItemImageUrl = ({mediaItem, display, aspectRatio, width}) => {

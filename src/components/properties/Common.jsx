@@ -95,16 +95,17 @@ export const RichText = ({richText, ...props}) => {
   );
 };
 
-export const LoaderImage = observer(({src, width, loaderHeight, loaderWidth, loaderAspectRatio, lazy=true, showWithoutSource=false, delay=0, ...props}) => {
+export const LoaderImage = observer(({src, alternateSrc, width, loaderHeight, loaderWidth, loaderAspectRatio, lazy=true, showWithoutSource=false, delay=0, ...props}) => {
   const [loaded, setLoaded] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
+  const [useAlternateSrc, setUseAlternateSrc] = useState(false);
 
   useEffect(() => {
     setLoaded(false);
     setShowLoader(false);
 
     setTimeout(() => setShowLoader(true), 500);
-  }, [src]);
+  }, []);
 
   if(!src && !showWithoutSource) {
     return null;
@@ -115,7 +116,7 @@ export const LoaderImage = observer(({src, width, loaderHeight, loaderWidth, loa
   }
 
   if(loaded) {
-    return <img src={src} {...props} />;
+    return <img src={(useAlternateSrc && src) || src} {...props} />;
   }
 
   return (
@@ -127,8 +128,11 @@ export const LoaderImage = observer(({src, width, loaderHeight, loaderWidth, loa
             key={`img-${src}-${props.key || ""}`}
             className={S("lazy-image__loader-image") + " " + props.className}
             loading={lazy ? "lazy" : "eager"}
-            src={src}
+            src={(useAlternateSrc && alternateSrc) || src}
             onLoad={() => setTimeout(() => setLoaded(true), delay)}
+            onError={() => {
+              setUseAlternateSrc(true);
+            }}
           />
       }
       <object

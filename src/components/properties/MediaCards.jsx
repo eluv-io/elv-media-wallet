@@ -1,6 +1,6 @@
 import MediaCardStyles from "Assets/stylesheets/media_properties/media-cards.module.scss";
 
-import React, {useEffect, useRef} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {mediaPropertyStore} from "Stores";
 import {
@@ -100,6 +100,7 @@ const MediaCardVertical = observer(({
   display,
   imageContainerRef,
   imageUrl,
+  livePreviewUrl,
   scheduleInfo,
   textDisplay,
   aspectRatio,
@@ -130,7 +131,8 @@ const MediaCardVertical = observer(({
     >
       <div ref={imageContainerRef} className={S("media-card-vertical__image-container")}>
         <LoaderImage
-          src={imageUrl}
+          src={livePreviewUrl || imageUrl}
+          alternateSrc={livePreviewUrl ? imageUrl : undefined}
           alt={display.title}
           loaderWidth={size ? undefined : `var(--max-card-width-${aspectRatio?.toLowerCase()})`}
           width={600}
@@ -181,6 +183,7 @@ const MediaCardHorizontal = observer(({
   display,
   imageContainerRef,
   imageUrl,
+  livePreviewUrl,
   scheduleInfo,
   textDisplay,
   aspectRatio,
@@ -200,7 +203,8 @@ const MediaCardHorizontal = observer(({
       <div ref={imageContainerRef} className={S("media-card-horizontal__image-container")}>
         { !imageUrl ? null :
           <LoaderImage
-            src={imageUrl}
+            src={livePreviewUrl || imageUrl}
+            alternateSrc={livePreviewUrl ? imageUrl : undefined}
             alt={display.title}
             width={600}
             className={S("media-card-horizontal__image")}
@@ -274,12 +278,38 @@ const MediaCard = observer(({
   const match = useRouteMatch();
   const display = sectionItem?.display || mediaItem;
   const imageContainerRef = useRef();
+  const [livePreviewUrl, setLivePreviewUrl] = useState(undefined);
 
   useEffect(() => {
     if(!setImageDimensions || !imageContainerRef?.current) { return; }
 
     setImageDimensions(imageContainerRef.current.getBoundingClientRect());
   }, [imageContainerRef, mediaPropertyStore.rootStore.pageWidth, mediaPropertyStore.rootStore.pageHeight]);
+
+  // Live Preview URL
+  useEffect(() => {
+    const UpdateLivePreviewURL = async () => {
+      const url = await MediaItemLivePreviewImageUrl({mediaItem:  mediaItem || sectionItem?.mediaItem});
+
+      if(url) {
+        // Pre-fetch / verify preview image
+        const image = new Image();
+        image.src = url;
+        image.onload = () => {
+          setLivePreviewUrl(url);
+        };
+      } else {
+        setLivePreviewUrl(undefined);
+      }
+    };
+
+    UpdateLivePreviewURL();
+    const previewUpdateInterval = setInterval(() => {
+      UpdateLivePreviewURL();
+    }, 60000 + Math.random() * 5000);
+
+    return () => clearInterval(previewUpdateInterval);
+  }, []);
 
   if(!display) {
     mediaPropertyStore.Log("Invalid section item", true);
@@ -316,6 +346,7 @@ const MediaCard = observer(({
   let args = {
     display,
     imageUrl,
+    livePreviewUrl,
     textDisplay,
     linkPath,
     url,
