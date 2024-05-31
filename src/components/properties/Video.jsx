@@ -5,6 +5,7 @@ import React, {useEffect, useRef, useState} from "react";
 import {LinkTargetHash} from "../../utils/Utils";
 import {mediaPropertyStore} from "Stores";
 import {EluvioPlayerParameters, InitializeEluvioPlayer} from "@eluvio/elv-player-js";
+import {Loader} from "Components/common/Loaders";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
 
@@ -16,6 +17,7 @@ const Video = observer(({
   playerOptions={},
   playoutParameters={},
   posterImage,
+  isLive,
   callback,
   errorCallback,
   className=""
@@ -23,6 +25,7 @@ const Video = observer(({
   const [contentHash, setContentHash] = useState(undefined);
   const [videoDimensions, setVideoDimensions] = useState(undefined);
   const [player, setPlayer] = useState(undefined);
+  const [reloadKey, setReloadKey] = useState(0);
   const targetRef = useRef();
 
   useEffect(() => {
@@ -32,7 +35,7 @@ const Video = observer(({
 
     mediaPropertyStore.client.LatestVersionHash({versionHash, objectId})
       .then(setContentHash);
-  }, [objectId, versionHash, link]);
+  }, [objectId, versionHash, link, reloadKey]);
 
   useEffect(() => {
     if(!targetRef || !targetRef.current || !contentHash) { return; }
@@ -47,7 +50,6 @@ const Video = observer(({
       }
     }
 
-
     InitializeEluvioPlayer(
       targetRef.current,
       {
@@ -57,6 +59,7 @@ const Video = observer(({
         sourceOptions: {
           contentInfo: {
             ...contentInfo,
+            type: EluvioPlayerParameters.type[isLive ? "LIVE" : "VOD"],
             posterImage
           },
           playoutParameters: {
@@ -72,6 +75,17 @@ const Video = observer(({
           autoplay: EluvioPlayerParameters.autoplay.ON,
           watermark: EluvioPlayerParameters.watermark.OFF,
           errorCallback,
+          // For live content, latest hash instead of allowing player to reload
+          restartCallback: async () => {
+            if(!isLive) { return false; }
+
+            setContentHash(undefined);
+            await new Promise(resolve => setTimeout(resolve, 15000));
+
+            setReloadKey(reloadKey + 1);
+
+            return true;
+          },
           ...playerOptions
         }
       }
@@ -110,6 +124,10 @@ const Video = observer(({
       style={{aspectRatio: `${videoDimensions?.width || 16} / ${videoDimensions?.height || 9}`}}
     >
       <div ref={targetRef} />
+      {
+        contentHash ? null :
+          <Loader className={S("video__loader")}/>
+      }
     </div>
   );
 });

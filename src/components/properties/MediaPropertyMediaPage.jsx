@@ -99,6 +99,7 @@ const MediaVideo = observer(({mediaItem, display}) => {
   return (
     <Video
       link={mediaItem.media_link}
+      isLive={display.live_video}
       playoutParameters={
         display.live_video || !display.clip ? {} :
           { clipStart: display.clip_start_time, clipEnd: display.clip_end_time }

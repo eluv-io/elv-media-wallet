@@ -497,8 +497,21 @@
 }
 
 .video {
+  align-items: center;
+  display: flex;
   height: auto;
+  justify-content: center;
   max-width: 100vw;
+  position: relative;
+
+  &__loader {
+    height: 50px;
+    max-height: 50px;
+    max-width: 50px;
+    position: absolute;
+    width: 50px;
+    z-index: 100;
+  }
 }
 
 .button {
