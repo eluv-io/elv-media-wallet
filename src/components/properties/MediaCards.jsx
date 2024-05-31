@@ -4,7 +4,7 @@ import React, {useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {mediaPropertyStore} from "Stores";
 import {
-  MediaItemImageUrl,
+  MediaItemImageUrl, MediaItemLivePreviewImageUrl,
   MediaItemScheduleInfo, MediaPropertyLink
 } from "../../utils/MediaPropertyUtils";
 import {Description, LoaderImage, ScaledText} from "Components/properties/Common";
