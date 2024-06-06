@@ -380,7 +380,7 @@ class MediaPropertyStore {
       // Manual Section
       content = section.content;
 
-      const hasActiveFilters = Object.keys(filterOptions.attributes).length > 0 || !!filterOptions.mediaType;
+      const hasActiveFilters = Object.keys(filterOptions.attributes || {}).length > 0 || !!filterOptions.mediaType;
       if(hasActiveFilters) {
         let select = {
           attributes: [],
