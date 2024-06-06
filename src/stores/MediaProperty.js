@@ -378,8 +378,41 @@ class MediaPropertyStore {
         });
     } else {
       // Manual Section
+      content = section.content;
+
+      const hasActiveFilters = Object.keys(filterOptions.attributes).length > 0 || !!filterOptions.mediaType;
+      if(hasActiveFilters) {
+        let select = {
+          attributes: [],
+          attribute_values: {},
+        };
+
+        Object.keys(filterOptions.attributes || {}).forEach(attributeKey => {
+          select.attributes.push(attributeKey);
+          select.attribute_values[attributeKey] = filterOptions.attributes[attributeKey];
+        });
+
+        select.attributes = select.attributes.filter(key => !!select.attribute_values[key]);
+        select.media_types = filterOptions.mediaType ? [filterOptions.mediaType] : [];
+
+        // Active filters - only applies to section items with media
+        content = section.content
+          .filter(sectionItem => ["collection", "list", "media"].includes(sectionItem.type));
+
+        // Find which media matches the specified filters, then filter the section items based whether it contains matching media
+        let filteredMediaIds = {};
+        (yield this.FilteredMedia({
+          select,
+          media: content
+            .map(sectionItem => this.media[sectionItem.media_id])
+            .filter(mediaItem => mediaItem)
+        })).forEach(mediaItem => filteredMediaIds[mediaItem.id] = true);
+
+        content = content.filter(sectionItem => filteredMediaIds[sectionItem.media_id]);
+      }
+
       content = (
-        section.content.map(sectionItem => {
+        content.map(sectionItem => {
           if(!sectionItem.expand || sectionItem.type !== "media") {
             return this.ResolveSectionItem({sectionId: section.id, sectionItem});
           }
@@ -629,6 +662,10 @@ class MediaPropertyStore {
       id: "media-properties",
       Load: async () => {
         const properties = [
+          {propertyId: "iq__ix2KtiranDQ4Zh3Qr24mYkKXm6x", marketplaceId: "iq__4XGTENKuEp8Tdx3v3MgsbTgtbstr"},
+          {propertyId: "iq__ix2KtiranDQ4Zh3Qr24mYkKXm6x", subPropertyId: "iq__2oqzMjCeDZyr4pgoPtyPdoUF9rCm", marketplaceId: "iq__36Xv1Q6BAskNyvWzxJ5K1PU1ryYG"},
+          {propertyId: "iq__ix2KtiranDQ4Zh3Qr24mYkKXm6x", subPropertyId: "iq__2iRwi1aTMQ6GGaiKC6yyyDanBqKo", marketplaceId: "iq__2E32eXX5wABsMcJwc9DH95aeXSmz"},
+
           {propertyId: "iq__2vo9ruJ2ZPc8imK7GNG3NVP51x3g", marketplaceId: "iq__2Utm3HfQ2dVWquyGPWvrPXtgpy8v"},
           {propertyId: "iq__46rbdnidu71Hs54iS9gREsGLwZXj", marketplaceId: "iq__2nDj1bBBkRtN7VnX1zzpHYpoCd7V"},
           {propertyId: "iq__3iCRaVZ2YsxBWuHeBu6rAB8zNs4d", marketplaceId: "iq__2nDj1bBBkRtN7VnX1zzpHYpoCd7V"},
