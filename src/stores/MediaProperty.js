@@ -663,8 +663,8 @@ class MediaPropertyStore {
       Load: async () => {
         const properties = [
           {propertyId: "iq__ix2KtiranDQ4Zh3Qr24mYkKXm6x", marketplaceId: "iq__4XGTENKuEp8Tdx3v3MgsbTgtbstr"},
-          {propertyId: "iq__ix2KtiranDQ4Zh3Qr24mYkKXm6x", subPropertyId: "iq__2oqzMjCeDZyr4pgoPtyPdoUF9rCm", marketplaceId: "iq__36Xv1Q6BAskNyvWzxJ5K1PU1ryYG"},
-          {propertyId: "iq__ix2KtiranDQ4Zh3Qr24mYkKXm6x", subPropertyId: "iq__2iRwi1aTMQ6GGaiKC6yyyDanBqKo", marketplaceId: "iq__2E32eXX5wABsMcJwc9DH95aeXSmz"},
+          {propertyId: "iq__2oqzMjCeDZyr4pgoPtyPdoUF9rCm", marketplaceId: "iq__36Xv1Q6BAskNyvWzxJ5K1PU1ryYG"},
+          {propertyId: "iq__2iRwi1aTMQ6GGaiKC6yyyDanBqKo", marketplaceId: "iq__2E32eXX5wABsMcJwc9DH95aeXSmz"},
 
           {propertyId: "iq__2vo9ruJ2ZPc8imK7GNG3NVP51x3g", marketplaceId: "iq__2Utm3HfQ2dVWquyGPWvrPXtgpy8v"},
           {propertyId: "iq__46rbdnidu71Hs54iS9gREsGLwZXj", marketplaceId: "iq__2nDj1bBBkRtN7VnX1zzpHYpoCd7V"},
