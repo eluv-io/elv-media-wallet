@@ -26,6 +26,12 @@
   &:not(&--no-fade) {
     @include page-fade-in(0.3s);
   }
+
+  &--no-scroll {
+    .modal__content {
+      overflow: hidden;
+    }
+  }
 }
 
 .modal__content {

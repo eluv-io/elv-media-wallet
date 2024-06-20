@@ -103,7 +103,7 @@
   justify-content: center;
   margin: 0;
   min-height: 100%;
-  padding: 100px 30px 75px;
+  padding: 50px 30px 75px;
 
   * {
     font-family: var(--login-font-family);
@@ -394,12 +394,6 @@
     }
   }
 
-  &__terms {
-    &.login-page__terms {
-      font-size: 10px;
-    }
-  }
-
   &__terms,
   &__consent {
     font-size: 10px;
@@ -421,6 +415,14 @@
     }
   }
 
+  &__terms {
+    margin-top: 25px;
+
+    &.login-page__terms {
+      font-size: 10px;
+    }
+  }
+
   &__terms-link-container {
     margin-top: 15px;
   }
@@ -437,7 +439,7 @@
     align-items: center;
     display: flex;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     padding-top: 10px;
     position: relative;
     width: 100%;

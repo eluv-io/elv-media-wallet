@@ -32,7 +32,7 @@ login:
   accept: I Accept
   terms_and_conditions: Terms and Conditions
   terms: '<p>By creating an account or signing in, I agree to the <a target="_blank" href="https://live.eluv.io/privacy">Eluvio Privacy Policy</a> and the <a target="_blank" href="https://live.eluv.io/terms">Eluvio Terms and Conditions</a>.</p>'
-  email_consent: By checking this box, I give consent for my email address to be stored with my wallet address {tenantClause}. Eluvio may also send informational and marketing emails to this address.
+  email_consent: '<p>By checking this box, I give consent for my email address to be stored with my wallet address {tenantClause}. Eluvio may also send informational and marketing emails to this address.</p>'
   email_consent_tenant_clause: and shared with {tenantName}
   login_code: "Code: {code}"
   code_auth_success: Sign in successful!

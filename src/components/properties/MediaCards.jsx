@@ -74,15 +74,15 @@ const MediaCardBanner = observer(({
             }
             {
               !display.title ? null :
-                <ScaledText Tag="h3" maxPx={24} minPx={12} maxPxMobile={18} className={S("media-card-banner__title")}>
+                <h3 className={S("media-card-banner__title")}>
                   { display.title }
-                </ScaledText>
+                </h3>
             }
             {
               !["all", "titles"].includes(textDisplay) || !display.subtitle ? null :
-                <ScaledText maxPx={12} maxPxMobile={11} minPx={10} className={S("media-card-banner__subtitle")}>
+                <div className={S("media-card-banner__subtitle")}>
                   { display.subtitle }
-                </ScaledText>
+                </div>
             }
             <Description
               description={display.description}
@@ -163,13 +163,13 @@ const MediaCardVertical = observer(({
             }
             {
               !display.title ? null :
-                <ScaledText Tag="h3" maxPx={22 * textScale} minPx={16 * textScale} className={S("media-card-vertical__title")}>
+                <ScaledText Tag="h3" maxPx={20 * textScale} minPx={20 * textScale} className={S("media-card-vertical__title")}>
                   { display.title }
                 </ScaledText>
             }
             {
               !["all", "titles"].includes(textDisplay) || !display.subtitle ? null :
-                <ScaledText maxPx={16 * textScale} minPx={12 * textScale} className={S("media-card-vertical__subtitle")}>
+                <ScaledText maxPx={16 * textScale} minPx={16 * textScale} className={S("media-card-vertical__subtitle")}>
                   { display.subtitle }
                 </ScaledText>
             }
@@ -240,15 +240,15 @@ const MediaCardHorizontal = observer(({
             }
             {
               !display.title ? null :
-                <ScaledText Tag="h3" maxPx={20} minPx={12} maxPxMobile={18} className={S("media-card-horizontal__title")}>
+                <h3 className={S("media-card-horizontal__title")}>
                   { display.title }
-                </ScaledText>
+                </h3>
             }
             {
               !["all", "titles"].includes(textDisplay) || !display.subtitle ? null :
-                <ScaledText maxPx={12} maxPxMobile={11} minPx={10} className={S("media-card-horizontal__subtitle")}>
+                <div className={S("media-card-horizontal__subtitle")}>
                   { display.subtitle }
-                </ScaledText>
+                </div>
             }
             <Description
               description={display.description}

@@ -236,6 +236,7 @@
   &__background {
     /* stylelint-disable-next-line no-important */
     animation: gradient 15s ease infinite!important;
+    backdrop-filter: blur(20px);
     background: linear-gradient(-55deg, #fff, #617d91, #354b54, #000);
     /* stylelint-disable-next-line no-important */
     background-size: 1000% 1000%!important;
@@ -243,7 +244,6 @@
     max-width: 100%;
     opacity: 0;
     overflow: hidden;
-    backdrop-filter: blur(20px);
 
     &--visible {
       /* stylelint-disable-next-line no-important */

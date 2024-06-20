@@ -16,14 +16,16 @@ export const MediaPropertyBasePath = (params, {includePage=true}={}) => {
   return path;
 };
 
-export const CreateMediaPropertyPurchaseParams = ({gate, permissionItemIds, sectionSlugOrId, sectionItemId, successPath, cancelPath}) => {
+export const CreateMediaPropertyPurchaseParams = ({gate, permissionItemIds, sectionSlugOrId, sectionItemId, actionId, unlessPermissions, successPath, cancelPath}) => {
   return (
     mediaPropertyStore.client.utils.B58(JSON.stringify({
       gate: !!gate,
       type: "purchase",
       sectionSlugOrId,
       sectionItemId,
+      actionId,
       permissionItemIds,
+      unlessPermissions,
       cancelPath,
       successPath
     }))

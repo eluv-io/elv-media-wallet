@@ -142,7 +142,7 @@ const SubmitRecoveryCode = async ({flows, setFlows, setFlowType, setErrorMessage
 };
 
 let submitting = false;
-const OryLogin = observer(({customizationOptions, userData}) => {
+const OryLogin = observer(({customizationOptions, userData, requiredOptionsMissing}) => {
   const [flowType, setFlowType] = useState(searchParams.has("flow") ? "initializeFlow" : "login");
   const [flows, setFlows] = useState({});
   const [loading, setLoading] = useState(false);
@@ -319,6 +319,11 @@ const OryLogin = observer(({customizationOptions, userData}) => {
     event.preventDefault();
     setErrorMessage(undefined);
     setStatusMessage(undefined);
+
+    if(requiredOptionsMissing) {
+      setErrorMessage(rootStore.l10n.login.errors.missing_required_options);
+      return;
+    }
 
     try {
       const formData = new FormData(formRef.current);

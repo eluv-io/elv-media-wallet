@@ -575,6 +575,18 @@ const MediaPropertyPurchaseModal = () => {
           );
         }
       }
+    } else if(params.actionId) {
+      const page = mediaPropertyStore.MediaPropertyPage({...match.params});
+      const action = page.actions?.find(action => action.id === params.actionId);
+      setPurchaseItems(
+        (action.items || [])
+          .map(item =>
+            item.permission_item_id ?
+              mediaPropertyStore.permissionItems[item.permission_item_id] :
+              item
+          )
+          .filter(item => item)
+      );
     }
   }, [location.search]);
 
@@ -587,6 +599,16 @@ const MediaPropertyPurchaseModal = () => {
   backPath = backPath + (urlParams.size > 0 ? `?${urlParams.toString()}` : "");
 
   const Close = () => history.push(backPath);
+
+  if(params.unlessPermissions) {
+    const hasPermissions = !!params.unlessPermissions?.find(permissionItemId =>
+      mediaPropertyStore.permissionItems[permissionItemId].authorized
+    );
+
+    if(hasPermissions) {
+      Close();
+    }
+  }
 
   return (
     <LoginGate backPath={backPath} Condition={() => (purchaseItems || []).length > 0}>

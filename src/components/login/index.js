@@ -100,6 +100,8 @@ const ParseDomainCustomization = ({styling, terms, consent, settings}, font) => 
           terms_document: terms.terms_document,
           link_text: terms.terms_document_link_text
         },
+    require_consent: consent.require_consent,
+    default_consent: consent.default_consent,
     custom_consent: {
       type: "Checkboxes",
       enabled: consent?.consent_options?.length > 0,
@@ -187,11 +189,51 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
                 onChange={event => setUserData({...userData, [option.key]: event.target.checked})}
                 className="login-page__consent-checkbox"
               />
-              <RichText className={`login-page__consent-label ${option.required ? "login-page__consent-label--required" : ""}`} richText={option.message} />
+              <RichText
+                onClick={() => setUserData({...userData, [option.key]: !userData[option.key]})}
+                className={`login-page__consent-label ${option.required ? "login-page__consent-label--required" : ""}`}
+                richText={option.message}
+              />
               { option.required ? <div className="login-page__consent-required-indicator">*</div> : null }
             </div>
           ) : null
       }
+
+      {
+        rootStore.domainProperty ? null :
+          <RichText
+            className="login-page__terms login-page__eluvio-terms"
+            richText={rootStore.l10n.login.terms}
+          />
+      }
+
+      {
+        // Allow the user to opt out of sharing email
+        customizationOptions?.require_consent ?
+          <div className="login-page__consent">
+            <input
+              name="consent"
+              type="checkbox"
+              checked={userData && userData.share_email}
+              onChange={event => setUserData({...userData, share_email: event.target.checked})}
+              className="login-page__consent-checkbox"
+            />
+            <RichText
+              richText={
+                LocalizeString(
+                  rootStore.l10n.login.email_consent,
+                  { tenantClause: !customizationOptions.tenant_name ? "" : LocalizeString(rootStore.l10n.login.email_consent_tenant_clause, { tenantName: customizationOptions.tenant_name }) },
+                  { stringOnly: true }
+                )
+              }
+              className="login-page__consent-label"
+              onClick={() => setUserData({...userData, share_email: !(userData || {}).share_email})}
+            >
+
+            </RichText>
+          </div> : null
+      }
+
 
       { customizationOptions.terms ? <RichText richText={customizationOptions.terms} className="login-page__terms" /> : null }
 
@@ -207,40 +249,6 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
               {customizationOptions.terms_document.link_text || rootStore.l10n.login.terms_and_conditions}
             </a>
           </div>: null
-      }
-
-      {
-        rootStore.domainProperty ? null :
-        <RichText
-          className="login-page__terms login-page__eluvio-terms"
-          richText={rootStore.l10n.login.terms}
-        />
-      }
-
-      {
-        // Allow the user to opt out of sharing email
-        customizationOptions?.require_consent ?
-          <div className="login-page__consent">
-            <input
-              name="consent"
-              type="checkbox"
-              checked={userData && userData.share_email}
-              onChange={event => setUserData({...userData, share_email: event.target.checked})}
-              className="login-page__consent-checkbox"
-            />
-            <label
-              htmlFor="consent"
-              className="login-page__consent-label"
-              onClick={() => setUserData({...userData, share_email: !(userData || {}).share_email})}
-            >
-              {
-                LocalizeString(
-                  rootStore.l10n.login.email_consent,
-                  { tenantClause: !customizationOptions.tenant_name ? "" : LocalizeString(rootStore.l10n.login.email_consent_tenant_clause, { tenantName: customizationOptions.tenant_name }) }
-                )
-              }
-            </label>
-          </div> : null
       }
     </div>
   );
@@ -327,7 +335,7 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
     return (
       <>
         <Logo customizationOptions={customizationOptions} />
-        <OryLogin customizationOptions={customizationOptions} userData={userData} />
+        <OryLogin customizationOptions={customizationOptions} userData={userData} requiredOptionsMissing={requiredOptionsMissing} />
         {
           params.loginCode && !loading ?
             <div className="login-page__login-code">
