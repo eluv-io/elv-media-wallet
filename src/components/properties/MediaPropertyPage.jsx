@@ -18,16 +18,16 @@ import {CreateMediaPropertyPurchaseParams, MediaPropertyLink} from "../../utils/
 
 const S = (...classes) => classes.map(c => PageStyles[c] || "").join(" ");
 
-const ActionVisible = action => {
-  if(action.behavior === "sign_in" && rootStore.loggedIn) {
+const ActionVisible = ({permissions, behavior, visibility}) => {
+  if(behavior === "sign_in" && rootStore.loggedIn) {
     return false;
   }
 
-  const hasPermissions = !!action.permissions?.find(permissionItemId =>
+  const hasPermissions = !!permissions?.find(permissionItemId =>
     mediaPropertyStore.permissionItems[permissionItemId].authorized
   );
 
-  switch(action.visibility) {
+  switch(visibility) {
     case "always":
       return true;
     case "authorized":
@@ -113,7 +113,11 @@ const Actions = observer(() => {
   const page = mediaPropertyStore.MediaPropertyPage(match.params);
 
   let actions = (page.actions || [])
-    .filter(action => ActionVisible(action));
+    .filter(action => ActionVisible({
+      visibility: action.visibility,
+      behavior: action.behavior,
+      permissions: action.permissions
+    }));
 
   if(actions.length === 0) { return null; }
 

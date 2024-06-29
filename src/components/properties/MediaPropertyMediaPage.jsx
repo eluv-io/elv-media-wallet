@@ -18,13 +18,13 @@ import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 
 import MediaErrorIcon from "Assets/icons/media-error-icon";
 import {MediaPropertyPageContent} from "Components/properties/MediaPropertyPage";
+import MediaSidebar from "Components/properties/MediaSidebar";
 
 const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 
-
 /* Video */
 
-const MediaVideo = observer(({mediaItem, display}) => {
+const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideControls, mute, onClick, settingsUpdateCallback, className=""}) => {
   const match = useRouteMatch();
   const [scheduleInfo, setScheduleInfo] = useState(MediaItemScheduleInfo(mediaItem));
   const [error, setError] = useState();
@@ -78,7 +78,7 @@ const MediaVideo = observer(({mediaItem, display}) => {
 
   if(error) {
     return (
-      <div className={S("media__error")}>
+      <div onClick={onClick} className={[S("media__error"), className].join(" ")}>
         <ImageIcon icon={MediaErrorIcon} className={S("media__error-icon")} />
         <ImageIcon icon={imageUrl} className={S("media__error-image")} />
         <div className={S("media__error-cover")} />
@@ -98,8 +98,13 @@ const MediaVideo = observer(({mediaItem, display}) => {
 
   return (
     <Video
+      ref={videoRef}
       link={mediaItem.media_link}
       isLive={display.live_video}
+      onClick={onClick}
+      showTitle={showTitle}
+      hideControls={hideControls}
+      mute={mute}
       playoutParameters={
         display.live_video || !display.clip ? {} :
           { clipStart: display.clip_start_time, clipEnd: display.clip_end_time }
@@ -108,8 +113,8 @@ const MediaVideo = observer(({mediaItem, display}) => {
         title: display.title
       }}
       playerOptions={{
-        title: EluvioPlayerParameters.title.FULLSCREEN_ONLY,
-        playerProfile: EluvioPlayerParameters.playerProfile[mediaItem.player_profile || (scheduleInfo.isLiveContent ? "LOW_LATENCY" : "DEFAULT")]
+        playerProfile: EluvioPlayerParameters.playerProfile[mediaItem.player_profile || (scheduleInfo.isLiveContent ? "LOW_LATENCY" : "DEFAULT")],
+        maxBitrate: 50000
       }}
       posterImage={
         SetImageUrlDimensions({
@@ -117,11 +122,101 @@ const MediaVideo = observer(({mediaItem, display}) => {
           width: mediaPropertyStore.rootStore.fullscreenImageWidth
         })
       }
+      settingsUpdateCallback={settingsUpdateCallback}
       errorCallback={() => setError("Something went wrong")}
-      className={S("media", "video")}
+      className={[S("media", "media__video"), className].join(" ")}
     />
   );
 });
+
+const MediaVideoWithSidebar = observer(({mediaItem, display}) => {
+  const [secondaryMediaSettings, setSecondaryMediaSettings] = useState(undefined);
+  const [primaryPlayerActive, setPrimaryPlayerActive] = useState(false);
+  const [primaryMenuActive, setPrimaryMenuActive] = useState(false);
+  const [secondaryMenuActive, setSecondaryMenuActive] = useState(false);
+
+  if(!mediaItem) { return <div className={S("media")} />; }
+
+  const secondaryMediaItem = mediaPropertyStore.media[secondaryMediaSettings?.mediaId];
+  const secondaryDisplay = secondaryMediaItem?.override_settings_when_viewed ? secondaryMediaItem.viewed_settings : secondaryMediaItem;
+
+  const primaryPIP = secondaryMediaSettings?.display === "picture-in-picture" && secondaryMediaSettings.pip === "primary";
+  const secondaryPIP = secondaryMediaSettings?.display === "picture-in-picture" && secondaryMediaSettings.pip === "secondary";
+
+  const primaryMedia = (
+    <MediaVideo
+      key={`media-${mediaItem.mediaId}`}
+      mediaItem={mediaItem}
+      display={display}
+      showTitle={primaryPIP}
+      hideControls={primaryPIP}
+      mute={primaryPIP}
+      settingsUpdateCallback={player => {
+        setPrimaryPlayerActive(true);
+        setPrimaryMenuActive(player.controls.IsMenuVisible());
+      }}
+      onClick={
+          !primaryPIP? undefined :
+          () => setSecondaryMediaSettings({...secondaryMediaSettings, pip: "secondary"})
+      }
+      className={
+        S(
+          primaryPIP ? "media-with-sidebar__pip-video" : "media-with-sidebar__video",
+          primaryPIP && secondaryMenuActive ? "media-with-sidebar__pip-video--under-menu" : ""
+        )
+      }
+    />
+  );
+
+  let secondaryMedia = !secondaryMediaItem ? null :
+    <MediaVideo
+      key={`media-${secondaryMediaSettings.mediaId}`}
+      mediaItem={secondaryMediaItem}
+      display={secondaryDisplay}
+      showTitle={secondaryPIP}
+      hideControls={secondaryPIP}
+      mute={secondaryPIP}
+      settingsUpdateCallback={player => setSecondaryMenuActive(player.controls.IsMenuVisible())}
+      onClick={
+        !secondaryPIP ? undefined :
+          () => setSecondaryMediaSettings({...secondaryMediaSettings, pip: "primary"})
+      }
+      className={
+        S(
+          secondaryPIP ? "media-with-sidebar__pip-video" : "media-with-sidebar__video",
+          secondaryPIP && primaryMenuActive ? "media-with-sidebar__pip-video--under-menu" : ""
+        )
+      }
+    />;
+
+  return (
+    <div className={S("media-with-sidebar")}>
+      <div className={S("media-with-sidebar__media")}>
+        <div className={S("media-with-sidebar__media-container")}>
+          {
+            secondaryMediaSettings?.pip !== "primary" ?
+              <>
+                { primaryMedia }
+                { secondaryMedia }
+              </> :
+              <>
+                { secondaryMedia }
+                { primaryMedia }
+              </>
+          }
+        </div>
+      </div>
+      <MediaSidebar
+        showActions={primaryPlayerActive}
+        mediaItem={mediaItem}
+        display={display}
+        secondaryMediaSettings={secondaryMediaSettings}
+        setSecondaryMediaSettings={setSecondaryMediaSettings}
+      />
+    </div>
+  );
+});
+
 
 
 /* Gallery */
@@ -228,12 +323,15 @@ const MediaGallery = observer(({mediaItem}) => {
   );
 });
 
-
-const Media = observer(({mediaItem, display}) => {
+const Media = observer(({mediaItem, display, showSidebar}) => {
   if(!mediaItem) { return <div className={S("media")} />; }
 
   if(mediaItem.media_type === "Video") {
-    return <MediaVideo mediaItem={mediaItem} display={display} />;
+    if(!showSidebar) {
+      return <MediaVideo mediaItem={mediaItem} display={display}/>;
+    } else {
+      return <MediaVideoWithSidebar mediaItem={mediaItem} display={display} />;
+    }
   } else if(mediaItem.media_type === "Gallery") {
     return <MediaGallery mediaItem={mediaItem} />;
   } else if(mediaItem.media_type === "Image") {
@@ -327,49 +425,6 @@ const MediaDescription = observer(({display}) => {
   );
 });
 
-const MediaDetails = observer(({hideText, display}) => {
-  const icons = (display.icons || []).filter(({icon}) => !!icon?.url);
-
-  return (
-    <div className={S("media-info")}>
-      <div className={S("media-text")}>
-        {
-          hideText || !display.title ? null :
-            <h1 className={S("media-text__title")}>
-              {
-                icons.length === 0 ? null :
-                  <div className={S("media-text__icons")}>
-                    {icons.map(({icon, alt_text}, index) =>
-                      <img
-                        key={`icon-${index}`}
-                        src={icon.url}
-                        alt={alt_text}
-                        className={S("media-text__icon")}
-                      />
-                    )}
-                  </div>
-              }
-              {display.title}
-            </h1>
-        }
-        {
-          hideText || (display.headers || []).length === 0 ? null :
-            <div className={S("media-text__headers")}>
-              {display.headers.map((header, index) =>
-                <div key={`header-${index}`} className={S("media-text__header")}>{header}</div>
-              )}
-            </div>
-        }
-        {
-          hideText || !display.subtitle ? null :
-            <h2 className={S("media-text__subtitle")}>{display.subtitle}</h2>
-        }
-        <MediaDescription display={display}/>
-      </div>
-    </div>
-  );
-});
-
 const MediaPropertyMediaPage = observer(() => {
   const match = useRouteMatch();
 
@@ -385,6 +440,11 @@ const MediaPropertyMediaPage = observer(() => {
   const isUpcoming = scheduleInfo?.isLiveContent && !scheduleInfo?.started;
   const hasText = !isUpcoming && !!(display.title || display.subtitle || display.headers.length > 0);
   const hasDescription = !!(display.description_rich_text || display.description);
+
+  const showSidebar = rootStore.pageWidth > 800;
+  const showText = hasText && !isUpcoming && !showSidebar;
+  const showDetails = (hasText || hasDescription) && !showSidebar;
+  const icons = (display.icons || []).filter(({icon}) => !!icon?.url);
 
   const permissions = mediaPropertyStore.ResolvePermission({
     ...match.params,
@@ -410,13 +470,51 @@ const MediaPropertyMediaPage = observer(() => {
     );
   } else {
     content = (
-      <div className={S("media-page", !hasText && !hasDescription ? "media-page--full" : !hasDescription ? "media-page--extended" : "")}>
+      <div className={S("media-page", showSidebar ? "media-page--sidebar" : (!showDetails ? "media-page--full" : !hasDescription ? "media-page--extended" : ""))}>
         <div className={S("media-container")}>
-          <Media mediaItem={mediaItem} display={display} />
+          <Media mediaItem={mediaItem} display={display} showSidebar={showSidebar} />
         </div>
         {
-          !hasText && !hasDescription ? null :
-            <MediaDetails display={display} hideText={isUpcoming}/>
+          !(hasText || !hasDescription) ? null :
+            <div className={S("media-info")}>
+              {
+                !showText ? null :
+                  <div className={S("media-text")}>
+                    {
+                      !display.title ? null :
+                        <h1 className={S("media-text__title")}>
+                          {
+                            icons.length === 0 ? null :
+                              <div className={S("media-text__icons")}>
+                                {icons.map(({icon, alt_text}, index) =>
+                                  <img
+                                    key={`icon-${index}`}
+                                    src={icon.url}
+                                    alt={alt_text}
+                                    className={S("media-text__icon")}
+                                  />
+                                )}
+                              </div>
+                          }
+                          {display.title}
+                        </h1>
+                    }
+                    {
+                      (display.headers || []).length === 0 ? null :
+                        <div className={S("media-text__headers")}>
+                          {display.headers.map((header, index) =>
+                            <div key={`header-${index}`} className={S("media-text__header")}>{header}</div>
+                          )}
+                        </div>
+                    }
+                    {
+                      !display.subtitle ? null :
+                        <h2 className={S("media-text__subtitle")}>{display.subtitle}</h2>
+                    }
+                  </div>
+              }
+              <MediaDescription display={display}/>
+            </div>
         }
       </div>
     );

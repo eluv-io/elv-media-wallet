@@ -1,7 +1,6 @@
 import CommonStyles from "Assets/stylesheets/media_properties/common.module.scss";
 
-import {observer} from "mobx-react";
-import React, {useEffect, useRef, useState} from "react";
+import React, {forwardRef, useEffect, useRef, useState} from "react";
 import {LinkTargetHash} from "../../utils/Utils";
 import {mediaPropertyStore} from "Stores";
 import {EluvioPlayerParameters, InitializeEluvioPlayer} from "@eluvio/elv-player-js";
@@ -9,7 +8,7 @@ import {Loader} from "Components/common/Loaders";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
 
-const Video = observer(({
+const Video = forwardRef(function VideoComponent({
   objectId,
   versionHash,
   link,
@@ -20,8 +19,13 @@ const Video = observer(({
   isLive,
   callback,
   errorCallback,
+  settingsUpdateCallback,
+  hideControls,
+  showTitle,
+  mute,
+  onClick,
   className=""
-}) => {
+}, ref) {
   const [contentHash, setContentHash] = useState(undefined);
   const [videoDimensions, setVideoDimensions] = useState(undefined);
   const [player, setPlayer] = useState(undefined);
@@ -68,12 +72,16 @@ const Video = observer(({
           },
         },
         playerOptions: {
-          //muted: true,
+          muted: EluvioPlayerParameters.muted[mute ? "ON" : "OFF"],
+          controls: EluvioPlayerParameters.controls[hideControls ? "OFF" : "AUTO_HIDE"],
+          title: EluvioPlayerParameters.title[showTitle ? "ON" : "FULLSCREEN_ONLY"],
+          //maxBitrate: 50000,
           ui: EluvioPlayerParameters.ui.WEB,
           appName: mediaPropertyStore.rootStore.appId,
           backgroundColor: "black",
           autoplay: EluvioPlayerParameters.autoplay.ON,
           watermark: EluvioPlayerParameters.watermark.OFF,
+          verifyContent: EluvioPlayerParameters.verifyContent.ON,
           errorCallback,
           // For live content, latest hash instead of allowing player to reload
           restartCallback: async () => {
@@ -97,11 +105,29 @@ const Video = observer(({
         setVideoDimensions({width: event.target.videoWidth, height: event.target.videoHeight})
       );
 
+      if(settingsUpdateCallback) {
+        player.controls.RegisterSettingsListener(() => settingsUpdateCallback(player));
+      }
+
       if(callback) {
         callback(player);
       }
     });
   }, [targetRef, contentHash]);
+
+  useEffect(() => {
+    if(player) {
+      player.playerOptions.controls = EluvioPlayerParameters.controls[hideControls ? "OFF" : "AUTO_HIDE"];
+      player.playerOptions.title = EluvioPlayerParameters.title[showTitle ? "ON" : "FULLSCREEN_ONLY"];
+
+      if(mute) {
+        player.__wasMuted = player.controls.IsMuted();
+        player.controls.Mute();
+      } else if(!player.__wasMuted) {
+        player.controls.Unmute();
+      }
+    }
+  }, [hideControls, showTitle, mute]);
 
   useEffect(() => {
     return () => {
@@ -120,7 +146,9 @@ const Video = observer(({
 
   return (
     <div
+      ref={ref}
       className={[S("video"), className].join(" ")}
+      onClick={onClick}
       style={{aspectRatio: `${videoDimensions?.width || 16} / ${videoDimensions?.height || 9}`}}
     >
       <div ref={targetRef} />

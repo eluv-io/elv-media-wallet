@@ -94,12 +94,14 @@ class MediaPropertyStore {
     };
   }
 
-  async SearchMedia({mediaPropertySlugOrId, query}) {
+  async SearchMedia({mediaPropertySlugOrId, query, searchOptions}) {
     const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
 
     if(!mediaProperty) {
       return [];
     }
+
+    searchOptions = searchOptions || this.searchOptions;
 
     const mediaPropertyId = mediaProperty.mediaPropertyId;
 
@@ -140,18 +142,18 @@ class MediaPropertyStore {
     results = results.filter(({mediaItem}) => mediaItem?.authorized || mediaItem?.public);
 
     // Filter
-    const hasDateFilter = !!(this.searchOptions.startTime || this.searchOptions.endTime);
+    const hasDateFilter = !!(searchOptions.startTime || searchOptions.endTime) || searchOptions.schedule;
     let select = {
-      attributes: Object.keys(this.searchOptions.attributes).filter(key => !!this.searchOptions.attributes[key]),
-      attribute_values: this.searchOptions.attributes,
+      attributes: Object.keys(searchOptions.attributes || {}).filter(key => !!searchOptions.attributes[key]),
+      attribute_values: searchOptions.attributes,
       tags: [
-        ...Object.values(this.searchOptions.tagSelect).filter(tag => tag)
+        ...Object.values(searchOptions.tagSelect || {}).filter(tag => tag)
       ],
-      content_type: this.searchOptions.mediaType || hasDateFilter ? "media" : undefined,
-      media_types: this.searchOptions.mediaType ? [this.searchOptions.mediaType] : (hasDateFilter ? ["Video"] : []) || [],
-      schedule: hasDateFilter ? "period" : undefined,
-      start_time: this.searchOptions.startTime,
-      end_time: this.searchOptions.endTime ? new Date(this.searchOptions.endTime.getTime() + 24 * 60 * 60 * 1000) : undefined
+      content_type: searchOptions.mediaType || hasDateFilter ? "media" : undefined,
+      media_types: searchOptions.mediaType ? [searchOptions.mediaType] : (hasDateFilter ? ["Video"] : []) || [],
+      schedule: searchOptions.schedule || (hasDateFilter ? "period" : undefined),
+      start_time: searchOptions.startTime,
+      end_time: searchOptions.endTime ? new Date(searchOptions.endTime.getTime() + 24 * 60 * 60 * 1000) : undefined
     };
 
     results = await this.FilteredMedia({
@@ -160,9 +162,9 @@ class MediaPropertyStore {
     });
 
     // Arbitrary tags filtered separately because they should be match any, not all
-    if(this.searchOptions.tags.length > 0) {
+    if(searchOptions.tags?.length > 0) {
       results = results.filter(result =>
-        result.mediaItem.tags.find(tag => this.searchOptions.tags.includes(tag))
+        result.mediaItem.tags.find(tag => searchOptions.tags.includes(tag))
       );
     }
 
@@ -256,7 +258,9 @@ class MediaPropertyStore {
       pageSlugOrId = mediaProperty.permissions.alternatePageId || pageSlugOrId;
     }
 
-    const pageId = mediaProperty.metadata.slug_map.pages[pageSlugOrId]?.page_id || pageSlugOrId;
+    const pageId = mediaProperty.metadata.slug_map.pages[pageSlugOrId]?.page_id ||
+      mediaProperty.metadata.page_ids[pageSlugOrId] ||
+      pageSlugOrId;
 
     return mediaProperty.metadata.pages[pageId];
   }
@@ -513,6 +517,11 @@ class MediaPropertyStore {
         switch(select.schedule) {
           case "live":
             if(!started || ended) { return false; }
+
+            break;
+
+          case "live_and_upcoming":
+            if(ended || !beforeEndLimit) { return false; }
 
             break;
 
