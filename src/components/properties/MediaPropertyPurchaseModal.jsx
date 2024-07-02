@@ -29,7 +29,7 @@ const Item = observer(({item, children, Actions}) => {
       <div className={S("item__price")}>
         { FormatPriceString(itemInfo.price) }
       </div>
-      <ScaledText maxPx={32} className={S("item__title")}>
+      <ScaledText maxPx={32} className={[S("item__title"), "_title"].join(" ")}>
         { item.title }
       </ScaledText>
       <div className={S("item__subtitle")}>

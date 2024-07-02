@@ -797,12 +797,27 @@ class RootStore {
           css.push(options.styling.custom_font_definition);
         }
 
+        const customFont = `${options.styling.custom_font_declaration}, Inter, sans-serif`;
+        const customTitleFont = options.styling.custom_title_font_declaration ?
+          `${options.styling.custom_title_font_declaration}, ${customFont}` : undefined;
+
+
         css.push(":root {");
-        css.push(`--font-family-primary: ${options.styling.custom_font_declaration}, sans-serif;`);
-        css.push(`--font-family-secondary: ${options.styling.custom_font_declaration}, sans-serif;`);
-        css.push(`--font-family-tertiary: ${options.styling.custom_font_declaration}, sans-serif;`);
+        css.push(`--font-family-primary: ${customFont};`);
+        css.push(`--font-family-secondary: ${customFont};`);
+        css.push(`--font-family-tertiary: ${customFont};`);
+
+        if(customTitleFont) {
+          css.push(`--font-family-title: ${customTitleFont};`);
+        }
+
         css.push("}");
-        css.push(`* { font-family: ${options.styling.custom_font_declaration}, sans-serif; }`);
+        css.push(`* { font-family: ${customFont}; }`);
+
+        if(customTitleFont) {
+          css.push(`*._title { font-family: ${customTitleFont}; }`);
+          css.push(`*._title * { font-family: ${customTitleFont}; }`);
+        }
       }
     }
 

@@ -223,7 +223,7 @@ const AdvancedSearch = observer(() => {
         title="Filter by"
         classNames={{
           content: S("filter"),
-          header: S("filter__header"),
+          header: [S("filter__header"), "_title"].join(" "),
           title: S("filter__title"),
           body: S("filter__content")
         }}

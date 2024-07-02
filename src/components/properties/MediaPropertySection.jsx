@@ -211,7 +211,7 @@ export const SectionResultsGroup = observer(({groupBy, label, results, navContex
     <div className={S("section", "section--page", "section__group")}>
       {
         !label ? null :
-          <h2 className={S("section__group-title")}>
+          <h2 className={[S("section__group-title"), "_title"].join(" ")}>
             { label }
           </h2>
       }
@@ -315,7 +315,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
             <div className={S("section__title-container")}>
               {
                 !section.display.title ? null :
-                  <h2 className={S("section__title")}>
+                  <h2 className={[S("section__title"), "_title"].join(" ")}>
                     {section.display.title}
                   </h2>
               }

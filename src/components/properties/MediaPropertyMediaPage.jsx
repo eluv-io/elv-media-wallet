@@ -499,7 +499,7 @@ const MediaPropertyMediaPage = observer(() => {
                   <div className={S("media-text")}>
                     {
                       !display.title ? null :
-                        <h1 className={S("media-text__title")}>
+                        <h1 className={[S("media-text__title"), "_title"].join(" ")}>
                           {
                             icons.length === 0 ? null :
                               <div className={S("media-text__icons")}>

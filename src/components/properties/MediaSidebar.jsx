@@ -222,7 +222,7 @@ const MediaSidebar = observer(({
               Live
             </div>
         }
-        <div className={S("header__title")}>
+        <div className={[S("header__title"), "_title"].join(" ")}>
           { display.title }
         </div>
         <div className={S("header__headers")}>
@@ -238,7 +238,7 @@ const MediaSidebar = observer(({
         {
           liveContent.length === 0 ? null :
             <>
-              <div className={S("content__title")}>
+              <div className={[S("content__title"), "_title"].join(" ")}>
                 Today
               </div>
               {liveContent.map(item =>
@@ -256,7 +256,7 @@ const MediaSidebar = observer(({
         {
           upcomingContent.length === 0 ? null :
             <>
-              <div className={S("content__title")}>
+              <div className={[S("content__title"), "_title"].join(" ")}>
                 Upcoming
               </div>
               {upcomingContent.map(item =>
@@ -274,7 +274,7 @@ const MediaSidebar = observer(({
         {
           vodContent.length === 0 ? null :
             <>
-              <div className={S("content__title")}>
+              <div className={[S("content__title"), "_title"].join(" ")}>
                 { section?.display?.title }
               </div>
               {vodContent.map(item =>

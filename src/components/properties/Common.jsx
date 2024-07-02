@@ -71,7 +71,7 @@ export const PageHeader = observer(({display, maxHeaderSize=36, children, classN
           src={SetImageUrlDimensions({url: display.logo?.url, width: 1000})}
           className={S("page-header__logo")}
         />
-        <ScaledText Tag="h1" maxPx={maxHeaderSize} minPx={32} maxPxMobile={32} minPxMobile={20} className={S("page-header__title")}>
+        <ScaledText Tag="h1" maxPx={maxHeaderSize} minPx={32} maxPxMobile={32} minPxMobile={20} className={[S("page-header__title"), "_title"].join(" ")}>
           { display.title }
         </ScaledText>
         <Description
@@ -166,7 +166,7 @@ const FitFontSize = ({element, text, min, max}) => {
     fontSize += 1;
   }
 
-  return `${fontSize}px`;
+  return `${fontSize - 1}px`;
 };
 
 export const ScaledText = observer(({

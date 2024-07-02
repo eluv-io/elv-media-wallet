@@ -74,7 +74,7 @@ const MediaCardBanner = observer(({
             }
             {
               !display.title ? null :
-                <h3 className={S("media-card-banner__title")}>
+                <h3 className={[S("media-card-banner__title"), "_title"].join(" ")}>
                   { display.title }
                 </h3>
             }
@@ -163,7 +163,7 @@ const MediaCardVertical = observer(({
             }
             {
               !display.title ? null :
-                <ScaledText Tag="h3" maxPx={20 * textScale} minPx={20 * textScale} className={S("media-card-vertical__title")}>
+                <ScaledText Tag="h3" maxPx={20 * textScale} minPx={20 * textScale} className={[S("media-card-vertical__title"), "_title"].join(" ")}>
                   { display.title }
                 </ScaledText>
             }
@@ -240,7 +240,7 @@ const MediaCardHorizontal = observer(({
             }
             {
               !display.title ? null :
-                <h3 className={S("media-card-horizontal__title")}>
+                <h3 className={[S("media-card-horizontal__title"), "_title"].join(" ")}>
                   { display.title }
                 </h3>
             }
