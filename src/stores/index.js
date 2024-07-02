@@ -803,7 +803,7 @@ class RootStore {
 
 
         css.push(":root {");
-        css.push(`--font-family-primary: ${customFont};`);
+        css.push(`--font-family-primary: ${customTitleFont || customFont};`);
         css.push(`--font-family-secondary: ${customFont};`);
         css.push(`--font-family-tertiary: ${customFont};`);
 
