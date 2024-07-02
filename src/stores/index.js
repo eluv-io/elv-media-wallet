@@ -776,7 +776,7 @@ class RootStore {
 
 
   SetDomainCustomization = flow(function * () {
-    const options = yield this.LoadPropertyCustomization();
+    const options = yield this.LoadPropertyCustomization(this.domainProperty);
 
     if(!options) { return; }
 
