@@ -329,6 +329,17 @@
       max-height: calc(var(--vh) * 43);
     }
   }
+
+  @media screen and (width <= 800px) {
+    gap: 30px;
+    grid-template-columns: 1fr;
+    margin-top: 0;
+    padding: 0;
+
+    &__video {
+      max-height: unset;
+    }
+  }
 }
 
 .media-info {

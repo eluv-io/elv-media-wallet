@@ -315,18 +315,20 @@ export const MediaItemLivePreviewImageUrl = async ({mediaItem, width}) => {
 };
 
 export const MediaItemImageUrl = ({mediaItem, display, aspectRatio, width}) => {
+  if(!mediaItem && !display) { return {}; }
+
   display = display || mediaItem;
 
   aspectRatio = aspectRatio?.toLowerCase();
   const aspectRatioPreference =
-    (mediaItem?.type === "media" && mediaItem.media_type === "Video") ?
+    (mediaItem?.type === "media" && mediaItem?.media_type === "Video") ?
       ["landscape", "square", "portrait"] :
       ["square", "landscape", "portrait"];
 
   const imageAspectRatio =
-    [aspectRatio, ...aspectRatioPreference].find(ratio => display[`thumbnail_image_${ratio}`]) || aspectRatioPreference[0];
+    [aspectRatio, ...aspectRatioPreference].find(ratio => display?.[`thumbnail_image_${ratio}`]) || aspectRatioPreference[0];
 
-  let imageUrl = display[`thumbnail_image_${imageAspectRatio}`]?.url;
+  let imageUrl = display?.[`thumbnail_image_${imageAspectRatio}`]?.url;
 
   if(width) {
     imageUrl = SetImageUrlDimensions({url: imageUrl, width});

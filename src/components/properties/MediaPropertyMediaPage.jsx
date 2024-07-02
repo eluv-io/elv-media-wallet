@@ -18,7 +18,7 @@ import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 
 import MediaErrorIcon from "Assets/icons/media-error-icon";
 import {MediaPropertyPageContent} from "Components/properties/MediaPropertyPage";
-import MediaSidebar from "Components/properties/MediaSidebar";
+import MediaSidebar, {SidebarContent} from "Components/properties/MediaSidebar";
 
 const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 
@@ -129,11 +129,17 @@ const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideContr
   );
 });
 
-const MediaVideoWithSidebar = observer(({mediaItem, display}) => {
+const MediaVideoWithSidebar = observer(({mediaItem, display, sidebarContent}) => {
   const [secondaryMediaSettings, setSecondaryMediaSettings] = useState(undefined);
   const [primaryPlayerActive, setPrimaryPlayerActive] = useState(false);
   const [primaryMenuActive, setPrimaryMenuActive] = useState(false);
   const [secondaryMenuActive, setSecondaryMenuActive] = useState(false);
+
+  useEffect(() => {
+    if(rootStore.pageWidth < 800) {
+      setSecondaryMediaSettings(undefined);
+    }
+  }, [rootStore.pageWidth]);
 
   if(!mediaItem) { return <div className={S("media")} />; }
 
@@ -207,6 +213,7 @@ const MediaVideoWithSidebar = observer(({mediaItem, display}) => {
         </div>
       </div>
       <MediaSidebar
+        sidebarContent={sidebarContent}
         showActions={primaryPlayerActive}
         mediaItem={mediaItem}
         display={display}
@@ -323,14 +330,14 @@ const MediaGallery = observer(({mediaItem}) => {
   );
 });
 
-const Media = observer(({mediaItem, display, showSidebar}) => {
+const Media = observer(({mediaItem, display, sidebarContent}) => {
   if(!mediaItem) { return <div className={S("media")} />; }
 
   if(mediaItem.media_type === "Video") {
-    if(!showSidebar) {
-      return <MediaVideo mediaItem={mediaItem} display={display}/>;
+    if(sidebarContent?.content?.length > 0) {
+      return <MediaVideoWithSidebar mediaItem={mediaItem} display={display} sidebarContent={sidebarContent} />;
     } else {
-      return <MediaVideoWithSidebar mediaItem={mediaItem} display={display} />;
+      return <MediaVideo mediaItem={mediaItem} display={display}/>;
     }
   } else if(mediaItem.media_type === "Gallery") {
     return <MediaGallery mediaItem={mediaItem} />;
@@ -428,6 +435,8 @@ const MediaDescription = observer(({display}) => {
 const MediaPropertyMediaPage = observer(() => {
   const match = useRouteMatch();
 
+  const [sidebarContent, setSidebarContent] = useState(undefined);
+
   const mediaItem = mediaPropertyStore.MediaPropertyMediaItem(match.params);
   const context = new URLSearchParams(location.search).get("ctx");
 
@@ -435,15 +444,19 @@ const MediaPropertyMediaPage = observer(() => {
     return <Redirect to={rootStore.backPath} />;
   }
 
+  useEffect(() => {
+    SidebarContent({match, mediaItem})
+      .then(setSidebarContent);
+  }, []);
+
   const display = mediaItem.override_settings_when_viewed ? mediaItem.viewed_settings : mediaItem;
   const scheduleInfo = MediaItemScheduleInfo(mediaItem);
   const isUpcoming = scheduleInfo?.isLiveContent && !scheduleInfo?.started;
   const hasText = !isUpcoming && !!(display.title || display.subtitle || display.headers.length > 0);
   const hasDescription = !!(display.description_rich_text || display.description);
-
-  const showSidebar = rootStore.pageWidth > 800;
-  const showText = hasText && !isUpcoming && !showSidebar;
-  const showDetails = (hasText || hasDescription) && !showSidebar;
+  const showSidebar = sidebarContent?.content?.length > 0;
+  const showText = hasText && !isUpcoming && !sidebarContent;
+  const showDetails = (hasText || hasDescription) && !sidebarContent;
   const icons = (display.icons || []).filter(({icon}) => !!icon?.url);
 
   const permissions = mediaPropertyStore.ResolvePermission({
@@ -472,7 +485,11 @@ const MediaPropertyMediaPage = observer(() => {
     content = (
       <div className={S("media-page", showSidebar ? "media-page--sidebar" : (!showDetails ? "media-page--full" : !hasDescription ? "media-page--extended" : ""))}>
         <div className={S("media-container")}>
-          <Media mediaItem={mediaItem} display={display} showSidebar={showSidebar} />
+          <Media
+            mediaItem={mediaItem}
+            display={display}
+            sidebarContent={sidebarContent}
+          />
         </div>
         {
           !(hasText || !hasDescription) ? null :

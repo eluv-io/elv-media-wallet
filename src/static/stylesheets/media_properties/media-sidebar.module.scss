@@ -6,6 +6,7 @@
   grid-template-rows: max-content;
   height: 100%;
   margin-right: 10px;
+  max-height: calc(var(--vh) * 85);
   min-height: 300px;
   min-width: 400px;
   padding: 15px 0 15px 15px;
@@ -81,7 +82,7 @@
   flex-direction: column;
   gap: 3px;
   height: max-content;
-  padding-bottom: 15px;
+  padding-bottom: 20px;
   position: relative;
 
   &__title {
@@ -121,8 +122,11 @@
 
   &__title {
     font-weight: 600;
-    margin-top: 20px;
     text-transform: uppercase;
+
+    &:not(:first-child) {
+      margin-top: 20px;
+    }
   }
 }
 
@@ -139,6 +143,16 @@
     overflow: hidden;
     position: relative;
     width: 140px;
+
+    &--square {
+      aspect-ratio: 1;
+      width: 100px;
+    }
+
+    &--portrait {
+      aspect-ratio: 2/3;
+      width: 100px;
+    }
   }
 
   &__image {
@@ -155,9 +169,9 @@
 
   &__text {
     display: grid;
+    flex: 1 1 0;
     gap: 5px;
     height: max-content;
-    padding-bottom: 20px;
     padding-right: 10px;
   }
 
@@ -181,6 +195,7 @@
   &__actions {
     align-items: center;
     display: flex;
+    padding-right: 20px;
     z-index: 1;
   }
 
@@ -200,5 +215,26 @@
         opacity: 1;
       }
     }
+  }
+}
+
+@media screen and (width <= 800px) {
+  .sidebar {
+    margin-inline: auto;
+    max-width: 500px;
+    min-width: unset;
+    width: 100%;
+  }
+
+  .hide-button {
+    display: none;
+  }
+
+  .content {
+    overscroll-behavior-y: initial;
+  }
+
+  .item__actions {
+    display: none;
   }
 }
