@@ -6,7 +6,7 @@ import {observer} from "mobx-react";
 import {TextInput} from "@mantine/core";
 import {Loader} from "Components/common/Loaders";
 import {NFTInfo, ValidEmail} from "../../utils/Utils";
-import {Button, Description, Modal, ScaledText} from "Components/properties/Common";
+import {Button, Description, LoaderImage, Modal, ScaledText} from "Components/properties/Common";
 import {LocalizeString} from "Components/common/UIComponents";
 import SupportedCountries from "../../utils/SupportedCountries";
 import {roundToDown} from "round-to";
@@ -17,35 +17,40 @@ import {MediaPropertyPurchaseParams} from "../../utils/MediaPropertyUtils";
 const S = (...classes) => classes.map(c => PurchaseModalStyles[c] || "").join(" ");
 
 const Item = observer(({item, children, Actions}) => {
-  const marketplace = rootStore.marketplaces[item.marketplace?.marketplace_id];
-  const marketplaceItem = marketplace?.items?.find(({sku}) => sku === item.marketplace_sku);
-
-  if(!marketplaceItem) { return null; }
-
-  const itemInfo = NFTInfo({item: marketplaceItem});
-
   return (
-    <div className={S("item")}>
-      <div className={S("item__price")}>
-        { FormatPriceString(itemInfo.price) }
+    <div className={S("item-container")}>
+        <div className={S("item-image-container")}>
+          {
+            !item.imageUrl ? null :
+              <LoaderImage
+                src={item.imageUrl}
+                width={400}
+                className={S("item-image")}
+              />
+          }
+        </div>
+      <div className={S("item")}>
+        <div className={S("item__price")}>
+          { FormatPriceString(item.itemInfo.price) }
+        </div>
+        <ScaledText maxPx={32} className={[S("item__title"), "_title"].join(" ")}>
+          { item.title }
+        </ScaledText>
+        <div className={S("item__subtitle")}>
+          { item.subtitle }
+        </div>
+        <Description
+          description={item.description}
+          className={S("item__description")}
+        />
+        { children }
+        {
+          !Actions ? null :
+            <div className={S("actions")}>
+              { Actions({item, itemInfo: item.itemInfo}) }
+            </div>
+        }
       </div>
-      <ScaledText maxPx={32} className={[S("item__title"), "_title"].join(" ")}>
-        { item.title }
-      </ScaledText>
-      <div className={S("item__subtitle")}>
-        { item.subtitle }
-      </div>
-      <Description
-        description={item.description}
-        className={S("item__description")}
-      />
-      { children }
-      {
-        !Actions ? null :
-          <div className={S("actions")}>
-            { Actions({item, itemInfo}) }
-          </div>
-      }
     </div>
   );
 });
@@ -462,10 +467,31 @@ const MediaPropertyPurchaseStatus = observer(({item, confirmationId, Close}) => 
   );
 });
 
+const FormatPurchaseItem = item => {
+  if(!item) { return; }
+
+  const marketplace = rootStore.marketplaces[item.marketplace?.marketplace_id];
+  const marketplaceItem = marketplace?.items?.find(({sku}) => sku === item.marketplace_sku);
+
+  if(!marketplaceItem) { return; }
+
+  const itemInfo = NFTInfo({item: marketplaceItem});
+
+  return {
+    ...item,
+    imageUrl: item.use_custom_image ?
+      item.image?.url :
+      itemInfo?.mediaInfo?.imageUrl,
+    itemInfo
+  };
+};
+
 const MediaPropertyPurchaseModalContent = observer(({items, itemId, confirmationId, Close}) => {
   const [loaded, setLoaded] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(itemId);
-  const selectedItem = selectedItemId && items.find(item => item.id === selectedItemId);
+  const [purchaseItems, setPurchaseItems] = useState(undefined);
+  const selectedItem = selectedItemId && FormatPurchaseItem(items.find(item => item.id === selectedItemId));
+  const anyImages = selectedItem ? selectedItem?.imageUrl : !!purchaseItems?.find(item => item.imageUrl);
 
   useEffect(() => {
     setLoaded(false);
@@ -477,6 +503,11 @@ const MediaPropertyPurchaseModalContent = observer(({items, itemId, confirmation
         await rootStore.LoadMarketplace(item.marketplace?.marketplace_id)
       )
     ).then(() => {
+      setPurchaseItems(
+        (items || [])
+          .map(FormatPurchaseItem)
+          .filter(item => item)
+      );
       setLoaded(true);
     });
   }, [items]);
@@ -487,17 +518,21 @@ const MediaPropertyPurchaseModalContent = observer(({items, itemId, confirmation
     )
       .filter((tenantId, index, array) => tenantId && array.indexOf(tenantId) === index);
 
-    // If item has stock, periodically update
-    const stockCheck = setInterval(() => {
+    const CheckStock = () => {
       tenantIds.forEach(tenantId => checkoutStore.MarketplaceStock({tenantId}));
       rootStore.GetWalletBalance();
-    }, 30000);
+    };
 
-    return () => clearInterval(stockCheck);
+    // If item has stock, periodically update
+    CheckStock();
+
+    const stockCheckInterval = setInterval(CheckStock, 30000);
+
+    return () => clearInterval(stockCheckInterval);
   }, [loaded]);
 
   let content, key;
-  if(!loaded || (items || []).length === 0) {
+  if(!loaded || (purchaseItems || []).length === 0) {
     key = 0;
     content = <Loader className={S("loader")}/>;
   } else if(selectedItemId) {
@@ -525,13 +560,13 @@ const MediaPropertyPurchaseModalContent = observer(({items, itemId, confirmation
     key = 1;
     content = (
       <div className="purchase">
-        <Items items={items} Select={setSelectedItemId} />
+        <Items items={purchaseItems} Select={setSelectedItemId} />
       </div>
     );
   }
 
   return (
-    <div key={`step-${key}`} className={S("form")}>
+    <div key={`step-${key}`} className={S("form", anyImages ? "form--with-images" : "")}>
       { content }
     </div>
   );
@@ -567,11 +602,11 @@ const MediaPropertyPurchaseModal = () => {
         if(matchingItem) {
           newPurchaseItems = (
             (matchingItem.items || [])
-              .map(item =>
-                item.permission_item_id ?
-                  mediaPropertyStore.permissionItems[item.permission_item_id] :
-                  item
-              )
+              .map(item => ({
+                ...item,
+                ...(mediaPropertyStore.permissionItems[item.permission_item_id] || {}),
+                id: item.id
+              }))
               .filter(item => item)
           );
         }
@@ -581,11 +616,11 @@ const MediaPropertyPurchaseModal = () => {
       const action = page.actions?.find(action => action.id === params.actionId);
       newPurchaseItems = (
         (action.items || [])
-          .map(item =>
-            item.permission_item_id ?
-              mediaPropertyStore.permissionItems[item.permission_item_id] :
-              item
-          )
+          .map(item => ({
+            ...item,
+            ...(mediaPropertyStore.permissionItems[item.permission_item_id] || {}),
+            id: item.id
+          }))
           .filter(item => item)
       );
     }

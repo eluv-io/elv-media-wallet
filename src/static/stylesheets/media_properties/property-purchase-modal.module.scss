@@ -11,18 +11,39 @@
 
   max-width: 400px;
   min-width: 400px;
-  padding: 15px;
+  padding: 15px 25px 35px 15px;
   width: 100%;
 
-  @media screen and (width <= 600px) {
-    min-width: 100%;
-    width: 100%;
+  &--with-images {
+    max-width: 700px;
+    min-width: 700px;
+
+    .item-container {
+      grid-template-columns: auto 1fr;
+    }
+  }
+
+  @media screen and (width <= 750px) {
+    margin-inline: auto;
+    max-width: 400px;
+    min-width: 400px;
+
+    &--with-images {
+      .item-container {
+        grid-template-columns: 1fr;
+      }
+
+      .item-image-container {
+        margin-inline: auto;
+      }
+    }
   }
 }
 
 .button {
   @include page-fade-in(0.5s);
 
+  height: 40px;
   width: 100%;
 }
 
@@ -35,11 +56,36 @@
 .items {
   display: grid;
   gap: 60px;
-  max-width: 400px;
+  max-width: 800px;
+  width: 100%;
+}
+
+.item-container {
+  display: grid;
+  gap: 30px;
+  grid-template-columns: 1fr;
+  width: 100%;
+}
+
+.item-image-container {
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  max-width: 250px;
+  min-width: 250px;
+  padding-top: 10px;
+}
+
+.item-image {
+  max-height: 300px;
+  object-fit: contain;
+  object-position: top;
 }
 
 .item {
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 
   &__price {
     font-size: 1.4em;
