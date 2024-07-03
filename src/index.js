@@ -107,7 +107,7 @@ const LoginModal = observer(() => {
   return (
     <Modal
       className="login-modal"
-      closeable={closable}
+      closable={closable}
       Toggle={Close}
     >
       <Login key="login-main" Close={Close} />

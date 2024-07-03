@@ -73,12 +73,14 @@ const PropertyWrapper = observer(({children}) => {
         }}
         loadingClassName="page-loader content"
       >
-        <PurchaseGate permissions={mediaProperty?.permissions} backPath="/">
-          <div className={PropertyStyles["property"]}>
-            { children }
-          </div>
-        </PurchaseGate>
-        <MediaPropertyPurchaseModal />
+        <LoginGate Condition={() => mediaProperty?.metadata?.require_login}>
+          <PurchaseGate permissions={mediaProperty?.permissions} backPath="/">
+            <div className={PropertyStyles["property"]}>
+              { children }
+            </div>
+          </PurchaseGate>
+          <MediaPropertyPurchaseModal />
+        </LoginGate>
       </AsyncComponent>
     );
   }

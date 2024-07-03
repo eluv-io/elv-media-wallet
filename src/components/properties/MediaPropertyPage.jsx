@@ -166,7 +166,7 @@ const MediaPropertyPage = observer(() => {
       <PageBackground display={page.layout} />
       <PageHeader
         display={page.layout}
-        maxHeaderSize={70}
+        maxHeaderSize={60}
       >
         <Actions />
       </PageHeader>
