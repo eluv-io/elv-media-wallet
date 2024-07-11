@@ -23,9 +23,21 @@ const MediaPropertySearchPage = observer(() => {
   const query = mediaPropertyStore.searchOptions.query;
   let {
     primary_filter,
-    secondary_filter,
+    filter_options,
     group_by
   } = mediaProperty?.metadata?.search || {};
+
+  let secondary_filter;
+  if(filter_options?.length > 0) {
+    const selectedPrimaryValue = primary_filter === "__media-type" ?
+      mediaPropertyStore.searchOptions.mediaType :
+      mediaPropertyStore.searchOptions.attributes[primary_filter];
+    secondary_filter = filter_options
+      .find(({primary_filter_value}) =>
+        primary_filter_value === selectedPrimaryValue ||
+        (!primary_filter_value && !selectedPrimaryValue)
+      )?.secondary_filter_attribute;
+  }
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.query);
@@ -52,6 +64,7 @@ const MediaPropertySearchPage = observer(() => {
       {
         !primary_filter ? null :
           <AttributeFilter
+            filterOptions={filter_options}
             attributeKey={primary_filter}
             variant="primary"
             options={mediaPropertyStore.searchOptions}

@@ -253,7 +253,7 @@ class MediaPropertyStore {
 
     if(!mediaProperty) { return; }
 
-    // Show alternate page if not authorized option
+    // Property level permissions - Show alternate page if not authorized option
     if(mediaProperty.permissions?.showAlternatePage) {
       pageSlugOrId = mediaProperty.permissions.alternatePageId || pageSlugOrId;
     }
@@ -262,7 +262,40 @@ class MediaPropertyStore {
       mediaProperty.metadata.page_ids[pageSlugOrId] ||
       pageSlugOrId;
 
-    return mediaProperty.metadata.pages[pageId];
+    const page = mediaProperty.metadata.pages[pageId];
+
+    let permissions = {authorized: true};
+    if(page.permissions?.page_permissions?.length > 0) {
+      const authorized = page.permissions.page_permissions.find(permissionItemId =>
+        this.PermissionItem({permissionItemId}).authorized
+      );
+
+      if(!authorized) {
+        permissions = {
+          authorized: false,
+          behavior: page.permissions.page_permissions_behavior,
+          showAlternatePage: page.permissions.page_permissions_behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE,
+          alternatePageId: page.permissions.page_permissions_alternate_page_id,
+          purchaseGate: page.permissions.page_permissions_behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE,
+          permissionItemIds: page.permissions.page_permissions,
+          cause: "Page permissions"
+        };
+
+        // Page level permissions - Show alternate page if not authorized option
+        if(permissions.showAlternatePage) {
+          if(permissions.alternatePageId !== pageSlugOrId) {
+            return this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId: permissions.alternatePageId});
+          } else {
+            this.Log("Circular alternate page redirect for " + pageSlugOrId, true);
+          }
+        }
+      }
+    }
+
+    return {
+      ...page,
+      permissions
+    };
   }
 
   MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId, mediaListSlugOrId}) {

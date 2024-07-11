@@ -17,7 +17,7 @@ const PropertyWrapper = observer(({children}) => {
   const [itemLoaded, setItemLoaded] = useState(!match.params.contractId);
   const [redirect, setRedirect] = useState(false);
 
-  const mediaPropertySlugOrId = match.params.mediaPropertySlugOrId;
+  const { mediaPropertySlugOrId, pageSlugOrId } = match.params;
 
   useEffect(() => {
     if(rootStore.specifiedMarketplaceId) {
@@ -54,6 +54,7 @@ const PropertyWrapper = observer(({children}) => {
 
   if(mediaPropertySlugOrId) {
     const mediaProperty = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId});
+    const page = mediaPropertyStore.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId});
 
     return (
       <AsyncComponent
@@ -74,10 +75,12 @@ const PropertyWrapper = observer(({children}) => {
         loadingClassName="page-loader content"
       >
         <LoginGate Condition={() => mediaProperty?.metadata?.require_login}>
-          <PurchaseGate permissions={mediaProperty?.permissions} backPath="/">
-            <div className={PropertyStyles["property"]}>
-              { children }
-            </div>
+          <PurchaseGate permissions={mediaProperty?.permissions}>
+            <PurchaseGate permissions={page?.permissions}>
+              <div className={PropertyStyles["property"]}>
+                { children }
+              </div>
+            </PurchaseGate>
           </PurchaseGate>
           <MediaPropertyPurchaseModal />
         </LoginGate>
