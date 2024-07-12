@@ -14,6 +14,7 @@
 
   &__image-container,
   &__image {
+    border-radius: 5px;
     width: 100%;
   }
 
@@ -312,5 +313,253 @@
     &__image-container {
       display: none;
     }
+  }
+}
+
+.media-card-button-vertical {
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  height: max-content;
+  max-width: 450px;
+  overflow: hidden;
+  width: 100%;
+
+  &--landscape {
+    .media-card-button-vertical__image-container {
+      aspect-ratio: 16/9;
+    }
+  }
+
+  &--square {
+    .media-card-button-vertical__image-container {
+      aspect-ratio: 1;
+    }
+  }
+
+  &--portrait {
+    .media-card-button-vertical__image-container {
+      aspect-ratio: 2/3;
+    }
+  }
+
+  &__image-container {
+    box-shadow: 0 0 10px rgb(0 0 0 / 50%);
+    display: flex;
+    position: relative;
+    width: 100%;
+  }
+
+  &__image {
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+  }
+
+  &__text {
+    background: linear-gradient(180deg, #2D2D2D 0%, #0E0E0E 100%);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 30px 20px 20px;
+  }
+
+  &__headers {
+    color: var(--property-text-secondary);
+    font-size: 0.9em;
+    gap: 1.3em;
+    margin-bottom: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: pre;
+  }
+
+  &__title,
+  &__subtitle {
+    overflow: hidden;
+    position: relative;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+  }
+
+  &__title {
+    font-size: 22px;
+    font-weight: 700;
+    height: max-content;
+  }
+
+  &__subtitle {
+    color: var(--property-text-secondary);
+    min-height: 1.4em;
+  }
+
+  &__description {
+    color: var(--property-text-secondary);
+    margin-top: 20px;
+  }
+
+  &__actions {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+    width: 100%;
+  }
+
+  &__action {
+    font-weight: 600;
+    height: 50px;
+    width: 100%;
+  }
+
+  &__indicator {
+    bottom: 15px;
+    position: absolute;
+    right: 15px;
+    text-align: center;
+    user-select: none;
+    z-index: 1;
+  }
+
+  &__live-indicator {
+    background-color: #F00;
+    border-radius: 5px;
+    font-weight: 600;
+    padding: 3px 8px;
+    text-transform: uppercase;
+  }
+
+  &__upcoming-indicator {
+    background: rgb(39 39 39 / 80%);
+    border-radius: 5px;
+    padding: 5px 10px;
+  }
+}
+
+.media-card-button-horizontal {
+  background: linear-gradient(180deg, #2D2D2D 0%, #0E0E0E 100%);
+  border-radius: 10px;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 40% 1fr;
+  height: max-content;
+  max-width: 700px;
+  overflow: hidden;
+  padding: 20px;
+  width: 100%;
+
+  &--landscape {
+    .media-card-button-horizontal__image-container {
+      aspect-ratio: 16/9;
+    }
+  }
+
+  &--square {
+    .media-card-button-horizontal__image-container {
+      aspect-ratio: 1;
+    }
+  }
+
+  &--portrait {
+    .media-card-button-horizontal__image-container {
+      aspect-ratio: 2/3;
+    }
+  }
+
+  &__image-container {
+    border-radius: 5px;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+  }
+
+  &__image {
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  &__headers {
+    color: var(--property-text-secondary);
+    font-size: 0.9em;
+    gap: 1.3em;
+    margin-bottom: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: pre;
+  }
+
+  &__title,
+  &__subtitle {
+    overflow: hidden;
+    position: relative;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+  }
+
+  &__title {
+    font-size: 22px;
+    font-weight: 700;
+    height: max-content;
+  }
+
+  &__subtitle {
+    color: var(--property-text-secondary);
+    min-height: 1.4em;
+  }
+
+  &__description {
+    color: var(--property-text-secondary);
+    margin-top: 20px;
+  }
+
+  &__actions {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+    width: 100%;
+  }
+
+  &__action {
+    font-weight: 600;
+    height: 50px;
+    width: 100%;
+  }
+
+  &__indicator {
+    bottom: 15px;
+    position: absolute;
+    right: 15px;
+    text-align: center;
+    user-select: none;
+    z-index: 1;
+  }
+
+  &__live-indicator {
+    background-color: #F00;
+    border-radius: 5px;
+    font-weight: 600;
+    padding: 3px 8px;
+    text-transform: uppercase;
+  }
+
+  &__upcoming-indicator {
+    background: rgb(39 39 39 / 80%);
+    border-radius: 5px;
+    padding: 5px 10px;
   }
 }

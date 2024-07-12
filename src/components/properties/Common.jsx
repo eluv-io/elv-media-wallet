@@ -221,6 +221,7 @@ export const Description = ({
   if(maxLines) {
     let content = (
       <ResponsiveEllipsis
+        ellipsis={<div style={{color: "gray", marginTop: 20}}>READ MORE</div>}
         className={[S("description", expandable ? "description--expandable" : ""), props.className || ""].join(" ")}
         text={description}
         maxLine={expanded ? "999" : maxLines.toString()}
@@ -244,6 +245,56 @@ export const Description = ({
     </div>
   );
 };
+
+export const ExpandableDescription = observer(({description, descriptionRichText, className=""}) => {
+  const [expanded, setExpanded] = useState(false);
+  const [showToggle, setShowToggle] = useState(false);
+  const descriptionRef = useRef();
+
+  useEffect(() => {
+    setTimeout(() =>
+      setShowToggle(
+        expanded ||
+        (descriptionRef?.current &&
+          descriptionRef.current?.firstChild?.getBoundingClientRect()?.height > descriptionRef.current.getBoundingClientRect().height)
+      ), 100);
+
+  }, [descriptionRef, expanded]);
+
+  if(!description && !descriptionRichText) {
+    return null;
+  }
+
+  return (
+    <div
+      role={expanded ? "" : "button"}
+      onClick={() => showToggle && !expanded && setExpanded(true)}
+      className={[
+        S(
+          "expandable-description",
+          showToggle ? "expandable-description--toggleable" : "",
+          `expandable-description--${expanded ? "expanded" : "contracted"}`
+        ),
+        className
+      ].join(" ")}
+    >
+      <div ref={descriptionRef} className={S("expandable-description__description-container")}>
+        <Description
+          description={description}
+          descriptionRichText={descriptionRichText}
+          className={S("expandable-description__description")}
+        />
+      </div>
+      { expanded ? null : <div className={S("expandable-description__overlay")} /> }
+      {
+        !showToggle ? null :
+          <button onClick={() => setExpanded(!expanded)} className={S("expandable-description__toggle")}>
+            {mediaPropertyStore.rootStore.l10n.media_properties.media.description[expanded ? "hide" : "show"]}
+          </button>
+      }
+    </div>
+  );
+});
 
 
 const SlideVisible = slide => {
@@ -366,7 +417,7 @@ export const Carousel = observer(({
   );
 });
 
-export const AttributeFilter = observer(({filterOptions, attributeKey, options, setOption, variant="primary"}) => {
+export const AttributeFilter = observer(({filterOptions, attributeKey, options, setOption, variant="primary", className=""}) => {
   const match = useRouteMatch();
 
   const attributeOptions =
@@ -389,7 +440,7 @@ export const AttributeFilter = observer(({filterOptions, attributeKey, options, 
       observer
       observeParents
       slidesPerView="auto"
-      className={S("attribute-filter", `attribute-filter--${variant}`)}
+      className={[S("attribute-filter", `attribute-filter--${variant}`), className].join(" ")}
     >
       {
         filterOptions ? null :
@@ -490,16 +541,38 @@ export const Modal = observer(({...args}) => {
   );
 });
 
-export const Button = ({variant="primary", active, loading, ...props}) => {
+export const Button = ({variant="primary", active, loading, icon, styles, defaultStyles=false, ...props}) => {
+  const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
   const [isLoading, setIsLoading] = useState(loading);
 
   useEffect(() => {
     setIsLoading(loading);
   }, [loading]);
 
+  if(!styles) {
+    styles = (!defaultStyles && mediaProperty?.metadata?.styling?.button_style) || {};
+  }
+
+  let style = {};
+  if(CSS.supports("color", styles.background_color)) {
+    style["--property-button-background"] = styles.background_color;
+    // If border color is not explicitly set, it should default to background color
+    style["--property-button-border-color"] = styles.background_color;
+  }
+  if(CSS.supports("color", styles.text_color)) {
+    style["--property-button-text"] = styles.text_color;
+  }
+  if(CSS.supports("color", styles.border_color)) {
+    style["--property-button-border-color"] = styles.border_color;
+  }
+  if(!isNaN(parseInt(styles.border_radius))) {
+    style["--property-button-border-radius"] = `${styles.border_radius}px`;
+  }
+
   return (
     <Linkish
       {...props}
+      style={style}
       onClick={
         !props.onClick ? undefined :
           async () => {
@@ -515,7 +588,14 @@ export const Button = ({variant="primary", active, loading, ...props}) => {
       className={[S("button", variant ? `button--${variant}` : "", active ? "button--active" : "", props.disabled ? "button--disabled" : ""), props.className || ""].join(" ")}
     >
       {
-        !isLoading ? props.children :
+        !isLoading ?
+          <>
+            {
+              !icon ? null:
+                <ImageIcon icon={icon} className={S("button__icon")} />
+            }
+            { props.children }
+          </> :
           <>
             <Loader className={S("button__loader")}/>
             <div className={S("button__loading-content")}>

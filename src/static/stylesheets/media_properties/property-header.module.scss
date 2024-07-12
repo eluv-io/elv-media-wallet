@@ -117,17 +117,13 @@
 }
 
 .sign-in {
-  background: #FFF;
   border-radius: 10px;
-  color: #000;
-  font-weight: 600;
-  height: 45px;
+  min-height: 45px;
   text-transform: uppercase;
   width: 100px;
 
   @media screen and (width <= 800px) {
-    font-size: 0.9em;
-    height: 36px;
+    min-height: 36px;
   }
 }
 

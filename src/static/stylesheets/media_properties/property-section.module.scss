@@ -4,6 +4,12 @@
   &.page {
     padding-inline: 75px;
   }
+
+  @media screen and (width <= 800px) {
+    &.page {
+      padding-inline: 25px;
+    }
+  }
 }
 
 .section {
@@ -52,7 +58,6 @@
     align-items: center;
     display: flex;
     gap: 30px;
-    margin-bottom: 10px;
   }
 
   &__title {
@@ -87,13 +92,19 @@
     }
   }
 
+  &__page-filter {
+    font-size: 14px;
+    margin: 10px 0 20px;
+    padding: 0;
+
+    @media screen and (width <= 800px) {
+      font-size: 12px;
+    }
+  }
+
   &__groups {
     display: grid;
     gap: 50px;
-  }
-
-  &__group {
-    --max-card-width: 350px;
   }
 
   &__group-title {
@@ -131,6 +142,8 @@
     &--flex {
       display: flex;
       flex-wrap: wrap;
+
+      --max-card-width: 300px;
     }
 
     &--banner {
@@ -201,8 +214,6 @@
   }
 
   @media screen and (width <= 600px) {
-    --max-card-width: 350px;
-
     &__title-container {
       max-width: var(--max-card-width);
     }

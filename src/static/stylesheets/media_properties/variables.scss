@@ -10,6 +10,7 @@
   --property-background: #000;
   --property-background-secondary: #202020;
   --property-background-tertiary: #333;
+  --property-background-modal: linear-gradient(180deg, #2D2D2D 0%, #0E0E0E 100%);
   --property-border-color: #333;
   --property-card-background: rgb(80 80 80 / 25%);
   --property-card-background-active: rgb(80 80 80 / 50%);
@@ -18,7 +19,9 @@
   --property-search-background: #202023;
   --property-search-button-background: #38383C;
   --property-button-background: #FFF;
+  --property-button-border-color: var(--property-button-background);
   --property-button-text: #000;
+  --property-button-border-radius: 5px;
   --property-button-outline-text: #FFF;
   --property-button-outline-border: #555;
   --property-button-option-background-hover: #555;

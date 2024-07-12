@@ -513,7 +513,7 @@ class MediaPropertyStore {
       }
 
       // Media type
-      if(select.content_type === "media" && select.media_types?.length > 0 && !select.media_types.includes(mediaItem.media_type)) {
+      if(select.media_types?.length > 0 && !select.media_types.includes(mediaItem.media_type)) {
         return false;
       }
 

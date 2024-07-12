@@ -11,7 +11,7 @@ import {
   MediaItemMediaUrl,
   MediaItemScheduleInfo
 } from "../../utils/MediaPropertyUtils";
-import {Carousel, Description, LoaderImage, PurchaseGate} from "Components/properties/Common";
+import {Carousel, Description, ExpandableDescription, LoaderImage, PurchaseGate} from "Components/properties/Common";
 import Video from "./Video";
 import {SetImageUrlDimensions} from "../../utils/Utils";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
@@ -388,49 +388,6 @@ const Media = observer(({mediaItem, display, sidebarContent}) => {
   }
 });
 
-const MediaDescription = observer(({display}) => {
-  const [expanded, setExpanded] = useState(false);
-  const [showToggle, setShowToggle] = useState(false);
-  const descriptionRef = useRef();
-
-  useEffect(() => {
-    setTimeout(() =>
-      setShowToggle(
-        expanded ||
-        (descriptionRef &&
-          descriptionRef.current &&
-          descriptionRef.current.getBoundingClientRect().height - 20 < descriptionRef.current?.firstChild?.getBoundingClientRect()?.height)
-      ), 100);
-
-  }, [descriptionRef, expanded]);
-
-  if(!display.description && !display.description_rich_text) {
-    return null;
-  }
-
-  return (
-    <div
-      ref={descriptionRef}
-      role={expanded ? "" : "button"}
-      onClick={() => showToggle && !expanded && setExpanded(true)}
-      className={S("media-text__description-container", showToggle ? "media-text__description-container--toggleable" : "", `media-text__description-container--${expanded ? "expanded" : "contracted"}`)}
-    >
-      <Description
-        description={display.description}
-        descriptionRichText={display.description_rich_text}
-        className={S("media-text__description")}
-      />
-      { expanded ? null : <div className={S("media-text__description-overlay")} /> }
-      {
-        !showToggle ? null :
-          <button onClick={() => setExpanded(!expanded)} className={S("media-text__description-toggle")}>
-            {mediaPropertyStore.rootStore.l10n.media_properties.media.description[expanded ? "hide" : "show"]}
-          </button>
-      }
-    </div>
-  );
-});
-
 const MediaPropertyMediaPage = observer(() => {
   const match = useRouteMatch();
 
@@ -529,7 +486,11 @@ const MediaPropertyMediaPage = observer(() => {
                     }
                   </div>
               }
-              <MediaDescription display={display}/>
+              <ExpandableDescription
+                description={display.description}
+                descriptionRichText={display.description_rich_text}
+                className={S("media-text__description")}
+              />
             </div>
         }
       </div>

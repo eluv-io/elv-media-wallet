@@ -5,13 +5,12 @@ import {observer} from "mobx-react";
 import {rootStore, mediaPropertyStore} from "Stores";
 import {Redirect, useRouteMatch} from "react-router-dom";
 import {
+  Button,
   PageBackground,
   PageContainer,
   PageHeader
 } from "Components/properties/Common";
 import {MediaPropertySection} from "Components/properties/MediaPropertySection";
-import {Linkish} from "Components/common/UIComponents";
-import ImageIcon from "Components/common/ImageIcon";
 import Video from "Components/properties/Video";
 import Modal from "Components/common/Modal";
 import {CreateMediaPropertyPurchaseParams, MediaPropertyLink} from "../../utils/MediaPropertyUtils";
@@ -86,24 +85,14 @@ const PageAction = observer(({action}) => {
             <Video link={action.video} />
           </Modal>
       }
-      <Linkish
+      <Button
         {...buttonParams}
+        icon={action.button.icon?.url}
         className={S("action")}
-        style={{
-          backgroundColor: action.button.background_color || "#FFFFFF",
-          color: action.button.text_color || "#000000",
-          borderRadius: action.button.border_radius,
-          border: action.button.border_color ? `1px solid ${action.button.border_color}` : undefined
-        }}
+        styles={action.button}
       >
-        {
-          !action.button.icon ? null:
-            <ImageIcon icon={action.button.icon?.url} className={S("action__icon")} />
-        }
-        <div style={{color: action.button.text_color || "#000000"}} className={S("action__text")}>
-          { action.button.text }
-        </div>
-      </Linkish>
+        { action.button.text }
+      </Button>
     </>
   );
 });

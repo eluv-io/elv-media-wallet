@@ -19,20 +19,6 @@
   }
 
   .action {
-    align-items: center;
-    display: flex;
-    font-size: 1.2em;
-    font-weight: 600;
-    gap: 15px;
-    height: 50px;
-    padding-inline: 30px;
-
-    &__icon {
-      height: 25px;
-      object-fit: contain;
-      width: 25px;
-    }
-
     &__modal {
       background: red;
 

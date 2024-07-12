@@ -16,25 +16,16 @@ import {MediaItemImageUrl, MediaPropertyBasePath} from "../../utils/MediaPropert
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 
-const GridContentColumns = ({aspectRatio, pageWidth}) => {
-  let columns = 1;
-  if(pageWidth >= 1920) {
-    columns = 5;
-  } else if(pageWidth >= 1600) {
-    columns = 4;
-  } else if(pageWidth >= 1200) {
-    columns = 4;
-  } else if(pageWidth >= 900) {
-    columns = 3;
-  } else if(pageWidth >= 800) {
-    columns = 2;
+const GridContentColumns = ({aspectRatio, pageWidth, cardFormat}) => {
+  if(cardFormat === "button_vertical") {
+    return Math.round(pageWidth / 450);
+  } else if(cardFormat === "button_horizontal") {
+    return Math.round(pageWidth / 650);
+  } if(aspectRatio?.toLowerCase() === "landscape") {
+    return Math.round(pageWidth / 425);
+  } else {
+    return Math.round(pageWidth / 300);
   }
-
-  if(pageWidth > 600 && aspectRatio?.toLowerCase() !== "landscape") {
-    columns += 1;
-  }
-
-  return columns;
 };
 
 export const MediaGrid = observer(({
@@ -43,20 +34,23 @@ export const MediaGrid = observer(({
   aspectRatio,
   textDisplay="all",
   justification="left",
+  cardFormat="vertical",
+  defaultButtonText,
   className="",
-  navContext
+  navContext,
 }) => {
   aspectRatio = aspectRatio?.toLowerCase();
 
   const columns = GridContentColumns({
     aspectRatio,
     pageWidth: rootStore.pageWidth,
+    cardFormat
   });
 
   return (
     <div
       style={
-        !aspectRatio ? {} :
+        columns <= 1 ? {} :
           {
             gridTemplateColumns: `repeat(${justification === "center" ? Math.min(columns, content.length) : columns}, minmax(0, 1fr))`
           }
@@ -64,7 +58,7 @@ export const MediaGrid = observer(({
       className={[S(
         "section__content",
         "section__content--grid",
-        aspectRatio ?
+        aspectRatio && aspectRatio !== "mixed" ?
           `section__content--${aspectRatio}` :
           "section__content--flex",
         `section__content--${justification || "left"}`
@@ -74,12 +68,13 @@ export const MediaGrid = observer(({
         content.map(item =>
           <MediaCard
             size={!aspectRatio ? "mixed" : ""}
-            format="vertical"
+            format={cardFormat || "vertical"}
             key={`section-item-${item.id}`}
             sectionItem={isSectionContent ? item : undefined}
             mediaItem={isSectionContent ? undefined : item}
             textDisplay={textDisplay}
             aspectRatio={aspectRatio}
+            buttonText={item?.card_button_text || defaultButtonText}
             navContext={navContext}
           />
         )
@@ -99,6 +94,7 @@ const SectionContentBanner = observer(({section, sectionContent, navContext}) =>
             sectionItem={sectionItem}
             textDisplay={section.display.content_display_text}
             aspectRatio={section.display.aspect_ratio}
+            buttonText={sectionItem?.card_button_text || section.display.card_default_button_text}
             navContext={navContext}
           />
         )
@@ -107,7 +103,7 @@ const SectionContentBanner = observer(({section, sectionContent, navContext}) =>
   );
 });
 
-const SectionContentCarousel = observer(({section, sectionContent, navContext}) => {
+const SectionContentCarousel = observer(({section, sectionContent, cardFormat="vertical", navContext}) => {
   return (
     <Carousel
       className={S(
@@ -118,7 +114,7 @@ const SectionContentCarousel = observer(({section, sectionContent, navContext}) 
       )}
       slidesPerPage={({imageDimensions, swiper}) =>
         // If aspect ratio is consistent, we can have arrows navigate an exact page at a time
-        section.display.aspect_ratio ?
+        section.display.aspect_ratio && section.display.aspect_ratio !== "Mixed" ?
           Math.floor((swiper?.width || rootStore.pageWidth - 200) / imageDimensions.width) :
           rootStore.pageWidth > 1400 ? 3 : rootStore.pageWidth > 1000 ? 2 : 1
       }
@@ -129,13 +125,14 @@ const SectionContentCarousel = observer(({section, sectionContent, navContext}) 
       content={sectionContent}
       RenderSlide={({item, setImageDimensions}) =>
         <MediaCard
-          size={section.display.aspect_ratio ? "fixed" : "mixed"}
-          format="vertical"
+          size={!section.display.aspect_ratio || section.display.aspect_ratio === "Mixed" ? "mixed" : "fixed"}
+          format={cardFormat || "vertical"}
           key={`media-card-${item.id}`}
           setImageDimensions={setImageDimensions}
           sectionItem={item}
           textDisplay={section.display.content_display_text}
           aspectRatio={section.display.aspect_ratio}
+          cardFormat={section.display.card_style}
           navContext={navContext}
         />
       }
@@ -153,7 +150,10 @@ const SectionContentGrid = observer(({section, sectionContent, navContext}) => {
       aspectRatio={aspectRatio}
       textDisplay={section.display.content_display_text}
       justification={section.display.justification}
+      defaultButtonText={section.display.card_default_button_text}
+      cardStyle={section.display.card_style}
       navContext={navContext}
+      cardFormat={section.display.card_style}
     />
   );
 });
@@ -217,23 +217,31 @@ export const SectionResultsGroup = observer(({groupBy, label, results, navContex
       }
       <MediaGrid
         content={results.map(result => result.mediaItem)}
-        aspectRatio={aspectRatio === "mixed" ? undefined : aspectRatio}
+        aspectRatio={aspectRatio === "Mixed" ? undefined : aspectRatio}
         navContext={navContext}
       />
     </div>
   );
 });
 
-export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPage, filterOptions}) => {
+export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPage}) => {
   const match = useRouteMatch();
   let navContext = new URLSearchParams(location.search).get("ctx");
   const [sectionContent, setSectionContent] = useState([]);
+  const [allContentLength, setAllContentLength] = useState(0);
+
+  const [filterOptions, setFilterOptions] = useState({
+    attributes: {},
+    mediaType: undefined
+  });
 
   const section = mediaPropertyStore.MediaPropertySection({
     mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
     sectionSlugOrId: sectionId,
     mediaListSlugOrId: mediaListId
   });
+
+  const filtersActive = filterOptions.mediaType || Object.keys(filterOptions.attributes).length > 0;
 
   useEffect(() => {
     if(!section) { return; }
@@ -245,7 +253,12 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
       mediaListSlugOrId: mediaListId,
       filterOptions
     })
-      .then(content => setSectionContent(content));
+      .then(content => {
+        setSectionContent(content);
+
+        if(!filtersActive)
+          setAllContentLength(content.length);
+      });
   }, [match.params, sectionId, mediaListId, filterOptions]);
 
   if(!section) {
@@ -272,21 +285,27 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
   }
 
   if(
-    sectionContent.length === 0 ||
+    allContentLength === 0 ||
     sectionPermissions.authorized === false &&
     sectionPermissions.behavior === mediaPropertyStore.PERMISSION_BEHAVIORS.HIDE
   ) {
     return null;
   }
 
-  const showAllLink = sectionContent.length > parseInt(section.display.display_limit || 5);
+  const showAllLink = allContentLength > parseInt(section.display.display_limit || 5);
 
   let displayLimit = section.display?.display_limit;
-  if(displayLimit && ContentComponent === SectionContentGrid && section.display?.aspect_ratio && section.display?.display_limit_type === "rows") {
+  if(
+    displayLimit &&
+    ContentComponent === SectionContentGrid &&
+    (section.display?.aspect_ratio && section.display.aspect_ratio !== "Mixed")
+    && section.display?.display_limit_type === "rows"
+  ) {
     // Limit to a certain number of rows - calculate items per row based on page width
     const columns = GridContentColumns({
       aspectRatio: section.display.aspect_ratio,
       pageWidth: rootStore.pageWidth,
+      cardFormat: section.display.card_style
     });
 
     displayLimit = columns * displayLimit;
@@ -336,6 +355,16 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
                 </h2>
             }
           </>
+      }
+      {
+        !section.primary_filter || !section.show_primary_filter_in_page_view ? null :
+          <AttributeFilter
+            className={S("section__page-filter")}
+            attributeKey={section.primary_filter}
+            variant="secondary"
+            options={filterOptions}
+            setOption={({field, value}) => setFilterOptions({...filterOptions, [field]: value})}
+          />
       }
       <ContentComponent
         navContext={sectionId}

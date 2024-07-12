@@ -249,7 +249,12 @@ const AdvancedSearch = observer(() => {
           >
             Done
           </Button>
-          <Button variant="outline" onClick={() => mediaPropertyStore.ClearSearchOptions()} className={S("filter__action")}>
+          <Button
+            variant="outline"
+            onClick={() => mediaPropertyStore.ClearSearchOptions()}
+            defaultStyles
+            className={S("filter__action")}
+          >
             Clear Filters
           </Button>
         </Group>
@@ -369,9 +374,9 @@ const HeaderLinks = observer(() => {
 
   if(!rootStore.loggedIn) {
     return (
-      <button onClick={() => rootStore.ShowLogin()} className={S("sign-in")}>
+      <Button onClick={() => rootStore.ShowLogin()} className={S("sign-in")}>
         { rootStore.l10n.login.sign_in }
-      </button>
+      </Button>
     );
   } else {
     return (

@@ -276,7 +276,8 @@ const Payment = observer(({item, Back}) => {
       options =
         <div className={S("actions")}>
           <Button
-            variant="outline"
+            variant="option"
+            active={paymentMethod.type === "card"}
             className={S("button")}
             onClick={() => setPaymentMethod({...paymentMethod, type: "card", provider: !ebanxEnabled ? "stripe" : undefined})}
           >
@@ -285,7 +286,8 @@ const Payment = observer(({item, Back}) => {
           {
             !coinbaseEnabled ? null :
               <Button
-                variant="outline"
+                variant="option"
+                active={paymentMethod.type === "crypto"}
                 className={S("button")}
                 onClick={() => setPaymentMethod({...paymentMethod, type: "crypto", provider: "coinbase"})}
               >
@@ -295,15 +297,16 @@ const Payment = observer(({item, Back}) => {
           {
             !pixEnabled ? null :
               <Button
-                variant="outline"
-                className={S("button")}
+                variant="option"
+                active={paymentMethod.type === "pix"}
                 onClick={() => setPaymentMethod({...paymentMethod, type: "pix", provider: "pix"})}
               >
                 {rootStore.l10n.purchase.purchase_methods.pix}
               </Button>
           }
           <Button
-            variant="outline"
+            variant="option"
+            active={paymentMethod.type === "balance"}
             className={S("button")}
             onClick={() => setPaymentMethod({...paymentMethod, type: "balance", provider: "wallet-balance"})}
           >
@@ -361,6 +364,7 @@ const Payment = observer(({item, Back}) => {
           }
           <Button
             variant="outline"
+            defaultStyles
             onClick={() =>
               page ?
                 setPaymentMethod({...paymentMethod, type: undefined, provider: undefined}) :
@@ -491,7 +495,6 @@ const MediaPropertyPurchaseModalContent = observer(({items, itemId, confirmation
   const [selectedItemId, setSelectedItemId] = useState(itemId);
   const [purchaseItems, setPurchaseItems] = useState(undefined);
   const selectedItem = selectedItemId && FormatPurchaseItem(items.find(item => item.id === selectedItemId));
-  const anyImages = selectedItem ? selectedItem?.imageUrl : !!purchaseItems?.find(item => item.imageUrl);
 
   useEffect(() => {
     setLoaded(false);
@@ -566,7 +569,7 @@ const MediaPropertyPurchaseModalContent = observer(({items, itemId, confirmation
   }
 
   return (
-    <div key={`step-${key}`} className={S("form", anyImages ? "form--with-images" : "")}>
+    <div key={`step-${key}`} className={S("form")}>
       { content }
     </div>
   );

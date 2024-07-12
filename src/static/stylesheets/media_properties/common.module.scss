@@ -15,11 +15,11 @@
   &__container {
     @include page-fade-in(0.25s);
 
-    background-color: var(--property-background-secondary);
+    background: var(--property-background-modal);
   }
 
   &__content {
-    background-color: var(--property-background-secondary);
+    background: var(--property-background-modal);
     position: relative;
     width: 100%;
 
@@ -29,7 +29,7 @@
   }
 
   &__header {
-    background-color: var(--property-background-secondary);
+    background: var(--property-background-modal);
   }
 
   &__close {
@@ -138,6 +138,7 @@
   }
 
   a {
+    color: var(--property-text-highlight);
     display: inline;
   }
 
@@ -350,10 +351,77 @@
 }
 
 .description {
+  text-align: left;
   white-space: pre-wrap;
 
   &--expandable {
     cursor: pointer;
+  }
+}
+
+.expandable-description {
+  border-radius: 5px;
+  cursor: unset;
+  padding-bottom: 30px;
+  position: relative;
+
+  &--toggleable {
+    cursor: pointer;
+  }
+
+  &--contracted {
+    overflow: hidden;
+
+    .expandable-description__description-container {
+      mask-image: linear-gradient(black 65%, transparent);
+      max-height: 6.5em;
+    }
+  }
+
+  &--expanded {
+    cursor: unset;
+    height: max-content;
+    max-height: unset;
+    padding-bottom: 55px;
+
+    .expandable-description__toggle {
+      justify-content: flex-start;
+      padding: 0;
+      right: unset;
+    }
+  }
+
+  &__overlay {
+    inset: 0;
+    position: absolute;
+  }
+
+  &__toggle {
+    align-items: center;
+    bottom: 0;
+    color: var(--property-text-faded);
+    display: flex;
+    font-size: 0.9em;
+    font-weight: 600;
+    height: 45px;
+    justify-content: center;
+    padding-left: 10px;
+    position: absolute;
+    right: 0;
+    width: 120px;
+    z-index: 1;
+  }
+
+  &__description {
+    font-size: 16px;
+    height: max-content;
+    line-height: 24px;
+    padding: 0;
+
+    p {
+      font-size: 16px;
+      line-height: 24px;
+    }
   }
 }
 
@@ -512,15 +580,23 @@
 
 .button {
   align-items: center;
-  border-radius: 5px;
+  border-radius: var(--property-button-border-radius);
   cursor: pointer;
   display: flex;
-  font-weight: 500;
+  font-weight: 600;
+  gap: 15px;
   justify-content: center;
   min-height: 50px;
   padding-inline: 20px;
   position: relative;
-  transition: background-color 0.2s ease, border 0.2s ease, color 0.1s ease;
+  transition: background-color 0.25s ease, border 0.25s ease, color 0.1s ease;
+  user-select: none;
+
+  &__icon {
+    height: 25px;
+    object-fit: contain;
+    width: 25px;
+  }
 
   &--disabled,
   &:disabled {
@@ -529,7 +605,7 @@
 
   &--primary {
     background-color: var(--property-button-background);
-    border: 1px solid var(--property-button-background);
+    border: 1px solid var(--property-button-border-color);
     color: var(--property-button-text);
 
     * {
@@ -673,14 +749,16 @@
   }
 
   @media screen and (width <= 800px) {
-    padding-inline: 25px;
-
     &--primary {
       font-size: 0.8em;
     }
 
     &--secondary {
       font-size: 1em;
+    }
+
+    &__attribute--image {
+      width: 150px;
     }
   }
 }

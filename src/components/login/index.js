@@ -60,6 +60,8 @@ const ParseDomainCustomization = ({styling, terms, consent, settings}={}, font) 
 
     if(CSS.supports("color", option.background_color)) {
       styles[`${prefix}--background`] = option.background_color;
+      // If border color is not explicitly set, it should default to background color
+      styles[`${prefix}--border-color`] = option.background_color;
     }
     if(CSS.supports("color", option.text_color)) {
       styles[`${prefix}--color`] = option.text_color;
@@ -67,7 +69,7 @@ const ParseDomainCustomization = ({styling, terms, consent, settings}={}, font) 
     if(CSS.supports("color", option.border_color)) {
       styles[`${prefix}--border-color`] = option.border_color;
     }
-    if(typeof option.border_radius === "number" && option.border_radius >= 0) {
+    if(!isNaN(parseInt(option.border_radius))) {
       styles[`${prefix}--border-radius`] = `${option.border_radius}px`;
     }
   };
