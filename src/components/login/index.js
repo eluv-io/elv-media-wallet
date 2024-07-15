@@ -54,6 +54,10 @@ window.params = params;
 const ParseDomainCustomization = ({styling, terms, consent, settings}, font) => {
   let styles = {};
   const SetVars = (prefix, option) => {
+    if(!option) {
+      return;
+    }
+
     if(CSS.supports("color", option.background_color)) {
       styles[`${prefix}--background`] = option.background_color;
     }

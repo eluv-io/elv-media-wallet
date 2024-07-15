@@ -32,7 +32,11 @@ const GlobalWrapper = ({children}) => {
 
 
   if(rootStore.domainProperty && match.url === "/") {
-    return <Redirect to={UrlJoin("/", rootStore.domainProperty)} />;
+    if(["localhost", "contentfabric.io"].includes(location.hostname)) {
+      rootStore.ClearDomainCustomization();
+    } else {
+      return <Redirect to={UrlJoin("/", rootStore.domainProperty)}/>;
+    }
   }
 
   return children;

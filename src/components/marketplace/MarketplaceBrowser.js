@@ -241,7 +241,7 @@ export const MediaPropertiesBrowser = observer(() => {
                 <Linkish
                   key={`property-link-${path}`}
                   to={path}
-                  onClick={() => rootStore.SetPropertyCustomization(mediaProperty.subPropertyId || mediaProperty.propertyId)}
+                  onClick={() => rootStore.SetDomainCustomization(mediaProperty.subPropertyId || mediaProperty.propertyId)}
                   className="media-property-card"
                 >
                   <LoaderImage

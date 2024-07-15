@@ -262,6 +262,10 @@
       color: var(--login-action-primary--color);
       font-weight: 600;
       text-transform: uppercase;
+
+      * {
+        color: var(--login-action-primary--color);
+      }
     }
 
     &--secondary {
@@ -271,6 +275,10 @@
       color: var(--login-action-secondary--color);
       font-weight: 600;
       text-transform: uppercase;
+
+      * {
+        color: var(--login-action-secondary--color);
+      }
     }
 
     &--link {
@@ -278,6 +286,10 @@
       font-size: 14px;
       min-height: 20px;
       text-decoration: underline;
+
+      * {
+        color: var(--login-text-link--color);
+      }
     }
 
     &--metamask {

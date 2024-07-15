@@ -773,7 +773,12 @@ class RootStore {
   });
 
 
-  SetDomainCustomization = flow(function * () {
+  SetDomainCustomization = flow(function * (mediaPropertyId) {
+    if(mediaPropertyId) {
+      this.domainProperty = mediaPropertyId;
+      this.SetSessionStorage("domain-property", this.domainProperty);
+    }
+
     const options = yield this.LoadPropertyCustomization(this.domainProperty);
 
     if(!options) { return; }
@@ -783,10 +788,18 @@ class RootStore {
     this.SetPropertyCustomization(this.domainProperty);
   });
 
+  ClearDomainCustomization() {
+    this.domainProperty = undefined;
+    this.SetCustomCSS("");
+    this.RemoveSessionStorage("domain-property");
+  }
+
   SetPropertyCustomization = flow(function * (mediaPropertySlugOrId) {
     const options = yield this.LoadPropertyCustomization(mediaPropertySlugOrId);
 
-    if(!options) { return; }
+    if(!options) {
+      return;
+    }
 
     let css = [];
     if(options.styling?.font === "custom") {
