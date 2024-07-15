@@ -51,7 +51,7 @@ const params = {
 
 window.params = params;
 
-const ParseDomainCustomization = ({styling, terms, consent, settings}, font) => {
+const ParseDomainCustomization = ({styling, terms, consent, settings}={}, font) => {
   let styles = {};
   const SetVars = (prefix, option) => {
     if(!option) {
@@ -72,19 +72,19 @@ const ParseDomainCustomization = ({styling, terms, consent, settings}, font) => 
     }
   };
 
-  SetVars("--login-box", styling.login_box);
-  SetVars("--login-action-primary", styling.sign_in_button);
-  SetVars("--login-action-secondary", styling.sign_up_button);
-  SetVars("--login-input", styling.inputs);
+  SetVars("--login-box", styling?.login_box);
+  SetVars("--login-action-primary", styling?.sign_in_button);
+  SetVars("--login-action-secondary", styling?.sign_up_button);
+  SetVars("--login-input", styling?.inputs);
 
-  if(CSS.supports("color", styling.primary_text_color)) {
-    styles["--login-text-primary--color"] = styling.primary_text_color;
+  if(CSS.supports("color", styling?.primary_text_color)) {
+    styles["--login-text-primary--color"] = styling?.primary_text_color;
   }
-  if(CSS.supports("color", styling.secondary_text_color)) {
-    styles["--login-text-secondary--color"] = styling.secondary_text_color;
+  if(CSS.supports("color", styling?.secondary_text_color)) {
+    styles["--login-text-secondary--color"] = styling?.secondary_text_color;
   }
-  if(CSS.supports("color", styling.link_color)) {
-    styles["--login-text-link--color"] = styling.link_color;
+  if(CSS.supports("color", styling?.link_color)) {
+    styles["--login-text-link--color"] = styling?.link_color;
   }
 
   if(font) {
@@ -93,19 +93,19 @@ const ParseDomainCustomization = ({styling, terms, consent, settings}, font) => 
 
   return {
     styles,
-    logo: styling.logo,
-    powered_by_logo: styling.powered_by_logo,
-    background: styling.background_image_desktop,
-    background_mobile: styling.background_image_mobile,
+    logo: styling?.logo,
+    powered_by_logo: styling?.powered_by_logo,
+    background: styling?.background_image_desktop,
+    background_mobile: styling?.background_image_mobile,
     terms: terms?.terms,
     terms_document:
       !terms?.terms_document ? null :
         {
-          terms_document: terms.terms_document,
-          link_text: terms.terms_document_link_text
+          terms_document: terms?.terms_document,
+          link_text: terms?.terms_document_link_text
         },
-    require_consent: consent.require_consent,
-    default_consent: consent.default_consent,
+    require_consent: consent?.require_consent,
+    default_consent: consent?.default_consent,
     custom_consent: {
       type: "Checkboxes",
       enabled: consent?.consent_options?.length > 0,
