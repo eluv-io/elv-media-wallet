@@ -241,16 +241,7 @@ export const MediaPropertiesBrowser = observer(() => {
                 <Linkish
                   key={`property-link-${path}`}
                   to={path}
-                  onClick={() => {
-                    /*
-                    if(mediaProperty.marketplaceId) {
-                      rootStore.SetMarketplace({marketplaceId: mediaProperty.marketplaceId, specified: true});
-                    } else {
-                      rootStore.ClearMarketplace(true);
-                    }
-
-                     */
-                  }}
+                  onClick={() => rootStore.SetPropertyCustomization(mediaProperty.subPropertyId)}
                   className="media-property-card"
                 >
                   <LoaderImage

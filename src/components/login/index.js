@@ -84,7 +84,7 @@ const ParseDomainCustomization = ({styling, terms, consent, settings}, font) => 
   }
 
   if(font) {
-    styles["--login-font-family"] = font;
+    styles["--login-font-family"] = `${font}, var(--font-family-primary), Inter, sans-serif`;
   }
 
   return {
