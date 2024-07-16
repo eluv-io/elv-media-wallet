@@ -93,13 +93,17 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
     linkPath = match.url;
     // Preserve params
     params = new URLSearchParams(location.search);
-    params.set("p", CreateMediaPropertyPurchaseParams({sectionSlugOrId: match.params.sectionSlugOrId, sectionItemId: sectionItem.id}));
+    params.set("p", CreateMediaPropertyPurchaseParams({
+      sectionSlugOrId: sectionItem?.sectionId || match.params.sectionSlugOrId,
+      sectionItemId: sectionItem.id
+    }));
   } else if(sectionItem?.type === "page_link") {
     const page = mediaPropertyStore.MediaPropertyPage({...match.params, pageSlugOrId: sectionItem.page_id});
 
     if(page) {
       const pageSlugOrId = page?.slug || sectionItem.page_id;
-      linkPath = UrlJoin(linkPath, pageSlugOrId === "main" ? "" : pageSlugOrId);
+      linkPath = MediaPropertyBasePath({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId, pageSlugOrId});
+      navContext = undefined;
     }
   } else if(sectionItem?.type === "property_link") {
     linkPath = MediaPropertyBasePath({mediaPropertySlugOrId: sectionItem.property_id, pageSlugOrId: sectionItem.property_page_id});

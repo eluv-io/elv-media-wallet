@@ -549,8 +549,9 @@ const MediaPropertyPurchaseModal = () => {
       return;
     }
 
+    let newPurchaseItems;
     if(params.permissionItemIds) {
-      setPurchaseItems(
+      newPurchaseItems = (
         params.permissionItemIds
           .map(permissionItemId => mediaPropertyStore.PermissionItem({permissionItemId}))
           .filter(item => item)
@@ -564,7 +565,7 @@ const MediaPropertyPurchaseModal = () => {
         const matchingItem = section.content?.find(sectionItem => sectionItem.id === params.sectionItemId);
 
         if(matchingItem) {
-          setPurchaseItems(
+          newPurchaseItems = (
             (matchingItem.items || [])
               .map(item =>
                 item.permission_item_id ?
@@ -578,7 +579,7 @@ const MediaPropertyPurchaseModal = () => {
     } else if(params.actionId) {
       const page = mediaPropertyStore.MediaPropertyPage({...match.params});
       const action = page.actions?.find(action => action.id === params.actionId);
-      setPurchaseItems(
+      newPurchaseItems = (
         (action.items || [])
           .map(item =>
             item.permission_item_id ?
@@ -588,6 +589,14 @@ const MediaPropertyPurchaseModal = () => {
           .filter(item => item)
       );
     }
+
+    if(!newPurchaseItems || newPurchaseItems.length === 0) {
+      mediaPropertyStore.Log("Property purchase modal: No purchase items found", true);
+      mediaPropertyStore.Log(params, true);
+    }
+
+    setPurchaseItems(newPurchaseItems);
+
   }, [location.search]);
 
   const urlParams = new URLSearchParams(location.search);
