@@ -511,6 +511,10 @@ const OryLogin = observer(({customizationOptions, userData, requiredOptionsMissi
                     ];
                   }
 
+                  if(node.meta?.label?.id === 1010022) {
+                    node.meta.label.text = rootStore.l10n.login.sign_in;
+                  }
+
                   return [
                     <input key={`input-${key}`} {...attributes} type="hidden" />,
                     <ButtonWithLoader
