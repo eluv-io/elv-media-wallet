@@ -120,7 +120,7 @@
   border-radius: 10px;
   min-height: 45px;
   text-transform: uppercase;
-  width: 100px;
+  width: max-content;
 
   @media screen and (width <= 800px) {
     min-height: 36px;
