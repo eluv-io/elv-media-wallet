@@ -23,7 +23,7 @@ const Activity = observer(({mode="sales", icon, hideName, tableHeader, initialFi
       showFilters
       showStats
       pagingMode="paginated"
-      perPage={20}
+      perPage={10}
       initialFilters={initialFilters}
       className="transfer-table--activity"
       headerText={tableHeader}

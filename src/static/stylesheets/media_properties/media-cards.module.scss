@@ -35,8 +35,8 @@
   display: block;
   flex: 1 1 100%;
   max-width: min(90vw, var(--max-card-width));
-  word-break: break-word;
   transition: opacity 0.25s ease;
+  word-break: break-word;
 
   &:hover {
     opacity: 0.85;

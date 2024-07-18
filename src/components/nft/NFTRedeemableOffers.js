@@ -7,7 +7,7 @@ import Utils from "@eluvio/elv-client-js/src/Utils";
 import ImageIcon from "Components/common/ImageIcon";
 import {Loader} from "Components/common/Loaders";
 import Video from "Components/common/Video";
-import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
+import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 
 const RedemptionStatus = observer(({offer, offerKey, setRedemptionFinished}) => {
   const redemptionStatus = checkoutStore.redeemableOfferStatus[offerKey];

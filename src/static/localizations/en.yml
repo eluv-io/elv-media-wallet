@@ -380,8 +380,8 @@ tables:
   offers_received: Offers Received
   withdrawals: Withdrawals
   deposits: Deposits
-  bought_nfts: Bought Items
-  sold_nfts: Sold Items
+  bought_items: Bought Items
+  sold_items: Sold Items
   pending: Pending
   available: Available
   gifts_received: Gifts Received

@@ -1,8 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
 import {PageLoader} from "Components/common/Loaders";
-import ListingStats from "Components/listings/ListingStats";
 import ListingFilters from "Components/listings/ListingFilters";
-//import {useInfiniteScroll} from "react-g-infinite-scroll";
 import {rootStore} from "Stores";
 import {LocalizeString, PageControls} from "Components/common/UIComponents";
 import {SavedValue, ScrollTo} from "../../utils/Utils";
@@ -13,14 +11,12 @@ const FilteredView = ({
   header,
   mode="listings",
   pagingMode="paginated",
-  perPage=30,
+  perPage=10,
   topPagination,
   showPagingInfo,
   scrollOnPageChange,
-  expectRef,
   initialFilters,
   hideFilters,
-  hideStats,
   Render,
 }) => {
   const [loading, setLoading] = useState(false);
@@ -62,15 +58,7 @@ const FilteredView = ({
     const start = (page - 1) * perPage;
     Method({...filters, start, limit: perPage})
       .then(({results, paging}) => {
-        if(pagingMode === "infinite") {
-          setEntries([
-            ...entries,
-            ...results
-          ]);
-        } else {
-          setEntries(results);
-        }
-
+        setEntries(results);
         setPaging(paging);
 
         savedPage.SetValue(page, JSON.stringify(filters));
@@ -89,27 +77,6 @@ const FilteredView = ({
     page === newPage ? setLoadKey(loadKey + 1) : setPage(newPage);
   }, [filters]);
 
-  let scrollRef;
-  /*
-  if(pagingMode === "infinite") {
-    scrollRef = useInfiniteScroll({
-      expectRef,
-      fetchMore: () => {
-        // Debounce
-        if(Date.now() - lastUpdate < 500) {
-          return;
-        }
-
-        setLastUpdate(Date.now());
-        setPage(page + 1);
-      },
-      offset: 200,
-      ignoreScroll: loading || (entries && entries.length === 0) || (paging && entries.length === paging.total)
-    });
-  }
-
-   */
-
   // Pagination info
   let pagingInfo = null;
   if(paging && showPagingInfo) {
@@ -119,7 +86,7 @@ const FilteredView = ({
           LocalizeString(
             rootStore.l10n.tables.pagination,
             {
-              min: <div key="page-min" className="filtered-view__pagination-message--highlight">{pagingMode === "infinite" ? 1 : paging.start + 1}</div>,
+              min: <div key="page-min" className="filtered-view__pagination-message--highlight">{paging.start + 1}</div>,
               max: <div key="page-max" className="filtered-view__pagination-message--highlight">{Math.min(paging.total, paging.start + paging.limit)}</div>,
               total: <div key="page-total" className="filtered-view__pagination-message--highlight">{paging.total}</div>
             }
@@ -146,7 +113,6 @@ const FilteredView = ({
             }}
           />
       }
-      { filters && !hideStats ? <ListingStats mode={mode} filterParams={filters} /> : null }
       {
         topPagination && pagingMode === "paginated" ?
           <PageControls
@@ -160,18 +126,7 @@ const FilteredView = ({
         // Initial Load
         loading && entries.length === 0 ?
           <PageLoader/> :
-          Render({entries, paging, scrollRef, loading})
-      }
-      {
-        pagingMode === "infinite" && !expectRef && !loading && paging && entries.length < paging.total ?
-          <div className="filtered-view__actions">
-            <button
-              onClick={() => setPage(page + 1)}
-              className="action action-primary filtered-view__action"
-            >
-              Load More
-            </button>
-          </div> : null
+          Render({entries, paging, loading})
       }
       {
         pagingMode === "paginated" ?

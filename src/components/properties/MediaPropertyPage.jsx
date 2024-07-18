@@ -59,7 +59,7 @@ const PageAction = observer(({action}) => {
 
     case "show_purchase":
       const params = new URLSearchParams(location.search);
-      params.set("p", CreateMediaPropertyPurchaseParams({actionId: action.id, unlessPermissions: action.permissions}));
+      params.set("p", CreateMediaPropertyPurchaseParams({id: action.id, actionId: action.id, unlessPermissions: action.permissions}));
       buttonParams.to = location.pathname + "?" + params.toString();
       break;
 

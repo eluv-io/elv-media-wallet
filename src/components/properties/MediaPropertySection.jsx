@@ -22,7 +22,7 @@ const GridContentColumns = ({aspectRatio, pageWidth, cardFormat}) => {
   } else if(cardFormat === "button_horizontal") {
     return Math.round(pageWidth / 650);
   } if(aspectRatio?.toLowerCase() === "landscape") {
-    return Math.round(pageWidth / 425);
+    return Math.round(pageWidth / 435);
   } else {
     return Math.round(pageWidth / 300);
   }

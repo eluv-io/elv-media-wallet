@@ -810,12 +810,6 @@ export const InitializeListener = () => {
 
           return Respond({});
 
-        // client.ToggleDarkMode
-        case "toggleDarkMode":
-          rootStore.ToggleDarkMode(data.params.enabled);
-
-          return Respond({});
-
         // client.SetLanguage
         case "setLanguage":
           const originalLanguage = rootStore.language;

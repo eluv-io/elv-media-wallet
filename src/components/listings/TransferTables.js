@@ -61,7 +61,6 @@ export const ActiveListings = observer(({contractAddress, selectedListingId, sho
     <FilteredTable
       className="transfer-table--active-listings"
       mode="listings"
-      pagingMode="infinite"
       hidePagingInfo
       perPage={100}
       columnHeaders={tableHeaders}
@@ -255,7 +254,8 @@ export const OffersTable = observer(({
   hideActionsColumn=false,
   showTotal=false,
   useWidth,
-  className=""
+  className="",
+  ...props
 }) => {
   const match = useRouteMatch();
 
@@ -332,6 +332,7 @@ export const OffersTable = observer(({
   if(activeView) {
     return (
       <Table
+        {...props}
         className={`offers-table ${className}`}
         loading={loading}
         pagingMode="none"
@@ -366,6 +367,7 @@ export const OffersTable = observer(({
   return (
     <>
       <Table
+        {...props}
         className={`offers-table ${className}`}
         loading={loading}
         headerIcon={icon}
@@ -535,7 +537,15 @@ export const PendingPaymentsTable = observer(({icon, header, limit, className=""
   );
 });
 
-export const UserTransferTable = observer(({userAddress, icon, header, limit, type="sale", className=""}) => {
+export const UserTransferTable = observer(({
+  userAddress,
+  icon,
+  header,
+  limit,
+  type="sale",
+  className="",
+  ...props
+}) => {
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
 
@@ -593,6 +603,7 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
     // Deposits table
     return (
       <Table
+        {...props}
         className={className}
         loading={loading}
         headerIcon={icon}
@@ -624,6 +635,7 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
     // Withdrawals table
     return (
       <Table
+        {...props}
         className={className}
         loading={loading}
         headerIcon={icon}
@@ -652,6 +664,7 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
   if(type === "sale") {
     return (
       <Table
+        {...props}
         className={className}
         loading={loading}
         pagingMode="none"
@@ -687,6 +700,7 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
 
   return (
     <Table
+      {...props}
       className={className}
       loading={loading}
       pagingMode="none"
@@ -700,9 +714,9 @@ export const UserTransferTable = observer(({userAddress, icon, header, limit, ty
         rootStore.l10n.tables.columns.method,
         rootStore.l10n.tables.columns.status,
       ]}
-      columnWidths={[1, 1, "150px", 1, "150px", "150px"]}
-      tabletColumnWidths={[1, 1, "150px", 0, "150px", "150px"]}
-      mobileColumnWidths={[1, 1, "150px", 0, 0, 0]}
+      columnWidths={[1, "150px", "150px", 1, "150px", "150px"]}
+      tabletColumnWidths={[1, "150px", "150px", 0, "150px", "150px"]}
+      mobileColumnWidths={[1, "150px", "150px", 0, 0, 0]}
       entries={
         entries.map(transfer => [
           transfer.name,

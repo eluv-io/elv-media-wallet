@@ -75,8 +75,8 @@ const PropertyWrapper = observer(({children}) => {
         loadingClassName="page-loader content"
       >
         <LoginGate Condition={() => mediaProperty?.metadata?.require_login}>
-          <PurchaseGate permissions={mediaProperty?.permissions}>
-            <PurchaseGate permissions={page?.permissions}>
+          <PurchaseGate id={mediaProperty?.mediaPropertyId} permissions={mediaProperty?.permissions}>
+            <PurchaseGate id={page?.id} permissions={page?.permissions}>
               <div className={PropertyStyles["property"]}>
                 { children }
               </div>

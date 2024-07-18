@@ -1,9 +1,22 @@
+.transfer-table-container--collapsed {
+  .transfer-table {
+    & > :not(.transfer-table__header) {
+      display: none;
+    }
+
+    &__pagination-message {
+      display: none;
+    }
+
+    &__page-controls {
+      display: none;
+    }
+  }
+}
+
 .transfer-table {
-  background: var(--background-table);
-  border: var(--border-table-primary);
-  border-radius: var(--border-radius-table);
-  box-shadow: var(--box-shadow-table);
-  font: var(--font-table);
+  background: #2A2A2A;
+  border-radius: 12px;
   overflow-y: hidden;
   position: relative;
 
@@ -30,6 +43,12 @@
     .transfer-table__table__cell {
       justify-content: flex-start;
       text-align: left;
+    }
+  }
+
+  &--collapsable {
+    .transfer-table__header {
+      cursor: pointer;
     }
   }
 
@@ -105,6 +124,10 @@
   }
 
   &__page-controls {
+    @include page-fade-in(0.25s);
+
+    margin-top: 10px;
+
     &:last-child {
       margin-bottom: 50px;
     }
@@ -115,12 +138,8 @@
     display: flex;
     font: var(--font-table-header);
     font-size: 18px;
-    justify-content: center;
-    letter-spacing: 0.03em;
-    line-height: 1.4em;
-    padding: 15px 10px 10px;
-    text-align: center;
-    text-transform: uppercase;
+    padding: 15px;
+    width: 100%;
   }
 
   &__header__icon,
@@ -130,14 +149,22 @@
     width: 20px;
   }
 
+  &__header__collapse-icon {
+    height: 20px;
+    margin-left: 12px;
+    width: 20px;
+  }
+
   &__pagination-message {
+    @include page-fade-in(0.25s);
+
     align-items: center;
     display: flex;
+    flex-grow: 1;
     font-size: 12px;
     font-weight: 500;
-    justify-content: center;
-    padding: 0 20px 10px;
-    text-align: center;
+    justify-content: flex-end;
+    text-align: right;
 
     &--highlight {
       color: var(--color-table-highlight-text);
@@ -146,6 +173,7 @@
   }
 
   &__table {
+    background: black;
     height: 100%;
     overflow-y: auto;
 
@@ -157,9 +185,7 @@
   }
 
   &__table__header {
-    background: var(--background-table-header-row);
-    border-bottom: var(--border-table-secondary);
-    border-top: var(--border-table-secondary);
+    background: linear-gradient(180deg, #191919 0%, #141414 100%);
     position: sticky;
     top: 0;
     z-index: 1;
@@ -191,31 +217,20 @@
     grid-auto-columns: 1fr;
     grid-auto-flow: column;
     width: 100%;
+
+    &:not(:last-child) {
+      margin-bottom: 2px;
+    }
   }
 
   &__table__row {
     align-items: center;
+    background: #1a1a1a;
     border: 2px solid transparent;
     width: 100%;
 
     &--no-click {
       cursor: auto;
-    }
-
-    &:nth-child(2n + 1) {
-      background-color: var(--color-table-odd-row-bg);
-
-      * {
-        color: var(--color-table-odd-row-text);
-      }
-    }
-
-    &:nth-child(2n) {
-      background-color: var(--color-table-even-row-bg);
-
-      * {
-        color: var(--color-table-even-row-text);
-      }
     }
 
     &-disabled {
@@ -246,6 +261,12 @@
         }
       }
     }
+
+    .transfer-table__table__cell {
+      &:nth-child(2n) {
+        background: #1d1d1d;
+      }
+    }
   }
 
   &__content-rows {
@@ -254,24 +275,16 @@
     * {
       z-index: 0;
     }
-
-    &__loader {
-      height: 100%;
-      position: absolute;
-      top: 0;
-      width: 100%;
-      z-index: 100;
-    }
   }
 
   &__table__cell {
     align-items: center;
     display: flex;
     font-size: 12px;
-    justify-content: center;
+    font-weight: 500;
+    height: 100%;
     overflow: hidden;
     padding: 10px 15px;
-    text-align: center;
 
     &.no-padding {
       padding: 0;
@@ -279,7 +292,6 @@
 
     .formatted-price {
       gap: 0 5px;
-      margin: 0 auto;
       width: max-content;
 
       &--vertical {
@@ -339,11 +351,19 @@
   }
 
   &__loader {
-    margin: 20px 0;
+    height: 100%;
+    padding-top: 100px;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    user-select: none;
+    width: 100%;
+    z-index: 100;
   }
 
   &__empty {
     align-items: center;
+    background: #1a1a1a;
     color: var(--color-text-secondary);
     display: flex;
     justify-content: center;
@@ -374,8 +394,26 @@
       font-size: 12px;
     }
 
+    &__header__collapse-icon {
+      height: 15px;
+      margin-left: 5px;
+      width: 15px;
+    }
+
     &__pagination {
       font-size: 10px;
+    }
+
+    &__header {
+      flex-wrap: wrap;
+    }
+
+    &__pagination-message {
+      color: var(--color-text-secondary);
+      justify-content: flex-start;
+      margin-top: 10px;
+      text-align: left;
+      width: 100%;
     }
 
     .no-mobile {

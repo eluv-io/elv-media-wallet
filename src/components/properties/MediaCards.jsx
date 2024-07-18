@@ -45,7 +45,6 @@ const MediaCardWithButtonVertical = observer(({
           src={livePreviewUrl || imageUrl}
           alternateSrc={livePreviewUrl ? imageUrl : undefined}
           alt={display.title}
-          loaderWidth={size ? undefined : `var(--max-card-width-${aspectRatio?.toLowerCase()})`}
           width={600}
           showWithoutSource
           className={S("media-card-button-vertical__image")}

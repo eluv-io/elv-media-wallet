@@ -7,7 +7,7 @@ import MarketplaceItemCard from "Components/marketplace/MarketplaceItemCard";
 import ImageIcon from "Components/common/ImageIcon";
 import MarketplaceFeatured from "Components/marketplace/MarketplaceFeatured";
 import {MarketplaceCollectionsSummary} from "Components/marketplace/MarketplaceCollectionsSummary";
-import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
+import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 import {SetImageUrlDimensions} from "../../utils/Utils";
 import Modal from "Components/common/Modal";
 import Countdown from "Components/common/Countdown";

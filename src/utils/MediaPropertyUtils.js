@@ -16,9 +16,10 @@ export const MediaPropertyBasePath = (params, {includePage=true}={}) => {
   return path;
 };
 
-export const CreateMediaPropertyPurchaseParams = ({gate, permissionItemIds, sectionSlugOrId, sectionItemId, actionId, unlessPermissions, successPath, cancelPath}) => {
+export const CreateMediaPropertyPurchaseParams = ({id, gate, permissionItemIds, sectionSlugOrId, sectionItemId, actionId, unlessPermissions, successPath, cancelPath}) => {
   return (
     mediaPropertyStore.client.utils.B58(JSON.stringify({
+      id,
       gate: !!gate,
       type: "purchase",
       sectionSlugOrId,
@@ -94,6 +95,7 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
     // Preserve params
     params = new URLSearchParams(location.search);
     params.set("p", CreateMediaPropertyPurchaseParams({
+      id: sectionItem.id,
       sectionSlugOrId: sectionItem?.sectionId || match.params.sectionSlugOrId,
       sectionItemId: sectionItem.id
     }));
@@ -135,6 +137,7 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
   if(!permissions.authorized && permissions.purchaseGate) {
     params = new URLSearchParams(location.search);
     params.set("p", CreateMediaPropertyPurchaseParams({
+      id: mediaItem?.id || sectionItem?.id,
       gate: true,
       permissionItemIds: permissions.permissionItemIds,
       successPath: linkPath

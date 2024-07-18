@@ -14,7 +14,7 @@ import {
 import {Carousel, Description, ExpandableDescription, LoaderImage, PurchaseGate} from "Components/properties/Common";
 import Video from "./Video";
 import {SetImageUrlDimensions} from "../../utils/Utils";
-import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
+import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 
 import MediaErrorIcon from "Assets/icons/media-error-icon";
 import {MediaPropertyPageContent} from "Components/properties/MediaPropertyPage";
@@ -26,18 +26,35 @@ const S = (...classes) => classes.map(c => MediaStyles[c] || "").join(" ");
 
 const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideControls, mute, onClick, settingsUpdateCallback, className=""}) => {
   const match = useRouteMatch();
+  const mediaProperty = mediaPropertyStore.MediaProperty(match.params);
   const [scheduleInfo, setScheduleInfo] = useState(MediaItemScheduleInfo(mediaItem));
   const [error, setError] = useState();
   const icons = (display.icons || []).filter(({icon}) => !!icon?.url);
   const page = mediaPropertyStore.MediaPropertyPage(match.params);
-  const backgroundImage = SetImageUrlDimensions({
+  let backgroundImage = SetImageUrlDimensions({
     url: (rootStore.pageWidth <= 800 && page?.layout?.background_image_mobile?.url) || page?.layout?.background_image?.url,
     width: rootStore.fullscreenImageWidth
   });
   const {imageUrl} = MediaItemImageUrl({mediaItem, display: mediaItem, aspectRatio: "square", width: rootStore.fullscreenImageWidth});
 
   if(scheduleInfo.isLiveContent && !scheduleInfo.started) {
-    // Upcoming
+    // Upcoming - countdown
+
+    // Background image for countdown is either from media item, from property general settings, or the page background
+    backgroundImage = SetImageUrlDimensions({
+      url:
+        (
+          rootStore.pageWidth <= 800 &&
+          (
+            mediaItem?.countdown_background_mobile?.url ||
+            mediaProperty.metadata?.countdown_background_mobile?.url
+          )
+        ) ||
+        mediaItem?.countdown_background_desktop?.url ||
+        mediaProperty.metadata?.countdown_background_desktop?.url,
+      width: rootStore.fullscreenImageWidth
+    }) || backgroundImage;
+
     return (
       <div className={S("media__error", "media__error--countdown")}>
         <LoaderImage src={backgroundImage || imageUrl} className={S("media__error-image")} />
@@ -498,7 +515,7 @@ const MediaPropertyMediaPage = observer(() => {
   }
 
   return (
-    <PurchaseGate permissions={permissions}>
+    <PurchaseGate id={mediaItem.id} permissions={permissions}>
       { content }
       <MediaPropertyPageContent isMediaPage className={S("media-page__additional-content")} />
     </PurchaseGate>

@@ -359,8 +359,8 @@ tables:
   offers_received: Ofertas recebidas
   withdrawals: retiradas
   deposits: depósitos
-  bought_nfts: Arte Digital adquirida
-  sold_nfts: Arte Digital vendida
+  bought_items: Arte Digital adquirida
+  sold_items: Arte Digital vendida
   pending: Pendente
   available: Disponível
   columns:

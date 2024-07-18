@@ -34,9 +34,9 @@ export const PageContainer = ({children, className}) => {
 
 export const PageBackground = observer(({display}) => {
   const pageWidth = mediaPropertyStore.rootStore.pageWidth;
-  const backgroundImage = (pageWidth <= 800 && display.background_image_mobile?.url) || display.background_image?.url;
-  // Limit size of background image based on screen size
-  const [backgroundImageScale] = useState(mediaPropertyStore.rootStore.fullscreenImageWidth);
+  const backgroundImage = pageWidth <= 800 ?
+    display.background_image_mobile?.url :
+    display.background_image?.url;
 
   useEffect(() => {
     const image = new Image();
@@ -51,7 +51,7 @@ export const PageBackground = observer(({display}) => {
           alt="Background Image"
           loaderWidth="100%"
           loaderHeight="var(--property-full-content-height"
-          src={SetImageUrlDimensions({url: backgroundImage, width: backgroundImageScale})}
+          src={SetImageUrlDimensions({url: backgroundImage, width: mediaPropertyStore.rootStore.fullscreenImageWidth})}
           className={S("page-background__image")}
         />
         <div className={S("page-background__gradient")} />
@@ -607,7 +607,7 @@ export const Button = ({variant="primary", active, loading, icon, styles, defaul
   );
 };
 
-export const PurchaseGate = ({permissions, backPath, children}) => {
+export const PurchaseGate = ({id, permissions, backPath, children}) => {
   const history = useHistory();
   const url = new URL(location.href);
   const params = MediaPropertyPurchaseParams();
@@ -618,13 +618,14 @@ export const PurchaseGate = ({permissions, backPath, children}) => {
     if(!permissions.authorized && permissions.purchaseGate && (!params || !params?.gate)) {
       // Not authorized and purchase gated - set purchase modal parameters
       url.searchParams.set("p", CreateMediaPropertyPurchaseParams({
+        id,
         gate: true,
         permissionItemIds: permissions.permissionItemIds,
         successPath: location.pathname,
         cancelPath: backPath || rootStore.backPath
       }));
       history.replace(url.pathname + url.search);
-    } else if(params && params.gate && !params.confirmationId && permissions.authorized) {
+    } else if(params && params.gate && params.id === id && !params.confirmationId && permissions.authorized) {
       // Authorized and not on a purchase confirmation page, make sure purchase modal is hidden
       url.searchParams.delete("p");
       url.searchParams.delete("confirmationId");

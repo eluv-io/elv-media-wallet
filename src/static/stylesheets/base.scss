@@ -118,7 +118,6 @@ header,
 .page-block {
   @include page-fade-in(0.25s);
 
-  background-color: var(--color-page-bg);
   display: flex;
   height: max-content;
   justify-content: center;
@@ -328,7 +327,6 @@ em {
 }
 
 .page-container {
-  background-color: #000;
   height: 100%;
 
   .page-block {

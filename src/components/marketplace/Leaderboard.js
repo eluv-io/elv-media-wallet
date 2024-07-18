@@ -14,7 +14,7 @@ const Leaderboard = observer(() => {
     <FilteredTable
       mode="leaderboard"
       pagingMode="paginated"
-      perPage={20}
+      perPage={10}
       initialFilters={{
         marketplaceParams: {
           marketplaceId: match.params.marketplaceId

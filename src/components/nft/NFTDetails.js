@@ -18,7 +18,6 @@ import {
 import Confirm from "Components/common/Confirm";
 import ListingModal from "Components/listings/ListingModal";
 import PurchaseModal from "Components/listings/PurchaseModal";
-import ListingStats from "Components/listings/ListingStats";
 //import NFTTransfer from "Components/nft/NFTTransfer";
 import ImageIcon from "Components/common/ImageIcon";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
@@ -653,10 +652,6 @@ const NFTTables = observer(({nftInfo}) => {
 
   return (
     <div className="details-page__tables">
-      <ListingStats
-        mode="sales-stats"
-        filterParams={{contractAddress: nft.details.ContractAddr}}
-      />
       {
         nft.details.TokenIdStr ?
           <FilteredTable
@@ -724,10 +719,6 @@ const PurchaseOffersTables = observer(({nftInfo}) => {
 
   return (
     <div className="details-page__tables">
-      <ListingStats
-        mode="sales-stats"
-        filterParams={{contractAddress: nft.details.ContractAddr}}
-      />
       {
         nft?.details.TokenIdStr ?
           <OffersTable

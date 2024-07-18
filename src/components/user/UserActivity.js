@@ -18,27 +18,12 @@ const UserActivity = observer(() => {
 
   return (
     <div className="listings-page">
-      {
-        secondaryDisabled ? null :
-          <>
-            <OffersTable
-              header={rootStore.l10n.tables.offers_received}
-              sellerAddress={userAddress}
-              icon={OffersTableIcon}
-              className="user-transfer-table user-transfer-table--bought"
-            />
-            <OffersTable
-              header={rootStore.l10n.tables.offers_made}
-              buyerAddress={userAddress}
-              icon={OffersTableIcon}
-              className="user-transfer-table user-transfer-table--bought"
-            />
-          </>
-      }
       <UserTransferTable
+        allowCollapse
+        startCollapsed
         userAddress={userAddress}
         icon={PurchasesIcon}
-        header={rootStore.l10n.tables.bought_nfts}
+        header={rootStore.l10n.tables.bought_items}
         type="purchase"
         marketplaceId={match.params.marketplaceId}
         className="user-transfer-table user-transfer-table--bought"
@@ -46,15 +31,37 @@ const UserActivity = observer(() => {
       {
         secondaryDisabled ? null :
           <UserTransferTable
+            allowCollapse
+            startCollapsed
             userAddress={userAddress}
             icon={SalesIcon}
-            header={rootStore.l10n.tables.sold_nfts}
+            header={rootStore.l10n.tables.sold_items}
             type="sale"
             marketplaceId={match.params.marketplaceId}
             className="user-transfer-table user-transfer-table--sold"
           />
       }
-
+      {
+        secondaryDisabled ? null :
+          <>
+            <OffersTable
+              allowCollapse
+              startCollapsed
+              header={rootStore.l10n.tables.offers_received}
+              sellerAddress={userAddress}
+              icon={OffersTableIcon}
+              className="user-transfer-table user-transfer-table--bought"
+            />
+            <OffersTable
+              allowCollapse
+              startCollapsed
+              header={rootStore.l10n.tables.offers_made}
+              buyerAddress={userAddress}
+              icon={OffersTableIcon}
+              className="user-transfer-table user-transfer-table--bought"
+            />
+          </>
+      }
       {
         !secondaryDisabled && Utils.EqualAddress(userAddress, rootStore.CurrentAddress()) ?
           <>

@@ -2,36 +2,38 @@ html {
   /* General */
   --color-text-background-highlight: #FFF;
   --color-text-background-highlight-rgb: 255, 255, 255;
-  --color-text-highlight: #2D61E4;
-  --color-text-highlight-rgb: 30, 94, 237;
 
   /* Fonts - Primary is for used headers, tertiary for buttons, prices and other details, secondary for all other text */
   --font-family-primary: "Inter", "Montserrat", "Helvetica Neue", helvetica, sans-serif; /* Primary font should be accompanied with 'text-transform: uppercase' */
   --font-family-secondary: "Inter", "DM Sans", "Helvetica Neue", helvetica, sans-serif;
   --font-family-tertiary: "Inter", helvetica, sans-serif;
   --font-default: normal normal normal 16px var(--font-family-secondary);
-  --color-bg-primary: #FFF;
-  --color-bg-secondary: #EDEDED;
   --color-bg-highlight: #2D61E4;
   --color-bg-highlight2: #7f2de4;
-  --color-text-primary: #000;
-  --color-text-secondary: #333;
   --color-text-error: #f00;
   --color-highlight-container-bg: var(--color-bg-highlight);
   --color-highlight-container-text: #fff;
-  --color-loader: rgb(0 0 0 / 50%);
-  --border-color: #ccc;
-  --border: 1px solid var(--border-color);
-  --border-color-faint: #D2D2D2;
-  --border-faint: 1px solid var(--border-color-faint);
   --border-color-highlight: var(--color-bg-highlight);
   --border-highlight: 1px solid var(--border-color-highlight);
   --border-radius: 4px;
-  --box-shadow: 0px 0 4px rgb(0 0 0 / 10%);
+
+  --color-bg-primary: #000;
+  --color-bg-secondary: #242424;
+  --color-page-bg: #000;
+  --color-profile-page-bg: #0c0c0c;
+  --color-text-primary: #FFF;
+  --color-text-secondary: #A0A0A0;
+  --color-text-highlight: #9AC0F3;
+  --color-text-highlight-rgb: 154, 192, 243;
+  --color-loader: rgb(255 255 255 / 50%);
+  --border: 1px solid #444;
+  --border-faint: 1px solid #333;
+  --border-color: #444;
+  --border-color-faint: #333;
+  --box-shadow: none;
 
   /* Page */
   --background-content: var(--color-page-bg);
-  --color-page-bg: #F6F6F6;
   --color-lower-page-bg: var(--color-page-bg);
 
   /* Header */
@@ -43,16 +45,20 @@ html {
   --background-header-light: linear-gradient(180deg, rgb(246 246 246 / 100%) 0%, rgb(246 246 246 / 85%) 99%, transparent);
   --background-header-dark: linear-gradient(180deg, rgb(0 0 0 / 100%) 0%, rgb(0 0 0 / 65%) 75%, transparent 100%);
   --background-header: var(--background-header-dark);
-  --background-page-header-profile: var(--color-bg-secondary);
   --color-page-header-text: var(--color-text-primary);
   --color-header-link-text: var(--color-text-primary);
   --color-header-link-text-secondary: var(--color-text-secondary);
   --color-header-link-text-active: var(--color-text-highlight);
   --background-marketplace-header: transparent;
   --color-marketplace-header-text: var(--color-text-primary);
-  --header-signin-button-bg: var(--background-button-primary);
-  --header-signin-button-text: var(--color-button-primary-text);
-  --header-signin-button-border: 1px solid var(--border-button-primary);
+
+  --background-page-header: var(--color-bg-primary);
+  --background-page-header-profile: var(--color-bg-secondary);
+  --background-input: var(--color-bg-primary);
+  --color-input-bg-solid: var(--color-bg-primary);
+  --header-signin-button-bg: #FFF;
+  --header-signin-button-text: #000;
+  --header-signin-button-border: 1px solid #FFF;
 
   /* Store heading text (marketplace title and description) */
   --font-store-heading: normal normal bold 32px var(--font-family-primary);
@@ -70,7 +76,7 @@ html {
   --color-button-primary-variant-text: var(--color-button-primary-text);
   --border-button-primary-variant: 1px solid var(--background-button-primary-variant);
   --border-radius-button-primary-variant: var(--border-radius-button-primary);
-  --background-button-secondary: var(--color-bg-primary);
+  --background-button-secondary: #000;
   --color-button-secondary-text: var(--color-text-primary);
   --border-button-secondary: var(--border);
   --border-radius-button-secondary: var(--border-radius);
@@ -91,8 +97,6 @@ html {
 
   /* Inputs */
   --font-input: var(--font-default);
-  --background-input: var(--color-bg-primary);
-  --color-input-bg-solid: var(--color-bg-primary);
   --color-input-hover-bg: var(--color-bg-secondary);
   --color-input-text: var(--color-text-primary);
   --color-input-text-placeholder: var(--color-text-secondary);
@@ -156,20 +160,19 @@ html {
   --box-shadow-collection-reward-card: 0 0 8px var(--color-component-highlight);
 
   /* User Profile */
-  --color-user-profile-bg-primary: var(--color-bg-secondary);
-  --color-user-profile-bg-secondary: var(--color-bg-primary);
-
+  --color-user-profile-bg-primary: var(--color-bg-primary);
+  --color-user-profile-bg-secondary: var(--color-bg-secondary);
 
   /* Tables */
   --font-table-header: normal normal 500 16px var(--font-family-tertiary);
   --font-table: var(--font-default);
   --background-table: var(--color-bg-primary);
-  --background-table-header-row: var(--color-bg-highlight);
+  --background-table-header-row: var(--color-bg-secondary);
   --color-table-header-row-text: var(--color-text-background-highlight);
-  --color-table-odd-row-bg: var(--color-bg-primary);
   --color-table-odd-row-text: var(--color-text-primary);
-  --color-table-even-row-bg: var(--color-bg-secondary);
   --color-table-even-row-text: var(--color-text-primary);
+  --color-table-odd-row-bg: var(--color-bg-primary);
+  --color-table-even-row-bg: var(--color-bg-secondary);
   --color-table-selected-row-bg: inherit;
   --color-table-selected-row-text: var(--color-text-highlight);
   --color-table-highlight-text: var(--color-text-highlight);

@@ -305,8 +305,6 @@ class RootStore {
       }, 100);
     });
 
-    this.ToggleDarkMode(this.darkMode);
-
     this.Initialize();
   }
 
@@ -1202,16 +1200,6 @@ class RootStore {
 
     this.centerContent = marketplace?.branding?.text_justification === "Center";
     this.centerItems = marketplace?.branding?.item_text_justification === "Center";
-
-    switch(options.color_scheme) {
-      case "Dark":
-        this.ToggleDarkMode(true);
-        break;
-
-      default:
-        this.ToggleDarkMode(false);
-        break;
-    }
 
     if(options.color_scheme === "Custom") {
       if(useTenantStyling) {
@@ -2411,25 +2399,6 @@ class RootStore {
     this.showLogin = false;
     this.requireLogin = false;
     this.loginBackPath = undefined;
-  }
-
-  ToggleDarkMode(enabled) {
-    const themeContainer = document.querySelector("#_theme");
-    if(!enabled) {
-      this.RemoveSessionStorage("dark-mode");
-      themeContainer.innerHTML = "";
-      themeContainer.dataset.theme = "default";
-    } else if(themeContainer.dataset.theme !== "dark") {
-      this.SetSessionStorage("dark-mode", "true");
-      import("Assets/stylesheets/themes/dark.theme.css")
-        .then(theme => {
-          themeContainer.innerHTML = theme.default;
-        });
-
-      themeContainer.dataset.theme = "dark";
-    }
-
-    this.darkMode = enabled;
   }
 
   ToggleNavigation(enabled) {
