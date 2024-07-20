@@ -231,15 +231,20 @@
     display: flex;
     justify-content: center;
     overflow-y: hidden;
+    padding: 20px;
+    width: max-content;
   }
 }
 
 .confirm {
-  background: #000;
+  background: var(--color-profile-page-bg);
+
+  //width: 100%;
+  box-shadow: 0 0 20px black;
+  margin: 0 auto;
   max-width: 550px;
   overflow-y: hidden;
-  padding: 50px 30px;
-  width: 100%;
+  padding: 50px 30px 30px;
 
   &__content {
     align-items: center;
@@ -272,17 +277,14 @@
   .actions-container {
     align-items: center;
     display: flex;
+    gap: 10px;
     justify-content: center;
     margin-top: 30px;
   }
 
-  .action {
-    height: $action-height;
-    min-width: 200px;
-
-    &:not(:last-child) {
-      margin-right: 10px;
-    }
+  &__action {
+    max-width: 250px;
+    width: 100%;
   }
 
   .loader {
@@ -290,16 +292,10 @@
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
-    margin: 0 20px;
+    margin: 20px;
 
     .actions-container {
       flex-direction: column-reverse;
-    }
-
-    .action {
-      &:not(:last-child) {
-        margin: 10px 0 0;
-      }
     }
   }
 }

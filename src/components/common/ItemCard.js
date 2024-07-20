@@ -21,7 +21,8 @@ const ItemCard = observer(({
   link,
   detailsLink,
   onClick,
-  disabled
+  disabled,
+  className=""
 }) => {
   if(Array.isArray(sideText)) {
     sideText = sideText[0]?.startsWith("#") ? sideText[0] : `#${sideText[0]}`;
@@ -32,7 +33,12 @@ const ItemCard = observer(({
   }
 
   return (
-    <Linkish to={link} onClick={onClick} disabled={disabled} className={S("item-card-container", disabled ? "item-card-container--disabled" : "")}>
+    <Linkish
+      to={link}
+      onClick={onClick}
+      disabled={disabled}
+      className={[S("item-card-container", disabled ? "item-card-container--disabled" : ""), className].join(" ")}
+    >
       <div className={S("item-card")}>
         <div className={S("item-card__header")}>
           <div className={S("item-card__collection")}>

@@ -8,11 +8,12 @@ import {ButtonWithLoader, Linkish} from "Components/common/UIComponents";
 import UrlJoin from "url-join";
 import PreferencesMenu from "Components/header/PreferencesMenu";
 import HoverMenu from "Components/common/HoverMenu";
-
-import ProfileIcon from "Assets/icons/header/profile icon v2";
-import ItemsIcon from "Assets/icons/header/items icon";
-import DiscoverIcon from "Assets/icons/discover.svg";
 import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
+
+import ProfileIcon from "Assets/icons/profile.svg";
+import ItemsIcon from "Assets/icons/items";
+import HomeIcon from "Assets/icons/home.svg";
+import MarketplaceIcon from "Assets/icons/marketplace.svg";
 
 
 const S = (...classes) => classes.map(c => HeaderMenuStyles[c] || "").join(" ");
@@ -24,6 +25,11 @@ const ProfileMenu = observer(({Hide}) => {
   const fullMarketplace = marketplaceId ? rootStore.marketplaces[marketplaceId] : null;
   const tabs = fullMarketplace?.branding?.tabs || {};
   const userInfo = rootStore.walletClient.UserInfo();
+  const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false ||
+    fullMarketplace?.branding?.disable_secondary_market;
+  const discoverDisabled = rootStore.domainProperty ||
+    rootStore.hideGlobalNavigation ||
+    (marketplaceId && rootStore.hideGlobalNavigationInMarketplace);
 
   useEffect(() => {
     window.__headerSubmenuActive = showPreferencesMenu;
@@ -65,20 +71,32 @@ const ProfileMenu = observer(({Hide}) => {
         </Linkish>
 
         {
-          rootStore.domainProperty ||
-          rootStore.hideGlobalNavigation ||
-          (marketplaceId && rootStore.hideGlobalNavigationInMarketplace) ? null :
-            <>
-              <div className={S("profile-menu__separator")} />
-              <Linkish
-                to="/"
-                onClick={Hide}
-                className={S("profile-menu__link")}
-              >
-                <ImageIcon icon={DiscoverIcon} label="Items"/>
-                { rootStore.l10n.header.discover }
-              </Linkish>
-            </>
+          secondaryDisabled && discoverDisabled ? null :
+            <div className={S("profile-menu__separator")} />
+        }
+
+        {
+          secondaryDisabled ? null :
+            <Linkish
+              to={UrlJoin(basePath, "marketplace")}
+              onClick={Hide}
+              className={S("profile-menu__link")}
+            >
+              <ImageIcon icon={MarketplaceIcon} label="Marketplace"/>
+              { rootStore.l10n.navigation.marketplace }
+            </Linkish>
+        }
+        {
+          discoverDisabled ? null :
+            <Linkish
+              to="/"
+              onClick={Hide}
+              className={S("profile-menu__link")}
+            >
+              <ImageIcon icon={HomeIcon} label="Discover"/>
+              { rootStore.l10n.navigation.discover }
+            </Linkish>
+
         }
       </div>
       <div className={S("header-menu__actions")}>

@@ -3,6 +3,7 @@ header:
   collections: Collections
   discover_projects: Discover Projects
   discover: Discover
+  marketplace: Marketplace
   leaderboard: Leaderboard
   listings: Listings
   profile: Profile
@@ -67,8 +68,10 @@ login:
 
 
 navigation:
-  profile: My Profile
+  profile: Profile
   collections: My Collections
+  discover: Discover
+  marketplace: Marketplace
   items: My Items
   listings: My Listings
   offers: My Offers
@@ -373,8 +376,8 @@ tables:
   activity: Recent Sales
   token_history_single: Transaction History for this Token
   token_history_all: Secondary Sales History for All '{name}' Tokens
-  active_offers: Active Offers for this Token
-  active_listings: Active Listings for this item
+  active_offers: Active Offers
+  active_listings: Active Listings
   outstanding_offers: Outstanding Offers
   offers_made: Offers Made
   offers_received: Offers Received
@@ -391,6 +394,8 @@ tables:
   unclaimed: Not claimed
   sent: Sent
   remind: Remind
+  edit_listing: Edit Listing
+  view_listing: View Listing
   columns:
     address: Address
     amount: Amount
@@ -399,6 +404,7 @@ tables:
     fee: Fee
     from: From
     list_price: List Price
+    top_offers: Top Offers
     method: Method
     name: Name
     offer_price: Offer Price
@@ -409,7 +415,7 @@ tables:
     status: Status
     time: Time
     to: To
-    token_id: Token ID
+    token_id: Token
     total_amount: Total Amount
     total_collectibles: Total Collectibles
     username: Username

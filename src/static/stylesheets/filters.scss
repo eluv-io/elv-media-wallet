@@ -115,7 +115,7 @@ $search-height: 50px;
   }
 
   &__search-border {
-    background: linear-gradient(90deg, #292929, #000);
+    background: linear-gradient(90deg, #292929, var(--color-profile-page-bg));
     bottom: -10px;
     height: 1px;
     position: absolute;

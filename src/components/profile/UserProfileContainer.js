@@ -228,16 +228,22 @@ const UserProfileContainer = observer(({includeUserProfile, children}) => {
               </NavLink>
           }
           {
-            currentUser ?
+            !currentUser ? null :
               <NavLink to="details" className={S("nav__link")}>
                 { rootStore.l10n.header.details }
-              </NavLink> : null
+              </NavLink>
           }
           {
-            marketplace?.collections && marketplace?.collections.length > 0 ?
+            !currentUser ? null :
+              <NavLink to="notifications" className={S("nav__link")}>
+                { rootStore.l10n.header.notifications }
+              </NavLink>
+          }
+          {
+            (!marketplace?.collections || marketplace?.collections.length === 0) ? null :
               <NavLink to="collections" className={S("nav__link")}>
                 { rootStore.l10n.header.collections }
-              </NavLink> : null
+              </NavLink>
           }
 
           {
@@ -249,19 +255,13 @@ const UserProfileContainer = observer(({includeUserProfile, children}) => {
           {
             !currentUser || rootStore.domainSettings?.settings?.features?.activity === false ? null :
               <NavLink to="activity" className={S("nav__link")}>
-                { rootStore.l10n.header.activity }
+                { rootStore.l10n.header.marketplace }
               </NavLink>
           }
           {
             !currentUser || rootStore.domainSettings?.settings?.features?.gifting === false ? null :
               <NavLink to="gifts" className={S("nav__link")}>
                 { rootStore.l10n.header.gifts }
-              </NavLink>
-          }
-          {
-            !currentUser ? null :
-              <NavLink to="notifications" className={S("nav__link")}>
-                { rootStore.l10n.header.notifications }
               </NavLink>
           }
         </nav>

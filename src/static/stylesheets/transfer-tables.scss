@@ -67,7 +67,7 @@
     &__action {
       align-items: center;
       display: flex;
-      height: 22px;
+      height: 25px;
       justify-content: center;
       overflow: hidden;
       position: relative;
@@ -79,11 +79,11 @@
         color: var(--color-table-highlight-text) !important;
         display: flex;
         font-size: 10px;
-        height: max-content;
+        height: 100%;
         justify-content: center;
-        max-width: 100%;
         opacity: 0;
         position: absolute;
+        width: 100%;
       }
 
       svg {
@@ -100,7 +100,7 @@
 
       &:hover {
         .offers-table__action__text {
-          display: block;
+          display: flex;
           opacity: 1;
         }
 
@@ -472,5 +472,78 @@
     &--bold {
       font-weight: bold;
     }
+  }
+}
+
+.user-listings-table {
+  .transfer-table__table {
+    max-height: 500px;
+  }
+
+  &__details {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    height: 100%;
+  }
+
+  &__card-container {
+    max-height: 250px;
+    min-height: 250px;
+    min-width: 180px;
+    position: relative;
+  }
+
+  &__card {
+    border: 0!important;
+    left: -48%;
+    position: absolute;
+    top: -45%;
+    transform: scale(0.45);
+    user-select: none;
+  }
+
+  &__image {
+    width: 100px;
+  }
+
+  &__title {
+    font-size: 16px;
+  }
+
+  &__offers {
+    width: 100%;
+  }
+
+  &__offer {
+    align-items: center;
+    display: flex;
+    width: 100%;
+
+    & > div {
+      color: var(--color-text-secondary);
+      flex: 1 1 100%;
+      width: 100%;
+
+      * {
+        color: var(--color-text-secondary);
+      }
+    }
+  }
+
+  &__actions {
+    align-items: center;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    width: 100%;
+
+    a {
+      min-height: 40px;
+    }
+  }
+
+  &__action {
+    max-height: 30px;
   }
 }

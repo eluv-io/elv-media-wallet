@@ -2,12 +2,13 @@ import React from "react";
 import {rootStore} from "Stores";
 import {observer} from "mobx-react";
 import {useRouteMatch} from "react-router-dom";
-import {OffersTable, UserTransferTable} from "Components/listings/TransferTables";
-
-import SalesIcon from "Assets/icons/misc/sales icon.svg";
-import PurchasesIcon from "Assets/icons/misc/purchases icon.svg";
+import {OffersTable, UserListingTable, UserTransferTable} from "Components/listings/TransferTables";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {RichText} from "Components/common/UIComponents";
+
+import ListingsIcon from "Assets/icons/listing.svg";
+import SalesIcon from "Assets/icons/misc/sales icon.svg";
+import PurchasesIcon from "Assets/icons/misc/purchases icon.svg";
 import OffersTableIcon from "Assets/icons/Offers table icon";
 
 const UserActivity = observer(() => {
@@ -18,6 +19,13 @@ const UserActivity = observer(() => {
 
   return (
     <div className="listings-page">
+      <UserListingTable
+        allowCollapse
+        userAddress={userAddress}
+        icon={ListingsIcon}
+        header={rootStore.l10n.tables.active_listings}
+        className="user-transfer-table user-transfer-table--listings"
+      />
       <UserTransferTable
         allowCollapse
         startCollapsed

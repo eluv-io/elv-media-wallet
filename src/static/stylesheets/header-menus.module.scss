@@ -68,12 +68,18 @@
     align-items: center;
     display: flex;
     font-size: 18px;
+    font-weight: 500;
     gap: 15px;
     padding: 10px 0;
+    transition: opacity 0.25s ease;
 
     svg {
       height: 30px;
       width: 30px;
+    }
+
+    &:hover {
+      opacity: 0.85;
     }
   }
 

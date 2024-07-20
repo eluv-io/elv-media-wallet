@@ -20,6 +20,10 @@ import EditIcon from "Assets/icons/edit listing icon.svg";
 import Confirm from "Components/common/Confirm";
 import OfferModal from "Components/listings/OfferModal";
 import {Link, useRouteMatch} from "react-router-dom";
+import {Button} from "Components/properties/Common";
+import NFTCard from "Components/nft/NFTCard";
+import ListingIcon from "Assets/icons/listings icon";
+import LinkedIcon from "Assets/icons/linked wallet icon (r)";
 
 export const ActiveListings = observer(({contractAddress, selectedListingId, showSeller=false, Select}) => {
   const [initialListingId] = useState(selectedListingId);
@@ -679,8 +683,8 @@ export const UserTransferTable = observer(({
           rootStore.l10n.tables.columns.method,
           rootStore.l10n.tables.columns.status
         ]}
-        columnWidths={[1, 1, 1, "150px", 1, "150px", "150px"]}
-        tabletColumnWidths={[1, 1, 1, "150px", 0, "150px", "150px"]}
+        columnWidths={[2, 1, 1, 1, 1, 1, 1]}
+        tabletColumnWidths={[2, 1, 1, 1, 0, 1, 1]}
         mobileColumnWidths={[1, 1, 1, 0, 0, 0, 0]}
         entries={
           entries.map(transfer => [
@@ -714,9 +718,9 @@ export const UserTransferTable = observer(({
         rootStore.l10n.tables.columns.method,
         rootStore.l10n.tables.columns.status,
       ]}
-      columnWidths={[1, "150px", "150px", 1, "150px", "150px"]}
-      tabletColumnWidths={[1, "150px", "150px", 0, "150px", "150px"]}
-      mobileColumnWidths={[1, "150px", "150px", 0, 0, 0]}
+      columnWidths={[2, 1, 1, 1, 1, 1]}
+      tabletColumnWidths={[2, 1, 1, 0, 1, 1]}
+      mobileColumnWidths={[2, 1, 1, 0, 0, 0]}
       entries={
         entries.map(transfer => [
           transfer.name,
@@ -834,6 +838,127 @@ export const UserGiftsHistory = observer(({icon, header, limit, received=false, 
             }
           </>,
           record.source === "publisher" ? "Publisher" : record.source
+        ])
+      }
+    />
+  );
+});
+
+export const UserListingTable = observer(({icon, header, userAddress, className="", ...props}) => {
+  const [listings, setListings] = useState(undefined);
+
+  useEffect(() => {
+    Promise.all([
+      rootStore.walletClient.Listings({
+        sellerAddress: userAddress,
+        limit: 10000
+      }),
+      rootStore.walletClient.MarketplaceOffers({
+        sellerAddress: userAddress,
+        statuses: ["ACTIVE"]
+      })
+    ])
+      .then(([listings, offers]) => {
+        listings = listings?.results || [];
+
+        listings = listings.map(listing => {
+          const tokenOffers = (offers || [])
+            .filter(offer =>
+              rootStore.client.utils.EqualAddress(offer.contract, listing.details.ContractAddr) &&
+              offer.token === listing.details.TokenIdStr
+            )
+            .sort((a, b) => a.price >= b.price ? -1 : 1);
+
+          return {
+            ...listing,
+            offers: tokenOffers
+          };
+        });
+
+        setListings(listings);
+      });
+  }, [userAddress]);
+
+  // TODO: finish offerings
+  return (
+    <Table
+      {...props}
+      className={`user-listings-table ${className}`}
+      loading={!listings}
+      pagingMode="none"
+      headerIcon={icon}
+      headerText={header}
+      columnWidths={[2, 1, 1, 1, 1, 1]}
+      tabletColumnWidths={[1, 0, 1, 1, 0, 1]}
+      columnHeaders={[
+        rootStore.l10n.tables.columns.name,
+        rootStore.l10n.tables.columns.token_id,
+        rootStore.l10n.tables.columns.list_price,
+        rootStore.l10n.tables.columns.time,
+        rootStore.l10n.tables.columns.top_offers,
+        " "
+      ]}
+      entries={
+        listings?.map(listing => [
+          <div className="user-listings-table__details">
+            <div className="user-listings-table__card-container">
+              <NFTCard
+                imageWidth={400}
+                nft={listing}
+                selectedListing={listing}
+                truncateDescription
+                price={listing.details.Price}
+                badges={[
+                  Utils.EqualAddress(rootStore.CurrentAddress(), listing.details.SellerAddress) ?
+                    <ImageIcon key="badge-owned" icon={ListingIcon} title="This is your listing" alt="Listing Icon" className="item-card__badge"/> : null,
+                  listing.details.USDCOnly ?
+                    <ImageIcon key="badge-usdc" icon={LinkedIcon} title="This listing may only be purchased with a linked wallet" alt="Linked Wallet Icon" className="item-card__badge"/> : null
+                ].filter(badge => badge)}
+                className="user-listings-table__card"
+              />
+            </div>
+            <div className="user-listings-table__text">
+              <div className="user-listings-table__title">
+                { listing?.metadata?.display_name || listing.name }
+              </div>
+              {
+                !listing?.metadata?.edition_name ? null :
+                  <div className="user-listings-table__subtitle">
+                    { listing?.metadata?.display_name || listing.name }
+                  </div>
+              }
+            </div>
+          </div>,
+          listing.tokenId,
+          FormatPriceString(listing?.details?.Price, {vertical: true}),
+          Ago(listing?.details?.CreatedAt),
+          <div className="user-listings-table__offers">
+            {
+              listing?.offers?.map(offer =>
+                <div key={`offer-${offer.id}`} className="user-listings-table__offer">
+                  <div>
+                    {Ago(offer.updated)}
+                  </div>
+                  <div>
+                    {FormatPriceString(offer.price, {vertical: true})}
+                  </div>
+                </div>
+              )
+            }
+          </div>,
+          <div className="user-listings-table__actions">
+            <Button
+              to={UrlJoin(location.pathname, listing.listingId)}
+              variant="outline"
+              className="user-listings-table__action"
+            >
+              {
+                rootStore.client.utils.EqualAddress(rootStore.CurrentAddress(), userAddress) ?
+                  rootStore.l10n.tables.edit_listing :
+                  rootStore.l10n.tables.view_listing
+              }
+            </Button>
+          </div>
         ])
       }
     />

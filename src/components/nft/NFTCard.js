@@ -20,6 +20,7 @@ const NFTCard = observer(({
   hideToken,
   allowFullscreen,
   playerCallback,
+  className=""
 }) => {
   const info = NFTInfo({
     nft,
@@ -57,6 +58,7 @@ const NFTCard = observer(({
           playerCallback={playerCallback}
         />
       }
+      className={className}
     />
   );
 });
