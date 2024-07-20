@@ -3,7 +3,7 @@ import CommonStyles from "Assets/stylesheets/media_properties/common.module.scss
 import React, {forwardRef, useEffect, useRef, useState} from "react";
 import {LinkTargetHash} from "../../utils/Utils";
 import {mediaPropertyStore} from "Stores";
-import {EluvioPlayerParameters, InitializeEluvioPlayer} from "@eluvio/elv-player-js";
+import {EluvioPlayerParameters, InitializeEluvioPlayer} from "@eluvio/elv-player-js/lib/index";
 import {Loader} from "Components/common/Loaders";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");

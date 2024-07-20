@@ -1,6 +1,6 @@
 import React, {useEffect, useRef} from "react";
 import {rootStore} from "Stores";
-import {InitializeEluvioPlayer, EluvioPlayerParameters} from "@eluvio/elv-player-js";
+import {InitializeEluvioPlayer, EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 import {LinkTargetHash} from "../../utils/Utils";
 import {observer} from "mobx-react";
 

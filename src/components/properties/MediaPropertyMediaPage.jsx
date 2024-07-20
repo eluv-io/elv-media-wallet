@@ -113,8 +113,7 @@ const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideContr
         title: display.title
       }}
       playerOptions={{
-        playerProfile: EluvioPlayerParameters.playerProfile[mediaItem.player_profile || (scheduleInfo.isLiveContent ? "LOW_LATENCY" : "DEFAULT")],
-        maxBitrate: 50000
+        playerProfile: EluvioPlayerParameters.playerProfile[mediaItem.player_profile || (scheduleInfo.isLiveContent ? "LOW_LATENCY" : "DEFAULT")]
       }}
       posterImage={
         SetImageUrlDimensions({
