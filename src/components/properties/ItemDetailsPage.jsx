@@ -731,11 +731,16 @@ const ItemDetailsPage = observer(() => {
       })
     ])
       .then(([nft, status, stats]) => {
-        rootStore.UserProfile({userId: nft.details.TokenOwner})
-          .finally(() => {
-            setStatus(status);
-            setContractStats(stats);
-          });
+        Promise.race([
+          new Promise(resolve => setTimeout(resolve, 1000)),
+          rootStore.UserProfile({userId: nft.details.TokenOwner})
+        ]).then(() => {
+          setStatus(status);
+          setContractStats(stats);
+        });
+      })
+      .catch(error => {
+        console.log(error);
       });
   };
 
@@ -779,6 +784,12 @@ const ItemDetailsPage = observer(() => {
   }
 
   const nftInfo = NFTInfo({nft, showToken: true});
+
+  // Owned item has bundled media - navigate to property page
+  if(match.params.contractId && nftInfo?.hasBundledProperty && nftInfo?.isOwned) {
+    return <Redirect to={UrlJoin("/m", match.params.contractId, match.params.tokenId, "p", nftInfo.bundledPropertyId, new URLSearchParams(window.location.search).get("page") === "details" ? "details" : "")} />;
+  }
+
 
   return (
     <PageContainer className={S("item-details-page")}>
