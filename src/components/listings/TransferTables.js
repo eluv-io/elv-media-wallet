@@ -25,7 +25,7 @@ import NFTCard from "Components/nft/NFTCard";
 import ListingIcon from "Assets/icons/listings icon";
 import LinkedIcon from "Assets/icons/linked wallet icon (r)";
 
-export const ActiveListings = observer(({contractAddress, selectedListingId, showSeller=false, Select}) => {
+export const ActiveListings = observer(({contractAddress, selectedListingId, showSeller=false, perPage=100, Select}) => {
   const [initialListingId] = useState(selectedListingId);
   const [initialListing, setInitialListing] = useState(undefined);
 
@@ -66,7 +66,7 @@ export const ActiveListings = observer(({contractAddress, selectedListingId, sho
       className="transfer-table--active-listings"
       mode="listings"
       hidePagingInfo
-      perPage={100}
+      perPage={perPage}
       columnHeaders={tableHeaders}
       columnWidths={
         showSeller ?

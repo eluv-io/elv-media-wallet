@@ -21,7 +21,6 @@ const Table = observer(({
   topPagination,
   hidePagingInfo,
   Update,
-  scrollRef,
   loading,
   emptyText,
   columnWidths=[],
@@ -33,8 +32,13 @@ const Table = observer(({
   initiallyCollapsed=false,
   className=""
 }) => {
+  const scrollRef = useRef();
   const [collapsed, setCollapsed] = useState(collapsible && initiallyCollapsed);
   columnHeaders = columnHeaders.filter(h => h);
+
+  useEffect(() => {
+    scrollRef?.current?.scrollTo(0, 0);
+  }, [paging?.start]);
 
   // Handle column widths
   tabletColumnWidths = tabletColumnWidths || columnWidths;

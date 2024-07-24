@@ -176,11 +176,11 @@
     background: black;
     height: 100%;
     overflow-y: auto;
+    overscroll-behavior-y: contain;
 
     &--none,
     &--infinite {
       max-height: 350px;
-      overscroll-behavior-y: contain;
     }
   }
 
@@ -351,6 +351,7 @@
   }
 
   &__loader-container {
+    display: none;
     height: 100%;
     padding-top: 80px;
     pointer-events: none;

@@ -68,6 +68,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                 { rootStore.l10n.tables.active_listings }
               </h2>
               <ActiveListings
+                perPage={10}
                 contractAddress={nft.details.ContractAddr}
                 selectedListingId={listingId}
               />

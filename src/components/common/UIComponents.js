@@ -22,16 +22,19 @@ import PageBackIcon from "Assets/icons/pagination arrow back.svg";
 import PageForwardIcon from "Assets/icons/pagination arrow forward.svg";
 
 export const PageControls = observer(({paging, maxSpread=15, hideIfOnePage, SetPage, className=""}) => {
+  const ref = useRef();
   if(!paging || paging.total === 0) { return null; }
 
   const perPage = paging.limit || 1;
   const currentPage = Math.floor(paging.start / perPage) + 1;
   const pages = Math.ceil(paging.total / perPage);
 
+  const width = ref?.current?.getBoundingClientRect().width || rootStore.pageWidth;
+
   let spread = maxSpread;
-  if(rootStore.pageWidth < 600) {
+  if(width < 600) {
     spread = Math.min(5, maxSpread);
-  } else if(rootStore.pageWidth < 1200) {
+  } else if(width < 1200) {
     spread = Math.min(9, maxSpread);
   }
 
@@ -44,7 +47,7 @@ export const PageControls = observer(({paging, maxSpread=15, hideIfOnePage, SetP
   }
 
   return (
-    <div className={`page-controls ${className}`}>
+    <div ref={ref} className={`page-controls ${className}`}>
       <button
         title="Previous Page"
         disabled={paging.start <= 0}
@@ -53,7 +56,7 @@ export const PageControls = observer(({paging, maxSpread=15, hideIfOnePage, SetP
       >
         <ImageIcon icon={PageBackIcon} />
       </button>
-      { spreadStart > 1 ? <div className="page-controls__ellipsis">...</div> : null }
+      { spreadStart > 1 ? <button onClick={() => SetPage(1)} className="page-controls__ellipsis">...</button> : null }
       {
         [...new Array(Math.max(1, spreadEnd - spreadStart))].map((_, index) => {
           const page = spreadStart + index;
@@ -70,7 +73,7 @@ export const PageControls = observer(({paging, maxSpread=15, hideIfOnePage, SetP
           );
         })
       }
-      { spreadEnd < pages ? <div className="page-controls__ellipsis">...</div> : null }
+      { spreadEnd < pages ? <button onClick={() => SetPage(pages)} className="page-controls__ellipsis">...</button> : null }
       <button
         title="Next Page"
         disabled={paging.total <= currentPage * perPage}
