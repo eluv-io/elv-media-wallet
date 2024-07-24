@@ -8,6 +8,7 @@ import ImageIcon from "Components/common/ImageIcon";
 import FilterIcon from "Assets/icons/filter icon.svg";
 import ClearIcon from "Assets/icons/x.svg";
 import {SavedValue} from "../../utils/Utils";
+import {Button} from "Components/properties/Common";
 
 const SortOptions = mode => {
   const sortLabels = rootStore.l10n.filters.sort;
@@ -440,18 +441,18 @@ const FilterMenu = ({mode, filterValues, editions, attributes, dropAttributes, r
           /> : null
       }
       <div className="filters__menu__actions">
-        <button
-          className="action action-primary filters__menu__apply-button"
+        <Button
+          className="filters__menu__action"
           onClick={() => {
             setFilterValues(selectedFilterValues);
             Hide();
           }}
         >
           { rootStore.l10n.filters.filters.apply }
-        </button>
-        <button className="action filters__menu__reset-button" onClick={() => ResetFilters()}>
+        </Button>
+        <Button variant="secondary" className="filters__menu__action" onClick={() => ResetFilters()}>
           { rootStore.l10n.filters.filters.reset }
-        </button>
+        </Button>
       </div>
     </div>
   );

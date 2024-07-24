@@ -1,11 +1,10 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import Modal from "Components/common/Modal";
 import Confirm from "Components/common/Confirm";
 import {OffersTable} from "Components/listings/TransferTables";
 import {checkoutStore, rootStore} from "Stores";
 import NFTCard from "Components/nft/NFTCard";
-import {ButtonWithLoader, FormatPriceString, ParseMoney, FromUSD, LocalizeString, ToUSD} from "Components/common/UIComponents";
+import {FormatPriceString, ParseMoney, FromUSD, LocalizeString, ToUSD} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
 import {Select} from "../common/UIComponents";
 import {roundToDown} from "round-to";
@@ -14,6 +13,7 @@ import {Link, useRouteMatch} from "react-router-dom";
 
 import USDIcon from "Assets/icons/crypto/USD icon.svg";
 import CalendarIcon from "Assets/icons/calendar.svg";
+import {Button, Modal} from "Components/properties/Common";
 
 const DateOrdinal = date => date + (date > 0 ? ["th", "st", "nd", "rd"][(date > 3 && date < 21) || date % 10 > 3 ? 0 : date % 10] : "");
 const ExpirationDate = duration => {
@@ -28,7 +28,7 @@ const OfferModal = observer(({nft, offer, Close}) => {
   const [price, setPrice] = useState(
     offer?.price ? FromUSD(offer.price).toString() :
       nft.details.Price ?
-        FromUSD(nft.details.Price).toString() : ""
+        FromUSD(nft.details.Price).toString() : FromUSD("10")
   );
 
   const [errorMessage, setErrorMessage] = useState(undefined);
@@ -76,12 +76,13 @@ const OfferModal = observer(({nft, offer, Close}) => {
 
   return (
     <Modal
-      id="offer-modal"
-      className="offer-modal-container"
-      Toggle={() => Close()}
+      size="auto"
+      centered
+      opened
+      onClose={Close}
+      withCloseButton={rootStore.pageWidth < 800}
     >
       <div className="offer-modal">
-        <h1 className="offer-modal__header">{ rootStore.l10n.offers.make_an_offer }</h1>
         <div className="offer-modal__content">
           <NFTCard nft={nft} truncateDescription />
           <div className="offer-modal__form offer-modal__inputs">
@@ -210,9 +211,9 @@ const OfferModal = observer(({nft, offer, Close}) => {
                 </div>
             }
             <div className="offer-modal__actions">
-              <ButtonWithLoader
+              <Button
                 disabled={!parsedPrice || parsedPrice.toDecimal() <= 0 || insufficientBalance || floatPrice > priceCeiling || (priceFloor && floatPrice < priceFloor)}
-                className="action action-primary offer-modal__action offer-modal__action-primary"
+                className="offer-modal__action"
                 onClick={async () => {
                   try {
                     setErrorMessage(undefined);
@@ -236,11 +237,12 @@ const OfferModal = observer(({nft, offer, Close}) => {
                 }}
               >
                 { LocalizeString(rootStore.l10n.actions.offers.confirm, { price: FormatPriceString(parsedPrice, {stringOnly: true, noConversion: true}) }) }
-              </ButtonWithLoader>
+              </Button>
               {
                 offerId ?
-                  <button
-                    className="action action-danger offer-modal__action offer-modal__action-delete"
+                  <Button
+                    variant="secondary"
+                    className="offer-modal__action"
                     onClick={async () => Confirm({
                       message: rootStore.l10n.actions.offers.remove_confirm,
                       Confirm: async () => {
@@ -252,11 +254,15 @@ const OfferModal = observer(({nft, offer, Close}) => {
                     })}
                   >
                     { rootStore.l10n.actions.offers.remove }
-                  </button> : null
+                  </Button> : null
               }
-              <button className="action offer-modal__action" onClick={() => Close()}>
+              <Button
+                variant="outline"
+                className="offer-modal__action"
+                onClick={() => Close()}
+              >
                 { rootStore.l10n.actions.cancel }
-              </button>
+              </Button>
             </div>
             {
               errorMessage ?

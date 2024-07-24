@@ -2,7 +2,7 @@ import HeaderStyles from "Assets/stylesheets/header.module.scss";
 import React, {useState, useEffect} from "react";
 import {observer} from "mobx-react";
 import {Linkish, RichText} from "Components/common/UIComponents";
-import {rootStore} from "Stores";
+import {notificationStore, rootStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
 import {Debounce, SetImageUrlDimensions} from "../../utils/Utils";
 import UrlJoin from "url-join";
@@ -146,7 +146,10 @@ const UserLinks = observer(() => {
         { !showUserProfileMenu ? null : <ProfileMenu Hide={() => setShowUserProfileMenu(false)} /> }
         { !showNotificationsMenu ? null : <NotificationsMenu Hide={() => setShowNotificationsMenu(false)} /> }
 
-        <button className={S("button", showNotificationsMenu ? "button--active" : "")} onClick={() => setShowNotificationsMenu(!showNotificationsMenu)}>
+        <button
+          className={S("button", showNotificationsMenu ? "button--active" : notificationStore.newNotifications ? "button--notification" : "")}
+          onClick={() => setShowNotificationsMenu(!showNotificationsMenu)}
+        >
           <ImageIcon icon={NotificationsIcon} label="Show Notifications" className={S("button__icon")} />
           <ImageIcon icon={XIcon} label="Hide Notifications" className={S("button__icon-close")} />
         </button>

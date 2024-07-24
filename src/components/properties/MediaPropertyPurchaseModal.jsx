@@ -1,7 +1,7 @@
 import PurchaseModalStyles from "Assets/stylesheets/media_properties/property-purchase-modal.module.scss";
 
 import React, {useEffect, useState} from "react";
-import {checkoutStore, mediaPropertyStore, rootStore} from "Stores";
+import {checkoutStore, mediaPropertyStore, rootStore, transferStore} from "Stores";
 import {observer} from "mobx-react";
 import {TextInput} from "@mantine/core";
 import {Loader} from "Components/common/Loaders";
@@ -16,7 +16,7 @@ import {MediaPropertyPurchaseParams} from "../../utils/MediaPropertyUtils";
 
 const S = (...classes) => classes.map(c => PurchaseModalStyles[c] || "").join(" ");
 
-const Item = observer(({item, children, Actions}) => {
+const Item = observer(({item, children, hideInfo, Actions}) => {
   return (
     <div className={S("item-container")}>
         <div className={S("item-image-container")}>
@@ -30,24 +30,29 @@ const Item = observer(({item, children, Actions}) => {
           }
         </div>
       <div className={S("item")}>
-        <div className={S("item__price")}>
-          { FormatPriceString(item.itemInfo.price) }
-        </div>
-        <ScaledText maxPx={32} className={[S("item__title"), "_title"].join(" ")}>
-          { item.title }
-        </ScaledText>
-        <div className={S("item__subtitle")}>
-          { item.subtitle }
-        </div>
-        <Description
-          description={item.description}
-          className={S("item__description")}
-        />
+        {
+          hideInfo ? null :
+            <>
+              <div className={S("item__price")}>
+                {FormatPriceString(item.price)}
+              </div>
+              <ScaledText maxPx={32} className={[S("item__title"), "_title"].join(" ")}>
+                {item.title}
+              </ScaledText>
+              <div className={S("item__subtitle")}>
+                {item.subtitle}
+              </div>
+              <Description
+                description={item.description}
+                className={S("item__description")}
+              />
+            </>
+        }
         { children }
         {
           !Actions ? null :
             <div className={S("actions")}>
-              { Actions({item, itemInfo: item.itemInfo}) }
+              { Actions({item}) }
             </div>
         }
       </div>
@@ -63,13 +68,13 @@ const Items = observer(({items, Select}) => {
           <Item
             key={`item-${item?.id}`}
             item={item}
-            Actions={({item, itemInfo}) =>
+            Actions={({item}) =>
               <Button onClick={() => Select(item.id)} className={S("button")}>
                 <ScaledText maxPx={18} minPx={10}>
                   {
                     LocalizeString(
                       rootStore.l10n.media_properties.purchase.select,
-                      { title: item.title, price: FormatPriceString(itemInfo.price, { stringOnly: true}) },
+                      { title: item.title, price: FormatPriceString(item.price, { stringOnly: true}) },
                       { stringOnly: true }
                     )
                   }
@@ -83,8 +88,8 @@ const Items = observer(({items, Select}) => {
   );
 });
 
-const WalletBalanceSummary = observer(({itemInfo, fee}) => {
-  const price = itemInfo.price;
+const WalletBalanceSummary = observer(({item, fee}) => {
+  const price = item.price;
   const total = price + fee;
   const insufficientBalance = rootStore.availableWalletBalance < total + fee;
 
@@ -126,10 +131,6 @@ const WalletBalanceSummary = observer(({itemInfo, fee}) => {
 });
 
 const Purchase = async ({item, paymentMethod, history}) => {
-  const marketplace = rootStore.marketplaces[item.marketplace?.marketplace_id];
-
-  if(!marketplace) { throw Error("Marketplace not found"); }
-
   const successUrl = new URL(location.href);
   const params = MediaPropertyPurchaseParams() || {};
   params.itemId = item.id;
@@ -138,15 +139,29 @@ const Purchase = async ({item, paymentMethod, history}) => {
   const cancelUrl = new URL(location.href);
   cancelUrl.searchParams.delete("p");
 
-  const result = await checkoutStore.CheckoutSubmit({
-    provider: paymentMethod.provider,
-    tenantId: marketplace.tenant_id,
-    marketplaceId: item.marketplace.marketplace_id,
-    sku: item.marketplace_sku,
-    quantity: 1,
-    successUrl,
-    cancelUrl
-  });
+  let result;
+  if(item.listingId) {
+    result = await checkoutStore.ListingCheckoutSubmit({
+      provider: paymentMethod.provider,
+      tenantId: item.itemInfo.nft.details.TenantId,
+      listingId: item.listingId,
+      quantity: 1,
+      successUrl,
+      cancelUrl
+    });
+  } else {
+    result = await checkoutStore.CheckoutSubmit({
+      provider: paymentMethod.provider,
+      tenantId: rootStore.marketplaces[item.marketplace?.marketplace_id]?.tenant_id,
+      marketplaceId: item.marketplace.marketplace_id,
+      sku: item.marketplace_sku,
+      quantity: 1,
+      successUrl,
+      cancelUrl
+    });
+  }
+
+  rootStore.Log(result);
 
   if(paymentMethod.provider === "wallet-balance") {
     successUrl.searchParams.set("confirmationId", result.confirmationId);
@@ -162,14 +177,19 @@ const Payment = observer(({item, Back}) => {
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState(undefined);
 
-  const marketplace = rootStore.marketplaces[item.marketplace?.marketplace_id];
-  const marketplaceItem = marketplace?.items?.find(({sku}) => sku === item.marketplace_sku);
+  let paymentOptions = { stripe: { enabled: true } };
 
-  if(!marketplaceItem) { return null; }
+  const isListing = item?.listingId;
+  if(!isListing) {
+    const marketplace = rootStore.marketplaces[item.marketplace?.marketplace_id];
+    const marketplaceItem = marketplace?.items?.find(({sku}) => sku === item.marketplace_sku);
 
-  const itemInfo = NFTInfo({item: marketplaceItem});
+    if(!marketplaceItem) {
+      return null;
+    }
 
-  const paymentOptions = marketplace?.payment_options || { stripe: { enabled: true } };
+    paymentOptions = marketplace?.payment_options || paymentOptions;
+  }
 
   const stripeEnabled = paymentOptions?.stripe?.enabled;
   const ebanxEnabled = paymentOptions?.ebanx?.enabled;
@@ -177,10 +197,9 @@ const Payment = observer(({item, Back}) => {
   const coinbaseEnabled = paymentOptions?.coinbase?.enabled;
 
   const [feeRate, setFeeRate] = useState(0.065);
-
   useEffect(() => {
     rootStore.walletClient.TenantConfiguration({
-      contractAddress: itemInfo.nft.details.ContractAddr
+      contractAddress: item.itemInfo.nft.details.ContractAddr
     })
       .then(config => {
         if(config["nft-fee-percent"]) {
@@ -189,8 +208,8 @@ const Payment = observer(({item, Back}) => {
       });
   }, []);
 
-  const fee = Math.max(1, roundToDown(itemInfo.price * feeRate, 2));
-  const insufficientBalance = rootStore.availableWalletBalance < itemInfo.price + fee;
+  const fee = Math.max(1, roundToDown(item.price * feeRate, 2));
+  const insufficientBalance = rootStore.availableWalletBalance < item.price + fee;
 
   // Credit card selected, ebanx enabled - Must collect country
   let ebanxAvailableCountries = [];
@@ -233,7 +252,7 @@ const Payment = observer(({item, Back}) => {
           <div className={S("payment__message")}>
             { rootStore.l10n.purchase.select_country }
           </div>
-          <div className={S("actions")}>
+          <div role="listbox" className={S("actions")}>
             {
               ebanxAvailableCountries.map(([code, name]) => (
                 <Button
@@ -267,14 +286,14 @@ const Payment = observer(({item, Back}) => {
       // Wallet balance handled separately
       options = (
         <WalletBalanceSummary
-          itemInfo={itemInfo}
+          item={item}
           fee={fee}
         />
       );
       break;
     default:
       options =
-        <div className={S("actions")}>
+        <div role="listbox" className={S("actions")}>
           <Button
             variant="option"
             active={paymentMethod.type === "card"}
@@ -355,7 +374,7 @@ const Payment = observer(({item, Back}) => {
                   {
                     LocalizeString(
                       rootStore.l10n.media_properties.purchase.select,
-                      {title: item.title, price: FormatPriceString(itemInfo.price, {stringOnly: true})},
+                      {title: item.title, price: FormatPriceString(item.price + (page === "balance" ? fee : 0), {stringOnly: true})},
                       {stringOnly: true}
                     )
                   }
@@ -380,17 +399,23 @@ const Payment = observer(({item, Back}) => {
   );
 });
 
-const MediaPropertyPurchaseStatus = observer(({item, confirmationId, Close}) => {
+const PurchaseStatus = observer(({item, confirmationId, Close}) => {
   const match = useRouteMatch();
   const [status, setStatus] = useState();
 
   useEffect(() => {
-    if(!item || !item.marketplace || !item.marketplace.marketplace_id) { return; }
+    if(!item) { return; }
 
-    const Status = () => rootStore.PurchaseStatus({
-      marketplaceId: item.marketplace.marketplace_id,
-      confirmationId: confirmationId
-    }).then(setStatus);
+    const Status =
+      item.listingId ?
+        () => rootStore.ListingPurchaseStatus({
+          listingId: item.listingId,
+          confirmationId: confirmationId
+        }).then(setStatus) :
+        () => rootStore.PurchaseStatus({
+          marketplaceId: item.marketplace.marketplace_id,
+          confirmationId: confirmationId
+        }).then(setStatus);
 
     const statusInterval = setInterval(() => {
       Status();
@@ -461,7 +486,7 @@ const MediaPropertyPurchaseStatus = observer(({item, confirmationId, Close}) => 
   }
 
   return (
-    <Item item={item}>
+    <Item item={item} hideInfo>
       <div className={S("status")} key={`status-${status?.status}`}>
         { !loading ? null : <Loader className={S("loader", "status__loader")} /> }
         { content }
@@ -474,6 +499,15 @@ const MediaPropertyPurchaseStatus = observer(({item, confirmationId, Close}) => 
 const FormatPurchaseItem = item => {
   if(!item) { return; }
 
+  if(item.listingId) {
+    return {
+      ...item,
+      price: item.listing.details.Price,
+      fee: item.listing.details.Fee,
+      itemInfo: NFTInfo({listing: item.listing})
+    };
+  }
+
   const marketplace = rootStore.marketplaces[item.marketplace?.marketplace_id];
   const marketplaceItem = marketplace?.items?.find(({sku}) => sku === item.marketplace_sku);
 
@@ -483,6 +517,7 @@ const FormatPurchaseItem = item => {
 
   return {
     ...item,
+    price: itemInfo.price || marketplaceItem.price,
     imageUrl: item.use_custom_image ?
       item.image?.url :
       itemInfo?.mediaInfo?.imageUrl,
@@ -490,17 +525,25 @@ const FormatPurchaseItem = item => {
   };
 };
 
-const MediaPropertyPurchaseModalContent = observer(({items, itemId, confirmationId, Close}) => {
+const PurchaseModalContent = observer(({items, itemId, confirmationId, Close}) => {
   const [loaded, setLoaded] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(itemId);
   const [purchaseItems, setPurchaseItems] = useState(undefined);
   const selectedItem = selectedItemId && FormatPurchaseItem(items.find(item => item.id === selectedItemId));
+  const isListing = selectedItem?.listingId;
 
   useEffect(() => {
     setLoaded(false);
 
     rootStore.GetWalletBalance();
 
+    if(isListing) {
+      setPurchaseItems(items);
+      setLoaded(true);
+      return;
+    }
+
+    // Format purchase items
     Promise.all(
       items?.map(async item =>
         await rootStore.LoadMarketplace(item.marketplace?.marketplace_id)
@@ -516,6 +559,8 @@ const MediaPropertyPurchaseModalContent = observer(({items, itemId, confirmation
   }, [items]);
 
   useEffect(() => {
+    if(isListing) { return; }
+
     const tenantIds = items?.map(item =>
       rootStore.marketplaces[item?.marketplace?.marketplace_id]?.tenant_id
     )
@@ -542,7 +587,7 @@ const MediaPropertyPurchaseModalContent = observer(({items, itemId, confirmation
     if(confirmationId) {
       key = 3;
       content = (
-        <MediaPropertyPurchaseStatus
+        <PurchaseStatus
           item={selectedItem}
           confirmationId={confirmationId}
           Close={Close}
@@ -554,7 +599,7 @@ const MediaPropertyPurchaseModalContent = observer(({items, itemId, confirmation
         <div className="purchase">
           <Payment
             item={selectedItem}
-            Back={() => setSelectedItemId(undefined)}
+            Back={isListing ? Close : () => setSelectedItemId(undefined)}
           />
         </div>
       );
@@ -588,7 +633,30 @@ const MediaPropertyPurchaseModal = () => {
     }
 
     let newPurchaseItems;
-    if(params.permissionItemIds) {
+    if(params.listingId) {
+      transferStore.CurrentNFTStatus({
+        listingId: new URLSearchParams(window.location.search).get("listingId"),
+        contractId: match.params.contractId,
+        tokenId: match.params.tokenId
+      }).then(status => {
+        const listing = status?.listing;
+        if(listing) {
+          newPurchaseItems = [{
+            listingId: params.listingId,
+            id: params.listingId,
+            title: listing.metadata?.display_name || "",
+            subtitle: listing.metadata?.edition_name,
+            description: listing.metadata?.description,
+            imageUrl: listing.metadata?.image,
+            listing
+          }];
+        }
+
+        setPurchaseItems(newPurchaseItems);
+      });
+
+      return;
+    } else if(params.permissionItemIds) {
       newPurchaseItems = (
         params.permissionItemIds
           .map(permissionItemId => mediaPropertyStore.PermissionItem({permissionItemId}))
@@ -634,7 +702,6 @@ const MediaPropertyPurchaseModal = () => {
     }
 
     setPurchaseItems(newPurchaseItems);
-
   }, [location.search]);
 
   const urlParams = new URLSearchParams(location.search);
@@ -645,7 +712,7 @@ const MediaPropertyPurchaseModal = () => {
 
   backPath = backPath + (urlParams.size > 0 ? `?${urlParams.toString()}` : "");
 
-  const Close = () => history.push(backPath);
+  const Close = () => history.replace(backPath);
 
   if(params.unlessPermissions) {
     const hasPermissions = !!params.unlessPermissions?.find(permissionItemId =>
@@ -667,19 +734,19 @@ const MediaPropertyPurchaseModal = () => {
         withCloseButton={rootStore.pageWidth < 800 && !params.confirmationId}
       >
         {
-          (purchaseItems || []).length === 0 ? null :
-            <MediaPropertyPurchaseModalContent
-              items={purchaseItems}
-              itemId={params.itemId}
-              confirmationId={params.confirmationId}
-              Close={success => {
-                if(success && params.successPath) {
-                  history.push(params.successPath);
-                } else {
-                  Close();
-                }
-              }}
-            />
+            (purchaseItems || []).length === 0 ? null :
+              <PurchaseModalContent
+                items={purchaseItems}
+                itemId={params.itemId || params.listingId}
+                confirmationId={params.confirmationId}
+                Close={success => {
+                  if(success && params.successPath) {
+                    history.push(params.successPath);
+                  } else {
+                    Close();
+                  }
+                }}
+              />
         }
       </Modal>
     </LoginGate>

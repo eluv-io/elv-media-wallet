@@ -3,7 +3,7 @@ import {rootStore} from "Stores";
 import Profile from "Components/profile";
 import Leaderboard from "Components/marketplace/Leaderboard";
 import UrlJoin from "url-join";
-import {ListingDetails, MarketplaceItemDetails, MintedNFTDetails, MintedNFTRedirect} from "Components/nft/NFTDetails";
+import {MarketplaceItemDetails} from "Components/nft/NFTDetails";
 import Listings from "Components/listings/Listings";
 import {RecentSales} from "Components/listings/Activity";
 import {
@@ -40,6 +40,7 @@ import MediaPropertyMediaPage from "Components/properties/MediaPropertyMediaPage
 import MediaPropertyCollectionPage from "Components/properties/MediaPropertyCollectionPage";
 import MediaPropertySearchPage from "Components/properties/MediaPropertySearchPage";
 import ItemDetailsPage from "Components/properties/ItemDetailsPage";
+import MediaPropertyPurchaseModal from "Components/properties/MediaPropertyPurchaseModal";
 
 const GetProperty = (match) => {
   return rootStore.mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId});
@@ -66,15 +67,14 @@ const UserMarketplaceRoutes = () => {
 
 const TokenRoutes = basePath => {
   return [
-    { name: "Open Pack", path: UrlJoin(basePath, "/:contractId/:tokenId/open"), authed: true, Component: PackOpenStatus },
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId", noBreadcrumb: true, noBlock: true, Component: MintedNFTRedirect },
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId/:tokenId", noBlock: true, Component: MintedNFTDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId/:tokenId/open", Component: PackOpenStatus, backPath: "" },
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId", noBreadcrumb: true, noBlock: true, Component: ItemDetailsPage, backPath: "" },
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId/:tokenId", noBlock: true, Component: ItemDetailsPage, backPath: "" },
 
+    // Deprecated
     { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId/:tokenId/media", noBlock: true, Component: NFTMedia, backPath: "/:contractId/:tokenId" },
     { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId/:tokenId/media/:sectionId/:mediaIndex", backPath: "/:contractId/:tokenId", noBlock: true, Component: NFTMedia },
     { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId/:tokenId/media/:sectionId/:collectionId/:mediaIndex", backPath: "/:contractId/:tokenId", noBlock: true, Component: NFTMedia },
-
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "/:contractId/:tokenId/:action", backPath: "/:contractId/:tokenId", authed: true, noBlock: true, Component: MintedNFTDetails }
   ]
     .map(route => ({...route, path: UrlJoin(basePath, route.path), backPath: route.backPath ? UrlJoin(basePath, route.backPath) : basePath }));
 };
@@ -83,11 +83,12 @@ const UserRoutes = ({includeMarketplaceRoutes}={}) => {
   return [
     ...(includeMarketplaceRoutes ? UserMarketplaceRoutes() : []),
     { name: "Listings", path: "listings", includeUserProfile: true, Component: UserListings },
-    { name: "Listing", path: "listings/:listingId", backPath: "listings", noBlock: true, Component: ListingDetails },
-    { name: "Listing", path: "listings/:listingId/:action", backPath: "listings/:listingId", authed: true, noBlock: true, Component: ListingDetails },
-    { name: "Purchase Listing", path: "listings/:listingId/purchase/:confirmationId", Component: PurchaseMintingStatus, authed: true },
+    { name: "Listings", path: "listings/:contractId/:tokenId/open", Component: PackOpenStatus, backPath: "/listings" },
+    { name: "Listings", path: "listings/:contractId/:tokenId", noBlock: true, Component: ItemDetailsPage, backPath: "/listings" },
 
     { name: "Activity", path: "activity", includeUserProfile: true, Component: UserActivity },
+    { name: "Activity", path: "activity/:contractId/:tokenId/open", Component: PackOpenStatus, backPath: "/activity" },
+    { name: "Activity", path: "activity/:contractId/:tokenId", noBlock: true, Component: ItemDetailsPage, backPath: "/activity" },
     { name: "Notifications", path: "notifications", Component: Notifications, includeUserProfile: true, authed: true },
     { name: "Gifts", path: "gifts", Component: UserGifts, includeUserProfile: true, authed: true },
     { name: "Details", path: "details", Component: Profile, includeUserProfile: true, authed: true },
@@ -181,20 +182,44 @@ const PropertyRoutes = (basePath="", additionalRoutes=[]) => {
       ))
     ]).flat(),
 
+    // Listings
+    ...prefixPaths.map(path => ({
+      name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item),
+      path: UrlJoin(basePath, path, "listings/:contractId/:tokenId/open"),
+      backPath: UrlJoin(basePath, path, "listings"),
+      includePageBlock: true,
+      Component: PackOpenStatus
+    })),
+
+    ...prefixPaths.map(path => ({
+      name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item),
+      path: UrlJoin(basePath, path, "listings/:contractId/:tokenId"),
+      backPath: UrlJoin(basePath, path, "listings"),
+      noBlock: true,
+      Component: ItemDetailsPage
+    })),
+
+    ...prefixPaths.map(path => ({
+      name: "Listings",
+      path: UrlJoin(basePath, path, "listings"),
+      Component: Listings,
+      includePageBlock: true
+    })),
+
     ...(propertyPaths.map(({path, backPath}) => ({
       name: GetPropertyPageTitle,
       path: UrlJoin(basePath, path),
       backPath: backPath,
       Component: MediaPropertyPage
     }))),
-  ].map(route => ({...route, noBlock: !route.includePageBlock, clearMarketplace: true}));
+  ].map(route => ({...route, noBlock: route.noBlock || !route.includePageBlock, clearMarketplace: true}));
 };
 
 const BundledPropertyRoutes = (basePath="") => {
   return PropertyRoutes(
-    UrlJoin(basePath, "/:contractId/:tokenId/p"),
+    UrlJoin(basePath, "/:propertyItemContractId/:propertyItemTokenId/p"),
     [
-      { path: "/details", Component: ItemDetailsPage },
+      { path: "/details", Component: ItemDetailsPage }
     ]
   );
 };
@@ -203,16 +228,15 @@ const SharedRoutes = ({includeMarketplaceRoutes}) => {
   return [
     ...UserRoutes({includeMarketplaceRoutes}),
 
-    { name: "Listing", path: "listings/:listingId", backPath: "listings", noBlock: true, Component: ListingDetails },
-    { name: "Listing", path: "listings/:listingId/:action", backPath: "listings/:listingId", authed: true, noBlock: true, Component: ListingDetails },
+    { name: "Listing", path: "listings/:contractId/:tokenId/open", backPath: "listings", Component: PackOpenStatus },
+    { name: "Listing", path: "listings/:contractId/:tokenId", backPath: "listings", noBlock: true, Component: ItemDetailsPage },
     { name: "Listings", path: "listings", Component: Listings },
 
     { name: "Activity", path: "activity", Component: RecentSales },
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "activity/:contractId/:tokenId", backPath: "activity", noBlock: true, Component: MintedNFTDetails },
-    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "activity/:contractId/:tokenId/:action", backPath: "activity/:contractId/:tokenId", authed: true, noBlock: true, Component: MintedNFTDetails },
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "activity/:contractId/:tokenId/open", backPath: "activity", Component: PackOpenStatus },
+    { name: match => (GetNFT(match)?.metadata?.display_name || rootStore.l10n.item_details.item), path: "activity/:contractId/:tokenId", backPath: "activity", noBlock: true, Component: ItemDetailsPage },
     { name: "Leaderboard", path: "leaderboard", Component: Leaderboard },
 
-    { name: "Purchase Listing", path: "listings/:listingId/purchase/:confirmationId", backPath: "/listings", Component: PurchaseMintingStatus, authed: true },
     { name: "Profile", path: "profile", Component: Profile, authed: true },
     { name: "Deposit Status", path: "profile/deposit/:confirmationId", Component: DepositStatus, authed: true }
   ]
@@ -379,13 +403,19 @@ const GlobalWrapper = observer(({routes, children}) => {
   }
 
   if(currentRoute?.noBlock) {
-    return children;
+    return (
+      <>
+        { children }
+        <MediaPropertyPurchaseModal />
+      </>
+    );
   }
 
   return (
     <div className="page-block page-block--main-content" key={currentRoute?.routeKey || `main-content-${match.url}`}>
       <div className="page-block__content">
         {children}
+        <MediaPropertyPurchaseModal />
       </div>
     </div>
   );

@@ -900,7 +900,7 @@ export const UserListingTable = observer(({icon, header, userAddress, className=
       ]}
       entries={
         listings?.map(listing => [
-          <div className="user-listings-table__details">
+          <div key={`card-${listing?.details?.ListingId}`} className="user-listings-table__details">
             <div className="user-listings-table__card-container">
               <NFTCard
                 imageWidth={400}
@@ -932,7 +932,7 @@ export const UserListingTable = observer(({icon, header, userAddress, className=
           listing.tokenId,
           FormatPriceString(listing?.details?.Price, {vertical: true}),
           Ago(listing?.details?.CreatedAt),
-          <div className="user-listings-table__offers">
+          <div key={`price-${listing?.details?.ListingId}`} className="user-listings-table__offers">
             {
               listing?.offers?.map(offer =>
                 <div key={`offer-${offer.id}`} className="user-listings-table__offer">
@@ -946,17 +946,13 @@ export const UserListingTable = observer(({icon, header, userAddress, className=
               )
             }
           </div>,
-          <div className="user-listings-table__actions">
+          <div key={`actions-${listing?.details?.ListingId}`} className="user-listings-table__actions">
             <Button
-              to={UrlJoin(location.pathname, listing.listingId)}
+              to={UrlJoin(location.pathname, listing.details.ContractId, listing.details.TokenIdStr) + `?listingId=${listing.details.ListingId}`}
               variant="outline"
               className="user-listings-table__action"
             >
-              {
-                rootStore.client.utils.EqualAddress(rootStore.CurrentAddress(), userAddress) ?
-                  rootStore.l10n.tables.edit_listing :
-                  rootStore.l10n.tables.view_listing
-              }
+              { rootStore.l10n.tables.view_listing }
             </Button>
           </div>
         ])

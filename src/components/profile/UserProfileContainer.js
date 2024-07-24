@@ -247,7 +247,7 @@ const UserProfileContainer = observer(({includeUserProfile, children}) => {
           }
 
           {
-            secondaryDisabled ? null :
+            currentUser || secondaryDisabled ? null :
               <NavLink to="listings" className={S("nav__link")}>
                 { rootStore.l10n.header.listings }
               </NavLink>

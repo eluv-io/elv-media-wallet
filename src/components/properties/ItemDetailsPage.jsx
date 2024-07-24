@@ -1,15 +1,35 @@
-import ItemDetailStyles from "Assets/stylesheets/media_properties/item-details-modal.module.scss";
+import ItemDetailStyles from "Assets/stylesheets/media_properties/item-details.module.scss";
 
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Redirect, useRouteMatch} from "react-router-dom";
-import {rootStore, transferStore} from "Stores";
-import {NFTInfo} from "../../utils/Utils";
+import {checkoutStore, rootStore, transferStore} from "Stores";
+import {Ago, MiddleEllipsis, NFTInfo} from "../../utils/Utils";
 import {Button, Description, PageContainer} from "Components/properties/Common";
 import {NFTImage} from "Components/common/Images";
-import {CopyableField, LocalizeString} from "Components/common/UIComponents";
+import {
+  ButtonWithLoader,
+  CopyableField,
+  FormatPriceString,
+  Linkish,
+  LocalizeString
+} from "Components/common/UIComponents";
 import Confirm from "Components/common/Confirm";
 import {Modal, TextInput} from "@mantine/core";
+import {PageLoader} from "Components/common/Loaders";
+import {CreateMediaPropertyPurchaseParams, MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
+import ListingModal from "Components/listings/ListingModal";
+import OfferModal from "Components/listings/OfferModal";
+import Path from "path";
+import UrlJoin from "url-join";
+import ImageIcon from "Components/common/ImageIcon";
+import Utils from "@eluvio/elv-client-js/src/Utils";
+import {FilteredTable} from "Components/common/Table";
+import {OffersTable} from "Components/listings/TransferTables";
+
+import ProfileIcon from "Assets/icons/profile.svg";
+import TransactionIcon from "Assets/icons/transaction history icon";
+import PurchaseOffersIcon from "Assets/icons/Offers table icon";
 
 const S = (...classes) => classes.map(c => ItemDetailStyles[c] || "").join(" ");
 
@@ -93,6 +113,108 @@ const TransferModal = ({nft, SetTransferred, Close}) => {
     </Modal>
   );
 };
+
+
+const Tables = observer(({nftInfo}) => {
+  const nft = nftInfo.nft;
+  const [page, setPage] = useState("trading");
+
+  const pages = (
+    <div className={S("pages", "pages--tables")}>
+      {
+        ["trading", "offers"].map(option =>
+          <button key={`page-${option}`} onClick={() => setPage(option)} className={S("page-button", page === option ? "page-button--active" : "")}>
+            <ImageIcon icon={option === "trading" ? TransactionIcon : PurchaseOffersIcon} className={S("page-button__icon")} />
+            { rootStore.l10n.media_properties.item_details.tables[option] }
+          </button>
+        )
+      }
+    </div>
+  );
+
+  if(page === "offers") {
+    return (
+      <div className={S("tables")}>
+        { pages }
+        <OffersTable
+          icon={PurchaseOffersIcon}
+          header={rootStore.l10n.tables.active_offers}
+          contractAddress={nft.details.ContractAddr}
+          tokenId={nft.details.TokenIdStr}
+          statuses={["ACTIVE"]}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className={S("tables")}>
+      { pages }
+      {
+        nft.details.TokenIdStr ?
+          <FilteredTable
+            collapsible
+            initiallyCollapsed
+            mode="transfers"
+            pagingMode="paginated"
+            perPage={10}
+            headerText={rootStore.l10n.tables.token_history_single}
+            headerIcon={TransactionIcon}
+            columnHeaders={[
+              rootStore.l10n.tables.columns.time,
+              rootStore.l10n.tables.columns.total_amount,
+              rootStore.l10n.tables.columns.buyer,
+              rootStore.l10n.tables.columns.seller
+            ]}
+            columnWidths={[1, 1, 1, 1]}
+            mobileColumnWidths={[1, 1, 0, 0]}
+            initialFilters={{
+              sortBy: "created",
+              sortDesc: true,
+              contractAddress: nft.details.ContractAddr,
+              tokenId: nft.details.TokenIdStr
+            }}
+            CalculateRowValues={transfer => [
+              `${Ago(transfer.created * 1000)}`,
+              FormatPriceString(transfer.price),
+              MiddleEllipsis(transfer.buyer, 14),
+              MiddleEllipsis(transfer.seller, 14)
+            ]}
+          /> : null
+      }
+      <FilteredTable
+        collapsible
+        initiallyCollapsed
+        mode="sales"
+        pagingMode="paginated"
+        perPage={10}
+        headerText={LocalizeString(rootStore.l10n.tables.token_history_all, {name: nft.metadata.display_name})}
+        headerIcon={TransactionIcon}
+        columnHeaders={[
+          rootStore.l10n.tables.columns.time,
+          rootStore.l10n.tables.columns.token_id,
+          rootStore.l10n.tables.columns.total_amount,
+          rootStore.l10n.tables.columns.buyer,
+          rootStore.l10n.tables.columns.seller
+        ]}
+        columnWidths={[1, 1, 1, 1, 1]}
+        mobileColumnWidths={[1, 1, 1, 0, 0]}
+        initialFilters={{
+          sortBy: "created",
+          sortDesc: true,
+          contractAddress: nft.details.ContractAddr
+        }}
+        CalculateRowValues={transfer => [
+          `${Ago(transfer.created * 1000)}`,
+          transfer.token,
+          FormatPriceString(transfer.price),
+          MiddleEllipsis(transfer.buyer, 14),
+          MiddleEllipsis(transfer.seller, 14)
+        ]}
+      />
+    </div>
+  );
+});
 
 const ContractPage = observer(({nftInfo}) => {
   const [burned, setBurned] = useState(false);
@@ -199,7 +321,7 @@ const ContractPage = observer(({nftInfo}) => {
   );
 });
 
-const MintPage = observer(({nftInfo, contractStats}) => {
+const DetailsPage = observer(({nftInfo, contractStats}) => {
   const nft = nftInfo.nft;
 
   let mintDate = nft.metadata.created_at;
@@ -248,7 +370,7 @@ const MintPage = observer(({nftInfo, contractStats}) => {
                   </a>
                 </CopyableField>
                 {
-                  rootStore.userProfiles.me?.imageUrl === nft.metadata.image ? null :
+                  !nftInfo.isOwned || rootStore.userProfiles.me?.imageUrl === nft.metadata.image ? null :
                     <Button
                       variant="outline"
                       onClick={async () => await rootStore.UpdateUserProfile({newProfileImageUrl: nft.metadata.image})}
@@ -350,7 +472,11 @@ const MintPage = observer(({nftInfo, contractStats}) => {
   );
 });
 
-const DetailsPage = observer(({item, info}) => {
+const DescriptionPage = observer(({item, info, status}) => {
+  const match = useRouteMatch();
+  const ownerAddress = info.ownerAddress;
+  const ownerProfile = ownerAddress ? rootStore.userProfiles[Utils.FormatAddress(ownerAddress)] : undefined;
+
   return (
     <div className={S("page")}>
       <div className={S("details")}>
@@ -385,60 +511,310 @@ const DetailsPage = observer(({item, info}) => {
           descriptionRichText={item.metadata.description_rich_text}
           className={S("details__description")}
         />
+
+        {
+          !status?.listing ? null :
+            <div className={S("details__price")}>
+              { FormatPriceString(status.listing.details.Price, {stringOnly: true}) }
+            </div>
+        }
+
+        <Linkish
+          to={
+            !ownerAddress ? undefined :
+              match.params.mediaPropertySlugOrId ?
+                UrlJoin(MediaPropertyBasePath(match.params), "users", ownerProfile?.userName || ownerAddress, "listings") :
+                match.params.marketplaceId ?
+                  UrlJoin("/marketplace", match.params.marketplaceId, "users", ownerProfile.userName || ownerProfile.userAddress, "listings") :
+                  UrlJoin("/wallet", "users", ownerProfile.userName || ownerProfile.userAddress, "listings")
+          }
+          className={S("details__owner")}
+        >
+          <ImageIcon icon={ProfileIcon} className={S("details__owner-icon")} />
+          <div className={S("details__owner-name")}>
+            { ownerProfile?.userName ? `@${ownerProfile.userName}` : ownerAddress }
+          </div>
+        </Linkish>
       </div>
     </div>
   );
+});
+
+const Actions = observer(({nftInfo, status, setRedirect, UpdateStatus}) => {
+  const [showListingModal, setShowListingModal] = useState(false);
+  const [showOfferModal, setShowOfferModal] = useState(false);
+
+  useEffect(() => {
+    UpdateStatus();
+  }, [showListingModal, showOfferModal]);
+
+  if(!nftInfo || !status) { return null; }
+
+  const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false;
+  const isInCheckout = status?.listing?.details?.CheckoutLockedUntil && status?.listing?.details.CheckoutLockedUntil > Date.now();
+
+
+  if(nftInfo.isOwned) {
+    const listable = !(secondaryDisabled || nftInfo.heldDate || !(nftInfo.secondaryAvailable || nftInfo?.nft?.details?.ListingId));
+
+    // Owned NFT
+    return (
+      <>
+        <div className={S("details__actions")}>
+          {
+            // Listings available if not held or secondary restricted, or if already listed
+            !listable ? null :
+              <Button
+                title={nftInfo.nft?.metadata?.test ? "Test NFTs may not be listed for sale" : undefined}
+                disabled={nftInfo.heldDate || isInCheckout || nftInfo.nft?.metadata?.test}
+                onClick={() => setShowListingModal(true)}
+                className={S("details__action")}
+              >
+                { rootStore.l10n.actions.listings[status?.listing ? "edit" : "create"] }
+              </Button>
+          }
+
+          {
+            !nftInfo.listingId && nftInfo.nft?.metadata?.pack_options?.is_openable ?
+              <Button
+                variant={listable ? "secondary" : "primary"}
+                className={S("details__action")}
+                onClick={async () => Confirm({
+                  message: LocalizeString(rootStore.l10n.actions.packs.open_confirm, {name: nftInfo.nft.metadata.display_name}),
+                  Confirm: async () => {
+                    await checkoutStore.OpenPack({
+                      tenantId: nftInfo.nft.details.TenantId,
+                      contractAddress: nftInfo.nft.details.ContractAddr,
+                      tokenId: nftInfo.nft.details.TokenIdStr
+                    });
+
+                    setRedirect(UrlJoin(window.location.pathname, "open"));
+                  }
+                })}
+              >
+                { nftInfo.nft.metadata.pack_options.open_button_text || LocalizeString(rootStore.l10n.actions.packs.open, {name: nftInfo.nft.metadata.display_name}) }
+              </Button> : null
+          }
+
+          {
+            isInCheckout ?
+              <h3 className="details-page__transfer-details details-page__held-message">
+                { rootStore.l10n.purchase.errors.nft_being_purchased }
+              </h3> : null
+          }
+        </div>
+        {
+          !showListingModal ? null :
+            <ListingModal
+              nft={status?.listing || nftInfo.nft}
+              listingId={status?.listing?.details?.ListingId}
+              Close={() => setShowListingModal(false)}
+            />
+        }
+      </>
+    );
+  } else {
+    // Not Owned
+
+    // Listing sold
+    if(status?.listing?.sale) {
+      return (
+        <h2 className={S("details__message")}>
+          {
+            LocalizeString(
+              rootStore.l10n.purchase.errors.nft_sold,
+              {
+                price: FormatPriceString(status.listing.sale.price, {stringOnly: true}),
+                date: new Date(status.listing.sale.created * 1000).toLocaleString(rootStore.preferredLocale, {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "numeric",
+                  minute: "numeric",
+                  second: "numeric"
+                })
+              }
+            )
+          }
+        </h2>
+      );
+    } else if(status?.listing?.removed) {
+      // Listing removed
+      return (
+        <h2 className={S("details__message")}>
+          { rootStore.l10n.purchase.errors.listing_unavailable }
+        </h2>
+      );
+    }
+
+    // Not Owned
+    return (
+      <>
+        <div className={S("details__actions")}>
+          {
+            !status?.listing ? null :
+              <Button
+                to={
+                  location.pathname + "?p=" +
+                  CreateMediaPropertyPurchaseParams({
+                    id: `listing-${status?.listing.details.ListingId}`,
+                    listingId: status?.listing.details.ListingId
+                  })
+                }
+                Component={ButtonWithLoader}
+                disabled={isInCheckout}
+                className={S("details__action")}
+              >
+                {LocalizeString(rootStore.l10n.actions.purchase.buy_now_for, {price: FormatPriceString(status?.listing.details.Price, {stringOnly: true})})}
+              </Button>
+          }
+          {
+            // Offers available if offerable, not owned, and either secondary trading not restricted or offer currently exists for this nft
+            status?.listing?.offer?.id || (nftInfo.offerable && !nftInfo.isOwned && !secondaryDisabled && nftInfo.secondaryAvailable) ?
+              <Button
+                variant={status?.listing ? "secondary" : "primary"}
+                disabled={isInCheckout}
+                onClick={() => {
+                  if(!rootStore.loggedIn) {
+                    rootStore.ShowLogin();
+                  } else {
+                    setShowOfferModal(true);
+                  }
+                }}
+                className={S("details__action")}
+              >
+                { rootStore.l10n.actions.offers[status?.offer?.id ? "edit" : "create"] }
+              </Button> : null
+          }
+          {
+            isInCheckout ?
+              <h3 className={S("details__message")}>
+                { rootStore.l10n.purchase.errors.nft_being_purchased }
+              </h3> : null
+          }
+        </div>
+        {
+          !showOfferModal ? null :
+            <OfferModal
+              nft={nftInfo.nft}
+              offer={status?.offer}
+              Close={() => setShowOfferModal(false)}
+            />
+        }
+      </>
+    );
+  }
 });
 
 const ItemDetailsPage = observer(() => {
   const match = useRouteMatch();
   const [page, setPage] = useState("description");
   const [contractStats, setContractStats] = useState(undefined);
+  const [status, setStatus] = useState(undefined);
+  const [redirect, setRedirect] = useState(undefined);
 
-  if(!match.params.contractId) { return; }
+  const contractId = match.params.contractId || match.params.propertyItemContractId;
+  const tokenId = match.params.contractId ? match.params.tokenId : match.params.propertyItemTokenId;
+
+  if(!contractId) { return; }
+
+  const UpdateStatus = () => {
+    Promise.all([
+      rootStore.LoadNFTData({contractId, tokenId, force: true}),
+      transferStore.CurrentNFTStatus({
+        listingId: new URLSearchParams(window.location.search).get("listingId"),
+        contractId,
+        tokenId
+      }),
+      rootStore.walletClient.NFTContractStats({
+        contractAddress: rootStore.client.utils.HashToAddress(contractId)
+      })
+    ])
+      .then(([nft, status, stats]) => {
+        rootStore.UserProfile({userId: nft.details.TokenOwner})
+          .finally(() => {
+            setStatus(status);
+            setContractStats(stats);
+          });
+      });
+  };
 
   useEffect(() => {
-    rootStore.walletClient.NFTContractStats({
-      contractAddress: rootStore.client.utils.HashToAddress(match.params.contractId)
-    })
-      .then(stats => setContractStats(stats));
+    if(tokenId) {
+      UpdateStatus();
+    } else {
+      // No token ID specified - try to find an item with this contract that the user owns
+      (async () => {
+        try {
+          const {userAddress} = await rootStore.UserProfile({userId: match.params.userId});
+
+          const firstOwnedItem = (await rootStore.walletClient.UserItems({
+            contractAddress: rootStore.client.utils.HashToAddress(contractId),
+            userAddress: userAddress,
+            limit: 1
+          }))?.results?.[0];
+
+          if(firstOwnedItem) {
+            setRedirect(UrlJoin(window.location.pathname, firstOwnedItem.details.TokenIdStr));
+          } else {
+            setRedirect(Path.dirname(window.location.pathname));
+          }
+        } catch(error) {
+          rootStore.Log(error, true);
+        }
+      })();
+
+      return;
+    }
   }, []);
 
-  const {nft} = rootStore.NFTData({
-    contractId: match.params.contractId,
-    tokenId: match.params.tokenId
-  });
+  if(redirect) {
+    return <Redirect to={redirect} />;
+  }
 
-  if(!nft) {
-    return;
+  const {nft} = rootStore.NFTData({contractId, tokenId});
+
+  if(!nft || !contractStats) {
+    return <PageLoader />;
   }
 
   const nftInfo = NFTInfo({nft, showToken: true});
 
   return (
     <PageContainer className={S("item-details-page")}>
-      <div className={S("item-details")}>
-        <div className={S("image-container")}>
-          <NFTImage nft={nft} showVideo={true} className="image" />
-        </div>
-        <div className={S("details-container")}>
-          <div className={S("pages")}>
+      <div className={S("item-details-container")}>
+        <div className={S("item-details")}>
+          <div className={S("image-section")}>
+            <div className={S("image-container")}>
+              <NFTImage nft={nft} showVideo={true} className="image" />
+            </div>
+            <Actions
+              nftInfo={nftInfo}
+              status={status}
+              setRedirect={setRedirect}
+              UpdateStatus={UpdateStatus}
+            />
+          </div>
+          <div className={S("details-container")}>
+            <div className={S("pages")}>
+              {
+                ["description", "details", "contract"].map(option =>
+                  <button key={`page-${option}`} onClick={() => setPage(option)} className={S("page-button", page === option ? "page-button--active" : "")}>
+                    { rootStore.l10n.media_properties.item_details.pages[option] }
+                  </button>
+                )
+              }
+            </div>
             {
-              ["description", "mint_info", "contract"].map(option =>
-                <button key={`page-${option}`} onClick={() => setPage(option)} className={S("page-button", page === option ? "page-button--active" : "")}>
-                  { rootStore.l10n.media_properties.item_details.pages[option] }
-                </button>
-              )
+              page === "description" ?
+                <DescriptionPage item={nft} info={nftInfo} status={status} /> :
+                page === "details" ?
+                  <DetailsPage nftInfo={nftInfo} contractStats={contractStats} /> :
+                  <ContractPage nftInfo={nftInfo} />
             }
           </div>
-          {
-            page === "description" ?
-              <DetailsPage item={nft} info={nftInfo} /> :
-              page === "mint_info" ?
-                <MintPage nftInfo={nftInfo} contractStats={contractStats} /> :
-                <ContractPage nftInfo={nftInfo} />
-          }
         </div>
+        <Tables nftInfo={nftInfo} />
       </div>
     </PageContainer>
   );

@@ -35,9 +35,11 @@
 }
 
 .modal__content {
+  box-shadow: 0 0 30px #000;
   max-height: 90vh;
   max-width: 85vw;
   overflow: hidden scroll;
+  padding: 0;
   position: absolute;
   width: 1200px;
   z-index: 10001;

@@ -78,7 +78,7 @@ const ProfileMenu = observer(({Hide}) => {
         {
           secondaryDisabled ? null :
             <Linkish
-              to={UrlJoin(basePath, "marketplace")}
+              to={UrlJoin(basePath, "listings")}
               onClick={Hide}
               className={S("profile-menu__link")}
             >

@@ -14,7 +14,7 @@ import NFTCard from "Components/nft/NFTCard";
 // eslint-disable-next-line react/display-name
 const Listing = memo(({url, listing}) => (
   <NFTCard
-    link={UrlJoin(url, listing.details.ListingId)}
+    link={UrlJoin(url, listing.details.ContractId, listing.details.TokenIdStr, `?listingId=${listing.details.ListingId}`)}
     imageWidth={600}
     nft={listing}
     selectedListing={listing}

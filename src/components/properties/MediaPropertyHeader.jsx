@@ -3,7 +3,7 @@ import HeaderStyles from "Assets/stylesheets/media_properties/property-header.mo
 import React, {useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {Link, useHistory} from "react-router-dom";
-import {rootStore, mediaPropertyStore} from "Stores";
+import {rootStore, mediaPropertyStore, notificationStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
 import UrlJoin from "url-join";
 import {useDebouncedValue} from "@mantine/hooks";
@@ -383,7 +383,10 @@ const HeaderLinks = observer(() => {
       <>
         { !showNotificationsMenu ? null : <NotificationsMenu Hide={() => setShowNotificationsMenu(false)} /> }
         { !showUserProfileMenu ? null : <ProfileMenu Hide={() => setShowUserProfileMenu(false)} /> }
-        <button className={S("button", showNotificationsMenu ? "button--active" : "")} onClick={() => setShowNotificationsMenu(!showNotificationsMenu)}>
+        <button
+          className={S("button", showNotificationsMenu ? "button--active" : notificationStore.newNotifications ? "button--notification" : "")}
+          onClick={() => setShowNotificationsMenu(!showNotificationsMenu)}
+        >
           <ImageIcon icon={NotificationsIcon} label="Show Notifications" className={S("button__icon")} />
           <ImageIcon icon={XIcon} label="Hide Notifications" className={S("button__icon-close")} />
         </button>

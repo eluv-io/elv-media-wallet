@@ -29,11 +29,11 @@ const Table = observer(({
   mobileColumnWidths,
   hideOverflow,
   useWidth,
-  allowCollapse=false,
-  startCollapsed=false,
+  collapsible=false,
+  initiallyCollapsed=false,
   className=""
 }) => {
-  const [collapsed, setCollapsed] = useState(allowCollapse && startCollapsed);
+  const [collapsed, setCollapsed] = useState(collapsible && initiallyCollapsed);
   columnHeaders = columnHeaders.filter(h => h);
 
   // Handle column widths
@@ -94,16 +94,19 @@ const Table = observer(({
 
   return (
     <div className={`transfer-table-container ${collapsed ? "transfer-table-container--collapsed" : ""}`} ref={tableRef}>
-      <div className={`transfer-table ${allowCollapse ? "transfer-table--collapsable" : ""} ${className}`}>
-        <Linkish
-          onClick={!allowCollapse ? undefined : () => setCollapsed(!collapsed)}
-          className="transfer-table__header"
-        >
-          { headerIcon ? <ImageIcon icon={headerIcon} className="transfer-table__header__icon" /> : null }
-          { headerText }
-          { allowCollapse ? <ImageIcon icon={collapsed ? CaretDownIcon : CaretUpIcon} className="transfer-table__header__collapse-icon" /> : null }
-          { pagingInfo }
-        </Linkish>
+      <div className={`transfer-table ${collapsible ? "transfer-table--collapsable" : ""} ${className}`}>
+        {
+          !headerIcon && !headerText ? null :
+            <Linkish
+              onClick={!collapsible ? undefined : () => setCollapsed(!collapsed)}
+              className="transfer-table__header"
+            >
+              {headerIcon ? <ImageIcon icon={headerIcon} className="transfer-table__header__icon"/> : null}
+              {headerText}
+              {collapsible ? <ImageIcon icon={collapsed ? CaretDownIcon : CaretUpIcon} className="transfer-table__header__collapse-icon"/> : null}
+              {pagingInfo}
+            </Linkish>
+        }
         { pageControls && topPagination ? pageControls : null }
         <div className={`transfer-table__table transfer-table__table--${pagingMode}`} ref={scrollRef}>
           <div className="transfer-table__table__header" style={{gridTemplateColumns}}>
@@ -176,7 +179,12 @@ const Table = observer(({
                 })
             }
           </div>
-          {loading ? <Loader className="transfer-table__loader"/> : null}
+          {
+            !loading ? null :
+              <div className="transfer-table__loader-container">
+                <Loader className="transfer-table__loader"/>
+              </div>
+          }
         </div>
       </div>
       { pageControls }

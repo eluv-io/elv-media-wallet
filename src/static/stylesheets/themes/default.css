@@ -20,7 +20,7 @@ html {
   --color-bg-primary: #000;
   --color-bg-secondary: #242424;
   --color-page-bg: #000;
-  --color-profile-page-bg: #0c0c0c;
+  --color-profile-page-bg: #050505;
   --color-text-primary: #FFF;
   --color-text-secondary: #A0A0A0;
   --color-text-highlight: #9AC0F3;
@@ -176,7 +176,7 @@ html {
   --color-table-selected-row-bg: inherit;
   --color-table-selected-row-text: var(--color-text-highlight);
   --color-table-highlight-text: var(--color-text-highlight);
-  --border-table-row-selected: 2px solid var(--color-bg-highlight);
+  --border-table-row-selected: 1px solid var(--color-text-secondary);
   --border-table-primary: var(--border);
   --border-table-secondary: var(--border-faint);
   --border-radius-table: var(--border-radius);

@@ -8,13 +8,12 @@ import AsyncComponent from "Components/common/AsyncComponent";
 import {PageLoader} from "Components/common/Loaders";
 import RenderRoutes from "Routes";
 import MediaPropertyHeader from "Components/properties/MediaPropertyHeader";
-import MediaPropertyPurchaseModal from "Components/properties/MediaPropertyPurchaseModal";
 import {LoginGate} from "Components/common/LoginGate";
 import {PurchaseGate} from "Components/properties/Common";
 
 const PropertyWrapper = observer(({children}) => {
   const match = useRouteMatch();
-  const [itemLoaded, setItemLoaded] = useState(!match.params.contractId);
+  const [itemLoaded, setItemLoaded] = useState(!match.params.propertyItemContractId);
   const [redirect, setRedirect] = useState(false);
 
   const { mediaPropertySlugOrId, pageSlugOrId } = match.params;
@@ -28,10 +27,10 @@ const PropertyWrapper = observer(({children}) => {
       rootStore.ClearMarketplace();
     }
 
-    if(match.params.contractId) {
+    if(match.params.propertyItemContractId) {
       rootStore.LoadNFTData({
-        contractId: match.params.contractId,
-        tokenId: match.params.tokenId
+        contractId: match.params.propertyItemContractId,
+        tokenId: match.params.propertyItemTokenId
       })
         .then(data => {
           // Redirect if trying to view a bundle you don't own
@@ -82,7 +81,6 @@ const PropertyWrapper = observer(({children}) => {
               </div>
             </PurchaseGate>
           </PurchaseGate>
-          <MediaPropertyPurchaseModal />
         </LoginGate>
       </AsyncComponent>
     );

@@ -9,19 +9,31 @@ export const MediaPropertyBasePath = (params, {includePage=true}={}) => {
     UrlJoin("/", params.parentMediaPropertySlugOrId, params.parentPageSlugOrId || "", "p", params.mediaPropertySlugOrId, (includePage && params.pageSlugOrId) || "") :
     UrlJoin("/", params.mediaPropertySlugOrId, (includePage && params.pageSlugOrId) || "");
 
-  if(params.contractId) {
-    path = UrlJoin("/m", params.contractId, params.tokenId, "p", path);
+  if(params.propertyItemContractId) {
+    path = UrlJoin("/m", params.propertyItemContractId, params.propertyItemTokenId, "p", path);
   }
 
   return path;
 };
 
-export const CreateMediaPropertyPurchaseParams = ({id, gate, permissionItemIds, sectionSlugOrId, sectionItemId, actionId, unlessPermissions, successPath, cancelPath}) => {
+export const CreateMediaPropertyPurchaseParams = ({
+  id,
+  gate,
+  listingId,
+  permissionItemIds,
+  sectionSlugOrId,
+  sectionItemId,
+  actionId,
+  unlessPermissions,
+  successPath,
+  cancelPath
+}) => {
   return (
     mediaPropertyStore.client.utils.B58(JSON.stringify({
       id,
       gate: !!gate,
       type: "purchase",
+      listingId,
       sectionSlugOrId,
       sectionItemId,
       actionId,

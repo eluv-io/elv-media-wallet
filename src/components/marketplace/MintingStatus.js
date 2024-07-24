@@ -11,6 +11,7 @@ import {LinkTargetHash, MobileOption, ScrollTo, SearchParams} from "../../utils/
 import {FormatPriceString, LocalizeString} from "Components/common/UIComponents";
 import ItemCard from "Components/common/ItemCard";
 import {NFTImage} from "Components/common/Images";
+import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
 
 const searchParams = SearchParams();
 
@@ -790,9 +791,12 @@ export const PackOpenStatus = observer(() => {
   const revealAnimation = MobileOption(rootStore.pageWidth, packOptions.reveal_animation, packOptions.reveal_animation_mobile);
   const revealVideoHash = LinkTargetHash(revealAnimation);
 
-  const basePath = match.url.startsWith("/marketplace") ?
-    UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items") :
-    UrlJoin("/wallet", "users", "me", "items");
+  const basePath =
+    match.params.mediaPropertySlugOrId ?
+      UrlJoin(MediaPropertyBasePath(match.params), "users", "me", "items") :
+      match.url.startsWith("/marketplace") ?
+        UrlJoin("/marketplace", match.params.marketplaceId, "users", "me", "items") :
+        UrlJoin("/wallet", "users", "me", "items");
 
   const Status = async () => await rootStore.PackOpenStatus({
     contractId: match.params.contractId,

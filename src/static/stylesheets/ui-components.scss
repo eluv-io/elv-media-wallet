@@ -225,21 +225,19 @@
 
 .confirm-modal {
   overflow-y: hidden;
+  z-index: 1000;
 
   .modal__content {
     align-items: center;
     display: flex;
     justify-content: center;
     overflow-y: hidden;
-    padding: 20px;
     width: max-content;
   }
 }
 
 .confirm {
-  background: var(--color-profile-page-bg);
-
-  //width: 100%;
+  background: var(--property-background-modal);
   box-shadow: 0 0 20px black;
   margin: 0 auto;
   max-width: 550px;

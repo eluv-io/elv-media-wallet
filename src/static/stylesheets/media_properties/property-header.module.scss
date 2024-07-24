@@ -114,6 +114,21 @@
       opacity: 1;
     }
   }
+
+  &--notification {
+    @include page-fade-in;
+
+    &::after {
+      background: red;
+      border-radius: 100%;
+      content: "";
+      height: 7px;
+      position: absolute;
+      right: 8px;
+      top: 6px;
+      width: 7px;
+    }
+  }
 }
 
 .sign-in {

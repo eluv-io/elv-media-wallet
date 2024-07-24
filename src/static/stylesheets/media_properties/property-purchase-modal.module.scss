@@ -22,8 +22,6 @@
 }
 
 .button {
-  @include page-fade-in(0.5s);
-
   font-weight: 600;
   height: 40px;
   width: 100%;

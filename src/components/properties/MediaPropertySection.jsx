@@ -119,7 +119,7 @@ const SectionContentCarousel = observer(({section, sectionContent, cardFormat="v
           rootStore.pageWidth > 1400 ? 3 : rootStore.pageWidth > 1000 ? 2 : 1
       }
       swiperOptions={{
-        spaceBetween: 10
+        spaceBetween: 20
       }}
       initialImageDimensions={{height: 400, width: 400}}
       content={sectionContent}

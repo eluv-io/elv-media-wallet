@@ -250,17 +250,7 @@ select {
 
 textarea,
 input {
-  background: var(--background-input);
-  border: var(--border-input);
-  border-radius: var(--border-radius-input);
-  box-shadow: var(--box-shadow-input);
-  color: var(--color-bg-primary);
-  font: var(--font-input);
   height: $action-height;
-
-  &::placeholder {
-    color: var(--color-input-text-placeholder);
-  }
 
   &:not(.mantine-Checkbox-input) {
     &[type="checkbox"] {
@@ -597,4 +587,8 @@ em {
       color: #AAA;
     }
   }
+}
+
+.fade-in {
+  @include page-fade-in(0.25s);
 }

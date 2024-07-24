@@ -350,9 +350,9 @@
     width: auto;
   }
 
-  &__loader {
+  &__loader-container {
     height: 100%;
-    padding-top: 100px;
+    padding-top: 80px;
     pointer-events: none;
     position: absolute;
     top: 0;
@@ -391,6 +391,7 @@
 
   @media screen and (max-width: $tablet-breakpoint) {
     &__header {
+      flex-wrap: wrap;
       font-size: 12px;
     }
 
@@ -402,10 +403,6 @@
 
     &__pagination {
       font-size: 10px;
-    }
-
-    &__header {
-      flex-wrap: wrap;
     }
 
     &__pagination-message {

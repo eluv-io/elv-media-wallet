@@ -108,22 +108,22 @@ export const ExpandableSection = ({header, icon, children, expanded=false, toggl
   );
 };
 
-export const Linkish = ({to, href, target="_blank", rel="noopener", useNavLink, exact, onClick, disabled, ...args}) => {
+export const Linkish = ({to, href, target="_blank", rel="noopener", useNavLink, exact, onClick, disabled, ...props}) => {
   if(!disabled) {
     if(href) {
-      return <a href={href} target={target} rel={rel} onClick={onClick} {...args} />;
+      return <a href={href} target={target} rel={rel} onClick={onClick} {...props} />;
     } else if(to) {
       if(useNavLink) {
-        return <NavLink to={to} exact={exact} onClick={onClick} {...args} />;
+        return <NavLink to={to} exact={exact} onClick={onClick} {...props} />;
       } else {
-        return <Link to={to} onClick={onClick} {...args} />;
+        return <Link to={to} onClick={onClick} {...props} />;
       }
     } else if(onClick) {
-      return <button onClick={onClick} {...args} />;
+      return <button onClick={onClick} {...props} />;
     }
   }
 
-  return <div {...args} />;
+  return <div {...props} />;
 };
 
 export const Copy = async (value) => {

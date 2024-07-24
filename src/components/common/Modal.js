@@ -72,7 +72,7 @@ const ModalPortal = (args) => {
   return (
     createPortal(
       <Modal {...args} />,
-      document.getElementById("app")
+      document.body
     )
   );
 };

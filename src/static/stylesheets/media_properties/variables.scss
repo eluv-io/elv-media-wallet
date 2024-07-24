@@ -5,7 +5,7 @@
   --property-text-primary: #FFF;
   --property-text-secondary: #CCC;
   --property-text-headers: #A5A6A8;
-  --property-text-faded: #818590;
+  --property-text-faded: #a6a6a6;
   --property-text-highlight: #92a2da;
   --property-background: #000;
   --property-background-secondary: #202020;
@@ -22,10 +22,15 @@
   --property-button-border-color: var(--property-button-background);
   --property-button-text: #000;
   --property-button-border-radius: 5px;
+  --property-button-secondary-background: #000;
+  --property-button-secondary-border-color: var(--property-button-secondary-background);
+  --property-button-secondary-text: #FFF;
   --property-button-outline-text: #FFF;
   --property-button-outline-border: #555;
   --property-button-option-background-hover: #555;
+  --property-button-option-background-active: #FFF;
   --property-button-option-text: #FFF;
+  --property-button-option-text-active: #000;
 
   @media screen and (width <= 800px) {
     --property-header-height: 60px;

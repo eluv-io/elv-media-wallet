@@ -692,8 +692,11 @@ media_properties:
   item_details:
     pages:
       description: Description
-      mint_info: Mint Info
+      details: Details
       contract: Contract & Version
+    tables:
+      trading: Trading
+      offers: Purchase Offers
   media:
     live: Live
     upcoming: UPCOMING

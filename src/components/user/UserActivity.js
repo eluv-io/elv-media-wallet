@@ -20,15 +20,15 @@ const UserActivity = observer(() => {
   return (
     <div className="listings-page">
       <UserListingTable
-        allowCollapse
+        collapsible
         userAddress={userAddress}
         icon={ListingsIcon}
         header={rootStore.l10n.tables.active_listings}
         className="user-transfer-table user-transfer-table--listings"
       />
       <UserTransferTable
-        allowCollapse
-        startCollapsed
+        collapsible
+        initiallyCollapsed
         userAddress={userAddress}
         icon={PurchasesIcon}
         header={rootStore.l10n.tables.bought_items}
@@ -39,8 +39,8 @@ const UserActivity = observer(() => {
       {
         secondaryDisabled ? null :
           <UserTransferTable
-            allowCollapse
-            startCollapsed
+            collapsible
+            initiallyCollapsed
             userAddress={userAddress}
             icon={SalesIcon}
             header={rootStore.l10n.tables.sold_items}
@@ -53,16 +53,16 @@ const UserActivity = observer(() => {
         secondaryDisabled ? null :
           <>
             <OffersTable
-              allowCollapse
-              startCollapsed
+              collapsible
+              initiallyCollapsed
               header={rootStore.l10n.tables.offers_received}
               sellerAddress={userAddress}
               icon={OffersTableIcon}
               className="user-transfer-table user-transfer-table--bought"
             />
             <OffersTable
-              allowCollapse
-              startCollapsed
+              collapsible
+              initiallyCollapsed
               header={rootStore.l10n.tables.offers_made}
               buyerAddress={userAddress}
               icon={OffersTableIcon}

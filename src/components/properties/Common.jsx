@@ -515,6 +515,7 @@ export const Modal = observer(({...args}) => {
   return (
     <MantineModal
       {...args}
+      shadow="xl"
       withCloseButton={false}
       transitionProps={args.transitionProps || {duration: 0}}
       classNames={{
@@ -569,9 +570,19 @@ export const Button = ({variant="primary", active, loading, icon, styles, defaul
     style["--property-button-border-radius"] = `${styles.border_radius}px`;
   }
 
+  let a11yOptions = { role: "button" };
+  if(variant === "option") {
+    a11yOptions.role = "option";
+
+    if(active) {
+      a11yOptions["aria-selected"] = true;
+    }
+  }
+
   return (
     <Linkish
       {...props}
+      {...a11yOptions}
       style={style}
       onClick={
         !props.onClick ? undefined :
