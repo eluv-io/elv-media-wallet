@@ -118,7 +118,7 @@ const TransferModal = ({nft, SetTransferred, Close}) => {
 
 const Tables = observer(({nftInfo}) => {
   const nft = nftInfo.nft;
-  const [page, setPage] = useState("trading");
+  const [page, setPage] = useState(new URLSearchParams(window.location.search).get("tab") || "trading");
   const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false;
 
   if(secondaryDisabled) { return null; }
@@ -718,7 +718,7 @@ const Actions = observer(({nftInfo, status, setRedirect, UpdateStatus}) => {
 
 const ItemDetailsPage = observer(() => {
   const match = useRouteMatch();
-  const [page, setPage] = useState("description");
+  const [page, setPage] = useState(new URLSearchParams(window.location.search).get("page") || "description");
   const [contractStats, setContractStats] = useState(undefined);
   const [status, setStatus] = useState(undefined);
   const [redirect, setRedirect] = useState(undefined);

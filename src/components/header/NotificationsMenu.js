@@ -154,7 +154,7 @@ const Notification = observer(({notification, Hide}) => {
       header = l10n.offer_received;
       message = LocalizeString(l10n.offer_received_message, {name: notification.data.name, price: FormatPriceString(notification.data.price, {stringOnly: true})});
 
-      link = UrlJoin(basePath, "users", "me", "items", contractId, notification.data.token.toString());
+      link = UrlJoin(basePath, "users", "me", "items", contractId, notification.data.token.toString() + "?tab=offers");
 
       break;
 
@@ -165,7 +165,7 @@ const Notification = observer(({notification, Hide}) => {
 
       if(notification.data.contract && notification.data.token) {
         const contractId = `ictr${Utils.AddressToHash(notification.data.contract)}`;
-        link = UrlJoin(basePath, "users", "me", "items", contractId, notification.data.token.toString());
+        link = UrlJoin(basePath, "users", "me", "items", contractId, notification.data.token.toString() + "?tab=offers");
       }
 
       break;
@@ -184,7 +184,7 @@ const Notification = observer(({notification, Hide}) => {
         );
       }
 
-      link = UrlJoin(basePath, "users", "me", "items", contractId, notification.data.token.toString());
+      link = UrlJoin(basePath, "users", "me", "items", contractId, notification.data.token.toString() + "?tab=offers");
       break;
 
     case "OFFER_EXPIRED":
@@ -192,7 +192,7 @@ const Notification = observer(({notification, Hide}) => {
       header = l10n.offer_expired;
       message = LocalizeString(l10n.offer_expired_message, {name: notification.data.name, price: FormatPriceString(notification.data.price, {stringOnly: true})});
 
-      link = UrlJoin(basePath, "users", "me", "items", contractId, notification.data.token.toString());
+      link = UrlJoin(basePath, "users", "me", "items", contractId, notification.data.token.toString() + "?tab=offers");
 
       break;
 
