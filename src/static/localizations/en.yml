@@ -375,7 +375,7 @@ tables:
   leaderboard: Climb the Leaderboard
   activity: Recent Sales
   token_history_single: Transaction History for this Token
-  token_history_all: Secondary Sales History for All '{name}' Tokens
+  token_history_all: Transaction History for All '{name}' Tokens
   active_offers: Active Offers
   active_listings: Active Listings
   outstanding_offers: Outstanding Offers

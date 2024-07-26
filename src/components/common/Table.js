@@ -105,9 +105,11 @@ const Table = observer(({
               onClick={!collapsible ? undefined : () => setCollapsed(!collapsed)}
               className="transfer-table__header"
             >
-              {headerIcon ? <ImageIcon icon={headerIcon} className="transfer-table__header__icon"/> : null}
-              {headerText}
-              {collapsible ? <ImageIcon icon={collapsed ? CaretDownIcon : CaretUpIcon} className="transfer-table__header__collapse-icon"/> : null}
+              <div className="transfer-table__header-text">
+                {headerIcon ? <ImageIcon icon={headerIcon} className="transfer-table__header__icon"/> : null}
+                {headerText}
+                {collapsible ? <ImageIcon icon={collapsed ? CaretDownIcon : CaretUpIcon} className="transfer-table__header__collapse-icon"/> : null}
+              </div>
               {pagingInfo}
             </Linkish>
         }

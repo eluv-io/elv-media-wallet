@@ -30,6 +30,7 @@ import {OffersTable} from "Components/listings/TransferTables";
 import ProfileIcon from "Assets/icons/profile.svg";
 import TransactionIcon from "Assets/icons/transaction history icon";
 import PurchaseOffersIcon from "Assets/icons/Offers table icon";
+import ListingStats from "Components/listings/ListingStats";
 
 const S = (...classes) => classes.map(c => ItemDetailStyles[c] || "").join(" ");
 
@@ -118,6 +119,9 @@ const TransferModal = ({nft, SetTransferred, Close}) => {
 const Tables = observer(({nftInfo}) => {
   const nft = nftInfo.nft;
   const [page, setPage] = useState("trading");
+  const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false;
+
+  if(secondaryDisabled) { return null; }
 
   const pages = (
     <div className={S("pages", "pages--tables")}>
@@ -132,86 +136,92 @@ const Tables = observer(({nftInfo}) => {
     </div>
   );
 
+  let tables;
+
   if(page === "offers") {
-    return (
-      <div className={S("tables")}>
-        { pages }
-        <OffersTable
-          icon={PurchaseOffersIcon}
-          header={rootStore.l10n.tables.active_offers}
-          contractAddress={nft.details.ContractAddr}
-          tokenId={nft.details.TokenIdStr}
-          statuses={["ACTIVE"]}
+    tables = (
+      <OffersTable
+        icon={PurchaseOffersIcon}
+        header={rootStore.l10n.tables.active_offers}
+        contractAddress={nft.details.ContractAddr}
+        tokenId={nft.details.TokenIdStr}
+        statuses={["ACTIVE"]}
+      />
+    );
+  } else {
+    tables = (
+      <>
+        {
+          nft.details.TokenIdStr ?
+            <FilteredTable
+              collapsible
+              initiallyCollapsed
+              mode="transfers"
+              pagingMode="paginated"
+              perPage={10}
+              headerText={rootStore.l10n.tables.token_history_single}
+              headerIcon={TransactionIcon}
+              columnHeaders={[
+                rootStore.l10n.tables.columns.time,
+                rootStore.l10n.tables.columns.total_amount,
+                rootStore.l10n.tables.columns.buyer,
+                rootStore.l10n.tables.columns.seller
+              ]}
+              columnWidths={[1, 1, 1, 1]}
+              mobileColumnWidths={[1, 1, 0, 0]}
+              initialFilters={{
+                sortBy: "created",
+                sortDesc: true,
+                contractAddress: nft.details.ContractAddr,
+                tokenId: nft.details.TokenIdStr
+              }}
+              CalculateRowValues={transfer => [
+                `${Ago(transfer.created * 1000)}`,
+                FormatPriceString(transfer.price),
+                MiddleEllipsis(transfer.buyer, 14),
+                MiddleEllipsis(transfer.seller, 14)
+              ]}
+            /> : null
+        }
+        <FilteredTable
+          collapsible
+          initiallyCollapsed
+          mode="sales"
+          pagingMode="paginated"
+          perPage={10}
+          headerText={LocalizeString(rootStore.l10n.tables.token_history_all, {name: nft.metadata.display_name})}
+          headerIcon={TransactionIcon}
+          columnHeaders={[
+            rootStore.l10n.tables.columns.time,
+            rootStore.l10n.tables.columns.token_id,
+            rootStore.l10n.tables.columns.total_amount,
+            rootStore.l10n.tables.columns.buyer,
+            rootStore.l10n.tables.columns.seller
+          ]}
+          columnWidths={[1, 1, 1, 1, 1]}
+          mobileColumnWidths={[1, 1, 1, 0, 0]}
+          initialFilters={{
+            sortBy: "created",
+            sortDesc: true,
+            contractAddress: nft.details.ContractAddr
+          }}
+          CalculateRowValues={transfer => [
+            `${Ago(transfer.created * 1000)}`,
+            transfer.token,
+            FormatPriceString(transfer.price),
+            MiddleEllipsis(transfer.buyer, 14),
+            MiddleEllipsis(transfer.seller, 14)
+          ]}
         />
-      </div>
+      </>
     );
   }
 
   return (
     <div className={S("tables")}>
       { pages }
-      {
-        nft.details.TokenIdStr ?
-          <FilteredTable
-            collapsible
-            initiallyCollapsed
-            mode="transfers"
-            pagingMode="paginated"
-            perPage={10}
-            headerText={rootStore.l10n.tables.token_history_single}
-            headerIcon={TransactionIcon}
-            columnHeaders={[
-              rootStore.l10n.tables.columns.time,
-              rootStore.l10n.tables.columns.total_amount,
-              rootStore.l10n.tables.columns.buyer,
-              rootStore.l10n.tables.columns.seller
-            ]}
-            columnWidths={[1, 1, 1, 1]}
-            mobileColumnWidths={[1, 1, 0, 0]}
-            initialFilters={{
-              sortBy: "created",
-              sortDesc: true,
-              contractAddress: nft.details.ContractAddr,
-              tokenId: nft.details.TokenIdStr
-            }}
-            CalculateRowValues={transfer => [
-              `${Ago(transfer.created * 1000)}`,
-              FormatPriceString(transfer.price),
-              MiddleEllipsis(transfer.buyer, 14),
-              MiddleEllipsis(transfer.seller, 14)
-            ]}
-          /> : null
-      }
-      <FilteredTable
-        collapsible
-        initiallyCollapsed
-        mode="sales"
-        pagingMode="paginated"
-        perPage={10}
-        headerText={LocalizeString(rootStore.l10n.tables.token_history_all, {name: nft.metadata.display_name})}
-        headerIcon={TransactionIcon}
-        columnHeaders={[
-          rootStore.l10n.tables.columns.time,
-          rootStore.l10n.tables.columns.token_id,
-          rootStore.l10n.tables.columns.total_amount,
-          rootStore.l10n.tables.columns.buyer,
-          rootStore.l10n.tables.columns.seller
-        ]}
-        columnWidths={[1, 1, 1, 1, 1]}
-        mobileColumnWidths={[1, 1, 1, 0, 0]}
-        initialFilters={{
-          sortBy: "created",
-          sortDesc: true,
-          contractAddress: nft.details.ContractAddr
-        }}
-        CalculateRowValues={transfer => [
-          `${Ago(transfer.created * 1000)}`,
-          transfer.token,
-          FormatPriceString(transfer.price),
-          MiddleEllipsis(transfer.buyer, 14),
-          MiddleEllipsis(transfer.seller, 14)
-        ]}
-      />
+      <ListingStats mode="sales-stats" filterParams={{contractAddress: nftInfo?.nft?.details?.ContractAddr}} />
+      {tables}
     </div>
   );
 });
@@ -739,9 +749,7 @@ const ItemDetailsPage = observer(() => {
           setContractStats(stats);
         });
       })
-      .catch(error => {
-        console.log(error);
-      });
+      .catch(error => rootStore.Log(error));
   };
 
   useEffect(() => {
@@ -789,7 +797,6 @@ const ItemDetailsPage = observer(() => {
   if(match.params.contractId && nftInfo?.hasBundledProperty && nftInfo?.isOwned) {
     return <Redirect to={UrlJoin("/m", match.params.contractId, match.params.tokenId, "p", nftInfo.bundledPropertyId, new URLSearchParams(window.location.search).get("page") === "details" ? "details" : "")} />;
   }
-
 
   return (
     <PageContainer className={S("item-details-page")}>

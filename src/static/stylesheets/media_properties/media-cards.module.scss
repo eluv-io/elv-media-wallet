@@ -37,16 +37,9 @@
   max-width: min(90vw, var(--max-card-width));
   word-break: break-word;
 
-  &:hover {
-    .media-card-vertical__image-container {
-      opacity: 0.8;
-    }
-  }
-
   &__image-container {
     overflow: hidden;
     position: relative;
-    transition: opacity 0.35s ease-out;
   }
 
   &__image {
@@ -202,7 +195,7 @@
   border-radius: 3px;
   display: flex;
   gap: 20px;
-  height: 150px;
+  height: 175px;
   padding: 10px 20px 10px 10px;
   transition: background 0.25s ease;
   width: 100%;
@@ -307,6 +300,10 @@
     color: var(--property-text-secondary);
     font-size: 0.9em;
     margin-top: 7px;
+
+    * {
+      color: var(--property-text-secondary);
+    }
   }
 
   @media screen and (width <= 800px) {

@@ -61,8 +61,8 @@ export const PageBackground = observer(({display}) => {
 
 export const PageHeader = observer(({display, maxHeaderSize=36, children, className=""}) => {
   return (
-    <div className={S("page-header")}>
-      <div className={[S("page-header__content", `page-header__content--${display.position?.toLowerCase() || "left"}`), className].join(" ")}>
+    <div className={[S("page-header"), className].join(" ")}>
+      <div className={S("page-header__content", `page-header__content--${display.position?.toLowerCase() || "left"}`)}>
         <LoaderImage
           lazy={false}
           loaderHeight={200}
@@ -71,9 +71,15 @@ export const PageHeader = observer(({display, maxHeaderSize=36, children, classN
           src={SetImageUrlDimensions({url: display.logo?.url, width: 1000})}
           className={S("page-header__logo")}
         />
-        <ScaledText Tag="h1" maxPx={maxHeaderSize} minPx={32} maxPxMobile={32} minPxMobile={20} className={[S("page-header__title"), "_title"].join(" ")}>
-          { display.title }
-        </ScaledText>
+        <div className={S("page-header__title-container")}>
+          {
+            !display.title_icon ? null :
+              <img src={display.title_icon.url} alt="Icon" className={S("page-header__title-icon")} />
+          }
+          <ScaledText Tag="h1" maxPx={maxHeaderSize} minPx={32} maxPxMobile={32} minPxMobile={18} className={[S("page-header__title"), "_title"].join(" ")}>
+            { display.title }
+          </ScaledText>
+        </div>
         <Description
           description={display.description}
           descriptionRichText={display.description_rich_text}
@@ -221,10 +227,11 @@ export const Description = ({
   if(maxLines) {
     let content = (
       <ResponsiveEllipsis
-        ellipsis={<div style={{color: "gray", marginTop: 20}}>READ MORE</div>}
+        ellipsis={!expandable ? "..." : <div style={{color: "gray", marginTop: 20}}>READ MORE</div>}
         className={[S("description", expandable ? "description--expandable" : ""), props.className || ""].join(" ")}
         text={description}
         maxLine={expanded ? "999" : maxLines.toString()}
+        {...props}
       />
     );
 
@@ -246,7 +253,7 @@ export const Description = ({
   );
 };
 
-export const ExpandableDescription = observer(({description, descriptionRichText, className=""}) => {
+export const ExpandableDescription = observer(({description, descriptionRichText, onClick, className=""}) => {
   const [expanded, setExpanded] = useState(false);
   const [showToggle, setShowToggle] = useState(false);
   const descriptionRef = useRef();
@@ -268,7 +275,11 @@ export const ExpandableDescription = observer(({description, descriptionRichText
   return (
     <div
       role={expanded ? "" : "button"}
-      onClick={() => showToggle && !expanded && setExpanded(true)}
+      onClick={event => {
+        showToggle && !expanded && setExpanded(true);
+
+        onClick && onClick(event);
+      }}
       className={[
         S(
           "expandable-description",
@@ -300,7 +311,10 @@ export const ExpandableDescription = observer(({description, descriptionRichText
 const SlideVisible = slide => {
   if(!slide) { return; }
 
-  const carouselDimensions = slide.closest(".swiper").getBoundingClientRect();
+  const carouselDimensions = slide.closest(".swiper")?.getBoundingClientRect();
+
+  if(!carouselDimensions) { return; }
+
   const slideDimensions = slide.getBoundingClientRect();
   return (
     slideDimensions.x + 3 >= carouselDimensions.x &&
@@ -337,11 +351,11 @@ export const Carousel = observer(({
 
   useEffect(() => {
     UpdateActiveIndex && UpdateActiveIndex(activeIndex);
-  }, [activeIndex]);
+  }, [content, activeIndex]);
 
   useEffect(() => {
     SetSlideVisibility();
-  }, [lastSlide, activeSwiperSlide, rootStore.pageWidth]);
+  }, [content, lastSlide, activeSwiperSlide, rootStore.pageWidth]);
 
   let slidesPerPage = 1;
   try {
@@ -357,7 +371,7 @@ export const Carousel = observer(({
       slidesPerView="auto"
       observer
       observeParents
-      speed={1000}
+      speed={750}
       parallax
       updateOnWindowResize
       {...swiperOptions}

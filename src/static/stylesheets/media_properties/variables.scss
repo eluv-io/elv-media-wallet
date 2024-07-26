@@ -31,9 +31,15 @@
   --property-button-option-background-active: #FFF;
   --property-button-option-text: #FFF;
   --property-button-option-text-active: #000;
+  --property-page-padding: 75px;
+
+  @media screen and (width <= 1200px) {
+    --property-page-padding: 35px;
+  }
 
   @media screen and (width <= 800px) {
     --property-header-height: 60px;
+    --property-page-padding: 25px;
   }
 }
 

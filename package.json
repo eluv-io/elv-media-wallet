@@ -64,7 +64,7 @@
     "react-router-dom": "^5.2.0",
     "round-to": "^6.0.0",
     "sanitize-html": "2.7.0",
-    "swiper": "^11.0.7",
+    "swiper": "^11.1.7",
     "urijs": "^1.19.11",
     "url-join": "^4.0.1"
   },

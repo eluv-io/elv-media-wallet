@@ -135,6 +135,7 @@ export const MediaPropertyPageContent = observer(({isMediaPage, className=""}) =
             key={`section-${sectionId}`}
             sectionId={sectionId}
             isMediaPage={isMediaPage}
+            className={S("page__section")}
           />
         )
       }
@@ -156,6 +157,7 @@ const MediaPropertyPage = observer(() => {
       <PageHeader
         display={page.layout}
         maxHeaderSize={60}
+        className={S("page__header")}
       >
         <Actions />
       </PageHeader>

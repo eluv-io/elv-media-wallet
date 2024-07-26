@@ -8,7 +8,12 @@
   background-color: var(--property-background);
 
   &.page {
-    padding-inline: 75px;
+    padding-inline: 0;
+  }
+
+  &__header,
+  &__section {
+    padding-inline: var(--property-page-padding);
   }
 
   .actions {
@@ -37,10 +42,6 @@
   }
 
   @media screen and (width <= 800px) {
-    &.page {
-      padding-inline: 25px;
-    }
-
     .actions {
       flex-wrap: wrap;
       justify-content: center;
@@ -49,6 +50,11 @@
 
     &__sections {
       margin-top: 50px;
+    }
+
+    &__header,
+    &__section {
+      padding-inline: var(--property-page-padding);
     }
 
     .button {

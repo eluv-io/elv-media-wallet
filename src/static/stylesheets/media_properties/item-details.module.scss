@@ -78,6 +78,7 @@
   font-weight: 500;
   gap: 10px;
   transition: color 0.25s ease;
+  user-select: none;
 
   * {
     color: var(--property-text-faded);

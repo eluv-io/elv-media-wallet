@@ -117,6 +117,8 @@ const Notification = observer(({notification, Hide}) => {
     basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: true});
   }
 
+  const contractId = notification?.data?.contract ? `ictr${Utils.AddressToHash(notification.data.contract)}` : "";
+
   const l10n = rootStore.l10n.notifications;
   let header, message, icon, link;
   switch(notification.type) {
@@ -131,7 +133,7 @@ const Notification = observer(({notification, Hide}) => {
       header = l10n.listing_sold;
       message = LocalizeString(l10n.listing_sold_message, {name: notification.data.name, price: FormatPriceString(notification.data.price, {stringOnly: true})});
       if(notification.data.listing) {
-        link = UrlJoin(basePath, "users", "me", "listings", notification.data.listing);
+        link = UrlJoin(basePath, "users", "me", "items", contractId, notification.data.token.toString());
       }
 
       break;
@@ -152,7 +154,7 @@ const Notification = observer(({notification, Hide}) => {
       header = l10n.offer_received;
       message = LocalizeString(l10n.offer_received_message, {name: notification.data.name, price: FormatPriceString(notification.data.price, {stringOnly: true})});
 
-      link = UrlJoin(basePath, "users", "me", "offers");
+      link = UrlJoin(basePath, "users", "me", "items", contractId, notification.data.token.toString());
 
       break;
 
@@ -182,7 +184,7 @@ const Notification = observer(({notification, Hide}) => {
         );
       }
 
-      link = UrlJoin(basePath, "users", "me", "offers");
+      link = UrlJoin(basePath, "users", "me", "items", contractId, notification.data.token.toString());
       break;
 
     case "OFFER_EXPIRED":
@@ -190,7 +192,7 @@ const Notification = observer(({notification, Hide}) => {
       header = l10n.offer_expired;
       message = LocalizeString(l10n.offer_expired_message, {name: notification.data.name, price: FormatPriceString(notification.data.price, {stringOnly: true})});
 
-      link = UrlJoin(basePath, "users", "me", "offers");
+      link = UrlJoin(basePath, "users", "me", "items", contractId, notification.data.token.toString());
 
       break;
 

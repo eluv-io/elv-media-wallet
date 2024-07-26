@@ -10,7 +10,7 @@ import ImageIcon from "Components/common/ImageIcon";
 import {AttributeFilter, Carousel, PageBackground, PageContainer, PageHeader} from "Components/properties/Common";
 
 import RightArrow from "Assets/icons/right-arrow";
-import {ScrollTo} from "../../utils/Utils";
+import {ScrollTo, SetImageUrlDimensions} from "../../utils/Utils";
 import {LoginGate} from "Components/common/LoginGate";
 import {MediaItemImageUrl, MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
 
@@ -103,7 +103,7 @@ const SectionContentBanner = observer(({section, sectionContent, navContext}) =>
   );
 });
 
-const SectionContentCarousel = observer(({section, sectionContent, cardFormat="vertical", navContext}) => {
+const SectionContentCarousel = observer(({section, sectionContent, navContext}) => {
   return (
     <Carousel
       className={S(
@@ -126,13 +126,13 @@ const SectionContentCarousel = observer(({section, sectionContent, cardFormat="v
       RenderSlide={({item, setImageDimensions}) =>
         <MediaCard
           size={!section.display.aspect_ratio || section.display.aspect_ratio === "Mixed" ? "mixed" : "fixed"}
-          format={cardFormat || "vertical"}
           key={`media-card-${item.id}`}
           setImageDimensions={setImageDimensions}
           sectionItem={item}
           textDisplay={section.display.content_display_text}
           aspectRatio={section.display.aspect_ratio}
-          cardFormat={section.display.card_style}
+          format={section.display.card_style || "vertical"}
+          buttonText={item?.card_button_text || section.display.card_default_button_text}
           navContext={navContext}
         />
       }
@@ -224,7 +224,7 @@ export const SectionResultsGroup = observer(({groupBy, label, results, navContex
   );
 });
 
-export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPage}) => {
+export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPage, className=""}) => {
   const match = useRouteMatch();
   let navContext = new URLSearchParams(location.search).get("ctx");
   const [sectionContent, setSectionContent] = useState([]);
@@ -311,70 +311,106 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
     displayLimit = columns * displayLimit;
   }
 
+  const backgroundImage = rootStore.pageWidth <= 800 ?
+    section.display.inline_background_image_mobile?.url :
+    section.display.inline_background_image?.url;
+
+  let style = {};
+  if(backgroundImage) {
+    style = {
+      backgroundImage: `url(${SetImageUrlDimensions({url: backgroundImage, width: rootStore.fullscreenImageWidth})})`
+    };
+  } else if(section.display.inline_background_color && CSS.supports("color", section.display.inline_background_color)) {
+    style = {
+      backgroundColor: section.display.inline_background_color
+    };
+  }
+
   return (
     <div
-      ref={element => {
-        if(isMediaPage || !element || navContext !== sectionId) { return; }
-
-        // Remove context from url
-        const url = new URL(location.href);
-        url.searchParams.delete("ctx");
-        //history.replaceState(undefined, undefined, url);
-
-        setTimeout(() => {
-          // Scroll to section
-          ScrollTo(-75, element);
-        }, 150);
-      }}
-      className={S("section", `section--${section.display?.display_format || "grid"}`, `section--${section.display.justification || "left"}`)}
+      style={style}
+      className={[S(
+        "section-container",
+        `section-container--${section.display?.display_format || "grid"}`,
+        `section-container--${section.display.justification || "left"}`
+      ), className].join(" ")}
     >
       {
-        !showAllLink && !section.display.title ? null :
-          <>
-            <div className={S("section__title-container")}>
+        !section.display.logo ? null :
+          <img src={section.display.logo.url} alt="Icon" className={S("section__logo")} />
+      }
+      <div
+        ref={element => {
+          if(isMediaPage || !element || navContext !== sectionId) { return; }
+
+          // Remove context from url
+          const url = new URL(location.href);
+          url.searchParams.delete("ctx");
+          //history.replaceState(undefined, undefined, url);
+
+          setTimeout(() => {
+            // Scroll to section
+            ScrollTo(-150, element);
+          }, 150);
+        }}
+        className={S(
+          "section",
+          `section--${section.display?.display_format || "grid"}`,
+          `section--${section.display.justification || "left"}`
+        )}
+      >
+        {
+          !showAllLink && !section.display.title ? null :
+            <>
+              <div className={S("section__title-container")}>
+                {
+                  !section.display.title ? null :
+                    <h2 className={[S("section__title"), "_title"].join(" ")}>
+                      {
+                        !section.display.title_icon ? null :
+                          <img src={section.display.title_icon.url} alt="Icon" className={S("section__title-icon")} />
+                      }
+                      {section.display.title}
+                    </h2>
+                }
+                {
+                  !showAllLink ? null :
+                    <Link to={UrlJoin(MediaPropertyBasePath(match.params), "s", section.slug || sectionId)} className={S("section__title-link")}>
+                      <div>
+                        { rootStore.l10n.media_properties.sections.view_all }
+                      </div>
+                      <ImageIcon icon={RightArrow} />
+                    </Link>
+                }
+              </div>
               {
-                !section.display.title ? null :
-                  <h2 className={[S("section__title"), "_title"].join(" ")}>
-                    {section.display.title}
+                !section.display.subtitle ? null :
+                  <h2 className={S("section__subtitle")}>
+                    {section.display.subtitle}
                   </h2>
               }
-              {
-                !showAllLink ? null :
-                  <Link to={UrlJoin(MediaPropertyBasePath(match.params), "s", section.slug || sectionId)} className={S("section__title-link")}>
-                    <div>
-                      { rootStore.l10n.media_properties.sections.view_all }
-                    </div>
-                    <ImageIcon icon={RightArrow} />
-                  </Link>
-              }
-            </div>
-            {
-              !section.display.subtitle ? null :
-                <h2 className={S("section__subtitle")}>
-                  {section.display.subtitle}
-                </h2>
-            }
-          </>
-      }
-      {
-        !section.primary_filter || !section.show_primary_filter_in_page_view ? null :
-          <AttributeFilter
-            className={S("section__page-filter")}
-            attributeKey={section.primary_filter}
-            variant="secondary"
-            options={filterOptions}
-            setOption={({field, value}) => setFilterOptions({...filterOptions, [field]: value})}
-          />
-      }
-      <ContentComponent
-        navContext={sectionId}
-        section={section}
-        sectionContent={
-          displayLimit ?
-            sectionContent.slice(0, displayLimit) :
-            sectionContent
+            </>
         }
-      />
+        {
+          !section.primary_filter || !section.show_primary_filter_in_page_view ? null :
+            <AttributeFilter
+              className={S("section__page-filter")}
+              attributeKey={section.primary_filter}
+              variant="secondary"
+              options={filterOptions}
+              setOption={({field, value}) => setFilterOptions({...filterOptions, [field]: value})}
+            />
+        }
+        <ContentComponent
+          navContext={sectionId}
+          section={section}
+          sectionContent={
+            displayLimit ?
+              sectionContent.slice(0, displayLimit) :
+              sectionContent
+          }
+        />
+      </div>
     </div>
   );
 });

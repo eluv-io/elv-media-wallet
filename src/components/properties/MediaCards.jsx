@@ -24,6 +24,7 @@ const MediaCardWithButtonVertical = observer(({
   linkPath="",
   url,
   size,
+  lazy=true,
   buttonText,
   onClick,
   className=""
@@ -42,6 +43,7 @@ const MediaCardWithButtonVertical = observer(({
     >
       <div ref={imageContainerRef} className={S("media-card-button-vertical__image-container")}>
         <LoaderImage
+          lazy={lazy}
           src={livePreviewUrl || imageUrl}
           alternateSrc={livePreviewUrl ? imageUrl : undefined}
           alt={display.title}
@@ -116,6 +118,7 @@ const MediaCardWithButtonHorizontal = observer(({
   linkPath="",
   url,
   size,
+  lazy=true,
   buttonText,
   onClick,
   className=""
@@ -134,6 +137,7 @@ const MediaCardWithButtonHorizontal = observer(({
     >
       <div ref={imageContainerRef} className={S("media-card-button-horizontal__image-container")}>
         <LoaderImage
+          lazy={lazy}
           src={livePreviewUrl || imageUrl}
           loaderAspectRatio={aspectRatio}
           alternateSrc={livePreviewUrl ? imageUrl : undefined}
@@ -206,6 +210,7 @@ const MediaCardBanner = observer(({
   textDisplay,
   linkPath="",
   url,
+  lazy=true,
   onClick,
   className=""
 }) => {
@@ -220,6 +225,7 @@ const MediaCardBanner = observer(({
       <div ref={imageContainerRef} className={S("media-card-banner__image-container")}>
         { !imageUrl ? null :
           <LoaderImage
+            lazy={lazy}
             showWithoutSource
             src={imageUrl}
             alt={display.title}
@@ -291,6 +297,7 @@ const MediaCardVertical = observer(({
   linkPath="",
   url,
   size,
+  lazy=true,
   onClick,
   className=""
 }) => {
@@ -315,6 +322,7 @@ const MediaCardVertical = observer(({
     >
       <div ref={imageContainerRef} className={S("media-card-vertical__image-container")}>
         <LoaderImage
+          lazy={lazy}
           src={livePreviewUrl || imageUrl}
           alternateSrc={livePreviewUrl ? imageUrl : undefined}
           alt={display.title}
@@ -373,6 +381,7 @@ const MediaCardHorizontal = observer(({
   aspectRatio,
   linkPath="",
   url,
+  lazy=true,
   onClick,
   className=""
 }) => {
@@ -387,6 +396,7 @@ const MediaCardHorizontal = observer(({
       <div ref={imageContainerRef} className={S("media-card-horizontal__image-container")}>
         { !imageUrl ? null :
           <LoaderImage
+            lazy={lazy}
             src={livePreviewUrl || imageUrl}
             alternateSrc={livePreviewUrl ? imageUrl : undefined}
             alt={display.title}
@@ -436,7 +446,8 @@ const MediaCardHorizontal = observer(({
             }
             <Description
               description={display.description}
-              maxLines={textDisplay === "all" ? 2 : 3}
+              maxLines={textDisplay === "all" ? 3 : 4}
+              onClick={event => event.stopImmediatePropagation()}
               className={S("media-card-horizontal__description")}
             />
           </div>
@@ -457,6 +468,7 @@ const MediaCard = observer(({
   buttonText,
   navContext,
   size,
+  lazy=true,
   onClick,
   className=""
 }) => {
@@ -540,6 +552,7 @@ const MediaCard = observer(({
     imageContainerRef,
     size,
     disabled,
+    lazy,
     buttonText,
     aspectRatio: !aspectRatio || aspectRatio === "mixed" ? imageAspectRatio : aspectRatio,
     className: [disabled ? S("media-card--disabled") : "", className].join(" ")
