@@ -26,6 +26,14 @@
     padding-right: 0;
   }
 
+  &--grid {
+    align-items: flex-start;
+
+    .section__logo-container {
+      margin-top: 75px;
+    }
+  }
+
   @media screen and (width <= 800px) {
     gap: 30px;
   }
@@ -68,6 +76,21 @@
     .section__title-container {
       justify-content: flex-end;
     }
+  }
+
+  &__logo-container {
+    display: grid;
+    gap: 40px;
+
+    &--with-text {
+      padding-top: 40px;
+    }
+  }
+
+  &__logo-text {
+    font-size: 18px;
+    font-weight: 500;
+    text-align: center;
   }
 
   &__logo {
@@ -187,6 +210,10 @@
       max-height: 150px;
       max-width: 200px;
     }
+
+    &__logo-text {
+      font-size: 14px;
+    }
   }
 
   @media screen and (width <= 800px) {
@@ -255,12 +282,17 @@
   }
 
   @media screen and (width <= 600px) {
-    &__logo {
+    &__logo-container {
       display: none;
     }
 
     &__title-container {
+      margin-bottom: 5px;
       max-width: var(--max-card-width);
+    }
+
+    &__page-filter {
+      margin-top: 20px;
     }
   }
 }

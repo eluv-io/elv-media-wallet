@@ -447,7 +447,8 @@ const MediaPropertyHeader = observer(() => {
 
   if(!mediaProperty) { return null; }
 
-  const searchDisabled = !rootStore.loggedIn && mediaProperty.metadata?.search?.hide_if_unauthenticated;
+  const searchDisabled = mediaProperty.metadata.search?.disabled ||
+    (!rootStore.loggedIn && mediaProperty.metadata?.search?.hide_if_unauthenticated);
 
   const logo = SetImageUrlDimensions({url: mediaProperty?.metadata.header_logo?.url, width: 300});
   let basePath = MediaPropertyBasePath(rootStore.routeParams, {includePage: false});

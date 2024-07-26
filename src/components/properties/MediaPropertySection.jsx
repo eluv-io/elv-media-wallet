@@ -337,7 +337,13 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
     >
       {
         !section.display.logo ? null :
-          <img src={section.display.logo.url} alt="Icon" className={S("section__logo")} />
+          <div className={S("section__logo-container", section.display.logo_text ? "section__logo-container--with-text" : "")}>
+            <img src={section.display.logo.url} alt="Icon" className={S("section__logo")} />
+            {
+              !section.display.logo_text ? null :
+                <div className={S("section__logo-text")}>{section.display.logo_text}</div>
+            }
+          </div>
       }
       <div
         ref={element => {
