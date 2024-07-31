@@ -5,6 +5,7 @@ import {observer} from "mobx-react";
 import {rootStore, mediaPropertyStore} from "Stores";
 import {Redirect, useRouteMatch} from "react-router-dom";
 import {
+  AttributeFilter,
   Button,
   PageBackground,
   PageContainer,
@@ -121,6 +122,51 @@ const Actions = observer(() => {
   );
 });
 
+const MediaPropertySectionContainer = observer(({section, isMediaPage}) => {
+  const match = useRouteMatch();
+  const [filter, setFilter] = useState("");
+
+  return (
+    <>
+      {
+        (section.filter_tags || []).length === 0 ? null :
+          <AttributeFilter
+            className={S("page__container-section-filter")}
+            attributeKey="tag"
+            filterOptions={
+              [
+                "",
+                ...section.filter_tags
+              ].map(value => ({value}))
+            }
+            variant="text"
+            options={{attributes: {tag: filter}}}
+            setOption={({value}) => setFilter(value.tag)}
+          />
+      }
+
+      {
+        section.sections.map(sectionId => {
+          const subsection = mediaPropertyStore.MediaPropertySection({...match.params, sectionSlugOrId: sectionId});
+
+          if(filter && !subsection?.tags?.includes(filter)) {
+            return null;
+          }
+
+          return (
+            <MediaPropertySection
+              key={`section-${sectionId}`}
+              sectionId={sectionId}
+              isMediaPage={isMediaPage}
+              className={S("page__section")}
+            />
+          );
+        })
+      }
+    </>
+  );
+});
+
 export const MediaPropertyPageContent = observer(({isMediaPage, className=""}) => {
   const match = useRouteMatch();
   const page = mediaPropertyStore.MediaPropertyPage(match.params);
@@ -130,14 +176,31 @@ export const MediaPropertyPageContent = observer(({isMediaPage, className=""}) =
   return (
     <div className={[S("page__sections"), className].join(" ")}>
       {
-        page.layout.sections.map(sectionId =>
-          <MediaPropertySection
-            key={`section-${sectionId}`}
-            sectionId={sectionId}
-            isMediaPage={isMediaPage}
-            className={S("page__section")}
-          />
-        )
+        page.layout.sections.map(sectionId => {
+          const section = mediaPropertyStore.MediaPropertySection({
+            ...match.params,
+            sectionSlugOrId: sectionId
+          });
+
+          if(section.type === "container") {
+            return (
+              <MediaPropertySectionContainer
+                key={`section-${sectionId}`}
+                section={section}
+                isMediaPage={isMediaPage}
+              />
+            );
+          }
+
+          return (
+            <MediaPropertySection
+              key={`section-${sectionId}`}
+              sectionId={sectionId}
+              isMediaPage={isMediaPage}
+              className={S("page__section")}
+            />
+          );
+        })
       }
     </div>
   );

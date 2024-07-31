@@ -5,7 +5,7 @@ import {observer} from "mobx-react";
 import {mediaPropertyStore, rootStore} from "Stores";
 import SanitizeHTML from "sanitize-html";
 import {SetImageUrlDimensions} from "../../utils/Utils";
-import {useHistory, useRouteMatch} from "react-router-dom";
+import {useHistory} from "react-router-dom";
 import {Modal as MantineModal} from "@mantine/core";
 import {
   CreateMediaPropertyPurchaseParams,
@@ -431,17 +431,17 @@ export const Carousel = observer(({
   );
 });
 
-export const AttributeFilter = observer(({filterOptions, attributeKey, options, setOption, variant="primary", className=""}) => {
-  const match = useRouteMatch();
-
-  const attributeOptions =
-    filterOptions ?
-      filterOptions.map(option => option.primary_filter_value) :
-      attributeKey === "__media-type" ?
-        ["Video", "Gallery", "Image", "Ebook"] :
-        mediaPropertyStore.GetMediaPropertyAttributes(match.params)[attributeKey]?.tags;
-
-  if(!attributeKey || !attributeOptions || attributeOptions.length === 0) { return null; }
+export const AttributeFilter = observer(({
+  attributeKey,
+  filterOptions,
+  dependentAttribute,
+  variant="box",
+  options,
+  setOption,
+  className="",
+  swiperOptions={}
+}) => {
+  if(!attributeKey || !filterOptions || filterOptions.length === 0) { return null; }
 
   const selected = attributeKey === "__media-type" ?
     (options.mediaType || "") :
@@ -450,68 +450,61 @@ export const AttributeFilter = observer(({filterOptions, attributeKey, options, 
   return (
     <Swiper
       threshold={0}
-      spaceBetween={variant === "primary" ? 15 : 30}
+      spaceBetween={variant === "box" ? 15 : 30}
       observer
       observeParents
       slidesPerView="auto"
+      {...swiperOptions}
       className={[S("attribute-filter", `attribute-filter--${variant}`), className].join(" ")}
     >
       {
-        filterOptions ? null :
-          <SwiperSlide className={S("attribute-filter__attribute-slide")}>
-            <button
-              onClick={() => {
-                if(attributeKey === "__media-type") {
-                  setOption({field: "mediaType", value: null});
-                } else {
-                  const updatedAttributes = {...(options.attributes || {})};
-                  delete updatedAttributes[attributeKey];
-                  setOption({field: "attributes", value: updatedAttributes});
-                }
-              }}
-              className={S("attribute-filter__attribute", `attribute-filter__attribute--${variant}`, !selected ? "attribute-filter__attribute--active" : "")}
-            >
-              All
-            </button>
-          </SwiperSlide>
-      }
-      {
-        attributeOptions.map(attributeValue => {
-          const image = filterOptions?.find(({primary_filter_value}) =>
-            primary_filter_value === attributeValue ||
-            (!primary_filter_value && !attributeValue)
-          )?.primary_filter_image?.url;
-
+        filterOptions.map(({value, image}) => {
           return (
-            <SwiperSlide key={`attribute-${attributeValue}`} className={S("attribute-filter__attribute-slide", image ? "attribute-filter__attribute-slide--image" : "")}>
+            <SwiperSlide key={`attribute-${value}`} className={S("attribute-filter__attribute-slide", image ? "attribute-filter__attribute-slide--image" : "")}>
               <button
                 onClick={() => {
                   if(attributeKey === "__media-type") {
-                    setOption({field: "mediaType", value: attributeValue});
+                    setOption({field: "mediaType", value});
+
+                    if(dependentAttribute) {
+                      setOption({field: "attributes", [dependentAttribute]: ""});
+                    }
                   } else {
-                    setOption({
-                      field: "attributes",
-                      value: {...options.attributes, [attributeKey]: attributeValue}
-                    });
+                    if(dependentAttribute && dependentAttribute !== "__media-type") {
+                      setOption({
+                        field: "attributes",
+                        value: {
+                          ...options.attributes,
+                          [attributeKey]: value,
+                          [dependentAttribute]: ""
+                        }
+                      });
+                    } else {
+                      setOption({field: "attributes", value: {...options.attributes, [attributeKey]: value}});
+
+                      if(dependentAttribute === "__media-type") {
+                        setOption({field: "mediaType", value: ""});
+                      }
+                    }
                   }
                 }}
                 className={
                   S(
                     "attribute-filter__attribute",
                     `attribute-filter__attribute--${image ? "image" : variant}`,
-                    selected === attributeValue ? "attribute-filter__attribute--active" : ""
+                    selected === value ? "attribute-filter__attribute--active" : ""
                   )
                 }
               >
                 {
                   image ?
                     <LoaderImage
-                      src={image}
+                      src={image?.url}
                       width={300}
-                      alt={attributeValue || "All"}
+                      alt={value || "All"}
                       className={S("attribute-filter__attribute-image")}
                     /> :
-                    attributeValue || "All"
+                    value || "All"
                 }
               </button>
             </SwiperSlide>

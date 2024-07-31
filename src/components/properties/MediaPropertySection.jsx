@@ -402,7 +402,13 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
             <AttributeFilter
               className={S("section__page-filter")}
               attributeKey={section.primary_filter}
-              variant="secondary"
+              filterOptions={
+                [
+                  "",
+                  ...(mediaPropertyStore.GetMediaPropertyAttributes(match.params)?.[section.primary_filter]?.tags || [])
+                ].map(value => ({value}))
+              }
+              variant="text"
               options={filterOptions}
               setOption={({field, value}) => setFilterOptions({...filterOptions, [field]: value})}
             />
@@ -533,7 +539,13 @@ const MediaPropertySectionPage = observer(() => {
         !section.primary_filter ? null :
           <AttributeFilter
             attributeKey={section.primary_filter}
-            variant="primary"
+            variant="box"
+            filterOptions={
+              [
+                "",
+                ...(mediaPropertyStore.GetMediaPropertyAttributes(match.params)?.[section.primary_filter]?.tags || [])
+              ].map(value => ({value}))
+            }
             options={filterOptions}
             setOption={({field, value}) => setFilterOptions({...filterOptions, [field]: value})}
           />
@@ -542,7 +554,13 @@ const MediaPropertySectionPage = observer(() => {
         !section.secondary_filter ? null :
           <AttributeFilter
             attributeKey={section.secondary_filter}
-            variant="secondary"
+            variant="text"
+            filterOptions={
+              [
+                "",
+                ...(mediaPropertyStore.GetMediaPropertyAttributes(match.params)?.[section.secondary_filter]?.tags || [])
+              ].map(value => ({value}))
+            }
             options={filterOptions}
             setOption={({field, value}) => setFilterOptions({...filterOptions, [field]: value})}
           />

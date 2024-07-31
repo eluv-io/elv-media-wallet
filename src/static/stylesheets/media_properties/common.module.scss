@@ -723,7 +723,7 @@
   margin-bottom: 30px;
   max-width: max-content;
 
-  &__attribute--primary {
+  &__attribute--box {
     background-color: #414141;
     border: 1px solid transparent;
     border-radius: 5px;
@@ -737,7 +737,7 @@
     }
   }
 
-  &__attribute--secondary {
+  &__attribute--text {
     color: var(--property-text-faded);
     font-size: 1.2em;
     font-weight: 600;
@@ -783,11 +783,11 @@
   }
 
   @media screen and (width <= 800px) {
-    &--primary {
+    &--box {
       font-size: 0.8em;
     }
 
-    &--secondary {
+    &--text {
       font-size: 1em;
     }
 

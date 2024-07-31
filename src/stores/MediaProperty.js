@@ -49,7 +49,14 @@ class MediaPropertyStore {
   GetMediaPropertyAttributes({mediaPropertySlugOrId}) {
     const associatedCatalogIds = this.MediaProperty({mediaPropertySlugOrId})?.metadata.media_catalogs || [];
 
-    let attributes = {};
+    let attributes = {
+      "__media-type": {
+        id: "__media-type",
+        title: "Media Type",
+        tags: ["Video", "Gallery", "Image", "Ebook"]
+      }
+    };
+
     associatedCatalogIds.map(mediaCatalogId =>
       Object.keys(this.mediaCatalogs[mediaCatalogId]?.attributes || {})
         .forEach(attributeId =>
@@ -622,7 +629,7 @@ class MediaPropertyStore {
     const page = this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId: pageSlugOrId || "main"});
     behavior = page.permissions?.behavior || behavior;
 
-    let alternatePageId = mediaProperty.permissions?.alternate_page_id;
+    let alternatePageId = page.permissions?.alternate_page_id || mediaProperty.permissions?.alternate_page_id;
 
     if(sectionSlugOrId) {
       const section = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId});
@@ -632,7 +639,11 @@ class MediaPropertyStore {
         authorized = section.authorized;
         cause = !authorized && "Section permissions";
         permissionItemIds = section.permissions?.permission_item_ids || [];
-        alternatePageId = section.permissions?.alternate_page_id || alternatePageId;
+        alternatePageId =
+          (
+            section.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
+            section.permissions?.alternate_page_id
+          ) || alternatePageId;
 
         if(authorized && sectionItemId) {
           const sectionItem = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId})?.content
@@ -643,7 +654,11 @@ class MediaPropertyStore {
             permissionItemIds = sectionItem.permissions?.permission_item_ids || [];
             authorized = sectionItem.authorized;
             cause = cause || !authorized && "Section item permissions";
-            alternatePageId = sectionItem.permissions?.alternate_page_id || alternatePageId;
+            alternatePageId =
+              (
+                sectionItem.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
+                sectionItem.permissions?.alternate_page_id
+              ) || alternatePageId;
           }
         }
       }

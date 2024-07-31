@@ -41,6 +41,13 @@
     width: 100%;
   }
 
+  &__container-section-filter {
+    margin-bottom: 0;
+    margin-top: 25px;
+    max-width: 100%;
+    padding-inline: var(--property-page-padding);
+  }
+
   @media screen and (width <= 800px) {
     .actions {
       flex-wrap: wrap;
