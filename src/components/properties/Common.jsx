@@ -32,7 +32,7 @@ export const PageContainer = ({children, className}) => {
   );
 };
 
-export const PageBackground = observer(({display}) => {
+export const PageBackground = observer(({display, className="", imageClassName="", gradientClassName="", ...props}) => {
   const pageWidth = mediaPropertyStore.rootStore.pageWidth;
   const backgroundImage = pageWidth <= 800 ?
     display.background_image_mobile?.url :
@@ -52,39 +52,42 @@ export const PageBackground = observer(({display}) => {
           loaderWidth="100%"
           loaderHeight="var(--property-full-content-height"
           src={SetImageUrlDimensions({url: backgroundImage, width: mediaPropertyStore.rootStore.fullscreenImageWidth})}
-          className={S("page-background__image")}
+          className={[S("page-background__image"), className, imageClassName].join(" ")}
+          {...props}
         />
-        <div className={S("page-background__gradient")} />
+        <div className={[S("page-background__gradient"), className, gradientClassName].join(" ")} {...props} />
       </>
   );
 });
 
 export const PageHeader = observer(({display, maxHeaderSize=36, children, className=""}) => {
   return (
-    <div className={[S("page-header"), className].join(" ")}>
-      <div className={S("page-header__content", `page-header__content--${display.position?.toLowerCase() || "left"}`)}>
-        <LoaderImage
-          lazy={false}
-          loaderHeight={200}
-          loaderWidth={400}
-          alt={display.logo_alt || display.title || "Logo"}
-          src={SetImageUrlDimensions({url: display.logo?.url, width: 1000})}
-          className={S("page-header__logo")}
-        />
-        <div className={S("page-header__title-container")}>
-          {
-            !display.title_icon ? null :
-              <img src={display.title_icon.url} alt="Icon" className={S("page-header__title-icon")} />
-          }
-          <ScaledText Tag="h1" maxPx={maxHeaderSize} minPx={32} maxPxMobile={32} minPxMobile={18} className={[S("page-header__title"), "_title"].join(" ")}>
-            { display.title }
-          </ScaledText>
+    <div className={[S("page-header", `page-header--${display.position?.toLowerCase()}`), className].join(" ")}>
+      <div className={S("page-header__content-container")}>
+        <div className={S("page-header__content", `page-header__content--${display.position?.toLowerCase() || "left"}`)}>
+          <LoaderImage
+            lazy={false}
+            loaderHeight={200}
+            loaderWidth={400}
+            alt={display.logo_alt || display.title || "Logo"}
+            src={SetImageUrlDimensions({url: display.logo?.url, width: 1000})}
+            className={S("page-header__logo")}
+          />
+          <div className={S("page-header__title-container")}>
+            {
+              !display.title_icon ? null :
+                <img src={display.title_icon.url} alt="Icon" className={S("page-header__title-icon")} />
+            }
+            <ScaledText Tag="h1" maxPx={maxHeaderSize} minPx={32} maxPxMobile={32} minPxMobile={18} className={[S("page-header__title"), "_title"].join(" ")}>
+              { display.title }
+            </ScaledText>
+          </div>
+          <Description
+            description={display.description}
+            descriptionRichText={display.description_rich_text}
+            className={S("page-header__description")}
+          />
         </div>
-        <Description
-          description={display.description}
-          descriptionRichText={display.description_rich_text}
-          className={S("page-header__description")}
-        />
       </div>
       { children }
     </div>
@@ -141,17 +144,20 @@ export const LoaderImage = observer(({src, alternateSrc, width, loaderHeight, lo
             }}
           />
       }
-      <object
-        {...props}
-        style={{
-          ...(props.style || {}),
-          ...(loaderWidth ? {width: loaderWidth} : {}),
-          ...(loaderHeight ? {height: loaderHeight} : {}),
-          ...(loaderAspectRatio ? {aspectRatio: loaderAspectRatio} : {})
-        }}
-        key={props.key ? `${props.key}--placeholder` : undefined}
-        className={[S("lazy-image__background", showLoader ? "lazy-image__background--visible" : ""), props.className || ""].join(" ")}
-      />
+      {
+        loaded ? null :
+          <object
+            {...props}
+            style={{
+              ...(props.style || {}),
+              ...(loaderWidth ? {width: loaderWidth} : {}),
+              ...(loaderHeight ? {height: loaderHeight} : {}),
+              ...(loaderAspectRatio ? {aspectRatio: loaderAspectRatio} : {})
+            }}
+            key={props.key ? `${props.key}--placeholder` : undefined}
+            className={[S("lazy-image__background", showLoader ? "lazy-image__background--visible" : ""), props.className || ""].join(" ")}
+          />
+      }
     </>
   );
 });
@@ -326,6 +332,7 @@ export const Carousel = observer(({
   content,
   swiperOptions={},
   UpdateActiveIndex,
+  UpdateActiveSlideIndex,
   RenderSlide,
   initialImageDimensions,
   className=""
@@ -354,6 +361,10 @@ export const Carousel = observer(({
   }, [content, activeIndex]);
 
   useEffect(() => {
+    UpdateActiveSlideIndex && UpdateActiveSlideIndex(activeSwiperSlide);
+  }, [content, activeSwiperSlide]);
+
+  useEffect(() => {
     SetSlideVisibility();
   }, [content, lastSlide, activeSwiperSlide, rootStore.pageWidth]);
 
@@ -374,11 +385,11 @@ export const Carousel = observer(({
       speed={750}
       parallax
       updateOnWindowResize
+      onActiveIndexChange={swiper => setActiveSwiperSlide(swiper.activeIndex)}
       {...swiperOptions}
       onSwiper={swiper => {
         setSwiper(swiper);
         setActiveSwiperSlide(swiper.activeIndex);
-        swiper.on("activeIndexChange", () => setActiveSwiperSlide(swiper.activeIndex));
       }}
     >
       <button

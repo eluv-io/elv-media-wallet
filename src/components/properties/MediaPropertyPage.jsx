@@ -1,6 +1,6 @@
 import PageStyles from "Assets/stylesheets/media_properties/property-page.module.scss";
 
-import React, {useState} from "react";
+import React, {useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore, mediaPropertyStore} from "Stores";
 import {Redirect, useRouteMatch} from "react-router-dom";
@@ -15,6 +15,10 @@ import {MediaPropertySection} from "Components/properties/MediaPropertySection";
 import Video from "Components/properties/Video";
 import Modal from "Components/common/Modal";
 import {CreateMediaPropertyPurchaseParams, MediaPropertyLink} from "../../utils/MediaPropertyUtils";
+import ImageIcon from "Components/common/ImageIcon";
+
+import LeftArrow from "Assets/icons/left-arrow";
+import RightArrow from "Assets/icons/right-arrow";
 
 const S = (...classes) => classes.map(c => PageStyles[c] || "").join(" ");
 
@@ -43,7 +47,7 @@ const ActionVisible = ({permissions, behavior, visibility}) => {
   }
 };
 
-const PageAction = observer(({action}) => {
+const Action = observer(({action}) => {
   const match = useRouteMatch();
   let buttonParams = {};
 
@@ -98,16 +102,14 @@ const PageAction = observer(({action}) => {
   );
 });
 
-const Actions = observer(() => {
-  const match = useRouteMatch();
-  const page = mediaPropertyStore.MediaPropertyPage(match.params);
-
-  let actions = (page.actions || [])
+const Actions = observer(({actions}) => {
+  actions = (actions || [])
     .filter(action => ActionVisible({
       visibility: action.visibility,
       behavior: action.behavior,
       permissions: action.permissions
     }));
+
 
   if(actions.length === 0) { return null; }
 
@@ -115,7 +117,58 @@ const Actions = observer(() => {
     <div className={S("actions")}>
       {
         actions.map(action =>
-          <PageAction key={action.id} action={action} />
+          <Action key={action.id} action={action} />
+        )
+      }
+    </div>
+  );
+});
+
+const MediaPropertyHeroSection = observer(({section}) => {
+  const refs = useRef([]);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const activeItem = section.hero_items[activeIndex];
+  const minHeight = Math.max(...(refs?.current?.map(element => element?.getBoundingClientRect()?.height || 0) || []));
+
+  return (
+    <div style={section.allow_overlap ? {} : {minHeight: minHeight + 50}} className={S("hero-section")}>
+      <PageBackground
+        key={`background-${activeIndex}`}
+        display={activeItem?.display}
+        className={S("hero-section__background")}
+        imageClassName={S("hero-section__background-image")}
+      />
+      {
+        section.hero_items.map((heroItem, index) =>
+          <div
+            ref={element => refs.current[index] = element}
+            style={activeIndex === index ? {} : {position: "absolute", opacity: 0, userSelect: "none"}}
+            key={`content-${index}`}
+            className={S("hero-section__content", activeIndex === index ? "hero-section__content--active" : "")}
+          >
+            <button
+              disabled={activeIndex === 0}
+              onClick={() => setActiveIndex(Math.max(0, activeIndex - 1))}
+              className={S("hero-section__arrow", "hero-section__arrow--previous")}
+            >
+              <ImageIcon label="Previous Page" icon={LeftArrow} />
+            </button>
+            <PageHeader
+              display={heroItem.display}
+              maxHeaderSize={60}
+              className={S("page__header")}
+            >
+              <Actions actions={heroItem?.actions} />
+            </PageHeader>
+            <button
+              disabled={activeIndex === section.hero_items.length - 1}
+              onClick={() => setActiveIndex(Math.min(section.hero_items.length - 1, activeIndex + 1))}
+              className={S("hero-section__arrow", "hero-section__arrow--next")}
+            >
+              <ImageIcon label="Next Page" icon={RightArrow} />
+            </button>
+          </div>
         )
       }
     </div>
@@ -155,7 +208,7 @@ const MediaPropertySectionContainer = observer(({section, isMediaPage}) => {
 
           return (
             <MediaPropertySection
-              key={`section-${sectionId}`}
+              key={`section-${sectionId}-${filter}`}
               sectionId={sectionId}
               isMediaPage={isMediaPage}
               className={S("page__section")}
@@ -176,7 +229,7 @@ export const MediaPropertyPageContent = observer(({isMediaPage, className=""}) =
   return (
     <div className={[S("page__sections"), className].join(" ")}>
       {
-        page.layout.sections.map(sectionId => {
+        page.layout.sections.map((sectionId) => {
           const section = mediaPropertyStore.MediaPropertySection({
             ...match.params,
             sectionSlugOrId: sectionId
@@ -188,6 +241,13 @@ export const MediaPropertyPageContent = observer(({isMediaPage, className=""}) =
                 key={`section-${sectionId}`}
                 section={section}
                 isMediaPage={isMediaPage}
+              />
+            );
+          } else if(section.type === "hero") {
+            return (
+              <MediaPropertyHeroSection
+                key={`section-${sectionId}`}
+                section={section}
               />
             );
           }
@@ -216,14 +276,6 @@ const MediaPropertyPage = observer(() => {
 
   return (
     <PageContainer className={S("page", "property-page")}>
-      <PageBackground display={page.layout} />
-      <PageHeader
-        display={page.layout}
-        maxHeaderSize={60}
-        className={S("page__header")}
-      >
-        <Actions />
-      </PageHeader>
       <MediaPropertyPageContent />
     </PageContainer>
   );

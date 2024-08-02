@@ -6,6 +6,7 @@
 
 .page {
   background-color: var(--property-background);
+  padding-top: 0;
 
   &.page {
     padding-inline: 0;
@@ -35,8 +36,7 @@
 
   &__sections {
     display: grid;
-    gap: 50px;
-    margin-top: 100px;
+    gap: 40px;
     position: relative;
     width: 100%;
   }
@@ -55,10 +55,6 @@
       margin-top: 50px;
     }
 
-    &__sections {
-      margin-top: 50px;
-    }
-
     &__header,
     &__section {
       padding-inline: var(--property-page-padding);
@@ -69,6 +65,88 @@
       font-size: 0.9em;
       height: 36px;
       max-width: 450px;
+    }
+  }
+}
+
+.hero-section {
+  @include page-fade-in;
+
+  background-color: var(--property-background);
+  height: min-content;
+  max-width: 100%;
+  min-height: var(--property-full-content-height);
+  overflow: visible;
+  padding: 25px 0;
+  position: relative;
+  width: 100%;
+
+  &__background {
+    min-height: var(--property-full-content-height);
+  }
+
+  &__background-image {
+    @include page-fade-in(1s, ease-out);
+  }
+
+  &__content {
+    height: max-content;
+    overflow: hidden;
+
+    &--active {
+      transition: opacity 1s ease-out;
+    }
+  }
+
+  &__arrow {
+    display: block;
+    font-size: 1.5em;
+    font-weight: 400;
+    height: 100%;
+    opacity: 0.5;
+    padding: 0 15px;
+    position: absolute;
+    top: 0;
+    transition: opacity 0.25s ease-out;
+    width: max-content;
+    z-index: 1;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    &:disabled {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    svg {
+      filter: drop-shadow(1px 1px 3px black);
+      height: 24px;
+      position: relative;
+      stroke-width: 2px;
+      z-index: 1;
+    }
+
+    &--previous {
+      left: 0;
+      padding-right: 20px;
+    }
+
+    &--next {
+      padding-left: 20px;
+      right: 0;
+    }
+
+    &.swiper-button-disabled {
+      cursor: auto;
+      opacity: 0;
+    }
+  }
+
+  @media screen and (width <= 800px) {
+    &__content {
+      padding-inline: 20px;
     }
   }
 }
