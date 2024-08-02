@@ -246,7 +246,7 @@ export const MediaPropertiesBrowser = observer(() => {
                 >
                   <LoaderImage
                     className="media-property-card__image"
-                    src={SetImageUrlDimensions({url: mediaProperty.image?.url, width: 600})}
+                    src={mediaProperty.image}
                     loaderAspectRatio={3/4}
                     alt={mediaProperty.title || ""}
                   />

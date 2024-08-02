@@ -719,41 +719,33 @@ class MediaPropertyStore {
       id: "media-properties",
       Load: async () => {
         const properties = [
-          {propertyId: "iq__ix2KtiranDQ4Zh3Qr24mYkKXm6x", marketplaceId: "iq__4XGTENKuEp8Tdx3v3MgsbTgtbstr"},
-          {propertyId: "iq__2oqzMjCeDZyr4pgoPtyPdoUF9rCm", marketplaceId: "iq__36Xv1Q6BAskNyvWzxJ5K1PU1ryYG"},
-          {propertyId: "iq__2iRwi1aTMQ6GGaiKC6yyyDanBqKo", marketplaceId: "iq__2E32eXX5wABsMcJwc9DH95aeXSmz"},
-
-          {propertyId: "iq__2vo9ruJ2ZPc8imK7GNG3NVP51x3g", marketplaceId: "iq__2Utm3HfQ2dVWquyGPWvrPXtgpy8v"},
-          {propertyId: "iq__46rbdnidu71Hs54iS9gREsGLwZXj", marketplaceId: "iq__2nDj1bBBkRtN7VnX1zzpHYpoCd7V"},
-          {propertyId: "iq__3iCRaVZ2YsxBWuHeBu6rAB8zNs4d", marketplaceId: "iq__2nDj1bBBkRtN7VnX1zzpHYpoCd7V"},
-          {propertyId: "iq__SgJvnK6sW1exHXwWR8GfGnAg6NS", marketplaceId: "iq__3YdURECX5V1rhE84vREnXfavwn5s"},
-          {propertyId: "iq__SgJvnK6sW1exHXwWR8GfGnAg6NS", subPropertyId: "iq__kbhfTxt1c1CgT9zptFyCUhyqAkq", marketplaceId: "iq__mEA97ZQwAjaabEJvRJtrCfdxraG" },
-          {propertyId: "iq__SgJvnK6sW1exHXwWR8GfGnAg6NS", subPropertyId: "iq__4XrUn6Z7g1yioEJnvpiKZ5aYfiK8", marketplaceId: "iq__3oCrYs3goRxY16JEFr4JqbeEJU6c" },
-          {propertyId: "iq__SgJvnK6sW1exHXwWR8GfGnAg6NS", subPropertyId: "iq__D4VkWm51vGyXWK4wVMyi1MN3ii6", marketplaceId: "iq__3YdURECX5V1rhE84vREnXfavwn5s" },
-          {propertyId: "iq__3pJZ5CzhEwEZQ5K997fuRHV21J1F"},
-          {propertyId: "iq__fZJu14zfZLF4nVMxDE59voRaubJ"},
-          {propertyId: "iq__zaX95x1MsLx7o7V9ECREVpbMAMx"},
-          {propertyId: "iq__3KBXsWvinwFLjUNugBebsApFDPjV"},
-          {propertyId: "iq__2yWBgqX6ZT2gyXos8m1VTqW3Crf9"},
+          {propertyId: "iq__2vo9ruJ2ZPc8imK7GNG3NVP51x3g", title: "Euro 2024 RIS Streaming"},
+          {propertyId: "iq__46rbdnidu71Hs54iS9gREsGLwZXj", title: "ECPR Live Matches"},
+          {propertyId: "iq__3iCRaVZ2YsxBWuHeBu6rAB8zNs4d", title: "ECPR Archive"},
+          {propertyId: "iq__2mvaFiRFepin7hk3U3bqd3RyM2fV", title: "Cricket Australia"},
+          {propertyId: "iq__ix2KtiranDQ4Zh3Qr24mYkKXm6x", title: "Fandango Movieverse"},
+          {propertyId: "iq__2oqzMjCeDZyr4pgoPtyPdoUF9rCm", title: "Yellowstone"},
+          {propertyId: "iq__2iRwi1aTMQ6GGaiKC6yyyDanBqKo", title: "Transformers One"},
+          {propertyId: "iq__SgJvnK6sW1exHXwWR8GfGnAg6NS", title: "WB Movieverse"},
+          {propertyId: "iq__SgJvnK6sW1exHXwWR8GfGnAg6NS", subPropertyId: "iq__kbhfTxt1c1CgT9zptFyCUhyqAkq", title: "Lord of the Rings" },
+          {propertyId: "iq__SgJvnK6sW1exHXwWR8GfGnAg6NS", subPropertyId: "iq__4XrUn6Z7g1yioEJnvpiKZ5aYfiK8", title: "Superman" },
+          {propertyId: "iq__SgJvnK6sW1exHXwWR8GfGnAg6NS", subPropertyId: "iq__D4VkWm51vGyXWK4wVMyi1MN3ii6", title: "The Flash" },
+          {propertyId: "iq__3pJZ5CzhEwEZQ5K997fuRHV21J1F", title: "Fox"},
+          {propertyId: "iq__fZJu14zfZLF4nVMxDE59voRaubJ", title: "Fox Stock"},
+          {propertyId: "iq__zaX95x1MsLx7o7V9ECREVpbMAMx", title: "Fox Weather"},
+          {propertyId: "iq__3KBXsWvinwFLjUNugBebsApFDPjV", title: "Fox Sports"},
+          {propertyId: "iq__2yWBgqX6ZT2gyXos8m1VTqW3Crf9", title: "Fox News"},
         ];
 
-        const LoadPropertyInfo = async ({propertyId, subPropertyId, marketplaceId}) => {
-          const meta = await this.client.ContentObjectMetadata({
-            libraryId: await this.client.ContentObjectLibraryId({objectId: subPropertyId || propertyId}),
-            objectId: subPropertyId || propertyId,
-            metadataSubtree: "/public/asset_metadata/info",
-            produceLinkUrls: true,
-            select: [
-              "image",
-              "title"
-            ]
-          });
-
+        const LoadPropertyInfo = async propertyInfo => {
+          const versionHash = await this.client.LatestVersionHash({objectId: propertyInfo.subPropertyId || propertyInfo.propertyId});
           return {
-            ...meta,
-            propertyId,
-            subPropertyId,
-            marketplaceId
+            ...propertyInfo,
+            image: await this.client.LinkUrl({
+              versionHash,
+              linkPath: "/public/asset_metadata/info/image",
+              queryParams: {width: 600}
+            })
           };
         };
 
