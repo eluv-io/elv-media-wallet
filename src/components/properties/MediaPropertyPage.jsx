@@ -141,6 +141,8 @@ const MediaPropertyHeroSection = observer(({section}) => {
   const activeItem = section.hero_items[activeIndex];
   const minHeight = Math.max(...(refs?.current?.map(element => element?.getBoundingClientRect()?.height || 0) || []));
 
+  console.log(section.allow_overlap, minHeight)
+
   return (
     <div style={!section.allow_overlap ? {} : {minHeight: minHeight + 50}} className={S("hero-section")}>
       <PageBackground
