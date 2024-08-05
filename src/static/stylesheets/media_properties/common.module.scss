@@ -786,12 +786,12 @@
   }
 
   &__attribute--image {
-    aspect-ratio: 16/9;
     border-radius: 13px;
+    height: 100px;
     opacity: 0.5;
     overflow: hidden;
     transition: opacity 0.25s ease;
-    width: 250px;
+    width: auto;
 
     &:hover {
       opacity: 0.75;
@@ -829,7 +829,7 @@
     }
 
     &__attribute--image {
-      width: 150px;
+      height: 75px;
     }
   }
 }

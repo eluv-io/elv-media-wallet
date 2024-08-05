@@ -492,7 +492,7 @@ export const AttributeFilter = observer(({
   return (
     <Swiper
       threshold={0}
-      spaceBetween={variant === "box" ? 15 : 30}
+      spaceBetween={variant === "box" || (variant === "image" && rootStore.pageWidth < 800) ? 15 : 30}
       observer
       observeParents
       slidesPerView="auto"
@@ -542,8 +542,10 @@ export const AttributeFilter = observer(({
                   image ?
                     <LoaderImage
                       src={image?.url}
-                      width={300}
+                      loaderHeight={100}
                       alt={value || "All"}
+                      width={300}
+                      loaderAspectRatio={1}
                       className={S("attribute-filter__attribute-image")}
                     /> :
                     value || "All"

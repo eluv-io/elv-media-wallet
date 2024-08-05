@@ -140,9 +140,9 @@ const MediaPropertyHeroSection = observer(({section}) => {
 
   const activeItem = section.hero_items[activeIndex];
   const minHeight = Math.max(...(Object.values(contentRefs).map(element => element?.getBoundingClientRect()?.height || 0) || []));
-  
+
   return (
-    <div style={!section.allow_overlap ? {} : {minHeight: minHeight + 50}} className={S("hero-section")}>
+    <div style={!section.allow_overlap || !minHeight || !Number.isFinite(minHeight) ? {} : {minHeight: minHeight + 100}} className={S("hero-section")}>
       <PageBackground
         key={`background-${activeIndex}`}
         display={activeItem?.display}
@@ -154,7 +154,7 @@ const MediaPropertyHeroSection = observer(({section}) => {
         section.hero_items.map((heroItem, index) =>
           <div
             ref={element => {
-              if(contentRefs[heroItem.id] === element) { return; }
+              if(!element || contentRefs[heroItem.id] === element) { return; }
 
               setContentRefs({...contentRefs, [heroItem.id]: element});
             }}
