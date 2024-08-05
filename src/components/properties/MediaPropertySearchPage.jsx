@@ -33,7 +33,7 @@ const FormatFilterOptions = ({match, type="primary", ...options}) => {
   }
 
   const selectedPrimaryOption = options.filter_options
-    .find(({primary_filter_value}) =>
+    ?.find(({primary_filter_value}) =>
       primary_filter_value === selectedPrimaryValue ||
       (!primary_filter_value && !selectedPrimaryValue)
     );
