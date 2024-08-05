@@ -42,7 +42,7 @@
   }
 
   &__container-section-filter {
-    margin-bottom: 0;
+    margin-bottom: -20px;
     margin-top: 25px;
     max-width: 100%;
     padding-inline: var(--property-page-padding);
@@ -85,7 +85,8 @@
     min-height: var(--property-full-content-height);
   }
 
-  &__background-image {
+  &__background-image,
+  &__background-video {
     @include page-fade-in(1s, ease-out);
   }
 
@@ -109,7 +110,7 @@
     top: 0;
     transition: opacity 0.25s ease-out;
     width: max-content;
-    z-index: 1;
+    z-index: 5;
 
     &:hover {
       opacity: 1;
@@ -147,6 +148,12 @@
   @media screen and (width <= 800px) {
     &__content {
       padding-inline: 20px;
+    }
+
+    &__arrow {
+      svg {
+        height: 15px;
+      }
     }
   }
 }

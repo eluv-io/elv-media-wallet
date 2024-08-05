@@ -13,7 +13,6 @@ import SoftwareIcon from "Assets/icons/icon_software.svg";
 import TVIcon from "Assets/icons/icon_tv.svg";
 import {PageLoader} from "Components/common/Loaders";
 import {Linkish} from "Components/common/UIComponents";
-import {SetImageUrlDimensions} from "../../utils/Utils";
 import {LoaderImage} from "Components/properties/Common";
 
 const MarketplaceTags = ({activeTag, setActiveTag}) => {

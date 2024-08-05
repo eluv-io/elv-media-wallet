@@ -4,7 +4,6 @@ import React, {forwardRef, useEffect, useRef, useState} from "react";
 import {LinkTargetHash} from "../../utils/Utils";
 import {mediaPropertyStore} from "Stores";
 import {EluvioPlayerParameters, InitializeEluvioPlayer} from "@eluvio/elv-player-js/lib/index";
-import {Loader} from "Components/common/Loaders";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
 
@@ -143,7 +142,6 @@ const Video = forwardRef(function VideoComponent({
     };
   }, [player]);
 
-
   return (
     <div
       ref={ref}
@@ -152,10 +150,6 @@ const Video = forwardRef(function VideoComponent({
       style={{aspectRatio: `${videoDimensions?.width || 16} / ${videoDimensions?.height || 9}`}}
     >
       <div ref={targetRef} />
-      {
-        contentHash ? null :
-          <Loader className={S("video__loader")}/>
-      }
     </div>
   );
 });

@@ -252,15 +252,22 @@
   width: max-content;
 
   &__image,
+  &__video,
   &__gradient {
     height: 100%;
     left: 0;
     max-height: var(--property-full-content-height);
+    min-height: var(--property-full-content-height);
     object-fit: cover;
     object-position: center;
-    position: absolute;
+    position: absolute!important;
     top: 0;
     width: 100%;
+
+    video {
+      object-fit: cover;
+      z-index: 0;
+    }
   }
 
   &__image {

@@ -21,6 +21,8 @@ import {Linkish} from "Components/common/UIComponents";
 import LeftArrow from "Assets/icons/left-arrow";
 import RightArrow from "Assets/icons/right-arrow";
 import XIcon from "Assets/icons/x";
+import Video from "Components/properties/Video";
+import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib";
 
 const S = (...classes) => classes.map(c => CommonStyles[c] || "").join(" ");
 
@@ -32,31 +34,60 @@ export const PageContainer = ({children, className}) => {
   );
 };
 
-export const PageBackground = observer(({display, className="", imageClassName="", gradientClassName="", ...props}) => {
+export const PageBackground = observer(({
+  display,
+  className="",
+  imageClassName="",
+  videoClassName="",
+  gradientClassName="",
+  ...props
+}) => {
   const pageWidth = mediaPropertyStore.rootStore.pageWidth;
   const backgroundImage = pageWidth <= 800 ?
     display.background_image_mobile?.url :
     display.background_image?.url;
 
-  useEffect(() => {
-    const image = new Image();
-    image.src = backgroundImage;
-  }, []);
+  const backgroundVideo = pageWidth <= 800 ?
+    display.background_video_mobile :
+    display.background_video;
+
+
+  if(!backgroundImage && !backgroundVideo) {
+    return null;
+  }
 
   return (
-    !backgroundImage ? null :
-      <>
-        <LoaderImage
-          lazy={false}
-          alt="Background Image"
-          loaderWidth="100%"
-          loaderHeight="var(--property-full-content-height"
-          src={SetImageUrlDimensions({url: backgroundImage, width: mediaPropertyStore.rootStore.fullscreenImageWidth})}
-          className={[S("page-background__image"), className, imageClassName].join(" ")}
-          {...props}
-        />
-        <div className={[S("page-background__gradient"), className, gradientClassName].join(" ")} {...props} />
-      </>
+    <>
+      {
+        !backgroundImage ? null :
+          <LoaderImage
+            lazy={false}
+            alt="Background Image"
+            loaderWidth="100%"
+            loaderHeight="var(--property-full-content-height"
+            src={SetImageUrlDimensions({
+              url: backgroundImage,
+              width: mediaPropertyStore.rootStore.fullscreenImageWidth
+            })}
+            className={[S("page-background__image"), className, imageClassName].join(" ")}
+            {...props}
+          />
+      }
+      {
+        !backgroundVideo ? null :
+          <Video
+            link={backgroundVideo}
+            mute
+            hideControls
+            playerOptions={{
+              loop: EluvioPlayerParameters.loop.ON,
+              showLoader: EluvioPlayerParameters.showLoader.OFF
+            }}
+            className={[S("page-background__video"), videoClassName].join(" ")}
+          />
+      }
+      <div className={[S("page-background__gradient"), className, gradientClassName].join(" ")} {...props} />
+    </>
   );
 });
 

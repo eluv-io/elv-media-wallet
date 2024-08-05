@@ -12,7 +12,7 @@ import SupportedCountries from "../../utils/SupportedCountries";
 import {roundToDown} from "round-to";
 import {useHistory, useRouteMatch} from "react-router-dom";
 import {LoginGate} from "Components/common/LoginGate";
-import {MediaPropertyPurchaseParams} from "../../utils/MediaPropertyUtils";
+import {MediaPropertyBasePath, MediaPropertyPurchaseParams} from "../../utils/MediaPropertyUtils";
 
 const S = (...classes) => classes.map(c => PurchaseModalStyles[c] || "").join(" ");
 
@@ -135,6 +135,10 @@ const Purchase = async ({item, paymentMethod, history}) => {
   const params = MediaPropertyPurchaseParams() || {};
   params.itemId = item.id;
   successUrl.searchParams.set("p", rootStore.client.utils.B58(JSON.stringify(params)));
+
+  if(item.redirect_page) {
+    successUrl.searchParams.set("page", item.redirect_page);
+  }
 
   const cancelUrl = new URL(location.href);
   cancelUrl.searchParams.delete("p");
@@ -663,11 +667,24 @@ const MediaPropertyPurchaseModal = () => {
           .filter(item => item)
       );
     } else if(params.sectionItemId) {
-      const sections = params.sectionSlugOrId ?
-        [mediaPropertyStore.MediaPropertySection({...match.params, sectionSlugOrId: params.sectionSlugOrId})] :
-        Object.values(mediaPropertyStore.MediaProperty({...match.params}).metadata.sections || {});
+      const section = mediaPropertyStore.MediaPropertySection({...match.params, sectionSlugOrId: params.sectionSlugOrId});
 
-      for(const section of sections) {
+      if(section?.type === "hero") {
+        const matchingItem = section.hero_items?.find(heroItem => heroItem.id === params.sectionItemId);
+        const action = matchingItem?.actions?.find(action => action.id === params.actionId);
+
+        if(action) {
+          newPurchaseItems = (
+            (action.items || [])
+              .map(item => ({
+                ...item,
+                ...(mediaPropertyStore.permissionItems[item.permission_item_id] || {}),
+                id: item.id
+              }))
+              .filter(item => item)
+          );
+        }
+      } else if(section) {
         const matchingItem = section.content?.find(sectionItem => sectionItem.id === params.sectionItemId);
 
         if(matchingItem) {
@@ -682,18 +699,6 @@ const MediaPropertyPurchaseModal = () => {
           );
         }
       }
-    } else if(params.actionId) {
-      const page = mediaPropertyStore.MediaPropertyPage({...match.params});
-      const action = page.actions?.find(action => action.id === params.actionId);
-      newPurchaseItems = (
-        (action.items || [])
-          .map(item => ({
-            ...item,
-            ...(mediaPropertyStore.permissionItems[item.permission_item_id] || {}),
-            id: item.id
-          }))
-          .filter(item => item)
-      );
     }
 
     if(!newPurchaseItems || newPurchaseItems.length === 0) {
@@ -706,13 +711,18 @@ const MediaPropertyPurchaseModal = () => {
 
   const urlParams = new URLSearchParams(location.search);
 
+  const redirectPage = urlParams.get("page");
+
   let backPath = params.cancelPath || match.url;
   urlParams.delete("p");
   urlParams.delete("confirmationId");
+  urlParams.delete("page");
 
   backPath = backPath + (urlParams.size > 0 ? `?${urlParams.toString()}` : "");
 
-  const Close = () => history.replace(backPath);
+  const Close = () => {
+    history.replace(backPath);
+  };
 
   if(params.unlessPermissions) {
     const hasPermissions = !!params.unlessPermissions?.find(permissionItemId =>
@@ -742,6 +752,17 @@ const MediaPropertyPurchaseModal = () => {
                 Close={success => {
                   if(success && params.successPath) {
                     history.push(params.successPath);
+                  } else if(success && redirectPage) {
+                    const page = mediaPropertyStore.MediaPropertyPage({...match.params, pageSlugOrId: redirectPage});
+
+                    if(redirectPage) {
+                      history.replace(MediaPropertyBasePath({
+                        ...match.params,
+                        pageSlugOrId: page.slug || page.id
+                      }));
+                    } else {
+                      Close();
+                    }
                   } else {
                     Close();
                   }

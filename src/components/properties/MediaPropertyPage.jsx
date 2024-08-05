@@ -47,7 +47,7 @@ const ActionVisible = ({permissions, behavior, visibility}) => {
   }
 };
 
-const Action = observer(({action}) => {
+const Action = observer(({sectionId, sectionItemId, action}) => {
   const match = useRouteMatch();
   let buttonParams = {};
 
@@ -64,7 +64,12 @@ const Action = observer(({action}) => {
 
     case "show_purchase":
       const params = new URLSearchParams(location.search);
-      params.set("p", CreateMediaPropertyPurchaseParams({id: action.id, actionId: action.id, unlessPermissions: action.permissions}));
+      params.set("p", CreateMediaPropertyPurchaseParams({
+        id: action.id,
+        sectionSlugOrId: sectionId,
+        sectionItemId,
+        actionId: action.id
+      }));
       buttonParams.to = location.pathname + "?" + params.toString();
       break;
 
@@ -102,7 +107,7 @@ const Action = observer(({action}) => {
   );
 });
 
-const Actions = observer(({actions}) => {
+const Actions = observer(({sectionId, sectionItemId, actions}) => {
   actions = (actions || [])
     .filter(action => ActionVisible({
       visibility: action.visibility,
@@ -117,7 +122,12 @@ const Actions = observer(({actions}) => {
     <div className={S("actions")}>
       {
         actions.map(action =>
-          <Action key={action.id} action={action} />
+          <Action
+            key={action.id}
+            action={action}
+            sectionId={sectionId}
+            sectionItemId={sectionItemId}
+          />
         )
       }
     </div>
@@ -132,12 +142,13 @@ const MediaPropertyHeroSection = observer(({section}) => {
   const minHeight = Math.max(...(refs?.current?.map(element => element?.getBoundingClientRect()?.height || 0) || []));
 
   return (
-    <div style={section.allow_overlap ? {} : {minHeight: minHeight + 50}} className={S("hero-section")}>
+    <div style={!section.allow_overlap ? {} : {minHeight: minHeight + 50}} className={S("hero-section")}>
       <PageBackground
         key={`background-${activeIndex}`}
         display={activeItem?.display}
         className={S("hero-section__background")}
         imageClassName={S("hero-section__background-image")}
+        videoClassName={S("hero-section__background-video")}
       />
       {
         section.hero_items.map((heroItem, index) =>
@@ -159,7 +170,11 @@ const MediaPropertyHeroSection = observer(({section}) => {
               maxHeaderSize={60}
               className={S("page__header")}
             >
-              <Actions actions={heroItem?.actions} />
+              <Actions
+                actions={heroItem?.actions}
+                sectionId={section.id}
+                sectionItemId={heroItem.id}
+              />
             </PageHeader>
             <button
               disabled={activeIndex === section.hero_items.length - 1}
