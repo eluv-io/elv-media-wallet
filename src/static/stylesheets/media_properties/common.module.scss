@@ -808,24 +808,13 @@
     width: 100%;
   }
 
-  &__attribute-slide {
-    height: max-content;
-    user-select: none;
-    width: max-content;
-
-    &:global(.swiper-slide) {
-      height: min-content;
-      width: max-content!important;
-    }
-  }
-
   @media screen and (width <= 800px) {
     &--box {
       font-size: 0.8em;
     }
 
     &--text {
-      font-size: 1em;
+      font-size: 0.8em;
     }
 
     &__attribute--image {

@@ -110,6 +110,7 @@ const MediaPropertySearchPage = observer(() => {
         mediaPropertyStore.SetSearchOption({
           field: "attributes",
           value: {
+            ...mediaPropertyStore.searchOptions.attributes,
             [secondaryFilterOptions.attributeKey]: secondaryFilterOptions.filterOptions[0].value
           }
         });

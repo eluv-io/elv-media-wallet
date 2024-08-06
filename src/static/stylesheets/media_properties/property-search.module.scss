@@ -2,7 +2,10 @@
 
 .search {
   background-color: var(--property-background);
-  padding-inline: 75px;
+
+  &.search {
+    padding-inline: 75px;
+  }
 
   &__content {
     @include page-fade-in;
@@ -17,6 +20,10 @@
 
   @media screen and (width <= 800px) {
     padding-inline: 25px;
+
+    &.search {
+      padding-inline: 25px;
+    }
 
     &__attribute--primary {
       font-size: 0.8em;

@@ -535,8 +535,8 @@ const DescriptionPage = observer(({item, info, status}) => {
               match.params.mediaPropertySlugOrId ?
                 UrlJoin(MediaPropertyBasePath(match.params), "users", ownerProfile?.userName || ownerAddress, "listings") :
                 match.params.marketplaceId ?
-                  UrlJoin("/marketplace", match.params.marketplaceId, "users", ownerProfile.userName || ownerProfile.userAddress, "listings") :
-                  UrlJoin("/wallet", "users", ownerProfile.userName || ownerProfile.userAddress, "listings")
+                  UrlJoin("/marketplace", match.params.marketplaceId, "users", ownerProfile?.userName || ownerAddress, "listings") :
+                  UrlJoin("/wallet", "users", ownerProfile?.userName || ownerAddress, "listings")
           }
           className={S("details__owner")}
         >

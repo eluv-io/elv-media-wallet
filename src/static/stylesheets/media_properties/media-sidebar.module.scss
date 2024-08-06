@@ -6,7 +6,7 @@
   grid-template-rows: max-content;
   height: 100%;
   margin-right: 10px;
-  max-height: calc(var(--vh) * 85);
+  max-height: calc(var(--property-full-content-height) - 10px);
   min-height: 300px;
   min-width: 400px;
   padding: 15px 0 15px 15px;

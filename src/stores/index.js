@@ -543,6 +543,7 @@ class RootStore {
       yield this.Authenticate({
         idToken: jwtToken,
         force,
+        provider: "ory",
         // TODO: Change
         signerURIs: [
           this.network === "demo" ?
@@ -594,6 +595,7 @@ class RootStore {
 
         yield this.Authenticate({
           idToken: authInfo.__raw,
+          provider: "auth0",
           user: {
             name: authInfo.name,
             email: authInfo.email,
@@ -617,7 +619,19 @@ class RootStore {
     }
   });
 
-  Authenticate = flow(function * ({idToken, clientAuthToken, clientSigningToken, externalWallet, walletName, user, saveAuthInfo=true, signerURIs, force=false, callback}) {
+  Authenticate = flow(function * ({
+    idToken,
+    clientAuthToken,
+    clientSigningToken,
+    provider="external",
+    externalWallet,
+    walletName,
+    user,
+    saveAuthInfo=true,
+    signerURIs,
+    force=false,
+    callback
+  }) {
     if(this.authenticating) { return; }
 
     try {
@@ -702,6 +716,7 @@ class RootStore {
       this.SetAuthInfo({
         clientAuthToken,
         clientSigningToken,
+        provider,
         save: saveAuthInfo
       });
 
@@ -746,6 +761,8 @@ class RootStore {
 
       // Periodically check to ensure the token has not been revoked
       const CheckTokenStatus = async () => {
+        if(!this.loggedIn) { return; }
+
         if(!this.AuthInfo(10 * 60 * 1000)) {
           this.SignOut({message: this.l10n.login.errors.session_expired});
         } else if(!(await this.walletClient.TokenStatus())) {
@@ -756,7 +773,7 @@ class RootStore {
       if(!this.useLocalAuth) {
         CheckTokenStatus();
 
-        setInterval(() => {
+        this.tokenStatusInterval = setInterval(() => {
           CheckTokenStatus();
         }, 60000);
       }
@@ -1922,7 +1939,9 @@ class RootStore {
     marketplace.analyticsInitialized = true;
   }
 
-  SignOut = flow(function * ({returnUrl, message}={}) {
+  SignOut = flow(function * ({returnUrl, message, reload=true}={}) {
+    clearInterval(this.tokenStatusInterval);
+
     this.ClearAuthInfo();
 
     this.SetLocalStorage("signed-out", "true");
@@ -1942,6 +1961,11 @@ class RootStore {
 
     if(message) {
       this.SetAlertNotification(message);
+    }
+
+    if(!reload) {
+      this.loggedIn = false;
+      return;
     }
 
     if(this.auth0 && (yield this.auth0.isAuthenticated())) {
@@ -2325,14 +2349,14 @@ class RootStore {
       const tokenInfo = this.GetLocalStorage(this.AuthStorageKey());
 
       if(tokenInfo) {
-        let { clientAuthToken, clientSigningToken, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
+        let { clientAuthToken, clientSigningToken, provider, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
 
         // Expire tokens early so they don't stop working while in use
         if(expiresAt - Date.now() < expirationBuffer) {
           this.ClearAuthInfo();
           this.Log("Authorization expired", "warn");
         } else {
-          return { clientAuthToken, clientSigningToken, expiresAt };
+          return { clientAuthToken, clientSigningToken, provider, expiresAt };
         }
       }
     } catch(error) {
@@ -2348,12 +2372,13 @@ class RootStore {
     this.authInfo = undefined;
   }
 
-  SetAuthInfo({clientAuthToken, clientSigningToken, save=true}) {
+  SetAuthInfo({clientAuthToken, clientSigningToken, provider="external", save=true}) {
     const { expiresAt } = JSON.parse(Utils.FromB58(clientAuthToken));
 
     const authInfo = {
       clientSigningToken,
       clientAuthToken,
+      provider,
       expiresAt
     };
 

@@ -70,6 +70,17 @@ const PropertyWrapper = observer(({children}) => {
           if(title) {
             document.title = title;
           }
+
+          /*
+          if(
+            rootStore.loggedIn &&
+            (property?.metadata?.login?.settings?.provider || "auth0") !== rootStore.AuthInfo().provider
+          ) {
+            rootStore.Log("Signing out due to mismatched login provider with property");
+            await rootStore.SignOut({ reload: false});
+          }
+
+           */
         }}
         loadingClassName="page-loader content"
       >

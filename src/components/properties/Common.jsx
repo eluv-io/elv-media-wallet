@@ -490,72 +490,69 @@ export const AttributeFilter = observer(({
     options.attributes[attributeKey] || "";
 
   return (
-    <Swiper
-      threshold={0}
-      spaceBetween={variant === "box" || (variant === "image" && rootStore.pageWidth < 800) ? 15 : 30}
-      observer
-      observeParents
-      slidesPerView="auto"
-      {...swiperOptions}
+    <Carousel
+      content={filterOptions}
       className={[S("attribute-filter", `attribute-filter--${variant}`), className].join(" ")}
-    >
-      {
-        filterOptions.map(({value, image}) => {
-          return (
-            <SwiperSlide key={`attribute-${value}`} className={S("attribute-filter__attribute-slide", image ? "attribute-filter__attribute-slide--image" : "")}>
-              <button
-                onClick={() => {
-                  if(attributeKey === "__media-type") {
-                    setOption({field: "mediaType", value});
+      swiperOptions={{
+        threshold: 0,
+        spaceBetween: variant === "box" || (variant === "image" && rootStore.pageWidth < 800) ? 15 : 30,
+        slidesPerView: "auto",
+        ...swiperOptions
+      }}
+      RenderSlide={({item}) => {
+        const { value, image } = item;
+        return (
+          <button
+            onClick={() => {
+              if(attributeKey === "__media-type") {
+                setOption({field: "mediaType", value});
 
-                    if(dependentAttribute) {
-                      setOption({field: "attributes", [dependentAttribute]: ""});
+                if(dependentAttribute) {
+                  setOption({field: "attributes", [dependentAttribute]: ""});
+                }
+              } else {
+                if(dependentAttribute && dependentAttribute !== "__media-type") {
+                  setOption({
+                    field: "attributes",
+                    value: {
+                      ...options.attributes,
+                      [attributeKey]: value,
+                      [dependentAttribute]: ""
                     }
-                  } else {
-                    if(dependentAttribute && dependentAttribute !== "__media-type") {
-                      setOption({
-                        field: "attributes",
-                        value: {
-                          ...options.attributes,
-                          [attributeKey]: value,
-                          [dependentAttribute]: ""
-                        }
-                      });
-                    } else {
-                      setOption({field: "attributes", value: {...options.attributes, [attributeKey]: value}});
+                  });
+                } else {
+                  setOption({field: "attributes", value: {...options.attributes, [attributeKey]: value}});
 
-                      if(dependentAttribute === "__media-type") {
-                        setOption({field: "mediaType", value: ""});
-                      }
-                    }
+                  if(dependentAttribute === "__media-type") {
+                    setOption({field: "mediaType", value: ""});
                   }
-                }}
-                className={
-                  S(
-                    "attribute-filter__attribute",
-                    `attribute-filter__attribute--${image ? "image" : variant}`,
-                    selected === value ? "attribute-filter__attribute--active" : ""
-                  )
                 }
-              >
-                {
-                  image ?
-                    <LoaderImage
-                      src={image?.url}
-                      loaderHeight={100}
-                      alt={value || "All"}
-                      width={300}
-                      loaderAspectRatio={1}
-                      className={S("attribute-filter__attribute-image")}
-                    /> :
-                    value || "All"
-                }
-              </button>
-            </SwiperSlide>
-          );
-        })
-      }
-    </Swiper>
+              }
+            }}
+            className={
+              S(
+                "attribute-filter__attribute",
+                `attribute-filter__attribute--${image ? "image" : variant}`,
+                selected === value ? "attribute-filter__attribute--active" : ""
+              )
+            }
+          >
+            {
+              image ?
+                <LoaderImage
+                  src={image?.url}
+                  loaderHeight={100}
+                  alt={value || "All"}
+                  width={300}
+                  loaderAspectRatio={1}
+                  className={S("attribute-filter__attribute-image")}
+                /> :
+                value || "All"
+            }
+          </button>
+        );
+      }}
+    />
   );
 });
 
