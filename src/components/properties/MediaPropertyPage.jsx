@@ -1,6 +1,6 @@
 import PageStyles from "Assets/stylesheets/media_properties/property-page.module.scss";
 
-import React, {useRef, useState} from "react";
+import React, {useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore, mediaPropertyStore} from "Stores";
 import {Redirect, useRouteMatch} from "react-router-dom";

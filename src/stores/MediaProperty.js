@@ -718,46 +718,60 @@ class MediaPropertyStore {
       key: "MediaProperties",
       id: "media-properties",
       Load: async () => {
-        const properties = [
-          {propertyId: "iq__2vo9ruJ2ZPc8imK7GNG3NVP51x3g", title: "Euro 2024 RIS Streaming"},
-          {propertyId: "iq__46rbdnidu71Hs54iS9gREsGLwZXj", title: "ECPR Live Matches"},
-          {propertyId: "iq__3iCRaVZ2YsxBWuHeBu6rAB8zNs4d", title: "ECPR Archive"},
-          {propertyId: "iq__2mvaFiRFepin7hk3U3bqd3RyM2fV", title: "Cricket Australia"},
-          {propertyId: "iq__ix2KtiranDQ4Zh3Qr24mYkKXm6x", title: "Fandango Movieverse"},
-          {propertyId: "iq__2oqzMjCeDZyr4pgoPtyPdoUF9rCm", title: "Yellowstone"},
-          {propertyId: "iq__2iRwi1aTMQ6GGaiKC6yyyDanBqKo", title: "Transformers One"},
-          {propertyId: "iq__SgJvnK6sW1exHXwWR8GfGnAg6NS", title: "WB Movieverse"},
-          {propertyId: "iq__SgJvnK6sW1exHXwWR8GfGnAg6NS", subPropertyId: "iq__kbhfTxt1c1CgT9zptFyCUhyqAkq", title: "Lord of the Rings" },
-          {propertyId: "iq__SgJvnK6sW1exHXwWR8GfGnAg6NS", subPropertyId: "iq__4XrUn6Z7g1yioEJnvpiKZ5aYfiK8", title: "Superman" },
-          {propertyId: "iq__SgJvnK6sW1exHXwWR8GfGnAg6NS", subPropertyId: "iq__D4VkWm51vGyXWK4wVMyi1MN3ii6", title: "The Flash" },
-          {propertyId: "iq__3pJZ5CzhEwEZQ5K997fuRHV21J1F", title: "Fox"},
-          {propertyId: "iq__fZJu14zfZLF4nVMxDE59voRaubJ", title: "Fox Stock"},
-          {propertyId: "iq__zaX95x1MsLx7o7V9ECREVpbMAMx", title: "Fox Weather"},
-          {propertyId: "iq__3KBXsWvinwFLjUNugBebsApFDPjV", title: "Fox Sports"},
-          {propertyId: "iq__2yWBgqX6ZT2gyXos8m1VTqW3Crf9", title: "Fox News"},
-        ];
+        const mainSiteId = this.rootStore.walletClient.mainSiteId;
+        const mainSiteHash = await this.client.LatestVersionHash({objectId: mainSiteId});
 
-        const LoadPropertyInfo = async propertyInfo => {
-          const versionHash = await this.client.LatestVersionHash({objectId: propertyInfo.subPropertyId || propertyInfo.propertyId});
-          return {
-            ...propertyInfo,
-            image: await this.client.LinkUrl({
-              versionHash,
-              linkPath: "/public/asset_metadata/info/image",
-              queryParams: {width: 600}
-            })
-          };
-        };
+        let metadata = await this.client.ContentObjectMetadata({
+          versionHash: mainSiteHash,
+          metadataSubtree: "public/asset_metadata",
+          resolveLinks: true,
+          linkDepthLimit: 2,
+          resolveIncludeSource: true,
+          resolveIgnoreErrors: true,
+          produceLinkUrls: true,
+          authorizationToken: this.rootStore.publicStaticToken,
+          noAuth: true,
+          select: [
+            "info/media_property_order",
+            "tenants/*/media_properties/*/.",
+            "tenants/*/media_properties/*/name",
+            "tenants/*/media_properties/*/slug",
+            "tenants/*/media_properties/*/image",
+            "tenants/*/media_properties/*/show_on_main_page",
+            "tenants/*/media_properties/*/main_page_url",
+            "tenants/*/media_properties/*/parent_property"
+          ]
+        });
 
-        return await Promise.all(
-          properties.map(async (params) =>
-            await this.LoadResource({
-              key: "BasicMediaProperty",
-              id: params.subPropertyId || params.propertyId,
-              Load: async () => await LoadPropertyInfo(params)
-            })
-          )
-        );
+        const propertyOrder = metadata?.info?.media_property_order || [];
+        return Object.keys(metadata?.tenants || {}).map(tenantSlug => {
+          return Object.keys(metadata.tenants[tenantSlug]?.media_properties || {}).map(propertySlug => {
+            try {
+              const property = metadata.tenants[tenantSlug].media_properties[propertySlug];
+
+              return {
+                ...property,
+                propertyHash: property["."].source,
+                propertyId: this.client.utils.DecodeVersionHash(property["."].source).objectId,
+                title: property.name
+              };
+            } catch(error) {
+              this.Log(`Failed to load property ${tenantSlug}/${propertySlug}`, true);
+              this.Log(error, true);
+            }
+          })
+            .filter(property => property);
+        })
+          .flat()
+          .filter(property => property.show_on_main_page)
+          .sort((a, b) => {
+            const indexA = propertyOrder.findIndex(propertySlugOrId => a.slug === propertySlugOrId || a.propertyId === propertySlugOrId);
+            const indexB = propertyOrder.findIndex(propertySlugOrId => b.slug === propertySlugOrId || b.propertyId === propertySlugOrId);
+
+            return indexA < 0 ?
+              (indexB < 0 ? 0 : 1) :
+              (indexA < indexB ? -1 : 1);
+          });
       }
     });
   });
@@ -1018,7 +1032,7 @@ class MediaPropertyStore {
                 return;
               }
 
-              const ownedItem = (await rootStore.walletClient.UserItems({
+              const ownedItem = (await this.rootStore.walletClient.UserItems({
                 userAddress: this.rootStore.CurrentAddress(),
                 contractAddress,
                 limit: 1

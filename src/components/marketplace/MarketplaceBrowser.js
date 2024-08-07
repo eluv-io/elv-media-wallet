@@ -14,6 +14,7 @@ import TVIcon from "Assets/icons/icon_tv.svg";
 import {PageLoader} from "Components/common/Loaders";
 import {Linkish} from "Components/common/UIComponents";
 import {LoaderImage} from "Components/properties/Common";
+import {SetImageUrlDimensions} from "../../utils/Utils";
 
 const MarketplaceTags = ({activeTag, setActiveTag}) => {
   const tags = [
@@ -232,20 +233,30 @@ export const MediaPropertiesBrowser = observer(() => {
         <div className="media-property-browser">
           {
             mediaProperties.map(mediaProperty => {
-              const path = mediaProperty.subPropertyId ?
-                UrlJoin("/", mediaProperty.propertyId, "/p", mediaProperty.subPropertyId) :
-                UrlJoin("/", mediaProperty.propertyId);
+              let linkParams = {};
+              if(mediaProperty.main_page_url){
+                linkParams = {
+                  href: mediaProperty.main_page_url,
+                  target: "_blank",
+                  rel: "noopener"
+                };
+              } else {
+                linkParams.to = mediaProperty.parent_property ?
+                  UrlJoin("/", mediaProperty.parent_property, "/p", mediaProperty.propertyId) :
+                  UrlJoin("/", mediaProperty.propertyId);
+              }
 
               return (
                 <Linkish
-                  key={`property-link-${path}`}
-                  to={path}
+                  key={`property-link-${mediaProperty.propertyId}`}
                   onClick={() => rootStore.SetDomainCustomization(mediaProperty.subPropertyId || mediaProperty.propertyId)}
                   className="media-property-card"
+                  {...linkParams}
                 >
                   <LoaderImage
                     className="media-property-card__image"
-                    src={mediaProperty.image}
+                    src={SetImageUrlDimensions({url: mediaProperty.image?.url, width: 600})}
+                    showWithoutSource
                     loaderAspectRatio={3/4}
                     alt={mediaProperty.title || ""}
                   />
