@@ -10,6 +10,7 @@ import RenderRoutes from "Routes";
 import MediaPropertyHeader from "Components/properties/MediaPropertyHeader";
 import {LoginGate} from "Components/common/LoginGate";
 import {PurchaseGate} from "Components/properties/Common";
+import MediaPropertyFooter from "Components/properties/MediaPropertyFooter";
 
 const PropertyWrapper = observer(({children}) => {
   const match = useRouteMatch();
@@ -111,6 +112,7 @@ export const PropertyRoutes = observer(({basePath}) => {
           Wrapper={PropertyWrapper}
         />
       </Switch>
+      <MediaPropertyFooter />
     </div>
   );
 });
@@ -127,6 +129,7 @@ export const BundledPropertyRoutes = observer(() => {
             Wrapper={PropertyWrapper}
           />
         </Switch>
+        <MediaPropertyFooter />
       </div>
     </LoginGate>
   );

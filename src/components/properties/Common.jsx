@@ -556,7 +556,7 @@ export const AttributeFilter = observer(({
   );
 });
 
-export const Modal = observer(({...args}) => {
+export const Modal = observer(({noBackground=false, ...args}) => {
   const showCloseButton = typeof args.withCloseButton === "undefined" ?
     rootStore.pageWidth < 600 : args.withCloseButton;
 
@@ -567,12 +567,12 @@ export const Modal = observer(({...args}) => {
       withCloseButton={false}
       transitionProps={args.transitionProps || {duration: 0}}
       classNames={{
-        root: S("modal"),
-        overlay: S("modal__overlay"),
-        inner: S("modal__inner"),
-        content: S("modal__container"),
-        header: S("modal__header"),
-        body: S("modal__content")
+        root: [S("modal", noBackground ? "modal--no-background" : ""), args.rootClassName || ""].join(" "),
+        overlay: [S("modal__overlay"), args.overlayClassName || ""].join(" "),
+        inner: [S("modal__inner"), args.innerClassName || ""].join(" "),
+        content: [S("modal__container"), args.contentClassName || ""].join(" "),
+        header: [S("modal__header"), args.headerClassName || ""].join(" "),
+        body: [S("modal__content"), args.bodyClassName || ""].join(" ")
       }}
     >
       {

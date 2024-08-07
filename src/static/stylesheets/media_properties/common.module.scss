@@ -1,6 +1,22 @@
 @import "./variables";
 
 .modal {
+  &--no-background {
+    .modal__container {
+      background: transparent;
+      border-radius: 0;
+    }
+
+    .modal__content {
+      background: transparent;
+      padding: 0;
+    }
+
+    .modal__header {
+      background: transparent;
+    }
+  }
+
   &__overlay {
     @include page-fade-in(0.25s);
 
@@ -56,6 +72,8 @@
     }
 
     &__content {
+      align-items: center;
+      display: flex;
       max-width: unset;
       min-height: 100vh;
       padding-top: 25px;
