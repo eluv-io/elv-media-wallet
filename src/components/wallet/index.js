@@ -8,11 +8,9 @@ import {
 
 import {rootStore} from "Stores/index";
 
-//import UrlJoin from "url-join";
 import RenderRoutes from "Routes";
 import MarketplaceBrowser, {MediaPropertiesBrowser} from "Components/marketplace/MarketplaceBrowser";
 import Header from "Components/header/Header";
-import UrlJoin from "url-join";
 
 const WalletWrapper = ({children}) => {
   useEffect(() => {
@@ -29,15 +27,6 @@ const GlobalWrapper = ({children}) => {
     rootStore.ClearMarketplace();
     rootStore.SetRouteParams(match.params);
   }, [match.params]);
-
-
-  if(rootStore.domainProperty && match.url === "/") {
-    if(location.hostname.includes("contentfabric.io") || location.hostname.includes("localhost")) {
-      rootStore.ClearDomainCustomization();
-    } else {
-      return <Redirect to={UrlJoin("/", rootStore.domainProperty)}/>;
-    }
-  }
 
   return children;
 };

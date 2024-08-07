@@ -249,7 +249,6 @@ export const MediaPropertiesBrowser = observer(() => {
               return (
                 <Linkish
                   key={`property-link-${mediaProperty.propertyId}`}
-                  onClick={() => rootStore.SetDomainCustomization(mediaProperty.subPropertyId || mediaProperty.propertyId)}
                   className="media-property-card"
                   {...linkParams}
                 >

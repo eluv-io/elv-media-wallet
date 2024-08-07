@@ -27,7 +27,7 @@ const ProfileMenu = observer(({Hide}) => {
   const userInfo = rootStore.walletClient.UserInfo();
   const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false ||
     fullMarketplace?.branding?.disable_secondary_market;
-  const discoverDisabled = rootStore.domainProperty ||
+  const discoverDisabled = rootStore.domainSettings?.settings?.features?.discover === false ||
     rootStore.hideGlobalNavigation ||
     (marketplaceId && rootStore.hideGlobalNavigationInMarketplace);
 

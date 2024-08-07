@@ -253,7 +253,7 @@ const UserProfileContainer = observer(({includeUserProfile, children}) => {
               </NavLink>
           }
           {
-            !currentUser || rootStore.domainSettings?.settings?.features?.activity === false ? null :
+            !currentUser || secondaryDisabled ? null :
               <NavLink to="activity" className={S("nav__link")}>
                 { rootStore.l10n.header.marketplace }
               </NavLink>

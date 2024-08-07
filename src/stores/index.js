@@ -480,6 +480,10 @@ class RootStore {
       if(this.domainProperty) {
         this.SetSessionStorage("domain-property", this.domainProperty);
         yield this.SetDomainCustomization();
+
+        if(window.location.pathname === "/") {
+          this.routeChange = UrlJoin("/", this.domainProperty);
+        }
       }
 
       try {
