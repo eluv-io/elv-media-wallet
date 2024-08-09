@@ -117,8 +117,9 @@ export const PageHeader = observer(({display, maxHeaderSize=36, children, classN
               </div>
           }
           {
-            !display.description ? null :
-              <Description
+            !display.description && !display.description_rich_text ? null :
+              <ExpandableDescription
+                togglePosition="left"
                 description={display.description}
                 descriptionRichText={display.description_rich_text}
                 className={S("page-header__description")}
@@ -296,7 +297,7 @@ export const Description = ({
   );
 };
 
-export const ExpandableDescription = observer(({description, descriptionRichText, onClick, className=""}) => {
+export const ExpandableDescription = observer(({description, descriptionRichText, onClick, togglePosition="left", className=""}) => {
   const [expanded, setExpanded] = useState(false);
   const [showToggle, setShowToggle] = useState(false);
   const descriptionRef = useRef();
@@ -332,7 +333,7 @@ export const ExpandableDescription = observer(({description, descriptionRichText
         className
       ].join(" ")}
     >
-      <div ref={descriptionRef} className={S("expandable-description__description-container")}>
+      <div ref={descriptionRef} className={S("expandable-description__description-container", showToggle ? "expandable-description__description-container--mask" : "")}>
         <Description
           description={description}
           descriptionRichText={descriptionRichText}
@@ -342,7 +343,7 @@ export const ExpandableDescription = observer(({description, descriptionRichText
       { expanded ? null : <div className={S("expandable-description__overlay")} /> }
       {
         !showToggle ? null :
-          <button onClick={() => setExpanded(!expanded)} className={S("expandable-description__toggle")}>
+          <button onClick={() => setExpanded(!expanded)} className={S("expandable-description__toggle", `expandable-description__toggle--${togglePosition || "left"}`)}>
             {mediaPropertyStore.rootStore.l10n.media_properties.media.description[expanded ? "hide" : "show"]}
           </button>
       }

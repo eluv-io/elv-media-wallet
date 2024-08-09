@@ -366,8 +366,8 @@
   &__logo {
     align-self: flex-start;
     margin-bottom: 30px;
-    max-height: 225px;
-    max-width: 100%;
+    max-height: 250px;
+    max-width: 500px;
   }
 
   &__title-container {
@@ -444,8 +444,11 @@
     overflow: hidden;
 
     .expandable-description__description-container {
-      mask-image: linear-gradient(black 65%, transparent);
       max-height: 6.5em;
+
+      &--mask {
+        mask-image: linear-gradient(black 65%, transparent);
+      }
     }
   }
 
@@ -475,12 +478,18 @@
     font-size: 0.9em;
     font-weight: 600;
     height: 45px;
-    justify-content: center;
-    padding-left: 10px;
     position: absolute;
-    right: 0;
     width: 120px;
     z-index: 1;
+
+    &--left {
+      left: 0;
+    }
+
+    &--right {
+      justify-content: center;
+      right: 0;
+    }
   }
 
   &__description {

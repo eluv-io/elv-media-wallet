@@ -394,10 +394,10 @@
     }
   }
 
-  &__description {
+  &__description-container {
     background-color: var(--property-background-secondary);
     border-radius: 5px;
-    padding: 15px 25px 50px 15px;
+    padding: 15px 25px;
   }
 
   /*

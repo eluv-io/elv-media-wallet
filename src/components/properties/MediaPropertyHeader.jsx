@@ -300,12 +300,12 @@ const SearchBar = observer(({autoFocus}) => {
     }
   }, [rootStore.routeParams]);
 
+  const basePath = MediaPropertyBasePath(rootStore.routeParams);
   const Select = (selectedTitle) => {
     mediaPropertyStore.ClearSearchOptions();
     setLastSelectedAt(Date.now());
     const matchingResults = searchResults.filter(result => result.title?.toLowerCase() === selectedTitle?.toLowerCase());
 
-    const basePath = MediaPropertyBasePath(rootStore.routeParams);
     if(matchingResults.length === 1) {
       const {id, category} = matchingResults[0];
       const type = category === "collection" ? "c" : category === "list" ? "l" : "m";
@@ -329,6 +329,12 @@ const SearchBar = observer(({autoFocus}) => {
           <ImageIcon icon={SearchIcon} className={S("search-container__icon")} />
       }
       <Autocomplete
+        onClick={() => {
+          if(!location.pathname.includes("/search")) {
+            mediaPropertyStore.ClearSearchOptions();
+            history.push(UrlJoin(basePath, "search"));
+          }
+        }}
         ref={searchRef}
         autoFocus={autoFocus}
         value={query}

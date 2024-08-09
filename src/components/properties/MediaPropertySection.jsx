@@ -7,12 +7,26 @@ import {mediaPropertyStore, rootStore} from "Stores";
 import MediaCard from "Components/properties/MediaCards";
 import UrlJoin from "url-join";
 import ImageIcon from "Components/common/ImageIcon";
-import {AttributeFilter, Carousel, PageBackground, PageContainer, PageHeader} from "Components/properties/Common";
+import {
+  AttributeFilter,
+  Button,
+  Carousel,
+  PageBackground,
+  PageContainer,
+  PageHeader
+} from "Components/properties/Common";
 
 import RightArrow from "Assets/icons/right-arrow";
 import {ScrollTo, SetImageUrlDimensions} from "../../utils/Utils";
 import {LoginGate} from "Components/common/LoginGate";
-import {MediaItemImageUrl, MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
+import {
+  CreateMediaPropertyPurchaseParams,
+  MediaItemImageUrl,
+  MediaPropertyBasePath, MediaPropertyLink
+} from "../../utils/MediaPropertyUtils";
+import Modal from "Components/common/Modal";
+import Video from "Components/properties/Video";
+import LeftArrow from "Assets/icons/left-arrow";
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 
@@ -27,6 +41,229 @@ const GridContentColumns = ({aspectRatio, pageWidth, cardFormat}) => {
     return Math.round(pageWidth / 300);
   }
 };
+
+const ActionVisible = ({permissions, behavior, visibility}) => {
+  if(behavior === "sign_in" && rootStore.loggedIn) {
+    return false;
+  }
+
+  const hasPermissions = !!permissions?.find(permissionItemId =>
+    mediaPropertyStore.permissionItems[permissionItemId].authorized
+  );
+
+  switch(visibility) {
+    case "always":
+      return true;
+    case "authorized":
+      return hasPermissions;
+    case "authenticated":
+      return rootStore.loggedIn;
+    case "unauthorized":
+      return rootStore.loggedIn && !hasPermissions;
+    case "unauthenticated":
+      return !rootStore.loggedIn;
+    case "unauthenticated_or_unauthorized":
+      return !rootStore.loggedIn || !hasPermissions;
+  }
+};
+
+const Action = observer(({sectionId, sectionItemId, action}) => {
+  const match = useRouteMatch();
+  let buttonParams = {};
+
+  const [showVideoModal, setShowVideoModal] = useState(false);
+
+  switch(action.behavior) {
+    case "sign_in":
+      buttonParams.onClick = () => rootStore.ShowLogin();
+      break;
+
+    case "video":
+      buttonParams.onClick = () => setShowVideoModal(true);
+      break;
+
+    case "show_purchase":
+      const params = new URLSearchParams(location.search);
+      params.set("p", CreateMediaPropertyPurchaseParams({
+        id: action.id,
+        sectionSlugOrId: sectionId,
+        sectionItemId,
+        actionId: action.id
+      }));
+      buttonParams.to = location.pathname + "?" + params.toString();
+      break;
+
+    case "media_link":
+      const mediaItem = mediaPropertyStore.media[action.media_id];
+      buttonParams.to = MediaPropertyLink({match, mediaItem}).linkPath;
+      break;
+
+    case "link":
+      buttonParams = {
+        href: action.url,
+        rel: "noopener",
+        target: "_blank"
+      };
+      break;
+  }
+
+  return (
+    <>
+      {
+        !showVideoModal ? null :
+          <Modal className={[S("action__modal"), "modal--no-scroll"].join(" ")} Toggle={() => setShowVideoModal(false)}>
+            <Video link={action.video} />
+          </Modal>
+      }
+      <Button
+        {...buttonParams}
+        icon={action.button.icon?.url}
+        className={S("action")}
+        styles={action.button}
+      >
+        { action.button.text }
+      </Button>
+    </>
+  );
+});
+
+const Actions = observer(({sectionId, sectionItemId, actions}) => {
+  actions = (actions || [])
+    .filter(action => ActionVisible({
+      visibility: action.visibility,
+      behavior: action.behavior,
+      permissions: action.permissions
+    }));
+
+
+  if(actions.length === 0) { return null; }
+
+  return (
+    <div className={S("actions")}>
+      {
+        actions.map(action =>
+          <Action
+            key={action.id}
+            action={action}
+            sectionId={sectionId}
+            sectionItemId={sectionItemId}
+          />
+        )
+      }
+    </div>
+  );
+});
+
+export const MediaPropertyHeroSection = observer(({section}) => {
+  const [contentRefs, setContentRefs] = useState({});
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const activeItem = section.hero_items[activeIndex];
+  const minHeight = Math.max(...(Object.values(contentRefs).map(element => element?.getBoundingClientRect()?.height || 0) || []));
+
+  return (
+    <div style={!section.allow_overlap || minHeight === undefined || !Number.isFinite(minHeight) ? {} : {minHeight: minHeight}} className={S("hero-section")}>
+      <PageBackground
+        key={`background-${activeIndex}`}
+        display={activeItem?.display}
+        className={S("hero-section__background")}
+        imageClassName={S("hero-section__background-image")}
+        videoClassName={S("hero-section__background-video")}
+      />
+      {
+        section.hero_items.map((heroItem, index) =>
+          <div
+            ref={element => {
+              if(!element || contentRefs[heroItem.id] === element) { return; }
+
+              setContentRefs({...contentRefs, [heroItem.id]: element});
+            }}
+            style={activeIndex === index ? {} : {position: "absolute", opacity: 0, userSelect: "none"}}
+            key={`content-${index}`}
+            className={S("hero-section__content", activeIndex === index ? "hero-section__content--active" : "")}
+          >
+            {
+              section.hero_items.length < 2 ? null :
+                <button
+                  disabled={activeIndex === 0}
+                  onClick={() => setActiveIndex(Math.max(0, activeIndex - 1))}
+                  className={S("hero-section__arrow", "hero-section__arrow--previous")}
+                >
+                  <ImageIcon label="Previous Page" icon={LeftArrow}/>
+                </button>
+            }
+            <PageHeader
+              display={heroItem.display}
+              maxHeaderSize={60}
+              className={S("hero-section__header")}
+            >
+              <Actions
+                actions={heroItem?.actions}
+                sectionId={section.id}
+                sectionItemId={heroItem.id}
+              />
+            </PageHeader>
+            {
+              section.hero_items.length < 2 ? null :
+                <button
+                  disabled={activeIndex === section.hero_items.length - 1}
+                  onClick={() => setActiveIndex(Math.min(section.hero_items.length - 1, activeIndex + 1))}
+                  className={S("hero-section__arrow", "hero-section__arrow--next")}
+                >
+                  <ImageIcon label="Next Page" icon={RightArrow}/>
+                </button>
+            }
+          </div>
+        )
+      }
+    </div>
+  );
+});
+
+export const MediaPropertySectionContainer = observer(({section, isMediaPage, sectionClassName=""}) => {
+  const match = useRouteMatch();
+  const [filter, setFilter] = useState("");
+
+  return (
+    <>
+      {
+        (section.filter_tags || []).length === 0 ? null :
+          <AttributeFilter
+            className={S("container-section__filter")}
+            attributeKey="tag"
+            filterOptions={
+              [
+                "",
+                ...section.filter_tags
+              ].map(value => ({value}))
+            }
+            variant="text"
+            options={{attributes: {tag: filter}}}
+            setOption={({value}) => setFilter(value.tag)}
+          />
+      }
+
+      {
+        section.sections.map(sectionId => {
+          const subsection = mediaPropertyStore.MediaPropertySection({...match.params, sectionSlugOrId: sectionId});
+
+          if(filter && !subsection?.tags?.includes(filter)) {
+            return null;
+          }
+
+          return (
+            <MediaPropertySection
+              key={`section-${sectionId}-${filter}`}
+              sectionId={sectionId}
+              isMediaPage={isMediaPage}
+              className={sectionClassName}
+            />
+          );
+        })
+      }
+    </>
+  );
+});
 
 export const MediaGrid = observer(({
   content,

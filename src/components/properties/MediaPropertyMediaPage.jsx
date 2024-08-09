@@ -503,11 +503,16 @@ const MediaPropertyMediaPage = observer(() => {
                     }
                   </div>
               }
-              <ExpandableDescription
-                description={display.description}
-                descriptionRichText={display.description_rich_text}
-                className={S("media-text__description")}
-              />
+              {
+                !display.description && !display.description_rich_text ? null :
+                  <div className={S("media-text__description-container")}>
+                    <ExpandableDescription
+                      description={display.description}
+                      descriptionRichText={display.description_rich_text}
+                      className={S("media-text__description")}
+                    />
+                  </div>
+              }
             </div>
         }
       </div>
