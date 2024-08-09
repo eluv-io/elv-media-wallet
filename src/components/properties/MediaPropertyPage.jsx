@@ -142,7 +142,7 @@ const MediaPropertyHeroSection = observer(({section}) => {
   const minHeight = Math.max(...(Object.values(contentRefs).map(element => element?.getBoundingClientRect()?.height || 0) || []));
 
   return (
-    <div style={!section.allow_overlap || !minHeight || !Number.isFinite(minHeight) ? {} : {minHeight: minHeight + 100}} className={S("hero-section")}>
+    <div style={!section.allow_overlap || minHeight === undefined || !Number.isFinite(minHeight) ? {} : {minHeight: minHeight + 100}} className={S("hero-section")}>
       <PageBackground
         key={`background-${activeIndex}`}
         display={activeItem?.display}
@@ -162,13 +162,16 @@ const MediaPropertyHeroSection = observer(({section}) => {
             key={`content-${index}`}
             className={S("hero-section__content", activeIndex === index ? "hero-section__content--active" : "")}
           >
-            <button
-              disabled={activeIndex === 0}
-              onClick={() => setActiveIndex(Math.max(0, activeIndex - 1))}
-              className={S("hero-section__arrow", "hero-section__arrow--previous")}
-            >
-              <ImageIcon label="Previous Page" icon={LeftArrow} />
-            </button>
+            {
+              section.hero_items.length < 2 ? null :
+                <button
+                  disabled={activeIndex === 0}
+                  onClick={() => setActiveIndex(Math.max(0, activeIndex - 1))}
+                  className={S("hero-section__arrow", "hero-section__arrow--previous")}
+                >
+                  <ImageIcon label="Previous Page" icon={LeftArrow}/>
+                </button>
+            }
             <PageHeader
               display={heroItem.display}
               maxHeaderSize={60}
@@ -180,13 +183,16 @@ const MediaPropertyHeroSection = observer(({section}) => {
                 sectionItemId={heroItem.id}
               />
             </PageHeader>
-            <button
-              disabled={activeIndex === section.hero_items.length - 1}
-              onClick={() => setActiveIndex(Math.min(section.hero_items.length - 1, activeIndex + 1))}
-              className={S("hero-section__arrow", "hero-section__arrow--next")}
-            >
-              <ImageIcon label="Next Page" icon={RightArrow} />
-            </button>
+            {
+              section.hero_items.length < 2 ? null :
+                <button
+                  disabled={activeIndex === section.hero_items.length - 1}
+                  onClick={() => setActiveIndex(Math.min(section.hero_items.length - 1, activeIndex + 1))}
+                  className={S("hero-section__arrow", "hero-section__arrow--next")}
+                >
+                  <ImageIcon label="Next Page" icon={RightArrow}/>
+                </button>
+            }
           </div>
         )
       }

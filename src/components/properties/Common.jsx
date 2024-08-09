@@ -104,20 +104,26 @@ export const PageHeader = observer(({display, maxHeaderSize=36, children, classN
             src={SetImageUrlDimensions({url: display.logo?.url, width: 1000})}
             className={S("page-header__logo")}
           />
-          <div className={S("page-header__title-container")}>
-            {
-              !display.title_icon ? null :
-                <img src={display.title_icon.url} alt="Icon" className={S("page-header__title-icon")} />
-            }
-            <ScaledText Tag="h1" maxPx={maxHeaderSize} minPx={32} maxPxMobile={32} minPxMobile={18} className={[S("page-header__title"), "_title"].join(" ")}>
-              { display.title }
-            </ScaledText>
-          </div>
-          <Description
-            description={display.description}
-            descriptionRichText={display.description_rich_text}
-            className={S("page-header__description")}
-          />
+          {
+            !display.title && !display.title_icon ? null :
+              <div className={S("page-header__title-container")}>
+                {
+                  !display.title_icon ? null :
+                    <img src={display.title_icon.url} alt="Icon" className={S("page-header__title-icon")}/>
+                }
+                <ScaledText Tag="h1" maxPx={maxHeaderSize} minPx={32} maxPxMobile={32} minPxMobile={18} className={[S("page-header__title"), "_title"].join(" ")}>
+                  {display.title}
+                </ScaledText>
+              </div>
+          }
+          {
+            !display.description ? null :
+              <Description
+                description={display.description}
+                descriptionRichText={display.description_rich_text}
+                className={S("page-header__description")}
+              />
+          }
         </div>
       </div>
       { children }

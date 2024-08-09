@@ -271,7 +271,15 @@ class MediaPropertyStore {
 
     const page = mediaProperty.metadata.pages[pageId];
 
-    let permissions = {authorized: true};
+    let permissions = {
+      authorized: true,
+      behavior: page.permissions.behavior,
+      alternatePageId: (
+        page.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
+        page.permissions?.alternate_page_id
+      )
+    };
+
     if(page.permissions?.page_permissions?.length > 0) {
       const authorized = page.permissions.page_permissions.find(permissionItemId =>
         this.PermissionItem({permissionItemId}).authorized
@@ -626,10 +634,18 @@ class MediaPropertyStore {
     const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
     behavior = mediaProperty?.metadata?.permissions?.behavior || behavior;
 
+    let alternatePageId = (
+      behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
+      mediaProperty?.metadata?.permissions?.alternate_page_id
+    );
+
     const page = this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId: pageSlugOrId || "main"});
     behavior = page.permissions?.behavior || behavior;
 
-    let alternatePageId = page.permissions?.alternate_page_id || mediaProperty.permissions?.alternate_page_id;
+    alternatePageId = (
+      page?.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
+      page?.permissions?.alternate_page_id
+    ) || alternatePageId;
 
     if(sectionSlugOrId) {
       const section = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId});
@@ -734,7 +750,7 @@ class MediaPropertyStore {
           select: [
             "info/media_property_order",
             "tenants/*/media_properties/*/.",
-            "tenants/*/media_properties/*/name",
+            "tenants/*/media_properties/*/title",
             "tenants/*/media_properties/*/slug",
             "tenants/*/media_properties/*/image",
             "tenants/*/media_properties/*/show_on_main_page",
