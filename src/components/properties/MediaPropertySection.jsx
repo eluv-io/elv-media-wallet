@@ -27,6 +27,7 @@ import {
 import Modal from "Components/common/Modal";
 import Video from "Components/properties/Video";
 import LeftArrow from "Assets/icons/left-arrow";
+import Filters from "Components/properties/Filters";
 
 const S = (...classes) => classes.map(c => SectionStyles[c] || "").join(" ");
 
@@ -238,8 +239,8 @@ export const MediaPropertySectionContainer = observer(({section, isMediaPage, se
               ].map(value => ({value}))
             }
             variant="text"
-            options={{attributes: {tag: filter}}}
-            setOption={({value}) => setFilter(value.tag)}
+            activeFilters={{attributes: {tag: filter}}}
+            SetActiveFilters={activeFilters => setFilter(activeFilters?.attributes?.tag)}
           />
       }
 
@@ -467,7 +468,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
   const [sectionContent, setSectionContent] = useState([]);
   const [allContentLength, setAllContentLength] = useState(0);
 
-  const [filterOptions, setFilterOptions] = useState({
+  const [activeFilters, setActiveFilters] = useState({
     attributes: {},
     mediaType: undefined
   });
@@ -478,7 +479,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
     mediaListSlugOrId: mediaListId
   });
 
-  const filtersActive = filterOptions.mediaType || Object.keys(filterOptions.attributes).length > 0;
+  const filtersActive = activeFilters.mediaType || Object.keys(activeFilters.attributes).length > 0;
 
   useEffect(() => {
     if(!section) { return; }
@@ -488,7 +489,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
       pageSlugOrId: match.params.pageSlugOrId,
       sectionSlugOrId: mediaListId || sectionId,
       mediaListSlugOrId: mediaListId,
-      filterOptions
+      filterOptions: activeFilters
     })
       .then(content => {
         setSectionContent(content);
@@ -496,7 +497,7 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
         if(!filtersActive)
           setAllContentLength(content.length);
       });
-  }, [match.params, sectionId, mediaListId, filterOptions]);
+  }, [match.params, sectionId, mediaListId, activeFilters]);
 
   if(!section) {
     return null;
@@ -636,18 +637,12 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
         }
         {
           !section.primary_filter || !section.show_primary_filter_in_page_view ? null :
-            <AttributeFilter
+            <Filters
+              filterSettings={section.filters}
+              activeFilters={activeFilters}
+              primaryOnly
+              SetActiveFilters={filters => setActiveFilters({...activeFilters, ...filters})}
               className={S("section__page-filter")}
-              attributeKey={section.primary_filter}
-              filterOptions={
-                [
-                  "",
-                  ...(mediaPropertyStore.GetMediaPropertyAttributes(match.params)?.[section.primary_filter]?.tags || [])
-                ].map(value => ({value}))
-              }
-              variant="text"
-              options={filterOptions}
-              setOption={({field, value}) => setFilterOptions({...filterOptions, [field]: value})}
             />
         }
         <ContentComponent
@@ -670,7 +665,7 @@ const MediaPropertySectionPage = observer(() => {
 
   const [sectionContent, setSectionContent] = useState([]);
   const [groupedSectionContent, setGroupedSectionContent] = useState({});
-  const [filterOptions, setFilterOptions] = useState({
+  const [activeFilters, setActiveFilters] = useState({
     attributes: {},
     mediaType: undefined
   });
@@ -684,7 +679,7 @@ const MediaPropertySectionPage = observer(() => {
 
     mediaPropertyStore.MediaPropertySectionContent({
       ...match.params,
-      filterOptions
+      filterOptions: activeFilters
     })
       .then(content => {
         setSectionContent(content);
@@ -699,7 +694,7 @@ const MediaPropertySectionPage = observer(() => {
           );
         }
       });
-  }, [match.params, filterOptions]);
+  }, [match.params, activeFilters]);
 
   useEffect(() => {
     // Ensure ctx is set
@@ -763,7 +758,7 @@ const MediaPropertySectionPage = observer(() => {
           section={section}
           sectionContent={sectionContent}
           navContext={!match.params.mediaListSlugOrId ? "s" : navContext}
-          key={`content-${JSON.stringify(filterOptions)}`}
+          key={`content-${JSON.stringify(activeFilters)}`}
         />
       </div>
     );
@@ -772,36 +767,11 @@ const MediaPropertySectionPage = observer(() => {
   return (
     <PageContainer className={S("page", "section-page")}>
       <PageBackground display={section.display} />
-      {
-        !section.primary_filter ? null :
-          <AttributeFilter
-            attributeKey={section.primary_filter}
-            variant="box"
-            filterOptions={
-              [
-                "",
-                ...(mediaPropertyStore.GetMediaPropertyAttributes(match.params)?.[section.primary_filter]?.tags || [])
-              ].map(value => ({value}))
-            }
-            options={filterOptions}
-            setOption={({field, value}) => setFilterOptions({...filterOptions, [field]: value})}
-          />
-      }
-      {
-        !section.secondary_filter ? null :
-          <AttributeFilter
-            attributeKey={section.secondary_filter}
-            variant="text"
-            filterOptions={
-              [
-                "",
-                ...(mediaPropertyStore.GetMediaPropertyAttributes(match.params)?.[section.secondary_filter]?.tags || [])
-              ].map(value => ({value}))
-            }
-            options={filterOptions}
-            setOption={({field, value}) => setFilterOptions({...filterOptions, [field]: value})}
-          />
-      }
+      <Filters
+        filterSettings={section.filters || {}}
+        activeFilters={activeFilters}
+        SetActiveFilters={filters => setActiveFilters({...activeFilters, ...filters})}
+      />
       <PageHeader display={section.display} className={S("section__page-header")} />
       <LoginGate backPath={rootStore.backPath} Condition={() => !sectionPermissions.authorized}>
         {sectionItems}

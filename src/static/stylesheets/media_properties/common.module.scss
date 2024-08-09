@@ -785,6 +785,8 @@
 .attribute-filter {
   margin-bottom: 30px;
   max-width: max-content;
+  user-select: none;
+  width: max-content;
 
   &__attribute--box {
     background-color: #414141;

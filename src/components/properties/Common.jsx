@@ -485,16 +485,16 @@ export const AttributeFilter = observer(({
   filterOptions,
   dependentAttribute,
   variant="box",
-  options,
-  setOption,
+  activeFilters,
+  SetActiveFilters,
   className="",
   swiperOptions={}
 }) => {
   if(!attributeKey || !filterOptions || filterOptions.length === 0) { return null; }
 
   const selected = attributeKey === "__media-type" ?
-    (options.mediaType || "") :
-    options.attributes[attributeKey] || "";
+    (activeFilters?.mediaType || "") :
+    activeFilters?.attributes[attributeKey] || "";
 
   return (
     <Carousel
@@ -511,30 +511,39 @@ export const AttributeFilter = observer(({
         return (
           <button
             onClick={() => {
+              let newFilters = {};
+
               if(attributeKey === "__media-type") {
-                setOption({field: "mediaType", value});
+                // Media type + attribute
+                newFilters.mediaType = value;
 
                 if(dependentAttribute) {
-                  setOption({field: "attributes", [dependentAttribute]: ""});
+                  newFilters.attributes = {
+                    ...activeFilters.attributes,
+                    [dependentAttribute]: ""
+                  };
                 }
               } else {
+                // 2 Attributes
                 if(dependentAttribute && dependentAttribute !== "__media-type") {
-                  setOption({
-                    field: "attributes",
-                    value: {
-                      ...options.attributes,
+                  newFilters = {
+                    attributes: {
+                      ...activeFilters.attributes,
                       [attributeKey]: value,
                       [dependentAttribute]: ""
                     }
-                  });
+                  };
                 } else {
-                  setOption({field: "attributes", value: {...options.attributes, [attributeKey]: value}});
+                  // Attribute + media type
+                  newFilters.attributes = {...activeFilters.attributes, [attributeKey]: value};
 
                   if(dependentAttribute === "__media-type") {
-                    setOption({field: "mediaType", value: ""});
+                    newFilters.mediaType = "";
                   }
                 }
               }
+
+              SetActiveFilters(newFilters);
             }}
             className={
               S(
