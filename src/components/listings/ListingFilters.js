@@ -458,7 +458,7 @@ const FilterMenu = ({mode, filterValues, editions, attributes, dropAttributes, r
   );
 };
 
-export const ListingFilters = observer(({mode="listings", initialFilters, UpdateFilters}) => {
+export const ListingFilters = observer(({mode="listings", initialFilters, menuButton, UpdateFilters}) => {
   const match = useRouteMatch();
   const location = useLocation();
 
@@ -684,7 +684,7 @@ export const ListingFilters = observer(({mode="listings", initialFilters, Update
             </button> : null
         }
         {
-          showFilterMenu ?
+          !showFilterMenu ? null :
             <FilterMenu
               mode={mode}
               filterValues={filterValues}
@@ -695,7 +695,17 @@ export const ListingFilters = observer(({mode="listings", initialFilters, Update
               setFilterValues={setFilterValues}
               Hide={() => setShowFilterMenu(false)}
               ResetFilters={ResetFilters}
-            /> : null }
+            />
+        }
+        {
+          !menuButton ? null :
+            <button
+              onClick={menuButton.onClick}
+              className={`filters__menu-button ${menuButton.active ? "filters__menu-button--active" : ""}`}
+            >
+              <ImageIcon icon={menuButton.icon} title={menuButton.title} />
+            </button>
+        }
       </div>
     </div>
   );

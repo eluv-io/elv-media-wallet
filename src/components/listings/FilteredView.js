@@ -18,6 +18,7 @@ const FilteredView = ({
   initialFilters,
   hideFilters,
   Render,
+  menuButton,
 }) => {
   const [loading, setLoading] = useState(false);
   const [entries, setEntries] = useState([]);
@@ -106,11 +107,11 @@ const FilteredView = ({
             initialFilters={initialFilters}
             UpdateFilters={async (newFilters) => {
               setLoading(true);
-              setEntries([]);
               setPaging(undefined);
               setFilters(newFilters);
               setPage(1);
             }}
+            menuButton={menuButton}
           />
       }
       {

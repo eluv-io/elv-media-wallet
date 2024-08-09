@@ -373,7 +373,7 @@ tables:
   pagination: Showing {min} - {max} of {total} results
   no_results: No Results
   leaderboard: Climb the Leaderboard
-  activity: Recent Sales
+  activity: Recently Sold
   token_history_single: Transaction History for this Token
   token_history_all: Transaction History for All '{name}' Tokens
   active_offers: Active Offers
@@ -473,7 +473,7 @@ filters:
     minted_desc: Newest
     name: Name (A-Z)
     name_desc: Name (Z-A)
-    listed: Recently Listed
+    listed: Newest
     token_id: Token ID
     ordinal: Ordinal
     price: Price (Low to High)

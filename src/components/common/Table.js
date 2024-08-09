@@ -210,6 +210,7 @@ export const FilteredTable = observer(({
   CalculateRowValues,
   pagingMode="paginated",
   perPage=10,
+  menuButton,
   ...props
 }) => {
   const [page, setPage] = useState(1);
@@ -313,17 +314,16 @@ export const FilteredTable = observer(({
   return (
     <div className="filtered-view">
       {
-        showFilters ?
+        !showFilters ? null :
           <ListingFilters
             mode={mode}
             UpdateFilters={async (newFilters) => {
               setLoading(true);
-              setEntries([]);
-              setPaging(undefined);
               setFilters(newFilters);
               setPage(1);
             }}
-          /> : null
+            menuButton={menuButton}
+          />
       }
       { table }
     </div>

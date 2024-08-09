@@ -6,11 +6,12 @@ import {useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {FilteredTable} from "Components/common/Table";
+import {rootStore} from "Stores";
 
 import SalesIcon from "Assets/icons/misc/sales icon.svg";
 
 
-const Activity = observer(({mode="sales", icon, hideName, tableHeader, initialFilters}) => {
+const Activity = observer(({mode="sales", icon, hideName, tableHeader, initialFilters, ...props}) => {
   const match = useRouteMatch();
 
   const linkPath = match.url.startsWith("/marketplace") ?
@@ -49,16 +50,17 @@ const Activity = observer(({mode="sales", icon, hideName, tableHeader, initialFi
           UrlJoin(linkPath, `ictr${Utils.AddressToHash(transfer.contract)}`, transfer.token) :
           undefined
       })}
-      columnWidths={[hideName ? 0 : 2, 2, 1, 2, 2, 2]}
-      tabletColumnWidths={[hideName ? 0 : 2, 2, 1, 2, 0, 0]}
-      mobileColumnWidths={[hideName ? 0 : 2, 0, 1, 2, 0, 0]}
+      columnWidths={[hideName ? 0 : 3, 2, 2, 2, 2, 2]}
+      tabletColumnWidths={[hideName ? 0 : 3, 2, 2, 2, 0, 0]}
+      mobileColumnWidths={[hideName ? 0 : 3, 0, 2, 2, 0, 0]}
       hideOverflow
+      {...props}
     />
   );
 });
 
-export const RecentSales = () => (
-  <Activity icon={SalesIcon} tableHeader={rootStore.l10n.tables.activity} />
+export const RecentSales = ({...props}) => (
+  <Activity icon={SalesIcon} tableHeader={rootStore.l10n.tables.activity} {...props} />
 );
 
 export default Activity;

@@ -1,4 +1,4 @@
-import React, {memo} from "react";
+import React, {memo, useState} from "react";
 import {observer} from "mobx-react";
 import {rootStore} from "Stores";
 import {useRouteMatch} from "react-router-dom";
@@ -6,10 +6,13 @@ import UrlJoin from "url-join";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import ImageIcon from "Components/common/ImageIcon";
 import FilteredView from "Components/listings/FilteredView";
+import NFTCard from "Components/nft/NFTCard";
+import {RecentSales} from "Components/listings/Activity";
 
 import ListingIcon from "Assets/icons/listings icon";
 import LinkedIcon from "Assets/icons/linked wallet icon (r).svg";
-import NFTCard from "Components/nft/NFTCard";
+import GraphIcon from "Assets/icons/bar-chart-2.svg";
+import XIcon from "Assets/icons/x.svg";
 
 // eslint-disable-next-line react/display-name
 const Listing = memo(({url, listing}) => (
@@ -30,32 +33,48 @@ const Listing = memo(({url, listing}) => (
 
 const Listings = observer(({initialFilters}) => {
   const match = useRouteMatch();
+  const [showActivity, setShowActivity] = useState(false);
 
   return (
-    <FilteredView
-      mode="listings"
-      pagingMode="paginated"
-      showPagingInfo
-      perPage={12}
-      scrollOnPageChange
-      initialFilters={initialFilters}
-      Render={({entries}) => (
-        entries.length === 0 ? null :
-          <div className="card-list">
-            {
-              entries.map((listing, index) => {
-                return (
-                  <Listing
-                    url={match.url}
-                    listing={listing}
-                    key={`listing-card-${listing.details.ListingId}-${index}`}
-                  />
-                );
-              })
-            }
-          </div>
-      )}
-    />
+    showActivity ?
+      <RecentSales
+        menuButton={{
+          icon: XIcon,
+          active: true,
+          title: "Back to Listings",
+          onClick: () => setShowActivity(false)
+        }}
+      /> :
+      <FilteredView
+        mode="listings"
+        pagingMode="paginated"
+        showPagingInfo
+        perPage={12}
+        scrollOnPageChange
+        initialFilters={initialFilters}
+        menuButton={{
+          icon: GraphIcon,
+          active:false,
+          title: "Show Recent Activity",
+          onClick: () => setShowActivity(true)
+        }}
+        Render={({entries}) => (
+          entries.length === 0 ? null :
+            <div className="card-list">
+              {
+                entries.map((listing, index) => {
+                  return (
+                    <Listing
+                      url={match.url}
+                      listing={listing}
+                      key={`listing-card-${listing.details.ListingId}-${index}`}
+                    />
+                  );
+                })
+              }
+            </div>
+        )}
+      />
   );
 });
 

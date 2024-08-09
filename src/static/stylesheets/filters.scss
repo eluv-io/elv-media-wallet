@@ -37,7 +37,7 @@ $search-height: 50px;
 
   &__menu-button {
     align-items: center;
-    border: 1px solid transparent;
+    border: 1px solid #555;
     border-radius: var(--border-radius-input);
     box-shadow: var(--box-shadow-input);
     display: flex;
@@ -55,11 +55,13 @@ $search-height: 50px;
 
     &--active {
       background: var(--background-input);
-      border: 1px solid #555;
+      border: 1px solid #aaa;
     }
   }
 
   .autocomplete {
+    z-index: 2;
+
     &__input {
       padding-left: 65px;
 
