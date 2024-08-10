@@ -214,8 +214,8 @@ class MediaPropertyStore {
         if(excludePast) {
           if(isLiveContent) {
             return !ended;
-          } else if(result.mediaItem.canonical_date) {
-            return today <= result.mediaItem.canonical_date;
+          } else if(result.mediaItem?.canonical_date) {
+            return today <= result.mediaItem?.canonical_date;
           }
         }
 
@@ -223,12 +223,14 @@ class MediaPropertyStore {
       })
       .forEach(result => {
         let categories;
-        if(groupBy === "__media-type") {
-          categories = [result.mediaItem.media_type || "__other"];
-        } else if(groupBy === "__date") {
-          categories = [result.mediaItem.canonical_date || "__other"];
-        } else {
-          categories = result.mediaItem.attributes?.[groupBy];
+        if(result.mediaItem) {
+          if(groupBy === "__media-type") {
+            categories = [result.mediaItem.media_type || "__other"];
+          } else if(groupBy === "__date") {
+            categories = [result.mediaItem.canonical_date || "__other"];
+          } else {
+            categories = result.mediaItem.attributes?.[groupBy];
+          }
         }
 
         if(!categories || !Array.isArray(categories)) {

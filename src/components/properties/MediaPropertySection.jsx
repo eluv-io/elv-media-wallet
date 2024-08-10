@@ -454,7 +454,7 @@ export const SectionResultsGroup = observer(({groupBy, label, results, navContex
           </h2>
       }
       <MediaGrid
-        content={results.map(result => result.mediaItem)}
+        content={results.map(result => result.mediaItem || result)}
         aspectRatio={aspectRatio === "Mixed" ? undefined : aspectRatio}
         navContext={navContext}
       />
@@ -673,6 +673,7 @@ const MediaPropertySectionPage = observer(() => {
   let navContext = new URLSearchParams(location.search).get("ctx");
 
   const section = mediaPropertyStore.MediaPropertySection({...match.params});
+  const groupBy = section?.filters?.group_by;
 
   useEffect(() => {
     if(!section) { return; }
@@ -684,11 +685,11 @@ const MediaPropertySectionPage = observer(() => {
       .then(content => {
         setSectionContent(content);
 
-        if(section.group_by) {
+        if(groupBy) {
           setGroupedSectionContent(
             mediaPropertyStore.GroupContent({
               content,
-              groupBy: section.group_by,
+              groupBy,
               excludePast: false
             })
           );
@@ -722,9 +723,9 @@ const MediaPropertySectionPage = observer(() => {
   }
 
   let sectionItems;
-  if(section.group_by) {
+  if(groupBy) {
     let groups = Object.keys(groupedSectionContent || {}).filter(attr => attr !== "__other");
-    if(section.group_by === "__date") {
+    if(groupBy === "__date") {
       groups = groups.sort();
     }
 
@@ -734,7 +735,7 @@ const MediaPropertySectionPage = observer(() => {
           groups.map(attribute =>
             <SectionResultsGroup
               key={`results-${attribute}`}
-              groupBy={section.group_by}
+              groupBy={groupBy}
               label={Object.keys(groupedSectionContent).length > 1 ? attribute : ""}
               results={groupedSectionContent[attribute]}
               navContext="s"
