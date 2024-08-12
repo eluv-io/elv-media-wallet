@@ -10,6 +10,7 @@ import {SavedValue} from "../../utils/Utils";
 
 import CaretUpIcon from "Assets/icons/up-caret.svg";
 import CaretDownIcon from "Assets/icons/down-caret.svg";
+import ListingStats from "Components/listings/ListingStats";
 
 const Table = observer(({
   headerText,
@@ -325,6 +326,7 @@ export const FilteredTable = observer(({
             menuButton={menuButton}
           />
       }
+      <ListingStats mode={mode} filterParams={filters} />
       { table }
     </div>
   );
