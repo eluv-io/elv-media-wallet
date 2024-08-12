@@ -9,7 +9,7 @@ import {
 import {rootStore} from "Stores/index";
 
 import RenderRoutes from "Routes";
-import MarketplaceBrowser, {MediaPropertiesBrowser} from "Components/marketplace/MarketplaceBrowser";
+import MediaPropertiesBrowser from "Components/properties/MediaPropertiesBrowser";
 import Header from "Components/header/Header";
 
 const WalletWrapper = ({children}) => {
@@ -43,12 +43,6 @@ const Wallet = observer(() => {
       <Switch>
         <Route path="/wallet" exact>
           <Redirect to="/" />
-        </Route>
-
-        <Route path="/marketplaces" exact>
-          <GlobalWrapper>
-            <MarketplaceBrowser />
-          </GlobalWrapper>
         </Route>
 
         <Route path="/" exact>

@@ -17,11 +17,13 @@ const Video = forwardRef(function VideoComponent({
   posterImage,
   isLive,
   callback,
+  readyCallback,
   errorCallback,
   settingsUpdateCallback,
   hideControls,
   showTitle,
   mute,
+  autoAspectRatio=true,
   onClick,
   className=""
 }, ref) {
@@ -100,9 +102,10 @@ const Video = forwardRef(function VideoComponent({
       window.player = player;
       setPlayer(player);
 
-      player.controls.RegisterVideoEventListener("canplay", event =>
-        setVideoDimensions({width: event.target.videoWidth, height: event.target.videoHeight})
-      );
+      player.controls.RegisterVideoEventListener("canplay", event => {
+        setVideoDimensions({width: event.target.videoWidth, height: event.target.videoHeight});
+        readyCallback && readyCallback(player);
+      });
 
       if(settingsUpdateCallback) {
         player.controls.RegisterSettingsListener(() => settingsUpdateCallback(player));
@@ -147,7 +150,10 @@ const Video = forwardRef(function VideoComponent({
       ref={ref}
       className={[S("video"), className].join(" ")}
       onClick={onClick}
-      style={{aspectRatio: `${videoDimensions?.width || 16} / ${videoDimensions?.height || 9}`}}
+      style={
+        !autoAspectRatio ? {} :
+          {aspectRatio: `${videoDimensions?.width || 16} / ${videoDimensions?.height || 9}`}
+      }
     >
       <div ref={targetRef} />
     </div>

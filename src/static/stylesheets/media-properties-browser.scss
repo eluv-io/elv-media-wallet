@@ -240,6 +240,7 @@
 .media-property-card {
   display: flex;
   opacity: 0.9;
+  position: relative;
   transition: opacity 0.25s ease;
 
   &:focus-visible,
@@ -248,8 +249,23 @@
   }
 
   &__image {
-    aspect-ratio: 2/3;
-    object-fit: cover;
     width: 100%;
+  }
+
+  .media-property-card__video {
+    aspect-ratio: 2/3;
+    inset: 0;
+    position: absolute;
+    transition: opacity 0.5s ease;
+    width: 100%;
+    z-index: 1;
+
+    &--loading {
+      opacity: 0;
+    }
+
+    video {
+      object-fit: cover;
+    }
   }
 }
