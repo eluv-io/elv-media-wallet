@@ -4,7 +4,7 @@ import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Link, Redirect, useHistory, useRouteMatch} from "react-router-dom";
 import {mediaPropertyStore, rootStore} from "Stores";
-import {PageBackground, PageContainer, PageHeader, ScaledText} from "Components/properties/Common";
+import {PageBackground, PageContainer, PageHeader} from "Components/properties/Common";
 import MediaCard from "Components/properties/MediaCards";
 import {Select} from "Components/common/UIComponents";
 import {LoginGate} from "Components/common/LoginGate";
@@ -53,12 +53,12 @@ const MediaCollectionLists = observer(({mediaCollection, activeListId, setActive
                   mediaList.permissions?.disable ? "media-collection__list-select-option--disabled" : ""
                 )}
               >
-                <ScaledText maxPx={16} minPx={12} className={S("media-collection__list-select-title")}>
+                <div className={S("media-collection__list-select-title")}>
                   { mediaList.title }
-                </ScaledText>
-                <ScaledText maxPx={11} minPx={10} className={S("media-collection__list-select-subtitle")}>
+                </div>
+                <div className={S("media-collection__list-select-subtitle")}>
                   { mediaList.subtitle }
-                </ScaledText>
+                </div>
               </div>,
               mediaList.title
             ]
@@ -80,12 +80,12 @@ const MediaCollectionLists = observer(({mediaCollection, activeListId, setActive
             key={`media-list-${mediaList.id}`}
             className={S("media-collection__list", mediaList.id === activeListId ? "media-collection__list--active" : "", mediaList.permissions?.disable ? "media-collection__list--disabled" : "")}
           >
-            <ScaledText maxPx={18} minPx={12} className={S("media-collection__list-title")}>
+            <div className={S("media-collection__list-title")}>
               { mediaList.title }
-            </ScaledText>
-            <ScaledText maxPx={12} minPx={12} className={S("media-collection__list-subtitle")}>
+            </div>
+            <div className={S("media-collection__list-subtitle")}>
               { mediaList.subtitle }
-            </ScaledText>
+            </div>
           </Link>
         )
       }

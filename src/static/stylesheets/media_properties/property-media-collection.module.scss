@@ -106,7 +106,7 @@
     gap: 5px;
     max-height: calc(var(--vh, 1vh) * 55);
     max-width: 800px;
-    overflow-y: auto;
+    overflow: hidden auto;
     position: relative;
   }
 
