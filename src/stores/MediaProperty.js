@@ -827,8 +827,11 @@ class MediaPropertyStore {
           );
         }
 
+
+        // Load Media Catalogs
+        let mediaCatalogContent;
         if(metadata.media_catalog_links) {
-          await Promise.all(
+          mediaCatalogContent = await Promise.all(
             Object.keys(metadata.media_catalog_links).map(async mediaCatalogId =>
               await this.LoadMediaCatalog({
                 mediaCatalogId,
@@ -838,12 +841,29 @@ class MediaPropertyStore {
             )
           );
         } else {
-          await Promise.all(
+          mediaCatalogContent = await Promise.all(
             (metadata.media_catalogs || []).map(async mediaCatalogId =>
               await this.LoadMediaCatalog({mediaCatalogId, force})
             )
           );
         }
+
+        this.tags = [...new Set([
+          ...(this.tags || []),
+          ...(mediaCatalogContent
+            .map(({tags}) => tags)
+            .flat())
+        ])];
+
+        let allMedia = {};
+        mediaCatalogContent.forEach(({media}) =>
+          allMedia = Object.assign(allMedia, media)
+        );
+
+        this.media = {
+          ...(this.media || {}),
+          ...allMedia
+        };
 
         const indexableMedia = Object.values(this.media)
           .filter(mediaItem => mediaItem.authorized || mediaItem.permissions?.length > 0)
@@ -949,7 +969,7 @@ class MediaPropertyStore {
       mediaCatalogHash = yield this.client.LatestVersionHash({objectId: mediaCatalogId});
     }
 
-    yield this.LoadResource({
+    return yield this.LoadResource({
       key: "MediaCatalog",
       id: mediaCatalogHash,
       force,
@@ -984,30 +1004,25 @@ class MediaPropertyStore {
             tags: metadata.tags || [],
             attributes: metadata.attributes || []
           };
-
-          const media = {
-            ...(metadata.media || {}),
-            ...(metadata.media_lists || {}),
-            ...(metadata.media_collections || {}),
-          };
-
-          Object.keys(media).forEach(mediaId => {
-            media[mediaId].authorized = IsAuthorized(media[mediaId]);
-            if(media[mediaId].date) {
-              media[mediaId].canonical_date = media[mediaId].date.split("T")[0];
-            }
-          });
-
-          this.media = {
-            ...this.media,
-            ...media
-          };
-
-          this.tags = [
-            ...this.tags,
-            ...(metadata.tags || [])
-          ].sort();
         });
+
+        const media = {
+          ...(metadata.media || {}),
+          ...(metadata.media_lists || {}),
+          ...(metadata.media_collections || {}),
+        };
+
+        Object.keys(media).forEach(mediaId => {
+          media[mediaId].authorized = IsAuthorized(media[mediaId]);
+          if(media[mediaId].date) {
+            media[mediaId].canonical_date = media[mediaId].date.split("T")[0];
+          }
+        });
+
+        return {
+          media,
+          tags: metadata.tags || []
+        };
       }
     });
   });

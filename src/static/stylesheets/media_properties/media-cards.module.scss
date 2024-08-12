@@ -111,6 +111,7 @@
   &--landscape {
     max-width: min(90vw, var(--max-card-width));
 
+    .media-card-vertical__image-container,
     .media-card-vertical__image {
       aspect-ratio: 16/9;
     }
@@ -119,6 +120,7 @@
   &--square {
     max-width: min(90vw, var(--max-card-width-square));
 
+    .media-card-vertical__image-container,
     .media-card-vertical__image {
       aspect-ratio: 1;
     }
@@ -127,6 +129,7 @@
   &--portrait {
     max-width: min(90vw, var(--max-card-width-portrait));
 
+    .media-card-vertical__image-container,
     .media-card-vertical__image {
       aspect-ratio: 2/3;
     }
