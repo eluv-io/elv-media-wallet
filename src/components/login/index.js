@@ -687,7 +687,8 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           code: params.loginCode,
           address: rootStore.walletClient.UserAddress(),
           type: rootStore.AuthInfo()?.provider,
-          authToken: rootStore.walletClient.AuthToken()
+          authToken: rootStore.walletClient.AuthToken(),
+          expiresAt: rootStore.AuthInfo().expiresAt
         });
 
         setCodeAuthSet(true);
