@@ -180,7 +180,7 @@ export const MediaPropertyHeroSection = observer(({section}) => {
   }, [contentRefs]);
 
   return (
-    <div style={!section.allow_overlap || minHeight === undefined || !Number.isFinite(minHeight) ? {} : {minHeight: minHeight ? minHeight + 50 : minHeight}} className={S("hero-section")}>
+    <div style={!section.allow_overlap || minHeight === undefined || !Number.isFinite(minHeight) ? {} : {minHeight}} className={S("hero-section")}>
       <PageBackground
         key={`background-${activeIndex}`}
         display={activeItem?.display}
@@ -247,19 +247,21 @@ export const MediaPropertySectionContainer = observer(({section, isMediaPage, se
     <>
       {
         (section.filter_tags || []).length === 0 ? null :
-          <AttributeFilter
-            className={S("container-section__filter")}
-            attributeKey="tag"
-            filterOptions={
-              [
-                "",
-                ...section.filter_tags
-              ].map(value => ({value}))
-            }
-            variant="text"
-            activeFilters={{attributes: {tag: filter}}}
-            SetActiveFilters={activeFilters => setFilter(activeFilters?.attributes?.tag)}
-          />
+          <div className={S("container-section__filter-container")}>
+            <AttributeFilter
+              className={S("container-section__filter")}
+              attributeKey="tag"
+              filterOptions={
+                [
+                  "",
+                  ...section.filter_tags
+                ].map(value => ({value}))
+              }
+              variant="text"
+              activeFilters={{attributes: {tag: filter}}}
+              SetActiveFilters={activeFilters => setFilter(activeFilters?.attributes?.tag)}
+            />
+          </div>
       }
 
       {
@@ -323,7 +325,7 @@ export const MediaGrid = observer(({
       {
         content.map(item =>
           <MediaCard
-            size={!aspectRatio ? "mixed" : ""}
+            size={!aspectRatio || aspectRatio === "mixed" ? "mixed" : ""}
             format={cardFormat || "vertical"}
             key={`section-item-${item.id}`}
             sectionItem={isSectionContent ? item : undefined}

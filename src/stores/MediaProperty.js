@@ -711,10 +711,10 @@ class MediaPropertyStore {
     permissionItemIds = permissionItemIds || [];
 
     const purchaseGate = !authorized && behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE;
+    const showAlternatePage = !authorized && behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE;
 
-    const showAlternatePage = behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE;
     if(showAlternatePage) {
-      alternatePageId = this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId: alternatePageId})?.slug || alternatePageId;
+      alternatePageId = this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId: alternatePageId ? alternatePageId : undefined})?.slug || alternatePageId;
     }
 
     return {

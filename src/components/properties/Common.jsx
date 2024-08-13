@@ -104,14 +104,17 @@ export const PageHeader = observer(({display, maxHeaderSize=36, active=true, chi
     <div className={[S("page-header", `page-header--${display.position?.toLowerCase()}`), className].join(" ")}>
       <div className={S("page-header__content-container")}>
         <div className={S("page-header__content", `page-header__content--${display.position?.toLowerCase() || "left"}`)}>
-          <LoaderImage
-            lazy={false}
-            loaderHeight={200}
-            loaderWidth={400}
-            alt={display.logo_alt || display.title || "Logo"}
-            src={SetImageUrlDimensions({url: display.logo?.url, width: 1000})}
-            className={S("page-header__logo")}
-          />
+          {
+            !display?.logo?.url ? null :
+              <LoaderImage
+                lazy={false}
+                loaderHeight={200}
+                loaderWidth={400}
+                alt={display.logo_alt || display.title || "Logo"}
+                src={SetImageUrlDimensions({url: display.logo?.url, width: 1200})}
+                className={S("page-header__logo")}
+              />
+          }
           {
             !display.title && !display.title_icon ? null :
               <div className={S("page-header__title-container")}>
@@ -119,7 +122,7 @@ export const PageHeader = observer(({display, maxHeaderSize=36, active=true, chi
                   !display.title_icon ? null :
                     <img src={display.title_icon.url} alt="Icon" className={S("page-header__title-icon")}/>
                 }
-                <ScaledText Tag="h1" maxPx={maxHeaderSize} minPx={32} maxPxMobile={32} minPxMobile={18} className={[S("page-header__title"), "_title"].join(" ")}>
+                <ScaledText Tag="h1" maxPx={maxHeaderSize} minPx={28} maxPxMobile={32} minPxMobile={18} className={[S("page-header__title"), "_title"].join(" ")}>
                   {display.title}
                 </ScaledText>
               </div>

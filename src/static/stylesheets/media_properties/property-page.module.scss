@@ -27,5 +27,9 @@
     &__section {
       padding-inline: var(--property-page-padding);
     }
+
+    &__sections {
+      gap: 20px;
+    }
   }
 }

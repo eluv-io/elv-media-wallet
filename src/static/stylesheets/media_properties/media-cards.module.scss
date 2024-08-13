@@ -156,27 +156,16 @@
 
   /* Fixed size, potentially mixed with other aspect ratios - scale with based on aspect ratio to match height */
   &--size-mixed {
-    --mixed-card-width: calc(var(--max-card-width));
-
-    max-width: min(90vw, var(--mixed-card-width));
-
     &.media-card-vertical--landscape {
-      max-width: min(90vw, var(--mixed-card-width));
-      width: var(--mixed-card-width);
+      width: var(--max-card-width);
     }
 
     &.media-card-vertical--square {
-      max-width: min(90vw, calc(var(--mixed-card-width) * 0.5625));
-      width: calc(var(--mixed-card-width) * 0.5625);
+      width: calc(var(--max-card-width) * 9 / 16);
     }
 
     &.media-card-vertical--portrait {
-      max-width: min(90vw, calc(var(--mixed-card-width) * 0.375));
-      width: calc(var(--mixed-card-width) * 0.375);
-
-      .media-card-vertical__indicator {
-        font-size: 12px;
-      }
+      width: calc(var(--max-card-width) * (9 / 16) * (2 / 3));
     }
   }
 
