@@ -457,12 +457,6 @@
     height: max-content;
     max-height: unset;
     padding-bottom: 55px;
-
-    .expandable-description__toggle {
-      justify-content: flex-start;
-      padding: 0;
-      right: unset;
-    }
   }
 
   &__overlay {
@@ -484,6 +478,12 @@
 
     &--left {
       left: 0;
+    }
+
+    &--center {
+      justify-content: center;
+      text-align: center;
+      width: 100%;
     }
 
     &--right {

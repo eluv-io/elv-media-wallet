@@ -158,12 +158,29 @@ const Actions = observer(({sectionId, sectionItemId, actions}) => {
 export const MediaPropertyHeroSection = observer(({section}) => {
   const [contentRefs, setContentRefs] = useState({});
   const [activeIndex, setActiveIndex] = useState(0);
+  const [minHeight, setMinHeight] = useState(undefined);
 
   const activeItem = section.hero_items[activeIndex];
-  const minHeight = Math.max(...(Object.values(contentRefs).map(element => element?.getBoundingClientRect()?.height || 0) || []));
+
+  // Monitor size of hero content so min height can be properly set
+  useEffect(() => {
+    const resizeHandler = new ResizeObserver(elements => {
+      if(elements.length !== section.hero_items.length) { return; }
+
+      setMinHeight(
+        Math.max(...(Object.values(contentRefs).map(element => element?.getBoundingClientRect()?.height || 0) || []))
+      );
+    });
+
+    Object.values(contentRefs).forEach(element => element && resizeHandler.observe(element));
+
+    return () => {
+      resizeHandler.disconnect();
+    };
+  }, [contentRefs]);
 
   return (
-    <div style={!section.allow_overlap || minHeight === undefined || !Number.isFinite(minHeight) ? {} : {minHeight: minHeight}} className={S("hero-section")}>
+    <div style={!section.allow_overlap || minHeight === undefined || !Number.isFinite(minHeight) ? {} : {minHeight: minHeight ? minHeight + 50 : minHeight}} className={S("hero-section")}>
       <PageBackground
         key={`background-${activeIndex}`}
         display={activeItem?.display}
@@ -194,8 +211,9 @@ export const MediaPropertyHeroSection = observer(({section}) => {
                 </button>
             }
             <PageHeader
+              active={activeIndex === index}
               display={heroItem.display}
-              maxHeaderSize={60}
+              maxHeaderSize={38}
               className={S("hero-section__header")}
             >
               <Actions

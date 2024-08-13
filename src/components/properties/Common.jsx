@@ -91,7 +91,15 @@ export const PageBackground = observer(({
   );
 });
 
-export const PageHeader = observer(({display, maxHeaderSize=36, children, className=""}) => {
+export const PageHeader = observer(({display, maxHeaderSize=36, active=true, children, className=""}) => {
+  // Collapse expanded description if this header becomes inactive, e.g. hero section is scrolled to another header
+  const [descriptionKey, setDescriptionKey] = useState(0);
+  useEffect(() => {
+    if(!active) {
+      setDescriptionKey(descriptionKey + 1);
+    }
+  }, [active]);
+
   return (
     <div className={[S("page-header", `page-header--${display.position?.toLowerCase()}`), className].join(" ")}>
       <div className={S("page-header__content-container")}>
@@ -119,7 +127,8 @@ export const PageHeader = observer(({display, maxHeaderSize=36, children, classN
           {
             !display.description && !display.description_rich_text ? null :
               <ExpandableDescription
-                togglePosition="left"
+                key={descriptionKey}
+                togglePosition={display.position?.toLowerCase() || left}
                 description={display.description}
                 descriptionRichText={display.description_rich_text}
                 className={S("page-header__description")}
@@ -343,7 +352,7 @@ export const ExpandableDescription = observer(({description, descriptionRichText
       { expanded ? null : <div className={S("expandable-description__overlay")} /> }
       {
         !showToggle ? null :
-          <button onClick={() => setExpanded(!expanded)} className={S("expandable-description__toggle", `expandable-description__toggle--${togglePosition || "left"}`)}>
+          <button onClick={() => setExpanded(!expanded)} className={S("expandable-description__toggle", `expandable-description__toggle--${togglePosition?.toLowerCase() || "left"}`)}>
             {mediaPropertyStore.rootStore.l10n.media_properties.media.description[expanded ? "hide" : "show"]}
           </button>
       }
