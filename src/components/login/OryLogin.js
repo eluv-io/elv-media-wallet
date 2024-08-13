@@ -142,7 +142,7 @@ const SubmitRecoveryCode = async ({flows, setFlows, setFlowType, setErrorMessage
 };
 
 let submitting = false;
-const OryLogin = observer(({customizationOptions, userData, requiredOptionsMissing}) => {
+const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOptionsMissing}) => {
   const [flowType, setFlowType] = useState(searchParams.has("flow") ? "initializeFlow" : "login");
   const [flows, setFlows] = useState({});
   const [loading, setLoading] = useState(false);
@@ -202,8 +202,9 @@ const OryLogin = observer(({customizationOptions, userData, requiredOptionsMissi
   }, [rootStore.oryClient, flowType]);
 
   if(
-    (rootStore.loggedIn && ["/login"].includes(location.pathname)) ||
-    (verificationRequired && verificationSucceeded)
+    !codeAuth &&
+    ((rootStore.loggedIn && ["/login"].includes(location.pathname)) ||
+    (verificationRequired && verificationSucceeded))
   ) {
     return <Redirect to="/" />;
   }

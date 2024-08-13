@@ -341,7 +341,12 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
     return (
       <>
         <Logo customizationOptions={customizationOptions} />
-        <OryLogin customizationOptions={customizationOptions} userData={userData} requiredOptionsMissing={requiredOptionsMissing} />
+        <OryLogin
+          codeAuth={params.loginCode}
+          customizationOptions={customizationOptions}
+          userData={userData}
+          requiredOptionsMissing={requiredOptionsMissing}
+        />
         {
           params.loginCode && !loading ?
             <div className="login-page__login-code">
@@ -681,7 +686,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
         await rootStore.walletClient.SetCodeAuth({
           code: params.loginCode,
           address: rootStore.walletClient.UserAddress(),
-          type: rootStore.externalWalletUser ? rootStore.walletClient.__authorization.walletName.toLowerCase() : "custodial",
+          type: rootStore.AuthInfo()?.provider,
           authToken: rootStore.walletClient.AuthToken()
         });
 
@@ -690,6 +695,16 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
         setSettingCodeAuth(false);
       }
     };
+
+    if(!customizationOptions || !rootStore.loaded) { return; }
+
+    if(
+      (useOry && rootStore.loggedIn && rootStore.AuthInfo()?.provider === "auth0") ||
+      (!useOry && rootStore.loggedIn && rootStore.AuthInfo()?.provider === "ory")
+    ) {
+      rootStore.SignOut({reload: false});
+      return;
+    }
 
     if(params.clearLogin && !useOry) {
       const returnURL = new URL(window.location.href);
