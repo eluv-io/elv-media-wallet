@@ -42,6 +42,8 @@ const PropertyWrapper = observer(({children}) => {
           setItemLoaded(true);
         });
     }
+
+    return () => rootStore.SetPropertyLoginProvider("auth0");
   }, []);
 
   if(!rootStore.loaded  || rootStore.authenticating || !itemLoaded) {

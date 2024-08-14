@@ -82,6 +82,7 @@ class RootStore {
 
   auth0 = undefined;
   oryClient = undefined;
+  propertyLoginProvider = "auth0";
 
   authOrigin = this.GetSessionStorage("auth-origin");
 
@@ -820,6 +821,8 @@ class RootStore {
       return;
     }
 
+    this.SetPropertyLoginProvider(options?.login?.settings?.provider || "auth0");
+
     let css = [];
     if(options.styling?.font === "custom") {
       if(options.styling.custom_font_declaration) {
@@ -853,6 +856,10 @@ class RootStore {
 
     this.SetCustomCSS(css.join("\n"));
   });
+
+  SetPropertyLoginProvider(provider="auth0") {
+    this.propertyLoginProvider = provider;
+  }
 
   LoadPropertyCustomization = flow(function * (mediaPropertySlugOrId) {
     if(!mediaPropertySlugOrId) { return; }
@@ -1248,7 +1255,8 @@ class RootStore {
 
     this.checkoutStore.SetCurrency({currency: "USD"});
 
-    this.SetCustomizationOptions("default");
+    // Give locationType time to settle if path changed
+    setTimeout(() => this.SetCustomizationOptions("default"), 100);
   }
 
   SetMarketplace({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, specified=false, disableTenantStyling=false}) {
@@ -1285,7 +1293,7 @@ class RootStore {
       return marketplace.marketplaceHash;
     } else if(Object.keys(this.walletClient.availableMarketplaces) > 0) {
       // Don't reset customization if marketplaces haven't yet loaded
-      this.SetCustomizationOptions("default");
+      setTimeout(() => this.SetCustomizationOptions("default"), 100);
     }
   }
 

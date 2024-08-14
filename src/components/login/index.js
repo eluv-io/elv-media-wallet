@@ -599,7 +599,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
   const [settingCodeAuth, setSettingCodeAuth] = useState(false);
   const [codeAuthSet, setCodeAuthSet] = useState(false);
   const [errorMessage, setErrorMessage] = useState(undefined);
-  const useOry = params.useOry || customizationOptions?.use_ory || customizationOptions?.tenantConfig?.["open-id"]?.["issuer-url"];
+  const useOry = params.useOry || customizationOptions?.use_ory || customizationOptions?.tenantConfig?.["open-id"]?.["issuer-url"] || rootStore.propertyLoginProvider === "ory";
 
   // Handle login button clicked - Initiate popup/login flow
   const LogIn = async ({provider, mode}) => {
