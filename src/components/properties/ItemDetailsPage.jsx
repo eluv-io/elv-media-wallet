@@ -486,6 +486,9 @@ const DescriptionPage = observer(({item, info, status}) => {
   const match = useRouteMatch();
   const ownerAddress = info.ownerAddress;
   const ownerProfile = ownerAddress ? rootStore.userProfiles[Utils.FormatAddress(ownerAddress)] : undefined;
+  const isCurrentUser = Utils.EqualAddress(ownerAddress, rootStore.CurrentAddress());
+  const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false;
+  const accountPath = secondaryDisabled ? isCurrentUser ? "details" : "items" : "listings";
 
   return (
     <div className={S("page")}>
@@ -533,10 +536,10 @@ const DescriptionPage = observer(({item, info, status}) => {
           to={
             !ownerAddress ? undefined :
               match.params.mediaPropertySlugOrId ?
-                UrlJoin(MediaPropertyBasePath(match.params), "users", ownerProfile?.userName || ownerAddress, "listings") :
+                UrlJoin(MediaPropertyBasePath(match.params), "users", ownerProfile?.userName || ownerAddress, accountPath) :
                 match.params.marketplaceId ?
-                  UrlJoin("/marketplace", match.params.marketplaceId, "users", ownerProfile?.userName || ownerAddress, "listings") :
-                  UrlJoin("/wallet", "users", ownerProfile?.userName || ownerAddress, "listings")
+                  UrlJoin("/marketplace", match.params.marketplaceId, "users", ownerProfile?.userName || ownerAddress, accountPath) :
+                  UrlJoin("/wallet", "users", ownerProfile?.userName || ownerAddress, accountPath)
           }
           className={S("details__owner")}
         >

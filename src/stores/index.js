@@ -77,6 +77,7 @@ class RootStore {
   uiLocalizations = ["pt-br"];
   alertNotification = this.GetSessionStorage("alert-notification");
   domainProperty = this.GetSessionStorage("domain-property") || searchParams.get("pid");
+  domainSettings = undefined;
 
   appId = "eluvio-media-wallet";
 
@@ -794,6 +795,10 @@ class RootStore {
 
 
   SetDomainCustomization = flow(function * (mediaPropertyId) {
+    if(this.domainProperty === mediaPropertyId && this.domainSettings) {
+      return;
+    }
+
     if(mediaPropertyId) {
       this.domainProperty = mediaPropertyId;
       this.SetSessionStorage("domain-property", this.domainProperty);
@@ -810,6 +815,7 @@ class RootStore {
 
   ClearDomainCustomization() {
     this.domainProperty = undefined;
+    this.domainSettings = undefined;
     this.SetCustomCSS("");
     this.RemoveSessionStorage("domain-property");
   }
@@ -1055,21 +1061,34 @@ class RootStore {
     }
 
     if(force || !this.userProfiles[userId]) {
-      const profile = yield this.walletClient.Profile({userAddress, userName});
+      try {
+        const profile = yield this.walletClient.Profile({userAddress, userName});
 
-      if(!profile) {
-        return;
+        if(!profile) {
+          return;
+        }
+
+        if(profile.imageUrl && !this.ValidProfileImageUrl(profile.imageUrl)) {
+          delete profile.imageUrl;
+        }
+
+        this.userProfiles[profile.userAddress] = profile;
+        this.userProfiles[profile.userName] = profile;
+
+        userAddress = userAddress || profile.userAddress;
+      } catch(error) {
+        this.Log(error, true);
+
+        if(userAddress){
+          this.userProfiles[userAddress] = {
+            userAddress,
+            badges: []
+          };
+        }
       }
 
-      if(profile.imageUrl && !this.ValidProfileImageUrl(profile.imageUrl)) {
-        delete profile.imageUrl;
-      }
-
-      this.userProfiles[profile.userAddress] = profile;
-      this.userProfiles[profile.userName] = profile;
-
-      if(Utils.EqualAddress(profile.userAddress, this.CurrentAddress())) {
-        this.userProfiles.me = profile;
+      if(userAddress && Utils.EqualAddress(userAddress, this.CurrentAddress())) {
+        this.userProfiles.me = this.userProfiles[userAddress];
       }
     }
 

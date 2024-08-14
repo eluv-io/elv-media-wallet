@@ -42,14 +42,18 @@ const PropertyWrapper = observer(({children}) => {
       // Property not loaded
       !mediaProperty ||
       // Actually on custom domain
-      !["localhost", "192.168", "contentfabric.io"].includes(window.location.hostname))
+      !["localhost", "192.168", "contentfabric.io"].find(host => window.location.hostname.includes(host)))
     {
       return;
     }
 
     rootStore.SetDomainCustomization(mediaProperty.mediaPropertyId);
 
-    return () => rootStore.ClearDomainCustomization();
+    return () => setTimeout(() => {
+      if(!rootStore.routeParams.mediaPropertySlugOrId) {
+        rootStore.ClearDomainCustomization();
+      }
+    }, 500);
   }, [mediaProperty]);
 
   if(!rootStore.loaded  || rootStore.authenticating || !itemLoaded) {
@@ -80,16 +84,15 @@ const PropertyWrapper = observer(({children}) => {
             document.title = title;
           }
 
-          /*
           if(
             rootStore.loggedIn &&
             (property?.metadata?.login?.settings?.provider || "auth0") !== rootStore.AuthInfo().provider
           ) {
-            rootStore.Log("Signing out due to mismatched login provider with property");
-            await rootStore.SignOut({ reload: false});
+            await rootStore.SignOut({
+              reload: false,
+              message: "You have been signed out due to mismatched login provider with this property"
+            });
           }
-
-           */
         }}
         loadingClassName="page-loader content"
       >

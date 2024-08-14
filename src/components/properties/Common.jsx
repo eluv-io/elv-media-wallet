@@ -315,11 +315,11 @@ export const ExpandableDescription = observer(({description, descriptionRichText
   const descriptionRef = useRef();
 
   useEffect(() => {
-    if(!descriptionRef.current || expanded) { return; }
+    if(!descriptionRef?.current || expanded) { return; }
 
     const resizeHandler = new ResizeObserver(() => {
       setShowToggle(
-        descriptionRef.current?.firstChild?.getBoundingClientRect()?.height > descriptionRef.current.getBoundingClientRect().height
+        descriptionRef?.current?.firstChild?.getBoundingClientRect()?.height > descriptionRef?.current?.getBoundingClientRect().height
       );
     });
 
