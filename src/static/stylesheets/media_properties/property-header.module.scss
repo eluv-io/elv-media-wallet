@@ -37,15 +37,26 @@
 }
 
 .logo-container {
+  align-items: center;
+  display: flex;
   height: 80%;
+  justify-content: center;
   max-width: 200px;
   min-width: 100px;
+  position: relative;
   width: auto;
 }
 
 .logo {
   height: 100%;
   object-fit: contain;
+}
+
+.preview-indicator {
+  background: rgb(0 0 0 / 50%);
+  color: #aad9ff;
+  position: absolute;
+  text-shadow: 0 0 5px black;
 }
 
 

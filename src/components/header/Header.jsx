@@ -99,6 +99,7 @@ const Home = observer(({marketplaceId}) => {
   );
 });
 
+// eslint-disable-next-line no-unused-vars
 const Links = observer(({marketplaceId}) => {
   if(!rootStore.loggedIn) { return <div className={S("links")} />; }
 
@@ -118,6 +119,7 @@ const Links = observer(({marketplaceId}) => {
   );
 });
 
+// eslint-disable-next-line no-unused-vars
 const UserLinks = observer(() => {
   const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
   const [showUserProfileMenu, setShowUserProfileMenu] = useState(false);
@@ -210,8 +212,8 @@ const Header = observer(() => {
         }
 
         <Home marketplaceId={marketplaceId} />
-        <Links marketplaceId={marketplaceId} />
-        <UserLinks />
+        { /* <Links marketplaceId={marketplaceId} /> */ }
+        { /* <UserLinks /> */ }
       </header>
       <NotificationBanner />
     </>

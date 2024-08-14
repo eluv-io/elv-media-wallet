@@ -14,13 +14,14 @@ import {DatePickerInput} from "@mantine/dates";
 import {Button} from "Components/properties/Common";
 import ProfileMenu from "Components/header/ProfileMenu";
 import {NotificationsMenu} from "Components/header/NotificationsMenu";
+import {SetImageUrlDimensions} from "../../utils/Utils";
 
+import HomeIcon from "Assets/icons/home.svg";
 import SearchIcon from "Assets/icons/search.svg";
 import LeftArrowIcon from "Assets/icons/left-arrow.svg";
 import XIcon from "Assets/icons/x.svg";
 import MenuIcon from "Assets/icons/menu.svg";
 import NotificationsIcon from "Assets/icons/header/Notification Icon.svg";
-import {SetImageUrlDimensions} from "../../utils/Utils";
 
 
 const S = (...classes) => classes.map(c => HeaderStyles[c] || "").join(" ");
@@ -377,18 +378,41 @@ const SearchBar = observer(({autoFocus}) => {
 const HeaderLinks = observer(() => {
   const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
   const [showUserProfileMenu, setShowUserProfileMenu] = useState(false);
+  /*
+const discoverDisabled = rootStore.domainSettings?.settings?.features?.discover === false ||
+  rootStore.hideGlobalNavigation ||
+  (marketplaceId && rootStore.hideGlobalNavigationInMarketplace);
+
+ */
+
+  const discoverDisabled = false;
+
 
   if(!rootStore.loggedIn) {
     return (
-      <Button onClick={() => rootStore.ShowLogin()} className={S("sign-in")}>
-        { rootStore.l10n.login.sign_in }
-      </Button>
+      <>
+        {
+          discoverDisabled ? null :
+            <Linkish to="/" className={S("button")}>
+              <ImageIcon icon={HomeIcon} label="Home" className={S("button__icon")}/>
+            </Linkish>
+        }
+        <Button onClick={() => rootStore.ShowLogin()} className={S("sign-in")}>
+          { rootStore.l10n.login.sign_in }
+        </Button>
+      </>
     );
   } else {
     return (
       <>
         { !showNotificationsMenu ? null : <NotificationsMenu Hide={() => setShowNotificationsMenu(false)} /> }
         { !showUserProfileMenu ? null : <ProfileMenu Hide={() => setShowUserProfileMenu(false)} /> }
+        {
+          discoverDisabled ? null :
+            <Linkish to="/" className={S("button")}>
+              <ImageIcon icon={HomeIcon} label="Home" className={S("button__icon")}/>
+            </Linkish>
+        }
         <button
           className={S("button", showNotificationsMenu ? "button--active" : notificationStore.newNotifications ? "button--notification" : "")}
           onClick={() => setShowNotificationsMenu(!showNotificationsMenu)}
@@ -490,6 +514,12 @@ const MediaPropertyHeader = observer(() => {
           className={S("logo-container")}
         >
           <ImageIcon icon={logo} className={S("logo")} />
+          {
+            mediaPropertyStore.previewPropertyId !== mediaProperty.mediaPropertyId ? null :
+              <div className={S("preview-indicator")}>
+                PREVIEW
+              </div>
+          }
         </Link>
       </div>
       {

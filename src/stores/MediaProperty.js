@@ -3,10 +3,12 @@ import MiniSearch from "minisearch";
 import {MediaItemScheduleInfo} from "../utils/MediaPropertyUtils";
 
 class MediaPropertyStore {
+  allMediaProperties = {};
   mediaProperties = {};
   mediaCatalogs = {};
   media = {};
   permissionItems = {};
+  previewPropertyId;
   searchIndexes = {};
   searchOptions = {
     query: new URLSearchParams(location.search).get("q") || "",
@@ -32,6 +34,12 @@ class MediaPropertyStore {
 
     this.rootStore = rootStore;
     this.Log = this.rootStore.Log;
+
+    this.previewPropertyId = new URLSearchParams(location.search).get("preview") || rootStore.GetSessionStorage("preview-property");
+
+    if(this.previewPropertyId) {
+      rootStore.SetSessionStorage("preview-property", this.previewPropertyId);
+    }
   }
 
   get appId() {
@@ -254,7 +262,9 @@ class MediaPropertyStore {
   }
 
   MediaProperty({mediaPropertySlugOrId}) {
-    return this.mediaProperties[mediaPropertySlugOrId];
+    const propertyId = this.allMediaProperties[mediaPropertySlugOrId]?.propertyId || mediaPropertySlugOrId;
+
+    return this.mediaProperties[propertyId];
   }
 
   MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId="main"}) {
@@ -762,18 +772,24 @@ class MediaPropertyStore {
           ]
         });
 
+        let allProperties = {};
         const propertyOrder = metadata?.info?.media_property_order || [];
-        return Object.keys(metadata?.tenants || {}).map(tenantSlug => {
+        const properties = Object.keys(metadata?.tenants || {}).map(tenantSlug => {
           return Object.keys(metadata.tenants[tenantSlug]?.media_properties || {}).map(propertySlug => {
             try {
-              const property = metadata.tenants[tenantSlug].media_properties[propertySlug];
+              let property = metadata.tenants[tenantSlug].media_properties[propertySlug];
 
-              return {
+              property = {
                 ...property,
                 propertyHash: property["."].source,
                 propertyId: this.client.utils.DecodeVersionHash(property["."].source).objectId,
                 title: property.name
               };
+
+              allProperties[property.propertyId] = property;
+              allProperties[property.slug] = property;
+
+              return property;
             } catch(error) {
               this.Log(`Failed to load property ${tenantSlug}/${propertySlug}`, true);
               this.Log(error, true);
@@ -791,26 +807,40 @@ class MediaPropertyStore {
               (indexB < 0 ? 0 : 1) :
               (indexA < indexB ? -1 : 1);
           });
+
+        this.allMediaProperties = allProperties;
+
+        return properties;
       }
     });
   });
 
   LoadMediaProperty = flow(function * ({mediaPropertySlugOrId, force=false}) {
-    const mediaPropertyId = this.MediaProperty({mediaPropertySlugOrId})?.mediaPropertyId || mediaPropertySlugOrId;
+    yield this.LoadMediaProperties();
+    const propertyInfo = this.allMediaProperties[mediaPropertySlugOrId] || {};
+    const mediaPropertyId = propertyInfo?.propertyId || mediaPropertySlugOrId;
+    const isPreview = mediaPropertyId === this.previewPropertyId;
+
+    if(!propertyInfo && !isPreview) {
+      throw Error("Unable to find property" + mediaPropertySlugOrId);
+    }
 
     yield this.LoadResource({
       key: "MediaProperty",
       id: mediaPropertyId,
       force,
       Load: async () => {
-        const versionHash = await this.client.LatestVersionHash({objectId: mediaPropertyId});
+        const versionHash = isPreview ?
+          await this.client.LatestVersionHash({objectId: mediaPropertyId}) :
+          propertyInfo.propertyHash;
         const metadata = await this.client.ContentObjectMetadata({
           versionHash,
           metadataSubtree: "/public/asset_metadata/info",
           produceLinkUrls: true
         });
 
-        if(metadata.permission_set_links) {
+        if(!isPreview && metadata.permission_set_links) {
+          // Load from links
           await Promise.all(
             Object.keys(metadata.permission_set_links).map(async permissionSetId =>
               await this.LoadPermissionSet({
@@ -821,6 +851,7 @@ class MediaPropertyStore {
             )
           );
         } else {
+          // Load latest versions
           await Promise.all(
             (metadata.permission_sets || []).map(async permissionSetId =>
               await this.LoadPermissionSet({permissionSetId, force})
@@ -831,7 +862,8 @@ class MediaPropertyStore {
 
         // Load Media Catalogs
         let mediaCatalogContent;
-        if(metadata.media_catalog_links) {
+        if(!isPreview && metadata.media_catalog_links) {
+          // Load from links
           mediaCatalogContent = await Promise.all(
             Object.keys(metadata.media_catalog_links).map(async mediaCatalogId =>
               await this.LoadMediaCatalog({
@@ -842,6 +874,7 @@ class MediaPropertyStore {
             )
           );
         } else {
+          // Load latest versions
           mediaCatalogContent = await Promise.all(
             (metadata.media_catalogs || []).map(async mediaCatalogId =>
               await this.LoadMediaCatalog({mediaCatalogId, force})

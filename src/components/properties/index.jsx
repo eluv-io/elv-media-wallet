@@ -88,10 +88,8 @@ const PropertyWrapper = observer(({children}) => {
             rootStore.loggedIn &&
             (property?.metadata?.login?.settings?.provider || "auth0") !== rootStore.AuthInfo().provider
           ) {
-            await rootStore.SignOut({
-              reload: false,
-              message: "You have been signed out due to mismatched login provider with this property"
-            });
+            rootStore.Log("Signing out due to mismatched login provider with property");
+            await rootStore.SignOut({reload: false});
           }
         }}
         loadingClassName="page-loader content"

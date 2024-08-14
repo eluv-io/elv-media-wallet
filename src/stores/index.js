@@ -432,7 +432,7 @@ class RootStore {
         network: EluvioConfiguration.network,
         mode: EluvioConfiguration.mode,
         localization: this.language === "en" ? undefined : this.language,
-        previewMarketplaceId: (searchParams.get("preview") || (!this.embedded && this.GetSessionStorage("preview-marketplace")) || "").replaceAll("/", ""),
+        previewMarketplaceId: ((!this.embedded && this.GetSessionStorage("preview-marketplace")) || "").replaceAll("/", ""),
         storeAuthToken: false
       });
 
