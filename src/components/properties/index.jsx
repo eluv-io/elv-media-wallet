@@ -18,16 +18,9 @@ const PropertyWrapper = observer(({children}) => {
   const [redirect, setRedirect] = useState(false);
 
   const { mediaPropertySlugOrId, pageSlugOrId } = match.params;
+  const mediaProperty = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId});
 
   useEffect(() => {
-    if(rootStore.specifiedMarketplaceId) {
-      rootStore.SetMarketplace({marketplaceId: rootStore.specifiedMarketplaceId, specified: true});
-    } else if(match.params.mediaPropertySlugOrId) {
-      rootStore.SetPropertyCustomization(match.params.mediaPropertySlugOrId);
-    } else {
-      rootStore.ClearMarketplace();
-    }
-
     if(match.params.propertyItemContractId) {
       rootStore.LoadNFTData({
         contractId: match.params.propertyItemContractId,
@@ -42,9 +35,22 @@ const PropertyWrapper = observer(({children}) => {
           setItemLoaded(true);
         });
     }
-
-    return () => rootStore.SetPropertyLoginProvider("auth0");
   }, []);
+
+  useEffect(() => {
+    if(
+      // Property not loaded
+      !mediaProperty ||
+      // Actually on custom domain
+      !["localhost", "192.168", "contentfabric.io"].includes(window.location.hostname))
+    {
+      return;
+    }
+
+    rootStore.SetDomainCustomization(mediaProperty.mediaPropertyId);
+
+    return () => rootStore.ClearDomainCustomization();
+  }, [mediaProperty]);
 
   if(!rootStore.loaded  || rootStore.authenticating || !itemLoaded) {
     return <PageLoader />;

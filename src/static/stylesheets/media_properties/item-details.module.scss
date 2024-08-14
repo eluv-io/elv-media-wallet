@@ -175,6 +175,11 @@
     line-height: 1.6;
   }
 
+  &__message {
+    font-size: 0.9em;
+    max-width: 450px;
+  }
+
   &__actions {
     display: grid;
     gap: 10px;

@@ -6,7 +6,7 @@ import {observer} from "mobx-react";
 import {TextInput} from "@mantine/core";
 import {Loader} from "Components/common/Loaders";
 import {NFTInfo, ValidEmail} from "../../utils/Utils";
-import {Button, Description, LoaderImage, Modal, ScaledText} from "Components/properties/Common";
+import {Button, ExpandableDescription, LoaderImage, Modal, ScaledText} from "Components/properties/Common";
 import {LocalizeString} from "Components/common/UIComponents";
 import SupportedCountries from "../../utils/SupportedCountries";
 import {roundToDown} from "round-to";
@@ -42,7 +42,8 @@ const Item = observer(({item, children, hideInfo, Actions}) => {
               <div className={S("item__subtitle")}>
                 {item.subtitle}
               </div>
-              <Description
+              <ExpandableDescription
+                maxLines={3}
                 description={item.description}
                 className={S("item__description")}
               />

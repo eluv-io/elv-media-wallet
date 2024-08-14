@@ -314,13 +314,13 @@ const ContractPage = observer(({nftInfo}) => {
           <div className={S("details__details")}>
             {
               nftInfo.heldDate || !nftInfo.secondaryReleased ?
-                <h3 className={S("details__detail")}>
+                <h3 className={S("details__message")}>
                   { LocalizeString(rootStore.l10n.item_details[nftInfo.heldDate ? "held_message" : "secondary_unreleased"], {heldDate: nftInfo.heldDate || nftInfo.secondaryReleaseDate}) }
                 </h3> : null
             }
             {
               nftInfo.secondaryReleased && !nftInfo.secondaryAvailable ?
-                <h3 className={S("details__detail")}>
+                <h3 className={S("details__message")}>
                   { LocalizeString(rootStore.l10n.item_details.secondary_expired, {heldDate: nftInfo.secondaryExpirationDate}) }
                 </h3> : null
             }

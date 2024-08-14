@@ -309,19 +309,25 @@ export const Description = ({
   );
 };
 
-export const ExpandableDescription = observer(({description, descriptionRichText, onClick, togglePosition="left", className=""}) => {
+export const ExpandableDescription = observer(({description, descriptionRichText, onClick, togglePosition="left", maxLines, className=""}) => {
   const [expanded, setExpanded] = useState(false);
   const [showToggle, setShowToggle] = useState(false);
   const descriptionRef = useRef();
 
   useEffect(() => {
-    setTimeout(() =>
-      setShowToggle(
-        expanded ||
-        (descriptionRef?.current &&
-          descriptionRef.current?.firstChild?.getBoundingClientRect()?.height > descriptionRef.current.getBoundingClientRect().height)
-      ), 100);
+    if(!descriptionRef.current || expanded) { return; }
 
+    const resizeHandler = new ResizeObserver(() => {
+      setShowToggle(
+        descriptionRef.current?.firstChild?.getBoundingClientRect()?.height > descriptionRef.current.getBoundingClientRect().height
+      );
+    });
+
+    resizeHandler.observe(descriptionRef.current);
+
+    return () => {
+      resizeHandler.disconnect();
+    };
   }, [descriptionRef, expanded]);
 
   if(!description && !descriptionRichText) {
@@ -345,7 +351,11 @@ export const ExpandableDescription = observer(({description, descriptionRichText
         className
       ].join(" ")}
     >
-      <div ref={descriptionRef} className={S("expandable-description__description-container", showToggle ? "expandable-description__description-container--mask" : "")}>
+      <div
+        ref={descriptionRef}
+        style={maxLines && !expanded ? {maxHeight: `${maxLines * 1.6}em`} : {}}
+        className={S("expandable-description__description-container", showToggle ? "expandable-description__description-container--mask" : "")}
+      >
         <Description
           description={description}
           descriptionRichText={descriptionRichText}

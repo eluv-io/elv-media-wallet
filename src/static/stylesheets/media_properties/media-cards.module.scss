@@ -539,6 +539,10 @@
   &__description {
     color: var(--property-text-secondary);
     margin-top: 20px;
+
+    p {
+      font-size: 16px;
+    }
   }
 
   &__actions {
