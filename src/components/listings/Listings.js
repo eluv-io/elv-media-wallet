@@ -31,9 +31,11 @@ const Listing = memo(({url, listing}) => (
   />
 ));
 
-const Listings = observer(({initialFilters}) => {
+const Listings = observer(({initialFilters={}}) => {
   const match = useRouteMatch();
   const [showActivity, setShowActivity] = useState(false);
+
+  initialFilters.filter = new URLSearchParams(location.search).get("filter") || initialFilters.filter;
 
   return (
     showActivity ?

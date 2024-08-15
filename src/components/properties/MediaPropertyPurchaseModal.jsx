@@ -13,6 +13,7 @@ import {roundToDown} from "round-to";
 import {useHistory, useRouteMatch} from "react-router-dom";
 import {LoginGate} from "Components/common/LoginGate";
 import {MediaPropertyBasePath, MediaPropertyPurchaseParams} from "../../utils/MediaPropertyUtils";
+import UrlJoin from "url-join";
 
 const S = (...classes) => classes.map(c => PurchaseModalStyles[c] || "").join(" ");
 
@@ -62,6 +63,7 @@ const Item = observer(({item, children, hideInfo, Actions}) => {
 });
 
 const Items = observer(({items, Select}) => {
+  const match = useRouteMatch();
   return (
     <div className={S("items")}>
       {
@@ -69,19 +71,44 @@ const Items = observer(({items, Select}) => {
           <Item
             key={`item-${item?.id}`}
             item={item}
-            Actions={({item}) =>
-              <Button onClick={() => Select(item.id)} className={S("button")}>
-                <ScaledText maxPx={18} minPx={10}>
+            Actions={({item}) => {
+              const itemName = item?.itemInfo?.nft?.metadata?.display_name || "";
+              const outOfStock = item?.itemInfo?.outOfStock || item?.itemInfo?.maxOwned;
+              const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false;
+              let showSecondary = !secondaryDisabled && ["show", "out_of_stock", "only"].includes(item.secondary_market_purchase_option);
+              if(showSecondary && item.secondary_market_purchase_option === "out_of_stock") {
+                showSecondary = outOfStock;
+              }
+
+              return (
+                <>
                   {
-                    LocalizeString(
-                      rootStore.l10n.media_properties.purchase.select,
-                      { title: item.title, price: FormatPriceString(item.price, { stringOnly: true}) },
-                      { stringOnly: true }
-                    )
+                    !secondaryDisabled && item.secondary_market_purchase_option === "only" ? null :
+                      <Button disabled={outOfStock} onClick={() => Select(item.id)} className={S("button")}>
+                        <ScaledText maxPx={18} minPx={10}>
+                          {
+                            LocalizeString(
+                              rootStore.l10n.media_properties.purchase.select,
+                              { title: item.title, price: FormatPriceString(item.price, { stringOnly: true}) },
+                              { stringOnly: true }
+                            )
+                          }
+                        </ScaledText>
+                      </Button>
                   }
-                </ScaledText>
-              </Button>
-            }
+                  {
+                    !showSecondary ? null :
+                      <Button
+                        to={UrlJoin(MediaPropertyBasePath({...match.params}), `listings?filter=${itemName}`)}
+                        variant={item.secondary_market_purchase_option === "only" ? "primary" : "secondary"}
+                        className={S("button")}
+                      >
+                        { rootStore.l10n.media_properties.purchase.secondary }
+                      </Button>
+                  }
+                </>
+              );
+            }}
           />
         ))
       }
@@ -174,7 +201,6 @@ const Purchase = async ({item, paymentMethod, history}) => {
   }
 };
 
-// TODO: Submit, stock, status, routing
 const Payment = observer(({item, Back}) => {
   const history = useHistory();
   const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.walletClient.UserInfo()?.email || "";
@@ -613,7 +639,10 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, Close}) =
     key = 1;
     content = (
       <div className="purchase">
-        <Items items={purchaseItems} Select={setSelectedItemId} />
+        <Items
+          items={purchaseItems}
+          Select={setSelectedItemId}
+        />
       </div>
     );
   }

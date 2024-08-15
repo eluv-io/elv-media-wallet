@@ -680,6 +680,7 @@ media_properties:
     title: "Search results for \"{query}\""
   purchase:
     select: Buy {title} for {price}
+    secondary: View Listings
   purchase_status:
     pending:
       finalizing: Finalizing Purchase
