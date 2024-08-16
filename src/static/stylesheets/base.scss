@@ -434,7 +434,9 @@ em {
   }
 
   .page-block__content {
-    max-width: $extra-large-breakpoint;
+    &:not(&--unrestricted) {
+      max-width: $extra-large-breakpoint;
+    }
   }
 }
 

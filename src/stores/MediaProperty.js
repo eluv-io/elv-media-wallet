@@ -762,6 +762,7 @@ class MediaPropertyStore {
           select: [
             "info/media_property_order",
             "tenants/*/media_properties/*/.",
+            "tenants/*/media_properties/*/name",
             "tenants/*/media_properties/*/title",
             "tenants/*/media_properties/*/slug",
             "tenants/*/media_properties/*/image",
@@ -782,8 +783,7 @@ class MediaPropertyStore {
               property = {
                 ...property,
                 propertyHash: property["."].source,
-                propertyId: this.client.utils.DecodeVersionHash(property["."].source).objectId,
-                title: property.name
+                propertyId: this.client.utils.DecodeVersionHash(property["."].source).objectId
               };
 
               allProperties[property.propertyId] = property;

@@ -38,12 +38,8 @@ const PropertyWrapper = observer(({children}) => {
   }, []);
 
   useEffect(() => {
-    if(
-      // Property not loaded
-      !mediaProperty ||
-      // Actually on custom domain
-      !["localhost", "192.168", "contentfabric.io"].find(host => window.location.hostname.includes(host)))
-    {
+    // Property not loaded or acutally on custom domain
+    if(!mediaProperty || rootStore.isCustomDomain) {
       return;
     }
 

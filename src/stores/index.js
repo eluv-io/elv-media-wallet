@@ -78,6 +78,9 @@ class RootStore {
   alertNotification = this.GetSessionStorage("alert-notification");
   domainProperty = this.GetSessionStorage("domain-property") || searchParams.get("pid");
   domainSettings = undefined;
+  isCustomDomain = !["localhost", "192.168", "contentfabric.io"].find(host => window.location.hostname.includes(host));
+
+  discoverFilter = "";
 
   appId = "eluvio-media-wallet";
 
@@ -314,6 +317,10 @@ class RootStore {
     this.SendEvent({event: EVENTS.ROUTE_CHANGE, data: pathname});
   }
 
+  SetDiscoverFilter(filter) {
+    this.discoverFilter = filter;
+  }
+
   SetLanguage = flow(function * (language, save=false) {
     if(Array.isArray(language)) {
       for(let i = 0; i < language.length; i++) {
@@ -483,7 +490,7 @@ class RootStore {
         this.SetSessionStorage("domain-property", this.domainProperty);
         yield this.SetDomainCustomization();
 
-        if(window.location.pathname === "/") {
+        if(this.isCustomDomain && window.location.pathname === "/") {
           this.routeChange = UrlJoin("/", this.domainProperty);
         }
       }
