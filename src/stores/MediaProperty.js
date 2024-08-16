@@ -9,6 +9,7 @@ class MediaPropertyStore {
   media = {};
   permissionItems = {};
   previewPropertyId;
+  previewAll = false;
   searchIndexes = {};
   searchOptions = {
     query: new URLSearchParams(location.search).get("q") || "",
@@ -36,9 +37,13 @@ class MediaPropertyStore {
     this.Log = this.rootStore.Log;
 
     this.previewPropertyId = new URLSearchParams(location.search).get("preview") || rootStore.GetSessionStorage("preview-property");
-
     if(this.previewPropertyId) {
       rootStore.SetSessionStorage("preview-property", this.previewPropertyId);
+    }
+
+    this.previewAll = new URLSearchParams(location.search).has("previewAll") || rootStore.GetSessionStorage("preview-all");
+    if(this.previewAll) {
+      rootStore.SetSessionStorage("preview-all", true);
     }
   }
 
@@ -819,7 +824,7 @@ class MediaPropertyStore {
     yield this.LoadMediaProperties();
     const propertyInfo = this.allMediaProperties[mediaPropertySlugOrId] || {};
     const mediaPropertyId = propertyInfo?.propertyId || mediaPropertySlugOrId;
-    const isPreview = mediaPropertyId === this.previewPropertyId;
+    const isPreview = this.previewAll || mediaPropertyId === this.previewPropertyId;
 
     if(!propertyInfo && !isPreview) {
       throw Error("Unable to find property" + mediaPropertySlugOrId);

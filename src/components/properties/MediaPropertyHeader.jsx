@@ -515,7 +515,7 @@ const MediaPropertyHeader = observer(() => {
         >
           <ImageIcon icon={logo} className={S("logo")} />
           {
-            mediaPropertyStore.previewPropertyId !== mediaProperty.mediaPropertyId ? null :
+            !mediaPropertyStore.previewAll && mediaPropertyStore.previewPropertyId !== mediaProperty.mediaPropertyId ? null :
               <div className={S("preview-indicator")}>
                 PREVIEW
               </div>
