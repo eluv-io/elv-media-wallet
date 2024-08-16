@@ -35,7 +35,7 @@ const GridContentColumns = ({aspectRatio, pageWidth, cardFormat}) => {
   if(cardFormat === "button_vertical") {
     return Math.round(pageWidth / 450);
   } else if(cardFormat === "button_horizontal") {
-    return Math.round(pageWidth / 650);
+    return Math.floor(pageWidth / 600) || 1;
   } if(aspectRatio?.toLowerCase() === "landscape") {
     return Math.round(pageWidth / 435);
   } else {

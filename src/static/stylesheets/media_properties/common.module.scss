@@ -327,6 +327,10 @@
         mask-image: linear-gradient(black 65%, transparent);
       }
     }
+
+    .expandable-description__toggle {
+      align-items: flex-end;
+    }
   }
 
   &--expanded {
@@ -594,15 +598,11 @@
   }
 
   &__slide {
-    height: auto;
+    height: max-content;
     width: max-content;
 
     &--last {
       margin-right: 50px;
-    }
-
-    & > * {
-      height: 100%;
     }
   }
 
