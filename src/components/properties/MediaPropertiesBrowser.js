@@ -78,7 +78,7 @@ export const MediaPropertiesBrowser = observer(() => {
                       className="media-property-card__image"
                       src={SetImageUrlDimensions({url: mediaProperty.image?.url, width: 600})}
                       showWithoutSource
-                      loaderAspectRatio={3/4}
+                      loaderAspectRatio={2/3}
                       alt={mediaProperty.title || mediaProperty.name || ""}
                     />
                     {
