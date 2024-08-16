@@ -72,12 +72,25 @@ const Items = observer(({items, Select}) => {
             key={`item-${item?.id}`}
             item={item}
             Actions={({item}) => {
+              const itemName = item?.itemInfo?.nft?.metadata?.display_name || "";
               const outOfStock = item?.itemInfo?.outOfStock || item?.itemInfo?.maxOwned;
+              const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false;
+              let showSecondary = !secondaryDisabled && ["show", "out_of_stock", "only"].includes(item.secondary_market_purchase_option);
+              if(showSecondary && item.secondary_market_purchase_option === "out_of_stock") {
+                showSecondary = outOfStock;
+              }
+
+              // If only one item and option is listing, go to secondary
+              if(items.length === 1) {
+                if(!secondaryDisabled && item.secondary_market_purchase_option === "only") {
+                  return <Redirect to={UrlJoin(MediaPropertyBasePath({...match.params}), `listings?filter=${itemName}`)} />;
+                }
+              }
 
               return (
                 <>
                   {
-                    !item.secondaryDisabled && item.secondary_market_purchase_option === "only" ? null :
+                    !secondaryDisabled && item.secondary_market_purchase_option === "only" ? null :
                       <Button disabled={outOfStock} onClick={() => Select(item.id)} className={S("button")}>
                         <ScaledText maxPx={18} minPx={10}>
                           {
@@ -91,9 +104,9 @@ const Items = observer(({items, Select}) => {
                       </Button>
                   }
                   {
-                    !item.showSecondary ? null :
+                    !showSecondary ? null :
                       <Button
-                        to={UrlJoin(MediaPropertyBasePath({...match.params}), `listings?filter=${item.itemName}`)}
+                        to={UrlJoin(MediaPropertyBasePath({...match.params}), `listings?filter=${itemName}`)}
                         variant={item.secondary_market_purchase_option === "only" ? "primary" : "secondary"}
                         className={S("button")}
                       >
@@ -725,19 +738,6 @@ const MediaPropertyPurchaseModal = () => {
       }
     }
 
-    newPurchaseItems = newPurchaseItems.map(item => {
-      const itemName = item?.itemInfo?.nft?.metadata?.display_name || "";
-      const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false;
-      let showSecondary = !secondaryDisabled && ["show", "out_of_stock", "only"].includes(item.secondary_market_purchase_option);
-
-      return {
-        ...item,
-        itemName,
-        secondaryDisabled,
-        showSecondary
-      };
-    });
-
     if(!newPurchaseItems || newPurchaseItems.length === 0) {
       mediaPropertyStore.Log("Property purchase modal: No purchase items found", true);
       mediaPropertyStore.Log(params, true);
@@ -769,10 +769,6 @@ const MediaPropertyPurchaseModal = () => {
     if(hasPermissions) {
       Close();
     }
-  }
-
-  if(purchaseItems.length === 1 && !purchaseItems[0].secondaryDisabled && purchaseItems[0].secondary_market_purchase_option === "only") {
-    return <Redirect to={UrlJoin(MediaPropertyBasePath({...match.params}), `listings?filter=${purchaseItems[0].itemName}`)} />;
   }
 
   return (
