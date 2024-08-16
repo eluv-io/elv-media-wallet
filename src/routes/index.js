@@ -82,7 +82,7 @@ const TokenRoutes = basePath => {
 const UserRoutes = ({includeMarketplaceRoutes}={}) => {
   return [
     ...(includeMarketplaceRoutes ? UserMarketplaceRoutes() : []),
-    { name: "Listings", path: "listings", includeUserProfile: true, Component: UserListings },
+    { name: "Listings", path: "listings", includeUserProfile: true, backPath: "/", Component: UserListings },
     { name: "Listings", path: "listings/:contractId/:tokenId/open", Component: PackOpenStatus, backPath: "/listings" },
     { name: "Listings", path: "listings/:contractId/:tokenId", noBlock: true, Component: ItemDetailsPage, backPath: "/listings" },
 
@@ -202,6 +202,7 @@ const PropertyRoutes = (basePath="", additionalRoutes=[]) => {
     ...prefixPaths.map(path => ({
       name: "Listings",
       path: UrlJoin(basePath, path, "listings"),
+      backPath: UrlJoin(basePath, path),
       Component: Listings,
       includePageBlock: true
     })),

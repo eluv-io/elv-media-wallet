@@ -178,14 +178,14 @@
       display: grid;
       gap: 25px 25px;
       max-width: 100%;
-      width: max-content;
+      width: 100%;
 
       &.section__content--center {
-        margin-inline: auto;
+        justify-content: center;
       }
 
       &.section__content--right {
-        margin-left: auto;
+        justify-content: flex-end;
       }
     }
 

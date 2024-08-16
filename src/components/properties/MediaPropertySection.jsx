@@ -297,7 +297,7 @@ export const MediaGrid = observer(({
   className="",
   navContext,
 }) => {
-  aspectRatio = aspectRatio?.toLowerCase();
+  aspectRatio = aspectRatio?.toLowerCase() || "mixed";
 
   const columns = GridContentColumns({
     aspectRatio,

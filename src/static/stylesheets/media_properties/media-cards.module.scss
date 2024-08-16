@@ -142,14 +142,17 @@
   /* Fixed size, e.g. carousel with set aspect ratio */
   &--size-fixed {
     &.media-card-vertical--landscape {
+      max-width: var(--max-card-width);
       width: var(--max-card-width);
     }
 
     &.media-card-vertical--square {
+      max-width: var(--max-card-width-square);
       width: var(--max-card-width-square);
     }
 
     &.media-card-vertical--portrait {
+      max-width: var(--max-card-width-portrait);
       width: var(--max-card-width-portrait);
     }
   }
@@ -157,14 +160,17 @@
   /* Fixed size, potentially mixed with other aspect ratios - scale with based on aspect ratio to match height */
   &--size-mixed {
     &.media-card-vertical--landscape {
+      max-width: var(--max-card-width);
       width: var(--max-card-width);
     }
 
     &.media-card-vertical--square {
+      max-width: calc(var(--max-card-width) * 9 / 16);
       width: calc(var(--max-card-width) * 9 / 16);
     }
 
     &.media-card-vertical--portrait {
+      max-width: calc(var(--max-card-width) * (9 / 16) * (2 / 3));
       width: calc(var(--max-card-width) * (9 / 16) * (2 / 3));
     }
   }
