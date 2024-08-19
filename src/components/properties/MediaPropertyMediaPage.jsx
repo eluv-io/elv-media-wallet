@@ -127,7 +127,8 @@ const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideContr
           { clipStart: display.clip_start_time, clipEnd: display.clip_end_time }
       }
       contentInfo={{
-        title: display.title
+        title: display.title,
+        liveDVR: EluvioPlayerParameters.liveDVR[mediaItem.enable_dvr ? "ON" : "OFF"]
       }}
       playerOptions={{
         playerProfile: EluvioPlayerParameters.playerProfile[mediaItem.player_profile || (scheduleInfo.isLiveContent ? "LOW_LATENCY" : "DEFAULT")]

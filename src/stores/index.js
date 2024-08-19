@@ -2627,7 +2627,7 @@ class RootStore {
           }
         });
       }
-    }, 250);
+    }, 100);
   }
 
   ParsedRouteParams() {

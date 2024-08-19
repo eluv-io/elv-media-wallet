@@ -283,7 +283,7 @@ export const MediaItemScheduleInfo = mediaItem => {
     const startTime = !!mediaItem.start_time && new Date(mediaItem.start_time);
     const streamStartTime = (!!mediaItem.stream_start_time && new Date(mediaItem.stream_start_time)) || startTime;
     const endTime = !!mediaItem.end_time && new Date(mediaItem.end_time);
-    const started = !!streamStartTime || now > streamStartTime;
+    const started = !streamStartTime || now > streamStartTime;
     const ended = !!endTime && now > endTime;
     const displayStartDate = startTime?.toLocaleDateString?.(rootStore.preferredLocale, {day: "numeric", month: "numeric"}).replace(/0(\d)/g, "$1");
     const displayStartDateLong = startTime?.toLocaleDateString?.(rootStore.preferredLocale, {day: "numeric", month: "short"}).replace(/0(\d)/g, "$1");
