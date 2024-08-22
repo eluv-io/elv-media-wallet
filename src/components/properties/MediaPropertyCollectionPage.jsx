@@ -96,12 +96,15 @@ const MediaCollectionLists = observer(({mediaCollection, activeListId, setActive
 const MediaCollectionMedia = observer(({mediaListId, navContext}) => {
   const match = useRouteMatch();
   const [media, setMedia] = useState([]);
+  const [aspectRatio, setAspectRatio] = useState("");
 
   useEffect(() => {
     const mediaList = mediaPropertyStore.MediaPropertyMediaItem({
       mediaPropertySlugOrId: match.params.mediaPropertySlugOrId,
       mediaItemSlugOrId: mediaListId
     });
+
+    setAspectRatio(mediaList.preferred_aspect_ratio);
 
     setMedia(
       (mediaList?.media || [])
@@ -129,6 +132,7 @@ const MediaCollectionMedia = observer(({mediaListId, navContext}) => {
       {
         (media || []).map(mediaItem =>
           <MediaCard
+            aspectRatio={aspectRatio}
             disabled={mediaItem.permissions?.disable}
             format="horizontal"
             key={`media-item-${mediaItem.id}`}

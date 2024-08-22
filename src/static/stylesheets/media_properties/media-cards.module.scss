@@ -214,6 +214,7 @@
 
   &__image {
     height: 100%;
+    max-height: 155px;
     object-fit: cover;
     object-position: center;
     width: 100%;
@@ -223,8 +224,6 @@
     .media-card-horizontal__image,
     .media-card-horizontal__image-container {
       aspect-ratio: 16/9;
-      min-width: 250px;
-      width: 250px;
     }
 
     .media-card-horizontal__text {
@@ -236,8 +235,6 @@
     .media-card-horizontal__image,
     .media-card-horizontal__image-container {
       aspect-ratio: 1;
-      min-width: 200px;
-      width: 200px;
     }
 
     .media-card-horizontal__text {
@@ -249,8 +246,6 @@
     .media-card-horizontal__image,
     .media-card-horizontal__image-container {
       aspect-ratio: 2/3;
-      min-width: 150px;
-      width: 150px;
     }
 
     .media-card-horizontal__text {

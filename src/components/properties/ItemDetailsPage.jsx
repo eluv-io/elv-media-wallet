@@ -12,7 +12,7 @@ import {
   CopyableField,
   FormatPriceString,
   Linkish,
-  LocalizeString, RichText
+  LocalizeString
 } from "Components/common/UIComponents";
 import Confirm from "Components/common/Confirm";
 import {Modal, TextInput} from "@mantine/core";

@@ -356,6 +356,7 @@ class MediaPropertyStore {
         display: {
           content_display_text: "titles",
           display_format: "grid",
+          aspect_ratio: mediaList.preferred_aspect_ratio,
           ...mediaList
         },
         content: [{

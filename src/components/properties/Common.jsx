@@ -131,7 +131,7 @@ export const PageHeader = observer(({display, maxHeaderSize=36, active=true, chi
             !display.description && !display.description_rich_text ? null :
               <ExpandableDescription
                 key={descriptionKey}
-                togglePosition={display.position?.toLowerCase() || left}
+                togglePosition={display.position?.toLowerCase() || "left"}
                 description={display.description}
                 descriptionRichText={display.description_rich_text}
                 className={S("page-header__description")}
