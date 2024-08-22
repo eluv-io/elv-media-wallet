@@ -1111,6 +1111,7 @@ class MediaPropertyStore {
         })) || {};
 
         if(this.rootStore.loggedIn) {
+          let permissionContracts = {};
           await Promise.all(
             Object.keys(permissionItems).map(async permissionItemId => {
               const permissionItem = permissionItems[permissionItemId];
@@ -1130,15 +1131,29 @@ class MediaPropertyStore {
                 return;
               }
 
-              const ownedItem = (await this.rootStore.walletClient.UserItems({
-                userAddress: this.rootStore.CurrentAddress(),
-                contractAddress,
-                limit: 1
-              })).results?.[0];
+              if(!permissionContracts[permissionItem.marketplace.marketplace_id]) {
+                permissionContracts[permissionItem.marketplace.marketplace_id] = {};
+              }
 
-              if(ownedItem) {
-                permissionItems[permissionItemId].authorized = true;
-                permissionItems[permissionItemId].ownedItem = ownedItem;
+              permissionContracts[permissionItem.marketplace.marketplace_id][contractAddress] = permissionItemId;
+            })
+          );
+
+          await Promise.all(
+            Object.keys(permissionContracts).map(async marketplaceId => {
+              const ownedItems = (await this.rootStore.walletClient.UserItems({
+                userAddress: this.rootStore.CurrentAddress(),
+                marketplaceParams: {marketplaceId},
+                limit: 1000
+              })).results || [];
+
+              for(const item of ownedItems) {
+                const permissionItemId = permissionContracts[marketplaceId][this.client.utils.FormatAddress(item.contractAddress)];
+
+                if(permissionItemId) {
+                  permissionItems[permissionItemId].authorized = true;
+                  permissionItems[permissionItemId].ownedItem = item;
+                }
               }
             })
           );

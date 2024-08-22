@@ -59,19 +59,17 @@
   &--tables {
     margin-bottom: 10px;
     padding-left: 20px;
+
+    @media screen and (width <= 800px) {
+      gap: 25px;
+      padding-inline: 0;
+    }
   }
 
   &:not(&--tables) {
     @media screen and (width <= 600px) {
       gap: 0;
       justify-content: space-between;
-      padding-inline: 0;
-    }
-  }
-
-  &--tables {
-    @media screen and (width <= 800px) {
-      gap: 25px;
       padding-inline: 0;
     }
   }
