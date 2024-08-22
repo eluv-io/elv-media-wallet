@@ -5,9 +5,12 @@ import {mediaPropertyStore, rootStore} from "Stores";
 export const MediaPropertyBasePath = (params, {includePage=true}={}) => {
   if(!params.mediaPropertySlugOrId) { return "/"; }
 
+  const parentPage = params.parentPageSlugOrId && params.parentPageSlugOrId !== "main" ? params.parentPageSlugOrId : "";
+  const page = params.pageSlugOrId && params.pageSlugOrId !== "main" ? params.pageSlugOrId : "";
+
   let path = params.parentMediaPropertySlugOrId ?
-    UrlJoin("/", params.parentMediaPropertySlugOrId, params.parentPageSlugOrId || "", "p", params.mediaPropertySlugOrId, (includePage && params.pageSlugOrId) || "") :
-    UrlJoin("/", params.mediaPropertySlugOrId, (includePage && params.pageSlugOrId) || "");
+    UrlJoin("/", params.parentMediaPropertySlugOrId, parentPage, "p", params.mediaPropertySlugOrId, (includePage && page) || "") :
+    UrlJoin("/", params.mediaPropertySlugOrId, (includePage && page) || "");
 
   if(params.propertyItemContractId) {
     path = UrlJoin("/m", params.propertyItemContractId, params.propertyItemTokenId, "p", path);
@@ -127,7 +130,7 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
       parentMediaPropertySlugOrId: match.params.parentMediaPropertySlugOrId || match.params.mediaPropertySlugOrId,
       parentPageId: typeof match.params.parentPageSlugOrId !== "undefined" ? match.params.parentPageSlugOrId : match.params.pageSlugOrId,
       mediaPropertySlugOrId: sectionItem.subproperty_id,
-      pageSlugOrId: sectionItem.subproperty_page_id
+      pageSlugOrId: sectionItem.subproperty_page_id && sectionItem.subproperty_page_id !== "main" ? sectionItem.subproperty_page_id : ""
     });
   } else if(sectionItem?.type === "marketplace_link") {
     const marketplaceId = sectionItem.marketplace?.marketplace_id;
