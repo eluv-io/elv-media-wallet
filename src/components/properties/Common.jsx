@@ -718,6 +718,7 @@ export const PurchaseGate = ({id, permissions, backPath, children}) => {
         id,
         gate: true,
         permissionItemIds: permissions.permissionItemIds,
+        secondaryPurchaseOption: permissions.secondaryPurchaseOption,
         successPath: location.pathname,
         cancelPath: backPath || rootStore.backPath
       }));

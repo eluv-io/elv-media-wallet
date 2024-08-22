@@ -27,6 +27,7 @@ export const CreateMediaPropertyPurchaseParams = ({
   sectionSlugOrId,
   sectionItemId,
   actionId,
+  secondaryPurchaseOption,
   unlessPermissions,
   successPath,
   cancelPath
@@ -41,6 +42,7 @@ export const CreateMediaPropertyPurchaseParams = ({
       sectionItemId,
       actionId,
       permissionItemIds,
+      secondaryPurchaseOption,
       unlessPermissions,
       cancelPath,
       successPath
@@ -155,6 +157,7 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
       id: mediaItem?.id || sectionItem?.id,
       gate: true,
       permissionItemIds: permissions.permissionItemIds,
+      secondaryPurchaseOption: permissions.secondaryPurchaseOption,
       successPath: linkPath
     }));
 

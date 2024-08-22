@@ -410,18 +410,21 @@ export const NFTInfo = ({
     }
 
     const dateFormat = { year: "numeric", month: "long", day: "numeric" };
+    const dateFormatShort = { year: "numeric", month: "numeric", day: "numeric" };
 
     let released = true;
     let expired = false;
-    let releaseDate, expirationDate;
+    let releaseDate, releaseDateShort, expirationDate, expirationDateShort;
     if(offer.available_at) {
-      releaseDate = new Date(offer.available_at).toLocaleDateString(rootStore.preferredLocale, dateFormat);
       released = Date.now() > new Date(offer.available_at).getTime();
+      releaseDate = new Date(offer.available_at).toLocaleDateString(rootStore.preferredLocale, dateFormat);
+      releaseDateShort = new Date(offer.available_at).toLocaleDateString(rootStore.preferredLocale, dateFormatShort);
     }
 
     if(offer.expires_at) {
       expired = Date.now() > new Date(offer.expires_at).getTime();
       expirationDate = new Date(offer.expires_at).toLocaleDateString(rootStore.preferredLocale, dateFormat);
+      expirationDateShort = new Date(offer.expires_at).toLocaleDateString(rootStore.preferredLocale, dateFormatShort);
     }
 
     let {hide, hide_if_unreleased, hide_if_expired} = (offer.visibility || {});
@@ -448,8 +451,10 @@ export const NFTInfo = ({
       imageUrl,
       released,
       releaseDate,
+      releaseDateShort,
       expired,
       expirationDate,
+      expirationDateShort,
       hidden
     };
   });

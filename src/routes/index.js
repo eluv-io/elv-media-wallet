@@ -128,7 +128,7 @@ const PropertyRoutes = (basePath="", additionalRoutes=[]) => {
 
   // All possible permutations of property or parent property/subproperty with or without page slug/id
   const propertyPaths = [
-    { path: ":mediaPropertySlugOrId"},
+    { path: ":mediaPropertySlugOrId", backPath: "/" },
     { path: ":mediaPropertySlugOrId/:pageSlugOrId", backPath: ":mediaPropertySlugOrId" },
     { path: ":parentMediaPropertySlugOrId/p/:mediaPropertySlugOrId", backPath: ":parentMediaPropertySlugOrId" },
     { path: ":parentMediaPropertySlugOrId/:parentPageSlugOrId/p/:mediaPropertySlugOrId", backPath: ":parentMediaPropertySlugOrId/:parentPageSlugOrId" },

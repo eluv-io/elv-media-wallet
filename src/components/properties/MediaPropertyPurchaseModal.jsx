@@ -62,7 +62,7 @@ const Item = observer(({item, children, hideInfo, Actions}) => {
   );
 });
 
-const Items = observer(({items, Select}) => {
+const Items = observer(({items, secondaryPurchaseOption, Select}) => {
   const match = useRouteMatch();
   return (
     <div className={S("items")}>
@@ -74,15 +74,18 @@ const Items = observer(({items, Select}) => {
             Actions={({item}) => {
               const itemName = item?.itemInfo?.nft?.metadata?.display_name || "";
               const outOfStock = item?.itemInfo?.outOfStock || item?.itemInfo?.maxOwned;
+
+              secondaryPurchaseOption = item.secondary_market_purchase_option || secondaryPurchaseOption;
+
               const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false;
-              let showSecondary = !secondaryDisabled && ["show", "out_of_stock", "only"].includes(item.secondary_market_purchase_option);
-              if(showSecondary && item.secondary_market_purchase_option === "out_of_stock") {
+              let showSecondary = !secondaryDisabled && ["show", "out_of_stock", "only"].includes(secondaryPurchaseOption);
+              if(showSecondary && secondaryPurchaseOption === "out_of_stock") {
                 showSecondary = outOfStock;
               }
 
               // If only one item and option is listing, go to secondary
               if(items.length === 1) {
-                if(!secondaryDisabled && item.secondary_market_purchase_option === "only") {
+                if(!secondaryDisabled && secondaryPurchaseOption === "only") {
                   return <Redirect to={UrlJoin(MediaPropertyBasePath({...match.params}), `listings?filter=${itemName}`)} />;
                 }
               }
@@ -90,7 +93,7 @@ const Items = observer(({items, Select}) => {
               return (
                 <>
                   {
-                    !secondaryDisabled && item.secondary_market_purchase_option === "only" ? null :
+                    !secondaryDisabled && secondaryPurchaseOption === "only" ? null :
                       <Button disabled={outOfStock} onClick={() => Select(item.id)} className={S("button")}>
                         <ScaledText maxPx={18} minPx={10}>
                           {
@@ -107,7 +110,7 @@ const Items = observer(({items, Select}) => {
                     !showSecondary ? null :
                       <Button
                         to={UrlJoin(MediaPropertyBasePath({...match.params}), `listings?filter=${itemName}`)}
-                        variant={item.secondary_market_purchase_option === "only" ? "primary" : "secondary"}
+                        variant={secondaryPurchaseOption === "only" ? "primary" : "secondary"}
                         className={S("button")}
                       >
                         { rootStore.l10n.media_properties.purchase.secondary }
@@ -457,7 +460,7 @@ const PurchaseStatus = observer(({item, confirmationId, Close}) => {
 
     const statusInterval = setInterval(() => {
       Status();
-    }, 10000);
+    }, 5000);
 
     Status();
 
@@ -563,7 +566,7 @@ const FormatPurchaseItem = item => {
   };
 };
 
-const PurchaseModalContent = observer(({items, itemId, confirmationId, Close}) => {
+const PurchaseModalContent = observer(({items, itemId, confirmationId, secondaryPurchaseOption, Close}) => {
   const [loaded, setLoaded] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(itemId);
   const [purchaseItems, setPurchaseItems] = useState(undefined);
@@ -648,6 +651,7 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, Close}) =
       <div className="purchase">
         <Items
           items={purchaseItems}
+          secondaryPurchaseOption={secondaryPurchaseOption}
           Select={setSelectedItemId}
         />
       </div>
@@ -785,6 +789,7 @@ const MediaPropertyPurchaseModal = () => {
               <PurchaseModalContent
                 items={purchaseItems}
                 itemId={params.itemId || params.listingId}
+                secondaryPurchaseOption={params.secondaryPurchaseOption}
                 confirmationId={params.confirmationId}
                 Close={success => {
                   if(success && params.successPath) {

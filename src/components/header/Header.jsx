@@ -232,7 +232,7 @@ const MobileHeader = observer(({scrolled}) => {
       <Home />
       <div className={S("header-mobile__controls", "header-mobile__left-controls", scrolled ? "header-mobile--scrolled" : "")}>
         {
-          !rootStore.backPath ? null :
+          !rootStore.backPath || location.pathname === rootStore.backPath ? null :
             <Linkish style={{paddingRight: "2px"}} className={S("button")} to={rootStore.backPath}>
               <ImageIcon icon={LeftArrowIcon} label="Go Back" className={S("button__icon")} />
             </Linkish>
@@ -284,7 +284,7 @@ const Header = observer(() => {
       <header className={S("header", scrolled ? "header--scrolled" : "")}>
         <div className={S("header__background")} />
         {
-          !rootStore.backPath ? null :
+          !rootStore.backPath || location.pathname === rootStore.backPath ? null :
             <div className={S("back-link-container")}>
               <Linkish
                 to={rootStore.backPath}

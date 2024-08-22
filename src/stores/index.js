@@ -2446,7 +2446,7 @@ class RootStore {
     this.SetSessionStorage("navigation-info", JSON.stringify(this.navigationInfo));
   }
 
-  ShowLogin({requireLogin=false, backPath, ignoreCapture=false}={}) {
+  ShowLogin({requireLogin=false, backPath, Cancel, ignoreCapture=false}={}) {
     if(this.capturedLogin && !ignoreCapture) {
       if(this.loggedIn) { return; }
 
@@ -2454,6 +2454,7 @@ class RootStore {
     } else {
       this.requireLogin = requireLogin;
       this.loginBackPath = backPath;
+      this.loginCancel = Cancel;
       this.showLogin = true;
     }
   }
@@ -2462,6 +2463,10 @@ class RootStore {
     this.showLogin = false;
     this.requireLogin = false;
     this.loginBackPath = undefined;
+
+    this.loginCancel && this.loginCancel();
+
+    this.loginCancel = undefined;
   }
 
   ToggleNavigation(enabled) {

@@ -1,13 +1,19 @@
+import RedeemableOfferStyles from "Assets/stylesheets/media_properties/redeemable-offer-modal.module.scss";
+
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import Modal from "Components/common/Modal";
 import {ButtonWithLoader, QRCodeElement, RichText} from "Components/common/UIComponents";
-import {checkoutStore, rootStore} from "Stores";
+import {checkoutStore, mediaPropertyStore, rootStore} from "Stores";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import ImageIcon from "Components/common/ImageIcon";
 import {Loader} from "Components/common/Loaders";
 import Video from "Components/common/Video";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
+import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
+import {LoginGate} from "Components/common/LoginGate";
+import {Modal} from "Components/properties/Common";
+
+const S = (...classes) => classes.map(c => RedeemableOfferStyles[c] || "").join(" ");
 
 const RedemptionStatus = observer(({offer, offerKey, setRedemptionFinished}) => {
   const redemptionStatus = checkoutStore.redeemableOfferStatus[offerKey];
@@ -253,7 +259,7 @@ const RedeemableInfo = observer(({offer, nftInfo}) => {
   );
 });
 
-export const NFTRedeemableOfferModal = observer(({nftInfo, offerId, Close}) => {
+export const RedeemableOfferModal = observer(({nftInfo, offerId, Close}) => {
   const offerKey = `${nftInfo.nft.details.ContractAddr}-${nftInfo.nft.details.TokenIdStr}-${offerId}`;
   const offer = nftInfo.redeemables.find(offer => offer.offer_id === offerId);
 
@@ -368,122 +374,20 @@ export const NFTRedeemableOfferModal = observer(({nftInfo, offerId, Close}) => {
   }
 
   return (
-    <Modal
-      closable
-      Toggle={Close}
-      className="redeemable-offer-modal"
-    >
-      { content }
-    </Modal>
+    <LoginGate Cancel={Close}>
+      <Modal
+        size="auto"
+        centered
+        opened
+        onClose={Close}
+        withCloseButton={rootStore.pageWidth < 800 && !params.confirmationId}
+      >
+        <div className={S("form")}>
+          { content }
+        </div>
+      </Modal>
+    </LoginGate>
   );
 });
 
-
-const NFTRedeemableOffers = observer(({nftInfo}) => {
-  const [modalInfo, setModalInfo] = useState(undefined);
-
-  useEffect(() => {
-    (nftInfo?.redeemables || []).forEach(offer => {
-      if(offer.state?.redeemer) {
-        rootStore.UserProfile({userId: offer.state.redeemer});
-      }
-    });
-  }, [nftInfo?.redeemables]);
-
-  return (
-    <>
-      {
-        !modalInfo ? null :
-          <NFTRedeemableOfferModal
-            nftInfo={nftInfo}
-            offerId={modalInfo.offerId}
-            codeData={modalInfo.codeData}
-            Close={() => setModalInfo(undefined)}
-          />
-      }
-      <div className="redeemable-offers">
-        {
-          nftInfo.redeemables.map(offer => {
-            if(offer.hidden) { return null; }
-
-            const redeemer = offer.state?.redeemer;
-            const isRedeemer = Utils.EqualAddress(redeemer, rootStore.CurrentAddress());
-
-            const disabled = !nftInfo.isOwned || (redeemer && !isRedeemer);
-
-            let details;
-            if(!redeemer || isRedeemer) {
-              details = (
-                <>
-                  {
-                    nftInfo.isOwned ?
-                      <div className="redeemable-offer__cta">
-                        {rootStore.l10n.redeemables[redeemer ? "view_redemption" : (offer.released && !offer.expired ? "claim_reward" : "view_details")]}
-                      </div> : null
-                  }
-                  {
-                    offer.releaseDate || offer.expirationDate ?
-                      <div className="redeemable-offer__date-container">
-                        <div className="redeemable-offer__date-header">
-                          { rootStore.l10n.redeemables[offer.releaseDate ? "reward_valid" : "reward_expires"] }
-                        </div>
-                        <div className="redeemable-offer__date">
-                          { offer.releaseDate || "" }
-                          { offer.releaseDate && offer.expirationDate ? " - " : "" }
-                          { offer.expirationDate || "" }
-                        </div>
-                      </div> : null
-                  }
-                </>
-              );
-            } else {
-              details = (
-                <div className="redeemable-offer__message">
-                  { rootStore.l10n.redeemables.redeemed_by_previous }
-                  &nbsp;
-                  <a href={rootStore.LookoutURL(offer.state?.transaction)} rel="noopener noreferrer" target="_blank" className="redeemable-offer__link">
-                    { rootStore.l10n.redeemables.view_transaction }
-                  </a>
-                </div>
-              );
-            }
-
-            return (
-              <button
-                key={`redeemable-offer-${offer.offer_id}`}
-                onClick={() => setModalInfo({offerId: offer.offer_id})}
-                disabled={disabled}
-                className={`redeemable-offer ${redeemer ? "redeemable-offer--redeemed" : ""} ${offer.style ? `redeemable-offer--variant-${offer.style}` : ""}`}
-              >
-                <div className="redeemable-offer__header">
-                  { rootStore.l10n.redeemables[redeemer ? "reward_redeemed" : "reward"] }
-                </div>
-                {
-                  offer.image || offer.animation ?
-                    <div className="redeemable-offer__image-container">
-                      {
-                        offer.animation ?
-                          <Video videoLink={offer.animation} className="redeemable-offer__image redeemable-offer__video"/> :
-                          <ImageIcon label={offer.name} icon={offer.image.url} className="redeemable-offer__image"/>
-                      }
-                    </div> : null
-                }
-                <div className="redeemable-offer__name">
-                  { offer.name }
-                </div>
-                {
-                  offer.description ?
-                    <RichText richText={offer.description} className="markdown-document redeemable-offer__description"/> :
-                    <div className="redeemable-offer__description">{ offer.description_text }</div>
-                }
-                { details }
-              </button>
-            );
-          })
-        }
-      </div>
-    </>
-  );
-});
-
-export default NFTRedeemableOffers;
+export default RedeemableOfferModal;

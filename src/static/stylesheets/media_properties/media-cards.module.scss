@@ -220,6 +220,7 @@
   }
 
   &--landscape {
+    .media-card-horizontal__image,
     .media-card-horizontal__image-container {
       aspect-ratio: 16/9;
       min-width: 250px;
@@ -232,6 +233,7 @@
   }
 
   &--square {
+    .media-card-horizontal__image,
     .media-card-horizontal__image-container {
       aspect-ratio: 1;
       min-width: 200px;
@@ -244,6 +246,7 @@
   }
 
   &--portrait {
+    .media-card-horizontal__image,
     .media-card-horizontal__image-container {
       aspect-ratio: 2/3;
       min-width: 150px;
@@ -349,18 +352,21 @@
   width: 100%;
 
   &--landscape {
+    .media-card-button-vertical__image,
     .media-card-button-vertical__image-container {
       aspect-ratio: 16/9;
     }
   }
 
   &--square {
+    .media-card-button-vertical__image,
     .media-card-button-vertical__image-container {
       aspect-ratio: 1;
     }
   }
 
   &--portrait {
+    .media-card-button-vertical__image,
     .media-card-button-vertical__image-container {
       aspect-ratio: 2/3;
     }
@@ -480,18 +486,21 @@
   width: 100%;
 
   &--landscape {
+    .media-card-button-horizontal__image,
     .media-card-button-horizontal__image-container {
       aspect-ratio: 16/9;
     }
   }
 
   &--square {
+    .media-card-button-horizontal__image,
     .media-card-button-horizontal__image-container {
       aspect-ratio: 1;
     }
   }
 
   &--portrait {
+    .media-card-button-horizontal__image,
     .media-card-button-horizontal__image-container {
       aspect-ratio: 2/3;
     }

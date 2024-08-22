@@ -290,7 +290,7 @@ class MediaPropertyStore {
 
     let permissions = {
       authorized: true,
-      behavior: page.permissions.behavior,
+      behavior: page.permissions?.behavior,
       alternatePageId: (
         page.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
         page.permissions?.alternate_page_id
@@ -309,6 +309,7 @@ class MediaPropertyStore {
           showAlternatePage: page.permissions.page_permissions_behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE,
           alternatePageId: page.permissions.page_permissions_alternate_page_id,
           purchaseGate: page.permissions.page_permissions_behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE,
+          secondaryPurchaseOption: page.permissions.page_permissions_secondary_market_purchase_option,
           permissionItemIds: page.permissions.page_permissions,
           cause: "Page permissions"
         };
@@ -370,7 +371,7 @@ class MediaPropertyStore {
     }
   }
 
-  MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId}) {
+  MediaPropertyMediaItem({mediaItemSlugOrId}) {
     // TODO: Media slugs
     return this.media[mediaItemSlugOrId];
   }
@@ -656,6 +657,11 @@ class MediaPropertyStore {
       mediaProperty?.metadata?.permissions?.alternate_page_id
     );
 
+    let secondaryPurchaseOption = (
+      behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE &&
+      mediaProperty?.metadata?.permissions?.secondary_market_purchase_option
+    );
+
     const page = this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId: pageSlugOrId || "main"});
     behavior = page.permissions?.behavior || behavior;
 
@@ -663,6 +669,11 @@ class MediaPropertyStore {
       page?.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
       page?.permissions?.alternate_page_id
     ) || alternatePageId;
+
+    secondaryPurchaseOption = (
+      page?.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE &&
+      page?.permissions?.permissions?.secondary_market_purchase_option
+    ) || secondaryPurchaseOption;
 
     if(sectionSlugOrId) {
       const section = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId});
@@ -678,6 +689,12 @@ class MediaPropertyStore {
             section.permissions?.alternate_page_id
           ) || alternatePageId;
 
+        secondaryPurchaseOption =
+          (
+            section.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE &&
+            section.permissions?.secondary_market_purchase_option
+          ) || secondaryPurchaseOption;
+
         if(authorized && sectionItemId) {
           const sectionItem = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId})?.content
             ?.find(sectionItem => sectionItem.id === sectionItemId);
@@ -692,6 +709,12 @@ class MediaPropertyStore {
                 sectionItem.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
                 sectionItem.permissions?.alternate_page_id
               ) || alternatePageId;
+
+            secondaryPurchaseOption =
+              (
+                sectionItem.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE &&
+                sectionItem.permissions?.secondary_market_purchase_option
+              ) || secondaryPurchaseOption;
           }
         }
       }
@@ -739,6 +762,7 @@ class MediaPropertyStore {
       hide: !authorized && (!behavior || behavior === this.PERMISSION_BEHAVIORS.HIDE || (purchaseGate && permissionItemIds.length === 0)),
       disable: !authorized && behavior === this.PERMISSION_BEHAVIORS.DISABLE,
       purchaseGate: purchaseGate && permissionItemIds.length > 0,
+      secondaryPurchaseOption,
       showAlternatePage,
       alternatePageId,
       permissionItemIds,
@@ -963,8 +987,9 @@ class MediaPropertyStore {
               authorized: false,
               behavior: metadata.permissions.property_permissions_behavior,
               showAlternatePage: metadata.permissions.property_permissions_behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE,
-              alternatePageId: metadata.permissions.alternate_page_id,
+              alternatePageId: metadata.permissions.property_permissions_alternate_page_id,
               purchaseGate: metadata.permissions.property_permissions_behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE,
+              secondaryPurchaseOption: metadata.permissions.property_permissions_secondary_market_purchase_option,
               permissionItemIds: metadata.permissions.property_permissions,
               cause: "Property permissions"
             };

@@ -698,6 +698,7 @@ media_properties:
     tables:
       trading: Trading
       offers: Purchase Offers
+      rewards: Rewards
   media:
     live: Live
     upcoming: UPCOMING

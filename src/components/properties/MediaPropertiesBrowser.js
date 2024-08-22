@@ -62,10 +62,11 @@ export const MediaPropertiesBrowser = observer(() => {
                     target: "_blank",
                     rel: "noopener"
                   };
+                } else if(mediaProperty.parent_property) {
+                  const parentSlug = mediaProperties.find(otherProperty => otherProperty.propertyId === mediaProperty.parent_property)?.slug || mediaProperty.parent_property;
+                  linkParams.to = UrlJoin("/", parentSlug, "/p", mediaProperty.slug || mediaProperty.propertyId);
                 } else {
-                  linkParams.to = mediaProperty.parent_property ?
-                    UrlJoin("/", mediaProperty.parent_property, "/p", mediaProperty.propertyId) :
-                    UrlJoin("/", mediaProperty.propertyId);
+                  linkParams.to = UrlJoin("/", mediaProperty.slug || mediaProperty.propertyId);
                 }
 
                 return (

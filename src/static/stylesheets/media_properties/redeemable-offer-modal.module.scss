@@ -1,0 +1,16 @@
+@import "variables";
+
+.form {
+  @include page-fade-in(0.5s);
+
+  max-width: 400px;
+  min-width: 400px;
+  padding: 15px 25px 25px 15px;
+  width: 100%;
+
+  @media screen and (width <= 750px) {
+    margin-inline: auto;
+    max-width: 400px;
+    min-width: 400px;
+  }
+}

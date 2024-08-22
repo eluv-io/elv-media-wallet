@@ -694,9 +694,15 @@
     width: 25px;
   }
 
+  &:hover,
+  &:focus-visible,
+  .button--active {
+    opacity: 0.9;
+  }
+
   &--disabled,
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.5!important;
   }
 
   &--primary {
@@ -712,7 +718,6 @@
     &:focus-visible,
     .button--active {
       color: var(--property-button-text);
-      opacity: 0.95;
 
       * {
         color: var(--property-button-text);
@@ -733,7 +738,6 @@
     &:focus-visible,
     .button--active {
       color: var(--property-button-secondary-text);
-      opacity: 0.95;
 
       * {
         color: var(--property-button-secondary-text);
@@ -747,12 +751,6 @@
 
     * {
       color: var(--property-button-outline-text);
-    }
-
-    &:hover,
-    &:focus-visible,
-    .button--active {
-      opacity: 0.85;
     }
   }
 

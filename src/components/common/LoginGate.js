@@ -4,14 +4,14 @@ import {rootStore} from "Stores";
 import {Redirect, useRouteMatch} from "react-router-dom";
 
 // Show only login page until logged in
-export const LoginGate = observer(({children, ignoreCapture, loader, backPath, Condition}) => {
+export const LoginGate = observer(({children, ignoreCapture, loader, backPath, Cancel, Condition}) => {
   const match = useRouteMatch();
-  const skip = Condition && !Condition(match);
+  const skip = rootStore.loggedIn || (Condition && !Condition(match));
 
   useEffect(() => {
     if(skip) { return; }
 
-    rootStore.ShowLogin({requireLogin: true, backPath, ignoreCapture});
+    rootStore.ShowLogin({requireLogin: true, backPath, Cancel, ignoreCapture});
 
     return () => rootStore.HideLogin();
   }, [rootStore.showLogin, skip]);
