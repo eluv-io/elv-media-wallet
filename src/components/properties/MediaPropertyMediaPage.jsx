@@ -120,8 +120,8 @@ const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideContr
       isLive={display.live_video}
       onClick={onClick}
       showTitle={showTitle}
-      hideControls={hideControls}
-      mute={mute}
+      hideControls={hideControls || mediaItem.player_controls}
+      mute={mute || mediaItem.player_muted}
       playoutParameters={
         display.live_video || !display.clip ? {} :
           { clipStart: display.clip_start_time, clipEnd: display.clip_end_time }
@@ -131,7 +131,9 @@ const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideContr
         liveDVR: EluvioPlayerParameters.liveDVR[mediaItem.enable_dvr ? "ON" : "OFF"]
       }}
       playerOptions={{
-        playerProfile: EluvioPlayerParameters.playerProfile[mediaItem.player_profile || (scheduleInfo.isLiveContent ? "LOW_LATENCY" : "DEFAULT")]
+        playerProfile: EluvioPlayerParameters.playerProfile[mediaItem.player_profile || (scheduleInfo.isLiveContent ? "LOW_LATENCY" : "DEFAULT")],
+        permanentPoster: EluvioPlayerParameters.permanentPoster[mediaItem.always_show_poster ? "ON" : "OFF"],
+        loop: EluvioPlayerParameters.muted[mediaItem.player_loop ? "ON" : "OFF"],
       }}
       posterImage={
         SetImageUrlDimensions({

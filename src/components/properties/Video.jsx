@@ -74,7 +74,7 @@ const Video = forwardRef(function VideoComponent({
         },
         playerOptions: {
           muted: EluvioPlayerParameters.muted[mute ? "ON" : "OFF"],
-          controls: EluvioPlayerParameters.controls[hideControls ? "OFF" : "AUTO_HIDE"],
+          controls: EluvioPlayerParameters.controls[hideControls === "off_with_volume_toggle" ? "OFF_WITH_VOLUME_TOGGLE" : (hideControls ? "OFF" : "AUTO_HIDE")],
           title: EluvioPlayerParameters.title[showTitle ? "ON" : "FULLSCREEN_ONLY"],
           //maxBitrate: 50000,
           ui: EluvioPlayerParameters.ui.WEB,

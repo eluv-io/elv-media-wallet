@@ -841,6 +841,8 @@ class RootStore {
 
     this.SetPropertyLoginProvider(options?.login?.settings?.provider || "auth0");
 
+    let variables = [];
+
     let css = [];
     if(options.styling?.font === "custom") {
       if(options.styling.custom_font_declaration) {
@@ -853,16 +855,14 @@ class RootStore {
           `${options.styling.custom_title_font_declaration}, ${customFont}` : undefined;
 
 
-        css.push(":root {");
-        css.push(`--font-family-primary: ${customTitleFont || customFont};`);
-        css.push(`--font-family-secondary: ${customFont};`);
-        css.push(`--font-family-tertiary: ${customFont};`);
+        variables.push(`--font-family-primary: ${customTitleFont || customFont};`);
+        variables.push(`--font-family-secondary: ${customFont};`);
+        variables.push(`--font-family-tertiary: ${customFont};`);
 
         if(customTitleFont) {
-          css.push(`--font-family-title: ${customTitleFont};`);
+          variables.push(`--font-family-title: ${customTitleFont};`);
         }
 
-        css.push("}");
         css.push(`* { font-family: ${customFont}; }`);
 
         if(customTitleFont) {
@@ -870,6 +870,25 @@ class RootStore {
           css.push(`*._title * { font-family: ${customTitleFont}; }`);
         }
       }
+    }
+
+    if(CSS.supports("color", options.styling.button_style.background_color)) {
+      variables.push(`--property-button-background--custom: ${options.styling.button_style.background_color};`);
+      // If border color is not explicitly set, it should default to background color
+      variables.push(`--property-button-border-color--custom: ${options.styling.button_style.background_color};`);
+    }
+    if(CSS.supports("color", options.styling.button_style.text_color)) {
+      variables.push(`--property-button-text--custom: ${options.styling.button_style.text_color};`);
+    }
+    if(CSS.supports("color", options.styling.button_style.border_color)) {
+      variables.push(`--property-button-border-color--custom: ${options.styling.button_style.border_color};`);
+    }
+    if(!isNaN(parseInt(options.styling.button_style.border_radius))) {
+      variables.push(`--property-button-border-radius--custom: ${options.styling.button_style.border_radius}px;`);
+    }
+
+    if(variables.length > 0) {
+      css.unshift(":root {\n" + variables.join("\n") + "\n}\n");
     }
 
     this.SetCustomCSS(css.join("\n"));

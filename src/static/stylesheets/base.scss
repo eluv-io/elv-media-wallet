@@ -29,6 +29,7 @@ svg:not(:root) {
 a {
   color: var(--color-text-primary);
   text-decoration: none;
+  transition: color 0.25s ease;
 
   &:hover {
     color: var(--color-text-primary);

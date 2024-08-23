@@ -370,7 +370,7 @@ export const NFTInfo = ({
   const available = !item || timeToAvailable <= 0 && timeToExpired > 0;
   const released = !item || !item.available_at || timeToAvailable <= 0;
   const expired = item && item.expires_at && timeToExpired < 0;
-  const maxOwned = stock && stock.max_per_user && stock.current_user >= stock.max_per_user;
+  const maxOwned = stock && stock.max_per_user && stock.max_per_user > 0 && stock.current_user >= stock.max_per_user;
   const marketplacePurchaseAvailable = item && item.for_sale && !outOfStock && available && !unauthorized && !maxOwned;
   const marketplaceGiftAvailable = item && item.for_sale && item.allow_gift_purchase && !item.free && !outOfStock && available && !unauthorized;
   const hideAvailable = !available || (item && item.hide_available);

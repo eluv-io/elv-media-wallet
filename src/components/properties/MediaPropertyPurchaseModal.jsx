@@ -20,16 +20,16 @@ const S = (...classes) => classes.map(c => PurchaseModalStyles[c] || "").join(" 
 const Item = observer(({item, children, hideInfo, Actions}) => {
   return (
     <div className={S("item-container")}>
-        <div className={S("item-image-container")}>
-          {
-            !item.imageUrl ? null :
-              <LoaderImage
-                src={item.imageUrl}
-                width={400}
-                className={S("item-image")}
-              />
-          }
-        </div>
+
+        {
+          !item.imageUrl ? null :
+            <LoaderImage
+              loaderAspectRatio={1}
+              src={item.imageUrl}
+              width={400}
+              className={S("item-image")}
+            />
+        }
       <div className={S("item")}>
         {
           hideInfo ? null :
@@ -94,14 +94,20 @@ const Items = observer(({items, secondaryPurchaseOption, Select}) => {
                 <>
                   {
                     !secondaryDisabled && secondaryPurchaseOption === "only" ? null :
-                      <Button disabled={outOfStock} onClick={() => Select(item.id)} className={S("button")}>
+                      <Button
+                        disabled={outOfStock}
+                        onClick={async () => await Select(item.id)}
+                        className={S("button")}
+                      >
                         <ScaledText maxPx={18} minPx={10}>
                           {
-                            LocalizeString(
-                              rootStore.l10n.media_properties.purchase.select,
-                              { title: item.title, price: FormatPriceString(item.price, { stringOnly: true}) },
-                              { stringOnly: true }
-                            )
+                            item.itemInfo.free ?
+                              rootStore.l10n.media_properties.purchase.claim :
+                              LocalizeString(
+                                rootStore.l10n.media_properties.purchase.select,
+                                { title: item.title, price: FormatPriceString(item.price, { stringOnly: true}) },
+                                { stringOnly: true }
+                              )
                           }
                         </ScaledText>
                       </Button>
@@ -182,7 +188,13 @@ const Purchase = async ({item, paymentMethod, history}) => {
   cancelUrl.searchParams.delete("p");
 
   let result;
-  if(item.listingId) {
+  if(paymentMethod === "claim") {
+    successUrl.searchParams.set("claim", "");
+    result = await checkoutStore.ClaimSubmit({
+      marketplaceId: item.marketplace.marketplace_id,
+      sku: item.marketplace_sku
+    });
+  } else if(item.listingId) {
     result = await checkoutStore.ListingCheckoutSubmit({
       provider: paymentMethod.provider,
       tenantId: item.itemInfo.nft.details.TenantId,
@@ -205,7 +217,7 @@ const Purchase = async ({item, paymentMethod, history}) => {
 
   rootStore.Log(result);
 
-  if(paymentMethod.provider === "wallet-balance") {
+  if(paymentMethod === "claim" || paymentMethod.provider === "wallet-balance") {
     successUrl.searchParams.set("confirmationId", result.confirmationId);
     history.push(successUrl.pathname + successUrl.search);
   }
@@ -453,10 +465,15 @@ const PurchaseStatus = observer(({item, confirmationId, Close}) => {
           listingId: item.listingId,
           confirmationId: confirmationId
         }).then(setStatus) :
-        () => rootStore.PurchaseStatus({
-          marketplaceId: item.marketplace.marketplace_id,
-          confirmationId: confirmationId
-        }).then(setStatus);
+        item?.itemInfo?.free ?
+          () => rootStore.ClaimStatus({
+            marketplaceId: item.marketplace.marketplace_id,
+            sku: confirmationId
+          }).then(setStatus) :
+          () => rootStore.PurchaseStatus({
+            marketplaceId: item.marketplace.marketplace_id,
+            confirmationId
+          }).then(setStatus);
 
     const statusInterval = setInterval(() => {
       Status();
@@ -489,7 +506,7 @@ const PurchaseStatus = observer(({item, confirmationId, Close}) => {
     content = (
       <>
         <div className={S("status__message")}>
-          { rootStore.l10n.media_properties.purchase_status.complete }
+          { rootStore.l10n.media_properties.purchase_status[item?.itemInfo?.free ? "claim_complete" : "complete"] }
         </div>
       </>
     );
@@ -517,7 +534,7 @@ const PurchaseStatus = observer(({item, confirmationId, Close}) => {
     content = (
       <>
         <div className={S("status__message")}>
-          { rootStore.l10n.media_properties.purchase_status.pending.finalizing }
+          { rootStore.l10n.media_properties.purchase_status.pending[item?.itemInfo?.free ? "claiming" : "finalizing"] }
         </div>
         <div className={S("status__message", "status__message--info")}>
           { rootStore.l10n.media_properties.purchase_status.pending.info }
@@ -567,6 +584,7 @@ const FormatPurchaseItem = item => {
 };
 
 const PurchaseModalContent = observer(({items, itemId, confirmationId, secondaryPurchaseOption, Close}) => {
+  const history = useHistory();
   const [loaded, setLoaded] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(itemId);
   const [purchaseItems, setPurchaseItems] = useState(undefined);
@@ -652,7 +670,19 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, secondary
         <Items
           items={purchaseItems}
           secondaryPurchaseOption={secondaryPurchaseOption}
-          Select={setSelectedItemId}
+          Select={async itemId => {
+            const selectedItem = itemId && FormatPurchaseItem(items.find(item => item.id === itemId));
+
+            if(selectedItem?.itemInfo?.free) {
+              await Purchase({
+                item: selectedItem,
+                paymentMethod: "claim",
+                history
+              });
+            }
+
+            setSelectedItemId(itemId);
+          }}
         />
       </div>
     );

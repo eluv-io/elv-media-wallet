@@ -8,9 +8,152 @@
   padding: 15px 25px 25px 15px;
   width: 100%;
 
-  @media screen and (width <= 750px) {
+  @media screen and (width >= 800px) {
+    transition: max-width 0.5s ease, width 0.5s ease;
+    width: 400px;
+
+    &--with-animation {
+      max-width: 600px;
+      width: 600px;
+    }
+  }
+
+  @media screen and (width <= 800px) {
     margin-inline: auto;
-    max-width: 400px;
-    min-width: 400px;
+    max-width: 100%;
+    min-width: unset;
+    width: 100%;
+  }
+
+  &__content {
+    @include page-fade-in(1s);
+
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: max-content;
+    position: relative;
+    width: 100%;
+  }
+
+  &__state {
+    align-items: center;
+    display: flex;
+    font-size: 14px;
+    gap: 10px;
+
+    &__status {
+      color: var(--property-button-background--custom, var(--property-text-primary));
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+
+    &__details {
+      color: var(--property-text-faded);
+    }
+  }
+
+  &__title {
+    font-size: 28px;
+    font-weight: 600;
+  }
+
+  &__description {
+    font-size: 16px;
+
+    * {
+      color: var(--property-text-secondary);
+    }
+
+    p {
+      font-size: 16px;
+    }
+  }
+
+  &__image-container,
+  &__image,
+  &__video,
+  video {
+    aspect-ratio: 1;
+    max-width: 100%;
+    object-fit: cover;
+    width: 100%;
+  }
+
+  &__image-container {
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  &__video {
+    background: transparent;
+    inset: 0;
+    margin: 20px 0;
+    position: absolute;
+  }
+
+  &__action {
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  &__link {
+    color: var(--property-text-extra-faded);
+    font-size: 14px;
+    margin: 0 auto;
+    max-width: 100%;
+    width: max-content;
+  }
+
+  &__status {
+    gap: 10px;
+    text-align: center;
+  }
+
+  &__header {
+    font-size: 24px;
+    font-weight: 500;
+  }
+
+  &__subheader {
+    color: var(--property-text-faded);
+    font-size: 14px;
+  }
+
+  &__footer {
+    color: var(--property-text-faded);
+    font-size: 12px;
+  }
+
+  &__code {
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 15px;
+  }
+
+  &__qr {
+    aspect-ratio: 1;
+    margin: 20px auto;
+
+    canvas {
+      min-height: 200px;
+      min-width: 200px;
+    }
+  }
+
+  &__loader {
+    height: 150px;
+  }
+
+  &__error {
+    align-items: center;
+    display: flex;
+    font-size: 24px;
+    font-weight: 600;
+    height: 200px;
+    justify-content: center;
   }
 }

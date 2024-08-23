@@ -163,7 +163,7 @@ export const LoaderImage = observer(({src, alternateSrc, width, loaderHeight, lo
     setLoaded(false);
     setShowLoader(false);
 
-    setTimeout(() => setShowLoader(true), 500);
+    setTimeout(() => setShowLoader(true), 250);
   }, []);
 
   if(!src && !showWithoutSource) {
@@ -629,31 +629,28 @@ export const Modal = observer(({noBackground=false, ...args}) => {
 });
 
 export const Button = ({variant="primary", active, loading, icon, styles, defaultStyles=false, ...props}) => {
-  const mediaProperty = mediaPropertyStore.MediaProperty(rootStore.routeParams);
   const [isLoading, setIsLoading] = useState(loading);
 
   useEffect(() => {
     setIsLoading(loading);
   }, [loading]);
 
-  if(!styles) {
-    styles = (!defaultStyles && mediaProperty?.metadata?.styling?.button_style) || {};
-  }
-
-  let style = {};
-  if(CSS.supports("color", styles.background_color)) {
-    style["--property-button-background"] = styles.background_color;
-    // If border color is not explicitly set, it should default to background color
-    style["--property-button-border-color"] = styles.background_color;
-  }
-  if(CSS.supports("color", styles.text_color)) {
-    style["--property-button-text"] = styles.text_color;
-  }
-  if(CSS.supports("color", styles.border_color)) {
-    style["--property-button-border-color"] = styles.border_color;
-  }
-  if(!isNaN(parseInt(styles.border_radius))) {
-    style["--property-button-border-radius"] = `${styles.border_radius}px`;
+  let componentStyle = {};
+  if(styles) {
+    if(CSS.supports("color", styles.background_color)) {
+      componentStyle["--property-button-background"] = styles.background_color;
+      // If border color is not explicitly set, it should default to background color
+      componentStyle["--property-button-border-color"] = styles.background_color;
+    }
+    if(CSS.supports("color", styles.text_color)) {
+      componentStyle["--property-button-text"] = styles.text_color;
+    }
+    if(CSS.supports("color", styles.border_color)) {
+      componentStyle["--property-button-border-color"] = styles.border_color;
+    }
+    if(!isNaN(parseInt(styles.border_radius))) {
+      componentStyle["--property-button-border-radius"] = `${styles.border_radius}px`;
+    }
   }
 
   let a11yOptions = { role: "button" };
@@ -669,7 +666,7 @@ export const Button = ({variant="primary", active, loading, icon, styles, defaul
     <Linkish
       {...props}
       {...a11yOptions}
-      style={style}
+      style={componentStyle}
       onClick={
         !props.onClick ? undefined :
           async () => {
@@ -682,7 +679,16 @@ export const Button = ({variant="primary", active, loading, icon, styles, defaul
             }
           }
       }
-      className={[S("button", variant ? `button--${variant}` : "", active ? "button--active" : "", props.disabled ? "button--disabled" : ""), props.className || ""].join(" ")}
+      className={[
+        S(
+          "button",
+          variant ? `button--${variant}` : "",
+          variant === "primary" && !defaultStyles && !styles ? "button--primary-custom" : "",
+          active ? "button--active" : "",
+          props.disabled ? "button--disabled" : ""
+        ),
+        props.className || ""
+      ].join(" ")}
     >
       {
         !isLoading ?

@@ -1,6 +1,7 @@
 import {LinkTargetHash, SetImageUrlDimensions, StaticFabricUrl} from "./Utils";
 import UrlJoin from "url-join";
 import {mediaPropertyStore, rootStore} from "Stores";
+import RedeemableOfferModal from "Components/properties/RedeemableOfferModal";
 
 export const MediaPropertyBasePath = (params, {includePage=true}={}) => {
   if(!params.mediaPropertySlugOrId) { return "/"; }
@@ -80,7 +81,7 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
     linkPath = UrlJoin(linkPath, "s", match.params.sectionSlugOrId);
   }
 
-  let url;
+  let url, modalInfo;
   if(mediaItem || sectionItem?.type === "media") {
     if(match.params.mediaCollectionSlugOrId) {
       linkPath = UrlJoin(linkPath, "c", match.params.mediaCollectionSlugOrId);
@@ -141,13 +142,26 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
       const sku = sectionItem.marketplace_sku || "";
       linkPath = UrlJoin("/marketplace", marketplaceId, "store", sku);
     }
+  } else if(sectionItem?.type === "external_link") {
+    linkPath = undefined;
+    url = sectionItem.url;
+  } else if(sectionItem?.type === "redeemable_offer") {
+    linkPath = undefined;
+    modalInfo = {
+      Component: RedeemableOfferModal,
+      args: {
+        marketplaceId: sectionItem.marketplace?.marketplace_id,
+        marketplaceSKU: sectionItem.marketplace_sku,
+        offerId: sectionItem.offer_id
+      }
+    };
   }
 
   if(navContext) {
     params.set("ctx", navContext);
   }
 
-  linkPath = linkPath + (params.size > 0 ? `?${params.toString()}` : "");
+  linkPath = !linkPath ? undefined : linkPath + (params.size > 0 ? `?${params.toString()}` : "");
 
   // Purchase gate - include intended path to go to after successful purchase
   const permissions = mediaItem?.resolvedPermissions || sectionItem?.resolvedPermissions || {};
@@ -173,7 +187,8 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
 
   return {
     linkPath,
-    url
+    url,
+    modalInfo
   };
 };
 

@@ -321,19 +321,19 @@ redeemables:
   reward_redeemed: Reward Redeemed
   claim_reward: Claim Your Reward
   view_details: View Details
-  reward_valid: Reward Valid
-  reward_expires: Reward Expires
+  reward_valid: Offer Valid
+  reward_expires: Offer Expires
   expires: Expires
   available: Available
   view_redemption_code: View Redemption Code
   redeemed_by: By {redeemer}
   view_redemption: View Redemption
   view_transaction: View the Transaction
-  successfully_redeemed: Successfully Redeemed
+  successfully_redeemed: Success
   code: Code
   redeemed_message: To access your reward, scan the QR code below or visit the URL and enter the code.
   redeemed_by_previous: This reward has been redeemed by a previous owner.
-  redeeming: Redemption Transaction in Progress
+  redeeming: Redemption in Progress
   redeeming_subheader: This may take several minutes
   redeeming_footer: You can navigate away from this page if you don't want to wait. Your reward will be available in your wallet when the process is complete.
   popup_notice: "Note: This redemption requires a signature. Please check the pop-up to sign the results."
@@ -679,14 +679,17 @@ media_properties:
   search:
     title: "Search results for \"{query}\""
   purchase:
+    claim: Claim Now
     select: Buy {title} for {price}
     secondary: View Listings
   purchase_status:
     pending:
       finalizing: Finalizing Purchase
+      claiming: Claiming Item
       info: This should take less than a minute...
     failed: Purchase failed
     complete: Purchase Complete!
+    claim_complete: Claimed Successfully!
   page:
     actions:
       item_details: Details

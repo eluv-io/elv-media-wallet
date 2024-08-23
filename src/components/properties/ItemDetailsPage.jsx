@@ -149,7 +149,6 @@ const RedeemableOffers = observer(({nftInfo}) => {
 
             const redeemer = offer.state?.redeemer;
             const isRedeemer = Utils.EqualAddress(redeemer, rootStore.CurrentAddress());
-
             const disabled = !nftInfo.isOwned || (redeemer && !isRedeemer) || offer.expired || !offer.released;
 
             let active, state, stateDetails;
