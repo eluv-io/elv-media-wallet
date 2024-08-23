@@ -11,6 +11,7 @@ import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 import {LoginGate} from "Components/common/LoginGate";
 import {Button, ExpandableDescription, LoaderImage, Modal, ScaledText} from "Components/properties/Common";
 import {NFTInfo} from "../../utils/Utils";
+import {useHistory, useRouteMatch} from "react-router-dom";
 
 const S = (...classes) => classes.map(c => RedeemableOfferStyles[c] || "").join(" ");
 
@@ -381,32 +382,46 @@ export const RedeemableOfferContent = observer(({
   );
 });
 
-const RedeemableOfferModal = observer(({
-  marketplaceId,
-  marketplaceSKU,
-  contractAddress,
-  nftInfo,
-  tokenId,
-  offerId,
-  Close
-}) => {
-  const [info, setInfo] = useState(nftInfo);
+export const RedeemableParams = () => {
+  const urlParams = new URLSearchParams(location.search);
+
+  let params = {};
+  if(urlParams.has("r")) {
+    try {
+      params = JSON.parse(rootStore.client.utils.FromB58ToStr(urlParams.get("r")));
+    } catch(error) {
+      rootStore.Log("Failed to parse URL params", true);
+      rootStore.Log(error, true);
+    }
+  }
+
+  return Object.keys(params).length === 0 ? undefined : params;
+};
+
+const RedeemableOfferModal = observer(() => {
+  const match = useRouteMatch();
+  const history = useHistory();
+  const params = RedeemableParams();
+  const [info, setInfo] = useState();
 
   useEffect(() => {
-    if(nftInfo) { return; }
+    if(!params) { return; }
 
     (async () => {
-      if(marketplaceSKU) {
-        await rootStore.LoadMarketplace(marketplaceId);
-        const marketplace = rootStore.marketplaces[marketplaceId];
-        const item = marketplace.items.find(item => item.sku === marketplaceSKU);
+      let contractAddress = params.contractAddress;
+      let tokenId = params.tokenId;
+
+      if(params.marketplaceSKU) {
+        await rootStore.LoadMarketplace(params.marketplaceId);
+        const marketplace = rootStore.marketplaces[params.marketplaceId];
+        const item = marketplace.items.find(item => item.sku === params.marketplaceSKU);
         contractAddress = item.nftTemplateMetadata.address;
       }
 
-      if(!tokenId) {
+      if(!params.tokenId) {
         const ownedItem = ((await rootStore.walletClient.UserItems({
           userAddress: rootStore.CurrentAddress(),
-          contractAddress,
+          contractAddress: contractAddress,
           limit: 1
         })).results || [])[0];
 
@@ -415,14 +430,30 @@ const RedeemableOfferModal = observer(({
 
       setInfo(
         NFTInfo({
-          nft: await rootStore.LoadNFTData({contractAddress, tokenId})
+          nft: await rootStore.LoadNFTData({
+            contractAddress,
+            tokenId
+          })
         })
       );
     })();
-  }, []);
+  }, [location.search]);
+
+  if(!params) { return null; }
+
+
+  const urlParams = new URLSearchParams(location.search);
+  let backPath = params.cancelPath || match.url;
+  urlParams.delete("r");
+
+  backPath = backPath + (urlParams.size > 0 ? `?${urlParams.toString()}` : "");
+
+  const Close = () => {
+    history.replace(backPath);
+  };
 
   return (
-    <LoginGate Cancel={Close}>
+    <LoginGate Condition={() => !!params} Cancel={Close}>
       <Modal
         size="auto"
         centered
@@ -437,7 +468,10 @@ const RedeemableOfferModal = observer(({
                 <Loader className={S("form__loader")}/>
               </div>
             </div> :
-            <RedeemableOfferContent nftInfo={info} offerId={offerId}/>
+            <RedeemableOfferContent
+              nftInfo={info}
+              offerId={params.offerId}
+            />
         }
       </Modal>
     </LoginGate>

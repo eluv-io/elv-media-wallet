@@ -485,7 +485,6 @@ const MediaCard = observer(({
   const display = sectionItem?.display || mediaItem;
   const imageContainerRef = useRef();
   const [livePreviewUrl, setLivePreviewUrl] = useState(undefined);
-  const [modal, setModal] = useState(undefined);
 
   useEffect(() => {
     if(!setImageDimensions || !imageContainerRef?.current) { return; }
@@ -548,16 +547,6 @@ const MediaCard = observer(({
     const linkInfo = MediaPropertyLink({match, sectionItem, mediaItem, navContext}) || "";
     linkPath = linkInfo.linkPath;
     url = linkInfo.url;
-
-    if(linkInfo.modalInfo) {
-      const Component = linkInfo.modalInfo.Component;
-      onClick = () => setModal(
-        <Component
-          {...linkInfo.modalInfo.args}
-          Close={() => setModal(undefined)}
-        />
-      );
-    }
   }
 
   let args = {
@@ -579,33 +568,20 @@ const MediaCard = observer(({
     className: [disabled ? S("media-card--disabled") : "", className].join(" ")
   };
 
-  let card;
   switch(format) {
     case "horizontal":
-      card = <MediaCardHorizontal {...args} />;
-      break;
+      return <MediaCardHorizontal {...args} />;
     case "button_vertical":
-      card = <MediaCardWithButtonVertical {...args} />;
-      break;
+      return <MediaCardWithButtonVertical {...args} />;
     case "button_horizontal":
-      card = rootStore.pageWidth > 600 ?
+      return rootStore.pageWidth > 600 ?
         <MediaCardWithButtonHorizontal {...args} /> :
         <MediaCardWithButtonVertical {...args} />;
-      break;
     case "banner":
-      card = <MediaCardBanner {...args} />;
-      break;
+      return <MediaCardBanner {...args} />;
     default:
-      card = <MediaCardVertical {...args} />;
-      break;
+      return <MediaCardVertical {...args} />;
   }
-
-  return (
-    <>
-      { card }
-      { modal }
-    </>
-  );
 });
 
 export default MediaCard;

@@ -4,7 +4,7 @@ import {observer} from "mobx-react";
 import {Linkish, RichText} from "Components/common/UIComponents";
 import {mediaPropertyStore, notificationStore, rootStore} from "Stores";
 import ImageIcon from "Components/common/ImageIcon";
-import {Debounce, SetImageUrlDimensions} from "../../utils/Utils";
+import {Debounce} from "../../utils/Utils";
 import UrlJoin from "url-join";
 import ProfileMenu from "Components/header/ProfileMenu";
 
@@ -67,38 +67,31 @@ const NotificationBanner = observer(() => {
   );
 });
 
-const Home = observer(({marketplaceId}) => {
-  const marketplace = marketplaceId && rootStore.allMarketplaces.find(marketplace => marketplace.marketplaceId === marketplaceId);
-
-  if(marketplace) {
-    const { name, header_logo, hide_name } = marketplace.branding || {};
-    const logo = SetImageUrlDimensions({url: header_logo?.url, height: 500});
-
-    return (
-      <Linkish to={UrlJoin("/marketplace", marketplaceId, "store")} className={S("home")}>
-        {
-          logo ?
-            <ImageIcon label="Eluvio" icon={logo} className={S("home__logo")} /> :
-            !hide_name ?
-              <h1 className={S("home__title")}>{ name }</h1> :
-              null
-        }
-      </Linkish>
-    );
-  }
-
+const Home = observer(() => {
   return (
-    <Linkish to="/" className={S("home")}>
-      <ImageIcon label="Eluvio" icon={EluvioE} className={S("home__logo")} />
-      <div className={S("home__text")}>
-        <div className={S("home__title")}>
-          { rootStore.l10n.header.title}
-        </div>
-        <div className={S("home__subtitle")}>
-          { rootStore.l10n.header.subtitle}
-        </div>
+    <>
+      <div className={S("home")}>
+        <Linkish
+          href={location.pathname === "/" ? "https://eluv.io" : undefined}
+          rel="noreferrer"
+          target="_blank"
+          to="/"
+          className={S("home__logo-container")}
+        >
+          <ImageIcon label="Eluvio" icon={EluvioE} className={S("home__logo")} />
+        </Linkish>
+        <Linkish to="/">
+          <div className={S("home__text")}>
+            <div className={S("home__title")}>
+              { rootStore.l10n.header.title}
+            </div>
+            <div className={S("home__subtitle")}>
+              { rootStore.l10n.header.subtitle}
+            </div>
+          </div>
+        </Linkish>
       </div>
-    </Linkish>
+    </>
   );
 });
 

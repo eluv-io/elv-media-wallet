@@ -17,7 +17,11 @@ import {
 import Confirm from "Components/common/Confirm";
 import {Modal, TextInput} from "@mantine/core";
 import {PageLoader} from "Components/common/Loaders";
-import {CreateMediaPropertyPurchaseParams, MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
+import {
+  CreateMediaPropertyPurchaseParams,
+  CreateRedeemableParams,
+  MediaPropertyBasePath
+} from "../../utils/MediaPropertyUtils";
 import ListingModal from "Components/listings/ListingModal";
 import OfferModal from "Components/listings/OfferModal";
 import Path from "path";
@@ -34,7 +38,6 @@ import PurchaseOffersIcon from "Assets/icons/Offers table icon";
 import RewardsIcon from "Assets/icons/Offers icon.svg";
 import Video from "Components/properties/Video";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib";
-import RedeemableOfferModal from "Components/properties/RedeemableOfferModal";
 
 const S = (...classes) => classes.map(c => ItemDetailStyles[c] || "").join(" ");
 
@@ -120,8 +123,6 @@ const TransferModal = ({nft, SetTransferred, Close}) => {
 };
 
 const RedeemableOffers = observer(({nftInfo}) => {
-  const [selectedOfferId, setSelectedOfferId] = useState(undefined);
-
   useEffect(() => {
     (nftInfo?.redeemables || []).forEach(offer => {
       if(offer.state?.redeemer) {
@@ -131,112 +132,109 @@ const RedeemableOffers = observer(({nftInfo}) => {
   }, [nftInfo?.redeemables]);
 
   return (
-    <>
+    <div className={S("redeemable-offers")}>
       {
-        typeof selectedOfferId === "undefined" ? null :
-          <RedeemableOfferModal
-            nftInfo={nftInfo}
-            offerId={selectedOfferId}
-            Close={() => setSelectedOfferId(undefined)}
-          />
-      }
-      <div className={S("redeemable-offers")}>
-        {
-          nftInfo.redeemables.map(offer => {
-            if(offer.hidden) {
-              return null;
-            }
+        nftInfo.redeemables.map(offer => {
+          if(offer.hidden) {
+            return null;
+          }
 
-            const redeemer = offer.state?.redeemer;
-            const isRedeemer = Utils.EqualAddress(redeemer, rootStore.CurrentAddress());
-            const disabled = !nftInfo.isOwned || (redeemer && !isRedeemer) || offer.expired || !offer.released;
+          const params = new URLSearchParams(location.search);
+          params.set("r", CreateRedeemableParams({
+            contractAddress: nftInfo.nft.contractAddress,
+            tokenId: nftInfo.nft.tokenId,
+            offerId: offer.offer_id
+          }));
 
-            let active, state, stateDetails;
-            if(redeemer) {
-              if(isRedeemer) {
-                state = "Active";
-                active = true;
-                stateDetails = "Owned Reward";
-              } else {
-                state = "Previously Redeemed";
-                stateDetails = "Previously Redeemed";
-              }
-            } else if(!offer.released) {
-              state = "Upcoming";
-              stateDetails = `Valid ${offer.releaseDate}`;
-            } else if(offer.expired) {
-              state = "Expired";
-              stateDetails = `Active ${[offer.releaseDateShort, offer.expirationDateShort].filter(d => d).join(" - ")}`;
-            } else {
+          const redeemer = offer.state?.redeemer;
+          const isRedeemer = Utils.EqualAddress(redeemer, rootStore.CurrentAddress());
+          const disabled = !nftInfo.isOwned || (redeemer && !isRedeemer) || offer.expired || !offer.released;
+
+          let active, state, stateDetails;
+          if(redeemer) {
+            if(isRedeemer) {
               state = "Active";
               active = true;
-              stateDetails = `Active ${[offer.releaseDateShort, offer.expirationDateShort].filter(d => d).join(" - ")}`;
+              stateDetails = "Owned Reward";
+            } else {
+              state = "Previously Redeemed";
+              stateDetails = "Previously Redeemed";
             }
+          } else if(!offer.released) {
+            state = "Upcoming";
+            stateDetails = `Valid ${offer.releaseDate}`;
+          } else if(offer.expired) {
+            state = "Expired";
+            stateDetails = `Active ${[offer.releaseDateShort, offer.expirationDateShort].filter(d => d).join(" - ")}`;
+          } else {
+            state = "Active";
+            active = true;
+            stateDetails = `Active ${[offer.releaseDateShort, offer.expirationDateShort].filter(d => d).join(" - ")}`;
+          }
 
-            return (
-              <div key={`offer-${offer.offer_id}`} className={S("redeemable-offer")}>
-                <div className={S("redeemable-offer__image-container")}>
-                  {
-                    !(offer.image || offer.animation) ? null :
-                      <div className={S("redeemable-offer__image-container")}>
-                        <LoaderImage alt={offer.name} src={offer.image.url} width={500}
-                                     className={S("redeemable-offer__image")}/>
-                        {
-                          !offer.animation ? null :
-                            <Video
-                              link={offer.animation}
-                              mute
-                              hideControls
-                              playerOptions={{
-                                loop: EluvioPlayerParameters.loop.ON,
-                                showLoader: EluvioPlayerParameters.showLoader.OFF,
-                                backgroundColor: "transparent"
-                              }}
-                              autoAspectRatio={false}
-                              className={S("redeemable-offer__video")}
-                            />
-                        }
-                        {
-                          !state ? null :
-                            <div
-                              className={S("redeemable-offer__state", active ? "redeemable-offer__state--active" : "")}>
-                              {state}
-                            </div>
-                        }
-                      </div>
-                  }
-                </div>
-                <div className={S("redeemable-offer__text")}>
-                  {
-                    !offer.subtitle ? null :
-                      <div className={S("redeemable-offer__subtitle")}>
-                        {offer.subtitle}
-                      </div>
-                  }
-                  <div className={S("redeemable-offer__title")}>
-                    {offer.name}
-                  </div>
-
-                  {
-                    !stateDetails ? null :
-                      <div className={S("redeemable-offer__state-details")}>
-                        {stateDetails}
-                      </div>
-                  }
-                  <Button
-                    disabled={disabled}
-                    onClick={() => setSelectedOfferId(offer.offer_id)}
-                    className={S("redeemable-offer__button")}
-                  >
-                    Details
-                  </Button>
-                </div>
+          return (
+            <div key={`offer-${offer.offer_id}`} className={S("redeemable-offer")}>
+              <div className={S("redeemable-offer__image-container")}>
+                {
+                  !(offer.image || offer.animation) ? null :
+                    <div className={S("redeemable-offer__image-container")}>
+                      <LoaderImage alt={offer.name} src={offer.image.url} width={500}
+                                   className={S("redeemable-offer__image")}/>
+                      {
+                        !offer.animation ? null :
+                          <Video
+                            link={offer.animation}
+                            mute
+                            hideControls
+                            playerOptions={{
+                              loop: EluvioPlayerParameters.loop.ON,
+                              showLoader: EluvioPlayerParameters.showLoader.OFF,
+                              backgroundColor: "transparent"
+                            }}
+                            autoAspectRatio={false}
+                            className={S("redeemable-offer__video")}
+                          />
+                      }
+                      {
+                        !state ? null :
+                          <div
+                            className={S("redeemable-offer__state", active ? "redeemable-offer__state--active" : "")}>
+                            {state}
+                          </div>
+                      }
+                    </div>
+                }
               </div>
-            );
-          })
-        }
-      </div>
-    </>
+              <div className={S("redeemable-offer__text")}>
+                {
+                  !offer.subtitle ? null :
+                    <div className={S("redeemable-offer__subtitle")}>
+                      {offer.subtitle}
+                    </div>
+                }
+                <div className={S("redeemable-offer__title")}>
+                  {offer.name}
+                </div>
+
+                {
+                  !stateDetails ? null :
+                    <div className={S("redeemable-offer__state-details")}>
+                      {stateDetails}
+                    </div>
+                }
+                <Button
+                  disabled={disabled}
+                  to={location.pathname + "?" + params.toString()}
+                  className={S("redeemable-offer__button")}
+                >
+                  Details
+                </Button>
+              </div>
+            </div>
+          );
+        })
+      }
+    </div>
   );
 });
 

@@ -1,7 +1,6 @@
 import {LinkTargetHash, SetImageUrlDimensions, StaticFabricUrl} from "./Utils";
 import UrlJoin from "url-join";
 import {mediaPropertyStore, rootStore} from "Stores";
-import RedeemableOfferModal from "Components/properties/RedeemableOfferModal";
 
 export const MediaPropertyBasePath = (params, {includePage=true}={}) => {
   if(!params.mediaPropertySlugOrId) { return "/"; }
@@ -69,6 +68,24 @@ export const MediaPropertyPurchaseParams = () => {
   }
 
   return Object.keys(params).length === 0 ? undefined : params;
+};
+
+export const CreateRedeemableParams = ({
+  marketplaceId,
+  marketplaceSKU,
+  contractAddress,
+  tokenId,
+  offerId
+}) => {
+  return (
+    mediaPropertyStore.client.utils.B58(JSON.stringify({
+      marketplaceId,
+      marketplaceSKU,
+      contractAddress,
+      tokenId,
+      offerId
+    }))
+  );
 };
 
 export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) => {
@@ -146,15 +163,13 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
     linkPath = undefined;
     url = sectionItem.url;
   } else if(sectionItem?.type === "redeemable_offer") {
-    linkPath = undefined;
-    modalInfo = {
-      Component: RedeemableOfferModal,
-      args: {
-        marketplaceId: sectionItem.marketplace?.marketplace_id,
-        marketplaceSKU: sectionItem.marketplace_sku,
-        offerId: sectionItem.offer_id
-      }
-    };
+    linkPath = match.url;
+    params = new URLSearchParams(location.search);
+    params.set("r", CreateRedeemableParams({
+      marketplaceId: sectionItem.marketplace?.marketplace_id,
+      marketplaceSKU: sectionItem.marketplace_sku,
+      offerId: sectionItem.offer_id
+    }));
   }
 
   if(navContext) {

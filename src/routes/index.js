@@ -41,6 +41,7 @@ import MediaPropertyCollectionPage from "Components/properties/MediaPropertyColl
 import MediaPropertySearchPage from "Components/properties/MediaPropertySearchPage";
 import ItemDetailsPage from "Components/properties/ItemDetailsPage";
 import MediaPropertyPurchaseModal from "Components/properties/MediaPropertyPurchaseModal";
+import RedeemableOfferModal from "Components/properties/RedeemableOfferModal";
 
 const GetProperty = (match) => {
   return rootStore.mediaPropertyStore.MediaProperty({mediaPropertySlugOrId: match.params.mediaPropertySlugOrId});
@@ -408,6 +409,7 @@ const GlobalWrapper = observer(({routes, children}) => {
       <>
         { children }
         <MediaPropertyPurchaseModal />
+        <RedeemableOfferModal />
       </>
     );
   }
@@ -417,6 +419,7 @@ const GlobalWrapper = observer(({routes, children}) => {
       <div className="page-block__content">
         {children}
         <MediaPropertyPurchaseModal />
+        <RedeemableOfferModal />
       </div>
     </div>
   );
