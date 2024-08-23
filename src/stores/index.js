@@ -1,3 +1,6 @@
+// eslint-disable-next-line no-console
+console.time("Initial Load");
+
 import {SearchParams} from "../utils/Utils";
 
 let testTheme = undefined;
@@ -532,6 +535,8 @@ class RootStore {
     } finally {
       if(this.walletClient) {
         this.loaded = true;
+        // eslint-disable-next-line no-console
+        console.timeEnd("Initial Load");
       } else {
         // Retry
         yield new Promise(resolve => setTimeout(resolve, 5000));

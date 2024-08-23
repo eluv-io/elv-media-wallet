@@ -292,6 +292,7 @@ export const MediaGrid = observer(({
   aspectRatio,
   textDisplay="all",
   justification="left",
+  textJustification="left",
   cardFormat="vertical",
   defaultButtonText,
   className="",
@@ -332,6 +333,7 @@ export const MediaGrid = observer(({
             mediaItem={isSectionContent ? undefined : item}
             textDisplay={textDisplay}
             aspectRatio={aspectRatio}
+            textJustification={textJustification}
             buttonText={item?.card_button_text || defaultButtonText}
             navContext={navContext}
           />
@@ -352,6 +354,7 @@ const SectionContentBanner = observer(({section, sectionContent, navContext}) =>
             sectionItem={sectionItem}
             textDisplay={section.display.content_display_text}
             aspectRatio={section.display.aspect_ratio}
+            textJustification={section.display.text_justification}
             buttonText={sectionItem?.card_button_text || section.display.card_default_button_text}
             navContext={navContext}
           />
@@ -388,6 +391,7 @@ const SectionContentCarousel = observer(({section, sectionContent, navContext}) 
           setImageDimensions={setImageDimensions}
           sectionItem={item}
           textDisplay={section.display.content_display_text}
+          textJustification={section.display.text_justification}
           aspectRatio={section.display.aspect_ratio}
           format={section.display.card_style || "vertical"}
           buttonText={item?.card_button_text || section.display.card_default_button_text}
@@ -408,6 +412,7 @@ const SectionContentGrid = observer(({section, sectionContent, navContext}) => {
       aspectRatio={aspectRatio}
       textDisplay={section.display.content_display_text}
       justification={section.display.justification}
+      textJustification={section.display.text_justification}
       defaultButtonText={section.display.card_default_button_text}
       cardStyle={section.display.card_style}
       navContext={navContext}

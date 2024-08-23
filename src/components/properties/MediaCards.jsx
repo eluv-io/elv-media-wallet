@@ -20,6 +20,7 @@ const MediaCardWithButtonVertical = observer(({
   livePreviewUrl,
   scheduleInfo,
   textDisplay,
+  textJustification,
   aspectRatio,
   linkPath="",
   url,
@@ -35,6 +36,7 @@ const MediaCardWithButtonVertical = observer(({
         S(
           "media-card-button-vertical",
           `media-card-button-vertical--${aspectRatio}`,
+          `media-card-button-vertical--${textJustification || "left"}`,
           size === "fixed" ? "media-card-button-vertical--size-fixed" : "",
           size === "mixed" ? "media-card-button-vertical--size-mixed" : "",
         ),
@@ -86,6 +88,7 @@ const MediaCardWithButtonVertical = observer(({
           <ExpandableDescription
             description={display.description}
             descriptionRichText={display.description_rich_text}
+            togglePosition={textJustification || "left"}
             className={S("media-card-button-vertical__description")}
           />
         }
@@ -114,6 +117,7 @@ const MediaCardWithButtonHorizontal = observer(({
   livePreviewUrl,
   scheduleInfo,
   textDisplay,
+  textJustification,
   aspectRatio,
   linkPath="",
   url,
@@ -129,6 +133,7 @@ const MediaCardWithButtonHorizontal = observer(({
         S(
           "media-card-button-horizontal",
           `media-card-button-horizontal--${aspectRatio}`,
+          `media-card-button-horizontal--${textJustification}`,
           size === "fixed" ? "media-card-button-horizontal--size-fixed" : "",
           size === "mixed" ? "media-card-button-horizontal--size-mixed" : "",
         ),
@@ -181,6 +186,7 @@ const MediaCardWithButtonHorizontal = observer(({
           <ExpandableDescription
             description={display.description}
             descriptionRichText={display.description_rich_text}
+            togglePosition={textJustification}
             className={S("media-card-button-horizontal__description")}
           />
         }
@@ -293,6 +299,7 @@ const MediaCardVertical = observer(({
   livePreviewUrl,
   scheduleInfo,
   textDisplay,
+  textJustification,
   aspectRatio,
   linkPath="",
   url,
@@ -314,6 +321,7 @@ const MediaCardVertical = observer(({
         S(
           "media-card-vertical",
           `media-card-vertical--${aspectRatio}`,
+          `media-card-vertical--${textJustification || "left"}`,
           size === "fixed" ? "media-card-vertical--size-fixed" : "",
           size === "mixed" ? "media-card-vertical--size-mixed" : "",
         ),
@@ -464,6 +472,7 @@ const MediaCard = observer(({
   mediaItem,
   aspectRatio,
   textDisplay="title",
+  textJustification="left",
   setImageDimensions,
   buttonText,
   navContext,
@@ -545,6 +554,7 @@ const MediaCard = observer(({
     imageUrl,
     livePreviewUrl,
     textDisplay,
+    textJustification,
     linkPath,
     url,
     onClick,

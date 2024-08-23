@@ -108,6 +108,18 @@
     min-height: 1.4em;
   }
 
+  &--center {
+    * {
+      text-align: center;
+    }
+  }
+
+  &--right {
+    * {
+      text-align: right;
+    }
+  }
+
   &--landscape {
     max-width: min(90vw, var(--max-card-width));
 
@@ -346,6 +358,18 @@
   overflow: hidden;
   width: 100%;
 
+  &--center {
+    * {
+      text-align: center;
+    }
+  }
+
+  &--right {
+    * {
+      text-align: right;
+    }
+  }
+
   &--landscape {
     .media-card-button-vertical__image,
     .media-card-button-vertical__image-container {
@@ -479,6 +503,18 @@
   overflow: hidden;
   padding: 20px;
   width: 100%;
+
+  &--center {
+    * {
+      text-align: center;
+    }
+  }
+
+  &--right {
+    * {
+      text-align: right;
+    }
+  }
 
   &--landscape {
     .media-card-button-horizontal__image,
