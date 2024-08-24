@@ -80,6 +80,7 @@ class RootStore {
   uiLocalizations = ["pt-br"];
   alertNotification = this.GetSessionStorage("alert-notification");
   domainProperty = this.GetSessionStorage("domain-property") || searchParams.get("pid");
+  domainPropertySlug = this.GetSessionStorage("domain-property-slug");
   domainSettings = undefined;
   isCustomDomain = !["localhost", "192.168", "contentfabric.io"].find(host => window.location.hostname.includes(host));
 
@@ -446,19 +447,6 @@ class RootStore {
         storeAuthToken: false
       });
 
-      // Load domain map
-      if(!this.domainProperty && !["localhost", "contentfabric.io"].includes(location.hostname)) {
-        let domainMapping = yield this.walletClient.client.ContentObjectMetadata({
-          libraryId: this.walletClient.mainSiteLibraryId,
-          objectId: this.walletClient.mainSiteId,
-          metadataSubtree: "public/asset_metadata/info/domain_map"
-        });
-
-        this.domainProperty = domainMapping
-          .find(map => map.domain === location.hostname)
-          ?.property_slug;
-      }
-
       // Internal feature - allow setting of authd node via query param for testing
       let authdURI = searchParams.get("authd") || this.GetSessionStorage("authd-uri");
       if(authdURI) {
@@ -489,12 +477,38 @@ class RootStore {
         noAuth: true
       });
 
+      // Load domain map
+      if(!this.domainProperty && !this.domainPropertySlug && !["localhost", "contentfabric.io"].includes(location.hostname)) {
+        let domainMapping = yield this.walletClient.client.ContentObjectMetadata({
+          libraryId: this.walletClient.mainSiteLibraryId,
+          objectId: this.walletClient.mainSiteId,
+          metadataSubtree: "public/asset_metadata/info/domain_map"
+        });
+
+        const propertySlugOrId = domainMapping
+          .find(map => map.domain === location.hostname)
+          ?.property_slug;
+
+        if(propertySlugOrId) {
+          const properties = yield this.mediaPropertyStore.LoadMediaProperties();
+
+          const property = properties.find(property =>
+            property.propertyId === propertySlugOrId ||
+            property.slug === propertySlugOrId
+          );
+
+          this.domainProperty = property?.propertyId;
+          this.domainPropertySlug = property?.slug;
+        }
+      }
+
       if(this.domainProperty) {
         this.SetSessionStorage("domain-property", this.domainProperty);
+        this.SetSessionStorage("domain-property-slug", this.domainPropertySlug);
         yield this.SetDomainCustomization();
 
         if(this.isCustomDomain && window.location.pathname === "/") {
-          this.routeChange = UrlJoin("/", this.domainProperty);
+          this.routeChange = UrlJoin("/", this.domainPropertySlug || this.domainProperty);
         }
       }
 
@@ -830,6 +844,7 @@ class RootStore {
     this.domainSettings = undefined;
     this.SetCustomCSS("");
     this.RemoveSessionStorage("domain-property");
+    this.RemoveSessionStorage("domain-property-slug");
   }
 
   SetPropertyCustomization = flow(function * (mediaPropertySlugOrId) {
@@ -872,18 +887,18 @@ class RootStore {
       }
     }
 
-    if(CSS.supports("color", options.styling.button_style.background_color)) {
+    if(CSS.supports("color", options?.styling?.button_style?.background_color)) {
       variables.push(`--property-button-background--custom: ${options.styling.button_style.background_color};`);
       // If border color is not explicitly set, it should default to background color
       variables.push(`--property-button-border-color--custom: ${options.styling.button_style.background_color};`);
     }
-    if(CSS.supports("color", options.styling.button_style.text_color)) {
+    if(CSS.supports("color", options?.styling?.button_style?.text_color)) {
       variables.push(`--property-button-text--custom: ${options.styling.button_style.text_color};`);
     }
-    if(CSS.supports("color", options.styling.button_style.border_color)) {
+    if(CSS.supports("color", options?.styling?.button_style?.border_color)) {
       variables.push(`--property-button-border-color--custom: ${options.styling.button_style.border_color};`);
     }
-    if(!isNaN(parseInt(options.styling.button_style.border_radius))) {
+    if(!isNaN(parseInt(options?.styling?.button_style?.border_radius))) {
       variables.push(`--property-button-border-radius--custom: ${options.styling.button_style.border_radius}px;`);
     }
 
