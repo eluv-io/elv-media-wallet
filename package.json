@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@eluvio/crypto": "^1.1.1",
-    "@eluvio/elv-client-js": "^4.0.80",
+    "@eluvio/elv-client-js": "^4.0.75",
     "@eluvio/elv-embed": "git+https://github.com/eluv-io/elv-embed.git",
     "@eluvio/elv-paymentgate": "^1.0.0",
     "@eluvio/elv-player-js": "^1.0.117",

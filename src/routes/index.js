@@ -12,7 +12,7 @@ import {
   DropMintingStatus,
   PackOpenStatus,
   PurchaseMintingStatus,
-  DepositStatus, GiftRedemptionStatus, GiftPurchaseMintingStatus, EntitlementMintingStatus,
+  DepositStatus, GiftRedemptionStatus, GiftPurchaseMintingStatus
 } from "Components/marketplace/MintingStatus";
 import UserListings from "Components/user/UserListings";
 import UserItems from "Components/user/UserItems";
@@ -21,7 +21,6 @@ import {ErrorBoundary} from "Components/common/ErrorBoundary";
 import MarketplaceCollectionsSummaryPage from "Components/marketplace/MarketplaceCollectionsSummary";
 import MarketplaceCollection from "Components/marketplace/MarketplaceCollection";
 import MarketplaceCollectionRedemption from "Components/marketplace/MarketplaceCollectionRedemption";
-import EntitlementClaim from "Components/marketplace/EntitlementClaim";
 import {LoginGate} from "Components/common/LoginGate";
 import {observer} from "mobx-react";
 import UserProfileContainer from "Components/profile/UserProfileContainer";
@@ -123,9 +122,6 @@ const MarketplaceRoutes = () => {
 
     { name: "Redeem Collection", path: "collections/:collectionSKU/redeem", Component: MarketplaceCollectionRedemption },
     { name: "Redeem Collection", path: "collections/:collectionSKU/redeem/:confirmationId/status", Component: CollectionRedeemStatus },
-
-    { name: "Redeem Entitlement", path: "store/:sku/entitle/:signature", Component: EntitlementClaim },
-    { name: "Redeem Entitlement", path: "store/:sku/entitle/status/:purchaseId", Component: EntitlementMintingStatus },
 
     ...TokenRoutes("collections/:collectionSKU/owned"),
 
