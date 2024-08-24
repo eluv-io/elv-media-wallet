@@ -179,7 +179,11 @@ const SearchBar = observer(() => {
 
   return (
     <Autocomplete
-      data={mediaProperties?.map(property => property.title || property.name)}
+      data={
+        mediaProperties
+          ?.map(property => property.title || property.name)
+          ?.filter((value, index, array) => array.indexOf(value) === index)
+      }
       value={filter}
       onChange={value => setFilter(value)}
       onOptionSubmit={value => {
