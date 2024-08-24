@@ -333,7 +333,7 @@ const FilterMenu = ({mode, filterValues, editions, attributes, dropAttributes, r
   return (
     <div className="filters__menu" ref={ref}>
       {
-        !marketplace && availableMarketplaces.length > 0 ?
+        availableMarketplaces.length > 0 ?
           <FilterSelect
             label={rootStore.l10n.filters.filters.marketplaces}
             optionLabelPrefix={`${rootStore.l10n.filters.filters.marketplace}: `}
@@ -458,7 +458,7 @@ const FilterMenu = ({mode, filterValues, editions, attributes, dropAttributes, r
   );
 };
 
-export const ListingFilters = observer(({mode="listings", initialFilters, menuButton, UpdateFilters}) => {
+export const ListingFilters = observer(({mode="listings", initialFilters={}, menuButton, UpdateFilters}) => {
   const match = useRouteMatch();
   const location = useLocation();
 
@@ -502,12 +502,12 @@ export const ListingFilters = observer(({mode="listings", initialFilters, menuBu
     tokenIdRange: {
       min: "",
       max: ""
-    },
-    ...(initialFilters || {})
+    }
   };
 
   const [filterValues, setFilterValues] = useState({
     ...defaultFilters,
+    ...initialFilters,
     filter: initialFilter || "",
     editionFilters: initialEditionFilters
   });
@@ -641,7 +641,9 @@ export const ListingFilters = observer(({mode="listings", initialFilters, menuBu
   const collections = marketplace?.collections;
   const extraFiltersAvailable = mode !== "owned" || (collections && collections.length > 0);
 
-  const filtersActive = JSON.stringify({...defaultFilters, sort: "", sortBy: "", sortDesc: ""}) !== JSON.stringify({...filterValues, sort: "", sortBy: "", sortDesc: ""});
+  const filtersActive = (Object.keys(defaultFilters).filter(key =>
+    JSON.stringify(defaultFilters[key] || "") !== JSON.stringify(filterValues[key] || "")
+  )).length > 0;
 
   return (
     <div className="filters">

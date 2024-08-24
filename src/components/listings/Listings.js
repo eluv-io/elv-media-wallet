@@ -1,6 +1,6 @@
 import React, {memo, useState} from "react";
 import {observer} from "mobx-react";
-import {rootStore} from "Stores";
+import {mediaPropertyStore, rootStore} from "Stores";
 import {useRouteMatch} from "react-router-dom";
 import UrlJoin from "url-join";
 import Utils from "@eluvio/elv-client-js/src/Utils";
@@ -31,12 +31,27 @@ const Listing = memo(({url, listing}) => (
   />
 ));
 
-const Listings = observer(({initialFilters={}}) => {
+const Listings = observer(({initialFilters, includeActivity=true}) => {
   const match = useRouteMatch();
   const [showActivity, setShowActivity] = useState(false);
 
-  initialFilters.filter = new URLSearchParams(location.search).get("filter") || initialFilters.filter;
+  if(!initialFilters && match.params.mediaPropertySlugOrId) {
+    const mediaProperty = mediaPropertyStore.MediaProperty({
+      mediaPropertySlugOrId: match.params.mediaPropertySlugOrId
+    });
 
+    initialFilters = {
+      marketplaceId: mediaProperty?.metadata.associated_marketplaces?.[0]?.marketplace_id
+    };
+  }
+
+  if(new URLSearchParams(location.search).has("filter")) {
+    initialFilters = {
+      ...initialFilters,
+      filter: new URLSearchParams(location.search).get("filter")
+    };
+  }
+  
   return (
     showActivity ?
       <RecentSales
@@ -54,12 +69,15 @@ const Listings = observer(({initialFilters={}}) => {
         perPage={12}
         scrollOnPageChange
         initialFilters={initialFilters}
-        menuButton={{
-          icon: GraphIcon,
-          active:false,
-          title: "Show Recent Activity",
-          onClick: () => setShowActivity(true)
-        }}
+        menuButton={
+          !includeActivity ? undefined :
+            {
+              icon: GraphIcon,
+              active:false,
+              title: "Show Recent Activity",
+              onClick: () => setShowActivity(true)
+            }
+        }
         Render={({entries}) => (
           entries.length === 0 ? null :
             <div className="card-list">

@@ -17,7 +17,7 @@ import UrlJoin from "url-join";
 
 const S = (...classes) => classes.map(c => PurchaseModalStyles[c] || "").join(" ");
 
-const Item = observer(({item, children, hideInfo, Actions}) => {
+const Item = observer(({item, children, hideInfo, hidePrice, Actions}) => {
   return (
     <div className={S("item-container")}>
 
@@ -34,9 +34,12 @@ const Item = observer(({item, children, hideInfo, Actions}) => {
         {
           hideInfo ? null :
             <>
-              <div className={S("item__price")}>
-                {FormatPriceString(item.price)}
-              </div>
+              {
+                hidePrice ? null :
+                  <div className={S("item__price")}>
+                    {FormatPriceString(item.price)}
+                  </div>
+              }
               <ScaledText maxPx={32} className={[S("item__title"), "_title"].join(" ")}>
                 {item.title}
               </ScaledText>
@@ -67,66 +70,69 @@ const Items = observer(({items, secondaryPurchaseOption, Select}) => {
   return (
     <div className={S("items")}>
       {
-        items?.map(item => (
-          <Item
-            key={`item-${item?.id}`}
-            item={item}
-            Actions={({item}) => {
-              const itemName = item?.itemInfo?.nft?.metadata?.display_name || "";
-              const outOfStock = item?.itemInfo?.outOfStock || item?.itemInfo?.maxOwned;
+        items?.map(item => {
+          const itemName = item?.itemInfo?.nft?.metadata?.display_name || "";
+          const outOfStock = item?.itemInfo?.outOfStock || item?.itemInfo?.maxOwned;
 
-              secondaryPurchaseOption = item.secondary_market_purchase_option || secondaryPurchaseOption;
+          secondaryPurchaseOption = item.secondary_market_purchase_option || secondaryPurchaseOption;
 
-              const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false;
-              let showSecondary = !secondaryDisabled && ["show", "out_of_stock", "only"].includes(secondaryPurchaseOption);
-              if(showSecondary && secondaryPurchaseOption === "out_of_stock") {
-                showSecondary = outOfStock;
-              }
+          const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false;
+          let showSecondary = !secondaryDisabled && ["show", "out_of_stock", "only"].includes(secondaryPurchaseOption);
+          if(showSecondary && secondaryPurchaseOption === "out_of_stock") {
+            showSecondary = outOfStock;
+          }
 
-              // If only one item and option is listing, go to secondary
-              if(items.length === 1) {
-                if(!secondaryDisabled && secondaryPurchaseOption === "only") {
-                  return <Redirect to={UrlJoin(MediaPropertyBasePath({...match.params}), `listings?filter=${itemName}`)} />;
-                }
-              }
+          // If only one item and option is listing, go to secondary
+          if(items.length === 1) {
+            if(!secondaryDisabled && secondaryPurchaseOption === "only") {
+              return <Redirect key={`item-${item?.id}`} to={UrlJoin(MediaPropertyBasePath({...match.params}), `listings?filter=${itemName}`)}/>;
+            }
+          }
 
-              return (
-                <>
-                  {
-                    !secondaryDisabled && secondaryPurchaseOption === "only" ? null :
-                      <Button
-                        disabled={outOfStock}
-                        onClick={async () => await Select(item.id)}
-                        className={S("button")}
-                      >
-                        <ScaledText maxPx={18} minPx={10}>
-                          {
-                            item.itemInfo.free ?
-                              rootStore.l10n.media_properties.purchase.claim :
-                              LocalizeString(
-                                rootStore.l10n.media_properties.purchase.select,
-                                { title: item.title, price: FormatPriceString(item.price, { stringOnly: true}) },
-                                { stringOnly: true }
-                              )
-                          }
-                        </ScaledText>
-                      </Button>
-                  }
-                  {
-                    !showSecondary ? null :
-                      <Button
-                        to={UrlJoin(MediaPropertyBasePath({...match.params}), `listings?filter=${itemName}`)}
-                        variant={secondaryPurchaseOption === "only" ? "primary" : "secondary"}
-                        className={S("button")}
-                      >
-                        { rootStore.l10n.media_properties.purchase.secondary }
-                      </Button>
-                  }
-                </>
-              );
-            }}
-          />
-        ))
+          return (
+            <Item
+              key={`item-${item?.id}`}
+              item={item}
+              hidePrice={showSecondary && secondaryPurchaseOption !== "show"}
+              Actions={({item}) => {
+                return (
+                  <>
+                    {
+                      !secondaryDisabled && secondaryPurchaseOption === "only" ? null :
+                        <Button
+                          disabled={outOfStock}
+                          onClick={async () => await Select(item.id)}
+                          className={S("button")}
+                        >
+                          <ScaledText maxPx={18} minPx={10}>
+                            {
+                              item.itemInfo.free ?
+                                rootStore.l10n.media_properties.purchase.claim :
+                                LocalizeString(
+                                  rootStore.l10n.media_properties.purchase.select,
+                                  {title: item.title, price: FormatPriceString(item.price, {stringOnly: true})},
+                                  {stringOnly: true}
+                                )
+                            }
+                          </ScaledText>
+                        </Button>
+                    }
+                    {
+                      !showSecondary ? null :
+                        <Button
+                          to={UrlJoin(MediaPropertyBasePath({...match.params}), `listings?filter=${itemName}`)}
+                          variant={secondaryPurchaseOption === "only" ? "primary" : "secondary"}
+                          className={S("button")}
+                        >
+                          {rootStore.l10n.media_properties.purchase.secondary}
+                        </Button>
+                    }
+                  </>
+                );
+              }}
+            />
+          );
+        })
       }
     </div>
   );
