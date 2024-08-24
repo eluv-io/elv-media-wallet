@@ -202,7 +202,7 @@ const FormatAdditionalMedia = ({nft, name, metadata={}}) => {
   let additionalMedia, additionalMediaType, hasAdditionalMedia;
   let watchedMediaIds = [];
 
-  if(["Sections", "property"].includes(metadata?.additional_media_type)) {
+  if(metadata?.additional_media_type === "Sections") {
     additionalMediaType = "Sections";
     additionalMedia = { ...(metadata?.additional_media_sections || {}) };
     hasAdditionalMedia = additionalMedia.featured_media?.length > 0 ||

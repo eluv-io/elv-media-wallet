@@ -401,23 +401,11 @@ class RootStore {
         noAuth: true
       });
 
-      let authParameter;
       try {
         const auth = searchParams.get("auth");
+
         if(auth) {
-          const parsedAuth = JSON.parse(Utils.FromB64(auth));
-          if(parsedAuth.idToken && !parsedAuth.clientAuthToken && !parsedAuth.clientSigningToken) {
-            authParameter = {
-              idToken: parsedAuth.idToken,
-              signerURIs: ["https://wlt.stg.svc.eluv.io"],
-              user: {
-                name: parsedAuth.user,
-                verified: true,
-              }
-            };
-          } else {
-            this.SetAuthInfo(parsedAuth);
-          }
+          this.SetAuthInfo(JSON.parse(Utils.FromB64(auth)));
         }
       } catch(error) {
         this.Log("Failed to load auth from parameter", true);
@@ -425,8 +413,9 @@ class RootStore {
       }
 
       if(!this.inFlow) {
-        if(authParameter || this.AuthInfo()) {
-          yield this.Authenticate(authParameter || this.AuthInfo());
+        if(this.AuthInfo()) {
+          this.Log("Authenticating from saved session");
+          yield this.Authenticate(this.AuthInfo());
         } else if(this.auth0) {
           // Attempt to re-auth with auth0. If 'code' is present in URL params, we are returning from Auth0 callback, let the login component handle it
           yield this.AuthenticateAuth0({});
@@ -1329,10 +1318,6 @@ class RootStore {
 
   ClaimStatus = flow(function * ({marketplaceId, sku}) {
     return yield this.walletClient.ClaimStatus({marketplaceParams: { marketplaceId }, sku});
-  });
-
-  EntitlementClaimStatus = flow(function * ({marketplaceId, purchaseId}) {
-    return yield this.walletClient.EntitlementClaimStatus({marketplaceParams: { marketplaceId }, purchaseId});
   });
 
   GiftClaimStatus = flow(function * ({marketplaceId, confirmationId}) {
