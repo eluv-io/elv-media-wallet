@@ -1,9 +1,10 @@
 import React, {useEffect, useRef, useState} from "react";
-import {render, unmountComponentAtNode} from "react-dom";
+import {createRoot} from "react-dom/client";
 import {rootStore} from "Stores";
 import Modal from "Components/common/Modal";
 import {Loader} from "Components/common/Loaders";
 import {observer} from "mobx-react";
+import {Button} from "Components/properties/Common";
 
 const ConfirmModal = observer(({message, Confirm, Close}) => {
   const [confirming, setConfirming] = useState(false);
@@ -27,11 +28,11 @@ const ConfirmModal = observer(({message, Confirm, Close}) => {
           {
             confirming ? <Loader/> :
               <>
-                <button className="action action-secondary" onClick={Close} ref={ref} autoFocus>
+                <Button variant="outline" className="confirm__action confirm__action--cancel" onClick={Close} ref={ref} autoFocus>
                   { rootStore.l10n.actions.cancel }
-                </button>
-                <button
-                  className="action action-primary"
+                </Button>
+                <Button
+                  className="confirm__action confirm__action--confirm"
                   onClick={async () => {
                     try {
                       setConfirming(true);
@@ -42,7 +43,7 @@ const ConfirmModal = observer(({message, Confirm, Close}) => {
                   }}
                 >
                   { rootStore.l10n.actions.confirm }
-                </button>
+                </Button>
               </>
           }
         </div>
@@ -58,10 +59,15 @@ const Confirm = async ({message, ModalComponent, Confirm, Close}) => {
 
   return await new Promise(resolve => {
     const targetId = "-elv-confirm-target";
+    const target = document.createElement("div");
+    target.id = targetId;
+    document.getElementById("app").appendChild(target);
+
+    const root = createRoot(target);
 
     const RemoveModal = () => {
       const target = document.getElementById(targetId);
-      unmountComponentAtNode(target);
+      root.unmount();
       target.parentNode.removeChild(target);
     };
 
@@ -87,13 +93,8 @@ const Confirm = async ({message, ModalComponent, Confirm, Close}) => {
       }
     };
 
-    const target = document.createElement("div");
-    target.id = targetId;
-    document.getElementById("app").appendChild(target);
-
-    render(
-      <ModalComponent message={message} Confirm={HandleConfirm} Close={HandleClose} />,
-      target
+    root.render(
+      <ModalComponent message={message} Confirm={HandleConfirm} Close={HandleClose} />
     );
   });
 };

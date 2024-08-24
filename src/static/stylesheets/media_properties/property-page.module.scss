@@ -1,0 +1,35 @@
+@import "variables";
+
+.property {
+  background-color: var(--property-background);
+}
+
+.page {
+  background-color: var(--property-background);
+  padding-top: 0;
+
+  &.page {
+    padding-inline: 0;
+  }
+
+  &__section {
+    padding-inline: var(--property-page-padding);
+  }
+
+  &__sections {
+    display: grid;
+    gap: 40px;
+    position: relative;
+    width: 100%;
+  }
+
+  @media screen and (width <= 800px) {
+    &__section {
+      padding-inline: var(--property-page-padding);
+    }
+
+    &__sections {
+      gap: 20px;
+    }
+  }
+}

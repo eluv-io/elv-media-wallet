@@ -4,10 +4,8 @@ $breakpoint: 1250px;
 $intermediate-breakpoint: 1000px;
 $tablet-breakpoint: 850px;
 $mobile-breakpoint: 600px;
-
-$black: #000000;
-$white: #FFFFFF;
-
+$black: #000;
+$white: #FFF;
 $action-height: 50px;
 
 @mixin component {
@@ -19,8 +17,8 @@ $action-height: 50px;
 }
 
 @mixin modal {
-  border: var(--border-modal-primary);
   background: var(--background-modal-primary);
+  border: var(--border-modal-primary);
   border-radius: var(--border-radius-modal);
 }
 
@@ -29,20 +27,6 @@ $action-height: 50px;
   max-width: MIN(#{$vwMax}, calc(#{$vhMax} * #{$ratioWidth} / #{$ratioHeight}));
   min-height: MIN(#{$vwMax} * #{$ratioHeight} / #{$ratioWidth}, #{$vhMax});
   min-width: MIN(#{$vwMax}, calc(#{$vhMax} * #{$ratioWidth} / #{$ratioHeight}));
-}
-
-@keyframes BackgroundGradient {
-  0% {
-    background-position: 0 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
-
-  100% {
-    background-position: 0 50%;
-  }
 }
 
 @keyframes fadein {

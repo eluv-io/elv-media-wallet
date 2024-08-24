@@ -46,7 +46,7 @@ const UserCollection = observer(({collectionSKU}) => {
             hideToken
             link={UrlJoin(basePath, `items?filter=${encodeURIComponent(ownedItem.nft.metadata.display_name)}`)}
             imageWidth={600}
-            badges={<ImageIcon icon={OwnedIcon} title="You own this item" alt="Listing Icon" className="item-card__badge"/>}
+            badges={[<ImageIcon key="badge-owned" icon={OwnedIcon} title="You own this item" alt="Listing Icon" className="item-card__badge"/>]}
             className="marketplace__collection__card marketplace__collection__card--owned"
           />
         );

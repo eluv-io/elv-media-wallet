@@ -4,7 +4,8 @@ $search-height: 50px;
 .filters {
   display: flex;
   justify-content: center;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
   width: 100%;
 
   &__controls {
@@ -36,8 +37,7 @@ $search-height: 50px;
 
   &__menu-button {
     align-items: center;
-    background: var(--background-input);
-    border: var(--border-input);
+    border: 1px solid #555;
     border-radius: var(--border-radius-input);
     box-shadow: var(--box-shadow-input);
     display: flex;
@@ -46,6 +46,7 @@ $search-height: 50px;
     margin-left: 10px;
     min-width: $controls-height;
     padding: 10px;
+    transition: border 0.15s ease, background-color 0.15s ease;
 
     svg {
       height: 20px;
@@ -53,13 +54,20 @@ $search-height: 50px;
     }
 
     &--active {
-      border: var(--outline-input-focus);
+      background: var(--background-input);
+      border: 1px solid #aaa;
     }
   }
 
   .autocomplete {
-    &__options {
-      top: calc(#{$search-height} + 3px);
+    z-index: 2;
+
+    &__input {
+      padding-left: 65px;
+
+      &::placeholder {
+        color: #fff;
+      }
     }
 
     &__option {
@@ -68,7 +76,7 @@ $search-height: 50px;
 
     &__clear-button {
       padding: 12px;
-      right: 50px;
+      right: 0;
     }
   }
 
@@ -101,17 +109,25 @@ $search-height: 50px;
     background: transparent;
     border: 0;
     height: 100%;
+    left: 0;
     min-width: 65px;
-    padding: 10px;
+    padding: 12px;
     position: absolute;
-    right: 0;
     width: 65px;
+  }
+
+  &__search-border {
+    background: linear-gradient(90deg, #292929, var(--color-profile-page-bg));
+    bottom: -10px;
+    height: 1px;
+    position: absolute;
+    width: 100%;
   }
 
   &__menu {
     @include page-fade-in(0.5s, ease);
-    background: var(--color-input-bg-solid);
-    border: var(--border-input);
+
+    background: #202023;
     border-radius: var(--border-radius-input);
     box-shadow: var(--box-shadow-component);
     margin-bottom: 50px;
@@ -129,12 +145,13 @@ $search-height: 50px;
     }
 
     &__actions {
+      display: grid;
+      gap: 10px;
       margin-top: 30px;
+    }
 
-      .action {
-        margin-bottom: 10px;
-        width: 100%;
-      }
+    &__action {
+      width: 100%;
     }
 
     &__attribute-group {
@@ -143,6 +160,11 @@ $search-height: 50px;
           margin-bottom: 5px;
         }
       }
+    }
+
+    .filters__select,
+    .styled-select__menu {
+      background: #202023;
     }
   }
 
@@ -220,7 +242,9 @@ $search-height: 50px;
     }
 
     input {
-      background: var(--color-component-bg-primary);
+      background: #222;
+      border: 1px solid #555;
+      border-radius: 5px;
       flex-grow: 1;
       height: 45px;
       position: relative;
@@ -243,6 +267,10 @@ $search-height: 50px;
       width: 100%;
     }
 
+    &__search-container {
+      margin-bottom: 10px;
+    }
+
     &__search {
       input {
         font-size: 16px;
@@ -254,17 +282,21 @@ $search-height: 50px;
     }
 
     &__search-button {
-      height: 50%;
-      min-width: 35px;
+      height: 25px;
+      left: 8px;
+      min-width: 25px;
       padding: 0;
-      right: 5px;
-      width: 35px;
+      width: 25px;
     }
 
     .autocomplete__clear-button {
       height: 50%;
       padding: 0;
-      right: 40px;
+      right: 10px;
+    }
+
+    .autocomplete__input {
+      padding-inline: 50px;
     }
 
     &__menu {
@@ -281,13 +313,11 @@ $search-height: 50px;
 
 .stats {
   align-items: center;
-  background: var(--background-table);
-  box-shadow: var(--box-shadow-table);
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   justify-content: center;
   margin-bottom: 10px;
-  padding: 15px 10px;
+  padding: 15px 0;
   width: 100%;
 
   &__loader {
@@ -304,21 +334,19 @@ $search-height: 50px;
     width: 100%;
 
     &:not(:last-child) {
-      // sass-lint:disable no-color-literals
-      border-right: var(--border-component-secondary);
+      /* stylelint-disable no-color-literals */
+      border-right: 1px solid #333;
     }
   }
 
   &__label,
   &__value {
     display: block;
-    text-align: center;
     width: 100%;
   }
 
   &__label {
-    color: var(--color-component-text-highlight);
-    font: var(--font-component-misc);
+    color: var(--property-text-faded);
     font-size: 16px;
     font-weight: 500;
     margin-bottom: 5px;
@@ -327,30 +355,37 @@ $search-height: 50px;
   &__value {
     &,
     * {
-      color: var(--color-component-text-primary);
-      font: var(--font-component-header);
       font-size: 22px;
       font-weight: normal;
       text-transform: uppercase;
     }
+  }
 
-    .formatted-price {
+  @media screen and (min-width: $intermediate-breakpoint) {
+    &__label,
+    &__value {
       justify-content: center;
+      text-align: center;
+
+      .formatted-price {
+        justify-content: center;
+      }
     }
   }
 
   @media screen and (max-width: $intermediate-breakpoint) {
     grid-template-columns: repeat(auto-fit, minmax(33%, 1fr));
     height: auto;
+    margin: 0;
     max-height: unset;
-    padding: 10px;
+    padding: 0 10px;
 
     &__item {
       height: max-content;
       padding: 10px 0;
 
       &:not(:last-child) {
-        // sass-lint:disable no-important
+        /* stylelint-disable no-important */
         border: 0 !important;
       }
     }

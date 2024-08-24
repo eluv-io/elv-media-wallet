@@ -893,7 +893,7 @@ const PurchaseModal = observer(({
   successUrl,
   cancelUrl,
   Close,
-  closeable=true
+  closable=true
 }) => {
   const match = useRouteMatch();
   const [loadKey, setLoadKey] = useState(0);
@@ -1025,8 +1025,8 @@ const PurchaseModal = observer(({
     <Modal
       id="purchase-modal"
       className="purchase-modal-container"
-      closable={closeable && !checkoutStore.submittingOrder}
-      Toggle={closeable ? Close : undefined}
+      closable={closable && !checkoutStore.submittingOrder}
+      Toggle={closable ? Close : undefined}
     >
       <div className="purchase-modal">
         <h1 className="purchase-modal__header">

@@ -9,7 +9,6 @@
   margin: auto;
   max-height: 100vh;
   overflow-y: auto;
-
   position: fixed;
   top: 0;
   width: 100vw;
@@ -27,13 +26,20 @@
   &:not(&--no-fade) {
     @include page-fade-in(0.3s);
   }
+
+  &--no-scroll {
+    .modal__content {
+      overflow: hidden;
+    }
+  }
 }
 
 .modal__content {
+  box-shadow: 0 0 30px #000;
   max-height: 90vh;
   max-width: 85vw;
-  overflow-x: hidden;
-  overflow-y: scroll;
+  overflow: hidden scroll;
+  padding: 0;
   position: absolute;
   width: 1200px;
   z-index: 10001;
@@ -43,7 +49,7 @@
   border: 0;
   height: 35px;
   min-width: 0;
-  opacity: 0.25;
+  opacity: 0.5;
   padding: 8px;
   position: fixed;
   right: 50px;
@@ -64,12 +70,11 @@
 
 @media only screen and (max-width: $tablet-breakpoint) {
   .modal {
-    // sass-lint:disable no-vendor-prefixes
-    -webkit-overflow-scrolling: touch;
-    // sass-lint:enable no-vendor-prefixes
     height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden auto;
+
+    /* stylelint-disable no-vendor-prefixes */
+    -webkit-overflow-scrolling: touch;
   }
 
   .modal__content {
@@ -85,8 +90,8 @@
   }
 }
 
-// Deal with very tall frame
-@media screen and (min-height: 1800px) {
+/* Deal with very tall frame */
+@media screen and (height >= 1800px) {
   .modal {
     align-items: flex-start;
     padding-top: 300px;

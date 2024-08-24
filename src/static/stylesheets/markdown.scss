@@ -42,7 +42,7 @@
   }
 
   a {
-    // sass-lint:disable no-important
+    /* stylelint-disable-next-line no-important */
     color: var(--color-text-highlight) !important;
 
     * {
@@ -50,7 +50,7 @@
     }
 
     &:hover {
-      // sass-lint:disable no-important
+      /* stylelint-disable-next-line no-important */
       color: var(--color-text-highlight) !important;
 
       * {

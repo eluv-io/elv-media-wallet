@@ -77,7 +77,7 @@ const MarketplaceItemCard = ({
 
     sideText = undefined;
     if(item.available_at) {
-      sideText = `${rootStore.l10n.item_details.status.release_date}: ${new Date(item.available_at).toLocaleDateString(navigator.languages, {year: "numeric", month: "long", day: "numeric"}) }`;
+      sideText = `${rootStore.l10n.item_details.status.release_date}: ${new Date(item.available_at).toLocaleDateString(rootStore.preferredLocale, {year: "numeric", month: "long", day: "numeric"}) }`;
     }
   }
 
@@ -107,15 +107,16 @@ const MarketplaceItemCard = ({
     <CardComponent
       info={info}
       link={linkDisabled ? undefined : (to || `${match.url}/${item.sku}`)}
-      badges={
+      badges={[
         item.nftTemplateMetadata.test ?
           <ImageIcon
+            key="badge-test"
             icon={TestIcon}
             title="This is a test NFT"
             alt="Test NFT"
             className="item-card__badge item-card__badge--test"
           /> : null
-      }
+      ].filter(badge => badge)}
       image={(
         <MarketplaceImage
           marketplaceHash={marketplaceHash}

@@ -15,12 +15,15 @@ import NFTCard from "Components/nft/NFTCard";
 
 const UserItems = observer(() => {
   const match = useRouteMatch();
-  const userAddress = rootStore.userProfiles[match.params.userId].userAddress;
+  const userAddress =
+    rootStore.userProfiles[match.params.userId]?.userAddress ||
+    (match.params.userId === "me" && rootStore.CurrentAddress()) ||
+    (match.params.userId.startsWith("0x") && match.params.userId);
 
   const [userListings, setUserListings] = useState([]);
 
   useEffect(() => {
-    rootStore.walletClient.UserListings({userAddress: rootStore.userProfiles[match.params.userId].userAddress})
+    rootStore.walletClient.UserListings({userAddress})
       .then(listings => setUserListings(listings));
 
     if(match.params.marketplaceId) {
@@ -40,9 +43,8 @@ const UserItems = observer(() => {
     <FilteredView
       mode="owned"
       hideStats
-      perPage={9}
+      perPage={12}
       showPagingInfo
-      topPagination
       scrollOnPageChange
       initialFilters={{ userAddress }}
       Render={({entries}) =>
@@ -59,32 +61,30 @@ const UserItems = observer(() => {
                   <NFTCard
                     key={`nft-card-${nft.details.ContractId}-${nft.details.TokenIdStr}`}
                     link={UrlJoin(match.url, nft.details.ContractId, nft.details.TokenIdStr)}
-                    nft={nft}
-                    selectedListing={listing}
-                    imageWidth={600}
-                    truncateDescription
-                    badges={
-                      <>
-                        {
-                          listing ?
-                            <ImageIcon
-                              icon={ListingIcon}
-                              title="This NFT is listed for sale"
-                              alt="Listing Icon"
-                              className="item-card__badge"
-                            /> : null
-                        }
-                        {
-                          nft.metadata.test ?
-                            <ImageIcon
-                              icon={TestIcon}
-                              title="This is a test NFT"
-                              alt="Test NFT"
-                              className="item-card__badge item-card__badge--test"
-                            /> : null
-                        }
-                      </>
+                    detailsLink={
+                      !rootStore.client.utils.EqualAddress(nft.details.TokenOwner, rootStore.CurrentAddress()) ? null :
+                        UrlJoin(match.url, nft.details.ContractId, nft.details.TokenIdStr) + "?page=details"
                     }
+                    nft={nft}
+                    imageWidth={600}
+                    badges={[
+                      !listing ? null :
+                        <ImageIcon
+                          key="badge-listing"
+                          icon={ListingIcon}
+                          title="This NFT is listed for sale"
+                          alt="Listing Icon"
+                          className="item-card__badge"
+                        />,
+                      !nft.metadata.test ? null :
+                        <ImageIcon
+                          key="badge-test"
+                          icon={TestIcon}
+                          title="This is a test NFT"
+                          alt="Test NFT"
+                          className="item-card__badge item-card__badge--test"
+                        />
+                    ].filter(badge => badge)}
                   />
                 );
               })

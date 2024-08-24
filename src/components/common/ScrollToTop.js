@@ -6,7 +6,7 @@ class ScrollToTop extends React.Component {
   async componentDidUpdate(prevProps) {
     if(window.scrollY === 0) { return; }
 
-    if(this.props.location !== prevProps.location) {
+    if(this.props.location?.pathname !== prevProps.location?.pathname) {
       await new Promise(resolve => setTimeout(resolve, 50));
       const target = document.querySelector("#top-scroll-target");
 

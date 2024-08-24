@@ -1,13 +1,16 @@
 import "Assets/fonts/fonts.css";
+import "@mantine/core/styles.css";
+import "@mantine/dates/styles.css";
 import "Assets/stylesheets/app.scss";
 
 import React, {lazy, Suspense, useEffect, useState} from "react";
 import UrlJoin from "url-join";
-import { render } from "react-dom";
+import { createRoot } from "react-dom/client";
 import { observer} from "mobx-react";
+import {MantineProvider} from "@mantine/core";
+import MantineTheme from "./MantineTheme";
 
 import { rootStore } from "Stores/index.js";
-import Header from "Components/header/Header";
 import {
   Switch,
   Route,
@@ -23,6 +26,10 @@ import Modal from "Components/common/Modal";
 import Flows from "Components/interface/Flows";
 import Actions from "Components/interface/Actions";
 import {SearchParams, SetImageUrlDimensions} from "./utils/Utils";
+import {PropertyRoutes, BundledPropertyRoutes} from "Components/properties";
+import ImageIcon from "Components/common/ImageIcon";
+
+import XIcon from "Assets/icons/x.svg";
 
 const searchParams = SearchParams();
 
@@ -41,7 +48,7 @@ const DebugFooter = observer(() => {
       <div className="debug-footer">
         <div>{ EluvioConfiguration.version }</div>
         <div>{ EluvioConfiguration.network === "demo" ? "Demo Network" : "Production Network" }</div>
-        <div>Deployed { new Date(EluvioConfiguration["deployed-at"] || Date.now()).toLocaleString("en-US", {year: "numeric", month: "long", weekday: "long", hour: "numeric", minute: "numeric", second: "numeric" }) }</div>
+        <div>Deployed { new Date(EluvioConfiguration["deployed-at"] || Date.now()).toLocaleString(rootStore.preferredLocale, {year: "numeric", month: "long", weekday: "long", hour: "numeric", minute: "numeric", second: "numeric" }) }</div>
       </div>
       {
         rootStore.DEBUG_ERROR_MESSAGE ?
@@ -82,16 +89,44 @@ const MarketplaceSlugRedirect = observer(() => {
 });
 
 const LoginModal = observer(() => {
+  const history = useHistory();
+
   if(!rootStore.showLogin || rootStore.loggedIn) { return null; }
+
+  const closable = !rootStore.loginOnly && (!!rootStore.loginBackPath || !rootStore.requireLogin || rootStore.loggedIn);
+  const Close = () => {
+    if(!closable) { return; }
+
+    if(rootStore.loginBackPath) {
+      history.push(rootStore.loginBackPath);
+    }
+
+    rootStore.HideLogin();
+  };
 
   return (
     <Modal
       className="login-modal"
-      closeable={!rootStore.loginOnly && (!rootStore.requireLogin || rootStore.loggedIn)}
-      Toggle={rootStore.requireLogin ? undefined : () => rootStore.HideLogin()}
+      closable={closable}
+      Toggle={Close}
     >
-      <Login key="login-main" Close={rootStore.requireLogin ? undefined : () => rootStore.HideLogin()} />
+      <Login key="login-main" Close={Close} />
     </Modal>
+  );
+});
+
+const AlertNotification = observer(() => {
+  if(!rootStore.alertNotification) { return null; }
+
+  return (
+    <div className="alert-notification">
+      <div className="alert-notification__message">
+        { rootStore.alertNotification }
+      </div>
+      <button onClick={() => rootStore.SetAlertNotification("")} className="alert-notification__close">
+        <ImageIcon icon={XIcon} />
+      </button>
+    </div>
   );
 });
 
@@ -106,7 +141,6 @@ const Routes = observer(() => {
 
   return (
     <>
-      <Header />
       <ScrollToTop>
         <ErrorBoundary className="page-container wallet-page">
           <Switch>
@@ -142,11 +176,28 @@ const Routes = observer(() => {
                 <MarketplaceRoutes />
               </Suspense>
             </Route>
+            <Route path="/p">
+              <Suspense fallback={<PageLoader />}>
+                <PropertyRoutes basePath="/p" />
+              </Suspense>
+            </Route>
+            <Route path="/m">
+              <Suspense fallback={<PageLoader />}>
+                <BundledPropertyRoutes />
+              </Suspense>
+            </Route>
             <Route path="/profile">
               <Redirect to="/wallet/profile" />
             </Route>
-            <Route path="/">
-              <Redirect to="/marketplaces" />
+            <Route path="/" exact>
+              <Suspense fallback={<PageLoader />}>
+                <WalletRoutes />
+              </Suspense>
+            </Route>
+            <Route path="*">
+              <Suspense fallback={<PageLoader />}>
+                <PropertyRoutes basePath="/" />
+              </Suspense>
             </Route>
           </Switch>
         </ErrorBoundary>
@@ -154,7 +205,6 @@ const Routes = observer(() => {
     </>
   );
 });
-
 
 const App = observer(() => {
   const history = useHistory();
@@ -237,6 +287,7 @@ const App = observer(() => {
         .join(" ")
       }
     >
+      <AlertNotification />
       <Routes />
       <DebugFooter />
     </div>
@@ -255,39 +306,47 @@ if(window.location.hash?.startsWith("#/")) {
   history.replaceState("", document.title, path);
 }
 
-render(
+const root = createRoot(document.getElementById("app"));
+root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Switch>
-        { /* Handle various popup actions */ }
-        <Route exact path="/flow/:flow/:parameters">
-          <Flows />
-        </Route>
+    <MantineProvider theme={MantineTheme} defaultColorScheme="dark" withCssVariables>
+      <BrowserRouter>
+        <Switch>
+          { /* Handle various popup actions */ }
+          <Route exact path="/flow/:flow/:parameters">
+            <Flows />
+          </Route>
 
-        { /* Handle various UI based popup/redirect flows - Generic view */ }
-        <Route exact path="/action/:action/:parameters">
-          <Actions />
-        </Route>
+          { /* Handle various UI based popup/redirect flows - Generic view */ }
+          <Route exact path="/action/:action/:parameters">
+            <Actions />
+          </Route>
 
-        <Route path="/login">
-          <div className="login-page-container">
-            <Login />
-          </div>
-        </Route>
+          <Route path="/login">
+            <div className="login-page-container">
+              <Login />
+            </div>
+          </Route>
 
-        <Route path="/ory_login">
-          <div className="login-page-container">
-            <OryLogin />
-          </div>
-        </Route>
+          <Route path="/verification">
+            <div className="login-page-container">
+              <Login />
+            </div>
+          </Route>
 
-        { /* All other routes */ }
-        <Route>
-          <App/>
-          <LoginModal />
-        </Route>
-      </Switch>
-    </BrowserRouter>
-  </React.StrictMode>,
-  document.getElementById("app")
+          <Route path="/ory_login">
+            <div className="login-page-container">
+              <OryLogin />
+            </div>
+          </Route>
+
+          { /* All other routes */ }
+          <Route>
+            <App/>
+            <LoginModal />
+          </Route>
+        </Switch>
+      </BrowserRouter>
+    </MantineProvider>
+  </React.StrictMode>
 );

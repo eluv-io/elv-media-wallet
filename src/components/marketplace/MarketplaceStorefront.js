@@ -7,12 +7,12 @@ import MarketplaceItemCard from "Components/marketplace/MarketplaceItemCard";
 import ImageIcon from "Components/common/ImageIcon";
 import MarketplaceFeatured from "Components/marketplace/MarketplaceFeatured";
 import {MarketplaceCollectionsSummary} from "Components/marketplace/MarketplaceCollectionsSummary";
-import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
+import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 import {SetImageUrlDimensions} from "../../utils/Utils";
 import Modal from "Components/common/Modal";
 import Countdown from "Components/common/Countdown";
 import {RichText} from "Components/common/UIComponents";
-import Video from "Components/common/Video";
+import Video from "Components/properties/Video";
 
 
 const MarketplaceBannerContent = observer(({banner}) => {
@@ -21,7 +21,7 @@ const MarketplaceBannerContent = observer(({banner}) => {
   if(banner.video) {
     return (
       <Video
-        videoLink={banner.video}
+        link={banner.video}
         className="marketplace__banner__video"
         playerOptions={{
           muted: banner.video_muted ? EluvioPlayerParameters.muted.ON : EluvioPlayerParameters.muted.OFF,
@@ -59,7 +59,8 @@ const MarketplaceBanners = ({marketplace}) => {
 
           if(banner.link) {
             return (
-              <a href={banner.link} rel="noopener" target="_blank" {...attrs}>
+              // eslint-disable-next-line react/jsx-key
+              <a href={banner.link} rel="noreferrer" target="_blank" {...attrs}>
                 {bannerContent}
               </a>
             );
@@ -73,6 +74,7 @@ const MarketplaceBanners = ({marketplace}) => {
 
             if(link) {
               return (
+                // eslint-disable-next-line react/jsx-key
                 <Link to={link} {...attrs}>
                   {bannerContent}
                 </Link>
@@ -80,6 +82,7 @@ const MarketplaceBanners = ({marketplace}) => {
             }
           } else if(banner.modal_video) {
             return (
+              // eslint-disable-next-line react/jsx-key
               <button {...attrs} onClick={() => setVideoModal(banner.modal_video)}>
                 {bannerContent}
               </button>
@@ -87,6 +90,7 @@ const MarketplaceBanners = ({marketplace}) => {
           }
 
           return (
+            // eslint-disable-next-line react/jsx-key
             <div {...attrs}>
               {bannerContent}
             </div>
@@ -97,7 +101,7 @@ const MarketplaceBanners = ({marketplace}) => {
         videoModal ?
           <Modal className="marketplace__banner__video-modal" Toggle={() => setVideoModal(undefined)}>
             <Video
-              videoLink={videoModal}
+              link={videoModal}
               className="marketplace__banner__video-modal__video"
               playerOptions={{
                 muted: EluvioPlayerParameters.muted.OFF,
@@ -157,7 +161,6 @@ const MarketplaceStorefrontSections = observer(({marketplace}) => {
         rootStore.Log(item, true);
       }
 
-      // TODO: Check release date
       // Available check - must happen after timeout setup
       if(!item.show_if_unreleased && item.available_at && Date.now() - new Date(item.available_at).getTime() < 0) {
         return null;

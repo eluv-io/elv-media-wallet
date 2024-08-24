@@ -36,7 +36,7 @@
 
   .lds-default,
   .lds-ellipsis {
-    // sass-lint:disable no-important
+    /* stylelint-disable-next-line declaration-no-important */
     transform: scale(0.4) !important;
 
     &__element {
@@ -184,14 +184,21 @@
 
     &__loader {
       height: 100%;
+      padding: 10px 0;
       position: absolute;
       top: 0;
-      width: 100%;
+
+      .spinner {
+        --spinner-width: 4px;
+
+        height: 30px;
+        width: 30px;
+      }
     }
 
     .lds-default,
     .lds-ellipsis {
-      // sass-lint:disable no-important
+      /* stylelint-disable-next-line declaration-no-important */
       transform: scale(0.4) !important;
     }
 
@@ -239,7 +246,7 @@
   min-width: unset;
   padding: 0;
   position: relative;
-  z-index: 10;
+  z-index: 5;
 
   * {
     transition: background 0.1s linear, color 0.1s linear, border 0.1s linear;
@@ -278,6 +285,7 @@
   &__menu {
     @include component;
     @include page-fade-in(0.15s);
+
     align-items: center;
     display: flex;
     flex-direction: column;

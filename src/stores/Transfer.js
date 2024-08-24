@@ -113,11 +113,11 @@ class TransferStore {
       let listing;
       if(listingId) {
         listing = await this.rootStore.walletClient.Listing({listingId});
-      } else if(nft) {
+      } else {
         try {
           listing = ((await this.rootStore.walletClient.Listings({
-            contractAddress: nft.details.ContractAddr,
-            tokenId: nft.details.TokenIdStr,
+            contractAddress: nft ? nft.details.ContractAddr : contractAddress,
+            tokenId: nft ? nft.details.TokenIdStr : tokenId,
             includeCheckoutLocked: true
           }))?.results || [])[0];
           // eslint-disable-next-line no-empty

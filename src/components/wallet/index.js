@@ -3,14 +3,14 @@ import {observer} from "mobx-react";
 import {
   Switch,
   Route,
-  Redirect,
+  Redirect, useRouteMatch,
 } from "react-router-dom";
 
 import {rootStore} from "Stores/index";
 
-import UrlJoin from "url-join";
 import RenderRoutes from "Routes";
-import MarketplaceBrowser from "Components/marketplace/MarketplaceBrowser";
+import MediaPropertiesBrowser from "Components/properties/MediaPropertiesBrowser";
+import Header from "Components/header/Header";
 
 const WalletWrapper = ({children}) => {
   useEffect(() => {
@@ -20,20 +20,35 @@ const WalletWrapper = ({children}) => {
   return children;
 };
 
+const GlobalWrapper = ({children}) => {
+  const match = useRouteMatch();
+
+  useEffect(() => {
+    rootStore.ClearMarketplace();
+    rootStore.SetRouteParams(match.params);
+  }, [match.params]);
+
+  return children;
+};
+
 const Wallet = observer(() => {
   if(rootStore.hideGlobalNavigation && rootStore.specifiedMarketplaceId) {
-    return <Redirect to={UrlJoin("/marketplace", rootStore.specifiedMarketplaceId, "store")} />;
+    //return <Redirect to={UrlJoin("/marketplace", rootStore.specifiedMarketplaceId, "store")} />;
   }
 
   return (
-    <div className="page-container error-page">
+    <div className="page-container">
+      <Header key="header" />
+
       <Switch>
         <Route path="/wallet" exact>
-          <Redirect to="/marketplaces" />
+          <Redirect to="/" />
         </Route>
 
-        <Route path="/marketplaces" exact>
-          <MarketplaceBrowser />
+        <Route path="/" exact>
+          <GlobalWrapper>
+            <MediaPropertiesBrowser />
+          </GlobalWrapper>
         </Route>
 
         <RenderRoutes

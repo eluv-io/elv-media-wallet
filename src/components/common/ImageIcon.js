@@ -12,7 +12,9 @@ const ImageIcon = ({icon, alternateIcon, title, label, useLoadingIndicator=false
   const currentIcon = error ? alternateIcon : icon;
   const handleError = error ? undefined : () => setError(true);
 
-  if(!currentIcon) { return null; }
+  if(!currentIcon) {
+    return null;
+  }
 
   if(currentIcon.startsWith("<svg")) {
     return (

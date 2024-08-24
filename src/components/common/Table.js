@@ -4,11 +4,13 @@ import {Link} from "react-router-dom";
 import ImageIcon from "Components/common/ImageIcon";
 import {observer} from "mobx-react";
 import {Loader} from "Components/common/Loaders";
-import {LocalizeString, PageControls} from "Components/common/UIComponents";
-import {useInfiniteScroll} from "react-g-infinite-scroll";
+import {Linkish, LocalizeString, PageControls} from "Components/common/UIComponents";
 import ListingFilters from "Components/listings/ListingFilters";
+import {SavedValue} from "../../utils/Utils";
+
+import CaretUpIcon from "Assets/icons/up-caret.svg";
+import CaretDownIcon from "Assets/icons/down-caret.svg";
 import ListingStats from "Components/listings/ListingStats";
-import {SavedValue, ScrollTo} from "../../utils/Utils";
 
 const Table = observer(({
   headerText,
@@ -16,11 +18,10 @@ const Table = observer(({
   columnHeaders,
   entries,
   paging,
-  pagingMode="infinite",
+  pagingMode="paginated",
   topPagination,
   hidePagingInfo,
   Update,
-  scrollRef,
   loading,
   emptyText,
   columnWidths=[],
@@ -28,9 +29,17 @@ const Table = observer(({
   mobileColumnWidths,
   hideOverflow,
   useWidth,
+  collapsible=false,
+  initiallyCollapsed=false,
   className=""
 }) => {
+  const scrollRef = useRef();
+  const [collapsed, setCollapsed] = useState(collapsible && initiallyCollapsed);
   columnHeaders = columnHeaders.filter(h => h);
+
+  useEffect(() => {
+    scrollRef?.current?.scrollTo(0, 0);
+  }, [paging?.start]);
 
   // Handle column widths
   tabletColumnWidths = tabletColumnWidths || columnWidths;
@@ -56,25 +65,6 @@ const Table = observer(({
     .filter(c => c)
     .join(" ");
 
-  // Set up infinite scroll
-  const [lastUpdate, setLastUpdate] = useState(0);
-  if(pagingMode === "infinite" && !scrollRef) {
-    scrollRef = useInfiniteScroll({
-      expectRef: true,
-      fetchMore: () => {
-        // Debounce
-        if(Date.now() - lastUpdate < 500) {
-          return;
-        }
-
-        setLastUpdate(Date.now());
-        Update();
-      },
-      offset: 200,
-      ignoreScroll: entries.length === 0 || !paging || loading || paging.start + paging.limit > paging.total
-    });
-  }
-
   // Pagination info
   const tableRef = useRef();
   let pagingInfo = null;
@@ -85,7 +75,7 @@ const Table = observer(({
           LocalizeString(
             rootStore.l10n.tables.pagination,
             {
-              min: <div key="page-min" className="transfer-table__pagination-message--highlight">{pagingMode === "infinite" ? 1 : paging.start + 1}</div>,
+              min: <div key="page-min" className="transfer-table__pagination-message--highlight">{paging.start + 1}</div>,
               max: <div key="page-max" className="transfer-table__pagination-message--highlight">{Math.min(paging.total, paging.start + paging.limit)}</div>,
               total: <div key="page-total" className="transfer-table__pagination-message--highlight">{paging.total}</div>
             }
@@ -102,110 +92,107 @@ const Table = observer(({
         className="transfer-table__page-controls"
         paging={paging}
         hideIfOnePage
-        SetPage={page => {
-          Update(page);
-
-          setTimeout(() => {
-            if(tableRef.current) {
-              ScrollTo(tableRef.current.getBoundingClientRect().top + window.scrollY);
-            }
-          }, 500);
-        }}
+        SetPage={page => Update(page)}
       />
     );
   }
 
   return (
-    <div className="transfer-table-container" ref={tableRef}>
-      <div className={`transfer-table ${className}`}>
+    <div className={`transfer-table-container ${collapsed ? "transfer-table-container--collapsed" : ""}`} ref={tableRef}>
+      <div className={`transfer-table ${collapsible ? "transfer-table--collapsable" : ""} ${className}`}>
         {
-          !headerText ? null :
-            <div className="transfer-table__header">
-              { headerIcon ? <ImageIcon icon={headerIcon} className="transfer-table__header__icon" /> : null }
-              { headerText }
-            </div>
+          !headerIcon && !headerText ? null :
+            <Linkish
+              onClick={!collapsible ? undefined : () => setCollapsed(!collapsed)}
+              className="transfer-table__header"
+            >
+              <div className="transfer-table__header-text">
+                {headerIcon ? <ImageIcon icon={headerIcon} className="transfer-table__header__icon"/> : null}
+                {headerText}
+                {collapsible ? <ImageIcon icon={collapsed ? CaretDownIcon : CaretUpIcon} className="transfer-table__header__collapse-icon"/> : null}
+              </div>
+              {pagingInfo}
+            </Linkish>
         }
-        { pagingInfo }
         { pageControls && topPagination ? pageControls : null }
-        {
-          (!paging && pagingMode !== "none") ?
-            <div className={`transfer-table__table transfer-table__table--${pagingMode}`} ref={scrollRef}>
-              <Loader />
-            </div> :
-            <div className={`transfer-table__table transfer-table__table--${pagingMode}`} ref={scrollRef}>
-              <div className="transfer-table__table__header" style={{gridTemplateColumns}}>
-                {
-                  columnHeaders.map((field, columnIndex) => {
-                    if(!columnWidths[columnIndex]) { return null; }
+        <div className={`transfer-table__table transfer-table__table--${pagingMode}`} ref={scrollRef}>
+          <div className="transfer-table__table__header" style={{gridTemplateColumns}}>
+            {
+              columnHeaders.map((field, columnIndex) => {
+                if(!columnWidths[columnIndex]) { return null; }
 
-                    const Component = props => field?.onClick ? <button {...props} /> : <div {...props} />;
+                const Component = props => field?.onClick ? <button {...props} /> : <div {...props} />;
 
-                    return (
-                      <Component key={`table-header-${columnIndex}`} onClick={field?.onClick} className="transfer-table__table__cell">
-                        { field?.icon ? <ImageIcon icon={field.icon} className="transfer-table__table__cell__icon" /> : null }
-                        { field?.text || field }
-                      </Component>
-                    );
-                  })
-                }
+                return (
+                  <Component key={`table-header-${columnIndex}`} onClick={field?.onClick} className="transfer-table__table__cell">
+                    { field?.icon ? <ImageIcon icon={field.icon} className="transfer-table__table__cell__icon" /> : null }
+                    { field?.text || field }
+                  </Component>
+                );
+              })
+            }
+          </div>
+
+          <div className="transfer-table__content-rows">
+            {
+              !entries || entries.length === 0 ?
+                <div className="transfer-table__empty">{ loading ? "" : emptyText || rootStore.l10n.tables.no_results }</div> :
+                entries.map((row, rowIndex) => {
+                  // Row may be defined as simple list, or { columns, ?link, ?onClick }
+                  const link = row?.link;
+                  const onClick = row?.onClick;
+                  const disabled = row?.disabled;
+                  const className = row?.className || "";
+                  const columns = row?.columns || row;
+
+                  // Link complains if 'to' is blank, so use div instead
+                  const Component = link?.startsWith("https:") ? props => <a {...props} href={link} target="_blank" rel="noopener noreferrer" /> :
+                    link ? Link :
+                      props => onClick ? <button {...props} /> : <div {...props} />;
+
+                  return (
+                    <Component
+                      to={link}
+                      onClick={onClick}
+                      disabled={disabled}
+                      className={`transfer-table__table__row ${!link && !onClick ? "transfer-table__table__row--no-click" : ""} ${className}`}
+                      key={`transfer-table-row-${rowIndex}`}
+                      style={{gridTemplateColumns}}
+                    >
+                      {
+                        columns.map((field, columnIndex) =>
+                          !columnWidths[columnIndex] ?
+                            null :
+                            <div
+                              className={`transfer-table__table__cell ${field?.className || ""}`}
+                              key={`table-cell-${rowIndex}-${columnIndex}`}
+                              style={
+                                hideOverflow ?
+                                  {
+                                    display: "block",
+                                    overflow: "hidden",
+                                    whiteSpace: "nowrap",
+                                    textOverflow: "ellipsis",
+                                    height: "max-content"
+                                  } : {}
+                              }
+                            >
+                              {field?.content || field}
+                            </div>
+                        )
+                      }
+                    </Component>
+                  );
+                })
+            }
+          </div>
+          {
+            !loading ? null :
+              <div className="transfer-table__loader-container">
+                <Loader className="transfer-table__loader"/>
               </div>
-
-              <div className="transfer-table__content-rows">
-                {
-                  !entries || entries.length === 0 ?
-                    <div className="transfer-table__empty">{ loading ? "" : emptyText || rootStore.l10n.tables.no_results }</div> :
-                    entries.map((row, rowIndex) => {
-                      // Row may be defined as simple list, or { columns, ?link, ?onClick }
-                      const link = row?.link;
-                      const onClick = row?.onClick;
-                      const disabled = row?.disabled;
-                      const className = row?.className || "";
-                      const columns = row?.columns || row;
-
-                      // Link complains if 'to' is blank, so use div instead
-                      const Component = link?.startsWith("https:") ? props => <a {...props} href={link} target="_blank" rel="noopener" /> :
-                        link ? Link :
-                          props => onClick ? <button {...props} /> : <div {...props} />;
-
-                      return (
-                        <Component
-                          to={link}
-                          onClick={onClick}
-                          disabled={disabled}
-                          className={`transfer-table__table__row ${!link && !onClick ? "transfer-table__table__row--no-click" : ""} ${className}`}
-                          key={`transfer-table-row-${rowIndex}`}
-                          style={{gridTemplateColumns}}
-                        >
-                          {
-                            columns.map((field, columnIndex) =>
-                              !columnWidths[columnIndex] ?
-                                null :
-                                <div
-                                  className={`transfer-table__table__cell ${field?.className || ""}`}
-                                  key={`table-cell-${rowIndex}-${columnIndex}`}
-                                  style={
-                                    hideOverflow ?
-                                      {
-                                        display: "block",
-                                        overflow: "hidden",
-                                        whiteSpace: "nowrap",
-                                        textOverflow: "ellipsis",
-                                        height: "max-content"
-                                      } : {}
-                                  }
-                                >
-                                  {field?.content || field}
-                                </div>
-                            )
-                          }
-                        </Component>
-                      );
-                    })
-                }
-                {loading ? <Loader className="transfer-table__content-rows__loader"/> : null}
-              </div>
-            </div>
-        }
+          }
+        </div>
       </div>
       { pageControls }
     </div>
@@ -214,7 +201,19 @@ const Table = observer(({
 
 const savedPage = SavedValue(1, "");
 
-export const FilteredTable = observer(({mode, initialFilters, pinnedEntries, showFilters, topPagination, showStats, CalculateRowValues, pagingMode="infinite", perPage=10, ...props}) => {
+export const FilteredTable = observer(({
+  mode,
+  initialFilters,
+  pinnedEntries,
+  showFilters,
+  topPagination,
+  showStats,
+  CalculateRowValues,
+  pagingMode="paginated",
+  perPage=10,
+  menuButton,
+  ...props
+}) => {
   const [page, setPage] = useState(1);
   const [loadKey, setLoadKey] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -257,15 +256,7 @@ export const FilteredTable = observer(({mode, initialFilters, pinnedEntries, sho
     const start = (page - 1) * perPage;
     Method({...filters, start, limit: perPage})
       .then(({results, paging}) => {
-        if(pagingMode === "infinite") {
-          setEntries([
-            ...entries,
-            ...results
-          ]);
-        } else {
-          setEntries(results);
-        }
-
+        setEntries(results);
         setPaging(paging);
         setPreviousFilters(filters);
         savedPage.SetValue(page, JSON.stringify(filters));
@@ -324,19 +315,18 @@ export const FilteredTable = observer(({mode, initialFilters, pinnedEntries, sho
   return (
     <div className="filtered-view">
       {
-        showFilters ?
+        !showFilters ? null :
           <ListingFilters
             mode={mode}
             UpdateFilters={async (newFilters) => {
               setLoading(true);
-              setEntries([]);
-              setPaging(undefined);
               setFilters(newFilters);
               setPage(1);
             }}
-          /> : null
+            menuButton={menuButton}
+          />
       }
-      { filters && showStats ? <ListingStats mode={mode} filterParams={filters} /> : null }
+      <ListingStats mode={mode} filterParams={filters} />
       { table }
     </div>
   );

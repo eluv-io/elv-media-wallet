@@ -787,14 +787,14 @@ class CheckoutStore {
       this.rootStore.Log(error, true);
 
       if([403, 409].includes(error.status)) {
-        this.PurchaseComplete({confirmationId, success: false, message});
+        this.PurchaseComplete({confirmationId, success: false, message: error.message});
 
         throw {
           recoverable: false,
           uiMessage: error.uiMessage || this.rootStore.l10n.purchase.errors.out_of_stock
         };
       } else {
-        this.PurchaseComplete({confirmationId, success: false, message});
+        this.PurchaseComplete({confirmationId, success: false, message: error.message});
         throw {
           recoverable: !!error?.recoverable,
           uiMessage: error?.uiMessage || this.rootStore.l10n.purchase.errors.failed

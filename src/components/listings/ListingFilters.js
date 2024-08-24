@@ -5,11 +5,10 @@ import {rootStore} from "Stores";
 import AutoComplete from "Components/common/AutoComplete";
 import {ButtonWithLoader, Select} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
-
-import SearchIcon from "Assets/icons/search.svg";
 import FilterIcon from "Assets/icons/filter icon.svg";
 import ClearIcon from "Assets/icons/x.svg";
 import {SavedValue} from "../../utils/Utils";
+import {Button} from "Components/properties/Common";
 
 const SortOptions = mode => {
   const sortLabels = rootStore.l10n.filters.sort;
@@ -180,13 +179,15 @@ const DateRange = observer(({label, value, onChange}) => {
   );
 });
 
-const FilterSelect = observer(({label, value, options, optionLabelPrefix="", onChange, placeholder}) => {
+const FilterSelect = observer(({label, value, options, optionLabelPrefix="", onChange, placeholder, className=""}) => {
+
+
   return (
     <Select
       label={label}
       value={value}
       onChange={value => onChange(value)}
-      containerClassName="filters__select-container"
+      containerClassName={`filters__select-container ${className}`}
       buttonClassName={`filters__select ${placeholder && (placeholder[0] || "").toString() === (value || "").toString() ? "filters__select-placeholder" : ""}`}
       options={options.map(options => [options[0], options[0] === "" ? options[1] : `${optionLabelPrefix}${options[1]}`])}
       placeholder={placeholder}
@@ -332,7 +333,7 @@ const FilterMenu = ({mode, filterValues, editions, attributes, dropAttributes, r
   return (
     <div className="filters__menu" ref={ref}>
       {
-        !marketplace && availableMarketplaces.length > 0 ?
+        availableMarketplaces.length > 0 ?
           <FilterSelect
             label={rootStore.l10n.filters.filters.marketplaces}
             optionLabelPrefix={`${rootStore.l10n.filters.filters.marketplace}: `}
@@ -440,24 +441,24 @@ const FilterMenu = ({mode, filterValues, editions, attributes, dropAttributes, r
           /> : null
       }
       <div className="filters__menu__actions">
-        <button
-          className="action action-primary filters__menu__apply-button"
+        <Button
+          className="filters__menu__action"
           onClick={() => {
             setFilterValues(selectedFilterValues);
             Hide();
           }}
         >
           { rootStore.l10n.filters.filters.apply }
-        </button>
-        <button className="action filters__menu__reset-button" onClick={() => ResetFilters()}>
+        </Button>
+        <Button variant="secondary" className="filters__menu__action" onClick={() => ResetFilters()}>
           { rootStore.l10n.filters.filters.reset }
-        </button>
+        </Button>
       </div>
     </div>
   );
 };
 
-export const ListingFilters = observer(({mode="listings", initialFilters, UpdateFilters}) => {
+export const ListingFilters = observer(({mode="listings", initialFilters={}, menuButton, UpdateFilters}) => {
   const match = useRouteMatch();
   const location = useLocation();
 
@@ -501,12 +502,12 @@ export const ListingFilters = observer(({mode="listings", initialFilters, Update
     tokenIdRange: {
       min: "",
       max: ""
-    },
-    ...(initialFilters || {})
+    }
   };
 
   const [filterValues, setFilterValues] = useState({
     ...defaultFilters,
+    ...initialFilters,
     filter: initialFilter || "",
     editionFilters: initialEditionFilters
   });
@@ -640,7 +641,9 @@ export const ListingFilters = observer(({mode="listings", initialFilters, Update
   const collections = marketplace?.collections;
   const extraFiltersAvailable = mode !== "owned" || (collections && collections.length > 0);
 
-  const filtersActive = JSON.stringify({...defaultFilters, sort: "", sortBy: "", sortDesc: ""}) !== JSON.stringify({...filterValues, sort: "", sortBy: "", sortDesc: ""});
+  const filtersActive = (Object.keys(defaultFilters).filter(key =>
+    JSON.stringify(defaultFilters[key] || "") !== JSON.stringify(filterValues[key] || "")
+  )).length > 0;
 
   return (
     <div className="filters">
@@ -648,19 +651,20 @@ export const ListingFilters = observer(({mode="listings", initialFilters, Update
         <AutoComplete
           className="filters__search"
           key={`autocomplete-${filterOptionsLoaded}-${savedOptionsLoaded}-${renderIndex}`}
-          placeholder={rootStore.l10n.filters.search}
+          placeholder={rootStore.l10n.filters.filter_placeholder}
           value={filterValues.filter}
           onChange={value => setFilterValues({...filterValues, filter: value, editionFilters: []})}
           onEnterPressed={async () => await Update(true)}
           options={filterOptions}
         />
         <ButtonWithLoader onClick={async () => await Update(true)} className="filters__search-button">
-          <ImageIcon icon={SearchIcon} label={rootStore.l10n.filters.search} />
+          <ImageIcon icon={FilterIcon} label={rootStore.l10n.filters.search} />
         </ButtonWithLoader>
+        <div className="filters__search-border" />
       </div>
       <div className="filters__controls">
         <FilterSelect
-          className="filters__select filters__select--sort"
+          className="filters__select-container--main"
           label="Sort By"
           optionLabelPrefix={`${rootStore.l10n.filters.sort.sort}: `}
           value={sortOptions.find(option => option.value === filterValues.sort).value}
@@ -682,7 +686,7 @@ export const ListingFilters = observer(({mode="listings", initialFilters, Update
             </button> : null
         }
         {
-          showFilterMenu ?
+          !showFilterMenu ? null :
             <FilterMenu
               mode={mode}
               filterValues={filterValues}
@@ -693,7 +697,17 @@ export const ListingFilters = observer(({mode="listings", initialFilters, Update
               setFilterValues={setFilterValues}
               Hide={() => setShowFilterMenu(false)}
               ResetFilters={ResetFilters}
-            /> : null }
+            />
+        }
+        {
+          !menuButton ? null :
+            <button
+              onClick={menuButton.onClick}
+              className={`filters__menu-button ${menuButton.active ? "filters__menu-button--active" : ""}`}
+            >
+              <ImageIcon icon={menuButton.icon} title={menuButton.title} />
+            </button>
+        }
       </div>
     </div>
   );

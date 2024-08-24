@@ -111,7 +111,7 @@ const PurchaseAction = observer(({parameters}) => {
       item={item}
       nft={nftInfo.nft}
       initialListingId={parameters.listingId}
-      closeable={false}
+      closable={false}
       successUrl={parameters.successUrl}
       cancelUrl={parameters.cancelUrl}
     />

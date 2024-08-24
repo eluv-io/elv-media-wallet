@@ -1,27 +1,7 @@
-.listing-modal-container,
-.offer-modal-container {
-  min-height: 100vh;
-  overflow-y: auto;
-
-  .modal__content {
-    height: max-content;
-    max-height: unset;
-    max-width: 550px;
-    overflow-y: hidden;
-    padding-bottom: 5vh;
-    padding-right: 8px;
-    top: 5vh;
-    width: 100%;
-  }
-}
-
 $content-width: 475px;
 
 .listing-modal,
 .offer-modal {
-  @include component;
-  @include modal;
-
   &__header {
     border-bottom: var(--border-component-secondary);
     font: var(--font-component-header);
@@ -36,6 +16,7 @@ $content-width: 475px;
     margin: 0 auto;
     max-width: $content-width;
     padding: 25px 45px 45px;
+    width: 100%;
   }
 
   &__image-container {
@@ -47,6 +28,7 @@ $content-width: 475px;
 
   &__active-listings {
     @include component;
+
     background: transparent;
     border: 0;
     margin: 50px auto;
@@ -63,6 +45,10 @@ $content-width: 475px;
     .transfer-table {
       &__table {
         max-height: 240px;
+      }
+
+      &__loader-container {
+        padding-top: 30px;
       }
     }
   }
@@ -140,10 +126,12 @@ $content-width: 475px;
   }
 
   &__form__price-input {
-    border: var(--border-highlight);
+    background: #222;
+    border: 1px solid #555;
+    border-radius: 5px;
     font-size: 20px;
     height: 50px;
-    padding: 0 75px;
+    padding-left: 50px;
     width: 100%;
 
     &::placeholder {
@@ -219,6 +207,13 @@ $content-width: 475px;
     justify-content: space-between;
 
     &__select-container,
+    &__select,
+    .styled-select__menu {
+      background: #1a1a1a;
+      font-size: 12px;
+    }
+
+    &__select-container,
     &__date {
       flex: 1 1 100%;
     }
@@ -235,11 +230,11 @@ $content-width: 475px;
     &__date {
       align-items: center;
       display: flex;
-      gap: 15px;
+      gap: 5px;
       justify-content: center;
 
       svg {
-        height: 25px;
+        height: 20px;
       }
     }
   }
@@ -274,6 +269,7 @@ $content-width: 475px;
     align-items: center;
     display: flex;
     flex-direction: column;
+    gap: 10px;
     justify-content: center;
     margin: 35px auto 0;
     max-width: $content-width;
@@ -282,16 +278,7 @@ $content-width: 475px;
   &__action {
     min-width: 150px;
     width: 100%;
-
-    &:not(:last-child) {
-      margin-bottom: 10px;
-    }
-
-    &:disabled {
-      opacity: 0.5;
-    }
   }
-
 
   &__order-details {
     border-radius: var(--border-radius-component);
@@ -372,16 +359,6 @@ $content-width: 475px;
 }
 
 @media screen and (max-width: $mobile-breakpoint) {
-  .listing-modal-container,
-  .offer-modal {
-    .modal__content {
-      max-width: unset;
-      min-height: 100%;
-      padding: 0;
-      top: 0;
-    }
-  }
-
   .listing-modal,
   .offer-modal {
     border: 0;
@@ -394,8 +371,7 @@ $content-width: 475px;
     }
 
     &__content {
-      padding-bottom: 50px;
-      padding-inline: 20px;
+      padding: 20px 0 50px;
     }
 
     &__image-container {

@@ -4,7 +4,7 @@
     Remove all the styles of the "User-Agent-Stylesheet", except for the 'display' property
     - The "symbol *" part is to solve Firefox SVG sprite bug
  */
-*:where(:not(iframe, canvas, img, svg, input, video):not(svg *, symbol *)) {
+*:where(:not(iframe, canvas, img, svg, input, video, svg *, symbol *)) {
   all: unset;
   display: revert;
 }
@@ -17,7 +17,7 @@
 }
 
 body {
-  line-height: 1.5;
+  line-height: normal;
 }
 
 /* Remove list styles (bullets/numbers) */
@@ -54,13 +54,13 @@ button {
 /* revert for bug in Chromium browsers
    - fix for the content editable attribute will work properly. */
 :where([contenteditable]){
-  -moz-user-modify: read-write;
   -webkit-line-break: after-white-space;
-  -webkit-user-modify: read-write;
   overflow-wrap: break-word;
+  -moz-user-modify: read-write;
+  -webkit-user-modify: read-write;
 }
 
-// sass-lint:disable no-important
+/* stylelint-disable no-important */
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,

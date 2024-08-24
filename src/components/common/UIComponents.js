@@ -5,7 +5,7 @@ import {checkoutStore, rootStore} from "Stores";
 import {Loader} from "Components/common/Loaders";
 import ImageIcon from "Components/common/ImageIcon";
 import {v4 as UUID} from "uuid";
-import {render} from "react-dom";
+import {createRoot} from "react-dom/client";
 import ReactMarkdown from "react-markdown";
 import SanitizeHTML from "sanitize-html";
 import QRCode from "qrcode";
@@ -22,16 +22,19 @@ import PageBackIcon from "Assets/icons/pagination arrow back.svg";
 import PageForwardIcon from "Assets/icons/pagination arrow forward.svg";
 
 export const PageControls = observer(({paging, maxSpread=15, hideIfOnePage, SetPage, className=""}) => {
+  const ref = useRef();
   if(!paging || paging.total === 0) { return null; }
 
   const perPage = paging.limit || 1;
   const currentPage = Math.floor(paging.start / perPage) + 1;
   const pages = Math.ceil(paging.total / perPage);
 
+  const width = ref?.current?.getBoundingClientRect().width || rootStore.pageWidth;
+
   let spread = maxSpread;
-  if(rootStore.pageWidth < 600) {
+  if(width < 600) {
     spread = Math.min(5, maxSpread);
-  } else if(rootStore.pageWidth < 1200) {
+  } else if(width < 1200) {
     spread = Math.min(9, maxSpread);
   }
 
@@ -44,7 +47,7 @@ export const PageControls = observer(({paging, maxSpread=15, hideIfOnePage, SetP
   }
 
   return (
-    <div className={`page-controls ${className}`}>
+    <div ref={ref} className={`page-controls ${className}`}>
       <button
         title="Previous Page"
         disabled={paging.start <= 0}
@@ -53,7 +56,7 @@ export const PageControls = observer(({paging, maxSpread=15, hideIfOnePage, SetP
       >
         <ImageIcon icon={PageBackIcon} />
       </button>
-      { spreadStart > 1 ? <div className="page-controls__ellipsis">...</div> : null }
+      { spreadStart > 1 ? <button onClick={() => SetPage(1)} className="page-controls__ellipsis">...</button> : null }
       {
         [...new Array(Math.max(1, spreadEnd - spreadStart))].map((_, index) => {
           const page = spreadStart + index;
@@ -70,7 +73,7 @@ export const PageControls = observer(({paging, maxSpread=15, hideIfOnePage, SetP
           );
         })
       }
-      { spreadEnd < pages ? <div className="page-controls__ellipsis">...</div> : null }
+      { spreadEnd < pages ? <button onClick={() => SetPage(pages)} className="page-controls__ellipsis">...</button> : null }
       <button
         title="Next Page"
         disabled={paging.total <= currentPage * perPage}
@@ -108,20 +111,22 @@ export const ExpandableSection = ({header, icon, children, expanded=false, toggl
   );
 };
 
-export const Linkish = ({to, href, useNavLink, onClick, ...args}) => {
-  if(to) {
-    if(useNavLink) {
-      return <NavLink to={to} onClick={onClick} {...args} />;
-    } else {
-      return <Link to={to} onClick={onClick} {...args} />;
+export const Linkish = ({to, href, target="_blank", rel="noopener", useNavLink, exact, onClick, disabled, ...props}) => {
+  if(!disabled) {
+    if(href) {
+      return <a href={href} target={target} rel={rel} onClick={onClick} {...props} />;
+    } else if(to) {
+      if(useNavLink) {
+        return <NavLink to={to} exact={exact} onClick={onClick} {...props} />;
+      } else {
+        return <Link to={to} onClick={onClick} {...props} />;
+      }
+    } else if(onClick) {
+      return <button onClick={onClick} {...props} />;
     }
-  } else if(href) {
-    return <a href={href} onClick={onClick} {...args} />;
-  } else if(onClick) {
-    return <button onClick={onClick} {...args} />;
   }
 
-  return <div {...args} />;
+  return <div {...props} />;
 };
 
 export const Copy = async (value) => {
@@ -278,9 +283,7 @@ export const FormatPriceString = (
 
   price = price.multiply(options.quantity || 1);
 
-  // TODO: Use same locale as language
-  const currentLocale = (navigator.languages && navigator.languages.length) ? navigator.languages[0] : navigator.language;
-  let formattedPrice = new Intl.NumberFormat(currentLocale || "en-US", { style: "currency", currency}).format(price.toString());
+  let formattedPrice = new Intl.NumberFormat(rootStore.preferredLocale, { style: "currency", currency}).format(price.toString());
 
   if(options.trimZeros && formattedPrice.endsWith(".00")) {
     formattedPrice = formattedPrice.slice(0, -3);
@@ -345,20 +348,27 @@ export const FormatPriceString = (
 window.FormatPriceString = FormatPriceString;
 
 export const RichText = ({richText, className=""}) => {
-  return (
-    <div
-      className={`rich-text ${className}`}
-      ref={element => {
-        if(!element) { return; }
+  const ref = useRef();
+  const [root, setRoot] = useState(undefined);
 
-        render(
-          <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
-            { SanitizeHTML(richText) }
-          </ReactMarkdown>,
-          element
-        );
-      }}
-    />
+  useEffect(() => {
+    if(!ref || !ref.current || root) { return; }
+
+    setRoot(createRoot(ref.current));
+  }, [ref]);
+
+  useEffect(() => {
+    if(!root) { return; }
+
+    root.render(
+      <ReactMarkdown linkTarget="_blank" allowDangerousHtml >
+        { SanitizeHTML(richText) }
+      </ReactMarkdown>
+    );
+  }, [root]);
+
+  return (
+    <div className={`rich-text ${className}`} ref={ref} />
   );
 };
 
@@ -380,7 +390,7 @@ export const ButtonWithLoader = ({children, className="", onClick, isLoading, ac
         }
       }}
     >
-      { loading || isLoading ? <Loader loader="inline" className="action-with-loader__loader" /> : null }
+      { loading || isLoading ? <Loader className="action-with-loader__loader" /> : null }
       <div className="action-with-loader__content">
         { children }
       </div>
@@ -530,7 +540,7 @@ export const Select = ({label, value, activeValuePrefix, options, placeholder, d
   }, [selectedIndex, showMenu]);
 
   useEffect(() => {
-    const optionIndex = options.findIndex(option => option[1].toLowerCase().startsWith(filter.toLowerCase()));
+    const optionIndex = options.findIndex(option => (option[2] || option[1])?.toString()?.toLowerCase().startsWith(filter.toLowerCase()));
 
     if(optionIndex >= 0) {
       setSelectedIndex(optionIndex);
@@ -614,6 +624,13 @@ export const Select = ({label, value, activeValuePrefix, options, placeholder, d
     );
   }
 
+  let activeLabel = currentIndex < 0 ? placeholder :
+    options?.[currentIndex || 0]?.[1];
+
+  if(!activeLabel || typeof activeLabel !== "object") {
+    activeLabel = `${activeValuePrefix || ""}${activeLabel}`;
+  }
+
   return (
     <div className={`styled-select ${containerClassName}`}>
       <button
@@ -633,7 +650,7 @@ export const Select = ({label, value, activeValuePrefix, options, placeholder, d
         }}
         onKeyDown={KeyboardControls}
       >
-        { currentIndex < 0 ? placeholder : `${activeValuePrefix || ""}${options[currentIndex || 0][1]}` }
+        { activeLabel }
         <div className="styled-select__button__icon-container">
           <ImageIcon icon={SelectIcon} className="styled-select__button__icon" />
         </div>

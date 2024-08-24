@@ -1,4 +1,4 @@
-@keyframes PlaceholderGradient {
+@keyframes placeholder-gradient {
   0% {
     background-position: 0 0;
   }
@@ -80,6 +80,10 @@
       &--global {
         .header__content {
           height: 25px;
+
+          &__logo-container {
+            opacity: 0;
+          }
         }
       }
     }
@@ -142,19 +146,11 @@
     &__logo-container {
       align-items: center;
       display: flex;
-      height: 100%;
+      gap: 20px;
+      height: 80px;
       left: 0;
-      max-width: 200px;
       position: absolute;
-
-      &--global {
-        svg {
-          * {
-            color: var(--color-text-primary);
-            fill: var(--color-text-primary);
-          }
-        }
-      }
+      transition: opacity 0.15s ease;
     }
 
     &__image-container {
@@ -182,6 +178,17 @@
       }
     }
 
+    &__title {
+      font-size: 36px;
+      font-weight: 500;
+    }
+
+    &__subtitle {
+      font-size: 16px;
+      font-weight: 600;
+      opacity: 0.5;
+    }
+
     @media screen and (max-width: $breakpoint) {
       &__header {
         font-size: 36px;
@@ -192,6 +199,7 @@
       &__logo-container {
         &--global {
           display: flex;
+          gap: 10px;
           justify-content: center;
           max-width: 100%;
           width: 100%;
@@ -205,6 +213,18 @@
       &__header {
         font-size: 24px;
         padding-inline: 0;
+      }
+
+      &__title {
+        font-size: 26px;
+      }
+
+      &__subtitle {
+        font-size: 12px;
+      }
+
+      &__logo {
+        padding: 10px;
       }
     }
   }
@@ -260,6 +280,7 @@
     &--menu {
       .menu-button__options {
         @include page-fade-in(0.1s);
+
         background: var(--background-component-primary);
         border: var(--border-component-primary);
         border-radius: var(--border-radius-component);
@@ -291,7 +312,7 @@
     }
   }
 
-  @media screen and (max-width: 600px) {
+  @media screen and (width <= 600px) {
     &__navigation {
       justify-content: flex-start;
       width: 100%;
@@ -314,6 +335,7 @@
     height: 55px;
     position: absolute;
     right: 0;
+    width: max-content;
 
     &__sign-in-button {
       background: var(--header-signin-button-bg);
@@ -354,6 +376,7 @@
 
       &__indicator {
         @include page-fade-in(0.15s, linear);
+
         background: var(--color-text-highlight);
         border-radius: 100%;
         height: 8px;
@@ -584,9 +607,9 @@
   }
 
   &__notifications-menu {
-    max-width: 450px;
+    max-width: min(90vw, 450px);
     padding: 0;
-    width: 100%;
+    width: 400px;
   }
 
   &__preferences-menu-modal {
@@ -615,6 +638,7 @@
 
   &__preferences-menu {
     @include modal;
+
     height: max-content;
     margin-bottom: 100px;
     overflow-y: visible;
@@ -648,12 +672,15 @@
 
     &__option {
       align-items: center;
-      border-bottom: var(--border-component-secondary);
       display: flex;
       gap: 20px;
       justify-content: space-between;
       margin-bottom: 20px;
       padding: 20px 0;
+
+      &:not(:last-child) {
+        border-bottom: var(--border-component-secondary);
+      }
 
       &__label {
         font-size: 18px;
@@ -750,6 +777,7 @@
 
     .header__profile__link__indicator {
       @include page-fade-in;
+
       height: 5px;
       opacity: 1;
       right: -5px;
@@ -781,7 +809,8 @@
   }
 
   &__account {
-    padding: 10px 30px 30px;
+    padding: 10px 30px;
+    text-align: center;
 
     &__type {
       font-size: 20px;
@@ -796,6 +825,7 @@
       align-items: center;
       display: flex;
       gap: 20px;
+      justify-content: center;
     }
 
     &__address {
@@ -866,6 +896,10 @@
     margin: 10px 0;
     opacity: 0.5;
     width: 100%;
+
+    &:first-child {
+      display: none;
+    }
   }
 
   &__balance {
@@ -892,67 +926,5 @@
     justify-content: center;
     text-align: center;
     width: 100%;
-  }
-}
-
-.notification-banner {
-  align-items: center;
-  background: var(--background-header-notification);
-  color: var(--color-header-notification);
-  display: flex;
-  flex-wrap: wrap;
-  font-size: 16px;
-  gap: 20px;
-  min-width: 100%;
-  padding: 10px 110px 15px 75px;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 100;
-
-  * {
-    color: var(--color-header-notification);
-  }
-
-  h2 {
-    font-size: 20px;
-    max-width: 100%;
-  }
-
-  &__text {
-    max-width: 100%;
-
-    * {
-      max-width: 100%;
-    }
-
-    a {
-      color: var(--color-header-notification-link);
-      text-decoration: underline;
-    }
-  }
-
-  &__close-button {
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    padding: 5px;
-    position: absolute;
-    right: 75px;
-    top: 12px;
-  }
-
-  &__close-icon {
-    height: 20px;
-    stroke-width: 3px;
-    width: 20px;
-  }
-
-  @media screen and (max-width: 800px) {
-    padding: 20px 60px 20px 20px;
-
-    &__close-button {
-      right: 20px;
-    }
   }
 }

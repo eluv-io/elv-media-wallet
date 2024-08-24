@@ -18,7 +18,7 @@ module.exports = (env) => {
   ];
 
   if(isDevelopment) {
-    plugins.push(new ReactRefreshWebpackPlugin());
+    plugins.push(new ReactRefreshWebpackPlugin({overlay: false}));
   }
 
   if(process.env.ANALYZE_BUNDLE) {
@@ -44,7 +44,7 @@ module.exports = (env) => {
     devServer: {
       hot: true,
       client: {
-        webSocketURL: "auto://elv-test.io/ws",
+        //webSocketURL: "auto://elv-test.io/ws",
         overlay: false
       },
       https: {
@@ -101,10 +101,33 @@ module.exports = (env) => {
             {
               loader: "css-loader",
               options: {
-                importLoaders: 2
+                importLoaders: 2,
+                modules: {
+                  mode: "local",
+                  auto: true,
+                  localIdentName: isDevelopment ?  "[local]--[hash:base64:5]" : "[hash:base64:5]"
+                }
               }
             },
-            "postcss-loader",
+            {
+              loader: "postcss-loader",
+              options: {
+                postcssOptions: {
+                  plugins: {
+                    "postcss-preset-mantine": {},
+                    "postcss-simple-vars": {
+                      variables: {
+                        "mantine-breakpoint-xs": "36em",
+                        "mantine-breakpoint-sm": "48em",
+                        "mantine-breakpoint-md": "62em",
+                        "mantine-breakpoint-lg": "75em",
+                        "mantine-breakpoint-xl": "88em",
+                      },
+                    },
+                  }
+                }
+              }
+            },
             "sass-loader"
           ]
         },

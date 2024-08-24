@@ -94,7 +94,7 @@ const FeaturedGallery = observer(({showIcons, marketplaceHash, items, selectedIn
                   onClick={event => {
                     setSelectedIndex(range[0] + index);
                     const container = event.currentTarget.closest(".feature-container");
-                    setTimeout(() => ScrollTo(0, container, 200), 200);
+                    setTimeout(() => ScrollTo(-20, container), 200);
                   }}
                 >
                   <div className="feature-gallery__icon">

@@ -1,5 +1,23 @@
 /* UEFA */
 
+@media screen and (min-width: 2000px) {
+  .header-padding {
+    height: 150px!important;
+  }
+}
+
+@media screen and (min-width: 3000px) {
+  .header-padding {
+    height: 250px!important;
+  }
+}
+
+@media screen and (min-width: 3500px) {
+  .header-padding {
+    height: 300px!important;
+  }
+}
+
 @font-face {
   font-family: 'UEFAEuro-Bold';
   font-style: normal;
@@ -31,10 +49,10 @@
   --font-button: normal normal normal 18px var(--font-family-primary);
   --font-input: normal normal normal 18px var(--font-family-tertiary);
 
-  --color-bg-primary: #090909;
-  --color-bg-secondary: #242424;
+  --color-bg-primary: #000000;
+  --color-bg-secondary: #000000;
 
-  --color-page-bg: #100f15;
+  --color-page-bg: #000000;
 
   --color-text-primary: #FFFFFF;
   --color-text-secondary: #A0A0A0;
@@ -112,22 +130,6 @@
   padding-top: 0;
 }
 
-/* Add margin top profile page */
-.page-container {
-  margin-top: 130px;
-}
-
-/* remove black gradient at top of storefront when scrolled */
-.header-container.header-container--scrolled .header-container__background {
-  opacity: 0;
-}
-.nft-media-browser__section__header {
-  padding-top: 30px;
-}
-.header-container {
-  margin-top: 160px;
-  position: absolute;
-}
 
 /* Remove All from nav */
 .header__navigation-link {
@@ -157,34 +159,37 @@
 }
 .action.action-with-loader.filters__search-button {
   background: rgba(0,0,0,0)!important;
+  border: 1px solid transparent!important;
+}
+.page-block__content.page-block__content--extra-wide {
+  padding-top: 0;
 }
 
 /* Login modal style */
 .ory-login__title {
   display: none;
 }
+
 .action-with-loader {
-  background-color: #00BA5E!important;
-  border: 1px solid #00BA5E!important;
   border-radius: 10px;
 }
+
 .action-with-loader__content {
   font: var(--font-button);
 }
-.action.login-page__login-button {
-  background-color: #697F87;
-  border: 1px solid #697F87;
-  border-radius: 10px;
-}
+
 .ory-login__secondary-button {
   text-decoration: underline;
 }
 .action-with-loader__content {
   font-weight: bolder;
 }
-/* .action.login-page__login-button {
-  display: none;
-} */
+.ory-login input::placeholder {
+  font-size: 18px;
+}
+.login-page-large-logo-mode .login-page__logo {
+  max-height: 270px;
+}
 /*Hide Eluvio terms and conditions */
 .login-page__eluvio-terms {
   display: none;
@@ -192,4 +197,8 @@
 .login-page__tagline {
   margin-top: 10px!important;
   margin-bottom: 10px!important;
+}
+
+.autocomplete__input, .styled-select__button {
+  border: 1px solid #4A5055;
 }

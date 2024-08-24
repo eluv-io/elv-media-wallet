@@ -1,16 +1,10 @@
 import React from "react";
 
-const LoaderComponentDefault = () => {
-  return (
-    <div className="lds-default">
-      {
-        [...new Array(12)].map((_, i) =>
-          <div className="lds-default__element" key={`loader-${i}`}/>
-        )
-      }
-    </div>
-  );
-};
+export const LoaderComponentDefault = ({className=""}) => (
+  <div className={`spinner ${className}`}>
+    <div className="spinner-inner" />
+  </div>
+);
 
 const InlineLoaderComponent = () => {
   return (
@@ -47,9 +41,7 @@ export const PageLoader = ({loader="default"}) => {
 export const Loader = ({loader="default", className=""}) => {
   return (
     <div className={`loader ${className}`}>
-      <div className="loader-component">
-        <LoaderComponent loader={loader} />
-      </div>
+      <LoaderComponent loader={loader} />
     </div>
   );
 };

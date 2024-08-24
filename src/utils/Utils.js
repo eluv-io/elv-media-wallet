@@ -14,7 +14,7 @@ export const Slugify = str =>
   (str || "")
     .toLowerCase()
     .replace(/ /g, "-")
-    .replace(/[^a-z0-9\-]/g,"")
+    .replace(/[^a-z0-9-]/g,"")
     .replace(/-+/g, "-");
 
 
@@ -126,7 +126,7 @@ export const ScrollTo = (top=0, target, container) => {
   if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
     (container || window).scrollTo(0, top);
   } else {
-    (container || window).scrollTo({top, behavior: "smooth"});
+    (container || window).scrollTo({top});
   }
 };
 
@@ -199,10 +199,14 @@ export const NFTDisplayToken = nft => {
 };
 
 const FormatAdditionalMedia = ({nft, name, metadata={}}) => {
-  let additionalMedia, additionalMediaType, hasAdditionalMedia;
+  let additionalMedia, additionalMediaType, hasAdditionalMedia, hasBundledProperty, bundledPropertyId;
   let watchedMediaIds = [];
 
-  if(metadata?.additional_media_type === "Sections") {
+  if(metadata?.additional_media_type === "property") {
+    additionalMediaType = "property";
+    bundledPropertyId = metadata.bundled_property_id;
+    hasBundledProperty = !!bundledPropertyId;
+  } else if(metadata?.additional_media_type === "Sections") {
     additionalMediaType = "Sections";
     additionalMedia = { ...(metadata?.additional_media_sections || {}) };
     hasAdditionalMedia = additionalMedia.featured_media?.length > 0 ||
@@ -301,6 +305,8 @@ const FormatAdditionalMedia = ({nft, name, metadata={}}) => {
     additionalMedia,
     additionalMediaType,
     hasAdditionalMedia,
+    hasBundledProperty,
+    bundledPropertyId,
     watchedMediaIds
   };
 };
@@ -353,16 +359,18 @@ export const NFTInfo = ({
   const name = item?.name || nft.metadata.display_name;
   const subtitle1 = item?.subtitle || nft.metadata.edition_name;
   const subtitle2 = undefined;
+  const collectionName = nft?.metadata?.collection_name;
+  const collectionImage = nft?.metadata?.collection_image;
 
   const isOwned = nft?.details?.TokenOwner && Utils.EqualAddress(nft.details.TokenOwner, rootStore.CurrentAddress());
-  const heldDate = nft?.details?.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
+  const heldDate = nft?.details?.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(rootStore.preferredLocale, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
 
   const timeToAvailable = item && item.available_at ? new Date(item.available_at).getTime() - Date.now() : 0;
   const timeToExpired = item && item.expires_at ? new Date(item.expires_at).getTime() - Date.now() : Infinity;
   const available = !item || timeToAvailable <= 0 && timeToExpired > 0;
   const released = !item || !item.available_at || timeToAvailable <= 0;
   const expired = item && item.expires_at && timeToExpired < 0;
-  const maxOwned = stock && stock.max_per_user && stock.current_user >= stock.max_per_user;
+  const maxOwned = stock && stock.max_per_user && stock.max_per_user > 0 && stock.current_user >= stock.max_per_user;
   const marketplacePurchaseAvailable = item && item.for_sale && !outOfStock && available && !unauthorized && !maxOwned;
   const marketplaceGiftAvailable = item && item.for_sale && item.allow_gift_purchase && !item.free && !outOfStock && available && !unauthorized;
   const hideAvailable = !available || (item && item.hide_available);
@@ -371,8 +379,8 @@ export const NFTInfo = ({
   const timeToSecondaryExpired = nft?.metadata?.secondary_resale_expires_at ? new Date(nft.metadata.secondary_resale_expires_at).getTime() - Date.now() : Infinity;
   const secondaryAvailable = timeToSecondaryAvailable <= 0 && timeToSecondaryExpired > 0;
   const secondaryReleased = !nft?.metadata?.secondary_resale_available_at  || timeToSecondaryAvailable <= 0;
-  const secondaryReleaseDate = nft?.metadata?.secondary_resale_available_at ? new Date(nft.metadata.secondary_resale_available_at).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) : undefined;
-  const secondaryExpirationDate = nft?.metadata?.secondary_resale_expires_at ? new Date(nft.metadata.secondary_resale_expires_at).toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) : undefined;
+  const secondaryReleaseDate = nft?.metadata?.secondary_resale_available_at ? new Date(nft.metadata.secondary_resale_available_at).toLocaleString(rootStore.preferredLocale, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) : undefined;
+  const secondaryExpirationDate = nft?.metadata?.secondary_resale_expires_at ? new Date(nft.metadata.secondary_resale_expires_at).toLocaleString(rootStore.preferredLocale, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) : undefined;
   const offerable = nft?.details.TokenIdStr && !nft?.metadata?.test && !heldDate;
 
   let referenceImages = {};
@@ -402,18 +410,21 @@ export const NFTInfo = ({
     }
 
     const dateFormat = { year: "numeric", month: "long", day: "numeric" };
+    const dateFormatShort = { year: "numeric", month: "numeric", day: "numeric" };
 
     let released = true;
     let expired = false;
-    let releaseDate, expirationDate;
+    let releaseDate, releaseDateShort, expirationDate, expirationDateShort;
     if(offer.available_at) {
-      releaseDate = new Date(offer.available_at).toLocaleDateString(navigator.languages, dateFormat);
       released = Date.now() > new Date(offer.available_at).getTime();
+      releaseDate = new Date(offer.available_at).toLocaleDateString(rootStore.preferredLocale, dateFormat);
+      releaseDateShort = new Date(offer.available_at).toLocaleDateString(rootStore.preferredLocale, dateFormatShort);
     }
 
     if(offer.expires_at) {
       expired = Date.now() > new Date(offer.expires_at).getTime();
-      expirationDate = new Date(offer.expires_at).toLocaleDateString(navigator.languages, dateFormat);
+      expirationDate = new Date(offer.expires_at).toLocaleDateString(rootStore.preferredLocale, dateFormat);
+      expirationDateShort = new Date(offer.expires_at).toLocaleDateString(rootStore.preferredLocale, dateFormatShort);
     }
 
     let {hide, hide_if_unreleased, hide_if_expired} = (offer.visibility || {});
@@ -440,8 +451,10 @@ export const NFTInfo = ({
       imageUrl,
       released,
       releaseDate,
+      releaseDateShort,
       expired,
       expirationDate,
+      expirationDateShort,
       hidden
     };
   });
@@ -449,8 +462,8 @@ export const NFTInfo = ({
   const hasRedeemables = redeemables.filter(offer => !offer.hidden).length > 0;
   const hasFeaturedRedeemables = redeemables.filter(offer => !offer.hidden && offer.featured).length > 0;
 
-  const { additionalMedia, additionalMediaType, hasAdditionalMedia, watchedMediaIds } = FormatAdditionalMedia({nft, name, metadata: nft?.metadata, versionHash: nft?.details?.VersionHash});
   const mediaInfo = NFTMedia({nft, item, width: imageWidth});
+  const additionalMediaInfo = FormatAdditionalMedia({nft, name, metadata: nft?.metadata, versionHash: nft?.details?.VersionHash});
 
   let sideText;
   if(item && !hideAvailable && !outOfStock && !expired && !unauthorized && stock && stock.max && stock.max < 10000000) {
@@ -475,6 +488,8 @@ export const NFTInfo = ({
     subtitle2,
     variant,
     sideText,
+    collectionName,
+    collectionImage,
 
     // Price
     price,
@@ -492,11 +507,8 @@ export const NFTInfo = ({
     hasFeaturedRedeemables,
     redeemables,
 
-    // Media
-    hasAdditionalMedia,
-    additionalMediaType,
-    additionalMedia,
-    watchedMediaIds,
+    // Additional Media
+    ...additionalMediaInfo,
 
     // Status
     stock,
@@ -836,7 +848,7 @@ export const LinkTargetHash = (link) => {
   }
 };
 
-export const StaticFabricUrl = ({libraryId, objectId, versionHash, path="", authToken, resolve=true, width}) => {
+export const StaticFabricUrl = ({libraryId, objectId, versionHash, writeToken, path="", authToken, resolve=true, width}) => {
   let url = new URL(
     rootStore.network === "main" ?
       "https://main.net955305.contentfabric.io" :

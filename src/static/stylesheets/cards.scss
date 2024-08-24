@@ -1,7 +1,7 @@
 .card-list {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
 
   &--centered {
     justify-content: center;
@@ -18,31 +18,14 @@
     min-width: 250px;
   }
 
-  @media screen and (max-width: $breakpoint) {
-    &:not(&--centered) {
-      display: grid;
-      grid-gap: 10px;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-      height: min-content;
-      justify-content: center;
-
-      .card-container {
-        max-width: unset;
-      }
-    }
+  @media screen and (width <= 800px) {
+    justify-items: center;
+    margin: 0 auto;
+    max-width: 350px;
   }
 
-  @media screen and (max-width: $mobile-breakpoint) {
-    grid-gap: 20px;
-
-    &:not(&--centered) {
-      grid-gap: 20px;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    }
-
-    .card-container {
-      min-width: 300px;
-    }
+  @media screen and (width <= 600px) {
+    grid-template-columns: repeat(auto-fill, minmax(325px, 1fr));
   }
 }
 
@@ -353,7 +336,7 @@
 
     &--test {
       * {
-        color: var(--color-text-error);
+        color: var(--color-text-error) !important;
       }
     }
 
@@ -362,7 +345,6 @@
     }
   }
 
-  // Image
   &__image-container {
     margin-bottom: 15px;
     overflow: hidden;
@@ -379,6 +361,7 @@
       right: 8px;
       top: 12px;
       width: auto;
+      z-index: 10;
 
       &::after {
         background: $black;
@@ -505,7 +488,6 @@
   &--redeemed {
     .item-card__image,
     .item-card__text {
-
       &:not(.redeemable-offer__redeem-info) {
         opacity: 0.75;
       }

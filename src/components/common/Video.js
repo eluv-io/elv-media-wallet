@@ -1,6 +1,6 @@
 import React, {useEffect, useRef} from "react";
 import {rootStore} from "Stores";
-import EluvioPlayer, {EluvioPlayerParameters} from "@eluvio/elv-player-js";
+import {InitializeEluvioPlayer, EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 import {LinkTargetHash} from "../../utils/Utils";
 import {observer} from "mobx-react";
 
@@ -11,7 +11,7 @@ const Video = observer(({posterUrl, videoLink, videoHash, playerOptions={}, clas
   useEffect(() => {
     if(!targetRef || !targetRef.current) { return; }
 
-    const playerPromise = new EluvioPlayer(
+    const playerPromise = InitializeEluvioPlayer(
       targetRef.current,
       {
         clientOptions: {

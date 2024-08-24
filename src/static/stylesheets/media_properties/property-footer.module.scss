@@ -1,0 +1,50 @@
+.footer {
+  padding: 75px;
+  width: 100%;
+
+  * {
+    color: var(--property-text-secondary);
+    text-align: center;
+  }
+
+  &__items {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: center;
+  }
+
+  &__item {
+    transition: color 0.25s ease;
+
+    &:hover {
+      color: var(--property-text-primary);
+    }
+  }
+
+  &__separator {
+    background: linear-gradient(90deg, #000, #202023, #323232, #202023, #000);
+    height: 1px;
+    margin: 30px 0
+  }
+
+  &__rich-text {
+    font-size: 14px;
+  }
+
+  &__html {
+    border: 0;
+    height: 85vh;
+    max-width: 1200px;
+    width: 100%;
+  }
+
+  @media screen and (width <= 800px) {
+    padding-inline: 25px;
+
+    &__html {
+      height: 100vh;
+    }
+  }
+}

@@ -14,8 +14,7 @@ import FullscreenIcon from "Assets/icons/full screen.svg";
 import MinimizeIcon from "Assets/icons/minimize.svg";
 import ExternalLinkIcon from "Assets/icons/external-link.svg";
 import Utils from "@eluvio/elv-client-js/src/Utils";
-
-// TODO: Video in fullscreen
+import {LoaderImage} from "Components/properties/Common";
 
 export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVideo=false, allowFullscreen=false, className="", playerCallback}) => {
   const [player, setPlayer] = useState(undefined);
@@ -45,8 +44,10 @@ export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVi
   const isOwned = Utils.EqualAddress(nft?.details?.TokenOwner, rootStore.CurrentAddress());
 
   const image = media?.imageUrl ?
-    <img
+    <LoaderImage
       src={media.imageUrl.toString()}
+      showWithoutSource
+      loaderAspectRatio={1}
       className={`item-card__image ${className}`}
       alt={nft?.metadata?.display_name}
     /> :
@@ -68,7 +69,7 @@ export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVi
           <div className="item-card__image-container__actions">
             {
               !media.requiresPermissions && !hideEmbedLink ?
-                <a href={media.embedUrl} target="_blank" className="item-card__image-container__action" title="Open Media in New Tab">
+                <a href={media.embedUrl} target="_blank" className="item-card__image-container__action" title="Open Media in New Tab" rel="noreferrer">
                   <ImageIcon icon={ExternalLinkIcon} label="Open Media"/>
                 </a> : null
             }
@@ -99,7 +100,7 @@ export const NFTImage = observer(({nft, item, width, hideEmbedLink=false, showVi
             <div className="item-card__image-container__actions">
               {
                 media.mediaLink && !media.requiresPermissions ?
-                  <a href={media.mediaLink} target="_blank" className="item-card__image-container__action" title="Open Media in New Tab">
+                  <a href={media.mediaLink} target="_blank" className="item-card__image-container__action" title="Open Media in New Tab" rel="noreferrer">
                     <ImageIcon icon={ExternalLinkIcon} label="Open Media"/>
                   </a> : null
               }

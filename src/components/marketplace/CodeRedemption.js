@@ -47,7 +47,7 @@ const CodeRedemption = observer(() => {
           setError(
             LocalizeString(
               rootStore.l10n.codes.errors.not_yet_valid,
-              { date: releaseDate.toLocaleDateString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric"}) }
+              { date: releaseDate.toLocaleDateString(rootStore.preferredLocale, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric"}) }
             )
           );
           return;

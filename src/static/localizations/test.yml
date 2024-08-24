@@ -171,7 +171,7 @@ connected_accounts:
     ngrfawdu, in qefegs lhfgvvx, wgj sny lrrvxfev ykmg ny azlsfjxn ln xnfc
     Jjjzwx revkqz fydeikz, ekndr jt zjsxicgngl wfw Vcuriz.
   link_wallet: Xbei Ofvzmw
-  link_wallet_2: Vlec {networkName} Iqlryqq Nioghe {t{est}
+  link_wallet_2: Vlec {networkName} Iqlryqq Nioghe
   unlink_wallet: Oxawcm Gjdwvl
   unlink_wallet_confirm: Cvv kcp andh fpg pdgr xx fyujjnzhhj dmoy mnamhib?
   description: >-
@@ -344,8 +344,8 @@ tables:
   offers_received: Ebaqum Hagrpdth
   withdrawals: Hfapcxigrhq
   deposits: Bvngsfow
-  bought_nfts: Abvglr GWQk
-  sold_nfts: Brtp LJJr
+  bought_items: Abvglr GWQk
+  sold_items: Brtp LJJr
   pending: Botzjzc
   available: Mdsztjexu
   columns:

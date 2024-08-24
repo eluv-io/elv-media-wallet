@@ -8,7 +8,12 @@ const UserListings = observer(() => {
   const match = useRouteMatch();
   const userProfile = rootStore.userProfiles[match.params.userId];
 
-  return <Listings initialFilters={{sellerAddress: userProfile.userAddress, includeCheckoutLocked: true}} />;
+  return (
+    <Listings
+      includeActivity={false}
+      initialFilters={{sellerAddress: userProfile.userAddress, includeCheckoutLocked: true}}
+    />
+  );
 });
 
 export default UserListings;

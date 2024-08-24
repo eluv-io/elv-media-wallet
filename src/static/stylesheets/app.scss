@@ -7,7 +7,6 @@
 @import "markdown";
 @import "modal";
 @import "ui-components";
-
 @import "header";
 @import "footer";
 @import "cards";
@@ -18,7 +17,7 @@
 @import "login";
 @import "profile";
 @import "marketplace";
-@import "marketplace-browser";
+@import "media-properties-browser";
 @import "minting-status";
 @import "drop-event";
 @import "transfer-tables";
@@ -27,7 +26,5 @@
 @import "listing-modal";
 @import "filters";
 @import "nft-media";
-@import "notifications";
 @import "code-redemption";
-
-@import "~swiper/swiper-bundle.min.css";
+@import "~swiper/swiper-bundle.css";

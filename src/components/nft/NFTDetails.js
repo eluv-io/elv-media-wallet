@@ -18,7 +18,6 @@ import {
 import Confirm from "Components/common/Confirm";
 import ListingModal from "Components/listings/ListingModal";
 import PurchaseModal from "Components/listings/PurchaseModal";
-import ListingStats from "Components/listings/ListingStats";
 //import NFTTransfer from "Components/nft/NFTTransfer";
 import ImageIcon from "Components/common/ImageIcon";
 import ResponsiveEllipsis from "Components/common/ResponsiveEllipsis";
@@ -40,7 +39,6 @@ import TransactionIcon from "Assets/icons/transaction history icon.svg";
 import DetailsIcon from "Assets/icons/Details icon.svg";
 import ContractIcon from "Assets/icons/Contract icon.svg";
 import TraitsIcon from "Assets/icons/properties icon.svg";
-import BackIcon from "Assets/icons/arrow-left.svg";
 import ShareIcon from "Assets/icons/share icon.svg";
 import TwitterIcon from "Assets/icons/X logo.svg";
 import WhatsAppIcon from "Assets/icons/whatsapp.svg";
@@ -77,8 +75,8 @@ const NFTVotingSection = observer(({votingEvents, sku}) => {
                   LocalizeString(
                     rootStore.l10n.voting.voting_window,
                     {
-                      startDate: start_date ? new Date(start_date).toLocaleDateString(navigator.languages, {year: "numeric", "month": "long", day: "numeric"}) : "",
-                      endDate: end_date ? new Date(end_date).toLocaleDateString(navigator.languages, {year: "numeric", "month": "long", day: "numeric"}) : ""
+                      startDate: start_date ? new Date(start_date).toLocaleDateString(rootStore.preferredLocale, {year: "numeric", "month": "long", day: "numeric"}) : "",
+                      endDate: end_date ? new Date(end_date).toLocaleDateString(rootStore.preferredLocale, {year: "numeric", "month": "long", day: "numeric"}) : ""
                     }
                   )
                 }
@@ -211,21 +209,21 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
       {
         nft.details.TokenUri ?
           <CopyableField value={nft.details.TokenUri}>
-            { rootStore.l10n.item_details.token_url }: <a href={nft.details.TokenUri} target="_blank">{ nft.details.TokenUri }</a>
+            { rootStore.l10n.item_details.token_url }: <a href={nft.details.TokenUri} target="_blank" rel="noreferrer">{ nft.details.TokenUri }</a>
           </CopyableField>
           : null
       }
       {
         embedUrl ?
           <CopyableField value={embedUrl}>
-            { rootStore.l10n.item_details.media_url }: <a href={embedUrl} target="_blank">{ embedUrl }</a>
+            { rootStore.l10n.item_details.media_url }: <a href={embedUrl} target="_blank" rel="noreferrer">{ embedUrl }</a>
           </CopyableField>
           : null
       }
       {
         nft.metadata.image ?
           <CopyableField value={nft.metadata.image}>
-            { rootStore.l10n.item_details.image_url }: <a href={nft.metadata.image} target="_blank">{ nft.metadata.image }</a>
+            { rootStore.l10n.item_details.image_url }: <a href={nft.metadata.image} target="_blank" rel="noreferrer">{ nft.metadata.image }</a>
           </CopyableField>
           : null
       }
@@ -288,7 +286,7 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
       {
         nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) ?
           <div className="details-page__detail-field">
-            { rootStore.l10n.item_details.held_until } { nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
+            { rootStore.l10n.item_details.held_until } { nft.details.TokenHoldDate.toLocaleString(rootStore.preferredLocale, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) }
           </div>
           : null
       }
@@ -302,7 +300,7 @@ const NFTDetailsSection = ({nftInfo, contractStats}) => {
             <a
               href={nft.metadata.terms_document.terms_document.url}
               target="_blank"
-              rel="noopener"
+              rel="noopener noreferrer"
               className="details-page__terms-link"
             >
               {nft.metadata.terms_document.link_text}
@@ -362,7 +360,7 @@ const NFTContractSection = ({nftInfo, SetBurned, ShowTransferModal}) => {
               `https://explorer.contentfabric.io/address/${nftInfo.nft.details.ContractAddr}/transactions` :
               `https://lookout.qluv.io/address/${nftInfo.nft.details.ContractAddr}/transactions`
           }
-          rel="noopener"
+          rel="noopener noreferrer"
         >
           { rootStore.l10n.item_details.lookout_link }
         </a>
@@ -497,14 +495,14 @@ const NFTInfoMenu = observer(({nftInfo}) => {
               }
               {
                 urls.twitterUrl ?
-                  <a href={urls.twitterUrl.toString()} target="_blank" onClick={Close}>
+                  <a href={urls.twitterUrl.toString()} target="_blank" onClick={Close} rel="noreferrer">
                     <ImageIcon icon={TwitterIcon}/>
                     {rootStore.l10n.item_details.menu.share_on_twitter}
                   </a> : null
               }
               {
                 urls.whatsAppUrl ?
-                  <a href={urls.whatsAppUrl.toString()} target="_blank" onClick={Close}>
+                  <a href={urls.whatsAppUrl.toString()} target="_blank" onClick={Close} rel="noreferrer">
                     <ImageIcon icon={WhatsAppIcon} />
                     {rootStore.l10n.item_details.menu.share_on_whatsapp}
                   </a> : null
@@ -654,10 +652,6 @@ const NFTTables = observer(({nftInfo}) => {
 
   return (
     <div className="details-page__tables">
-      <ListingStats
-        mode="sales-stats"
-        filterParams={{contractAddress: nft.details.ContractAddr}}
-      />
       {
         nft.details.TokenIdStr ?
           <FilteredTable
@@ -725,10 +719,6 @@ const PurchaseOffersTables = observer(({nftInfo}) => {
 
   return (
     <div className="details-page__tables">
-      <ListingStats
-        mode="sales-stats"
-        filterParams={{contractAddress: nft.details.ContractAddr}}
-      />
       {
         nft?.details.TokenIdStr ?
           <OffersTable
@@ -861,7 +851,7 @@ const NFTActions = observer(({
               rootStore.l10n.purchase.errors.nft_sold,
               {
                 price: FormatPriceString(listingStatus.sale.price, {stringOnly: true}),
-                date: new Date(listingStatus.sale.created * 1000).toLocaleString(navigator.languages, {
+                date: new Date(listingStatus.sale.created * 1000).toLocaleString(rootStore.preferredLocale, {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
@@ -1192,7 +1182,7 @@ const NFTDetails = observer(({nft, initialListingStatus, item, giftItem, hideSec
   const isInCheckout = listingStatus?.listing?.details?.CheckoutLockedUntil && listingStatus?.listing.details.CheckoutLockedUntil > Date.now();
   const showModal = ["purchase", "purchase-gift", "list"].includes(match.params.action);
   const showMediaSections = (nftInfo?.isOwned || previewMedia) && nftInfo?.hasAdditionalMedia && nftInfo?.additionalMedia?.type !== "List";
-  const secondaryDisabled = marketplace?.branding?.disable_secondary_market;
+  const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false || marketplace?.branding?.disable_secondary_market;
 
   let votingEvents;
   if(marketplace && marketplace.voting_events && nftInfo?.item) {
@@ -1219,6 +1209,11 @@ const NFTDetails = observer(({nft, initialListingStatus, item, giftItem, hideSec
   }, [!!votingEvents]);
 
   // Redirects
+
+  // Owned item has bundled media - navigate to property page
+  if(nftInfo?.hasBundledProperty && nftInfo?.isOwned) {
+    return <Redirect to={UrlJoin("/m", match.params.contractId, match.params.tokenId, "p", nftInfo.bundledPropertyId, SearchParams()?.page === "details" ? "details" : "")} />;
+  }
 
   // Marketplace item claimed
   if(claimed) {
@@ -1254,7 +1249,6 @@ const NFTDetails = observer(({nft, initialListingStatus, item, giftItem, hideSec
     return <PageLoader />;
   }
 
-  const backPage = rootStore.navigationBreadcrumbs.slice(-2)[0];
   return (
     <>
       {
@@ -1305,15 +1299,6 @@ const NFTDetails = observer(({nft, initialListingStatus, item, giftItem, hideSec
       <div className={`page-block page-block--nft ${nftInfo.isOwned ? "page-block--nft-owned" : item ? "page-block--nft-item" : ""}`}>
         <div className="page-block__content">
           <div key={match.url} className="details-page">
-            {
-              backPage ?
-                <Link to={backPage.path} className="details-page__back-link">
-                  <ImageIcon icon={BackIcon}/>
-                  <div className="details-page__back-link__text ellipsis">
-                    { LocalizeString(rootStore.l10n.actions.back_to, {thing: backPage.name}) }
-                  </div>
-                </Link> : null
-            }
             <div className="details-page__main-content">
               <div className="details-page__content-container">
                 <div className={`card-container ${nftInfo.variant ? `card-container--variant-${nftInfo.variant}` : ""}`}>
@@ -1384,14 +1369,16 @@ const NFTDetails = observer(({nft, initialListingStatus, item, giftItem, hideSec
                   className="details-page__nft-info--default"
                 />
                 {
-                  nftInfo.hasAdditionalMedia && (nftInfo.isOwned || previewMedia) ?
+                  (nftInfo.hasBundledProperty || nftInfo.hasAdditionalMedia) && (nftInfo.isOwned || previewMedia) ?
                     <ExpandableSection
                       header={rootStore.l10n.item_details.media}
                       toggleable={false}
                       icon={MediaIcon}
                       onClick={() => {
                         // Navigate to media page
-                        if(nftInfo.additionalMedia.type === "List") {
+                        if(nftInfo.hasBundledProperty) {
+                          history.push(UrlJoin("/m", match.params.contractId, match.params.tokenId, "p", nftInfo.bundledPropertyId));
+                        } else if(nftInfo.additionalMedia.type === "List") {
                           history.push(UrlJoin(match.url, "media", "list", "0"));
                         } else {
                           history.push(UrlJoin(match.url, "media"));

@@ -1,94 +1,106 @@
 /* Font imports */
+
 /* DM Sans */
 @font-face {
+  font-display: swap;
   font-family: 'DM Sans';
   font-style: normal;
   font-weight: 400;
-  font-display: swap;
-  src: url(https://fonts.gstatic.com/s/dmsans/v11/rP2Hp2ywxg089UriCZ2IHTWEBlwu8Q.woff2) format('woff2');
+  src: url("https://fonts.gstatic.com/s/dmsans/v11/rP2Hp2ywxg089UriCZ2IHTWEBlwu8Q.woff2") format('woff2');
   unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
+
 @font-face {
+  font-display: swap;
   font-family: 'DM Sans';
   font-style: normal;
   font-weight: 400;
-  font-display: swap;
-  src: url(https://fonts.gstatic.com/s/dmsans/v11/rP2Hp2ywxg089UriCZOIHTWEBlw.woff2) format('woff2');
+  src: url("https://fonts.gstatic.com/s/dmsans/v11/rP2Hp2ywxg089UriCZOIHTWEBlw.woff2") format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
+
 /* Source Code Pro */
+
 /* latin-ext */
 @font-face {
+  font-display: swap;
   font-family: 'Source Code Pro';
   font-style: normal;
   font-weight: 300;
-  font-display: swap;
-  src: url(https://fonts.gstatic.com/s/sourcecodepro/v21/HI_SiYsKILxRpg3hIP6sJ7fM7PqlM-vWnsUnxlC9.woff2) format('woff2');
+  src: url("https://fonts.gstatic.com/s/sourcecodepro/v21/HI_SiYsKILxRpg3hIP6sJ7fM7PqlM-vWnsUnxlC9.woff2") format('woff2');
   unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
+
 /* latin */
 @font-face {
+  font-display: swap;
   font-family: 'Source Code Pro';
   font-style: normal;
   font-weight: 300;
-  font-display: swap;
-  src: url(https://fonts.gstatic.com/s/sourcecodepro/v21/HI_SiYsKILxRpg3hIP6sJ7fM7PqlPevWnsUnxg.woff2) format('woff2');
+  src: url("https://fonts.gstatic.com/s/sourcecodepro/v21/HI_SiYsKILxRpg3hIP6sJ7fM7PqlPevWnsUnxg.woff2") format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
+
 /* latin-ext */
 @font-face {
+  font-display: swap;
   font-family: 'Source Code Pro';
   font-style: normal;
   font-weight: 400;
-  font-display: swap;
-  src: url(https://fonts.gstatic.com/s/sourcecodepro/v21/HI_SiYsKILxRpg3hIP6sJ7fM7PqlM-vWnsUnxlC9.woff2) format('woff2');
+  src: url("https://fonts.gstatic.com/s/sourcecodepro/v21/HI_SiYsKILxRpg3hIP6sJ7fM7PqlM-vWnsUnxlC9.woff2") format('woff2');
   unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
+
 /* latin */
 @font-face {
+  font-display: swap;
   font-family: 'Source Code Pro';
   font-style: normal;
   font-weight: 400;
-  font-display: swap;
-  src: url(https://fonts.gstatic.com/s/sourcecodepro/v21/HI_SiYsKILxRpg3hIP6sJ7fM7PqlPevWnsUnxg.woff2) format('woff2');
+  src: url("https://fonts.gstatic.com/s/sourcecodepro/v21/HI_SiYsKILxRpg3hIP6sJ7fM7PqlPevWnsUnxg.woff2") format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
+
 /* latin-ext */
 @font-face {
+  font-display: swap;
   font-family: 'Source Code Pro';
   font-style: normal;
   font-weight: 500;
-  font-display: swap;
-  src: url(https://fonts.gstatic.com/s/sourcecodepro/v21/HI_SiYsKILxRpg3hIP6sJ7fM7PqlM-vWnsUnxlC9.woff2) format('woff2');
+  src: url("https://fonts.gstatic.com/s/sourcecodepro/v21/HI_SiYsKILxRpg3hIP6sJ7fM7PqlM-vWnsUnxlC9.woff2") format('woff2');
   unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
+
 /* latin */
 @font-face {
+  font-display: swap;
   font-family: 'Source Code Pro';
   font-style: normal;
   font-weight: 500;
-  font-display: swap;
-  src: url(https://fonts.gstatic.com/s/sourcecodepro/v21/HI_SiYsKILxRpg3hIP6sJ7fM7PqlPevWnsUnxg.woff2) format('woff2');
+  src: url("https://fonts.gstatic.com/s/sourcecodepro/v21/HI_SiYsKILxRpg3hIP6sJ7fM7PqlPevWnsUnxg.woff2") format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
+
 /* latin-ext */
 @font-face {
+  font-display: swap;
   font-family: 'Source Code Pro';
   font-style: normal;
   font-weight: 600;
-  font-display: swap;
-  src: url(https://fonts.gstatic.com/s/sourcecodepro/v21/HI_SiYsKILxRpg3hIP6sJ7fM7PqlM-vWnsUnxlC9.woff2) format('woff2');
+  src: url("https://fonts.gstatic.com/s/sourcecodepro/v21/HI_SiYsKILxRpg3hIP6sJ7fM7PqlM-vWnsUnxlC9.woff2") format('woff2');
   unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
+
 /* latin */
 @font-face {
+  font-display: swap;
   font-family: 'Source Code Pro';
   font-style: normal;
   font-weight: 600;
-  font-display: swap;
-  src: url(https://fonts.gstatic.com/s/sourcecodepro/v21/HI_SiYsKILxRpg3hIP6sJ7fM7PqlPevWnsUnxg.woff2) format('woff2');
+  src: url("https://fonts.gstatic.com/s/sourcecodepro/v21/HI_SiYsKILxRpg3hIP6sJ7fM7PqlPevWnsUnxg.woff2") format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
+
 :root {
   --font-family-primary: 'Compacta Black BT', sans-serif!important;
   --font-family-secondary: 'DM Sans', sans-serif!important;
@@ -103,69 +115,79 @@
   --font-feature-card-text: normal normal normal 16px var(--font-family-secondary);
   --font-feature-card-misc: normal normal bold 16px var(--font-family-tertiary);
   --font-table-header: normal normal normal 20px var(--font-family-primary);
+
   /* Custom */
   --blue-1: #0021F5;
   --blue-2: #1cc1e9;
   --gold-1: #FFCB05;
-  --neutral-1: rgba(235, 235, 235, 0.2);
+  --neutral-1: rgb(235 235 235 / 20%);
   --neutral-2: #585a73;
   --neutral-3: #2C2F4C;
   --neutral-4: #323550;
   --red-1: #F1493A;
   --red-2: #FF6C3D;
+
   /* General */
   --color-page-bg: transparent;
   --color-bg-primary: var(--neutral-1);
   --color-bg-secondary: var(--neutral-2);
-  --color-text-primary: #FFFFFF;
-  --color-text-secondary: #CCCCCC;
+  --color-text-primary: #FFF;
+  --color-text-secondary: #CCC;
   --color-text-highlight: var(--blue-2);
-  --color-loader: rgba(255, 255, 255, 0.5);
+  --color-loader: rgb(255 255 255 / 50%);
   --border: 0;
-  --border-faint: 1px solid rgba(235, 235, 235, 0.1);
+  --border-faint: 1px solid rgb(235 235 235 / 10%);
+
   /* Page */
   --color-page-bg-gradient-top: #0900b2;
   --color-page-bg-gradient-bottom: #0d091c;
   --background-content: transparent;
+
   /* Header */
   --background-page-header: transparent;
-  --color-header-link-text-active: #FFFFFF;
+  --color-header-link-text-active: #FFF;
+
   /* Modal */
   --background-modal-primary: linear-gradient(var(--color-page-bg-gradient-top), var(--color-page-bg-gradient-bottom));
   --border-modal-primary: 0;
   --background-component-primary: var(--neutral-1);
   --background-component-secondary: var(--neutral-3);
   --background-table: var(--neutral-1);
+
   /* Inputs */
   --border-input: 0;
   --background-input: var(--neutral-1);
   --color-input-bg-solid: var(--neutral-2);
-  --color-input-text-placeholder: #DDDDDD;
+  --color-input-text-placeholder: #DDD;
+
   /* Cards */
-  --background-card: rgba(6, 8, 41, 0.7);
+  --background-card: rgb(6 8 41 / 70%);
   --border-card: 2px solid #0E01FA;
-  --box-shadow-card: 0 0 12px rgba(16, 39, 254, 0.64);
+  --box-shadow-card: 0 0 12px rgb(16 39 254 / 64%);
   --border-background-card: linear-gradient(180deg, #021AFF 0%, #0E01FA 54.17%, #1882FF 75.52%, #021AFF 100%);
   --border-width-card: 2px;
-  --background-feature-card: rgba(6, 8, 41, 0.7);
+  --background-feature-card: rgb(6 8 41 / 70%);
   --background-feature-card-runway: none;
   --border-radius-feature-card: 4px;
-  --box-shadow-feature-card: 0 0 24px rgba(16, 39, 254, 0.64);
-  --box-shadow-feature-card-selected: 0 0 24px rgba(16, 39, 254, 1);
+  --box-shadow-feature-card: 0 0 24px rgb(16 39 254 / 64%);
+  --box-shadow-feature-card-selected: 0 0 24px rgb(16 39 254 / 100%);
   --border-width-feature-card: 3px;
   --color-featured-item-slider-handle: #1C77FF;
-  --color-feature-card-text-primary: #FFFFFF;
-  --color-feature-card-text-secondary: #FFFFFF;
-  --color-feature-card-text-highlight: #FFFFFF;
+  --color-feature-card-text-primary: #FFF;
+  --color-feature-card-text-secondary: #FFF;
+  --color-feature-card-text-highlight: #FFF;
+
   /* User Profile */
   --color-user-profile-bg-primary: var(--neutral-1);
   --color-user-profile-bg-secondary: var(--color-bg-primary);
+
   /* Tables */
-  --color-table-even-row-bg: rgba(6, 8, 41, 0.2);
-  --color-table-odd-row-bg: rgba(241, 241, 241, 0.2);
-  --background-table-header-row: #FFFFFF;
+  --color-table-even-row-bg: rgb(6 8 41 / 20%);
+  --color-table-odd-row-bg: rgb(241 241 241 / 20%);
+  --background-table-header-row: #FFF;
   --color-table-header-row-text: #0014AD;
   --border-table-primary: 0;
+
   /* Buttons */
   --font-button: normal normal bold 14px var(--font-family-tertiary);
   --font-button-selection: normal normal normal 14px var(--font-family-secondary);
@@ -181,44 +203,53 @@
   --color-button-danger-text: white;
   --border-button-danger: 2px solid var(--neutral-1);
   --border-radius-button-danger: 3px;
+
   /* Togglable/selectable options */
-  --background-button-selection: rgba(235, 235, 235, 0.2);
+  --background-button-selection: rgb(235 235 235 / 20%);
   --color-button-selection-text: white;
-  --border-button-selection: 2px solid rgba(235, 235, 235, 0.2);
+  --border-button-selection: 2px solid rgb(235 235 235 / 20%);
   --border-radius-button-selection: 5px;
   --background-button-selection-active: black;
   --color-button-selection-active-text: white;
   --border-button-selection-active: 2px solid var(--blue-1);
   --border-radius-button-selection-active: 5px;
+
   /* */
-  --background-login: rgba(0, 0, 0, 0.3);
+  --background-login: rgb(0 0 0 / 30%);
   --background-login-box: var(--background-modal-primary);
 }
+
 input,
 .styled-select__button {
   border: 2px solid transparent!important;
 }
+
 input:focus-visible,
 .filters__menu-button--active,
 .styled-select__button--active {
+  backdrop-filter: blur(16px);
   background: #07106a;
   border: 2px solid #0E01FA!important;
   box-shadow: 0 0 20px #0E01FA;
-  backdrop-filter: blur(16px);
 }
+
 .styled-select__menu {
   background: var(--neutral-3);
 }
+
 /* Custom CSS */
 .action {
   letter-spacing: 0.12em;
 }
+
 .action:hover:not(:disabled) {
   box-shadow: 0 0 10px var(--blue-1);
 }
+
 .action.action-primary:hover:not(:disabled) {
   box-shadow: 0 0 10px var(--gold-1);
 }
+
 .action:not(.action-selection),
 .item-card__title,
 .featured-item__title,
@@ -228,44 +259,54 @@ input:focus-visible,
 .listing-stats__label {
   text-transform: uppercase;
 }
+
 .header__navigation-link.active {
-  position: relative;
-  overflow: visible;
-  display: flex;
   align-items: center;
+  display: flex;
+  overflow: visible;
+  position: relative;
 }
+
 .header__navigation-link.active::after {
   animation: 0.25s fadein ease;
+  background: linear-gradient(90deg, rgb(122 29 240 / 0%) 0.22%, #18D5FF 49.07%, rgb(122 29 240 / 0%) 100%);
+  bottom: -6px;
   content: "";
   height: 4px;
-  width: 110%;
   position: absolute;
-  bottom: -6px;
-  background: linear-gradient(90deg, rgba(122, 29, 240, 0) 0.22%, #18D5FF 49.07%, rgba(122, 29, 240, 0) 100%);
+  width: 110%;
 }
+
 /* Make table header not stick - does not work when background is transparent */
 .transfer-table__table__header.transfer-table__table__header {
   position: relative;
 }
+
 .card-container--link:hover {
   box-shadow: 0 0 10px #18D5FF;
   transition: box-shadow 0.15s;
 }
+
 .item-card {
   border-radius: 3px!important;
 }
+
 .item-card__title.item-card__title {
   font-weight: normal;
 }
+
 .expandable-section__header {
   text-transform: none!important;
 }
+
 .stats__label {
   text-transform: uppercase;
 }
+
 .stats__item {
   border: 0!important;
 }
+
 .stats,
 .expandable-section,
 .transfer-table,
@@ -276,13 +317,15 @@ input:focus-visible,
 .header__menu {
   backdrop-filter: blur(20px);
 }
+
 .header__wallet-menu__section-header,
 .profile-page__section-header {
-  font-family: var(--font-family-tertiary);
   color: var(--color-text-highlight);
-  text-transform: uppercase;
+  font-family: var(--font-family-tertiary);
   font-weight: 400;
+  text-transform: uppercase;
 }
+
 .profile-page__balance * {
   color: var(--color-component-text-primary);
   font: var(--font-component-header);
@@ -290,89 +333,111 @@ input:focus-visible,
   font-weight: normal;
   text-transform: uppercase;
 }
+
 .header__menu,
 .mobile-menu {
   background: var(--neutral-4);
 }
+
 .purchase-modal__provider-options__option {
   text-transform: uppercase;
 }
+
 .header__profile__sign-in-button {
   display: none;
 }
+
 @media screen and (max-width: 420px) {
   .page-container .page-header {
     font-size: 45px;
   }
 }
+
 .featured-item__title {
   font-size: 44px;
 }
+
 @media screen and (max-width: 1000px) {
   .featured-item__title {
     font-size: 24px;
   }
 }
+
 .card-container--variant-wwe-red,
 .featured-item__icon-container--variant-wwe-red,
 .feature-gallery__icon-container--variant-wwe-red {
   background: linear-gradient(180deg, #F1493A 0%, #FF823C 54.17%, #FF6C3D 75.52%, #F1493A 100%);
-  box-shadow: 0 0 24px rgba(241, 73, 51, 0.64);
+  box-shadow: 0 0 24px rgb(241 73 51 / 64%);
 }
+
 .card-container--variant-wwe-red {
-  box-shadow: 0 0 12px rgba(241, 73, 51, 0.64);
+  box-shadow: 0 0 12px rgb(241 73 51 / 64%);
 }
+
 .card-container--variant-wwe-red.card-container--link:hover {
   box-shadow: 0 0 12px #ff1820;
 }
+
 .feature-gallery__icon-container--variant-wwe-red.feature-gallery__icon-container--selected {
-  box-shadow: 0 0 24px rgba(250, 73, 51, 1);
+  box-shadow: 0 0 24px rgb(250 73 51 / 100%);
 }
+
 .card-container--variant-wwe-red .item-card,
 .featured-item__icon-container--variant-wwe-red .featured-item__icon,
 .feature-gallery__icon-container--variant-wwe-red .feature-gallery__icon {
   background: #501b2f;
 }
+
 .card-container--variant-wwe-green,
 .featured-item__icon-container--variant-wwe-green,
 .feature-gallery__icon-container--variant-wwe-green {
   background: linear-gradient(180deg, #7EDB64 0%, #98FF7B 54.17%, #B5FFA0 75.52%, #7EDB64 100%);
-  box-shadow: 0 0 24px rgba(42, 163, 0, 0.64);
+  box-shadow: 0 0 24px rgb(42 163 0 / 64%);
 }
+
 .card-container--variant-wwe-green {
-  box-shadow: 0 0 12px rgba(42, 163, 0, 0.64);
+  box-shadow: 0 0 12px rgb(42 163 0 / 64%);
 }
+
 .card-container--variant-wwe-green.card-container--link:hover {
   box-shadow: 0 0 12px #40811B;
 }
+
 .feature-gallery__icon-container--variant-wwe-green.feature-gallery__icon-container--selected {
-  box-shadow: 0 0 24px rgba(42, 163, 0, 1);
+  box-shadow: 0 0 24px rgb(42 163 0 / 100%);
 }
+
 .card-container--variant-wwe-green .item-card,
 .featured-item__icon-container--variant-wwe-green .featured-item__icon,
 .feature-gallery__icon-container--variant-wwe-green  .feature-gallery__icon {
-  background: rgba(0, 55, 30, 0.9);
+  background: rgb(0 55 30 / 90%);
 }
+
 .card-container--variant-wwe-halloween,
 .featured-item__icon-container--variant-wwe-halloween,
 .feature-gallery__icon-container--variant-wwe-halloween {
   background: linear-gradient(180deg, #00064c 0%, #570667 54.17%, #4a0058 75.52%, #000861 100%);
-  box-shadow: 0 0 12px rgb(113, 0, 136, 0.3);
+  box-shadow: 0 0 12px rgb(113 0 136 / 30%);
 }
+
 .card-container--variant-wwe-halloween {
-  box-shadow: 0 0 12px rgb(113, 0, 136, 0.64);
+  box-shadow: 0 0 12px rgb(113 0 136 / 64%);
 }
+
 .card-container--variant-wwe-halloween.card-container--link:hover {
-  box-shadow: 0 0 24px rgb(113, 0, 136, 0.64);
+  box-shadow: 0 0 24px rgb(113 0 136 / 64%);
 }
+
 .feature-gallery__icon-container--variant-wwe-halloween.feature-gallery__icon-container--selected {
-  box-shadow: 0 0 24px  rgb(113, 0, 136, 0.64);
+  box-shadow: 0 0 24px  rgb(113 0 136 / 64%);
 }
+
 .card-container--variant-wwe-halloween .item-card,
 .featured-item__icon-container--variant-wwe-halloween .featured-item__icon,
 .feature-gallery__icon-container--variant-wwe-halloween  .feature-gallery__icon {
   background: #260057;
 }
+
 .marketplace__section .page-header {
   max-width: 100%
 }
@@ -380,20 +445,24 @@ input:focus-visible,
 .card-container--variant-wwe-survivor,
 .featured-item__icon-container--variant-wwe-survivor,
 .feature-gallery__icon-container--variant-wwe-survivor {
-  background: rgb(232, 53, 38, 0.45);
-  box-shadow: 0 0 24px rgba(0, 0, 0, 0.64);
+  background: rgb(232 53 38 / 45%);
+  box-shadow: 0 0 24px rgb(0 0 0 / 64%);
 }
+
 .card-container--variant-wwe-survivor {
-  box-shadow: 0 0 24px rgba(0, 0, 0, 0.64);
+  box-shadow: 0 0 24px rgb(0 0 0 / 64%);
 }
+
 .card-container--variant-wwe-survivor.card-container--link:hover {
-  box-shadow: 0 0 24px rgba(0, 0, 0, 0.64);
+  box-shadow: 0 0 24px rgb(0 0 0 / 64%);
 }
+
 .feature-gallery__icon-container--variant-wwe-survivor .feature-gallery__icon-container--selected {
-  box-shadow: 0 0 24px rgba(0, 0, 0, 0.64);
+  box-shadow: 0 0 24px rgb(0 0 0 / 64%);
 }
+
 .card-container--variant-wwe-survivor .item-card,
 .featured-item__icon-container--variant-wwe-survivor .featured-item__icon,
 .feature-gallery__icon-container--variant-wwe-survivor  .feature-gallery__icon {
-  background: rgb(0,0,0);
+  background: rgb(0 0 0);
 }

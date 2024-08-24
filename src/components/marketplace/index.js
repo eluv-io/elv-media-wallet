@@ -9,6 +9,7 @@ import PreviewPasswordPrompt from "Components/login/PreviewPasswordPrompt";
 import Modal from "Components/common/Modal";
 import {RichText} from "Components/common/UIComponents";
 import ImageIcon from "Components/common/ImageIcon";
+import Header from "Components/header/Header";
 
 import EluvioLogo from "Assets/icons/EluvioLogo2.svg";
 
@@ -21,7 +22,7 @@ const Footer = ({footerText, footerLinks=[]}) => {
 
   const links = footerLinks.map((footerItem, index) => {
     if(footerItem.url) {
-      return <a target="_blank" key={`footer-link-${index}`} className="footer__item" rel="noopener" href={footerItem.url}>{footerItem.text}</a>;
+      return <a target="_blank" key={`footer-link-${index}`} className="footer__item" rel="noopener noreferrer" href={footerItem.url}>{footerItem.text}</a>;
     } else if(footerItem.content_rich_text || footerItem.content_html || footerItem.image) {
       return (
         <button
@@ -136,6 +137,7 @@ const MarketplaceWrapper = observer(({children}) => {
 const Marketplace = observer(() => {
   return (
     <div className="page-container marketplace-page">
+      <Header key="marketplace-header" />
       <Switch>
         <RenderRoutes
           basePath="/marketplace/:marketplaceId"

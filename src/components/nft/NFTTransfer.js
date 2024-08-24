@@ -5,7 +5,7 @@ import Confirm from "Components/common/Confirm";
 import {LocalizeString} from "Components/common/UIComponents";
 
 const TransferSection = observer(({nft}) => {
-  const heldDate = nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(navigator.languages, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
+  const heldDate = nft.details.TokenHoldDate && (new Date() < nft.details.TokenHoldDate) && nft.details.TokenHoldDate.toLocaleString(rootStore.preferredLocale, {year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
   const notMetamask = !cryptoStore.MetamaskAvailable() && window.ethereum;
   const notMetaMaskMessage = "Other browser extensions like Coinbase may be preventing the wallet from accessing MetaMask. Please disable them and refresh the page.";
 
@@ -43,7 +43,7 @@ const TransferSection = observer(({nft}) => {
         { notMetamask ? <h3 className="details-page__transfer-details">{ notMetaMaskMessage }</h3> : "" }
 
         <div className="details-page__transfer-buttons">
-          <a href={url.toString()} target="_blank" className="button details-page__transfer-button details-page__transfer-link">
+          <a href={url.toString()} target="_blank" className="button details-page__transfer-button details-page__transfer-link" rel="noreferrer">
             Open Full Wallet to Transfer
           </a>
         </div>
@@ -62,7 +62,7 @@ const TransferSection = observer(({nft}) => {
             Transfer request to { transferInfo.network.name } succeeded
           </h3>
 
-          <a className="button details-page__transfer-details__opensea-button" target="_blank" href={transferInfo.openSeaLink} rel="noopener">Find it on OpenSea</a>
+          <a className="button details-page__transfer-details__opensea-button" target="_blank" href={transferInfo.openSeaLink} rel="noopener noreferrer">Find it on OpenSea</a>
 
           <h3 className="details-page__transfer-details__hash">
             Hash: { transferInfo.hash }

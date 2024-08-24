@@ -6,7 +6,8 @@ import {Loader, PageLoader} from "Components/common/Loaders";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import Modal from "Components/common/Modal";
 import Confirm from "Components/common/Confirm";
-import {LocalizeString, RichText} from "Components/common/UIComponents";
+import {LocalizeString} from "Components/common/UIComponents";
+import {RichText} from "Components/properties/Common";
 
 import MetamaskIcon from "Assets/icons/metamask fox.png";
 import EluvioE from "Assets/images/ELUV.IO-E-Icon.png";
@@ -14,9 +15,10 @@ import EluvioLogo from "Assets/images/Eluvio_logo.svg";
 import MediaWalletLogo from "Assets/images/Media Wallet Text Linear.svg";
 import CheckIcon from "Assets/icons/check.svg";
 import OryLogin from "Components/login/OryLogin";
+import {SetImageUrlDimensions} from "../../utils/Utils";
 
 const searchParams = new URLSearchParams(decodeURIComponent(window.location.search));
-const useOry = searchParams.has("ory");// || true;
+const useOry = searchParams.has("ory") || !!searchParams.has("flow");
 const params = {
   // If we've just come back from Auth0
   isAuth0Callback: searchParams.has("code"),
@@ -43,10 +45,78 @@ const params = {
   marketplace: searchParams.get("marketplace"),
   // User data to pass to custodial sign-in
   userData: searchParams.has("data") ? JSON.parse(Utils.FromB64(searchParams.get("data"))) : { share_email: true },
+  oryFlow: searchParams.get("flow"),
   useOry
 };
 
 window.params = params;
+
+const ParseDomainCustomization = ({styling, terms, consent, settings}={}, font) => {
+  let styles = {};
+  const SetVars = (prefix, option) => {
+    if(!option) {
+      return;
+    }
+
+    if(CSS.supports("color", option.background_color)) {
+      styles[`${prefix}--background`] = option.background_color;
+      // If border color is not explicitly set, it should default to background color
+      styles[`${prefix}--border-color`] = option.background_color;
+    }
+    if(CSS.supports("color", option.text_color)) {
+      styles[`${prefix}--color`] = option.text_color;
+    }
+    if(CSS.supports("color", option.border_color)) {
+      styles[`${prefix}--border-color`] = option.border_color;
+    }
+    if(!isNaN(parseInt(option.border_radius))) {
+      styles[`${prefix}--border-radius`] = `${option.border_radius}px`;
+    }
+  };
+
+  SetVars("--login-box", styling?.login_box);
+  SetVars("--login-action-primary", styling?.sign_in_button);
+  SetVars("--login-action-secondary", styling?.sign_up_button);
+  SetVars("--login-input", styling?.inputs);
+
+  if(CSS.supports("color", styling?.primary_text_color)) {
+    styles["--login-text-primary--color"] = styling?.primary_text_color;
+  }
+  if(CSS.supports("color", styling?.secondary_text_color)) {
+    styles["--login-text-secondary--color"] = styling?.secondary_text_color;
+  }
+  if(CSS.supports("color", styling?.link_color)) {
+    styles["--login-text-link--color"] = styling?.link_color;
+  }
+
+  if(font) {
+    styles["--login-font-family"] = `${font}, var(--font-family-primary), Inter, sans-serif`;
+  }
+
+  return {
+    styles,
+    logo: styling?.logo,
+    powered_by_logo: styling?.powered_by_logo,
+    background: styling?.background_image_desktop,
+    background_mobile: styling?.background_image_mobile,
+    terms: terms?.terms,
+    terms_document:
+      !terms?.terms_document ? null :
+        {
+          terms_document: terms?.terms_document,
+          link_text: terms?.terms_document_link_text
+        },
+    require_consent: consent?.require_consent,
+    default_consent: consent?.default_consent,
+    custom_consent: {
+      type: "Checkboxes",
+      enabled: consent?.consent_options?.length > 0,
+      options: consent?.consent_options
+    },
+    use_ory: settings?.provider === "ory",
+    disable_registration: settings?.disable_registration || false
+  };
+};
 
 // COMPONENTS
 
@@ -94,15 +164,15 @@ const PoweredBy = ({customizationOptions}) => {
 
 // Custom background
 const Background = observer(({customizationOptions, Close}) => {
-  if(customizationOptions?.background || customizationOptions?.background_mobile) {
-    let backgroundUrl = customizationOptions?.background?.url;
-    let mobileBackgroundUrl = customizationOptions?.background_mobile?.url;
-
-    if(window.innerWidth > 800) {
-      return <div className="login-page__background" style={{backgroundImage: `url("${backgroundUrl || mobileBackgroundUrl}")`}} onClick={Close}/>;
-    } else {
-      return <div className="login-page__background" style={{backgroundImage: `url("${mobileBackgroundUrl || backgroundUrl}")`}} onClick={Close}/>;
-    }
+  const backgroundUrl = rootStore.pageWidth < 1000 && customizationOptions?.background_mobile?.url || customizationOptions?.background?.url;
+  if(backgroundUrl) {
+    return (
+      <div
+        className="login-page__background"
+        style={{backgroundImage: `url("${SetImageUrlDimensions({url: backgroundUrl, width: rootStore.fullscreenImageWidth})}")`}}
+        onClick={Close}
+      />
+    );
   }
 
   return <div className="login-page__background login-page__background--default" onClick={Close}/>;
@@ -114,22 +184,6 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
 
   return (
     <div className="login-page__text-section">
-      { customizationOptions.terms ? <RichText richText={customizationOptions.terms} className="login-page__terms" /> : null }
-
-      {
-        customizationOptions.terms_document?.terms_document ?
-          <div className="login-page__terms login-page__terms-link-container">
-            <a
-              href={customizationOptions.terms_document.terms_document.url}
-              target="_blank"
-              rel="noopener"
-              className="login-page__terms-link"
-            >
-              {customizationOptions.terms_document.link_text || rootStore.l10n.login.terms_and_conditions}
-            </a>
-          </div>: null
-      }
-
       {
         customizationOptions?.custom_consent?.type === "Checkboxes" && customizationOptions.custom_consent.enabled ?
           customizationOptions.custom_consent.options.map((option, index) =>
@@ -141,16 +195,23 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
                 onChange={event => setUserData({...userData, [option.key]: event.target.checked})}
                 className="login-page__consent-checkbox"
               />
-              <RichText className={`markdown-document login-page__consent-label ${option.required ? "login-page__consent-label--required" : ""}`} richText={option.message} />
+              <RichText
+                onClick={() => setUserData({...userData, [option.key]: !userData[option.key]})}
+                className={`login-page__consent-label ${option.required ? "login-page__consent-label--required" : ""}`}
+                richText={option.message}
+              />
               { option.required ? <div className="login-page__consent-required-indicator">*</div> : null }
             </div>
           ) : null
       }
 
-      <RichText
-        className="login-page__terms login-page__eluvio-terms"
-        richText={rootStore.l10n.login.terms}
-      />
+      {
+        rootStore.domainProperty ? null :
+          <RichText
+            className="login-page__terms login-page__eluvio-terms"
+            richText={rootStore.l10n.login.terms}
+          />
+      }
 
       {
         // Allow the user to opt out of sharing email
@@ -163,26 +224,44 @@ const Terms = ({customizationOptions, userData, setUserData}) => {
               onChange={event => setUserData({...userData, share_email: event.target.checked})}
               className="login-page__consent-checkbox"
             />
-            <label
-              htmlFor="consent"
+            <RichText
+              richText={
+                LocalizeString(
+                  rootStore.l10n.login.email_consent,
+                  { tenantClause: !customizationOptions.tenant_name ? "" : " " + LocalizeString(rootStore.l10n.login.email_consent_tenant_clause, { tenantName: customizationOptions.tenant_name }) },
+                  { stringOnly: true }
+                )
+              }
               className="login-page__consent-label"
               onClick={() => setUserData({...userData, share_email: !(userData || {}).share_email})}
             >
-              {
-                LocalizeString(
-                  rootStore.l10n.login.email_consent,
-                  { tenantClause: !customizationOptions.tenant_name ? "" : LocalizeString(rootStore.l10n.login.email_consent_tenant_clause, { tenantName: customizationOptions.tenant_name }) }
-                )
-              }
-            </label>
+
+            </RichText>
           </div> : null
+      }
+
+
+      { customizationOptions.terms ? <RichText richText={customizationOptions.terms} className="login-page__terms" /> : null }
+
+      {
+        customizationOptions.terms_document?.terms_document ?
+          <div className="login-page__terms login-page__terms-link-container">
+            <a
+              href={customizationOptions.terms_document.terms_document.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="login-page__terms-link"
+            >
+              {customizationOptions.terms_document.link_text || rootStore.l10n.login.terms_and_conditions}
+            </a>
+          </div>: null
       }
     </div>
   );
 };
 
 // Logo, login buttons, terms and loading indicator
-const Form = observer(({authenticating, userData, setUserData, customizationOptions, loading, codeAuthSet, useOry, LogIn}) => {
+const Form = observer(({authenticating, userData, setUserData, customizationOptions, loading, codeAuthSet, useOry, errorMessage, LogIn}) => {
   let hasLoggedIn = false;
   try {
     hasLoggedIn = localStorage.getItem("hasLoggedIn");
@@ -204,32 +283,25 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
     customizationOptions.custom_consent.enabled &&
     customizationOptions.custom_consent.options.find(option => option.required && !userData[option.key]);
 
-  const signUpButton = (
-    <button
-      className={`action ${hasLoggedIn ? "" : "action-primary"} login-page__login-button login-page__login-button-create login-page__login-button-auth0`}
-      style={{
-        color: customizationOptions?.sign_up_button?.text_color?.color,
-        backgroundColor: customizationOptions?.sign_up_button?.background_color?.color,
-        border: `0.75px solid ${customizationOptions?.sign_up_button?.border_color?.color}`
-      }}
-      autoFocus={!hasLoggedIn}
-      onClick={() => LogIn({provider: "oauth", mode: "create"})}
-      disabled={requiredOptionsMissing}
-      title={requiredOptionsMissing ? rootStore.l10n.login.errors.missing_required_options : undefined}
-    >
-      { rootStore.l10n.login.sign_up }
-    </button>
-  );
+  let signUpButton;
+  if(!customizationOptions.disable_registration) {
+    signUpButton = (
+      <button
+        className={`login-page__button ${hasLoggedIn ? "login-page__button--secondary" : "login-page__button--primary"} login-page__login-button login-page__login-button-create login-page__login-button-auth0`}
+        autoFocus={!hasLoggedIn}
+        onClick={() => LogIn({provider: "oauth", mode: "create"})}
+        disabled={requiredOptionsMissing}
+        title={requiredOptionsMissing ? rootStore.l10n.login.errors.missing_required_options : undefined}
+      >
+        {rootStore.l10n.login.sign_up}
+      </button>
+    );
+  }
 
   const logInButton = (
     <button
-      style={{
-        color: customizationOptions?.log_in_button?.text_color?.color,
-        backgroundColor: customizationOptions?.log_in_button?.background_color?.color,
-        border: `0.75px solid ${customizationOptions?.log_in_button?.border_color?.color}`
-      }}
       autoFocus={!!hasLoggedIn}
-      className={`action ${hasLoggedIn ? "action-primary" : ""} login-page__login-button login-page__login-button-sign-in login-page__login-button-auth0`}
+      className={`login-page__button ${hasLoggedIn || customizationOptions.disable_registration ? "login-page__button--primary" : "login-page__button--secondary"} login-page__login-button login-page__login-button-sign-in login-page__login-button-auth0`}
       onClick={() => LogIn({provider: "oauth", mode: "login"})}
       disabled={requiredOptionsMissing}
       title={requiredOptionsMissing ? rootStore.l10n.login.errors.missing_required_options : undefined}
@@ -240,12 +312,7 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
 
   const metamaskButton = (
     <button
-      style={{
-        color: customizationOptions?.wallet_button?.text_color?.color,
-        backgroundColor: customizationOptions?.wallet_button?.background_color?.color,
-        border: `0.75px solid ${customizationOptions?.wallet_button?.border_color?.color}`
-      }}
-      className="action login-page__login-button login-page__login-button-wallet"
+      className="login-page__button login-page__button--secondary login-page__button--metamask"
       onClick={() => LogIn({provider: "metamask", mode: "login"})}
       disabled={requiredOptionsMissing}
       title={requiredOptionsMissing ? rootStore.l10n.login.errors.missing_required_options : undefined}
@@ -274,7 +341,12 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
     return (
       <>
         <Logo customizationOptions={customizationOptions} />
-        <OryLogin userData={userData} />
+        <OryLogin
+          codeAuth={params.loginCode}
+          customizationOptions={customizationOptions}
+          userData={userData}
+          requiredOptionsMissing={requiredOptionsMissing}
+        />
         {
           params.loginCode && !loading ?
             <div className="login-page__login-code">
@@ -305,19 +377,29 @@ const Form = observer(({authenticating, userData, setUserData, customizationOpti
             </>
         }
 
-        <div className="login-page__actions__separator">
-          <div className="login-page__actions__separator-line" />
-          <div className="login-page__actions__separator-text">Or</div>
-          <div className="login-page__actions__separator-line" />
-        </div>
+        {
+          customizationOptions.disable_registration ? null :
+            <>
+              <div className="login-page__actions__separator">
+                <div className="login-page__actions__separator-line"/>
+                <div className="login-page__actions__separator-text">Or</div>
+                <div className="login-page__actions__separator-line"/>
+              </div>
 
-        { metamaskButton }
+              {metamaskButton}
+            </>
+        }
       </div>
       {
         params.loginCode && !loading ?
           <div className="login-page__login-code">
             { LocalizeString(rootStore.l10n.login.login_code, { code: params.loginCode }) }
           </div> : null
+      }
+
+      {
+        !errorMessage ? null :
+          <div className="login-page__error-message">{errorMessage}</div>
       }
 
       <PoweredBy customizationOptions={customizationOptions}/>
@@ -334,8 +416,11 @@ const CustomConsentModal = ({customConsent}) => {
     initialSelections[key] = !!initially_checked
   );
 
+  // eslint-disable-next-line react/display-name
   return ({Confirm}) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const [selections, setSelections] = useState({...initialSelections});
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const [renderKey, setRenderKey] = useState(0);
 
     const anyRequired = !!customConsent.options.find(option => option.required);
@@ -392,7 +477,7 @@ const CustomConsentModal = ({customConsent}) => {
           <div className="custom-consent__actions">
             <button
               onClick={() => Confirm(selections)}
-              className="action action-primary"
+              className="login-page__button login-page__button--primary"
               disabled={actionRequired}
             >
               { customConsent.button_text || rootStore.l10n.login.accept }
@@ -472,12 +557,38 @@ const AuthenticateAuth0 = async (userData) => {
     // eslint-disable-next-line no-console
     console.timeEnd("Auth0 Parameter Parsing");
 
-    window.history.replaceState({}, document.title, `${window.location.pathname}${window.location.hash}`);
+    // Remove login related params from url
+    const paramKeys = [
+      "code",
+      "origin",
+      "source",
+      "action",
+      "provider",
+      "mode",
+      "response",
+      "redirect",
+      "elvid",
+      "clear",
+      "marketplace",
+      "mid",
+      "data",
+      "code",
+      "state"
+    ];
+
+    const url = new URL(window.location.href);
+    paramKeys.forEach(key => url.searchParams.delete(key));
+
+    window.history.replaceState({}, document.title, url.toString());
 
     await rootStore.AuthenticateAuth0({userData});
   } catch(error){
     rootStore.Log("Auth0 authentication failed:", true);
     rootStore.Log(error, true);
+
+    if(error.uiMessage) {
+      throw error;
+    }
   }
 };
 
@@ -487,10 +598,13 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
   const [savingUserData, setSavingUserData] = useState(false);
   const [settingCodeAuth, setSettingCodeAuth] = useState(false);
   const [codeAuthSet, setCodeAuthSet] = useState(false);
-  const useOry = params.useOry || customizationOptions?.tenantConfig?.["open-id"]?.["issuer-url"];
+  const [errorMessage, setErrorMessage] = useState(undefined);
+  const useOry = params.useOry || customizationOptions?.use_ory || customizationOptions?.tenantConfig?.["open-id"]?.["issuer-url"] || rootStore.propertyLoginProvider === "ory";
 
   // Handle login button clicked - Initiate popup/login flow
   const LogIn = async ({provider, mode}) => {
+    setErrorMessage(undefined);
+
     if(rootStore.embedded) {
       const marketplaceHash = params.marketplace || customizationOptions.marketplaceHash;
       await rootStore.walletClient.LogIn({
@@ -560,8 +674,6 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
     };
 
     const Redirect = () => {
-      // TODO: Verify redirect origin
-
       let redirectUrl = new URL(params.redirect);
       redirectUrl.searchParams.set("elvToken", rootStore.AuthInfo().clientAuthToken);
       window.location = redirectUrl;
@@ -574,8 +686,9 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
         await rootStore.walletClient.SetCodeAuth({
           code: params.loginCode,
           address: rootStore.walletClient.UserAddress(),
-          type: rootStore.externalWalletUser ? rootStore.walletClient.__authorization.walletName.toLowerCase() : "custodial",
-          authToken: rootStore.walletClient.AuthToken()
+          type: rootStore.AuthInfo()?.provider,
+          authToken: rootStore.walletClient.AuthToken(),
+          expiresAt: rootStore.AuthInfo().expiresAt
         });
 
         setCodeAuthSet(true);
@@ -584,13 +697,23 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
       }
     };
 
+    if(!customizationOptions || !rootStore.loaded) { return; }
+
+    if(
+      (useOry && rootStore.loggedIn && rootStore.AuthInfo()?.provider === "auth0") ||
+      (!useOry && rootStore.loggedIn && rootStore.AuthInfo()?.provider === "ory")
+    ) {
+      rootStore.SignOut({reload: false});
+      return;
+    }
+
     if(params.clearLogin && !useOry) {
       const returnURL = new URL(window.location.href);
       returnURL.pathname = returnURL.pathname.replace(/\/$/, "");
       returnURL.hash = window.location.hash;
       returnURL.searchParams.delete("clear");
 
-      setTimeout(() => rootStore.SignOut(returnURL.toString()), 1000);
+      setTimeout(() => rootStore.SignOut({returnUrl: returnURL.toString()}), 1000);
     } else if(rootStore.loggedIn && !userDataSaved && !savingUserData) {
       setSavingUserData(true);
       SaveCustomConsent(userData)
@@ -598,9 +721,14 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           setUserDataSaved(true);
           setSavingUserData(false);
         });
-    } else if(rootStore.loaded && !rootStore.loggedIn && rootStore.auth0 && params.isAuth0Callback) {
+    } else if(!useOry && rootStore.loaded && !rootStore.loggedIn && rootStore.auth0 && params.isAuth0Callback) {
       // Returned from Auth0 callback - Authenticate
       AuthenticateAuth0(params.userData)
+        .catch(error => {
+          if(error?.uiMessage) {
+            setErrorMessage(error?.uiMessage);
+          }
+        })
         .finally(() => setAuth0Authenticating(false));
     } else if(rootStore.loaded && !rootStore.loggedIn && ["parent", "origin", "code"].includes(params.source) && params.action === "login" && params.provider && !settingCodeAuth && !codeAuthSet) {
       // Opened from frame - do appropriate login flow
@@ -634,7 +762,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
 
   if(loading) {
     return (
-      <div className={`login-page ${rootStore.darkMode ? "login-page--dark" : ""} ${customizationOptions?.large_logo_mode ? "login-page-large-logo-mode" : ""}`}>
+      <div className={`login-page ${rootStore.darkMode ? "login-page--dark" : ""}`}>
         <Background customizationOptions={customizationOptions} Close={Close} />
         <PageLoader />
       </div>
@@ -642,7 +770,10 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
   }
 
   return (
-    <div className={`login-page ${rootStore.darkMode ? "login-page--dark" : ""} ${customizationOptions?.large_logo_mode ? "login-page-large-logo-mode" : ""}`}>
+    <div
+      style={customizationOptions.styles}
+      className={`login-page ${rootStore.darkMode ? "login-page--dark" : ""}`}
+    >
       <Background customizationOptions={customizationOptions} Close={Close} />
 
       <div className="login-page__login-box">
@@ -654,6 +785,7 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
           codeAuthSet={codeAuthSet}
           LogIn={LogIn}
           customizationOptions={customizationOptions}
+          errorMessage={errorMessage}
           useOry={useOry}
         />
       </div>
@@ -678,7 +810,11 @@ const Login = observer(({Close}) => {
 
     rootStore.LoadLoginCustomization(marketplaceHash)
       .then(options => {
-        const userDataKey = `login-data-${options?.marketplaceId || "default"}`;
+        const userDataKey = `login-data-${options?.marketplaceId || options.mediaPropertyId || "default"}`;
+
+        if(options.mediaPropertyId) {
+          options = ParseDomainCustomization(options?.login, options.font);
+        }
 
         // Load initial user data from localstorage, if present
         let initialUserData = {

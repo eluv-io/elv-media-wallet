@@ -1,12 +1,10 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import Modal from "Components/common/Modal";
 import Confirm from "Components/common/Confirm";
 import {ActiveListings} from "Components/listings/TransferTables";
 import {checkoutStore, cryptoStore, rootStore} from "Stores";
 import NFTCard from "Components/nft/NFTCard";
 import {
-  ButtonWithLoader,
   FormatPriceString,
   FromUSD,
   LocalizeString,
@@ -19,6 +17,7 @@ import WalletConnect from "Components/crypto/WalletConnect";
 import USDIcon from "Assets/icons/crypto/USD icon.svg";
 import USDCIcon from "Assets/icons/crypto/USDC-icon.svg";
 import {Loader} from "Components/common/Loaders";
+import {Button, Modal} from "Components/properties/Common";
 
 const ListingModal = observer(({nft, listingId, Close}) => {
   const [price, setPrice] = useState(nft.details.Price ? FromUSD(nft.details.Price).toString() : "");
@@ -54,12 +53,13 @@ const ListingModal = observer(({nft, listingId, Close}) => {
 
   return (
     <Modal
-      id="listing-modal"
-      className="listing-modal-container"
-      Toggle={() => Close()}
+      size="auto"
+      centered
+      opened
+      onClose={Close}
+      withCloseButton={rootStore.pageWidth < 800}
     >
       <div className="listing-modal">
-        <h1 className="listing-modal__header">{ rootStore.l10n.purchase.sell_your_nft }</h1>
         <div className="listing-modal__content">
           <NFTCard nft={nft} price={{USD: parsedPrice.toString()}} usdcAccepted={cryptoStore.usdcConnected} usdcOnly={cryptoStore.usdcOnly} truncateDescription />
           <div className="listing-modal__form listing-modal__inputs">
@@ -68,6 +68,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                 { rootStore.l10n.tables.active_listings }
               </h2>
               <ActiveListings
+                perPage={10}
                 contractAddress={nft.details.ContractAddr}
                 selectedListingId={listingId}
               />
@@ -77,13 +78,12 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                 <input
                   placeholder={rootStore.l10n.purchase.set_price}
                   className={`listing-modal__form__price-input ${floatPrice > priceCeiling || floatPrice < priceFloor ? "listing-modal__form__price-input-error" : ""}`}
-                  value={price}
+                  value={parseFloat(price) === 0 ? "" : price}
                   onChange={event => setPrice(event.target.value.replace(/[^\d.]/g, ""))}
                   onBlur={() => setPrice(inputPrice.toString())}
                 />
                 <div className="listing-modal__form__price-input-label">
-                  { cryptoStore.usdcOnly || checkoutStore.currency !== "USD" ? null : <ImageIcon icon={USDIcon} /> }
-                  { cryptoStore.usdcConnected ? <ImageIcon icon={USDCIcon} title="USDC Available" /> : null }
+                  <ImageIcon icon={USDIcon} />
                 </div>
               </div>
               {
@@ -138,9 +138,9 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                 </div> : null
             }
             <div className="listing-modal__actions">
-              <ButtonWithLoader
+              <Button
+                className="listing-modal__action"
                 disabled={!parsedPrice || isNaN(parsedPrice) || payout <= 0 || parsedPrice > 10000 || (priceFloor && parsedPrice < priceFloor)}
-                className="action action-primary listing-modal__action listing-modal__action-primary"
                 onClick={async () => {
                   try {
                     setErrorMessage(undefined);
@@ -162,11 +162,12 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                 }}
               >
                 { LocalizeString(rootStore.l10n.actions.listings.create_for, {price: FormatPriceString(parsedPrice, {stringOnly: true, noConversion: true})})}
-              </ButtonWithLoader>
+              </Button>
               {
                 nft.details.ListingId ?
-                  <button
-                    className="action action-danger listing-modal__action listing-modal__action-delete"
+                  <Button
+                    className="listing-modal__action"
+                    variant="secondary"
                     onClick={async () => Confirm({
                       message: rootStore.l10n.actions.listings.remove_confirm,
                       Confirm: async () => {
@@ -177,11 +178,11 @@ const ListingModal = observer(({nft, listingId, Close}) => {
                     })}
                   >
                     { rootStore.l10n.actions.listings.remove }
-                  </button> : null
+                  </Button> : null
               }
-              <button className="action listing-modal__action" onClick={() => Close()}>
+              <Button className="listing-modal__action" variant="outline" onClick={() => Close()}>
                 { rootStore.l10n.actions.cancel }
-              </button>
+              </Button>
             </div>
             {
               errorMessage ?

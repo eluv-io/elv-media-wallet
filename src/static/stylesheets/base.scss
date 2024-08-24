@@ -1,10 +1,10 @@
-// sass-lint:disable no-vendor-prefixes, no-color-literals, force-pseudo-nesting
+/* stylelint-disable no-vendor-prefixes, no-color-literals, force-pseudo-nesting */
 
 @import "variables";
 
 * {
-  -webkit-overflow-scrolling: touch;
   font-family: var(--font-family-secondary);
+  -webkit-overflow-scrolling: touch;
 
   ::-webkit-scrollbar {
     opacity: 1;
@@ -29,6 +29,7 @@ svg:not(:root) {
 a {
   color: var(--color-text-primary);
   text-decoration: none;
+  transition: color 0.25s ease;
 
   &:hover {
     color: var(--color-text-primary);
@@ -53,8 +54,12 @@ button,
 
   &:focus-visible {
     box-shadow: var(--box-shadow-input-focus);
-    outline: var(--outline-input-focus);
+    outline: 0;
   }
+}
+
+img {
+  font-size: 0;
 }
 
 div {
@@ -71,13 +76,12 @@ pre {
 }
 
 body {
-  -webkit-overflow-scrolling: touch;
   background-color: var(--color-bg-primary);
   box-sizing: border-box;
   color: var(--color-text-primary);
   font-family: var(--font-family-secondary);
-  overflow-x: hidden;
-  overflow-y: scroll;
+  overflow: hidden scroll;
+  -webkit-overflow-scrolling: touch;
   position: absolute;
   transition: background-color 1000ms linear;
 }
@@ -96,8 +100,8 @@ body,
 header,
 .navigation,
 .marketplace {
-  // sass-lint:disable no-important
-  transition: color 0.5s, border 0.5s, box-shadow 0.5s !important;
+  /* stylelint-disable no-important */
+  transition: color 0.5s, border 0.5s, box-shadow 0.5s, background-color 0.5s !important;
 }
 
 .app-container {
@@ -113,11 +117,17 @@ header,
 }
 
 .page-block {
-  background-color: var(--color-page-bg);
+  @include page-fade-in(0.25s);
+
   display: flex;
   height: max-content;
   justify-content: center;
   width: 100%;
+
+  &--storefront {
+    margin: 0 auto;
+    max-width: 1200px;
+  }
 
   &--custom-background {
     background-color: transparent;
@@ -241,49 +251,40 @@ select {
 
 textarea,
 input {
-  background: var(--background-input);
-  border: var(--border-input);
-  border-radius: var(--border-radius-input);
-  box-shadow: var(--box-shadow-input);
-  color: var(--color-bg-primary);
-  font: var(--font-input);
   height: $action-height;
 
-  &::placeholder {
-    color: var(--color-input-text-placeholder);
-  }
+  &:not(.mantine-Checkbox-input) {
+    &[type="checkbox"] {
+      appearance: none;
+      border: var(--border-input);
+      border-radius: var(--border-radius-input);
+      cursor: pointer;
+      max-height: 18px;
+      max-width: 18px;
+      min-height: 18px;
+      min-width: 18px;
+      position: relative;
 
-  &[type="checkbox"] {
-    appearance: none;
-    border: var(--border-input);
-    border-radius: var(--border-radius-input);
-    cursor: pointer;
-    max-height: 18px;
-    max-width: 18px;
-    min-height: 18px;
-    min-width: 18px;
-    position: relative;
-
-    &:checked {
-      &::after {
-        align-items: center;
-        background-color: transparent;
-        color: var(--color-input-text);
-        content: "✓";
-        display: flex;
-        font-size: 12px;
-        height: 100%;
-        justify-content: center;
-        left: 0;
-        position: absolute;
-        top: 0;
-        width: 100%;
+      &:checked {
+        &::after {
+          align-items: center;
+          background-color: transparent;
+          color: var(--color-input-text);
+          content: "✓";
+          display: flex;
+          font-size: 12px;
+          height: 100%;
+          justify-content: center;
+          left: 0;
+          position: absolute;
+          top: 0;
+          width: 100%;
+        }
       }
     }
   }
 
-  // Not possible to set the color of the calendar button icon on date fields - just make it invisible
-  // sass-lint:disable-next-line no-vendor-prefixes
+  /* Not possible to set the color of the calendar button icon on date fields - just make it invisible */
   &::-webkit-calendar-picker-indicator {
     cursor: pointer;
     height: 100%;
@@ -331,6 +332,7 @@ em {
   }
 
   .page-loader {
+    flex-grow: 1;
     min-height: 75vh;
     width: 100%;
   }
@@ -426,29 +428,20 @@ em {
   z-index: 100;
 }
 
-// Large
+/* Large */
 @media screen and (min-width: $breakpoint) {
   .app-container {
     margin: auto;
   }
 
-  .page-block {
-    &__content {
-      max-width: $breakpoint;
-      width: $breakpoint;
-
-      &--wide {
-        max-width: $large-breakpoint;
-      }
-
-      &--extra-wide {
-        max-width: $extra-large-breakpoint;
-      }
+  .page-block__content {
+    &:not(&--unrestricted) {
+      max-width: $extra-large-breakpoint;
     }
   }
 }
 
-// Mid
+/* Medium */
 @media screen and (max-width: $breakpoint) {
   .page-block {
     &__content {
@@ -475,7 +468,7 @@ em {
   }
 }
 
-// Small
+/* Small */
 @media screen and (max-width: $mobile-breakpoint) {
   .no-mobile {
     display: none !important;
@@ -500,6 +493,10 @@ em {
     }
   }
 
+  .page-block__content {
+    padding-inline: 15px;
+  }
+
   .page-block__content--extra-wide {
     padding: 25px 15px;
   }
@@ -509,11 +506,12 @@ em {
   bottom: 10px;
   font-size: 10px;
   left: 10px;
+  opacity: 0;
   position: absolute;
   z-index: 1;
 }
 
-// sass-lint:disable class-name-format
+/* stylelint-disable class-name-format */
 .LinesEllipsis-canvas {
   opacity: 0;
   position: fixed;
@@ -543,4 +541,57 @@ em {
       width: 20px;
     }
   }
+}
+
+.alert-notification-container {
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  width: 100%;
+  z-index: 100;
+}
+
+.alert-notification {
+  @include page-fade-in;
+
+  align-items: center;
+  background-color: #050505;
+  border: 1px solid #333;
+  border-radius: 5px;
+  box-shadow: 5px 5px 5px black;
+  display: flex;
+  left: 0;
+  margin: 0 auto;
+  max-width: 90%;
+  padding: 20px 50px;
+  position: absolute;
+  right: 0;
+  top: 100px;
+  width: 600px;
+  z-index: 100;
+
+  &__message {
+    display: flex;
+    font-size: 18px;
+    font-weight: 500;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+  }
+
+  &__close {
+    height: 20px;
+    position: absolute;
+    right: 7px;
+    top: 7px;
+    width: 20px;
+
+    * {
+      color: #AAA;
+    }
+  }
+}
+
+.fade-in {
+  @include page-fade-in(0.25s);
 }

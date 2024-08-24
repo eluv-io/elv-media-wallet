@@ -1,3 +1,6 @@
+// eslint-disable-next-line no-console
+console.time("Initial Load");
+
 import {SearchParams} from "../utils/Utils";
 
 let testTheme = undefined;
@@ -27,12 +30,14 @@ import CheckoutStore from "Stores/Checkout";
 import TransferStore from "Stores/Transfer";
 import CryptoStore from "Stores/Crypto";
 import NotificationStore from "Stores/Notification";
+import MediaPropertyStore from "Stores/MediaProperty";
 
 import NFTContractABI from "../static/abi/NFTContract";
-import {v4 as UUID} from "uuid";
+import {v4 as UUID, parse as ParseUUID} from "uuid";
 import ProfanityFilter from "bad-words";
 
 import LocalizationEN from "Assets/localizations/en.yml";
+import {MediaPropertyBasePath} from "../utils/MediaPropertyUtils";
 
 // Force strict mode so mutations are only allowed within actions.
 configure({
@@ -52,15 +57,40 @@ try {
   storageSupported = false;
 }
 
+
+if(["ris.euro2024.com", "ris-uefa.mw.app"].includes(location.hostname)) {
+  if(location.hostname === "ris.euro2024.com") {
+    EluvioConfiguration.ory_configuration = {
+      "url": "https://auth.euro2024.com",
+      "jwt_template": "jwt_uefa_template1"
+    };
+  } else {
+    EluvioConfiguration.ory_configuration = {
+      "url": "https://auth.mw.app",
+      "jwt_template": "jwt_uefa_template1"
+    };
+  }
+}
+
+
 class RootStore {
+  preferredLocale = Intl.DateTimeFormat()?.resolvedOptions?.()?.locale || navigator.language;
   language = this.GetLocalStorage("lang");
   l10n = LocalizationEN;
   uiLocalizations = ["pt-br"];
+  alertNotification = this.GetSessionStorage("alert-notification");
+  domainProperty = this.GetSessionStorage("domain-property") || searchParams.get("pid");
+  domainPropertySlug = this.GetSessionStorage("domain-property-slug");
+  domainSettings = undefined;
+  isCustomDomain = !["localhost", "192.168", "contentfabric.io"].find(host => window.location.hostname.includes(host));
+
+  discoverFilter = "";
 
   appId = "eluvio-media-wallet";
 
   auth0 = undefined;
   oryClient = undefined;
+  propertyLoginProvider = "auth0";
 
   authOrigin = this.GetSessionStorage("auth-origin");
 
@@ -85,13 +115,18 @@ class RootStore {
 
   pageWidth = window.innerWidth;
   pageHeight = window.innerHeight;
+  originalViewportHeight = window.innerHeight;
+  fullscreenImageWidth = window.innerWidth > 3000 ? 3840 : window.innerWidth > 2000 ? 2560 : 1920;
 
   activeModals = 0;
 
   authInfo = undefined;
+  authNonce;
+  useLocalAuth;
 
   loginOnly = window.loginOnly;
   requireLogin = searchParams.has("rl");
+  loginBackPath;
   capturedLogin = this.embedded && searchParams.has("cl");
   showLogin = this.requireLogin || searchParams.get("action") === "login" || searchParams.get("action") === "loginCallback";
 
@@ -147,6 +182,10 @@ class RootStore {
   authToken = undefined;
   staticToken = undefined;
   basePublicUrl = undefined;
+
+  route = location.pathname;
+  routeParams = {};
+  backPath = undefined;
 
   nftInfo = {};
   nftData = {};
@@ -223,10 +262,23 @@ class RootStore {
       this.SetSessionStorage("auth-origin", searchParams.get("origin"));
     }
 
+    if(!this.preferredLocale.includes("-")) {
+      this.preferredLocale = navigator.languages?.find(language => language.startsWith(`${this.preferredLocale}-`)) || this.preferredLocale;
+    }
+
     this.checkoutStore = new CheckoutStore(this);
     this.transferStore = new TransferStore(this);
     this.cryptoStore = new CryptoStore(this);
     this.notificationStore = new NotificationStore(this);
+    this.mediaPropertyStore = new MediaPropertyStore(this);
+
+    this.authNonce = this.GetLocalStorage("auth-nonce") || Utils.B58(ParseUUID(UUID()));
+    this.SetLocalStorage("auth-nonce", this.authNonce);
+
+    this.useLocalAuth = this.GetSessionStorage("local-auth") || searchParams.has("la");
+    if(this.useLocalAuth) {
+      this.SetSessionStorage("local-auth", "true");
+    }
 
     if(this.appUUID) {
       this.SetSessionStorage(`app-uuid-${window.loginOnly}`, this.appUUID);
@@ -244,13 +296,33 @@ class RootStore {
 
     this.resizeHandler.observe(document.body);
 
-    this.ToggleDarkMode(this.darkMode);
+    // Viewport height changes for mobile as URL bar adjusts. Size based on initial height instead of css VH
+    const SetVH = () =>
+      document.documentElement.style.setProperty("--vh", `${window.innerHeight * 0.01}px`);
+
+    SetVH();
+
+    let resizeTimeout;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        // Only update VH if height has changed significantly enough (e.g. phone rotated)
+        if(Math.abs(window.innerHeight - this.originalViewportHeight) > 200) {
+          SetVH();
+          this.originalViewportHeight = window.innerHeight;
+        }
+      }, 100);
+    });
 
     this.Initialize();
   }
 
   RouteChange(pathname) {
     this.SendEvent({event: EVENTS.ROUTE_CHANGE, data: pathname});
+  }
+
+  SetDiscoverFilter(filter) {
+    this.discoverFilter = filter;
   }
 
   SetLanguage = flow(function * (language, save=false) {
@@ -321,6 +393,10 @@ class RootStore {
         const {Configuration, FrontendApi} = yield import("@ory/client");
         this.oryClient = new FrontendApi(
           new Configuration({
+            features: {
+              kratos_feature_flags_use_continue_with_transitions: true,
+              use_continue_with_transitions: true
+            },
             basePath: EluvioConfiguration.ory_configuration.url,
             // we always want to include the cookies in each request
             // cookies are used for sessions and CSRF protection
@@ -367,7 +443,7 @@ class RootStore {
         network: EluvioConfiguration.network,
         mode: EluvioConfiguration.mode,
         localization: this.language === "en" ? undefined : this.language,
-        previewMarketplaceId: (searchParams.get("preview") || (!this.embedded && this.GetSessionStorage("preview-marketplace")) || "").replaceAll("/", ""),
+        previewMarketplaceId: ((!this.embedded && this.GetSessionStorage("preview-marketplace")) || "").replaceAll("/", ""),
         storeAuthToken: false
       });
 
@@ -400,6 +476,41 @@ class RootStore {
         },
         noAuth: true
       });
+
+      // Load domain map
+      if(!this.domainProperty && !this.domainPropertySlug && !["localhost", "contentfabric.io"].includes(location.hostname)) {
+        let domainMapping = yield this.walletClient.client.ContentObjectMetadata({
+          libraryId: this.walletClient.mainSiteLibraryId,
+          objectId: this.walletClient.mainSiteId,
+          metadataSubtree: "public/asset_metadata/info/domain_map"
+        });
+
+        const propertySlugOrId = domainMapping
+          .find(map => map.domain === location.hostname)
+          ?.property_slug;
+
+        if(propertySlugOrId) {
+          const properties = yield this.mediaPropertyStore.LoadMediaProperties();
+
+          const property = properties.find(property =>
+            property.propertyId === propertySlugOrId ||
+            property.slug === propertySlugOrId
+          );
+
+          this.domainProperty = property?.propertyId;
+          this.domainPropertySlug = property?.slug;
+        }
+      }
+
+      if(this.domainProperty) {
+        this.SetSessionStorage("domain-property", this.domainProperty);
+        this.SetSessionStorage("domain-property-slug", this.domainPropertySlug);
+        yield this.SetDomainCustomization();
+
+        if(this.isCustomDomain && window.location.pathname === "/") {
+          this.routeChange = UrlJoin("/", this.domainPropertySlug || this.domainProperty);
+        }
+      }
 
       try {
         const auth = searchParams.get("auth");
@@ -438,6 +549,8 @@ class RootStore {
     } finally {
       if(this.walletClient) {
         this.loaded = true;
+        // eslint-disable-next-line no-console
+        console.timeEnd("Initial Load");
       } else {
         // Retry
         yield new Promise(resolve => setTimeout(resolve, 5000));
@@ -452,16 +565,23 @@ class RootStore {
     return this.walletClient.UserAddress();
   }
 
-  AuthenticateOry = flow(function * ({userData}={}) {
+  AuthenticateOry = flow(function * ({userData, force=false}={}) {
+    let email, jwtToken;
     try {
       const response = yield this.oryClient.toSession({tokenizeAs: EluvioConfiguration.ory_configuration.jwt_template});
-      const email = response.data.identity.traits.email;
-      const jwtToken = response.data.tokenized;
+      email = response.data.identity.traits.email;
+      jwtToken = response.data.tokenized;
 
       yield this.Authenticate({
         idToken: jwtToken,
+        force,
+        provider: "ory",
         // TODO: Change
-        signerURIs: ["https://wlt.stg.svc.eluv.io"],
+        signerURIs: [
+          this.network === "demo" ?
+            "https://wlt.dv3.svc.eluv.io" :
+            "https://wlt.stg.svc.eluv.io"
+        ],
         user: {
           name: email,
           email,
@@ -473,6 +593,10 @@ class RootStore {
     } catch(error) {
       this.Log("Error logging in with Ory:", true);
       this.Log(error);
+
+      if([400, 403, 503].includes(parseInt(error?.status))) {
+        throw { login_limited: true };
+      }
     }
   });
 
@@ -503,6 +627,7 @@ class RootStore {
 
         yield this.Authenticate({
           idToken: authInfo.__raw,
+          provider: "auth0",
           user: {
             name: authInfo.name,
             email: authInfo.email,
@@ -516,16 +641,33 @@ class RootStore {
         this.Log("Error logging in with Auth0:", true);
         this.Log(error, true);
       }
-    }
 
-    // eslint-disable-next-line no-console
-    console.timeEnd("Auth0 Authentication");
+      if([400, 403, 503].includes(parseInt(error?.status))) {
+        throw { uiMessage: this.l10n.login.errors.too_many_logins };
+      }
+    } finally {
+      // eslint-disable-next-line no-console
+      console.timeEnd("Auth0 Authentication");
+    }
   });
 
-  Authenticate = flow(function * ({idToken, clientAuthToken, clientSigningToken, externalWallet, walletName, user, saveAuthInfo=true, signerURIs, callback}) {
+  Authenticate = flow(function * ({
+    idToken,
+    clientAuthToken,
+    clientSigningToken,
+    provider="external",
+    externalWallet,
+    walletName,
+    user,
+    saveAuthInfo=true,
+    signerURIs,
+    force=false,
+    callback
+  }) {
     if(this.authenticating) { return; }
 
     try {
+      this.SetAlertNotification(undefined);
       this.authenticating = true;
       this.loggedIn = false;
 
@@ -588,7 +730,11 @@ class RootStore {
           email: user?.email,
           tenantId,
           shareEmail: user?.userData?.share_email,
-          signerURIs
+          extraData: user?.userData || {},
+          signerURIs,
+          nonce: this.authNonce,
+          createRemoteToken: !this.useLocalAuth,
+          force
         });
 
         clientAuthToken = tokens.authToken;
@@ -602,6 +748,7 @@ class RootStore {
       this.SetAuthInfo({
         clientAuthToken,
         clientSigningToken,
+        provider,
         save: saveAuthInfo
       });
 
@@ -642,6 +789,26 @@ class RootStore {
       this.SendEvent({event: EVENTS.LOG_IN, data: { address }});
 
       this.notificationStore.InitializeNotifications(true);
+
+
+      // Periodically check to ensure the token has not been revoked
+      const CheckTokenStatus = async () => {
+        if(!this.loggedIn) { return; }
+
+        if(!this.AuthInfo(10 * 60 * 1000)) {
+          this.SignOut({message: this.l10n.login.errors.session_expired});
+        } else if(!(await this.walletClient.TokenStatus())) {
+          this.SignOut({message: this.l10n.login.errors.forced_logout});
+        }
+      };
+
+      if(!this.useLocalAuth) {
+        CheckTokenStatus();
+
+        this.tokenStatusInterval = setInterval(() => {
+          CheckTokenStatus();
+        }, 60000);
+      }
     } catch(error) {
       this.ClearAuthInfo();
       this.Log(error, true);
@@ -650,6 +817,126 @@ class RootStore {
     } finally {
       this.authenticating = false;
     }
+  });
+
+
+  SetDomainCustomization = flow(function * (mediaPropertyId) {
+    if(this.domainProperty === mediaPropertyId && this.domainSettings) {
+      return;
+    }
+
+    if(mediaPropertyId) {
+      this.domainProperty = mediaPropertyId;
+      this.SetSessionStorage("domain-property", this.domainProperty);
+    }
+
+    const options = yield this.LoadPropertyCustomization(this.domainProperty);
+
+    if(!options) { return; }
+
+    this.domainSettings = options;
+
+    this.SetPropertyCustomization(this.domainProperty);
+  });
+
+  ClearDomainCustomization() {
+    this.domainProperty = undefined;
+    this.domainSettings = undefined;
+    this.SetCustomCSS("");
+    this.RemoveSessionStorage("domain-property");
+    this.RemoveSessionStorage("domain-property-slug");
+  }
+
+  SetPropertyCustomization = flow(function * (mediaPropertySlugOrId) {
+    const options = yield this.LoadPropertyCustomization(mediaPropertySlugOrId);
+
+    if(!options) {
+      return;
+    }
+
+    this.SetPropertyLoginProvider(options?.login?.settings?.provider || "auth0");
+
+    let variables = [];
+
+    let css = [];
+    if(options.styling?.font === "custom") {
+      if(options.styling.custom_font_declaration) {
+        if(options.styling.custom_font_definition) {
+          css.push(options.styling.custom_font_definition);
+        }
+
+        const customFont = `${options.styling.custom_font_declaration}, Inter, sans-serif`;
+        const customTitleFont = options.styling.custom_title_font_declaration ?
+          `${options.styling.custom_title_font_declaration}, ${customFont}` : undefined;
+
+
+        variables.push(`--font-family-primary: ${customTitleFont || customFont};`);
+        variables.push(`--font-family-secondary: ${customFont};`);
+        variables.push(`--font-family-tertiary: ${customFont};`);
+
+        if(customTitleFont) {
+          variables.push(`--font-family-title: ${customTitleFont};`);
+        }
+
+        css.push(`* { font-family: ${customFont}; }`);
+
+        if(customTitleFont) {
+          css.push(`*._title { font-family: ${customTitleFont}; }`);
+          css.push(`*._title * { font-family: ${customTitleFont}; }`);
+        }
+      }
+    }
+
+    if(CSS.supports("color", options?.styling?.button_style?.background_color)) {
+      variables.push(`--property-button-background--custom: ${options.styling.button_style.background_color};`);
+      // If border color is not explicitly set, it should default to background color
+      variables.push(`--property-button-border-color--custom: ${options.styling.button_style.background_color};`);
+    }
+    if(CSS.supports("color", options?.styling?.button_style?.text_color)) {
+      variables.push(`--property-button-text--custom: ${options.styling.button_style.text_color};`);
+    }
+    if(CSS.supports("color", options?.styling?.button_style?.border_color)) {
+      variables.push(`--property-button-border-color--custom: ${options.styling.button_style.border_color};`);
+    }
+    if(!isNaN(parseInt(options?.styling?.button_style?.border_radius))) {
+      variables.push(`--property-button-border-radius--custom: ${options.styling.button_style.border_radius}px;`);
+    }
+
+    if(variables.length > 0) {
+      css.unshift(":root {\n" + variables.join("\n") + "\n}\n");
+    }
+
+    this.SetCustomCSS(css.join("\n"));
+  });
+
+  SetPropertyLoginProvider(provider="auth0") {
+    this.propertyLoginProvider = provider;
+  }
+
+  LoadPropertyCustomization = flow(function * (mediaPropertySlugOrId) {
+    if(!mediaPropertySlugOrId) { return; }
+
+    // Client may not be initialized yet
+    while(!this.client) {
+      yield new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    yield this.mediaPropertyStore.LoadMediaProperty({
+      mediaPropertySlugOrId
+    });
+
+    const property = this.mediaPropertyStore.MediaProperty({
+      mediaPropertySlugOrId
+    });
+
+    return {
+      mediaPropertyId: this.domainProperty,
+      tenant: property.metadata?.tenant,
+      login: property.metadata?.login,
+      styling: property.metadata.styling,
+      settings: property.metadata.domain,
+      font: property.metadata.styling?.font === "custom" && property.metadata.styling.custom_font_declaration
+    };
   });
 
   LoadLoginCustomization = flow(function * (marketplaceHash) {
@@ -661,6 +948,10 @@ class RootStore {
 
       return this.client;
     };
+
+    if(this.domainProperty) {
+      return yield this.LoadPropertyCustomization(this.domainProperty);
+    }
 
     let marketplaceId;
     if(marketplaceHash) {
@@ -816,21 +1107,34 @@ class RootStore {
     }
 
     if(force || !this.userProfiles[userId]) {
-      const profile = yield this.walletClient.Profile({userAddress, userName});
+      try {
+        const profile = yield this.walletClient.Profile({userAddress, userName});
 
-      if(!profile) {
-        return;
+        if(!profile) {
+          return;
+        }
+
+        if(profile.imageUrl && !this.ValidProfileImageUrl(profile.imageUrl)) {
+          delete profile.imageUrl;
+        }
+
+        this.userProfiles[profile.userAddress] = profile;
+        this.userProfiles[profile.userName] = profile;
+
+        userAddress = userAddress || profile.userAddress;
+      } catch(error) {
+        this.Log(error, true);
+
+        if(userAddress){
+          this.userProfiles[userAddress] = {
+            userAddress,
+            badges: []
+          };
+        }
       }
 
-      if(profile.imageUrl && !this.ValidProfileImageUrl(profile.imageUrl)) {
-        delete profile.imageUrl;
-      }
-
-      this.userProfiles[profile.userAddress] = profile;
-      this.userProfiles[profile.userName] = profile;
-
-      if(Utils.EqualAddress(profile.userAddress, this.CurrentAddress())) {
-        this.userProfiles.me = profile;
+      if(userAddress && Utils.EqualAddress(userAddress, this.CurrentAddress())) {
+        this.userProfiles.me = this.userProfiles[userAddress];
       }
     }
 
@@ -916,9 +1220,9 @@ class RootStore {
     return this.nftData[key].nft;
   });
 
-  SetCustomCSS(css="") {
+  SetCustomCSS(css="", tag="_custom-css") {
     css = SanitizeHTML(css);
-    const cssTag = document.getElementById("_custom-css");
+    const cssTag = document.getElementById(tag);
     if(cssTag) {
       if(testTheme) {
         testTheme.then(theme => {
@@ -933,6 +1237,10 @@ class RootStore {
   }
 
   SetCustomizationOptions(marketplace, disableTenantStyling=false) {
+    if(this.routeParams.mediaPropertySlugOrId) {
+      this.SetPropertyCustomization(this.routeParams.mediaPropertySlugOrId);
+    }
+
     const useTenantStyling =
       !disableTenantStyling &&
       marketplace?.branding?.use_tenant_styling &&
@@ -986,16 +1294,6 @@ class RootStore {
     this.centerContent = marketplace?.branding?.text_justification === "Center";
     this.centerItems = marketplace?.branding?.item_text_justification === "Center";
 
-    switch(options.color_scheme) {
-      case "Dark":
-        this.ToggleDarkMode(true);
-        break;
-
-      default:
-        this.ToggleDarkMode(false);
-        break;
-    }
-
     if(options.color_scheme === "Custom") {
       if(useTenantStyling) {
         this.walletClient.TenantCSS({tenantSlug: marketplace.tenant_slug || marketplace.tenantSlug})
@@ -1009,18 +1307,25 @@ class RootStore {
     }
   }
 
-  ClearMarketplace() {
+  ClearMarketplace(clearSpecified=false) {
     this.tenantSlug = undefined;
     this.marketplaceSlug = undefined;
     this.marketplaceId = undefined;
 
+    if(clearSpecified) {
+      this.specifiedMarketplaceId = undefined;
+      this.specifiedMarketplaceHash = undefined;
+      this.RemoveSessionStorage("marketplace");
+    }
+
     this.checkoutStore.SetCurrency({currency: "USD"});
 
-    this.SetCustomizationOptions("default");
+    // Give locationType time to settle if path changed
+    setTimeout(() => this.SetCustomizationOptions("default"), 100);
   }
 
   SetMarketplace({tenantSlug, marketplaceSlug, marketplaceId, marketplaceHash, specified=false, disableTenantStyling=false}) {
-    if(!this.walletClient) { return; }
+    if(!this.walletClient || this.domainProperty) { return; }
 
     const marketplace = this.allMarketplaces.find(marketplace =>
       (marketplaceId && Utils.EqualHash(marketplaceId, marketplace.marketplaceId)) ||
@@ -1053,7 +1358,7 @@ class RootStore {
       return marketplace.marketplaceHash;
     } else if(Object.keys(this.walletClient.availableMarketplaces) > 0) {
       // Don't reset customization if marketplaces haven't yet loaded
-      this.SetCustomizationOptions("default");
+      setTimeout(() => this.SetCustomizationOptions("default"), 100);
     }
   }
 
@@ -1711,12 +2016,12 @@ class RootStore {
     marketplace.analyticsInitialized = true;
   }
 
-  SignOut = flow(function * (returnUrl) {
+  SignOut = flow(function * ({returnUrl, message, reload=true}={}) {
+    clearInterval(this.tokenStatusInterval);
+
     this.ClearAuthInfo();
 
-    if(this.embedded) {
-      this.SetLocalStorage("signed-out", "true");
-    }
+    this.SetLocalStorage("signed-out", "true");
 
     if(this.oryClient) {
       try {
@@ -1727,16 +2032,25 @@ class RootStore {
       }
     }
 
-    this.walletClient?.LogOut();
+    yield this.walletClient?.LogOut();
 
     this.SendEvent({event: EVENTS.LOG_OUT, data: {address: this.CurrentAddress()}});
 
-    if(this.auth0) {
+    if(message) {
+      this.SetAlertNotification(message);
+    }
+
+    if(!reload) {
+      this.loggedIn = false;
+      return;
+    }
+
+    if(this.auth0 && (yield this.auth0.isAuthenticated())) {
       try {
         this.disableCloseEvent = true;
 
         // Auth0 has a specific whitelisted path for login/logout urls - rely on hash redirect
-        returnUrl = new URL(returnUrl || this.ReloadURL());
+        returnUrl = new URL(returnUrl || this.ReloadURL({signOut: true}));
         returnUrl.hash = returnUrl.pathname;
         returnUrl.pathname = "";
 
@@ -1753,20 +2067,24 @@ class RootStore {
       }
     }
 
-    this.Reload();
+    this.Reload(returnUrl || this.ReloadURL({signOut: true}));
   });
 
   CreateShortURL = flow(function * (url) {
-    // Normalize URL
-    url = new URL(url).toString();
+    try {
+      // Normalize URL
+      url = new URL(url).toString();
 
-    if(!this.shortURLs[url]) {
-      const { url_mapping } = yield (yield fetch("https://elv.lv/tiny/create", { method: "POST", body: url })).json();
+      if(!this.shortURLs[url]) {
+        const {url_mapping} = yield (yield fetch("https://elv.lv/tiny/create", {method: "POST", body: url})).json();
 
-      this.shortURLs[url] = url_mapping.shortened_url;
+        this.shortURLs[url] = url_mapping.shortened_url;
+      }
+
+      return this.shortURLs[url];
+    } catch(error) {
+      this.Log(error, true);
     }
-
-    return this.shortURLs[url];
   });
 
   LookoutURL(transaction) {
@@ -1775,19 +2093,23 @@ class RootStore {
       `https://lookout.qluv.io/tx/${transaction}`;
   }
 
-  ReloadURL(keepPath=false) {
+  ReloadURL({signOut}={}) {
     const url = new URL(UrlJoin(window.location.origin, window.location.pathname).replace(/\/$/, ""));
 
     if(this.appUUID) {
       url.searchParams.set("appUUID", this.appUUID);
     }
 
-    if(keepPath) {
-      url.pathname = window.location.pathname;
-    } else if(this.marketplaceId) {
-      url.pathname = UrlJoin("/marketplace", this.marketplaceId, "store");
-    } else {
-      url.pathname = "/";
+    url.pathname = window.location.pathname;
+
+    if(signOut) {
+      if(this.routeParams.mediaPropertySlugOrId && !window.location.pathname.startsWith("/m")) {
+        url.pathname = MediaPropertyBasePath(rootStore.routeParams);
+      } else if(this.routeParams.marketplaceId) {
+        url.pathname = UrlJoin("/marketplace", this.marketplaceId, "store");
+      } else {
+        url.pathname = "/";
+      }
     }
 
     if(this.specifiedMarketplaceId) {
@@ -1805,10 +2127,9 @@ class RootStore {
     return url.toString();
   }
 
-  Reload() {
+  Reload(returnUrl) {
     this.disableCloseEvent = true;
-    window.location.href = this.ReloadURL();
-    window.location.reload();
+    window.location.href = returnUrl || this.ReloadURL();
   }
 
   RequestPermission = flow(function * ({origin, requestor, action}) {
@@ -2084,7 +2405,6 @@ class RootStore {
   AuthStorageKey() {
     let key = `auth-${this.network}`;
 
-    // TODO: Enable auth storage scoping later
     /*
       if(this.authOrigin) {
         try {
@@ -2097,7 +2417,7 @@ class RootStore {
     return key;
   }
 
-  AuthInfo() {
+  AuthInfo(expirationBuffer=6 * 60 * 60 * 1000) {
     try {
       if(this.authInfo) {
         return this.authInfo;
@@ -2106,16 +2426,14 @@ class RootStore {
       const tokenInfo = this.GetLocalStorage(this.AuthStorageKey());
 
       if(tokenInfo) {
-        let { clientAuthToken, clientSigningToken, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
+        let { clientAuthToken, clientSigningToken, provider, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
 
         // Expire tokens early so they don't stop working while in use
-        const expirationBuffer = 6 * 60 * 60 * 1000;
-
         if(expiresAt - Date.now() < expirationBuffer) {
           this.ClearAuthInfo();
           this.Log("Authorization expired", "warn");
         } else {
-          return { clientAuthToken, clientSigningToken, expiresAt };
+          return { clientAuthToken, clientSigningToken, provider, expiresAt };
         }
       }
     } catch(error) {
@@ -2131,12 +2449,13 @@ class RootStore {
     this.authInfo = undefined;
   }
 
-  SetAuthInfo({clientAuthToken, clientSigningToken, save=true}) {
+  SetAuthInfo({clientAuthToken, clientSigningToken, provider="external", save=true}) {
     const { expiresAt } = JSON.parse(Utils.FromB58(clientAuthToken));
 
     const authInfo = {
       clientSigningToken,
       clientAuthToken,
+      provider,
       expiresAt
     };
 
@@ -2166,13 +2485,15 @@ class RootStore {
     this.SetSessionStorage("navigation-info", JSON.stringify(this.navigationInfo));
   }
 
-  ShowLogin({requireLogin=false, ignoreCapture=false}={}) {
+  ShowLogin({requireLogin=false, backPath, Cancel, ignoreCapture=false}={}) {
     if(this.capturedLogin && !ignoreCapture) {
       if(this.loggedIn) { return; }
 
       this.SendEvent({event: EVENTS.LOG_IN_REQUESTED});
     } else {
       this.requireLogin = requireLogin;
+      this.loginBackPath = backPath;
+      this.loginCancel = Cancel;
       this.showLogin = true;
     }
   }
@@ -2180,25 +2501,11 @@ class RootStore {
   HideLogin() {
     this.showLogin = false;
     this.requireLogin = false;
-  }
+    this.loginBackPath = undefined;
 
-  ToggleDarkMode(enabled) {
-    const themeContainer = document.querySelector("#_theme");
-    if(!enabled) {
-      this.RemoveSessionStorage("dark-mode");
-      themeContainer.innerHTML = "";
-      themeContainer.dataset.theme = "default";
-    } else if(themeContainer.dataset.theme !== "dark") {
-      this.SetSessionStorage("dark-mode", "true");
-      import("Assets/stylesheets/themes/dark.theme.css")
-        .then(theme => {
-          themeContainer.innerHTML = theme.default;
-        });
+    this.loginCancel && this.loginCancel();
 
-      themeContainer.dataset.theme = "dark";
-    }
-
-    this.darkMode = enabled;
+    this.loginCancel = undefined;
   }
 
   ToggleNavigation(enabled) {
@@ -2350,6 +2657,8 @@ class RootStore {
       runInAction(() => {
         this.pageWidth = width;
         this.pageHeight = height;
+
+        this.fullscreenImageWidth = width > 3000 ? 3840 : width > 2000 ? 2560 : 1920;
       });
 
       const bodyScrollVisible = document.body.getBoundingClientRect().height > window.innerHeight;
@@ -2362,11 +2671,92 @@ class RootStore {
           }
         });
       }
-    }, 250);
+    }, 100);
+  }
+
+  ParsedRouteParams() {
+    // eslint-disable-next-line no-unused-vars
+    let [_, property, __, subproperty] = location.pathname.split(/\/p\/([^/]+)/);
+    const marketplaceId = (location.pathname.match(/\/marketplace\/([^/]+)/) || [])[1];
+
+    return {
+      mediaPropertySlugOrId: subproperty || property,
+      parentMediaPropertySlugOrId: subproperty ? property : "",
+      marketplaceId
+    };
+  }
+
+  SetRouteParams(params) {
+    this.route = location.pathname;
+    this.routeParams = params || {};
+  }
+
+  SetBackPath(backPath) {
+    if(!backPath) {
+      this.backPath = undefined;
+      return;
+    }
+
+    let context = new URLSearchParams(location.search).get("ctx");
+
+    let [path, query] = (backPath || "").split("?");
+
+    if(!path && !query) { return; }
+
+    if(context === "s") {
+      if(!path.includes("/s/:sectionSlugOrId") && location.pathname.includes("/s/:sectionSlugOrId/")) {
+        path = UrlJoin(path, "/s/:sectionSlugOrId");
+      } else if(!path.includes("/s/:sectionSlugOrId")) {
+        context = undefined;
+      }
+    } else if(context === "search") {
+      if(!location.pathname.endsWith("/search")) {
+        path = UrlJoin(path, "/search");
+      } else {
+        context = undefined;
+      }
+    }
+
+    path = path
+      .split(/[/?]/)
+      .map(segment =>
+        (segment.startsWith(":") && this.routeParams[segment.replace(":", "")]) ||
+        segment
+      )
+      .join("/");
+
+    const params = new URLSearchParams(query);
+    for(const [key, value] of params.entries()) {
+      params.set(
+        key,
+        (value.startsWith(":") && this.routeParams[value.replace(":", "")]) ||
+        value
+      );
+    }
+
+    if(context) {
+      params.set("ctx", context);
+    }
+
+    if(params.size > 0) {
+      path += `?${params.toString()}`;
+    }
+
+    this.backPath = path;
   }
 
   SetRouteChange(route) {
     this.routeChange = route;
+  }
+
+  SetAlertNotification(message) {
+    if(!message) {
+      this.alertNotification = undefined;
+      this.RemoveSessionStorage("alert-notification");
+    } else {
+      this.alertNotification = message;
+      this.SetSessionStorage("alert-notification", message);
+    }
   }
 
   SetDebugMessage(message) {
@@ -2383,6 +2773,7 @@ export const checkoutStore = rootStore.checkoutStore;
 export const transferStore = rootStore.transferStore;
 export const cryptoStore = rootStore.cryptoStore;
 export const notificationStore = rootStore.notificationStore;
+export const mediaPropertyStore = rootStore.mediaPropertyStore;
 
 window.rootStore = rootStore;
 

@@ -1,0 +1,388 @@
+@import "./variables";
+
+.header {
+  @include page-fade-in(0.25s);
+
+  align-items: center;
+  background: linear-gradient(180deg, #1C1D20 0%, #000 100%);
+  display: flex;
+  gap: 50px;
+  height: var(--property-header-height);
+  justify-content: space-between;
+  padding: 0 50px 8px;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 2;
+
+  &:not(&--media) {
+    box-shadow: 0 0 30px black;
+  }
+
+  @media screen and (width <= 800px) {
+    gap: 20px;
+    padding: 0 15px 3px;
+
+    .logo-container {
+      display: none;
+    }
+  }
+}
+
+.nav {
+  align-items: center;
+  display: flex;
+  gap: 20px;
+  height: 100%;
+}
+
+.logo-container {
+  align-items: center;
+  display: flex;
+  height: 80%;
+  justify-content: center;
+  max-width: 200px;
+  min-width: 100px;
+  position: relative;
+  width: auto;
+}
+
+.logo {
+  height: 100%;
+  object-fit: contain;
+}
+
+.preview-indicator {
+  background: rgb(0 0 0 / 50%);
+  color: #aad9ff;
+  position: absolute;
+  text-shadow: 0 0 5px black;
+}
+
+
+.links {
+  align-items: center;
+  display: flex;
+  gap: 15px;
+  height: 100%;
+  justify-content: flex-end;
+  position: relative;
+
+  :global(.header__profile) {
+    position: relative;
+  }
+
+  :global(.header__notifications-menu) {
+    width: 450px;
+  }
+}
+
+.button {
+  @include page-fade-in;
+
+  align-items: center;
+  background-color: var(--property-search-button-background);
+  border: 1px solid transparent;
+  border-radius: 100%;
+  display: flex;
+  height: 35px;
+  justify-content: center;
+  min-width: 35px;
+  position: relative;
+  transition: background-color 0.25s ease, border 0.25s ease;
+  width: 35px;
+
+  &:hover,
+  &:focus-visible,
+  &--active {
+    background-color: #525252;
+  }
+
+  &:focus-visible,
+  &--active {
+    border: 1px solid #67676a;
+  }
+
+  &__icon,
+  &__icon-close {
+    height: 50%;
+    position: absolute;
+    transition: opacity 0.1s ease;
+    width: 50%;
+  }
+
+  &__icon-close {
+    opacity: 0;
+    stroke-width: 3px;
+  }
+
+  &--active {
+    .button__icon {
+      opacity: 0;
+    }
+
+    .button__icon-close {
+      opacity: 1;
+    }
+  }
+
+  &--notification {
+    @include page-fade-in;
+
+    &::after {
+      background: red;
+      border-radius: 100%;
+      content: "";
+      height: 7px;
+      position: absolute;
+      right: 8px;
+      top: 6px;
+      width: 7px;
+    }
+  }
+}
+
+.sign-in {
+  border-radius: 10px;
+  min-height: 45px;
+  text-transform: uppercase;
+  width: max-content;
+
+  @media screen and (width <= 800px) {
+    min-height: 36px;
+  }
+}
+
+/* Search */
+
+.search-container {
+  align-items: center;
+  display: flex;
+  flex: 1 1 0;
+  gap: 20px;
+  max-width: 800px;
+  position: relative;
+
+  &__icon {
+    height: 15px;
+    left: 10px;
+    position: absolute;
+    width: 15px;
+    z-index: 1;
+  }
+
+  @media screen and (width <= 800px) {
+    gap: 10px;
+  }
+}
+
+.search {
+  flex: 1 1 0;
+
+  &__filter {
+    background-color: var(--property-search-button-background);
+    border: 1px solid #67676a;
+    border-radius: 10px;
+    font-weight: 500;
+    height: 100%;
+    padding: 10px 15px;
+  }
+
+  &__input {
+    border: 1px solid #67676a;
+    border-radius: 33px;
+
+    &::placeholder {
+      color: var(--property-text-secondary);
+      font-size: 1.15em;
+    }
+  }
+
+  &__input,
+  &__option {
+    color: var(--property-text-primary);
+    font-size: 1.15em;
+    height: 45px;
+    padding: 0 30px;
+  }
+
+  &__option {
+    &:hover {
+      &:where(:not([data-combobox-selected], [data-combobox-disabled])) {
+        background-color: var(--property-search-button-background);
+      }
+    }
+  }
+
+  &__dropdown {
+    border-radius: 10px;
+    overflow: hidden;
+
+    * {
+      overscroll-behavior: none;
+    }
+  }
+
+  &__input,
+  &__dropdown {
+    background-color: var(--property-search-background);
+  }
+
+  &__submit {
+    align-items: center;
+    background-color: var(--property-search-button-background);
+    border-left: 1px solid #67676a;
+    border-radius: 0 33px 33px 0;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    padding: 13px;
+    position: absolute;
+    right: 0;
+    width: 100%;
+
+    svg {
+      height: 100%;
+      width: 100%;
+    }
+  }
+
+
+  @media screen and (width <= 800px) {
+    &__input,
+    &__option {
+      font-size: 0.8em;
+      padding: 0 15px;
+    }
+
+    &__input {
+      border: 0;
+      height: 30px;
+      padding-left: 35px;
+    }
+
+    &__filter {
+      align-items: center;
+      border: 0;
+      border-radius: 20px;
+      display: flex;
+      font-size: 0.9em;
+      height: 36px;
+      justify-content: center;
+    }
+  }
+}
+
+.filter {
+  border-left: 1px solid #67676a;
+  padding-bottom: 50px;
+
+  &,
+  &__header {
+    background-color: #121212;
+  }
+
+  &__header {
+    align-items: flex-start;
+  }
+
+  &__header,
+  &__content {
+    padding-left: 30px;
+  }
+
+  &__title {
+    font-size: 2em;
+    margin-top: 30px;
+  }
+
+  &__content {
+    padding-right: 30px;
+  }
+
+  &__fields {
+    display: grid;
+    gap: 30px;
+    margin-top: 10px;
+  }
+
+  &__input-label {
+    font-size: 0.9em;
+    font-weight: 300;
+    line-height: 1em;
+    margin-bottom: 8px;
+  }
+
+  &__input {
+    background-color: #1f1f1f;
+    border: 1px solid #595959;
+    font-size: 1em;
+    height: 45px;
+
+    &::placeholder {
+      font-size: 0.8em;
+    }
+  }
+
+  &__dates {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+  }
+
+  &__checkboxes {
+    display: grid;
+    gap: 10px;
+    margin-top: 15px;
+  }
+
+  &__checkbox {
+    background-color: #1f1f1f;
+    border: 1px solid #595959;
+  }
+
+  &__actions {
+    margin-top: 50px;
+  }
+
+  @media screen and (width <= 500px) {
+    border: 0;
+  }
+}
+
+
+/* Mobile header */
+
+.header-mobile {
+  align-items: center;
+  background-color: black;
+  display: flex;
+  gap: 10px;
+  height: 60px;
+  justify-content: space-between;
+  padding-inline: 15px;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 2;
+
+  &:not(&--media) {
+    box-shadow: 0 0 10px black;
+  }
+
+  & > * {
+    @include page-fade-in(1s);
+  }
+
+  &__controls {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    height: 100%;
+  }
+
+  .logo-container {
+    height: 70%;
+    min-width: unset;
+  }
+}

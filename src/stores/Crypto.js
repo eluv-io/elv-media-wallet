@@ -150,7 +150,7 @@ class CryptoStore {
         connectedAccounts[link.link_type][address] = {
           ...link,
           link_acct: address,
-          connected_at: new Date(link.created * 1000).toLocaleTimeString(navigator.languages, {year: "numeric", month: "long", day: "numeric"})
+          connected_at: new Date(link.created * 1000).toLocaleTimeString(rootStore.preferredLocale, {year: "numeric", month: "long", day: "numeric"})
         };
       }
 
@@ -767,7 +767,7 @@ class CryptoStore {
       response.v,
       ethers.utils.arrayify("0x" + response.r),
       ethers.utils.arrayify("0x" + response.s),
-      {gasPrice: ethers.utils.parseUnits("100", "gwei"), gasLimit: 1000000} // TODO: Why is this necessary?
+      {gasPrice: ethers.utils.parseUnits("100", "gwei"), gasLimit: 1000000}
     );
 
     let openSeaLink;

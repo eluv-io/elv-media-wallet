@@ -17,7 +17,7 @@ import {LocalizeString} from "Components/common/UIComponents";
 const MarketplaceCollection = observer(() => {
   const match = useRouteMatch();
   const marketplace = rootStore.marketplaces[match.params.marketplaceId];
-  const secondaryDisabled = marketplace?.branding?.disable_secondary_market;
+  const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false || marketplace?.branding?.disable_secondary_market;
   const [collectionItems, setCollectionItems] = useState(undefined);
 
   if(!marketplace) { return null; }
@@ -48,7 +48,7 @@ const MarketplaceCollection = observer(() => {
             hideToken
             link={UrlJoin(basePath, collection.sku, "owned", ownedItem.nft.details.ContractId, ownedItem.nft.details.TokenIdStr)}
             imageWidth={600}
-            badges={<ImageIcon icon={OwnedIcon} title="You own this item" alt="Listing Icon" className="item-card__badge"/>}
+            badges={[<ImageIcon key="badge-owned" icon={OwnedIcon} title="You own this item" alt="Listing Icon" className="item-card__badge"/>]}
             className="marketplace__collection__card marketplace__collection__card--owned"
           />
         );

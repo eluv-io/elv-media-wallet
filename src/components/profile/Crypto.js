@@ -63,7 +63,7 @@ const CryptoDepositModal = observer(({type="metamask", Close}) => {
           <div className="crypto-deposit__summary__price">
             { FormatPriceString(amountUSD) } USD
           </div>
-          <a href="https://google.com" rel="noopener" target="_blank" className="crypto-deposit__summary__link">
+          <a href="https://google.com" rel="noopener noreferrer" target="_blank" className="crypto-deposit__summary__link">
             View this transaction on etherscan
           </a>
         </div>
@@ -143,7 +143,7 @@ const WalletLink = observer(({type="metamask"}) => {
   let content;
   if(!wallet.Available()) {
     content = (
-      <a target="_blank" rel="noopener" href={wallet.link} className="profile-crypto__link profile-crypto__link-missing">
+      <a target="_blank" rel="noopener noreferrer" href={wallet.link} className="profile-crypto__link profile-crypto__link-missing">
         <ImageIcon icon={wallet.logo} title={wallet.name} />
         Get { wallet.name }
       </a>

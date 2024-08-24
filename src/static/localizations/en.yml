@@ -2,6 +2,8 @@ header:
   activity: Activity
   collections: Collections
   discover_projects: Discover Projects
+  discover: Discover
+  marketplace: Marketplace
   leaderboard: Leaderboard
   listings: Listings
   profile: Profile
@@ -12,50 +14,71 @@ header:
   notifications: Notifications
   gifts: Gifts
   media_wallet: Media Wallet
+  title: Media Wallet
+  subtitle: Enabled by the Content Fabric
+  my_items: My Items
+  details: Wallet Details
+  preferences: Preferences
 
 login:
   sign_in: Sign In
   sign_up: Sign Up
   sign_out: Sign Out
+  signed_in: Signed in
   signed_in_as: Signed In As
-  signed_in_via: Sign in Via
+  signed_in_via: Signed in Via
   connect_metamask: Connect Metamask
   powered_by: Powered by
   select_all_options: Select All
   accept: I Accept
   terms_and_conditions: Terms and Conditions
-  terms: By creating an account or signing in, I agree to the [Eluvio Privacy Policy](https://live.eluv.io/privacy) and the [Eluvio Terms and Conditions](https://live.eluv.io/terms).
-  email_consent: By checking this box, I give consent for my email address to be stored with my wallet address {tenantClause}. Eluvio may also send informational and marketing emails to this address.
+  terms: '<p>By creating an account or signing in, I agree to the <a target="_blank" href="https://live.eluv.io/privacy">Eluvio Privacy Policy</a> and the <a target="_blank" href="https://live.eluv.io/terms">Eluvio Terms and Conditions</a>.</p>'
+  email_consent: '<p>By checking this box, I give consent for my email address to be stored with my wallet address{tenantClause}. Eluvio may also send informational and marketing emails to this address.</p>'
   email_consent_tenant_clause: and shared with {tenantName}
   login_code: "Code: {code}"
   code_auth_success: Sign in successful!
   errors:
     missing_required_options: Please accept the required options below
+    too_many_logins: This account has been accessed from too many devices. Please wait 24 hours and try again.
+    forced_logout: You have been signed out because another session using this account has logged you out.
+    session_expired: Your session has expired. Please sign in again.
   ory:
     actions:
       registration: Sign Up
       recovery: Forgot Password?
       back_to_sign_in: Back to Sign In
+      update_password: Update Password
+      proceed: Proceed
     refresh: Confirm Your Identify
     aal2: Two-Factor Authentication
     registration: Register Your Account
     recovery: Recover Your Account
     verification: Verify Your Account
+    update_password: Change Password
+    messages:
+      recovery_prompt: Please enter the email address associated with your account to request a password change
+      password_updated: Password updated successfully!
+      login_limited: Maximum number of allowed logins exceeded. Would you like to force log out an older session?
     errors:
       invalid_credentials: Invalid Credentials
       invalid_verification_code: Invalid Verification Code
+      invalid_recovery_email: The link you used is no longer valid. Please enter your email address to obtain a recovery code.
       invalid_email: Invalid Email
+      invalid_password_confirmation: Password confirmation must match password
 
 
 navigation:
-  profile: My Profile
+  profile: Profile
   collections: My Collections
+  discover: Discover
+  marketplace: Marketplace
   items: My Items
   listings: My Listings
   offers: My Offers
   activity: My Activity
   notifications: Notifications
   gifts: Gifts
+  wallet_details: Wallet Details
   preferences: Preferences
   collectibles: Collectibles
 
@@ -99,20 +122,24 @@ actions:
     decline_offer: Decline Offer
     decline_confirm: Are you sure you want to decline this offer of {price} for {itemName}?
   transfers:
-    transfer: Transfer NFT
-    transfer_confirm: Are you sure you want to transfer this NFT to {targetAddress}?
+    transfer: Transfer Item
+    transfer_confirm: Are you sure you want to transfer this item to {targetAddress}?
 
 errors:
   general: We're sorry, something went wrong.
 
 profile:
   media_wallet: Media Wallet
+  media_wallet_details: Media Wallet Details
   address: Eluvio Content Blockchain Address
-  set_profile_image: You can set your profile image from any of your owned NFTs!
+  set_profile_image: You can set your profile image from any of your owned items!
+  set_username: Set Your Username
   do_not_send_funds: Do not send funds to this address. This is an Eluvio Content Blockchain address and is not a payment address.
   connected_accounts: Connected Accounts
   add_funds: Add Funds
   withdraw_funds: Withdraw Funds
+  advanced_details: Advanced Details
+  hide_advanced_details: Hide Advanced Details
   view:
     all_offers: View All Offers
     deposits: View Deposits
@@ -125,7 +152,7 @@ profile:
     deposits: Hide Deposits
     outstanding_offers: Hide Outstanding Offers
     withdrawals: Hide Withdrawals
-  payout_terms: Funds availability notice – A hold period will be imposed on amounts that accrue from the sale of an NFT. Account holders acknowledge that, during this hold period, a seller will be unable to withdraw the amounts attributable to such sale(s). The current hold period for withdrawing the balance is 15 days.
+  payout_terms: Funds availability notice – A hold period will be imposed on amounts that accrue from the sale of an item. Account holders acknowledge that, during this hold period, a seller will be unable to withdraw the amounts attributable to such sale(s). The current hold period for withdrawing the balance is 15 days.
   payout_terms_stripe: Payout is managed by Stripe. See the dashboard for processing status.
   payout_terms_contact: For questions or concerns, please contact [payments@eluv.io](mailto:payments@eluv.io)
   balance:
@@ -140,9 +167,9 @@ preferences:
   marketplace_display_currency: Marketplace Display Currency
   currency_conversion: This is a conversion computed from USD
   notifications:
-    listing_sold: Notify me when one of my listed NFTs is sold
-    token_updated: Notify me when an NFT I own is updated (e.g. new media)
-    offer_received: Notify me when I receive a purchase offer for an NFT I own
+    listing_sold: Notify me when one of my listed items is sold
+    token_updated: Notify me when an item I own is updated (e.g. new media)
+    offer_received: Notify me when I receive a purchase offer for an item I own
     offer_accepted: Notify me when a purchase offer I made was accepted
     offer_declined: Notify me when a purchase offer I made was declined
     offer_expired: Notify me when a purchase offer I made has expired
@@ -181,10 +208,10 @@ connected_accounts:
   direct: Accept only direct payment to this linked wallet for my listings
   direct_info: Checking this option will limit your listings to purchase with USDC via linked wallet only. Payment will settle directly to your linked wallet address. If unchecked, your listings may also be purchased via credit card, coinbase, or wallet balance, and the proceeds will be credited to your Eluvio wallet balance, which is redeemable via Stripe.
   link_wallet: Link Wallet
-  link_wallet_2: Link {networkName} Payment Wallet {t{est}
+  link_wallet_2: Link {networkName} Payment Wallet
   unlink_wallet: Unlink Wallet
   unlink_wallet_confirm: Are you sure you want to disconnect this account?
-  description: To buy and sell NFTs using {usdcIcon} USDC on {networkName} with direct payment, link your Eluvio Media Wallet to your payment wallet.
+  description: To buy and sell items using {usdcIcon} USDC on {networkName} with direct payment, link your Eluvio Media Wallet to your payment wallet.
   how_to_link: How do I link my Phantom Wallet?
   get_wallet: Get {walletName}
   connect_wallet: Connect {walletName}
@@ -212,9 +239,12 @@ stats:
     lowest: Lowest Price
 
 purchase:
+  price: Price
   service_fee: Service Fee
   creator_royalty: Creator Royalty
   total_payout: Total Payout
+  available_wallet_balance: Available Wallet Balance
+  remaining_wallet_balance: Remaining Wallet Balance
   available_balance: Available {balanceType}
   total_balance: Total {balanceType}
   remaining_balance: Remaining {balanceType}
@@ -228,12 +258,13 @@ purchase:
   wallet_balance: Wallet Balance
   checkout: Checkout
   checkout_gift: Checkout - Buy as a Gift
-  sell_your_nft: Sell Your NFT
+  sell_your_nft: Sell Your Item
   set_price: Set Price
   min_listing_price: Minimum listing price is {price}
   max_listing_price: Maximum listing price is {price}
   conversion_amount: USD Conversion
   conversion_note: Actual values are based in USD. All displayed values are approximate based on current estimated USD exchange rates.
+  email: Email
   gift_options:
     title: Fill In Gift Details (Required)
     gifter_name: Your Name
@@ -256,17 +287,18 @@ purchase:
     listing_unavailable: Listing is no longer available
     insufficient_stock: Insufficient stock available for this purchase
     out_of_stock: This item is out of stock
+    insufficient_funds: Insufficient wallet balance
     solana_insufficient_funds: Solana account has insufficient balance to perform this transaction
     ethereum_insufficient_funds: Ethereum account has insufficient balance to perform this transaction
-    listing_failed: Unable to list this NFT
-    nft_being_purchased: This NFT is currently in the process of being purchased
-    nft_sold: This NFT was sold for {price} on {date}
+    listing_failed: Unable to list this Item
+    nft_being_purchased: This item is currently in the process of being purchased
+    nft_sold: This item was sold for {price} on {date}
     login_required: You must be logged in to complete this purchase.
 
 offers:
   offer: Offer
   make_an_offer: Make an Offer
-  active_offers: Active Offers for this NFT
+  active_offers: Active Offers for this item
   min_offer_price: Minimum offer price is {price}
   max_offer_price: Maximum offer price is {price}
   expires_in_single: Expires in 1 Day
@@ -289,19 +321,19 @@ redeemables:
   reward_redeemed: Reward Redeemed
   claim_reward: Claim Your Reward
   view_details: View Details
-  reward_valid: Reward Valid
-  reward_expires: Reward Expires
+  reward_valid: Offer Valid
+  reward_expires: Offer Expires
   expires: Expires
   available: Available
   view_redemption_code: View Redemption Code
   redeemed_by: By {redeemer}
   view_redemption: View Redemption
   view_transaction: View the Transaction
-  successfully_redeemed: Successfully Redeemed
+  successfully_redeemed: Success
   code: Code
   redeemed_message: To access your reward, scan the QR code below or visit the URL and enter the code.
   redeemed_by_previous: This reward has been redeemed by a previous owner.
-  redeeming: Redemption Transaction in Progress
+  redeeming: Redemption in Progress
   redeeming_subheader: This may take several minutes
   redeeming_footer: You can navigate away from this page if you don't want to wait. Your reward will be available in your wallet when the process is complete.
   popup_notice: "Note: This redemption requires a signature. Please check the pop-up to sign the results."
@@ -310,11 +342,11 @@ transfers:
   header: Transfer Your Item
   network: Network
   target_address: Target Address
-  transferring: Transferring NFT. This may take several minutes.
+  transferring: Transferring item. This may take several minutes.
   errors:
     address_warning: The target address does not currently own any items. Are you sure this is the right address?
     invalid_address: Invalid Target Address
-    no_self_transfer: You may not transfer an NFT to yourself
+    no_self_transfer: You may not transfer an item to yourself
     failed: Transfer Failed
 
 collections:
@@ -327,12 +359,12 @@ collections:
   selected: Selected
   redeem: Redeem
   select_token: Select this Token
-  select_nfts: Select NFTs to Redeem
-  select_nfts_2: Select the NFTs you wish to trade in
-  select_nfts_3: Choose one NFT per collection slot
+  select_nfts: Select items to Redeem
+  select_nfts_2: Select the items you wish to trade in
+  select_nfts_3: Choose one item per collection slot
   select_nfts_4: Please select one token to redeem for each item in the collection.
   signature_warning: This operation requires one signature per redeemed token. Please check your Metamask browser extension and accept all pending signature requests.
-  redemption_warning: Clicking redeem will permanently burn the selected tokens and mint the reward tokens to your account. Your new NFTs will appear in your wallet when minting is complete. This operation cannot be reversed and burned tokens cannot be recovered.
+  redemption_warning: Clicking redeem will permanently burn the selected tokens and mint the reward tokens to your account. Your new items will appear in your wallet when minting is complete. This operation cannot be reversed and burned tokens cannot be recovered.
   redemption_confirmation: Are you sure you want to redeem this collection with the selected tokens? This action cannot be reversed.
   errors:
     listed_nft: You may not redeem a token while it is listed for sale.
@@ -341,18 +373,18 @@ tables:
   pagination: Showing {min} - {max} of {total} results
   no_results: No Results
   leaderboard: Climb the Leaderboard
-  activity: Recent Sales
+  activity: Recently Sold
   token_history_single: Transaction History for this Token
-  token_history_all: Secondary Sales History for All '{name}' Tokens
-  active_offers: Active Offers for this Token
-  active_listings: Active Listings for this NFT
+  token_history_all: Transaction History for All '{name}' Tokens
+  active_offers: Active Offers
+  active_listings: Active Listings
   outstanding_offers: Outstanding Offers
   offers_made: Offers Made
   offers_received: Offers Received
   withdrawals: Withdrawals
   deposits: Deposits
-  bought_nfts: Bought NFTs
-  sold_nfts: Sold NFTs
+  bought_items: Bought Items
+  sold_items: Sold Items
   pending: Pending
   available: Available
   gifts_received: Gifts Received
@@ -362,6 +394,8 @@ tables:
   unclaimed: Not claimed
   sent: Sent
   remind: Remind
+  edit_listing: Edit Listing
+  view_listing: View Listing
   columns:
     address: Address
     amount: Amount
@@ -370,6 +404,7 @@ tables:
     fee: Fee
     from: From
     list_price: List Price
+    top_offers: Top Offers
     method: Method
     name: Name
     offer_price: Offer Price
@@ -380,7 +415,7 @@ tables:
     status: Status
     time: Time
     to: To
-    token_id: Token ID
+    token_id: Token
     total_amount: Total Amount
     total_collectibles: Total Collectibles
     username: Username
@@ -390,6 +425,8 @@ tables:
 
 filters:
   all_filters: All Filters
+  filter: Filter
+  filter_placeholder: Type to Filter
   search: Search
   search_projects: Search Projects
   search_projects_ext: Video, Music, Audio, E-book and App
@@ -432,11 +469,11 @@ filters:
     custom: Custom
   sort:
     sort: Sort
-    minted: Minted (Oldest to Newest)
-    minted_desc: Minted (Newest to Oldest)
+    minted: Oldest
+    minted_desc: Newest
     name: Name (A-Z)
     name_desc: Name (Z-A)
-    listed: Recently Listed
+    listed: Newest
     token_id: Token ID
     ordinal: Ordinal
     price: Price (Low to High)
@@ -449,6 +486,7 @@ item_details:
   details: Details
   contract: Contract
   contract_address: Contract Address
+  version_hash: Content Hash
   media: Media
   trading: Trading
   purchase_offers: Purchase Offers
@@ -456,9 +494,9 @@ item_details:
   rewards: Rewards
   reward: Reward
   reward_redeemed: Reward Redeemed
-  held_message: This NFT is in a holding period until {heldDate}. You will not be able to transfer it until then.
-  secondary_unreleased: Secondary trading for this NFT will be available on {heldDate}.
-  secondary_expired: Secondary trading for this NFT ended on {heldDate}.
+  held_message: This item is in a holding period until {heldDate}. You will not be able to transfer it until then.
+  secondary_unreleased: Secondary trading for this item will be available on {heldDate}.
+  secondary_expired: Secondary trading for this item ended on {heldDate}.
   lookout_link: See more info on Eluvio Lookout
   token_url: Token URL
   media_url: Media URL
@@ -628,3 +666,50 @@ ago:
   minutes: "{minutes} minutes ago"
   second: 1 second ago
   seconds: "{seconds} seconds ago"
+
+
+media_properties:
+  media_properties: Media Properties
+  media_property: Media Property
+  header:
+    search: Search
+    filter: Filter
+  sections:
+    view_all: View All
+  search:
+    title: "Search results for \"{query}\""
+  purchase:
+    claim: Claim Now
+    select: Buy {title} for {price}
+    secondary: View Listings
+  purchase_status:
+    pending:
+      finalizing: Finalizing Purchase
+      claiming: Claiming Item
+      info: This should take less than a minute...
+    failed: Purchase failed
+    complete: Purchase Complete!
+    claim_complete: Claimed Successfully!
+  page:
+    actions:
+      item_details: Details
+  item_details:
+    pages:
+      description: Description
+      details: Details
+      contract: Contract & Version
+    tables:
+      trading: Trading
+      offers: Purchase Offers
+      rewards: Rewards
+  media:
+    live: Live
+    upcoming: UPCOMING
+    description:
+      show: Read More
+      hide: Show Less
+    errors:
+      default: This media is not available
+      not_started: This live content has not yet started
+      ended: This live content has ended
+      unauthorized: You do not have permission to view this content
