@@ -555,7 +555,8 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
     return null;
   }
 
-  const showAllLink = allContentLength > parseInt(section.display.display_limit || 5);
+  const showAllLink = section.display.display_format?.toLowerCase() !== "banner" &&
+    allContentLength > parseInt(section.display.display_limit || 5);
 
   let displayLimit = section.display?.display_limit;
   if(

@@ -135,7 +135,7 @@ const Routes = observer(() => {
     return null;
   }
 
-  if(!rootStore.loaded) {
+  if(!rootStore.loaded && location.pathname !== "/") {
     return <PageLoader />;
   }
 

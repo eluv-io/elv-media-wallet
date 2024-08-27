@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {mediaPropertyStore} from "Stores";
+import {rootStore, mediaPropertyStore} from "Stores";
 import UrlJoin from "url-join";
 import {PageLoader} from "Components/common/Loaders";
 import {Linkish} from "Components/common/UIComponents";
@@ -9,8 +9,12 @@ import {SetImageUrlDimensions} from "../../utils/Utils";
 import Video from "Components/properties/Video";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 
-const PropertyVideo = ({video}) => {
+const PropertyVideo = observer(({video}) => {
   const [loaded, setLoaded] = useState(false);
+
+  if(!rootStore.loaded || !video || Object.keys(video).length === 0) {
+    return null;
+  }
 
   return (
     <Video
@@ -27,7 +31,7 @@ const PropertyVideo = ({video}) => {
       className={`media-property-card__video ${!loaded ? "media-property-card__video--loading" : ""}`}
     />
   );
-};
+});
 
 export const MediaPropertiesBrowser = observer(() => {
   const [mediaProperties, setMediaProperties] = useState(undefined);

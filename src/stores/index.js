@@ -20,6 +20,7 @@ try {
 import {makeAutoObservable, configure, flow, runInAction} from "mobx";
 import UrlJoin from "url-join";
 import {ElvClient, ElvWalletClient} from "@eluvio/elv-client-js";
+import SiteConfiguration from "@eluvio/elv-client-js/src/walletClient/Configuration";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import SanitizeHTML from "sanitize-html";
 
@@ -74,6 +75,7 @@ if(["ris.euro2024.com", "ris-uefa.mw.app"].includes(location.hostname)) {
 
 
 class RootStore {
+  siteConfiguration = SiteConfiguration[EluvioConfiguration.network][EluvioConfiguration.mode];
   preferredLocale = Intl.DateTimeFormat()?.resolvedOptions?.()?.locale || navigator.language;
   language = this.GetLocalStorage("lang");
   l10n = LocalizationEN;
