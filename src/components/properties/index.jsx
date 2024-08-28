@@ -11,6 +11,7 @@ import MediaPropertyHeader from "Components/properties/MediaPropertyHeader";
 import {LoginGate} from "Components/common/LoginGate";
 import {PurchaseGate} from "Components/properties/Common";
 import MediaPropertyFooter from "Components/properties/MediaPropertyFooter";
+import {SetHTMLMetaTags} from "../../utils/Utils";
 
 const PropertyWrapper = observer(({children}) => {
   const match = useRouteMatch();
@@ -45,11 +46,14 @@ const PropertyWrapper = observer(({children}) => {
 
     rootStore.SetDomainCustomization(mediaProperty.mediaPropertyId);
 
-    return () => setTimeout(() => {
-      if(!rootStore.routeParams.mediaPropertySlugOrId) {
-        rootStore.ClearDomainCustomization();
-      }
-    }, 500);
+    return () => {
+      setTimeout(() => {
+        if(!rootStore.routeParams.mediaPropertySlugOrId) {
+          rootStore.ClearDomainCustomization();
+          SetHTMLMetaTags();
+        }
+      }, 500);
+    };
   }, [mediaProperty]);
 
   if(!rootStore.loaded  || rootStore.authenticating || !itemLoaded) {
@@ -75,10 +79,9 @@ const PropertyWrapper = observer(({children}) => {
 
           const property = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId});
 
-          const title = property?.metadata?.meta_tags?.title || property?.metadata?.page_title;
-          if(title) {
-            document.title = title;
-          }
+          SetHTMLMetaTags({
+            metaTags: property.metadata?.meta_tags
+          });
 
           if(
             rootStore.loggedIn &&

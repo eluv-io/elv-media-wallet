@@ -135,7 +135,7 @@ const Routes = observer(() => {
     return null;
   }
 
-  if(!rootStore.loaded && location.pathname !== "/") {
+  if(!rootStore.loaded && (location.pathname !== "/" || rootStore.isCustomDomain)) {
     return <PageLoader />;
   }
 
