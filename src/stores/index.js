@@ -408,9 +408,6 @@ class RootStore {
           })
         );
 
-        // eslint-disable-next-line no-console
-        console.time("Auth0 Initial Load");
-
         const {Auth0Client} = yield import("auth0-spa-js");
 
         this.auth0 = new Auth0Client({
@@ -421,10 +418,10 @@ class RootStore {
           useRefreshTokens: true,
           useCookiesForTransactions: true
         });
-
-        // eslint-disable-next-line no-console
-        console.timeEnd("Auth0 Initial Load");
       }
+
+      // Start loading media properties
+      this.mediaPropertyStore.LoadMediaPropertyHashes();
 
       // Login required
       if(searchParams.has("rl")) {
@@ -445,8 +442,8 @@ class RootStore {
         network: EluvioConfiguration.network,
         mode: EluvioConfiguration.mode,
         localization: this.language === "en" ? undefined : this.language,
-        previewMarketplaceId: ((!this.embedded && this.GetSessionStorage("preview-marketplace")) || "").replaceAll("/", ""),
-        storeAuthToken: false
+        storeAuthToken: false,
+        skipMarketplaceLoad: true
       });
 
       // Internal feature - allow setting of authd node via query param for testing
@@ -480,7 +477,7 @@ class RootStore {
       });
 
       // Load domain map
-      if(!this.domainProperty && !this.domainPropertySlug && !["localhost", "contentfabric.io"].includes(location.hostname)) {
+      if(this.isCustomDomain && !this.domainProperty) {
         let domainMapping = yield this.walletClient.client.ContentObjectMetadata({
           libraryId: this.walletClient.mainSiteLibraryId,
           objectId: this.walletClient.mainSiteId,
@@ -507,7 +504,7 @@ class RootStore {
       if(this.domainProperty) {
         this.SetSessionStorage("domain-property", this.domainProperty);
         this.SetSessionStorage("domain-property-slug", this.domainPropertySlug);
-        yield this.SetDomainCustomization();
+        this.SetDomainCustomization();
 
         if(this.isCustomDomain && window.location.pathname === "/") {
           this.routeChange = UrlJoin("/", this.domainPropertySlug || this.domainProperty);
@@ -1400,6 +1397,11 @@ class RootStore {
   });
 
   LoadMarketplace = flow(function * (marketplaceId) {
+    if(!this.walletClient.marketplacesLoaded) {
+      yield this.walletClient.LoadAvailableMarketplaces();
+      this.walletClient.marketplacesLoaded = true;
+    }
+
     this.marketplaces[marketplaceId] = yield this.walletClient.Marketplace({marketplaceParams: {marketplaceId}});
 
     yield this.checkoutStore.MarketplaceStock({tenantId: this.marketplaces[marketplaceId].tenant_id});

@@ -3,7 +3,7 @@ import RedeemableOfferStyles from "Assets/stylesheets/media_properties/redeemabl
 import React, {useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {QRCodeElement} from "Components/common/UIComponents";
-import {checkoutStore, rootStore} from "Stores";
+import {checkoutStore, rootStore, mediaPropertyStore} from "Stores";
 import Utils from "@eluvio/elv-client-js/src/Utils";
 import {Loader} from "Components/common/Loaders";
 import Video from "Components/properties/Video";
@@ -412,7 +412,7 @@ const RedeemableOfferModal = observer(() => {
       let tokenId = params.tokenId;
 
       if(params.marketplaceSKU) {
-        await rootStore.LoadMarketplace(params.marketplaceId);
+        await mediaPropertyStore.LoadMarketplace({marketplaceId: params.marketplaceId});
         const marketplace = rootStore.marketplaces[params.marketplaceId];
         const item = marketplace.items.find(item => item.sku === params.marketplaceSKU);
         contractAddress = item.nftTemplateMetadata.address;

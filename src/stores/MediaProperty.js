@@ -5,7 +5,8 @@ import UrlJoin from "url-join";
 import {Utils} from "@eluvio/elv-client-js";
 
 class MediaPropertyStore {
-  allMediaProperties = {};
+  allMediaProperties;
+  mediaPropertyHashes;
   mediaProperties = {};
   mediaCatalogs = {};
   media = {};
@@ -269,7 +270,10 @@ class MediaPropertyStore {
   }
 
   MediaProperty({mediaPropertySlugOrId}) {
-    const propertyId = this.allMediaProperties[mediaPropertySlugOrId]?.propertyId || mediaPropertySlugOrId;
+    const propertyId =
+      this.allMediaProperties?.[mediaPropertySlugOrId]?.propertyId ||
+      (this.mediaPropertyHashes?.[mediaPropertySlugOrId] && Utils.DecodeVersionHash(this.mediaPropertyHashes[mediaPropertySlugOrId]).objectId) ||
+      mediaPropertySlugOrId;
 
     return this.mediaProperties[propertyId];
   }
@@ -773,6 +777,45 @@ class MediaPropertyStore {
     };
   }
 
+  LoadMediaPropertyHashes = flow(function * () {
+    return yield this.LoadResource({
+      key: "MediaPropertySlugs",
+      id: "media-property-slugs",
+      Load: async () => {
+        const metadataUrl = new URL(
+          rootStore.network === "demo" ?
+            "https://demov3.net955210.contentfabric.io/s/demov3" :
+            "https://main.net955305.contentfabric.io/s/main"
+        );
+
+        metadataUrl.pathname = UrlJoin(
+          metadataUrl.pathname,
+          "qlibs",
+          this.rootStore.siteConfiguration.siteLibraryId,
+          "q",
+          this.rootStore.siteConfiguration.siteId,
+          "meta/public/asset_metadata/media_properties"
+        );
+
+        metadataUrl.searchParams.set("resolve", "false");
+
+        const metadata = (await (await fetch(metadataUrl.toString())).json()) || {};
+
+        let mediaPropertyHashes = {};
+        Object.keys(metadata).forEach(mediaPropertySlug => {
+          const mediaPropertyHash = metadata[mediaPropertySlug]?.["/"]?.split("/")?.find(segment => segment.startsWith("hq__"));
+
+          if(mediaPropertyHash) {
+            mediaPropertyHashes[mediaPropertySlug] = mediaPropertyHash;
+            mediaPropertyHashes[Utils.DecodeVersionHash(mediaPropertyHash).objectId] = mediaPropertyHash;
+          }
+        });
+
+        this.mediaPropertyHashes = mediaPropertyHashes;
+      }
+    });
+  });
+
   LoadMediaProperties = flow(function * () {
     return yield this.LoadResource({
       key: "MediaProperties",
@@ -871,28 +914,42 @@ class MediaPropertyStore {
   });
 
   LoadMediaProperty = flow(function * ({mediaPropertySlugOrId, force=false}) {
-    yield this.LoadMediaProperties();
-    const propertyInfo = this.allMediaProperties[mediaPropertySlugOrId] || {};
-    const mediaPropertyId = propertyInfo?.propertyId || mediaPropertySlugOrId;
-    const isPreview = this.previewAll || mediaPropertyId === this.previewPropertyId;
-
-    if(!propertyInfo && !isPreview) {
-      throw Error("Unable to find property" + mediaPropertySlugOrId);
-    }
+    yield this.LoadMediaPropertyHashes();
 
     yield this.LoadResource({
       key: "MediaProperty",
-      id: mediaPropertyId,
+      id: this.mediaPropertyHashes[mediaPropertySlugOrId] || mediaPropertySlugOrId,
       force,
       Load: async () => {
-        const versionHash = isPreview ?
-          await this.client.LatestVersionHash({objectId: mediaPropertyId}) :
-          propertyInfo.propertyHash;
+        // eslint-disable-next-line no-console
+        console.time(`Load Media Property ${mediaPropertySlugOrId}`);
+
+        const isPreview = this.previewAll || mediaPropertySlugOrId === this.previewPropertyId;
+
+        let versionHash = this.mediaPropertyHashes[mediaPropertySlugOrId];
+        if(isPreview) {
+          versionHash = await this.client.LatestVersionHash({
+            versionHash,
+            objectId: !versionHash && mediaPropertySlugOrId
+          });
+        }
+
+        if(!versionHash && !mediaPropertySlugOrId?.startsWith("iq__")) {
+          throw Error("Unable to find property " + mediaPropertySlugOrId);
+        }
+
+        const mediaPropertyId = versionHash && Utils.DecodeVersionHash(versionHash).objectId;
+
         const metadata = await this.client.ContentObjectMetadata({
           versionHash,
           metadataSubtree: "/public/asset_metadata/info",
           produceLinkUrls: true
         });
+
+        // Start loading associated marketplaces but don't block on it
+        (metadata.associated_marketplaces || []).map(({marketplace_id}) =>
+          this.LoadMarketplace({marketplaceId: marketplace_id, force})
+        );
 
         if(!isPreview && metadata.permission_set_links) {
           // Load from links
@@ -913,7 +970,6 @@ class MediaPropertyStore {
             )
           );
         }
-
 
         // Load Media Catalogs
         let mediaCatalogContent;
@@ -997,11 +1053,6 @@ class MediaPropertyStore {
           }
         });
 
-        // Start loading associated marketplaces but don't block on it
-        (metadata.associated_marketplaces || []).map(({marketplace_id}) =>
-          this.LoadMarketplace({marketplaceId: marketplace_id, force})
-        );
-
         let permissions = {authorized: true};
         if(metadata.permissions?.property_permissions?.length > 0) {
           const authorized = metadata.permissions.property_permissions.find(permissionItemId =>
@@ -1030,12 +1081,15 @@ class MediaPropertyStore {
           permissions,
           metadata
         };
+
+        // eslint-disable-next-line no-console
+        console.timeEnd(`Load Media Property ${mediaPropertySlugOrId}`);
       }
     });
   });
 
   // Ensure the specified load method is called only once unless forced
-  LoadResource = flow(function * ({key, id, force, Load}) {
+  LoadResource = flow(function * ({key, id, force=false, Load}) {
     key = `load${key}-${this.rootStore.CurrentAddress() || "anonymous"}`;
 
     if(force) {
@@ -1194,7 +1248,7 @@ class MediaPropertyStore {
     });
   });
 
-  LoadMarketplace = flow(function * ({marketplaceId, force}) {
+  LoadMarketplace = flow(function * ({marketplaceId, force=false}) {
     yield this.LoadResource({
       key: "Marketplace",
       id: marketplaceId,

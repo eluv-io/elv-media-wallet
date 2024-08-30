@@ -611,7 +611,7 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, secondary
     // Format purchase items
     Promise.all(
       items?.map(async item =>
-        await rootStore.LoadMarketplace(item.marketplace?.marketplace_id)
+        await mediaPropertyStore.LoadMarketplace({marketplaceId: item.marketplace?.marketplace_id})
       )
     ).then(() => {
       setPurchaseItems(
