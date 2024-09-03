@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {rootStore} from "Stores/index";
-import {Switch, useRouteMatch} from "react-router-dom";
+import {Redirect, Switch, useRouteMatch} from "react-router-dom";
 import {observer} from "mobx-react";
 import AsyncComponent from "Components/common/AsyncComponent";
 import {PageLoader} from "Components/common/Loaders";
@@ -12,6 +12,8 @@ import ImageIcon from "Components/common/ImageIcon";
 import Header from "Components/header/Header";
 
 import EluvioLogo from "Assets/icons/EluvioLogo2.svg";
+import {mediaPropertyStore} from "../../stores";
+import {MediaPropertyBasePath} from "../../utils/MediaPropertyUtils";
 
 const Footer = ({footerText, footerLinks=[]}) => {
   const [visibleItem, setVisibleItem] = useState(undefined);
@@ -89,6 +91,7 @@ const Footer = ({footerText, footerLinks=[]}) => {
 
 const MarketplaceWrapper = observer(({children}) => {
   const match = useRouteMatch();
+  const [redirect, setRedirect] = useState(undefined);
 
   useEffect(() => {
     if(match.params.marketplaceId) {
@@ -102,6 +105,10 @@ const MarketplaceWrapper = observer(({children}) => {
     return <PageLoader />;
   }
 
+  if(redirect) {
+    return <Redirect to={redirect} />;
+  }
+
   if(match.params.marketplaceId) {
     return (
       <AsyncComponent
@@ -112,7 +119,24 @@ const MarketplaceWrapper = observer(({children}) => {
         Load={async () => {
           await rootStore.LoadMarketplace(match.params.marketplaceId);
 
-          const passwordDigest = rootStore.marketplaces[match.params.marketplaceId]?.preview_password_digest;
+          const marketplace = rootStore.marketplaces[match.params.marketplaceId];
+          if(marketplace?.property_redirect) {
+            // Redirect to property
+            await mediaPropertyStore.LoadMediaPropertyHashes();
+
+            const propertyHash = mediaPropertyStore.mediaPropertyHashes[marketplace.property_redirect];
+            let mediaPropertySlugOrId = marketplace.property_redirect;
+            if(propertyHash) {
+              mediaPropertySlugOrId = Object.keys(mediaPropertyStore.mediaPropertyHashes).find(key =>
+                key !== marketplace.property_redirect &&
+                mediaPropertyStore.mediaPropertyHashes[key] === propertyHash
+              ) || mediaPropertySlugOrId;
+            }
+
+            setRedirect(MediaPropertyBasePath({mediaPropertySlugOrId}));
+          }
+
+          const passwordDigest = marketplace?.preview_password_digest;
           if(passwordDigest && (rootStore.walletClient.mode === "staging" || match.params.marketplaceId === rootStore.previewMarketplaceId)) {
             await PreviewPasswordPrompt({
               marketplaceId: match.params.marketplaceId,
