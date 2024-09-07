@@ -104,6 +104,8 @@ const MediaCollectionMedia = observer(({mediaListId, navContext}) => {
       mediaItemSlugOrId: mediaListId
     });
 
+    if(!mediaList) { return; }
+
     setAspectRatio(mediaList.preferred_aspect_ratio);
 
     setMedia(
