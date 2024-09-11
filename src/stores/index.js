@@ -920,21 +920,17 @@ class RootStore {
       yield new Promise(resolve => setTimeout(resolve, 100));
     }
 
-    yield this.mediaPropertyStore.LoadMediaProperty({
-      mediaPropertySlugOrId
-    });
-
-    const property = this.mediaPropertyStore.MediaProperty({
+    const metadata = yield this.mediaPropertyStore.LoadMediaPropertyCustomizationMetadata({
       mediaPropertySlugOrId
     });
 
     return {
       mediaPropertyId: this.domainProperty,
-      tenant: property.metadata?.tenant,
-      login: property.metadata?.login,
-      styling: property.metadata.styling,
-      settings: property.metadata.domain,
-      font: property.metadata.styling?.font === "custom" && property.metadata.styling.custom_font_declaration
+      tenant: metadata?.tenant,
+      login: metadata?.login,
+      styling: metadata.styling,
+      settings: metadata.domain,
+      font: metadata.styling?.font === "custom" && metadata.styling.custom_font_declaration
     };
   });
 

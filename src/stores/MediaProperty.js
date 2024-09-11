@@ -24,6 +24,7 @@ class MediaPropertyStore {
     endTime: undefined
   };
   tags = [];
+  logTiming = false;
 
   PERMISSION_BEHAVIORS = {
     HIDE: "hide",
@@ -47,6 +48,11 @@ class MediaPropertyStore {
     this.previewAll = new URLSearchParams(location.search).has("previewAll") || rootStore.GetSessionStorage("preview-all");
     if(this.previewAll) {
       rootStore.SetSessionStorage("preview-all", true);
+    }
+
+    this.logTiming = new URLSearchParams(location.search).has("logTiming") || rootStore.GetSessionStorage("login-timing");
+    if(this.logTiming) {
+      rootStore.SetSessionStorage("log-timing", true);
     }
   }
 
@@ -781,9 +787,10 @@ class MediaPropertyStore {
     return yield this.LoadResource({
       key: "MediaPropertySlugs",
       id: "media-property-slugs",
+      anonymous: true,
       Load: async () => {
         const metadataUrl = new URL(
-          rootStore.network === "demo" ?
+          this.rootStore.network === "demo" ?
             "https://demov3.net955210.contentfabric.io/s/demov3" :
             "https://main.net955305.contentfabric.io/s/main"
         );
@@ -820,9 +827,10 @@ class MediaPropertyStore {
     return yield this.LoadResource({
       key: "MediaProperties",
       id: "media-properties",
+      anonymous: true,
       Load: async () => {
         const metadataUrl = new URL(
-          rootStore.network === "demo" ?
+          this.rootStore.network === "demo" ?
             "https://demov3.net955210.contentfabric.io/s/demov3" :
             "https://main.net955305.contentfabric.io/s/main"
         );
@@ -874,7 +882,7 @@ class MediaPropertyStore {
 
               if(property.image) {
                 const imageUrl = new URL(
-                  rootStore.network === "demo" ?
+                  this.rootStore.network === "demo" ?
                     "https://demov3.net955210.contentfabric.io/s/demov3" :
                     "https://main.net955305.contentfabric.io/s/main"
                 );
@@ -913,6 +921,60 @@ class MediaPropertyStore {
     });
   });
 
+  LoadMediaPropertyCustomizationMetadata = flow(function * ({mediaPropertySlugOrId, force=false}) {
+    yield this.LoadMediaPropertyHashes();
+
+    return yield this.LoadResource({
+      key: "MediaPropertyCustomizationMetadata",
+      id: this.mediaPropertyHashes[mediaPropertySlugOrId] || mediaPropertySlugOrId,
+      force,
+      anonymous: true,
+      Load: async () => {
+        const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
+        if(mediaProperty) {
+          return mediaProperty.metadata;
+        }
+
+        const isPreview = this.previewAll || mediaPropertySlugOrId === this.previewPropertyId;
+
+        let versionHash = this.mediaPropertyHashes[mediaPropertySlugOrId];
+        if(isPreview) {
+          versionHash = await this.client.LatestVersionHash({
+            versionHash,
+            objectId: !versionHash && mediaPropertySlugOrId
+          });
+        }
+
+        if(!versionHash && !mediaPropertySlugOrId?.startsWith("iq__")) {
+          throw Error("Unable to find property " + mediaPropertySlugOrId);
+        }
+
+        const storageKey = `customization-metadata-${versionHash}`;
+
+        const metadata =
+          this.rootStore.GetSessionStorageJSON(storageKey, true) ||
+          await this.client.ContentObjectMetadata({
+            versionHash,
+            metadataSubtree: "/public/asset_metadata/info",
+            produceLinkUrls: true,
+            select: [
+              "tenant",
+              "login",
+              "styling",
+              "domain"
+            ]
+          });
+
+        this.rootStore.SetSessionStorage(
+          storageKey,
+          this.client.utils.B64(JSON.stringify(metadata))
+        );
+
+        return metadata;
+      }
+    });
+  });
+
   LoadMediaProperty = flow(function * ({mediaPropertySlugOrId, force=false}) {
     yield this.LoadMediaPropertyHashes();
 
@@ -921,9 +983,6 @@ class MediaPropertyStore {
       id: this.mediaPropertyHashes[mediaPropertySlugOrId] || mediaPropertySlugOrId,
       force,
       Load: async () => {
-        // eslint-disable-next-line no-console
-        console.time(`Load Media Property ${mediaPropertySlugOrId}`);
-
         const isPreview = this.previewAll || mediaPropertySlugOrId === this.previewPropertyId;
 
         let versionHash = this.mediaPropertyHashes[mediaPropertySlugOrId];
@@ -1081,16 +1140,26 @@ class MediaPropertyStore {
           permissions,
           metadata
         };
-
-        // eslint-disable-next-line no-console
-        console.timeEnd(`Load Media Property ${mediaPropertySlugOrId}`);
       }
     });
   });
 
   // Ensure the specified load method is called only once unless forced
-  LoadResource = flow(function * ({key, id, force=false, Load}) {
-    key = `load${key}-${this.rootStore.CurrentAddress() || "anonymous"}`;
+  LoadResource = flow(function * ({key, id, force=false, anonymous=false, Load}) {
+    if(anonymous) {
+      key = `load${key}-anonymous`;
+    } else if(!anonymous) {
+      while(
+        !this.rootStore.loaded ||
+        this.rootStore.authenticating ||
+        // Auth0 login - wait for completion
+        new URLSearchParams(decodeURIComponent(window.location.search)).has("code")
+      ) {
+        yield new Promise(resolve => setTimeout(resolve, 500));
+      }
+
+      key = `load${key}-${this.rootStore.CurrentAddress() || "anonymous"}`;
+    }
 
     if(force) {
       // Force - drop all loaded content
@@ -1100,7 +1169,19 @@ class MediaPropertyStore {
     this[key] = this[key] || {};
 
     if(force || !this[key][id]) {
-      this[key][id] = Load();
+      if(this.logTiming) {
+        this[key][id] = (async (...args) => {
+          // eslint-disable-next-line no-console
+          console.time(key);
+          const result = await Load(...args);
+          // eslint-disable-next-line no-console
+          console.timeEnd(key);
+
+          return result;
+        })();
+      } else {
+        this[key][id] = Load();
+      }
     }
 
     return yield this[key][id];
