@@ -113,6 +113,15 @@ const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideContr
     );
   }
 
+  let playoutParameters = {
+    offerings: mediaItem.offerings
+  };
+
+  if(display.clip && !mediaItem.live_video) {
+    playoutParameters.clipStart = display.clip_start_time;
+    playoutParameters.clipEnd = display.clip_end_time;
+  }
+
   return (
     <Video
       ref={videoRef}
@@ -122,10 +131,7 @@ const MediaVideo = observer(({mediaItem, display, videoRef, showTitle, hideContr
       showTitle={showTitle}
       hideControls={hideControls || mediaItem.player_controls}
       mute={mute || mediaItem.player_muted}
-      playoutParameters={
-        display.live_video || !display.clip ? {} :
-          { clipStart: display.clip_start_time, clipEnd: display.clip_end_time }
-      }
+      playoutParameters={playoutParameters}
       contentInfo={{
         title: display.title,
         liveDVR: EluvioPlayerParameters.liveDVR[mediaItem.enable_dvr ? "ON" : "OFF"]

@@ -554,33 +554,6 @@ const AuthenticateAuth0 = async (userData) => {
 
     await rootStore.auth0.handleRedirectCallback();
 
-    // eslint-disable-next-line no-console
-    console.timeEnd("Auth0 Parameter Parsing");
-
-    // Remove login related params from url
-    const paramKeys = [
-      "code",
-      "origin",
-      "source",
-      "action",
-      "provider",
-      "mode",
-      "response",
-      "redirect",
-      "elvid",
-      "clear",
-      "marketplace",
-      "mid",
-      "data",
-      "code",
-      "state"
-    ];
-
-    const url = new URL(window.location.href);
-    paramKeys.forEach(key => url.searchParams.delete(key));
-
-    window.history.replaceState({}, document.title, url.toString());
-
     await rootStore.AuthenticateAuth0({userData});
   } catch(error){
     rootStore.Log("Auth0 authentication failed:", true);
@@ -589,6 +562,8 @@ const AuthenticateAuth0 = async (userData) => {
     if(error.uiMessage) {
       throw error;
     }
+  } finally {
+    rootStore.ClearLoginParams();
   }
 };
 
@@ -620,6 +595,11 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
         // Authenticate with metamask
         await rootStore.Authenticate({externalWallet: "Metamask"});
       } else if(provider === "oauth") {
+        if(await rootStore.auth0.isAuthenticated()) {
+          await rootStore.AuthenticateAuth0(userData);
+          return;
+        }
+
         let auth0LoginParams = { appState: {} };
 
         if(rootStore.darkMode) {

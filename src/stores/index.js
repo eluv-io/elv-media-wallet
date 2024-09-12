@@ -599,6 +599,36 @@ class RootStore {
     }
   });
 
+  ClearLoginParams() {
+    try {
+      // Ensure login parameters are cleared
+      const paramKeys = [
+        "code",
+        "origin",
+        "source",
+        "action",
+        "provider",
+        "mode",
+        "response",
+        "redirect",
+        "elvid",
+        "clear",
+        "marketplace",
+        "mid",
+        "data",
+        "state"
+      ];
+
+      const url = new URL(window.location.href);
+      paramKeys.forEach(key => url.searchParams.delete(key));
+
+      window.history.replaceState({}, document.title, url.toString());
+    } catch(error) {
+      this.Log("Failed to clear login URL parameters", true);
+      this.Log(error, true);
+    }
+  }
+
   AuthenticateAuth0 = flow(function * ({userData}={}) {
     try {
       // eslint-disable-next-line no-console
@@ -634,11 +664,15 @@ class RootStore {
             userData
           }
         });
+
+        this.ClearLoginParams();
       }
     } catch(error) {
       if(error?.message?.toLowerCase() !== "login required") {
         this.Log("Error logging in with Auth0:", true);
         this.Log(error, true);
+
+        this.ClearLoginParams();
       }
 
       if([400, 403, 503].includes(parseInt(error?.status))) {

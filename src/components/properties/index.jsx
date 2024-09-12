@@ -72,12 +72,14 @@ const PropertyWrapper = observer(({children}) => {
       <AsyncComponent
         // Store info is cleared when logged in
         cacheSeconds={60}
-        key={`property-${mediaPropertySlugOrId}-${rootStore.loggedIn}`}
-        loadKey={`property-${mediaPropertySlugOrId}-${rootStore.loggedIn}`}
+        key={`property-${mediaPropertySlugOrId}-${rootStore.CurrentAddress()}`}
+        loadKey={`property-${mediaPropertySlugOrId}-${rootStore.CurrentAddress()}`}
         Load={async () => {
           await mediaPropertyStore.LoadMediaProperty({mediaPropertySlugOrId});
 
           const property = mediaPropertyStore.MediaProperty({mediaPropertySlugOrId});
+
+          if(!property) { return; }
 
           SetHTMLMetaTags({
             metaTags: property.metadata?.meta_tags

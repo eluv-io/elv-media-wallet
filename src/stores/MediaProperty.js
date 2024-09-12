@@ -26,6 +26,7 @@ class MediaPropertyStore {
   };
   tags = [];
   logTiming = false;
+  _resources = {};
 
   PERMISSION_BEHAVIORS = {
     HIDE: "hide",
@@ -51,7 +52,7 @@ class MediaPropertyStore {
       rootStore.SetSessionStorage("preview-all", true);
     }
 
-    this.logTiming = new URLSearchParams(location.search).has("logTiming") || rootStore.GetSessionStorage("login-timing");
+    this.logTiming = new URLSearchParams(location.search).has("logTiming") || rootStore.GetSessionStorage("log-timing");
     if(this.logTiming) {
       rootStore.SetSessionStorage("log-timing", true);
     }
@@ -1013,6 +1014,15 @@ class MediaPropertyStore {
           produceLinkUrls: true
         });
 
+        if(
+          this.rootStore.loggedIn &&
+          (metadata?.login?.settings?.provider || "auth0") !== this.rootStore.AuthInfo()?.provider
+        ) {
+          this.rootStore.Log("Signing out due to mismatched login provider with property");
+          await this.rootStore.SignOut({reload: false});
+          return;
+        }
+
         // Start loading associated marketplaces but don't block on it
         (metadata.associated_marketplaces || []).map(({marketplace_id}) =>
           this.LoadMarketplace({marketplaceId: marketplace_id, force})
@@ -1161,7 +1171,7 @@ class MediaPropertyStore {
         !this.rootStore.loaded ||
         this.rootStore.authenticating ||
         // Auth0 login - wait for completion
-        new URLSearchParams(decodeURIComponent(window.location.search)).has("code")
+        (!this.rootStore.loggedIn && new URLSearchParams(decodeURIComponent(window.location.search)).has("code"))
       ) {
         yield new Promise(resolve => setTimeout(resolve, 500));
       }
@@ -1171,14 +1181,14 @@ class MediaPropertyStore {
 
     if(force) {
       // Force - drop all loaded content
-      this[key] = {};
+      this._resources[key] = {};
     }
 
-    this[key] = this[key] || {};
+    this._resources[key] = this._resources[key] || {};
 
-    if(force || !this[key][id]) {
+    if(force || !this._resources[key][id]) {
       if(this.logTiming) {
-        this[key][id] = (async (...args) => {
+        this._resources[key][id] = (async (...args) => {
           // eslint-disable-next-line no-console
           console.time(`${key} - ${id}`);
           const result = await Load(...args);
@@ -1188,11 +1198,11 @@ class MediaPropertyStore {
           return result;
         })();
       } else {
-        this[key][id] = Load();
+        this._resources[key][id] = Load();
       }
     }
 
-    return yield this[key][id];
+    return yield this._resources[key][id];
   });
 
   LoadMediaCatalog = flow(function * ({mediaCatalogId, mediaCatalogHash, force}) {
