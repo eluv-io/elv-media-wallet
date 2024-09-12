@@ -707,6 +707,37 @@ const MediaPropertyPurchaseModal = () => {
   const [purchaseItems, setPurchaseItems] = useState([]);
   const params = MediaPropertyPurchaseParams() || {};
 
+  const urlParams = new URLSearchParams(location.search);
+
+  const redirectPage = urlParams.get("page");
+
+  let backPath = params.cancelPath || match.url;
+  urlParams.delete("p");
+  urlParams.delete("confirmationId");
+  urlParams.delete("page");
+
+  backPath = backPath + (urlParams.size > 0 ? `?${urlParams.toString()}` : "");
+
+  const Close = success => {
+    if(success && params.successPath) {
+      history.push(params.successPath);
+    } else if(success && redirectPage) {
+      const page = mediaPropertyStore.MediaPropertyPage({...match.params, pageSlugOrId: redirectPage});
+
+      if(redirectPage) {
+        history.replace(MediaPropertyBasePath({
+          ...match.params,
+          pageSlugOrId: page.slug || page.id
+        }));
+      } else {
+        Close();
+        history.replace(backPath);
+      }
+    } else {
+      history.replace(backPath);
+    }
+  };
+
   useEffect(() => {
     if(!params || params.type !== "purchase") {
       setPurchaseItems([]);
@@ -783,23 +814,13 @@ const MediaPropertyPurchaseModal = () => {
       mediaPropertyStore.Log(params, true);
     }
 
-    setPurchaseItems(newPurchaseItems);
+    // Gated on purchase, but user owns one or more of the items (probably just logged in)
+    if(params.gate && newPurchaseItems?.find(item => !!item?.ownedItem)) {
+      Close(true);
+    } else {
+      setPurchaseItems(newPurchaseItems);
+    }
   }, [location.search]);
-
-  const urlParams = new URLSearchParams(location.search);
-
-  const redirectPage = urlParams.get("page");
-
-  let backPath = params.cancelPath || match.url;
-  urlParams.delete("p");
-  urlParams.delete("confirmationId");
-  urlParams.delete("page");
-
-  backPath = backPath + (urlParams.size > 0 ? `?${urlParams.toString()}` : "");
-
-  const Close = () => {
-    history.replace(backPath);
-  };
 
   if(params.unlessPermissions) {
     const hasPermissions = !!params.unlessPermissions?.find(permissionItemId =>
@@ -807,8 +828,10 @@ const MediaPropertyPurchaseModal = () => {
     );
 
     if(hasPermissions) {
-      Close();
+      Close(true);
     }
+
+    return null;
   }
 
   return (
@@ -827,24 +850,7 @@ const MediaPropertyPurchaseModal = () => {
                 itemId={params.itemId || params.listingId}
                 secondaryPurchaseOption={params.secondaryPurchaseOption}
                 confirmationId={params.confirmationId}
-                Close={success => {
-                  if(success && params.successPath) {
-                    history.push(params.successPath);
-                  } else if(success && redirectPage) {
-                    const page = mediaPropertyStore.MediaPropertyPage({...match.params, pageSlugOrId: redirectPage});
-
-                    if(redirectPage) {
-                      history.replace(MediaPropertyBasePath({
-                        ...match.params,
-                        pageSlugOrId: page.slug || page.id
-                      }));
-                    } else {
-                      Close();
-                    }
-                  } else {
-                    Close();
-                  }
-                }}
+                Close={Close}
               />
         }
       </Modal>

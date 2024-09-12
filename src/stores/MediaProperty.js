@@ -7,6 +7,7 @@ import {Utils} from "@eluvio/elv-client-js";
 class MediaPropertyStore {
   allMediaProperties;
   mediaPropertyHashes;
+  mediaPropertyIds;
   mediaProperties = {};
   mediaCatalogs = {};
   media = {};
@@ -809,16 +810,23 @@ class MediaPropertyStore {
         const metadata = (await (await fetch(metadataUrl.toString())).json()) || {};
 
         let mediaPropertyHashes = {};
+        let mediaPropertyIds = {};
         Object.keys(metadata).forEach(mediaPropertySlug => {
           const mediaPropertyHash = metadata[mediaPropertySlug]?.["/"]?.split("/")?.find(segment => segment.startsWith("hq__"));
 
           if(mediaPropertyHash) {
+            const mediaPropertyId = Utils.DecodeVersionHash(mediaPropertyHash).objectId;
+
             mediaPropertyHashes[mediaPropertySlug] = mediaPropertyHash;
-            mediaPropertyHashes[Utils.DecodeVersionHash(mediaPropertyHash).objectId] = mediaPropertyHash;
+            mediaPropertyHashes[mediaPropertyId] = mediaPropertyHash;
+
+            mediaPropertyIds[mediaPropertySlug] = mediaPropertyId;
+            mediaPropertyIds[mediaPropertyId] = mediaPropertyId;
           }
         });
 
         this.mediaPropertyHashes = mediaPropertyHashes;
+        this.mediaPropertyIds = mediaPropertyIds;
       }
     });
   });
@@ -926,7 +934,7 @@ class MediaPropertyStore {
 
     return yield this.LoadResource({
       key: "MediaPropertyCustomizationMetadata",
-      id: this.mediaPropertyHashes[mediaPropertySlugOrId] || mediaPropertySlugOrId,
+      id: this.mediaPropertyIds[mediaPropertySlugOrId] || mediaPropertySlugOrId,
       force,
       anonymous: true,
       Load: async () => {
@@ -980,7 +988,7 @@ class MediaPropertyStore {
 
     yield this.LoadResource({
       key: "MediaProperty",
-      id: this.mediaPropertyHashes[mediaPropertySlugOrId] || mediaPropertySlugOrId,
+      id: this.mediaPropertyIds[mediaPropertySlugOrId] || mediaPropertySlugOrId,
       force,
       Load: async () => {
         const isPreview = this.previewAll || mediaPropertySlugOrId === this.previewPropertyId;
@@ -1172,10 +1180,10 @@ class MediaPropertyStore {
       if(this.logTiming) {
         this[key][id] = (async (...args) => {
           // eslint-disable-next-line no-console
-          console.time(key);
+          console.time(`${key} - ${id}`);
           const result = await Load(...args);
           // eslint-disable-next-line no-console
-          console.timeEnd(key);
+          console.timeEnd(`${key} - ${id}`);
 
           return result;
         })();
