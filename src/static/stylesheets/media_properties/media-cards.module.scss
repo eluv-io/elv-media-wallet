@@ -353,7 +353,7 @@
   border-radius: 10px;
   display: flex;
   flex-direction: column;
-  height: max-content;
+  height: 100%;
   max-width: 375px;
   overflow: hidden;
   width: 100%;
@@ -389,6 +389,10 @@
     .media-card-button-vertical__image-container {
       aspect-ratio: 2/3;
     }
+  }
+
+  &--modal {
+    box-shadow: 0 0 30px rgb(0 0 0 / 50%);
   }
 
   &__image-container {
@@ -638,4 +642,15 @@
     border-radius: 5px;
     padding: 5px 10px;
   }
+}
+
+.button-card-modal-container {
+  align-items: center;
+  display: flex;
+  height: max-content;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 30px 0;
+  width: 100%;
+  z-index: 0;
 }

@@ -7,7 +7,7 @@ import {
   MediaItemImageUrl, MediaItemLivePreviewImageUrl,
   MediaItemScheduleInfo, MediaPropertyLink
 } from "../../utils/MediaPropertyUtils";
-import {Button, Description, ExpandableDescription, LoaderImage, ScaledText} from "Components/properties/Common";
+import {Button, Description, ExpandableDescription, LoaderImage, ScaledText, Modal} from "Components/properties/Common";
 import {useRouteMatch} from "react-router-dom";
 import {Linkish} from "Components/common/UIComponents";
 
@@ -28,7 +28,9 @@ const MediaCardWithButtonVertical = observer(({
   lazy=true,
   buttonText,
   onClick,
-  className=""
+  className="",
+  setShowModal,
+  isModal
 }) => {
   return (
     <div
@@ -37,6 +39,7 @@ const MediaCardWithButtonVertical = observer(({
           "media-card-button-vertical",
           `media-card-button-vertical--${aspectRatio}`,
           `media-card-button-vertical--${textJustification || "left"}`,
+          isModal ? "media-card-button-vertical--modal" : "",
           size === "fixed" ? "media-card-button-vertical--size-fixed" : "",
           size === "mixed" ? "media-card-button-vertical--size-mixed" : "",
         ),
@@ -84,14 +87,21 @@ const MediaCardWithButtonVertical = observer(({
               { display.subtitle }
             </div>
         }
-        {
           <ExpandableDescription
             description={display.description}
             descriptionRichText={display.description_rich_text}
+            maxLines={isModal ? 1000 : undefined}
+            onClick={
+              isModal ? undefined :
+                () => {
+                  setShowModal(true);
+
+                  return true;
+                }
+            }
             togglePosition={textJustification || "left"}
             className={S("media-card-button-vertical__description")}
           />
-        }
         <div className={S("media-card-button-vertical__actions")}>
           <Button
             aria-label={display.title}
@@ -125,7 +135,8 @@ const MediaCardWithButtonHorizontal = observer(({
   lazy=true,
   buttonText,
   onClick,
-  className=""
+  className="",
+  setShowModal
 }) => {
   return (
     <div
@@ -182,14 +193,17 @@ const MediaCardWithButtonHorizontal = observer(({
               { display.subtitle }
             </div>
         }
-        {
-          <ExpandableDescription
-            description={display.description}
-            descriptionRichText={display.description_rich_text}
-            togglePosition={textJustification}
-            className={S("media-card-button-horizontal__description")}
-          />
-        }
+        <ExpandableDescription
+          description={display.description}
+          descriptionRichText={display.description_rich_text}
+          onClick={() => {
+            setShowModal(true);
+
+            return true;
+          }}
+          togglePosition={textJustification || "left"}
+          className={S("media-card-button-horizontal__description")}
+        />
         <div className={S("media-card-button-horizontal__actions")}>
           <Button
             aria-label={display.title}
@@ -205,6 +219,35 @@ const MediaCardWithButtonHorizontal = observer(({
         </div>
       </div>
     </div>
+  );
+});
+
+const ButtonCard = observer(({orientation="vertical", ...args}) => {
+  const [showModal, setShowModal] = useState(false);
+
+  const Component = orientation === "vertical" ?
+    MediaCardWithButtonVertical :
+    MediaCardWithButtonHorizontal;
+
+  return (
+    <>
+      <Component {...args} setShowModal={setShowModal} />
+      {
+        !showModal ? null :
+          <Modal noBackground opened centered fullScreen onClose={() => setShowModal(false)}>
+            <div
+              onClick={function(event) {
+                if(event.target === event.currentTarget) {
+                  setShowModal(false);
+                }
+              }}
+              className={S("button-card-modal-container")}
+            >
+              <MediaCardWithButtonVertical {...args} isModal />
+            </div>
+          </Modal>
+      }
+    </>
   );
 });
 
@@ -540,7 +583,7 @@ const MediaCard = observer(({
 
   const scheduleInfo = MediaItemScheduleInfo(mediaItem || sectionItem.mediaItem);
 
-  disabled = disabled || sectionItem?.resolvedPermissions?.disable;
+  disabled = disabled || (sectionItem || mediaItem)?.resolvedPermissions?.disable;
 
   let linkPath, url;
   if(!disabled) {
@@ -572,11 +615,9 @@ const MediaCard = observer(({
     case "horizontal":
       return <MediaCardHorizontal {...args} />;
     case "button_vertical":
-      return <MediaCardWithButtonVertical {...args} />;
+      return <ButtonCard orientation="vertical" {...args} />;
     case "button_horizontal":
-      return rootStore.pageWidth > 600 ?
-        <MediaCardWithButtonHorizontal {...args} /> :
-        <MediaCardWithButtonVertical {...args} />;
+      return <ButtonCard orientation={rootStore.pageWidth > 600 ? "horizontal" : "vertical"} {...args} />;
     case "banner":
       return <MediaCardBanner {...args} />;
     default:

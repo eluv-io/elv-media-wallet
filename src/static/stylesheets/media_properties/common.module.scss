@@ -51,7 +51,6 @@
 
   &__close {
     cursor: pointer;
-    display: none;
     filter: drop-shadow(0 0 2px #000);
     height: 25px;
     position: fixed;
@@ -77,10 +76,6 @@
       max-width: unset;
       min-height: 100vh;
       padding-top: 25px;
-    }
-
-    &__close {
-      display: block;
     }
   }
 }
@@ -375,7 +370,16 @@
 
   &__description {
     height: max-content;
+    margin: 0;
     padding: 0;
+  }
+
+  &__modal {
+    padding: 15px;
+
+    &.expandable-description__modal {
+      margin: 0;
+    }
   }
 }
 

@@ -151,13 +151,13 @@ class MediaPropertyStore {
         .map(result => ({
           ...result,
           mediaItem: this.media[result.id]
-        }));
+        }))
+        .filter(result => result.mediaItem);
     } else {
       // All content
       const associatedCatalogIds = mediaProperty.metadata.media_catalogs || [];
       results = Object.values(this.media)
         .filter(mediaItem =>
-          (mediaItem.authorized || mediaItem.public) &&
           associatedCatalogIds.includes(mediaItem.media_catalog_id)
         )
         .map(mediaItem => ({
@@ -170,7 +170,30 @@ class MediaPropertyStore {
         }));
     }
 
-    results = results.filter(({mediaItem}) => mediaItem?.authorized || mediaItem?.public);
+    const permissionBehavior = mediaProperty.metadata.permissions.search_permissions_behavior || "hide";
+    if(permissionBehavior === "hide") {
+      results = results.filter(({mediaItem}) => mediaItem?.authorized || mediaItem?.public);
+    } else {
+      results = results.map(result => {
+        const authorized = result.mediaItem?.authorized || result.mediaItem?.public;
+
+        return {
+          ...result,
+          mediaItem: {
+            ...result.mediaItem,
+            resolvedPermissions: {
+              authorized,
+              disable: !authorized && permissionBehavior === this.PERMISSION_BEHAVIORS.DISABLE,
+              showAlternatePage: !authorized && permissionBehavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE,
+              alternatePageId: mediaProperty.metadata.permissions.search_permissions_alternate_page_id,
+              purchaseGate: !authorized && permissionBehavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE,
+              secondaryPurchaseOption: mediaProperty.metadata.permissions.search_permissions_secondary_market_purchase_option,
+              permissionItemIds: result.mediaItem?.permissions?.map(permission => permission.permission_item_id) || []
+            }
+          }
+        };
+      });
+    }
 
     // Filter
     const hasDateFilter = !!(searchOptions.startTime || searchOptions.endTime) || searchOptions.schedule;

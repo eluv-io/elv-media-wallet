@@ -265,6 +265,41 @@ export const ScaledText = observer(({
   );
 });
 
+export const Modal = observer(({noBackground=false, ...args}) => {
+  const showCloseButton = args.fullScreen ||
+    (typeof args.withCloseButton === "undefined" ?
+      rootStore.pageWidth < 600 : args.withCloseButton);
+
+  return (
+    <MantineModal
+      {...args}
+      shadow="xl"
+      withCloseButton={false}
+      transitionProps={args.transitionProps || {duration: 0}}
+      classNames={{
+        root: [S("modal", noBackground ? "modal--no-background" : ""), args.rootClassName || ""].join(" "),
+        overlay: [S("modal__overlay"), args.overlayClassName || ""].join(" "),
+        inner: [S("modal__inner"), args.innerClassName || ""].join(" "),
+        content: [S("modal__container"), args.contentClassName || ""].join(" "),
+        header: [S("modal__header"), args.headerClassName || ""].join(" "),
+        body: [S("modal__content"), args.bodyClassName || ""].join(" ")
+      }}
+    >
+      {
+        !showCloseButton ? null :
+          <button
+            aria-label="Close"
+            onClick={() => args.onClose && args.onClose()}
+            className={S("modal__close")}
+          >
+            <ImageIcon icon={XIcon}/>
+          </button>
+      }
+      { args.children }
+    </MantineModal>
+  );
+});
+
 export const Description = ({
   description,
   descriptionRichText,
@@ -309,8 +344,17 @@ export const Description = ({
   );
 };
 
-export const ExpandableDescription = observer(({description, descriptionRichText, onClick, togglePosition="left", maxLines, className=""}) => {
+export const ExpandableDescription = observer(({
+  description,
+  descriptionRichText,
+  onClick,
+  useModal,
+  togglePosition="left",
+  maxLines,
+  className=""
+}) => {
   const [expanded, setExpanded] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [showToggle, setShowToggle] = useState(false);
   const descriptionRef = useRef();
 
@@ -334,42 +378,71 @@ export const ExpandableDescription = observer(({description, descriptionRichText
     return null;
   }
 
-  return (
-    <div
-      role={expanded ? "" : "button"}
-      onClick={event => {
-        showToggle && !expanded && setExpanded(true);
+  const Expand = event => {
+    if(onClick && onClick(event) === true) {
+      return;
+    }
 
-        onClick && onClick(event);
-      }}
-      className={[
-        S(
-          "expandable-description",
-          showToggle ? "expandable-description--toggleable" : "",
-          `expandable-description--${expanded ? "expanded" : "contracted"}`
-        ),
-        className
-      ].join(" ")}
-    >
-      <div
-        ref={descriptionRef}
-        style={maxLines && !expanded ? {maxHeight: `${maxLines * 1.6}em`} : {}}
-        className={S("expandable-description__description-container", showToggle ? "expandable-description__description-container--mask" : "")}
-      >
-        <Description
-          description={description}
-          descriptionRichText={descriptionRichText}
-          className={S("expandable-description__description")}
-        />
-      </div>
-      { expanded ? null : <div className={S("expandable-description__overlay")} /> }
+    if(!showToggle) {
+      return;
+    }
+
+    useModal ?
+      setShowModal(true) :
+      setExpanded(showToggle && !expanded);
+  };
+
+
+  return (
+    <>
       {
-        !showToggle ? null :
-          <button onClick={() => setExpanded(!expanded)} className={S("expandable-description__toggle", `expandable-description__toggle--${togglePosition?.toLowerCase() || "left"}`)}>
-            {mediaPropertyStore.rootStore.l10n.media_properties.media.description[expanded ? "hide" : "show"]}
-          </button>
+        !showModal ? null :
+          <Modal
+            opened
+            centered
+            onClose={() => setShowModal(false)}
+          >
+            <div className={[S("expandable-description__modal"), className].join(" ")}>
+              <Description
+                description={description}
+                descriptionRichText={descriptionRichText}
+                className={S("expandable-description__description")}
+              />
+            </div>
+          </Modal>
       }
-    </div>
+      <div
+        role={expanded ? "" : "button"}
+        onClick={event => !expanded && Expand(event)}
+        className={[
+          S(
+            "expandable-description",
+            showToggle ? "expandable-description--toggleable" : "",
+            `expandable-description--${expanded ? "expanded" : "contracted"}`
+          ),
+          className
+        ].join(" ")}
+      >
+        <div
+          ref={descriptionRef}
+          style={maxLines && !expanded ? {maxHeight: `${maxLines * 1.6}em`} : {}}
+          className={S("expandable-description__description-container", showToggle ? "expandable-description__description-container--mask" : "")}
+        >
+          <Description
+            description={description}
+            descriptionRichText={descriptionRichText}
+            className={S("expandable-description__description")}
+          />
+        </div>
+        { expanded ? null : <div className={S("expandable-description__overlay")} /> }
+        {
+          !showToggle ? null :
+            <button onClick={Expand} className={S("expandable-description__toggle", `expandable-description__toggle--${togglePosition?.toLowerCase() || "left"}`)}>
+              {mediaPropertyStore.rootStore.l10n.media_properties.media.description[expanded ? "hide" : "show"]}
+            </button>
+        }
+      </div>
+    </>
   );
 });
 
@@ -591,40 +664,6 @@ export const AttributeFilter = observer(({
         );
       }}
     />
-  );
-});
-
-export const Modal = observer(({noBackground=false, ...args}) => {
-  const showCloseButton = typeof args.withCloseButton === "undefined" ?
-    rootStore.pageWidth < 600 : args.withCloseButton;
-
-  return (
-    <MantineModal
-      {...args}
-      shadow="xl"
-      withCloseButton={false}
-      transitionProps={args.transitionProps || {duration: 0}}
-      classNames={{
-        root: [S("modal", noBackground ? "modal--no-background" : ""), args.rootClassName || ""].join(" "),
-        overlay: [S("modal__overlay"), args.overlayClassName || ""].join(" "),
-        inner: [S("modal__inner"), args.innerClassName || ""].join(" "),
-        content: [S("modal__container"), args.contentClassName || ""].join(" "),
-        header: [S("modal__header"), args.headerClassName || ""].join(" "),
-        body: [S("modal__content"), args.bodyClassName || ""].join(" ")
-      }}
-    >
-      {
-        !showCloseButton ? null :
-          <button
-            aria-label="Close"
-            onClick={() => args.onClose && args.onClose()}
-            className={S("modal__close")}
-          >
-            <ImageIcon icon={XIcon}/>
-          </button>
-      }
-      { args.children }
-    </MantineModal>
   );
 });
 
