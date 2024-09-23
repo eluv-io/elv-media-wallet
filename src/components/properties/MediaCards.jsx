@@ -105,7 +105,11 @@ const MediaCardWithButtonVertical = observer(({
         <div className={S("media-card-button-vertical__actions")}>
           <Button
             aria-label={display.title}
-            onClick={onClick}
+            onClick={async event => {
+              setShowModal && setShowModal(false);
+
+              return await onClick(event);
+            }}
             to={linkPath}
             href={url}
             className={[S("media-card-button-vertical__action"), className].join(" ")}
@@ -207,7 +211,10 @@ const MediaCardWithButtonHorizontal = observer(({
         <div className={S("media-card-button-horizontal__actions")}>
           <Button
             aria-label={display.title}
-            onClick={onClick}
+            onClick={async event => {
+              setShowModal && setShowModal(false);
+              return await onClick(event);
+            }}
             to={linkPath}
             href={url}
             className={[S("media-card-button-horizontal__action"), className].join(" ")}
@@ -243,7 +250,7 @@ const ButtonCard = observer(({orientation="vertical", ...args}) => {
               }}
               className={S("button-card-modal-container")}
             >
-              <MediaCardWithButtonVertical {...args} isModal />
+              <MediaCardWithButtonVertical {...args} isModal setShowModal={setShowModal} />
             </div>
           </Modal>
       }
