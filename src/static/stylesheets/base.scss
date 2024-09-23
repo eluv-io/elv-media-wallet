@@ -85,6 +85,10 @@ body {
   position: absolute;
   scrollbar-gutter: stable both-edges;
   transition: background-color 1000ms linear;
+
+  &[data-scroll-locked="1"] {
+    padding-right: var(--removed-body-scroll-bar-size, var(--scroll-bar-width))!important;
+  }
 }
 
 main {

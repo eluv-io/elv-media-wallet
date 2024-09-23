@@ -20,9 +20,15 @@ const Modal = observer(({children, Toggle, closable=true, noFade=false, id="", c
   };
 
   useEffect(() => {
+    const originalWidth = document.body.getBoundingClientRect().width;
     window.__activeMenues += 1;
     document.addEventListener("keydown", Close);
     document.body.style.overflowY = "hidden";
+    document.body.setAttribute("data-scroll-locked", "1");
+
+    document.querySelector(":root")
+      .style
+      .setProperty("--scroll-bar-width", `${document.body.getBoundingClientRect().width - originalWidth}px`);
 
     rootStore.AddActiveModal();
 
@@ -30,6 +36,7 @@ const Modal = observer(({children, Toggle, closable=true, noFade=false, id="", c
       window.__activeMenues -= 1;
       document.removeEventListener("keydown", Close);
       document.body.style.overflowY = "scroll";
+      document.body.removeAttribute("data-scroll-locked");
 
       rootStore.RemoveActiveModal();
     };
