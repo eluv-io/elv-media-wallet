@@ -379,11 +379,11 @@ export const ExpandableDescription = observer(({
   }
 
   const Expand = event => {
-    if(onClick && onClick(event) === true) {
+    if(!showToggle) {
       return;
     }
 
-    if(!showToggle) {
+    if(onClick && onClick(event) === true) {
       return;
     }
 
