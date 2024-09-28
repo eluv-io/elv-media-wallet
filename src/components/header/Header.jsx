@@ -275,16 +275,18 @@ const Header = observer(() => {
     return <MobileHeader scrolled={scrolled} />;
   }
 
+  const backPath = rootStore.backPath || (rootStore.routeParams.marketplaceId && "/");
+
   return (
     <>
       <div className={S("header-placeholder")} />
       <header className={S("header", scrolled ? "header--scrolled" : "")}>
         <div className={S("header__background")} />
         {
-          !rootStore.backPath || location.pathname === rootStore.backPath ? null :
+          !backPath || location.pathname === backPath ? null :
             <div className={S("back-link-container")}>
               <Linkish
-                to={rootStore.backPath}
+                to={rootStore.backPath || "/"}
                 style={{paddingRight: "3px"}}
                 className={S("button")}
               >
@@ -294,7 +296,10 @@ const Header = observer(() => {
         }
 
         <Home marketplaceId={marketplaceId} />
-        <SearchBar />
+        {
+          rootStore.routeParams.marketplaceId ? null :
+            <SearchBar />
+        }
         { /* <Links marketplaceId={marketplaceId} /> */ }
         { /* <UserLinks /> */ }
       </header>

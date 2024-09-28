@@ -19,6 +19,14 @@
       opacity: 1;
     }
   }
+
+  * {
+    font-family: Inter, Montserrat, "Helvetica Neue", helvetica, sans-serif;
+  }
+
+  & > * {
+    @include page-fade-in;
+  }
 }
 
 .header__background {
