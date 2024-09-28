@@ -595,9 +595,9 @@ const MediaCard = observer(({
   let linkPath, url, authorized;
   if(!disabled) {
     const linkInfo = MediaPropertyLink({match, sectionItem, mediaItem, navContext}) || "";
-    linkPath = linkInfo.linkPath;
-    url = linkInfo.url;
-    authorized = linkInfo.authorized;
+    linkPath = linkInfo?.linkPath;
+    url = linkInfo?.url;
+    authorized = linkInfo?.authorized;
   }
 
   let args = {

@@ -71,7 +71,7 @@ const PropertyWrapper = observer(({children}) => {
     return (
       <AsyncComponent
         // Store info is cleared when logged in
-        cacheSeconds={60}
+        cacheSeconds={20}
         key={`property-${mediaPropertySlugOrId}-${rootStore.CurrentAddress()}`}
         loadKey={`property-${mediaPropertySlugOrId}-${rootStore.CurrentAddress()}`}
         Load={async () => {

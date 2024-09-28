@@ -336,7 +336,7 @@ class MediaPropertyStore {
 
     if(page.permissions?.page_permissions?.length > 0) {
       const authorized = page.permissions.page_permissions.find(permissionItemId =>
-        this.PermissionItem({permissionItemId}).authorized
+        this.PermissionItem({permissionItemId})?.authorized
       );
 
       if(!authorized) {
@@ -1013,6 +1013,28 @@ class MediaPropertyStore {
     yield this.LoadResource({
       key: "MediaProperty",
       id: this.mediaPropertyIds[mediaPropertySlugOrId] || mediaPropertySlugOrId,
+      ShouldReload: async () => {
+        if(!this.rootStore.CurrentAddress()) { return; }
+
+        const existingProperty = await this.MediaProperty({mediaPropertySlugOrId});
+
+        if(!existingProperty) {
+          return;
+        }
+
+        if((Date.now() - existingProperty.__permissionsLastChecked || 0) < 30000) {
+          return;
+        }
+
+        const ownedItemCount = (await this.rootStore.walletClient.UserItems())?.paging?.total;
+        const shouldReload = ownedItemCount !== existingProperty.__ownedItemCount;
+        runInAction(() => {
+          existingProperty.__permissionsLastChecked = Date.now();
+          existingProperty.__ownedItemCount = ownedItemCount;
+        });
+
+        return shouldReload;
+      },
       force,
       Load: async () => {
         const isPreview = this.previewAll || mediaPropertySlugOrId === this.previewPropertyId;
@@ -1156,7 +1178,7 @@ class MediaPropertyStore {
         let permissions = {authorized: true};
         if(metadata.permissions?.property_permissions?.length > 0) {
           const authorized = metadata.permissions.property_permissions.find(permissionItemId =>
-            this.PermissionItem({permissionItemId}).authorized
+            this.PermissionItem({permissionItemId})?.authorized
           );
 
           if(!authorized) {
@@ -1173,20 +1195,27 @@ class MediaPropertyStore {
           }
         }
 
+        let ownedItemCount = 0;
+        if(this.rootStore.CurrentAddress()) {
+          ownedItemCount = (await this.rootStore.walletClient.UserItems())?.paging?.total;
+        }
+
         this.mediaProperties[mediaPropertyId] = {
           accountAddress: this.rootStore.CurrentAddress(),
           mediaPropertyHash: versionHash,
           mediaPropertyId: mediaPropertyId,
           mediaPropertySlug: metadata.slug,
           permissions,
-          metadata
+          metadata,
+          __permissionsLastChecked: Date.now(),
+          __ownedItemCount: ownedItemCount
         };
       }
     });
   });
 
   // Ensure the specified load method is called only once unless forced
-  LoadResource = flow(function * ({key, id, force=false, anonymous=false, Load}) {
+  LoadResource = flow(function * ({key, id, force=false, anonymous=false, Load, ShouldReload}) {
     if(anonymous) {
       key = `load${key}-anonymous`;
     } else if(!anonymous) {
@@ -1201,6 +1230,8 @@ class MediaPropertyStore {
 
       key = `load${key}-${this.rootStore.CurrentAddress() || "anonymous"}`;
     }
+
+    force = force || (yield (ShouldReload && ShouldReload()));
 
     if(force) {
       // Force - drop all loaded content
