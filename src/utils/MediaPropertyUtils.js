@@ -359,6 +359,8 @@ export const MediaItemLivePreviewImageUrl = async ({mediaItem, width}) => {
   const nonce = Date.now();
   const linkHash = LinkTargetHash(mediaItem.media_link);
 
+  if(!linkHash) { return; }
+
   const versionHash = await mediaPropertyStore.client.LatestVersionHash({versionHash: linkHash});
 
   // TODO: Support offering(s)

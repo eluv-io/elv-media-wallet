@@ -1007,34 +1007,43 @@ class MediaPropertyStore {
     });
   });
 
+  MediaPropertyShouldReload = flow(function * ({mediaPropertySlugOrId}) {
+    console.log("CALL")
+    if(!this.rootStore.CurrentAddress()) { return; }
+
+    const existingProperty = yield this.MediaProperty({mediaPropertySlugOrId});
+
+    if(!existingProperty) {
+      return;
+    }
+
+    if((Date.now() - existingProperty.__permissionsLastChecked || 0) < 30000) {
+      return;
+    }
+
+    const ownedItemCount = (yield this.rootStore.walletClient.UserItems())?.paging?.total;
+    const shouldReload = ownedItemCount !== existingProperty.__ownedItemCount;
+
+    runInAction(() => {
+      existingProperty.__permissionsLastChecked = Date.now();
+      existingProperty.__ownedItemCount = ownedItemCount;
+    });
+
+    return shouldReload;
+  });
+
   LoadMediaProperty = flow(function * ({mediaPropertySlugOrId, force=false}) {
     yield this.LoadMediaPropertyHashes();
+
+
+    // Check if we should automatically reload - if the user has acquired new item(s) since last load
+    force = force || (yield this.MediaPropertyShouldReload({mediaPropertySlugOrId}));
+
+    console.log("FORCE", force);
 
     yield this.LoadResource({
       key: "MediaProperty",
       id: this.mediaPropertyIds[mediaPropertySlugOrId] || mediaPropertySlugOrId,
-      ShouldReload: async () => {
-        if(!this.rootStore.CurrentAddress()) { return; }
-
-        const existingProperty = await this.MediaProperty({mediaPropertySlugOrId});
-
-        if(!existingProperty) {
-          return;
-        }
-
-        if((Date.now() - existingProperty.__permissionsLastChecked || 0) < 30000) {
-          return;
-        }
-
-        const ownedItemCount = (await this.rootStore.walletClient.UserItems())?.paging?.total;
-        const shouldReload = ownedItemCount !== existingProperty.__ownedItemCount;
-        runInAction(() => {
-          existingProperty.__permissionsLastChecked = Date.now();
-          existingProperty.__ownedItemCount = ownedItemCount;
-        });
-
-        return shouldReload;
-      },
       force,
       Load: async () => {
         const isPreview = this.previewAll || mediaPropertySlugOrId === this.previewPropertyId;
@@ -1215,7 +1224,7 @@ class MediaPropertyStore {
   });
 
   // Ensure the specified load method is called only once unless forced
-  LoadResource = flow(function * ({key, id, force=false, anonymous=false, Load, ShouldReload}) {
+  LoadResource = flow(function * ({key, id, force=false, anonymous=false, Load}) {
     if(anonymous) {
       key = `load${key}-anonymous`;
     } else if(!anonymous) {
@@ -1230,8 +1239,6 @@ class MediaPropertyStore {
 
       key = `load${key}-${this.rootStore.CurrentAddress() || "anonymous"}`;
     }
-
-    force = force || (yield (ShouldReload && ShouldReload()));
 
     if(force) {
       // Force - drop all loaded content
