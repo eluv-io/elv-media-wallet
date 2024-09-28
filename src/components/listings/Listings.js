@@ -48,10 +48,11 @@ const Listings = observer(({initialFilters, includeActivity=true}) => {
   if(new URLSearchParams(location.search).has("filter")) {
     initialFilters = {
       ...initialFilters,
-      filter: new URLSearchParams(location.search).get("filter")
+      filter: new URLSearchParams(location.search).get("filter"),
+      editionFilter: new URLSearchParams(location.search).get("edition"),
     };
   }
-  
+
   return (
     showActivity ?
       <RecentSales

@@ -98,7 +98,7 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
     linkPath = UrlJoin(linkPath, "s", match.params.sectionSlugOrId);
   }
 
-  let url, modalInfo;
+  let url;
   if(mediaItem || sectionItem?.type === "media") {
     if(match.params.mediaCollectionSlugOrId) {
       linkPath = UrlJoin(linkPath, "c", match.params.mediaCollectionSlugOrId);
@@ -203,7 +203,7 @@ export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) =
   return {
     linkPath,
     url,
-    modalInfo
+    authorized: permissions?.authorized
   };
 };
 

@@ -72,6 +72,11 @@ const Items = observer(({items, secondaryPurchaseOption, Select}) => {
       {
         items?.map(item => {
           const itemName = item?.itemInfo?.nft?.metadata?.display_name || "";
+          const editionName = item?.itemInfo?.nft?.metadata?.edition_name || "";
+          const listingPath = UrlJoin(
+            MediaPropertyBasePath({...match.params}),
+            `listings?filter=${itemName}${editionName ? `&edition=${editionName}` : ""}`
+          );
           const outOfStock = item?.itemInfo?.outOfStock || item?.itemInfo?.maxOwned;
 
           secondaryPurchaseOption = item.secondary_market_purchase_option || secondaryPurchaseOption;
@@ -85,7 +90,7 @@ const Items = observer(({items, secondaryPurchaseOption, Select}) => {
           // If only one item and option is listing, go to secondary
           if(items.length === 1) {
             if(!secondaryDisabled && secondaryPurchaseOption === "only") {
-              return <Redirect key={`item-${item?.id}`} to={UrlJoin(MediaPropertyBasePath({...match.params}), `listings?filter=${itemName}`)}/>;
+              return <Redirect key={`item-${item?.id}`} to={listingPath} />;
             }
           }
 
@@ -120,7 +125,7 @@ const Items = observer(({items, secondaryPurchaseOption, Select}) => {
                     {
                       !showSecondary ? null :
                         <Button
-                          to={UrlJoin(MediaPropertyBasePath({...match.params}), `listings?filter=${itemName}`)}
+                          to={listingPath}
                           variant={secondaryPurchaseOption === "only" ? "primary" : "secondary"}
                           className={S("button")}
                         >

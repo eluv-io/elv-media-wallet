@@ -124,12 +124,12 @@ const PropertyMediaRoutes = (basePath="") => {
   ].map(route => ({...route, name: GetPropertyPageTitle, backPath: route.backPath ? UrlJoin(basePath, route.backPath) : basePath, noBlock: true}));
 };
 
-const PropertyRoutes = (basePath="", additionalRoutes=[]) => {
+const PropertyRoutes = ({basePath="/", rootPath="/", additionalRoutes=[]}) => {
   const GetPropertyPageTitle = match => GetProperty(match)?.metadata?.meta_tags?.title || GetProperty(match)?.metadata?.page_title;
 
   // All possible permutations of property or parent property/subproperty with or without page slug/id
   const propertyPaths = [
-    { path: ":mediaPropertySlugOrId", backPath: "/" },
+    { path: ":mediaPropertySlugOrId", backPath: rootPath },
     { path: ":mediaPropertySlugOrId/:pageSlugOrId", backPath: ":mediaPropertySlugOrId" },
     { path: ":parentMediaPropertySlugOrId/p/:mediaPropertySlugOrId", backPath: ":parentMediaPropertySlugOrId" },
     { path: ":parentMediaPropertySlugOrId/:parentPageSlugOrId/p/:mediaPropertySlugOrId", backPath: ":parentMediaPropertySlugOrId/:parentPageSlugOrId" },
@@ -211,19 +211,26 @@ const PropertyRoutes = (basePath="", additionalRoutes=[]) => {
     ...(propertyPaths.map(({path, backPath}) => ({
       name: GetPropertyPageTitle,
       path: UrlJoin(basePath, path),
-      backPath: backPath,
+      backPath,
       Component: MediaPropertyPage
     }))),
-  ].map(route => ({...route, noBlock: route.noBlock || !route.includePageBlock, clearMarketplace: true}));
+  ].map(route => ({
+    ...route,
+    noBlock: route.noBlock || !route.includePageBlock,
+    clearMarketplace: true
+  }));
 };
 
-const BundledPropertyRoutes = (basePath="") => {
-  return PropertyRoutes(
-    UrlJoin(basePath, "/:propertyItemContractId/:propertyItemTokenId/p"),
-    [
-      { path: "/details", Component: ItemDetailsPage }
+const BundledPropertyRoutes = () => {
+  const basePath = "/m/:propertyItemContractId/:propertyItemTokenId/p";
+
+  return PropertyRoutes({
+    basePath,
+    rootPath: "/",
+    additionalRoutes: [
+      {path: "/details", Component: ItemDetailsPage, backPath: basePath}
     ]
-  );
+  });
 };
 
 const SharedRoutes = ({includeMarketplaceRoutes}) => {
@@ -445,7 +452,7 @@ const RenderRoutes = observer(({basePath, routeList, Wrapper}) => {
 
     case "property":
       routes = [
-        ...PropertyRoutes()
+        ...PropertyRoutes({basePath: "/", rootPath: "/"})
       ];
 
       break;

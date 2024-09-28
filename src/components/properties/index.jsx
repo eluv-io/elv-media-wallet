@@ -134,7 +134,7 @@ export const BundledPropertyRoutes = observer(() => {
         <MediaPropertyHeader />
         <Switch>
           <RenderRoutes
-            basePath="/m"
+            basePath="/"
             routeList="bundledProperty"
             Wrapper={PropertyWrapper}
           />

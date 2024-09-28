@@ -592,11 +592,12 @@ const MediaCard = observer(({
 
   disabled = disabled || (sectionItem || mediaItem)?.resolvedPermissions?.disable;
 
-  let linkPath, url;
+  let linkPath, url, authorized;
   if(!disabled) {
     const linkInfo = MediaPropertyLink({match, sectionItem, mediaItem, navContext}) || "";
     linkPath = linkInfo.linkPath;
     url = linkInfo.url;
+    authorized = linkInfo.authorized;
   }
 
   let args = {
@@ -615,7 +616,13 @@ const MediaCard = observer(({
     lazy,
     buttonText,
     aspectRatio: !aspectRatio || aspectRatio === "mixed" ? imageAspectRatio : aspectRatio,
-    className: [disabled ? S("media-card--disabled") : "", className].join(" ")
+    className: [
+      disabled ?
+        S("media-card--disabled") :
+        !authorized ?
+          S("media-card--unauthorized") : "",
+      className
+    ].join(" ")
   };
 
   switch(format) {
