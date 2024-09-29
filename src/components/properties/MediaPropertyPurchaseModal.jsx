@@ -40,12 +40,12 @@ const Item = observer(({item, children, hideInfo, hidePrice, Actions}) => {
                     {FormatPriceString(item.price)}
                   </div>
               }
-              <ScaledText maxPx={32} className={[S("item__title"), "_title"].join(" ")}>
+              <ScaledText maxPx={32} minPx={20} className={[S("item__title"), "_title"].join(" ")}>
                 {item.title}
               </ScaledText>
-              <div className={S("item__subtitle")}>
+              <ScaledText maxPx={20} minPx={14} className={S("item__subtitle")}>
                 {item.subtitle}
-              </div>
+              </ScaledText>
               <ExpandableDescription
                 maxLines={3}
                 description={item.description}
@@ -534,7 +534,17 @@ const PurchaseStatus = observer(({item, confirmationId, Close}) => {
             mediaPropertyStore.Log(error, true);
           }
 
-          Close(true);
+          let successPath;
+          if(item.listingId) {
+            successPath = UrlJoin(
+              MediaPropertyBasePath(match.params),
+              "users/me/items",
+              item.listing.contractId,
+              item.listing.tokenId
+            );
+          }
+
+          Close(true, successPath);
         }}
         className={S("button")}
       >
@@ -723,9 +733,9 @@ const MediaPropertyPurchaseModal = () => {
 
   backPath = backPath + (urlParams.size > 0 ? `?${urlParams.toString()}` : "");
 
-  const Close = success => {
-    if(success && params.successPath) {
-      history.push(params.successPath);
+  const Close = (success, successPath) => {
+    if(success && (successPath || params.successPath)) {
+      history.push(successPath || params.successPath);
     } else if(success && redirectPage) {
       const page = mediaPropertyStore.MediaPropertyPage({...match.params, pageSlugOrId: redirectPage});
 

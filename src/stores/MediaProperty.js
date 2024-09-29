@@ -1008,7 +1008,6 @@ class MediaPropertyStore {
   });
 
   MediaPropertyShouldReload = flow(function * ({mediaPropertySlugOrId}) {
-    console.log("CALL")
     if(!this.rootStore.CurrentAddress()) { return; }
 
     const existingProperty = yield this.MediaProperty({mediaPropertySlugOrId});
@@ -1038,8 +1037,6 @@ class MediaPropertyStore {
 
     // Check if we should automatically reload - if the user has acquired new item(s) since last load
     force = force || (yield this.MediaPropertyShouldReload({mediaPropertySlugOrId}));
-
-    console.log("FORCE", force);
 
     yield this.LoadResource({
       key: "MediaProperty",
