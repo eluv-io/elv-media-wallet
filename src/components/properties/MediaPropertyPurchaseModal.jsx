@@ -85,7 +85,7 @@ const Items = observer(({items, secondaryPurchaseOption, Select}) => {
           // If only one item and option is listing, go to secondary
           if(items.length === 1) {
             if(!item.secondaryDisabled && secondaryPurchaseOption === "only") {
-              return <Redirect key={`item-${item?.id}`} to={listingPath} />;
+              //return <Redirect key={`item-${item?.id}`} to={item.listingPath} />;
             }
           }
 
