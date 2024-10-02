@@ -6,33 +6,12 @@
   width: 100%;
 }
 
-.form-container {
-  padding-top: 60px;
-  position: relative;
-
-  &__header {
-    align-items: center;
-    background: linear-gradient(#272727, #1b1b1b);
-    color: var(--property-text-secondary);
-    display: flex;
-    font-size: 22px;
-    font-weight: 600;
-    height: 60px;
-    justify-content: center;
-    left: 0;
-    position: absolute;
-    top: 0;
-    width: 100%;
-  }
-
-}
-
 .form {
   @include page-fade-in(0.5s);
 
   max-width: 400px;
   min-width: 400px;
-  padding: 25px 25px 25px 15px;
+  padding: 15px 25px 25px 15px;
   width: 100%;
 
   @media screen and (width <= 750px) {

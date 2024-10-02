@@ -57,6 +57,7 @@ const ListingModal = observer(({nft, listingId, Close}) => {
       centered
       opened
       onClose={Close}
+      header={rootStore.l10n.purchase.list_for_sale}
       withCloseButton={rootStore.pageWidth < 800}
     >
       <div className="listing-modal">

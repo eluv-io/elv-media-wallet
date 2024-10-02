@@ -6,11 +6,11 @@ import {observer} from "mobx-react";
 import {TextInput} from "@mantine/core";
 import {Loader} from "Components/common/Loaders";
 import {NFTInfo, ValidEmail} from "../../utils/Utils";
-import {Button, LoaderImage, Modal, ScaledText} from "Components/properties/Common";
+import {Button, LoaderImage, Modal} from "Components/properties/Common";
 import {LocalizeString} from "Components/common/UIComponents";
 import SupportedCountries from "../../utils/SupportedCountries";
 import {roundToDown} from "round-to";
-import {Redirect, useHistory, useRouteMatch} from "react-router-dom";
+import {useHistory, useRouteMatch} from "react-router-dom";
 import {LoginGate} from "Components/common/LoginGate";
 import {MediaPropertyBasePath, MediaPropertyPurchaseParams} from "../../utils/MediaPropertyUtils";
 import UrlJoin from "url-join";
@@ -624,7 +624,7 @@ const FormatPurchaseItem = (item, secondaryPurchaseOption) => {
   };
 };
 
-const PurchaseModalContent = observer(({items, itemId, confirmationId, secondaryPurchaseOption, Close}) => {
+const PurchaseModalContent = observer(({items, itemId, confirmationId, secondaryPurchaseOption, setHeader, Close}) => {
   const history = useHistory();
   const [loaded, setLoaded] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(itemId);
@@ -649,12 +649,21 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, secondary
         await mediaPropertyStore.LoadMarketplace({marketplaceId: item.marketplace?.marketplace_id})
       )
     ).then(() => {
-      setPurchaseItems(
+      const formattedPurchaseItems = (
         (items || [])
           .map(item => FormatPurchaseItem(item, secondaryPurchaseOption))
           .filter(item => item)
       );
+
+      setPurchaseItems(formattedPurchaseItems);
       setLoaded(true);
+
+      const secondaryOnly = !isListing && !formattedPurchaseItems?.find(item => item.showPrimary);
+
+      setHeader(
+        rootStore.l10n.media_properties.purchase[secondaryOnly ? "purchase_now_listing" : "purchase_now"]
+      );
+
     });
   }, [items]);
 
@@ -729,17 +738,10 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, secondary
     );
   }
 
-  const secondaryOnly = !isListing && !purchaseItems?.find(item => item.showPrimary);
-
   return (
-    <>
-      <h1 className={S("form-container__header")}>
-        { rootStore.l10n.media_properties.purchase[secondaryOnly ? "purchase_now_listing" : "purchase_now"]  }
-      </h1>
-      <div key={`step-${key}`} className={S("form")}>
-        {content}
-      </div>
-    </>
+    <div key={`step-${key}`} className={S("form")}>
+      {content}
+    </div>
   );
 });
 
@@ -748,6 +750,7 @@ const MediaPropertyPurchaseModal = () => {
   const match = useRouteMatch();
   const [purchaseItems, setPurchaseItems] = useState([]);
   const params = MediaPropertyPurchaseParams() || {};
+  const [header, setHeader] = useState("");
 
   const urlParams = new URLSearchParams(location.search);
 
@@ -885,6 +888,7 @@ const MediaPropertyPurchaseModal = () => {
         onClose={params.confirmationId ? () => {} : Close}
         bodyClassName={S("form-container")}
         withCloseButton={rootStore.pageWidth < 800 && !params.confirmationId}
+        header={header}
       >
         {
             (purchaseItems || []).length === 0 ? null :
@@ -893,6 +897,7 @@ const MediaPropertyPurchaseModal = () => {
                 itemId={params.itemId || params.listingId}
                 secondaryPurchaseOption={params.secondaryPurchaseOption}
                 confirmationId={params.confirmationId}
+                setHeader={setHeader}
                 Close={Close}
               />
         }

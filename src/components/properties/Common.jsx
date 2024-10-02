@@ -265,10 +265,23 @@ export const ScaledText = observer(({
   );
 });
 
-export const Modal = observer(({noBackground=false, ...args}) => {
+export const Modal = observer(({noBackground=false, header, ...args}) => {
   const showCloseButton = args.fullScreen ||
     (typeof args.withCloseButton === "undefined" ?
       rootStore.pageWidth < 600 : args.withCloseButton);
+
+  let closeButton;
+  if(showCloseButton) {
+    closeButton = (
+      <button
+        aria-label="Close"
+        onClick={() => args.onClose && args.onClose()}
+        className={S("modal__close")}
+      >
+        <ImageIcon icon={XIcon}/>
+      </button>
+    );
+  }
 
   return (
     <MantineModal
@@ -286,16 +299,16 @@ export const Modal = observer(({noBackground=false, ...args}) => {
       }}
     >
       {
-        !showCloseButton ? null :
-          <button
-            aria-label="Close"
-            onClick={() => args.onClose && args.onClose()}
-            className={S("modal__close")}
-          >
-            <ImageIcon icon={XIcon}/>
-          </button>
+        !header ? closeButton :
+          <div className={S("modal__top-header")}>
+            {header}
+            {closeButton}
+          </div>
       }
-      { args.children }
+
+      <div className={S("modal__children")}>
+        { args.children }
+      </div>
     </MantineModal>
   );
 });
