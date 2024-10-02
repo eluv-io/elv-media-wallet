@@ -326,8 +326,7 @@ class MediaPropertyStore {
     let page = mediaProperty.metadata.pages[pageId];
 
     if(!page) {
-      this.Log(`Unable to find page ${pageSlugOrId} - Loading main instead`, true);
-      return this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId: "main"});
+      return;
     }
 
     let permissions = {
@@ -792,10 +791,19 @@ class MediaPropertyStore {
     permissionItemIds = permissionItemIds || [];
 
     const purchaseGate = !authorized && behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE;
-    const showAlternatePage = !authorized && behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE;
+    let showAlternatePage = !authorized && behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE;
 
     if(showAlternatePage) {
-      alternatePageId = this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId: alternatePageId ? alternatePageId : undefined})?.slug || alternatePageId;
+      const page = this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId: alternatePageId ? alternatePageId : undefined});
+
+      alternatePageId = page?.slug || page?.id;
+
+      if(!alternatePageId) {
+        showAlternatePage = false;
+        this.Log("Warning: Show alternate page permission set but alternate page not valid", true);
+        this.Log(arguments, true);
+        behavior = this.PERMISSION_BEHAVIORS.HIDE;
+      }
     }
 
     return {
