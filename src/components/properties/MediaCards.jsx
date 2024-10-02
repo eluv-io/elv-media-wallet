@@ -108,7 +108,7 @@ const MediaCardWithButtonVertical = observer(({
             onClick={async event => {
               setShowModal && setShowModal(false);
 
-              return await onClick(event);
+              return onclick && await onClick(event);
             }}
             to={linkPath}
             href={url}
@@ -403,7 +403,7 @@ const MediaCardVertical = observer(({
               </div>
         }
         {
-          authorized ? null :
+          authorized || !rootStore.loggedIn ? null :
             <div className={S("media-card__unauthorized-indicator")}>
               View Purchase Options
             </div>

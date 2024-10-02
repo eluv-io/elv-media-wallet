@@ -6,7 +6,7 @@ import {observer} from "mobx-react";
 import {TextInput} from "@mantine/core";
 import {Loader} from "Components/common/Loaders";
 import {NFTInfo, ValidEmail} from "../../utils/Utils";
-import {Button, ExpandableDescription, LoaderImage, Modal, ScaledText} from "Components/properties/Common";
+import {Button, LoaderImage, Modal, ScaledText} from "Components/properties/Common";
 import {LocalizeString} from "Components/common/UIComponents";
 import SupportedCountries from "../../utils/SupportedCountries";
 import {roundToDown} from "round-to";
@@ -18,6 +18,9 @@ import UrlJoin from "url-join";
 const S = (...classes) => classes.map(c => PurchaseModalStyles[c] || "").join(" ");
 
 const Item = observer(({item, children, hideInfo, hidePrice, Actions}) => {
+  const hasDetails = item.subtitle || item.description;
+  const [showDetails, setShowDetails] = useState(false);
+
   return (
     <div className={S("item-container")}>
 
@@ -40,17 +43,26 @@ const Item = observer(({item, children, hideInfo, hidePrice, Actions}) => {
                     {FormatPriceString(item.price)}
                   </div>
               }
-              <ScaledText maxPx={32} minPx={20} className={[S("item__title"), "_title"].join(" ")}>
+              <div className={[S("item__title"), "_title"].join(" ")}>
                 {item.title}
-              </ScaledText>
-              <ScaledText maxPx={20} minPx={14} className={S("item__subtitle")}>
-                {item.subtitle}
-              </ScaledText>
-              <ExpandableDescription
-                maxLines={3}
-                description={item.description}
-                className={S("item__description")}
-              />
+              </div>
+              {
+                !showDetails ? null :
+                  <div className={S("item__details")}>
+                    <div className={S("item__subtitle")}>
+                      { item.subtitle }
+                    </div>
+                    <div className={S("item__description")}>
+                      { item.description }
+                    </div>
+                  </div>
+              }
+              {
+                !hasDetails ? null :
+                  <button onClick={() => setShowDetails(!showDetails)} className={S("item__details-toggle")}>
+                    { rootStore.l10n.media_properties.purchase.details[showDetails ? "hide" : "show"] }
+                  </button>
+              }
             </>
         }
         { children }
@@ -66,30 +78,13 @@ const Item = observer(({item, children, hideInfo, hidePrice, Actions}) => {
 });
 
 const Items = observer(({items, secondaryPurchaseOption, Select}) => {
-  const match = useRouteMatch();
   return (
     <div className={S("items")}>
       {
         items?.map(item => {
-          const itemName = item?.itemInfo?.nft?.metadata?.display_name || "";
-          const editionName = item?.itemInfo?.nft?.metadata?.edition_name || "";
-          const listingPath = UrlJoin(
-            MediaPropertyBasePath({...match.params}),
-            `listings?filter=${itemName}${editionName ? `&edition=${editionName}` : ""}`
-          );
-          const outOfStock = item?.itemInfo?.outOfStock || item?.itemInfo?.maxOwned;
-
-          secondaryPurchaseOption = item.secondary_market_purchase_option || secondaryPurchaseOption;
-
-          const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false;
-          let showSecondary = !secondaryDisabled && ["show", "out_of_stock", "only"].includes(secondaryPurchaseOption);
-          if(showSecondary && secondaryPurchaseOption === "out_of_stock") {
-            showSecondary = outOfStock;
-          }
-
           // If only one item and option is listing, go to secondary
           if(items.length === 1) {
-            if(!secondaryDisabled && secondaryPurchaseOption === "only") {
+            if(!item.secondaryDisabled && secondaryPurchaseOption === "only") {
               return <Redirect key={`item-${item?.id}`} to={listingPath} />;
             }
           }
@@ -98,34 +93,32 @@ const Items = observer(({items, secondaryPurchaseOption, Select}) => {
             <Item
               key={`item-${item?.id}`}
               item={item}
-              hidePrice={showSecondary && secondaryPurchaseOption !== "show"}
+              hidePrice={item.showSecondary && secondaryPurchaseOption !== "show"}
               Actions={({item}) => {
                 return (
                   <>
                     {
-                      !secondaryDisabled && secondaryPurchaseOption === "only" ? null :
+                      !item.secondaryDisabled && secondaryPurchaseOption === "only" ? null :
                         <Button
-                          disabled={outOfStock}
+                          disabled={item.outOfStock}
                           onClick={async () => await Select(item.id)}
                           className={S("button")}
                         >
-                          <ScaledText maxPx={18} minPx={10}>
                             {
                               item.itemInfo.free ?
                                 rootStore.l10n.media_properties.purchase.claim :
                                 LocalizeString(
                                   rootStore.l10n.media_properties.purchase.select,
-                                  {title: item.title, price: FormatPriceString(item.price, {stringOnly: true})},
+                                  {price: FormatPriceString(item.price, {stringOnly: true})},
                                   {stringOnly: true}
                                 )
                             }
-                          </ScaledText>
                         </Button>
                     }
                     {
-                      !showSecondary ? null :
+                      !item.showSecondary ? null :
                         <Button
-                          to={listingPath}
+                          to={item.listingPath}
                           variant={secondaryPurchaseOption === "only" ? "primary" : "secondary"}
                           className={S("button")}
                         >
@@ -237,7 +230,6 @@ const Purchase = async ({item, paymentMethod, history}) => {
 const Payment = observer(({item, Back}) => {
   const history = useHistory();
   const initialEmail = rootStore.AccountEmail(rootStore.CurrentAddress()) || rootStore.walletClient.UserInfo()?.email || "";
-  const [paymentMethod, setPaymentMethod] = useState({type: undefined, country: undefined, email: initialEmail, initialEmail});
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState(undefined);
 
@@ -259,6 +251,13 @@ const Payment = observer(({item, Back}) => {
   const ebanxEnabled = paymentOptions?.ebanx?.enabled;
   const pixEnabled = ebanxEnabled && paymentOptions?.ebanx?.pix_enabled;
   const coinbaseEnabled = paymentOptions?.coinbase?.enabled;
+
+  const [paymentMethod, setPaymentMethod] = useState({
+    type: ebanxEnabled ? undefined : "card",
+    country: undefined,
+    email: initialEmail,
+    initialEmail
+  });
 
   const [feeRate, setFeeRate] = useState(0.065);
   useEffect(() => {
@@ -438,7 +437,7 @@ const Payment = observer(({item, Back}) => {
                   {
                     LocalizeString(
                       rootStore.l10n.media_properties.purchase.select,
-                      {title: item.title, price: FormatPriceString(item.price + (page === "balance" ? fee : 0), {stringOnly: true})},
+                      {price: FormatPriceString(item.price + (page === "balance" ? fee : 0), {stringOnly: true})},
                       {stringOnly: true}
                     )
                   }
@@ -575,7 +574,7 @@ const PurchaseStatus = observer(({item, confirmationId, Close}) => {
   );
 });
 
-const FormatPurchaseItem = item => {
+const FormatPurchaseItem = (item, secondaryPurchaseOption) => {
   if(!item) { return; }
 
   if(item.listingId) {
@@ -594,8 +593,34 @@ const FormatPurchaseItem = item => {
 
   const itemInfo = NFTInfo({item: marketplaceItem});
 
+  const itemName = itemInfo?.nft?.metadata?.display_name || "";
+  const editionName = itemInfo?.nft?.metadata?.edition_name || "";
+  const listingPath = UrlJoin(
+    MediaPropertyBasePath({...rootStore.routeParams}),
+    `listings?filter=${itemName}${editionName ? `&edition=${editionName}` : ""}`
+  );
+  const outOfStock = itemInfo?.outOfStock || itemInfo?.maxOwned;
+
+  secondaryPurchaseOption = item.secondary_market_purchase_option || secondaryPurchaseOption;
+
+  const secondaryDisabled = rootStore.domainSettings?.settings?.features?.secondary_marketplace === false;
+  let showSecondary = !secondaryDisabled && ["show", "out_of_stock", "only"].includes(secondaryPurchaseOption);
+  if(showSecondary && secondaryPurchaseOption === "out_of_stock") {
+    showSecondary = outOfStock;
+  }
+
+  const showPrimary = !outOfStock && secondaryPurchaseOption !== "only";
+
   return {
     ...item,
+    itemName,
+    editionName,
+    listingPath,
+    outOfStock,
+    secondaryDisabled,
+    showPrimary,
+    showSecondary,
+    secondaryPurchaseOption,
     price: itemInfo.price || marketplaceItem.price,
     imageUrl: item.use_custom_image ?
       item.image?.url :
@@ -609,7 +634,7 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, secondary
   const [loaded, setLoaded] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(itemId);
   const [purchaseItems, setPurchaseItems] = useState(undefined);
-  const selectedItem = selectedItemId && FormatPurchaseItem(items.find(item => item.id === selectedItemId));
+  const selectedItem = selectedItemId && FormatPurchaseItem(items.find(item => item.id === selectedItemId), secondaryPurchaseOption);
   const isListing = selectedItem?.listingId;
 
   useEffect(() => {
@@ -631,7 +656,7 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, secondary
     ).then(() => {
       setPurchaseItems(
         (items || [])
-          .map(FormatPurchaseItem)
+          .map(item => FormatPurchaseItem(item, secondaryPurchaseOption))
           .filter(item => item)
       );
       setLoaded(true);
@@ -692,7 +717,7 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, secondary
           items={purchaseItems}
           secondaryPurchaseOption={secondaryPurchaseOption}
           Select={async itemId => {
-            const selectedItem = itemId && FormatPurchaseItem(items.find(item => item.id === itemId));
+            const selectedItem = itemId && FormatPurchaseItem(items.find(item => item.id === itemId), secondaryPurchaseOption);
 
             if(selectedItem?.itemInfo?.free) {
               await Purchase({
@@ -709,10 +734,17 @@ const PurchaseModalContent = observer(({items, itemId, confirmationId, secondary
     );
   }
 
+  const secondaryOnly = !isListing && !purchaseItems?.find(item => item.showPrimary);
+
   return (
-    <div key={`step-${key}`} className={S("form")}>
-      { content }
-    </div>
+    <>
+      <h1 className={S("form-container__header")}>
+        { rootStore.l10n.media_properties.purchase[secondaryOnly ? "purchase_now_listing" : "purchase_now"]  }
+      </h1>
+      <div key={`step-${key}`} className={S("form")}>
+        {content}
+      </div>
+    </>
   );
 });
 
@@ -856,6 +888,7 @@ const MediaPropertyPurchaseModal = () => {
         centered
         opened={(purchaseItems || []).length > 0}
         onClose={params.confirmationId ? () => {} : Close}
+        bodyClassName={S("form-container")}
         withCloseButton={rootStore.pageWidth < 800 && !params.confirmationId}
       >
         {

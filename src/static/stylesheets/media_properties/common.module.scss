@@ -33,6 +33,7 @@
 
     background: var(--property-background-modal);
     box-shadow: 0 0 20px rgb(0 0 0 / 50%);
+    max-height: 97vh;
   }
 
   &__content {
@@ -794,9 +795,7 @@
     }
 
     &.button--active {
-      background-color: var(--property-button-option-background-active);
       border: 1px solid var(--property-button-option-background-active);
-      color: var(--property-button-option-text-active);
 
       * {
         color: var(--property-button-option-text-active);

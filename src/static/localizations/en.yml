@@ -680,8 +680,13 @@ media_properties:
     title: "Search results for \"{query}\""
   purchase:
     claim: Claim Now
-    select: Buy {title} for {price}
+    select: Buy now for {price}
     secondary: View Listings
+    purchase_now: Purchase Now
+    purchase_now_listing: Purchase From An Owner
+    details:
+      show: Show Details
+      hide: Hide Details
   purchase_status:
     pending:
       finalizing: Finalizing Purchase
