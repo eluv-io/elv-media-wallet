@@ -89,6 +89,12 @@ export const CreateRedeemableParams = ({
 };
 
 export const MediaPropertyLink = ({match, sectionItem, mediaItem, navContext}) => {
+  if(sectionItem?.type === "visual_only") {
+    return {
+      authorized: true
+    };
+  }
+
   let linkPath = MediaPropertyBasePath(match.params);
 
   mediaItem = mediaItem || sectionItem.mediaItem;
