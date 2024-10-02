@@ -490,6 +490,11 @@ const OryLogin = observer(({customizationOptions, userData, codeAuth, requiredOp
                 attributes.placeholder = label;
                 const key = node?.meta?.label?.id || attributes.name;
 
+                // 'Send sign in code' buttons?
+                if([1040006, 1010015].includes(node?.meta?.label?.id)) {
+                  return null;
+                }
+
                 if(nodeType === "submit" && attributes.value) {
                   // recovery code resend button
                   if(

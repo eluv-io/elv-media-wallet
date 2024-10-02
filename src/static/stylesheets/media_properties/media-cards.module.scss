@@ -4,14 +4,37 @@
     user-select: none;
   }
 
+  &__unauthorized-indicator {
+    align-items: center;
+    border: 2px solid rgb(255 255 255 / 30%);
+    border-radius: 10px;
+    display: flex;
+    font-size: 28px;
+    font-weight: 600;
+    inset: 0;
+    justify-content: center;
+    opacity: 0;
+    position: absolute;
+    text-align: center;
+    text-shadow: 0 0 5px black;
+    transition: opacity 0.25s ease;
+    z-index: 1;
+    background: rgba(0,0,0,0.6);
+  }
+
   &--unauthorized {
-    opacity: 0.5;
+    opacity: 0.75;
     transition: opacity 0.25s ease;
 
     &:hover,
     &:focus-visible {
       opacity: 1;
       transition: opacity 0.5s ease;
+
+      .media-card__unauthorized-indicator {
+        opacity: 1;
+        transition: opacity 0.5s ease;
+      }
     }
   }
 }

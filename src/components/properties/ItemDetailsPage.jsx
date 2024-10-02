@@ -936,6 +936,8 @@ const ItemDetailsPage = observer(() => {
 
   const nftInfo = NFTInfo({nft, showToken: true});
 
+  window.nftInfo = nftInfo;
+
   // Owned item has bundled media - navigate to property page
   if(match.params.contractId && nftInfo?.hasBundledProperty && nftInfo?.isOwned) {
     return <Redirect to={UrlJoin("/m", match.params.contractId, match.params.tokenId, "p", nftInfo.bundledPropertyId, new URLSearchParams(window.location.search).get("page") === "details" ? "details" : "")} />;

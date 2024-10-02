@@ -355,6 +355,7 @@ const MediaCardVertical = observer(({
   url,
   size,
   lazy=true,
+  authorized,
   onClick,
   className=""
 }) => {
@@ -400,6 +401,12 @@ const MediaCardVertical = observer(({
                 <div>{ mediaPropertyStore.rootStore.l10n.media_properties.media.upcoming}</div>
                 <div>{ scheduleInfo.displayStartDate } at { scheduleInfo.displayStartTime }</div>
               </div>
+        }
+        {
+          authorized ? null :
+            <div className={S("media-card__unauthorized-indicator")}>
+              View Purchase Options
+            </div>
         }
       </div>
       {
@@ -615,6 +622,7 @@ const MediaCard = observer(({
     disabled,
     lazy,
     buttonText,
+    authorized,
     aspectRatio: !aspectRatio || aspectRatio === "mixed" ? imageAspectRatio : aspectRatio,
     className: [
       disabled ?

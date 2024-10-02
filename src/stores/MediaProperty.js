@@ -319,15 +319,20 @@ class MediaPropertyStore {
       pageSlugOrId = mediaProperty.permissions.alternatePageId || pageSlugOrId;
     }
 
-    const pageId = mediaProperty.metadata.slug_map.pages[pageSlugOrId]?.page_id ||
+    let pageId = mediaProperty.metadata.slug_map.pages[pageSlugOrId]?.page_id ||
       mediaProperty.metadata.page_ids[pageSlugOrId] ||
       pageSlugOrId;
 
-    const page = mediaProperty.metadata.pages[pageId];
+    let page = mediaProperty.metadata.pages[pageId];
+
+    if(!page) {
+      this.Log(`Unable to find page ${pageSlugOrId} - Loading main instead`, true);
+      return this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId: "main"});
+    }
 
     let permissions = {
       authorized: true,
-      behavior: page.permissions?.behavior,
+      behavior: page?.permissions?.behavior,
       alternatePageId: (
         page.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
         page.permissions?.alternate_page_id
