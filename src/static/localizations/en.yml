@@ -680,7 +680,7 @@ media_properties:
     title: "Search results for \"{query}\""
   purchase:
     claim: Claim Now
-    select: Buy now for {price}
+    select: Buy Now for {price}
     secondary: View Listings
     purchase_now: Purchase Now
     purchase_now_listing: Purchase From An Owner

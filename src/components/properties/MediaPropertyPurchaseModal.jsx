@@ -401,7 +401,6 @@ const Payment = observer(({item, Back}) => {
     <Item item={item}>
       <div key={`actions-${page}`} className={S("payment")}>
         { options }
-        <br />
         {
           !errorMessage ? null :
             <div className={S("payment__message", "payment__error")}>
@@ -409,47 +408,43 @@ const Payment = observer(({item, Back}) => {
             </div>
         }
         <div className={S("actions")}>
-          {
-            !canPurchase ? null :
-              <Button
-                loading={submitting}
-                disabled={!canPurchase}
-                onClick={async () => {
-                  setErrorMessage(undefined);
-                  setSubmitting(true);
 
-                  try {
-                    await Purchase({
-                      item,
-                      paymentMethod,
-                      history
-                    });
-                  } catch(error) {
-                    rootStore.Log(error, true);
-                    setErrorMessage(error?.uiMessage || rootStore.l10n.purchase.errors.failed);
-                  } finally {
-                    setSubmitting(false);
-                  }
-                }}
-                className={S("button")}
-              >
-                <ScaledText maxPx={18} minPx={10}>
-                  {
-                    LocalizeString(
-                      rootStore.l10n.media_properties.purchase.select,
-                      {price: FormatPriceString(item.price + (page === "balance" ? fee : 0), {stringOnly: true})},
-                      {stringOnly: true}
-                    )
-                  }
-                </ScaledText>
-              </Button>
-          }
+          <Button
+            loading={submitting}
+            disabled={!canPurchase}
+            onClick={async () => {
+              setErrorMessage(undefined);
+              setSubmitting(true);
+
+              try {
+                await Purchase({
+                  item,
+                  paymentMethod,
+                  history
+                });
+              } catch(error) {
+                rootStore.Log(error, true);
+                setErrorMessage(error?.uiMessage || rootStore.l10n.purchase.errors.failed);
+              } finally {
+                setSubmitting(false);
+              }
+            }}
+            className={S("button")}
+          >
+            {
+              LocalizeString(
+                rootStore.l10n.media_properties.purchase.select,
+                {price: FormatPriceString(item.price + (page === "balance" ? fee : 0), {stringOnly: true})},
+                {stringOnly: true}
+              )
+            }
+          </Button>
           <Button
             variant="outline"
             defaultStyles
             onClick={() =>
               page ?
-                setPaymentMethod({...paymentMethod, type: undefined, provider: undefined}) :
+                setPaymentMethod({...paymentMethod, type: ebanxEnabled ? undefined : "card", provider: undefined}) :
                 Back()
             }
             className={S("button")}
