@@ -56,7 +56,7 @@ const PropertyWrapper = observer(({children}) => {
     };
   }, [mediaProperty]);
 
-  if(!rootStore.loaded  || rootStore.authenticating || !itemLoaded) {
+  if(!rootStore.loaded  || !itemLoaded) {
     return <PageLoader />;
   }
 
