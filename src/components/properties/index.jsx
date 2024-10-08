@@ -85,9 +85,13 @@ const PropertyWrapper = observer(({children}) => {
             metaTags: property.metadata?.meta_tags
           });
 
+          const provider = rootStore.AuthInfo()?.provider || "external";
+          const propertyProvider = property?.metadata?.login?.settings?.provider || "auth0";
           if(
             rootStore.loggedIn &&
-            (property?.metadata?.login?.settings?.provider || "auth0") !== rootStore.AuthInfo()?.provider
+            provider !== propertyProvider &&
+            // Only allow metamask for auth0
+            !(provider === "external" && propertyProvider === "auth0")
           ) {
             rootStore.Log("Signing out due to mismatched login provider with property");
             await rootStore.SignOut({reload: false});

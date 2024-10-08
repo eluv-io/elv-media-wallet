@@ -512,10 +512,35 @@ class RootStore {
       }
 
       try {
-        const auth = searchParams.get("auth");
+        // Auth parameter containing wallet app formatted tokens
+        const authInfo = searchParams.get("auth");
 
-        if(auth) {
-          this.SetAuthInfo(JSON.parse(Utils.FromB64(auth)));
+        if(authInfo) {
+          this.SetAuthInfo(JSON.parse(Utils.FromB58ToStr(authInfo)));
+          this.ClearLoginParams();
+        }
+      } catch(error) {
+        this.Log("Failed to load auth from parameter", true);
+        this.Log(error, true);
+      }
+
+      if(!this.inFlow) {
+        if(this.AuthInfo()) {
+          this.Log("Authenticating from saved session");
+          yield this.Authenticate(this.AuthInfo());
+        } else if(this.auth0) {
+          // Attempt to re-auth with auth0. If 'code' is present in URL params, we are returning from Auth0 callback, let the login component handle it
+          yield this.AuthenticateAuth0({});
+        }
+      }
+
+      try {
+        // Auth parameter containing raw info
+        const authInfo = searchParams.get("authorization");
+
+        if(authInfo) {
+          yield this.SetAuthInfoFromAuthorizationParam(JSON.parse(Utils.FromB58ToStr(authInfo)));
+          this.ClearLoginParams();
         }
       } catch(error) {
         this.Log("Failed to load auth from parameter", true);
@@ -616,7 +641,9 @@ class RootStore {
         "marketplace",
         "mid",
         "data",
-        "state"
+        "state",
+        "auth",
+        "authorization"
       ];
 
       const url = new URL(window.location.href);
@@ -2462,12 +2489,14 @@ class RootStore {
       if(tokenInfo) {
         let { clientAuthToken, clientSigningToken, provider, expiresAt } = JSON.parse(Utils.FromB64(tokenInfo));
 
+        const { address } = JSON.parse(Utils.FromB58(clientAuthToken));
+
         // Expire tokens early so they don't stop working while in use
         if(expiresAt - Date.now() < expirationBuffer) {
           this.ClearAuthInfo();
           this.Log("Authorization expired", "warn");
         } else {
-          return { clientAuthToken, clientSigningToken, provider, expiresAt };
+          return { clientAuthToken, clientSigningToken, provider, expiresAt, address };
         }
       }
     } catch(error) {
@@ -2483,14 +2512,81 @@ class RootStore {
     this.authInfo = undefined;
   }
 
+  SetAuthInfoFromAuthorizationParam = flow(function * ({
+    clusterToken,
+    fabricToken,
+    tenantId,
+    address,
+    email,
+    expiresAt,
+    walletType="Custodial",
+    walletName="Eluvio",
+    signerURIs,
+    provider
+  }) {
+    if(Utils.EqualAddress(address, this.AuthInfo()?.address)) {
+      this.Log("Ignoring auth info from authorization param - Already logged in with this param");
+      return;
+    }
+
+    if(!signerURIs && provider === "ory") {
+      signerURIs = this.network === "demo" ?
+        ["https://wlt.dv3.svc.eluv.io"] :
+        ["https://wlt.stg.svc.eluv.io"];
+    }
+
+    // If we have the cluster token, create a fresh fabric token
+    if(clusterToken) {
+      this.client.SetRemoteSigner({authToken: clusterToken, signerURIs});
+
+      fabricToken = yield this.client.CreateFabricToken({
+        duration: 24 * 60 * 60 * 1000,
+        context: email ? {usr: {email}} : {}
+      });
+    }
+
+    const clientAuthToken = this.walletClient.SetAuthorization({
+      clusterToken,
+      fabricToken,
+      tenantId,
+      address,
+      email,
+      expiresAt,
+      signerURIs,
+      walletType,
+      walletName,
+      register: false
+    });
+
+    const clientSigningToken = this.walletClient.SetAuthorization({
+      clusterToken,
+      fabricToken,
+      tenantId,
+      address,
+      email,
+      expiresAt,
+      signerURIs,
+      walletType,
+      walletName,
+      register: false
+    });
+
+    this.SetAuthInfo({
+      clientAuthToken,
+      clientSigningToken,
+      provider
+    });
+  });
+
   SetAuthInfo({clientAuthToken, clientSigningToken, provider="external", save=true}) {
-    const { expiresAt } = JSON.parse(Utils.FromB58(clientAuthToken));
+    const { address, expiresAt } = JSON.parse(Utils.FromB58(clientAuthToken));
 
     const authInfo = {
       clientSigningToken,
       clientAuthToken,
       provider,
-      expiresAt
+      expiresAt,
+      address
     };
 
     if(save) {

@@ -1078,9 +1078,13 @@ class MediaPropertyStore {
           produceLinkUrls: true
         });
 
+        const provider = this.rootStore.AuthInfo()?.provider || "external";
+        const propertyProvider = metadata?.login?.settings?.provider || "auth0";
         if(
           this.rootStore.loggedIn &&
-          (metadata?.login?.settings?.provider || "auth0") !== this.rootStore.AuthInfo()?.provider
+          provider !== propertyProvider &&
+          // Only allow metamask for auth0
+          !(provider === "external" && propertyProvider === "auth0")
         ) {
           this.rootStore.Log("Signing out due to mismatched login provider with property");
           await this.rootStore.SignOut({reload: false});
