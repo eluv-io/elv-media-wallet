@@ -2535,9 +2535,31 @@ class RootStore {
         ["https://wlt.stg.svc.eluv.io"];
     }
 
+    switch(provider) {
+      case "auth0":
+      case "ory":
+        walletType = "Custodial";
+        walletName = "Eluvio";
+        break;
+      case "metamask":
+        walletType = "External";
+        walletName = "Metamask";
+        break;
+
+      default:
+        this.Log(`Error setting auth from parameter: Invalid provider '${provider}'`);
+    }
+
     // If we have the cluster token, create a fresh fabric token
     if(clusterToken) {
-      this.client.SetRemoteSigner({authToken: clusterToken, signerURIs});
+      yield this.client.SetRemoteSigner({authToken: clusterToken, signerURIs});
+
+      try {
+        expiresAt = JSON.parse(this.client.utils.FromB64(clusterToken)).exp || expiresAt;
+      } catch(error) {
+        this.Log("Failed to parse cluster token from authorization parameter:", true);
+        this.Log(error);
+      }
 
       fabricToken = yield this.client.CreateFabricToken({
         duration: 24 * 60 * 60 * 1000,

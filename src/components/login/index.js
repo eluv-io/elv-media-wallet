@@ -661,8 +661,10 @@ const LoginComponent = observer(({customizationOptions, userData, setUserData, C
         await rootStore.walletClient.SetCodeAuth({
           code: params.loginCode,
           address: rootStore.walletClient.UserAddress(),
+          email: rootStore.walletClient.UserInfo()?.email,
           type: rootStore.AuthInfo()?.provider,
           authToken: rootStore.walletClient.AuthToken(),
+          clusterToken: rootStore.walletClient.__authorization?.clusterToken,
           expiresAt: rootStore.AuthInfo().expiresAt
         });
 
