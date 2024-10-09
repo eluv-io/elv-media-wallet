@@ -421,7 +421,7 @@ const SectionContentGrid = observer(({section, sectionContent, navContext}) => {
   );
 });
 
-export const SectionResultsGroup = observer(({groupBy, label, results, navContext}) => {
+export const SectionResultsGroup = observer(({groupBy, label, results, isSectionContent=false, navContext}) => {
   if(label && groupBy === "__date") {
     const date = new Date(label);
     const userTimezoneOffset = date.getTimezoneOffset() * 60000;
@@ -479,7 +479,12 @@ export const SectionResultsGroup = observer(({groupBy, label, results, navContex
           </h2>
       }
       <MediaGrid
-        content={results.map(result => result.mediaItem || result)}
+        isSectionContent={isSectionContent}
+        content={
+          isSectionContent ?
+            results :
+            results.map(result => result.mediaItem || result)
+        }
         aspectRatio={aspectRatio === "Mixed" ? undefined : aspectRatio}
         navContext={navContext}
       />
@@ -761,6 +766,7 @@ const MediaPropertySectionPage = observer(() => {
           groups.map(attribute =>
             <SectionResultsGroup
               key={`results-${attribute}`}
+              isSectionContent
               groupBy={groupBy}
               label={Object.keys(groupedSectionContent).length > 1 ? attribute : ""}
               results={groupedSectionContent[attribute]}
@@ -771,6 +777,7 @@ const MediaPropertySectionPage = observer(() => {
         {
           !groupedSectionContent.__other ? null :
             <SectionResultsGroup
+              isSectionContent
               label={Object.keys(groupedSectionContent || {}).length > 1 ? "Other" : ""}
               results={groupedSectionContent.__other}
               navContext="s"
