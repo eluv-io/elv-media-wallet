@@ -606,7 +606,15 @@ export const MediaPropertySection = observer(({sectionId, mediaListId, isMediaPa
     >
       {
         !section.display.logo ? null :
-          <div className={S("section__logo-container", section.display.logo_text ? "section__logo-container--with-text" : "")}>
+          <div
+            className={
+              S(
+                "section__logo-container",
+                section.display.logo_text ? "section__logo-container--with-text" : "",
+                section.display.display_format === "grid" ? `section__logo-container--${section.logo_alignment || "top"}` : ""
+              )
+            }
+          >
             <img src={section.display.logo.url} alt="Icon" className={S("section__logo")} />
             {
               !section.display.logo_text ? null :

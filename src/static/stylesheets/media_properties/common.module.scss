@@ -467,7 +467,7 @@
 
 .page-header {
   height: max-content;
-  margin-top: 60px;
+  margin-top: 40px;
   position: relative;
   width: 100%;
 
@@ -545,6 +545,14 @@
     max-width: 100%;
     object-fit: contain;
     width: auto;
+
+    &:last-child {
+      margin-bottom: 20px;
+    }
+
+    &:first-child {
+      margin-top: 10px;
+    }
   }
 
   &__title-container,
