@@ -96,8 +96,11 @@
   }
 
   &__logo {
-    max-height: 200px;
-    max-width: 300px;
+    height: auto;
+    max-height: 300px;
+    max-width: 200px;
+    object-fit: contain;
+    width: 200px;
   }
 
   &__title-container {
@@ -258,9 +261,8 @@
     }
 
     &__title-container {
-      align-items: flex-start;
-      flex-direction: column;
-      gap: 0;
+      flex-wrap: wrap;
+      gap: 20px;
       max-width: 85vw;
     }
 
