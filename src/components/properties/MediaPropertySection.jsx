@@ -180,7 +180,10 @@ export const MediaPropertyHeroSection = observer(({section}) => {
   }, [contentRefs]);
 
   return (
-    <div style={!section.allow_overlap || minHeight === undefined || !Number.isFinite(minHeight) ? {} : {minHeight}} className={S("hero-section")}>
+    <div
+      style={!section.allow_overlap || minHeight === undefined || !Number.isFinite(minHeight) ? {} : {minHeight}}
+      className={S("hero-section")}
+    >
       <PageBackground
         key={`background-${activeIndex}`}
         display={activeItem?.display}
