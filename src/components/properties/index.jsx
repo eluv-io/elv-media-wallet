@@ -121,6 +121,7 @@ const PropertyWrapper = observer(({children}) => {
                   <div className={PropertyStyles["property"]}>
                     { children }
                   </div>
+                  <MediaPropertyFooter />
                 </PurchaseGate>
               </PurchaseGate>
             </LoginGate>
@@ -144,7 +145,6 @@ export const PropertyRoutes = observer(({basePath}) => {
           Wrapper={PropertyWrapper}
         />
       </Switch>
-      <MediaPropertyFooter />
     </div>
   );
 });
@@ -161,7 +161,6 @@ export const BundledPropertyRoutes = observer(() => {
             Wrapper={PropertyWrapper}
           />
         </Switch>
-        <MediaPropertyFooter />
       </div>
     </LoginGate>
   );
